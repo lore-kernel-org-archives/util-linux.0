@@ -1,48 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:37386 "EHLO
-	mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161731AbcBSVvG (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 19 Feb 2016 16:51:06 -0500
-Received: by mail-wm0-f54.google.com with SMTP id g62so89159854wme.0
-        for <util-linux@vger.kernel.org>; Fri, 19 Feb 2016 13:50:55 -0800 (PST)
-From: Romain Naour <romain.naour@gmail.com>
+Received: from mout.gmx.net ([212.227.17.22]:58313 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1946087AbcBRNXD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 18 Feb 2016 08:23:03 -0500
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx101)
+ with ESMTPSA (Nemesis) id 0MbsV8-1aEAwF0MSc-00JKTy for
+ <util-linux@vger.kernel.org>; Thu, 18 Feb 2016 14:23:01 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Cc: Romain Naour <romain.naour@gmail.com>
-Subject: [PATCH 2/2] vipw: Remove pre-ANSI compiler support
-Date: Fri, 19 Feb 2016 22:50:48 +0100
-Message-Id: <1455918648-11430-2-git-send-email-romain.naour@gmail.com>
-In-Reply-To: <1455918648-11430-1-git-send-email-romain.naour@gmail.com>
-References: <1455918648-11430-1-git-send-email-romain.naour@gmail.com>
+Subject: [PATCH 12/15] lib: remove unused variable
+Date: Thu, 18 Feb 2016 14:22:59 +0100
+Message-Id: <1455801779-10822-1-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
+References: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-__P() is used for compatibility with old K&R C compilers. With
-ANSI C this macro has no effect.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-This fixes a compilation error with musl libc because of undeclared
-__P.
-
-Ref:
-https://lists.samba.org/archive/samba-technical/2015-June/108042.html
-
-Signed-off-by: Romain Naour <romain.naour@gmail.com>
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- login-utils/vipw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/blkdev.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/login-utils/vipw.c b/login-utils/vipw.c
-index a3c932f..bb4a8ba 100644
---- a/login-utils/vipw.c
-+++ b/login-utils/vipw.c
-@@ -85,7 +85,7 @@ int program;
- char orig_file[FILENAMELEN];	/* original file /etc/passwd or /etc/group */
- char *tmp_file;			/* tmp file */
+diff --git a/lib/blkdev.c b/lib/blkdev.c
+index f6df92d..403e9e4 100644
+--- a/lib/blkdev.c
++++ b/lib/blkdev.c
+@@ -150,7 +150,6 @@ blkdev_get_size(int fd, unsigned long long *bytes)
+ 		int part = -1;
+ 		struct disklabel lab;
+ 		struct partition *pp;
+-		char ch;
+ 		struct stat st;
  
--void pw_error __P((char *, int, int));
-+void pw_error (char *, int, int);
- 
- static void copyfile(int from, int to)
- {
+ 		if ((fstat(fd, &st) >= 0) &&
 -- 
-2.5.0
+1.8.4.5
 
