@@ -1,87 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:33541 "EHLO
-	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932840AbcBBRto (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 2 Feb 2016 12:49:44 -0500
-Received: by mail-wm0-f67.google.com with SMTP id r129so3500805wmr.0
-        for <util-linux@vger.kernel.org>; Tue, 02 Feb 2016 09:49:44 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mout.gmx.net ([212.227.17.21]:55213 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1426663AbcBRPvu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 18 Feb 2016 10:51:50 -0500
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx103)
+ with ESMTPSA (Nemesis) id 0MfEsY-1aLvQc3PCc-00OpCh for
+ <util-linux@vger.kernel.org>; Thu, 18 Feb 2016 16:51:48 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 0/3] pull: colcrt test and regression
-Date: Tue,  2 Feb 2016 17:49:37 +0000
-Message-Id: <1454435380-1354-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH v2 07/15] include: provide MAP_ANONYMOUS on OSX
+Date: Thu, 18 Feb 2016 16:51:48 +0100
+Message-Id: <1455810708-28022-1-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1455801169-10470-8-git-send-email-sweet_f_a@gmx.de>
+References: <1455801169-10470-8-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-These changes has been in my outgoing submission list for quite a while
-because I'm not 100% happy with the result.  The trouble is that earlier
-changes, ee24ab6f1..70e3fcf29, fix crashing issue but broke output format
-and now when I made the colcrt(1) robust with how it deals inputs & legit
-outputs the changes broke binary inputs.  Then again the colcrt is not
-supposed to be used for non-printable inputs so perhaps this regression is
-better than breaking the ascii output.  Let me demonstrate.
+Hope there are no side effect when defining _DARWIN_C_SOURCE
+globally.
 
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ configure.ac | 6 ++++++
+ include/c.h  | 8 ++++++++
+ 2 files changed, 14 insertions(+)
 
-~ cat dog 
-Diogenes_the_dog
-~ colcrt < dog 
-Diogenes the dog
-       -   -
-
-Let's try with patched version.
-
-~ colcrt < dog
-Diogenes the dog
-        -   -
-
-So as you can see, assuming fixed width font with email client, the updated
-version realigns former underscores to be hyphens at spaces of words.  In my
-understanding that is primary functionality of the colcrt(1), and hence it
-should work.  But as you can clearly see the patch 0003 breaks binary
-imputs.  I'm tempted to say such is life.
-
-
----------------------------------------------------------------
-The following changes since commit c809b20aa404a79b1482f0fc850c2a61d09253f5:
-  sfdisk: make --quiet really quiet (2016-02-01 14:30:31 +0100)
-are available in the git repository at:
-  git://github.com/kerolasa/lelux-utiliteetit.git colcrt
-for you to fetch changes up to c1ca4fc10867e792fd431d06ccbd282b7353992e:
-  tests: update colcrt test expectations (2016-02-02 17:27:28 +0000)
----------------------------------------------------------------
-
-
-Sami Kerola (3):
-  tests: add colcrt functional tests
-  colcrt: reimplementation
-  tests: update colcrt test expectations
-
- tests/expected/colcrt/functional                |   0
- tests/expected/colcrt/functional-half-lines     |  89 +++++
- tests/expected/colcrt/functional-no-options     |  74 +++++
- tests/expected/colcrt/functional-no-underlining |  44 +++
- tests/expected/colcrt/functional-short-options  |  89 +++++
- tests/expected/colcrt/regressions               |   0
- tests/expected/colcrt/regressions-crash1        |   1 +
- tests/expected/colcrt/regressions-crash2        | 392 +---------------------
- tests/ts/colcrt/functional                      |  50 +++
- tests/ts/colcrt/nasty-input                     | Bin 0 -> 545 bytes
- tests/ts/colcrt/underlines                      |  23 ++
- text-utils/colcrt.c                             | 419 ++++++++++--------------
- 12 files changed, 554 insertions(+), 627 deletions(-)
- create mode 100644 tests/expected/colcrt/functional
- create mode 100644 tests/expected/colcrt/functional-half-lines
- create mode 100644 tests/expected/colcrt/functional-no-options
- create mode 100644 tests/expected/colcrt/functional-no-underlining
- create mode 100644 tests/expected/colcrt/functional-short-options
- create mode 100644 tests/expected/colcrt/regressions
- create mode 100755 tests/ts/colcrt/functional
- create mode 100644 tests/ts/colcrt/nasty-input
- create mode 100644 tests/ts/colcrt/underlines
-
+diff --git a/configure.ac b/configure.ac
+index e9c8ef5..dbdcea4 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -158,11 +158,17 @@ bsd_os=no
+ AS_CASE([${host_os}],
+   [*linux*],
+      [linux_os=yes],
++  [*darwin*],
++     [darwin_os=yes],
+   [*bsd*],
+      [bsd_os=yes])
+ AM_CONDITIONAL([LINUX], [test "x$linux_os" = xyes])
++AM_CONDITIONAL([DARWIN], [test "x$darwin_os" = xyes])
+ AM_CONDITIONAL([BSD], [test "x$bsd_os" = xyes])
+ 
++AS_IF([test  "x$darwin_os" = xyes], [
++  AC_DEFINE([_DARWIN_C_SOURCE], [1], [Enable MAP_ANON in sys/mman.h on Mac OS X])
++])
+ 
+ dnl define ARCH_<NAME> conditionals
+ UL_SET_ARCH([I86], [i?86-*])
+diff --git a/include/c.h b/include/c.h
+index ca028ba..aec3439 100644
+--- a/include/c.h
++++ b/include/c.h
+@@ -355,4 +355,12 @@ static inline int xusleep(useconds_t usec)
+  */
+ #define UL_GETPW_BUFSIZ	(16 * 1024)
+ 
++/*
++ * Darwin or other BSDs may only have MAP_ANON. To get it on Darwin we must
++ * define _DARWIN_C_SOURCE before including sys/mman.h. We do this in config.h.
++ */
++#if !defined MAP_ANONYMOUS && defined MAP_ANON
++# define MAP_ANONYMOUS  (MAP_ANON)
++#endif
++
+ #endif /* UTIL_LINUX_C_H */
 -- 
-2.7.0
+1.8.4.5
 
