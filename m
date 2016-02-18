@@ -1,55 +1,110 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from static-50-37-226-42.drr01.cral.id.frontiernet.net ([50.37.226.42]:45995
-	"EHLO mail.z2zcorp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932679AbcAaEZC (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 30 Jan 2016 23:25:02 -0500
-Received: from [192.168.1.4] (hades.aexorsyst.com [192.168.1.4])
-	by mail.z2zcorp.com (8.14.4/8.14.4) with ESMTP id u0V3UDLZ024129
-	for <util-linux@vger.kernel.org>; Sat, 30 Jan 2016 19:30:14 -0800
-Message-ID: <56AD7FC5.3080902@z2zcorp.com>
-Date: Sat, 30 Jan 2016 19:30:13 -0800
-From: Zoltan <zoltan@z2zcorp.com>
-MIME-Version: 1.0
+Received: from mout.gmx.net ([212.227.15.15]:56505 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1426383AbcBRNMw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 18 Feb 2016 08:12:52 -0500
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
+ with ESMTPSA (Nemesis) id 0MH07e-1akBto49bu-00Dmm9 for
+ <util-linux@vger.kernel.org>; Thu, 18 Feb 2016 14:12:51 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: util-linux-2.27.1 - umount -a -O _netdev problem, _netdev ignored
-Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH 02/15] build-sys: portable usage of find command
+Date: Thu, 18 Feb 2016 14:12:42 +0100
+Message-Id: <1455801169-10470-3-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
+References: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-There is a problem in the code of util-linux-2.27.1, in the umount binary.
+ - use dot instead of skipping search-path
+ - avoid -perm /a+x
+ - avoid -path
 
-The command
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ tests/run.sh              | 11 +++++++++--
+ tests/ts/build-sys/config |  2 +-
+ tests/ts/cramfs/mkfs      |  2 +-
+ tools/checkmans.sh        |  2 +-
+ 4 files changed, 12 insertions(+), 5 deletions(-)
 
-umount -a -O _netdev
-
-does _not_ umount anything, despite an /etc/fstab with the likes of
-
-...
-alpha:/var/mail       /var/mail      nfs _netdev,soft,tcp
-...
-
-The "mount -a -O _netdev" command works as expected.  However, the
-/run/mount/utab files is empty, and I was unable to get the "umount -a -O
-_netdev" to work as advertised.  Running it with "--verbose" flag merely
-confirmed that everything was being ": ignored".
-
-I have a physical /etc/mtab (not symlink), and the "_netdev" option is missing
-from /etc/mtab file, but that's probably expected???
-
-If I manually add it (_netdev) to /etc/mtab, then the umount -a -O _netdev
-does work.  But /run/mount/utab is empty.  Trying to step through the code
-gets pretty brutal, and the *fs population is still hidden inside some
-macro...and I can never find where the /run/mount/utab is even being parsed in
-the umount code-path.
-
-This is with a root-over-NFS setup, in case that matters.  Probably shouldn't.
- Kernel is 4.3.0.
-
-Is this  a regression?  Seems there were issues before...wondering if it
-re-surfaced.
-
+diff --git a/tests/run.sh b/tests/run.sh
+index dca9c6c..03cd9f5 100755
+--- a/tests/run.sh
++++ b/tests/run.sh
+@@ -34,6 +34,13 @@ function num_cpus()
+ 	fi
+ }
+ 
++function find_test_scripts()
++{
++	local searchdir="$1"
++	find "$searchdir" -type f -regex ".*/[^\.~]*" \
++		\( -perm -u=x -o -perm -g=x -o -perm -o=x \)
++}
++
+ while [ -n "$1" ]; do
+ 	case "$1" in
+ 	--force)
+@@ -117,7 +124,7 @@ if [ -n "$SUBTESTS" ]; then
+ 	# selected tests only
+ 	for s in $SUBTESTS; do
+ 		if [ -d "$top_srcdir/tests/ts/$s" ]; then
+-			comps+=( $(find $top_srcdir/tests/ts/$s -type f -perm /a+x -regex ".*/[^\.~]*") )
++			comps+=( $(find_test_scripts "$top_srcdir/tests/ts/$s") ) || exit 1
+ 		else
+ 			echo "Unknown test component '$s'"
+ 			exit 1
+@@ -129,7 +136,7 @@ else
+ 		exit 1
+ 	fi
+ 
+-	comps=( $(find $top_srcdir/tests/ts/ -type f -perm /a+x -regex ".*/[^\.~]*") )
++	comps=( $(find_test_scripts "$top_srcdir/tests/ts") ) || exit 1
+ fi
+ 
+ if [ -n "$EXCLUDETESTS" ]; then
+diff --git a/tests/ts/build-sys/config b/tests/ts/build-sys/config
+index 15b3551..bc48c50 100755
+--- a/tests/ts/build-sys/config
++++ b/tests/ts/build-sys/config
+@@ -32,7 +32,7 @@ for conf in $config_gen_dir/config-gen.d/*.conf; do
+ 	./configure $opts &> /dev/null
+ 	make -j &> /dev/null
+ 
+-	bins=$(find . -type f -perm /a+x | sort)
++	bins=$(find . -type f \( -perm -u=x -o -perm -g=x -o -perm -o=x \) | sort)
+ 	for b in $bins; do
+ 		libs=$(readelf --dynamic $b 2> /dev/null   | \
+ 			awk '/NEEDED/ { print $5 }' | \
+diff --git a/tests/ts/cramfs/mkfs b/tests/ts/cramfs/mkfs
+index 78e5c17..07f703f 100755
+--- a/tests/ts/cramfs/mkfs
++++ b/tests/ts/cramfs/mkfs
+@@ -66,7 +66,7 @@ fi
+ ts_cd "$IMAGE_SRC"
+ 
+ ts_log "list checksums from original data"
+-find -type f -exec md5sum {} \; | sort >> $TS_OUTPUT
++find . -type f -exec md5sum {} \; | sort >> $TS_OUTPUT
+ echo >> $TS_OUTPUT
+ 
+ ts_log "create cramfs image"
+diff --git a/tools/checkmans.sh b/tools/checkmans.sh
+index 9a13778..63da3d7 100755
+--- a/tools/checkmans.sh
++++ b/tools/checkmans.sh
+@@ -70,7 +70,7 @@ remove_repeats()
+ cd $(git rev-parse --show-toplevel)
+ 
+ for I in $(
+-	find -path './autom4te.cache' -prune -o -path './.libs' -prune -o -name '*[[:alpha:]].[1-8]' -print
++	find . -type f -name '*[[:alpha:]].[1-8]' |grep -v "autom4te.cache\|\.libs/"
+ ); do
+ 	MAN_FILE=${I##*/}
+ 	MAN_LIST[${MAN_FILE%%.[0-9]}]=1
 -- 
-     ###  Any similarity between my views and the truth is completely ###
-     ###     coincidental, except that they are endorsed by NO ONE    ###
+1.8.4.5
+
