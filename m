@@ -1,65 +1,85 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:59143 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.15.18]:63482 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751866AbcBXOu2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 24 Feb 2016 09:50:28 -0500
+	id S1426397AbcBRNMx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 18 Feb 2016 08:12:53 -0500
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
+ with ESMTPSA (Nemesis) id 0MPDaC-1aaoEO2944-004OrD for
+ <util-linux@vger.kernel.org>; Thu, 18 Feb 2016 14:12:52 +0100
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: rc1 planning
-Date: Wed, 24 Feb 2016 15:50:21 +0100
-Cc: util-linux@vger.kernel.org
-References: <20160224125641.kw2t37ofjhmealej@ws.net.home>
-In-Reply-To: <20160224125641.kw2t37ofjhmealej@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201602241550.21863.sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 09/15] include: check for sys/sysmacros.h
+Date: Thu, 18 Feb 2016 14:12:49 +0100
+Message-Id: <1455801169-10470-10-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
+References: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 24 February 2016, Karel Zak wrote:
->  Hi,
->
->  I'd like to release v2.28-rc1 ASAP, but the rest of this week and
-> all next week I have vacation (and all next week I'm going to be
-> off-line somewhere in Atlantic). So, my plan is 7th or 8th March.
->
->  remaining issues:
->
->   * btrfs loop devs in libmount
->
->   * libblkid vs. CDROMs (check if last two 2K sectors are readable,
-> if not reduce probing area)    [me]
->
->   * add time formatting functions for ISO and ctime [not urgent]
->
->   * cleanup openat() related function [not urgent, Rudi?]
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-I've changed my mind a bit about lib/at.c removal because it's used by 
-sysfs.c and we would lose libblkid and fdisk on non-linux systems. I 
-will review first whether we could build libblkid without sysfs for 
-non-Linux.
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ configure.ac             | 1 +
+ disk-utils/fsck.cramfs.c | 2 ++
+ disk-utils/raw.c         | 2 ++
+ login-utils/login.c      | 2 ++
+ 4 files changed, 7 insertions(+)
 
-Regarding my stupid commit ...
-  8b9cf26a "lib: fix unused parameters and variables"
-... next time I would try to add our new "NO_UNUSED_WARN_CFLAGS" just 
-for single source files. Not using __unused macros would keep our 
-heavily ifdef'ed sources more readable.
+diff --git a/configure.ac b/configure.ac
+index 17917af..969c2cc 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -238,6 +238,7 @@ AC_CHECK_HEADERS([ \
+ 	sys/socket.h \
+ 	sys/sockio.h \
+ 	sys/stat.h \
++	sys/sysmacros.h \
+ 	sys/swap.h \
+ 	sys/syscall.h \
+ 	sys/time.h \
+diff --git a/disk-utils/fsck.cramfs.c b/disk-utils/fsck.cramfs.c
+index 6ca6094..7df5390 100644
+--- a/disk-utils/fsck.cramfs.c
++++ b/disk-utils/fsck.cramfs.c
+@@ -53,7 +53,9 @@
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <sys/mman.h>
++#ifdef HAVE_SYS_SYSMACROS_H
+ #include <sys/sysmacros.h>	/* for major, minor */
++#endif
+ 
+ #include "cramfs.h"
+ #include "nls.h"
+diff --git a/disk-utils/raw.c b/disk-utils/raw.c
+index d29ff1b..6c4b6de 100644
+--- a/disk-utils/raw.c
++++ b/disk-utils/raw.c
+@@ -20,7 +20,9 @@
+ #include <string.h>
+ #include <sys/ioctl.h>
+ #include <sys/stat.h>
++#ifdef HAVE_SYS_SYSMACROS_H
+ #include <sys/sysmacros.h>
++#endif
+ #include <unistd.h>
+ 
+ #include "c.h"
+diff --git a/login-utils/login.c b/login-utils/login.c
+index 6f51039..e1f11eb 100644
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -48,7 +48,9 @@
+ #include <utmp.h>
+ #include <stdlib.h>
+ #include <sys/syslog.h>
++#ifdef HAVE_SYS_SYSMACROS_H
+ #include <sys/sysmacros.h>
++#endif
+ #ifdef HAVE_LINUX_MAJOR_H
+ # include <linux/major.h>
+ #endif
+-- 
+1.8.4.5
 
->   * add --zeroout to blkdiscard [me]
->
->   * fix look(1) [https://github.com/karelzak/util-linux/issues/284]
->
->   * cleanup docs, gtk-doc warnings, etc.
-
-My favorite warning one could fix is this one:
-
-Making all in libblkid/docs
-make[2]: Entering directory `/home/rudi/devel/util-linux/libblkid/docs'
-make[2]: Circular libblkid-sections.txt <- scan-build.stamp dependency 
-dropped.
-
->   * ???
->
->
->     Karel
