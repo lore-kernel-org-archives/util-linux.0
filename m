@@ -1,63 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33986 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.15]:50245 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161067AbcBQLFQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 17 Feb 2016 06:05:16 -0500
-Date: Wed, 17 Feb 2016 12:05:14 +0100
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: util-linux@vger.kernel.org, Ruediger Meier <ruediger.meier@ga-group.nl>,
-        Sami Kerola <kerolasa@iki.fi>
-Subject: Re: [PATCH 1/1] hwclock.c, hwclock.8.in: new --show format
-Message-ID: <20160217110514.5uwttfbxcl3x4zcc@ws.net.home>
-References: <56BD2A87.30009@gmx.com>
- <56BD2BE8.3030501@gmx.com>
- <20160216102941.r2ttlt6y2kv4pnem@ws.net.home>
- <56C3D4BF.5030608@gmx.com>
- <20160217105432.vo2r3eks3ho26v7m@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160217105432.vo2r3eks3ho26v7m@ws.net.home>
+	id S1946087AbcBRNXW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 18 Feb 2016 08:23:22 -0500
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
+ with ESMTPSA (Nemesis) id 0MCcOw-1afmUE18CY-009P25 for
+ <util-linux@vger.kernel.org>; Thu, 18 Feb 2016 14:23:20 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 15/15] include: fix sys/sysinfo.h
+Date: Thu, 18 Feb 2016 14:23:19 +0100
+Message-Id: <1455801799-10970-1-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
+References: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Feb 17, 2016 at 11:54:32AM +0100, Karel Zak wrote:
-> On Tue, Feb 16, 2016 at 09:02:39PM -0500, J William Piggott wrote:
-> > 
-> > On 02/16/2016 05:29 AM, Karel Zak wrote:
-> > > On Thu, Feb 11, 2016 at 07:48:40PM -0500, J William Piggott wrote:
-> > >> -		lt = localtime(&hwctime.tv_sec);
-> > >> -		strftime(ctime_now, sizeof(ctime_now), format, lt);
-> > >> -		printf(_("%s and %06d microseconds\n"), ctime_now, (int)hwctime.tv_usec);
-> > >> +		struct tm lt;
-> > >> +		int zhour, zmin;
-> > >> +
-> > >> +		lt = *localtime(&hwctime.tv_sec);
-> > >> +		zhour = - timezone / 60 / 60;
-> > >> +		zmin = abs(timezone / 60 % 60);
-> > >> +		printf(_("%4d-%.2d-%.2d %02d:%02d:%02d.%06d%+02d:%02d\n"),
-> > >> +		       lt.tm_year + 1900, lt.tm_mon + 1, lt.tm_mday, lt.tm_hour,
-> > >> +		       lt.tm_min, lt.tm_sec, (int)hwctime.tv_usec, zhour, zmin);
-> > > 
-> > > Some notes:
-> > > 
-> > > * what's wrong with strftime? 
-> > 
-> > Why use resources on strftime when 8601 prints directly?
-> > 
-> > While it can do other formatting, I see strftime's main purpose as
-> > converting tm numbers into strings like: January, Monday, etc.
-> 
->  It does more things for you, see lt.tm_year + 1900, lt.tm_mon + 1,
->  calculation of the time zone hours, timezone minutes...
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Ah, now I see that strftime is not able to produce timezone hh:mm.
-Well, compose the string without strftime seems better in this case.
-Sorry.
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ lib/monotonic.c | 2 ++
+ lib/timer.c     | 1 -
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-    Karel
-
-
+diff --git a/lib/monotonic.c b/lib/monotonic.c
+index 372cc9c..bb58e15 100644
+--- a/lib/monotonic.c
++++ b/lib/monotonic.c
+@@ -4,7 +4,9 @@
+  */
+ #include <time.h>
+ #include <signal.h>
++#ifdef HAVE_SYSINFO
+ #include <sys/sysinfo.h>
++#endif
+ #include <sys/time.h>
+ 
+ #include "c.h"
+diff --git a/lib/timer.c b/lib/timer.c
+index 0ad0cad..6265693 100644
+--- a/lib/timer.c
++++ b/lib/timer.c
+@@ -5,7 +5,6 @@
+  */
+ #include <time.h>
+ #include <signal.h>
+-#include <sys/sysinfo.h>
+ #include <sys/time.h>
+ 
+ #include "c.h"
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4.5
+
