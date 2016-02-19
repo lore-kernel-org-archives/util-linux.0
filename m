@@ -1,88 +1,74 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37387 "EHLO mx1.redhat.com"
+Received: from mx2.suse.de ([195.135.220.15]:46262 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933925AbcBQKye (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 17 Feb 2016 05:54:34 -0500
-Date: Wed, 17 Feb 2016 11:54:32 +0100
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: util-linux@vger.kernel.org, Ruediger Meier <ruediger.meier@ga-group.nl>,
-        Sami Kerola <kerolasa@iki.fi>
-Subject: Re: [PATCH 1/1] hwclock.c, hwclock.8.in: new --show format
-Message-ID: <20160217105432.vo2r3eks3ho26v7m@ws.net.home>
-References: <56BD2A87.30009@gmx.com>
- <56BD2BE8.3030501@gmx.com>
- <20160216102941.r2ttlt6y2kv4pnem@ws.net.home>
- <56C3D4BF.5030608@gmx.com>
+	id S1424800AbcBSPCx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 19 Feb 2016 10:02:53 -0500
+Subject: Re: [PATCH] tests: add btrfs mount tests (fails!)
+To: Karel Zak <kzak@redhat.com>
+References: <56B0EEB2.1060707@suse.cz> <56B10E38.7040407@suse.cz>
+ <20160211094352.6ncnnirhyd4jjd34@ws.net.home> <56BC9101.60908@suse.cz>
+Cc: util-linux@vger.kernel.org, David Sterba <dsterba@suse.cz>
+From: Stanislav Brabec <sbrabec@suse.cz>
+Message-ID: <56C72E9B.3050402@suse.cz>
+Date: Fri, 19 Feb 2016 16:02:51 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <56C3D4BF.5030608@gmx.com>
+In-Reply-To: <56BC9101.60908@suse.cz>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Feb 16, 2016 at 09:02:39PM -0500, J William Piggott wrote:
-> 
-> On 02/16/2016 05:29 AM, Karel Zak wrote:
-> > On Thu, Feb 11, 2016 at 07:48:40PM -0500, J William Piggott wrote:
-> >> -		lt = localtime(&hwctime.tv_sec);
-> >> -		strftime(ctime_now, sizeof(ctime_now), format, lt);
-> >> -		printf(_("%s and %06d microseconds\n"), ctime_now, (int)hwctime.tv_usec);
-> >> +		struct tm lt;
-> >> +		int zhour, zmin;
-> >> +
-> >> +		lt = *localtime(&hwctime.tv_sec);
-> >> +		zhour = - timezone / 60 / 60;
-> >> +		zmin = abs(timezone / 60 % 60);
-> >> +		printf(_("%4d-%.2d-%.2d %02d:%02d:%02d.%06d%+02d:%02d\n"),
-> >> +		       lt.tm_year + 1900, lt.tm_mon + 1, lt.tm_mday, lt.tm_hour,
-> >> +		       lt.tm_min, lt.tm_sec, (int)hwctime.tv_usec, zhour, zmin);
-> > 
-> > Some notes:
-> > 
-> > * what's wrong with strftime? 
-> 
-> Why use resources on strftime when 8601 prints directly?
-> 
-> While it can do other formatting, I see strftime's main purpose as
-> converting tm numbers into strings like: January, Monday, etc.
+On Feb 11 2016 at 14:47 Stanislav Brabec wrote:
+> There are missing umount commands in the middle of the test, which
+> trigger following problem:
+>
+> truncate -s10M source.img
+> mkdir -p /source/subdir
+> mkdir -p /dest
+> /sbin/mkfs.ext4 source.img
+> losetup /dev/loop0 $PWD/source.img
+> mount -text4 /dev/loop0 /source
+> mkdir -p /source/subdir
+> mount -o bind /source /dest
+> mount -o bind /source/subdir /dest
+>
+> Mounting a bind mount over a root of existing bind mount causes mounting
+> over the bind mount source. I expected mounting over the target
+> directory I specified.
+>
+> I am not sure, whether it is correct behavior, but for sure it is
+> surprising.
 
- It does more things for you, see lt.tm_year + 1900, lt.tm_mon + 1,
- calculation of the time zone hours, timezone minutes...
+We discussed it with David and considered that it is an unexpected but
+correct behavior, that is a consequence of systemd introducing new
+default behavior for mounts. All bind mounts are shared by default,
+which causes propagation of a mount inside a target (including the
+target root) into a source.
 
-> > Anyway, it would be really nice to have a function for this purpose in
-> > lib/timeutils.c to avoid duplication and creativity :-) Something like:
-> > 
-> > 
-> >     strtime_iso_8601(char buf, size_t bufsz, struct tm tm, struct timeval frac, int flags);
-> > 
-> > where flags are
-> > 
-> >     enum {
-> >          ISO_8601_TIMEZONE   = (1 << 1)
-> >          ISO_8601_USEC       = (1 << 2)
-> >          ...
-> >     };
-> > 
-> > then we can use this function in lslogins, dmesg, hwclock, last,
-> > logger, ... etc.  I can also imagine:
-> > 
-> >     strtime_short_ctime()
-> >     strtime_ctime()           (ctime without \n)
-> > 
-> > Comments?
-> 
-> Also, perhaps all the above only using something similar to coreutil's
-> fprintftime, so it prints directly using less resources.
- 
-Well, things don't end after commit. Someone has to maintain it for
-years and for example now we have many places where we produces the
-same time format. So, I'd like to keep it on one place and minimize
-differences in formatting.
+> Additionally, I am working on a reproducer of an invalid "mount -a"
+> behavior triggered by kernel bug reporting false subvol.
 
-I'll merge your patch and cleanup the things later...
+> I already have a possible fix for it, but I want to confirm that it is
+> correct before sending it upstream.
 
-    Karel
+I finally found a reproducer.
+
+It is a negative reproducer, i. e. fstab that should cause error, but
+it does not. I am still not sure, whether positive reproducer exists. I
+will send a fix and testcase in a separate thread.
+
+After that, all discovered btrfs mount issues will be finally fixed.
+
+There is another known problem with non intuitive output of lsblk with
+btrfs, but it is above the scope of this thread.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
