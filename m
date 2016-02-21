@@ -1,50 +1,88 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:49361 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.15]:51145 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752956AbcBAKlP (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 1 Feb 2016 05:41:15 -0500
-Date: Mon, 1 Feb 2016 11:41:14 +0100
-From: Karel Zak <kzak@redhat.com>
-To: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/2] unshare: allow persisting mount namespaces
-Message-ID: <20160201104114.5iv5hznaslpi2xkz@ws.net.home>
-References: <1428578536-31603-1-git-send-email-kzak@redhat.com>
- <1428578536-31603-2-git-send-email-kzak@redhat.com>
- <87bnix6xj6.fsf@x220.int.ebiederm.org>
- <20150410081733.GM3923@ws.net.home>
- <m31t8zhgfv.fsf@gmail.com>
- <m3twlvfb39.fsf@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <m3twlvfb39.fsf@gmail.com>
+	id S1751648AbcBURzS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 21 Feb 2016 12:55:18 -0500
+Received: from assos.lan ([84.185.150.84]) by mail.gmx.com (mrgmx002) with
+ ESMTPSA (Nemesis) id 0M9b03-1afUBn1S7L-00CxRQ for
+ <util-linux@vger.kernel.org>; Sun, 21 Feb 2016 18:55:16 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 2/4] lib/strutils: add more ERANGE messages
+Date: Sun, 21 Feb 2016 18:55:12 +0100
+Message-Id: <1456077314-17910-3-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1456077314-17910-1-git-send-email-sweet_f_a@gmx.de>
+References: <1456077314-17910-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Jan 30, 2016 at 04:31:06PM +0300, Yuriy M. Kaminskiy wrote:
-> >> +	case 0:	/* child */
-> >> +		do {
-> >> +			/* wait until parent unshare() */
-> >> +			ino_t new_ino = get_mnt_ino(ppid);
-> >> +			if (ino != new_ino)
-> >> +				break;
-> >> +		} while (1);
-> >
-> > Racing? Suppose, parent died (e.g. unshare(2) failed), (parent) process
-> > was reaped, new (unrelated) process was created with same pid, as a
-> > result this function will bind namespaces from wrong process.
-> 
-> ... besides, this is a busyloop, if "imposer process" is in same mnt
-> namespace as original process, it will occupy CPU forever (and this *is*
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Would be possible to use any lightweight solution rather than
-pipe()+read/write(), for example use sigtimedwait() in child and
-kill() in parent?
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ lib/strutils.c | 28 ++++++++++++++++------------
+ 1 file changed, 16 insertions(+), 12 deletions(-)
 
-The ideal solution would be to have /proc/self/ns/<name> files poll()-able.
-
-    Karel
-
+diff --git a/lib/strutils.c b/lib/strutils.c
+index 4e0f9cd..03a367b9 100644
+--- a/lib/strutils.c
++++ b/lib/strutils.c
+@@ -257,9 +257,10 @@ int16_t strtos16_or_err(const char *str, const char *errmesg)
+ {
+ 	int32_t num = strtos32_or_err(str, errmesg);
+ 
+-	if (num < INT16_MIN || num > INT16_MAX)
+-		errx(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
+-
++	if (num < INT16_MIN || num > INT16_MAX) {
++		errno = ERANGE;
++		err(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
++	}
+ 	return num;
+ }
+ 
+@@ -267,9 +268,10 @@ uint16_t strtou16_or_err(const char *str, const char *errmesg)
+ {
+ 	uint32_t num = strtou32_or_err(str, errmesg);
+ 
+-	if (num > UINT16_MAX)
+-		errx(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
+-
++	if (num > UINT16_MAX) {
++		errno = ERANGE;
++		err(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
++	}
+ 	return num;
+ }
+ 
+@@ -277,9 +279,10 @@ int32_t strtos32_or_err(const char *str, const char *errmesg)
+ {
+ 	int64_t num = strtos64_or_err(str, errmesg);
+ 
+-	if (num < INT32_MIN || num > INT32_MAX)
+-		errx(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
+-
++	if (num < INT32_MIN || num > INT32_MAX) {
++		errno = ERANGE;
++		err(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
++	}
+ 	return num;
+ }
+ 
+@@ -287,9 +290,10 @@ uint32_t strtou32_or_err(const char *str, const char *errmesg)
+ {
+ 	uint64_t num = strtou64_or_err(str, errmesg);
+ 
+-	if (num > UINT32_MAX)
+-		errx(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
+-
++	if (num > UINT32_MAX) {
++		errno = ERANGE;
++		err(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
++	}
+ 	return num;
+ }
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.9.1
+
