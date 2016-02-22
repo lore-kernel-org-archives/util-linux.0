@@ -1,40 +1,52 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:35420 "EHLO
-	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751159AbcBBNgQ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 2 Feb 2016 08:36:16 -0500
-Received: by mail-wm0-f66.google.com with SMTP id l66so2458217wml.2
-        for <util-linux@vger.kernel.org>; Tue, 02 Feb 2016 05:36:15 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 0/3] pull: add swapon control structure
-Date: Tue,  2 Feb 2016 13:35:49 +0000
-Message-Id: <1454420152-653-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: sbrabec@suse.cz
+Subject: Re: [PATCH] tests: add test for loop option in fstab
+To: Karel Zak <kzak@redhat.com>
+References: <56BCE4F4.6020409@suse.cz> <201602151242.10369.sweet_f_a@gmx.de>
+ <20160216144918.iqmvz27qggxfnjng@ws.net.home> <56C75E7B.60407@suse.cz>
+ <20160222101233.imyhujomel6ydin3@ws.net.home>
+Cc: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
+From: Stanislav Brabec <sbrabec@suse.cz>
+Message-ID: <56CB3909.4080808@suse.cz>
+Date: Mon, 22 Feb 2016 17:36:25 +0100
+MIME-Version: 1.0
+In-Reply-To: <20160222101233.imyhujomel6ydin3@ws.net.home>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+On Feb 22, 2016 at 11:12 Karel Zak wrote:
+> On Fri, Feb 19, 2016 at 07:27:07PM +0100, Stanislav Brabec wrote:
+>> On Feb 16 2016 at 15:49 Karel Zak wrote:
+>>> On Mon, Feb 15, 2016 at 12:42:10PM +0100, Ruediger Meier wrote:
+>>>> On Thursday 11 February 2016, Stanislav Brabec wrote:
+>>>>> Add a new fstab tests which check loop mount of the same source
+>>>>> multiple times in multiple steps.
+>>>>
+>>>> This test still fails if /etc/mtab is a regular file.
+>>>
+>>> The problem should be fixed now. Thanks!
+>>>
+>> Well, not for btrfs. See the new testcase below (ready for inclusion to the
+>> GIT).
+>
+> Do you mean when /etc/mtab is a regular file? For btrfs we need fs
+> root and this information is nowhere in mtab (and maybe another
+> information related to subvolumes which we have in mountinfo).
 
-The first patch moves all global variables to new struct swapon_ctl, and the
-second does the same for few variables introduced during execution.  This
-should make reading what happens in swapon.c a little bit easier.
+No, My new testcase fails on a system with mtab being a symlink:
 
-The last change will forbid executing mkswap when swapon has setuid bit, and
-it has taken effect.  This should make simple PATH preference execvp()
-hijack vulnerability go away, among other similar setuid execution issues. 
-I do not think this change is CVE worty because swapon(8) is _not_ expected
-to have setuid.  The point of this change is to add at least some safety
-mechanism for users are aiming to shoot their own feets.
+# ls -al /etc/mtab
+lrwxrwxrwx 1 root root 19 Jul  7  2015 /etc/mtab -> ../proc/self/mounts
 
-Sami Kerola (3):
-  swapon: add control struct
-  swapon: move function arguments to control structure
-  swapon: do not run execvp() calls when swapon is setuid binary
-
- sys-utils/swapon.c | 381 +++++++++++++++++++++++++++--------------------------
- 1 file changed, 193 insertions(+), 188 deletions(-)
+Not tested with a file.
 
 -- 
-2.7.0
+Best Regards / S pozdravem,
 
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
