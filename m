@@ -1,71 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.18]:62875 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1946087AbcBRNXI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 18 Feb 2016 08:23:08 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
- with ESMTPSA (Nemesis) id 0MgbTj-1aIJfZ209v-00NzwM for
- <util-linux@vger.kernel.org>; Thu, 18 Feb 2016 14:23:06 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:33428 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750936AbcBVFK4 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 22 Feb 2016 00:10:56 -0500
+Received: by mail-pa0-f53.google.com with SMTP id fl4so84870151pad.0
+        for <util-linux@vger.kernel.org>; Sun, 21 Feb 2016 21:10:56 -0800 (PST)
+Date: Sun, 21 Feb 2016 21:10:24 -0800
+From: Hushan Jia <hushan.jia@gmail.com>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 13/15] lib: fix ismounted includes for FreeBSD
-Date: Thu, 18 Feb 2016 14:23:05 +0100
-Message-Id: <1455801785-10872-1-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
-References: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
+Cc: hushan.jia@gmail.com
+Subject: [PATCH] ipcs: show gid instead of uid
+Message-ID: <20160222051024.GE23038@sfo-1>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+From: Hushan Jia <hushan.jia@gmail.com>
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+ipcs -i incorrectly used uid where it should be gid
+
+Signed-off-by: Hushan Jia <hushan.jia@gmail.com>
 ---
- configure.ac    |  2 ++
- lib/ismounted.c | 11 ++++++++---
- 2 files changed, 10 insertions(+), 3 deletions(-)
+ sys-utils/ipcs.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/configure.ac b/configure.ac
-index 969c2cc..c42e475 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -231,6 +231,7 @@ AC_CHECK_HEADERS([ \
- 	sys/ioccom.h \
- 	sys/ioctl.h \
- 	sys/mkdev.h \
-+	sys/mount.h \
- 	sys/param.h \
- 	sys/prctl.h \
- 	sys/queue.h \
-@@ -245,6 +246,7 @@ AC_CHECK_HEADERS([ \
- 	sys/timex.h \
- 	sys/ttydefaults.h \
- 	sys/types.h \
-+	sys/ucred.h \
- 	sys/un.h \
- 	unistd.h \
- ])
-diff --git a/lib/ismounted.c b/lib/ismounted.c
-index 9095290..f83be65 100644
---- a/lib/ismounted.c
-+++ b/lib/ismounted.c
-@@ -18,9 +18,14 @@
- #include <sys/stat.h>
- #include <ctype.h>
- #include <sys/param.h>
--#ifdef __APPLE__
--#include <sys/ucred.h>
--#include <sys/mount.h>
-+
-+#ifndef __linux__
-+# ifdef HAVE_SYS_UCRED_H
-+#  include <sys/ucred.h>
-+# endif
-+# ifdef HAVE_SYS_MOUNT_H
-+#  include <sys/mount.h>
-+# endif
- #endif
+diff --git a/sys-utils/ipcs.c b/sys-utils/ipcs.c
+index eaab922..5877c46 100644
+--- a/sys-utils/ipcs.c
++++ b/sys-utils/ipcs.c
+@@ -572,7 +572,7 @@ static void print_shm(int shmid, int unit)
  
- #include "pathnames.h"
+ 	printf(_("\nShared memory Segment shmid=%d\n"), shmid);
+ 	printf(_("uid=%u\tgid=%u\tcuid=%u\tcgid=%u\n"),
+-	       shmdata->shm_perm.uid, shmdata->shm_perm.uid,
++	       shmdata->shm_perm.uid, shmdata->shm_perm.gid,
+ 	       shmdata->shm_perm.cuid, shmdata->shm_perm.cgid);
+ 	printf(_("mode=%#o\taccess_perms=%#o\n"), shmdata->shm_perm.mode,
+ 	       shmdata->shm_perm.mode & 0777);
+@@ -602,7 +602,7 @@ void print_msg(int msgid, int unit)
+ 
+ 	printf(_("\nMessage Queue msqid=%d\n"), msgid);
+ 	printf(_("uid=%u\tgid=%u\tcuid=%u\tcgid=%u\tmode=%#o\n"),
+-	       msgdata->msg_perm.uid, msgdata->msg_perm.uid,
++	       msgdata->msg_perm.uid, msgdata->msg_perm.gid,
+ 	       msgdata->msg_perm.cuid, msgdata->msg_perm.cgid,
+ 	       msgdata->msg_perm.mode);
+ 	ipc_print_size(unit, unit == IPC_UNIT_HUMAN ? _("csize=") : _("cbytes="),
+@@ -635,7 +635,7 @@ static void print_sem(int semid)
+ 
+ 	printf(_("\nSemaphore Array semid=%d\n"), semid);
+ 	printf(_("uid=%u\t gid=%u\t cuid=%u\t cgid=%u\n"),
+-	       semdata->sem_perm.uid, semdata->sem_perm.uid,
++	       semdata->sem_perm.uid, semdata->sem_perm.gid,
+ 	       semdata->sem_perm.cuid, semdata->sem_perm.cgid);
+ 	printf(_("mode=%#o, access_perms=%#o\n"),
+ 	       semdata->sem_perm.mode, semdata->sem_perm.mode & 0777);
 -- 
-1.8.4.5
+2.4.3
 
