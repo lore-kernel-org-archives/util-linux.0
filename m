@@ -1,71 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:55213 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1426663AbcBRPvu (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 18 Feb 2016 10:51:50 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx103)
- with ESMTPSA (Nemesis) id 0MfEsY-1aLvQc3PCc-00OpCh for
- <util-linux@vger.kernel.org>; Thu, 18 Feb 2016 16:51:48 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from mail-wm0-f49.google.com ([74.125.82.49]:33492 "EHLO
+	mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754201AbcBWTXj (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 23 Feb 2016 14:23:39 -0500
+Received: by mail-wm0-f49.google.com with SMTP id g62so215199710wme.0
+        for <util-linux@vger.kernel.org>; Tue, 23 Feb 2016 11:23:38 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH v2 07/15] include: provide MAP_ANONYMOUS on OSX
-Date: Thu, 18 Feb 2016 16:51:48 +0100
-Message-Id: <1455810708-28022-1-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1455801169-10470-8-git-send-email-sweet_f_a@gmx.de>
-References: <1455801169-10470-8-git-send-email-sweet_f_a@gmx.de>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH] logger: always update header when writing stdin line
+Date: Tue, 23 Feb 2016 19:23:34 +0000
+Message-Id: <1456255414-6757-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+Earlier separate inputs got the same timestamp even when input arrival was
+ensured to happen at different second.
 
-Hope there are no side effect when defining _DARWIN_C_SOURCE
-globally.
+$ (echo foo; sleep 1.1; echo bar) | logger -t baz --no-act -s
+<13>Feb 23 19:21:08 baz: foo
+<13>Feb 23 19:21:08 baz: bar
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+Addresses: http://bugs.debian.org/798239
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- configure.ac | 6 ++++++
- include/c.h  | 8 ++++++++
- 2 files changed, 14 insertions(+)
+ misc-utils/logger.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/configure.ac b/configure.ac
-index e9c8ef5..dbdcea4 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -158,11 +158,17 @@ bsd_os=no
- AS_CASE([${host_os}],
-   [*linux*],
-      [linux_os=yes],
-+  [*darwin*],
-+     [darwin_os=yes],
-   [*bsd*],
-      [bsd_os=yes])
- AM_CONDITIONAL([LINUX], [test "x$linux_os" = xyes])
-+AM_CONDITIONAL([DARWIN], [test "x$darwin_os" = xyes])
- AM_CONDITIONAL([BSD], [test "x$bsd_os" = xyes])
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index e439266..105426c 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -949,6 +949,7 @@ static void logger_stdin(struct logger_ctl *ctl)
+ 			c = getchar();
+ 		}
+ 		buf[i] = '\0';
++		generate_syslog_header(ctl);
  
-+AS_IF([test  "x$darwin_os" = xyes], [
-+  AC_DEFINE([_DARWIN_C_SOURCE], [1], [Enable MAP_ANON in sys/mman.h on Mac OS X])
-+])
- 
- dnl define ARCH_<NAME> conditionals
- UL_SET_ARCH([I86], [i?86-*])
-diff --git a/include/c.h b/include/c.h
-index ca028ba..aec3439 100644
---- a/include/c.h
-+++ b/include/c.h
-@@ -355,4 +355,12 @@ static inline int xusleep(useconds_t usec)
-  */
- #define UL_GETPW_BUFSIZ	(16 * 1024)
- 
-+/*
-+ * Darwin or other BSDs may only have MAP_ANON. To get it on Darwin we must
-+ * define _DARWIN_C_SOURCE before including sys/mman.h. We do this in config.h.
-+ */
-+#if !defined MAP_ANONYMOUS && defined MAP_ANON
-+# define MAP_ANONYMOUS  (MAP_ANON)
-+#endif
-+
- #endif /* UTIL_LINUX_C_H */
+ 		if (i > 0 || !ctl->skip_empty_lines)
+ 			write_output(ctl, buf);
 -- 
-1.8.4.5
+2.7.1
 
