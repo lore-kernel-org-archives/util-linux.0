@@ -1,39 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57732 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.22]:63130 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751695AbcBLKXb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 12 Feb 2016 05:23:31 -0500
-Date: Fri, 12 Feb 2016 11:23:30 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Werner Fink <werner@suse.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Sulogin: avoid shared memory area usemask but use
- waitid() for childs
-Message-ID: <20160212102330.xbnmnmm7epamtznz@ws.net.home>
-References: <1455194126-29497-1-git-send-email-werner@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1455194126-29497-1-git-send-email-werner@suse.de>
+	id S1751278AbcBXL3w (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 24 Feb 2016 06:29:52 -0500
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx102)
+ with ESMTPSA (Nemesis) id 0MWhRH-1aSJaH2YjT-00Xw8B for
+ <util-linux@vger.kernel.org>; Wed, 24 Feb 2016 12:29:50 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 1/2] chrt: fix case SCHED_RR
+Date: Wed, 24 Feb 2016 12:29:48 +0100
+Message-Id: <1456313389-7290-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Feb 11, 2016 at 01:35:26PM +0100, Werner Fink wrote:
->  login-utils/sulogin-consoles.c |  53 ++++++++++++++++-----
->  login-utils/sulogin.c          | 104 ++++++++++++++++++++++++++++++-----------
->  2 files changed, 120 insertions(+), 37 deletions(-)
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
- Applied, thanks.
+Looks like the logic was mistakenly changed in acde3a05.
 
-> +	struct timespec sigwait = {0, 50000000};
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ schedutils/chrt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- Modified to:
-
-     struct timespec sigwait = { .tv_sec = 0, .tv_nsec = 50000000 };
-
-to keep it more robust.
-
-    Karel
-
+diff --git a/schedutils/chrt.c b/schedutils/chrt.c
+index 030be57..84a6b34 100644
+--- a/schedutils/chrt.c
++++ b/schedutils/chrt.c
+@@ -175,10 +175,10 @@ static const char *get_policy_name(int policy)
+ 		return "SCHED_IDLE";
+ #endif
+ 	case SCHED_RR:
++	case SCHED_RR | SCHED_RESET_ON_FORK:
+ 		return "SCHED_RR";
+ #ifdef SCHED_BATCH
+ 	case SCHED_BATCH:
+-	case SCHED_RR | SCHED_RESET_ON_FORK:
+ 		return "SCHED_BATCH";
+ #endif
+ #ifdef SCHED_DEADLINE
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4.5
+
