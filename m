@@ -1,88 +1,117 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.18]:58363 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:45511 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1426310AbcBRNMw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 18 Feb 2016 08:12:52 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
- with ESMTPSA (Nemesis) id 0LngRb-1a2rKH26pz-00hsHE for
- <util-linux@vger.kernel.org>; Thu, 18 Feb 2016 14:12:50 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 00/15] portability fixes in the mix (OSX)
-Date: Thu, 18 Feb 2016 14:12:40 +0100
-Message-Id: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
+	id S1750919AbcBXJrD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 24 Feb 2016 04:47:03 -0500
+Date: Wed, 24 Feb 2016 10:47:00 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org, Ruediger Meier <ruediger.meier@ga-group.nl>
+Subject: Re: [PATCH] logger: always update header when writing stdin line
+Message-ID: <20160224094700.rtvznqs6ljhu7ukx@ws.net.home>
+References: <1456255414-6757-1-git-send-email-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1456255414-6757-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Tue, Feb 23, 2016 at 07:23:34PM +0000, Sami Kerola wrote:
+> Earlier separate inputs got the same timestamp even when input arrival was
+> ensured to happen at different second.
+> 
+> $ (echo foo; sleep 1.1; echo bar) | logger -t baz --no-act -s
+> <13>Feb 23 19:21:08 baz: foo
+> <13>Feb 23 19:21:08 baz: bar
+> 
+> Addresses: http://bugs.debian.org/798239
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  misc-utils/logger.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+> index e439266..105426c 100644
+> --- a/misc-utils/logger.c
+> +++ b/misc-utils/logger.c
+> @@ -949,6 +949,7 @@ static void logger_stdin(struct logger_ctl *ctl)
+>  			c = getchar();
+>  		}
+>  		buf[i] = '\0';
+> +		generate_syslog_header(ctl);
+>  
+>  		if (i > 0 || !ctl->skip_empty_lines)
+>  			write_output(ctl, buf);
 
-also see github pull request #282
-https://github.com/karelzak/util-linux/pull/282
 
-This is a the first chunk of arbitrary cleanups and build fixes
-mainly tested on OSX and FreeBSD.
+Not sure about this patch
 
-FYI here I have some OSX build logs (with some more hacks included).
-Maybe there are some interesting warnings to fix.
-https://travis-ci.org/rudimeier/util-linux/builds/110071732
+ * it would be better to generate header if we really want to write
+   the message (see condition with skip_empty_lines)
 
-Ruediger Meier (15):
-  travis: minor cleanup
-  build-sys: portable usage of find command
-  build-sys: check linker support for version scripts
-  build-sys: fix [g]libtoolize version for OSX
-  tests: fix ts_option helpers
-  lib: rename strmode() and setmode()
-  include: provide MAP_ANONYMOUS on OSX
-  lib: define LOGIN_NAME_MAX fallback
-  include: check for sys/sysmacros.h
-  include: remove unused mntent.h
-  lsns: use xcalloc()
-  lib: remove unused variable
-  lib: fix ismounted includes for FreeBSD
-  libblkid: don't include endian.h
-  include: fix sys/sysinfo.h
+ * after priority change we will generated the header more than once
 
- .travis-functions.sh                  |  31 +++-----
- .travis.yml                           |   2 +
- autogen.sh                            |   2 +-
- configure.ac                          |   6 ++
- disk-utils/fsck.cramfs.c              |  10 +++
- disk-utils/fsck.minix.c               |   1 -
- disk-utils/mkfs.cramfs.c              |   8 ++
- disk-utils/mkfs.minix.c               |   1 -
- disk-utils/mkswap.c                   |   1 -
- disk-utils/raw.c                      |   2 +
- include/strutils.h                    |   2 +-
- lib/blkdev.c                          |   1 -
- lib/idcache.c                         |   4 +
- lib/ismounted.c                       |  11 ++-
- lib/monotonic.c                       |   2 +
- lib/strutils.c                        |   2 +-
- lib/timer.c                           |   1 -
- libblkid/src/Makemodule.am            |   4 +-
- libblkid/src/superblocks/drbdmanage.c |   2 +-
- libfdisk/src/Makemodule.am            |   4 +-
- libmount/src/Makemodule.am            |   4 +-
- libsmartcols/samples/tree.c           |   2 +-
- libsmartcols/src/Makemodule.am        |   4 +-
- libuuid/src/Makemodule.am             |   4 +-
- login-utils/login.c                   |   2 +
- login-utils/sulogin.c                 |   9 +++
- m4/ax_check_vscript.m4                | 142 ++++++++++++++++++++++++++++++++++
- misc-utils/lsblk.c                    |   2 +-
- misc-utils/namei.c                    |   6 +-
- sys-utils/lsipc.c                     |   6 +-
- sys-utils/lsns.c                      |   4 +-
- tests/functions.sh                    |   6 +-
- tests/run.sh                          |  11 ++-
- tests/ts/build-sys/config             |   2 +-
- tests/ts/cramfs/mkfs                  |   2 +-
- text-utils/ul.c                       |  10 +--
- tools/checkmans.sh                    |   2 +-
- 37 files changed, 253 insertions(+), 62 deletions(-)
- create mode 100644 m4/ax_check_vscript.m4
+ * for the first message we generate header more than once (first time
+   in logger_open()
 
+
+I have applied the patch below.
+
+    Karel
+
+
+>From 7db029e54a4c0fdab43e8f645e4f91314747887c Mon Sep 17 00:00:00 2001
+From: Karel Zak <kzak@redhat.com>
+Date: Wed, 24 Feb 2016 10:40:08 +0100
+Subject: [PATCH] logger: always update header when writing stdin line
+
+Addresses: http://bugs.debian.org/798239
+Reported-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Karel Zak <kzak@redhat.com>
+---
+ misc-utils/logger.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index e439266..1e893a9 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -905,6 +905,11 @@ static void logger_command_line(const struct logger_ctl *ctl, char **argv)
+ 
+ static void logger_stdin(struct logger_ctl *ctl)
+ {
++	/* note: we re-generate the the syslog header for each log message to
++	 * update header timestamps and to reflect possible priority changes.
++	 * The initial header is generated by logger_open().
++	 */
++	int has_header = 1;
+ 	int default_priority = ctl->pri;
+ 	int last_pri = default_priority;
+ 	size_t max_usrmsg_size = ctl->max_message_size - strlen(ctl->hdr);
+@@ -935,7 +940,7 @@ static void logger_stdin(struct logger_ctl *ctl)
+ 					ctl->pri = default_priority;
+ 
+ 				if (ctl->pri != last_pri) {
+-					generate_syslog_header(ctl);
++					has_header = 0;
+ 					max_usrmsg_size = ctl->max_message_size - strlen(ctl->hdr);
+ 					last_pri = ctl->pri;
+ 				}
+@@ -950,8 +955,12 @@ static void logger_stdin(struct logger_ctl *ctl)
+ 		}
+ 		buf[i] = '\0';
+ 
+-		if (i > 0 || !ctl->skip_empty_lines)
++		if (i > 0 || !ctl->skip_empty_lines) {
++			if (!has_header)
++				generate_syslog_header(ctl);
+ 			write_output(ctl, buf);
++			has_header = 0;
++		}
+ 
+ 		if (c == '\n')	/* discard line terminator */
+ 			c = getchar();
 -- 
-1.8.4.5
+2.4.3
+
 
