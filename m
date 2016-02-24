@@ -1,109 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:64384 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:48178 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1426391AbcBRNMx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 18 Feb 2016 08:12:53 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx001)
- with ESMTPSA (Nemesis) id 0Ltqb7-1Zmqsz0VxV-011EVK for
- <util-linux@vger.kernel.org>; Thu, 18 Feb 2016 14:12:52 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 07/15] include: provide MAP_ANONYMOUS on OSX
-Date: Thu, 18 Feb 2016 14:12:47 +0100
-Message-Id: <1455801169-10470-8-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
-References: <1455801169-10470-1-git-send-email-sweet_f_a@gmx.de>
+	id S1750973AbcBXRrx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 24 Feb 2016 12:47:53 -0500
+Date: Wed, 24 Feb 2016 18:47:52 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: rc1 planning
+Message-ID: <20160224174752.6kg25zaiswcxyyqt@ws.net.home>
+References: <20160224125641.kw2t37ofjhmealej@ws.net.home>
+ <201602241550.21863.sweet_f_a@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201602241550.21863.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Wed, Feb 24, 2016 at 03:50:21PM +0100, Ruediger Meier wrote:
+> On Wednesday 24 February 2016, Karel Zak wrote:
+> >  Hi,
+> >
+> >  I'd like to release v2.28-rc1 ASAP, but the rest of this week and
+> > all next week I have vacation (and all next week I'm going to be
+> > off-line somewhere in Atlantic). So, my plan is 7th or 8th March.
+> >
+> >  remaining issues:
+> >
+> >   * btrfs loop devs in libmount
+> >
+> >   * libblkid vs. CDROMs (check if last two 2K sectors are readable,
+> > if not reduce probing area)    [me]
+> >
+> >   * add time formatting functions for ISO and ctime [not urgent]
+> >
+> >   * cleanup openat() related function [not urgent, Rudi?]
+> 
+> I've changed my mind a bit about lib/at.c removal because it's used by 
+> sysfs.c and we would lose libblkid and fdisk on non-linux systems. I 
+> will review first whether we could build libblkid without sysfs for 
+> non-Linux.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- disk-utils/fsck.cramfs.c | 8 ++++++++
- disk-utils/mkfs.cramfs.c | 8 ++++++++
- login-utils/sulogin.c    | 9 +++++++++
- 3 files changed, 25 insertions(+)
+ The libblkid is optional for libfdisk, I cannot imagine libblkid without
+ sysfs :-)
 
-diff --git a/disk-utils/fsck.cramfs.c b/disk-utils/fsck.cramfs.c
-index d5d3790..6ca6094 100644
---- a/disk-utils/fsck.cramfs.c
-+++ b/disk-utils/fsck.cramfs.c
-@@ -33,6 +33,10 @@
-  *                            use read if mmap fails, standardize messages)
-  */
- 
-+#if defined __APPLE__
-+# define _DARWIN_C_SOURCE
-+#endif
-+
- #include <stdio.h>
- #include <stdarg.h>
- #include <stdint.h>
-@@ -62,6 +66,10 @@
- #define XALLOC_EXIT_CODE FSCK_EX_ERROR
- #include "xalloc.h"
- 
-+#if !defined MAP_ANONYMOUS && defined MAP_ANON
-+# define MAP_ANONYMOUS  (MAP_ANON)
-+#endif
-+
- static int fd;			/* ROM image file descriptor */
- static char *filename;		/* ROM image filename */
- struct cramfs_super super;	/* just find the cramfs superblock once */
-diff --git a/disk-utils/mkfs.cramfs.c b/disk-utils/mkfs.cramfs.c
-index 0096cd4..d6fb646 100644
---- a/disk-utils/mkfs.cramfs.c
-+++ b/disk-utils/mkfs.cramfs.c
-@@ -23,6 +23,10 @@
-  * files one by one instaed of all simultaneously. - aeb, 2002-11-01
-  */
- 
-+#if defined __APPLE__
-+# define _DARWIN_C_SOURCE
-+#endif
-+
- #include <sys/types.h>
- #include <stdio.h>
- #include <sys/stat.h>
-@@ -48,6 +52,10 @@
- #define XALLOC_EXIT_CODE MKFS_EX_ERROR
- #include "xalloc.h"
- 
-+#if !defined MAP_ANONYMOUS && defined MAP_ANON
-+# define MAP_ANONYMOUS  (MAP_ANON)
-+#endif
-+
- /* The kernel only supports PAD_SIZE of 0 and 512. */
- #define PAD_SIZE 512
- 
-diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
-index 643712f..c83ce6d 100644
---- a/login-utils/sulogin.c
-+++ b/login-utils/sulogin.c
-@@ -24,6 +24,11 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-  */
-+
-+#if defined __APPLE__
-+# define _DARWIN_C_SOURCE
-+#endif
-+
- #include <sys/mman.h>
- #include <sys/types.h>
- #include <sys/stat.h>
-@@ -63,6 +68,10 @@
- #include "sulogin-consoles.h"
- #define CONMAX		16
- 
-+#if !defined MAP_ANONYMOUS && defined MAP_ANON
-+# define MAP_ANONYMOUS  (MAP_ANON)
-+#endif
-+
- static unsigned int timeout;
- static int profile;
- static volatile uint32_t openfd;		/* Remember higher file descriptors */
+> Regarding my stupid commit ...
+>   8b9cf26a "lib: fix unused parameters and variables"
+> ... next time I would try to add our new "NO_UNUSED_WARN_CFLAGS" just 
+> for single source files. Not using __unused macros would keep our 
+> heavily ifdef'ed sources more readable.
+> 
+> >   * add --zeroout to blkdiscard [me]
+> >
+> >   * fix look(1) [https://github.com/karelzak/util-linux/issues/284]
+> >
+> >   * cleanup docs, gtk-doc warnings, etc.
+> 
+> My favorite warning one could fix is this one:
+
+Frankly, my favorite solution is to drop gtk-docs and use something
+else. I like gtk-docs html output, but the rest (warnings, docs
+formatting, Makefile integration, ...) is painful.
+
+    Karel
+
 -- 
-1.8.4.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
