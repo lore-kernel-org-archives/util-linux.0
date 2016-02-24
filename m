@@ -1,44 +1,58 @@
 Return-Path: sbrabec@suse.cz
-Subject: Re: [PATCH] tests: add btrfs mount tests (fails!)
+Subject: Re: [PATCH] tests: add test for loop option in fstab
 To: Karel Zak <kzak@redhat.com>
-References: <56B0EEB2.1060707@suse.cz> <56B10E38.7040407@suse.cz>
- <20160211094352.6ncnnirhyd4jjd34@ws.net.home> <56BC9101.60908@suse.cz>
-Cc: util-linux@vger.kernel.org, David Sterba <dsterba@suse.cz>
+References: <56BCE4F4.6020409@suse.cz> <201602151242.10369.sweet_f_a@gmx.de>
+ <20160216144918.iqmvz27qggxfnjng@ws.net.home> <56C75E7B.60407@suse.cz>
+ <20160222101233.imyhujomel6ydin3@ws.net.home> <56CB3909.4080808@suse.cz>
+Cc: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org,
+        David Sterba <dsterba@suse.cz>
 From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <56BCB813.5090300@suse.cz>
-Date: Thu, 11 Feb 2016 17:34:27 +0100
+Message-ID: <56CDFD40.7020603@suse.cz>
+Date: Wed, 24 Feb 2016 19:58:08 +0100
 MIME-Version: 1.0
-In-Reply-To: <56BC9101.60908@suse.cz>
+In-Reply-To: <56CB3909.4080808@suse.cz>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-Stanislav Brabec wrote:
-> I am working on a subtest that will trigger it inside the test suite.
+On Feb 22, 2016 at 17:36 Stanislav Brabec wrote:
+> No, My new testcase fails on a system with mtab being a symlink:
 >
-> I already have a possible fix for it, but I want to confirm that it is
-> correct before sending it upstream.
+> # ls -al /etc/mtab
+> lrwxrwxrwx 1 root root 19 Jul  7  2015 /etc/mtab -> ../proc/self/mounts
 >
-I just have a reproducer of the new problem.
+> Not tested with a file.
+>
+I just analyzed the loop test case failure in deep. It has nothing to
+do with mtab, but with a fact, that manual losetup with subsequent
+mount commands recycle the same loop device, but -oloop allocates new
+loop device for each mount where loop option is used.
 
-The newly found problem is not btrfs speficic:
+And it is something that kernel does not like.
 
-echo "/ext4.img /ext4_mnt1 auto loop 0 0" >>/etc/fstab
-mount -a
-echo "/ext4.img /ext4_mnt2 auto loop 0 0" >>/etc/fstab
-mount -a
-mount
-umount /ext4_mnt1 /ext4_mnt2
-sed -i /ext4.img/d /etc/fstab
+Here is a simplified example:
+# losetup /dev/loop0 tests/output/mount/fstab-btrfs.img
+# losetup /dev/loop1 tests/output/mount/fstab-btrfs.img
+# mount /dev/loop0 /mnt/0
+# mount -osubvol=/ /dev/loop1 /mnt/1
+mount: /dev/loop1 is already mounted or /mnt/1 busy
+        /dev/loop1 is already mounted on /mnt/1
 
-Result:
-Nothing was mounted into /ext4_mnt2
+Note: default of fstab-btrfs.img is not /, each mount should mount a
+different sub-volume.
 
-(This is the problem with loop files in fstab, which I mentioned in my 
-past mails, but was not able to reproduce.)
+David, is it an expected kernel behavior?
 
+If not, it is a kernel bug.
 
-It also means, that I still don't have a reproducer that will 
-demonstrate mount confused by an incorrect subvol provided by kernel.
+If yes, util-linux needs additional logic:
+
+If "loop" options is used, check, whether the source equals to a source
+of another loop mount. If it is, don't allocate new loop device, but
+recycle existing one.
+
+And reciprocally, if umount on such device is used, don't free the loop
+device as long as there is another volume mounted that shares this
+source.
 
 -- 
 Best Regards / S pozdravem,
