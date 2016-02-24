@@ -1,35 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:38234 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.22]:63910 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751248AbcBKLVg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 11 Feb 2016 06:21:36 -0500
-Date: Thu, 11 Feb 2016 12:21:34 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/3] pull: colcrt test and regression
-Message-ID: <20160211112134.fxsfn7qpafw3qdij@ws.net.home>
-References: <1454435380-1354-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1454435380-1354-1-git-send-email-kerolasa@iki.fi>
+	id S1751760AbcBXL3w (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 24 Feb 2016 06:29:52 -0500
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx102)
+ with ESMTPSA (Nemesis) id 0MUm1o-1aQvsA3Zvw-00YDNc for
+ <util-linux@vger.kernel.org>; Wed, 24 Feb 2016 12:29:51 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 2/2] chrt: restore removed ifdef SCHED_RESET_ON_FORK
+Date: Wed, 24 Feb 2016 12:29:49 +0100
+Message-Id: <1456313389-7290-2-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1456313389-7290-1-git-send-email-sweet_f_a@gmx.de>
+References: <1456313389-7290-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Feb 02, 2016 at 05:49:37PM +0000, Sami Kerola wrote:
-> Sami Kerola (3):
->   tests: add colcrt functional tests
->   colcrt: reimplementation
->   tests: update colcrt test expectations
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Merged, thanks for the tests!
+They got lost in acde3a05.
 
-BTW, there is nothing wrong with blank lines in code, it makes code
-more readable in many cases ;-)
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ schedutils/chrt.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-    Karel
-
-
+diff --git a/schedutils/chrt.c b/schedutils/chrt.c
+index 84a6b34..363d6e1 100644
+--- a/schedutils/chrt.c
++++ b/schedutils/chrt.c
+@@ -168,14 +168,18 @@ static const char *get_policy_name(int policy)
+ 	case SCHED_OTHER:
+ 		return "SCHED_OTHER";
+ 	case SCHED_FIFO:
++#ifdef SCHED_RESET_ON_FORK
+ 	case SCHED_FIFO | SCHED_RESET_ON_FORK:
++#endif
+ 		return "SCHED_FIFO";
+ #ifdef SCHED_IDLE
+ 	case SCHED_IDLE:
+ 		return "SCHED_IDLE";
+ #endif
+ 	case SCHED_RR:
++#ifdef SCHED_RESET_ON_FORK
+ 	case SCHED_RR | SCHED_RESET_ON_FORK:
++#endif
+ 		return "SCHED_RR";
+ #ifdef SCHED_BATCH
+ 	case SCHED_BATCH:
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4.5
+
