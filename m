@@ -1,49 +1,51 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Date: Sun, 13 Mar 2016 21:32:24 +0100
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.28-rc1
-Message-ID: <20160313203224.GR4295@var.home>
-References: <20160311114701.oqbcsy2aiavj4ejz@ws.net.home>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="oLBj+sq0vYjzfsbl"
-In-Reply-To: <20160311114701.oqbcsy2aiavj4ejz@ws.net.home>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:38292
+	"EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760544AbcBYKdb (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 25 Feb 2016 05:33:31 -0500
+From: Andreas Henriksson <andreas@fatal.se>
+To: util-linux@vger.kernel.org
+Cc: Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH] libfdisk: Fix order of C/H/S numbers output
+Date: Thu, 25 Feb 2016 11:26:53 +0100
+Message-Id: <1456396013-15757-1-git-send-email-andreas@fatal.se>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+While the header says C/H/S the actual numbers where printed as
+C/S/H.
 
---oLBj+sq0vYjzfsbl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Addresses: http://bugs.debian.org/815847
+Reported-by: "groups, freeman" <freeman_groups@reason.dyndns.org>
+Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+---
+ libfdisk/src/dos.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Hello,
+diff --git a/libfdisk/src/dos.c b/libfdisk/src/dos.c
+index 2f3a37b..b199225 100644
+--- a/libfdisk/src/dos.c
++++ b/libfdisk/src/dos.c
+@@ -1903,15 +1903,15 @@ static int dos_get_partition(struct fdisk_context *cxt, size_t n,
+ 	/* start C/H/S */
+ 	if (asprintf(&pa->start_chs, "%d/%d/%d",
+ 				cylinder(p->bs, p->bc),
+-				sector(p->bs),
+-				p->bh) < 0)
++				p->bh,
++				sector(p->bs)) < 0)
+ 		return -ENOMEM;
+ 
+ 	/* end C/H/S */
+ 	if (asprintf(&pa->end_chs, "%d/%d/%d",
+ 				cylinder(p->es, p->ec),
+-				sector(p->es),
+-				p->eh) < 0)
++				p->eh,
++				sector(p->es)) < 0)
+ 		return -ENOMEM;
+ 
+ 	return 0;
+-- 
+2.7.0
 
-2.28-rc1 doesn't build on the Hurd system, see attached proposed patch.
-
-sigset_t is not a structure on Hurd. Applications are not supposed to
-assume what it is, and the first thing that sulogin.c does on it is
-sigemptyset already anyway.
-
-Samuel
-
---oLBj+sq0vYjzfsbl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch
-
-diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
-index 643712f..43ca0d4 100644
---- a/login-utils/sulogin.c
-+++ b/login-utils/sulogin.c
-@@ -859,7 +863,7 @@ int main(int argc, char **argv)
- 	struct passwd *pwd;
- 	struct timespec sigwait = { .tv_sec = 0, .tv_nsec = 50000000 };
- 	siginfo_t status = {};
--	sigset_t set = {};
-+	sigset_t set;
- 	int c, reconnect = 0;
- 	int opt_e = 0;
- 	int wait = 0;
-
---oLBj+sq0vYjzfsbl--
