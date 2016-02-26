@@ -1,16 +1,16 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:65292 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.22]:62766 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752088AbcBZDDg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	id S1751021AbcBZDDg (ORCPT <rfc822;util-linux@vger.kernel.org>);
 	Thu, 25 Feb 2016 22:03:36 -0500
 Received: from tenfore.ga-group.nl ([95.114.239.233]) by mail.gmx.com
- (mrgmx101) with ESMTPSA (Nemesis) id 0LcWSI-1a6zgG02Za-00jqLF for
- <util-linux@vger.kernel.org>; Fri, 26 Feb 2016 04:03:34 +0100
+ (mrgmx101) with ESMTPSA (Nemesis) id 0M0LtB-1ZeZj63Ju9-00ubji for
+ <util-linux@vger.kernel.org>; Fri, 26 Feb 2016 04:03:33 +0100
 From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 02/14] build-sys: add openat build conditional
-Date: Fri, 26 Feb 2016 04:03:25 +0100
-Message-Id: <1456455812-19453-3-git-send-email-sweet_f_a@gmx.de>
+Subject: [PATCH 01/14] logger: use SCM_CREDENTIALS on LINUX only
+Date: Fri, 26 Feb 2016 04:03:24 +0100
+Message-Id: <1456455812-19453-2-git-send-email-sweet_f_a@gmx.de>
 In-Reply-To: <1456455812-19453-1-git-send-email-sweet_f_a@gmx.de>
 References: <1456455812-19453-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
@@ -18,51 +18,68 @@ List-ID: <util-linux.vger.kernel.org>
 
 From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Using this conditional for test progs only should be ok.
+This is a build fix of FreeBSD and OSX. Basically we revert
+the following commit for non-linux systems:
+27a9eb53 "use --id as local socket credentials"
+
+Note I could also compile it like this:
+
+  #ifdef HAVE_SYS_UCRED_H
+  # define _WANT_UCRED
+  # include <sys/param.h>
+  # include <sys/ucred.h>
+  # define SCM_CREDENTIALS SCM_CREDS
+  #endif
+
+  [...]
+  #ifdef _linux_
+  cred->pid = ctl->pid;
+  #endif
+  [...]
+
+... but don't know how to test whether it does what it
+should.
 
 Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- configure.ac                       | 2 ++
- libsmartcols/samples/Makemodule.am | 4 +++-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ misc-utils/logger.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/configure.ac b/configure.ac
-index 7b6a9e7..b8b0074 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -397,6 +397,8 @@ AC_CHECK_FUNCS([inotify_init1], [have_inotify_init1=yes])
- AC_CHECK_FUNCS([open_memstream], [have_open_memstream=yes],[have_open_memstream=no])
- AC_CHECK_FUNCS([reboot], [have_reboot=yes],[have_reboot=no])
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index 4201e43..d9aee0e 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -446,12 +446,14 @@ static void write_output(const struct logger_ctl *ctl, const char *const msg)
  
-+AM_CONDITIONAL([HAVE_OPENAT], [test "x$have_openat" = xyes])
-+
- dnl lib/mononotic.c may require -lrt
- AC_CHECK_FUNCS([clock_gettime], [],
- 	[AC_CHECK_LIB([rt], [clock_gettime], [REALTIME_LIBS="-lrt"])]
-diff --git a/libsmartcols/samples/Makemodule.am b/libsmartcols/samples/Makemodule.am
-index be74fc3..0a2d892 100644
---- a/libsmartcols/samples/Makemodule.am
-+++ b/libsmartcols/samples/Makemodule.am
-@@ -1,6 +1,5 @@
+ 	if (!ctl->noact) {
+ 		struct msghdr message = { 0 };
++#ifdef SCM_CREDENTIALS
+ 		struct cmsghdr *cmhp;
+ 		struct ucred *cred;
+ 		union {
+ 			struct cmsghdr cmh;
+ 			char   control[CMSG_SPACE(sizeof(struct ucred))];
+ 		} cbuf;
++#endif
  
- check_PROGRAMS += \
--	sample-scols-tree \
- 	sample-scols-title \
- 	sample-scols-wrap \
- 	sample-scols-continuous
-@@ -9,9 +8,12 @@ sample_scols_cflags = $(AM_CFLAGS) $(NO_UNUSED_WARN_CFLAGS) \
-                       -I$(ul_libsmartcols_incdir)
- sample_scols_ldadd = $(LDADD) libsmartcols.la
+ 		/* 4) add extra \n to make sure message is terminated */
+ 		if ((ctl->socket_type == TYPE_TCP) && !ctl->octet_count)
+@@ -460,6 +462,7 @@ static void write_output(const struct logger_ctl *ctl, const char *const msg)
+ 		message.msg_iov = iov;
+ 		message.msg_iovlen = iovlen;
  
-+if HAVE_OPENAT
-+check_PROGRAMS += sample-scols-tree
- sample_scols_tree_SOURCES = libsmartcols/samples/tree.c
- sample_scols_tree_LDADD = $(sample_scols_ldadd) libcommon.la
- sample_scols_tree_CFLAGS = $(sample_scols_cflags)
-+endif
++#ifdef SCM_CREDENTIALS
+ 		/* syslog/journald may follow local socket credentials rather
+ 		 * than in the message PID. If we use --id as root than we can
+ 		 * force kernel to accept another valid PID than the real logger(1)
+@@ -479,6 +482,7 @@ static void write_output(const struct logger_ctl *ctl, const char *const msg)
  
- sample_scols_title_SOURCES = libsmartcols/samples/title.c
- sample_scols_title_LDADD = $(sample_scols_ldadd)
+ 			cred->pid = ctl->pid;
+ 		}
++#endif
+ 
+ 		if (sendmsg(ctl->fd, &message, 0) < 0)
+ 			warn(_("send message failed"));
 -- 
 1.8.4.5
 
