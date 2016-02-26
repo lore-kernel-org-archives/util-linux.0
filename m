@@ -1,36 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36970 "EHLO mx1.redhat.com"
+Received: from plane.gmane.org ([80.91.229.3]:43679 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964817AbcCONKi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 15 Mar 2016 09:10:38 -0400
-Date: Tue, 15 Mar 2016 14:10:34 +0100
-From: Karel Zak <kzak@redhat.com>
-To: George Spelvin <linux@horizon.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: e2fsck: /dev/hda2 is mounted.
-Message-ID: <20160315131034.gju5rtzm2uacjs7a@ws.net.home>
-References: <20160313101414.19038.qmail@ns.horizon.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160313101414.19038.qmail@ns.horizon.com>
+	id S1751885AbcBZM37 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 26 Feb 2016 07:29:59 -0500
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1aZHWw-0000mj-7h
+	for util-linux@vger.kernel.org; Fri, 26 Feb 2016 13:29:58 +0100
+Received: from ppp37-190-56-35.pppoe.spdop.ru ([37.190.56.35])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Fri, 26 Feb 2016 13:29:58 +0100
+Received: from yumkam by ppp37-190-56-35.pppoe.spdop.ru with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Fri, 26 Feb 2016 13:29:58 +0100
+To: util-linux@vger.kernel.org
+From: yumkam@gmail.com (Yuriy M. Kaminskiy)
+Subject: Re: [PATCH 06/14] newgrp: rename memset_s()
+Date: Fri, 26 Feb 2016 15:29:51 +0300
+Message-ID: <m37fhrods0.fsf@gmail.com>
+References: <1456455812-19453-1-git-send-email-sweet_f_a@gmx.de>
+	<1456455812-19453-7-git-send-email-sweet_f_a@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Mar 13, 2016 at 06:14:14AM -0400, George Spelvin wrote:
-> Upon investigation, it turned out that fsck didn't understand the
-> kernel "root=302" parameter and was trying to run e2fsck on the root
-> file system.  This produced an error, causing the boot process
-> to drop into a recovery shell.
-...
-> Running the v2.28-rc1 release (8c97556ecfc0af358d35dc7a842aaadde5eeafd3)
-> I got some compile warnings (appended for reference), but a
-> working execurable which could be run as follows:
+Ruediger Meier <sweet_f_a@gmx.de> writes:
 
-The problem should be fixed, git pull, make and re-test, please.
+> From: Ruediger Meier <ruediger.meier@ga-group.nl>
+>
+> It's already defined in OSX standard c library.
 
-Thanks
-    Karel
+Would not it be better to just use system-provided memset_s instead by
+then? (And it is well possible glibc will provide memset_s in future
+too).
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+> Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+> ---
+>  login-utils/newgrp.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/login-utils/newgrp.c b/login-utils/newgrp.c
+> index 141b41b..56639d1 100644
+> --- a/login-utils/newgrp.c
+> +++ b/login-utils/newgrp.c
+> @@ -62,7 +62,7 @@ static char *xgetpass(FILE *input, const char *prompt)
+>  
+>  /* Ensure memory is set to value c without compiler optimization getting
+>   * into way that could happen with memset(3). */
+> -static int memset_s(void *v, size_t sz, const int c)
+> +static int xmemset_s(void *v, size_t sz, const int c)
+>  {
+>  	volatile unsigned char *p = v;
+>  
+> @@ -148,7 +148,7 @@ static int allow_setgid(const struct passwd *pe, const struct group *ge)
+>  	if (pwd && *pwd && (xpwd = xgetpass(stdin, _("Password: ")))) {
+>  		char *cbuf = crypt(xpwd, pwd);
+>  
+> -		memset_s(xpwd, strlen(xpwd), 0);
+> +		xmemset_s(xpwd, strlen(xpwd), 0);
+>  		free(xpwd);
+>  		if (!cbuf)
+>  			warn(_("crypt failed"));
+
