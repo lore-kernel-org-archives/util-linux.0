@@ -1,54 +1,38 @@
-Return-Path: sbrabec@suse.cz
-Subject: Re: Fixing su + runuser vulnerability CVE-2016-2779
-To: Karel Zak <kzak@redhat.com>
-References: <56D7409A.6050407@suse.cz>
- <20160307131358.kzu4qb5yu6u7fd4x@ws.net.home>
-Cc: util-linux@vger.kernel.org,
-        Federico Bento <up201407890@alunos.dcc.fc.up.pt>,
-        Jiri Slaby <jslaby@suse.cz>
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <56DEF7A4.4090209@suse.cz>
-Date: Tue, 8 Mar 2016 17:02:44 +0100
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-yw0-f176.google.com ([209.85.161.176]:34772 "EHLO
+	mail-yw0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756590AbcB0Sqi (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 27 Feb 2016 13:46:38 -0500
+Received: by mail-yw0-f176.google.com with SMTP id h129so93066742ywb.1
+        for <util-linux@vger.kernel.org>; Sat, 27 Feb 2016 10:46:37 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20160307131358.kzu4qb5yu6u7fd4x@ws.net.home>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+From: Akshay Adiga <akshay.adiga@gmail.com>
+Date: Sun, 28 Feb 2016 00:16:17 +0530
+Message-ID: <CAOaMnuGfN1hnEn7H95c2TzxyQUoQ3c5PzikApHMPyPW123R9fQ@mail.gmail.com>
+Subject: Separate taskset arguments from the command arguments
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mar 7, 2016 at 14:13 Karel Zak wrote:
-> On Wed, Mar 02, 2016 at 08:35:54PM +0100, Stanislav Brabec wrote:
->> There are some controversial things with the straightforward fix:
->>
->> setsid() prevents TIOCSTI attack described in the report (easy to
->> reproduce), but it has side effects: It disconnects the task from job
->> control. With setsid(), ^Z cannot be used for sending the application
->> to background any more (easy to reproduce by calling setsid()
->> unconditionally in the same place).
->>
->> su-common.c now calls setsid() only if new session is requested.
->
-> Yes, it's pretty stupid situation.
->
-> We have exactly specified setsid() use-cases and now TIOCSTI ioctl
-> forces us to modify the things (and maybe introduce regressions),
-> because the crazy ioctl is not possible to disable by any another
-> way...
+Hi,
 
-I would like to see a kernel support for selective disabling of TIOCSTI
-without side effects like setsid() has.
+I want to run a command which looks something like this :
 
-setsid() fallback would be used for kernels that don't support it.
+taskset -c 10 ycsb -p "redis_host=1234"
 
-I am not sure, how complicated would be adding of such feature to the
-kernel.
+The actual command is :
 
--- 
-Best Regards / S pozdravem,
+ycsb -p "redis_host=1234"
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+But argument -p "redis_host=1234" is taken by taskset as it argument
+and throws an error : Failed to set pid 0's affinity:
+
+-p "redis_host=1234" is an argument to ycsb command. shell/tasket
+misunderstands that and takes it as an argument for taskset.
+
+Is there a work around for this?
+
+--
+Regards --
+Akshay Adiga
