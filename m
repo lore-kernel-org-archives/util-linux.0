@@ -1,52 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews09.kpnxchange.com ([213.75.39.14]:52190 "EHLO
-	cpsmtpb-ews09.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753165AbcCIKzc (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Mar 2016 05:55:32 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mout.gmx.net ([212.227.17.20]:56325 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752356AbcCALoS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 1 Mar 2016 06:44:18 -0500
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx102)
+ with ESMTPSA (Nemesis) id 0MHMRr-1afRxL0UVv-00E3pJ for
+ <util-linux@vger.kernel.org>; Tue, 01 Mar 2016 12:44:16 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 3/3] blkdiscard: slice up the recently changed usage text
-Date: Wed,  9 Mar 2016 11:55:01 +0100
-Message-Id: <1457520901-4133-3-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1457520901-4133-1-git-send-email-bensberg@justemail.net>
-References: <1457520901-4133-1-git-send-email-bensberg@justemail.net>
+Subject: [PATCH 0/4] Remove openat fallback functions
+Date: Tue,  1 Mar 2016 12:44:10 +0100
+Message-Id: <1456832654-11268-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- sys-utils/blkdiscard.c |   15 ++++++++-------
- 1 files changed, 8 insertions(+), 7 deletions(-)
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-diff --git a/sys-utils/blkdiscard.c b/sys-utils/blkdiscard.c
-index ff2cee3..c83e12f 100644
---- a/sys-utils/blkdiscard.c
-+++ b/sys-utils/blkdiscard.c
-@@ -87,16 +87,17 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	fputs(_("Discard the content of sectors on a device.\n"), out);
- 
- 	fputs(USAGE_OPTIONS, out);
--	fputs(_(" -o, --offset <num>  offset in bytes to discard from\n"
--		" -l, --length <num>  length of bytes to discard from the offset\n"
--		" -p, --step <num>    size of the discard iterations within the offset\n"
--		" -s, --secure        perform secure discard\n"
--		" -z, --zeroout       zero-fill rather than discard\n"
--		" -v, --verbose       print aligned length and offset\n"),
--		out);
-+	fputs(_(" -o, --offset <num>  offset in bytes to discard from\n"), out);
-+	fputs(_(" -l, --length <num>  length of bytes to discard from the offset\n"), out);
-+	fputs(_(" -p, --step <num>    size of the discard iterations within the offset\n"), out);
-+	fputs(_(" -s, --secure        perform secure discard\n"), out);
-+	fputs(_(" -z, --zeroout       zero-fill rather than discard\n"), out);
-+	fputs(_(" -v, --verbose       print aligned length and offset\n"), out);
-+
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(USAGE_HELP, out);
- 	fputs(USAGE_VERSION, out);
-+
- 	fprintf(out, USAGE_MAN_TAIL("blkdiscard(8)"));
- 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
- }
+This is github pull request #293:
+https://github.com/karelzak/util-linux/pull/293
+
+Ruediger Meier (4):
+  lib: remove openat fallback functions (include/at.h)
+  lib: move fopen_at() to fileutils.h, remove at.h
+  fdisk: remove unused include sysfs.h
+  build-sys: add and use openat build conditionals
+
+ configure.ac                       |   7 +-
+ disk-utils/fdisk.c                 |   1 -
+ disk-utils/partx.c                 |   3 +-
+ include/Makemodule.am              |   1 -
+ include/at.h                       |  32 ---------
+ include/fileutils.h                |  12 ++++
+ lib/Makemodule.am                  |  21 +++---
+ lib/at.c                           | 144 -------------------------------------
+ lib/loopdev.c                      |   3 +-
+ lib/procutils.c                    |   8 +--
+ lib/sysfs.c                        |  15 ++--
+ libblkid/src/devname.c             |   3 +-
+ libblkid/src/devno.c               |   5 +-
+ libmount/src/tab_parse.c           |  11 +--
+ libsmartcols/samples/Makemodule.am |   4 +-
+ misc-utils/lsblk.c                 |  11 +--
+ misc-utils/lslocks.c               |   6 +-
+ 17 files changed, 60 insertions(+), 227 deletions(-)
+ delete mode 100644 include/at.h
+ delete mode 100644 lib/at.c
+
 -- 
-1.7.0.4
+1.8.4.5
 
