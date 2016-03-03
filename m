@@ -1,72 +1,71 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Subject: Re: [ANNOUNCE] util-linux v2.28-rc2
-Date: Tue, 29 Mar 2016 10:58:30 +0100
-Cc: Karel Zak <kzak@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
-References: <20160329091012.x3qea5ga2qzxqkrw@ws.net.home> <20160329094308.GA3019@var.bordeaux.inria.fr>
-In-Reply-To: <20160329094308.GA3019@var.bordeaux.inria.fr>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx2.suse.de ([195.135.220.15]:59431 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751435AbcCCQVh (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 3 Mar 2016 11:21:37 -0500
+Subject: Re: Fixing su + runuser vulnerability CVE-2016-2779
+To: up201407890@alunos.dcc.fc.up.pt
+References: <56D7409A.6050407@suse.cz>
+ <20160303013722.22156xdxrqmywgw0@webmail.alunos.dcc.fc.up.pt>
+Cc: util-linux@vger.kernel.org
+From: Stanislav Brabec <sbrabec@suse.cz>
+Message-ID: <56D8648F.60504@suse.cz>
+Date: Thu, 3 Mar 2016 17:21:35 +0100
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201603291158.32187.sweet_f_a@gmx.de>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20160303013722.22156xdxrqmywgw0@webmail.alunos.dcc.fc.up.pt>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 29 March 2016, Samuel Thibault wrote:
-> Hello,
->
-> Karel Zak, on Tue 29 Mar 2016 11:10:12 +0200, wrote:
-> > The util-linux release v2.28-rc2 is available at
-> >
-> >    http://ftp.kernel.org/pub/linux/utils/util-linux/v2.28
-> >
-> > Feedback and bug reports, as always, are welcomed.
->
-> The Hurd provides a BSD-compatible interface (thus defines BSD to
-> something 1993-ish), but not compatible with more recent BSDs.
-> setprogname appeared around 2004 and such. The patch below just
-> detects the availability.
->
-> Samuel
->
->
-> diff --git a/configure.ac b/configure.ac
-> index 1519c97..9502d84 100644
-> --- a/configure.ac
-> +++ b/configure.ac
-> @@ -380,6 +380,7 @@ AC_CHECK_FUNCS([ \
->  	qsort_r \
->  	rpmatch \
->  	scandirat \
-> +	setprogname \
->  	setresgid \
->  	setresuid \
->  	sched_setattr \
-> diff --git a/misc-utils/getopt.c b/misc-utils/getopt.c
-> index c4144f6..1efae07 100644
-> --- a/misc-utils/getopt.c
-> +++ b/misc-utils/getopt.c
-> @@ -453,7 +453,7 @@ int main(int argc, char *argv[])
->
->  	if (name) {
->  		argv[optind - 1] = name;
-> -#if defined (BSD) || defined (__APPLE__)
-> +#if (defined (BSD) || defined (__APPLE__)) && defined (HAVE_SETPROGNAME)
+On Mar 3, 2016 at 01:37 up201407890@alunos.dcc.fc.up.pt wrote:
 
-Then I would simply use only
-#if defined (HAVE_SETPROGNAME)
+> On another note, grsecurity recently released a new feature named
+> GRKERNSEC_HARDEN_TTY that disallows the use of TIOCSTI to unprivileged
+> users unless the caller has CAP_SYS_ADMIN.
 
-or, to be 105% sure to avoid any side effects on our "normal" Linux target
+This will fix all util-linux issues, but not chroot. There root inside 
+the chroot escapes from chroot and calls commands outside.
 
-#if defined (HAVE_SETPROGNAME) && ! defined __linux__
+I can imagine yet another kernel level solution:
 
+Implement a way to disallow TIOCSTI, eventually revoke terminal R/W access.
 
-> 		setprogname(name); 
->  #endif
->  	} else
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This would need application level fixes:
+- Before calling the restricted process, disallow TIOCSTI.
+- After returning from the restricted process, revoke terminal R/W.
+
+> Brad Spengler (spender) said
+> that looking into it, he didn't find legitimate uses of such ioctl, and
+> no wide usage of writevt.
+
+Some old systems had tiocsti(1) utility, probably used like a 
+predecessor of readline.
+
+Just for curiosity, I just ran grep for TIOCSTI ioctl() over all 
+openSUSE sources. I got about 60 matches.
+
+I analyzed use of some cases:
+
+util-linux: used in agetty in wait_for_term_input()
+kbd: contrib utility sti equal to tiocsti utility.
+irda: Used by handle_scancode() to emulate input.
+tcsh: Used in ed mode and in pushback().
+emacs: Used in stuff_char() (putting char to be read from terminal)
+...
+
+It seems that TIOCSTI is used for:
+- Read character, and if it does not match, put it back.
+- Wait for character, than put it back for processing.
+- Implementing a simple line editing.
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
