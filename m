@@ -1,46 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:63506 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755505AbcCUNEu (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 21 Mar 2016 09:04:50 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Cc: Werner Fink <werner@suse.de>
-Subject: [PATCH 3/5] sulogin: ignore missing WEXITED, add warning
-Date: Mon, 21 Mar 2016 14:04:43 +0100
-Message-Id: <1458565485-27856-4-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1458565485-27856-1-git-send-email-sweet_f_a@gmx.de>
-References: <1458565485-27856-1-git-send-email-sweet_f_a@gmx.de>
+Received: from mail.alunos.dcc.fc.up.pt ([193.136.39.109]:33287 "EHLO
+	smtp.alunos.dcc.fc.up.pt" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752950AbcCCAzL convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 2 Mar 2016 19:55:11 -0500
+Message-ID: <20160303013722.22156xdxrqmywgw0@webmail.alunos.dcc.fc.up.pt>
+Date: Thu, 03 Mar 2016 01:37:22 +0100
+From: up201407890@alunos.dcc.fc.up.pt
+To: "Stanislav Brabec" <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Fixing su + runuser vulnerability CVE-2016-2779
+References: <56D7409A.6050407@suse.cz>
+In-Reply-To: <56D7409A.6050407@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset=UTF-8;
+	DelSp="Yes";
+	format="flowed"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <rudi@localhost>
+Quoting "Stanislav Brabec" <sbrabec@suse.cz>:
 
-This happens on Debian kFreeBSD and probably on Hurd too since
-cde7699c. One should review this issue to fix it properly.
 
-CC: Werner Fink <werner@suse.de>
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- login-utils/sulogin.c | 5 +++++
- 1 file changed, 5 insertions(+)
+> To Federico Bento: Could you confirm that you are author and approve
+> the license in the test_tiocsti.c, please?
 
-diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
-index b2c778a..c6d17b3 100644
---- a/login-utils/sulogin.c
-+++ b/login-utils/sulogin.c
-@@ -80,6 +80,11 @@ static volatile sig_atomic_t sigchild;
- # define IUCLC		0
- #endif
- 
-+#ifndef WEXITED
-+# warning "WEXITED is missing, sulogin may not work as expected"
-+# define WEXITED 0
-+#endif
-+
- static int locked_account_password(const char *passwd)
- {
- 	if (passwd && (*passwd == '*' || *passwd == '!'))
--- 
-1.8.4.5
+There were vulnerabilities in the past regarding the same issue for  
+different programs ("su" for example, CVE-2005-4890), that when  
+reported, used the same technique. The program is the most basic you  
+can get to demonstrate this, so i'm pretty sure i wasn't the only one  
+that used something similar.
+At the time, though, i wrote it off my head. This doesn't mean, as I  
+said, that no one wrote something very similar, so i'm not really sure  
+if I should be credited for something that has a high probability of  
+having been written before.
+
+
+On another note, grsecurity recently released a new feature named  
+GRKERNSEC_HARDEN_TTY that disallows the use of TIOCSTI to unprivileged  
+users unless the caller has CAP_SYS_ADMIN. Brad Spengler (spender)  
+said that looking into it, he didn't find legitimate uses of such  
+ioctl, and no wide usage of writevt.
+
+https://gitweb.gentoo.org/proj/hardened-patchset.git/commit/?id=d47ea9080b76a7445e8a36545c539b2a62c31faa
+
+Check out gr_handle_tiocsti()
+
+
+----------------------------------------------------------------
+This message was sent using IMP, the Internet Messaging Program.
 
