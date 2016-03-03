@@ -1,111 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews03.kpnxchange.com ([213.75.39.6]:56763 "EHLO
-	cpsmtpb-ews03.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S965454AbcCPI5F (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 16 Mar 2016 04:57:05 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mout.gmx.net ([212.227.17.21]:55260 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751270AbcCCBLI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 2 Mar 2016 20:11:08 -0500
+Received: from tenfore.ga-group.nl ([77.12.144.244]) by mail.gmx.com
+ (mrgmx102) with ESMTPSA (Nemesis) id 0MRjd7-1aUVN51UOf-00T0MX for
+ <util-linux@vger.kernel.org>; Thu, 03 Mar 2016 02:11:06 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 6/8] mount, umount, swapon, fsck, lsblk, findmnt: harmonize six error messages
-Date: Wed, 16 Mar 2016 09:55:53 +0100
-Message-Id: <1458118555-4691-6-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1458118555-4691-1-git-send-email-bensberg@justemail.net>
-References: <1458118555-4691-1-git-send-email-bensberg@justemail.net>
+Subject: [PATCH 0/7] fix minix, big endian
+Date: Thu,  3 Mar 2016 02:10:58 +0100
+Message-Id: <1456967465-16128-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- disk-utils/fsck.c         |    2 +-
- misc-utils/findmnt.c      |    2 +-
- misc-utils/lsblk.c        |    3 +--
- sys-utils/mount.c         |    3 +--
- sys-utils/swapon-common.c |    3 +--
- sys-utils/umount.c        |    3 +--
- 6 files changed, 6 insertions(+), 10 deletions(-)
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
-index 6f9e78b..05cfbc4 100644
---- a/disk-utils/fsck.c
-+++ b/disk-utils/fsck.c
-@@ -470,7 +470,7 @@ static void fs_interpret_type(struct libmnt_fs *fs)
- static int parser_errcb(struct libmnt_table *tb __attribute__ ((__unused__)),
- 			const char *filename, int line)
- {
--	warnx(_("%s: parse error at line %d -- ignore"), filename, line);
-+	warnx(_("%s: parse error at line %d -- ignored"), filename, line);
- 	return 1;
- }
- 
-diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
-index f72be14..904a09d 100644
---- a/misc-utils/findmnt.c
-+++ b/misc-utils/findmnt.c
-@@ -804,7 +804,7 @@ leave:
- static int parser_errcb(struct libmnt_table *tb __attribute__ ((__unused__)),
- 			const char *filename, int line)
- {
--	warnx(_("%s: parse error at line %d"), filename, line);
-+	warnx(_("%s: parse error at line %d -- ignored"), filename, line);
- 	return 1;
- }
- 
-diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
-index c9a39b3..0e76f43 100644
---- a/misc-utils/lsblk.c
-+++ b/misc-utils/lsblk.c
-@@ -430,8 +430,7 @@ static int table_parser_errcb(struct libmnt_table *tb __attribute__((__unused__)
- 			const char *filename, int line)
- {
- 	if (filename)
--		warnx(_("%s: parse error: ignore entry at line %d."),
--							filename, line);
-+		warnx(_("%s: parse error at line %d -- ignored"), filename, line);
- 	return 1;
- }
- 
-diff --git a/sys-utils/mount.c b/sys-utils/mount.c
-index 01eaccb..abc7a3e 100644
---- a/sys-utils/mount.c
-+++ b/sys-utils/mount.c
-@@ -99,8 +99,7 @@ static int table_parser_errcb(struct libmnt_table *tb __attribute__((__unused__)
- 			const char *filename, int line)
- {
- 	if (filename)
--		warnx(_("%s: parse error: ignore entry at line %d."),
--							filename, line);
-+		warnx(_("%s: parse error at line %d -- ignored"), filename, line);
- 	return 1;
- }
- 
-diff --git a/sys-utils/swapon-common.c b/sys-utils/swapon-common.c
-index 8b686c0..dd1593d 100644
---- a/sys-utils/swapon-common.c
-+++ b/sys-utils/swapon-common.c
-@@ -16,8 +16,7 @@ static int table_parser_errcb(struct libmnt_table *tb __attribute__((__unused__)
- 			const char *filename, int line)
- {
- 	if (filename)
--		warnx(_("%s: parse error: ignore entry at line %d."),
--							filename, line);
-+		warnx(_("%s: parse error at line %d -- ignored"), filename, line);
- 	return 1;
- }
- 
-diff --git a/sys-utils/umount.c b/sys-utils/umount.c
-index 1d866fa..8e3ef4e 100644
---- a/sys-utils/umount.c
-+++ b/sys-utils/umount.c
-@@ -43,8 +43,7 @@ static int table_parser_errcb(struct libmnt_table *tb __attribute__((__unused__)
- 			const char *filename, int line)
- {
- 	if (filename)
--		warnx(_("%s: parse error: ignore entry at line %d."),
--							filename, line);
-+		warnx(_("%s: parse error at line %d -- ignored"), filename, line);
- 	return 1;
- }
- 
+Motivation for this patch-set was to fix the minix tests for big endian
+systems. Of course this discovered some issues in the test suite and in
+our minix progs.
+
+This is github pull request #294
+https://github.com/karelzak/util-linux/pull/294
+
+Ruediger Meier (7):
+  tests: scsi_debug sleep
+  tests: minix, use hexdump instead of md5sum
+  tests: minix, some corrections and cleanup
+  fsck.minix: fix v3 version offset
+  mkfs.minix: fix v2/v3 .badblocks inode number for big endian
+  tests: fix minix tests for big endian
+  tests: minix, add a useful non-root check
+
+ disk-utils/fsck.minix.c                          |   5 +-
+ disk-utils/mkfs.minix.c                          |   5 +-
+ tests/expected/minix/fsck                        | 366 ++++++++++++++++++++++-
+ tests/expected/minix/fsck-images-auto-fix        |  30 +-
+ tests/expected/minix/fsck-images-badblocks       |  35 +++
+ tests/expected/minix/fsck-images-badblocks.BE    |  35 +++
+ tests/expected/minix/fsck-images-broken-root     |   2 +-
+ tests/expected/minix/fsck-images-bug.773892      |   2 +-
+ tests/expected/minix/fsck-images-check-blocks    |  22 +-
+ tests/expected/minix/fsck-images-check-blocks.BE |  29 ++
+ tests/expected/minix/fsck-images-v1c14           |  21 +-
+ tests/expected/minix/fsck-images-v1c14.BE        |  28 ++
+ tests/expected/minix/fsck-images-v1c30           |  22 +-
+ tests/expected/minix/fsck-images-v1c30.BE        |  29 ++
+ tests/expected/minix/fsck-images-v2c14           |  22 +-
+ tests/expected/minix/fsck-images-v2c14.BE        |  29 ++
+ tests/expected/minix/fsck-images-v2c30           |  23 +-
+ tests/expected/minix/fsck-images-v2c30.BE        |  30 ++
+ tests/expected/minix/fsck-images-v3c60           |  24 +-
+ tests/expected/minix/fsck-images-v3c60.BE        |  31 ++
+ tests/functions.sh                               |   1 +
+ tests/ts/minix/fsck                              |  45 ++-
+ tests/ts/minix/fsck-images                       |  44 ++-
+ tests/ts/minix/mkfs                              |   2 +-
+ 24 files changed, 837 insertions(+), 45 deletions(-)
+ create mode 100644 tests/expected/minix/fsck-images-badblocks
+ create mode 100644 tests/expected/minix/fsck-images-badblocks.BE
+ create mode 100644 tests/expected/minix/fsck-images-check-blocks.BE
+ create mode 100644 tests/expected/minix/fsck-images-v1c14.BE
+ create mode 100644 tests/expected/minix/fsck-images-v1c30.BE
+ create mode 100644 tests/expected/minix/fsck-images-v2c14.BE
+ create mode 100644 tests/expected/minix/fsck-images-v2c30.BE
+ create mode 100644 tests/expected/minix/fsck-images-v3c60.BE
+
 -- 
-1.7.0.4
+1.8.4.5
 
