@@ -1,127 +1,101 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:53323 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756710AbcB0UCd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 27 Feb 2016 15:02:33 -0500
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Cc: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
-Subject: [PATCH v2 12/14] lib: provide fallback if mkostemp(3) missing
-Date: Sat, 27 Feb 2016 21:02:28 +0100
-Message-Id: <1456603348-4940-1-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1456456118-19584-3-git-send-email-sweet_f_a@gmx.de>
-References: <1456456118-19584-3-git-send-email-sweet_f_a@gmx.de>
+Received: from mail.alunos.dcc.fc.up.pt ([193.136.39.109]:59213 "EHLO
+	smtp.alunos.dcc.fc.up.pt" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751114AbcCDSDY convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 4 Mar 2016 13:03:24 -0500
+Message-ID: <20160304190312.17036kwlv8g5ydk4@webmail.alunos.dcc.fc.up.pt>
+Date: Fri, 04 Mar 2016 19:03:12 +0100
+From: up201407890@alunos.dcc.fc.up.pt
+To: "Stanislav Brabec" <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Fixing su + runuser vulnerability CVE-2016-2779
+References: <56D7409A.6050407@suse.cz>
+	<20160303013722.22156xdxrqmywgw0@webmail.alunos.dcc.fc.up.pt>
+	<56D8648F.60504@suse.cz> <56D9B445.5080808@suse.cz>
+In-Reply-To: <56D9B445.5080808@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset=UTF-8;
+	DelSp="Yes";
+	format="flowed"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+Quoting "Stanislav Brabec" <sbrabec@suse.cz>:
 
-It's missing on OSX.
+> On Mar 3, 2016 at 17:21 Stanislav Brabec wrote:
+>> On Mar 3, 2016 at 01:37 up201407890@alunos.dcc.fc.up.pt wrote:
+>>
+>>> On another note, grsecurity recently released a new feature named
+>>> GRKERNSEC_HARDEN_TTY that disallows the use of TIOCSTI to unprivileged
+>>> users unless the caller has CAP_SYS_ADMIN.
+>>
+>> This will fix all util-linux issues, but not chroot. There root inside
+>> the chroot escapes from chroot and calls commands outside.
 
-CC: Yuriy M. Kaminskiy <yumkam@gmail.com>
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- configure.ac        |  1 +
- include/fileutils.h |  2 ++
- lib/fileutils.c     | 31 ++++++++++++++++++++++++++++++-
- libblkid/src/save.c |  3 ++-
- 4 files changed, 35 insertions(+), 2 deletions(-)
+Haven't looked into it, but grsecurity also has several chroot  
+hardening features, so maybe this is why HARDEN_TTY was enough.
 
-diff --git a/configure.ac b/configure.ac
-index 727a875..64a16ff 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -368,6 +368,7 @@ AC_CHECK_FUNCS([ \
- 	llseek \
- 	lseek64 \
- 	mempcpy \
-+	mkostemp \
- 	nanosleep \
- 	ntp_gettime \
- 	personality \
-diff --git a/include/fileutils.h b/include/fileutils.h
-index ba8da7f..79dd012 100644
---- a/include/fileutils.h
-+++ b/include/fileutils.h
-@@ -8,6 +8,8 @@
- 
- #include "c.h"
- 
-+extern int mkstemp_cloexec(char *template);
-+
- extern int xmkstemp(char **tmpname, const char *dir, const char *prefix);
- 
- static inline FILE *xfmkstemp(char **tmpname, const char *dir, const char *prefix)
-diff --git a/lib/fileutils.c b/lib/fileutils.c
-index bf8e60a..15cc925 100644
---- a/lib/fileutils.c
-+++ b/lib/fileutils.c
-@@ -13,6 +13,35 @@
- #include "fileutils.h"
- #include "pathnames.h"
- 
-+int mkstemp_cloexec(char *template)
-+{
-+#ifdef HAVE_MKOSTEMP
-+	return mkostemp(template, O_RDWR|O_CREAT|O_EXCL|O_CLOEXEC);
-+#else
-+	int fd, old_flags, errno_save;
-+
-+	fd = mkstemp(template);
-+	if (fd < 0)
-+		return fd;
-+
-+	old_flags = fcntl(fd, F_GETFD, 0);
-+	if (old_flags < 0)
-+		goto unwind;
-+	if (fcntl(fd, F_SETFD, old_flags | O_CLOEXEC) < 0)
-+		goto unwind;
-+
-+	return fd;
-+
-+unwind:
-+	errno_save = errno;
-+	unlink(template);
-+	close(fd);
-+	errno = errno_save;
-+
-+	return -1;
-+#endif
-+}
-+
- /* Create open temporary file in safe way.  Please notice that the
-  * file permissions are -rw------- by default. */
- int xmkstemp(char **tmpname, const char *dir, const char *prefix)
-@@ -33,7 +62,7 @@ int xmkstemp(char **tmpname, const char *dir, const char *prefix)
- 		return -1;
- 
- 	old_mode = umask(077);
--	fd = mkostemp(localtmp, O_RDWR|O_CREAT|O_EXCL|O_CLOEXEC);
-+	fd = mkstemp_cloexec(localtmp);
- 	umask(old_mode);
- 	if (fd == -1) {
- 		free(localtmp);
-diff --git a/libblkid/src/save.c b/libblkid/src/save.c
-index 5e8bbee..3070530 100644
---- a/libblkid/src/save.c
-+++ b/libblkid/src/save.c
-@@ -23,6 +23,7 @@
- #endif
- 
- #include "closestream.h"
-+#include "fileutils.h"
- 
- #include "blkidP.h"
- 
-@@ -133,7 +134,7 @@ int blkid_flush_cache(blkid_cache cache)
- 		tmp = malloc(strlen(filename) + 8);
- 		if (tmp) {
- 			sprintf(tmp, "%s-XXXXXX", filename);
--			fd = mkostemp(tmp, O_RDWR|O_CREAT|O_EXCL|O_CLOEXEC);
-+			fd = mkstemp_cloexec(tmp);
- 			if (fd >= 0) {
- 				if (fchmod(fd, 0644) != 0)
- 					DBG(SAVE, ul_debug("%s: fchmod failed", filename));
--- 
-1.9.1
+> Here are possibilities:
+>
+> 1) Quick kernel fix disabling TIOCSTI ioctl() for non-root, if the PID
+> of the terminal owner is not equal to PID of the calling process,
+> eventually use capabilities for the same.
+>
+> Pros:
+> + Fix in one place.
+> + Fix all possible future abuses.
+>
+> Cons:
+> - Many utilities are potentially affected and need testing.
+> - Some custom code could be affected. (I can imagine for example bar
+>   code reader running with a dedicated UID, and pushing bar code to the
+>   terminal. Such code will break for sure.)
+>
+
+Definitely needs testing.
+
+>
+> 2) Per utility fix using setsid().
+>
+> Pros:
+> + Prevents the exploit without uncertain side effects.
+>
+> Cons:
+> - Each affected utility needs fix.
+> - Loss of job control will affect working style of many people.
+
+Most weren't fixed because of this reason, it's likely they won't  
+change it now.
+
+> Conclusion:
+>
+> We need a different solution:
+>
+> 3) Introduce new terminal ioctl() or flag in the kernel. This flag will
+> block TIOCSTI (and possibly other dangerous actions). It will allow to
+> implement something like setsid(), but without side effects of job
+> control loss.
+>
+> Pros:
+> + No unwanted side effects at all.
+>
+> Cons:
+> - Each affected utility needs fix.
+
+Seems reasonable to me.
+
+>
+> We think, that only 3 will be safe and have no side effects.
+>
+>
+> Note:
+>
+> Fixing character stealing described in previous mails is not covered by
+> any of these solutions. This could be possible safely only with a new
+> syscall revoke(), which was not yet accepted to the kernel.
+
+
+----------------------------------------------------------------
+This message was sent using IMP, the Internet Messaging Program.
 
