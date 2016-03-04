@@ -1,39 +1,96 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46295 "EHLO mx1.redhat.com"
+Received: from mx2.suse.de ([195.135.220.15]:36659 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752330AbcCGNuh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 7 Mar 2016 08:50:37 -0500
-Date: Mon, 7 Mar 2016 14:50:35 +0100
-From: Karel Zak <kzak@redhat.com>
-To: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
+	id S1759275AbcCDQN7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 4 Mar 2016 11:13:59 -0500
+Subject: Re: Fixing su + runuser vulnerability CVE-2016-2779
+To: up201407890@alunos.dcc.fc.up.pt
+References: <56D7409A.6050407@suse.cz>
+ <20160303013722.22156xdxrqmywgw0@webmail.alunos.dcc.fc.up.pt>
+ <56D8648F.60504@suse.cz>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Proper fallback for systems that lacks O_CLOEXEC (was:
- [PATCH 12/14] lib: provide mkostemp fallback function)
-Message-ID: <20160307135035.u4ih7jwfwxs5oadf@ws.net.home>
-References: <1456455812-19453-1-git-send-email-sweet_f_a@gmx.de>
- <1456456118-19584-1-git-send-email-sweet_f_a@gmx.de>
- <1456456118-19584-3-git-send-email-sweet_f_a@gmx.de>
- <m337sfocs8.fsf@gmail.com>
- <m3y4a7msnj.fsf_-_@gmail.com>
+From: Stanislav Brabec <sbrabec@suse.cz>
+Message-ID: <56D9B445.5080808@suse.cz>
+Date: Fri, 4 Mar 2016 17:13:57 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <m3y4a7msnj.fsf_-_@gmail.com>
+In-Reply-To: <56D8648F.60504@suse.cz>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Feb 26, 2016 at 05:51:28PM +0300, Yuriy M. Kaminskiy wrote:
-> +		if (O_CLOEXEC == 0) fcntl(inst->lock, F_SETFD, FD_CLOEXEC);
+On Mar 3, 2016 at 17:21 Stanislav Brabec wrote:
+> On Mar 3, 2016 at 01:37 up201407890@alunos.dcc.fc.up.pt wrote:
+> 
+>> On another note, grsecurity recently released a new feature named
+>> GRKERNSEC_HARDEN_TTY that disallows the use of TIOCSTI to unprivileged
+>> users unless the caller has CAP_SYS_ADMIN.
+> 
+> This will fix all util-linux issues, but not chroot. There root inside 
+> the chroot escapes from chroot and calls commands outside.
+> 
+We had a talk about this bug, and we found, that there is no quick and
+100% safe fix.
 
-Thanks, but I think this is overkill. It really seems enough to
-provide mkostemp fallback than promise O_CLOEXEC functionality on
-systems where it's not implemented.
+Here are possibilities:
 
-Maybe if we want to be friendly to non-linux and old libs than we can
-add check to ./configure.ac and print warning on systems without
-O_CLOEXEC.
+1) Quick kernel fix disabling TIOCSTI ioctl() for non-root, if the PID
+of the terminal owner is not equal to PID of the calling process,
+eventually use capabilities for the same.
 
-    Karel
+Pros:
++ Fix in one place.
++ Fix all possible future abuses.
+
+Cons:
+- Many utilities are potentially affected and need testing.
+- Some custom code could be affected. (I can imagine for example bar
+  code reader running with a dedicated UID, and pushing bar code to the
+  terminal. Such code will break for sure.)
+
+
+2) Per utility fix using setsid().
+
+Pros:
++ Prevents the exploit without uncertain side effects.
+
+Cons:
+- Each affected utility needs fix.
+- Loss of job control will affect working style of many people.
+
+
+Conclusion:
+
+We need a different solution:
+
+3) Introduce new terminal ioctl() or flag in the kernel. This flag will
+block TIOCSTI (and possibly other dangerous actions). It will allow to
+implement something like setsid(), but without side effects of job
+control loss.
+
+Pros:
++ No unwanted side effects at all.
+
+Cons:
+- Each affected utility needs fix.
+
+
+We think, that only 3 will be safe and have no side effects.
+
+
+Note:
+
+Fixing character stealing described in previous mails is not covered by
+any of these solutions. This could be possible safely only with a new
+syscall revoke(), which was not yet accepted to the kernel.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
