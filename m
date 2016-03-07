@@ -1,111 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:55548 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.15.18]:55522 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753089AbcBZDIm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 25 Feb 2016 22:08:42 -0500
-Received: from tenfore.ga-group.nl ([95.114.239.233]) by mail.gmx.com
- (mrgmx003) with ESMTPSA (Nemesis) id 0Lymoh-1ZtT6F0Km7-016AGG for
- <util-linux@vger.kernel.org>; Fri, 26 Feb 2016 04:08:40 +0100
+	id S932993AbcCGXMH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 7 Mar 2016 18:12:07 -0500
+Received: from assos.lan ([84.185.129.97]) by mail.gmx.com (mrgmx003) with
+ ESMTPSA (Nemesis) id 0LaoHI-1aAdKd3abw-00kOj0 for
+ <util-linux@vger.kernel.org>; Tue, 08 Mar 2016 00:12:03 +0100
 From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 12/14] lib: provide mkostemp fallback function
-Date: Fri, 26 Feb 2016 04:08:36 +0100
-Message-Id: <1456456118-19584-3-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1456456118-19584-1-git-send-email-sweet_f_a@gmx.de>
-References: <1456455812-19453-1-git-send-email-sweet_f_a@gmx.de>
- <1456456118-19584-1-git-send-email-sweet_f_a@gmx.de>
+Subject: [PATCH 01/12] wipefs, sfdisk: include libgen.h for basename(3p)
+Date: Tue,  8 Mar 2016 00:11:51 +0100
+Message-Id: <1457392322-4974-2-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1457392322-4974-1-git-send-email-sweet_f_a@gmx.de>
+References: <1457392322-4974-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-It's missing on OSX.
-
 Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- configure.ac        |  1 +
- include/fileutils.h |  4 ++++
- lib/fileutils.c     | 27 +++++++++++++++++++++++++++
- libblkid/src/save.c |  1 +
- 4 files changed, 33 insertions(+)
+ disk-utils/sfdisk.c | 1 +
+ misc-utils/wipefs.c | 6 +++++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/configure.ac b/configure.ac
-index 727a875..64a16ff 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -368,6 +368,7 @@ AC_CHECK_FUNCS([ \
- 	llseek \
- 	lseek64 \
- 	mempcpy \
-+	mkostemp \
- 	nanosleep \
- 	ntp_gettime \
- 	personality \
-diff --git a/include/fileutils.h b/include/fileutils.h
-index ba8da7f..7c5594e 100644
---- a/include/fileutils.h
-+++ b/include/fileutils.h
-@@ -8,6 +8,10 @@
+diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
+index 81371eb..14c7cc0 100644
+--- a/disk-utils/sfdisk.c
++++ b/disk-utils/sfdisk.c
+@@ -35,6 +35,7 @@
+ #ifdef HAVE_LIBREADLINE
+ # include <readline/readline.h>
+ #endif
++#include <libgen.h>
  
  #include "c.h"
+ #include "xalloc.h"
+diff --git a/misc-utils/wipefs.c b/misc-utils/wipefs.c
+index 5948944..abcf5eb 100644
+--- a/misc-utils/wipefs.c
++++ b/misc-utils/wipefs.c
+@@ -29,6 +29,7 @@
+ #include <getopt.h>
+ #include <string.h>
+ #include <limits.h>
++#include <libgen.h>
  
-+#ifndef HAVE_MKOSTEMP
-+extern int mkostemp(char *template, int flags);
-+#endif
-+
- extern int xmkstemp(char **tmpname, const char *dir, const char *prefix);
+ #include <blkid.h>
  
- static inline FILE *xfmkstemp(char **tmpname, const char *dir, const char *prefix)
-diff --git a/lib/fileutils.c b/lib/fileutils.c
-index bf8e60a..05a8c02 100644
---- a/lib/fileutils.c
-+++ b/lib/fileutils.c
-@@ -13,6 +13,33 @@
- #include "fileutils.h"
- #include "pathnames.h"
+@@ -378,9 +379,12 @@ do_wipe(struct wipe_desc *wp, const char *devname, int flags)
  
-+#ifndef HAVE_MKOSTEMP
-+int mkostemp(char *template, int flags)
-+{
-+	int fd, old_flags, errno_save;
+ 	if (zap && (flags & WP_FL_BACKUP)) {
+ 		const char *home = getenv ("HOME");
++		char *tmp = xstrdup(devname);
 +
-+	fd = mkstemp(template);
-+	if (fd < 0)
-+		return fd;
-+
-+	old_flags = fcntl(fd, F_GETFD);
-+	if (old_flags < 0)
-+		goto unwind;
-+	if (fcntl(fd, F_SETFD, old_flags | flags) < 0)
-+		goto unwind;
-+
-+	return fd;
-+
-+unwind:
-+	errno_save = errno;
-+	unlink(template);
-+	close(fd);
-+	errno = errno_save;
-+
-+	return -1;
-+}
-+#endif
-+
- /* Create open temporary file in safe way.  Please notice that the
-  * file permissions are -rw------- by default. */
- int xmkstemp(char **tmpname, const char *dir, const char *prefix)
-diff --git a/libblkid/src/save.c b/libblkid/src/save.c
-index 5e8bbee..b9f447a 100644
---- a/libblkid/src/save.c
-+++ b/libblkid/src/save.c
-@@ -23,6 +23,7 @@
- #endif
+ 		if (!home)
+ 			errx(EXIT_FAILURE, _("failed to create a signature backup, $HOME undefined"));
+-		xasprintf (&backup, "%s/wipefs-%s-", home, basename(devname));
++		xasprintf (&backup, "%s/wipefs-%s-", home, basename(tmp));
++		free(tmp);
+ 	}
  
- #include "closestream.h"
-+#include "fileutils.h"
- 
- #include "blkidP.h"
- 
+ 	wp0 = clone_offset(wp);
 -- 
-1.8.4.5
+1.9.1
 
