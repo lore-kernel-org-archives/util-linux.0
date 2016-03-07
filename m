@@ -1,63 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews10.kpnxchange.com ([213.75.39.15]:65392 "EHLO
-	cpsmtpb-ews10.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752813AbcCNJKn (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Mar 2016 05:10:43 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 2/4] fallocate: improve synopsis and spelling in man page
-Date: Mon, 14 Mar 2016 10:10:11 +0100
-Message-Id: <1457946613-2435-2-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1457946613-2435-1-git-send-email-bensberg@justemail.net>
-References: <1457946613-2435-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:46295 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752330AbcCGNuh (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 7 Mar 2016 08:50:37 -0500
+Date: Mon, 7 Mar 2016 14:50:35 +0100
+From: Karel Zak <kzak@redhat.com>
+To: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] Proper fallback for systems that lacks O_CLOEXEC (was:
+ [PATCH 12/14] lib: provide mkostemp fallback function)
+Message-ID: <20160307135035.u4ih7jwfwxs5oadf@ws.net.home>
+References: <1456455812-19453-1-git-send-email-sweet_f_a@gmx.de>
+ <1456456118-19584-1-git-send-email-sweet_f_a@gmx.de>
+ <1456456118-19584-3-git-send-email-sweet_f_a@gmx.de>
+ <m337sfocs8.fsf@gmail.com>
+ <m3y4a7msnj.fsf_-_@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <m3y4a7msnj.fsf_-_@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- sys-utils/fallocate.1 |   10 ++++------
- 1 files changed, 4 insertions(+), 6 deletions(-)
+On Fri, Feb 26, 2016 at 05:51:28PM +0300, Yuriy M. Kaminskiy wrote:
+> +		if (O_CLOEXEC == 0) fcntl(inst->lock, F_SETFD, FD_CLOEXEC);
 
-diff --git a/sys-utils/fallocate.1 b/sys-utils/fallocate.1
-index dd9f293..5421a11 100644
---- a/sys-utils/fallocate.1
-+++ b/sys-utils/fallocate.1
-@@ -3,14 +3,12 @@
- fallocate \- preallocate or deallocate space to a file
- .SH SYNOPSIS
- .B fallocate
--.RB [ \-c ]
--.RB [ \-n ]
--.RB [ \-p ]
--.RB [ \-z ]
-+.RB [ \-c | \-p | -z ]
- .RB [ \-o
- .IR offset ]
- .B \-l
- .IR length
-+.RB [ \-n ]
- .I filename
- .PP
- .B fallocate \-d
-@@ -25,7 +23,7 @@ is used to manipulate the allocated disk space for a file, either to deallocate
- or preallocate it.  For filesystems which support the fallocate system call,
- preallocation is done quickly by allocating blocks and marking them as
- uninitialized, requiring no IO to the data blocks.  This is much faster than
--creating a file by filling it with zeros.
-+creating a file by filling it with zeroes.
- .PP
- The exit code returned by
- .B fallocate
-@@ -46,7 +44,7 @@ to be collapsed starts at \fIoffset\fP and continues
- for \fIlength\fR bytes.  At the completion of the operation, the contents of
- the file starting at the location \fIoffset\fR+\fIlength\fR will be appended at the
- location \fIoffset\fR, and the file will be \fIlength\fR bytes smaller.  The option
--\fB\-\-keep\-size\fR may not be specified for colapse range operation.
-+\fB\-\-keep\-size\fR may not be specified for the collapse-range operation.
- .sp
- Available since Linux 3.15 for ext4 (only for extent-based files) and XFS.
- .TP
+Thanks, but I think this is overkill. It really seems enough to
+provide mkostemp fallback than promise O_CLOEXEC functionality on
+systems where it's not implemented.
+
+Maybe if we want to be friendly to non-linux and old libs than we can
+add check to ./configure.ac and print warning on systems without
+O_CLOEXEC.
+
+    Karel
+
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
