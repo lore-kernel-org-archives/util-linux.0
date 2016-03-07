@@ -1,58 +1,313 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:40027 "EHLO mx2.suse.de"
+Received: from smtp.gentoo.org ([140.211.166.183]:42992 "EHLO smtp.gentoo.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933551AbcCITws (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 9 Mar 2016 14:52:48 -0500
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 58F65AD30
-	for <util-linux@vger.kernel.org>; Wed,  9 Mar 2016 19:52:46 +0000 (UTC)
+	id S1752248AbcCGW0f (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 7 Mar 2016 17:26:35 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+	by smtp.gentoo.org (Postfix) with ESMTP id 25890340A7D
+	for <util-linux@vger.kernel.org>; Mon,  7 Mar 2016 22:26:34 +0000 (UTC)
+From: Mike Frysinger <vapier@gentoo.org>
 To: util-linux@vger.kernel.org
-From: Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH] libmount: Typo fix
-Message-ID: <56E07F0E.8090901@suse.cz>
-Date: Wed, 9 Mar 2016 20:52:46 +0100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Subject: [PATCH] include sysmacros.h where used
+Date: Mon,  7 Mar 2016 17:26:33 -0500
+Message-Id: <1457389593-15124-1-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+BSD/Linux systems stick major/minor/makedev in sysmacros.h.  Newer Linux
+libraries have been moving away from including sysmacros.h implicitly via
+sys/types.h, so include it directly.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
 ---
- libmount/src/tab.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ disk-utils/fsck.c                    | 1 +
+ disk-utils/partx.c                   | 1 +
+ disk-utils/sfdisk.c                  | 1 +
+ lib/ismounted.c                      | 1 +
+ lib/sysfs.c                          | 1 +
+ libblkid/src/devname.c               | 1 +
+ libblkid/src/devno.c                 | 1 +
+ libblkid/src/evaluate.c              | 1 +
+ libblkid/src/partitions/partitions.c | 1 +
+ libblkid/src/topology/dm.c           | 1 +
+ libblkid/src/topology/evms.c         | 1 +
+ libblkid/src/topology/lvm.c          | 1 +
+ libblkid/src/topology/md.c           | 1 +
+ libmount/python/fs.c                 | 1 +
+ libmount/src/fs.c                    | 1 +
+ libmount/src/tab_parse.c             | 1 +
+ login-utils/sulogin-consoles.c       | 1 +
+ misc-utils/findmnt.c                 | 1 +
+ misc-utils/lsblk.c                   | 1 +
+ misc-utils/lslocks.c                 | 1 +
+ sys-utils/losetup.c                  | 1 +
+ sys-utils/mountpoint.c               | 1 +
+ 22 files changed, 22 insertions(+)
 
-diff --git a/libmount/src/tab.c b/libmount/src/tab.c
-index 102ed25..0570044 100644
---- a/libmount/src/tab.c
-+++ b/libmount/src/tab.c
-@@ -1247,7 +1247,7 @@ static int get_btrfs_fs_root(struct libmnt_table *tb, struct libmnt_fs *fs, char
- 		if (!target)
- 			goto err;
+diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
+index 6f9e78b..2b7e712 100644
+--- a/disk-utils/fsck.c
++++ b/disk-utils/fsck.c
+@@ -30,6 +30,7 @@
+ #include <sys/types.h>
+ #include <sys/wait.h>
+ #include <sys/stat.h>
++#include <sys/sysmacros.h>
+ #include <sys/file.h>
+ #include <fcntl.h>
+ #include <limits.h>
+diff --git a/disk-utils/partx.c b/disk-utils/partx.c
+index 50bd6a4..955166b 100644
+--- a/disk-utils/partx.c
++++ b/disk-utils/partx.c
+@@ -19,6 +19,7 @@
+ #include <unistd.h>
+ #include <assert.h>
+ #include <dirent.h>
++#include <sys/sysmacros.h>
  
--		DBG(BTRFS, ul_debug(" tring target=%s subvolid=%s", target, subvolidstr));
-+		DBG(BTRFS, ul_debug(" trying target=%s subvolid=%s", target, subvolidstr));
- 		f = mnt_table_find_target_with_option(tb, target,
- 					"subvolid", subvolidstr,
- 					MNT_ITER_BACKWARD);
-@@ -1292,7 +1292,7 @@ static int get_btrfs_fs_root(struct libmnt_table *tb, struct libmnt_fs *fs, char
- 		snprintf(default_id_str, sizeof(default_id_str), "%llu",
- 				(unsigned long long int) default_id);
+ #include <blkid.h>
+ #include <libsmartcols.h>
+diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
+index 81371eb..9c1aacb 100644
+--- a/disk-utils/sfdisk.c
++++ b/disk-utils/sfdisk.c
+@@ -29,6 +29,7 @@
+ #include <errno.h>
+ #include <getopt.h>
+ #include <sys/stat.h>
++#include <sys/sysmacros.h>
+ #include <assert.h>
+ #include <fcntl.h>
+ #include <libsmartcols.h>
+diff --git a/lib/ismounted.c b/lib/ismounted.c
+index f83be65..9b0e447 100644
+--- a/lib/ismounted.c
++++ b/lib/ismounted.c
+@@ -18,6 +18,7 @@
+ #include <sys/stat.h>
+ #include <ctype.h>
+ #include <sys/param.h>
++#include <sys/sysmacros.h>
  
--		DBG(BTRFS, ul_debug(" tring target=%s default subvolid=%s",
-+		DBG(BTRFS, ul_debug(" trying target=%s default subvolid=%s",
- 					target, default_id_str));
+ #ifndef __linux__
+ # ifdef HAVE_SYS_UCRED_H
+diff --git a/lib/sysfs.c b/lib/sysfs.c
+index 9e973a4..4b46459 100644
+--- a/lib/sysfs.c
++++ b/lib/sysfs.c
+@@ -7,6 +7,7 @@
+ #include <ctype.h>
+ #include <libgen.h>
+ #include <fcntl.h>
++#include <sys/sysmacros.h>
+ #include <sys/stat.h>
+ #include <unistd.h>
  
- 		f = mnt_table_find_target_with_option(tb, target,
+diff --git a/libblkid/src/devname.c b/libblkid/src/devname.c
+index dbbe5b5..d583800 100644
+--- a/libblkid/src/devname.c
++++ b/libblkid/src/devname.c
+@@ -25,6 +25,7 @@
+ #ifdef HAVE_SYS_TYPES_H
+ #include <sys/types.h>
+ #endif
++#include <sys/sysmacros.h>
+ #include <dirent.h>
+ #ifdef HAVE_SYS_STAT_H
+ #include <sys/stat.h>
+diff --git a/libblkid/src/devno.c b/libblkid/src/devno.c
+index 58fbce5..4b8f3db 100644
+--- a/libblkid/src/devno.c
++++ b/libblkid/src/devno.c
+@@ -31,6 +31,7 @@
+ #endif
+ #include <fcntl.h>
+ #include <inttypes.h>
++#include <sys/sysmacros.h>
+ 
+ #include "blkidP.h"
+ #include "pathnames.h"
+diff --git a/libblkid/src/evaluate.c b/libblkid/src/evaluate.c
+index ffbe097..3d9a76b 100644
+--- a/libblkid/src/evaluate.c
++++ b/libblkid/src/evaluate.c
+@@ -12,6 +12,7 @@
+ #include <unistd.h>
+ #include <fcntl.h>
+ #include <ctype.h>
++#include <sys/sysmacros.h>
+ #include <sys/types.h>
+ #ifdef HAVE_SYS_STAT_H
+ #include <sys/stat.h>
+diff --git a/libblkid/src/partitions/partitions.c b/libblkid/src/partitions/partitions.c
+index c8e0bfe..4ba5411 100644
+--- a/libblkid/src/partitions/partitions.c
++++ b/libblkid/src/partitions/partitions.c
+@@ -15,6 +15,7 @@
+ #include <ctype.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
++#include <sys/sysmacros.h>
+ #include <errno.h>
+ #include <stdint.h>
+ #include <inttypes.h>
+diff --git a/libblkid/src/topology/dm.c b/libblkid/src/topology/dm.c
+index e061632..993161c 100644
+--- a/libblkid/src/topology/dm.c
++++ b/libblkid/src/topology/dm.c
+@@ -17,6 +17,7 @@
+ #include <string.h>
+ #include <sys/stat.h>
+ #include <sys/types.h>
++#include <sys/sysmacros.h>
+ #include <unistd.h>
+ 
+ #include "topology.h"
+diff --git a/libblkid/src/topology/evms.c b/libblkid/src/topology/evms.c
+index 7a4fd55..b59b97b 100644
+--- a/libblkid/src/topology/evms.c
++++ b/libblkid/src/topology/evms.c
+@@ -18,6 +18,7 @@
+ #include <sys/ioctl.h>
+ #include <sys/stat.h>
+ #include <sys/types.h>
++#include <sys/sysmacros.h>
+ #include <unistd.h>
+ 
+ #include "topology.h"
+diff --git a/libblkid/src/topology/lvm.c b/libblkid/src/topology/lvm.c
+index bd079d4..2ade0c2 100644
+--- a/libblkid/src/topology/lvm.c
++++ b/libblkid/src/topology/lvm.c
+@@ -17,6 +17,7 @@
+ #include <string.h>
+ #include <sys/stat.h>
+ #include <sys/types.h>
++#include <sys/sysmacros.h>
+ #include <unistd.h>
+ 
+ #include "topology.h"
+diff --git a/libblkid/src/topology/md.c b/libblkid/src/topology/md.c
+index 5eba947..388f996 100644
+--- a/libblkid/src/topology/md.c
++++ b/libblkid/src/topology/md.c
+@@ -18,6 +18,7 @@
+ #include <sys/ioctl.h>
+ #include <sys/stat.h>
+ #include <sys/types.h>
++#include <sys/sysmacros.h>
+ #include <unistd.h>
+ 
+ #include "topology.h"
+diff --git a/libmount/python/fs.c b/libmount/python/fs.c
+index 0789d37..651a7c5 100644
+--- a/libmount/python/fs.c
++++ b/libmount/python/fs.c
+@@ -27,6 +27,7 @@
+ 
+ #include "pylibmount.h"
+ #include <errno.h>
++#include <sys/sysmacros.h>
+ 
+ #define Fs_HELP "Fs(source=None, root=None, target=None, fstype=None, options=None, attributes=None, freq=0, passno=0)"
+ 
+diff --git a/libmount/src/fs.c b/libmount/src/fs.c
+index 2bab7d6..ab3155d 100644
+--- a/libmount/src/fs.c
++++ b/libmount/src/fs.c
+@@ -14,6 +14,7 @@
+ #include <ctype.h>
+ #include <blkid.h>
+ #include <stddef.h>
++#include <sys/sysmacros.h>
+ 
+ #include "mountP.h"
+ #include "strutils.h"
+diff --git a/libmount/src/tab_parse.c b/libmount/src/tab_parse.c
+index cee7008..29b4428 100644
+--- a/libmount/src/tab_parse.c
++++ b/libmount/src/tab_parse.c
+@@ -16,6 +16,7 @@
+ #include <dirent.h>
+ #include <fcntl.h>
+ #include <sys/stat.h>
++#include <sys/sysmacros.h>
+ 
+ #include "fileutils.h"
+ #include "mangle.h"
+diff --git a/login-utils/sulogin-consoles.c b/login-utils/sulogin-consoles.c
+index fe8eab1..56f5336 100644
+--- a/login-utils/sulogin-consoles.c
++++ b/login-utils/sulogin-consoles.c
+@@ -27,6 +27,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <sys/sysmacros.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <sys/ioctl.h>
+diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
+index f72be14..e14119b 100644
+--- a/misc-utils/findmnt.c
++++ b/misc-utils/findmnt.c
+@@ -31,6 +31,7 @@
+ #include <assert.h>
+ #include <poll.h>
+ #include <sys/statvfs.h>
++#include <sys/sysmacros.h>
+ #include <sys/types.h>
+ #ifdef HAVE_LIBUDEV
+ # include <libudev.h>
+diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
+index c9a39b3..6010167 100644
+--- a/misc-utils/lsblk.c
++++ b/misc-utils/lsblk.c
+@@ -26,6 +26,7 @@
+ #include <stdlib.h>
+ #include <unistd.h>
+ #include <stdint.h>
++#include <sys/sysmacros.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <dirent.h>
+diff --git a/misc-utils/lslocks.c b/misc-utils/lslocks.c
+index a47c1d0..7689964 100644
+--- a/misc-utils/lslocks.c
++++ b/misc-utils/lslocks.c
+@@ -30,6 +30,7 @@
+ #include <dirent.h>
+ #include <unistd.h>
+ #include <sys/stat.h>
++#include <sys/sysmacros.h>
+ #include <sys/types.h>
+ 
+ #include <libmount.h>
+diff --git a/sys-utils/losetup.c b/sys-utils/losetup.c
+index 1d57ab3..90a42b6 100644
+--- a/sys-utils/losetup.c
++++ b/sys-utils/losetup.c
+@@ -12,6 +12,7 @@
+ #include <unistd.h>
+ #include <sys/ioctl.h>
+ #include <sys/stat.h>
++#include <sys/sysmacros.h>
+ #include <inttypes.h>
+ #include <getopt.h>
+ 
+diff --git a/sys-utils/mountpoint.c b/sys-utils/mountpoint.c
+index ad9c1da..64d0a7e 100644
+--- a/sys-utils/mountpoint.c
++++ b/sys-utils/mountpoint.c
+@@ -31,6 +31,7 @@
+ #include <unistd.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
++#include <sys/sysmacros.h>
+ 
+ #include <libmount.h>
+ 
 -- 
-2.7.2
+2.6.2
 
--- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
