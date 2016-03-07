@@ -1,56 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:48164 "EHLO mx2.suse.de"
+Received: from mout.gmx.net ([212.227.15.19]:61932 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755776AbcCNOTR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Mar 2016 10:19:17 -0400
-Subject: Re: [PATCH] tests: add btrfs mount tests
-To: Ruediger Meier <sweet_f_a@gmx.de>
-References: <56B0EEB2.1060707@suse.cz> <201603140220.47345.sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <56E6C863.2070909@suse.cz>
-Date: Mon, 14 Mar 2016 15:19:15 +0100
-MIME-Version: 1.0
-In-Reply-To: <201603140220.47345.sweet_f_a@gmx.de>
-Content-Type: text/plain; charset=iso-8859-2; format=flowed
+	id S932716AbcCGXMH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 7 Mar 2016 18:12:07 -0500
+Received: from assos.lan ([84.185.129.97]) by mail.gmx.com (mrgmx003) with
+ ESMTPSA (Nemesis) id 0MIuSH-1ab8Vp3nxJ-002VCZ for
+ <util-linux@vger.kernel.org>; Tue, 08 Mar 2016 00:12:04 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 05/12] libfdisk: remove ifdef HDIO_GETGEO
+Date: Tue,  8 Mar 2016 00:11:55 +0100
+Message-Id: <1457392322-4974-6-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1457392322-4974-1-git-send-email-sweet_f_a@gmx.de>
+References: <1457392322-4974-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mar 14, 2016 at 02:20 Ruediger Meier wrote:
-> On Tuesday 02 February 2016, Stanislav Brabec wrote:
-> IMO this test needs some more error handling, see below.
->
->> +btrfs subvol create s2 >/dev/null
->
-> For example if you comment out above line (or if it would fail) then
-> all subtests below still succeed. This can't be right.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Well, it is a test suite for mount, not btrfs. I did not add any error 
-checks in the code that creates the testing image.
+We don't use HDIO_GETGEO since e5b5a349.
 
-Grepping through the whole test suite, I see that more than a half of 
-all tests do not check for mkfs failure. Here we just have a multi-line 
-mkfs.
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ libfdisk/src/sgi.c | 3 +--
+ libfdisk/src/sun.c | 2 --
+ 2 files changed, 1 insertion(+), 4 deletions(-)
 
-It is possible to add a check for every command there, and fail the test 
-if the command fails or returns something unexpected.
-
->> +NON_DEFAULT_SUBVOLID=$(btrfs subvol list "$TS_MOUNTPOINT-create" |
-
-NON_DEFAULT_SUBVOLID will be empty.
-
->> "subvolid=$NON_DEFAULT_SUBVOLID" +
-
-I am not sure how kernel will interpret subvolid=.
-
+diff --git a/libfdisk/src/sgi.c b/libfdisk/src/sgi.c
+index 6228cf8..c77724a 100644
+--- a/libfdisk/src/sgi.c
++++ b/libfdisk/src/sgi.c
+@@ -968,7 +968,6 @@ static int sgi_create_disklabel(struct fdisk_context *cxt)
+ 	assert(cxt->label);
+ 	assert(fdisk_is_label(cxt, SGI));
+ 
+-#ifdef HDIO_GETGEO
+ 	if (cxt->geom.heads && cxt->geom.sectors) {
+ 		fdisk_sector_t llsectors;
+ 
+@@ -990,7 +989,7 @@ static int sgi_create_disklabel(struct fdisk_context *cxt)
+ 				  "> 33.8 GB."), cxt->dev_path, cxt->geom.cylinders);
+ 		}
+ 	}
+-#endif
++
+ 	rc = fdisk_init_firstsector_buffer(cxt, 0, 0);
+ 	if (rc)
+ 		return rc;
+diff --git a/libfdisk/src/sun.c b/libfdisk/src/sun.c
+index a50076a..a97ecac 100644
+--- a/libfdisk/src/sun.c
++++ b/libfdisk/src/sun.c
+@@ -225,7 +225,6 @@ static int sun_create_disklabel(struct fdisk_context *cxt)
+ 	sunlabel->vtoc.sanity = cpu_to_be32(SUN_VTOC_SANITY);
+ 	sunlabel->vtoc.nparts = cpu_to_be16(SUN_MAXPARTITIONS);
+ 
+-#ifdef HDIO_GETGEO
+ 	if (cxt->geom.heads && cxt->geom.sectors) {
+ 		fdisk_sector_t llsectors;
+ 
+@@ -246,7 +245,6 @@ static int sun_create_disklabel(struct fdisk_context *cxt)
+ 				cxt->dev_path, cxt->geom.cylinders);
+ 		}
+ 	} else
+-#endif
+ 		ask_geom(cxt);
+ 
+ 	sunlabel->acyl   = cpu_to_be16(0);
 -- 
-Best Regards / S pozdravem,
+1.9.1
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
