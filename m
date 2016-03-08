@@ -1,95 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews03.kpnxchange.com ([213.75.39.6]:59962 "EHLO
-	cpsmtpb-ews03.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932832AbcCQJjZ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Thu, 17 Mar 2016 05:39:25 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/5] chrt: remove duplicate words and tweak some phrasings in the man page
-Date: Thu, 17 Mar 2016 10:39:10 +0100
-Message-Id: <1458207554-2405-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:45595 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752948AbcCHNew (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 8 Mar 2016 08:34:52 -0500
+Date: Tue, 8 Mar 2016 14:34:49 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: util-linux@vger.kernel.org, Ruediger Meier <ruediger.meier@ga-group.nl>
+Subject: Re: [PATCH] include sysmacros.h where used
+Message-ID: <20160308133449.valpkagmel6jaegy@ws.net.home>
+References: <1457389593-15124-1-git-send-email-vapier@gentoo.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1457389593-15124-1-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- schedutils/chrt.1 |   32 ++++++++++++++++----------------
- 1 files changed, 16 insertions(+), 16 deletions(-)
+On Mon, Mar 07, 2016 at 05:26:33PM -0500, Mike Frysinger wrote:
+> BSD/Linux systems stick major/minor/makedev in sysmacros.h.  Newer Linux
+> libraries have been moving away from including sysmacros.h implicitly via
+> sys/types.h, so include it directly.
 
-diff --git a/schedutils/chrt.1 b/schedutils/chrt.1
-index 5d2057e..51d575b 100644
---- a/schedutils/chrt.1
-+++ b/schedutils/chrt.1
-@@ -42,41 +42,41 @@ or runs \fIcommand\fR with the given attributes.
- .SH POLICIES
- .TP
- \fB\-o\fR, \fB\-\-other\fR
--Set policy scheduling policy to
-+Set scheduling policy to
- .BR SCHED_OTHER .
- This is the default Linux scheduling policy.
- .TP
--\fB\-f\fR, \fB\-\-fifo\fR 
--Set policy scheduling policy to SCHED_FIFO.
-+\fB\-f\fR, \fB\-\-fifo\fR
-+Set scheduling policy to \fBSCHED_FIFO\fR.
- .TP
- \fB\-r\fR, \fB\-\-rr\fR
- Set scheduling policy to
- .BR SCHED_RR .
--When policy is not defined the
-+When no policy is defined, the
- .B SCHED_RR
--is used as default.
-+is used as the default.
- .TP
- \fB\-b\fR, \fB\-\-batch\fR
- Set scheduling policy to
- .B SCHED_BATCH
--(Linux-specific, supported since 2.6.16). The priority argument has to be set to zero.
-+(Linux-specific, supported since 2.6.16).  The priority argument has to be set to zero.
- .TP
- \fB\-i\fR, \fB\-\-idle\fR
- Set scheduling policy to
- .B SCHED_IDLE
--(Linux-specific, supported since 2.6.23). The priority argument has to be set to zero.
-+(Linux-specific, supported since 2.6.23).  The priority argument has to be set to zero.
- .TP
- .BR -d ,\  --deadline
--Set policy scheduling policy to
-+Set scheduling policy to
- .BR SCHED_DEADLINE
--(Linux-specific, supported since 3.14). The priority argument has to be set to
--zero. See also \fB\-\-sched\-runtime\fR, \fB\-\-sched\-deadline\fR and
--\fB\-\-sched\-period\fR. The relation between the options required by kernel is
-+(Linux-specific, supported since 3.14).  The priority argument has to be set to zero.
-+See also \fB\-\-sched\-runtime\fR, \fB\-\-sched\-deadline\fR and
-+\fB\-\-sched\-period\fR.  The relation between the options required by the kernel is
- runtime <= deadline <= period.
- .B chrt
--copies \fIperiod\fR to \fIdeadline\fR if \fB\-\-sched\-deadline\fR is no specified and
--\fIdeadline\fR to \fIruntime\fR if \fB\-\-sched\-runtime\fR is no specified. It means at least
--\fB\-\-sched\-period\fR has to be specified. See
-+copies \fIperiod\fR to \fIdeadline\fR if \fB\-\-sched\-deadline\fR is not specified and
-+\fIdeadline\fR to \fIruntime\fR if \fB\-\-sched\-runtime\fR is not specified.
-+It means that at least \fB\-\-sched\-period\fR has to be specified.  See
- .BR sched (7)
- for more details.
- 
-@@ -146,10 +146,10 @@ Only
- .BR SCHED_OTHER
- and
- .BR SCHED_RR
--are part of POSIX 1003.1b Process Scheduling. The other scheduling attributes
-+are part of POSIX 1003.1b Process Scheduling.  The other scheduling attributes
- may be ignored on some systems.
- .P
--Linux default scheduling policy is
-+Linux' default scheduling policy is
- .BR SCHED_OTHER .
- .SH SEE ALSO
- .BR taskset (1),
+Applied and then reverted ;-) It seems in conflict with Rudi's
+changes. We need #ifdef HAVE_SYS_SYSMACROS_H for the file.
+
+I have moved it to c.h, it seems better to keep it on one place. (I
+hope it does not have any side effects to have it everywhere.)
+
+    Karel
+
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
