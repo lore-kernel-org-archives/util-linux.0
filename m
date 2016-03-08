@@ -1,54 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:59734 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932199AbcCKWDu (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 11 Mar 2016 17:03:50 -0500
-From: Richard Yao <ryao@gentoo.org>
+Received: from cpsmtpb-ews03.kpnxchange.com ([213.75.39.6]:57435 "EHLO
+	cpsmtpb-ews03.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932159AbcCHJVU (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 8 Mar 2016 04:21:20 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-Cc: Richard Yao <ryao@gentoo.org>
-Subject: [PATCH] docs: swapon.8 fix discard=pages
-Date: Fri, 11 Mar 2016 17:03:27 -0500
-Message-Id: <1457733807-65369-1-git-send-email-ryao@gentoo.org>
+Subject: [PATCH 2/9] fdisk, sfdisk: adjust the wording of the --wipe option
+Date: Tue,  8 Mar 2016 10:07:45 +0100
+Message-Id: <1457428072-2619-2-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1457428072-2619-1-git-send-email-bensberg@justemail.net>
+References: <1457428072-2619-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The documentation for discard=pages is ambiguous in that it could be
-interpreted to mean either that the pages are discarded immediately
-after being freed or that the pages are discarded immediately before
-being reused by a write. Both implementations would satisfy the
-statement "discard freed swap pages before they are avaliable for
-reuse", but the kernel does the former.
+Use "when" as argument, to match the argument of --color,
+that can have the same three values.
 
-Doing a discard operation (which is non-queued on SATA drives before
-SATA 3.1) before a write operation to the same sector is pointless
-unless using, pre-SATA 3.1 drives, where discard is detrimental because
-ATA TRIM is a non-queued command.
-
-Anyone who wants discard operations on swap and interprets the man page
-as describing the incorrect behavior would opt for discard=once over
-discard, when discard provides the behavior of both discard=once and
-discard=pages, which is what they likely want.
-
-Lets make a small change to the documentation to clarify the behavior.
-
-Signed-off-by: Richard Yao <ryao@gentoo.org>
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 ---
- sys-utils/swapon.8 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ disk-utils/fdisk.8  |   13 +++++++------
+ disk-utils/sfdisk.8 |   13 +++++++------
+ 2 files changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/sys-utils/swapon.8 b/sys-utils/swapon.8
-index 299da22..9abb1b3 100644
---- a/sys-utils/swapon.8
-+++ b/sys-utils/swapon.8
-@@ -87,7 +87,7 @@ available swap discard policies:
- to perform a single-time discard operation for the whole swap area at swapon;
- or
- .BI \-\-discard=pages
--to discard freed swap pages before they are reused, while swapping.
-+to asynchronously discard freed swap pages before they are avaliable for reuse.
- If no policy is selected, the default behavior is to enable both discard types.
- The
- .I /etc/fstab
+diff --git a/disk-utils/fdisk.8 b/disk-utils/fdisk.8
+index 49401e5..89e3153 100644
+--- a/disk-utils/fdisk.8
++++ b/disk-utils/fdisk.8
+@@ -119,12 +119,13 @@ Specify the number of sectors per track of the disk.
+ partition tables.) A reasonable value is 63.
+ 
+ .TP
+-\fB\-w\fR, \fB\-\-wipe\fR \fImode\fR
+-Wipe filesystems, RAIDs and partition tables signatures from the device, in
+-order to avoid possible collisions.  The \fImode\fR can be \fBauto\fR,
+-\fBnever\fR or \fBalways\fR.  The default is \fBauto\fR, in this case signatures
+-are wiped in the interactive mode only, in all cases detected signatures are
+-reported by warning message before a new partition table is created. See also
++\fB\-w\fR, \fB\-\-wipe\fR \fIwhen\fR
++Wipe filesystem, RAID and partition-table signatures from the device, in order
++to avoid possible collisions.  The argument \fIwhen\fR can be \fBauto\fR,
++\fBnever\fR or \fBalways\fR.  When this option is not given, the default is
++\fBauto\fR, in which case signatures are wiped only when in interactive mode.
++In all cases detected signatures are reported by warning messages
++before a new partition table is created.  See also
+ .BR wipefs (8)
+ command.
+ 
+diff --git a/disk-utils/sfdisk.8 b/disk-utils/sfdisk.8
+index b8cacee..52b1b34 100644
+--- a/disk-utils/sfdisk.8
++++ b/disk-utils/sfdisk.8
+@@ -210,12 +210,13 @@ Force editing of a nested disk label.  The primary disk label has to exist alrea
+ This option allows to edit for example a hybrid/protective MBR on devices with GPT.
+ 
+ .TP
+-.BR -w , " \-\-wipe "\fImode
+-Wipe filesystems, RAIDs and partition tables signatures from the device, in
+-order to avoid possible collisions.  The \fImode\fR can be \fBauto\fR,
+-\fBnever\fR or \fBalways\fR.  The default is \fBauto\fR, in this case signatures
+-are wiped in the interactive mode only, in all cases detected signatures are
+-reported by warning message before a new partition table is created. See also
++.BR -w , " \-\-wipe "\fIwhen
++Wipe filesystem, RAID and partition-table signatures from the device, in order
++to avoid possible collisions.  The argument \fIwhen\fR can be \fBauto\fR,
++\fBnever\fR or \fBalways\fR.  When this option is not given, the default is
++\fBauto\fR, in which case signatures are wiped only when in interactive mode.
++In all cases detected signatures are reported by warning messages
++before a new partition table is created.  See also
+ .BR wipefs (8)
+ command.
+ 
 -- 
-2.4.10
+1.7.0.4
 
