@@ -1,69 +1,103 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.19]:59924 "EHLO mout.gmx.net"
+Received: from mx2.suse.de ([195.135.220.15]:44153 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753957AbcBZMrg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 26 Feb 2016 07:47:36 -0500
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
-Subject: Re: [PATCH 06/14] newgrp: rename memset_s()
-Date: Fri, 26 Feb 2016 13:47:26 +0100
-Cc: util-linux@vger.kernel.org
-References: <1456455812-19453-1-git-send-email-sweet_f_a@gmx.de> <1456455812-19453-7-git-send-email-sweet_f_a@gmx.de> <m37fhrods0.fsf@gmail.com>
-In-Reply-To: <m37fhrods0.fsf@gmail.com>
+	id S1753635AbcCHQdj (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 8 Mar 2016 11:33:39 -0500
+Subject: Re: Fixing su + runuser vulnerability CVE-2016-2779
+To: =?UTF-8?Q?=c3=81ngel_Gonz=c3=a1lez?= <ingenit@zoho.com>,
+        util-linux@vger.kernel.org
+References: <56D7409A.6050407@suse.cz>
+ <20160303013722.22156xdxrqmywgw0@webmail.alunos.dcc.fc.up.pt>
+ <56D8648F.60504@suse.cz> <56D9B445.5080808@suse.cz>
+ <20160304190312.17036kwlv8g5ydk4@webmail.alunos.dcc.fc.up.pt>
+ <56DA1F2A.5040104@zoho.com>
+Cc: up201407890@alunos.dcc.fc.up.pt
+From: Stanislav Brabec <sbrabec@suse.cz>
+Message-ID: <56DEFEE1.1080507@suse.cz>
+Date: Tue, 8 Mar 2016 17:33:37 +0100
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201602261347.26863.sweet_f_a@gmx.de>
+In-Reply-To: <56DA1F2A.5040104@zoho.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Friday 26 February 2016, Yuriy M. Kaminskiy wrote:
-> Ruediger Meier <sweet_f_a@gmx.de> writes:
-> > From: Ruediger Meier <ruediger.meier@ga-group.nl>
-> >
-> > It's already defined in OSX standard c library.
+On Mar 5, 2016 at 00:50 Ángel González wrote:
+> I was thinking about this and the problem is actually that runuser
+> returns (and control is returned to the privileged parent) while there's
+> an unprivileged descendant with a handle to the tty.
+> Thus, it seems that it could be solved by having runuser run the child
+> into a new cgroup and refusing to return while there's any remaining
+> process there.
+
+In general, it is a good idea.
+
+But from compatibility aspect, it is a bad idea to change it to the 
+default behavior. Imagine all those poorly written legacy helpers that 
+run daemons without proper disconnecting from the terminal. All those 
+will be stalled.
+
+I can imagine new --term-wait option, eventually --term-kill. But I am 
+not sure, whether it is no over-complicated.
+
+> Although depending on the exact way that people is expecting to use job
+> control, that might still interefere despite not changing the session
+> leader. Do we know actual usages that should continue working?
 >
-> Would not it be better to just use system-provided memset_s instead
-> by then? (And it is well possible glibc will provide memset_s in
-> future too).
+There is not exact list what will will break.
 
-I think we should do this when there are existing Linux systems with 
-memset_s. For now I don't want to do bigger changes just to be portable 
-because portability is not our primary goal.
+But imagine that many users use daily things like simple example below. 
+(In a real life, you will not want to run sleep, but something more 
+sophisticated (e. g. build process inside chroot that needs sudo).)
 
-BTW it's also well possible that the affected newgrp sources may 
-disappear soon anyways, see Documentation/TODO.
+# sudo -u nobody sleep 10 &
+[1] 28327
+~ # fg
+sudo -u nobody sleep 10
+^Z
+[1]+  Stopped                 sudo -u nobody sleep 10
+~ # bg
+[1]+ sudo -u nobody sleep 10 &
+~ #
+~ #
+[1]+  Done                    sudo -u nobody sleep 10
+~ #
 
-> > Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
-> > ---
-> >  login-utils/newgrp.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/login-utils/newgrp.c b/login-utils/newgrp.c
-> > index 141b41b..56639d1 100644
-> > --- a/login-utils/newgrp.c
-> > +++ b/login-utils/newgrp.c
-> > @@ -62,7 +62,7 @@ static char *xgetpass(FILE *input, const char
-> > *prompt)
-> >
-> >  /* Ensure memory is set to value c without compiler optimization
-> > getting * into way that could happen with memset(3). */
-> > -static int memset_s(void *v, size_t sz, const int c)
-> > +static int xmemset_s(void *v, size_t sz, const int c)
-> >  {
-> >  	volatile unsigned char *p = v;
-> >
-> > @@ -148,7 +148,7 @@ static int allow_setgid(const struct passwd
-> > *pe, const struct group *ge) if (pwd && *pwd && (xpwd =
-> > xgetpass(stdin, _("Password: ")))) { char *cbuf = crypt(xpwd, pwd);
-> >
-> > -		memset_s(xpwd, strlen(xpwd), 0);
-> > +		xmemset_s(xpwd, strlen(xpwd), 0);
-> >  		free(xpwd);
-> >  		if (!cbuf)
-> >  			warn(_("crypt failed"));
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+It will be not possible any more with setsid().
+
+You will get:
+# sudo -u nobody sleep 10 &
+[1] 28390
+~ # fg
+sudo -u nobody sleep 10
+^Z^Z^Z^Z^Z^Z^Z^Z
+
+You are stuck, ^Z does not work, and you cannot switch the task back to 
+background. You can only press ^C.
+
+Exactly the same will affect
+runuser --command "sleep 10"
+
+Additionally, both su and runuser already offer two variants. You can 
+test the difference yourself:
+
+Without job control:
+su nobody --command "sleep 10" &
+vs.
+With job control:
+su nobody --session-command "sleep 10" &
+
+After calling it, type:
+fg
+and then Control-Z.
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
