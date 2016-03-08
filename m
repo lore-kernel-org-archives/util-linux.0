@@ -1,198 +1,61 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:63480 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964927AbcCOIdl (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 15 Mar 2016 04:33:41 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
-Subject: Re: [PATCH] lscpu: Fix model and model name on Power Systems
-Date: Tue, 15 Mar 2016 09:33:31 +0100
-Cc: util-linux@vger.kernel.org, kzak@redhat.com
-References: <20160314144804.415.11481.stgit@hegdevasant>
-In-Reply-To: <20160314144804.415.11481.stgit@hegdevasant>
+Return-Path: vapier@gentoo.org
+Date: Tue, 8 Mar 2016 09:28:31 -0500
+From: Mike Frysinger <vapier@gentoo.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Ruediger Meier <ruediger.meier@ga-group.nl>
+Subject: Re: [PATCH] include sysmacros.h where used
+Message-ID: <20160308142831.GM6588@vapier.lan>
+References: <1457389593-15124-1-git-send-email-vapier@gentoo.org>
+ <20160308133449.valpkagmel6jaegy@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201603150933.31562.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="lf0NQ8GVTdtriwpn"
+In-Reply-To: <20160308133449.valpkagmel6jaegy@ws.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 14 March 2016, Vasant Hegde wrote:
-> On Power System, lspcu presently displays system model number instead
-> of processor model name. 'model' tag in cpuinfo contains system model
-> name, not processor model. Instead it uses 'cpu' tag for processor
-> model name. Also it uses 'revision' tag for processor model.
->
-> Fix lspcu so that it displays processor model number. Also display
-> processor model name.
->
-> cpuinfo output on Power System:
->   ...
->   ...
->
->   processor	: 127
->   cpu		: POWER8E (raw), altivec supported
->   clock		: 4322.000000MHz
->   revision	: 2.1 (pvr 004b 0201)
->
->   timebase	: 512000000
->   platform	: PowerNV
->   model		: 8286-42A
->   machine	: PowerNV 8286-42A
->   firmware	: OPAL
->
->
-> Output without this patch:
->   Architecture:          ppc64le
->   Byte Order:            Little Endian
->   CPU(s):                128
->   On-line CPU(s) list:   0-127
->   Thread(s) per core:    8
->   Core(s) per socket:    4
->   Socket(s):             4
->   NUMA node(s):          4
->   Model:                 8286-42A
->   ...
->   ...
->
-> Output with this patch:
->   Architecture:          ppc64le
->   Byte Order:            Little Endian
->   CPU(s):                128
->   On-line CPU(s) list:   0-127
->   Thread(s) per core:    8
->   Core(s) per socket:    4
->   Socket(s):             4
->   NUMA node(s):          4
->   Model:                 2.1 (pvr 004b 0201)
->   Model name:            POWER8E (raw), altivec supported
->   ...
->   ...
->
-> Signed-off-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
-> ---
->  sys-utils/lscpu.c |    5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-> index fc32762..423bc56 100644
-> --- a/sys-utils/lscpu.c
-> +++ b/sys-utils/lscpu.c
-> @@ -465,8 +465,13 @@ read_basicinfo(struct lscpu_desc *desc, struct
-> lscpu_modifier *mod) else if (lookup(buf, "vendor_id",
-> &desc->vendor)) ;
->  		else if (lookup(buf, "family", &desc->family)) ;
->  		else if (lookup(buf, "cpu family", &desc->family)) ;
-> +#if defined(__powerpc__) || defined(__powerpc64__)
-> +		else if (lookup(buf, "revision", &desc->model)) ;
-> +		else if (lookup(buf, "cpu", &desc->modelname)) ;
-> +#else
->  		else if (lookup(buf, "model", &desc->model)) ;
->  		else if (lookup(buf, "model name", &desc->modelname)) ;
-> +#endif
->  		else if (lookup(buf, "stepping", &desc->stepping)) ;
->  		else if (lookup(buf, "cpu MHz", &desc->mhz)) ;
->  		else if (lookup(buf, "flags", &desc->flags)) ;		/* x86 */
 
-Would it be possible to decide on runtime what to do, ideally looking 
-into /proc or /sys to see whether it's a powerpc? This ifdef does not 
-work with lscpu --sysroot.
+--lf0NQ8GVTdtriwpn
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-See below our test diffs. The power7 and sparc dumps look better, x86 is 
-broken and ppc-qemu looks odd.
+On 08 Mar 2016 14:34, Karel Zak wrote:
+> On Mon, Mar 07, 2016 at 05:26:33PM -0500, Mike Frysinger wrote:
+> > BSD/Linux systems stick major/minor/makedev in sysmacros.h.  Newer Linux
+> > libraries have been moving away from including sysmacros.h implicitly v=
+ia
+> > sys/types.h, so include it directly.
+>=20
+> Applied and then reverted ;-) It seems in conflict with Rudi's
+> changes. We need #ifdef HAVE_SYS_SYSMACROS_H for the file.
+>=20
+> I have moved it to c.h, it seems better to keep it on one place. (I
+> hope it does not have any side effects to have it everywhere.)
 
+hopefully not, but i'd watch out for shadowing.  like lib/linux_version.c
+which has variables named "major" and "minor".
+-mike
 
---- /home/abuild/rpmbuild/BUILD/util-linux-2.28.rc1.git35.83a77/tests/expected/lscpu/lscpu-ppc-qemu     
-2016-03-13 15:08:02.457989796 +0000
-+++ /home/abuild/rpmbuild/BUILD/util-linux-2.28.rc1.git35.83a77/tests/output/lscpu/lscpu-ppc-qemu       
-2016-03-15 00:48:52.850000003 +0000
-@@ -3,7 +3,8 @@
- Thread(s) per core:    1
- Core(s) per socket:    1
- Socket(s):             1
--Model:                 Power Macintosh
-+Model:                 3.1 (pvr 0008 0301)
-+Model name:            740/750
- BogoMIPS:              33.25
- L1d cache:             unknown size
- L1i cache:             unknown size
---- /home/abuild/rpmbuild/BUILD/util-linux-2.28.rc1.git35.83a77/tests/expected/lscpu/lscpu-ppc64-POWER7 
-2016-03-02 21:33:53.348702004 +0000
-+++ /home/abuild/rpmbuild/BUILD/util-linux-2.28.rc1.git35.83a77/tests/output/lscpu/lscpu-ppc64-POWER7   
-2016-03-15 00:48:53.080000003 +0000
-@@ -4,7 +4,8 @@
- Core(s) per socket:    1
- Socket(s):             4
- NUMA node(s):          1
--Model:                 IBM,8233-E8B
-+Model:                 2.1 (pvr 003f 0201)
-+Model name:            POWER7 (architected), altivec supported
- L1d cache:             32K
- L1i cache:             32K
- NUMA node0 CPU(s):     0-15
---- /home/abuild/rpmbuild/BUILD/util-linux-2.28.rc1.git35.83a77/tests/expected/lscpu/lscpu-ppc64-POWER7-64cpu   
-2016-03-13 15:08:02.457989796 +0000
-+++ /home/abuild/rpmbuild/BUILD/util-linux-2.28.rc1.git35.83a77/tests/output/lscpu/lscpu-ppc64-POWER7-64cpu     
-2016-03-15 00:48:53.010000003 +0000
-@@ -4,7 +4,8 @@
- Core(s) per socket:    1
- Socket(s):             16
- NUMA node(s):          2
--Model:                 IBM,8231-E2B
-+Model:                 2.1 (pvr 003f 0201)
-+Model name:            POWER7 (architected), altivec supported
- Hypervisor vendor:     pHyp
- Virtualization type:   para
- L1d cache:             32K
---- /home/abuild/rpmbuild/BUILD/util-linux-2.28.rc1.git35.83a77/tests/expected/lscpu/lscpu-sparc64      
-2016-03-13 15:08:02.457989796 +0000
-+++ /home/abuild/rpmbuild/BUILD/util-linux-2.28.rc1.git35.83a77/tests/output/lscpu/lscpu-sparc64        
-2016-03-15 00:48:53.250000003 +0000
-@@ -4,6 +4,7 @@
- Thread(s) per core:    1
- Core(s) per socket:    1
- Socket(s):             6
-+Model name:            TI UltraSparc II  (BlackBird)
- Flags:                 sun4u
+--lf0NQ8GVTdtriwpn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
- # The following is the parsable format, which can be fed to other
---- /home/abuild/rpmbuild/BUILD/util-linux-2.28.rc1.git35.83a77/tests/expected/lscpu/lscpu-vbox-win     
-2016-03-13 15:08:02.457989796 +0000
-+++ /home/abuild/rpmbuild/BUILD/util-linux-2.28.rc1.git35.83a77/tests/output/lscpu/lscpu-vbox-win       
-2016-03-15 00:48:53.290000003 +0000
-@@ -7,8 +7,6 @@
- NUMA node(s):          1
- Vendor ID:             GenuineIntel
- CPU family:            6
--Model:                 58
--Model name:            Intel(R) Core(TM) i5-3317U CPU @ 1.70GHz
- Stepping:              9
- CPU MHz:               1600.000
- CPU max MHz:           3800.0000
---- /home/abuild/rpmbuild/BUILD/util-linux-2.28.rc1.git35.83a77/tests/expected/lscpu/lscpu-x86_64-64cpu 
-2016-03-13 15:08:02.457989796 +0000
-+++ /home/abuild/rpmbuild/BUILD/util-linux-2.28.rc1.git35.83a77/tests/output/lscpu/lscpu-x86_64-64cpu   
-2016-03-15 00:48:53.710000003 +0000
-@@ -7,8 +7,6 @@
- NUMA node(s):          3
- Vendor ID:             GenuineIntel
- CPU family:            6
--Model:                 46
--Model name:            Intel(R) Xeon(R) CPU           X7550  @ 2.00GHz
- Stepping:              6
- CPU MHz:               1064.000
- CPU max MHz:           1996.0000
---- /home/abuild/rpmbuild/BUILD/util-linux-2.28.rc1.git35.83a77/tests/expected/lscpu/lscpu-x86_64-dell_e4310    
-2016-03-13 15:08:02.457989796 +0000
-+++ /home/abuild/rpmbuild/BUILD/util-linux-2.28.rc1.git35.83a77/tests/output/lscpu/lscpu-x86_64-dell_e4310      
-2016-03-15 00:48:53.760000003 +0000
-@@ -7,8 +7,6 @@
- NUMA node(s):          1
- Vendor ID:             GenuineIntel
- CPU family:            6
--Model:                 37
--Model name:            Intel(R) Core(TM) i5 CPU       M 560  @ 2.67GHz
- Stepping:              5
- CPU MHz:               1199.000
- CPU max MHz:           2667.0000
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
+iQIcBAEBCAAGBQJW3uGOAAoJEEFjO5/oN/WBzZsP/Ry8I3a5j2AbjKHeOHcn95vp
+5VHRXyqU71b4AgK892oDJpDfw5050mF6CkfIkw+JzTKwEHYrhZIdnCkjc8sB5g5B
+QDT9vz1tpHCb1x0D8Fp37AEntqir2XryqAEFPbuOg/xf3uFzmpji+8VmVB160MKL
+iG4zzCsUNaPH3G3Z5rZwyZhcU5YFcanlztHBU4UdmldLzwf8tc2TCWuJU/pzoILz
+znveV5lHjR6RgwLwDQPeLAf6W4lkEEBBnGH8J8pD23eImQRhSgvYTeevyZmFBrdc
+o1NHaBhyoWE8sB57MJO9O4uvEErUXAbCrqAYduEH3aRxz3INzu89ZoIdgdWT/VKN
+sJxsV+1uDiOdKWuh7YyzQVPxxf9/M9RwYq0UTcgcLWBcpZHxeiWS0ct57mMZwZ3I
+XDGvfBz65cEVdnV8SBvXyyFDMiCj1XJPlI3JJ8Zsyq1hbJsR3JmP8/qRyT/OoiS6
+QNBJKKs4/zHS85sbIwaAUzLqkIjk/LB9WzkOdPHYCMdIXUdekQMb4hlIj6h+FHhL
+v4ReGy5y/ZTJSnhhLTtV9usUsbMamMqiWuFMNyyhKXWBtnuhkkOj71ckV7lKWiDZ
+ak4gQ0umoegy22CxgZ89QE4AaLe+jpiT9PeGinkCKigtu4n6ZWkLcgA/qkEW61qz
+3lAakffAhdDbqU9+K5jR
+=zXJL
+-----END PGP SIGNATURE-----
+
+--lf0NQ8GVTdtriwpn--
