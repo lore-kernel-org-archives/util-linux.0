@@ -1,135 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:58592 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751537AbcCVQxR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 22 Mar 2016 12:53:17 -0400
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx103)
- with ESMTPSA (Nemesis) id 0LlV4F-1aAjYy0VKp-00bHT8 for
- <util-linux@vger.kernel.org>; Tue, 22 Mar 2016 17:53:15 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from cpsmtpb-ews10.kpnxchange.com ([213.75.39.15]:54436 "EHLO
+	cpsmtpb-ews10.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932357AbcCHJWK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 8 Mar 2016 04:22:10 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 3/3] tests: improve setarch tests regarding --uname-2.6 issues
-Date: Tue, 22 Mar 2016 17:53:13 +0100
-Message-Id: <1458665593-7963-4-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1458665593-7963-1-git-send-email-sweet_f_a@gmx.de>
-References: <1458665593-7963-1-git-send-email-sweet_f_a@gmx.de>
+Subject: [PATCH 7/9] ctrlaltdel: tweak the wording in the man page
+Date: Tue,  8 Mar 2016 10:07:50 +0100
+Message-Id: <1457428072-2619-7-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1457428072-2619-1-git-send-email-bensberg@justemail.net>
+References: <1457428072-2619-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
-
-* add tests for error handling "unknown arch" and
-  "unknown command"
-* add test without any options
-* handle "kernel too old" error for --uname-2.6, add
-  debug output
-* test --uname-2.6 whithout any other options
-* use echo(1) and true(1) for --uname-2.6
-
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 ---
- tests/expected/misc/setarch | 18 ++++++++++++++-
- tests/ts/misc/setarch       | 54 +++++++++++++++++++++++++++++++++++++--------
- 2 files changed, 62 insertions(+), 10 deletions(-)
+ sys-utils/ctrlaltdel.8 |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/tests/expected/misc/setarch b/tests/expected/misc/setarch
-index 0024930..e06a752 100644
---- a/tests/expected/misc/setarch
-+++ b/tests/expected/misc/setarch
-@@ -1,3 +1,14 @@
-+###### unknown arch
-+setarch: qubit: Unrecognized architecture
-+exit: 1
-+###### unknown command
-+Execute command `/das/gibs/nicht'.
-+setarch: /das/gibs/nicht: No such file or directory
-+exit: 1
-+###### noop uname -a
-+Execute command `uname'.
-+uname -a unchanged
-+###### almost all options
- Switching on ADDR_NO_RANDOMIZE.
- Switching on FDPIC_FUNCPTRS.
- Switching on MMAP_PAGE_ZERO.
-@@ -8,6 +19,11 @@ Switching on SHORT_INODE.
- Switching on WHOLE_SECONDS.
- Switching on STICKY_TIMEOUTS.
- Switching on ADDR_LIMIT_3GB.
--Switching on UNAME26.
- Execute command `echo'.
- success
-+###### --uname-2.6 echo
-+Switching on UNAME26.
-+Execute command `echo'.
-+2.6 works or kernel too old
-+###### --uname-2.6 true, non-verbose
-+2.6 works or kernel too old
-diff --git a/tests/ts/misc/setarch b/tests/ts/misc/setarch
-index 9b0e92e..e4d22ae 100755
---- a/tests/ts/misc/setarch
-+++ b/tests/ts/misc/setarch
-@@ -18,16 +18,52 @@ TS_DESC="setarch"
- . $TS_TOPDIR/functions.sh
- ts_init "$*"
- 
-+ARCH=$(uname -m)
-+
- ts_check_test_command "$TS_CMD_SETARCH"
- 
--ARCH=$(uname -m)
--case $ARCH in
--	#  setarch --uname-2.6 fails on platforms without VDS
--	*sparc* )
--		ts_skip "unsupported arch"
--		;;
--esac
-+echo "###### unknown arch" >>$TS_OUTPUT
-+$TS_CMD_SETARCH "qubit" -v echo "success" >>$TS_OUTPUT 2>&1
-+echo "exit: $?" >>$TS_OUTPUT
-+
-+echo "###### unknown command" >>$TS_OUTPUT
-+$TS_CMD_SETARCH  $ARCH -v /das/gibs/nicht >>$TS_OUTPUT 2>&1
-+echo "exit: $?" >>$TS_OUTPUT
-+
-+echo "###### noop uname -a" >>$TS_OUTPUT
-+uname_a=$(uname -srm)
-+$TS_CMD_SETARCH $ARCH -v uname -srm >>$TS_OUTPUT 2>&1
-+sed -i "$ s@${uname_a}@uname -a unchanged@" $TS_OUTPUT
-+
-+echo "###### almost all options" >>$TS_OUTPUT
-+$TS_CMD_SETARCH $ARCH -vRFZLXBIST3 echo "success" >>$TS_OUTPUT 2>&1
-+
-+finmsg="" # for debugging 2.6 issues
-+
-+echo "###### --uname-2.6 echo" >>$TS_OUTPUT
-+$TS_CMD_SETARCH $ARCH -v --uname-2.6 echo "2.6 worked" >>$TS_OUTPUT 2>&1
-+if [ $? -eq 0 ]; then
-+	expected='^2.6 worked$'
-+else
-+	# this may happen after execvp
-+	expected="^FATAL: kernel too old$"
-+	finmsg+=" echo"
-+fi
-+sed -i "$ s/$expected/2.6 works or kernel too old/" $TS_OUTPUT
-+
-+echo "###### --uname-2.6 true, non-verbose" >>$TS_OUTPUT
-+$TS_CMD_SETARCH $ARCH --uname-2.6 true >>$TS_OUTPUT 2>&1
-+if [ $? -eq 0 ]; then
-+	echo "2.6 works or kernel too old" >> $TS_OUTPUT
-+else
-+	# this may happen after execvp
-+	expected="^FATAL: kernel too old$"
-+	sed -i "$ s/$expected/2.6 works or kernel too old/" $TS_OUTPUT
-+	finmsg+=" true"
-+fi
- 
--$TS_CMD_SETARCH $(uname -m) -vRFZLXBIST3 --uname-2.6 echo "success" >$TS_OUTPUT 2>&1
-+if [ -n "$finmsg" ]; then
-+	finmsg=$(echo unsupported --uname-2.6: $finmsg)
-+fi
- 
--ts_finalize
-+ts_finalize "$finmsg"
+diff --git a/sys-utils/ctrlaltdel.8 b/sys-utils/ctrlaltdel.8
+index 170597f..337ec35 100644
+--- a/sys-utils/ctrlaltdel.8
++++ b/sys-utils/ctrlaltdel.8
+@@ -17,7 +17,7 @@ Immediately reboot the computer without calling
+ and without any other preparation.  This is the default.
+ .TP
+ .B soft
+-Will make kernel to send the SIGINT (interrupt) signal to the
++Make the kernel send the SIGINT (interrupt) signal to the
+ .B init
+ process (this is always the process with PID 1).  If this option is used,
+ the
+@@ -27,11 +27,12 @@ program must support this feature.  Since there are now several
+ programs in the Linux community, please consult the documentation for the
+ version that you are currently using.
+ .PP
+-When command is ran without arguments it will display current function in
+-use.
++When the command is run without any argument, it will display the current
++setting.
+ .PP
++The function of
+ .B ctrlaltdel
+-function is usually set in the
++is usually set in the
+ .I /etc/rc.local
+ file.
+ .SH OPTIONS
 -- 
-1.8.4.5
+1.7.0.4
 
