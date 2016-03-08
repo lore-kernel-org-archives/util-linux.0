@@ -1,53 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:61131 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754302AbcCMWb0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 13 Mar 2016 18:31:26 -0400
-Received: from tenfore.ga-group.nl ([2.247.85.77]) by mail.gmx.com (mrgmx102)
- with ESMTPSA (Nemesis) id 0LmeGF-1a6Am71lS7-00aBBe for
- <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 23:31:24 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from cpsmtpb-ews09.kpnxchange.com ([213.75.39.14]:59027 "EHLO
+	cpsmtpb-ews09.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932159AbcCHJVc (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 8 Mar 2016 04:21:32 -0500
+From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 08/12] build-sys: add missing "not found" strings
-Date: Sun, 13 Mar 2016 23:31:16 +0100
-Message-Id: <1457908280-15588-9-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
-References: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
+Subject: [PATCH 5/9] mount: hardwrap an overlong example in the man page
+Date: Tue,  8 Mar 2016 10:07:48 +0100
+Message-Id: <1457428072-2619-5-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1457428072-2619-1-git-send-email-bensberg@justemail.net>
+References: <1457428072-2619-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
-
-Otherwise configure output looks like this:
-  configure: WARNING:  not found; not building cfdisk
-
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 ---
- configure.ac | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sys-utils/mount.8 |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
-diff --git a/configure.ac b/configure.ac
-index 0bfe28c..bfb12ca 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -1019,7 +1019,7 @@ AM_CONDITIONAL([BUILD_SFDISK], [test "x$build_sfdisk" = xyes])
- UL_BUILD_INIT([cfdisk], [check])
- UL_REQUIRES_BUILD([cfdisk], [libfdisk])
- UL_REQUIRES_BUILD([cfdisk], [libsmartcols])
--UL_REQUIRES_HAVE([cfdisk], [open_memstream])
-+UL_REQUIRES_HAVE([cfdisk], [open_memstream], [open_memstream function])
- UL_REQUIRES_HAVE([cfdisk], [ncurses,slang], [ncurses or slang library])
- AM_CONDITIONAL([BUILD_CFDISK], [test "x$build_cfdisk" = xyes])
+diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
+index 46c934a..1903253 100644
+--- a/sys-utils/mount.8
++++ b/sys-utils/mount.8
+@@ -2410,7 +2410,10 @@ directory by using:
  
-@@ -1469,7 +1469,7 @@ dnl we assume reboot() to be the 1-argument variant, because even considering
- dnl widely used alternative C libraries like uclibc, dietlibc and musl,
- dnl reboot() with multiple arguments is yet only found in glibc versions
- dnl earlier than 2.x.
--UL_REQUIRES_HAVE([ctrlaltdel], [reboot])
-+UL_REQUIRES_HAVE([ctrlaltdel], [reboot], [reboot function])
- AM_CONDITIONAL([BUILD_CTRLALTDEL], [test "x$build_ctrlaltdel" = xyes])
+ .RS
+ .br
+-.BR "mount \-t overlay overlay \-olowerdir=/lower,upperdir=/upper,workdir=/work  /merged"
++.nf
++.B "mount \-t overlay  overlay  \e"
++.B "  \-olowerdir=/lower,upperdir=/upper,workdir=/work  /merged"
++.fi
+ .br
+ .RE
  
- UL_BUILD_INIT([fsfreeze], [check])
 -- 
-1.8.4.5
+1.7.0.4
 
