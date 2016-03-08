@@ -1,61 +1,87 @@
-Return-Path: vapier@gentoo.org
-Date: Tue, 8 Mar 2016 09:28:31 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Ruediger Meier <ruediger.meier@ga-group.nl>
-Subject: Re: [PATCH] include sysmacros.h where used
-Message-ID: <20160308142831.GM6588@vapier.lan>
-References: <1457389593-15124-1-git-send-email-vapier@gentoo.org>
- <20160308133449.valpkagmel6jaegy@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-vk0-f52.google.com ([209.85.213.52]:33537 "EHLO
+	mail-vk0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750802AbcCHWfC convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 8 Mar 2016 17:35:02 -0500
+Received: by mail-vk0-f52.google.com with SMTP id k1so35344858vkb.0
+        for <util-linux@vger.kernel.org>; Tue, 08 Mar 2016 14:35:01 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="lf0NQ8GVTdtriwpn"
-In-Reply-To: <20160308133449.valpkagmel6jaegy@ws.net.home>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <201603081437.31966.sweet_f_a@gmx.de>
+References: <201603081437.31966.sweet_f_a@gmx.de>
+Date: Tue, 8 Mar 2016 22:35:01 +0000
+Message-ID: <CAG27Bk02Yx5fxpV0sWGaLF7W4jSVOcKwGXWQBBQ7DLT48kZF8w@mail.gmail.com>
+Subject: Re: cal: bug on FreeBSD
+From: Sami Kerola <kerolasa@iki.fi>
+To: =?UTF-8?Q?R=C3=BCdiger_Meier?= <sweet_f_a@gmx.de>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On 8 March 2016 at 13:37, Rüdiger Meier <sweet_f_a@gmx.de> wrote:
+> cal skips the first day of the week if it has 2 digits.
+>
+> # diff ./cal
+>  Mo Tu We Th Fr Sa Su
+>               1  2  3
+>   4  5  6  7  8  9 10
+> -11 12 13 14 15 16 17
+> -18 19 20 21 22 23 24
+> -25 26 27 28 29 30
+> + 12 13 14 15 16 17
+> + 19 20 21 22 23 24
+> + 26 27 28 29 30
+>
+> The bug was introduced by my own commit
+> 07ac4aa9  cal: all output must use my_putstring
+>
+> This is the related code in cal_output_months()
+>
+> for (d = DAYS_IN_WEEK * week_line;
+>      d < DAYS_IN_WEEK * week_line + DAYS_IN_WEEK; d++) {
+>         if (0 < i->days[d]) {
+>                 if (reqday == i->days[d])
+>                         sprintf(out, "%*s%s%*d%s", skip - (ctl->julian ? 3 : 2),
+>                                "", Senter, (ctl->julian ? 3 : 2),
+>                                i->days[d], Sexit);
+>                 else
+>                         sprintf(out, "%*d", skip, i->days[d]);
+> /*                             ^^^^^
+>  *         if we print this with fputs instead of my_putstring/putp
+>  *         below than it looks good */
+>         } else
+>                 sprintf(out, "%*s", skip, "");
+>         my_putstring(out);
+>         if (skip < (int)ctl->day_width)
+>                 skip++;
+> }
+>
+>
+> Is putp() broken on that machine or could we fix it?
 
---lf0NQ8GVTdtriwpn
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Rudi,
 
-On 08 Mar 2016 14:34, Karel Zak wrote:
-> On Mon, Mar 07, 2016 at 05:26:33PM -0500, Mike Frysinger wrote:
-> > BSD/Linux systems stick major/minor/makedev in sysmacros.h.  Newer Linux
-> > libraries have been moving away from including sysmacros.h implicitly v=
-ia
-> > sys/types.h, so include it directly.
->=20
-> Applied and then reverted ;-) It seems in conflict with Rudi's
-> changes. We need #ifdef HAVE_SYS_SYSMACROS_H for the file.
->=20
-> I have moved it to c.h, it seems better to keep it on one place. (I
-> hope it does not have any side effects to have it everywhere.)
+Does this happen with putp() only? The following should enable you to
+test the fputs() output.
 
-hopefully not, but i'd watch out for shadowing.  like lib/linux_version.c
-which has variables named "major" and "minor".
--mike
+-- snip
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index 2a53b89..3e513ad 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -291,6 +291,7 @@ int main(int argc, char **argv)
+  Senter = my_tgetstr("smso");
+  Sexit = my_tgetstr("rmso");
+  }
++ has_term = 0;
+  }
+  }
+ #endif
+-- snip
 
---lf0NQ8GVTdtriwpn
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+p.s. What is 'that' machine.. just wondering if problem could be reproduced.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJW3uGOAAoJEEFjO5/oN/WBzZsP/Ry8I3a5j2AbjKHeOHcn95vp
-5VHRXyqU71b4AgK892oDJpDfw5050mF6CkfIkw+JzTKwEHYrhZIdnCkjc8sB5g5B
-QDT9vz1tpHCb1x0D8Fp37AEntqir2XryqAEFPbuOg/xf3uFzmpji+8VmVB160MKL
-iG4zzCsUNaPH3G3Z5rZwyZhcU5YFcanlztHBU4UdmldLzwf8tc2TCWuJU/pzoILz
-znveV5lHjR6RgwLwDQPeLAf6W4lkEEBBnGH8J8pD23eImQRhSgvYTeevyZmFBrdc
-o1NHaBhyoWE8sB57MJO9O4uvEErUXAbCrqAYduEH3aRxz3INzu89ZoIdgdWT/VKN
-sJxsV+1uDiOdKWuh7YyzQVPxxf9/M9RwYq0UTcgcLWBcpZHxeiWS0ct57mMZwZ3I
-XDGvfBz65cEVdnV8SBvXyyFDMiCj1XJPlI3JJ8Zsyq1hbJsR3JmP8/qRyT/OoiS6
-QNBJKKs4/zHS85sbIwaAUzLqkIjk/LB9WzkOdPHYCMdIXUdekQMb4hlIj6h+FHhL
-v4ReGy5y/ZTJSnhhLTtV9usUsbMamMqiWuFMNyyhKXWBtnuhkkOj71ckV7lKWiDZ
-ak4gQ0umoegy22CxgZ89QE4AaLe+jpiT9PeGinkCKigtu4n6ZWkLcgA/qkEW61qz
-3lAakffAhdDbqU9+K5jR
-=zXJL
------END PGP SIGNATURE-----
-
---lf0NQ8GVTdtriwpn--
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
