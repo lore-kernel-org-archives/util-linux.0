@@ -1,134 +1,206 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from relay04.stack.nl ([131.155.140.107]:57375 "EHLO mx1.stack.nl"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752592AbcCVMZN (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 22 Mar 2016 08:25:13 -0400
-Received: from toad.stack.nl (toad.stack.nl [IPv6:2001:610:1108:5010::135])
-	by mx1.stack.nl (Postfix) with ESMTP id 4F5BAB80F1
-	for <util-linux@vger.kernel.org>; Tue, 22 Mar 2016 13:17:42 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-	by toad.stack.nl (Postfix) with ESMTP id 7EB7273016
-	for <util-linux@vger.kernel.org>; Tue, 22 Mar 2016 13:17:42 +0100 (CET)
-Date: Tue, 22 Mar 2016 13:17:42 +0100 (CET)
-From: Serge van den Boom <serge+util-linux@vdboom.org>
-To: util-linux@vger.kernel.org
-Subject: Subject: Multiple issues with partx
-Message-ID: <alpine.BSF.2.00.1603151918560.60883@toad.stack.nl>
+Return-Path: sbrabec@suse.cz
+Subject: Re: [PATCH] tests: add btrfs mount tests (fails!)
+To: Karel Zak <kzak@redhat.com>
+References: <56B0EEB2.1060707@suse.cz> <56B10E38.7040407@suse.cz>
+ <20160211094352.6ncnnirhyd4jjd34@ws.net.home> <56BC9101.60908@suse.cz>
+ <56C72E9B.3050402@suse.cz>
+Cc: util-linux@vger.kernel.org, David Sterba <dsterba@suse.cz>
+From: Stanislav Brabec <sbrabec@suse.cz>
+Message-ID: <56E075D6.2040704@suse.cz>
+Date: Wed, 9 Mar 2016 20:13:26 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <56C72E9B.3050402@suse.cz>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+On Feb 19, 2016 at 16:02 Stanislav Brabec wrote:
+> On Feb 11 2016 at 14:47 Stanislav Brabec wrote:
+>> There are missing umount commands in the middle of the test, which
+>> trigger following problem:
+>>
+>> Additionally, I am working on a reproducer of an invalid "mount -a"
+>> behavior triggered by kernel bug reporting false subvol.
+> 
+>> I already have a possible fix for it, but I want to confirm that it is
+>> correct before sending it upstream.
+> 
+> I finally found a reproducer.
+> 
+Well, now I have a real reproducer that is not triggered by another bug.
 
-I have encounted a few issues with 'partx'.
+My findings:
 
-1. 'partx --nr 1:' does not work.
-If you leave the upper range empty, partx uses 0 instead. So instead
-of the list of all partitions -- which you should get according to
-the manual -- you get an error:
+1) The way to reproduce is extremely obscure, because not only subvolid
+has to match, but also target.
 
-    partx: specified range <1:0> does not make sense
+2) There is no way to fix it in an easy way. I suggested a new
+algorithm searching for shortest subvol, but it would be vulnerable to
+bad evaluation as well.
 
-Changing the default to -1 in parse_range() would fix this, but see
-issue #2 below.
-Also note that while *upper is set to 'def' in parse_range:
+So I decided to keep the code as it is.
 
-    *upper = *lower = def;
+Way to reproduce:
 
-this value is not actually used, because a few lines below there is:
+To confuse the algorithm, there has to be a mounted something else into
+the target than fstab specifies.
 
-    if (*end == ':' && !*(end + 1))     /* <M:> */
-        *upper = 0;
+Step 1:
+/dev/loop0 /btrfs_mnt_root btrfs subvol=/ 0 0
+/btrfs_mnt_root/d0/dd0/ddd0/s1/d1/dd1/ddd1/s2/bind-mnt /btrfs_mnt_bind btrfs bind,private 0 0
 
-If the possibility to override the default value is desired, it would
-imho be best to have separate default values for the lower and upper
-range.
+It will create following mountinfo:
+299 72 0:83 / /btrfs_mnt_root rw,relatime shared:211 - btrfs /dev/loop0 rw,space_cache,subvolid=5,subvol=/
+312 72 0:83 /d0/dd0/ddd0/s1/d1/dd1/ddd1/s2/bind-mnt /btrfs_mnt_bind rw,relatime shared:211 - btrfs /dev/loop0 rw,space_cache,subvolid=258,subvol=/d0/dd0/ddd0/s1/d1/dd1/ddd1/s2/bind-mnt
 
+Note that subvolid 258 does not correspond to / nor to
+d0/dd0/ddd0/s1/d1/dd1/ddd1/s2/bind-mnt, but it corresponds to
+d0/dd0/ddd0/s1/d1/dd1/ddd1/s2.
 
-2. 'partx --nr <M:N>' does not take empty partition table entries into
-    account when using negative indexes.
+Now remove both lines from fstab and add:
 
-I have created a test file with a partition table with the first and
-third entry used, but the second entry open:
+/dev/loop0 /btrfs_mnt_bind btrfs defaults 0 0
 
-    $ partx testfile
-    NR START   END SECTORS SIZE NAME UUID
-    1  2048 10000    7953 3.9M      4fafc399-01
-    3 10001 20479   10479 5.1M      4fafc399-03
+Default subvolume is d0/dd0/ddd0/s1/d1/dd1/ddd1/s2, but the algorithm
+(both the existing and the previously suggested one) falsely assumes
+that it is /d0/dd0/ddd0/s1/d1/dd1/ddd1/s2/bind-mnt, because both
+subvolid and target match.
 
-One might expect that 'partx --nr 1:-1' would list all partitions (i.e.
-from the first to the last partition), but this is currently not true in
-this case:
+In theory, the new fstab should cause mounting the default subvolume
+over the existing one, but nothing happens.
 
-    $ partx --nr 1:-1 testfile
-    NR START   END SECTORS SIZE NAME UUID
-     1  2048 10000    7953 3.9M      4fafc399-01
+Summary:
 
-In fact, 'partx --nr -1:-1' returns no output at all.
-This is because negative values are offset against the number of partitions,
-which is less than the number of the partition with the highest number.
+- The full fix would mean evaluation of the btrfs subvolume tree
+  structure (several ioctl() with possible need of disk lookups) just
+  to find, whether it is already mounted or no.
 
-One approach to solving this would be to offset against the number of
-the last partition in the partition table, but this would not work as
-expected when the partitions are our of order.
+- The reproducer is really obscure, and nothing from a real life cannot
+  trigger it.
 
-Another approach would be to offset negative numbers against the number
-of the partition with the highest partition number.
-In the case that there are holes in the partition table, this would not
-necessarily return the same number of partitions as would be expected
-by looking at the range. e.g. Using the same test file as above, 'partx
---nr -2:-1' would produce only one entry:
+- The full fix will be vulnerable to another unfixable problems (e. g.
+  when somebody changes the default subvolume path while the device is
+  mounted).
 
-    NR START   END SECTORS SIZE NAME UUID
-     3 10001 20479   10479 5.1M      4fafc399-03
-
-Yet another approach may be to consider the list of partitions
-in the order in which they are normally shown by partx, and consider
-negative numbers to be indices offset against the length of the list.
-The disadvantage here is that negative numbers don't mean the
-same thing as positive numbers; positive numbers refer to partition
-numbers, while negative numbers refer to indices in a sorted list.
-'partx --nr 1:-1' would then mean 'the partitions in the sorted list of
-partitions, starting with the one with number 1, up to the last
-partition in the list.
-
-Then there are the options to add a separate option with a different
-meaning for negative indices, or to remove the support for negative numbers
-altogether.
+=> I propose to keep this part of code with a known bug.
 
 
-3. It is not always clear whether a single partition table entry refers
-   to the partition table on the block device, or to a partition table
-   entry of the block device of which the specified block device is a part.
 
-When the specified block device contains a partition table, that
-partition table is shown. When it does not contain a partition table,
-but the block device is a partition itself, its entry on its parent
-block device is shown. When you don't know whether a given block device
-contains is a full disk or a partition (because you're calling partx
-from a script) special logic would be required. Also, nested partition
-tables are theoretically possible, though unusual.
+Here is the the previously proposed (obsolete) fix:
 
-My preferred solution would be to only show the partition table on the
-specified block device, unless a partition is explicitly specified.
-Perhaps the behaviour could also be modified using added parameters.
+---
+ libmount/src/tab.c | 54 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
 
-As a work-around, something like 'partx --nr 1:65535' may be used if
-you are interested in the partitions of the specified block device
-itself. 'partx --nr 1:' would avoid the arbitrary upper bound, but does
-not work because of issue 1, and 'partx --nr 1:-1' would too, but does
-not work because of issue 2.
+diff --git a/libmount/src/tab.c b/libmount/src/tab.c
+index 102ed25..556d835 100644
+--- a/libmount/src/tab.c
++++ b/libmount/src/tab.c
+@@ -1224,6 +1224,18 @@ static char *remove_mountpoint_from_path(const char *path, const char *mnt)
+ }
+ 
+ #ifdef HAVE_BTRFS_SUPPORT
++/* All currently existing kernels reports incorrect values for bind
++ * mounts. Instead of subvol/subvolid of a subvolume used for creating of bind
++ * mount, it reports subvolid corresponding to nearest upper subvol node and
++ * subvol pointing to the current dir relative to btrfs root.
++ *
++ * The current kernel btrfs implementation has not access to proper VFS
++ * structures, so it is just guessing. Fixing this will need refactoring of
++ * kernel btrfs subvol implementation. It is not expected to happen anytime
++ * soon. Set this define to suppose that kernels are buggy, and don't blindly
++ * trust to the reported mountinfo values. */
++#define KERNEL_BTRFS_REPORTS_FALSE_SUBVOL 1
++
+ static int get_btrfs_fs_root(struct libmnt_table *tb, struct libmnt_fs *fs, char **root)
+ {
+ 	char *vol = NULL, *p;
+@@ -1236,6 +1248,12 @@ static int get_btrfs_fs_root(struct libmnt_table *tb, struct libmnt_fs *fs, char
+ 		char *target;
+ 		struct libmnt_fs *f;
+ 		char subvolidstr[sizeof(stringify_value(UINT64_MAX))];
++#ifdef KERNEL_BTRFS_REPORTS_FALSE_SUBVOL
++		struct libmnt_fs *t;
++		struct libmnt_iter itr;
++		char *optval = NULL;
++		size_t optvalsz = 0, valsz, bestvalsz = PATH_MAX;
++#endif
+ 
+ 		DBG(BTRFS, ul_debug(" found subvolid=%s, checking", vol));
+ 
+@@ -1248,9 +1266,24 @@ static int get_btrfs_fs_root(struct libmnt_table *tb, struct libmnt_fs *fs, char
+ 			goto err;
+ 
+ 		DBG(BTRFS, ul_debug(" tring target=%s subvolid=%s", target, subvolidstr));
++#ifndef KERNEL_BTRFS_REPORTS_FALSE_SUBVOL
+ 		f = mnt_table_find_target_with_option(tb, target,
+ 					"subvolid", subvolidstr,
+ 					MNT_ITER_BACKWARD);
++#else
++		f = NULL;
++		valsz = strlen(subvolidstr);
++		mnt_reset_iter(&itr, MNT_ITER_BACKWARD);
++		while (mnt_table_next_fs(tb, &itr, &t) == 0) {
++			if (mnt_fs_streq_target(t, target)
++			    && mnt_fs_get_option(t, "subvolid", &optval, &optvalsz) == 0
++			    && optvalsz == valsz
++			    && strncmp(optval, subvolidstr, optvalsz) == 0
++			    && optvalsz < bestvalsz)
++				f = t;
++		}
++#endif
++
+ 		if (!tb->cache)
+ 			free(target);
+ 		if (!f)
+@@ -1271,6 +1304,12 @@ static int get_btrfs_fs_root(struct libmnt_table *tb, struct libmnt_fs *fs, char
+ 		char *target;
+ 		struct libmnt_fs *f;
+ 		char default_id_str[sizeof(stringify_value(UINT64_MAX))];
++#ifdef KERNEL_BTRFS_REPORTS_FALSE_SUBVOL
++		struct libmnt_fs *t;
++		struct libmnt_iter itr;
++		char *optval = NULL;
++		size_t optvalsz = 0, valsz, bestvalsz = PATH_MAX;
++#endif
+ 
+ 		DBG(BTRFS, ul_debug(" subvolid/subvol not found, checking default"));
+ 
+@@ -1295,9 +1334,24 @@ static int get_btrfs_fs_root(struct libmnt_table *tb, struct libmnt_fs *fs, char
+ 		DBG(BTRFS, ul_debug(" tring target=%s default subvolid=%s",
+ 					target, default_id_str));
+ 
++#ifndef KERNEL_BTRFS_REPORTS_FALSE_SUBVOL
+ 		f = mnt_table_find_target_with_option(tb, target,
+ 					"subvolid", default_id_str,
+ 					MNT_ITER_BACKWARD);
++#else
++		f = NULL;
++		valsz = strlen(default_id_str);
++		mnt_reset_iter(&itr, MNT_ITER_BACKWARD);
++		while (mnt_table_next_fs(tb, &itr, &t) == 0) {
++			if (mnt_fs_streq_target(t, target)
++			    && mnt_fs_get_option(t, "subvolid", &optval, &optvalsz) == 0
++			    && optvalsz == valsz
++			    && strncmp(optval, default_id_str, optvalsz) == 0
++			    && optvalsz < bestvalsz)
++				f = t;
++		}
++#endif
++
+ 		if (!tb->cache)
+ 			free(target);
+ 		if (!f)
+-- 
+2.7.2
 
+-- 
+Best Regards / S pozdravem,
 
-4. It is possible to specify a partition by the device name of a
-   partition on another block device.
-
-The command 'partx /dev/sdb2 /dev/sda' makes no sense, but still
-produces output, namely the second partition of /dev/sda.
-
-
-Regards,
-
-Serge
-
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
