@@ -1,31 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:65518 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:46870 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750936AbcCRLtX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 18 Mar 2016 07:49:23 -0400
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx002)
- with ESMTPSA (Nemesis) id 0LhOSG-1a38Jk0FhA-00mbHA for
- <util-linux@vger.kernel.org>; Fri, 18 Mar 2016 12:49:20 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 0/2] ipcs: more robust and compatible /proc parsing
-Date: Fri, 18 Mar 2016 12:49:16 +0100
-Message-Id: <1458301758-21853-1-git-send-email-sweet_f_a@gmx.de>
+	id S1752645AbcCILB5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 9 Mar 2016 06:01:57 -0500
+Date: Wed, 9 Mar 2016 12:01:55 +0100
+From: Karel Zak <kzak@redhat.com>
+To: util-linux@vger.kernel.org, Ruediger Meier <ruediger.meier@ga-group.nl>
+Subject: Re: [PATCH] include sysmacros.h where used
+Message-ID: <20160309110155.rlfvh553zaflh6iu@ws.net.home>
+References: <1457389593-15124-1-git-send-email-vapier@gentoo.org>
+ <20160308133449.valpkagmel6jaegy@ws.net.home>
+ <20160308142831.GM6588@vapier.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20160308142831.GM6588@vapier.lan>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Tue, Mar 08, 2016 at 09:28:31AM -0500, Mike Frysinger wrote:
+> On 08 Mar 2016 14:34, Karel Zak wrote:
+> > I have moved it to c.h, it seems better to keep it on one place. (I
+> > hope it does not have any side effects to have it everywhere.)
+> 
+> hopefully not, but i'd watch out for shadowing.  like lib/linux_version.c
+> which has variables named "major" and "minor".
 
-If this looks ok for shm then we could also add similar patches for
-sem and msg.
+Good point. Fixed
 
-Ruediger Meier (2):
-  ipcs: make sure to parse whole lines for shm_data
-  ipcs: --shmems, upward/backward compatibility
-
- sys-utils/ipcutils.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+    Karel
 
 -- 
-1.8.4.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
