@@ -1,47 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:54672 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751070AbcBZLh1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 26 Feb 2016 06:37:27 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx102)
- with ESMTPSA (Nemesis) id 0M9NIY-1alsgl1yso-00CgTJ for
- <util-linux@vger.kernel.org>; Fri, 26 Feb 2016 12:37:25 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: Re: [PATCH 05/14] misc: fix some includes
-Date: Fri, 26 Feb 2016 12:37:24 +0100
-References: <1456455812-19453-1-git-send-email-sweet_f_a@gmx.de> <1456455812-19453-6-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1456455812-19453-6-git-send-email-sweet_f_a@gmx.de>
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:42994 "EHLO
+	out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753167AbcCIK6W (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Mar 2016 05:58:22 -0500
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+	by mailout.nyi.internal (Postfix) with ESMTP id 38FF720ED6
+	for <util-linux@vger.kernel.org>; Wed,  9 Mar 2016 05:58:21 -0500 (EST)
+Message-Id: <1457521100.3212166.544009746.0578A459@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201602261237.24424.sweet_f_a@gmx.de>
+Content-Type: text/plain
+Subject: Re: [PATCH 2/3] mount: further improve formatting of the man page
+Date: Wed, 09 Mar 2016 11:58:20 +0100
+In-Reply-To: <1457520901-4133-2-git-send-email-bensberg@justemail.net>
+References: <1457520901-4133-1-git-send-email-bensberg@justemail.net>
+ <1457520901-4133-2-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Friday 26 February 2016, Ruediger Meier wrote:
-> From: Ruediger Meier <ruediger.meier@ga-group.nl>
->
-> features.h:  any glibc header includes this already
-> libgen.h:    was unused there
-> sys/uio.h:   for writev(3p)
-> sys/queue.h  seems like it was never used
->
-> [...]
-> diff --git a/lib/blkdev.c b/lib/blkdev.c
-> index 403e9e4..ddd6e9b 100644
-> --- a/lib/blkdev.c
-> +++ b/lib/blkdev.c
-> @@ -18,13 +18,6 @@
->  #include <sys/disklabel.h>
->  #endif
->
-> -#ifdef HAVE_SYS_DISK_H
-> -# ifdef HAVE_SYS_QUEUE_H
-> -#  include <sys/queue.h>	/* for LIST_HEAD */
-> -# endif
-> -# include <sys/disk.h>
-> -#endif
-> -
+> -Checking files on NFS filesystem referenced by file descriptors (i.e.\& the
+> +Checking files on NFS filesystems referenced by file descriptors (i.e.\& the
+>  .B fcntl
+>  and
+>  .B ioctl
+> -families of functions) may lead to inconsistent result due to the lack of
+> -consistency check in kernel even if noac is used.
+> +families of functions) may lead to inconsistent results due to the lack of
+> +a consistency check in the kernel even if noac is used.
+> +.\"  What is "noac"?
 
-It was a mistake to remove <sys/disk.h> too, already fixed on github. 
+I can't figure out what noac is supposed to mean.
+
+Direct current?  :)
+
+Benno
+
+-- 
+http://www.fastmail.com - IMAP accessible web-mail
+
