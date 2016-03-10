@@ -1,58 +1,52 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-pa0-f66.google.com ([209.85.220.66]:36760 "EHLO
-	mail-pa0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753231AbcCHB2n (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 7 Mar 2016 20:28:43 -0500
-Received: by mail-pa0-f66.google.com with SMTP id 1so79427pal.3
-        for <util-linux@vger.kernel.org>; Mon, 07 Mar 2016 17:28:43 -0800 (PST)
-Date: Mon, 7 Mar 2016 17:28:37 -0800
-From: Isaac Dunham <ibid.ag@gmail.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/12] another BSD/OSX related patch-set
-Message-ID: <20160308012836.GA26455@newbook>
-References: <1457392322-4974-1-git-send-email-sweet_f_a@gmx.de>
+Return-Path: sweet_f_a@gmx.de
+From: =?iso-8859-1?q?R=FCdiger_Meier?= <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: sfdisk, stderr/stdout output order
+Date: Thu, 10 Mar 2016 15:35:43 +0100
+Cc: Bernhard Voelker <mail@bernhard-voelker.de>, util-linux@vger.kernel.org
+References: <201603101140.50532.sweet_f_a@gmx.de> <56E17FDC.6010604@bernhard-voelker.de> <20160310142450.rqx2yfah5waotnag@ws.net.home>
+In-Reply-To: <20160310142450.rqx2yfah5waotnag@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1457392322-4974-1-git-send-email-sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Message-Id: <201603101535.43195.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Mar 08, 2016 at 12:11:50AM +0100, Ruediger Meier wrote:
-> From: Ruediger Meier <ruediger.meier@ga-group.nl>
-> 
-> This is github pull request #299
-> https://github.com/karelzak/util-linux/pull/299
-> 
-> Again some arbitrary BSD, OSX and musl related fixes and clean-up
-<snip>
-> For OSX one should additionally disable all utmp.h related programs.
-
-FYI:
-With musl, utmpx is stubbed out and utmp is wrappers for utmpx, so
-users should disable utmp(x)-related programs and code.
-
-(The point is to let things build, but not use utmp because the maintainer
-considers it a fundamentally flawed idea.)
-
-Additionally, systemd is working on allowing disabling of utmp(x).
-
-This seems to imply that --disable-utmp/--disable-utmpx options would be
-helpful.
 
 
-> Almost no interesting compiler warnings left. Xcode/clang warnings are
-> a bit over the top anyways.
-> 
-> 
-> Ruediger Meier (12):
->   wipefs, sfdisk: include libgen.h for basename(3p)
+On Thursday 10 March 2016 15:24:50 Karel Zak wrote:
+> On Thu, Mar 10, 2016 at 03:08:28PM +0100, Bernhard Voelker wrote:
+> > On 03/10/2016 12:16 PM, Karel Zak wrote:
+> > >On Thu, Mar 10, 2016 at 11:40:50AM +0100, R=FCdiger Meier wrote:
+> > >>I've found such test diffs with musl libc. Maybe it needs some
+> > >> fflush(3) calls.
+> > >
+> > >  Yes, good point. I'll fix it.
+> >
+> > I don't think you can enforce stdout/stderr to be synchronous.
+> > Well, you can try with "stdbuf(1)", but only having coreutils >v7.5
+> > (2009).  Why not check the output of both streams separately?
+>
+> Well, it's not about tests (although check both streams separately
+> will be improvement). The problem is that we write to stderr and=20
+> stdout in fdisks, fflush(stdout) before warnings will make things
+> more deterministic.
 
-I'm glad to see use of POSIX basename(), which is the only version that
-musl implements.
+Yep, I had found more problems like in rename below. For rename we
+should probably fix the test rather than adding fflush().
 
-The way musl implements basename, strdup() is not needed, but following
-POSIX is better than relying on implementation-specific details.
+=2D-- /home/rudi/devel/util-linux/tests/expected/rename/exit_codes
++++ /tmp/build-musl/tests/output/rename/exit_codes=20
+@@ -2,6 +2,6 @@
+ `rename_exit_codes.1' -> `rename_exit_values.1'
+ `rename_exit_codes.2' -> `rename_exit_values.2'
+ EXIT_SUCCESS: 0
+=2Drename: rename_exit_values.2: rename to rename_exit_codes.2 failed: Is a=
+ directory
+ `rename_exit_values.1' -> `rename_exit_codes.1'
++rename: rename_exit_values.2: rename to rename_exit_codes.2 failed: Is a d=
+irectory
+ RENAME_EXIT_SOMEOK: 2
 
-Thanks,
-Isaac Dunham
+cu,
+Rudi
