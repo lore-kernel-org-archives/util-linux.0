@@ -1,74 +1,139 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:54503 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754299AbcCMWb0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 13 Mar 2016 18:31:26 -0400
-Received: from tenfore.ga-group.nl ([2.247.85.77]) by mail.gmx.com (mrgmx102)
- with ESMTPSA (Nemesis) id 0MdXSC-1aT4wC0r2C-00PNcv for
- <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 23:31:24 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:36469 "EHLO
+	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932194AbcCMKb5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Mar 2016 06:31:57 -0400
+Received: by mail-wm0-f66.google.com with SMTP id l68so9996346wml.3
+        for <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 03:31:56 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 07/12] build-sys: fix again UL_SCANF_TYPE_MODIFIER
-Date: Sun, 13 Mar 2016 23:31:15 +0100
-Message-Id: <1457908280-15588-8-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
-References: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 02/10] getopt: fix memory leaks and integer overflows [ASAN & valgrind]
+Date: Sun, 13 Mar 2016 10:31:41 +0000
+Message-Id: <1457865109-2881-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1457865109-2881-1-git-send-email-kerolasa@iki.fi>
+References: <1457865109-2881-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+The getopt(1) is short living command, and one could argue ensuring all
+allocations are freed at end of execution is waste of time.  There is a
+point in that, but making test-suite runs to be less noisy with ASAN is also
+nice as it encourages reading the errors when/if they happen.
 
-This reverts commit c8494d88:
-  "build-sys: fix UL_SCANF_TYPE_MODIFIER for icc"
-
-plus fix the check prog, because it found "%as" to be valid on
-systems where "%a" is used for float conversion.
-
-icc warns about "%ms" but it works anyways. Our AC_RUN_IFELSE prog
-should do it right now regardless of compiler warnings.
-
-Note "%ms" is POSIX.1-2008 standard but still not available on
-many systems. Maybe it's time to remove "%as" fallback for old
-glibc which is even less portable.
-
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- configure.ac | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ misc-utils/getopt.c | 36 ++++++++++++++++++++++++++++--------
+ 1 file changed, 28 insertions(+), 8 deletions(-)
 
-diff --git a/configure.ac b/configure.ac
-index 8d808b7..0bfe28c 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -539,16 +539,15 @@ AC_DEFUN([UL_SCANF_TYPE_MODIFIER], [dnl
- int main()
+diff --git a/misc-utils/getopt.c b/misc-utils/getopt.c
+index c4144f6..be2ed38 100644
+--- a/misc-utils/getopt.c
++++ b/misc-utils/getopt.c
+@@ -79,13 +79,23 @@
+ /* The shells recognized. */
+ typedef enum { BASH, TCSH } shell_t;
+ 
++/* This is a copy of getopt_long(3) structure, in which *name does not have
++ * const, so that is can be free'd at end of execution.  */
++struct getoption {
++	char *name;
++	int has_arg;
++	int *flag;
++	int val;
++};
++
+ struct getopt_control {
+ 	shell_t shell;			/* the shell we generate output for */
+ 	char *optstr;			/* getopt(3) optstring */
+-	struct option *long_options;	/* long options */
++	struct getoption *long_options;	/* long options */
+ 	int long_options_length;	/* length of options array */
+ 	int long_options_nr;		/* number of used elements in array */
+ 	unsigned int
++		free_name:1,		/* free up argv[0] after printout */
+ 		compatible:1,		/* compatibility mode for 'difficult' programs */
+ 		quiet_errors:1,		/* print errors */
+ 		quiet_output:1,		/* print output */
+@@ -181,7 +191,7 @@ static void print_normalized(const struct getopt_control *ctl, const char *arg)
+  * optstr must contain the short options, and longopts the long options.
+  * Other settings are found in global variables.
+  */
+-static int generate_output(const struct getopt_control *ctl, char *argv[], int argc)
++static int generate_output(struct getopt_control *ctl, char *argv[], int argc)
  {
- 	int i;
-+	int rc = 1;
- 	char *s;
- 	i = sscanf("x", $1, &s);
-+	if (i == 1  && *s == 'x')
-+		rc = 0;
- 	free(s);
--	if (i == 1)
--		return 0;
--	return 1;
-+	return rc;
- }])
+ 	int exit_code = EXIT_SUCCESS;	/* Assume everything will be OK */
+ 	int opt;
+@@ -195,8 +205,10 @@ static int generate_output(const struct getopt_control *ctl, char *argv[], int a
+ 	optind = 0;
  
--ul_save_CPPFLAGS="$CPPFLAGS"
--CPPFLAGS="-Werror ${CPPFLAGS}"
- AC_CACHE_VAL([scanf_cv_alloc_modifier],
-   AC_RUN_IFELSE([AC_LANG_SOURCE([UL_SCANF_TYPE_MODIFIER(["%ms"])])],
-     [scanf_cv_alloc_modifier=ms],
-@@ -582,7 +581,6 @@ AC_CACHE_VAL([scanf_cv_alloc_modifier],
-     [scanf_cv_alloc_modifier=no])]
-   )
- )
--CPPFLAGS="$ul_save_CPPFLAGS"
+ 	while ((opt =
+-		(getopt_long_fp(argc, argv, ctl->optstr, ctl->long_options, &longindex)))
+-	       != EOF)
++		(getopt_long_fp
++		 (argc, argv, ctl->optstr,
++		  (const struct option *)ctl->long_options, &longindex)))
++	       != EOF) {
+ 		if (opt == '?' || opt == ':')
+ 			exit_code = GETOPT_EXIT_CODE;
+ 		else if (!ctl->quiet_output) {
+@@ -216,13 +228,19 @@ static int generate_output(const struct getopt_control *ctl, char *argv[], int a
+ 					print_normalized(ctl, optarg ? optarg : "");
+ 			}
+ 		}
+-
++	}
+ 	if (!ctl->quiet_output) {
+ 		printf(" --");
+ 		while (optind < argc)
+ 			print_normalized(ctl, argv[optind++]);
+ 		printf("\n");
+ 	}
++	for (longindex = 0; longindex < ctl->long_options_nr; longindex++)
++		free(ctl->long_options[longindex].name);
++	free(ctl->long_options);
++	free(ctl->optstr);
++	if (ctl->free_name)
++		free(argv[0]);
+ 	return exit_code;
+ }
  
- AC_MSG_CHECKING([scanf string alloc modifiers])
- AS_CASE([$scanf_cv_alloc_modifier],
+@@ -373,9 +391,6 @@ int main(int argc, char *argv[])
+ 	textdomain(PACKAGE);
+ 	atexit(close_stdout);
+ 
+-	add_longopt(&ctl, NULL, 0);	/* init */
+-	getopt_long_fp = getopt_long;
+-
+ 	if (getenv("GETOPT_COMPATIBLE"))
+ 		ctl.compatible = 1;
+ 
+@@ -391,6 +406,9 @@ int main(int argc, char *argv[])
+ 			parse_error(_("missing optstring argument"));
+ 	}
+ 
++	add_longopt(&ctl, NULL, 0);	/* init */
++	getopt_long_fp = getopt_long;
++
+ 	if (argv[1][0] != '-' || ctl.compatible) {
+ 		ctl.quote = 0;
+ 		ctl.optstr = xmalloc(strlen(argv[1]) + 1);
+@@ -417,6 +435,7 @@ int main(int argc, char *argv[])
+ 		case 'n':
+ 			free(name);
+ 			name = xstrdup(optarg);
++			ctl.free_name = 1;
+ 			break;
+ 		case 'q':
+ 			ctl.quiet_errors = 1;
+@@ -428,6 +447,7 @@ int main(int argc, char *argv[])
+ 			ctl.shell = shell_type(optarg);
+ 			break;
+ 		case 'T':
++			free(ctl.long_options);
+ 			return TEST_EXIT_CODE;
+ 		case 'u':
+ 			ctl.quote = 0;
 -- 
-1.8.4.5
+2.7.2
 
