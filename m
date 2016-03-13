@@ -1,42 +1,74 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:55208 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:54503 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751146AbcCGNOB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 7 Mar 2016 08:14:01 -0500
-Date: Mon, 7 Mar 2016 14:13:58 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org,
-        Federico Bento <up201407890@alunos.dcc.fc.up.pt>
-Subject: Re: Fixing su + runuser vulnerability CVE-2016-2779
-Message-ID: <20160307131358.kzu4qb5yu6u7fd4x@ws.net.home>
-References: <56D7409A.6050407@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <56D7409A.6050407@suse.cz>
+	id S1754299AbcCMWb0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 13 Mar 2016 18:31:26 -0400
+Received: from tenfore.ga-group.nl ([2.247.85.77]) by mail.gmx.com (mrgmx102)
+ with ESMTPSA (Nemesis) id 0MdXSC-1aT4wC0r2C-00PNcv for
+ <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 23:31:24 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 07/12] build-sys: fix again UL_SCANF_TYPE_MODIFIER
+Date: Sun, 13 Mar 2016 23:31:15 +0100
+Message-Id: <1457908280-15588-8-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
+References: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Mar 02, 2016 at 08:35:54PM +0100, Stanislav Brabec wrote:
-> There are some controversial things with the straightforward fix:
-> 
-> setsid() prevents TIOCSTI attack described in the report (easy to
-> reproduce), but it has side effects: It disconnects the task from job
-> control. With setsid(), ^Z cannot be used for sending the application
-> to background any more (easy to reproduce by calling setsid()
-> unconditionally in the same place).
-> 
-> su-common.c now calls setsid() only if new session is requested.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Yes, it's pretty stupid situation. 
+This reverts commit c8494d88:
+  "build-sys: fix UL_SCANF_TYPE_MODIFIER for icc"
 
-We have exactly specified setsid() use-cases and now TIOCSTI ioctl
-forces us to modify the things (and maybe introduce regressions),
-because the crazy ioctl is not possible to disable by any another
-way...
+plus fix the check prog, because it found "%as" to be valid on
+systems where "%a" is used for float conversion.
 
-    Karel
+icc warns about "%ms" but it works anyways. Our AC_RUN_IFELSE prog
+should do it right now regardless of compiler warnings.
 
+Note "%ms" is POSIX.1-2008 standard but still not available on
+many systems. Maybe it's time to remove "%as" fallback for old
+glibc which is even less portable.
+
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ configure.ac | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 8d808b7..0bfe28c 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -539,16 +539,15 @@ AC_DEFUN([UL_SCANF_TYPE_MODIFIER], [dnl
+ int main()
+ {
+ 	int i;
++	int rc = 1;
+ 	char *s;
+ 	i = sscanf("x", $1, &s);
++	if (i == 1  && *s == 'x')
++		rc = 0;
+ 	free(s);
+-	if (i == 1)
+-		return 0;
+-	return 1;
++	return rc;
+ }])
+ 
+-ul_save_CPPFLAGS="$CPPFLAGS"
+-CPPFLAGS="-Werror ${CPPFLAGS}"
+ AC_CACHE_VAL([scanf_cv_alloc_modifier],
+   AC_RUN_IFELSE([AC_LANG_SOURCE([UL_SCANF_TYPE_MODIFIER(["%ms"])])],
+     [scanf_cv_alloc_modifier=ms],
+@@ -582,7 +581,6 @@ AC_CACHE_VAL([scanf_cv_alloc_modifier],
+     [scanf_cv_alloc_modifier=no])]
+   )
+ )
+-CPPFLAGS="$ul_save_CPPFLAGS"
+ 
+ AC_MSG_CHECKING([scanf string alloc modifiers])
+ AS_CASE([$scanf_cv_alloc_modifier],
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4.5
+
