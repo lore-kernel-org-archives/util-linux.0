@@ -1,50 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.19]:57045 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.20]:65331 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751389AbcB0TkO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 27 Feb 2016 14:40:14 -0500
-From: =?utf-8?q?R=C3=BCdiger_Meier?= <sweet_f_a@gmx.de>
-To: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
-Subject: Re: [PATCH] Proper fallback for systems that lacks O_CLOEXEC (was: [PATCH 12/14] lib: provide mkostemp fallback function)
-Date: Sat, 27 Feb 2016 20:40:09 +0100
-Cc: util-linux@vger.kernel.org
-References: <1456455812-19453-1-git-send-email-sweet_f_a@gmx.de> <m337sfocs8.fsf@gmail.com> <m3y4a7msnj.fsf_-_@gmail.com>
-In-Reply-To: <m3y4a7msnj.fsf_-_@gmail.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Message-Id: <201602272040.09740.sweet_f_a@gmx.de>
+	id S1754276AbcCMWbZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 13 Mar 2016 18:31:25 -0400
+Received: from tenfore.ga-group.nl ([2.247.85.77]) by mail.gmx.com (mrgmx102)
+ with ESMTPSA (Nemesis) id 0MMYZG-1alIHN0ukQ-008GTz for
+ <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 23:31:23 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 03/12] tests: skip old socat silently
+Date: Sun, 13 Mar 2016 23:31:11 +0100
+Message-Id: <1457908280-15588-4-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
+References: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Friday 26 February 2016 15:51:28 Yuriy M. Kaminskiy wrote:
-> yumkam@gmail.com (Yuriy M. Kaminskiy)
->
-> writes:
-> > Ruediger Meier <sweet_f_a@gmx.de> writes:
-> >> From: Ruediger Meier <ruediger.meier@ga-group.nl>
->
-> [...]
->
-> > `O_CREAT`, etc; most notable, `O_CLOEXEC`; however, if `O_CLOEXEC` is
-> > missing on system, "c.h" defines it as 0, so it is silently ignored on
-> > those systems, instead of being emulated; so, whenever it matters,
-> > callers must call **both** `open(O_CLOEXEC)` and
-> > `fcntl(F_SETFD,FD_CLOEXEC)`]).
->
-> ... something like attached below. In some cases it is maybe
-> unnecessary, but better safe than sorry.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-I'm not sure whether we should add all these fcntl lines just for a few old 
-non-Linux systems. That's probably why Karel simply added quick and dirty 
-this unsafe fallback defining O_CLOEXEC to 0.
+I've seen enough logs with verbose socat output for now. Let's
+make it quiet.
 
-We are using this fallback already since 2011 and and now 2016 we have even 
-less systems where O_CLOEXEC is not available. BTW we are using mkostemp 
-(which is a real showstopper for the build!) since 3 years and nobody 
-complained. I assume any system with mkostemp will also have O_CLOEXEC.
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ tests/functions.sh | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-I'm going to add another hopefully correct patch for case mkostemp only.
+diff --git a/tests/functions.sh b/tests/functions.sh
+index 74622b0..5246605 100644
+--- a/tests/functions.sh
++++ b/tests/functions.sh
+@@ -699,22 +699,23 @@ function ts_init_socket_to_file {
+ 	ts_check_prog "socat"
+ 	rm -f "$socket" "$outfile"
+ 
++	# if socat is too old for these options we'll skip it below
+ 	socat -u UNIX-LISTEN:$socket,fork,max-children=1,backlog=128 \
+-		STDOUT > "$outfile" &
++		STDOUT > "$outfile" 2>/dev/null &
+ 	pid=$!
+ 
+ 	# check for running background process
+-	if [ "$pid" -le "0" ] || ! kill -s 0 "$pid"; then
++	if [ "$pid" -le "0" ] || ! kill -s 0 "$pid" &>/dev/null; then
+ 		ts_skip "unable to run socat"
+ 	fi
+ 	# wait for the socket listener
+-	if ! socat -u /dev/null UNIX-CONNECT:$socket,retry=30,interval=0.1; then
+-		kill -9 "$pid"
+-		ts_skip "timeout waiting for socket"
++	if ! socat -u /dev/null UNIX-CONNECT:$socket,retry=30,interval=0.1 &>/dev/null; then
++		kill -9 "$pid" &>/dev/null
++		ts_skip "timeout waiting for socat socket"
+ 	fi
+ 	# check socket again
+-	if ! socat -u /dev/null UNIX-CONNECT:$socket; then
+-		kill -9 "$pid"
+-		ts_skip "socket stopped listening"
++	if ! socat -u /dev/null UNIX-CONNECT:$socket &>/dev/null; then
++		kill -9 "$pid" &>/dev/null
++		ts_skip "socat socket stopped listening"
+ 	fi
+ }
+-- 
+1.8.4.5
 
-cu,
-Rudi
