@@ -1,143 +1,136 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:49648 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754257AbcCMWbZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 13 Mar 2016 18:31:25 -0400
-Received: from tenfore.ga-group.nl ([2.247.85.77]) by mail.gmx.com (mrgmx102)
- with ESMTPSA (Nemesis) id 0M0smx-1ZpbKH46Fr-00v9wg for
- <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 23:31:23 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:33535 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932194AbcCMKb7 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Mar 2016 06:31:59 -0400
+Received: by mail-wm0-f65.google.com with SMTP id n186so10019172wmn.0
+        for <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 03:31:58 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 02/12] misc: fix icc/clang compiler warnings
-Date: Sun, 13 Mar 2016 23:31:10 +0100
-Message-Id: <1457908280-15588-3-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
-References: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 03/10] lsipc, lslogins, rtcwake: replace asctime() with strftime()
+Date: Sun, 13 Mar 2016 10:31:42 +0000
+Message-Id: <1457865109-2881-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1457865109-2881-1-git-send-email-kerolasa@iki.fi>
+References: <1457865109-2881-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+POSIX.1-2008 marks asctime() and asctime_r() as obsolete, recommending the
+use of strftime(3) instead.
 
-clang warning:
-libmount/src/tab.c:1833:6: warning: variable 'rc' is used uninitialized whenever
-      'if' condition is true [-Wsometimes-uninitialized]
-        if (!mpc)
-            ^~~~
-
-icc printf warnings:
-    libmount/src/monitor.c(348): warning #2279: printf/scanf format not a string literal and no format arguments
-            DBG(MONITOR, ul_debugobj(mn, status == 1 ? " success" : " nothing"));
-            ^
-    login-utils/vipw.c(348): warning #2279: printf/scanf format not a string literal and no format arguments
-                           : _("You are using shadow passwords on this system.\n"));
-                                                                                  ^
-
-icc enum warnings:
-    disk-utils/fdisk-menu.c(150): warning #188: enumerated type mixed with another type
-            .exclude = FDISK_DISKLABEL_GPT | FDISK_DISKLABEL_BSD,
-                       ^
-    libsmartcols/src/table_print.c(750): warning #188: enumerated type mixed with another type
-                            &width, align,
-                                    ^
-
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- disk-utils/fdisk-menu.c        | 4 ++--
- libmount/src/monitor.c         | 2 +-
- libmount/src/tab.c             | 5 ++---
- libsmartcols/src/table_print.c | 3 ++-
- login-utils/vipw.c             | 2 +-
- 5 files changed, 8 insertions(+), 8 deletions(-)
+ include/timeutils.h    |  3 +++
+ login-utils/lslogins.c |  5 ++---
+ sys-utils/lsipc.c      |  6 ++----
+ sys-utils/rtcwake.c    | 15 +++++++++------
+ 4 files changed, 16 insertions(+), 13 deletions(-)
 
-diff --git a/disk-utils/fdisk-menu.c b/disk-utils/fdisk-menu.c
-index 84b8fb7..7195844 100644
---- a/disk-utils/fdisk-menu.c
-+++ b/disk-utils/fdisk-menu.c
-@@ -19,7 +19,7 @@ struct menu_entry {
- 						   but don't print it in help */
+diff --git a/include/timeutils.h b/include/timeutils.h
+index 8ed501b..427f833 100644
+--- a/include/timeutils.h
++++ b/include/timeutils.h
+@@ -51,6 +51,9 @@ typedef uint64_t nsec_t;
+ #define FORMAT_TIMESTAMP_RELATIVE_MAX 256
+ #define FORMAT_TIMESPAN_MAX 64
  
- 	enum fdisk_labeltype	label;		/* only for this label */
--	enum fdisk_labeltype	exclude;	/* all labels except this */
-+	int                     exclude;    /* all labels except these */
- 	enum fdisk_labeltype	parent;		/* for nested PT */
- };
++/* Original asctime(3) format ends to '\n' that we do not do here.  */
++#define STRFTIME_ASCTIME_FORMAT	"%a %b %e %T %Y"
++
+ int parse_timestamp(const char *t, usec_t *usec);
  
-@@ -28,7 +28,7 @@ struct menu_entry {
+ #endif /* UTIL_LINUX_TIME_UTIL_H */
+diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
+index 40a1343..554a1a3 100644
+--- a/login-utils/lslogins.c
++++ b/login-utils/lslogins.c
+@@ -56,6 +56,7 @@
+ #include "pathnames.h"
+ #include "logindefs.h"
+ #include "procutils.h"
++#include "timeutils.h"
  
- struct menu {
- 	enum fdisk_labeltype	label;		/* only for this label */
--	enum fdisk_labeltype	exclude;	/* all labels except this */
-+	int                     exclude;    /* all labels except these */
+ /*
+  * column description
+@@ -333,9 +334,7 @@ static char *make_time(int mode, time_t time)
  
- 	unsigned int		nonested : 1;	/* don't make this menu active in nested PT */
+ 	switch(mode) {
+ 	case TIME_FULL:
+-		asctime_r(&tm, buf);
+-		if (*(s = buf + strlen(buf) - 1) == '\n')
+-			*s = '\0';
++		strftime(buf, sizeof(buf), STRFTIME_ASCTIME_FORMAT, &tm);
+ 		break;
+ 	case TIME_SHORT:
+ 		if (date_is_today(time))
+diff --git a/sys-utils/lsipc.c b/sys-utils/lsipc.c
+index 938728a..19cf5a8 100644
+--- a/sys-utils/lsipc.c
++++ b/sys-utils/lsipc.c
+@@ -39,6 +39,7 @@
+ #include "xalloc.h"
+ #include "procutils.h"
+ #include "ipcutils.h"
++#include "timeutils.h"
  
-diff --git a/libmount/src/monitor.c b/libmount/src/monitor.c
-index a71f2f5..9f9e2ba 100644
---- a/libmount/src/monitor.c
-+++ b/libmount/src/monitor.c
-@@ -345,7 +345,7 @@ static int userspace_event_verify(struct libmnt_monitor *mn,
- 		}
- 	} while (1);
+ /*
+  * time modes
+@@ -445,7 +446,6 @@ static int date_is_thisyear(time_t t)
  
--	DBG(MONITOR, ul_debugobj(mn, status == 1 ? " success" : " nothing"));
-+	DBG(MONITOR, ul_debugobj(mn, "%s", status == 1 ? " success" : " nothing"));
- 	return status;
- }
- 
-diff --git a/libmount/src/tab.c b/libmount/src/tab.c
-index 0570044..a7a1b6b 100644
---- a/libmount/src/tab.c
-+++ b/libmount/src/tab.c
-@@ -1808,7 +1808,7 @@ static int test_is_mounted(struct libmnt_test *ts, int argc, char *argv[])
- 	struct libmnt_fs *fs;
- 	struct libmnt_iter *itr = NULL;
- 	struct libmnt_cache *mpc = NULL;
--	int rc, writable = 0;
-+	int writable = 0;
- 	const char *path = NULL;
- 
- 	if (mnt_has_regular_mtab(&path, &writable) == 1 && writable == 0)
-@@ -1846,12 +1846,11 @@ static int test_is_mounted(struct libmnt_test *ts, int argc, char *argv[])
- 					mnt_fs_get_target(fs));
- 	}
- 
--	rc = 0;
- done:
- 	mnt_unref_table(tb);
- 	mnt_unref_table(fstab);
- 	mnt_free_iter(itr);
--	return rc;
-+	return 0;
- }
- 
- /* returns 0 if @a and @b targets are the same */
-diff --git a/libsmartcols/src/table_print.c b/libsmartcols/src/table_print.c
-index 510386e..d86b068 100644
---- a/libsmartcols/src/table_print.c
-+++ b/libsmartcols/src/table_print.c
-@@ -702,7 +702,8 @@ static int print_line(struct libscols_table *tb,
- 
- static int print_title(struct libscols_table *tb)
+ static char *make_time(int mode, time_t time)
  {
--	int rc, align;
-+	int rc;
-+	mbs_align_t align;
- 	size_t len = 0, width;
- 	char *title = NULL, *buf = NULL;
+-	char *s;
+ 	struct tm tm;
+ 	char buf[64] = {0};
  
-diff --git a/login-utils/vipw.c b/login-utils/vipw.c
-index bb4a8ba..066fee0 100644
---- a/login-utils/vipw.c
-+++ b/login-utils/vipw.c
-@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
- 	if (access(orig_file, F_OK) == 0) {
- 		char response[80];
+@@ -453,9 +453,7 @@ static char *make_time(int mode, time_t time)
  
--		printf((program == VIGR)
-+		printf("%s", (program == VIGR)
- 		       ? _("You are using shadow groups on this system.\n")
- 		       : _("You are using shadow passwords on this system.\n"));
- 		/* TRANSLATORS: this program uses for y and n rpmatch(3),
+ 	switch(mode) {
+ 	case TIME_FULL:
+-		asctime_r(&tm, buf);
+-		if (*(s = buf + strlen(buf) - 1) == '\n')
+-			*s = '\0';
++		strftime(buf, sizeof(buf), STRFTIME_ASCTIME_FORMAT, &tm);
+ 		break;
+ 	case TIME_SHORT:
+ 		if (date_is_today(time))
+diff --git a/sys-utils/rtcwake.c b/sys-utils/rtcwake.c
+index 7c748dc..32df785 100644
+--- a/sys-utils/rtcwake.c
++++ b/sys-utils/rtcwake.c
+@@ -173,7 +173,7 @@ static int get_basetimes(struct rtcwake_control *ctl, int fd)
+ 		return -1;
+ 	}
+ 	/* Convert rtc_time to normal arithmetic-friendly form,
+-	 * updating tm.tm_wday as used by asctime().
++	 * updating tm.tm_wday as used by strftime().
+ 	 */
+ 	tm.tm_sec = rtc.tm_sec;
+ 	tm.tm_min = rtc.tm_min;
+@@ -193,14 +193,17 @@ static int get_basetimes(struct rtcwake_control *ctl, int fd)
+ 		/* Unless the system uses UTC, either delta or tzone
+ 		 * reflects a seconds offset from UTC.  The value can
+ 		 * help sort out problems like bugs in your C library. */
++		char buf[64] = { 0 };
++		struct tm sys_tm = { 0 };
++
+ 		printf("\tdelta   = %ld\n", ctl->sys_time - ctl->rtc_time);
+ 		printf("\ttzone   = %ld\n", timezone);
+ 		printf("\ttzname  = %s\n", tzname[daylight]);
+-		gmtime_r(&ctl->rtc_time, &tm);
+-		printf("\tsystime = %ld, (UTC) %s",
+-				(long) ctl->sys_time, asctime(gmtime(&ctl->sys_time)));
+-		printf("\trtctime = %ld, (UTC) %s",
+-				(long) ctl->rtc_time, asctime(&tm));
++		gmtime_r(&ctl->sys_time, &sys_tm);
++		strftime(buf, sizeof(buf), STRFTIME_ASCTIME_FORMAT, &sys_tm);
++		printf("\tsystime = %ld, (UTC) %s\n", (long) ctl->sys_time, buf);
++		strftime(buf, sizeof(buf), STRFTIME_ASCTIME_FORMAT, &tm);
++		printf("\trtctime = %ld, (UTC) %s\n", (long) ctl->rtc_time, buf);
+ 	}
+ 	return 0;
+ }
 -- 
-1.8.4.5
+2.7.2
 
