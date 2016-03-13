@@ -1,83 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:58791 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.20]:57792 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755444AbcCUNEt (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 21 Mar 2016 09:04:49 -0400
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx102)
- with ESMTPSA (Nemesis) id 0LinyL-1a55r12s3B-00cuZm for
- <util-linux@vger.kernel.org>; Mon, 21 Mar 2016 14:04:46 +0100
+	id S1750866AbcCMWb0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 13 Mar 2016 18:31:26 -0400
+Received: from tenfore.ga-group.nl ([2.247.85.77]) by mail.gmx.com (mrgmx102)
+ with ESMTPSA (Nemesis) id 0Mcgur-1aNIBZ3hNR-00HxVs for
+ <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 23:31:25 +0100
 From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 2/5] build-sys: pylibmount, mount context is Linux only
-Date: Mon, 21 Mar 2016 14:04:42 +0100
-Message-Id: <1458565485-27856-3-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1458565485-27856-1-git-send-email-sweet_f_a@gmx.de>
-References: <1458565485-27856-1-git-send-email-sweet_f_a@gmx.de>
+Subject: [PATCH 10/12] build-sys: improve uuidd and script build conditions
+Date: Sun, 13 Mar 2016 23:31:18 +0100
+Message-Id: <1457908280-15588-11-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
+References: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <rudi@localhost>
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
 Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- libmount/python/Makemodule.am | 6 ++++--
- libmount/python/pylibmount.c  | 2 ++
- libmount/python/pylibmount.h  | 4 ++++
- 3 files changed, 10 insertions(+), 2 deletions(-)
+ configure.ac | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/libmount/python/Makemodule.am b/libmount/python/Makemodule.am
-index 367d324..9964e31 100644
---- a/libmount/python/Makemodule.am
-+++ b/libmount/python/Makemodule.am
-@@ -12,8 +12,10 @@ pylibmount_la_SOURCES = \
- 	libmount/python/pylibmount.c \
- 	libmount/python/pylibmount.h \
- 	libmount/python/fs.c \
--	libmount/python/tab.c \
--	libmount/python/context.c
-+	libmount/python/tab.c
-+if LINUX
-+pylibmount_la_SOURCES += libmount/python/context.c
-+endif
+diff --git a/configure.ac b/configure.ac
+index 5e89e3b..fafe762 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -244,6 +244,7 @@ AC_CHECK_HEADERS([ \
+ 	sys/param.h \
+ 	sys/prctl.h \
+ 	sys/resource.h \
++	sys/signalfd.h \
+ 	sys/socket.h \
+ 	sys/sockio.h \
+ 	sys/stat.h \
+@@ -289,6 +290,7 @@ have_security_pam_appl_h=$ac_cv_header_security_pam_appl_h
+ have_security_pam_misc_h=$ac_cv_header_security_pam_misc_h
+ have_security_openpam_h=$ac_cv_header_security_openpam_h
+ have_shadow_h=$ac_cv_header_shadow_h
++have_sys_signalfd_h=$ac_cv_header_sys_signalfd_h
+ have_utmp_h=$ac_cv_header_utmp_h
  
- pylibmount_la_LIBADD = libmount.la $(PYTHON_LIBS)
+ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+@@ -1079,6 +1081,8 @@ AC_ARG_ENABLE([uuidd],
+ )
+ UL_BUILD_INIT([uuidd])
+ UL_REQUIRES_BUILD([uuidd], [libuuid])
++UL_REQUIRES_HAVE([uuidd], [timer], [timer_create function])
++UL_REQUIRES_HAVE([uuidd], [sys_signalfd_h], [sys/signalfd.h header])
+ AS_IF([test "x$build_uuidd" = xyes], [
+   AC_DEFINE([HAVE_UUIDD], [1], [Define to 1 if you want to use uuid daemon.])
+ ])
+@@ -1494,7 +1498,7 @@ UL_REQUIRES_LINUX([setarch])
+ AM_CONDITIONAL([BUILD_SETARCH], [test "x$build_setarch" = xyes])
  
-diff --git a/libmount/python/pylibmount.c b/libmount/python/pylibmount.c
-index c538bb5..54d7dfa 100644
---- a/libmount/python/pylibmount.c
-+++ b/libmount/python/pylibmount.c
-@@ -229,7 +229,9 @@ PyMODINIT_FUNC initpylibmount(void)
+ UL_BUILD_INIT([script], [check])
+-UL_REQUIRES_LINUX([script])
++UL_REQUIRES_HAVE([script], [sys_signalfd_h], [sys/signalfd.h header])
+ AM_CONDITIONAL([BUILD_SCRIPT], [test "x$build_script" = xyes])
  
- 	FS_AddModuleObject(m);
- 	Table_AddModuleObject(m);
-+#ifdef __linux__
- 	Context_AddModuleObject(m);
-+#endif
- 
- 	/*
- 	 * mount(8) userspace options masks (MNT_MAP_USERSPACE map)
-diff --git a/libmount/python/pylibmount.h b/libmount/python/pylibmount.h
-index 1a08796..7a37014 100644
---- a/libmount/python/pylibmount.h
-+++ b/libmount/python/pylibmount.h
-@@ -94,6 +94,8 @@ extern void Table_AddModuleObject(PyObject *mod);
- 
- extern int pymnt_table_parser_errcb(struct libmnt_table *tb, const char *filename, int line);
- 
-+#ifdef __linux__
-+
- /*
-  * context.c
-  */
-@@ -108,6 +110,8 @@ typedef struct {
- extern PyTypeObject ContextType;
- extern void Context_AddModuleObject(PyObject *mod);
- 
-+#endif /* __linux__ */
-+
- /*
-  * misc
-  */
+ UL_BUILD_INIT([scriptreplay], [yes])
 -- 
 1.8.4.5
 
