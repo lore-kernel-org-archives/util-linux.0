@@ -1,313 +1,183 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:42992 "EHLO smtp.gentoo.org"
+Received: from mout.gmx.net ([212.227.17.21]:65365 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752248AbcCGW0f (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 7 Mar 2016 17:26:35 -0500
-Received: from localhost.localdomain (localhost [127.0.0.1])
-	by smtp.gentoo.org (Postfix) with ESMTP id 25890340A7D
-	for <util-linux@vger.kernel.org>; Mon,  7 Mar 2016 22:26:34 +0000 (UTC)
-From: Mike Frysinger <vapier@gentoo.org>
+	id S1751023AbcCMWb1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 13 Mar 2016 18:31:27 -0400
+Received: from tenfore.ga-group.nl ([2.247.85.77]) by mail.gmx.com (mrgmx102)
+ with ESMTPSA (Nemesis) id 0MLA45-1aexYq1Ni5-000I8a for
+ <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 23:31:25 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: [PATCH] include sysmacros.h where used
-Date: Mon,  7 Mar 2016 17:26:33 -0500
-Message-Id: <1457389593-15124-1-git-send-email-vapier@gentoo.org>
+Subject: [PATCH 12/12] travis: add OSX build
+Date: Sun, 13 Mar 2016 23:31:20 +0100
+Message-Id: <1457908280-15588-13-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
+References: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-BSD/Linux systems stick major/minor/makedev in sysmacros.h.  Newer Linux
-libraries have been moving away from including sysmacros.h implicitly via
-sys/types.h, so include it directly.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+Of course OSX is not an important target but since it's available on
+travis we can (mis)use it to generally improve non-Linux and non-GNU
+compatibility. People are using musl, busybox or whatever and
+util-linux should work for them. Having OSX build running regularly
+will help us to freeze the lately improved BSD compatibility and
+to check code which is usually ifdef'ed.
+
+We are using the most recent OSX 10.11.x / Xcode 7.3 though the older
+travis OSX images are working too currently.
+
+If it turns out that this OSX build is too annoying when we are about
+to add support for latest Linux features then we could add:
+  allow_failures:
+    - os: osx
+to let it fail silently.
+
+Note I've tried hard to keep .travis-functions.sh readable for the
+Linux case. I've removed --with-python because it's default anyway,
+--enable-gtk-doc is still tested in discheck.
+
+OSX root check would also work (almost, using another --prefix) but
+would only run one more test yet (minix).
+
+OSX distcheck would have some issues with conditionally built man
+pages and does not work with default distcheck confopts. No need to
+fix that because distcheck is more for maintainer machines.
+
+BTW to increase travis build speed again we could remove some targets
+from the matrix without losing tested scenarios:
+ - nonroot for Linux seems to be waste of time
+ - clang/Linux could be root check only
+For now we keep it as is.
+
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- disk-utils/fsck.c                    | 1 +
- disk-utils/partx.c                   | 1 +
- disk-utils/sfdisk.c                  | 1 +
- lib/ismounted.c                      | 1 +
- lib/sysfs.c                          | 1 +
- libblkid/src/devname.c               | 1 +
- libblkid/src/devno.c                 | 1 +
- libblkid/src/evaluate.c              | 1 +
- libblkid/src/partitions/partitions.c | 1 +
- libblkid/src/topology/dm.c           | 1 +
- libblkid/src/topology/evms.c         | 1 +
- libblkid/src/topology/lvm.c          | 1 +
- libblkid/src/topology/md.c           | 1 +
- libmount/python/fs.c                 | 1 +
- libmount/src/fs.c                    | 1 +
- libmount/src/tab_parse.c             | 1 +
- login-utils/sulogin-consoles.c       | 1 +
- misc-utils/findmnt.c                 | 1 +
- misc-utils/lsblk.c                   | 1 +
- misc-utils/lslocks.c                 | 1 +
- sys-utils/losetup.c                  | 1 +
- sys-utils/mountpoint.c               | 1 +
- 22 files changed, 22 insertions(+)
+ .travis-functions.sh | 58 ++++++++++++++++++++++++++++++++++++++++++++++++----
+ .travis.yml          |  4 ++++
+ 2 files changed, 58 insertions(+), 4 deletions(-)
 
-diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
-index 6f9e78b..2b7e712 100644
---- a/disk-utils/fsck.c
-+++ b/disk-utils/fsck.c
-@@ -30,6 +30,7 @@
- #include <sys/types.h>
- #include <sys/wait.h>
- #include <sys/stat.h>
-+#include <sys/sysmacros.h>
- #include <sys/file.h>
- #include <fcntl.h>
- #include <limits.h>
-diff --git a/disk-utils/partx.c b/disk-utils/partx.c
-index 50bd6a4..955166b 100644
---- a/disk-utils/partx.c
-+++ b/disk-utils/partx.c
-@@ -19,6 +19,7 @@
- #include <unistd.h>
- #include <assert.h>
- #include <dirent.h>
-+#include <sys/sysmacros.h>
+diff --git a/.travis-functions.sh b/.travis-functions.sh
+index e4318d6..3e16d09 100755
+--- a/.travis-functions.sh
++++ b/.travis-functions.sh
+@@ -19,7 +19,7 @@ export TS_OPT_parsable="yes"
  
- #include <blkid.h>
- #include <libsmartcols.h>
-diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
-index 81371eb..9c1aacb 100644
---- a/disk-utils/sfdisk.c
-+++ b/disk-utils/sfdisk.c
-@@ -29,6 +29,7 @@
- #include <errno.h>
- #include <getopt.h>
- #include <sys/stat.h>
-+#include <sys/sysmacros.h>
- #include <assert.h>
- #include <fcntl.h>
- #include <libsmartcols.h>
-diff --git a/lib/ismounted.c b/lib/ismounted.c
-index f83be65..9b0e447 100644
---- a/lib/ismounted.c
-+++ b/lib/ismounted.c
-@@ -18,6 +18,7 @@
- #include <sys/stat.h>
- #include <ctype.h>
- #include <sys/param.h>
-+#include <sys/sysmacros.h>
+ function xconfigure
+ {
+-	./configure "$@"
++	./configure "$@" $OSX_CONFOPTS
+ 	err=$?
+ 	if [ "$DUMP_CONFIG_LOG" = "short" ]; then
+ 		grep -B1 -A10000 "^## Output variables" config.log | grep -v "_FALSE="
+@@ -35,12 +35,13 @@ function check_nonroot
  
- #ifndef __linux__
- # ifdef HAVE_SYS_UCRED_H
-diff --git a/lib/sysfs.c b/lib/sysfs.c
-index 9e973a4..4b46459 100644
---- a/lib/sysfs.c
-+++ b/lib/sysfs.c
-@@ -7,6 +7,7 @@
- #include <ctype.h>
- #include <libgen.h>
- #include <fcntl.h>
-+#include <sys/sysmacros.h>
- #include <sys/stat.h>
- #include <unistd.h>
+ 	xconfigure \
+ 		--disable-use-tty-group \
+-		--with-python \
+ 		--enable-all-programs \
+-		--enable-gtk-doc \
+ 		|| return
+ 	$MAKE || return
++
++	osx_prepare_check
+ 	$MAKE check TS_OPTS="$opts" || return
++
+ 	$MAKE install DESTDIR=/tmp/dest || return
+ }
  
-diff --git a/libblkid/src/devname.c b/libblkid/src/devname.c
-index dbbe5b5..d583800 100644
---- a/libblkid/src/devname.c
-+++ b/libblkid/src/devname.c
-@@ -25,6 +25,7 @@
- #ifdef HAVE_SYS_TYPES_H
- #include <sys/types.h>
- #endif
-+#include <sys/sysmacros.h>
- #include <dirent.h>
- #ifdef HAVE_SYS_STAT_H
- #include <sys/stat.h>
-diff --git a/libblkid/src/devno.c b/libblkid/src/devno.c
-index 58fbce5..4b8f3db 100644
---- a/libblkid/src/devno.c
-+++ b/libblkid/src/devno.c
-@@ -31,6 +31,7 @@
- #endif
- #include <fcntl.h>
- #include <inttypes.h>
-+#include <sys/sysmacros.h>
+@@ -49,12 +50,14 @@ function check_root
+ 	local opts="$MAKE_CHECK_OPTS --parallel=1"
  
- #include "blkidP.h"
- #include "pathnames.h"
-diff --git a/libblkid/src/evaluate.c b/libblkid/src/evaluate.c
-index ffbe097..3d9a76b 100644
---- a/libblkid/src/evaluate.c
-+++ b/libblkid/src/evaluate.c
-@@ -12,6 +12,7 @@
- #include <unistd.h>
- #include <fcntl.h>
- #include <ctype.h>
-+#include <sys/sysmacros.h>
- #include <sys/types.h>
- #ifdef HAVE_SYS_STAT_H
- #include <sys/stat.h>
-diff --git a/libblkid/src/partitions/partitions.c b/libblkid/src/partitions/partitions.c
-index c8e0bfe..4ba5411 100644
---- a/libblkid/src/partitions/partitions.c
-+++ b/libblkid/src/partitions/partitions.c
-@@ -15,6 +15,7 @@
- #include <ctype.h>
- #include <sys/types.h>
- #include <sys/stat.h>
-+#include <sys/sysmacros.h>
- #include <errno.h>
- #include <stdint.h>
- #include <inttypes.h>
-diff --git a/libblkid/src/topology/dm.c b/libblkid/src/topology/dm.c
-index e061632..993161c 100644
---- a/libblkid/src/topology/dm.c
-+++ b/libblkid/src/topology/dm.c
-@@ -17,6 +17,7 @@
- #include <string.h>
- #include <sys/stat.h>
- #include <sys/types.h>
-+#include <sys/sysmacros.h>
- #include <unistd.h>
+ 	xconfigure \
+-		--with-python \
+ 		--enable-all-programs \
+ 		|| return
+ 	$MAKE || return
++
+ 	$MAKE check TS_COMMAND="true" || return
++	osx_prepare_check
+ 	sudo -E $MAKE check TS_OPTS="$opts" || return
++
+ 	sudo $MAKE install || return
+ }
  
- #include "topology.h"
-diff --git a/libblkid/src/topology/evms.c b/libblkid/src/topology/evms.c
-index 7a4fd55..b59b97b 100644
---- a/libblkid/src/topology/evms.c
-+++ b/libblkid/src/topology/evms.c
-@@ -18,6 +18,7 @@
- #include <sys/ioctl.h>
- #include <sys/stat.h>
- #include <sys/types.h>
-+#include <sys/sysmacros.h>
- #include <unistd.h>
+@@ -67,6 +70,11 @@ function check_dist
  
- #include "topology.h"
-diff --git a/libblkid/src/topology/lvm.c b/libblkid/src/topology/lvm.c
-index bd079d4..2ade0c2 100644
---- a/libblkid/src/topology/lvm.c
-+++ b/libblkid/src/topology/lvm.c
-@@ -17,6 +17,7 @@
- #include <string.h>
- #include <sys/stat.h>
- #include <sys/types.h>
-+#include <sys/sysmacros.h>
- #include <unistd.h>
+ function travis_install_script
+ {
++	if [ "$TRAVIS_OS_NAME" = "osx" ]; then
++		osx_install_script
++		return
++	fi
++
+ 	# install some packages from Ubuntu's default sources
+ 	sudo apt-get -qq update || return
+ 	sudo apt-get install -qq >/dev/null \
+@@ -89,6 +97,48 @@ function travis_install_script
+ 		|| true
+ }
  
- #include "topology.h"
-diff --git a/libblkid/src/topology/md.c b/libblkid/src/topology/md.c
-index 5eba947..388f996 100644
---- a/libblkid/src/topology/md.c
-+++ b/libblkid/src/topology/md.c
-@@ -18,6 +18,7 @@
- #include <sys/ioctl.h>
- #include <sys/stat.h>
- #include <sys/types.h>
-+#include <sys/sysmacros.h>
- #include <unistd.h>
++function osx_install_script
++{
++	brew update >/dev/null
++	brew tap homebrew/dupes
++
++	brew install gettext ncurses socat xz
++	brew link --force gettext
++	brew link --force ncurses
++
++	OSX_CONFOPTS="
++		--disable-runuser \
++		--disable-su \
++		--disable-login \
++		--disable-last \
++		--disable-utmpdump \
++		--disable-agetty \
++		--disable-wall \
++		--disable-ipcrm \
++		--disable-ipcs \
++		--disable-write \
++	"
++}
++
++function osx_prepare_check
++{
++	[ "$TRAVIS_OS_NAME" = "osx" ] || return 0
++
++	# these ones only need to be gnu for our test-suite
++	brew install coreutils findutils gnu-tar gnu-sed
++
++	# symlink minimally needed gnu commands into PATH
++	mkdir ~/bin
++	for cmd in md5sum readlink seq truncate find xargs tar sed; do
++		ln -s /usr/local/bin/g$cmd $HOME/bin/$cmd
++	done
++	hash -r
++
++	export TS_OPT_col_multibyte_known_fail=yes
++	export TS_OPT_colcrt_regressions_known_fail=yes
++	export TS_OPT_column_invalid_multibyte_known_fail=yes
++}
++
+ function travis_before_script
+ {
+ 	set -o xtrace
+diff --git a/.travis.yml b/.travis.yml
+index 545b915..598b5f1 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -21,6 +21,10 @@ matrix:
+       dist: precise
+       compiler: gcc
+       env: PRECISE="yes" MAKE_CHECK="root"
++    - os: osx
++      osx_image: xcode7.3
++      compiler: clang
++      env: MAKE_CHECK="nonroot"
  
- #include "topology.h"
-diff --git a/libmount/python/fs.c b/libmount/python/fs.c
-index 0789d37..651a7c5 100644
---- a/libmount/python/fs.c
-+++ b/libmount/python/fs.c
-@@ -27,6 +27,7 @@
- 
- #include "pylibmount.h"
- #include <errno.h>
-+#include <sys/sysmacros.h>
- 
- #define Fs_HELP "Fs(source=None, root=None, target=None, fstype=None, options=None, attributes=None, freq=0, passno=0)"
- 
-diff --git a/libmount/src/fs.c b/libmount/src/fs.c
-index 2bab7d6..ab3155d 100644
---- a/libmount/src/fs.c
-+++ b/libmount/src/fs.c
-@@ -14,6 +14,7 @@
- #include <ctype.h>
- #include <blkid.h>
- #include <stddef.h>
-+#include <sys/sysmacros.h>
- 
- #include "mountP.h"
- #include "strutils.h"
-diff --git a/libmount/src/tab_parse.c b/libmount/src/tab_parse.c
-index cee7008..29b4428 100644
---- a/libmount/src/tab_parse.c
-+++ b/libmount/src/tab_parse.c
-@@ -16,6 +16,7 @@
- #include <dirent.h>
- #include <fcntl.h>
- #include <sys/stat.h>
-+#include <sys/sysmacros.h>
- 
- #include "fileutils.h"
- #include "mangle.h"
-diff --git a/login-utils/sulogin-consoles.c b/login-utils/sulogin-consoles.c
-index fe8eab1..56f5336 100644
---- a/login-utils/sulogin-consoles.c
-+++ b/login-utils/sulogin-consoles.c
-@@ -27,6 +27,7 @@
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
-+#include <sys/sysmacros.h>
- #include <sys/types.h>
- #include <sys/stat.h>
- #include <sys/ioctl.h>
-diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
-index f72be14..e14119b 100644
---- a/misc-utils/findmnt.c
-+++ b/misc-utils/findmnt.c
-@@ -31,6 +31,7 @@
- #include <assert.h>
- #include <poll.h>
- #include <sys/statvfs.h>
-+#include <sys/sysmacros.h>
- #include <sys/types.h>
- #ifdef HAVE_LIBUDEV
- # include <libudev.h>
-diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
-index c9a39b3..6010167 100644
---- a/misc-utils/lsblk.c
-+++ b/misc-utils/lsblk.c
-@@ -26,6 +26,7 @@
- #include <stdlib.h>
- #include <unistd.h>
- #include <stdint.h>
-+#include <sys/sysmacros.h>
- #include <sys/types.h>
- #include <sys/stat.h>
- #include <dirent.h>
-diff --git a/misc-utils/lslocks.c b/misc-utils/lslocks.c
-index a47c1d0..7689964 100644
---- a/misc-utils/lslocks.c
-+++ b/misc-utils/lslocks.c
-@@ -30,6 +30,7 @@
- #include <dirent.h>
- #include <unistd.h>
- #include <sys/stat.h>
-+#include <sys/sysmacros.h>
- #include <sys/types.h>
- 
- #include <libmount.h>
-diff --git a/sys-utils/losetup.c b/sys-utils/losetup.c
-index 1d57ab3..90a42b6 100644
---- a/sys-utils/losetup.c
-+++ b/sys-utils/losetup.c
-@@ -12,6 +12,7 @@
- #include <unistd.h>
- #include <sys/ioctl.h>
- #include <sys/stat.h>
-+#include <sys/sysmacros.h>
- #include <inttypes.h>
- #include <getopt.h>
- 
-diff --git a/sys-utils/mountpoint.c b/sys-utils/mountpoint.c
-index ad9c1da..64d0a7e 100644
---- a/sys-utils/mountpoint.c
-+++ b/sys-utils/mountpoint.c
-@@ -31,6 +31,7 @@
- #include <unistd.h>
- #include <sys/types.h>
- #include <sys/stat.h>
-+#include <sys/sysmacros.h>
- 
- #include <libmount.h>
- 
+ branches:
+   only:
 -- 
-2.6.2
+1.8.4.5
 
