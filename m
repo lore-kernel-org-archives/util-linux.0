@@ -1,43 +1,95 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53181 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:61545 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752111AbcCJOYx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 10 Mar 2016 09:24:53 -0500
-Date: Thu, 10 Mar 2016 15:24:50 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: =?iso-8859-1?Q?R=FCdiger?= Meier <sweet_f_a@gmx.de>,
-        util-linux@vger.kernel.org
-Subject: Re: sfdisk, stderr/stdout output order
-Message-ID: <20160310142450.rqx2yfah5waotnag@ws.net.home>
-References: <201603101140.50532.sweet_f_a@gmx.de>
- <20160310111605.n2jona662wvbgymh@ws.net.home>
- <56E17FDC.6010604@bernhard-voelker.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <56E17FDC.6010604@bernhard-voelker.de>
+	id S1754300AbcCMWb0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 13 Mar 2016 18:31:26 -0400
+Received: from tenfore.ga-group.nl ([2.247.85.77]) by mail.gmx.com (mrgmx102)
+ with ESMTPSA (Nemesis) id 0Me5Q2-1aTcu30Q86-00PvrH for
+ <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 23:31:25 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 11/12] travis: switch to Ubuntu 14.04 Trusty
+Date: Sun, 13 Mar 2016 23:31:19 +0100
+Message-Id: <1457908280-15588-12-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
+References: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Mar 10, 2016 at 03:08:28PM +0100, Bernhard Voelker wrote:
-> On 03/10/2016 12:16 PM, Karel Zak wrote:
-> >On Thu, Mar 10, 2016 at 11:40:50AM +0100, Rüdiger Meier wrote:
-> >>I've found such test diffs with musl libc. Maybe it needs some fflush(3)
-> >>calls.
-> >
-> >  Yes, good point. I'll fix it.
-> 
-> I don't think you can enforce stdout/stderr to be synchronous.
-> Well, you can try with "stdbuf(1)", but only having coreutils >v7.5
-> (2009).  Why not check the output of both streams separately?
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Well, it's not about tests (although check both streams separately
-will be improvement). The problem is that we write to stderr and
-stdout in fdisks, fflush(stdout) before warnings will make things 
-more deterministic.
+Now we have a reasonable recent build system with systemd, etc. We still
+keep old Ubuntu 12.04 Precise to check backward compatibility but
+remove the hack to install socat.
 
-    Karel
+Note the new env variable PRECISE="yes" is only there to see it on travis
+website.
 
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ .travis-functions.sh | 11 ++++++-----
+ .travis.yml          | 10 ++++++++++
+ 2 files changed, 16 insertions(+), 5 deletions(-)
+
+diff --git a/.travis-functions.sh b/.travis-functions.sh
+index 3c18559..e4318d6 100755
+--- a/.travis-functions.sh
++++ b/.travis-functions.sh
+@@ -71,6 +71,7 @@ function travis_install_script
+ 	sudo apt-get -qq update || return
+ 	sudo apt-get install -qq >/dev/null \
+ 		bc \
++		btrfs-tools \
+ 		dnsutils \
+ 		libcap-ng-dev \
+ 		libpam-dev \
+@@ -78,14 +79,14 @@ function travis_install_script
+ 		gtk-doc-tools \
+ 		mdadm \
+ 		ntp \
++		socat \
+ 		|| return
+ 
+-	# install/upgrade custom stuff from non-official sources
+-	sudo add-apt-repository -y ppa:malcscott/socat || return
+-	sudo apt-get -qq update || return
++	# install only if available (e.g. Ubuntu Trusty)
+ 	sudo apt-get install -qq >/dev/null \
+-		socat \
+-		|| return
++		libsystemd-daemon-dev \
++		libsystemd-journal-dev \
++		|| true
+ }
+ 
+ function travis_before_script
+diff --git a/.travis.yml b/.travis.yml
+index e27adc4..545b915 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -1,5 +1,8 @@
+ language: c
+ 
++sudo: required
++dist: trusty
++
+ git:
+   depth: 1500
+ 
+@@ -12,6 +15,13 @@ env:
+   - MAKE_CHECK="root"
+   - MAKE_CHECK="dist"
+ 
++matrix:
++  include:
++    - os: linux
++      dist: precise
++      compiler: gcc
++      env: PRECISE="yes" MAKE_CHECK="root"
++
+ branches:
+   only:
+     - master
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4.5
+
