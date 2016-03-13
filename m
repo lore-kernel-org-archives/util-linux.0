@@ -1,47 +1,41 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH 2/2] lscpu: use cpu and revision tag if available
-Date: Wed, 16 Mar 2016 11:23:58 +0100
-Cc: util-linux@vger.kernel.org, Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
-References: <1458055880-18766-1-git-send-email-sweet_f_a@gmx.de> <201603160857.27047.sweet_f_a@gmx.de> <20160316093700.dekdnjyx6c2mfs4h@ws.net.home>
-In-Reply-To: <20160316093700.dekdnjyx6c2mfs4h@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201603161123.58299.sweet_f_a@gmx.de>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:36550 "EHLO
+	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932413AbcCMKcI (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Mar 2016 06:32:08 -0400
+Received: by mail-wm0-f66.google.com with SMTP id l68so9996818wml.3
+        for <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 03:32:08 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 10/10] docs: update AUTHORS file
+Date: Sun, 13 Mar 2016 10:31:49 +0000
+Message-Id: <1457865109-2881-11-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1457865109-2881-1-git-send-email-kerolasa@iki.fi>
+References: <1457865109-2881-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 16 March 2016, Karel Zak wrote:
-> On Wed, Mar 16, 2016 at 08:57:26AM +0100, Ruediger Meier wrote:
-> > > +	if (cpu) {
-> > > +		free(desc->modelname);
-> > > +		desc->modelname = cpu;
-> > > +	}
-> > > +	if (revision) {
-> > > +		free(desc->model);
-> > > +		desc->model = revision;
-> > > +	}
-> > > +
->
-> The problem I see is that Linux kernel does not provide any unified
-> abstraction for /proc/cpuinfo, the file is generated individually by
-> architecture specific code, so the field names are very arch
-> specific. (use "git grep show_cpuinfo" in kernel tree to see more)
->
-> For example "revision" is no PPC specific, it's also used by ia64.
-> Alpha uses "cpu revision" and "cpu model", etc.
+Former email address has not reached me since summer 2015.
 
-Yes, but the probability is high that the new code will do it better. 
-Like in sparc case.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ AUTHORS | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> The ideal solution (for v2.29) would be to have more
-> read_cpuinfo_<arch>() functions to hide the differences.
->
-> > Watching this again today I think it could be even better to add
-> > cpu and revision members to the struct and move both if conditions
-> > to the printing code section.
->
-> Do you want to send a new version of the patch?
+diff --git a/AUTHORS b/AUTHORS
+index c788396..a0835b6 100644
+--- a/AUTHORS
++++ b/AUTHORS
+@@ -459,7 +459,7 @@ CONTRIBUTORS:
+       Ross Biro <biro@yggdrasil.com>
+       Roy Peled <the.roy.peled@gmail.com>
+       Ruediger Meier <ruediger.meier@ga-group.nl>
+-      Sami Kerola <sami.kerola@lastminute.com>
++      Sami Kerola <kerolasa@iki.fi>
+       Sami Liedes <sami.liedes@iki.fi>
+       Samuel Thibault <samuel.thibault@ens-lyon.org>
+       Sam Varshavchik <mrsam@courier-mta.com>
+-- 
+2.7.2
 
-Yep.
