@@ -1,52 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:58680 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756728AbcB0Ww3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sat, 27 Feb 2016 17:52:29 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1aZnis-0007ZG-I7
-	for util-linux@vger.kernel.org; Sat, 27 Feb 2016 23:52:26 +0100
-Received: from ppp37-190-56-21.pppoe.spdop.ru ([37.190.56.21])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Sat, 27 Feb 2016 23:52:26 +0100
-Received: from yumkam by ppp37-190-56-21.pppoe.spdop.ru with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Sat, 27 Feb 2016 23:52:26 +0100
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:33827 "EHLO
+	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753964AbcCMKbz (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Mar 2016 06:31:55 -0400
+Received: by mail-wm0-f67.google.com with SMTP id p65so10013356wmp.1
+        for <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 03:31:54 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-From: yumkam@gmail.com (Yuriy M. Kaminskiy)
-Subject: Re: Separate taskset arguments from the command arguments
-Date: Sun, 28 Feb 2016 01:52:20 +0300
-Message-ID: <m3egbxn4uz.fsf@gmail.com>
-References: <CAOaMnuGfN1hnEn7H95c2TzxyQUoQ3c5PzikApHMPyPW123R9fQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 01/10] logger: fix memory leak [ASAN and valgrind]
+Date: Sun, 13 Mar 2016 10:31:40 +0000
+Message-Id: <1457865109-2881-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1457865109-2881-1-git-send-email-kerolasa@iki.fi>
+References: <1457865109-2881-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Akshay Adiga <akshay.adiga@gmail.com>
-writes:
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/logger.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-> I want to run a command which looks something like this :
->
-> taskset -c 10 ycsb -p "redis_host=1234"
->
-> The actual command is :
->
-> ycsb -p "redis_host=1234"
->
-> But argument -p "redis_host=1234" is taken by taskset as it argument
-> and throws an error : Failed to set pid 0's affinity:
->
-> -p "redis_host=1234" is an argument to ycsb command. shell/tasket
-> misunderstands that and takes it as an argument for taskset.
->
-> Is there a work around for this?
-
-Normally, such problem are solved by inserting `--` before your command;
-however, taskset have somewhat unusual parsing of arguments (-c is not
-an "option with argument", but the flag), so it will be
-
-  taskset -c -- 10 ycsb -p "redis_host=1234"
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index 7b88b17..1ef12cd 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -341,8 +341,10 @@ static int journald_entry(struct logger_ctl *ctl, FILE *fp)
+ 	for (lines = 0; /* nothing */ ; lines++) {
+ 		buf = NULL;
+ 		sz = getline(&buf, &dummy, fp);
+-		if (sz == -1)
++		if (sz == -1) {
++			free(buf);
+ 			break;
++		}
+ 		if (0 < sz && buf[sz - 1] == '\n') {
+ 			sz--;
+ 			buf[sz] = '\0';
+-- 
+2.7.2
 
