@@ -1,137 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:60554 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.20]:58813 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755547AbcCOPb2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 15 Mar 2016 11:31:28 -0400
+	id S1751023AbcCMWbZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 13 Mar 2016 18:31:25 -0400
+Received: from tenfore.ga-group.nl ([2.247.85.77]) by mail.gmx.com (mrgmx102)
+ with ESMTPSA (Nemesis) id 0LcVOE-1ZwW7g22Vi-00jqN1 for
+ <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 23:31:22 +0100
 From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Cc: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
-Subject: [PATCH 2/2] lscpu: use cpu and revision tag if available
-Date: Tue, 15 Mar 2016 16:31:20 +0100
-Message-Id: <1458055880-18766-2-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1458055880-18766-1-git-send-email-sweet_f_a@gmx.de>
-References: <1458055880-18766-1-git-send-email-sweet_f_a@gmx.de>
+Subject: [PATCH 00/12] travis: add trusty and osx
+Date: Sun, 13 Mar 2016 23:31:08 +0100
+Message-Id: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Avoid ifdef which does not work with --sysroot. Our existing test
-dumps produce even better output now for ppc and sparc.
+This patch-set fixes some tests and build issues and adds OSX
+and Ubuntu Trusty to our travis build matrix.
 
-CC: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- sys-utils/lscpu.c                             | 18 +++++++++++++-----
- tests/expected/lscpu/lscpu-ppc-qemu           |  3 ++-
- tests/expected/lscpu/lscpu-ppc64-POWER7       |  3 ++-
- tests/expected/lscpu/lscpu-ppc64-POWER7-64cpu |  3 ++-
- tests/expected/lscpu/lscpu-sparc64            |  1 +
- 5 files changed, 20 insertions(+), 8 deletions(-)
+You may watch the new build logs:
+https://travis-ci.org/rudimeier/util-linux/builds/115726134
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index 423bc56..498234f 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -453,6 +453,8 @@ read_basicinfo(struct lscpu_desc *desc, struct lscpu_modifier *mod)
- 	char buf[BUFSIZ];
- 	struct utsname utsbuf;
- 	size_t setsize;
-+	char *cpu = 0;
-+	char *revision = 0;
- 
- 	/* architecture */
- 	if (uname(&utsbuf) == -1)
-@@ -465,13 +467,8 @@ read_basicinfo(struct lscpu_desc *desc, struct lscpu_modifier *mod)
- 		else if (lookup(buf, "vendor_id", &desc->vendor)) ;
- 		else if (lookup(buf, "family", &desc->family)) ;
- 		else if (lookup(buf, "cpu family", &desc->family)) ;
--#if defined(__powerpc__) || defined(__powerpc64__)
--		else if (lookup(buf, "revision", &desc->model)) ;
--		else if (lookup(buf, "cpu", &desc->modelname)) ;
--#else
- 		else if (lookup(buf, "model", &desc->model)) ;
- 		else if (lookup(buf, "model name", &desc->modelname)) ;
--#endif
- 		else if (lookup(buf, "stepping", &desc->stepping)) ;
- 		else if (lookup(buf, "cpu MHz", &desc->mhz)) ;
- 		else if (lookup(buf, "flags", &desc->flags)) ;		/* x86 */
-@@ -479,10 +476,21 @@ read_basicinfo(struct lscpu_desc *desc, struct lscpu_modifier *mod)
- 		else if (lookup(buf, "type", &desc->flags)) ;		/* sparc64 */
- 		else if (lookup(buf, "bogomips", &desc->bogomips)) ;
- 		else if (lookup(buf, "bogomips per cpu", &desc->bogomips)) ; /* s390 */
-+		else if (lookup(buf, "cpu", &cpu)) ;          /* modelname, ppc, sparc*/
-+		else if (lookup(buf, "revision", &revision)) ;/* model, ppc */
- 		else
- 			continue;
- 	}
- 
-+	if (cpu) {
-+		free(desc->modelname);
-+		desc->modelname = cpu;
-+	}
-+	if (revision) {
-+		free(desc->model);
-+		desc->model = revision;
-+	}
-+
- 	desc->mode = init_mode(mod);
- 
- 	if (desc->flags) {
-diff --git a/tests/expected/lscpu/lscpu-ppc-qemu b/tests/expected/lscpu/lscpu-ppc-qemu
-index b3ea4a7..78b0b29 100644
---- a/tests/expected/lscpu/lscpu-ppc-qemu
-+++ b/tests/expected/lscpu/lscpu-ppc-qemu
-@@ -3,7 +3,8 @@ On-line CPU(s) list:   0
- Thread(s) per core:    1
- Core(s) per socket:    1
- Socket(s):             1
--Model:                 Power Macintosh
-+Model:                 3.1 (pvr 0008 0301)
-+Model name:            740/750
- BogoMIPS:              33.25
- L1d cache:             unknown size
- L1i cache:             unknown size
-diff --git a/tests/expected/lscpu/lscpu-ppc64-POWER7 b/tests/expected/lscpu/lscpu-ppc64-POWER7
-index 0d6c5ba..9a3c0c9 100644
---- a/tests/expected/lscpu/lscpu-ppc64-POWER7
-+++ b/tests/expected/lscpu/lscpu-ppc64-POWER7
-@@ -4,7 +4,8 @@ Thread(s) per core:    4
- Core(s) per socket:    1
- Socket(s):             4
- NUMA node(s):          1
--Model:                 IBM,8233-E8B
-+Model:                 2.1 (pvr 003f 0201)
-+Model name:            POWER7 (architected), altivec supported
- L1d cache:             32K
- L1i cache:             32K
- NUMA node0 CPU(s):     0-15
-diff --git a/tests/expected/lscpu/lscpu-ppc64-POWER7-64cpu b/tests/expected/lscpu/lscpu-ppc64-POWER7-64cpu
-index e48735e..0aed12a 100644
---- a/tests/expected/lscpu/lscpu-ppc64-POWER7-64cpu
-+++ b/tests/expected/lscpu/lscpu-ppc64-POWER7-64cpu
-@@ -4,7 +4,8 @@ Thread(s) per core:    4
- Core(s) per socket:    1
- Socket(s):             16
- NUMA node(s):          2
--Model:                 IBM,8231-E2B
-+Model:                 2.1 (pvr 003f 0201)
-+Model name:            POWER7 (architected), altivec supported
- Hypervisor vendor:     pHyp
- Virtualization type:   para
- L1d cache:             32K
-diff --git a/tests/expected/lscpu/lscpu-sparc64 b/tests/expected/lscpu/lscpu-sparc64
-index 629b399..aacaf11 100644
---- a/tests/expected/lscpu/lscpu-sparc64
-+++ b/tests/expected/lscpu/lscpu-sparc64
-@@ -4,6 +4,7 @@ On-line CPU(s) list:   6,7,10,11,14,15
- Thread(s) per core:    1
- Core(s) per socket:    1
- Socket(s):             6
-+Model name:            TI UltraSparc II  (BlackBird)
- Flags:                 sun4u
- 
- # The following is the parsable format, which can be fed to other
+This is github pull request #304
+https://github.com/karelzak/util-linux/pull/304
+
+Ruediger Meier (12):
+  misc: fix printf i386 compiler warnings
+  misc: fix icc/clang compiler warnings
+  tests: skip old socat silently
+  tests: remove invalid argument in libmount/debug
+  tests: improve skipping of old btrfs-tools
+  tests: don't use system's mount commands
+  build-sys: fix again UL_SCANF_TYPE_MODIFIER
+  build-sys: add missing "not found" strings
+  build-sys: use AC_PROG_MKDIR_P and remove a few gnuisms
+  build-sys: improve uuidd and script build conditions
+  travis: switch to Ubuntu 14.04 Trusty
+  travis: add OSX build
+
+ .travis-functions.sh                    | 69 +++++++++++++++++++++++++++-----
+ .travis.yml                             | 14 +++++++
+ Makefile.am                             |  2 +-
+ configure.ac                            | 21 +++++-----
+ disk-utils/fdisk-menu.c                 |  4 +-
+ libblkid/src/Makemodule.am              |  2 +-
+ libfdisk/src/Makemodule.am              |  2 +-
+ libfdisk/src/alignment.c                |  2 +-
+ libmount/src/Makemodule.am              |  2 +-
+ libmount/src/monitor.c                  |  2 +-
+ libmount/src/tab.c                      |  5 +--
+ libsmartcols/src/Makemodule.am          |  2 +-
+ libsmartcols/src/table_print.c          |  3 +-
+ libuuid/src/Makemodule.am               |  2 +-
+ login-utils/vipw.c                      |  2 +-
+ sys-utils/Makemodule.am                 |  2 +-
+ sys-utils/lsns.c                        |  7 ++--
+ tests/expected/libmount/context-utab    |  1 -
+ tests/expected/libmount/context-utab-py |  1 -
+ tests/functions.sh                      | 17 ++++----
+ tests/ts/eject/umount                   | 11 +++---
+ tests/ts/libmount/context               |  2 +-
+ tests/ts/libmount/context-py            |  2 +-
+ tests/ts/libmount/context-utab          | 69 ++++++++++++++++----------------
+ tests/ts/libmount/context-utab-py       | 70 +++++++++++++++++----------------
+ tests/ts/libmount/debug                 |  4 +-
+ tests/ts/mount/fstab-btrfs              |  8 ++--
+ 27 files changed, 202 insertions(+), 126 deletions(-)
+
 -- 
 1.8.4.5
 
