@@ -1,60 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews04.kpnxchange.com ([213.75.39.7]:63598 "EHLO
-	cpsmtpb-ews04.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S933165AbcCQJkF (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Thu, 17 Mar 2016 05:40:05 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:33892 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932194AbcCMKcE (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Mar 2016 06:32:04 -0400
+Received: by mail-wm0-f65.google.com with SMTP id p65so10013873wmp.1
+        for <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 03:32:04 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 4/5] unshare: describe the setgroups restriction more explicitly
-Date: Thu, 17 Mar 2016 10:39:13 +0100
-Message-Id: <1458207554-2405-4-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1458207554-2405-1-git-send-email-bensberg@justemail.net>
-References: <1458207554-2405-1-git-send-email-bensberg@justemail.net>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 07/10] bash-completion: ipcmk: add missing completion file
+Date: Sun, 13 Mar 2016 10:31:46 +0000
+Message-Id: <1457865109-2881-8-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1457865109-2881-1-git-send-email-kerolasa@iki.fi>
+References: <1457865109-2881-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- sys-utils/unshare.1 |   25 +++++++++++++++----------
- 1 files changed, 15 insertions(+), 10 deletions(-)
+ bash-completion/Makemodule.am |  3 +++
+ bash-completion/ipcmk         | 27 +++++++++++++++++++++++++++
+ 2 files changed, 30 insertions(+)
+ create mode 100644 bash-completion/ipcmk
 
-diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
-index ba47c67..1df6d59 100644
---- a/sys-utils/unshare.1
-+++ b/sys-utils/unshare.1
-@@ -114,16 +114,21 @@ namespace (\fB\-\-mount\fP) is not requested.
- .BR "\-\-setgroups allow" | deny
- Allow or deny the
- .BR setgroups (2)
--syscall in user namespaces.
--
--.BR setgroups (2)
--is only callable with CAP_SETGID and CAP_SETGID in a user
--namespace.  Linux kernel (since 3.19) does not give you permission to call setgroups(2)
--until after GID map has been set.  The GID map is writable by root when
--.BR setgroups (2)
--is enabled and the GID map becomes writable by unprivileged processes when
--.BR setgroups (2)
--is permanently disabled.
-+syscall in a user namespace.
-+.sp
-+To be able to call
-+.BR setgroups (2),
-+the calling process must at least have CAP_SETGID.
-+But since Linux 3.19 a further restriction applies:
-+the kernel gives permission to call
-+.BR \%setgroups (2)
-+only after the GID map (\fB/proc/\fIpid\fB/gid_map\fR) has been set.
-+The GID map is writable by root when
-+.BR \%setgroups (2)
-+is enabled (i.e. \fBallow\fR, the default), and
-+the GID map becomes writable by unprivileged processes when
-+.BR \%setgroups (2)
-+is permanently disabled (with \fBdeny\fR).
- .TP
- .BR \-V , " \-\-version"
- Display version information and exit.
+diff --git a/bash-completion/Makemodule.am b/bash-completion/Makemodule.am
+index 5372ed0..e4196a3 100644
+--- a/bash-completion/Makemodule.am
++++ b/bash-completion/Makemodule.am
+@@ -30,6 +30,9 @@ endif
+ if BUILD_HEXDUMP
+ dist_bashcompletion_DATA += bash-completion/hexdump
+ endif
++if BUILD_IPCMK
++dist_bashcompletion_DATA += bash-completion/ipcmk
++endif
+ if BUILD_IPCRM
+ dist_bashcompletion_DATA += bash-completion/ipcrm
+ endif
+diff --git a/bash-completion/ipcmk b/bash-completion/ipcmk
+new file mode 100644
+index 0000000..696266c
+--- /dev/null
++++ b/bash-completion/ipcmk
+@@ -0,0 +1,27 @@
++_ipcmk_module()
++{
++	local cur prev
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-M'|'--shmem')
++			COMPREPLY=( $(compgen -W "size" -- $cur) )
++			return 0
++			;;
++		'-S'|'--semaphore')
++			COMPREPLY=( $(compgen -W "number" -- $cur) )
++			return 0
++			;;
++		'-p'|'--mode')
++			COMPREPLY=( $(compgen -W "mode" -- $cur) )
++			return 0
++			;;
++		'-h'|'--help'|'-V'|'--version')
++			return 0
++			;;
++	esac
++	COMPREPLY=( $(compgen -W "--shmem --semaphore --queue --mode --help --version" -- $cur) )
++	return 0
++}
++complete -F _ipcmk_module ipcmk
 -- 
-1.7.0.4
+2.7.2
 
