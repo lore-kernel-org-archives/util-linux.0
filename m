@@ -1,71 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:59431 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:60824 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751435AbcCCQVh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 3 Mar 2016 11:21:37 -0500
-Subject: Re: Fixing su + runuser vulnerability CVE-2016-2779
-To: up201407890@alunos.dcc.fc.up.pt
-References: <56D7409A.6050407@suse.cz>
- <20160303013722.22156xdxrqmywgw0@webmail.alunos.dcc.fc.up.pt>
-Cc: util-linux@vger.kernel.org
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <56D8648F.60504@suse.cz>
-Date: Thu, 3 Mar 2016 17:21:35 +0100
+	id S964849AbcCNM00 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Mar 2016 08:26:26 -0400
+Date: Mon, 14 Mar 2016 13:26:21 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Matthias Brugger <mbrugger@suse.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] Revert "Revert "tests: start script/race test only when
+ --force specified""
+Message-ID: <20160314122621.3ru2o4doxbb7b57w@ws.net.home>
+References: <1457455978-8530-1-git-send-email-mbrugger@suse.com>
+ <20160309104340.axpsgrvhf2o3llkh@ws.net.home>
+ <201603141249.40485.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-In-Reply-To: <20160303013722.22156xdxrqmywgw0@webmail.alunos.dcc.fc.up.pt>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201603141249.40485.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mar 3, 2016 at 01:37 up201407890@alunos.dcc.fc.up.pt wrote:
+On Mon, Mar 14, 2016 at 12:49:40PM +0100, Ruediger Meier wrote:
+> On Wednesday 09 March 2016, Karel Zak wrote:
+> > On Tue, Mar 08, 2016 at 05:52:58PM +0100, Matthias Brugger wrote:
+> > > +# Don't execute this test by default, --force required
+> > > +TS_OPTIONAL="yes"
+> >
+> >  I have marked the test by
+> >
+> >     TS_KNOWN_FAIL="yes
+> >
+> >  it seems better than disable the test.
+> 
+> While we are at it, IMO we should finally disable libmount/lock too 
+> (TS_OPTIONAL).
 
-> On another note, grsecurity recently released a new feature named
-> GRKERNSEC_HARDEN_TTY that disallows the use of TIOCSTI to unprivileged
-> users unless the caller has CAP_SYS_ADMIN.
+Done. It's probably to aggressive...
 
-This will fix all util-linux issues, but not chroot. There root inside 
-the chroot escapes from chroot and calls commands outside.
-
-I can imagine yet another kernel level solution:
-
-Implement a way to disallow TIOCSTI, eventually revoke terminal R/W access.
-
-This would need application level fixes:
-- Before calling the restricted process, disallow TIOCSTI.
-- After returning from the restricted process, revoke terminal R/W.
-
-> Brad Spengler (spender) said
-> that looking into it, he didn't find legitimate uses of such ioctl, and
-> no wide usage of writevt.
-
-Some old systems had tiocsti(1) utility, probably used like a 
-predecessor of readline.
-
-Just for curiosity, I just ran grep for TIOCSTI ioctl() over all 
-openSUSE sources. I got about 60 matches.
-
-I analyzed use of some cases:
-
-util-linux: used in agetty in wait_for_term_input()
-kbd: contrib utility sti equal to tiocsti utility.
-irda: Used by handle_scancode() to emulate input.
-tcsh: Used in ed mode and in pushback().
-emacs: Used in stuff_char() (putting char to be read from terminal)
-...
-
-It seems that TIOCSTI is used for:
-- Read character, and if it does not match, put it back.
-- Wait for character, than put it back for processing.
-- Implementing a simple line editing.
+    Karel
 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
