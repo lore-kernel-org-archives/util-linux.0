@@ -1,37 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:38409
-	"EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752452AbcCNGnV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 14 Mar 2016 02:43:21 -0400
-Date: Mon, 14 Mar 2016 07:42:55 +0100
-From: Andreas Henriksson <andreas@fatal.se>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] build: uuidd requires linux now, uses signalfd
-Message-ID: <20160314064255.GA19644@fatal.se>
-References: <1457891767-16753-1-git-send-email-andreas@fatal.se>
- <201603132145.44967.sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201603132145.44967.sweet_f_a@gmx.de>
+Received: from cpsmtpb-ews10.kpnxchange.com ([213.75.39.15]:65392 "EHLO
+	cpsmtpb-ews10.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752813AbcCNJKn (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Mar 2016 05:10:43 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 2/4] fallocate: improve synopsis and spelling in man page
+Date: Mon, 14 Mar 2016 10:10:11 +0100
+Message-Id: <1457946613-2435-2-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1457946613-2435-1-git-send-email-bensberg@justemail.net>
+References: <1457946613-2435-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello Ruediger Meier.
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ sys-utils/fallocate.1 |   10 ++++------
+ 1 files changed, 4 insertions(+), 6 deletions(-)
 
-On Sun, Mar 13, 2016 at 09:45:44PM +0100, Ruediger Meier wrote:
-> On Sunday 13 March 2016, Andreas Henriksson wrote:
-> > Specify that uuidd can only be built on Linux now since
-> 
-> Did you managed to build ipcs and ipcrm and do they work
-> correctly? Which system have you tried?
+diff --git a/sys-utils/fallocate.1 b/sys-utils/fallocate.1
+index dd9f293..5421a11 100644
+--- a/sys-utils/fallocate.1
++++ b/sys-utils/fallocate.1
+@@ -3,14 +3,12 @@
+ fallocate \- preallocate or deallocate space to a file
+ .SH SYNOPSIS
+ .B fallocate
+-.RB [ \-c ]
+-.RB [ \-n ]
+-.RB [ \-p ]
+-.RB [ \-z ]
++.RB [ \-c | \-p | -z ]
+ .RB [ \-o
+ .IR offset ]
+ .B \-l
+ .IR length
++.RB [ \-n ]
+ .I filename
+ .PP
+ .B fallocate \-d
+@@ -25,7 +23,7 @@ is used to manipulate the allocated disk space for a file, either to deallocate
+ or preallocate it.  For filesystems which support the fallocate system call,
+ preallocation is done quickly by allocating blocks and marking them as
+ uninitialized, requiring no IO to the data blocks.  This is much faster than
+-creating a file by filling it with zeros.
++creating a file by filling it with zeroes.
+ .PP
+ The exit code returned by
+ .B fallocate
+@@ -46,7 +44,7 @@ to be collapsed starts at \fIoffset\fP and continues
+ for \fIlength\fR bytes.  At the completion of the operation, the contents of
+ the file starting at the location \fIoffset\fR+\fIlength\fR will be appended at the
+ location \fIoffset\fR, and the file will be \fIlength\fR bytes smaller.  The option
+-\fB\-\-keep\-size\fR may not be specified for colapse range operation.
++\fB\-\-keep\-size\fR may not be specified for the collapse-range operation.
+ .sp
+ Available since Linux 3.15 for ext4 (only for extent-based files) and XFS.
+ .TP
+-- 
+1.7.0.4
 
-No I have not. This was simply a reaction to the immediate problems
-found in the build daemon logs after uploading 2.28-rc1 to
-Debian Experimental, see
-https://buildd.debian.org/status/package.php?p=util-linux&suite=experimental
-
-It's possible additional fixes are needed. I don't run non-Linux myself.
-
-Regards,
-Andreas Henriksson
