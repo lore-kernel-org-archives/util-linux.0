@@ -1,71 +1,161 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:55260 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.20]:49256 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751270AbcCCBLI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 2 Mar 2016 20:11:08 -0500
-Received: from tenfore.ga-group.nl ([77.12.144.244]) by mail.gmx.com
- (mrgmx102) with ESMTPSA (Nemesis) id 0MRjd7-1aUVN51UOf-00T0MX for
- <util-linux@vger.kernel.org>; Thu, 03 Mar 2016 02:11:06 +0100
+	id S1752239AbcCNBUx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 13 Mar 2016 21:20:53 -0400
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 0/7] fix minix, big endian
-Date: Thu,  3 Mar 2016 02:10:58 +0100
-Message-Id: <1456967465-16128-1-git-send-email-sweet_f_a@gmx.de>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Subject: Re: [PATCH] tests: add btrfs mount tests
+Date: Mon, 14 Mar 2016 02:20:47 +0100
+Cc: util-linux@vger.kernel.org
+References: <56B0EEB2.1060707@suse.cz>
+In-Reply-To: <56B0EEB2.1060707@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Message-Id: <201603140220.47345.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Tuesday 02 February 2016, Stanislav Brabec wrote:
+> btrfs needs a special support in mount. Add a testcase for btrfs
+> specific problems.
 
-Motivation for this patch-set was to fix the minix tests for big endian
-systems. Of course this discovered some issues in the test suite and in
-our minix progs.
+IMO this test needs some more error handling, see below.
 
-This is github pull request #294
-https://github.com/karelzak/util-linux/pull/294
+> Coverage:
+> 352740e8: bind mounts pointing to btrfs subvolume
+> 2cd28fc8: mounting default subvolume
+> d2f82678: use of "auto"
+> 618a8814: use of "subvolid"
+>
+> Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+> ---
+>  tests/expected/mount/fstab-btrfs |  1 +
+>  tests/ts/mount/fstab-btrfs       | 99
+> ++++++++++++++++++++++++++++++++++++++++ 2 files changed, 100
+> insertions(+)
+>  create mode 100644 tests/expected/mount/fstab-btrfs
+>  create mode 100755 tests/ts/mount/fstab-btrfs
+>
+> diff --git a/tests/expected/mount/fstab-btrfs
+> b/tests/expected/mount/fstab-btrfs new file mode 100644
+> index 0000000..3582111
+> --- /dev/null
+> +++ b/tests/expected/mount/fstab-btrfs
+> @@ -0,0 +1 @@
+> +Success
+> diff --git a/tests/ts/mount/fstab-btrfs b/tests/ts/mount/fstab-btrfs
+> new file mode 100755
+> index 0000000..1c1d0fd
+> --- /dev/null
+> +++ b/tests/ts/mount/fstab-btrfs
+> @@ -0,0 +1,99 @@
+> +#!/bin/bash
+> +
+> +#
+> +# Copyright (C) 2016 Stanislav Brabec <sbrabec@suse.cz>
+> +#
+> +# This file is part of util-linux.
+> +#
+> +# This file is free software; you can redistribute it and/or modify
+> +# it under the terms of the GNU General Public License as published
+> by +# the Free Software Foundation; either version 2 of the License,
+> or +# (at your option) any later version.
+> +#
+> +# This file is distributed in the hope that it will be useful,
+> +# but WITHOUT ANY WARRANTY; without even the implied warranty of
+> +# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> +# GNU General Public License for more details.
+> +#
+> +TS_TOPDIR="${0%/*}/../.."
+> +TS_DESC="btrfs (fstab)"
+> +
+> +. $TS_TOPDIR/functions.sh
+> +ts_init "$*"
+> +
+> +ts_check_test_command "$TS_CMD_MOUNT"
+> +ts_check_test_command "$TS_CMD_UMOUNT"
+> +
+> +ts_skip_nonroot
+> +ts_check_losetup
+> +ts_check_prog "mkfs.btrfs"
+> +ts_check_prog "btrfs"
+> +
+> +ts_device_init 42
+> +DEVICE=$TS_LODEV
+> +[ -d "$TS_MOUNTPOINT-create" ] || mkdir -p "$TS_MOUNTPOINT-create"
+> +[ -d "$TS_MOUNTPOINT-default" ] || mkdir -p "$TS_MOUNTPOINT-default"
+> +[ -d "$TS_MOUNTPOINT-subvol" ] || mkdir -p "$TS_MOUNTPOINT-subvol"
+> +[ -d "$TS_MOUNTPOINT-subvolid" ] || mkdir -p
+> "$TS_MOUNTPOINT-subvolid" +[ -d "$TS_MOUNTPOINT-bind" ] || mkdir -p
+> "$TS_MOUNTPOINT-bind" +mkfs.btrfs -f -d single -m single $DEVICE &>
+> /dev/null || ts_die "Cannot make btrfs on $DEVICE" +
+> +$TS_CMD_MOUNT -o loop "$DEVICE" "$TS_MOUNTPOINT-create"
+> +pushd . >/dev/null
+> +cd "$TS_MOUNTPOINT-create"
+> +mkdir -p d0/dd0/ddd0
+> +cd ./d0/dd0/ddd0
+> +touch file{1..5}
+> +btrfs subvol create s1 >/dev/null
+> +cd ./s1
+> +touch file{1..5}
+> +mkdir -p d1/dd1/ddd1
+> +cd ./d1/dd1/ddd1
+> +btrfs subvol create s2 >/dev/null
 
-Ruediger Meier (7):
-  tests: scsi_debug sleep
-  tests: minix, use hexdump instead of md5sum
-  tests: minix, some corrections and cleanup
-  fsck.minix: fix v3 version offset
-  mkfs.minix: fix v2/v3 .badblocks inode number for big endian
-  tests: fix minix tests for big endian
-  tests: minix, add a useful non-root check
+For example if you comment out above line (or if it would fail) then
+all subtests below still succeed. This can't be right.
 
- disk-utils/fsck.minix.c                          |   5 +-
- disk-utils/mkfs.minix.c                          |   5 +-
- tests/expected/minix/fsck                        | 366 ++++++++++++++++++++++-
- tests/expected/minix/fsck-images-auto-fix        |  30 +-
- tests/expected/minix/fsck-images-badblocks       |  35 +++
- tests/expected/minix/fsck-images-badblocks.BE    |  35 +++
- tests/expected/minix/fsck-images-broken-root     |   2 +-
- tests/expected/minix/fsck-images-bug.773892      |   2 +-
- tests/expected/minix/fsck-images-check-blocks    |  22 +-
- tests/expected/minix/fsck-images-check-blocks.BE |  29 ++
- tests/expected/minix/fsck-images-v1c14           |  21 +-
- tests/expected/minix/fsck-images-v1c14.BE        |  28 ++
- tests/expected/minix/fsck-images-v1c30           |  22 +-
- tests/expected/minix/fsck-images-v1c30.BE        |  29 ++
- tests/expected/minix/fsck-images-v2c14           |  22 +-
- tests/expected/minix/fsck-images-v2c14.BE        |  29 ++
- tests/expected/minix/fsck-images-v2c30           |  23 +-
- tests/expected/minix/fsck-images-v2c30.BE        |  30 ++
- tests/expected/minix/fsck-images-v3c60           |  24 +-
- tests/expected/minix/fsck-images-v3c60.BE        |  31 ++
- tests/functions.sh                               |   1 +
- tests/ts/minix/fsck                              |  45 ++-
- tests/ts/minix/fsck-images                       |  44 ++-
- tests/ts/minix/mkfs                              |   2 +-
- 24 files changed, 837 insertions(+), 45 deletions(-)
- create mode 100644 tests/expected/minix/fsck-images-badblocks
- create mode 100644 tests/expected/minix/fsck-images-badblocks.BE
- create mode 100644 tests/expected/minix/fsck-images-check-blocks.BE
- create mode 100644 tests/expected/minix/fsck-images-v1c14.BE
- create mode 100644 tests/expected/minix/fsck-images-v1c30.BE
- create mode 100644 tests/expected/minix/fsck-images-v2c14.BE
- create mode 100644 tests/expected/minix/fsck-images-v2c30.BE
- create mode 100644 tests/expected/minix/fsck-images-v3c60.BE
+> +DEFAULT_SUBVOLID=$(btrfs inspect rootid s2)
+> +btrfs subvol set-default $DEFAULT_SUBVOLID . >/dev/null
+> +NON_DEFAULT_SUBVOLID=$(btrfs subvol list "$TS_MOUNTPOINT-create" |
+> while read dummy id rest ; do if test $id = $DEFAULT_SUBVOLID ; then
+> continue ; fi ; echo $id ; done) +cd ../../../..
+> +mkdir -p d2/dd2/ddd2
+> +cd ./d2/dd2/ddd2
+> +btrfs subvol create s3 >/dev/null
+> +popd >/dev/null
+> +NON_DEFAULT_SUBVOL=d0/dd0/ddd0/d2/dd2/ddd2/s3
+> +$TS_CMD_UMOUNT "$TS_MOUNTPOINT-create"
+> +
+> +# Tests with fs == btrfs
+> +# mounting default subvolume, deep in the structure, without entry
+> in fstab +ts_fstab_add "$DEVICE" "$TS_MOUNTPOINT-default" "btrfs" ""
+> +# mounting default subvolume, deep in the structure
+> +ts_fstab_add "$DEVICE" "$TS_MOUNTPOINT-subvol" "btrfs"
+> "subvol=$NON_DEFAULT_SUBVOL" +# mounting non-default subvolume
+> +ts_fstab_add "$DEVICE" "$TS_MOUNTPOINT-subvolid" "btrfs"
+> "subvolid=$NON_DEFAULT_SUBVOLID" +
+> +# test bind mount pointing to subvolume root
+> +ts_fstab_add "$TS_MOUNTPOINT-subvol" "$TS_MOUNTPOINT-bind" "auto"
+> "bind" +
+> +$TS_CMD_MOUNT -a 2>&1 >> $TS_OUTPUT
+> +$TS_CMD_MOUNT -a 2>&1 >> $TS_OUTPUT
+> +
+> +ts_fstab_clean
+> +
+> +# Tests with fs == auto
+> +# mounting default subvolume, deep in the structure, without entry
+> in fstab +ts_fstab_add "$DEVICE" "$TS_MOUNTPOINT-default" "auto" ""
+> +# mounting default subvolume, deep in the structure
+> +ts_fstab_add "$DEVICE" "$TS_MOUNTPOINT-subvol" "auto"
+> "subvol=$NON_DEFAULT_SUBVOL" +# mounting non-default subvolume
+> +ts_fstab_add "$DEVICE" "$TS_MOUNTPOINT-subvolid" "auto"
+> "subvolid=$NON_DEFAULT_SUBVOLID" +
+> +# test bind mount pointing to subvolume sub-directory
+> +mkdir -p "$TS_MOUNTPOINT-subvol/bind-mnt"
+> +ts_fstab_add "$TS_MOUNTPOINT-subvol/bind-mnt" "$TS_MOUNTPOINT-bind"
+> "auto" "bind" +
+> +$TS_CMD_MOUNT -a 2>&1 >> $TS_OUTPUT
+> +$TS_CMD_MOUNT -a 2>&1 >> $TS_OUTPUT
+> +
+> +ts_fstab_clean
+> +
+> +ts_log "Success"
+> +ts_finalize
+> +
+> --
+> 2.7.0
 
--- 
-1.8.4.5
 
