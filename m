@@ -1,74 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:34934 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932413AbcCMKcD (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Mar 2016 06:32:03 -0400
-Received: by mail-wm0-f68.google.com with SMTP id n205so9980257wmf.2
-        for <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 03:32:03 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 06/10] bash-completion: fsck.cramfs, isosize: find files an argument
-Date: Sun, 13 Mar 2016 10:31:45 +0000
-Message-Id: <1457865109-2881-7-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1457865109-2881-1-git-send-email-kerolasa@iki.fi>
-References: <1457865109-2881-1-git-send-email-kerolasa@iki.fi>
+Received: from mx2.suse.de ([195.135.220.15]:48164 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755776AbcCNOTR (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Mar 2016 10:19:17 -0400
+Subject: Re: [PATCH] tests: add btrfs mount tests
+To: Ruediger Meier <sweet_f_a@gmx.de>
+References: <56B0EEB2.1060707@suse.cz> <201603140220.47345.sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+From: Stanislav Brabec <sbrabec@suse.cz>
+Message-ID: <56E6C863.2070909@suse.cz>
+Date: Mon, 14 Mar 2016 15:19:15 +0100
+MIME-Version: 1.0
+In-Reply-To: <201603140220.47345.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=iso-8859-2; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Earlier completion suggested only options for the command, this changes
-options to be proposed when first character of an argument is dash.
+On Mar 14, 2016 at 02:20 Ruediger Meier wrote:
+> On Tuesday 02 February 2016, Stanislav Brabec wrote:
+> IMO this test needs some more error handling, see below.
+>
+>> +btrfs subvol create s2 >/dev/null
+>
+> For example if you comment out above line (or if it would fail) then
+> all subtests below still succeed. This can't be right.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- bash-completion/fsck.cramfs | 11 +++++++++--
- bash-completion/isosize     | 11 +++++++++--
- 2 files changed, 18 insertions(+), 4 deletions(-)
+Well, it is a test suite for mount, not btrfs. I did not add any error 
+checks in the code that creates the testing image.
 
-diff --git a/bash-completion/fsck.cramfs b/bash-completion/fsck.cramfs
-index acf6564..b3276b9 100644
---- a/bash-completion/fsck.cramfs
-+++ b/bash-completion/fsck.cramfs
-@@ -15,8 +15,15 @@ _fsck.cramfs_module()
- 			return 0
- 			;;
- 	esac
--	OPTS='--verbose --destination --help --version file'
--	COMPREPLY=( $(compgen -W "${OPTS[*]}" -S ' ' -- $cur) )
-+	case $cur in
-+		-*)
-+			COMPREPLY=( $(compgen -W "--verbose --blocksize --extract --help --version" -- $cur) )
-+			return 0
-+			;;
-+	esac
-+	local IFS=$'\n'
-+	compopt -o filenames
-+	COMPREPLY=( $(compgen -f -- $cur) )
- 	return 0
- }
- complete -F _fsck.cramfs_module fsck.cramfs
-diff --git a/bash-completion/isosize b/bash-completion/isosize
-index 13d4d29..fec2f8b 100644
---- a/bash-completion/isosize
-+++ b/bash-completion/isosize
-@@ -13,8 +13,15 @@ _isosize_module()
- 			return 0
- 			;;
- 	esac
--	OPTS='--divisor --sectors --help --version'
--	COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
-+	case $cur in
-+		-*)
-+			COMPREPLY=( $(compgen -W "--divisor --sectors --help --version" -- $cur) )
-+			return 0
-+			;;
-+	esac
-+	local IFS=$'\n'
-+	compopt -o filenames
-+	COMPREPLY=( $(compgen -f -- $cur) )
- 	return 0
- }
- complete -F _isosize_module isosize
+Grepping through the whole test suite, I see that more than a half of 
+all tests do not check for mkfs failure. Here we just have a multi-line 
+mkfs.
+
+It is possible to add a check for every command there, and fail the test 
+if the command fails or returns something unexpected.
+
+>> +NON_DEFAULT_SUBVOLID=$(btrfs subvol list "$TS_MOUNTPOINT-create" |
+
+NON_DEFAULT_SUBVOLID will be empty.
+
+>> "subvolid=$NON_DEFAULT_SUBVOLID" +
+
+I am not sure how kernel will interpret subvolid=.
+
 -- 
-2.7.2
+Best Regards / S pozdravem,
 
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
