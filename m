@@ -1,49 +1,34 @@
-Return-Path: dongli.zhang@oracle.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:50285 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965414AbcCNPT2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Mar 2016 11:19:28 -0400
+Date: Mon, 14 Mar 2016 16:19:25 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] lscpu: Fix model and model name on Power Systems
+Message-ID: <20160314151925.xlfo6kdxq4lj5tu2@ws.net.home>
+References: <20160314144804.415.11481.stgit@hegdevasant>
 MIME-Version: 1.0
-Message-ID: <de0b877e-622c-4cd8-887b-38713224c01c@default>
-Date: Sat, 19 Mar 2016 05:03:41 -0700 (PDT)
-From: Dongli Zhang <dongli.zhang@oracle.com>
-To: <kzak@redhat.com>
-Cc: <util-linux@vger.kernel.org>, <qcai@redhat.com>
-Subject: Re: [PATCH 1/1] lscpu: correct the Virtualization type on Xen DomU PV
- guest
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20160314144804.415.11481.stgit@hegdevasant>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Mon, Mar 14, 2016 at 08:18:07PM +0530, Vasant Hegde wrote:
+>   Model:                 2.1 (pvr 004b 0201)
+>   Model name:            POWER8E (raw), altivec supported
+>   ...
+>   ...
+> ---
+>  sys-utils/lscpu.c |    5 +++++
+>  1 file changed, 5 insertions(+)
 
-> + Is the file always available (including old XEN versions)?=20
+Seems better. Applied, thanks!
 
-This file (/sys/hypervisor/properties/features) has been available since Li=
-nux 2.6.31=20
-(drivers/xen/sys-hypervisor.c)
+    Karel
 
-> + There is also path_read_u64() to avoid path_fopen() & fscanf().
-
-I will change to path_read_u64.
-
-
-I also made a new flow to detect the Xen virtualization type according to
-the features on this path to maximize the number of versions of existing
-Xen and Linux to support. Xen versions from Xen 3.3.0 to the current Xen
-unstable would be able to help detect PV based on
-XENFEAT_mmu_pt_update_preserve_ad. Xen versions from Xen 4.4.0 to the
-newest would be able to help detect PVH (which has been introduced since
-Xen 4.4.0).
-
-if cpuid returns XenVMMXenVMM
-=09virtype =3D full
-=09if _PATH_SYS_HYP_FEATURES (the file) exists
-=09=09if XENFEAT_mmu_pt_update_preserve_ad is set (supported since Xen 3.3.=
-0)
-=09=09=09virtype =3D para
-=09=09else if XENFEAT_supervisor_mode_kernel is set and
-=09=09=09=09XENFEAT_hvm_callback_vector is set (supported since Xen 4.4.0)
-=09=09=09virtype =3D para
-=09=09end if
-=09end if
-end if
-
-Please let me know your feedback and suggestion so that I would send the
-new patch soon.
-
-Dongli Zhang
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
