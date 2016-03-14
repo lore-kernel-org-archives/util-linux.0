@@ -1,22 +1,34 @@
-Return-Path: linux@horizon.com
-Date: 15 Mar 2016 15:12:05 -0400
-Message-ID: <20160315191205.10399.qmail@ns.horizon.com>
-From: "George Spelvin" <linux@horizon.com>
-To: kzak@redhat.com, sweet_f_a@gmx.de
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: "George Spelvin" <linux@horizon.com>
 Subject: Re: e2fsck: /dev/hda2 is mounted.
-Cc: linux@horizon.com, util-linux@vger.kernel.org
-In-Reply-To: <20160315092604.fhvvwmk5luqdrkhm@ws.net.home>
+Date: Tue, 15 Mar 2016 00:38:10 +0100
+Cc: kzak@redhat.com, util-linux@vger.kernel.org
+References: <20160314184419.7527.qmail@ns.horizon.com>
+In-Reply-To: <20160314184419.7527.qmail@ns.horizon.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201603150038.11408.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-> The problem in this case is /dev/root, libmount tries to convert it to
-> the real device name by root= command line option, but the conversion
-> is pretty poor and it does not support all relevant use-cases. 
+On Monday 14 March 2016, George Spelvin wrote:
+> Thanks for the help.  I don't quite understand the structure of
+> libmount well enough to know where a fix *should* go.
+>
+> > Can you send me your /proc/self/mountinfo? (or at least root fs
+> > entry from the file)
 
-Yes, that is a bit annoying.  It also breaks e4defrag.  I have a kludgey
-script on my systems that parses /etc/fstab and creates a /dev/root
-symlink, but of course there's no guarantee that fstab matches
-the kernel root= command line.
+> 12 0 3:2 / / rw,relatime - ext4 /dev/root
+> [...]
 
-If you feel like creating a makedevroot(8) utility (which creates a
-symlink if it can, or a device node if it can't), I suspect it would
-be appreciated.
+Maybe it's not related but I've noticed a similar issue where 
+getmntent() was not able to parse long lines in /proc/mounts. It was 
+with musl and I've asked there
+http://permalink.gmane.org/gmane.linux.lib.musl.general/9548
+
+I've got no reply, so maybe it was a stupid question and we are doing 
+something wrong ;)
+
+cu,
+Rudi
