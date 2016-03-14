@@ -1,43 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:34166 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753349AbcCVJjH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 22 Mar 2016 05:39:07 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id AD130AB5D
-	for <util-linux@vger.kernel.org>; Tue, 22 Mar 2016 09:39:04 +0000 (UTC)
-From: Werner Fink <werner@suse.de>
-To: util-linux@vger.kernel.org
-Cc: Werner Fink <werner@suse.de>
-Subject: [PATCH] Always make echo work after performing getpasswd even if root account is locked
-Date: Tue, 22 Mar 2016 10:38:59 +0100
-Message-Id: <1458639539-3457-1-git-send-email-werner@suse.de>
+Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:38409
+	"EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752452AbcCNGnV (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 14 Mar 2016 02:43:21 -0400
+Date: Mon, 14 Mar 2016 07:42:55 +0100
+From: Andreas Henriksson <andreas@fatal.se>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] build: uuidd requires linux now, uses signalfd
+Message-ID: <20160314064255.GA19644@fatal.se>
+References: <1457891767-16753-1-git-send-email-andreas@fatal.se>
+ <201603132145.44967.sweet_f_a@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201603132145.44967.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-If the root account is locked and no password was provided then the terminal
-line is not set back to do echo of the input. This correct a small overlook
-in commit 7ff1162e67164cb4ece19dd809c26272461aa254
+Hello Ruediger Meier.
 
-Signed-off-by: Werner Fink <werner@suse.de>
----
- login-utils/sulogin.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+On Sun, Mar 13, 2016 at 09:45:44PM +0100, Ruediger Meier wrote:
+> On Sunday 13 March 2016, Andreas Henriksson wrote:
+> > Specify that uuidd can only be built on Linux now since
+> 
+> Did you managed to build ipcs and ipcrm and do they work
+> correctly? Which system have you tried?
 
-diff --git login-utils/sulogin.c login-utils/sulogin.c
-index b2c778a..7311ec1 100644
---- login-utils/sulogin.c
-+++ login-utils/sulogin.c
-@@ -739,8 +739,7 @@ quit:
- 	alarm(0);
- 	if (tc)
- 		tcsetattr(fd, TCSAFLUSH, &con->tio);
--	if (ret && *ret != '\0')
--		tcfinal(con);
-+	tcfinal(con);
- 	printf("\r\n");
- out:
- 	return ret;
--- 
-2.6.2
+No I have not. This was simply a reaction to the immediate problems
+found in the build daemon logs after uploading 2.28-rc1 to
+Debian Experimental, see
+https://buildd.debian.org/status/package.php?p=util-linux&suite=experimental
 
+It's possible additional fixes are needed. I don't run non-Linux myself.
+
+Regards,
+Andreas Henriksson
