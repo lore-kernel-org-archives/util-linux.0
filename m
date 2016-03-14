@@ -1,34 +1,44 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: "George Spelvin" <linux@horizon.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from ns.horizon.com ([71.41.210.147]:62295 "HELO ns.horizon.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1750853AbcCNSoU (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 14 Mar 2016 14:44:20 -0400
+Date: 14 Mar 2016 14:44:19 -0400
+Message-ID: <20160314184419.7527.qmail@ns.horizon.com>
+From: "George Spelvin" <linux@horizon.com>
+To: kzak@redhat.com, linux@horizon.com
 Subject: Re: e2fsck: /dev/hda2 is mounted.
-Date: Tue, 15 Mar 2016 00:38:10 +0100
-Cc: kzak@redhat.com, util-linux@vger.kernel.org
-References: <20160314184419.7527.qmail@ns.horizon.com>
-In-Reply-To: <20160314184419.7527.qmail@ns.horizon.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201603150038.11408.sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+In-Reply-To: <20160314162947.22odxuup5lij7mz6@ws.net.home>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 14 March 2016, George Spelvin wrote:
-> Thanks for the help.  I don't quite understand the structure of
-> libmount well enough to know where a fix *should* go.
->
-> > Can you send me your /proc/self/mountinfo? (or at least root fs
-> > entry from the file)
+Thanks for the help.  I don't quite understand the structure of libmount
+well enough to know where a fix *should* go.
 
-> 12 0 3:2 / / rw,relatime - ext4 /dev/root
-> [...]
+> Can you send me your /proc/self/mountinfo? (or at least root fs entry
+> from the file)
 
-Maybe it's not related but I've noticed a similar issue where 
-getmntent() was not able to parse long lines in /proc/mounts. It was 
-with musl and I've asked there
-http://permalink.gmane.org/gmane.linux.lib.musl.general/9548
+12 0 3:2 / / rw,relatime - ext4 /dev/root rw,errors=remount-ro,data=ordered
+13 12 0:12 / /sys rw,nosuid,nodev,noexec,relatime - sysfs sysfs rw
+14 12 0:13 / /run rw,nosuid,noexec,relatime - tmpfs tmpfs rw,size=207448k,mode=755
+15 14 0:14 / /run/lock rw,nosuid,nodev,noexec,relatime - tmpfs tmpfs rw,size=5120k
+16 12 0:4 / /proc rw,nosuid,nodev,noexec,relatime - proc proc rw
+17 12 0:6 / /dev rw,nosuid,relatime - devtmpfs devtmpfs rw,size=10240k,nr_inodes=221580,mode=755
+18 14 0:15 / /run/shm rw,nosuid,nodev,noexec,relatime - tmpfs tmpfs rw,size=1391640k
+19 17 0:11 / /dev/pts rw,nosuid,noexec,relatime - devpts devpts rw,gid=5,mode=620
+20 12 0:16 / /tmp rw,noexec,relatime - tmpfs tmpfs rw,size=524288k
+21 12 3:3 / /home rw,relatime - ext4 /dev/hda3 rw,data=ordered
 
-I've got no reply, so maybe it was a stupid question and we are doing 
-something wrong ;)
+And here's /etc/mtab -> /proc/mounts:
 
-cu,
-Rudi
+/dev/root / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0                 
+sysfs /sys sysfs rw,nosuid,nodev,noexec,relatime 0 0                            
+tmpfs /run tmpfs rw,nosuid,noexec,relatime,size=207448k,mode=755 0 0            tmpfs /run/lock tmpfs rw,nosuid,nodev,noexec,relatime,size=5120k 0 0            
+proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0                             
+devtmpfs /dev devtmpfs rw,nosuid,relatime,size=10240k,nr_inodes=221580,mode=755 0 0                                                                             
+tmpfs /run/shm tmpfs rw,nosuid,nodev,noexec,relatime,size=1391640k 0 0          
+devpts /dev/pts devpts rw,nosuid,noexec,relatime,gid=5,mode=620 0 0             
+tmpfs /tmp tmpfs rw,noexec,relatime,size=524288k 0 0                            
+/dev/hda3 /home ext4 rw,relatime,data=ordered 0 0             16,0-1        All
+
