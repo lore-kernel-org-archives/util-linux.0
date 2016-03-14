@@ -1,35 +1,83 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43249 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.19]:52408 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965649AbcCPNSS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 16 Mar 2016 09:18:18 -0400
-Date: Wed, 16 Mar 2016 14:18:16 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
+	id S1751207AbcCNBno (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Sun, 13 Mar 2016 21:43:44 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Isaac Dunham <ibid.ag@gmail.com>
+Subject: Re: [PATCH 00/12] another BSD/OSX related patch-set
+Date: Mon, 14 Mar 2016 02:43:40 +0100
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH v2 0/3] lscpu: Fix model and model name on Power Systems
-Message-ID: <20160316131816.stnqh5jvqu3n5z75@ws.net.home>
-References: <1458130699-25464-1-git-send-email-sweet_f_a@gmx.de>
+References: <1457392322-4974-1-git-send-email-sweet_f_a@gmx.de> <20160308012836.GA26455@newbook>
+In-Reply-To: <20160308012836.GA26455@newbook>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1458130699-25464-1-git-send-email-sweet_f_a@gmx.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201603140243.40546.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Mar 16, 2016 at 01:18:16PM +0100, Ruediger Meier wrote:
->  sys-utils/lscpu.c                             | 35 +++++++++------------------
->  tests/expected/lscpu/lscpu-ppc-qemu           |  3 ++-
->  tests/expected/lscpu/lscpu-ppc64-POWER7       |  3 ++-
->  tests/expected/lscpu/lscpu-ppc64-POWER7-64cpu |  3 ++-
->  tests/expected/lscpu/lscpu-sparc64            |  1 +
->  tests/expected/lscpu/lscpu-x86_64-64cpu       |  2 +-
->  tests/expected/lscpu/lscpu-x86_64-dell_e4310  |  2 +-
->  7 files changed, 21 insertions(+), 28 deletions(-)
+On Tuesday 08 March 2016, Isaac Dunham wrote:
+> On Tue, Mar 08, 2016 at 12:11:50AM +0100, Ruediger Meier wrote:
+> > From: Ruediger Meier <ruediger.meier@ga-group.nl>
+> >
+> > This is github pull request #299
+> > https://github.com/karelzak/util-linux/pull/299
+> >
+> > Again some arbitrary BSD, OSX and musl related fixes and clean-up
+>
+> <snip>
+>
+> > For OSX one should additionally disable all utmp.h related
+> > programs.
+>
+> FYI:
+> With musl, utmpx is stubbed out and utmp is wrappers for utmpx, so
+> users should disable utmp(x)-related programs and code.
 
- Applied, thanks!
+> (The point is to let things build, but not use utmp because the
+> maintainer considers it a fundamentally flawed idea.)
+>
+> Additionally, systemd is working on allowing disabling of utmp(x).
 
-    Karel
+Will there be another interface to be used by last(1)?
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+> This seems to imply that --disable-utmp/--disable-utmpx options would
+> be helpful.
+
+Do you mean --without-utmp to build our progs without utmp or really 
+disabling the build of all progs which are using utmp right now?
+
+Actually I thought the next step could be to remove utmp and use utmpx 
+only because it's POSIX and more portable. See commit d00c10ed. 
+
+> > Almost no interesting compiler warnings left. Xcode/clang warnings
+> > are a bit over the top anyways.
+> >
+> >
+> > Ruediger Meier (12):
+> >   wipefs, sfdisk: include libgen.h for basename(3p)
+>
+> I'm glad to see use of POSIX basename(), which is the only version
+> that musl implements.
+
+There are still two files to be fixed
+  login-utils/last.c
+  login-utils/su-common.c
+
+On the other hand I thought we could also completely avoid basename(3p) 
+and use something like our stripoff_last_component() from 
+lib/fileutils.c.
+
+> The way musl implements basename, strdup() is not needed, but
+> following POSIX is better than relying on implementation-specific
+> details.
+>
+> Thanks,
+> Isaac Dunham
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
