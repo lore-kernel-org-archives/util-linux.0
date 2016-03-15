@@ -1,28 +1,22 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:58481 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965588AbcCJKLw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 10 Mar 2016 05:11:52 -0500
-Date: Thu, 10 Mar 2016 11:11:51 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] libmount: Typo fix
-Message-ID: <20160310101151.eex4o74gmifqmamo@ws.net.home>
-References: <56E07F0E.8090901@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <56E07F0E.8090901@suse.cz>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: linux@horizon.com
+Date: 15 Mar 2016 15:12:05 -0400
+Message-ID: <20160315191205.10399.qmail@ns.horizon.com>
+From: "George Spelvin" <linux@horizon.com>
+To: kzak@redhat.com, sweet_f_a@gmx.de
+Subject: Re: e2fsck: /dev/hda2 is mounted.
+Cc: linux@horizon.com, util-linux@vger.kernel.org
+In-Reply-To: <20160315092604.fhvvwmk5luqdrkhm@ws.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
+> The problem in this case is /dev/root, libmount tries to convert it to
+> the real device name by root= command line option, but the conversion
+> is pretty poor and it does not support all relevant use-cases. 
 
- Applied, thanks.
+Yes, that is a bit annoying.  It also breaks e4defrag.  I have a kludgey
+script on my systems that parses /etc/fstab and creates a /dev/root
+symlink, but of course there's no guarantee that fstab matches
+the kernel root= command line.
 
-On Wed, Mar 09, 2016 at 08:52:46PM +0100, Stanislav Brabec wrote:
->  libmount/src/tab.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+If you feel like creating a makedevroot(8) utility (which creates a
+symlink if it can, or a device node if it can't), I suspect it would
+be appreciated.
