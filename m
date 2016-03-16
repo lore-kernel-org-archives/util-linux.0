@@ -1,70 +1,73 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:51021 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752002AbcCQRS7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 17 Mar 2016 13:18:59 -0400
+Return-Path: sweet_f_a@gmx.de
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Benno Schulenberg <bensberg@justemail.net>
-Subject: Re: cancelling the tests says that they all passed
-Date: Thu, 17 Mar 2016 18:18:52 +0100
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
-References: <1458207847.751745.551787010.6EE6554F@webmail.messagingengine.com> <201603171350.44094.sweet_f_a@gmx.de> <1458233386.879328.552147938.0BC34E2C@webmail.messagingengine.com>
-In-Reply-To: <1458233386.879328.552147938.0BC34E2C@webmail.messagingengine.com>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH] tests: fix fdisk/bsd for alpha
+Date: Wed, 16 Mar 2016 16:27:10 +0100
+Cc: util-linux@vger.kernel.org, Andreas Henriksson <andreas@fatal.se>
+References: <1458088844-23523-1-git-send-email-sweet_f_a@gmx.de> <20160316113741.cdm4hrufcoiki5ae@ws.net.home> <20160316131107.4orceajqir34wavj@ws.net.home>
+In-Reply-To: <20160316131107.4orceajqir34wavj@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201603171818.52599.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+  charset="iso-8859-1"
+Message-Id: <201603161627.10907.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 17 March 2016, Benno Schulenberg wrote:
-> On Thu, Mar 17, 2016, at 13:50, Ruediger Meier wrote:
-> > I have some guesses about "ipcs" and "fallocate" but some more
-> > questions:
+On Wednesday 16 March 2016, Karel Zak wrote:
+> On Wed, Mar 16, 2016 at 12:37:41PM +0100, Karel Zak wrote:
+> > On Wed, Mar 16, 2016 at 01:40:44AM +0100, Ruediger Meier wrote:
+> > > BTW it was a bad idea to use md5sum. In case of failure it
+> > > would be much easier to debug hexdump diffs. Now it's nearly
+> > > impossible to collect all these exotic hexdumps.
 > >
-> > 1. Which kernel version?
+> >  I'll try to prepare a new test with hexdump, PPC[64] LE/BE should
+> >  not be a problem. The rest we can gather later.
 >
-> 2.6.32
+>  Done, the last missing is Aplha (with special fields in the
+> label...).
 
-Hehe my guess was right.
+Thanks! I was really to lazy to refactor this one.
 
-I've noticed already 2 years ago on Debian 6 that our scanf code in 
-ipc_shm_get_info() is not compatible to this kernel version. (2.6.34 
-worked AFAIR.)
-
-Could you show us
-$ cat /proc/sysvipc/shm
-
-Maybe it's easy to fix.
-
-Generally I think we should make a statement about "what is the minimum 
-kernel version" for util-linux. Two years ago I decided for myself that 
-I should fix bugs for newer kernels first. On the other hand 2.6.32 
-would have been worth to support because it was officially maintained 
-from 2009 until last month!
-
-> > 2. Which file system? (findmnt -n -o FSTYPE -T tests/output)
+>  The original md5 based test is still in the tree to make a way how
+> to verify Alpha output. Maybe it's overkill and we can remove the
+> test. Not sure.
 >
-> ext3
+>  Test it, try it, send patches ;)
 
-ext3 is not supported but the system call should return an error and the 
-test should look like this:
-   misc: fallocate ... SKIPPED ('ext3' not supported)
+Hehe, maybe the only alpha machine on this planet is this Debian build 
+host:
+https://buildd.debian.org/status/package.php?p=util-linux&suite=experimental
 
-I guess the kernel syscall does not return error thus our fallocate 
-succeed but the file is empty. It's a kernel bug we can't fix. Or 
-should we add a stat() call to validate the syscall?
-
-> > 3. Is /proc mounted?
->
-> $ ./findmnt -n -t proc
-> /proc  none   proc   rw,nosuid,nodev,noexec,relatime
->
-> > 4  grep "FALL" config.h
->
-> #define HAVE_FALLOCATE 1
-> #define HAVE_LINUX_FALLOC_H 1
->
-> Benno
+We can wait until Adreas updates the package and copy/paste it from the 
+log like I've got that md5sum;)
 
 
+BTW there are only two more test failures left on sparc:
+
+FAILED (fdisk/id)
+--- /<<PKGBUILDDIR>>/tests/expected/fdisk/id
++++ /<<PKGBUILDDIR>>/tests/output/fdisk/id
+@@ -1,3 +1,5 @@
+ Initialize empty image
+ Create MBR with ID=0x1
+-Disk identifier: 0x00000001
+ Create MBR with ID=0x2
+-Disk identifier: 0x00000002
+
+
+FAILED (fdisk/mbr-nondos-mode)
+--- /<<PKGBUILDDIR>>/tests/expected/fdisk/mbr-nondos-mode
++++ /<<PKGBUILDDIR>>/tests/output/fdisk/mbr-nondos-mode
+@@ -1,189 +1,203 @@
+ Initialize empty image
+ 8f4e33f3dc3e414ff94e5fb6905cba8c mbr-nondos-mode.img
+ Create new DOS partition table
+-4e23561dcb81678bb1bd678722c7cbb7 mbr-nondos-mode.img
++8f4e33f3dc3e414ff94e5fb6905cba8c mbr-nondos-mode.img
+
+
+And we could disable setarch's uname26 test because
+# glibc requires kernel >= 3.0, thus setarch --uname-2.6 fails
+# on platforms without VDSO
+
+cu,
+Rudi
