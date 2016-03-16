@@ -1,36 +1,35 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH] Revert "Revert "tests: start script/race test only when --force specified""
-Date: Mon, 14 Mar 2016 12:49:40 +0100
-Cc: Matthias Brugger <mbrugger@suse.com>, util-linux@vger.kernel.org
-References: <1457455978-8530-1-git-send-email-mbrugger@suse.com> <20160309104340.axpsgrvhf2o3llkh@ws.net.home>
-In-Reply-To: <20160309104340.axpsgrvhf2o3llkh@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:43249 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965649AbcCPNSS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 16 Mar 2016 09:18:18 -0400
+Date: Wed, 16 Mar 2016 14:18:16 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH v2 0/3] lscpu: Fix model and model name on Power Systems
+Message-ID: <20160316131816.stnqh5jvqu3n5z75@ws.net.home>
+References: <1458130699-25464-1-git-send-email-sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201603141249.40485.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1458130699-25464-1-git-send-email-sweet_f_a@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 09 March 2016, Karel Zak wrote:
-> On Tue, Mar 08, 2016 at 05:52:58PM +0100, Matthias Brugger wrote:
-> > +# Don't execute this test by default, --force required
-> > +TS_OPTIONAL="yes"
->
->  I have marked the test by
->
->     TS_KNOWN_FAIL="yes
->
->  it seems better than disable the test.
+On Wed, Mar 16, 2016 at 01:18:16PM +0100, Ruediger Meier wrote:
+>  sys-utils/lscpu.c                             | 35 +++++++++------------------
+>  tests/expected/lscpu/lscpu-ppc-qemu           |  3 ++-
+>  tests/expected/lscpu/lscpu-ppc64-POWER7       |  3 ++-
+>  tests/expected/lscpu/lscpu-ppc64-POWER7-64cpu |  3 ++-
+>  tests/expected/lscpu/lscpu-sparc64            |  1 +
+>  tests/expected/lscpu/lscpu-x86_64-64cpu       |  2 +-
+>  tests/expected/lscpu/lscpu-x86_64-dell_e4310  |  2 +-
+>  7 files changed, 21 insertions(+), 28 deletions(-)
 
-While we are at it, IMO we should finally disable libmount/lock too 
-(TS_OPTIONAL).
+ Applied, thanks!
 
-It can be very slow and often fails. Last week I was waiting 2 hours for 
-a failure on qemu/ppc. The whole system was unusable during the test. 
-Don't know if this can be fixed in a better way.
+    Karel
 
-Since I've never seen failures on travis we could force this test there.
-
-cu,
-Rudi
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
