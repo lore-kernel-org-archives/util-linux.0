@@ -1,51 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:56412 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754281AbcCMWbZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 13 Mar 2016 18:31:25 -0400
-Received: from tenfore.ga-group.nl ([2.247.85.77]) by mail.gmx.com (mrgmx102)
- with ESMTPSA (Nemesis) id 0M1zFf-1ZqhFo1p4F-00u3U6 for
- <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 23:31:23 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from cpsmtpb-ews05.kpnxchange.com ([213.75.39.8]:53583 "EHLO
+	cpsmtpb-ews05.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S966045AbcCPI5Z (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 16 Mar 2016 04:57:25 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 04/12] tests: remove invalid argument in libmount/debug
-Date: Sun, 13 Mar 2016 23:31:12 +0100
-Message-Id: <1457908280-15588-5-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
-References: <1457908280-15588-1-git-send-email-sweet_f_a@gmx.de>
+Subject: [PATCH 8/8] dmesg: improve grammar and consistency of usage text
+Date: Wed, 16 Mar 2016 09:55:55 +0100
+Message-Id: <1458118555-4691-8-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1458118555-4691-1-git-send-email-bensberg@justemail.net>
+References: <1458118555-4691-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
-
-This was usually no problem because of unsafe strtoul(3) usage in
-test prog libmount/src/init.c. But musl's strtoul sets errno if
-no digit was found in the argument.
-
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 ---
- tests/ts/libmount/debug | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sys-utils/dmesg.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tests/ts/libmount/debug b/tests/ts/libmount/debug
-index da9ecc3..d722b4e 100755
---- a/tests/ts/libmount/debug
-+++ b/tests/ts/libmount/debug
-@@ -19,12 +19,12 @@ ts_finalize_subtest
- 
- # CACHE | LOCKS
- ts_init_subtest "set-from-env-str"
--LIBMOUNT_DEBUG=cache,locks ts_valgrind $TESTPROG 2>&1 $TS_OUTPUT | grep -o '0x.*' &> $TS_OUTPUT
-+LIBMOUNT_DEBUG=cache,locks ts_valgrind $TESTPROG 2>&1 | grep -o '0x.*' &> $TS_OUTPUT
- ts_finalize_subtest
- 
- # CACHE | LOCKS
- ts_init_subtest "set-from-env-int"
--LIBMOUNT_DEBUG=20 ts_valgrind $TESTPROG 2>&1 $TS_OUTPUT | grep -o '0x.*' &> $TS_OUTPUT
-+LIBMOUNT_DEBUG=20 ts_valgrind $TESTPROG 2>&1 | grep -o '0x.*' &> $TS_OUTPUT
- ts_finalize_subtest
- 
- ts_finalize
+diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+index 0bf77af..99cf26e 100644
+--- a/sys-utils/dmesg.c
++++ b/sys-utils/dmesg.c
+@@ -289,9 +289,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(_(" -x, --decode                decode facility and level to readable string\n"), out);
+ 	fputs(_(" -d, --show-delta            show time delta between printed messages\n"), out);
+ 	fputs(_(" -e, --reltime               show local time and time delta in readable format\n"), out);
+-	fputs(_(" -T, --ctime                 show human readable timestamp (may be inaccurate!)\n"), out);
+-	fputs(_(" -t, --notime                don't print messages timestamp\n"), out);
+-	fputs(_("     --time-format <format>  show time stamp using format:\n"
++	fputs(_(" -T, --ctime                 show human-readable timestamp (may be inaccurate!)\n"), out);
++	fputs(_(" -t, --notime                don't show any timestamp with messages\n"), out);
++	fputs(_("     --time-format <format>  show timestamp using the given format:\n"
+ 		"                               [delta|reltime|ctime|notime|iso]\n"
+ 		"Suspending/resume will make ctime and iso timestamps inaccurate.\n"), out);
+ 	fputs(USAGE_SEPARATOR, out);
 -- 
-1.8.4.5
+1.7.0.4
 
