@@ -1,78 +1,47 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.18]:55265 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753360AbcCPMSX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 16 Mar 2016 08:18:23 -0400
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx003)
- with ESMTPSA (Nemesis) id 0LsTge-1ZeSyS1Nhg-01248k for
- <util-linux@vger.kernel.org>; Wed, 16 Mar 2016 13:18:20 +0100
+Return-Path: sweet_f_a@gmx.de
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/3] Revert "lscpu: keep lscpu usable on snapshots"
-Date: Wed, 16 Mar 2016 13:18:17 +0100
-Message-Id: <1458130699-25464-2-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1458130699-25464-1-git-send-email-sweet_f_a@gmx.de>
-References: <1458130699-25464-1-git-send-email-sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH 2/2] lscpu: use cpu and revision tag if available
+Date: Wed, 16 Mar 2016 11:23:58 +0100
+Cc: util-linux@vger.kernel.org, Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+References: <1458055880-18766-1-git-send-email-sweet_f_a@gmx.de> <201603160857.27047.sweet_f_a@gmx.de> <20160316093700.dekdnjyx6c2mfs4h@ws.net.home>
+In-Reply-To: <20160316093700.dekdnjyx6c2mfs4h@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201603161123.58299.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Wednesday 16 March 2016, Karel Zak wrote:
+> On Wed, Mar 16, 2016 at 08:57:26AM +0100, Ruediger Meier wrote:
+> > > +	if (cpu) {
+> > > +		free(desc->modelname);
+> > > +		desc->modelname = cpu;
+> > > +	}
+> > > +	if (revision) {
+> > > +		free(desc->model);
+> > > +		desc->model = revision;
+> > > +	}
+> > > +
+>
+> The problem I see is that Linux kernel does not provide any unified
+> abstraction for /proc/cpuinfo, the file is generated individually by
+> architecture specific code, so the field names are very arch
+> specific. (use "git grep show_cpuinfo" in kernel tree to see more)
+>
+> For example "revision" is no PPC specific, it's also used by ia64.
+> Alpha uses "cpu revision" and "cpu model", etc.
 
-This reverts commit 641350fe822e7f1ac10873dad9a364bdeaba8083.
+Yes, but the probability is high that the new code will do it better. 
+Like in sparc case.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- sys-utils/lscpu.c | 25 +++++++------------------
- 1 file changed, 7 insertions(+), 18 deletions(-)
+> The ideal solution (for v2.29) would be to have more
+> read_cpuinfo_<arch>() functions to hide the differences.
+>
+> > Watching this again today I think it could be even better to add
+> > cpu and revision members to the struct and move both if conditions
+> > to the printing code section.
+>
+> Do you want to send a new version of the patch?
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index 8e62c64..423bc56 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -453,36 +453,25 @@ read_basicinfo(struct lscpu_desc *desc, struct lscpu_modifier *mod)
- 	char buf[BUFSIZ];
- 	struct utsname utsbuf;
- 	size_t setsize;
--	int overwrite_model = 0;
- 
- 	/* architecture */
- 	if (uname(&utsbuf) == -1)
- 		err(EXIT_FAILURE, _("error: uname failed"));
- 	desc->arch = xstrdup(utsbuf.machine);
- 
--	/* Use another records from cpuinfo for PPC, on snapshot follow
--	 * standard behavior.
--	 *
--	 * TODO: use runtime detection to make model overwrite possible on
--	 *       snapshots too.
--	 */
--#if defined(__powerpc__) || defined(__powerpc64__)
--	if (mod->system == SYSTEM_LIVE)
--		overwrite_model = 1;
--#endif
- 	/* details */
- 	while (fgets(buf, sizeof(buf), fp) != NULL) {
- 		if (lookup(buf, "vendor", &desc->vendor)) ;
- 		else if (lookup(buf, "vendor_id", &desc->vendor)) ;
- 		else if (lookup(buf, "family", &desc->family)) ;
- 		else if (lookup(buf, "cpu family", &desc->family)) ;
--
--		else if (overwrite_model && lookup(buf, "revision", &desc->model)) ;
--		else if (overwrite_model && lookup(buf, "cpu", &desc->modelname)) ;
--
--		else if (!overwrite_model && lookup(buf, "model", &desc->model)) ;
--		else if (!overwrite_model && lookup(buf, "model name", &desc->modelname)) ;
--
-+#if defined(__powerpc__) || defined(__powerpc64__)
-+		else if (lookup(buf, "revision", &desc->model)) ;
-+		else if (lookup(buf, "cpu", &desc->modelname)) ;
-+#else
-+		else if (lookup(buf, "model", &desc->model)) ;
-+		else if (lookup(buf, "model name", &desc->modelname)) ;
-+#endif
- 		else if (lookup(buf, "stepping", &desc->stepping)) ;
- 		else if (lookup(buf, "cpu MHz", &desc->mhz)) ;
- 		else if (lookup(buf, "flags", &desc->flags)) ;		/* x86 */
--- 
-1.8.4.5
-
+Yep.
