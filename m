@@ -1,85 +1,83 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:53671 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030425AbcCQMuw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 17 Mar 2016 08:50:52 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Benno Schulenberg <bensberg@justemail.net>
-Subject: Re: cancelling the tests says that they all passed
-Date: Thu, 17 Mar 2016 13:50:43 +0100
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
-References: <1458207847.751745.551787010.6EE6554F@webmail.messagingengine.com> <201603171135.19679.sweet_f_a@gmx.de> <1458215622.795504.551872786.40E5990C@webmail.messagingengine.com>
-In-Reply-To: <1458215622.795504.551872786.40E5990C@webmail.messagingengine.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201603171350.44094.sweet_f_a@gmx.de>
+Received: from cpsmtpb-ews07.kpnxchange.com ([213.75.39.10]:64486 "EHLO
+	cpsmtpb-ews07.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S965736AbcCPI4U (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 16 Mar 2016 04:56:20 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 2/8] fdisk, cfdisk, sfdisk: improve the grammar of three messages
+Date: Wed, 16 Mar 2016 09:55:49 +0100
+Message-Id: <1458118555-4691-2-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1458118555-4691-1-git-send-email-bensberg@justemail.net>
+References: <1458118555-4691-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 17 March 2016, Benno Schulenberg wrote:
-> On Thu, Mar 17, 2016, at 11:35, Ruediger Meier wrote:
-> > On Thursday 17 March 2016, Benno Schulenberg wrote:
-> > > When one hits ^C when the compilation phase of 'make check'
-> > > finishes and the first tests start executing, the script prints
-> >
-> > I don't manage to reproduce that. How do you run make exactly (-j)?
->
-> Just plain 'make' and 'make check'.
->
-> > If I hit ctrl-C during compilation then the test script does not
-> > start at all. Maybe there is a dependency problem and your tests
-> > start before compilation is finished?
->
-> No, I don't hit ^C during compilation but when it has finished,
-> when that scary warning "Don't execute on production system!"
-> has been printed and the first "OK"s have appeared.
->
-> > Could you show us the test diffs?
-> > $ find tests/diff/ -type f | xargs -r cat
->
-> Attached.
-> 
-> > Maybe also warnings durning the test run (if any).
->
-> Only the ipcs one prints warnings:
->
->          ipcs: mk-rm-msg                                     ... OK
->          ipcs: mk-rm-sem                                     ... OK
-> ipcs: id 1048595 not found
-> ipcs: id 1081363 not found
->          ipcs: mk-rm-shm                                     ...
-> FAILED (ipcs/mk-rm-shm)
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ disk-utils/cfdisk.c |    2 +-
+ disk-utils/fdisk.c  |    4 ++--
+ disk-utils/sfdisk.c |    4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-Thanks!
+diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
+index 010a196..3908e31 100644
+--- a/disk-utils/cfdisk.c
++++ b/disk-utils/cfdisk.c
+@@ -2436,7 +2436,7 @@ static int ui_run(struct cfdisk *cf)
+ 	DBG(UI, ul_debug("start cols=%zu, lines=%zu", ui_cols, ui_lines));
+ 
+ 	if (fdisk_get_collision(cf->cxt)) {
+-		ui_warnx(_("Device already contains %s signature, it will be removed by write command."),
++		ui_warnx(_("Device already contains a %s signature; it will be removed by a write command."),
+ 				fdisk_get_collision(cf->cxt));
+ 		fdisk_enable_wipe(cf->cxt, 1);
+ 		ui_hint(_("Press a key to continue."));
+diff --git a/disk-utils/fdisk.c b/disk-utils/fdisk.c
+index 3f8769d..c941e5b 100644
+--- a/disk-utils/fdisk.c
++++ b/disk-utils/fdisk.c
+@@ -974,7 +974,7 @@ int main(int argc, char **argv)
+ 		if (fdisk_get_collision(cxt)) {
+ 			int dowipe = wipemode == WIPEMODE_ALWAYS ? 1 : 0;
+ 
+-			fdisk_warnx(cxt, _("%s: device already contains %s signature."),
++			fdisk_warnx(cxt, _("Device %s already contains a %s signature."),
+ 				argv[optind], fdisk_get_collision(cxt));
+ 
+ 			if (isatty(STDIN_FILENO) && wipemode == WIPEMODE_AUTO)
+@@ -983,7 +983,7 @@ int main(int argc, char **argv)
+ 			fdisk_enable_wipe(cxt, dowipe);
+ 			if (dowipe)
+ 				fdisk_warnx(cxt, _(
+-					"The signature will be removed by write command."));
++					"The signature will be removed by a write command."));
+ 			else
+ 				fdisk_warnx(cxt, _(
+ 					"It is strongly recommended to wipe the device with "
+diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
+index 1d5050b..80654fc 100644
+--- a/disk-utils/sfdisk.c
++++ b/disk-utils/sfdisk.c
+@@ -1537,7 +1537,7 @@ static int command_fdisk(struct sfdisk *sf, int argc, char **argv)
+ 	if (fdisk_get_collision(sf->cxt)) {
+ 		int dowipe = sf->wipemode == WIPEMODE_ALWAYS ? 1 : 0;
+ 
+-		fdisk_warnx(sf->cxt, _("%s: device already contains %s signature."),
++		fdisk_warnx(sf->cxt, _("Device %s already contains a %s signature."),
+ 			devname, fdisk_get_collision(sf->cxt));
+ 
+ 		if (sf->interactive && sf->wipemode == WIPEMODE_AUTO)
+@@ -1546,7 +1546,7 @@ static int command_fdisk(struct sfdisk *sf, int argc, char **argv)
+ 		fdisk_enable_wipe(sf->cxt, dowipe);
+ 		if (dowipe)
+ 			fdisk_warnx(sf->cxt, _(
+-				"The signature will be removed by write command."));
++				"The signature will be removed by a write command."));
+ 		else
+ 			fdisk_warnx(sf->cxt, _(
+ 				"It is strongly recommended to wipe the device with "
+-- 
+1.7.0.4
 
-I have some guesses about "ipcs" and "fallocate" but some more 
-questions:
-
-1. Which kernel version?
-2. Which file system? (findmnt -n -o FSTYPE -T tests/output)
-3. Is /proc mounted?
-4  grep "FALL" config.h
-
-"swaplabel" test fails because it's using again fallocate. Maybe we 
-should use dd/truncate instead to not test fallocate again.
-
-The misc/ul failure is something about different ncurses (or 
-terminals?). I know it from BSD. Don't know how this should be fixed in 
-our test suite because I don't know much about ncurses stuff.
-
-This is the plain diff:
-
---- tests/expected/misc/ul
-+++ tests/output/misc/ul
-@@ -1,3 +1,3 @@
--[1ma(B[mb[4mc[24m
-+[1ma[m(Bb[4mc[24m
-
-
-Interpreted by terminal both looks ok: "abc" with bold "a" and 
-underlined "c". I sombody confirmes that both strings in the diff are 
-totally ok on any system, then I would fix the test by using sed.
-
-cu,
-Rudi
