@@ -1,51 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59610 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752731AbcCQL1Q (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 17 Mar 2016 07:27:16 -0400
-Date: Thu, 17 Mar 2016 12:27:14 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] build-sys: no need to un-ignore tracked files
-Message-ID: <20160317112714.mhscns6eexdde7b4@ws.net.home>
-References: <1458209046-18526-1-git-send-email-sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1458209046-18526-1-git-send-email-sweet_f_a@gmx.de>
+Received: from cpsmtpb-ews07.kpnxchange.com ([213.75.39.10]:51786 "EHLO
+	cpsmtpb-ews07.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S965788AbcCPI5Q (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 16 Mar 2016 04:57:16 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 7/8] uuidd: correct the wording of an error message
+Date: Wed, 16 Mar 2016 09:55:54 +0100
+Message-Id: <1458118555-4691-7-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1458118555-4691-1-git-send-email-bensberg@justemail.net>
+References: <1458118555-4691-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Mar 17, 2016 at 11:04:05AM +0100, Ruediger Meier wrote:
->  .gitignore | 10 ----------
->  1 file changed, 10 deletions(-)
-> 
-> diff --git a/.gitignore b/.gitignore
-> index a008740..841111e 100644
-> --- a/.gitignore
-> +++ b/.gitignore
-> @@ -55,16 +55,6 @@ tests/run.sh.log
->  tests/run.sh.trs
->  update.log
->  
-> -# libuuid depends on AX_TLS macro
-> -!m4/tls.m4
-> -
-> -# GTK_DOC_CHECK depends on gtk-doc.m4
-> -!m4/gtk-doc.m4
-> -
-> -# util-linux specific macros
-> -!m4/ul.m4
-> -!m4/compiler.m4
-> -
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ misc-utils/uuidd.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Strange, I'm almost sure this was necessary years ago.
-
-Applied, thanks.
-
-    Karel
-
-
+diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
+index 208c361..feb0a0a 100644
+--- a/misc-utils/uuidd.c
++++ b/misc-utils/uuidd.c
+@@ -342,7 +342,7 @@ static void server_loop(const char *socket_path, const char *pidfile_path,
+ 		memset(&timeout, 0, sizeof timeout);
+ 		timeout.it_value.tv_sec = 30;
+ 		if (setup_timer(&t_id, &timeout, &timeout_handler))
+-			err(EXIT_FAILURE, _("cannot not setup timer"));
++			err(EXIT_FAILURE, _("cannot set up timer"));
+ 		if (pidfile_path)
+ 			fd_pidfile = create_pidfile(uuidd_cxt, pidfile_path);
+ 		ret = call_daemon(socket_path, UUIDD_OP_GETPID, reply_buf,
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.7.0.4
+
