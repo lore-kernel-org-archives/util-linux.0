@@ -1,54 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:58390 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:38393 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755827AbcCQKEK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 17 Mar 2016 06:04:10 -0400
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx102)
- with ESMTPSA (Nemesis) id 0LfHs4-1a0cb11SHo-00onDL for
- <util-linux@vger.kernel.org>; Thu, 17 Mar 2016 11:04:07 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 2/2] build-sys: install missing bash completions
-Date: Thu, 17 Mar 2016 11:04:06 +0100
-Message-Id: <1458209046-18526-2-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1458209046-18526-1-git-send-email-sweet_f_a@gmx.de>
+	id S1752050AbcCQNNW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 17 Mar 2016 09:13:22 -0400
+Date: Thu, 17 Mar 2016 14:13:20 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/2] build-sys: install missing bash completions
+Message-ID: <20160317131320.tj343znddbo6vqex@ws.net.home>
 References: <1458209046-18526-1-git-send-email-sweet_f_a@gmx.de>
+ <1458209046-18526-2-git-send-email-sweet_f_a@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1458209046-18526-2-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Thu, Mar 17, 2016 at 11:04:06AM +0100, Ruediger Meier wrote:
+> We haven't installed these files since three years. Hopefully
+> they will work.
 
-We haven't installed these files since three years. Hopefully
-they will work.
+ I have added tools/checkcompletion.sh (sorry about my shell
+ programming skills, it requires bash:-), so now:
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- bash-completion/Makemodule.am | 5 +++++
- 1 file changed, 5 insertions(+)
+ $ make checkcompletion 
+ Missing completion scripts:
+    agetty
+    findfs
+    kill
+    line
+    login
+    runuser
+    sulogin
+    switch_root
+    vipw
 
-diff --git a/bash-completion/Makemodule.am b/bash-completion/Makemodule.am
-index 56fdd32..89ae8dd 100644
---- a/bash-completion/Makemodule.am
-+++ b/bash-completion/Makemodule.am
-@@ -223,6 +223,10 @@ endif
- if BUILD_LOSETUP
- dist_bashcompletion_DATA += bash-completion/losetup
- endif
-+if BUILD_MOUNT
-+dist_bashcompletion_DATA += bash-completion/mount
-+dist_bashcompletion_DATA += bash-completion/umount
-+endif
- if BUILD_MOUNTPOINT
- dist_bashcompletion_DATA += bash-completion/mountpoint
- endif
-@@ -237,6 +241,7 @@ dist_bashcompletion_DATA += bash-completion/setpriv
- endif
- if BUILD_SWAPON
- dist_bashcompletion_DATA += bash-completion/swapon
-+dist_bashcompletion_DATA += bash-completion/swapoff
- endif
- if BUILD_UNSHARE
- dist_bashcompletion_DATA += bash-completion/unshare
+
+> +if BUILD_MOUNT
+> +dist_bashcompletion_DATA += bash-completion/mount
+> +dist_bashcompletion_DATA += bash-completion/umount
+> +endif
+
+ ... and checkcompletion does not check for incomplete Makefiles of
+ course, but better than nothing.
+
+    Karel
+
 -- 
-1.8.4.5
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
