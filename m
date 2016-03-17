@@ -1,51 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:56325 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752356AbcCALoS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 1 Mar 2016 06:44:18 -0500
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx102)
- with ESMTPSA (Nemesis) id 0MHMRr-1afRxL0UVv-00E3pJ for
- <util-linux@vger.kernel.org>; Tue, 01 Mar 2016 12:44:16 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from cpsmtpb-ews08.kpnxchange.com ([213.75.39.13]:62063 "EHLO
+	cpsmtpb-ews08.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S933165AbcCQJjy (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Thu, 17 Mar 2016 05:39:54 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 0/4] Remove openat fallback functions
-Date: Tue,  1 Mar 2016 12:44:10 +0100
-Message-Id: <1456832654-11268-1-git-send-email-sweet_f_a@gmx.de>
+Subject: [PATCH 3/5] script: tweak spacing and wording, and restore filling in the man page
+Date: Thu, 17 Mar 2016 10:39:12 +0100
+Message-Id: <1458207554-2405-3-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1458207554-2405-1-git-send-email-bensberg@justemail.net>
+References: <1458207554-2405-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
+---
+ term-utils/script.1 |   16 +++++++++-------
+ 1 files changed, 9 insertions(+), 7 deletions(-)
 
-This is github pull request #293:
-https://github.com/karelzak/util-linux/pull/293
-
-Ruediger Meier (4):
-  lib: remove openat fallback functions (include/at.h)
-  lib: move fopen_at() to fileutils.h, remove at.h
-  fdisk: remove unused include sysfs.h
-  build-sys: add and use openat build conditionals
-
- configure.ac                       |   7 +-
- disk-utils/fdisk.c                 |   1 -
- disk-utils/partx.c                 |   3 +-
- include/Makemodule.am              |   1 -
- include/at.h                       |  32 ---------
- include/fileutils.h                |  12 ++++
- lib/Makemodule.am                  |  21 +++---
- lib/at.c                           | 144 -------------------------------------
- lib/loopdev.c                      |   3 +-
- lib/procutils.c                    |   8 +--
- lib/sysfs.c                        |  15 ++--
- libblkid/src/devname.c             |   3 +-
- libblkid/src/devno.c               |   5 +-
- libmount/src/tab_parse.c           |  11 +--
- libsmartcols/samples/Makemodule.am |   4 +-
- misc-utils/lsblk.c                 |  11 +--
- misc-utils/lslocks.c               |   6 +-
- 17 files changed, 60 insertions(+), 227 deletions(-)
- delete mode 100644 include/at.h
- delete mode 100644 lib/at.c
-
+diff --git a/term-utils/script.1 b/term-utils/script.1
+index d4f5c00..8735664 100644
+--- a/term-utils/script.1
++++ b/term-utils/script.1
+@@ -124,12 +124,13 @@ meant to emulate a hardcopy terminal.
+ .PP
+ It is not recommended to run
+ .B script
+-in non-interactive shells. The inner shell of
++in non-interactive shells.  The inner shell of
+ .B script
+-is always interactive, and this could lead to unexpected results. If you use
++is always interactive, and this could lead to unexpected results.  If you use
+ .B script
+ in the shell initialization file, you have to avoid entering an infinite
+-loop. Use e. g. profile file, which is read by login shells only:
++loop.  You can use for example the \fB\%.profile\fR file, which is read
++by login shells only:
+ .RS
+ .RE
+ .sp
+@@ -142,6 +143,7 @@ if test -t 0 ; then
+ fi
+ .fi
+ .RE
++.ad
+ .PP
+ You should also avoid use of script in command pipes, as
+ .B script
+@@ -178,11 +180,11 @@ in the log file, including linefeeds and backspaces.  This is not what the
+ naive user expects.
+ .PP
+ .B script
+-is primarily designed for interactive terminal sessions, it's possible that when stdin 
+-is not a terminal (for example "echo foo | script") then all session hung ups, because
+-interactive shell within script session miss EOF and the 
++is primarily designed for interactive terminal sessions.  When stdin
++is not a terminal (for example: \fBecho foo | script\fR), then the session
++can hang, because the interactive shell within the script session misses EOF and
+ .B script
+-has no clue when close the session. See the NOTES section for more information.
++has no clue when to close the session.  See the \fBNOTES\fR section for more information.
+ .SH AVAILABILITY
+ The script command is part of the util-linux package and is available from
+ .UR ftp://\:ftp.kernel.org\:/pub\:/linux\:/utils\:/util-linux/
 -- 
-1.8.4.5
+1.7.0.4
 
