@@ -1,32 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from sender153-mail.zoho.com ([74.201.84.153]:22687 "EHLO
-	sender153-mail.zoho.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760441AbcCDXuL (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 4 Mar 2016 18:50:11 -0500
-Message-ID: <56DA1F2A.5040104@zoho.com>
-Date: Sat, 05 Mar 2016 00:50:02 +0100
-From: =?UTF-8?B?w4FuZ2VsIEdvbnrDoWxleg==?= <ingenit@zoho.com>
+Received: from mx1.redhat.com ([209.132.183.28]:41532 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932876AbcCQL32 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 17 Mar 2016 07:29:28 -0400
+Date: Thu, 17 Mar 2016 12:29:27 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/2] build-sys: install missing bash completions
+Message-ID: <20160317112927.amjwkj5kfckmurxg@ws.net.home>
+References: <1458209046-18526-1-git-send-email-sweet_f_a@gmx.de>
+ <1458209046-18526-2-git-send-email-sweet_f_a@gmx.de>
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-CC: up201407890@alunos.dcc.fc.up.pt, Stanislav Brabec <sbrabec@suse.cz>
-Subject: Re: Fixing su + runuser vulnerability CVE-2016-2779
-References: <56D7409A.6050407@suse.cz> <20160303013722.22156xdxrqmywgw0@webmail.alunos.dcc.fc.up.pt> <56D8648F.60504@suse.cz> <56D9B445.5080808@suse.cz> <20160304190312.17036kwlv8g5ydk4@webmail.alunos.dcc.fc.up.pt>
-In-Reply-To: <20160304190312.17036kwlv8g5ydk4@webmail.alunos.dcc.fc.up.pt>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1458209046-18526-2-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I was thinking about this and the problem is actually that runuser 
-returns (and control is returned to the privileged parent) while there's 
-an unprivileged descendant with a handle to the tty.
-Thus, it seems that it could be solved by having runuser run the child 
-into a new cgroup and refusing to return while there's any remaining 
-process there.
+On Thu, Mar 17, 2016 at 11:04:06AM +0100, Ruediger Meier wrote:
+> From: Ruediger Meier <ruediger.meier@ga-group.nl>
+> 
+> We haven't installed these files since three years. Hopefully
+> they will work.
+> 
+> Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+> ---
+>  bash-completion/Makemodule.am | 5 +++++
+>  1 file changed, 5 insertions(+)
+
+ Applied, thanks.
+
+    Karel
 
 
-Although depending on the exact way that people is expecting to use job 
-control, that might still interefere despite not changing the session 
-leader. Do we know actual usages that should continue working?
-
-Regards
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
