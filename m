@@ -1,83 +1,94 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.19]:52408 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:46667 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751207AbcCNBno (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Sun, 13 Mar 2016 21:43:44 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Isaac Dunham <ibid.ag@gmail.com>
-Subject: Re: [PATCH 00/12] another BSD/OSX related patch-set
-Date: Mon, 14 Mar 2016 02:43:40 +0100
+	id S932644AbcCQSYY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 17 Mar 2016 14:24:24 -0400
+Date: Thu, 17 Mar 2016 19:24:21 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
 Cc: util-linux@vger.kernel.org
-References: <1457392322-4974-1-git-send-email-sweet_f_a@gmx.de> <20160308012836.GA26455@newbook>
-In-Reply-To: <20160308012836.GA26455@newbook>
+Subject: Re: [PATCH 2/2] build-sys: install missing bash completions
+Message-ID: <20160317182421.3yp2p6gnrgqoraow@ws.net.home>
+References: <1458209046-18526-1-git-send-email-sweet_f_a@gmx.de>
+ <1458209046-18526-2-git-send-email-sweet_f_a@gmx.de>
+ <20160317131320.tj343znddbo6vqex@ws.net.home>
+ <201603171752.27998.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201603140243.40546.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201603171752.27998.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 08 March 2016, Isaac Dunham wrote:
-> On Tue, Mar 08, 2016 at 12:11:50AM +0100, Ruediger Meier wrote:
-> > From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Thu, Mar 17, 2016 at 05:52:27PM +0100, Ruediger Meier wrote:
+> On Thursday 17 March 2016, Karel Zak wrote:
+> > On Thu, Mar 17, 2016 at 11:04:06AM +0100, Ruediger Meier wrote:
+> > > We haven't installed these files since three years. Hopefully
+> > > they will work.
 > >
-> > This is github pull request #299
-> > https://github.com/karelzak/util-linux/pull/299
+> >  I have added tools/checkcompletion.sh (sorry about my shell
+> >  programming skills, it requires bash:-), so now:
 > >
-> > Again some arbitrary BSD, OSX and musl related fixes and clean-up
->
-> <snip>
->
-> > For OSX one should additionally disable all utmp.h related
-> > programs.
->
-> FYI:
-> With musl, utmpx is stubbed out and utmp is wrappers for utmpx, so
-> users should disable utmp(x)-related programs and code.
-
-> (The point is to let things build, but not use utmp because the
-> maintainer considers it a fundamentally flawed idea.)
->
-> Additionally, systemd is working on allowing disabling of utmp(x).
-
-Will there be another interface to be used by last(1)?
-
-> This seems to imply that --disable-utmp/--disable-utmpx options would
-> be helpful.
-
-Do you mean --without-utmp to build our progs without utmp or really 
-disabling the build of all progs which are using utmp right now?
-
-Actually I thought the next step could be to remove utmp and use utmpx 
-only because it's POSIX and more portable. See commit d00c10ed. 
-
-> > Almost no interesting compiler warnings left. Xcode/clang warnings
-> > are a bit over the top anyways.
+> >  $ make checkcompletion
+> >  Missing completion scripts:
+> >     agetty
+> >     findfs
+> >     kill
+> >     line
+> >     login
+> >     runuser
+> >     sulogin
+> >     switch_root
+> >     vipw
+> 
+> > > +if BUILD_MOUNT
+> > > +dist_bashcompletion_DATA += bash-completion/mount
+> > > +dist_bashcompletion_DATA += bash-completion/umount
+> > > +endif
 > >
-> >
-> > Ruediger Meier (12):
-> >   wipefs, sfdisk: include libgen.h for basename(3p)
->
-> I'm glad to see use of POSIX basename(), which is the only version
-> that musl implements.
+> >  ... and checkcompletion does not check for incomplete Makefiles of
+> >  course, but better than nothing.
+> 
+> Maybe checkcompletion.sh would be more simple and safe if we do
+> "make install DESTDIR=/tmp/dest" and compare installed *bin/ binaries.
 
-There are still two files to be fixed
-  login-utils/last.c
-  login-utils/su-common.c
+Good point.
 
-On the other hand I thought we could also completely avoid basename(3p) 
-and use something like our stripoff_last_component() from 
-lib/fileutils.c.
+> with installed completions (and BTW manpages!). It would also discover
+> Makefile bugs. I'm sure that such distcheck-hook scripts should
+> already exist. Like rpmlint does such checks for the distro packages
+> and prints warnings plus counts negative scores:
+> 
+> RPMLINT report:
+> ===============
+> [...]
+> util-linux.x86_64: W: no-manual-page-for-binary flushb
+> util-linux.x86_64: W: no-manual-page-for-binary chrp-addnote
+> Each executable in standard binary directories should have a man page.
+> [...]
+> 
+> 
+> 
+> But actually the most simple way to find non-distributed
+> files in _general_ is IMO this:
+> 
+> $ make distdir
+> $ find util-linux-2.28.rc1-65-5ae7a/ -type f -printf "%P\n" | sort > files-dist
+> $ git ls-files | sort > files-git
+> $ diff files-git files-dist | grep "^<"
 
-> The way musl implements basename, strdup() is not needed, but
-> following POSIX is better than relying on implementation-specific
-> details.
->
-> Thanks,
-> Isaac Dunham
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Well, "make distcheck" already checks if the final tarball is usable
+without git tree.
+
+I think more important is "make install" consistence, because it
+absolutely without any verification. (Well, before release I always
+use the new tarball for Fedora util-linux RPM, so it's verified. I
+also use ./tests/ts/build-sys/config --force to see changes in the
+build system.
+
+I agree that for v2.29 it would be nice to add some "make checkxxxx"
+targets based on "make install".
 
 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
