@@ -1,202 +1,79 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews09.kpnxchange.com ([213.75.39.14]:51409 "EHLO
-	cpsmtpb-ews09.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752645AbcCIKzI (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 9 Mar 2016 05:55:08 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:60912 "EHLO
+	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932644AbcCQSXV (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Thu, 17 Mar 2016 14:23:21 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+	by mailout.nyi.internal (Postfix) with ESMTP id AF77220DD9
+	for <util-linux@vger.kernel.org>; Thu, 17 Mar 2016 14:23:20 -0400 (EDT)
+Message-Id: <1458239000.908653.552257010.7074E741@webmail.messagingengine.com>
 From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/3] findmnt: improve formatting and wording of the man page
-Date: Wed,  9 Mar 2016 11:54:59 +0100
-Message-Id: <1457520901-4133-1-git-send-email-bensberg@justemail.net>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain
+Subject: Re: cancelling the tests says that they all passed
+Date: Thu, 17 Mar 2016 19:23:20 +0100
+In-Reply-To: <201603171818.52599.sweet_f_a@gmx.de>
+References: <1458207847.751745.551787010.6EE6554F@webmail.messagingengine.com>
+ <201603171350.44094.sweet_f_a@gmx.de>
+ <1458233386.879328.552147938.0BC34E2C@webmail.messagingengine.com>
+ <201603171818.52599.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- misc-utils/findmnt.8 |   61 +++++++++++++++++++++++++------------------------
- 1 files changed, 31 insertions(+), 30 deletions(-)
 
-diff --git a/misc-utils/findmnt.8 b/misc-utils/findmnt.8
-index 6133ec2..b199ff8 100644
---- a/misc-utils/findmnt.8
-+++ b/misc-utils/findmnt.8
-@@ -1,4 +1,4 @@
--.TH FINDMNT 8 "June 2014" "util-linux" "System Administration"
-+.TH FINDMNT 8 "June 2015" "util-linux" "System Administration"
- .SH NAME
- findmnt \- find a filesystem
- .SH SYNOPSIS
-@@ -18,7 +18,7 @@ findmnt \- find a filesystem
- .SH DESCRIPTION
- .B findmnt
- will list all mounted filesytems or search for a filesystem.  The
--.B findmnt
-+.B \%findmnt
- command is able to search in
- .IR /etc/fstab ,
- .IR /etc/mtab
-@@ -30,14 +30,14 @@ or
- .IR mountpoint
- is not given, all filesystems are shown.
- .PP
--The device may be specified by device name, maj:min, filesystem LABEL or UUID,
--or partition PARTUUID or PARTLABEL.  Note that
--.B findmnt
-+The device may be specified by device name, major:minor numbers,
-+filesystem label or UUID, or partition label or UUID.  Note that
-+.B \%findmnt
- follows
- .BR mount (8)
- behavior where a device name may be interpreted
--as a mountpoint (and vice versa) if the \fB--target\fR, \fB--mountpoint\fR or
--\fB--source\fR options are not specified.
-+as a mountpoint (and vice versa) if the \fB\-\-target\fR, \fB\-\-mountpoint\fR or
-+\fB\-\-source\fR options are not specified.
- .PP
- The command prints all mounted filesystems in the tree-like format by default.
- .SH OPTIONS
-@@ -49,7 +49,7 @@ Disable all built-in filters and print all filesystems.
- Use ascii characters for tree formatting.
- .TP
- .BR \-b , " \-\-bytes"
--Print the SIZE, USED and AVAIL column in bytes rather than in a human-readable format.
-+Print the SIZE, USED and AVAIL columns in bytes rather than in a human-readable format.
- .TP
- .BR \-C , " \-\-nocanonicalize"
- Do not canonicalize paths at all.  This option affects the comparing of paths
-@@ -62,7 +62,7 @@ Canonicalize all printed paths.
- Imitate the output of
- .BR df (1).
- This option is equivalent to
--.B -o SOURCE,FSTYPE,SIZE,USED,AVAIL,USE%,TARGET
-+.B \-o\ SOURCE,FSTYPE,SIZE,USED,AVAIL,USE%,TARGET
- but excludes all pseudo filesystems.
- Use \fB\-\-all\fP to print all filesystems.
- .TP
-@@ -73,7 +73,7 @@ or
- .BR backward .
- .TP
- .BR \-e , " \-\-evaluate"
--Convert all tags (LABEL, UUID, PARTUUID or PARTLABEL) to the device names.
-+Convert all tags (LABEL, UUID, PARTUUID or PARTLABEL) to the corresponding device names.
- .TP
- .BR \-F , " \-\-tab\-file \fIpath\fP"
- Search in an alternative file.  If used with \fB\-\-fstab\fP, \fB\-\-mtab\fP
-@@ -104,7 +104,7 @@ option and the option \fB\-\-submounts\fP is not used or if more that one
- source file (the option \fB\-F\fP) is specified.
- .TP
- .BR \-M , " \-\-mountpoint \fIpath\fP"
--Explicitly define the mountpoint file or directory. See also \fB\-\-target\fP.
-+Explicitly define the mountpoint file or directory.  See also \fB\-\-target\fP.
- .TP
- .BR \-m , " \-\-mtab"
- Search in
-@@ -146,7 +146,7 @@ or
- options are not specified.
- 
- The default list of columns may be extended if \fIlist\fP is
--specified in the format \fI+list\fP (e.g. \fBfindmnt -o +PROPAGATION\fP).
-+specified in the format \fI+list\fP (e.g. \fBfindmnt \-o +PROPAGATION\fP).
- .TP
- .BR \-P , " \-\-pairs"
- Use key="value" output format.  All potentially unsafe characters are hex-escaped (\\x<code>).
-@@ -156,7 +156,7 @@ Monitor changes in the /proc/self/mountinfo file.  Supported actions are: mount,
- umount, remount and move.  More than one action may be specified in a
- comma-separated list.  All actions are monitored by default.
- 
--The time for which \fB--poll\fR will block can be restricted with the \fB\-\-timeout\fP
-+The time for which \fB\-\-poll\fR will block can be restricted with the \fB\-\-timeout\fP
- or \fB\-\-first\-only\fP options.
- 
- The standard columns always use the new version of the information from the
-@@ -179,7 +179,7 @@ available for umount and remount actions
- .BR \-R , " \-\-submounts"
- Print recursively all submounts for the selected filesystems.  The restrictions
- defined by options \fB\-t\fP, \fB\-O\fP, \fB\-S\fP, \fB\-T\fP and
--\fB\--direction\fP are not applied to submounts.  All submounts are always
-+\fB\%\-\-direction\fP are not applied to submounts.  All submounts are always
- printed in tree-like order.  The option enables the tree-like output format by
- default.  This option has no effect for \fB\-\-mtab\fP or \fB\-\-fstab\fP.
- .TP
-@@ -187,28 +187,29 @@ default.  This option has no effect for \fB\-\-mtab\fP or \fB\-\-fstab\fP.
- Use raw output format.  All potentially unsafe characters are hex-escaped (\\x<code>).
- .TP
- .BR \-S , " \-\-source \fIspec\fP"
--Explicitly define the mount source.  Supported are \fIdevice\fR, \fImaj:min\fR,
--\fILABEL=\fR, \fIUUID=\fR, \fIPARTLABEL=\fR or \fIPARTUUID=\fR.
-+Explicitly define the mount source.  Supported specifications are \fIdevice\fR,
-+\fImaj\fB:\fImin\fR, \fBLABEL=\fIlabel\fR, \fBUUID=\fIuuid\fR,
-+\fBPARTLABEL=\fIlabel\fR and \fBPARTUUID=\fIuuid\fR.
- .TP
- .BR \-s , " \-\-fstab"
- Search in
- .IR /etc/fstab .
--The output is in the list format (see \fB--list\fR).
-+The output is in the list format (see \fB\-\-list\fR).
- .TP
- .BR \-T , " \-\-target \fIpath\fP"
--Define the mount target. If the \fIpath\fR
-+Define the mount target.  If \fIpath\fR
- is not a mountpoint file or directory, then
- .B findmnt
--checks \fIpath\fR elements in reverse order to get the mountpoint (this feature is 
--supported only if search in kernel files and unsupported for \fB\-\-fstab\fP). It's
--recommended to use the option \fB--mountpoint\fR when checks of \fIpath\fR elements is
-+checks the \fIpath\fR elements in reverse order to get the mountpoint (this feature is
-+supported only when searching in kernel files and unsupported for \fB\-\-fstab\fP).  It's
-+recommended to use the option \fB\-\-mountpoint\fR when checks of \fIpath\fR elements are
- unwanted and \fIpath\fR is a strictly specified mountpoint.
- .TP
- .BR \-t , " \-\-types \fIlist\fP"
- Limit the set of printed filesystems.  More than one type may be
- specified in a comma-separated list.  The list of filesystem types can be
- prefixed with
--.I no
-+.B no
- to specify the filesystem types on which no action should be taken.  For
- more details see
- .BR mount (8).
-@@ -228,10 +229,10 @@ Do not truncate text in columns.  The default is to not truncate the
- columns.  This option disables text truncation also in all other columns.
- .TP
- .BR \-v , " \-\-nofsroot"
--Do not print a [/dir] in the SOURCE column for bind-mounts or btrfs subvolumes.
-+Do not print a [/dir] in the SOURCE column for bind mounts or btrfs subvolumes.
- .TP
- .BR \-w , " \-\-timeout \fImilliseconds\fP"
--Specify an upper limit on the time for which \fB--poll\fR will block, in milliseconds.
-+Specify an upper limit on the time for which \fB\-\-poll\fR will block, in milliseconds.
- .SH EXAMPLES
- .IP "\fBfindmnt \-\-fstab \-t nfs\fP"
- Prints all NFS filesystems defined in
-@@ -241,21 +242,21 @@ Prints all
- .IR /etc/fstab
- filesystems where the mountpoint directory is /mnt/foo.  It also prints bind mounts where /mnt/foo
- is a source.
--.IP "\fBfindmnt \-\-fstab --target /mnt/foo\fP"
-+.IP "\fBfindmnt \-\-fstab \-\-target /mnt/foo\fP"
- Prints all
- .IR /etc/fstab
- filesystems where the mountpoint directory is /mnt/foo.
--.IP "\fBfindmnt --fstab --evaluate\fP"
-+.IP "\fBfindmnt \-\-fstab \-\-evaluate\fP"
- Prints all
- .IR /etc/fstab
- filesystems and converts LABEL= and UUID= tags to the real device names.
--.IP "\fBfindmnt -n --raw --evaluate --output=target LABEL=/boot\fP"
-+.IP "\fBfindmnt \-n \-\-raw \-\-evaluate \-\-output=target LABEL=/boot\fP"
- Prints only the mountpoint where the filesystem with label "/boot" is mounted.
--.IP "\fBfindmnt --poll --mountpoint /mnt/foo\fP"
-+.IP "\fBfindmnt \-\-poll \-\-mountpoint /mnt/foo\fP"
- Monitors mount, unmount, remount and move on /mnt/foo.
--.IP "\fBfindmnt --poll=umount --first-only --mountpoint /mnt/foo\fP"
-+.IP "\fBfindmnt \-\-poll=umount \-\-first-only \-\-mountpoint /mnt/foo\fP"
- Waits for /mnt/foo unmount.
--.IP "\fBfindmnt --poll=remount -t ext3 -O ro\fP"
-+.IP "\fBfindmnt \-\-poll=remount \-t ext3 \-O ro\fP"
- Monitors remounts to read-only mode on all ext3 filesystems.
- .SH ENVIRONMENT
- .IP LIBMOUNT_FSTAB=<path>
+On Thu, Mar 17, 2016, at 18:18, Ruediger Meier wrote:
+> Could you show us
+> $ cat /proc/sysvipc/shm
+
+       key      shmid perms       size  cpid  lpid nattch   uid   gid  cuid  cgid      atime      dtime      ctime
+         0     131072  1600     393216  1409   921      2  1000  1000  1000  1000 1458201259          0 1458201259
+         0     163841  1600     393216  1413 19472      2  1000  1000  1000  1000 1458231784 1458231784 1458201259
+         0     196610  1600     393216  1399   921      2  1000  1000  1000  1000 1458201260          0 1458201260
+         0     229379  1600     393216  1399   921      2  1000  1000  1000  1000 1458201260          0 1458201260
+         0     262148  1600     393216  1419  1474      2  1000  1000  1000  1000 1458201262 1458201262 1458201261
+         0     294917  1600     393216  1419  1474      2  1000  1000  1000  1000 1458201262 1458201262 1458201261
+         0     327686  1600     393216  1388   921      2  1000  1000  1000  1000 1458201262          0 1458201262
+         0     360455  1600     393216  1416  2127      2  1000  1000  1000  1000 1458204570 1458204570 1458201265
+         0     393224  1600     393216  1424   921      2  1000  1000  1000  1000 1458201265          0 1458201265
+         0     425993  1600     393216  1490   921      2  1000  1000  1000  1000 1458201268          0 1458201268
+         0     458762  1600     393216  1495   921      2  1000  1000  1000  1000 1458201268          0 1458201268
+         0     491531  1600     393216  1508   921      2  1000  1000  1000  1000 1458201268          0 1458201268
+         0     524300  1600     393216  1497   921      2  1000  1000  1000  1000 1458201268          0 1458201268
+         0     557069  1600     393216  1405 18482      2  1000  1000  1000  1000 1458215908 1458215908 1458201269
+         0     589838  1600     393216  1492   921      2  1000  1000  1000  1000 1458201270          0 1458201270
+         0     622607  1600     393216  1493   921      2  1000  1000  1000  1000 1458201273          0 1458201273
+         0     655376  1600     393216  1496   921      2  1000  1000  1000  1000 1458201274          0 1458201274
+         0     688145  1600     393216  1417   921      2  1000  1000  1000  1000 1458201282          0 1458201282
+         0     720914  1600     393216  1413 19472      2  1000  1000  1000  1000 1458231784 1458231784 1458201449
+ -60920149    1081363   644         12 10036     0      0  1000  1000  1000  1000          0          0 1458215137
+         0    1114132  1600     393216  1417   921      2  1000  1000  1000  1000 1458215476          0 1458215476
+
+> Generally I think we should make a statement about "what is the minimum 
+> kernel version" for util-linux.
+
+A statement.  And let the tests check the version and print
+a warning in case it's too old.
+
+> Two years ago I decided for myself that 
+> I should fix bugs for newer kernels first. On the other hand 2.6.32 
+> would have been worth to support because it was officially maintained 
+> from 2009 until last month!
+
+I'm not expecting you to fix things.  It's just nice to put
+things in a harsher environment and see how they hold up.  :)
+
+> I guess the kernel syscall does not return error thus our fallocate 
+> succeed but the file is empty. It's a kernel bug we can't fix. Or 
+> should we add a stat() call to validate the syscall?
+
+That sounds like a good idea: check, and double check.
+
+Benno
+
 -- 
-1.7.0.4
+http://www.fastmail.com - Accessible with your email software
+                          or over the web
 
