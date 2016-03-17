@@ -1,59 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.18]:51761 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.21]:51021 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750910AbcCRLtX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 18 Mar 2016 07:49:23 -0400
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx002)
- with ESMTPSA (Nemesis) id 0M3RZI-1ZpskC1tC4-00r180 for
- <util-linux@vger.kernel.org>; Fri, 18 Mar 2016 12:49:20 +0100
+	id S1752002AbcCQRS7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 17 Mar 2016 13:18:59 -0400
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 2/2] ipcs: --shmems, upward/backward compatibility
-Date: Fri, 18 Mar 2016 12:49:18 +0100
-Message-Id: <1458301758-21853-3-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1458301758-21853-1-git-send-email-sweet_f_a@gmx.de>
-References: <1458301758-21853-1-git-send-email-sweet_f_a@gmx.de>
+To: Benno Schulenberg <bensberg@justemail.net>
+Subject: Re: cancelling the tests says that they all passed
+Date: Thu, 17 Mar 2016 18:18:52 +0100
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
+References: <1458207847.751745.551787010.6EE6554F@webmail.messagingengine.com> <201603171350.44094.sweet_f_a@gmx.de> <1458233386.879328.552147938.0BC34E2C@webmail.messagingengine.com>
+In-Reply-To: <1458233386.879328.552147938.0BC34E2C@webmail.messagingengine.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201603171818.52599.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Thursday 17 March 2016, Benno Schulenberg wrote:
+> On Thu, Mar 17, 2016, at 13:50, Ruediger Meier wrote:
+> > I have some guesses about "ipcs" and "fallocate" but some more
+> > questions:
+> >
+> > 1. Which kernel version?
+>
+> 2.6.32
 
-Re-add backward compatibility which got lost in 058e8154.
-Initializing unknown struct members to 0xdead is similar to
-the fallback.
+Hehe my guess was right.
 
-For upward compatibility ignore columns > 16 but not the whole
-line (in case the kernel would add more columns in future).
+I've noticed already 2 years ago on Debian 6 that our scanf code in 
+ipc_shm_get_info() is not compatible to this kernel version. (2.6.34 
+worked AFAIR.)
 
-Reported-by: Benno Schulenberg <bensberg@justemail.net>
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- sys-utils/ipcutils.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+Could you show us
+$ cat /proc/sysvipc/shm
 
-diff --git a/sys-utils/ipcutils.c b/sys-utils/ipcutils.c
-index c763cde..349e855 100644
---- a/sys-utils/ipcutils.c
-+++ b/sys-utils/ipcutils.c
-@@ -113,6 +113,9 @@ int ipc_shm_get_info(int id, struct shm_data **shmds)
- 	while (fgetc(f) != '\n');		/* skip header */
- 
- 	while (fgets(buf, sizeof(buf), f) != NULL) {
-+		/* scan for the first 14-16 columns (e.g. Linux 2.6.32 has 14) */
-+		p->shm_rss = 0xdead;
-+		p->shm_swp = 0xdead;
- 		if (sscanf(buf,
- 			  "%d %d  %o %"SCNu64 " %u %u  "
- 			  "%"SCNu64 " %u %u %u %u %"SCNi64 " %"SCNi64 " %"SCNi64
-@@ -132,7 +135,7 @@ int ipc_shm_get_info(int id, struct shm_data **shmds)
- 			   &p->shm_dtim,
- 			   &p->shm_ctim,
- 			   &p->shm_rss,
--			   &p->shm_swp) != 16)
-+			   &p->shm_swp) < 14)
- 			continue; /* ivalid line, skipped */
- 
- 		if (id > -1) {
--- 
-1.8.4.5
+Maybe it's easy to fix.
+
+Generally I think we should make a statement about "what is the minimum 
+kernel version" for util-linux. Two years ago I decided for myself that 
+I should fix bugs for newer kernels first. On the other hand 2.6.32 
+would have been worth to support because it was officially maintained 
+from 2009 until last month!
+
+> > 2. Which file system? (findmnt -n -o FSTYPE -T tests/output)
+>
+> ext3
+
+ext3 is not supported but the system call should return an error and the 
+test should look like this:
+   misc: fallocate ... SKIPPED ('ext3' not supported)
+
+I guess the kernel syscall does not return error thus our fallocate 
+succeed but the file is empty. It's a kernel bug we can't fix. Or 
+should we add a stat() call to validate the syscall?
+
+> > 3. Is /proc mounted?
+>
+> $ ./findmnt -n -t proc
+> /proc  none   proc   rw,nosuid,nodev,noexec,relatime
+>
+> > 4  grep "FALL" config.h
+>
+> #define HAVE_FALLOCATE 1
+> #define HAVE_LINUX_FALLOC_H 1
+>
+> Benno
+
 
