@@ -1,41 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40958 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965315AbcCPNLK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 16 Mar 2016 09:11:10 -0400
-Date: Wed, 16 Mar 2016 14:11:07 +0100
-From: Karel Zak <kzak@redhat.com>
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:49176 "EHLO
+	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1030555AbcCQQtr (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Thu, 17 Mar 2016 12:49:47 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+	by mailout.nyi.internal (Postfix) with ESMTP id 23E4C206A6
+	for <util-linux@vger.kernel.org>; Thu, 17 Mar 2016 12:49:47 -0400 (EDT)
+Message-Id: <1458233386.879328.552147938.0BC34E2C@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
 To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org, Andreas Henriksson <andreas@fatal.se>
-Subject: Re: [PATCH] tests: fix fdisk/bsd for alpha
-Message-ID: <20160316131107.4orceajqir34wavj@ws.net.home>
-References: <1458088844-23523-1-git-send-email-sweet_f_a@gmx.de>
- <20160316113741.cdm4hrufcoiki5ae@ws.net.home>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160316113741.cdm4hrufcoiki5ae@ws.net.home>
+Content-Type: text/plain
+Subject: Re: cancelling the tests says that they all passed
+Date: Thu, 17 Mar 2016 17:49:46 +0100
+In-Reply-To: <201603171350.44094.sweet_f_a@gmx.de>
+References: <1458207847.751745.551787010.6EE6554F@webmail.messagingengine.com>
+ <201603171135.19679.sweet_f_a@gmx.de>
+ <1458215622.795504.551872786.40E5990C@webmail.messagingengine.com>
+ <201603171350.44094.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Mar 16, 2016 at 12:37:41PM +0100, Karel Zak wrote:
-> On Wed, Mar 16, 2016 at 01:40:44AM +0100, Ruediger Meier wrote:
-> > BTW it was a bad idea to use md5sum. In case of failure it
-> > would be much easier to debug hexdump diffs. Now it's nearly
-> > impossible to collect all these exotic hexdumps.
+
+On Thu, Mar 17, 2016, at 13:50, Ruediger Meier wrote:
+> I have some guesses about "ipcs" and "fallocate" but some more 
+> questions:
 > 
->  I'll try to prepare a new test with hexdump, PPC[64] LE/BE should 
->  not be a problem. The rest we can gather later.
+> 1. Which kernel version?
 
- Done, the last missing is Aplha (with special fields in the label...). 
- 
- The original md5 based test is still in the tree to make a way how to
- verify Alpha output. Maybe it's overkill and we can remove the test.
- Not sure.
+2.6.32
 
- Test it, try it, send patches ;)
+> 2. Which file system? (findmnt -n -o FSTYPE -T tests/output)
 
-    Karel
+ext3
+
+> 3. Is /proc mounted?
+
+$ ./findmnt -n -t proc
+/proc  none   proc   rw,nosuid,nodev,noexec,relatime
+
+> 4  grep "FALL" config.h
+
+#define HAVE_FALLOCATE 1
+#define HAVE_LINUX_FALLOC_H 1
+
+Benno
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.fastmail.com - A fast, anti-spam email service.
+
