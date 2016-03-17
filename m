@@ -1,45 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:38008 "EHLO
-	mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750912AbcCNViv (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 14 Mar 2016 17:38:51 -0400
-Received: by mail-wm0-f54.google.com with SMTP id l68so1218598wml.1
-        for <util-linux@vger.kernel.org>; Mon, 14 Mar 2016 14:38:50 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from cpsmtpb-ews04.kpnxchange.com ([213.75.39.7]:63598 "EHLO
+	cpsmtpb-ews04.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S933165AbcCQJkF (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Thu, 17 Mar 2016 05:40:05 -0400
+From: Benno Schulenberg <bensberg@justemail.net>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] vipw: print only one new line when asking about shadow file
-Date: Mon, 14 Mar 2016 21:38:30 +0000
-Message-Id: <1457991510-12122-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 4/5] unshare: describe the setgroups restriction more explicitly
+Date: Thu, 17 Mar 2016 10:39:13 +0100
+Message-Id: <1458207554-2405-4-git-send-email-bensberg@justemail.net>
+In-Reply-To: <1458207554-2405-1-git-send-email-bensberg@justemail.net>
+References: <1458207554-2405-1-git-send-email-bensberg@justemail.net>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Commit 11b86e1733 changed printf() to puts() in favour of more simple
-function, but forgot that puts() adds a new line to end of string.  That new
-line is neither needed, or expected, so use fputs() that is both a simple
-printing function and comes without new line side effect.
-
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
 ---
- login-utils/vipw.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sys-utils/unshare.1 |   25 +++++++++++++++----------
+ 1 files changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/login-utils/vipw.c b/login-utils/vipw.c
-index b8e5b47..0438656 100644
---- a/login-utils/vipw.c
-+++ b/login-utils/vipw.c
-@@ -343,9 +343,9 @@ int main(int argc, char *argv[])
- 	if (access(orig_file, F_OK) == 0) {
- 		char response[80];
- 
--		puts((program == VIGR)
-+		fputs((program == VIGR)
- 		       ? _("You are using shadow groups on this system.\n")
--		       : _("You are using shadow passwords on this system.\n"));
-+		       : _("You are using shadow passwords on this system.\n"), stdout);
- 
- 		/* TRANSLATORS: this program uses for y and n rpmatch(3),
- 		 * which means they can be translated. */
+diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
+index ba47c67..1df6d59 100644
+--- a/sys-utils/unshare.1
++++ b/sys-utils/unshare.1
+@@ -114,16 +114,21 @@ namespace (\fB\-\-mount\fP) is not requested.
+ .BR "\-\-setgroups allow" | deny
+ Allow or deny the
+ .BR setgroups (2)
+-syscall in user namespaces.
+-
+-.BR setgroups (2)
+-is only callable with CAP_SETGID and CAP_SETGID in a user
+-namespace.  Linux kernel (since 3.19) does not give you permission to call setgroups(2)
+-until after GID map has been set.  The GID map is writable by root when
+-.BR setgroups (2)
+-is enabled and the GID map becomes writable by unprivileged processes when
+-.BR setgroups (2)
+-is permanently disabled.
++syscall in a user namespace.
++.sp
++To be able to call
++.BR setgroups (2),
++the calling process must at least have CAP_SETGID.
++But since Linux 3.19 a further restriction applies:
++the kernel gives permission to call
++.BR \%setgroups (2)
++only after the GID map (\fB/proc/\fIpid\fB/gid_map\fR) has been set.
++The GID map is writable by root when
++.BR \%setgroups (2)
++is enabled (i.e. \fBallow\fR, the default), and
++the GID map becomes writable by unprivileged processes when
++.BR \%setgroups (2)
++is permanently disabled (with \fBdeny\fR).
+ .TP
+ .BR \-V , " \-\-version"
+ Display version information and exit.
 -- 
-2.7.3
+1.7.0.4
 
