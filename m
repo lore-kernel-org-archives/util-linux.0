@@ -1,31 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35189 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754589AbcCRNsZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 18 Mar 2016 09:48:25 -0400
-Date: Fri, 18 Mar 2016 14:48:22 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/2] ipcs: more robust and compatible /proc parsing
-Message-ID: <20160318134822.hx2f5byqrocdoysn@ws.net.home>
-References: <1458301758-21853-1-git-send-email-sweet_f_a@gmx.de>
+Received: from e28smtp04.in.ibm.com ([125.16.236.4]:39940 "EHLO
+	e28smtp04.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753228AbcCRFdD (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 18 Mar 2016 01:33:03 -0400
+Received: from localhost
+	by e28smtp04.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <util-linux@vger.kernel.org> from <hegdevasant@linux.vnet.ibm.com>;
+	Fri, 18 Mar 2016 11:02:59 +0530
+Received: from d28av04.in.ibm.com (d28av04.in.ibm.com [9.184.220.66])
+	by d28relay01.in.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id u2I5WuQD33751220
+	for <util-linux@vger.kernel.org>; Fri, 18 Mar 2016 11:02:57 +0530
+Received: from d28av04.in.ibm.com (localhost [127.0.0.1])
+	by d28av04.in.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id u2I5Ws2M018452
+	for <util-linux@vger.kernel.org>; Fri, 18 Mar 2016 11:02:55 +0530
+Subject: Re: [PATCH 2/3] lscpu: use cpu and revision tag if available
+To: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
+References: <1458130699-25464-1-git-send-email-sweet_f_a@gmx.de>
+ <1458130699-25464-3-git-send-email-sweet_f_a@gmx.de>
+From: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+Message-ID: <56EB9302.9060302@linux.vnet.ibm.com>
+Date: Fri, 18 Mar 2016 11:02:50 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1458301758-21853-1-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1458130699-25464-3-git-send-email-sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Mar 18, 2016 at 12:49:16PM +0100, Ruediger Meier wrote:
+On 03/16/2016 05:48 PM, Ruediger Meier wrote:
 > From: Ruediger Meier <ruediger.meier@ga-group.nl>
-> 
-> If this looks ok for shm then we could also add similar patches for
-> sem and msg.
+>
+> Avoid ifdef which does not work with --sysroot. Our existing test
+> dumps produce even better output now for ppc and sparc.
+>
+> The logic moved to the printing section.
+>
+> CC: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+> Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Seems good, I'll wait for complete set of the patches, ok?
+Looks good. Tested on Power8 system and it works fine.
 
-    Karel
+-Vasant
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
