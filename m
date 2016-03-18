@@ -1,103 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:44153 "EHLO mx2.suse.de"
+Received: from mout.gmx.net ([212.227.15.19]:52173 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753635AbcCHQdj (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 8 Mar 2016 11:33:39 -0500
-Subject: Re: Fixing su + runuser vulnerability CVE-2016-2779
-To: =?UTF-8?Q?=c3=81ngel_Gonz=c3=a1lez?= <ingenit@zoho.com>,
-        util-linux@vger.kernel.org
-References: <56D7409A.6050407@suse.cz>
- <20160303013722.22156xdxrqmywgw0@webmail.alunos.dcc.fc.up.pt>
- <56D8648F.60504@suse.cz> <56D9B445.5080808@suse.cz>
- <20160304190312.17036kwlv8g5ydk4@webmail.alunos.dcc.fc.up.pt>
- <56DA1F2A.5040104@zoho.com>
-Cc: up201407890@alunos.dcc.fc.up.pt
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <56DEFEE1.1080507@suse.cz>
-Date: Tue, 8 Mar 2016 17:33:37 +0100
-MIME-Version: 1.0
-In-Reply-To: <56DA1F2A.5040104@zoho.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+	id S1750899AbcCRLtX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 18 Mar 2016 07:49:23 -0400
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx002)
+ with ESMTPSA (Nemesis) id 0Lbd9v-1ZvgCJ1AAV-00lCMR for
+ <util-linux@vger.kernel.org>; Fri, 18 Mar 2016 12:49:20 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 1/2] ipcs: make sure to parse whole lines for shm_data
+Date: Fri, 18 Mar 2016 12:49:17 +0100
+Message-Id: <1458301758-21853-2-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1458301758-21853-1-git-send-email-sweet_f_a@gmx.de>
+References: <1458301758-21853-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mar 5, 2016 at 00:50 Ángel González wrote:
-> I was thinking about this and the problem is actually that runuser
-> returns (and control is returned to the privileged parent) while there's
-> an unprivileged descendant with a handle to the tty.
-> Thus, it seems that it could be solved by having runuser run the child
-> into a new cgroup and refusing to return while there's any remaining
-> process there.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-In general, it is a good idea.
+We want to parse 16 columns _per_row_ without mixing them up. The
+existing code is unsafe for more or less columns and could even
+run into endless loops. This patch assures that we parse row-wise
+and really skip lines with columns != 16.
 
-But from compatibility aspect, it is a bad idea to change it to the 
-default behavior. Imagine all those poorly written legacy helpers that 
-run daemons without proper disconnecting from the terminal. All those 
-will be stalled.
+Probably somehow we could have also done this with fscanf() only.
+Using fgets() additionally makes the code more easy to read and
+to improve later.
 
-I can imagine new --term-wait option, eventually --term-kill. But I am 
-not sure, whether it is no over-complicated.
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ sys-utils/ipcutils.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-> Although depending on the exact way that people is expecting to use job
-> control, that might still interefere despite not changing the session
-> leader. Do we know actual usages that should continue working?
->
-There is not exact list what will will break.
-
-But imagine that many users use daily things like simple example below. 
-(In a real life, you will not want to run sleep, but something more 
-sophisticated (e. g. build process inside chroot that needs sudo).)
-
-# sudo -u nobody sleep 10 &
-[1] 28327
-~ # fg
-sudo -u nobody sleep 10
-^Z
-[1]+  Stopped                 sudo -u nobody sleep 10
-~ # bg
-[1]+ sudo -u nobody sleep 10 &
-~ #
-~ #
-[1]+  Done                    sudo -u nobody sleep 10
-~ #
-
-It will be not possible any more with setsid().
-
-You will get:
-# sudo -u nobody sleep 10 &
-[1] 28390
-~ # fg
-sudo -u nobody sleep 10
-^Z^Z^Z^Z^Z^Z^Z^Z
-
-You are stuck, ^Z does not work, and you cannot switch the task back to 
-background. You can only press ^C.
-
-Exactly the same will affect
-runuser --command "sleep 10"
-
-Additionally, both su and runuser already offer two variants. You can 
-test the difference yourself:
-
-Without job control:
-su nobody --command "sleep 10" &
-vs.
-With job control:
-su nobody --session-command "sleep 10" &
-
-After calling it, type:
-fg
-and then Control-Z.
-
+diff --git a/sys-utils/ipcutils.c b/sys-utils/ipcutils.c
+index 400f00c..c763cde 100644
+--- a/sys-utils/ipcutils.c
++++ b/sys-utils/ipcutils.c
+@@ -99,6 +99,7 @@ int ipc_shm_get_info(int id, struct shm_data **shmds)
+ {
+ 	FILE *f;
+ 	int i = 0, maxid;
++	char buf[BUFSIZ];
+ 	struct shm_data *p;
+ 	struct shmid_ds dummy;
+ 
+@@ -111,8 +112,8 @@ int ipc_shm_get_info(int id, struct shm_data **shmds)
+ 
+ 	while (fgetc(f) != '\n');		/* skip header */
+ 
+-	while (feof(f) == 0) {
+-		if (fscanf(f,
++	while (fgets(buf, sizeof(buf), f) != NULL) {
++		if (sscanf(buf,
+ 			  "%d %d  %o %"SCNu64 " %u %u  "
+ 			  "%"SCNu64 " %u %u %u %u %"SCNi64 " %"SCNi64 " %"SCNi64
+ 			  " %"SCNu64 " %"SCNu64 "\n",
+@@ -132,7 +133,7 @@ int ipc_shm_get_info(int id, struct shm_data **shmds)
+ 			   &p->shm_ctim,
+ 			   &p->shm_rss,
+ 			   &p->shm_swp) != 16)
+-			continue;
++			continue; /* ivalid line, skipped */
+ 
+ 		if (id > -1) {
+ 			/* ID specified */
 -- 
-Best Regards / S pozdravem,
+1.8.4.5
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
