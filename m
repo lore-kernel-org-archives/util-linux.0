@@ -1,38 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews01.kpnxchange.com ([213.75.39.4]:50863 "EHLO
-	cpsmtpb-ews01.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752813AbcCNJKy (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 14 Mar 2016 05:10:54 -0400
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 3/4] unshare: replace a special character in the man page with a space
-Date: Mon, 14 Mar 2016 10:10:12 +0100
-Message-Id: <1457946613-2435-3-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1457946613-2435-1-git-send-email-bensberg@justemail.net>
-References: <1457946613-2435-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:44571 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751816AbcCRKsD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 18 Mar 2016 06:48:03 -0400
+Date: Fri, 18 Mar 2016 11:48:01 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Dongli Zhang <dongli.zhang@oracle.com>
+Cc: util-linux@vger.kernel.org, qcai@redhat.com
+Subject: Re: [PATCH 1/1] lscpu: correct the Virtualization type on Xen DomU
+ PV guest
+Message-ID: <20160318104801.siebyw4cdsxtpwqm@ws.net.home>
+References: <1458284004-17357-1-git-send-email-dongli.zhang@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1458284004-17357-1-git-send-email-dongli.zhang@oracle.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Reported-by: Andreas Henriksson <andreas@fatal.se>
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- sys-utils/unshare.1 |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+On Fri, Mar 18, 2016 at 02:53:24PM +0800, Dongli Zhang wrote:
+> +			fd = path_fopen("r", 0, _PATH_SYS_HYP_FEATURES);
 
-diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
-index 264f139..9507c4e 100644
---- a/sys-utils/unshare.1
-+++ b/sys-utils/unshare.1
-@@ -164,7 +164,7 @@ by nsenter. The namespace is destroyed by umount the bind reference.
- .TQ
- .B # touch /root/namespaces/mnt
- .TQ
--.B # unshare --mount=/root/namespaces/mnt
-+.B # unshare --mount=/root/namespaces/mnt
- .br
- Establish a persistent mount namespace referenced by the bind mount
- /root/namespaces/mnt. This example provides portable solution, because it makes
+ Is the file always available (including old XEN versions)? This
+ function exit on error, maybe we need path_exist() before open.
+
+ There is also path_read_u64() to avoid path_fopen() & fscanf().
+
+    Karel
+
+> +			if (fd && fscanf(fd, "%x", &features) == 1) {
+> +				/* Xen para-virt (or pvh) */
+> +				if (!(features & (1U << XENFEAT_hvm_pirqs)))
+> +					desc->virtype = VIRT_PARA;
+> +				fclose(fd);
+> +			}
+> +		}
+> +	} else if (read_hypervisor_powerpc(desc) > 0) {}
+>  
+>  	/* Xen para-virt or dom0 */
+>  	else if (path_exist(_PATH_PROC_XEN)) {
+
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
