@@ -1,44 +1,83 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:38063 "EHLO
-	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S935410AbcCQJoJ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Thu, 17 Mar 2016 05:44:09 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-	by mailout.nyi.internal (Postfix) with ESMTP id 00BFE206A6
-	for <util-linux@vger.kernel.org>; Thu, 17 Mar 2016 05:44:07 -0400 (EDT)
-Message-Id: <1458207847.751745.551787010.6EE6554F@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: "Util-Linux" <util-linux@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-Subject: cancelling the tests says that they all passed
-Date: Thu, 17 Mar 2016 10:44:07 +0100
+Received: from userp1040.oracle.com ([156.151.31.81]:16451 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753035AbcCRGwf (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 18 Mar 2016 02:52:35 -0400
+From: Dongli Zhang <dongli.zhang@oracle.com>
+To: util-linux@vger.kernel.org, qcai@redhat.com
+Cc: dongli.zhang@oracle.com
+Subject: [PATCH 1/1] lscpu: correct the Virtualization type on Xen DomU PV guest
+Date: Fri, 18 Mar 2016 14:53:24 +0800
+Message-Id: <1458284004-17357-1-git-send-email-dongli.zhang@oracle.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Nowadays, most Intel CPUs have "cpuid faulting" available which could trap
+the execution of "cpuid" instruction when CPL>0  with GP fault. Thus,
+"cpuid" instruction could trap to Xen hypervisor on the paravirtualized PV
+guest on most servers today, except on old CPUs prior to 2011. On CPU after
+2011, Xen will put "XenVMMXenVMM" on both HVM and PV guests, which could
+have lscpu command erroneously classify the guest as type "full".  The
+current lscpu command, which is based on "cpuid" instruction, still assumes
+that it will not cause the trap to Xen hypervisor on Xen PV guest and uses
+/proc/xen to identify whether it's running on PV DomU or not.  To identify
+this kind of information under the help of
+/sys/hypervisor/properties/features would be more accurate for the CPU
+nowadays.  The bit 10 (XENFEAT_hvm_pirqs) of
+/sys/hypervisor/properties/features will be set only when it's running on
+Xen HVM domain.
 
-When one hits ^C when the compilation phase of 'make check'
-finishes and the first tests start executing, the script prints
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+---
+ sys-utils/lscpu.c | 20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
-  All 177 tests PASSED
-
-before aborting.  That... doesn't seem quite right.
-
-
-When I leave the tests to run to completion, it says:
-
-  4 tests of 177 FAILED
-
-The failed ones are these:
-
-         ipcs: mk-rm-shm                                     ... FAILED (ipcs/mk-rm-shm)
-         misc: fallocate                                     ... FAILED (misc/fallocate)
-         misc: swaplabel                                     ... FAILED (misc/swaplabel)
-         misc: ul                                            ... FAILED (misc/ul)
-
-Benno
-
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index 36e36c9..faa86bc 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -73,6 +73,7 @@
+ 
+ /* /sys paths */
+ #define _PATH_SYS_SYSTEM	"/sys/devices/system"
++#define _PATH_SYS_HYP_FEATURES "/sys/hypervisor/properties/features"
+ #define _PATH_SYS_CPU		_PATH_SYS_SYSTEM "/cpu"
+ #define _PATH_SYS_NODE		_PATH_SYS_SYSTEM "/node"
+ #define _PATH_PROC_XEN		"/proc/xen"
+@@ -86,6 +87,9 @@
+ #define _PATH_PROC_DEVICETREE	"/proc/device-tree"
+ #define _PATH_DEV_MEM 		"/dev/mem"
+ 
++/* Xen Domain feature flag used for /sys/hypervisor/properties/features */
++#define XENFEAT_hvm_pirqs	10
++
+ /* virtualization types */
+ enum {
+ 	VIRT_NONE	= 0,
+@@ -811,10 +815,20 @@ read_hypervisor(struct lscpu_desc *desc, struct lscpu_modifier *mod)
+ 			desc->hyper = HYPER_VMWARE;
+ 	}
+ 
+-	if (desc->hyper)
++	if (desc->hyper) {
+ 		desc->virtype = VIRT_FULL;
+-
+-	else if (read_hypervisor_powerpc(desc) > 0) {}
++		if (desc->hyper == HYPER_XEN) {
++			unsigned int features;
++
++			fd = path_fopen("r", 0, _PATH_SYS_HYP_FEATURES);
++			if (fd && fscanf(fd, "%x", &features) == 1) {
++				/* Xen para-virt (or pvh) */
++				if (!(features & (1U << XENFEAT_hvm_pirqs)))
++					desc->virtype = VIRT_PARA;
++				fclose(fd);
++			}
++		}
++	} else if (read_hypervisor_powerpc(desc) > 0) {}
+ 
+ 	/* Xen para-virt or dom0 */
+ 	else if (path_exist(_PATH_PROC_XEN)) {
 -- 
-http://www.fastmail.com - The way an email service should be
+1.9.1
 
