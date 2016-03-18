@@ -1,29 +1,44 @@
-Return-Path: mail@bernhard-voelker.de
-Subject: Re: sfdisk, stderr/stdout output order
-To: Karel Zak <kzak@redhat.com>,
-        =?UTF-8?Q?R=c3=bcdiger_Meier?=
- <sweet_f_a@gmx.de>
-References: <201603101140.50532.sweet_f_a@gmx.de>
- <20160310111605.n2jona662wvbgymh@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:41235 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752429AbcCROih (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 18 Mar 2016 10:38:37 -0400
+Date: Fri, 18 Mar 2016 15:38:35 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
 Cc: util-linux@vger.kernel.org
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Message-ID: <56E17FDC.6010604@bernhard-voelker.de>
-Date: Thu, 10 Mar 2016 15:08:28 +0100
+Subject: Re: [PATCH 0/2] ipcs: more robust and compatible /proc parsing
+Message-ID: <20160318143835.t67nryjbrdn5nz4s@ws.net.home>
+References: <1458301758-21853-1-git-send-email-sweet_f_a@gmx.de>
+ <20160318134822.hx2f5byqrocdoysn@ws.net.home>
+ <201603181503.32657.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-In-Reply-To: <20160310111605.n2jona662wvbgymh@ws.net.home>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201603181503.32657.sweet_f_a@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 03/10/2016 12:16 PM, Karel Zak wrote:
-> On Thu, Mar 10, 2016 at 11:40:50AM +0100, Rüdiger Meier wrote:
->> I've found such test diffs with musl libc. Maybe it needs some fflush(3)
->> calls.
->
->   Yes, good point. I'll fix it.
+On Fri, Mar 18, 2016 at 03:03:32PM +0100, Ruediger Meier wrote:
+> On Friday 18 March 2016, Karel Zak wrote:
+> > On Fri, Mar 18, 2016 at 12:49:16PM +0100, Ruediger Meier wrote:
+> > > From: Ruediger Meier <ruediger.meier@ga-group.nl>
+> > >
+> > > If this looks ok for shm then we could also add similar patches for
+> > > sem and msg.
+> >
+> > Seems good, I'll wait for complete set of the patches, ok?
+> 
+> For msg and sem we don't have compatibility problems or bugs in real 
+> life but only these _potential_ fscanf issues. Not so important for 
+> 2.28.
+> 
+> I would like to do that later in a project wide scanf review but without 
+> hurry.
 
-I don't think you can enforce stdout/stderr to be synchronous.
-Well, you can try with "stdbuf(1)", but only having coreutils >v7.5
-(2009).  Why not check the output of both streams separately?
+ OK, Applied, thanks.
 
-Have a nice day,
-Berny
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
