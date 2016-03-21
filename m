@@ -1,79 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:60912 "EHLO
-	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932644AbcCQSXV (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Thu, 17 Mar 2016 14:23:21 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-	by mailout.nyi.internal (Postfix) with ESMTP id AF77220DD9
-	for <util-linux@vger.kernel.org>; Thu, 17 Mar 2016 14:23:20 -0400 (EDT)
-Message-Id: <1458239000.908653.552257010.7074E741@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:49169 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751842AbcCUJQb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 21 Mar 2016 05:16:31 -0400
+Date: Mon, 21 Mar 2016 10:16:28 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Dongli Zhang <dongli.zhang@oracle.com>
+Cc: util-linux@vger.kernel.org, qcai@redhat.com
+Subject: Re: [PATCH 1/1] lscpu: correct the Virtualization type on Xen DomU
+ PV guest
+Message-ID: <20160321091628.g6qdefltmyl3biiv@ws.net.home>
+References: <de0b877e-622c-4cd8-887b-38713224c01c@default>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: cancelling the tests says that they all passed
-Date: Thu, 17 Mar 2016 19:23:20 +0100
-In-Reply-To: <201603171818.52599.sweet_f_a@gmx.de>
-References: <1458207847.751745.551787010.6EE6554F@webmail.messagingengine.com>
- <201603171350.44094.sweet_f_a@gmx.de>
- <1458233386.879328.552147938.0BC34E2C@webmail.messagingengine.com>
- <201603171818.52599.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <de0b877e-622c-4cd8-887b-38713224c01c@default>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sat, Mar 19, 2016 at 05:03:41AM -0700, Dongli Zhang wrote:
+> 
+> > + Is the file always available (including old XEN versions)? 
+> 
+> This file (/sys/hypervisor/properties/features) has been available since Linux 2.6.31 
+> (drivers/xen/sys-hypervisor.c)
+> 
+> > + There is also path_read_u64() to avoid path_fopen() & fscanf().
+> 
+> I will change to path_read_u64.
+> 
+> 
+> I also made a new flow to detect the Xen virtualization type according to
+> the features on this path to maximize the number of versions of existing
+> Xen and Linux to support. Xen versions from Xen 3.3.0 to the current Xen
+> unstable would be able to help detect PV based on
+> XENFEAT_mmu_pt_update_preserve_ad. Xen versions from Xen 4.4.0 to the
+> newest would be able to help detect PVH (which has been introduced since
+> Xen 4.4.0).
+> 
+> if cpuid returns XenVMMXenVMM
+> 	virtype = full
+> 	if _PATH_SYS_HYP_FEATURES (the file) exists
+> 		if XENFEAT_mmu_pt_update_preserve_ad is set (supported since Xen 3.3.0)
+> 			virtype = para
+> 		else if XENFEAT_supervisor_mode_kernel is set and
+> 				XENFEAT_hvm_callback_vector is set (supported since Xen 4.4.0)
+> 			virtype = para
+> 		end if
+> 	end if
+> end if
+> 
+> Please let me know your feedback and suggestion so that I would send the
+> new patch soon.
 
-On Thu, Mar 17, 2016, at 18:18, Ruediger Meier wrote:
-> Could you show us
-> $ cat /proc/sysvipc/shm
+Looks good, go ahead ;-)
 
-       key      shmid perms       size  cpid  lpid nattch   uid   gid  cuid  cgid      atime      dtime      ctime
-         0     131072  1600     393216  1409   921      2  1000  1000  1000  1000 1458201259          0 1458201259
-         0     163841  1600     393216  1413 19472      2  1000  1000  1000  1000 1458231784 1458231784 1458201259
-         0     196610  1600     393216  1399   921      2  1000  1000  1000  1000 1458201260          0 1458201260
-         0     229379  1600     393216  1399   921      2  1000  1000  1000  1000 1458201260          0 1458201260
-         0     262148  1600     393216  1419  1474      2  1000  1000  1000  1000 1458201262 1458201262 1458201261
-         0     294917  1600     393216  1419  1474      2  1000  1000  1000  1000 1458201262 1458201262 1458201261
-         0     327686  1600     393216  1388   921      2  1000  1000  1000  1000 1458201262          0 1458201262
-         0     360455  1600     393216  1416  2127      2  1000  1000  1000  1000 1458204570 1458204570 1458201265
-         0     393224  1600     393216  1424   921      2  1000  1000  1000  1000 1458201265          0 1458201265
-         0     425993  1600     393216  1490   921      2  1000  1000  1000  1000 1458201268          0 1458201268
-         0     458762  1600     393216  1495   921      2  1000  1000  1000  1000 1458201268          0 1458201268
-         0     491531  1600     393216  1508   921      2  1000  1000  1000  1000 1458201268          0 1458201268
-         0     524300  1600     393216  1497   921      2  1000  1000  1000  1000 1458201268          0 1458201268
-         0     557069  1600     393216  1405 18482      2  1000  1000  1000  1000 1458215908 1458215908 1458201269
-         0     589838  1600     393216  1492   921      2  1000  1000  1000  1000 1458201270          0 1458201270
-         0     622607  1600     393216  1493   921      2  1000  1000  1000  1000 1458201273          0 1458201273
-         0     655376  1600     393216  1496   921      2  1000  1000  1000  1000 1458201274          0 1458201274
-         0     688145  1600     393216  1417   921      2  1000  1000  1000  1000 1458201282          0 1458201282
-         0     720914  1600     393216  1413 19472      2  1000  1000  1000  1000 1458231784 1458231784 1458201449
- -60920149    1081363   644         12 10036     0      0  1000  1000  1000  1000          0          0 1458215137
-         0    1114132  1600     393216  1417   921      2  1000  1000  1000  1000 1458215476          0 1458215476
-
-> Generally I think we should make a statement about "what is the minimum 
-> kernel version" for util-linux.
-
-A statement.  And let the tests check the version and print
-a warning in case it's too old.
-
-> Two years ago I decided for myself that 
-> I should fix bugs for newer kernels first. On the other hand 2.6.32 
-> would have been worth to support because it was officially maintained 
-> from 2009 until last month!
-
-I'm not expecting you to fix things.  It's just nice to put
-things in a harsher environment and see how they hold up.  :)
-
-> I guess the kernel syscall does not return error thus our fallocate 
-> succeed but the file is empty. It's a kernel bug we can't fix. Or 
-> should we add a stat() call to validate the syscall?
-
-That sounds like a good idea: check, and double check.
-
-Benno
+    Karel
 
 -- 
-http://www.fastmail.com - Accessible with your email software
-                          or over the web
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
