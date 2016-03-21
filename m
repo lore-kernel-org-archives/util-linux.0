@@ -1,33 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46232 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.20]:51431 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754735AbcCUUET (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 21 Mar 2016 16:04:19 -0400
-Date: Mon, 21 Mar 2016 21:04:17 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/5] minor cosmetics and build issues for non-Linux
-Message-ID: <20160321200417.cduzdqlpvbtzzs7w@ws.net.home>
-References: <1458565485-27856-1-git-send-email-sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S1755463AbcCUNEt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 21 Mar 2016 09:04:49 -0400
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx102)
+ with ESMTPSA (Nemesis) id 0M7UUd-1ZtS3s1rXD-00xLto for
+ <util-linux@vger.kernel.org>; Mon, 21 Mar 2016 14:04:47 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 4/5] tests: skip ipcs test which require /proc
+Date: Mon, 21 Mar 2016 14:04:44 +0100
+Message-Id: <1458565485-27856-5-git-send-email-sweet_f_a@gmx.de>
 In-Reply-To: <1458565485-27856-1-git-send-email-sweet_f_a@gmx.de>
+References: <1458565485-27856-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Mar 21, 2016 at 02:04:40PM +0100, Ruediger Meier wrote:
->  libmount/python/Makemodule.am |  6 ++++--
->  libmount/python/pylibmount.c  |  2 ++
->  libmount/python/pylibmount.h  |  4 ++++
->  libmount/src/Makemodule.am    |  6 ++++--
->  login-utils/sulogin.c         |  5 +++++
->  sys-utils/ipcs.c              | 16 +++++++++++-----
->  tests/ts/ipcs/functions.sh    |  2 ++
->  7 files changed, 32 insertions(+), 9 deletions(-)
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
- Applied, thanks.
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ tests/ts/ipcs/functions.sh | 2 ++
+ 1 file changed, 2 insertions(+)
 
+diff --git a/tests/ts/ipcs/functions.sh b/tests/ts/ipcs/functions.sh
+index 80c9416..a9cf228 100644
+--- a/tests/ts/ipcs/functions.sh
++++ b/tests/ts/ipcs/functions.sh
+@@ -16,6 +16,8 @@
+ # GNU General Public License for more details.
+ #
+ 
++test -f /proc/sys/kernel/shmall || ts_skip "no /proc"
++
+ PAGE_SIZE=$($TS_HELPER_SYSINFO pagesize)
+ 
+ # kernel files
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4.5
+
