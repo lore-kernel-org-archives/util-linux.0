@@ -1,44 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:34927 "EHLO
-	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932194AbcCMKcC (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 13 Mar 2016 06:32:02 -0400
-Received: by mail-wm0-f67.google.com with SMTP id n205so9980172wmf.2
-        for <util-linux@vger.kernel.org>; Sun, 13 Mar 2016 03:32:01 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mout.gmx.net ([212.227.17.20]:63506 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755505AbcCUNEu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 21 Mar 2016 09:04:50 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 05/10] setsid: fix argument count bug
-Date: Sun, 13 Mar 2016 10:31:44 +0000
-Message-Id: <1457865109-2881-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1457865109-2881-1-git-send-email-kerolasa@iki.fi>
-References: <1457865109-2881-1-git-send-email-kerolasa@iki.fi>
+Cc: Werner Fink <werner@suse.de>
+Subject: [PATCH 3/5] sulogin: ignore missing WEXITED, add warning
+Date: Mon, 21 Mar 2016 14:04:43 +0100
+Message-Id: <1458565485-27856-4-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1458565485-27856-1-git-send-email-sweet_f_a@gmx.de>
+References: <1458565485-27856-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The below demonstrates what happen before this change.
+From: Ruediger Meier <rudi@localhost>
 
-$ setsid --wait
-setsid: child 3252 did not exit normally: Success
+This happens on Debian kFreeBSD and probably on Hurd too since
+cde7699c. One should review this issue to fix it properly.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+CC: Werner Fink <werner@suse.de>
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- sys-utils/setsid.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ login-utils/sulogin.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sys-utils/setsid.c b/sys-utils/setsid.c
-index adc34ec..bb089df 100644
---- a/sys-utils/setsid.c
-+++ b/sys-utils/setsid.c
-@@ -83,7 +83,7 @@ int main(int argc, char **argv)
- 			usage(stderr);
- 		}
+diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
+index b2c778a..c6d17b3 100644
+--- a/login-utils/sulogin.c
++++ b/login-utils/sulogin.c
+@@ -80,6 +80,11 @@ static volatile sig_atomic_t sigchild;
+ # define IUCLC		0
+ #endif
  
--	if (argc < 2)
-+	if (argc - optind < 1)
- 		usage(stderr);
- 
- 	if (getpgrp() == getpid()) {
++#ifndef WEXITED
++# warning "WEXITED is missing, sulogin may not work as expected"
++# define WEXITED 0
++#endif
++
+ static int locked_account_password(const char *passwd)
+ {
+ 	if (passwd && (*passwd == '*' || *passwd == '!'))
 -- 
-2.7.2
+1.8.4.5
 
