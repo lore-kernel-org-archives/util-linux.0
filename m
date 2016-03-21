@@ -1,60 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:59831 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.22]:57825 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753142AbcCQVxB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 17 Mar 2016 17:53:01 -0400
+	id S1755312AbcCUNEt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 21 Mar 2016 09:04:49 -0400
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx102)
+ with ESMTPSA (Nemesis) id 0MACmL-1aWgpb280P-00BJbK for
+ <util-linux@vger.kernel.org>; Mon, 21 Mar 2016 14:04:46 +0100
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH] tests: fix fdisk/bsd for alpha
-Date: Thu, 17 Mar 2016 22:52:49 +0100
-Cc: util-linux@vger.kernel.org
-References: <1458088844-23523-1-git-send-email-sweet_f_a@gmx.de> <201603161627.10907.sweet_f_a@gmx.de> <20160317133341.fwjakpzsdln3oivg@ws.net.home>
-In-Reply-To: <20160317133341.fwjakpzsdln3oivg@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201603172252.49517.sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 1/5] build-sys: some libmount test progs are Linux only
+Date: Mon, 21 Mar 2016 14:04:41 +0100
+Message-Id: <1458565485-27856-2-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1458565485-27856-1-git-send-email-sweet_f_a@gmx.de>
+References: <1458565485-27856-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 17 March 2016, Karel Zak wrote:
-> On Wed, Mar 16, 2016 at 04:27:10PM +0100, Ruediger Meier wrote:
-> > And we could disable setarch's uname26 test because
-> > # glibc requires kernel >= 3.0, thus setarch --uname-2.6 fails
-> > # on platforms without VDSO
->
-> OK, added exception for sparc.
+From: Ruediger Meier <rudi@localhost>
 
-I don't fully understand the real problem. See also this Debian package 
-comment:
- "Apparently glibc does not support 2.6 personality on some
-  architectures when built to require newer kernels (e.g. >= 3.2).
-  See https://bugs.debian.org/806911"
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ libmount/src/Makemodule.am | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Couldn't we tell setarch at build time that uname26 will not work with 
-the used glibc?
+diff --git a/libmount/src/Makemodule.am b/libmount/src/Makemodule.am
+index fd007a4..8c5ef08 100644
+--- a/libmount/src/Makemodule.am
++++ b/libmount/src/Makemodule.am
+@@ -74,7 +74,6 @@ EXTRA_DIST += \
+ if BUILD_LIBMOUNT_TESTS
+ check_PROGRAMS += \
+ 	test_mount_cache \
+-	test_mount_context \
+ 	test_mount_lock \
+ 	test_mount_optstr \
+ 	test_mount_tab \
+@@ -82,8 +81,11 @@ check_PROGRAMS += \
+ 	test_mount_tab_update \
+ 	test_mount_utils \
+ 	test_mount_version \
+-	test_mount_monitor \
+ 	test_mount_debug
++if LINUX
++check_PROGRAMS += test_mount_context
++check_PROGRAMS += test_mount_monitor
++endif
+ 
+ libmount_tests_cflags  = -DTEST_PROGRAM $(libmount_la_CFLAGS) $(NO_UNUSED_WARN_CFLAGS)
+ libmount_tests_ldflags = libblkid.la -static
+-- 
+1.8.4.5
 
-On openSUSE 13.2,arm7vl and on that debian,sparc machine we see this 
-diff:
-
- Switching on STICKY_TIMEOUTS.
- Switching on ADDR_LIMIT_3GB.
- Switching on UNAME26.
--success
-+FATAL: kernel too old
-
-Where does the "FATAL" message come from? Is it printed directly by 
-glibc? If yes then we could use it to skip the test. (Allthough the 
-kernel is not really too old but probably something is too new or just 
-different.)
-
-But on openSUSE 13.2 arm6vl and aarch64 I don't get this last "FATAL" 
-message but a segfault instead! Is there something we could do in 
-setarch to avoid this segfault? (These arm6vl and aarch64 machines seem 
-to run differently as "qemu_user_space_build").
-
-BTW the test works fine on openSUSE 13.1 and 42.1. (newer and older than 
-13.2).
-
-cu,
-Rudi
