@@ -1,61 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from cpsmtpb-ews07.kpnxchange.com ([213.75.39.10]:64682 "EHLO
-	cpsmtpb-ews07.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932400AbcCHJVz (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 8 Mar 2016 04:21:55 -0500
-From: Benno Schulenberg <bensberg@justemail.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 6/9] losetup: correct some formatting in the man page
-Date: Tue,  8 Mar 2016 10:07:49 +0100
-Message-Id: <1457428072-2619-6-git-send-email-bensberg@justemail.net>
-In-Reply-To: <1457428072-2619-1-git-send-email-bensberg@justemail.net>
-References: <1457428072-2619-1-git-send-email-bensberg@justemail.net>
+Received: from mx1.redhat.com ([209.132.183.28]:46641 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753349AbcCVJeW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 22 Mar 2016 05:34:22 -0400
+Date: Tue, 22 Mar 2016 10:34:19 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Dongli Zhang <dongli.zhang@oracle.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH v2 1/1] lscpu: correct the Virtualization type on Xen
+ DomU PV guest
+Message-ID: <20160322093419.hn2ddqd4s2icq6st@ws.net.home>
+References: <df8d39d6-caca-49a0-9173-9e284e2527ac@default>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <df8d39d6-caca-49a0-9173-9e284e2527ac@default>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Benno Schulenberg <bensberg@justemail.net>
----
- sys-utils/losetup.8 |   14 ++++++++------
- 1 files changed, 8 insertions(+), 6 deletions(-)
+On Mon, Mar 21, 2016 at 10:42:55PM -0700, Dongli Zhang wrote:
+> As we discussed that we will use path_read_u64.  However, since
+> path_read_u64 reads an unsigned number but we need to read in hex format, I
+> use path_fopen and fscan instead. The patch first checks if the path does
+> exist.  Otherwise, the code will report error that
+> "/sys/hypervisor/properties/features" does not exist.
 
-diff --git a/sys-utils/losetup.8 b/sys-utils/losetup.8
-index 90fcb9d..dbc9095 100644
---- a/sys-utils/losetup.8
-+++ b/sys-utils/losetup.8
-@@ -1,4 +1,4 @@
--.TH LOSETUP 8 "July 2014" "util-linux" "System Administration"
-+.TH LOSETUP 8 "November 2015" "util-linux" "System Administration"
- .SH NAME
- losetup \- set up and control loop devices
- .SH SYNOPSIS
-@@ -91,20 +91,22 @@ Detach the file or device associated with the specified loop device(s).
- .BR \-D , " \-\-detach\-all"
- Detach all associated loop devices.
- .TP
--.BR "\-\-direct\-io"[\fI=on|off\fR]
--Enable or disable direct I/O for the backing file. The optional argument can be
--\fIon\fR or \fIoff\fR.  If the optional argument is omitted, it defaults to \fIon\fR.
-+.BR \-\-direct\-io [ =on | off ]
-+Enable or disable direct I/O for the backing file.  The optional argument
-+can be either \fBon\fR or \fBoff\fR.  If the argument is omitted, it defaults
-+to \fBon\fR.
- .TP
- .BR \-f , " \-\-find"
- Find the first unused loop device.  If a
- .I file
- argument is present, use the found device as loop device.
- Otherwise, just print its name.
--.IP "\fB\-j, \-\-associated \fIfile\fP"
-+.TP
-+.BR \-j , " \-\-associated " \fIfile
- Show the status of all loop devices associated with the given
- .IR file .
- .TP
--.IP "\fB\-J, \fB\-\-json\fP"
-+.BR \-J , " \-\-json"
- Use JSON format for \fB\-\-list\fP output.
- .TP
- .BR \-l , " \-\-list"
+Ah, now I read this your email. Sooo... I reverted my path_exit()
+from your code. Sorry ;-)
+
+    Karel
+
 -- 
-1.7.0.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
