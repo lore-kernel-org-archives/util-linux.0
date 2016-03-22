@@ -1,40 +1,28 @@
-Return-Path: serge+util-linux@vdboom.org
-Date: Tue, 22 Mar 2016 17:14:36 +0100 (CET)
-From: Serge van den Boom <serge+util-linux@vdboom.org>
-To: Karel Zak <kzak@redhat.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: Subject: Multiple issues with partx
-In-Reply-To: <20160322145033.l6mus2ao7s7272ll@ws.net.home>
-Message-ID: <alpine.BSF.2.00.1603221648410.68855@toad.stack.nl>
-References: <alpine.BSF.2.00.1603151918560.60883@toad.stack.nl> <20160322145033.l6mus2ao7s7272ll@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:49418 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756757AbcCVJwQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 22 Mar 2016 05:52:16 -0400
+Date: Tue, 22 Mar 2016 10:52:15 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Werner Fink <werner@suse.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] Always make echo work after performing getpasswd even if
+ root account is locked
+Message-ID: <20160322095215.bfbgiyrgy3tq6urm@ws.net.home>
+References: <1458639539-3457-1-git-send-email-werner@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1458639539-3457-1-git-send-email-werner@suse.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Thanks. Fast resolution.
+On Tue, Mar 22, 2016 at 10:38:59AM +0100, Werner Fink wrote:
+>  login-utils/sulogin.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 
-On Tue, 22 Mar 2016, Karel Zak wrote:
-> On Tue, Mar 22, 2016 at 01:17:42PM +0100, Serge van den Boom wrote:
-> > 
-> > 4. It is possible to specify a partition by the device name of a
-> >    partition on another block device.
-> > 
-> > The command 'partx /dev/sdb2 /dev/sda' makes no sense, but still
-> > produces output, namely the second partition of /dev/sda.
-> 
->  Fixed,
-> 
->  # partx --show /dev/sdx1 /dev/sdc
->  partx: partition and disk name do not match
+ Applied, thanks.
 
-Strictly speaking, it should be the devices themselves which would need
-to match, not their names. I could create a few symlinks, and
-'partx x0 x' would work, even when x0 and x refer to unrelated devices:
-
-    ln -s /dev/sda x
-    ln -s /dev/sdb2 x0
-
-
-Regards,
-
-Serge
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
