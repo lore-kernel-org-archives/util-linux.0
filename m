@@ -1,44 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:41235 "EHLO mx1.redhat.com"
+Received: from mx2.suse.de ([195.135.220.15]:34166 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752429AbcCROih (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 18 Mar 2016 10:38:37 -0400
-Date: Fri, 18 Mar 2016 15:38:35 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/2] ipcs: more robust and compatible /proc parsing
-Message-ID: <20160318143835.t67nryjbrdn5nz4s@ws.net.home>
-References: <1458301758-21853-1-git-send-email-sweet_f_a@gmx.de>
- <20160318134822.hx2f5byqrocdoysn@ws.net.home>
- <201603181503.32657.sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201603181503.32657.sweet_f_a@gmx.de>
+	id S1753349AbcCVJjH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 22 Mar 2016 05:39:07 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id AD130AB5D
+	for <util-linux@vger.kernel.org>; Tue, 22 Mar 2016 09:39:04 +0000 (UTC)
+From: Werner Fink <werner@suse.de>
+To: util-linux@vger.kernel.org
+Cc: Werner Fink <werner@suse.de>
+Subject: [PATCH] Always make echo work after performing getpasswd even if root account is locked
+Date: Tue, 22 Mar 2016 10:38:59 +0100
+Message-Id: <1458639539-3457-1-git-send-email-werner@suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Mar 18, 2016 at 03:03:32PM +0100, Ruediger Meier wrote:
-> On Friday 18 March 2016, Karel Zak wrote:
-> > On Fri, Mar 18, 2016 at 12:49:16PM +0100, Ruediger Meier wrote:
-> > > From: Ruediger Meier <ruediger.meier@ga-group.nl>
-> > >
-> > > If this looks ok for shm then we could also add similar patches for
-> > > sem and msg.
-> >
-> > Seems good, I'll wait for complete set of the patches, ok?
-> 
-> For msg and sem we don't have compatibility problems or bugs in real 
-> life but only these _potential_ fscanf issues. Not so important for 
-> 2.28.
-> 
-> I would like to do that later in a project wide scanf review but without 
-> hurry.
+If the root account is locked and no password was provided then the terminal
+line is not set back to do echo of the input. This correct a small overlook
+in commit 7ff1162e67164cb4ece19dd809c26272461aa254
 
- OK, Applied, thanks.
+Signed-off-by: Werner Fink <werner@suse.de>
+---
+ login-utils/sulogin.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-    Karel
-
+diff --git login-utils/sulogin.c login-utils/sulogin.c
+index b2c778a..7311ec1 100644
+--- login-utils/sulogin.c
++++ login-utils/sulogin.c
+@@ -739,8 +739,7 @@ quit:
+ 	alarm(0);
+ 	if (tc)
+ 		tcsetattr(fd, TCSAFLUSH, &con->tio);
+-	if (ret && *ret != '\0')
+-		tcfinal(con);
++	tcfinal(con);
+ 	printf("\r\n");
+ out:
+ 	return ret;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.6.2
+
