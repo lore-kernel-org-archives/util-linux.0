@@ -1,57 +1,40 @@
-Return-Path: linux-fsdevel-owner@vger.kernel.org
-Date: Tue, 29 Mar 2016 11:43:08 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Return-Path: serge+util-linux@vdboom.org
+Date: Tue, 22 Mar 2016 17:14:36 +0100 (CET)
+From: Serge van den Boom <serge+util-linux@vdboom.org>
 To: Karel Zak <kzak@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.28-rc2
-Message-ID: <20160329094308.GA3019@var.bordeaux.inria.fr>
-References: <20160329091012.x3qea5ga2qzxqkrw@ws.net.home>
+cc: util-linux@vger.kernel.org
+Subject: Re: Subject: Multiple issues with partx
+In-Reply-To: <20160322145033.l6mus2ao7s7272ll@ws.net.home>
+Message-ID: <alpine.BSF.2.00.1603221648410.68855@toad.stack.nl>
+References: <alpine.BSF.2.00.1603151918560.60883@toad.stack.nl> <20160322145033.l6mus2ao7s7272ll@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160329091012.x3qea5ga2qzxqkrw@ws.net.home>
-Sender: linux-fsdevel-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+Thanks. Fast resolution.
 
-Karel Zak, on Tue 29 Mar 2016 11:10:12 +0200, wrote:
-> The util-linux release v2.28-rc2 is available at
->  
->    http://ftp.kernel.org/pub/linux/utils/util-linux/v2.28
->     
-> Feedback and bug reports, as always, are welcomed.
+On Tue, 22 Mar 2016, Karel Zak wrote:
+> On Tue, Mar 22, 2016 at 01:17:42PM +0100, Serge van den Boom wrote:
+> > 
+> > 4. It is possible to specify a partition by the device name of a
+> >    partition on another block device.
+> > 
+> > The command 'partx /dev/sdb2 /dev/sda' makes no sense, but still
+> > produces output, namely the second partition of /dev/sda.
+> 
+>  Fixed,
+> 
+>  # partx --show /dev/sdx1 /dev/sdc
+>  partx: partition and disk name do not match
 
-The Hurd provides a BSD-compatible interface (thus defines BSD to
-something 1993-ish), but not compatible with more recent BSDs.
-setprogname appeared around 2004 and such. The patch below just detects
-the availability.
+Strictly speaking, it should be the devices themselves which would need
+to match, not their names. I could create a few symlinks, and
+'partx x0 x' would work, even when x0 and x refer to unrelated devices:
 
-Samuel
+    ln -s /dev/sda x
+    ln -s /dev/sdb2 x0
 
 
-diff --git a/configure.ac b/configure.ac
-index 1519c97..9502d84 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -380,6 +380,7 @@ AC_CHECK_FUNCS([ \
- 	qsort_r \
- 	rpmatch \
- 	scandirat \
-+	setprogname \
- 	setresgid \
- 	setresuid \
- 	sched_setattr \
-diff --git a/misc-utils/getopt.c b/misc-utils/getopt.c
-index c4144f6..1efae07 100644
---- a/misc-utils/getopt.c
-+++ b/misc-utils/getopt.c
-@@ -453,7 +453,7 @@ int main(int argc, char *argv[])
- 
- 	if (name) {
- 		argv[optind - 1] = name;
--#if defined (BSD) || defined (__APPLE__)
-+#if (defined (BSD) || defined (__APPLE__)) && defined (HAVE_SETPROGNAME)
- 		setprogname(name);
- #endif
- 	} else
+Regards,
+
+Serge
