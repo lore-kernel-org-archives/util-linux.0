@@ -1,47 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51117 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760332AbcDMLlj (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 13 Apr 2016 07:41:39 -0400
-Date: Wed, 13 Apr 2016 13:41:32 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: Stanislav Brabec <sbrabec@suse.cz>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/3] btrfs-safe implementation of -oloop
-Message-ID: <20160413114132.4udmiqkxqqp5txkp@ws.net.home>
-References: <570D3CC7.5060809@suse.cz>
- <20160413110857.ftvekbq2fnbb2fau@ws.net.home>
- <201604131329.35899.sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201604131329.35899.sweet_f_a@gmx.de>
+Received: from mail-lf0-f66.google.com ([209.85.215.66]:35026 "EHLO
+	mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751723AbcDCIff (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 3 Apr 2016 04:35:35 -0400
+Received: by mail-lf0-f66.google.com with SMTP id c62so17666711lfc.2
+        for <util-linux@vger.kernel.org>; Sun, 03 Apr 2016 01:35:34 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 0/3] pull: chrt fixes
+Date: Sun,  3 Apr 2016 09:35:26 +0100
+Message-Id: <1459672529-2278-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Apr 13, 2016 at 01:29:35PM +0200, Ruediger Meier wrote:
-> > There is nothing like loop devices encryption :-)
-> 
-> openSUSE had cryptoloop before 12.2. But it's not supported anymore.
-> There was also losetup -e:
->        -e, -E, --encryption encryption_type
->               enable data encryption with specified name or number
+Hello,
 
-   /me is sarcastic sometimes :-)  
- 
+This pull request comes a little late to be part of the upcoming release,
+but perhaps at least the two first changes could be included.  If the
+usability improvement is included the new translation string will not going
+to have change being translated by v2.28 gets out.  Other than that this is
+a trival change set.
 
-It wasn't easy to force Suse to sent:
+----------------------------------------------------------------
+The following changes since commit e9cd2e2bd9ec91a0b1050c4aa79555d142985924:
+  libmount: Fix possible NULL dereference in get_btrfs_fs_root() (2016-03-31 11:45:55 +0200)
+are available in the git repository at:
+  git://github.com/kerolasa/lelux-utiliteetit.git chrt
+for you to fetch changes up to cbeda6d13b98cc63abdd15639ff173b3c2bb8dad:
+  chrt: validate priority before trying to use it (2016-04-03 09:26:20 +0100)
+----------------------------------------------------------------
 
-  commit 5cf05c71472bf7230075cbdcd5cd6eb12b1d3654
-  Author: Ludwig Nussel <ludwig.nussel@suse.de>
-  Date:   Tue Sep 11 10:46:11 2012 +0200
+Sami Kerola (3):
+  chrt: make --sched-* short options to require an argument
+  bash-completion: update chrt completion
+  chrt: validate priority before trying to use it
 
-    mount: losetup: remove obsolete encryption support
-
-
-... but I guess we all are happy with it after years.
-
-    Karel
+ bash-completion/chrt | 40 +++++++++++++++++++++++++++-------------
+ schedutils/chrt.c    |  8 ++++++--
+ 2 files changed, 33 insertions(+), 15 deletions(-)
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.8.0
+
