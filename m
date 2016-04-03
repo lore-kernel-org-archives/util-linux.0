@@ -1,48 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53400 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751845AbcDVLW5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 22 Apr 2016 07:22:57 -0400
-Date: Fri, 22 Apr 2016 13:22:55 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/3] btrfs-safe implementation of -oloop
-Message-ID: <20160422112255.idrjikem5u253kh6@ws.net.home>
-References: <570D3CC7.5060809@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <570D3CC7.5060809@suse.cz>
+Received: from mail-lb0-f193.google.com ([209.85.217.193]:33787 "EHLO
+	mail-lb0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752110AbcDCIfi (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 3 Apr 2016 04:35:38 -0400
+Received: by mail-lb0-f193.google.com with SMTP id bc4so16129619lbc.0
+        for <util-linux@vger.kernel.org>; Sun, 03 Apr 2016 01:35:38 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 3/3] chrt: validate priority before trying to use it
+Date: Sun,  3 Apr 2016 09:35:29 +0100
+Message-Id: <1459672529-2278-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1459672529-2278-1-git-send-email-kerolasa@iki.fi>
+References: <1459672529-2278-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Apr 12, 2016 at 08:21:59PM +0200, Stanislav Brabec wrote:
-> As it was discussed in LKML[1], kernel has no way to detect backing
-> file data changes if multiple loop devices have the same backing file.
-> 
-> Exactly this happened if -oloop is used multiple times with the same
-> source.
-> 
-> It could not happen in past, but with introduction of btrfs sub-volumes
-> it has a perfectly legal use cases.
-> 
-> This patch set introduces a new behavior of -oloop:
-> 
-> First check, whether the same backing file with the same offset is
-> already used. If yes, reuse already initialized loop device.
-> 
-> If not, initialize another loop device.
+Earlier message:
 
- Applied, thanks.
+$ chrt -i 1 ls
+chrt: failed to set pid 0's policy: Invalid argument
 
-> - If the same backing file is already used for a loop device with
->   correct offset, but incorrect sizelimit, there is no solution. The
->   current implementation does not check for it.
+basically told 'something failed', while the new one tries to be more
+helpful.
 
- We need a warning/error for this.
+$ chrt -i 1 ls
+chrt: unsupported priority value for the policy: 1: see --max for valid range
 
-    Karel
+Addresses: https://bugs.debian.org/791707
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ schedutils/chrt.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
+diff --git a/schedutils/chrt.c b/schedutils/chrt.c
+index 64a5858..202ce25 100644
+--- a/schedutils/chrt.c
++++ b/schedutils/chrt.c
+@@ -504,7 +504,11 @@ int main(int argc, char **argv)
+ #endif
+ 	if (ctl->pid == -1)
+ 		ctl->pid = 0;
+-
++	if (ctl->priority < sched_get_priority_min(ctl->policy) ||
++	    sched_get_priority_max(ctl->policy) < ctl->priority)
++		errx(EXIT_FAILURE,
++		     _("unsupported priority value for the policy: %d: see --max for valid range"),
++		     ctl->priority);
+ 	set_sched(ctl);
+ 
+ 	if (ctl->verbose)
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.8.0
+
