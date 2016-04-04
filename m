@@ -1,69 +1,76 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:62857 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751153AbcDFOEB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 6 Apr 2016 10:04:01 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH 1/2] libuuid: remove HAVE_UUIDD
-Date: Wed, 6 Apr 2016 15:03:42 +0100
-Cc: util-linux@vger.kernel.org
-References: <1459939867-20719-1-git-send-email-sweet_f_a@gmx.de> <201604061355.59565.sweet_f_a@gmx.de> <20160406122220.24mkbuz3rrkyuqza@ws.net.home>
-In-Reply-To: <20160406122220.24mkbuz3rrkyuqza@ws.net.home>
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201604061603.42976.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <201604041107.12672.sweet_f_a@gmx.de>
+References: <1459672529-2278-1-git-send-email-kerolasa@iki.fi>
+	<20160404002100.eqclqk2rqbttbued@ws.net.home>
+	<20160404082749.tqyzkgyba2ed77kr@ws.net.home>
+	<201604041107.12672.sweet_f_a@gmx.de>
+Date: Mon, 4 Apr 2016 15:43:23 +0100
+Message-ID: <CAG27Bk3r9kEX+83wxXaSGyZ8driZgKO+0mESd7hD+tCkY8TGsA@mail.gmail.com>
+Subject: Re: [PATCH 1/3] chrt: make --sched-* short options to require an argument
+From: Sami Kerola <kerolasa@iki.fi>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 06 April 2016, Karel Zak wrote:
-> On Wed, Apr 06, 2016 at 12:55:58PM +0100, Ruediger Meier wrote:
-> > On Wednesday 06 April 2016, Karel Zak wrote:
-> > > > -#if defined(HAVE_UUIDD) && defined(HAVE_SYS_UN_H)
-> > > > +#ifdef HAVE_SYS_UN_H
-> > >
-> > >  So you want uuidd stuff in libuuid although --disable-uuidd has
-> > > been specified? Why?
-> >
-> > Same reason like for the 2nd patch. openSUSE packagers want do
-> > disable uuidd in the "first stage build" because of systemd
-> > dependency. But they still want full functionality in libbuuid.
-> > They build uuidd later in "stage 2".
-> >
-> > Personally I don't like this openSUSE packaging style. But I see
-> > the
+On 4 April 2016 at 10:07, Ruediger Meier <sweet_f_a@gmx.de> wrote:
+> On Monday 04 April 2016, Karel Zak wrote:
+>> On Mon, Apr 04, 2016 at 02:21:00AM +0200, Karel Zak wrote:
+>> > On Sun, Apr 03, 2016 at 09:35:27AM +0100, Sami Kerola wrote:
+>> > > These options are expecting an argument, and the long options
+>> > > struct already required them.
+>> >
+>> >  Good catch, but deadline and runtime should be optional arguments
+>> > (it seems I have merged wrong version of my patch:-(
+>>
+>> Sorry, didn't read the patch correctly. You're right. Applied,
+>> thanks.
 >
-> Hmm... I thought they rebuild entire package two times with a
-> different configure options and the last build (2nd stage) is the
-> final package used for distribution.
->
-> Why they need fully functional libbuuid in 1st stage?
->
-> It sounds like premature optimization if they want to avoid whole
-> package rebuild in 2nd stage and the final rpm is created from two
-> independent builds (1st + 2nd stage). That's crazy.
->
-> > general problem that util-linux as a bunch of low-level tools has
-> > already too much dependencies (systemd, python). This can be
-> > annoying for certain ways how distros do their bootstrapping.
->
-> The dependence are optional, if you avoid crazy creativity in build
-> process than bootstrapping is pretty simple.
+> BTW I like the coreutils convention that new options with optional
+> arguments should be long options only. This is less confusing for the
+> users.
 
-I know. The suse spec file looks even more crazy because they try to 
-build stage 2 against already installed libmount, libblkid, etc.
+Makes sense, and if Karel agrees Documentation/* files need updating.
 
-As far as i understood they try to avoid a "real" bootstrapping and 
-simply rebuild all packages again and again until nothing changes 
-anymore (reproducible builds). Because this needs a lot of builds they 
-try hard to remove as many as possible deps from the low-level packages 
-like util-linux. In this case they decided to split util-linux to not 
-cause rebuilds of other packages in case of systemd update. The python 
-stuff is even later built in a "stage 3" ...
+BTW the debian bug 791707 that was the reason why I even started to look
+chrt is pretty good indication the command is not easy to use or understand.
+To me the command is pretty unintuitive, for example
 
-As already said, personally I don't like this suse way. These both 
-patches are just to make the suse spec file at least a bit less ugly.
+$ chrt --pid --rt 0 foobar $$
 
-cu,
-Rudi
+is perfectly OK way to change scheduling policy of the running shell, and
+foobar is ignored.  I don't quite understand why the --pid makes only the
+last argument to be used, while it could use all arguments the getopts() did
+eat.  But even so the interface stays quirky as the argument order is
+
+$ chrt <options> <priority> <target>
+
+for example
+
+$ chrt --pid 0 $$
+
+But fixing that cannot be done without breaking ABI, and such change cannot
+be approved.  So should the util-linux v2.29 (or perhaps v3.0 as the numbers
+are getting a bit large) have new tools:
+
+$ rtctl
+$ lsrt
+
+Where the former has expected interface using options as people normally see
+them.  For example:
+
+$ rtctl --priority 0 --policy rt --exec 'ls /etc' --pid $$
+
+In above --exec or --pid can be used more than once, but 'settings' type options
+should not be allowed more than one instance to avoid confusions.
+
+And 'lsrt' would be for displaying the stuff rtctl is controlling.
+
+Comments?
+
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
