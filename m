@@ -1,61 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from h2.hallyn.com ([78.46.35.8]:36316 "EHLO h2.hallyn.com"
+Received: from mout.gmx.net ([212.227.15.19]:57899 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753607AbcD2PxF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 29 Apr 2016 11:53:05 -0400
-Date: Fri, 29 Apr 2016 10:53:03 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: "W. Trevor King" <wking@tremily.us>,
-        Linux Containers <containers@lists.linux-foundation.org>,
-        systemd-devel@lists.freedesktop.org, util-linux@vger.kernel.org
-Subject: Re: Unprivileged containers and co-ordinating user namespaces
-Message-ID: <20160429155303.GA8900@mail.hallyn.com>
-References: <1461880928.2307.48.camel@HansenPartnership.com>
- <20160428230045.GS22888@odin.tremily.us>
- <1461944328.2311.10.camel@HansenPartnership.com>
+	id S1751314AbcDFRkd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 6 Apr 2016 13:40:33 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Isaac Dunham <ibid.ag@gmail.com>
+Subject: Re: [PATCH 1/2] tests: test_md5 prints md5sum only
+Date: Wed, 6 Apr 2016 18:40:21 +0100
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+References: <1459938618-20153-1-git-send-email-sweet_f_a@gmx.de> <201604061433.59553.sweet_f_a@gmx.de> <20160406164054.GA5851@newbook>
+In-Reply-To: <20160406164054.GA5851@newbook>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1461944328.2311.10.camel@HansenPartnership.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201604061940.22739.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Quoting James Bottomley (James.Bottomley@HansenPartnership.com):
-> On Thu, 2016-04-28 at 16:00 -0700, W. Trevor King wrote:
-> > On Thu, Apr 28, 2016 at 03:02:08PM -0700, James Bottomley wrote:
-> > > /etc/usernamespaces
-> > > 
-> > > and the format be :::
-> > > 
-> > > …
-> > > 
-> > > If this sounds OK to people, I can code up a utility that does this,
-> > > which should probably belong in util-linux.
-> > 
-> > This sounds a lot like shadow's newuidmap and newgidmap [1,2,3].
-> > 
-> > Cheers,
-> > Trevor
-> > 
-> > [1]: https://github.com/shadow-maint/shadow/commit/673c2a6f9aa6c69588f4c1be08589b8d3475a520
-> > [2]: http://man7.org/linux/man-pages/man1/newuidmap.1.html
-> > [3]: http://man7.org/linux/man-pages/man5/subuid.5.html
-> 
-> I think that mostly works.  No-one's packaging it yet, which is why I
+On Wednesday 06 April 2016, Isaac Dunham wrote:
+> On Wed, Apr 06, 2016 at 01:33:58PM +0100, Ruediger Meier wrote:
+> > On Wednesday 06 April 2016, Karel Zak wrote:
+> > > On Wed, Apr 06, 2016 at 12:30:17PM +0200, Ruediger Meier wrote:
+> > > > We want to to use it for other tests without depending on
+> > > > gnu md5sum and without cut or awk.
+> > >
+> > > It does not seem like anything critical, both patches applied to
+> > > the next branch (will be in v2.29). Thanks.
+> >
+> > That's ok. These patches do not fix any existing problem yet. They
+> > are just one minor step to remove coreutils dependency from out
+> > tests. We would still need to fix usage of readlink, seq and
+> > truncate.
+>
+> Is this for the sake of something where you cannot expect *any*
+> coreutils-equivalent to be installed?
+> If you can't expect that, can you expect the build scripts to work?
 
-https://packages.debian.org/jessie/uidmap
-https://launchpad.net/ubuntu/yakkety/+package/uidmap
-http://rpm.pbone.net/index.php3/stat/45/idpl/28763248/numer/1/nazwa/newuidmap
+Yes, autoconf/automake/libtool generate highly portable shell scripts. 
+For example the configure script even checks whether there is a 
+thread-safe "mkdir -p" available or what kind of sed is installed.
 
-> didn't notice.  It also looks like the build dependencies have vastly
-> expanded, so I can't get it to build in the build service yet.
-> 
-> It looks like the only addition it needs is the setgroups flag for
-> newgidmap, which the security people will need, so I can patch that. 
->  Plus it's trying to install newgidmap/newuidmap as setuid root rather
-> than cap_setuid/cap_setgid, but that's fixable in the spec file.
+The only problems are usually caused by hand-written scripts like shell 
+snippets in Makefile.am or our test scripts ;)
 
-That would prevent it being installed inside user namespaces, until
-the user namespaced file capabilities (see separate thread :) hit.
+Our tests depend on GNU extensions for md5sum, readlink, seq, truncate, 
+find,  xargs, tar, sed and the shell has to be bash. That's all not 
+critical but at least nice to be fixed if it doesn't make our scripts 
+too ugly. 
 
--serge
+> I ask because md5sum, seq, and readlink are included in every set of
+> base utilities I'm aware of, including coreutils, busybox, toybox,
+> and even sbase (the 'suckless' base utilities).
+> That said, seq and md5sum are only specified in the LSB, and readlink
+> isn't even there.
+
+md5sum is special. It's not Posix and not available or completely 
+different on non-Linux systems.
+
+About seq, readlink and truncate: our test-suite is using non-portable 
+GNU extenstions. I guess it would not run with busybox. You can 
+similate that even with coreutils:
+
+$ POSIXLY_CORRECT=1 make check
+
+I you feel boring you may try to fix some of the mentioned GNUisms ;)
+
+cu,
+Rudi
