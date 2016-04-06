@@ -1,77 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:48570 "EHLO mx2.suse.de"
+Received: from mout.gmx.net ([212.227.17.20]:51673 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932222AbcDLSWB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 12 Apr 2016 14:22:01 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 1C66DAC13
-	for <util-linux@vger.kernel.org>; Tue, 12 Apr 2016 18:21:59 +0000 (UTC)
+	id S1751660AbcDFKvL (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 6 Apr 2016 06:51:11 -0400
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx101)
+ with ESMTPSA (Nemesis) id 0LhB9P-1bZjFz1Ssx-00oUxe for
+ <util-linux@vger.kernel.org>; Wed, 06 Apr 2016 12:51:08 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-From: Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH 0/3] btrfs-safe implementation of -oloop
-Message-ID: <570D3CC7.5060809@suse.cz>
-Date: Tue, 12 Apr 2016 20:21:59 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2; format=flowed
+Subject: [PATCH 1/2] libuuid: remove HAVE_UUIDD
+Date: Wed,  6 Apr 2016 12:51:06 +0200
+Message-Id: <1459939867-20719-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-As it was discussed in LKML[1], kernel has no way to detect backing
-file data changes if multiple loop devices have the same backing file.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Exactly this happened if -oloop is used multiple times with the same
-source.
+configure --disable-uuidd disabled both the build of uuidd and also
+disabled uuidd support of libuuid.
 
-It could not happen in past, but with introduction of btrfs sub-volumes
-it has a perfectly legal use cases.
+Now we build libuuid always with uuidd support. We could add another
+configure switch --without-uuidd to have the old behavior but IMO
+there is no need for that.
 
-This patch set introduces a new behavior of -oloop:
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ configure.ac           | 3 ---
+ libuuid/src/gen_uuid.c | 4 ++--
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
-First check, whether the same backing file with the same offset is
-already used. If yes, reuse already initialized loop device.
-
-If not, initialize another loop device.
-
-There are some controversial things with these patches. Some of them
-cannot be fixed.
-
-- Kernel never returns EBUSY for LOOP_CLR_FD. It prevents errors when
-   mount will steal other's loop device. But I am not sure, whether it
-   will work correctly in all possible situations. Anyway, I don't see a
-   better solution.
-
-- If the same backing file is already used for a read-only loop device,
-   there is no safe way to continue.
-   - There is no way to turn R/O loop to R/W in kernel.
-   - If another loop is initialized, changes will not propagate to R/O
-     volume.
-   - One would need to umount all R/O devices, initialize loop R/W, and
-     then everything mount again.
-   I can imagine partial solution: Introduce looprw option. Such option
-   would cause to initialize loop device R/W even for R/O mount.
-
-- If the same backing file is already used for a loop device with
-   correct offset, but incorrect sizelimit, there is no solution. The
-   current implementation does not check for it.
-
-- There exists a change for a race condition between device lookup and
-   mount syscall.
-
-- The implementation does not check for crypto. I think it is not a big
-   problem, as it makes no sense to initialize the same backing file as
-   encrypted and non-encrypted at once.
-
-References:
-[1] https://lkml.org/lkml/2016/2/26/897
-
+diff --git a/configure.ac b/configure.ac
+index 7efe5e5..82eb8db 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1083,9 +1083,6 @@ UL_BUILD_INIT([uuidd])
+ UL_REQUIRES_BUILD([uuidd], [libuuid])
+ UL_REQUIRES_HAVE([uuidd], [timer], [timer_create function])
+ UL_REQUIRES_HAVE([uuidd], [sys_signalfd_h], [sys/signalfd.h header])
+-AS_IF([test "x$build_uuidd" = xyes], [
+-  AC_DEFINE([HAVE_UUIDD], [1], [Define to 1 if you want to use uuid daemon.])
+-])
+ AM_CONDITIONAL([BUILD_UUIDD], [test "x$build_uuidd" = xyes])
+ 
+ 
+diff --git a/libuuid/src/gen_uuid.c b/libuuid/src/gen_uuid.c
+index f9a937c..4fb9430 100644
+--- a/libuuid/src/gen_uuid.c
++++ b/libuuid/src/gen_uuid.c
+@@ -329,7 +329,7 @@ try_again:
+ 	return ret;
+ }
+ 
+-#if defined(HAVE_UUIDD) && defined(HAVE_SYS_UN_H)
++#ifdef HAVE_SYS_UN_H
+ 
+ /*
+  * Try using the uuidd daemon to generate the UUID
+@@ -392,7 +392,7 @@ fail:
+ 	return -1;
+ }
+ 
+-#else /* !defined(HAVE_UUIDD) && defined(HAVE_SYS_UN_H) */
++#else /* HAVE_SYS_UN_H */
+ static int get_uuid_via_daemon(int op, uuid_t out, int *num)
+ {
+ 	return -1;
 -- 
-Best Regards / S pozdravem,
+1.8.4.5
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
