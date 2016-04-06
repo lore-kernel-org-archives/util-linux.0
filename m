@@ -1,63 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40842 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.22]:61146 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752788AbcDSJSx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 19 Apr 2016 05:18:53 -0400
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.redhat.com (Postfix) with ESMTPS id A1B0D201E8
-	for <util-linux@vger.kernel.org>; Tue, 19 Apr 2016 09:18:52 +0000 (UTC)
-Received: from ws (ovpn-204-89.brq.redhat.com [10.40.204.89])
-	by int-mx11.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id u3J9IpjU015269
-	for <util-linux@vger.kernel.org>; Tue, 19 Apr 2016 05:18:52 -0400
-Date: Tue, 19 Apr 2016 11:18:51 +0200
-From: Karel Zak <kzak@redhat.com>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] libblkid: make blkid_do_wipe() work with probes with
- offset
-Message-ID: <20160419091851.nzetsxvea7klztbm@ws.net.home>
-References: <1460989325-28748-1-git-send-email-petr.uzel@suse.cz>
- <20160418180018.wgjfgaule76mcfyb@ws.net.home>
- <20160419090502.GA20078@skipper.site>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160419090502.GA20078@skipper.site>
+	id S1750792AbcDFNnN (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 6 Apr 2016 09:43:13 -0400
+Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx102)
+ with ESMTPSA (Nemesis) id 0Lkzph-1bLldp3t37-00aijg for
+ <util-linux@vger.kernel.org>; Wed, 06 Apr 2016 15:43:09 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH v2 1/2] build-sys: add --enable-libuuid-force-uuidd
+Date: Wed,  6 Apr 2016 15:43:07 +0200
+Message-Id: <1459950187-29394-1-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <20160406122220.24mkbuz3rrkyuqza@ws.net.home>
+References: <20160406122220.24mkbuz3rrkyuqza@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Apr 19, 2016 at 11:05:02AM +0200, Petr Uzel wrote:
-> On Mon, Apr 18, 2016 at 08:00:18PM +0200, Karel Zak wrote:
-> > On Mon, Apr 18, 2016 at 04:22:05PM +0200, Petr Uzel wrote:
-> > > When a probe is created with an offset, e.g. via
-> > > blkid_probe_set_device(), this offset is correctly used when looking for
-> > > the signatures, but is not respected by blkid_do_wipe() function.
-> > > Therefore the signature is removed from an invalid location.
-> > 
-> > Wow, excellent catch. 
-> 
-> Thanks, feels good to again contribute a fix after such a long time :)
-> 
-> > How did you found it? Do you use libblkid in some partitioning tool or
-> > installer?
-> 
-> Yes, I'm trying to implement a --wipesignatures for parted - this
-> would wipe the signatures from a new partition, _before_ the kernel
-> is informed. This is to avoid mess like RAID autoassembly...
-> 
-> [If only there was some sane mechanism lock a device to temporarily
-> prevent udev from touching it :/]
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-since v2.28 fdisk wipes disks (--wipe=auto,always,never), but it does
-not care about partitions. 
+To build libuuid with uuidd support even though the daemon is
+disabled (--disable-uuidd).
 
-Maybe we can improve it and add --wipe-partitions too. IMHO it should
-not be enabled by default, because change disk layout and keep
-filesystems seems like a valid use-case.
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ configure.ac | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-    Karel
-
-
+diff --git a/configure.ac b/configure.ac
+index e42a2c4..cdd9ad6 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -910,6 +910,11 @@ AC_SUBST([LIBUUID_VERSION])
+ AC_SUBST([LIBUUID_VERSION_INFO])
+ AM_CONDITIONAL(BUILD_LIBUUID, test "x$build_libuuid" = xyes)
+ 
++AC_ARG_ENABLE([libuuid-force-uuidd],
++  AS_HELP_STRING([--enable-libuuid-force-uuidd], [support uuidd even though the daemon is not built]),
++  [], [enable_libuuid_force_uuidd=no]
++)
++
+ AS_IF([test "x$build_libuuid" = xyes], [
+   AC_DEFINE(HAVE_LIBUUID, 1, [Define to 1 if you have the -luuid.])
+ ])
+@@ -1084,7 +1089,7 @@ UL_BUILD_INIT([uuidd])
+ UL_REQUIRES_BUILD([uuidd], [libuuid])
+ UL_REQUIRES_HAVE([uuidd], [timer], [timer_create function])
+ UL_REQUIRES_HAVE([uuidd], [sys_signalfd_h], [sys/signalfd.h header])
+-AS_IF([test "x$build_uuidd" = xyes], [
++AS_IF([test "x$build_uuidd" = xyes || test "x$enable_libuuid_force_uuidd" == xyes ], [
+   AC_DEFINE([HAVE_UUIDD], [1], [Define to 1 if you want to use uuid daemon.])
+ ])
+ AM_CONDITIONAL([BUILD_UUIDD], [test "x$build_uuidd" = xyes])
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4.5
+
