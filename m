@@ -1,50 +1,74 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from connie.slackware.com ([64.57.102.36]:39816 "EHLO
-	connie.slackware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750782AbcDKEwL (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 11 Apr 2016 00:52:11 -0400
-Date: Sun, 10 Apr 2016 21:35:41 -0700 (PDT)
-From: Robby Workman <rworkman@slackware.com>
-To: util-linux@vger.kernel.org
-cc: kzak@redhat.com
-Subject: Re: v2.29 plan: kill mtab
-Message-ID: <alpine.LNX.2.02.1604071350320.22605@connie.slackware.com>
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Isaac Dunham <ibid.ag@gmail.com>
+Subject: Re: [PATCH 1/2] tests: test_md5 prints md5sum only
+Date: Wed, 6 Apr 2016 23:11:15 +0200
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+References: <1459938618-20153-1-git-send-email-sweet_f_a@gmx.de> <20160406164054.GA5851@newbook> <201604061940.22739.sweet_f_a@gmx.de>
+In-Reply-To: <201604061940.22739.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201604062311.15801.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
+On Wednesday 06 April 2016, Ruediger Meier wrote:
+> On Wednesday 06 April 2016, Isaac Dunham wrote:
+> > On Wed, Apr 06, 2016 at 01:33:58PM +0100, Ruediger Meier wrote:
+> > > On Wednesday 06 April 2016, Karel Zak wrote:
+> > > > On Wed, Apr 06, 2016 at 12:30:17PM +0200, Ruediger Meier wrote:
+> > > > > We want to to use it for other tests without depending on
+> > > > > gnu md5sum and without cut or awk.
+> > > >
+> > > > It does not seem like anything critical, both patches applied
+> > > > to the next branch (will be in v2.29). Thanks.
+> > >
+> > > That's ok. These patches do not fix any existing problem yet.
+> > > They are just one minor step to remove coreutils dependency from
+> > > out tests. We would still need to fix usage of readlink, seq and
+> > > truncate.
+> >
+> > Is this for the sake of something where you cannot expect *any*
+> > coreutils-equivalent to be installed?
+> > If you can't expect that, can you expect the build scripts to work?
+>
+> Yes, autoconf/automake/libtool generate highly portable shell
+> scripts. For example the configure script even checks whether there
+> is a thread-safe "mkdir -p" available or what kind of sed is
+> installed.
+>
+> The only problems are usually caused by hand-written scripts like
+> shell snippets in Makefile.am or our test scripts ;)
+>
+> Our tests depend on GNU extensions for md5sum, readlink, seq,
+> truncate, find,  xargs, tar, sed and the shell has to be bash. That's
+> all not critical but at least nice to be fixed if it doesn't make our
+> scripts too ugly.
+>
+> > I ask because md5sum, seq, and readlink are included in every set
+> > of base utilities I'm aware of, including coreutils, busybox,
+> > toybox, and even sbase (the 'suckless' base utilities).
+> > That said, seq and md5sum are only specified in the LSB, and
+> > readlink isn't even there.
+>
+> md5sum is special. It's not Posix and not available or completely
+> different on non-Linux systems.
 
-> libmount supports three scenarios:
-> 
-> 1) regular classic /etc/mtab
->
-> 2) /etc/mtab symlink to /proc/self/mount -- in this case libmount uses
->    /proc/self/mountinfo and /run/mount/utab
->
-> The current default is to detect symlink and on-the-fly switch
-> between 1) and 2).
->
-> 3) --enable-libmount-force-mountinfo -- don't care about the symlink
->    and always use /proc/self/mountinfo. This is robust solution required
->    for example by systemd, because unfortunately sometimes people use
->    broken stuff (init scripts, tools, etc.) which removes the symlink.
->
->
-> I'd like to make 3) default, the question is what with mtab code:
->
->    a) #ifdef all mtab code (and add --enable-libmount-support-mtab)
->
->    b) remove mtab support at all (because it's evil and horrible code)
->
-> Comments?
+Just to clarify. I wouldn't have done this patch like this for other 
+projects but here in util-linux we have our own (portable) test_md5 
+already since 2008. So why not using it to avoid one more GNUism!
 
-
-We still use SysV init because it suits our needs just fine, and we
-have no plans to migrate to systemd in the foreseeable future, so
-we don't have any other compelling reason to use anything other than
-classic /etc/mtab. As such, we'd certainly appreciate, at the very
-least, leaving the mtab support in util-linux.
-
--RW
+> About seq, readlink and truncate: our test-suite is using
+> non-portable GNU extenstions. I guess it would not run with busybox.
+> You can similate that even with coreutils:
+>
+> $ POSIXLY_CORRECT=1 make check
+>
+> I you feel boring you may try to fix some of the mentioned GNUisms ;)
+>
+> cu,
+> Rudi
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
