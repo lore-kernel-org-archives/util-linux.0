@@ -1,48 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37021 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:59448 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751876AbcDRLWZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 18 Apr 2016 07:22:25 -0400
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.redhat.com (Postfix) with ESMTPS id D85C0C049D7F
-	for <util-linux@vger.kernel.org>; Mon, 18 Apr 2016 11:22:24 +0000 (UTC)
-Received: from ws (ovpn-204-89.brq.redhat.com [10.40.204.89])
-	by int-mx11.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id u3IBMNH5017063
-	for <util-linux@vger.kernel.org>; Mon, 18 Apr 2016 07:22:24 -0400
-Date: Mon, 18 Apr 2016 13:22:23 +0200
-From: Karel Zak <kzak@redhat.com>
+	id S1754540AbcDFHQQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 6 Apr 2016 03:16:16 -0400
+Received: from tenfore.ga-group.nl ([2.247.82.193]) by mail.gmx.com (mrgmx101)
+ with ESMTPSA (Nemesis) id 0MdnN3-1bB8G80lq9-00Pegu for
+ <util-linux@vger.kernel.org>; Wed, 06 Apr 2016 09:16:13 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: Re: libmount python bindings and header includes
-Message-ID: <20160418112223.shsjbjwfmfqimnai@ws.net.home>
-References: <20160412174653.GA6588@vapier.lan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160412174653.GA6588@vapier.lan>
+Subject: [PATCH 2/3] tests: fix fdisk/bsd for hppa
+Date: Wed,  6 Apr 2016 09:16:10 +0200
+Message-Id: <1459926971-26313-2-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1459926971-26313-1-git-send-email-sweet_f_a@gmx.de>
+References: <1459926971-26313-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Apr 12, 2016 at 01:46:53PM -0400, Mike Frysinger wrote:
-> i'm currently seeing these build warnings:
-> libmount/python/fs.c:110:40: warning: implicit declaration of function 'major'
-> libmount/python/fs.c:111:7: warning: implicit declaration of function 'minor'
-> 
-> this is handled for most of the code in include/c.h:
-> #ifdef HAVE_SYS_SYSMACROS_H
-> # include <sys/sysmacros.h>     /* for major, minor */
-> #endif
-> 
-> but the python code doesn't include that header.  i'm not sure what the
-> preference is here (make the python code pull in that header or just copy
-> over the sysmacros.h logic), so i'm skipping writing a patch.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Our c.h is so wonderful that it's expected everywhere :) Fixed.
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ tests/ts/fdisk/bsd | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Thanks!
-    Karel
-
-
+diff --git a/tests/ts/fdisk/bsd b/tests/ts/fdisk/bsd
+index 8d2e762..19e999b 100755
+--- a/tests/ts/fdisk/bsd
++++ b/tests/ts/fdisk/bsd
+@@ -46,7 +46,8 @@ BYTE_ORDER=$($TS_HELPER_SYSINFO byte-order)
+ # and also on arch-specific offset (see include/pt-bsd.h)
+ ARCH=$(uname -m)
+ case $ARCH in
+-	*ppc* | *alpha* | *ia64*) 
++	# see include/pt-bsd.h
++	*alpha* | *ppc* | *ia64* | *hppa* )
+ 		BSD_LABELSECTOR=0
+ 		BSD_LABELOFFSET=64 
+ 		;;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.4.5
+
