@@ -1,74 +1,79 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from resqmta-po-07v.sys.comcast.net ([96.114.154.166]:56130 "EHLO
-	resqmta-po-07v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752501AbcD1XI6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Thu, 28 Apr 2016 19:08:58 -0400
-Date: Thu, 28 Apr 2016 16:00:46 -0700
-From: "W. Trevor King" <wking@tremily.us>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: Linux Containers <containers@lists.linux-foundation.org>,
-        util-linux@vger.kernel.org, systemd-devel@lists.freedesktop.org
-Subject: Re: Unprivileged containers and co-ordinating user namespaces
-Message-ID: <20160428230045.GS22888@odin.tremily.us>
-References: <1461880928.2307.48.camel@HansenPartnership.com>
+Received: from mx1.redhat.com ([209.132.183.28]:36473 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752485AbcDFMWW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 6 Apr 2016 08:22:22 -0400
+Date: Wed, 6 Apr 2016 14:22:20 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/2] libuuid: remove HAVE_UUIDD
+Message-ID: <20160406122220.24mkbuz3rrkyuqza@ws.net.home>
+References: <1459939867-20719-1-git-send-email-sweet_f_a@gmx.de>
+ <20160406113552.6nrd4xnqjjrwqbrc@ws.net.home>
+ <201604061355.59565.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="A/Qc/oxTFhy3MK1v"
-In-Reply-To: <1461880928.2307.48.camel@HansenPartnership.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201604061355.59565.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wed, Apr 06, 2016 at 12:55:58PM +0100, Ruediger Meier wrote:
+> On Wednesday 06 April 2016, Karel Zak wrote:
+> > > -#if defined(HAVE_UUIDD) && defined(HAVE_SYS_UN_H)
+> > > +#ifdef HAVE_SYS_UN_H
+> >
+> >  So you want uuidd stuff in libuuid although --disable-uuidd has been
+> >  specified? Why?
+> 
+> Same reason like for the 2nd patch. openSUSE packagers want do disable 
+> uuidd in the "first stage build" because of systemd dependency. But 
+> they still want full functionality in libbuuid. They build uuidd later 
+> in "stage 2".
+> 
+> Personally I don't like this openSUSE packaging style. But I see the 
 
---A/Qc/oxTFhy3MK1v
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hmm... I thought they rebuild entire package two times with a
+different configure options and the last build (2nd stage) is the
+final package used for distribution. 
 
-On Thu, Apr 28, 2016 at 03:02:08PM -0700, James Bottomley wrote:
-> /etc/usernamespaces
->=20
-> and the format be <user>:<start>:<length>:<flags>
->
-> =E2=80=A6
->=20
-> If this sounds OK to people, I can code up a utility that does this,
-> which should probably belong in util-linux.
+Why they need fully functional libbuuid in 1st stage?
 
-This sounds a lot like shadow's newuidmap and newgidmap [1,2,3].
+It sounds like premature optimization if they want to avoid whole
+package rebuild in 2nd stage and the final rpm is created from two
+independent builds (1st + 2nd stage). That's crazy.
 
-Cheers,
-Trevor
+> general problem that util-linux as a bunch of low-level tools has 
+> already too much dependencies (systemd, python). This can be annoying 
+> for certain ways how distros do their bootstrapping.
 
-[1]: https://github.com/shadow-maint/shadow/commit/673c2a6f9aa6c69588f4c1be=
-08589b8d3475a520
-[2]: http://man7.org/linux/man-pages/man1/newuidmap.1.html
-[3]: http://man7.org/linux/man-pages/man5/subuid.5.html
+The dependence are optional, if you avoid crazy creativity in build
+process than bootstrapping is pretty simple.
 
---=20
-This email may be signed or encrypted with GnuPG (http://www.gnupg.org).
-For more information, see http://en.wikipedia.org/wiki/Pretty_Good_Privacy
+> >  The --disable-uuidd is (or should be) pretty common for desktop-only
+> >  distros.
+> 
+> I thought why shouldn't libbuuid always try the uuidd socket? Like glibc 
+> always tries nscd, regardless if that evil beast is running or not. 
 
---A/Qc/oxTFhy3MK1v
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
+Yes, this is possible way. The problem is that uuidd is necessary for
+0.01% of all Linux boxes ;-) 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+It would be probably better to disable it by default and require 
+--enable-uuidd for Suse/RHEL ;-) Maybe good idea for v2.29.
 
-iQIcBAEBAgAGBQJXIpYdAAoJEAPqygegUbGsalMP/iYdKxYkyqyQXyooApfm1r8g
-s4TpqZo/TemduERXf0gM2upqKPhOQskymwUiEKVgkDPKmL58IlSX67pHzIPWXmrO
-hj8uQkLXPsIfdObXsTEyy/QGWQNNOGRJHS2xuyWULVkEbl2niukd4Acq22jYDpi4
-4OA08K9FtM6QTeNc5yHuW1r+4+qVFlrkjXTC08cvWPBnheMj2Jn6Zp8RKQDYFUdQ
-frbpmw/s8reXz1nlIzk3XKymuk5usAG89upqcjKo78a3QQz611dUcmk24rqT0a0A
-YTf18n18JgnwHTDJ6+jvy50D+7L/LRSg802asYmtyeYSC5rdIZSE4g+sIOYwonZP
-J4kOAeSJ+K/GRcewG4fOrDs2Tk8TsgaEYS+oWXFjHVDUhXhOtiC5GdKejtb2Ygfu
-Mw8t3hQXYq3A7kTzCfQRXBnV69/4qHXmMCEAX0Bk9RQ2hWr1Gjfc4CMakjleCVEY
-9dlPEZDNiSXVAP2r1U6CNvYxk/Ifbo4TReHDq/TtkjLf7rxE/XVV34cHtFysJuD0
-qTcP3tfmWNShg+QM1GEdzzNqs0ISzDQ7CgGm4Yl1xQsSXWs/Kw4WKvLJJDPpsmfp
-zaC4G2NrPaVZxjrfch9UskKJpbUylKlm3DOLoA9USrySkdnFF8sy5mw9U/07PN6F
-e0furFL0O9cSccumSRxM
-=07bX
------END PGP SIGNATURE-----
+> Does it matter that nscd or uuidd was not built? Maybe one wants to use 
+> another implementations of these daemons.
+> 
+> >  IMHO the current behaviour is correct.
+> 
+> What about adding --enable-libuuid-force-uuidd without changing any 
+> current behavior?
 
---A/Qc/oxTFhy3MK1v--
+Yes, it seems like a good idea for v2.28.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
