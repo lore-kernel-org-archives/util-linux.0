@@ -1,50 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:39188 "EHLO
-	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751745AbcDOH7Z (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Fri, 15 Apr 2016 03:59:25 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-	by mailout.nyi.internal (Postfix) with ESMTP id 4AA7F20C0B
-	for <util-linux@vger.kernel.org>; Fri, 15 Apr 2016 03:59:24 -0400 (EDT)
-Message-Id: <1460707163.1560857.579528393.51AFCD05@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mout.gmx.net ([212.227.15.19]:62943 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932181AbcDFMeI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 6 Apr 2016 08:34:08 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH 1/2] tests: test_md5 prints md5sum only
+Date: Wed, 6 Apr 2016 13:33:58 +0100
+Cc: util-linux@vger.kernel.org
+References: <1459938618-20153-1-git-send-email-sweet_f_a@gmx.de> <20160406122615.foxdi772wqthsxfc@ws.net.home>
+In-Reply-To: <20160406122615.foxdi772wqthsxfc@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <1460668650-8594-1-git-send-email-kerolasa@iki.fi>
-References: <1460668650-8594-1-git-send-email-kerolasa@iki.fi>
-Subject: Re: [PATCH] docs: optinal option arguments should be long-only
-Date: Fri, 15 Apr 2016 09:59:23 +0200
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201604061433.59553.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wednesday 06 April 2016, Karel Zak wrote:
+> On Wed, Apr 06, 2016 at 12:30:17PM +0200, Ruediger Meier wrote:
+> > We want to to use it for other tests without depending on
+> > gnu md5sum and without cut or awk.
+>
+> It does not seem like anything critical, both patches applied to the
+> next branch (will be in v2.29). Thanks.
 
-On Thu, Apr 14, 2016, at 23:17, Sami Kerola wrote:
-> +.I \-n
-> +and optional option
-> +.IR \-o .
+That's ok. These patches do not fix any existing problem yet. They are 
+just one minor step to remove coreutils dependency from out tests. We 
+would still need to fix usage of readlink, seq and truncate. 
 
-Those need to be .B and .BR -- they are literal arguments.
-
-> +One will expect
-> +.BI command \ \-no
-> +and
-> +.BI command \ \-on
-
-Both just .B.
-
-> +to be the same, but in fact the former is two separate options while later
-> +will use
-> +.I n
-> +as option argument of
-> +.I -n
-
-.B n  and  .B -o
-
-Benno
-
--- 
-http://www.fastmail.com - Does exactly what it says on the tin
-
+cu,
+Rudi
