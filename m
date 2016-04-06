@@ -1,78 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lf0-f66.google.com ([209.85.215.66]:34376 "EHLO
-	mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751968AbcDRNFc (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 18 Apr 2016 09:05:32 -0400
-Received: by mail-lf0-f66.google.com with SMTP id e190so26201985lfe.1
-        for <util-linux@vger.kernel.org>; Mon, 18 Apr 2016 06:05:31 -0700 (PDT)
-Received: from ?IPv6:2a00:1370:8100:7954:8d40:7fbd:78e7:2a62? ([2a00:1370:8100:7954:8d40:7fbd:78e7:2a62])
-        by smtp.googlemail.com with ESMTPSA id k137sm10410247lfg.16.2016.04.18.06.05.29
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1/SSLv3 cipher=OTHER);
-        Mon, 18 Apr 2016 06:05:30 -0700 (PDT)
-Subject: Re: unshare -m and mount propagation
-References: <m3oaacfrn2.fsf@gmail.com>
- <20160418111628.cj5bscuuxee2xfcg@ws.net.home> <m3inzfkud2.fsf@gmail.com>
- <20160418122238.o645avvzj2tzzwsd@ws.net.home>
-From: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
-To: util-linux@vger.kernel.org
-Message-ID: <5714DB99.50806@gmail.com>
-Date: Mon, 18 Apr 2016 16:05:29 +0300
+Received: from mx1.redhat.com ([209.132.183.28]:37127 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754746AbcDFL5P (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 6 Apr 2016 07:57:15 -0400
+Date: Wed, 6 Apr 2016 13:57:12 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/2] build-sys: add --disable-logger and
+ --disable-lslogins
+Message-ID: <20160406115712.fqmc4eaqsxza2ajr@ws.net.home>
+References: <1459939867-20719-1-git-send-email-sweet_f_a@gmx.de>
+ <1459939867-20719-2-git-send-email-sweet_f_a@gmx.de>
 MIME-Version: 1.0
-In-Reply-To: <20160418122238.o645avvzj2tzzwsd@ws.net.home>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1459939867-20719-2-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 18.04.2016 15:22, Karel Zak wrote:
-> On Mon, Apr 18, 2016 at 02:51:37PM +0300, Yuriy M. Kaminskiy wrote:
->> Karel Zak <kzak@redhat.com> writes:
->>
->>> On Fri, Mar 18, 2016 at 05:26:25AM +0300, Yuriy M. Kaminskiy wrote:
->>>> I think this issue should be at least documented. And, maybe, default
->>>> `--propagation` should be changed to `slave`.
->>>
->>> The reason why we use 'private' is that it's the kernel default for
->>> years and it's what has been expected by users for long time before we
->>> introduced --propagation and any unshare(1) default.
->>>
->>> The current --propagation default unifies things and makes unshare(1)
->>> portable to distributions where root fs is mounted as 'shared' (e.g.
->>> systemd distros) and all this in backwardly compatible way for users
+On Wed, Apr 06, 2016 at 12:51:07PM +0200, Ruediger Meier wrote:
+> From: Ruediger Meier <ruediger.meier@ga-group.nl>
+> 
+> Now we are able to disable all programs which have systemd/journald
+> support. This feature is needed by openSUSE packagers who are building
+> util-linux in 2 stages to avoid build cycles.
 
-Opposite. It does not change anything for older systems, but breaks 
-things for new systems.
+Well, systemd support is optional, you can build all (including logger
+and lslogins) --without-systemd.
 
->>> who have no clue about --propagation.
+But I have nothing against --disable-lslogins and --disable-logger.
 
-And it is *especially* harmful for users that are not aware about 
---propagation. As private (new 2.27+ default) break umount propagation, 
-and results in nasty surprises (up to data loss).
+Applied, thanks.
 
->>> So, I don't think we want to change any default to corrupt scripts where
->>> is no explicitly specified --propagation.
->>
->> By you already broke scripts that expected old a-la '--propagation
->> unchanged' behavior.
->
-> Only if your system uses something else that kernel default 'private'
-> and you depend on this non-default setting. (IMHO relatively small
-> groups of users)
+    Karel
 
-All systemd systems use shared. Which is not "small group of users".
-
-> The old "--propagation unchanged" makes unshare useless on some
-> mainstream distros where default is 'shared'.
-
-No, it is not. --propagation does not do *anything* that cannot be done 
-without it. On pre-2.27 util-linux,
-
-   unshare -m sh -c 'mount --make-rprivate /; ...'
-
-does exactly same as `unshare -m [--propagation=private] ...` in 2.27+.
-
-Reverse is not true! With 2.27 you *must* use new 
-[backward-incompatible] options to revert to sane behavior [which is 
-*slave*, not *private*].
-
-> Anyway, we will not change any default now.
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
