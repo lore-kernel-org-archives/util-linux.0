@@ -1,108 +1,34 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f46.google.com ([74.125.82.46]:38568 "EHLO
-	mail-wm0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751755AbcDPVxJ convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 16 Apr 2016 17:53:09 -0400
-Received: by mail-wm0-f46.google.com with SMTP id u206so75685130wme.1
-        for <util-linux@vger.kernel.org>; Sat, 16 Apr 2016 14:53:08 -0700 (PDT)
+Return-Path: bensberg@justemail.net
+Message-Id: <1460014488.2329099.571528281.0C82477B@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Karel Zak <kzak@redhat.com>, "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <CAMRbyyvheOFY=2uRHDCwEHwNzBN4r2DsyLAKEiXJj_PZQkttdg@mail.gmail.com>
-References: <1460827912-19521-1-git-send-email-nsoffer@redhat.com>
-	<5712ACB2.7090103@bernhard-voelker.de>
-	<CAMRbyyvheOFY=2uRHDCwEHwNzBN4r2DsyLAKEiXJj_PZQkttdg@mail.gmail.com>
-Date: Sun, 17 Apr 2016 00:53:07 +0300
-Message-ID: <CAMRbyyt5nAoMR8=8k0GRm-jijwxzTywA+hk65esxQqPkhTmabA@mail.gmail.com>
-Subject: Re: [PATCH] Fail like the shell when execvp fails
-From: Nir Soffer <nsoffer@redhat.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: Nir Soffer <nirsof@gmail.com>, util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain
+In-Reply-To: <201604062230.39699.sweet_f_a@gmx.de>
+References: <201604061259.21979.sweet_f_a@gmx.de>
+ <20160406123711.a6rs7reswn6jzj3l@ws.net.home>
+ <201604062230.39699.sweet_f_a@gmx.de>
+Subject: Re: question about translations
+Date: Thu, 07 Apr 2016 09:34:48 +0200
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Apr 17, 2016 at 12:42 AM, Nir Soffer <nsoffer@redhat.com> wrote:
-> On Sun, Apr 17, 2016 at 12:20 AM, Bernhard Voelker
-> <mail@bernhard-voelker.de> wrote:
->> On 04/16/2016 07:31 PM, Nir Soffer wrote:
->>> For example, running the fuser command via taskset when fuser command is
->>> not installed is failing now like this:
->>>
->>>     $ taskset -c 1 fuser /path/to/file; echo $?
->>>     taskset: failed to execute fuser: No such file or directory
->>>     1
->>>
->>> This failure looks like a real failure of the fuser command:
->>>
->>>     $ taskset -c 1 fuser /path/to/file; echo $?
->>>     Specified filename /path/to/file does not exist.
->>>     1
->>>
->>> Based on the exit code, a management program may do the wrong thing,
->>> leading to catastrophic results. Detecting such failure requires fragile
->>> parsing of standard error.
->>>
->>> With this patch this failure is easy to detect:
->>>
->>>     $ taskset -c 1 fuser /path/to/file; echo $?
->>>     taskset: failed to execute fuser: No such file or directory
->>>     127
->>
->> TBH I don't like this idea; how would you see from the exit code
->> that 'taskset' itself wasn't the culprit?  I mean execve()ing
->> taskset worked, but that tool simply wasn't lucky to execve() the
->> secondary tool, well.
->
-> So taskset will exit with 127, which is not an error code you expect from the
-> underlying tool?
->
->> So EXIT_FAILURE is the right thing to do IMO,
->> and it is like that in almost any other - also non-util-linux tools
->> (chroot, nice, ...).
->
-> Good examples:
->
-> $ nice -n 5 bleep 1; echo $?
-> nice: bleep: No such file or directory
-> 127
->
-> $ sudo chroot /tmp bleep 1; echo $?
-> chroot: failed to run command ‘bleep’: No such file or directory
-> 127
->
-> This is the behavior I suggest to adapt.
 
-Looking in coreutils, it is using these exit codes:
+On Wed, Apr 6, 2016, at 22:30, Ruediger Meier wrote:
+> Well, I was wondering if this fuzzy (non-sense) message would be really 
+> shown if translators do not fix it before release.
 
-/* Exit statuses for programs like 'env' that exec other programs.  */
-enum
-{
-  EXIT_TIMEDOUT = 124, /* Time expired before child completed.  */
-  EXIT_CANCELED = 125, /* Internal error prior to exec attempt.  */
-  EXIT_CANNOT_INVOKE = 126, /* Program located, but not usable.  */
-  EXIT_ENOENT = 127 /* Could not find program to exec.  */
-};
+No, to gettext "fuzzy" means "invalid", "don't use".  The PO files
+are 'compiled' by msgfmt into .MO files which are used at runtime,
+and msgfmt ignores any messages that are marked fuzzy.
 
-So we may adapt this behavior?
+> (Because I've felt 
+> guilty to add a new message in 9508e297 (after rc1!).
 
->
->> Therefore, I don't see much gain from changing
->> this here - not to mention the probable fallout for tools/script
->> relying on the previous EXIT_FAILURE.
->
-> Tools cannot depend on EXIT_FAILURE from command like taskset, since
-> they are interested in the underlying tool exit code.
->
-> For example, if a tool is depending on EXIT_FAILURE exit code from taskset
-> while running fuser command, this tool is broken, ignoring the possible
-> EXIT_FAILURE from fuser - which has very specific semantics.
->
->> Can you reference any general discussion about this?
->
-> No
->
->>
->> Have a nice day,
->> Berny
->
-> Cheers,
-> Nir
+Adding or changing messages will never cause any /wrong/
+translations to be shown, so there is no problem.
+
+Benno
+
+-- 
+http://www.fastmail.com - Same, same, but different...
