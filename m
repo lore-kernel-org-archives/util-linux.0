@@ -1,42 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lb0-f195.google.com ([209.85.217.195]:35805 "EHLO
-	mail-lb0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751835AbcDCIfg (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 3 Apr 2016 04:35:36 -0400
-Received: by mail-lb0-f195.google.com with SMTP id gk8so13959402lbc.2
-        for <util-linux@vger.kernel.org>; Sun, 03 Apr 2016 01:35:35 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:54813 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755385AbcDGKyC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 7 Apr 2016 06:54:02 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.redhat.com (Postfix) with ESMTPS id DCE44C0467E4
+	for <util-linux@vger.kernel.org>; Thu,  7 Apr 2016 10:54:01 +0000 (UTC)
+Received: from ws (ovpn-204-89.brq.redhat.com [10.40.204.89])
+	by int-mx10.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id u37As0OG025702
+	for <util-linux@vger.kernel.org>; Thu, 7 Apr 2016 06:54:01 -0400
+Date: Thu, 7 Apr 2016 12:54:00 +0200
+From: Karel Zak <kzak@redhat.com>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 1/3] chrt: make --sched-* short options to require an argument
-Date: Sun,  3 Apr 2016 09:35:27 +0100
-Message-Id: <1459672529-2278-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1459672529-2278-1-git-send-email-kerolasa@iki.fi>
-References: <1459672529-2278-1-git-send-email-kerolasa@iki.fi>
+Subject: v2.29 plan: kill mtab
+Message-ID: <20160407105400.jn66tldxy7s3rqyc@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-These options are expecting an argument, and the long options struct already
-required them.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- schedutils/chrt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+libmount supports three scenarios:
 
-diff --git a/schedutils/chrt.c b/schedutils/chrt.c
-index 363d6e1..64a5858 100644
---- a/schedutils/chrt.c
-+++ b/schedutils/chrt.c
-@@ -399,7 +399,7 @@ int main(int argc, char **argv)
- 	textdomain(PACKAGE);
- 	atexit(close_stdout);
+ 1) regular classic /etc/mtab
+
+ 2) /etc/mtab symlink to /proc/self/mount -- in this case libmount uses
+    /proc/self/mountinfo and /run/mount/utab
+
+ The current default is to detect symlink and on-the-fly switch
+ between 1) and 2).
+
+ 3) --enable-libmount-force-mountinfo -- don't care about the symlink and 
+    always use /proc/self/mountinfo. This is robust solution required
+    for example by systemd, because unfortunately sometimes people use
+    broken stuff (init scripts, tools, etc.) which removes the symlink.
+
+
+ I'd like to make 3) default, the question is what with mtab code:
  
--	while((c = getopt_long(argc, argv, "+abdDfiphmoPTrRvV", longopts, NULL)) != -1)
-+	while((c = getopt_long(argc, argv, "+abdD:fiphmoP:T:rRvV", longopts, NULL)) != -1)
- 	{
- 		int ret = EXIT_FAILURE;
- 
+    a) #ifdef all mtab code (and add --enable-libmount-support-mtab)
+
+    b) remove mtab support at all (because it's evil and horrible code)
+
+ Comments?
+
+    Karel
+
+
 -- 
-2.8.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
