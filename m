@@ -1,57 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:51811 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752390AbcBZDDh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 25 Feb 2016 22:03:37 -0500
-Received: from tenfore.ga-group.nl ([95.114.239.233]) by mail.gmx.com
- (mrgmx101) with ESMTPSA (Nemesis) id 0M97Nh-1aePco1hV7-00CRCI for
- <util-linux@vger.kernel.org>; Fri, 26 Feb 2016 04:03:35 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from connie.slackware.com ([64.57.102.36]:39816 "EHLO
+	connie.slackware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750782AbcDKEwL (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 11 Apr 2016 00:52:11 -0400
+Date: Sun, 10 Apr 2016 21:35:41 -0700 (PDT)
+From: Robby Workman <rworkman@slackware.com>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 08/14] login-utils: minor utmp cleanup
-Date: Fri, 26 Feb 2016 04:03:31 +0100
-Message-Id: <1456455812-19453-9-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1456455812-19453-1-git-send-email-sweet_f_a@gmx.de>
-References: <1456455812-19453-1-git-send-email-sweet_f_a@gmx.de>
+cc: kzak@redhat.com
+Subject: Re: v2.29 plan: kill mtab
+Message-ID: <alpine.LNX.2.02.1604071350320.22605@connie.slackware.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+Karel Zak wrote:
 
-- consistently use ut->ut_user instead of ut->ut_name
-- don't include obsolete lastlog.h BSD header
+> libmount supports three scenarios:
+> 
+> 1) regular classic /etc/mtab
+>
+> 2) /etc/mtab symlink to /proc/self/mount -- in this case libmount uses
+>    /proc/self/mountinfo and /run/mount/utab
+>
+> The current default is to detect symlink and on-the-fly switch
+> between 1) and 2).
+>
+> 3) --enable-libmount-force-mountinfo -- don't care about the symlink
+>    and always use /proc/self/mountinfo. This is robust solution required
+>    for example by systemd, because unfortunately sometimes people use
+>    broken stuff (init scripts, tools, etc.) which removes the symlink.
+>
+>
+> I'd like to make 3) default, the question is what with mtab code:
+>
+>    a) #ifdef all mtab code (and add --enable-libmount-support-mtab)
+>
+>    b) remove mtab support at all (because it's evil and horrible code)
+>
+> Comments?
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- login-utils/last.c  | 2 +-
- login-utils/login.c | 1 -
- 2 files changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/login-utils/last.c b/login-utils/last.c
-index dbfa8ae..38b92ef 100644
---- a/login-utils/last.c
-+++ b/login-utils/last.c
-@@ -586,7 +586,7 @@ static int is_phantom(const struct last_control *ctl, struct utmp *ut)
- 
- 	if (ut->UL_UT_TIME < ctl->boot_time.tv_sec)
- 		return 1;
--	pw = getpwnam(ut->ut_name);
-+	pw = getpwnam(ut->ut_user);
- 	if (!pw)
- 		return 1;
- 	sprintf(path, "/proc/%u/loginuid", ut->ut_pid);
-diff --git a/login-utils/login.c b/login-utils/login.c
-index e1f11eb..c5ce188 100644
---- a/login-utils/login.c
-+++ b/login-utils/login.c
-@@ -55,7 +55,6 @@
- # include <linux/major.h>
- #endif
- #include <netdb.h>
--#include <lastlog.h>
- #include <security/pam_appl.h>
- #ifdef HAVE_SECURITY_PAM_MISC_H
- # include <security/pam_misc.h>
--- 
-1.8.4.5
+We still use SysV init because it suits our needs just fine, and we
+have no plans to migrate to systemd in the foreseeable future, so
+we don't have any other compelling reason to use anything other than
+classic /etc/mtab. As such, we'd certainly appreciate, at the very
+least, leaving the mtab support in util-linux.
 
+-RW
