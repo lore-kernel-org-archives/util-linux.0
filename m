@@ -1,73 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59262 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:44126 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751480AbcDRRsk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 18 Apr 2016 13:48:40 -0400
-Date: Mon, 18 Apr 2016 19:48:33 +0200
+	id S1756694AbcDLJfa (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 12 Apr 2016 05:35:30 -0400
+Date: Tue, 12 Apr 2016 11:35:27 +0200
 From: Karel Zak <kzak@redhat.com>
-To: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: unshare -m and mount propagation
-Message-ID: <20160418174833.qwb7tnfzuf3wiokw@ws.net.home>
-References: <m3oaacfrn2.fsf@gmail.com>
- <20160418111628.cj5bscuuxee2xfcg@ws.net.home>
- <m3inzfkud2.fsf@gmail.com>
- <20160418122238.o645avvzj2tzzwsd@ws.net.home>
- <5714DB99.50806@gmail.com>
+To: Marcus Hoffmann <marcus.hoffmann@fu-berlin.de>, util-linux@vger.kernel.org
+Subject: Re: unrecognized options: --without-capng
+Message-ID: <20160412093527.ky7bcab2rxasxvjg@ws.net.home>
+References: <20160407105400.jn66tldxy7s3rqyc@ws.net.home>
+ <570667FB.8080104@fu-berlin.de>
+ <20160407161802.GM6588@vapier.lan>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5714DB99.50806@gmail.com>
+In-Reply-To: <20160407161802.GM6588@vapier.lan>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Apr 18, 2016 at 04:05:29PM +0300, Yuriy M. Kaminskiy wrote:
-> On 18.04.2016 15:22, Karel Zak wrote:
-> > On Mon, Apr 18, 2016 at 02:51:37PM +0300, Yuriy M. Kaminskiy wrote:
-> > > Karel Zak <kzak@redhat.com> writes:
-> > > 
-> > > > On Fri, Mar 18, 2016 at 05:26:25AM +0300, Yuriy M. Kaminskiy wrote:
-> > > > > I think this issue should be at least documented. And, maybe, default
-> > > > > `--propagation` should be changed to `slave`.
-> > > > 
-> > > > The reason why we use 'private' is that it's the kernel default for
-> > > > years and it's what has been expected by users for long time before we
-> > > > introduced --propagation and any unshare(1) default.
-> > > > 
-> > > > The current --propagation default unifies things and makes unshare(1)
-> > > > portable to distributions where root fs is mounted as 'shared' (e.g.
-> > > > systemd distros) and all this in backwardly compatible way for users
-> 
-> Opposite. It does not change anything for older systems, but breaks things
-> for new systems.
-> 
-> > > > who have no clue about --propagation.
-> 
-> And it is *especially* harmful for users that are not aware about
-> --propagation. As private (new 2.27+ default) break umount propagation, and
-> results in nasty surprises (up to data loss).
+On Thu, Apr 07, 2016 at 12:18:02PM -0400, Mike Frysinger wrote:
+>  configure.ac | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
 
-Well, you see only umount propagation... 
-
-The problem is that the original implementation (try emulate by
-"--propagation unchanged") makes "unshare --mount" useless at all on
-systems with shared root fs.
-
-The very old (since year 2009) and very common use-case is:
-
- # unshare --mount
- # mount /dev/foo /mnt
-
-and user expects that /mnt will be visible *only* in the session
-(namespace). This is the way how many users use unshare for years.
-
-Unfortunately, after systemd installation it does not work anymore
-and /mnt is visible everywhere. For users it's regression and it has
-been reported many many times.
-
-You can blame systemd, but the problem is that unshare(1) was not
-robust enough. So we have forced unshare to use "private" by default
-to keep the *original behavior* independently on root fs propagation
-flag.
+Applied, thanks.
 
     Karel
 
