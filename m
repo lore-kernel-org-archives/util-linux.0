@@ -1,115 +1,106 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:36439 "EHLO plane.gmane.org"
+Received: from mx2.suse.de ([195.135.220.15]:48705 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932106AbcDSO6V (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 19 Apr 2016 10:58:21 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1asX6Y-0007it-Mg
-	for util-linux@vger.kernel.org; Tue, 19 Apr 2016 16:58:18 +0200
-Received: from 95.131.151.139 ([95.131.151.139])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Tue, 19 Apr 2016 16:58:18 +0200
-Received: from yumkam by 95.131.151.139 with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Tue, 19 Apr 2016 16:58:18 +0200
+	id S933065AbcDLSWi (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 12 Apr 2016 14:22:38 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 39DB6AC13
+	for <util-linux@vger.kernel.org>; Tue, 12 Apr 2016 18:22:36 +0000 (UTC)
 To: util-linux@vger.kernel.org
-From: yumkam@gmail.com (Yuriy M. Kaminskiy)
-Subject: Re: fsck -l: fix racing between unlock/unlink and open
-Date: Tue, 19 Apr 2016 17:58:11 +0300
-Message-ID: <m3potlk5mk.fsf@gmail.com>
-References: <m3bn5lqdvi.fsf@gmail.com>
-	<20160418102238.54gvnoxnsq7z76uv@ws.net.home>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH 1/3] libmount: Re-organize is_mounted_same_loopfile()
+Message-ID: <570D3CEC.4030606@suse.cz>
+Date: Tue, 12 Apr 2016 20:22:36 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak <kzak@redhat.com> writes:
+First parse options, then initialize context.
+No change in function.
+The change is needed for loop device reuse.
 
-> On Fri, Apr 08, 2016 at 12:59:29AM +0300, Yuriy M. Kaminskiy wrote:
->> Probably, there are better solutions, but I prefer KISS.
->
->> From fcb97ddcbc336bc8860828c47cdaf21c7b1ca655 Mon Sep 17 00:00:00 2001
->> From: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
->> Date: Fri, 8 Apr 2016 00:38:56 +0300
->> Subject: [PATCH] fsck: fix racing between unlock/unlink and open
->> 
->> Process A	Process B	Process C
->> open()
->> [creates file]
->> lock()
->> [succeed]
->> 		open()
->> 		[open existing]
->> 		lock()...
->> running()
->> close()
->> 		[...succeed]
->> unlink()
->> 		running()
->> 				open()
->> 				[creates file] {BAD!}
->> 				lock()
->> 				[succeed] {BAD!}
->> 				running() {BAD!}
->> 		close()
->> 
->
-> It would be better to check if the file still exist on the filesystem
-> with the same inode number, if not then re-open. It means that on race
-> you will create a new lock file. (You have to unlock after unlink.)
-> See http://stackoverflow.com/questions/17708885/flock-removing-locked-file-without-race-condition
->
-> Simple example:
->
-> #include <stdio.h>
-> #include <sys/file.h>
-> #include <sys/types.h>
-> #include <sys/stat.h>
-> #include <fcntl.h>
-> #include <unistd.h>
-> #include <errno.h>
->
-> int main(int argc, char **argv)
-> {
-> 	const char *lockpath = "test.lock";
-> 	int fd;
-> 	struct stat st_lock, st_file;
->
-> 	while (1) {
-> 		fd = open(lockpath, O_RDONLY|O_CREAT|O_CLOEXEC,
-> 				    S_IWUSR|S_IRUSR|S_IRGRP|S_IROTH);
-> 		fstat(fd, &st_lock);
-> 		flock(fd, LOCK_EX);
->
-> 		errno = 0;
-> 		if (stat(lockpath, &st_file) == 0 && st_file.st_ino == st_lock.st_ino)
-> 			break;
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ libmount/src/context_loopdev.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-Requires stable inode numbers (well, probably acceptable assumption for {/var,}/run).
+diff --git a/libmount/src/context_loopdev.c b/libmount/src/context_loopdev.c
+index a1ff971..47d6294 100644
+--- a/libmount/src/context_loopdev.c
++++ b/libmount/src/context_loopdev.c
+@@ -137,7 +137,7 @@ is_mounted_same_loopfile(struct libmnt_context *cxt,
+ int mnt_context_setup_loopdev(struct libmnt_context *cxt)
+ {
+ 	const char *backing_file, *optstr, *loopdev = NULL;
+-	char *val = NULL;
++	char *val = NULL, *loopval = NULL;
+ 	size_t len;
+ 	struct loopdev_cxt lc;
+ 	int rc = 0, lo_flags = 0;
+@@ -158,10 +158,6 @@ int mnt_context_setup_loopdev(struct libmnt_context *cxt)
+ 		lo_flags |= LO_FLAGS_READ_ONLY;
+ 	}
+ 
+-	rc = loopcxt_init(&lc, 0);
+-	if (rc)
+-		return rc;
+-
+ 	optstr = mnt_fs_get_user_options(cxt->fs);
+ 
+ 	/*
+@@ -169,13 +165,8 @@ int mnt_context_setup_loopdev(struct libmnt_context *cxt)
+ 	 */
+ 	if (rc == 0 && (cxt->user_mountflags & MNT_MS_LOOP) &&
+ 	    mnt_optstr_get_option(optstr, "loop", &val, &len) == 0 && val) {
+-
+-		val = strndup(val, len);
+-		rc = val ? loopcxt_set_device(&lc, val) : -ENOMEM;
+-		free(val);
+-
+-		if (rc == 0)
+-			loopdev = loopcxt_get_device(&lc);
++		loopval = strndup(val, len);
++		rc = loopval ? 0 : -ENOMEM;
+ 	}
+ 
+ 	/*
+@@ -217,6 +208,15 @@ int mnt_context_setup_loopdev(struct libmnt_context *cxt)
+ 		rc = -EBUSY;
+ 
+ 	if (rc)
++		goto done_no_deinit;
++
++	rc = loopcxt_init(&lc, 0);
++	if (rc == 0 && loopval) {
++		rc = loopcxt_set_device(&lc, loopval);
++		if (rc == 0)
++			loopdev = loopcxt_get_device(&lc);
++	}
++	if (rc)
+ 		goto done;
+ 
+ 	/* since 2.6.37 we don't have to store backing filename to mtab
+@@ -301,6 +301,8 @@ int mnt_context_setup_loopdev(struct libmnt_context *cxt)
+ 	}
+ done:
+ 	loopcxt_deinit(&lc);
++done_no_deinit:
++	free(loopval);
+ 	return rc;
+ }
+ 
+-- 
+2.8.1
 
-> 		if (errno)
-> 			fprintf(stderr, "%d: stat failed: %m\n", getpid());
-> 		else
-> 			fprintf(stderr, "%d: ignore %lu (fs has:%lu)\n", getpid(), st_lock.st_ino, st_file.st_ino);
-> 		close(fd);
-> 	}
->
-> 	fprintf(stderr, "%d: -->locked ino: %lu\n", getpid(), st_lock.st_ino);
-> 	sleep(10);
-> 	unlink(lockpath);
-> 	close(fd);
-> 	return 0;
-> }
->
->
-> See untested fsck patch below. Comments?
+-- 
+Best Regards / S pozdravem,
 
-I still prefer KISS. (And I bet it will eat more resources than just
-leaving those empty files around.)
-(But either way, bug will be fixed, so I do as you like).
-
-[...]
-
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
