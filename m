@@ -1,148 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:37416 "EHLO plane.gmane.org"
+Received: from mx2.suse.de ([195.135.220.15]:48785 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932410AbcDSPMC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 19 Apr 2016 11:12:02 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1asXJl-0007oS-IQ
-	for util-linux@vger.kernel.org; Tue, 19 Apr 2016 17:11:57 +0200
-Received: from 95.131.151.139 ([95.131.151.139])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Tue, 19 Apr 2016 17:11:57 +0200
-Received: from yumkam by 95.131.151.139 with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Tue, 19 Apr 2016 17:11:57 +0200
+	id S933037AbcDLSX1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 12 Apr 2016 14:23:27 -0400
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 291B6AC13
+	for <util-linux@vger.kernel.org>; Tue, 12 Apr 2016 18:23:25 +0000 (UTC)
 To: util-linux@vger.kernel.org
-From: yumkam@gmail.com (Yuriy M. Kaminskiy)
-Subject: [RFC][PATCH alt v2] fsck -l: block concurrent fsck for any stacked devices (Re: [RFC][WIP][PATCH] fsck -l and lvm/dmcrypt/md/etc)
-Date: Tue, 19 Apr 2016 18:11:46 +0300
-Message-ID: <m3inzdk4zx.fsf_-_@gmail.com>
-References: <m34mbbrd8d.fsf@gmail.com>
-	<20160418105923.lj5sb2m4joxxehno@ws.net.home>
-	<m3twixk6c0.fsf@gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+From: Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH 3/3] mount: Handle EROFS before calling mount() syscall
+Message-ID: <570D3D1D.1050502@suse.cz>
+Date: Tue, 12 Apr 2016 20:23:25 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---=-=-=
-Content-Type: text/plain
+If the loop device is already initialized read-only, the new code for loop
+device reuse returns -EROFS. There is no solution of this situation. But mount
+can behave in the same way, as it does for EROFS returned by mount syscall: Try
+again in read-only mode.
 
-yumkam@gmail.com (Yuriy M. Kaminskiy)
-writes:
+Before:
+mount: /mnt/2: mount failed: Read-only file system
 
-> Karel Zak <kzak@redhat.com> writes:
->
->> On Sat, Apr 09, 2016 at 12:40:18AM +0300, Yuriy M. Kaminskiy wrote:
->>> I think this algorithm should work:
->>> 
->>> 1) walk /dev/block/${dev}/slaves recursively (e.g. lvm-over- luks-
->>> over-lvm- over-md, first-level slaves won't work), collect all
->>> whole-disk devices;
->>> 2) sort this list by device numbers (to avoid AB/BA deadlocks), remove
->>> duplicates;
->>> 3) acquire all locks consequently.
->>> 
->>> There are some unavoidable flaws (e.g. if someone alters structure while fsck
->>> is running), and some things could be improved, but it should work in
->>> most cases (and if it fails, it is just no worse than current behavior).
->>> 
->>> I've tested with LVM and LUKS-over-LVM on (debian's) 3.16 kernel, it seems
->>> works as expected.
->>> 
->>> What is not covered: /dev/loop* (and I have no plans for it).
->>> 
->>> Comments? NACKs?
->>
->> The question is if we really need it :-)
->
-> Yes?
->
->> All the care fsck has about whole-disks is about performance, because
->> we assume (on classic rotation disks) that execute fsck on more
->> partitions in the same time is bad idea.
->>
->> The problem with stacked devices is that we have no clue about sectors
->> mapping. Your patch locks all the disks, but maybe kernel will read
->> only from some subset of the disks, etc.
->
-> Is this likely scenario? (Or even possible? I can imagine that, with
-> lvm-over-raid1+, kernel theoretically can schedule one fsck instance to
-> read only slaveA, and another to read only from slaveB, thus avoiding
-> seeking; but I suspect, in practice it will just roundrobin all requests
-> over both slaves, thus same seekstorm.)
->
->> From my point of view the best way is not to care about it in
->> userspace at all and depend on kernel I/O scheduling only. The
->
-> No problem. Please set in-kernel fsck-friendly io scheduler for fsck
-> instead. (Oh, there are none exists?)
->
->> optimization probably still makes sense for classic layout
->> "HDD->partition", but I don't think we need to extend this
->> functionality to another use-cases.
->
-> `fsck -A` does not execute fsck for any stacked devices in
-> parallel. `fsck -l` does. This is inconsistent and unfair. Alternative
-> (simplier) patch attached (compile-tested only).
+After:
+mount: /btrfs.img is used as read only loop, mounting read-only
 
-v2 (path variable and snprintf removed, added comment about unlock/unlink).
+Note: It would be nice to mention loop device name in the warning message, but
+it is not available in the mount context.
 
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ sys-utils/mount.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---=-=-=
-Content-Type: text/x-diff
-Content-Disposition: inline;
- filename=fsck-l-disallow-parallel-fsck-for-stacked-devices.v2.patch
+diff --git a/sys-utils/mount.c b/sys-utils/mount.c
+index 9c4729e..3e90fcc 100644
+--- a/sys-utils/mount.c
++++ b/sys-utils/mount.c
+@@ -402,6 +402,15 @@ try_readonly:
+ 		case -EBUSY:
+ 			warnx(_("%s is already mounted"), src);
+ 			return MOUNT_EX_USAGE;
++		/* -EROFS before syscall can happen only for loop mount */
++		case -EROFS:
++			warnx(_("%s is used as read only loop, mounting read-only"), src);
++			mnt_context_reset_status(cxt);
++			mnt_context_set_mflags(cxt, mflags | MS_RDONLY);
++			rc = mnt_context_mount(cxt);
++			if (!rc)
++				rc = mnt_context_finalize_mount(cxt);
++			goto try_readonly;
+ 		case -MNT_ERR_NOFSTAB:
+ 			if (mnt_context_is_swapmatch(cxt)) {
+ 				warnx(_("can't find %s in %s"),
+-- 
+2.8.1
 
-diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
-index 84d2dcc..bd9114a 100644
---- a/disk-utils/fsck.c
-+++ b/disk-utils/fsck.c
-@@ -109,6 +109,7 @@ struct fsck_instance {
- 
- 	int	lock;		/* flock()ed lockpath file descriptor or -1 */
- 	char	*lockpath;	/* /run/fsck/<diskname>.lock or NULL */
-+	int	lock_stacked;	/* flock()ed stacked file descriptor or -1 */
- 
- 	int	exit_status;
- 	struct timeval start_time;
-@@ -365,6 +366,21 @@ static void lock_disk(struct fsck_instance *inst)
- 	if (!diskname)
- 		diskname = diskpath;
- 
-+	/*
-+	 * Note: stacked.lock can be share-locked and MUST NOT be removed
-+	 * upon unlock!
-+	 */
-+	inst->lock_stacked = open(FSCK_RUNTIME_DIRNAME "/stacked.lock",
-+				    O_RDONLY|O_CREAT|O_CLOEXEC,
-+				    S_IWUSR|S_IRUSR|S_IRGRP|S_IROTH);
-+	if (inst->lock_stacked >= 0) {
-+		if (flock(inst->lock_stacked,
-+			fs_is_stacked(inst->fs) ? LOCK_EX : LOCK_SH) != 0) {
-+			close(inst->lock_stacked);	/* failed */
-+			inst->lock_stacked = -1;
-+		}
-+	}
-+ 	
- 	xasprintf(&inst->lockpath, FSCK_RUNTIME_DIRNAME "/%s.lock", diskname);
- 
- 	if (verbose)
-@@ -410,10 +426,12 @@ static void unlock_disk(struct fsck_instance *inst)
- 		printf(_("Unlocking %s.\n"), inst->lockpath);
- 
- 	close(inst->lock);			/* unlock */
-+	close(inst->lock_stacked);		/* unlock */
- 
- 	free(inst->lockpath);
- 
- 	inst->lock = -1;
-+	inst->lock_stacked = -1;
- 	inst->lockpath = NULL;
- }
- 
+-- 
+Best Regards / S pozdravem,
 
---=-=-=--
-
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
