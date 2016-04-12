@@ -1,63 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:63658 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751019AbcDFKvL (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 6 Apr 2016 06:51:11 -0400
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx101)
- with ESMTPSA (Nemesis) id 0Man6U-1b81l02ALS-00KRWR for
- <util-linux@vger.kernel.org>; Wed, 06 Apr 2016 12:51:08 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 2/2] build-sys: add --disable-logger and --disable-lslogins
-Date: Wed,  6 Apr 2016 12:51:07 +0200
-Message-Id: <1459939867-20719-2-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1459939867-20719-1-git-send-email-sweet_f_a@gmx.de>
-References: <1459939867-20719-1-git-send-email-sweet_f_a@gmx.de>
+Received: from mail-pf0-f173.google.com ([209.85.192.173]:34307 "EHLO
+	mail-pf0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755331AbcDLBH5 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 11 Apr 2016 21:07:57 -0400
+Received: by mail-pf0-f173.google.com with SMTP id c20so2682315pfc.1
+        for <util-linux@vger.kernel.org>; Mon, 11 Apr 2016 18:07:56 -0700 (PDT)
+Date: Mon, 11 Apr 2016 18:07:53 -0700
+From: Isaac Dunham <ibid.ag@gmail.com>
+To: Robby Workman <rworkman@slackware.com>
+Cc: util-linux@vger.kernel.org, kzak@redhat.com
+Subject: Re: v2.29 plan: kill mtab
+Message-ID: <20160412010752.GA20359@newbook>
+References: <alpine.LNX.2.02.1604071350320.22605@connie.slackware.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <alpine.LNX.2.02.1604071350320.22605@connie.slackware.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Sun, Apr 10, 2016 at 09:35:41PM -0700, Robby Workman wrote:
+> Karel Zak wrote:
+> 
+> > libmount supports three scenarios:
+> > 
+> > 1) regular classic /etc/mtab
+> > 
+> > 2) /etc/mtab symlink to /proc/self/mount -- in this case libmount uses
+> >    /proc/self/mountinfo and /run/mount/utab
+> > 
+> > The current default is to detect symlink and on-the-fly switch
+> > between 1) and 2).
+> > 
+> > 3) --enable-libmount-force-mountinfo -- don't care about the symlink
+> >    and always use /proc/self/mountinfo. This is robust solution required
+> >    for example by systemd, because unfortunately sometimes people use
+> >    broken stuff (init scripts, tools, etc.) which removes the symlink.
+> > 
+> > 
+> > I'd like to make 3) default, the question is what with mtab code:
+> > 
+> >    a) #ifdef all mtab code (and add --enable-libmount-support-mtab)
+> > 
+> >    b) remove mtab support at all (because it's evil and horrible code)
+> > 
+> > Comments?
+> 
+> 
+> We still use SysV init because it suits our needs just fine, and we
+> have no plans to migrate to systemd in the foreseeable future, so
+> we don't have any other compelling reason to use anything other than
+> classic /etc/mtab. As such, we'd certainly appreciate, at the very
+> least, leaving the mtab support in util-linux.
 
-Now we are able to disable all programs which have systemd/journald
-support. This feature is needed by openSUSE packagers who are building
-util-linux in 2 stages to avoid build cycles.
+Contrary to the implication of the mail you quote, whether to use mtab
+is not primarily about systemd. Alpine Linux, the distro I use, uses
+the /proc/mounts symlink; the userspace is Busybox/OpenRC with musl libc.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- configure.ac | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+The main reason to use /proc/self/mountinfo is that it can be relied on
+to tell you what filesystems are mounted where, even if you use chroots,
+mount namespaces, private mounts, and similar things. This is because
+the kernel necessarily needs to keep track of mounts on a per-process
+basis. 
+mtab can get confused by chroots and bind mounts, because /etc/mtab
+is the userspace keeping track, manually, of the same information,
+based on the assumptions that it's the only toolset doing mounts and
+unmounts, that everything has the same mounts, and so on; essentially,
+it's like keeping track of the number of people in a room by watching
+who goes in or out.
+Why would you bother counting people going through the door if you have
+a window?
+Why use code that poorly duplicates information the kernel *needs* to
+have an accurate record of?
 
-diff --git a/configure.ac b/configure.ac
-index 82eb8db..194bc41 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -1315,7 +1315,11 @@ UL_REQUIRES_HAVE([lscpu], [cpu_set_t], [cpu_set_t type])
- AM_CONDITIONAL([BUILD_LSCPU], [test "x$build_lscpu" = xyes])
- 
- 
--UL_BUILD_INIT([lslogins], [check])
-+AC_ARG_ENABLE([lslogins],
-+  AS_HELP_STRING([--disable-lslogins], [do not build lslogins]),
-+  [], [UL_DEFAULT_ENABLE([lslogins], [check])]
-+)
-+UL_BUILD_INIT([lslogins])
- UL_REQUIRES_BUILD([lslogins], [libsmartcols])
- UL_REQUIRES_HAVE([lslogins], [shadow_h], [shadow.h header])
- UL_REQUIRES_HAVE([lslogins], [utmp_h], [utmp.h header])
-@@ -1358,8 +1362,11 @@ AC_ARG_ENABLE([cal],
- UL_BUILD_INIT([cal])
- AM_CONDITIONAL([BUILD_CAL], [test "x$build_cal" = xyes])
- 
--
--UL_BUILD_INIT([logger], [yes])
-+AC_ARG_ENABLE([logger],
-+  AS_HELP_STRING([--disable-logger], [do not build logger]),
-+  [], [UL_DEFAULT_ENABLE([logger], [check])]
-+)
-+UL_BUILD_INIT([logger])
- AM_CONDITIONAL([BUILD_LOGGER], [test "x$build_logger" = xyes])
- 
- UL_BUILD_INIT([look], [yes])
--- 
-1.8.4.5
 
+
+Thanks,
+Isaac Dunham
