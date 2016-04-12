@@ -1,253 +1,77 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:49975 "EHLO mout.gmx.net"
+Received: from mx2.suse.de ([195.135.220.15]:48570 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754342AbcDFHQQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 6 Apr 2016 03:16:16 -0400
-Received: from tenfore.ga-group.nl ([2.247.82.193]) by mail.gmx.com (mrgmx101)
- with ESMTPSA (Nemesis) id 0LpwZn-1bQrb13ebP-00ffRG for
- <util-linux@vger.kernel.org>; Wed, 06 Apr 2016 09:16:13 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
+	id S932222AbcDLSWB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 12 Apr 2016 14:22:01 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 1C66DAC13
+	for <util-linux@vger.kernel.org>; Tue, 12 Apr 2016 18:21:59 +0000 (UTC)
 To: util-linux@vger.kernel.org
-Subject: [PATCH 1/3] tests: add fdisk/bsd hexdump for alpha
-Date: Wed,  6 Apr 2016 09:16:09 +0200
-Message-Id: <1459926971-26313-1-git-send-email-sweet_f_a@gmx.de>
+From: Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH 0/3] btrfs-safe implementation of -oloop
+Message-ID: <570D3CC7.5060809@suse.cz>
+Date: Tue, 12 Apr 2016 20:21:59 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+As it was discussed in LKML[1], kernel has no way to detect backing
+file data changes if multiple loop devices have the same backing file.
 
-Taken from Debian build logs:
-https://buildd.debian.org/status/fetch.php?pkg=util-linux&arch=alpha&ver=2.28~rc2-1&stamp=1459443555
+Exactly this happened if -oloop is used multiple times with the same
+source.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- tests/expected/fdisk/bsd_0_64_alpha.LE | 217 +++++++++++++++++++++++++++++++++
- 1 file changed, 217 insertions(+)
- create mode 100644 tests/expected/fdisk/bsd_0_64_alpha.LE
+It could not happen in past, but with introduction of btrfs sub-volumes
+it has a perfectly legal use cases.
 
-diff --git a/tests/expected/fdisk/bsd_0_64_alpha.LE b/tests/expected/fdisk/bsd_0_64_alpha.LE
-new file mode 100644
-index 0000000..1c2a368
---- /dev/null
-+++ b/tests/expected/fdisk/bsd_0_64_alpha.LE
-@@ -0,0 +1,217 @@
-+BSD_LABELSECTOR=0
-+BSD_LABELOFFSET=64
-+BSD_EXTRA=_alpha
-+BYTE_ORDER=LE
-+
-+Initialize empty image
-+00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+00a00000
-+Create new DOS partition table
-+00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+000001b0  00 00 00 00 00 00 00 00  01 00 00 00 00 00 00 00  |................|
-+000001c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+000001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|
-+00000200  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+00a00000
-+
-+---layout----------
-+Disk <removed>: 10 MiB, 10485760 bytes, 20480 sectors
-+Units: sectors of 1 * 512 = 512 bytes
-+Sector size (logical/physical): 512 bytes / 512 bytes
-+I/O size (minimum/optimal): 512 bytes / <removed> bytes
-+Disklabel type: dos
-+Disk identifier: <removed>
-+-------------------
-+
-+Create 1st primary partition
-+00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+000001b0  00 00 00 00 00 00 00 00  01 00 00 00 00 00 00 20  |............... |
-+000001c0  21 00 83 41 01 00 00 08  00 00 00 08 00 00 00 00  |!..A............|
-+000001d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+000001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|
-+00000200  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+00a00000
-+
-+---layout----------
-+Disk <removed>: 10 MiB, 10485760 bytes, 20480 sectors
-+Units: sectors of 1 * 512 = 512 bytes
-+Sector size (logical/physical): 512 bytes / 512 bytes
-+I/O size (minimum/optimal): 512 bytes / <removed> bytes
-+Disklabel type: dos
-+Disk identifier: <removed>
-+
-+Device     Boot Start   End Sectors Size Id Type
-+<removed>1       2048  4095    2048   1M 83 Linux
-+-------------------
-+
-+Create 2st primary partition
-+00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+000001b0  00 00 00 00 00 00 00 00  01 00 00 00 00 00 00 20  |............... |
-+000001c0  21 00 83 41 01 00 00 08  00 00 00 08 00 00 00 04  |!..A............|
-+000001d0  01 3e 83 13 41 36 00 10  00 00 00 40 00 00 00 00  |.>..A6.....@....|
-+000001e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+000001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|
-+00000200  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+00a00000
-+Set 2nd partition type
-+00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+000001b0  00 00 00 00 00 00 00 00  01 00 00 00 00 00 00 20  |............... |
-+000001c0  21 00 83 41 01 00 00 08  00 00 00 08 00 00 00 04  |!..A............|
-+000001d0  01 3e a5 13 41 36 00 10  00 00 00 40 00 00 00 00  |.>..A6.....@....|
-+000001e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+000001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|
-+00000200  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+00a00000
-+
-+---layout----------
-+Disk <removed>: 10 MiB, 10485760 bytes, 20480 sectors
-+Units: sectors of 1 * 512 = 512 bytes
-+Sector size (logical/physical): 512 bytes / 512 bytes
-+I/O size (minimum/optimal): 512 bytes / <removed> bytes
-+Disklabel type: dos
-+Disk identifier: <removed>
-+
-+Device     Boot Start   End Sectors Size Id Type
-+<removed>1       2048  4095    2048   1M 83 Linux
-+<removed>2       4096 20479   16384   8M a5 FreeBSD
-+-------------------
-+
-+Create default BSD
-+00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+000001b0  00 00 00 00 00 00 00 00  01 00 00 00 00 00 00 20  |............... |
-+000001c0  21 00 83 41 01 00 00 08  00 00 00 08 00 00 00 04  |!..A............|
-+000001d0  01 3e a5 13 41 36 00 10  00 00 00 40 00 00 00 00  |.>..A6.....@....|
-+000001e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+000001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|
-+00000200  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+00200040  57 45 56 82 06 00 00 00  00 00 00 00 00 00 00 00  |WEV.............|
-+00200050  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+00200060  00 00 00 00 00 00 00 00  00 02 00 00 3f 00 00 00  |............?...|
-+00200070  ff 00 00 00 01 00 00 00  c1 3e 00 00 c1 3e 00 00  |.........>...>..|
-+00200080  00 00 00 00 00 00 00 00  10 0e 01 00 00 00 00 00  |................|
-+00200090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+002000c0  00 00 00 00 57 45 56 82  13 62 04 00 00 20 00 00  |....WEV..b... ..|
-+002000d0  00 20 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |. ..............|
-+002000e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+002000f0  00 00 00 00 00 40 00 00  00 10 00 00 00 00 00 00  |.....@..........|
-+00200100  00 00 00 00 c1 3e 00 00  00 00 00 00 00 00 00 00  |.....>..........|
-+00200110  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+002001f0  00 00 00 00 00 00 00 00  3a 27 5c 82 1f 23 57 82  |........:'\..#W.|
-+00200200  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+00a00000
-+
-+---layout----------
-+
-+Welcome to fdisk <removed>.
-+Changes will remain in memory only, until you decide to write them.
-+Be careful before using the write command.
-+
-+
-+Command (m for help): Entering nested BSD disklabel.
-+
-+Command (m for help): Disk <removed>2: 10 MiB, 10485760 bytes, 20480 sectors
-+Geometry: 255 heads, 63 sectors/track, 1 cylinders
-+Units: sectors of 1 * 512 = 512 bytes
-+Sector size (logical/physical): 512 bytes / 512 bytes
-+I/O size (minimum/optimal): 512 bytes / <removed> bytes
-+Disklabel type: bsd
-+
-+Slice Start   End Sectors  Size Type     Fsize Bsize Cpg
-+c      4096 20479   16384    8M unused       0     0   0
-+d         0 16064   16065  7.9M unused       0     0   0
-+
-+Partition table entries are not in disk order.
-+
-+Command (m for help): Leaving nested disklabel.
-+
-+Command (m for help): 
-+-------------------
-+
-+00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+000001b0  00 00 00 00 00 00 00 00  01 00 00 00 00 00 00 20  |............... |
-+000001c0  21 00 83 41 01 00 00 08  00 00 00 08 00 00 00 04  |!..A............|
-+000001d0  01 3e a5 13 41 36 00 10  00 00 00 40 00 00 00 00  |.>..A6.....@....|
-+000001e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+000001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|
-+00000200  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+00200040  57 45 56 82 06 00 00 00  00 00 00 00 00 00 00 00  |WEV.............|
-+00200050  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+00200060  00 00 00 00 00 00 00 00  00 02 00 00 3f 00 00 00  |............?...|
-+00200070  ff 00 00 00 01 00 00 00  c1 3e 00 00 c1 3e 00 00  |.........>...>..|
-+00200080  00 00 00 00 00 00 00 00  10 0e 01 00 00 00 00 00  |................|
-+00200090  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+002000c0  00 00 00 00 57 45 56 82  15 7a 04 00 00 20 00 00  |....WEV..z... ..|
-+002000d0  00 20 00 00 01 08 00 00  00 10 00 00 00 00 00 00  |. ..............|
-+002000e0  07 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+002000f0  00 00 00 00 00 40 00 00  00 10 00 00 00 00 00 00  |.....@..........|
-+00200100  00 00 00 00 c1 3e 00 00  00 00 00 00 00 00 00 00  |.....>..........|
-+00200110  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+002001f0  00 00 00 00 00 00 00 00  43 4f 5c 82 20 2b 57 82  |........CO\. +W.|
-+00200200  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+00a00000
-+
-+---layout----------
-+
-+Welcome to fdisk <removed>.
-+Changes will remain in memory only, until you decide to write them.
-+Be careful before using the write command.
-+
-+
-+Command (m for help): Entering nested BSD disklabel.
-+
-+Command (m for help): Disk <removed>2: 10 MiB, 10485760 bytes, 20480 sectors
-+Geometry: 255 heads, 63 sectors/track, 1 cylinders
-+Units: sectors of 1 * 512 = 512 bytes
-+Sector size (logical/physical): 512 bytes / 512 bytes
-+I/O size (minimum/optimal): 512 bytes / <removed> bytes
-+Disklabel type: bsd
-+
-+Slice Start   End Sectors  Size Type     Fsize Bsize Cpg
-+a      4096  6144    2049    1M 4.2BSD       0     0   0
-+c      4096 20479   16384    8M unused       0     0   0
-+d         0 16064   16065  7.9M unused       0     0   0
-+
-+Partition table entries are not in disk order.
-+
-+Command (m for help): Leaving nested disklabel.
-+
-+Command (m for help): 
-+-------------------
-+
-+
-+
-+Changes will remain in memory only, until you decide to write them.
-+Be careful before using the write command.
-+
-+
-+Command (m for help): Entering nested BSD disklabel.
-+
-+Command (m for help): 
-+ 0  unused           5  4.1BSD           9  4.4LFS           d  boot           
-+ 1  swap             6  Eighth Edition   a  unknown          e  ADOS           
-+ 2  Version 6        7  4.2BSD           b  HPFS             f  HFS            
-+ 3  Version 7        8  ext2             c  ISO-9660        10  AdvFS          
-+ 4  System V       
-+
-+Command (m for help): 
+This patch set introduces a new behavior of -oloop:
+
+First check, whether the same backing file with the same offset is
+already used. If yes, reuse already initialized loop device.
+
+If not, initialize another loop device.
+
+There are some controversial things with these patches. Some of them
+cannot be fixed.
+
+- Kernel never returns EBUSY for LOOP_CLR_FD. It prevents errors when
+   mount will steal other's loop device. But I am not sure, whether it
+   will work correctly in all possible situations. Anyway, I don't see a
+   better solution.
+
+- If the same backing file is already used for a read-only loop device,
+   there is no safe way to continue.
+   - There is no way to turn R/O loop to R/W in kernel.
+   - If another loop is initialized, changes will not propagate to R/O
+     volume.
+   - One would need to umount all R/O devices, initialize loop R/W, and
+     then everything mount again.
+   I can imagine partial solution: Introduce looprw option. Such option
+   would cause to initialize loop device R/W even for R/O mount.
+
+- If the same backing file is already used for a loop device with
+   correct offset, but incorrect sizelimit, there is no solution. The
+   current implementation does not check for it.
+
+- There exists a change for a race condition between device lookup and
+   mount syscall.
+
+- The implementation does not check for crypto. I think it is not a big
+   problem, as it makes no sense to initialize the same backing file as
+   encrypted and non-encrypted at once.
+
+References:
+[1] https://lkml.org/lkml/2016/2/26/897
+
 -- 
-1.8.4.5
+Best Regards / S pozdravem,
 
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
