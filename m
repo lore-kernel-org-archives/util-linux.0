@@ -1,84 +1,107 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:65271 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.15.18]:53866 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751127AbcDOHW0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 15 Apr 2016 03:22:26 -0400
+	id S1030681AbcDML3x (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 13 Apr 2016 07:29:53 -0400
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Sami Kerola <kerolasa@iki.fi>
-Subject: Re: [PATCH] script: close file descriptors on exec
-Date: Fri, 15 Apr 2016 09:22:14 +0200
-Cc: util-linux@vger.kernel.org
-References: <1460665325-7793-1-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1460665325-7793-1-git-send-email-kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH 0/3] btrfs-safe implementation of -oloop
+Date: Wed, 13 Apr 2016 13:29:35 +0200
+Cc: Stanislav Brabec <sbrabec@suse.cz>, util-linux@vger.kernel.org
+References: <570D3CC7.5060809@suse.cz> <20160413110857.ftvekbq2fnbb2fau@ws.net.home>
+In-Reply-To: <20160413110857.ftvekbq2fnbb2fau@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201604150922.14811.sweet_f_a@gmx.de>
+  charset="iso-8859-1"
+Message-Id: <201604131329.35899.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 14 April 2016, Sami Kerola wrote:
-> The commands spawned from script(1) will never need access various
-> file descriptors the script(1) is using.
+On Wednesday 13 April 2016, Karel Zak wrote:
+> On Tue, Apr 12, 2016 at 08:21:59PM +0200, Stanislav Brabec wrote:
+> > Exactly this happened if -oloop is used multiple times with the
+> > same source.
+> >
+> > It could not happen in past, but with introduction of btrfs
+> > sub-volumes it has a perfectly legal use cases.
+> >
+> > This patch set introduces a new behavior of -oloop:
+> >
+> > First check, whether the same backing file with the same offset is
+> > already used. If yes, reuse already initialized loop device.
+> >
+> > If not, initialize another loop device.
 >
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  term-utils/script.c | 12 ++++++------
->  1 file changed, 6 insertions(+), 6 deletions(-)
+> I think this behaviour (re-use loopdev) is better, I thought about it
+> years ago, but it has never been implemented due to backward
+> compatibility. Now it's obvious it's the right way to go.
 >
-> diff --git a/term-utils/script.c b/term-utils/script.c
-> index 1199742..88b522a 100644
-> --- a/term-utils/script.c
-> +++ b/term-utils/script.c
-> @@ -419,15 +419,15 @@ static void do_io(struct script_control *ctl)
->  	};
+> > There are some controversial things with these patches. Some of
+> > them cannot be fixed.
+> >
+> > - Kernel never returns EBUSY for LOOP_CLR_FD. It prevents errors
+> > when mount will steal other's loop device. But I am not sure,
+> > whether it will work correctly in all possible situations. Anyway,
+> > I don't see a better solution.
+> >
+> > - If the same backing file is already used for a read-only loop
+> > device, there is no safe way to continue.
 >
+> Why? Just re-use the read-only loopdev. We don't have have to promise
+> read-write device if the backend is read only. This is generic
+> behavior used in another cases too. For example if you try to mount
+> NFS exported by server in read-only mode than your "rw" is ignored
+> and result is "ro", the same is with read-only media (CDROM, etc.).
 >
-> -	if ((ctl->typescriptfp = fopen(ctl->fname, ctl->append ? "a" :
-> "w")) == NULL) { +	if ((ctl->typescriptfp = fopen(ctl->fname,
-> ctl->append ? "ae" : "we")) == NULL) { warn(_("cannot open %s"),
-> ctl->fname);
->  		fail(ctl);
->  	}
->  	if (ctl->timing) {
->  		if (!ctl->tname) {
-> -			if (!(ctl->timingfp = fopen("/dev/stderr", "w")))
-> +			if (!(ctl->timingfp = fopen("/dev/stderr", "we")))
->  				err(EXIT_FAILURE, _("cannot open %s"), "/dev/stderr");
-> -		} else if (!(ctl->timingfp = fopen(ctl->tname, "w")))
-> +		} else if (!(ctl->timingfp = fopen(ctl->tname, "we")))
+> IMHO all we need is a warning, "backing file already used as
+> read-only, mounting read-only".
+>
+> >   - There is no way to turn R/O loop to R/W in kernel.
+> >   - If another loop is initialized, changes will not propagate to
+> > R/O volume.
+> >   - One would need to umount all R/O devices, initialize loop R/W,
+> > and then everything mount again.
+> >   I can imagine partial solution: Introduce looprw option. Such
+> > option would cause to initialize loop device R/W even for R/O
+> > mount.
+>
+> Sounds like over-engineering :-)
+>
+> > - If the same backing file is already used for a loop device with
+> >   correct offset, but incorrect sizelimit, there is no solution.
+> > The current implementation does not check for it.
+>
+> IMHO the current "check start offset only" is a poor solution if we
+> want to re-use loopdevs. It would be better to think about
+> offset+limit as about partition and about backing-file as about
+> whole-disk.
+>
+> It means check if the area specified by offset+limit does not overlap
+> any existing backing-file mapping. It should be possible to re-use
+> loopdev (by mount(8)) only if offset and size matches.
+>
+> It should be also forbidden to create a new (non re-used) loopdev if
+> area specified by offset and sizelimit overlap any existing backing
+> file mapping. This is important!
+>
+> Maybe we can also improve losetup to warn about overlapping loop
+> devices.
+>
+> > - There exists a change for a race condition between device lookup
+> > and mount syscall.
+>
+> Sure.
+>
+> > - The implementation does not check for crypto. I think it is not a
+> > big problem, as it makes no sense to initialize the same backing
+> > file as encrypted and non-encrypted at once.
+>
+> There is nothing like loop devices encryption :-)
 
-"e" works for glibc only.
+openSUSE had cryptoloop before 12.2. But it's not supported anymore.
+There was also losetup -e:
+       -e, -E, --encryption encryption_type
+              enable data encryption with specified name or number
 
->  			err(EXIT_FAILURE, _("cannot open %s"), ctl->tname);
->  	}
->
-> @@ -515,7 +515,7 @@ static void getslave(struct script_control *ctl)
->  {
->  #ifndef HAVE_LIBUTIL
->  	ctl->line[strlen("/dev/")] = 't';
-> -	ctl->slave = open(ctl->line, O_RDWR);
-> +	ctl->slave = open(ctl->line, O_RDWR | O_CLOEXEC);
->  	if (ctl->slave < 0) {
->  		warn(_("cannot open %s"), ctl->line);
->  		fail(ctl);
-> @@ -625,7 +625,7 @@ static void getmaster(struct script_control *ctl)
->  			break;
->  		for (cp = "0123456789abcdef"; *cp; cp++) {
->  			*pty = *cp;
-> -			ctl->master = open(ctl->line, O_RDWR);
-> +			ctl->master = open(ctl->line, O_RDWR | O_CLOEXEC);
->  			if (ctl->master >= 0) {
->  				char *tp = &ctl->line[strlen("/dev/")];
->  				int ok;
-> @@ -765,7 +765,7 @@ int main(int argc, char **argv)
->  	 * handled according to their default dispositions */
->  	sigprocmask(SIG_BLOCK, &ctl.sigset, &ctl.sigorg);
->
-> -	if ((ctl.sigfd = signalfd(-1, &ctl.sigset, 0)) < 0)
-> +	if ((ctl.sigfd = signalfd(-1, &ctl.sigset, SFD_CLOEXEC)) < 0)
->  		err(EXIT_FAILURE, _("cannot set signal handler"));
->
->  	DBG(SIGNAL, ul_debug("signal fd=%d", ctl.sigfd));
-
-
+cu,
+Rudi
