@@ -1,78 +1,111 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35413 "EHLO mx1.redhat.com"
+Received: from mx2.suse.de ([195.135.220.15]:54055 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753029AbcDNKcy (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 14 Apr 2016 06:32:54 -0400
-Date: Thu, 14 Apr 2016 12:32:52 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: Ruediger Meier <sweet_f_a@gmx.de>, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 1/3] chrt: make --sched-* short options to require an
- argument
-Message-ID: <20160414103252.44t25l3mb2r7inll@ws.net.home>
-References: <1459672529-2278-1-git-send-email-kerolasa@iki.fi>
- <20160404002100.eqclqk2rqbttbued@ws.net.home>
- <20160404082749.tqyzkgyba2ed77kr@ws.net.home>
- <201604041107.12672.sweet_f_a@gmx.de>
- <CAG27Bk3r9kEX+83wxXaSGyZ8driZgKO+0mESd7hD+tCkY8TGsA@mail.gmail.com>
+	id S1760484AbcDMMwJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 13 Apr 2016 08:52:09 -0400
+Subject: Re: [PATCH 0/3] btrfs-safe implementation of -oloop
+To: Karel Zak <kzak@redhat.com>
+References: <570D3CC7.5060809@suse.cz>
+ <20160413110857.ftvekbq2fnbb2fau@ws.net.home>
+Cc: util-linux@vger.kernel.org
+From: Stanislav Brabec <sbrabec@suse.cz>
+Message-ID: <570E40F7.3020902@suse.cz>
+Date: Wed, 13 Apr 2016 14:52:07 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk3r9kEX+83wxXaSGyZ8driZgKO+0mESd7hD+tCkY8TGsA@mail.gmail.com>
+In-Reply-To: <20160413110857.ftvekbq2fnbb2fau@ws.net.home>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Apr 04, 2016 at 03:43:23PM +0100, Sami Kerola wrote:
-> On 4 April 2016 at 10:07, Ruediger Meier <sweet_f_a@gmx.de> wrote:
-> > On Monday 04 April 2016, Karel Zak wrote:
-> >> On Mon, Apr 04, 2016 at 02:21:00AM +0200, Karel Zak wrote:
-> >> > On Sun, Apr 03, 2016 at 09:35:27AM +0100, Sami Kerola wrote:
-> >> > > These options are expecting an argument, and the long options
-> >> > > struct already required them.
-> >> >
-> >> >  Good catch, but deadline and runtime should be optional arguments
-> >> > (it seems I have merged wrong version of my patch:-(
-> >>
-> >> Sorry, didn't read the patch correctly. You're right. Applied,
-> >> thanks.
-> >
-> > BTW I like the coreutils convention that new options with optional
-> > arguments should be long options only. This is less confusing for the
-> > users.
-> 
-> Makes sense, and if Karel agrees Documentation/* files need updating.
+Karel Zak wrote:
+> On Tue, Apr 12, 2016 at 08:21:59PM +0200, Stanislav Brabec wrote:
 
-Go ahead.
+>> - If the same backing file is already used for a read-only loop device,
+>>    there is no safe way to continue.
+>
+> Why? Just re-use the read-only loopdev. We don't have have to promise
+> read-write device if the backend is read only. This is generic
+> behavior used in another cases too. For example if you try to mount
+> NFS exported by server in read-only mode than your "rw" is ignored and
+> result is "ro", the same is with read-only media (CDROM, etc.).
 
-> BTW the debian bug 791707 that was the reason why I even started to look
-> chrt is pretty good indication the command is not easy to use or understand.
+There is a problem that mount itself initializes loop as R/O:
 
-All sched-utils has horrible command line, if I good remember we
-have already tried to improve things, but unfortunately things are
-limited by backward compatibility.
+# ./mount -oro,loop /btrfs.img /mnt/1
+# ./mount -oloop,subvol=/ /btrfs.img /mnt/2
+mount: /btrfs.img is used as read only loop, mounting read-only
 
-> But fixing that cannot be done without breaking ABI, and such change cannot
-> be approved.  So should the util-linux v2.29 (or perhaps v3.0 as the numbers
-> are getting a bit large) have new tools:
-> 
-> $ rtctl
-> $ lsrt
-> 
-> Where the former has expected interface using options as people normally see
-> them.  For example:
-> 
-> $ rtctl --priority 0 --policy rt --exec 'ls /etc' --pid $$
-> 
-> In above --exec or --pid can be used more than once, but 'settings' type options
-> should not be allowed more than one instance to avoid confusions.
-> 
-> And 'lsrt' would be for displaying the stuff rtctl is controlling.
+> IMHO all we need is a warning, "backing file already used as
+> read-only, mounting read-only".
 
-I have already thought about ls-like util for scheduling stuff and it
-seems like a good idea. Not sure if we really need rtctl (I hate the
-name, what about 'sched' :-)
+This is part of patch 3. See above. Feel free to improve the warning.
 
-    Karel
+>>    - There is no way to turn R/O loop to R/W in kernel.
+>>    - If another loop is initialized, changes will not propagate to R/O
+>>      volume.
+>>    - One would need to umount all R/O devices, initialize loop R/W, and
+>>      then everything mount again.
+>>    I can imagine partial solution: Introduce looprw option. Such option
+>>    would cause to initialize loop device R/W even for R/O mount.
+>
+> Sounds like over-engineering :-)
+
+I think that mounting / as R/W and /snapshots as R/O could be a legal 
+use. If mount mounts /snapshots first, there is no way to mount / R/W.
+
+>> - If the same backing file is already used for a loop device with
+>>    correct offset, but incorrect sizelimit, there is no solution. The
+>>    current implementation does not check for it.
+>
+> IMHO the current "check start offset only" is a poor solution if we want
+> to re-use loopdevs. It would be better to think about offset+limit
+> as about partition and about backing-file as about whole-disk.
+
+I am aware that it is unsafe. But it was easy, and will work in most 
+"normal" cases. Nobody has a reason to initialize loop device that 
+contains only half of the partition.
+
+> It means check if the area specified by offset+limit does not overlap
+> any existing backing-file mapping. It should be possible to re-use
+> loopdev (by mount(8)) only if offset and size matches.
+ >
+> It should be also forbidden to create a new (non re-used) loopdev if
+> area specified by offset and sizelimit overlap any existing backing
+> file mapping. This is important!
+>
+> Maybe we can also improve losetup to warn about overlapping loop
+> devices.
+
+This sounds as a 100% safe solution.
+
+>> - There exists a change for a race condition between device lookup and
+>>    mount syscall.
+>
+> Sure.
+
+I was thinking about LO_FLAGS_OPEN_FD flag for 
+loopcxt_find_by_backing_file(). It will use open() as soon as possible, 
+and if it fails, it repeats the iteration.
+loopctxt_close_fd() would then close it.
+
+But it would need more work, as mount does not have access to loopctxt.
+
+>> - The implementation does not check for crypto. I think it is not a big
+>>    problem, as it makes no sense to initialize the same backing file as
+>>    encrypted and non-encrypted at once.
+>
+> There is nothing like loop devices encryption :-)
+
+Good to know. It is still a part of kernel structures.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
