@@ -1,49 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:34628 "EHLO
-	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751614AbcDPSeR (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 16 Apr 2016 14:34:17 -0400
-Received: by mail-wm0-f67.google.com with SMTP id n3so14007251wmn.1
-        for <util-linux@vger.kernel.org>; Sat, 16 Apr 2016 11:34:17 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 6/7] dmesg: --notime should not suppress --show-delta
-Date: Sat, 16 Apr 2016 19:34:08 +0100
-Message-Id: <1460831649-11484-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1460831649-11484-1-git-send-email-kerolasa@iki.fi>
-References: <1460831649-11484-1-git-send-email-kerolasa@iki.fi>
+Received: from forward14p.cmail.yandex.net ([87.250.241.142]:58030 "EHLO
+	forward14p.cmail.yandex.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S934619AbcDMKnN (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Wed, 13 Apr 2016 06:43:13 -0400
+From: Ponomarenko Andrey <andrewponomarenko@yandex.ru>
+To: Karel Zak <kzak@redhat.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+In-Reply-To: <20160412113004.zog62jry7cv7cv67@ws.net.home>
+References: <20160412113004.zog62jry7cv7cv67@ws.net.home>
+Subject: Re: [ANNOUNCE] util-linux v2.28
+MIME-Version: 1.0
+Message-Id: <3763281460543608@web6g.yandex.ru>
+Date: Wed, 13 Apr 2016 13:33:28 +0300
+Content-Type: text/plain; charset=koi8-r
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The --show-delta is off by default, which means it can be only on when user
-has requested to see these time stamps.  The --notime option should not turn
-the delta outputing off, because then option order matters and no-one wants
-that.  Example of the old output:
+12.04.2016, 14:30, "Karel Zak":
+> The util-linux release v2.28 is available at
+>
+> ššhttp://ftp.kernel.org/pub/linux/utils/util-linux/v2.28
+>
+> Feedback and bug reports, as always, are welcomed.
+>
 
-$ dmesg --notime --show-delta | sed -n 's/ version.*//p; q'
-[<    0.000000>] Linux
-$ dmesg --show-delta --notime | sed -n 's/ version.*//p; q'
-Linux
-
-Addresses: https://bugs.launchpad.net/bugs/1544595
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/dmesg.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-index 99cf26e..cf93331 100644
---- a/sys-utils/dmesg.c
-+++ b/sys-utils/dmesg.c
-@@ -1363,7 +1363,6 @@ int main(int argc, char *argv[])
- 			break;
- 		case 't':
- 			ctl.time_fmt = DMESG_TIMEFTM_NONE;
--			delta = 0;
- 			break;
- 		case 'u':
- 			ctl.fltr_fac = 1;
--- 
-2.8.0
-
+The ABI report for 2.28: http://abi-laboratory.pro/tracker/timeline/util-linux/
