@@ -1,78 +1,59 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.18]:55289 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753650AbcDMU6i convert rfc822-to-8bit (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 13 Apr 2016 16:58:38 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Return-Path: rworkman@slackware.com
+Date: Tue, 12 Apr 2016 19:33:08 -0700 (PDT)
+From: Robby Workman <rworkman@slackware.com>
 To: Karel Zak <kzak@redhat.com>
+cc: util-linux@vger.kernel.org
 Subject: Re: v2.29 plan: kill mtab
-Date: Wed, 13 Apr 2016 22:58:28 +0200
-Cc: util-linux@vger.kernel.org
-References: <20160407105400.jn66tldxy7s3rqyc@ws.net.home>
-In-Reply-To: <20160407105400.jn66tldxy7s3rqyc@ws.net.home>
+In-Reply-To: <20160411205934.blmh2xx3bgxw4vwm@ws.net.home>
+Message-ID: <alpine.LNX.2.02.1604121931070.16273@connie.slackware.com>
+References: <alpine.LNX.2.02.1604071350320.22605@connie.slackware.com> <20160411205934.blmh2xx3bgxw4vwm@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <201604132258.28216.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 07 April 2016, Karel Zak wrote:
-> libmount supports three scenarios:
+On Mon, 11 Apr 2016, Karel Zak wrote:
+
+> On Sun, Apr 10, 2016 at 09:35:41PM -0700, Robby Workman wrote:
+>> Karel Zak wrote:
+>>
+>>> libmount supports three scenarios:
+>>>
+>>> 1) regular classic /etc/mtab
+>>>
+>>> 2) /etc/mtab symlink to /proc/self/mount -- in this case libmount uses
+>>>    /proc/self/mountinfo and /run/mount/utab
+>>>
+>>> The current default is to detect symlink and on-the-fly switch
+>>> between 1) and 2).
+>>>
+>>> 3) --enable-libmount-force-mountinfo -- don't care about the symlink
+>>>    and always use /proc/self/mountinfo. This is robust solution required
+>>>    for example by systemd, because unfortunately sometimes people use
+>>>    broken stuff (init scripts, tools, etc.) which removes the symlink.
+>>>
+>>>
+>>> I'd like to make 3) default, the question is what with mtab code:
+>>>
+>>>    a) #ifdef all mtab code (and add --enable-libmount-support-mtab)
+>>>
+>>>    b) remove mtab support at all (because it's evil and horrible code)
+>>>
+>>> Comments?
+>>
+>>
+>> We still use SysV init because it suits our needs just fine, and we
+>> have no plans to migrate to systemd in the foreseeable future, so
+>> we don't have any other compelling reason to use anything other than
+>> classic /etc/mtab. As such, we'd certainly appreciate, at the very
+>> least, leaving the mtab support in util-linux.
 >
->  1) regular classic /etc/mtab
->
->  2) /etc/mtab symlink to /proc/self/mount -- in this case libmount
-> uses /proc/self/mountinfo and /run/mount/utab
->
->  The current default is to detect symlink and on-the-fly switch
->  between 1) and 2).
->
->  3) --enable-libmount-force-mountinfo -- don't care about the symlink
-> and always use /proc/self/mountinfo. This is robust solution required
-> for example by systemd, because unfortunately sometimes people use
-> broken stuff (init scripts, tools, etc.) which removes the symlink.
->
->
->  I'd like to make 3) default, the question is what with mtab code:
->
->     a) #ifdef all mtab code (and add --enable-libmount-support-mtab)
->
->     b) remove mtab support at all (because it's evil and horrible
-> code)
->
->  Comments?
->
->     Karel
+> This discussion is really not about init, but about mtab that is
+> broken by design.
 
 
-What about this first step:
+Okay, then how about this? Our current use of /etc/mtab works well
+for us, and as far as I'm aware, we've experienced absolutely
+none of this "[breakage] by design" - as such, we'd be grealy
+appreciative if the option remains to continue using it.
 
->From e6c17f35a8d63f129c5bbd722995b97d050e4151 Mon Sep 17 00:00:00 2001
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
-Date: Wed, 13 Apr 2016 22:33:06 +0200
-Subject: [PATCH] libmount: deprecate /etc/mtab file
-
-Default is now --enable-libmount-force-mountinfo.
-
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- configure.ac | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/configure.ac b/configure.ac
-index 31a1911..e4e6996 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -958,8 +958,8 @@ AC_SUBST([LIBMOUNT_VERSION_INFO])
- AC_DEFINE_UNQUOTED([LIBMOUNT_VERSION], ["$LIBMOUNT_VERSION"], [libmount version string])
-
- AC_ARG_ENABLE([libmount-force-mountinfo],
--  AS_HELP_STRING([--enable-libmount-force-mountinfo], [ignore /etc/mtab in all situations (recommended for systemd)]),
--  [], [enable_libmount_force_mountinfo=no]
-+  AS_HELP_STRING([--disable-libmount-force-mountinfo], [use deprecated /etc/mtab file (not recommended and incompatible with openrc or systemd)]),
-+  [], [enable_libmount_force_mountinfo=yes]
- )
-
- AS_IF([test "x$enable_libmount_force_mountinfo" == xyes], [
---
-1.8.4.5
+-RW
