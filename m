@@ -1,54 +1,77 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.126.130]:64911 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751621AbcDPVVA (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 16 Apr 2016 17:21:00 -0400
-Subject: Re: [PATCH] Fail like the shell when execvp fails
-To: Nir Soffer <nirsof@gmail.com>, util-linux@vger.kernel.org
-References: <1460827912-19521-1-git-send-email-nsoffer@redhat.com>
-Cc: Nir Soffer <nsoffer@redhat.com>
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Message-ID: <5712ACB2.7090103@bernhard-voelker.de>
-Date: Sat, 16 Apr 2016 23:20:50 +0200
-MIME-Version: 1.0
-In-Reply-To: <1460827912-19521-1-git-send-email-nsoffer@redhat.com>
-Content-Type: text/plain; charset=windows-1252
+Received: from mail-wm0-f52.google.com ([74.125.82.52]:37292 "EHLO
+	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751936AbcDNUWQ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 14 Apr 2016 16:22:16 -0400
+Received: by mail-wm0-f52.google.com with SMTP id n3so4484843wmn.0
+        for <util-linux@vger.kernel.org>; Thu, 14 Apr 2016 13:22:16 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH] script: close file descriptors on exec
+Date: Thu, 14 Apr 2016 21:22:05 +0100
+Message-Id: <1460665325-7793-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 04/16/2016 07:31 PM, Nir Soffer wrote:
-> For example, running the fuser command via taskset when fuser command is
-> not installed is failing now like this:
-> 
->     $ taskset -c 1 fuser /path/to/file; echo $?
->     taskset: failed to execute fuser: No such file or directory
->     1
-> 
-> This failure looks like a real failure of the fuser command:
-> 
->     $ taskset -c 1 fuser /path/to/file; echo $?
->     Specified filename /path/to/file does not exist.
->     1
-> 
-> Based on the exit code, a management program may do the wrong thing,
-> leading to catastrophic results. Detecting such failure requires fragile
-> parsing of standard error.
-> 
-> With this patch this failure is easy to detect:
-> 
->     $ taskset -c 1 fuser /path/to/file; echo $?
->     taskset: failed to execute fuser: No such file or directory
->     127
+The commands spawned from script(1) will never need access various file
+descriptors the script(1) is using.
 
-TBH I don't like this idea; how would you see from the exit code
-that 'taskset' itself wasn't the culprit?  I mean execve()ing
-taskset worked, but that tool simply wasn't lucky to execve() the
-secondary tool, well.  So EXIT_FAILURE is the right thing to do IMO,
-and it is like that in almost any other - also non-util-linux tools
-(chroot, nice, ...).  Therefore, I don't see much gain from changing
-this here - not to mention the probable fallout for tools/script
-relying on the previous EXIT_FAILURE.
-Can you reference any general discussion about this?
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ term-utils/script.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Have a nice day,
-Berny
+diff --git a/term-utils/script.c b/term-utils/script.c
+index 1199742..88b522a 100644
+--- a/term-utils/script.c
++++ b/term-utils/script.c
+@@ -419,15 +419,15 @@ static void do_io(struct script_control *ctl)
+ 	};
+ 
+ 
+-	if ((ctl->typescriptfp = fopen(ctl->fname, ctl->append ? "a" : "w")) == NULL) {
++	if ((ctl->typescriptfp = fopen(ctl->fname, ctl->append ? "ae" : "we")) == NULL) {
+ 		warn(_("cannot open %s"), ctl->fname);
+ 		fail(ctl);
+ 	}
+ 	if (ctl->timing) {
+ 		if (!ctl->tname) {
+-			if (!(ctl->timingfp = fopen("/dev/stderr", "w")))
++			if (!(ctl->timingfp = fopen("/dev/stderr", "we")))
+ 				err(EXIT_FAILURE, _("cannot open %s"), "/dev/stderr");
+-		} else if (!(ctl->timingfp = fopen(ctl->tname, "w")))
++		} else if (!(ctl->timingfp = fopen(ctl->tname, "we")))
+ 			err(EXIT_FAILURE, _("cannot open %s"), ctl->tname);
+ 	}
+ 
+@@ -515,7 +515,7 @@ static void getslave(struct script_control *ctl)
+ {
+ #ifndef HAVE_LIBUTIL
+ 	ctl->line[strlen("/dev/")] = 't';
+-	ctl->slave = open(ctl->line, O_RDWR);
++	ctl->slave = open(ctl->line, O_RDWR | O_CLOEXEC);
+ 	if (ctl->slave < 0) {
+ 		warn(_("cannot open %s"), ctl->line);
+ 		fail(ctl);
+@@ -625,7 +625,7 @@ static void getmaster(struct script_control *ctl)
+ 			break;
+ 		for (cp = "0123456789abcdef"; *cp; cp++) {
+ 			*pty = *cp;
+-			ctl->master = open(ctl->line, O_RDWR);
++			ctl->master = open(ctl->line, O_RDWR | O_CLOEXEC);
+ 			if (ctl->master >= 0) {
+ 				char *tp = &ctl->line[strlen("/dev/")];
+ 				int ok;
+@@ -765,7 +765,7 @@ int main(int argc, char **argv)
+ 	 * handled according to their default dispositions */
+ 	sigprocmask(SIG_BLOCK, &ctl.sigset, &ctl.sigorg);
+ 
+-	if ((ctl.sigfd = signalfd(-1, &ctl.sigset, 0)) < 0)
++	if ((ctl.sigfd = signalfd(-1, &ctl.sigset, SFD_CLOEXEC)) < 0)
+ 		err(EXIT_FAILURE, _("cannot set signal handler"));
+ 
+ 	DBG(SIGNAL, ul_debug("signal fd=%d", ctl.sigfd));
+-- 
+2.8.0
+
