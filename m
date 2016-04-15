@@ -1,57 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42190 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:44245 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751691AbcDKU7k (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 11 Apr 2016 16:59:40 -0400
-Date: Mon, 11 Apr 2016 22:59:34 +0200
+	id S1753281AbcDOIat (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 15 Apr 2016 04:30:49 -0400
+Date: Fri, 15 Apr 2016 10:30:46 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Robby Workman <rworkman@slackware.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: v2.29 plan: kill mtab
-Message-ID: <20160411205934.blmh2xx3bgxw4vwm@ws.net.home>
-References: <alpine.LNX.2.02.1604071350320.22605@connie.slackware.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] script: close file descriptors on exec
+Message-ID: <20160415083046.gaeryvxivffxrbal@ws.net.home>
+References: <1460665325-7793-1-git-send-email-kerolasa@iki.fi>
+ <201604150922.14811.sweet_f_a@gmx.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LNX.2.02.1604071350320.22605@connie.slackware.com>
+In-Reply-To: <201604150922.14811.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Apr 10, 2016 at 09:35:41PM -0700, Robby Workman wrote:
-> Karel Zak wrote:
+On Fri, Apr 15, 2016 at 09:22:14AM +0200, Ruediger Meier wrote:
+> On Thursday 14 April 2016, Sami Kerola wrote:
+> > The commands spawned from script(1) will never need access various
+> > file descriptors the script(1) is using.
+> >
+> > Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> > ---
+> >  term-utils/script.c | 12 ++++++------
+> >  1 file changed, 6 insertions(+), 6 deletions(-)
+> >
+> > diff --git a/term-utils/script.c b/term-utils/script.c
+> > index 1199742..88b522a 100644
+> > --- a/term-utils/script.c
+> > +++ b/term-utils/script.c
+> > @@ -419,15 +419,15 @@ static void do_io(struct script_control *ctl)
+> >  	};
+> >
+> >
+> > -	if ((ctl->typescriptfp = fopen(ctl->fname, ctl->append ? "a" :
+> > "w")) == NULL) { +	if ((ctl->typescriptfp = fopen(ctl->fname,
+> > ctl->append ? "ae" : "we")) == NULL) { warn(_("cannot open %s"),
+> > ctl->fname);
+> >  		fail(ctl);
+> >  	}
+> >  	if (ctl->timing) {
+> >  		if (!ctl->tname) {
+> > -			if (!(ctl->timingfp = fopen("/dev/stderr", "w")))
+> > +			if (!(ctl->timingfp = fopen("/dev/stderr", "we")))
+> >  				err(EXIT_FAILURE, _("cannot open %s"), "/dev/stderr");
+> > -		} else if (!(ctl->timingfp = fopen(ctl->tname, "w")))
+> > +		} else if (!(ctl->timingfp = fopen(ctl->tname, "we")))
 > 
-> > libmount supports three scenarios:
-> > 
-> > 1) regular classic /etc/mtab
-> > 
-> > 2) /etc/mtab symlink to /proc/self/mount -- in this case libmount uses
-> >    /proc/self/mountinfo and /run/mount/utab
-> > 
-> > The current default is to detect symlink and on-the-fly switch
-> > between 1) and 2).
-> > 
-> > 3) --enable-libmount-force-mountinfo -- don't care about the symlink
-> >    and always use /proc/self/mountinfo. This is robust solution required
-> >    for example by systemd, because unfortunately sometimes people use
-> >    broken stuff (init scripts, tools, etc.) which removes the symlink.
-> > 
-> > 
-> > I'd like to make 3) default, the question is what with mtab code:
-> > 
-> >    a) #ifdef all mtab code (and add --enable-libmount-support-mtab)
-> > 
-> >    b) remove mtab support at all (because it's evil and horrible code)
-> > 
-> > Comments?
-> 
-> 
-> We still use SysV init because it suits our needs just fine, and we
-> have no plans to migrate to systemd in the foreseeable future, so
-> we don't have any other compelling reason to use anything other than
-> classic /etc/mtab. As such, we'd certainly appreciate, at the very
-> least, leaving the mtab support in util-linux.
+> "e" works for glibc only.
 
-This discussion is really not about init, but about mtab that is
-broken by design. 
+Yep, see c.h, should be 
+
+    else if (!(ctl->timingfp = fopen(ctl->tname, "w" UL_CLOEXECSTR))) 
 
     Karel
 
