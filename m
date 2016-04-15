@@ -1,35 +1,50 @@
-Return-Path: sbrabec@suse.cz
-Subject: Re: [PATCH 0/3] btrfs-safe implementation of -oloop
-To: Karel Zak <kzak@redhat.com>
-References: <570D3CC7.5060809@suse.cz>
- <20160422112255.idrjikem5u253kh6@ws.net.home>
-Cc: util-linux@vger.kernel.org
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <571A1C21.3020602@suse.cz>
-Date: Fri, 22 Apr 2016 14:42:09 +0200
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:39188 "EHLO
+	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751745AbcDOH7Z (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Fri, 15 Apr 2016 03:59:25 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+	by mailout.nyi.internal (Postfix) with ESMTP id 4AA7F20C0B
+	for <util-linux@vger.kernel.org>; Fri, 15 Apr 2016 03:59:24 -0400 (EDT)
+Message-Id: <1460707163.1560857.579528393.51AFCD05@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20160422112255.idrjikem5u253kh6@ws.net.home>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain
+In-Reply-To: <1460668650-8594-1-git-send-email-kerolasa@iki.fi>
+References: <1460668650-8594-1-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH] docs: optinal option arguments should be long-only
+Date: Fri, 15 Apr 2016 09:59:23 +0200
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
 
->> - If the same backing file is already used for a loop device with
->>    correct offset, but incorrect sizelimit, there is no solution. The
->>    current implementation does not check for it.
->
->   We need a warning/error for this.
->
-I am working on an improved, more safe loop checks.
+On Thu, Apr 14, 2016, at 23:17, Sami Kerola wrote:
+> +.I \-n
+> +and optional option
+> +.IR \-o .
+
+Those need to be .B and .BR -- they are literal arguments.
+
+> +One will expect
+> +.BI command \ \-no
+> +and
+> +.BI command \ \-on
+
+Both just .B.
+
+> +to be the same, but in fact the former is two separate options while later
+> +will use
+> +.I n
+> +as option argument of
+> +.I -n
+
+.B n  and  .B -o
+
+Benno
 
 -- 
-Best Regards / S pozdravem,
+http://www.fastmail.com - Does exactly what it says on the tin
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
