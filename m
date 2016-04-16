@@ -1,30 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53080 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754327AbcDFM0Z (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 6 Apr 2016 08:26:25 -0400
-Date: Wed, 6 Apr 2016 14:26:15 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] tests: test_md5 prints md5sum only
-Message-ID: <20160406122615.foxdi772wqthsxfc@ws.net.home>
-References: <1459938618-20153-1-git-send-email-sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1459938618-20153-1-git-send-email-sweet_f_a@gmx.de>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:36417 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751482AbcDPSeQ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 16 Apr 2016 14:34:16 -0400
+Received: by mail-wm0-f65.google.com with SMTP id l6so13962981wml.3
+        for <util-linux@vger.kernel.org>; Sat, 16 Apr 2016 11:34:15 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 5/7] script: check status of writes when closing outputs
+Date: Sat, 16 Apr 2016 19:34:07 +0100
+Message-Id: <1460831649-11484-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1460831649-11484-1-git-send-email-kerolasa@iki.fi>
+References: <1460831649-11484-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Apr 06, 2016 at 12:30:17PM +0200, Ruediger Meier wrote:
-> We want to to use it for other tests without depending on
-> gnu md5sum and without cut or awk.
+This should make possible output issues more obvious, for example when a
+disk will get full.
 
-It does not seem like anything critical, both patches applied to the
-next branch (will be in v2.29). Thanks.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ term-utils/script.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-    Karel
-
+diff --git a/term-utils/script.c b/term-utils/script.c
+index d691c22..d2eaafb 100644
+--- a/term-utils/script.c
++++ b/term-utils/script.c
+@@ -204,9 +204,11 @@ static void __attribute__((__noreturn__)) done(struct script_control *ctl)
+ 	kill(ctl->child, SIGTERM);	/* make sure we don't create orphans */
+ 
+ 	if (ctl->timingfp)
+-		fclose(ctl->timingfp);
++		if (close_stream(ctl->timingfp) != 0)
++			err(EXIT_FAILURE, "write failed: %s", ctl->tname);
+ 	if (ctl->typescriptfp)
+-		fclose(ctl->typescriptfp);
++		if (close_stream(ctl->typescriptfp) != 0)
++			err(EXIT_FAILURE, "write failed: %s", ctl->fname);
+ 
+ 	if (ctl->rc_wanted) {
+ 		if (WIFSIGNALED(ctl->childstatus))
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.8.0
+
