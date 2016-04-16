@@ -1,85 +1,92 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:48864 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752366AbcDGV7n (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 7 Apr 2016 17:59:43 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1aoHxl-0003dM-Js
-	for util-linux@vger.kernel.org; Thu, 07 Apr 2016 23:59:41 +0200
-Received: from ppp37-190-56-86.pppoe.spdop.ru ([37.190.56.86])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Thu, 07 Apr 2016 23:59:41 +0200
-Received: from yumkam by ppp37-190-56-86.pppoe.spdop.ru with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Thu, 07 Apr 2016 23:59:41 +0200
-To: util-linux@vger.kernel.org
-From: yumkam@gmail.com (Yuriy M. Kaminskiy)
-Subject: fsck -l: fix racing between unlock/unlink and open
-Date: Fri, 08 Apr 2016 00:59:29 +0300
-Message-ID: <m3bn5lqdvi.fsf@gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Received: from mail-wm0-f45.google.com ([74.125.82.45]:34938 "EHLO
+	mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751700AbcDPVmx convert rfc822-to-8bit (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 16 Apr 2016 17:42:53 -0400
+Received: by mail-wm0-f45.google.com with SMTP id a140so73111918wma.0
+        for <util-linux@vger.kernel.org>; Sat, 16 Apr 2016 14:42:52 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <5712ACB2.7090103@bernhard-voelker.de>
+References: <1460827912-19521-1-git-send-email-nsoffer@redhat.com>
+	<5712ACB2.7090103@bernhard-voelker.de>
+Date: Sun, 17 Apr 2016 00:42:51 +0300
+Message-ID: <CAMRbyyvheOFY=2uRHDCwEHwNzBN4r2DsyLAKEiXJj_PZQkttdg@mail.gmail.com>
+Subject: Re: [PATCH] Fail like the shell when execvp fails
+From: Nir Soffer <nsoffer@redhat.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: Nir Soffer <nirsof@gmail.com>, util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---=-=-=
-Content-Type: text/plain
+On Sun, Apr 17, 2016 at 12:20 AM, Bernhard Voelker
+<mail@bernhard-voelker.de> wrote:
+> On 04/16/2016 07:31 PM, Nir Soffer wrote:
+>> For example, running the fuser command via taskset when fuser command is
+>> not installed is failing now like this:
+>>
+>>     $ taskset -c 1 fuser /path/to/file; echo $?
+>>     taskset: failed to execute fuser: No such file or directory
+>>     1
+>>
+>> This failure looks like a real failure of the fuser command:
+>>
+>>     $ taskset -c 1 fuser /path/to/file; echo $?
+>>     Specified filename /path/to/file does not exist.
+>>     1
+>>
+>> Based on the exit code, a management program may do the wrong thing,
+>> leading to catastrophic results. Detecting such failure requires fragile
+>> parsing of standard error.
+>>
+>> With this patch this failure is easy to detect:
+>>
+>>     $ taskset -c 1 fuser /path/to/file; echo $?
+>>     taskset: failed to execute fuser: No such file or directory
+>>     127
+>
+> TBH I don't like this idea; how would you see from the exit code
+> that 'taskset' itself wasn't the culprit?  I mean execve()ing
+> taskset worked, but that tool simply wasn't lucky to execve() the
+> secondary tool, well.
 
-Probably, there are better solutions, but I prefer KISS.
+So taskset will exit with 127, which is not an error code you expect from the
+underlying tool?
 
---=-=-=
-Content-Type: text/x-diff
-Content-Disposition: inline;
- filename=0001-fsck-fix-racing-between-unlock-and-unlink.patch
+> So EXIT_FAILURE is the right thing to do IMO,
+> and it is like that in almost any other - also non-util-linux tools
+> (chroot, nice, ...).
 
->From fcb97ddcbc336bc8860828c47cdaf21c7b1ca655 Mon Sep 17 00:00:00 2001
-From: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
-Date: Fri, 8 Apr 2016 00:38:56 +0300
-Subject: [PATCH] fsck: fix racing between unlock/unlink and open
+Good examples:
 
-Process A	Process B	Process C
-open()
-[creates file]
-lock()
-[succeed]
-		open()
-		[open existing]
-		lock()...
-running()
-close()
-		[...succeed]
-unlink()
-		running()
-				open()
-				[creates file] {BAD!}
-				lock()
-				[succeed] {BAD!}
-				running() {BAD!}
-		close()
+$ nice -n 5 bleep 1; echo $?
+nice: bleep: No such file or directory
+127
 
-Cons: leaves empty (unlocked/harmless) .lock files in /run/fsck/
-Signed-off-by: Yuriy M. Kaminskiy <yumkam@gmail.com>
----
- disk-utils/fsck.c | 1 -
- 1 file changed, 1 deletion(-)
+$ sudo chroot /tmp bleep 1; echo $?
+chroot: failed to run command ‘bleep’: No such file or directory
+127
 
-diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
-index 05cfbc4..84d2dcc 100644
---- a/disk-utils/fsck.c
-+++ b/disk-utils/fsck.c
-@@ -410,7 +410,6 @@ static void unlock_disk(struct fsck_instance *inst)
- 		printf(_("Unlocking %s.\n"), inst->lockpath);
- 
- 	close(inst->lock);			/* unlock */
--	unlink(inst->lockpath);
- 
- 	free(inst->lockpath);
- 
--- 
-2.1.4
+This is the behavior I suggest to adapt.
 
+> Therefore, I don't see much gain from changing
+> this here - not to mention the probable fallout for tools/script
+> relying on the previous EXIT_FAILURE.
 
---=-=-=--
+Tools cannot depend on EXIT_FAILURE from command like taskset, since
+they are interested in the underlying tool exit code.
 
+For example, if a tool is depending on EXIT_FAILURE exit code from taskset
+while running fuser command, this tool is broken, ignoring the possible
+EXIT_FAILURE from fuser - which has very specific semantics.
+
+> Can you reference any general discussion about this?
+
+No
+
+>
+> Have a nice day,
+> Berny
+
+Cheers,
+Nir
