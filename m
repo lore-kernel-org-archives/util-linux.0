@@ -1,56 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:53213 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752025AbcDRLv7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 18 Apr 2016 07:51:59 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1as7iZ-0007qP-DM
-	for util-linux@vger.kernel.org; Mon, 18 Apr 2016 13:51:51 +0200
-Received: from ppp37-190-56-88.pppoe.spdop.ru ([37.190.56.88])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Mon, 18 Apr 2016 13:51:51 +0200
-Received: from yumkam by ppp37-190-56-88.pppoe.spdop.ru with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Mon, 18 Apr 2016 13:51:51 +0200
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:34600 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751482AbcDPSeN (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 16 Apr 2016 14:34:13 -0400
+Received: by mail-wm0-f65.google.com with SMTP id n3so14006954wmn.1
+        for <util-linux@vger.kernel.org>; Sat, 16 Apr 2016 11:34:12 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-From: yumkam@gmail.com (Yuriy M. Kaminskiy)
-Subject: Re: unshare -m and mount propagation
-Date: Mon, 18 Apr 2016 14:51:37 +0300
-Message-ID: <m3inzfkud2.fsf@gmail.com>
-References: <m3oaacfrn2.fsf@gmail.com>
-	<20160418111628.cj5bscuuxee2xfcg@ws.net.home>
-Mime-Version: 1.0
-Content-Type: text/plain
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 0/7]: ubuntu bug tracker fixes
+Date: Sat, 16 Apr 2016 19:34:05 +0100
+Message-Id: <1460831649-11484-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak <kzak@redhat.com> writes:
+Hello,
 
-> On Fri, Mar 18, 2016 at 05:26:25AM +0300, Yuriy M. Kaminskiy wrote:
->> I think this issue should be at least documented. And, maybe, default
->> `--propagation` should be changed to `slave`.
->
-> The reason why we use 'private' is that it's the kernel default for
-> years and it's what has been expected by users for long time before we
-> introduced --propagation and any unshare(1) default.
->
-> The current --propagation default unifies things and makes unshare(1) 
-> portable to distributions where root fs is mounted as 'shared' (e.g. 
-> systemd distros) and all this in backwardly compatible way for users
-> who have no clue about --propagation.
->
-> So, I don't think we want to change any default to corrupt scripts where
-> is no explicitly specified --propagation. 
+Here are four patches that I wrote after looking Ubuntu bug tracker.
 
-By you already broke scripts that expected old a-la '--propagation
-unchanged' behavior.
-E.g. one my script did
-   unshare -m sh -c 'mount --make-rslave /; ...'
-Now I must check for util-linux version and either use --propagation
-option, or mount --make-rslave (you cannot revert back from private to
-slave).
-(And as I said, 'private' breaks umount propagation and thus very bad for
-long-running namespaces).
+https://launchpad.net/ubuntu/+source/util-linux/+bugs?search=Search&field.status=New&orderby=importance&start=0 
+
+The patches are in same branch as few other changes that I wrote this week. 
+But as everyone can see I'm not resubmitting the three first changes to
+avoid unnecessary noise.
+
+
+----------------------------------------------------------------
+The following changes since commit a772281dff903b9e761c4d8a6c2ecad7d5f944ba:
+  libmount: make kernel_fs_postparse() more robust (2016-04-15 14:48:29 +0200)
+are available in the git repository at:
+  git://github.com/kerolasa/lelux-utiliteetit.git 2016wk15
+for you to fetch changes up to ceac24ce1d41903f73f2e96993333708ce97ca3b:
+  mount: try to tell what mount was doing when it failed (2016-04-16 19:05:58 +0100)
+----------------------------------------------------------------
+
+Sami Kerola (7):
+  docs: optinal option arguments should be long-only
+  script: close file descriptors on exec
+  sulogin: make fopen O_CLOEXEC specifier usage portable
+  script: avoid trying fclose(NULL)
+  script: check status of writes when closing outputs
+  dmesg: --notime should not suppress --show-delta
+  mount: try to tell what mount was doing when it failed
+
+ Documentation/boilerplate.c            | 10 +++++-----
+ Documentation/howto-man-page.txt       | 22 ++++++++++++++++++++--
+ Documentation/howto-usage-function.txt |  2 +-
+ login-utils/sulogin-consoles.c         |  4 ++--
+ sys-utils/dmesg.c                      |  1 -
+ sys-utils/mount.c                      |  9 +++++++--
+ term-utils/script.c                    | 20 ++++++++++++--------
+ 7 files changed, 47 insertions(+), 21 deletions(-)
+
+-- 
+2.8.0
 
