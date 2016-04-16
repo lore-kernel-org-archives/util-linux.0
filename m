@@ -1,67 +1,49 @@
-Return-Path: ebiederm@xmission.com
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <1460982392.2452.6.camel@HansenPartnership.com>
-	<1460993854.7385.11.camel@HansenPartnership.com>
-	<20160418171103.lcbrxvaldcyhemd3@ws.net.home>
-	<1461000495.7385.18.camel@HansenPartnership.com>
-Date: Mon, 18 Apr 2016 13:26:49 -0500
-In-Reply-To: <1461000495.7385.18.camel@HansenPartnership.com> (James
-	Bottomley's message of "Mon, 18 Apr 2016 13:28:15 -0400")
-Message-ID: <87k2juu61i.fsf@x220.int.ebiederm.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH] nsenter: fix ability to enter unprivileged containers
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:34628 "EHLO
+	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751614AbcDPSeR (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 16 Apr 2016 14:34:17 -0400
+Received: by mail-wm0-f67.google.com with SMTP id n3so14007251wmn.1
+        for <util-linux@vger.kernel.org>; Sat, 16 Apr 2016 11:34:17 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 6/7] dmesg: --notime should not suppress --show-delta
+Date: Sat, 16 Apr 2016 19:34:08 +0100
+Message-Id: <1460831649-11484-4-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1460831649-11484-1-git-send-email-kerolasa@iki.fi>
+References: <1460831649-11484-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-James Bottomley <James.Bottomley@HansenPartnership.com> writes:
+The --show-delta is off by default, which means it can be only on when user
+has requested to see these time stamps.  The --notime option should not turn
+the delta outputing off, because then option order matters and no-one wants
+that.  Example of the old output:
 
-> On Mon, 2016-04-18 at 19:11 +0200, Karel Zak wrote:
->> On Mon, Apr 18, 2016 at 11:37:34AM -0400, James Bottomley wrote:
->> > OK, so if you want me to reply properly, you're going to have to keep
->> > my address in the cc list.
->> > 
->> > > > If you enter it first, you lose privilege for subsequent
->> > > namespace
->> > > > enters,see issue
->> > > >
->> > > > https://github.com/karelzak/util-linux/issues/315
->> > > >
->> > > > The fix is to enter the user namespace last of all.
->> > > 
->> > > I verified that with *current*/unpatched nsenter,
->> > > 
->> > > $ unshare -rm sleep inf &
->> > > $ nsenter -t $! -U -m --preserve
->> > > 
->> > > works as expected (from regular user [and with unprivileged userns
->> > > enabled]).
->> > > 
->> > > With this patch it *won't* work [verified], of course (as you'll need
->> > > root privileges in userns before joining mount-ns, and you can only
->> > > obtain them by entering userns first).
->> > 
->> > So we're using userns for different things.  I'm using it to remove
->> > privilege (so on my userns implementation root in the host enters but
->> > on becoming root in the userns, it can do nothing other than write to
->> > its own files) and you're using it to enhance privilege.  It looks like
->> > these two things will always be mutually exclusive, so perhaps we need
->> > an extra flag to nsenter to say do the userns first or last?
->> 
->> That's what I have talked about at github -- see Eric's comment in the
->> code, the user NS is the first in the array for a good reason. May be
->> it would be really better to add --user-{first,last} options to
->> specify when you want to enter user NS.
->
-> OK, I'll code this up; hang on.
+$ dmesg --notime --show-delta | sed -n 's/ version.*//p; q'
+[<    0.000000>] Linux
+$ dmesg --show-delta --notime | sed -n 's/ version.*//p; q'
+Linux
 
-I think we can do this even better with two passes to setns.
+Addresses: https://bugs.launchpad.net/bugs/1544595
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/dmesg.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-A first pass before the user namespace is set (that ignores failures),
-and a second pass that sets the user namespace first as happens today.
+diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+index 99cf26e..cf93331 100644
+--- a/sys-utils/dmesg.c
++++ b/sys-utils/dmesg.c
+@@ -1363,7 +1363,6 @@ int main(int argc, char *argv[])
+ 			break;
+ 		case 't':
+ 			ctl.time_fmt = DMESG_TIMEFTM_NONE;
+-			delta = 0;
+ 			break;
+ 		case 'u':
+ 			ctl.fltr_fac = 1;
+-- 
+2.8.0
 
-That should satisfy both cases without flags, and would remove the need
-to remember/guess which kind of container people are using.
-
-Eric
