@@ -1,38 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46029 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:37021 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751260AbcDGHpW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 7 Apr 2016 03:45:22 -0400
-Date: Thu, 7 Apr 2016 09:45:20 +0200
+	id S1751876AbcDRLWZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 18 Apr 2016 07:22:25 -0400
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.redhat.com (Postfix) with ESMTPS id D85C0C049D7F
+	for <util-linux@vger.kernel.org>; Mon, 18 Apr 2016 11:22:24 +0000 (UTC)
+Received: from ws (ovpn-204-89.brq.redhat.com [10.40.204.89])
+	by int-mx11.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id u3IBMNH5017063
+	for <util-linux@vger.kernel.org>; Mon, 18 Apr 2016 07:22:24 -0400
+Date: Mon, 18 Apr 2016 13:22:23 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: Isaac Dunham <ibid.ag@gmail.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] tests: test_md5 prints md5sum only
-Message-ID: <20160407074520.2odjbvim2z35xgjg@ws.net.home>
-References: <1459938618-20153-1-git-send-email-sweet_f_a@gmx.de>
- <201604061940.22739.sweet_f_a@gmx.de>
- <20160406213809.GA6396@newbook>
- <201604070036.47481.sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: Re: libmount python bindings and header includes
+Message-ID: <20160418112223.shsjbjwfmfqimnai@ws.net.home>
+References: <20160412174653.GA6588@vapier.lan>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201604070036.47481.sweet_f_a@gmx.de>
+In-Reply-To: <20160412174653.GA6588@vapier.lan>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Apr 07, 2016 at 12:36:47AM +0200, Ruediger Meier wrote:
-> > however, one or two of them will probably break 
-> > due to the shell not working the same (parameter subsitution inside
-> > shell aritmetic inside $().).
-> > Similarly, -f is the only readlink option that seems to be used.
-> > (Busybox supports this.)
+On Tue, Apr 12, 2016 at 01:46:53PM -0400, Mike Frysinger wrote:
+> i'm currently seeing these build warnings:
+> libmount/python/fs.c:110:40: warning: implicit declaration of function 'major'
+> libmount/python/fs.c:111:7: warning: implicit declaration of function 'minor'
 > 
-> Unfortunately readlink -f is the most useful option of readlink. But 
-> probably we wouldn't need it always where we are using it right now.
+> this is handled for most of the code in include/c.h:
+> #ifdef HAVE_SYS_SYSMACROS_H
+> # include <sys/sysmacros.h>     /* for major, minor */
+> #endif
+> 
+> but the python code doesn't include that header.  i'm not sure what the
+> preference is here (make the python code pull in that header or just copy
+> over the sysmacros.h logic), so i'm skipping writing a patch.
 
-BTW, we have lib/canonicalize.c, so write replacement for readlink -f
-for our tests is trivial.
+Our c.h is so wonderful that it's expected everywhere :) Fixed.
 
+Thanks!
     Karel
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
