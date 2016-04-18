@@ -1,70 +1,67 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:51673 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751660AbcDFKvL (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 6 Apr 2016 06:51:11 -0400
-Received: from zappa.ga.local ([82.139.197.16]) by mail.gmx.com (mrgmx101)
- with ESMTPSA (Nemesis) id 0LhB9P-1bZjFz1Ssx-00oUxe for
- <util-linux@vger.kernel.org>; Wed, 06 Apr 2016 12:51:08 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/2] libuuid: remove HAVE_UUIDD
-Date: Wed,  6 Apr 2016 12:51:06 +0200
-Message-Id: <1459939867-20719-1-git-send-email-sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: ebiederm@xmission.com
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+References: <1460982392.2452.6.camel@HansenPartnership.com>
+	<1460993854.7385.11.camel@HansenPartnership.com>
+	<20160418171103.lcbrxvaldcyhemd3@ws.net.home>
+	<1461000495.7385.18.camel@HansenPartnership.com>
+Date: Mon, 18 Apr 2016 13:26:49 -0500
+In-Reply-To: <1461000495.7385.18.camel@HansenPartnership.com> (James
+	Bottomley's message of "Mon, 18 Apr 2016 13:28:15 -0400")
+Message-ID: <87k2juu61i.fsf@x220.int.ebiederm.org>
+MIME-Version: 1.0
+Content-Type: text/plain
+Subject: Re: [PATCH] nsenter: fix ability to enter unprivileged containers
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+James Bottomley <James.Bottomley@HansenPartnership.com> writes:
 
-configure --disable-uuidd disabled both the build of uuidd and also
-disabled uuidd support of libuuid.
+> On Mon, 2016-04-18 at 19:11 +0200, Karel Zak wrote:
+>> On Mon, Apr 18, 2016 at 11:37:34AM -0400, James Bottomley wrote:
+>> > OK, so if you want me to reply properly, you're going to have to keep
+>> > my address in the cc list.
+>> > 
+>> > > > If you enter it first, you lose privilege for subsequent
+>> > > namespace
+>> > > > enters,see issue
+>> > > >
+>> > > > https://github.com/karelzak/util-linux/issues/315
+>> > > >
+>> > > > The fix is to enter the user namespace last of all.
+>> > > 
+>> > > I verified that with *current*/unpatched nsenter,
+>> > > 
+>> > > $ unshare -rm sleep inf &
+>> > > $ nsenter -t $! -U -m --preserve
+>> > > 
+>> > > works as expected (from regular user [and with unprivileged userns
+>> > > enabled]).
+>> > > 
+>> > > With this patch it *won't* work [verified], of course (as you'll need
+>> > > root privileges in userns before joining mount-ns, and you can only
+>> > > obtain them by entering userns first).
+>> > 
+>> > So we're using userns for different things.  I'm using it to remove
+>> > privilege (so on my userns implementation root in the host enters but
+>> > on becoming root in the userns, it can do nothing other than write to
+>> > its own files) and you're using it to enhance privilege.  It looks like
+>> > these two things will always be mutually exclusive, so perhaps we need
+>> > an extra flag to nsenter to say do the userns first or last?
+>> 
+>> That's what I have talked about at github -- see Eric's comment in the
+>> code, the user NS is the first in the array for a good reason. May be
+>> it would be really better to add --user-{first,last} options to
+>> specify when you want to enter user NS.
+>
+> OK, I'll code this up; hang on.
 
-Now we build libuuid always with uuidd support. We could add another
-configure switch --without-uuidd to have the old behavior but IMO
-there is no need for that.
+I think we can do this even better with two passes to setns.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- configure.ac           | 3 ---
- libuuid/src/gen_uuid.c | 4 ++--
- 2 files changed, 2 insertions(+), 5 deletions(-)
+A first pass before the user namespace is set (that ignores failures),
+and a second pass that sets the user namespace first as happens today.
 
-diff --git a/configure.ac b/configure.ac
-index 7efe5e5..82eb8db 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -1083,9 +1083,6 @@ UL_BUILD_INIT([uuidd])
- UL_REQUIRES_BUILD([uuidd], [libuuid])
- UL_REQUIRES_HAVE([uuidd], [timer], [timer_create function])
- UL_REQUIRES_HAVE([uuidd], [sys_signalfd_h], [sys/signalfd.h header])
--AS_IF([test "x$build_uuidd" = xyes], [
--  AC_DEFINE([HAVE_UUIDD], [1], [Define to 1 if you want to use uuid daemon.])
--])
- AM_CONDITIONAL([BUILD_UUIDD], [test "x$build_uuidd" = xyes])
- 
- 
-diff --git a/libuuid/src/gen_uuid.c b/libuuid/src/gen_uuid.c
-index f9a937c..4fb9430 100644
---- a/libuuid/src/gen_uuid.c
-+++ b/libuuid/src/gen_uuid.c
-@@ -329,7 +329,7 @@ try_again:
- 	return ret;
- }
- 
--#if defined(HAVE_UUIDD) && defined(HAVE_SYS_UN_H)
-+#ifdef HAVE_SYS_UN_H
- 
- /*
-  * Try using the uuidd daemon to generate the UUID
-@@ -392,7 +392,7 @@ fail:
- 	return -1;
- }
- 
--#else /* !defined(HAVE_UUIDD) && defined(HAVE_SYS_UN_H) */
-+#else /* HAVE_SYS_UN_H */
- static int get_uuid_via_daemon(int op, uuid_t out, int *num)
- {
- 	return -1;
--- 
-1.8.4.5
+That should satisfy both cases without flags, and would remove the need
+to remember/guess which kind of container people are using.
 
+Eric
