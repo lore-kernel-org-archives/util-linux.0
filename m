@@ -1,58 +1,86 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46443 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752130AbcDUIo6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 21 Apr 2016 04:44:58 -0400
-Date: Thu, 21 Apr 2016 10:44:51 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Victor Dodon <dodonvictor@gmail.com>
+Return-Path: yumkam@gmail.com
+Subject: Re: unshare -m and mount propagation
+To: Karel Zak <kzak@redhat.com>
+References: <m3oaacfrn2.fsf@gmail.com>
+ <20160418111628.cj5bscuuxee2xfcg@ws.net.home> <m3inzfkud2.fsf@gmail.com>
+ <20160418122238.o645avvzj2tzzwsd@ws.net.home> <5714DB99.50806@gmail.com>
+ <20160418174833.qwb7tnfzuf3wiokw@ws.net.home>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] sfdisk: exit with error if rereading partition table
- fails
-Message-ID: <20160421084451.kpqo3z3xbyxwlsor@ws.net.home>
-References: <1461223498-19392-1-git-send-email-dodonvictor@gmail.com>
+From: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
+Message-ID: <57154518.2040700@gmail.com>
+Date: Mon, 18 Apr 2016 23:35:36 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1461223498-19392-1-git-send-email-dodonvictor@gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20160418174833.qwb7tnfzuf3wiokw@ws.net.home>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Apr 21, 2016 at 12:24:58AM -0700, Victor Dodon wrote:
-> Use the return value of fdisk_reread_partition_table in write_changes so that
-> sfdisk exits with error if re-reading the partition table fails.
-> 
-> Signed-off-by: Victor Dodon <dodonvictor@gmail.com>
-> ---
->  disk-utils/sfdisk.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
-> index 15fa99c..b520c9b 100644
-> --- a/disk-utils/sfdisk.c
-> +++ b/disk-utils/sfdisk.c
-> @@ -534,7 +534,7 @@ static int write_changes(struct sfdisk *sf)
->  			rc = move_partition_data(sf, sf->partno, sf->orig_pa);
->  		if (!rc) {
->  			fdisk_info(sf->cxt, _("\nThe partition table has been altered."));
-> -			fdisk_reread_partition_table(sf->cxt);
-> +			rc = fdisk_reread_partition_table(sf->cxt);
+On 18.04.2016 20:48, Karel Zak wrote:
+> On Mon, Apr 18, 2016 at 04:05:29PM +0300, Yuriy M. Kaminskiy wrote:
+>> On 18.04.2016 15:22, Karel Zak wrote:
+>>> On Mon, Apr 18, 2016 at 02:51:37PM +0300, Yuriy M. Kaminskiy wrote:
+>>>> Karel Zak <kzak@redhat.com> writes:
+>>>>
+>>>>> On Fri, Mar 18, 2016 at 05:26:25AM +0300, Yuriy M. Kaminskiy wrote:
+>>>>>> I think this issue should be at least documented. And, maybe, default
+>>>>>> `--propagation` should be changed to `slave`.
+>>>>>
+>>>>> The reason why we use 'private' is that it's the kernel default for
+>>>>> years and it's what has been expected by users for long time before we
+>>>>> introduced --propagation and any unshare(1) default.
+>>>>>
+>>>>> The current --propagation default unifies things and makes unshare(1)
+>>>>> portable to distributions where root fs is mounted as 'shared' (e.g.
+>>>>> systemd distros) and all this in backwardly compatible way for users
+>>
+>> Opposite. It does not change anything for older systems, but breaks things
+>> for new systems.
+>>
+>>>>> who have no clue about --propagation.
+>>
+>> And it is *especially* harmful for users that are not aware about
+>> --propagation. As private (new 2.27+ default) break umount propagation, and
+>> results in nasty surprises (up to data loss).
+>
+> Well, you see only umount propagation...
 
-Yes, the old sfdisk implementation exit with error in this case, but
-I'm not sure about it. The problem is that partition table is properly
-written to the device (but kernel don't use it). If would be nice to
-distinguish between this non-fatal error and another errors. Maybe we
-need more return codes.
+Because *breaking* it causes real problems?
 
- 0 -- success
- 1 -- fatal error
- 2 -- minor error (e.g. reread problem)
+> The problem is that the original implementation (try emulate by
+> "--propagation unchanged") makes "unshare --mount" useless at all on
+> systems with shared root fs.
+>
+> The very old (since year 2009) and very common use-case is:
+>
+>   # unshare --mount
 
+      mount --make-rslave / # or --make-rprivate or whatever
 
-.. or so. We can also add error codes for initial re-read check, etc.
+>   # mount /dev/foo /mnt
 
-    Karel
+And? I've posted how this could be solved *without* changing anything in 
+unshare.
 
+> and user expects that /mnt will be visible *only* in the session
+> (namespace). This is the way how many users use unshare for years.
+>
+> Unfortunately, after systemd installation it does not work anymore
+> and /mnt is visible everywhere. For users it's regression and it has
+> been reported many many times.
+>
+> You can blame systemd, but the problem is that unshare(1) was not
+> robust enough. So we have forced unshare to use "private" by default
+> to keep the *original behavior* independently on root fs propagation
+> flag.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+You can have same effect with *slave* as default, with exception that 
+host->guest mount/unmount propagation still works.
+When kernel have to get rid of shared propagation (in userns), it 
+downgrades shared mounts to *slave*, not to *private*.
+When systemd itself downgrades shared propagation (for running service 
+in new mount namespace; Protect*/Private*/etc), it also downgrades 
+*shared* propagation to *slave*, not to *private*.
+
+P.S. For sure, *any* of propagation variants have some or other 
+drawbacks and corner cases; however, without special care about 
+removable media (and alike), *private* has higher chance to beat you in 
+a nasty way.
