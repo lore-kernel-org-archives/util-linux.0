@@ -1,54 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:37577 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751209AbcDSWw6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 19 Apr 2016 18:52:58 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1aseVm-0002ww-Fa
-	for util-linux@vger.kernel.org; Wed, 20 Apr 2016 00:52:50 +0200
-Received: from 95.131.151.139 ([95.131.151.139])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Wed, 20 Apr 2016 00:52:50 +0200
-Received: from yumkam by 95.131.151.139 with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Wed, 20 Apr 2016 00:52:50 +0200
+Received: from bedivere.hansenpartnership.com ([66.63.167.143]:51376 "EHLO
+	bedivere.hansenpartnership.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751953AbcDRPuW (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Mon, 18 Apr 2016 11:50:22 -0400
+Message-ID: <1460994619.7385.14.camel@HansenPartnership.com>
+Subject: Re: [PATCH] nsenter: fix ability to enter unprivileged containers
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
 To: util-linux@vger.kernel.org
-From: yumkam@gmail.com (Yuriy M. Kaminskiy)
-Subject: Re: [PATCH 4/5] lib: avoid double free in loopdev.c
-Date: Wed, 20 Apr 2016 01:52:38 +0300
-Message-ID: <m3ega1jjnt.fsf@gmail.com>
-References: <1461098145-2988-1-git-send-email-kerolasa@iki.fi>
-	<1461098145-2988-5-git-send-email-kerolasa@iki.fi>
+Cc: ebiederm@xmission.com
+Date: Mon, 18 Apr 2016 11:50:19 -0400
+In-Reply-To: <1460993854.7385.11.camel@HansenPartnership.com>
+References: <1460982392.2452.6.camel@HansenPartnership.com>
+	 <1460993854.7385.11.camel@HansenPartnership.com>
+Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Sami Kerola <kerolasa@iki.fi> writes:
+On Mon, 2016-04-18 at 11:37 -0400, James Bottomley wrote:
+> > # nsenter --mount=/run/build-container/aarch64 nsenter -
+> > -user=/dev/fd/3 3&lt;/run/build-container/user
+> 
+> It should work, but for some inexplicable reason it's giving EINVAL.
+> 
+> # nsenter --mount=/run/build-container/aarch64 3</run/build
+> -container/user 
+> # ls -l /proc/self/fd
+> total 0
+> lrwx------ 1 root root 64 Apr 18 15:31 0 -> /dev/pts/1
+> lrwx------ 1 root root 64 Apr 18 15:31 1 -> /dev/pts/1
+> lrwx------ 1 root root 64 Apr 18 15:31 2 -> /dev/pts/1
+> lr-x------ 1 root root 64 Apr 18 15:31 3 -> /run/build-container/user
+> lr-x------ 1 root root 64 Apr 18 15:31 4 -> /proc/10304/fd
+> # nsenter --user=/proc/self/fd/3
+> nsenter: reassociate to namespace 'ns/user' failed: Invalid argument
+> 
+> I think it's because the fd wasn't properly opened by the shell
 
-> Found with scan-build.
->
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  lib/loopdev.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/lib/loopdev.c b/lib/loopdev.c
-> index 9ae61da..ca5d2f4 100644
-> --- a/lib/loopdev.c
-> +++ b/lib/loopdev.c
-> @@ -460,6 +460,7 @@ static int loop_scandir(const char *dirname, int **ary, int hasprefix)
->  			tmp = realloc(*ary, arylen * sizeof(int));
->  			if (!tmp) {
->  				free(*ary);
-> +				ary = NULL;
+Actually, just to follow up, this is specifically a problem of the type
+of container I'm running: it's actually an architecture emulation
+container, so after I've done the mount namespace enter, I'm running
+under aarch64 emulation and, apparently, qemu has some problem with the
+setns system call.  This does, however, mean I have to enter both
+namespaces together ...
 
-This cannot have any effect. Probably you wanted
-                                *ary = NULL;
-                                
->  				closedir(dir);
->  				return -1;
->  			}
+James
 
