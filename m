@@ -1,55 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from h2.hallyn.com ([78.46.35.8]:47184 "EHLO h2.hallyn.com"
+Received: from mx1.redhat.com ([209.132.183.28]:57534 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752475AbcD2VuD (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 29 Apr 2016 17:50:03 -0400
-Date: Fri, 29 Apr 2016 16:50:01 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: "W. Trevor King" <wking@tremily.us>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Linux Containers <containers@lists.linux-foundation.org>,
-        systemd-devel@lists.freedesktop.org, util-linux@vger.kernel.org
-Subject: Re: Unprivileged containers and co-ordinating user namespaces
-Message-ID: <20160429215001.GB13615@mail.hallyn.com>
-References: <1461880928.2307.48.camel@HansenPartnership.com>
- <20160428230045.GS22888@odin.tremily.us>
- <1461944328.2311.10.camel@HansenPartnership.com>
- <20160429155303.GA8900@mail.hallyn.com>
- <20160429183404.GE22888@odin.tremily.us>
+	id S1751703AbcDRRLG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 18 Apr 2016 13:11:06 -0400
+Date: Mon, 18 Apr 2016 19:11:03 +0200
+From: Karel Zak <kzak@redhat.com>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: util-linux@vger.kernel.org, ebiederm@xmission.com
+Subject: Re: [PATCH] nsenter: fix ability to enter unprivileged containers
+Message-ID: <20160418171103.lcbrxvaldcyhemd3@ws.net.home>
+References: <1460982392.2452.6.camel@HansenPartnership.com>
+ <1460993854.7385.11.camel@HansenPartnership.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160429183404.GE22888@odin.tremily.us>
+In-Reply-To: <1460993854.7385.11.camel@HansenPartnership.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Quoting W. Trevor King (wking@tremily.us):
-> On Fri, Apr 29, 2016 at 10:53:03AM -0500, Serge E. Hallyn wrote:
-> > Quoting James Bottomley:
-> > > I think that mostly works.  No-one's packaging it yet, which is why I
+On Mon, Apr 18, 2016 at 11:37:34AM -0400, James Bottomley wrote:
+> OK, so if you want me to reply properly, you're going to have to keep
+> my address in the cc list.
+> 
+> > &gt; If you enter it first, you lose privilege for subsequent
+> > namespace
+> > &gt; enters,see issue
+> > &gt;
+> > &gt; https://github.com/karelzak/util-linux/issues/315
+> > &gt;
+> > &gt; The fix is to enter the user namespace last of all.
 > > 
-> > https://packages.debian.org/jessie/uidmap
-> > https://launchpad.net/ubuntu/yakkety/+package/uidmap
-> > http://rpm.pbone.net/index.php3/stat/45/idpl/28763248/numer/1/nazwa/newuidmap
+> > I verified that with *current*/unpatched nsenter,
+> > 
+> > $ unshare -rm sleep inf &amp;
+> > $ nsenter -t $! -U -m --preserve
+> > 
+> > works as expected (from regular user [and with unprivileged userns
+> > enabled]).
+> > 
+> > With this patch it *won't* work [verified], of course (as you'll need
+> > root privileges in userns before joining mount-ns, and you can only
+> > obtain them by entering userns first).
 > 
-> On the other hand, Gentoo is waiting on a clean release tarball [1].
-> It looks like 4.3-1 was missing a clean autoreconf [2]?  Has anything
-> been pushed since?
+> So we're using userns for different things.  I'm using it to remove
+> privilege (so on my userns implementation root in the host enters but
+> on becoming root in the userns, it can do nothing other than write to
+> its own files) and you're using it to enhance privilege.  It looks like
+> these two things will always be mutually exclusive, so perhaps we need
+> an extra flag to nsenter to say do the userns first or last?
 
-Nope, I've not had time to push it and noone has offered a patch.
+That's what I have talked about at github -- see Eric's comment in the
+code, the user NS is the first in the array for a good reason. May be
+it would be really better to add --user-{first,last} options to
+specify when you want to enter user NS.
 
-Maybe I'll find time next week.
+    Karel
 
-> Cheers,
-> Trevor
-> 
-> [1]: https://bugs.gentoo.org/show_bug.cgi?id=580432#c3
-> [2]: https://lists.alioth.debian.org/pipermail/pkg-shadow-devel/2016-March/010924.html
->      Subject: [Pkg-shadow-devel] new shadow release candidate
->      Date: Tue Mar 22 18:58:55 UTC 2016
-> 
-> -- 
-> This email may be signed or encrypted with GnuPG (http://www.gnupg.org).
-> For more information, see http://en.wikipedia.org/wiki/Pretty_Good_Privacy
-
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
