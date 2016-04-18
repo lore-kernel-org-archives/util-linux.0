@@ -1,49 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:36406 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751482AbcDPSeP (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 16 Apr 2016 14:34:15 -0400
-Received: by mail-wm0-f68.google.com with SMTP id l6so13962875wml.3
-        for <util-linux@vger.kernel.org>; Sat, 16 Apr 2016 11:34:14 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 4/7] script: avoid trying fclose(NULL)
-Date: Sat, 16 Apr 2016 19:34:06 +0100
-Message-Id: <1460831649-11484-2-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1460831649-11484-1-git-send-email-kerolasa@iki.fi>
-References: <1460831649-11484-1-git-send-email-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:39427 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751806AbcDRMWk (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 18 Apr 2016 08:22:40 -0400
+Date: Mon, 18 Apr 2016 14:22:38 +0200
+From: Karel Zak <kzak@redhat.com>
+To: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: unshare -m and mount propagation
+Message-ID: <20160418122238.o645avvzj2tzzwsd@ws.net.home>
+References: <m3oaacfrn2.fsf@gmail.com>
+ <20160418111628.cj5bscuuxee2xfcg@ws.net.home>
+ <m3inzfkud2.fsf@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <m3inzfkud2.fsf@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Here is a one-liner to reproduce the issue.
+On Mon, Apr 18, 2016 at 02:51:37PM +0300, Yuriy M. Kaminskiy wrote:
+> Karel Zak <kzak@redhat.com> writes:
+> 
+> > On Fri, Mar 18, 2016 at 05:26:25AM +0300, Yuriy M. Kaminskiy wrote:
+> >> I think this issue should be at least documented. And, maybe, default
+> >> `--propagation` should be changed to `slave`.
+> >
+> > The reason why we use 'private' is that it's the kernel default for
+> > years and it's what has been expected by users for long time before we
+> > introduced --propagation and any unshare(1) default.
+> >
+> > The current --propagation default unifies things and makes unshare(1) 
+> > portable to distributions where root fs is mounted as 'shared' (e.g. 
+> > systemd distros) and all this in backwardly compatible way for users
+> > who have no clue about --propagation.
+> >
+> > So, I don't think we want to change any default to corrupt scripts where
+> > is no explicitly specified --propagation. 
+> 
+> By you already broke scripts that expected old a-la '--propagation
+> unchanged' behavior.
 
-$ mkdir example && cd example && chmod 0500 . && script
-Script started, file is typescript
-script: cannot open typescript: Permission denied
-                                                 Script done, file is typescript
-Segmentation fault (core dumped)
+Only if your system uses something else that kernel default 'private'
+and you depend on this non-default setting. (IMHO relatively small 
+groups of users)
 
-Addresses: https://bugs.launchpad.net/bugs/1537518
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- term-utils/script.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+The old "--propagation unchanged" makes unshare useless on some 
+mainstream distros where default is 'shared'.
 
-diff --git a/term-utils/script.c b/term-utils/script.c
-index 279b9ec..d691c22 100644
---- a/term-utils/script.c
-+++ b/term-utils/script.c
-@@ -205,7 +205,8 @@ static void __attribute__((__noreturn__)) done(struct script_control *ctl)
- 
- 	if (ctl->timingfp)
- 		fclose(ctl->timingfp);
--	fclose(ctl->typescriptfp);
-+	if (ctl->typescriptfp)
-+		fclose(ctl->typescriptfp);
- 
- 	if (ctl->rc_wanted) {
- 		if (WIFSIGNALED(ctl->childstatus))
+Anyway, we will not change any default now.
+
+    Karel
+
 -- 
-2.8.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
