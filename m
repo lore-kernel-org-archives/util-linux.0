@@ -1,30 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50666 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751885AbcDVJcZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 22 Apr 2016 05:32:25 -0400
-Date: Fri, 22 Apr 2016 11:32:23 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/5] pull: couple clang scan-build fixes
-Message-ID: <20160422093223.osczikneotrhfmw7@ws.net.home>
-References: <1461098145-2988-1-git-send-email-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:33447 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753430AbcDSUfw (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 19 Apr 2016 16:35:52 -0400
+Received: by mail-wm0-f65.google.com with SMTP id y144so8321416wmd.0
+        for <util-linux@vger.kernel.org>; Tue, 19 Apr 2016 13:35:51 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 2/5] libmount: fix memory leak
+Date: Tue, 19 Apr 2016 21:35:42 +0100
+Message-Id: <1461098145-2988-3-git-send-email-kerolasa@iki.fi>
 In-Reply-To: <1461098145-2988-1-git-send-email-kerolasa@iki.fi>
+References: <1461098145-2988-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Apr 19, 2016 at 09:35:40PM +0100, Sami Kerola wrote:
->   build-sys: test functions does not return void
->   libmount: fix memory leak
->   setpwnam: fix memory leak
->   lib: avoid double free in loopdev.c
->   getopt: fix memory leaks and integer overflows [ASAN & valgrind]
+Found with scan-build.
 
- Applied, thanks.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ libmount/src/utils.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/libmount/src/utils.c b/libmount/src/utils.c
+index 0fcc1d0..8b80609 100644
+--- a/libmount/src/utils.c
++++ b/libmount/src/utils.c
+@@ -1107,7 +1107,7 @@ char *mnt_get_kernel_cmdline_option(const char *name)
+ int mnt_guess_system_root(dev_t devno, struct libmnt_cache *cache, char **path)
+ {
+ 	char buf[PATH_MAX];
+-	char *dev = NULL, *spec;
++	char *dev = NULL, *spec = NULL;
+ 	unsigned int x, y;
+ 	int allocated = 0;
+ 
+@@ -1169,8 +1169,8 @@ int mnt_guess_system_root(dev_t devno, struct libmnt_cache *cache, char **path)
+ 		if (dev && !cache)
+ 			allocated = 1;
+ 	}
+-	free(spec);
+ done:
++	free(spec);
+ 	if (dev) {
+ 		*path = allocated ? dev : strdup(dev);
+ 		if (!path)
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.8.0
+
