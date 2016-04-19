@@ -1,101 +1,148 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:44254 "EHLO mx1.redhat.com"
+Received: from plane.gmane.org ([80.91.229.3]:37416 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932194AbcDMLJF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 13 Apr 2016 07:09:05 -0400
-Date: Wed, 13 Apr 2016 13:08:57 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/3] btrfs-safe implementation of -oloop
-Message-ID: <20160413110857.ftvekbq2fnbb2fau@ws.net.home>
-References: <570D3CC7.5060809@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <570D3CC7.5060809@suse.cz>
+	id S932410AbcDSPMC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 19 Apr 2016 11:12:02 -0400
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+	id 1asXJl-0007oS-IQ
+	for util-linux@vger.kernel.org; Tue, 19 Apr 2016 17:11:57 +0200
+Received: from 95.131.151.139 ([95.131.151.139])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Tue, 19 Apr 2016 17:11:57 +0200
+Received: from yumkam by 95.131.151.139 with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <util-linux@vger.kernel.org>; Tue, 19 Apr 2016 17:11:57 +0200
+To: util-linux@vger.kernel.org
+From: yumkam@gmail.com (Yuriy M. Kaminskiy)
+Subject: [RFC][PATCH alt v2] fsck -l: block concurrent fsck for any stacked devices (Re: [RFC][WIP][PATCH] fsck -l and lvm/dmcrypt/md/etc)
+Date: Tue, 19 Apr 2016 18:11:46 +0300
+Message-ID: <m3inzdk4zx.fsf_-_@gmail.com>
+References: <m34mbbrd8d.fsf@gmail.com>
+	<20160418105923.lj5sb2m4joxxehno@ws.net.home>
+	<m3twixk6c0.fsf@gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Apr 12, 2016 at 08:21:59PM +0200, Stanislav Brabec wrote:
-> Exactly this happened if -oloop is used multiple times with the same
-> source.
-> 
-> It could not happen in past, but with introduction of btrfs sub-volumes
-> it has a perfectly legal use cases.
-> 
-> This patch set introduces a new behavior of -oloop:
-> 
-> First check, whether the same backing file with the same offset is
-> already used. If yes, reuse already initialized loop device.
-> 
-> If not, initialize another loop device.
+--=-=-=
+Content-Type: text/plain
 
-I think this behaviour (re-use loopdev) is better, I thought about it
-years ago, but it has never been implemented due to backward
-compatibility. Now it's obvious it's the right way to go.
+yumkam@gmail.com (Yuriy M. Kaminskiy)
+writes:
 
-> There are some controversial things with these patches. Some of them
-> cannot be fixed.
-> 
-> - Kernel never returns EBUSY for LOOP_CLR_FD. It prevents errors when
->   mount will steal other's loop device. But I am not sure, whether it
->   will work correctly in all possible situations. Anyway, I don't see a
->   better solution.
-> 
-> - If the same backing file is already used for a read-only loop device,
->   there is no safe way to continue.
+> Karel Zak <kzak@redhat.com> writes:
+>
+>> On Sat, Apr 09, 2016 at 12:40:18AM +0300, Yuriy M. Kaminskiy wrote:
+>>> I think this algorithm should work:
+>>> 
+>>> 1) walk /dev/block/${dev}/slaves recursively (e.g. lvm-over- luks-
+>>> over-lvm- over-md, first-level slaves won't work), collect all
+>>> whole-disk devices;
+>>> 2) sort this list by device numbers (to avoid AB/BA deadlocks), remove
+>>> duplicates;
+>>> 3) acquire all locks consequently.
+>>> 
+>>> There are some unavoidable flaws (e.g. if someone alters structure while fsck
+>>> is running), and some things could be improved, but it should work in
+>>> most cases (and if it fails, it is just no worse than current behavior).
+>>> 
+>>> I've tested with LVM and LUKS-over-LVM on (debian's) 3.16 kernel, it seems
+>>> works as expected.
+>>> 
+>>> What is not covered: /dev/loop* (and I have no plans for it).
+>>> 
+>>> Comments? NACKs?
+>>
+>> The question is if we really need it :-)
+>
+> Yes?
+>
+>> All the care fsck has about whole-disks is about performance, because
+>> we assume (on classic rotation disks) that execute fsck on more
+>> partitions in the same time is bad idea.
+>>
+>> The problem with stacked devices is that we have no clue about sectors
+>> mapping. Your patch locks all the disks, but maybe kernel will read
+>> only from some subset of the disks, etc.
+>
+> Is this likely scenario? (Or even possible? I can imagine that, with
+> lvm-over-raid1+, kernel theoretically can schedule one fsck instance to
+> read only slaveA, and another to read only from slaveB, thus avoiding
+> seeking; but I suspect, in practice it will just roundrobin all requests
+> over both slaves, thus same seekstorm.)
+>
+>> From my point of view the best way is not to care about it in
+>> userspace at all and depend on kernel I/O scheduling only. The
+>
+> No problem. Please set in-kernel fsck-friendly io scheduler for fsck
+> instead. (Oh, there are none exists?)
+>
+>> optimization probably still makes sense for classic layout
+>> "HDD->partition", but I don't think we need to extend this
+>> functionality to another use-cases.
+>
+> `fsck -A` does not execute fsck for any stacked devices in
+> parallel. `fsck -l` does. This is inconsistent and unfair. Alternative
+> (simplier) patch attached (compile-tested only).
 
-Why? Just re-use the read-only loopdev. We don't have have to promise
-read-write device if the backend is read only. This is generic
-behavior used in another cases too. For example if you try to mount
-NFS exported by server in read-only mode than your "rw" is ignored and
-result is "ro", the same is with read-only media (CDROM, etc.).
+v2 (path variable and snprintf removed, added comment about unlock/unlink).
 
-IMHO all we need is a warning, "backing file already used as
-read-only, mounting read-only".
 
->   - There is no way to turn R/O loop to R/W in kernel.
->   - If another loop is initialized, changes will not propagate to R/O
->     volume.
->   - One would need to umount all R/O devices, initialize loop R/W, and
->     then everything mount again.
->   I can imagine partial solution: Introduce looprw option. Such option
->   would cause to initialize loop device R/W even for R/O mount.
+--=-=-=
+Content-Type: text/x-diff
+Content-Disposition: inline;
+ filename=fsck-l-disallow-parallel-fsck-for-stacked-devices.v2.patch
 
-Sounds like over-engineering :-)
+diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
+index 84d2dcc..bd9114a 100644
+--- a/disk-utils/fsck.c
++++ b/disk-utils/fsck.c
+@@ -109,6 +109,7 @@ struct fsck_instance {
  
-> - If the same backing file is already used for a loop device with
->   correct offset, but incorrect sizelimit, there is no solution. The
->   current implementation does not check for it.
+ 	int	lock;		/* flock()ed lockpath file descriptor or -1 */
+ 	char	*lockpath;	/* /run/fsck/<diskname>.lock or NULL */
++	int	lock_stacked;	/* flock()ed stacked file descriptor or -1 */
+ 
+ 	int	exit_status;
+ 	struct timeval start_time;
+@@ -365,6 +366,21 @@ static void lock_disk(struct fsck_instance *inst)
+ 	if (!diskname)
+ 		diskname = diskpath;
+ 
++	/*
++	 * Note: stacked.lock can be share-locked and MUST NOT be removed
++	 * upon unlock!
++	 */
++	inst->lock_stacked = open(FSCK_RUNTIME_DIRNAME "/stacked.lock",
++				    O_RDONLY|O_CREAT|O_CLOEXEC,
++				    S_IWUSR|S_IRUSR|S_IRGRP|S_IROTH);
++	if (inst->lock_stacked >= 0) {
++		if (flock(inst->lock_stacked,
++			fs_is_stacked(inst->fs) ? LOCK_EX : LOCK_SH) != 0) {
++			close(inst->lock_stacked);	/* failed */
++			inst->lock_stacked = -1;
++		}
++	}
++ 	
+ 	xasprintf(&inst->lockpath, FSCK_RUNTIME_DIRNAME "/%s.lock", diskname);
+ 
+ 	if (verbose)
+@@ -410,10 +426,12 @@ static void unlock_disk(struct fsck_instance *inst)
+ 		printf(_("Unlocking %s.\n"), inst->lockpath);
+ 
+ 	close(inst->lock);			/* unlock */
++	close(inst->lock_stacked);		/* unlock */
+ 
+ 	free(inst->lockpath);
+ 
+ 	inst->lock = -1;
++	inst->lock_stacked = -1;
+ 	inst->lockpath = NULL;
+ }
+ 
 
-IMHO the current "check start offset only" is a poor solution if we want
-to re-use loopdevs. It would be better to think about offset+limit
-as about partition and about backing-file as about whole-disk. 
+--=-=-=--
 
-It means check if the area specified by offset+limit does not overlap
-any existing backing-file mapping. It should be possible to re-use
-loopdev (by mount(8)) only if offset and size matches.
-
-It should be also forbidden to create a new (non re-used) loopdev if
-area specified by offset and sizelimit overlap any existing backing
-file mapping. This is important!
-
-Maybe we can also improve losetup to warn about overlapping loop
-devices.
-
-> - There exists a change for a race condition between device lookup and
->   mount syscall.
-
-Sure.
-
-> - The implementation does not check for crypto. I think it is not a big
->   problem, as it makes no sense to initialize the same backing file as
->   encrypted and non-encrypted at once.
-
-There is nothing like loop devices encryption :-)
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
