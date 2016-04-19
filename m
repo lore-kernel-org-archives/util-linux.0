@@ -1,43 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from plane.gmane.org ([80.91.229.3]:41590 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751332AbcDRPwO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 18 Apr 2016 11:52:14 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcuu-util-linux-ng@m.gmane.org>)
-	id 1asBT1-0007Mb-28
-	for util-linux@vger.kernel.org; Mon, 18 Apr 2016 17:52:03 +0200
-Received: from ppp37-190-56-88.pppoe.spdop.ru ([37.190.56.88])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Mon, 18 Apr 2016 17:52:03 +0200
-Received: from yumkam by ppp37-190-56-88.pppoe.spdop.ru with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <util-linux@vger.kernel.org>; Mon, 18 Apr 2016 17:52:03 +0200
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:33421 "EHLO
+	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753430AbcDSUft (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 19 Apr 2016 16:35:49 -0400
+Received: by mail-wm0-f67.google.com with SMTP id y144so8321188wmd.0
+        for <util-linux@vger.kernel.org>; Tue, 19 Apr 2016 13:35:48 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-From: yumkam@gmail.com (Yuriy M. Kaminskiy)
-Subject: Re: [PATCH] nsenter: fix ability to enter unprivileged containers
-Date: Mon, 18 Apr 2016 18:51:52 +0300
-Message-ID: <m34maylxt3.fsf@gmail.com>
-References: <1460982392.2452.6.camel@HansenPartnership.com>
-	<m3ega3kmvr.fsf@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 0/5] pull: couple clang scan-build fixes
+Date: Tue, 19 Apr 2016 21:35:40 +0100
+Message-Id: <1461098145-2988-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-yumkam@gmail.com (Yuriy M. Kaminskiy) writes:
+Hello,
 
-> # nsenter --mount=/run/build-container/aarch64 nsenter --user=/dev/fd/3 3</run/build-container/user
->   
-> (disclaimer: unverified;
+Here are some minor updates to make static analyzers less noisy.  Whether
+these make any difference in real life is questionable.  Well at least there
+will be fewer false positive when running scan-build, asan, or such.
 
-Just for record,
-1) above workaround verified/works;
-2) and this part:
 
-> on my kernel mount-bind fails for mount-ns fds).
+----------------------------------------------------------------
+The following changes since commit 1bd62f72d8281cdd089fbef43652656dd3c60642:
+  libblkid: fix mistake in debug message (2016-04-19 12:45:00 +0200)
+are available in the git repository at:
+  git://github.com/kerolasa/lelux-utiliteetit.git scan-build
+for you to fetch changes up to 55cf10134a5dd3622361090ea90e7fd501b4b655:
+  getopt: fix memory leaks and integer overflows [ASAN & valgrind] (2016-04-19 21:27:54 +0100)
+----------------------------------------------------------------
 
-was *my* mistake (I somehow missed mount-ns peculiarity about incompatibility
-with shared propagation [it is documented in unshare(1)])
+Sami Kerola (5):
+  build-sys: test functions does not return void
+  libmount: fix memory leak
+  setpwnam: fix memory leak
+  lib: avoid double free in loopdev.c
+  getopt: fix memory leaks and integer overflows [ASAN & valgrind]
+
+ configure.ac           |  2 +-
+ lib/loopdev.c          |  1 +
+ libmount/src/utils.c   |  4 ++--
+ login-utils/setpwnam.c |  1 +
+ misc-utils/getopt.c    | 25 ++++++++++++++++++-------
+ 5 files changed, 23 insertions(+), 10 deletions(-)
+
+-- 
+2.8.0
 
