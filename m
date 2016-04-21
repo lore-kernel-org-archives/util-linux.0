@@ -1,49 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from bedivere.hansenpartnership.com ([66.63.167.143]:51376 "EHLO
-	bedivere.hansenpartnership.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751953AbcDRPuW (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Mon, 18 Apr 2016 11:50:22 -0400
-Message-ID: <1460994619.7385.14.camel@HansenPartnership.com>
-Subject: Re: [PATCH] nsenter: fix ability to enter unprivileged containers
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+Received: from mail-pf0-f180.google.com ([209.85.192.180]:34083 "EHLO
+	mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751010AbcDUHZ0 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 21 Apr 2016 03:25:26 -0400
+Received: by mail-pf0-f180.google.com with SMTP id y69so10429238pfb.1
+        for <util-linux@vger.kernel.org>; Thu, 21 Apr 2016 00:25:26 -0700 (PDT)
+From: Victor Dodon <dodonvictor@gmail.com>
 To: util-linux@vger.kernel.org
-Cc: ebiederm@xmission.com
-Date: Mon, 18 Apr 2016 11:50:19 -0400
-In-Reply-To: <1460993854.7385.11.camel@HansenPartnership.com>
-References: <1460982392.2452.6.camel@HansenPartnership.com>
-	 <1460993854.7385.11.camel@HansenPartnership.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Cc: Victor Dodon <dodonvictor@gmail.com>
+Subject: [PATCH] sfdisk: exit with error if rereading partition table fails
+Date: Thu, 21 Apr 2016 00:24:58 -0700
+Message-Id: <1461223498-19392-1-git-send-email-dodonvictor@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 2016-04-18 at 11:37 -0400, James Bottomley wrote:
-> > # nsenter --mount=/run/build-container/aarch64 nsenter -
-> > -user=/dev/fd/3 3&lt;/run/build-container/user
-> 
-> It should work, but for some inexplicable reason it's giving EINVAL.
-> 
-> # nsenter --mount=/run/build-container/aarch64 3</run/build
-> -container/user 
-> # ls -l /proc/self/fd
-> total 0
-> lrwx------ 1 root root 64 Apr 18 15:31 0 -> /dev/pts/1
-> lrwx------ 1 root root 64 Apr 18 15:31 1 -> /dev/pts/1
-> lrwx------ 1 root root 64 Apr 18 15:31 2 -> /dev/pts/1
-> lr-x------ 1 root root 64 Apr 18 15:31 3 -> /run/build-container/user
-> lr-x------ 1 root root 64 Apr 18 15:31 4 -> /proc/10304/fd
-> # nsenter --user=/proc/self/fd/3
-> nsenter: reassociate to namespace 'ns/user' failed: Invalid argument
-> 
-> I think it's because the fd wasn't properly opened by the shell
+Use the return value of fdisk_reread_partition_table in write_changes so that
+sfdisk exits with error if re-reading the partition table fails.
 
-Actually, just to follow up, this is specifically a problem of the type
-of container I'm running: it's actually an architecture emulation
-container, so after I've done the mount namespace enter, I'm running
-under aarch64 emulation and, apparently, qemu has some problem with the
-setns system call.  This does, however, mean I have to enter both
-namespaces together ...
+Signed-off-by: Victor Dodon <dodonvictor@gmail.com>
+---
+ disk-utils/sfdisk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-James
+diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
+index 15fa99c..b520c9b 100644
+--- a/disk-utils/sfdisk.c
++++ b/disk-utils/sfdisk.c
+@@ -534,7 +534,7 @@ static int write_changes(struct sfdisk *sf)
+ 			rc = move_partition_data(sf, sf->partno, sf->orig_pa);
+ 		if (!rc) {
+ 			fdisk_info(sf->cxt, _("\nThe partition table has been altered."));
+-			fdisk_reread_partition_table(sf->cxt);
++			rc = fdisk_reread_partition_table(sf->cxt);
+ 		}
+ 	}
+ 	if (!rc)
+-- 
+2.8.0
 
