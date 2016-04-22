@@ -1,57 +1,35 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:34600 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751482AbcDPSeN (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 16 Apr 2016 14:34:13 -0400
-Received: by mail-wm0-f65.google.com with SMTP id n3so14006954wmn.1
-        for <util-linux@vger.kernel.org>; Sat, 16 Apr 2016 11:34:12 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 0/7]: ubuntu bug tracker fixes
-Date: Sat, 16 Apr 2016 19:34:05 +0100
-Message-Id: <1460831649-11484-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: sbrabec@suse.cz
+Subject: Re: [PATCH 0/3] btrfs-safe implementation of -oloop
+To: Karel Zak <kzak@redhat.com>
+References: <570D3CC7.5060809@suse.cz>
+ <20160422112255.idrjikem5u253kh6@ws.net.home>
+Cc: util-linux@vger.kernel.org
+From: Stanislav Brabec <sbrabec@suse.cz>
+Message-ID: <571A1C21.3020602@suse.cz>
+Date: Fri, 22 Apr 2016 14:42:09 +0200
+MIME-Version: 1.0
+In-Reply-To: <20160422112255.idrjikem5u253kh6@ws.net.home>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+Karel Zak wrote:
 
-Here are four patches that I wrote after looking Ubuntu bug tracker.
-
-https://launchpad.net/ubuntu/+source/util-linux/+bugs?search=Search&field.status=New&orderby=importance&start=0 
-
-The patches are in same branch as few other changes that I wrote this week. 
-But as everyone can see I'm not resubmitting the three first changes to
-avoid unnecessary noise.
-
-
-----------------------------------------------------------------
-The following changes since commit a772281dff903b9e761c4d8a6c2ecad7d5f944ba:
-  libmount: make kernel_fs_postparse() more robust (2016-04-15 14:48:29 +0200)
-are available in the git repository at:
-  git://github.com/kerolasa/lelux-utiliteetit.git 2016wk15
-for you to fetch changes up to ceac24ce1d41903f73f2e96993333708ce97ca3b:
-  mount: try to tell what mount was doing when it failed (2016-04-16 19:05:58 +0100)
-----------------------------------------------------------------
-
-Sami Kerola (7):
-  docs: optinal option arguments should be long-only
-  script: close file descriptors on exec
-  sulogin: make fopen O_CLOEXEC specifier usage portable
-  script: avoid trying fclose(NULL)
-  script: check status of writes when closing outputs
-  dmesg: --notime should not suppress --show-delta
-  mount: try to tell what mount was doing when it failed
-
- Documentation/boilerplate.c            | 10 +++++-----
- Documentation/howto-man-page.txt       | 22 ++++++++++++++++++++--
- Documentation/howto-usage-function.txt |  2 +-
- login-utils/sulogin-consoles.c         |  4 ++--
- sys-utils/dmesg.c                      |  1 -
- sys-utils/mount.c                      |  9 +++++++--
- term-utils/script.c                    | 20 ++++++++++++--------
- 7 files changed, 47 insertions(+), 21 deletions(-)
+>> - If the same backing file is already used for a loop device with
+>>    correct offset, but incorrect sizelimit, there is no solution. The
+>>    current implementation does not check for it.
+>
+>   We need a warning/error for this.
+>
+I am working on an improved, more safe loop checks.
 
 -- 
-2.8.0
+Best Regards / S pozdravem,
 
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Lihovarská 1060/12                            tel: +49 911 7405384547
+190 00 Praha 9                                 fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
