@@ -1,53 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:33285 "EHLO
-	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751078AbcDTVR6 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 20 Apr 2016 17:17:58 -0400
-Received: by mail-wm0-f67.google.com with SMTP id r12so5916678wme.0
-        for <util-linux@vger.kernel.org>; Wed, 20 Apr 2016 14:17:57 -0700 (PDT)
-Received: from teapot (120.112.208.46.dyn.plus.net. [46.208.112.120])
-        by smtp.gmail.com with ESMTPSA id u3sm11463207wmg.15.2016.04.20.14.17.55
-        for <util-linux@vger.kernel.org>
-        (version=TLSv1/SSLv3 cipher=OTHER);
-        Wed, 20 Apr 2016 14:17:56 -0700 (PDT)
-From: Earnestly <zibeon@googlemail.com>
-Date: Wed, 20 Apr 2016 22:17:55 +0100
-To: util-linux@vger.kernel.org
-Subject: [PATCH] Remove AC_CONFIG_AUX_DIR
-Message-ID: <20160420211755.GD17469@teapot>
+Received: from h2.hallyn.com ([78.46.35.8]:47184 "EHLO h2.hallyn.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752475AbcD2VuD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 29 Apr 2016 17:50:03 -0400
+Date: Fri, 29 Apr 2016 16:50:01 -0500
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: "W. Trevor King" <wking@tremily.us>
+Cc: "Serge E. Hallyn" <serge@hallyn.com>,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Linux Containers <containers@lists.linux-foundation.org>,
+        systemd-devel@lists.freedesktop.org, util-linux@vger.kernel.org
+Subject: Re: Unprivileged containers and co-ordinating user namespaces
+Message-ID: <20160429215001.GB13615@mail.hallyn.com>
+References: <1461880928.2307.48.camel@HansenPartnership.com>
+ <20160428230045.GS22888@odin.tremily.us>
+ <1461944328.2311.10.camel@HansenPartnership.com>
+ <20160429155303.GA8900@mail.hallyn.com>
+ <20160429183404.GE22888@odin.tremily.us>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20160429183404.GE22888@odin.tremily.us>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Likewise in cloog[0] and check[1], using autoreconf -i (or autogen.sh) results
-in ./configure failing with:
+Quoting W. Trevor King (wking@tremily.us):
+> On Fri, Apr 29, 2016 at 10:53:03AM -0500, Serge E. Hallyn wrote:
+> > Quoting James Bottomley:
+> > > I think that mostly works.  No-one's packaging it yet, which is why I
+> > 
+> > https://packages.debian.org/jessie/uidmap
+> > https://launchpad.net/ubuntu/yakkety/+package/uidmap
+> > http://rpm.pbone.net/index.php3/stat/45/idpl/28763248/numer/1/nazwa/newuidmap
+> 
+> On the other hand, Gentoo is waiting on a clean release tarball [1].
+> It looks like 4.3-1 was missing a clean autoreconf [2]?  Has anything
+> been pushed since?
 
-    configure.ac:137: error: required file 'config/ltmain.sh' not found
+Nope, I've not had time to push it and noone has offered a patch.
 
-This commit simply removes this AUX_DIR which lets the ./configure phase
-complete successfully.
+Maybe I'll find time next week.
 
-0: https://groups.google.com/forum/?hl=en#!topic/cloog-development/28_M3Qk87-Q
-1: https://github.com/libcheck/check/pull/36
+> Cheers,
+> Trevor
+> 
+> [1]: https://bugs.gentoo.org/show_bug.cgi?id=580432#c3
+> [2]: https://lists.alioth.debian.org/pipermail/pkg-shadow-devel/2016-March/010924.html
+>      Subject: [Pkg-shadow-devel] new shadow release candidate
+>      Date: Tue Mar 22 18:58:55 UTC 2016
+> 
+> -- 
+> This email may be signed or encrypted with GnuPG (http://www.gnupg.org).
+> For more information, see http://en.wikipedia.org/wiki/Pretty_Good_Privacy
 
-Signed-off-by: Earnestly <zibeon@gmail.com>
----
- configure.ac | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/configure.ac b/configure.ac
-index 5a00403..9325691 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -6,7 +6,6 @@ AC_INIT([util-linux],
- 
- AC_PREREQ([2.60])
- 
--AC_CONFIG_AUX_DIR([config])
- AC_CONFIG_MACRO_DIR([m4])
- dnl AC_USE_SYSTEM_EXTENSIONS must be called before any macros that run
- dnl the compiler (like AC_PROG_LIBTOOL) to avoid autoconf errors.
--- 
-2.8.0
 
