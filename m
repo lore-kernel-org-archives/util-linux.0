@@ -1,60 +1,76 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.17.10]:64279 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932246AbcE2Q4n (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 29 May 2016 12:56:43 -0400
-Received: from localhost ([79.234.43.175]) by mrelayeu.kundenserver.de
- (mreue104) with ESMTPSA (Nemesis) id 0LdmXT-1boPBz0z2p-00j0m8 for
- <util-linux@vger.kernel.org>; Sun, 29 May 2016 18:56:40 +0200
-Date: Sun, 29 May 2016 18:56:58 +0200
-From: Tobias Stoeckmann <tobias@stoeckmann.org>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] fsck.minix: Verify more fields in super-block.
-Message-ID: <20160529165658.GA7092@localhost>
+Received: from youngberry.canonical.com ([91.189.89.112]:33882 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756408AbcECVWK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 3 May 2016 17:22:10 -0400
+Date: Tue, 3 May 2016 21:22:02 +0000
+From: Serge Hallyn <serge.hallyn@ubuntu.com>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: Linux Containers <containers@lists.linux-foundation.org>,
+        util-linux@vger.kernel.org
+Subject: Re: bind mounting namespace inodes for unprivileged users
+Message-ID: <20160503212202.GA32233@ubuntumail>
+References: <1462299656.16133.51.camel@HansenPartnership.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1462299656.16133.51.camel@HansenPartnership.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The field s_ninodes in super-block is used for memory allocation and
-division without verifications. The memory allocation increments the
-unchecked value by 1, making it vulnerable to an integer overflow
-on 32 bit systems with minix 3 file systems. I did not find a (good)
-way to exploit this by crafting a malicious file system, so I consider
-it as a reliability issue. If it's 0, a division by zero occurs when
-"-v" has been used. A filesystem without any inodes is definitely
-wrong, because it means that there's not even the root inode, which is
-accessed unchecked later on.
+Quoting James Bottomley (James.Bottomley@HansenPartnership.com):
+> Right at the moment, unprivileged users cannot call mount --bind to
+> create a permanent copy of any of their namespaces.  This is annoying
+> because it means that for entry to long running containers you have to
+> spawn an undying process and use nsenter via the /proc/<pid>/ns files.
+> 
+> The first question is:  assuming we restrict it to bind mounting only
+> nsfs inodes, is there any reason an unprivileged user shouldn't be able
+> to bind a namespace they've created to a file they own in the initial
+> mount namespace?
+> 
+> Assuming the answer to this is no, then how to implement it becomes the
+> next problem.  Right at the moment, util-linux/mount will deny a non
+> -root user the ability to use --bind.  This check could be relaxed and,
+> since mount is setuid root, it could be modified to force the binding
+> as root meaning this could be implemented entirely within the util
+> -linux package.
+> 
+> Doing this from within the kernel sys_mount is much more problematic:
+> no root users are forbidden from calling any type of mount by the
+> may_mount() check, which makes sure you only have root capability in
+> the user_ns attached to the current mnt_ns.  Overriding that simply to
+> allow nsfs binding looks like a recipe for introducing unexpected
+> security problems.
+> 
+> So, does anyone have any strong (or even weak) opinions about this
+> before I start coding patches?
 
-The field s_firstdatazone has to be checked against s_(n)zones. If it
-is larger than the highest allowed index, the file system is definitely
-corrupted -- hard to say which value is wrong though, therefore I
-decided to simply call die(). A maliciously created file system could
-do more harm in this way: single bits inside the memory area could be
-flipped because range checks would fail. Hard to consider it as a
-security issue though, because these addresses are not arbitrarily
-accessible without very careful crafting (if at all possible).
----
- disk-utils/fsck.minix.c | 4 ++++
- 1 file changed, 4 insertions(+)
+Hi,
 
-diff --git a/disk-utils/fsck.minix.c b/disk-utils/fsck.minix.c
-index aa64569..931658f 100644
---- a/disk-utils/fsck.minix.c
-+++ b/disk-utils/fsck.minix.c
-@@ -573,8 +573,12 @@ read_superblock(void) {
- 		die(_("bad magic number in super-block"));
- 	if (get_zone_size() != 0 || MINIX_BLOCK_SIZE != 1024)
- 		die(_("Only 1k blocks/zones supported"));
-+	if (get_ninodes() == 0 || get_ninodes() == UINT32_MAX)
-+		die(_("bad s_ninodes field in super-block"));
- 	if (get_nimaps() * MINIX_BLOCK_SIZE * 8 < get_ninodes() + 1)
- 		die(_("bad s_imap_blocks field in super-block"));
-+	if (get_first_zone() > get_nzones())
-+		die(_("bad s_firstdatazone field in super-block"));
- 	if (get_nzmaps() * MINIX_BLOCK_SIZE * 8 <
- 	    get_nzones() - get_first_zone() + 1)
- 		die(_("bad s_zmap_blocks field in super-block"));
--- 
-2.8.3
+so this is a bit scatterbrained, but it points to what I think is
+a workable way to do this all unprivileged (well, besides the
+privilege conferred by newuidmap/newgidmap).  Assume you are
+uid 1000 and have a /etc/sub{u,g}id entry joe:100000:65536.
 
+Start by creating one container (namespace, whatever you want to
+call it) which has uid 1000 mapped to container root, and all subuids
+mapped into the container so that container root is privileged over
+them.  This container/namespace creates a private mntns which is
+where you'll be keeping the persistent nsfs bind mounts.  Let's
+call this the 'factotum' for the duration of this email.
+
+Now say you create a container with 100000 as container root and you
+want to persist its user and network namespaces.  The init task (which
+you don't want to keep around) is pid 999.  Uid 1000 cannot see under
+/proc/999/ns, but a task in your factotum can.  So it can open
+/proc/999/ns/net and /proc/999/ns/user and bind mount them.  Any time a
+task (pid 1999) owned by 1000 on the host wants to use such an inode,
+the factotum can open it, and task 1999 can open /proc/$(pidof
+factotum)/fd/N, or the factotum could simply pass the open fds over a
+unix socket.  Any task spawned by uid 1000 should then be able to setns
+using those fds.
+
+This is something which could be done by transparently by 'unshare'
+and 'nsenter'.
+
+-serge
