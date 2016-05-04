@@ -1,105 +1,126 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from bedivere.hansenpartnership.com ([66.63.167.143]:37250 "EHLO
-	bedivere.hansenpartnership.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755238AbcEDSSA (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 4 May 2016 14:18:00 -0400
-Message-ID: <1462385876.14310.90.camel@HansenPartnership.com>
-Subject: Re: Unprivileged containers and co-ordinating user namespaces
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: systemd-devel@lists.freedesktop.org,
-        Linux Containers <containers@lists.linux-foundation.org>,
+Received: from out03.mta.xmission.com ([166.70.13.233]:34598 "EHLO
+	out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753251AbcEDRyT (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 4 May 2016 13:54:19 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: Linux Containers <containers@lists.linux-foundation.org>,
         util-linux@vger.kernel.org
-Date: Wed, 04 May 2016 14:17:56 -0400
-In-Reply-To: <87wpn9988a.fsf@x220.int.ebiederm.org>
-References: <1461880928.2307.48.camel@HansenPartnership.com>
-	 <20160428230045.GS22888@odin.tremily.us>
-	 <1461944328.2311.10.camel@HansenPartnership.com>
-	 <87wpn9988a.fsf@x220.int.ebiederm.org>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+References: <1462299656.16133.51.camel@HansenPartnership.com>
+	<87oa8lc2ic.fsf@x220.int.ebiederm.org>
+	<1462382890.14310.67.camel@HansenPartnership.com>
+Date: Wed, 04 May 2016 12:43:38 -0500
+In-Reply-To: <1462382890.14310.67.camel@HansenPartnership.com> (James
+	Bottomley's message of "Wed, 04 May 2016 13:28:10 -0400")
+Message-ID: <87futx3eid.fsf@x220.int.ebiederm.org>
+MIME-Version: 1.0
+Content-Type: text/plain
+Subject: Re: bind mounting namespace inodes for unprivileged users
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, 2016-05-04 at 10:02 -0500, Eric W. Biederman wrote:
-> James Bottomley <James.Bottomley@HansenPartnership.com> writes:
-> 
-> > On Thu, 2016-04-28 at 16:00 -0700, W. Trevor King wrote:
-> > > On Thu, Apr 28, 2016 at 03:02:08PM -0700, James Bottomley wrote:
-> > > > /etc/usernamespaces
-> > > > 
-> > > > and the format be :::
-> > > > 
-> > > > …
-> > > > 
-> > > > If this sounds OK to people, I can code up a utility that does 
-> > > > this, which should probably belong in util-linux.
-> > > 
-> > > This sounds a lot like shadow's newuidmap and newgidmap [1,2,3].
-> > > 
-> > > Cheers,
-> > > Trevor
-> > > 
-> > > [1]: https://github.com/shadow-maint/shadow/commit/673c2a6f9aa6c6
-> > > 9588f4c1be08589b8d3475a520
-> > > [2]: http://man7.org/linux/man-pages/man1/newuidmap.1.html
-> > > [3]: http://man7.org/linux/man-pages/man5/subuid.5.html
-> > 
-> > I think that mostly works.  No-one's packaging it yet, which is why 
-> > I didn't notice.  It also looks like the build dependencies have
-> > vastly expanded, so I can't get it to build in the build service
-> > yet.
-> 
-> Both Fedora and Ubuntu should be packaging it.  Further Docker should
-> already be using these files.
-> 
-> > It looks like the only addition it needs is the setgroups flag for
-> > newgidmap, which the security people will need, so I can patch 
-> > that.  Plus it's trying to install newgidmap/newuidmap as setuid 
-> > root rather than cap_setuid/cap_setgid, but that's fixable in the 
-> > spec file.
-> 
-> I read the rest of this thread and I don't understand the setgroups 
-> flag that you desire.  It sounds like someone with an incomplete 
-> grasp on the situtation being cautious.
-> 
-> As far as I can tell the use cases for containers not supporting
-> setgroups is very limited.  Basically just using user namespaces to
-> drop privileges, and mapping the existing uids and gids to 0.
-> 
-> I don't think it actually makes sense to have a knob.  From a 
-> practical standpoint entering any subordinate ids into the subgid 
-> file for a user is a permission to use groups in such a way that can 
-> not use them as a negative acl (because we allow them to be dropped).
-> 
-> Certainly it has been that way for quite a while now.
+James Bottomley <James.Bottomley@HansenPartnership.com> writes:
 
-I don't quite get this.  If setgroups is set to deny and I have a set
-of group mappings, I still can't get rid of the negative acl group.  I
-can map it to a different gid inside my container, or I can not map it
-at all, but in either case I still can't get access to anything with
-the negative acl group marker because the group permission checks
-occurs with the kguid_t set which includes my mapped or unmapped group.
- The only way I can lose it is to call sys_setgroups().
+> On Wed, 2016-05-04 at 09:38 -0500, Eric W. Biederman wrote:
+>> James Bottomley <James.Bottomley@HansenPartnership.com> writes:
+>> 
+>> > Right at the moment, unprivileged users cannot call mount --bind to
+>> > create a permanent copy of any of their namespaces.  This is
+>> > annoying
+>> > because it means that for entry to long running containers you have
+>> > to
+>> > spawn an undying process and use nsenter via the /proc/<pid>/ns
+>> > files.
+>> > 
+>> > The first question is:  assuming we restrict it to bind mounting
+>> > only
+>> > nsfs inodes, is there any reason an unprivileged user shouldn't be
+>> > able
+>> > to bind a namespace they've created to a file they own in the
+>> > initial
+>> > mount namespace?
+>> 
+>> Own, have read/write and unlink privileges.
+>> 
+>> My big concern would be the fact that a bind mount today makes a file
+>> immune from unlink.  So it would mess up rm -rf.
+>
+> Yes, that's true.  You have to unmount a bind mount, even of a file,
+> before you can remove it.  The way me mostly cope with this today is to
+> install the bind mounts on a tmpfs ... however, the unprivileged user
+> can't mount a tmpfs either ...
+>
+> However, when I experimented, it seems that the rm isn't hard and fast.
+>  If I create a file outside the mount namespace, but then bind mount it
+> within the mount namespace, I can still remove it from the outside, in
+> which case the binding also disappears. The is_locally_mounted() check
+> in vfs_unlink() returns false because the file isn't covered outside
+> the child mount namespace.  It doesn't look like too much bother to
+> make unlink do the same for bind mounted files regardless of whether
+> the mount point is covered by another bind mounted file (although
+> obviously keeping the same semantics for directories).
 
-It's a bit ugly because I have to enter the container with --preserve
--credentials and I can't su to myself if I enter as root (-S 0), I have
-to re-enter as myself instead, but it works.
+True, althought that will be a potentially long conversation.  The
+existing semantics were a bug fix for security issues with user
+namespaces and mount namespaces.  I would have loved not to have
+added is_local_mountpoint, but that was the compromise between fixing
+the issues and remaining backwards compatible.
 
-> Except for the negative acl aspect there are no issues with dropping
-> groups, as setgroups will limit you to the groups allowed in your 
-> user namespace.
+>> That might not be worse than what a setuid fuse mount binary allows
+>> today.
+>
+> It's about the same: you can't remove the fuse mount point until it
+> gets unmounted.  If you have gvfs, you can see this by looking at
+> /run/user/<uid>/gvfs
 
-Well, notwithstanding the merits of negative acls, which I don't want
-to debate because I don't think they're that useful, the use case might
-be that a user possessing a negative acl still wants to use an
-architecture emulation container for building.  Installing such a
-container requires being able to set a set of groups and uids (required
-by the installer), but it doesn't require the sys_setgroups() system
-call, so they could reasonably be given the ability to set one up with
-the nosetgroups flag and a range of gids allocated in subgid to ensure
-they still can't get access to resources denied by the negative acl
-group.
+I don't have it handy and gnome and I parted was several versions ago,
+but yes.  My point is that the unprivileged fuse case makes a good
+precedent and example to follow.
 
-James
+>> I wonder if there might is a way to setup a user namespace and mount 
+>> namespace combination so users could manage mounts in their own login 
+>> shells, just like is allowed in plan 9. Long term I think that would
+>> be more satisfactory.
+>
+> So I thought about this as well.  However, you do want a single user
+> and mount namespace for all logins, which means it would have to be
+> managed by the login process itself.  That seemed to be quite a large
+> thing to parametrise to login.
 
+No.  This can be done with pam.  Last I looked there was even a
+pam_namespace plugin for dealing with the mount namespace.  The only
+real issue I can think of is that exec likes to drop capabilities
+(unless your uid == 0).
+
+I remember reviewin the kernel's namespace semantics with a nod towards
+using them in a pam plugin several years ago, and it should be possible
+to have a shared container for all of a persons logins if that is
+desired, or a separate container per login if that is desired.
+
+>> > So, does anyone have any strong (or even weak) opinions about this
+>> > before I start coding patches?
+>> 
+>> The mount namespace is complex and getting it right is a pain in the
+>> rear.  So adding yet another path and piece in to the existing
+>> complexity makes me cringe a little.
+>
+> Yes, well which is worse: having no way to bind unprivileged containers
+> without spawning a long running process or having a way to bind them
+> which may lead to unremovable files.  Since I just use sudo mount -
+> -bind anyway for my containers, I don't see the file removal argument
+> as too daunting.
+
+So far with setns support I haven't felt the need to bind mount
+containers.  So I am not certain it is an either or choice.
+
+And of course the other side of the craziness is having a mount point on
+a filesystem makes that filesystem unmountable (except for lazy
+unmounts).  So getting this wrong could affect clean shutdowns and
+reboots.  Which suggests it may be wise to limit this kind of thing
+to a tmpfs like /run/user/<uid>/.
+
+Mostly this is my way of say tread carefully because there be dragons
+here.
+
+Eric
