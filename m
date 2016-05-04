@@ -1,75 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:36489 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752770AbcEIV1v (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 9 May 2016 17:27:51 -0400
-Received: by mail-wm0-f68.google.com with SMTP id w143so22500765wmw.3
-        for <util-linux@vger.kernel.org>; Mon, 09 May 2016 14:27:51 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 10/12] write: make timestamp to be obviously just a clock time
-Date: Mon,  9 May 2016 22:27:26 +0100
-Message-Id: <1462829248-6935-11-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
-References: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-qg0-f50.google.com ([209.85.192.50]:35360 "EHLO
+	mail-qg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753801AbcEDPVu (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 4 May 2016 11:21:50 -0400
+Received: by mail-qg0-f50.google.com with SMTP id f74so24955944qge.2
+        for <util-linux@vger.kernel.org>; Wed, 04 May 2016 08:21:49 -0700 (PDT)
+Message-ID: <572A1389.1040508@gmail.com>
+Date: Wed, 04 May 2016 11:21:45 -0400
+From: Phil Estes <estesp@gmail.com>
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: James Bottomley <James.Bottomley@HansenPartnership.com>,
+        systemd-devel@lists.freedesktop.org,
+        Linux Containers <containers@lists.linux-foundation.org>,
+        util-linux@vger.kernel.org
+Subject: Re: Unprivileged containers and co-ordinating user namespaces
+References: <1461880928.2307.48.camel@HansenPartnership.com> <20160428230045.GS22888@odin.tremily.us> <1461944328.2311.10.camel@HansenPartnership.com> <87wpn9988a.fsf@x220.int.ebiederm.org>
+In-Reply-To: <87wpn9988a.fsf@x220.int.ebiederm.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Just by looking the code one will have hard time knowing that a slice of
-ctime() from characters 11 to 16 is HH:MM time format.  Use of strftime()
-tells exactly what one can expect without additional comments.
+Eric W. Biederman wrote:
+> James Bottomley<James.Bottomley@HansenPartnership.com>  writes:
+>
+>> On Thu, 2016-04-28 at 16:00 -0700, W. Trevor King wrote:
+>>> On Thu, Apr 28, 2016 at 03:02:08PM -0700, James Bottomley wrote:
+>>>> /etc/usernamespaces
+>>>>
+>>>> and the format be :::
+>>>>
+>>>> …
+>>>>
+>>>> If this sounds OK to people, I can code up a utility that does this,
+>>>> which should probably belong in util-linux.
+>>> This sounds a lot like shadow's newuidmap and newgidmap [1,2,3].
+>>>
+>>> Cheers,
+>>> Trevor
+>>>
+>>> [1]: https://github.com/shadow-maint/shadow/commit/673c2a6f9aa6c69588f4c1be08589b8d3475a520
+>>> [2]: http://man7.org/linux/man-pages/man1/newuidmap.1.html
+>>> [3]: http://man7.org/linux/man-pages/man5/subuid.5.html
+>> I think that mostly works.  No-one's packaging it yet, which is why I
+>> didn't notice.  It also looks like the build dependencies have vastly
+>> expanded, so I can't get it to build in the build service yet.
+>
+> Both Fedora and Ubuntu should be packaging it.  Further Docker should
+> already be using these files.
+Yes, based on our discussion in the PRs when user namespaces 
+capabilities were added to Docker, we respect the /etc/sub{u,g}id files 
+for sourcing mappings for userns-confined processes.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- term-utils/write.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
-
-diff --git a/term-utils/write.c b/term-utils/write.c
-index 403d4a7..b10c129 100644
---- a/term-utils/write.c
-+++ b/term-utils/write.c
-@@ -239,9 +239,10 @@ static void write_line(char *s)
-  */
- static void do_write(const struct write_control *ctl)
- {
--	char *login, *pwuid, *time_stamp;
-+	char *login, *pwuid, time_stamp[6];
- 	struct passwd *pwd;
- 	time_t now;
-+	struct tm *tm;
- 	char path[PATH_MAX], *host, line[512];
- 	struct sigaction sigact;
- 
-@@ -265,21 +266,21 @@ static void do_write(const struct write_control *ctl)
- 	sigaction(SIGINT, &sigact, NULL);
- 	sigaction(SIGHUP, &sigact, NULL);
- 
--	/* print greeting */
- 	host = xgethostname();
- 	if (!host)
- 		host = xstrdup("???");
- 
--	now = time((time_t *) NULL);
--	time_stamp = ctime(&now);
--	time_stamp[16] = '\0';
--	printf("\r\n\007\007\007");
-+	now = time((time_t *)NULL);
-+	tm = localtime(&now);
-+	strftime(time_stamp, sizeof(time_stamp), "%H:%M", tm);
-+	/* print greeting */
-+	printf("\r\n\a\a\a");
- 	if (strcmp(login, pwuid))
- 		printf(_("Message from %s@%s (as %s) on %s at %s ..."),
--		       login, host, pwuid, ctl->src_tty, time_stamp + 11);
-+		       login, host, pwuid, ctl->src_tty, time_stamp);
- 	else
- 		printf(_("Message from %s@%s on %s at %s ..."),
--		       login, host, ctl->src_tty, time_stamp + 11);
-+		       login, host, ctl->src_tty, time_stamp);
- 	free(host);
- 	printf("\r\n");
- 
--- 
-2.8.2
-
+- Phil
