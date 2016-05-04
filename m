@@ -1,91 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from bedivere.hansenpartnership.com ([66.63.167.143]:36798 "EHLO
+Received: from bedivere.hansenpartnership.com ([66.63.167.143]:37320 "EHLO
 	bedivere.hansenpartnership.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753596AbcEDR2O (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 4 May 2016 13:28:14 -0400
-Message-ID: <1462382890.14310.67.camel@HansenPartnership.com>
-Subject: Re: bind mounting namespace inodes for unprivileged users
+	by vger.kernel.org with ESMTP id S1752124AbcEDSVg (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 4 May 2016 14:21:36 -0400
+Message-ID: <1462386093.14310.93.camel@HansenPartnership.com>
+Subject: Re: Unprivileged containers and co-ordinating user namespaces
 From: James Bottomley <James.Bottomley@HansenPartnership.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>
 Cc: Linux Containers <containers@lists.linux-foundation.org>,
-        util-linux@vger.kernel.org
-Date: Wed, 04 May 2016 13:28:10 -0400
-In-Reply-To: <87oa8lc2ic.fsf@x220.int.ebiederm.org>
-References: <1462299656.16133.51.camel@HansenPartnership.com>
-	 <87oa8lc2ic.fsf@x220.int.ebiederm.org>
+        systemd-devel@lists.freedesktop.org, util-linux@vger.kernel.org
+Date: Wed, 04 May 2016 14:21:33 -0400
+In-Reply-To: <1462385876.14310.90.camel@HansenPartnership.com>
+References: <1461880928.2307.48.camel@HansenPartnership.com>
+	 <20160428230045.GS22888@odin.tremily.us>
+	 <1461944328.2311.10.camel@HansenPartnership.com>
+	 <87wpn9988a.fsf@x220.int.ebiederm.org>
+	 <1462385876.14310.90.camel@HansenPartnership.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, 2016-05-04 at 09:38 -0500, Eric W. Biederman wrote:
-> James Bottomley <James.Bottomley@HansenPartnership.com> writes:
+On Wed, 2016-05-04 at 14:17 -0400, James Bottomley wrote:
+> > Certainly it has been that way for quite a while now.
 > 
-> > Right at the moment, unprivileged users cannot call mount --bind to
-> > create a permanent copy of any of their namespaces.  This is
-> > annoying
-> > because it means that for entry to long running containers you have
-> > to
-> > spawn an undying process and use nsenter via the /proc/<pid>/ns
-> > files.
-> > 
-> > The first question is:  assuming we restrict it to bind mounting
-> > only
-> > nsfs inodes, is there any reason an unprivileged user shouldn't be
-> > able
-> > to bind a namespace they've created to a file they own in the
-> > initial
-> > mount namespace?
+> I don't quite get this.  If setgroups is set to deny and I have a set
+> of group mappings, I still can't get rid of the negative acl group. 
+>  I can map it to a different gid inside my container, or I can not 
+> map  it at all, but in either case I still can't get access to 
+> anything with the negative acl group marker because the group 
+> permission checks occurs with the kguid_t set which includes my 
+> mapped or unmapped group.  The only way I can lose it is to call
+> sys_setgroups().
+
+Sorry, this next bit should be at the end of the email (I was playing
+and typing at the same time):
+
+> It's a bit ugly because I have to enter the container with --preserve
+> -credentials and I can't su to myself if I enter as root (-S 0), I 
+> have to re-enter as myself instead, but it works.
 > 
-> Own, have read/write and unlink privileges.
+> > Except for the negative acl aspect there are no issues with 
+> > dropping groups, as setgroups will limit you to the groups allowed 
+> > in your user namespace.
 > 
-> My big concern would be the fact that a bind mount today makes a file
-> immune from unlink.  So it would mess up rm -rf.
+> Well, notwithstanding the merits of negative acls, which I don't want
+> to debate because I don't think they're that useful, the use case 
+> might be that a user possessing a negative acl still wants to use an
+> architecture emulation container for building.  Installing such a
+> container requires being able to set a set of groups and uids 
+> (required by the installer), but it doesn't require the 
+> sys_setgroups() system call, so they could reasonably be given the 
+> ability to set one up with the nosetgroups flag and a range of gids 
+> allocated in subgid to ensure they still can't get access to 
+> resources denied by the negative acl group.
 
-Yes, that's true.  You have to unmount a bind mount, even of a file,
-before you can remove it.  The way me mostly cope with this today is to
-install the bind mounts on a tmpfs ... however, the unprivileged user
-can't mount a tmpfs either ...
-
-However, when I experimented, it seems that the rm isn't hard and fast.
- If I create a file outside the mount namespace, but then bind mount it
-within the mount namespace, I can still remove it from the outside, in
-which case the binding also disappears. The is_locally_mounted() check
-in vfs_unlink() returns false because the file isn't covered outside
-the child mount namespace.  It doesn't look like too much bother to
-make unlink do the same for bind mounted files regardless of whether
-the mount point is covered by another bind mounted file (although
-obviously keeping the same semantics for directories).
-
-> That might not be worse than what a setuid fuse mount binary allows
-> today.
-
-It's about the same: you can't remove the fuse mount point until it
-gets unmounted.  If you have gvfs, you can see this by looking at
-/run/user/<uid>/gvfs
-
-> I wonder if there might is a way to setup a user namespace and mount 
-> namespace combination so users could manage mounts in their own login 
-> shells, just like is allowed in plan 9. Long term I think that would
-> be more satisfactory.
-
-So I thought about this as well.  However, you do want a single user
-and mount namespace for all logins, which means it would have to be
-managed by the login process itself.  That seemed to be quite a large
-thing to parametrise to login.
-
-> > So, does anyone have any strong (or even weak) opinions about this
-> > before I start coding patches?
-> 
-> The mount namespace is complex and getting it right is a pain in the
-> rear.  So adding yet another path and piece in to the existing
-> complexity makes me cringe a little.
-
-Yes, well which is worse: having no way to bind unprivileged containers
-without spawning a long running process or having a way to bind them
-which may lead to unremovable files.  Since I just use sudo mount -
--bind anyway for my containers, I don't see the file removal argument
-as too daunting.
+It's a bit ugly because I have to enter the container with --preserve
+-credentials and I can't su to myself if I enter as root (-S 0), I have
+to re-enter as myself instead, but it works.
 
 James
 
