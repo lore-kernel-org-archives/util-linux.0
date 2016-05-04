@@ -1,88 +1,128 @@
-Return-Path: kerolasa@gmail.com
-Sender: Sami Kerola <kerolasa@gmail.com>
-Date: Sun, 15 May 2016 18:03:24 +0100 (BST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 11/12] write: improve coding style
-In-Reply-To: <20160511085420.y6menmghp6qydbac@ws.net.home>
-Message-ID: <alpine.LNX.2.20.1605151800570.592@imuri>
-References: <1462829248-6935-1-git-send-email-kerolasa@iki.fi> <1462829248-6935-12-git-send-email-kerolasa@iki.fi> <20160511085420.y6menmghp6qydbac@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from bedivere.hansenpartnership.com ([66.63.167.143]:34532 "EHLO
+	bedivere.hansenpartnership.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757263AbcEDLQB (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 4 May 2016 07:16:01 -0400
+Message-ID: <1462360558.14310.37.camel@HansenPartnership.com>
+Subject: Re: bind mounting namespace inodes for unprivileged users
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+To: Serge Hallyn <serge.hallyn@ubuntu.com>
+Cc: Linux Containers <containers@lists.linux-foundation.org>,
+        util-linux@vger.kernel.org
+Date: Wed, 04 May 2016 07:15:58 -0400
+In-Reply-To: <20160503212202.GA32233@ubuntumail>
+References: <1462299656.16133.51.camel@HansenPartnership.com>
+	 <20160503212202.GA32233@ubuntumail>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, 11 May 2016, Karel Zak wrote:
-
-> You do not need the crazy macro at all
+On Tue, 2016-05-03 at 21:22 +0000, Serge Hallyn wrote:
+> Quoting James Bottomley (James.Bottomley@HansenPartnership.com):
+> > Right at the moment, unprivileged users cannot call mount --bind to
+> > create a permanent copy of any of their namespaces.  This is 
+> > annoying because it means that for entry to long running containers 
+> > you have to spawn an undying process and use nsenter via the 
+> > /proc/<pid>/ns files.
+> > 
+> > The first question is:  assuming we restrict it to bind mounting 
+> > only nsfs inodes, is there any reason an unprivileged user 
+> > shouldn't be able to bind a namespace they've created to a file 
+> > they own in the initial mount namespace?
+> > 
+> > Assuming the answer to this is no, then how to implement it becomes 
+> > the next problem.  Right at the moment, util-linux/mount will deny 
+> > a non-root user the ability to use --bind.  This check could be 
+> > relaxed and, since mount is setuid root, it could be modified to 
+> > force the binding as root meaning this could be implemented 
+> > entirely within the util-linux package.
+> > 
+> > Doing this from within the kernel sys_mount is much more 
+> > problematic: no root users are forbidden from calling any type of 
+> > mount by the may_mount() check, which makes sure you only have root 
+> > capability in the user_ns attached to the current mnt_ns. 
+> >  Overriding that simply to allow nsfs binding looks like a recipe 
+> > for introducing unexpected security problems.
+> > 
+> > So, does anyone have any strong (or even weak) opinions about this
+> > before I start coding patches?
 > 
->    while (*s) {
->         int rc = 0;
->         int c = *s++;
+> Hi,
 > 
->         if (c == '\n')
->             rc = fputc_careful('\n', stdout, '^');
->         if (rc == 0)
->             rc = fputc_careful(c, stdout, '^');
->         if (rc == EOF)
->             err(EXIT_FAILURE, _("carefulputc failed"));
->    }
+> so this is a bit scatterbrained, but it points to what I think is
+> a workable way to do this all unprivileged (well, besides the
+> privilege conferred by newuidmap/newgidmap).  Assume you are
+> uid 1000 and have a /etc/sub{u,g}id entry joe:100000:65536.
+> 
+> Start by creating one container (namespace, whatever you want to
+> call it) which has uid 1000 mapped to container root, and all subuids
+> mapped into the container so that container root is privileged over
+> them.  This container/namespace creates a private mntns which is
+> where you'll be keeping the persistent nsfs bind mounts.  Let's
+> call this the 'factotum' for the duration of this email.
+> 
+> Now say you create a container with 100000 as container root and you
+> want to persist its user and network namespaces.  The init task 
+> (which you don't want to keep around) is pid 999.  Uid 1000 cannot 
+> see under /proc/999/ns, but a task in your factotum can.
 
-The commit is amended in spirit of 'no macro at all'. The code is not 
-exactly the same as above.
+Actually, the process that first created the userns is you in the
+parent namespace.  You need to call the newuidmap, newgidmap on a
+different task for this process, so if you persist the original process
+that first entered the namespace, you can use it to access the
+container even though it has no uid mapping inside the namespace.  That
+means you can actually get away without using a factotum container at
+all because nsenter enters the userns first, so even if your --user
+points to the initial process and --mount points to some process you
+don't have access to, you'll gain entry.
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/cbae2781ab82cd641ef1839f9fec71fe984322ff
+This is a script that demonstrates this:
 
--- snip
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Sat, 14 May 2016 16:40:45 +0100
-Subject: [PATCH 11/15] write: remove PUTC macro
+unshare --user sleep 356d &
+userns=$!
+ln -s /proc/$userns/ns/user myuserns
+sleep 1	# need ns to be entered and started
+newuidmap $userns 0 100000 1000
+newgidmap $userns 0 100000 1000
+nsenter --user=myuserns unshare --mount sleep 356d &
+ln -s /proc/$!/ns/mnt mymntns
+sleep 1 # wait for ns to be entered and started
+nsenter --user=myuserns --mount=mymntns
 
-Function like macros make following the execution flow unnecessarily
-difficult, and deserves to be removed.
+>   So it can open /proc/999/ns/net and /proc/999/ns/user and bind 
+> mount them.  Any time a task (pid 1999) owned by 1000 on the host 
+> wants to use such an inode, the factotum can open it, and task 1999 
+> can open /proc/$(pidof factotum)/fd/N, or the factotum could simply 
+> pass the open fds over a unix socket.  Any task spawned by uid 1000 
+> should then be able to setns using those fds.
+> 
+> This is something which could be done by transparently by 'unshare'
+> and 'nsenter'.
 
-Requested-by: Karel Zak <kzak@redhat.com>
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- term-utils/write.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+Something like this is what I do today with architecture emulation
+containers.  The thing is that the factotum container still needs a
+long running process to keep it around (I currently use sleep 365d),
+plus you need to remember the pid and the fd for your other containers
+rather than names if you use bind (although you can install symbolic
+links where you would have installed the bind mount to help you
+remember this, so it's a minor quibble).
 
-diff --git a/term-utils/write.c b/term-utils/write.c
-index 57b2254..3b86694 100644
---- a/term-utils/write.c
-+++ b/term-utils/write.c
-@@ -220,18 +220,17 @@ static void signal_handler(int signo)
-  */
- static void write_line(char *s)
- {
--	char c;
--
--#define	PUTC(c)	if (fputc_careful(c, stdout, '^') == EOF) \
--    err(EXIT_FAILURE, _("carefulputc failed"));
- 	while (*s) {
--		c = *s++;
--		if (c == '\n')
--			PUTC('\r');
--		PUTC(c);
-+		const int c = *s++;
-+
-+		if (c == '\n') {
-+			if (fputc_careful('\r', stdout, '^') == EOF)
-+				goto fail;
-+		}
-+		if (fputc_careful(c, stdout, '^') == EOF)
-+ fail:
-+			err(EXIT_FAILURE, _("carefulputc failed"));
- 	}
--	return;
--#undef PUTC
- }
- 
- /*
--- 
-2.8.2
--- snip
+But the question I still come back to is should the use be allowed to
+bind mount this in the original mount namespace instead of using
+symbolic links and having to persist a process inside the container. 
+ The Emulation containers I build naturally don't have any processes
+inside them because you only enter them when you want to begin
+emulating a different architecture.  For me, the nice thing about bind
+mounts is that the container is gone when I unmount them.  Without bind
+mounting, I find I still have a long procession of long running sleeps
+keeping containers I don't want around after I've finished playing with
+some new thing ... and if I don't kill them carefully (the mount sleeps
+have to be killed from within the userns), I end up with inaccessible
+unkillable containers.
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+So I'd still like to think if there is a valid reason to deny
+unprivileged users the ability to bind containers?
+
+James
+
