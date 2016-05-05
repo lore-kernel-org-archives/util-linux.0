@@ -1,165 +1,136 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43007 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:41342 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751189AbcDRKWl (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 18 Apr 2016 06:22:41 -0400
-Date: Mon, 18 Apr 2016 12:22:38 +0200
+	id S1756728AbcEEJms (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 5 May 2016 05:42:48 -0400
+Date: Thu, 5 May 2016 11:42:45 +0200
 From: Karel Zak <kzak@redhat.com>
-To: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
+To: Werner Fink <werner@suse.de>
 Cc: util-linux@vger.kernel.org
-Subject: Re: fsck -l: fix racing between unlock/unlink and open
-Message-ID: <20160418102238.54gvnoxnsq7z76uv@ws.net.home>
-References: <m3bn5lqdvi.fsf@gmail.com>
+Subject: Re: [PATCH] Use the plymouth local protocol instead the plymouth
+ binary
+Message-ID: <20160505094245.6frwtvaxoueyrfw7@ws.net.home>
+References: <1461324096-29280-1-git-send-email-werner@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <m3bn5lqdvi.fsf@gmail.com>
+In-Reply-To: <1461324096-29280-1-git-send-email-werner@suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Apr 08, 2016 at 12:59:29AM +0300, Yuriy M. Kaminskiy wrote:
-> Probably, there are better solutions, but I prefer KISS.
+On Fri, Apr 22, 2016 at 01:21:36PM +0200, Werner Fink wrote:
+> +static int open_un_socket_and_connect(void)
+> +{
+> +	struct sockaddr_un su = {		/* The abstract UNIX socket of plymouth */
+> +		.sun_family = AF_UNIX,
+> +		.sun_path = PLYMOUTH_SOCKET_PATH,
+> +	};
+> +	const int one = 1;
+> +	int fd, ret;
+> +
+> +	fd = socket(PF_UNIX, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, 0);
+> +	if (fd < 0) {
+> +		warnx(_("can not open UNIX socket"));
+> +		goto err;
+> +	}
+> +
+> +	ret = setsockopt(fd, SOL_SOCKET, SO_PASSCRED, &one, (socklen_t)sizeof(one));
+> +	if (ret < 0) {
+> +		warnx(_("can not set option for UNIX socket"));
+> +		close(fd);
+> +		fd = -1;
+> +		goto err;
+> +	}
+> +
+> +	ret = connect(fd, &su, offsetof(struct sockaddr_un, sun_path) + 1 + strlen(su.sun_path+1));
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+> +	if (ret < 0) {
 
-> From fcb97ddcbc336bc8860828c47cdaf21c7b1ca655 Mon Sep 17 00:00:00 2001
-> From: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
-> Date: Fri, 8 Apr 2016 00:38:56 +0300
-> Subject: [PATCH] fsck: fix racing between unlock/unlink and open
-> 
-> Process A	Process B	Process C
-> open()
-> [creates file]
-> lock()
-> [succeed]
-> 		open()
-> 		[open existing]
-> 		lock()...
-> running()
-> close()
-> 		[...succeed]
-> unlink()
-> 		running()
-> 				open()
-> 				[creates file] {BAD!}
-> 				lock()
-> 				[succeed] {BAD!}
-> 				running() {BAD!}
-> 		close()
-> 
+This is strange code, connect() returns -1 on error, I have doubts you
+will ever see ret < 0 and why connect() return value is not enough,
+why we need 1 + strlen(su.sun_path+1))?
 
-It would be better to check if the file still exist on the filesystem
-with the same inode number, if not then re-open. It means that on race
-you will create a new lock file. (You have to unlock after unlink.)
-See http://stackoverflow.com/questions/17708885/flock-removing-locked-file-without-race-condition
+> +		if (errno != ECONNREFUSED)
+> +			warnx(_("can not connect on UNIX socket"));
+> +		close(fd);
+> +		fd = -1;
+> +		goto err;
+> +	}
+> +err:
+> +	return fd;
+> +}
+> +
+> +int plymouth_command(int cmd, ...)
+> +{
+> +	char answer[2], command[2];
+> +	struct sigaction sp, op;
+> +	int fdsock = -1, ret = 0;
+> +
+> +	sigemptyset (&sp.sa_mask);
+> +	sp.sa_handler = SIG_IGN;
+> +	sp.sa_flags = SA_RESTART;
+> +	sigaction(SIGPIPE, &sp, &op);
+> +
+> +	command[1] = '\0';
+> +	switch (cmd) {
+> +	case MAGIC_PING:
+> +		fdsock = open_un_socket_and_connect();
+> +		if (fdsock >= 0) {
+> +			command[0] = cmd;
 
-Simple example:
+maybe define cmd as char or uint8_t
 
-#include <stdio.h>
-#include <sys/file.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <errno.h>
+> +			write_all(fdsock, command, strlen(command)+1);
 
-int main(int argc, char **argv)
-{
-	const char *lockpath = "test.lock";
-	int fd;
-	struct stat st_lock, st_file;
+why we need strlen(command)+1 everywhere if the commend is just one
+char+\0, sizeof(command) would be enough.
 
-	while (1) {
-		fd = open(lockpath, O_RDONLY|O_CREAT|O_CLOEXEC,
-				    S_IWUSR|S_IRUSR|S_IRGRP|S_IROTH);
-		fstat(fd, &st_lock);
-		flock(fd, LOCK_EX);
+> +		}
+> +		break;
+> +	case MAGIC_QUIT:
+> +		fdsock = open_un_socket_and_connect();
+> +		if (fdsock >= 0) {
+> +			command[0] = cmd;
+> +			write_all(fdsock, command, strlen(command)+1);
+> +		}
+> +		break;
+> +	default:
+> +		warnx(_("the plymouth request %c is not implemented"), cmd);
+> +	case '?':
+> +		goto err;
+> +	}
+> +
+> +	answer[0] = '\0';
+> +	if (fdsock >= 0) {
+> +		if (can_read(fdsock, 1000))
+> +			read_all(fdsock, &answer[0], sizeof(answer));
+> +		close(fdsock);
+> +	}
+> +	sigaction(SIGPIPE, &op, NULL);
+> +	ret = (answer[0] == ANSWER_ACK) ? 1 : 0;
+> +err:
+> +	return ret;
+> +}
 
-		errno = 0;
-		if (stat(lockpath, &st_file) == 0 && st_file.st_ino == st_lock.st_ino)
-			break;
-		if (errno)
-			fprintf(stderr, "%d: stat failed: %m\n", getpid());
-		else
-			fprintf(stderr, "%d: ignore %lu (fs has:%lu)\n", getpid(), st_lock.st_ino, st_file.st_ino);
-		close(fd);
-	}
+...
 
-	fprintf(stderr, "%d: -->locked ino: %lu\n", getpid(), st_lock.st_ino);
-	sleep(10);
-	unlink(lockpath);
-	close(fd);
-	return 0;
-}
+>  /*
+>   * Fix the tty modes and set reasonable defaults.
+>   */
+> @@ -138,8 +103,9 @@ static void tcinit(struct console *con)
+>  	struct termios lock;
+>  	int fd = con->fd;
+>  #ifdef TIOCGLCKTRMIOS
+> -	int i = (plymouth_command("--ping")) ? 20 : 0;
+> -
+> +	int i = (plymouth_command(MAGIC_PING)) ? 20 : 0;
+> +	if (i)
+> +		plymouth_command(MAGIC_QUIT);
 
-
-See untested fsck patch below. Comments?
+would be possible to #define PLYMOUTH_TERMIOS_FLAGS_DELAY,
+now we have 20s in sulogins and 30s in agetty. Why?
 
     Karel
 
-
-diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
-index 05cfbc4..0a7dbc8 100644
---- a/disk-utils/fsck.c
-+++ b/disk-utils/fsck.c
-@@ -370,23 +370,38 @@ static void lock_disk(struct fsck_instance *inst)
- 	if (verbose)
- 		printf(_("Locking disk by %s ... "), inst->lockpath);
- 
--	inst->lock = open(inst->lockpath, O_RDONLY|O_CREAT|O_CLOEXEC,
--				    S_IWUSR|S_IRUSR|S_IRGRP|S_IROTH);
--	if (inst->lock >= 0) {
--		int rc = -1;
--
--		/* inform users that we're waiting on the lock */
--		if (verbose &&
--		    (rc = flock(inst->lock, LOCK_EX | LOCK_NB)) != 0 &&
--		    errno == EWOULDBLOCK)
--			printf(_("(waiting) "));
--
--		if (rc != 0 && flock(inst->lock, LOCK_EX) != 0) {
--			close(inst->lock);			/* failed */
--			inst->lock = -1;
-+	while (1) {
-+		struct stat st_lock, st_file;
-+
-+		inst->lock = open(inst->lockpath, O_RDONLY|O_CREAT|O_CLOEXEC,
-+					    S_IWUSR|S_IRUSR|S_IRGRP|S_IROTH);
-+		if (inst->lock >= 0) {
-+			int rc = -1;
-+
-+			/* inform users that we're waiting on the lock */
-+			if (verbose &&
-+			    (rc = flock(inst->lock, LOCK_EX | LOCK_NB)) != 0 &&
-+			    errno == EWOULDBLOCK)
-+				printf(_("(waiting) "));
-+
-+			if (rc != 0 && flock(inst->lock, LOCK_EX) != 0) {
-+				close(inst->lock);			/* failed */
-+				inst->lock = -1;
-+			}
- 		}
-+
-+		/*
-+		 * Make sure the locked lockfile really exist on the filesystem
-+		 * to avoid race between lock and unlink (see unlock_disk())
-+		 */
-+		fstat(inst->lock, &st_lock);
-+		if (stat(inst->lockpath, &st_file) == 0
-+		    && st_file.st_ino == st_lock.st_ino)
-+			break;				/* success */
-+		close(inst->lock);
- 	}
- 
-+
- 	if (verbose)
- 		/* TRANSLATORS: These are followups to "Locking disk...". */
- 		printf("%s.\n", inst->lock >= 0 ? _("succeeded") : _("failed"));
-@@ -409,8 +424,8 @@ static void unlock_disk(struct fsck_instance *inst)
- 	if (verbose)
- 		printf(_("Unlocking %s.\n"), inst->lockpath);
- 
--	close(inst->lock);			/* unlock */
- 	unlink(inst->lockpath);
-+	close(inst->lock);			/* unlock */
- 
- 	free(inst->lockpath);
- 
- 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
