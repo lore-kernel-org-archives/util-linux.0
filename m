@@ -1,111 +1,107 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:34693 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750975AbcEORbG (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 15 May 2016 13:31:06 -0400
-Received: by mail-wm0-f68.google.com with SMTP id n129so13474668wmn.1
-        for <util-linux@vger.kernel.org>; Sun, 15 May 2016 10:31:06 -0700 (PDT)
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:35783 "EHLO
+	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750754AbcEHURZ (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 8 May 2016 16:17:25 -0400
+Received: by mail-wm0-f66.google.com with SMTP id e201so17484493wme.2
+        for <util-linux@vger.kernel.org>; Sun, 08 May 2016 13:17:24 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 03/11] lslogins: use timestamp helpers
-Date: Sun, 15 May 2016 18:30:49 +0100
-Message-Id: <1463333457-1011-4-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1463333457-1011-1-git-send-email-kerolasa@iki.fi>
-References: <1463333457-1011-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH 2/2] setterm: remove unnecessary translation string
+Date: Sun,  8 May 2016 21:17:18 +0100
+Message-Id: <1462738638-3141-2-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1462738638-3141-1-git-send-email-kerolasa@iki.fi>
+References: <1462738638-3141-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- login-utils/lslogins.c | 43 +++++++++++--------------------------------
- 1 file changed, 11 insertions(+), 32 deletions(-)
+ term-utils/setterm.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
-index 40a1343..9e80b25 100644
---- a/login-utils/lslogins.c
-+++ b/login-utils/lslogins.c
-@@ -56,6 +56,7 @@
- #include "pathnames.h"
- #include "logindefs.h"
- #include "procutils.h"
-+#include "timestamps.h"
- 
- /*
-  * column description
-@@ -293,22 +294,6 @@ static inline size_t err_columns_index(size_t arysz, size_t idx)
- #define add_column(ary, n, id)	\
- 		((ary)[ err_columns_index(ARRAY_SIZE(ary), (n)) ] = (id))
- 
--static struct timeval now;
--
--static int date_is_today(time_t t)
--{
--	if (now.tv_sec == 0)
--		gettimeofday(&now, NULL);
--	return t / (3600 * 24) == now.tv_sec / (3600 * 24);
--}
--
--static int date_is_thisyear(time_t t)
--{
--	if (now.tv_sec == 0)
--		gettimeofday(&now, NULL);
--	return t / (3600 * 24 * 365) == now.tv_sec / (3600 * 24 * 365);
--}
--
- static int column_name_to_id(const char *name, size_t namesz)
- {
- 	size_t i;
-@@ -325,31 +310,26 @@ static int column_name_to_id(const char *name, size_t namesz)
- 
- static char *make_time(int mode, time_t time)
- {
--	char *s;
- 	struct tm tm;
--	char buf[64] = {0};
-+	char buf[64] = { 0 };
-+	struct ul_time t = { 0 };
- 
--	localtime_r(&time, &tm);
-+	t.tm = localtime_r(&time, &tm);
-+	t.buf = buf;
-+	t.bufsz = sizeof(buf);
- 
--	switch(mode) {
-+	switch (mode) {
- 	case TIME_FULL:
--		asctime_r(&tm, buf);
--		if (*(s = buf + strlen(buf) - 1) == '\n')
--			*s = '\0';
-+		ul_timestamp_ctime_full(&t);
- 		break;
- 	case TIME_SHORT:
--		if (date_is_today(time))
--			strftime(buf, sizeof(buf), "%H:%M:%S", &tm);
--		else if (date_is_thisyear(time))
--			strftime(buf, sizeof(buf), "%b%d/%H:%M", &tm);
--		else
--			strftime(buf, sizeof(buf), "%Y-%b%d", &tm);
-+		ul_timestamp_ctime_short(&t);
- 		break;
- 	case TIME_ISO:
--		strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S%z", &tm);
-+		ul_timestamp_iso_full(&t);
- 		break;
- 	case TIME_ISO_SHORT:
--		strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
-+		ul_timestamp_iso_short(&t);
- 		break;
- 	default:
- 		errx(EXIT_FAILURE, _("unsupported time type"));
-@@ -357,7 +337,6 @@ static char *make_time(int mode, time_t time)
- 	return xstrdup(buf);
+diff --git a/term-utils/setterm.c b/term-utils/setterm.c
+index cfe844f..77aabb6 100644
+--- a/term-utils/setterm.c
++++ b/term-utils/setterm.c
+@@ -231,7 +231,7 @@ static int parse_febg_color(const char *arg)
+ 	else
+ 		color = strtos32_or_err(arg, _("argument error"));
+ 	if (color < BLACK || DEFAULT < color || color == GREY)
+-		errx(EXIT_FAILURE, _("argument error: %s"), arg);
++		errx(EXIT_FAILURE, "%s: %s", _("argument error"), arg);
+ 	return color;
  }
  
--
- static char *uidtostr(uid_t uid)
- {
- 	char *str_uid = NULL;
+@@ -249,11 +249,11 @@ static int parse_ulhb_color(char **argv, int *optind)
+ 		color_name = argv[*optind - 1];
+ 	color = parse_color(color_name);
+ 	if (color == DEFAULT)
+-		errx(EXIT_FAILURE, _("argument error: %s"), color_name);
++		errx(EXIT_FAILURE, "%s: %s", _("argument error"), color_name);
+ 	if (color == NOT_FOUND) {
+ 		color = strtos32_or_err(color_name, _("argument error"));
+ 		if (color < BLACK || DEFAULT < color)
+-			errx(EXIT_FAILURE, _("argument error: %s"), color_name);
++			errx(EXIT_FAILURE, "%s: %s", _("argument error"), color_name);
+ 	}
+ 	if (bright && (color == BLACK || color == GREY))
+ 		errx(EXIT_FAILURE, _("argument error: bright %s is not supported"), color_name);
+@@ -291,7 +291,7 @@ static int parse_blank(char **argv, char *optarg, int *optind)
+ 
+ 		ret = strtos32_or_err(arg, _("argument error"));
+ 		if (ret < 0 || BLANK_MAX < ret)
+-			errx(EXIT_FAILURE, _("argument error: %s"), arg);
++			errx(EXIT_FAILURE, "%s: %s", _("argument error"), arg);
+ 		return ret;
+ 	}
+ }
+@@ -308,7 +308,7 @@ static int parse_powersave(const char *arg)
+ 		return VESA_BLANK_MODE_POWERDOWN;
+ 	else if (strcmp(arg, "off") == 0)
+ 		return VESA_BLANK_MODE_OFF;
+-	errx(EXIT_FAILURE, _("argument error: %s"), arg);
++	errx(EXIT_FAILURE, "%s: %s", _("argument error"), arg);
+ }
+ 
+ static int parse_msglevel(const char *arg)
+@@ -317,7 +317,7 @@ static int parse_msglevel(const char *arg)
+ 
+ 	ret = strtos32_or_err(arg, _("argument error"));
+ 	if (ret < CONSOLE_LEVEL_MIN || CONSOLE_LEVEL_MAX < ret)
+-		errx(EXIT_FAILURE, _("argument error: %s"), arg);
++		errx(EXIT_FAILURE, "%s: %s", _("argument error"), arg);
+ 	return ret;
+ }
+ 
+@@ -331,7 +331,7 @@ static int parse_snap(char **argv, char *optarg, int *optind)
+ 		return 0;
+ 	ret = strtos32_or_err(arg, _("argument error"));
+ 	if (ret < 1)
+-		errx(EXIT_FAILURE, _("argument error: %s"), arg);
++		errx(EXIT_FAILURE, "%s: %s", _("argument error"), arg);
+ 	return ret;
+ }
+ 
+@@ -365,7 +365,7 @@ static int parse_regtabs(char **argv, char *optarg, int *optind)
+ 		return DEFAULT_TAB_LEN;
+ 	ret = strtos32_or_err(arg, _("argument error"));
+ 	if (ret < 1 || TABS_MAX < ret)
+-		errx(EXIT_FAILURE, _("argument error: %s"), arg);
++		errx(EXIT_FAILURE, "%s: %s", _("argument error"), arg);
+ 	return ret;
+ }
+ 
+@@ -379,7 +379,7 @@ static int parse_blength(char **argv, char *optarg, int *optind)
+ 		return 0;
+ 	ret = strtos32_or_err(arg, _("argument error"));
+ 	if (ret < 0 || BLENGTH_MAX < ret)
+-		errx(EXIT_FAILURE, _("argument error: %s"), arg);
++		errx(EXIT_FAILURE, "%s: %s", _("argument error"), arg);
+ 	return ret;
+ }
+ 
 -- 
 2.8.2
 
