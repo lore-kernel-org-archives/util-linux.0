@@ -1,128 +1,264 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from bedivere.hansenpartnership.com ([66.63.167.143]:34532 "EHLO
-	bedivere.hansenpartnership.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757263AbcEDLQB (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 4 May 2016 07:16:01 -0400
-Message-ID: <1462360558.14310.37.camel@HansenPartnership.com>
-Subject: Re: bind mounting namespace inodes for unprivileged users
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-To: Serge Hallyn <serge.hallyn@ubuntu.com>
-Cc: Linux Containers <containers@lists.linux-foundation.org>,
-        util-linux@vger.kernel.org
-Date: Wed, 04 May 2016 07:15:58 -0400
-In-Reply-To: <20160503212202.GA32233@ubuntumail>
-References: <1462299656.16133.51.camel@HansenPartnership.com>
-	 <20160503212202.GA32233@ubuntumail>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:33319 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752595AbcEIV1s (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 9 May 2016 17:27:48 -0400
+Received: by mail-wm0-f65.google.com with SMTP id r12so22517963wme.0
+        for <util-linux@vger.kernel.org>; Mon, 09 May 2016 14:27:47 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 07/12] write: add control structure to clarify what is going on
+Date: Mon,  9 May 2016 22:27:23 +0100
+Message-Id: <1462829248-6935-8-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
+References: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, 2016-05-03 at 21:22 +0000, Serge Hallyn wrote:
-> Quoting James Bottomley (James.Bottomley@HansenPartnership.com):
-> > Right at the moment, unprivileged users cannot call mount --bind to
-> > create a permanent copy of any of their namespaces.  This is 
-> > annoying because it means that for entry to long running containers 
-> > you have to spawn an undying process and use nsenter via the 
-> > /proc/<pid>/ns files.
-> > 
-> > The first question is:  assuming we restrict it to bind mounting 
-> > only nsfs inodes, is there any reason an unprivileged user 
-> > shouldn't be able to bind a namespace they've created to a file 
-> > they own in the initial mount namespace?
-> > 
-> > Assuming the answer to this is no, then how to implement it becomes 
-> > the next problem.  Right at the moment, util-linux/mount will deny 
-> > a non-root user the ability to use --bind.  This check could be 
-> > relaxed and, since mount is setuid root, it could be modified to 
-> > force the binding as root meaning this could be implemented 
-> > entirely within the util-linux package.
-> > 
-> > Doing this from within the kernel sys_mount is much more 
-> > problematic: no root users are forbidden from calling any type of 
-> > mount by the may_mount() check, which makes sure you only have root 
-> > capability in the user_ns attached to the current mnt_ns. 
-> >  Overriding that simply to allow nsfs binding looks like a recipe 
-> > for introducing unexpected security problems.
-> > 
-> > So, does anyone have any strong (or even weak) opinions about this
-> > before I start coding patches?
-> 
-> Hi,
-> 
-> so this is a bit scatterbrained, but it points to what I think is
-> a workable way to do this all unprivileged (well, besides the
-> privilege conferred by newuidmap/newgidmap).  Assume you are
-> uid 1000 and have a /etc/sub{u,g}id entry joe:100000:65536.
-> 
-> Start by creating one container (namespace, whatever you want to
-> call it) which has uid 1000 mapped to container root, and all subuids
-> mapped into the container so that container root is privileged over
-> them.  This container/namespace creates a private mntns which is
-> where you'll be keeping the persistent nsfs bind mounts.  Let's
-> call this the 'factotum' for the duration of this email.
-> 
-> Now say you create a container with 100000 as container root and you
-> want to persist its user and network namespaces.  The init task 
-> (which you don't want to keep around) is pid 999.  Uid 1000 cannot 
-> see under /proc/999/ns, but a task in your factotum can.
+This is done purely to improve readability of the source code.
 
-Actually, the process that first created the userns is you in the
-parent namespace.  You need to call the newuidmap, newgidmap on a
-different task for this process, so if you persist the original process
-that first entered the namespace, you can use it to access the
-container even though it has no uid mapping inside the namespace.  That
-means you can actually get away without using a factotum container at
-all because nsenter enters the userns first, so even if your --user
-points to the initial process and --mount points to some process you
-don't have access to, you'll gain entry.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ term-utils/write.c | 97 ++++++++++++++++++++++++++++++------------------------
+ 1 file changed, 54 insertions(+), 43 deletions(-)
 
-This is a script that demonstrates this:
-
-unshare --user sleep 356d &
-userns=$!
-ln -s /proc/$userns/ns/user myuserns
-sleep 1	# need ns to be entered and started
-newuidmap $userns 0 100000 1000
-newgidmap $userns 0 100000 1000
-nsenter --user=myuserns unshare --mount sleep 356d &
-ln -s /proc/$!/ns/mnt mymntns
-sleep 1 # wait for ns to be entered and started
-nsenter --user=myuserns --mount=mymntns
-
->   So it can open /proc/999/ns/net and /proc/999/ns/user and bind 
-> mount them.  Any time a task (pid 1999) owned by 1000 on the host 
-> wants to use such an inode, the factotum can open it, and task 1999 
-> can open /proc/$(pidof factotum)/fd/N, or the factotum could simply 
-> pass the open fds over a unix socket.  Any task spawned by uid 1000 
-> should then be able to setns using those fds.
-> 
-> This is something which could be done by transparently by 'unshare'
-> and 'nsenter'.
-
-Something like this is what I do today with architecture emulation
-containers.  The thing is that the factotum container still needs a
-long running process to keep it around (I currently use sleep 365d),
-plus you need to remember the pid and the fd for your other containers
-rather than names if you use bind (although you can install symbolic
-links where you would have installed the bind mount to help you
-remember this, so it's a minor quibble).
-
-But the question I still come back to is should the use be allowed to
-bind mount this in the original mount namespace instead of using
-symbolic links and having to persist a process inside the container. 
- The Emulation containers I build naturally don't have any processes
-inside them because you only enter them when you want to begin
-emulating a different architecture.  For me, the nice thing about bind
-mounts is that the container is gone when I unmount them.  Without bind
-mounting, I find I still have a long procession of long running sleeps
-keeping containers I don't want around after I've finished playing with
-some new thing ... and if I don't kill them carefully (the mount sleeps
-have to be killed from within the userns), I end up with inaccessible
-unkillable containers.
-
-So I'd still like to think if there is a valid reason to deny
-unprivileged users the ability to bind containers?
-
-James
+diff --git a/term-utils/write.c b/term-utils/write.c
+index 021e943..cdcc0af 100644
+--- a/term-utils/write.c
++++ b/term-utils/write.c
+@@ -68,6 +68,14 @@
+ 
+ static sig_atomic_t signal_received = 0;
+ 
++struct write_control {
++	uid_t src_uid;
++	char *src_login;
++	char *src_tty;
++	char *dst_login;
++	char dst_tty[PATH_MAX];
++};
++
+ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ {
+ 	fputs(USAGE_HEADER, out);
+@@ -116,7 +124,7 @@ static int term_chk(char *tty, int *msgsokP, time_t * atimeP, int showerror)
+  * utmp_chk - checks that the given user is actually logged in on
+  *     the given tty
+  */
+-static int utmp_chk(char *user, char *tty)
++static int utmp_chk(const struct write_control *ctl)
+ {
+ 	struct utmp u;
+ 	struct utmp *uptr;
+@@ -127,8 +135,8 @@ static int utmp_chk(char *user, char *tty)
+ 
+ 	while ((uptr = getutent())) {
+ 		memcpy(&u, uptr, sizeof(u));
+-		if (strncmp(user, u.ut_user, sizeof(u.ut_user)) == 0 &&
+-		    strncmp(tty, u.ut_line, sizeof(u.ut_line)) == 0) {
++		if (strncmp(ctl->dst_login, u.ut_user, sizeof(u.ut_user)) == 0 &&
++		    strncmp(ctl->dst_tty, u.ut_line, sizeof(u.ut_line)) == 0) {
+ 			res = 0;
+ 			break;
+ 		}
+@@ -149,7 +157,7 @@ static int utmp_chk(char *user, char *tty)
+  * Special case for writing to yourself - ignore the terminal you're
+  * writing from, unless that's the only terminal with messages enabled.
+  */
+-static void search_utmp(char *user, char *tty, char *mytty, uid_t myuid)
++static void search_utmp(struct write_control *ctl)
+ {
+ 	struct utmp u;
+ 	struct utmp *uptr;
+@@ -165,16 +173,16 @@ static void search_utmp(char *user, char *tty, char *mytty, uid_t myuid)
+ 	user_is_me = 0;
+ 	while ((uptr = getutent())) {
+ 		memcpy(&u, uptr, sizeof(u));
+-		if (strncmp(user, u.ut_user, sizeof(u.ut_user)) == 0) {
++		if (strncmp(ctl->dst_login, u.ut_user, sizeof(u.ut_user)) == 0) {
+ 			++nloggedttys;
+ 			xstrncpy(atty, u.ut_line, sizeof(atty));
+ 			if (term_chk(atty, &msgsok, &atime, 0))
+ 				/* bad term? skip */
+ 				continue;
+-			if (myuid && !msgsok)
++			if (ctl->src_uid && !msgsok)
+ 				/* skip ttys with msgs off */
+ 				continue;
+-			if (strcmp(atty, mytty) == 0) {
++			if (strcmp(atty, ctl->src_tty) == 0) {
+ 				user_is_me = 1;
+ 				/* don't write to yourself */
+ 				continue;
+@@ -185,25 +193,26 @@ static void search_utmp(char *user, char *tty, char *mytty, uid_t myuid)
+ 			++nttys;
+ 			if (atime > bestatime) {
+ 				bestatime = atime;
+-				strcpy(tty, atty);
++				xstrncpy(ctl->dst_tty, atty, sizeof(ctl->dst_tty));
+ 			}
+ 		}
+ 	}
+ 
+ 	endutent();
+ 	if (nloggedttys == 0)
+-		errx(EXIT_FAILURE, _("%s is not logged in"), user);
++		errx(EXIT_FAILURE, _("%s is not logged in"), ctl->dst_login);
+ 	if (nttys == 0) {
+ 		if (user_is_me) {
+ 			/* ok, so write to yourself! */
+-			strcpy(tty, mytty);
++			xstrncpy(ctl->dst_tty, ctl->src_tty, sizeof(ctl->dst_tty));
+ 			return;
+ 		}
+-		errx(EXIT_FAILURE, _("%s has messages disabled"), user);
++		errx(EXIT_FAILURE, _("%s has messages disabled"), ctl->dst_login);
+ 	} else if (nttys > 1) {
+ 		warnx(_("%s is logged in more than once; writing to %s"),
+-		      user, tty);
++		      ctl->dst_login, ctl->dst_tty);
+ 	}
++
+ }
+ 
+ /*
+@@ -237,7 +246,7 @@ static void wr_fputs(char *s)
+ /*
+  * do_write - actually make the connection
+  */
+-static void do_write(char *tty, char *mytty, uid_t myuid)
++static void do_write(const struct write_control *ctl)
+ {
+ 	char *login, *pwuid, *nows;
+ 	struct passwd *pwd;
+@@ -246,16 +255,16 @@ static void do_write(char *tty, char *mytty, uid_t myuid)
+ 	struct sigaction sigact;
+ 
+ 	/* Determine our login name(s) before the we reopen() stdout */
+-	if ((pwd = getpwuid(myuid)) != NULL)
++	if ((pwd = getpwuid(ctl->src_uid)) != NULL)
+ 		pwuid = pwd->pw_name;
+ 	else
+ 		pwuid = "???";
+ 	if ((login = getlogin()) == NULL)
+ 		login = pwuid;
+ 
+-	if (strlen(tty) + 6 > sizeof(path))
+-		errx(EXIT_FAILURE, _("tty path %s too long"), tty);
+-	snprintf(path, sizeof(path), "/dev/%s", tty);
++	if (strlen(ctl->dst_tty) + 6 > sizeof(path))
++		errx(EXIT_FAILURE, _("tty path %s too long"), ctl->dst_tty);
++	snprintf(path, sizeof(path), "/dev/%s", ctl->dst_tty);
+ 	if ((freopen(path, "w", stdout)) == NULL)
+ 		err(EXIT_FAILURE, "%s", path);
+ 
+@@ -276,10 +285,10 @@ static void do_write(char *tty, char *mytty, uid_t myuid)
+ 	printf("\r\n\007\007\007");
+ 	if (strcmp(login, pwuid))
+ 		printf(_("Message from %s@%s (as %s) on %s at %s ..."),
+-		       login, host, pwuid, mytty, nows + 11);
++		       login, host, pwuid, ctl->src_tty, nows + 11);
+ 	else
+ 		printf(_("Message from %s@%s on %s at %s ..."),
+-		       login, host, mytty, nows + 11);
++		       login, host, ctl->src_tty, nows + 11);
+ 	free(host);
+ 	printf("\r\n");
+ 
+@@ -293,9 +302,8 @@ static void do_write(char *tty, char *mytty, uid_t myuid)
+ 
+ int main(int argc, char **argv)
+ {
+-	uid_t myuid;
+-	int msgsok = 0, myttyfd, c;
+-	char tty[PATH_MAX], *mytty;
++	int msgsok = 0, src_fd, c;
++	struct write_control ctl = { 0 };
+ 
+ 	static const struct option longopts[] = {
+ 		{"version", no_argument, NULL, 'V'},
+@@ -321,16 +329,16 @@ int main(int argc, char **argv)
+ 
+ 	/* check that sender has write enabled */
+ 	if (isatty(STDIN_FILENO))
+-		myttyfd = STDIN_FILENO;
++		src_fd = STDIN_FILENO;
+ 	else if (isatty(STDOUT_FILENO))
+-		myttyfd = STDOUT_FILENO;
++		src_fd = STDOUT_FILENO;
+ 	else if (isatty(STDERR_FILENO))
+-		myttyfd = STDERR_FILENO;
++		src_fd = STDERR_FILENO;
+ 	else
+-		myttyfd = -1;
++		src_fd = -1;
+ 
+-	if (myttyfd != -1) {
+-		if (!(mytty = ttyname(myttyfd)))
++	if (src_fd != -1) {
++		if (!(ctl.src_tty = ttyname(src_fd)))
+ 			errx(EXIT_FAILURE,
+ 			     _("can't find your tty's name"));
+ 
+@@ -339,39 +347,42 @@ int main(int argc, char **argv)
+ 		 * term_chk() will put "/dev/" in front, so remove that
+ 		 * part.
+ 		 */
+-		if (!strncmp(mytty, "/dev/", 5))
+-			mytty += 5;
+-		if (term_chk(mytty, &msgsok, NULL, 1))
++		if (!strncmp(ctl.src_tty, "/dev/", 5))
++			memmove(ctl.src_tty, ctl.src_tty + 5, strlen(ctl.src_tty + 5) + 1);
++		if (term_chk(ctl.src_tty, &msgsok, NULL, 1))
+ 			exit(EXIT_FAILURE);
+ 		if (!msgsok)
+ 			errx(EXIT_FAILURE,
+ 			     _("you have write permission turned off"));
+ 		msgsok = 0;
+ 	} else
+-		mytty = "<no tty>";
++		ctl.src_tty = "<no tty>";
+ 
+-	myuid = getuid();
++	ctl.src_uid = getuid();
+ 
+ 	/* check args */
+ 	switch (argc) {
+ 	case 2:
+-		search_utmp(argv[1], tty, mytty, myuid);
+-		do_write(tty, mytty, myuid);
++		ctl.dst_login = argv[1];
++		search_utmp(&ctl);
++		do_write(&ctl);
+ 		break;
+ 	case 3:
+-		if (!strncmp(argv[2], "/dev/", 5))
+-			argv[2] += 5;
+-		if (utmp_chk(argv[1], argv[2]))
++		ctl.dst_login = argv[1];
++		xstrncpy(ctl.dst_tty, argv[2], sizeof(ctl.dst_tty));
++		if (!strncmp(ctl.dst_tty, "/dev/", 5))
++			memmove(ctl.dst_tty, ctl.dst_tty + 5, strlen(ctl.dst_tty + 5) + 1);
++		if (utmp_chk(&ctl))
+ 			errx(EXIT_FAILURE,
+ 			     _("%s is not logged in on %s"),
+-			     argv[1], argv[2]);
+-		if (term_chk(argv[2], &msgsok, NULL, 1))
++			     ctl.dst_login, ctl.dst_tty);
++		if (term_chk(ctl.dst_tty, &msgsok, NULL, 1))
+ 			exit(EXIT_FAILURE);
+-		if (myuid && !msgsok)
++		if (ctl.src_uid && !msgsok)
+ 			errx(EXIT_FAILURE,
+ 			     _("%s has messages disabled on %s"),
+-			     argv[1], argv[2]);
+-		do_write(argv[2], mytty, myuid);
++			     ctl.dst_login, ctl.dst_tty);
++		do_write(&ctl);
+ 		break;
+ 	default:
+ 		usage(stderr);
+-- 
+2.8.2
 
