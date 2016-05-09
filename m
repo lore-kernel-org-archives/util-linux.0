@@ -1,174 +1,229 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:36706 "EHLO
-	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752612AbcEMOBL (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 13 May 2016 10:01:11 -0400
-Received: by mail-wm0-f67.google.com with SMTP id w143so3900018wmw.3
-        for <util-linux@vger.kernel.org>; Fri, 13 May 2016 07:01:10 -0700 (PDT)
-From: Sassan Panahinejad <sassan@sassan.me.uk>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:36467 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752682AbcEIV1t (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 9 May 2016 17:27:49 -0400
+Received: by mail-wm0-f65.google.com with SMTP id w143so22500611wmw.3
+        for <util-linux@vger.kernel.org>; Mon, 09 May 2016 14:27:48 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: Sassan Panahinejad <sassan@sassan.me.uk>
-Subject: [PATCH v3 1/3] libfdisk: Add support for altering GPT size
-Date: Fri, 13 May 2016 15:01:02 +0100
-Message-Id: <1463148062-5599-1-git-send-email-sassan@sassan.me.uk>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 08/12] write: improve variable names
+Date: Mon,  9 May 2016 22:27:24 +0100
+Message-Id: <1462829248-6935-9-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
+References: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is useful in two situations:
-
-1. More than 128 partitions are required. Or
-
-2. The partition table must be restricted in size, such as when a system
-expects to find a bootloader at a location that would otherwise overlap the
-partition table.
-
-The gdisk partitioner supports this feature.
-
-libfdisk is already capable of reading and writing partition tables of any
-size, but previously could only create ones of 128 entries and could not
-resize.
-
-This change should be fairly safe, as it has no effect unless explicitly
-activated.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- libfdisk/src/gpt.c         | 100 +++++++++++++++++++++++++++++++++++++++++++++
- libfdisk/src/libfdisk.h.in |   1 +
- libfdisk/src/libfdisk.sym  |   1 +
- 3 files changed, 102 insertions(+)
+ term-utils/write.c | 73 ++++++++++++++++++++++++++----------------------------
+ 1 file changed, 35 insertions(+), 38 deletions(-)
 
-diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
-index 39c93bb..ff435e3 100644
---- a/libfdisk/src/gpt.c
-+++ b/libfdisk/src/gpt.c
-@@ -2453,6 +2453,106 @@ static int gpt_set_disklabel_id(struct fdisk_context *cxt)
+diff --git a/term-utils/write.c b/term-utils/write.c
+index cdcc0af..1ae3c82 100644
+--- a/term-utils/write.c
++++ b/term-utils/write.c
+@@ -95,10 +95,10 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ }
+ 
+ /*
+- * term_chk - check that a terminal exists, and get the message bit
++ * check_tty - check that a terminal exists, and get the message bit
+  *     and the access time
+  */
+-static int term_chk(char *tty, int *msgsokP, time_t * atimeP, int showerror)
++static int check_tty(char *tty, int *mesg_allowed, time_t *tty_atime, int showerror)
+ {
+ 	struct stat s;
+ 	char path[PATH_MAX];
+@@ -112,19 +112,19 @@ static int term_chk(char *tty, int *msgsokP, time_t * atimeP, int showerror)
+ 		return 1;
+ 	}
+ 	if (getuid() == 0)	/* root can always write */
+-		*msgsokP = 1;
++		*mesg_allowed = 1;
+ 	else
+-		*msgsokP = (s.st_mode & S_IWGRP) && (getegid() == s.st_gid);
+-	if (atimeP)
+-		*atimeP = s.st_atime;
++		*mesg_allowed = (s.st_mode & S_IWGRP) && (getegid() == s.st_gid);
++	if (tty_atime)
++		*tty_atime = s.st_atime;
  	return 0;
  }
  
-+static int gpt_check_table_overlap(struct fdisk_context *cxt,
-+				   uint64_t first_usable,
-+				   uint64_t last_usable)
-+{
-+	struct fdisk_gpt_label *gpt = self_label(cxt);
-+	unsigned int i;
-+	int rc = 0;
-+
-+	/* First check if there's enough room for the table. last_lba may have wrapped */
-+	if (first_usable > cxt->total_sectors || /* far too little space */
-+	    last_usable > cxt->total_sectors || /* wrapped */
-+	    first_usable > last_usable) { /* too little space */
-+		fdisk_warnx(cxt, _("Not enough space for new partition table!"));
-+		return -ENOSPC;
-+	}
-+
-+	/* check that all partitions fit in the remaining space */
-+	for (i = 0; i < le32_to_cpu(gpt->pheader->npartition_entries); i++) {
-+		if (partition_unused(&gpt->ents[i]))
-+		        continue;
-+		if (gpt_partition_start(&gpt->ents[i]) < first_usable) {
-+			fdisk_warnx(cxt, _("Partition #%u out of range (minimal start is %"PRIu64" sectors)"),
-+		                    i + 1, first_usable);
-+			rc = -EINVAL;
-+		}
-+		if (gpt_partition_end(&gpt->ents[i]) > last_usable) {
-+			fdisk_warnx(cxt, _("Partition #%u out of range (maximal end is %"PRIu64" sectors)"),
-+		                    i + 1, last_usable - 1);
-+			rc = -EINVAL;
-+		}
-+	}
-+	return rc;
-+}
-+
-+int fdisk_gpt_set_npartitions(struct fdisk_context *cxt, unsigned long new)
-+{
-+	struct fdisk_gpt_label *gpt;
-+	size_t old_size, new_size;
-+	unsigned long old;
-+	struct gpt_entry *ents;
-+	uint64_t first_usable, last_usable;
-+	int rc;
-+
-+	assert(cxt);
-+	assert(cxt->label);
-+	assert(fdisk_is_label(cxt, GPT));
-+
-+	gpt = self_label(cxt);
-+
-+	old = le32_to_cpu(gpt->pheader->npartition_entries);
-+
-+	/* calculate the size (bytes) of the entries array */
-+	new_size = new * le32_to_cpu(gpt->pheader->sizeof_partition_entry);
-+	old_size = old * le32_to_cpu(gpt->pheader->sizeof_partition_entry);
-+
-+	/* calculate new range of usable LBAs */
-+	first_usable = (new_size / cxt->sector_size) + 2;
-+	last_usable = cxt->total_sectors - 2 - (new_size / cxt->sector_size);
-+
-+	/* if expanding the table, first check that everything fits,
-+	 * then allocate more memory and zero. */
-+	if (new > old) {
-+		rc = gpt_check_table_overlap(cxt, first_usable, last_usable);
-+		if (rc)
-+			return rc;
-+		ents = realloc(gpt->ents, new_size);
-+		if (!ents) {
-+			fdisk_warnx(cxt, _("Cannot allocate memory!"));
-+			return -ENOMEM;
-+		}
-+		memset(ents + old, 0, new_size - old_size);
-+		gpt->ents = ents;
-+	}
-+
-+	/* everything's ok, apply the new size */
-+	gpt->pheader->npartition_entries = cpu_to_le32(new);
-+	gpt->bheader->npartition_entries = cpu_to_le32(new);
-+
-+	/* usable LBA addresses will have changed */
-+	fdisk_set_first_lba(cxt, first_usable);
-+	fdisk_set_last_lba(cxt, last_usable);
-+	gpt->pheader->first_usable_lba = cpu_to_le64(first_usable);
-+	gpt->bheader->first_usable_lba = cpu_to_le64(first_usable);
-+	gpt->pheader->last_usable_lba = cpu_to_le64(last_usable);
-+	gpt->bheader->last_usable_lba = cpu_to_le64(last_usable);
-+
-+
-+	/* The backup header must be recalculated */
-+	gpt_mknew_header_common(cxt, gpt->bheader, le64_to_cpu(gpt->pheader->alternative_lba));
-+
-+	/* CRCs will have changed */
-+	gpt_recompute_crc(gpt->pheader, gpt->ents);
-+	gpt_recompute_crc(gpt->bheader, gpt->ents);
-+
-+	fdisk_info(cxt, _("Partition table length changed from %lu to %lu."), old, new);
-+
-+	fdisk_label_set_changed(cxt->label, 1);
-+	return 0;
-+}
-+
- static int gpt_part_is_used(struct fdisk_context *cxt, size_t i)
+ /*
+- * utmp_chk - checks that the given user is actually logged in on
++ * check_utmp - checks that the given user is actually logged in on
+  *     the given tty
+  */
+-static int utmp_chk(const struct write_control *ctl)
++static int check_utmp(const struct write_control *ctl)
  {
- 	struct fdisk_gpt_label *gpt;
-diff --git a/libfdisk/src/libfdisk.h.in b/libfdisk/src/libfdisk.h.in
-index 6bd3a1e..f081711 100644
---- a/libfdisk/src/libfdisk.h.in
-+++ b/libfdisk/src/libfdisk.h.in
-@@ -602,6 +602,7 @@ enum fdisk_labelitem_sgi {
- #define GPT_FLAG_GUIDSPECIFIC	4
+ 	struct utmp u;
+ 	struct utmp *uptr;
+@@ -161,25 +161,22 @@ static void search_utmp(struct write_control *ctl)
+ {
+ 	struct utmp u;
+ 	struct utmp *uptr;
+-	time_t bestatime, atime;
+-	int nloggedttys, nttys, msgsok = 0, user_is_me;
++	time_t best_atime = 0, tty_atime;
++	int num_ttys = 0, valid_ttys = 0, mesg_allowed = 0, user_is_me = 0;
+ 	char atty[sizeof(u.ut_line) + 1];
  
- extern int fdisk_gpt_is_hybrid(struct fdisk_context *cxt);
-+extern int fdisk_gpt_set_npartitions(struct fdisk_context *cxt, unsigned long entries);
- extern int fdisk_gpt_get_partition_attrs(struct fdisk_context *cxt, size_t partnum, uint64_t *attrs);
- extern int fdisk_gpt_set_partition_attrs(struct fdisk_context *cxt, size_t partnum, uint64_t attrs);
+ 	utmpname(_PATH_UTMP);
+ 	setutent();
  
-diff --git a/libfdisk/src/libfdisk.sym b/libfdisk/src/libfdisk.sym
-index c5aeac6..af0b401 100644
---- a/libfdisk/src/libfdisk.sym
-+++ b/libfdisk/src/libfdisk.sym
-@@ -262,4 +262,5 @@ FDISK_2.28 {
+-	nloggedttys = nttys = 0;
+-	bestatime = 0;
+-	user_is_me = 0;
+ 	while ((uptr = getutent())) {
+ 		memcpy(&u, uptr, sizeof(u));
+ 		if (strncmp(ctl->dst_login, u.ut_user, sizeof(u.ut_user)) == 0) {
+-			++nloggedttys;
++			num_ttys++;
+ 			xstrncpy(atty, u.ut_line, sizeof(atty));
+-			if (term_chk(atty, &msgsok, &atime, 0))
++			if (check_tty(atty, &mesg_allowed, &tty_atime, 0))
+ 				/* bad term? skip */
+ 				continue;
+-			if (ctl->src_uid && !msgsok)
++			if (ctl->src_uid && !mesg_allowed)
+ 				/* skip ttys with msgs off */
+ 				continue;
+ 			if (strcmp(atty, ctl->src_tty) == 0) {
+@@ -190,25 +187,25 @@ static void search_utmp(struct write_control *ctl)
+ 			if (u.ut_type != USER_PROCESS)
+ 				/* it's not a valid entry */
+ 				continue;
+-			++nttys;
+-			if (atime > bestatime) {
+-				bestatime = atime;
++			valid_ttys++;
++			if (tty_atime > best_atime) {
++				best_atime = tty_atime;
+ 				xstrncpy(ctl->dst_tty, atty, sizeof(ctl->dst_tty));
+ 			}
+ 		}
+ 	}
  
- FDISK_2.29 {
- 	fdisk_wipe_partition;
-+	fdisk_gpt_set_npartitions;
- } FDISK_2.28;
+ 	endutent();
+-	if (nloggedttys == 0)
++	if (num_ttys == 0)
+ 		errx(EXIT_FAILURE, _("%s is not logged in"), ctl->dst_login);
+-	if (nttys == 0) {
++	if (valid_ttys == 0) {
+ 		if (user_is_me) {
+ 			/* ok, so write to yourself! */
+ 			xstrncpy(ctl->dst_tty, ctl->src_tty, sizeof(ctl->dst_tty));
+ 			return;
+ 		}
+ 		errx(EXIT_FAILURE, _("%s has messages disabled"), ctl->dst_login);
+-	} else if (nttys > 1) {
++	} else if (valid_ttys > 1) {
+ 		warnx(_("%s is logged in more than once; writing to %s"),
+ 		      ctl->dst_login, ctl->dst_tty);
+ 	}
+@@ -224,10 +221,10 @@ static void signal_handler(int signo)
+ }
+ 
+ /*
+- * wr_fputs - like fputs(), but makes control characters visible and
++ * write_line - like fputs(), but makes control characters visible and
+  *     turns \n into \r\n.
+  */
+-static void wr_fputs(char *s)
++static void write_line(char *s)
+ {
+ 	char c;
+ 
+@@ -248,7 +245,7 @@ static void wr_fputs(char *s)
+  */
+ static void do_write(const struct write_control *ctl)
+ {
+-	char *login, *pwuid, *nows;
++	char *login, *pwuid, *time_stamp;
+ 	struct passwd *pwd;
+ 	time_t now;
+ 	char path[PATH_MAX], *host, line[512];
+@@ -280,29 +277,29 @@ static void do_write(const struct write_control *ctl)
+ 		host = xstrdup("???");
+ 
+ 	now = time((time_t *) NULL);
+-	nows = ctime(&now);
+-	nows[16] = '\0';
++	time_stamp = ctime(&now);
++	time_stamp[16] = '\0';
+ 	printf("\r\n\007\007\007");
+ 	if (strcmp(login, pwuid))
+ 		printf(_("Message from %s@%s (as %s) on %s at %s ..."),
+-		       login, host, pwuid, ctl->src_tty, nows + 11);
++		       login, host, pwuid, ctl->src_tty, time_stamp + 11);
+ 	else
+ 		printf(_("Message from %s@%s on %s at %s ..."),
+-		       login, host, ctl->src_tty, nows + 11);
++		       login, host, ctl->src_tty, time_stamp + 11);
+ 	free(host);
+ 	printf("\r\n");
+ 
+ 	while (fgets(line, sizeof(line), stdin) != NULL) {
+ 		if (signal_received)
+ 			break;
+-		wr_fputs(line);
++		write_line(line);
+ 	}
+ 	printf("EOF\r\n");
+ }
+ 
+ int main(int argc, char **argv)
+ {
+-	int msgsok = 0, src_fd, c;
++	int mesg_allowed = 0, src_fd, c;
+ 	struct write_control ctl = { 0 };
+ 
+ 	static const struct option longopts[] = {
+@@ -344,17 +341,17 @@ int main(int argc, char **argv)
+ 
+ 		/*
+ 		 * We may have /dev/ttyN but also /dev/pts/xx. Below,
+-		 * term_chk() will put "/dev/" in front, so remove that
++		 * check_tty() will put "/dev/" in front, so remove that
+ 		 * part.
+ 		 */
+ 		if (!strncmp(ctl.src_tty, "/dev/", 5))
+ 			memmove(ctl.src_tty, ctl.src_tty + 5, strlen(ctl.src_tty + 5) + 1);
+-		if (term_chk(ctl.src_tty, &msgsok, NULL, 1))
++		if (check_tty(ctl.src_tty, &mesg_allowed, NULL, 1))
+ 			exit(EXIT_FAILURE);
+-		if (!msgsok)
++		if (!mesg_allowed)
+ 			errx(EXIT_FAILURE,
+ 			     _("you have write permission turned off"));
+-		msgsok = 0;
++		mesg_allowed = 0;
+ 	} else
+ 		ctl.src_tty = "<no tty>";
+ 
+@@ -372,13 +369,13 @@ int main(int argc, char **argv)
+ 		xstrncpy(ctl.dst_tty, argv[2], sizeof(ctl.dst_tty));
+ 		if (!strncmp(ctl.dst_tty, "/dev/", 5))
+ 			memmove(ctl.dst_tty, ctl.dst_tty + 5, strlen(ctl.dst_tty + 5) + 1);
+-		if (utmp_chk(&ctl))
++		if (check_utmp(&ctl))
+ 			errx(EXIT_FAILURE,
+ 			     _("%s is not logged in on %s"),
+ 			     ctl.dst_login, ctl.dst_tty);
+-		if (term_chk(ctl.dst_tty, &msgsok, NULL, 1))
++		if (check_tty(ctl.dst_tty, &mesg_allowed, NULL, 1))
+ 			exit(EXIT_FAILURE);
+-		if (ctl.src_uid && !msgsok)
++		if (ctl.src_uid && !mesg_allowed)
+ 			errx(EXIT_FAILURE,
+ 			     _("%s has messages disabled on %s"),
+ 			     ctl.dst_login, ctl.dst_tty);
 -- 
-2.1.0
+2.8.2
 
