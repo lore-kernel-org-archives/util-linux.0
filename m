@@ -1,185 +1,361 @@
-Return-Path: werner@suse.de
-Date: Tue, 17 May 2016 10:43:47 +0200
-From: "Dr. Werner Fink" <werner@suse.de>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Use the plymouth local protocol instead the plymouth
- binary
-Message-ID: <20160517084347.dkwcby6f7nyfkkq5@boole.suse.de>
-References: <1461324096-29280-1-git-send-email-werner@suse.de>
- <20160505094245.6frwtvaxoueyrfw7@ws.net.home>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="iqghrbcw6oiwczi4"
-In-Reply-To: <20160505094245.6frwtvaxoueyrfw7@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:34517 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752239AbcEIV1p (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 9 May 2016 17:27:45 -0400
+Received: by mail-wm0-f65.google.com with SMTP id n129so22482431wmn.1
+        for <util-linux@vger.kernel.org>; Mon, 09 May 2016 14:27:39 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 02/12] write: get rid of function prototypes
+Date: Mon,  9 May 2016 22:27:18 +0100
+Message-Id: <1462829248-6935-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
+References: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Marking functions static and writing them in order where functions are
+introduced before use is enough.
 
---iqghrbcw6oiwczi4
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ term-utils/write.c | 273 ++++++++++++++++++++++++++---------------------------
+ 1 file changed, 132 insertions(+), 141 deletions(-)
 
-On Thu, May 05, 2016 at 11:42:45AM +0200, Karel Zak wrote:
-> On Fri, Apr 22, 2016 at 01:21:36PM +0200, Werner Fink wrote:
-> > +static int open_un_socket_and_connect(void)
-> > +{
-> > +	struct sockaddr_un su =3D {		/* The abstract UNIX socket of plymouth =
-*/
-> > +		.sun_family =3D AF_UNIX,
-> > +		.sun_path =3D PLYMOUTH_SOCKET_PATH,
-> > +	};
-> > +	const int one =3D 1;
-> > +	int fd, ret;
-> > +
-> > +	fd =3D socket(PF_UNIX, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, 0);
-> > +	if (fd < 0) {
-> > +		warnx(_("can not open UNIX socket"));
-> > +		goto err;
-> > +	}
-> > +
-> > +	ret =3D setsockopt(fd, SOL_SOCKET, SO_PASSCRED, &one, (socklen_t)size=
-of(one));
-> > +	if (ret < 0) {
-> > +		warnx(_("can not set option for UNIX socket"));
-> > +		close(fd);
-> > +		fd =3D -1;
-> > +		goto err;
-> > +	}
-> > +
-> > +	ret =3D connect(fd, &su, offsetof(struct sockaddr_un, sun_path) + 1 +=
- strlen(su.sun_path+1));
->                                                                   ^^^^^^^=
-^^^^^^^^^^^^^^^^^^
-> > +	if (ret < 0) {
->=20
-> This is strange code, connect() returns -1 on error, I have doubts you
-> will ever see ret < 0 and why connect() return value is not enough,
-> why we need 1 + strlen(su.sun_path+1))?
+diff --git a/term-utils/write.c b/term-utils/write.c
+index 42f279b..e8532f6 100644
+--- a/term-utils/write.c
++++ b/term-utils/write.c
+@@ -65,14 +65,6 @@
+ #include "nls.h"
+ #include "xalloc.h"
+ 
+-static void __attribute__ ((__noreturn__)) usage(FILE * out);
+-void search_utmp(char *, char *, char *, uid_t);
+-void do_write(char *, char *, uid_t);
+-void wr_fputs(char *);
+-static void __attribute__ ((__noreturn__)) done(int);
+-int term_chk(char *, int *, time_t *, int);
+-int utmp_chk(char *, char *);
+-
+ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ {
+ 	fputs(USAGE_HEADER, out);
+@@ -91,104 +83,36 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+ 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+ }
+ 
+-int main(int argc, char **argv)
++/*
++ * term_chk - check that a terminal exists, and get the message bit
++ *     and the access time
++ */
++static int term_chk(char *tty, int *msgsokP, time_t * atimeP, int showerror)
+ {
+-	time_t atime;
+-	uid_t myuid;
+-	int msgsok = 0, myttyfd, c;
+-	char tty[PATH_MAX], *mytty;
+-
+-	static const struct option longopts[] = {
+-		{"version", no_argument, NULL, 'V'},
+-		{"help", no_argument, NULL, 'h'},
+-		{NULL, 0, NULL, 0}
+-	};
+-
+-	setlocale(LC_ALL, "");
+-	bindtextdomain(PACKAGE, LOCALEDIR);
+-	textdomain(PACKAGE);
+-	atexit(close_stdout);
+-
+-	while ((c = getopt_long(argc, argv, "Vh", longopts, NULL)) != -1)
+-		switch (c) {
+-		case 'V':
+-			printf(UTIL_LINUX_VERSION);
+-			return EXIT_SUCCESS;
+-		case 'h':
+-			usage(stdout);
+-		default:
+-			usage(stderr);
+-		}
+-
+-	/* check that sender has write enabled */
+-	if (isatty(fileno(stdin)))
+-		myttyfd = fileno(stdin);
+-	else if (isatty(fileno(stdout)))
+-		myttyfd = fileno(stdout);
+-	else if (isatty(fileno(stderr)))
+-		myttyfd = fileno(stderr);
+-	else
+-		myttyfd = -1;
+-
+-	if (myttyfd != -1) {
+-		if (!(mytty = ttyname(myttyfd)))
+-			errx(EXIT_FAILURE,
+-			     _("can't find your tty's name"));
+-
+-		/*
+-		 * We may have /dev/ttyN but also /dev/pts/xx. Below,
+-		 * term_chk() will put "/dev/" in front, so remove that
+-		 * part.
+-		 */
+-		if (!strncmp(mytty, "/dev/", 5))
+-			mytty += 5;
+-		if (term_chk(mytty, &msgsok, &atime, 1))
+-			exit(EXIT_FAILURE);
+-		if (!msgsok)
+-			errx(EXIT_FAILURE,
+-			     _("you have write permission turned off"));
+-		msgsok = 0;
+-	} else
+-		mytty = "<no tty>";
+-
+-	myuid = getuid();
++	struct stat s;
++	char path[PATH_MAX];
+ 
+-	/* check args */
+-	switch (argc) {
+-	case 2:
+-		search_utmp(argv[1], tty, mytty, myuid);
+-		do_write(tty, mytty, myuid);
+-		break;
+-	case 3:
+-		if (!strncmp(argv[2], "/dev/", 5))
+-			argv[2] += 5;
+-		if (utmp_chk(argv[1], argv[2]))
+-			errx(EXIT_FAILURE,
+-			     _("%s is not logged in on %s"),
+-			     argv[1], argv[2]);
+-		if (term_chk(argv[2], &msgsok, &atime, 1))
+-			exit(EXIT_FAILURE);
+-		if (myuid && !msgsok)
+-			errx(EXIT_FAILURE,
+-			     _("%s has messages disabled on %s"),
+-			     argv[1], argv[2]);
+-		do_write(argv[2], mytty, myuid);
+-		break;
+-	default:
+-		usage(stderr);
++	if (strlen(tty) + 6 > sizeof(path))
++		return 1;
++	sprintf(path, "/dev/%s", tty);
++	if (stat(path, &s) < 0) {
++		if (showerror)
++			warn("%s", path);
++		return 1;
+ 	}
+-
+-	done(0);
+-	/* NOTREACHED */
+-	return EXIT_FAILURE;
++	if (getuid() == 0)	/* root can always write */
++		*msgsokP = 1;
++	else
++		*msgsokP = (s.st_mode & S_IWGRP) && (getegid() == s.st_gid);
++	*atimeP = s.st_atime;
++	return 0;
+ }
+ 
+-
+ /*
+  * utmp_chk - checks that the given user is actually logged in on
+  *     the given tty
+  */
+-int utmp_chk(char *user, char *tty)
++static int utmp_chk(char *user, char *tty)
+ {
+ 	struct utmp u;
+ 	struct utmp *uptr;
+@@ -221,7 +145,7 @@ int utmp_chk(char *user, char *tty)
+  * Special case for writing to yourself - ignore the terminal you're
+  * writing from, unless that's the only terminal with messages enabled.
+  */
+-void search_utmp(char *user, char *tty, char *mytty, uid_t myuid)
++static void search_utmp(char *user, char *tty, char *mytty, uid_t myuid)
+ {
+ 	struct utmp u;
+ 	struct utmp *uptr;
+@@ -280,34 +204,39 @@ void search_utmp(char *user, char *tty, char *mytty, uid_t myuid)
+ }
+ 
+ /*
+- * term_chk - check that a terminal exists, and get the message bit
+- *     and the access time
++ * done - cleanup and exit
+  */
+-int term_chk(char *tty, int *msgsokP, time_t * atimeP, int showerror)
++static void __attribute__ ((__noreturn__))
++    done(int dummy __attribute__ ((__unused__)))
+ {
+-	struct stat s;
+-	char path[PATH_MAX];
++	printf("EOF\r\n");
++	_exit(EXIT_SUCCESS);
++}
+ 
+-	if (strlen(tty) + 6 > sizeof(path))
+-		return 1;
+-	sprintf(path, "/dev/%s", tty);
+-	if (stat(path, &s) < 0) {
+-		if (showerror)
+-			warn("%s", path);
+-		return 1;
++/*
++ * wr_fputs - like fputs(), but makes control characters visible and
++ *     turns \n into \r\n.
++ */
++static void wr_fputs(char *s)
++{
++	char c;
++
++#define	PUTC(c)	if (fputc_careful(c, stdout, '^') == EOF) \
++    err(EXIT_FAILURE, _("carefulputc failed"));
++	while (*s) {
++		c = *s++;
++		if (c == '\n')
++			PUTC('\r');
++		PUTC(c);
+ 	}
+-	if (getuid() == 0)	/* root can always write */
+-		*msgsokP = 1;
+-	else
+-		*msgsokP = (s.st_mode & S_IWGRP) && (getegid() == s.st_gid);
+-	*atimeP = s.st_atime;
+-	return 0;
++	return;
++#undef PUTC
+ }
+ 
+ /*
+  * do_write - actually make the connection
+  */
+-void do_write(char *tty, char *mytty, uid_t myuid)
++static void do_write(char *tty, char *mytty, uid_t myuid)
+ {
+ 	char *login, *pwuid, *nows;
+ 	struct passwd *pwd;
+@@ -353,32 +282,94 @@ void do_write(char *tty, char *mytty, uid_t myuid)
+ 		wr_fputs(line);
+ }
+ 
+-/*
+- * done - cleanup and exit
+- */
+-static void __attribute__ ((__noreturn__))
+-    done(int dummy __attribute__ ((__unused__)))
++int main(int argc, char **argv)
+ {
+-	printf("EOF\r\n");
+-	_exit(EXIT_SUCCESS);
+-}
++	time_t atime;
++	uid_t myuid;
++	int msgsok = 0, myttyfd, c;
++	char tty[PATH_MAX], *mytty;
+ 
+-/*
+- * wr_fputs - like fputs(), but makes control characters visible and
+- *     turns \n into \r\n.
+- */
+-void wr_fputs(char *s)
+-{
+-	char c;
++	static const struct option longopts[] = {
++		{"version", no_argument, NULL, 'V'},
++		{"help", no_argument, NULL, 'h'},
++		{NULL, 0, NULL, 0}
++	};
+ 
+-#define	PUTC(c)	if (fputc_careful(c, stdout, '^') == EOF) \
+-    err(EXIT_FAILURE, _("carefulputc failed"));
+-	while (*s) {
+-		c = *s++;
+-		if (c == '\n')
+-			PUTC('\r');
+-		PUTC(c);
++	setlocale(LC_ALL, "");
++	bindtextdomain(PACKAGE, LOCALEDIR);
++	textdomain(PACKAGE);
++	atexit(close_stdout);
++
++	while ((c = getopt_long(argc, argv, "Vh", longopts, NULL)) != -1)
++		switch (c) {
++		case 'V':
++			printf(UTIL_LINUX_VERSION);
++			return EXIT_SUCCESS;
++		case 'h':
++			usage(stdout);
++		default:
++			usage(stderr);
++		}
++
++	/* check that sender has write enabled */
++	if (isatty(fileno(stdin)))
++		myttyfd = fileno(stdin);
++	else if (isatty(fileno(stdout)))
++		myttyfd = fileno(stdout);
++	else if (isatty(fileno(stderr)))
++		myttyfd = fileno(stderr);
++	else
++		myttyfd = -1;
++
++	if (myttyfd != -1) {
++		if (!(mytty = ttyname(myttyfd)))
++			errx(EXIT_FAILURE,
++			     _("can't find your tty's name"));
++
++		/*
++		 * We may have /dev/ttyN but also /dev/pts/xx. Below,
++		 * term_chk() will put "/dev/" in front, so remove that
++		 * part.
++		 */
++		if (!strncmp(mytty, "/dev/", 5))
++			mytty += 5;
++		if (term_chk(mytty, &msgsok, &atime, 1))
++			exit(EXIT_FAILURE);
++		if (!msgsok)
++			errx(EXIT_FAILURE,
++			     _("you have write permission turned off"));
++		msgsok = 0;
++	} else
++		mytty = "<no tty>";
++
++	myuid = getuid();
++
++	/* check args */
++	switch (argc) {
++	case 2:
++		search_utmp(argv[1], tty, mytty, myuid);
++		do_write(tty, mytty, myuid);
++		break;
++	case 3:
++		if (!strncmp(argv[2], "/dev/", 5))
++			argv[2] += 5;
++		if (utmp_chk(argv[1], argv[2]))
++			errx(EXIT_FAILURE,
++			     _("%s is not logged in on %s"),
++			     argv[1], argv[2]);
++		if (term_chk(argv[2], &msgsok, &atime, 1))
++			exit(EXIT_FAILURE);
++		if (myuid && !msgsok)
++			errx(EXIT_FAILURE,
++			     _("%s has messages disabled on %s"),
++			     argv[1], argv[2]);
++		do_write(argv[2], mytty, myuid);
++		break;
++	default:
++		usage(stderr);
+ 	}
+-	return;
+-#undef PUTC
++
++	done(0);
++	/* NOTREACHED */
++	return EXIT_FAILURE;
+ }
+-- 
+2.8.2
 
-AFAIK and AFAICS the plymouth socket has a leading NULL byte.  That is that=
- PLYMOUTH_SOCKET_PATH
-is defined as "\0/org/freedesktop/plymouthd".  If I would not add both +1 t=
-he NULL byte would
-destroy first the result of strlen() as well the NULL byte would not be cou=
-nted as well.
-
->=20
-> > +		if (errno !=3D ECONNREFUSED)
-> > +			warnx(_("can not connect on UNIX socket"));
-> > +		close(fd);
-> > +		fd =3D -1;
-> > +		goto err;
-> > +	}
-> > +err:
-> > +	return fd;
-> > +}
-> > +
-> > +int plymouth_command(int cmd, ...)
-> > +{
-> > +	char answer[2], command[2];
-> > +	struct sigaction sp, op;
-> > +	int fdsock =3D -1, ret =3D 0;
-> > +
-> > +	sigemptyset (&sp.sa_mask);
-> > +	sp.sa_handler =3D SIG_IGN;
-> > +	sp.sa_flags =3D SA_RESTART;
-> > +	sigaction(SIGPIPE, &sp, &op);
-> > +
-> > +	command[1] =3D '\0';
-> > +	switch (cmd) {
-> > +	case MAGIC_PING:
-> > +		fdsock =3D open_un_socket_and_connect();
-> > +		if (fdsock >=3D 0) {
-> > +			command[0] =3D cmd;
->=20
-> maybe define cmd as char or uint8_t
-
-Yep, but does not hurt I guess.
-
->=20
-> > +			write_all(fdsock, command, strlen(command)+1);
->=20
-> why we need strlen(command)+1 everywhere if the commend is just one
-> char+\0, sizeof(command) would be enough.
-
-It is plymouthd which does require the lasting NULL byte here as the
-command read by plymouthd has always the size of uint8_t header[2]
-compare with ply_boot_connection_read_request() in src/ply-boot-server.c
-
->=20
-> > +		}
-> > +		break;
-> > +	case MAGIC_QUIT:
-> > +		fdsock =3D open_un_socket_and_connect();
-> > +		if (fdsock >=3D 0) {
-> > +			command[0] =3D cmd;
-> > +			write_all(fdsock, command, strlen(command)+1);
-> > +		}
-> > +		break;
-> > +	default:
-> > +		warnx(_("the plymouth request %c is not implemented"), cmd);
-> > +	case '?':
-> > +		goto err;
-> > +	}
-> > +
-> > +	answer[0] =3D '\0';
-> > +	if (fdsock >=3D 0) {
-> > +		if (can_read(fdsock, 1000))
-> > +			read_all(fdsock, &answer[0], sizeof(answer));
-> > +		close(fdsock);
-> > +	}
-> > +	sigaction(SIGPIPE, &op, NULL);
-> > +	ret =3D (answer[0] =3D=3D ANSWER_ACK) ? 1 : 0;
-> > +err:
-> > +	return ret;
-> > +}
->=20
-> ...
->=20
-> >  /*
-> >   * Fix the tty modes and set reasonable defaults.
-> >   */
-> > @@ -138,8 +103,9 @@ static void tcinit(struct console *con)
-> >  	struct termios lock;
-> >  	int fd =3D con->fd;
-> >  #ifdef TIOCGLCKTRMIOS
-> > -	int i =3D (plymouth_command("--ping")) ? 20 : 0;
-> > -
-> > +	int i =3D (plymouth_command(MAGIC_PING)) ? 20 : 0;
-> > +	if (i)
-> > +		plymouth_command(MAGIC_QUIT);
->=20
-> would be possible to #define PLYMOUTH_TERMIOS_FLAGS_DELAY,
-> now we have 20s in sulogins and 30s in agetty. Why?
-
-Ahh ... indeed this is a good point :)
-
-Werner
-
---=20
-  "Having a smoking section in a restaurant is like having
-          a peeing section in a swimming pool." -- Edward Burr
-
---iqghrbcw6oiwczi4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAABAgAGBQJXOtnDAAoJEFDpDVUdwWsurUIQAKKtRlECmqbM9LQhfdbmyMBn
-wit6pJMiLGgOoRniBpPan5+LPoB9Bbcrn9fPQBeg/W8I0gpHJl8RYwRW+vFLc3gC
-7hM4rSb7q4TtWHyPtsCECqcNoUgY3EP38aZJuQdKXD0bRY/vk+Cj1Ghp3WUA8OzS
-sBPRcW5i6oCyaoMyzQzvhEDG9Kbl84UJ7TCL/NIMSkYGZrOKuIWact8gxq3HhA8v
-n3GzYevLoSHquZ0Ya9mZm1dPfb8vtqxcE/0UOkdqEtZtlAVpWp0azfMnJNez5/5p
-ybblgYRf3rfRP6wLUwdyJ6sn/Icnwnbh0W7EDkmYKLMXX767msniHOECNxib/kg1
-coj3c46f2s74HOmSi+DBL2SqoOvCvROh6GuIkC4iPnP2GN8Se+fyd7qqazIapUVw
-novaeZvnD6lxz9vdP4Ox4/muwWZyEXeAJw8BGddJxXTREmwH0Lv/7jQYwz3Y40c3
-weTrcSDXWodwyYiC8whGzKXcWpefB391Qyc0xN4rIzAOnwL0qIvRsYBSlsWA3Gmp
-BkDBO7XpDLD79iB76Y/LgdZZSEGkEdW9lUePpSSrqMbC+lqCE/llR8cnqQHlAmD7
-+F4fE3kOgYLlgRWduRH/jwPOCqgJWCpJZn/Uxi9lbv2KOH9uwzbtOViXX8Z3rwzl
-dONHj0a+DwYVqA08gLmT
-=Bwdz
------END PGP SIGNATURE-----
-
---iqghrbcw6oiwczi4--
