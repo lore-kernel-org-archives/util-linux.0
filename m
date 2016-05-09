@@ -1,45 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:38150 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755834AbcETJYq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 20 May 2016 05:24:46 -0400
-Received: from int-mx14.intmail.prod.int.phx2.redhat.com (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.redhat.com (Postfix) with ESMTPS id 7976B49469
-	for <util-linux@vger.kernel.org>; Fri, 20 May 2016 09:24:45 +0000 (UTC)
-Received: from ws (ovpn-204-89.brq.redhat.com [10.40.204.89])
-	by int-mx14.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id u4K9OihC021219
-	for <util-linux@vger.kernel.org>; Fri, 20 May 2016 05:24:45 -0400
-Date: Fri, 20 May 2016 11:24:44 +0200
-From: Karel Zak <kzak@redhat.com>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:35192 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752595AbcEIV1o (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 9 May 2016 17:27:44 -0400
+Received: by mail-wm0-f65.google.com with SMTP id e201so22544587wme.2
+        for <util-linux@vger.kernel.org>; Mon, 09 May 2016 14:27:44 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Use the plymouth local protocol instead the plymouth
- binary
-Message-ID: <20160520092444.bxlos6r52kazytjl@ws.net.home>
-References: <1461324096-29280-1-git-send-email-werner@suse.de>
- <20160505094245.6frwtvaxoueyrfw7@ws.net.home>
- <20160517101838.2x7fi3zg5u4r2gjz@boole.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160517101838.2x7fi3zg5u4r2gjz@boole.suse.de>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 05/12] write: use xstrncpy() from strutils.h
+Date: Mon,  9 May 2016 22:27:21 +0100
+Message-Id: <1462829248-6935-6-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
+References: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, May 17, 2016 at 12:18:38PM +0200, Dr. Werner Fink wrote:
->  include/plymouth-ctrl.h |  65 +++++++++++++++++++++
->  lib/Makemodule.am       |   1 +
->  lib/plymouth-ctrl.c     | 147 ++++++++++++++++++++++++++++++++++++++++++++++++
->  login-utils/sulogin.c   |  44 ++-------------
->  term-utils/agetty.c     |  48 ++--------------
->  5 files changed, 223 insertions(+), 82 deletions(-)
->  create mode 100644 include/plymouth-ctrl.h
->  create mode 100644 lib/plymouth-ctrl.c
+Earlier if the tty path was exactly length of the maximum ut_line then last
+character of the path was overwrote by \0.  In practise this is a
+theoretical bug as it is unheard that a tty device path could be 32
+characters long.
 
- Applied with minor changes, thanks.
-    
-    Karel
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ term-utils/write.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/term-utils/write.c b/term-utils/write.c
+index dd31f59..ed508d4 100644
+--- a/term-utils/write.c
++++ b/term-utils/write.c
+@@ -63,6 +63,7 @@
+ #include "carefulputc.h"
+ #include "closestream.h"
+ #include "nls.h"
++#include "strutils.h"
+ #include "xalloc.h"
+ 
+ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+@@ -164,8 +165,7 @@ static void search_utmp(char *user, char *tty, char *mytty, uid_t myuid)
+ 		memcpy(&u, uptr, sizeof(u));
+ 		if (strncmp(user, u.ut_user, sizeof(u.ut_user)) == 0) {
+ 			++nloggedttys;
+-			strncpy(atty, u.ut_line, sizeof(u.ut_line));
+-			atty[sizeof(u.ut_line)] = '\0';
++			xstrncpy(atty, u.ut_line, sizeof(atty));
+ 			if (term_chk(atty, &msgsok, &atime, 0))
+ 				/* bad term? skip */
+ 				continue;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.8.2
+
