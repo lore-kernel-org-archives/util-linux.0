@@ -1,69 +1,145 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:33291 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752239AbcEIV1s (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 9 May 2016 17:27:48 -0400
-Received: by mail-wm0-f65.google.com with SMTP id r12so22517777wme.0
-        for <util-linux@vger.kernel.org>; Mon, 09 May 2016 14:27:48 -0700 (PDT)
+Received: from mail-oi0-f65.google.com ([209.85.218.65]:34487 "EHLO
+	mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751288AbcEJTvV (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 10 May 2016 15:51:21 -0400
+Received: by mail-oi0-f65.google.com with SMTP id d139so3276985oig.1
+        for <util-linux@vger.kernel.org>; Tue, 10 May 2016 12:51:21 -0700 (PDT)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <1462908414-11449-1-git-send-email-vapier@gentoo.org>
+References: <1462908414-11449-1-git-send-email-vapier@gentoo.org>
+Date: Tue, 10 May 2016 20:51:20 +0100
+Message-ID: <CAG27Bk3MnPabuFKpAtGnjms=fhC5ZqM=xQCT0rYx9P2Ye2Fk_A@mail.gmail.com>
+Subject: Re: [PATCH] man pages: fix spacing between man page name & section number
 From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 04/12] write: set atime value in term_chk() only if needed
-Date: Mon,  9 May 2016 22:27:20 +0100
-Message-Id: <1462829248-6935-5-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
-References: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The atime comparison is done only in search_utmp(), the main does not use
-this variable.
+On 10 May 2016 at 20:26, Mike Frysinger <vapier@gentoo.org> wrote:
+> Most have standardized correctly, but fix a few latent ones.
+>
+> Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+> ---
+>  disk-utils/cfdisk.8 | 2 +-
+>  disk-utils/sfdisk.8 | 4 ++--
+>  misc-utils/kill.1   | 2 +-
+>  misc-utils/logger.1 | 2 +-
+>  sys-utils/losetup.8 | 2 +-
+>  5 files changed, 6 insertions(+), 6 deletions(-)
+>
+> diff --git a/disk-utils/cfdisk.8 b/disk-utils/cfdisk.8
+> index ff95aa9..68cec94 100644
+> --- a/disk-utils/cfdisk.8
+> +++ b/disk-utils/cfdisk.8
+> @@ -190,7 +190,7 @@ enables libsmartcols debug output.
+>  .BR sfdisk (8),
+>  .BR parted (8),
+>  .BR partprobe (8),
+> -.BR partx(8)
+> +.BR partx (8)
+>  .SH AUTHOR
+>  Karel Zak <kzak@redhat.com>
+>  .PP
+> diff --git a/disk-utils/sfdisk.8 b/disk-utils/sfdisk.8
+> index 79424c5..0c13a48 100644
+> --- a/disk-utils/sfdisk.8
+> +++ b/disk-utils/sfdisk.8
+> @@ -441,7 +441,7 @@ The GPT header can later be restored by:
+>  .RE
+>  Note that \fBsfdisk\fR since version 2.26 no longer provides the \fB\-I\fR option to
+>  restore sectors.
+> -.B dd (1)
+> +.BR dd (1)
+>  provides all necessary functionality.
+>
+>  .SH COLORS
+> @@ -487,7 +487,7 @@ enables libsmartcols debug output.
+>  .BR cfdisk (8),
+>  .BR parted (8),
+>  .BR partprobe (8),
+> -.BR partx(8)
+> +.BR partx (8)
+>
+>  .SH AUTHOR
+>  Karel Zak <kzak@redhat.com>
+> diff --git a/misc-utils/kill.1 b/misc-utils/kill.1
+> index 2d8c883..d3dc20e 100644
+> --- a/misc-utils/kill.1
+> +++ b/misc-utils/kill.1
+> @@ -118,7 +118,7 @@ It is not possible to send a signal to an explicitly selected thread in a
+>  multithreaded process using the
+>  .BR kill (2)
+>  syscall.  If
+> -.BR kill(2)
+> +.BR kill (2)
+>  is used to send a signal to a thread group, then the kernel selects an arbitrary
+>  member of the thread group that has not blocked the signal.  For more details
+>  see
+> diff --git a/misc-utils/logger.1 b/misc-utils/logger.1
+> index 0417b93..2c58c15 100644
+> --- a/misc-utils/logger.1
+> +++ b/misc-utils/logger.1
+> @@ -75,7 +75,7 @@ command's PID.  The use of \fB\-\-id=$$\fR
+>  Note that the system logging infrastructure (for example \fBsystemd\fR when
+>  listening on /dev/log) may follow local socket credentials to overwrite the
+>  PID specified in the message.
+> -.BR logger(1)
+> +.BR logger (1)
+>  is able to set those socket credentials to the given \fIid\fR, but only if you
+>  have root permissions and a process with the specified PID exists, otherwise
+>  the socket credentials are not modified and the problem is silently ignored.
+> diff --git a/sys-utils/losetup.8 b/sys-utils/losetup.8
+> index dbc9095..b614416 100644
+> --- a/sys-utils/losetup.8
+> +++ b/sys-utils/losetup.8
+> @@ -151,7 +151,7 @@ Display help text and exit.
+>
+>  .SH ENCRYPTION
+>  .B Cryptoloop is no longer supported in favor of dm-crypt.
+> -.B For more details see cryptsetup (8).
+> +.B For more details see cryptsetup(8).
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- term-utils/write.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+The above is overly bold statement to my taste. I would prefer the text this way
 
-diff --git a/term-utils/write.c b/term-utils/write.c
-index 4c6a25f..dd31f59 100644
---- a/term-utils/write.c
-+++ b/term-utils/write.c
-@@ -104,7 +104,8 @@ static int term_chk(char *tty, int *msgsokP, time_t * atimeP, int showerror)
- 		*msgsokP = 1;
- 	else
- 		*msgsokP = (s.st_mode & S_IWGRP) && (getegid() == s.st_gid);
--	*atimeP = s.st_atime;
-+	if (atimeP)
-+		*atimeP = s.st_atime;
- 	return 0;
- }
- 
-@@ -284,7 +285,6 @@ static void do_write(char *tty, char *mytty, uid_t myuid)
- 
- int main(int argc, char **argv)
- {
--	time_t atime;
- 	uid_t myuid;
- 	int msgsok = 0, myttyfd, c;
- 	char tty[PATH_MAX], *mytty;
-@@ -333,7 +333,7 @@ int main(int argc, char **argv)
- 		 */
- 		if (!strncmp(mytty, "/dev/", 5))
- 			mytty += 5;
--		if (term_chk(mytty, &msgsok, &atime, 1))
-+		if (term_chk(mytty, &msgsok, NULL, 1))
- 			exit(EXIT_FAILURE);
- 		if (!msgsok)
- 			errx(EXIT_FAILURE,
-@@ -357,7 +357,7 @@ int main(int argc, char **argv)
- 			errx(EXIT_FAILURE,
- 			     _("%s is not logged in on %s"),
- 			     argv[1], argv[2]);
--		if (term_chk(argv[2], &msgsok, &atime, 1))
-+		if (term_chk(argv[2], &msgsok, NULL, 1))
- 			exit(EXIT_FAILURE);
- 		if (myuid && !msgsok)
- 			errx(EXIT_FAILURE,
+-- snip
+diff --git a/sys-utils/losetup.8 b/sys-utils/losetup.8
+index dbc9095..817e204 100644
+--- a/sys-utils/losetup.8
++++ b/sys-utils/losetup.8
+@@ -150,8 +150,9 @@ Display version information and exit.
+ Display help text and exit.
+
+ .SH ENCRYPTION
+-.B Cryptoloop is no longer supported in favor of dm-crypt.
+-.B For more details see cryptsetup (8).
++Cryptoloop is no longer supported in favor of dm-crypt.
++For more details see
++.BR cryptsetup (8).
+
+ .SH RETURN VALUE
+ .B losetup
+-- snip
+
+Just for record, this is the commit that added all the .B to that text.
+
+https://github.com/karelzak/util-linux/commit/23b85230e7bf53881b265ef8bf03ec05ac5cefd2
+
+>  .SH RETURN VALUE
+>  .B losetup
+> --
+> 2.7.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+
 -- 
-2.8.2
-
+Sami Kerola
+http://www.iki.fi/kerolasa/
