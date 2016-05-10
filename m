@@ -1,59 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:33004 "EHLO
-	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751632AbcEKOy1 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Wed, 11 May 2016 10:54:27 -0400
-Received: by mail-wm0-f66.google.com with SMTP id r12so9962501wme.0
-        for <util-linux@vger.kernel.org>; Wed, 11 May 2016 07:54:27 -0700 (PDT)
-From: Sassan Panahinejad <sassan@sassan.me.uk>
-To: util-linux@vger.kernel.org
-Cc: Sassan Panahinejad <sassan@sassan.me.uk>
-Subject: [PATCH 2/3] fdisk: Add support for altering GPT size
-Date: Wed, 11 May 2016 15:54:17 +0100
-Message-Id: <1462978458-13908-2-git-send-email-sassan@sassan.me.uk>
-In-Reply-To: <1462978458-13908-1-git-send-email-sassan@sassan.me.uk>
-References: <1462978458-13908-1-git-send-email-sassan@sassan.me.uk>
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:38793 "EHLO
+	out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752446AbcEJOYS (ORCPT
+	<rfc822;util-linux@vger.kernel.org>);
+	Tue, 10 May 2016 10:24:18 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+	by mailout.nyi.internal (Postfix) with ESMTP id A1CC620993
+	for <util-linux@vger.kernel.org>; Tue, 10 May 2016 10:24:17 -0400 (EDT)
+Message-Id: <1462890257.1439070.603552425.7FB076BA@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain
+In-Reply-To: <1462829248-6935-13-git-send-email-kerolasa@iki.fi>
+References: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
+ <1462829248-6935-13-git-send-email-kerolasa@iki.fi>
+Subject: Re: [PATCH 12/12] write: tell when effective gid and tty path group
+ mismatch
+Date: Tue, 10 May 2016 16:24:17 +0200
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Adds an options (l) to the GPT menu to resize the GPT.
----
- disk-utils/fdisk-menu.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
 
-diff --git a/disk-utils/fdisk-menu.c b/disk-utils/fdisk-menu.c
-index b099cc3..21cde24 100644
---- a/disk-utils/fdisk-menu.c
-+++ b/disk-utils/fdisk-menu.c
-@@ -165,6 +165,7 @@ struct menu menu_gpt = {
- 		MENU_XENT('i', N_("change disk GUID")),
- 		MENU_XENT('n', N_("change partition name")),
- 		MENU_XENT('u', N_("change partition UUID")),
-+		MENU_XENT('l', N_("change table length")),
- 		MENU_XENT('M', N_("enter protective/hybrid MBR")),
- 
- 		MENU_XSEP(""),
-@@ -691,6 +692,7 @@ static int gpt_menu_cb(struct fdisk_context **cxt0,
- 	struct fdisk_partition *pa = NULL;
- 	size_t n;
- 	int rc = 0;
-+	unsigned long length;
- 
- 	assert(cxt);
- 	assert(ent);
-@@ -702,6 +704,12 @@ static int gpt_menu_cb(struct fdisk_context **cxt0,
- 		switch (ent->key) {
- 		case 'i':
- 			return fdisk_set_disklabel_id(cxt);
-+		case 'l':
-+	                rc =  fdisk_ask_number(cxt, 1, fdisk_get_disklabel_length(cxt),
-+	                                ~0UL, _("New maximum entries"), &length);
-+			if (rc)
-+				return rc;
-+			return fdisk_set_disklabel_length(cxt, length);
- 		case 'M':
- 			mbr = fdisk_new_nested_context(cxt, "dos");
- 			if (!mbr)
+On Mon, May 9, 2016, at 23:27, Sami Kerola wrote:
+> +		if (getegid() != s.st_gid) {
+> +			warnx(_("effective gid and %s group does not match"), path);
+
+For translation purposes, better make this:
+
+  "effective gid does not match group of %s"
+
+otherwise a translator might think that %s is the name of a group.
+(And the grammar of the original is incorrect.)
+
+Benno
+
 -- 
-2.1.0
+http://www.fastmail.com - Does exactly what it says on the tin
 
