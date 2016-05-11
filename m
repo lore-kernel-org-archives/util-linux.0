@@ -1,104 +1,93 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:33339 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752595AbcEIV1u (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 9 May 2016 17:27:50 -0400
-Received: by mail-wm0-f68.google.com with SMTP id r12so22518101wme.0
-        for <util-linux@vger.kernel.org>; Mon, 09 May 2016 14:27:50 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 09/12] write: remove unnecessary utmp variables
-Date: Mon,  9 May 2016 22:27:25 +0100
-Message-Id: <1462829248-6935-10-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
-References: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
+Received: from mail-lf0-f66.google.com ([209.85.215.66]:33249 "EHLO
+	mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932071AbcEKJUl (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 11 May 2016 05:20:41 -0400
+Received: by mail-lf0-f66.google.com with SMTP id j8so4321980lfd.0
+        for <util-linux@vger.kernel.org>; Wed, 11 May 2016 02:20:40 -0700 (PDT)
+MIME-Version: 1.0
+From: Timofey Titovets <nefelim4ag@gmail.com>
+Date: Wed, 11 May 2016 12:20:00 +0300
+Message-ID: <CAGqmi77x9r2V_RQhJZd7iwoK3M3ryGD=hckqo2JK4AnSGd4w1g@mail.gmail.com>
+Subject: [PATCH] zramctl: add hot_add device support
+To: util-linux <util-linux@vger.kernel.org>
+Content-Type: multipart/mixed; boundary=001a11401b5a2049ab05328d8ee6
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The getutent() calls are not thread safe, and reference documentation is
-recommending to copy the context of the structures if information is wished
-to be stored.  But excessive copying does not seem to be relevant for single
-threaded application.
+--001a11401b5a2049ab05328d8ee6
+Content-Type: text/plain; charset=UTF-8
 
-Reference: http://www.gnu.org/software/libc/manual/html_node/Manipulating-the-Database.html
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- term-utils/write.c | 28 +++++++++++-----------------
- 1 file changed, 11 insertions(+), 17 deletions(-)
+Hi guys,
+In linux kernel 4.2, has been added support for hot add/remove zram device
 
-diff --git a/term-utils/write.c b/term-utils/write.c
-index 1ae3c82..403d4a7 100644
---- a/term-utils/write.c
-+++ b/term-utils/write.c
-@@ -126,17 +126,15 @@ static int check_tty(char *tty, int *mesg_allowed, time_t *tty_atime, int shower
-  */
- static int check_utmp(const struct write_control *ctl)
- {
--	struct utmp u;
--	struct utmp *uptr;
-+	struct utmp *u;
- 	int res = 1;
- 
- 	utmpname(_PATH_UTMP);
- 	setutent();
- 
--	while ((uptr = getutent())) {
--		memcpy(&u, uptr, sizeof(u));
--		if (strncmp(ctl->dst_login, u.ut_user, sizeof(u.ut_user)) == 0 &&
--		    strncmp(ctl->dst_tty, u.ut_line, sizeof(u.ut_line)) == 0) {
-+	while ((u = getutent())) {
-+		if (strncmp(ctl->dst_login, u->ut_user, sizeof(u->ut_user)) == 0 &&
-+		    strncmp(ctl->dst_tty, u->ut_line, sizeof(u->ut_line)) == 0) {
- 			res = 0;
- 			break;
- 		}
-@@ -159,38 +157,34 @@ static int check_utmp(const struct write_control *ctl)
-  */
- static void search_utmp(struct write_control *ctl)
- {
--	struct utmp u;
--	struct utmp *uptr;
-+	struct utmp *u;
- 	time_t best_atime = 0, tty_atime;
- 	int num_ttys = 0, valid_ttys = 0, mesg_allowed = 0, user_is_me = 0;
--	char atty[sizeof(u.ut_line) + 1];
- 
- 	utmpname(_PATH_UTMP);
- 	setutent();
- 
--	while ((uptr = getutent())) {
--		memcpy(&u, uptr, sizeof(u));
--		if (strncmp(ctl->dst_login, u.ut_user, sizeof(u.ut_user)) == 0) {
-+	while ((u = getutent())) {
-+		if (strncmp(ctl->dst_login, u->ut_user, sizeof(u->ut_user)) == 0) {
- 			num_ttys++;
--			xstrncpy(atty, u.ut_line, sizeof(atty));
--			if (check_tty(atty, &mesg_allowed, &tty_atime, 0))
-+			if (check_tty(u->ut_line, &mesg_allowed, &tty_atime, 0))
- 				/* bad term? skip */
- 				continue;
- 			if (ctl->src_uid && !mesg_allowed)
- 				/* skip ttys with msgs off */
- 				continue;
--			if (strcmp(atty, ctl->src_tty) == 0) {
-+			if (strcmp(u->ut_line, ctl->src_tty) == 0) {
- 				user_is_me = 1;
- 				/* don't write to yourself */
- 				continue;
- 			}
--			if (u.ut_type != USER_PROCESS)
-+			if (u->ut_type != USER_PROCESS)
- 				/* it's not a valid entry */
- 				continue;
- 			valid_ttys++;
- 			if (tty_atime > best_atime) {
- 				best_atime = tty_atime;
--				xstrncpy(ctl->dst_tty, atty, sizeof(ctl->dst_tty));
-+				xstrncpy(ctl->dst_tty, u->ut_line, sizeof(ctl->dst_tty));
- 			}
- 		}
- 	}
+I've added:
+1. Function to wrap this functionality
+2. Auto add new zram devices if no one free in way like losetup -f
+i.e. zramctl -f -s 1G try to find free device -> try add new -> return
+new if successful
+
+My email client eat code formatting, so i attach patch
+Also you can see changes in github:
+https://github.com/karelzak/util-linux/issues/318
+
+Thanks.
 -- 
-2.8.2
+Have a nice day,
+Timofey.
 
+--001a11401b5a2049ab05328d8ee6
+Content-Type: text/x-patch; charset=US-ASCII;
+	name="0001-zramctl-add-hot_add-device-support.patch"
+Content-Disposition: attachment;
+	filename="0001-zramctl-add-hot_add-device-support.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_io2nfnb90
+
+RnJvbSAwYmMxODg4MmZiZTc3NDAxOGFhMGU2MWMzZDUzZjM0ZDUyYTdjYjhjIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBUaW1vZmV5IFRpdG92ZXRzIDxuZWZlbGltNGFnQGdtYWlsLmNv
+bT4KRGF0ZTogV2VkLCAxMSBNYXkgMjAxNiAxMTowNTowNyArMDMwMApTdWJqZWN0OiBbUEFUQ0hd
+IHpyYW1jdGw6IGFkZCBob3RfYWRkIGRldmljZSBzdXBwb3J0CgpTaWduZWQtb2ZmLWJ5OiBUaW1v
+ZmV5IFRpdG92ZXRzIDxuZWZlbGltNGFnQGdtYWlsLmNvbT4KLS0tCiBpbmNsdWRlL3N5c2ZzLmgg
+ICAgIHwgIDEgKwogbGliL3N5c2ZzLmMgICAgICAgICB8IDIxICsrKysrKysrKysrKysrKysrKysr
+Kwogc3lzLXV0aWxzL3pyYW1jdGwuYyB8IDExICsrKysrKysrKy0tCiAzIGZpbGVzIGNoYW5nZWQs
+IDMxIGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9z
+eXNmcy5oIGIvaW5jbHVkZS9zeXNmcy5oCmluZGV4IDU1MjEzNzguLjM1NzNjYTkgMTAwNjQ0Ci0t
+LSBhL2luY2x1ZGUvc3lzZnMuaAorKysgYi9pbmNsdWRlL3N5c2ZzLmgKQEAgLTkwLDYgKzkwLDcg
+QEAgZXh0ZXJuIGNoYXIgKnN5c2ZzX3Njc2lfaG9zdF9zdHJkdXBfYXR0cmlidXRlKHN0cnVjdCBz
+eXNmc19jeHQgKmN4dCwKIGV4dGVybiBpbnQgc3lzZnNfc2NzaV9ob3N0X2lzKHN0cnVjdCBzeXNm
+c19jeHQgKmN4dCwgY29uc3QgY2hhciAqdHlwZSk7CiBleHRlcm4gaW50IHN5c2ZzX3Njc2lfaGFz
+X2F0dHJpYnV0ZShzdHJ1Y3Qgc3lzZnNfY3h0ICpjeHQsIGNvbnN0IGNoYXIgKmF0dHIpOwogZXh0
+ZXJuIGludCBzeXNmc19zY3NpX3BhdGhfY29udGFpbnMoc3RydWN0IHN5c2ZzX2N4dCAqY3h0LCBj
+b25zdCBjaGFyICpwYXR0ZXJuKTsKK2V4dGVybiBpbnQgc3lzZnNfenJhbV9jb250cm9sKGNvbnN0
+IGNoYXIgKmF0dHIsIGNvbnN0IGludCBudW0pOwogCiAvKioKICAqIHN5c2ZzX2Rldm5hbWVfc3lz
+X3RvX2RldjoKZGlmZiAtLWdpdCBhL2xpYi9zeXNmcy5jIGIvbGliL3N5c2ZzLmMKaW5kZXggOWU5
+NzNhNC4uNWUwODI0MiAxMDA2NDQKLS0tIGEvbGliL3N5c2ZzLmMKKysrIGIvbGliL3N5c2ZzLmMK
+QEAgLTE1LDYgKzE1LDcgQEAKICNpbmNsdWRlICJzeXNmcy5oIgogI2luY2x1ZGUgImZpbGV1dGls
+cy5oIgogI2luY2x1ZGUgImFsbC1pby5oIgorI2luY2x1ZGUgInBhdGguaCIKIAogY2hhciAqc3lz
+ZnNfZGV2bm9fYXR0cmlidXRlX3BhdGgoZGV2X3QgZGV2bm8sIGNoYXIgKmJ1ZiwKIAkJCQkgc2l6
+ZV90IGJ1ZnNpeiwgY29uc3QgY2hhciAqYXR0cikKQEAgLTEwMTQsNiArMTAxNSwyNiBAQCBpbnQg
+c3lzZnNfc2NzaV9wYXRoX2NvbnRhaW5zKHN0cnVjdCBzeXNmc19jeHQgKmN4dCwgY29uc3QgY2hh
+ciAqcGF0dGVybikKIAlyZXR1cm4gc3Ryc3RyKGxpbmtjLCBwYXR0ZXJuKSAhPSBOVUxMOwogfQog
+CitpbnQgc3lzZnNfenJhbV9jb250cm9sKGNvbnN0IGNoYXIgKmF0dHIsIGNvbnN0IGludCBudW0p
+Cit7CisJaW50IHJldDsKKwljaGFyIHpyYW1fbnVtWzEyXTsKKworCWlmIChzdHJuY21wKGF0dHIs
+ICJob3RfYWRkIiwgNykgPT0gMCkgeworCQlyZXQgPSBwYXRoX3JlYWRfczMyKF9QQVRIX1NZU19D
+TEFTUyAiL3pyYW0tY29udHJvbC9ob3RfYWRkIik7CisJCXJldHVybiByZXQ7CisJfQorCisJaWYg
+KHN0cm5jbXAoYXR0ciwgImhvdF9yZW1vdmUiLCAxMCkgPT0gMCkgeworCQlzbnByaW50Zih6cmFt
+X251bSwgc2l6ZW9mKHpyYW1fbnVtKSwgIiVpIiwgbnVtKTsKKwkJcmV0ID0gcGF0aF93cml0ZV9z
+dHIoenJhbV9udW0sCisJCQkJCQkJX1BBVEhfU1lTX0NMQVNTICIvenJhbS1jb250cm9sL2hvdF9y
+ZW1vdmUiKTsKKwkJcmV0dXJuIHJldDsKKwl9CisKKwlyZXR1cm4gRU5PRU5UOworfQorCiAjaWZk
+ZWYgVEVTVF9QUk9HUkFNX1NZU0ZTCiAjaW5jbHVkZSA8ZXJybm8uaD4KICNpbmNsdWRlIDxlcnIu
+aD4KZGlmZiAtLWdpdCBhL3N5cy11dGlscy96cmFtY3RsLmMgYi9zeXMtdXRpbHMvenJhbWN0bC5j
+CmluZGV4IDI5MDQxZWIuLjBmMzY2YTggMTAwNjQ0Ci0tLSBhL3N5cy11dGlscy96cmFtY3RsLmMK
+KysrIGIvc3lzLXV0aWxzL3pyYW1jdGwuYwpAQCAtMjY2LDEyICsyNjYsMTkgQEAgc3RhdGljIHN0
+cnVjdCB6cmFtICpmaW5kX2ZyZWVfenJhbSh2b2lkKQogCXN0cnVjdCB6cmFtICp6ID0gbmV3X3py
+YW0oTlVMTCk7CiAJc2l6ZV90IGk7CiAJaW50IGlzZnJlZSA9IDA7CisJaW50IG5ld19kZXY7CiAK
+IAlmb3IgKGkgPSAwOyBpc2ZyZWUgPT0gMDsgaSsrKSB7CiAJCURCRyhmcHJpbnRmKHN0ZGVyciwg
+ImZpbmQgZnJlZTogY2hlY2tpbmcgenJhbSV6dSIsIGkpKTsKIAkJenJhbV9zZXRfZGV2bmFtZSh6
+LCBOVUxMLCBpKTsKLQkJaWYgKCF6cmFtX2V4aXN0KHopKQotCQkJYnJlYWs7CisKKwkJaWYgKCF6
+cmFtX2V4aXN0KHopKSB7CisJCQluZXdfZGV2ID0gc3lzZnNfenJhbV9jb250cm9sKCJob3RfYWRk
+IiwgMCk7CisJCQlpZiAoIG5ld19kZXYgPj0gMCkgeworCQkJCXpyYW1fc2V0X2Rldm5hbWUoeiwg
+TlVMTCwgbmV3X2Rldik7CisJCQl9IGVsc2UKKwkJCQlicmVhazsKKwkJfQogCQlpc2ZyZWUgPSAh
+enJhbV91c2VkKHopOwogCX0KIAlpZiAoIWlzZnJlZSkgewotLSAKMi44LjIKCg==
+--001a11401b5a2049ab05328d8ee6--
