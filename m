@@ -1,53 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:35192 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752595AbcEIV1o (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 9 May 2016 17:27:44 -0400
-Received: by mail-wm0-f65.google.com with SMTP id e201so22544587wme.2
-        for <util-linux@vger.kernel.org>; Mon, 09 May 2016 14:27:44 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:33004 "EHLO
+	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751632AbcEKOy1 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 11 May 2016 10:54:27 -0400
+Received: by mail-wm0-f66.google.com with SMTP id r12so9962501wme.0
+        for <util-linux@vger.kernel.org>; Wed, 11 May 2016 07:54:27 -0700 (PDT)
+From: Sassan Panahinejad <sassan@sassan.me.uk>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 05/12] write: use xstrncpy() from strutils.h
-Date: Mon,  9 May 2016 22:27:21 +0100
-Message-Id: <1462829248-6935-6-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
-References: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
+Cc: Sassan Panahinejad <sassan@sassan.me.uk>
+Subject: [PATCH 2/3] fdisk: Add support for altering GPT size
+Date: Wed, 11 May 2016 15:54:17 +0100
+Message-Id: <1462978458-13908-2-git-send-email-sassan@sassan.me.uk>
+In-Reply-To: <1462978458-13908-1-git-send-email-sassan@sassan.me.uk>
+References: <1462978458-13908-1-git-send-email-sassan@sassan.me.uk>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Earlier if the tty path was exactly length of the maximum ut_line then last
-character of the path was overwrote by \0.  In practise this is a
-theoretical bug as it is unheard that a tty device path could be 32
-characters long.
-
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Adds an options (l) to the GPT menu to resize the GPT.
 ---
- term-utils/write.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ disk-utils/fdisk-menu.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/term-utils/write.c b/term-utils/write.c
-index dd31f59..ed508d4 100644
---- a/term-utils/write.c
-+++ b/term-utils/write.c
-@@ -63,6 +63,7 @@
- #include "carefulputc.h"
- #include "closestream.h"
- #include "nls.h"
-+#include "strutils.h"
- #include "xalloc.h"
+diff --git a/disk-utils/fdisk-menu.c b/disk-utils/fdisk-menu.c
+index b099cc3..21cde24 100644
+--- a/disk-utils/fdisk-menu.c
++++ b/disk-utils/fdisk-menu.c
+@@ -165,6 +165,7 @@ struct menu menu_gpt = {
+ 		MENU_XENT('i', N_("change disk GUID")),
+ 		MENU_XENT('n', N_("change partition name")),
+ 		MENU_XENT('u', N_("change partition UUID")),
++		MENU_XENT('l', N_("change table length")),
+ 		MENU_XENT('M', N_("enter protective/hybrid MBR")),
  
- static void __attribute__ ((__noreturn__)) usage(FILE * out)
-@@ -164,8 +165,7 @@ static void search_utmp(char *user, char *tty, char *mytty, uid_t myuid)
- 		memcpy(&u, uptr, sizeof(u));
- 		if (strncmp(user, u.ut_user, sizeof(u.ut_user)) == 0) {
- 			++nloggedttys;
--			strncpy(atty, u.ut_line, sizeof(u.ut_line));
--			atty[sizeof(u.ut_line)] = '\0';
-+			xstrncpy(atty, u.ut_line, sizeof(atty));
- 			if (term_chk(atty, &msgsok, &atime, 0))
- 				/* bad term? skip */
- 				continue;
+ 		MENU_XSEP(""),
+@@ -691,6 +692,7 @@ static int gpt_menu_cb(struct fdisk_context **cxt0,
+ 	struct fdisk_partition *pa = NULL;
+ 	size_t n;
+ 	int rc = 0;
++	unsigned long length;
+ 
+ 	assert(cxt);
+ 	assert(ent);
+@@ -702,6 +704,12 @@ static int gpt_menu_cb(struct fdisk_context **cxt0,
+ 		switch (ent->key) {
+ 		case 'i':
+ 			return fdisk_set_disklabel_id(cxt);
++		case 'l':
++	                rc =  fdisk_ask_number(cxt, 1, fdisk_get_disklabel_length(cxt),
++	                                ~0UL, _("New maximum entries"), &length);
++			if (rc)
++				return rc;
++			return fdisk_set_disklabel_length(cxt, length);
+ 		case 'M':
+ 			mbr = fdisk_new_nested_context(cxt, "dos");
+ 			if (!mbr)
 -- 
-2.8.2
+2.1.0
 
