@@ -1,91 +1,88 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:35366 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751701AbcEORbT (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 15 May 2016 13:31:19 -0400
-Received: by mail-wm0-f68.google.com with SMTP id e201so13477997wme.2
-        for <util-linux@vger.kernel.org>; Sun, 15 May 2016 10:31:18 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 11/11] tests: utmpdump add subsecond accuracy test
-Date: Sun, 15 May 2016 18:30:57 +0100
-Message-Id: <1463333457-1011-12-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1463333457-1011-1-git-send-email-kerolasa@iki.fi>
-References: <1463333457-1011-1-git-send-email-kerolasa@iki.fi>
+Received: from smtp.gentoo.org ([140.211.166.183]:36304 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932162AbcEKQj6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Wed, 11 May 2016 12:39:58 -0400
+Date: Wed, 11 May 2016 12:39:56 -0400
+From: Mike Frysinger <vapier@gentoo.org>
+To: Sassan Panahinejad <sassan@sassan.me.uk>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/3] libfdisk: Add support for altering GPT size
+Message-ID: <20160511163956.GO26300@vapier.lan>
+References: <1462978458-13908-1-git-send-email-sassan@sassan.me.uk>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="1IYcr18XUmgwOrO2"
+In-Reply-To: <1462978458-13908-1-git-send-email-sassan@sassan.me.uk>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- tests/expected/utmp/utmpdump-subsecond |  5 +++++
- tests/ts/utmp/subsec                   |  3 +++
- tests/ts/utmp/utmpdump-subsecond       | 34 ++++++++++++++++++++++++++++++++++
- 3 files changed, 42 insertions(+)
- create mode 100644 tests/expected/utmp/utmpdump-subsecond
- create mode 100644 tests/ts/utmp/subsec
- create mode 100755 tests/ts/utmp/utmpdump-subsecond
 
-diff --git a/tests/expected/utmp/utmpdump-subsecond b/tests/expected/utmp/utmpdump-subsecond
-new file mode 100644
-index 0000000..db94805
---- /dev/null
-+++ b/tests/expected/utmp/utmpdump-subsecond
-@@ -0,0 +1,5 @@
-+invalid should diff by last subsecond digit
-+3c3
-+< [0] [00000] [ts/0] [nonvalid] [foo         ] [zero                ] [0.0.0.0        ] [2013-08-28T12:00:00,123456789+0000]
-+---
-+> [0] [00000] [ts/0] [nonvalid] [foo         ] [zero                ] [0.0.0.0        ] [2013-08-28T12:00:00,12345678+0000]
-diff --git a/tests/ts/utmp/subsec b/tests/ts/utmp/subsec
-new file mode 100644
-index 0000000..4881e7c
---- /dev/null
-+++ b/tests/ts/utmp/subsec
-@@ -0,0 +1,3 @@
-+[7] [00010] [ipv6] [IPv6    ] [root        ] [dns-server          ] [2001:503:ba3e::2:30] [2013-08-28T20:30:40,123456+0000]
-+[8] [00011] [ipv6] [IPv6    ] [root        ] [dns-server          ] [2001:503:ba3e::2:30] [2013-08-28T20:40:50,999999+0000]
-+[0] [00000] [ts/0] [nonvalid] [foo         ] [zero                ] [0.0.0.0        ] [2013-08-28T12:00:00,123456789+0000]
-diff --git a/tests/ts/utmp/utmpdump-subsecond b/tests/ts/utmp/utmpdump-subsecond
-new file mode 100755
-index 0000000..dba233e
---- /dev/null
-+++ b/tests/ts/utmp/utmpdump-subsecond
-@@ -0,0 +1,34 @@
-+#!/bin/bash
-+
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="subsecond"
-+
-+. $TS_TOPDIR/functions.sh
-+ts_init "$*"
-+
-+# this test is arch independent, no need for utmp_functions.sh
-+ts_check_test_command "$TS_CMD_UTMPDUMP"
-+
-+OUT_BIN=${TS_OUTDIR}/${TS_TESTNAME}.bin
-+OUT_TXT=${TS_OUTDIR}/${TS_TESTNAME}.txt
-+
-+echo "invalid should diff by last subsecond digit" > $TS_OUTPUT
-+$TS_CMD_UTMPDUMP -r $TS_SELF/subsec > $OUT_BIN 2>/dev/null
-+$TS_CMD_UTMPDUMP $OUT_BIN > $OUT_TXT 2>/dev/null
-+diff $TS_SELF/subsec $OUT_TXT >> $TS_OUTPUT 2>&1
-+
-+rm -f "$OUT_BIN" "$OUT_TXT"
-+
-+ts_finalize
--- 
-2.8.2
+--1IYcr18XUmgwOrO2
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On 11 May 2016 15:54, Sassan Panahinejad wrote:
+> This is useful in two situations:
+>=20
+> 1. More than 128 partitions are required. Or
+>=20
+> 2. The partition table must be restricted in size, such as when a system
+> expects to find a bootloader at a location that would otherwise overlap t=
+he
+> partition table.
+>=20
+> The gdisk partitioner supports this feature.
+>=20
+> libfdisk is already capable of reading and writing partition tables of any
+> size, but previously could only create ones of 128 entries and could not
+> resize.
+>=20
+> This change should be fairly safe, as it has no effect unless explicitly
+> activated.
+
+i'm not super familiar with the codebase, but these look pretty nice.  than=
+ks!
+
+> +	fdisk_info(cxt, _("Partition table length changed from %u to %u."), old=
+, new);
+
+old & new are unsigned long, so you'll want %lu
+
+> +int fdisk_set_disklabel_length(struct fdisk_context *cxt, unsigned long =
+entries)
+> +{
+> +	if (!cxt || !cxt->label)
+> +		return -EINVAL;
+> +	if (!cxt->label->op->set_length)
+> +		return -ENOSYS;
+> +
+> +	DBG(CXT, ul_debugobj(cxt, "setting %s label length", cxt->label->name));
+
+want to include |entries| in the debug output too ?
+-mike
+
+--1IYcr18XUmgwOrO2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJXM2BbAAoJEEFjO5/oN/WBe0wP/jJgc6dKLzjxE9Bb4HcAisXs
+Ibet4h5Z3Fi+ZVJgY3+9C72jRreKuQ+hag9I3+Vc03lnmgW/flrioHRtWIZFF/n5
+7O7BL0QCtLnNBJkW8b7pU+2eVAdX5zFjw9H3pv629yJI4wfeUcA7/3KyuVOnTdcW
+eGULyjJTjrTtT2tMba2F2F0HRiUf769S9b32rRudLGf9enidCxUo69yY/egvkasy
+87ijOinJwz4iwLR2j1ZGjwkTvNJA7HtY5ljHGVJdt+HNL4OlkCGQOeoNulu/HfkT
+4n9Urq6PSyjJuQPziD3NEAfUdllRuAAm6NDVQr+rz3pS5vADtu1XgnXO/9n921TW
+DAM+9RCKpCeXTsxVw+EB+OhsYud4TaYi6lwIfqCRP1xArlHx42h1Vs570BbmUtK4
+1uxE0amKmnpLNWxS9/qJufLzZlcisxbf8YfnTnEPrOAdqUBS93OO6gZiK/ddhmh9
+5cJg6pNSRKjVrTUrWxVv6NpkOu29gaxUbDpnnjKZnfiP4BsIVV5gNPQvy8ZjpgTZ
+Nrhd2af9NYLckhXhRY3q8PbcZ6SBfrv5/X/yJbdbVYLAfzI9fFLg+iMcuJnO6Pxj
+Yh/fO/ORTRyJyvY49Rj6nGXi/37MpXbZuLkIAfbkLe2ZnT8q6IckPugtgy76UOI0
+rUzw5lmvLR+CfI1c5+N6
+=ELNk
+-----END PGP SIGNATURE-----
+
+--1IYcr18XUmgwOrO2--
