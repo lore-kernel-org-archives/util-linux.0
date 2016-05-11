@@ -1,98 +1,66 @@
-Return-Path: kerolasa@gmail.com
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <573C6891.1070009@draigBrady.com>
-References: <20160518125100.gqvcbbfx23tti6re@ws.net.home>
-	<573C6891.1070009@draigBrady.com>
-Date: Wed, 18 May 2016 21:09:58 +0100
-Message-ID: <CAG27Bk3Vj_sXTB=QFB+14eLNpES-oeH8ts60R7gkWojr_n-vhg@mail.gmail.com>
-Subject: Re: cal(1) year formatting
-From: Sami Kerola <kerolasa@iki.fi>
-To: =?UTF-8?Q?P=C3=A1draig_Brady?= <P@draigbrady.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:34329 "EHLO
+	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932152AbcEKOy2 (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 11 May 2016 10:54:28 -0400
+Received: by mail-wm0-f68.google.com with SMTP id n129so9961619wmn.1
+        for <util-linux@vger.kernel.org>; Wed, 11 May 2016 07:54:27 -0700 (PDT)
+From: Sassan Panahinejad <sassan@sassan.me.uk>
+To: util-linux@vger.kernel.org
+Cc: Sassan Panahinejad <sassan@sassan.me.uk>
+Subject: [PATCH 3/3] sfdisk: Add support for altering GPT size
+Date: Wed, 11 May 2016 15:54:18 +0100
+Message-Id: <1462978458-13908-3-git-send-email-sassan@sassan.me.uk>
+In-Reply-To: <1462978458-13908-1-git-send-email-sassan@sassan.me.uk>
+References: <1462978458-13908-1-git-send-email-sassan@sassan.me.uk>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 18 May 2016 at 14:05, P=C3=A1draig Brady <P@draigbrady.com> wrote:
-> On 18/05/16 13:51, Karel Zak wrote:
->>
->>
->>   See the patch below. I have no strong opinion about it, any
->>   objection?
->>
->>      Karel
->>
->>
->>> From e671a62ef8574b16cd6acbfd04dc35c514b184e5 Mon Sep 17 00:00:00 2001
->>
->> From: Karel Zak <kzak@redhat.com>
->> Date: Wed, 18 May 2016 14:43:20 +0200
->> Subject: [PATCH] cal: use %04d for year
->>
->> It seems that people are crazy enough to assume that "cal 16" is the
->> year 2016, rather than 16 (2000 years ago).
->>
->> This patch makes it more clear as the output is 0016.
->>
->> Addresses: https://github.com/karelzak/util-linux/issues/320
->> Signed-off-by: Karel Zak <kzak@redhat.com>
->> ---
->>   misc-utils/cal.c | 8 ++++----
->>   1 file changed, 4 insertions(+), 4 deletions(-)
->>
->> diff --git a/misc-utils/cal.c b/misc-utils/cal.c
->> index 2a53b89..3e20530 100644
->> --- a/misc-utils/cal.c
->> +++ b/misc-utils/cal.c
->> @@ -516,7 +516,7 @@ static void headers_init(struct cal_control *ctl)
->>         char tmp[FMT_ST_CHARS];
->>         int year_len;
->>
->> -       year_len =3D snprintf(tmp, sizeof(tmp), "%d", ctl->req.year);
->> +       year_len =3D snprintf(tmp, sizeof(tmp), "%04d", ctl->req.year);
->>
->>         if (year_len < 0 || (size_t)year_len >=3D sizeof(tmp)) {
->>                 /* XXX impossible error */
->> @@ -612,13 +612,13 @@ static void cal_output_header(struct cal_month
->> *month, const struct cal_control
->>                 if (!ctl->header_year) {
->>                         my_putstring("\n");
->>                         for (i =3D month; i; i =3D i->next) {
->> -                               sprintf(out, _("%d"), i->year);
->> +                               sprintf(out, _("%04d"), i->year);
->>                                 center(out, ctl->week_width - 1, i->next
->> =3D=3D NULL ? 0 : ctl->gutter_width);
->>                         }
->>                 }
->>         } else {
->>                 for (i =3D month; i; i =3D i->next) {
->> -                       sprintf(out, _("%s %d"), ctl->full_month[i->mont=
-h
->> - 1], i->year);
->> +                       sprintf(out, _("%s %04d"),
->> ctl->full_month[i->month - 1], i->year);
->>                         center(out, ctl->week_width - 1, i->next =3D=3D =
-NULL ?
->> 0 : ctl->gutter_width);
->>                 }
->>         }
->> @@ -762,7 +762,7 @@ static void yearly(const struct cal_control *ctl)
->>                 year_width--;
->>
->>         if (ctl->header_year) {
->> -               sprintf(out, "%d", ctl->req.year);
->> +               sprintf(out, "%04d", ctl->req.year);
->>                 center(out, year_width, 0);
->>                 my_putstring("\n\n");
->>         }
->>
->
-> more upsides than downsides so +1 from me
+Adds a header option to alter the GPT table length
+---
+ libfdisk/src/script.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-A little bit surprising that this sort of emphasis of past is needed,
-but what is needed is needed. +1
+diff --git a/libfdisk/src/script.c b/libfdisk/src/script.c
+index 096f37c..e6fd0de 100644
+--- a/libfdisk/src/script.c
++++ b/libfdisk/src/script.c
+@@ -705,7 +705,8 @@ static int parse_line_header(struct fdisk_script *dp, char *s)
+ 	} else if (strcmp(name, "label-id") == 0
+ 		   || strcmp(name, "device") == 0
+ 		   || strcmp(name, "first-lba") == 0
+-		   || strcmp(name, "last-lba") == 0) {
++		   || strcmp(name, "last-lba") == 0
++		   || strcmp(name, "table-length") == 0) {
+ 		;					/* whatever is posssible */
+ 	} else
+ 		goto done;				/* unknown header */
+@@ -1326,6 +1327,8 @@ struct fdisk_script *fdisk_get_script(struct fdisk_context *cxt)
+ int fdisk_apply_script_headers(struct fdisk_context *cxt, struct fdisk_script *dp)
+ {
+ 	const char *name;
++	const char *str;
++	int rc;
+ 
+ 	assert(cxt);
+ 	assert(dp);
+@@ -1338,7 +1341,15 @@ int fdisk_apply_script_headers(struct fdisk_context *cxt, struct fdisk_script *d
+ 	if (!name)
+ 		return -EINVAL;
+ 
+-	return fdisk_create_disklabel(cxt, name);
++	rc = fdisk_create_disklabel(cxt, name);
++	if (rc)
++		return rc;
++
++	str = fdisk_script_get_header(dp, "table-length");
++	if (str)
++		return fdisk_set_disklabel_length(cxt, strtoul(str, NULL, 0));
++
++	return 0;
+ }
+ 
+ /**
+-- 
+2.1.0
 
---=20
-Sami Kerola
-http://www.iki.fi/kerolasa/
