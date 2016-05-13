@@ -1,38 +1,33 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:56121 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752194AbcEPIwA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 16 May 2016 04:52:00 -0400
-Date: Mon, 16 May 2016 10:51:57 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/11] pull: add timestamp printing to libcommon
-Message-ID: <20160516085157.2lg2yjo7nwasfuun@ws.net.home>
-References: <1463333457-1011-1-git-send-email-kerolasa@iki.fi>
+Return-Path: ico2ico2@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1463333457-1011-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Sender: ico2ico2@gmail.com
+In-Reply-To: <20160513134802.ii4bvxwswtaimvwr@ws.net.home>
+References: <1462978458-13908-1-git-send-email-sassan@sassan.me.uk>
+	<20160512094308.g6phhampwf7rek4n@ws.net.home>
+	<CAAz8cFiTiakdxhtuJw8B=1AYZBVfwjiGgZJ3pgr9MtjXn5mxmw@mail.gmail.com>
+	<20160513134802.ii4bvxwswtaimvwr@ws.net.home>
+Date: Fri, 13 May 2016 14:49:12 +0100
+Message-ID: <CAAz8cFgsvyBUzY_Yaif5Y9_HcmyBMugmvgkHB0BsyHiOJRzJ8A@mail.gmail.com>
+Subject: Re: [PATCH 1/3] libfdisk: Add support for altering GPT size
+From: Sassan Panahinejad <sassan@sassan.me.uk>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, May 15, 2016 at 06:30:46PM +0100, Sami Kerola wrote:
-> Hello,
-> 
-> This is reponse to earlier thread 'hwclock --show format':
-> 
-> http://www.spinics.net/lists/util-linux-ng/index.html#12326
-> 
-> At the time when hwclock discussion happen release of v2.28 was about to
+Great! Cheers!
 
-Hmm.. I already started work on this :-)
-
-    https://github.com/karelzak/util-linux/commit/3c201431ee26c85b5c7fbcd85856c1df84065d64
-
-I'll try to merge it with your changes.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+On 13 May 2016 at 14:48, Karel Zak <kzak@redhat.com> wrote:
+> On Fri, May 13, 2016 at 11:44:18AM +0100, Sassan Panahinejad wrote:
+>> Hi Karel,
+>>
+>> I've submitted updated patches. Please see v2 for libfdisk and sfdisk
+>> and v3 fdisk patch.
+>
+>  Seem OK, I'll merge it next week. Thanks.
+>
+>     Karel
+>
+> --
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
