@@ -1,93 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from h2.hallyn.com ([78.46.35.8]:43200 "EHLO h2.hallyn.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750856AbcEBENa (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 2 May 2016 00:13:30 -0400
-Date: Sun, 1 May 2016 23:13:28 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: Serge Hallyn <serge@hallyn.com>,
-        Linux Containers <containers@lists.linux-foundation.org>,
-        systemd-devel@lists.freedesktop.org, util-linux@vger.kernel.org
-Subject: Re: Unprivileged containers and co-ordinating user namespaces
-Message-ID: <20160502041328.GB31837@mail.hallyn.com>
-References: <1461880928.2307.48.camel@HansenPartnership.com>
- <20160428230045.GS22888@odin.tremily.us>
- <1461944328.2311.10.camel@HansenPartnership.com>
- <1461968310.16292.20.camel@HansenPartnership.com>
- <1462120674.1411.2.camel@Nokia-N900>
- <1462145366.2337.18.camel@HansenPartnership.com>
+Received: from mail-oi0-f41.google.com ([209.85.218.41]:33670 "EHLO
+	mail-oi0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752888AbcEMNyl (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Fri, 13 May 2016 09:54:41 -0400
+Received: by mail-oi0-f41.google.com with SMTP id v145so171083056oie.0
+        for <util-linux@vger.kernel.org>; Fri, 13 May 2016 06:54:41 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1462145366.2337.18.camel@HansenPartnership.com>
+In-Reply-To: <20160513135201.GT26300@vapier.lan>
+References: <1463054083-2485-1-git-send-email-sassan@sassan.me.uk>
+	<1463054083-2485-2-git-send-email-sassan@sassan.me.uk>
+	<20160513135201.GT26300@vapier.lan>
+Date: Fri, 13 May 2016 14:54:40 +0100
+Message-ID: <CAAz8cFi_nz4BEwEGQpWPUtQoY0EMEq7cnEyr6jotjfKd1TB-Aw@mail.gmail.com>
+Subject: Re: [PATCH v2 1/3] libfdisk: Add support for altering GPT size
+From: Sassan Panahinejad <sassan@sassan.me.uk>
+To: Sassan Panahinejad <sassan@sassan.me.uk>, util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, May 01, 2016 at 04:29:26PM -0700, James Bottomley wrote:
-> On Sun, 2016-05-01 at 12:37 -0400, Serge Hallyn wrote:
-> > > > It looks like the only addition it needs is the setgroups flag
-> > > > for
-> > > > newgidmap, which the security people will need, so I can patch
-> > > > that. 
-> > > 
-> > > How does this look for a patch?
-> > 
-> > Certainly deny is a terrible keyword for this, given the somewhat
-> > convoluted case it represents.  Maybe lockgroups or nosetgroup?
-> 
-> OK, nosegroups seems to be less scary.
-> 
-> >   And of course it'll need a clear explanation of what it does in the
-> > subgid manpage. But really i don't know that this can work the way
-> > you want it to.
-> 
-> Yes, docs and tests were to be added after everyone was happy with the
-> implementation.
-> 
-> >   Can you describe your use case?
-> 
-> basically not getting a CVE filed against this utility for allowing the
-> dropping of groups.  I don't have a use case for group membership
-> denying permissions.
-> 
-> > The intent of setgroups is to keep *unprivileged* writers of gid_map
-> > from dropping a gid which is blocking a file access from the user. 
-> 
-> 
-> You can't do that with the map write.  Even if you set no gid_map at
-> all, the attributes checks are done on the kernel side groups (i.e. the
-> ones you possess outside the namespace even if they have no interior
-> mapping).  The only way to drop groups is with the setgroups() system
-> call.
-> 
-> >  But newgidmap runs suid root (or cap_gid when you are through :), so
-> > the user can trivially assign just one authorized gid, not the whole
-> > range, and bypass the acls that way.
-> 
-> It does more than that: it also blocks the sys_setgroups() call in the
-> namespace, even for the namespace owner, which is the primary CVE
-> preventing use case.
-> 
-> > At the very least you would want to enforce the use of a whole range
-> > in the lockgroup case, but even there i question it's value.
-> 
-> I think, if you were going to enforce deny sys_setgroups() on a user
-> you otherwise trusted, you'd probably only allow them a single range. 
->  But I suppose the flag should be or'd over all ranges.
+Thanks, I'll fix that and resubmit.
 
-Ok, yeah.  My thought this afternoon was that the point of the CVE was
-that an unprivileged user, in the absence of any admin-provided
-/etc/sub{u,g}id or new{u,g}idmap at all, and who was being denied a file
-access through one of his aux groups, could use a user namespace to drop
-the aux group and access the file.  That if an admin went to the trouble
-to grant subuid and subgids then it wasn't an issue.  But of course
-allocations are being done automatically now so that's not a valid
-point.
-
-So let's proceed with the patch :)
-
-A PR using nosetgroups against git://github.com/shadow-maint/shadow would
-be great.
-
-thanks,
--serge
+On 13 May 2016 at 14:52, Mike Frysinger <vapier@gentoo.org> wrote:
+> On 12 May 2016 12:54, Sassan Panahinejad wrote:
+>> +static int gpt_check_table_overlap(struct fdisk_context *cxt,
+>> +                                uint64_t first_usable,
+>> +                                uint64_t last_usable)
+>> +{
+>> ...
+>> +             if (gpt_partition_start(&gpt->ents[i]) < first_usable) {
+>> +                     fdisk_warnx(cxt, _("Partition #%u out of range (minimal start is %ju sectors)"),
+>> +                                 i + 1, first_usable);
+>
+> %j is for uintmax_t but this is uint64_t, so you'll want to use ..." PRIu64 "...
+>
+>> +             if (gpt_partition_end(&gpt->ents[i]) > last_usable) {
+>> +                     fdisk_warnx(cxt, _("Partition #%u out of range (maximal end is %ju sectors)"),
+>> +                                 i + 1, last_usable - 1);
+>
+> same here
+> -mike
