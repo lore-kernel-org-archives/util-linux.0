@@ -1,87 +1,94 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35970 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751667AbcERMvC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 18 May 2016 08:51:02 -0400
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.redhat.com (Postfix) with ESMTPS id E547CC05B1E4
-	for <util-linux@vger.kernel.org>; Wed, 18 May 2016 12:51:01 +0000 (UTC)
-Received: from ws (ovpn-204-89.brq.redhat.com [10.40.204.89])
-	by int-mx10.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id u4ICp0lk018692
-	for <util-linux@vger.kernel.org>; Wed, 18 May 2016 08:51:01 -0400
-Date: Wed, 18 May 2016 14:51:00 +0200
-From: Karel Zak <kzak@redhat.com>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:34682 "EHLO
+	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750908AbcEORbF (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 15 May 2016 13:31:05 -0400
+Received: by mail-wm0-f68.google.com with SMTP id n129so13474589wmn.1
+        for <util-linux@vger.kernel.org>; Sun, 15 May 2016 10:31:04 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: cal(1) year formatting
-Message-ID: <20160518125100.gqvcbbfx23tti6re@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 02/11] last: use timestamp helpers
+Date: Sun, 15 May 2016 18:30:48 +0100
+Message-Id: <1463333457-1011-3-git-send-email-kerolasa@iki.fi>
+In-Reply-To: <1463333457-1011-1-git-send-email-kerolasa@iki.fi>
+References: <1463333457-1011-1-git-send-email-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-
- See the patch below. I have no strong opinion about it, any
- objection?
-
-    Karel
-
-
->From e671a62ef8574b16cd6acbfd04dc35c514b184e5 Mon Sep 17 00:00:00 2001
-From: Karel Zak <kzak@redhat.com>
-Date: Wed, 18 May 2016 14:43:20 +0200
-Subject: [PATCH] cal: use %04d for year
-
-It seems that people are crazy enough to assume that "cal 16" is the
-year 2016, rather than 16 (2000 years ago).
-
-This patch makes it more clear as the output is 0016.
-
-Addresses: https://github.com/karelzak/util-linux/issues/320
-Signed-off-by: Karel Zak <kzak@redhat.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- misc-utils/cal.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ login-utils/last.c | 42 +++++++++++++++++++++---------------------
+ 1 file changed, 21 insertions(+), 21 deletions(-)
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index 2a53b89..3e20530 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -516,7 +516,7 @@ static void headers_init(struct cal_control *ctl)
- 	char tmp[FMT_ST_CHARS];
- 	int year_len;
+diff --git a/login-utils/last.c b/login-utils/last.c
+index b8c4b83..06708c6 100644
+--- a/login-utils/last.c
++++ b/login-utils/last.c
+@@ -49,6 +49,7 @@
+ #include "closestream.h"
+ #include "carefulputc.h"
+ #include "strutils.h"
++#include "timestamps.h"
+ #include "timeutils.h"
+ #include "monotonic.h"
  
--	year_len = snprintf(tmp, sizeof(tmp), "%d", ctl->req.year);
-+	year_len = snprintf(tmp, sizeof(tmp), "%04d", ctl->req.year);
+@@ -315,35 +316,34 @@ static int dns_lookup(char *result, int size, int useip, int32_t *a)
+ static int time_formatter(const struct last_control *ctl, char *dst,
+ 			  size_t dlen, time_t *when, int pos)
+ {
+-	struct tm *tm;
+ 	int ret = 0;
++	struct ul_time t = { 0 };
++	struct tm tm;
  
- 	if (year_len < 0 || (size_t)year_len >= sizeof(tmp)) {
- 		/* XXX impossible error */
-@@ -612,13 +612,13 @@ static void cal_output_header(struct cal_month *month, const struct cal_control
- 		if (!ctl->header_year) {
- 			my_putstring("\n");
- 			for (i = month; i; i = i->next) {
--				sprintf(out, _("%d"), i->year);
-+				sprintf(out, _("%04d"), i->year);
- 				center(out, ctl->week_width - 1, i->next == NULL ? 0 : ctl->gutter_width);
- 			}
- 		}
- 	} else {
- 		for (i = month; i; i = i->next) {
--			sprintf(out, _("%s %d"), ctl->full_month[i->month - 1], i->year);
-+			sprintf(out, _("%s %04d"), ctl->full_month[i->month - 1], i->year);
- 			center(out, ctl->week_width - 1, i->next == NULL ? 0 : ctl->gutter_width);
- 		}
- 	}
-@@ -762,7 +762,7 @@ static void yearly(const struct cal_control *ctl)
- 		year_width--;
- 
- 	if (ctl->header_year) {
--		sprintf(out, "%d", ctl->req.year);
-+		sprintf(out, "%04d", ctl->req.year);
- 		center(out, year_width, 0);
- 		my_putstring("\n\n");
- 	}
++	if (ctl->time_fmt == LAST_TIMEFTM_NONE) {
++		*dst = '\0';
++		return 0;
++	}
++	t.tm = localtime_r(when, &tm);
++	if (pos) {
++		ret = snprintf(dst, dlen, "- ");
++		if (ret == 0)
++			return -1;
++	}
++	t.buf = dst + ret;
++	t.bufsz = dlen - ret;
+ 	switch (ctl->time_fmt) {
+-	case LAST_TIMEFTM_NONE:
+-		*dst = 0;
+-		break;
+ 	case LAST_TIMEFTM_SHORT_CTIME:
+-		if (pos == 0)
+-			ret = sprintf(dst, "%s", ctime(when));
+-		else {
+-			tm = localtime(when);
+-			if (!strftime(dst, dlen, "- %H:%M", tm))
+-				ret = -1;
+-		}
++		if (pos)
++			ret = ul_timestamp_hours_minutes(&t);
++		else
++			ret = ul_timestamp_ctime_full(&t);
+ 		break;
+ 	case LAST_TIMEFTM_FULL_CTIME:
+-		if (pos == 0)
+-			ret = sprintf(dst, "%s", ctime(when));
+-		else
+-			ret = sprintf(dst, "- %s", ctime(when));
++		ret = ul_timestamp_ctime_full(&t);
+ 		break;
+ 	case LAST_TIMEFTM_ISO8601:
+-		tm = localtime(when);
+-		if (pos == 0) {
+-			if (!strftime(dst, dlen, "%Y-%m-%dT%H:%M:%S%z", tm))
+-				ret = -1;
+-		} else if (!strftime(dst, dlen, "- %Y-%m-%dT%H:%M:%S%z", tm))
+-			ret = -1;
++		ret = ul_timestamp_iso_full(&t);
+ 		break;
+ 	default:
+ 		abort();
 -- 
-2.4.11
+2.8.2
 
