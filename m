@@ -1,33 +1,88 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33694 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753040AbcERMbG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 18 May 2016 08:31:06 -0400
-Date: Wed, 18 May 2016 14:31:03 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sassan Panahinejad <sassan@sassan.me.uk>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] sfdisk: Add support for altering GPT size
-Message-ID: <20160518123103.v3tdgj4aclg3cc6c@ws.net.home>
-References: <1463054083-2485-1-git-send-email-sassan@sassan.me.uk>
- <1463054083-2485-4-git-send-email-sassan@sassan.me.uk>
+Return-Path: kerolasa@gmail.com
+Sender: Sami Kerola <kerolasa@gmail.com>
+Date: Sun, 15 May 2016 18:03:24 +0100 (BST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 11/12] write: improve coding style
+In-Reply-To: <20160511085420.y6menmghp6qydbac@ws.net.home>
+Message-ID: <alpine.LNX.2.20.1605151800570.592@imuri>
+References: <1462829248-6935-1-git-send-email-kerolasa@iki.fi> <1462829248-6935-12-git-send-email-kerolasa@iki.fi> <20160511085420.y6menmghp6qydbac@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1463054083-2485-4-git-send-email-sassan@sassan.me.uk>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, May 12, 2016 at 12:54:43PM +0100, Sassan Panahinejad wrote:
->  libfdisk/src/script.c | 15 +++++++++++++--
->  1 file changed, 13 insertions(+), 2 deletions(-)
+On Wed, 11 May 2016, Karel Zak wrote:
 
-Applied, thanks.
+> You do not need the crazy macro at all
+> 
+>    while (*s) {
+>         int rc = 0;
+>         int c = *s++;
+> 
+>         if (c == '\n')
+>             rc = fputc_careful('\n', stdout, '^');
+>         if (rc == 0)
+>             rc = fputc_careful(c, stdout, '^');
+>         if (rc == EOF)
+>             err(EXIT_FAILURE, _("carefulputc failed"));
+>    }
 
-I have also added "table-length" to the --dump output if table length
-is different than the default.
+The commit is amended in spirit of 'no macro at all'. The code is not 
+exactly the same as above.
 
-    Karel
+https://github.com/kerolasa/lelux-utiliteetit/commit/cbae2781ab82cd641ef1839f9fec71fe984322ff
+
+-- snip
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Sat, 14 May 2016 16:40:45 +0100
+Subject: [PATCH 11/15] write: remove PUTC macro
+
+Function like macros make following the execution flow unnecessarily
+difficult, and deserves to be removed.
+
+Requested-by: Karel Zak <kzak@redhat.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ term-utils/write.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
+
+diff --git a/term-utils/write.c b/term-utils/write.c
+index 57b2254..3b86694 100644
+--- a/term-utils/write.c
++++ b/term-utils/write.c
+@@ -220,18 +220,17 @@ static void signal_handler(int signo)
+  */
+ static void write_line(char *s)
+ {
+-	char c;
+-
+-#define	PUTC(c)	if (fputc_careful(c, stdout, '^') == EOF) \
+-    err(EXIT_FAILURE, _("carefulputc failed"));
+ 	while (*s) {
+-		c = *s++;
+-		if (c == '\n')
+-			PUTC('\r');
+-		PUTC(c);
++		const int c = *s++;
++
++		if (c == '\n') {
++			if (fputc_careful('\r', stdout, '^') == EOF)
++				goto fail;
++		}
++		if (fputc_careful(c, stdout, '^') == EOF)
++ fail:
++			err(EXIT_FAILURE, _("carefulputc failed"));
+ 	}
+-	return;
+-#undef PUTC
+ }
+ 
+ /*
+-- 
+2.8.2
+-- snip
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
