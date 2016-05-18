@@ -1,65 +1,98 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:34734 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751328AbcEORbM (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 15 May 2016 13:31:12 -0400
-Received: by mail-wm0-f68.google.com with SMTP id n129so13475054wmn.1
-        for <util-linux@vger.kernel.org>; Sun, 15 May 2016 10:31:12 -0700 (PDT)
+Return-Path: kerolasa@gmail.com
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <573C6891.1070009@draigBrady.com>
+References: <20160518125100.gqvcbbfx23tti6re@ws.net.home>
+	<573C6891.1070009@draigBrady.com>
+Date: Wed, 18 May 2016 21:09:58 +0100
+Message-ID: <CAG27Bk3Vj_sXTB=QFB+14eLNpES-oeH8ts60R7gkWojr_n-vhg@mail.gmail.com>
+Subject: Re: cal(1) year formatting
 From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 07/11] utmpdump: use always UTC-0 timezone in textual output
-Date: Sun, 15 May 2016 18:30:53 +0100
-Message-Id: <1463333457-1011-8-git-send-email-kerolasa@iki.fi>
-In-Reply-To: <1463333457-1011-1-git-send-email-kerolasa@iki.fi>
-References: <1463333457-1011-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+To: =?UTF-8?Q?P=C3=A1draig_Brady?= <P@draigbrady.com>
+Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-Converting a time structure from text format that has timezone markup is
-impossible.  See reference links for more information.  This leads to
-situation where utmpdump(1) conversions from binary to text and back make
-timestamps to shift amount of timezone offset, assuming user does not by
-chance usingn UTC-0 locale at a time of conversions.
+On 18 May 2016 at 14:05, P=C3=A1draig Brady <P@draigbrady.com> wrote:
+> On 18/05/16 13:51, Karel Zak wrote:
+>>
+>>
+>>   See the patch below. I have no strong opinion about it, any
+>>   objection?
+>>
+>>      Karel
+>>
+>>
+>>> From e671a62ef8574b16cd6acbfd04dc35c514b184e5 Mon Sep 17 00:00:00 2001
+>>
+>> From: Karel Zak <kzak@redhat.com>
+>> Date: Wed, 18 May 2016 14:43:20 +0200
+>> Subject: [PATCH] cal: use %04d for year
+>>
+>> It seems that people are crazy enough to assume that "cal 16" is the
+>> year 2016, rather than 16 (2000 years ago).
+>>
+>> This patch makes it more clear as the output is 0016.
+>>
+>> Addresses: https://github.com/karelzak/util-linux/issues/320
+>> Signed-off-by: Karel Zak <kzak@redhat.com>
+>> ---
+>>   misc-utils/cal.c | 8 ++++----
+>>   1 file changed, 4 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+>> index 2a53b89..3e20530 100644
+>> --- a/misc-utils/cal.c
+>> +++ b/misc-utils/cal.c
+>> @@ -516,7 +516,7 @@ static void headers_init(struct cal_control *ctl)
+>>         char tmp[FMT_ST_CHARS];
+>>         int year_len;
+>>
+>> -       year_len =3D snprintf(tmp, sizeof(tmp), "%d", ctl->req.year);
+>> +       year_len =3D snprintf(tmp, sizeof(tmp), "%04d", ctl->req.year);
+>>
+>>         if (year_len < 0 || (size_t)year_len >=3D sizeof(tmp)) {
+>>                 /* XXX impossible error */
+>> @@ -612,13 +612,13 @@ static void cal_output_header(struct cal_month
+>> *month, const struct cal_control
+>>                 if (!ctl->header_year) {
+>>                         my_putstring("\n");
+>>                         for (i =3D month; i; i =3D i->next) {
+>> -                               sprintf(out, _("%d"), i->year);
+>> +                               sprintf(out, _("%04d"), i->year);
+>>                                 center(out, ctl->week_width - 1, i->next
+>> =3D=3D NULL ? 0 : ctl->gutter_width);
+>>                         }
+>>                 }
+>>         } else {
+>>                 for (i =3D month; i; i =3D i->next) {
+>> -                       sprintf(out, _("%s %d"), ctl->full_month[i->mont=
+h
+>> - 1], i->year);
+>> +                       sprintf(out, _("%s %04d"),
+>> ctl->full_month[i->month - 1], i->year);
+>>                         center(out, ctl->week_width - 1, i->next =3D=3D =
+NULL ?
+>> 0 : ctl->gutter_width);
+>>                 }
+>>         }
+>> @@ -762,7 +762,7 @@ static void yearly(const struct cal_control *ctl)
+>>                 year_width--;
+>>
+>>         if (ctl->header_year) {
+>> -               sprintf(out, "%d", ctl->req.year);
+>> +               sprintf(out, "%04d", ctl->req.year);
+>>                 center(out, year_width, 0);
+>>                 my_putstring("\n\n");
+>>         }
+>>
+>
+> more upsides than downsides so +1 from me
 
-Easiest way to make multiple conversions to work is to be to ensure the
-textual format is always using UTC-0 timezone, without daylight saving
-shifts.  Unfortunately these timestamps are almost certainly less readable
-to users altough they are more correct.
+A little bit surprising that this sort of emphasis of past is needed,
+but what is needed is needed. +1
 
-Reference: http://www.catb.org/esr/time-programming/#_strptime_3_and_getdate_3
-Reference: http://man7.org/linux/man-pages/man3/strptime.3.html
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- login-utils/utmpdump.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/login-utils/utmpdump.c b/login-utils/utmpdump.c
-index 03cf4a9..6eaf202 100644
---- a/login-utils/utmpdump.c
-+++ b/login-utils/utmpdump.c
-@@ -47,10 +47,10 @@
- 
- static char *timetostr(const time_t time)
- {
--	static char s[29];	/* [Sun Sep 01 00:00:00 1998 PST] */
-+	static char s[29];	/* [Tue Sep 01 00:00:00 1998 GMT] */
- 	struct tm *tmp;
- 
--	if (time != 0 && (tmp = localtime(&time)))
-+	if (time != 0 && (tmp = gmtime(&time)))
- 		strftime(s, 29, "%a %b %d %T %Y %Z", tmp);
- 	else
- 		s[0] = '\0';
-@@ -73,7 +73,7 @@ static time_t strtotime(const char *s_time)
- 	if (s_time[26] == 'D')
- 		tm.tm_isdst = 1;
- 
--	return mktime(&tm);
-+	return timegm(&tm);
- }
- 
- #define cleanse(x) xcleanse(x, sizeof(x))
--- 
-2.8.2
-
+--=20
+Sami Kerola
+http://www.iki.fi/kerolasa/
