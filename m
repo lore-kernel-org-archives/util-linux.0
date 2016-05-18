@@ -1,32 +1,35 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45336 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752532AbcEIKmy (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 9 May 2016 06:42:54 -0400
-Date: Mon, 9 May 2016 12:42:52 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] setterm: deduplicate color optiong string parsing
-Message-ID: <20160509104252.bprannc4x3ycaord@ws.net.home>
-References: <1462738638-3141-1-git-send-email-kerolasa@iki.fi>
+Return-Path: ico2ico2@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1462738638-3141-1-git-send-email-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Sender: ico2ico2@gmail.com
+In-Reply-To: <20160518123103.v3tdgj4aclg3cc6c@ws.net.home>
+References: <1463054083-2485-1-git-send-email-sassan@sassan.me.uk>
+	<1463054083-2485-4-git-send-email-sassan@sassan.me.uk>
+	<20160518123103.v3tdgj4aclg3cc6c@ws.net.home>
+Date: Wed, 18 May 2016 14:51:14 +0100
+Message-ID: <CAAz8cFitELaSQaZ+=cHqnOMmGpcFNxR11=FTYtiQHuV1BLob+w@mail.gmail.com>
+Subject: Re: [PATCH v2 3/3] sfdisk: Add support for altering GPT size
+From: Sassan Panahinejad <sassan@sassan.me.uk>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, May 08, 2016 at 09:17:17PM +0100, Sami Kerola wrote:
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  term-utils/setterm.c | 94 +++++++++++++++++++++++++++++-----------------------
->  1 file changed, 53 insertions(+), 41 deletions(-)
+Good idea!
 
-I have applied another solution:
-https://github.com/karelzak/util-linux/commit/98297e65a1e242cb09c370a10a7c0345fd8504ed
+Thanks!
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+On 18 May 2016 at 13:31, Karel Zak <kzak@redhat.com> wrote:
+> On Thu, May 12, 2016 at 12:54:43PM +0100, Sassan Panahinejad wrote:
+>>  libfdisk/src/script.c | 15 +++++++++++++--
+>>  1 file changed, 13 insertions(+), 2 deletions(-)
+>
+> Applied, thanks.
+>
+> I have also added "table-length" to the --dump output if table length
+> is different than the default.
+>
+>     Karel
+>
+> --
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
