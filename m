@@ -1,135 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35468 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:38150 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751450AbcELJnL (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 12 May 2016 05:43:11 -0400
-Date: Thu, 12 May 2016 11:43:08 +0200
+	id S1755834AbcETJYq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 20 May 2016 05:24:46 -0400
+Received: from int-mx14.intmail.prod.int.phx2.redhat.com (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.redhat.com (Postfix) with ESMTPS id 7976B49469
+	for <util-linux@vger.kernel.org>; Fri, 20 May 2016 09:24:45 +0000 (UTC)
+Received: from ws (ovpn-204-89.brq.redhat.com [10.40.204.89])
+	by int-mx14.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id u4K9OihC021219
+	for <util-linux@vger.kernel.org>; Fri, 20 May 2016 05:24:45 -0400
+Date: Fri, 20 May 2016 11:24:44 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Sassan Panahinejad <sassan@sassan.me.uk>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/3] libfdisk: Add support for altering GPT size
-Message-ID: <20160512094308.g6phhampwf7rek4n@ws.net.home>
-References: <1462978458-13908-1-git-send-email-sassan@sassan.me.uk>
+To: util-linux@vger.kernel.org
+Subject: Re: [PATCH] Use the plymouth local protocol instead the plymouth
+ binary
+Message-ID: <20160520092444.bxlos6r52kazytjl@ws.net.home>
+References: <1461324096-29280-1-git-send-email-werner@suse.de>
+ <20160505094245.6frwtvaxoueyrfw7@ws.net.home>
+ <20160517101838.2x7fi3zg5u4r2gjz@boole.suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1462978458-13908-1-git-send-email-sassan@sassan.me.uk>
+In-Reply-To: <20160517101838.2x7fi3zg5u4r2gjz@boole.suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, May 11, 2016 at 03:54:16PM +0100, Sassan Panahinejad wrote:
-> +	/* get table length */
-> +	unsigned long (*get_length)(struct fdisk_context *cxt);
+On Tue, May 17, 2016 at 12:18:38PM +0200, Dr. Werner Fink wrote:
+>  include/plymouth-ctrl.h |  65 +++++++++++++++++++++
+>  lib/Makemodule.am       |   1 +
+>  lib/plymouth-ctrl.c     | 147 ++++++++++++++++++++++++++++++++++++++++++++++++
+>  login-utils/sulogin.c   |  44 ++-------------
+>  term-utils/agetty.c     |  48 ++--------------
+>  5 files changed, 223 insertions(+), 82 deletions(-)
+>  create mode 100644 include/plymouth-ctrl.h
+>  create mode 100644 lib/plymouth-ctrl.c
 
-This is already available as fdisk_get_npartitions(), for GPT it
-returns header->npartition_entries. 
-
-And also
-
-    fdisk_get_disklabel_item(cxt, GPT_LABELITEM_ENTRIESALLOC, item);
-
-returns the information, but public labelitem API is not implemented
-yet (you cannot access 'item' struct members). I'll fix it ASAP.
-
-> +	/* set table length */
-> +	int (*set_length)(struct fdisk_context *cxt, unsigned long length);
-
-Seems like a good idea, but I'm not sure if we really need it as
-generic label operation (basic fdisk API). It seems that reallocate
-number of PT entries is very GPT specific. 
-
-I think it would be enough to add GPT function to the library API, we
-already have many functions to set for example SUN partition table
-stuff and I think add
-
-    fdisk_gpt_set_npartitions()
-
-would be good enough. 
-
-(It would be also possible to add fdisk_set_disklabel_item(), to make
- these things more generic, but I think it's still more user friendly
- to have fdisk_gpt_set_npartitions() shortcut for this type of operations.)
-
-
-> +static int gpt_set_disklabel_length(struct fdisk_context *cxt, unsigned long new)
-> +{
-> +	struct fdisk_gpt_label *gpt;
-> +	ssize_t esz;
-> +	unsigned long old;
-> +
-> +	assert(cxt);
-> +	assert(cxt->label);
-> +	assert(fdisk_is_label(cxt, GPT));
-> +
-> +	gpt = self_label(cxt);
-> +
-> +	old = le32_to_cpu(gpt->pheader->npartition_entries);
-> +
-> +	gpt->pheader->npartition_entries = cpu_to_le32(new);
-> +	gpt->bheader->npartition_entries = cpu_to_le32(new);
-> +
-> +	/* calculate new size of the entries array */
-> +	esz = le32_to_cpu(gpt->pheader->npartition_entries) *
-> +			le32_to_cpu(gpt->pheader->sizeof_partition_entry);
-> +
-> +	/* if expanding the table, allocate more memory and zero.
-> +	 * Warn the user that this can cause data loss! (if table overlaps partition) */
-> +	if (new > old) {
-> +		fdisk_warnx(cxt, _("Expanding GPT may cause data loss!"));
-> +		gpt->ents = realloc(gpt->ents, esz);
-
- We care about allocation errors.
-
- tmp = realloc(gpt->ents, esz);
- if (!tmp)
-     return -ENOMEM;
- gpt->ents = tmp;
-
-It would be also better to reallocate before you change anything in
-the header to avoid inconsistent header after ENOMEM.
-
-> +		memset(gpt->ents + old, 0, (new - old) * le32_to_cpu(gpt->pheader->sizeof_partition_entry));
-> +	}
-> +	/* usable LBA addresses will have changed */
-> +	cxt->last_lba = cxt->total_sectors - 2 - (esz / cxt->sector_size);
-> +	cxt->first_lba = (esz / cxt->sector_size) + 2;
-
-Please, call fdisk_set_last_lba() and fdisk_set_first_lba()
-
-> +	gpt->pheader->first_usable_lba = cpu_to_le32(cxt->first_lba);
-> +	gpt->bheader->first_usable_lba = cpu_to_le32(cxt->first_lba);
-> +	gpt->pheader->last_usable_lba = cpu_to_le32(cxt->last_lba);
-> +	gpt->bheader->last_usable_lba = cpu_to_le32(cxt->last_lba);
-
- All GPT LBA are 64-bit.
-
-
- It seems you don't care if existing partitions are in the new range
- specified by first_usable_lba and last_usable_lba. It seems very wrong.
-
- My recommendation is to check the partitions before you change
- anything and if any partition is out of the range then report it to
- user as error (and suggest new start offset for the partition).
-
- wanted_first_lba = (esz / cxt->sector_size) + 2;
-
- for (i = 0; i < le32_to_cpu(header->npartition_entries); i++) {
-    if (partition_unused(&ents[i]))
-        continue;
-    if (gpt_partition_start(&ents[i]) < wanted_first_lba) {
-        fdisk_warnx(cxt, _("Partition #%d out of range (minimal start is %ju sectors)", 
-                i + 1, wanted_first_lba));
-        rc = -EINVAL;
-    }
- }
-
- if (rc)
-     return rc;
-
-
- IMHO user should be forced to fix the partitions before he modify
- first_usable_lba. (Yes, we don't want to resize the partitions
- automatically in this function.)
-
+ Applied with minor changes, thanks.
+    
     Karel
 
 -- 
