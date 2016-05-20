@@ -1,76 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:35286 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751448AbcEWXc5 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 23 May 2016 19:32:57 -0400
-Received: by mail-wm0-f65.google.com with SMTP id f75so1001479wmf.2
-        for <util-linux@vger.kernel.org>; Mon, 23 May 2016 16:32:56 -0700 (PDT)
-Received: from [192.168.0.76] (cpe-70-123-244-133.satx.res.rr.com. [70.123.244.133])
-        by smtp.gmail.com with ESMTPSA id f12sm13239178wme.13.2016.05.23.16.32.54
-        for <util-linux@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 23 May 2016 16:32:54 -0700 (PDT)
-Subject: Re: [PATCH] cal: drop trailing blank line
-To: util-linux@vger.kernel.org
-References: <1464037332-21996-1-git-send-email-vapier@gentoo.org>
- <5743767D.3010904@gmail.com> <20160523225831.GQ26300@vapier.lan>
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
-Message-ID: <57439324.90809@gmail.com>
-Date: Mon, 23 May 2016 18:32:52 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:55423 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753553AbcETK1d (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 20 May 2016 06:27:33 -0400
+Date: Fri, 20 May 2016 12:27:31 +0200
+From: Karel Zak <kzak@redhat.com>
+To: =?iso-8859-1?Q?R=FCdiger?= Meier <sweet_f_a@gmx.de>
+Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+Subject: Re: cal: bug on FreeBSD
+Message-ID: <20160520102731.schhho5sl6k7cwq3@ws.net.home>
+References: <201603081437.31966.sweet_f_a@gmx.de>
+ <CAG27Bk02Yx5fxpV0sWGaLF7W4jSVOcKwGXWQBBQ7DLT48kZF8w@mail.gmail.com>
+ <201603082359.43056.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-In-Reply-To: <20160523225831.GQ26300@vapier.lan>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <201603082359.43056.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Mike Frysinger wrote:
-> On 23 May 2016 16:30, Bruce Dubbs wrote:
->> Mike Frysinger wrote:
->>> There's no history to be found behind this, and the comment in the
->>> code indicates no one else knows, and it makes me angry :).
->>>
->>> --- a/misc-utils/cal.c
->>> +++ b/misc-utils/cal.c
->>> @@ -767,9 +767,6 @@ static void yearly(const struct cal_control *ctl)
->>>    		my_putstring("\n\n");
->>>    	}
->>>    	monthly(ctl);
->>> -
->>> -	/* Is empty line at the end year output really needed? */
->>> -	my_putstring("\n");
->>>    }
->>>
->>>    /*
->>
->> Personally I like the blank line. It sets off the cal output from the
->> shell prompt making it easier to read.  It is basically adding the
->> equivalent of the css property padding-bottom="1em".
->
-> why should cal care ?  you could make this same exact argument for any
-> other cli tool that displays things.  if you like that behavior, then
-> update your PS1 to include a leading \n.
+On Tue, Mar 08, 2016 at 11:59:43PM +0100, Rüdiger Meier wrote:
+> On Tuesday 08 March 2016 23:35:01 Sami Kerola wrote:
+> > Does this happen with putp() only? The following should enable you to
+> > test the fputs() output.
+> 
+> It's only broken with putp, I tried it like this
 
-I certainly do not want to double space every bash prompt.  Your solution 
-causes more problems than it solves.
+It's BSD specific problem, putp (aka tputs) interprets the string.
+That's fine as tputs is sensitive to sequences prefixed by $< and
+everything else is printed to terminal. 
 
->> I note that if doing a 'cal -y' that there is also a blank line between
->> the year and February.  That should stay also.
->
-> that's a different issue.  cal always writes exactly 6 lines for a month
-> regardless of how many weeks a month actually uses.  it makes the code
-> simpler (no need to scan/remember sibling months) and the output more
-> consistent -- every row is 7 lines.  pick a non-leap year like 2015 and
-> see Feb take up only 4 lines but still leave 2 blank below it.  or pick
-> 2019 and see Mar use all 6 lines.
+BUT probably because BSD has origins in 70' LSD era there is a
+special exception (ncurses sources tinfo/lib_tputs.c):
 
-Did you look at the output?
+    #if BSD_TPUTS
+       /*
+        * This ugly kluge deals with the fact that some ancient BSD
+        * programs (like nethack) actually do the likes of tputs("50") to
+        * get delays.
+        */
+        if (isdigit(UChar(*string))) {
+        ...
+        }
+    #endif
 
-                                2016
----> blank line
-        January               February                 March
-Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa
-                 1  2       1  2  3  4  5  6          1  2  3  4  5
+and the number is interpreted as argument for delay_output() and never
+printed to the output.
 
+It seems we're little bit fragile with putp() as it's primarily
+designed for terminfo string variables than for a generic output.
+Unfortunately mix tputs() and fputs() is also no perfect due to
+buffering issues (commit 07ac4aa9d4f36a6618fd3ab1423bc33e3903ddbd).
 
-   -- Bruce
+The easy fix is to disable ncurses support for BSD (words like fuck
+and suck are allowed in the commit message for this case:-).
 
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
