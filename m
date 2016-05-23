@@ -1,43 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:33031 "EHLO
-	mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751318AbcEJThJ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 10 May 2016 15:37:09 -0400
-Received: by mail-oi0-f68.google.com with SMTP id t140so50675oie.0
-        for <util-linux@vger.kernel.org>; Tue, 10 May 2016 12:37:08 -0700 (PDT)
+Received: from smtp.gentoo.org ([140.211.166.183]:46836 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751747AbcEWW7m (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 23 May 2016 18:59:42 -0400
+Date: Mon, 23 May 2016 18:59:41 -0400
+From: Mike Frysinger <vapier@gentoo.org>
+To: Bruce Dubbs <bruce.dubbs@gmail.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] cal: drop trailing blank line
+Message-ID: <20160523225941.GR26300@vapier.lan>
+References: <1464037332-21996-1-git-send-email-vapier@gentoo.org>
+ <5743767D.3010904@gmail.com>
+ <20160523225831.GQ26300@vapier.lan>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <1462890257.1439070.603552425.7FB076BA@webmail.messagingengine.com>
-References: <1462829248-6935-1-git-send-email-kerolasa@iki.fi>
-	<1462829248-6935-13-git-send-email-kerolasa@iki.fi>
-	<1462890257.1439070.603552425.7FB076BA@webmail.messagingengine.com>
-Date: Tue, 10 May 2016 20:37:08 +0100
-Message-ID: <CAG27Bk3jaepQJkYtbqjk7WRe+TsWiSkQMm_kWbOeYgtCEFNG4g@mail.gmail.com>
-Subject: Re: [PATCH 12/12] write: tell when effective gid and tty path group mismatch
-From: Sami Kerola <kerolasa@iki.fi>
-To: Benno Schulenberg <bensberg@justemail.net>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="R3lcyCF1yLxQ6S2D"
+In-Reply-To: <20160523225831.GQ26300@vapier.lan>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 10 May 2016 at 15:24, Benno Schulenberg <bensberg@justemail.net> wrote:
->
-> On Mon, May 9, 2016, at 23:27, Sami Kerola wrote:
->> +             if (getegid() != s.st_gid) {
->> +                     warnx(_("effective gid and %s group does not match"), path);
->
-> For translation purposes, better make this:
->
->   "effective gid does not match group of %s"
->
-> otherwise a translator might think that %s is the name of a group.
-> (And the grammar of the original is incorrect.)
 
-Thank you for review Benno, fixed in
+--R3lcyCF1yLxQ6S2D
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/8e8c57e69985a22260c30793080a9776f47081a0
+On 23 May 2016 18:58, Mike Frysinger wrote:
+> consistent -- every row is 7 lines.
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+s/row/month/
+-mike
+
+--R3lcyCF1yLxQ6S2D
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJXQ4tdAAoJEEFjO5/oN/WBXCoP/33lxeFQwcAQ+ptfhgjw5uhA
+hYmtk+Ej7OGm1qIn+8ZTtFBaeDl9KTks6gJHRFpvHtsgohG/JeaLCyg6PM8d5oBK
+zJTnjuYEQE3y2nq0Otk3fsE0tPIbrixahzWqOpcEbguOiaJgUF0lvU/iTE0dD0Vb
+HmnERbiYIVqfCVLLb8DpBUlacW/YUEXjrYzkpoq8a0eJkppVw23LtqmcyIlb9Aj2
+CmNetjdu9N7wRQH3oArS9S8o+oiz76bjytfT+wLqw8kzZ9fAs8wPLPO1yOwpcT55
+eW7YtNfXt6/KPkjmyAxRUEAoNb+9N/dm1h2crO0K+tfbvZ/rcLaUr0adtJ/9sHO4
+ri7mSmNg+G9kpipvGOnAo8t+neqoBTrqpwl4Pi+EkWeuI+KCVHF+t22dl8B2ERWS
+9paWKxd4y6QwMysHhjdS73fvZj2VRAasq0MTydVogUoultCG548fMvGxsIwCfKqA
+196oDlVHOKLxdAJiwT0bPUxXbNSBlTNH8U2VmQzve2KJ3GnrorhTg7R9IqVc9ozB
+oS1H4eYKaG+MzM20bZNAUGGMpj6DZ3CrESZUJwasGTTHfdge1ddP5FP2hOnGYz/9
+T4GvooxDqXDwbk01/DgP0jZ/1qXHmtW8bh5/A2x3TBZM50rT/ZQJw++4czeb1JTC
+7B1Zy9HGAdjElsadx9mU
+=u1dV
+-----END PGP SIGNATURE-----
+
+--R3lcyCF1yLxQ6S2D--
