@@ -1,76 +1,87 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from youngberry.canonical.com ([91.189.89.112]:33882 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756408AbcECVWK (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 3 May 2016 17:22:10 -0400
-Date: Tue, 3 May 2016 21:22:02 +0000
-From: Serge Hallyn <serge.hallyn@ubuntu.com>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: Linux Containers <containers@lists.linux-foundation.org>,
-        util-linux@vger.kernel.org
-Subject: Re: bind mounting namespace inodes for unprivileged users
-Message-ID: <20160503212202.GA32233@ubuntumail>
-References: <1462299656.16133.51.camel@HansenPartnership.com>
+Received: from smtp.gentoo.org ([140.211.166.183]:46802 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751747AbcEWW6c (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 23 May 2016 18:58:32 -0400
+Date: Mon, 23 May 2016 18:58:31 -0400
+From: Mike Frysinger <vapier@gentoo.org>
+To: Bruce Dubbs <bruce.dubbs@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] cal: drop trailing blank line
+Message-ID: <20160523225831.GQ26300@vapier.lan>
+References: <1464037332-21996-1-git-send-email-vapier@gentoo.org>
+ <5743767D.3010904@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1462299656.16133.51.camel@HansenPartnership.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="T80Vh+tMmiZ5iF95"
+In-Reply-To: <5743767D.3010904@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Quoting James Bottomley (James.Bottomley@HansenPartnership.com):
-> Right at the moment, unprivileged users cannot call mount --bind to
-> create a permanent copy of any of their namespaces.  This is annoying
-> because it means that for entry to long running containers you have to
-> spawn an undying process and use nsenter via the /proc/<pid>/ns files.
-> 
-> The first question is:  assuming we restrict it to bind mounting only
-> nsfs inodes, is there any reason an unprivileged user shouldn't be able
-> to bind a namespace they've created to a file they own in the initial
-> mount namespace?
-> 
-> Assuming the answer to this is no, then how to implement it becomes the
-> next problem.  Right at the moment, util-linux/mount will deny a non
-> -root user the ability to use --bind.  This check could be relaxed and,
-> since mount is setuid root, it could be modified to force the binding
-> as root meaning this could be implemented entirely within the util
-> -linux package.
-> 
-> Doing this from within the kernel sys_mount is much more problematic:
-> no root users are forbidden from calling any type of mount by the
-> may_mount() check, which makes sure you only have root capability in
-> the user_ns attached to the current mnt_ns.  Overriding that simply to
-> allow nsfs binding looks like a recipe for introducing unexpected
-> security problems.
-> 
-> So, does anyone have any strong (or even weak) opinions about this
-> before I start coding patches?
 
-Hi,
+--T80Vh+tMmiZ5iF95
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-so this is a bit scatterbrained, but it points to what I think is
-a workable way to do this all unprivileged (well, besides the
-privilege conferred by newuidmap/newgidmap).  Assume you are
-uid 1000 and have a /etc/sub{u,g}id entry joe:100000:65536.
+On 23 May 2016 16:30, Bruce Dubbs wrote:
+> Mike Frysinger wrote:
+> > There's no history to be found behind this, and the comment in the
+> > code indicates no one else knows, and it makes me angry :).
+> >
+> > --- a/misc-utils/cal.c
+> > +++ b/misc-utils/cal.c
+> > @@ -767,9 +767,6 @@ static void yearly(const struct cal_control *ctl)
+> >   		my_putstring("\n\n");
+> >   	}
+> >   	monthly(ctl);
+> > -
+> > -	/* Is empty line at the end year output really needed? */
+> > -	my_putstring("\n");
+> >   }
+> >
+> >   /*
+>=20
+> Personally I like the blank line. It sets off the cal output from the=20
+> shell prompt making it easier to read.  It is basically adding the=20
+> equivalent of the css property padding-bottom=3D"1em".
 
-Start by creating one container (namespace, whatever you want to
-call it) which has uid 1000 mapped to container root, and all subuids
-mapped into the container so that container root is privileged over
-them.  This container/namespace creates a private mntns which is
-where you'll be keeping the persistent nsfs bind mounts.  Let's
-call this the 'factotum' for the duration of this email.
+why should cal care ?  you could make this same exact argument for any
+other cli tool that displays things.  if you like that behavior, then
+update your PS1 to include a leading \n.
 
-Now say you create a container with 100000 as container root and you
-want to persist its user and network namespaces.  The init task (which
-you don't want to keep around) is pid 999.  Uid 1000 cannot see under
-/proc/999/ns, but a task in your factotum can.  So it can open
-/proc/999/ns/net and /proc/999/ns/user and bind mount them.  Any time a
-task (pid 1999) owned by 1000 on the host wants to use such an inode,
-the factotum can open it, and task 1999 can open /proc/$(pidof
-factotum)/fd/N, or the factotum could simply pass the open fds over a
-unix socket.  Any task spawned by uid 1000 should then be able to setns
-using those fds.
+> I note that if doing a 'cal -y' that there is also a blank line between=
+=20
+> the year and February.  That should stay also.
 
-This is something which could be done by transparently by 'unshare'
-and 'nsenter'.
+that's a different issue.  cal always writes exactly 6 lines for a month
+regardless of how many weeks a month actually uses.  it makes the code
+simpler (no need to scan/remember sibling months) and the output more
+consistent -- every row is 7 lines.  pick a non-leap year like 2015 and
+see Feb take up only 4 lines but still leave 2 blank below it.  or pick
+2019 and see Mar use all 6 lines.
+-mike
 
--serge
+--T80Vh+tMmiZ5iF95
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJXQ4sWAAoJEEFjO5/oN/WB9rAP/R/teABMxtv5DjOvKpd6LjNP
+jftnti/enFLcLSM0qY03c4Ti8dTz0s9sAHSdPn3I5iCMuQT9mP2Yz1ngLAG8ZD7J
+KXkofMN70yc5+pKrJmmBzmRKwErrY+YmOkMhry6XqojPuDU9V7TF7sQvrHC+j8et
+2MCvgvVsC0IV8oMziTGfNTEue8AaPaNtElrd0qEO/D3WOrUkPwijg3qHb4CjpyZL
+LZmxfZMBpaGS0ENjrEnTSJ0WOazS2eEsLAbFLN4RwBnZ+yQAWOBmoa9/8ugPD81z
+gzElEJtLAhe7mrYEvQOFbwPtPsNA5i52eGpJ01I5Mh35JPE8EmblSxSVaPQafnw/
+jXzjxkVHhXw3eHUJYIYxxY2Av3LkOHOOm5oyOSkB6y2m3zAvy8AT+RyVvAQWoO7M
+iZkA9rhDTGmizGLndG3Gsolcj6hjUbUQ5XTbfSD7BSeEt6lrdJ3cHlaDhsXkz7NU
+ExASbHaBsfWEADF5bRMDKCkTlZGyj0u00tz49WDqFqtCaxrovnwysMGvkOBonj2M
+P/yAKaEZFUyMG4hGunsXqcuiiZpJV8AN4i4BFLDvsH0k9WKSb9Jd0K4SHZ8A5eaT
+ykQZkPDNTH1vVG7Z1cwRFNrbZ140PyoSifogToM5UMLNpGoRYZLFXqJ5T4o7aoxf
+KViRICtxUn14YgS5Xz3s
+=xjrm
+-----END PGP SIGNATURE-----
+
+--T80Vh+tMmiZ5iF95--
