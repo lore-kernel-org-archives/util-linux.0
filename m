@@ -1,49 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:33200 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752293AbcEAW4M (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 1 May 2016 18:56:12 -0400
-Received: by mail-wm0-f68.google.com with SMTP id r12so14853828wme.0
-        for <util-linux@vger.kernel.org>; Sun, 01 May 2016 15:56:12 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mout.kundenserver.de ([212.227.17.10]:64279 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932246AbcE2Q4n (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 29 May 2016 12:56:43 -0400
+Received: from localhost ([79.234.43.175]) by mrelayeu.kundenserver.de
+ (mreue104) with ESMTPSA (Nemesis) id 0LdmXT-1boPBz0z2p-00j0m8 for
+ <util-linux@vger.kernel.org>; Sun, 29 May 2016 18:56:40 +0200
+Date: Sun, 29 May 2016 18:56:58 +0200
+From: Tobias Stoeckmann <tobias@stoeckmann.org>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 1/2] scriptreplay: improve error message
-Date: Sun,  1 May 2016 23:56:04 +0100
-Message-Id: <1462143365-17916-1-git-send-email-kerolasa@iki.fi>
+Subject: [PATCH] fsck.minix: Verify more fields in super-block.
+Message-ID: <20160529165658.GA7092@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Use human numbering for lines - that is start counting from 1.  And tell in
-error message what the number means.
+The field s_ninodes in super-block is used for memory allocation and
+division without verifications. The memory allocation increments the
+unchecked value by 1, making it vulnerable to an integer overflow
+on 32 bit systems with minix 3 file systems. I did not find a (good)
+way to exploit this by crafting a malicious file system, so I consider
+it as a reliability issue. If it's 0, a division by zero occurs when
+"-v" has been used. A filesystem without any inodes is definitely
+wrong, because it means that there's not even the root inode, which is
+accessed unchecked later on.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+The field s_firstdatazone has to be checked against s_(n)zones. If it
+is larger than the highest allowed index, the file system is definitely
+corrupted -- hard to say which value is wrong though, therefore I
+decided to simply call die(). A maliciously created file system could
+do more harm in this way: single bits inside the memory area could be
+flipped because range checks would fail. Hard to consider it as a
+security issue though, because these addresses are not arbitrarily
+accessible without very careful crafting (if at all possible).
 ---
- term-utils/scriptreplay.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ disk-utils/fsck.minix.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/term-utils/scriptreplay.c b/term-utils/scriptreplay.c
-index b4549ef..51985cd 100644
---- a/term-utils/scriptreplay.c
-+++ b/term-utils/scriptreplay.c
-@@ -211,7 +211,7 @@ main(int argc, char *argv[])
- 	/* ignore the first typescript line */
- 	while((c = fgetc(sfile)) != EOF && c != '\n');
- 
--	for(line = 0; ; line++) {
-+	for(line = 1; ; line++) {
- 		double delay;
- 		size_t blk;
- 		char nl;
-@@ -223,7 +223,7 @@ main(int argc, char *argv[])
- 				err(EXIT_FAILURE,
- 					_("failed to read timing file %s"), tname);
- 			errx(EXIT_FAILURE,
--				_("timings file %s: %lu: unexpected format"),
-+				_("timing file %s: line %lu: unexpected format"),
- 				tname, line);
- 		}
- 		delay /= divi;
+diff --git a/disk-utils/fsck.minix.c b/disk-utils/fsck.minix.c
+index aa64569..931658f 100644
+--- a/disk-utils/fsck.minix.c
++++ b/disk-utils/fsck.minix.c
+@@ -573,8 +573,12 @@ read_superblock(void) {
+ 		die(_("bad magic number in super-block"));
+ 	if (get_zone_size() != 0 || MINIX_BLOCK_SIZE != 1024)
+ 		die(_("Only 1k blocks/zones supported"));
++	if (get_ninodes() == 0 || get_ninodes() == UINT32_MAX)
++		die(_("bad s_ninodes field in super-block"));
+ 	if (get_nimaps() * MINIX_BLOCK_SIZE * 8 < get_ninodes() + 1)
+ 		die(_("bad s_imap_blocks field in super-block"));
++	if (get_first_zone() > get_nzones())
++		die(_("bad s_firstdatazone field in super-block"));
+ 	if (get_nzmaps() * MINIX_BLOCK_SIZE * 8 <
+ 	    get_nzones() - get_first_zone() + 1)
+ 		die(_("bad s_zmap_blocks field in super-block"));
 -- 
-2.8.0
+2.8.3
 
