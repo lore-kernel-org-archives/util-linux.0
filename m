@@ -1,32 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43830 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750874AbcFXJbp (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 24 Jun 2016 05:31:45 -0400
-Date: Fri, 24 Jun 2016 11:31:43 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 5/6] tests: remove utmpdump localization go-around
-Message-ID: <20160624093143.wgmytikwnybb7dp3@ws.net.home>
-References: <20160620204037.3292-1-kerolasa@iki.fi>
- <20160620204037.3292-6-kerolasa@iki.fi>
+Received: from mail-lf0-f46.google.com ([209.85.215.46]:35283 "EHLO
+	mail-lf0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754643AbcEaVoa (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 31 May 2016 17:44:30 -0400
+Received: by mail-lf0-f46.google.com with SMTP id w16so410939lfd.2
+        for <util-linux@vger.kernel.org>; Tue, 31 May 2016 14:44:29 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160620204037.3292-6-kerolasa@iki.fi>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20160531163751.hllsomrqkechhtfz@ws.net.home>
+References: <20160531163751.hllsomrqkechhtfz@ws.net.home>
+Date: Tue, 31 May 2016 22:44:28 +0100
+Message-ID: <CAG27Bk08pwJLWd8bfJyKyZNCbGEtvNUoUJf+yDrVg4rH_Ua+rw@mail.gmail.com>
+Subject: Re: cal(1) changes
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 20, 2016 at 09:40:36PM +0100, Sami Kerola wrote:
-> The utmpdump timestamps are unambiguous, so forcing locale environment is
-> never needed.
+On 31 May 2016 at 17:37, Karel Zak <kzak@redhat.com> wrote:
+>  I have committed two changes:
+>
+>  * make it possible to specify month by name (according to locales)
+>
+>     $ cal May 2017
+>
+>  * accept timestamps / relative date
+>
+>     $ cal '2 weeks ago'
+>
+>     $ cal '+1year'
+>
+>     $ cal 'tomorrow'
+>
+>  We already have function to parse timestamps and I love it when use
+>  'git log --since', so why not use it for cal? (Note that timestamps
+>  are based on English and I think it's right thing (for KISS)).
+>
+>  Comments?
 
-and what about strptime()?
+Sounds fitting. I am in favour.
 
-I think it's fine to keep tests robust and in well know environment.
-
-    Karel
+I wonder if various time, calendar, interval expressions such as
+examples above, and timestamp printers & parsers could be turned
+into a libtime. If such library would exist the good question is if
+anyone would want to use shared resource like this.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
