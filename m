@@ -1,52 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lf0-f46.google.com ([209.85.215.46]:35283 "EHLO
-	mail-lf0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754643AbcEaVoa (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 31 May 2016 17:44:30 -0400
-Received: by mail-lf0-f46.google.com with SMTP id w16so410939lfd.2
-        for <util-linux@vger.kernel.org>; Tue, 31 May 2016 14:44:29 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20160531163751.hllsomrqkechhtfz@ws.net.home>
-References: <20160531163751.hllsomrqkechhtfz@ws.net.home>
-Date: Tue, 31 May 2016 22:44:28 +0100
-Message-ID: <CAG27Bk08pwJLWd8bfJyKyZNCbGEtvNUoUJf+yDrVg4rH_Ua+rw@mail.gmail.com>
-Subject: Re: cal(1) changes
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Received: from smtp81.mediacombb.net ([68.66.77.81]:33830 "EHLO
+	dsmdc-mail-smtp.mcomdc.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1750790AbcFFQOK (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 6 Jun 2016 12:14:10 -0400
+From: Shaun Tancheff <shaun@tancheff.com>
+To: util-linux@vger.kernel.org, linux-block@vger.kernel.org
+Cc: Shaun Tancheff <shaun@tancheff.com>
+Subject: [PATCH] Zoned block device support
+Date: Mon,  6 Jun 2016 11:04:54 -0500
+Message-Id: <1465229095-27651-1-git-send-email-shaun@tancheff.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 31 May 2016 at 17:37, Karel Zak <kzak@redhat.com> wrote:
->  I have committed two changes:
->
->  * make it possible to specify month by name (according to locales)
->
->     $ cal May 2017
->
->  * accept timestamps / relative date
->
->     $ cal '2 weeks ago'
->
->     $ cal '+1year'
->
->     $ cal 'tomorrow'
->
->  We already have function to parse timestamps and I love it when use
->  'git log --since', so why not use it for cal? (Note that timestamps
->  are based on English and I think it's right thing (for KISS)).
->
->  Comments?
+ZBC/ZAC compliant devices such as Host Aware drives are now available.
 
-Sounds fitting. I am in favour.
+This patch follows the pattern of blkdiscard to and zoned device
+commands Open, Close and Reset as well as Report zones.
 
-I wonder if various time, calendar, interval expressions such as
-examples above, and timestamp printers & parsers could be turned
-into a libtime. If such library would exist the good question is if
-anyone would want to use shared resource like this.
+Note that this interface depends on Block layer support ZAC/ZBC commands
+https://lkml.kernel.org/r/1465227572-27149-1-git-send-email-shaun@tancheff.com
+
+Shaun Tancheff (1):
+  Add blkzonecmd and blkreport ZAC/ZBC drives
+
+ configure.ac            |  14 ++
+ include/strutils.h      |   1 +
+ lib/strutils.c          |   6 +-
+ sys-utils/Makemodule.am |  14 ++
+ sys-utils/blkreport.8   |  96 +++++++++
+ sys-utils/blkreport.c   | 546 ++++++++++++++++++++++++++++++++++++++++++++++++
+ sys-utils/blkzonecmd.8  |  78 +++++++
+ sys-utils/blkzonecmd.c  | 239 +++++++++++++++++++++
+ 8 files changed, 993 insertions(+), 1 deletion(-)
+ create mode 100644 sys-utils/blkreport.8
+ create mode 100644 sys-utils/blkreport.c
+ create mode 100644 sys-utils/blkzonecmd.8
+ create mode 100644 sys-utils/blkzonecmd.c
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+2.8.1
+
