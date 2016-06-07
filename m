@@ -1,37 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from hermes.apache.org ([140.211.11.3]:53022 "HELO mail.apache.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1752992AbcFCVep (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 3 Jun 2016 17:34:45 -0400
-From: Daniel Shahaf <danielsh@apache.org>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] ionice.1: clarify description of --classdata
-Date: Fri,  3 Jun 2016 21:27:49 +0000
-Message-Id: <1464989269-6761-1-git-send-email-danielsh@apache.org>
+Received: from mx1.redhat.com ([209.132.183.28]:45254 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932368AbcFGLFj (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 7 Jun 2016 07:05:39 -0400
+Date: Tue, 7 Jun 2016 13:05:34 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Shaun Tancheff <shaun@tancheff.com>
+Cc: util-linux@vger.kernel.org, linux-block@vger.kernel.org
+Subject: Re: [PATCH] Zoned block device support
+Message-ID: <20160607110534.lyhrwy2drpe6wbz7@ws.net.home>
+References: <1465229095-27651-1-git-send-email-shaun@tancheff.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1465229095-27651-1-git-send-email-shaun@tancheff.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Before this patch, it wasn't clear whether '0' or '7' should be used to
-specify "highest priority".  (The answer could have been inferred from
-the 'Examples' section of the man page.)
+On Mon, Jun 06, 2016 at 11:04:54AM -0500, Shaun Tancheff wrote:
+> ZBC/ZAC compliant devices such as Host Aware drives are now available.
+> 
+> This patch follows the pattern of blkdiscard to and zoned device
+> commands Open, Close and Reset as well as Report zones.
 
-Signed-off-by: Daniel Shahaf <danielsh@apache.org>
----
-Initially reported as https://bugs.debian.org/826208
+It seems it would be possible to merge all to the command 
 
- schedutils/ionice.1 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+    blkzone <command> --zone <offset> [options]
 
-diff --git a/schedutils/ionice.1 b/schedutils/ionice.1
-index 3b85635..f9acbc6 100644
---- a/schedutils/ionice.1
-+++ b/schedutils/ionice.1
-@@ -89,7 +89,7 @@ Specify the name or number of the scheduling class to use; \fI0\fR for none,
- .BR \-n , " \-\-classdata " \fIlevel\fR
- Specify the scheduling class data.  This only has an effect if the class
- accepts an argument.  For realtime and best-effort, \fI0-7\fR are valid data
--(priority levels).
-+(priority levels), and \fI0\fR represents the highest priority level.
- .TP
- .BR \-p , " \-\-pid " \fIPID\fR...
- Specify the process IDs of running processes for which to get or set the
+where <command> is "report", "open", "close" and "reset".
+
+What is difference between zone "reset" and blkdiscard(8)?
+
+    Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
