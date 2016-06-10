@@ -1,40 +1,74 @@
-Return-Path: heiko.carstens@de.ibm.com
-Date: Tue, 14 Jun 2016 12:08:35 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] lscpu: add drawer support
-References: <1465888954-62716-1-git-send-email-heiko.carstens@de.ibm.com>
- <20160614084349.bmut3xx3aorkievj@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160614084349.bmut3xx3aorkievj@ws.net.home>
-Message-Id: <20160614100835.GE3754@osiris>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mga03.intel.com ([134.134.136.65]:19203 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932124AbcFJNwZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 10 Jun 2016 09:52:25 -0400
+From: Alexey Obitotskiy <aleksey.obitotskiy@intel.com>
+To: util-linux@vger.kernel.org
+Cc: pawel.baldysiak@intel.com, artur.paszkiewicz@intel.com,
+        tomasz.majchrzak@intel.com
+Subject: [PATCH] Add metadata signature check for IMSM on 4Kn drives
+Date: Fri, 10 Jun 2016 15:51:55 +0200
+Message-Id: <1465566715-27682-1-git-send-email-aleksey.obitotskiy@intel.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jun 14, 2016 at 10:43:49AM +0200, Karel Zak wrote:
-> 
->  Hi,
-> 
-> On Tue, Jun 14, 2016 at 09:22:33AM +0200, Heiko Carstens wrote:
-> > the recent IBM z13 machines added yet another cpu topology level which
-> > is called 'drawer'. I'd like to have support for this within lscpu as
-> > well. The kernel patch that makes the new sysfs interfaces available
-> > will be merged during the next merge window. Therefore the first
-> > kernel release that contains the required interfaces will be v4.8.
-> 
-> maybe you can use tests/ts/lscpu/mk-input.sh to create a dump from 
-> /proc and /sys. Then we can test this new feature independently on 
-> HW and kernel.
+Drives with 512 and 4K sectors have different offset for
+metadata signature. Without signature detected on 4Kn drives
+those drives will not be recognized as raid member. This
+patch adds checking for IMSM signature for 4Kn drives.
 
-I had a test case but threw it away, since the "lscpu -p" output does not
-contain the new drawer column.
+Signed-off-by: Alexey Obitotskiy <aleksey.obitotskiy@intel.com>
+---
+ libblkid/src/superblocks/isw_raid.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-However I will send a patch which replaces one of the existing s390
-testcases, so we get at least a bit of coverage for the summary output.
+diff --git a/libblkid/src/superblocks/isw_raid.c b/libblkid/src/superblocks/isw_raid.c
+index 065c2b2..e9ecf05 100644
+--- a/libblkid/src/superblocks/isw_raid.c
++++ b/libblkid/src/superblocks/isw_raid.c
+@@ -26,6 +26,14 @@ struct isw_metadata {
+ #define ISW_SIGNATURE		"Intel Raid ISM Cfg Sig. "
+ 
+ 
++static struct isw_metadata *get_isw_metadata(blkid_probe pr, unsigned int sector_size,
++		uint64_t *off)
++{
++	*off = ((pr->size / sector_size) - 2) * sector_size;
++	return (struct isw_metadata *)blkid_probe_get_buffer(pr,
++			*off, sizeof(struct isw_metadata));
++}
++
+ static int probe_iswraid(blkid_probe pr,
+ 		const struct blkid_idmag *mag __attribute__((__unused__)))
+ {
+@@ -37,16 +45,19 @@ static int probe_iswraid(blkid_probe pr,
+ 	if (!S_ISREG(pr->mode) && !blkid_probe_is_wholedisk(pr))
+ 		return 1;
+ 
+-	off = ((pr->size / 0x200) - 2) * 0x200;
+-	isw = (struct isw_metadata *)
+-			blkid_probe_get_buffer(pr,
+-					off,
+-					sizeof(struct isw_metadata));
++	isw = get_isw_metadata(pr, 512, &off);
+ 	if (!isw)
+ 		return errno ? -errno : 1;
+ 
+-	if (memcmp(isw->sig, ISW_SIGNATURE, sizeof(ISW_SIGNATURE)-1) != 0)
+-		return 1;
++	if (memcmp(isw->sig, ISW_SIGNATURE, sizeof(ISW_SIGNATURE)-1) != 0) {
++		isw = get_isw_metadata(pr, 4096, &off);
++		if (!isw)
++			return errno ? -errno : 1;
++
++		if (memcmp(isw->sig, ISW_SIGNATURE, sizeof(ISW_SIGNATURE)-1) != 0)
++			return 1;
++	}
++
+ 	if (blkid_probe_sprintf_version(pr, "%6s",
+ 			&isw->sig[sizeof(ISW_SIGNATURE)-1]) != 0)
+ 		return 1;
+-- 
+2.7.4
 
-> > Please consider this patch for inclusion.
-> 
-> The patch seem good. I'll merge it before the next release. Thanks.
-
-Thank you!
