@@ -1,32 +1,40 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37910 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751023AbcFWJrz (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 23 Jun 2016 05:47:55 -0400
-Date: Thu, 23 Jun 2016 11:47:53 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Alexey Obitotskiy <aleksey.obitotskiy@intel.com>
+Return-Path: heiko.carstens@de.ibm.com
+Date: Tue, 14 Jun 2016 12:08:35 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH][RESEND] Add metadata signature check for IMSM on 4Kn
- drives
-Message-ID: <20160623094753.eby4c4vqxkdwvnga@ws.net.home>
-References: <1466670736-31676-1-git-send-email-aleksey.obitotskiy@intel.com>
+Subject: Re: [PATCH] lscpu: add drawer support
+References: <1465888954-62716-1-git-send-email-heiko.carstens@de.ibm.com>
+ <20160614084349.bmut3xx3aorkievj@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1466670736-31676-1-git-send-email-aleksey.obitotskiy@intel.com>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20160614084349.bmut3xx3aorkievj@ws.net.home>
+Message-Id: <20160614100835.GE3754@osiris>
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 23, 2016 at 10:32:16AM +0200, Alexey Obitotskiy wrote:
-> Drives with 512 and 4K sectors have different offset for
-> metadata signature. Without signature detected on 4Kn drives
-> those drives will not be recognized as raid member. This
-> patch adds checking for IMSM signature for 4Kn drives.
+On Tue, Jun 14, 2016 at 10:43:49AM +0200, Karel Zak wrote:
+> 
+>  Hi,
+> 
+> On Tue, Jun 14, 2016 at 09:22:33AM +0200, Heiko Carstens wrote:
+> > the recent IBM z13 machines added yet another cpu topology level which
+> > is called 'drawer'. I'd like to have support for this within lscpu as
+> > well. The kernel patch that makes the new sysfs interfaces available
+> > will be merged during the next merge window. Therefore the first
+> > kernel release that contains the required interfaces will be v4.8.
+> 
+> maybe you can use tests/ts/lscpu/mk-input.sh to create a dump from 
+> /proc and /sys. Then we can test this new feature independently on 
+> HW and kernel.
 
-The patch seems OK, but be patient. I'm currently busy with another
-stuff (RHEL). Thanks,
+I had a test case but threw it away, since the "lscpu -p" output does not
+contain the new drawer column.
 
-    Karel
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+However I will send a patch which replaces one of the existing s390
+testcases, so we get at least a bit of coverage for the summary output.
+
+> > Please consider this patch for inclusion.
+> 
+> The patch seem good. I'll merge it before the next release. Thanks.
+
+Thank you!
