@@ -1,35 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:54707 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:54491 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753536AbcFGLkl (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 7 Jun 2016 07:40:41 -0400
-Date: Tue, 7 Jun 2016 13:40:39 +0200
+	id S1751370AbcFNInv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 14 Jun 2016 04:43:51 -0400
+Date: Tue, 14 Jun 2016 10:43:49 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Shaun Tancheff <shaun@tancheff.com>
-Cc: util-linux@vger.kernel.org, linux-block@vger.kernel.org
-Subject: Re: [PATCH] Zoned block device support
-Message-ID: <20160607114039.urf62b6gqgxsrxuv@ws.net.home>
-References: <1465229095-27651-1-git-send-email-shaun@tancheff.com>
- <20160607110534.lyhrwy2drpe6wbz7@ws.net.home>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] lscpu: add drawer support
+Message-ID: <20160614084349.bmut3xx3aorkievj@ws.net.home>
+References: <1465888954-62716-1-git-send-email-heiko.carstens@de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160607110534.lyhrwy2drpe6wbz7@ws.net.home>
+In-Reply-To: <1465888954-62716-1-git-send-email-heiko.carstens@de.ibm.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jun 07, 2016 at 01:05:34PM +0200, Karel Zak wrote:
-> On Mon, Jun 06, 2016 at 11:04:54AM -0500, Shaun Tancheff wrote:
-> > ZBC/ZAC compliant devices such as Host Aware drives are now available.
-> > 
-> > This patch follows the pattern of blkdiscard to and zoned device
-> > commands Open, Close and Reset as well as Report zones.
-> 
-> What is difference between zone "reset" and blkdiscard(8)?
 
-Well, I read something more about SMR, it makes more sense now :-)
+ Hi,
 
-Maybe you can explain all the zones concept in the man page to make it
-more usable for end-users.
+On Tue, Jun 14, 2016 at 09:22:33AM +0200, Heiko Carstens wrote:
+> the recent IBM z13 machines added yet another cpu topology level which
+> is called 'drawer'. I'd like to have support for this within lscpu as
+> well. The kernel patch that makes the new sysfs interfaces available
+> will be merged during the next merge window. Therefore the first
+> kernel release that contains the required interfaces will be v4.8.
+
+maybe you can use tests/ts/lscpu/mk-input.sh to create a dump from 
+/proc and /sys. Then we can test this new feature independently on 
+HW and kernel.
+
+> Please consider this patch for inclusion.
+
+The patch seem good. I'll merge it before the next release. Thanks.
 
     Karel
 
