@@ -1,27 +1,32 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:48808 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755258AbcFGKtq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 7 Jun 2016 06:49:46 -0400
-Date: Tue, 7 Jun 2016 12:49:44 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Daniel Shahaf <danielsh@apache.org>
+Return-Path: bruce.dubbs@gmail.com
+Subject: Re: fstab format
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] ionice.1: clarify description of --classdata
-Message-ID: <20160607104944.nyrrb6pxt55ibwlu@ws.net.home>
-References: <1464989269-6761-1-git-send-email-danielsh@apache.org>
+References: <575F3F4C.9020103@gmail.com>
+ <20160614083051.2rm5bdksffs6hiei@ws.net.home>
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Message-ID: <57604B60.3060206@gmail.com>
+Date: Tue, 14 Jun 2016 13:22:24 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1464989269-6761-1-git-send-email-danielsh@apache.org>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20160614083051.2rm5bdksffs6hiei@ws.net.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jun 03, 2016 at 09:27:49PM +0000, Daniel Shahaf wrote:
->  schedutils/ionice.1 | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+Karel Zak wrote:
+> On Mon, Jun 13, 2016 at 06:18:36PM -0500, Bruce Dubbs wrote:
+>> Does the fstab file support line continuation with a backslash-newline?
+>
+> No.
+>
+>> There is no indication in the fstab man page one way or another.  In the
+>> case of some entries that use long device IDs like PARTUUID or several
+>> options, it would be nice to be able to control the format for easier
+>> reading.
+>
+> Yes, but fstab is de-facto standard file parsed on many many places.
+> We cannot change/extend the file format.
 
- Applied, thanks.
+I understand.  Thanks.  There are certain other projects that wouldn't 
+care about de-facto standards, but I appreciate your position.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+   -- Bruce
