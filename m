@@ -1,48 +1,71 @@
-Return-Path: heiko.carstens@de.ibm.com
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH 1/6] lscpu: fix typo in summary output
-Date: Wed, 22 Jun 2016 09:25:56 +0200
-In-Reply-To: <1466580361-23435-1-git-send-email-heiko.carstens@de.ibm.com>
-References: <1466580361-23435-1-git-send-email-heiko.carstens@de.ibm.com>
-Message-Id: <1466580361-23435-2-git-send-email-heiko.carstens@de.ibm.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-lf0-f53.google.com ([209.85.215.53]:35017 "EHLO
+	mail-lf0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753734AbcFTUlH (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 20 Jun 2016 16:41:07 -0400
+Received: by mail-lf0-f53.google.com with SMTP id l188so46268043lfe.2
+        for <util-linux@vger.kernel.org>; Mon, 20 Jun 2016 13:40:41 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 0/6] pull: utmpdump iso-8601 format
+Date: Mon, 20 Jun 2016 21:40:31 +0100
+Message-Id: <20160620204037.3292-1-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The new drawer support did have a type in the summary output:
-it reported Drawers(s) instead of Drawer(s). Fix this.
+Hello.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
- sys-utils/lscpu.c                           | 2 +-
- tests/expected/lscpu/lscpu-s390-lpar-drawer | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+This pull request is re-implementation of iso-8601 timestamp format in
+textual output using timeutils Karel made available as libcommon timeutils
+functions.  The earlier submission was based on my version of timeutils,
+that were not merged.
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index 41316ccafeec..c07b9d09683a 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -1696,7 +1696,7 @@ print_summary(struct lscpu_desc *desc, struct lscpu_modifier *mod)
- 			if (desc->ndrawers) {
- 				print_n(_("Book(s) per drawer:"),
- 					books_per_drawer ?: desc->nbooks / desc->ndrawers);
--				print_n(_("Drawers(s):"), drawers ?: desc->ndrawers);
-+				print_n(_("Drawer(s):"), drawers ?: desc->ndrawers);
- 			} else {
- 				print_n(_("Book(s):"), books_per_drawer ?: desc->nbooks);
- 			}
-diff --git a/tests/expected/lscpu/lscpu-s390-lpar-drawer b/tests/expected/lscpu/lscpu-s390-lpar-drawer
-index 1624e73dd3e0..accbff821065 100644
---- a/tests/expected/lscpu/lscpu-s390-lpar-drawer
-+++ b/tests/expected/lscpu/lscpu-s390-lpar-drawer
-@@ -5,7 +5,7 @@ Thread(s) per core:    1
- Core(s) per socket:    8
- Socket(s) per book:    3
- Book(s) per drawer:    2
--Drawers(s):            4
-+Drawer(s):             4
- NUMA node(s):          1
- Vendor ID:             IBM/S390
- Model name:            0
+----------------------------------------------------------------
+The following changes since commit 7f787ced5d401ccd56a82bb2b1202f1ea7164783:
+  libblkid: don't check nonnull attributes for NULL [-Wnonnull-compare] (2016-06-14 14:39:16 +0200)
+are available in the git repository at:
+  git://github.com/kerolasa/lelux-utiliteetit.git utmpdump
+for you to fetch changes up to 9997c0b13fffe7d198e7d056e4279727c2b0b3ad:
+  tests: utmpdump add subsecond accuracy test (2016-06-20 21:31:18 +0100)
+----------------------------------------------------------------
+
+Sami Kerola (6):
+  utmpdump: use always UTC-0 timezone in textual output
+  libcommon: add ISO_8601_GMTIME that will print UTC-0 timestamps
+  utmpdump: use iso-8601 timestamp format with subsecond accuracy
+  tests: fix utmpdump timestamps to be in iso format
+  tests: remove utmpdump localization go-around
+  tests: utmpdump add subsecond accuracy test
+
+ include/timeutils.h                     |  3 +-
+ lib/timeutils.c                         | 14 ++++++--
+ login-utils/Makemodule.am               |  1 +
+ login-utils/utmpdump.c                  | 63 +++++++++++++++++++--------------
+ tests/expected/utmp/utmpdump-subsecond  |  5 +++
+ tests/expected/utmp/utmpdump-totxt      | 20 +++++------
+ tests/expected/utmp/utmpdump-totxt-ipv6 |  4 +--
+ tests/ts/utmp/subsec                    |  3 ++
+ tests/ts/utmp/txt-a                     | 38 ++++++++++----------
+ tests/ts/utmp/txt-a-old                 | 19 ++++++++++
+ tests/ts/utmp/txt-b                     | 20 +++++------
+ tests/ts/utmp/txt-b-old                 | 10 ++++++
+ tests/ts/utmp/txt-ipv6                  |  4 +--
+ tests/ts/utmp/txt-ipv6-old              |  2 ++
+ tests/ts/utmp/utmpdump-circle           | 10 ++++--
+ tests/ts/utmp/utmpdump-subsecond        | 34 ++++++++++++++++++
+ tests/ts/utmp/utmpdump-tobin            |  2 --
+ tests/ts/utmp/utmpdump-tobin-ipv6       |  2 --
+ tests/ts/utmp/utmpdump-totxt            |  2 --
+ tests/ts/utmp/utmpdump-totxt-ipv6       |  2 --
+ 20 files changed, 175 insertions(+), 83 deletions(-)
+ create mode 100644 tests/expected/utmp/utmpdump-subsecond
+ create mode 100644 tests/ts/utmp/subsec
+ create mode 100644 tests/ts/utmp/txt-a-old
+ create mode 100644 tests/ts/utmp/txt-b-old
+ create mode 100644 tests/ts/utmp/txt-ipv6-old
+ create mode 100755 tests/ts/utmp/utmpdump-subsecond
+
 -- 
-2.6.6
+2.9.0
+
