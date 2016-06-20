@@ -1,75 +1,222 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lf0-f42.google.com ([209.85.215.42]:33807 "EHLO
-	mail-lf0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750869AbcF0Npt (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 27 Jun 2016 09:45:49 -0400
-Received: by mail-lf0-f42.google.com with SMTP id h129so156889958lfh.1
-        for <util-linux@vger.kernel.org>; Mon, 27 Jun 2016 06:45:48 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20160624091914.ekiska2x77n2euqu@ws.net.home>
-References: <CACTTzNa3aTiCrHBQrvwVvFwLQpTdGTDLGt+G3wycpMXEzXbXcw@mail.gmail.com>
- <20160624091914.ekiska2x77n2euqu@ws.net.home>
-From: Yigal Korman <yigal@plexistor.com>
-Date: Mon, 27 Jun 2016 16:45:28 +0300
-Message-ID: <CACTTzNamH7-Zy4HaoKomwfBQC5zGe4O8GvuEn2KUMDPinaTL+A@mail.gmail.com>
-Subject: Re: blkid partition infomartion
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:33756 "EHLO
+	mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754250AbcFTUlH (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 20 Jun 2016 16:41:07 -0400
+Received: by mail-lf0-f67.google.com with SMTP id l188so6679291lfe.0
+        for <util-linux@vger.kernel.org>; Mon, 20 Jun 2016 13:40:48 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 4/6] tests: fix utmpdump timestamps to be in iso format
+Date: Mon, 20 Jun 2016 21:40:35 +0100
+Message-Id: <20160620204037.3292-5-kerolasa@iki.fi>
+In-Reply-To: <20160620204037.3292-1-kerolasa@iki.fi>
+References: <20160620204037.3292-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jun 24, 2016 at 12:19 PM, Karel Zak <kzak@redhat.com> wrote:
-> On Tue, Jun 21, 2016 at 04:59:39PM +0300, Yigal Korman wrote:
->> I have a question regarding this patch in util-linux:
->> "blkid: don't ignore info about partitions on non-formated devices"
->> (commit f8098e2b2c0a8a98ccb603f53dfba0cc05683a39)
->>
->> I wanted to know what was the trigger for this change? what's the reasoning
->> behind it?
->
-> I guess inconsistency with man page:
->
->   Note that low-level probing also returns information about partition
->   table type (PTTYPE tag) and partitions (PART_ENTRY_* tags).
+The utmpdump-circle is slightly modified to use old timestamp format as
+basis of conversion and to do cyclic conversion via new format.  This is
+better from test coverage point of view.
 
-Huh, interesting, I didn't notice that.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ tests/expected/utmp/utmpdump-totxt      | 20 ++++++++---------
+ tests/expected/utmp/utmpdump-totxt-ipv6 |  4 ++--
+ tests/ts/utmp/txt-a                     | 38 ++++++++++++++++-----------------
+ tests/ts/utmp/txt-a-old                 | 19 +++++++++++++++++
+ tests/ts/utmp/txt-b                     | 20 ++++++++---------
+ tests/ts/utmp/txt-b-old                 | 10 +++++++++
+ tests/ts/utmp/txt-ipv6                  |  4 ++--
+ tests/ts/utmp/txt-ipv6-old              |  2 ++
+ tests/ts/utmp/utmpdump-circle           |  8 ++++++-
+ 9 files changed, 81 insertions(+), 44 deletions(-)
+ create mode 100644 tests/ts/utmp/txt-a-old
+ create mode 100644 tests/ts/utmp/txt-b-old
+ create mode 100644 tests/ts/utmp/txt-ipv6-old
 
->
-> .. and I'm not able to found if someone complained on mailing list.
->
->> Background:
->> I have an Linux automation script that formats a given partition and mounts
->> it.
->> In order to verify that the partition is empty (ie no other data exists
->> there) I've been using 'blkid -p <partition>;  [[ $? != 2 ]] && fail".
->> Which stopped working correctly when I moved to Ubuntu 16.04.
->> I've tracked the issue to the patch mentioned above.
->>
->> To me this patch seems to counter blkid behavior - returning the partition
->> information when the given device is the partition doesn't describe what
->> the device contains.
->
-> Yes, the patch seems pretty controversial. I'll think about revert.
->
->> The same way that if /dev/sda is part of LVM, then 'blkid -p /dev/sda' will
->> return the LVM information, but doing 'blkid -p /dev/mapper/vg-lv' will
->> return what's inside the logical volume and not the logical volume
->> information (and nothing if the empty).
->>
->> Do you have a suggestion for a different method for testing if a device is
->> empty?
->
->  lsblk -n -o FSTYPE /dev/sda1
+diff --git a/tests/expected/utmp/utmpdump-totxt b/tests/expected/utmp/utmpdump-totxt
+index 02fb22d..5deefde 100644
+--- a/tests/expected/utmp/utmpdump-totxt
++++ b/tests/expected/utmp/utmpdump-totxt
+@@ -1,10 +1,10 @@
+-[7] [17058] [ts/1] [kerolasa] [pts/1       ] [:0.0                ] [0.0.0.0        ] [Wed Jan 16 23:44:09 2013 GMT]
+-[7] [22098] [ts/2] [kerolasa] [pts/2       ] [:0.0                ] [0.0.0.0        ] [Wed Jan 16 23:49:17 2013 GMT]
+-[7] [24915] [ts/3] [kerolasa] [pts/3       ] [:0.0                ] [0.0.0.0        ] [Thu Jan 17 12:23:33 2013 GMT]
+-[8] [24915] [ts/3] [kerolasa] [pts/3       ] [                    ] [0.0.0.0        ] [Thu Jan 17 12:24:49 2013 GMT]
+-[7] [30629] [ts/3] [kerolasa] [pts/3       ] [:0.0                ] [0.0.0.0        ] [Thu Jan 17 13:12:39 2013 GMT]
+-[8] [30629] [ts/3] [kerolasa] [pts/3       ] [                    ] [0.0.0.0        ] [Thu Jan 17 13:42:19 2013 GMT]
+-[8] [22098] [ts/2] [kerolasa] [pts/2       ] [                    ] [0.0.0.0        ] [Thu Jan 17 13:42:48 2013 GMT]
+-[8] [17058] [ts/1] [kerolasa] [pts/1       ] [                    ] [0.0.0.0        ] [Thu Jan 17 13:42:48 2013 GMT]
+-[7] [31545] [ts/1] [kerolasa] [pts/1       ] [:0.0                ] [0.0.0.0        ] [Thu Jan 17 20:17:21 2013 GMT]
+-[7] [28496] [ts/2] [kerolasa] [pts/2       ] [:0.0                ] [0.0.0.0        ] [Thu Jan 17 21:09:39 2013 GMT]
++[7] [17058] [ts/1] [kerolasa] [pts/1       ] [:0.0                ] [0.0.0.0        ] [2013-01-16T23:44:09,000000+0000]
++[7] [22098] [ts/2] [kerolasa] [pts/2       ] [:0.0                ] [0.0.0.0        ] [2013-01-16T23:49:17,000000+0000]
++[7] [24915] [ts/3] [kerolasa] [pts/3       ] [:0.0                ] [0.0.0.0        ] [2013-01-17T12:23:33,000000+0000]
++[8] [24915] [ts/3] [kerolasa] [pts/3       ] [                    ] [0.0.0.0        ] [2013-01-17T12:24:49,000000+0000]
++[7] [30629] [ts/3] [kerolasa] [pts/3       ] [:0.0                ] [0.0.0.0        ] [2013-01-17T13:12:39,000000+0000]
++[8] [30629] [ts/3] [kerolasa] [pts/3       ] [                    ] [0.0.0.0        ] [2013-01-17T13:42:19,000000+0000]
++[8] [22098] [ts/2] [kerolasa] [pts/2       ] [                    ] [0.0.0.0        ] [2013-01-17T13:42:48,000000+0000]
++[8] [17058] [ts/1] [kerolasa] [pts/1       ] [                    ] [0.0.0.0        ] [2013-01-17T13:42:48,000000+0000]
++[7] [31545] [ts/1] [kerolasa] [pts/1       ] [:0.0                ] [0.0.0.0        ] [2013-01-17T20:17:21,000000+0000]
++[7] [28496] [ts/2] [kerolasa] [pts/2       ] [:0.0                ] [0.0.0.0        ] [2013-01-17T21:09:39,000000+0000]
+diff --git a/tests/expected/utmp/utmpdump-totxt-ipv6 b/tests/expected/utmp/utmpdump-totxt-ipv6
+index 5cce150..5894144 100644
+--- a/tests/expected/utmp/utmpdump-totxt-ipv6
++++ b/tests/expected/utmp/utmpdump-totxt-ipv6
+@@ -1,2 +1,2 @@
+-[7] [00010] [ipv6] [IPv6    ] [root        ] [dns-server          ] [2001:503:ba3e::2:30] [Wed Aug 28 20:30:40 2013 GMT]
+-[8] [00011] [ipv6] [IPv6    ] [root        ] [dns-server          ] [2001:503:ba3e::2:30] [Wed Aug 28 20:40:50 2013 GMT]
++[7] [00010] [ipv6] [IPv6    ] [root        ] [dns-server          ] [2001:503:ba3e::2:30] [2013-08-28T20:30:40,000000+0000]
++[8] [00011] [ipv6] [IPv6    ] [root        ] [dns-server          ] [2001:503:ba3e::2:30] [2013-08-28T20:40:50,000000+0000]
+diff --git a/tests/ts/utmp/txt-a b/tests/ts/utmp/txt-a
+index bc91d19..8501daa 100644
+--- a/tests/ts/utmp/txt-a
++++ b/tests/ts/utmp/txt-a
+@@ -1,19 +1,19 @@
+-[9] [00009] [ts/9] [accounting] [foo         ] [nine                ] [0.0.0.0        ] [Wed Aug 28 03:00:00 2013 GMT]
+-[8] [00008] [ts/8] [dead_process] [foo         ] [eight               ] [0.0.0.0        ] [Wed Aug 28 04:00:00 2013 GMT]
+-[7] [00007] [ts/7] [user_process] [foo         ] [seven               ] [0.0.0.0        ] [Wed Aug 28 05:00:00 2013 GMT]
+-[6] [00006] [ts/6] [login   ] [foo         ] [six                 ] [0.0.0.0        ] [Wed Aug 28 06:00:00 2013 GMT]
+-[5] [00005] [ts/5] [init    ] [foo         ] [five                ] [0.0.0.0        ] [Wed Aug 28 07:00:00 2013 GMT]
+-[4] [00004] [ts/4] [oldtime ] [foo         ] [four                ] [0.0.0.0        ] [Wed Aug 28 08:00:00 2013 GMT]
+-[3] [00003] [ts/3] [newtime ] [foo         ] [three               ] [0.0.0.0        ] [Wed Aug 28 09:00:00 2013 GMT]
+-[2] [00002] [ts/2] [sysboot ] [foo         ] [two                 ] [0.0.0.0        ] [Wed Aug 28 10:00:00 2013 GMT]
+-[1] [00001] [ts/1] [runlevel] [foo         ] [one                 ] [0.0.0.0        ] [Wed Aug 28 11:00:00 2013 GMT]
+-[0] [00000] [ts/0] [nonvalid] [foo         ] [zero                ] [0.0.0.0        ] [Wed Aug 28 12:00:00 2013 GMT]
+-[7] [00010] [ipv4] [IPv4    ] [root        ] [dns-server          ] [198.41.0.4     ] [Wed Aug 28 13:00:00 2013 GMT]
+-[8] [00011] [ipv4] [IPv4    ] [root        ] [dns-server          ] [198.41.0.4     ] [Wed Aug 28 14:00:00 2013 GMT]
+-[1] [00012] [~~  ] [shutdown] [~           ] [system-name         ] [0.0.0.0        ] [Wed Aug 28 15:00:00 2013 GMT]
+-[2] [00012] [~~  ] [reboot  ] [~           ] [system-name         ] [0.0.0.0        ] [Wed Aug 28 16:00:00 2013 GMT]
+-[1] [00012] [~~  ] [shutdown] [~           ] [system-name         ] [0.0.0.0        ] [Wed Aug 28 17:00:00 2013 GMT]
+-[2] [00012] [~~  ] [reboot  ] [~           ] [system-name         ] [0.0.0.0        ] [Wed Aug 28 18:00:00 2013 GMT]
+-[7] [00013] [ts/1] [torvalds] [linux       ] [hobby               ] [128.214.205.14 ] [Mon Aug 26 00:57:08 1991 GMT]
+-[7] [00014] [long] [rick    ] [long        ] [never-gonna-logout  ] [0.0.0.0        ] [                            ]
+-[8] [00014] [long] [rick    ] [long        ] [never-gonna-logout  ] [0.0.0.0        ] [Tue Jan 19 03:14:07 2038 GMT]
++[9] [00009] [ts/9] [accounting] [foo         ] [nine                ] [0.0.0.0        ] [2013-08-28T03:00:00,000000+0000]
++[8] [00008] [ts/8] [dead_process] [foo         ] [eight               ] [0.0.0.0        ] [2013-08-28T04:00:00,000000+0000]
++[7] [00007] [ts/7] [user_process] [foo         ] [seven               ] [0.0.0.0        ] [2013-08-28T05:00:00,000000+0000]
++[6] [00006] [ts/6] [login   ] [foo         ] [six                 ] [0.0.0.0        ] [2013-08-28T06:00:00,000000+0000]
++[5] [00005] [ts/5] [init    ] [foo         ] [five                ] [0.0.0.0        ] [2013-08-28T07:00:00,000000+0000]
++[4] [00004] [ts/4] [oldtime ] [foo         ] [four                ] [0.0.0.0        ] [2013-08-28T08:00:00,000000+0000]
++[3] [00003] [ts/3] [newtime ] [foo         ] [three               ] [0.0.0.0        ] [2013-08-28T09:00:00,000000+0000]
++[2] [00002] [ts/2] [sysboot ] [foo         ] [two                 ] [0.0.0.0        ] [2013-08-28T10:00:00,000000+0000]
++[1] [00001] [ts/1] [runlevel] [foo         ] [one                 ] [0.0.0.0        ] [2013-08-28T11:00:00,000000+0000]
++[0] [00000] [ts/0] [nonvalid] [foo         ] [zero                ] [0.0.0.0        ] [2013-08-28T12:00:00,000000+0000]
++[7] [00010] [ipv4] [IPv4    ] [root        ] [dns-server          ] [198.41.0.4     ] [2013-08-28T13:00:00,000000+0000]
++[8] [00011] [ipv4] [IPv4    ] [root        ] [dns-server          ] [198.41.0.4     ] [2013-08-28T14:00:00,000000+0000]
++[1] [00012] [~~  ] [shutdown] [~           ] [system-name         ] [0.0.0.0        ] [2013-08-28T15:00:00,000000+0000]
++[2] [00012] [~~  ] [reboot  ] [~           ] [system-name         ] [0.0.0.0        ] [2013-08-28T16:00:00,000000+0000]
++[1] [00012] [~~  ] [shutdown] [~           ] [system-name         ] [0.0.0.0        ] [2013-08-28T17:00:00,000000+0000]
++[2] [00012] [~~  ] [reboot  ] [~           ] [system-name         ] [0.0.0.0        ] [2013-08-28T18:00:00,000000+0000]
++[7] [00013] [ts/1] [torvalds] [linux       ] [hobby               ] [128.214.205.14 ] [1991-08-26T00:57:08,000000+0000]
++[7] [00014] [long] [rick    ] [long        ] [never-gonna-logout  ] [0.0.0.0        ] [1970-01-01T00:00:00,000000+0000]
++[8] [00014] [long] [rick    ] [long        ] [never-gonna-logout  ] [0.0.0.0        ] [2038-01-19T03:14:07,000000+0000]
+diff --git a/tests/ts/utmp/txt-a-old b/tests/ts/utmp/txt-a-old
+new file mode 100644
+index 0000000..bc91d19
+--- /dev/null
++++ b/tests/ts/utmp/txt-a-old
+@@ -0,0 +1,19 @@
++[9] [00009] [ts/9] [accounting] [foo         ] [nine                ] [0.0.0.0        ] [Wed Aug 28 03:00:00 2013 GMT]
++[8] [00008] [ts/8] [dead_process] [foo         ] [eight               ] [0.0.0.0        ] [Wed Aug 28 04:00:00 2013 GMT]
++[7] [00007] [ts/7] [user_process] [foo         ] [seven               ] [0.0.0.0        ] [Wed Aug 28 05:00:00 2013 GMT]
++[6] [00006] [ts/6] [login   ] [foo         ] [six                 ] [0.0.0.0        ] [Wed Aug 28 06:00:00 2013 GMT]
++[5] [00005] [ts/5] [init    ] [foo         ] [five                ] [0.0.0.0        ] [Wed Aug 28 07:00:00 2013 GMT]
++[4] [00004] [ts/4] [oldtime ] [foo         ] [four                ] [0.0.0.0        ] [Wed Aug 28 08:00:00 2013 GMT]
++[3] [00003] [ts/3] [newtime ] [foo         ] [three               ] [0.0.0.0        ] [Wed Aug 28 09:00:00 2013 GMT]
++[2] [00002] [ts/2] [sysboot ] [foo         ] [two                 ] [0.0.0.0        ] [Wed Aug 28 10:00:00 2013 GMT]
++[1] [00001] [ts/1] [runlevel] [foo         ] [one                 ] [0.0.0.0        ] [Wed Aug 28 11:00:00 2013 GMT]
++[0] [00000] [ts/0] [nonvalid] [foo         ] [zero                ] [0.0.0.0        ] [Wed Aug 28 12:00:00 2013 GMT]
++[7] [00010] [ipv4] [IPv4    ] [root        ] [dns-server          ] [198.41.0.4     ] [Wed Aug 28 13:00:00 2013 GMT]
++[8] [00011] [ipv4] [IPv4    ] [root        ] [dns-server          ] [198.41.0.4     ] [Wed Aug 28 14:00:00 2013 GMT]
++[1] [00012] [~~  ] [shutdown] [~           ] [system-name         ] [0.0.0.0        ] [Wed Aug 28 15:00:00 2013 GMT]
++[2] [00012] [~~  ] [reboot  ] [~           ] [system-name         ] [0.0.0.0        ] [Wed Aug 28 16:00:00 2013 GMT]
++[1] [00012] [~~  ] [shutdown] [~           ] [system-name         ] [0.0.0.0        ] [Wed Aug 28 17:00:00 2013 GMT]
++[2] [00012] [~~  ] [reboot  ] [~           ] [system-name         ] [0.0.0.0        ] [Wed Aug 28 18:00:00 2013 GMT]
++[7] [00013] [ts/1] [torvalds] [linux       ] [hobby               ] [128.214.205.14 ] [Mon Aug 26 00:57:08 1991 GMT]
++[7] [00014] [long] [rick    ] [long        ] [never-gonna-logout  ] [0.0.0.0        ] [                            ]
++[8] [00014] [long] [rick    ] [long        ] [never-gonna-logout  ] [0.0.0.0        ] [Tue Jan 19 03:14:07 2038 GMT]
+diff --git a/tests/ts/utmp/txt-b b/tests/ts/utmp/txt-b
+index 02fb22d..5deefde 100644
+--- a/tests/ts/utmp/txt-b
++++ b/tests/ts/utmp/txt-b
+@@ -1,10 +1,10 @@
+-[7] [17058] [ts/1] [kerolasa] [pts/1       ] [:0.0                ] [0.0.0.0        ] [Wed Jan 16 23:44:09 2013 GMT]
+-[7] [22098] [ts/2] [kerolasa] [pts/2       ] [:0.0                ] [0.0.0.0        ] [Wed Jan 16 23:49:17 2013 GMT]
+-[7] [24915] [ts/3] [kerolasa] [pts/3       ] [:0.0                ] [0.0.0.0        ] [Thu Jan 17 12:23:33 2013 GMT]
+-[8] [24915] [ts/3] [kerolasa] [pts/3       ] [                    ] [0.0.0.0        ] [Thu Jan 17 12:24:49 2013 GMT]
+-[7] [30629] [ts/3] [kerolasa] [pts/3       ] [:0.0                ] [0.0.0.0        ] [Thu Jan 17 13:12:39 2013 GMT]
+-[8] [30629] [ts/3] [kerolasa] [pts/3       ] [                    ] [0.0.0.0        ] [Thu Jan 17 13:42:19 2013 GMT]
+-[8] [22098] [ts/2] [kerolasa] [pts/2       ] [                    ] [0.0.0.0        ] [Thu Jan 17 13:42:48 2013 GMT]
+-[8] [17058] [ts/1] [kerolasa] [pts/1       ] [                    ] [0.0.0.0        ] [Thu Jan 17 13:42:48 2013 GMT]
+-[7] [31545] [ts/1] [kerolasa] [pts/1       ] [:0.0                ] [0.0.0.0        ] [Thu Jan 17 20:17:21 2013 GMT]
+-[7] [28496] [ts/2] [kerolasa] [pts/2       ] [:0.0                ] [0.0.0.0        ] [Thu Jan 17 21:09:39 2013 GMT]
++[7] [17058] [ts/1] [kerolasa] [pts/1       ] [:0.0                ] [0.0.0.0        ] [2013-01-16T23:44:09,000000+0000]
++[7] [22098] [ts/2] [kerolasa] [pts/2       ] [:0.0                ] [0.0.0.0        ] [2013-01-16T23:49:17,000000+0000]
++[7] [24915] [ts/3] [kerolasa] [pts/3       ] [:0.0                ] [0.0.0.0        ] [2013-01-17T12:23:33,000000+0000]
++[8] [24915] [ts/3] [kerolasa] [pts/3       ] [                    ] [0.0.0.0        ] [2013-01-17T12:24:49,000000+0000]
++[7] [30629] [ts/3] [kerolasa] [pts/3       ] [:0.0                ] [0.0.0.0        ] [2013-01-17T13:12:39,000000+0000]
++[8] [30629] [ts/3] [kerolasa] [pts/3       ] [                    ] [0.0.0.0        ] [2013-01-17T13:42:19,000000+0000]
++[8] [22098] [ts/2] [kerolasa] [pts/2       ] [                    ] [0.0.0.0        ] [2013-01-17T13:42:48,000000+0000]
++[8] [17058] [ts/1] [kerolasa] [pts/1       ] [                    ] [0.0.0.0        ] [2013-01-17T13:42:48,000000+0000]
++[7] [31545] [ts/1] [kerolasa] [pts/1       ] [:0.0                ] [0.0.0.0        ] [2013-01-17T20:17:21,000000+0000]
++[7] [28496] [ts/2] [kerolasa] [pts/2       ] [:0.0                ] [0.0.0.0        ] [2013-01-17T21:09:39,000000+0000]
+diff --git a/tests/ts/utmp/txt-b-old b/tests/ts/utmp/txt-b-old
+new file mode 100644
+index 0000000..02fb22d
+--- /dev/null
++++ b/tests/ts/utmp/txt-b-old
+@@ -0,0 +1,10 @@
++[7] [17058] [ts/1] [kerolasa] [pts/1       ] [:0.0                ] [0.0.0.0        ] [Wed Jan 16 23:44:09 2013 GMT]
++[7] [22098] [ts/2] [kerolasa] [pts/2       ] [:0.0                ] [0.0.0.0        ] [Wed Jan 16 23:49:17 2013 GMT]
++[7] [24915] [ts/3] [kerolasa] [pts/3       ] [:0.0                ] [0.0.0.0        ] [Thu Jan 17 12:23:33 2013 GMT]
++[8] [24915] [ts/3] [kerolasa] [pts/3       ] [                    ] [0.0.0.0        ] [Thu Jan 17 12:24:49 2013 GMT]
++[7] [30629] [ts/3] [kerolasa] [pts/3       ] [:0.0                ] [0.0.0.0        ] [Thu Jan 17 13:12:39 2013 GMT]
++[8] [30629] [ts/3] [kerolasa] [pts/3       ] [                    ] [0.0.0.0        ] [Thu Jan 17 13:42:19 2013 GMT]
++[8] [22098] [ts/2] [kerolasa] [pts/2       ] [                    ] [0.0.0.0        ] [Thu Jan 17 13:42:48 2013 GMT]
++[8] [17058] [ts/1] [kerolasa] [pts/1       ] [                    ] [0.0.0.0        ] [Thu Jan 17 13:42:48 2013 GMT]
++[7] [31545] [ts/1] [kerolasa] [pts/1       ] [:0.0                ] [0.0.0.0        ] [Thu Jan 17 20:17:21 2013 GMT]
++[7] [28496] [ts/2] [kerolasa] [pts/2       ] [:0.0                ] [0.0.0.0        ] [Thu Jan 17 21:09:39 2013 GMT]
+diff --git a/tests/ts/utmp/txt-ipv6 b/tests/ts/utmp/txt-ipv6
+index 5cce150..5894144 100644
+--- a/tests/ts/utmp/txt-ipv6
++++ b/tests/ts/utmp/txt-ipv6
+@@ -1,2 +1,2 @@
+-[7] [00010] [ipv6] [IPv6    ] [root        ] [dns-server          ] [2001:503:ba3e::2:30] [Wed Aug 28 20:30:40 2013 GMT]
+-[8] [00011] [ipv6] [IPv6    ] [root        ] [dns-server          ] [2001:503:ba3e::2:30] [Wed Aug 28 20:40:50 2013 GMT]
++[7] [00010] [ipv6] [IPv6    ] [root        ] [dns-server          ] [2001:503:ba3e::2:30] [2013-08-28T20:30:40,000000+0000]
++[8] [00011] [ipv6] [IPv6    ] [root        ] [dns-server          ] [2001:503:ba3e::2:30] [2013-08-28T20:40:50,000000+0000]
+diff --git a/tests/ts/utmp/txt-ipv6-old b/tests/ts/utmp/txt-ipv6-old
+new file mode 100644
+index 0000000..5cce150
+--- /dev/null
++++ b/tests/ts/utmp/txt-ipv6-old
+@@ -0,0 +1,2 @@
++[7] [00010] [ipv6] [IPv6    ] [root        ] [dns-server          ] [2001:503:ba3e::2:30] [Wed Aug 28 20:30:40 2013 GMT]
++[8] [00011] [ipv6] [IPv6    ] [root        ] [dns-server          ] [2001:503:ba3e::2:30] [Wed Aug 28 20:40:50 2013 GMT]
+diff --git a/tests/ts/utmp/utmpdump-circle b/tests/ts/utmp/utmpdump-circle
+index cae2995..9663dba 100755
+--- a/tests/ts/utmp/utmpdump-circle
++++ b/tests/ts/utmp/utmpdump-circle
+@@ -27,9 +27,15 @@ OUT_BIN1=${TS_OUTDIR}/${TS_TESTNAME}.bin1
+ OUT_BIN2=${TS_OUTDIR}/${TS_TESTNAME}.bin2
+ OUT_TXT=${TS_OUTDIR}/${TS_TESTNAME}.txt
+ 
++# Files with -old extension are using timestamp format before utmpdump
++# started to use iso-8601 format.  This check is testing nothing is lost
++# when conversions performing following conversions.
++#
++# old text format -> binary -> new text format -> binary
++
+ echo "no output expected" > $TS_OUTPUT
+ for f in txt-a txt-b txt-ipv6; do
+-	$TS_CMD_UTMPDUMP -r $TS_SELF/$f > $OUT_BIN1 2>/dev/null &&
++	$TS_CMD_UTMPDUMP -r $TS_SELF/$f-old > $OUT_BIN1 2>/dev/null &&
+ 	$TS_CMD_UTMPDUMP $OUT_BIN1 > $OUT_TXT 2>/dev/null &&
+ 	diff -u $TS_SELF/$f $OUT_TXT &&
+ 	$TS_CMD_UTMPDUMP -r $OUT_TXT > $OUT_BIN2 2>/dev/null &&
+-- 
+2.9.0
 
-This doesn't return a different exit code when nothing is found, but
-checking the output would work.
-I went with a similar solution of checking the output of blkid:
-blkid -p /dev/sda1 | grep -qw TYPE && echo "device is not empty"
-
-Thanks!
-
->
-> --
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
