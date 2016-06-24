@@ -1,63 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:34195 "EHLO
-	mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753876AbcFTUlH (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 20 Jun 2016 16:41:07 -0400
-Received: by mail-lf0-f67.google.com with SMTP id l184so6665952lfl.1
-        for <util-linux@vger.kernel.org>; Mon, 20 Jun 2016 13:40:43 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 1/6] utmpdump: use always UTC-0 timezone in textual output
-Date: Mon, 20 Jun 2016 21:40:32 +0100
-Message-Id: <20160620204037.3292-2-kerolasa@iki.fi>
-In-Reply-To: <20160620204037.3292-1-kerolasa@iki.fi>
-References: <20160620204037.3292-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:34201 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751198AbcFXJTQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 24 Jun 2016 05:19:16 -0400
+Date: Fri, 24 Jun 2016 11:19:14 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Yigal Korman <yigal@plexistor.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: blkid partition infomartion
+Message-ID: <20160624091914.ekiska2x77n2euqu@ws.net.home>
+References: <CACTTzNa3aTiCrHBQrvwVvFwLQpTdGTDLGt+G3wycpMXEzXbXcw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CACTTzNa3aTiCrHBQrvwVvFwLQpTdGTDLGt+G3wycpMXEzXbXcw@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Converting a time structure from text format that has timezone markup is
-practically impossible.  See reference links for more information.  This
-leads to situation where multiple utmpdump(1) conversions from binary to
-text and back make timestamps to shift amount of timezone offset to UTC-0.
+On Tue, Jun 21, 2016 at 04:59:39PM +0300, Yigal Korman wrote:
+> I have a question regarding this patch in util-linux:
+> "blkid: don't ignore info about partitions on non-formated devices"
+> (commit f8098e2b2c0a8a98ccb603f53dfba0cc05683a39)
+> 
+> I wanted to know what was the trigger for this change? what's the reasoning
+> behind it?
 
-The easiest way to make multiple conversions to work without timeshifts is
-to always use UTC-0 timezone.  Downside of this approach is that the textual
-format is less human readable than local timestamps would be.
+I guess inconsistency with man page:
 
-Reference: http://www.catb.org/esr/time-programming/#_strptime_3_and_getdate_3
-Reference: http://man7.org/linux/man-pages/man3/strptime.3.html
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- login-utils/utmpdump.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+  Note that low-level probing also returns information about partition
+  table type (PTTYPE tag) and partitions (PART_ENTRY_* tags).
 
-diff --git a/login-utils/utmpdump.c b/login-utils/utmpdump.c
-index 03cf4a9..6eaf202 100644
---- a/login-utils/utmpdump.c
-+++ b/login-utils/utmpdump.c
-@@ -47,10 +47,10 @@
- 
- static char *timetostr(const time_t time)
- {
--	static char s[29];	/* [Sun Sep 01 00:00:00 1998 PST] */
-+	static char s[29];	/* [Tue Sep 01 00:00:00 1998 GMT] */
- 	struct tm *tmp;
- 
--	if (time != 0 && (tmp = localtime(&time)))
-+	if (time != 0 && (tmp = gmtime(&time)))
- 		strftime(s, 29, "%a %b %d %T %Y %Z", tmp);
- 	else
- 		s[0] = '\0';
-@@ -73,7 +73,7 @@ static time_t strtotime(const char *s_time)
- 	if (s_time[26] == 'D')
- 		tm.tm_isdst = 1;
- 
--	return mktime(&tm);
-+	return timegm(&tm);
- }
- 
- #define cleanse(x) xcleanse(x, sizeof(x))
+.. and I'm not able to found if someone complained on mailing list.
+
+> Background:
+> I have an Linux automation script that formats a given partition and mounts
+> it.
+> In order to verify that the partition is empty (ie no other data exists
+> there) I've been using 'blkid -p <partition>;  [[ $? != 2 ]] && fail".
+> Which stopped working correctly when I moved to Ubuntu 16.04.
+> I've tracked the issue to the patch mentioned above.
+> 
+> To me this patch seems to counter blkid behavior - returning the partition
+> information when the given device is the partition doesn't describe what
+> the device contains.
+
+Yes, the patch seems pretty controversial. I'll think about revert.
+
+> The same way that if /dev/sda is part of LVM, then 'blkid -p /dev/sda' will
+> return the LVM information, but doing 'blkid -p /dev/mapper/vg-lv' will
+> return what's inside the logical volume and not the logical volume
+> information (and nothing if the empty).
+> 
+> Do you have a suggestion for a different method for testing if a device is
+> empty?
+
+ lsblk -n -o FSTYPE /dev/sda1
+
 -- 
-2.9.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
