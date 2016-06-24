@@ -1,98 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lb0-f195.google.com ([209.85.217.195]:36138 "EHLO
-	mail-lb0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754261AbcFTUlH (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 20 Jun 2016 16:41:07 -0400
-Received: by mail-lb0-f195.google.com with SMTP id z2so160773lbu.3
-        for <util-linux@vger.kernel.org>; Mon, 20 Jun 2016 13:40:50 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 5/6] tests: remove utmpdump localization go-around
-Date: Mon, 20 Jun 2016 21:40:36 +0100
-Message-Id: <20160620204037.3292-6-kerolasa@iki.fi>
-In-Reply-To: <20160620204037.3292-1-kerolasa@iki.fi>
-References: <20160620204037.3292-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:58812 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751487AbcFXIcD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 24 Jun 2016 04:32:03 -0400
+Date: Fri, 24 Jun 2016 10:32:00 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Olaf Hering <olaf@aepfle.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: udf LABEL= handling broken
+Message-ID: <20160624083200.gptz2k3sdamoldnq@ws.net.home>
+References: <20160606084348.GA26722@aepfle.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20160606084348.GA26722@aepfle.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The utmpdump timestamps are unambiguous, so forcing locale environment is
-never needed.
+On Mon, Jun 06, 2016 at 10:43:48AM +0200, Olaf Hering wrote:
+> (Assuming util-linux is used to create broken /dev/disk/by-label/*)
+> 
+> It seems Win7 handles only up to 11 chars as volume name for a disk
+> partition. According to this diff of xxd -a output it puts the length
+> after the actual string block. blkid ignores the lenght and uses
+> whatever is in the string block as LABEL=. For some reason the string is
+> stored twice in the metadata.  The first attempt was volume name 'abcd',
+> the second uses the full 11 chars.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- tests/ts/utmp/utmpdump-circle     | 2 --
- tests/ts/utmp/utmpdump-tobin      | 2 --
- tests/ts/utmp/utmpdump-tobin-ipv6 | 2 --
- tests/ts/utmp/utmpdump-totxt      | 2 --
- tests/ts/utmp/utmpdump-totxt-ipv6 | 2 --
- 5 files changed, 10 deletions(-)
+It's so tricky with UDF.. it depends if there is also iso9660, what
+identifier is set etc. See
 
-diff --git a/tests/ts/utmp/utmpdump-circle b/tests/ts/utmp/utmpdump-circle
-index 9663dba..41d7de6 100755
---- a/tests/ts/utmp/utmpdump-circle
-+++ b/tests/ts/utmp/utmpdump-circle
-@@ -21,8 +21,6 @@ ts_init "$*"
- # this test is arch independent, no need for utmp_functions.sh
- ts_check_test_command "$TS_CMD_UTMPDUMP"
- 
--export LANG=C
--export TZ=GMT
- OUT_BIN1=${TS_OUTDIR}/${TS_TESTNAME}.bin1
- OUT_BIN2=${TS_OUTDIR}/${TS_TESTNAME}.bin2
- OUT_TXT=${TS_OUTDIR}/${TS_TESTNAME}.txt
-diff --git a/tests/ts/utmp/utmpdump-tobin b/tests/ts/utmp/utmpdump-tobin
-index 2f14bfc..4054952 100755
---- a/tests/ts/utmp/utmpdump-tobin
-+++ b/tests/ts/utmp/utmpdump-tobin
-@@ -21,8 +21,6 @@ ts_init "$*"
- . "$TS_SELF/utmp_functions.sh"
- [ $SIZEOF_UTMP -eq 384 ] || ts_skip "utmp struct size $SIZEOF_UTMP"
- 
--export LANG=C
--export TZ=GMT
- OUTFILE=${TS_OUTDIR}/${TS_TESTNAME}.file
- $TS_CMD_UTMPDUMP -r $TS_SELF/txt-b >| $OUTFILE 2>/dev/null
- if diff -q $TS_SELF/wtmp-b.$BYTE_ORDER $OUTFILE; then
-diff --git a/tests/ts/utmp/utmpdump-tobin-ipv6 b/tests/ts/utmp/utmpdump-tobin-ipv6
-index e0b19cd..3198d3c 100755
---- a/tests/ts/utmp/utmpdump-tobin-ipv6
-+++ b/tests/ts/utmp/utmpdump-tobin-ipv6
-@@ -21,8 +21,6 @@ ts_init "$*"
- . "$TS_SELF/utmp_functions.sh"
- [ $SIZEOF_UTMP -eq 384 ] || ts_skip "utmp struct size $SIZEOF_UTMP"
- 
--export LANG=C
--export TZ=GMT
- OUTFILE=${TS_OUTDIR}/${TS_TESTNAME}.file
- $TS_CMD_UTMPDUMP -r $TS_SELF/txt-ipv6 >| $OUTFILE 2>/dev/null
- if diff -q $TS_SELF/wtmp-ipv6.$BYTE_ORDER $OUTFILE; then
-diff --git a/tests/ts/utmp/utmpdump-totxt b/tests/ts/utmp/utmpdump-totxt
-index 37d376a..cde1f4c 100755
---- a/tests/ts/utmp/utmpdump-totxt
-+++ b/tests/ts/utmp/utmpdump-totxt
-@@ -21,8 +21,6 @@ ts_init "$*"
- . "$TS_SELF/utmp_functions.sh"
- [ $SIZEOF_UTMP -eq 384 ] || ts_skip "utmp struct size $SIZEOF_UTMP"
- 
--export LANG=C
--export TZ=GMT
- $TS_CMD_UTMPDUMP $TS_SELF/wtmp-b.$BYTE_ORDER >| $TS_OUTPUT 2>/dev/null
- 
- ts_finalize
-diff --git a/tests/ts/utmp/utmpdump-totxt-ipv6 b/tests/ts/utmp/utmpdump-totxt-ipv6
-index 1b21783..5fc3d9c 100755
---- a/tests/ts/utmp/utmpdump-totxt-ipv6
-+++ b/tests/ts/utmp/utmpdump-totxt-ipv6
-@@ -21,8 +21,6 @@ ts_init "$*"
- . "$TS_SELF/utmp_functions.sh"
- [ $SIZEOF_UTMP -eq 384 ] || ts_skip "utmp struct size $SIZEOF_UTMP"
- 
--export LANG=C
--export TZ=GMT
- $TS_CMD_UTMPDUMP $TS_SELF/wtmp-ipv6.$BYTE_ORDER >| $TS_OUTPUT 2>/dev/null
- 
- ts_finalize
+ https://github.com/karelzak/util-linux/blob/master/libblkid/src/superblocks/udf.c#L126
+
+it would be nice to have more information, at least blkid -p output.
+Maybe also try another udf tools.
+
+    Karel
+
 -- 
-2.9.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
