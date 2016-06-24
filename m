@@ -1,47 +1,32 @@
-Return-Path: heiko.carstens@de.ibm.com
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH 6/6] lscpu: fix MMHZ column entry within man page
-Date: Wed, 22 Jun 2016 09:26:01 +0200
-In-Reply-To: <1466580361-23435-1-git-send-email-heiko.carstens@de.ibm.com>
-References: <1466580361-23435-1-git-send-email-heiko.carstens@de.ibm.com>
-Message-Id: <1466580361-23435-7-git-send-email-heiko.carstens@de.ibm.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:43830 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750874AbcFXJbp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 24 Jun 2016 05:31:45 -0400
+Date: Fri, 24 Jun 2016 11:31:43 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 5/6] tests: remove utmpdump localization go-around
+Message-ID: <20160624093143.wgmytikwnybb7dp3@ws.net.home>
+References: <20160620204037.3292-1-kerolasa@iki.fi>
+ <20160620204037.3292-6-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20160620204037.3292-6-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The indentation for the MMHZ column within the man page is wrong. Also
-there doesn't exist any column with the name MMHZ. The correct names
-would be MAXMHZ and MINMHZ.
+On Mon, Jun 20, 2016 at 09:40:36PM +0100, Sami Kerola wrote:
+> The utmpdump timestamps are unambiguous, so forcing locale environment is
+> never needed.
 
-Therefore rename MMHZ to MAXMHZ and add the missong MINMHZ entry.
+and what about strptime()?
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
- sys-utils/lscpu.1 | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+I think it's fine to keep tests robust and in well know environment.
 
-diff --git a/sys-utils/lscpu.1 b/sys-utils/lscpu.1
-index 167567fa9be0..ffe18db63332 100644
---- a/sys-utils/lscpu.1
-+++ b/sys-utils/lscpu.1
-@@ -87,12 +87,15 @@ The workload is concentrated on few CPUs.
- For vertical polarization, the column also shows the degree of concentration,
- high, medium, or low.  This column contains data only if your hardware system
- and hypervisor support CPU polarization.
-+.RE
- .TP
--.B MMHZ
--Maximum megahertz value for the cpu.  Useful when lscpu is used as hardware
-+.B MAXMHZ
-+Maximum megahertz value for the CPU.  Useful when lscpu is used as hardware
- inventory information gathering tool.  Notice that the megahertz value is
- dynamic, and driven by CPU governor depending on current resource need.
--.RE
-+.TP
-+.B MINMHZ
-+Minimum megahertz value for the CPU.
- .SH OPTIONS
- .TP
- .BR \-a , " \-\-all"
+    Karel
+
 -- 
-2.6.6
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
