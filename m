@@ -1,73 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mga09.intel.com ([134.134.136.24]:9234 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751773AbcFWIcb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 23 Jun 2016 04:32:31 -0400
-From: Alexey Obitotskiy <aleksey.obitotskiy@intel.com>
-To: util-linux@vger.kernel.org
-Cc: kzak@redhat.com
-Subject: [PATCH][RESEND] Add metadata signature check for IMSM on 4Kn drives
-Date: Thu, 23 Jun 2016 10:32:16 +0200
-Message-Id: <1466670736-31676-1-git-send-email-aleksey.obitotskiy@intel.com>
+Received: from mail-lf0-f42.google.com ([209.85.215.42]:33807 "EHLO
+	mail-lf0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750869AbcF0Npt (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 27 Jun 2016 09:45:49 -0400
+Received: by mail-lf0-f42.google.com with SMTP id h129so156889958lfh.1
+        for <util-linux@vger.kernel.org>; Mon, 27 Jun 2016 06:45:48 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20160624091914.ekiska2x77n2euqu@ws.net.home>
+References: <CACTTzNa3aTiCrHBQrvwVvFwLQpTdGTDLGt+G3wycpMXEzXbXcw@mail.gmail.com>
+ <20160624091914.ekiska2x77n2euqu@ws.net.home>
+From: Yigal Korman <yigal@plexistor.com>
+Date: Mon, 27 Jun 2016 16:45:28 +0300
+Message-ID: <CACTTzNamH7-Zy4HaoKomwfBQC5zGe4O8GvuEn2KUMDPinaTL+A@mail.gmail.com>
+Subject: Re: blkid partition infomartion
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Drives with 512 and 4K sectors have different offset for
-metadata signature. Without signature detected on 4Kn drives
-those drives will not be recognized as raid member. This
-patch adds checking for IMSM signature for 4Kn drives.
+On Fri, Jun 24, 2016 at 12:19 PM, Karel Zak <kzak@redhat.com> wrote:
+> On Tue, Jun 21, 2016 at 04:59:39PM +0300, Yigal Korman wrote:
+>> I have a question regarding this patch in util-linux:
+>> "blkid: don't ignore info about partitions on non-formated devices"
+>> (commit f8098e2b2c0a8a98ccb603f53dfba0cc05683a39)
+>>
+>> I wanted to know what was the trigger for this change? what's the reasoning
+>> behind it?
+>
+> I guess inconsistency with man page:
+>
+>   Note that low-level probing also returns information about partition
+>   table type (PTTYPE tag) and partitions (PART_ENTRY_* tags).
 
-Signed-off-by: Alexey Obitotskiy <aleksey.obitotskiy@intel.com>
----
- libblkid/src/superblocks/isw_raid.c | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+Huh, interesting, I didn't notice that.
 
-diff --git a/libblkid/src/superblocks/isw_raid.c b/libblkid/src/superblocks/isw_raid.c
-index 065c2b2..e9ecf05 100644
---- a/libblkid/src/superblocks/isw_raid.c
-+++ b/libblkid/src/superblocks/isw_raid.c
-@@ -26,6 +26,14 @@ struct isw_metadata {
- #define ISW_SIGNATURE		"Intel Raid ISM Cfg Sig. "
- 
- 
-+static struct isw_metadata *get_isw_metadata(blkid_probe pr, unsigned int sector_size,
-+		uint64_t *off)
-+{
-+	*off = ((pr->size / sector_size) - 2) * sector_size;
-+	return (struct isw_metadata *)blkid_probe_get_buffer(pr,
-+			*off, sizeof(struct isw_metadata));
-+}
-+
- static int probe_iswraid(blkid_probe pr,
- 		const struct blkid_idmag *mag __attribute__((__unused__)))
- {
-@@ -37,16 +45,19 @@ static int probe_iswraid(blkid_probe pr,
- 	if (!S_ISREG(pr->mode) && !blkid_probe_is_wholedisk(pr))
- 		return 1;
- 
--	off = ((pr->size / 0x200) - 2) * 0x200;
--	isw = (struct isw_metadata *)
--			blkid_probe_get_buffer(pr,
--					off,
--					sizeof(struct isw_metadata));
-+	isw = get_isw_metadata(pr, 512, &off);
- 	if (!isw)
- 		return errno ? -errno : 1;
- 
--	if (memcmp(isw->sig, ISW_SIGNATURE, sizeof(ISW_SIGNATURE)-1) != 0)
--		return 1;
-+	if (memcmp(isw->sig, ISW_SIGNATURE, sizeof(ISW_SIGNATURE)-1) != 0) {
-+		isw = get_isw_metadata(pr, 4096, &off);
-+		if (!isw)
-+			return errno ? -errno : 1;
-+
-+		if (memcmp(isw->sig, ISW_SIGNATURE, sizeof(ISW_SIGNATURE)-1) != 0)
-+			return 1;
-+	}
-+
- 	if (blkid_probe_sprintf_version(pr, "%6s",
- 			&isw->sig[sizeof(ISW_SIGNATURE)-1]) != 0)
- 		return 1;
--- 
-2.7.4
+>
+> .. and I'm not able to found if someone complained on mailing list.
+>
+>> Background:
+>> I have an Linux automation script that formats a given partition and mounts
+>> it.
+>> In order to verify that the partition is empty (ie no other data exists
+>> there) I've been using 'blkid -p <partition>;  [[ $? != 2 ]] && fail".
+>> Which stopped working correctly when I moved to Ubuntu 16.04.
+>> I've tracked the issue to the patch mentioned above.
+>>
+>> To me this patch seems to counter blkid behavior - returning the partition
+>> information when the given device is the partition doesn't describe what
+>> the device contains.
+>
+> Yes, the patch seems pretty controversial. I'll think about revert.
+>
+>> The same way that if /dev/sda is part of LVM, then 'blkid -p /dev/sda' will
+>> return the LVM information, but doing 'blkid -p /dev/mapper/vg-lv' will
+>> return what's inside the logical volume and not the logical volume
+>> information (and nothing if the empty).
+>>
+>> Do you have a suggestion for a different method for testing if a device is
+>> empty?
+>
+>  lsblk -n -o FSTYPE /dev/sda1
 
+This doesn't return a different exit code when nothing is found, but
+checking the output would work.
+I went with a similar solution of checking the output of blkid:
+blkid -p /dev/sda1 | grep -qw TYPE && echo "device is not empty"
+
+Thanks!
+
+>
+> --
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
