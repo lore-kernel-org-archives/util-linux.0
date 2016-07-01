@@ -1,54 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:33406 "EHLO
-	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750965AbcGRUfC (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 18 Jul 2016 16:35:02 -0400
-Received: by mail-wm0-f67.google.com with SMTP id o80so203799wme.0
-        for <util-linux@vger.kernel.org>; Mon, 18 Jul 2016 13:35:01 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] logger: remove trailing spaces when outputing to journal
-Date: Mon, 18 Jul 2016 21:34:57 +0100
-Message-Id: <20160718203457.3911-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:40441 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752065AbcGALnb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 1 Jul 2016 07:43:31 -0400
+Date: Fri, 1 Jul 2016 13:43:01 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Alexey Obitotskiy <aleksey.obitotskiy@intel.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH v.2] Add metadata signature check for IMSM on 4Kn drives
+ (v.2)
+Message-ID: <20160701114301.3qngsllk5lv566tk@ws.net.home>
+References: <1466762375-17486-1-git-send-email-aleksey.obitotskiy@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1466762375-17486-1-git-send-email-aleksey.obitotskiy@intel.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Issues:
-1. Whitespace-ish \r is not stripped, while it should be.
-2. In journal \r is considered unprintable.
+On Fri, Jun 24, 2016 at 11:59:35AM +0200, Alexey Obitotskiy wrote:
+>  libblkid/src/superblocks/isw_raid.c | 13 +++++++------
+>  1 file changed, 7 insertions(+), 6 deletions(-)
 
-Lennart: "it is the duty of the client side to drop the trailing whitespace,
-which "logger" doesn't do".
+Applied, thanks!
 
-Reported-by: Ivan Babrou <ibobrik@gmail.com>
-Explained-by: Lennart Poettering <lennart@poettering.net>
-Reference: https://github.com/systemd/systemd/issues/3416
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/logger.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
-
-diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index 9f2940c..6251f96 100644
---- a/misc-utils/logger.c
-+++ b/misc-utils/logger.c
-@@ -341,14 +341,10 @@ static int journald_entry(struct logger_ctl *ctl, FILE *fp)
- 	for (lines = 0; /* nothing */ ; lines++) {
- 		buf = NULL;
- 		sz = getline(&buf, &dummy, fp);
--		if (sz == -1) {
-+		if (sz == -1 && (sz = rtrim_whitespace(buf)) != 0) {
- 			free(buf);
- 			break;
- 		}
--		if (0 < sz && buf[sz - 1] == '\n') {
--			sz--;
--			buf[sz] = '\0';
--		}
- 		if (lines == vectors) {
- 			vectors *= 2;
- 			if (IOV_MAX < vectors)
 -- 
-2.9.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
