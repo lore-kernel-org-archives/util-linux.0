@@ -1,39 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:35672 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751767AbcGQNAj (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 17 Jul 2016 09:00:39 -0400
-Received: by mail-wm0-f68.google.com with SMTP id i5so8763850wmg.2
-        for <util-linux@vger.kernel.org>; Sun, 17 Jul 2016 06:00:38 -0700 (PDT)
+Received: from mail-wm0-f52.google.com ([74.125.82.52]:35404 "EHLO
+	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932156AbcGCVYD (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 3 Jul 2016 17:24:03 -0400
+Received: by mail-wm0-f52.google.com with SMTP id z126so21199008wme.0
+        for <util-linux@vger.kernel.org>; Sun, 03 Jul 2016 14:24:02 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 09/13] dmesg: drop core at impossible case in read_buffer() [oclint]
-Date: Sun, 17 Jul 2016 14:00:11 +0100
-Message-Id: <20160717130015.31760-10-kerolasa@iki.fi>
-In-Reply-To: <20160717130015.31760-1-kerolasa@iki.fi>
-References: <20160717130015.31760-1-kerolasa@iki.fi>
+Subject: [PATCH 00/15] pull: write(1) improvements
+Date: Sun,  3 Jul 2016 22:23:43 +0100
+Message-Id: <20160703212358.1218-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/dmesg.c | 2 ++
- 1 file changed, 2 insertions(+)
+Hello,
 
-diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-index 4544388..92de6e2 100644
---- a/sys-utils/dmesg.c
-+++ b/sys-utils/dmesg.c
-@@ -591,6 +591,8 @@ static ssize_t read_buffer(struct dmesg_control *ctl, char **buf)
- 		if (n == 0 && ctl->action == SYSLOG_ACTION_READ_CLEAR)
- 			n = klogctl(SYSLOG_ACTION_CLEAR, NULL, 0);
- 		break;
-+	default:
-+		abort();	/* impossible method -> drop core */
- 	}
- 
- 	return n;
+This patch set was sent earlier, but because the changes were not merged or
+rejected.  So here is a resubmission that I further worked with to improve
+quality of the changes with hope this time these will get final verdict.
+Old attributions are kept, and more can be added to my git assuming feedback
+is given.
+
+
+----------------------------------------------------------------
+The following changes since commit f29bc6e1cc4ed9f76bded543c6ab393f674ec3ed:
+  lslocks: add --noinaccessible (2016-07-01 14:45:04 +0200)
+are available in the git repository at:
+  git://github.com/kerolasa/lelux-utiliteetit.git write-improvements
+for you to fetch changes up to 6d0f3a2c208917eff769340434a5d736d3f8e57c:
+  lib: try to find tty in get_terminal_name() (2016-07-03 22:17:43 +0100)
+----------------------------------------------------------------
+
+Sami Kerola (15):
+  write: remove unused variable
+  write: get rid of function prototypes
+  write: remove pointless fileno(3) calls
+  write: set atime value in term_chk() only when needed
+  write: use xstrncpy() from strutils.h
+  write: run atexit() checks at the end of execution
+  write: add control structure to clarify what is going on
+  write: improve function and variable names
+  write: remove unnecessary utmp variables
+  write: make timestamp to be obviously just a clock time
+  write: remove PUTC macro
+  write: improve coding style
+  write: tell when effective gid and tty path group mismatch
+  write: stop removing and adding /dev/ in front of tty string
+  lib: try to find tty in get_terminal_name()
+
+ include/ttyutils.h       |   2 +-
+ lib/ttyutils.c           |  15 +-
+ login-utils/login.c      |   2 +-
+ login-utils/su-common.c  |   4 +-
+ term-utils/Makemodule.am |   1 +
+ term-utils/write.c       | 418 +++++++++++++++++++++++------------------------
+ 6 files changed, 218 insertions(+), 224 deletions(-)
+
 -- 
 2.9.0
 
