@@ -1,31 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42473 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752544AbcGALwx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 1 Jul 2016 07:52:53 -0400
-Date: Fri, 1 Jul 2016 13:52:49 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/6] pull: utmpdump iso-8601 format
-Message-ID: <20160701115249.5m2bqxuozjpytbd7@ws.net.home>
-References: <20160620204037.3292-1-kerolasa@iki.fi>
+Received: from mail-oi0-f54.google.com ([209.85.218.54]:36334 "EHLO
+	mail-oi0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932160AbcGCWhk (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 3 Jul 2016 18:37:40 -0400
+Received: by mail-oi0-f54.google.com with SMTP id f189so174942682oig.3
+        for <util-linux@vger.kernel.org>; Sun, 03 Jul 2016 15:37:40 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160620204037.3292-1-kerolasa@iki.fi>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20160703212358.1218-12-kerolasa@iki.fi>
+References: <20160703212358.1218-1-kerolasa@iki.fi> <20160703212358.1218-12-kerolasa@iki.fi>
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Sun, 3 Jul 2016 23:37:39 +0100
+Message-ID: <CAG27Bk3XWNLvqq-oS+v9rOKJPBWt_35Wpgk2nNjvTEKkUby6mA@mail.gmail.com>
+Subject: Re: [PATCH 11/15] write: remove PUTC macro
+To: util-linux <util-linux@vger.kernel.org>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 20, 2016 at 09:40:31PM +0100, Sami Kerola wrote:
->   utmpdump: use always UTC-0 timezone in textual output
->   libcommon: add ISO_8601_GMTIME that will print UTC-0 timestamps
->   utmpdump: use iso-8601 timestamp format with subsecond accuracy
->   tests: fix utmpdump timestamps to be in iso format
->   tests: remove utmpdump localization go-around
->   tests: utmpdump add subsecond accuracy test
+On 3 July 2016 at 22:23, Sami Kerola <kerolasa@iki.fi> wrote:
+> +               if (c == '\n' && fputc_careful('\r', stdout, '^') == EOF)
+> +                       goto fail;
+> +               if (fputc_careful(c, stdout, '^') == EOF)
+> + fail:
+> +                       err(EXIT_FAILURE, _("carefulputc failed"));
 
- Applied, thanks.
+The two if statements can be merged, and goto becomes unnecessary. Fixed in.
+
+https://github.com/kerolasa/lelux-utiliteetit/commit/a8031743eaea418a9512c426f5678ea53e943ceb
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
