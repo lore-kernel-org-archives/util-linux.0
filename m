@@ -1,41 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37962 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751959AbcGSJKp (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 19 Jul 2016 05:10:45 -0400
-Date: Tue, 19 Jul 2016 11:10:43 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+Received: from resqmta-ch2-12v.sys.comcast.net ([69.252.207.44]:55403 "EHLO
+	resqmta-ch2-12v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751986AbcGESkg (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Tue, 5 Jul 2016 14:40:36 -0400
+From: worley@alum.mit.edu (Dale R. Worley)
+To: Ruediger Meier <sweet_f_a@gmx.de>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] logger: remove trailing spaces when outputing to journal
-Message-ID: <20160719091043.bybrrhdzeb43j3tz@ws.net.home>
-References: <20160718203457.3911-1-kerolasa@iki.fi>
- <alpine.LNX.2.20.1607182146130.10723@imuri>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LNX.2.20.1607182146130.10723@imuri>
+Subject: Re: question about raw(1)
+In-Reply-To: <201607041539.37149.sweet_f_a@gmx.de>
+Date: Tue, 05 Jul 2016 14:32:24 -0400
+Message-ID: <871t38djgn.fsf@hobgoblin.ariadne.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jul 18, 2016 at 09:49:27PM +0100, Sami Kerola wrote:
-> Hi Sami, no repeat 100 time: do not send patches before testing them.
+Ruediger Meier <sweet_f_a@gmx.de> writes:
+> I'm just curious, would this always work?: 
+>
+>   modprobe raw
+>   raw /dev/raw/raw1 /dev/xyz
+>
+> or should you wait for /dev/raw/rawctl after modprobe (udevadm settle or 
+> sleep)?
 
-  Always code as if the person who ends up maintaining your code is a
-  violent psychopath who knows where you live [1].
+Interesting -- the modprobe manual page doesn't state explicitly whether
+or not the module initialization actions will be completed before
+modprobe returns.
 
-... just to make you feel better :-))
-
-[1] http://c2.com/cgi/wiki?CodeForTheMaintainer
-
-> ---
->  misc-utils/logger.c            | 7 ++-----
->  tests/expected/logger/journald | 1 -
->  2 files changed, 2 insertions(+), 6 deletions(-)
-
-Applied, thanks!
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Dale
