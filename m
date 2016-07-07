@@ -1,54 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:62989 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:55342 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750912AbcGLVit (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 12 Jul 2016 17:38:49 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: kerolasa@gmail.com
-Subject: Re: [PATCH] hwclock: remove UTC-0 localization hack
-Date: Tue, 12 Jul 2016 23:38:40 +0200
-Cc: J William Piggott <elseifthen@gmx.com>,
-        "util-linux" <util-linux@vger.kernel.org>
-References: <20160710200242.2706-1-kerolasa@iki.fi> <201607121623.04891.sweet_f_a@gmx.de> <CAG27Bk3po26Bsb=E0A1UXDrTrkwPH1pEvqEKXFZ_n4PVOcxt8A@mail.gmail.com>
-In-Reply-To: <CAG27Bk3po26Bsb=E0A1UXDrTrkwPH1pEvqEKXFZ_n4PVOcxt8A@mail.gmail.com>
+	id S1752707AbcGGU1g (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 7 Jul 2016 16:27:36 -0400
+Date: Thu, 7 Jul 2016 22:27:34 +0200
+From: Karel Zak <kzak@redhat.com>
+To: "Dale R. Worley" <worley@alum.mit.edu>
+Cc: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
+Subject: Re: question about raw(1)
+Message-ID: <20160707202734.tuoshkpnoxlnr5w5@ws.net.home>
+References: <201607041539.37149.sweet_f_a@gmx.de>
+ <871t38djgn.fsf@hobgoblin.ariadne.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201607122338.40458.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <871t38djgn.fsf@hobgoblin.ariadne.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 12 July 2016, Sami Kerola wrote:
-> On 12 July 2016 at 15:23, Ruediger Meier <sweet_f_a@gmx.de> wrote:
-> > On Tuesday 12 July 2016, Sami Kerola wrote:
-> >> On 11 July 2016 at 21:23, J William Piggott <elseifthen@gmx.com>
+On Tue, Jul 05, 2016 at 02:32:24PM -0400, Dale R. Worley wrote:
+> Ruediger Meier <sweet_f_a@gmx.de> writes:
+> > I'm just curious, would this always work?: 
 > >
-> > wrote:
-> >> > We use mktime(3) for portability.
-> >> >
-> >> > http://www.gnu.org/software/libc/manual/html_mono/libc.html#inde
-> >> >x-t imegm
-> >> >
-> >> > Portability note: mktime is essentially universally available.
-> >> > timegm is rather rare. For the most portable conversion from a
-> >> > UTC broken-down time to a simple time, set the TZ environment
-> >> > variable to UTC, call mktime, then set TZ back.
-> >>
-> >> I don't think hwclock(8) is portable. It has ioctl(2) calls, and
-> >> such.
+> >   modprobe raw
+> >   raw /dev/raw/raw1 /dev/xyz
 > >
-> > But there are non-gnu libc's for Linux.
->
-> Fair point, but can you name one that does not have timegm().
->
-> https://github.com/cloudius-systems/musl/blob/master/src/time/timegm.
->c https://github.com/ensc/dietlibc/blob/master/libugly/timegm.c
-> http://www.uclibc-ng.org/browser/uclibc-ng/libc/misc/time/timegm.c?or
->der=name
+> > or should you wait for /dev/raw/rawctl after modprobe (udevadm settle or 
+> > sleep)?
 
+This is generic problem and I don't think for utils like raw(8) is
+there any elegant way how to wait for rawctl node. 
 
-Yep, also musl has timegm. But at least it's good that William reminded 
-us to check that! :)
+IMHO the right solution is write robust scripts and expect "bad things" 
+from your OS :-)
 
-cu,
-Rudi
+> Interesting -- the modprobe manual page doesn't state explicitly whether
+> or not the module initialization actions will be completed before
+> modprobe returns.
+
+Well, module initialization may also trigger uevent and the rest is
+userspace (udev) business. In this case things are completely out of
+kernel+modprobe control, so "module initialization done" is irrelevant
+information.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
