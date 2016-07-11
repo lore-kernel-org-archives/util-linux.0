@@ -1,113 +1,103 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp6-v.fe.bosch.de ([139.15.237.11]:35925 "EHLO
-	smtp6-v.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030323AbcGKHoU (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 11 Jul 2016 03:44:20 -0400
-Received: from vsmta13.fe.internet.bosch.com (unknown [10.4.98.53])
-	by imta23.fe.bosch.de (Postfix) with ESMTP id 9A6A41580227
-	for <util-linux@vger.kernel.org>; Mon, 11 Jul 2016 09:44:18 +0200 (CEST)
-Received: from FE-MBX1003.de.bosch.com (vsgw24.fe.internet.bosch.com [10.4.98.24])
-	by vsmta13.fe.internet.bosch.com (Postfix) with ESMTP id 6B8402E404EA
-	for <util-linux@vger.kernel.org>; Mon, 11 Jul 2016 09:44:18 +0200 (CEST)
-From: "Veeraiyan Chidambaram (RBEI/ECF32)"
-	<Veeraiyan.Chidambaram@in.bosch.com>
-To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: RE:  [PATCH] liblkid: fix probe_nilfs2 I/O error backup
-Date: Mon, 11 Jul 2016 07:44:15 +0000
-Message-ID: <46d4c8afbe4d45eb96668b45854dd954@SGPMBX1019.APAC.bosch.com>
-Content-Type: multipart/mixed;
-	boundary="_002_46d4c8afbe4d45eb96668b45854dd954SGPMBX1019APACboschcom_"
+Received: from mout.gmx.net ([212.227.17.22]:61950 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752761AbcGKUXn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 11 Jul 2016 16:23:43 -0400
+Subject: Re: [PATCH] hwclock: remove UTC-0 localization hack
+To: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
+References: <20160710200242.2706-1-kerolasa@iki.fi>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <3421b4a5-023c-304b-3768-fa6f219d6300@gmx.com>
+Date: Mon, 11 Jul 2016 16:23:37 -0400
 MIME-Version: 1.0
+In-Reply-To: <20160710200242.2706-1-kerolasa@iki.fi>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---_002_46d4c8afbe4d45eb96668b45854dd954SGPMBX1019APACboschcom_
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
 
-SGVsbG8gQWxsIA0KDQpQbGVhc2UgZmluZCB0aGUgYXR0YWNoZWQgcGF0Y2ggLg0KDQpCZXN0IHJl
-Z2FyZHMNCg0KVmVlcmFpeWFuIENoaWRhbWJhcmFtDQpSQkVJL0VDRsKgDQoNClRlbC4gKzkxKDQy
-Mik2NzYtNDQ5NQ0KDQoNCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IFZlZXJh
-aXlhbiBDaGlkYW1iYXJhbSAoUkJFSS9FQ0YzMikNClNlbnQ6IE1vbmRheSwgSnVseSAxMSwgMjAx
-NiAxOjExIFBNDQpUbzogJ3V0aWwtbGludXhAdmdlci5rZXJuZWwub3JnJyA8dXRpbC1saW51eEB2
-Z2VyLmtlcm5lbC5vcmc+OyBWZWVyYWl5YW4gQ2hpZGFtYmFyYW0gKFJCRUkvRUNGMzIpIDxWZWVy
-YWl5YW4uQ2hpZGFtYmFyYW1AaW4uYm9zY2guY29tPg0KU3ViamVjdDogW1BBVENIXSBsaWJsa2lk
-OiBmaXggcHJvYmVfbmlsZnMyIEkvTyBlcnJvciBiYWNrdXANCg0KSGVsbG/CoCBBbGwsDQoNCklu
-IG91ciBzeXN0ZW0gcmVjZW50bHkgdXBkYXRlZCBsaWJibGtpZC0yLjI0IHRvIGxpYmJsa2lkLTIu
-MjYuDQpBZnRlciB1cGRhdGluZ8KgIG9mIGxpYmJsa2lkLCBibGtpZCAtcCAtdSBub3JhaWQgL2Rl
-di9zcjDCoCBzdG9wcGVkDQp3b3JraW5nIGZvciBteSBNaXhlZCBtb2RlIENEIChhdWRpbyArIGRh
-dGEpIGFuZCBkb2VzbnQgZ2l2ZSBhbnkgb3V0cHV0Lg0KDQpsaWJibGtpZCBydW4ncyBwcm9iZSBm
-dW5jdGlvbiB0byBmaW5kwqDCoMKgwqDCoA0KV2hlbiBJwqAgaW52ZXN0aWdhdGVkIGZ1cnRoZXIg
-Zm91bmQgcHJvYmUgb2YgbmlsZnMgZmlsZSBzeXN0ZW0gaXMgZmFpbGluZyB3aXRoIEkvTyBlcnJv
-cg0KKGJlZm9yZSBuaWxmcyBmaWxlIHN5c3RlbSBwcm9iZSBpc285NjYwIHByb2JlIHdhcyBzdWNj
-ZXNzZnVsKSAuDQoNClRoZSBuaWxmcyBwcm9iZSBmdW5jdGlvbiBkb2VzIHRoZSBmb2xsb3dpbmcN
-CjEuIHJlYWRzIGZvciBwcmltYXJ5IHBhcnRpdGlvbg0KMi4gcmVhZCBiYWNrdXAgcGFydGl0aW9u
-DQozLiBjaGVja3MgdGhlIG5pbGZzIHJlbGF0ZWQgdmFsaWRpdHkgY2hlY2tzDQrCoMKgIGlmIHZh
-bGlkYXRlIGZhaWxzIHJldHVybnMgMSBtZWFuaW5nIENEIGZpbGUgc3lzdGVtIGlzDQrCoMKgIG5v
-dCBhbiBuaWxmcyBmaWxlIHN5c3RlbS4NCjQuIGlmIHZhbGlkYXRpb24gaXMgc3VjY2Vzc2Z1bCB0
-aGVuIGNvcHkgdGhlIG5lY2Vzc2FyeSBpbmZvcm1hdGlvbiBhbmQNCsKgwqAgcmV0dXJuIDAgbWVh
-bmluZyBDRCBpcyBuaWxmcyBmaWxlIHN5c3RlbS4NCg0KSW4gbXkgY2FzZQ0KMS4gUmVhZCBvZiBw
-cmltYXJ5IHBvcnRpb24gaXMgc3VjY2Vzc2Z1bC4NCjIuIFJlYWQgQmFja3VwIHBhcnRpdGlvbiBp
-cyBmYWxscyB3aXRoIEkvTyBlcnJvci4NCjMuIHJldHVucyBlcnJubyAtNQ0KDQrCoA0KaGVyZSBp
-IHNlZSBhIGZvbGxvd2luZyBkaWZmZXJlbmNlIGIvdyBsaWJibGtpZC0yLjI0IGFuZCBsaWJibGtp
-ZC0yLjI2DQoxLiBJbiB2ZXJzaW9uIDIuMjTCoCBpZiBiYWNrdXAgcGFydGl0aW9uIGZhaWxzIHRo
-ZXkgZG9lc24ndCB0cmVhdCBhcyBlcnJvcg0KwqDCoMKgIGJ1dCBpbiBuZXdlciB2ZXJzaW9uIHRy
-ZWF0ZWQgYXMgZXJyb3IuDQoyLiBPbiB0aGUgd2hvbGUgZXJyb3IgaGFuZGxpbmcgd2FzIGNoYW5n
-ZWQgaW4gbGliYmxraWQtMi4yNiAsDQrCoMKgIGlmIGFueSBmaWxlIHByb2JlIHJldHVybiBlcnJu
-bywgdGhlbiBzdWNjZXNzZnVsIGZvdW5kIGZpbGUgc3lzdGVtDQrCoMKgIGFsbCBzbyBkaXNjYXJk
-ZWQgLCBpbiBteSBjYXNlIGV2ZW4gdGhyb3VnaCBpc285NjYwIHByb2JlIGZvdW5kDQrCoMKgIENE
-IHdhcyBhIGlzbzk2NjAgZmlsZSBzeXN0ZW0gZHVlIG5pbGZzIHByb2JlIGJsa2lkIHJldHVybiBl
-cnJubw0KwqAgdGhlIHN1Y2Nlc3NmdWwgaXM5NjYwIHJlc3VsdHMgYWxzbyBpZ25vcmVkIGJ5IGxp
-YmxraWQuDQoNCg0KSSB3b3VsZCBsaWtlIHRvIHByb3Bvc2UgdGhlIGZvbGxvd2luZyBmaXgNCg0K
-DQpJbiBuaWxmcyBmaWxlIHN5c3RlbSBwcm9iZQ0KMS4gcmVhZCBwcmltYXJ5IHBhcnRpdGlvbg0K
-Mi4gdmFsaWRhdGUgdGhlIHByaW1hcnkgcGFydGl0aW9uIGlmIGZhaWxzIHJldHVybiAxIGkuZSBu
-byBmaWxlIHN5c3RlbSBmb3VuZCBmb3IgbmlsZnMgZmlsZSBzeXN0ZW0gaW4gdGhlIENELg0KMy4g
-aWYgYmFja3VwIHBhcnRpdGlvbiBpZiB2YWxpZGF0ZS4NCjQuIHRoZW4gdmFsaWRhdGUgYmFja3Vw
-IHBhcnRpdGlvbiBhbmQgdGhlbiBjb3B5IHRoZSBuZWNlc3NhcnkgaW5mb3JtYXRpb24gYW5kDQrC
-oMKgIHJldHVybiAwIG1lYW5pbmcgQ0QgaXMgbmlsZnMgZmlsZSBzeXN0ZW0uDQoNCg0KDQotLQ0K
-VGhhbmtzICZSZWdhcmRzDQoNCg0KdmVlcmFpeWFuIGNoaWRhbWJhcmFtDQo=
+We use mktime(3) for portability.
 
---_002_46d4c8afbe4d45eb96668b45854dd954SGPMBX1019APACboschcom_
-Content-Type: application/octet-stream;
-	name="0001-liblkid-fix-probe_nilfs2-I-O-error-backup.patch"
-Content-Description: 0001-liblkid-fix-probe_nilfs2-I-O-error-backup.patch
-Content-Disposition: attachment;
-	filename="0001-liblkid-fix-probe_nilfs2-I-O-error-backup.patch"; size=1766;
-	creation-date="Mon, 11 Jul 2016 07:32:38 GMT";
-	modification-date="Mon, 11 Jul 2016 07:32:38 GMT"
-Content-Transfer-Encoding: base64
+http://www.gnu.org/software/libc/manual/html_mono/libc.html#index-timegm
 
-RnJvbSBkYTVlOWRkYjY3YmIwMjAyOTVhZjMzOWI4YjQ3NWM5ZWRkNDUwYTYxIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBWZWVyYWl5YW4gQ2hpZGFtYmFyYW0gPHZlZXJhaXlhbi5jaGlk
-YW1iYXJhbUBpbi5ib3NjaC5jb20+CkRhdGU6IE1vbiwgMTEgSnVsIDIwMTYgMTM6MDI6MTAgKzA1
-MzAKU3ViamVjdDogW1BBVENIXSBsaWJsa2lkOiBmaXggcHJvYmVfbmlsZnMyIEkvTyBlcnJvciBi
-YWNrdXAKCiBJbiBtaXhlZCBtb2RlIENEIGlzbzk2NjAgZmlsZSBzeXN0ZW0gdHlwZSwgcmVhZGlu
-ZyBiYWNrdXAKIGVuZHMtdXAgaW4gSS9PIGVycm9yIGFuZCBmaW5hbGx5IGVuZHMgdXAgaW4gZXJy
-b3IgaW4gZmluZGluZwogZmlsZSBzeXN0ZW0uIFRvIGF2b2lkIHRoaXMgdmFsaWRhdGUgcHJpbWFy
-eSBiZWZvcmUgcmVhZGluZyBiYWNrdXAKCgpTaWduZWQtb2ZmLWJ5OiBWZWVyYWl5YW4gQ2hpZGFt
-YmFyYW0gPHZlZXJhaXlhbi5jaGlkYW1iYXJhbUBpbi5ib3NjaC5jb20+Ci0tLQogbGliYmxraWQv
-c3JjL3N1cGVyYmxvY2tzL25pbGZzLmMgfCAgIDEwICsrKysrKysrLS0KIDEgZmlsZSBjaGFuZ2Vk
-LCA4IGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvbGliYmxraWQv
-c3JjL3N1cGVyYmxvY2tzL25pbGZzLmMgYi9saWJibGtpZC9zcmMvc3VwZXJibG9ja3MvbmlsZnMu
-YwppbmRleCBjZDkzZDdiLi5hNjM1NTY2IDEwMDY0NAotLS0gYS9saWJibGtpZC9zcmMvc3VwZXJi
-bG9ja3MvbmlsZnMuYworKysgYi9saWJibGtpZC9zcmMvc3VwZXJibG9ja3MvbmlsZnMuYwpAQCAt
-MTA4LDcgKzEwOCwxNCBAQCBzdGF0aWMgaW50IHByb2JlX25pbGZzMihibGtpZF9wcm9iZSBwciwK
-IAkJCXByLCBOSUxGU19TQl9PRkZTRVQsIHNpemVvZihzdHJ1Y3QgbmlsZnNfc3VwZXJfYmxvY2sp
-KTsKIAlpZiAoIXNicCkKIAkJcmV0dXJuIGVycm5vID8gLWVycm5vIDogMTsKKwkvKiBJbiBtaXhl
-ZCBtb2RlIENEIGlzbzk2NjAgZmlsZSBzeXN0ZW0gdHlwZSwgcmVhZGluZyBiYWNrdXAgZW5kcy11
-cCBpbiBJL08KKwkgKiBlcnJvciBhbmQgZmluYWxseSBlbmRzIHVwIGluIGVycm9yIGluIGZpbmRp
-bmcgZmlsZSBzeXN0ZW0uIFRvIGF2b2lkIHRoaXMKKwkgKiB2YWxpZGF0ZSBwcmltYXJ5IGJlZm9y
-ZSByZWFkaW5nIGJhY2t1cAorCSAqLwogCisJdmFsaWRbMF0gPSBuaWxmc192YWxpZF9zYihwciwg
-c2JwLCAwKTsKKwlpZighdmFsaWRbMF0pCisJCXJldHVybiAxOwogCS8qIGJhY2t1cCAqLwogCXNi
-YiA9IChzdHJ1Y3QgbmlsZnNfc3VwZXJfYmxvY2sgKikgYmxraWRfcHJvYmVfZ2V0X2J1ZmZlcigK
-IAkJCXByLCBOSUxGU19TQkJfT0ZGU0VUKHByLT5zaXplKSwgc2l6ZW9mKHN0cnVjdCBuaWxmc19z
-dXBlcl9ibG9jaykpOwpAQCAtMTE5LDkgKzEyNiw4IEBAIHN0YXRpYyBpbnQgcHJvYmVfbmlsZnMy
-KGJsa2lkX3Byb2JlIHByLAogCSAqIENvbXBhcmUgdHdvIHN1cGVyIGJsb2NrcyBhbmQgc2V0IDEg
-aW4gc3dwIGlmIHRoZSBzZWNvbmRhcnkKIAkgKiBzdXBlciBibG9jayBpcyB2YWxpZCBhbmQgbmV3
-ZXIuICBPdGhlcndpc2UsIHNldCAwIGluIHN3cC4KIAkgKi8KLQl2YWxpZFswXSA9IG5pbGZzX3Zh
-bGlkX3NiKHByLCBzYnAsIDApOwogCXZhbGlkWzFdID0gbmlsZnNfdmFsaWRfc2IocHIsIHNiYiwg
-MSk7Ci0JaWYgKCF2YWxpZFswXSAmJiAhdmFsaWRbMV0pCisJaWYgKCF2YWxpZFsxXSkKIAkJcmV0
-dXJuIDE7CiAKIAlzd3AgPSB2YWxpZFsxXSAmJiAoIXZhbGlkWzBdIHx8Ci0tIAoxLjcuOS41Cgo=
+Portability note: mktime is essentially universally available. timegm is
+rather rare. For the most portable conversion from a UTC broken-down
+time to a simple time, set the TZ environment variable to UTC, call
+mktime, then set TZ back. 
 
---_002_46d4c8afbe4d45eb96668b45854dd954SGPMBX1019APACboschcom_--
-
+On 07/10/2016 04:02 PM, Sami Kerola wrote:
+> There is no need to re-implement timegm() by removing TZ localization for a
+> moment, just use timegm(3) instead.
+> 
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  sys-utils/hwclock.c | 34 +++++-----------------------------
+>  1 file changed, 5 insertions(+), 29 deletions(-)
+> 
+> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+> index e98c2c0..bcaab8b 100644
+> --- a/sys-utils/hwclock.c
+> +++ b/sys-utils/hwclock.c
+> @@ -388,27 +388,11 @@ static void
+>  mktime_tz(struct tm tm, const bool universal,
+>  	  bool * valid_p, time_t * systime_p)
+>  {
+> -	time_t mktime_result;	/* The value returned by our mktime() call */
+> -	char *zone;		/* Local time zone name */
+> -
+> -	/*
+> -	 * We use the C library function mktime(), but since it only works
+> -	 * on local time zone input, we may have to fake it out by
+> -	 * temporarily changing the local time zone to UTC.
+> -	 */
+> -	zone = getenv("TZ");	/* remember original time zone */
+> -	if (universal) {
+> -		/* Set timezone to UTC */
+> -		setenv("TZ", "", TRUE);
+> -		/*
+> -		 * Note: tzset() gets called implicitly by the time code,
+> -		 * but only the first time. When changing the environment
+> -		 * variable, better call tzset() explicitly.
+> -		 */
+> -		tzset();
+> -	}
+> -	mktime_result = mktime(&tm);
+> -	if (mktime_result == -1) {
+> +	if (universal)
+> +		*systime_p = timegm(&tm);
+> +	else
+> +		*systime_p = mktime(&tm);
+> +	if (*systime_p == -1) {
+>  		/*
+>  		 * This apparently (not specified in mktime() documentation)
+>  		 * means the 'tm' structure does not contain valid values
+> @@ -416,7 +400,6 @@ mktime_tz(struct tm tm, const bool universal,
+>  		 * mktime() returns -1).
+>  		 */
+>  		*valid_p = FALSE;
+> -		*systime_p = 0;
+>  		if (debug)
+>  			printf(_("Invalid values in hardware clock: "
+>  				 "%4d/%.2d/%.2d %.2d:%.2d:%.2d\n"),
+> @@ -424,7 +407,6 @@ mktime_tz(struct tm tm, const bool universal,
+>  			       tm.tm_hour, tm.tm_min, tm.tm_sec);
+>  	} else {
+>  		*valid_p = TRUE;
+> -		*systime_p = mktime_result;
+>  		if (debug)
+>  			printf(_
+>  			       ("Hw clock time : %4d/%.2d/%.2d %.2d:%.2d:%.2d = "
+> @@ -432,12 +414,6 @@ mktime_tz(struct tm tm, const bool universal,
+>  			       tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min,
+>  			       tm.tm_sec, (long)*systime_p);
+>  	}
+> -	/* now put back the original zone. */
+> -	if (zone)
+> -		setenv("TZ", zone, TRUE);
+> -	else
+> -		unsetenv("TZ");
+> -	tzset();
+>  }
+>  
+>  /*
+> 
