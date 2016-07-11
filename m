@@ -1,37 +1,108 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:39530 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751032AbcGNKBq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 14 Jul 2016 06:01:46 -0400
-Date: Thu, 14 Jul 2016 12:01:43 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: Ruediger Meier <sweet_f_a@gmx.de>, kerolasa@gmail.com,
-        J William Piggott <elseifthen@gmx.com>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] hwclock: remove UTC-0 localization hack
-Message-ID: <20160714100143.gc4ozcmah5i5stgz@ws.net.home>
-References: <20160710200242.2706-1-kerolasa@iki.fi>
- <201607121623.04891.sweet_f_a@gmx.de>
- <CAG27Bk3po26Bsb=E0A1UXDrTrkwPH1pEvqEKXFZ_n4PVOcxt8A@mail.gmail.com>
- <201607122338.40458.sweet_f_a@gmx.de>
- <alpine.LNX.2.20.1607122241300.11890@imuri>
+Received: from smtp6-v.fe.bosch.de ([139.15.237.11]:35799 "EHLO
+	smtp6-v.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751421AbcGKHlF (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 11 Jul 2016 03:41:05 -0400
+Received: from vsmta11.fe.internet.bosch.com (unknown [10.4.98.51])
+	by imta23.fe.bosch.de (Postfix) with ESMTP id 80D8A15801B0
+	for <util-linux@vger.kernel.org>; Mon, 11 Jul 2016 09:41:02 +0200 (CEST)
+Received: from SI-MBX1019.de.bosch.com (vsgw22.fe.internet.bosch.com [10.4.98.11])
+	by vsmta11.fe.internet.bosch.com (Postfix) with ESMTP id 5E1042380510
+	for <util-linux@vger.kernel.org>; Mon, 11 Jul 2016 09:41:02 +0200 (CEST)
+From: "Veeraiyan Chidambaram (RBEI/ECF32)"
+	<Veeraiyan.Chidambaram@in.bosch.com>
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
+        "Veeraiyan Chidambaram (RBEI/ECF32)"
+	<Veeraiyan.Chidambaram@in.bosch.com>
+Subject: [PATCH] liblkid: fix probe_nilfs2 I/O error backup
+Date: Mon, 11 Jul 2016 07:40:59 +0000
+Message-ID: <fc61fac781e54ced943435e9902b2a42@SGPMBX1019.APAC.bosch.com>
+Content-Type: multipart/mixed;
+	boundary="_002_fc61fac781e54ced943435e9902b2a42SGPMBX1019APACboschcom_"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LNX.2.20.1607122241300.11890@imuri>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 12, 2016 at 10:42:33PM +0100, Sami Kerola wrote:
->  lib/portability.c      | 28 ++++++++++++++++++++++++++++
+--_002_fc61fac781e54ced943435e9902b2a42SGPMBX1019APACboschcom_
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 
-We already care about portability and we have many fallbacks, so why
-we need lib/portability.c now? It would better to use timeutils.c (or
-inline function in c.h).
+SGVsbG/CoCBBbGwsDQoNCkluIG91ciBzeXN0ZW0gcmVjZW50bHkgdXBkYXRlZCBsaWJibGtpZC0y
+LjI0IHRvIGxpYmJsa2lkLTIuMjYuDQpBZnRlciB1cGRhdGluZ8KgIG9mIGxpYmJsa2lkLCBibGtp
+ZCAtcCAtdSBub3JhaWQgL2Rldi9zcjDCoCBzdG9wcGVkIA0Kd29ya2luZyBmb3IgbXkgTWl4ZWQg
+bW9kZSBDRCAoYXVkaW8gKyBkYXRhKSBhbmQgZG9lc250IGdpdmUgYW55IG91dHB1dC4NCg0KbGli
+YmxraWQgcnVuJ3MgcHJvYmUgZnVuY3Rpb24gdG8gZmluZMKgwqDCoMKgwqAgDQpXaGVuIEnCoCBp
+bnZlc3RpZ2F0ZWQgZnVydGhlciBmb3VuZCBwcm9iZSBvZiBuaWxmcyBmaWxlIHN5c3RlbSBpcyBm
+YWlsaW5nIHdpdGggSS9PIGVycm9yDQooYmVmb3JlIG5pbGZzIGZpbGUgc3lzdGVtIHByb2JlIGlz
+bzk2NjAgcHJvYmUgd2FzIHN1Y2Nlc3NmdWwpIC4NCg0KVGhlIG5pbGZzIHByb2JlIGZ1bmN0aW9u
+IGRvZXMgdGhlIGZvbGxvd2luZw0KMS4gcmVhZHMgZm9yIHByaW1hcnkgcGFydGl0aW9uIA0KMi4g
+cmVhZCBiYWNrdXAgcGFydGl0aW9uDQozLiBjaGVja3MgdGhlIG5pbGZzIHJlbGF0ZWQgdmFsaWRp
+dHkgY2hlY2tzDQrCoMKgIGlmIHZhbGlkYXRlIGZhaWxzIHJldHVybnMgMSBtZWFuaW5nIENEIGZp
+bGUgc3lzdGVtIGlzIA0KwqDCoCBub3QgYW4gbmlsZnMgZmlsZSBzeXN0ZW0uDQo0LiBpZiB2YWxp
+ZGF0aW9uIGlzIHN1Y2Nlc3NmdWwgdGhlbiBjb3B5IHRoZSBuZWNlc3NhcnkgaW5mb3JtYXRpb24g
+YW5kIA0KwqDCoCByZXR1cm4gMCBtZWFuaW5nIENEIGlzIG5pbGZzIGZpbGUgc3lzdGVtLg0KDQpJ
+biBteSBjYXNlDQoxLiBSZWFkIG9mIHByaW1hcnkgcG9ydGlvbiBpcyBzdWNjZXNzZnVsLg0KMi4g
+UmVhZCBCYWNrdXAgcGFydGl0aW9uIGlzIGZhbGxzIHdpdGggSS9PIGVycm9yLg0KMy4gcmV0dW5z
+IGVycm5vIC01IA0KDQrCoA0KaGVyZSBpIHNlZSBhIGZvbGxvd2luZyBkaWZmZXJlbmNlIGIvdyBs
+aWJibGtpZC0yLjI0IGFuZCBsaWJibGtpZC0yLjI2DQoxLiBJbiB2ZXJzaW9uIDIuMjTCoCBpZiBi
+YWNrdXAgcGFydGl0aW9uIGZhaWxzIHRoZXkgZG9lc24ndCB0cmVhdCBhcyBlcnJvcg0KwqDCoMKg
+IGJ1dCBpbiBuZXdlciB2ZXJzaW9uIHRyZWF0ZWQgYXMgZXJyb3IuDQoyLiBPbiB0aGUgd2hvbGUg
+ZXJyb3IgaGFuZGxpbmcgd2FzIGNoYW5nZWQgaW4gbGliYmxraWQtMi4yNiAsDQrCoMKgIGlmIGFu
+eSBmaWxlIHByb2JlIHJldHVybiBlcnJubywgdGhlbiBzdWNjZXNzZnVsIGZvdW5kIGZpbGUgc3lz
+dGVtDQrCoMKgIGFsbCBzbyBkaXNjYXJkZWQgLCBpbiBteSBjYXNlIGV2ZW4gdGhyb3VnaCBpc285
+NjYwIHByb2JlIGZvdW5kDQrCoMKgIENEIHdhcyBhIGlzbzk2NjAgZmlsZSBzeXN0ZW0gZHVlIG5p
+bGZzIHByb2JlIGJsa2lkIHJldHVybiBlcnJubyANCsKgIHRoZSBzdWNjZXNzZnVsIGlzOTY2MCBy
+ZXN1bHRzIGFsc28gaWdub3JlZCBieSBsaWJsa2lkLg0KDQoNCkkgd291bGQgbGlrZSB0byBwcm9w
+b3NlIHRoZSBmb2xsb3dpbmcgZml4IA0KDQoNCkluIG5pbGZzIGZpbGUgc3lzdGVtIHByb2JlDQox
+LiByZWFkIHByaW1hcnkgcGFydGl0aW9uIA0KMi4gdmFsaWRhdGUgdGhlIHByaW1hcnkgcGFydGl0
+aW9uIGlmIGZhaWxzIHJldHVybiAxIGkuZSBubyBmaWxlIHN5c3RlbSBmb3VuZCBmb3IgbmlsZnMg
+ZmlsZSBzeXN0ZW0gaW4gdGhlIENELg0KMy4gaWYgYmFja3VwIHBhcnRpdGlvbiBpZiB2YWxpZGF0
+ZS4NCjQuIHRoZW4gdmFsaWRhdGUgYmFja3VwIHBhcnRpdGlvbiBhbmQgdGhlbiBjb3B5IHRoZSBu
+ZWNlc3NhcnkgaW5mb3JtYXRpb24gYW5kIA0KwqDCoCByZXR1cm4gMCBtZWFuaW5nIENEIGlzIG5p
+bGZzIGZpbGUgc3lzdGVtLg0KDQoNCg0KLS0gDQpUaGFua3MgJlJlZ2FyZHMgDQoNCg0KdmVlcmFp
+eWFuIGNoaWRhbWJhcmFtIA0K
 
-    Karel
+--_002_fc61fac781e54ced943435e9902b2a42SGPMBX1019APACboschcom_
+Content-Type: application/octet-stream;
+	name="0001-liblkid-fix-probe_nilfs2-I-O-error-backup.patch"
+Content-Description: 0001-liblkid-fix-probe_nilfs2-I-O-error-backup.patch
+Content-Disposition: attachment;
+	filename="0001-liblkid-fix-probe_nilfs2-I-O-error-backup.patch"; size=1766;
+	creation-date="Mon, 11 Jul 2016 07:32:38 GMT";
+	modification-date="Mon, 11 Jul 2016 07:32:38 GMT"
+Content-Transfer-Encoding: base64
 
+RnJvbSBkYTVlOWRkYjY3YmIwMjAyOTVhZjMzOWI4YjQ3NWM5ZWRkNDUwYTYxIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBWZWVyYWl5YW4gQ2hpZGFtYmFyYW0gPHZlZXJhaXlhbi5jaGlk
+YW1iYXJhbUBpbi5ib3NjaC5jb20+CkRhdGU6IE1vbiwgMTEgSnVsIDIwMTYgMTM6MDI6MTAgKzA1
+MzAKU3ViamVjdDogW1BBVENIXSBsaWJsa2lkOiBmaXggcHJvYmVfbmlsZnMyIEkvTyBlcnJvciBi
+YWNrdXAKCiBJbiBtaXhlZCBtb2RlIENEIGlzbzk2NjAgZmlsZSBzeXN0ZW0gdHlwZSwgcmVhZGlu
+ZyBiYWNrdXAKIGVuZHMtdXAgaW4gSS9PIGVycm9yIGFuZCBmaW5hbGx5IGVuZHMgdXAgaW4gZXJy
+b3IgaW4gZmluZGluZwogZmlsZSBzeXN0ZW0uIFRvIGF2b2lkIHRoaXMgdmFsaWRhdGUgcHJpbWFy
+eSBiZWZvcmUgcmVhZGluZyBiYWNrdXAKCgpTaWduZWQtb2ZmLWJ5OiBWZWVyYWl5YW4gQ2hpZGFt
+YmFyYW0gPHZlZXJhaXlhbi5jaGlkYW1iYXJhbUBpbi5ib3NjaC5jb20+Ci0tLQogbGliYmxraWQv
+c3JjL3N1cGVyYmxvY2tzL25pbGZzLmMgfCAgIDEwICsrKysrKysrLS0KIDEgZmlsZSBjaGFuZ2Vk
+LCA4IGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvbGliYmxraWQv
+c3JjL3N1cGVyYmxvY2tzL25pbGZzLmMgYi9saWJibGtpZC9zcmMvc3VwZXJibG9ja3MvbmlsZnMu
+YwppbmRleCBjZDkzZDdiLi5hNjM1NTY2IDEwMDY0NAotLS0gYS9saWJibGtpZC9zcmMvc3VwZXJi
+bG9ja3MvbmlsZnMuYworKysgYi9saWJibGtpZC9zcmMvc3VwZXJibG9ja3MvbmlsZnMuYwpAQCAt
+MTA4LDcgKzEwOCwxNCBAQCBzdGF0aWMgaW50IHByb2JlX25pbGZzMihibGtpZF9wcm9iZSBwciwK
+IAkJCXByLCBOSUxGU19TQl9PRkZTRVQsIHNpemVvZihzdHJ1Y3QgbmlsZnNfc3VwZXJfYmxvY2sp
+KTsKIAlpZiAoIXNicCkKIAkJcmV0dXJuIGVycm5vID8gLWVycm5vIDogMTsKKwkvKiBJbiBtaXhl
+ZCBtb2RlIENEIGlzbzk2NjAgZmlsZSBzeXN0ZW0gdHlwZSwgcmVhZGluZyBiYWNrdXAgZW5kcy11
+cCBpbiBJL08KKwkgKiBlcnJvciBhbmQgZmluYWxseSBlbmRzIHVwIGluIGVycm9yIGluIGZpbmRp
+bmcgZmlsZSBzeXN0ZW0uIFRvIGF2b2lkIHRoaXMKKwkgKiB2YWxpZGF0ZSBwcmltYXJ5IGJlZm9y
+ZSByZWFkaW5nIGJhY2t1cAorCSAqLwogCisJdmFsaWRbMF0gPSBuaWxmc192YWxpZF9zYihwciwg
+c2JwLCAwKTsKKwlpZighdmFsaWRbMF0pCisJCXJldHVybiAxOwogCS8qIGJhY2t1cCAqLwogCXNi
+YiA9IChzdHJ1Y3QgbmlsZnNfc3VwZXJfYmxvY2sgKikgYmxraWRfcHJvYmVfZ2V0X2J1ZmZlcigK
+IAkJCXByLCBOSUxGU19TQkJfT0ZGU0VUKHByLT5zaXplKSwgc2l6ZW9mKHN0cnVjdCBuaWxmc19z
+dXBlcl9ibG9jaykpOwpAQCAtMTE5LDkgKzEyNiw4IEBAIHN0YXRpYyBpbnQgcHJvYmVfbmlsZnMy
+KGJsa2lkX3Byb2JlIHByLAogCSAqIENvbXBhcmUgdHdvIHN1cGVyIGJsb2NrcyBhbmQgc2V0IDEg
+aW4gc3dwIGlmIHRoZSBzZWNvbmRhcnkKIAkgKiBzdXBlciBibG9jayBpcyB2YWxpZCBhbmQgbmV3
+ZXIuICBPdGhlcndpc2UsIHNldCAwIGluIHN3cC4KIAkgKi8KLQl2YWxpZFswXSA9IG5pbGZzX3Zh
+bGlkX3NiKHByLCBzYnAsIDApOwogCXZhbGlkWzFdID0gbmlsZnNfdmFsaWRfc2IocHIsIHNiYiwg
+MSk7Ci0JaWYgKCF2YWxpZFswXSAmJiAhdmFsaWRbMV0pCisJaWYgKCF2YWxpZFsxXSkKIAkJcmV0
+dXJuIDE7CiAKIAlzd3AgPSB2YWxpZFsxXSAmJiAoIXZhbGlkWzBdIHx8Ci0tIAoxLjcuOS41Cgo=
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--_002_fc61fac781e54ced943435e9902b2a42SGPMBX1019APACboschcom_--
+
