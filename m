@@ -1,121 +1,113 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:35193 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750949AbcGNN3q (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 14 Jul 2016 09:29:46 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id C8AF5AC8D
-	for <util-linux@vger.kernel.org>; Thu, 14 Jul 2016 13:29:44 +0000 (UTC)
-To: util-linux@vger.kernel.org
-From: Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH 6/7] libmout: Reuse loop device safely
-Message-ID: <ff4cfcfd-077e-e2eb-8e42-18e025895960@suse.cz>
-Date: Thu, 14 Jul 2016 15:29:44 +0200
+Received: from smtp6-v.fe.bosch.de ([139.15.237.11]:35925 "EHLO
+	smtp6-v.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030323AbcGKHoU (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 11 Jul 2016 03:44:20 -0400
+Received: from vsmta13.fe.internet.bosch.com (unknown [10.4.98.53])
+	by imta23.fe.bosch.de (Postfix) with ESMTP id 9A6A41580227
+	for <util-linux@vger.kernel.org>; Mon, 11 Jul 2016 09:44:18 +0200 (CEST)
+Received: from FE-MBX1003.de.bosch.com (vsgw24.fe.internet.bosch.com [10.4.98.24])
+	by vsmta13.fe.internet.bosch.com (Postfix) with ESMTP id 6B8402E404EA
+	for <util-linux@vger.kernel.org>; Mon, 11 Jul 2016 09:44:18 +0200 (CEST)
+From: "Veeraiyan Chidambaram (RBEI/ECF32)"
+	<Veeraiyan.Chidambaram@in.bosch.com>
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: RE:  [PATCH] liblkid: fix probe_nilfs2 I/O error backup
+Date: Mon, 11 Jul 2016 07:44:15 +0000
+Message-ID: <46d4c8afbe4d45eb96668b45854dd954@SGPMBX1019.APAC.bosch.com>
+Content-Type: multipart/mixed;
+	boundary="_002_46d4c8afbe4d45eb96668b45854dd954SGPMBX1019APACboschcom_"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Add a safety check to mnt_context_setup_loopdev(). Only a loop device with equal
-offset and sizelimit will be reused. If any overlapping loop device exists,
-MNT_ERR_LOOPOVERLAP is returned.
+--_002_46d4c8afbe4d45eb96668b45854dd954SGPMBX1019APACboschcom_
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
----
- libmount/src/context_loopdev.c | 65 +++++++++++++++++++++++++++++++++---------
- 1 file changed, 52 insertions(+), 13 deletions(-)
+SGVsbG8gQWxsIA0KDQpQbGVhc2UgZmluZCB0aGUgYXR0YWNoZWQgcGF0Y2ggLg0KDQpCZXN0IHJl
+Z2FyZHMNCg0KVmVlcmFpeWFuIENoaWRhbWJhcmFtDQpSQkVJL0VDRsKgDQoNClRlbC4gKzkxKDQy
+Mik2NzYtNDQ5NQ0KDQoNCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IFZlZXJh
+aXlhbiBDaGlkYW1iYXJhbSAoUkJFSS9FQ0YzMikNClNlbnQ6IE1vbmRheSwgSnVseSAxMSwgMjAx
+NiAxOjExIFBNDQpUbzogJ3V0aWwtbGludXhAdmdlci5rZXJuZWwub3JnJyA8dXRpbC1saW51eEB2
+Z2VyLmtlcm5lbC5vcmc+OyBWZWVyYWl5YW4gQ2hpZGFtYmFyYW0gKFJCRUkvRUNGMzIpIDxWZWVy
+YWl5YW4uQ2hpZGFtYmFyYW1AaW4uYm9zY2guY29tPg0KU3ViamVjdDogW1BBVENIXSBsaWJsa2lk
+OiBmaXggcHJvYmVfbmlsZnMyIEkvTyBlcnJvciBiYWNrdXANCg0KSGVsbG/CoCBBbGwsDQoNCklu
+IG91ciBzeXN0ZW0gcmVjZW50bHkgdXBkYXRlZCBsaWJibGtpZC0yLjI0IHRvIGxpYmJsa2lkLTIu
+MjYuDQpBZnRlciB1cGRhdGluZ8KgIG9mIGxpYmJsa2lkLCBibGtpZCAtcCAtdSBub3JhaWQgL2Rl
+di9zcjDCoCBzdG9wcGVkDQp3b3JraW5nIGZvciBteSBNaXhlZCBtb2RlIENEIChhdWRpbyArIGRh
+dGEpIGFuZCBkb2VzbnQgZ2l2ZSBhbnkgb3V0cHV0Lg0KDQpsaWJibGtpZCBydW4ncyBwcm9iZSBm
+dW5jdGlvbiB0byBmaW5kwqDCoMKgwqDCoA0KV2hlbiBJwqAgaW52ZXN0aWdhdGVkIGZ1cnRoZXIg
+Zm91bmQgcHJvYmUgb2YgbmlsZnMgZmlsZSBzeXN0ZW0gaXMgZmFpbGluZyB3aXRoIEkvTyBlcnJv
+cg0KKGJlZm9yZSBuaWxmcyBmaWxlIHN5c3RlbSBwcm9iZSBpc285NjYwIHByb2JlIHdhcyBzdWNj
+ZXNzZnVsKSAuDQoNClRoZSBuaWxmcyBwcm9iZSBmdW5jdGlvbiBkb2VzIHRoZSBmb2xsb3dpbmcN
+CjEuIHJlYWRzIGZvciBwcmltYXJ5IHBhcnRpdGlvbg0KMi4gcmVhZCBiYWNrdXAgcGFydGl0aW9u
+DQozLiBjaGVja3MgdGhlIG5pbGZzIHJlbGF0ZWQgdmFsaWRpdHkgY2hlY2tzDQrCoMKgIGlmIHZh
+bGlkYXRlIGZhaWxzIHJldHVybnMgMSBtZWFuaW5nIENEIGZpbGUgc3lzdGVtIGlzDQrCoMKgIG5v
+dCBhbiBuaWxmcyBmaWxlIHN5c3RlbS4NCjQuIGlmIHZhbGlkYXRpb24gaXMgc3VjY2Vzc2Z1bCB0
+aGVuIGNvcHkgdGhlIG5lY2Vzc2FyeSBpbmZvcm1hdGlvbiBhbmQNCsKgwqAgcmV0dXJuIDAgbWVh
+bmluZyBDRCBpcyBuaWxmcyBmaWxlIHN5c3RlbS4NCg0KSW4gbXkgY2FzZQ0KMS4gUmVhZCBvZiBw
+cmltYXJ5IHBvcnRpb24gaXMgc3VjY2Vzc2Z1bC4NCjIuIFJlYWQgQmFja3VwIHBhcnRpdGlvbiBp
+cyBmYWxscyB3aXRoIEkvTyBlcnJvci4NCjMuIHJldHVucyBlcnJubyAtNQ0KDQrCoA0KaGVyZSBp
+IHNlZSBhIGZvbGxvd2luZyBkaWZmZXJlbmNlIGIvdyBsaWJibGtpZC0yLjI0IGFuZCBsaWJibGtp
+ZC0yLjI2DQoxLiBJbiB2ZXJzaW9uIDIuMjTCoCBpZiBiYWNrdXAgcGFydGl0aW9uIGZhaWxzIHRo
+ZXkgZG9lc24ndCB0cmVhdCBhcyBlcnJvcg0KwqDCoMKgIGJ1dCBpbiBuZXdlciB2ZXJzaW9uIHRy
+ZWF0ZWQgYXMgZXJyb3IuDQoyLiBPbiB0aGUgd2hvbGUgZXJyb3IgaGFuZGxpbmcgd2FzIGNoYW5n
+ZWQgaW4gbGliYmxraWQtMi4yNiAsDQrCoMKgIGlmIGFueSBmaWxlIHByb2JlIHJldHVybiBlcnJu
+bywgdGhlbiBzdWNjZXNzZnVsIGZvdW5kIGZpbGUgc3lzdGVtDQrCoMKgIGFsbCBzbyBkaXNjYXJk
+ZWQgLCBpbiBteSBjYXNlIGV2ZW4gdGhyb3VnaCBpc285NjYwIHByb2JlIGZvdW5kDQrCoMKgIENE
+IHdhcyBhIGlzbzk2NjAgZmlsZSBzeXN0ZW0gZHVlIG5pbGZzIHByb2JlIGJsa2lkIHJldHVybiBl
+cnJubw0KwqAgdGhlIHN1Y2Nlc3NmdWwgaXM5NjYwIHJlc3VsdHMgYWxzbyBpZ25vcmVkIGJ5IGxp
+YmxraWQuDQoNCg0KSSB3b3VsZCBsaWtlIHRvIHByb3Bvc2UgdGhlIGZvbGxvd2luZyBmaXgNCg0K
+DQpJbiBuaWxmcyBmaWxlIHN5c3RlbSBwcm9iZQ0KMS4gcmVhZCBwcmltYXJ5IHBhcnRpdGlvbg0K
+Mi4gdmFsaWRhdGUgdGhlIHByaW1hcnkgcGFydGl0aW9uIGlmIGZhaWxzIHJldHVybiAxIGkuZSBu
+byBmaWxlIHN5c3RlbSBmb3VuZCBmb3IgbmlsZnMgZmlsZSBzeXN0ZW0gaW4gdGhlIENELg0KMy4g
+aWYgYmFja3VwIHBhcnRpdGlvbiBpZiB2YWxpZGF0ZS4NCjQuIHRoZW4gdmFsaWRhdGUgYmFja3Vw
+IHBhcnRpdGlvbiBhbmQgdGhlbiBjb3B5IHRoZSBuZWNlc3NhcnkgaW5mb3JtYXRpb24gYW5kDQrC
+oMKgIHJldHVybiAwIG1lYW5pbmcgQ0QgaXMgbmlsZnMgZmlsZSBzeXN0ZW0uDQoNCg0KDQotLQ0K
+VGhhbmtzICZSZWdhcmRzDQoNCg0KdmVlcmFpeWFuIGNoaWRhbWJhcmFtDQo=
 
-diff --git a/libmount/src/context_loopdev.c b/libmount/src/context_loopdev.c
-index 8a5706a..37e49b0 100644
---- a/libmount/src/context_loopdev.c
-+++ b/libmount/src/context_loopdev.c
-@@ -215,23 +215,62 @@ int mnt_context_setup_loopdev(struct libmnt_context *cxt)
- 	 * mechanism to detect it. To prevent data corruption, the same loop
- 	 * device has to be recycled.
- 	*/
--	rc = loopcxt_init(&lc, 0);
--	if (rc)
--		goto done_no_deinit;
--	if (backing_file && !(loopcxt_find_by_backing_file(&lc,
--			backing_file, offset, sizelimit, LOOPDEV_FL_OFFSET))) {
--		DBG(LOOP, ul_debugobj(cxt, "using existing loop device %s",
-+	if (backing_file) {
-+		rc = loopcxt_init(&lc, 0);
-+		if (rc)
-+			goto done_no_deinit;
-+
-+		rc = loopcxt_find_by_backing_file(&lc,
-+				backing_file, offset, sizelimit,
-+				LOOPDEV_FL_OFFSET | LOOPDEV_FL_SIZELIMIT);
-+		if (rc < 0)
-+			goto done;
-+		if (rc == 0) {
-+			uint32_t lc_encrypt_type;
-+
-+			DBG(LOOP, ul_debugobj(cxt, "using existing loop device %s",
-+				loopcxt_get_device(&lc)));
-+
-+			/* Once a loop is initialized RO, there is no
-+			   way to change its parameters. */
-+			if (loopcxt_is_readonly(&lc) && !(lo_flags & LO_FLAGS_READ_ONLY)) {
-+				rc = -EROFS;
-+				goto done;
-+			}
-+
-+			/* This is no more supported, but check to be
-+			 * safe. */
-+			if (loopcxt_get_encrypt_type(&lc, &lc_encrypt_type)) {
-+				DBG(LOOP, ul_debugobj(cxt, "failed to get crypt type for device %s",
- 					loopcxt_get_device(&lc)));
--		/* Once a loop is initialized RO, there is no way to safely
--		   mount that file in R/W mode. */
--		if (loopcxt_is_readonly(&lc) && !(lo_flags & LO_FLAGS_READ_ONLY)) {
--			rc = -EROFS;
-+				rc = -MNT_ERR_LOOPDEV;
-+				goto done;
-+			}
-+			if (lc_encrypt_type != LO_CRYPT_NONE) {
-+				DBG(LOOP, ul_debugobj(cxt, "encryption no longer supported for device %s",
-+					loopcxt_get_device(&lc)));
-+				rc = -MNT_ERR_LOOPOVERLAP;
-+				goto done;
-+			}
-+			goto success;
-+		}
-+		loopcxt_deinit(&lc);
-+		/* No existing loop device matches. Now we need to
-+		 * check that no loop device overlaps our target range
-+		 * inside the backing file. */
-+		rc = loopcxt_init(&lc, 0);
-+		if (rc)
-+			goto done_no_deinit;
-+		rc = loopcxt_check_conflict(&lc,
-+			backing_file, offset, sizelimit);
-+		if (rc < 0)
-+			goto done;
-+		if (rc == 0) {
-+			rc = -MNT_ERR_LOOPOVERLAP;
- 			goto done;
- 		}
--
--		goto success;
-+		loopcxt_deinit(&lc);
- 	}
--	loopcxt_deinit(&lc);
- 
- 	rc = loopcxt_init(&lc, 0);
- 	if (rc)
--- 
-2.9.0
+--_002_46d4c8afbe4d45eb96668b45854dd954SGPMBX1019APACboschcom_
+Content-Type: application/octet-stream;
+	name="0001-liblkid-fix-probe_nilfs2-I-O-error-backup.patch"
+Content-Description: 0001-liblkid-fix-probe_nilfs2-I-O-error-backup.patch
+Content-Disposition: attachment;
+	filename="0001-liblkid-fix-probe_nilfs2-I-O-error-backup.patch"; size=1766;
+	creation-date="Mon, 11 Jul 2016 07:32:38 GMT";
+	modification-date="Mon, 11 Jul 2016 07:32:38 GMT"
+Content-Transfer-Encoding: base64
 
--- 
-Best Regards / S pozdravem,
+RnJvbSBkYTVlOWRkYjY3YmIwMjAyOTVhZjMzOWI4YjQ3NWM5ZWRkNDUwYTYxIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBWZWVyYWl5YW4gQ2hpZGFtYmFyYW0gPHZlZXJhaXlhbi5jaGlk
+YW1iYXJhbUBpbi5ib3NjaC5jb20+CkRhdGU6IE1vbiwgMTEgSnVsIDIwMTYgMTM6MDI6MTAgKzA1
+MzAKU3ViamVjdDogW1BBVENIXSBsaWJsa2lkOiBmaXggcHJvYmVfbmlsZnMyIEkvTyBlcnJvciBi
+YWNrdXAKCiBJbiBtaXhlZCBtb2RlIENEIGlzbzk2NjAgZmlsZSBzeXN0ZW0gdHlwZSwgcmVhZGlu
+ZyBiYWNrdXAKIGVuZHMtdXAgaW4gSS9PIGVycm9yIGFuZCBmaW5hbGx5IGVuZHMgdXAgaW4gZXJy
+b3IgaW4gZmluZGluZwogZmlsZSBzeXN0ZW0uIFRvIGF2b2lkIHRoaXMgdmFsaWRhdGUgcHJpbWFy
+eSBiZWZvcmUgcmVhZGluZyBiYWNrdXAKCgpTaWduZWQtb2ZmLWJ5OiBWZWVyYWl5YW4gQ2hpZGFt
+YmFyYW0gPHZlZXJhaXlhbi5jaGlkYW1iYXJhbUBpbi5ib3NjaC5jb20+Ci0tLQogbGliYmxraWQv
+c3JjL3N1cGVyYmxvY2tzL25pbGZzLmMgfCAgIDEwICsrKysrKysrLS0KIDEgZmlsZSBjaGFuZ2Vk
+LCA4IGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvbGliYmxraWQv
+c3JjL3N1cGVyYmxvY2tzL25pbGZzLmMgYi9saWJibGtpZC9zcmMvc3VwZXJibG9ja3MvbmlsZnMu
+YwppbmRleCBjZDkzZDdiLi5hNjM1NTY2IDEwMDY0NAotLS0gYS9saWJibGtpZC9zcmMvc3VwZXJi
+bG9ja3MvbmlsZnMuYworKysgYi9saWJibGtpZC9zcmMvc3VwZXJibG9ja3MvbmlsZnMuYwpAQCAt
+MTA4LDcgKzEwOCwxNCBAQCBzdGF0aWMgaW50IHByb2JlX25pbGZzMihibGtpZF9wcm9iZSBwciwK
+IAkJCXByLCBOSUxGU19TQl9PRkZTRVQsIHNpemVvZihzdHJ1Y3QgbmlsZnNfc3VwZXJfYmxvY2sp
+KTsKIAlpZiAoIXNicCkKIAkJcmV0dXJuIGVycm5vID8gLWVycm5vIDogMTsKKwkvKiBJbiBtaXhl
+ZCBtb2RlIENEIGlzbzk2NjAgZmlsZSBzeXN0ZW0gdHlwZSwgcmVhZGluZyBiYWNrdXAgZW5kcy11
+cCBpbiBJL08KKwkgKiBlcnJvciBhbmQgZmluYWxseSBlbmRzIHVwIGluIGVycm9yIGluIGZpbmRp
+bmcgZmlsZSBzeXN0ZW0uIFRvIGF2b2lkIHRoaXMKKwkgKiB2YWxpZGF0ZSBwcmltYXJ5IGJlZm9y
+ZSByZWFkaW5nIGJhY2t1cAorCSAqLwogCisJdmFsaWRbMF0gPSBuaWxmc192YWxpZF9zYihwciwg
+c2JwLCAwKTsKKwlpZighdmFsaWRbMF0pCisJCXJldHVybiAxOwogCS8qIGJhY2t1cCAqLwogCXNi
+YiA9IChzdHJ1Y3QgbmlsZnNfc3VwZXJfYmxvY2sgKikgYmxraWRfcHJvYmVfZ2V0X2J1ZmZlcigK
+IAkJCXByLCBOSUxGU19TQkJfT0ZGU0VUKHByLT5zaXplKSwgc2l6ZW9mKHN0cnVjdCBuaWxmc19z
+dXBlcl9ibG9jaykpOwpAQCAtMTE5LDkgKzEyNiw4IEBAIHN0YXRpYyBpbnQgcHJvYmVfbmlsZnMy
+KGJsa2lkX3Byb2JlIHByLAogCSAqIENvbXBhcmUgdHdvIHN1cGVyIGJsb2NrcyBhbmQgc2V0IDEg
+aW4gc3dwIGlmIHRoZSBzZWNvbmRhcnkKIAkgKiBzdXBlciBibG9jayBpcyB2YWxpZCBhbmQgbmV3
+ZXIuICBPdGhlcndpc2UsIHNldCAwIGluIHN3cC4KIAkgKi8KLQl2YWxpZFswXSA9IG5pbGZzX3Zh
+bGlkX3NiKHByLCBzYnAsIDApOwogCXZhbGlkWzFdID0gbmlsZnNfdmFsaWRfc2IocHIsIHNiYiwg
+MSk7Ci0JaWYgKCF2YWxpZFswXSAmJiAhdmFsaWRbMV0pCisJaWYgKCF2YWxpZFsxXSkKIAkJcmV0
+dXJuIDE7CiAKIAlzd3AgPSB2YWxpZFsxXSAmJiAoIXZhbGlkWzBdIHx8Ci0tIAoxLjcuOS41Cgo=
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+--_002_46d4c8afbe4d45eb96668b45854dd954SGPMBX1019APACboschcom_--
+
