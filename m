@@ -1,89 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:33606 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751013AbcGRUtw (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 18 Jul 2016 16:49:52 -0400
-Received: by mail-wm0-f68.google.com with SMTP id o80so248722wme.0
-        for <util-linux@vger.kernel.org>; Mon, 18 Jul 2016 13:49:38 -0700 (PDT)
-Received: from imuri (host-92-2-141-235.as43234.net. [92.2.141.235])
-        by smtp.gmail.com with ESMTPSA id c139sm18510131wme.4.2016.07.18.13.49.37
-        for <util-linux@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 18 Jul 2016 13:49:37 -0700 (PDT)
-Date: Mon, 18 Jul 2016 21:49:27 +0100 (BST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Subject: Re: [PATCH] logger: remove trailing spaces when outputing to
- journal
-In-Reply-To: <20160718203457.3911-1-kerolasa@iki.fi>
-Message-ID: <alpine.LNX.2.20.1607182146130.10723@imuri>
-References: <20160718203457.3911-1-kerolasa@iki.fi>
+Received: from mout.kundenserver.de ([212.227.17.10]:58195 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751397AbcGNT2p (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 14 Jul 2016 15:28:45 -0400
+Date: Thu, 14 Jul 2016 21:28:34 +0200
+From: Tobias Stoeckmann <tobias@stoeckmann.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: [PATCH] Fix previously adjusted segfault patch
+Message-ID: <20160714192834.GA3861@localhost>
+References: <20160710141407.GA26802@localhost>
+ <20160714101215.ckr3tl22fmpcumwa@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20160714101215.ckr3tl22fmpcumwa@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 18 Jul 2016, Sami Kerola wrote:
+Casting the value to be checked to size_t renders the check useless.
+If st_size is SIZE_MAX+1, it will be truncated to 0 and the check
+succeeds. In fact, this check can never be false because every value
+stored in a size_t is smaller or equal to SIZE_MAX.
 
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+I think this adjustment was meant to fix a compiler warning for 64 bit
+systems for which sizeof(off_t) is sizeof(size_t), but the signedness
+differs. One possibility is to do a "binary and" operation with the
+value SIZE_MAX. If the original value and the and-operated value differ,
+it means that a higher bit was set and therefore the file was too large.
 
-Hi Sami, no repeat 100 time: do not send patches before testing them.
-
-Let me try again, and also available from
-
-https://github.com/kerolasa/lelux-utiliteetit/commit/076ce184fea4591bd364d77474fcfffdcad73a5b
-
---->8----
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Mon, 18 Jul 2016 21:15:54 +0100
-Subject: [PATCH] logger: remove trailing spaces when outputing to journal
-
-Issues:
-1. Whitespace-ish \r is not stripped, while it should be.
-2. In journal \r is considered unprintable.
-
-Lennart: "it is the duty of the client side to drop the trailing whitespace,
-which "logger" doesn't do".
-
-Reported-by: Ivan Babrou <ibobrik@gmail.com>
-Explained-by: Lennart Poettering <lennart@poettering.net>
-Reference: https://github.com/systemd/systemd/issues/3416
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Tobias Stoeckmann <tobias@stoeckmann.org>
 ---
- misc-utils/logger.c            | 7 ++-----
- tests/expected/logger/journald | 1 -
- 2 files changed, 2 insertions(+), 6 deletions(-)
+ text-utils/tailf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index 9f2940c..70fac68 100644
---- a/misc-utils/logger.c
-+++ b/misc-utils/logger.c
-@@ -341,14 +341,11 @@ static int journald_entry(struct logger_ctl *ctl, FILE *fp)
- 	for (lines = 0; /* nothing */ ; lines++) {
- 		buf = NULL;
- 		sz = getline(&buf, &dummy, fp);
--		if (sz == -1) {
-+		if (sz == -1 ||
-+		   (sz = rtrim_whitespace((unsigned char *) buf)) == 0) {
- 			free(buf);
- 			break;
- 		}
--		if (0 < sz && buf[sz - 1] == '\n') {
--			sz--;
--			buf[sz] = '\0';
--		}
- 		if (lines == vectors) {
- 			vectors *= 2;
- 			if (IOV_MAX < vectors)
-diff --git a/tests/expected/logger/journald b/tests/expected/logger/journald
-index 75bd0f3..354628d 100644
---- a/tests/expected/logger/journald
-+++ b/tests/expected/logger/journald
-@@ -1,4 +1,3 @@
- MESSAGE_ID=b8f74e14bc714bfc8040a5106dc9376a
- MESSAGE=a b c 1 2 3
--
- ret: 0
+diff --git a/text-utils/tailf.c b/text-utils/tailf.c
+index 6219aa2..5ddbee9 100644
+--- a/text-utils/tailf.c
++++ b/text-utils/tailf.c
+@@ -284,7 +284,7 @@ int main(int argc, char **argv)
+ 		errx(EXIT_FAILURE, _("%s: is not a file"), filename);
+ 
+ 	/* mmap is based on size_t */
+-	if (st.st_size && (size_t) st.st_size <= SIZE_MAX)
++	if (st.st_size && st.st_size == (st.st_size & SIZE_MAX))
+ 		tailf(filename, lines, &st);
+ 
+ #ifdef HAVE_INOTIFY_INIT
 -- 
 2.9.0
 
