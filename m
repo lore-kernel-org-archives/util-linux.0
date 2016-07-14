@@ -1,41 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:53899 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:35076 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751032AbcGONHk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 15 Jul 2016 09:07:40 -0400
+	id S1751088AbcGNN2r (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 14 Jul 2016 09:28:47 -0400
 Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 0C6E8ACBB
-	for <util-linux@vger.kernel.org>; Fri, 15 Jul 2016 13:07:39 +0000 (UTC)
+	by mx2.suse.de (Postfix) with ESMTP id 24304AC8D
+	for <util-linux@vger.kernel.org>; Thu, 14 Jul 2016 13:28:46 +0000 (UTC)
 To: util-linux@vger.kernel.org
 From: Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH 8/7] mount.8: Update loop device documentation
-Message-ID: <301c1859-76e9-3901-37ab-8ad3d9ccc72d@suse.cz>
-Date: Fri, 15 Jul 2016 15:07:38 +0200
+Subject: [PATCH 2/7] libmount: Introduce new error: MNT_ERR_LOOPOVERLAP
+Message-ID: <bb9d560a-fe5a-dff6-babc-dc5b65362db9@suse.cz>
+Date: Thu, 14 Jul 2016 15:28:45 +0200
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-2
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-New code checks both offset and sizelimit before re-using loop device.
+This error code is intended for situations where overlapping loop device exists
+and cannot be reused.
 
 Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
 ---
- sys-utils/mount.8 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libmount/src/libmount.h.in | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
-index 0c04a65..f182ef9 100644
---- a/sys-utils/mount.8
-+++ b/sys-utils/mount.8
-@@ -2933,7 +2933,7 @@ You can also free a loop device by hand, using
+diff --git a/libmount/src/libmount.h.in b/libmount/src/libmount.h.in
+index cadf4a7..83f05ef 100644
+--- a/libmount/src/libmount.h.in
++++ b/libmount/src/libmount.h.in
+@@ -159,7 +159,7 @@ enum {
+  *
+  * loopdev setup failed, errno set by libc
+  */
+-#define MNT_ERR_LOOPDEV	     5003
++#define MNT_ERR_LOOPDEV      5003
+ /**
+  * MNT_ERR_MOUNTOPT:
+  *
+@@ -178,6 +178,12 @@ enum {
+  * libblkid detected more filesystems on the device
+  */
+ #define MNT_ERR_AMBIFS       5006
++/**
++ * MNT_ERR_LOOPOVERLAP:
++ *
++ * detected overlapping loop device that cannot be re-used
++ */
++#define MNT_ERR_LOOPOVERLAP 5007
  
- Since util-linux v2.29 mount command re-uses the loop device rather than
- initialize a new device if the same backing file is already mounted with the
--same offset.
-+same offset and sizelimit.
- 
- .SH RETURN CODES
- .B mount
+ #ifndef __GNUC_PREREQ
+ # if defined __GNUC__ && defined __GNUC_MINOR__
 -- 
 2.9.0
 
