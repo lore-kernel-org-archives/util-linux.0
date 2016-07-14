@@ -1,62 +1,121 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f52.google.com ([74.125.82.52]:35404 "EHLO
-	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932156AbcGCVYD (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 3 Jul 2016 17:24:03 -0400
-Received: by mail-wm0-f52.google.com with SMTP id z126so21199008wme.0
-        for <util-linux@vger.kernel.org>; Sun, 03 Jul 2016 14:24:02 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mx2.suse.de ([195.135.220.15]:35147 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751051AbcGNN3W (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 14 Jul 2016 09:29:22 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 55ABCAC8D
+	for <util-linux@vger.kernel.org>; Thu, 14 Jul 2016 13:29:21 +0000 (UTC)
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 00/15] pull: write(1) improvements
-Date: Sun,  3 Jul 2016 22:23:43 +0100
-Message-Id: <20160703212358.1218-1-kerolasa@iki.fi>
+From: Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH 5/7] Implement loopcxt_check_conflict()
+Message-ID: <8f466000-034e-74a4-dd9f-823b64b5cc8c@suse.cz>
+Date: Thu, 14 Jul 2016 15:29:21 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+Add a function that searches for a possible conflicting (i. e. overlaying loop
+device).
 
-This patch set was sent earlier, but because the changes were not merged or
-rejected.  So here is a resubmission that I further worked with to improve
-quality of the changes with hope this time these will get final verdict.
-Old attributions are kept, and more can be added to my git assuming feedback
-is given.
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ include/loopdev.h |  3 +++
+ lib/loopdev.c     | 55 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 58 insertions(+)
 
-
-----------------------------------------------------------------
-The following changes since commit f29bc6e1cc4ed9f76bded543c6ab393f674ec3ed:
-  lslocks: add --noinaccessible (2016-07-01 14:45:04 +0200)
-are available in the git repository at:
-  git://github.com/kerolasa/lelux-utiliteetit.git write-improvements
-for you to fetch changes up to 6d0f3a2c208917eff769340434a5d736d3f8e57c:
-  lib: try to find tty in get_terminal_name() (2016-07-03 22:17:43 +0100)
-----------------------------------------------------------------
-
-Sami Kerola (15):
-  write: remove unused variable
-  write: get rid of function prototypes
-  write: remove pointless fileno(3) calls
-  write: set atime value in term_chk() only when needed
-  write: use xstrncpy() from strutils.h
-  write: run atexit() checks at the end of execution
-  write: add control structure to clarify what is going on
-  write: improve function and variable names
-  write: remove unnecessary utmp variables
-  write: make timestamp to be obviously just a clock time
-  write: remove PUTC macro
-  write: improve coding style
-  write: tell when effective gid and tty path group mismatch
-  write: stop removing and adding /dev/ in front of tty string
-  lib: try to find tty in get_terminal_name()
-
- include/ttyutils.h       |   2 +-
- lib/ttyutils.c           |  15 +-
- login-utils/login.c      |   2 +-
- login-utils/su-common.c  |   4 +-
- term-utils/Makemodule.am |   1 +
- term-utils/write.c       | 418 +++++++++++++++++++++++------------------------
- 6 files changed, 218 insertions(+), 224 deletions(-)
-
+diff --git a/include/loopdev.h b/include/loopdev.h
+index 57fcc1b..706388e 100644
+--- a/include/loopdev.h
++++ b/include/loopdev.h
+@@ -188,6 +188,9 @@ extern int loopcxt_find_by_backing_file(struct loopdev_cxt *lc,
+ 				const char *filename,
+ 				uint64_t offset, uint64_t sizelimit,
+ 				int flags);
++extern int loopcxt_check_conflict(struct loopdev_cxt *lc,
++				  const char *filename,
++				  uint64_t offset, uint64_t sizelimit);
+ 
+ extern int loopcxt_is_used(struct loopdev_cxt *lc,
+                     struct stat *st,
+diff --git a/lib/loopdev.c b/lib/loopdev.c
+index 2db80fc..4606003 100644
+--- a/lib/loopdev.c
++++ b/lib/loopdev.c
+@@ -1566,6 +1566,61 @@ int loopcxt_find_by_backing_file(struct loopdev_cxt *lc, const char *filename,
+ }
+ 
+ /*
++ * Returns: 0 = conflict, < 0 error, 1 no conflicting device
++ */
++int loopcxt_check_conflict(struct loopdev_cxt *lc, const char *filename,
++			   uint64_t offset, uint64_t sizelimit)
++{
++	int rc, hasst;
++	struct stat st;
++
++	if (!filename)
++		return -EINVAL;
++
++	hasst = !stat(filename, &st);
++
++	rc = loopcxt_init_iterator(lc, LOOPITER_FL_USED);
++	if (rc)
++		return rc;
++
++	while ((rc = loopcxt_next(lc)) == 0) {
++		uint64_t lc_sizelimit, lc_offset;
++
++		rc = loopcxt_is_used(lc, hasst ? &st : NULL,
++				     filename, offset, sizelimit, 0);
++		if (!rc)
++			continue;
++		if (rc != 1)
++			break;
++		DBG(CXT, ul_debugobj(lc, "found %s backed by %s",
++			loopcxt_get_device(lc), filename));
++		rc = loopcxt_get_offset(lc, &lc_offset);
++		if (rc) {
++			DBG(CXT, ul_debugobj(lc, "failed to get offset for device %s",
++				loopcxt_get_device(lc)));
++			break;
++		}
++		rc = loopcxt_get_sizelimit(lc, &lc_sizelimit);
++		if (rc) {
++			DBG(CXT, ul_debugobj(lc, "failed to get sizelimit for device %s",
++				loopcxt_get_device(lc)));
++			break;
++		}
++
++		if (lc_sizelimit != 0 && offset >= lc_offset + lc_sizelimit)
++			continue;
++		if (sizelimit != 0 && offset + sizelimit <= lc_offset)
++			continue;
++		DBG(CXT, ul_debugobj(lc, "overlapping loop device %s",
++			loopcxt_get_device(lc)));
++			rc = 0;
++			break;
++	}
++	loopcxt_deinit_iterator(lc);
++	return rc;
++}
++
++/*
+  * Returns allocated string with device name
+  */
+ char *loopdev_find_by_backing_file(const char *filename, uint64_t offset, uint64_t sizelimit, int flags)
 -- 
 2.9.0
 
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
