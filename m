@@ -1,79 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:41341 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:48635 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932483AbcGOLQ2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Fri, 15 Jul 2016 07:16:28 -0400
-Date: Fri, 15 Jul 2016 13:16:26 +0200
+	id S1750897AbcGNOtT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 14 Jul 2016 10:49:19 -0400
+Date: Thu, 14 Jul 2016 16:49:17 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Tobias Stoeckmann <tobias@stoeckmann.org>
+To: Stanislav Brabec <sbrabec@suse.cz>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Fix previously adjusted segfault patch
-Message-ID: <20160715111626.levjhzetw7cvldri@ws.net.home>
-References: <20160710141407.GA26802@localhost>
- <20160714101215.ckr3tl22fmpcumwa@ws.net.home>
- <20160714192834.GA3861@localhost>
+Subject: Re: [PATCH 0/7] safe implementation of loop reuse
+Message-ID: <20160714144917.uejh6ygt4kbeqsvn@ws.net.home>
+References: <ecb4b89d-f9ad-a854-80e5-c3fb49b200a2@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20160714192834.GA3861@localhost>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <ecb4b89d-f9ad-a854-80e5-c3fb49b200a2@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jul 14, 2016 at 09:28:34PM +0200, Tobias Stoeckmann wrote:
-> Casting the value to be checked to size_t renders the check useless.
-> If st_size is SIZE_MAX+1, it will be truncated to 0 and the check
-> succeeds. In fact, this check can never be false because every value
-> stored in a size_t is smaller or equal to SIZE_MAX.
+
+I'll review the patches later this week. Thanks.
+
+On Thu, Jul 14, 2016 at 03:28:11PM +0200, Stanislav Brabec wrote:
+> Thing that should be done, but they are above scope of this patch set:
 > 
-> I think this adjustment was meant to fix a compiler warning for 64 bit
+> - The current API does not support passing the name of the conflicting
+>   loop device to the error reported to the user. Just now, only debug
+>   messages contain it.
 
-yes
+Maybe it would be enough to add "for more details see losetup" to the
+error message :-)
 
-> systems for which sizeof(off_t) is sizeof(size_t), but the signedness
-> differs. One possibility is to do a "binary and" operation with the
-> value SIZE_MAX. If the original value and the and-operated value differ,
-> it means that a higher bit was set and therefore the file was too large.
-> 
-> Signed-off-by: Tobias Stoeckmann <tobias@stoeckmann.org>
-> ---
->  text-utils/tailf.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/text-utils/tailf.c b/text-utils/tailf.c
-> index 6219aa2..5ddbee9 100644
-> --- a/text-utils/tailf.c
-> +++ b/text-utils/tailf.c
-> @@ -284,7 +284,7 @@ int main(int argc, char **argv)
->  		errx(EXIT_FAILURE, _("%s: is not a file"), filename);
->  
->  	/* mmap is based on size_t */
-> -	if (st.st_size && (size_t) st.st_size <= SIZE_MAX)
-> +	if (st.st_size && st.st_size == (st.st_size & SIZE_MAX))
+> - The same what is done for mount needs to be done for losetup.
+>   API is now ready for it, so it should be simple.
 
-but compiler still don't like it, because "& SIZE_MAX" result is
-unsigned number.
+OK
 
-text-utils/tailf.c: In function â€˜mainâ€™:
-text-utils/tailf.c:287:31: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+> - Add mount option looprw. It would allow to mount read only but
+>   initialize loop device R/W. Required for things like:
+>   mount -oro,loop,looprw,subvol=snapshots/1 -tbtrfs\
+>    /home.img /home-snapshots/1
+>   mount -oloop -tbtrfs /home.img /home
+>   (Without looprw, /home will be mounted read-only.)
 
-I guess you need to cast:
+It seem like an over-engineering, if you really need so complicated
+setup then you can use losetup (rw) and + mount (or).
 
-    if (st.st_size > 0 && st.st_size == (off_t) (st.st_size & SIZE_MAX))
+(All the loopdev support in mount(8) is questionable, there is many
+another ways how you can create block device without mount(8) support.
+The loopdev has extra support in mount(8) because it has been the
+first one.)
 
+> - I am not sure, whether loop reuse with combination of autoclear flag
+>   differences could cause preliminary releasing of loop device or
+>   keeping orphan loop device in some situations.
 
-Maybe it would be nice to have a macros for this purpose in include/c.h,
-something like:
+Reuse means another mount, I guess kernel keeps the loopdev alive 
+until there is any reference (e.g. VFS mount).
 
-#define is_between(x, mi, ma)  (x >= mi && x == (__typeof__(x)) (x & ma))
+# mount /home/archive/fs-images/filesystems/ext2.img /mnt/test1
 
-#define is_sizet_convertible(x)     is_between(x, 0, SIZE_MAX)
-#define is_uint32_convertible(x)    is_between(x, 0, UINT32_MAX)
-...
+# losetup 
+NAME       SIZELIMIT OFFSET AUTOCLEAR RO BACK-FILE DIO
+/dev/loop0         0      0         1  0 /home/archive/fs-images/filesystems/ext2.img   0
 
-    if (st.st_size && is_sizet_convertible(st.st_size))
-        tailf(filename, lines, &st);
+# mount /dev/loop0 /mnt/test2
+# umount /mnt/test1
 
+# losetup 
+NAME       SIZELIMIT OFFSET AUTOCLEAR RO BACK-FILE DIO
+/dev/loop0         0      0         1  0 /home/archive/fs-images/filesystems/ext2.img   0
 
-Correct? or maybe I need a coffee? ;-)
+# umount /mnt/test2
+# losetup 
+<nothing>
+
 
     Karel
 
