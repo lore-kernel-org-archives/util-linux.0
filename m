@@ -1,196 +1,284 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:36627 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751160AbcGLVmw (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 12 Jul 2016 17:42:52 -0400
-Received: by mail-wm0-f68.google.com with SMTP id x83so3455595wma.3
-        for <util-linux@vger.kernel.org>; Tue, 12 Jul 2016 14:42:46 -0700 (PDT)
-Date: Tue, 12 Jul 2016 22:42:33 +0100 (BST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-cc: kerolasa@gmail.com, J William Piggott <elseifthen@gmx.com>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] hwclock: remove UTC-0 localization hack
-In-Reply-To: <201607122338.40458.sweet_f_a@gmx.de>
-Message-ID: <alpine.LNX.2.20.1607122241300.11890@imuri>
-References: <20160710200242.2706-1-kerolasa@iki.fi> <201607121623.04891.sweet_f_a@gmx.de> <CAG27Bk3po26Bsb=E0A1UXDrTrkwPH1pEvqEKXFZ_n4PVOcxt8A@mail.gmail.com> <201607122338.40458.sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:32999 "EHLO
+	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750990AbcGNICr (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 14 Jul 2016 04:02:47 -0400
+Received: by mail-wm0-f67.google.com with SMTP id o80so8536349wme.0
+        for <util-linux@vger.kernel.org>; Thu, 14 Jul 2016 01:02:46 -0700 (PDT)
+From: James Clarke <jrtc27@jrtc27.com>
+To: util-linux@vger.kernel.org
+Cc: James Clarke <jrtc27@jrtc27.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH] tests: Fix fdisk/id and fdisk/mbr-nondos-mode on Sparc
+Date: Thu, 14 Jul 2016 09:02:24 +0100
+Message-Id: <20160714080224.37873-1-jrtc27@jrtc27.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, 12 Jul 2016, Ruediger Meier wrote:
+On Sparc, fdisk defaults to using SUN disk labels, which causes the
+output from these tests to differ from non-Sparc.
 
-> On Tuesday 12 July 2016, Sami Kerola wrote:
-> > On 12 July 2016 at 15:23, Ruediger Meier <sweet_f_a@gmx.de> wrote:
-> > > On Tuesday 12 July 2016, Sami Kerola wrote:
-> > >> On 11 July 2016 at 21:23, J William Piggott <elseifthen@gmx.com>
-> > >
-> > > wrote:
-> > >> > We use mktime(3) for portability.
-> > >> >
-> > >> > http://www.gnu.org/software/libc/manual/html_mono/libc.html#inde
-> > >> >x-t imegm
-> > >> >
-> > >> > Portability note: mktime is essentially universally available.
-> > >> > timegm is rather rare. For the most portable conversion from a
-> > >> > UTC broken-down time to a simple time, set the TZ environment
-> > >> > variable to UTC, call mktime, then set TZ back.
-> > >>
-> > >> I don't think hwclock(8) is portable. It has ioctl(2) calls, and
-> > >> such.
-> > >
-> > > But there are non-gnu libc's for Linux.
-> >
-> > Fair point, but can you name one that does not have timegm().
-> >
-> > https://github.com/cloudius-systems/musl/blob/master/src/time/timegm.
-> >c https://github.com/ensc/dietlibc/blob/master/libugly/timegm.c
-> > http://www.uclibc-ng.org/browser/uclibc-ng/libc/misc/time/timegm.c?or
-> >der=name
-> 
-> 
-> Yep, also musl has timegm. But at least it's good that William reminded 
-> us to check that! :)
-
-Oh well. I guess it does not hurt to support incomplete libraries even if 
-we might not be able to name them.
-
-https://github.com/kerolasa/lelux-utiliteetit/commit/5dff764bb38f0745a8bb128337d2534f109a37c8
-
-and the same as email body so that review is possible.
-
---->8----
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Tue, 12 Jul 2016 22:21:10 +0100
-Subject: [PATCH] lib: add portability functions, start with timegm()
-
-The lib/portability.c is a file where functions that may be missing from
-libraries can be added.
-
-CC: Ruediger Meier <ruediger.meier@ga-group.nl>
-CC: J William Piggott <elseifthen@gmx.com>
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: James Clarke <jrtc27@jrtc27.com>
 ---
- configure.ac           |  1 +
- include/Makemodule.am  |  1 +
- include/portability.h  |  8 ++++++++
- lib/Makemodule.am      |  1 +
- lib/portability.c      | 28 ++++++++++++++++++++++++++++
- login-utils/utmpdump.c |  1 +
- sys-utils/hwclock.c    |  1 +
- 7 files changed, 41 insertions(+)
- create mode 100644 include/portability.h
- create mode 100644 lib/portability.c
+ tests/expected/fdisk/id.sparc              |   3 +
+ tests/expected/fdisk/mbr-nondos-mode.sparc | 189 +++++++++++++++++++++++++++++
+ tests/ts/fdisk/id                          |  13 ++
+ tests/ts/fdisk/mbr-nondos-mode             |  13 ++
+ 4 files changed, 218 insertions(+)
 
-diff --git a/configure.ac b/configure.ac
-index 39d9aca..0835838 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -413,6 +413,7 @@ AC_CHECK_FUNCS([ \
- 	strnlen \
- 	sysconf \
- 	sysinfo \
-+	timegm \
- 	updwtmp \
- 	usleep \
- 	warn \
-diff --git a/include/Makemodule.am b/include/Makemodule.am
-index 5ceff0a..9eff5c8 100644
---- a/include/Makemodule.am
-+++ b/include/Makemodule.am
-@@ -35,6 +35,7 @@ dist_noinst_HEADERS += \
- 	include/path.h \
- 	include/pathnames.h \
- 	include/plymouth-ctrl.h \
-+	include/portability.h \
- 	include/procutils.h \
- 	include/pt-bsd.h \
- 	include/pt-mbr.h \
-diff --git a/include/portability.h b/include/portability.h
+diff --git a/tests/expected/fdisk/id.sparc b/tests/expected/fdisk/id.sparc
 new file mode 100644
-index 0000000..2a60ede
+index 0000000..aa3f407
 --- /dev/null
-+++ b/include/portability.h
-@@ -0,0 +1,8 @@
-+#ifndef UTIL_LINUX_PORTABILITY_H
-+#define UTIL_LINUX_PORTABILITY_H
-+
-+#ifndef HAVE_TIMEGM
-+extern time_t timegm(struct tm *tm);
-+#endif
-+
-+#endif /* UTIL_LINUX_PORTABILITY_H */
-diff --git a/lib/Makemodule.am b/lib/Makemodule.am
-index 704a16e..57b1d86 100644
---- a/lib/Makemodule.am
-+++ b/lib/Makemodule.am
-@@ -16,6 +16,7 @@ libcommon_la_SOURCES = \
- 	lib/md5.c \
- 	lib/pager.c \
- 	lib/path.c \
-+	lib/portability.c \
- 	lib/randutils.c \
- 	lib/setproctitle.c \
- 	lib/strutils.c \
-diff --git a/lib/portability.c b/lib/portability.c
++++ b/tests/expected/fdisk/id.sparc
+@@ -0,0 +1,3 @@
++Initialize empty image
++Create MBR with ID=0x1
++Create MBR with ID=0x2
+diff --git a/tests/expected/fdisk/mbr-nondos-mode.sparc b/tests/expected/fdisk/mbr-nondos-mode.sparc
 new file mode 100644
-index 0000000..cbc49a5
+index 0000000..ffbbd80
 --- /dev/null
-+++ b/lib/portability.c
-@@ -0,0 +1,28 @@
-+/*
-+ * Functions in this file are replacements when library functions neither
-+ * unimplemented or unavailable due old version.  In best case these
-+ * functions are never needed.
-+ */
++++ b/tests/expected/fdisk/mbr-nondos-mode.sparc
+@@ -0,0 +1,189 @@
++Initialize empty image
++8f4e33f3dc3e414ff94e5fb6905cba8c mbr-nondos-mode.img
++Create new DOS partition table
++8f4e33f3dc3e414ff94e5fb6905cba8c mbr-nondos-mode.img
 +
-+#include <time.h>
-+#include <stdlib.h>
++---layout----------
++Disk <removed>: 20 MiB, 20971520 bytes, 40960 sectors
++Units: sectors of 1 * 512 = 512 bytes
++Sector size (logical/physical): 512 bytes / 512 bytes
++I/O size (minimum/optimal): 512 bytes / <removed> bytes
++-------------------
 +
-+#include "portability.h"
++Create 1st primary partition
++d5ad6d4e743430c2a61e558bb3319175 mbr-nondos-mode.img
 +
-+#ifndef HAVE_TIMEGM
-+time_t timegm(struct tm *tm)
-+{
-+	const char *zone = getenv("TZ");
-+	time_t ret;
++---layout----------
++Disk <removed>: 20 MiB, 20971520 bytes, 40960 sectors
++Geometry: 255 heads, 63 sectors/track, 2 cylinders
++Units: sectors of 1 * 512 = 512 bytes
++Sector size (logical/physical): 512 bytes / 512 bytes
++I/O size (minimum/optimal): 512 bytes / <removed> bytes
++Disklabel type: sun
 +
-+	setenv("TZ", "", 1);
-+	tzset();
-+	ret = mktime(tm);
-+	if (zone)
-+		setenv("TZ", zone, 1);
-+	else
-+		unsetenv("TZ");
-+	tzset();
-+	return ret;
-+}
-+#endif /* HAVE_TIMEGM */
-diff --git a/login-utils/utmpdump.c b/login-utils/utmpdump.c
-index 1849a4e..43fc842 100644
---- a/login-utils/utmpdump.c
-+++ b/login-utils/utmpdump.c
-@@ -45,6 +45,7 @@
- #include "timeutils.h"
- #include "xalloc.h"
- #include "closestream.h"
-+#include "portability.h"
++Device             Start   End Sectors  Size Id Type         Flags
++<removed>1     0 16064   16065  7.9M 83 Linux native      
++<removed>2 16065 32129   16065  7.9M 82 Linux swap      u 
++<removed>3     0 32129   32130 15.7M  5 Whole disk        
++-------------------
++
++Set primary partition active
++d59bb4ba5914242f9a63a2d13fb68752 mbr-nondos-mode.img
++
++---layout----------
++Disk <removed>: 20 MiB, 20971520 bytes, 40960 sectors
++Geometry: 255 heads, 63 sectors/track, 2 cylinders
++Units: sectors of 1 * 512 = 512 bytes
++Sector size (logical/physical): 512 bytes / 512 bytes
++I/O size (minimum/optimal): 512 bytes / <removed> bytes
++Disklabel type: sun
++
++Device             Start   End Sectors  Size Id Type         Flags
++<removed>1     0 16064   16065  7.9M 83 Linux native     r
++<removed>2 16065 32129   16065  7.9M 82 Linux swap      u 
++<removed>3     0 32129   32130 15.7M  5 Whole disk        
++-------------------
++
++Re-create 1st primary partition
++d8ba04bdd46cec690fa672ac8fcaf387 mbr-nondos-mode.img
++
++---layout----------
++Disk <removed>: 20 MiB, 20971520 bytes, 40960 sectors
++Geometry: 255 heads, 63 sectors/track, 2 cylinders
++Units: sectors of 1 * 512 = 512 bytes
++Sector size (logical/physical): 512 bytes / 512 bytes
++I/O size (minimum/optimal): 512 bytes / <removed> bytes
++Disklabel type: sun
++
++Device             Start   End Sectors  Size Id Type         Flags
++<removed>1     0 16064   16065  7.9M 83 Linux native     r
++<removed>2 16065 32129   16065  7.9M 82 Linux swap      u 
++-------------------
++
++Create 2nd primary partition
++d8ba04bdd46cec690fa672ac8fcaf387 mbr-nondos-mode.img
++
++---layout----------
++Disk <removed>: 20 MiB, 20971520 bytes, 40960 sectors
++Geometry: 255 heads, 63 sectors/track, 2 cylinders
++Units: sectors of 1 * 512 = 512 bytes
++Sector size (logical/physical): 512 bytes / 512 bytes
++I/O size (minimum/optimal): 512 bytes / <removed> bytes
++Disklabel type: sun
++
++Device             Start   End Sectors  Size Id Type         Flags
++<removed>1     0 16064   16065  7.9M 83 Linux native     r
++<removed>2 16065 32129   16065  7.9M 82 Linux swap      u 
++-------------------
++
++Create extended partition
++d59bb4ba5914242f9a63a2d13fb68752 mbr-nondos-mode.img
++
++---layout----------
++Disk <removed>: 20 MiB, 20971520 bytes, 40960 sectors
++Geometry: 255 heads, 63 sectors/track, 2 cylinders
++Units: sectors of 1 * 512 = 512 bytes
++Sector size (logical/physical): 512 bytes / 512 bytes
++I/O size (minimum/optimal): 512 bytes / <removed> bytes
++Disklabel type: sun
++
++Device             Start   End Sectors  Size Id Type         Flags
++<removed>1     0 16064   16065  7.9M 83 Linux native     r
++<removed>2 16065 32129   16065  7.9M 82 Linux swap      u 
++<removed>3     0 32129   32130 15.7M  5 Whole disk        
++-------------------
++
++Create logical partitions
++d59bb4ba5914242f9a63a2d13fb68752 mbr-nondos-mode.img
++
++---layout----------
++Disk <removed>: 20 MiB, 20971520 bytes, 40960 sectors
++Geometry: 255 heads, 63 sectors/track, 2 cylinders
++Units: sectors of 1 * 512 = 512 bytes
++Sector size (logical/physical): 512 bytes / 512 bytes
++I/O size (minimum/optimal): 512 bytes / <removed> bytes
++Disklabel type: sun
++
++Device             Start   End Sectors  Size Id Type         Flags
++<removed>1     0 16064   16065  7.9M 83 Linux native     r
++<removed>2 16065 32129   16065  7.9M 82 Linux swap      u 
++<removed>3     0 32129   32130 15.7M  5 Whole disk        
++-------------------
++
++Delete logical partitions
++d59bb4ba5914242f9a63a2d13fb68752 mbr-nondos-mode.img
++
++---layout----------
++Disk <removed>: 20 MiB, 20971520 bytes, 40960 sectors
++Geometry: 255 heads, 63 sectors/track, 2 cylinders
++Units: sectors of 1 * 512 = 512 bytes
++Sector size (logical/physical): 512 bytes / 512 bytes
++I/O size (minimum/optimal): 512 bytes / <removed> bytes
++Disklabel type: sun
++
++Device             Start   End Sectors  Size Id Type         Flags
++<removed>1     0 16064   16065  7.9M 83 Linux native     r
++<removed>2 16065 32129   16065  7.9M 82 Linux swap      u 
++<removed>3     0 32129   32130 15.7M  5 Whole disk        
++-------------------
++
++Create another logical partition
++d59bb4ba5914242f9a63a2d13fb68752 mbr-nondos-mode.img
++
++---layout----------
++Disk <removed>: 20 MiB, 20971520 bytes, 40960 sectors
++Geometry: 255 heads, 63 sectors/track, 2 cylinders
++Units: sectors of 1 * 512 = 512 bytes
++Sector size (logical/physical): 512 bytes / 512 bytes
++I/O size (minimum/optimal): 512 bytes / <removed> bytes
++Disklabel type: sun
++
++Device             Start   End Sectors  Size Id Type         Flags
++<removed>1     0 16064   16065  7.9M 83 Linux native     r
++<removed>2 16065 32129   16065  7.9M 82 Linux swap      u 
++<removed>3     0 32129   32130 15.7M  5 Whole disk        
++-------------------
++
++Delete primary partition
++0bd87175c4c5c3ef9a46595027b6369c mbr-nondos-mode.img
++
++---layout----------
++Disk <removed>: 20 MiB, 20971520 bytes, 40960 sectors
++Geometry: 255 heads, 63 sectors/track, 2 cylinders
++Units: sectors of 1 * 512 = 512 bytes
++Sector size (logical/physical): 512 bytes / 512 bytes
++I/O size (minimum/optimal): 512 bytes / <removed> bytes
++Disklabel type: sun
++
++Device             Start   End Sectors  Size Id Type       Flags
++<removed>2 16065 32129   16065  7.9M 82 Linux swap    u 
++<removed>3     0 32129   32130 15.7M  5 Whole disk      
++-------------------
++
++Delete primary partition
++33f6e541ddcafed65d231ce3f2b76a59 mbr-nondos-mode.img
++
++---layout----------
++Disk <removed>: 20 MiB, 20971520 bytes, 40960 sectors
++Geometry: 255 heads, 63 sectors/track, 2 cylinders
++Units: sectors of 1 * 512 = 512 bytes
++Sector size (logical/physical): 512 bytes / 512 bytes
++I/O size (minimum/optimal): 512 bytes / <removed> bytes
++Disklabel type: sun
++
++Device             Start   End Sectors  Size Id Type       Flags
++<removed>3     0 32129   32130 15.7M  5 Whole disk      
++-------------------
++
++Delete extended partition
++e923755cbc0054eb85341fe119be07f9 mbr-nondos-mode.img
++
++---layout----------
++Disk <removed>: 20 MiB, 20971520 bytes, 40960 sectors
++Geometry: 255 heads, 63 sectors/track, 2 cylinders
++Units: sectors of 1 * 512 = 512 bytes
++Sector size (logical/physical): 512 bytes / 512 bytes
++I/O size (minimum/optimal): 512 bytes / <removed> bytes
++Disklabel type: sun
++-------------------
++
+diff --git a/tests/ts/fdisk/id b/tests/ts/fdisk/id
+index a24d793..85b87d6 100755
+--- a/tests/ts/fdisk/id
++++ b/tests/ts/fdisk/id
+@@ -25,6 +25,19 @@ ts_check_test_command "$TS_CMD_FDISK"
+ FDISK_CMD_ID1="x\ni\n0x1\nr\nw\n"
+ FDISK_CMD_ID2="x\ni\n0x2\nr\nw\n"
  
- static time_t strtotime(const char *s_time)
- {
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index bcaab8b..fb9d628 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -78,6 +78,7 @@
- #include "nls.h"
- #include "optutils.h"
- #include "pathnames.h"
-+#include "portability.h"
- #include "strutils.h"
- #include "hwclock.h"
- #include "timeutils.h"
++# Sparc uses SUN disk labels by default and thus has a different output
++ARCH=$(uname -m)
++case $ARCH in
++	*sparc* )
++		ARCH_EXT=".sparc"
++		;;
++	*)
++		ARCH_EXT=""
++		;;
++esac
++
++TS_EXPECTED+="${ARCH_EXT}"
++
+ ts_log "Initialize empty image"
+ TEST_IMAGE_NAME=$(ts_image_init 10)
+ 
+diff --git a/tests/ts/fdisk/mbr-nondos-mode b/tests/ts/fdisk/mbr-nondos-mode
+index e01b060..7ac5dae 100755
+--- a/tests/ts/fdisk/mbr-nondos-mode
++++ b/tests/ts/fdisk/mbr-nondos-mode
+@@ -37,6 +37,19 @@ FDISK_CMD_DELETE_1PRIMARY="d\n1\n" # delete first primary
+ FDISK_CMD_DELETE_2PRIMARY="d\n2\n" # delete first primary
+ FDISK_CMD_DELETE_EXTENDED="d\n3\n" # delete second primary
+ 
++# Sparc uses SUN disk labels by default and thus has a different output
++ARCH=$(uname -m)
++case $ARCH in
++	*sparc* )
++		ARCH_EXT=".sparc"
++		;;
++	*)
++		ARCH_EXT=""
++		;;
++esac
++
++TS_EXPECTED+="${ARCH_EXT}"
++
+ function print_layout {
+ 	echo -ne "\n---layout----------\n" >> $TS_OUTPUT
+ 	$TS_CMD_FDISK -l ${TEST_IMAGE_NAME} >> $TS_OUTPUT
 -- 
-2.9.0
+2.9.1
 
