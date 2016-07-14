@@ -1,59 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.126.130]:65112 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751430AbcGPKvq (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sat, 16 Jul 2016 06:51:46 -0400
-Date: Sat, 16 Jul 2016 12:51:42 +0200
-From: Tobias Stoeckmann <tobias@stoeckmann.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Fix previously adjusted segfault patch
-Message-ID: <20160716105142.GA2436@localhost>
-References: <20160710141407.GA26802@localhost>
- <20160714101215.ckr3tl22fmpcumwa@ws.net.home>
- <20160714192834.GA3861@localhost>
- <20160715111626.levjhzetw7cvldri@ws.net.home>
+Received: from mail-oi0-f49.google.com ([209.85.218.49]:32811 "EHLO
+	mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750872AbcGNHQf (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Thu, 14 Jul 2016 03:16:35 -0400
+Received: by mail-oi0-f49.google.com with SMTP id j185so98907593oih.0
+        for <util-linux@vger.kernel.org>; Thu, 14 Jul 2016 00:16:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160715111626.levjhzetw7cvldri@ws.net.home>
+From: Allon Mureinik <amureini@redhat.com>
+Date: Thu, 14 Jul 2016 10:16:33 +0300
+Message-ID: <CADgXf3xQ4BWV9biePfvtPW=ERK6eMzWTwjm2zr1kATX-j2JybA@mail.gmail.com>
+Subject: [PATCH] Improve blkdiscard man page
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Casting the value to be checked to size_t renders the check useless.
-If st_size is SIZE_MAX+1, it will be truncated to 0 and the check
-succeeds. In fact, this check can never be false because every value
-stored in a size_t is smaller or equal to SIZE_MAX.
+>From cf44055e61be0b7a4af470a3d6d57f27989d03f0 Mon Sep 17 00:00:00 2001
+From: Allon Mureinik <amureini@redhat.com>
+Date: Thu, 14 Jul 2016 10:01:29 +0300
+Subject: [PATCH] Improve blkdiscard man page
 
-I think this adjustment was meant to fix a compiler warning for 64 bit
-systems for which sizeof(off_t) is sizeof(size_t), but the signedness
-differs.
+Improve the grammar and phrasing of the --verbose option and how it
+interacts with the --step option.
 
-Going unconditionally to the greatest possible unsigned int type if
-st_size is positive (off_t is signed) will fix this issue.
-
-Signed-off-by: Tobias Stoeckmann <tobias@stoeckmann.org>
+Signed-off-by: Allon Mureinik <amureini@redhat.com>
 ---
-This should be an easy fix without adding too much boiler-plate code.
-Your macros also imply that every value would be allowed as upper limit,
-but in fact it would have to be a 2^x-1 value, otherwise the bit pattern
-check would turn out to be invalid.
----
- text-utils/tailf.c | 2 +-
+ sys-utils/blkdiscard.8 | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/text-utils/tailf.c b/text-utils/tailf.c
-index 6219aa2..5937f73 100644
---- a/text-utils/tailf.c
-+++ b/text-utils/tailf.c
-@@ -284,7 +284,7 @@ int main(int argc, char **argv)
- 		errx(EXIT_FAILURE, _("%s: is not a file"), filename);
- 
- 	/* mmap is based on size_t */
--	if (st.st_size && (size_t) st.st_size <= SIZE_MAX)
-+	if (st.st_size > 0 && (uintmax_t) st.st_size <= (uintmax_t) SIZE_MAX)
- 		tailf(filename, lines, &st);
- 
- #ifdef HAVE_INOTIFY_INIT
+diff --git a/sys-utils/blkdiscard.8 b/sys-utils/blkdiscard.8
+index 71180e9..da3d6cb 100644
+--- a/sys-utils/blkdiscard.8
++++ b/sys-utils/blkdiscard.8
+@@ -65,7 +65,7 @@ Display the aligned values of
+ .I offset
+ and
+ .IR length .
+-If the option \fB\-\-step\fR specified than it prints discard
+progress every second.
++If the \fB\-\-step\fR option is specified, it prints the discard
+progress every second.
+ .TP
+ .BR \-V , " \-\-version"
+ Display version information and exit.
 -- 
-2.9.1
-
+2.7.4
