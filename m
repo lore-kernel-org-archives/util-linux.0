@@ -1,70 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:33904 "EHLO
-	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751701AbcGQNA0 (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Sun, 17 Jul 2016 09:00:26 -0400
-Received: by mail-wm0-f66.google.com with SMTP id q128so8790864wma.1
-        for <util-linux@vger.kernel.org>; Sun, 17 Jul 2016 06:00:25 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 02/13] switch_root: simplify code and reduce indentation [oclint]
-Date: Sun, 17 Jul 2016 14:00:04 +0100
-Message-Id: <20160717130015.31760-3-kerolasa@iki.fi>
-In-Reply-To: <20160717130015.31760-1-kerolasa@iki.fi>
-References: <20160717130015.31760-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:42399 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750959AbcGNK3Y (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Thu, 14 Jul 2016 06:29:24 -0400
+Date: Thu, 14 Jul 2016 12:29:22 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] sulogin: remove __nonnull__ function attribute
+Message-ID: <20160714102922.ar2kfpmcxienjisb@ws.net.home>
+References: <20160702092855.12718-1-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20160702092855.12718-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The if statement in line 162 already ensures value of cfd to be 0 or
-greater, so the later if is not needed.
+On Sat, Jul 02, 2016 at 10:28:55AM +0100, Sami Kerola wrote:
+>  login-utils/sulogin-consoles.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/switch_root.c | 29 ++++++++++++++---------------
- 1 file changed, 14 insertions(+), 15 deletions(-)
+Applied, thanks.
 
-diff --git a/sys-utils/switch_root.c b/sys-utils/switch_root.c
-index dc55a6d..6f5468f 100644
---- a/sys-utils/switch_root.c
-+++ b/sys-utils/switch_root.c
-@@ -176,22 +176,21 @@ static int switchroot(const char *newroot)
- 		return -1;
- 	}
- 
--	if (cfd >= 0) {
--		pid = fork();
--		if (pid <= 0) {
--			struct statfs stfs;
--			if (fstatfs(cfd, &stfs) == 0 &&
--			    (F_TYPE_EQUAL(stfs.f_type, STATFS_RAMFS_MAGIC) ||
--			     F_TYPE_EQUAL(stfs.f_type, STATFS_TMPFS_MAGIC)))
--				recursiveRemove(cfd);
--			else
--				warn(_("old root filesystem is not an initramfs"));
--
--			if (pid == 0)
--				exit(EXIT_SUCCESS);
--		}
--		close(cfd);
-+	pid = fork();
-+	if (pid <= 0) {
-+		struct statfs stfs;
-+
-+		if (fstatfs(cfd, &stfs) == 0 &&
-+		    (F_TYPE_EQUAL(stfs.f_type, STATFS_RAMFS_MAGIC) ||
-+		     F_TYPE_EQUAL(stfs.f_type, STATFS_TMPFS_MAGIC)))
-+			recursiveRemove(cfd);
-+		else
-+			warn(_("old root filesystem is not an initramfs"));
-+		if (pid == 0)
-+			exit(EXIT_SUCCESS);
- 	}
-+
-+	close(cfd);
- 	return 0;
- }
- 
 -- 
-2.9.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
