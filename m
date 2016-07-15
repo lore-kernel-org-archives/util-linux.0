@@ -1,33 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36561 "EHLO mx1.redhat.com"
+Received: from mx2.suse.de ([195.135.220.15]:53899 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751069AbcGNK0L (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 14 Jul 2016 06:26:11 -0400
-Received: from int-mx14.intmail.prod.int.phx2.redhat.com (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.redhat.com (Postfix) with ESMTPS id 9F87A7F3F9
-	for <util-linux@vger.kernel.org>; Thu, 14 Jul 2016 10:26:10 +0000 (UTC)
-Date: Thu, 14 Jul 2016 12:26:09 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Allon Mureinik <amureini@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Improve blkdiscard man page
-Message-ID: <20160714102609.sw6wpkoxccrmlnch@ws.net.home>
-References: <CADgXf3xQ4BWV9biePfvtPW=ERK6eMzWTwjm2zr1kATX-j2JybA@mail.gmail.com>
+	id S1751032AbcGONHk (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Fri, 15 Jul 2016 09:07:40 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 0C6E8ACBB
+	for <util-linux@vger.kernel.org>; Fri, 15 Jul 2016 13:07:39 +0000 (UTC)
+To: util-linux@vger.kernel.org
+From: Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH 8/7] mount.8: Update loop device documentation
+Message-ID: <301c1859-76e9-3901-37ab-8ad3d9ccc72d@suse.cz>
+Date: Fri, 15 Jul 2016 15:07:38 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CADgXf3xQ4BWV9biePfvtPW=ERK6eMzWTwjm2zr1kATX-j2JybA@mail.gmail.com>
+Content-Type: text/plain; charset=iso-8859-2
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jul 14, 2016 at 10:16:33AM +0300, Allon Mureinik wrote:
->  sys-utils/blkdiscard.8 | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+New code checks both offset and sizelimit before re-using loop device.
 
-Applied, thanks.
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ sys-utils/mount.8 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
+index 0c04a65..f182ef9 100644
+--- a/sys-utils/mount.8
++++ b/sys-utils/mount.8
+@@ -2933,7 +2933,7 @@ You can also free a loop device by hand, using
+ 
+ Since util-linux v2.29 mount command re-uses the loop device rather than
+ initialize a new device if the same backing file is already mounted with the
+-same offset.
++same offset and sizelimit.
+ 
+ .SH RETURN CODES
+ .B mount
+-- 
+2.9.0
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
