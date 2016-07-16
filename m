@@ -1,67 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:33310 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752210AbcFBP5s (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 2 Jun 2016 11:57:48 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 60C4AAAB6
-	for <util-linux@vger.kernel.org>; Thu,  2 Jun 2016 15:57:46 +0000 (UTC)
-To: util-linux@vger.kernel.org
-From: Stanislav Brabec <sbrabec@suse.cz>
-Subject: inconsistent behavior of --with-ncurses
-Message-ID: <2da519ca-946c-1710-cdd8-15f212589bc0@suse.cz>
-Date: Thu, 2 Jun 2016 17:57:46 +0200
+Received: from mout.kundenserver.de ([212.227.126.130]:65112 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751430AbcGPKvq (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sat, 16 Jul 2016 06:51:46 -0400
+Date: Sat, 16 Jul 2016 12:51:42 +0200
+From: Tobias Stoeckmann <tobias@stoeckmann.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] Fix previously adjusted segfault patch
+Message-ID: <20160716105142.GA2436@localhost>
+References: <20160710141407.GA26802@localhost>
+ <20160714101215.ckr3tl22fmpcumwa@ws.net.home>
+ <20160714192834.GA3861@localhost>
+ <20160715111626.levjhzetw7cvldri@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20160715111626.levjhzetw7cvldri@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-One would expect, that --with-ncurses means: Use ncurses(w), and if it
-is not available, force to fail. But ./configure --help tells something
-different:
+Casting the value to be checked to size_t renders the check useless.
+If st_size is SIZE_MAX+1, it will be truncated to 0 and the check
+succeeds. In fact, this check can never be false because every value
+stored in a size_t is smaller or equal to SIZE_MAX.
 
---with-ncurses     build with non-wide ncurses, default is wide version
-                    (--without-ncurses disables all ncurses(w) support)
+I think this adjustment was meant to fix a compiler warning for 64 bit
+systems for which sizeof(off_t) is sizeof(size_t), but the signedness
+differs.
 
-It implies, that --without-ncurses should force-disable non-wide ncurses.
+Going unconditionally to the greatest possible unsigned int type if
+st_size is positive (off_t is signed) will fix this issue.
 
+Signed-off-by: Tobias Stoeckmann <tobias@stoeckmann.org>
+---
+This should be an easy fix without adding too much boiler-plate code.
+Your macros also imply that every value would be allowed as upper limit,
+but in fact it would have to be a 2^x-1 value, otherwise the bit pattern
+check would turn out to be invalid.
+---
+ text-utils/tailf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-In fact, none of that is true. The check now works in a strange way:
-
---without-ncurses means:
-
-   Disable any variant of ncurses.
-
---with-ncurses means:
-
-   - If ncurses is detected by pkgconfig files, --with-ncurses is a NOP.
-
-   - If pkgconfig files are not present, it falls back to the described
-     meaning: Force non-wide variant of the library.
-
-
-Additionally, --with-ncurses does not disable widechar support, which
-has unexpected results (see my mail [PATCH] Don't allow widechar with
-plain ncurses)
-
-
-What would be the better fix?
-
-- Change description of --with-ncurses, and change behavior of library
-   check. If ncursesw is not found, disable widechar support. Optionally
-   add --disable-widechar to replace original meaning of --with-ncurses.
-
-- Keep description as it is, and fix the main AS_IF and pkgconfig check
-   to follow the description. --with-ncurses will disable widechar
-   support. Optionally add --with-ncursesw.
+diff --git a/text-utils/tailf.c b/text-utils/tailf.c
+index 6219aa2..5937f73 100644
+--- a/text-utils/tailf.c
++++ b/text-utils/tailf.c
+@@ -284,7 +284,7 @@ int main(int argc, char **argv)
+ 		errx(EXIT_FAILURE, _("%s: is not a file"), filename);
+ 
+ 	/* mmap is based on size_t */
+-	if (st.st_size && (size_t) st.st_size <= SIZE_MAX)
++	if (st.st_size > 0 && (uintmax_t) st.st_size <= (uintmax_t) SIZE_MAX)
+ 		tailf(filename, lines, &st);
+ 
+ #ifdef HAVE_INOTIFY_INIT
 -- 
-Best Regards / S pozdravem,
+2.9.1
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Lihovarská 1060/12                            tel: +49 911 7405384547
-190 00 Praha 9                                 fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
