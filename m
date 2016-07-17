@@ -1,29 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42004 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750959AbcGNKMR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 14 Jul 2016 06:12:17 -0400
-Date: Thu, 14 Jul 2016 12:12:15 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Tobias Stoeckmann <tobias@stoeckmann.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Fix segmentation fault in tailf on 32 bit
-Message-ID: <20160714101215.ckr3tl22fmpcumwa@ws.net.home>
-References: <20160710141407.GA26802@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160710141407.GA26802@localhost>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:36193 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751756AbcGQNAf (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 17 Jul 2016 09:00:35 -0400
+Received: by mail-wm0-f65.google.com with SMTP id x83so8717753wma.3
+        for <util-linux@vger.kernel.org>; Sun, 17 Jul 2016 06:00:35 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 07/13] syspriv: flip inverted logic [oclint]
+Date: Sun, 17 Jul 2016 14:00:09 +0100
+Message-Id: <20160717130015.31760-8-kerolasa@iki.fi>
+In-Reply-To: <20160717130015.31760-1-kerolasa@iki.fi>
+References: <20160717130015.31760-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jul 10, 2016 at 04:14:08PM +0200, Tobias Stoeckmann wrote:
->  text-utils/tailf.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/setpriv.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
- Applied with a small change, thanks.
-
-    Karel
-
+diff --git a/sys-utils/setpriv.c b/sys-utils/setpriv.c
+index 3b99a17..977ccd1 100644
+--- a/sys-utils/setpriv.c
++++ b/sys-utils/setpriv.c
+@@ -175,10 +175,10 @@ static int print_caps(FILE *f, capng_type_t which)
+ static void dump_one_secbit(int *first, int *bits, int bit, const char *name)
+ {
+ 	if (*bits & bit) {
+-		if (!*first)
+-			printf(",");
+-		else
++		if (*first)
+ 			*first = 0;
++		else
++			printf(",");
+ 		fputs(name, stdout);
+ 		*bits &= ~bit;
+ 	}
+@@ -206,10 +206,10 @@ static void dump_securebits(void)
+ 	dump_one_secbit(&first, &bits, SECBIT_KEEP_CAPS_LOCKED,
+ 			"keep_caps_locked");
+ 	if (bits) {
+-		if (!first)
+-			printf(",");
+-		else
++		if (first)
+ 			first = 0;
++		else
++			printf(",");
+ 		printf("0x%x", (unsigned)bits);
+ 	}
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.9.0
+
