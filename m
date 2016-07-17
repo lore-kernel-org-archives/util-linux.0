@@ -1,51 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.17.10]:58195 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751397AbcGNT2p (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Thu, 14 Jul 2016 15:28:45 -0400
-Date: Thu, 14 Jul 2016 21:28:34 +0200
-From: Tobias Stoeckmann <tobias@stoeckmann.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: [PATCH] Fix previously adjusted segfault patch
-Message-ID: <20160714192834.GA3861@localhost>
-References: <20160710141407.GA26802@localhost>
- <20160714101215.ckr3tl22fmpcumwa@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160714101215.ckr3tl22fmpcumwa@ws.net.home>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:36226 "EHLO
+	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751767AbcGQNAo (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Sun, 17 Jul 2016 09:00:44 -0400
+Received: by mail-wm0-f68.google.com with SMTP id x83so8718025wma.3
+        for <util-linux@vger.kernel.org>; Sun, 17 Jul 2016 06:00:43 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 12/13] agetty: move unreachable code to pre-processor #else segment [oclint]
+Date: Sun, 17 Jul 2016 14:00:14 +0100
+Message-Id: <20160717130015.31760-13-kerolasa@iki.fi>
+In-Reply-To: <20160717130015.31760-1-kerolasa@iki.fi>
+References: <20160717130015.31760-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Casting the value to be checked to size_t renders the check useless.
-If st_size is SIZE_MAX+1, it will be truncated to 0 and the check
-succeeds. In fact, this check can never be false because every value
-stored in a size_t is smaller or equal to SIZE_MAX.
-
-I think this adjustment was meant to fix a compiler warning for 64 bit
-systems for which sizeof(off_t) is sizeof(size_t), but the signedness
-differs. One possibility is to do a "binary and" operation with the
-value SIZE_MAX. If the original value and the and-operated value differ,
-it means that a higher bit was set and therefore the file was too large.
-
-Signed-off-by: Tobias Stoeckmann <tobias@stoeckmann.org>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- text-utils/tailf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ term-utils/agetty.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/text-utils/tailf.c b/text-utils/tailf.c
-index 6219aa2..5ddbee9 100644
---- a/text-utils/tailf.c
-+++ b/text-utils/tailf.c
-@@ -284,7 +284,7 @@ int main(int argc, char **argv)
- 		errx(EXIT_FAILURE, _("%s: is not a file"), filename);
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index d5d9a91..1089c77 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -1424,7 +1424,7 @@ static char *xgetdomainname(void)
+ {
+ #ifdef HAVE_GETDOMAINNAME
+ 	char *name;
+-	size_t sz = get_hostname_max() + 1;
++	const size_t sz = get_hostname_max() + 1;
  
- 	/* mmap is based on size_t */
--	if (st.st_size && (size_t) st.st_size <= SIZE_MAX)
-+	if (st.st_size && st.st_size == (st.st_size & SIZE_MAX))
- 		tailf(filename, lines, &st);
+ 	name = malloc(sizeof(char) * sz);
+ 	if (!name)
+@@ -1436,8 +1436,9 @@ static char *xgetdomainname(void)
+ 	}
+ 	name[sz - 1] = '\0';
+ 	return name;
+-#endif
++#else
+ 	return NULL;
++#endif
+ }
  
- #ifdef HAVE_INOTIFY_INIT
+ static char *read_os_release(struct options *op, const char *varname)
 -- 
 2.9.0
 
