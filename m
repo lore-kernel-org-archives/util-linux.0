@@ -1,35 +1,54 @@
-Return-Path: mail@bernhard-voelker.de
-Subject: Re: question about raw(1)
-To: Ruediger Meier <sweet_f_a@gmx.de>, Karel Zak <kzak@redhat.com>
-References: <201607041539.37149.sweet_f_a@gmx.de>
- <871t38djgn.fsf@hobgoblin.ariadne.com>
- <20160707202734.tuoshkpnoxlnr5w5@ws.net.home>
- <201607080101.35139.sweet_f_a@gmx.de>
-Cc: "Dale R. Worley" <worley@alum.mit.edu>, util-linux@vger.kernel.org
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Message-ID: <577EF423.7060703@bernhard-voelker.de>
-Date: Fri, 8 Jul 2016 02:30:27 +0200
-MIME-Version: 1.0
-In-Reply-To: <201607080101.35139.sweet_f_a@gmx.de>
-Content-Type: text/plain; charset=windows-1252
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:33406 "EHLO
+	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750965AbcGRUfC (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 18 Jul 2016 16:35:02 -0400
+Received: by mail-wm0-f67.google.com with SMTP id o80so203799wme.0
+        for <util-linux@vger.kernel.org>; Mon, 18 Jul 2016 13:35:01 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH] logger: remove trailing spaces when outputing to journal
+Date: Mon, 18 Jul 2016 21:34:57 +0100
+Message-Id: <20160718203457.3911-1-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 07/08/2016 01:01 AM, Ruediger Meier wrote:
-> It's about this openSUSE init script pull request
-> https://build.opensuse.org/request/show/405725
-> 
-> He removed the existing "sleep 2" after modprobe but I guess somebody 
-> had added that sleep for a good reason in past. Of course sleep is 
-> ugly, maybe "udevadm settle" would work too!? I simply don't know if 
-> udev or sleep would have any affect here at all. When testing locally 
-> the thing always works without any sleep. But this may not mean 
-> anything (as I've learned from ul test suite issues).
+Issues:
+1. Whitespace-ish \r is not stripped, while it should be.
+2. In journal \r is considered unprintable.
 
-maybe use timeout(1) instead of waiting the full 2 seconds?
+Lennart: "it is the duty of the client side to drop the trailing whitespace,
+which "logger" doesn't do".
 
-  timeout 2 sh -c 'while [ ! -e /dev/raw/$rawdev ]; do sleep .1; done'
+Reported-by: Ivan Babrou <ibobrik@gmail.com>
+Explained-by: Lennart Poettering <lennart@poettering.net>
+Reference: https://github.com/systemd/systemd/issues/3416
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/logger.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-Still pretty ugly, but performs better. ;-)
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index 9f2940c..6251f96 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -341,14 +341,10 @@ static int journald_entry(struct logger_ctl *ctl, FILE *fp)
+ 	for (lines = 0; /* nothing */ ; lines++) {
+ 		buf = NULL;
+ 		sz = getline(&buf, &dummy, fp);
+-		if (sz == -1) {
++		if (sz == -1 && (sz = rtrim_whitespace(buf)) != 0) {
+ 			free(buf);
+ 			break;
+ 		}
+-		if (0 < sz && buf[sz - 1] == '\n') {
+-			sz--;
+-			buf[sz] = '\0';
+-		}
+ 		if (lines == vectors) {
+ 			vectors *= 2;
+ 			if (IOV_MAX < vectors)
+-- 
+2.9.0
 
-Have a nice day,
-Berny
