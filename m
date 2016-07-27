@@ -1,61 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:33971 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751010AbcHLV3r (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 12 Aug 2016 17:29:47 -0400
-Received: by mail-wm0-f65.google.com with SMTP id q128so5228343wma.1
-        for <util-linux@vger.kernel.org>; Fri, 12 Aug 2016 14:29:46 -0700 (PDT)
-Date: Fri, 12 Aug 2016 22:29:41 +0100 (BST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] uuidd: require use of --socket-activation when run
- as systemd service
-In-Reply-To: <20160808102211.ijejkvnutrbrz2xp@ws.net.home>
-Message-ID: <alpine.LNX.2.20.1608122226560.13547@imuri>
-References: <20160803224158.23657-1-kerolasa@iki.fi> <20160808102211.ijejkvnutrbrz2xp@ws.net.home>
+Received: from mail-oi0-f43.google.com ([209.85.218.43]:32858 "EHLO
+	mail-oi0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753296AbcG0PUd (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 27 Jul 2016 11:20:33 -0400
+Received: by mail-oi0-f43.google.com with SMTP id j185so22129945oih.0
+        for <util-linux@vger.kernel.org>; Wed, 27 Jul 2016 08:20:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <1469618118.1670435.678129761.331B0F49@webmail.messagingengine.com>
+References: <20160727103457.3105-1-kerolasa@iki.fi> <1469618118.1670435.678129761.331B0F49@webmail.messagingengine.com>
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Wed, 27 Jul 2016 16:20:32 +0100
+Message-ID: <CAG27Bk1pZx3AAnJ3kGOvm+ekBJnW1p0Ryme0f_wtntWrRpWBmA@mail.gmail.com>
+Subject: Re: [PATCH] getops: improve getopt-parse.bash example
+To: Benno Schulenberg <bensberg@justemail.net>
+Cc: Util-Linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 8 Aug 2016, Karel Zak wrote:
+On 27 July 2016 at 12:15, Benno Schulenberg <bensberg@justemail.net> wrote:
+>
+> In the subject line: s/ops/opt/.
+>
+> On Wed, Jul 27, 2016, at 12:34, Sami Kerola wrote:
+>> --- a/misc-utils/getopt-parse.bash
+>> +++ b/misc-utils/getopt-parse.bash
+>> @@ -3,45 +3,73 @@
+>>  # A small example program for using the new getopt(1) program.
+>>  # This program will only work with bash(1)
+>>  # An similar program using the tcsh(1) script language can be found
+>
+> When here anyway, maybe fix a typo: s/An/A/.
+> Add a missing period: s/)/)./.
+> And adjust for the times: s/new //.
+>
+>> -# as parse.tcsh
+>> +# as getopt-parse.tcsh
+>
+> Also add period: s/tcsh/tcsh./
+>
+> Benno
 
-> On Wed, Aug 03, 2016 at 11:41:57PM +0100, Sami Kerola wrote:
-> > Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> > ---
-> >  misc-utils/uuidd.c | 7 +++++++
-> >  1 file changed, 7 insertions(+)
-> > 
-> > diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
-> > index a3fe830..77c967d 100644
-> > --- a/misc-utils/uuidd.c
-> > +++ b/misc-utils/uuidd.c
-> > @@ -651,6 +651,13 @@ int main(int argc, char **argv)
-> >  	else if (pidfile_path_param)
-> >  		pidfile_path = pidfile_path_param;
-> >  
-> > +#ifdef HAVE_LIBSYSTEMD
-> > +	if (getppid() == 1 && 0 < sd_booted() &&
-> > +	    (!uuidd_cxt.no_sock || !uuidd_cxt.no_fork || !no_pid))
-> > +		errx(EXIT_FAILURE,  _("cannot run as systemd service "
-> > +				      "without --socket-activation"));
-> > +#endif
-> 
->  Why? 
->  
->  I do not test it, but I guess --socket-activation is always an
->  optional way. It's enabled by default in systemd unit files, but I
->  guess for some test purpose you can use old way to start uuid
->  independently on your initd. Right?
+Thanks Benno.
 
-My thinking with this was that when software can detect correct
-invocation it should. In this case when uuidd is started by
-systemd then incorrect option usage in service file should
-cause an error.
+The example file banner is updated to both of them. I also changed the
+example script
+to call itself as script rather than a program.
 
-But indeed, perhaps an unnecessary change so I'm not going to
-push this any further.
+https://github.com/kerolasa/lelux-utiliteetit/commit/d27f5fe770025e456fbd33b87a96968f34c455ed
+
+Karel if/when considering merge the branch name is: getopt
 
 -- 
 Sami Kerola
