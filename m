@@ -1,135 +1,66 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:41562 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753986AbcHWRZs (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 23 Aug 2016 13:25:48 -0400
-Subject: [PATCH] libmount: Special handling of root comparison for cifs in
- mnt_table_is_fs_mounted()
-To: =?UTF-8?Q?Aur=c3=a9lien_Aptel?= <aaptel@suse.com>
-References: <91d465d3-4f5b-6270-a6c5-38bd94695731@suse.cz>
- <5eb96b3e-d463-bf11-49de-f614247d6b29@suse.cz>
- <20160805192234.2c9d5b7d@aaptelpc>
- <7c2181d1-c7b5-df04-0640-ec23f5d78eab@suse.cz>
- <c4f10081-4525-4ac0-0e6b-b364c7268200@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>, linux-cifs@vger.kernel.org,
-        Steve French <smfrench@gmail.com>
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <eec8f575-eab2-34bb-882a-11fb8c33d9c0@suse.cz>
-Date: Tue, 23 Aug 2016 19:25:46 +0200
+Return-Path: elseifthen@gmx.com
+Subject: Re: [PATCH] hwclock: remove UTC-0 localization hack
+To: kerolasa@gmail.com
+References: <20160710200242.2706-1-kerolasa@iki.fi>
+ <201607121623.04891.sweet_f_a@gmx.de>
+ <CAG27Bk3po26Bsb=E0A1UXDrTrkwPH1pEvqEKXFZ_n4PVOcxt8A@mail.gmail.com>
+ <201607122338.40458.sweet_f_a@gmx.de>
+ <alpine.LNX.2.20.1607122241300.11890@imuri>
+ <20160714100143.gc4ozcmah5i5stgz@ws.net.home>
+ <55e0d593-85e7-accc-84bd-c853a9d2951c@gmx.com>
+ <CAG27Bk1DOOpwa-T=R0Hxxna+3Cap-6gC+KCcn8C4i_5AD5jd0g@mail.gmail.com>
+From: J William Piggott <elseifthen@gmx.com>
+Cc: Karel Zak <kzak@redhat.com>, Ruediger Meier <sweet_f_a@gmx.de>,
+        util-linux <util-linux@vger.kernel.org>
+Message-ID: <74735c3b-a94c-6905-7818-b308d9a63809@gmx.com>
+Date: Thu, 28 Jul 2016 15:49:16 -0400
 MIME-Version: 1.0
-In-Reply-To: <c4f10081-4525-4ac0-0e6b-b364c7268200@suse.cz>
-Content-Type: text/plain; charset=utf-8
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <CAG27Bk1DOOpwa-T=R0Hxxna+3Cap-6gC+KCcn8C4i_5AD5jd0g@mail.gmail.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-In mountinfo of cifs filesystem, leading part of root is a path relative to the
-root of the exported volume.
 
-Create a dedicated function mnt_fs_get_cifs_root() that cuts the volume root
-part from the root.
 
-How to reproduce:
-1) Create and export a volume on cifs (with guest allowed).
-2) Make a subdirectory in this volume.
-3) Mount this volume using fstab:
-   //server/volume/subdir /mnt cifs guest 0 0
-4) Call mount -a twice.
-   Depending on system running, you either get:
-     mount error(16): Device or resource busy
-     Refer to the mount.cifs(8) manual page (e.g. man mount.cifs)
-   or volume mounted twice.
+On 07/27/2016 12:07 PM, Sami Kerola wrote:
+> On 15 July 2016 at 19:46, J William Piggott <elseifthen@gmx.com> wrote:
+>> On 07/14/2016 06:01 AM, Karel Zak wrote:
+>>> On Tue, Jul 12, 2016 at 10:42:33PM +0100, Sami Kerola wrote:
+>>>>  lib/portability.c      | 28 ++++++++++++++++++++++++++++
+>>>
+>>> We already care about portability and we have many fallbacks, so why
+>>> we need lib/portability.c now? It would better to use timeutils.c (or
+>>> inline function in c.h).
+>>
+>> What is this projects position on POSIX compatibility? A few comments in
+>> the *-ReleaseNotes is all I found in /Documentation. Just curious, because
+>> mktime() is and timegm() is not POSIX.
+> 
+> That is a question to maintainer, but Karel seems to be busy so let me try
+> to phrase how I see the things.
+> 
+> The util-linux project is a dumping ground for various linux specific, and
+> other tools.  Some of the tools make are sensible only in context of linux,
+> such as dmesg(1) or mkswap(8), while other could technically be compiled on
+> other operating environments, more(1) and getopt(1) are examples of later
+> category.
+> 
+> As mentioned in this thread the util-linux is one of the core packages, and
+> it is assumed to be found from all sorts of systems.  That in mind the
+> portability question has got more to do whether the project works without
+> problems with alternative libc implementations.  Ideally the util-linux
+> should compile fine on any linux no matter what libc is used.  But please
+> notice that some utilities might not get compiled if/when autotools notice
+> requirements are not fulfilled.
+> 
+> In short.  While portability is not a main goal of the project neither it is
+> completely neglected either.  Keeping ulibc going is important, making the
+> util-linux work with mingw is less important.
+> 
 
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
----
----
- libmount/src/tab.c | 49 ++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 48 insertions(+), 1 deletion(-)
+Hey Sami,
 
-diff --git a/libmount/src/tab.c b/libmount/src/tab.c
-index 341e5e3..4488073 100644
---- a/libmount/src/tab.c
-+++ b/libmount/src/tab.c
-@@ -42,6 +42,7 @@
-  * will return the first entry (if UUID matches with the device).
-  */
- #include <blkid.h>
-+#include <stdbool.h>
- 
- #include "mountP.h"
- #include "strutils.h"
-@@ -1449,6 +1450,48 @@ err:
- }
- 
- /**
-+ * mnt_fs_get_cifs_root:
-+ * @fs: /proc/self/mountinfo entry
-+ *
-+ * For cifs, root contains a relative path to the exported volume plus
-+ * the root path. We have to cut volume path to get root.
-+ *
-+ * Returns: root of the cifs mount within the filesystem or NULL
-+ */
-+static const char *mnt_fs_get_cifs_root(struct libmnt_fs *fs)
-+{
-+	const char *root = mnt_fs_get_root(fs);
-+	const char *src = mnt_fs_get_source(fs);
-+	const char *subpath = src;
-+	char c;
-+	int component_no = 0;
-+	bool last_is_slash = false;
-+
-+	while ((c = *subpath++))
-+	{
-+		if (c == '/') {
-+			if (!last_is_slash) {
-+				component_no++;
-+				if (component_no == 3)
-+					break;
-+			}
-+			last_is_slash = true;
-+		} else
-+			last_is_slash = false;
-+	}
-+	if (component_no == 3) {
-+		int subpath_len = strlen(subpath);
-+		if (strncmp(root, subpath, subpath_len)) {
-+			if (*(root + subpath_len + 1) == 0)
-+				return "/";
-+			return root + subpath_len + 1;
-+		}
-+	}
-+	DBG(FS, ul_debugobj(fs, "cifs: leading part of root \"%s\" does not equal to mounted source subdir \"%s\"; should not happen", root, src));
-+	return root;
-+}
-+
-+/**
-  * mnt_table_is_fs_mounted:
-  * @tb: /proc/self/mountinfo file
-  * @fstab_fs: /etc/fstab entry
-@@ -1563,7 +1606,11 @@ int mnt_table_is_fs_mounted(struct libmnt_table *tb, struct libmnt_fs *fstab_fs)
- 		}
- 
- 		if (root) {
--			const char *r = mnt_fs_get_root(fs);
-+			const char *r;
-+			if (strcmp(mnt_fs_get_fstype(fs), "cifs"))
-+				r = mnt_fs_get_root(fs);
-+			else
-+				r = mnt_fs_get_cifs_root(fs);
- 			if (!r || strcmp(r, root) != 0)
- 				continue;
- 		}
--- 
-2.9.3
-
--- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Křižíkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+Thanks for your reply. The position you describe is what I had surmised
+as a general statement (with the addition that portability also involves
+different hardware architectures). I just wanted to know if Karel had an
+official stance specifically on POSIX compliance. POSIX appears to only
+be used as an ad hoc reference?
