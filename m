@@ -1,71 +1,46 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:35014 "EHLO
-	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752328AbcHOJvB (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Mon, 15 Aug 2016 05:51:01 -0400
-Received: by mail-wm0-f66.google.com with SMTP id i5so10226428wmg.2
-        for <util-linux@vger.kernel.org>; Mon, 15 Aug 2016 02:51:00 -0700 (PDT)
-Received: from grayswandir.berep.pl (89-72-45-26.dynamic.chello.pl. [89.72.45.26])
-        by smtp.gmail.com with ESMTPSA id o36sm3274908lfi.5.2016.08.15.02.50.58
-        for <util-linux@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 15 Aug 2016 02:50:59 -0700 (PDT)
-From: =?UTF-8?q?Micha=C5=82=20Bartoszkiewicz?=
-	<mbartoszkiewicz@gmail.com>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] lsns: support cgroup namespaces
-Date: Mon, 15 Aug 2016 11:50:52 +0200
-Message-Id: <20160815095052.24450-1-mbartoszkiewicz@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: heiko.carstens@de.ibm.com
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [PATCH 4/5] lspcu: minor manpage improvement
+Date: Fri, 29 Jul 2016 14:13:35 +0200
+In-Reply-To: <1469794416-97361-1-git-send-email-heiko.carstens@de.ibm.com>
+References: <1469794416-97361-1-git-send-email-heiko.carstens@de.ibm.com>
+Message-Id: <1469794416-97361-5-git-send-email-heiko.carstens@de.ibm.com>
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Michał Bartoszkiewicz <mbartoszkiewicz@gmail.com>
+Always use the word "can" instead of "may" to be consistent with the
+descriptions of the other columns.
+
+Also print "lspcu" always with bold characters like everywhere else in
+the man page.
+
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
- sys-utils/lsns.8 | 4 ++--
- sys-utils/lsns.c | 6 ++++--
- 2 files changed, 6 insertions(+), 4 deletions(-)
+ sys-utils/lscpu.1 | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sys-utils/lsns.8 b/sys-utils/lsns.8
-index 9fe22f1..7ea1cb3 100644
---- a/sys-utils/lsns.8
-+++ b/sys-utils/lsns.8
-@@ -54,8 +54,8 @@ Use the raw output format.
+diff --git a/sys-utils/lscpu.1 b/sys-utils/lscpu.1
+index 72065d611630..55480aad983f 100644
+--- a/sys-utils/lscpu.1
++++ b/sys-utils/lscpu.1
+@@ -54,7 +54,7 @@ The logical book number.  A book can contain several sockets.
+ The logical drawer number.  A drawer can contain several books.
  .TP
- .BR \-t , " \-\-type " \fItype\fP
- Display the specified \fItype\fP of namespaces only.  The supported types are
--\fBmnt\fP, \fBnet\fP, \fBipc\fP, \fBuser\fP, \fBpid\fP and \fButs\fP.  This
--option may be given more than once.
-+\fBmnt\fP, \fBnet\fP, \fBipc\fP, \fBuser\fP, \fBpid\fP, \fButs\fP and
-+\fBcgroup\fP.  This option may be given more than once.
+ .B NODE
+-The logical NUMA node number.  A node may contain several drawers.
++The logical NUMA node number.  A node can contain several drawers.
  .TP
- .BR \-u , " \-\-notruncate"
- Do not truncate text in columns.
-diff --git a/sys-utils/lsns.c b/sys-utils/lsns.c
-index 75c04f8..b21e600 100644
---- a/sys-utils/lsns.c
-+++ b/sys-utils/lsns.c
-@@ -100,7 +100,8 @@ enum {
- 	LSNS_ID_PID,
- 	LSNS_ID_UTS,
- 	LSNS_ID_IPC,
--	LSNS_ID_USER
-+	LSNS_ID_USER,
-+	LSNS_ID_CGROUP
- };
- 
- static char *ns_names[] = {
-@@ -109,7 +110,8 @@ static char *ns_names[] = {
- 	[LSNS_ID_PID] = "pid",
- 	[LSNS_ID_UTS] = "uts",
- 	[LSNS_ID_IPC] = "ipc",
--	[LSNS_ID_USER] = "user"
-+	[LSNS_ID_USER] = "user",
-+	[LSNS_ID_CGROUP] = "cgroup"
- };
- 
- struct lsns_namespace {
+ .B CACHE
+ Information about how caches are shared between CPUs.
+@@ -90,7 +90,7 @@ and hypervisor support CPU polarization.
+ .RE
+ .TP
+ .B MAXMHZ
+-Maximum megahertz value for the CPU.  Useful when lscpu is used as hardware
++Maximum megahertz value for the CPU. Useful when \fBlscpu\fP is used as hardware
+ inventory information gathering tool.  Notice that the megahertz value is
+ dynamic, and driven by CPU governor depending on current resource need.
+ .TP
 -- 
-2.9.2
-
+2.6.6
