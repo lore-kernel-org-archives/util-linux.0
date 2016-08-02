@@ -1,123 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:58178 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:37922 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932155AbcHKKmK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 11 Aug 2016 06:42:10 -0400
-Date: Thu, 11 Aug 2016 12:42:06 +0200
+	id S1755628AbcHBOPY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 2 Aug 2016 10:15:24 -0400
+Date: Tue, 2 Aug 2016 16:15:00 +0200
 From: Karel Zak <kzak@redhat.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: [ANNOUNCE] util-linux v2.28.1
-Message-ID: <20160811104206.dfetwwymka32jhiq@ws.net.home>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] tests: remove unnecessary file
+Message-ID: <20160802141500.xw6bk4jtnunkqah5@ws.net.home>
+References: <20160722202434.682-1-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20160722202434.682-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The util-linux release v2.28.1 is available at
+On Fri, Jul 22, 2016 at 09:24:34PM +0100, Sami Kerola wrote:
+>  tests/colcrt | Bin 14720 -> 0 bytes
+>  1 file changed, 0 insertions(+), 0 deletions(-)
+>  delete mode 100755 tests/colcrt
 
-  http://ftp.kernel.org/pub/linux/utils/util-linux/v2.28
-
-Feedback and bug reports, as always, are welcomed.
+Applied, thanks.
 
     Karel
-
-
-util-linux 2.28.1 Release Notes
-===============================
-
-agetty:
-   - call uname() only when necessary  [Karel Zak]
-   - don't modify argv[] when parse speeds  [Karel Zak]
-   - fix \S usage  [Karel Zak]
-blkdiscard:
-   - Improve man page  [Allon Mureinik]
-build-sys:
-   - add --enable-libuuid-force-uuidd  [Ruediger Meier]
-   - add tools/Makemodule.am  [Karel Zak]
-   - fix uClibc-ng scanf check  [Waldemar Brodkorb]
-   - workaround for autoconf "present but cannot be compiled"  [Karel Zak]
-cfdisk:
-   - use libsmartcols ASCII for non-widechar environment  [Karel Zak]
-chfn:
-   - chsh  use selinux_check_passwd_access()  [Karel Zak]
-colcrt:
-   - avoid the command getting hung [afl]  [Sami Kerola]
-deprecated.txt:
-   - Add sfdisk --show-pt-geometry  [Stanislav Brabec]
-dmesg:
-   - --notime should not suppress --show-delta  [Sami Kerola]
-docs:
-   - update AUTHORS file  [Karel Zak]
-fdisk:
-   - make -l <dev ...> behaves like fdisk -l  [Thierry Vignaud]
-fsck:
-   - fix racing between unlock/unlink and open  [Yuriy M. Kaminskiy]
-lib:
-   - avoid double free in loopdev.c  [Sami Kerola]
-libblkid:
-   - Add metadata signature check for IMSM on 4Kn drives  [Alexey Obitotskiy]
-   - avoid non-empty recursion in EBR  [Karel Zak]
-   - ignore extended partition at zero offset  [Karel Zak]
-   - make I/O errors on CDROMs non-fatal  [Karel Zak]
-   - make blkid_do_wipe() work with probes with offset  [Petr Uzel]
-   - Add length check in probe_nilfs2 before crc32  [Torsten Hilbrich]
-   - fix probe_nilfs2 I/O error backup  [Karel Zak]
-libfdisk:
-   - (gpt) be more careful with 64bit constants  [Karel Zak]
-   - don't offer zero length freespace  [Karel Zak]
-   - fix range checking for fdisk_set_last_lba  [Sassan Panahinejad]
-libmount:
-   - Preserve empty string value in optstr parsing  [Filipe Brandenburger]
-   - fix memory leak  [Sami Kerola]
-   - fix mnt_table_parse_stream() logic  [Karel Zak]
-   - make kernel_fs_postparse() more robust  [Karel Zak]
-libsmartcols:
-   - Corrected JSON escaping  [Karel Zak, Bryan Elliott]
-logger:
-   - add man page note about the default --tag  [Karel Zak]
-   - be more precise about --port description  [Karel Zak]
-lsblk:
-   - improve support for nvme  [Karel Zak]
-   - use ID_WWN_WITH_EXTENSION is possible  [Karel Zak]
-man pages:
-   - fix spacing between man page name & section number  [Mike Frysinger]
-mkswap:
-   - tolerate ENOTSUP when failing to relabel  [Lubomir Rintel]
-mount:
-   - try to tell what mount was doing when it failed  [Sami Kerola]
-po:
-   - merge changes  [Karel Zak]
-   - update ja.po (from translationproject.org)  [Takeshi Hamasaki]
-   - update nl.po (from translationproject.org)  [Benno Schulenberg]
-   - update sv.po (from translationproject.org)  [Sebastian Rasmussen]
-pylibmount:
-   - include c.h  [Karel Zak]
-script:
-   - avoid trying fclose(NULL)  [Sami Kerola]
-   - use empty-slave heuristic more carefully  [Karel Zak]
-setpwnam:
-   - fix memory leak  [Sami Kerola]
-sfdisk:
-   - Add --show-pt-geometry compatibility code  [Stanislav Brabec]
-   - add show-pt-geometry to usage() and sfdisk.8  [Karel Zak]
-   - exit with error if rereading partition table fails  [Victor Dodon]
-tailf:
-   - Fix previously adjusted segfault patch  [Tobias Stoeckmann]
-   - Fix segmentation fault in tailf on 32 bit  [Tobias Stoeckmann]
-taskset:
-   - clarify that masks are always hex in man page  [Chris Metcalf]
-tests:
-   - Use proper word splitting when executing tests  [Filipe Brandenburger]
-   - update build-sys test  [Karel Zak]
-tools:
-   - add script to load .po from translationproject.org  [Karel Zak]
-umount:
-   - add note about FS names differences to the man page  [Karel Zak]
-wipefs:
-   - force GPT detection  [Karel Zak]
-write:
-   - fix setuid related regression  [Wayne Pollock]
 
 -- 
  Karel Zak  <kzak@redhat.com>
