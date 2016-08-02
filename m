@@ -1,48 +1,82 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:55742 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S968222AbcHBRzG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Tue, 2 Aug 2016 13:55:06 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 5CD83AB07
-	for <util-linux@vger.kernel.org>; Tue,  2 Aug 2016 17:55:03 +0000 (UTC)
-To: util-linux <util-linux@vger.kernel.org>
-From: Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH 0/8] losetup: re-use loop device
-Message-ID: <aaabe320-5552-8963-4143-989e63ae3833@suse.cz>
-Date: Tue, 2 Aug 2016 19:55:03 +0200
+Return-Path: cmetcalf@mellanox.com
+Subject: Re: [PATCH] taskset: clarify that masks are always hex in man page
+To: Karel Zak <kzak@redhat.com>
+References: <1469808380-3120-1-git-send-email-cmetcalf@mellanox.com>
+ <20160802141349.2rwa6turcojnpnif@ws.net.home>
+CC: <util-linux@vger.kernel.org>
+From: Chris Metcalf <cmetcalf@mellanox.com>
+Message-ID: <b6cc201b-0169-8549-16cb-58708f622c43@mellanox.com>
+Date: Tue, 2 Aug 2016 10:31:27 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2; format=flowed
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20160802141349.2rwa6turcojnpnif@ws.net.home>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-Here is a patch set that is based on a "safe implementation of loop
-reuse" patch set sent three weeks ago.
+On 8/2/2016 10:13 AM, Karel Zak wrote:
+> On Fri, Jul 29, 2016 at 12:06:20PM -0400, Chris Metcalf wrote:
+>> The man page confusingly says that the mask is "typically"
+>> hexadecimal, when in fact it is always hexadecimal.  Fix the
+>> language, and provide an additional example with no leading "0x".
+> Well, we have --cpu-list, then the mask is a list, for example
+> 0,5,8-11. Maybe we can make a note about it to the paragraph and to
+> the example (now it's in the OPTIONS only).
 
-It addresses the same loop device issues in losetup.
+Something like this?  I removed the "0x00000001" example just so we don't
+have too many examples total, and the somewhat misleading "all processors"
+language from 0xffffffff (if you have more than 32 processors, it's not "all").
 
-Issues not addressed:
-Calling losetup twice still fails (and it is probably correct):
-losetup /dev/loop0 loop.img
-losetup /dev/loop0 loop.img
+ From eaa556e49ed19dd87afa14d87e31a679a046c4c5 Mon Sep 17 00:00:00 2001
+From: Chris Metcalf <cmetcalf@mellanox.com>
+Date: Fri, 29 Jul 2016 11:57:01 -0400
+Subject: [PATCH] taskset: clarify that masks are always hex in man page
 
-"[PATCH 6/8] losetup: Prevent rare detach race" needs a careful review,
-as I don't have a test case for it. It is even possible to skip it. It
-addresses a theoretical race problem:
+The man page confusingly says that the mask is "typically"
+hexadecimal, when in fact it is always hexadecimal.  Fix the
+language, and provide an additional example with no leading "0x".
 
-LOOPDEV=$(losetup -f --show loop.img)
-losetup -d $LOOPDEV
-sleep {a very special amount of time}
-losetup -f --show loop.img
+Also, provide an example using the --cpu-list option.
+
+Signed-off-by: Chris Metcalf <cmetcalf@mellanox.com>
+---
+  schedutils/taskset.1 | 16 +++++++++++-----
+  1 file changed, 11 insertions(+), 5 deletions(-)
+
+diff --git a/schedutils/taskset.1 b/schedutils/taskset.1
+index 901f9faf5f45..c48e296e4b1c 100644
+--- a/schedutils/taskset.1
++++ b/schedutils/taskset.1
+@@ -51,17 +51,23 @@ to the last logical CPU.  Not all CPUs may exist on a given system but a mask
+  may specify more CPUs than are present.  A retrieved mask will reflect only the
+  bits that correspond to CPUs physically on the system.  If an invalid mask is
+  given (i.e., one that corresponds to no valid CPUs on the current system) an
+-error is returned.  The masks are typically given in hexadecimal.  For example,
++error is returned.  The masks may be specified in hexadecimal (with or without
++a leading "0x"), or as a cpu list with the
++.BR \-\-cpu\-list
++option.  For example,
+  .RS 4
+  .TP 12
+-.BR 0x00000001
+-is processor #0,
+-.TP
+  .BR 0x00000003
+  is processors #0 and #1,
+  .TP
+  .BR 0xFFFFFFFF
+-is all processors (#0 through #31).
++is processors #0 through #31,
++.TP
++.BR 32
++is processors #1, #4, and #5,
++.TP
++.BR \-\-cpu\-list\ 0-2,6
++is processors #0, #1, #2, and #6.
+  .RE
+  .PP
+  When
+-- 
+2.7.2
 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+Chris Metcalf, Mellanox Technologies
+http://www.mellanox.com
