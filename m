@@ -1,56 +1,77 @@
-Return-Path: kerolasa@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx2.suse.de ([195.135.220.15]:56029 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S934752AbcHBR5L (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 2 Aug 2016 13:57:11 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 32E44AB07
+	for <util-linux@vger.kernel.org>; Tue,  2 Aug 2016 17:57:10 +0000 (UTC)
+To: util-linux@vger.kernel.org
+From: Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH 3/8] losetup: Check for loop device conflicts
+Message-ID: <057a3e40-b633-10c0-bab1-9a7146441b17@suse.cz>
+Date: Tue, 2 Aug 2016 19:57:10 +0200
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <55e0d593-85e7-accc-84bd-c853a9d2951c@gmx.com>
-References: <20160710200242.2706-1-kerolasa@iki.fi> <201607121623.04891.sweet_f_a@gmx.de>
- <CAG27Bk3po26Bsb=E0A1UXDrTrkwPH1pEvqEKXFZ_n4PVOcxt8A@mail.gmail.com>
- <201607122338.40458.sweet_f_a@gmx.de> <alpine.LNX.2.20.1607122241300.11890@imuri>
- <20160714100143.gc4ozcmah5i5stgz@ws.net.home> <55e0d593-85e7-accc-84bd-c853a9d2951c@gmx.com>
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Wed, 27 Jul 2016 17:07:38 +0100
-Message-ID: <CAG27Bk1DOOpwa-T=R0Hxxna+3Cap-6gC+KCcn8C4i_5AD5jd0g@mail.gmail.com>
-Subject: Re: [PATCH] hwclock: remove UTC-0 localization hack
-To: J William Piggott <elseifthen@gmx.com>
-Cc: Karel Zak <kzak@redhat.com>, Ruediger Meier <sweet_f_a@gmx.de>,
-        util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-2
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 15 July 2016 at 19:46, J William Piggott <elseifthen@gmx.com> wrote:
-> On 07/14/2016 06:01 AM, Karel Zak wrote:
->> On Tue, Jul 12, 2016 at 10:42:33PM +0100, Sami Kerola wrote:
->>>  lib/portability.c      | 28 ++++++++++++++++++++++++++++
->>
->> We already care about portability and we have many fallbacks, so why
->> we need lib/portability.c now? It would better to use timeutils.c (or
->> inline function in c.h).
->
-> What is this projects position on POSIX compatibility? A few comments in
-> the *-ReleaseNotes is all I found in /Documentation. Just curious, because
-> mktime() is and timegm() is not POSIX.
+To prevent data loss, check for conflicting loop devices.
 
-That is a question to maintainer, but Karel seems to be busy so let me try
-to phrase how I see the things.
+Return error if a conflicting loop device exists. This behavior can be overridden
+by --force.
 
-The util-linux project is a dumping ground for various linux specific, and
-other tools.  Some of the tools make are sensible only in context of linux,
-such as dmesg(1) or mkswap(8), while other could technically be compiled on
-other operating environments, more(1) and getopt(1) are examples of later
-category.
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ sys-utils/losetup.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-As mentioned in this thread the util-linux is one of the core packages, and
-it is assumed to be found from all sorts of systems.  That in mind the
-portability question has got more to do whether the project works without
-problems with alternative libc implementations.  Ideally the util-linux
-should compile fine on any linux no matter what libc is used.  But please
-notice that some utilities might not get compiled if/when autotools notice
-requirements are not fulfilled.
-
-In short.  While portability is not a main goal of the project neither it is
-completely neglected either.  Keeping ulibc going is important, making the
-util-linux work with mingw is less important.
+diff --git a/sys-utils/losetup.c b/sys-utils/losetup.c
+index ef6f52b..28cde2b 100644
+--- a/sys-utils/losetup.c
++++ b/sys-utils/losetup.c
+@@ -732,6 +732,30 @@ int main(int argc, char **argv)
+ 		do {
+ 			const char *errpre;
+ 
++			if (!force) {
++				struct loopdev_cxt lc2;
++
++				if (loopcxt_init(&lc2, 0)) {
++					loopcxt_deinit(&lc);
++					err(EXIT_FAILURE, _("failed to initialize loopcxt"));
++				}
++				res = loopcxt_check_conflict(&lc2, file,
++					offset, sizelimit);
++				if (res < 0) {
++					loopcxt_deinit(&lc2);
++					loopcxt_deinit(&lc);
++					err(EXIT_FAILURE, _("failed to check for conflicting loop devices"));
++				}
++				if (res == 0) {
++					loopcxt_deinit(&lc2);
++					loopcxt_deinit(&lc);
++					errx(EXIT_FAILURE, _("%s: overlapping loop device exists; use --force to ignore"),
++						file);
++				}
++				res = 0;
++				loopcxt_deinit(&lc2);
++			}
++
+ 			/* Note that loopcxt_{find_unused,set_device}() resets
+ 			 * loopcxt struct.
+ 			 */
+-- 
+2.9.2
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
