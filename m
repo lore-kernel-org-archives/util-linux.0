@@ -1,58 +1,69 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:33902 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757665AbcGZSGI (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Tue, 26 Jul 2016 14:06:08 -0400
-Received: by mail-wm0-f65.google.com with SMTP id q128so2879543wma.1
-        for <util-linux@vger.kernel.org>; Tue, 26 Jul 2016 11:06:07 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 2/2] chfn: stop adding trailing commas to gecos
-Date: Tue, 26 Jul 2016 19:06:02 +0100
-Message-Id: <20160726180602.4914-2-kerolasa@iki.fi>
-In-Reply-To: <20160726180602.4914-1-kerolasa@iki.fi>
-References: <20160726180602.4914-1-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: sbrabec@suse.cz
+Subject: Re: [PATCH 0/8] losetup: re-use loop device
+To: Karel Zak <kzak@redhat.com>
+References: <aaabe320-5552-8963-4143-989e63ae3833@suse.cz>
+ <20160803104721.y6wyq4644bgkza76@ws.net.home>
+Cc: util-linux <util-linux@vger.kernel.org>
+From: Stanislav Brabec <sbrabec@suse.cz>
+Message-ID: <5af5766e-98c0-1f53-7613-300f41f89e5c@suse.cz>
+Date: Wed, 3 Aug 2016 15:30:22 +0200
+MIME-Version: 1.0
+In-Reply-To: <20160803104721.y6wyq4644bgkza76@ws.net.home>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-The other field should not appear automatically, it causes not-automatically
-trimmed trailing commas to appear in gecos.
+Dne 3.8.2016 v 12:47 Karel Zak napsal(a):
+> On Tue, Aug 02, 2016 at 07:55:03PM +0200, Stanislav Brabec wrote:
+>> Here is a patch set that is based on a "safe implementation of loop
+>> reuse" patch set sent three weeks ago.
+>
+> I think it makes sense to reuse loop device by mount(8), because the
+> goal is to mount FS and mount the same FS from two device may be
+> disaster, but I'm not sure about losetup.
+>
+> Would be enough to keep it stupid and exit with error if the same
+> backing file is already used and require --force to create duplicate
+> loopdev?
+>
+>  if (!force && has_conflict(backing_file, ....))
+>     err(EXIT_FAILURE, _("%s: already associated with %s"), ....);
+>
+That is why the patch is split to several parts. One adds conflict 
+check, another adds re-use.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- login-utils/chfn.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+But I think, that it is useful. With the patch, you just can call 
+"losetup --find --print loop.img" and don't care about the details. You 
+will (nearly) always get a loop device, new or re-used.
 
-diff --git a/login-utils/chfn.c b/login-utils/chfn.c
-index 2d58fc3..c56f510 100644
---- a/login-utils/chfn.c
-+++ b/login-utils/chfn.c
-@@ -346,7 +346,7 @@ static void add_missing(struct chfn_control *ctl)
- 	ctl->newf.office = find_field(ctl->newf.office, ctl->oldf.office);
- 	ctl->newf.office_phone = find_field(ctl->newf.office_phone, ctl->oldf.office_phone);
- 	ctl->newf.home_phone = find_field(ctl->newf.home_phone, ctl->oldf.home_phone);
--	ctl->newf.other = find_field(ctl->newf.other, ctl->oldf.other);
-+	ctl->newf.other = ctl->oldf.other ? ctl->oldf.other : NULL;
- 	printf("\n");
- }
- 
-@@ -361,12 +361,13 @@ static int save_new_data(struct chfn_control *ctl)
- 	int len;
- 
- 	/* create the new gecos string */
--	len = xasprintf(&gecos, "%s,%s,%s,%s,%s",
-+	len = xasprintf(&gecos, "%s,%s,%s,%s%s%s",
- 			ctl->newf.full_name,
- 			ctl->newf.office,
- 			ctl->newf.office_phone,
- 			ctl->newf.home_phone,
--			ctl->newf.other);
-+			ctl->newf.other ? "," : "",
-+			ctl->newf.other ? ctl->newf.other : "");
- 
- 	/* remove trailing empty fields (but not subfields of ctl->newf.other) */
- 	if (!ctl->newf.other || ctl->trim) {
+For example:
+
+Imagine that you want to write a script to mount btrfs snapshot, and you 
+also want loopdev.
+
+With the loop re-use feature:
+
+#!/bin/sh
+LOOPDEV=$(losetup --find --show /test.img)
+fsck "$LOOPDEV"
+mount -tbtrfs -osubvol=.snapshots/$1 $LOOPDEV /mnt/$1
+
+Without the feature, r/w mount will cause data corruption,
+and the correct script will require losetup --list output parsing.
+
+
+I can imagine split of --force to two options:
+--force: Ignore conflicts.
+--new: Always allocate new loop device (the old behavior).
+
+
 -- 
-2.9.0
+Best Regards / S pozdravem,
 
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Křižíkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
