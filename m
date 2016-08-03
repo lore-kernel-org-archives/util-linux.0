@@ -1,67 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mga01.intel.com ([192.55.52.88]:31141 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752723AbcGYIJH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 25 Jul 2016 04:09:07 -0400
-From: Alexey Obitotskiy <aleksey.obitotskiy@intel.com>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:33358 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752496AbcHCXgM (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 3 Aug 2016 19:36:12 -0400
+Received: by mail-wm0-f65.google.com with SMTP id o80so38683345wme.0
+        for <util-linux@vger.kernel.org>; Wed, 03 Aug 2016 16:35:48 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: kzak@redhat.com
-Subject: [PATCH v.2 RESEND] Add metadata signature check for IMSM on 4Kn drives (v.2)
-Date: Mon, 25 Jul 2016 10:07:34 +0200
-Message-Id: <1469434054-27820-1-git-send-email-aleksey.obitotskiy@intel.com>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 2/2] uuidd: remove unnecessary pidpile path variable
+Date: Wed,  3 Aug 2016 23:41:58 +0100
+Message-Id: <20160803224158.23657-2-kerolasa@iki.fi>
+In-Reply-To: <20160803224158.23657-1-kerolasa@iki.fi>
+References: <20160803224158.23657-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Drives with 512 and 4K sectors have different offset for
-metadata signature. Without signature detected on 4Kn drives
-those drives will not be recognized as raid member. This
-patch adds checking for IMSM signature for 4Kn drives.
-
-Signed-off-by: Alexey Obitotskiy <aleksey.obitotskiy@intel.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- libblkid/src/superblocks/isw_raid.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ misc-utils/uuidd.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/libblkid/src/superblocks/isw_raid.c b/libblkid/src/superblocks/isw_raid.c
-index 065c2b2..81d53a1 100644
---- a/libblkid/src/superblocks/isw_raid.c
-+++ b/libblkid/src/superblocks/isw_raid.c
-@@ -25,11 +25,11 @@ struct isw_metadata {
- 
- #define ISW_SIGNATURE		"Intel Raid ISM Cfg Sig. "
- 
--
- static int probe_iswraid(blkid_probe pr,
- 		const struct blkid_idmag *mag __attribute__((__unused__)))
+diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
+index 77c967d..dce12c0 100644
+--- a/misc-utils/uuidd.c
++++ b/misc-utils/uuidd.c
+@@ -543,7 +543,6 @@ int main(int argc, char **argv)
  {
- 	uint64_t off;
-+	unsigned int sector_size;
- 	struct isw_metadata *isw;
+ 	const char	*socket_path = UUIDD_SOCKET_PATH;
+ 	const char	*pidfile_path = NULL;
+-	const char	*pidfile_path_param = NULL;
+ 	const char	*err_context = NULL;
+ 	char		buf[1024], *cp;
+ 	char		str[UUID_STR_LEN];
+@@ -601,7 +600,7 @@ int main(int argc, char **argv)
+ 						_("failed to parse --uuids"));
+ 			break;
+ 		case 'p':
+-			pidfile_path_param = optarg;
++			pidfile_path = optarg;
+ 			break;
+ 		case 'P':
+ 			no_pid = 1;
+@@ -646,10 +645,8 @@ int main(int argc, char **argv)
+ 		}
+ 	}
  
- 	if (pr->size < 0x10000)
-@@ -37,16 +37,17 @@ static int probe_iswraid(blkid_probe pr,
- 	if (!S_ISREG(pr->mode) && !blkid_probe_is_wholedisk(pr))
- 		return 1;
+-	if (!no_pid && !pidfile_path_param)
++	if (!no_pid && !pidfile_path)
+ 		pidfile_path = UUIDD_PIDFILE_PATH;
+-	else if (pidfile_path_param)
+-		pidfile_path = pidfile_path_param;
  
--	off = ((pr->size / 0x200) - 2) * 0x200;
--	isw = (struct isw_metadata *)
--			blkid_probe_get_buffer(pr,
--					off,
--					sizeof(struct isw_metadata));
-+	sector_size = blkid_probe_get_sectorsize(pr);
-+	off = ((pr->size / sector_size) - 2) * sector_size;
-+
-+	isw = (struct isw_metadata *)blkid_probe_get_buffer(pr,
-+			off, sizeof(struct isw_metadata));
- 	if (!isw)
- 		return errno ? -errno : 1;
- 
- 	if (memcmp(isw->sig, ISW_SIGNATURE, sizeof(ISW_SIGNATURE)-1) != 0)
- 		return 1;
-+
- 	if (blkid_probe_sprintf_version(pr, "%6s",
- 			&isw->sig[sizeof(ISW_SIGNATURE)-1]) != 0)
- 		return 1;
+ #ifdef HAVE_LIBSYSTEMD
+ 	if (getppid() == 1 && 0 < sd_booted() &&
 -- 
-2.7.4
+2.9.2
 
