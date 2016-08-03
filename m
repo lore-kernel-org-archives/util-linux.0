@@ -1,46 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from ex13.tuxera.com ([178.16.184.72]:50071 "EHLO ex13.tuxera.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751629AbcH3KyP (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 30 Aug 2016 06:54:15 -0400
-Content-Type: text/plain; charset="iso-8859-1"
-MIME-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Subject: Re: [PATCH] libblkid exfat.c: Limit maximum number of iterations in find_label
-From: Rostislav <rostislav@tuxera.com>
-In-Reply-To: <5af8ca2ea7cc4a77b41171b457d32229@nebula-exfe-01.nebula.local>
-Date: Tue, 30 Aug 2016 13:54:11 +0300
-CC: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Message-ID: <ACC7F605-BFA7-4939-8310-A9548B00B234@tuxera.com>
-References: <1472551669-14450-1-git-send-email-rostislav@tuxera.com> <5af8ca2ea7cc4a77b41171b457d32229@nebula-exfe-01.nebula.local>
-To: Karel Zak <kzak@redhat.com>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:33052 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932968AbcHCW7M (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Wed, 3 Aug 2016 18:59:12 -0400
+Received: by mail-wm0-f65.google.com with SMTP id o80so38493121wme.0
+        for <util-linux@vger.kernel.org>; Wed, 03 Aug 2016 15:58:09 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 1/2] uuidd: require use of --socket-activation when run as systemd service
+Date: Wed,  3 Aug 2016 23:41:57 +0100
+Message-Id: <20160803224158.23657-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/uuidd.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-> On Aug 30, 2016, at 1:45 PM, Karel Zak <kzak@redhat.com> wrote:
-> 
-> On Tue, Aug 30, 2016 at 10:07:49AM +0000, Rostislav Skudnov wrote:
->> Do not hang if there is a cluster chain loop in rootdir
->> ---
->> libblkid/src/superblocks/exfat.c | 4 +++-
->> 1 file changed, 3 insertions(+), 1 deletion(-)
->> 
->> diff --git a/libblkid/src/superblocks/exfat.c b/libblkid/src/superblocks/exfat.c
->> index 01ed30b..e058423 100644
->> --- a/libblkid/src/superblocks/exfat.c
->> +++ b/libblkid/src/superblocks/exfat.c
->> @@ -86,8 +86,10 @@ static struct exfat_entry_label *find_label(blkid_probe pr,
->> 	uint32_t cluster = le32_to_cpu(sb->rootdir_cluster);
->> 	uint64_t offset = cluster_to_offset(sb, cluster);
->> 	uint8_t *entry;
->> +	const size_t max_iter = 10000;
-> 
-> for FAT we have 100 as the limit, would be this smaller number
-> better?
-> 
->    Karel
-> 
-> -- 
-> Karel Zak  <kzak@redhat.com>
-> http://karelzak.blogspot.com
-As far as I understand, in vfat we walk over 100 clusters, each of which may have many direntries. Here 10000 is the max number of direntries we visit.
+diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
+index a3fe830..77c967d 100644
+--- a/misc-utils/uuidd.c
++++ b/misc-utils/uuidd.c
+@@ -651,6 +651,13 @@ int main(int argc, char **argv)
+ 	else if (pidfile_path_param)
+ 		pidfile_path = pidfile_path_param;
+ 
++#ifdef HAVE_LIBSYSTEMD
++	if (getppid() == 1 && 0 < sd_booted() &&
++	    (!uuidd_cxt.no_sock || !uuidd_cxt.no_fork || !no_pid))
++		errx(EXIT_FAILURE,  _("cannot run as systemd service "
++				      "without --socket-activation"));
++#endif
++
+ 	/* custom socket path and socket-activation make no sense */
+ 	if (s_flag && uuidd_cxt.no_sock && !uuidd_cxt.quiet)
+ 		warnx(_("Both --socket-activation and --socket specified. "
+-- 
+2.9.2
+
