@@ -1,56 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:48230 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:59348 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752711AbcHQMrz (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 17 Aug 2016 08:47:55 -0400
-Date: Wed, 17 Aug 2016 14:47:41 +0200
+	id S1751985AbcHHKWO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Mon, 8 Aug 2016 06:22:14 -0400
+Date: Mon, 8 Aug 2016 12:22:11 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 0/8] losetup: re-use loop device
-Message-ID: <20160817124741.hwsm2nqdedjywd24@ws.net.home>
-References: <aaabe320-5552-8963-4143-989e63ae3833@suse.cz>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/2] uuidd: require use of --socket-activation when run
+ as systemd service
+Message-ID: <20160808102211.ijejkvnutrbrz2xp@ws.net.home>
+References: <20160803224158.23657-1-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <aaabe320-5552-8963-4143-989e63ae3833@suse.cz>
+In-Reply-To: <20160803224158.23657-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 02, 2016 at 07:55:03PM +0200, Stanislav Brabec wrote:
-> Here is a patch set that is based on a "safe implementation of loop
-> reuse" patch set sent three weeks ago.
+On Wed, Aug 03, 2016 at 11:41:57PM +0100, Sami Kerola wrote:
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  misc-utils/uuidd.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
 > 
-> It addresses the same loop device issues in losetup.
-> 
-> Issues not addressed:
-> Calling losetup twice still fails (and it is probably correct):
-> losetup /dev/loop0 loop.img
-> losetup /dev/loop0 loop.img
-> 
-> "[PATCH 6/8] losetup: Prevent rare detach race" needs a careful review,
-> as I don't have a test case for it. It is even possible to skip it. It
-> addresses a theoretical race problem:
-> 
-> LOOPDEV=$(losetup -f --show loop.img)
-> losetup -d $LOOPDEV
-> sleep {a very special amount of time}
-> losetup -f --show loop.img
+> diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
+> index a3fe830..77c967d 100644
+> --- a/misc-utils/uuidd.c
+> +++ b/misc-utils/uuidd.c
+> @@ -651,6 +651,13 @@ int main(int argc, char **argv)
+>  	else if (pidfile_path_param)
+>  		pidfile_path = pidfile_path_param;
+>  
+> +#ifdef HAVE_LIBSYSTEMD
+> +	if (getppid() == 1 && 0 < sd_booted() &&
+> +	    (!uuidd_cxt.no_sock || !uuidd_cxt.no_fork || !no_pid))
+> +		errx(EXIT_FAILURE,  _("cannot run as systemd service "
+> +				      "without --socket-activation"));
+> +#endif
 
-I have merged this feature, but it's not enabled by default. You have
-to use --nooverlap
+ Why? 
+ 
+ I do not test it, but I guess --socket-activation is always an
+ optional way. It's enabled by default in systemd unit files, but I
+ guess for some test purpose you can use old way to start uuid
+ independently on your initd. Right?
 
-    losetup --find --nooverlap file.img
-
-or
-
-    losetup --nooverlap /dev/loopN file.img
-
-
-The man page has been also updated to make it more obvious for users
-that --nooverlap is a good idea.
-
-  Karel
-
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
