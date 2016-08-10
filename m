@@ -1,32 +1,57 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43204 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752181AbcHQMue (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 17 Aug 2016 08:50:34 -0400
-Date: Wed, 17 Aug 2016 14:49:50 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 6/8] losetup: Prevent rare detach race
-Message-ID: <20160817124950.g3drwmdtrlbmfxeg@ws.net.home>
-References: <53d613e5-fb85-c47f-18e7-05b5086586b8@suse.cz>
+Return-Path: pali.rohar@gmail.com
+Date: Wed, 10 Aug 2016 14:53:49 +0200
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+To: Jan Kara <jack@suse.cz>
+Cc: sbrabec@suse.cz, kzak@redhat.com, util-linux@vger.kernel.org
+Subject: Re: UDF label change since commit 2f2730bc77c9
+Message-ID: <20160810125349.GC30047@pali>
+References: <20160810123859.GA31140@quack2.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <53d613e5-fb85-c47f-18e7-05b5086586b8@suse.cz>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20160810123859.GA31140@quack2.suse.cz>
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 02, 2016 at 07:59:09PM +0200, Stanislav Brabec wrote:
-> There is still a race risk: Device scheduled to detach is found by
-> loopcxt_find_by_backing_file(), but released before loopcxt_set_status() is
-> called, causing error on subsequent calls. To prevent error, retry it once
-> again.
+On Wednesday 10 August 2016 14:38:59 Jan Kara wrote:
+> Hi,
 
-This is not merged, I have doubts we really need it. Maybe later, but
-it does not seem like urgent issue (I don't remember any reports).
+Hi!
 
-    Karel
+> we have noticed that since commit 2f2730bc77c9 "libblkid: udf: Fix reading
+> LABEL, add support for UUID and other udf identifiers" some volumes have
+> changed labels which are reported by blkid. See [1] for an example.
+
+"You are not authorized to access bug #983165."
+
+> This is
+> because that commit changed what is used for the label - previously we have
+> used 'ident' in the Primary Volume Descriptor, and after that commit we use
+> Logical Volume ID.
+
+Yes, thats true.
+
+> I think it would be better to keep consistency with older util-linux
+> releases (e.g. valid /etc/fstab that uses labels may be broken by this
+> change) but I'm not sure whether there is a point once the new behavior
+> has been released in the util-linux release. But still I wanted to raise
+> this since I'm not sure how much util-linux cares about these changes and
+> also so that people are aware of the change...
+> 
+> 								Honza
+> 
+> [1] https://bugzilla.suse.com/show_bug.cgi?id=983165
+> 
+
+Reason why I proposed that change is because all other software use
+Logical Volume Identifier as label. Just linux blkid used something
+other.
+
+Basically Linux was incompatible with whole world and I think this was a
+bug. Also UDF specification say something that LVI is displayed to user.
+IIRC also Grub2 uses LVI as label identification.
+
+So I do not agree with reverting back old behaviour which is
+incompatible with everything except old util-linux versions...
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Pali Rohár
+pali.rohar@gmail.com
