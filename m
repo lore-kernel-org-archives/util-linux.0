@@ -1,45 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp2.dds.nl ([83.96.147.103]:43930 "EHLO smtp2.dds.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754014AbcHSPLM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 19 Aug 2016 11:11:12 -0400
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:35014 "EHLO
+	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752328AbcHOJvB (ORCPT
+	<rfc822;util-linux@vger.kernel.org>); Mon, 15 Aug 2016 05:51:01 -0400
+Received: by mail-wm0-f66.google.com with SMTP id i5so10226428wmg.2
+        for <util-linux@vger.kernel.org>; Mon, 15 Aug 2016 02:51:00 -0700 (PDT)
+Received: from grayswandir.berep.pl (89-72-45-26.dynamic.chello.pl. [89.72.45.26])
+        by smtp.gmail.com with ESMTPSA id o36sm3274908lfi.5.2016.08.15.02.50.58
+        for <util-linux@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Mon, 15 Aug 2016 02:50:59 -0700 (PDT)
+From: =?UTF-8?q?Micha=C5=82=20Bartoszkiewicz?=
+	<mbartoszkiewicz@gmail.com>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] lsns: support cgroup namespaces
+Date: Mon, 15 Aug 2016 11:50:52 +0200
+Message-Id: <20160815095052.24450-1-mbartoszkiewicz@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Date: Fri, 19 Aug 2016 17:10:00 +0200
-From: Xen <list@xenhideout.nl>
-To: Util linux <util-linux@vger.kernel.org>
-Cc: Karel Zak <kzak@redhat.com>
-Subject: Re: PV on disk without partitions not recognised as LVM2_member
-In-Reply-To: <20160819111429.4rsuedff24inn4gu@ws.net.home>
-References: <c3d87222fe4f87eed72f61b6bc501344@dds.nl>
- <20160819111429.4rsuedff24inn4gu@ws.net.home>
-Message-ID: <d384013a5ab3f026f0cd5e322eeee597@dds.nl>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak schreef op 19-08-2016 13:14:
-> On Thu, Aug 18, 2016 at 10:39:30PM +0200, Xen wrote:
->> Would someone be will to fix the issue that a Physical Volume from 
->> LVM2 (PV)
->> when placed directly on disk (no partitions or partition tables) will 
->> not be
-> 
-> This is very unusual setup, but according to feedback from LVM guys
-> it's supported, so I will improve blkid to support it too.
+Signed-off-by: Michał Bartoszkiewicz <mbartoszkiewicz@gmail.com>
+---
+ sys-utils/lsns.8 | 4 ++--
+ sys-utils/lsns.c | 6 ++++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-Thank you.
+diff --git a/sys-utils/lsns.8 b/sys-utils/lsns.8
+index 9fe22f1..7ea1cb3 100644
+--- a/sys-utils/lsns.8
++++ b/sys-utils/lsns.8
+@@ -54,8 +54,8 @@ Use the raw output format.
+ .TP
+ .BR \-t , " \-\-type " \fItype\fP
+ Display the specified \fItype\fP of namespaces only.  The supported types are
+-\fBmnt\fP, \fBnet\fP, \fBipc\fP, \fBuser\fP, \fBpid\fP and \fButs\fP.  This
+-option may be given more than once.
++\fBmnt\fP, \fBnet\fP, \fBipc\fP, \fBuser\fP, \fBpid\fP, \fButs\fP and
++\fBcgroup\fP.  This option may be given more than once.
+ .TP
+ .BR \-u , " \-\-notruncate"
+ Do not truncate text in columns.
+diff --git a/sys-utils/lsns.c b/sys-utils/lsns.c
+index 75c04f8..b21e600 100644
+--- a/sys-utils/lsns.c
++++ b/sys-utils/lsns.c
+@@ -100,7 +100,8 @@ enum {
+ 	LSNS_ID_PID,
+ 	LSNS_ID_UTS,
+ 	LSNS_ID_IPC,
+-	LSNS_ID_USER
++	LSNS_ID_USER,
++	LSNS_ID_CGROUP
+ };
+ 
+ static char *ns_names[] = {
+@@ -109,7 +110,8 @@ static char *ns_names[] = {
+ 	[LSNS_ID_PID] = "pid",
+ 	[LSNS_ID_UTS] = "uts",
+ 	[LSNS_ID_IPC] = "ipc",
+-	[LSNS_ID_USER] = "user"
++	[LSNS_ID_USER] = "user",
++	[LSNS_ID_CGROUP] = "cgroup"
+ };
+ 
+ struct lsns_namespace {
+-- 
+2.9.2
 
-It is just extremely unusable because hardly anyone can do it yet.
-
-The Grub support isn't there to boot from it (although I have a patch 
-for that) and without being able to boot it no one would ordinarily use 
-it. So it's just a chicken and the egg problem here.
-
-As soon as they can get activated, people could start using them, but at 
-this point it's almost impossible (it requires adjustments to systemd or 
-the initrd that would be manual adjustments at this point).
-
-Thanks :).
-
-Regards.
