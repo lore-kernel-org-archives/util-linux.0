@@ -1,50 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:40467 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:53346 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753408AbcHCNSE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Wed, 3 Aug 2016 09:18:04 -0400
-Subject: Re: [PATCH 5/8] Prevent AUTOCLEAR detach race
-To: Karel Zak <kzak@redhat.com>
-References: <c83ba048-2d5e-da62-4a99-2d05f75add4a@suse.cz>
- <20160803092858.ed7zill5wfni6mfq@ws.net.home>
+	id S1753163AbcHPKlT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+	Tue, 16 Aug 2016 06:41:19 -0400
+Date: Tue, 16 Aug 2016 12:41:17 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <06c61b6b-4f1a-e11a-ab6a-a3217a93eb08@suse.cz>
-Date: Wed, 3 Aug 2016 15:18:00 +0200
+Subject: Re: [PATCH 1/3] misc: always check setenv(3) return value
+Message-ID: <20160816104117.2brgml3mkuouzlbf@ws.net.home>
+References: <20160814072406.2991-1-kerolasa@iki.fi>
 MIME-Version: 1.0
-In-Reply-To: <20160803092858.ed7zill5wfni6mfq@ws.net.home>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20160814072406.2991-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> On Tue, Aug 02, 2016 at 07:58:29PM +0200, Stanislav Brabec wrote:
->> +				lc.info.lo_flags &= !LO_FLAGS_AUTOCLEAR;
->
-> This is strange, what if the device we want to reuse has been created
-> by mount(8) and AUTOCLEAR flag is wanted.
+On Sun, Aug 14, 2016 at 08:24:04AM +0100, Sami Kerola wrote:
+> @@ -9,7 +9,7 @@ extern char *safe_getenv(const char *arg);
+>  static inline void xsetenv(char const *name, char const *val, int overwrite)
+>  {
+>  	if (setenv(name, val, overwrite) != 0)
+> -		err(EXIT_FAILURE, "failed to set the %s environment variable", name);
+> +		err(EXIT_FAILURE, _("failed to set the %s environment variable"), name);
+>  }
 
-I think that once we use losetup, we do not want AUTOCLEAR, but we 
-change to explicit losetup -d.
+no nls.h included
 
-Without this patch, the testsuite test losetup-loop/find-race-condition 
-will fail, because "losetup -d /dev/loop0" actually does not free the 
-device immediately, but only sets AUTOCLEAR flag. The device still 
-exists for a fraction of second, and consequent losetup is able to find 
-it and return it. But the device continues in release process and 
-disappear before it is used.
+In file included from lib/env.c:22:0:
+./include/env.h: In function ‘xsetenv’:
+./include/env.h:12:21: warning: implicit declaration of function ‘_’ [-Wimplicit-function-declaration]
+./include/env.h:12:3: warning: nested extern declaration of ‘_’ [-Wnested-externs]
+./include/env.h:12:21: warning: passing argument 2 of ‘err’ makes pointer from integer without a cast [-Wint-conversion]
 
-To discriminate between AUTOCLEAR device used by mount and AUTOCLEAR 
-device just dying, that will disappear soon, we would check for use count.
+
+>  	if (pwd->pw_uid)
+> -		logindefs_setenv("PATH", "ENV_PATH", _PATH_DEFPATH);
+> +		if (logindefs_setenv("PATH", "ENV_PATH", _PATH_DEFPATH) != 0)
+> +			err(EXIT_FAILURE, _("failed to set the %s environment variable"), "PATH");
+>  
+>  	else if (logindefs_setenv("PATH", "ENV_ROOTPATH", NULL) != 0)
+> -		logindefs_setenv("PATH", "ENV_SUPATH", _PATH_DEFPATH_ROOT);
+> +		if (logindefs_setenv("PATH", "ENV_SUPATH", _PATH_DEFPATH_ROOT) != 0)
+> +			err(EXIT_FAILURE, _("failed to set the %s environment variable"), "PATH");
+
+What about to use { } ?
+
+ login-utils/login.c: In function ‘init_environ’:
+ login-utils/login.c:1050:5: warning: suggest explicit braces to avoid  ambiguous ‘else’ [-Wparentheses]
+
+
+Fixed.
+
+    Karel
 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Křižíkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
