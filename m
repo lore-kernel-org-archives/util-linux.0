@@ -1,71 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33950 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752808AbcHAL0L (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Mon, 1 Aug 2016 07:26:11 -0400
-Date: Mon, 1 Aug 2016 13:26:09 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: J William Piggott <elseifthen@gmx.com>, Ruediger Meier <sweet_f_a@gmx.de>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] hwclock: remove UTC-0 localization hack
-Message-ID: <20160801112609.2uj3xfyz7wn4v2xx@ws.net.home>
-References: <20160710200242.2706-1-kerolasa@iki.fi>
- <201607121623.04891.sweet_f_a@gmx.de>
- <CAG27Bk3po26Bsb=E0A1UXDrTrkwPH1pEvqEKXFZ_n4PVOcxt8A@mail.gmail.com>
- <201607122338.40458.sweet_f_a@gmx.de>
- <alpine.LNX.2.20.1607122241300.11890@imuri>
- <20160714100143.gc4ozcmah5i5stgz@ws.net.home>
- <55e0d593-85e7-accc-84bd-c853a9d2951c@gmx.com>
- <CAG27Bk1DOOpwa-T=R0Hxxna+3Cap-6gC+KCcn8C4i_5AD5jd0g@mail.gmail.com>
+Received: from mx2.suse.de ([195.135.220.15]:41262 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750927AbcHWRXf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 23 Aug 2016 13:23:35 -0400
+Subject: Re: nfs/cifs mountinfo differences
+To: =?UTF-8?Q?Aur=c3=a9lien_Aptel?= <aaptel@suse.com>
+References: <91d465d3-4f5b-6270-a6c5-38bd94695731@suse.cz>
+ <5eb96b3e-d463-bf11-49de-f614247d6b29@suse.cz>
+ <20160805192234.2c9d5b7d@aaptelpc>
+ <7c2181d1-c7b5-df04-0640-ec23f5d78eab@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>, linux-cifs@vger.kernel.org,
+        Steve French <smfrench@gmail.com>
+From: Stanislav Brabec <sbrabec@suse.cz>
+Message-ID: <c4f10081-4525-4ac0-0e6b-b364c7268200@suse.cz>
+Date: Tue, 23 Aug 2016 19:23:33 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk1DOOpwa-T=R0Hxxna+3Cap-6gC+KCcn8C4i_5AD5jd0g@mail.gmail.com>
+In-Reply-To: <7c2181d1-c7b5-df04-0640-ec23f5d78eab@suse.cz>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 27, 2016 at 05:07:38PM +0100, Sami Kerola wrote:
-> On 15 July 2016 at 19:46, J William Piggott <elseifthen@gmx.com> wrote:
-> > On 07/14/2016 06:01 AM, Karel Zak wrote:
-> >> On Tue, Jul 12, 2016 at 10:42:33PM +0100, Sami Kerola wrote:
-> >>>  lib/portability.c      | 28 ++++++++++++++++++++++++++++
-> >>
-> >> We already care about portability and we have many fallbacks, so why
-> >> we need lib/portability.c now? It would better to use timeutils.c (or
-> >> inline function in c.h).
-> >
-> > What is this projects position on POSIX compatibility? A few comments in
-> > the *-ReleaseNotes is all I found in /Documentation. Just curious, because
-> > mktime() is and timegm() is not POSIX.
-> 
-> That is a question to maintainer, but Karel seems to be busy so let me try
-> to phrase how I see the things.
+On Aug 16, 2016 at 07:44 PM Stanislav Brabec wrote:
+> Aurélien Aptel wrote on Aug 5, 2016 at 7:22 PM:
+>> We can't we compare in this case? Isn't it just a matter of
+>> concatenating the source with the subdir?
+>
+> Well, it looks possible. The path component 1 is always the server name,
+> 2 volume name, and the rest is path.
+>
+> So cut components 3 and up, and remove it from the leading part of 4th
+> column. Then you will have a part that can be used for bind mount
+> processing.
+>
+I did a new patch that searches the subdir part of the source and cuts
+it out from root for purpose of root comparison.
 
-I had vacation last 2 weeks.
- 
-> As mentioned in this thread the util-linux is one of the core packages, and
-> it is assumed to be found from all sorts of systems.  That in mind the
-> portability question has got more to do whether the project works without
-> problems with alternative libc implementations.  Ideally the util-linux
-> should compile fine on any linux no matter what libc is used.  But please
-> notice that some utilities might not get compiled if/when autotools notice
-> requirements are not fulfilled.
-> 
-> In short.  While portability is not a main goal of the project neither it is
-> completely neglected either.  Keeping ulibc going is important, making the
-> util-linux work with mingw is less important.
- 
-Yes.
-
-The primary goal is Linux with all usable libc, the another operation systems 
-and exotic libraries are supported only if the support has no negative impact 
-to the Linux use-cases and code maintenance. 
-
-As in another cases we assume common sense rather than any strict rules ;-)
-
-    Karel
-
+Please review the algorithm of searching of the subdir component in the
+source string in the reply to this mail.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Křižíkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
