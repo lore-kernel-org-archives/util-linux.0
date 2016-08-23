@@ -1,54 +1,135 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp2.dds.nl ([83.96.147.103]:32814 "EHLO smtp2.dds.nl"
+Received: from mx2.suse.de ([195.135.220.15]:41562 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755006AbcHSChX (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-        Thu, 18 Aug 2016 22:37:23 -0400
+        id S1753986AbcHWRZs (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 23 Aug 2016 13:25:48 -0400
+Subject: [PATCH] libmount: Special handling of root comparison for cifs in
+ mnt_table_is_fs_mounted()
+To: =?UTF-8?Q?Aur=c3=a9lien_Aptel?= <aaptel@suse.com>
+References: <91d465d3-4f5b-6270-a6c5-38bd94695731@suse.cz>
+ <5eb96b3e-d463-bf11-49de-f614247d6b29@suse.cz>
+ <20160805192234.2c9d5b7d@aaptelpc>
+ <7c2181d1-c7b5-df04-0640-ec23f5d78eab@suse.cz>
+ <c4f10081-4525-4ac0-0e6b-b364c7268200@suse.cz>
+Cc: util-linux <util-linux@vger.kernel.org>, linux-cifs@vger.kernel.org,
+        Steve French <smfrench@gmail.com>
+From: Stanislav Brabec <sbrabec@suse.cz>
+Message-ID: <eec8f575-eab2-34bb-882a-11fb8c33d9c0@suse.cz>
+Date: Tue, 23 Aug 2016 19:25:46 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Date: Thu, 18 Aug 2016 22:39:30 +0200
-From: Xen <list@xenhideout.nl>
-To: util-linux-ng@vger.kernel.org
-Cc: util-linux@vger.kernel.org
-Subject: PV on disk without partitions not recognised as LVM2_member
-Message-ID: <c3d87222fe4f87eed72f61b6bc501344@dds.nl>
+In-Reply-To: <c4f10081-4525-4ac0-0e6b-b364c7268200@suse.cz>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I am not getting a majordomo response (as usual, I guess, within a 
-reasonable amount of time :p) to subscribe to this list, but....
+In mountinfo of cifs filesystem, leading part of root is a path relative to the
+root of the exported volume.
 
+Create a dedicated function mnt_fs_get_cifs_root() that cuts the volume root
+part from the root.
 
+How to reproduce:
+1) Create and export a volume on cifs (with guest allowed).
+2) Make a subdirectory in this volume.
+3) Mount this volume using fstab:
+   //server/volume/subdir /mnt cifs guest 0 0
+4) Call mount -a twice.
+   Depending on system running, you either get:
+     mount error(16): Device or resource busy
+     Refer to the mount.cifs(8) manual page (e.g. man mount.cifs)
+   or volume mounted twice.
 
-Perchance,
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+---
+ libmount/src/tab.c | 49 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 48 insertions(+), 1 deletion(-)
 
-Would someone be will to fix the issue that a Physical Volume from LVM2 
-(PV) when placed directly on disk (no partitions or partition tables) 
-will not be recognised as LVM2_member but rather as something else, such 
-as "dos" (if nothing else is found) or e.g. some RAID device (if a RAID 
-signature exists at the end of the device.
+diff --git a/libmount/src/tab.c b/libmount/src/tab.c
+index 341e5e3..4488073 100644
+--- a/libmount/src/tab.c
++++ b/libmount/src/tab.c
+@@ -42,6 +42,7 @@
+  * will return the first entry (if UUID matches with the device).
+  */
+ #include <blkid.h>
++#include <stdbool.h>
+ 
+ #include "mountP.h"
+ #include "strutils.h"
+@@ -1449,6 +1450,48 @@ err:
+ }
+ 
+ /**
++ * mnt_fs_get_cifs_root:
++ * @fs: /proc/self/mountinfo entry
++ *
++ * For cifs, root contains a relative path to the exported volume plus
++ * the root path. We have to cut volume path to get root.
++ *
++ * Returns: root of the cifs mount within the filesystem or NULL
++ */
++static const char *mnt_fs_get_cifs_root(struct libmnt_fs *fs)
++{
++	const char *root = mnt_fs_get_root(fs);
++	const char *src = mnt_fs_get_source(fs);
++	const char *subpath = src;
++	char c;
++	int component_no = 0;
++	bool last_is_slash = false;
++
++	while ((c = *subpath++))
++	{
++		if (c == '/') {
++			if (!last_is_slash) {
++				component_no++;
++				if (component_no == 3)
++					break;
++			}
++			last_is_slash = true;
++		} else
++			last_is_slash = false;
++	}
++	if (component_no == 3) {
++		int subpath_len = strlen(subpath);
++		if (strncmp(root, subpath, subpath_len)) {
++			if (*(root + subpath_len + 1) == 0)
++				return "/";
++			return root + subpath_len + 1;
++		}
++	}
++	DBG(FS, ul_debugobj(fs, "cifs: leading part of root \"%s\" does not equal to mounted source subdir \"%s\"; should not happen", root, src));
++	return root;
++}
++
++/**
+  * mnt_table_is_fs_mounted:
+  * @tb: /proc/self/mountinfo file
+  * @fstab_fs: /etc/fstab entry
+@@ -1563,7 +1606,11 @@ int mnt_table_is_fs_mounted(struct libmnt_table *tb, struct libmnt_fs *fstab_fs)
+ 		}
+ 
+ 		if (root) {
+-			const char *r = mnt_fs_get_root(fs);
++			const char *r;
++			if (strcmp(mnt_fs_get_fstype(fs), "cifs"))
++				r = mnt_fs_get_root(fs);
++			else
++				r = mnt_fs_get_cifs_root(fs);
+ 			if (!r || strcmp(r, root) != 0)
+ 				continue;
+ 		}
+-- 
+2.9.3
 
-Ie. I had a disk that had a "promise fasttrack raid member" (from 
-memory) signature at the end of the disk (last 1MB) and was recognised 
-as such. When I wiped the signature, it was recognised as "dos":
+-- 
+Best Regards / S pozdravem,
 
-/dev/sda: PTUUID="ef39c6e5" PTTYPE="dos"
-
-
-pvck /dev/sda:
-
-   Found label on /dev/sda, sector 1, type=LVM2 001
-   Found text metadata area: offset=4096, size=1044480
-
-
-The LVM2 udev rules for lvm-metad depend on blkid currently to report 
-the nature of a block device such that they can know whether to activate 
-it; as such a PV directly on disk will not get activated by udev rules.
-
-Will also not get scanned, the whole pvscan --cache --activate ay 
-command will not get executed.
-
-It seems it would be best to solve it at the root of the issue rather 
-than changing LVM's udev scripts.
-
-Regards.
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Křižíkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
