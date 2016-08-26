@@ -1,37 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43968 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751030AbcHDKKY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-	Thu, 4 Aug 2016 06:10:24 -0400
-Date: Thu, 4 Aug 2016 12:08:49 +0200
+Received: from mx1.redhat.com ([209.132.183.28]:45206 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753112AbcHZLDt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 26 Aug 2016 07:03:49 -0400
+Date: Fri, 26 Aug 2016 13:03:47 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/7] safe implementation of loop reuse
-Message-ID: <20160804100849.opbsd4zdcjwywbx5@ws.net.home>
-References: <ecb4b89d-f9ad-a854-80e5-c3fb49b200a2@suse.cz>
+To: Bruce Dubbs <bruce.dubbs@gmail.com>
+Cc: Util linux <util-linux@vger.kernel.org>
+Subject: Re: listing fdisk partition tyles
+Message-ID: <20160826110347.owpfzwvaynvzy3ib@ws.net.home>
+References: <57BBBCFD.9090502@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <ecb4b89d-f9ad-a854-80e5-c3fb49b200a2@suse.cz>
+In-Reply-To: <57BBBCFD.9090502@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jul 14, 2016 at 03:28:11PM +0200, Stanislav Brabec wrote:
-> That is why I wrote new implementation that should be safe.
+On Mon, Aug 22, 2016 at 10:03:25PM -0500, Bruce Dubbs wrote:
+> I have a request.  When I try to install Debian from an iso, I like to drop
+> to the command line to run fdisk to partition the disk drive.  When
+> selecting GPT, I have a problem with listing the partition types.
 > 
-> To keep the code as small as possible, it changes API of several
-> functions: it adds sizelimit check possibility.
+> The screen is running at about 80x25 and I have no control over that.
+> The l command lists all the 81 types and there is no way to scroll back to
+> see the first 55 entries in the list.
+> 
+> There is no problem when listing partition types when the partition table is
+> the old MSDOS type,
+> 
+> I would like to request a pager, possibly as an option, for the partition
+> type list when using a GPT partition table.
 
-Merged, I did some changes to the code. The most visible change is
-that loopcxt_find_overlap() (originally loopcxt_check_conflict())
-returns info about full match (offset and sizelimit matches). 
+Implemented. Try it. 
 
-This allows to use just one iteration (loopdevs scan) in mount(8) to
-check for overlaps as well as to found device to re-use.
-
-All works as expected, but re-test if you can :-)
-
-Tomorrow I'm going to work on the losetup patches.
+It's enabled for strings based partition types (=GPT) only.
 
     Karel
 
