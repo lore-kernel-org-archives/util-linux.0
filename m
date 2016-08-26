@@ -1,48 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([217.72.192.75]:53717 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750857AbcH1TQC (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 28 Aug 2016 15:16:02 -0400
-Received: from localhost ([91.7.171.187]) by mrelayeu.kundenserver.de
- (mreue103) with ESMTPSA (Nemesis) id 0LuKFr-1awXub39mx-011gYb for
- <util-linux@vger.kernel.org>; Sun, 28 Aug 2016 21:15:58 +0200
-Date: Sun, 28 Aug 2016 21:15:59 +0200
-From: Tobias Stoeckmann <tobias@stoeckmann.org>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] Avoid OOB access on illegal ZFS superblocks
-Message-ID: <20160828191559.GA3110@localhost>
+Received: from mail-wm0-f47.google.com ([74.125.82.47]:36264 "EHLO
+        mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752857AbcHZRUu (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 26 Aug 2016 13:20:50 -0400
+Received: by mail-wm0-f47.google.com with SMTP id q128so1382157wma.1
+        for <util-linux@vger.kernel.org>; Fri, 26 Aug 2016 10:20:50 -0700 (PDT)
+Subject: Re: listing fdisk partition tyles
+To: Karel Zak <kzak@redhat.com>
+Cc: Util linux <util-linux@vger.kernel.org>
+References: <57BBBCFD.9090502@gmail.com>
+ <20160826110347.owpfzwvaynvzy3ib@ws.net.home>
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Message-ID: <57C07911.30005@gmail.com>
+Date: Fri, 26 Aug 2016 12:14:57 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20160826110347.owpfzwvaynvzy3ib@ws.net.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-64 bit systems can trigger an out of boundary access while performing
-a ZFS superblock probe.
+Karel Zak wrote:
+> On Mon, Aug 22, 2016 at 10:03:25PM -0500, Bruce Dubbs wrote:
+>> I have a request.  When I try to install Debian from an iso, I like to drop
+>> to the command line to run fdisk to partition the disk drive.  When
+>> selecting GPT, I have a problem with listing the partition types.
+>>
+>> The screen is running at about 80x25 and I have no control over that.
+>> The l command lists all the 81 types and there is no way to scroll back to
+>> see the first 55 entries in the list.
+>>
+>> There is no problem when listing partition types when the partition table is
+>> the old MSDOS type,
+>>
+>> I would like to request a pager, possibly as an option, for the partition
+>> type list when using a GPT partition table.
+>
+> Implemented. Try it.
+>
+> It's enabled for strings based partition types (=GPT) only.
 
-This happens due to a possible integer overflow while calculating
-the remaining available bytes. The variable is of type "int" and the
-string length is allowed to be larger than INT_MAX, which means that
-avail calculation can overflow, circumventing the "avail < 0" check and
-therefore accessing memory outside the "buff" array later on.
+It works well for me.  Thanks.
 
-Signed-off-by: Tobias Stoeckmann <tobias@stoeckmann.org>
----
- libblkid/src/superblocks/zfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The only suggestion I have is that the prompt might be more informative 
+than just a colon.  Perhaps something like "(space for more; q to quit):" 
+would be useful.  I do see that up and down arrows/page work also.
 
-diff --git a/libblkid/src/superblocks/zfs.c b/libblkid/src/superblocks/zfs.c
-index b6ffac5..c41f769 100644
---- a/libblkid/src/superblocks/zfs.c
-+++ b/libblkid/src/superblocks/zfs.c
-@@ -112,7 +112,7 @@ static void zfs_extract_guid_name(blkid_probe pr, loff_t offset)
- 
- 			nvs->nvs_type = be32_to_cpu(nvs->nvs_type);
- 			nvs->nvs_strlen = be32_to_cpu(nvs->nvs_strlen);
--			if (nvs->nvs_strlen > UINT_MAX - sizeof(*nvs))
-+			if (nvs->nvs_strlen > INT_MAX - sizeof(*nvs))
- 				break;
- 			avail -= nvs->nvs_strlen + sizeof(*nvs);
- 			DBG(LOWPROBE, ul_debug("nvstring: type %u string %*s\n", nvs->nvs_type,
--- 
-2.9.3
+That's not essential though.
+
+   -- Bruce
 
