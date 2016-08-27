@@ -1,50 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qt0-f173.google.com ([209.85.216.173]:35079 "EHLO
-	mail-qt0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751010AbcHLVKZ (ORCPT
-	<rfc822;util-linux@vger.kernel.org>); Fri, 12 Aug 2016 17:10:25 -0400
-Received: by mail-qt0-f173.google.com with SMTP id x25so18309794qtx.2
-        for <util-linux@vger.kernel.org>; Fri, 12 Aug 2016 14:09:05 -0700 (PDT)
-MIME-Version: 1.0
-From: =?UTF-8?Q?Micha=C5=82_Bartoszkiewicz?= <mbartoszkiewicz@gmail.com>
-Date: Fri, 12 Aug 2016 23:09:04 +0200
-Message-ID: <CAJzQX7phYjCFRxPP2_yvJzOWOuqLdL5wgi81PR+3HLGveJNo5A@mail.gmail.com>
-Subject: empty result from lsns
+Received: from mout.kundenserver.de ([217.72.192.74]:55079 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754032AbcH0R2V (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 27 Aug 2016 13:28:21 -0400
+Received: from localhost ([91.7.171.187]) by mrelayeu.kundenserver.de
+ (mreue104) with ESMTPSA (Nemesis) id 0Lzrl5-1b0Dr82TMx-014zB0 for
+ <util-linux@vger.kernel.org>; Sat, 27 Aug 2016 19:28:17 +0200
+Date: Sat, 27 Aug 2016 19:28:16 +0200
+From: Tobias Stoeckmann <tobias@stoeckmann.org>
 To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH 1/2] Fix assert error in libfdisk's free space handling
+Message-ID: <20160827172816.GA11886@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-lsns from util-linux 2.28.1 does not display anything on my system.
+An off-by-one issue exists in fdisk_get_freespaces. It can trigger an
+assert, as seen here:
 
-End of strace output:
-open("/proc/31676", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
-fstat(4, {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
-fstat(4, {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
-openat(4, "stat", O_RDONLY)             = 5
-fcntl(5, F_GETFL)                       = 0x8000 (flags O_RDONLY|O_LARGEFILE)
-fstat(5, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
-read(5, "31676 (ext4-rsv-conver) S 2 0 0 "..., 1024) = 169
-newfstatat(4, "ns/mnt", {st_mode=S_IFREG|0444, st_size=0, ...}, 0) = 0
-newfstatat(4, "ns/net", {st_mode=S_IFREG|0444, st_size=0, ...}, 0) = 0
-newfstatat(4, "ns/pid", {st_mode=S_IFREG|0444, st_size=0, ...}, 0) = 0
-newfstatat(4, "ns/uts", {st_mode=S_IFREG|0444, st_size=0, ...}, 0) = 0
-newfstatat(4, "ns/ipc", {st_mode=S_IFREG|0444, st_size=0, ...}, 0) = 0
-newfstatat(4, "ns/user", 0x7ffd30d84020, 0) = -1 ENOENT (No such file
-or directory)
-close(5)                                = 0
-close(4)                                = 0
-getdents(3, /* 0 entries */, 32768)     = 0
-close(3)                                = 0
-close(1)                                = 0
-close(2)                                = 0
-exit_group(0)                           = ?
-+++ exited with 0 +++
+$ dd if=/dev/zero of=cfdisk.iso bs=1M count=1
+$ losetup -f cfdisk.iso
+$ echo w | fdisk /dev/loop0
+$ echo '1,2' | sfdisk /dev/loop0 --append
+$ echo '3,' | sfdisk /dev/loop0 --append
+$ sfdisk --list-free /dev/loop0
+Aborted
+$ _
 
-I have user namespaces disabled in my kernel (CONFIG_USER_NS=n).
-I thinkthe reason for the empty output is that the ENOENT for ns/user
-causes read_process to ignore the process completely.
+Problem here is an invalid "grain" processing. A grain is considered
+expected free space between partitions which can be required for proper
+alignment. Normally, it's 1 MB but in this case our iso is merely 1 MB
+so the grain is reduced to 1 byte.
 
-Thanks,
---
-Michał Bartoszkiewicz <mbartoszkiewicz@gmail.com>
+The if-condition in question checks for "last + grain <= pa->start" and
+therefore even triggers if there is no space between them (due to equal
+check). Eventually, the start block address is higher than the end block
+address which triggers the assert().
+
+Signed-off-by: Tobias Stoeckmann <tobias@stoeckmann.org>
+---
+ libfdisk/src/table.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libfdisk/src/table.c b/libfdisk/src/table.c
+index 755c6c2..bf30d1b 100644
+--- a/libfdisk/src/table.c
++++ b/libfdisk/src/table.c
+@@ -616,7 +616,7 @@ int fdisk_get_freespaces(struct fdisk_context *cxt, struct fdisk_table **tb)
+ 		/* We ignore small free spaces (smaller than grain) to keep partitions
+ 		 * aligned, the exception is space before the first partition where
+ 		 * we assume that cxt->first_lba is aligned. */
+-		if (last + grain <= pa->start
++		if (last + grain < pa->start
+ 		    || (last < pa->start && last == cxt->first_lba)) {
+ 			rc = table_add_freespace(cxt, *tb,
+ 				last + (last > cxt->first_lba ? 1 : 0),
+-- 
+2.9.3
+
