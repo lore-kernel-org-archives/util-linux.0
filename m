@@ -1,69 +1,48 @@
-Return-Path: sbrabec@suse.cz
-Subject: Re: [PATCH 0/8] losetup: re-use loop device
-To: Karel Zak <kzak@redhat.com>
-References: <aaabe320-5552-8963-4143-989e63ae3833@suse.cz>
- <20160803104721.y6wyq4644bgkza76@ws.net.home>
-Cc: util-linux <util-linux@vger.kernel.org>
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <5af5766e-98c0-1f53-7613-300f41f89e5c@suse.cz>
-Date: Wed, 3 Aug 2016 15:30:22 +0200
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.kundenserver.de ([217.72.192.75]:53717 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750857AbcH1TQC (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 28 Aug 2016 15:16:02 -0400
+Received: from localhost ([91.7.171.187]) by mrelayeu.kundenserver.de
+ (mreue103) with ESMTPSA (Nemesis) id 0LuKFr-1awXub39mx-011gYb for
+ <util-linux@vger.kernel.org>; Sun, 28 Aug 2016 21:15:58 +0200
+Date: Sun, 28 Aug 2016 21:15:59 +0200
+From: Tobias Stoeckmann <tobias@stoeckmann.org>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] Avoid OOB access on illegal ZFS superblocks
+Message-ID: <20160828191559.GA3110@localhost>
 MIME-Version: 1.0
-In-Reply-To: <20160803104721.y6wyq4644bgkza76@ws.net.home>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Dne 3.8.2016 v 12:47 Karel Zak napsal(a):
-> On Tue, Aug 02, 2016 at 07:55:03PM +0200, Stanislav Brabec wrote:
->> Here is a patch set that is based on a "safe implementation of loop
->> reuse" patch set sent three weeks ago.
->
-> I think it makes sense to reuse loop device by mount(8), because the
-> goal is to mount FS and mount the same FS from two device may be
-> disaster, but I'm not sure about losetup.
->
-> Would be enough to keep it stupid and exit with error if the same
-> backing file is already used and require --force to create duplicate
-> loopdev?
->
->  if (!force && has_conflict(backing_file, ....))
->     err(EXIT_FAILURE, _("%s: already associated with %s"), ....);
->
-That is why the patch is split to several parts. One adds conflict 
-check, another adds re-use.
+64 bit systems can trigger an out of boundary access while performing
+a ZFS superblock probe.
 
-But I think, that it is useful. With the patch, you just can call 
-"losetup --find --print loop.img" and don't care about the details. You 
-will (nearly) always get a loop device, new or re-used.
+This happens due to a possible integer overflow while calculating
+the remaining available bytes. The variable is of type "int" and the
+string length is allowed to be larger than INT_MAX, which means that
+avail calculation can overflow, circumventing the "avail < 0" check and
+therefore accessing memory outside the "buff" array later on.
 
-For example:
+Signed-off-by: Tobias Stoeckmann <tobias@stoeckmann.org>
+---
+ libblkid/src/superblocks/zfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Imagine that you want to write a script to mount btrfs snapshot, and you 
-also want loopdev.
-
-With the loop re-use feature:
-
-#!/bin/sh
-LOOPDEV=$(losetup --find --show /test.img)
-fsck "$LOOPDEV"
-mount -tbtrfs -osubvol=.snapshots/$1 $LOOPDEV /mnt/$1
-
-Without the feature, r/w mount will cause data corruption,
-and the correct script will require losetup --list output parsing.
-
-
-I can imagine split of --force to two options:
---force: Ignore conflicts.
---new: Always allocate new loop device (the old behavior).
-
-
+diff --git a/libblkid/src/superblocks/zfs.c b/libblkid/src/superblocks/zfs.c
+index b6ffac5..c41f769 100644
+--- a/libblkid/src/superblocks/zfs.c
++++ b/libblkid/src/superblocks/zfs.c
+@@ -112,7 +112,7 @@ static void zfs_extract_guid_name(blkid_probe pr, loff_t offset)
+ 
+ 			nvs->nvs_type = be32_to_cpu(nvs->nvs_type);
+ 			nvs->nvs_strlen = be32_to_cpu(nvs->nvs_strlen);
+-			if (nvs->nvs_strlen > UINT_MAX - sizeof(*nvs))
++			if (nvs->nvs_strlen > INT_MAX - sizeof(*nvs))
+ 				break;
+ 			avail -= nvs->nvs_strlen + sizeof(*nvs);
+ 			DBG(LOWPROBE, ul_debug("nvstring: type %u string %*s\n", nvs->nvs_type,
 -- 
-Best Regards / S pozdravem,
+2.9.3
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Křižíkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
