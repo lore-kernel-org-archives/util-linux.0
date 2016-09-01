@@ -1,47 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f45.google.com ([74.125.82.45]:36180 "EHLO
-        mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751287AbcIJMCl (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 10 Sep 2016 08:02:41 -0400
-Received: by mail-wm0-f45.google.com with SMTP id b187so69975917wme.1
-        for <util-linux@vger.kernel.org>; Sat, 10 Sep 2016 05:02:41 -0700 (PDT)
-Received: from [192.168.1.102] ([5.102.242.30])
-        by smtp.gmail.com with ESMTPSA id gg10sm8077715wjd.4.2016.09.10.05.02.38
+Received: from mail-pf0-f182.google.com ([209.85.192.182]:35027 "EHLO
+        mail-pf0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752063AbcIAU6v (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 1 Sep 2016 16:58:51 -0400
+Received: by mail-pf0-f182.google.com with SMTP id x72so34904628pfd.2
+        for <util-linux@vger.kernel.org>; Thu, 01 Sep 2016 13:58:50 -0700 (PDT)
+Received: from milhouse (d27-96-63-67.nap.wideopenwest.com. [96.27.67.63])
+        by smtp.gmail.com with ESMTPSA id d9sm9056486pan.7.2016.09.01.10.08.47
         for <util-linux@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 10 Sep 2016 05:02:38 -0700 (PDT)
+        Thu, 01 Sep 2016 10:08:48 -0700 (PDT)
+Date: Thu, 1 Sep 2016 13:08:46 -0400 (EDT)
+From: Scott Moser <smoser@ubuntu.com>
 To: util-linux@vger.kernel.org
-From: Yuval Langer <yuval.langer@gmail.com>
-Subject: Segmentation fault in line(1) - read one line
-Message-ID: <7aae2006-c74d-0c6c-07b0-54c088082bab@gmail.com>
-Date: Sat, 10 Sep 2016 15:02:37 +0300
+Subject: request for sfdisk --no-blkrrpart
+Message-ID: <alpine.DEB.2.20.1609011256580.13370@milhouse>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I am not sure if this is a real problem or not, but I have found the
-following:
+Hi,
 
-    $ line --version
-    line from util-linux 2.27.1
-    $ line <<< "$( printf '\naaaaaaaa' )"
+I maintain 'growpart' in cloud-utils, which handles growing partitions to
+fill up extra space.  Its common that disk images in vms will have
+additional space added to the end, and growpart just resizes the partition
+to take advantage of that if it is present.
 
-    Segmentation fault (core dumped)
-    $ line <<< "$( printf '\naaaaaaa' )"
+Ubuntu just updated to 2.28.1 and cloud-utils and that caused bug
+http://pad.lv/1619285.  I see that we are now now running with this in
+place:
+  commit e0d30ef4c sfdisk: exit with error if rereading partition table fails
 
-    $
+Then i see in trunk that that is reverted:
 
-    $ lsb_release -a
-    No LSB modules are available.
-    Distributor ID: Ubuntu
-    Description:    Ubuntu 16.04.1 LTS
-    Release:        16.04
-    Codename:       xenial
+  commit 78e7f7889 Revert "sfdisk: exit with error if rereading partition table fails"
 
-    $ uname -a
-    Linux yankel-Lenovo-G505 4.4.0-36-generic #55-Ubuntu SMP Thu Aug 11
-18:01:55 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
+In the past I had put some hacky error message output string matching
+handle failure due only to BLKRRPART having failed, since the partition
+i'm resizing usually is mounted as /.
 
-Many thanks,
-Yuval Langer.
+Long story short, could you add a '--no-blkrrpart' flag that growpart
+could add in its usage.  Then it wouldn't have to deal with ignoring an
+expected failure.  Growpart handles calling
+   partx --update --nr <PART> <DEVICE>
+when it can.
+
+Scott
