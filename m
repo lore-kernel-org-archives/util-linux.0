@@ -1,44 +1,90 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:51076 "EHLO
-	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754295AbcG0LXB (ORCPT
-	<rfc822;util-linux@vger.kernel.org>);
-	Wed, 27 Jul 2016 07:23:01 -0400
-Message-Id: <1469618118.1670435.678129761.331B0F49@webmail.messagingengine.com>
-From: Benno Schulenberg <bensberg@justemail.net>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: "Util-Linux" <util-linux@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.17.24]:49380 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S938791AbcIHTTE (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 8 Sep 2016 15:19:04 -0400
+Received: from localhost ([79.234.34.60]) by mrelayeu.kundenserver.de
+ (mreue103) with ESMTPSA (Nemesis) id 0Lp9KG-1b5QeG0QHE-00eprw for
+ <util-linux@vger.kernel.org>; Thu, 08 Sep 2016 21:19:00 +0200
+Date: Thu, 8 Sep 2016 21:19:22 +0200
+From: Tobias Stoeckmann <tobias@stoeckmann.org>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] text-utils/ul: Fix buffer overflow
+Message-ID: <20160908191922.GA18991@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain
-In-Reply-To: <20160727103457.3105-1-kerolasa@iki.fi>
-References: <20160727103457.3105-1-kerolasa@iki.fi>
-Subject: Re: [PATCH] getops: improve getopt-parse.bash example
-Date: Wed, 27 Jul 2016 13:15:18 +0200
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+The text-utility ul can run into a buffer overflow on very long lines.
+See this proof of concept how to reproduce the issue:
 
-In the subject line: s/ops/opt/.
+$ dd if=/dev/zero bs=1M count=10 | tr '\000' '\041' > poc.txt
+$ echo -ne '\xe\x5f\x8\x5f\x61\x2\xf\x5f\x8\x5f' | dd of=poc.txt conv=notrunc
+$ ul -i poc.txt > /dev/null # output would take ages
+Segmentation fault
+$ _
 
-On Wed, Jul 27, 2016, at 12:34, Sami Kerola wrote:
-> --- a/misc-utils/getopt-parse.bash
-> +++ b/misc-utils/getopt-parse.bash
-> @@ -3,45 +3,73 @@
->  # A small example program for using the new getopt(1) program.
->  # This program will only work with bash(1)
->  # An similar program using the tcsh(1) script language can be found
+The problem manifests by using alloca with "maxcol", which can be as
+large as INT_MAX, based on the input line.
 
-When here anyway, maybe fix a typo: s/An/A/.
-Add a missing period: s/)/)./.
-And adjust for the times: s/new //.
+A very long line (> 8 MB) with modes must be supplied to ul, as seen in
+my proof of concept byte sequence above.
 
-> -# as parse.tcsh
-> +# as getopt-parse.tcsh
+It is rather easy to fix this issue: allocate space on the heap instead.
+maxcol could overflow here, but in that case no system will have enough
+space to handle the request, properly ending ul through an err() call.
 
-Also add period: s/tcsh/tcsh./
 
-Benno
+Signed-off-by: Tobias Stoeckmann <tobias@stoeckmann.org>
+---
+ text-utils/ul.c | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
+diff --git a/text-utils/ul.c b/text-utils/ul.c
+index 6721974..3fd0b6a 100644
+--- a/text-utils/ul.c
++++ b/text-utils/ul.c
+@@ -402,11 +402,7 @@ static void flushln(void)
+ static void overstrike(void)
+ {
+ 	register int i;
+-#ifdef __GNUC__
+-	register wchar_t *lbuf = __builtin_alloca((maxcol + 1) * sizeof(wchar_t));
+-#else
+-	wchar_t lbuf[BUFSIZ];
+-#endif
++	register wchar_t *lbuf = xmalloc((maxcol + 1) * sizeof(wchar_t));
+ 	register wchar_t *cp = lbuf;
+ 	int hadbold=0;
+ 
+@@ -439,16 +435,13 @@ static void overstrike(void)
+ 		for (cp = lbuf; *cp; cp++)
+ 			putwchar(*cp == '_' ? ' ' : *cp);
+ 	}
++	free(lbuf);
+ }
+ 
+ static void iattr(void)
+ {
+ 	register int i;
+-#ifdef __GNUC__
+-	register wchar_t *lbuf = __builtin_alloca((maxcol+1)*sizeof(wchar_t));
+-#else
+-	wchar_t lbuf[BUFSIZ];
+-#endif
++	register wchar_t *lbuf = xmalloc((maxcol + 1) * sizeof(wchar_t));
+ 	register wchar_t *cp = lbuf;
+ 
+ 	for (i = 0; i < maxcol; i++)
+@@ -465,6 +458,7 @@ static void iattr(void)
+ 		*cp = 0;
+ 	fputws(lbuf, stdout);
+ 	putwchar('\n');
++	free(lbuf);
+ }
+ 
+ static void initbuf(void)
 -- 
-http://www.fastmail.com - Choose from over 50 domains or use your own
+2.10.0
 
