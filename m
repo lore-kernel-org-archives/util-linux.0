@@ -1,43 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lf0-f51.google.com ([209.85.215.51]:32926 "EHLO
-        mail-lf0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754621AbcIZWZe (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 26 Sep 2016 18:25:34 -0400
-Received: by mail-lf0-f51.google.com with SMTP id b71so135896468lfg.0
-        for <util-linux@vger.kernel.org>; Mon, 26 Sep 2016 15:25:33 -0700 (PDT)
-MIME-Version: 1.0
-From: Andreas Fenkart <afenkart@gmail.com>
-Date: Tue, 27 Sep 2016 00:25:32 +0200
-Message-ID: <CALtMJED52KKWgMmg+hcGavZAP6fwh_AbTWFZKz+LYEWszsjLJw@mail.gmail.com>
-Subject: getmntent wrapper?
+Received: from mail-wm0-f45.google.com ([74.125.82.45]:36180 "EHLO
+        mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751287AbcIJMCl (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 10 Sep 2016 08:02:41 -0400
+Received: by mail-wm0-f45.google.com with SMTP id b187so69975917wme.1
+        for <util-linux@vger.kernel.org>; Sat, 10 Sep 2016 05:02:41 -0700 (PDT)
+Received: from [192.168.1.102] ([5.102.242.30])
+        by smtp.gmail.com with ESMTPSA id gg10sm8077715wjd.4.2016.09.10.05.02.38
+        for <util-linux@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 10 Sep 2016 05:02:38 -0700 (PDT)
 To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+From: Yuval Langer <yuval.langer@gmail.com>
+Subject: Segmentation fault in line(1) - read one line
+Message-ID: <7aae2006-c74d-0c6c-07b0-54c088082bab@gmail.com>
+Date: Sat, 10 Sep 2016 15:02:37 +0300
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+I am not sure if this is a real problem or not, but I have found the
+following:
 
-Parsing /etc/fstab or /proc/mount with sed/awk is awful and platform
-dependent. Would it be acceptable to add a wrapper for getmntent to
-parse those files and make the content available to shell scripts?
+    $ line --version
+    line from util-linux 2.27.1
+    $ line <<< "$( printf '\naaaaaaaa' )"
 
-Typical use is to check if a given device is already mounted and
-returning its mountpoint. In case a device is mounted twice or more,
-several mountpoints will be listed
+    Segmentation fault (core dumped)
+    $ line <<< "$( printf '\naaaaaaa' )"
 
-$ getmntent -f /proc/mounts /dev/sda4
-/mnt/
-/home/user/bind
+    $
 
-Playing around with mount parsing the output with awk seems to work
-pretty well. It avoids to handle the whitespace separately.
+    $ lsb_release -a
+    No LSB modules are available.
+    Distributor ID: Ubuntu
+    Description:    Ubuntu 16.04.1 LTS
+    Release:        16.04
+    Codename:       xenial
 
-$ mount -l  | awk  '/\/dev\/sda4/ { print $3; }'
+    $ uname -a
+    Linux yankel-Lenovo-G505 4.4.0-36-generic #55-Ubuntu SMP Thu Aug 11
+18:01:55 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
 
-negative:
-- I can't use the a different filesystem description file (small minus)
-- Is the output from 'mount' stable?
-
-Is it worth to add a utility wrapper for getmntent to util-linux?
-
-Andi
+Many thanks,
+Yuval Langer.
