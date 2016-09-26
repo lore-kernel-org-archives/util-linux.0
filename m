@@ -1,40 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34548 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752376AbcI3LLH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 30 Sep 2016 07:11:07 -0400
-Date: Fri, 30 Sep 2016 13:11:05 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Yuval Langer <yuval.langer@gmail.com>
+Received: from mail-qt0-f171.google.com ([209.85.216.171]:34269 "EHLO
+        mail-qt0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753240AbcIZWgr (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 26 Sep 2016 18:36:47 -0400
+Received: by mail-qt0-f171.google.com with SMTP id 38so91120589qte.1
+        for <util-linux@vger.kernel.org>; Mon, 26 Sep 2016 15:36:47 -0700 (PDT)
+Date: Mon, 26 Sep 2016 18:36:45 -0400
+From: Dave Reisner <d@falconindy.com>
+To: Andreas Fenkart <afenkart@gmail.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: Segmentation fault in line(1) - read one line
-Message-ID: <20160930111105.erqpaafvye2olz7q@ws.net.home>
-References: <7aae2006-c74d-0c6c-07b0-54c088082bab@gmail.com>
+Subject: Re: getmntent wrapper?
+Message-ID: <20160926223645.GB13829@rampage>
+References: <CALtMJED52KKWgMmg+hcGavZAP6fwh_AbTWFZKz+LYEWszsjLJw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <7aae2006-c74d-0c6c-07b0-54c088082bab@gmail.com>
+In-Reply-To: <CALtMJED52KKWgMmg+hcGavZAP6fwh_AbTWFZKz+LYEWszsjLJw@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Sep 10, 2016 at 03:02:37PM +0300, Yuval Langer wrote:
-> I am not sure if this is a real problem or not, but I have found the
-> following:
+On Tue, Sep 27, 2016 at 12:25:32AM +0200, Andreas Fenkart wrote:
+> Hi,
 > 
->     $ line --version
->     line from util-linux 2.27.1
-
-the current stable is 2.28.2
-
->     $ line <<< "$( printf '\naaaaaaaa' )"
+> Parsing /etc/fstab or /proc/mount with sed/awk is awful and platform
+> dependent. Would it be acceptable to add a wrapper for getmntent to
+> parse those files and make the content available to shell scripts?
 > 
->     Segmentation fault (core dumped)
->     $ line <<< "$( printf '\naaaaaaa' )"
+> Typical use is to check if a given device is already mounted and
+> returning its mountpoint. In case a device is mounted twice or more,
+> several mountpoints will be listed
+> 
+> $ getmntent -f /proc/mounts /dev/sda4
+> /mnt/
+> /home/user/bind
+> 
+> Playing around with mount parsing the output with awk seems to work
+> pretty well. It avoids to handle the whitespace separately.
+> 
+> $ mount -l  | awk  '/\/dev\/sda4/ { print $3; }'
+> 
+> negative:
+> - I can't use the a different filesystem description file (small minus)
+> - Is the output from 'mount' stable?
+> 
+> Is it worth to add a utility wrapper for getmntent to util-linux?
 
-it seems fixed in the current upstream tree
+This sort of functionality already exists in findmnt(1).
 
-    Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+$ findmnt -rno TARGET /dev/sdc1
+/mnt/Haven
+/srv/nfs/pkgs
+/srv/nfs/vmbin
