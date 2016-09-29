@@ -1,52 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qt0-f171.google.com ([209.85.216.171]:34269 "EHLO
-        mail-qt0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753240AbcIZWgr (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 26 Sep 2016 18:36:47 -0400
-Received: by mail-qt0-f171.google.com with SMTP id 38so91120589qte.1
-        for <util-linux@vger.kernel.org>; Mon, 26 Sep 2016 15:36:47 -0700 (PDT)
-Date: Mon, 26 Sep 2016 18:36:45 -0400
-From: Dave Reisner <d@falconindy.com>
-To: Andreas Fenkart <afenkart@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: getmntent wrapper?
-Message-ID: <20160926223645.GB13829@rampage>
-References: <CALtMJED52KKWgMmg+hcGavZAP6fwh_AbTWFZKz+LYEWszsjLJw@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:53254 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751220AbcI2Jz5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 29 Sep 2016 05:55:57 -0400
+Date: Thu, 29 Sep 2016 11:55:53 +0200
+From: Karel Zak <kzak@redhat.com>
+To: =?iso-8859-1?Q?Aur=E9lien?= Aptel <aaptel@suse.com>
+Cc: Stanislav Brabec <sbrabec@suse.cz>,
+        util-linux <util-linux@vger.kernel.org>, linux-cifs@vger.kernel.org,
+        Steve French <smfrench@gmail.com>
+Subject: Re: [PATCH] libmount: Special handling of root comparison for cifs
+ in mnt_table_is_fs_mounted()
+Message-ID: <20160929095553.2f6g4b2mutotqi2r@ws.net.home>
+References: <91d465d3-4f5b-6270-a6c5-38bd94695731@suse.cz>
+ <5eb96b3e-d463-bf11-49de-f614247d6b29@suse.cz>
+ <20160805192234.2c9d5b7d@aaptelpc>
+ <7c2181d1-c7b5-df04-0640-ec23f5d78eab@suse.cz>
+ <c4f10081-4525-4ac0-0e6b-b364c7268200@suse.cz>
+ <eec8f575-eab2-34bb-882a-11fb8c33d9c0@suse.cz>
+ <mpsbn06ruwv.fsf@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CALtMJED52KKWgMmg+hcGavZAP6fwh_AbTWFZKz+LYEWszsjLJw@mail.gmail.com>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <mpsbn06ruwv.fsf@suse.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Sep 27, 2016 at 12:25:32AM +0200, Andreas Fenkart wrote:
-> Hi,
+On Fri, Sep 02, 2016 at 08:58:08PM +0200, Aurélien Aptel wrote:
+> I'm attaching a simpler patch that makes uses of streq_paths() in
+> lib/strutils.c (Note: streq_paths() and next_path_segment() have to be
+> backported for older versions of util-linux).
 > 
-> Parsing /etc/fstab or /proc/mount with sed/awk is awful and platform
-> dependent. Would it be acceptable to add a wrapper for getmntent to
-> parse those files and make the content available to shell scripts?
-> 
-> Typical use is to check if a given device is already mounted and
-> returning its mountpoint. In case a device is mounted twice or more,
-> several mountpoints will be listed
-> 
-> $ getmntent -f /proc/mounts /dev/sda4
-> /mnt/
-> /home/user/bind
-> 
-> Playing around with mount parsing the output with awk seems to work
-> pretty well. It avoids to handle the whitespace separately.
-> 
-> $ mount -l  | awk  '/\/dev\/sda4/ { print $3; }'
-> 
-> negative:
-> - I can't use the a different filesystem description file (small minus)
-> - Is the output from 'mount' stable?
-> 
-> Is it worth to add a utility wrapper for getmntent to util-linux?
+>
+> From a29acba1a7c71cdbfc1cc98f2905bfaf19b97a29 Mon Sep 17 00:00:00 2001
+> From: Aurelien Aptel <aaptel@suse.com>
+> Date: Thu, 1 Sep 2016 13:57:42 +0200
+> Subject: [PATCH] libmount/src/tab.c: fix mount -a for cifs
 
-This sort of functionality already exists in findmnt(1).
+ Applied, thanks!
 
-$ findmnt -rno TARGET /dev/sdc1
-/mnt/Haven
-/srv/nfs/pkgs
-/srv/nfs/vmbin
+    Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
