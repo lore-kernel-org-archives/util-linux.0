@@ -1,75 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:56634 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750720AbcJZJxz (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 26 Oct 2016 05:53:55 -0400
-Received: from zappa.ga.local ([87.128.112.108]) by mail.gmx.com (mrgmx101)
- with ESMTPSA (Nemesis) id 0MWgND-1cOER92ej5-00XsCx for
- <util-linux@vger.kernel.org>; Wed, 26 Oct 2016 11:53:52 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from mout.kundenserver.de ([212.227.17.13]:53294 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751779AbcJCUFT (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 3 Oct 2016 16:05:19 -0400
+Received: from localhost ([79.234.34.66]) by mrelayeu.kundenserver.de
+ (mreue104) with ESMTPSA (Nemesis) id 0M7Jry-1awQQT0qOs-00x10F for
+ <util-linux@vger.kernel.org>; Mon, 03 Oct 2016 22:05:11 +0200
+Date: Mon, 3 Oct 2016 22:06:23 +0200
+From: Tobias Stoeckmann <tobias@stoeckmann.org>
 To: util-linux@vger.kernel.org
-Subject: Re: libfdisk show stopper on i586?
-Date: Wed, 26 Oct 2016 11:53:51 +0200
-References: <201610260000.12844.sweet_f_a@gmx.de> <201610261129.59654.sweet_f_a@gmx.de>
-In-Reply-To: <201610261129.59654.sweet_f_a@gmx.de>
+Subject: [PATCH] rev: Avoid out of boundary read
+Message-ID: <20161003200623.GC2287@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201610261153.51698.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 26 October 2016, Ruediger Meier wrote:
-> On Wednesday 26 October 2016, Ruediger Meier wrote:
-> > Hi,
-> >
-> > looks like some of the last commits between v2.29-rc2-1-ge5cc93b
-> > and v2.29-rc2-22-g82e8dda introduced issues on some i586 systems.
-> >
-> > For example on  Fedora 19 i586:
-> >
-> >
-> > [  202.120451] systemd-coredump[8629]: Failed to send coredump: No
-> > such file or directory
-> > /home/abuild/rpmbuild/BUILD/util-linux-2.29.rc2-22-82e8d/tests/ts/f
-> >di sk/gpt: line 37:  8615 Aborted                 (core dumped)
-> > $TS_CMD_FDISK -l ${TEST_IMAGE_NAME} >> $TS_OUTPUT 2>&1
-> >
-> >         fdisk: GPT                                           ...
-> > FAILED (fdisk/gpt)
->
-> I've run it in gdb (last "unsigned int" fixes already applied):
->
->  +Program received signal SIGABRT, Aborted.
->  +0xf7d9502c in raise () from /lib/libc.so.6
->  +#0  0xf7d9502c in raise () from /lib/libc.so.6
->  +#1  0xf7d9670e in abort () from /lib/libc.so.6
->  +#2  0xf7dd3ca8 in __libc_message () from /lib/libc.so.6
->  +#3  0xf7dd9e43 in malloc_printerr () from /lib/libc.so.6
->  +#4  0xf7dd9f20 in munmap_chunk () from /lib/libc.so.6
->  +#5  0xf7f7cdd3 in fdisk_reset_labelitem (li=li@entry=0xffffd318) at
-> libfdisk/src/item.c:75 +#6  0xf7f820ef in fdisk_get_disklabel_item
-> (cxt=cxt@entry=0x8065038, id=id@entry=0, item=item@entry=0xffffd318)
-> at libfdisk/src/label.c:455 +#7  0xf7f8233b in fdisk_get_disklabel_id
-> (cxt=cxt@entry=0x8065038, id=id@entry=0xffffd38c) at
-> libfdisk/src/label.c:427 +#8  0x08052da8 in list_disk_geometry
-> (cxt=cxt@entry=0x8065038) at disk-utils/fdisk-list.c:78 +#9 
-> 0x08053dd0 in print_device_pt (cxt=0x8065038, device=0xffffd726
-> "<removed>", warnme=warnme@entry=1, verify=verify@entry=0) at
-> disk-utils/fdisk-list.c:343 +#10 0x0804dbdf in main (argc=3,
-> argv=0xffffd4c4) at disk-utils/fdisk.c:951 --
-> To unsubscribe from this list: send the line "unsubscribe util-linux"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Check if the length of the parsed string is at least 1,
+otherwise an out of boundary read would occur.
+---
+ text-utils/rev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
+diff --git a/text-utils/rev.c b/text-utils/rev.c
+index ace2cd6..735aaef 100644
+--- a/text-utils/rev.c
++++ b/text-utils/rev.c
+@@ -149,6 +149,9 @@ int main(int argc, char *argv[])
+ 		while (fgetws(buf, bufsiz, fp)) {
+ 			len = wcslen(buf);
+ 
++			if (len == 0)
++				continue;
++
+ 			/* This is my hack from setpwnam.c -janl */
+ 			while (buf[len-1] != '\n' && !feof(fp)) {
+ 				/* Extend input buffer if it failed getting the whole line */
+-- 
+2.10.0
 
-And this is the guilty patch:
-
-commit 8430b9b88426eb3c273b02a2d9505d839913317c
-Author: Karel Zak <kzak@redhat.com>
-Date:   Tue Oct 25 13:41:10 2016 +0200
-
-    libfdisk: make script token parser more robust
-
-cu,
-Rudi
