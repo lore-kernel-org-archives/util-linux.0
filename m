@@ -1,46 +1,79 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: bug v2.29-rc2, /etc/mtab file
-Date: Thu, 20 Oct 2016 18:24:43 +0200
-Cc: util-linux@vger.kernel.org
-References: <201610201559.15231.sweet_f_a@gmx.de> <20161020160021.2hjla2qxaglo37tv@ws.net.home>
-In-Reply-To: <20161020160021.2hjla2qxaglo37tv@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:55484 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751581AbcJCQZm (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 3 Oct 2016 12:25:42 -0400
+Date: Mon, 3 Oct 2016 18:25:40 +0200
+From: Karel Zak <kzak@redhat.com>
+To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Cc: Stanislav Brabec <sbrabec@suse.cz>, util-linux@vger.kernel.org,
+        Federico Bento <up201407890@alunos.dcc.fc.up.pt>,
+        Jiri Slaby <jslaby@suse.cz>
+Subject: Re: Fixing su + runuser vulnerability CVE-2016-2779
+Message-ID: <20161003162540.ug6zoynkmgrbblsq@ws.net.home>
+References: <56D7409A.6050407@suse.cz>
+ <20160307131358.kzu4qb5yu6u7fd4x@ws.net.home>
+ <56DEF7A4.4090209@suse.cz>
+ <20160929144015.7cij7pbva3etcqeo@ws.net.home>
+ <20161003150410.asxbalgvvtc4fvhi@ws.net.home>
+ <945e3ac2-6da5-fc97-abca-595d949137fa@draigBrady.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201610201824.43329.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <945e3ac2-6da5-fc97-abca-595d949137fa@draigBrady.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 20 October 2016, Karel Zak wrote:
-> On Thu, Oct 20, 2016 at 03:59:15PM +0200, Ruediger Meier wrote:
-> > Hi,
-> >
-> > On RHEL/CentOs-6 with /etc/mtab file some of our mount tests write
-> > something to /etc/mtab. AFAIR it should be ignored nowadays by
-> > default, right?
-> >
-> > After our test-suite was running I see these lines left in
-> > /etc/mtab:
-> >
-> > tmpd
-> > /home/abuild/rpmbuild/BUILD/util-linux-2.29-rc2/tests/output/mount/
-> >fstab-broken-mnt tmpfs rw 0 0 tmpd
-> > /home/abuild/rpmbuild/BUILD/util-linux-2.29-rc2/tests/output/mount/
-> >fstab-broken-mnt tmpfs rw 0 0 none
-> > /home/abuild/rpmbuild/BUILD/util-linux-2.29-rc2/tests/output/mount/
-> >fstab-none-mnt tmpfs rw,nosuid,nodev,relatime 0 0
->
-> Because our mount (from the test) calls /sbin/mount.tmpfs where
-> is executed standard mount(8) from system.
+On Mon, Oct 03, 2016 at 04:48:56PM +0100, Pádraig Brady wrote:
+> On 03/10/16 16:04, Karel Zak wrote:
+> > On Thu, Sep 29, 2016 at 04:40:15PM +0200, Karel Zak wrote:
+> >> On Tue, Mar 08, 2016 at 05:02:44PM +0100, Stanislav Brabec wrote:
+> >>> On Mar 7, 2016 at 14:13 Karel Zak wrote:
+> >>>> On Wed, Mar 02, 2016 at 08:35:54PM +0100, Stanislav Brabec wrote:
+> >>>>> There are some controversial things with the straightforward fix:
+> >>>>>
+> >>>>> setsid() prevents TIOCSTI attack described in the report (easy to
+> >>>>> reproduce), but it has side effects: It disconnects the task from job
+> >>>>> control. With setsid(), ^Z cannot be used for sending the application
+> >>>>> to background any more (easy to reproduce by calling setsid()
+> >>>>> unconditionally in the same place).
+> >>>>>
+> >>>>> su-common.c now calls setsid() only if new session is requested.
+> >>>>
+> >>>> Yes, it's pretty stupid situation.
+> >>>>
+> >>>> We have exactly specified setsid() use-cases and now TIOCSTI ioctl
+> >>>> forces us to modify the things (and maybe introduce regressions),
+> >>>> because the crazy ioctl is not possible to disable by any another
+> >>>> way...
+> >>>
+> >>> I would like to see a kernel support for selective disabling of TIOCSTI
+> >>> without side effects like setsid() has.
+> >>>
+> >>> setsid() fallback would be used for kernels that don't support it.
+> >>>
+> >>> I am not sure, how complicated would be adding of such feature to the
+> >>> kernel.
+> >>
+> >> I have applied patch based on libseccomp syscall filter:
+> >>
+> >>    https://github.com/karelzak/util-linux/commit/8e4925016875c6a4f2ab4f833ba66f0fc57396a2
+> >>
+> >> it works as expected, but IMHO it's workaround for our stupid kernel...
+> > 
+> >  Reverted. We need something else, something better.
+> > 
+> >  I'll try to play su/runuser pty container to fix this issue, it seems
+> >  sudo also support this use-case by use_pty flag.
+> 
+> I was wondering would the secomp solution be (more) appropriate for runcon(1),
+> since that's selinux specific?
 
-Ah interesting. That's why it works on my local system (also mtab file) 
-where I don't have /sbin/mount.tmpfs.
+For me seccomp is ugly solution, because it does not resolve the core
+of the issue. It's extra barrier and nothing more. It's the same like
+ignore security bugs in network daemons, because you have iptables...
 
-> I'll improve the test to call umount --fake to clean up mtab.
+    Karel
 
-Still a bit annoying that these "third party mount binaries" may modify 
-mtab but our umount does not.
-
-cu,
-Rudi
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
