@@ -1,82 +1,35 @@
-Return-Path: lkml@tlinx.org
-Message-ID: <58127756.7070409@tlinx.org>
-Date: Thu, 27 Oct 2016 14:53:26 -0700
-From: "L. Walsh" <lkml@tlinx.org>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-pf0-f173.google.com ([209.85.192.173]:33636 "EHLO
+        mail-pf0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750908AbcJDHlh (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 4 Oct 2016 03:41:37 -0400
+Received: by mail-pf0-f173.google.com with SMTP id 190so26088927pfv.0
+        for <util-linux@vger.kernel.org>; Tue, 04 Oct 2016 00:41:37 -0700 (PDT)
+Received: from kmo-pixel (213-168-42-72.gci.net. [72.42.168.213])
+        by smtp.gmail.com with ESMTPSA id h65sm52377961pfg.18.2016.10.04.00.41.34
+        for <util-linux@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 04 Oct 2016 00:41:35 -0700 (PDT)
+Date: Mon, 3 Oct 2016 23:41:32 -0800
+From: Kent Overstreet <kent.overstreet@gmail.com>
+To: util-linux@vger.kernel.org
+Subject: Bug with read only handling in mount
+Message-ID: <20161004074132.gnjun7jwarp2kcgr@kmo-pixel>
 MIME-Version: 1.0
-To: Ray Strode <halfline@gmail.com>
-CC: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>,
-        Lennart Poettering <lennart@poettering.net>
-Subject: Re: [PATCH] login-utils: import environment from user manager on
- systemd systems
-References: <1477427661-19788-1-git-send-email-halfline@gmail.com> <580FC961.8060502@tlinx.org> <CAA_UwzKqEsXDOrayqMHsLOXzB72YfNMyuWa4b0ODcbrqnGgDmw@mail.gmail.com>
-In-Reply-To: <CAA_UwzKqEsXDOrayqMHsLOXzB72YfNMyuWa4b0ODcbrqnGgDmw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Ray Strode wrote:
-> Hi,
->   
->>    Isn't pam_env supposed to allow setting vars in setting up
->> a user's first login session?
->>     
-> It can, but it has a few problems
->
-> 1) the file format is kind of weird
->   
----
-    People looking at systemd's config files have said similar.
+sys-utils/mount.c, mk_exit_code()
 
-> 2) not all distros set user_readenv=1 so users cant set the
-> environment variables they want
->   
-----
-    pam_env wasn't designed for reading user-set environment variables.
-Can users modify systemd config files at will?  Can't users put their
-envvars in their profiles? 
+If the mount syscall returns EACCESS, the code treats this as meaning that RW
+access to the block device wasn't allowed - it switches to RO for all future
+mount attempts.
 
-> 3) pam_env doesn't provide a facility for 3rd party applications to
-> adjust the environment
->   
----
-    I wasn't aware systemd could read users' profiles.  I've seen
-many 3rd party apps add their needed env vars to the system "profile.d"
-directory (for system wide changes) and some to a user's shell if they
-were user-specific changes.
-> 4) PAM modules run in the context of a user but as root.
-----
-    Most login related and system security processes do.  They are not
-part of the kernel.  Systemd runs in a user-context as root, as well.
-Are you saying that is insecure?
+This is incorrect though, because EACCESS could just mean that that particular
+filesystem doesn't support RW: iso9600 returns EACCESS if you try to mount RW.
 
-`   Pam_env is designed to be run before the user's first session has
-been setup and not again.  Some environment variables are meant to have
-the same lifetime as the login-(or audit) UID.  Just like TERM, any X
-programs rely on DISPLAY and those things don't change unless a
-new first-contact session is created when a user first accesses a
-secure network from an outside location. 
-
-> Having a
-> bunch of independent plugins all running as root, and not necessarily
-> integrating with each other is a recipe for security problems,
-> especially if you throw environment variables into the mix.
->   
-----
-    True.  The pam modules have been vetted for about 10+ years and have 
-good
-security record, yet you seem quite willing to jump to a new solution
-without such a track record. 
-> (if pam_env is erroneously in the session stack before a pam_exec
-> call, the user could easily get root access).
->   
-If an administrator  misconfigures ANY system security and 
-authentication modules a user could gain root access.  Pam_env was 
-designed for a
-first-contact to the system, as that's the only time 'REMOTEHOST' is set 
-(presuming the user came from another system).  Does systemd set REMOTEHOST
-and allow for a users DISPLAY variable to be defaulted to a dependent 
-setting?
-> This topic was discussed a bit in the cited systemd pull request, I think.
->   
-----
-    how is that relevant to a util-linux list?
--l
+The end result is that if we're trying to mount by trying every filesystem type
+(your libblkid doesn't know about your filesystem yet..), and the correct
+filesystem was listed after iso9600 in /proc/filesystems, mount will always
+mount RO (unless you specify the filesystem type with -t).
