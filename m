@@ -1,47 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lf0-f43.google.com ([209.85.215.43]:34707 "EHLO
-        mail-lf0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751050AbcJMUwz (ORCPT
-        <rfc822;util-linux-ng@vger.kernel.org>);
-        Thu, 13 Oct 2016 16:52:55 -0400
-Received: by mail-lf0-f43.google.com with SMTP id b81so152537707lfe.1
-        for <util-linux-ng@vger.kernel.org>; Thu, 13 Oct 2016 13:52:37 -0700 (PDT)
-Subject: Re: more(1) may attempt to tcsetattr(3) despite lacking controlling
- terminal
-To: Jakob Unterwurzacher <jakobunt@gmail.com>,
-        util-linux-ng@vger.kernel.org
-References: <20161013143932.GA29451@netmeister.org>
- <57FFDCFA.4070407@gmail.com> <56b4e9fb-a01d-3578-b739-66b7b933a8c5@gmail.com>
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
-Message-ID: <57FFF411.10800@gmail.com>
-Date: Thu, 13 Oct 2016 15:52:33 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:58914 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754241AbcJDI3Q (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 4 Oct 2016 04:29:16 -0400
+Date: Tue, 4 Oct 2016 10:29:09 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Kent Overstreet <kent.overstreet@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Bug with read only handling in mount
+Message-ID: <20161004082909.2ot3vujqxwskhvyr@ws.net.home>
+References: <20161004074132.gnjun7jwarp2kcgr@kmo-pixel>
 MIME-Version: 1.0
-In-Reply-To: <56b4e9fb-a01d-3578-b739-66b7b933a8c5@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20161004074132.gnjun7jwarp2kcgr@kmo-pixel>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Jakob Unterwurzacher wrote:
-> On 13.10.2016 21:14, Bruce Dubbs wrote:
->>>
->>> The following example illustrates the issue:
->>>
->>> $ /bin/sh -c "timeout 60 /bin/sh -c \"ls | more\""
->>>
->>> This command will now hang until the timeout, since the shell, ls(1) and
->>> more(1) commands invoked by timeout(1) will be suspended.
->>
->> It does not hang for me, but then I don't use systemd.  Perhaps systemd should
->> be fixed.
->
-> Does not hang for me either on Fedora 24, and I am using systemd, but how is
-> this related to the init system
+On Mon, Oct 03, 2016 at 11:41:32PM -0800, Kent Overstreet wrote:
+> sys-utils/mount.c, mk_exit_code()
+> 
+> If the mount syscall returns EACCESS, the code treats this as meaning that RW
+> access to the block device wasn't allowed - it switches to RO for all future
+> mount attempts.
 
-If systemd was only an init system, I wouldn't object.  It has subsumed 
-much more than initialization, e.g udev, dhcp client, managing cgroups, 
-'seat management', etc.  My initial reaction to the original problem is 
-that it is cgroups related.
+This is pretty old (>10years) mount behavior, util-linux 2.13:
 
-   -- Bruce
+    case EACCES:  /* pre-linux 1.1.38, 1.1.41 and later */
+    case EROFS:   /* linux 1.1.38 and later */
 
+> This is incorrect though, because EACCESS could just mean that that particular
+> filesystem doesn't support RW: iso9600 returns EACCESS if you try to mount RW.
 
+So, remount RO makes sense, right? I don't think we want to change
+this behavior, all CDROM/DVD users depend on this.
+
+> The end result is that if we're trying to mount by trying every filesystem type
+> (your libblkid doesn't know about your filesystem yet..), and the correct
+> filesystem was listed after iso9600 in /proc/filesystems, mount will always
+> mount RO (unless you specify the filesystem type with -t).
+
+Not sure if I understand. Does it mean that iso9600 driver returns
+EACCES for all devices although there is no this FS on the device? Or
+your FS shares the device with iso9600?
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
