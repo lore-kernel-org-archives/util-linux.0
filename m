@@ -1,46 +1,55 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40600 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S943361AbcJSO4t (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-        Wed, 19 Oct 2016 10:56:49 -0400
-Date: Wed, 19 Oct 2016 12:09:52 +0200
+Return-Path: linux-fsdevel-owner@vger.kernel.org
+Date: Tue, 4 Oct 2016 13:24:21 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Jan Schaumann <jschauma@netmeister.org>
-Cc: util-linux-ng@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
-Subject: Re: more(1) may attempt to tcsetattr(3) despite lacking controlling
- terminal
-Message-ID: <20161019100952.cd3a3qt6xni26xcv@ws.net.home>
-References: <20161013143932.GA29451@netmeister.org>
+To: Jan Kara <jack@suse.cz>
+Cc: Kent Overstreet <kent.overstreet@gmail.com>,
+        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
+Subject: Re: Bug with read only handling in mount
+Message-ID: <20161004112421.aopmqxzukydqx5jf@ws.net.home>
+References: <20161004074132.gnjun7jwarp2kcgr@kmo-pixel>
+ <20161004082909.2ot3vujqxwskhvyr@ws.net.home>
+ <20161004091823.vzp6wili7d73lyvh@kmo-pixel>
+ <20161004100240.qveupljutz57ygx4@ws.net.home>
+ <20161004104943.GA22169@quack2.suse.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20161013143932.GA29451@netmeister.org>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20161004104943.GA22169@quack2.suse.cz>
+Sender: linux-fsdevel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Oct 13, 2016 at 10:39:32AM -0400, Jan Schaumann wrote:
-> more(1) may attempt to call tsetattr(3) on stderr even if its process is
-> not in a process group with a controlling terminal.  As a result,
-> SIGTTOU will be generated, suspending the process.
+On Tue, Oct 04, 2016 at 12:49:43PM +0200, Jan Kara wrote:
+> > static struct dentry *isofs_mount(struct file_system_type *fs_type,
+> >         int flags, const char *dev_name, void *data)
+> > {                                 
+> >         /* We don't support read-write mounts */
+> >         if (!(flags & MS_RDONLY)) 
+> >                 return ERR_PTR(-EACCES);
+> >         return mount_bdev(fs_type, flags, dev_name, data, isofs_fill_super);
+> > }
+> > 
+> > This is crazy... iso9600 driver starts analyze mount options although
+> > the mount request is maybe completely irrelevant for the driver and 
+> > there is no iso9600 on the device. 
+> > 
+> > If we will write FS drivers in this way then old good "try all from
+> > /{proc,etc}/filesystems" will be useless...
+> > 
+> > See another filesystems, for example ext4, first be sure there is
+> > superblock and magic string (or return EINVAL) and then try 
+> > validate mount options.
+> > 
+> > CC to Jan Kara (he did the kernel change in Jun 2013).
+> 
+> Good point. I'll fix iso9660.
 
-Frankly, all the code:
+Thanks! 
 
-      tcgetattr(fileno(stderr), &otty);
-      savetty0 = otty;          
-      slow_tty = cfgetispeed(&otty) < B1200;
-      hardtabs = (otty.c_oflag & TABDLY) != XTABS;
-
-seems strange, it does not care if the tcgetattr() has been successful
-on stderr, etc.
-
-     ls | more 2> /dev/null
-
-behaves differently than without stderr redirection.
-
-All the code is pretty mess (e.g. slow_tty is nowhere used, etc.).
-Sami has tried to cleanup the code, but not sure about status of this
-project (https://github.com/kerolasa/lelux-utiliteetit/commits/more3).
+I have a patch for mount(8), but it's rather complex, because the
+/{proc,etc}/filesystems loop is hidden in libmount. I guess move the
+MS_RDONLY check in the iso9660 kernel driver will be easy fix.
 
     Karel
+
 -- 
  Karel Zak  <kzak@redhat.com>
  http://karelzak.blogspot.com
