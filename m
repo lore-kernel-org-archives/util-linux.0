@@ -1,148 +1,90 @@
-Return-Path: heiko.carstens@de.ibm.com
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Subject: [PATCH 1/4] lib,strutils: add strtoux[16|32|64]_or_err functions
-Date: Wed, 12 Oct 2016 14:00:44 +0200
-In-Reply-To: <20161012120047.60732-1-heiko.carstens@de.ibm.com>
-References: <20161012120047.60732-1-heiko.carstens@de.ibm.com>
-Message-Id: <20161012120047.60732-2-heiko.carstens@de.ibm.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:41308 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751671AbcJDKdc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 4 Oct 2016 06:33:32 -0400
+Date: Tue, 4 Oct 2016 12:33:29 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Kent Overstreet <kent.overstreet@gmail.com>
+Cc: linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org,
+        Jan Kara <jack@suse.cz>
+Subject: Re: Bug with read only handling in mount
+Message-ID: <20161004103329.a6rgh2ytvivupdym@ws.net.home>
+References: <20161004074132.gnjun7jwarp2kcgr@kmo-pixel>
+ <20161004082909.2ot3vujqxwskhvyr@ws.net.home>
+ <20161004091823.vzp6wili7d73lyvh@kmo-pixel>
+ <20161004100240.qveupljutz57ygx4@ws.net.home>
+ <20161004101039.uvyygixiopqpn7m6@kmo-pixel>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20161004101039.uvyygixiopqpn7m6@kmo-pixel>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Add helper functions which allow to parse hexadecimal numbers.
-Based on a patch from Clemens von Mann.
+On Tue, Oct 04, 2016 at 02:10:39AM -0800, Kent Overstreet wrote:
+> > with that filesystem type.
+> > 
+> > Hmm.. I will try to improve it. The problem is that mount(8) interprets 
+> > EACCES/EROFS as information about the device, then flip to RO makes sense 
+> > for all next mount(2) attempts.
+> > 
+> > > > > The end result is that if we're trying to mount by trying every filesystem type
+> > > > > (your libblkid doesn't know about your filesystem yet..), and the correct
+> > > > > filesystem was listed after iso9600 in /proc/filesystems, mount will always
+> > > > > mount RO (unless you specify the filesystem type with -t).
+> > > > 
+> > > > Not sure if I understand. Does it mean that iso9600 driver returns
+> > > > EACCES for all devices although there is no this FS on the device? Or
+> > > > your FS shares the device with iso9600?
+> > > 
+> > > Yes, iso9660 return EACCES when no iso9600 filesystem is present.
+> > 
+> > 
+> > static struct dentry *isofs_mount(struct file_system_type *fs_type,
+> >         int flags, const char *dev_name, void *data)
+> > {                                 
+> >         /* We don't support read-write mounts */
+> >         if (!(flags & MS_RDONLY)) 
+> >                 return ERR_PTR(-EACCES);
+> >         return mount_bdev(fs_type, flags, dev_name, data, isofs_fill_super);
+> > }
+> > 
+> > This is crazy... iso9600 driver starts analyze mount options although
+> > the mount request is maybe completely irrelevant for the driver and 
+> > there is no iso9600 on the device. 
+> > 
+> > If we will write FS drivers in this way then old good "try all from /{proc,etc}/filesystems"
+> > will be useless...
+> > 
+> > See another filesystems, for example ext4, first be sure there is
+> > superblock and magic string (or return EINVAL) and then try 
+> > validate mount options.
+> > 
+> > CC to Jan Kara (he did the kernel change in Jun 2013).
+> 
+> Given that the error code is coming from driver code, I think taking it to mean
+> anything about the underlying device is going to be flakey at best - we could
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
- include/strutils.h |  3 +++
- lib/strutils.c     | 44 ++++++++++++++++++++++++++++++++++++++------
- 2 files changed, 41 insertions(+), 6 deletions(-)
+That's what we do in last 20 years, good to know it's wrong now.
 
-diff --git a/include/strutils.h b/include/strutils.h
-index 51d9c9ff3553..aa31fc984c75 100644
---- a/include/strutils.h
-+++ b/include/strutils.h
-@@ -21,12 +21,15 @@ extern uintmax_t strtosize_or_err(const char *str, const char *errmesg);
+> fix iso9660, sure, but there's a crap ton of filesystems in the kernel and I'm
+> certainly not going to try to audit all their error paths. Even if a driver
+> waits until after it verifies its magic string before returnig an error, you
+> have cases where multiple drivers may be able to mount the filesystem or - even
+> more fun - different filesystem types may have superblocks that don't live at
+> the same offset, so the presense of ext4's magic number doesn't mean that not
+> actually a completely different filesystem type (don't laugh! I've actually been
+> bit by this).
+
+:-)
+
+> What's wrong with just changing mount(8) to only flip to RO for further attempts
+> with that particular filesystem type?
  
- extern int16_t strtos16_or_err(const char *str, const char *errmesg);
- extern uint16_t strtou16_or_err(const char *str, const char *errmesg);
-+extern uint16_t strtox16_or_err(const char *str, const char *errmesg);
- 
- extern int32_t strtos32_or_err(const char *str, const char *errmesg);
- extern uint32_t strtou32_or_err(const char *str, const char *errmesg);
-+extern uint32_t strtox32_or_err(const char *str, const char *errmesg);
- 
- extern int64_t strtos64_or_err(const char *str, const char *errmesg);
- extern uint64_t strtou64_or_err(const char *str, const char *errmesg);
-+extern uint64_t strtox64_or_err(const char *str, const char *errmesg);
- 
- extern double strtod_or_err(const char *str, const char *errmesg);
- 
-diff --git a/lib/strutils.c b/lib/strutils.c
-index d3b998f023bf..8a52be048210 100644
---- a/lib/strutils.c
-+++ b/lib/strutils.c
-@@ -264,6 +264,9 @@ char *strndup(const char *s, size_t n)
- }
- #endif
- 
-+static uint32_t _strtou32_or_err(const char *str, const char *errmesg, int base);
-+static uint64_t _strtou64_or_err(const char *str, const char *errmesg, int base);
-+
- int16_t strtos16_or_err(const char *str, const char *errmesg)
- {
- 	int32_t num = strtos32_or_err(str, errmesg);
-@@ -275,9 +278,9 @@ int16_t strtos16_or_err(const char *str, const char *errmesg)
- 	return num;
- }
- 
--uint16_t strtou16_or_err(const char *str, const char *errmesg)
-+static uint16_t _strtou16_or_err(const char *str, const char *errmesg, int base)
- {
--	uint32_t num = strtou32_or_err(str, errmesg);
-+	uint32_t num = _strtou32_or_err(str, errmesg, base);
- 
- 	if (num > UINT16_MAX) {
- 		errno = ERANGE;
-@@ -286,6 +289,16 @@ uint16_t strtou16_or_err(const char *str, const char *errmesg)
- 	return num;
- }
- 
-+uint16_t strtou16_or_err(const char *str, const char *errmesg)
-+{
-+	return _strtou16_or_err(str, errmesg, 10);
-+}
-+
-+uint16_t strtox16_or_err(const char *str, const char *errmesg)
-+{
-+	return _strtou16_or_err(str, errmesg, 16);
-+}
-+
- int32_t strtos32_or_err(const char *str, const char *errmesg)
- {
- 	int64_t num = strtos64_or_err(str, errmesg);
-@@ -297,9 +310,9 @@ int32_t strtos32_or_err(const char *str, const char *errmesg)
- 	return num;
- }
- 
--uint32_t strtou32_or_err(const char *str, const char *errmesg)
-+static uint32_t _strtou32_or_err(const char *str, const char *errmesg, int base)
- {
--	uint64_t num = strtou64_or_err(str, errmesg);
-+	uint64_t num = _strtou64_or_err(str, errmesg, base);
- 
- 	if (num > UINT32_MAX) {
- 		errno = ERANGE;
-@@ -308,6 +321,16 @@ uint32_t strtou32_or_err(const char *str, const char *errmesg)
- 	return num;
- }
- 
-+uint32_t strtou32_or_err(const char *str, const char *errmesg)
-+{
-+	return _strtou32_or_err(str, errmesg, 10);
-+}
-+
-+uint32_t strtox32_or_err(const char *str, const char *errmesg)
-+{
-+	return _strtou32_or_err(str, errmesg, 16);
-+}
-+
- int64_t strtos64_or_err(const char *str, const char *errmesg)
- {
- 	int64_t num;
-@@ -329,7 +352,7 @@ err:
- 	errx(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
- }
- 
--uint64_t strtou64_or_err(const char *str, const char *errmesg)
-+static uint64_t _strtou64_or_err(const char *str, const char *errmesg, int base)
- {
- 	uintmax_t num;
- 	char *end = NULL;
-@@ -337,7 +360,7 @@ uint64_t strtou64_or_err(const char *str, const char *errmesg)
- 	errno = 0;
- 	if (str == NULL || *str == '\0')
- 		goto err;
--	num = strtoumax(str, &end, 10);
-+	num = strtoumax(str, &end, base);
- 
- 	if (errno || str == end || (end && *end))
- 		goto err;
-@@ -350,6 +373,15 @@ err:
- 	errx(STRTOXX_EXIT_CODE, "%s: '%s'", errmesg, str);
- }
- 
-+uint64_t strtou64_or_err(const char *str, const char *errmesg)
-+{
-+	return _strtou64_or_err(str, errmesg, 10);
-+}
-+
-+uint64_t strtox64_or_err(const char *str, const char *errmesg)
-+{
-+	return _strtou64_or_err(str, errmesg, 16);
-+}
- 
- double strtod_or_err(const char *str, const char *errmesg)
- {
+As I said, I'll improve mount(8).
+
+    Karel
+
 -- 
-2.8.4
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
