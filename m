@@ -1,50 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.18]:60727 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:53940 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932565AbcJZOro (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 26 Oct 2016 10:47:44 -0400
-Received: from zappa.ga.local ([87.128.112.108]) by mail.gmx.com (mrgmx001)
- with ESMTPSA (Nemesis) id 0LymHf-1cwNg325nL-0165Lb for
- <util-linux@vger.kernel.org>; Wed, 26 Oct 2016 16:47:40 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] libfdisk: fix uninizialized fdisk_labelitem
-Date: Wed, 26 Oct 2016 16:47:39 +0200
-Message-Id: <1477493259-14586-1-git-send-email-sweet_f_a@gmx.de>
+        id S1750979AbcJFNAX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 6 Oct 2016 09:00:23 -0400
+Date: Thu, 6 Oct 2016 15:00:21 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] losetup --nooverlap: fix typo
+Message-ID: <20161006130021.bolauunzvvvzm2jb@ws.net.home>
+References: <fdaaf809-fdbf-e6bf-01d6-caa96a089c0a@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <fdaaf809-fdbf-e6bf-01d6-caa96a089c0a@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Wed, Oct 05, 2016 at 08:55:42PM +0200, Stanislav Brabec wrote:
+> Option is documented and used as --nooverlap, bud coded as --nooverlaps.
+> --nooverlap is considered as shortened option, making the typo
+> invisible.
+> 
+> Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+> ---
+>  sys-utils/losetup.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-fdisk -l could crash randomly. Only seen on some i586 systems with
-certain exotic compiler options.
+ Applied, thanks.
 
-The problem was that this item is later used in
-function fdisk_reset_labelitem() like this:
-
-    if (item.type == 's')
-        free(li->data.str);
-
-This may crash if item is randomly initialited.
-
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- libfdisk/src/label.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/libfdisk/src/label.c b/libfdisk/src/label.c
-index 5cbbe42..0e83fdf 100644
---- a/libfdisk/src/label.c
-+++ b/libfdisk/src/label.c
-@@ -416,7 +416,7 @@ int fdisk_locate_disklabel(struct fdisk_context *cxt, int n, const char **name,
-  */
- int fdisk_get_disklabel_id(struct fdisk_context *cxt, char **id)
- {
--	struct fdisk_labelitem item;
-+	struct fdisk_labelitem item = {0};
- 	int rc;
- 
- 	if (!cxt || !cxt->label || !id)
 -- 
-1.8.5.6
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
