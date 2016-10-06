@@ -1,59 +1,56 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:18065 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750770AbcJKOUs (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 11 Oct 2016 10:20:48 -0400
-Date: Tue, 11 Oct 2016 16:19:55 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org,
-        Federico Bento <up201407890@alunos.dcc.fc.up.pt>
-Subject: Re: Fixing su + runuser vulnerability CVE-2016-2779
-Message-ID: <20161011141955.gtz7u3zdsrgaqkjx@ws.net.home>
-References: <56D7409A.6050407@suse.cz>
+Return-Path: bruce.dubbs@gmail.com
+Subject: Re: [PATCH] libblkid: Avoid strlen if only first char is checked
+To: Karel Zak <kzak@redhat.com>, Tobias Stoeckmann <tobias@stoeckmann.org>
+Cc: util-linux@vger.kernel.org
+References: <20161003200503.GA2287@localhost>
+ <20161006125912.p2xyff3h44gc36ub@ws.net.home>
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Message-ID: <57F69FDD.5010206@gmail.com>
+Date: Thu, 6 Oct 2016 14:02:53 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <56D7409A.6050407@suse.cz>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20161006125912.p2xyff3h44gc36ub@ws.net.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Mar 02, 2016 at 08:35:54PM +0100, Stanislav Brabec wrote:
-> Another possible fixes would be:
-> - Or create custom pty container (like script does).
+Karel Zak wrote:
+> On Mon, Oct 03, 2016 at 10:05:03PM +0200, Tobias Stoeckmann wrote:
+>> A strlen() call can lead to out of boundary read access if the
+>> superblock in question has no nul-bytes after the string. This
+>> could be avoided by using strnlen() but the calls in question
+>> merely existed to check if the string length is not 0.
+>>
+>> By changing the calls as proposed with this diff, these files are
+>> in sync with other superblock files, which do exactly the same.
+>> ---
+>>   libblkid/src/superblocks/befs.c  | 2 +-
+>>   libblkid/src/superblocks/ext.c   | 2 +-
+>>   libblkid/src/superblocks/jfs.c   | 2 +-
+>>   libblkid/src/superblocks/nilfs.c | 2 +-
+>>   libblkid/src/superblocks/romfs.c | 2 +-
+>>   libblkid/src/superblocks/xfs.c   | 2 +-
+>>   6 files changed, 6 insertions(+), 6 deletions(-)
+>
+>   Applied, thanks.
+>
+>> diff --git a/libblkid/src/superblocks/befs.c b/libblkid/src/superblocks/befs.c
+>> index 7e9eaf6..36e079f 100644
+>> --- a/libblkid/src/superblocks/befs.c
+>> +++ b/libblkid/src/superblocks/befs.c
+>> @@ -451,7 +451,7 @@ static int probe_befs(blkid_probe pr, const struct blkid_idmag *mag)
+>>   	/*
+>>   	 * all checks pass, set LABEL, VERSION and UUID
+>>   	 */
+>> -	if (strlen(bs->name))
+>> +	if (*bs->name != '\0')
+>
+> Good catch, I hate it too. BTW, you can use
+>
+>      if (*bs->name)
+>
+> it's enough.
 
-note that for pty container you have to call setsid() otherwise in
-session running shell has to control the terminal.
+It is enough for the compiler, but the explicit comparison is more clear 
+to a casual reader.  The compiler probably optimizes out the comparison 
+anyway.
 
-...
-> To prevent unwanted reading from a terminal, one would:
-> - Or create custom pty container (like script does).
-
- I'd like to cleanup all su(1) code, use signalfd and then add new
- features (for v2.30), because the current code is horrible from my
- point of view. 
- 
- Anyway, I have tried to implement experimental --pty option to the
- current code. See su-pty branch on github. (It's very raw...).
- 
- The problem is again (like script(1)) non-terminal stdin 
- and pty session mix
-
-    echo AxA | su - kzak --pty -c "sed 's/x/A/'"
-
- this use-case is disabled for now.
-
- # tty
- /dev/pts/0
- 
- # runuser -u kzak tty 
- /dev/pts/0
-
- # runuser -u kzak --pty tty 
- /dev/pts/4
-
-    Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+   -- Bruce
