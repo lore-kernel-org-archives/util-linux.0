@@ -1,49 +1,190 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46496 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753803AbcJZKrQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 26 Oct 2016 06:47:16 -0400
-Date: Wed, 26 Oct 2016 12:47:13 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: libfdisk show stopper on i586?
-Message-ID: <20161026104713.chfwao7rbnxbxkdv@ws.net.home>
-References: <201610260000.12844.sweet_f_a@gmx.de>
- <201610261153.51698.sweet_f_a@gmx.de>
- <20161026101916.4f3d2u3xwmekfpjs@ws.net.home>
- <201610261227.55777.sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201610261227.55777.sweet_f_a@gmx.de>
+Received: from www.zacarias.com.ar ([176.9.42.171]:47482 "EHLO
+        www.zacarias.com.ar" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751522AbcJJU6m (ORCPT
+        <rfc822;util-linux-ng@vger.kernel.org>);
+        Mon, 10 Oct 2016 16:58:42 -0400
+From: Gustavo Zacarias <gustavo@zacarias.com.ar>
+To: util-linux-ng@vger.kernel.org
+Cc: Gustavo Zacarias <gustavo@zacarias.com.ar>
+Subject: [PATCH] lib/crc32: prefix public functions
+Date: Mon, 10 Oct 2016 17:49:32 -0300
+Message-Id: <1476132572-9116-1-git-send-email-gustavo@zacarias.com.ar>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Oct 26, 2016 at 12:27:55PM +0200, Ruediger Meier wrote:
-> On Wednesday 26 October 2016, Karel Zak wrote:
-> > On Wed, Oct 26, 2016 at 11:53:51AM +0200, Ruediger Meier wrote:
-> > > commit 8430b9b88426eb3c273b02a2d9505d839913317c
-> > > Author: Karel Zak <kzak@redhat.com>
-> > > Date:   Tue Oct 25 13:41:10 2016 +0200
-> > >
-> > >     libfdisk: make script token parser more robust
-> >
-> > Strange, don't see relation between the script parser and fdisk -l.
-> > Do you have LIBFDISK_DEBUG output?
-> >
-> >     Karel
-> 
-> 
-> [   65s] +14318: libfdisk:     INIT: library debug mask: 0xffff
-> [   65s] +Available "LIBFDISK_DEBUG=<name>[,...]|<mask>" debug masks:
+Make the publicly-visible crc32 library functions prefixed by ul_, such
+as crc32() -> ul_crc32().
+This is because it clashes with the crc32() function from zlib.
+For newer versions of glib (2.50+) zlib and libblkid are required
+dependencies and otherwise results in build failure when building
+statically.
 
-Can you send me the disk image? dd(1) + gzip, it's full of zeros, so
-it should be relatively small.
+Signed-off-by: Gustavo Zacarias <gustavo@zacarias.com.ar>
+---
+ disk-utils/fsck.cramfs.c         | 12 ++++++------
+ disk-utils/mkfs.cramfs.c         |  6 +++---
+ include/crc32.h                  |  4 ++--
+ lib/crc32.c                      |  4 ++--
+ libblkid/src/partitions/gpt.c    |  2 +-
+ libblkid/src/superblocks/nilfs.c |  6 +++---
+ libfdisk/src/gpt.c               |  2 +-
+ 7 files changed, 18 insertions(+), 18 deletions(-)
 
-Do you see something strange when you use parted for the disk?
-
-    Karel
-
+diff --git a/disk-utils/fsck.cramfs.c b/disk-utils/fsck.cramfs.c
+index 12009f2..f34e79f 100644
+--- a/disk-utils/fsck.cramfs.c
++++ b/disk-utils/fsck.cramfs.c
+@@ -214,7 +214,7 @@ static void test_crc(int start)
+ 		return;
+ 	}
+ 
+-	crc = crc32(0L, Z_NULL, 0);
++	crc = ul_crc32(0L, Z_NULL, 0);
+ 
+ 	buf =
+ 	    mmap(NULL, super.size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+@@ -231,8 +231,8 @@ static void test_crc(int start)
+ 	}
+ 	if (buf != MAP_FAILED) {
+ 		((struct cramfs_super *)((unsigned char *) buf + start))->fsid.crc =
+-		    crc32(0L, Z_NULL, 0);
+-		crc = crc32(crc, (unsigned char *) buf + start, super.size - start);
++		    ul_crc32(0L, Z_NULL, 0);
++		crc = ul_crc32(crc, (unsigned char *) buf + start, super.size - start);
+ 		munmap(buf, super.size);
+ 	} else {
+ 		int retval;
+@@ -249,15 +249,15 @@ static void test_crc(int start)
+ 				break;
+ 			if (length == 0)
+ 				((struct cramfs_super *)buf)->fsid.crc =
+-				    crc32(0L, Z_NULL, 0);
++				    ul_crc32(0L, Z_NULL, 0);
+ 			length += retval;
+ 			if (length > (super.size - start)) {
+-				crc = crc32(crc, buf,
++				crc = ul_crc32(crc, buf,
+ 					  retval - (length -
+ 						    (super.size - start)));
+ 				break;
+ 			}
+-			crc = crc32(crc, buf, retval);
++			crc = ul_crc32(crc, buf, retval);
+ 		}
+ 		free(buf);
+ 	}
+diff --git a/disk-utils/mkfs.cramfs.c b/disk-utils/mkfs.cramfs.c
+index 4e6b3ab..55d6871 100644
+--- a/disk-utils/mkfs.cramfs.c
++++ b/disk-utils/mkfs.cramfs.c
+@@ -406,7 +406,7 @@ static unsigned int write_superblock(struct entry *root, char *base, int size)
+ 	super->size = size;
+ 	memcpy(super->signature, CRAMFS_SIGNATURE, sizeof(super->signature));
+ 
+-	super->fsid.crc = crc32(0L, Z_NULL, 0);
++	super->fsid.crc = ul_crc32(0L, Z_NULL, 0);
+ 	super->fsid.edition = opt_edition;
+ 	super->fsid.blocks = total_blocks;
+ 	super->fsid.files = total_nodes;
+@@ -700,7 +700,7 @@ int main(int argc, char **argv)
+ 	loff_t fslen_ub = sizeof(struct cramfs_super);
+ 	unsigned int fslen_max;
+ 	char const *dirname, *outfile;
+-	uint32_t crc = crc32(0L, Z_NULL, 0);
++	uint32_t crc = ul_crc32(0L, Z_NULL, 0);
+ 	int c;
+ 	cramfs_is_big_endian = HOST_IS_BIG_ENDIAN; /* default is to use host order */
+ 
+@@ -856,7 +856,7 @@ int main(int argc, char **argv)
+ 		       sizeof(struct cramfs_super));
+ 
+ 	/* Put the checksum in. */
+-	crc = crc32(crc, (unsigned char *) (rom_image+opt_pad), (offset-opt_pad));
++	crc = ul_crc32(crc, (unsigned char *) (rom_image+opt_pad), (offset-opt_pad));
+ 	((struct cramfs_super *) (rom_image+opt_pad))->fsid.crc = u32_toggle_endianness(cramfs_is_big_endian, crc);
+ 	if (verbose)
+ 		printf(_("CRC: %x\n"), crc);
+diff --git a/include/crc32.h b/include/crc32.h
+index ff2dd99..2551f50 100644
+--- a/include/crc32.h
++++ b/include/crc32.h
+@@ -4,8 +4,8 @@
+ #include <sys/types.h>
+ #include <stdint.h>
+ 
+-extern uint32_t crc32(uint32_t seed, const unsigned char *buf, size_t len);
+-extern uint32_t crc32_exclude_offset(uint32_t seed, const unsigned char *buf, size_t len,
++extern uint32_t ul_crc32(uint32_t seed, const unsigned char *buf, size_t len);
++extern uint32_t ul_crc32_exclude_offset(uint32_t seed, const unsigned char *buf, size_t len,
+ 		                              size_t exclude_off, size_t exclude_len);
+ 
+ #endif
+diff --git a/lib/crc32.c b/lib/crc32.c
+index a5e3216..824693d 100644
+--- a/lib/crc32.c
++++ b/lib/crc32.c
+@@ -108,7 +108,7 @@ static inline uint32_t crc32_add_char(uint32_t crc, unsigned char c)
+  * and does __not__ xor at the end. Then individual users can do
+  * whatever they need.
+  */
+-uint32_t crc32(uint32_t seed, const unsigned char *buf, size_t len)
++uint32_t ul_crc32(uint32_t seed, const unsigned char *buf, size_t len)
+ {
+ 	uint32_t crc = seed;
+ 	const unsigned char *p = buf;
+@@ -121,7 +121,7 @@ uint32_t crc32(uint32_t seed, const unsigned char *buf, size_t len)
+ 	return crc;
+ }
+ 
+-uint32_t crc32_exclude_offset(uint32_t seed, const unsigned char *buf, size_t len,
++uint32_t ul_crc32_exclude_offset(uint32_t seed, const unsigned char *buf, size_t len,
+ 			      size_t exclude_off, size_t exclude_len)
+ {
+ 	uint32_t crc = seed;
+diff --git a/libblkid/src/partitions/gpt.c b/libblkid/src/partitions/gpt.c
+index dcc04e6..e6baa59 100644
+--- a/libblkid/src/partitions/gpt.c
++++ b/libblkid/src/partitions/gpt.c
+@@ -105,7 +105,7 @@ struct gpt_entry {
+ static inline uint32_t count_crc32(const unsigned char *buf, size_t len,
+ 				   size_t exclude_off, size_t exclude_len)
+ {
+-	return (crc32_exclude_offset(~0L, buf, len, exclude_off, exclude_len) ^ ~0L);
++	return (ul_crc32_exclude_offset(~0L, buf, len, exclude_off, exclude_len) ^ ~0L);
+ }
+ 
+ static inline unsigned char *get_lba_buffer(blkid_probe pr,
+diff --git a/libblkid/src/superblocks/nilfs.c b/libblkid/src/superblocks/nilfs.c
+index ee5c5f9..95538ef 100644
+--- a/libblkid/src/superblocks/nilfs.c
++++ b/libblkid/src/superblocks/nilfs.c
+@@ -89,9 +89,9 @@ static int nilfs_valid_sb(blkid_probe pr, struct nilfs_super_block *sb, int is_b
+ 	if (bytes < crc_start || bytes > sizeof(struct nilfs_super_block))
+ 		return 0;
+ 
+-	crc = crc32(le32_to_cpu(sb->s_crc_seed), (unsigned char *)sb, sumoff);
+-	crc = crc32(crc, sum, 4);
+-	crc = crc32(crc, (unsigned char *)sb + crc_start, bytes - crc_start);
++	crc = ul_crc32(le32_to_cpu(sb->s_crc_seed), (unsigned char *)sb, sumoff);
++	crc = ul_crc32(crc, sum, 4);
++	crc = ul_crc32(crc, (unsigned char *)sb + crc_start, bytes - crc_start);
+ 
+ 	return blkid_probe_verify_csum(pr, crc, le32_to_cpu(sb->s_sum));
+ }
+diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
+index 8377192..208699b 100644
+--- a/libfdisk/src/gpt.c
++++ b/libfdisk/src/gpt.c
+@@ -850,7 +850,7 @@ fail:
+ static inline uint32_t count_crc32(const unsigned char *buf, size_t len,
+ 				   size_t ex_off, size_t ex_len)
+ {
+-	return (crc32_exclude_offset(~0L, buf, len, ex_off, ex_len) ^ ~0L);
++	return (ul_crc32_exclude_offset(~0L, buf, len, ex_off, ex_len) ^ ~0L);
+ }
+ 
+ static inline uint32_t gpt_header_count_crc32(struct gpt_header *header)
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.7.3
+
