@@ -1,44 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:56668 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933639AbcJTJRs (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 20 Oct 2016 05:17:48 -0400
-Date: Thu, 20 Oct 2016 11:17:45 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.29-rc2
-Message-ID: <20161020091745.drjshipye5wwn2dv@ws.net.home>
-References: <20161019132505.cumn37cmgazlumcu@ws.net.home>
- <201610200803.04150.sweet_f_a@gmx.de>
+Received: from mail-oi0-f42.google.com ([209.85.218.42]:34503 "EHLO
+        mail-oi0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756641AbcJMTOK (ORCPT
+        <rfc822;util-linux-ng@vger.kernel.org>);
+        Thu, 13 Oct 2016 15:14:10 -0400
+Received: by mail-oi0-f42.google.com with SMTP id t73so110732762oie.1
+        for <util-linux-ng@vger.kernel.org>; Thu, 13 Oct 2016 12:14:09 -0700 (PDT)
+Subject: Re: more(1) may attempt to tcsetattr(3) despite lacking controlling
+ terminal
+To: Jan Schaumann <jschauma@netmeister.org>, util-linux-ng@vger.kernel.org
+References: <20161013143932.GA29451@netmeister.org>
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Message-ID: <57FFDCFA.4070407@gmail.com>
+Date: Thu, 13 Oct 2016 14:14:02 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201610200803.04150.sweet_f_a@gmx.de>
+In-Reply-To: <20161013143932.GA29451@netmeister.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Oct 20, 2016 at 08:03:03AM +0200, Ruediger Meier wrote:
-> On Wednesday 19 October 2016, Karel Zak wrote:
-> > The util-linux release v2.29-rc1 is available at
-> >
-> >   http://ftp.kernel.org/pub/linux/utils/util-linux/v2.29/
-> >
-> > Feedback and bug reports, as always, are welcomed.
-> >
-> >     Karel
-> 
-> Looks like ncurses(w) detection does not work anymore without pkgconfig 
-> files, for example on openSUSE <=13.1, SLE 12 and openSUSE Leap.
+Jan Schaumann wrote:
+> Hello,
+>
+> Yesterday I reported the following bug to the Debian maintainers of the
+> 'util-linux' package.  They suggested I should bring it up here:
+>
+>
+> more(1) may attempt to call tsetattr(3) on stderr even if its process is
+> not in a process group with a controlling terminal.  As a result,
+> SIGTTOU will be generated, suspending the process.
+>
+> The following example illustrates the issue:
+>
+> $ /bin/sh -c "timeout 60 /bin/sh -c \"ls | more\""
+>
+> This command will now hang until the timeout, since the shell, ls(1) and
+> more(1) commands invoked by timeout(1) will be suspended.
 
-Ah, I have thought that people already use pkg-config for ncurses on
-all current distributions. For example we have .pc for ncurses on
-old CentOS/RHEL 6 (year 2011).
+It does not hang for me, but then I don't use systemd.  Perhaps systemd 
+should be fixed.
 
-I can add the fallback, but it makes configure messy. Do we really
-need it? :-)
+   -- Bruce
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
