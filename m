@@ -1,40 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45950 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S965537AbcJTQAX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 20 Oct 2016 12:00:23 -0400
-Date: Thu, 20 Oct 2016 18:00:21 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: bug v2.29-rc2, /etc/mtab file
-Message-ID: <20161020160021.2hjla2qxaglo37tv@ws.net.home>
-References: <201610201559.15231.sweet_f_a@gmx.de>
+Received: from mail-lf0-f43.google.com ([209.85.215.43]:34707 "EHLO
+        mail-lf0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751050AbcJMUwz (ORCPT
+        <rfc822;util-linux-ng@vger.kernel.org>);
+        Thu, 13 Oct 2016 16:52:55 -0400
+Received: by mail-lf0-f43.google.com with SMTP id b81so152537707lfe.1
+        for <util-linux-ng@vger.kernel.org>; Thu, 13 Oct 2016 13:52:37 -0700 (PDT)
+Subject: Re: more(1) may attempt to tcsetattr(3) despite lacking controlling
+ terminal
+To: Jakob Unterwurzacher <jakobunt@gmail.com>,
+        util-linux-ng@vger.kernel.org
+References: <20161013143932.GA29451@netmeister.org>
+ <57FFDCFA.4070407@gmail.com> <56b4e9fb-a01d-3578-b739-66b7b933a8c5@gmail.com>
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Message-ID: <57FFF411.10800@gmail.com>
+Date: Thu, 13 Oct 2016 15:52:33 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201610201559.15231.sweet_f_a@gmx.de>
+In-Reply-To: <56b4e9fb-a01d-3578-b739-66b7b933a8c5@gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Oct 20, 2016 at 03:59:15PM +0200, Ruediger Meier wrote:
-> Hi,
-> 
-> On RHEL/CentOs-6 with /etc/mtab file some of our mount tests write something to
-> /etc/mtab. AFAIR it should be ignored nowadays by default, right?
-> 
-> After our test-suite was running I see these lines left in /etc/mtab:
-> 
-> tmpd /home/abuild/rpmbuild/BUILD/util-linux-2.29-rc2/tests/output/mount/fstab-broken-mnt tmpfs rw 0 0
-> tmpd /home/abuild/rpmbuild/BUILD/util-linux-2.29-rc2/tests/output/mount/fstab-broken-mnt tmpfs rw 0 0
-> none /home/abuild/rpmbuild/BUILD/util-linux-2.29-rc2/tests/output/mount/fstab-none-mnt tmpfs rw,nosuid,nodev,relatime 0 0
+Jakob Unterwurzacher wrote:
+> On 13.10.2016 21:14, Bruce Dubbs wrote:
+>>>
+>>> The following example illustrates the issue:
+>>>
+>>> $ /bin/sh -c "timeout 60 /bin/sh -c \"ls | more\""
+>>>
+>>> This command will now hang until the timeout, since the shell, ls(1) and
+>>> more(1) commands invoked by timeout(1) will be suspended.
+>>
+>> It does not hang for me, but then I don't use systemd.  Perhaps systemd should
+>> be fixed.
+>
+> Does not hang for me either on Fedora 24, and I am using systemd, but how is
+> this related to the init system
 
-Because our mount (from the test) calls /sbin/mount.tmpfs where
-is executed standard mount(8) from system.
+If systemd was only an init system, I wouldn't object.  It has subsumed 
+much more than initialization, e.g udev, dhcp client, managing cgroups, 
+'seat management', etc.  My initial reaction to the original problem is 
+that it is cgroups related.
 
-I'll improve the test to call umount --fake to clean up mtab.
+   -- Bruce
 
-    Karel
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
