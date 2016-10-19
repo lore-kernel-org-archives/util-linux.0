@@ -1,56 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:53460 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:46148 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933375AbcJ0WHB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 27 Oct 2016 18:07:01 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: lscpu VMWARE bdoor patch
-Date: Fri, 28 Oct 2016 00:06:36 +0200
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux@vger.kernel.org,
-        Mike Frysinger <vapier@gentoo.org>
-References: <20161027102515.qw47rdgn72qingfi@ws.net.home>
-In-Reply-To: <20161027102515.qw47rdgn72qingfi@ws.net.home>
+        id S943959AbcJSPJa (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 19 Oct 2016 11:09:30 -0400
+Date: Wed, 19 Oct 2016 12:23:57 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Gustavo Zacarias <gustavo@zacarias.com.ar>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] lib/crc32: prefix public functions
+Message-ID: <20161019102357.c4lryfirgu6p3ybg@ws.net.home>
+References: <1476132864-9526-1-git-send-email-gustavo@zacarias.com.ar>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201610280006.36584.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1476132864-9526-1-git-send-email-gustavo@zacarias.com.ar>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 27 October 2016, Karel Zak wrote:
-> Hi,
->
-> this is lscpu output on my machine:
->
->     Virtualization:        VT-x
->     Hypervisor vendor:     VMware
->     Virtualization type:   full
->
->
-> I have nothing like VMWARE. It seem the code (commit b7744730) does
-> not work as expected for non-root users. What about to add
+On Mon, Oct 10, 2016 at 05:54:24PM -0300, Gustavo Zacarias wrote:
+>  disk-utils/fsck.cramfs.c         | 12 ++++++------
+>  disk-utils/mkfs.cramfs.c         |  6 +++---
+>  include/crc32.h                  |  4 ++--
+>  lib/crc32.c                      |  4 ++--
+>  libblkid/src/partitions/gpt.c    |  2 +-
+>  libblkid/src/superblocks/nilfs.c |  6 +++---
+>  libfdisk/src/gpt.c               |  2 +-
+>  7 files changed, 18 insertions(+), 18 deletions(-)
 
-Have you checked whether the original code in b7744730 is alreaday 
-broken? Not something about the later PIC/PIE patches?
+Applied, thanks.
 
-What system are you using?
-
->     if (getuid() != 0)
->         return 0;
->
-> to the is_vmware_platform() function?
->
->     Karel
-
-Yes, if it's broken for a "normal" system then we have to remove that. 
-Though would be nice to know what exactly made it stop working.
-
-BTW this code is also in the kernel:
-   arch/x86/kernel/cpu/vmware.c
-
-Can't we ask the kernel about vmware somehow?
-
-
-cu,
-Rudi
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
