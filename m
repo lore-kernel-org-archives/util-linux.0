@@ -1,50 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from albireo.enyo.de ([5.158.152.32]:38698 "EHLO albireo.enyo.de"
+Received: from mx1.redhat.com ([209.132.183.28]:59964 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750801AbcJILJe (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 9 Oct 2016 07:09:34 -0400
-From: Florian Weimer <fw@deneb.enyo.de>
-To: Karel Zak <kzak@redhat.com>
-Cc: Stanislav Brabec <sbrabec@suse.cz>, util-linux@vger.kernel.org,
-        Federico Bento <up201407890@alunos.dcc.fc.up.pt>,
-        Jiri Slaby <jslaby@suse.cz>
-Subject: Re: Fixing su + runuser vulnerability CVE-2016-2779
-References: <56D7409A.6050407@suse.cz>
-        <20160307131358.kzu4qb5yu6u7fd4x@ws.net.home>
-        <56DEF7A4.4090209@suse.cz>
-        <20160929144015.7cij7pbva3etcqeo@ws.net.home>
-        <87vaxaao33.fsf@mid.deneb.enyo.de>
-        <20161003102830.mczd6omz6lqftrzy@ws.net.home>
-        <20161003132918.lkgiqv2oejtuy6xo@ws.net.home>
-Date: Sun, 09 Oct 2016 13:09:28 +0200
-In-Reply-To: <20161003132918.lkgiqv2oejtuy6xo@ws.net.home> (Karel Zak's
-        message of "Mon, 3 Oct 2016 15:29:18 +0200")
-Message-ID: <87wphhhj87.fsf@mid.deneb.enyo.de>
+        id S942792AbcJSOlt (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+        Wed, 19 Oct 2016 10:41:49 -0400
+Date: Wed, 19 Oct 2016 11:53:51 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Bruce Dubbs <bruce.dubbs@gmail.com>
+Cc: Jakob Unterwurzacher <jakobunt@gmail.com>,
+        util-linux-ng@vger.kernel.org
+Subject: Re: more(1) may attempt to tcsetattr(3) despite lacking controlling
+ terminal
+Message-ID: <20161019095351.a2oejkozd23bvwes@ws.net.home>
+References: <20161013143932.GA29451@netmeister.org>
+ <57FFDCFA.4070407@gmail.com>
+ <56b4e9fb-a01d-3578-b739-66b7b933a8c5@gmail.com>
+ <57FFF411.10800@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <57FFF411.10800@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-* Karel Zak:
+On Thu, Oct 13, 2016 at 03:52:33PM -0500, Bruce Dubbs wrote:
+> Jakob Unterwurzacher wrote:
+> > On 13.10.2016 21:14, Bruce Dubbs wrote:
+> > > > 
+> > > > The following example illustrates the issue:
+> > > > 
+> > > > $ /bin/sh -c "timeout 60 /bin/sh -c \"ls | more\""
+> > > > 
+> > > > This command will now hang until the timeout, since the shell, ls(1) and
+> > > > more(1) commands invoked by timeout(1) will be suspended.
 
->  I have tried to send tty FD to another process by unix socket and the 
->  ioctl result is EPERM. See the test_tiocsti below. It seems only root
->  can do it (try suid the test program).
->
->  session A:
->     ./test_tiocsti --receive
+I'm not able to reproduce this problem too.
 
-I think the recipient has to give up its controlling terminal, become
-a session leader, and then reopen the passed terminal (from
-/proc/self/fd, if it's not reachable from /dev/pts).  This way, you
-should be able to do away with the root requirement.
+> > > It does not hang for me, but then I don't use systemd.  Perhaps systemd should
+> > > be fixed.
 
->  session B:
->     runuser -u kzak -- ./test_tiocsti --send
->
->>  The ioctl should be fired in the hell... :-)
->
->  This is still true.
+I have systemd.
 
-The kernel implementation doesn't even do error checking.  Surely it
-can fail if there isn't enough memory in the destination buffer ...
+> > Does not hang for me either on Fedora 24, and I am using systemd, but how is
+> > this related to the init system
+> 
+> If systemd was only an init system, I wouldn't object.  It has subsumed much
+> more than initialization, e.g udev, dhcp client, managing cgroups, 'seat
+> management', etc.  My initial reaction to the original problem is that it is
+> cgroups related.
+
+Probably no, the question is where is the problem.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
