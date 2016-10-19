@@ -1,67 +1,46 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [ANNOUNCE] util-linux v2.29-rc2
-Date: Thu, 20 Oct 2016 12:25:31 +0200
-Cc: util-linux@vger.kernel.org
-References: <20161019132505.cumn37cmgazlumcu@ws.net.home> <201610200803.04150.sweet_f_a@gmx.de> <20161020091745.drjshipye5wwn2dv@ws.net.home>
-In-Reply-To: <20161020091745.drjshipye5wwn2dv@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:40600 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S943361AbcJSO4t (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+        Wed, 19 Oct 2016 10:56:49 -0400
+Date: Wed, 19 Oct 2016 12:09:52 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Jan Schaumann <jschauma@netmeister.org>
+Cc: util-linux-ng@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
+Subject: Re: more(1) may attempt to tcsetattr(3) despite lacking controlling
+ terminal
+Message-ID: <20161019100952.cd3a3qt6xni26xcv@ws.net.home>
+References: <20161013143932.GA29451@netmeister.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201610201225.31755.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20161013143932.GA29451@netmeister.org>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 20 October 2016, Karel Zak wrote:
-> On Thu, Oct 20, 2016 at 08:03:03AM +0200, Ruediger Meier wrote:
-> > On Wednesday 19 October 2016, Karel Zak wrote:
-> > > The util-linux release v2.29-rc1 is available at
-> > >
-> > >   http://ftp.kernel.org/pub/linux/utils/util-linux/v2.29/
-> > >
-> > > Feedback and bug reports, as always, are welcomed.
-> > >
-> > >     Karel
-> >
-> > Looks like ncurses(w) detection does not work anymore without
-> > pkgconfig files, for example on openSUSE <=13.1, SLE 12 and
-> > openSUSE Leap.
->
-> Ah, I have thought that people already use pkg-config for ncurses on
-> all current distributions. For example we have .pc for ncurses on
-> old CentOS/RHEL 6 (year 2011).
->
-> I can add the fallback, but it makes configure messy. Do we really
-> need it? :-)
+On Thu, Oct 13, 2016 at 10:39:32AM -0400, Jan Schaumann wrote:
+> more(1) may attempt to call tsetattr(3) on stderr even if its process is
+> not in a process group with a controlling terminal.  As a result,
+> SIGTTOU will be generated, suspending the process.
 
+Frankly, all the code:
 
-I've just checked a bit.
+      tcgetattr(fileno(stderr), &otty);
+      savetty0 = otty;          
+      slow_tty = cfgetispeed(&otty) < B1200;
+      hardtabs = (otty.c_oflag & TABDLY) != XTABS;
 
-The pkg-config files were introduced in ncurses 5.9 (2011). But they are 
-still not enabled by default. So many distros may still miss it and 
-users who install ncurses from source will probably also miss it in the 
-first run. That's a bit annoying.
+seems strange, it does not care if the tcgetattr() has been successful
+on stderr, etc.
 
-Actually I was not even able to figure out quickly how to install 
-ncursesw.pc. Looks like this would be needed
+     ls | more 2> /dev/null
 
-./configure --enable-pc-files --enable-widec --enable-lib-suffixes --enable-pc-suffixes
+behaves differently than without stderr redirection.
 
-That also means that ncurses without suffix "w" may have wide char 
-support if not configured with --enable-lib-suffixes 
-and --enable-pc-suffixes. So probably our new error does not really 
-make sense: "wide-char support enabled, but non-wide ncurses selects"
+All the code is pretty mess (e.g. slow_tty is nowhere used, etc.).
+Sami has tried to cleanup the code, but not sure about status of this
+project (https://github.com/kerolasa/lelux-utiliteetit/commits/more3).
 
-
-I wonder why we don't try the config scripts (--libs --cflags) in this 
-order:
- ncursesw6-config 
- ncurses6-config
- ncursesw5-config
- ncurses5-config
-
-Looks like they are always installed by default and also always with the 
-right suffixes. No fallback needed if we don't use pkg-config at all. 
-
-cu,
-Rudi
+    Karel
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
