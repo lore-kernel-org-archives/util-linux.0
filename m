@@ -1,39 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from albireo.enyo.de ([5.158.152.32]:45444 "EHLO albireo.enyo.de"
+Received: from mx1.redhat.com ([209.132.183.28]:58006 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750949AbcJBNQG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 2 Oct 2016 09:16:06 -0400
-From: Florian Weimer <fw@deneb.enyo.de>
-To: Karel Zak <kzak@redhat.com>
-Cc: Stanislav Brabec <sbrabec@suse.cz>, util-linux@vger.kernel.org,
-        Federico Bento <up201407890@alunos.dcc.fc.up.pt>,
-        Jiri Slaby <jslaby@suse.cz>
-Subject: Re: Fixing su + runuser vulnerability CVE-2016-2779
-References: <56D7409A.6050407@suse.cz>
-        <20160307131358.kzu4qb5yu6u7fd4x@ws.net.home>
-        <56DEF7A4.4090209@suse.cz>
-        <20160929144015.7cij7pbva3etcqeo@ws.net.home>
-Date: Sun, 02 Oct 2016 15:16:00 +0200
-In-Reply-To: <20160929144015.7cij7pbva3etcqeo@ws.net.home> (Karel Zak's
-        message of "Thu, 29 Sep 2016 16:40:15 +0200")
-Message-ID: <87vaxaao33.fsf@mid.deneb.enyo.de>
+        id S941906AbcJSO0m (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 19 Oct 2016 10:26:42 -0400
+Date: Wed, 19 Oct 2016 11:38:39 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: util-linux@vger.kernel.org,
+        Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Subject: Re: [PATCH 0/4] New tools lsmem and chmem
+Message-ID: <20161019093839.54tbyvngcze2rsnt@ws.net.home>
+References: <20161012120047.60732-1-heiko.carstens@de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20161012120047.60732-1-heiko.carstens@de.ibm.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-* Karel Zak:
+On Wed, Oct 12, 2016 at 02:00:43PM +0200, Heiko Carstens wrote:
+> This small patch series adds the tools lsmem and chmem to util-linux.
 
-> I have applied patch based on libseccomp syscall filter:
->
->    https://github.com/karelzak/util-linux/commit/8e4925016875c6a4f2ab4f833ba66f0fc57396a2
->
-> it works as expected, but IMHO it's workaround for our stupid kernel...
+At first glance, it seems correct. I'm going to merge it later
+after v2.29 release. Thanks.
 
-How does this work?
+    Karel
 
-Isn't it possible to pass the descriptor to another, unrestricted
-process (perhaps spawned from cron) and then run the ioctl from there?
-
-I'd also be concerned that the seccomp filters keep stacking up if you
-do it this way.
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
