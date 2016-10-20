@@ -1,54 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:50978 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:34790 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758438AbcJZJaG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 26 Oct 2016 05:30:06 -0400
-Received: from zappa.ga.local ([87.128.112.108]) by mail.gmx.com (mrgmx103)
- with ESMTPSA (Nemesis) id 0MSMr9-1cSejD21IR-00TSq0 for
- <util-linux@vger.kernel.org>; Wed, 26 Oct 2016 11:30:00 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: Re: libfdisk show stopper on i586?
-Date: Wed, 26 Oct 2016 11:29:59 +0200
-References: <201610260000.12844.sweet_f_a@gmx.de>
-In-Reply-To: <201610260000.12844.sweet_f_a@gmx.de>
+        id S964840AbcJTPTu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 20 Oct 2016 11:19:50 -0400
+Date: Thu, 20 Oct 2016 17:19:48 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.29-rc2
+Message-ID: <20161020151948.3y47rv5lwmqppubf@ws.net.home>
+References: <20161019132505.cumn37cmgazlumcu@ws.net.home>
+ <201610201225.31755.sweet_f_a@gmx.de>
+ <20161020110003.if5kjodyjqezynzp@ws.net.home>
+ <201610201334.24945.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201610261129.59654.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201610201334.24945.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 26 October 2016, Ruediger Meier wrote:
-> Hi,
->
-> looks like some of the last commits between v2.29-rc2-1-ge5cc93b
-> and v2.29-rc2-22-g82e8dda introduced issues on some i586 systems.
->
-> For example on  Fedora 19 i586:
->
->
-> [  202.120451] systemd-coredump[8629]: Failed to send coredump: No
-> such file or directory
-> /home/abuild/rpmbuild/BUILD/util-linux-2.29.rc2-22-82e8d/tests/ts/fdi
->sk/gpt: line 37:  8615 Aborted                 (core dumped)
-> $TS_CMD_FDISK -l ${TEST_IMAGE_NAME} >> $TS_OUTPUT 2>&1
->
->         fdisk: GPT                                           ...
-> FAILED (fdisk/gpt)
+On Thu, Oct 20, 2016 at 01:34:24PM +0200, Ruediger Meier wrote:
+> For me it looks like the even the ncurses authors do not like their own 
+> pc files. Disabled by default and it's a pain to get them built with 
+> correct names and installed in the right location. Even --prefix does 
+> not work for their pc files. Plus the backward compatibility 
+> problem ... 
 
-I've run it in gdb (last "unsigned int" fixes already applied):
+OK, I have applied:
+   https://github.com/karelzak/util-linux/commit/e5cc93b5a8854fce80537f86a244977df212dcb5
 
- +Program received signal SIGABRT, Aborted.
- +0xf7d9502c in raise () from /lib/libc.so.6
- +#0  0xf7d9502c in raise () from /lib/libc.so.6
- +#1  0xf7d9670e in abort () from /lib/libc.so.6
- +#2  0xf7dd3ca8 in __libc_message () from /lib/libc.so.6
- +#3  0xf7dd9e43 in malloc_printerr () from /lib/libc.so.6
- +#4  0xf7dd9f20 in munmap_chunk () from /lib/libc.so.6
- +#5  0xf7f7cdd3 in fdisk_reset_labelitem (li=li@entry=0xffffd318) at libfdisk/src/item.c:75
- +#6  0xf7f820ef in fdisk_get_disklabel_item (cxt=cxt@entry=0x8065038, id=id@entry=0, item=item@entry=0xffffd318) at libfdisk/src/label.c:455
- +#7  0xf7f8233b in fdisk_get_disklabel_id (cxt=cxt@entry=0x8065038, id=id@entry=0xffffd38c) at libfdisk/src/label.c:427
- +#8  0x08052da8 in list_disk_geometry (cxt=cxt@entry=0x8065038) at disk-utils/fdisk-list.c:78
- +#9  0x08053dd0 in print_device_pt (cxt=0x8065038, device=0xffffd726 "<removed>", warnme=warnme@entry=1, verify=verify@entry=0) at disk-utils/fdisk-list.c:343
- +#10 0x0804dbdf in main (argc=3, argv=0xffffd4c4) at disk-utils/fdisk.c:951
+with ncurses-config and fallback to old good AC_CHECK_LIB. 
+
+We can add fallback to pkg-config too, but it sounds like overkill if
+ncurses-config is everywhere.
+
+It seems drone.io don't like the change https://drone.io/github.com/karelzak/util-linux/641
+but not sure if the problem is our build-system or drone.io.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
