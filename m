@@ -1,98 +1,67 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:53613 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753331AbcJZK2D (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 26 Oct 2016 06:28:03 -0400
+Return-Path: sweet_f_a@gmx.de
 From: Ruediger Meier <sweet_f_a@gmx.de>
 To: Karel Zak <kzak@redhat.com>
-Subject: Re: libfdisk show stopper on i586?
-Date: Wed, 26 Oct 2016 12:27:55 +0200
+Subject: Re: [ANNOUNCE] util-linux v2.29-rc2
+Date: Thu, 20 Oct 2016 12:25:31 +0200
 Cc: util-linux@vger.kernel.org
-References: <201610260000.12844.sweet_f_a@gmx.de> <201610261153.51698.sweet_f_a@gmx.de> <20161026101916.4f3d2u3xwmekfpjs@ws.net.home>
-In-Reply-To: <20161026101916.4f3d2u3xwmekfpjs@ws.net.home>
+References: <20161019132505.cumn37cmgazlumcu@ws.net.home> <201610200803.04150.sweet_f_a@gmx.de> <20161020091745.drjshipye5wwn2dv@ws.net.home>
+In-Reply-To: <20161020091745.drjshipye5wwn2dv@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <201610261227.55777.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Message-Id: <201610201225.31755.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 26 October 2016, Karel Zak wrote:
-> On Wed, Oct 26, 2016 at 11:53:51AM +0200, Ruediger Meier wrote:
-> > commit 8430b9b88426eb3c273b02a2d9505d839913317c
-> > Author: Karel Zak <kzak@redhat.com>
-> > Date:   Tue Oct 25 13:41:10 2016 +0200
+On Thursday 20 October 2016, Karel Zak wrote:
+> On Thu, Oct 20, 2016 at 08:03:03AM +0200, Ruediger Meier wrote:
+> > On Wednesday 19 October 2016, Karel Zak wrote:
+> > > The util-linux release v2.29-rc1 is available at
+> > >
+> > >   http://ftp.kernel.org/pub/linux/utils/util-linux/v2.29/
+> > >
+> > > Feedback and bug reports, as always, are welcomed.
+> > >
+> > >     Karel
 > >
-> >     libfdisk: make script token parser more robust
+> > Looks like ncurses(w) detection does not work anymore without
+> > pkgconfig files, for example on openSUSE <=13.1, SLE 12 and
+> > openSUSE Leap.
 >
-> Strange, don't see relation between the script parser and fdisk -l.
-> Do you have LIBFDISK_DEBUG output?
+> Ah, I have thought that people already use pkg-config for ncurses on
+> all current distributions. For example we have .pc for ncurses on
+> old CentOS/RHEL 6 (year 2011).
 >
->     Karel
+> I can add the fallback, but it makes configure messy. Do we really
+> need it? :-)
 
 
-[   65s] +14318: libfdisk:     INIT: library debug mask: 0xffff
-[   65s] +Available "LIBFDISK_DEBUG=<name>[,...]|<mask>" debug masks:
-[   65s] +   all      [0xffff] : info about all subsystems
-[   65s] +   ask      [0x0010] : fdisk dialogs
-[   65s] +   help     [0x0001] : this help
-[   65s] +   cxt      [0x0004] : library context (handler)
-[   65s] +   label    [0x0008] : disk label utils
-[   65s] +   part     [0x0040] : partition utils
-[   65s] +   parttype [0x0080] : partition type utils
-[   65s] +   script   [0x0200] : sfdisk-like scripts
-[   65s] +   tab      [0x0100] : table utils
-[   65s] +   wipe     [0x0400] : wipe area utils
-[   65s] +   item     [0x0400] : disklabel items
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: alloc
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: assigning device <removed>
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: *** resetting context
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: <removed>: discovering topology...
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: initialize libblkid prober
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: result: log/phy sector size: 512/512
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: result: fdisk/optimal/minimal io: 512/0/512
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: <removed>: discovering geometry...
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: total sectors: 20480 (ioctl=20480)
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: result: C/H/S: 1/255/63
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: initialize in-memory first sector buffer [sector_size=512]
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: reading: offset=0, size=512
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: probing for gpt
-[   65s] +14318: libfdisk:    LABEL: found a protective MBR
-[   65s] +14318: libfdisk:    LABEL: GPT last LBA: 20479
-[   65s] +14318: libfdisk:    LABEL: found valid GPT Header on LBA 1
-[   65s] +14318: libfdisk:    LABEL: GPT last LBA: 20479
-[   65s] +14318: libfdisk:    LABEL: found valid GPT Header on LBA 20479
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: --> switching context to gpt!
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: applying user device properties
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: resetting alignment...
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: alignment reset to: first LBA=2048, last LBA=20446, grain=1048576 [rc=0]
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: new C/H/S: 1/255/63
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: new log/phy sector size: 512/512
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: initialized for <removed> [READ-ONLY]
-[   65s] +14318: libfdisk:      ASK: [0x8834068]: alloc
-[   65s] +14318: libfdisk:      ASK: [0x8834068]: do_ask for 'info'
-[   65s] +14318: libfdisk:      ASK: [0x8834068]: do_ask done [rc=0]
-[   65s] +14318: libfdisk:      ASK: [0x8834068]: reset
-[   65s] +14318: libfdisk:      ASK: [0x8834068]: free
-[   65s] +14318: libfdisk:      ASK: [0x8834068]: alloc
-[   65s] +14318: libfdisk:      ASK: [0x8834068]: do_ask for 'info'
-[   65s] +14318: libfdisk:      ASK: [0x8834068]: do_ask done [rc=0]
-[   65s] +14318: libfdisk:      ASK: [0x8834068]: reset
-[   65s] +14318: libfdisk:      ASK: [0x8834068]: free
-[   65s] +14318: libfdisk:      ASK: [0x8834100]: alloc
-[   65s] +14318: libfdisk:      ASK: [0x8834100]: do_ask for 'info'
-[   65s] +14318: libfdisk:      ASK: [0x8834100]: do_ask done [rc=0]
-[   65s] +14318: libfdisk:      ASK: [0x8834100]: reset
-[   65s] +14318: libfdisk:      ASK: [0x8834100]: free
-[   65s] +14318: libfdisk:      ASK: [0x8834110]: alloc
-[   65s] +14318: libfdisk:      ASK: [0x8834110]: do_ask for 'info'
-[   65s] +14318: libfdisk:      ASK: [0x8834110]: do_ask done [rc=0]
-[   65s] +14318: libfdisk:      ASK: [0x8834110]: reset
-[   65s] +14318: libfdisk:      ASK: [0x8834110]: free
-[   65s] +14318: libfdisk:      ASK: [0x8834080]: alloc
-[   65s] +14318: libfdisk:      ASK: [0x8834080]: do_ask for 'info'
-[   65s] +14318: libfdisk:      ASK: [0x8834080]: do_ask done [rc=0]
-[   65s] +14318: libfdisk:      ASK: [0x8834080]: reset
-[   65s] +14318: libfdisk:      ASK: [0x8834080]: free
-[   65s] +14318: libfdisk:      CXT: [0x882d048]: asking for disk gpt ID
-[   65s] +*** Error in `/home/abuild/rpmbuild/BUILD/util-linux-2.29.rc2-22-82e8d/.libs/fdisk': munmap_chunk(): invalid pointer: 0xf7790a73 ***
+I've just checked a bit.
+
+The pkg-config files were introduced in ncurses 5.9 (2011). But they are 
+still not enabled by default. So many distros may still miss it and 
+users who install ncurses from source will probably also miss it in the 
+first run. That's a bit annoying.
+
+Actually I was not even able to figure out quickly how to install 
+ncursesw.pc. Looks like this would be needed
+
+./configure --enable-pc-files --enable-widec --enable-lib-suffixes --enable-pc-suffixes
+
+That also means that ncurses without suffix "w" may have wide char 
+support if not configured with --enable-lib-suffixes 
+and --enable-pc-suffixes. So probably our new error does not really 
+make sense: "wide-char support enabled, but non-wide ncurses selects"
+
+
+I wonder why we don't try the config scripts (--libs --cflags) in this 
+order:
+ ncursesw6-config 
+ ncurses6-config
+ ncursesw5-config
+ ncurses5-config
+
+Looks like they are always installed by default and also always with the 
+right suffixes. No fallback needed if we don't use pkg-config at all. 
+
+cu,
+Rudi
