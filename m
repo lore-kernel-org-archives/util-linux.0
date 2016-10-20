@@ -1,113 +1,100 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45063 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S941215AbcJSORp (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Wed, 19 Oct 2016 10:17:45 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.17/8.16.0.17) with SMTP id u9JAckXG028748
-        for <util-linux@vger.kernel.org>; Wed, 19 Oct 2016 06:40:41 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 26640b934r-1
-        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
-        for <util-linux@vger.kernel.org>; Wed, 19 Oct 2016 06:40:40 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <util-linux@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
-        Wed, 19 Oct 2016 11:40:38 +0100
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by d06dlp03.portsmouth.uk.ibm.com (Postfix) with ESMTP id 860E41B08069
-        for <util-linux@vger.kernel.org>; Wed, 19 Oct 2016 11:42:39 +0100 (BST)
-Received: from d06av09.portsmouth.uk.ibm.com (d06av09.portsmouth.uk.ibm.com [9.149.37.250])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id u9JAeZod19726516
-        for <util-linux@vger.kernel.org>; Wed, 19 Oct 2016 10:40:35 GMT
-Received: from d06av09.portsmouth.uk.ibm.com (localhost [127.0.0.1])
-        by d06av09.portsmouth.uk.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id u9JAeZWg017316
-        for <util-linux@vger.kernel.org>; Wed, 19 Oct 2016 04:40:35 -0600
-Date: Wed, 19 Oct 2016 12:40:33 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Subject: Re: [PATCH 3/4] chmem: new tool
-References: <20161012120047.60732-1-heiko.carstens@de.ibm.com>
- <20161012120047.60732-4-heiko.carstens@de.ibm.com>
+Received: from mout.gmx.net ([212.227.17.20]:52313 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932582AbcJTLe3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 20 Oct 2016 07:34:29 -0400
+Received: from zappa.ga.local ([87.128.112.108]) by mail.gmx.com (mrgmx101)
+ with ESMTPSA (Nemesis) id 0MTwYX-1cNtPk2zxp-00QjD0 for
+ <util-linux@vger.kernel.org>; Thu, 20 Oct 2016 13:34:25 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.29-rc2
+Date: Thu, 20 Oct 2016 13:34:24 +0200
+References: <20161019132505.cumn37cmgazlumcu@ws.net.home> <201610201225.31755.sweet_f_a@gmx.de> <20161020110003.if5kjodyjqezynzp@ws.net.home>
+In-Reply-To: <20161020110003.if5kjodyjqezynzp@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20161012120047.60732-4-heiko.carstens@de.ibm.com>
-Message-Id: <20161019104033.GG4077@osiris>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201610201334.24945.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Oct 12, 2016 at 02:00:46PM +0200, Heiko Carstens wrote:
-> Move the s390 specific chmem tool to util-linux.
-> 
-> The chmem tool was originally written in perl and is part of the
-> s390-tools package which can be found here:
-> https://www.ibm.com/developerworks/linux/linux390/s390-tools.html
-> 
-> Given that the tool is architecture independent, there is no reason to
-> keep it in an s390 specific repository. It seems to be useful for
-> other architectures as well.
-> 
-> This patch converts the tool to C and adds it to util-linux, while the
-> command line options stay compatible. The only exception is the option
-> "-v" which used to be the short form of "--version". That got changed
-> to "-V" so it behaves like most other tools contained within
-> util-linux.
-> 
-> The chmem tool can be used to set memory online or offline. This can
-> be achieved by specifying a memory range:
-> 
-> Memory Block 19 (0x0000000130000000-0x000000013fffffff) disabled
-> 
-> or by specifying a size where chmem will automatically select memory
-> blocks:
-> 
-> Memory Block 21 (0x0000000150000000-0x000000015fffffff) disable failed
-> Memory Block 18 (0x0000000120000000-0x000000012fffffff) disabled
-> Memory Block 17 (0x0000000110000000-0x000000011fffffff) disabled
-> Memory Block 16 (0x0000000100000000-0x000000010fffffff) disabled
-> Memory Block 15 (0x00000000f0000000-0x00000000ffffffff) disabled
-> 
-> or by specifying memory block numbers instead of address ranges:
-> 
-> Memory Block 15 (0x00000000f0000000-0x00000000ffffffff) disabled
-> Memory Block 16 (0x0000000100000000-0x000000010fffffff) disabled
-> Memory Block 17 (0x0000000110000000-0x000000011fffffff) disabled
-> Memory Block 18 (0x0000000120000000-0x000000012fffffff) disabled
-> 
-> This is based on a patch from Clemens von Mann.
-> 
-> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+On Thursday 20 October 2016 at 13:00, you wrote:
+> On Thu, Oct 20, 2016 at 12:25:31PM +0200, Ruediger Meier wrote:
+> > On Thursday 20 October 2016, Karel Zak wrote:
+> > > On Thu, Oct 20, 2016 at 08:03:03AM +0200, Ruediger Meier wrote:
+> > > > On Wednesday 19 October 2016, Karel Zak wrote:
+> > > > > The util-linux release v2.29-rc1 is available at
+> > > > >
+> > > > >   http://ftp.kernel.org/pub/linux/utils/util-linux/v2.29/
+> > > > >
+> > > > > Feedback and bug reports, as always, are welcomed.
+> > > > >
+> > > > >     Karel
+> > > >
+> > > > Looks like ncurses(w) detection does not work anymore without
+> > > > pkgconfig files, for example on openSUSE <=13.1, SLE 12 and
+> > > > openSUSE Leap.
+> > >
+> > > Ah, I have thought that people already use pkg-config for ncurses
+> > > on all current distributions. For example we have .pc for ncurses
+> > > on old CentOS/RHEL 6 (year 2011).
+> > >
+> > > I can add the fallback, but it makes configure messy. Do we
+> > > really need it? :-)
+> >
+> > I've just checked a bit.
+> >
+> > The pkg-config files were introduced in ncurses 5.9 (2011). But
+> > they are still not enabled by default. So many distros may still
+> > miss it and users who install ncurses from source will probably
+> > also miss it in the first run. That's a bit annoying.
+>
+> It would be probably nice to report this to Suse maintainers.
+>
+> > Actually I was not even able to figure out quickly how to install
+> > ncursesw.pc. Looks like this would be needed
+> >
+> > ./configure --enable-pc-files --enable-widec --enable-lib-suffixes
+> > --enable-pc-suffixes
+> >
+> > That also means that ncurses without suffix "w" may have wide char
+> > support if not configured with --enable-lib-suffixes
+> > and --enable-pc-suffixes. So probably our new error does not really
+> > make sense: "wide-char support enabled, but non-wide ncurses
+> > selects"
+>
+> Well, the idea is to keep it simple, "may have wide char" sounds like
+> we need compile test to be sure. That's crazy. Maybe assume that
+> "w" mean wide is good enough.
 
-I just realized that the above "examples" don't make sense, since the
-commands that were used are missing. That happened because I started the
-lines with "#", which apparently git assumed to be a comment and therefore
-ignored the lines.
+I don't think it makes sense because --with-pc-suffix is disabled by 
+default. The normal case is that ncurses.pc points to ncursesw lib.
 
-So the correct description, which contains the commands, should be:
+>
+> > I wonder why we don't try the config scripts (--libs --cflags) in
+> > this order:
+> >  ncursesw6-config
+> >  ncurses6-config
+> >  ncursesw5-config
+> >  ncurses5-config
+>
+> Parallel universe :-)
+>
+> > Looks like they are always installed by default and also always
+> > with the right suffixes. No fallback needed if we don't use
+> > pkg-config at all.
+>
+> I'll try to fix it and use pkg-config and if not available then
+> ncurses-config.  Yes, I think that prefer de-facto standard
+> pkg-config with generic PKG_* autoconf macros is a good idea.
 
-> The chmem tool can be used to set memory online or offline. This can
-> be achieved by specifying a memory range:
->
-> $ chmem -v -d 0x0000000130000000-0x000000013fffffff
-> Memory Block 19 (0x0000000130000000-0x000000013fffffff) disabled
->
-> or by specifying a size where chmem will automatically select memory
-> blocks:
->
-> $ chmem -v -d  1g
-> Memory Block 21 (0x0000000150000000-0x000000015fffffff) disable failed
-> Memory Block 18 (0x0000000120000000-0x000000012fffffff) disabled
-> Memory Block 17 (0x0000000110000000-0x000000011fffffff) disabled
-> Memory Block 16 (0x0000000100000000-0x000000010fffffff) disabled
-> Memory Block 15 (0x00000000f0000000-0x00000000ffffffff) disabled
->
-> or by specifying memory block numbers instead of address ranges:
->
-> $ chmem -v -d -b 15-18
-> Memory Block 15 (0x00000000f0000000-0x00000000ffffffff) disabled
-> Memory Block 16 (0x0000000100000000-0x000000010fffffff) disabled
-> Memory Block 17 (0x0000000110000000-0x000000011fffffff) disabled
-> Memory Block 18 (0x0000000120000000-0x000000012fffffff) disabled
+For me it looks like the even the ncurses authors do not like their own 
+pc files. Disabled by default and it's a pain to get them built with 
+correct names and installed in the right location. Even --prefix does 
+not work for their pc files. Plus the backward compatibility 
+problem ... 
 
+
+cu,
+Rudi
