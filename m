@@ -1,36 +1,25 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:60895 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751521AbcJTGDP (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 20 Oct 2016 02:03:15 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Return-Path: andersk@mit.edu
+Date: Fri, 21 Oct 2016 15:26:09 -0400 (EDT)
+From: Anders Kaseorg <andersk@mit.edu>
 To: Karel Zak <kzak@redhat.com>
-Subject: Re: [ANNOUNCE] util-linux v2.29-rc2
-Date: Thu, 20 Oct 2016 08:03:03 +0200
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-References: <20161019132505.cumn37cmgazlumcu@ws.net.home>
-In-Reply-To: <20161019132505.cumn37cmgazlumcu@ws.net.home>
+cc: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
+Subject: Re: [PATCH] getopt: Terminate long_options even if add_long_options
+ is never called
+In-Reply-To: <20161021121256.urgiwqn564hqjquw@ws.net.home>
+Message-ID: <alpine.DEB.2.10.1610211525500.43219@buzzword-bingo.mit.edu>
+References: <alpine.DEB.2.10.1610191834080.52298@buzzword-bingo.mit.edu> <20161021121256.urgiwqn564hqjquw@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201610200803.04150.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 19 October 2016, Karel Zak wrote:
-> The util-linux release v2.29-rc1 is available at
->
->   http://ftp.kernel.org/pub/linux/utils/util-linux/v2.29/
->
-> Feedback and bug reports, as always, are welcomed.
->
->     Karel
+On Fri, 21 Oct 2016, Karel Zak wrote:
+> I have applied a little bit different solution
+> https://github.com/karelzak/util-linux/commit/e1164591f7927402af8d73d340e75dbfeb06a288
+> 
+> now add_longopt(ctl, NULL, 0) always terminates the array.
+> 
+> Please, re-test it. Thanks!
 
-Looks like ncurses(w) detection does not work anymore without pkgconfig 
-files, for example on openSUSE <=13.1, SLE 12 and openSUSE Leap.
+Works for me.
 
-cu,
-Rudi 
-
-
+Anders
