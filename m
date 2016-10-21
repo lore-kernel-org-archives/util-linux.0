@@ -1,30 +1,96 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:58006 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.15]:50067 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S941906AbcJSO0m (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 19 Oct 2016 10:26:42 -0400
-Date: Wed, 19 Oct 2016 11:38:39 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: util-linux@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Subject: Re: [PATCH 0/4] New tools lsmem and chmem
-Message-ID: <20161019093839.54tbyvngcze2rsnt@ws.net.home>
-References: <20161012120047.60732-1-heiko.carstens@de.ibm.com>
+        id S934220AbcJUPDw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 21 Oct 2016 11:03:52 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [ANNOUNCE] util-linux v2.29-rc2
+Date: Fri, 21 Oct 2016 17:03:42 +0200
+Cc: util-linux@vger.kernel.org
+References: <20161019132505.cumn37cmgazlumcu@ws.net.home> <201610201908.58407.sweet_f_a@gmx.de> <20161021144422.o26grlgiop32tsep@ws.net.home>
+In-Reply-To: <20161021144422.o26grlgiop32tsep@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20161012120047.60732-1-heiko.carstens@de.ibm.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201610211703.42691.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Oct 12, 2016 at 02:00:43PM +0200, Heiko Carstens wrote:
-> This small patch series adds the tools lsmem and chmem to util-linux.
+On Friday 21 October 2016, Karel Zak wrote:
+> On Thu, Oct 20, 2016 at 07:08:58PM +0200, Ruediger Meier wrote:
+> > Just checked, v6 is even not available on the newer Ubuntu Trusty
+> > which we have on travis. But we are using v6 on OSX already :)
+> >
+> > Maybe this would be enough for now
+> >
+> > diff --git a/.travis-functions.sh b/.travis-functions.sh
+> > index 6fcf019..3766534 100755
+> > --- a/.travis-functions.sh
+> > +++ b/.travis-functions.sh
+> > @@ -95,6 +95,14 @@ function travis_install_script
+> >  		libsystemd-daemon-dev \
+> >  		libsystemd-journal-dev \
+> > +		libncursesw5-dev \
+> >
+> >  		|| true
+> >
+> >  }
+>
+> Still bad, see
+>
+>   https://drone.io/github.com/karelzak/util-linux/643:
+>
+>         /usr/bin/ld: cannot find -lncursesw
+>
+> but it complains about systemd only:
+>
+>         W: You may want to run apt-get update to correct these
+> problems E: Unable to locate package libsystemd-daemon-dev
+>         E: Unable to locate package libsystemd-journal-dev
+>
 
-At first glance, it seems correct. I'm going to merge it later
-after v2.29 release. Thanks.
+Ah sorry this was my fault because I had just edited your posted 
+diff. :)
 
-    Karel
+We need to add libncursesw5-dev to the first apt-get command. Otherwise 
+libncursesw5 fails along with the missing systemd stuff.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+        sudo apt-get install -qq >/dev/null \
+                bc \
+                btrfs-tools \
+                dnsutils \
+                libcap-ng-dev \
+ +              libncursesw5-dev \
+                libpam-dev \
+                libudev-dev \
+                gtk-doc-tools \
+                mdadm \
+                ntp \
+                socat \
+                || return
+
+        # install only if available (e.g. Ubuntu Trusty)
+        sudo apt-get install -qq >/dev/null \
+                libsystemd-daemon-dev \
+                libsystemd-journal-dev \
+                || true
+
+
+
+> and configure:
+>
+>
+>         checking ncursesw... (v5) yes
+>         checking ncursesw/ncurses.h usability... no
+>         checking ncursesw/ncurses.h presence... no
+>         checking for ncursesw/ncurses.h... no
+>         checking ncurses.h usability... yes
+>         checking ncurses.h presence... yes
+>         checking for ncurses.h... yes
+>         checking for use_default_colors in -lncursesw... no
+>         checking for resizeterm in -lncursesw... no
+>
+>   Karel
+
+
