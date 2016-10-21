@@ -1,78 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:55484 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:58818 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751581AbcJCQZm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 3 Oct 2016 12:25:42 -0400
-Date: Mon, 3 Oct 2016 18:25:40 +0200
+        id S934425AbcJUOoY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 21 Oct 2016 10:44:24 -0400
+Date: Fri, 21 Oct 2016 16:44:22 +0200
 From: Karel Zak <kzak@redhat.com>
-To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Cc: Stanislav Brabec <sbrabec@suse.cz>, util-linux@vger.kernel.org,
-        Federico Bento <up201407890@alunos.dcc.fc.up.pt>,
-        Jiri Slaby <jslaby@suse.cz>
-Subject: Re: Fixing su + runuser vulnerability CVE-2016-2779
-Message-ID: <20161003162540.ug6zoynkmgrbblsq@ws.net.home>
-References: <56D7409A.6050407@suse.cz>
- <20160307131358.kzu4qb5yu6u7fd4x@ws.net.home>
- <56DEF7A4.4090209@suse.cz>
- <20160929144015.7cij7pbva3etcqeo@ws.net.home>
- <20161003150410.asxbalgvvtc4fvhi@ws.net.home>
- <945e3ac2-6da5-fc97-abca-595d949137fa@draigBrady.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.29-rc2
+Message-ID: <20161021144422.o26grlgiop32tsep@ws.net.home>
+References: <20161019132505.cumn37cmgazlumcu@ws.net.home>
+ <201610201828.05511.sweet_f_a@gmx.de>
+ <20161020164016.olhnllmvwixbvzc4@ws.net.home>
+ <201610201908.58407.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <945e3ac2-6da5-fc97-abca-595d949137fa@draigBrady.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201610201908.58407.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Oct 03, 2016 at 04:48:56PM +0100, Pádraig Brady wrote:
-> On 03/10/16 16:04, Karel Zak wrote:
-> > On Thu, Sep 29, 2016 at 04:40:15PM +0200, Karel Zak wrote:
-> >> On Tue, Mar 08, 2016 at 05:02:44PM +0100, Stanislav Brabec wrote:
-> >>> On Mar 7, 2016 at 14:13 Karel Zak wrote:
-> >>>> On Wed, Mar 02, 2016 at 08:35:54PM +0100, Stanislav Brabec wrote:
-> >>>>> There are some controversial things with the straightforward fix:
-> >>>>>
-> >>>>> setsid() prevents TIOCSTI attack described in the report (easy to
-> >>>>> reproduce), but it has side effects: It disconnects the task from job
-> >>>>> control. With setsid(), ^Z cannot be used for sending the application
-> >>>>> to background any more (easy to reproduce by calling setsid()
-> >>>>> unconditionally in the same place).
-> >>>>>
-> >>>>> su-common.c now calls setsid() only if new session is requested.
-> >>>>
-> >>>> Yes, it's pretty stupid situation.
-> >>>>
-> >>>> We have exactly specified setsid() use-cases and now TIOCSTI ioctl
-> >>>> forces us to modify the things (and maybe introduce regressions),
-> >>>> because the crazy ioctl is not possible to disable by any another
-> >>>> way...
-> >>>
-> >>> I would like to see a kernel support for selective disabling of TIOCSTI
-> >>> without side effects like setsid() has.
-> >>>
-> >>> setsid() fallback would be used for kernels that don't support it.
-> >>>
-> >>> I am not sure, how complicated would be adding of such feature to the
-> >>> kernel.
-> >>
-> >> I have applied patch based on libseccomp syscall filter:
-> >>
-> >>    https://github.com/karelzak/util-linux/commit/8e4925016875c6a4f2ab4f833ba66f0fc57396a2
-> >>
-> >> it works as expected, but IMHO it's workaround for our stupid kernel...
-> > 
-> >  Reverted. We need something else, something better.
-> > 
-> >  I'll try to play su/runuser pty container to fix this issue, it seems
-> >  sudo also support this use-case by use_pty flag.
+On Thu, Oct 20, 2016 at 07:08:58PM +0200, Ruediger Meier wrote:
+> Just checked, v6 is even not available on the newer Ubuntu Trusty which 
+> we have on travis. But we are using v6 on OSX already :)
 > 
-> I was wondering would the secomp solution be (more) appropriate for runcon(1),
-> since that's selinux specific?
+> Maybe this would be enough for now
+> 
+> diff --git a/.travis-functions.sh b/.travis-functions.sh
+> index 6fcf019..3766534 100755
+> --- a/.travis-functions.sh
+> +++ b/.travis-functions.sh
+> @@ -95,6 +95,14 @@ function travis_install_script
+>  		libsystemd-daemon-dev \
+>  		libsystemd-journal-dev \
+> +		libncursesw5-dev \
+>  		|| true
+>  }
 
-For me seccomp is ugly solution, because it does not resolve the core
-of the issue. It's extra barrier and nothing more. It's the same like
-ignore security bugs in network daemons, because you have iptables...
+Still bad, see
 
-    Karel
+  https://drone.io/github.com/karelzak/util-linux/643:
+
+        /usr/bin/ld: cannot find -lncursesw
+
+but it complains about systemd only:
+
+        W: You may want to run apt-get update to correct these problems
+        E: Unable to locate package libsystemd-daemon-dev
+        E: Unable to locate package libsystemd-journal-dev
+   
+
+and configure:
+
+
+        checking ncursesw... (v5) yes
+        checking ncursesw/ncurses.h usability... no
+        checking ncursesw/ncurses.h presence... no
+        checking for ncursesw/ncurses.h... no
+        checking ncurses.h usability... yes
+        checking ncurses.h presence... yes
+        checking for ncurses.h... yes
+        checking for use_default_colors in -lncursesw... no
+        checking for resizeterm in -lncursesw... no
+
+  Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
