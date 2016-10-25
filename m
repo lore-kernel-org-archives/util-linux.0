@@ -1,54 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:40807 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752590AbcJESzo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 5 Oct 2016 14:55:44 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 6E233AD45
-        for <util-linux@vger.kernel.org>; Wed,  5 Oct 2016 18:55:42 +0000 (UTC)
-To: util-linux@vger.kernel.org
-From: Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH] losetup --nooverlap: fix typo
-Message-ID: <fdaaf809-fdbf-e6bf-01d6-caa96a089c0a@suse.cz>
-Date: Wed, 5 Oct 2016 20:55:42 +0200
+Received: from ishtar.tlinx.org ([173.164.175.65]:42606 "EHLO
+        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S941957AbcJYVlL (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 25 Oct 2016 17:41:11 -0400
+Message-ID: <580FC961.8060502@tlinx.org>
+Date: Tue, 25 Oct 2016 14:06:41 -0700
+From: Linda Walsh <lkml@tlinx.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+To: Ray Strode <halfline@gmail.com>
+CC: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        Ray Strode <rstrode@redhat.com>
+Subject: Re: [PATCH] login-utils: import environment from user manager on
+ systemd systems
+References: <1477427661-19788-1-git-send-email-halfline@gmail.com>
+In-Reply-To: <1477427661-19788-1-git-send-email-halfline@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Option is documented and used as --nooverlap, bud coded as --nooverlaps.
---nooverlap is considered as shortened option, making the typo
-invisible.
-
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+Ray Strode wrote:
+> From: Ray Strode <rstrode@redhat.com>
+>
+> If the user is using a systemd system, then its useful to grab the
+> environment from the systemd user manager process.
+>
+> This allows administrators to initialize the environment of the sessions
+> via systemd configuration.
+>   
 ---
- sys-utils/losetup.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+    Isn't pam_env supposed to allow setting vars in setting up
+a user's first login session?
 
-diff --git a/sys-utils/losetup.c b/sys-utils/losetup.c
-index 9083a13..215ab9c 100644
---- a/sys-utils/losetup.c
-+++ b/sys-utils/losetup.c
-@@ -579,7 +579,7 @@ int main(int argc, char **argv)
- 		{ "detach", 1, 0, 'd' },
- 		{ "detach-all", 0, 0, 'D' },
- 		{ "find", 0, 0, 'f' },
--		{ "nooverlaps", 0, 0, 'L' },
-+		{ "nooverlap", 0, 0, 'L' },
- 		{ "help", 0, 0, 'h' },
- 		{ "associated", 1, 0, 'j' },
- 		{ "json", 0, 0, 'J' },
--- 
-2.10.0
+(from /etc/security/pam_env.conf)
+# This is the configuration file for pam_env, a PAM module to load in
+# a configurable list of environment variables for an _authorized_ session.
+#
+# The original idea for this came from Andrew G. Morgan ...
+#<quote>
+#   Mmm. Perhaps you might like to write a pam_env module that reads a
+#   default environment from a file? I can see that as REALLY
+#   useful... Note it would be an "auth" module that returns PAM_IGNORE
+#   for the auth part and sets the environment returning PAM_SUCCESS in
+#   the setcred function...
+#</quote>
+#
+# What I wanted was the REMOTEHOST variable set...
 
--- 
-Best Regards / S pozdravem,
+As an aside, I use that to set my DISPLAY to the remote host on 1st login.
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+It's only available when a user is establishing a session from a
+remote system.   Calling it at other times won't have remotehost set.
+(basically values of REMOTEHOST & DISPLAY should be kept intact much like
+the TERM or LANG settigns.
+
+
+
+
+
