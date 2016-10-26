@@ -1,60 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from ishtar.tlinx.org ([173.164.175.65]:42606 "EHLO
-        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S941957AbcJYVlL (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 25 Oct 2016 17:41:11 -0400
-Message-ID: <580FC961.8060502@tlinx.org>
-Date: Tue, 25 Oct 2016 14:06:41 -0700
-From: Linda Walsh <lkml@tlinx.org>
+Received: from mout.gmx.net ([212.227.17.20]:50978 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1758438AbcJZJaG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 26 Oct 2016 05:30:06 -0400
+Received: from zappa.ga.local ([87.128.112.108]) by mail.gmx.com (mrgmx103)
+ with ESMTPSA (Nemesis) id 0MSMr9-1cSejD21IR-00TSq0 for
+ <util-linux@vger.kernel.org>; Wed, 26 Oct 2016 11:30:00 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: Re: libfdisk show stopper on i586?
+Date: Wed, 26 Oct 2016 11:29:59 +0200
+References: <201610260000.12844.sweet_f_a@gmx.de>
+In-Reply-To: <201610260000.12844.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-To: Ray Strode <halfline@gmail.com>
-CC: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>,
-        Lennart Poettering <lennart@poettering.net>,
-        Ray Strode <rstrode@redhat.com>
-Subject: Re: [PATCH] login-utils: import environment from user manager on
- systemd systems
-References: <1477427661-19788-1-git-send-email-halfline@gmail.com>
-In-Reply-To: <1477427661-19788-1-git-send-email-halfline@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201610261129.59654.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Ray Strode wrote:
-> From: Ray Strode <rstrode@redhat.com>
+On Wednesday 26 October 2016, Ruediger Meier wrote:
+> Hi,
 >
-> If the user is using a systemd system, then its useful to grab the
-> environment from the systemd user manager process.
+> looks like some of the last commits between v2.29-rc2-1-ge5cc93b
+> and v2.29-rc2-22-g82e8dda introduced issues on some i586 systems.
 >
-> This allows administrators to initialize the environment of the sessions
-> via systemd configuration.
->   
----
-    Isn't pam_env supposed to allow setting vars in setting up
-a user's first login session?
+> For example on  Fedora 19 i586:
+>
+>
+> [  202.120451] systemd-coredump[8629]: Failed to send coredump: No
+> such file or directory
+> /home/abuild/rpmbuild/BUILD/util-linux-2.29.rc2-22-82e8d/tests/ts/fdi
+>sk/gpt: line 37:  8615 Aborted                 (core dumped)
+> $TS_CMD_FDISK -l ${TEST_IMAGE_NAME} >> $TS_OUTPUT 2>&1
+>
+>         fdisk: GPT                                           ...
+> FAILED (fdisk/gpt)
 
-(from /etc/security/pam_env.conf)
-# This is the configuration file for pam_env, a PAM module to load in
-# a configurable list of environment variables for an _authorized_ session.
-#
-# The original idea for this came from Andrew G. Morgan ...
-#<quote>
-#   Mmm. Perhaps you might like to write a pam_env module that reads a
-#   default environment from a file? I can see that as REALLY
-#   useful... Note it would be an "auth" module that returns PAM_IGNORE
-#   for the auth part and sets the environment returning PAM_SUCCESS in
-#   the setcred function...
-#</quote>
-#
-# What I wanted was the REMOTEHOST variable set...
+I've run it in gdb (last "unsigned int" fixes already applied):
 
-As an aside, I use that to set my DISPLAY to the remote host on 1st login.
-
-It's only available when a user is establishing a session from a
-remote system.   Calling it at other times won't have remotehost set.
-(basically values of REMOTEHOST & DISPLAY should be kept intact much like
-the TERM or LANG settigns.
-
-
-
-
-
+ +Program received signal SIGABRT, Aborted.
+ +0xf7d9502c in raise () from /lib/libc.so.6
+ +#0  0xf7d9502c in raise () from /lib/libc.so.6
+ +#1  0xf7d9670e in abort () from /lib/libc.so.6
+ +#2  0xf7dd3ca8 in __libc_message () from /lib/libc.so.6
+ +#3  0xf7dd9e43 in malloc_printerr () from /lib/libc.so.6
+ +#4  0xf7dd9f20 in munmap_chunk () from /lib/libc.so.6
+ +#5  0xf7f7cdd3 in fdisk_reset_labelitem (li=li@entry=0xffffd318) at libfdisk/src/item.c:75
+ +#6  0xf7f820ef in fdisk_get_disklabel_item (cxt=cxt@entry=0x8065038, id=id@entry=0, item=item@entry=0xffffd318) at libfdisk/src/label.c:455
+ +#7  0xf7f8233b in fdisk_get_disklabel_id (cxt=cxt@entry=0x8065038, id=id@entry=0xffffd38c) at libfdisk/src/label.c:427
+ +#8  0x08052da8 in list_disk_geometry (cxt=cxt@entry=0x8065038) at disk-utils/fdisk-list.c:78
+ +#9  0x08053dd0 in print_device_pt (cxt=0x8065038, device=0xffffd726 "<removed>", warnme=warnme@entry=1, verify=verify@entry=0) at disk-utils/fdisk-list.c:343
+ +#10 0x0804dbdf in main (argc=3, argv=0xffffd4c4) at disk-utils/fdisk.c:951
