@@ -1,52 +1,98 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.18]:63890 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.21]:53613 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932313AbcJZOun (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 26 Oct 2016 10:50:43 -0400
-Received: from zappa.ga.local ([87.128.112.108]) by mail.gmx.com (mrgmx002)
- with ESMTPSA (Nemesis) id 0LskKv-1d1Jqe2uTJ-012Kj5 for
- <util-linux@vger.kernel.org>; Wed, 26 Oct 2016 16:50:37 +0200
+        id S1753331AbcJZK2D (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 26 Oct 2016 06:28:03 -0400
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
 Subject: Re: libfdisk show stopper on i586?
-Date: Wed, 26 Oct 2016 16:50:37 +0200
-References: <201610260000.12844.sweet_f_a@gmx.de> <201610261129.59654.sweet_f_a@gmx.de>
-In-Reply-To: <201610261129.59654.sweet_f_a@gmx.de>
+Date: Wed, 26 Oct 2016 12:27:55 +0200
+Cc: util-linux@vger.kernel.org
+References: <201610260000.12844.sweet_f_a@gmx.de> <201610261153.51698.sweet_f_a@gmx.de> <20161026101916.4f3d2u3xwmekfpjs@ws.net.home>
+In-Reply-To: <20161026101916.4f3d2u3xwmekfpjs@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <201610261650.37095.sweet_f_a@gmx.de>
+Message-Id: <201610261227.55777.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 26 October 2016, Ruediger Meier wrote:
-
-> I've run it in gdb (last "unsigned int" fixes already applied):
+On Wednesday 26 October 2016, Karel Zak wrote:
+> On Wed, Oct 26, 2016 at 11:53:51AM +0200, Ruediger Meier wrote:
+> > commit 8430b9b88426eb3c273b02a2d9505d839913317c
+> > Author: Karel Zak <kzak@redhat.com>
+> > Date:   Tue Oct 25 13:41:10 2016 +0200
+> >
+> >     libfdisk: make script token parser more robust
 >
->  +Program received signal SIGABRT, Aborted.
->  +0xf7d9502c in raise () from /lib/libc.so.6
->  +#0  0xf7d9502c in raise () from /lib/libc.so.6
->  +#1  0xf7d9670e in abort () from /lib/libc.so.6
->  +#2  0xf7dd3ca8 in __libc_message () from /lib/libc.so.6
->  +#3  0xf7dd9e43 in malloc_printerr () from /lib/libc.so.6
->  +#4  0xf7dd9f20 in munmap_chunk () from /lib/libc.so.6
->  +#5  0xf7f7cdd3 in fdisk_reset_labelitem (li=li@entry=0xffffd318) at
-> libfdisk/src/item.c:75 +#6  0xf7f820ef in fdisk_get_disklabel_item
-> (cxt=cxt@entry=0x8065038, id=id@entry=0, item=item@entry=0xffffd318)
-> at libfdisk/src/label.c:455 +#7  0xf7f8233b in fdisk_get_disklabel_id
-> (cxt=cxt@entry=0x8065038, id=id@entry=0xffffd38c) at
-> libfdisk/src/label.c:427 +#8  0x08052da8 in list_disk_geometry
-> (cxt=cxt@entry=0x8065038) at disk-utils/fdisk-list.c:78 +#9 
-> 0x08053dd0 in print_device_pt (cxt=0x8065038, device=0xffffd726
-> "<removed>", warnme=warnme@entry=1, verify=verify@entry=0) at
-> disk-utils/fdisk-list.c:343 +#10 0x0804dbdf in main (argc=3,
-> argv=0xffffd4c4) at disk-utils/fdisk.c:951 --
-> To unsubscribe from this list: send the line "unsubscribe util-linux"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Strange, don't see relation between the script parser and fdisk -l.
+> Do you have LIBFDISK_DEBUG output?
+>
+>     Karel
 
-Ok I got it. Actually my backtrace above was straight forward to debug.
-I'll send a patch.
 
-cu,
-Rudi
+[   65s] +14318: libfdisk:     INIT: library debug mask: 0xffff
+[   65s] +Available "LIBFDISK_DEBUG=<name>[,...]|<mask>" debug masks:
+[   65s] +   all      [0xffff] : info about all subsystems
+[   65s] +   ask      [0x0010] : fdisk dialogs
+[   65s] +   help     [0x0001] : this help
+[   65s] +   cxt      [0x0004] : library context (handler)
+[   65s] +   label    [0x0008] : disk label utils
+[   65s] +   part     [0x0040] : partition utils
+[   65s] +   parttype [0x0080] : partition type utils
+[   65s] +   script   [0x0200] : sfdisk-like scripts
+[   65s] +   tab      [0x0100] : table utils
+[   65s] +   wipe     [0x0400] : wipe area utils
+[   65s] +   item     [0x0400] : disklabel items
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: alloc
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: assigning device <removed>
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: *** resetting context
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: <removed>: discovering topology...
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: initialize libblkid prober
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: result: log/phy sector size: 512/512
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: result: fdisk/optimal/minimal io: 512/0/512
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: <removed>: discovering geometry...
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: total sectors: 20480 (ioctl=20480)
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: result: C/H/S: 1/255/63
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: initialize in-memory first sector buffer [sector_size=512]
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: reading: offset=0, size=512
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: probing for gpt
+[   65s] +14318: libfdisk:    LABEL: found a protective MBR
+[   65s] +14318: libfdisk:    LABEL: GPT last LBA: 20479
+[   65s] +14318: libfdisk:    LABEL: found valid GPT Header on LBA 1
+[   65s] +14318: libfdisk:    LABEL: GPT last LBA: 20479
+[   65s] +14318: libfdisk:    LABEL: found valid GPT Header on LBA 20479
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: --> switching context to gpt!
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: applying user device properties
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: resetting alignment...
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: alignment reset to: first LBA=2048, last LBA=20446, grain=1048576 [rc=0]
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: new C/H/S: 1/255/63
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: new log/phy sector size: 512/512
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: initialized for <removed> [READ-ONLY]
+[   65s] +14318: libfdisk:      ASK: [0x8834068]: alloc
+[   65s] +14318: libfdisk:      ASK: [0x8834068]: do_ask for 'info'
+[   65s] +14318: libfdisk:      ASK: [0x8834068]: do_ask done [rc=0]
+[   65s] +14318: libfdisk:      ASK: [0x8834068]: reset
+[   65s] +14318: libfdisk:      ASK: [0x8834068]: free
+[   65s] +14318: libfdisk:      ASK: [0x8834068]: alloc
+[   65s] +14318: libfdisk:      ASK: [0x8834068]: do_ask for 'info'
+[   65s] +14318: libfdisk:      ASK: [0x8834068]: do_ask done [rc=0]
+[   65s] +14318: libfdisk:      ASK: [0x8834068]: reset
+[   65s] +14318: libfdisk:      ASK: [0x8834068]: free
+[   65s] +14318: libfdisk:      ASK: [0x8834100]: alloc
+[   65s] +14318: libfdisk:      ASK: [0x8834100]: do_ask for 'info'
+[   65s] +14318: libfdisk:      ASK: [0x8834100]: do_ask done [rc=0]
+[   65s] +14318: libfdisk:      ASK: [0x8834100]: reset
+[   65s] +14318: libfdisk:      ASK: [0x8834100]: free
+[   65s] +14318: libfdisk:      ASK: [0x8834110]: alloc
+[   65s] +14318: libfdisk:      ASK: [0x8834110]: do_ask for 'info'
+[   65s] +14318: libfdisk:      ASK: [0x8834110]: do_ask done [rc=0]
+[   65s] +14318: libfdisk:      ASK: [0x8834110]: reset
+[   65s] +14318: libfdisk:      ASK: [0x8834110]: free
+[   65s] +14318: libfdisk:      ASK: [0x8834080]: alloc
+[   65s] +14318: libfdisk:      ASK: [0x8834080]: do_ask for 'info'
+[   65s] +14318: libfdisk:      ASK: [0x8834080]: do_ask done [rc=0]
+[   65s] +14318: libfdisk:      ASK: [0x8834080]: reset
+[   65s] +14318: libfdisk:      ASK: [0x8834080]: free
+[   65s] +14318: libfdisk:      CXT: [0x882d048]: asking for disk gpt ID
+[   65s] +*** Error in `/home/abuild/rpmbuild/BUILD/util-linux-2.29.rc2-22-82e8d/.libs/fdisk': munmap_chunk(): invalid pointer: 0xf7790a73 ***
