@@ -1,31 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-yb0-f179.google.com ([209.85.213.179]:40667 "EHLO
-        mail-yb0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754611AbcJXPRw (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 24 Oct 2016 11:17:52 -0400
-Received: by mail-yb0-f179.google.com with SMTP id h65so1730295ybb.7
-        for <util-linux@vger.kernel.org>; Mon, 24 Oct 2016 08:17:51 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:54224 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753971AbcJZKTS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 26 Oct 2016 06:19:18 -0400
+Date: Wed, 26 Oct 2016 12:19:16 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: libfdisk show stopper on i586?
+Message-ID: <20161026101916.4f3d2u3xwmekfpjs@ws.net.home>
+References: <201610260000.12844.sweet_f_a@gmx.de>
+ <201610261129.59654.sweet_f_a@gmx.de>
+ <201610261153.51698.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-From: "Ice \"Zack\" Azilov" <icezackazilov@gmail.com>
-Date: Mon, 24 Oct 2016 17:17:10 +0200
-Message-ID: <CAKaFfWvpZf=zqbgb8ELe7VQQ=uOUvkyHUmjDH1ut3n0T-Nnjbg@mail.gmail.com>
-Subject: Out of order disk partitions calling lsblk.
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201610261153.51698.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello o/
+On Wed, Oct 26, 2016 at 11:53:51AM +0200, Ruediger Meier wrote:
+> commit 8430b9b88426eb3c273b02a2d9505d839913317c
+> Author: Karel Zak <kzak@redhat.com>
+> Date:   Tue Oct 25 13:41:10 2016 +0200
+> 
+>     libfdisk: make script token parser more robust
 
-Recently (since 4.8 kernel), I found that lsblk doesn't show output in
-alphabetical order like it was before. The block devices doesn't
-appear to be classified by UUID or by size.
+Strange, don't see relation between the script parser and fdisk -l. Do
+you have LIBFDISK_DEBUG output?
 
-Ok, I'm not going to die for this, but I'm curious to know what causes this.
+    Karel
 
-I can use "-x NAME" option but I don't have the tree.
 
-Thank you.
-
---
-- IZA
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
