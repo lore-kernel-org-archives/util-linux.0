@@ -1,56 +1,82 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:12176 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752900AbcJTQkR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 20 Oct 2016 12:40:17 -0400
-Date: Thu, 20 Oct 2016 18:40:16 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.29-rc2
-Message-ID: <20161020164016.olhnllmvwixbvzc4@ws.net.home>
-References: <20161019132505.cumn37cmgazlumcu@ws.net.home>
- <201610201334.24945.sweet_f_a@gmx.de>
- <20161020151948.3y47rv5lwmqppubf@ws.net.home>
- <201610201828.05511.sweet_f_a@gmx.de>
+Return-Path: lkml@tlinx.org
+Message-ID: <58127756.7070409@tlinx.org>
+Date: Thu, 27 Oct 2016 14:53:26 -0700
+From: "L. Walsh" <lkml@tlinx.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201610201828.05511.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+To: Ray Strode <halfline@gmail.com>
+CC: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>,
+        Lennart Poettering <lennart@poettering.net>
+Subject: Re: [PATCH] login-utils: import environment from user manager on
+ systemd systems
+References: <1477427661-19788-1-git-send-email-halfline@gmail.com> <580FC961.8060502@tlinx.org> <CAA_UwzKqEsXDOrayqMHsLOXzB72YfNMyuWa4b0ODcbrqnGgDmw@mail.gmail.com>
+In-Reply-To: <CAA_UwzKqEsXDOrayqMHsLOXzB72YfNMyuWa4b0ODcbrqnGgDmw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Oct 20, 2016 at 06:28:05PM +0200, Ruediger Meier wrote:
-> We don't need to handle such broken installation. In drone.io script you 
-> could try
->   apt-get install -qq libncursesw5-dev
+Ray Strode wrote:
+> Hi,
+>   
+>>    Isn't pam_env supposed to allow setting vars in setting up
+>> a user's first login session?
+>>     
+> It can, but it has a few problems
+>
+> 1) the file format is kind of weird
+>   
+---
+    People looking at systemd's config files have said similar.
 
-We call travis-functions.sh from drone.io, something like:
+> 2) not all distros set user_readenv=1 so users cant set the
+> environment variables they want
+>   
+----
+    pam_env wasn't designed for reading user-set environment variables.
+Can users modify systemd config files at will?  Can't users put their
+envvars in their profiles? 
 
-diff --git a/.travis-functions.sh b/.travis-functions.sh
-index 6fcf019..3766534 100755
---- a/.travis-functions.sh
-+++ b/.travis-functions.sh
-@@ -95,6 +95,14 @@ function travis_install_script
- 		libsystemd-daemon-dev \
- 		libsystemd-journal-dev \
- 		|| true
-+
-+	# install only if available
-+	sudo apt-get install -qq >/dev/null \
-+		libncursesw6-dev \
-+		|| sudo apt-get install -qq >/dev/null \
-+			libncursesw5-dev \
-+			|| true
-+
- }
- 
- function osx_install_script
+> 3) pam_env doesn't provide a facility for 3rd party applications to
+> adjust the environment
+>   
+---
+    I wasn't aware systemd could read users' profiles.  I've seen
+many 3rd party apps add their needed env vars to the system "profile.d"
+directory (for system wide changes) and some to a user's shell if they
+were user-specific changes.
+> 4) PAM modules run in the context of a user but as root.
+----
+    Most login related and system security processes do.  They are not
+part of the kernel.  Systemd runs in a user-context as root, as well.
+Are you saying that is insecure?
 
+`   Pam_env is designed to be run before the user's first session has
+been setup and not again.  Some environment variables are meant to have
+the same lifetime as the login-(or audit) UID.  Just like TERM, any X
+programs rely on DISPLAY and those things don't change unless a
+new first-contact session is created when a user first accesses a
+secure network from an outside location. 
 
-.. I guess we prefer ncurses6. Or it's too crazy? :-)
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+> Having a
+> bunch of independent plugins all running as root, and not necessarily
+> integrating with each other is a recipe for security problems,
+> especially if you throw environment variables into the mix.
+>   
+----
+    True.  The pam modules have been vetted for about 10+ years and have 
+good
+security record, yet you seem quite willing to jump to a new solution
+without such a track record. 
+> (if pam_env is erroneously in the session stack before a pam_exec
+> call, the user could easily get root access).
+>   
+If an administrator  misconfigures ANY system security and 
+authentication modules a user could gain root access.  Pam_env was 
+designed for a
+first-contact to the system, as that's the only time 'REMOTEHOST' is set 
+(presuming the user came from another system).  Does systemd set REMOTEHOST
+and allow for a users DISPLAY variable to be defaulted to a dependent 
+setting?
+> This topic was discussed a bit in the cited systemd pull request, I think.
+>   
+----
+    how is that relevant to a util-linux list?
+-l
