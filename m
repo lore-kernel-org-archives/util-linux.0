@@ -1,90 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:41308 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751671AbcJDKdc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 4 Oct 2016 06:33:32 -0400
-Date: Tue, 4 Oct 2016 12:33:29 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Kent Overstreet <kent.overstreet@gmail.com>
-Cc: linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org,
-        Jan Kara <jack@suse.cz>
-Subject: Re: Bug with read only handling in mount
-Message-ID: <20161004103329.a6rgh2ytvivupdym@ws.net.home>
-References: <20161004074132.gnjun7jwarp2kcgr@kmo-pixel>
- <20161004082909.2ot3vujqxwskhvyr@ws.net.home>
- <20161004091823.vzp6wili7d73lyvh@kmo-pixel>
- <20161004100240.qveupljutz57ygx4@ws.net.home>
- <20161004101039.uvyygixiopqpn7m6@kmo-pixel>
+Received: from ishtar.tlinx.org ([173.164.175.65]:34588 "EHLO
+        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935217AbcJ1DOQ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 27 Oct 2016 23:14:16 -0400
+Message-ID: <5812BFD6.3050006@tlinx.org>
+Date: Thu, 27 Oct 2016 20:02:46 -0700
+From: "L. Walsh" <lkml@tlinx.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20161004101039.uvyygixiopqpn7m6@kmo-pixel>
+To: Ray Strode <halfline@gmail.com>
+CC: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>,
+        Lennart Poettering <lennart@poettering.net>,
+        Ray Strode <rstrode@redhat.com>
+Subject: Re: [PATCH] login-utils: import environment from user manager on
+ systemd systems
+References: <1477427661-19788-1-git-send-email-halfline@gmail.com>
+In-Reply-To: <1477427661-19788-1-git-send-email-halfline@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Oct 04, 2016 at 02:10:39AM -0800, Kent Overstreet wrote:
-> > with that filesystem type.
-> > 
-> > Hmm.. I will try to improve it. The problem is that mount(8) interprets 
-> > EACCES/EROFS as information about the device, then flip to RO makes sense 
-> > for all next mount(2) attempts.
-> > 
-> > > > > The end result is that if we're trying to mount by trying every filesystem type
-> > > > > (your libblkid doesn't know about your filesystem yet..), and the correct
-> > > > > filesystem was listed after iso9600 in /proc/filesystems, mount will always
-> > > > > mount RO (unless you specify the filesystem type with -t).
-> > > > 
-> > > > Not sure if I understand. Does it mean that iso9600 driver returns
-> > > > EACCES for all devices although there is no this FS on the device? Or
-> > > > your FS shares the device with iso9600?
-> > > 
-> > > Yes, iso9660 return EACCES when no iso9600 filesystem is present.
-> > 
-> > 
-> > static struct dentry *isofs_mount(struct file_system_type *fs_type,
-> >         int flags, const char *dev_name, void *data)
-> > {                                 
-> >         /* We don't support read-write mounts */
-> >         if (!(flags & MS_RDONLY)) 
-> >                 return ERR_PTR(-EACCES);
-> >         return mount_bdev(fs_type, flags, dev_name, data, isofs_fill_super);
-> > }
-> > 
-> > This is crazy... iso9600 driver starts analyze mount options although
-> > the mount request is maybe completely irrelevant for the driver and 
-> > there is no iso9600 on the device. 
-> > 
-> > If we will write FS drivers in this way then old good "try all from /{proc,etc}/filesystems"
-> > will be useless...
-> > 
-> > See another filesystems, for example ext4, first be sure there is
-> > superblock and magic string (or return EINVAL) and then try 
-> > validate mount options.
-> > 
-> > CC to Jan Kara (he did the kernel change in Jun 2013).
-> 
-> Given that the error code is coming from driver code, I think taking it to mean
-> anything about the underlying device is going to be flakey at best - we could
+Ray Strode wrote:
+> From: Ray Strode <rstrode@redhat.com>
+>
+> If the user is using a systemd system, then its useful to grab the
+> environment from the systemd user manager process.
+>   
+----
+    The other issue you don't really touch on, is why should this be hard-
+coded in various programs when this is seems exactly like why PAM was
+invented. 
 
-That's what we do in last 20 years, good to know it's wrong now.
+    I.e. why not have a PAM module, say "pam_sysd_env", that gets the
+env from the systemd user module(s), so any programs using
+PAM can include in their security/authentication stack, the same
+way pam_env might be used now (not that they are necessarily mutually
+exclusive).
 
-> fix iso9660, sure, but there's a crap ton of filesystems in the kernel and I'm
-> certainly not going to try to audit all their error paths. Even if a driver
-> waits until after it verifies its magic string before returnig an error, you
-> have cases where multiple drivers may be able to mount the filesystem or - even
-> more fun - different filesystem types may have superblocks that don't live at
-> the same offset, so the presense of ext4's magic number doesn't mean that not
-> actually a completely different filesystem type (don't laugh! I've actually been
-> bit by this).
+    One of the issues with systemd is that it is doesn't re-use
+existing interfaces, but tends to force programs to make changes to work
+with sysd, where if it used the existing interfaces, no program-specific
+changes might be required and no explicit dependencies are built in
+tools so that the same tools can be used on sysd systems, vs. non-sysd
+systems. 
 
-:-)
+    Minimizing code changes in existing, working code seems like a
+safer design decision.  It is especially true that the more code paths
+that are added to programs, the more test paths and opportunities for 
+failure
+are added.
 
-> What's wrong with just changing mount(8) to only flip to RO for further attempts
-> with that particular filesystem type?
- 
-As I said, I'll improve mount(8).
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
