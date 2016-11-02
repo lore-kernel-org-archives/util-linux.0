@@ -1,76 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:55132 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:42908 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754318AbcKQCKG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 16 Nov 2016 21:10:06 -0500
-Received: from tenfore.ga-group.nl ([77.12.158.253]) by mail.gmx.com (mrgmx102
- [212.227.17.168]) with ESMTPSA (Nemesis) id 0LgvEY-1cbbXZ3zaY-00oDbw for
- <util-linux@vger.kernel.org>; Thu, 17 Nov 2016 03:10:04 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 5/5] build-sys: fix "remove the g in git describe"
-Date: Thu, 17 Nov 2016 03:10:02 +0100
-Message-Id: <1479348602-31744-5-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1479348602-31744-1-git-send-email-sweet_f_a@gmx.de>
-References: <1479348602-31744-1-git-send-email-sweet_f_a@gmx.de>
+        id S1752441AbcKBMaG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 2 Nov 2016 08:30:06 -0400
+Date: Wed, 2 Nov 2016 13:30:04 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux@vger.kernel.org,
+        Mike Frysinger <vapier@gentoo.org>
+Subject: Re: lscpu VMWARE bdoor patch
+Message-ID: <20161102123004.nclgs4hdnccmjzma@ws.net.home>
+References: <20161027102515.qw47rdgn72qingfi@ws.net.home>
+ <201610280006.36584.sweet_f_a@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201610280006.36584.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Fri, Oct 28, 2016 at 12:06:36AM +0200, Ruediger Meier wrote:
+> On Thursday 27 October 2016, Karel Zak wrote:
+> > Hi,
+> >
+> > this is lscpu output on my machine:
+> >
+> >     Virtualization:        VT-x
+> >     Hypervisor vendor:     VMware
+> >     Virtualization type:   full
+> >
+> >
+> > I have nothing like VMWARE. It seem the code (commit b7744730) does
+> > not work as expected for non-root users. What about to add
+> 
+> Have you checked whether the original code in b7744730 is alreaday 
+> broken? Not something about the later PIC/PIE patches?
 
-The "g" was not always removed and "-rc*" follow-ups were handled
-incorrectly.
+It's Mike's PIC/PIE patch :-(
 
-So now after last commits we have these versions:
+Maybe we can ifdef more precise and add getuid() check, if I good
+understand Mike's commit message then the problem is 32bit system.
 
- git describe            -> blkid -V
- --------------------------------------------------------------
- v2.29-rc4               -> 2.29-rc4          (libblkid 2.29.0)
- v2.29-rc4-3-g4c8928d    -> 2.29-rc4-3-4c89   (libblkid 2.29.0)
+> What system are you using?
 
- v2.29                   -> 2.29              (libblkid 2.29.0)
- v2.29-78-g4c8928d       -> 2.29.78-4c89      (libblkid 2.29.78)
+Fedora 24
 
- v2.29.1                 -> 2.29.1            (libblkid 2.29.1)
- v2.29.1-4-g4c8928d      -> 2.29.1.4-4c89     (libblkid 2.29.1)
+# uname -a
+Linux ws 4.7.7-200.fc24.x86_64 #1 SMP Sat Oct 8 00:21:59 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
 
- v2.29.1-rc2             -> 2.29.1-rc2        (libblkid 2.29.1)
- v2.29.1-rc2-3-g4c8928d  -> 2.29.1-rc2-3-4c89 (libblkid 2.29.1)
+> >     if (getuid() != 0)
+> >         return 0;
+> >
+> > to the is_vmware_platform() function?
+> >
+> >     Karel
+> 
+> Yes, if it's broken for a "normal" system then we have to remove that. 
+> Though would be nice to know what exactly made it stop working.
+> 
+> BTW this code is also in the kernel:
+>    arch/x86/kernel/cpu/vmware.c
+> 
+> Can't we ask the kernel about vmware somehow?
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- tools/git-version-gen | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+There is something for 390 and Xen, but I don't see in kernel code
+hypervisor_kobj (or something else) for VMware.
 
-diff --git a/tools/git-version-gen b/tools/git-version-gen
-index 3e431ef..e7249f9 100755
---- a/tools/git-version-gen
-+++ b/tools/git-version-gen
-@@ -112,16 +112,16 @@ elif test "`git log -1 --pretty=format:x . 2>&1`" = x \
-        esac
- then
- 
-+    # Remove the "g" in git describe's output string, to save a byte.
-+    v=${v/-g/-}
-+
-     case $v in
--        *-rc[0-9])
--	    # Remove the "g" in git describe's output string, to save a byte.
--            v=`echo "$v" | sed 's/\(.*\)-g/\1-/'`;     
--	    ;;
-+        *-rc*)
-+            ;;
-         *)
--	    # Change the first '-' to a '.', so version-comparing tools work properly.
--	    # Remove the "g" in git describe's output string, to save a byte.
--	    v=`echo "$v" | sed 's/-/./;s/\(.*\)-g/\1-/'`;
--	    ;;
-+            # Change the first '-' to a '.', so version-comparing tools work properly.
-+            v=`echo "$v" | sed 's/-/./'`;
-+            ;;
-     esac
-     v_from_git=1
- else
+    Karel
+
+
 -- 
-1.8.5.6
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
