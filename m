@@ -1,101 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:61359 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754198AbcK3SaC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 30 Nov 2016 13:30:02 -0500
-Subject: Re: [PATCH 2/2] misc: fix typos using codespell
-To: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
-References: <1480515830-1408-1-git-send-email-sweet_f_a@gmx.de>
- <1480515830-1408-2-git-send-email-sweet_f_a@gmx.de>
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <6c0ee586-0d6f-8408-2669-2838b6987022@gmx.com>
-Date: Wed, 30 Nov 2016 13:29:47 -0500
+Received: from mout.kundenserver.de ([212.227.126.134]:49347 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932875AbcKBWLt (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 2 Nov 2016 18:11:49 -0400
+Subject: Re: [PATCH] tests: wait for flock background process
+To: Karel Zak <kzak@redhat.com>, Ruediger Meier <sweet_f_a@gmx.de>
+References: <1478097115-3203-1-git-send-email-sweet_f_a@gmx.de>
+ <20161102155151.ode6abioi7kcvksq@ws.net.home>
+Cc: util-linux@vger.kernel.org
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Message-ID: <13b5d77f-87e6-3303-bb5d-e311cb303cfd@bernhard-voelker.de>
+Date: Wed, 2 Nov 2016 23:11:42 +0100
 MIME-Version: 1.0
-In-Reply-To: <1480515830-1408-2-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <20161102155151.ode6abioi7kcvksq@ws.net.home>
 Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On 11/02/2016 04:51 PM, Karel Zak wrote:
+>> +timeout 1s bash -c "while [ \$(ps --ppid $pid |wc -l) -lt 2 ]; do sleep 0.1 ;done" \
+>
+> is "0.1" portable? :-)
 
+if one has timeout from coreutils, then it's likely that she also has sleep
+from there.  Thus said, I'd rather worry about portability of using timeout
+rather than the "0.1" (if sleep fails, then nobody will care anyway). ;-)
 
-On 11/30/2016 09:23 AM, Ruediger Meier wrote:
-> From: Ruediger Meier <ruediger.meier@ga-group.nl>
-> 
->  # command used was:
->  $ ~/src/codespell/codespell \
->    -w -D /home/rudi/src/codespell/build/lib/codespell_lib/data/dictionary.txt \
->    $(git ls-files | grep -v "^po/\|\.xz$\|\.gz$\|\.bz2$\|\.img$\|^Documentation/releases/")
-> 
-> Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
-> ---
->  libsmartcols/src/table.c       | 4 ++--
->  libsmartcols/src/table_print.c | 2 +-
->  misc-utils/cal.c               | 2 +-
->  sys-utils/lsmem.1              | 2 +-
->  4 files changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/libsmartcols/src/table.c b/libsmartcols/src/table.c
-> index 5a6318d..68f570d 100644
-> --- a/libsmartcols/src/table.c
-> +++ b/libsmartcols/src/table.c
-> @@ -737,7 +737,7 @@ int scols_table_set_default_symbols(struct libscols_table *tb)
->   * draw tree output. If no symbols are used for the table then library creates
->   * default temporary symbols to draw output by scols_table_set_default_symbols().
->   *
-> - * If @sy is NULL then remove reference from the currenly uses symbols.
-> + * If @sy is NULL then remove reference from the currently used symbols.
->   *
->   * Returns: 0, a negative value in case of an error.
->   */
-> @@ -749,7 +749,7 @@ int scols_table_set_symbols(struct libscols_table *tb,
->  
->  	/* remove old */
->  	if (tb->symbols) {
-> -		DBG(TAB, ul_debugobj(tb, "remove symbols %p refrence", tb->symbols));
-> +		DBG(TAB, ul_debugobj(tb, "remove symbols %p reference", tb->symbols));
->  		scols_unref_symbols(tb->symbols);
->  		tb->symbols = NULL;
->  	}
-> diff --git a/libsmartcols/src/table_print.c b/libsmartcols/src/table_print.c
-> index c73154e..8c1c400 100644
-> --- a/libsmartcols/src/table_print.c
-> +++ b/libsmartcols/src/table_print.c
-> @@ -1471,7 +1471,7 @@ done:
->  /**
->   * scols_table_print_range_to_string:
->   * @tb: table
-> - * @start: first printed line or NULL to print from the beggin of the table
-> + * @start: first printed line or NULL to print from the begin of the table
-
-s/begin/beginning/
-
->   * @end: last printed line or NULL to print all from start.
->   * @data: pointer to the beginning of a memory area to print to
->   *
-> diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-> index 5e7b356..0e2f0d4 100644
-> --- a/misc-utils/cal.c
-> +++ b/misc-utils/cal.c
-> @@ -206,7 +206,7 @@ struct cal_control {
->  	const char *abbr_month[MONTHS_IN_YEAR];	/* abbreviated month names */
->  
->  	int colormode;			/* day and week number highlight */
-> -	int num_months;			/* number of requested monts */
-> +	int num_months;			/* number of requested months */
->  	int span_months;		/* span the date */
->  	int months_in_row;		/* number of months horizontally in print out */
->  	int weekstart;			/* day the week starts, often Sun or Mon */
-> diff --git a/sys-utils/lsmem.1 b/sys-utils/lsmem.1
-> index a9e2bfc..dc34847 100644
-> --- a/sys-utils/lsmem.1
-> +++ b/sys-utils/lsmem.1
-> @@ -18,7 +18,7 @@ together with a columns list in environments where a stable output is required.
->  Not all columns are supported on all systems.  If an unsupported column is
->  specified, \fBlsmem\fP prints the column but does not provide any data for it.
->  
-> -Use the \fB\-\-help\fR option to see the columns desription.
-> +Use the \fB\-\-help\fR option to see the columns description.
->  
->  .SH OPTIONS
->  .TP
-> 
+Have a nice day,
+Berny
