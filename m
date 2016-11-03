@@ -1,51 +1,76 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.18]:55934 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.15.18]:53296 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S941788AbcKQKoY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 17 Nov 2016 05:44:24 -0500
+        id S1751671AbcKCHFN (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 3 Nov 2016 03:05:13 -0400
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Subject: Re: [PATCH 4/5] build-sys: remove old git fallback from git-version-gen
-Date: Thu, 17 Nov 2016 11:44:19 +0100
-Cc: util-linux@vger.kernel.org
-References: <1479348602-31744-1-git-send-email-sweet_f_a@gmx.de> <1479348602-31744-4-git-send-email-sweet_f_a@gmx.de> <43681c47-6153-3100-7582-c41e7ea89d7e@bernhard-voelker.de>
-In-Reply-To: <43681c47-6153-3100-7582-c41e7ea89d7e@bernhard-voelker.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: lscpu VMWARE bdoor patch
+Date: Thu, 3 Nov 2016 09:04:42 +0200
+Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux@vger.kernel.org,
+        Mike Frysinger <vapier@gentoo.org>
+References: <20161027102515.qw47rdgn72qingfi@ws.net.home> <201610280006.36584.sweet_f_a@gmx.de> <20161102123004.nclgs4hdnccmjzma@ws.net.home>
+In-Reply-To: <20161102123004.nclgs4hdnccmjzma@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="windows-1252"
-Message-Id: <201611171144.19782.sweet_f_a@gmx.de>
+  charset="iso-8859-1"
+Message-Id: <201611030804.43544.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 17 November 2016, Bernhard Voelker wrote:
-> On 11/17/2016 03:10 AM, Ruediger Meier wrote:
-> > Just make the script more readable. Nobody is using 10 years old
-> > git.
+On Wednesday 02 November 2016, Karel Zak wrote:
+> On Fri, Oct 28, 2016 at 12:06:36AM +0200, Ruediger Meier wrote:
+> > On Thursday 27 October 2016, Karel Zak wrote:
+> > > Hi,
+> > >
+> > > this is lscpu output on my machine:
+> > >
+> > >     Virtualization:        VT-x
+> > >     Hypervisor vendor:     VMware
+> > >     Virtualization type:   full
+> > >
+> > >
+> > > I have nothing like VMWARE. It seem the code (commit b7744730)
+> > > does not work as expected for non-root users. What about to add
 > >
-> > Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
-> > ---
-> >  tools/git-version-gen | 21 ---------------------
-> >  1 file changed, 21 deletions(-)
+> > Have you checked whether the original code in b7744730 is alreaday
+> > broken? Not something about the later PIC/PIE patches?
 >
-> Is there any particular reason not to sync from latest
-> upstream (again)?
+> It's Mike's PIC/PIE patch :-(
 >
-> http://g.sv.gnu.org/cgit/gnulib.git/tree/build-aux/git-version-gen
+> Maybe we can ifdef more precise and add getuid() check, if I good
+> understand Mike's commit message then the problem is 32bit system.
 
-I only want to fix some cosmetical issues regarding our version numbers. 
-Don't want to risk making things worse. This particulary removed 
-fallback was probably never used in UL and probably broken since we've 
-added our special "-rc* handling.
+BTW vmware runs on 64bit only since a few years. Maybe just disable 
+bdoor for 32bit if it helps to make it simple.
 
-Regarding gnulib upstream, IMO their git-version-gen is overengineered 
-and too complicated. We don't need any of the new 
-options --prefix, --fallback, --help or --version.
+> > What system are you using?
+>
+> Fedora 24
+>
+> # uname -a
+> Linux ws 4.7.7-200.fc24.x86_64 #1 SMP Sat Oct 8 00:21:59 UTC 2016
+> x86_64 x86_64 x86_64 GNU/Linux
+>
+> > >     if (getuid() != 0)
+> > >         return 0;
+> > >
+> > > to the is_vmware_platform() function?
+> > >
+> > >     Karel
+> >
+> > Yes, if it's broken for a "normal" system then we have to remove
+> > that. Though would be nice to know what exactly made it stop
+> > working.
+> >
+> > BTW this code is also in the kernel:
+> >    arch/x86/kernel/cpu/vmware.c
+> >
+> > Can't we ask the kernel about vmware somehow?
+>
+> There is something for 390 and Xen, but I don't see in kernel code
+> hypervisor_kobj (or something else) for VMware.
+>
+>     Karel
 
-BTW the real upstream would be
-https://github.com/git/git/blob/master/GIT-VERSION-GEN
-which is simple to understand and easy to add small project-specific 
-changes.
 
-
-cu,
-Rudi
