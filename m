@@ -1,85 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.parknet.co.jp ([210.171.160.6]:46953 "EHLO
-        mail.parknet.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752820AbcKSPFq (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 19 Nov 2016 10:05:46 -0500
-Received: from ibmpc.myhome.or.jp (server.parknet.ne.jp [210.171.168.39])
-        by mail.parknet.co.jp (Postfix) with ESMTP id A5EB4170001
-        for <util-linux@vger.kernel.org>; Sat, 19 Nov 2016 23:38:09 +0900 (JST)
-Received: from devron.myhome.or.jp (root@devron.myhome.or.jp [192.168.0.3])
-        by ibmpc.myhome.or.jp (8.15.2/8.15.2/Debian-6) with ESMTPS id uAJEc8aD005908
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <util-linux@vger.kernel.org>; Sat, 19 Nov 2016 23:38:09 +0900
-Received: from devron.myhome.or.jp (hirofumi@localhost [127.0.0.1])
-        by devron.myhome.or.jp (8.15.2/8.15.2/Debian-6) with ESMTPS id uAJEc8Id013773
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <util-linux@vger.kernel.org>; Sat, 19 Nov 2016 23:38:08 +0900
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] lsns: Fix parser for /proc/<pid>/stat which is including space in comm
-Date: Sat, 19 Nov 2016 23:38:08 +0900
-Message-ID: <87a8cvk01b.fsf@mail.parknet.co.jp>
+Received: from mx1.redhat.com ([209.132.183.28]:42112 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752466AbcKCJly (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 3 Nov 2016 05:41:54 -0400
+Date: Thu, 3 Nov 2016 10:41:52 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux@vger.kernel.org,
+        Mike Frysinger <vapier@gentoo.org>
+Subject: Re: lscpu VMWARE bdoor patch
+Message-ID: <20161103094151.zufg6x2i3dth6nhe@ws.net.home>
+References: <20161027102515.qw47rdgn72qingfi@ws.net.home>
+ <201610280006.36584.sweet_f_a@gmx.de>
+ <20161102123004.nclgs4hdnccmjzma@ws.net.home>
+ <201611030804.43544.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201611030804.43544.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Thu, Nov 03, 2016 at 09:04:42AM +0200, Ruediger Meier wrote:
+> On Wednesday 02 November 2016, Karel Zak wrote:
+> > On Fri, Oct 28, 2016 at 12:06:36AM +0200, Ruediger Meier wrote:
+> > > On Thursday 27 October 2016, Karel Zak wrote:
+> > > > Hi,
+> > > >
+> > > > this is lscpu output on my machine:
+> > > >
+> > > >     Virtualization:        VT-x
+> > > >     Hypervisor vendor:     VMware
+> > > >     Virtualization type:   full
+> > > >
+> > > >
+> > > > I have nothing like VMWARE. It seem the code (commit b7744730)
+> > > > does not work as expected for non-root users. What about to add
+> > >
+> > > Have you checked whether the original code in b7744730 is alreaday
+> > > broken? Not something about the later PIC/PIE patches?
+> >
+> > It's Mike's PIC/PIE patch :-(
+> >
+> > Maybe we can ifdef more precise and add getuid() check, if I good
+> > understand Mike's commit message then the problem is 32bit system.
+> 
+> BTW vmware runs on 64bit only since a few years. Maybe just disable 
+> bdoor for 32bit if it helps to make it simple.
 
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
----
+but you can use 32bit system (guest) inside vmware. 
 
- sys-utils/lsns.c |   30 ++++++++++++++++++++++++++----
- 1 file changed, 26 insertions(+), 4 deletions(-)
+I'll will add getuid() for now. Maybe someone (Mike?:-) will help us
+with a better solution later.
 
-diff -puN sys-utils/lsns.c~fix-stat-parse sys-utils/lsns.c
---- util-linux/sys-utils/lsns.c~fix-stat-parse	2016-11-19 22:49:35.287971970 +0900
-+++ util-linux-hirofumi/sys-utils/lsns.c	2016-11-19 23:14:35.996917806 +0900
-@@ -217,6 +217,30 @@ static int get_ns_ino(int dir, const cha
- 	return 0;
- }
- 
-+static int parse_proc_stat(FILE *fp, pid_t *pid, char *state, pid_t *ppid)
-+{
-+	char *line = NULL, *p;
-+	size_t len = 0;
-+	int rc;
-+
-+	if (getline(&line, &len, fp) < 0) {
-+		rc = -errno;
-+		goto error;
-+	}
-+
-+	p = strrchr(line, ')');
-+	if (p == NULL ||
-+	    sscanf(line, "%d (", pid) != 1 ||
-+	    sscanf(p, ") %c %d*[^\n]", state, ppid) != 2) {
-+		rc = -EINVAL;
-+		goto error;
-+	}
-+	rc = 0;
-+
-+error:
-+	free(line);
-+	return rc;
-+}
- 
- static int read_process(struct lsns *ls, pid_t pid)
- {
-@@ -255,11 +279,9 @@ static int read_process(struct lsns *ls,
- 		rc = -errno;
- 		goto done;
- 	}
--	rc = fscanf(f, "%d %*s %c %d*[^\n]", &p->pid, &p->state, &p->ppid);
--	if (rc != 3) {
--		rc = rc < 0 ? -errno : -EINVAL;
-+	rc = parse_proc_stat(f, &p->pid, &p->state, &p->ppid);
-+	if (rc < 0)
- 		goto done;
--	}
- 	rc = 0;
- 
- 	for (i = 0; i < ARRAY_SIZE(p->ns_ids); i++) {
-_
+    Karel
 
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
