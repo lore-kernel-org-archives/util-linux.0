@@ -1,116 +1,165 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:49661 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751414AbcK3VzZ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Wed, 30 Nov 2016 16:55:25 -0500
-Subject: Re: [PATCH 1/2] misc: spelling, always use "cannot" instead of "can
- not"
-To: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
-References: <1480515830-1408-1-git-send-email-sweet_f_a@gmx.de>
-From: Tilman Schmidt <tilman@imap.cc>
-Message-ID: <69f6d109-9399-5b36-73cb-a27c82a30110@imap.cc>
-Date: Wed, 30 Nov 2016 22:55:22 +0100
-MIME-Version: 1.0
-In-Reply-To: <1480515830-1408-1-git-send-email-sweet_f_a@gmx.de>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="OlK0sUcR3EHqHQO4B59UUpUEHVILE3pP3"
+Received: from mout.gmx.net ([212.227.17.21]:65072 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754771AbcKEPIP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sat, 5 Nov 2016 11:08:15 -0400
+Received: from tenfore.ga-group.nl ([77.12.203.210]) by mail.gmx.com
+ (mrgmx102) with ESMTPSA (Nemesis) id 0LbgyV-1ciwyd0OcN-00lBbt for
+ <util-linux@vger.kernel.org>; Sat, 05 Nov 2016 16:08:12 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 3/3] tests: always quote $LODEV
+Date: Sat,  5 Nov 2016 16:08:09 +0100
+Message-Id: <1478358489-18103-3-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1478358489-18103-1-git-send-email-sweet_f_a@gmx.de>
+References: <1478358489-18103-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---OlK0sUcR3EHqHQO4B59UUpUEHVILE3pP3
-Content-Type: multipart/mixed; boundary="BE1WmCrh3qRL3ivFROlm4PVeK3h3TLx3j";
- protected-headers="v1"
-From: Tilman Schmidt <tilman@imap.cc>
-To: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
-Message-ID: <69f6d109-9399-5b36-73cb-a27c82a30110@imap.cc>
-Subject: Re: [PATCH 1/2] misc: spelling, always use "cannot" instead of "can
- not"
-References: <1480515830-1408-1-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1480515830-1408-1-git-send-email-sweet_f_a@gmx.de>
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
---BE1WmCrh3qRL3ivFROlm4PVeK3h3TLx3j
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+Since there is no error handling in this test $LODEV
+may be empty.
 
-Am 30.11.2016 um 15:23 schrieb Ruediger Meier:
-[...]
-> diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
-> index 1c4313a..a44216b 100644
-> --- a/login-utils/sulogin.c
-> +++ b/login-utils/sulogin.c
-> @@ -1012,7 +1012,7 @@ int main(int argc, char **argv)
->  				mask_signal(SIGINT,  SIG_IGN, &saved_sigint);
-> =20
->  				if (failed) {
-> -					fprintf(stderr, _("Can not execute su shell\n\n"));
-> +					fprintf(stderr, _("cannot execute su shell\n\n"));
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ tests/ts/losetup/losetup-loop | 46 +++++++++++++++++++++----------------------
+ 1 file changed, 23 insertions(+), 23 deletions(-)
 
-Might be better to preserve capitalization here.
+diff --git a/tests/ts/losetup/losetup-loop b/tests/ts/losetup/losetup-loop
+index cff12c9..13ccc65 100755
+--- a/tests/ts/losetup/losetup-loop
++++ b/tests/ts/losetup/losetup-loop
+@@ -42,15 +42,15 @@ BACKFILE="$TS_DEVICE"
+ 
+ ts_init_subtest "find-race-condition"
+ LODEV=$( $TS_CMD_LOSETUP --find --nooverlap --show $BACKFILE )
+-$TS_CMD_LOSETUP -d $LODEV
++$TS_CMD_LOSETUP -d "$LODEV"
+ # The loop device may or may not exist here because no "udevadm settle".
+ LODEV=$( $TS_CMD_LOSETUP --find --nooverlap --show $BACKFILE )
+ udevadm settle
+-dd if=/dev/zero of=$LODEV count=1 bs=1 >/dev/null 2>&1
+-$TS_CMD_LOSETUP --list | grep -q $LODEV
++dd if=/dev/zero of="$LODEV" count=1 bs=1 >/dev/null 2>&1
++$TS_CMD_LOSETUP --list | grep -q "$LODEV"
+ ts_log $?
+ udevadm settle
+-$TS_CMD_LOSETUP -d $LODEV >/dev/null 2>&1
++$TS_CMD_LOSETUP -d "$LODEV" >/dev/null 2>&1
+ ts_log "Success"
+ ts_finalize_subtest
+ 
+@@ -71,10 +71,10 @@ if test "$LODEV" = "$LODEVR" ; then
+ else
+ 	echo "different" >>$TS_OUTPUT
+ 	if test -n "$LODEVR" ; then
+-		$TS_CMD_LOSETUP -d $LODEVR
++		$TS_CMD_LOSETUP -d "$LODEVR"
+ 	fi
+ fi
+-$TS_CMD_LOSETUP -d $LODEV
++$TS_CMD_LOSETUP -d "$LODEV"
+ ts_log "Success"
+ ts_finalize_subtest
+ 
+@@ -95,10 +95,10 @@ if test "$LODEV" = "$LODEVR" ; then
+ else
+ 	echo "different" >>$TS_OUTPUT
+ 	if test -n "$LODEVR" ; then
+-		$TS_CMD_LOSETUP -d $LODEVR
++		$TS_CMD_LOSETUP -d "$LODEVR"
+ 	fi
+ fi
+-$TS_CMD_LOSETUP -d $LODEV
++$TS_CMD_LOSETUP -d "$LODEV"
+ ts_log "Success"
+ ts_finalize_subtest
+ 
+@@ -119,10 +119,10 @@ if test "$LODEV" = "$LODEVR" ; then
+ else
+ 	echo "different" >>$TS_OUTPUT
+ 	if test -n "$LODEVR" ; then
+-		$TS_CMD_LOSETUP -d $LODEVR
++		$TS_CMD_LOSETUP -d "$LODEVR"
+ 	fi
+ fi
+-$TS_CMD_LOSETUP -d $LODEV
++$TS_CMD_LOSETUP -d "$LODEV"
+ ts_log "Success"
+ ts_finalize_subtest
+ 
+@@ -143,10 +143,10 @@ if test "$LODEV" = "$LODEVR" ; then
+ else
+ 	echo "different" >>$TS_OUTPUT
+ 	if test -n "$LODEVR" ; then
+-		$TS_CMD_LOSETUP -d $LODEVR
++		$TS_CMD_LOSETUP -d "$LODEVR"
+ 	fi
+ fi
+-$TS_CMD_LOSETUP -d $LODEV
++$TS_CMD_LOSETUP -d "$LODEV"
+ ts_log "Success"
+ ts_finalize_subtest
+ 
+@@ -167,11 +167,11 @@ if test "$LODEV" = "$LODEVR" ; then
+ else
+ 	echo "different" >>$TS_OUTPUT
+ 	if test -n "$LODEVR" ; then
+-		$TS_CMD_LOSETUP -d $LODEVR
++		$TS_CMD_LOSETUP -d "$LODEVR"
+ 	fi
+ fi
+-$TS_CMD_LOSETUP -d $LODEV
+-$TS_CMD_LOSETUP -d $LODEVR >/dev/null 2>&1
++$TS_CMD_LOSETUP -d "$LODEV"
++$TS_CMD_LOSETUP -d "$LODEVR" >/dev/null 2>&1
+ ts_log "Success"
+ ts_finalize_subtest
+ 
+@@ -192,10 +192,10 @@ if test "$LODEV" = "$LODEVR" ; then
+ else
+ 	echo "different" >>$TS_OUTPUT
+ 	if test -n "$LODEVR" ; then
+-		$TS_CMD_LOSETUP -d $LODEVR
++		$TS_CMD_LOSETUP -d "$LODEVR"
+ 	fi
+ fi
+-$TS_CMD_LOSETUP -d $LODEV
++$TS_CMD_LOSETUP -d "$LODEV"
+ ts_log "Success"
+ ts_finalize_subtest
+ 
+@@ -207,11 +207,11 @@ if [ -z "$LODEV" ]; then
+ 	ts_log "Failed to create loop device"
+ fi
+ LODEVR=$( $TS_CMD_LOSETUP --find )
+-$TS_CMD_LOSETUP --nooverlap $LODEVR $BACKFILE >/dev/null 2>&1
++$TS_CMD_LOSETUP --nooverlap "$LODEVR" $BACKFILE >/dev/null 2>&1
+ ts_log $?
+ udevadm settle
+-$TS_CMD_LOSETUP -d $LODEV
+-$TS_CMD_LOSETUP -d $LODEVR >/dev/null 2>&1
++$TS_CMD_LOSETUP -d "$LODEV"
++$TS_CMD_LOSETUP -d "$LODEVR" >/dev/null 2>&1
+ ts_log "Success"
+ ts_finalize_subtest
+ 
+@@ -223,11 +223,11 @@ if [ -z "$LODEV" ]; then
+ 	ts_log "Failed to create loop device"
+ fi
+ LODEVR=$( $TS_CMD_LOSETUP --find )
+-$TS_CMD_LOSETUP --nooverlap $LODEVR $BACKFILE >/dev/null 2>&1
++$TS_CMD_LOSETUP --nooverlap "$LODEVR" $BACKFILE >/dev/null 2>&1
+ ts_log $?
+ udevadm settle
+-$TS_CMD_LOSETUP -d $LODEV
+-$TS_CMD_LOSETUP -d $LODEVR >/dev/null 2>&1
++$TS_CMD_LOSETUP -d "$LODEV"
++$TS_CMD_LOSETUP -d "$LODEVR" >/dev/null 2>&1
+ ts_log "Success"
+ ts_finalize_subtest
+ 
+-- 
+1.8.5.6
 
->  					break;
->  				}
->  				fprintf(stderr, _("Login incorrect\n\n"));
-> @@ -1051,7 +1051,7 @@ int main(int argc, char **argv)
->  				continue;
->  		}
-> =20
-> -		errx(EXIT_FAILURE, _("Can not wait on su shell\n\n"));
-> +		errx(EXIT_FAILURE, _("cannot wait on su shell\n\n"));
-
-And here.
-
-> =20
->  	} while (1);
-> =20
-[...]
-> diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-> index bd702b0..e3e6ff6 100644
-> --- a/sys-utils/lscpu.c
-> +++ b/sys-utils/lscpu.c
-> @@ -886,12 +886,12 @@ is_vmware_platform(void)
->  	act.sa_flags =3D SA_SIGINFO;
-> =20
->  	if (sigaction(SIGSEGV, &act, &oact))
-> -		err(EXIT_FAILURE, _("error: can not set signal handler"));
-> +		err(EXIT_FAILURE, _("cannot set signal handler"));
-> =20
->  	vmware_bdoor(&eax, &ebx, &ecx, &edx);
-> =20
->  	if (sigaction(SIGSEGV, &oact, NULL))
-> -		err(EXIT_FAILURE, _("error: can not restore signal handler"));
-> +		err(EXIT_FAILURE, _("cannot restore signal handler"));
-
-Why drop the prefix "error: " in these two instances?
-
-Thanks,
-Tilman
-
---=20
-Tilman Schmidt                              E-Mail: tilman@imap.cc
-Bonn, Germany
-Nous, on a des fleurs et des bougies pour nous prot=E9ger.
-
-
---BE1WmCrh3qRL3ivFROlm4PVeK3h3TLx3j--
-
---OlK0sUcR3EHqHQO4B59UUpUEHVILE3pP3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJYP0rKAAoJEFPuqx0v+F+qL58H/3m1nRngx7OdvbP0LlJ8LIl0
-9mpejGUYa6EAjk6/rDLk7wdLjwksMNN9spJWP0EPdBAFy3JYQOODVIHjckwUdiok
-yV1Ma9en491pSyCmuVXJmmWPIV1zDDqD4ensIZxvndha/dcV6E6qxjogEeW8NE1y
-qJ/OnKT222CkaC6utsOzUSG9+tGyNpiueIxPbSpoiFi9G/1GiFPzQwPbnIPcHXDX
-4iYW5AviVHD5C7b2SWpppcUHRKewjl3+/EVIVqxm8BWdPg0NbEGJZO0ZIZRTvcnh
-LyRDTnJaUg7zxp67IvfKp3hXAHSTqH3tGbL2KTpqs8X6WaVCAbpWhntORN3sCsc=
-=Zi3/
------END PGP SIGNATURE-----
-
---OlK0sUcR3EHqHQO4B59UUpUEHVILE3pP3--
