@@ -1,59 +1,105 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42112 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752466AbcKCJly (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 3 Nov 2016 05:41:54 -0400
-Date: Thu, 3 Nov 2016 10:41:52 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux@vger.kernel.org,
-        Mike Frysinger <vapier@gentoo.org>
-Subject: Re: lscpu VMWARE bdoor patch
-Message-ID: <20161103094151.zufg6x2i3dth6nhe@ws.net.home>
-References: <20161027102515.qw47rdgn72qingfi@ws.net.home>
- <201610280006.36584.sweet_f_a@gmx.de>
- <20161102123004.nclgs4hdnccmjzma@ws.net.home>
- <201611030804.43544.sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201611030804.43544.sweet_f_a@gmx.de>
+Received: from mailrelay112.isp.belgacom.be ([195.238.20.139]:30462 "EHLO
+        mailrelay112.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750995AbcKFTii (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 6 Nov 2016 14:38:38 -0500
+From: Fabian Frederick <fabf@skynet.be>
+To: util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>,
+        Dongsu Park <dongsu.park@profitbricks.com>,
+        Namjae Jeon <namjae.jeon@samsung.com>, fabf@skynet.be
+Subject: [PATCH 1/1] fallocate: add insert range support
+Date: Sun,  6 Nov 2016 20:38:30 +0100
+Message-Id: <1478461110-3423-1-git-send-email-fabf@skynet.be>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Nov 03, 2016 at 09:04:42AM +0200, Ruediger Meier wrote:
-> On Wednesday 02 November 2016, Karel Zak wrote:
-> > On Fri, Oct 28, 2016 at 12:06:36AM +0200, Ruediger Meier wrote:
-> > > On Thursday 27 October 2016, Karel Zak wrote:
-> > > > Hi,
-> > > >
-> > > > this is lscpu output on my machine:
-> > > >
-> > > >     Virtualization:        VT-x
-> > > >     Hypervisor vendor:     VMware
-> > > >     Virtualization type:   full
-> > > >
-> > > >
-> > > > I have nothing like VMWARE. It seem the code (commit b7744730)
-> > > > does not work as expected for non-root users. What about to add
-> > >
-> > > Have you checked whether the original code in b7744730 is alreaday
-> > > broken? Not something about the later PIC/PIE patches?
-> >
-> > It's Mike's PIC/PIE patch :-(
-> >
-> > Maybe we can ifdef more precise and add getuid() check, if I good
-> > understand Mike's commit message then the problem is 32bit system.
-> 
-> BTW vmware runs on 64bit only since a few years. Maybe just disable 
-> bdoor for 32bit if it helps to make it simple.
+Based on patch 83cc932d7412
+("fallocate: introduce an option -c to support COLLAPSE_RANGE")
 
-but you can use 32bit system (guest) inside vmware. 
+This patch includes FALLOC_FL_INSERT_RANGE flag
+added to Linux kernel v4.1
 
-I'll will add getuid() for now. Maybe someone (Mike?:-) will help us
-with a better solution later.
+Signed-off-by: Fabian Frederick <fabf@skynet.be>
+---
+ sys-utils/fallocate.1 |  3 +++
+ sys-utils/fallocate.c | 14 ++++++++++++--
+ 2 files changed, 15 insertions(+), 2 deletions(-)
 
-    Karel
-
+diff --git a/sys-utils/fallocate.1 b/sys-utils/fallocate.1
+index 38b2217..34efc9a 100644
+--- a/sys-utils/fallocate.1
++++ b/sys-utils/fallocate.1
+@@ -60,6 +60,9 @@ the destination file to the original, without the need for extra disk space.
+ .sp
+ See \fB\-\-punch\-hole\fP for a list of supported filesystems.
+ .TP
++.BR \-i , " \-\-insert\-range"
++Insert a byte range of \fIlength\fR bytes from \fIoffset\fR.
++.TP
+ .BR \-l , " \-\-length " \fIlength
+ Specifies the length of the range, in bytes.
+ .TP
+diff --git a/sys-utils/fallocate.c b/sys-utils/fallocate.c
+index 4f2f74e..ef59be8 100644
+--- a/sys-utils/fallocate.c
++++ b/sys-utils/fallocate.c
+@@ -40,7 +40,8 @@
+ 
+ #if defined(HAVE_LINUX_FALLOC_H) && \
+     (!defined(FALLOC_FL_KEEP_SIZE) || !defined(FALLOC_FL_PUNCH_HOLE) || \
+-     !defined(FALLOC_FL_COLLAPSE_RANGE) || !defined(FALLOC_FL_ZERO_RANGE))
++     !defined(FALLOC_FL_COLLAPSE_RANGE) || !defined(FALLOC_FL_ZERO_RANGE) || \
++     !defined(FALLOC_FL_INSERT_RANGE))
+ # include <linux/falloc.h>	/* non-libc fallback for FALLOC_FL_* flags */
+ #endif
+ 
+@@ -61,6 +62,10 @@
+ # define FALLOC_FL_ZERO_RANGE		0x10
+ #endif
+ 
++#ifndef FALLOC_FL_INSERT_RANGE
++# define FALLOC_FL_INSERT_RANGE		0x20
++#endif
++
+ #include "nls.h"
+ #include "strutils.h"
+ #include "c.h"
+@@ -83,6 +88,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -c, --collapse-range remove a range from the file\n"), out);
+ 	fputs(_(" -d, --dig-holes      detect zeroes and replace with holes\n"), out);
++	fputs(_(" -i, --insert-range   insert a range in the file\n"), out);
+ 	fputs(_(" -l, --length <num>   length for range operations, in bytes\n"), out);
+ 	fputs(_(" -n, --keep-size      maintain the apparent size of the file\n"), out);
+ 	fputs(_(" -o, --offset <num>   offset for range operations, in bytes\n"), out);
+@@ -281,6 +287,7 @@ int main(int argc, char **argv)
+ 	    { "punch-hole",     0, 0, 'p' },
+ 	    { "collapse-range", 0, 0, 'c' },
+ 	    { "dig-holes",      0, 0, 'd' },
++	    { "insert-range",   0, 0, 'i' },
+ 	    { "zero-range",     0, 0, 'z' },
+ 	    { "offset",         1, 0, 'o' },
+ 	    { "length",         1, 0, 'l' },
+@@ -300,7 +307,7 @@ int main(int argc, char **argv)
+ 	textdomain(PACKAGE);
+ 	atexit(close_stdout);
+ 
+-	while ((c = getopt_long(argc, argv, "hvVncpdzl:o:", longopts, NULL))
++	while ((c = getopt_long(argc, argv, "hvVncpdizl:o:", longopts, NULL))
+ 			!= -1) {
+ 
+ 		err_exclusive_options(c, longopts, excl, excl_st);
+@@ -315,6 +322,9 @@ int main(int argc, char **argv)
+ 		case 'd':
+ 			dig = 1;
+ 			break;
++		case 'i':
++			mode |= FALLOC_FL_INSERT_RANGE;
++			break;
+ 		case 'l':
+ 			length = cvtnum(optarg);
+ 			break;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.7.4
+
