@@ -1,73 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42908 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.15]:55480 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752441AbcKBMaG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 2 Nov 2016 08:30:06 -0400
-Date: Wed, 2 Nov 2016 13:30:04 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: Petr Uzel <petr.uzel@suse.cz>, util-linux@vger.kernel.org,
-        Mike Frysinger <vapier@gentoo.org>
-Subject: Re: lscpu VMWARE bdoor patch
-Message-ID: <20161102123004.nclgs4hdnccmjzma@ws.net.home>
-References: <20161027102515.qw47rdgn72qingfi@ws.net.home>
- <201610280006.36584.sweet_f_a@gmx.de>
+        id S1751218AbcKGI63 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 7 Nov 2016 03:58:29 -0500
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Subject: Re: [PATCH 3/3] tests: always quote $LODEV
+Date: Mon, 7 Nov 2016 09:58:25 +0100
+Cc: util-linux@vger.kernel.org
+References: <1478358489-18103-1-git-send-email-sweet_f_a@gmx.de> <1478358489-18103-3-git-send-email-sweet_f_a@gmx.de> <6d62a61c-6dcf-e7a5-bfa3-5df4f93723a4@bernhard-voelker.de>
+In-Reply-To: <6d62a61c-6dcf-e7a5-bfa3-5df4f93723a4@bernhard-voelker.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201610280006.36584.sweet_f_a@gmx.de>
+Content-Type: text/plain;
+  charset="windows-1252"
+Message-Id: <201611070958.25232.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Oct 28, 2016 at 12:06:36AM +0200, Ruediger Meier wrote:
-> On Thursday 27 October 2016, Karel Zak wrote:
-> > Hi,
+On Sunday 06 November 2016, Bernhard Voelker wrote:
+> On 11/05/2016 04:08 PM, Ruediger Meier wrote:
+> > From: Ruediger Meier <ruediger.meier@ga-group.nl>
 > >
-> > this is lscpu output on my machine:
+> > Since there is no error handling in this test $LODEV
+> > may be empty.
 > >
-> >     Virtualization:        VT-x
-> >     Hypervisor vendor:     VMware
-> >     Virtualization type:   full
+> > Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+> > ---
+> >  tests/ts/losetup/losetup-loop | 46
+> > +++++++++++++++++++++---------------------- 1 file changed, 23
+> > insertions(+), 23 deletions(-)
 > >
+> > diff --git a/tests/ts/losetup/losetup-loop
+> > b/tests/ts/losetup/losetup-loop index cff12c9..13ccc65 100755
+> > --- a/tests/ts/losetup/losetup-loop
+> > +++ b/tests/ts/losetup/losetup-loop
+> > @@ -42,15 +42,15 @@ BACKFILE="$TS_DEVICE"
 > >
-> > I have nothing like VMWARE. It seem the code (commit b7744730) does
-> > not work as expected for non-root users. What about to add
-> 
-> Have you checked whether the original code in b7744730 is alreaday 
-> broken? Not something about the later PIC/PIE patches?
+> >  ts_init_subtest "find-race-condition"
+> >  LODEV=$( $TS_CMD_LOSETUP --find --nooverlap --show $BACKFILE )
+> > -$TS_CMD_LOSETUP -d $LODEV
+> > +$TS_CMD_LOSETUP -d "$LODEV"
+>
+> So what happens now when losetup is fed with ""?
+> Wouldn't it be better to handle the error instead?
 
-It's Mike's PIC/PIE patch :-(
+Actually the failure is generally handled in terms that the test will 
+fail and exit 1. I did not want to change more of the test logic 
+shortly before release. Also note that we are testing a possibly broken 
+losetup here which makes any "good" error handling questionable 
+anyways. For example if something goes wrong it would be of course nice 
+to do at least some cleanup and remove all loop devices again to not 
+let other tests fail too. But how should we do that if losetup is 
+broken?
 
-Maybe we can ifdef more precise and add getuid() check, if I good
-understand Mike's commit message then the problem is 32bit system.
+Regarding quoting. IMO we are missing a lot quotation marks in our 
+test-suite. This is specially annoying since our programs are printing 
+the whole --help output on usage errors. I really hate that auto-help 
+feature. Don't understand why we are doing that instead of just 
+printing "unkown option" or "missing argument".
 
-> What system are you using?
-
-Fedora 24
-
-# uname -a
-Linux ws 4.7.7-200.fc24.x86_64 #1 SMP Sat Oct 8 00:21:59 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
-
-> >     if (getuid() != 0)
-> >         return 0;
-> >
-> > to the is_vmware_platform() function?
-> >
-> >     Karel
-> 
-> Yes, if it's broken for a "normal" system then we have to remove that. 
-> Though would be nice to know what exactly made it stop working.
-> 
-> BTW this code is also in the kernel:
->    arch/x86/kernel/cpu/vmware.c
-> 
-> Can't we ask the kernel about vmware somehow?
-
-There is something for 390 and Xen, but I don't see in kernel code
-hypervisor_kobj (or something else) for VMware.
-
-    Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+cu,
+Rudi
