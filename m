@@ -1,39 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from canardo.mork.no ([148.122.252.1]:57089 "EHLO canardo.mork.no"
+Received: from mx1.redhat.com ([209.132.183.28]:38386 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932468AbcK1QLw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 28 Nov 2016 11:11:52 -0500
-From: =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>
-To: util-linux@vger.kernel.org
-Cc: =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>
-Subject: [PATCH 1/2] sulogin: make --timeout actually time out
-Date: Mon, 28 Nov 2016 17:11:27 +0100
-Message-Id: <20161128161128.2657-2-bjorn@mork.no>
-In-Reply-To: <20161128161128.2657-1-bjorn@mork.no>
-References: <20161128161128.2657-1-bjorn@mork.no>
+        id S1752015AbcKGJxi (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 7 Nov 2016 04:53:38 -0500
+Date: Mon, 7 Nov 2016 10:53:35 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org, Stanislav Brabec <sbrabec@suse.cz>
+Subject: Re: [PATCH 1/3] tests: udevadm settle before losetup -d
+Message-ID: <20161107095335.ulu754qb75g6gpaf@ws.net.home>
+References: <1478358489-18103-1-git-send-email-sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1478358489-18103-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Bjørn Mork <bjorn@mork.no>
----
- login-utils/sulogin.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Sat, Nov 05, 2016 at 04:08:07PM +0100, Ruediger Meier wrote:
+>  tests/ts/losetup/losetup-loop | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
 
-diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
-index 1c4313af4647..6a3890e80a16 100644
---- a/login-utils/sulogin.c
-+++ b/login-utils/sulogin.c
-@@ -644,7 +644,7 @@ static char *getpasswd(struct console *con)
- 	eightbit = ((con->flags & CON_SERIAL) == 0 || (tty.c_cflag & (PARODD|PARENB)) == 0);
- 	while (cp->eol == '\0') {
- 		if (read(fd, &c, 1) < 1) {
--			if (errno == EINTR || errno == EAGAIN) {
-+			if ((errno == EINTR && !alarm_rised) || errno == EAGAIN) {
- 				xusleep(250000);
- 				continue;
- 			}
+ All set applied, thanks.
+
+    Karel
+
 -- 
-2.10.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
