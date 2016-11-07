@@ -1,73 +1,89 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51375 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1758723AbcKCQTz (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 3 Nov 2016 12:19:55 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.17/8.16.0.17) with SMTP id uA3GJQAh063185
-        for <util-linux@vger.kernel.org>; Thu, 3 Nov 2016 12:19:54 -0400
-Received: from e06smtp08.uk.ibm.com (e06smtp08.uk.ibm.com [195.75.94.104])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 26g6crhak3-1
-        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
-        for <util-linux@vger.kernel.org>; Thu, 03 Nov 2016 12:19:54 -0400
-Received: from localhost
-        by e06smtp08.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <util-linux@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
-        Thu, 3 Nov 2016 16:19:52 -0000
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by d06dlp02.portsmouth.uk.ibm.com (Postfix) with ESMTP id D4425219005F
-        for <util-linux@vger.kernel.org>; Thu,  3 Nov 2016 16:19:05 +0000 (GMT)
-Received: from d06av01.portsmouth.uk.ibm.com (d06av01.portsmouth.uk.ibm.com [9.149.37.212])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id uA3GJojl41615532
-        for <util-linux@vger.kernel.org>; Thu, 3 Nov 2016 16:19:50 GMT
-Received: from d06av01.portsmouth.uk.ibm.com (localhost [127.0.0.1])
-        by d06av01.portsmouth.uk.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id uA3GJoIG027763
-        for <util-linux@vger.kernel.org>; Thu, 3 Nov 2016 10:19:50 -0600
-Date: Thu, 3 Nov 2016 17:19:48 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Subject: Re: [PATCH 2/4] lsmem: new tool
-References: <20161012120047.60732-1-heiko.carstens@de.ibm.com>
- <20161012120047.60732-3-heiko.carstens@de.ibm.com>
- <20161103120059.75nflzf5wvepafzu@ws.net.home>
+Received: from mx1.redhat.com ([209.132.183.28]:46564 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752434AbcKGNiM (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 7 Nov 2016 08:38:12 -0500
+Date: Mon, 7 Nov 2016 14:38:10 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Bernhard Voelker <mail@bernhard-voelker.de>,
+        util-linux@vger.kernel.org
+Subject: Re: [PATCH 3/3] tests: always quote $LODEV
+Message-ID: <20161107133810.2jvyfrye74d2mozi@ws.net.home>
+References: <1478358489-18103-1-git-send-email-sweet_f_a@gmx.de>
+ <201611071121.55542.sweet_f_a@gmx.de>
+ <20161107113721.z53bvekbw3swgaxc@ws.net.home>
+ <201611071348.23789.sweet_f_a@gmx.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20161103120059.75nflzf5wvepafzu@ws.net.home>
-Message-Id: <20161103161948.GA12234@osiris>
+In-Reply-To: <201611071348.23789.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Nov 03, 2016 at 01:00:59PM +0100, Karel Zak wrote:
-> On Wed, Oct 12, 2016 at 02:00:45PM +0200, Heiko Carstens wrote:
-> > RANGE                                 SIZE STATE   REMOVABLE BLOCK
-> > 0x0000000000000000-0x000000005fffffff 1,5G online  yes       0-5
-> > 0x0000000060000000-0x000000007fffffff 512M online  no        6-7
-> > 0x0000000080000000-0x000000013fffffff   3G online  yes       8-19
-> > 0x0000000140000000-0x000000014fffffff 256M offline -         20
-> > 0x0000000150000000-0x000000017fffffff 768M online  no        21-23
-> > 
-> > Memory block size   :     256M
-> > Total online memory :     5,8G
-> > Total offline memory:     256M
+On Mon, Nov 07, 2016 at 01:48:23PM +0100, Ruediger Meier wrote:
+> On Monday 07 November 2016, Karel Zak wrote:
+> > On Mon, Nov 07, 2016 at 11:21:55AM +0100, Ruediger Meier wrote:
 > 
-> It seems that for backward compatibility we need the summary lines at
-> the end. Maybe we can add --no-summary and --summary-only for people
-> who want to use it in the scripts.
-
-Scripts should use the --parsable option (or one of the new options you
-mentioned below), no?
-However it's of course fine with me to make the summary lines optional.
-
-> > The lsmem tool also has "--extendend" and "--parsable" option which
-> > can be used to customize the output, e.g.  limit the output to
-> > specified columns. This is quite similar to what the lscpu tool does.
+> > > BTW would be also very nice to ensure by design that --help,
+> > > manpage and the actual commands are always synchron.
+> >
+> > It depends what do you mean with synchron. All options should be
+> > documented by --help and man page, [...]
 > 
-> Frankly, I don't like these lscpu options :-) For new tools we have
-> --pairs/export (NAME=value), --raw, --json and --output=<list>. 
+> Yes it should, but we have very often inconsistencies, like
 > 
-> You do not need to re-submit the patches, I'll cleanup the stuff.
+> 89de71b3
+> 3fabc363
+> 21c6bcbd
+> ce969b16
+> 
+> Bugs like these are IMO waste of human life time. They can be avoided 
+> automatically from the beginning.
 
-Also fine with me :) Thank you for taking care of this!
+Depends how expensive (maintenance overhead, extra changes in code)
+will be the smart solution. The nice thing on getopt_long is that it
+does not add any extra abstract layer -- it just tokenize command 
+line and all is in your hands.
 
+> > Frankly, all we need is to detect mistakes (undocumented options).
+> 
+> Why would you want to detect this but not want to use existing tools?
+
+when I think about external tool, then:
+
+ * is it commonly used tool?
+ * is it fine to depend on the tool from bootstrap point of view?
+   (for example gtk-docs is absolutely optional and unnecessary for users).
+ * is it easy to integrate to our code?
+ * how expensive is to maintain it?
+
+For example if there is way how to generate the getopt stuff by m4
+without any additional dependence, it's easy to maintain (include
+translations by .po files) then it sounds good.
+
+If you believe that yuck is the right way then send a patch for some
+new tool (e.g. lsns) and we can test it and try it -- but don't forget
+I'm stubborn for such things :-)
+
+> > I'd like to be conservative and avoid complex solutions. I think our
+> > --help is nice and works as expected :-)
+> 
+> Even I've just run a stupid shell command line to find out that our 
+> getopt and flock have broken --help implementations.
+
+Bug, like many others.
+
+> stderr or do not return 0. I'm sure that we would find much more 
+> problems with the non-trivial options.
+> 
+> whereis has no such options --help/--version. Is this on purpose?
+
+We maintain many random tools with very different history, not all is
+already completely refactored to be compatible with our "current
+standard".
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
