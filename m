@@ -1,91 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:36543 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752760AbcKJK7x (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 10 Nov 2016 05:59:53 -0500
-Received: by mail-wm0-f68.google.com with SMTP id m203so682450wma.3
-        for <util-linux@vger.kernel.org>; Thu, 10 Nov 2016 02:59:52 -0800 (PST)
-Subject: [PATCH 07/12] Fix formatting errors in page cross references
-To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <404e11c0-9f88-b460-7398-d00585a9bf16@gmail.com>
-Cc: mtk.manpages@gmail.com
-From: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Message-ID: <5eca5018-ca00-67a3-1999-8beecba629a9@gmail.com>
-Date: Thu, 10 Nov 2016 11:59:49 +0100
-MIME-Version: 1.0
-In-Reply-To: <404e11c0-9f88-b460-7398-d00585a9bf16@gmail.com>
-Content-Type: text/plain; charset=utf-8
+Received: from mout.gmx.net ([212.227.17.21]:62687 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751266AbcKGIfb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 7 Nov 2016 03:35:31 -0500
+Received: from tenfore.ga-group.nl ([2.247.115.183]) by mail.gmx.com
+ (mrgmx101) with ESMTPSA (Nemesis) id 0MAloF-1bxqur1jZ5-00Bx88 for
+ <util-linux@vger.kernel.org>; Mon, 07 Nov 2016 09:35:18 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] tests: let lsmod fail silently
+Date: Mon,  7 Nov 2016 09:35:17 +0100
+Message-Id: <1478507717-10996-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-These pages had errors such as
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-    .BR page (x) .
+This is mostly for non-Linux systems where lsmod is not
+even available.
 
-which should be
-
-    .BR page (x).
-
-Signed-off-by: Michael Kerrisk <mtk.manpages@gmail.com>
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- disk-utils/swaplabel.8 | 2 +-
- misc-utils/findmnt.8   | 2 +-
- sys-utils/blkdiscard.8 | 2 +-
- sys-utils/dmesg.1      | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ tests/functions.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/disk-utils/swaplabel.8 b/disk-utils/swaplabel.8
-index 45c0492..8bac331 100644
---- a/disk-utils/swaplabel.8
-+++ b/disk-utils/swaplabel.8
-@@ -53,7 +53,7 @@ will truncate it and print a warning message.
- Specify a new \fIUUID\fR for the device.
- The \fI UUID\fR
- must be in the standard 8-4-4-4-12 character format, such as is output by
--.BR uuidgen (1) .
-+.BR uuidgen (1).
- .PP
- .SH AUTHOR
- .B swaplabel
-diff --git a/misc-utils/findmnt.8 b/misc-utils/findmnt.8
-index 105f2c5..6e4ddb4 100644
---- a/misc-utils/findmnt.8
-+++ b/misc-utils/findmnt.8
-@@ -162,7 +162,7 @@ or \fB\-\-first\-only\fP options.
- The standard columns always use the new version of the information from the
- mountinfo file, except the umount action which is based on the original
- information cached by
--.BR findmnt (8) .
-+.BR findmnt (8).
- The poll mode allows to use extra columns:
- .RS
- .TP
-diff --git a/sys-utils/blkdiscard.8 b/sys-utils/blkdiscard.8
-index da3d6cb..3b24f2f 100644
---- a/sys-utils/blkdiscard.8
-+++ b/sys-utils/blkdiscard.8
-@@ -13,7 +13,7 @@ blkdiscard \- discard sectors on a device
- .B blkdiscard
- is used to discard device sectors.  This is useful for solid-state
- drivers (SSDs) and thinly-provisioned storage.  Unlike
--.BR fstrim (8) ,
-+.BR fstrim (8),
- this command is used directly on the block device.
- .PP
- By default,
-diff --git a/sys-utils/dmesg.1 b/sys-utils/dmesg.1
-index 6e0812f..d553418 100644
---- a/sys-utils/dmesg.1
-+++ b/sys-utils/dmesg.1
-@@ -120,7 +120,7 @@ Print the raw message buffer, i.e. do not strip the log-level prefixes.
- Note that the real raw format depends on the method how
- .BR dmesg (1)
- reads kernel messages.  The /dev/kmsg device uses a different format than
--.BR syslog (2) .
-+.BR syslog (2).
- For backward compatibility,
- .BR dmesg (1)
- returns data always in the
+diff --git a/tests/functions.sh b/tests/functions.sh
+index fe3ff57..9239ab4 100644
+--- a/tests/functions.sh
++++ b/tests/functions.sh
+@@ -654,7 +654,7 @@ function ts_scsi_debug_init {
+ 		|| ts_skip "cannot load scsi_debug module (modprobe)"
+ 
+ 	# it might be still not loaded, modprobe.conf or whatever
+-	lsmod | grep -q "^scsi_debug " \
++	lsmod 2>/dev/null | grep -q "^scsi_debug " \
+ 		|| ts_skip "scsi_debug module not loaded (lsmod)"
+ 
+ 	udevadm settle
+@@ -683,7 +683,7 @@ function ts_scsi_debug_rmmod {
+ 	# not exist at all.
+ 	[ $UID -eq 0 ] || return 0
+ 	[ -n "$TS_DEVICE" ] || return 0
+-	lsmod | grep -q "^scsi_debug " || return 0
++	lsmod 2>/dev/null | grep -q "^scsi_debug " || return 0
+ 
+ 	udevadm settle
+ 
 -- 
-2.5.5
+1.8.5.6
 
