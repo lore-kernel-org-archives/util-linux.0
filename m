@@ -1,64 +1,47 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH 3/3] tests: always quote $LODEV
-Date: Mon, 7 Nov 2016 11:21:55 +0100
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>, util-linux@vger.kernel.org
-References: <1478358489-18103-1-git-send-email-sweet_f_a@gmx.de> <201611070958.25232.sweet_f_a@gmx.de> <20161107094101.jit57km4ymbdumy6@ws.net.home>
-In-Reply-To: <20161107094101.jit57km4ymbdumy6@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mailsec111.isp.belgacom.be ([195.238.20.107]:21963 "EHLO
+        mailsec111.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751226AbcKGGvC (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 7 Nov 2016 01:51:02 -0500
+Date: Mon, 7 Nov 2016 07:51:00 +0100 (CET)
+From: Fabian Frederick <fabf@skynet.be>
+Reply-To: Fabian Frederick <fabf@skynet.be>
+To: =?UTF-8?Q?P=C3=A1draig_Brady?= <P@draigBrady.com>,
+        util-linux@vger.kernel.org
+Cc: Dongsu Park <dongsu.park@profitbricks.com>,
+        Namjae Jeon <namjae.jeon@samsung.com>, Karel Zak <kzak@redhat.com>
+Message-ID: <356978831.44120.1478501460117.open-xchange@webmail.nmp.proximus.be>
+In-Reply-To: <5ecce16e-669d-3023-3850-ebefeb2a183b@draigBrady.com>
+References: <1478461110-3423-1-git-send-email-fabf@skynet.be> <5ecce16e-669d-3023-3850-ebefeb2a183b@draigBrady.com>
+Subject: Re: [PATCH 1/1] fallocate: add insert range support
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201611071121.55542.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 07 November 2016, Karel Zak wrote:
-> On Mon, Nov 07, 2016 at 09:58:25AM +0100, Ruediger Meier wrote:
-> > On Sunday 06 November 2016, Bernhard Voelker wrote:
-> > > So what happens now when losetup is fed with ""?
-> > > Wouldn't it be better to handle the error instead?
-> >
-> > Actually the failure is generally handled in terms that the test
-> > will fail and exit 1.
->
-> This is the basic idea of the tests; it would be nice to keep it
-> simple and stupid :-)
->
-> > the whole --help output on usage errors. I really hate that
-> > auto-help feature. Don't understand why we are doing that instead
-> > of just printing "unkown option" or "missing argument".
->
-> I'd like to change it for v2.30.
->
-> Optionally, it would be also nice to have a way how to suggest the
-> correct option on typos. I like the way how git react on typos:
->
->         $ git cxmmit
->         git: 'cxmmit' is not a git command. See 'git --help'.
->
->         Did you mean this?
->             commit
->
 
-This is nice, allthough for getopt(3) option parsing this functionality 
-would IMO belong to getopt() itself. Like we have already this
- 
-$ mount --make
-mount: option '--make' is ambiguous; 
-possibilities: '--make-shared' '--make-runbindable' '--make-rprivate' ...
 
-Maybe just patch gnulib/getopt?
+> On 06 November 2016 at 22:43 Pádraig Brady <P@draigBrady.com> wrote:
+>
+>
+> On 06/11/16 19:38, Fabian Frederick wrote:
+> > @@ -83,6 +88,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+> >     fputs(USAGE_OPTIONS, out);
+> >     fputs(_(" -c, --collapse-range remove a range from the file\n"), out);
+> >     fputs(_(" -d, --dig-holes      detect zeroes and replace with holes\n"),
+> >out);
+> > +   fputs(_(" -i, --insert-range   insert a range in the file\n"), out);
+>
+> The description just repeats the option name.
+> What does insert a range mean exactly?
+> For example how does it compare to the clearly explained:
+>
+>  -z, --zero-range     zero and ensure allocation of a range
 
-BTW would be also very nice to ensure by design that --help, manpage and 
-the actual commands are always synchron. For my own projects I've 
-used "gengetopt" for this. Unfortunately it has some unfixed bugs and 
-it seems unmaintained. One of my colleagues has a nice project "yuck" 
-adressing this, http://www.fresse.org/yuck/ It's basically a 
-replacement for gengetopt and help2man.
+Maybe we could add a reference to "man 2 fallocate" for more details ?
 
-I could send a patch to introduce yuck in UL to see how it would look. 
-Maybe I could also convince my colleague to add such generic 
-option-guessing feature.
-
-cu,
-Rudi
+Regards,
+Fabian
+>
+> thanks,
+> Pádraig.
