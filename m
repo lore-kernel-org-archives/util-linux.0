@@ -1,62 +1,91 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qk0-f173.google.com ([209.85.220.173]:36409 "EHLO
-        mail-qk0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934928AbcKNRSQ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 14 Nov 2016 12:18:16 -0500
-Received: by mail-qk0-f173.google.com with SMTP id n21so103592986qka.3
-        for <util-linux@vger.kernel.org>; Mon, 14 Nov 2016 09:18:16 -0800 (PST)
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:36543 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752760AbcKJK7x (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 10 Nov 2016 05:59:53 -0500
+Received: by mail-wm0-f68.google.com with SMTP id m203so682450wma.3
+        for <util-linux@vger.kernel.org>; Thu, 10 Nov 2016 02:59:52 -0800 (PST)
+Subject: [PATCH 07/12] Fix formatting errors in page cross references
+To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+References: <404e11c0-9f88-b460-7398-d00585a9bf16@gmail.com>
+Cc: mtk.manpages@gmail.com
+From: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Message-ID: <5eca5018-ca00-67a3-1999-8beecba629a9@gmail.com>
+Date: Thu, 10 Nov 2016 11:59:49 +0100
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <CADBFhQdpTibzv8G8gLXS+TW6XFg=WFjNG6+dy7snKLf44ToGQw@mail.gmail.com>
-References: <CADBFhQdpTibzv8G8gLXS+TW6XFg=WFjNG6+dy7snKLf44ToGQw@mail.gmail.com>
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Mon, 14 Nov 2016 17:18:15 +0000
-Message-ID: <CAG27Bk3hONs8GZ_4GvwJYHu-kMntNzvmVn-qzSO7p6EBDS8xog@mail.gmail.com>
-Subject: Re: New option for wall to limit message by group?
-To: Jim Patterson <jimp@wegrok.net>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <404e11c0-9f88-b460-7398-d00585a9bf16@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 14 November 2016 at 16:31, Jim Patterson <jimp@wegrok.net> wrote:
-> The company that I work for has an old terminal application that is
-> still in use today.  This app used to run on AIX boxes but has been
-> moved to modern Linux based systems.  The users on this application
-> are in groups and under AIX we used the "-g" switch on wall to be able
-> to send a message to a single group at a time.  The wall on Linux does
-> not offer this option.  I will either be adding this option to wall or
-> writing a custom tool to support sending a message based on the user's
-> groups.
->
-> Is there any interest in a pull request supporting such an option in
-> the standard wall?  And if so, does anyone have any particular
-> concerns about implementation details?
->
-> The AIX man page does not describe the implementation details, but
-> experimenting with the command on an AIX system shows that the the
-> message is sent to all users that have the specified group in the
-> primary or supplementary groups.  My plan for doing this on a Linux
-> system is to use the username in the utmp entry to lookup the user's
-> primary and supplementary groups, then skip the utmp entry if the user
-> does not have the specified group.
->
-> Thanks in advance,
-> Jim P
->
-> PS. I'm not subscribed to the group, so please reply to this address also.
+These pages had errors such as
 
-Hi Jim,
+    .BR page (x) .
 
-Adding -g, --group <groupname|gid> option should be doable. Do you want
-to write this change or prefer someone else doing the work? Either way I
-don't mind helping a bit.
+which should be
 
-Reference: http://www.ibm.com/support/knowledgecenter/ssw_aix_61/com.ibm.aix.cmds6/wall.htm
+    .BR page (x).
 
-p.s. Maintainer is off-line
-http://marc.info/?l=util-linux-ng&m=147877091818853&w=2
+Signed-off-by: Michael Kerrisk <mtk.manpages@gmail.com>
+---
+ disk-utils/swaplabel.8 | 2 +-
+ misc-utils/findmnt.8   | 2 +-
+ sys-utils/blkdiscard.8 | 2 +-
+ sys-utils/dmesg.1      | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
+diff --git a/disk-utils/swaplabel.8 b/disk-utils/swaplabel.8
+index 45c0492..8bac331 100644
+--- a/disk-utils/swaplabel.8
++++ b/disk-utils/swaplabel.8
+@@ -53,7 +53,7 @@ will truncate it and print a warning message.
+ Specify a new \fIUUID\fR for the device.
+ The \fI UUID\fR
+ must be in the standard 8-4-4-4-12 character format, such as is output by
+-.BR uuidgen (1) .
++.BR uuidgen (1).
+ .PP
+ .SH AUTHOR
+ .B swaplabel
+diff --git a/misc-utils/findmnt.8 b/misc-utils/findmnt.8
+index 105f2c5..6e4ddb4 100644
+--- a/misc-utils/findmnt.8
++++ b/misc-utils/findmnt.8
+@@ -162,7 +162,7 @@ or \fB\-\-first\-only\fP options.
+ The standard columns always use the new version of the information from the
+ mountinfo file, except the umount action which is based on the original
+ information cached by
+-.BR findmnt (8) .
++.BR findmnt (8).
+ The poll mode allows to use extra columns:
+ .RS
+ .TP
+diff --git a/sys-utils/blkdiscard.8 b/sys-utils/blkdiscard.8
+index da3d6cb..3b24f2f 100644
+--- a/sys-utils/blkdiscard.8
++++ b/sys-utils/blkdiscard.8
+@@ -13,7 +13,7 @@ blkdiscard \- discard sectors on a device
+ .B blkdiscard
+ is used to discard device sectors.  This is useful for solid-state
+ drivers (SSDs) and thinly-provisioned storage.  Unlike
+-.BR fstrim (8) ,
++.BR fstrim (8),
+ this command is used directly on the block device.
+ .PP
+ By default,
+diff --git a/sys-utils/dmesg.1 b/sys-utils/dmesg.1
+index 6e0812f..d553418 100644
+--- a/sys-utils/dmesg.1
++++ b/sys-utils/dmesg.1
+@@ -120,7 +120,7 @@ Print the raw message buffer, i.e. do not strip the log-level prefixes.
+ Note that the real raw format depends on the method how
+ .BR dmesg (1)
+ reads kernel messages.  The /dev/kmsg device uses a different format than
+-.BR syslog (2) .
++.BR syslog (2).
+ For backward compatibility,
+ .BR dmesg (1)
+ returns data always in the
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+2.5.5
+
