@@ -1,37 +1,110 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60888 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757640AbcKBXIb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 2 Nov 2016 19:08:31 -0400
-Date: Thu, 3 Nov 2016 00:08:28 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] tests: wait for flock background process
-Message-ID: <20161102230828.n2rlorlyf4rwjiqc@ws.net.home>
-References: <1478097115-3203-1-git-send-email-sweet_f_a@gmx.de>
- <20161102155151.ode6abioi7kcvksq@ws.net.home>
- <13b5d77f-87e6-3303-bb5d-e311cb303cfd@bernhard-voelker.de>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:36084 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755035AbcKJK7N (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 10 Nov 2016 05:59:13 -0500
+Received: by mail-wm0-f66.google.com with SMTP id m203so679235wma.3
+        for <util-linux@vger.kernel.org>; Thu, 10 Nov 2016 02:59:12 -0800 (PST)
+To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+From: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Subject: Patches to util-linux man pages
+Cc: mtk.manpages@gmail.com
+Message-ID: <17647d86-6faa-1898-22df-3303d9ad8a7e@gmail.com>
+Date: Thu, 10 Nov 2016 11:59:09 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <13b5d77f-87e6-3303-bb5d-e311cb303cfd@bernhard-voelker.de>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Nov 02, 2016 at 11:11:42PM +0100, Bernhard Voelker wrote:
-> On 11/02/2016 04:51 PM, Karel Zak wrote:
-> >> +timeout 1s bash -c "while [ \$(ps --ppid $pid |wc -l) -lt 2 ]; do sleep 0.1 ;done" \
-> >
-> > is "0.1" portable? :-)
-> 
-> if one has timeout from coreutils, then it's likely that she also has sleep
-> from there.  Thus said, I'd rather worry about portability of using timeout
-> rather than the "0.1" (if sleep fails, then nobody will care anyway). ;-)
+Hello Karel,
 
-Good point... I have added check for "timeout".
+I have a series of patches that contain fixes for various
+manual pages in util-linux. The early patches in the series
+fix typos and inconsistencies across many pages.
 
-    Karel
+The last two patches make some improvements to nsenter(1) and
+unshare(1), in particular, by adding more specific cross references
+to other pages that explain the relevant namespace concepts in
+more detail.
+
+Please apply.
+
+Cheers,
+
+Michael
+
+Michael Kerrisk (12):
+  Fix typo in page cross reference (capabilities(7), not capability(7))
+  Place SEE ALSO entries in order
+  Correctly format page cross references
+  Fix page cross references
+  Fix section number in lockf() page xref
+  Fix reference for scheduling discussion
+  Fix formatting errors in page cross references
+  Relace reference to sigvec(2) with sigaction(2)
+  SEE ALSO: add cross reference to namespaces(7)
+  Provide better cross references for namespace concepts
+  Provide better cross references for namespace concepts
+  IPC namespaces also isolate POSIX message queues
+
+ disk-utils/cfdisk.8         |  4 +--
+ disk-utils/fdformat.8       |  4 +--
+ disk-utils/fdisk.8          |  4 +--
+ disk-utils/fsck.8           |  6 ++---
+ disk-utils/fsck.minix.8     |  2 +-
+ disk-utils/mkfs.cramfs.8    |  4 +--
+ disk-utils/mkfs.minix.8     |  2 +-
+ disk-utils/swaplabel.8      |  6 ++---
+ libuuid/man/uuid_generate.3 |  6 ++---
+ login-utils/chfn.1          |  2 +-
+ login-utils/last.1          |  4 +--
+ login-utils/login.1         |  6 ++---
+ login-utils/runuser.1       |  8 +++---
+ login-utils/su.1            |  6 ++---
+ login-utils/vipw.8          |  2 +-
+ misc-utils/blkid.8          |  2 +-
+ misc-utils/findmnt.8        |  6 ++---
+ misc-utils/getopt.1         |  4 +--
+ misc-utils/kill.1           |  2 +-
+ misc-utils/logger.1         |  2 +-
+ misc-utils/lsblk.8          |  4 +--
+ misc-utils/lslocks.8        |  2 +-
+ misc-utils/mcookie.1        |  2 +-
+ schedutils/chrt.1           |  2 +-
+ schedutils/taskset.1        |  6 ++---
+ sys-utils/blkdiscard.8      |  2 +-
+ sys-utils/dmesg.1           |  4 +--
+ sys-utils/eject.1           |  2 +-
+ sys-utils/fallocate.1       |  4 +--
+ sys-utils/fstab.5           |  6 ++---
+ sys-utils/fstrim.8          |  4 +--
+ sys-utils/ipcrm.1           |  2 +-
+ sys-utils/ipcs.1            | 12 ++++-----
+ sys-utils/lsipc.1           | 12 ++++-----
+ sys-utils/lsns.8            |  2 +-
+ sys-utils/mount.8           | 16 +++++------
+ sys-utils/nsenter.1         | 65 +++++++++++++++++++++++++++++++++------------
+ sys-utils/pivot_root.8      |  2 +-
+ sys-utils/prlimit.1         |  4 +--
+ sys-utils/setpriv.1         |  4 +--
+ sys-utils/swapon.8          |  6 ++---
+ sys-utils/switch_root.8     |  4 +--
+ sys-utils/tunelp.8          |  2 +-
+ sys-utils/umount.8          |  4 +--
+ sys-utils/unshare.1         | 63 ++++++++++++++++++++++++++++++++++---------
+ term-utils/mesg.1           |  2 +-
+ term-utils/script.1         |  2 +-
+ term-utils/setterm.1        |  6 ++---
+ text-utils/colcrt.1         |  4 +--
+ text-utils/more.1           |  4 +--
+ text-utils/pg.1             |  4 +--
+ text-utils/tailf.1          |  4 +--
+ 52 files changed, 207 insertions(+), 137 deletions(-)
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.5.5
+
+-- 
+Michael Kerrisk
+Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
+Linux/UNIX System Programming Training: http://man7.org/training/
