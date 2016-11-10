@@ -1,149 +1,126 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:56976 "EHLO smtp.gentoo.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753170AbcKJEOM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 9 Nov 2016 23:14:12 -0500
-Date: Wed, 9 Nov 2016 20:14:10 -0800
-From: Mike Frysinger <vapier@gentoo.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: Ruediger Meier <sweet_f_a@gmx.de>, Petr Uzel <petr.uzel@suse.cz>,
-        util-linux@vger.kernel.org
-Subject: Re: lscpu VMWARE bdoor patch
-Message-ID: <20161110040953.GB21655@vapier.lan>
-References: <20161027102515.qw47rdgn72qingfi@ws.net.home>
- <201610280006.36584.sweet_f_a@gmx.de>
- <20161102123004.nclgs4hdnccmjzma@ws.net.home>
- <201611030804.43544.sweet_f_a@gmx.de>
- <20161103094151.zufg6x2i3dth6nhe@ws.net.home>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:35350 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755262AbcKJLAE (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 10 Nov 2016 06:00:04 -0500
+Received: by mail-wm0-f65.google.com with SMTP id a20so2343973wme.2
+        for <util-linux@vger.kernel.org>; Thu, 10 Nov 2016 03:00:03 -0800 (PST)
+Subject: [PATCH 10/12] Provide better cross references for namespace concepts
+To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+References: <59c54c87-4f64-2b12-fc64-051ac03eca6f@gmail.com>
+Cc: mtk.manpages@gmail.com
+From: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Message-ID: <b27c2458-19dc-7c98-00bb-d8966f258b6a@gmail.com>
+Date: Thu, 10 Nov 2016 12:00:00 +0100
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="cseAwlqrBzmhRTxO"
-In-Reply-To: <20161103094151.zufg6x2i3dth6nhe@ws.net.home>
+In-Reply-To: <59c54c87-4f64-2b12-fc64-051ac03eca6f@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+For each namespace that is discussed, add more explicit
+references to the corresponding clone(2) flags and
+add references to relevant section 7 namespace pages.
 
---cseAwlqrBzmhRTxO
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Michael Kerrisk <mtk.manpages@gmail.com>
+---
+ sys-utils/unshare.1 | 57 +++++++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 47 insertions(+), 10 deletions(-)
 
-On 03 Nov 2016 10:41, Karel Zak wrote:
-> On Thu, Nov 03, 2016 at 09:04:42AM +0200, Ruediger Meier wrote:
-> > On Wednesday 02 November 2016, Karel Zak wrote:
-> > > On Fri, Oct 28, 2016 at 12:06:36AM +0200, Ruediger Meier wrote:
-> > > > On Thursday 27 October 2016, Karel Zak wrote:
-> > > > > this is lscpu output on my machine:
-> > > > >
-> > > > >     Virtualization:        VT-x
-> > > > >     Hypervisor vendor:     VMware
-> > > > >     Virtualization type:   full
-> > > > >
-> > > > >
-> > > > > I have nothing like VMWARE. It seem the code (commit b7744730)
-> > > > > does not work as expected for non-root users. What about to add
-> > > >
-> > > > Have you checked whether the original code in b7744730 is alreaday
-> > > > broken? Not something about the later PIC/PIE patches?
-> > >
-> > > It's Mike's PIC/PIE patch :-(
-> > >
-> > > Maybe we can ifdef more precise and add getuid() check, if I good
-> > > understand Mike's commit message then the problem is 32bit system.
-> >=20
-> > BTW vmware runs on 64bit only since a few years. Maybe just disable=20
-> > bdoor for 32bit if it helps to make it simple.
->=20
-> but you can use 32bit system (guest) inside vmware.=20
->=20
-> I'll will add getuid() for now. Maybe someone (Mike?:-) will help us
-> with a better solution later.
+diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
+index 98a4863..56435c0 100644
+--- a/sys-utils/unshare.1
++++ b/sys-utils/unshare.1
+@@ -21,10 +21,16 @@ See the \fBEXAMPLES\fR section for more details.
+ The namespaces to be unshared are indicated via options.  Unshareable namespaces are:
+ .TP
+ .BR "mount namespace"
+-Mounting and unmounting filesystems will not affect the rest of the system
+-(\fBCLONE_NEWNS\fP flag), except for filesystems which are explicitly marked as
++Mounting and unmounting filesystems will not affect the rest of the system,
++except for filesystems which are explicitly marked as
+ shared (with \fBmount --make-shared\fP; see \fI/proc/self/mountinfo\fP or
+ \fBfindmnt -o+PROPAGATION\fP for the \fBshared\fP flags).
++For further details, see
++.BR mount_namespaces (7)
++and the discussion of the
++.BR CLONE_NEWNS
++flag in
++.BR clone (2).
+ .sp
+ .B unshare
+ since util-linux version 2.27 automatically sets propagation to \fBprivate\fP
+@@ -35,31 +41,62 @@ Note that \fBprivate\fP is the kernel default.
+ .TP
+ .BR "UTS namespace"
+ Setting hostname or domainname will not affect the rest of the system.
+-(\fBCLONE_NEWUTS\fP flag)
++For further details, see
++.BR namespaces (7)
++and the discussion of the
++.BR CLONE_NEWUTS
++flag in
++.BR clone (2).
+ .TP
+ .BR "IPC namespace"
+ The process will have an independent namespace for System V \%message queues,
+-semaphore sets and shared memory segments.  (\fBCLONE_NEWIPC\fP flag)
++semaphore sets and shared memory segments.
++For further details, see
++.BR namespaces (7)
++and the discussion of the
++.BR CLONE_NEWIPC
++flag in
++.BR clone (2).
+ .TP
+ .BR "network namespace"
+ The process will have independent IPv4 and IPv6 stacks, IP routing tables,
+ firewall rules, the \fI/proc/net\fP and \fI/sys/class/net\fP directory trees,
+-sockets, etc.  (\fBCLONE_NEWNET\fP flag)
++sockets, etc.
++For further details, see
++.BR namespaces (7)
++and the discussion of the
++.BR CLONE_NEWNET
++flag in
++.BR clone (2).
+ .TP
+ .BR "pid namespace"
+ Children will have a distinct set of PID-to-process mappings from their parent.
+-(\fBCLONE_NEWPID\fP flag)
++For further details, see
++.BR pid_namespaces (7)
++and
++the discussion of the
++.BR CLONE_NEWPID
++flag in
++.BR clone (2).
+ .TP
+ .BR "cgroup namespace"
+ The process will have a virtualized view of \fI/proc\:/self\:/cgroup\fP, and new
+ cgroup mounts will be rooted at the namespace cgroup root.
+-(\fBCLONE_NEWCGROUP\fP flag)
++For further details, see
++.BR cgroup_namespaces (7)
++and the discussion of the
++.BR CLONE_NEWCGROUP
++flag in
++.BR clone (2).
+ .TP
+ .BR "user namespace"
+ The process will have a distinct set of UIDs, GIDs and capabilities.
+-(\fBCLONE_NEWUSER\fP flag)
+-.PP
+-See \fBclone\fR(2) for the exact semantics of the flags.
++For further details, see
++.BR user_namespaces (7)
++and the discussion of the
++.BR CLONE_NEWUSER
++flag in
++.BR clone (2).
+ .SH OPTIONS
+ .TP
+ .BR \-i , " \-\-ipc" [ =\fIfile ]
+-- 
+2.5.5
 
-i don't think getuid helps.  seems like if you run it on a system even as
-root it'll still fail randomly.
-
-my guess is that when the inl is run, it triggers the segfault (since it
-isn't run under vmware) which happens after the ebx/esi exchange.  but the
-ebx/esi aren't swapped back, and for some reason the siglongjmp doesn't
-make things right (but that doesn't make sense to me either).
-
-if you revert my patch, then you can't build lscpu as PIE on x86, which
-means you're worse off than you are now :).
-
-when i trace it in gdb by putting a break on vmware_bdoor, i see:
-(gdb) info r
-eax            0xa      0xa
-ecx            0x5658   0x5658
-edx            0x0      0x0
-ebx            0x564d5868       0x564d5868
-esp            0xffffb540       0xffffb540
-ebp            0xffffb548       0xffffb548
-esi            0x564d5868       0x564d5868
-edi            0xffffd81c       0xffffd81c
-eip            0x5655873a       0x5655873a <vmware_bdoor+37>
-(gdb) dis
-Dump of assembler code from 0x5655873a to 0x5655877a:
-=3D> 0x5655873a <vmware_bdoor+37>:        xchg   %ebx,%esi
-   0x5655873c <vmware_bdoor+39>:        in     (%dx),%eax
-   0x5655873d <vmware_bdoor+40>:        xchg   %esi,%ebx
-(gdb) stepi
-0x5655873c      827             __asm__(
-(gdb) stepi
-
-Program received signal SIGSEGV, Segmentation fault.
-0x5655873c in vmware_bdoor (eax=3D0xffffb574, ebx=3D0xffffb578, ecx=3D0xfff=
-fb57c, edx=3D0xffffb580) at sys-utils/lscpu.c:827
-827             __asm__(
-(gdb) stepi
-segv_handler (sig=3D0xb, info=3D0xffffb04c, ignored=3D0xffffb0cc) at sys-ut=
-ils/lscpu.c:854
-854     {
-(gdb) c
-Continuing.
-Architecture:          i686
-CPU op-mode(s):        32-bit, 64-bit
-Byte Order:            Little Endian
-CPU(s):                4
-On-line CPU(s) list:   0-3
-Thread(s) per core:    2
-Core(s) per socket:    2
-Socket(s):             1
-Vendor ID:             AuthenticAMD
-CPU family:            21
-Model:                 2
-Model name:            AMD FX(tm)-4350 Quad-Core Processor
-Stepping:              0
-CPU MHz:               2000.000
-CPU max MHz:           4200.0000
-CPU min MHz:           1400.0000
-BogoMIPS:              8427.36
-Virtualization:        AMD-V
-=2E..
-
-so the siglongjmp call hit the sigsetjmp point and made the func
-return 0 which means it didn't detect as vmware at all.
--mike
-
---cseAwlqrBzmhRTxO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJYI/QRAAoJEEFjO5/oN/WBTKgP/ju4rJ706+qedOJTr+PKqFV9
-VEReXKaOpcrlbMMLYlFIYmP9kOXt8cnDtYkoNQHruErAj2qAnoXecc3Qfg1dvsJz
-C1Xd9GqluA8cCUrMeLDdE9L56zGN8cRLNEFWzvOLA2AgD3eqtandsCQIH7H+c+Qh
-+DSwbVQzml2dNTnDZKAcqpuQlzwvvH+dy2fTuA6BrZridXOZ4zhyucQHTWk+XmhO
-nxa0JhZ0IFvFc58E6DK1NZn36Mcmc+HI/WdO2s1ZBr7EhyvgnhfSZKvRVBW3v2X0
-TVkvfa3iHpA6QX8FyTJEoFfmSBFrXJblaaxYhtyldVJQrSpHGlQavxU49Nru20ld
-GEaoOcsk6n5O5GgGd5DQO/v16D5xzGFQ6sTJrsbJFskv85wacpxKzf55yc3YNYET
-NlxberateC5mF6kE01KzVVbPx/qMjabNMrt4uNBkfwlx9Ad+T8mJhWlzAELM8BOS
-Pq2iT+dfzRlCIGNzvz523qJKDWcvKTRHTuEHIarcxkHo676fnvpvkLwmqYsOcSKA
-MGbgChMFNYQMs/B2h3Y6e0NZp+c4Ue3G+FJJ2n0pBSuihrkLbhjGG11AM04WzdWA
-8A+J5Eqn3BlVU277GL04OSUkd0bTaeM9utwsisB7EZYEQFp4zMq4H+TcDEdqqm/7
-y+fl+/b0m0rS6U7ug4Wn
-=KpA6
------END PGP SIGNATURE-----
-
---cseAwlqrBzmhRTxO--
