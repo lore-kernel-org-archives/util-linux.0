@@ -1,45 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:51550 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754320AbcKQCKG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 16 Nov 2016 21:10:06 -0500
-Received: from tenfore.ga-group.nl ([77.12.158.253]) by mail.gmx.com (mrgmx102
- [212.227.17.168]) with ESMTPSA (Nemesis) id 0LdKs1-1cXUPS1vJh-00iT6x for
- <util-linux@vger.kernel.org>; Thu, 17 Nov 2016 03:10:03 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 3/5] build-sys: cosmetics PACKAGE_VERSION_MINOR
-Date: Thu, 17 Nov 2016 03:10:00 +0100
-Message-Id: <1479348602-31744-3-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1479348602-31744-1-git-send-email-sweet_f_a@gmx.de>
-References: <1479348602-31744-1-git-send-email-sweet_f_a@gmx.de>
+Received: from mail-qk0-f193.google.com ([209.85.220.193]:35550 "EHLO
+        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752985AbcKPROQ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 16 Nov 2016 12:14:16 -0500
+Received: by mail-qk0-f193.google.com with SMTP id n204so22196849qke.2
+        for <util-linux@vger.kernel.org>; Wed, 16 Nov 2016 09:14:16 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <1479313936-10018-1-git-send-email-jimp@wegrok.net>
+References: <1479313936-10018-1-git-send-email-jimp@wegrok.net>
+From: Jim Patterson <jimp@wegrok.net>
+Date: Wed, 16 Nov 2016 12:14:14 -0500
+Message-ID: <CADBFhQcp6XOd3mCY71Omd1e9oZDEQJ+3R+sGGHr3bkZ+G1QLNQ@mail.gmail.com>
+Subject: Re: [PATCH] wall: add --group option
+To: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Wed, Nov 16, 2016 at 11:32 AM, Jim Patterson <jimp@wegrok.net> wrote:
+> The wall command on AIX supports a "-g" option to limit the message
+> to a group of users by gid.  Add compatibility to the Linux version.
+>
+> Thanks to Sami Kerola <kerolasa@iki.fi> for an initial skeleton
+> implementation.
+>
+> Reference: http://www.ibm.com/support/knowledgecenter/ssw_aix_61/com.ibm.aix.cmds6/wall.htm
+> @@ -113,6 +168,7 @@ int main(int argc, char **argv)
+>         static const struct option longopts[] = {
+>                 { "nobanner",   no_argument,            0, 'n' },
+>                 { "timeout",    required_argument,      0, 't' },
+> +               { "group",      required_argument,      0, 'g' },
+>                 { "version",    no_argument,            0, 'V' },
+>                 { "help",       no_argument,            0, 'h' },
+>                 { NULL, 0, 0, 0 }
+> @@ -123,7 +179,7 @@ int main(int argc, char **argv)
+>         textdomain(PACKAGE);
+>         atexit(close_stdout);
+>
+> -       while ((ch = getopt_long(argc, argv, "nt:Vh", longopts, NULL)) != -1) {
+> +       while ((ch = getopt_long(argc, argv, "nt:g:Vh", longopts, NULL)) != -1) {
+>                 switch (ch) {
+>                 case 'n':
+>                         if (geteuid() == 0)
 
-This should changes nothing.
+Wouldn't you know it.  Just after I send this, I noticed that I missed
+the usage function.  I'll add that in just a moment and send a revised
+patch.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- configure.ac | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/configure.ac b/configure.ac
-index 5c32511..680f7f1 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -21,8 +21,8 @@ AC_PREFIX_DEFAULT([/usr])
- 
- dnl version details from <major>.<minor>[-<suffix>]
- PACKAGE_VERSION_MAJOR=$(echo $PACKAGE_VERSION | awk -F. '{print $1}')
--PACKAGE_VERSION_MINOR=$(echo $PACKAGE_VERSION | awk -F. '{print $2}' \
--					      | awk -F- '{print $1}')
-+PACKAGE_VERSION_MINOR=$(echo $PACKAGE_VERSION | awk -F. '{
-+                                                   sub("-.*","",$2); print $2}')
- PACKAGE_VERSION_RELEASE=$(echo $PACKAGE_VERSION | awk -F. '{
-                      sub("-.*","",$3); print $3 ~ /^@<:@[0-9]@:>@+$/ ? $3 : 0}')
- 
--- 
-1.8.5.6
-
+Sorry,
+Jim P
