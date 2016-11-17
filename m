@@ -1,57 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:34451 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755262AbcKJK77 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 10 Nov 2016 05:59:59 -0500
-Received: by mail-wm0-f66.google.com with SMTP id g23so2350469wme.1
-        for <util-linux@vger.kernel.org>; Thu, 10 Nov 2016 02:59:59 -0800 (PST)
-Subject: [PATCH 09/12] SEE ALSO: add cross reference to namespaces(7)
-To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <404e11c0-9f88-b460-7398-d00585a9bf16@gmail.com>
-Cc: mtk.manpages@gmail.com
-From: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Message-ID: <543d6dbe-969f-b140-2274-da5531716e4e@gmail.com>
-Date: Thu, 10 Nov 2016 11:59:57 +0100
-MIME-Version: 1.0
-In-Reply-To: <404e11c0-9f88-b460-7398-d00585a9bf16@gmail.com>
-Content-Type: text/plain; charset=utf-8
+Received: from mout.gmx.net ([212.227.17.20]:59066 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753891AbcKQCKG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 16 Nov 2016 21:10:06 -0500
+Received: from tenfore.ga-group.nl ([77.12.158.253]) by mail.gmx.com (mrgmx102
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0Mhej1-1cTWLw0ygt-00MtfN for
+ <util-linux@vger.kernel.org>; Thu, 17 Nov 2016 03:10:03 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 2/5] build-sys: update package release number during development
+Date: Thu, 17 Nov 2016 03:09:59 +0100
+Message-Id: <1479348602-31744-2-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1479348602-31744-1-git-send-email-sweet_f_a@gmx.de>
+References: <1479348602-31744-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Rationale: both of these pages are about namespaces.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Signed-off-by: Michael Kerrisk <mtk.manpages@gmail.com>
+Now we use
+   v2.29-5-g8ffab30  -> 2.29.5-8ffa   (libblkid 2.29.5)
+instead of
+   v2.29-5-g8ffab30  -> 2.29.5-8ffa   (libblkid 2.29.0)
+
+otherwise the bugfix releases (2.29.1) would look newer that latest HEAD.
+
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- sys-utils/nsenter.1 | 3 ++-
- sys-utils/unshare.1 | 1 +
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sys-utils/nsenter.1 b/sys-utils/nsenter.1
-index e6969bf..5f850c1 100644
---- a/sys-utils/nsenter.1
-+++ b/sys-utils/nsenter.1
-@@ -181,7 +181,8 @@ Display version information and exit.
- Display help text and exit.
- .SH SEE ALSO
- .BR clone (2),
--.BR setns (2)
-+.BR setns (2),
-+.BR namespaces (7)
- .SH AUTHORS
- .UR biederm@xmission.com
- Eric Biederman
-diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
-index a82ba9c..98a4863 100644
---- a/sys-utils/unshare.1
-+++ b/sys-utils/unshare.1
-@@ -188,6 +188,7 @@ makes sure that the bind mount is created on a shared filesystem.
- .SH SEE ALSO
- .BR clone (2),
- .BR unshare (2),
-+.BR namespaces (7),
- .BR mount (8)
- .SH AUTHORS
- .UR dottedmag@dottedmag.net
+diff --git a/configure.ac b/configure.ac
+index f3521ae..5c32511 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -24,7 +24,7 @@ PACKAGE_VERSION_MAJOR=$(echo $PACKAGE_VERSION | awk -F. '{print $1}')
+ PACKAGE_VERSION_MINOR=$(echo $PACKAGE_VERSION | awk -F. '{print $2}' \
+ 					      | awk -F- '{print $1}')
+ PACKAGE_VERSION_RELEASE=$(echo $PACKAGE_VERSION | awk -F. '{
+-                                       print $3 ~ /^@<:@[0-9]@:>@+$/ ? $3 : 0}')
++                     sub("-.*","",$3); print $3 ~ /^@<:@[0-9]@:>@+$/ ? $3 : 0}')
+ 
+ dnl libblkid version
+ LIBBLKID_VERSION="$PACKAGE_VERSION_MAJOR.$PACKAGE_VERSION_MINOR.$PACKAGE_VERSION_RELEASE"
 -- 
-2.5.5
+1.8.5.6
 
