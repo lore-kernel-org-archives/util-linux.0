@@ -1,40 +1,76 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:38364 "EHLO mx2.suse.de"
+Received: from mout.gmx.net ([212.227.17.20]:55132 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932278AbcKGNOB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 7 Nov 2016 08:14:01 -0500
-Subject: Re: [PATCH 2/3] tests: replace sleep by udevadm
-To: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
-References: <1478358489-18103-1-git-send-email-sweet_f_a@gmx.de>
- <1478358489-18103-2-git-send-email-sweet_f_a@gmx.de>
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <9da30f96-860e-0bd4-4efc-19fe6f0c4b7e@suse.cz>
-Date: Mon, 7 Nov 2016 14:13:59 +0100
-MIME-Version: 1.0
-In-Reply-To: <1478358489-18103-2-git-send-email-sweet_f_a@gmx.de>
-Content-Type: text/plain; charset=iso-8859-2; format=flowed
+        id S1754318AbcKQCKG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 16 Nov 2016 21:10:06 -0500
+Received: from tenfore.ga-group.nl ([77.12.158.253]) by mail.gmx.com (mrgmx102
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0LgvEY-1cbbXZ3zaY-00oDbw for
+ <util-linux@vger.kernel.org>; Thu, 17 Nov 2016 03:10:04 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 5/5] build-sys: fix "remove the g in git describe"
+Date: Thu, 17 Nov 2016 03:10:02 +0100
+Message-Id: <1479348602-31744-5-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1479348602-31744-1-git-send-email-sweet_f_a@gmx.de>
+References: <1479348602-31744-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Ruediger Meier wrotek:
-> From: Ruediger Meier <ruediger.meier@ga-group.nl>
->
-> -sleep 3
-> +udevadm settle
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Thanks for the research. I was not aware that the race comes from udev.
+The "g" was not always removed and "-rc*" follow-ups were handled
+incorrectly.
 
-Do you think that it would make sense to add udevadm settle directly to 
-losetup?
+So now after last commits we have these versions:
 
+ git describe            -> blkid -V
+ --------------------------------------------------------------
+ v2.29-rc4               -> 2.29-rc4          (libblkid 2.29.0)
+ v2.29-rc4-3-g4c8928d    -> 2.29-rc4-3-4c89   (libblkid 2.29.0)
+
+ v2.29                   -> 2.29              (libblkid 2.29.0)
+ v2.29-78-g4c8928d       -> 2.29.78-4c89      (libblkid 2.29.78)
+
+ v2.29.1                 -> 2.29.1            (libblkid 2.29.1)
+ v2.29.1-4-g4c8928d      -> 2.29.1.4-4c89     (libblkid 2.29.1)
+
+ v2.29.1-rc2             -> 2.29.1-rc2        (libblkid 2.29.1)
+ v2.29.1-rc2-3-g4c8928d  -> 2.29.1-rc2-3-4c89 (libblkid 2.29.1)
+
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ tools/git-version-gen | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/tools/git-version-gen b/tools/git-version-gen
+index 3e431ef..e7249f9 100755
+--- a/tools/git-version-gen
++++ b/tools/git-version-gen
+@@ -112,16 +112,16 @@ elif test "`git log -1 --pretty=format:x . 2>&1`" = x \
+        esac
+ then
+ 
++    # Remove the "g" in git describe's output string, to save a byte.
++    v=${v/-g/-}
++
+     case $v in
+-        *-rc[0-9])
+-	    # Remove the "g" in git describe's output string, to save a byte.
+-            v=`echo "$v" | sed 's/\(.*\)-g/\1-/'`;     
+-	    ;;
++        *-rc*)
++            ;;
+         *)
+-	    # Change the first '-' to a '.', so version-comparing tools work properly.
+-	    # Remove the "g" in git describe's output string, to save a byte.
+-	    v=`echo "$v" | sed 's/-/./;s/\(.*\)-g/\1-/'`;
+-	    ;;
++            # Change the first '-' to a '.', so version-comparing tools work properly.
++            v=`echo "$v" | sed 's/-/./'`;
++            ;;
+     esac
+     v_from_git=1
+ else
 -- 
-Best Regards / S pozdravem,
+1.8.5.6
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
