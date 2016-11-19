@@ -1,27 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:39118 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752015AbcKGJyJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 7 Nov 2016 04:54:09 -0500
-Date: Mon, 7 Nov 2016 10:54:08 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] tests: let lsmod fail silently
-Message-ID: <20161107095408.kankvbxarmyfwov4@ws.net.home>
-References: <1478507717-10996-1-git-send-email-sweet_f_a@gmx.de>
+Received: from mail.magicbluesmoke.com ([82.195.144.49]:60066 "EHLO
+        mail.magicbluesmoke.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752754AbcKSNPo (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 19 Nov 2016 08:15:44 -0500
+Subject: Re: [PATCH V2] fallocate: add insert range support
+To: Fabian Frederick <fabf@skynet.be>, util-linux@vger.kernel.org
+References: <1479235946-4268-1-git-send-email-fabf@skynet.be>
+Cc: Karel Zak <kzak@redhat.com>,
+        Dongsu Park <dongsu.park@profitbricks.com>,
+        Namjae Jeon <namjae.jeon@samsung.com>
+From: =?UTF-8?Q?P=c3=a1draig_Brady?= <P@draigBrady.com>
+Message-ID: <6af466cd-000e-2019-68e6-856256e2872a@draigBrady.com>
+Date: Sat, 19 Nov 2016 13:15:40 +0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1478507717-10996-1-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1479235946-4268-1-git-send-email-fabf@skynet.be>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 07, 2016 at 09:35:17AM +0100, Ruediger Meier wrote:
->  tests/functions.sh | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+On 15/11/16 18:52, Fabian Frederick wrote:
+> Based on patch 83cc932d7412
+> ("fallocate: introduce an option -c to support COLLAPSE_RANGE")
+> 
+> This patch includes FALLOC_FL_INSERT_RANGE flag
+> added to Linux kernel v4.1
+> 
+> Thanks to Pádraig Brady for insert range definition
+> 
+> Signed-off-by: Fabian Frederick <fabf@skynet.be>
 
- Applied, thanks.
++1 from me
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+thanks,
+Pádraig
