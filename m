@@ -1,51 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.19]:51234 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752047AbcKCG5R (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 3 Nov 2016 02:57:17 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH] tests: wait for flock background process
-Date: Thu, 3 Nov 2016 08:57:09 +0200
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>,
-        util-linux@vger.kernel.org
-References: <1478097115-3203-1-git-send-email-sweet_f_a@gmx.de> <13b5d77f-87e6-3303-bb5d-e311cb303cfd@bernhard-voelker.de> <20161102230828.n2rlorlyf4rwjiqc@ws.net.home>
-In-Reply-To: <20161102230828.n2rlorlyf4rwjiqc@ws.net.home>
+Received: from forward12h.cmail.yandex.net ([87.250.230.154]:35948 "EHLO
+        forward12h.cmail.yandex.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752088AbcKSLGV (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Sat, 19 Nov 2016 06:06:21 -0500
+Received: from mxback2g.mail.yandex.net (mxback2g.mail.yandex.net [77.88.29.163])
+        by forward12h.cmail.yandex.net (Yandex) with ESMTP id F35E121214
+        for <util-linux@vger.kernel.org>; Sat, 19 Nov 2016 13:58:30 +0300 (MSK)
+From: Constantine Kharlamov <hi-angel@ya.ru>
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: sfdisk: -X option doesn't work
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201611030757.09823.sweet_f_a@gmx.de>
+Message-Id: <5303721479553110@web15g.yandex.ru>
+Date: Sat, 19 Nov 2016 13:58:30 +0300
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 03 November 2016, Karel Zak wrote:
-> On Wed, Nov 02, 2016 at 11:11:42PM +0100, Bernhard Voelker wrote:
-> > On 11/02/2016 04:51 PM, Karel Zak wrote:
-> > >> +timeout 1s bash -c "while [ \$(ps --ppid $pid |wc -l) -lt 2 ];
-> > >> do sleep 0.1 ;done" \
-> > >
-> > > is "0.1" portable? :-)
-> >
-> > if one has timeout from coreutils, then it's likely that she also
-> > has sleep from there.  Thus said, I'd rather worry about
-> > portability of using timeout rather than the "0.1" (if sleep fails,
-> > then nobody will care anyway). ;-)
->
-> Good point... I have added check for "timeout".
+I've a disk that been GPT-formatted before, but now there's just MBR:
 
+	$ sudo sfdisk -l /dev/sdc     
+	Disk /dev/sdc: 14.9 GiB, 16025444352 bytes, 31299696 sectors
+	Units: sectors of 1 * 512 = 512 bytes
+	Sector size (logical/physical): 512 bytes / 512 bytes
+	I/O size (minimum/optimal): 512 bytes / 512 bytes
+	Disklabel type: dos
+	Disk identifier: 0x79215d34
 
-BTW we have already a lot more coreutils and other GNU dependencies in 
-our tests, inclusive timeout and sleep for floats.
+	Device     Boot Start      End  Sectors  Size Id Type
+	/dev/sdc1        2048 31299695 31297648 14.9G 83 Linux
 
-AFAIR for v2.28 I had fixed all GNU deps for configure/make but for the 
-test-suite it was too painful. The OSX build on travis needs for the 
-tests at least GNU readlink, seq, truncate, find, xargs, tar and sed. 
-The Linux-only tests have even more coreutils deps. 
+Fine, but magically, both "/dev/disk/by-label/" and lsblk shows names/labels that been there before the disk reformatted into MBR!
 
-To replace sleep for floats, we could check and use usleep(1) from 
-sysvinit. Or we could even add usleep to util-linux as we did with 
-other sysvinit commands.
+	$ sudo lsblk -o name,mountpoint,label,size,uuid /dev/sdc
+	NAME   MOUNTPOINT LABEL               SIZE UUID
+	sdc               Ubuntu 15.10 amd64 14.9G 2015-10-21-16-17-40-00
+	└─sdc1            Ubuntu 15.10 amd64 14.9G 502229b0-6d02-46ee-8fd1-b3321f11e53f
 
+It causes errors with grub-install like "Attempting to install GRUB to a disk with multiple partition labels.  This is not supported yet..". So I want to just remove those names. But "sgdisk" sees that GPT table is invalid, and tries to reconstruct it from MBR, whilst I'd need to force it into thinking like it is valid, so that it see the damn names.
 
-cu,
-Rudi
+Thankfully, there's sfdisk with -X option:
+
+	$ sudo sfdisk -lX gpt /dev/sdc 
+	Disk /dev/sdc: 14.9 GiB, 16025444352 bytes, 31299696 sectors
+	Units: sectors of 1 * 512 = 512 bytes
+	Sector size (logical/physical): 512 bytes / 512 bytes
+	I/O size (minimum/optimal): 512 bytes / 512 bytes
+	Disklabel type: dos
+	Disk identifier: 0x79215d34
+
+	Device     Boot Start      End  Sectors  Size Id Type
+	/dev/sdc1        2048 31299695 31297648 14.9G 83 Linux
+
+It worked… Or not? "Disklabel" says "dos", and most importantly, I see no partition names.
+
+Turns out, sfdisk would print the same information for pretty much anything, i.e. even for "sfdisk -X foo", so the option just doesn't work.
