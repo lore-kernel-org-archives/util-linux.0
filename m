@@ -1,134 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:33094 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754782AbcKJLAH (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 10 Nov 2016 06:00:07 -0500
-Received: by mail-wm0-f66.google.com with SMTP id u144so2348901wmu.0
-        for <util-linux@vger.kernel.org>; Thu, 10 Nov 2016 03:00:07 -0800 (PST)
-Subject: [PATCH 11/12] Provide better cross references for namespace concepts
-To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <59c54c87-4f64-2b12-fc64-051ac03eca6f@gmail.com>
-Cc: mtk.manpages@gmail.com
-From: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Message-ID: <678c0681-c4e6-8294-f194-1cfda699af20@gmail.com>
-Date: Thu, 10 Nov 2016 12:00:05 +0100
+Received: from canardo.mork.no ([148.122.252.1]:57089 "EHLO canardo.mork.no"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932468AbcK1QLw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 28 Nov 2016 11:11:52 -0500
+From: =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>
+To: util-linux@vger.kernel.org
+Cc: =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>
+Subject: [PATCH 1/2] sulogin: make --timeout actually time out
+Date: Mon, 28 Nov 2016 17:11:27 +0100
+Message-Id: <20161128161128.2657-2-bjorn@mork.no>
+In-Reply-To: <20161128161128.2657-1-bjorn@mork.no>
+References: <20161128161128.2657-1-bjorn@mork.no>
 MIME-Version: 1.0
-In-Reply-To: <59c54c87-4f64-2b12-fc64-051ac03eca6f@gmail.com>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-For each namespace that is discussed, add more explicit
-references to the corresponding clone(2) flags and
-add references to relevant section 7 namespace pages.
-
-Signed-off-by: Michael Kerrisk <mtk.manpages@gmail.com>
+Signed-off-by: Bjørn Mork <bjorn@mork.no>
 ---
- sys-utils/nsenter.1 | 59 +++++++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 44 insertions(+), 15 deletions(-)
+ login-utils/sulogin.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sys-utils/nsenter.1 b/sys-utils/nsenter.1
-index 5f850c1..b67ed0f 100644
---- a/sys-utils/nsenter.1
-+++ b/sys-utils/nsenter.1
-@@ -11,22 +11,35 @@ Enters the namespaces of one or more other processes and then executes the speci
- program.  Enterable namespaces are:
- .TP
- .B mount namespace
--Mounting and unmounting filesystems will not affect the rest of the system
--.RB ( CLONE_\:NEWNS
--flag), except for filesystems which are explicitly marked as shared (with
-+Mounting and unmounting filesystems will not affect the rest of the system,
-+except for filesystems which are explicitly marked as shared (with
- \fBmount --make-\:shared\fP; see \fI/proc\:/self\:/mountinfo\fP for the
- \fBshared\fP flag).
-+For further details, see
-+.BR mount_namespaces (7)
-+and the discussion of the
-+.BR CLONE_NEWNS
-+flag in
-+.BR clone (2).
- .TP
- .B UTS namespace
- Setting hostname or domainname will not affect the rest of the system.
--.RB ( CLONE_\:NEWUTS
--flag)
-+For further details, see
-+.BR namespaces (7)
-+and the discussion of the
-+.BR CLONE_NEWUTS
-+flag in
-+.BR clone (2).
- .TP
- .B IPC namespace
- The process will have an independent namespace for System V message queues,
- semaphore sets and shared memory segments.
--.RB ( CLONE_\:NEWIPC
--flag)
-+For further details, see
-+.BR namespaces (7)
-+and the discussion of the
-+.BR CLONE_NEWIPC
-+flag in
-+.BR clone (2).
- .TP
- .B network namespace
- The process will have independent IPv4 and IPv6 stacks, IP routing tables,
-@@ -35,15 +48,23 @@ firewall rules, the
- and
- .I /sys\:/class\:/net
- directory trees, sockets, etc.
--.RB ( CLONE_\:NEWNET
--flag)
-+For further details, see
-+.BR namespaces (7)
-+and the discussion of the
-+.BR CLONE_NEWNET
-+flag in
-+.BR clone (2).
- .TP
- .B PID namespace
- Children will have a set of PID to process mappings separate from the
- .B nsenter
- process
--.RB ( CLONE_\:NEWPID
--flag).
-+For further details, see
-+.BR pid_namespaces (7)
-+and
-+the discussion of the
-+.BR CLONE_NEWPID
-+flag in
- .B nsenter
- will fork by default if changing the PID namespace, so that the new program
- and its children share the same PID namespace and are visible to each other.
-@@ -51,14 +72,22 @@ If \fB\-\-no\-fork\fP is used, the new program will be exec'ed without forking.
- .TP
- .B user namespace
- The process will have a distinct set of UIDs, GIDs and capabilities.
--.RB ( CLONE_\:NEWUSER
--flag)
-+For further details, see
-+.BR user_namespaces (7)
-+and the discussion of the
-+.BR CLONE_NEWUSER
-+flag in
-+.BR clone (2).
- .TP
- .B cgroup namespace
- The process will have a virtualized view of \fI/proc\:/self\:/cgroup\fP, and new
- cgroup mounts will be rooted at the namespace cgroup root.
--.RB ( CLONE_\:NEWCGROUP
--flag)
-+For further details, see
-+.BR cgroup_namespaces (7)
-+and the discussion of the
-+.BR CLONE_NEWCGROUP
-+flag in
-+.BR clone (2).
- .TP
- See \fBclone\fP(2) for the exact semantics of the flags.
- .TP
+diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
+index 1c4313af4647..6a3890e80a16 100644
+--- a/login-utils/sulogin.c
++++ b/login-utils/sulogin.c
+@@ -644,7 +644,7 @@ static char *getpasswd(struct console *con)
+ 	eightbit = ((con->flags & CON_SERIAL) == 0 || (tty.c_cflag & (PARODD|PARENB)) == 0);
+ 	while (cp->eol == '\0') {
+ 		if (read(fd, &c, 1) < 1) {
+-			if (errno == EINTR || errno == EAGAIN) {
++			if ((errno == EINTR && !alarm_rised) || errno == EAGAIN) {
+ 				xusleep(250000);
+ 				continue;
+ 			}
 -- 
-2.5.5
+2.10.2
 
