@@ -1,165 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:65072 "EHLO mout.gmx.net"
+Received: from canardo.mork.no ([148.122.252.1]:38173 "EHLO canardo.mork.no"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754771AbcKEPIP (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sat, 5 Nov 2016 11:08:15 -0400
-Received: from tenfore.ga-group.nl ([77.12.203.210]) by mail.gmx.com
- (mrgmx102) with ESMTPSA (Nemesis) id 0LbgyV-1ciwyd0OcN-00lBbt for
- <util-linux@vger.kernel.org>; Sat, 05 Nov 2016 16:08:12 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
+        id S932468AbcK1QLq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 28 Nov 2016 11:11:46 -0500
+From: =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 3/3] tests: always quote $LODEV
-Date: Sat,  5 Nov 2016 16:08:09 +0100
-Message-Id: <1478358489-18103-3-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1478358489-18103-1-git-send-email-sweet_f_a@gmx.de>
-References: <1478358489-18103-1-git-send-email-sweet_f_a@gmx.de>
+Cc: =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>
+Subject: [PATCH 0/2] sulogin: fixing Control-D and --timeout
+Date: Mon, 28 Nov 2016 17:11:26 +0100
+Message-Id: <20161128161128.2657-1-bjorn@mork.no>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+I recently discovered that sulogin in Debian stretch didn't time out,
+and even was unresponsive to EOF after the failed timeout.  This was
+reported as Debian bugs:
 
-Since there is no error handling in this test $LODEV
-may be empty.
+ https://bugs.debian.org/846107
+ https://bugs.debian.org/846112
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- tests/ts/losetup/losetup-loop | 46 +++++++++++++++++++++----------------------
- 1 file changed, 23 insertions(+), 23 deletions(-)
+since I assumed it was a problem with the Debian migration to
+util-linux sulogin.
 
-diff --git a/tests/ts/losetup/losetup-loop b/tests/ts/losetup/losetup-loop
-index cff12c9..13ccc65 100755
---- a/tests/ts/losetup/losetup-loop
-+++ b/tests/ts/losetup/losetup-loop
-@@ -42,15 +42,15 @@ BACKFILE="$TS_DEVICE"
- 
- ts_init_subtest "find-race-condition"
- LODEV=$( $TS_CMD_LOSETUP --find --nooverlap --show $BACKFILE )
--$TS_CMD_LOSETUP -d $LODEV
-+$TS_CMD_LOSETUP -d "$LODEV"
- # The loop device may or may not exist here because no "udevadm settle".
- LODEV=$( $TS_CMD_LOSETUP --find --nooverlap --show $BACKFILE )
- udevadm settle
--dd if=/dev/zero of=$LODEV count=1 bs=1 >/dev/null 2>&1
--$TS_CMD_LOSETUP --list | grep -q $LODEV
-+dd if=/dev/zero of="$LODEV" count=1 bs=1 >/dev/null 2>&1
-+$TS_CMD_LOSETUP --list | grep -q "$LODEV"
- ts_log $?
- udevadm settle
--$TS_CMD_LOSETUP -d $LODEV >/dev/null 2>&1
-+$TS_CMD_LOSETUP -d "$LODEV" >/dev/null 2>&1
- ts_log "Success"
- ts_finalize_subtest
- 
-@@ -71,10 +71,10 @@ if test "$LODEV" = "$LODEVR" ; then
- else
- 	echo "different" >>$TS_OUTPUT
- 	if test -n "$LODEVR" ; then
--		$TS_CMD_LOSETUP -d $LODEVR
-+		$TS_CMD_LOSETUP -d "$LODEVR"
- 	fi
- fi
--$TS_CMD_LOSETUP -d $LODEV
-+$TS_CMD_LOSETUP -d "$LODEV"
- ts_log "Success"
- ts_finalize_subtest
- 
-@@ -95,10 +95,10 @@ if test "$LODEV" = "$LODEVR" ; then
- else
- 	echo "different" >>$TS_OUTPUT
- 	if test -n "$LODEVR" ; then
--		$TS_CMD_LOSETUP -d $LODEVR
-+		$TS_CMD_LOSETUP -d "$LODEVR"
- 	fi
- fi
--$TS_CMD_LOSETUP -d $LODEV
-+$TS_CMD_LOSETUP -d "$LODEV"
- ts_log "Success"
- ts_finalize_subtest
- 
-@@ -119,10 +119,10 @@ if test "$LODEV" = "$LODEVR" ; then
- else
- 	echo "different" >>$TS_OUTPUT
- 	if test -n "$LODEVR" ; then
--		$TS_CMD_LOSETUP -d $LODEVR
-+		$TS_CMD_LOSETUP -d "$LODEVR"
- 	fi
- fi
--$TS_CMD_LOSETUP -d $LODEV
-+$TS_CMD_LOSETUP -d "$LODEV"
- ts_log "Success"
- ts_finalize_subtest
- 
-@@ -143,10 +143,10 @@ if test "$LODEV" = "$LODEVR" ; then
- else
- 	echo "different" >>$TS_OUTPUT
- 	if test -n "$LODEVR" ; then
--		$TS_CMD_LOSETUP -d $LODEVR
-+		$TS_CMD_LOSETUP -d "$LODEVR"
- 	fi
- fi
--$TS_CMD_LOSETUP -d $LODEV
-+$TS_CMD_LOSETUP -d "$LODEV"
- ts_log "Success"
- ts_finalize_subtest
- 
-@@ -167,11 +167,11 @@ if test "$LODEV" = "$LODEVR" ; then
- else
- 	echo "different" >>$TS_OUTPUT
- 	if test -n "$LODEVR" ; then
--		$TS_CMD_LOSETUP -d $LODEVR
-+		$TS_CMD_LOSETUP -d "$LODEVR"
- 	fi
- fi
--$TS_CMD_LOSETUP -d $LODEV
--$TS_CMD_LOSETUP -d $LODEVR >/dev/null 2>&1
-+$TS_CMD_LOSETUP -d "$LODEV"
-+$TS_CMD_LOSETUP -d "$LODEVR" >/dev/null 2>&1
- ts_log "Success"
- ts_finalize_subtest
- 
-@@ -192,10 +192,10 @@ if test "$LODEV" = "$LODEVR" ; then
- else
- 	echo "different" >>$TS_OUTPUT
- 	if test -n "$LODEVR" ; then
--		$TS_CMD_LOSETUP -d $LODEVR
-+		$TS_CMD_LOSETUP -d "$LODEVR"
- 	fi
- fi
--$TS_CMD_LOSETUP -d $LODEV
-+$TS_CMD_LOSETUP -d "$LODEV"
- ts_log "Success"
- ts_finalize_subtest
- 
-@@ -207,11 +207,11 @@ if [ -z "$LODEV" ]; then
- 	ts_log "Failed to create loop device"
- fi
- LODEVR=$( $TS_CMD_LOSETUP --find )
--$TS_CMD_LOSETUP --nooverlap $LODEVR $BACKFILE >/dev/null 2>&1
-+$TS_CMD_LOSETUP --nooverlap "$LODEVR" $BACKFILE >/dev/null 2>&1
- ts_log $?
- udevadm settle
--$TS_CMD_LOSETUP -d $LODEV
--$TS_CMD_LOSETUP -d $LODEVR >/dev/null 2>&1
-+$TS_CMD_LOSETUP -d "$LODEV"
-+$TS_CMD_LOSETUP -d "$LODEVR" >/dev/null 2>&1
- ts_log "Success"
- ts_finalize_subtest
- 
-@@ -223,11 +223,11 @@ if [ -z "$LODEV" ]; then
- 	ts_log "Failed to create loop device"
- fi
- LODEVR=$( $TS_CMD_LOSETUP --find )
--$TS_CMD_LOSETUP --nooverlap $LODEVR $BACKFILE >/dev/null 2>&1
-+$TS_CMD_LOSETUP --nooverlap "$LODEVR" $BACKFILE >/dev/null 2>&1
- ts_log $?
- udevadm settle
--$TS_CMD_LOSETUP -d $LODEV
--$TS_CMD_LOSETUP -d $LODEVR >/dev/null 2>&1
-+$TS_CMD_LOSETUP -d "$LODEV"
-+$TS_CMD_LOSETUP -d "$LODEVR" >/dev/null 2>&1
- ts_log "Success"
- ts_finalize_subtest
- 
+But then I checked the upstream repo and was surprised to find the
+same bugs there...  I don't know how these have crept in, or how to
+properly fix them.  But from looking at the code, it is pretty clear
+that getpasswd() must return NULL if the main program is supposed to
+exit.  It is also clear that getpasswd() must return immediately if
+the read() is interrupted by a SIGALRM, without waiting for any
+further keypress.
+
+I do not know if pressing any key is supposed to reset the alarm, but
+it if is then I believe that should be done with an explicit alarm()
+on every keypress.
+
+So here are two basic oneline fixes for these issues. The testing
+state is: Works for me.
+
+
+Note that I tried to be consistent with the existing code, using
+(char *)0 instead of NULL.  It looks odd, but...
+
+
+
+Bjørn Mork (2):
+  sulogin: make --timeout actually time out
+  sulogin: make Control-D break out of the main loop
+
+ login-utils/sulogin.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
 -- 
-1.8.5.6
+2.10.2
 
