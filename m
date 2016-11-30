@@ -1,115 +1,101 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([217.72.192.73]:51784 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751657AbcJCUDy (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 3 Oct 2016 16:03:54 -0400
-Received: from localhost ([79.234.34.66]) by mrelayeu.kundenserver.de
- (mreue103) with ESMTPSA (Nemesis) id 0LfY1R-1b71wM2IIb-00p3kU for
- <util-linux@vger.kernel.org>; Mon, 03 Oct 2016 22:03:51 +0200
-Date: Mon, 3 Oct 2016 22:05:03 +0200
-From: Tobias Stoeckmann <tobias@stoeckmann.org>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] libblkid: Avoid strlen if only first char is checked
-Message-ID: <20161003200503.GA2287@localhost>
+Received: from mout.gmx.net ([212.227.17.20]:61359 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754198AbcK3SaC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 30 Nov 2016 13:30:02 -0500
+Subject: Re: [PATCH 2/2] misc: fix typos using codespell
+To: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
+References: <1480515830-1408-1-git-send-email-sweet_f_a@gmx.de>
+ <1480515830-1408-2-git-send-email-sweet_f_a@gmx.de>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <6c0ee586-0d6f-8408-2669-2838b6987022@gmx.com>
+Date: Wed, 30 Nov 2016 13:29:47 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1480515830-1408-2-git-send-email-sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-A strlen() call can lead to out of boundary read access if the
-superblock in question has no nul-bytes after the string. This
-could be avoided by using strnlen() but the calls in question
-merely existed to check if the string length is not 0.
 
-By changing the calls as proposed with this diff, these files are
-in sync with other superblock files, which do exactly the same.
----
- libblkid/src/superblocks/befs.c  | 2 +-
- libblkid/src/superblocks/ext.c   | 2 +-
- libblkid/src/superblocks/jfs.c   | 2 +-
- libblkid/src/superblocks/nilfs.c | 2 +-
- libblkid/src/superblocks/romfs.c | 2 +-
- libblkid/src/superblocks/xfs.c   | 2 +-
- 6 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/libblkid/src/superblocks/befs.c b/libblkid/src/superblocks/befs.c
-index 7e9eaf6..36e079f 100644
---- a/libblkid/src/superblocks/befs.c
-+++ b/libblkid/src/superblocks/befs.c
-@@ -451,7 +451,7 @@ static int probe_befs(blkid_probe pr, const struct blkid_idmag *mag)
- 	/*
- 	 * all checks pass, set LABEL, VERSION and UUID
- 	 */
--	if (strlen(bs->name))
-+	if (*bs->name != '\0')
- 		blkid_probe_set_label(pr, (unsigned char *) bs->name,
- 							sizeof(bs->name));
- 	if (version)
-diff --git a/libblkid/src/superblocks/ext.c b/libblkid/src/superblocks/ext.c
-index 5b1d179..caf82c1 100644
---- a/libblkid/src/superblocks/ext.c
-+++ b/libblkid/src/superblocks/ext.c
-@@ -170,7 +170,7 @@ static void ext_get_info(blkid_probe pr, int ver, struct ext2_super_block *es)
- 		   le32_to_cpu(es->s_feature_incompat),
- 		   le32_to_cpu(es->s_feature_ro_compat)));
- 
--	if (strlen(es->s_volume_name))
-+	if (*es->s_volume_name != '\0')
- 		blkid_probe_set_label(pr, (unsigned char *) es->s_volume_name,
- 					sizeof(es->s_volume_name));
- 	blkid_probe_set_uuid(pr, es->s_uuid);
-diff --git a/libblkid/src/superblocks/jfs.c b/libblkid/src/superblocks/jfs.c
-index ac684d8..0f956ef 100644
---- a/libblkid/src/superblocks/jfs.c
-+++ b/libblkid/src/superblocks/jfs.c
-@@ -49,7 +49,7 @@ static int probe_jfs(blkid_probe pr, const struct blkid_idmag *mag)
- 	    le16_to_cpu(js->js_l2bfactor))
- 		return 1;
- 
--	if (strlen((char *) js->js_label))
-+	if (*((char *) js->js_label) != '\0')
- 		blkid_probe_set_label(pr, js->js_label, sizeof(js->js_label));
- 	blkid_probe_set_uuid(pr, js->js_uuid);
- 	return 0;
-diff --git a/libblkid/src/superblocks/nilfs.c b/libblkid/src/superblocks/nilfs.c
-index ab0f74c..ee5c5f9 100644
---- a/libblkid/src/superblocks/nilfs.c
-+++ b/libblkid/src/superblocks/nilfs.c
-@@ -143,7 +143,7 @@ static int probe_nilfs2(blkid_probe pr,
- 	DBG(LOWPROBE, ul_debug("nilfs2: primary=%d, backup=%d, swap=%d",
- 				valid[0], valid[1], swp));
- 
--	if (strlen(sb->s_volume_name))
-+	if (*(sb->s_volume_name) != '\0')
- 		blkid_probe_set_label(pr, (unsigned char *) sb->s_volume_name,
- 				      sizeof(sb->s_volume_name));
- 
-diff --git a/libblkid/src/superblocks/romfs.c b/libblkid/src/superblocks/romfs.c
-index 8e63c10..f3e9f8b 100644
---- a/libblkid/src/superblocks/romfs.c
-+++ b/libblkid/src/superblocks/romfs.c
-@@ -31,7 +31,7 @@ static int probe_romfs(blkid_probe pr, const struct blkid_idmag *mag)
- 	if (!ros)
- 		return errno ? -errno : 1;
- 
--	if (strlen((char *) ros->ros_volume))
-+	if (*((char *) ros->ros_volume) != '\0')
- 		blkid_probe_set_label(pr, ros->ros_volume,
- 				sizeof(ros->ros_volume));
- 	return 0;
-diff --git a/libblkid/src/superblocks/xfs.c b/libblkid/src/superblocks/xfs.c
-index 01e9cda..99848f9 100644
---- a/libblkid/src/superblocks/xfs.c
-+++ b/libblkid/src/superblocks/xfs.c
-@@ -169,7 +169,7 @@ static int probe_xfs(blkid_probe pr, const struct blkid_idmag *mag)
- 	if (!xfs_verify_sb(xs))
- 		return 1;
- 
--	if (strlen(xs->sb_fname))
-+	if (*xs->sb_fname != '\0')
- 		blkid_probe_set_label(pr, (unsigned char *) xs->sb_fname,
- 				sizeof(xs->sb_fname));
- 	blkid_probe_set_uuid(pr, xs->sb_uuid);
--- 
-2.10.0
+On 11/30/2016 09:23 AM, Ruediger Meier wrote:
+> From: Ruediger Meier <ruediger.meier@ga-group.nl>
+> 
+>  # command used was:
+>  $ ~/src/codespell/codespell \
+>    -w -D /home/rudi/src/codespell/build/lib/codespell_lib/data/dictionary.txt \
+>    $(git ls-files | grep -v "^po/\|\.xz$\|\.gz$\|\.bz2$\|\.img$\|^Documentation/releases/")
+> 
+> Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+> ---
+>  libsmartcols/src/table.c       | 4 ++--
+>  libsmartcols/src/table_print.c | 2 +-
+>  misc-utils/cal.c               | 2 +-
+>  sys-utils/lsmem.1              | 2 +-
+>  4 files changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/libsmartcols/src/table.c b/libsmartcols/src/table.c
+> index 5a6318d..68f570d 100644
+> --- a/libsmartcols/src/table.c
+> +++ b/libsmartcols/src/table.c
+> @@ -737,7 +737,7 @@ int scols_table_set_default_symbols(struct libscols_table *tb)
+>   * draw tree output. If no symbols are used for the table then library creates
+>   * default temporary symbols to draw output by scols_table_set_default_symbols().
+>   *
+> - * If @sy is NULL then remove reference from the currenly uses symbols.
+> + * If @sy is NULL then remove reference from the currently used symbols.
+>   *
+>   * Returns: 0, a negative value in case of an error.
+>   */
+> @@ -749,7 +749,7 @@ int scols_table_set_symbols(struct libscols_table *tb,
+>  
+>  	/* remove old */
+>  	if (tb->symbols) {
+> -		DBG(TAB, ul_debugobj(tb, "remove symbols %p refrence", tb->symbols));
+> +		DBG(TAB, ul_debugobj(tb, "remove symbols %p reference", tb->symbols));
+>  		scols_unref_symbols(tb->symbols);
+>  		tb->symbols = NULL;
+>  	}
+> diff --git a/libsmartcols/src/table_print.c b/libsmartcols/src/table_print.c
+> index c73154e..8c1c400 100644
+> --- a/libsmartcols/src/table_print.c
+> +++ b/libsmartcols/src/table_print.c
+> @@ -1471,7 +1471,7 @@ done:
+>  /**
+>   * scols_table_print_range_to_string:
+>   * @tb: table
+> - * @start: first printed line or NULL to print from the beggin of the table
+> + * @start: first printed line or NULL to print from the begin of the table
 
+s/begin/beginning/
+
+>   * @end: last printed line or NULL to print all from start.
+>   * @data: pointer to the beginning of a memory area to print to
+>   *
+> diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+> index 5e7b356..0e2f0d4 100644
+> --- a/misc-utils/cal.c
+> +++ b/misc-utils/cal.c
+> @@ -206,7 +206,7 @@ struct cal_control {
+>  	const char *abbr_month[MONTHS_IN_YEAR];	/* abbreviated month names */
+>  
+>  	int colormode;			/* day and week number highlight */
+> -	int num_months;			/* number of requested monts */
+> +	int num_months;			/* number of requested months */
+>  	int span_months;		/* span the date */
+>  	int months_in_row;		/* number of months horizontally in print out */
+>  	int weekstart;			/* day the week starts, often Sun or Mon */
+> diff --git a/sys-utils/lsmem.1 b/sys-utils/lsmem.1
+> index a9e2bfc..dc34847 100644
+> --- a/sys-utils/lsmem.1
+> +++ b/sys-utils/lsmem.1
+> @@ -18,7 +18,7 @@ together with a columns list in environments where a stable output is required.
+>  Not all columns are supported on all systems.  If an unsupported column is
+>  specified, \fBlsmem\fP prints the column but does not provide any data for it.
+>  
+> -Use the \fB\-\-help\fR option to see the columns desription.
+> +Use the \fB\-\-help\fR option to see the columns description.
+>  
+>  .SH OPTIONS
+>  .TP
+> 
