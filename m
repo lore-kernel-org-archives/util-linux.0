@@ -1,51 +1,121 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-yw0-f195.google.com ([209.85.161.195]:34999 "EHLO
-        mail-yw0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751059AbcL1Uqi (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 28 Dec 2016 15:46:38 -0500
-Received: by mail-yw0-f195.google.com with SMTP id b66so25488471ywh.2
-        for <util-linux@vger.kernel.org>; Wed, 28 Dec 2016 12:46:38 -0800 (PST)
-From: The Flying Rapist <impeccableenglish@gmail.com>
-Date: Wed, 28 Dec 2016 15:42:37 -0500
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>,
-        The Flying Rapist <admin@nosuck.org>
-Subject: Re: [PATCH] col: backspacing widechars
-Message-ID: <20161228204237.GA29001@creation>
-References: <20161228093620.5528-1-ImpeccableEnglish@gmail.com>
- <CAG27Bk1eCMakhnbcmQZpYVvcYF2K+eYSekaQQFxUU5UPXfa2gA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-In-Reply-To: <CAG27Bk1eCMakhnbcmQZpYVvcYF2K+eYSekaQQFxUU5UPXfa2gA@mail.gmail.com>
+Received: from mout.gmx.net ([212.227.17.21]:53785 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1756998AbcLAIwR (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 1 Dec 2016 03:52:17 -0500
+Received: from tenfore.ga-group.nl ([217.186.11.144]) by mail.gmx.com
+ (mrgmx102 [212.227.17.168]) with ESMTPSA (Nemesis) id
+ 0M3u86-1d2Pin43v8-00rZoA for <util-linux@vger.kernel.org>; Thu, 01 Dec 2016
+ 09:52:16 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 07/11] agetty: remove obsolete HAVE_UPDWTMP fallback
+Date: Thu,  1 Dec 2016 09:52:10 +0100
+Message-Id: <1480582332-17407-8-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de>
+References: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 2016年12月28日 14時55分, Sami Kerola wrote:
->May I remind howto-contribute[1] tells 'using your real name (sorry,
->no pseudonyms
->or anonymous contributions.)'
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-I apologize.  I missed that part of howto-contribute.txt.  Please accept the following.
-
-From: Grady Martin <admin@nosuck.org>
-
-Until now, backspace characters have not accounted for characters of widths other than one.  This single line amends that.
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- text-utils/col.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ configure.ac                   |  1 -
+ include/pathnames.h            |  2 --
+ term-utils/agetty.c            | 21 +--------------------
+ tests/expected/paths/built-in  |  1 -
+ tests/helpers/test_pathnames.c |  1 -
+ 5 files changed, 1 insertion(+), 25 deletions(-)
 
-diff --git a/text-utils/col.c b/text-utils/col.c
-index 9b0e23058..c63b46fee 100644
---- a/text-utils/col.c
-+++ b/text-utils/col.c
-@@ -248,7 +248,7 @@ int main(int argc, char **argv)
-                        case BS:                /* can't go back further */
-                                if (cur_col == 0)
-                                        continue;
--                               --cur_col;
-+                               cur_col -= c->c_width;
-                                continue;
-                        case CR:
-                                cur_col = 0;
---
-2.11.0
+diff --git a/configure.ac b/configure.ac
+index 73c1b29..5917126 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -412,7 +412,6 @@ AC_CHECK_FUNCS([ \
+ 	strnlen \
+ 	sysconf \
+ 	sysinfo \
+-	updwtmp \
+ 	usleep \
+ 	warn \
+ 	warnx \
+diff --git a/include/pathnames.h b/include/pathnames.h
+index 05fb082..a5e8507 100644
+--- a/include/pathnames.h
++++ b/include/pathnames.h
+@@ -35,8 +35,6 @@
+ # define _PATH_DEFPATH_ROOT	"/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
+ #endif
+ 
+-#define _PATH_WTMPLOCK		"/etc/wtmplock"
+-
+ #define	_PATH_HUSHLOGIN		".hushlogin"
+ #define	_PATH_HUSHLOGINS	"/etc/hushlogins"
+ 
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index dbf499e..0f114a5 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -28,7 +28,6 @@
+ #include <utmp.h>
+ #include <getopt.h>
+ #include <time.h>
+-#include <sys/file.h>
+ #include <sys/socket.h>
+ #include <langinfo.h>
+ #include <grp.h>
+@@ -951,25 +950,7 @@ static void update_utmp(struct options *op)
+ 	pututline(&ut);
+ 	endutent();
+ 
+-	{
+-#ifdef HAVE_UPDWTMP
+-		updwtmp(_PATH_WTMP, &ut);
+-#else
+-		int ut_fd;
+-		int lf;
+-
+-		if ((lf = open(_PATH_WTMPLOCK, O_CREAT | O_WRONLY, 0660)) >= 0) {
+-			flock(lf, LOCK_EX);
+-			if ((ut_fd =
+-			     open(_PATH_WTMP, O_APPEND | O_WRONLY)) >= 0) {
+-				write_all(ut_fd, &ut, sizeof(ut));
+-				close(ut_fd);
+-			}
+-			flock(lf, LOCK_UN);
+-			close(lf);
+-		}
+-#endif				/* HAVE_UPDWTMP */
+-	}
++	updwtmp(_PATH_WTMP, &ut);
+ }
+ 
+ #endif				/* SYSV_STYLE */
+diff --git a/tests/expected/paths/built-in b/tests/expected/paths/built-in
+index 197f67f..7274afa 100644
+--- a/tests/expected/paths/built-in
++++ b/tests/expected/paths/built-in
+@@ -1,7 +1,6 @@
+        _PATH_DEFPATH /usr/local/bin:/bin:/usr/bin
+   _PATH_DEFPATH_ROOT /usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+       _PATH_DEV_LOOP /dev/loop
+-      _PATH_WTMPLOCK /etc/wtmplock
+      _PATH_HUSHLOGIN .hushlogin
+        _PATH_MAILDIR /var/mail
+       _PATH_MOTDFILE /etc/motd
+diff --git a/tests/helpers/test_pathnames.c b/tests/helpers/test_pathnames.c
+index 2c9ec55..d5cdad8 100644
+--- a/tests/helpers/test_pathnames.c
++++ b/tests/helpers/test_pathnames.c
+@@ -34,7 +34,6 @@ struct hlpPath paths[] =
+ 	DEF_HLPPATH(_PATH_DEFPATH),
+ 	DEF_HLPPATH(_PATH_DEFPATH_ROOT),
+ 	DEF_HLPPATH(_PATH_DEV_LOOP),
+-	DEF_HLPPATH(_PATH_WTMPLOCK),
+ 	DEF_HLPPATH(_PATH_HUSHLOGIN),
+ 	DEF_HLPPATH(_PATH_MAILDIR),
+ 	DEF_HLPPATH(_PATH_MOTDFILE),
+-- 
+1.8.5.6
+
