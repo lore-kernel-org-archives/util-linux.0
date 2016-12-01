@@ -1,36 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50022 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:50225 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751476AbcLGLpe (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 7 Dec 2016 06:45:34 -0500
-Date: Wed, 7 Dec 2016 12:44:49 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/11] switch to utmpx.h
-Message-ID: <20161207114449.5x5au3gqgj74bmo5@ws.net.home>
-References: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        id S1755690AbcLAIwR (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 1 Dec 2016 03:52:17 -0500
+Received: from tenfore.ga-group.nl ([217.186.11.144]) by mail.gmx.com
+ (mrgmx102 [212.227.17.168]) with ESMTPSA (Nemesis) id
+ 0MaV3V-1cRR8o0xI1-00KAjJ for <util-linux@vger.kernel.org>; Thu, 01 Dec 2016
+ 09:52:15 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 04/11] utmpdump: code formatting for readability
+Date: Thu,  1 Dec 2016 09:52:07 +0100
+Message-Id: <1480582332-17407-5-git-send-email-sweet_f_a@gmx.de>
 In-Reply-To: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de>
+References: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Dec 01, 2016 at 09:52:03AM +0100, Ruediger Meier wrote:
->   last: include libgen.h for basename(3p)
->   login-utils: remove _HAVE_UT_TV fallback
->   lslogins: remove useless strlen()
->   utmpdump: code formatting for readability
->   login-utils: avoid using the defined utmp sizes.
->   login: re-add lastlog.h header
->   agetty: remove obsolete HAVE_UPDWTMP fallback
->   login-utils: switch to utmpx.h
->   build-sys: check for POSIX utmpx usage
->   travis: let OSX auto-skip utmpx tools
->   agetty: re-add utmp.h for Debian GNU/kFreeBSD
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-    Applied, thanks.
+BTW avoid using the defined sizes.
 
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ login-utils/utmpdump.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/login-utils/utmpdump.c b/login-utils/utmpdump.c
+index 8f438b0..4a85afa 100644
+--- a/login-utils/utmpdump.c
++++ b/login-utils/utmpdump.c
+@@ -112,10 +112,12 @@ static void print_utline(struct utmp *ut, FILE *out)
+ 	cleanse(ut->ut_line);
+ 	cleanse(ut->ut_host);
+ 
+-	/*            pid    id       user     line     host     addr       time */
++	/*            type pid    id       user     line     host     addr    time */
+ 	fprintf(out, "[%d] [%05d] [%-4.4s] [%-*.*s] [%-*.*s] [%-*.*s] [%-15s] [%s]\n",
+-	       ut->ut_type, ut->ut_pid, ut->ut_id, 8, UT_NAMESIZE, ut->ut_user,
+-	       12, UT_LINESIZE, ut->ut_line, 20, UT_HOSTSIZE, ut->ut_host,
++	       ut->ut_type, ut->ut_pid, ut->ut_id,
++	       8, (int)sizeof(ut->ut_user), ut->ut_user,
++	       12, (int)sizeof(ut->ut_line), ut->ut_line,
++	       20, (int)sizeof(ut->ut_host), ut->ut_host,
+ 	       addr_string, time_string);
+ }
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.5.6
+
