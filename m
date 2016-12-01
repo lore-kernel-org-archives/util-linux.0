@@ -1,53 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:44310 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:63513 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933267AbcLIMgs (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 9 Dec 2016 07:36:48 -0500
-Date: Fri, 9 Dec 2016 13:36:47 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>,
-        util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/2] docs: renice(1) patches
-Message-ID: <20161209123647.mhbzm57f5phjtg3k@ws.net.home>
-References: <a107f552-049d-0600-3893-fdb2a5c11f29@gmail.com>
- <201612071552.38043.sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201612071552.38043.sweet_f_a@gmx.de>
+        id S1750738AbcLAIwQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 1 Dec 2016 03:52:16 -0500
+Received: from tenfore.ga-group.nl ([217.186.11.144]) by mail.gmx.com
+ (mrgmx102 [212.227.17.168]) with ESMTPSA (Nemesis) id
+ 0MOTRh-1c6bvs0zH3-005m5F for <util-linux@vger.kernel.org>; Thu, 01 Dec 2016
+ 09:52:13 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 01/11] last: include libgen.h for basename(3p)
+Date: Thu,  1 Dec 2016 09:52:04 +0100
+Message-Id: <1480582332-17407-2-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de>
+References: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Dec 07, 2016 at 03:52:37PM +0100, Ruediger Meier wrote:
-> On Wednesday 07 December 2016, Michael Kerrisk (man-pages) wrote:
-> > Karel,
-> >
-> > The two following patches contain nontrivial content
-> > changes to the renice(1) page. They depend on changes
-> > sent in my just-sent git pull request that includes
-> > trivial changes to the renice(1) page.
-> 
-> 
-> For example like this:
-> 
-> $ rm -rf /tmp/patches
-> $ git format-patch --cover-letter o /tmp/patches  master..HEAD
-> $ git send-email --to=util-linux@vger.kernel.org /tmp/patches/*
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
- +1
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ login-utils/last.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
- I have problem to apply the patches, for example:
-
-         Applying: docs: renice(1): Remove obsolete BUGS text
-         fatal: sha1 information is lacking or useless (sys-utils/renice.1).
-         error: could not build fake ancestor
-         Patch failed at 0001 docs: renice(1): Remove obsolete BUGS text
-         The copy of the patch that failed is found in: .git/rebase-apply/patch
-
- the both patches are applied now, but manually.
-
-    Karel
-
+diff --git a/login-utils/last.c b/login-utils/last.c
+index 6d0e892..90eee68 100644
+--- a/login-utils/last.c
++++ b/login-utils/last.c
+@@ -40,6 +40,7 @@
+ #include <netinet/in.h>
+ #include <netdb.h>
+ #include <arpa/inet.h>
++#include <libgen.h>
+ 
+ #include "c.h"
+ #include "nls.h"
+@@ -877,7 +878,11 @@ static void process_wtmp_file(const struct last_control *ctl,
+ 		}
+ 	}
+ 
+-	printf(_("\n%s begins %s"), basename(filename), ctime(&begintime));
++	{
++		char* tmp = xstrdup(filename);
++		printf(_("\n%s begins %s"), basename(tmp), ctime(&begintime));
++		free(tmp);
++	}
+ 	fclose(fp);
+ 
+ 	for (p = ulist; p; p = next) {
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.5.6
+
