@@ -1,54 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:63513 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750738AbcLAIwQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 1 Dec 2016 03:52:16 -0500
-Received: from tenfore.ga-group.nl ([217.186.11.144]) by mail.gmx.com
- (mrgmx102 [212.227.17.168]) with ESMTPSA (Nemesis) id
- 0MOTRh-1c6bvs0zH3-005m5F for <util-linux@vger.kernel.org>; Thu, 01 Dec 2016
- 09:52:13 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:56176
+        "EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1759727AbcLBOK2 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 2 Dec 2016 09:10:28 -0500
+From: Andreas Henriksson <andreas@fatal.se>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 01/11] last: include libgen.h for basename(3p)
-Date: Thu,  1 Dec 2016 09:52:04 +0100
-Message-Id: <1480582332-17407-2-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de>
-References: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de>
+Cc: Patrick Pelissier <patrick.pelissier@gmail.com>,
+        Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH] chrt: default to SCHED_RR policy
+Date: Fri,  2 Dec 2016 15:10:18 +0100
+Message-Id: <1480687818-16387-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+This fixes a regression introduced in:
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+commit 7a4ea5664edba98bff28adec3a9c3cfb5763a495
+"chrt: add control struct"
+
+Previously (and as documented in the manpage) the default policy
+was SCHED_RR. Now it's implicitly SCHED_OTHER (0) as the value
+is not initialized explicitly anymore.
+
+Test-command: chrt 90 echo hello
+
+Reported-by: Patrick Pelissier <patrick.pelissier@gmail.com>
+Addresses: http://bugs.debian.org/846572
+Signed-off-by: Andreas Henriksson <andreas@fatal.se>
 ---
- login-utils/last.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ schedutils/chrt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/login-utils/last.c b/login-utils/last.c
-index 6d0e892..90eee68 100644
---- a/login-utils/last.c
-+++ b/login-utils/last.c
-@@ -40,6 +40,7 @@
- #include <netinet/in.h>
- #include <netdb.h>
- #include <arpa/inet.h>
-+#include <libgen.h>
+diff --git a/schedutils/chrt.c b/schedutils/chrt.c
+index a861d9f..73d1ffa 100644
+--- a/schedutils/chrt.c
++++ b/schedutils/chrt.c
+@@ -409,7 +409,7 @@ static void set_sched(struct chrt_ctl *ctl)
  
- #include "c.h"
- #include "nls.h"
-@@ -877,7 +878,11 @@ static void process_wtmp_file(const struct last_control *ctl,
- 		}
- 	}
+ int main(int argc, char **argv)
+ {
+-	struct chrt_ctl _ctl = { .pid = -1 }, *ctl = &_ctl;
++	struct chrt_ctl _ctl = { .pid = -1, .policy = SCHED_RR }, *ctl = &_ctl;
+ 	int c;
  
--	printf(_("\n%s begins %s"), basename(filename), ctime(&begintime));
-+	{
-+		char* tmp = xstrdup(filename);
-+		printf(_("\n%s begins %s"), basename(tmp), ctime(&begintime));
-+		free(tmp);
-+	}
- 	fclose(fp);
- 
- 	for (p = ulist; p; p = next) {
+ 	static const struct option longopts[] = {
 -- 
-1.8.5.6
+2.10.2
 
