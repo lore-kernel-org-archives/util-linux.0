@@ -1,41 +1,33 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36510 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750951AbcLEMHI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 5 Dec 2016 07:07:08 -0500
-Date: Mon, 5 Dec 2016 13:06:31 +0100
-From: Karel Zak <kzak@redhat.com>
-To: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: Pull request: nsenter(1) fixes
-Message-ID: <20161205120631.qgyuymptnoacnppr@ws.net.home>
-References: <CAKgNAkjtq0kh7X5umw26FQhh_cork1yb_C-gNL4jHZNr7Fz2qA@mail.gmail.com>
- <20161205115129.hvxasynsgszi33tu@ws.net.home>
- <CAKgNAkgLVYfiroRtGbP48uFps8=EGtAhdt5iLsmVdX0zsRAJMw@mail.gmail.com>
+Return-Path: mtk.manpages@gmail.com
+Subject: Re: Patches to util-linux man pages
+To: Karel Zak <kzak@redhat.com>
+References: <17647d86-6faa-1898-22df-3303d9ad8a7e@gmail.com>
+ <20161129095246.ds2fo5naj5udbqwf@ws.net.home>
+Cc: mtk.manpages@gmail.com, util-linux@vger.kernel.org
+From: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Message-ID: <c0a2e357-64c4-dae8-064f-6af2ea185b2e@gmail.com>
+Date: Sat, 3 Dec 2016 15:18:38 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAKgNAkgLVYfiroRtGbP48uFps8=EGtAhdt5iLsmVdX0zsRAJMw@mail.gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20161129095246.ds2fo5naj5udbqwf@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Dec 05, 2016 at 12:56:36PM +0100, Michael Kerrisk (man-pages) wrote:
-> Hello Karel,
+On 11/29/2016 10:52 AM, Karel Zak wrote:
+> On Thu, Nov 10, 2016 at 11:59:09AM +0100, Michael Kerrisk (man-pages) wrote:
+>> I have a series of patches that contain fixes for various
+>> manual pages in util-linux. The early patches in the series
+>> fix typos and inconsistencies across many pages.
 > 
-> On 5 December 2016 at 12:51, Karel Zak <kzak@redhat.com> wrote:
-> > On Mon, Dec 05, 2016 at 11:25:45AM +0100, Michael Kerrisk (man-pages) wrote:
-> >> I have various fixes to send, but I'll start small, with a couple of
-> >> fixes for nsenter(1).
-> >
-> >  Applied ... but you have removed "See also.. " sentence from
-> >  description of the --user. Would be better to keep there?
-> 
-> My apologies. That was a blunder. I can send you a patch, or do you
-> want to revert that deletion manually. Let me know which you prefer.
+> Applied, thanks!
 
-Fixed, I did the change manually.
+Thanks, Karel.
 
-    Karel
+Cheers,
+
+Michael
+
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Michael Kerrisk
+Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
+Linux/UNIX System Programming Training: http://man7.org/training/
