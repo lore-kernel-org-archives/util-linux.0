@@ -1,51 +1,43 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:62891 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751798AbcLFM15 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 6 Dec 2016 07:27:57 -0500
-Received: from zappa.ga.local ([87.128.112.108]) by mail.gmx.com (mrgmx103
- [212.227.17.168]) with ESMTPSA (Nemesis) id 0LzbXq-1ciOki0l98-014nBm for
- <util-linux@vger.kernel.org>; Tue, 06 Dec 2016 13:26:10 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: fuzzing anybody
-Date: Tue, 6 Dec 2016 13:26:09 +0100
+Return-Path: mtk.manpages@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <201612061326.09245.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Reply-To: mtk.manpages@gmail.com
+In-Reply-To: <20161205120631.qgyuymptnoacnppr@ws.net.home>
+References: <CAKgNAkjtq0kh7X5umw26FQhh_cork1yb_C-gNL4jHZNr7Fz2qA@mail.gmail.com>
+ <20161205115129.hvxasynsgszi33tu@ws.net.home> <CAKgNAkgLVYfiroRtGbP48uFps8=EGtAhdt5iLsmVdX0zsRAJMw@mail.gmail.com>
+ <20161205120631.qgyuymptnoacnppr@ws.net.home>
+From: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Date: Mon, 5 Dec 2016 15:16:40 +0100
+Message-ID: <CAKgNAkix3xqS-yOOTZxi9K0X1_oMm7js1Rv-qM7SPNfAxKs3zw@mail.gmail.com>
+Subject: Re: Pull request: nsenter(1) fixes
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+On 5 December 2016 at 13:06, Karel Zak <kzak@redhat.com> wrote:
+> On Mon, Dec 05, 2016 at 12:56:36PM +0100, Michael Kerrisk (man-pages) wrote:
+>> Hello Karel,
+>>
+>> On 5 December 2016 at 12:51, Karel Zak <kzak@redhat.com> wrote:
+>> > On Mon, Dec 05, 2016 at 11:25:45AM +0100, Michael Kerrisk (man-pages) wrote:
+>> >> I have various fixes to send, but I'll start small, with a couple of
+>> >> fixes for nsenter(1).
+>> >
+>> >  Applied ... but you have removed "See also.. " sentence from
+>> >  description of the --user. Would be better to keep there?
+>>
+>> My apologies. That was a blunder. I can send you a patch, or do you
+>> want to revert that deletion manually. Let me know which you prefer.
+>
+> Fixed, I did the change manually.
 
-google is offereing "Fuzz testing" for famous OSS projects
-  https://github.com/google/oss-fuzz
+Thanks. And thanks also for spotting my blunder.
 
-I've thought this might be a nice idea for util-linux and already 
-registered
-  https://github.com/google/oss-fuzz/pull/120
+Cheers,
 
-Stupidly I've missed the point that I would also need to write some code 
-which intelligently feeds our UL programs with the generated random 
-data to find bugs. I thought that this is what google would do for us 
-but they only give us the their infrastructure for running the actual 
-tests. ;)
+Michael
 
-So if anybody is interested in this fuzzing topic ... maybe someone has 
-a good idea, say how to feed libsmartcol or libblkid with random data.
-
-A good and even interesting point to start is this "libFuzzer Tutorial":
-https://github.com/google/fuzzer-test-suite/blob/master/tutorial/libFuzzerTutorial.md
-
-Also interesting to see how other projects are doing it already in 
-google's oss-fuzz.
-
-for example curl: 
-https://github.com/google/oss-fuzz/blob/master/projects/curl/curl_fuzzer.cc
-
-or openssl which has a fuzz/ sub-directory in their original project.
-https://github.com/openssl/openssl/tree/master/fuzz
-
-cu,
-Rudi
+-- 
+Michael Kerrisk
+Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
+Linux/UNIX System Programming Training: http://man7.org/training/
