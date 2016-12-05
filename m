@@ -1,73 +1,41 @@
-Return-Path: vapier@gentoo.org
-Date: Mon, 12 Dec 2016 13:27:35 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.29-rc2
-Message-ID: <20161212182735.GQ10558@vapier.lan>
-References: <20161019132505.cumn37cmgazlumcu@ws.net.home>
- <20161020151948.3y47rv5lwmqppubf@ws.net.home>
- <20161210171510.GH10558@vapier.lan>
- <201612121501.57462.sweet_f_a@gmx.de>
- <20161212142834.jnspem6oeqqbly4g@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:36510 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750951AbcLEMHI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 5 Dec 2016 07:07:08 -0500
+Date: Mon, 5 Dec 2016 13:06:31 +0100
+From: Karel Zak <kzak@redhat.com>
+To: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Pull request: nsenter(1) fixes
+Message-ID: <20161205120631.qgyuymptnoacnppr@ws.net.home>
+References: <CAKgNAkjtq0kh7X5umw26FQhh_cork1yb_C-gNL4jHZNr7Fz2qA@mail.gmail.com>
+ <20161205115129.hvxasynsgszi33tu@ws.net.home>
+ <CAKgNAkgLVYfiroRtGbP48uFps8=EGtAhdt5iLsmVdX0zsRAJMw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="bDDjztrZmyyMv72E"
-In-Reply-To: <20161212142834.jnspem6oeqqbly4g@ws.net.home>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAKgNAkgLVYfiroRtGbP48uFps8=EGtAhdt5iLsmVdX0zsRAJMw@mail.gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Mon, Dec 05, 2016 at 12:56:36PM +0100, Michael Kerrisk (man-pages) wrote:
+> Hello Karel,
+> 
+> On 5 December 2016 at 12:51, Karel Zak <kzak@redhat.com> wrote:
+> > On Mon, Dec 05, 2016 at 11:25:45AM +0100, Michael Kerrisk (man-pages) wrote:
+> >> I have various fixes to send, but I'll start small, with a couple of
+> >> fixes for nsenter(1).
+> >
+> >  Applied ... but you have removed "See also.. " sentence from
+> >  description of the --user. Would be better to keep there?
+> 
+> My apologies. That was a blunder. I can send you a patch, or do you
+> want to revert that deletion manually. Let me know which you prefer.
 
---bDDjztrZmyyMv72E
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Fixed, I did the change manually.
 
-On 12 Dec 2016 15:28, Karel Zak wrote:
-> I have add one AC_IF and PKG_CHECK_MODULES to our UL_NCURSES_CHECK to
-> prefer pkg-config and fallback to ncurses-config. It's trivial fix and
-> it seems it works as expected.
+    Karel
 
-thanks
-
-i'd also note that the current logic isn't the preferred method for
-finding tools like this.  the code looks like:
-  if AC_RUN_LOG([suffix[]6-config --version >/dev/null]); then
-
-which means it runs xxx6-config directly.  in autotools, you want to:
-	AC_CHECK_TOOL([NCURSES_CONFIG], [ncurses-config])
-this will make it search for $host-ncurses-config first, and when
-cross-compiling, it'll warn if it falls back to ncurses-config.  it
-also means builders can set $NCURSES_CONFIG to whatever weird path
-they want to.
-
-based on how the current code is written, it'll be a little more
-difficult to integrate.  you'd have to use like m4_translit.
-untested:
-	m4_define([SUFFIX], m4_translit($1, [a-z], [A-Z]))
-	...
-	AC_CHECK_TOOL(SUFFIX[]6_CONFIG, suffix[]6-config)
-	if AC_RUN_LOG($SUFFIX[]6_CONFIG --version ....
--mike
-
---bDDjztrZmyyMv72E
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJYTuwXAAoJEEFjO5/oN/WBXt4P/RMKA5nWp2BYS1yE91Gd65US
-SRTRNyoobfW8pAeITxGSOYbAx8V3FiaOKi89cv+YuBYuVSqhNSDRi1CsqktaLjpu
-AZ/mSbZzIoWLcfGvQz0GJTWVyYYBlzKE4VrsVwFobA5K9LLln0C6i+CVVmcJCkmr
-cKBqKWgXKHImCSzS052nEwf5Wnznzo6o+NEjGTuZSXlHycJF5tqpZaVusbMtCMIW
-oafkzBlVp9vlEWiIfx20lrabBeFxlH9wXOSusAPlY5d9ldDgXgGYG1twpN+cpVBV
-n3AdlfBbecniEPDUZPBc0b8YQV2yvh83Oixk9V45aIp25sF624qIQPkdVS2WvqwZ
-omhfGtxIGAHKQkUUnC5RldzA5uNBxaSUAcYBtdhrqhUg0jjaNGusaJwv0CZa8DVT
-JU5tpWrJB84VilB59guxrcLoCcLj1AWvJWqdahy/6b5mNVuniopDnoPVAcdu8REX
-Pgb6caRJwcechuzMIOEdSY40UqMVveY+aQ3x6mFXzEnAnIhgE8ivPuQwi0/BaosE
-dLY6otC/Wzl6nMRtW0tdUfI21/ixGChdgYec+CGtfsbPSwlXqkYr+FzYc0EyVWXA
-RPRowEFh7XDgAAK1Dlg87aGwErqGJ7MmPo6FIC8DGYfjY/d37rceoL4unjgcJm6E
-rOjFyvsqGBX1L9nVtSVC
-=8vie
------END PGP SIGNATURE-----
-
---bDDjztrZmyyMv72E--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
