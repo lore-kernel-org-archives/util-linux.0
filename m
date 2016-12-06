@@ -1,53 +1,77 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:49877 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757484AbcLAI6B (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 1 Dec 2016 03:58:01 -0500
-Received: from tenfore.ga-group.nl ([217.186.11.144]) by mail.gmx.com
- (mrgmx001 [212.227.17.190]) with ESMTPSA (Nemesis) id
- 0LtZcC-1ct1gy1Ny8-010y8E for <util-linux@vger.kernel.org>; Thu, 01 Dec 2016
- 09:57:52 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 10/11] travis: let OSX auto-skip utmpx tools
-Date: Thu,  1 Dec 2016 09:57:50 +0100
-Message-Id: <1480582671-17627-1-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de>
-References: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de>
+Received: from mail-wm0-f49.google.com ([74.125.82.49]:36189 "EHLO
+        mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751576AbcLFOZz (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 6 Dec 2016 09:25:55 -0500
+Received: by mail-wm0-f49.google.com with SMTP id g23so130563641wme.1
+        for <util-linux@vger.kernel.org>; Tue, 06 Dec 2016 06:25:54 -0800 (PST)
+MIME-Version: 1.0
+Reply-To: mtk.manpages@gmail.com
+In-Reply-To: <20161206141822.vdhpf4wyvmjckkli@ws.net.home>
+References: <CAKgNAkjtq0kh7X5umw26FQhh_cork1yb_C-gNL4jHZNr7Fz2qA@mail.gmail.com>
+ <20161205115129.hvxasynsgszi33tu@ws.net.home> <d94b2af3-fe84-21be-9e41-3b3668729524@gmx.com>
+ <20161206141822.vdhpf4wyvmjckkli@ws.net.home>
+From: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Date: Tue, 6 Dec 2016 15:25:33 +0100
+Message-ID: <CAKgNAkiiAO9iHf1EFc17s1ptSm4jB0fKsmvGzGNS3Xr-P5fAWg@mail.gmail.com>
+Subject: Re: Pull request: nsenter(1) fixes
+To: Karel Zak <kzak@redhat.com>
+Cc: J William Piggott <elseifthen@gmx.com>, util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On 6 December 2016 at 15:18, Karel Zak <kzak@redhat.com> wrote:
+> On Mon, Dec 05, 2016 at 01:27:11PM -0500, J William Piggott wrote:
+>> On 12/05/2016 06:51 AM, Karel Zak wrote:
+>> > On Mon, Dec 05, 2016 at 11:25:45AM +0100, Michael Kerrisk (man-pages) wrote:
+>> >> I have various fixes to send, but I'll start small, with a couple of
+>> >> fixes for nsenter(1).
+>> >
+>> >  Applied ... but you have removed "See also.. " sentence from
+>> >  description of the --user. Would be better to keep there?
+>> >
+>> >> Is a git pull request compatible with your
+>> >> workflow?
+>> >
+>> >  Sure.
+>>
+>> Does this apply to all of us? We no longer need to submit patches to the
+>> mailing list for peer review?
+>
+> Well, send patch to the mailing list for review is always good choice,
+> and it's definitely wanted for invasive or sensitive things, or if
+> you're not sure.
+>
+> I think for trivial changes where is nothing to discuss it's probably
+> good enough to send pull request only.
+>
+> It's also good idea to keep the latest version of your patches in
+> public remote repository (e.g. github) if you expect any additional
+> changes after review etc.
+>
+> Use common sense anyway. It works better than strict rules.
+>
+> And this is not LKML, this is mailing list where we keep things in
+> friendly atmosphere, so don't be afraid to make a bad choice,
+> contribute non-perfect solution or ask "stupid" questions...
 
-It will disable all these programs automatically except wall(1)
-which is now non-Linux compatible.
+All sounds good to me. And I realized after William's comment that it
+would be good to put any nontrivial patches onto the list. My first
+few patches were trivial. The last series was a little more
+substantial, though I think fairly obviously correct fixes for the man
+pages. Still, I think I should better put such patches onto the list,
+in case someone has improvements to suggest.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- .travis-functions.sh | 8 --------
- 1 file changed, 8 deletions(-)
+However, for pure language fixes and such, I'd probably continue to
+use pull requests, if that's okay, so as to avoid the hassle of
+putting mailed patches together and also to avoid noise on the list.
 
-diff --git a/.travis-functions.sh b/.travis-functions.sh
-index ca73a9f..11e7707 100755
---- a/.travis-functions.sh
-+++ b/.travis-functions.sh
-@@ -108,16 +108,8 @@ function osx_install_script
- 	brew link --force ncurses
- 
- 	OSX_CONFOPTS="
--		--disable-runuser \
--		--disable-su \
--		--disable-login \
--		--disable-last \
--		--disable-utmpdump \
--		--disable-agetty \
--		--disable-wall \
- 		--disable-ipcrm \
- 		--disable-ipcs \
--		--disable-write \
- 	"
- 
- 	# workaround: glibtoolize could not find sed
+Cheers,
+
+Michael
+
 -- 
-1.8.5.6
-
+Michael Kerrisk
+Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
+Linux/UNIX System Programming Training: http://man7.org/training/
