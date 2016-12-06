@@ -1,113 +1,138 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qt0-f193.google.com ([209.85.216.193]:34825 "EHLO
-        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752380AbcL2K6q (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 29 Dec 2016 05:58:46 -0500
-Received: by mail-qt0-f193.google.com with SMTP id 3so22744166qtr.2
-        for <util-linux@vger.kernel.org>; Thu, 29 Dec 2016 02:58:46 -0800 (PST)
+Received: from mout.gmx.net ([212.227.17.20]:60966 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750960AbcLFXkm (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 6 Dec 2016 18:40:42 -0500
+Subject: Re: [PATCH 1/2] Revert "hwclock: don't allow non-root access"
+To: Marian Vomir <marian.vomir@ni.com>, util-linux@vger.kernel.org
+References: <1481047580-28284-1-git-send-email-marian.vomir@ni.com>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <c0ddbe5a-caa4-c8ad-0d86-9b13c3277edc@gmx.com>
+Date: Tue, 6 Dec 2016 18:40:32 -0500
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20161229003327.oeavblvtsem4e6ge@angband.pl>
-References: <20161228220211.5634-1-kerolasa@iki.fi> <20161229003327.oeavblvtsem4e6ge@angband.pl>
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Thu, 29 Dec 2016 10:58:45 +0000
-Message-ID: <CAG27Bk32Qb0V2g6HFXdPRakrRhjG9fhZbPSFtA8cTjDKpLWu4w@mail.gmail.com>
-Subject: Re: [PATCH 1/1] setterm: add --resize option
-To: Adam Borowski <kilobyte@angband.pl>
-Cc: util-linux <util-linux@vger.kernel.org>,
-        Andreas Henriksson <andreas@fatal.se>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1481047580-28284-1-git-send-email-marian.vomir@ni.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 29 December 2016 at 00:33, Adam Borowski <kilobyte@angband.pl> wrote:
-> On Wed, Dec 28, 2016 at 10:02:11PM +0000, Sami Kerola wrote:
->> Reset terminal size by assessing maximum row and column.  This is useful
->> when actual geometry and kernel terminal driver are not in sync.
->>
->> Addresses: http://bugs.debian.org/835636
->> Based-on-work-by: Adam Borowski <kilobyte@angband.pl>
->> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
->
-> Awesome, thanks for taking a look at it!
-> Alas, at least the delay length makes your version not work for me.
 
-Fair enough, updates are available in the git repository at:
 
-  git://github.com/kerolasa/lelux-utiliteetit.git setterm
+On 12/06/2016 01:06 PM, Marian Vomir wrote:
+> This reverts commit 687cc5d58942b24a9f4013c68876d8cbea907ab1.
+> 
+> There are cases when an unprivileged user wants to set the hardware clock.
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/9e0d5c6b0f8294ceabf38212f6ec14f148e5e642
+This has never been allowed in over two decades of hwclock. I cannot
+think of a legitimate reason to allow setting the Hardware Clock by a
+normal user.
 
->> --- a/term-utils/setterm.1
->> +++ b/term-utils/setterm.1
->> @@ -228,6 +228,10 @@ Turns keyboard repeat on or off.
->> +\fB\-\-resize\fP
->> +Reset terminal size by assessing maximum row and column.  This is useful
->> +when actual geometry and kernel terminal driver are not in sync.
->
-> Perhaps a remark about serial consoles as the principal use?  They don't
-> transfer ioctls, just a byte stream plus breaks.
+Having said that, while I agree with Karel's desire to remove all
+mention of running hwclock with setuid, IMO the code should not have
+been removed. Despite the comment directly above it, that code has
+nothing to do with hwclock being run with setuid.
 
-Added. Could you consider sending an update to manual that clarifies why
-setterm --resize works when stty(1) and resize(1) fail.
+I would argue that there are some hwclock options intended for normal
+users. A normal users should at least be able to display the Hardware
+Clock time. In development of hwclock I use --test as a normal user for
+all functions, including set function.
 
-Ref: http://docstore.mik.ua/orelly/unix/upt/ch42_05.htm
 
->> diff --git a/term-utils/setterm.c b/term-utils/setterm.c
->> index abcf8b291..691c3bc2f 100644
->> --- a/term-utils/setterm.c
->> +++ b/term-utils/setterm.c
->> +     tv.tv_sec = 0;
->> +     tv.tv_usec = 100;
->> +     return select(1, &set, NULL, NULL, &tv);
->
-> This delay is too short even on my amd64 in xfce4-terminal, much less on a
-> serial link.  Even at 115200 baud, 100usec = 1/10000sec is enough to ferry
-> less than a byte and a half, one way, without giving any time for the
-> terminal to respond.  As the query will be often preceded by a login screen
-> -- sometimes just a banner, sometimes a picture, sometimes a screenful of
-> ALL CAPS "authorized use only" legal blathering, even my original timeout of
-> 3.0 seconds is quite short.
->
-> In a vast majority of cases the timeout won't be reached -- it's just a
-> safeguard against the terminal being disconnected or not implementing cursor
-> position queries.
-
-Fair enough. Timeout is set to be 10 seconds.
-
->> +      * \e7        Save current state (cursor coordinates, attributes,
->> +      *                character sets pointed at by G0, G1).
->> +      * \e[r       Set scrolling region; parameters are top and bottom row.
->> +      * \e[99999E  Move cursor down 99999 rows.
->> +      * \e[99999C  Move cursor right 99999 columns.
->> +      */
->> +     static const char *setup = "\e7\e[r\e[99999E\e[99999C";
->
-> I'm afraid some old terminals might use shorts there -- 9999 or 32766 (32767
-> might be a magic number) could be better.
-
-Finding max value from termcap would be nice, but I don't know how to do
-that. Meanwhole INT16_MAX - 1 is reasonable compromise.
-
->> +     /* \e[6n      Report cursor position.  */
->> +     static const char *getpos = "\e[6n";
->> +     /* \e8        Restore state most recently saved by \e7. */
->> +     static const char *restore = "\e8";
->
->> +     if (write(STDIN_FILENO, setup, strlen(setup)) < 0 ||
->> +         write(STDIN_FILENO, getpos, strlen(getpos)) < 0) {
->> +             warn(_("write failed"));
->
-> What about blasting all three strings to the terminal together?
->
-> The former two have no logical reason to be apart, writing the third one
-> unconditionally means the cursor won't go to an odd place if the read fails,
-> thus they can go in one write.
-
-Striongs are merged, and I changed write() to write_all() to be more robust.
-There is also some signal safety now, primarily EINTR is checked at when
-select(2) and read(2) return.
-
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+> The solution is to use capabilities, specifically CAP_SYS_TIME in this case.
+> ---
+>  sys-utils/hwclock.8.in | 15 +++++++++++++++
+>  sys-utils/hwclock.c    | 34 +++++++++++++++++++++++++++++-----
+>  2 files changed, 44 insertions(+), 5 deletions(-)
+> 
+> diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
+> index dec7902..5a7f762 100644
+> --- a/sys-utils/hwclock.8.in
+> +++ b/sys-utils/hwclock.8.in
+> @@ -577,6 +577,21 @@ This second field is not used under Linux and is always zero.
+>  See also
+>  .BR \%settimeofday (2).
+>  .
+> +.SS User access and setuid
+> +.PP
+> +Sometimes, you need to install
+> +.B \%hwclock
+> +setuid root.  If you want users other than the superuser to be able to
+> +display the clock value using the direct ISA I/O method, install it setuid
+> +root.  If you have the rtc device interface on your system, or are on a non-ISA
+> +compatible system, there is probably no need for users to have the direct
+> +ISA I/O method, so do not bother.  See the
+> +.BR \-\-rtc " option."
+> +.PP
+> +In any case, \fBhwclock\fR will not allow you to set anything unless you have the
+> +superuser real uid.  (This restriction is not necessary if you haven't
+> +installed setuid root, but it's there for now.)
+> +.
+>  .SS Hardware Clock Access Methods
+>  .PP
+>  .B \%hwclock
+> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+> index 4b201d7..880ba78 100644
+> --- a/sys-utils/hwclock.c
+> +++ b/sys-utils/hwclock.c
+> @@ -1633,6 +1633,8 @@ int main(int argc, char **argv)
+>  	 * fractions.
+>  	 */
+>  	time_t set_time = 0;	/* Time to which user said to set Hardware Clock */
+> +
+> +	bool permitted;		/* User is permitted to do the function */
+>  	int rc, c;
+>  
+>  	/* Variables set by various options; show may also be set later */
+> @@ -1861,11 +1863,6 @@ int main(int argc, char **argv)
+>  	argc -= optind;
+>  	argv += optind;
+>  
+> -	if (getuid() != 0) {
+> -		warnx(_("Sorry, only the superuser can use the Hardware Clock."));
+> -		hwclock_exit(EX_NOPERM);
+> -	}
+> -
+>  #ifdef HAVE_LIBAUDIT
+>  	if (testing != TRUE) {
+>  		if (adjust == TRUE || hctosys == TRUE || systohc == TRUE ||
+> @@ -1907,6 +1904,28 @@ int main(int argc, char **argv)
+>  	      | setepoch | predict | compare | get))
+>  		show = 1;	/* default to show */
+>  
+> +	if (getuid() == 0)
+> +		permitted = TRUE;
+> +	else {
+> +		/* program is designed to run setuid (in some situations) */
+> +		if ((set || systohc || adjust) && !testing) {
+> +			warnx(_("Sorry, only the superuser can change "
+> +				"the Hardware Clock."));
+> +			permitted = FALSE;
+> +		} else if ((systz || hctosys) && !testing) {
+> +			warnx(_("Sorry, only the superuser can change "
+> +				"the System Clock."));
+> +			permitted = FALSE;
+> +		} else if (setepoch && !testing) {
+> +			warnx(_("Sorry, only the superuser can change the "
+> +				"Hardware Clock epoch in the kernel."));
+> +			permitted = FALSE;
+> +		} else
+> +			permitted = TRUE;
+> +	}
+> +
+> +	if (!permitted)
+> +		hwclock_exit(EX_NOPERM);
+>  
+>  #ifdef __linux__
+>  	if (getepoch || setepoch) {
+> @@ -2009,6 +2028,11 @@ void __attribute__((__noreturn__)) hwaudit_exit(int status)
+>   * with any functions by these names, you will have unresolved external
+>   * references when you link.
+>   *
+> + * The program is designed to run setuid superuser, since we need to be able
+> + * to do direct I/O. (More to the point: we need permission to execute the
+> + * iopl() system call). (However, if you use one of the methods other than
+> + * direct ISA I/O to access the clock, no setuid is required).
+> + *
+>   * Here's some info on how we must deal with the time that elapses while
+>   * this program runs: There are two major delays as we run:
+>   *
+> 
