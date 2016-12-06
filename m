@@ -1,35 +1,83 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59522 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:56887 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751427AbcLELvb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 5 Dec 2016 06:51:31 -0500
-Date: Mon, 5 Dec 2016 12:51:29 +0100
-From: Karel Zak <kzak@redhat.com>
-To: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+        id S1752353AbcLFRAt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 6 Dec 2016 12:00:49 -0500
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH 01/11] last: include libgen.h for basename(3p)
+Date: Tue, 6 Dec 2016 18:00:42 +0100
 Cc: util-linux@vger.kernel.org
-Subject: Re: Pull request: nsenter(1) fixes
-Message-ID: <20161205115129.hvxasynsgszi33tu@ws.net.home>
-References: <CAKgNAkjtq0kh7X5umw26FQhh_cork1yb_C-gNL4jHZNr7Fz2qA@mail.gmail.com>
+References: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de> <1480582332-17407-2-git-send-email-sweet_f_a@gmx.de> <20161206150131.twqbvpl7oqvhkddt@ws.net.home>
+In-Reply-To: <20161206150131.twqbvpl7oqvhkddt@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAKgNAkjtq0kh7X5umw26FQhh_cork1yb_C-gNL4jHZNr7Fz2qA@mail.gmail.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201612061800.42299.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Dec 05, 2016 at 11:25:45AM +0100, Michael Kerrisk (man-pages) wrote:
-> I have various fixes to send, but I'll start small, with a couple of
-> fixes for nsenter(1).
+On Tuesday 06 December 2016, Karel Zak wrote:
+> On Thu, Dec 01, 2016 at 09:52:04AM +0100, Ruediger Meier wrote:
+> > From: Ruediger Meier <ruediger.meier@ga-group.nl>
+> >
+> > Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+> > ---
+> >  login-utils/last.c | 7 ++++++-
+> >  1 file changed, 6 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/login-utils/last.c b/login-utils/last.c
+> > index 6d0e892..90eee68 100644
+> > --- a/login-utils/last.c
+> > +++ b/login-utils/last.c
+> > @@ -40,6 +40,7 @@
+> >  #include <netinet/in.h>
+> >  #include <netdb.h>
+> >  #include <arpa/inet.h>
+> > +#include <libgen.h>
+> >
+> >  #include "c.h"
+> >  #include "nls.h"
+> > @@ -877,7 +878,11 @@ static void process_wtmp_file(const struct
+> > last_control *ctl, }
+> >  	}
+> >
+> > -	printf(_("\n%s begins %s"), basename(filename),
+> > ctime(&begintime)); +	{
+> > +		char* tmp = xstrdup(filename);
+> > +		printf(_("\n%s begins %s"), basename(tmp), ctime(&begintime));
+> > +		free(tmp);
+>
+>  This seems like pretty common pattern, what about to introduce
+>  xbasename(filename, &tmp)?
 
- Applied ... but you have removed "See also.. " sentence from
- description of the --user. Would be better to keep there?
+Or the comfort version below? Caller has to
+free the returned string only.
 
-> Is a git pull request compatible with your
-> workflow?
+char *xbasename(const char *path)
+{
+        char *tmp, *p, *ret;
 
- Sure. 
- 
-    Karel
+        tmp = xstrdup(path);
+        p = basename(tmp);
+        ret = xstrdup(p);
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+        free(tmp);
+        return ret;
+}
+
+... plus we could also import musl's basename code to get rid of this
+libgen.h/GNU thing at all:
+
+char *basename(char *s)
+{
+        size_t i;
+        if (!s || !*s) return ".";
+        i = strlen(s)-1;
+        for (; i&&s[i]=='/'; i--) s[i] = 0;
+        for (; i&&s[i-1]!='/'; i--);
+        return s+i;
+}
+
+cu,
+Rudi
