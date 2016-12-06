@@ -1,54 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:62564 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:60068 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752193AbcLGO7P (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 7 Dec 2016 09:59:15 -0500
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Subject: Re: [PATCH 0/2] docs: renice(1) patches
-Date: Wed, 7 Dec 2016 15:52:37 +0100
-Cc: util-linux@vger.kernel.org
-References: <a107f552-049d-0600-3893-fdb2a5c11f29@gmail.com>
-In-Reply-To: <a107f552-049d-0600-3893-fdb2a5c11f29@gmail.com>
+        id S1751690AbcLFOSY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 6 Dec 2016 09:18:24 -0500
+Date: Tue, 6 Dec 2016 15:18:23 +0100
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>,
+        util-linux@vger.kernel.org
+Subject: Re: Pull request: nsenter(1) fixes
+Message-ID: <20161206141822.vdhpf4wyvmjckkli@ws.net.home>
+References: <CAKgNAkjtq0kh7X5umw26FQhh_cork1yb_C-gNL4jHZNr7Fz2qA@mail.gmail.com>
+ <20161205115129.hvxasynsgszi33tu@ws.net.home>
+ <d94b2af3-fe84-21be-9e41-3b3668729524@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201612071552.38043.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <d94b2af3-fe84-21be-9e41-3b3668729524@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 07 December 2016, Michael Kerrisk (man-pages) wrote:
-> Karel,
->
-> The two following patches contain nontrivial content
-> changes to the renice(1) page. They depend on changes
-> sent in my just-sent git pull request that includes
-> trivial changes to the renice(1) page.
+On Mon, Dec 05, 2016 at 01:27:11PM -0500, J William Piggott wrote:
+> On 12/05/2016 06:51 AM, Karel Zak wrote:
+> > On Mon, Dec 05, 2016 at 11:25:45AM +0100, Michael Kerrisk (man-pages) wrote:
+> >> I have various fixes to send, but I'll start small, with a couple of
+> >> fixes for nsenter(1).
+> > 
+> >  Applied ... but you have removed "See also.. " sentence from
+> >  description of the --user. Would be better to keep there?
+> > 
+> >> Is a git pull request compatible with your
+> >> workflow?
+> > 
+> >  Sure. 
+> 
+> Does this apply to all of us? We no longer need to submit patches to the
+> mailing list for peer review?
+
+Well, send patch to the mailing list for review is always good choice,
+and it's definitely wanted for invasive or sensitive things, or if
+you're not sure.
+
+I think for trivial changes where is nothing to discuss it's probably
+good enough to send pull request only.
+
+It's also good idea to keep the latest version of your patches in
+public remote repository (e.g. github) if you expect any additional
+changes after review etc. 
 
 
-BTW you could use git instead Thunderbird to send your patches. Should 
-be easier and better. (Maybe that's why you've asked about pull-request 
-vs. mailinglist in the other thread.)
+Use common sense anyway. It works better than strict rules. 
 
 
-For example like this:
+And this is not LKML, this is mailing list where we keep things in
+friendly atmosphere, so don't be afraid to make a bad choice,
+contribute non-perfect solution or ask "stupid" questions...
 
-$ rm -rf /tmp/patches
-$ git format-patch --cover-letter o /tmp/patches  master..HEAD
-$ git send-email --to=util-linux@vger.kernel.org /tmp/patches/*
+    Karel
 
-
-Your ~/.gitconfig would probably need such smtp/email setup:
-
-[sendemail]
-        smtpencryption = tls
-        smtpserver = smtp.yourdomain.com
-        smtpuser = xyzuser
-        smtppass = xyzpwd
-        smtpserverport = 25
-        from=Your Name <bla@.yourdomain.com>
-        suppresscc = self
-        suppresscc = author
-        suppresscc = sob
-[format]
-        signoff = true
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
