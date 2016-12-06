@@ -1,54 +1,58 @@
-Return-Path: mtk@man7.org
-To: Karel Zak <kzak@redhat.com>
-Subject: [PATCH 2/2] docs: renice(1): Remove obsolete BUGS text
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:38840 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751829AbcLFObo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 6 Dec 2016 09:31:44 -0500
+Date: Tue, 6 Dec 2016 15:31:42 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
 Cc: util-linux@vger.kernel.org
-From: Michael Kerrisk <mtk@man7.org>
-Message-ID: <d26d39be-da47-c52e-2d32-6bb3c0935ed2@man7.org>
-Date: Wed, 7 Dec 2016 14:55:26 +0100
+Subject: Re: fuzzing anybody
+Message-ID: <20161206143142.3sah5eg7he6whqbz@ws.net.home>
+References: <201612061326.09245.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201612061326.09245.sweet_f_a@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Already at least as far back as util-linux 2.2, renice uses
-getpriority(2) to fetch the process's old nice value. Thus,
-the "problem" discussed in this BUGS note disappeared long ago.
-This is trivially demonstrable:
+On Tue, Dec 06, 2016 at 01:26:09PM +0100, Ruediger Meier wrote:
+> google is offereing "Fuzz testing" for famous OSS projects
+>   https://github.com/google/oss-fuzz
+> 
+> I've thought this might be a nice idea for util-linux and already 
+> registered
+>   https://github.com/google/oss-fuzz/pull/120
+> 
+> Stupidly I've missed the point that I would also need to write some code 
+> which intelligently feeds our UL programs with the generated random 
+> data to find bugs. I thought that this is what google would do for us 
+> but they only give us the their infrastructure for running the actual 
+> tests. ;)
+> 
+> So if anybody is interested in this fuzzing topic ... maybe someone has 
+> a good idea, say how to feed libsmartcol or libblkid with random data.
 
-    $ sleep 100 &
-    [1] 24322
-    $ renice -n 5 24322
-    24322 (process ID) old priority 0, new priority 5
-    $ renice -n 10 24322
-    24322 (process ID) old priority 5, new priority 10
+Good idea for libblkid (I have already seen report about minix if I
+good remember). Not sure about libsmartcol where it's application who
+fill data to the table.
 
-Rather than trying to explain the ancient problem (20 years old?),
-just kill this text in the man page.
+> A good and even interesting point to start is this "libFuzzer Tutorial":
+> https://github.com/google/fuzzer-test-suite/blob/master/tutorial/libFuzzerTutorial.md
+> 
+> Also interesting to see how other projects are doing it already in 
+> google's oss-fuzz.
+> 
+> for example curl: 
+> https://github.com/google/oss-fuzz/blob/master/projects/curl/curl_fuzzer.cc
+> 
+> or openssl which has a fuzz/ sub-directory in their original project.
+> https://github.com/openssl/openssl/tree/master/fuzz
 
-Signed-off-by: Michael Kerrisk <mtk.man-pages@gmail.com>
----
- sys-utils/renice.1 | 5 -----
- 1 file changed, 5 deletions(-)
+Go ahead, tests/fuzz/ is no problem :-)
 
-diff --git a/sys-utils/renice.1 b/sys-utils/renice.1
-index d37fcf1..5ac8e4b 100644
---- a/sys-utils/renice.1
-+++ b/sys-utils/renice.1
-@@ -108,11 +108,6 @@ to map user names to user IDs
- .BR setpriority (2),
- .BR credentials (7),
- .BR sched (7)
--.SH BUGS
--The Linux kernel (at least version 2.0.0) and linux libc (at least version
--5.2.18) does not agree entirely on what the specifics of the system call
--interface to set nice values is.  Thus causes renice to report bogus previous
--nice values.
- .SH HISTORY
- The
- .B renice
--- 
-2.5.5
+    Karel
 
 -- 
-Michael Kerrisk, man7.org Training and Consulting
-mtk@man7.org, http://man7.org/training/
-"The Linux Programming Interface" -- http://man7.org/tlpi/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
