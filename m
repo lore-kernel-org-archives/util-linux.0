@@ -1,82 +1,104 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [ANNOUNCE] util-linux v2.29-rc2
-Date: Mon, 12 Dec 2016 15:31:57 +0100
-Cc: util-linux@vger.kernel.org
-References: <20161019132505.cumn37cmgazlumcu@ws.net.home> <20161210171510.GH10558@vapier.lan> <20161212102929.5kx3hbgoh4a5tfte@ws.net.home>
-In-Reply-To: <20161212102929.5kx3hbgoh4a5tfte@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-yw0-f170.google.com ([209.85.161.170]:36762 "EHLO
+        mail-yw0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752871AbcLGPkh (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 7 Dec 2016 10:40:37 -0500
+Received: by mail-yw0-f170.google.com with SMTP id a10so302812938ywa.3
+        for <util-linux@vger.kernel.org>; Wed, 07 Dec 2016 07:40:37 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201612121531.57375.sweet_f_a@gmx.de>
+In-Reply-To: <CAKSbvH9mE7YjyERuFusVJi0rbN1zdXCk9+=D7o0k5f3gTE+w-Q@mail.gmail.com>
+References: <CAKSbvH9mE7YjyERuFusVJi0rbN1zdXCk9+=D7o0k5f3gTE+w-Q@mail.gmail.com>
+From: Whilom Chime <whilom.chime@gmail.com>
+Date: Wed, 7 Dec 2016 10:40:36 -0500
+Message-ID: <CAKSbvH8mtBu--3jRe41Hiq=ubwEMU4riRG9q4QxoFtY-o1a-Pw@mail.gmail.com>
+Subject: Fwd: In the "stupid" questions department...
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 12 December 2016, Karel Zak wrote:
-> On Sat, Dec 10, 2016 at 12:15:10PM -0500, Mike Frysinger wrote:
-> > On 20 Oct 2016 17:19, Karel Zak wrote:
-> > > On Thu, Oct 20, 2016 at 01:34:24PM +0200, Ruediger Meier wrote:
-> > > > For me it looks like the even the ncurses authors do not like
-> > > > their own pc files. Disabled by default and it's a pain to get
-> > > > them built with correct names and installed in the right
-> > > > location. Even --prefix does not work for their pc files. Plus
-> > > > the backward compatibility problem ...
-> > >
-> > > OK, I have applied:
-> > >   
-> > > https://github.com/karelzak/util-linux/commit/e5cc93b5a8854fce805
-> > >37f86a244977df212dcb5
-> > >
-> > > with ncurses-config and fallback to old good AC_CHECK_LIB.
-> > >
-> > > We can add fallback to pkg-config too, but it sounds like
-> > > overkill if ncurses-config is everywhere.
-> >
-> > ugh, this change makes things worse.  the point of using pkg-config
-> > is also to get sane cross-compiling.  by always running
-> > `xxx-config`, it now breaks cross-compiling.
->
-> Does it mean that you have system (build root) where is no
-> ncurses-config{5,6}, but you have pkg-config only?
+Thanks for your supportiveness Karel :)
 
-Usually cross-compiled libs to be used by a cross compiler are installed 
-in a prefix like
+"And this is not LKML, this is mailing list where we keep things in
+friendly atmosphere, so don't be afraid to make a bad choice,
+contribute non-perfect solution or ask "stupid" questions..."
 
- /usr/i686-w64-mingw32/sys-root/mingw/
+(I was once a systems programmer working on kernel-level code back in
+the late nineties but I have very little experience with the whole
+"auto*" build/release paradigm, especially as evinced in this rather
+substantial project.)
 
-So you would probaby have such an ncurses5-config (which is not in 
-PATH):
+I've worked up a simple patch to libuuid to allow for generation of
+MD5/SHA-1 UUIDs (DEC V3, V5 conformant) since I can't seem to find any
+other C-level APIs to that effect and libuuid seems to be the C-level
+"go-to" for such.  Does that seem reasonable?
 
-  /usr/i686-w64-mingw32/sys-root/mingw/bin/ncurses5-config
+Obviously this requires openssl, not a dependency that currently seems
+to exist in util-linux.  Is adding that depency reasonable?  I've
+added it as a default-yes ./configure --with-openssl option.
 
-Simply adding this bin dir to PATH wouldn't be a good idea because it 
-may contain binaries build for another target.
+"Stupid" question: to expose the two new APIs it looks like I need to
+add something like:
 
-The "advantage" of pkg-config is 
-that "configure --host=i686-w64-mingw32" is smart and tries to use a 
-host-prefixed "i686-w64-mingw32-pkg-config" instead of 
-just "pkg-config". The prefixed pkg-config is searching .pc files in 
-the right sysroot. Though the smartness ends if you have 
-PKG_CONFIG_PATH in your env ... 
+UUID_2.29 {
+global:
+        uuid_generate_md5;
+        uuid_generate_sha1;
+} UUID_2.20;
 
+to libuuid.sym  but I'm completely unclear as to what version I should
+use, the current 2.29, some imagined 2.30, 2.29_rc3...?
 
-> The argument for ncurses-config has been that it seems it's preferred
-> solution by ncurses upstream.
->
-> It will be simple to extend UL_NCURSES_CHECK() function to support
-> also pkg-config.
->
-> > why can't we just tell distros to fix their ncurses install ?  it's
-> > not like 2.29, released a month ago, is getting rolled out to old
-> > distros where people can't update their ncurses systems.
->
-> Well, it's pretty common that people recompile any package on the
-> current system. I think our goal is to support as much as possible
-> scenarios (yes, nothing is unlimited including my patience with
-> obscure installations ;-)
+And there may be other things I need to do to add APIs?
 
-> > "it's hard" is a pretty weak argument for distro maintainers.
->
-> That's true.
->
->     Karel
+As a comment, the configure.ac section pertaining to libuuid's
+requirements seems a little kludgy, and I've only expanded on that.
+Pointers as to more correctly accomplishing the same would of course
+be welcome, I prefer to leave things better than I found them. Below
+for reference if anyone's interested.
+
+Thanks for your attentions,
+
+Whilom
+
+~~~~~~~~~~ configure.ac excerpt ~~~~~~~~~~
+
+SOCKET_LIBS=
+AC_SEARCH_LIBS([socket], [socket],
+        [AS_IF([test x"$ac_cv_search_socket" != x"none required"],
+                [SOCKET_LIBS="$SOCKET_LIBS -lsocket"])
+])
+AC_SUBST([SOCKET_LIBS])
+
+CRYPTO_LIBS=
+AC_ARG_WITH([openssl],
+  AS_HELP_STRING([--with-openssl], [compile with OpenSSL support]),
+  [], [with_openssl=yes]
+)
+if test $with_openssl != no
+then
+    a=0
+    AC_CHECK_HEADERS(openssl/md5.h, [], [a=1])
+    AC_SEARCH_LIBS([MD5_Init], [crypto],
+        [if test x"$ac_cv_search_MD5_Init" != x"none required"; then
+            CRYPTO_LIBS="-lcrypto";
+        fi], [a=1])
+
+    if test $a == 0
+    then
+        AC_DEFINE(HAVE_MD5, [1], [Define to 1 if you have MD5 functions])
+    fi
+
+    a=0
+    AC_CHECK_HEADERS(openssl/sha.h, [], [a=1])
+    AC_SEARCH_LIBS([SHA1_Init], [crypto],
+        [if test x"$ac_cv_search_MD5_Init" != x"none required"; then
+            CRYPTO_LIBS="-lcrypto";
+        fi], [a=1])
+
+    if test $a == 0
+    then
+        AC_DEFINE(HAVE_SHA1, [1], [Define to 1 if you have SHA1 functions])
+    fi
+fi
+AC_SUBST([CRYPTO_LIBS])
