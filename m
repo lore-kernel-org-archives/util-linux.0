@@ -1,37 +1,54 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qt0-f193.google.com ([209.85.216.193]:36458 "EHLO
-        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751896AbcL1OzL (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 28 Dec 2016 09:55:11 -0500
-Received: by mail-qt0-f193.google.com with SMTP id d22so16638658qtd.3
-        for <util-linux@vger.kernel.org>; Wed, 28 Dec 2016 06:55:11 -0800 (PST)
+Return-Path: mtk@man7.org
+To: Karel Zak <kzak@redhat.com>
+Subject: [PATCH 2/2] docs: renice(1): Remove obsolete BUGS text
+Cc: util-linux@vger.kernel.org
+From: Michael Kerrisk <mtk@man7.org>
+Message-ID: <d26d39be-da47-c52e-2d32-6bb3c0935ed2@man7.org>
+Date: Wed, 7 Dec 2016 14:55:26 +0100
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20161228093620.5528-1-ImpeccableEnglish@gmail.com>
-References: <20161228093620.5528-1-ImpeccableEnglish@gmail.com>
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Wed, 28 Dec 2016 14:55:10 +0000
-Message-ID: <CAG27Bk1eCMakhnbcmQZpYVvcYF2K+eYSekaQQFxUU5UPXfa2gA@mail.gmail.com>
-Subject: Re: [PATCH] col: backspacing widechars
-To: The Flying Rapist <impeccableenglish@gmail.com>
-Cc: util-linux <util-linux@vger.kernel.org>,
-        The Flying Rapist <admin@nosuck.org>
-Content-Type: text/plain; charset=UTF-8
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
 List-ID: <util-linux.vger.kernel.org>
 
-On 28 December 2016 at 09:36, The Flying Rapist
-<impeccableenglish@gmail.com> wrote:
-> From: The Flying Rapist <admin@nosuck.org>
+Already at least as far back as util-linux 2.2, renice uses
+getpriority(2) to fetch the process's old nice value. Thus,
+the "problem" discussed in this BUGS note disappeared long ago.
+This is trivially demonstrable:
 
-May I remind howto-contribute[1] tells 'using your real name (sorry,
-no pseudonyms
-or anonymous contributions.)' I guess it is Karel's decision whether
-this contribution
-should be resubmitted or do we remove of the pseudonym rule.
+    $ sleep 100 &
+    [1] 24322
+    $ renice -n 5 24322
+    24322 (process ID) old priority 0, new priority 5
+    $ renice -n 10 24322
+    24322 (process ID) old priority 5, new priority 10
 
-[1] http://git.kernel.org/cgit/utils/util-linux/util-linux.git/tree/Documentation/howto-contribute.txt#n71
+Rather than trying to explain the ancient problem (20 years old?),
+just kill this text in the man page.
+
+Signed-off-by: Michael Kerrisk <mtk.man-pages@gmail.com>
+---
+ sys-utils/renice.1 | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/sys-utils/renice.1 b/sys-utils/renice.1
+index d37fcf1..5ac8e4b 100644
+--- a/sys-utils/renice.1
++++ b/sys-utils/renice.1
+@@ -108,11 +108,6 @@ to map user names to user IDs
+ .BR setpriority (2),
+ .BR credentials (7),
+ .BR sched (7)
+-.SH BUGS
+-The Linux kernel (at least version 2.0.0) and linux libc (at least version
+-5.2.18) does not agree entirely on what the specifics of the system call
+-interface to set nice values is.  Thus causes renice to report bogus previous
+-nice values.
+ .SH HISTORY
+ The
+ .B renice
+-- 
+2.5.5
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+Michael Kerrisk, man7.org Training and Consulting
+mtk@man7.org, http://man7.org/training/
+"The Linux Programming Interface" -- http://man7.org/tlpi/
