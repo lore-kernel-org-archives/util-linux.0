@@ -1,78 +1,87 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wj0-f194.google.com ([209.85.210.194]:35631 "EHLO
-        mail-wj0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752625AbcLGNzr (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 7 Dec 2016 08:55:47 -0500
-Received: by mail-wj0-f194.google.com with SMTP id he10so35804230wjc.2
-        for <util-linux@vger.kernel.org>; Wed, 07 Dec 2016 05:55:10 -0800 (PST)
+Return-Path: mtk.manpages@gmail.com
+Cc: mtk.manpages@gmail.com, util-linux@vger.kernel.org
 To: Karel Zak <kzak@redhat.com>
 From: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Subject: [PATCH 1/2] docs: renice(1): Rework discussion of unprivileged users,
-Cc: mtk.manpages@gmail.com, util-linux@vger.kernel.org
-Message-ID: <37402fb7-ae51-4125-7d30-8bf9a5594daa@gmail.com>
-Date: Wed, 7 Dec 2016 14:55:08 +0100
+Subject: [pull request] trivial fixes
+Message-ID: <8036e422-1456-9db7-68db-53a6fa5a4c87@gmail.com>
+Date: Wed, 7 Dec 2016 14:30:52 +0100
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The BUGS section describing the limitations on what an unprivileged
-user may do to the nice value is outdated, given the kernel changes
-that added RLIMIT_NICE in Linux 2.6.12. So, remove that text.
+Hello Karel,
 
-The revised details for modern Linux were partially covered in NOTES,
-but there were also inaccuracies there (and the use of the word
-"monotonically" was unneeded). In particular, the point is that
-unprivileged users can only increase the nice value. There is no
-restriction particular to the range 0..+19. So, for example, the
-following scenario is possible:
+These are trivial patches, so I submit them as a pull request.
+Some changes are individual fixes to pages. Others ("various pages")
+are global fixes, to achieve greater consistency.
 
-1. Superuser sets the nice value of an unprivileged user's
-   process to -20.
-2. The unprivileged user can now renice that process to (say) -10.
+Two further patches to renice(1) follow. These make substantive
+changes to content, and I will post the patches to the list.
 
-Signed-off-by: Michael Kerrisk <mtk.man-pages@gmail.com>
----
- sys-utils/renice.1 | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+Thanks,
 
-diff --git a/sys-utils/renice.1 b/sys-utils/renice.1
-index 3b27a6c..d37fcf1 100644
---- a/sys-utils/renice.1
-+++ b/sys-utils/renice.1
-@@ -84,10 +84,16 @@ PIDs 987 and 32, plus all processes owned by the users daemon and root:
- .B "       renice" +1 987 -u daemon root -p 32
- .SH NOTES
- Users other than the superuser may only alter the priority of processes they
--own, and can only monotonically increase their ``nice value'' (for security
--reasons) within the range 0 to 19,
--unless a nice resource limit is set (Linux 2.6.12 and higher).  The
--superuser may alter the priority of any process and set the priority to any
-+own.  Furthermore, an unprivileged user can only
-+.I increase
-+the ``nice value'' (i.e., choose a lower priority)
-+and such changes are irreversible unless (since Linux 2.6.12)
-+the user has a suitable ``nice'' resource limit (see
-+.BR ulimit (1)
-+and
-+.BR getrlimit (2)).
-+
-+The superuser may alter the priority of any process and set the priority to any
- value in the range \-20 to 19.
- Useful priorities are: 19 (the affected processes will run only when nothing
- else in the system wants to), 0 (the ``base'' scheduling priority), anything
-@@ -103,9 +109,6 @@ to map user names to user IDs
- .BR credentials (7),
- .BR sched (7)
- .SH BUGS
--Non-superusers cannot increase scheduling priorities of their own processes,
--even if they were the ones that decreased the priorities in the first place.
--.PP
- The Linux kernel (at least version 2.0.0) and linux libc (at least version
- 5.2.18) does not agree entirely on what the specifics of the system call
- interface to set nice values is.  Thus causes renice to report bogus previous
--- 
-2.5.5
+Michael
+
+The following changes since commit 1c4b2d43926e2a7032310cd18b411d8d872cb4ed:
+
+  sulogin: bail out from getpasswd(...) on timeout (2016-12-07 13:32:42 +0100)
+
+are available in the git repository at:
+
+  http://git.kernel.org/pub/scm/linux/kernel/git/mtk/util-linux.git doc_fixes
+
+for you to fetch changes up to f7667ba788f2600c75abc3eec7963b5f51ad4b46:
+
+  docs: renice(1): Typo fix (2016-12-07 14:22:41 +0100)
+
+----------------------------------------------------------------
+Michael Kerrisk (16):
+      docs: various pages: Format pathnames as italic (.I)
+      docs: various pages: Use consistent terminology (set-user-ID and set-group-ID)
+      docs: various pages: Use "ID" not "id" in man pages
+      docs: various pages: Use "PID" not "pid" in man-pages
+      docs: various pages: Use 'UID" and "GID", not "uid" and "gid" in man pages
+      docs: kill(1): Wording fix
+      docs: namei(1): SEE ALSO: add symlink(7)
+      docs: taskset(1): Wording fix
+      docs: last(1): SEE ALSO: add reference to wtmp(5)
+      docs: last(1): Eliminate oddball formatting
+      docs: lsns(8): SEE ALSO: add namespaces(7)
+      docs: ionice(1): SEE ALSO: add ioprio_set(2)
+      docs: mount(8): Wording fix
+      docs: renice(1): Add SEE ALSO entry for sched(7)
+      docs: renice(1): Add credentials(7) to SEE ALSO
+      docs: renice(1): Typo fix
+
+ disk-utils/cfdisk.8     |  2 +-
+ disk-utils/fsck.8       | 12 ++++++------
+ lib/terminal-colors.d.5 |  6 +++---
+ login-utils/chfn.1      |  2 +-
+ login-utils/last.1      | 13 +++++++------
+ login-utils/login.1     |  6 +++---
+ login-utils/runuser.1   |  2 +-
+ login-utils/su.1        |  3 ++-
+ login-utils/sulogin.8   |  2 +-
+ misc-utils/getopt.1     |  4 ++--
+ misc-utils/kill.1       | 16 ++++++++--------
+ misc-utils/lsblk.8      |  2 +-
+ misc-utils/namei.1      |  3 ++-
+ misc-utils/whereis.1    |  6 +++---
+ schedutils/ionice.1     |  2 ++
+ schedutils/taskset.1    |  2 +-
+ sys-utils/fstab.5       |  2 +-
+ sys-utils/lsns.8        |  3 ++-
+ sys-utils/mount.8       | 40 +++++++++++++++++++++-------------------
+ sys-utils/prlimit.1     |  2 +-
+ sys-utils/readprofile.8 | 14 +++++++-------
+ sys-utils/renice.1      |  8 +++++---
+ sys-utils/setpriv.1     | 10 ++++++----
+ sys-utils/umount.8      |  6 +++---
+ sys-utils/unshare.1     |  2 +-
+ term-utils/agetty.8     | 10 +++++-----
+ term-utils/wall.1       |  5 +++--
+ 27 files changed, 99 insertions(+), 86 deletions(-)
+
 
 -- 
 Michael Kerrisk
