@@ -1,36 +1,36 @@
-Return-Path: elseifthen@gmx.com
-Subject: Re: Pull request: nsenter(1) fixes
-To: Karel Zak <kzak@redhat.com>,
-        "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-References: <CAKgNAkjtq0kh7X5umw26FQhh_cork1yb_C-gNL4jHZNr7Fz2qA@mail.gmail.com>
- <20161205115129.hvxasynsgszi33tu@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:50022 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751476AbcLGLpe (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 7 Dec 2016 06:45:34 -0500
+Date: Wed, 7 Dec 2016 12:44:49 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
 Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <d94b2af3-fe84-21be-9e41-3b3668729524@gmx.com>
-Date: Mon, 5 Dec 2016 13:27:11 -0500
+Subject: Re: [PATCH 00/11] switch to utmpx.h
+Message-ID: <20161207114449.5x5au3gqgj74bmo5@ws.net.home>
+References: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de>
 MIME-Version: 1.0
-In-Reply-To: <20161205115129.hvxasynsgszi33tu@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Thu, Dec 01, 2016 at 09:52:03AM +0100, Ruediger Meier wrote:
+>   last: include libgen.h for basename(3p)
+>   login-utils: remove _HAVE_UT_TV fallback
+>   lslogins: remove useless strlen()
+>   utmpdump: code formatting for readability
+>   login-utils: avoid using the defined utmp sizes.
+>   login: re-add lastlog.h header
+>   agetty: remove obsolete HAVE_UPDWTMP fallback
+>   login-utils: switch to utmpx.h
+>   build-sys: check for POSIX utmpx usage
+>   travis: let OSX auto-skip utmpx tools
+>   agetty: re-add utmp.h for Debian GNU/kFreeBSD
 
+    Applied, thanks.
 
-On 12/05/2016 06:51 AM, Karel Zak wrote:
-> On Mon, Dec 05, 2016 at 11:25:45AM +0100, Michael Kerrisk (man-pages) wrote:
->> I have various fixes to send, but I'll start small, with a couple of
->> fixes for nsenter(1).
-> 
->  Applied ... but you have removed "See also.. " sentence from
->  description of the --user. Would be better to keep there?
-> 
->> Is a git pull request compatible with your
->> workflow?
-> 
->  Sure. 
-
-Does this apply to all of us? We no longer need to submit patches to the
-mailing list for peer review?
-
->  
->     Karel
-> 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
