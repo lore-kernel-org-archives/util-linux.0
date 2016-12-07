@@ -1,60 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qt0-f196.google.com ([209.85.216.196]:34968 "EHLO
-        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751618AbcLEVhF (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 5 Dec 2016 16:37:05 -0500
-Received: by mail-qt0-f196.google.com with SMTP id m48so37720767qta.2
-        for <util-linux@vger.kernel.org>; Mon, 05 Dec 2016 13:37:03 -0800 (PST)
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:33000 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752963AbcLGN6j (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 7 Dec 2016 08:58:39 -0500
+Received: by mail-wm0-f68.google.com with SMTP id u144so27959782wmu.0
+        for <util-linux@vger.kernel.org>; Wed, 07 Dec 2016 05:58:38 -0800 (PST)
+To: Karel Zak <kzak@redhat.com>
+Subject: [PATCH 2/2 resent from right address] docs: renice(1): Remove
+ obsolete BUGS text
+Cc: mtk.manpages@gmail.com, util-linux@vger.kernel.org
+From: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Message-ID: <120aed27-9596-0b4e-abc2-dba330d8da91@gmail.com>
+Date: Wed, 7 Dec 2016 14:58:29 +0100
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <d94b2af3-fe84-21be-9e41-3b3668729524@gmx.com>
-References: <CAKgNAkjtq0kh7X5umw26FQhh_cork1yb_C-gNL4jHZNr7Fz2qA@mail.gmail.com>
- <20161205115129.hvxasynsgszi33tu@ws.net.home> <d94b2af3-fe84-21be-9e41-3b3668729524@gmx.com>
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Mon, 5 Dec 2016 21:37:02 +0000
-Message-ID: <CAG27Bk30ckZPZQ8M5K-o0nEEdd64pHGMfP2mPGdgpmpvu+1jvg@mail.gmail.com>
-Subject: Re: Pull request: nsenter(1) fixes
-To: J William Piggott <elseifthen@gmx.com>
-Cc: Karel Zak <kzak@redhat.com>,
-        "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>,
-        util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 5 December 2016 at 18:27, J William Piggott <elseifthen@gmx.com> wrote:
-> On 12/05/2016 06:51 AM, Karel Zak wrote:
->> On Mon, Dec 05, 2016 at 11:25:45AM +0100, Michael Kerrisk (man-pages) wrote:
->>> I have various fixes to send, but I'll start small, with a couple of
->>> fixes for nsenter(1).
->>
->>  Applied ... but you have removed "See also.. " sentence from
->>  description of the --user. Would be better to keep there?
->>
->>> Is a git pull request compatible with your
->>> workflow?
->>
->>  Sure.
->
-> Does this apply to all of us? We no longer need to submit patches to the
-> mailing list for peer review?
+Already at least as far back as util-linux 2.2, renice uses
+getpriority(2) to fetch the process's old nice value. Thus,
+the "problem" discussed in this BUGS note disappeared long ago.
+This is trivially demonstrable:
 
-IMHO in best case both emails & remote repository.
+    $ sleep 100 &
+    [1] 24322
+    $ renice -n 5 24322
+    24322 (process ID) old priority 0, new priority 5
+    $ renice -n 10 24322
+    24322 (process ID) old priority 5, new priority 10
 
-I like emails because they end getting indexed by web search engines, and
-there is good change of finding why something was done after years has
-passed.  Email stream is also nice to read.  I do read all changes that come
-to this list although I might not say anything most about them.
+Rather than trying to explain the ancient problem (20 years old?),
+just kill this text.
 
-That said remote repositories has their nice sides.  For example some of my
-commits are signed[1], while other are not[2].  Since mails do not have gpg
-signature it's pretty clear Karel is merging patches from both mailbox and
-my remote repository.  Also testing is nicer when I can use someone's remote
-repository to pull their branch.
+Signed-off-by: Michael Kerrisk <mtk.man-pages@gmail.com>
+---
+ sys-utils/renice.1 | 5 -----
+ 1 file changed, 5 deletions(-)
 
-[1] git show --show-signature 00971cca8a270b6e162c977182d134a64bbc914a
-[2] ^^ 0b404f0845fe97f84e45f9b7b23e9e1814d3ef4e
+diff --git a/sys-utils/renice.1 b/sys-utils/renice.1
+index d37fcf1..5ac8e4b 100644
+--- a/sys-utils/renice.1
++++ b/sys-utils/renice.1
+@@ -108,11 +108,6 @@ to map user names to user IDs
+ .BR setpriority (2),
+ .BR credentials (7),
+ .BR sched (7)
+-.SH BUGS
+-The Linux kernel (at least version 2.0.0) and linux libc (at least version
+-5.2.18) does not agree entirely on what the specifics of the system call
+-interface to set nice values is.  Thus causes renice to report bogus previous
+-nice values.
+ .SH HISTORY
+ The
+ .B renice
+-- 
+2.5.5
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+Michael Kerrisk
+Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
+Linux/UNIX System Programming Training: http://man7.org/training/
