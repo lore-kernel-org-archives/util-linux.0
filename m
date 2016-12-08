@@ -1,88 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60520 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752625AbcLINPD (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 9 Dec 2016 08:15:03 -0500
-Date: Fri, 9 Dec 2016 14:15:01 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] lib/randutils: use getrandom(2) when it is available
-Message-ID: <20161209131501.5vmmx6jbg7qnz6f3@ws.net.home>
-References: <20161204091259.12651-1-kerolasa@iki.fi>
+Received: from mail-vk0-f48.google.com ([209.85.213.48]:33482 "EHLO
+        mail-vk0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752508AbcLHSjp (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 8 Dec 2016 13:39:45 -0500
+Received: by mail-vk0-f48.google.com with SMTP id 137so233889527vkl.0
+        for <util-linux@vger.kernel.org>; Thu, 08 Dec 2016 10:39:45 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20161204091259.12651-1-kerolasa@iki.fi>
+In-Reply-To: <CAA_UwzLaHYUx6po+TJFN7HyHRkBRwBGCeLjO70aoFAPtMS4_iQ@mail.gmail.com>
+References: <1477427661-19788-1-git-send-email-halfline@gmail.com>
+ <CAA_Uwz+od5AwWosSzb_j59v2LvdZ=ipmHe2s+_kZiccC6v-FnQ@mail.gmail.com>
+ <201612072104.37323.sweet_f_a@gmx.de> <20161208112441.5kckrt7cofh2opbz@ws.net.home>
+ <CAA_UwzLaHYUx6po+TJFN7HyHRkBRwBGCeLjO70aoFAPtMS4_iQ@mail.gmail.com>
+From: Ray Strode <halfline@gmail.com>
+Date: Thu, 8 Dec 2016 13:39:24 -0500
+Message-ID: <CAA_UwzJn_OyX=w4uvfjvTGmx528FPzB0++u_9eYEqFix6J99ZA@mail.gmail.com>
+Subject: Fwd: [PATCH] login-utils: import environment from user manager on
+ systemd systems
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Dec 04, 2016 at 09:12:59AM +0000, Sami Kerola wrote:
-> +AC_CHECK_FUNCS([getrandom], [], [
-> +	AS_IF([UL_CHECK_SYSCALL([getrandom])
-> +	  test "$ul_cv_syscall_getrandom" = SYS_getrandom],
-> +		[AC_DEFINE([SYSTEM_GETRANDOM], [1],
-> +			[Define if getrandom syscall is missing from libc])
-> +	])
-> +])
+(resending because gmail.com sent it as html email first time around)
 
-I have doubts we need SYSTEM_GETRANDOM macro:
+Hi,
 
-Why not like in another utils (see sched utils for example):
+On Thu, Dec 8, 2016 at 6:24 AM Karel Zak <kzak@redhat.com> wrote:
+>
+> We had positive feedback about it from Red Hat PAM maintainer, but it
+> would be probably better to discuss it with PAM upstream. This change
+> will require a new stuff in PAM API.
 
-#ifndef HAVE_FALLOCATE
-# include <sys/syscall.h>
-#else
-# include <linux/random.h>
-#endif
+Pretty sure Tomas is one of the upstream maintainers, but you're right,
+discussion should take place upstream.
 
-/* usable kernel-headers, but old glibc-headers */
-#if defined (__linux__) && !defined(SYS_getrandom) && defined(__NR_getrandom)
-# define SYS_getrandom __NR_getrandom
-#endif
+> Although I'm not sure why we need systemd as mediator, would be
+> possible to read the environment setting directly by login(1)? Or it's
+> expected that something (e.g. script) will be executed to get the session
+> initialized?
 
-/* libc without function, but we have syscal */
-#if !defined(HAVE_GETRANDOM) && defined(SYS_getrandom)
-static int getrandom(void *buf, size_t buflen, unsigned int flags)
-{
-    return (syscall(SYS_getrandom, buf, buflen, flags));
-}
-#define HAVE_GETRANDOM
-#endif
+The point is, the environment of systemd --user services and processes started
+inside a logind registered session should get the same environment.  It doesn't
+really make sense for them to get out of sync. login(1) could try to
+read all the
+same environment configuration files as systemd, but systemd gets its
+environment
+from a variety of places (user.conf / systemd service files /
+/etc/environment.d), so
+I think getting the environment from the user manager is the best way to go.
 
-
->  /*
->   * Generate a stream of random nbytes into buf.
->   * Use /dev/urandom if possible, and if not,
-> @@ -72,10 +87,19 @@ int random_get_fd(void)
->   */
->  void random_get_bytes(void *buf, size_t nbytes)
->  {
-> -	size_t i, n = nbytes;
-> +	size_t i;
-> +	unsigned char *cp = (unsigned char *)buf;
-> +
-> +#if defined(SYSTEM_GETRANDOM) || defined(HAVE_GETRANDOM)
-
-#ifdef HAVE_GETRANDOM
-
->  const char *random_tell_source(void)
->  {
-> +#if defined(SYSTEM_GETRANDOM)
-> +	return _("syscall(SYS_getrandom) function");
-> +#elif defined(HAVE_GETRANDOM)
-> +	return _("libc getrandom() function");
-> +#else
-
-seems like overkill :-)
-
-#ifdef HAVE_GETRANDOM
-    return _("getrandom function");
-#else
-    ...
-
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--Ray
