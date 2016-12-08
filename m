@@ -1,59 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60068 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:48596 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751690AbcLFOSY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 6 Dec 2016 09:18:24 -0500
-Date: Tue, 6 Dec 2016 15:18:23 +0100
+        id S1752353AbcLHLYn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 8 Dec 2016 06:24:43 -0500
+Date: Thu, 8 Dec 2016 12:24:41 +0100
 From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>,
-        util-linux@vger.kernel.org
-Subject: Re: Pull request: nsenter(1) fixes
-Message-ID: <20161206141822.vdhpf4wyvmjckkli@ws.net.home>
-References: <CAKgNAkjtq0kh7X5umw26FQhh_cork1yb_C-gNL4jHZNr7Fz2qA@mail.gmail.com>
- <20161205115129.hvxasynsgszi33tu@ws.net.home>
- <d94b2af3-fe84-21be-9e41-3b3668729524@gmx.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Ray Strode <halfline@gmail.com>, util-linux@vger.kernel.org,
+        Lennart Poettering <lennart@poettering.net>,
+        Ray Strode <rstrode@redhat.com>
+Subject: Re: [PATCH] login-utils: import environment from user manager on
+ systemd systems
+Message-ID: <20161208112441.5kckrt7cofh2opbz@ws.net.home>
+References: <1477427661-19788-1-git-send-email-halfline@gmail.com>
+ <CAA_Uwz+od5AwWosSzb_j59v2LvdZ=ipmHe2s+_kZiccC6v-FnQ@mail.gmail.com>
+ <201612072104.37323.sweet_f_a@gmx.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <d94b2af3-fe84-21be-9e41-3b3668729524@gmx.com>
+In-Reply-To: <201612072104.37323.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Dec 05, 2016 at 01:27:11PM -0500, J William Piggott wrote:
-> On 12/05/2016 06:51 AM, Karel Zak wrote:
-> > On Mon, Dec 05, 2016 at 11:25:45AM +0100, Michael Kerrisk (man-pages) wrote:
-> >> I have various fixes to send, but I'll start small, with a couple of
-> >> fixes for nsenter(1).
-> > 
-> >  Applied ... but you have removed "See also.. " sentence from
-> >  description of the --user. Would be better to keep there?
-> > 
-> >> Is a git pull request compatible with your
-> >> workflow?
-> > 
-> >  Sure. 
+On Wed, Dec 07, 2016 at 09:04:35PM +0100, Ruediger Meier wrote:
+> On Wednesday 07 December 2016, Ray Strode wrote:
+> > Hi Karel,
+> >
+> > On Tue, Oct 25, 2016 at 4:34 PM, Ray Strode <halfline@gmail.com> 
+> wrote:
+> > > From: Ray Strode <rstrode@redhat.com>
+> > >
+> > > If the user is using a systemd system, then its useful to grab the
+> > > environment from the systemd user manager process.
+> > >
+> > > This allows administrators to initialize the environment of the
+> > > sessions via systemd configuration.
+> >
+> > Any news on this?
 > 
-> Does this apply to all of us? We no longer need to submit patches to the
-> mailing list for peer review?
+> I really don't like this as already discussed.
 
-Well, send patch to the mailing list for review is always good choice,
-and it's definitely wanted for invasive or sensitive things, or if
-you're not sure.
+I had discussion about it with Ray on IRC, the conclusion has
+been that the ideal solution would be to extend PAM to support 
+another stack of modules. This stack will be executed on open PAM
+session after switch from root to non-root user (after setuid()).
 
-I think for trivial changes where is nothing to discuss it's probably
-good enough to send pull request only.
+We had positive feedback about it from Red Hat PAM maintainer, but it
+would be probably better to discuss it with PAM upstream. This change
+will require a new stuff in PAM API.
 
-It's also good idea to keep the latest version of your patches in
-public remote repository (e.g. github) if you expect any additional
-changes after review etc. 
+The question is what to do *now* before the PAM will be extended. The
+most simple solution will be to temporary merge Ray's patch for only
+util-linux v2.30 (= for year 2017) to provide guys time to found a better
+solution. 
+
+It's important to say that v2.30 is expected in March/April, it's a long 
+time to do a change in PAM...
 
 
-Use common sense anyway. It works better than strict rules. 
+Note, the issue is not about "bad boys from systemd camp". The
+motivation for the change is wayland. The systemd has been selected as
+a place where is possible to solve the problem.
 
-
-And this is not LKML, this is mailing list where we keep things in
-friendly atmosphere, so don't be afraid to make a bad choice,
-contribute non-perfect solution or ask "stupid" questions...
+Although I'm not sure why we need systemd as mediator, would be
+possible to read the environment setting directly by login(1)? Or it's
+expected that something (e.g. script) will be executed to get the session
+initialized?
 
     Karel
 
