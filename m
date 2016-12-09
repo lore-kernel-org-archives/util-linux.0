@@ -1,72 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:49216 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:44006 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757091AbcLAIwV (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 1 Dec 2016 03:52:21 -0500
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Cc: Ondrej Oprala <ooprala@redhat.com>
-Subject: [PATCH 03/11] lslogins: remove useless strlen()
-Date: Thu,  1 Dec 2016 09:52:06 +0100
-Message-Id: <1480582332-17407-4-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de>
-References: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de>
+        id S932146AbcLIIwl (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 9 Dec 2016 03:52:41 -0500
+Date: Fri, 9 Dec 2016 09:52:39 +0100
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: Marian Vomir <marian.vomir@ni.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/2] Revert "hwclock: don't allow non-root access"
+Message-ID: <20161209085239.hw7lnkaj5curgh2t@ws.net.home>
+References: <1481047580-28284-1-git-send-email-marian.vomir@ni.com>
+ <c0ddbe5a-caa4-c8ad-0d86-9b13c3277edc@gmx.com>
+ <20161207112541.2g3trc26tcvcghio@ws.net.home>
+ <82bcda5b-fe4e-553a-fa1f-32c37f3fba54@gmx.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <82bcda5b-fe4e-553a-fa1f-32c37f3fba54@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Thu, Dec 08, 2016 at 09:09:15PM -0500, J William Piggott wrote:
+> On 12/07/2016 06:25 AM, Karel Zak wrote:
+> > Maybe my patch seems too strict, but change docs is not enough, the
+> > code matters. We want to be sure nobody uses hwclock as setuid,
+> > especially if man page and code comments promised this non-sense.
+> 
+> I agree that setuid should be removed from the man-page and source
+> comments. I do not think the code was a problem; removing it does not
 
-strlen() is not smarter than strncpy(). Bytes that follow a null byte
-are not compared anyway.
+See 687cc5d58942b24a9f4013c68876d8cbea907ab1, it removes many checks.
+It wasn't about comments only.
 
-BTW avoid using the defined sizes.
+> prevent running it with setuid. It only prevents users from access to
+> the benign read only functions of hwclock which they have historically
+> had.
 
-CC: Ondrej Oprala <ooprala@redhat.com>
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- login-utils/lslogins.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+I agree that kernel is the place where we need to check permissions,
+so I have removed the if (getuid() != 0) 
 
-diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
-index 78d4ed4..4109876 100644
---- a/login-utils/lslogins.c
-+++ b/login-utils/lslogins.c
-@@ -413,16 +413,14 @@ again:
- static struct utmp *get_last_wtmp(struct lslogins_control *ctl, const char *username)
- {
- 	size_t n = 0;
--	size_t len;
- 
- 	if (!username)
- 		return NULL;
- 
--	len = strlen(username);
- 	n = ctl->wtmp_size - 1;
- 	do {
- 		if (!strncmp(username, ctl->wtmp[n].ut_user,
--		    len < UT_NAMESIZE ? len : UT_NAMESIZE))
-+		             sizeof(ctl->wtmp[0].ut_user)))
- 			return ctl->wtmp + n;
- 	} while (n--);
- 	return NULL;
-@@ -450,16 +448,14 @@ static int require_btmp(void)
- static struct utmp *get_last_btmp(struct lslogins_control *ctl, const char *username)
- {
- 	size_t n = 0;
--	size_t len;
- 
- 	if (!username)
- 		return NULL;
- 
--	len = strlen(username);
- 	n = ctl->btmp_size - 1;
- 	do {
- 		if (!strncmp(username, ctl->btmp[n].ut_user,
--		    len < UT_NAMESIZE ? len : UT_NAMESIZE))
-+		             sizeof(ctl->wtmp[0].ut_user)))
- 			return ctl->btmp + n;
- 	}while (n--);
- 	return NULL;
+    https://github.com/karelzak/util-linux/commit/f4e61504a457395018c02bafcf17d1e3f8644b78
+
+let's hope nobody uses it as setuid.
+
+    Karel
+
 -- 
-1.8.5.6
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
