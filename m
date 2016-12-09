@@ -1,91 +1,126 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47498 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751677AbcLEMCt (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 5 Dec 2016 07:02:49 -0500
-Date: Mon, 5 Dec 2016 13:02:46 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Constantine Kharlamov <hi-angel@ya.ru>
-Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: sfdisk: -X option doesn't work
-Message-ID: <20161205120246.o75mjcwqjl2ea4p7@ws.net.home>
-References: <5303721479553110@web15g.yandex.ru>
- <20161202121904.gqkjkhwg2tsemtry@ws.net.home>
- <12434941480833821@web26o.yandex.ru>
+Return-Path: elseifthen@gmx.com
+Subject: Re: [PATCH 1/2] Revert "hwclock: don't allow non-root access"
+To: Karel Zak <kzak@redhat.com>
+References: <1481047580-28284-1-git-send-email-marian.vomir@ni.com>
+ <c0ddbe5a-caa4-c8ad-0d86-9b13c3277edc@gmx.com>
+ <20161207112541.2g3trc26tcvcghio@ws.net.home>
+Cc: Marian Vomir <marian.vomir@ni.com>, util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <82bcda5b-fe4e-553a-fa1f-32c37f3fba54@gmx.com>
+Date: Thu, 8 Dec 2016 21:09:15 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <12434941480833821@web26o.yandex.ru>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20161207112541.2g3trc26tcvcghio@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Dec 04, 2016 at 09:43:41AM +0300, Constantine Kharlamov wrote:
-> Beforehands, the problem have been solved by removing the iso9660
-> filesystem by offset. Back then the question have been asked on
-> forum https://bbs.archlinux.org/viewtopic.php?pid=1670463 so I still
-> have an output of wipefs's POV:
+
+
+On 12/07/2016 06:25 AM, Karel Zak wrote:
+> On Tue, Dec 06, 2016 at 06:40:32PM -0500, J William Piggott wrote:
+>>
+>>
+>> On 12/06/2016 01:06 PM, Marian Vomir wrote:
+>>> This reverts commit 687cc5d58942b24a9f4013c68876d8cbea907ab1.
+>>>
+>>> There are cases when an unprivileged user wants to set the hardware clock.
+>>
+>> This has never been allowed in over two decades of hwclock. I cannot
+>> think of a legitimate reason to allow setting the Hardware Clock by a
+>> normal user.
 > 
->         $ sudo wipefs -n /dev/sdc
->         offset type
->         ----------------------------------------------------------------
->         0x1fe PMBR [partition table]
- 
-GPT is always
-
-   (protective) MBR + GPT header
-
-the MBR is there to keep the disk used and full for old partitioning
-tools that do not have a clue about GPT. MBR in this case contains
-one partition (type 0xee) for all disk. For example my disk:
-
-        # fdisk -l /dev/sda
-        Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
-        Units: sectors of 1 * 512 = 512 bytes
-        Sector size (logical/physical): 512 bytes / 512 bytes
-        I/O size (minimum/optimal): 512 bytes / 512 bytes
-        Disklabel type: gpt
-        Disk identifier: E471810B-5954-48E6-B4F0-5D369ADCC514
-
-        Device         Start       End   Sectors   Size Type
-        /dev/sda1       2048    411647    409600   200M EFI System
-        /dev/sda2     411648    821247    409600   200M Linux filesystem
-        /dev/sda3     821248 274087935 273266688 130.3G Linux filesystem
-        /dev/sda4  274087936 378945535 104857600    50G Linux filesystem
-        /dev/sda5  378945536 452476927  73531392  35.1G Linux filesystem
-        /dev/sda6  452476928 468860927  16384000   7.8G Linux swap
-
-but if you disable GPT and enable MBR only:
-
-        # fdisk --type mbr -l /dev/sda
-        Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
-        Units: sectors of 1 * 512 = 512 bytes
-        Sector size (logical/physical): 512 bytes / 512 bytes
-        I/O size (minimum/optimal): 512 bytes / 512 bytes
-        Disklabel type: dos
-        Disk identifier: 0x00000000
-
-        Device     Boot Start       End   Sectors   Size Id Type
-        /dev/sda1           1 468862127 468862127 223.6G ee GPT
-
-
->         0x8001 iso9660 [filesystem]
->                                                  LABEL: Ubuntu 15.10 amd64
->                                                  UUID: 2015-10-21-16-17-40-00
+> Yes. It seems Marian has missed the goal of the commit
+> 687cc5d58942b24a9f4013c68876d8cbea907ab1. It's not about permissions
+> detection. 
 > 
-> I'm still curious about what happened though. α) iso9660 resides
-> (offset 0x8001) faar inside the real (i.e. by MBR) filesystem
-> (having offset 2048 ≅ 0x800). Hence, given the system shows the
-> label of iso9660, the system (together with most partition
-> utilities) assumed that sdc is using GPT. But β) I removed GPT
-> completely with gdisk (expert command → wipe out GPT), so unless
-> gdisk is buggy, it couldn't have happened!
+> We don't want to support use-case where hwclock(8) has extra
+> permissions (setuid or CAP_<something>) to set system time. The binary
+> is not designed for this purpose and it does not make sense to support
+> it -- less utils with extra permissions is better.
+> 
+>> Having said that, while I agree with Karel's desire to remove all
+>> mention of running hwclock with setuid, IMO the code should not have
+>> been removed. Despite the comment directly above it, that code has
+>> nothing to do with hwclock being run with setuid.
+> 
+> Maybe my patch seems too strict, but change docs is not enough, the
+> code matters. We want to be sure nobody uses hwclock as setuid,
+> especially if man page and code comments promised this non-sense.
 
-Seems like a crazy boot image that distros generate to be bootable on
-all possible situations. If yes, then don't waste time to try
-understand what the begin of the image means :-) It's almost always
-total mess where multiple stuff (iso, MBR, etc.) share the area.
+I agree that setuid should be removed from the man-page and source
+comments. I do not think the code was a problem; removing it does not
+prevent running it with setuid. It only prevents users from access to
+the benign read only functions of hwclock which they have historically
+had.
 
-    Karel
+> 
+>> I would argue that there are some hwclock options intended for normal
+>> users. A normal users should at least be able to display the Hardware
+>> Clock time.
+> 
+> We can change it to support --show for non-root users, but the
+> question is if such change will have any practical effect, because for
+> example on Fedora we have:
+> 
+>   $ ll /dev/rtc0
+>   crw------- 1 root root 251, 0 Nov 28 10:46 /dev/rtc0
+> 
+> so
+> 
+>   $ hwclock --debug --show
+>   hwclock from util-linux 2.29.44-a99c0
+>   hwclock: cannot open /dev/rtc: Permission denied
+>   No usable clock interface found.
+>   hwclock: Cannot access the Hardware Clock via any known method.
+>
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+ $ ls -l /dev/rtc0 
+crw-r--r-- 1 root root 254, 0 2016-12-08 09:50:26 /dev/rtc0
+
+ $ /sbin/hwclock
+Thu 08 Dec 2016 08:40:08 PM EST  .123162 seconds
+
+Perhaps Fedora sets perms that way because it thinks hwclock is
+irrelevant for systemd platforms.
+
+
+> with the untested patch below. IMHO it's waste of time to try to be
+> smart in this area... ;-)
+> 
+>     Karel
+> 
+> 
+> 
+> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+> index 21caeb2..ede6cfa 100644
+> --- a/sys-utils/hwclock.c
+> +++ b/sys-utils/hwclock.c
+> @@ -1859,11 +1859,6 @@ int main(int argc, char **argv)
+>  	argc -= optind;
+>  	argv += optind;
+>  
+> -	if (getuid() != 0) {
+> -		warnx(_("Sorry, only the superuser can use the Hardware Clock."));
+> -		hwclock_exit(EX_NOPERM);
+> -	}
+> -
+>  #ifdef HAVE_LIBAUDIT
+>  	if (testing != TRUE) {
+>  		if (adjust == TRUE || hctosys == TRUE || systohc == TRUE ||
+> @@ -1906,6 +1901,11 @@ int main(int argc, char **argv)
+>  		show = 1;	/* default to show */
+>  
+>  
+> +	if (!show && getuid() != 0) {
+> +		warnx(_("Sorry, only --show is allowed for non-root users."));
+> +		hwclock_exit(EX_NOPERM);
+> +	}
+> +
+>  #ifdef __linux__
+>  	if (getepoch || setepoch) {
+>  		manipulate_epoch(getepoch, setepoch, epoch_option, testing);
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
