@@ -1,50 +1,82 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f51.google.com ([74.125.82.51]:35087 "EHLO
-        mail-wm0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751320AbcLEL46 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 5 Dec 2016 06:56:58 -0500
-Received: by mail-wm0-f51.google.com with SMTP id a197so93321557wmd.0
-        for <util-linux@vger.kernel.org>; Mon, 05 Dec 2016 03:56:57 -0800 (PST)
-MIME-Version: 1.0
-Reply-To: mtk.manpages@gmail.com
-In-Reply-To: <20161205115129.hvxasynsgszi33tu@ws.net.home>
-References: <CAKgNAkjtq0kh7X5umw26FQhh_cork1yb_C-gNL4jHZNr7Fz2qA@mail.gmail.com>
- <20161205115129.hvxasynsgszi33tu@ws.net.home>
-From: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Date: Mon, 5 Dec 2016 12:56:36 +0100
-Message-ID: <CAKgNAkgLVYfiroRtGbP48uFps8=EGtAhdt5iLsmVdX0zsRAJMw@mail.gmail.com>
-Subject: Re: Pull request: nsenter(1) fixes
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: Karel Zak <kzak@redhat.com>
+Subject: Re: [ANNOUNCE] util-linux v2.29-rc2
+Date: Mon, 12 Dec 2016 15:31:57 +0100
 Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
-Sender: util-linux-owner@vger.kernel.org
+References: <20161019132505.cumn37cmgazlumcu@ws.net.home> <20161210171510.GH10558@vapier.lan> <20161212102929.5kx3hbgoh4a5tfte@ws.net.home>
+In-Reply-To: <20161212102929.5kx3hbgoh4a5tfte@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201612121531.57375.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-Hello Karel,
-
-On 5 December 2016 at 12:51, Karel Zak <kzak@redhat.com> wrote:
-> On Mon, Dec 05, 2016 at 11:25:45AM +0100, Michael Kerrisk (man-pages) wrote:
->> I have various fixes to send, but I'll start small, with a couple of
->> fixes for nsenter(1).
+On Monday 12 December 2016, Karel Zak wrote:
+> On Sat, Dec 10, 2016 at 12:15:10PM -0500, Mike Frysinger wrote:
+> > On 20 Oct 2016 17:19, Karel Zak wrote:
+> > > On Thu, Oct 20, 2016 at 01:34:24PM +0200, Ruediger Meier wrote:
+> > > > For me it looks like the even the ncurses authors do not like
+> > > > their own pc files. Disabled by default and it's a pain to get
+> > > > them built with correct names and installed in the right
+> > > > location. Even --prefix does not work for their pc files. Plus
+> > > > the backward compatibility problem ...
+> > >
+> > > OK, I have applied:
+> > >   
+> > > https://github.com/karelzak/util-linux/commit/e5cc93b5a8854fce805
+> > >37f86a244977df212dcb5
+> > >
+> > > with ncurses-config and fallback to old good AC_CHECK_LIB.
+> > >
+> > > We can add fallback to pkg-config too, but it sounds like
+> > > overkill if ncurses-config is everywhere.
+> >
+> > ugh, this change makes things worse.  the point of using pkg-config
+> > is also to get sane cross-compiling.  by always running
+> > `xxx-config`, it now breaks cross-compiling.
 >
->  Applied ... but you have removed "See also.. " sentence from
->  description of the --user. Would be better to keep there?
+> Does it mean that you have system (build root) where is no
+> ncurses-config{5,6}, but you have pkg-config only?
 
-My apologies. That was a blunder. I can send you a patch, or do you
-want to revert that deletion manually. Let me know which you prefer.
+Usually cross-compiled libs to be used by a cross compiler are installed 
+in a prefix like
 
->> Is a git pull request compatible with your
->> workflow?
+ /usr/i686-w64-mingw32/sys-root/mingw/
+
+So you would probaby have such an ncurses5-config (which is not in 
+PATH):
+
+  /usr/i686-w64-mingw32/sys-root/mingw/bin/ncurses5-config
+
+Simply adding this bin dir to PATH wouldn't be a good idea because it 
+may contain binaries build for another target.
+
+The "advantage" of pkg-config is 
+that "configure --host=i686-w64-mingw32" is smart and tries to use a 
+host-prefixed "i686-w64-mingw32-pkg-config" instead of 
+just "pkg-config". The prefixed pkg-config is searching .pc files in 
+the right sysroot. Though the smartness ends if you have 
+PKG_CONFIG_PATH in your env ... 
+
+
+> The argument for ncurses-config has been that it seems it's preferred
+> solution by ncurses upstream.
 >
->  Sure.
+> It will be simple to extend UL_NCURSES_CHECK() function to support
+> also pkg-config.
+>
+> > why can't we just tell distros to fix their ncurses install ?  it's
+> > not like 2.29, released a month ago, is getting rolled out to old
+> > distros where people can't update their ncurses systems.
+>
+> Well, it's pretty common that people recompile any package on the
+> current system. I think our goal is to support as much as possible
+> scenarios (yes, nothing is unlimited including my patience with
+> obscure installations ;-)
 
-Great.
-
-Cheers,
-
-Michael
-
--- 
-Michael Kerrisk
-Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
-Linux/UNIX System Programming Training: http://man7.org/training/
+> > "it's hard" is a pretty weak argument for distro maintainers.
+>
+> That's true.
+>
+>     Karel
