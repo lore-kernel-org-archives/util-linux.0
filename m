@@ -1,55 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:63687 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753677AbcLAIwQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 1 Dec 2016 03:52:16 -0500
-Received: from tenfore.ga-group.nl ([217.186.11.144]) by mail.gmx.com
- (mrgmx102 [212.227.17.168]) with ESMTPSA (Nemesis) id
- 0Lp8h6-1cfwcL03Ea-00epqu for <util-linux@vger.kernel.org>; Thu, 01 Dec 2016
- 09:52:13 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from mail-wj0-f195.google.com ([209.85.210.195]:35202 "EHLO
+        mail-wj0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753423AbcLRScr (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 18 Dec 2016 13:32:47 -0500
+Received: by mail-wj0-f195.google.com with SMTP id he10so20967055wjc.2
+        for <util-linux@vger.kernel.org>; Sun, 18 Dec 2016 10:32:46 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 00/11] switch to utmpx.h
-Date: Thu,  1 Dec 2016 09:52:03 +0100
-Message-Id: <1480582332-17407-1-git-send-email-sweet_f_a@gmx.de>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 2/2] fsfreeze: move filesystem support info to manual page
+Date: Sun, 18 Dec 2016 18:32:41 +0000
+Message-Id: <20161218183241.1826-2-kerolasa@iki.fi>
+In-Reply-To: <20161218183241.1826-1-kerolasa@iki.fi>
+References: <20161218183241.1826-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+Include btrfs, f2fs, and nilfs to list of supported filesystems, with note
+the list can be incomplete.
 
-We want to use utmpx instead of utmp becuase it's POSIX.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/fsfreeze.8 | 14 ++++++++++++++
+ sys-utils/fsfreeze.c |  2 +-
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
-The first commits of this patch-set are mostly simple cleanup. Then the
-final switch to utmpx.h is just renaming work.
-
-Ruediger Meier (11):
-  last: include libgen.h for basename(3p)
-  login-utils: remove _HAVE_UT_TV fallback
-  lslogins: remove useless strlen()
-  utmpdump: code formatting for readability
-  login-utils: avoid using the defined utmp sizes.
-  login: re-add lastlog.h header
-  agetty: remove obsolete HAVE_UPDWTMP fallback
-  login-utils: switch to utmpx.h
-  build-sys: check for POSIX utmpx usage
-  travis: let OSX auto-skip utmpx tools
-  agetty: re-add utmp.h for Debian GNU/kFreeBSD
-
- .travis-functions.sh           |  8 -----
- configure.ac                   | 33 +++++++++++------
- include/pathnames.h            |  2 --
- login-utils/last.c             | 81 +++++++++++++++++++++---------------------
- login-utils/login.c            | 52 ++++++++++-----------------
- login-utils/lslogins.c         | 34 ++++++++----------
- login-utils/su-common.c        | 14 ++------
- login-utils/utmpdump.c         | 26 +++++++-------
- term-utils/agetty.c            | 57 +++++++++++------------------
- term-utils/wall.c              |  8 ++---
- term-utils/write.c             | 24 ++++++-------
- tests/expected/paths/built-in  |  1 -
- tests/helpers/test_pathnames.c |  1 -
- 13 files changed, 147 insertions(+), 194 deletions(-)
-
+diff --git a/sys-utils/fsfreeze.8 b/sys-utils/fsfreeze.8
+index c5bac7334..c5d812dff 100644
+--- a/sys-utils/fsfreeze.8
++++ b/sys-utils/fsfreeze.8
+@@ -61,6 +61,20 @@ Display version information and exit.
+ .TP
+ .BR \-h , " \-\-help"
+ Display help text and exit.
++.SH FILESYSTEM SUPPORT
++This command will work only if filesystem supports has support for freezing.
++List of these filesystems include (2016-12-18)
++.BR btrfs ,
++.BR ext2/3/4 ,
++.BR f2fs ,
++.BR jfs ,
++.BR nilfs2 ,
++.BR reiserfs ,
++and
++.BR xfs .
++Previous list may be incomplete, as more filesystems get support.  If in
++doubt easiest way to know if a filesystem has support is create a small
++loopback mount and test freezing it.
+ .SH AUTHOR
+ .PP
+ Written by Hajime Taira.
+diff --git a/sys-utils/fsfreeze.c b/sys-utils/fsfreeze.c
+index a9b32aa66..41a33659e 100644
+--- a/sys-utils/fsfreeze.c
++++ b/sys-utils/fsfreeze.c
+@@ -40,7 +40,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+ 	      _(" %s [options] <mountpoint>\n"), program_invocation_short_name);
+ 
+ 	fputs(USAGE_SEPARATOR, out);
+-	fputs(_("Suspend access to a filesystem (ext3/4, ReiserFS, JFS, XFS).\n"), out);
++	fputs(_("Suspend access to a filesystem.\n"), out);
+ 
+ 	fputs(USAGE_OPTIONS, out);
+ 	fputs(_(" -f, --freeze      freeze the filesystem\n"), out);
 -- 
-1.8.5.6
+2.11.0
 
