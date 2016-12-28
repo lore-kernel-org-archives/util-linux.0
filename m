@@ -1,58 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:38840 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751829AbcLFObo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 6 Dec 2016 09:31:44 -0500
-Date: Tue, 6 Dec 2016 15:31:42 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: fuzzing anybody
-Message-ID: <20161206143142.3sah5eg7he6whqbz@ws.net.home>
-References: <201612061326.09245.sweet_f_a@gmx.de>
+Received: from mail-yw0-f195.google.com ([209.85.161.195]:34999 "EHLO
+        mail-yw0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751059AbcL1Uqi (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 28 Dec 2016 15:46:38 -0500
+Received: by mail-yw0-f195.google.com with SMTP id b66so25488471ywh.2
+        for <util-linux@vger.kernel.org>; Wed, 28 Dec 2016 12:46:38 -0800 (PST)
+From: The Flying Rapist <impeccableenglish@gmail.com>
+Date: Wed, 28 Dec 2016 15:42:37 -0500
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>,
+        The Flying Rapist <admin@nosuck.org>
+Subject: Re: [PATCH] col: backspacing widechars
+Message-ID: <20161228204237.GA29001@creation>
+References: <20161228093620.5528-1-ImpeccableEnglish@gmail.com>
+ <CAG27Bk1eCMakhnbcmQZpYVvcYF2K+eYSekaQQFxUU5UPXfa2gA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201612061326.09245.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <CAG27Bk1eCMakhnbcmQZpYVvcYF2K+eYSekaQQFxUU5UPXfa2gA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Dec 06, 2016 at 01:26:09PM +0100, Ruediger Meier wrote:
-> google is offereing "Fuzz testing" for famous OSS projects
->   https://github.com/google/oss-fuzz
-> 
-> I've thought this might be a nice idea for util-linux and already 
-> registered
->   https://github.com/google/oss-fuzz/pull/120
-> 
-> Stupidly I've missed the point that I would also need to write some code 
-> which intelligently feeds our UL programs with the generated random 
-> data to find bugs. I thought that this is what google would do for us 
-> but they only give us the their infrastructure for running the actual 
-> tests. ;)
-> 
-> So if anybody is interested in this fuzzing topic ... maybe someone has 
-> a good idea, say how to feed libsmartcol or libblkid with random data.
+On 2016年12月28日 14時55分, Sami Kerola wrote:
+>May I remind howto-contribute[1] tells 'using your real name (sorry,
+>no pseudonyms
+>or anonymous contributions.)'
 
-Good idea for libblkid (I have already seen report about minix if I
-good remember). Not sure about libsmartcol where it's application who
-fill data to the table.
+I apologize.  I missed that part of howto-contribute.txt.  Please accept the following.
 
-> A good and even interesting point to start is this "libFuzzer Tutorial":
-> https://github.com/google/fuzzer-test-suite/blob/master/tutorial/libFuzzerTutorial.md
-> 
-> Also interesting to see how other projects are doing it already in 
-> google's oss-fuzz.
-> 
-> for example curl: 
-> https://github.com/google/oss-fuzz/blob/master/projects/curl/curl_fuzzer.cc
-> 
-> or openssl which has a fuzz/ sub-directory in their original project.
-> https://github.com/openssl/openssl/tree/master/fuzz
+From: Grady Martin <admin@nosuck.org>
 
-Go ahead, tests/fuzz/ is no problem :-)
+Until now, backspace characters have not accounted for characters of widths other than one.  This single line amends that.
+---
+ text-utils/col.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+diff --git a/text-utils/col.c b/text-utils/col.c
+index 9b0e23058..c63b46fee 100644
+--- a/text-utils/col.c
++++ b/text-utils/col.c
+@@ -248,7 +248,7 @@ int main(int argc, char **argv)
+                        case BS:                /* can't go back further */
+                                if (cur_col == 0)
+                                        continue;
+-                               --cur_col;
++                               cur_col -= c->c_width;
+                                continue;
+                        case CR:
+                                cur_col = 0;
+--
+2.11.0
