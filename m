@@ -1,120 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from skprod2.natinst.com ([130.164.80.23]:47015 "EHLO ni.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1753581AbcLFQG1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 6 Dec 2016 11:06:27 -0500
-Received: from us-aus-exch2.ni.corp.natinst.com (us-aus-exch2.ni.corp.natinst.com [130.164.68.12])
-        by us-aus-skprod2.natinst.com (8.15.0.59/8.15.0.59) with ESMTPS id uB6G6Qlj031464
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT)
-        for <util-linux@vger.kernel.org>; Tue, 6 Dec 2016 10:06:26 -0600
-From: Marian Vomir <marian.vomir@ni.com>
-To: <util-linux@vger.kernel.org>
-Subject: [PATCH 2/2] sys-utils/hwclock: make hwclock check for CAP_SYS_TIME capability
-Date: Tue, 6 Dec 2016 20:06:20 +0200
-Message-ID: <1481047580-28284-2-git-send-email-marian.vomir@ni.com>
-In-Reply-To: <1481047580-28284-1-git-send-email-marian.vomir@ni.com>
-References: <1481047580-28284-1-git-send-email-marian.vomir@ni.com>
+Received: from mail-qt0-f194.google.com ([209.85.216.194]:35623 "EHLO
+        mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752399AbcL2LBs (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 29 Dec 2016 06:01:48 -0500
+Received: by mail-qt0-f194.google.com with SMTP id 3so22751693qtr.2
+        for <util-linux@vger.kernel.org>; Thu, 29 Dec 2016 03:01:47 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <CAG27Bk32Qb0V2g6HFXdPRakrRhjG9fhZbPSFtA8cTjDKpLWu4w@mail.gmail.com>
+References: <20161228220211.5634-1-kerolasa@iki.fi> <20161229003327.oeavblvtsem4e6ge@angband.pl>
+ <CAG27Bk32Qb0V2g6HFXdPRakrRhjG9fhZbPSFtA8cTjDKpLWu4w@mail.gmail.com>
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Thu, 29 Dec 2016 11:01:45 +0000
+Message-ID: <CAG27Bk1PbU1T=7cisG7kcO1txOXz9wap9xvZVs=0iEj7thzqNw@mail.gmail.com>
+Subject: Re: [PATCH 1/1] setterm: add --resize option
+To: Adam Borowski <kilobyte@angband.pl>
+Cc: util-linux <util-linux@vger.kernel.org>,
+        Andreas Henriksson <andreas@fatal.se>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-hwclock now checks if the capability to modify the clock (CAP_SYS_TIME) is set.
-This allows the clock to be changed by unprivileged processes which have this capability.
----
- sys-utils/Makemodule.am |  2 +-
- sys-utils/hwclock.c     | 59 +++++++++++++++++++++++++++++++++++--------------
- 2 files changed, 43 insertions(+), 18 deletions(-)
+On 29 December 2016 at 10:58, Sami Kerola <kerolasa@iki.fi> wrote:
+> On 29 December 2016 at 00:33, Adam Borowski <kilobyte@angband.pl> wrote:
+>> On Wed, Dec 28, 2016 at 10:02:11PM +0000, Sami Kerola wrote:
+>>> Reset terminal size by assessing maximum row and column.  This is useful
+>>> when actual geometry and kernel terminal driver are not in sync.
+>>>
+>>> Addresses: http://bugs.debian.org/835636
+>>> Based-on-work-by: Adam Borowski <kilobyte@angband.pl>
+>>> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+>>
+>> Awesome, thanks for taking a look at it!
+>> Alas, at least the delay length makes your version not work for me.
+>
+> Fair enough, updates are available in the git repository at:
+>
+>   git://github.com/kerolasa/lelux-utiliteetit.git setterm
+>
+> https://github.com/kerolasa/lelux-utiliteetit/commit/9e0d5c6b0f8294ceabf38212f6ec14f148e5e642
 
-diff --git a/sys-utils/Makemodule.am b/sys-utils/Makemodule.am
-index f306e65..d40a4d9 100644
---- a/sys-utils/Makemodule.am
-+++ b/sys-utils/Makemodule.am
-@@ -412,5 +412,5 @@ if BUILD_SETPRIV
- usrbin_exec_PROGRAMS += setpriv
- dist_man_MANS += sys-utils/setpriv.1
- setpriv_SOURCES = sys-utils/setpriv.c
--setpriv_LDADD = $(LDADD) -lcap-ng libcommon.la
-+setpriv_LDADD = $(LDADD) -lcap-ng -lcap libcommon.la
- endif
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 880ba78..20ac6bf 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -66,6 +66,7 @@
- #include <stdlib.h>
- #include <string.h>
- #include <sysexits.h>
-+#include <sys/capability.h>
- #include <sys/stat.h>
- #include <sys/time.h>
- #include <time.h>
-@@ -1904,24 +1905,48 @@ int main(int argc, char **argv)
- 	      | setepoch | predict | compare | get))
- 		show = 1;	/* default to show */
- 
--	if (getuid() == 0)
--		permitted = TRUE;
--	else {
-+	permitted = TRUE;
-+	if (getuid() != 0) {
- 		/* program is designed to run setuid (in some situations) */
--		if ((set || systohc || adjust) && !testing) {
--			warnx(_("Sorry, only the superuser can change "
--				"the Hardware Clock."));
--			permitted = FALSE;
--		} else if ((systz || hctosys) && !testing) {
--			warnx(_("Sorry, only the superuser can change "
--				"the System Clock."));
--			permitted = FALSE;
--		} else if (setepoch && !testing) {
--			warnx(_("Sorry, only the superuser can change the "
--				"Hardware Clock epoch in the kernel."));
--			permitted = FALSE;
--		} else
--			permitted = TRUE;
-+		if (!testing &&
-+		    (set || systohc || adjust || systz || hctosys || setepoch)) {
-+			cap_t cap;
-+			cap_flag_value_t flag_val;
-+			cap_value_t val;
-+
-+			cap = cap_get_proc();
-+			if (cap == NULL) {
-+				warnx(_("cap_get_proc failed"));
-+				permitted = FALSE;
-+			}
-+
-+			if (cap_from_name("cap_sys_time", &val) == -1) {
-+				switch (errno) {
-+					case EINVAL:
-+						warnx(_("cap_from_name: invalid capability: 'cap_sys_time'"));
-+					break;
-+					case ENOMEM:
-+						warnx(_("cap_from_name: out of memory"));
-+					break;
-+					default:
-+						warnx(_("cap_from_name: unknown error"));
-+					break;
-+				}
-+				permitted = FALSE;
-+			}
-+
-+			if (cap_get_flag(cap, val, CAP_EFFECTIVE, &flag_val) == -1) {
-+				warnx(_("cap_get_flag: invalid capability"));
-+				permitted = FALSE;
-+			}
-+
-+			if (flag_val != CAP_SET) {
-+				warnx(_("Non-root cannot run hwclock without capability CAP_SYS_TIME set"));
-+				permitted = FALSE;
-+			}
-+
-+			cap_free(cap);
-+		}
- 	}
- 
- 	if (!permitted)
+Correction. The 9e0d5c... got amend. More recent commit is:
+
+https://github.com/kerolasa/lelux-utiliteetit/commit/5d795999511adc455d223be8281948796bd7d087
+
 -- 
-2.7.4
-
+Sami Kerola
+http://www.iki.fi/kerolasa/
