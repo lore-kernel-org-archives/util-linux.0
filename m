@@ -1,104 +1,113 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57414 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751675AbcLGLZo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 7 Dec 2016 06:25:44 -0500
-Date: Wed, 7 Dec 2016 12:25:41 +0100
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: Marian Vomir <marian.vomir@ni.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] Revert "hwclock: don't allow non-root access"
-Message-ID: <20161207112541.2g3trc26tcvcghio@ws.net.home>
-References: <1481047580-28284-1-git-send-email-marian.vomir@ni.com>
- <c0ddbe5a-caa4-c8ad-0d86-9b13c3277edc@gmx.com>
+Received: from mail-qt0-f193.google.com ([209.85.216.193]:34825 "EHLO
+        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752380AbcL2K6q (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 29 Dec 2016 05:58:46 -0500
+Received: by mail-qt0-f193.google.com with SMTP id 3so22744166qtr.2
+        for <util-linux@vger.kernel.org>; Thu, 29 Dec 2016 02:58:46 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <c0ddbe5a-caa4-c8ad-0d86-9b13c3277edc@gmx.com>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20161229003327.oeavblvtsem4e6ge@angband.pl>
+References: <20161228220211.5634-1-kerolasa@iki.fi> <20161229003327.oeavblvtsem4e6ge@angband.pl>
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Thu, 29 Dec 2016 10:58:45 +0000
+Message-ID: <CAG27Bk32Qb0V2g6HFXdPRakrRhjG9fhZbPSFtA8cTjDKpLWu4w@mail.gmail.com>
+Subject: Re: [PATCH 1/1] setterm: add --resize option
+To: Adam Borowski <kilobyte@angband.pl>
+Cc: util-linux <util-linux@vger.kernel.org>,
+        Andreas Henriksson <andreas@fatal.se>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Dec 06, 2016 at 06:40:32PM -0500, J William Piggott wrote:
-> 
-> 
-> On 12/06/2016 01:06 PM, Marian Vomir wrote:
-> > This reverts commit 687cc5d58942b24a9f4013c68876d8cbea907ab1.
-> > 
-> > There are cases when an unprivileged user wants to set the hardware clock.
-> 
-> This has never been allowed in over two decades of hwclock. I cannot
-> think of a legitimate reason to allow setting the Hardware Clock by a
-> normal user.
+On 29 December 2016 at 00:33, Adam Borowski <kilobyte@angband.pl> wrote:
+> On Wed, Dec 28, 2016 at 10:02:11PM +0000, Sami Kerola wrote:
+>> Reset terminal size by assessing maximum row and column.  This is useful
+>> when actual geometry and kernel terminal driver are not in sync.
+>>
+>> Addresses: http://bugs.debian.org/835636
+>> Based-on-work-by: Adam Borowski <kilobyte@angband.pl>
+>> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+>
+> Awesome, thanks for taking a look at it!
+> Alas, at least the delay length makes your version not work for me.
 
-Yes. It seems Marian has missed the goal of the commit
-687cc5d58942b24a9f4013c68876d8cbea907ab1. It's not about permissions
-detection. 
+Fair enough, updates are available in the git repository at:
 
-We don't want to support use-case where hwclock(8) has extra
-permissions (setuid or CAP_<something>) to set system time. The binary
-is not designed for this purpose and it does not make sense to support
-it -- less utils with extra permissions is better.
+  git://github.com/kerolasa/lelux-utiliteetit.git setterm
 
-> Having said that, while I agree with Karel's desire to remove all
-> mention of running hwclock with setuid, IMO the code should not have
-> been removed. Despite the comment directly above it, that code has
-> nothing to do with hwclock being run with setuid.
+https://github.com/kerolasa/lelux-utiliteetit/commit/9e0d5c6b0f8294ceabf38212f6ec14f148e5e642
 
-Maybe my patch seems too strict, but change docs is not enough, the
-code matters. We want to be sure nobody uses hwclock as setuid,
-especially if man page and code comments promised this non-sense.
+>> --- a/term-utils/setterm.1
+>> +++ b/term-utils/setterm.1
+>> @@ -228,6 +228,10 @@ Turns keyboard repeat on or off.
+>> +\fB\-\-resize\fP
+>> +Reset terminal size by assessing maximum row and column.  This is useful
+>> +when actual geometry and kernel terminal driver are not in sync.
+>
+> Perhaps a remark about serial consoles as the principal use?  They don't
+> transfer ioctls, just a byte stream plus breaks.
 
-> I would argue that there are some hwclock options intended for normal
-> users. A normal users should at least be able to display the Hardware
-> Clock time.
+Added. Could you consider sending an update to manual that clarifies why
+setterm --resize works when stty(1) and resize(1) fail.
 
-We can change it to support --show for non-root users, but the
-question is if such change will have any practical effect, because for
-example on Fedora we have:
+Ref: http://docstore.mik.ua/orelly/unix/upt/ch42_05.htm
 
-  $ ll /dev/rtc0
-  crw------- 1 root root 251, 0 Nov 28 10:46 /dev/rtc0
+>> diff --git a/term-utils/setterm.c b/term-utils/setterm.c
+>> index abcf8b291..691c3bc2f 100644
+>> --- a/term-utils/setterm.c
+>> +++ b/term-utils/setterm.c
+>> +     tv.tv_sec = 0;
+>> +     tv.tv_usec = 100;
+>> +     return select(1, &set, NULL, NULL, &tv);
+>
+> This delay is too short even on my amd64 in xfce4-terminal, much less on a
+> serial link.  Even at 115200 baud, 100usec = 1/10000sec is enough to ferry
+> less than a byte and a half, one way, without giving any time for the
+> terminal to respond.  As the query will be often preceded by a login screen
+> -- sometimes just a banner, sometimes a picture, sometimes a screenful of
+> ALL CAPS "authorized use only" legal blathering, even my original timeout of
+> 3.0 seconds is quite short.
+>
+> In a vast majority of cases the timeout won't be reached -- it's just a
+> safeguard against the terminal being disconnected or not implementing cursor
+> position queries.
 
-so
+Fair enough. Timeout is set to be 10 seconds.
 
-  $ hwclock --debug --show
-  hwclock from util-linux 2.29.44-a99c0
-  hwclock: cannot open /dev/rtc: Permission denied
-  No usable clock interface found.
-  hwclock: Cannot access the Hardware Clock via any known method.
+>> +      * \e7        Save current state (cursor coordinates, attributes,
+>> +      *                character sets pointed at by G0, G1).
+>> +      * \e[r       Set scrolling region; parameters are top and bottom row.
+>> +      * \e[99999E  Move cursor down 99999 rows.
+>> +      * \e[99999C  Move cursor right 99999 columns.
+>> +      */
+>> +     static const char *setup = "\e7\e[r\e[99999E\e[99999C";
+>
+> I'm afraid some old terminals might use shorts there -- 9999 or 32766 (32767
+> might be a magic number) could be better.
 
-with the untested patch below. IMHO it's waste of time to try to be
-smart in this area... ;-)
+Finding max value from termcap would be nice, but I don't know how to do
+that. Meanwhole INT16_MAX - 1 is reasonable compromise.
 
-    Karel
+>> +     /* \e[6n      Report cursor position.  */
+>> +     static const char *getpos = "\e[6n";
+>> +     /* \e8        Restore state most recently saved by \e7. */
+>> +     static const char *restore = "\e8";
+>
+>> +     if (write(STDIN_FILENO, setup, strlen(setup)) < 0 ||
+>> +         write(STDIN_FILENO, getpos, strlen(getpos)) < 0) {
+>> +             warn(_("write failed"));
+>
+> What about blasting all three strings to the terminal together?
+>
+> The former two have no logical reason to be apart, writing the third one
+> unconditionally means the cursor won't go to an odd place if the read fails,
+> thus they can go in one write.
 
+Striongs are merged, and I changed write() to write_all() to be more robust.
+There is also some signal safety now, primarily EINTR is checked at when
+select(2) and read(2) return.
 
-
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 21caeb2..ede6cfa 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -1859,11 +1859,6 @@ int main(int argc, char **argv)
- 	argc -= optind;
- 	argv += optind;
- 
--	if (getuid() != 0) {
--		warnx(_("Sorry, only the superuser can use the Hardware Clock."));
--		hwclock_exit(EX_NOPERM);
--	}
--
- #ifdef HAVE_LIBAUDIT
- 	if (testing != TRUE) {
- 		if (adjust == TRUE || hctosys == TRUE || systohc == TRUE ||
-@@ -1906,6 +1901,11 @@ int main(int argc, char **argv)
- 		show = 1;	/* default to show */
- 
- 
-+	if (!show && getuid() != 0) {
-+		warnx(_("Sorry, only --show is allowed for non-root users."));
-+		hwclock_exit(EX_NOPERM);
-+	}
-+
- #ifdef __linux__
- 	if (getepoch || setepoch) {
- 		manipulate_epoch(getepoch, setepoch, epoch_option, testing);
-
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
