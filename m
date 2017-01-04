@@ -1,43 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34324 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:57628 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750877AbdAZM5W (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 26 Jan 2017 07:57:22 -0500
-Date: Thu, 26 Jan 2017 13:57:20 +0100
+        id S1753083AbdADLcH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 4 Jan 2017 06:32:07 -0500
+Date: Wed, 4 Jan 2017 12:32:03 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/1] fstrim: de-duplication of btrfs subvolumes
-Message-ID: <20170126125720.3ufyk75ujxqkscqd@x2.net.home>
-References: <bebe5a12-6927-b602-22ea-ea8e62b7f4ce@suse.cz>
+To: kerolasa@gmail.com
+Cc: Adam Borowski <kilobyte@angband.pl>,
+        util-linux <util-linux@vger.kernel.org>,
+        Andreas Henriksson <andreas@fatal.se>
+Subject: Re: [PATCH 1/1] setterm: add --resize option
+Message-ID: <20170104113203.ni5xdrcllu6ikjfl@ws.net.home>
+References: <20161228220211.5634-1-kerolasa@iki.fi>
+ <20161229003327.oeavblvtsem4e6ge@angband.pl>
+ <CAG27Bk32Qb0V2g6HFXdPRakrRhjG9fhZbPSFtA8cTjDKpLWu4w@mail.gmail.com>
+ <CAG27Bk1PbU1T=7cisG7kcO1txOXz9wap9xvZVs=0iEj7thzqNw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <bebe5a12-6927-b602-22ea-ea8e62b7f4ce@suse.cz>
+In-Reply-To: <CAG27Bk1PbU1T=7cisG7kcO1txOXz9wap9xvZVs=0iEj7thzqNw@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jan 25, 2017 at 06:30:11PM +0100, Stanislav Brabec wrote:
-> I got a report that TRIM is called many times on btrfs with subvolumes.
-> I did a research and found that sys-utils/fstrim.c: uniq_fs_source_cmp()
-> contains a code that compares not only file system sources (i. e.
-> devices), but also roots.
+On Thu, Dec 29, 2016 at 11:01:45AM +0000, Sami Kerola wrote:
+> On 29 December 2016 at 10:58, Sami Kerola <kerolasa@iki.fi> wrote:
+> > On 29 December 2016 at 00:33, Adam Borowski <kilobyte@angband.pl> wrote:
+> >> On Wed, Dec 28, 2016 at 10:02:11PM +0000, Sami Kerola wrote:
+> >>> Reset terminal size by assessing maximum row and column.  This is useful
+> >>> when actual geometry and kernel terminal driver are not in sync.
+> >>>
+> >>> Addresses: http://bugs.debian.org/835636
+> >>> Based-on-work-by: Adam Borowski <kilobyte@angband.pl>
+> >>> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> >>
+> >> Awesome, thanks for taking a look at it!
+> >> Alas, at least the delay length makes your version not work for me.
+> >
+> > Fair enough, updates are available in the git repository at:
+> >
+> >   git://github.com/kerolasa/lelux-utiliteetit.git setterm
+> >
+> > https://github.com/kerolasa/lelux-utiliteetit/commit/9e0d5c6b0f8294ceabf38212f6ec14f148e5e642
 > 
-> I doubt that it is needed in any situation. We just care about source,
-> i. e. device node. I think that if it matches, it is always particular
-> device duplicate.
+> Correction. The 9e0d5c... got amend. More recent commit is:
 > 
-> Root does not equal for btrfs subvolumes, but also it does not equal for
-> bind mounts. And btrfs subvolumes remain duplicated after the whole
-> de-duplication process.
+> https://github.com/kerolasa/lelux-utiliteetit/commit/5d795999511adc455d223be8281948796bd7d087
 
-Ah... I have probably thought the roots are really independent on the
-device, but now when I think about it the idea does not make sense :-)
-
-> The patch assumes that the root comparison is not needed here at all. If
-> it is not true, I will prepare another patch ignoring root specifically
-> for btrfs.
-
-The patch makes more sense than the original code.
+Merged. Thanks!
 
     Karel
 
