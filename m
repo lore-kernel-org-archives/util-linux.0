@@ -1,35 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:41953 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750803AbdAQLvy (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 17 Jan 2017 06:51:54 -0500
-Date: Tue, 17 Jan 2017 12:51:46 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] last: use --time-format instruction when printing wtmp
- creation time
-Message-ID: <20170117115146.tjswoiqsahkzuu4e@ws.net.home>
-References: <20170115101718.8885-1-kerolasa@iki.fi>
- <20170116112528.x72dn2pcxjxbfjp7@ws.net.home>
- <alpine.LNX.2.20.1701162236440.12085@imuri>
+Received: from mout.kundenserver.de ([217.72.192.75]:59212 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S938382AbdAFLQk (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 6 Jan 2017 06:16:40 -0500
+Subject: Re: [PATCH] newgrp: use libc explicit_bzero() when it is available
+To: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
+References: <20170105223340.2721-1-kerolasa@iki.fi>
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Message-ID: <4462d609-2049-7484-d6a8-53daf9b4534f@bernhard-voelker.de>
+Date: Fri, 6 Jan 2017 12:09:09 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LNX.2.20.1701162236440.12085@imuri>
+In-Reply-To: <20170105223340.2721-1-kerolasa@iki.fi>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jan 16, 2017 at 10:40:05PM +0000, Sami Kerola wrote:
-> Well \n removal has to be somewhere and it does make sense to move it to 
-> time_formatter().  How about the following that is also available at:
-> 
->   git://github.com/kerolasa/lelux-utiliteetit.git last
+On 01/05/2017 11:33 PM, Sami Kerola wrote:
+> +#ifdef HAVE_EXPLICIT_BZERO
+> +		explicit_bzero(xpwd, strlen(xpwd));
+> +#else
+>  		xmemset_s(xpwd, strlen(xpwd), 0);
+> +#endif
+>  		free(xpwd);
 
-Applied, thanks!
+Do you think it's worth making things even more complicated
+for overwriting a simple string?  I mean, a simple
 
-    Karel
+  for (char *c = xpwd; c; c++)
+    c = '\0';
 
+would do, wouldn't it?
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Have a nice day,
+Berny
