@@ -1,137 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:33466 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750877AbdAPWqh (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 16 Jan 2017 17:46:37 -0500
-Received: by mail-wm0-f66.google.com with SMTP id r144so34161166wme.0
-        for <util-linux@vger.kernel.org>; Mon, 16 Jan 2017 14:46:36 -0800 (PST)
-Date: Mon, 16 Jan 2017 22:40:05 +0000 (GMT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] last: use --time-format instruction when printing wtmp
- creation time
-In-Reply-To: <20170116112528.x72dn2pcxjxbfjp7@ws.net.home>
-Message-ID: <alpine.LNX.2.20.1701162236440.12085@imuri>
-References: <20170115101718.8885-1-kerolasa@iki.fi> <20170116112528.x72dn2pcxjxbfjp7@ws.net.home>
+Received: from mx1.redhat.com ([209.132.183.28]:58538 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1759330AbdAILll (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 9 Jan 2017 06:41:41 -0500
+Date: Mon, 9 Jan 2017 12:32:37 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: J William Piggott <elseifthen@gmx.com>, util-linux@vger.kernel.org
+Subject: Re: pull: hwclock 27 changes
+Message-ID: <20170109113201.kt3mmxr7fqlwscdm@ws.net.home>
+References: <20161231214107.8658-1-kerolasa@iki.fi>
+ <05e4405f-8096-9261-f9f2-d2c6b84675bc@gmx.com>
+ <070fc458-ed69-a09c-11cc-42bb50fec888@gmx.com>
+ <alpine.LNX.2.20.1701072212010.9096@imuri>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <alpine.LNX.2.20.1701072212010.9096@imuri>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 16 Jan 2017, Karel Zak wrote:
-
-> On Sun, Jan 15, 2017 at 10:17:18AM +0000, Sami Kerola wrote:
-> > --- a/login-utils/last.c
-> > +++ b/login-utils/last.c
-> > @@ -874,11 +874,23 @@ static void process_wtmp_file(const struct last_control *ctl,
-> >  		}
-> >  	}
-> >  
-> > -	{
-> > -		char* tmp = xstrdup(filename);
-> > -		printf(_("\n%s begins %s"), basename(tmp), ctime(&begintime));
-> > +	if (ctl->time_fmt != LAST_TIMEFTM_NONE) {
-> > +		struct last_timefmt *fmt;
-> > +		char timestr[LAST_TIMESTAMP_LEN];
-> > +		size_t len;
-> > +		char *tmp = xstrdup(filename);
-> > +
-> > +		fmt = &timefmts[ctl->time_fmt];
-> > +		if (time_formatter(fmt->in_fmt, timestr,
-> > +				   sizeof(timestr), &begintime) < 0)
-> > +			errx(EXIT_FAILURE, _("preallocation size exceeded"));
-> > +		len = strlen(timestr) - 1;
-> > +		if (timestr[len] == '\n')
-> > +			timestr[len] = '\0';
+On Sat, Jan 07, 2017 at 11:06:23PM +0000, Sami Kerola wrote:
+> > > 
+> > > 
+> > > I tried to convince Karel of this long ago. This code has been broken
+> > > from day one, so nobody can be using it. IMO, it should be removed now.
+> > > 
+> > > 
 > 
-> Do we expect this '\n' somewhere in the code?
+> I agree. --compare is broken. I think there are couple options.
 > 
-> I guess that also for LAST_TIMEFTM_CTIME is the \n char truncated.
-> What about to remove \n from the string in the time_formatter() to
-> avoid this timestr[len] = '\0' in the code?
+> 1) remove --compare code, and mention in manual page it's gone
+> 2) keep the code, but deprecate it
+> 3) keep the code, and fix it (but how???)
+> 4) keep the broken code and whistle happy days theme song
+> 5) something else
+> 
+> I am 60-40 leaning towards recommending removal. If we don't remove rest 
+> of my 40 goes to deprecate. Karel, I think we need maintainer advice.
 
-Hi Karel,
+I have re-read our old discussions about this topic and I agree that
+it's better to kill the problematic (broken?) functionality that care
+about backward compatibility. It really seems nobody uses this stuff. 
 
-Well \n removal has to be somewhere and it does make sense to move it to 
-time_formatter().  How about the following that is also available at:
+So, go ahead and send patch to remove all around --compare.
 
-  git://github.com/kerolasa/lelux-utiliteetit.git last
+BTW, we had discussion about unmaintained adjtimex merge to
+util-linux.
 
---->8----
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Mon, 16 Jan 2017 22:31:36 +0000
-Subject: [PATCH] last: use --time-format instruction when printing wtmp creation time
+    Karel
+   
 
-This makes --time-format=iso timestamp to look the same as login/logout
-times.  When --time-format=noformat is used the file creation time not
-printed.  There is no change to default format.
-
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- login-utils/last.c             | 17 +++++++++++++----
- tests/expected/utmp/last-nodns |  4 +---
- 2 files changed, 14 insertions(+), 7 deletions(-)
-
-diff --git a/login-utils/last.c b/login-utils/last.c
-index 7c243f147..5ebd5e2ba 100644
---- a/login-utils/last.c
-+++ b/login-utils/last.c
-@@ -345,7 +345,8 @@ static int time_formatter(int fmt, char *dst, size_t dlen, time_t *when)
- 		break;
- 	}
- 	case LAST_TIMEFTM_CTIME:
--		ret = snprintf(dst, dlen, "%s", ctime(when));
-+		snprintf(dst, dlen, "%s", ctime(when));
-+		ret = rtrim_whitespace((unsigned char *) dst);
- 		break;
- 	case LAST_TIMEFTM_ISO8601:
- 		ret = strtime_iso(when, ISO_8601_DATE|ISO_8601_TIME|ISO_8601_TIMEZONE, dst, dlen);
-@@ -874,11 +875,19 @@ static void process_wtmp_file(const struct last_control *ctl,
- 		}
- 	}
- 
--	{
--		char* tmp = xstrdup(filename);
--		printf(_("\n%s begins %s"), basename(tmp), ctime(&begintime));
-+	if (ctl->time_fmt != LAST_TIMEFTM_NONE) {
-+		struct last_timefmt *fmt;
-+		char timestr[LAST_TIMESTAMP_LEN];
-+		char *tmp = xstrdup(filename);
-+
-+		fmt = &timefmts[ctl->time_fmt];
-+		if (time_formatter(fmt->in_fmt, timestr,
-+				   sizeof(timestr), &begintime) < 0)
-+			errx(EXIT_FAILURE, _("preallocation size exceeded"));
-+		printf(_("\n%s begins %s\n"), basename(tmp), timestr);
- 		free(tmp);
- 	}
-+
- 	fclose(fp);
- 
- 	for (p = ulist; p; p = next) {
-diff --git a/tests/expected/utmp/last-nodns b/tests/expected/utmp/last-nodns
-index cb7cfde09..e92366266 100644
---- a/tests/expected/utmp/last-nodns
-+++ b/tests/expected/utmp/last-nodns
-@@ -91,8 +91,6 @@ init     foo          five                (01:00)
- login    foo          six                 (01:00)
- user_pro foo          seven               (01:00)
- accounti foo          nine                (01:00)
--
--wtmp-a begins Wed Aug 28 03:00:00 2013
- ~~~ iso-8601 time ~~~
- rick     long         never-gonna-logout 1970-01-01T00:00:00+0000 - 2038-01-19T03:14:07+0000 (24855+03:14)
- torvalds linux        hobby            1991-08-26T00:57:08+0000   gone - no logout
-@@ -109,7 +107,7 @@ login    foo          six              2013-08-28T06:00:00+0000 - 2013-08-28T07:
- user_process foo          seven            2013-08-28T05:00:00+0000 - 2013-08-28T06:00:00+0000  (01:00)
- accounting foo          nine             2013-08-28T03:00:00+0000 - 2013-08-28T04:00:00+0000  (01:00)
- 
--wtmp-a begins Wed Aug 28 03:00:00 2013
-+wtmp-a begins 2013-08-28T03:00:00+0000
- ~~~ since and until ~~~
- oldtime  foo          four             Wed Aug 28 08:00    gone - no logout
- init     foo          five             Wed Aug 28 07:00 - 08:00  (01:00)
 -- 
-2.11.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
