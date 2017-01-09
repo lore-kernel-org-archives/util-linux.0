@@ -1,48 +1,61 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42430 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751372AbdAaUAM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 31 Jan 2017 15:00:12 -0500
-Date: Tue, 31 Jan 2017 21:00:09 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
+Return-Path: elseifthen@gmx.com
+Subject: Re: pull: hwclock 27 changes
+To: Karel Zak <kzak@redhat.com>, Sami Kerola <kerolasa@iki.fi>
+References: <20161231214107.8658-1-kerolasa@iki.fi>
+ <05e4405f-8096-9261-f9f2-d2c6b84675bc@gmx.com>
+ <070fc458-ed69-a09c-11cc-42bb50fec888@gmx.com>
+ <alpine.LNX.2.20.1701072212010.9096@imuri>
+ <20170109113201.kt3mmxr7fqlwscdm@ws.net.home>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] lscpu: Fix regression caused by WSL detection
-Message-ID: <20170131200009.tfyccytavt2si33c@ws.net.home>
-References: <39000ad3-20c6-0388-3fac-d96327df3793@suse.cz>
- <14cf8f82-ff0b-b14d-24a9-3e7ced89dea6@suse.cz>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <0e70d024-09f0-929f-f22f-ba29d3909e00@gmx.com>
+Date: Mon, 9 Jan 2017 08:53:27 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <14cf8f82-ff0b-b14d-24a9-3e7ced89dea6@suse.cz>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20170109113201.kt3mmxr7fqlwscdm@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jan 31, 2017 at 06:38:39PM +0100, Stanislav Brabec wrote:
-> Stanislav Brabec wrote:
-> > Commit 7572fb2b8cb69512ca230b7fcfa11577526843f4 introduced a failure on missing
-> > /proc/sys/kernel/osrelease. Make it non-fatal to prevent crash in some chroot
-> > environments.
-> > 
-> >  	if (path_exist(_PATH_PROC_OSRELEASE)
-> > -	    && (fd = path_fopen("r", 1, _PATH_PROC_OSRELEASE))) {
-> > +	    && (fd = path_fopen("r", 0, _PATH_PROC_OSRELEASE))) {
+
+
+On 01/09/2017 06:32 AM, Karel Zak wrote:
+> On Sat, Jan 07, 2017 at 11:06:23PM +0000, Sami Kerola wrote:
+>>>>
+>>>>
+>>>> I tried to convince Karel of this long ago. This code has been broken
+>>>> from day one, so nobody can be using it. IMO, it should be removed now.
+>>>>
+>>>>
+>>
+>> I agree. --compare is broken. I think there are couple options.
+>>
+>> 1) remove --compare code, and mention in manual page it's gone
+>> 2) keep the code, but deprecate it
+>> 3) keep the code, and fix it (but how???)
+>> 4) keep the broken code and whistle happy days theme song
+>> 5) something else
+>>
+>> I am 60-40 leaning towards recommending removal. If we don't remove rest 
+>> of my 40 goes to deprecate. Karel, I think we need maintainer advice.
 > 
-> It was my fault. I did not sent a patch with path_exist(_PATH_PROC_OSRELEASE) as
-> 7572fb2b8cb69512ca230b7fcfa11577526843f4. It was my old version.
+> I have re-read our old discussions about this topic and I agree that
+> it's better to kill the problematic (broken?) functionality that care
+> about backward compatibility. It really seems nobody uses this stuff. 
 > 
-> Use of 0 in path_fopen() seems to be a better solution that path_exist().
+> So, go ahead and send patch to remove all around --compare.
+> 
+> BTW, we had discussion about unmaintained adjtimex merge to
+> util-linux.
+> 
+>     Karel
+>    
+> 
 
-Yes, I have found the problem and added path_exist() like we use on
-another places in the code, but you're right that path_fopen("r", 0,
-...) is more elegant solution.
-
-Fixed and path_exist() before path_fopen() removed from the another
-places too.
-
-Thanks!
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+It is true, I suggested picking up the orphaned adjtimex(8) code as an
+alternative to inserting it's functionality into hwclock(8). However, I
+have since learned that the useful functions of adjtimex(8) are
+available via the ntp utilities.  The rest of its (dis)abilities have
+the same problems we are seeing when reimplementing them into
+hwclock(8). I think perhaps there were good reasons adjtimex(8) was
+abandoned. Before, I believed adjtimex(8) might be a good fit for
+util-linux, now I am not so sure. If someone demonstrates a useful
+purpose for it I will change my position.
