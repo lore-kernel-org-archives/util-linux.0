@@ -1,66 +1,74 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33848 "EHLO mx1.redhat.com"
+Received: from mx2.suse.de ([195.135.220.15]:59654 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751151AbdAPLZa (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 16 Jan 2017 06:25:30 -0500
-Date: Mon, 16 Jan 2017 12:25:28 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] last: use --time-format instruction when printing wtmp
- creation time
-Message-ID: <20170116112528.x72dn2pcxjxbfjp7@ws.net.home>
-References: <20170115101718.8885-1-kerolasa@iki.fi>
+        id S1750889AbdALPdv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 12 Jan 2017 10:33:51 -0500
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 955ED75012
+        for <util-linux@vger.kernel.org>; Thu, 12 Jan 2017 14:45:27 +0000 (UTC)
+To: Util-Linux <util-linux@vger.kernel.org>
+From: Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH 1/3] libmount: fix mount -oloop=/dev/loopX regression
+Message-ID: <9d3edce3-83f4-bc14-82fc-823db481064e@suse.cz>
+Date: Thu, 12 Jan 2017 15:45:27 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170115101718.8885-1-kerolasa@iki.fi>
+Content-Type: text/plain; charset=iso-8859-2
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jan 15, 2017 at 10:17:18AM +0000, Sami Kerola wrote:
-> This makes --time-format=iso timestamp to look the same as login/logout
-> times.  When --time-format=noformat is used the file creation time not
-> printed.  There is no change to default format.
-> 
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  login-utils/last.c             | 18 +++++++++++++++---
->  tests/expected/utmp/last-nodns |  4 +---
->  2 files changed, 16 insertions(+), 6 deletions(-)
-> 
-> diff --git a/login-utils/last.c b/login-utils/last.c
-> index 7c243f147..484e18e80 100644
-> --- a/login-utils/last.c
-> +++ b/login-utils/last.c
-> @@ -874,11 +874,23 @@ static void process_wtmp_file(const struct last_control *ctl,
->  		}
->  	}
->  
-> -	{
-> -		char* tmp = xstrdup(filename);
-> -		printf(_("\n%s begins %s"), basename(tmp), ctime(&begintime));
-> +	if (ctl->time_fmt != LAST_TIMEFTM_NONE) {
-> +		struct last_timefmt *fmt;
-> +		char timestr[LAST_TIMESTAMP_LEN];
-> +		size_t len;
-> +		char *tmp = xstrdup(filename);
-> +
-> +		fmt = &timefmts[ctl->time_fmt];
-> +		if (time_formatter(fmt->in_fmt, timestr,
-> +				   sizeof(timestr), &begintime) < 0)
-> +			errx(EXIT_FAILURE, _("preallocation size exceeded"));
-> +		len = strlen(timestr) - 1;
-> +		if (timestr[len] == '\n')
-> +			timestr[len] = '\0';
+If mount option "loop" is used with an argument, it should be respected. Commit
+8efad715 introduced a regression. Even with an argument, overlaying loop device
+is searched and argument is ignored. It could have unexpected side effects.
 
-Do we expect this '\n' somewhere in the code?
+If argument is set, never allocate a new loop device.
 
-I guess that also for LAST_TIMEFTM_CTIME is the \n char truncated.
-What about to remove \n from the string in the time_formatter() to
-avoid this timestr[len] = '\0' in the code?
+How to reproduce:
+mkdir -p cdrom
+mkisofs -o cdrom.iso cdrom/ 2>/dev/null
+losetup /dev/loop0 cdrom.iso
+strace mount -t auto -o ro,loop=/dev/loop1 cdrom.iso /mnt 2>&1 | grep ^mount
+cat /proc/self/mountinfo | grep /mnt
+umount /mnt
+losetup -d /dev/loop0
 
-    Karel
+mount("/dev/loop0", "/mnt", "iso9660", MS_MGC_VAL|MS_RDONLY, NULL) = 0
+327 60 7:0 / /mnt ro,relatime shared:241 - iso9660 /dev/loop0 ro
+losetup: /dev/loop0: detach failed: No such device or address
+
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ libmount/src/context_loopdev.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/libmount/src/context_loopdev.c b/libmount/src/context_loopdev.c
+index 8ef183107..18eb2cc56 100644
+--- a/libmount/src/context_loopdev.c
++++ b/libmount/src/context_loopdev.c
+@@ -259,7 +259,12 @@ int mnt_context_setup_loopdev(struct libmnt_context *cxt)
+ 				goto done;
+ 			}
+ 			rc = 0;
+-			goto success;
++			/* loop= used with argument. Conflict will occur. */
++			if (loopval) {
++				rc = -MNT_ERR_LOOPOVERLAP;
++				goto done;
++			} else
++				goto success;
+ 		}
+ 		default: /* error */
+ 			goto done;
+-- 
+2.11.0
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
