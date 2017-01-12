@@ -1,84 +1,91 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:34559 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751605AbdANJe1 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 14 Jan 2017 04:34:27 -0500
-Received: by mail-wm0-f67.google.com with SMTP id c85so17152144wmi.1
-        for <util-linux@vger.kernel.org>; Sat, 14 Jan 2017 01:34:26 -0800 (PST)
-Date: Sat, 14 Jan 2017 09:34:16 +0000 (GMT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: J William Piggott <elseifthen@gmx.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: pull: hwclock 27 changes
-In-Reply-To: <ede34a46-7290-c68b-1dd8-e4fc356e5caf@gmx.com>
-Message-ID: <alpine.LNX.2.20.1701140930380.2049@imuri>
-References: <20161231214107.8658-1-kerolasa@iki.fi> <05e4405f-8096-9261-f9f2-d2c6b84675bc@gmx.com> <070fc458-ed69-a09c-11cc-42bb50fec888@gmx.com> <alpine.LNX.2.20.1701072212010.9096@imuri> <a9d7f37b-3607-70d4-843a-7d934bd305d5@gmx.com>
- <alpine.LNX.2.20.1701112055190.2589@imuri> <ede34a46-7290-c68b-1dd8-e4fc356e5caf@gmx.com>
+Received: from mx2.suse.de ([195.135.220.15]:59653 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751045AbdALPd4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 12 Jan 2017 10:33:56 -0500
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id D78F375011
+        for <util-linux@vger.kernel.org>; Thu, 12 Jan 2017 14:45:42 +0000 (UTC)
+To: util-linux@vger.kernel.org
+From: Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH 2/3] libmount: Fix incorrect detach of reused loop device
+Message-ID: <bd9cca05-d884-c86b-9107-74e9f673c2d1@suse.cz>
+Date: Thu, 12 Jan 2017 15:45:42 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-2
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, 12 Jan 2017, J William Piggott wrote:
-> On 01/11/2017 04:44 PM, Sami Kerola wrote:
-> > On Sun, 8 Jan 2017, J William Piggott wrote:
-> >>> @@ -1031,9 +1032,7 @@ calculate_adjustment(const struct hwclock_control *ctl,
-> >>>  	exact_adjustment =
-> >>>  	    ((double)(systime - last_time)) * factor / (24 * 60 * 60)
-> >>>  	    + not_adjusted;
-> >>> -	tdrift_p->tv_sec = (int) exact_adjustment;
-> >>> -	if (exact_adjustment < 0)
-> >>> -		tdrift_p->tv_sec--;
-> >>> +	tdrift_p->tv_sec = (int) floor(exact_adjustment);
-> >>
-> >> Is the cast required now?
-> > 
-> > floor(3) will return double, tv_sec is time_t. Yes I should and have 
-> > fixed the cast from int to time_t.
-> 
-> Isn't the cast implied by assignment and done automatically? Isn't that
-> why the previous mismatch with the (int) cast worked? In the next line
-> of code we assign a double to tv_usec which is a mismatch also.
-> 
-> I built your latest branch with and without the cast and the results
-> were binary identical.
+If -oloop is used and the loop device is reused, the loop device is detached
+after umount. It is incorrect as it could break the another task using the loop
+device.
 
-Preferably there should not be casts at all. But sometimes they are hard 
-to avoid, and then one should do as few casts as possible to avoid cutting 
-bits out.
+This is caused by mnt_context_enable_loopdel(,TRUE) that is called from
+mnt_context_prepare_umount() whenever "loop" option is used, independently on
+AUTOCLEAR flag.
 
-Think casting in terms of shape sorting toy. The more data is casted 
-through none-matching types the more the original shape is modified to fit 
-to storage where it is pushed.
+Remove the "loop" option for reused devices to prevent detaching of reused loop
+device.
 
-That is also the reason why casting to time_t in this case makes sense. 
-While it might be that right now, on systems we happen to use, int and 
-time_t are the same type there are no guarantees about other systems and 
-future. In practical terms; casting exactly to matching storage type is 
-the right way to avoid damaging data.
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ libmount/src/context_loopdev.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-> > ----------------------------------------------------------------
-> > The following changes since commit 89958178f6d6ebe0944d423feaea66be521fff43:
-> >   If mtab support is disabled, disable ro/rw mtab checks (2017-01-10 17:32:32 +0100)
-> > are available in the git repository at:
-> >   git://github.com/kerolasa/lelux-utiliteetit.git hwclock-jwp-reviewed
-> > for you to fetch changes up to d3e33557e6794446c712ca264e54fe4b186a17ca:
-> >   hwclock: remove --compare option (2017-01-11 21:04:36 +0000)
-> > ----------------------------------------------------------------
-> > 
-> > Thank you JWP for reviews, I hope I did not miss anything but if I did let 
-> > me know and I will follow up. Even better if everyone agrees that this is 
-> > now good enough to be merged, and we can move forward with other updates 
-> > such as adjtimex(8) work.
-> 
-> Thanks for all the work, Sami. I've been testing your latest branch and
-> haven't found any problems. I cannot test all of your changes though, for
-> example I don't have libaudit installed. For what it's worth, I think it
-> is ready.
-
-Good point. I do not have libaudit either. Hearing that setup does not 
-have functional problems would really nice.
+diff --git a/libmount/src/context_loopdev.c b/libmount/src/context_loopdev.c
+index 18eb2cc56..ab80bd110 100644
+--- a/libmount/src/context_loopdev.c
++++ b/libmount/src/context_loopdev.c
+@@ -10,6 +10,7 @@
+  */
+ 
+ #include <blkid.h>
++#include <stdbool.h>
+ 
+ #include "mountP.h"
+ #include "loopdev.h"
+@@ -142,6 +143,7 @@ int mnt_context_setup_loopdev(struct libmnt_context *cxt)
+ 	struct loopdev_cxt lc;
+ 	int rc = 0, lo_flags = 0;
+ 	uint64_t offset = 0, sizelimit = 0;
++	bool reuse = FALSE;
+ 
+ 	assert(cxt);
+ 	assert(cxt->fs);
+@@ -263,8 +265,10 @@ int mnt_context_setup_loopdev(struct libmnt_context *cxt)
+ 			if (loopval) {
+ 				rc = -MNT_ERR_LOOPOVERLAP;
+ 				goto done;
+-			} else
++			} else {
++				reuse = TRUE;
+ 				goto success;
++			}
+ 		}
+ 		default: /* error */
+ 			goto done;
+@@ -339,8 +343,8 @@ success:
+ 		/* success */
+ 		cxt->flags |= MNT_FL_LOOPDEV_READY;
+ 
+-		if ((cxt->user_mountflags & MNT_MS_LOOP) &&
+-		    loopcxt_is_autoclear(&lc)) {
++		if (reuse || ( (cxt->user_mountflags & MNT_MS_LOOP) &&
++		    loopcxt_is_autoclear(&lc))) {
+ 			/*
+ 			 * autoclear flag accepted by the kernel, don't store
+ 			 * the "loop=" option to mtab.
+-- 
+2.11.0
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
