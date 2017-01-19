@@ -1,96 +1,99 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:35823 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751013AbdAWNcE (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 23 Jan 2017 08:32:04 -0500
-Received: by mail-wm0-f65.google.com with SMTP id d140so26526932wmd.2
-        for <util-linux@vger.kernel.org>; Mon, 23 Jan 2017 05:32:04 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <3425316c-b457-daea-58f9-8e0d9dacf417@wdc.com>
-References: <1484816545-28033-1-git-send-email-shaun@tancheff.com> <3425316c-b457-daea-58f9-8e0d9dacf417@wdc.com>
-From: Shaun Tancheff <shaun@tancheff.com>
-Date: Mon, 23 Jan 2017 20:32:02 +0700
-Message-ID: <CAJ48U8VKAmFpK6Cb=UgpYrt4kteS13amwP2iMtJvaMBPEHTuiA@mail.gmail.com>
-Subject: Re: [PATCH] Add blkzonecmd and blkreport ZAC/ZBC drives
-To: Damien Le Moal <damien.lemoal@wdc.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
-        Bart Van Assche <bart.vanassche@sandisk.com>
-Content-Type: text/plain; charset=UTF-8
+Received: from mx.datacom.ind.br ([177.66.5.10]:44526 "EHLO
+        mail.datacom.ind.br" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751898AbdASUEA (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 19 Jan 2017 15:04:00 -0500
+From: Carlos Santos <casantos@datacom.ind.br>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] Fix compilation with ncurses and uClibc or musl libc
+Date: Thu, 19 Jan 2017 17:27:37 -0200
+Message-Id: <1484854057-2506-1-git-send-email-casantos@datacom.ind.br>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jan 23, 2017 at 2:38 PM, Damien Le Moal <damien.lemoal@wdc.com> wro=
-te:
-> Shaun,
->
-> On 1/19/17 18:02, Shaun Tancheff wrote:
->> +++ b/sys-utils/blkreset.c
->> @@ -0,0 +1,192 @@
->> +/*
-> [...]
->> +
->> +     if (ioctl(fd, BLKGETSIZE64, &blksize))
->> +             err(EXIT_FAILURE, _("%s: BLKGETSIZE64 ioctl failed"), path=
-);
->> +
->> +     blksectors =3D blksize << 9;
->
-> blksize being in bytes here, it looks like the shift is in the wrong
-> direction here... i.e.
->
-> blksectors =3D blksize >> 9;
+Compiling util-linux with musl and uClibc-ng toolchains when wide-char
+support is not enabled in ncurses results in compilation failures with
+the following message:
 
-Good catch!
+    error: two or more data types in declaration specifiers
+    #define
+     wchar_t char
 
-Reposting with Karel's suggestion to use blkdev_get_sectors().
+The problem occurs because util-linux #defines its own wchar_t (as char)
+when configured without widechar support. This conflicts with definition
+of wchar_t contained in stddef.h.
 
-Thanks!
+This error can be reproduced running "<toolchain-cc -o test test.c" with
+the following test program:
 
->> +
->> +     /* check offset alignment to the chunk size */
->> +     if (zsector & (zsize - 1))
->> +             errx(EXIT_FAILURE, _("%s: zone %" PRIu64 " is not aligned =
-"
->> +                      "to zone size %" PRIu64), path, zsector, zsize);
->> +     if (zsector > blksectors)
->> +             errx(EXIT_FAILURE, _("%s: zone %" PRIu64 " is too large "
->> +                      "for device %" PRIu64), path, zsector, blksectors=
-);
->> +
->> +     zlen =3D zcount * zsize;
->> +     if (zsector + zlen > blksectors)
->> +             zlen =3D blksectors - zsector;
->> +
->> +     za.sector =3D zsector;
->> +     za.nr_sectors =3D zlen;
->> +     rc =3D ioctl(fd, BLKRESETZONE, &za);
->> +     if (rc =3D=3D -1)
->> +             err(EXIT_FAILURE, _("%s: BLKRESETZONE ioctl failed"), path=
-);
->> +
->> +     close(fd);
->> +     return EXIT_SUCCESS;
->> +}
->>
->
-> Best regards.
->
-> --
-> Damien Le Moal, Ph.D.
-> Sr Manager, System Software Research Group,
-> Western Digital
-> Damien.LeMoal@hgst.com
-> Tel: (+81) 0466-98-3593 (Ext. 51-3593)
-> 1 kirihara-cho, Fujisawa, Kanagawa, 252-0888 Japan
-> www.wdc.com, www.hgst.com
-> Western Digital Corporation (and its subsidiaries) E-mail Confidentiality=
- Notice & Disclaimer:
->
-> This e-mail and any files transmitted with it may contain confidential or=
- legally privileged information of WDC and/or its affiliates, and are inten=
-ded solely for the use of the individual or entity to which they are addres=
-sed. If you are not the intended recipient, any disclosure, copying, distri=
-bution or any action taken or omitted to be taken in reliance on it, is pro=
-hibited. If you have received this e-mail in error, please notify the sende=
-r immediately and delete the e-mail in its entirety from your system.
->
+    #include <ctype.h>
+    #define wchar_t char
+    #include <stddef.h>
+
+    int main()
+    {
+        return 0;
+    }
+
+The only way to avoid the problem it to reorder the inclusion of headers
+in some files under the text-utils directory.
+
+Addresses:
+  http://autobuild.buildroot.net/results/3a2f228e0fa7b5cc28a13d49f48f1a6aef8d9d7a
+  http://autobuild.buildroot.net/results/99e96069f652d511c6212a5bb6be29e68fb1747c
+  http://autobuild.buildroot.net/results/2dc5721aef93b7b410153bafad78248fac3db941
+  http://autobuild.buildroot.net/results/8a9e197ba7a292b18f8c0c36dca974685556a38a
+
+Signed-off-by: Carlos Santos <casantos@datacom.ind.br>
+---
+ text-utils/colcrt.c | 2 +-
+ text-utils/colrm.c  | 2 +-
+ text-utils/column.c | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/text-utils/colcrt.c b/text-utils/colcrt.c
+index 62f8425..f376350 100644
+--- a/text-utils/colcrt.c
++++ b/text-utils/colcrt.c
+@@ -46,8 +46,8 @@
+ #include <getopt.h>
+ 
+ #include "nls.h"
+-#include "widechar.h"
+ #include "c.h"
++#include "widechar.h"
+ #include "closestream.h"
+ 
+ /*
+diff --git a/text-utils/colrm.c b/text-utils/colrm.c
+index 431eae0..e799cd1 100644
+--- a/text-utils/colrm.c
++++ b/text-utils/colrm.c
+@@ -44,9 +44,9 @@
+ #include <unistd.h>
+ 
+ #include "nls.h"
+-#include "widechar.h"
+ #include "strutils.h"
+ #include "c.h"
++#include "widechar.h"
+ #include "closestream.h"
+ 
+ /*
+diff --git a/text-utils/column.c b/text-utils/column.c
+index b8d31c9..e0144a2 100644
+--- a/text-utils/column.c
++++ b/text-utils/column.c
+@@ -50,8 +50,8 @@
+ #include <getopt.h>
+ 
+ #include "nls.h"
+-#include "widechar.h"
+ #include "c.h"
++#include "widechar.h"
+ #include "xalloc.h"
+ #include "strutils.h"
+ #include "closestream.h"
+-- 
+2.7.4
+
