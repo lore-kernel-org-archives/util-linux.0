@@ -1,56 +1,132 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:47561 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:38828 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751448AbdAaQm6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 31 Jan 2017 11:42:58 -0500
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id E120EAAA3
-        for <util-linux@vger.kernel.org>; Tue, 31 Jan 2017 16:42:56 +0000 (UTC)
-To: util-linux@vger.kernel.org
-From: Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH] lscpu: Fix regression caused by WSL detection
-Message-ID: <39000ad3-20c6-0388-3fac-d96327df3793@suse.cz>
-Date: Tue, 31 Jan 2017 17:42:56 +0100
+        id S1752167AbdATO3D (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 20 Jan 2017 09:29:03 -0500
+Date: Fri, 20 Jan 2017 15:28:56 +0100
+From: Karel Zak <kzak@redhat.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.29.1
+Message-ID: <20170120142856.h66daer5woziprqh@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=iso-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Commit 7572fb2b8cb69512ca230b7fcfa11577526843f4 introduced a failure on missing
-/proc/sys/kernel/osrelease. Make it non-fatal to prevent crash in some chroot
-environments.
+The util-linux release v2.29.1 is available at
 
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
----
- sys-utils/lscpu.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+  http://ftp.kernel.org/pub/linux/utils/util-linux/v2.29
 
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index 318e93b43..1770872d5 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -917,9 +917,8 @@ read_hypervisor(struct lscpu_desc *desc, struct lscpu_modifier *mod)
- 	FILE *fd;
- 
- 	/* We have to detect WSL first. is_vmware_platform() crashes on Windows 10. */
--
- 	if (path_exist(_PATH_PROC_OSRELEASE)
--	    && (fd = path_fopen("r", 1, _PATH_PROC_OSRELEASE))) {
-+	    && (fd = path_fopen("r", 0, _PATH_PROC_OSRELEASE))) {
- 		char buf[256];
- 
- 		if (fgets(buf, sizeof(buf), fd) != NULL) {
+Feedback and bug reports, as always, are welcomed.
+
+    Karel
+
+
+util-linux 2.29.1 Release Notes
+===============================
+
+build-sys:
+   - cleanup UL_NCURSES_CHECK  [Karel Zak]
+   - don't clean *.img files  [Ruediger Meier]
+   - fix compilation with ncurses and uClibc or musl libc  [Carlos Santos]
+   - fix empty package release number  [Ruediger Meier]
+   - prefer pkg-config for ncurses  [Karel Zak]
+   - update package release number during development  [Ruediger Meier]
+   - use MATH_LIBS for hwclock  [Karel Zak]
+chrt:
+   - default to SCHED_RR policy  [Andreas Henriksson]
+chsh:
+   - use -h as shorthand for --help instead of -u  [Andreas Henriksson]
+disk-utils/mkfs.minix:
+   - Set ninodes after checking max  [Nate Clark]
+docs:
+   - add cross reference to namespaces(7)  [Michael Kerrisk (man-pages)]
+   - ionice(1)  SEE ALSO  add ioprio_set(2)  [Michael Kerrisk]
+   - kill(1)  Add more detail on use of SIGTERM vs SIGKILL  [Michael Kerrisk]
+   - kill(1)  Fix section reference for sigqueue(3) and add to SEE ALSO  [Michael Kerrisk]
+   - kill(1)  Formatting fixes  [Michael Kerrisk]
+   - kill(1)  Rework notes on thread groups  [Michael Kerrisk]
+   - kill(1)  Wording fix  [Michael Kerrisk]
+   - last(1)  Eliminate oddball formatting  [Michael Kerrisk]
+   - last(1)  SEE ALSO  add reference to wtmp(5)  [Michael Kerrisk]
+   - lsns(8)  SEE ALSO  add namespaces(7)  [Michael Kerrisk]
+   - mount(8)  Wording fix  [Michael Kerrisk]
+   - namei(1)  SEE ALSO  add symlink(7)  [Michael Kerrisk]
+   - nsenter(1)  Describe the 'file' argument used by namespace options  [Michael Kerrisk]
+   - nsenter(1)  Formatting fix  [Michael Kerrisk]
+   - nsenter(1)  add missing 'see also' for --user  [Karel Zak]
+   - renice(1)  Add SEE ALSO entry for sched(7)  [Michael Kerrisk]
+   - renice(1)  Add credentials(7) to SEE ALSO  [Michael Kerrisk]
+   - renice(1)  Remove obsolete BUGS text  [Michael Kerrisk]
+   - renice(1)  Rework discussion of unprivileged users,  [Michael Kerrisk]
+   - taskset(1)  Wording fix  [Michael Kerrisk]
+   - update AUTHORS file  [Karel Zak]
+   - update v2.29.1-ReleaseNotes  [Karel Zak]
+   - various pages  Format pathnames as italic (.I)  [Michael Kerrisk]
+   - various pages  Use "ID" not "id" in man pages  [Michael Kerrisk]
+   - various pages  Use "PID" not "pid" in man-pages  [Michael Kerrisk]
+   - various pages  Use "system call" not "syscall"  [Michael Kerrisk]
+   - various pages  Use 'UID" and "GID", not "uid" and "gid" in man pages  [Michael Kerrisk]
+   - various pages  Use consistent terminology (set-user-ID and set-group-ID)  [Michael Kerrisk]
+fdisk:
+   - don't be silent when list non-existing device  [Karel Zak]
+findmnt:
+   - error on --target /non-exist  [Karel Zak]
+hwclock:
+   - don't check for permissions  [Karel Zak]
+lib/linux_version:
+   - fix stupid typo  [Karel Zak]
+libblkid/minix:
+   - Match minix superblock types  [Nate Clark]
+   - Sanity check superblock s_state for v 1 and 2  [Nate Clark]
+   - Use same checks for version 3  [Nate Clark]
+libfdisk:
+   - (gpt) make calculations more robust  [Karel Zak]
+   - recount size when apply user device properties  [Karel Zak]
+libsmartcols:
+   - add scols_cell_get_alignment()  [Karel Zak]
+lscpu:
+   - add aarch64 specific names  [Karel Zak]
+lsns:
+   - Fix parser for /proc/<pid>/stat which is including space in comm  [OGAWA Hirofumi]
+man:
+   - chfn(1)  add chsh and login.defs to SEE ALSO  [Andreas Henriksson]
+   - chsh(1)  add login.defs to SEE ALSO  [Andreas Henriksson]
+more:
+   - avoid double free() on exit  [Karel Zak]
+po:
+   - merge changes  [Karel Zak]
+   - update da.po (from translationproject.org)  [Joe Hansen]
+   - update fr.po (from translationproject.org)  [Stéphane Aulery]
+   - update pt_BR.po (from translationproject.org)  [Rafael Fontenelle]
+runuser:
+   - add "--" to SYNOPSIS  [Karel Zak]
+sfdisk:
+   - cleanup --dump error messages  [Karel Zak]
+   - don't be silent when list non-existing device  [Karel Zak]
+su, runuser:
+   - fix typo in the /etc/default path  [Karel Zak]
+sulogin:
+   - bail out from getpasswd(...) on timeout  [Andreas Henriksson]
+   - make getpasswd(...) return NULL on ^D  [Andreas Henriksson]
+term-utils/script:
+   - fix typo leading to syntax error  [Bert van Hall]
+tests:
+   - (build-sys) don't link -lm by default  [Karel Zak]
+
+- Correctly format page cross references  [Michael Kerrisk (man-pages)]
+- Fix formatting errors in page cross references  [Michael Kerrisk (man-pages)]
+- Fix page cross references  [Michael Kerrisk (man-pages)]
+- Fix reference for scheduling discussion  [Michael Kerrisk (man-pages)]
+- Fix section number in lockf() page xref  [Michael Kerrisk (man-pages)]
+- Fix typo in page cross reference (capabilities(7), not, capability(7))  [Michael Kerrisk (man-pages)]
+- IPC namespaces also isolate POSIX message queues  [Michael Kerrisk (man-pages)]
+- If mtab support is disabled, disable ro/rw mtab checks  [Stanislav Brabec]
+- Place SEE ALSO entries in order  [Michael Kerrisk (man-pages)]
+- Provide better cross references for namespace concepts  [Michael Kerrisk (man-pages)]
+- Replace reference to sigvec(2) with sigaction(2)  [Michael Kerrisk (man-pages)]
+
 -- 
-2.11.0
-
--- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
