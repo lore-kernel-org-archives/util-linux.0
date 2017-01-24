@@ -1,28 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:49660 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751040AbdAJQfx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 10 Jan 2017 11:35:53 -0500
-Date: Tue, 10 Jan 2017 17:35:51 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+Received: from nikam.ms.mff.cuni.cz ([195.113.20.16]:34358 "EHLO
+        nikam.ms.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750730AbdAXKnc (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 24 Jan 2017 05:43:32 -0500
+Date: Tue, 24 Jan 2017 11:43:29 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] man: fix couple tools/checkmans.sh warnings
-Message-ID: <20170110163551.5esv6ezjmciju5cq@ws.net.home>
-References: <20170106235434.10975-1-kerolasa@iki.fi>
+Subject: Re: Partition alignment in fdisk
+Message-ID: <mj+md-20170124.104313.13554.nikam@ucw.cz>
+References: <mj+md-20170119.164524.14268.nikam@ucw.cz>
+ <20170119200151.xkehhwppqwjmw4gt@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170106235434.10975-1-kerolasa@iki.fi>
+In-Reply-To: <20170119200151.xkehhwppqwjmw4gt@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 06, 2017 at 11:54:34PM +0000, Sami Kerola wrote:
->  disk-utils/fsck.8  | 2 +-
->  disk-utils/partx.8 | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
+Hello, world!\n
 
-Applied, thanks.
+> Create the first partition by default way and then use expert menu
+> ('x'), command 'b' to move begin of the first partition.
 
+Thanks, I will try it the next time.
+
+				Have a nice fortnight
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Martin `MJ' Mares                          <mj@ucw.cz>   http://mj.ucw.cz/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+"This is an object-oriented system. If we change anything, the users object."
