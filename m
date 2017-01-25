@@ -1,63 +1,86 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45510 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S965015AbdADLG3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 4 Jan 2017 06:06:29 -0500
-Date: Wed, 4 Jan 2017 12:06:27 +0100
-From: Karel Zak <kzak@redhat.com>
-To: The Flying Rapist <impeccableenglish@gmail.com>
-Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>,
-        The Flying Rapist <admin@nosuck.org>
-Subject: Re: [PATCH] col: backspacing widechars
-Message-ID: <20170104110627.gwd2spbznfw4lssg@ws.net.home>
-References: <20161228093620.5528-1-ImpeccableEnglish@gmail.com>
- <CAG27Bk1eCMakhnbcmQZpYVvcYF2K+eYSekaQQFxUU5UPXfa2gA@mail.gmail.com>
- <20161228204237.GA29001@creation>
+Return-Path: kerolasa@gmail.com
+Sender: Sami Kerola <kerolasa@gmail.com>
+Date: Wed, 25 Jan 2017 21:54:13 +0000 (GMT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: J William Piggott <elseifthen@gmx.com>
+cc: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
+Subject: Re: pull: hwclock 27 changes
+In-Reply-To: <c88dc7ee-3e18-19ec-612e-3788551517bb@gmx.com>
+Message-ID: <alpine.LNX.2.20.1701252136160.492@imuri>
+References: <20161231214107.8658-1-kerolasa@iki.fi> <05e4405f-8096-9261-f9f2-d2c6b84675bc@gmx.com> <070fc458-ed69-a09c-11cc-42bb50fec888@gmx.com> <alpine.LNX.2.20.1701072212010.9096@imuri> <a9d7f37b-3607-70d4-843a-7d934bd305d5@gmx.com>
+ <alpine.LNX.2.20.1701112055190.2589@imuri> <ede34a46-7290-c68b-1dd8-e4fc356e5caf@gmx.com> <alpine.LNX.2.20.1701140930380.2049@imuri> <f723104e-d23b-f8fd-e9ee-b9fc82c86fd3@gmx.com> <c88dc7ee-3e18-19ec-612e-3788551517bb@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20161228204237.GA29001@creation>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Dec 28, 2016 at 03:42:37PM -0500, The Flying Rapist wrote:
-> On 2016年12月28日 14時55分, Sami Kerola wrote:
-> > May I remind howto-contribute[1] tells 'using your real name (sorry,
-> > no pseudonyms
-> > or anonymous contributions.)'
+On Sun, 22 Jan 2017, J William Piggott wrote:
+> On 01/14/2017 05:51 PM, J William Piggott wrote:
+> > On 01/14/2017 04:34 AM, Sami Kerola wrote:
+> >> Preferably there should not be casts at all. But sometimes they are hard 
+> >> to avoid, and then one should do as few casts as possible to avoid cutting 
+> >> bits out.
+> >>
+> >> Think casting in terms of shape sorting toy. The more data is casted 
+> >> through none-matching types the more the original shape is modified to fit 
+> >> to storage where it is pushed.
+> >>
+> >> That is also the reason why casting to time_t in this case makes sense. 
+> >> While it might be that right now, on systems we happen to use, int and 
+> >> time_t are the same type there are no guarantees about other systems and 
+> >> future. In practical terms; casting exactly to matching storage type is 
+> >> the right way to avoid damaging data.
+> > 
+> > What I'm trying to say is, assignment operators automatically convert
+> > the right operand to the type of the left operand; making your cast
+> > unnecessary. Try it, build hwclock with the cast. Now, remove the cast
+> > and build it. The resulting binaries are bit for bit identical.
+> > 
+> > ISO C11:
+> > The type of an assignment expression is the type the left operand would have
+> > after lvalue conversion.
+> > 
+> > In simple assignment (=), the value of the right operand is converted to
+> > the type of the assignment expression and replaces the value stored in
+> > the object designated by the left operand.
 > 
-> I apologize.  I missed that part of howto-contribute.txt.  Please accept the following.
+> It wasn't the intent of my previous message to be offensive in any way,
+> Sami. I was only trying to state my position using different language,
+> so as not to simply repeat myself.
 > 
-> From: Grady Martin <admin@nosuck.org>
-
-Thanks.
-
+> Also, I'm not continuing this topic to be argumentative. The reason is
+> for my own education. If my opinion is wrong, that is fine; I would like
+> to understand why, so as to improve my own coding.
 > 
-> Until now, backspace characters have not accounted for characters of widths other than one.  This single line amends that.
-> ---
-> text-utils/col.c | 2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
+> As I further read the ISO C standard, I'm more convinced of my belief.
+> It seems to me the compiler is required to use the type conversion
+> routine associated with assignment operators, because it must yield two
+> different results. A /qualified/ left operand type is stored, but the
+> evaluation of the assignment expression returns an /unqualified/ left
+> operand type. Since using the assignment operator's type conversion
+> routine is required (if I'm correct), the compiler would ignore any cast
+> on the results of the right hand operand for code optimization, yes?
 > 
-> diff --git a/text-utils/col.c b/text-utils/col.c
-> index 9b0e23058..c63b46fee 100644
-> --- a/text-utils/col.c
-> +++ b/text-utils/col.c
-> @@ -248,7 +248,7 @@ int main(int argc, char **argv)
->                        case BS:                /* can't go back further */
->                                if (cur_col == 0)
->                                        continue;
-> -                               --cur_col;
-> +                               cur_col -= c->c_width;
->                                continue;
+> That seems to be true for my compiler, as the cast makes no difference
+> in the resulting binary.
+> 
+> If anyone knows the correct answer to this, I am very interested in
+> learning it. Thank you in advance.
 
-Where the c->c_width is initialized? It seems 'c' may be uninitialized
-or points for wrong char. What happen if I press BS more than once? Is
-'c' initialized for the right char?  
+Hi William,
 
-I'm asking because I'm not sure, the code seems strange at the first
-glance.
+Sorry for late reply, I took a bit time off from reading / replying 
+emails.
 
-    Karel
+Correct the cast that is in place now is technically unnecessary. Value of 
+that cast is to remind return value type and storage type differ. Such 
+assignments can, at least in theory, cause bugs so being explicit about 
+them is a good thing. As a matter of fact anything that makes code easier 
+to understand is welcome.
+
+That said now I doubt whether 'technically unnecessary' cast is really a 
+thing that clarifies, but confuses code reader. Comments would be nice, 
+meanwhile I will think about this.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
