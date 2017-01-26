@@ -1,99 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx.datacom.ind.br ([177.66.5.10]:44526 "EHLO
-        mail.datacom.ind.br" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751898AbdASUEA (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 19 Jan 2017 15:04:00 -0500
-From: Carlos Santos <casantos@datacom.ind.br>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] Fix compilation with ncurses and uClibc or musl libc
-Date: Thu, 19 Jan 2017 17:27:37 -0200
-Message-Id: <1484854057-2506-1-git-send-email-casantos@datacom.ind.br>
+Received: from mx1.redhat.com ([209.132.183.28]:34324 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750877AbdAZM5W (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 26 Jan 2017 07:57:22 -0500
+Date: Thu, 26 Jan 2017 13:57:20 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/1] fstrim: de-duplication of btrfs subvolumes
+Message-ID: <20170126125720.3ufyk75ujxqkscqd@x2.net.home>
+References: <bebe5a12-6927-b602-22ea-ea8e62b7f4ce@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <bebe5a12-6927-b602-22ea-ea8e62b7f4ce@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Compiling util-linux with musl and uClibc-ng toolchains when wide-char
-support is not enabled in ncurses results in compilation failures with
-the following message:
+On Wed, Jan 25, 2017 at 06:30:11PM +0100, Stanislav Brabec wrote:
+> I got a report that TRIM is called many times on btrfs with subvolumes.
+> I did a research and found that sys-utils/fstrim.c: uniq_fs_source_cmp()
+> contains a code that compares not only file system sources (i. e.
+> devices), but also roots.
+> 
+> I doubt that it is needed in any situation. We just care about source,
+> i. e. device node. I think that if it matches, it is always particular
+> device duplicate.
+> 
+> Root does not equal for btrfs subvolumes, but also it does not equal for
+> bind mounts. And btrfs subvolumes remain duplicated after the whole
+> de-duplication process.
 
-    error: two or more data types in declaration specifiers
-    #define
-     wchar_t char
+Ah... I have probably thought the roots are really independent on the
+device, but now when I think about it the idea does not make sense :-)
 
-The problem occurs because util-linux #defines its own wchar_t (as char)
-when configured without widechar support. This conflicts with definition
-of wchar_t contained in stddef.h.
+> The patch assumes that the root comparison is not needed here at all. If
+> it is not true, I will prepare another patch ignoring root specifically
+> for btrfs.
 
-This error can be reproduced running "<toolchain-cc -o test test.c" with
-the following test program:
+The patch makes more sense than the original code.
 
-    #include <ctype.h>
-    #define wchar_t char
-    #include <stddef.h>
+    Karel
 
-    int main()
-    {
-        return 0;
-    }
-
-The only way to avoid the problem it to reorder the inclusion of headers
-in some files under the text-utils directory.
-
-Addresses:
-  http://autobuild.buildroot.net/results/3a2f228e0fa7b5cc28a13d49f48f1a6aef8d9d7a
-  http://autobuild.buildroot.net/results/99e96069f652d511c6212a5bb6be29e68fb1747c
-  http://autobuild.buildroot.net/results/2dc5721aef93b7b410153bafad78248fac3db941
-  http://autobuild.buildroot.net/results/8a9e197ba7a292b18f8c0c36dca974685556a38a
-
-Signed-off-by: Carlos Santos <casantos@datacom.ind.br>
----
- text-utils/colcrt.c | 2 +-
- text-utils/colrm.c  | 2 +-
- text-utils/column.c | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/text-utils/colcrt.c b/text-utils/colcrt.c
-index 62f8425..f376350 100644
---- a/text-utils/colcrt.c
-+++ b/text-utils/colcrt.c
-@@ -46,8 +46,8 @@
- #include <getopt.h>
- 
- #include "nls.h"
--#include "widechar.h"
- #include "c.h"
-+#include "widechar.h"
- #include "closestream.h"
- 
- /*
-diff --git a/text-utils/colrm.c b/text-utils/colrm.c
-index 431eae0..e799cd1 100644
---- a/text-utils/colrm.c
-+++ b/text-utils/colrm.c
-@@ -44,9 +44,9 @@
- #include <unistd.h>
- 
- #include "nls.h"
--#include "widechar.h"
- #include "strutils.h"
- #include "c.h"
-+#include "widechar.h"
- #include "closestream.h"
- 
- /*
-diff --git a/text-utils/column.c b/text-utils/column.c
-index b8d31c9..e0144a2 100644
---- a/text-utils/column.c
-+++ b/text-utils/column.c
-@@ -50,8 +50,8 @@
- #include <getopt.h>
- 
- #include "nls.h"
--#include "widechar.h"
- #include "c.h"
-+#include "widechar.h"
- #include "xalloc.h"
- #include "strutils.h"
- #include "closestream.h"
 -- 
-2.7.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
