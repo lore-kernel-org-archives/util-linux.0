@@ -1,165 +1,167 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qt0-f193.google.com ([209.85.216.193]:35248 "EHLO
-        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933644AbdAHJjl (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 8 Jan 2017 04:39:41 -0500
-Received: by mail-qt0-f193.google.com with SMTP id f4so7825647qte.2
-        for <util-linux@vger.kernel.org>; Sun, 08 Jan 2017 01:39:41 -0800 (PST)
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:33170 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751677AbdA1S4t (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 28 Jan 2017 13:56:49 -0500
+Received: by mail-wm0-f66.google.com with SMTP id v77so5402376wmv.0
+        for <util-linux@vger.kernel.org>; Sat, 28 Jan 2017 10:56:44 -0800 (PST)
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+To: Jan Kara <jack@suse.cz>
+Subject: Re: UDF label change since commit 2f2730bc77c9
+Date: Sat, 28 Jan 2017 19:46:57 +0100
+Cc: sbrabec@suse.cz, kzak@redhat.com, util-linux@vger.kernel.org
+References: <20160810123859.GA31140@quack2.suse.cz> <20160815102642.GI30047@pali> <20160816102114.GF27284@quack2.suse.cz>
+In-Reply-To: <20160816102114.GF27284@quack2.suse.cz>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <alpine.LNX.2.20.1701072212010.9096@imuri>
-References: <20161231214107.8658-1-kerolasa@iki.fi> <05e4405f-8096-9261-f9f2-d2c6b84675bc@gmx.com>
- <070fc458-ed69-a09c-11cc-42bb50fec888@gmx.com> <alpine.LNX.2.20.1701072212010.9096@imuri>
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Sun, 8 Jan 2017 09:39:40 +0000
-Message-ID: <CAG27Bk2Kg4MQFKSDwAxM849HJ7AxZWLX1vGL21qO042za=V1pw@mail.gmail.com>
-Subject: Re: pull: hwclock 27 changes
-To: J William Piggott <elseifthen@gmx.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed;
+  boundary="nextPart1562149.W45JCRCZTH";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201701281946.58075@pali>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 7 January 2017 at 23:06, Sami Kerola <kerolasa@iki.fi> wrote:
-> On Sat, 7 Jan 2017, J William Piggott wrote:
->   git://github.com/kerolasa/lelux-utiliteetit.git hwclock-jwp-reviewed
->
-> that has in almost all changes 'Reviewed-by: J William Piggott
-> <elseifthen@gmx.com>'. Notice also that the latest update is not 100%
-> ready. We have question of --compare open, and 'hwclock: move command-line
-> options to control structure' has issue that is not yet corrected yet.
+--nextPart1562149.W45JCRCZTH
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-hwclock-jwp-reviewed got update:
+On Tuesday 16 August 2016 12:21:14 Jan Kara wrote:
+> On Mon 15-08-16 12:26:42, Pali Roh=C3=A1r wrote:
+> > On Monday 15 August 2016 11:43:37 Jan Kara wrote:
+> > > On Wed 10-08-16 16:23:06, Pali Roh=C3=A1r wrote:
+> > > > On Wednesday 10 August 2016 15:39:02 Jan Kara wrote:
+> > > > > Hi,
+> > > > >=20
+> > > > > On Wed 10-08-16 14:53:49, Pali Roh=C3=A1r wrote:
+> > > > > > On Wednesday 10 August 2016 14:38:59 Jan Kara wrote:
+> > > > > > > we have noticed that since commit 2f2730bc77c9 "libblkid:
+> > > > > > > udf: Fix reading LABEL, add support for UUID and other
+> > > > > > > udf identifiers" some volumes have changed labels which
+> > > > > > > are reported by blkid. See [1] for an example.
+> > > > > >=20
+> > > > > > "You are not authorized to access bug #983165."
+> > > > >=20
+> > > > > Ah, sorry. I forgot the bug is reported against SLES and so
+> > > > > is not publically visible. Anyway, the initial comment which
+> > > > > is interesting is:
+> > > > >=20
+> > > > > I have a shared paritition with an UDF filesystem. In Win7
+> > > > > 64bit its label is 'ssd120_docs'. In SLES12SP1 its label is
+> > > > > 'ssd120_dokumente'. In Tumbleweed (and most likely also SP2
+> > > > > Beta) its label is 'ssd120_dosemut' (or similar garbage).
+> > > > >=20
+> > > > > I think there should be some consistency in
+> > > > > /dev/disk/by-label/*. ---
+> > > > >=20
+> > > > > As an explanation, SLES12SP1 uses util-linux 2.25 (i.e.,
+> > > > > before your patch), Tumbleweed is the rolling distro with
+> > > > > the latest & greatest version.
+> > > > >=20
+> > > > > > > This is
+> > > > > > > because that commit changed what is used for the label -
+> > > > > > > previously we have used 'ident' in the Primary Volume
+> > > > > > > Descriptor, and after that commit we use Logical Volume
+> > > > > > > ID.
+> > > > > >=20
+> > > > > > Yes, thats true.
+> > > > > >=20
+> > > > > > > I think it would be better to keep consistency with older
+> > > > > > > util-linux releases (e.g. valid /etc/fstab that uses
+> > > > > > > labels may be broken by this change) but I'm not sure
+> > > > > > > whether there is a point once the new behavior has been
+> > > > > > > released in the util-linux release. But still I wanted
+> > > > > > > to raise this since I'm not sure how much util-linux
+> > > > > > > cares about these changes and also so that people are
+> > > > > > > aware of the change...
+> > > > > > >=20
+> > > > > > > 								Honza
+> > > > > > >=20
+> > > > > > > [1] https://bugzilla.suse.com/show_bug.cgi?id=3D983165
+> > > > > >=20
+> > > > > > Reason why I proposed that change is because all other
+> > > > > > software use Logical Volume Identifier as label. Just
+> > > > > > linux blkid used something other.
+> > > > > >=20
+> > > > > > Basically Linux was incompatible with whole world and I
+> > > > > > think this was a bug. Also UDF specification say something
+> > > > > > that LVI is displayed to user. IIRC also Grub2 uses LVI as
+> > > > > > label identification.
+> > > > > >=20
+> > > > > > So I do not agree with reverting back old behaviour which
+> > > > > > is incompatible with everything except old util-linux
+> > > > > > versions...
+> > > > >=20
+> > > > > Well, this somewhat does not match the description in the
+> > > > > bug. Apparently Win7 uses yet another identifier in the UDF
+> > > > > filesystem...
+> > > >=20
+> > > > Not good :-( Anyway, are you able to produce/create UDF disk
+> > > > image/dump which show different label under Win7 and new
+> > > > util-linux? With that we can inspect which field is Win7 using
+> > > > and could test also other systems (like some BSD or Grub2)
+> > > > what see...
+> > > >=20
+> > > > Maybe there could be different behaviour for CD, DVD, HDD or
+> > > > multisession CD/DVD...
+> > >=20
+> > > The reporter has UDF filesystem created on HDD AFAIU. I've asked
+> > > him to run udf_test program on the fs image. From its output we
+> > > should be able to see various identifiers of the filesystem and
+> > > thus see whan Win7 uses.
+> >=20
+> > Ok, that should help us to detect how Win7 get label...
+> >=20
+> > Anyway, for such output is good tool udfdump from UDFClient project
+> > [1]. It has better license so it can be found in some linux
+> > distributions.
+> >=20
+> > [1] - http://www.13thmonkey.org/udfclient/
+>=20
+> Ah, good to know. Thanks! Sadly the reporter doesn't have the image
+> anymore. Just out of curiosity I've dumped information for Win 8.1
+> installation DVD I had lying around and there is one ID string in
+> Physical Volume Descriptor, one ID string in Physical Volume Set
+> Descriptor and then one ID string used for Logical Volume, Logical
+> Volume Set, and all other similar stuff. And this string looks the
+> most reasonable for a label. So I don't see much room for difference
+> between what Windows show and what current util-linux uses. Once
+> I'll reboot my machine to Win7, I'll check how it names the DVD.
+>=20
+> 								Honza
 
--- snip
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index b41acd450..c3bcc2fa0 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -1245,11 +1245,6 @@ manipulate_clock(const struct hwclock_control
-*ctl, const time_t set_time,
-  adjtime->dirty = TRUE;
-  }
+Now I formatted USB disk with command:
 
-- if (ctl->noadjfile || (ctl->systz && (ctl->utc || ctl->local_opt))) {
-- /* A little trick to avoid writing the file if we don't have to */
-- adjtime->dirty = FALSE;
-- }
--
-  if (ctl->show || ctl->get || ctl->adjust || ctl->hctosys
-     || (!ctl->noadjfile && !ctl->systz && !ctl->predict)) {
-  /* data from HW-clock are required */
-@@ -1558,7 +1553,7 @@ int main(int argc, char **argv)
- {
-  struct hwclock_control ctl = { 0 };
-  struct timeval startup_time;
-- struct adjtime adjtime;
-+ struct adjtime adjtime = { 0 };
-  /*
-  * The time we started up, in seconds into the epoch, including
-  * fractions.
-@@ -1839,8 +1834,12 @@ int main(int argc, char **argv)
-  }
-  }
+$ mkudffs -b 512 --lvid=3Dlogical-volume-ident --vid=3Dvolume-ident --vsid=
+=3Dvolume-set-ident --fsid=3Dfile-set-ident
 
-- if ((rc = read_adjtime(&ctl, &adjtime)) != 0)
-- hwclock_exit(&ctl, rc);
-+ if (!ctl.noadjfile && !(ctl.systz && (ctl.utc || ctl.local_opt))) {
-+ if ((rc = read_adjtime(&ctl, &adjtime)) != 0)
-+ hwclock_exit(&ctl, rc);
-+ } else
-+ /* avoid writing adjtime file if we don't have to */
-+ adjtime.dirty = FALSE;
-  ctl.universal = hw_clock_is_utc(&ctl, adjtime);
-  if (ctl.compare) {
-  if (compare_clock(&ctl))
--- snip
+And connected to Windows 10 machine. Windows identifies it as
+"logical-volume-ident" in "This PC".
 
-that should fix:
+So I think nothing was changed in Windows 10 and behaviour is same as
+in linux-util.
 
->> commit 59aff057349335cd089c34bb0eaa972cf60ff96a
->> Author: Sami Kerola <kerolasa@iki.fi>
->> Date:   Sat Jul 16 16:45:07 2016 +0100
->>
->>     hwclock: move command-line options to control structure
->>
->>     The control structure is read-only everywhere else but in main().  Almost
->>     all changes are about how variables are referred, with one exception.  Calls
->>     to read_adjtime() from manipulate_clock() and compare_clock() are moved to
->>     main().  This way it is possible to keep variable that tells if hwclock is
->>     using UTC-0 be part of control structure.
->>
->>     Changes within #ifdef __alpha__ segments were tested by flipping the
->>     preprocessor directivive otherway around and getting good compilaton all the
->>     way to the point where linking on none-alpha system failed.
->>
->>     Signed-off-by: Sami Kerola <kerolasa@iki.fi>
->>
->>  8< -------
->>
->> @@ -1255,32 +1233,27 @@ manipulate_clock(const bool show, const bool adjust, const bool noadjfile,
->>       /* local return code */
->>       int rc = 0;
->>
->> -     if (!systz && !predict) {
->> +     if (!ctl->systz && !ctl->predict) {
->>               no_auth = ur->get_permissions();
->>               if (no_auth)
->>                       return EX_NOPERM;
->>       }
->>
->> -     if (!noadjfile && !(systz && (utc || local_opt))) {
->> -             rc = read_adjtime(&adjtime);
->> -             if (rc)
->> -                     return rc;
->> -     } else {
->> -             /* A little trick to avoid writing the file if we don't have to */
->> -             adjtime.dirty = FALSE;
->>
->> >
->> > You have to move the above to where you read_adjtime in main. The
->> > concept behind --systz is speed, so we don't want to read the file
->> > then unless they also are changing timescales from the command line.
->> > It is not intended to use --systz for changing timescales, so that
->> > shouldn't happen. More importantly, hwclock depends on *adjtime having
->> > default values when using --noadjfile. For example comparing the
->> > patched version to master using the --get function:
->>
->> ./hwclock-master --get --debug --noadjfile --utc | grep -E 'Calculated|2017\-'; ./hwclock-sami --get --debug --noadjfile --utc | grep -E 'Calculated|2017\-'
->> Calculated Hardware Clock drift is 0.000000 seconds
->> 2017-01-06 10:11:32.294942-0500
->> Calculated Hardware Clock drift is 1.325654 seconds
->> 2017-01-06 10:11:34.339980-0500
->>
->> >
->> >
->> >
->>
->> +     if ((ctl->set || ctl->systohc || ctl->adjust) &&
->> +         (adjtime->local_utc == UTC) != ctl->universal) {
->> +             adjtime->local_utc = ctl->universal ? UTC : LOCAL;
->> +             adjtime->dirty = TRUE;
->>       }
->>
->> -     universal = hw_clock_is_utc(utc, local_opt, adjtime);
->> -
->> -     if ((set || systohc || adjust) &&
->> -         (adjtime.local_utc == UTC) != universal) {
->> -             adjtime.local_utc = universal ? UTC : LOCAL;
->> -             adjtime.dirty = TRUE;
->> +     if (ctl->noadjfile || (ctl->systz && (ctl->utc || ctl->local_opt))) {
->> +             /* A little trick to avoid writing the file if we don't have to */
->> +             adjtime->dirty = FALSE;
->>
->> >
->> > So the above addition won't be here.
->> >
->
-> This issue is not corrected yet. It's getting a bit too late in my
-> timezone to do change that requires concentration. I will send notify to
-> email list when necessary update is done.
+Maybe there can be problem for optical discs where is bridged UDF with
+ISO filesystem and UDF part has different identifiers as those in ISO
+part?
 
+And maybe... it is possible that some UDF filesystems on HDDs have also
+ISO identifiers and linux-util is confused what should use as label?
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--nextPart1562149.W45JCRCZTH
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEUEABECAAYFAliM5yIACgkQi/DJPQPkQ1JRNACYr7lXbkDdXkKdTb38ExUAX8Wi
+lACfSelUwfR1ZG8x1boEuXnDj+4WlS4=
+=73gx
+-----END PGP SIGNATURE-----
+
+--nextPart1562149.W45JCRCZTH--
