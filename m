@@ -1,149 +1,112 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from a.free.hostzilla.ws ([67.227.165.253]:53694 "EHLO
-        a.free.hostzilla.ws" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752463AbdATP4M (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 20 Jan 2017 10:56:12 -0500
-Received: from a79-168-190-113.cpe.netcabo.pt ([79.168.190.113]:34712 helo=marte.localnet)
-        by a.free.hostzilla.ws with esmtpsa (TLSv1:ECDHE-RSA-AES256-SHA:256)
-        (Exim 4.87)
-        (envelope-from <PedroMC@pmc.com.pt>)
-        id 1cUaVK-0000zQ-1k
-        for util-linux@vger.kernel.org; Fri, 20 Jan 2017 09:49:26 -0500
-From: Pedro Miguel Carvalho <PedroMC@pmc.com.pt>
+Received: from mx2.suse.de ([195.135.220.15]:44018 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753649AbdA3QDP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 30 Jan 2017 11:03:15 -0500
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 89288ABD3
+        for <util-linux@vger.kernel.org>; Mon, 30 Jan 2017 16:01:50 +0000 (UTC)
 To: util-linux@vger.kernel.org
-Subject: [PROBLEM] "findmnt --poll" does not flush stdout causing it to buffer the output more than it should when the output is to a pipe or file.
-Date: Fri, 20 Jan 2017 14:49:18 +0000
-Message-ID: <1493264.gvqBJzGE5V@marte>
+From: Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH] lscpu: Detect Windows Subsystem for Linux
+Message-ID: <be1b17c6-5d87-a40d-e5a0-344282e21119@suse.cz>
+Date: Mon, 30 Jan 2017 17:01:50 +0100
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart4903115.UEL9ZnNKm4"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=iso-8859-2
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart4903115.UEL9ZnNKm4
-Content-Type: multipart/mixed; boundary="nextPart1865518.7uAhIVuNxy"
-Content-Transfer-Encoding: quoted-printable
+Windows 10 implements Windows Subsystem for Linux (WSL).
 
-This is a multi-part message in MIME format.
+WSL does not implement support for SIGSEGV handler, which is used inside
+is_vmware_platform(). As a result, lscpu crashes there.
 
-=2D-nextPart1865518.7uAhIVuNxy
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Implement WSL detection, and as a side effect, work around the crash.
+Note that none of existing virtualization types exactly matches.
+But the the closest would be "container".
 
-"findmnt --poll" does not flush stdout causing it to buffer the
-output more than it should when the output is to a pipe or file.
+References:
 
-This issue can be observed by comparing the output of:
-	findmnt --poll --pairs
-with the output of:
-	findmnt --poll --pairs | tee /tmp/output.log
-when these two command are run at the same time
-and some filesystems are (un)(re)mounted.
+Provide a way to positively detect WSL from an app compiled on Linux.
+https://github.com/Microsoft/BashOnWindows/issues/423
 
-Redirecting the output to a file:
-	findmnt --poll --pairs > /tmp/output.log
-or executing findmnt with ssh:
-	ssh user@server findmnt --poll --pairs
-also show the same symptom.
+missing support for SIGSEGV handler
+https://github.com/Microsoft/BashOnWindows/issues/1637
 
-The attached patch simply adds a "fflush(stdout);" after the
-output is printed.
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ sys-utils/lscpu.c | 20 +++++++++++++++++++-
+ sys-utils/lscpu.h |  1 +
+ 2 files changed, 20 insertions(+), 1 deletion(-)
 
-Thanks
-
-p.s. I'm not certain if this is the proper place and way to
-report this issue. If this should go somewhere else, please
-point me in the right direction.
-=2D-nextPart1865518.7uAhIVuNxy
-Content-Disposition: attachment; filename="findmnt.patch"
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/x-patch; charset="UTF-8"; name="findmnt.patch"
-
-diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
-index aff2847..3984d44 100644
-=2D-- a/misc-utils/findmnt.c
-+++ b/misc-utils/findmnt.c
-@@ -1142,6 +1142,7 @@ static int poll_table(struct libmnt_table *tb, const char *tabfile,
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index 94cc00cf6..0ba815428 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -86,6 +86,7 @@
+ #define _PATH_PROC_BC	"/proc/bc"
+ #define _PATH_PROC_DEVICETREE	"/proc/device-tree"
+ #define _PATH_DEV_MEM 		"/dev/mem"
++#define _PATH_PROC_OSRELEASE	"/proc/sys/kernel/osrelease"
  
- 		if (count) {
- 			rc = scols_table_print_range(table, NULL, NULL);
-+			fflush(stdout);
- 			if (rc)
- 				goto done;
- 		}
-
-=2D-nextPart1865518.7uAhIVuNxy--
-This is a multi-part message in MIME format.
-
---nextPart1865518.7uAhIVuNxy
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
-
-"findmnt --poll" does not flush stdout causing it to buffer the
-output more than it should when the output is to a pipe or file.
-
-This issue can be observed by comparing the output of:
-	findmnt --poll --pairs
-with the output of:
-	findmnt --poll --pairs | tee /tmp/output.log
-when these two command are run at the same time
-and some filesystems are (un)(re)mounted.
-
-Redirecting the output to a file:
-	findmnt --poll --pairs > /tmp/output.log
-or executing findmnt with ssh:
-	ssh user@server findmnt --poll --pairs
-also show the same symptom.
-
-The attached patch simply adds a "fflush(stdout);" after the
-output is printed.
-
-Thanks
-
-p.s. I'm not certain if this is the proper place and way to
-report this issue. If this should go somewhere else, please
-point me in the right direction.
---nextPart1865518.7uAhIVuNxy
-Content-Disposition: attachment; filename="findmnt.patch"
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/x-patch; charset="UTF-8"; name="findmnt.patch"
-
-diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
-index aff2847..3984d44 100644
---- a/misc-utils/findmnt.c
-+++ b/misc-utils/findmnt.c
-@@ -1142,6 +1142,7 @@ static int poll_table(struct libmnt_table *tb, const char *tabfile,
+ /* Xen Domain feature flag used for /sys/hypervisor/properties/features */
+ #define XENFEAT_supervisor_mode_kernel		3
+@@ -125,7 +126,8 @@ const char *hv_vendors[] = {
+ 	[HYPER_VBOX]	= "Oracle",
+ 	[HYPER_OS400]	= "OS/400",
+ 	[HYPER_PHYP]	= "pHyp",
+-	[HYPER_SPAR]	= "Unisys s-Par"
++	[HYPER_SPAR]	= "Unisys s-Par",
++	[HYPER_WSL]	= "Windows Subsystem for Linux"
+ };
  
- 		if (count) {
- 			rc = scols_table_print_range(table, NULL, NULL);
-+			fflush(stdout);
- 			if (rc)
- 				goto done;
- 		}
+ const int hv_vendor_pci[] = {
+@@ -914,6 +916,22 @@ read_hypervisor(struct lscpu_desc *desc, struct lscpu_modifier *mod)
+ {
+ 	FILE *fd;
+ 
++	/* We have to detect WSL first. is_vmware_platform() crashes on Windows 10. */
++
++	if ((fd = path_fopen("r", 1, _PATH_PROC_OSRELEASE))) {
++		char buf[256];
++
++		if (fgets(buf, sizeof(buf), fd) != NULL) {
++			if (strstr(buf, "Microsoft")) {
++				desc->hyper = HYPER_WSL;
++				desc->virtype = VIRT_CONT;
++			}
++		}
++		fclose(fd);
++		if (desc->virtype)
++			return;
++	}
++
+ 	if (mod->system != SYSTEM_SNAPSHOT) {
+ 		read_hypervisor_cpuid(desc);
+ 		if (!desc->hyper)
+diff --git a/sys-utils/lscpu.h b/sys-utils/lscpu.h
+index b9aa25562..4906c2636 100644
+--- a/sys-utils/lscpu.h
++++ b/sys-utils/lscpu.h
+@@ -18,6 +18,7 @@ enum {
+ 	HYPER_OS400,
+ 	HYPER_PHYP,
+ 	HYPER_SPAR,
++	HYPER_WSL,
+ };
+ 
+ extern int read_hypervisor_dmi(void);
+-- 
+2.11.0
 
---nextPart1865518.7uAhIVuNxy--
+-- 
+Best Regards / S pozdravem,
 
---nextPart4903115.UEL9ZnNKm4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAABCAAGBQJYgiNzAAoJEG7uFb8cEwCCqAkP/1+LdyBmq1GLYgqRSG2lgcwz
-yBHcXRSAU0PjnYtRNz9TbmNRpNIgGTjWdJZLXNsQd9rZdFZcjYawDdB8JSaDO8vH
-oArYq7g9FzHUUKSKYMb4Dk3nvqF7dMjs5I25XKBfxjTPBgMgHOdFyRBW/y/WWVEe
-6ajJR7uEQPbWaoFFeLU0fJoic1b3lzOvPm45vjC3gWuume5Ugf1I2oVw9yDFNrBF
-Np7Ow1Qn+1agNZGbT/C/Ko6vWEFwIppwxUBpvGeul+r3pFOa+FlgGVvFIO9fUbTY
-MFh7yo4owV+nCHqAO2TJ96hl5qhVfqgudg/WEmVFpgWmm9QD6PaTD3IVXHmDKXxg
-YIJmXwpxVgxcIVZLg04FobTVSEBbUwEb00uhA/kvtysCRBQTHnmRGY+uacgP/k0z
-Dq+7f+y3AfWQmnMfJJOOhG1MmNCNtVF3LWOKqRs+rWcjhfgsyg7iohZpJ4BTA8rn
-2r19i7e5n4MFwyg1Q6c5U6+jo68cHWnwWCLwaSfS5vxgnNWxmDEIgPY1z+pWZOb5
-a+z1JCylBlQgW7IWHY219x86xXn12DniZO4Hpv3rmoAx/1ZtYk9ihPUwpBsnsdfk
-Yczmi6dwJjMAfOVP98LmJs3cJpnQjYDLPQa+V/v6PoDijqXU0Q/38CuBhU6GgP9Q
-sVAMTQPFCxMhtHp8mTQW
-=c2+5
------END PGP SIGNATURE-----
-
---nextPart4903115.UEL9ZnNKm4--
-
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
