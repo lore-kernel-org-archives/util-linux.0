@@ -1,128 +1,149 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:30361 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751852AbdARNhg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 18 Jan 2017 08:37:36 -0500
-Received: from smtp.corp.redhat.com (int-mx16.intmail.prod.int.phx2.redhat.com [10.5.11.28])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 97FA5C059DB7
-        for <util-linux@vger.kernel.org>; Wed, 18 Jan 2017 13:12:20 +0000 (UTC)
-Received: from ws (ovpn-116-150.ams2.redhat.com [10.36.116.150])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 012666D984
-        for <util-linux@vger.kernel.org>; Wed, 18 Jan 2017 13:12:19 +0000 (UTC)
-Date: Wed, 18 Jan 2017 14:12:17 +0100
-From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org
-Subject: stable/v2.29.1
-Message-ID: <20170118131217.3kv7samrkbnxmqqr@ws.net.home>
+Return-Path: jack@suse.cz
+Date: Mon, 30 Jan 2017 17:26:27 +0100
+From: Jan Kara <jack@suse.cz>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Jan Kara <jack@suse.cz>, sbrabec@suse.cz, kzak@redhat.com,
+	util-linux@vger.kernel.org
+Subject: Re: UDF label change since commit 2f2730bc77c9
+Message-ID: <20170130162627.GC23022@quack2.suse.cz>
+References: <20160810123859.GA31140@quack2.suse.cz>
+ <20160815102642.GI30047@pali>
+ <20160816102114.GF27284@quack2.suse.cz>
+ <201701281946.58075@pali>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <201701281946.58075@pali>
 List-ID: <util-linux.vger.kernel.org>
 
+On Sat 28-01-17 19:46:57, Pali Rohár wrote:
+> On Tuesday 16 August 2016 12:21:14 Jan Kara wrote:
+> > On Mon 15-08-16 12:26:42, Pali Rohár wrote:
+> > > On Monday 15 August 2016 11:43:37 Jan Kara wrote:
+> > > > On Wed 10-08-16 16:23:06, Pali Rohár wrote:
+> > > > > On Wednesday 10 August 2016 15:39:02 Jan Kara wrote:
+> > > > > > Hi,
+> > > > > > 
+> > > > > > On Wed 10-08-16 14:53:49, Pali Rohár wrote:
+> > > > > > > On Wednesday 10 August 2016 14:38:59 Jan Kara wrote:
+> > > > > > > > we have noticed that since commit 2f2730bc77c9 "libblkid:
+> > > > > > > > udf: Fix reading LABEL, add support for UUID and other
+> > > > > > > > udf identifiers" some volumes have changed labels which
+> > > > > > > > are reported by blkid. See [1] for an example.
+> > > > > > > 
+> > > > > > > "You are not authorized to access bug #983165."
+> > > > > > 
+> > > > > > Ah, sorry. I forgot the bug is reported against SLES and so
+> > > > > > is not publically visible. Anyway, the initial comment which
+> > > > > > is interesting is:
+> > > > > > 
+> > > > > > I have a shared paritition with an UDF filesystem. In Win7
+> > > > > > 64bit its label is 'ssd120_docs'. In SLES12SP1 its label is
+> > > > > > 'ssd120_dokumente'. In Tumbleweed (and most likely also SP2
+> > > > > > Beta) its label is 'ssd120_dosemut' (or similar garbage).
+> > > > > > 
+> > > > > > I think there should be some consistency in
+> > > > > > /dev/disk/by-label/*. ---
+> > > > > > 
+> > > > > > As an explanation, SLES12SP1 uses util-linux 2.25 (i.e.,
+> > > > > > before your patch), Tumbleweed is the rolling distro with
+> > > > > > the latest & greatest version.
+> > > > > > 
+> > > > > > > > This is
+> > > > > > > > because that commit changed what is used for the label -
+> > > > > > > > previously we have used 'ident' in the Primary Volume
+> > > > > > > > Descriptor, and after that commit we use Logical Volume
+> > > > > > > > ID.
+> > > > > > > 
+> > > > > > > Yes, thats true.
+> > > > > > > 
+> > > > > > > > I think it would be better to keep consistency with older
+> > > > > > > > util-linux releases (e.g. valid /etc/fstab that uses
+> > > > > > > > labels may be broken by this change) but I'm not sure
+> > > > > > > > whether there is a point once the new behavior has been
+> > > > > > > > released in the util-linux release. But still I wanted
+> > > > > > > > to raise this since I'm not sure how much util-linux
+> > > > > > > > cares about these changes and also so that people are
+> > > > > > > > aware of the change...
+> > > > > > > > 
+> > > > > > > > 								Honza
+> > > > > > > > 
+> > > > > > > > [1] https://bugzilla.suse.com/show_bug.cgi?id=983165
+> > > > > > > 
+> > > > > > > Reason why I proposed that change is because all other
+> > > > > > > software use Logical Volume Identifier as label. Just
+> > > > > > > linux blkid used something other.
+> > > > > > > 
+> > > > > > > Basically Linux was incompatible with whole world and I
+> > > > > > > think this was a bug. Also UDF specification say something
+> > > > > > > that LVI is displayed to user. IIRC also Grub2 uses LVI as
+> > > > > > > label identification.
+> > > > > > > 
+> > > > > > > So I do not agree with reverting back old behaviour which
+> > > > > > > is incompatible with everything except old util-linux
+> > > > > > > versions...
+> > > > > > 
+> > > > > > Well, this somewhat does not match the description in the
+> > > > > > bug. Apparently Win7 uses yet another identifier in the UDF
+> > > > > > filesystem...
+> > > > > 
+> > > > > Not good :-( Anyway, are you able to produce/create UDF disk
+> > > > > image/dump which show different label under Win7 and new
+> > > > > util-linux? With that we can inspect which field is Win7 using
+> > > > > and could test also other systems (like some BSD or Grub2)
+> > > > > what see...
+> > > > > 
+> > > > > Maybe there could be different behaviour for CD, DVD, HDD or
+> > > > > multisession CD/DVD...
+> > > > 
+> > > > The reporter has UDF filesystem created on HDD AFAIU. I've asked
+> > > > him to run udf_test program on the fs image. From its output we
+> > > > should be able to see various identifiers of the filesystem and
+> > > > thus see whan Win7 uses.
+> > > 
+> > > Ok, that should help us to detect how Win7 get label...
+> > > 
+> > > Anyway, for such output is good tool udfdump from UDFClient project
+> > > [1]. It has better license so it can be found in some linux
+> > > distributions.
+> > > 
+> > > [1] - http://www.13thmonkey.org/udfclient/
+> > 
+> > Ah, good to know. Thanks! Sadly the reporter doesn't have the image
+> > anymore. Just out of curiosity I've dumped information for Win 8.1
+> > installation DVD I had lying around and there is one ID string in
+> > Physical Volume Descriptor, one ID string in Physical Volume Set
+> > Descriptor and then one ID string used for Logical Volume, Logical
+> > Volume Set, and all other similar stuff. And this string looks the
+> > most reasonable for a label. So I don't see much room for difference
+> > between what Windows show and what current util-linux uses. Once
+> > I'll reboot my machine to Win7, I'll check how it names the DVD.
+> > 
+> > 								Honza
+> 
+> Now I formatted USB disk with command:
+> 
+> $ mkudffs -b 512 --lvid=logical-volume-ident --vid=volume-ident --vsid=volume-set-ident --fsid=file-set-ident
+> 
+> And connected to Windows 10 machine. Windows identifies it as
+> "logical-volume-ident" in "This PC".
+> 
+> So I think nothing was changed in Windows 10 and behaviour is same as
+> in linux-util.
 
-The branch stable/v2.29 contains what I want to release as v2.29.1.
+Good to know.
 
-Any objections or suggestions? See log below.
+> Maybe there can be problem for optical discs where is bridged UDF with
+> ISO filesystem and UDF part has different identifiers as those in ISO
+> part?
+> 
+> And maybe... it is possible that some UDF filesystems on HDDs have also
+> ISO identifiers and linux-util is confused what should use as label?
 
-    Karel
+Maybe. As I already said the problematic image is not available any longer
+so we can only guess. Probably this is not worth pursuing further unless
+someone else starts complaining...
 
-
-Andreas Henriksson (3):
-      chrt: default to SCHED_RR policy
-      sulogin: make getpasswd(...) return NULL on ^D
-      sulogin: bail out from getpasswd(...) on timeout
-
-Joe Hansen (1):
-      po: update da.po (from translationproject.org)
-
-Karel Zak (18):
-      sfdisk: don't be silent when list non-existing device
-      sfdisk: cleanup --dump error messages
-      docs: nsenter(1): add missing 'see also' for --user
-      hwclock: don't check for permissions
-      build-sys: prefer pkg-config for ncurses
-      fdisk: don't be silent when list non-existing device
-      build-sys: cleanup UL_NCURSES_CHECK
-      more: avoid double free() on exit
-      findmnt: error on --target /non-exist
-      lib/linux_version: fix stupid typo
-      lscpu: add aarch64 specific names
-      libsmartcols: add scols_cell_get_alignment()
-      libfdisk: recount size when apply user device properties
-      libfdisk: (gpt) make calculations more robust
-      po: merge changes
-      docs: update AUTHORS file
-      docs: update v2.29.1-ReleaseNotes
-      build-sys: release++ (v2.29.1)
-
-Michael Kerrisk (25):
-      docs: nsenter(1): Describe the 'file' argument used by namespace options
-      docs: nsenter(1): Formatting fix
-      docs: various pages: Use "system call" not "syscall"
-      docs: kill(1): Fix section reference for sigqueue(3) and add to SEE ALSO
-      docs: kill(1): Add more detail on use of SIGTERM vs SIGKILL
-      docs: kill(1): Rework notes on thread groups
-      docs: kill(1): Formatting fixes
-      docs: kill(1): Wording fix
-      docs: renice(1): Rework discussion of unprivileged users,
-      docs: renice(1): Remove obsolete BUGS text
-      docs: various pages: Format pathnames as italic (.I)
-      docs: various pages: Use consistent terminology (set-user-ID and set-group-ID)
-      docs: various pages: Use "ID" not "id" in man pages
-      docs: various pages: Use "PID" not "pid" in man-pages
-      docs: various pages: Use 'UID" and "GID", not "uid" and "gid" in man pages
-      docs: kill(1): Wording fix
-      docs: namei(1): SEE ALSO: add symlink(7)
-      docs: taskset(1): Wording fix
-      docs: last(1): SEE ALSO: add reference to wtmp(5)
-      docs: last(1): Eliminate oddball formatting
-      docs: lsns(8): SEE ALSO: add namespaces(7)
-      docs: ionice(1): SEE ALSO: add ioprio_set(2)
-      docs: mount(8): Wording fix
-      docs: renice(1): Add SEE ALSO entry for sched(7)
-      docs: renice(1): Add credentials(7) to SEE ALSO
-
-Michael Kerrisk (man-pages) (12):
-      Fix typo in page cross reference (capabilities(7), not, capability(7))
-      Place SEE ALSO entries in order
-      Correctly format page cross references
-      Fix page cross references
-      Fix section number in lockf() page xref
-      Fix reference for scheduling discussion
-      Fix formatting errors in page cross references
-      Replace reference to sigvec(2) with sigaction(2)
-      SEE ALSO: add cross reference to namespaces(7)
-      Provide better cross references for namespace concepts
-      Provide better cross references for namespace concepts
-      IPC namespaces also isolate POSIX message queues
-
-Nate Clark (4):
-      disk-utils/mkfs.minix: Set ninodes after checking max
-      libblkid/minix: Match minix superblock types
-      libblkid/minix: Use same checks for version 3
-      libblkid/minix: Sanity check superblock s_state for v 1 and 2
-
-OGAWA Hirofumi (1):
-      lsns: Fix parser for /proc/<pid>/stat which is including space in comm
-
-Rafael Fontenelle (1):
-      po: update pt_BR.po (from translationproject.org)
-
-Ruediger Meier (3):
-      build-sys: fix empty package release number
-      build-sys: update package release number during development
-      build-sys: don't clean *.img files
-
-Stanislav Brabec (1):
-      If mtab support is disabled, disable ro/rw mtab checks
-
-Stéphane Aulery (1):
-      po: update fr.po (from translationproject.org)
-
-
-
+								Honza
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
