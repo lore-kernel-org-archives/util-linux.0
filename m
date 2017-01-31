@@ -1,68 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:38296 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:42430 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S936221AbdAJMyU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 10 Jan 2017 07:54:20 -0500
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id F0688AC97
-        for <util-linux@vger.kernel.org>; Tue, 10 Jan 2017 12:54:18 +0000 (UTC)
-To: util-linux@vger.kernel.org
-From: Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH] If mtab support is disabled, disable ro/rw mtab checks
-Message-ID: <4d702326-5d60-8430-73a9-2e25dac6e49e@suse.cz>
-Date: Tue, 10 Jan 2017 13:54:17 +0100
+        id S1751372AbdAaUAM (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 31 Jan 2017 15:00:12 -0500
+Date: Tue, 31 Jan 2017 21:00:09 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] lscpu: Fix regression caused by WSL detection
+Message-ID: <20170131200009.tfyccytavt2si33c@ws.net.home>
+References: <39000ad3-20c6-0388-3fac-d96327df3793@suse.cz>
+ <14cf8f82-ff0b-b14d-24a9-3e7ced89dea6@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <14cf8f82-ff0b-b14d-24a9-3e7ced89dea6@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Commit f9906424 introduced a check that should prevent different information in
-mtab and /proc/mounts. The check can require significant amount of time, and for
-systems without mtab support it has no sense.
+On Tue, Jan 31, 2017 at 06:38:39PM +0100, Stanislav Brabec wrote:
+> Stanislav Brabec wrote:
+> > Commit 7572fb2b8cb69512ca230b7fcfa11577526843f4 introduced a failure on missing
+> > /proc/sys/kernel/osrelease. Make it non-fatal to prevent crash in some chroot
+> > environments.
+> > 
+> >  	if (path_exist(_PATH_PROC_OSRELEASE)
+> > -	    && (fd = path_fopen("r", 1, _PATH_PROC_OSRELEASE))) {
+> > +	    && (fd = path_fopen("r", 0, _PATH_PROC_OSRELEASE))) {
+> 
+> It was my fault. I did not sent a patch with path_exist(_PATH_PROC_OSRELEASE) as
+> 7572fb2b8cb69512ca230b7fcfa11577526843f4. It was my old version.
+> 
+> Use of 0 in path_fopen() seems to be a better solution that path_exist().
 
-Execute this code only on systems with mtab.
+Yes, I have found the problem and added path_exist() like we use on
+another places in the code, but you're right that path_fopen("r", 0,
+...) is more elegant solution.
 
-When a systems with large number of nodes (thousands) mount the filesystems
-simultaneously, the time required for serialization causes the utimensat() to
-take a large amount of time (tens of minutes) when a large number of nodes are
-simultaneously updating the timestamp.
+Fixed and path_exist() before path_fopen() removed from the another
+places too.
 
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
----
- libmount/src/context_mount.c | 2 ++
- 1 file changed, 2 insertions(+)
+Thanks!
 
-diff --git a/libmount/src/context_mount.c b/libmount/src/context_mount.c
-index a7ea83250..23f0e303a 100644
---- a/libmount/src/context_mount.c
-+++ b/libmount/src/context_mount.c
-@@ -987,6 +987,7 @@ int mnt_context_do_mount(struct libmnt_context *cxt)
- 	} else
- 		res = do_mount_by_pattern(cxt, cxt->fstype_pattern);
- 
-+#if USE_LIBMOUNT_SUPPORT_MTAB
- 	if (mnt_context_get_status(cxt)
- 	    && !mnt_context_is_fake(cxt)
- 	    && !cxt->helper) {
-@@ -1016,6 +1017,7 @@ int mnt_context_do_mount(struct libmnt_context *cxt)
- 			mnt_context_set_mflags(cxt,
- 					cxt->mountflags | MS_RDONLY);
- 	}
-+#endif
- 
- 	return res;
- }
--- 
-2.11.0
+    Karel
 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
