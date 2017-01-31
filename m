@@ -1,28 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:49898 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:39946 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751211AbdATKK0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 20 Jan 2017 05:10:26 -0500
-Date: Fri, 20 Jan 2017 11:10:05 +0100
+        id S1751726AbdAaMDf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 31 Jan 2017 07:03:35 -0500
+Date: Tue, 31 Jan 2017 13:03:22 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Carlos Santos <casantos@datacom.ind.br>
+To: Pedro Miguel Carvalho <PedroMC@pmc.com.pt>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Fix compilation with ncurses and uClibc or musl libc
-Message-ID: <20170120101005.do3cojj7htwo7vxi@ws.net.home>
-References: <1484854057-2506-1-git-send-email-casantos@datacom.ind.br>
+Subject: Re: [PROBLEM] "findmnt --poll" does not flush stdout causing it to
+ buffer the output more than it should when the output is to a pipe or file.
+Message-ID: <20170131120322.ga4eip54poeqk2qi@ws.net.home>
+References: <1493264.gvqBJzGE5V@marte>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1484854057-2506-1-git-send-email-casantos@datacom.ind.br>
+In-Reply-To: <1493264.gvqBJzGE5V@marte>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jan 19, 2017 at 05:27:37PM -0200, Carlos Santos wrote:
->  text-utils/colcrt.c | 2 +-
->  text-utils/colrm.c  | 2 +-
->  text-utils/column.c | 2 +-
->  3 files changed, 3 insertions(+), 3 deletions(-)
+On Fri, Jan 20, 2017 at 02:49:18PM +0000, Pedro Miguel Carvalho wrote:
+> "findmnt --poll" does not flush stdout causing it to buffer the
+> output more than it should when the output is to a pipe or file.
 
-Applied, thanks.
+Fixed. Thanks!
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
