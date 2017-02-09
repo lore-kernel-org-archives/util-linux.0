@@ -1,53 +1,37 @@
-Return-Path: assafgordon@gmail.com
-Date: Fri, 10 Feb 2017 21:38:00 +0000
-From: Assaf Gordon <assafgordon@gmail.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:53476 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751777AbdBIKpK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 9 Feb 2017 05:45:10 -0500
+Date: Thu, 9 Feb 2017 11:43:15 +0100
+From: Karel Zak <kzak@redhat.com>
 To: J William Piggott <elseifthen@gmx.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/3] hwclock: use gnulib's parse_datetime2 function
-Message-ID: <20170210213759.GD24787@gmail.com>
-References: <bbd64daa-5431-8c7d-580b-3382a33edccd@gmx.com>
- <621b8782-5b62-d07c-c81f-3cfcfbeef8ae@gmx.com>
+Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
+Subject: Re: [ping] Karel: Re: pull: hwclock 27 changes
+Message-ID: <20170209104315.shvteziv5c7u4klk@ws.net.home>
+References: <alpine.LNX.2.20.1701072212010.9096@imuri>
+ <a9d7f37b-3607-70d4-843a-7d934bd305d5@gmx.com>
+ <alpine.LNX.2.20.1701112055190.2589@imuri>
+ <ede34a46-7290-c68b-1dd8-e4fc356e5caf@gmx.com>
+ <alpine.LNX.2.20.1701140930380.2049@imuri>
+ <f723104e-d23b-f8fd-e9ee-b9fc82c86fd3@gmx.com>
+ <c88dc7ee-3e18-19ec-612e-3788551517bb@gmx.com>
+ <alpine.LNX.2.20.1701252136160.492@imuri>
+ <5feac9a5-e3e3-5148-60a0-fb3197a1caa8@gmx.com>
+ <9798a869-fb09-77e7-a13a-bca002617672@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-In-Reply-To: <621b8782-5b62-d07c-c81f-3cfcfbeef8ae@gmx.com>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <9798a869-fb09-77e7-a13a-bca002617672@gmx.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello William,
+On Thu, Feb 02, 2017 at 10:04:13AM -0500, J William Piggott wrote:
+> git://github.com/kerolasa/lelux-utiliteetit.git hwclock-jwp-reviewed
 
-two minor suggestions:
+ Applied, thanks guys!
 
-On Fri, Feb 10, 2017 at 04:08:20PM -0500, J William Piggott wrote:
+    Karel
 
->+	if (parse_datetime2 (&when, ctl.date_opt, NULL, ctl.debug))
-
-1.
-The 'flags' parameter in parse_datetime2 should be
-considered as a bit-field, not a boolean.
-
-It's true that in parse-datetime.h [1] the only
-existing flag is the debug flag with a value of one,
-but we made it so that other future flags are also possible
-[2]. I believe 'ctl.debug' is treated like a boolean.
-
-[1] 
-http://git.savannah.gnu.org/cgit/gnulib.git/tree/lib/parse-datetime.h
-[2]
-https://lists.gnu.org/archive/html/bug-gnulib/2016-08/msg00024.html
-
-
-BTW,
-Turning on the debug flag for parse_datetime2 will emit
-the parsing steps to STDERR, which will look like so:
-https://lists.gnu.org/archive/html/bug-gnulib/2016-08/msg00019.html
-(might be good for util-linux, or might be an overkill).
-
-
-2.
-The latest version of 'parse_datetime2' function takes 6 parameters,
-not just 4. The extra 2 are timezone specific values.
-Added here:
-http://git.savannah.gnu.org/cgit/gnulib.git/commit/lib?id=4e6e16b3f43ce
-
-
-regards,
- - assaf
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
