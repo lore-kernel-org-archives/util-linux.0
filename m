@@ -1,89 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:59241 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:46262 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750753AbdBKQtp (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sat, 11 Feb 2017 11:49:45 -0500
-Subject: Re: [PATCH 0/3] hwclock: remove date(1)
-To: kerolasa@gmail.com
-References: <bbd64daa-5431-8c7d-580b-3382a33edccd@gmx.com>
- <CAG27Bk2kJ0P3i82vRK=cREtDhjO0VDBzXXpKpMBTvpnBCWefdA@mail.gmail.com>
-Cc: Karel Zak <kzak@redhat.com>,
-        util-linux <util-linux@vger.kernel.org>
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <3499d175-981d-3d73-c530-ddfcaf81eea6@gmx.com>
-Date: Sat, 11 Feb 2017 11:49:29 -0500
+        id S1751924AbdBILJp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 9 Feb 2017 06:09:45 -0500
+Date: Thu, 9 Feb 2017 12:09:42 +0100
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
+Subject: Re: [ping] Karel: Re: pull: hwclock 27 changes
+Message-ID: <20170209110942.woeapxeeahnd3mnd@ws.net.home>
+References: <alpine.LNX.2.20.1701072212010.9096@imuri>
+ <a9d7f37b-3607-70d4-843a-7d934bd305d5@gmx.com>
+ <alpine.LNX.2.20.1701112055190.2589@imuri>
+ <ede34a46-7290-c68b-1dd8-e4fc356e5caf@gmx.com>
+ <alpine.LNX.2.20.1701140930380.2049@imuri>
+ <f723104e-d23b-f8fd-e9ee-b9fc82c86fd3@gmx.com>
+ <c88dc7ee-3e18-19ec-612e-3788551517bb@gmx.com>
+ <alpine.LNX.2.20.1701252136160.492@imuri>
+ <5feac9a5-e3e3-5148-60a0-fb3197a1caa8@gmx.com>
+ <9798a869-fb09-77e7-a13a-bca002617672@gmx.com>
 MIME-Version: 1.0
-In-Reply-To: <CAG27Bk2kJ0P3i82vRK=cREtDhjO0VDBzXXpKpMBTvpnBCWefdA@mail.gmail.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <9798a869-fb09-77e7-a13a-bca002617672@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Thu, Feb 02, 2017 at 10:04:13AM -0500, J William Piggott wrote:
+> Outside of our ongoing discussion below regarding a 'technically
+> unnecessary' cast, I think Sami's work is ready for you to consider it
+> for committing. I would be interested in your thoughts on the cast.
 
+I have no strong opinion about it, for the reader it could be really
+nice to follow code author ideas, but personally I think it's better
+to not use it too often :-)
 
-On 02/11/2017 06:24 AM, Sami Kerola wrote:
-> On 10 February 2017 at 20:58, J William Piggott <elseifthen@gmx.com> wrote:
->> This branch adds the parse_datetime module from the gnu
->> portability library.
-> 
-> Assuming gnulib integration is wanted then replacing bootstrap process,
-> deduplicating pieces of code in include/ with gnulib versions would be in
-> todo list.  For example why one would keep util-linux xmalloc() when gnulib
-> provides the same.  Same is true for close_stdout(), and many other
-> functions.
+BTW, often bug in libblkid/fdisk is math without casts, something
+like:
 
-Yes, I agree. For example your recent timegm() is covered and I'm sure
-many others.
+    uint64_t x;
+    uint32_t a, b;
 
-Considering the number of projects using it, and presumably a large base
-of contributors, the solutions may be more complete then util-linux's
-roll-your-own portability solutions?
+    x = a + b
 
-There are a number of gnulib modules I see for possible use in hwclock,
-like clock-time for example (which is already available to it with this
-patch set).
+here it's better to be explicit and use (uint64) a + b. The same
+problem if you write macros to hide some operations (we had this
+problem in include/bitops.h).
 
-> 
-> While code reuse is good idea I have doubts if this really is direction
-> where to go to.  It feels like gnulib integration is a big change, and easy
-> only when done incomplete or inadequate way.  Choosing the former is a bit
-> risky - I assume it is really difficult to know how much coding resource
-> will stick around doing the needed, how long it might take when reviews and
-> testing is included to a timeline.
-> 
-> Poor intergration has it's obvious problems.  Duplication of 'same' code,
-> leading to confusion which code paths are used where.  This can result bugs
-> that are easy to miss, e.g., end up being part of releases. 
+    Karel
 
-It seems to me all of these are good reasons to introduce gnulib slowly
-and incrementally.  To expose only a little of the project at a time,
-then if something bad happens it's not so catastrophic. As a first step
-only adding it only to the hwclock stanza should give a level of
-isolation to the rest of the project. Then as time permits it can slowly
-be expanded until full integration is achieved.
-
-With each incremental step time can taken to carefully check what should
-be replaced and removed.
-
-> If the
-> integration is kept minimal then we might result in adding 25k lines of code
-> to replace one exec() that has worked fairly OK for years.  That in inself
-> feels awkward.
-
-Keeping it minimal could be temporary. The idea would be continue to
-implement more of gnulib as time allows.
-
-If we want to settle for 'worked fairly OK' then there's no need to
-refactor it. I think I'd rather see --date require a fixed format than
-leave this insecure date(1) call there.
-
-> 
-> If asked would I be interested of gnulib challenge I would say yes, with a
-> catch, there is only so few hours per week I have time for this so without a
-> lot of people saying 'yes, lets do this' timeline getting integration
-> completed becomes unacceptably long.
->
-
-This is why incremental is the better way to go. If we make it all
-or nothing. It will be nothing.
-
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
