@@ -1,69 +1,110 @@
-Return-Path: elseifthen@gmx.com
-From: J William Piggott <elseifthen@gmx.com>
-Subject: Re: [ping] Karel: Re: pull: hwclock 27 changes
-To: Sami Kerola <kerolasa@iki.fi>
-References: <20161231214107.8658-1-kerolasa@iki.fi>
- <05e4405f-8096-9261-f9f2-d2c6b84675bc@gmx.com>
- <070fc458-ed69-a09c-11cc-42bb50fec888@gmx.com>
- <alpine.LNX.2.20.1701072212010.9096@imuri>
- <a9d7f37b-3607-70d4-843a-7d934bd305d5@gmx.com>
- <alpine.LNX.2.20.1701112055190.2589@imuri>
- <ede34a46-7290-c68b-1dd8-e4fc356e5caf@gmx.com>
- <alpine.LNX.2.20.1701140930380.2049@imuri>
- <f723104e-d23b-f8fd-e9ee-b9fc82c86fd3@gmx.com>
- <c88dc7ee-3e18-19ec-612e-3788551517bb@gmx.com>
- <alpine.LNX.2.20.1701252136160.492@imuri>
- <5feac9a5-e3e3-5148-60a0-fb3197a1caa8@gmx.com>
- <9798a869-fb09-77e7-a13a-bca002617672@gmx.com>
- <alpine.LNX.2.20.1702032223500.529@imuri>
-Cc: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
-Message-ID: <fbdbf7d9-ed28-79f7-b84c-2e20dbcc0fc3@gmx.com>
-Date: Sat, 11 Feb 2017 12:10:17 -0500
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:40804 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751546AbdBIMmR (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 9 Feb 2017 07:42:17 -0500
+Date: Thu, 9 Feb 2017 13:36:03 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Shaun Tancheff <shaun@tancheff.com>
+Cc: util-linux@vger.kernel.org, Damien Le Moal <Damien.LeMoal@wdc.com>,
+        Bart Van Assche <bart.vanassche@sandisk.com>
+Subject: Re: [PATCH v3] Add blkzonecmd and blkreport ZAC/ZBC drives
+Message-ID: <20170209123603.oi763dhsfvxhsv6m@ws.net.home>
+References: <1485178362-25327-1-git-send-email-shaun@tancheff.com>
 MIME-Version: 1.0
-In-Reply-To: <alpine.LNX.2.20.1702032223500.529@imuri>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1485178362-25327-1-git-send-email-shaun@tancheff.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Mon, Jan 23, 2017 at 08:32:42PM +0700, Shaun Tancheff wrote:
+>  .gitignore              |   2 +
+>  configure.ac            |  11 +++
+>  include/strutils.h      |   2 +
+>  lib/strutils.c          |   7 +-
+>  sys-utils/Makemodule.am |  17 ++++
+>  sys-utils/blkreport.8   |  68 ++++++++++++++
+>  sys-utils/blkreport.c   | 245 ++++++++++++++++++++++++++++++++++++++++++++++++
+>  sys-utils/blkreset.8    |  61 ++++++++++++
+>  sys-utils/blkreset.c    | 190 +++++++++++++++++++++++++++++++++++++
 
+Applied with some changes (see below), thanks.
 
-On 02/03/2017 05:41 PM, Sami Kerola wrote:
-> On Thu, 2 Feb 2017, J William Piggott wrote:
-> 
->> Karel,
->> I have some work to submit that applies on top of Sami's branch:
->>
->> git://github.com/kerolasa/lelux-utiliteetit.git hwclock-jwp-reviewed
-> 
-> Nice to hear.
-> 
->> Outside of our ongoing discussion below regarding a 'technically
->> unnecessary' cast, I think Sami's work is ready for you to consider it
->> for committing. I would be interested in your thoughts on the cast.
-> 
-> I had a Friday conversation with my work colleagues and majority thought 
-> that 'unnecessary cast' is good thing, as explicit a cast is visual 
-> reminder of type change.
-> 
-> We did consider maintenance burden of these casts, but counter argument 
-> was found to be difficult to object. It is true that unnecessary casts 
-> cause unnecessary change when either function return value or storage unit 
-> changes - but such changes do not happen often. Therefore weight of visual 
-> reminder is heavier than an attempt to keep potential future diffs 
-> minimal.
-> 
-> With one thing everyone agreed, these sorts of little things should not 
-> get in way too much. In short cast or don't but do not get stuck with a 
-> detail like this. To be honest this is probably the best advice. While I 
-> would see these sorts of type change reminders I'm happy to rip them out 
-> if that is needed to move forward.
+Please, please "git pull" and test it!
 
-If I understand correctly, your position is that this too trivial to be
-wasting time talking about. I agree, and disagree.
+I have no HW to do any tests (but I have free space for a new disk in
+my workstation -- you know Seagate, right? :-)) Or is it possible to
+test for example by scsi_debug?
 
-Using this technique in this way does trivialize it; I believe that is
-in itself harmful. I will elaborate in my reply to Karel.
+> +blkreset_LDADD += -ludev
 
-> 
-> p.s. Branch hwclock-jwp-reviewed in my git is rebased on top of most 
-> recent origin/master.
-> 
+Fixed, unnecessary.
+
+> +.BR \-z , " \-\-zone \fIoffset", " \-\-offset \fIoffset"
+> +.BR \-c , " \-\-count \fIcount", " \-\-length \fIcount"
+
+Fixed. I don't think we want to use aliases for the options (and one
+of the utils had the aliases only in man page). I have modified man
+pages and code to support
+
+  --zone <offset>
+  --count <length>
+
+only.
+
+> +#include "monotonic.h"
+
+Copy & past I guess ;-) Unnecessary. Fixed.
+
+> +	fputs(USAGE_OPTIONS, out);
+> +	fputs(_(" -z, --zone <num>    zone lba in 512 byte sectors\n"
+> +		"     --offset <num>  zone lba in 512 byte sectors\n"
+> +		" -c, --count <num>   maximum number of zones in report\n"
+> +		"     --length <num>  maximum number of zones in report\n"
+> +		" -v, --verbose       print aligned length and offset"),
+> +		out);
+
+Fixed.
+
+> +		case 'c':
+> +			length = _strtou32_or_err(optarg,
+> +					_("failed to parse report count"), 0);
+> +			break;
+> +		case 'z':
+> +			offset = _strtou64_or_err(optarg,
+> +					_("failed to parse zone offset"), 0);
+> +			break;
+
+The function strtou64_or_err() does not support size suffixes. Fixed
+and replaced with strtosize_or_err().
+
+> +
+> +	if (ioctl(fd, BLKGETSIZE64, &blksize))
+> +		err(EXIT_FAILURE, _("%s: BLKGETSIZE64 ioctl failed"), path);
+> +	if (ioctl(fd, BLKSSZGET, &secsize))
+> +		err(EXIT_FAILURE, _("%s: BLKSSZGET ioctl failed"), path);
+
+replaced with blkdev.h functions (like you did in blkreset.c).
+
+> +	/* check offset alignment to the chunk size */
+> +	if (zsector & (zsize - 1))
+> +		errx(EXIT_FAILURE, _("%s: zone %" PRIu64 " is not aligned "
+> +			 "to zone size %" PRIu64), path, zsector, zsize);
+> +	if (zsector > blksectors)
+> +		errx(EXIT_FAILURE, _("%s: zone %" PRIu64 " is too large "
+> +			 "for device %" PRIu64), path, zsector, blksectors);
+
+It seems nowhere (blkreset and blkreport) we check if 
+ 
+    offset + length <= blksectors
+
+ it means we don't check the end of the area, I guess the end has to
+ be within the block device.
+
+ Maybe we can add this if() to the code, objections?
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
