@@ -1,72 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45894 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.20]:51905 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751500AbdB1Nsl (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 28 Feb 2017 08:48:41 -0500
-Date: Tue, 28 Feb 2017 14:48:38 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Petr Vorel <pvorel@suse.cz>
+        id S1751060AbdBJVED (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 10 Feb 2017 16:04:03 -0500
+Subject: [PATCH 1/3] gnulib: add source for gnulib parse-datetime mod
+To: Karel Zak <kzak@redhat.com>
+References: <bbd64daa-5431-8c7d-580b-3382a33edccd@gmx.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH v2 1/1] libmount: return tab entry for default node
-Message-ID: <20170228134838.7lmyck23ewgnl6nw@ws.net.home>
-References: <20170223182513.13634-1-pvorel@suse.cz>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <db4182d4-29bf-f354-3a3d-60a8cdac7ada@gmx.com>
+Date: Fri, 10 Feb 2017 16:03:16 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170223182513.13634-1-pvorel@suse.cz>
+In-Reply-To: <bbd64daa-5431-8c7d-580b-3382a33edccd@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Feb 23, 2017 at 07:25:13PM +0100, Petr Vorel wrote:
->  libmount/src/tab.c | 29 ++++++++++++++++++++++++++++-
->  1 file changed, 28 insertions(+), 1 deletion(-)
 
-Applied, thanks.
+Install gnulib's parse-datetime module (and its dependencies) for use
+with hwclock.
 
-    Karel
+Note: the full path to the gnulib source must be used with the gnulib-tool.
 
-> +#ifdef HAVE_BTRFS_SUPPORT
-> +			if (!strcmp(fs->fstype, "btrfs")) {
-> +				uint64_t default_id = btrfs_get_default_subvol_id(mnt_fs_get_target(fs));
-> +				uint64_t subvol_id;
-> +				char *val;
-> +				size_t len;
-> +
-> +				if (default_id == UINT64_MAX) {
-> +					DBG(TAB, ul_debug("not found btrfs volume setting"));
-> +					return fs;
-> +				}
+Command used:
+/path/to/gnulib/src/gnulib-tool --libtool --no-vc-files --source-base=gllib --m4-base=glm4 --doc-base=gllib/gldoc --tests-base=gltests --import parse-datetime
 
-I have added
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
 
-                else if (mnt_fs_get_option...
+Not reviewable and to large to post.
 
-to avoid the "return fs"
-
-> +
-> +				if (mnt_fs_get_option(fs, "subvolid", &val, &len) == 0) {
-> +					if (mnt_parse_offset(val, len, &subvol_id)) {
-> +						DBG(TAB, ul_debugobj(tb, "failed to parse subvolid="));
-> +						continue;
-> +					}
-> +					if (subvol_id != default_id)
-> +						continue;
-> +				}
-> +			}
-> +#endif /* HAVE_BTRFS_SUPPORT */
->  			return fs;
-> +		}
->  		if (mnt_fs_get_tag(fs, NULL, NULL) == 0)
->  			ntags++;
->  	}
-> -- 
-> 2.11.0
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
