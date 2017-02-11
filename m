@@ -1,34 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52170 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753626AbdBNQ3S (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 14 Feb 2017 11:29:18 -0500
-Date: Tue, 14 Feb 2017 17:29:12 +0100
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 0/3] hwclock: remove date(1)
-Message-ID: <20170214162912.2lntkyscwrar7a2v@ws.net.home>
-References: <bbd64daa-5431-8c7d-580b-3382a33edccd@gmx.com>
- <CAG27Bk2kJ0P3i82vRK=cREtDhjO0VDBzXXpKpMBTvpnBCWefdA@mail.gmail.com>
- <20170213130408.psp6qoyaa6htl6aa@ws.net.home>
- <cf262dfa-c897-b7b7-c361-5e42676e87a7@gmx.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <cf262dfa-c897-b7b7-c361-5e42676e87a7@gmx.com>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:36326 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932074AbdBKOLB (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 11 Feb 2017 09:11:01 -0500
+Received: by mail-wm0-f65.google.com with SMTP id r18so11041593wmd.3
+        for <util-linux@vger.kernel.org>; Sat, 11 Feb 2017 06:11:00 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 3/3] bash-completion: add blkreset and blkreport completion
+Date: Sat, 11 Feb 2017 14:10:52 +0000
+Message-Id: <20170211141052.26154-4-kerolasa@iki.fi>
+In-Reply-To: <20170211141052.26154-1-kerolasa@iki.fi>
+References: <20170211141052.26154-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Feb 13, 2017 at 09:42:23AM -0500, J William Piggott wrote:
-> Would you consider a single file: sys-utils/hwclock-parse-datetime.c?
-> I don't want to waste time rewriting it if the answer is no.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ bash-completion/blkreset | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+ create mode 100755 bash-completion/blkreset
 
-Would be possible to extend our parse_timestamp() from
-lib/timeutils.c? Anyway, sys-utils/hwclock-date.c would be a better
-name :-)
-
-    Karel
-
+diff --git a/bash-completion/blkreset b/bash-completion/blkreset
+new file mode 100755
+index 000000000..69c5f63c1
+--- /dev/null
++++ b/bash-completion/blkreset
+@@ -0,0 +1,34 @@
++_blkreset_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-z'|'--zone')
++			COMPREPLY=( $(compgen -W "offset" -- $cur) )
++			return 0
++			;;
++		'-c'|'--count')
++			COMPREPLY=( $(compgen -W "length" -- $cur) )
++			return 0
++			;;
++		'-h'|'--help'|'-V'|'--version')
++			return 0
++			;;
++	esac
++	case $cur in
++		-*)
++			OPTS="--zone --count --version --help"
++			if [ "$1" = 'blkreport' ]; then
++				OPTS+=' --verbose'
++			fi
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	COMPREPLY=( $(compgen -W "$(lsblk -pnro name)" -- $cur) )
++	return 0
++}
++complete -F _blkreset_module blkreset
++complete -F _blkreset_module blkreport
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.11.1
+
