@@ -1,36 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42040 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753106AbdBTN0l (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 20 Feb 2017 08:26:41 -0500
-Date: Mon, 20 Feb 2017 14:26:35 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Carlos Santos <casantos@datacom.ind.br>
-Cc: util-linux@vger.kernel.org, Aaron Holtzman <aholtzma@gmail.com>
-Subject: Re: [PATCH] schedutils: build when configured with
- --disable-all-programs
-Message-ID: <20170220132635.qyoyv52zwv44fug3@ws.net.home>
-References: <1487447163-12353-1-git-send-email-casantos@datacom.ind.br>
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:36945 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751075AbdBKU6i (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Sat, 11 Feb 2017 15:58:38 -0500
+Message-Id: <1486846717.4143627.877978656.4E6859A9@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: "Util-Linux" <util-linux@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1487447163-12353-1-git-send-email-casantos@datacom.ind.br>
+Content-Type: text/plain; charset="utf-8"
+Date: Sat, 11 Feb 2017 21:58:37 +0100
+Subject: Re: [PATCH 0/3] pull: blkreset and blkreport polishing
+In-Reply-To: <20170211141052.26154-1-kerolasa@iki.fi>
+References: <20170211141052.26154-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Feb 18, 2017 at 05:46:03PM -0200, Carlos Santos wrote:
-> Fix AM_CONDITIONAL parameters that conditioned ionice, taskset an chrt
-> to the values of build_{ionice,taskset,chrt} respectively, instead of
-> build_schedutils.
 
- Good direction, but not ideal implementation :-) We need to care
- about $build_{taskset,ionice,chrt} because it's modified according to
- the another dependencies (UL_REQUIRES_...() macros).
+On Sat, Feb 11, 2017, at 15:10, Sami Kerola wrote:
+> It is a pity there are now two new
+> blkre* tools instead of single 'zblkadm (reset|report)'.  A single command
+> would have less boilerplating going on, and would form logical path how to
+> add new features in future.
 
- I have applied another solution, just ... "git pull".
+The commands haven't been in a release yet, so there is still time
+for you to propose a better solution and rework things into a single
+command.
 
- Thanks! 
-    Karel
+Benno
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.fastmail.com - Choose from over 50 domains or use your own
+
