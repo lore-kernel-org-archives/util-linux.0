@@ -1,54 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:50258 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751826AbdBQAMk (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 16 Feb 2017 19:12:40 -0500
-Subject: Re: [PATCH v3] Add blkzonecmd and blkreport ZAC/ZBC drives
-To: Benno Schulenberg <bensberg@justemail.net>,
-        Karel Zak <kzak@redhat.com>
-References: <1485178362-25327-1-git-send-email-shaun@tancheff.com>
- <20170216103352.rxt4jyxry6zpuxrb@ws.net.home>
- <1487247307.2341564.882965648.11DC77E0@webmail.messagingengine.com>
-Cc: Shaun Tancheff <shaun@tancheff.com>,
-        Util-Linux <util-linux@vger.kernel.org>,
-        Bart Van Assche <bart.vanassche@sandisk.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Message-ID: <ea1698c4-b055-e498-b154-d8931817bc36@wdc.com>
-Date: Fri, 17 Feb 2017 09:12:29 +0900
-MIME-Version: 1.0
-In-Reply-To: <1487247307.2341564.882965648.11DC77E0@webmail.messagingengine.com>
-Content-Type: text/plain; charset=utf-8
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:34118 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751298AbdBMWGq (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 13 Feb 2017 17:06:46 -0500
+Received: by mail-wr0-f193.google.com with SMTP id c4so339441wrd.1
+        for <util-linux@vger.kernel.org>; Mon, 13 Feb 2017 14:06:46 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 1/7] cfdisk: avoid use of VLA in combination with sizeof() [smatch scan]
+Date: Mon, 13 Feb 2017 22:06:35 +0000
+Message-Id: <20170213220641.1395-2-kerolasa@iki.fi>
+In-Reply-To: <20170213220641.1395-1-kerolasa@iki.fi>
+References: <20170213220641.1395-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Benno,
+disk-utils/cfdisk.c:1066:29: error: cannot size expression
 
-On 2/16/17 21:15, Benno Schulenberg wrote:
-> 
-> On Thu, Feb 16, 2017, at 11:33, Karel Zak wrote:
->>   blkzone report [--zone <offset>] [--count <length>]
->>   blkzone reset  [--zone <offset>] [--count <length>]
-> 
-> "blkzone --zone" feels a bit strange.  I would suggest:
-> 
->   blkzone <command> [--offset <sector>] [--count <number>]
+One should use sizeof() only when variable size can be known at time of
+compilation.  That is not the case with variable length arrays.
 
-Indeed, it is a little awkward. And to be consistent with other tools
-such as blkdiscard, I would also suggest --length instead of --count.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ disk-utils/cfdisk.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-So:
-
-blkzone report [--offset <offset>] [--length <length>]
-blkzone reset  [--offset <offset>] [--length <length>]
-
-Best regards.
-
+diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
+index 281d66c78..ce49a791c 100644
+--- a/disk-utils/cfdisk.c
++++ b/disk-utils/cfdisk.c
+@@ -1044,9 +1044,10 @@ static void ui_draw_menuitem(struct cfdisk *cf,
+ 			     struct cfdisk_menuitem *d,
+ 			     size_t idx)
+ {
+-	char buf[80 * MB_CUR_MAX], *ptr = buf;
++	char *buf, *ptr;
+ 	const char *name;
+ 	size_t width;
++	const size_t buf_sz = 80 * MB_CUR_MAX;
+ 	int ln, cl, vert = cf->menu->vertical;
+ 
+ 	if (!menuitem_on_page(cf, idx))
+@@ -1054,6 +1055,7 @@ static void ui_draw_menuitem(struct cfdisk *cf,
+ 	ln = menuitem_get_line(cf, idx);
+ 	cl = menuitem_get_column(cf, idx);
+ 
++	ptr = buf = xmalloc(buf_sz);
+ 	/* string width */
+ 	if (vert) {
+ 		width = cf->menu->width + MENU_V_SPADDING;
+@@ -1063,7 +1065,7 @@ static void ui_draw_menuitem(struct cfdisk *cf,
+ 		width = MENU_H_SPADDING + cf->menu->width + MENU_H_SPADDING;
+ 
+ 	name = _(d->name);
+-	mbsalign(name, ptr, sizeof(buf), &width,
++	mbsalign(name, ptr, buf_sz, &width,
+ 			vert ? MBS_ALIGN_LEFT : MBS_ALIGN_CENTER,
+ 			0);
+ 
+@@ -1082,6 +1084,7 @@ static void ui_draw_menuitem(struct cfdisk *cf,
+ 		mvprintw(ln, cl, "%s", buf);
+ 	else
+ 		mvprintw(ln, cl, "%s%s%s", MENU_H_PRESTR, buf, MENU_H_POSTSTR);
++	free(buf);
+ 
+ 	if (cf->menu->idx == idx) {
+ 		standend();
 -- 
-Damien Le Moal, Ph.D.
-Sr. Manager, System Software Research Group,
-Western Digital Corporation
-Damien.LeMoal@wdc.com
-(+81) 0466-98-3593 (ext. 513593)
-1 kirihara-cho, Fujisawa,
-Kanagawa, 252-0888 Japan
-www.wdc.com, www.hgst.com
+2.11.1
+
