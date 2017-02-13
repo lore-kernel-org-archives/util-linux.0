@@ -1,126 +1,158 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:57271 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751761AbdBBPEh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 2 Feb 2017 10:04:37 -0500
-Subject: [ping] Karel: Re: pull: hwclock 27 changes
-To: Sami Kerola <kerolasa@iki.fi>
-References: <20161231214107.8658-1-kerolasa@iki.fi>
- <05e4405f-8096-9261-f9f2-d2c6b84675bc@gmx.com>
- <070fc458-ed69-a09c-11cc-42bb50fec888@gmx.com>
- <alpine.LNX.2.20.1701072212010.9096@imuri>
- <a9d7f37b-3607-70d4-843a-7d934bd305d5@gmx.com>
- <alpine.LNX.2.20.1701112055190.2589@imuri>
- <ede34a46-7290-c68b-1dd8-e4fc356e5caf@gmx.com>
- <alpine.LNX.2.20.1701140930380.2049@imuri>
- <f723104e-d23b-f8fd-e9ee-b9fc82c86fd3@gmx.com>
- <c88dc7ee-3e18-19ec-612e-3788551517bb@gmx.com>
- <alpine.LNX.2.20.1701252136160.492@imuri>
- <5feac9a5-e3e3-5148-60a0-fb3197a1caa8@gmx.com>
-Cc: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <9798a869-fb09-77e7-a13a-bca002617672@gmx.com>
-Date: Thu, 2 Feb 2017 10:04:13 -0500
-MIME-Version: 1.0
-In-Reply-To: <5feac9a5-e3e3-5148-60a0-fb3197a1caa8@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:33542 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750975AbdBMWGp (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 13 Feb 2017 17:06:45 -0500
+Received: by mail-wm0-f65.google.com with SMTP id v77so561358wmv.0
+        for <util-linux@vger.kernel.org>; Mon, 13 Feb 2017 14:06:45 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 0/7] pull: make smatch scan output easy to digest
+Date: Mon, 13 Feb 2017 22:06:34 +0000
+Message-Id: <20170213220641.1395-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel,
-I have some work to submit that applies on top of Sami's branch:
+Hello,
 
-git://github.com/kerolasa/lelux-utiliteetit.git hwclock-jwp-reviewed
+I have had habit running smatch agains the project occasionally, and output
+has always been noisy to the point not seeing the forest for the trees. 
+This pull attempts to fix some genuine issues found with smatch, and trivial
+warnings so that there is a lot less to digest when doing static analysis.
 
-Outside of our ongoing discussion below regarding a 'technically
-unnecessary' cast, I think Sami's work is ready for you to consider it
-for committing. I would be interested in your thoughts on the cast.
+Changes 0002, 0003, and 0004 fall into later category -- and that is the
+only justification they stand for.  Admittedly changing 0's to NULL has no
+technical difference, but I do hope having this change encourages more
+regular smatching of the code.
 
-On 01/26/2017 09:07 PM, J William Piggott wrote:
-> 
-> 
-> On 01/25/2017 04:54 PM, Sami Kerola wrote:
->> On Sun, 22 Jan 2017, J William Piggott wrote:
->>> On 01/14/2017 05:51 PM, J William Piggott wrote:
->>>> On 01/14/2017 04:34 AM, Sami Kerola wrote:
->>>>> Preferably there should not be casts at all. But sometimes they are hard 
->>>>> to avoid, and then one should do as few casts as possible to avoid cutting 
->>>>> bits out.
->>>>>
->>>>> Think casting in terms of shape sorting toy. The more data is casted 
->>>>> through none-matching types the more the original shape is modified to fit 
->>>>> to storage where it is pushed.
->>>>>
->>>>> That is also the reason why casting to time_t in this case makes sense. 
->>>>> While it might be that right now, on systems we happen to use, int and 
->>>>> time_t are the same type there are no guarantees about other systems and 
->>>>> future. In practical terms; casting exactly to matching storage type is 
->>>>> the right way to avoid damaging data.
->>>>
->>>> What I'm trying to say is, assignment operators automatically convert
->>>> the right operand to the type of the left operand; making your cast
->>>> unnecessary. Try it, build hwclock with the cast. Now, remove the cast
->>>> and build it. The resulting binaries are bit for bit identical.
->>>>
->>>> ISO C11:
->>>> The type of an assignment expression is the type the left operand would have
->>>> after lvalue conversion.
->>>>
->>>> In simple assignment (=), the value of the right operand is converted to
->>>> the type of the assignment expression and replaces the value stored in
->>>> the object designated by the left operand.
->>>
->>> It wasn't the intent of my previous message to be offensive in any way,
->>> Sami. I was only trying to state my position using different language,
->>> so as not to simply repeat myself.
->>>
->>> Also, I'm not continuing this topic to be argumentative. The reason is
->>> for my own education. If my opinion is wrong, that is fine; I would like
->>> to understand why, so as to improve my own coding.
->>>
->>> As I further read the ISO C standard, I'm more convinced of my belief.
->>> It seems to me the compiler is required to use the type conversion
->>> routine associated with assignment operators, because it must yield two
->>> different results. A /qualified/ left operand type is stored, but the
->>> evaluation of the assignment expression returns an /unqualified/ left
->>> operand type. Since using the assignment operator's type conversion
->>> routine is required (if I'm correct), the compiler would ignore any cast
->>> on the results of the right hand operand for code optimization, yes?
->>>
->>> That seems to be true for my compiler, as the cast makes no difference
->>> in the resulting binary.
->>>
->>> If anyone knows the correct answer to this, I am very interested in
->>> learning it. Thank you in advance.
->>
->> Hi William,
->>
->> Sorry for late reply, I took a bit time off from reading / replying 
->> emails.
-> 
-> No worries Sami. I thought you might have been angry at something I
-> wrote; it seem to unintentionally happen sometimes when talking across
-> cultural borders.
-> 
->>
->> Correct the cast that is in place now is technically unnecessary. Value of 
->> that cast is to remind return value type and storage type differ. Such 
->> assignments can, at least in theory, cause bugs so being explicit about 
->> them is a good thing. As a matter of fact anything that makes code easier 
->> to understand is welcome.
->>
->> That said now I doubt whether 'technically unnecessary' cast is really a 
->> thing that clarifies, but confuses code reader. Comments would be nice, 
->> meanwhile I will think about this.
->>
-> 
-> I understood the previous symbolism of the cast; to draw attention to
-> dropping the fractional part of a variable. I don't perceive any value
-> in using it on the floor(3) function.
-> 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+p.s.  I chose to refer patches 0002 and 0003 to avoid sending 150kb emails
+to everyone on list.  Please see them from my remote repository instead, the
+patch mails has direct link to github or you can add my remote branch using
+details below.
+
+----------------------------------------------------------------
+The following changes since commit b192dd6943e5bb5d2a3773b2c9b06cbd4eb28258:
+  lib/randutils: glibc 2.25 has getrandom(2) declaration (2017-02-13 14:14:28 +0100)
+are available in the git repository at:
+  git://github.com/kerolasa/lelux-utiliteetit.git smatch-fixes
+for you to fetch changes up to ffd1a3c942bfe4dbf59584954a4eb0bf09c6b89b:
+  findmnt: fix couple memory leaks [cppcheck] (2017-02-13 21:19:52 +0000)
+----------------------------------------------------------------
+
+Sami Kerola (7):
+  cfdisk: avoid use of VLA in combination with sizeof() [smatch scan]
+  misc: do not use plain 0 as NULL [smatch scan]
+  misc: add static keyword to where needed [smatch scan]
+  misc: unify function declarations [smatch scan]
+  lib/idcache: add void to function declaration [smatch scan]
+  libblkid: declare across file variables in blkidP.h [smatch scan]
+  findmnt: fix couple memory leaks [cppcheck]
+
+ Documentation/boilerplate.c           |  18 +++---
+ disk-utils/addpart.c                  |   6 +-
+ disk-utils/cfdisk.c                   |  15 +++--
+ disk-utils/delpart.c                  |   6 +-
+ disk-utils/fdformat.c                 |   2 +-
+ disk-utils/fdisk-menu.c               |  16 ++---
+ disk-utils/fsck.c                     |  26 ++++----
+ disk-utils/fsck.cramfs.c              |  22 +++----
+ disk-utils/isosize.c                  |  10 +--
+ disk-utils/mkfs.cramfs.c              |   6 +-
+ disk-utils/mkswap.c                   |  18 +++---
+ disk-utils/partx.c                    |   4 +-
+ disk-utils/raw.c                      |  18 +++---
+ disk-utils/resizepart.c               |   6 +-
+ disk-utils/sfdisk.c                   |   4 +-
+ disk-utils/swaplabel.c                |  10 +--
+ include/pt-mbr-partnames.h            |   2 +-
+ lib/colors.c                          |   2 +-
+ lib/exec_shell.c                      |   2 +-
+ lib/idcache.c                         |   2 +-
+ lib/loopdev.c                         |   2 +-
+ lib/randutils.c                       |   4 +-
+ lib/timer.c                           |   2 +-
+ libblkid/src/blkidP.h                 |   5 ++
+ libblkid/src/dev.c                    |   6 +-
+ libblkid/src/devname.c                |  12 ++--
+ libblkid/src/probe.c                  |   5 --
+ libblkid/src/read.c                   |   6 +-
+ libblkid/src/resolve.c                |   2 +-
+ libblkid/src/superblocks/drbdmanage.c |   2 +-
+ libblkid/src/superblocks/vfat.c       |   2 +-
+ libblkid/src/tag.c                    |  12 ++--
+ libblkid/src/topology/evms.c          |   2 +-
+ libblkid/src/verify.c                 |   4 +-
+ libfdisk/src/bsd.c                    |   2 +-
+ libfdisk/src/context.c                |   4 +-
+ libfdisk/src/sun.c                    |   2 +-
+ libmount/python/context.c             |  46 +++++++-------
+ libmount/python/fs.c                  |  46 +++++++-------
+ libmount/python/pylibmount.c          |   2 +-
+ libmount/python/tab.c                 |  46 +++++++-------
+ libuuid/src/gen_uuid.c                |  10 +--
+ login-utils/chfn.c                    |  14 ++---
+ login-utils/chsh.c                    |  12 ++--
+ login-utils/nologin.c                 |   6 +-
+ login-utils/su-common.c               |   9 ++-
+ login-utils/sulogin.c                 |  22 +++----
+ login-utils/utmpdump.c                |  12 ++--
+ login-utils/vipw.c                    |  11 ++--
+ misc-utils/blkid.c                    |   2 +-
+ misc-utils/cal.c                      |   4 +-
+ misc-utils/findmnt-verify.c           |  10 +--
+ misc-utils/findmnt.c                  |  78 +++++++++++------------
+ misc-utils/getopt.c                   |   4 +-
+ misc-utils/kill.c                     |   2 +-
+ misc-utils/look.c                     |  18 +++---
+ misc-utils/lsblk.c                    |  64 +++++++++----------
+ misc-utils/namei.c                    |  18 +++---
+ misc-utils/whereis.c                  |   2 +-
+ misc-utils/wipefs.c                   |  22 +++----
+ schedutils/ionice.c                   |   2 +-
+ sys-utils/blkdiscard.c                |  18 +++---
+ sys-utils/chcpu.c                     |  18 +++---
+ sys-utils/eject.c                     |   4 +-
+ sys-utils/fallocate.c                 |  26 ++++----
+ sys-utils/flock.c                     |   2 +-
+ sys-utils/fsfreeze.c                  |  10 +--
+ sys-utils/fstrim.c                    |  16 ++---
+ sys-utils/hwclock-cmos.c              |  26 ++++----
+ sys-utils/hwclock.c                   |  71 +++++++++++----------
+ sys-utils/hwclock.h                   |   7 ++-
+ sys-utils/ipcs.c                      |   2 +-
+ sys-utils/losetup.c                   |  44 ++++++-------
+ sys-utils/lscpu.c                     |  36 +++++------
+ sys-utils/lsipc.c                     |  42 ++++++-------
+ sys-utils/lsns.c                      |   4 +-
+ sys-utils/mount.c                     |  68 ++++++++++----------
+ sys-utils/mountpoint.c                |  14 ++---
+ sys-utils/prlimit.c                   |   2 +-
+ sys-utils/readprofile.c               |   6 +-
+ sys-utils/renice.c                    |   2 +-
+ sys-utils/rtcwake.c                   |  32 +++++-----
+ sys-utils/setpriv.c                   |  44 ++++++-------
+ sys-utils/swapoff.c                   |  10 +--
+ sys-utils/swapon.c                    |  34 +++++-----
+ sys-utils/tunelp.c                    |  22 +++----
+ sys-utils/umount.c                    |  34 +++++-----
+ sys-utils/unshare.c                   |  34 +++++-----
+ term-utils/agetty.c                   |  86 ++++++++++++-------------
+ term-utils/mesg.c                     |   8 +--
+ term-utils/script.c                   |   2 +-
+ term-utils/setterm.c                  |   2 +-
+ term-utils/wall.c                     |  12 ++--
+ text-utils/col.c                      |  34 +++++-----
+ text-utils/colcrt.c                   |   2 +-
+ text-utils/colrm.c                    |   6 +-
+ text-utils/column.c                   |  22 +++----
+ text-utils/more.c                     | 115 +++++++++++++++++-----------------
+ text-utils/pg.c                       |  64 +++++++++----------
+ text-utils/rev.c                      |   8 +--
+ text-utils/tailf.c                    |  10 +--
+ text-utils/ul.c                       |  55 ++++++++--------
+ 102 files changed, 895 insertions(+), 890 deletions(-)
+
+-- 
+2.11.1
+
