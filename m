@@ -1,142 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from nymeria.archlinux.org ([89.238.67.251]:59002 "EHLO
-        nymeria.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752296AbdBMORZ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 13 Feb 2017 09:17:25 -0500
-Received: from nymeria.archlinux.org (localhost.localdomain [127.0.0.1])
-        by nymeria.archlinux.org (Postfix) with ESMTP id 9F0F8402A0
-        for <util-linux@vger.kernel.org>; Mon, 13 Feb 2017 15:09:21 +0100 (CET)
-Received: from mail-vk0-f53.google.com (mail-vk0-f53.google.com [209.85.213.53])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: arodseth)
-        by nymeria.archlinux.org (Postfix) with ESMTPSA id 3CACA40280
-        for <util-linux@vger.kernel.org>; Mon, 13 Feb 2017 15:09:21 +0100 (CET)
-Received: by mail-vk0-f53.google.com with SMTP id x75so60962767vke.2
-        for <util-linux@vger.kernel.org>; Mon, 13 Feb 2017 06:09:21 -0800 (PST)
+Received: from mx1.redhat.com ([209.132.183.28]:51602 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751023AbdBMMqz (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 13 Feb 2017 07:46:55 -0500
+Date: Mon, 13 Feb 2017 13:46:47 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/3] pull: blkreset and blkreport polishing
+Message-ID: <20170213124647.fnw27bvaaritq6lk@ws.net.home>
+References: <20170211141052.26154-1-kerolasa@iki.fi>
 MIME-Version: 1.0
-From: =?UTF-8?Q?Alexander_F_R=C3=B8dseth?= <xyproto@archlinux.org>
-Date: Mon, 13 Feb 2017 15:08:39 +0100
-Message-ID: <CAG7ayytqobZ3bkvvBJU01DOYNShLZkH8eYo2BZ_bzBShytjEJQ@mail.gmail.com>
-Subject: [PATCH] rename: add --dry-run option
-To: util-linux@vger.kernel.org
-Content-Type: multipart/mixed; boundary=001a114264d6625b11054869fe7b
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170211141052.26154-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---001a114264d6625b11054869fe7b
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Sat, Feb 11, 2017 at 02:10:49PM +0000, Sami Kerola wrote:
+> I should have said this a bit earlier. 
 
-Added a --dry-run and -d option for not making changes when running
-the rename command. Also made changes to the man page.
+Yes :-)
 
-Having a dry-run option is useful when running a scary rename.
+> It is a pity there are now two new
+> blkre* tools instead of single 'zblkadm (reset|report)'.  A single command
+> would have less boilerplating going on, and would form logical path how to
+> add new features in future.
 
---=20
-Sincerely,
-    Alexander F R=C3=B8dseth / xyproto
+I like the idea, but no the name. IMHO something like 
 
---001a114264d6625b11054869fe7b
-Content-Type: text/x-patch; charset=UTF-8; name="0001-rename-add-dry-run-option.patch"
-Content-Disposition: attachment;
-	filename="0001-rename-add-dry-run-option.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_iz466f2r0
+    blkzone (reset|report)
+    
+would be better. I'll try to merge it to the one command during this week.
 
-RnJvbSBkNzVkNmIxY2UzODE5YmRkOTllMmQ4NGE3OWY3ZDY0MmYwMjFjZDU1IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiA9P1VURi04P3E/QWxleGFuZGVyPTIwRj0yMFI9QzM9Qjhkc2V0
-aD89IDx4eXByb3RvQGFyY2hsaW51eC5vcmc+CkRhdGU6IE1vbiwgMTMgRmViIDIwMTcgMTM6NDQ6
-MzggKzAxMDAKU3ViamVjdDogW1BBVENIXSByZW5hbWU6IGFkZCAtLWRyeS1ydW4gb3B0aW9uCk1J
-TUUtVmVyc2lvbjogMS4wCkNvbnRlbnQtVHlwZTogdGV4dC9wbGFpbjsgY2hhcnNldD1VVEYtOApD
-b250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiA4Yml0CgpTaWduZWQtb2ZmLWJ5OiBBbGV4YW5kZXIg
-RiBSw7hkc2V0aCA8eHlwcm90b0BhcmNobGludXgub3JnPgotLS0KIG1pc2MtdXRpbHMvcmVuYW1l
-LjEgfCAxMyArKysrKysrKy0tLS0tCiBtaXNjLXV0aWxzL3JlbmFtZS5jIHwgMjggKysrKysrKysr
-KysrKysrKystLS0tLS0tLS0tLQogMiBmaWxlcyBjaGFuZ2VkLCAyNSBpbnNlcnRpb25zKCspLCAx
-NiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9taXNjLXV0aWxzL3JlbmFtZS4xIGIvbWlzYy11
-dGlscy9yZW5hbWUuMQppbmRleCAxNjVkNjFlZmYuLjQwMjNmZDVmOSAxMDA2NDQKLS0tIGEvbWlz
-Yy11dGlscy9yZW5hbWUuMQorKysgYi9taXNjLXV0aWxzL3JlbmFtZS4xCkBAIC0yMiw2ICsyMiw5
-IEBAIERvIG5vdCByZW5hbWUgYSBzeW1saW5rIGJ1dCBpdHMgdGFyZ2V0LgogLkJSIFwtdiAsICIg
-XC1cLXZlcmJvc2UiCiBTaG93IHdoaWNoIGZpbGVzIHdoZXJlIHJlbmFtZWQsIGlmIGFueS4KIC5U
-UAorLkJSIFwtZCAsICIgXC1cLWRyeS1ydW4iCitEbyBub3QgbWFrZSBhbnkgY2hhbmdlcy4KKy5U
-UAogLkJSIFwtViAsICIgXC1cLXZlcnNpb24iCiBEaXNwbGF5IHZlcnNpb24gaW5mb3JtYXRpb24g
-YW5kIGV4aXQuCiAuVFAKQEAgLTYwLDExICs2MywxMSBAQCByZW5hbWUgJ193aXRoX2xvbmdfbmFt
-ZScgJycgZmlsZV93aXRoX2xvbmdfbmFtZS4qCiAuUkUKIHdpbGwgcmVtb3ZlIHRoZSBzdWJzdHJp
-bmcgaW4gdGhlIGZpbGVuYW1lcy4KIC5TSCBXQVJOSU5HCi1UaGUgcmVuYW1pbmcgaGFzIG5vIHNh
-ZmVndWFyZHMuICBJZiB0aGUgdXNlciBoYXMgcGVybWlzc2lvbiB0byByZXdyaXRlIGZpbGUgbmFt
-ZXMsCi10aGUgY29tbWFuZCB3aWxsIHBlcmZvcm0gdGhlIGFjdGlvbiB3aXRob3V0IGFueSBxdWVz
-dGlvbnMuICBGb3IgZXhhbXBsZSwgdGhlCi1yZXN1bHQgY2FuIGJlIHF1aXRlIGRyYXN0aWMgd2hl
-biB0aGUgY29tbWFuZCBpcyBydW4gYXMgcm9vdCBpbiB0aGUgL2xpYgotZGlyZWN0b3J5LiAgQWx3
-YXlzIG1ha2UgYSBiYWNrdXAgYmVmb3JlIHJ1bm5pbmcgdGhlIGNvbW1hbmQsIHVubGVzcyB5b3Ug
-dHJ1bHkKLWtub3cgd2hhdCB5b3UgYXJlIGRvaW5nLgorVGhlIHJlbmFtaW5nIGhhcyBubyBzYWZl
-Z3VhcmRzIGV4Y2VwdCB0aGUgZHJ5LXJ1biBvcHRpb24uICBJZiB0aGUgdXNlciBoYXMKK3Blcm1p
-c3Npb24gdG8gcmV3cml0ZSBmaWxlIG5hbWVzLCB0aGUgY29tbWFuZCB3aWxsIHBlcmZvcm0gdGhl
-IGFjdGlvbiB3aXRob3V0CithbnkgcXVlc3Rpb25zLiAgRm9yIGV4YW1wbGUsIHRoZSByZXN1bHQg
-Y2FuIGJlIHF1aXRlIGRyYXN0aWMgd2hlbiB0aGUgY29tbWFuZAoraXMgcnVuIGFzIHJvb3QgaW4g
-dGhlIC9saWIgZGlyZWN0b3J5LiAgQWx3YXlzIG1ha2UgYSBiYWNrdXAgYmVmb3JlIHJ1bm5pbmcg
-dGhlCitjb21tYW5kLCB1bmxlc3MgeW91IHRydWx5IGtub3cgd2hhdCB5b3UgYXJlIGRvaW5nLgog
-LlNIICJFWElUIFNUQVRVUyIKIC5SUwogLlBEIDAKZGlmZiAtLWdpdCBhL21pc2MtdXRpbHMvcmVu
-YW1lLmMgYi9taXNjLXV0aWxzL3JlbmFtZS5jCmluZGV4IGY1M2IyMzZlMi4uZDA0YTlhMjg0IDEw
-MDY0NAotLS0gYS9taXNjLXV0aWxzL3JlbmFtZS5jCisrKyBiL21pc2MtdXRpbHMvcmVuYW1lLmMK
-QEAgLTUzLDcgKzUzLDcgQEAgc3RhdGljIGludCBzdHJpbmdfcmVwbGFjZShjaGFyICpmcm9tLCBj
-aGFyICp0bywgY2hhciAqcywgY2hhciAqb3JpZywgY2hhciAqKm5ld24KIAlyZXR1cm4gMDsKIH0K
-IAotc3RhdGljIGludCBkb19zeW1saW5rKGNoYXIgKmZyb20sIGNoYXIgKnRvLCBjaGFyICpzLCBp
-bnQgdmVyYm9zZSkKK3N0YXRpYyBpbnQgZG9fc3ltbGluayhjaGFyICpmcm9tLCBjaGFyICp0bywg
-Y2hhciAqcywgaW50IHZlcmJvc2UsIGludCBkcnlfcnVuKQogewogCWNoYXIgKm5ld25hbWUgPSBO
-VUxMLCAqdGFyZ2V0ID0gTlVMTDsKIAlpbnQgcmV0ID0gMTsKQEAgLTc2LDIxICs3NiwyMSBAQCBz
-dGF0aWMgaW50IGRvX3N5bWxpbmsoY2hhciAqZnJvbSwgY2hhciAqdG8sIGNoYXIgKnMsIGludCB2
-ZXJib3NlKQogCXRhcmdldFtzYi5zdF9zaXplXSA9ICdcMCc7CiAJaWYgKHN0cmluZ19yZXBsYWNl
-KGZyb20sIHRvLCB0YXJnZXQsIHRhcmdldCwgJm5ld25hbWUpKQogCQlyZXQgPSAwOwotCWVsc2Ug
-aWYgKDAgPiB1bmxpbmsocykpIHsKKwllbHNlIGlmICghZHJ5X3J1biAmJiAwID4gdW5saW5rKHMp
-KSB7CiAJCXdhcm4oXygiJXM6IHVubGluayBmYWlsZWQiKSwgcyk7CiAJCXJldCA9IDI7Ci0JfSBl
-bHNlIGlmIChzeW1saW5rKG5ld25hbWUsIHMpICE9IDApIHsKKwl9IGVsc2UgaWYgKCFkcnlfcnVu
-ICYmIHN5bWxpbmsobmV3bmFtZSwgcykgIT0gMCkgewogCQl3YXJuKF8oIiVzOiBzeW1saW5raW5n
-IHRvICVzIGZhaWxlZCIpLCBzLCBuZXduYW1lKTsKIAkJcmV0ID0gMjsKIAl9Ci0JaWYgKHZlcmJv
-c2UgJiYgcmV0ID09IDEpCisJaWYgKHZlcmJvc2UgJiYgKGRyeV9ydW4gfHwgcmV0ID09IDEpKQog
-CQlwcmludGYoIiVzOiBgJXMnIC0+IGAlcydcbiIsIHMsIHRhcmdldCwgbmV3bmFtZSk7CiAJZnJl
-ZShuZXduYW1lKTsKIAlmcmVlKHRhcmdldCk7CiAJcmV0dXJuIHJldDsKIH0KIAotc3RhdGljIGlu
-dCBkb19maWxlKGNoYXIgKmZyb20sIGNoYXIgKnRvLCBjaGFyICpzLCBpbnQgdmVyYm9zZSkKK3N0
-YXRpYyBpbnQgZG9fZmlsZShjaGFyICpmcm9tLCBjaGFyICp0bywgY2hhciAqcywgaW50IHZlcmJv
-c2UsIGludCBkcnlfcnVuKQogewogCWNoYXIgKm5ld25hbWUgPSBOVUxMLCAqZmlsZT1OVUxMOwog
-CWludCByZXQgPSAxOwpAQCAtMTAxLDExICsxMDEsMTEgQEAgc3RhdGljIGludCBkb19maWxlKGNo
-YXIgKmZyb20sIGNoYXIgKnRvLCBjaGFyICpzLCBpbnQgdmVyYm9zZSkKIAkJZmlsZSA9IHM7CiAJ
-aWYgKHN0cmluZ19yZXBsYWNlKGZyb20sIHRvLCBmaWxlLCBzLCAmbmV3bmFtZSkpCiAJCXJldHVy
-biAwOwotCWVsc2UgaWYgKHJlbmFtZShzLCBuZXduYW1lKSAhPSAwKSB7CisJZWxzZSBpZiAoIWRy
-eV9ydW4gJiYgcmVuYW1lKHMsIG5ld25hbWUpICE9IDApIHsKIAkJd2FybihfKCIlczogcmVuYW1l
-IHRvICVzIGZhaWxlZCIpLCBzLCBuZXduYW1lKTsKIAkJcmV0ID0gMjsKIAl9Ci0JaWYgKHZlcmJv
-c2UgJiYgcmV0ID09IDEpCisJaWYgKHZlcmJvc2UgJiYgKGRyeV9ydW4gfHwgcmV0ID09IDEpKQog
-CQlwcmludGYoImAlcycgLT4gYCVzJ1xuIiwgcywgbmV3bmFtZSk7CiAJZnJlZShuZXduYW1lKTsK
-IAlyZXR1cm4gcmV0OwpAQCAtMTI0LDYgKzEyNCw3IEBAIHN0YXRpYyB2b2lkIF9fYXR0cmlidXRl
-X18gKChfX25vcmV0dXJuX18pKSB1c2FnZShGSUxFICogb3V0KQogCWZwdXRzKFVTQUdFX09QVElP
-TlMsIG91dCk7CiAJZnB1dHMoXygiIC12LCAtLXZlcmJvc2UgICAgZXhwbGFpbiB3aGF0IGlzIGJl
-aW5nIGRvbmVcbiIpLCBvdXQpOwogCWZwdXRzKF8oIiAtcywgLS1zeW1saW5rICAgIGFjdCBvbiB0
-aGUgdGFyZ2V0IG9mIHN5bWxpbmtzXG4iKSwgb3V0KTsKKwlmcHV0cyhfKCIgLWQsIC0tZHJ5LXJ1
-biAgICBkbyBub3QgbWFrZSBhbnkgY2hhbmdlc1xuIiksIG91dCk7CiAJZnB1dHMoVVNBR0VfU0VQ
-QVJBVE9SLCBvdXQpOwogCWZwdXRzKFVTQUdFX0hFTFAsIG91dCk7CiAJZnB1dHMoVVNBR0VfVkVS
-U0lPTiwgb3V0KTsKQEAgLTEzNCwxMyArMTM1LDE0IEBAIHN0YXRpYyB2b2lkIF9fYXR0cmlidXRl
-X18gKChfX25vcmV0dXJuX18pKSB1c2FnZShGSUxFICogb3V0KQogaW50IG1haW4oaW50IGFyZ2Ms
-IGNoYXIgKiphcmd2KQogewogCWNoYXIgKmZyb20sICp0bzsKLQlpbnQgaSwgYywgcmV0ID0gMCwg
-dmVyYm9zZSA9IDA7Ci0JaW50ICgqZG9fcmVuYW1lKShjaGFyICpmcm9tLCBjaGFyICp0bywgY2hh
-ciAqcywgaW50IHZlcmJvc2UpID0gZG9fZmlsZTsKKwlpbnQgaSwgYywgcmV0ID0gMCwgdmVyYm9z
-ZSA9IDAsIGRyeV9ydW4gPSAwOworCWludCAoKmRvX3JlbmFtZSkoY2hhciAqZnJvbSwgY2hhciAq
-dG8sIGNoYXIgKnMsIGludCB2ZXJib3NlLCBpbnQgZHJ5X3J1bikgPSBkb19maWxlOwogCiAJc3Rh
-dGljIGNvbnN0IHN0cnVjdCBvcHRpb24gbG9uZ29wdHNbXSA9IHsKIAkJeyJ2ZXJib3NlIiwgbm9f
-YXJndW1lbnQsIE5VTEwsICd2J30sCiAJCXsidmVyc2lvbiIsIG5vX2FyZ3VtZW50LCBOVUxMLCAn
-Vid9LAogCQl7ImhlbHAiLCBub19hcmd1bWVudCwgTlVMTCwgJ2gnfSwKKwkJeyJkcnktcnVuIiwg
-bm9fYXJndW1lbnQsIE5VTEwsICdkJ30sCiAJCXsic3ltbGluayIsIG5vX2FyZ3VtZW50LCBOVUxM
-LCAncyd9LAogCQl7TlVMTCwgMCwgTlVMTCwgMH0KIAl9OwpAQCAtMTUwLDExICsxNTIsMTQgQEAg
-aW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKiphcmd2KQogCXRleHRkb21haW4oUEFDS0FHRSk7CiAJ
-YXRleGl0KGNsb3NlX3N0ZG91dCk7CiAKLQl3aGlsZSAoKGMgPSBnZXRvcHRfbG9uZyhhcmdjLCBh
-cmd2LCAidnNWaCIsIGxvbmdvcHRzLCBOVUxMKSkgIT0gLTEpCisJd2hpbGUgKChjID0gZ2V0b3B0
-X2xvbmcoYXJnYywgYXJndiwgInZzVmhkIiwgbG9uZ29wdHMsIE5VTEwpKSAhPSAtMSkKIAkJc3dp
-dGNoIChjKSB7CiAJCWNhc2UgJ3YnOgogCQkJdmVyYm9zZSA9IDE7CiAJCQlicmVhazsKKwkJY2Fz
-ZSAnZCc6CisJCQlkcnlfcnVuID0gMTsKKwkJCWJyZWFrOwogCQljYXNlICdzJzoKIAkJCWRvX3Jl
-bmFtZSA9IGRvX3N5bWxpbms7CiAJCQlicmVhazsKQEAgLTE2Myw2ICsxNjgsNyBAQCBpbnQgbWFp
-bihpbnQgYXJnYywgY2hhciAqKmFyZ3YpCiAJCQlyZXR1cm4gRVhJVF9TVUNDRVNTOwogCQljYXNl
-ICdoJzoKIAkJCXVzYWdlKHN0ZG91dCk7CisJCQkvLyBmYWxsdGhyb3VnaAogCQlkZWZhdWx0Ogog
-CQkJZXJydHJ5aGVscChFWElUX0ZBSUxVUkUpOwogCQl9CkBAIC0xNzksNyArMTg1LDcgQEAgaW50
-IG1haW4oaW50IGFyZ2MsIGNoYXIgKiphcmd2KQogCXRvID0gYXJndlsxXTsKIAogCWZvciAoaSA9
-IDI7IGkgPCBhcmdjOyBpKyspCi0JCXJldCB8PSBkb19yZW5hbWUoZnJvbSwgdG8sIGFyZ3ZbaV0s
-IHZlcmJvc2UpOworCQlyZXQgfD0gZG9fcmVuYW1lKGZyb20sIHRvLCBhcmd2W2ldLCB2ZXJib3Nl
-LCBkcnlfcnVuKTsKIAogCXN3aXRjaCAocmV0KSB7CiAJY2FzZSAwOgotLSAKMi4xMS4xCgo=
---001a114264d6625b11054869fe7b--
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
