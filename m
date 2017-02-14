@@ -1,39 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:33553 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750975AbdBMWGs (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 13 Feb 2017 17:06:48 -0500
-Received: by mail-wm0-f68.google.com with SMTP id v77so561426wmv.0
-        for <util-linux@vger.kernel.org>; Mon, 13 Feb 2017 14:06:47 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 1/7] cfdisk: avoid use of VLA in combination with sizeof() [smatch scan]
-Date: Mon, 13 Feb 2017 22:06:36 +0000
-Message-Id: <20170213220641.1395-3-kerolasa@iki.fi>
-In-Reply-To: <20170213220641.1395-1-kerolasa@iki.fi>
-References: <20170213220641.1395-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:52170 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753626AbdBNQ3S (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 14 Feb 2017 11:29:18 -0500
+Date: Tue, 14 Feb 2017 17:29:12 +0100
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 0/3] hwclock: remove date(1)
+Message-ID: <20170214162912.2lntkyscwrar7a2v@ws.net.home>
+References: <bbd64daa-5431-8c7d-580b-3382a33edccd@gmx.com>
+ <CAG27Bk2kJ0P3i82vRK=cREtDhjO0VDBzXXpKpMBTvpnBCWefdA@mail.gmail.com>
+ <20170213130408.psp6qoyaa6htl6aa@ws.net.home>
+ <cf262dfa-c897-b7b7-c361-5e42676e87a7@gmx.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <cf262dfa-c897-b7b7-c361-5e42676e87a7@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Sat, 11 Feb 2017 20:23:26 +0000
-Subject: [PATCH 2/7] misc: do not use plain 0 as NULL [smatch scan]
-Organization: Cloudflare
+On Mon, Feb 13, 2017 at 09:42:23AM -0500, J William Piggott wrote:
+> Would you consider a single file: sys-utils/hwclock-parse-datetime.c?
+> I don't want to waste time rewriting it if the answer is no.
 
-text-utils/tailf.c:69:21: warning: Using plain integer as NULL pointer
+Would be possible to extend our parse_timestamp() from
+lib/timeutils.c? Anyway, sys-utils/hwclock-date.c would be a better
+name :-)
 
-Since many 'struct option' has used zero as NULL make them more readable in
-same go by reindenting, and using named argument requirements.
-
-Reference: https://lwn.net/Articles/93577/
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
-
-This is a big patch, and best to review either by looking with web browser
-or pulling my remote branch.
-
-https://github.com/kerolasa/lelux-utiliteetit/commit/0adeca850a8ce0d8ce9c638339008ee688c6fb09
+    Karel
 
 -- 
-2.11.1
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
