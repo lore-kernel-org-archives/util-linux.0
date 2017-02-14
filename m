@@ -1,70 +1,105 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:51694 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751599AbdB1P5Q (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 28 Feb 2017 10:57:16 -0500
-Subject: Re: [V2 0/4] hwclock: remove date(1)
-To: Karel Zak <kzak@redhat.com>
-References: <ee9e12b4-a921-b47e-975d-53a5b8575361@gmx.com>
- <20170228133713.377klbjm44roizx6@ws.net.home>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <0d36f495-d691-9e80-9c05-461d3563b468@gmx.com>
-Date: Tue, 28 Feb 2017 10:23:39 -0500
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:60845 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750731AbdBNWko (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Tue, 14 Feb 2017 17:40:44 -0500
+Subject: Re: [PATCH] Fix word repetitions
+To: Yuri Chornoivan <yurchor@gmail.com>, util-linux@vger.kernel.org
+References: <1486724704-8127-1-git-send-email-yurchor@gmail.com>
+From: Tilman Schmidt <tilman@imap.cc>
+Message-ID: <4628c807-c74f-fe57-2cab-6690fa94d4d7@imap.cc>
+Date: Tue, 14 Feb 2017 23:40:34 +0100
 MIME-Version: 1.0
-In-Reply-To: <20170228133713.377klbjm44roizx6@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <1486724704-8127-1-git-send-email-yurchor@gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="30Knt6TBUcSnQHpaJoi6HCJ14o2uTj9RB"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--30Knt6TBUcSnQHpaJoi6HCJ14o2uTj9RB
+Content-Type: multipart/mixed; boundary="h5QNkMvPxx3L2bM75kPnHPHQ0qrVvin6v";
+ protected-headers="v1"
+From: Tilman Schmidt <tilman@imap.cc>
+To: Yuri Chornoivan <yurchor@gmail.com>, util-linux@vger.kernel.org
+Message-ID: <4628c807-c74f-fe57-2cab-6690fa94d4d7@imap.cc>
+Subject: Re: [PATCH] Fix word repetitions
+References: <1486724704-8127-1-git-send-email-yurchor@gmail.com>
+In-Reply-To: <1486724704-8127-1-git-send-email-yurchor@gmail.com>
+
+--h5QNkMvPxx3L2bM75kPnHPHQ0qrVvin6v
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
+
+Am 10.02.2017 um 12:05 schrieb Yuri Chornoivan:
+
+> diff --git a/misc-utils/look.c b/misc-utils/look.c
+> index 93c388e..bb0d965 100644
+> --- a/misc-utils/look.c
+> +++ b/misc-utils/look.c
+> @@ -171,7 +171,7 @@ look(char *front, char *back)
+>  	int ch;
+>  	char *readp, *writep;
+> =20
+> -	/* Reformat string string to avoid doing it multiple times later. */
+> +	/* Reformat string to avoid doing it multiple times later. */
+>  	if (dflag) {
+>  		for (readp =3D writep =3D string; (ch =3D *readp++) !=3D 0;) {
+>  			if (isalnum(ch) || isblank(ch))
+
+Actually I don't think this is a word repetition. It looks to me like
+it's really talking about "string string" - the string held in the
+variable named "string".
+
+> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+> index 21caeb2..e561859 100644
+> --- a/sys-utils/hwclock.c
+> +++ b/sys-utils/hwclock.c
+> @@ -712,7 +712,7 @@ display_time(const bool hclock_valid, struct timeva=
+l hwctime)
+>   * runnable by issuing the command "date" to the /bin/sh shell. That m=
+eans
+>   * in must be in the current PATH.
+>   *
+> - * If anything goes wrong (and many things can), we return return code=
+ 10
+> + * If anything goes wrong (and many things can), we return code 10
+>   * and arbitrary *time_p. Otherwise, return code is 0 and *time_p is v=
+alid.
+>   */
+>  static int interpret_date_string(const char *date_opt, time_t * const =
+time_p)
+
+Nor is this, as it talks about the return code that will be returned.
+
+Regards,
+Tilman
+
+--=20
+Tilman Schmidt                              E-Mail: tilman@imap.cc
+Bonn, Germany
+Nous, on a des fleurs et des bougies pour nous prot=E9ger.
 
 
-On 02/28/2017 08:37 AM, Karel Zak wrote:
-> On Sat, Feb 25, 2017 at 01:25:37PM -0500, J William Piggott wrote:
->>
->> * The last commit/patch adds hwclock-date.c
-> 
-> Seems better than the previous attempt.
-> 
->>    I added this file in case testers do not have 'bison' installed. It
->>    may, or may not, need to be tracked depending on how it is to be
->>    maintained. The 'c' file probably should be included in the
->>    distributed source archive to avoid the bison dependency.  Karel, I
->>    don't know if you want to create a separate clean and build target
->>    for hwclock-date.c, or how you want to handle this. So, if you don't
->>    mind, I'll leave this detail to you.
-> 
-> Yes, it's good idea to have .c files in the distribution tarball, but
-> I'd like to avoid generated files in the git repository. I'll try to
-> play with it (autotools) to generate .y to .c on the fly if missing.
-> 
-> Do you want to keep the .y file sync with gnulib and minimize number
-> of our local changes, or is it so stable area that we don't have to
-> care about it? ... because I don't like the coding style and  the
-> debug stuff. If the overhead to maintain the file locally will be
-> minimal than we can probably clean up it :-)
+--h5QNkMvPxx3L2bM75kPnHPHQ0qrVvin6v--
 
-Stripping the gnulib dependencies are significant enough to make syncing
-to with upstream impractical, I think. I fact, I have already excluded the
-latest changes because they add more gnulib dependencies.
+--30Knt6TBUcSnQHpaJoi6HCJ14o2uTj9RB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-My impression is that the original parse_datetime() is stable. It seems
-like most of the changes now involve parse_datetime2() to expand
-capabilities. I was using the new api only for the debug output; I
-thought if changes were ever needed in the parser it might be helpful.
-Since that may be unlikely, and since you don't like the debugging,
-parse_datetime2() along with all of its extensions can be removed.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
-> 
-> I guess it will be possible to move it to lib/parse-datetime.c and use
-> it on another places in util-linux (instead of our minimalistic
-> parse_datetime()), right?
+iQEcBAEBCAAGBQJYo4dsAAoJEFPuqx0v+F+qy6IH/0Gp85rCAjwssUv0qazX4XFA
+4mRxqDKA29gTsJGVt1ZlnjUzJ/OTiGljGzg/7TUYGCI4S0xbjYJQ8EyBfUJVvsZ+
+Y2UjbVwBJI+FEZFf2ut6wqy119AyYA9ryQvkiIYe2iLgj7DROGnTpB9EPMtSMF/b
+qXbc7OhcoaTswiSG2ZsrJZ2yZTyCGqxdDGwrtzKiCfgdQLWAl6bUMu6Hok/k5DTD
+25IOwBl4srnmwHnd6QiBQdF0NLkqeJQe1P0H4IkU3xU0vISEn9BQveq0z+Ter6T1
+cSDfgHDJPfu/SlguVwUOSgRV5MZbS9RXzqwjf/B32euQeHbv+U2L063i/H0kkcI=
+=rDly
+-----END PGP SIGNATURE-----
 
-Sure, I think a name change to avoid confusion with gnulib would be
-good. Maybe just parse_date.c?
-
-I will work on these changes Karel.
-
-> 
->     Karel
-> 
+--30Knt6TBUcSnQHpaJoi6HCJ14o2uTj9RB--
