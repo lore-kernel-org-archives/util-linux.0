@@ -1,35 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from drutsystem.com ([84.10.39.251]:39248 "EHLO drutsystem.com"
+Received: from mx1.redhat.com ([209.132.183.28]:56768 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751222AbdBALUL (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 1 Feb 2017 06:20:11 -0500
-To: util-linux@vger.kernel.org
-From: Michal Soltys <soltys@ziu.info>
-Subject: findmnt under container
-Message-ID: <008ff846-8010-44ef-2056-5e0ecdc355c1@ziu.info>
-Date: Wed, 1 Feb 2017 12:10:38 +0100
+        id S1751813AbdBOMsV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 15 Feb 2017 07:48:21 -0500
+Date: Wed, 15 Feb 2017 13:48:17 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Alexander F =?iso-8859-1?Q?R=F8dseth?= <xyproto@archlinux.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] rename: add --dry-run option
+Message-ID: <20170215124817.jheiwl6wn4ux4b3x@ws.net.home>
+References: <CAG7ayytqobZ3bkvvBJU01DOYNShLZkH8eYo2BZ_bzBShytjEJQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <CAG7ayytqobZ3bkvvBJU01DOYNShLZkH8eYo2BZ_bzBShytjEJQ@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+On Mon, Feb 13, 2017 at 03:08:39PM +0100, Alexander F Rødseth wrote:
+> Added a --dry-run and -d option for not making changes when running
+> the rename command. Also made changes to the man page.
 
-If I start a container by say systemd-nspawn (also tested with ubuntu through 
-debootstrap):
+Applied, but I have renamed the option --dry-run to --no-act to be
+more compatible with another stuff in util-linux. 
 
-pacstrap -c -d arch base
-systemd-nspawn -b -D arch
+(We also use --dry-run, but only for rtcwake.)
 
-then findmnt without any arguments just returns one line (to be precise - it 
-always seems to be the first mount under /sys/fs/cgroup), e.g.:
+> Having a dry-run option is useful when running a scary rename.
 
-/sys/fs/cgroup/devices cgroup cgroup ro,nosuid,nodev,noexec,relatime,devices
+Definitely, it's nice feature especially with --verbose.
 
-If I point it directly to the root, e.g.
+Thanks!
 
-findmnt -T / -R
+    Karel
 
-then it lists all mounts correctly (in case of arch, 2.29.1 was used).
-
-It kind of looks like a [display] bug (especially that -T / -R work fine).
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
