@@ -1,53 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46262 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751924AbdBILJp (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 9 Feb 2017 06:09:45 -0500
-Date: Thu, 9 Feb 2017 12:09:42 +0100
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
-Subject: Re: [ping] Karel: Re: pull: hwclock 27 changes
-Message-ID: <20170209110942.woeapxeeahnd3mnd@ws.net.home>
-References: <alpine.LNX.2.20.1701072212010.9096@imuri>
- <a9d7f37b-3607-70d4-843a-7d934bd305d5@gmx.com>
- <alpine.LNX.2.20.1701112055190.2589@imuri>
- <ede34a46-7290-c68b-1dd8-e4fc356e5caf@gmx.com>
- <alpine.LNX.2.20.1701140930380.2049@imuri>
- <f723104e-d23b-f8fd-e9ee-b9fc82c86fd3@gmx.com>
- <c88dc7ee-3e18-19ec-612e-3788551517bb@gmx.com>
- <alpine.LNX.2.20.1701252136160.492@imuri>
- <5feac9a5-e3e3-5148-60a0-fb3197a1caa8@gmx.com>
- <9798a869-fb09-77e7-a13a-bca002617672@gmx.com>
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:55285 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1754211AbdBPMPJ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Thu, 16 Feb 2017 07:15:09 -0500
+Message-Id: <1487247307.2341564.882965648.11DC77E0@webmail.messagingengine.com>
+From: Benno Schulenberg <bensberg@justemail.net>
+To: Karel Zak <kzak@redhat.com>
+Cc: Shaun Tancheff <shaun@tancheff.com>,
+        "Util-Linux" <util-linux@vger.kernel.org>,
+        Damien Le Moal <Damien.LeMoal@wdc.com>,
+        Bart Van Assche <bart.vanassche@sandisk.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <9798a869-fb09-77e7-a13a-bca002617672@gmx.com>
+Content-Type: text/plain; charset="utf-8"
+Date: Thu, 16 Feb 2017 13:15:07 +0100
+Subject: Re: [PATCH v3] Add blkzonecmd and blkreport ZAC/ZBC drives
+In-Reply-To: <20170216103352.rxt4jyxry6zpuxrb@ws.net.home>
+References: <1485178362-25327-1-git-send-email-shaun@tancheff.com>
+ <20170216103352.rxt4jyxry6zpuxrb@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Feb 02, 2017 at 10:04:13AM -0500, J William Piggott wrote:
-> Outside of our ongoing discussion below regarding a 'technically
-> unnecessary' cast, I think Sami's work is ready for you to consider it
-> for committing. I would be interested in your thoughts on the cast.
 
-I have no strong opinion about it, for the reader it could be really
-nice to follow code author ideas, but personally I think it's better
-to not use it too often :-)
+On Thu, Feb 16, 2017, at 11:33, Karel Zak wrote:
+>   blkzone report [--zone <offset>] [--count <length>]
+>   blkzone reset  [--zone <offset>] [--count <length>]
 
-BTW, often bug in libblkid/fdisk is math without casts, something
-like:
+"blkzone --zone" feels a bit strange.  I would suggest:
 
-    uint64_t x;
-    uint32_t a, b;
+  blkzone <command> [--offset <sector>] [--count <number>]
 
-    x = a + b
-
-here it's better to be explicit and use (uint64) a + b. The same
-problem if you write macros to hide some operations (we had this
-problem in include/bitops.h).
-
-    Karel
+Benno
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.fastmail.com - Same, same, but different...
+
