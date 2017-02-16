@@ -1,54 +1,34 @@
-Return-Path: elseifthen@gmx.com
-Subject: [V2 2/4] build-system: add hwclock-date
-To: Karel Zak <kzak@redhat.com>
-References: <ee9e12b4-a921-b47e-975d-53a5b8575361@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <641e2ffe-49d4-a342-ffb1-4f9e1c5119ce@gmx.com>
-Date: Sat, 25 Feb 2017 13:30:42 -0500
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from nymeria.archlinux.org ([89.238.67.251]:48294 "EHLO
+        nymeria.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752688AbdBPKg3 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 16 Feb 2017 05:36:29 -0500
+Received: from nymeria.archlinux.org (localhost.localdomain [127.0.0.1])
+        by nymeria.archlinux.org (Postfix) with ESMTP id 204F34038A
+        for <util-linux@vger.kernel.org>; Thu, 16 Feb 2017 11:36:26 +0100 (CET)
+Received: from mail-ua0-f171.google.com (mail-ua0-f171.google.com [209.85.217.171])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: arodseth)
+        by nymeria.archlinux.org (Postfix) with ESMTPSA id A7AD940338
+        for <util-linux@vger.kernel.org>; Thu, 16 Feb 2017 11:36:25 +0100 (CET)
+Received: by mail-ua0-f171.google.com with SMTP id y9so7970248uae.2
+        for <util-linux@vger.kernel.org>; Thu, 16 Feb 2017 02:36:25 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <ee9e12b4-a921-b47e-975d-53a5b8575361@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+From: =?UTF-8?Q?Alexander_F_R=C3=B8dseth?= <xyproto@archlinux.org>
+Date: Thu, 16 Feb 2017 11:35:43 +0100
+Message-ID: <CAG7ayysW1RokKo0mkKksvznx==hCOhaDzKQHXfP5AnJrjUhApg@mail.gmail.com>
+Subject: Re: [PATCH] rename: add --dry-run option
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Using --no-act for consistency sounds like a good decision.
 
-sys-utils/Makemodule.am: add hwclock-date source file
-sys-utils/hwclock.h: add parse_datetime functions
+Thanks for applying the patch and for maintaining util-linux!
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/Makemodule.am |  1 +
- sys-utils/hwclock.h     | 10 ++++++++++
- 2 files changed, 11 insertions(+)
-
-diff --git a/sys-utils/Makemodule.am b/sys-utils/Makemodule.am
-index c565194..a453486 100644
---- a/sys-utils/Makemodule.am
-+++ b/sys-utils/Makemodule.am
-@@ -424,6 +424,7 @@ sbin_PROGRAMS += hwclock
- dist_man_MANS += sys-utils/hwclock.8
- PATHFILES += sys-utils/hwclock.8
- hwclock_SOURCES = \
-+	sys-utils/hwclock-date.c \
- 	sys-utils/hwclock.c \
- 	sys-utils/hwclock.h \
- 	sys-utils/hwclock-cmos.c
-diff --git a/sys-utils/hwclock.h b/sys-utils/hwclock.h
-index b08bd2d..e6f16d3 100644
---- a/sys-utils/hwclock.h
-+++ b/sys-utils/hwclock.h
-@@ -82,4 +82,14 @@ extern int set_epoch_rtc(const struct hwclock_control *ctl);
- 
- extern void hwclock_exit(const struct hwclock_control *ctl, int status);
- 
-+/* date.c */
-+int parse_datetime (struct timespec *, char const *, struct timespec const *);
-+
-+/* parse_datetime2 flag: if set, print debug/progress information to STDERR */
-+#define PARSE_DATETIME_DEBUG 1
-+
-+/* same as above, supporting additional flags */
-+int parse_datetime2 (struct timespec *, char const *, struct timespec const *,
-+			unsigned int flags);
-+
- #endif				/* HWCLOCK_CLOCK_H */
+--=20
+Sincerely,
+    Alexander F R=C3=B8dseth / xyproto
