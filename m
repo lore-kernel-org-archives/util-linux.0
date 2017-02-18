@@ -1,80 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:48185 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750916AbdBWOE5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 23 Feb 2017 09:04:57 -0500
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 4ADC8ABD3
-        for <util-linux@vger.kernel.org>; Thu, 23 Feb 2017 14:04:56 +0000 (UTC)
-From: Petr Vorel <pvorel@suse.cz>
+Received: from mx.datacom.ind.br ([177.66.5.10]:52230 "EHLO
+        mail.datacom.ind.br" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1753461AbdBRTqQ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 18 Feb 2017 14:46:16 -0500
+From: Carlos Santos <casantos@datacom.ind.br>
 To: util-linux@vger.kernel.org
-Cc: Petr Vorel <pvorel@suse.cz>
-Subject: [PATCH 2/2] libmount: return tab entry for default node
-Date: Thu, 23 Feb 2017 15:04:44 +0100
-Message-Id: <20170223140444.17916-2-pvorel@suse.cz>
-In-Reply-To: <20170223140444.17916-1-pvorel@suse.cz>
-References: <20170223140444.17916-1-pvorel@suse.cz>
+Cc: Aaron Holtzman <aholtzma@gmail.com>
+Subject: [PATCH] schedutils: build when configured with --disable-all-programs
+Date: Sat, 18 Feb 2017 17:46:03 -0200
+Message-Id: <1487447163-12353-1-git-send-email-casantos@datacom.ind.br>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is useful for lsblk.
+Fix AM_CONDITIONAL parameters that conditioned ionice, taskset an chrt
+to the values of build_{ionice,taskset,chrt} respectively, instead of
+build_schedutils.
 
-Signed-off-by: Petr Vorel <pvorel@suse.cz>
----
-Hope it didn't break fsck, which uses btrfs_get_default_subvol_id() as well.
----
- libmount/src/tab.c | 29 ++++++++++++++++++++++++++++-
- 1 file changed, 28 insertions(+), 1 deletion(-)
+Fixes:
+  https://bugs.busybox.net/show_bug.cgi?id=9656
+  https://github.com/karelzak/util-linux/issues/415
 
-diff --git a/libmount/src/tab.c b/libmount/src/tab.c
-index 8cf11814f..2865fd92a 100644
---- a/libmount/src/tab.c
-+++ b/libmount/src/tab.c
-@@ -936,6 +936,8 @@ struct libmnt_fs *mnt_table_find_target(struct libmnt_table *tb, const char *pat
-  * The 2nd, 3rd and 4th iterations are not performed when the @tb cache is not
-  * set (see mnt_table_set_cache()).
-  *
-+ * For btrfs returns tab entry for default id.
-+ *
-  * Note that NULL is a valid source path; it will be replaced with "none". The
-  * "none" is used in /proc/{mounts,self/mountinfo} for pseudo filesystems.
-  *
-@@ -958,9 +960,34 @@ struct libmnt_fs *mnt_table_find_srcpath(struct libmnt_table *tb, const char *pa
+Signed-off-by: Carlos Santos <casantos@datacom.ind.br>
+---
+ configure.ac | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index ad241fe..1933741 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1935,7 +1935,7 @@ UL_REQUIRES_SYSCALL_CHECK([ionice],
+ 	  [x86_64*],	[252])],
+ 	[ioprio_get])
  
- 	/* native paths */
- 	mnt_reset_iter(&itr, direction);
-+
- 	while(mnt_table_next_fs(tb, &itr, &fs) == 0) {
--		if (mnt_fs_streq_srcpath(fs, path))
-+
-+		if (mnt_fs_streq_srcpath(fs, path)) {
-+#ifdef HAVE_BTRFS_SUPPORT
-+			if (mnt_fs_is_btrfs(fs)) {
-+				uint64_t default_id = btrfs_get_default_subvol_id(mnt_fs_get_target(fs));
-+				uint64_t subvol_id;
-+				char *val;
-+				size_t len;
-+
-+				if (default_id == UINT64_MAX) {
-+					DBG(TAB, ul_debug("not found btrfs volume setting"));
-+					return fs;
-+				}
-+
-+				if (mnt_fs_get_option(fs, "subvolid", &val, &len) == 0) {
-+					if (mnt_parse_offset(val, len, &subvol_id)) {
-+						DBG(TAB, ul_debugobj(tb, "failed to parse subvolid="));
-+						continue;
-+					}
-+					if (subvol_id != default_id)
-+						continue;
-+				}
-+			}
-+#endif /* HAVE_BTRFS_SUPPORT */
- 			return fs;
-+		}
- 		if (mnt_fs_get_tag(fs, NULL, NULL) == 0)
- 			ntags++;
- 	}
+-AM_CONDITIONAL([BUILD_IONICE], [test "x$build_ionice" = xyes])
++AM_CONDITIONAL([BUILD_IONICE], [test "x$build_schedutils" = xyes])
+ 
+ UL_BUILD_INIT([taskset], [check])
+ UL_REQUIRES_BUILD([taskset], [schedutils])
+@@ -1943,7 +1943,7 @@ UL_REQUIRES_HAVE([taskset], [cpu_set_t], [cpu_set_t type])
+ UL_REQUIRES_SYSCALL_CHECK([taskset],
+ 	[UL_CHECK_SYSCALL([sched_getaffinity])],
+ 	[sched_getaffinity])
+-AM_CONDITIONAL([BUILD_TASKSET], [test "x$build_taskset" = xyes])
++AM_CONDITIONAL([BUILD_TASKSET], [test "x$build_schedutils" = xyes])
+ 
+ 
+ have_schedsetter=no
+@@ -1953,7 +1953,7 @@ AS_IF([test "x$ac_cv_func_sched_setscheduler" = xyes], [have_schedsetter=yes],
+ UL_BUILD_INIT([chrt], [check])
+ UL_REQUIRES_BUILD([chrt], [schedutils])
+ UL_REQUIRES_HAVE([chrt], [schedsetter], [sched_set functions])
+-AM_CONDITIONAL([BUILD_CHRT], [test "x$build_chrt" = xyes])
++AM_CONDITIONAL([BUILD_CHRT], [test "x$build_schedutils" = xyes])
+ 
+ AS_IF([test "x$build_chrt" = xyes], [
+ 	UL_CHECK_SYSCALL([sched_setattr])
 -- 
-2.11.0
+2.7.4
 
