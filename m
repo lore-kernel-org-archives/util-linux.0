@@ -1,159 +1,62 @@
-Return-Path: elseifthen@gmx.com
-Subject: [V2 1/4] hwclock: use parse_datetime function
-To: Karel Zak <kzak@redhat.com>
-References: <ee9e12b4-a921-b47e-975d-53a5b8575361@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <651e9084-40db-b400-a3af-4baa8712e5dc@gmx.com>
-Date: Sat, 25 Feb 2017 13:28:46 -0500
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:55026 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750992AbdBUJuO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 21 Feb 2017 04:50:14 -0500
+Date: Tue, 21 Feb 2017 10:50:12 +0100
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [PATCH 0/7] pull: make smatch scan output easy to digest
+Message-ID: <20170221095012.txqxcblrqkmoxktw@ws.net.home>
+References: <20170213220641.1395-1-kerolasa@iki.fi>
+ <20170220121426.5mr6ab6x7pxt5j4b@ws.net.home>
+ <CAG27Bk2ENHD+1_sX0qVmVnKC2Ss7jDxSyqhNnaj6NKHNnitsYQ@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <ee9e12b4-a921-b47e-975d-53a5b8575361@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk2ENHD+1_sX0qVmVnKC2Ss7jDxSyqhNnaj6NKHNnitsYQ@mail.gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Mon, Feb 20, 2017 at 10:12:06PM +0000, Sami Kerola wrote:
+> On 20 February 2017 at 12:14, Karel Zak <kzak@redhat.com> wrote:
+> > Merged, but except:
+> >
+> > On Mon, Feb 13, 2017 at 10:06:34PM +0000, Sami Kerola wrote:
+> >>   misc: unify function declarations [smatch scan]
+> >
+> > I agree that some unification would be nice, but don't like
+> >
+> >    static __attribute__((__noreturn__)) __attribute__((__format__(printf, 1, 2)))
+> >           void log_err(const char *fmt, ...);
+> >
+> > it would be better to keep all the attributes after declaration:
+> >
+> >    static void log_err(const char *fmt, ...)
+> >                     __attribute__((__noreturn__))
+> >                     __attribute__((__format__(printf, 1, 2)));
+> >
+> > it means new line for each attribute. IMHO it's more readable and you
+> > don't have to search for the function name, etc.
+> 
+> Hi Karel,
+> 
+> That's fair enough, and truth is the patch did not fix many warnings so
+> I am sure we can live with them.
+> 
+> What comes to moving attributes at end of the declaration that does
+> not please smatch.
+> 
+> lib/exec_shell.c:33:1: error: attributes should be specified before
+> the declarator in a function definition
+>  void exec_shell(void)
 
-* hwclock.c: replace interpret_date_string() with parse_datetime2().
-   Eliminates shell injection vulnerability from popen() date(1).
-   Removes system dependency on date(1).
-   Significant reduction in hwclock execution time.
-   Significant cleanup of hwclock.c code.
+Report it as smatch bug. It's pretty common that function attributes
+are defined after declaration. CC: Dan.
 
-* Bug fix for "hwclock --predict --date 'bad_date'" printing:
-    hwclock: No usable set-to time.  Cannot set clock.
+    Karel
 
-  The message now matches date(1) for an invalid --date argument.
-
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock.c | 104 +++-------------------------------------------------
- 1 file changed, 5 insertions(+), 99 deletions(-)
-
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 21d1304..276a637 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -639,100 +639,6 @@ display_time(const bool hclock_valid, struct timeval hwctime)
- }
- 
- /*
-- * Interpret the value of the --date option, which is something like
-- * "13:05:01". In fact, it can be any of the myriad ASCII strings that
-- * specify a time which the "date" program can understand. The date option
-- * value in question is our "dateopt" argument.
-- *
-- * The specified time is in the local time zone.
-- *
-- * Our output, "*time_p", is a seconds-into-epoch time.
-- *
-- * We use the "date" program to interpret the date string. "date" must be
-- * runnable by issuing the command "date" to the /bin/sh shell. That means
-- * in must be in the current PATH.
-- *
-- * If anything goes wrong (and many things can), we return code 10
-- * and arbitrary *time_p. Otherwise, return code is 0 and *time_p is valid.
-- */
--static int interpret_date_string(const struct hwclock_control *ctl,
--				 time_t *const time_p)
--{
--	FILE *date_child_fp = NULL;
--	char *date_command = NULL;
--	char *date_resp = NULL;
--	size_t len = 0;
--	const char magic[] = "seconds-into-epoch=";
--	int retcode = 1;
--	long seconds_since_epoch;
--
--	if (!ctl->date_opt) {
--		warnx(_("No --date option specified."));
--		return retcode;
--	}
--
--	/* Quotes in date_opt would ruin the date command we construct. */
--	if (strchr(ctl->date_opt, '"') != NULL ||
--	    strchr(ctl->date_opt, '`') != NULL ||
--	    strchr(ctl->date_opt, '$') != NULL) {
--		warnx(_
--		      ("The value of the --date option is not a valid date.\n"
--		       "In particular, it contains illegal character(s)."));
--		return retcode;
--	}
--
--	xasprintf(&date_command, "date --date=\"%s\" +%s%%s",
--		ctl->date_opt, magic);
--	if (ctl->debug)
--		printf(_("Issuing date command: %s\n"), date_command);
--
--	date_child_fp = popen(date_command, "r");
--	if (date_child_fp == NULL) {
--		warn(_("Unable to run 'date' program in /bin/sh shell. "
--			    "popen() failed"));
--		goto out;
--	}
--
--	if (getline(&date_resp, &len, date_child_fp) < 0) {
--		warn(_("getline() failed"));
--		goto out;
--	}
--	if (ctl->debug)
--		printf(_("response from date command = %s\n"), date_resp);
--	if (strncmp(date_resp, magic, sizeof(magic) - 1) != 0) {
--		warnx(_("The date command issued by %s returned "
--				  "unexpected results.\n"
--				  "The command was:\n  %s\n"
--				  "The response was:\n  %s"),
--			program_invocation_short_name, date_command, date_resp);
--		goto out;
--	}
--
--	if (sscanf(date_resp + sizeof(magic) - 1, "%ld", &seconds_since_epoch) < 1) {
--		warnx(_("The date command issued by %s returned "
--			"something other than an integer where the "
--			"converted time value was expected.\n"
--			"The command was:\n  %s\n"
--			"The response was:\n %s\n"),
--		      program_invocation_short_name, date_command, date_resp);
--	} else {
--		retcode = 0;
--		*time_p = seconds_since_epoch;
--		if (ctl->debug)
--			printf(_("date string %s equates to "
--				 "%ld seconds since 1969.\n"),
--			       ctl->date_opt, *time_p);
--	}
-- out:
--	free(date_command);
--	free(date_resp);
--	if (date_child_fp)
--		pclose(date_child_fp);
--
--	return retcode;
--}
--
--/*
-  * Set the System Clock to time 'newtime'.
-  *
-  * Also set the kernel time zone value to the value indicated by the TZ
-@@ -1460,6 +1366,7 @@ int main(int argc, char **argv)
- 	struct hwclock_control ctl = { NULL };
- 	struct timeval startup_time;
- 	struct adjtime adjtime = { 0 };
-+	struct timespec when = { 0 };
- 	/*
- 	 * The time we started up, in seconds into the epoch, including
- 	 * fractions.
-@@ -1699,11 +1606,10 @@ int main(int argc, char **argv)
- #endif
- 
- 	if (ctl.set || ctl.predict) {
--		rc = interpret_date_string(&ctl, &set_time);
--		/* (time-consuming) */
--		if (rc != 0) {
--			warnx(_("No usable set-to time.  "
--				"Cannot set clock."));
-+		if (parse_datetime2 (&when, ctl.date_opt, NULL, ctl.debug))
-+			set_time = when.tv_sec;
-+		else {
-+			warnx(_("invalid date '%s'"), ctl.date_opt);
- 			hwclock_exit(&ctl, EX_USAGE);
- 		}
- 	}
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
