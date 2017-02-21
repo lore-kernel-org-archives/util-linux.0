@@ -1,110 +1,143 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40804 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751546AbdBIMmR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 9 Feb 2017 07:42:17 -0500
-Date: Thu, 9 Feb 2017 13:36:03 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Shaun Tancheff <shaun@tancheff.com>
-Cc: util-linux@vger.kernel.org, Damien Le Moal <Damien.LeMoal@wdc.com>,
-        Bart Van Assche <bart.vanassche@sandisk.com>
-Subject: Re: [PATCH v3] Add blkzonecmd and blkreport ZAC/ZBC drives
-Message-ID: <20170209123603.oi763dhsfvxhsv6m@ws.net.home>
-References: <1485178362-25327-1-git-send-email-shaun@tancheff.com>
+Received: from dervish.wsisiz.edu.pl ([213.135.44.54]:42336 "EHLO
+        dervish.wsisiz.edu.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753735AbdBUQiJ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 21 Feb 2017 11:38:09 -0500
+To: util-linux@vger.kernel.org
+From: =?UTF-8?Q?Bart=c5=82omiej_Solarz-Nies=c5=82uchowski?=
+        <Bartlomiej.Solarz-Niesluchowski@wit.edu.pl>
+Subject: label-id and sfdisk problem
+Cc: kzak@redhat.com, Lukasz Trabinski <lukasz@trabinski.net>
+Message-ID: <a1e37c78-0162-2c2a-813e-1b1abee27fcb@wit.edu.pl>
+Date: Tue, 21 Feb 2017 17:31:25 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1485178362-25327-1-git-send-email-shaun@tancheff.com>
+Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256; boundary="------------ms000502040902090405030502"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jan 23, 2017 at 08:32:42PM +0700, Shaun Tancheff wrote:
->  .gitignore              |   2 +
->  configure.ac            |  11 +++
->  include/strutils.h      |   2 +
->  lib/strutils.c          |   7 +-
->  sys-utils/Makemodule.am |  17 ++++
->  sys-utils/blkreport.8   |  68 ++++++++++++++
->  sys-utils/blkreport.c   | 245 ++++++++++++++++++++++++++++++++++++++++++++++++
->  sys-utils/blkreset.8    |  61 ++++++++++++
->  sys-utils/blkreset.c    | 190 +++++++++++++++++++++++++++++++++++++
+This is a cryptographically signed message in MIME format.
 
-Applied with some changes (see below), thanks.
+--------------ms000502040902090405030502
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 
-Please, please "git pull" and test it!
+Dear List,
 
-I have no HW to do any tests (but I have free space for a new disk in
-my workstation -- you know Seagate, right? :-)) Or is it possible to
-test for example by scsi_debug?
+I have problem with setting label-id of dos partition table
+The problem occurs when i use sfdisk:
+1. I "save" the partition table with sfdisk -d /dev/sda > saved.table=20
+(saved file has label-id of partition table)
+2. then i restore this via sfdisk /dev/sda < saved.table
+BUT
+label-id of dos partition table can be changed in this operation e.g.:
+when i run command such:
+sfdisk -d /dev/sda > saved.table
+sfdisk /dev/sda < saved.table
+sfdisk -d /dev/sda
+sfdisk /dev/sda < saved.table
+sfdisk -d /dev/sda
+sfdisk /dev/sda < saved.table
+sfdisk -d /dev/sda
 
-> +blkreset_LDADD += -ludev
+each time when i restore partition table label-id of dos type partition=20
+table is changed!
 
-Fixed, unnecessary.
+For me it is essential that label-id is set exactly as previous because=20
+after that i restore windows operationg system on this partitions and=20
+windows take care about label-id of boot disk partition table
 
-> +.BR \-z , " \-\-zone \fIoffset", " \-\-offset \fIoffset"
-> +.BR \-c , " \-\-count \fIcount", " \-\-length \fIcount"
+Currently i use fdisk (expert option i) for setting label-id of=20
+partition, but why it is not possible thru sfdisk?
 
-Fixed. I don't think we want to use aliases for the options (and one
-of the utils had the aliases only in man page). I have modified man
-pages and code to support
+Best Regards
 
-  --zone <offset>
-  --count <length>
+--=20
+Bart=C5=82omiej Solarz-Nies=C5=82uchowski, Administrator WSISiZ
+e-mail: Bartlomiej.Solarz-Niesluchowski@wit.edu.pl
+tel. 223486547, fax 223486501
+JID: solarz@jabber.wit.edu.pl
+01-447 Warszawa, ul. Newelska 6, pok=C3=B3j 404, pon.-pt. 8-16
+Motto - Jak sobie po=C5=9Bcielisz tak sie wy=C5=9Bpisz
 
-only.
 
-> +#include "monotonic.h"
 
-Copy & past I guess ;-) Unnecessary. Fixed.
+--------------ms000502040902090405030502
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: Kryptograficzna sygnatura S/MIME
 
-> +	fputs(USAGE_OPTIONS, out);
-> +	fputs(_(" -z, --zone <num>    zone lba in 512 byte sectors\n"
-> +		"     --offset <num>  zone lba in 512 byte sectors\n"
-> +		" -c, --count <num>   maximum number of zones in report\n"
-> +		"     --length <num>  maximum number of zones in report\n"
-> +		" -v, --verbose       print aligned length and offset"),
-> +		out);
-
-Fixed.
-
-> +		case 'c':
-> +			length = _strtou32_or_err(optarg,
-> +					_("failed to parse report count"), 0);
-> +			break;
-> +		case 'z':
-> +			offset = _strtou64_or_err(optarg,
-> +					_("failed to parse zone offset"), 0);
-> +			break;
-
-The function strtou64_or_err() does not support size suffixes. Fixed
-and replaced with strtosize_or_err().
-
-> +
-> +	if (ioctl(fd, BLKGETSIZE64, &blksize))
-> +		err(EXIT_FAILURE, _("%s: BLKGETSIZE64 ioctl failed"), path);
-> +	if (ioctl(fd, BLKSSZGET, &secsize))
-> +		err(EXIT_FAILURE, _("%s: BLKSSZGET ioctl failed"), path);
-
-replaced with blkdev.h functions (like you did in blkreset.c).
-
-> +	/* check offset alignment to the chunk size */
-> +	if (zsector & (zsize - 1))
-> +		errx(EXIT_FAILURE, _("%s: zone %" PRIu64 " is not aligned "
-> +			 "to zone size %" PRIu64), path, zsector, zsize);
-> +	if (zsector > blksectors)
-> +		errx(EXIT_FAILURE, _("%s: zone %" PRIu64 " is too large "
-> +			 "for device %" PRIu64), path, zsector, blksectors);
-
-It seems nowhere (blkreset and blkreport) we check if 
- 
-    offset + length <= blksectors
-
- it means we don't check the end of the area, I guess the end has to
- be within the block device.
-
- Maybe we can add this if() to the code, objections?
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCC
+C3owggWIMIIEcKADAgECAhEAzWOh2VGpX5/p2EoYP+5nTTANBgkqhkiG9w0BAQsFADBpMQsw
+CQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFt
+MQ8wDQYDVQQKEwZURVJFTkExHTAbBgNVBAMTFFRFUkVOQSBQZXJzb25hbCBDQSAyMB4XDTE0
+MTAxMzAwMDAwMFoXDTE3MTAxMjIzNTk1OVowggFBMQswCQYDVQQGEwJQTDEUMBIGA1UECBML
+TWF6b3dpZWNraWUxETAPBgNVBAcTCFdhcnN6YXdhMQ8wDQYDVQQREwYwMS00NDcxFzAVBgNV
+BAkTDnVsLiBOZXdlbHNrYSA2MSAwHgYDVQQLExdMYWJvcmF0b3JpYSBLb21wdXRlcm93ZTE7
+MDkGA1UEChMyV3l6c3phIFN6a29sYSBJbmZvcm1hdHlraSBTdG9zb3dhbmVqIGkgWmFyemFk
+emFuaWExGTAXBgkqhkiG9w0BCQIWCjg0MEBXU0lTSVoxKjAoBgNVBAMMIUJhcnTFgm9taWVq
+IFNvbGFyei1OaWVzxYJ1Y2hvd3NraTE5MDcGCSqGSIb3DQEJARYqQmFydGxvbWllai5Tb2xh
+cnotTmllc2x1Y2hvd3NraUB3aXQuZWR1LnBsMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB
+CgKCAQEAlwAAoBfN0M9lTNyF1C51YFnVsVSOP4lH0fZnu4kQacKGtOuO04K995P8Q4l3kTaT
+zJVBPfZpm+im5ghVQNDKWmR8cVvMzFlnvmEjTzPrj4i4uf7sz4BFMJV9x7rlBWOC6quBsGIi
+xIcDTZ3dgKZmXkzl/EEiPRH0Ng7kwRdXWPCtwbe7pOcPtrM7BkRSGPy6N5unv2m4f2nb7UZ9
+kgni49NlMyPrDlhGufhmYvZ6wPXVnGlYlGl+3n44Gj3cUMa3XhV5jyjv94HZEcLmqVv3zPHz
+JB4egj7eXDwjHdnC7jSxEw9CctrVhk5h9XHk26P6f44ZwBPF3eT01J+6/A0TYwIDAQABo4IB
+TzCCAUswHwYDVR0jBBgwFoAU+5w4I1Ch1wAEmS04BmSQoyYb2+0wHQYDVR0OBBYEFCEtceIk
+iaeUVAZyD081M6c1QRKuMA4GA1UdDwEB/wQEAwIFoDAMBgNVHRMBAf8EAjAAMB0GA1UdJQQW
+MBQGCCsGAQUFBwMEBggrBgEFBQcDAjAYBgNVHSAEETAPMA0GCysGAQQBsjEBAgIdMD8GA1Ud
+HwQ4MDYwNKAyoDCGLmh0dHA6Ly9jcmwudXNlcnRydXN0LmNvbS9URVJFTkFQZXJzb25hbENB
+Mi5jcmwwcQYIKwYBBQUHAQEEZTBjMDoGCCsGAQUFBzAChi5odHRwOi8vY3J0LnVzZXJ0cnVz
+dC5jb20vVEVSRU5BUGVyc29uYWxDQTIuY3J0MCUGCCsGAQUFBzABhhlodHRwOi8vb2NzcC51
+c2VydHJ1c3QuY29tMA0GCSqGSIb3DQEBCwUAA4IBAQAW1pKjXAk7o2w1jjCxSOfMT7DOjwzO
+t6GJImAaBUsczhIYRuzyCegTN7l8FmIEF78AjkHrCwM8zZKEDzc+JzS3qVS7DMFlUNBpiDM4
+RZmoqv2gHqkR3/j8+MCP3Du9ZXEgd40cVfWcl4bbpB2FjVm879oET6HxhuFNHYa8Sprs56TF
+ANvrn/EjP3hB5BbrHveCbn1M2dSEhl9ojG9YxEmR5k6ooRqGy4LdLTdTOO1iXW42+JFdTKLY
+K27cePtzVAZkzzBZLH8rZ2mrC+rwU3EuFXYQDiKRsah+FvLpF55brFBtG8BlIlYMoZrwb8FG
+ZxzBtH2NZTEypppmhKntf17dMIIF6jCCA9KgAwIBAgIRAM0n6PuHVxFfdlSNZoQ9l/owDQYJ
+KoZIhvcNAQEMBQAwgYgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpOZXcgSmVyc2V5MRQwEgYD
+VQQHEwtKZXJzZXkgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJUUlVTVCBOZXR3b3JrMS4wLAYD
+VQQDEyVVU0VSVHJ1c3QgUlNBIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTE0MTAwOTAw
+MDAwMFoXDTI0MTAwODIzNTk1OVowaTELMAkGA1UEBhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhv
+bGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTEPMA0GA1UEChMGVEVSRU5BMR0wGwYDVQQDExRU
+RVJFTkEgUGVyc29uYWwgQ0EgMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAIt/
+txlfYTgQu/SsFvalu41zNJsnlZV8L2L22pUwZyCfFo+Y1TUhlh6+3ppy8iN53w4L8oIOeJtW
+dlTTCG2cstFjVMDPGDt5qSZg2J/+p5SsClYDkuRhLd2JhKm0XTzF2Xk+G5fSLS4fp9gD2fCu
+a7yqFU6vcr2OKpCBuK+sNQgwagGZHUhR92hxhmGYihsg7JbCqv5sGEOclH+2i34wqbxVbOtX
+B3rTHkLjuqVTC+rY7/fUz5GKDnraaVq56unRxerjmLKGTNwHcL+tlC4H1RMqkcxukrljaVPQ
+nWhJYp0rSvRfwlFJGgTNHUvt/jmjqsVfqwzssyLHU3mJAkTxl70CAwEAAaOCAWswggFnMB8G
+A1UdIwQYMBaAFFN5v1qqK0rPVIDh2JvAnfKyA2bLMB0GA1UdDgQWBBT7nDgjUKHXAASZLTgG
+ZJCjJhvb7TAOBgNVHQ8BAf8EBAMCAYYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHSUEFjAU
+BggrBgEFBQcDAgYIKwYBBQUHAwQwGAYDVR0gBBEwDzANBgsrBgEEAbIxAQICHTBQBgNVHR8E
+STBHMEWgQ6BBhj9odHRwOi8vY3JsLnVzZXJ0cnVzdC5jb20vVVNFUlRydXN0UlNBQ2VydGlm
+aWNhdGlvbkF1dGhvcml0eS5jcmwwdgYIKwYBBQUHAQEEajBoMD8GCCsGAQUFBzAChjNodHRw
+Oi8vY3J0LnVzZXJ0cnVzdC5jb20vVVNFUlRydXN0UlNBQWRkVHJ1c3RDQS5jcnQwJQYIKwYB
+BQUHMAGGGWh0dHA6Ly9vY3NwLnVzZXJ0cnVzdC5jb20wDQYJKoZIhvcNAQEMBQADggIBAECZ
+vR9W7r9ievG4g95FRUr9M/saDMcLJonWtk1pFoO4jkJyTBryic4xo+DBk48fW92GukiUQEIc
+NGkhGPVMfYFTwp7Cue8yjjyoKMDpJMVx/72iJA0tL+LXbGgedtxxKXGMf1EsE97nDy4xCrer
+iELxXBPqt8x9Wscs9go/1uPW4laDLVT/RwQiiGDx/UNZb1ev6RKtRAg6y+Anp5Yd6AUf2/6c
+aQ8H9tjrcxZ6nsiNcc5DrFx4hK2KTqZAVfud8HCmBR0ic4WtbRFBd65HKCx5AcN+Usc9I48M
+F+7Ohz2ZJSDiAVmNwrMYFTX5cHBTD9Nt26TezyuKQEooR1hx2ODxQqnT+xXOiJxxltZgw4dh
+9RT/fyEaIhAFmqJCaTGYqCnVED2MDYTiWJeZ8Ag6qCk99Aqou49IMOiZNdWQCHw97qFlx8Xh
+Tc4RfxSFqhYpK1Kb6DouDmuwmRPT0MWuRZNs2fTumA3b08klQkLK0f+OEFJWVAWyRSfWvS/6
+v8XPNxzOgtbiSjAX1vixM/5lrNei6JlmJjhgODr+X7ydaAddhvzu5p6hqIsmLRNPoRZkumfj
+ppoVkX/X8SSkMg7a6mMXDjl3o4vOD0A8sZ4t/TZTkhXSdxxy2kO8zBk3HOvNnc9JgekNS8ki
+K3OaBG7Vv2CPyc0vknfcyGVhzBOAnishMYIDqDCCA6QCAQEwfjBpMQswCQYDVQQGEwJOTDEW
+MBQGA1UECBMNTm9vcmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMQ8wDQYDVQQKEwZU
+RVJFTkExHTAbBgNVBAMTFFRFUkVOQSBQZXJzb25hbCBDQSAyAhEAzWOh2VGpX5/p2EoYP+5n
+TTANBglghkgBZQMEAgEFAKCCAfswGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG
+9w0BCQUxDxcNMTcwMjIxMTYzMTI1WjAvBgkqhkiG9w0BCQQxIgQgsE+cUc+xgiztDhnIhsEI
+BAvLgsxVC3nyBLmMwmUngBwwbAYJKoZIhvcNAQkPMV8wXTALBglghkgBZQMEASowCwYJYIZI
+AWUDBAECMAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUr
+DgMCBzANBggqhkiG9w0DAgIBKDCBjgYJKwYBBAGCNxAEMYGAMH4waTELMAkGA1UEBhMCTkwx
+FjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTEPMA0GA1UEChMG
+VEVSRU5BMR0wGwYDVQQDExRURVJFTkEgUGVyc29uYWwgQ0EgMgIRAM1jodlRqV+f6dhKGD/u
+Z00wgZAGCyqGSIb3DQEJEAILMYGAoH4waTELMAkGA1UEBhMCTkwxFjAUBgNVBAgTDU5vb3Jk
+LUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTEPMA0GA1UEChMGVEVSRU5BMR0wGwYDVQQD
+ExRURVJFTkEgUGVyc29uYWwgQ0EgMgIRAM1jodlRqV+f6dhKGD/uZ00wDQYJKoZIhvcNAQEB
+BQAEggEAFUaJnPFmW8DgIa9FPjjxM5K4W+EsvK9fLoC1EZDmCd208848UgmeYUBg/AlgfEOy
+jxIwLt5m/aFGIurlxcAFkToCdSz8yqpvO2926K+qVYDA5kwvbnuNAMDg1LoSD0z9t5nAZNqq
+Dyc9FNqEoHT21bo8uKS0mOhRT/nFF7uQxrNI42F6/pgjmNm4Pl5MnK00QfGesXIOin3Q+ruC
++JH8xxfYohRZxel85xKj8grZIQJydCO4M4dyppPdNjxBm1lwD9HD+NjX4brY5t95y3Q1W5P8
+wDT7ny8FMfvvIT+igQ971CIJ3co3Q7+qf6fKt1JPdA8+g5MgJ8oa7QMUt/H/zwAAAAAAAA==
+--------------ms000502040902090405030502--
