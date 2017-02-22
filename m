@@ -1,42 +1,84 @@
-Return-Path: luc.vanoostenryck@gmail.com
-Date: Sun, 26 Feb 2017 05:07:28 +0100
-From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>, Karel Zak <kzak@redhat.com>,
-	util-linux <util-linux@vger.kernel.org>,
-	linux-sparse@vger.kernel.org
-Subject: Re: [PATCH 0/7] pull: make smatch scan output easy to digest
-Message-ID: <20170226040727.vjf6wdy7yiakppx5@macbook.local>
-References: <20170213220641.1395-1-kerolasa@iki.fi>
- <20170220121426.5mr6ab6x7pxt5j4b@ws.net.home>
- <CAG27Bk2ENHD+1_sX0qVmVnKC2Ss7jDxSyqhNnaj6NKHNnitsYQ@mail.gmail.com>
- <20170221095012.txqxcblrqkmoxktw@ws.net.home>
- <20170223153049.GC4133@mwanda>
- <alpine.LNX.2.20.1702251653080.16457@imuri>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:59868 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754330AbdBVQDc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 22 Feb 2017 11:03:32 -0500
+Date: Wed, 22 Feb 2017 16:55:51 +0100
+From: Karel Zak <kzak@redhat.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.29.2
+Message-ID: <20170222155551.2qrchatlhuj6wxvh@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LNX.2.20.1702251653080.16457@imuri>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Feb 25, 2017 at 05:32:23PM +0000, Sami Kerola wrote:
-> On Fri, 24 Feb 2017, Dan Carpenter wrote:
-> text-utils/more.c:674:43: error: symbol 'end_it' redeclared with different 
-> type (originally declared at text-utils/more.c:143) - different modifiers
-> 
-> that are caused by lack of function attributes in declaration, while 
-> fuction has them.
+The util-linux release v2.29.2 is available at
 
-Yes, this is a sparse's bug.
-I hope I'll be able to look at it soon.
+  http://ftp.kernel.org/pub/linux/utils/util-linux/v2.29
 
-> See below simple source file that demonstrates how to triggers warning in 
-> question. When I said was 'smatch' printed warnings it was cgcc that was 
-> complaining , and therefore this is not really a 'smatch' problem at all. 
-> Sorry about giving wrong impression.
-> 
-> When comparing gcc with clang gives very similar warning. Perhaps the 
-> right way to go about this is to reorder attributes to be in front of 
-> functions after all.
+Feedback and bug reports, as always, are welcomed.
+
+  Karel
 
 
-Luc Van Oostenryck
+
+util-linux 2.29.2 Release Notes
+===============================
+
+This release fixes su(1) security issue CVE-2017-2616:
+
+  It is possible for any local user to send SIGKILL to other processes with root
+  privileges.  To exploit this, the user must be able to perform su with a
+  successful login.  SIGKILL can only be sent to processes which were executed
+  after the su process.  It is not possible to send SIGKILL to processes which
+  were already running.
+
+
+
+build-sys:
+   - fix --disable-all-programs --enable-schedutils  [Karel Zak]
+   - improve detection of the "isnan" function in uClibc  [Carlos Santos]
+   - simplify UL_ENABLE_ALIAS() semantic  [Karel Zak]
+cfdisk:
+   - support UI refresh on ^L  [Karel Zak]
+docs:
+   - add BUG REPORTING section to README  [Karel Zak]
+   - update AUTHORS file  [Karel Zak]
+findmnt:
+   - flush stdout after each (un)(re)mount event, when polling.  [Pedro Miguel Carvalho]
+   - use line separator for --poll output  [Karel Zak]
+fstrim:
+   - de-duplicate btrfs sub-volumes  [Stanislav Brabec]
+lib/strutils:
+   - return end pointer by isdigit_string()  [Karel Zak]
+libblkid:
+   - (gpt) fix force flag  [Karel Zak]
+   - Fix out of bounds reads on bad GPT header  [Alden Tondettar]
+   - fix BLKID_PARTS_FORCE_GPT usage  [Karel Zak]
+libfdisk:
+   - (gpt) add check for entries array size  [Karel Zak]
+   - fix fdisk_set_wipe_area() calls  [Karel Zak]
+libmount:
+   - make rootfs lookup by parent-id more robust  [Karel Zak]
+logger:
+   - support sub-trees in the ID for RFC5424  [Karel Zak]
+lscpu:
+   - Detect Windows Subsystem for Linux  [Stanislav Brabec]
+   - don't use path_exist() before path_fopen()  [Karel Zak]
+   - make osrelease file optional  [Karel Zak]
+po:
+   - merge changes  [Karel Zak]
+   - update pt_BR.po (from translationproject.org)  [Rafael Fontenelle]
+sfdisk:
+   - --quiet fixes  [Karel Zak]
+su:
+   - properly clear child PID  [Karel Zak]
+tests:
+   - add build-sys enable-schedutils result  [Karel Zak]
+umount:
+   - exclude selinuxfs from --all  [Karel Zak]
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
