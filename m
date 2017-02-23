@@ -1,45 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:38450 "EHLO mx1.redhat.com"
+Received: from mx2.suse.de ([195.135.220.15]:37091 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751737AbdB1NuI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 28 Feb 2017 08:50:08 -0500
-Date: Tue, 28 Feb 2017 14:39:52 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+        id S1751041AbdBWSeC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 23 Feb 2017 13:34:02 -0500
+Date: Thu, 23 Feb 2017 19:15:22 +0100
+From: Petr Vorel <pvorel@suse.cz>
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] setterm: fix bitfield warning [smatch]
-Message-ID: <20170228133952.ymkupqcuyysbuie6@ws.net.home>
-References: <20170225173517.16922-1-kerolasa@iki.fi>
+Subject: Re: [PATCH 1/2] libmount: add mnt_fs_is_btrfs()
+Message-ID: <20170223181521.3525a2yh2fseznc5@dell5510>
+Reply-To: Petr Vorel <pvorel@suse.cz>
+References: <20170223140444.17916-1-pvorel@suse.cz>
+ <20170223151214.y4wh2azmfab3wqra@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170225173517.16922-1-kerolasa@iki.fi>
+In-Reply-To: <20170223151214.y4wh2azmfab3wqra@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Feb 25, 2017 at 05:35:17PM +0000, Sami Kerola wrote:
-> term-utils/setterm.c:179:27: warning: dubious bitfield without explicit
-> `signed' or `unsigned'
-> 
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  term-utils/setterm.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/term-utils/setterm.c b/term-utils/setterm.c
-> index 1cf59957b..8e969c2b3 100644
-> --- a/term-utils/setterm.c
-> +++ b/term-utils/setterm.c
-> @@ -176,7 +176,7 @@ struct setterm_control {
->  	int opt_rt_len;		/* regular tab length */
->  	int opt_tb_array[TABS_MAX + 1];	/* array for tab list */
->  	/* colors */
-> -	int opt_fo_color:4, opt_ba_color:4, opt_ul_color:4, opt_hb_color:4;
-> +	unsigned int opt_fo_color:4, opt_ba_color:4, opt_ul_color:4, opt_hb_color:4;
+Hi Karel,
 
-Often and stupid bug, good catch.
+>  What's wrong with 
 
-    Karel
+>    strcmp(mnt_fs_get_fstype(fs, "btrfs"))
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+>  why we need FS specific function exported by API?
+
+I'm sorry I mixed two things. I thought that it could be useful for the others (with
+btrfs_get_default_subvol_id()) as IMHO there is no btrfs C library atm [1].
+
+Please forget on that, I'll post just v2 with just second patch.
+
+
+Kind regards,
+Petr
+
+[1] https://btrfs.wiki.kernel.org/index.php/Project_ideas#Provide_a_library_covering_.27btrfs.27_functionality
