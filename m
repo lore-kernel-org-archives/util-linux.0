@@ -1,84 +1,60 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59868 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754330AbdBVQDc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 22 Feb 2017 11:03:32 -0500
-Date: Wed, 22 Feb 2017 16:55:51 +0100
-From: Karel Zak <kzak@redhat.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: [ANNOUNCE] util-linux v2.29.2
-Message-ID: <20170222155551.2qrchatlhuj6wxvh@ws.net.home>
+Return-Path: dan.carpenter@oracle.com
+Date: Fri, 24 Feb 2017 03:37:34 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 0/7] pull: make smatch scan output easy to digest
+Message-ID: <20170223153049.GC4133@mwanda>
+References: <20170213220641.1395-1-kerolasa@iki.fi>
+ <20170220121426.5mr6ab6x7pxt5j4b@ws.net.home>
+ <CAG27Bk2ENHD+1_sX0qVmVnKC2Ss7jDxSyqhNnaj6NKHNnitsYQ@mail.gmail.com>
+ <20170221095012.txqxcblrqkmoxktw@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20170221095012.txqxcblrqkmoxktw@ws.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-The util-linux release v2.29.2 is available at
+On Tue, Feb 21, 2017 at 10:50:12AM +0100, Karel Zak wrote:
+> On Mon, Feb 20, 2017 at 10:12:06PM +0000, Sami Kerola wrote:
+> > On 20 February 2017 at 12:14, Karel Zak <kzak@redhat.com> wrote:
+> > > Merged, but except:
+> > >
+> > > On Mon, Feb 13, 2017 at 10:06:34PM +0000, Sami Kerola wrote:
+> > >>   misc: unify function declarations [smatch scan]
+> > >
+> > > I agree that some unification would be nice, but don't like
+> > >
+> > >    static __attribute__((__noreturn__)) __attribute__((__format__(printf, 1, 2)))
+> > >           void log_err(const char *fmt, ...);
+> > >
+> > > it would be better to keep all the attributes after declaration:
+> > >
+> > >    static void log_err(const char *fmt, ...)
+> > >                     __attribute__((__noreturn__))
+> > >                     __attribute__((__format__(printf, 1, 2)));
+> > >
+> > > it means new line for each attribute. IMHO it's more readable and you
+> > > don't have to search for the function name, etc.
+> > 
+> > Hi Karel,
+> > 
+> > That's fair enough, and truth is the patch did not fix many warnings so
+> > I am sure we can live with them.
+> > 
+> > What comes to moving attributes at end of the declaration that does
+> > not please smatch.
+> > 
+> > lib/exec_shell.c:33:1: error: attributes should be specified before
+> > the declarator in a function definition
+> >  void exec_shell(void)
+> 
+> Report it as smatch bug. It's pretty common that function attributes
+> are defined after declaration. CC: Dan.
+> 
 
-  http://ftp.kernel.org/pub/linux/utils/util-linux/v2.29
+This is a Sparse warning, not a Smatch warning.  It shouldn't show up
+when you do a `make checksmatch` so I'm confused by that.  Anyway,
+could you email linux-sparse@vger.kernel.org?
 
-Feedback and bug reports, as always, are welcomed.
-
-  Karel
-
-
-
-util-linux 2.29.2 Release Notes
-===============================
-
-This release fixes su(1) security issue CVE-2017-2616:
-
-  It is possible for any local user to send SIGKILL to other processes with root
-  privileges.  To exploit this, the user must be able to perform su with a
-  successful login.  SIGKILL can only be sent to processes which were executed
-  after the su process.  It is not possible to send SIGKILL to processes which
-  were already running.
-
-
-
-build-sys:
-   - fix --disable-all-programs --enable-schedutils  [Karel Zak]
-   - improve detection of the "isnan" function in uClibc  [Carlos Santos]
-   - simplify UL_ENABLE_ALIAS() semantic  [Karel Zak]
-cfdisk:
-   - support UI refresh on ^L  [Karel Zak]
-docs:
-   - add BUG REPORTING section to README  [Karel Zak]
-   - update AUTHORS file  [Karel Zak]
-findmnt:
-   - flush stdout after each (un)(re)mount event, when polling.  [Pedro Miguel Carvalho]
-   - use line separator for --poll output  [Karel Zak]
-fstrim:
-   - de-duplicate btrfs sub-volumes  [Stanislav Brabec]
-lib/strutils:
-   - return end pointer by isdigit_string()  [Karel Zak]
-libblkid:
-   - (gpt) fix force flag  [Karel Zak]
-   - Fix out of bounds reads on bad GPT header  [Alden Tondettar]
-   - fix BLKID_PARTS_FORCE_GPT usage  [Karel Zak]
-libfdisk:
-   - (gpt) add check for entries array size  [Karel Zak]
-   - fix fdisk_set_wipe_area() calls  [Karel Zak]
-libmount:
-   - make rootfs lookup by parent-id more robust  [Karel Zak]
-logger:
-   - support sub-trees in the ID for RFC5424  [Karel Zak]
-lscpu:
-   - Detect Windows Subsystem for Linux  [Stanislav Brabec]
-   - don't use path_exist() before path_fopen()  [Karel Zak]
-   - make osrelease file optional  [Karel Zak]
-po:
-   - merge changes  [Karel Zak]
-   - update pt_BR.po (from translationproject.org)  [Rafael Fontenelle]
-sfdisk:
-   - --quiet fixes  [Karel Zak]
-su:
-   - properly clear child PID  [Karel Zak]
-tests:
-   - add build-sys enable-schedutils result  [Karel Zak]
-umount:
-   - exclude selinuxfs from --all  [Karel Zak]
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+regards,
+dan carpenter
