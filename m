@@ -1,143 +1,241 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:20940 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750940AbdBJDHl (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 9 Feb 2017 22:07:41 -0500
+Return-Path: Damien.LeMoal@wdc.com
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+To: Karel Zak <kzak@redhat.com>
+CC: Benno Schulenberg <bensberg@justemail.net>,
+        Shaun Tancheff
+	<shaun@tancheff.com>,
+        Util-Linux <util-linux@vger.kernel.org>,
+        Bart Van
+ Assche <Bart.VanAssche@sandisk.com>
 Subject: Re: [PATCH v3] Add blkzonecmd and blkreport ZAC/ZBC drives
-To: Karel Zak <kzak@redhat.com>, Shaun Tancheff <shaun@tancheff.com>
+Date: Fri, 24 Feb 2017 04:10:09 +0000
+Message-ID: <20F82672-0808-4BD0-B6F0-8EB087B81E19@hgst.com>
 References: <1485178362-25327-1-git-send-email-shaun@tancheff.com>
- <20170209123603.oi763dhsfvxhsv6m@ws.net.home>
-Cc: util-linux@vger.kernel.org,
-        Bart Van Assche <bart.vanassche@sandisk.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Message-ID: <96cd8646-d971-4e25-f97c-a1c782016573@wdc.com>
-Date: Fri, 10 Feb 2017 12:06:58 +0900
+ <20170216103352.rxt4jyxry6zpuxrb@ws.net.home>
+ <1487247307.2341564.882965648.11DC77E0@webmail.messagingengine.com>
+ <ea1698c4-b055-e498-b154-d8931817bc36@wdc.com>
+ <20170223163303.22arjqv27brm3p3k@ws.net.home>
+In-Reply-To: <20170223163303.22arjqv27brm3p3k@ws.net.home>
+Content-Type: multipart/alternative;
+	boundary="_000_20F8267208084BD0B6F08EB087B81E19hgstcom_"
 MIME-Version: 1.0
-In-Reply-To: <20170209123603.oi763dhsfvxhsv6m@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
-Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel, Shaun,
+--_000_20F8267208084BD0B6F08EB087B81E19hgstcom_
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
 
-Tested on SAS and SATA host-managed drive. No problems detected.
-A few remarks though:
+S2FyZWwsDQoNClBsZWFzZSBmaW5kIGF0dGFjaGVkIDMgcGF0Y2hlcy4NCjEpIFRvIGJlIGNvbnNp
+c3RlbnQgd2l0aCBibGtkaXNjYXJkIGJlaGF2aW9yLCByZXNldCBhbGwgem9uZXMgb2YgdGhlIGRl
+dmljZSB3aGVuIGxlbmd0aA0KaXMgbm90IHNwZWNpZmllZC4NCjIpIFNpbWlsYXJseSwgZm9yIHJl
+cG9ydCwgcmVwb3J0IGFsbCB6b25lcyBvZiB0aGUgZGV2aWNlIGlzIGxlbmd0aCBpcyB1bnNwZWNp
+ZmllZCBvbiB0aGUgY29tbWFuZCBsaW5lLg0KMykgSW1wcm92ZSB3b3JkaW5nIHRvIG1hdGNoIG1v
+cmUgY2xvc2VseSB0aGUgc3RhbmRhcmRzLiBBTG9zIGFkZCAiMHgiIHRvIHByaW50ZWQgdmFsdWVz
+IHRvIG1ha2UgaXQgY2xlYXIgdGhhdCB0aGVzZSBhcmUgaGV4Lg0KDQpQbGVhc2UgcmV2aWV3IGFu
+ZCBsZXQgbWUga25vdyBpZiB5b3UgbmVlZCBtb3JlIHRlc3RpbmcuDQoNCkJlc3QgcmVnYXJkcy4N
+Cg0KLS0NCkRhbWllbiBMZSBNb2FsLCBQaC5ELg0KU3IuIE1hbmFnZXIsIFN5c3RlbSBTb2Z0d2Fy
+ZSBSZXNlYXJjaCBHcm91cCwNCldlc3Rlcm4gRGlnaXRhbA0KRGFtaWVuLkxlTW9hbEB3ZGMuY29t
+PG1haWx0bzpEYW1pZW4uTGVNb2FsQHdkYy5jb20+DQooKzgxKSAwNDY2LTk4LTM1OTMgKGV4dC4g
+NTEzNTkzKQ0KMSBraXJpaGFyYS1jaG8sIEZ1amlzYXdhLA0KS2FuYWdhd2EsIDI1Mi0wODg4IEph
+cGFuDQp3d3cud2RjLmNvbSwgd3d3Lmhnc3QuY29tDQoNCkZyb206IEthcmVsIFphayA8a3pha0By
+ZWRoYXQuY29tPg0KRGF0ZTogRnJpZGF5LCBGZWJydWFyeSAyNCwgMjAxNyBhdCAwMTozMw0KVG86
+IERhbWllbiBMZSBNb2FsIDxEYW1pZW4uTGVNb2FsQHdkYy5jb20+DQpDYzogQmVubm8gU2NodWxl
+bmJlcmcgPGJlbnNiZXJnQGp1c3RlbWFpbC5uZXQ+LCBTaGF1biBUYW5jaGVmZiA8c2hhdW5AdGFu
+Y2hlZmYuY29tPiwgVXRpbC1MaW51eCA8dXRpbC1saW51eEB2Z2VyLmtlcm5lbC5vcmc+LCBWYW4g
+QXNzY2hlIEJhcnQgPEJhcnQuVmFuQXNzY2hlQHNhbmRpc2suY29tPg0KU3ViamVjdDogUmU6IFtQ
+QVRDSCB2M10gQWRkIGJsa3pvbmVjbWQgYW5kIGJsa3JlcG9ydCBaQUMvWkJDIGRyaXZlcw0KDQpP
+biBGcmksIEZlYiAxNywgMjAxNyBhdCAwOToxMjoyOUFNICswOTAwLCBEYW1pZW4gTGUgTW9hbCB3
+cm90ZToNCkJlbm5vLA0KT24gMi8xNi8xNyAyMToxNSwgQmVubm8gU2NodWxlbmJlcmcgd3JvdGU6
+DQo+DQo+IE9uIFRodSwgRmViIDE2LCAyMDE3LCBhdCAxMTozMywgS2FyZWwgWmFrIHdyb3RlOg0K
+Pj4gICBibGt6b25lIHJlcG9ydCBbLS16b25lIDxvZmZzZXQ+XSBbLS1jb3VudCA8bGVuZ3RoPl0N
+Cj4+ICAgYmxrem9uZSByZXNldCAgWy0tem9uZSA8b2Zmc2V0Pl0gWy0tY291bnQgPGxlbmd0aD5d
+DQo+DQo+ICJibGt6b25lIC0tem9uZSIgZmVlbHMgYSBiaXQgc3RyYW5nZS4gIEkgd291bGQgc3Vn
+Z2VzdDoNCj4NCj4gICBibGt6b25lIDxjb21tYW5kPiBbLS1vZmZzZXQgPHNlY3Rvcj5dIFstLWNv
+dW50IDxudW1iZXI+XQ0KSW5kZWVkLCBpdCBpcyBhIGxpdHRsZSBhd2t3YXJkLiBBbmQgdG8gYmUg
+Y29uc2lzdGVudCB3aXRoIG90aGVyIHRvb2xzDQpzdWNoIGFzIGJsa2Rpc2NhcmQsIEkgd291bGQg
+YWxzbyBzdWdnZXN0IC0tbGVuZ3RoIGluc3RlYWQgb2YgLS1jb3VudC4NClNvOg0KYmxrem9uZSBy
+ZXBvcnQgWy0tb2Zmc2V0IDxvZmZzZXQ+XSBbLS1sZW5ndGggPGxlbmd0aD5dDQpibGt6b25lIHJl
+c2V0ICBbLS1vZmZzZXQgPG9mZnNldD5dIFstLWxlbmd0aCA8bGVuZ3RoPl0NCg0KYmxrem9uZSg4
+KSBpbXBsZW1lbnRlZCwgYmxrcmVzZXQgYW5kIGJsa3JlcG9ydCByZW1vdmVkLg0KDQpQbGVhc2Us
+IHJldGVzdCBhbmQgcmV2aWV3Og0KaHR0cHM6Ly9naXRodWIuY29tL2thcmVsemFrL3V0aWwtbGlu
+dXgvYmxvYi9tYXN0ZXIvc3lzLXV0aWxzL2Jsa3pvbmUuYw0KaHR0cHM6Ly9naXRodWIuY29tL2th
+cmVsemFrL3V0aWwtbGludXgvYmxvYi9tYXN0ZXIvc3lzLXV0aWxzL2Jsa3pvbmUuOA0KDQogICAg
+S2FyZWwNCi0tDQpLYXJlbCBaYWsgIDxremFrQHJlZGhhdC5jb208bWFpbHRvOmt6YWtAcmVkaGF0
+LmNvbT4+DQpodHRwOi8va2FyZWx6YWsuYmxvZ3Nwb3QuY29tDQoNCldlc3Rlcm4gRGlnaXRhbCBD
+b3Jwb3JhdGlvbiAoYW5kIGl0cyBzdWJzaWRpYXJpZXMpIEUtbWFpbCBDb25maWRlbnRpYWxpdHkg
+Tm90aWNlICYgRGlzY2xhaW1lcjoKClRoaXMgZS1tYWlsIGFuZCBhbnkgZmlsZXMgdHJhbnNtaXR0
+ZWQgd2l0aCBpdCBtYXkgY29udGFpbiBjb25maWRlbnRpYWwgb3IgbGVnYWxseSBwcml2aWxlZ2Vk
+IGluZm9ybWF0aW9uIG9mIFdEQyBhbmQvb3IgaXRzIGFmZmlsaWF0ZXMsIGFuZCBhcmUgaW50ZW5k
+ZWQgc29sZWx5IGZvciB0aGUgdXNlIG9mIHRoZSBpbmRpdmlkdWFsIG9yIGVudGl0eSB0byB3aGlj
+aCB0aGV5IGFyZSBhZGRyZXNzZWQuIElmIHlvdSBhcmUgbm90IHRoZSBpbnRlbmRlZCByZWNpcGll
+bnQsIGFueSBkaXNjbG9zdXJlLCBjb3B5aW5nLCBkaXN0cmlidXRpb24gb3IgYW55IGFjdGlvbiB0
+YWtlbiBvciBvbWl0dGVkIHRvIGJlIHRha2VuIGluIHJlbGlhbmNlIG9uIGl0LCBpcyBwcm9oaWJp
+dGVkLiBJZiB5b3UgaGF2ZSByZWNlaXZlZCB0aGlzIGUtbWFpbCBpbiBlcnJvciwgcGxlYXNlIG5v
+dGlmeSB0aGUgc2VuZGVyIGltbWVkaWF0ZWx5IGFuZCBkZWxldGUgdGhlIGUtbWFpbCBpbiBpdHMg
+ZW50aXJldHkgZnJvbSB5b3VyIHN5c3RlbS4K
 
-1) The term "lba" is being used throughout (command description and
-error messages). This is confusing when using 4K drives. Since in fact
-the unit used for the arguments and displayed results is the traditional
-512B "sector", I think that "LBA" should be replaced by "sector" is all
-messages, command argument descriptions and man pages.
+--_000_20F8267208084BD0B6F08EB087B81E19hgstcom_
+Content-Type: text/html; charset="utf-8"
+Content-ID: <98890E8C558D114E8D748293B8837503@namprd04.prod.outlook.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
 
-2) In kernel, the offset passed to the zone reset ioctl is indeed
-checked for alignment to the drive LBA size. So checking the offset
-passed to blkreset makes sense. However, the same check for report is a
-little too harsh since the kernel will accept an unaligned sector number
-(it will be aligned down to the containing zone start sector before
-issuing a report zones command to the drive). So we could get rid of
-that check I think.
+PGh0bWwgeG1sbnM6bz0idXJuOnNjaGVtYXMtbWljcm9zb2Z0LWNvbTpvZmZpY2U6b2ZmaWNlIiB4
+bWxuczp3PSJ1cm46c2NoZW1hcy1taWNyb3NvZnQtY29tOm9mZmljZTp3b3JkIiB4bWxuczptPSJo
+dHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL29mZmljZS8yMDA0LzEyL29tbWwiIHhtbG5zPSJo
+dHRwOi8vd3d3LnczLm9yZy9UUi9SRUMtaHRtbDQwIj4NCjxoZWFkPg0KPG1ldGEgaHR0cC1lcXVp
+dj0iQ29udGVudC1UeXBlIiBjb250ZW50PSJ0ZXh0L2h0bWw7IGNoYXJzZXQ9dXRmLTgiPg0KPG1l
+dGEgbmFtZT0iVGl0bGUiIGNvbnRlbnQ9IiI+DQo8bWV0YSBuYW1lPSJLZXl3b3JkcyIgY29udGVu
+dD0iIj4NCjxtZXRhIG5hbWU9IkdlbmVyYXRvciIgY29udGVudD0iTWljcm9zb2Z0IFdvcmQgMTUg
+KGZpbHRlcmVkIG1lZGl1bSkiPg0KPHN0eWxlPjwhLS0NCi8qIEZvbnQgRGVmaW5pdGlvbnMgKi8N
+CkBmb250LWZhY2UNCgl7Zm9udC1mYW1pbHk6Iu+8re+8syDmmI7mnJ0iO30NCkBmb250LWZhY2UN
+Cgl7Zm9udC1mYW1pbHk6IkNhbWJyaWEgTWF0aCI7DQoJcGFub3NlLTE6MiA0IDUgMyA1IDQgNiAz
+IDIgNDt9DQpAZm9udC1mYWNlDQoJe2ZvbnQtZmFtaWx5OkNhbGlicmk7DQoJcGFub3NlLTE6MiAx
+NSA1IDIgMiAyIDQgMyAyIDQ7fQ0KLyogU3R5bGUgRGVmaW5pdGlvbnMgKi8NCnAuTXNvTm9ybWFs
+LCBsaS5Nc29Ob3JtYWwsIGRpdi5Nc29Ob3JtYWwNCgl7bWFyZ2luOjBjbTsNCgltYXJnaW4tYm90
+dG9tOi4wMDAxcHQ7DQoJZm9udC1zaXplOjEyLjBwdDsNCglmb250LWZhbWlseToiVGltZXMgTmV3
+IFJvbWFuIjt9DQphOmxpbmssIHNwYW4uTXNvSHlwZXJsaW5rDQoJe21zby1zdHlsZS1wcmlvcml0
+eTo5OTsNCgljb2xvcjpibHVlOw0KCXRleHQtZGVjb3JhdGlvbjp1bmRlcmxpbmU7fQ0KYTp2aXNp
+dGVkLCBzcGFuLk1zb0h5cGVybGlua0ZvbGxvd2VkDQoJe21zby1zdHlsZS1wcmlvcml0eTo5OTsN
+Cgljb2xvcjpwdXJwbGU7DQoJdGV4dC1kZWNvcmF0aW9uOnVuZGVybGluZTt9DQpzcGFuLkVtYWls
+U3R5bGUxNw0KCXttc28tc3R5bGUtdHlwZTpwZXJzb25hbC1yZXBseTsNCglmb250LWZhbWlseTpD
+YWxpYnJpOw0KCWNvbG9yOndpbmRvd3RleHQ7fQ0Kc3Bhbi5tc29JbnMNCgl7bXNvLXN0eWxlLXR5
+cGU6ZXhwb3J0LW9ubHk7DQoJbXNvLXN0eWxlLW5hbWU6IiI7DQoJdGV4dC1kZWNvcmF0aW9uOnVu
+ZGVybGluZTsNCgljb2xvcjp0ZWFsO30NCi5Nc29DaHBEZWZhdWx0DQoJe21zby1zdHlsZS10eXBl
+OmV4cG9ydC1vbmx5Ow0KCWZvbnQtc2l6ZToxMC4wcHQ7fQ0KQHBhZ2UgV29yZFNlY3Rpb24xDQoJ
+e3NpemU6NTk1LjBwdCA4NDIuMHB0Ow0KCW1hcmdpbjo3Mi4wcHQgNzIuMHB0IDcyLjBwdCA3Mi4w
+cHQ7fQ0KZGl2LldvcmRTZWN0aW9uMQ0KCXtwYWdlOldvcmRTZWN0aW9uMTt9DQotLT48L3N0eWxl
+Pg0KPC9oZWFkPg0KPGJvZHkgYmdjb2xvcj0id2hpdGUiIGxhbmc9IkVOLVVTIiBsaW5rPSJibHVl
+IiB2bGluaz0icHVycGxlIj4NCjxkaXYgY2xhc3M9IldvcmRTZWN0aW9uMSI+DQo8cCBjbGFzcz0i
+TXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1zaXplOjExLjBwdDtmb250LWZhbWlseTpDYWxp
+YnJpIj5LYXJlbCw8bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48
+c3BhbiBzdHlsZT0iZm9udC1zaXplOjExLjBwdDtmb250LWZhbWlseTpDYWxpYnJpIj48bzpwPiZu
+YnNwOzwvbzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0i
+Zm9udC1zaXplOjExLjBwdDtmb250LWZhbWlseTpDYWxpYnJpIj5QbGVhc2UgZmluZCBhdHRhY2hl
+ZCAzIHBhdGNoZXMuPG86cD48L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+
+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6Q2FsaWJyaSI+MSkgVG8g
+YmUgY29uc2lzdGVudCB3aXRoIGJsa2Rpc2NhcmQgYmVoYXZpb3IsIHJlc2V0IGFsbCB6b25lcyBv
+ZiB0aGUgZGV2aWNlIHdoZW4gbGVuZ3RoPG86cD48L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9
+Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6Q2Fs
+aWJyaSI+aXMgbm90IHNwZWNpZmllZC48bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0i
+TXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1zaXplOjExLjBwdDtmb250LWZhbWlseTpDYWxp
+YnJpIj4yKSBTaW1pbGFybHksIGZvciByZXBvcnQsIHJlcG9ydCBhbGwgem9uZXMgb2YgdGhlIGRl
+dmljZSBpcyBsZW5ndGggaXMgdW5zcGVjaWZpZWQgb24gdGhlIGNvbW1hbmQgbGluZS48bzpwPjwv
+bzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1z
+aXplOjExLjBwdDtmb250LWZhbWlseTpDYWxpYnJpIj4zKSBJbXByb3ZlIHdvcmRpbmcgdG8gbWF0
+Y2ggbW9yZSBjbG9zZWx5IHRoZSBzdGFuZGFyZHMuIEFMb3MgYWRkICZxdW90OzB4JnF1b3Q7IHRv
+IHByaW50ZWQgdmFsdWVzIHRvIG1ha2UgaXQgY2xlYXIgdGhhdCB0aGVzZSBhcmUgaGV4LjxvOnA+
+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250
+LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OkNhbGlicmkiPjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFu
+PjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTEuMHB0
+O2ZvbnQtZmFtaWx5OkNhbGlicmkiPlBsZWFzZSByZXZpZXcgYW5kIGxldCBtZSBrbm93IGlmIHlv
+dSBuZWVkIG1vcmUgdGVzdGluZy48bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNv
+Tm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1zaXplOjExLjBwdDtmb250LWZhbWlseTpDYWxpYnJp
+Ij48bzpwPiZuYnNwOzwvbzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3Bh
+biBzdHlsZT0iZm9udC1zaXplOjExLjBwdDtmb250LWZhbWlseTpDYWxpYnJpIj5CZXN0IHJlZ2Fy
+ZHMuPG86cD48L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5
+bGU9ImZvbnQtc2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6Q2FsaWJyaSI+PG86cD4mbmJzcDs8L286
+cD48L3NwYW4+PC9wPg0KPGRpdj4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJm
+b250LWZhbWlseTpDYWxpYnJpO2NvbG9yOmJsYWNrIj4tLTxvOnA+PC9vOnA+PC9zcGFuPjwvcD4N
+CjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTpDYWxpYnJpO2Nv
+bG9yOmJsYWNrIj5EYW1pZW4gTGUgTW9hbCwgUGguRC48bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQo8
+cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6Q2FsaWJyaTtjb2xv
+cjpibGFjayI+U3IuIE1hbmFnZXIsIFN5c3RlbSBTb2Z0d2FyZSBSZXNlYXJjaCBHcm91cCw8bzpw
+PjwvbzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9u
+dC1mYW1pbHk6Q2FsaWJyaTtjb2xvcjpibGFjayI+V2VzdGVybiBEaWdpdGFsPG86cD48L286cD48
+L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5
+OkNhbGlicmk7Y29sb3I6YmxhY2siPjxhIGhyZWY9Im1haWx0bzpEYW1pZW4uTGVNb2FsQHdkYy5j
+b20iPkRhbWllbi5MZU1vYWxAd2RjLmNvbTwvYT48bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQo8cCBj
+bGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6Q2FsaWJyaTtjb2xvcjpi
+bGFjayI+KCYjNDM7ODEpIDA0NjYtOTgtMzU5MyAoZXh0LiA1MTM1OTMpPG86cD48L286cD48L3Nw
+YW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OkNh
+bGlicmk7Y29sb3I6YmxhY2siPjEga2lyaWhhcmEtY2hvLCBGdWppc2F3YSw8bzpwPjwvbzpwPjwv
+c3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6
+Q2FsaWJyaTtjb2xvcjpibGFjayI+S2FuYWdhd2EsJm5ic3A7MjUyLTA4ODggSmFwYW48bzpwPjwv
+bzpwPjwvc3Bhbj48L3A+DQo8L2Rpdj4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxl
+PSJmb250LWZhbWlseTpDYWxpYnJpO2NvbG9yOmJsYWNrIj53d3cud2RjLmNvbSwgd3d3Lmhnc3Qu
+Y29tPC9zcGFuPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OkNhbGli
+cmkiPjxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0
+eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OkNhbGlicmkiPjxvOnA+Jm5ic3A7PC9v
+OnA+PC9zcGFuPjwvcD4NCjxkaXYgc3R5bGU9ImJvcmRlcjpub25lO2JvcmRlci10b3A6c29saWQg
+I0I1QzRERiAxLjBwdDtwYWRkaW5nOjMuMHB0IDBjbSAwY20gMGNtIj4NCjxwIGNsYXNzPSJNc29O
+b3JtYWwiPjxiPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTpDYWxpYnJpO2NvbG9yOmJsYWNrIj5G
+cm9tOiA8L3NwYW4+DQo8L2I+PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OkNhbGlicmk7Y29sb3I6
+YmxhY2siPkthcmVsIFphayAmbHQ7a3pha0ByZWRoYXQuY29tJmd0Ozxicj4NCjxiPkRhdGU6IDwv
+Yj5GcmlkYXksIEZlYnJ1YXJ5IDI0LCAyMDE3IGF0IDAxOjMzPGJyPg0KPGI+VG86IDwvYj5EYW1p
+ZW4gTGUgTW9hbCAmbHQ7RGFtaWVuLkxlTW9hbEB3ZGMuY29tJmd0Ozxicj4NCjxiPkNjOiA8L2I+
+QmVubm8gU2NodWxlbmJlcmcgJmx0O2JlbnNiZXJnQGp1c3RlbWFpbC5uZXQmZ3Q7LCBTaGF1biBU
+YW5jaGVmZiAmbHQ7c2hhdW5AdGFuY2hlZmYuY29tJmd0OywgVXRpbC1MaW51eCAmbHQ7dXRpbC1s
+aW51eEB2Z2VyLmtlcm5lbC5vcmcmZ3Q7LCBWYW4gQXNzY2hlIEJhcnQgJmx0O0JhcnQuVmFuQXNz
+Y2hlQHNhbmRpc2suY29tJmd0Ozxicj4NCjxiPlN1YmplY3Q6IDwvYj5SZTogW1BBVENIIHYzXSBB
+ZGQgYmxrem9uZWNtZCBhbmQgYmxrcmVwb3J0IFpBQy9aQkMgZHJpdmVzPG86cD48L286cD48L3Nw
+YW4+PC9wPg0KPC9kaXY+DQo8ZGl2Pg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PG86cD4mbmJzcDs8
+L286cD48L3A+DQo8L2Rpdj4NCjxkaXY+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj5PbiBGcmksIEZl
+YiAxNywgMjAxNyBhdCAwOToxMjoyOUFNICYjNDM7MDkwMCwgRGFtaWVuIExlIE1vYWwgd3JvdGU6
+PG86cD48L286cD48L3A+DQo8L2Rpdj4NCjxibG9ja3F1b3RlIHN0eWxlPSJib3JkZXI6bm9uZTti
+b3JkZXItbGVmdDpzb2xpZCAjQjVDNERGIDQuNXB0O3BhZGRpbmc6MGNtIDBjbSAwY20gNC4wcHQ7
+bWFyZ2luLWxlZnQ6My43NXB0O21hcmdpbi1yaWdodDowY20iIGlkPSJNQUNfT1VUTE9PS19BVFRS
+SUJVVElPTl9CTE9DS1FVT1RFIj4NCjxkaXY+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj5CZW5ubyw8
+bzpwPjwvbzpwPjwvcD4NCjwvZGl2Pg0KPGRpdj4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPk9uIDIv
+MTYvMTcgMjE6MTUsIEJlbm5vIFNjaHVsZW5iZXJnIHdyb3RlOjxvOnA+PC9vOnA+PC9wPg0KPC9k
+aXY+DQo8ZGl2Pg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+Jmd0OyA8bzpwPjwvbzpwPjwvcD4NCjwv
+ZGl2Pg0KPGRpdj4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPiZndDsgT24gVGh1LCBGZWIgMTYsIDIw
+MTcsIGF0IDExOjMzLCBLYXJlbCBaYWsgd3JvdGU6PG86cD48L286cD48L3A+DQo8L2Rpdj4NCjxk
+aXY+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj4mZ3Q7Jmd0OyZuYnNwOyZuYnNwOyBibGt6b25lIHJl
+cG9ydCBbLS16b25lICZsdDtvZmZzZXQmZ3Q7XSBbLS1jb3VudCAmbHQ7bGVuZ3RoJmd0O108bzpw
+PjwvbzpwPjwvcD4NCjwvZGl2Pg0KPGRpdj4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPiZndDsmZ3Q7
+Jm5ic3A7Jm5ic3A7IGJsa3pvbmUgcmVzZXQmbmJzcDsmbmJzcDtbLS16b25lICZsdDtvZmZzZXQm
+Z3Q7XSBbLS1jb3VudCAmbHQ7bGVuZ3RoJmd0O108bzpwPjwvbzpwPjwvcD4NCjwvZGl2Pg0KPGRp
+dj4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPiZndDsgPG86cD48L286cD48L3A+DQo8L2Rpdj4NCjxk
+aXY+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj4mZ3Q7ICZxdW90O2Jsa3pvbmUgLS16b25lJnF1b3Q7
+IGZlZWxzIGEgYml0IHN0cmFuZ2UuJm5ic3A7Jm5ic3A7SSB3b3VsZCBzdWdnZXN0OjxvOnA+PC9v
+OnA+PC9wPg0KPC9kaXY+DQo8ZGl2Pg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+Jmd0OyA8bzpwPjwv
+bzpwPjwvcD4NCjwvZGl2Pg0KPGRpdj4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPiZndDsmbmJzcDsm
+bmJzcDsgYmxrem9uZSAmbHQ7Y29tbWFuZCZndDsgWy0tb2Zmc2V0ICZsdDtzZWN0b3ImZ3Q7XSBb
+LS1jb3VudCAmbHQ7bnVtYmVyJmd0O108bzpwPjwvbzpwPjwvcD4NCjwvZGl2Pg0KPGRpdj4NCjxw
+IGNsYXNzPSJNc29Ob3JtYWwiPkluZGVlZCwgaXQgaXMgYSBsaXR0bGUgYXdrd2FyZC4gQW5kIHRv
+IGJlIGNvbnNpc3RlbnQgd2l0aCBvdGhlciB0b29sczxvOnA+PC9vOnA+PC9wPg0KPC9kaXY+DQo8
+ZGl2Pg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+c3VjaCBhcyBibGtkaXNjYXJkLCBJIHdvdWxkIGFs
+c28gc3VnZ2VzdCAtLWxlbmd0aCBpbnN0ZWFkIG9mIC0tY291bnQuPG86cD48L286cD48L3A+DQo8
+L2Rpdj4NCjxkaXY+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj5Tbzo8bzpwPjwvbzpwPjwvcD4NCjwv
+ZGl2Pg0KPGRpdj4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPmJsa3pvbmUgcmVwb3J0IFstLW9mZnNl
+dCAmbHQ7b2Zmc2V0Jmd0O10gWy0tbGVuZ3RoICZsdDtsZW5ndGgmZ3Q7XTxvOnA+PC9vOnA+PC9w
+Pg0KPC9kaXY+DQo8ZGl2Pg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+Ymxrem9uZSByZXNldCZuYnNw
+OyZuYnNwO1stLW9mZnNldCAmbHQ7b2Zmc2V0Jmd0O10gWy0tbGVuZ3RoICZsdDtsZW5ndGgmZ3Q7
+XTxvOnA+PC9vOnA+PC9wPg0KPC9kaXY+DQo8L2Jsb2NrcXVvdGU+DQo8ZGl2Pg0KPHAgY2xhc3M9
+Ik1zb05vcm1hbCI+PG86cD4mbmJzcDs8L286cD48L3A+DQo8L2Rpdj4NCjxkaXY+DQo8cCBjbGFz
+cz0iTXNvTm9ybWFsIj5ibGt6b25lKDgpIGltcGxlbWVudGVkLCBibGtyZXNldCBhbmQgYmxrcmVw
+b3J0IHJlbW92ZWQuIDxvOnA+DQo8L286cD48L3A+DQo8L2Rpdj4NCjxkaXY+DQo8cCBjbGFzcz0i
+TXNvTm9ybWFsIj48bzpwPiZuYnNwOzwvbzpwPjwvcD4NCjwvZGl2Pg0KPGRpdj4NCjxwIGNsYXNz
+PSJNc29Ob3JtYWwiPlBsZWFzZSwgcmV0ZXN0IGFuZCByZXZpZXc6PG86cD48L286cD48L3A+DQo8
+L2Rpdj4NCjxkaXY+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48YSBocmVmPSJodHRwczovL2dpdGh1
+Yi5jb20va2FyZWx6YWsvdXRpbC1saW51eC9ibG9iL21hc3Rlci9zeXMtdXRpbHMvYmxrem9uZS5j
+Ij5odHRwczovL2dpdGh1Yi5jb20va2FyZWx6YWsvdXRpbC1saW51eC9ibG9iL21hc3Rlci9zeXMt
+dXRpbHMvYmxrem9uZS5jPC9hPjxvOnA+PC9vOnA+PC9wPg0KPC9kaXY+DQo8ZGl2Pg0KPHAgY2xh
+c3M9Ik1zb05vcm1hbCI+PGEgaHJlZj0iaHR0cHM6Ly9naXRodWIuY29tL2thcmVsemFrL3V0aWwt
+bGludXgvYmxvYi9tYXN0ZXIvc3lzLXV0aWxzL2Jsa3pvbmUuOCI+aHR0cHM6Ly9naXRodWIuY29t
+L2thcmVsemFrL3V0aWwtbGludXgvYmxvYi9tYXN0ZXIvc3lzLXV0aWxzL2Jsa3pvbmUuODwvYT48
+bzpwPjwvbzpwPjwvcD4NCjwvZGl2Pg0KPGRpdj4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxvOnA+
+Jm5ic3A7PC9vOnA+PC9wPg0KPC9kaXY+DQo8ZGl2Pg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+Jm5i
+c3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7S2FyZWw8bzpwPjwvbzpwPjwvcD4NCjwvZGl2Pg0KPGRpdj4N
+CjxwIGNsYXNzPSJNc29Ob3JtYWwiPi0tIDxvOnA+PC9vOnA+PC9wPg0KPC9kaXY+DQo8ZGl2Pg0K
+PHAgY2xhc3M9Ik1zb05vcm1hbCI+S2FyZWwgWmFrJm5ic3A7Jm5ic3A7Jmx0OzxhIGhyZWY9Im1h
+aWx0bzpremFrQHJlZGhhdC5jb20iPmt6YWtAcmVkaGF0LmNvbTwvYT4mZ3Q7PG86cD48L286cD48
+L3A+DQo8L2Rpdj4NCjxkaXY+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48YSBocmVmPSJodHRwOi8v
+a2FyZWx6YWsuYmxvZ3Nwb3QuY29tIj5odHRwOi8va2FyZWx6YWsuYmxvZ3Nwb3QuY29tPC9hPjxv
+OnA+PC9vOnA+PC9wPg0KPC9kaXY+DQo8ZGl2Pg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PG86cD4m
+bmJzcDs8L286cD48L3A+DQo8L2Rpdj4NCjwvZGl2Pg0KPGRpdj5XZXN0ZXJuIERpZ2l0YWwgQ29y
+cG9yYXRpb24gKGFuZCBpdHMgc3Vic2lkaWFyaWVzKSBFLW1haWwgQ29uZmlkZW50aWFsaXR5IE5v
+dGljZSAmYW1wOyBEaXNjbGFpbWVyOjxicj48ZGl2PlRoaXMgZS1tYWlsIGFuZCBhbnkgZmlsZXMg
+dHJhbnNtaXR0ZWQgd2l0aCBpdCBtYXkgY29udGFpbiBjb25maWRlbnRpYWwgb3IgbGVnYWxseSBw
+cml2aWxlZ2VkIGluZm9ybWF0aW9uIG9mIFdEQyBhbmQvb3IgaXRzIGFmZmlsaWF0ZXMsIGFuZCBh
+cmUgaW50ZW5kZWQgc29sZWx5IGZvciB0aGUgdXNlIG9mIHRoZSBpbmRpdmlkdWFsIG9yIGVudGl0
+eSB0byB3aGljaCB0aGV5IGFyZSBhZGRyZXNzZWQuIElmIHlvdSBhcmUgbm90IHRoZSBpbnRlbmRl
+ZCByZWNpcGllbnQsIGFueSBkaXNjbG9zdXJlLCBjb3B5aW5nLCBkaXN0cmlidXRpb24gb3IgYW55
+IGFjdGlvbiB0YWtlbiBvciBvbWl0dGVkIHRvIGJlIHRha2VuIGluIHJlbGlhbmNlIG9uIGl0LCBp
+cyBwcm9oaWJpdGVkLiBJZiB5b3UgaGF2ZSByZWNlaXZlZCB0aGlzIGUtbWFpbCBpbiBlcnJvciwg
+cGxlYXNlIG5vdGlmeSB0aGUgc2VuZGVyIGltbWVkaWF0ZWx5IGFuZCBkZWxldGUgdGhlIGUtbWFp
+bCBpbiBpdHMgZW50aXJldHkgZnJvbSB5b3VyIHN5c3RlbS48L2JvZHk+DQo8L2h0bWw+DQo=
 
-Otherwise, please feel free to add:
-Tested-by: Damien Le Moal <damien.lemoal@wdc.com>
-
-Best regards.
-
-On 2/9/17 21:36, Karel Zak wrote:
-> On Mon, Jan 23, 2017 at 08:32:42PM +0700, Shaun Tancheff wrote:
->>  .gitignore              |   2 +
->>  configure.ac            |  11 +++
->>  include/strutils.h      |   2 +
->>  lib/strutils.c          |   7 +-
->>  sys-utils/Makemodule.am |  17 ++++
->>  sys-utils/blkreport.8   |  68 ++++++++++++++
->>  sys-utils/blkreport.c   | 245 ++++++++++++++++++++++++++++++++++++++++++++++++
->>  sys-utils/blkreset.8    |  61 ++++++++++++
->>  sys-utils/blkreset.c    | 190 +++++++++++++++++++++++++++++++++++++
-> 
-> Applied with some changes (see below), thanks.
-> 
-> Please, please "git pull" and test it!
-> 
-> I have no HW to do any tests (but I have free space for a new disk in
-> my workstation -- you know Seagate, right? :-)) Or is it possible to
-> test for example by scsi_debug?
-> 
->> +blkreset_LDADD += -ludev
-> 
-> Fixed, unnecessary.
-> 
->> +.BR \-z , " \-\-zone \fIoffset", " \-\-offset \fIoffset"
->> +.BR \-c , " \-\-count \fIcount", " \-\-length \fIcount"
-> 
-> Fixed. I don't think we want to use aliases for the options (and one
-> of the utils had the aliases only in man page). I have modified man
-> pages and code to support
-> 
->   --zone <offset>
->   --count <length>
-> 
-> only.
-> 
->> +#include "monotonic.h"
-> 
-> Copy & past I guess ;-) Unnecessary. Fixed.
-> 
->> +	fputs(USAGE_OPTIONS, out);
->> +	fputs(_(" -z, --zone <num>    zone lba in 512 byte sectors\n"
->> +		"     --offset <num>  zone lba in 512 byte sectors\n"
->> +		" -c, --count <num>   maximum number of zones in report\n"
->> +		"     --length <num>  maximum number of zones in report\n"
->> +		" -v, --verbose       print aligned length and offset"),
->> +		out);
-> 
-> Fixed.
-> 
->> +		case 'c':
->> +			length = _strtou32_or_err(optarg,
->> +					_("failed to parse report count"), 0);
->> +			break;
->> +		case 'z':
->> +			offset = _strtou64_or_err(optarg,
->> +					_("failed to parse zone offset"), 0);
->> +			break;
-> 
-> The function strtou64_or_err() does not support size suffixes. Fixed
-> and replaced with strtosize_or_err().
-> 
->> +
->> +	if (ioctl(fd, BLKGETSIZE64, &blksize))
->> +		err(EXIT_FAILURE, _("%s: BLKGETSIZE64 ioctl failed"), path);
->> +	if (ioctl(fd, BLKSSZGET, &secsize))
->> +		err(EXIT_FAILURE, _("%s: BLKSSZGET ioctl failed"), path);
-> 
-> replaced with blkdev.h functions (like you did in blkreset.c).
-> 
->> +	/* check offset alignment to the chunk size */
->> +	if (zsector & (zsize - 1))
->> +		errx(EXIT_FAILURE, _("%s: zone %" PRIu64 " is not aligned "
->> +			 "to zone size %" PRIu64), path, zsector, zsize);
->> +	if (zsector > blksectors)
->> +		errx(EXIT_FAILURE, _("%s: zone %" PRIu64 " is too large "
->> +			 "for device %" PRIu64), path, zsector, blksectors);
-> 
-> It seems nowhere (blkreset and blkreport) we check if 
->  
->     offset + length <= blksectors
-> 
->  it means we don't check the end of the area, I guess the end has to
->  be within the block device.
-> 
->  Maybe we can add this if() to the code, objections?
-> 
->     Karel
-> 
-
--- 
-Damien Le Moal, Ph.D.
-Sr. Manager, System Software Research Group,
-Western Digital Corporation
-Damien.LeMoal@wdc.com
-(+81) 0466-98-3593 (ext. 513593)
-1 kirihara-cho, Fujisawa,
-Kanagawa, 252-0888 Japan
-www.wdc.com, www.hgst.com
+--_000_20F8267208084BD0B6F08EB087B81E19hgstcom_--
