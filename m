@@ -1,135 +1,322 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:57824 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753584AbdBUQth (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 21 Feb 2017 11:49:37 -0500
-Date: Tue, 21 Feb 2017 17:49:28 +0100
-From: Karel Zak <kzak@redhat.com>
-To: =?utf-8?Q?Bart=C5=82omiej_Solarz-Nies=C5=82uchowski?=
-        <Bartlomiej.Solarz-Niesluchowski@wit.edu.pl>
-Cc: util-linux@vger.kernel.org, Lukasz Trabinski <lukasz@trabinski.net>
-Subject: Re: label-id and sfdisk problem
-Message-ID: <20170221164928.geha65vjytxjsed5@ws.net.home>
-References: <a1e37c78-0162-2c2a-813e-1b1abee27fcb@wit.edu.pl>
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:22941 "EHLO
+        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751049AbdBXEMX (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 23 Feb 2017 23:12:23 -0500
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+To: Karel Zak <kzak@redhat.com>
+CC: Benno Schulenberg <bensberg@justemail.net>,
+        Shaun Tancheff <shaun@tancheff.com>,
+        Util-Linux <util-linux@vger.kernel.org>,
+        Bart Van Assche <Bart.VanAssche@sandisk.com>
+Subject: Re: [PATCH v3] Add blkzonecmd and blkreport ZAC/ZBC drives
+Date: Fri, 24 Feb 2017 04:11:48 +0000
+Message-ID: <B6CED017-1024-417B-B222-6ECA10D06F4A@hgst.com>
+References: <1485178362-25327-1-git-send-email-shaun@tancheff.com>
+ <20170216103352.rxt4jyxry6zpuxrb@ws.net.home>
+ <1487247307.2341564.882965648.11DC77E0@webmail.messagingengine.com>
+ <ea1698c4-b055-e498-b154-d8931817bc36@wdc.com>
+ <20170223163303.22arjqv27brm3p3k@ws.net.home>
+ <20F82672-0808-4BD0-B6F0-8EB087B81E19@hgst.com>
+In-Reply-To: <20F82672-0808-4BD0-B6F0-8EB087B81E19@hgst.com>
+Content-Type: multipart/mixed;
+        boundary="_004_B6CED0171024417BB2226ECA10D06F4Ahgstcom_"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <a1e37c78-0162-2c2a-813e-1b1abee27fcb@wit.edu.pl>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Feb 21, 2017 at 05:31:25PM +0100, Bartłomiej Solarz-Niesłuchowski wrote:
-> Dear List,
-> 
-> I have problem with setting label-id of dos partition table
-> The problem occurs when i use sfdisk:
-> 1. I "save" the partition table with sfdisk -d /dev/sda > saved.table (saved
-> file has label-id of partition table)
-> 2. then i restore this via sfdisk /dev/sda < saved.table
-> BUT
-> label-id of dos partition table can be changed in this operation e.g.:
-> when i run command such:
-> sfdisk -d /dev/sda > saved.table
-> sfdisk /dev/sda < saved.table
-> sfdisk -d /dev/sda
-> sfdisk /dev/sda < saved.table
-> sfdisk -d /dev/sda
-> sfdisk /dev/sda < saved.table
-> sfdisk -d /dev/sda
-> 
-> each time when i restore partition table label-id of dos type partition
-> table is changed!
-> 
-> For me it is essential that label-id is set exactly as previous because
-> after that i restore windows operationg system on this partitions and
-> windows take care about label-id of boot disk partition table
-> 
-> Currently i use fdisk (expert option i) for setting label-id of partition,
-> but why it is not possible thru sfdisk?
+--_004_B6CED0171024417BB2226ECA10D06F4Ahgstcom_
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <9FCE125A90C13842A9454D489E957FE7@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
 
-Version? I'm not able to reproduce this problem (v2.28.2 as well as
-upstream tree with incoming v2.30).
-    
-       Karel
+Rm9yZ290IHRvIGF0dGFjaCB0aGUgcGF0Y2hlc+KApg0KDQotLQ0KRGFtaWVuIExlIE1vYWwsIFBo
+LkQuDQpTci4gTWFuYWdlciwgU3lzdGVtIFNvZnR3YXJlIFJlc2VhcmNoIEdyb3VwLA0KV2VzdGVy
+biBEaWdpdGFsDQpEYW1pZW4uTGVNb2FsQHdkYy5jb20NCigrODEpIDA0NjYtOTgtMzU5MyAoZXh0
+LiA1MTM1OTMpDQoxIGtpcmloYXJhLWNobywgRnVqaXNhd2EsDQpLYW5hZ2F3YSzCoDI1Mi0wODg4
+IEphcGFuDQp3d3cud2RjLmNvbSwgd3d3Lmhnc3QuY29tDQoNCkZyb206IERhbWllbiBMZSBNb2Fs
+IDxEYW1pZW4uTGVNb2FsQHdkYy5jb20+DQpEYXRlOiBGcmlkYXksIEZlYnJ1YXJ5IDI0LCAyMDE3
+IGF0IDEzOjEwDQpUbzogS2FyZWwgWmFrIDxremFrQHJlZGhhdC5jb20+DQpDYzogQmVubm8gU2No
+dWxlbmJlcmcgPGJlbnNiZXJnQGp1c3RlbWFpbC5uZXQ+LCBTaGF1biBUYW5jaGVmZiA8c2hhdW5A
+dGFuY2hlZmYuY29tPiwgVXRpbC1MaW51eCA8dXRpbC1saW51eEB2Z2VyLmtlcm5lbC5vcmc+LCBW
+YW4gQXNzY2hlIEJhcnQgPEJhcnQuVmFuQXNzY2hlQHNhbmRpc2suY29tPg0KU3ViamVjdDogUmU6
+IFtQQVRDSCB2M10gQWRkIGJsa3pvbmVjbWQgYW5kIGJsa3JlcG9ydCBaQUMvWkJDIGRyaXZlcw0K
+DQpLYXJlbCwNCsKgDQpQbGVhc2UgZmluZCBhdHRhY2hlZCAzIHBhdGNoZXMuDQoxKSBUbyBiZSBj
+b25zaXN0ZW50IHdpdGggYmxrZGlzY2FyZCBiZWhhdmlvciwgcmVzZXQgYWxsIHpvbmVzIG9mIHRo
+ZSBkZXZpY2Ugd2hlbiBsZW5ndGgNCmlzIG5vdCBzcGVjaWZpZWQuDQoyKSBTaW1pbGFybHksIGZv
+ciByZXBvcnQsIHJlcG9ydCBhbGwgem9uZXMgb2YgdGhlIGRldmljZSBpcyBsZW5ndGggaXMgdW5z
+cGVjaWZpZWQgb24gdGhlIGNvbW1hbmQgbGluZS4NCjMpIEltcHJvdmUgd29yZGluZyB0byBtYXRj
+aCBtb3JlIGNsb3NlbHkgdGhlIHN0YW5kYXJkcy4gQUxvcyBhZGQgIjB4IiB0byBwcmludGVkIHZh
+bHVlcyB0byBtYWtlIGl0IGNsZWFyIHRoYXQgdGhlc2UgYXJlIGhleC4NCsKgDQpQbGVhc2UgcmV2
+aWV3IGFuZCBsZXQgbWUga25vdyBpZiB5b3UgbmVlZCBtb3JlIHRlc3RpbmcuDQrCoA0KQmVzdCBy
+ZWdhcmRzLg0KwqANCi0tDQpEYW1pZW4gTGUgTW9hbCwgUGguRC4NClNyLiBNYW5hZ2VyLCBTeXN0
+ZW0gU29mdHdhcmUgUmVzZWFyY2ggR3JvdXAsDQpXZXN0ZXJuIERpZ2l0YWwNCkRhbWllbi5MZU1v
+YWxAd2RjLmNvbQ0KKCs4MSkgMDQ2Ni05OC0zNTkzIChleHQuIDUxMzU5MykNCjEga2lyaWhhcmEt
+Y2hvLCBGdWppc2F3YSwNCkthbmFnYXdhLMKgMjUyLTA4ODggSmFwYW4NCnd3dy53ZGMuY29tLCB3
+d3cuaGdzdC5jb20NCsKgDQpGcm9tOiBLYXJlbCBaYWsgPGt6YWtAcmVkaGF0LmNvbT4NCkRhdGU6
+IEZyaWRheSwgRmVicnVhcnkgMjQsIDIwMTcgYXQgMDE6MzMNClRvOiBEYW1pZW4gTGUgTW9hbCA8
+RGFtaWVuLkxlTW9hbEB3ZGMuY29tPg0KQ2M6IEJlbm5vIFNjaHVsZW5iZXJnIDxiZW5zYmVyZ0Bq
+dXN0ZW1haWwubmV0PiwgU2hhdW4gVGFuY2hlZmYgPHNoYXVuQHRhbmNoZWZmLmNvbT4sIFV0aWwt
+TGludXggPHV0aWwtbGludXhAdmdlci5rZXJuZWwub3JnPiwgVmFuIEFzc2NoZSBCYXJ0IDxCYXJ0
+LlZhbkFzc2NoZUBzYW5kaXNrLmNvbT4NClN1YmplY3Q6IFJlOiBbUEFUQ0ggdjNdIEFkZCBibGt6
+b25lY21kIGFuZCBibGtyZXBvcnQgWkFDL1pCQyBkcml2ZXMNCsKgDQpPbiBGcmksIEZlYiAxNywg
+MjAxNyBhdCAwOToxMjoyOUFNICswOTAwLCBEYW1pZW4gTGUgTW9hbCB3cm90ZToNCkJlbm5vLA0K
+T24gMi8xNi8xNyAyMToxNSwgQmVubm8gU2NodWxlbmJlcmcgd3JvdGU6DQo+IA0KPiBPbiBUaHUs
+IEZlYiAxNiwgMjAxNywgYXQgMTE6MzMsIEthcmVsIFphayB3cm90ZToNCj4+wqDCoCBibGt6b25l
+IHJlcG9ydCBbLS16b25lIDxvZmZzZXQ+XSBbLS1jb3VudCA8bGVuZ3RoPl0NCj4+wqDCoCBibGt6
+b25lIHJlc2V0wqDCoFstLXpvbmUgPG9mZnNldD5dIFstLWNvdW50IDxsZW5ndGg+XQ0KPiANCj4g
+ImJsa3pvbmUgLS16b25lIiBmZWVscyBhIGJpdCBzdHJhbmdlLsKgwqBJIHdvdWxkIHN1Z2dlc3Q6
+DQo+IA0KPsKgwqAgYmxrem9uZSA8Y29tbWFuZD4gWy0tb2Zmc2V0IDxzZWN0b3I+XSBbLS1jb3Vu
+dCA8bnVtYmVyPl0NCkluZGVlZCwgaXQgaXMgYSBsaXR0bGUgYXdrd2FyZC4gQW5kIHRvIGJlIGNv
+bnNpc3RlbnQgd2l0aCBvdGhlciB0b29scw0Kc3VjaCBhcyBibGtkaXNjYXJkLCBJIHdvdWxkIGFs
+c28gc3VnZ2VzdCAtLWxlbmd0aCBpbnN0ZWFkIG9mIC0tY291bnQuDQpTbzoNCmJsa3pvbmUgcmVw
+b3J0IFstLW9mZnNldCA8b2Zmc2V0Pl0gWy0tbGVuZ3RoIDxsZW5ndGg+XQ0KYmxrem9uZSByZXNl
+dMKgwqBbLS1vZmZzZXQgPG9mZnNldD5dIFstLWxlbmd0aCA8bGVuZ3RoPl0NCsKgDQpibGt6b25l
+KDgpIGltcGxlbWVudGVkLCBibGtyZXNldCBhbmQgYmxrcmVwb3J0IHJlbW92ZWQuIA0KwqANClBs
+ZWFzZSwgcmV0ZXN0IGFuZCByZXZpZXc6DQpodHRwczovL2dpdGh1Yi5jb20va2FyZWx6YWsvdXRp
+bC1saW51eC9ibG9iL21hc3Rlci9zeXMtdXRpbHMvYmxrem9uZS5jDQpodHRwczovL2dpdGh1Yi5j
+b20va2FyZWx6YWsvdXRpbC1saW51eC9ibG9iL21hc3Rlci9zeXMtdXRpbHMvYmxrem9uZS44DQrC
+oA0KwqDCoMKgwqBLYXJlbA0KLS0gDQpLYXJlbCBaYWvCoMKgPGt6YWtAcmVkaGF0LmNvbT4NCmh0
+dHA6Ly9rYXJlbHphay5ibG9nc3BvdC5jb20NCsKgDQoNCg0K
 
+--_004_B6CED0171024417BB2226ECA10D06F4Ahgstcom_
+Content-Type: application/octet-stream;
+	name="0001-blkzone-Reset-all-zones-when-length-is-not-specified.patch"
+Content-Description: 0001-blkzone-Reset-all-zones-when-length-is-not-specified.patch
+Content-Disposition: attachment;
+	filename="0001-blkzone-Reset-all-zones-when-length-is-not-specified.patch";
+	size=1152; creation-date="Fri, 24 Feb 2017 04:11:47 GMT";
+	modification-date="Fri, 24 Feb 2017 04:11:47 GMT"
+Content-ID: <82D122558DBD5E499CED3EF5919E2FF8@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
 
-# modprobe scsi_debug dev_size_mb=100;
-# echo ',,L' | sfdisk  /dev/sdc
+RnJvbSA0ODFmM2E0NWY2Y2I0ODE3ZjQxOTZlZWUxODQ0ZGNhZjI1YmFjYTkxIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBEYW1pZW4gTGUgTW9hbCA8ZGFtaWVuLmxlbW9hbEB3ZGMuY29t
+PgpEYXRlOiBGcmksIDI0IEZlYiAyMDE3IDExOjQ4OjQ1ICswOTAwClN1YmplY3Q6IFtQQVRDSCAx
+LzNdIGJsa3pvbmU6IFJlc2V0IGFsbCB6b25lcyB3aGVuIGxlbmd0aCBpcyBub3Qgc3BlY2lmaWVk
+CgpJZiBsZW5ndGggaXMgMCwgb3BlcmF0ZSBvbiBhbGwgem9uZXMgc3RhcnRpbmcgZnJvbSBvZmZz
+ZXQuClRoaXMgYWxzbyBmaXggdGhlIG1heGltdW0gbGVuZ3RoIGNhbGN1bGF0aW9uIGZyb20gb2Zm
+c2V0LgoKU2lnbmVkLW9mZi1ieTogRGFtaWVuIExlIE1vYWwgPGRhbWllbi5sZW1vYWxAd2RjLmNv
+bT4KLS0tCiBzeXMtdXRpbHMvYmxrem9uZS5jIHwgOCArKysrKy0tLQogMSBmaWxlIGNoYW5nZWQs
+IDUgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9zeXMtdXRpbHMv
+Ymxrem9uZS5jIGIvc3lzLXV0aWxzL2Jsa3pvbmUuYwppbmRleCBkZGIxM2ZjLi4xYzNhN2VmIDEw
+MDY0NAotLS0gYS9zeXMtdXRpbHMvYmxrem9uZS5jCisrKyBiL3N5cy11dGlscy9ibGt6b25lLmMK
+QEAgLTIzNSwxMCArMjM1LDEyIEBAIHN0YXRpYyBpbnQgYmxrem9uZV9yZXNldChzdHJ1Y3QgYmxr
+em9uZV9jb250cm9sICpjdGwpCiAJaWYgKGN0bC0+b2Zmc2V0ID4gY3RsLT50b3RhbF9zZWN0b3Jz
+KQogCQllcnJ4KEVYSVRfRkFJTFVSRSwgXygiJXM6IG9mZnNldCBpcyBncmVhdGVyIHRoYW4gZGV2
+aWNlIHNpemUiKSwgY3RsLT5kZXZuYW1lKTsKIAotCXpsZW4gPSBjdGwtPmxlbmd0aCAqIHpvbmVz
+aXplOwotCisJaWYgKCFjdGwtPmxlbmd0aCkKKwkJemxlbiA9IGN0bC0+dG90YWxfc2VjdG9yczsK
+KwllbHNlCisJCXpsZW4gPSBjdGwtPmxlbmd0aCAqIHpvbmVzaXplOwogCWlmIChjdGwtPm9mZnNl
+dCArIHpsZW4gPiBjdGwtPnRvdGFsX3NlY3RvcnMpCi0JCXpsZW4gPSBjdGwtPnRvdGFsX3NlY3Rv
+cnMgLSBjdGwtPmxlbmd0aDsKKwkJemxlbiA9IGN0bC0+dG90YWxfc2VjdG9ycyAtIGN0bC0+b2Zm
+c2V0OwogCiAJemEuc2VjdG9yID0gY3RsLT5vZmZzZXQ7CiAJemEubnJfc2VjdG9ycyA9IHpsZW47
+Ci0tIAoyLjkuMwoK
 
-        Disk /dev/sdc: 100 MiB, 104857600 bytes, 204800 sectors
-        Units: sectors of 1 * 512 = 512 bytes
-        Sector size (logical/physical): 512 bytes / 512 bytes
-        I/O size (minimum/optimal): 512 bytes / 524288 bytes
+--_004_B6CED0171024417BB2226ECA10D06F4Ahgstcom_
+Content-Type: application/octet-stream;
+	name="0002-blkzone-Report-all-zones-if-length-is-not-specified.patch"
+Content-Description: 0002-blkzone-Report-all-zones-if-length-is-not-specified.patch
+Content-Disposition: attachment;
+	filename="0002-blkzone-Report-all-zones-if-length-is-not-specified.patch";
+	size=5628; creation-date="Fri, 24 Feb 2017 04:11:47 GMT";
+	modification-date="Fri, 24 Feb 2017 04:11:47 GMT"
+Content-ID: <4EB5347B2388B3418C3ACD144FCB8583@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
 
-        >>> Created a new DOS disklabel with disk identifier 0x6061f502.
-        Created a new partition 1 of type 'Linux' and of size 99 MiB.
-        /dev/sdc2:
-        New situation:
+RnJvbSA4NTQ5MzM0ZmI1YzYyYjk1ZDk3YzczZTA4YTQzMjdiZjIzMzMxYjliIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBEYW1pZW4gTGUgTW9hbCA8ZGFtaWVuLmxlbW9hbEB3ZGMuY29t
+PgpEYXRlOiBGcmksIDI0IEZlYiAyMDE3IDEyOjM2OjA4ICswOTAwClN1YmplY3Q6IFtQQVRDSCAy
+LzNdIGJsa3pvbmU6IFJlcG9ydCBhbGwgem9uZXMgaWYgbGVuZ3RoIGlzIG5vdCBzcGVjaWZpZWQK
+ClJlcG9ydCBhbGwgem9uZXMgb2YgdGhlIGJsb2NrIGRldmljZSB3aGVuIGxlbmd0aCBpcyBub3Qg
+c3BlY2lmaWVkCm9uIHRoZSBjb21tYW5kIGxpbmUuIFRvIGRvIHRoaXMsIGludHJvZHVjZSBhbiBp
+bm5lciBsb29wIGluCmJsa3pvbmVfcmVwb3J0IHRvIHJlcGVhdGVkbHkgaXNzdWUgcmVwb3J0IHpv
+bmUgaW9jdGwgdG8gdGhlCmRldmljZS4KClNpZ25lZC1vZmYtYnk6IERhbWllbiBMZSBNb2FsIDxk
+YW1pZW4ubGVtb2FsQHdkYy5jb20+Ci0tLQogc3lzLXV0aWxzL2Jsa3pvbmUuYyB8IDEyNiArKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAxIGZpbGUg
+Y2hhbmdlZCwgNzIgaW5zZXJ0aW9ucygrKSwgNTQgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEv
+c3lzLXV0aWxzL2Jsa3pvbmUuYyBiL3N5cy11dGlscy9ibGt6b25lLmMKaW5kZXggMWMzYTdlZi4u
+YzlkNjVkYyAxMDA2NDQKLS0tIGEvc3lzLXV0aWxzL2Jsa3pvbmUuYworKysgYi9zeXMtdXRpbHMv
+Ymxrem9uZS5jCkBAIC0xMDgsMTAgKzEwOCwzNiBAQCBzdGF0aWMgaW50IGluaXRfZGV2aWNlKHN0
+cnVjdCBibGt6b25lX2NvbnRyb2wgKmN0bCwgaW50IG1vZGUpCiB9CiAKIC8qCisgKiBHZXQgdGhl
+IGRldmljZSB6b25lIHNpemUgaW5kaWNhdGVkIGJ5IGNodW5rIHNlY3RvcnMpLgorICovCitzdGF0
+aWMgdW5zaWduZWQgbG9uZyBibGtkZXZfY2h1bmtfc2VjdG9ycyhjb25zdCBjaGFyICpkbmFtZSkK
+K3sKKwlzdHJ1Y3Qgc3lzZnNfY3h0IGN4dCA9IFVMX1NZU0ZTQ1hUX0VNUFRZOworCWRldl90IGRl
+dm5vID0gc3lzZnNfZGV2bmFtZV90b19kZXZubyhkbmFtZSwgTlVMTCk7CisJaW50IG1ham9yX25v
+ID0gbWFqb3IoZGV2bm8pOworCWludCBibG9ja19ubyA9IG1pbm9yKGRldm5vKSAmIH4weDBmOwor
+CXVpbnQ2NF90IHN6OworCWludCByYzsKKworCS8qCisJICogTWFwcGluZyAvZGV2L3NkWG4gLT4g
+L3N5cy9ibG9jay9zZFggdG8gcmVhZCB0aGUgY2h1bmtfc2l6ZSBlbnRyeS4KKwkgKiBUaGlzIG1l
+dGhvZCBtYXNrcyBvZmYgdGhlIHBhcnRpdGlvbiBzcGVjaWZpZWQgYnkgdGhlIG1pbm9yIGRldmlj
+ZQorCSAqIGNvbXBvbmVudC4KKwkgKi8KKwlkZXZubyA9IG1ha2VkZXYobWFqb3Jfbm8sIGJsb2Nr
+X25vKTsKKwlpZiAoc3lzZnNfaW5pdCgmY3h0LCBkZXZubywgTlVMTCkpCisJCXJldHVybiAwOwor
+CisJcmMgPSBzeXNmc19yZWFkX3U2NCgmY3h0LCAicXVldWUvY2h1bmtfc2VjdG9ycyIsICZzeik7
+CisKKwlzeXNmc19kZWluaXQoJmN4dCk7CisJcmV0dXJuIHJjID09IDAgPyBzeiA6IDA7Cit9CisK
+Ky8qCiAgKiBibGt6b25lIHJlcG9ydAogICovCi0jZGVmaW5lIERFRl9SRVBPUlRfTEVOCQkoMSA8
+PCAxMikgLyogNGsgem9uZXMgKDI1Nmsga3phbGxvYykgKi8KLSNkZWZpbmUgTUFYX1JFUE9SVF9M
+RU4JCSgxIDw8IDE2KSAvKiA2NGsgem9uZXMgKi8KKyNkZWZpbmUgREVGX1JFUE9SVF9MRU4JCSgx
+IDw8IDEyKSAvKiA0ayB6b25lcyBwZXIgcmVwb3J0ICgyNTZrIGt6YWxsb2MpICovCiAKIHN0YXRp
+YyBjb25zdCBjaGFyICp0eXBlX3RleHRbXSA9IHsKIAkiUkVTRVJWRUQiLApAQCAtMTM1LDYgKzE2
+MSw3IEBAIHN0YXRpYyBjb25zdCBjaGFyICpjb25kaXRpb25fc3RyW10gPSB7CiBzdGF0aWMgaW50
+IGJsa3pvbmVfcmVwb3J0KHN0cnVjdCBibGt6b25lX2NvbnRyb2wgKmN0bCkKIHsKIAlzdHJ1Y3Qg
+YmxrX3pvbmVfcmVwb3J0ICp6aTsKKwl1bnNpZ25lZCBsb25nIHpvbmVzaXplOwogCXVpbnQzMl90
+IGk7CiAJaW50IGZkOwogCkBAIC0xNDIsNDMgKzE2OSw1OCBAQCBzdGF0aWMgaW50IGJsa3pvbmVf
+cmVwb3J0KHN0cnVjdCBibGt6b25lX2NvbnRyb2wgKmN0bCkKIAogCWlmIChjdGwtPm9mZnNldCA+
+IGN0bC0+dG90YWxfc2VjdG9ycykKIAkJZXJyeChFWElUX0ZBSUxVUkUsIF8oIiVzOiBvZmZzZXQg
+aXMgZ3JlYXRlciB0aGFuIGRldmljZSBzaXplIiksIGN0bC0+ZGV2bmFtZSk7Ci0JaWYgKGN0bC0+
+bGVuZ3RoIDwgMSkKLQkJY3RsLT5sZW5ndGggPSAxOwotCWlmIChjdGwtPmxlbmd0aCA+IE1BWF9S
+RVBPUlRfTEVOKSB7Ci0JCWN0bC0+bGVuZ3RoID0gTUFYX1JFUE9SVF9MRU47Ci0JCXdhcm54KF8o
+ImxpbWl0aW5nIHJlcG9ydCB0byAlIiBQUkl1NjQgIiBlbnRyaWVzIiksIGN0bC0+bGVuZ3RoKTsK
+KwlpZiAoY3RsLT5sZW5ndGggPCAxKSB7CisJCXpvbmVzaXplID0gYmxrZGV2X2NodW5rX3NlY3Rv
+cnMoY3RsLT5kZXZuYW1lKTsKKwkJaWYgKCF6b25lc2l6ZSkKKwkJCWVycngoRVhJVF9GQUlMVVJF
+LCBfKCIlczogdW5hYmxlIHRvIGRldGVybWluZSB6b25lIHNpemUiKSwgY3RsLT5kZXZuYW1lKTsK
+KwkJY3RsLT5sZW5ndGggPSAxICsgKGN0bC0+dG90YWxfc2VjdG9ycyAtIGN0bC0+b2Zmc2V0KSAv
+IHpvbmVzaXplOwogCX0KIAotCXppID0geG1hbGxvYyhzaXplb2Yoc3RydWN0IGJsa196b25lX3Jl
+cG9ydCkKLQkJICAgICArIChjdGwtPmxlbmd0aCAqIHNpemVvZihzdHJ1Y3QgYmxrX3pvbmUpKSk7
+Ci0JemktPm5yX3pvbmVzID0gY3RsLT5sZW5ndGg7Ci0JemktPnNlY3RvciA9IGN0bC0+b2Zmc2V0
+OwkJLyogbWF5YmUgc2hpZnQgNEtuIC0+IDUxMmUgKi8KKwl6aSA9IHhtYWxsb2Moc2l6ZW9mKHN0
+cnVjdCBibGtfem9uZV9yZXBvcnQpICsKKwkJICAgICAoREVGX1JFUE9SVF9MRU4gKiBzaXplb2Yo
+c3RydWN0IGJsa196b25lKSkpOwogCi0JaWYgKGlvY3RsKGZkLCBCTEtSRVBPUlRaT05FLCB6aSkg
+PT0gLTEpCi0JCWVycihFWElUX0ZBSUxVUkUsIF8oIiVzOiBCTEtSRVBPUlRaT05FIGlvY3RsIGZh
+aWxlZCIpLCBjdGwtPmRldm5hbWUpOworCXdoaWxlIChjdGwtPmxlbmd0aCAmJiBjdGwtPm9mZnNl
+dCA8IGN0bC0+dG90YWxfc2VjdG9ycykgewogCi0JaWYgKGN0bC0+dmVyYm9zZSkKLQkJcHJpbnRm
+KF8oIkZvdW5kICVkIHpvbmVzXG4iKSwgemktPm5yX3pvbmVzKTsKKwkJemktPm5yX3pvbmVzID0g
+bWluKGN0bC0+bGVuZ3RoLCAodWludDY0X3QpREVGX1JFUE9SVF9MRU4pOworCQl6aS0+c2VjdG9y
+ID0gY3RsLT5vZmZzZXQ7CiAKLQlwcmludGYoXygiWm9uZXMgcmV0dXJuZWQ6ICV1XG4iKSwgemkt
+Pm5yX3pvbmVzKTsKKwkJaWYgKGlvY3RsKGZkLCBCTEtSRVBPUlRaT05FLCB6aSkgPT0gLTEpCisJ
+CQllcnIoRVhJVF9GQUlMVVJFLCBfKCIlczogQkxLUkVQT1JUWk9ORSBpb2N0bCBmYWlsZWQiKSwg
+Y3RsLT5kZXZuYW1lKTsKIAotCWZvciAoaSA9IDA7IGkgPCB6aS0+bnJfem9uZXM7IGkrKykgewot
+CQljb25zdCBzdHJ1Y3QgYmxrX3pvbmUgKmVudHJ5ID0gJnppLT56b25lc1tpXTsKLQkJdW5zaWdu
+ZWQgaW50IHR5cGUgPSBlbnRyeS0+dHlwZTsKLQkJdWludDY0X3Qgc3RhcnQgPSBlbnRyeS0+c3Rh
+cnQ7Ci0JCXVpbnQ2NF90IHdwID0gZW50cnktPndwOwotCQl1aW50OF90IGNvbmQgPSBlbnRyeS0+
+Y29uZDsKLQkJdWludDY0X3QgbGVuID0gZW50cnktPmxlbjsKKwkJaWYgKGN0bC0+dmVyYm9zZSkK
+KwkJCXByaW50ZihfKCJGb3VuZCAlZCB6b25lcyBmcm9tICVseFxuIiksCisJCQkJemktPm5yX3pv
+bmVzLCBjdGwtPm9mZnNldCk7CiAKLQkJaWYgKCFsZW4pCisJCWlmICghemktPm5yX3pvbmVzKSB7
+CisJCQljdGwtPmxlbmd0aCA9IDA7CiAJCQlicmVhazsKKwkJfQorCisJCWZvciAoaSA9IDA7IGkg
+PCB6aS0+bnJfem9uZXM7IGkrKykgeworCQkJY29uc3Qgc3RydWN0IGJsa196b25lICplbnRyeSA9
+ICZ6aS0+em9uZXNbaV07CisJCQl1bnNpZ25lZCBpbnQgdHlwZSA9IGVudHJ5LT50eXBlOworCQkJ
+dWludDY0X3Qgc3RhcnQgPSBlbnRyeS0+c3RhcnQ7CisJCQl1aW50NjRfdCB3cCA9IGVudHJ5LT53
+cDsKKwkJCXVpbnQ4X3QgY29uZCA9IGVudHJ5LT5jb25kOworCQkJdWludDY0X3QgbGVuID0gZW50
+cnktPmxlbjsKKworCQkJaWYgKCFsZW4pIHsKKwkJCQljdGwtPmxlbmd0aCA9IDA7CisJCQkJYnJl
+YWs7CisJCQl9CisKKwkJCXByaW50ZihfKCIgIHN0YXJ0OiAlOWx4LCBsZW4gJTZseCwgd3B0ciAl
+Nmx4IgorCQkJIAkiIHJlc2V0OiV1IG5vbi1zZXE6JXUsIHpjb25kOiUydSglcykgW3R5cGU6ICV1
+KCVzKV1cbiIpLAorCQkJCXN0YXJ0LCBsZW4sIHdwIC0gc3RhcnQsCisJCQkJZW50cnktPnJlc2V0
+LCBlbnRyeS0+bm9uX3NlcSwKKwkJCQljb25kLCBjb25kaXRpb25fc3RyW2NvbmQgJiBBUlJBWV9T
+SVpFKGNvbmRpdGlvbl9zdHIpXSwKKwkJCQl0eXBlLCB0eXBlX3RleHRbdHlwZV0pOworCisJCQlj
+dGwtPmxlbmd0aC0tOworCQkJY3RsLT5vZmZzZXQgPSBzdGFydCArIGxlbjsKKworCQl9CiAKLQkJ
+cHJpbnRmKF8oIiAgc3RhcnQ6ICU5bHgsIGxlbiAlNmx4LCB3cHRyICU2bHgiCi0JCQkgIiByZXNl
+dDoldSBub24tc2VxOiV1LCB6Y29uZDolMnUoJXMpIFt0eXBlOiAldSglcyldXG4iKSwKLQkJCXN0
+YXJ0LCBsZW4sIHdwIC0gc3RhcnQsCi0JCQllbnRyeS0+cmVzZXQsIGVudHJ5LT5ub25fc2VxLAot
+CQkJY29uZCwgY29uZGl0aW9uX3N0cltjb25kICYgQVJSQVlfU0laRShjb25kaXRpb25fc3RyKV0s
+Ci0JCQl0eXBlLCB0eXBlX3RleHRbdHlwZV0pOwogCX0KIAogCWZyZWUoemkpOwpAQCAtMTkwLDMw
+ICsyMzIsNiBAQCBzdGF0aWMgaW50IGJsa3pvbmVfcmVwb3J0KHN0cnVjdCBibGt6b25lX2NvbnRy
+b2wgKmN0bCkKIC8qCiAgKiBibGt6b25lIHJlc2V0CiAgKi8KLXN0YXRpYyB1bnNpZ25lZCBsb25n
+IGJsa2Rldl9jaHVua19zZWN0b3JzKGNvbnN0IGNoYXIgKmRuYW1lKQotewotCXN0cnVjdCBzeXNm
+c19jeHQgY3h0ID0gVUxfU1lTRlNDWFRfRU1QVFk7Ci0JZGV2X3QgZGV2bm8gPSBzeXNmc19kZXZu
+YW1lX3RvX2Rldm5vKGRuYW1lLCBOVUxMKTsKLQlpbnQgbWFqb3Jfbm8gPSBtYWpvcihkZXZubyk7
+Ci0JaW50IGJsb2NrX25vID0gbWlub3IoZGV2bm8pICYgfjB4MGY7Ci0JdWludDY0X3Qgc3o7Ci0J
+aW50IHJjOwotCi0JLyoKLQkgKiBNYXBwaW5nIC9kZXYvc2RYbiAtPiAvc3lzL2Jsb2NrL3NkWCB0
+byByZWFkIHRoZSBjaHVua19zaXplIGVudHJ5LgotCSAqIFRoaXMgbWV0aG9kIG1hc2tzIG9mZiB0
+aGUgcGFydGl0aW9uIHNwZWNpZmllZCBieSB0aGUgbWlub3IgZGV2aWNlCi0JICogY29tcG9uZW50
+LgotCSAqLwotCWRldm5vID0gbWFrZWRldihtYWpvcl9ubywgYmxvY2tfbm8pOwotCWlmIChzeXNm
+c19pbml0KCZjeHQsIGRldm5vLCBOVUxMKSkKLQkJcmV0dXJuIDA7Ci0KLQlyYyA9IHN5c2ZzX3Jl
+YWRfdTY0KCZjeHQsICJxdWV1ZS9jaHVua19zZWN0b3JzIiwgJnN6KTsKLQotCXN5c2ZzX2RlaW5p
+dCgmY3h0KTsKLQlyZXR1cm4gcmMgPT0gMCA/IHN6IDogMDsKLX0KLQogc3RhdGljIGludCBibGt6
+b25lX3Jlc2V0KHN0cnVjdCBibGt6b25lX2NvbnRyb2wgKmN0bCkKIHsKIAlzdHJ1Y3QgYmxrX3pv
+bmVfcmFuZ2UgemEgPSB7IC5zZWN0b3IgPSAwIH07Ci0tIAoyLjkuMwoK
 
-        Device     Boot Start    End Sectors Size Id Type
-        /dev/sdc1        2048 204799  202752  99M 83 Linux
+--_004_B6CED0171024417BB2226ECA10D06F4Ahgstcom_
+Content-Type: application/octet-stream;
+	name="0003-blkzone-Improve-zone-information-print.patch"
+Content-Description: 0003-blkzone-Improve-zone-information-print.patch
+Content-Disposition: attachment;
+	filename="0003-blkzone-Improve-zone-information-print.patch"; size=4761;
+	creation-date="Fri, 24 Feb 2017 04:11:47 GMT";
+	modification-date="Fri, 24 Feb 2017 04:11:47 GMT"
+Content-ID: <9E15F161F8662D498C76AD48474584B5@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
 
-# sfdisk -d /dev/sdc > saved
-# cat saved
+RnJvbSBhYzNmMmIzYTBhN2U3NzJiNzg4MzY1OTAyM2JmODdiNTI5YWZlYzY1IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBEYW1pZW4gTGUgTW9hbCA8ZGFtaWVuLmxlbW9hbEB3ZGMuY29t
+PgpEYXRlOiBGcmksIDI0IEZlYiAyMDE3IDEyOjQ3OjI5ICswOTAwClN1YmplY3Q6IFtQQVRDSCAz
+LzNdIGJsa3pvbmU6IEltcHJvdmUgem9uZSBpbmZvcm1hdGlvbiBwcmludAoKQWRkICIweCIgdG8g
+dGhlIHpvbmUgc3RhcnQsIGxlbmd0aCBhbmQgd3JpdGUgcG9pbnRlciBwcmludAp0byBtYWtlIGl0
+IGFsd2F5cyBjbGVhciB0aGF0IHRoZSB2YWx1ZXMgYXJlIEhleGFkZWNpbWFsLgoKQWxzbyB1cGRh
+dGUgdGhlIHpvbmUgY29uZGl0aW9uIHN0cmluZyBhbmQgYXNzb2NpYXRlZCBjb21tZW50cwp0byBt
+YXRjaCBtb3JlIGNsb3NlbHkgdGhlIHdvcmRpbmcgaW4gdGhlIHN0YW5kYXJkIGRvY3VtZW50LgpU
+aGUgbWFuIHBhZ2UgaXMgYWxzbyB1cGRhdGVkIHRvIG1hdGNoIHRoZSBuZXcgd29yZGluZy4KClNp
+Z25lZC1vZmYtYnk6IERhbWllbiBMZSBNb2FsIDxkYW1pZW4ubGVtb2FsQHdkYy5jb20+Ci0tLQog
+c3lzLXV0aWxzL2Jsa3pvbmUuOCB8IDM5ICsrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0t
+LS0tLS0tLQogc3lzLXV0aWxzL2Jsa3pvbmUuYyB8IDIyICsrKysrKysrKysrLS0tLS0tLS0tLS0K
+IDIgZmlsZXMgY2hhbmdlZCwgMjkgaW5zZXJ0aW9ucygrKSwgMzIgZGVsZXRpb25zKC0pCgpkaWZm
+IC0tZ2l0IGEvc3lzLXV0aWxzL2Jsa3pvbmUuOCBiL3N5cy11dGlscy9ibGt6b25lLjgKaW5kZXgg
+NjM5NGVkMi4uMjRiMGNjNyAxMDA2NDQKLS0tIGEvc3lzLXV0aWxzL2Jsa3pvbmUuOAorKysgYi9z
+eXMtdXRpbHMvYmxrem9uZS44CkBAIC05LDggKzksOCBAQCBibGt6b25lIFwtIHJ1biB6b25lIGNv
+bW1hbmQgb24gYSBkZXZpY2UKIC5TSCBERVNDUklQVElPTgogLkIgYmxrem9uZQogaXMgdXNlZCB0
+byBydW4gem9uZSBjb21tYW5kIG9uIGRldmljZSB0aGF0IHN1cHBvcnQgdGhlIFpvbmVkIEJsb2Nr
+IENvbW1hbmRzCi0oWkJDKSBvciBab25lZC1kZXZpY2UgQVRBIENvbW1hbmRzIChaQUMpLiBUaGUg
+em9uZXMgYXJlIGFkZHJlc3NlcyBieSB0aGUgb2Zmc2V0Ci1hbmQgbGVuZ3RoIG9wdGlvbnMuCiso
+WkJDKSBvciBab25lZC1kZXZpY2UgQVRBIENvbW1hbmRzIChaQUMpLiBUaGUgem9uZXMgdG8gb3Bl
+cmF0ZSBvbiBjYW4gYmUKK3NwZWNpZmllZCB1c2luZyB0aGUgb2Zmc2V0IGFuZCBsZW5ndGggb3B0
+aW9ucy4KIC5QUAogVGhlCiAuSSBkZXZpY2UKQEAgLTQwLDE1ICs0MCwxNSBAQCB0eXBlOlpvbmUg
+dHlwZQogLlRTCiB0YWIoOik7CiBsZWZ0IGwgbC4KLUNsOmNsb3NlZAotY3Y6Y29udmVudGlvbmFs
+IHpvbmUKLWUwOmVtcHR5Ci1mdTpmdWxsCi1PZTpvcGVuIGV4cGxpY2l0Ci1PaTpvcGVuIGltcGxp
+Y2l0Ci1PTDpvZmZsaW5lCi1ybzpyZWFkIG9ubHkKLXg/OnJlc2VydmVkIGNvbmRpdGlvbnMgKHNo
+b3VsZCBub3QgYmUgcmVwb3J0ZWQpCitjbDpDbG9zZWQKK253Ok5vdCB3cml0ZSBwb2ludGVyCitl
+bTpFbXB0eQorZnU6RnVsbAorb2U6RXhwbGljaXRseSBvcGVuZWQKK29pOkltcGxpY2l0bHkgb3Bl
+bmVkCitvbDpPZmZsaW5lCitybzpSZWFkIG9ubHkKK3g/OlJlc2VydmVkIGNvbmRpdGlvbnMgKHNo
+b3VsZCBub3QgYmUgcmVwb3J0ZWQpCiAuVEUKIAogLlNTIHJlc2V0CkBAIC01NiwyMyArNTYsMjAg
+QEAgVGhlIGNvbW1hbmQgXGZCYmxrem9uZSByZXNldFxmUCBpcyB1c2VkIHRvIHJlc2V0IG9uZSBv
+ciBtb3JlIHpvbmVzLiAgVW5saWtlCiAuQlIgc2dfcmVzZXRfd3AgKDgpICwKIHRoaXMgY29tbWFu
+ZCBvcGVyYXRlcyBmcm9tIHRoZSBibG9jayBsYXllciBhbmQgY2FuIHJlc2V0IGEgcmFuZ2Ugb2Yg
+em9uZXMuCiAuUFAKLUJ5IGRlZmF1bHQsIHRoZSBjb21tYW5kIHdpbGwgb3BlcmF0ZSBvbiB0aGUg
+em9uZSBhdCBkZXZpY2UgbG9naWNhbAotc2VjdG9yIDAuICBPcHRpb25zIG1heSBiZSB1c2VkIHRv
+IG1vZGlmeSB0aGlzIGJlaGF2aW9yIGFzIHdlbGwgYXMgc3BlY2lmeSB0aGUKLW9wZXJhdGlvbiB0
+byBiZSBwZXJmb3JtZWQgb24gdGhlIHpvbmUsIGFzIGV4cGxhaW5lZCBiZWxvdy4KK0J5IGRlZmF1
+bHQsIHRoZSBjb21tYW5kIHdpbGwgb3BlcmF0ZSBmcm9tIHRoZSB6b25lIGF0IGRldmljZSBsb2dp
+Y2FsCitzZWN0b3IgMCBhbmQgcmVzZXQgYWxsIHpvbmVzLiBPcHRpb25zIG1heSBiZSB1c2VkIHRv
+IG1vZGlmeSB0aGlzIGJlaGF2aW9yCithcyB3ZWxsIGFzIHNwZWNpZnkgdGhlIG9wZXJhdGlvbiB0
+byBiZSBwZXJmb3JtZWQgb24gdGhlIHpvbmUsIGFzIGV4cGxhaW5lZCBiZWxvdy4KIC5QUAotVGhl
+IGRlZmF1bHQgbnVtYmVyIG9mIHpvbmVzIChvcHRpb25zIFxmQlwtXC1sZW5ndGhcZlApIGlzIDQw
+OTYsIHRoZSBtYXhpbXVtIDY1NTM2LgorVGhlIGRlZmF1bHQgbnVtYmVyIG9mIHpvbmVzIChvcHRp
+b24gXGZCXC1cLWxlbmd0aFxmUCkgaXMgYWxsIHpvbmVzLgogCiAuU0ggT1BUSU9OUwogVGhlCi0u
+SSBzZWN0b3IKLWFuZAotLkkgY291bnQKLW9wdGlvbiBhcmd1bWVudHMgbWF5IGJlIGZvbGxvd2Vk
+IGJ5IHRoZSBtdWx0aXBsaWNhdGl2ZSBzdWZmaXhlcyBLaUIgKD0xMDI0KSwKKy5JIG9mZnNldAor
+b3B0aW9uIGFyZ3VtZW50IG1heSBiZSBmb2xsb3dlZCBieSB0aGUgbXVsdGlwbGljYXRpdmUgc3Vm
+Zml4ZXMgS2lCICg9MTAyNCksCiBNaUIgKD0xMDI0KjEwMjQpLCBhbmQgc28gb24gZm9yIEdpQiwg
+VGlCLCBQaUIsIEVpQiwgWmlCIGFuZCBZaUIgKHRoZSAiaUIiIGlzCiBvcHRpb25hbCwgZS5nLiwg
+IksiIGhhcyB0aGUgc2FtZSBtZWFuaW5nIGFzICJLaUIiKSBvciB0aGUgc3VmZml4ZXMKIEtCICg9
+MTAwMCksIE1CICg9MTAwMCoxMDAwKSwgYW5kIHNvIG9uIGZvciBHQiwgVEIsIFBCLCBFQiwgWkIg
+YW5kIFlCLgotQWRkaXRpb25hbGx5LCB0aGUgMHggcHJlZml4IGNhbiBiZSB1c2VkIHRvIHNwZWNp
+ZnkgXGZJc2VjdG9yXGZSIGFuZAotXGZJY291bnRcZlIgaW4gaGV4LgorQWRkaXRpb25hbGx5LCB0
+aGUgMHggcHJlZml4IGNhbiBiZSB1c2VkIHRvIHNwZWNpZnkgXGZJb2Zmc2V0XGZSIGluIGhleC4K
+IC5UUAogLkJSIFwtbyAsICIgXC1cLW9mZnNldCAiXGZJc2VjdG9yXGZQCiBUaGUgc3RhcnRpbmcg
+em9uZSBzcGVjaWZpZWQgYXMgYSBzZWN0b3Igb2Zmc2V0LiAgVGhlIHByb3ZpZGVkIG9mZnNldCBp
+biBzZWN0b3IKZGlmZiAtLWdpdCBhL3N5cy11dGlscy9ibGt6b25lLmMgYi9zeXMtdXRpbHMvYmxr
+em9uZS5jCmluZGV4IGM5ZDY1ZGMuLjJkNmE3NjAgMTAwNjQ0Ci0tLSBhL3N5cy11dGlscy9ibGt6
+b25lLmMKKysrIGIvc3lzLXV0aWxzL2Jsa3pvbmUuYwpAQCAtMTQ3LDE1ICsxNDcsMTUgQEAgc3Rh
+dGljIGNvbnN0IGNoYXIgKnR5cGVfdGV4dFtdID0gewogfTsKIAogc3RhdGljIGNvbnN0IGNoYXIg
+KmNvbmRpdGlvbl9zdHJbXSA9IHsKLQkiY3YiLCAvKiBjb252ZW50aW9uYWwgem9uZSAqLwotCSJl
+MCIsIC8qIGVtcHR5ICovCi0JIk9pIiwgLyogb3BlbiBpbXBsaWNpdCAqLwotCSJPZSIsIC8qIG9w
+ZW4gZXhwbGljaXQgKi8KLQkiQ2wiLCAvKiBjbG9zZWQgKi8KKwkibnciLCAvKiBOb3Qgd3JpdGUg
+cG9pbnRlciAqLworCSJlbSIsIC8qIEVtcHR5ICovCisJImlvIiwgLyogSW1wbGljaXRseSBvcGVu
+ZWQgKi8KKwkiZW8iLCAvKiBFeHBsaWNpdGx5IG9wZW5lZCAqLworCSJjbCIsIC8qIENsb3NlZCAq
+LwogCSJ4NSIsICJ4NiIsICJ4NyIsICJ4OCIsICJ4OSIsICJ4QSIsICJ4QiIsIC8qIHhOOiByZXNl
+cnZlZCAqLwotCSJybyIsIC8qIHJlYWQgb25seSAqLwotCSJmdSIsIC8qIGZ1bGwgKi8KLQkiT0wi
+ICAvKiBvZmZsaW5lICovCisJInJvIiwgLyogUmVhZCBvbmx5ICovCisJImZ1IiwgLyogRnVsbCAq
+LworCSJvZiIgIC8qIE9mZmxpbmUgKi8KIH07CiAKIHN0YXRpYyBpbnQgYmxrem9uZV9yZXBvcnQo
+c3RydWN0IGJsa3pvbmVfY29udHJvbCAqY3RsKQpAQCAtMTg4LDcgKzE4OCw3IEBAIHN0YXRpYyBp
+bnQgYmxrem9uZV9yZXBvcnQoc3RydWN0IGJsa3pvbmVfY29udHJvbCAqY3RsKQogCQkJZXJyKEVY
+SVRfRkFJTFVSRSwgXygiJXM6IEJMS1JFUE9SVFpPTkUgaW9jdGwgZmFpbGVkIiksIGN0bC0+ZGV2
+bmFtZSk7CiAKIAkJaWYgKGN0bC0+dmVyYm9zZSkKLQkJCXByaW50ZihfKCJGb3VuZCAlZCB6b25l
+cyBmcm9tICVseFxuIiksCisJCQlwcmludGYoXygiRm91bmQgJWQgem9uZXMgZnJvbSAweCVseFxu
+IiksCiAJCQkJemktPm5yX3pvbmVzLCBjdGwtPm9mZnNldCk7CiAKIAkJaWYgKCF6aS0+bnJfem9u
+ZXMpIHsKQEAgLTIwOSw5ICsyMDksOSBAQCBzdGF0aWMgaW50IGJsa3pvbmVfcmVwb3J0KHN0cnVj
+dCBibGt6b25lX2NvbnRyb2wgKmN0bCkKIAkJCQlicmVhazsKIAkJCX0KIAotCQkJcHJpbnRmKF8o
+IiAgc3RhcnQ6ICU5bHgsIGxlbiAlNmx4LCB3cHRyICU2bHgiCisJCQlwcmludGYoXygiICBzdGFy
+dDogMHglMDlseCwgbGVuIDB4JTA2bHgsIHdwdHIgMHglMDZseCIKIAkJCSAJIiByZXNldDoldSBu
+b24tc2VxOiV1LCB6Y29uZDolMnUoJXMpIFt0eXBlOiAldSglcyldXG4iKSwKLQkJCQlzdGFydCwg
+bGVuLCB3cCAtIHN0YXJ0LAorCQkJCXN0YXJ0LCBsZW4sICh0eXBlID09IDB4MSkgPyAwIDogd3Ag
+LSBzdGFydCwKIAkJCQllbnRyeS0+cmVzZXQsIGVudHJ5LT5ub25fc2VxLAogCQkJCWNvbmQsIGNv
+bmRpdGlvbl9zdHJbY29uZCAmIEFSUkFZX1NJWkUoY29uZGl0aW9uX3N0cildLAogCQkJCXR5cGUs
+IHR5cGVfdGV4dFt0eXBlXSk7Ci0tIAoyLjkuMwoK
 
-        label: dos
-        label-id: 0x6061f502
-        device: /dev/sdc
-        unit: sectors
-
-        /dev/sdc1 : start=        2048, size=      202752, type=83
-
-
-# sfdisk  /dev/sdc < saved
-
-        Disk /dev/sdc: 100 MiB, 104857600 bytes, 204800 sectors
-        Units: sectors of 1 * 512 = 512 bytes
-        Sector size (logical/physical): 512 bytes / 512 bytes
-        I/O size (minimum/optimal): 512 bytes / 524288 bytes
-        Disklabel type: dos
-        Disk identifier: 0x6061f502
-
-        Old situation:
-
-        Device     Boot Start    End Sectors Size Id Type
-        /dev/sdc1        2048 204799  202752  99M 83 Linux
-
-        >>> Script header accepted.
-        >>> Script header accepted.
-        >>> Script header accepted.
-        >>> Script header accepted.
-        >>> Created a new DOS disklabel with disk identifier 0x6061f502.
-        Created a new partition 1 of type 'Linux' and of size 99 MiB.
-        /dev/sdc2: 
-        New situation:
-
-        Device     Boot Start    End Sectors Size Id Type
-        /dev/sdc1        2048 204799  202752  99M 83 Linux
-
-# sfdisk -d /dev/sdc 
-
-        label: dos
-        label-id: 0x6061f502
-        device: /dev/sdc
-        unit: sectors
-
-        /dev/sdc1 : start=        2048, size=      202752, type=83
-
-
-> 
-> Best Regards
-> 
-> -- 
-> Bartłomiej Solarz-Niesłuchowski, Administrator WSISiZ
-> e-mail: Bartlomiej.Solarz-Niesluchowski@wit.edu.pl
-> tel. 223486547, fax 223486501
-> JID: solarz@jabber.wit.edu.pl
-> 01-447 Warszawa, ul. Newelska 6, pokój 404, pon.-pt. 8-16
-> Motto - Jak sobie pościelisz tak sie wyśpisz
-> 
-> 
-
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--_004_B6CED0171024417BB2226ECA10D06F4Ahgstcom_--
