@@ -1,42 +1,28 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:36414 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750851AbdBEWhb (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 5 Feb 2017 17:37:31 -0500
-Received: by mail-wm0-f66.google.com with SMTP id r18so18481711wmd.3
-        for <util-linux@vger.kernel.org>; Sun, 05 Feb 2017 14:37:31 -0800 (PST)
-Date: Sun, 5 Feb 2017 22:37:22 +0000 (GMT)
-From: Sami Kerola <kerolasa@iki.fi>
+Return-Path: elseifthen@gmx.com
+Subject: [V2 3/4] hwclock: add hwclock-date files
 To: Karel Zak <kzak@redhat.com>
-cc: J William Piggott <elseifthen@gmx.com>, util-linux@vger.kernel.org
-Subject: Re: [ping] Karel: Re: pull: hwclock 27 changes
-In-Reply-To: <20170204184727.g3sticwdbzfbzg3l@ws.net.home>
-Message-ID: <alpine.LNX.2.20.1702052230430.494@imuri>
-References: <alpine.LNX.2.20.1701072212010.9096@imuri> <a9d7f37b-3607-70d4-843a-7d934bd305d5@gmx.com> <alpine.LNX.2.20.1701112055190.2589@imuri> <ede34a46-7290-c68b-1dd8-e4fc356e5caf@gmx.com> <alpine.LNX.2.20.1701140930380.2049@imuri>
- <f723104e-d23b-f8fd-e9ee-b9fc82c86fd3@gmx.com> <c88dc7ee-3e18-19ec-612e-3788551517bb@gmx.com> <alpine.LNX.2.20.1701252136160.492@imuri> <5feac9a5-e3e3-5148-60a0-fb3197a1caa8@gmx.com> <9798a869-fb09-77e7-a13a-bca002617672@gmx.com>
- <20170204184727.g3sticwdbzfbzg3l@ws.net.home>
+References: <ee9e12b4-a921-b47e-975d-53a5b8575361@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <44df4d4e-3df0-a2ca-397b-4d4e3d896607@gmx.com>
+Date: Sat, 25 Feb 2017 13:32:35 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <ee9e12b4-a921-b47e-975d-53a5b8575361@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, 4 Feb 2017, Karel Zak wrote:
 
-> On Thu, Feb 02, 2017 at 10:04:13AM -0500, J William Piggott wrote:
-> > Karel,
-> > I have some work to submit that applies on top of Sami's branch:
-> > 
-> > git://github.com/kerolasa/lelux-utiliteetit.git hwclock-jwp-reviewed
-> 
-> I reviewed the patches 4 day ago and will merge it next week.
+new file: sys-utils/hwclock-date.y
+new file: include/cctype.h
+	Like ctype.h, only hard coded to the 'C' locale.
+	Functions are prefixed with c_, e.g., c_isalpha()
 
-Good to hear.
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ include/cctype.h         |  357 +++++++
+ sys-utils/hwclock-date.y | 2427 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 2784 insertions(+)
+ create mode 100644 include/cctype.h
+ create mode 100644 sys-utils/hwclock-date.y
 
-BTW when doing various checks I noticed clang failed to link with -lm. 
-Something with isnan() must be culprit, but I did not do further 
-investigation, simply changing $(MATH_LIBS) to -lm seems to work fine and 
-is part of my remote.
-
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+This patch was too long to post.
