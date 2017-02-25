@@ -1,38 +1,33 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:56768 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751813AbdBOMsV (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 15 Feb 2017 07:48:21 -0500
-Date: Wed, 15 Feb 2017 13:48:17 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Alexander F =?iso-8859-1?Q?R=F8dseth?= <xyproto@archlinux.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] rename: add --dry-run option
-Message-ID: <20170215124817.jheiwl6wn4ux4b3x@ws.net.home>
-References: <CAG7ayytqobZ3bkvvBJU01DOYNShLZkH8eYo2BZ_bzBShytjEJQ@mail.gmail.com>
+Return-Path: dan.carpenter@oracle.com
+Date: Sat, 25 Feb 2017 23:09:13 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>,
+        linux-sparse@vger.kernel.org
+Subject: Re: [PATCH 0/7] pull: make smatch scan output easy to digest
+Message-ID: <20170225195901.GB4570@mwanda>
+References: <20170213220641.1395-1-kerolasa@iki.fi>
+ <20170220121426.5mr6ab6x7pxt5j4b@ws.net.home>
+ <CAG27Bk2ENHD+1_sX0qVmVnKC2Ss7jDxSyqhNnaj6NKHNnitsYQ@mail.gmail.com>
+ <20170221095012.txqxcblrqkmoxktw@ws.net.home>
+ <20170223153049.GC4133@mwanda>
+ <alpine.LNX.2.20.1702251653080.16457@imuri>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <CAG7ayytqobZ3bkvvBJU01DOYNShLZkH8eYo2BZ_bzBShytjEJQ@mail.gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <alpine.LNX.2.20.1702251653080.16457@imuri>
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Feb 13, 2017 at 03:08:39PM +0100, Alexander F Rødseth wrote:
-> Added a --dry-run and -d option for not making changes when running
-> the rename command. Also made changes to the man page.
+On Sat, Feb 25, 2017 at 05:32:23PM +0000, Sami Kerola wrote:
+> See below simple source file that demonstrates how to triggers warning in 
+> question. When I said was 'smatch' printed warnings it was cgcc that was 
+> complaining , and therefore this is not really a 'smatch' problem at all. 
+> Sorry about giving wrong impression.
 
-Applied, but I have renamed the option --dry-run to --no-act to be
-more compatible with another stuff in util-linux. 
+cgcc is just a shell script which calls either smatch or sparse.  Smatch
+uses sparse as a parser so you sometimes do see certain sparse messages
+when you run smatch, but I don't do bug fixes for those normally.  You
+would think I would understand sparse really well because I use it so
+much but actually hacking sparse makes me realize I'm kind of dumb.  ;P
 
-(We also use --dry-run, but only for rtcwake.)
-
-> Having a dry-run option is useful when running a scary rename.
-
-Definitely, it's nice feature especially with --verbose.
-
-Thanks!
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+regards,
+dan carpenter
