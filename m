@@ -1,34 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from nymeria.archlinux.org ([89.238.67.251]:48294 "EHLO
-        nymeria.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752688AbdBPKg3 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 16 Feb 2017 05:36:29 -0500
-Received: from nymeria.archlinux.org (localhost.localdomain [127.0.0.1])
-        by nymeria.archlinux.org (Postfix) with ESMTP id 204F34038A
-        for <util-linux@vger.kernel.org>; Thu, 16 Feb 2017 11:36:26 +0100 (CET)
-Received: from mail-ua0-f171.google.com (mail-ua0-f171.google.com [209.85.217.171])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: arodseth)
-        by nymeria.archlinux.org (Postfix) with ESMTPSA id A7AD940338
-        for <util-linux@vger.kernel.org>; Thu, 16 Feb 2017 11:36:25 +0100 (CET)
-Received: by mail-ua0-f171.google.com with SMTP id y9so7970248uae.2
-        for <util-linux@vger.kernel.org>; Thu, 16 Feb 2017 02:36:25 -0800 (PST)
-MIME-Version: 1.0
-From: =?UTF-8?Q?Alexander_F_R=C3=B8dseth?= <xyproto@archlinux.org>
-Date: Thu, 16 Feb 2017 11:35:43 +0100
-Message-ID: <CAG7ayysW1RokKo0mkKksvznx==hCOhaDzKQHXfP5AnJrjUhApg@mail.gmail.com>
-Subject: Re: [PATCH] rename: add --dry-run option
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Received: from mail-wr0-f195.google.com ([209.85.128.195]:34501 "EHLO
+        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751576AbdBYRnE (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 25 Feb 2017 12:43:04 -0500
+Received: by mail-wr0-f195.google.com with SMTP id 89so5739527wrr.1
+        for <util-linux@vger.kernel.org>; Sat, 25 Feb 2017 09:43:03 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH] setterm: fix bitfield warning [smatch]
+Date: Sat, 25 Feb 2017 17:35:17 +0000
+Message-Id: <20170225173517.16922-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Using --no-act for consistency sounds like a good decision.
+term-utils/setterm.c:179:27: warning: dubious bitfield without explicit
+`signed' or `unsigned'
 
-Thanks for applying the patch and for maintaining util-linux!
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ term-utils/setterm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---=20
-Sincerely,
-    Alexander F R=C3=B8dseth / xyproto
+diff --git a/term-utils/setterm.c b/term-utils/setterm.c
+index 1cf59957b..8e969c2b3 100644
+--- a/term-utils/setterm.c
++++ b/term-utils/setterm.c
+@@ -176,7 +176,7 @@ struct setterm_control {
+ 	int opt_rt_len;		/* regular tab length */
+ 	int opt_tb_array[TABS_MAX + 1];	/* array for tab list */
+ 	/* colors */
+-	int opt_fo_color:4, opt_ba_color:4, opt_ul_color:4, opt_hb_color:4;
++	unsigned int opt_fo_color:4, opt_ba_color:4, opt_ul_color:4, opt_hb_color:4;
+ 	/* boolean options */
+ 	unsigned int opt_cu_on:1, opt_li_on:1, opt_bo_on:1, opt_hb_on:1,
+ 	    opt_bl_on:1, opt_re_on:1, opt_un_on:1, opt_rep_on:1,
+-- 
+2.12.0
+
