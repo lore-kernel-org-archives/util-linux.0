@@ -1,34 +1,54 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34634 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751665AbdBMNTa (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 13 Feb 2017 08:19:30 -0500
-Date: Mon, 13 Feb 2017 14:19:28 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+Return-Path: elseifthen@gmx.com
+Subject: [V2 2/4] build-system: add hwclock-date
+To: Karel Zak <kzak@redhat.com>
+References: <ee9e12b4-a921-b47e-975d-53a5b8575361@gmx.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/3] pull: blkreset and blkreport polishing
-Message-ID: <20170213131928.oqvmjt5oqyuasjn4@ws.net.home>
-References: <20170211141052.26154-1-kerolasa@iki.fi>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <641e2ffe-49d4-a342-ffb1-4f9e1c5119ce@gmx.com>
+Date: Sat, 25 Feb 2017 13:30:42 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170211141052.26154-1-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <ee9e12b4-a921-b47e-975d-53a5b8575361@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Feb 11, 2017 at 02:10:49PM +0000, Sami Kerola wrote:
->  bash-completion/blkreset | 34 ++++++++++++++++++++++++++++++++++
->  sys-utils/blkreport.8    | 29 ++++++++++++++++++++++++++++-
->  sys-utils/blkreport.c    | 43 +++++++++++++++++--------------------------
->  sys-utils/blkreset.8     |  9 ++++-----
->  sys-utils/blkreset.c     | 17 ++++++++---------
->  5 files changed, 91 insertions(+), 41 deletions(-)
->  create mode 100755 bash-completion/blkreset
 
-Thanks (and thanks for bash-completion).
+sys-utils/Makemodule.am: add hwclock-date source file
+sys-utils/hwclock.h: add parse_datetime functions
 
-    Karel
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/Makemodule.am |  1 +
+ sys-utils/hwclock.h     | 10 ++++++++++
+ 2 files changed, 11 insertions(+)
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+diff --git a/sys-utils/Makemodule.am b/sys-utils/Makemodule.am
+index c565194..a453486 100644
+--- a/sys-utils/Makemodule.am
++++ b/sys-utils/Makemodule.am
+@@ -424,6 +424,7 @@ sbin_PROGRAMS += hwclock
+ dist_man_MANS += sys-utils/hwclock.8
+ PATHFILES += sys-utils/hwclock.8
+ hwclock_SOURCES = \
++	sys-utils/hwclock-date.c \
+ 	sys-utils/hwclock.c \
+ 	sys-utils/hwclock.h \
+ 	sys-utils/hwclock-cmos.c
+diff --git a/sys-utils/hwclock.h b/sys-utils/hwclock.h
+index b08bd2d..e6f16d3 100644
+--- a/sys-utils/hwclock.h
++++ b/sys-utils/hwclock.h
+@@ -82,4 +82,14 @@ extern int set_epoch_rtc(const struct hwclock_control *ctl);
+ 
+ extern void hwclock_exit(const struct hwclock_control *ctl, int status);
+ 
++/* date.c */
++int parse_datetime (struct timespec *, char const *, struct timespec const *);
++
++/* parse_datetime2 flag: if set, print debug/progress information to STDERR */
++#define PARSE_DATETIME_DEBUG 1
++
++/* same as above, supporting additional flags */
++int parse_datetime2 (struct timespec *, char const *, struct timespec const *,
++			unsigned int flags);
++
+ #endif				/* HWCLOCK_CLOCK_H */
