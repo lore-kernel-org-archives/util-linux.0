@@ -1,27 +1,144 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47862 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752096AbdBMNUy (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 13 Feb 2017 08:20:54 -0500
-Date: Mon, 13 Feb 2017 14:20:52 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] lib/randutils: glibc 2.25 has getrandom(2) declaration
-Message-ID: <20170213132052.6fx43yv6lyiwjoxa@ws.net.home>
-References: <20170211180414.4181-1-kerolasa@iki.fi>
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:36211 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751231AbdBYRcm (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 25 Feb 2017 12:32:42 -0500
+Date: Sat, 25 Feb 2017 17:32:23 +0000 (GMT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+cc: Karel Zak <kzak@redhat.com>,
+        util-linux <util-linux@vger.kernel.org>,
+        linux-sparse@vger.kernel.org
+Subject: Re: [PATCH 0/7] pull: make smatch scan output easy to digest
+In-Reply-To: <20170223153049.GC4133@mwanda>
+Message-ID: <alpine.LNX.2.20.1702251653080.16457@imuri>
+References: <20170213220641.1395-1-kerolasa@iki.fi> <20170220121426.5mr6ab6x7pxt5j4b@ws.net.home> <CAG27Bk2ENHD+1_sX0qVmVnKC2Ss7jDxSyqhNnaj6NKHNnitsYQ@mail.gmail.com> <20170221095012.txqxcblrqkmoxktw@ws.net.home> <20170223153049.GC4133@mwanda>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170211180414.4181-1-kerolasa@iki.fi>
+Content-Type: text/plain; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Feb 11, 2017 at 06:04:14PM +0000, Sami Kerola wrote:
->  lib/randutils.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On Fri, 24 Feb 2017, Dan Carpenter wrote:
 
-Applied, thanks.
+> On Tue, Feb 21, 2017 at 10:50:12AM +0100, Karel Zak wrote:
+> > On Mon, Feb 20, 2017 at 10:12:06PM +0000, Sami Kerola wrote:
+> > > On 20 February 2017 at 12:14, Karel Zak <kzak@redhat.com> wrote:
+> > > > Merged, but except:
+> > > >
+> > > > On Mon, Feb 13, 2017 at 10:06:34PM +0000, Sami Kerola wrote:
+> > > >>   misc: unify function declarations [smatch scan]
+> > > >
+> > > > I agree that some unification would be nice, but don't like
+> > > >
+> > > >    static __attribute__((__noreturn__)) __attribute__((__format__(printf, 1, 2)))
+> > > >           void log_err(const char *fmt, ...);
+> > > >
+> > > > it would be better to keep all the attributes after declaration:
+> > > >
+> > > >    static void log_err(const char *fmt, ...)
+> > > >                     __attribute__((__noreturn__))
+> > > >                     __attribute__((__format__(printf, 1, 2)));
+> > > >
+> > > > it means new line for each attribute. IMHO it's more readable and you
+> > > > don't have to search for the function name, etc.
+> > > 
+> > > Hi Karel,
+> > > 
+> > > That's fair enough, and truth is the patch did not fix many warnings so
+> > > I am sure we can live with them.
+> > > 
+> > > What comes to moving attributes at end of the declaration that does
+> > > not please smatch.
+> > > 
+> > > lib/exec_shell.c:33:1: error: attributes should be specified before
+> > > the declarator in a function definition
+> > >  void exec_shell(void)
+> > 
+> > Report it as smatch bug. It's pretty common that function attributes
+> > are defined after declaration. CC: Dan.
+> > 
+> 
+> This is a Sparse warning, not a Smatch warning.  It shouldn't show up
+> when you do a `make checksmatch` so I'm confused by that.  Anyway,
+> could you email linux-sparse@vger.kernel.org?
+
+Hi Dan, Karel, and others,
+
+I did not run 'make checksmatch', but added following variables and did 
+usual ./configure && make
+
+export CC=/src/smatch/cgcc
+export PATH="/src/smatch:$PATH"
+export CFLAGS="-Wsparse-all"
+
+With these right now upstream gives errors such as this:
+
+text-utils/more.c:674:43: error: symbol 'end_it' redeclared with different 
+type (originally declared at text-utils/more.c:143) - different modifiers
+
+that are caused by lack of function attributes in declaration, while 
+fuction has them. An attempt to fix the declarations caused made me to get 
+noise about attributes vs declaration order. Such versions of files never 
+entered to util-linux, and that is the reason why you do not see these.
+
+See below simple source file that demonstrates how to triggers warning in 
+question. When I said was 'smatch' printed warnings it was cgcc that was 
+complaining , and therefore this is not really a 'smatch' problem at all. 
+Sorry about giving wrong impression.
+
+When comparing gcc with clang gives very similar warning. Perhaps the 
+right way to go about this is to reorder attributes to be in front of 
+functions after all.
+
+-- snip --
+
+$ cat ./test.c 
+#include <stdio.h>
+#include <stdlib.h>
+static void hello(char *s) __attribute__((__noreturn__));
+static void hello(char *s) __attribute__((__noreturn__)) {
+        printf("hello %s\n", s);
+        exit(0);
+}
+int main(int argc, char **argv) {
+        if (1 < argc)
+                hello(argv[1]);
+        printf("hello world\n");
+        return 0;
+}
+
+
+$ gcc ./test.c 
+./test.c:4:1: error: attributes should be specified before the declarator in a function definition
+ static void hello(char *s) __attribute__((__noreturn__)) {
+ ^~~~~~
+./test.c:3:13: warning: 'hello' used but never defined
+ static void hello(char *s) __attribute__((__noreturn__));
+             ^~~~~
+$ gcc --version
+gcc (GCC) 6.3.1 20170109
+Copyright (C) 2016 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+$ clang ./test.c 
+./test.c:4:43: warning: GCC does not allow '__noreturn__' attribute in this position on a function
+      definition [-Wgcc-compat]
+static void hello(char *s) __attribute__((__noreturn__)) {
+                                          ^
+1 warning generated.
+$ clang --version
+clang version 3.9.1 (tags/RELEASE_391/final)
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /usr/bin
+
+
+See also:
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60915
+https://gcc.gnu.org/onlinedocs/gcc-4.2.2/gcc/Attribute-Syntax.html
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
