@@ -1,51 +1,42 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51990 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751826AbdB1Nr4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 28 Feb 2017 08:47:56 -0500
-Date: Tue, 28 Feb 2017 14:37:13 +0100
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [V2 0/4] hwclock: remove date(1)
-Message-ID: <20170228133713.377klbjm44roizx6@ws.net.home>
-References: <ee9e12b4-a921-b47e-975d-53a5b8575361@gmx.com>
+Return-Path: luc.vanoostenryck@gmail.com
+Date: Sun, 26 Feb 2017 05:07:28 +0100
+From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>, Karel Zak <kzak@redhat.com>,
+	util-linux <util-linux@vger.kernel.org>,
+	linux-sparse@vger.kernel.org
+Subject: Re: [PATCH 0/7] pull: make smatch scan output easy to digest
+Message-ID: <20170226040727.vjf6wdy7yiakppx5@macbook.local>
+References: <20170213220641.1395-1-kerolasa@iki.fi>
+ <20170220121426.5mr6ab6x7pxt5j4b@ws.net.home>
+ <CAG27Bk2ENHD+1_sX0qVmVnKC2Ss7jDxSyqhNnaj6NKHNnitsYQ@mail.gmail.com>
+ <20170221095012.txqxcblrqkmoxktw@ws.net.home>
+ <20170223153049.GC4133@mwanda>
+ <alpine.LNX.2.20.1702251653080.16457@imuri>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <ee9e12b4-a921-b47e-975d-53a5b8575361@gmx.com>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <alpine.LNX.2.20.1702251653080.16457@imuri>
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Feb 25, 2017 at 01:25:37PM -0500, J William Piggott wrote:
+On Sat, Feb 25, 2017 at 05:32:23PM +0000, Sami Kerola wrote:
+> On Fri, 24 Feb 2017, Dan Carpenter wrote:
+> text-utils/more.c:674:43: error: symbol 'end_it' redeclared with different 
+> type (originally declared at text-utils/more.c:143) - different modifiers
 > 
-> * The last commit/patch adds hwclock-date.c
+> that are caused by lack of function attributes in declaration, while 
+> fuction has them.
 
-Seems better than the previous attempt.
+Yes, this is a sparse's bug.
+I hope I'll be able to look at it soon.
 
->    I added this file in case testers do not have 'bison' installed. It
->    may, or may not, need to be tracked depending on how it is to be
->    maintained. The 'c' file probably should be included in the
->    distributed source archive to avoid the bison dependency.  Karel, I
->    don't know if you want to create a separate clean and build target
->    for hwclock-date.c, or how you want to handle this. So, if you don't
->    mind, I'll leave this detail to you.
+> See below simple source file that demonstrates how to triggers warning in 
+> question. When I said was 'smatch' printed warnings it was cgcc that was 
+> complaining , and therefore this is not really a 'smatch' problem at all. 
+> Sorry about giving wrong impression.
+> 
+> When comparing gcc with clang gives very similar warning. Perhaps the 
+> right way to go about this is to reorder attributes to be in front of 
+> functions after all.
 
-Yes, it's good idea to have .c files in the distribution tarball, but
-I'd like to avoid generated files in the git repository. I'll try to
-play with it (autotools) to generate .y to .c on the fly if missing.
 
-Do you want to keep the .y file sync with gnulib and minimize number
-of our local changes, or is it so stable area that we don't have to
-care about it? ... because I don't like the coding style and  the
-debug stuff. If the overhead to maintain the file locally will be
-minimal than we can probably clean up it :-)
-
-I guess it will be possible to move it to lib/parse-datetime.c and use
-it on another places in util-linux (instead of our minimalistic
-parse_datetime()), right?
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Luc Van Oostenryck
