@@ -1,40 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:34282 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750903AbdBKSET (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 11 Feb 2017 13:04:19 -0500
-Received: by mail-wm0-f65.google.com with SMTP id c85so11626953wmi.1
-        for <util-linux@vger.kernel.org>; Sat, 11 Feb 2017 10:04:18 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] lib/randutils: glibc 2.25 has getrandom(2) declaration
-Date: Sat, 11 Feb 2017 18:04:14 +0000
-Message-Id: <20170211180414.4181-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:38450 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751737AbdB1NuI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 28 Feb 2017 08:50:08 -0500
+Date: Tue, 28 Feb 2017 14:39:52 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] setterm: fix bitfield warning [smatch]
+Message-ID: <20170228133952.ymkupqcuyysbuie6@ws.net.home>
+References: <20170225173517.16922-1-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170225173517.16922-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Use correct header file to include the function.
+On Sat, Feb 25, 2017 at 05:35:17PM +0000, Sami Kerola wrote:
+> term-utils/setterm.c:179:27: warning: dubious bitfield without explicit
+> `signed' or `unsigned'
+> 
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  term-utils/setterm.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/term-utils/setterm.c b/term-utils/setterm.c
+> index 1cf59957b..8e969c2b3 100644
+> --- a/term-utils/setterm.c
+> +++ b/term-utils/setterm.c
+> @@ -176,7 +176,7 @@ struct setterm_control {
+>  	int opt_rt_len;		/* regular tab length */
+>  	int opt_tb_array[TABS_MAX + 1];	/* array for tab list */
+>  	/* colors */
+> -	int opt_fo_color:4, opt_ba_color:4, opt_ul_color:4, opt_hb_color:4;
+> +	unsigned int opt_fo_color:4, opt_ba_color:4, opt_ul_color:4, opt_hb_color:4;
 
-Reference: http://git.kernel.org/cgit/docs/man-pages/man-pages.git/commit/?id=2cbb6fb4e926e56dc3985b19ac02389321a0af5d
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- lib/randutils.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Often and stupid bug, good catch.
 
-diff --git a/lib/randutils.c b/lib/randutils.c
-index daf046005..a835ff345 100644
---- a/lib/randutils.c
-+++ b/lib/randutils.c
-@@ -26,7 +26,7 @@
- #endif
- 
- #ifdef HAVE_GETRANDOM
--# include <linux/random.h>
-+# include <sys/random.h>
- #elif defined (__linux__)
- # include <sys/syscall.h>
- # if !defined(SYS_getrandom) && defined(__NR_getrandom)
+    Karel
+
 -- 
-2.11.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
