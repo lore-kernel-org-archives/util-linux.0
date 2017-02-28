@@ -1,105 +1,76 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:60845 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1750731AbdBNWko (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Tue, 14 Feb 2017 17:40:44 -0500
-Subject: Re: [PATCH] Fix word repetitions
-To: Yuri Chornoivan <yurchor@gmail.com>, util-linux@vger.kernel.org
-References: <1486724704-8127-1-git-send-email-yurchor@gmail.com>
-From: Tilman Schmidt <tilman@imap.cc>
-Message-ID: <4628c807-c74f-fe57-2cab-6690fa94d4d7@imap.cc>
-Date: Tue, 14 Feb 2017 23:40:34 +0100
+Return-Path: assafgordon@gmail.com
+Date: Tue, 28 Feb 2017 17:01:23 +0000
+From: Assaf Gordon <assafgordon@gmail.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: J William Piggott <elseifthen@gmx.com>, util-linux@vger.kernel.org
+Subject: Re: [V2 0/4] hwclock: remove date(1)
+Message-ID: <20170228170122.GA18228@gmail.com>
+References: <ee9e12b4-a921-b47e-975d-53a5b8575361@gmx.com>
+ <20170228133713.377klbjm44roizx6@ws.net.home>
+ <0d36f495-d691-9e80-9c05-461d3563b468@gmx.com>
+ <20170228161000.ijlouecku6a37quk@ws.net.home>
 MIME-Version: 1.0
-In-Reply-To: <1486724704-8127-1-git-send-email-yurchor@gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="30Knt6TBUcSnQHpaJoi6HCJ14o2uTj9RB"
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <20170228161000.ijlouecku6a37quk@ws.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---30Knt6TBUcSnQHpaJoi6HCJ14o2uTj9RB
-Content-Type: multipart/mixed; boundary="h5QNkMvPxx3L2bM75kPnHPHQ0qrVvin6v";
- protected-headers="v1"
-From: Tilman Schmidt <tilman@imap.cc>
-To: Yuri Chornoivan <yurchor@gmail.com>, util-linux@vger.kernel.org
-Message-ID: <4628c807-c74f-fe57-2cab-6690fa94d4d7@imap.cc>
-Subject: Re: [PATCH] Fix word repetitions
-References: <1486724704-8127-1-git-send-email-yurchor@gmail.com>
-In-Reply-To: <1486724704-8127-1-git-send-email-yurchor@gmail.com>
+Hello,
 
---h5QNkMvPxx3L2bM75kPnHPHQ0qrVvin6v
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+On Tue, Feb 28, 2017 at 05:10:00PM +0100, Karel Zak wrote:
+>On Tue, Feb 28, 2017 at 10:23:39AM -0500, J William Piggott wrote:
+>> My impression is that the original parse_datetime() is stable. It seems
+>> like most of the changes now involve parse_datetime2() to expand
+>> capabilities.
 
-Am 10.02.2017 um 12:05 schrieb Yuri Chornoivan:
+More specifically: parse_datetime was made it re-entrant (removed 
+global timezone  variables) and was added debugging code.
+I don't think the parser itself has changed in a long while.
 
-> diff --git a/misc-utils/look.c b/misc-utils/look.c
-> index 93c388e..bb0d965 100644
-> --- a/misc-utils/look.c
-> +++ b/misc-utils/look.c
-> @@ -171,7 +171,7 @@ look(char *front, char *back)
->  	int ch;
->  	char *readp, *writep;
-> =20
-> -	/* Reformat string string to avoid doing it multiple times later. */
-> +	/* Reformat string to avoid doing it multiple times later. */
->  	if (dflag) {
->  		for (readp =3D writep =3D string; (ch =3D *readp++) !=3D 0;) {
->  			if (isalnum(ch) || isblank(ch))
+>Fortunately, this stuff is easy to test, so we can create regression
+>tests for all the possible formats to be sure we do not introduce any
+>regression.
 
-Actually I don't think this is a word repetition. It looks to me like
-it's really talking about "string string" - the string held in the
-variable named "string".
+A description of all types of accepted inputs for gnu date
+(and techincally: gnulib's parse_datetime) is here:
+ https://www.gnu.org/software/coreutils/manual/html_node/Date-input-formats.html
 
-> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-> index 21caeb2..e561859 100644
-> --- a/sys-utils/hwclock.c
-> +++ b/sys-utils/hwclock.c
-> @@ -712,7 +712,7 @@ display_time(const bool hclock_valid, struct timeva=
-l hwctime)
->   * runnable by issuing the command "date" to the /bin/sh shell. That m=
-eans
->   * in must be in the current PATH.
->   *
-> - * If anything goes wrong (and many things can), we return return code=
- 10
-> + * If anything goes wrong (and many things can), we return code 10
->   * and arbitrary *time_p. Otherwise, return code is 0 and *time_p is v=
-alid.
->   */
->  static int interpret_date_string(const char *date_opt, time_t * const =
-time_p)
+>> > I guess it will be possible to move it to lib/parse-datetime.c and use
+>> > it on another places in util-linux (instead of our minimalistic
+>> > parse_datetime()), right?
+>>
+>> Sure, I think a name change to avoid confusion with gnulib would be
+>> good. Maybe just parse_date.c?
 
-Nor is this, as it talks about the return code that will be returned.
+If you copy the gnulib's parser and adjust it,
+I might suggest doing away first with relative times,
+then perhaps with timezones.
 
-Regards,
-Tilman
+There are some confusing combinations, especially with
+relative times (e.g. "20170228 + 2 days" vs "20:45:45 + 2 days", the 
+latter parsed as "8:45:45pm+02:00TZ + 1 day"),
+and then with all sorts of things that are taken as timezones (like 
+"2017A" which is parsed as '8:17pm in timezone -01:00'.
 
---=20
-Tilman Schmidt                              E-Mail: tilman@imap.cc
-Bonn, Germany
-Nous, on a des fleurs et des bougies pour nous prot=E9ger.
+If you don't want to meddle with the parser (which is understandable),
+as a fallback you might want to add a minor piece of code
+that ensures any timezone/relative parts were not encountered during the 
+parsing.
+To do that, I'd add a small check at the end of 'parse_datetime2',
+and look at the fields of 'struct parse_control':
+http://git.savannah.gnu.org/cgit/gnulib.git/tree/lib/parse-datetime.y#n172
 
+something like:
 
---h5QNkMvPxx3L2bM75kPnHPHQ0qrVvin6v--
+    if (pc.dsts_seen==0 && pc.rels_seen==0 && pc.zones_seen==0 etc.)
 
---30Knt6TBUcSnQHpaJoi6HCJ14o2uTj9RB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Then the parser didn't encounter these parts.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+I'm happy to help with testing if needed.
 
-iQEcBAEBCAAGBQJYo4dsAAoJEFPuqx0v+F+qy6IH/0Gp85rCAjwssUv0qazX4XFA
-4mRxqDKA29gTsJGVt1ZlnjUzJ/OTiGljGzg/7TUYGCI4S0xbjYJQ8EyBfUJVvsZ+
-Y2UjbVwBJI+FEZFf2ut6wqy119AyYA9ryQvkiIYe2iLgj7DROGnTpB9EPMtSMF/b
-qXbc7OhcoaTswiSG2ZsrJZ2yZTyCGqxdDGwrtzKiCfgdQLWAl6bUMu6Hok/k5DTD
-25IOwBl4srnmwHnd6QiBQdF0NLkqeJQe1P0H4IkU3xU0vISEn9BQveq0z+Ter6T1
-cSDfgHDJPfu/SlguVwUOSgRV5MZbS9RXzqwjf/B32euQeHbv+U2L063i/H0kkcI=
-=rDly
------END PGP SIGNATURE-----
+regards,
+ - assaf
 
---30Knt6TBUcSnQHpaJoi6HCJ14o2uTj9RB--
+P.S.
+In fact, I wonder if it'll be easier to add such a flag to gnulib's 
+parse_datetime2 , something like 'PARSE_DATETIME_NO_RELATIVE'
+and 'PARSE_DATETIME_NO_ZONE' which will reject such input.
