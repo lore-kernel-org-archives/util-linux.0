@@ -1,89 +1,50 @@
-Return-Path: elseifthen@gmx.com
-Subject: Re: [PATCH 3/3] hwclock: use gnulib's parse_datetime2 function
-To: Assaf Gordon <assafgordon@gmail.com>
-References: <bbd64daa-5431-8c7d-580b-3382a33edccd@gmx.com>
- <621b8782-5b62-d07c-c81f-3cfcfbeef8ae@gmx.com>
- <20170210213759.GD24787@gmail.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <b631a678-3c26-3c48-c4f1-a7e652403ff7@gmx.com>
-Date: Sat, 11 Feb 2017 11:49:14 -0500
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:57898 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752771AbdB1QUp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 28 Feb 2017 11:20:45 -0500
+Date: Tue, 28 Feb 2017 17:10:00 +0100
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [V2 0/4] hwclock: remove date(1)
+Message-ID: <20170228161000.ijlouecku6a37quk@ws.net.home>
+References: <ee9e12b4-a921-b47e-975d-53a5b8575361@gmx.com>
+ <20170228133713.377klbjm44roizx6@ws.net.home>
+ <0d36f495-d691-9e80-9c05-461d3563b468@gmx.com>
 MIME-Version: 1.0
-In-Reply-To: <20170210213759.GD24787@gmail.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <0d36f495-d691-9e80-9c05-461d3563b468@gmx.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, Feb 28, 2017 at 10:23:39AM -0500, J William Piggott wrote:
+> My impression is that the original parse_datetime() is stable. It seems
+> like most of the changes now involve parse_datetime2() to expand
+> capabilities. I was using the new api only for the debug output; I
+> thought if changes were ever needed in the parser it might be helpful.
+> Since that may be unlikely, and since you don't like the debugging,
+> parse_datetime2() along with all of its extensions can be removed.
 
+Fortunately, this stuff is easy to test, so we can create regression
+tests for all the possible formats to be sure we do not introduce any
+regression.
 
-On 02/10/2017 04:38 PM, Assaf Gordon wrote:
-> Hello William,
+> > I guess it will be possible to move it to lib/parse-datetime.c and use
+> > it on another places in util-linux (instead of our minimalistic
+> > parse_datetime()), right?
 > 
-> two minor suggestions:
-> 
-> On Fri, Feb 10, 2017 at 04:08:20PM -0500, J William Piggott wrote:
-> 
->> +    if (parse_datetime2 (&when, ctl.date_opt, NULL, ctl.debug))
-> 
-> 1.  The 'flags' parameter in parse_datetime2 should be considered as a
-> bit-field, not a boolean.
->
+> Sure, I think a name change to avoid confusion with gnulib would be
+> good. Maybe just parse_date.c?
 
-Hello Assaf,
+Sounds, good.
 
-Thank you, yes I am aware of this. However, I expected push back against
-adding gnulib and I didn't want to muddy the discussion waters with this
-nuance. So for this simple version it has the effect of turning on
-parse_datetime debugging only for odd levels. -D it's on, -DD off, -DDD on ...
+> I will work on these changes Karel.
 
-*IF* parse_datetime gets accepted, I will address this.
- 
-> BTW, Turning on the debug flag for parse_datetime2 will emit the
-> parsing steps to STDERR, which will look like so:
-> https://lists.gnu.org/archive/html/bug-gnulib/2016-08/msg00019.html
-> 
-> (might be good for util-linux, or might be an overkill).
+OK.
 
-I think it is useful, but should be at a debug level > 1. Again, *if*
-parse_datetime is accepted (which I am not optimistic about after
-reading Sami's comments) I will address debugging. I wanted it to be on
-at level 1 for this initial introduction so reviewers could observe it
-in action. Which is why I offered the suggested testing command in the
-cover letter 0/3.
+    Karel
 
-> 
-> 2.  The latest version of 'parse_datetime2' function takes 6
-> parameters, not just 4. The extra 2 are timezone specific values.
-> Added here:
-> http://git.savannah.gnu.org/cgit/gnulib.git/commit/lib?id=4e6e16b3f43ce
-
-This I wasn't aware of. Paul added it 2 days after I started this
-development branch.
-
-Thank you for the review assaf
-> 
-> 
-> 
-> regards,
-> - assaf
-> 
-> 
-> -- 
-> To
-> unsubscribe from
-> this list:
-> send the
-> line
-> "unsubscribe
-> util-linux" in
-> 
-> the body
-> of a
-> message to
-> majordomo@vger.kernel.org
-> 
-> More
-> majordomo
-> info at 
-> http://vger.kernel.org/majordomo-info.html
-> 
-> 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
