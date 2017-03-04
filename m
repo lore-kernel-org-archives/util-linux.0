@@ -1,46 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35408 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:55978 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932554AbdCaJTa (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 31 Mar 2017 05:19:30 -0400
-Date: Fri, 31 Mar 2017 11:19:25 +0200
-From: Karel Zak <kzak@redhat.com>
-To: =?iso-8859-1?Q?R=FCdiger?= Meier <sweet_f_a@gmx.de>
+        id S1752056AbdCDV5V (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sat, 4 Mar 2017 16:57:21 -0500
+Subject: Re: [V2 0/4] hwclock: remove date(1)
+To: Assaf Gordon <assafgordon@gmail.com>, Karel Zak <kzak@redhat.com>
+References: <ee9e12b4-a921-b47e-975d-53a5b8575361@gmx.com>
+ <20170228133713.377klbjm44roizx6@ws.net.home>
+ <0d36f495-d691-9e80-9c05-461d3563b468@gmx.com>
+ <20170228161000.ijlouecku6a37quk@ws.net.home>
+ <20170228170122.GA18228@gmail.com>
+From: J William Piggott <elseifthen@gmx.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: find device of a known mountpoint
-Message-ID: <20170331091925.mpwmxxk4da4lsegr@ws.net.home>
-References: <5f3534af-06b5-9c76-f5e3-9c1d489e570c@gmx.de>
+Message-ID: <5bde338e-a434-8e11-372f-9ef65b742aec@gmx.com>
+Date: Sat, 4 Mar 2017 16:57:12 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <5f3534af-06b5-9c76-f5e3-9c1d489e570c@gmx.de>
+In-Reply-To: <20170228170122.GA18228@gmail.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Mar 31, 2017 at 11:00:24AM +0200, Rüdiger Meier wrote:
-> $ truncate -s100M /tmp/img
-> $ losetup /dev/loop0  /tmp/img
-> $ mkfs.ext2  /dev/loop0
+
+On 02/28/2017 12:01 PM, Assaf Gordon wrote:
 > 
-> $ mkdir /tmp/mnt
-> $ ln -s /tmp  /tmp/xyz/symlink
+> I might suggest doing away first with relative times, then perhaps
+> with timezones.
 > 
-> $ mount /dev/loop0 /tmp/xyz/symlink/mnt
-> $ mount | grep loop
-> /dev/loop0 on /tmp/mnt type ext2 ...
+> There are some confusing combinations, especially with relative times
+> (e.g.  "20170228 + 2 days" vs "20:45:45 + 2 days", the latter parsed
+> as "8:45:45pm+02:00TZ + 1 day"),
 > 
+> and then with all sorts of things that are taken as timezones (like
+> "2017A" which is parsed as '8:17pm in timezone -01:00'.
+
+Hello Assaf,
+
+Because hwclock(8) was using date(1) to parse --date strings, it has
+always be subject to these issues. Some time ago I added a warning not
+to use relative times in hwclock.8. I just added a warning about
+timezones as well. 
+
+I don't think blocking them from the parser is needed. They could be
+useful to some other util-linux module.
+
 > 
-> I need a command which outputs "/dev/loop0" when "/tmp/xyz/symlink/mnt" is
-> given.
+> I'm happy to help with testing if needed.
 
-  $ findmnt -no SOURCE /tmp/xyz/symlink/mnt
-  /dev/loop0
+Thank you very much Assaf.
 
 
-Note that for bind mounts there is nothing like primary (original)
-and secondary mountpoints. It's two ways to the same filesystem.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
