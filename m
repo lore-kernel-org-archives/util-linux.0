@@ -1,53 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:48358 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932285AbdCGDz4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 6 Mar 2017 22:55:56 -0500
-From: Masatake YAMATO <yamato@redhat.com>
+Received: from mail-wr0-f175.google.com ([209.85.128.175]:36156 "EHLO
+        mail-wr0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751781AbdCEUwi (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 5 Mar 2017 15:52:38 -0500
+Received: by mail-wr0-f175.google.com with SMTP id u108so104169967wrb.3
+        for <util-linux@vger.kernel.org>; Sun, 05 Mar 2017 12:52:37 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: yamato@redhat.com
-Subject: [PATCH 0/4] fincore command
-Date: Tue,  7 Mar 2017 11:33:48 +0900
-Message-Id: <20170307023352.7340-1-yamato@redhat.com>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 00/13] pull: warnings fixes and blkid translations
+Date: Sun,  5 Mar 2017 20:52:19 +0000
+Message-Id: <20170305205232.24030-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This patch set proposes adding fincore command to util-linux
-distribution.  The command counts pages of file contents being
-resident in memory(in core), and reports the numbers.
+Hello,
 
-It helps system administrators understand how their systems use
-physical memory, especially about page caches when they have to do
-trouble shooting and/or performance tuning.
-
-This is just my case. A person in other role may also get benefits
-from this command.
+Following few changes are various small fixes.  Many of the changes are
+about warnings, and not that interesting.  Perhaps the most unexpected
+change is blkid translations.  I don't know how that command has slipped
+through so long time without being part of translations.  Oh well, now that
+is fixed.
 
 
-Masatake YAMATO (4):
-  fincore: new command for counting pages of file contents in core
-  man: add a page for fincore command
-  tests: add cases for testing fincore command
-  bash-completion: add a function for fincore command
+----------------------------------------------------------------
+The following changes since commit 1765814521bf2aba7b8c03d3ab2e3b784e1ce2c4:
+  libsmartcols: allow to add column to already used table (2017-03-03 10:37:37 +0100)
+are available in the git repository at:
+  git://github.com/kerolasa/lelux-utiliteetit.git 2017wk09
+for you to fetch changes up to b8711cb7f2e0f739a491b6a95e7fb8dc537d977f:
+  lib/colors: assert rathen than overflow (2017-03-05 20:41:41 +0000)
+----------------------------------------------------------------
 
- bash-completion/Makemodule.am |   3 +
- bash-completion/fincore       |  25 +++++
- configure.ac                  |   4 +
- misc-utils/Makemodule.am      |   6 ++
- misc-utils/fincore.1          |  76 ++++++++++++++
- misc-utils/fincore.c          | 209 +++++++++++++++++++++++++++++++++++++
- misc-utils/fincore_orig.c     | 235 ++++++++++++++++++++++++++++++++++++++++++
- tests/commands.sh             |   1 +
- tests/expected/fincore/count  |  62 +++++++++++
- tests/ts/fincore/count        | 194 ++++++++++++++++++++++++++++++++++
- 10 files changed, 815 insertions(+)
- create mode 100644 bash-completion/fincore
- create mode 100644 misc-utils/fincore.1
- create mode 100644 misc-utils/fincore.c
- create mode 100644 misc-utils/fincore_orig.c
- create mode 100644 tests/expected/fincore/count
- create mode 100755 tests/ts/fincore/count
+Sami Kerola (13):
+  misc: stop mixing declarations and code
+  libmount: fix use of preprocessor identifier
+  libblkid: avoid overflow when initializing array
+  libblkid: ensure uninitialized variable is not used [clang]
+  blkid: add curly braces to do-while statement
+  blkid: add messages to translations
+  blkid: define output names only once
+  blkid: improve coding style
+  include: fix compiler warning
+  libfdisk: dos: fix potential null pointer dereferences
+  libfdisk: fix potentially null
+  docs: improve boilerplate.c options example
+  lib/colors: assert rathen than overflow
+
+ Documentation/boilerplate.c           |  13 +-
+ disk-utils/cfdisk.c                   |   4 +-
+ disk-utils/sfdisk.c                   |   2 +-
+ include/optutils.h                    |   3 +
+ include/pt-mbr.h                      |   3 +
+ lib/colors.c                          |   4 +-
+ libblkid/src/superblocks/drbdmanage.c |   2 +-
+ libblkid/src/superblocks/minix.c      |  22 +--
+ libfdisk/src/dos.c                    |  61 +++++++-
+ libfdisk/src/partition.c              |   4 +
+ libmount/src/context_mount.c          |   2 +-
+ misc-utils/blkid.c                    | 269 ++++++++++++++++++----------------
+ text-utils/hexdump-display.c          |   4 +-
+ 13 files changed, 241 insertions(+), 152 deletions(-)
 
 -- 
-2.9.3
+2.12.0
 
