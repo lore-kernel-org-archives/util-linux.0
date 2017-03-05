@@ -1,119 +1,145 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:35365 "EHLO
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:32970 "EHLO
         mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751269AbdCSKRx (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 19 Mar 2017 06:17:53 -0400
-Received: by mail-wm0-f66.google.com with SMTP id z133so9796156wmb.2
-        for <util-linux@vger.kernel.org>; Sun, 19 Mar 2017 03:17:52 -0700 (PDT)
+        with ESMTP id S1752410AbdCEUwr (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 5 Mar 2017 15:52:47 -0500
+Received: by mail-wm0-f66.google.com with SMTP id n11so10897414wma.0
+        for <util-linux@vger.kernel.org>; Sun, 05 Mar 2017 12:52:46 -0800 (PST)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 3/5] tests: add static keyword where needed [smatch scan]
-Date: Sun, 19 Mar 2017 10:10:43 +0000
-Message-Id: <20170319101045.3018-4-kerolasa@iki.fi>
-In-Reply-To: <20170319101045.3018-1-kerolasa@iki.fi>
-References: <20170319101045.3018-1-kerolasa@iki.fi>
+Subject: [PATCH 08/13] blkid: improve coding style
+Date: Sun,  5 Mar 2017 20:52:27 +0000
+Message-Id: <20170305205232.24030-9-kerolasa@iki.fi>
+In-Reply-To: <20170305205232.24030-1-kerolasa@iki.fi>
+References: <20170305205232.24030-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- libmount/src/context.c         | 2 +-
- libmount/src/lock.c            | 2 +-
- misc-utils/test_uuidd.c        | 8 ++++----
- tests/helpers/test_byteswap.c  | 6 +++---
- tests/helpers/test_pathnames.c | 2 +-
- 5 files changed, 10 insertions(+), 10 deletions(-)
+ misc-utils/blkid.c | 36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/libmount/src/context.c b/libmount/src/context.c
-index 44282c07b..e731749b4 100644
---- a/libmount/src/context.c
-+++ b/libmount/src/context.c
-@@ -2414,7 +2414,7 @@ int mnt_context_wait_for_children(struct libmnt_context *cxt,
+diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
+index 887a80083..493251d37 100644
+--- a/misc-utils/blkid.c
++++ b/misc-utils/blkid.c
+@@ -186,12 +186,12 @@ static void pretty_print_line(const char *device, const char *fs_type,
+ 		w = term_width / 10;
+ 		if (w > 8)
+ 			w = 8;
+-		term_width -= 2*w;
++		term_width -= 2 * w;
+ 		label_len += w;
+ 		fs_type_len += w;
+-		w = term_width/2;
++		w = term_width / 2;
+ 		device_len += w;
+-		mtpt_len +=w;
++		mtpt_len += w;
+ 	}
  
- #ifdef TEST_PROGRAM
+ 	len = pretty_print_word(device, device_len, 0, 1);
+@@ -215,7 +215,7 @@ static void pretty_print_dev(blkid_dev dev)
+ 	if (dev == NULL) {
+ 		pretty_print_line("device", "fs_type", "label",
+ 				  "mount point", "UUID");
+-		for (len=get_terminal_width(0)-1; len > 0; len--)
++		for (len = get_terminal_width(0) - 1; len > 0; len--)
+ 			fputc('-', stdout);
+ 		fputc('\n', stdout);
+ 		return;
+@@ -265,8 +265,8 @@ static void print_udev_format(const char *name, const char *value)
+ 		printf("ID_FS_%s=%s\n", name, enc);
  
--struct libmnt_lock *lock;
-+static struct libmnt_lock *lock;
+ 	} else if (!strcmp(name, "UUID") ||
+-		 !strcmp(name, "LABEL") ||
+-		 !strcmp(name, "UUID_SUB")) {
++		   !strcmp(name, "LABEL") ||
++		   !strcmp(name, "UUID_SUB")) {
  
- static void lock_fallback(void)
+ 		blkid_safe_string(value, safe, sizeof(safe));
+ 		printf("ID_FS_%s=%s\n", name, safe);
+@@ -281,7 +281,7 @@ static void print_udev_format(const char *name, const char *value)
+ 		printf("ID_PART_TABLE_TYPE=%s\n", value);
+ 
+ 	} else if (!strcmp(name, "PART_ENTRY_NAME") ||
+-		  !strcmp(name, "PART_ENTRY_TYPE")) {
++		   !strcmp(name, "PART_ENTRY_TYPE")) {
+ 
+ 		blkid_encode_string(value, enc, sizeof(enc));
+ 		printf("ID_%s=%s\n", name, enc);
+@@ -289,11 +289,11 @@ static void print_udev_format(const char *name, const char *value)
+ 	} else if (!strncmp(name, "PART_ENTRY_", 11))
+ 		printf("ID_%s=%s\n", name, value);
+ 
+-	else if (namelen >= 15 && (
+-		   !strcmp(name + (namelen - 12), "_SECTOR_SIZE") ||
+-		   !strcmp(name + (namelen - 8), "_IO_SIZE") ||
+-		   !strcmp(name, "ALIGNMENT_OFFSET")))
+-			printf("ID_IOLIMIT_%s=%s\n", name, value);
++	else if (namelen >= 15
++		 && (!strcmp(name + (namelen - 12), "_SECTOR_SIZE")
++		     || !strcmp(name + (namelen - 8), "_IO_SIZE")
++		     || !strcmp(name, "ALIGNMENT_OFFSET")))
++		printf("ID_IOLIMIT_%s=%s\n", name, value);
+ 	else
+ 		printf("ID_FS_%s=%s\n", name, value);
+ }
+@@ -382,7 +382,6 @@ static void print_tags(blkid_dev dev, char *show[], int output)
+ 	}
+ }
+ 
+-
+ static int append_str(char **res, size_t *sz, const char *a, const char *b)
  {
-diff --git a/libmount/src/lock.c b/libmount/src/lock.c
-index c3cd226f4..06eff1344 100644
---- a/libmount/src/lock.c
-+++ b/libmount/src/lock.c
-@@ -560,7 +560,7 @@ void mnt_unlock_file(struct libmnt_lock *ml)
+ 	char *str = *res;
+@@ -510,7 +509,7 @@ static int lowprobe_device(blkid_probe pr, const char *devname,
+ 	int rc = 0;
+ 	static int first = 1;
  
- #ifdef TEST_PROGRAM
+-	fd = open(devname, O_RDONLY|O_CLOEXEC);
++	fd = open(devname, O_RDONLY | O_CLOEXEC);
+ 	if (fd < 0) {
+ 		warn(_("error: %s"), devname);
+ 		return BLKID_EXIT_NOTFOUND;
+@@ -586,7 +585,7 @@ static int list_to_usage(const char *list, int *flag)
+ 	}
+ 	if (!p || !*p)
+ 		goto err;
+-	while(p) {
++	while (p) {
+ 		word = p;
+ 		p = strchr(p, ',');
+ 		if (p)
+@@ -625,14 +624,16 @@ static char **list_to_types(const char *list, int *flag)
+ 		warnx(_("error: -u <list> argument is empty"));
+ 		goto err;
+ 	}
+-	for (i = 1; p && (p = strchr(p, ',')); i++, p++);
++	for (i = 1; p && (p = strchr(p, ',')); i++, p++)
++		/* do nothing */ ;
  
--struct libmnt_lock *lock;
-+static struct libmnt_lock *lock;
+ 	res = xcalloc(i + 1, sizeof(char *));
+ 	p = *flag & BLKID_FLTR_NOTIN ? list + 2 : list;
+ 	i = 0;
  
- /*
-  * read number from @filename, increment the number and
-diff --git a/misc-utils/test_uuidd.c b/misc-utils/test_uuidd.c
-index d590f9632..66a9f2d3b 100644
---- a/misc-utils/test_uuidd.c
-+++ b/misc-utils/test_uuidd.c
-@@ -41,10 +41,10 @@
+-	while(p) {
++	while (p) {
+ 		const char *word = p;
++
+ 		p = strchr(p, ',');
+ 		res[i++] = p ? xstrndup(word, p - word) : xstrdup(word);
+ 		if (p)
+@@ -796,7 +797,6 @@ int main(int argc, char **argv)
+ 		}
+ 	}
  
- #define LOG(level,args) if (loglev >= level) { fprintf args; }
- 
--size_t nprocesses = 4;
--size_t nthreads = 4;
--size_t nobjects = 4096;
--size_t loglev = 1;
-+static size_t nprocesses = 4;
-+static size_t nthreads = 4;
-+static size_t nobjects = 4096;
-+static size_t loglev = 1;
- 
- struct processentry {
- 	pid_t		pid;
-diff --git a/tests/helpers/test_byteswap.c b/tests/helpers/test_byteswap.c
-index 0b996e09b..1b98f7697 100644
---- a/tests/helpers/test_byteswap.c
-+++ b/tests/helpers/test_byteswap.c
-@@ -19,7 +19,7 @@
- 
- #include "bitops.h"
- 
--uint16_t ary16[] = {
-+static uint16_t ary16[] = {
- 	0x0001, 0x0100,
- 	0x1234, 0x3412,
- 	0xff00, 0x00ff,
-@@ -28,7 +28,7 @@ uint16_t ary16[] = {
- 	0x0000, 0x0000
- 	};
- 
--uint32_t ary32[] = {
-+static uint32_t ary32[] = {
- 	0x00000001, 0x01000000,
- 	0x80000000, 0x00000080,
- 	0x12345678, 0x78563412,
-@@ -38,7 +38,7 @@ uint32_t ary32[] = {
- 	0x00000000, 0x00000000
- 	};
- 
--uint64_t ary64[] = {
-+static uint64_t ary64[] = {
- 	0x0000000000000001, 0x0100000000000000,
- 	0x8000000000000000, 0x0000000000000080,
- 	0x1234567812345678, 0x7856341278563412,
-diff --git a/tests/helpers/test_pathnames.c b/tests/helpers/test_pathnames.c
-index d5cdad829..2368641f1 100644
---- a/tests/helpers/test_pathnames.c
-+++ b/tests/helpers/test_pathnames.c
-@@ -29,7 +29,7 @@ struct hlpPath
- 
- #define DEF_HLPPATH(_p)		{ #_p, _p }
- 
--struct hlpPath paths[] =
-+static struct hlpPath paths[] =
- {
- 	DEF_HLPPATH(_PATH_DEFPATH),
- 	DEF_HLPPATH(_PATH_DEFPATH_ROOT),
+-
+ 	/* The rest of the args are device names */
+ 	if (optind < argc) {
+ 		devices = xcalloc(argc - optind, sizeof(char *));
 -- 
 2.12.0
 
