@@ -1,63 +1,50 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35540 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751973AbdC0Llk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 27 Mar 2017 07:41:40 -0400
-Date: Mon, 27 Mar 2017 13:41:22 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Assaf Gordon <assafgordon@gmail.com>
+Return-Path: P@draigBrady.com
+Subject: Re: [V3 PULL] hwclock: remove date(1)
+To: J William Piggott <elseifthen@gmx.com>, Karel Zak <kzak@redhat.com>
+References: <a1415b5d-4046-3b34-5836-40ce1a835a41@gmx.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: correct usage of unshare+nsenter for persistent namespaces?
-Message-ID: <20170327114122.f5mulpy62jcaq4du@ws.net.home>
-References: <20170310175156.GB21783@gmail.com>
+From: =?UTF-8?Q?P=c3=a1draig_Brady?= <P@draigBrady.com>
+Message-ID: <d3087e72-f787-a7d0-6a2f-dfd0941a8ed9@draigBrady.com>
+Date: Sat, 4 Mar 2017 17:12:47 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170310175156.GB21783@gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <a1415b5d-4046-3b34-5836-40ce1a835a41@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Mar 10, 2017 at 05:51:57PM +0000, Assaf Gordon wrote:
-> IIUC, this is a kernel limitation:
-> If the program which is PID1 inside the container
-> terminates, there is no way to re-enter the PID namespace
-> (http://man7.org/linux/man-pages/man7/pid_namespaces.7.html).
+On 04/03/17 13:56, J William Piggott wrote:
 > 
-> Is that correct?
-
-Yes, this namespace is strictly based on the within namespace init
-process.
-
-> If so, perhaps it would be helpful to add a caveat in the
-> unshare/nsenter man pages, saying the PID namespace will
-> not persist if the process termintes?
-
-Added.
-
-> There are already some examples of minimal 'init' for containers:
->  https://github.com/Yelp/dumb-init
->  https://github.com/krallin/tini
->  and most minimal: https://gist.github.com/rofl0r/6168719
+> Everyone,
+>  Here's the latest branch for adding parse-date.
 > 
-> I wonder if you will be willing to consider a patch to add
-> something like 'unshare --do-nothing-init' which
-> will simply create a process that does nothing except handling signals
-> and never terminates, to facilitate truly persistent namespaces with
-> unshare(1) ? (if so I'm happy to try and write it).
+> Karel,
+> I have changed a few things since the last working branch I sent you.  I
+> moved the API from parse-date.h to timeutils.h. Cleaned up the code some
+> more and made more style conversion. Added documentation and fixed
+> hwclock.8.in.
+> 
+> I've tested the parser pretty thoroughly now, including using odd input
+> listed in bug fixes. It passed for all of them.
+> 
+> Here are examples of the problem related to the latest gnulib
+> parse_datetime() commit; which was actually caused by changes in
+> coreutils not gnulib.
+> 
+> BROKEN
+> TZ="Europe/London" date -d 'TZ="Australia/Perth" 2016-08-15 07:00'
+> Mon Aug 15 07:00:00 AWST 2016
+> 
+> CORRECT
+> TZ="Europe/London" date -d 'TZ="Australia/Perth" 2016-08-15 07:00'
+> Mon Aug 15 00:00:00 BST 2016
 
-Hmm, when I think about it I'm not able to see any argument against
-this feature :-) So go ahead.
+Sorry for jumping in here. Are you saying there are issues with
+the current code in gnulib?
 
-Important is keep it simple and stupid and avoid arbitrary additional
-features. I think for serious containers people will use another
-solutions (systemd etc.).
- 
-> The working URL seems like 'www.kernel.org' (www. instead of ftp.):
->  https://www.kernel.org/pub/linux/utils/util-linux/
+Note the TZ issue in date(1) was added in coreutils-8.26 with:
+http://git.sv.gnu.org/gitweb/?p=coreutils.git;a=commitdiff;h=v8.25-15-gdf88fce
+That was fixed with a minimal fix in coreutils-8.26 in Fedora.
+coreutils-8.27 will be released in a few days with a different fix
+that incorporated changes in parse_datetime in gnulib.
 
-Ah, thanks! (Seems my template is a little bit obsolete. Fixed.)
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+thanks,
+Pádraig
