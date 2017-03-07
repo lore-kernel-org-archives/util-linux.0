@@ -1,77 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:43904 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751648AbdCUEY2 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Tue, 21 Mar 2017 00:24:28 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.20/8.16.0.20) with SMTP id v2L4Nblr120994
-        for <util-linux@vger.kernel.org>; Tue, 21 Mar 2017 00:23:45 -0400
-Received: from e38.co.us.ibm.com (e38.co.us.ibm.com [32.97.110.159])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 29ak411muy-1
-        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
-        for <util-linux@vger.kernel.org>; Tue, 21 Mar 2017 00:23:45 -0400
-Received: from localhost
-        by e38.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <util-linux@vger.kernel.org> from <ananth@linux.vnet.ibm.com>;
-        Mon, 20 Mar 2017 22:23:44 -0600
-Date: Tue, 21 Mar 2017 09:53:36 +0530
-From: Ananth N Mavinakayanahalli <ananth@linux.vnet.ibm.com>
-To: Xose Vazquez Perez <xose.vazquez@gmail.com>
-Cc: Sami Kerola <kerolasa@iki.fi>, Karel Zak <kzak@redhat.com>,
-        Daniel Stekloff <dan@wendan.org>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: sysfsutils, aka systool, candidate for inclusion in util-linux-ng
-Reply-To: ananth@linux.vnet.ibm.com
-References: <6affdcde-0ec0-87ee-45f8-7da32ae1d1a5@gmail.com>
- <CAG27Bk3uXbmBs9cY8gK34YJuUVEY11CdGB0-ibiTQ9feXg_9og@mail.gmail.com>
- <000ad5f7-f6cf-a54a-f6c9-405ad4017cda@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <000ad5f7-f6cf-a54a-f6c9-405ad4017cda@gmail.com>
-Message-Id: <20170321042336.GG24841@in.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:35190 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752865AbdCGC7Z (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 6 Mar 2017 21:59:25 -0500
+From: Masatake YAMATO <yamato@redhat.com>
+To: util-linux@vger.kernel.org
+Cc: yamato@redhat.com
+Subject: [PATCH 4/4] bash-completion: add a function for fincore command
+Date: Tue,  7 Mar 2017 11:33:52 +0900
+Message-Id: <20170307023352.7340-5-yamato@redhat.com>
+In-Reply-To: <20170307023352.7340-1-yamato@redhat.com>
+References: <20170307023352.7340-1-yamato@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Mar 18, 2017 at 08:58:41PM +0100, Xose Vazquez Perez wrote:
-> On 03/18/2017 08:41 PM, Sami Kerola wrote:
-> 
-> > On 17 March 2017 at 17:47, Xose Vazquez Perez <xose.vazquez@gmail.com> wrote:
-> >> Description: utilities for interfacing with sysfs.
-> >>
-> >> Background: unmaintained since ten years, included in
-> >> enterprise distributions and widely used with plenty of
-> >> downloads: https://sourceforge.net/projects/linux-diag/files/sysfsutils/stats/timeline?dates=2003-07-01++to+2017-03-17
-> >>
-> >>
-> >> $HOME: https://linux-diag.sf.net/Sysfsutils.html  <--- HTTPS broken!!
-> >> $HOME: http://linux-diag.sf.net/Sysfsutils.html
-> >> Source code: https://sf.net/projects/linux-diag/files/sysfsutils/
-> > 
-> > Good proposal, and after quick test to migrate sysfsutils to
-> > util-linux this seems
-> > do-able. But before proceeding any further I want to hear from Karel and old
-> > sysfsutils maintainer if the project merge what is wanted.
-> > 
-> >   git://github.com/kerolasa/lelux-utiliteetit.git sysfsutils
-> > 
-> > If yes next steps:
-> > 
-> > 1. polish libsysfs, add for example .sym file
-> > 2. polish systool, add translations, and other standard util-linux
-> > conventions, such as atexit hook, xmalloc usage, and so on
-> > 3. figure out what should be done with dlist_test, get_device,
-> > get_driver, and get_module
-> > 4. add tests, and make _PART_SYS_SYSTEM stuff work
-> > 5. without a doubt something other as well
-> > 6. send a pull month or two later
-> 
-> Cced the rest of the sysfsutils crew.
+Signed-off-by: Masatake YAMATO <yamato@redhat.com>
+---
+ bash-completion/Makemodule.am |  3 +++
+ bash-completion/fincore       | 25 +++++++++++++++++++++++++
+ 2 files changed, 28 insertions(+)
+ create mode 100644 bash-completion/fincore
 
-While I wrote large parts of the code about 13/14 years ago, I haven't
-worked on it for over a decade. If it is being used as is, that's good
-to know. Let me know if anything specific is needed from my end.
-
-Regards,
-Ananth
+diff --git a/bash-completion/Makemodule.am b/bash-completion/Makemodule.am
+index 3ffd124..ff7b052 100644
+--- a/bash-completion/Makemodule.am
++++ b/bash-completion/Makemodule.am
+@@ -18,6 +18,9 @@ endif
+ if BUILD_COLUMN
+ dist_bashcompletion_DATA += bash-completion/column
+ endif
++if BUILD_FINCORE
++dist_bashcompletion_DATA += bash-completion/fincore
++endif
+ if BUILD_FINDMNT
+ dist_bashcompletion_DATA += bash-completion/findmnt
+ endif
+diff --git a/bash-completion/fincore b/bash-completion/fincore
+new file mode 100644
+index 0000000..d213586
+--- /dev/null
++++ b/bash-completion/fincore
+@@ -0,0 +1,25 @@
++_fincore_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-h'|'--help'|'-V'|'--version')
++			return 0
++			;;
++	esac
++	case $cur in
++	    -*)
++			OPTS="--help
++				--version"
++			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++			return 0
++			;;
++	esac
++	local IFS=$'\n'
++	compopt -o filenames
++	COMPREPLY=( $(compgen -f -- ${cur:-"/"}) )
++	return 0
++}
++complete -F _fincore_module fincore
+-- 
+2.9.3
 
