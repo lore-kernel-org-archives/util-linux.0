@@ -1,99 +1,231 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:39592 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751743AbdC0AmD (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 26 Mar 2017 20:42:03 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 354D9804E2
-        for <util-linux@vger.kernel.org>; Mon, 27 Mar 2017 00:41:55 +0000 (UTC)
-Date: Mon, 27 Mar 2017 09:41:52 +0900 (JST)
-Message-Id: <20170327.094152.1904964943153919266.yamato@redhat.com>
-To: kzak@redhat.com
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/4] fincore command
-From: Masatake YAMATO <yamato@redhat.com>
-In-Reply-To: <20170323144523.24u45orqhq75oosj@ws.net.home>
-References: <20170307023352.7340-1-yamato@redhat.com>
-        <20170323115825.paxktr7xxgevrcju@ws.net.home>
-        <20170323144523.24u45orqhq75oosj@ws.net.home>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Received: from mail-qk0-f180.google.com ([209.85.220.180]:36822 "EHLO
+        mail-qk0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750897AbdCJRw3 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 10 Mar 2017 12:52:29 -0500
+Received: by mail-qk0-f180.google.com with SMTP id 1so178477935qkl.3
+        for <util-linux@vger.kernel.org>; Fri, 10 Mar 2017 09:52:28 -0800 (PST)
+Received: from gmail.com (housegordon.org. [104.236.108.240])
+        by smtp.gmail.com with ESMTPSA id t30sm6779244qtt.56.2017.03.10.09.52.26
+        for <util-linux@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 10 Mar 2017 09:52:26 -0800 (PST)
+Date: Fri, 10 Mar 2017 17:51:57 +0000
+From: Assaf Gordon <assafgordon@gmail.com>
+To: util-linux@vger.kernel.org
+Subject: correct usage of unshare+nsenter for persistent namespaces?
+Message-ID: <20170310175156.GB21783@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Thank you for merging.
-The output looks sophisticated.
+Hello Karel and all,
 
-About RES and RSS, I don't know which is better.
-As you know top command users RES and ps command uses RSS...
+I'd like to ask you advice regarding proper usage of unshare+nsenter
+to create persistent containers. I understand unshare(1) is rather 
+low-level, but it would like to still be able to understand how to use 
+it.
 
-Masatake YAMATO
+Apologise in advance for the long email, but I hope it will
+result in better documentation (or at least better understanding for 
+me).
 
-> On Thu, Mar 23, 2017 at 12:58:25PM +0100, Karel Zak wrote:
->> On Tue, Mar 07, 2017 at 11:33:48AM +0900, Masatake YAMATO wrote:
->> >  bash-completion/Makemodule.am |   3 +
->> >  bash-completion/fincore       |  25 +++++
->> >  configure.ac                  |   4 +
->> >  misc-utils/Makemodule.am      |   6 ++
->> >  misc-utils/fincore.1          |  76 ++++++++++++++
->> >  misc-utils/fincore.c          | 209 +++++++++++++++++++++++++++++++++++++
->> >  misc-utils/fincore_orig.c     | 235 ++++++++++++++++++++++++++++++++++++++++++
->> >  tests/commands.sh             |   1 +
->> >  tests/expected/fincore/count  |  62 +++++++++++
->> >  tests/ts/fincore/count        | 194 ++++++++++++++++++++++++++++++++++
->> >  10 files changed, 815 insertions(+)
->> >  create mode 100644 bash-completion/fincore
->> >  create mode 100644 misc-utils/fincore.1
->> >  create mode 100644 misc-utils/fincore.c
->> >  create mode 100644 misc-utils/fincore_orig.c
->> >  create mode 100644 tests/expected/fincore/count
->> >  create mode 100755 tests/ts/fincore/count
->> 
->>  Merged (except fincore_orig.c).
->> 
->>  I'll very probably a little bit play with the output :-) It's like to
->>  have human readable sizes (10M) by default, align the numbers to the
->>  right (maybe use libsmartcols if more files specified).
-> 
-> Implemented, changes:
-> 
->  * errors are printed to stderr only, the output is not affected by errors
->  * use libsmartcols
->  * numbers aligned to the right
->  * add --bytes --raw --noheadings --json and --output <list>
->  * you can use $(fincore -o PAGES -nr /etc/passwd) to get only the number
-> 
-> The default output is:
-> 
-> $ fincore ~/Mail/Maildir/.notmuch/xapian/*
-> PAGES  SIZE FILE
->     0    0B /home/kzak/Mail/Maildir/.notmuch/xapian/flintlock
->     1   28B /home/kzak/Mail/Maildir/.notmuch/xapian/iamchert
->    17 67.4K /home/kzak/Mail/Maildir/.notmuch/xapian/position.baseA
->    17 67.4K /home/kzak/Mail/Maildir/.notmuch/xapian/position.baseB
->  1185  4.2G /home/kzak/Mail/Maildir/.notmuch/xapian/position.DB
->     9 35.7K /home/kzak/Mail/Maildir/.notmuch/xapian/postlist.baseA
->     9 35.7K /home/kzak/Mail/Maildir/.notmuch/xapian/postlist.baseB
-> 87831  2.2G /home/kzak/Mail/Maildir/.notmuch/xapian/postlist.DB
->     1  208B /home/kzak/Mail/Maildir/.notmuch/xapian/record.baseA
->     1  208B /home/kzak/Mail/Maildir/.notmuch/xapian/record.baseB
->    66 11.5M /home/kzak/Mail/Maildir/.notmuch/xapian/record.DB
->     7 27.6K /home/kzak/Mail/Maildir/.notmuch/xapian/termlist.baseA
->     7 27.6K /home/kzak/Mail/Maildir/.notmuch/xapian/termlist.baseB
->  1941  1.7G /home/kzak/Mail/Maildir/.notmuch/xapian/termlist.DB
-> 
-> 
-> I'd like to have also PAGES-IN-BYTES column to make it easy for
-> humans, but not sure how to call the column... "RES" or "RSS"? 
-> 
-> For example "343M" rather than "87831" (see above).
-> 
-> Nice util, thanks!
-> 
->     Karel
-> 
-> -- 
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
+There are many bits and pieces of information
+around (man pages and blogs and stack-overflow, etc.),
+but I haven't been able to find an authoritative example
+of using it to create a contained re-entrant persistent environment.
+(If I missed it, please do point me to it).
+
+
+
+
+
+Step 1: preparations
+--------------------
+
+All my testing was done stock Debian 8.7,
+with kernel 3.16.39-1+deb8u1,
+and util-linux 2.29.2 compiled from source.
+All commands run as 'root'.
+
+Extrapolating from unshare's man page about creating
+a persistent environment:
+
+    basedir=/var/namespaces/ns1
+    mkdir -p $basedir
+    mount --bind $basedir $basedir
+    mount --make-private $basedir
+    for i in uts mnt pid net ipc user ;
+    do
+     touch $basedir/$i
+    done
+
+Are these correct?
+
+
+
+Step 2: creating shared namespace
+---------------------------------
+
+(for now, I'm ignoring user-namespace, as it brings
+its own complications.)
+
+Starting a new environment using the following:
+
+    unshare --uts=$basedir/uts \
+            --mount=$basedir/mnt \
+            --ipc=$basedir/ipc \
+            --pid=$basedir/pid \
+            --net=$basedir/net \
+            --mount-proc \
+            --fork \
+            sh -c 'hostname foobar ; exec /bin/bash -il'
+
+And indeed I get a prompt inside the container:
+
+    root@foobar# ps ax
+    PID TTY      STAT   TIME COMMAND
+     1 pts/2    S      0:00 /bin/bash -il
+     8 pts/2    R+     0:00 ps ax
+
+
+    root@foobar# ifconfig -a
+    lo        Link encap:Local Loopback
+              LOOPBACK  MTU:65536  Metric:1
+              RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+              TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+              collisions:0 txqueuelen:0 
+              RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+
+
+On the outside host, I see the mounts and the namespaces:
+
+    # findmnt -O TARGET
+    [...]
+    └─/var/namespaces/ns1
+     ├─/var/namespaces/ns1/ipc
+     ├─/var/namespaces/ns1/uts
+     ├─/var/namespaces/ns1/net
+     ├─/var/namespaces/ns1/pid
+     └─/var/namespaces/ns1/mnt
+
+    # lsns
+    NS        TYPE  NPROCS   PID USER     COMMAND
+    [...]
+    4026532329 mnt        2 19221 root     unshare --uts=..
+    4026532330 uts        2 19221 root     unshare --uts=..
+    4026532331 ipc        2 19221 root     unshare --uts=..
+    4026532332 pid        1 19223 root     /bin/bash -il
+    4026532334 net        2 19221 root     unshare --uts=..
+
+
+Step 3: Re-entering
+-------------------
+
+Trying to enter based on PID works:
+
+    # nsenter -t 19223 -m -u -i -n -p \
+          sh -c 'hostname ; echo ; ps ax ; echo ; ifconfig -a'
+    foobar
+
+      PID TTY      STAT   TIME COMMAND
+        1 pts/2    S+     0:00 /bin/bash -il
+       15 pts/1    S+     0:00 sh -c hostname ; ps ax
+       17 pts/1    R+     0:00 ps ax
+
+    lo        Link encap:Local Loopback
+          LOOPBACK  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+
+However trying to enter by the persistent mounts does not
+re-enter the pid/net namespace:
+
+    # nsenter --uts=$basedir/uts \
+              --mount=$basedir/mnt \
+              --ipc=$basedir/ipc \
+              --pid=$basedir/pid \
+              --net=$basedir/net \
+              sh -c 'hostname ; echo ; ps ax ; echo ; ifconfig -a'
+    foobar
+
+    Error, do this: mount -t proc proc /proc
+
+    Warning: cannot open /proc/net/dev (No such file or directory).
+    Limited output.
+
+Listing /proc inside the container shows it only lists PID 1
+(the running '/bin/bash' from the original 'unshare' invocation).
+
+Based on naive reading of unshare(1) man page (with the example of 
+persistent UTS at the bottom), I assumed the above two examples with 
+PID and with persistent mount points should be equivalent.
+
+Is this a kernel limitation ?
+
+
+
+Step 4: PID namespace is never persistent?
+------------------------------------------
+
+IIUC, this is a kernel limitation:
+If the program which is PID1 inside the container
+terminates, there is no way to re-enter the PID namespace
+(http://man7.org/linux/man-pages/man7/pid_namespaces.7.html).
+
+Is that correct?
+
+If so, perhaps it would be helpful to add a caveat in the
+unshare/nsenter man pages, saying the PID namespace will
+not persist if the process termintes?
+
+And if this is the case, would the following
+work to create a re-entrant persistent namespace:
+
+    unshare --uts=$basedir/uts \
+            --mount=$basedir/mnt \
+            --ipc=$basedir/ipc \
+            --pid=$basedir/pid \
+            --net=$basedir/net \
+            --mount-proc \
+            --fork \
+            sleep inf
+
+Obviosuly sleep(1) is not a good PID1, but is it conceptually correct
+way to ensure the PID namespace is persistent?
+
+There are already some examples of minimal 'init' for containers:
+  https://github.com/Yelp/dumb-init
+  https://github.com/krallin/tini
+  and most minimal: https://gist.github.com/rofl0r/6168719 
+
+I wonder if you will be willing to consider a patch to add
+something like 'unshare --do-nothing-init' which
+will simply create a process that does nothing except handling signals
+and never terminates, to facilitate truly persistent namespaces with 
+unshare(1) ? (if so I'm happy to try and write it).
+
+
+Thank you for reaing so far.
+regards,
+ - assaf
+
+P.S.
+I have more questions about proper usage of user-namespace and 
+switch_root/pivot_root, but I'll save them for later :)
+
+
+P.P.S.
+
+The download URL in the 2.92.2 announcement was http://ftp.kernel.org/
+and it seems broken:
+  $ host ftp.kernel.org
+  Host ftp.kernel.org not found: 3(NXDOMAIN)
+The working URL seems like 'www.kernel.org' (www. instead of ftp.):
+  https://www.kernel.org/pub/linux/utils/util-linux/
+
