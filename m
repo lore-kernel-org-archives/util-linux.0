@@ -1,58 +1,242 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:50855 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933030AbdCaOqR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 31 Mar 2017 10:46:17 -0400
-Subject: [PATCH 3/6] hwclock: remove unused atomic arg in cmos
-To: Karel Zak <kzak@redhat.com>
-References: <24f2ccba-6144-9497-69fc-c5dbfd9a39fc@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <221f8650-b1ed-0b89-d536-cb1e7c495acc@gmx.com>
-Date: Fri, 31 Mar 2017 10:46:08 -0400
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:33973 "EHLO
+        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751091AbdCJOsl (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 10 Mar 2017 09:48:41 -0500
+Received: by mail-lf0-f67.google.com with SMTP id y193so7042658lfd.1
+        for <util-linux@vger.kernel.org>; Fri, 10 Mar 2017 06:48:40 -0800 (PST)
+Date: Fri, 10 Mar 2017 14:48:24 +0000 (GMT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: J William Piggott <elseifthen@gmx.com>
+cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 07/13] blkid: define output names only once
+In-Reply-To: <alpine.LNX.2.20.1703100917380.28674@imuri>
+Message-ID: <alpine.LNX.2.20.1703101434490.19808@imuri>
+References: <20170305205232.24030-1-kerolasa@iki.fi> <20170305205232.24030-8-kerolasa@iki.fi> <c0779c68-d9cf-0eb0-f8e4-91130ee57db9@gmx.com> <1998d830-63b1-a477-d5ae-4219171c0b3c@gmx.com> <alpine.LNX.2.20.1703100917380.28674@imuri>
 MIME-Version: 1.0
-In-Reply-To: <24f2ccba-6144-9497-69fc-c5dbfd9a39fc@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Fri, 10 Mar 2017, Sami Kerola wrote:
+> Notably I did not move list of recommended arguments to usage(). To do 
+> that well will require inu_use_arguments() function, that can be used 
+> where ever needed. But lets leave this as-is, and do these tidy 
+> adjustments if there it's seen these option argument functions should be 
+> generalized.
 
-* sys-utils/hwclock-cmos.c: remove unused arg for atomic()
+Hi again,
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
+Having day off and idea to generalize this did not go away from my mind, 
+so I decided to give it a shot. I'm not sure how many utils might need 
+this, but that is hardly a reason against or in favour to include this. 
+Better question is if this is the way argument lists should be managed 
+when they are deprecated.
+
+The below change can also be found from
+  git://github.com/kerolasa/lelux-utiliteetit.git 2017wk09
+
+--->8----
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Fri, 10 Mar 2017 14:06:10 +0000
+Subject: [PATCH] include/optutils: add option argument parsing and printing functions
+
+Functions parse_arg_name() and print_valid_args() add methods that make
+option argument life cycle management easy.
+
+Based-on-feedback-from: J William Piggott <elseifthen@gmx.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- sys-utils/hwclock-cmos.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ include/optutils.h | 50 +++++++++++++++++++++++++++++++
+ misc-utils/blkid.c | 87 
++++++++++++++++---------------------------------------
+ 2 files changed, 73 insertions(+), 64 deletions(-)
 
-diff --git a/sys-utils/hwclock-cmos.c b/sys-utils/hwclock-cmos.c
-index 6c86a7c..a5eb9fd 100644
---- a/sys-utils/hwclock-cmos.c
-+++ b/sys-utils/hwclock-cmos.c
-@@ -114,10 +114,8 @@ static int century_byte = 0;		/* 0: don't access a century byte
-  *
-  * TODO: optimize the access to CMOS by mlockall(MCL_CURRENT) and SCHED_FIFO
-  */
--static unsigned long
--atomic(const char *name __attribute__ ((__unused__)),
--       unsigned long (*op) (unsigned long),
--       unsigned long arg)
-+static unsigned long atomic(unsigned long (*op) (unsigned long),
-+			    unsigned long arg)
- {
- 	return (*op) (arg);
- }
-@@ -235,12 +233,12 @@ static unsigned long cmos_set_time(unsigned long arg)
+diff --git a/include/optutils.h b/include/optutils.h
+index 325cb8812..62ccc90ae 100644
+--- a/include/optutils.h
++++ b/include/optutils.h
+@@ -6,6 +6,56 @@
+ #include "c.h"
+ #include "nls.h"
  
- static int hclock_read(unsigned long reg)
++enum {
++	arg_in_use = 0,
++	arg_hide,
++	arg_deprecate,
++	arg_removed
++};
++
++struct option_arguments {
++	int id;
++	char *name;
++	int status;
++};
++
++static inline int parse_arg_name(const struct option_arguments *valid_args,
++				 const char *arg)
++{
++	size_t i;
++
++	for (i = 0; valid_args[i].name; i++) {
++		if (strcmp(valid_args[i].name, arg) != 0)
++			continue;
++		switch (valid_args[i].status) {
++		case arg_in_use:
++		case arg_hide:
++			return valid_args[i].id;
++		case arg_deprecate:
++			warnx(_("'%s' is deprecated"), arg);
++			return valid_args[i].id;
++		case arg_removed:
++			warnx(_("'%s' is removed"), arg);
++			return -EINVAL;
++		default:
++			abort();
++		}
++	}
++	return -EINVAL;
++}
++
++static inline void print_valid_args(const struct option_arguments *valid_args,
++				    const char *message, FILE *out)
++{
++	size_t i;
++
++	fprintf(out, message);
++	for (i = 0; valid_args[i].name; i++)
++		if (valid_args[i].status == arg_in_use)
++			fprintf(out, " %s", valid_args[i].name);
++	fputc('\n', out);
++}
++
+ static inline const char *option_to_longopt(int c, const struct option *opts)
  {
--	return atomic("clock read", cmos_read, reg);
-+	return atomic(cmos_read, reg);
+ 	const struct option *o;
+diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
+index e0be5120c..5e3f58838 100644
+--- a/misc-utils/blkid.c
++++ b/misc-utils/blkid.c
+@@ -19,36 +19,6 @@
+ #include <errno.h>
+ #include <getopt.h>
+ 
+-enum {
+-	OUTPUT_FULL = 0,
+-	OUTPUT_VALUE_ONLY,
+-	OUTPUT_DEVICE_ONLY,
+-	OUTPUT_PRETTY_LIST,
+-	OUTPUT_UDEV_LIST,
+-	OUTPUT_EXPORT_LIST
+-};
+-
+-enum {
+-	opt_in_use = 0,
+-	opt_hide,
+-	opt_deprecate,
+-	opt_removed
+-};
+-
+-struct option_arguments {
+-	char *name;
+-	int status;
+-};
+-
+-static struct option_arguments output_formats[] = {
+-	[OUTPUT_FULL]		= { "full", opt_in_use },
+-	[OUTPUT_VALUE_ONLY]	= { "value", opt_in_use },
+-	[OUTPUT_DEVICE_ONLY]	= { "device", opt_in_use },
+-	[OUTPUT_PRETTY_LIST]	= { "list", opt_hide },		/* to be deprecated */
+-	[OUTPUT_UDEV_LIST]	= { "udev", opt_hide },		/* to be deprecated */
+-	[OUTPUT_EXPORT_LIST]	= { "export", opt_in_use },
+-};
+-
+ #define LOWPROBE_TOPOLOGY	(1 << 1)
+ #define LOWPROBE_SUPERBLOCKS	(1 << 2)
+ 
+@@ -71,6 +41,25 @@ static struct option_arguments output_formats[] = {
+ #include "ttyutils.h"
+ #include "xalloc.h"
+ 
++enum {
++	OUTPUT_FULL = 0,
++	OUTPUT_VALUE_ONLY,
++	OUTPUT_DEVICE_ONLY,
++	OUTPUT_PRETTY_LIST,
++	OUTPUT_UDEV_LIST,
++	OUTPUT_EXPORT_LIST
++};
++
++static struct option_arguments output_formats[] = {
++	{ OUTPUT_FULL,  "full", arg_in_use },
++	{ OUTPUT_VALUE_ONLY, "value", arg_in_use },
++	{ OUTPUT_DEVICE_ONLY, "device", arg_in_use },
++	{ OUTPUT_PRETTY_LIST, "list", arg_hide },	/* to be deprecated */
++	{ OUTPUT_UDEV_LIST, "udev", arg_hide },		/* to be deprecated */
++	{ OUTPUT_EXPORT_LIST, "export", arg_in_use },
++	{ 0, NULL, 0 }
++};
++
+ static int raw_chars;
+ 
+ static void print_version(FILE *out)
+@@ -98,8 +87,8 @@ static void usage(int error)
+ 	fputs(_(	" -d          don't encode non-printing characters\n"), out);
+ 	fputs(_(	" -h          print this usage message and exit\n"), out);
+ 	fputs(_(	" -g          garbage collect the blkid cache\n"), out);
+-	fputs(_(	" -o <format> output format; can be one of:\n"
+-			"               value, device, export or full; (default: full)\n"), out);
++	fputs(_(	" -o <format> output format; can be one of:\n"), out);
++	print_valid_args(output_formats, "              ", out);
+ 	fputs(_(	" -k          list all known filesystems/RAIDs and exit\n"), out);
+ 	fputs(_(	" -s <tag>    show specified tag(s) (default show all tags)\n"), out);
+ 	fputs(_(	" -t <token>  find device with a specific token (NAME=value pair)\n"), out);
+@@ -121,36 +110,6 @@ static void usage(int error)
+ 	exit(error);
  }
  
- static void hclock_set_time(const struct tm *tm)
- {
--	atomic("set time", cmos_set_time, (unsigned long)(tm));
-+	atomic(cmos_set_time, (unsigned long)(tm));
- }
- 
- static inline int cmos_clock_busy(void)
+-static int parse_format_name(const char *arg)
+-{
+-	size_t i;
+-
+-	for (i = 0; i < ARRAY_SIZE(output_formats); i++) {
+-		if (strcmp(output_formats[i].name, arg) != 0)
+-			continue;
+-		switch (output_formats[i].status) {
+-		case opt_in_use:
+-		case opt_hide:
+-			return i;
+-		case opt_deprecate:
+-			warnx(_("'%s' is deprecated"), arg);
+-			return i;
+-		case opt_removed:
+-			warnx(_("'%s' is removed"), arg);
+-			return -EINVAL;
+-		default:
+-			abort();
+-		}
+-	}
+-	warnx(_("invalid argument: '%s'"), arg);
+-	fprintf(stderr, _("recommended arguments to use are:"));
+-	for (i = 0; i < ARRAY_SIZE(output_formats); i++)
+-		if (output_formats[i].status == opt_in_use)
+-			fprintf(stderr, " %s", output_formats[i].name);
+-	fputc('\n', stderr);
+-	return -EINVAL;
+-}
+-
+ /*
+  * This function does "safe" printing.  It will convert non-printable
+  * ASCII characters using '^' and M- notation.
+@@ -770,9 +729,9 @@ int main(int argc, char **argv)
+ 			exit(EXIT_SUCCESS);
+ 		}
+ 		case 'o':
+-			output_format = parse_format_name(optarg);
++			output_format = parse_arg_name(output_formats, optarg);
+ 			if (output_format < 0)
+-				exit(BLKID_EXIT_OTHER);
++				errx(BLKID_EXIT_OTHER, _("invalid argument: %s"), optarg);
+ 			break;
+ 		case 'O':
+ 			offset = strtosize_or_err(optarg, _("invalid offset argument"));
