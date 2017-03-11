@@ -1,105 +1,121 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:32944 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751781AbdCEUwk (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 5 Mar 2017 15:52:40 -0500
-Received: by mail-wm0-f67.google.com with SMTP id n11so10897128wma.0
-        for <util-linux@vger.kernel.org>; Sun, 05 Mar 2017 12:52:38 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 01/13] misc: stop mixing declarations and code
-Date: Sun,  5 Mar 2017 20:52:20 +0000
-Message-Id: <20170305205232.24030-2-kerolasa@iki.fi>
-In-Reply-To: <20170305205232.24030-1-kerolasa@iki.fi>
-References: <20170305205232.24030-1-kerolasa@iki.fi>
+Received: from mout.gmx.net ([212.227.17.21]:52298 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932827AbdCKOd4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sat, 11 Mar 2017 09:33:56 -0500
+Subject: Re: ideas of what lib might be missing? (2.29.2 has missing symbols @
+ link)
+To: L A Walsh <lkml@tlinx.org>, util-linux@vger.kernel.org
+References: <58C3F064.4060904@tlinx.org>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <0b737f79-ed0d-53f0-bbf7-2b4e44be7543@gmx.com>
+Date: Sat, 11 Mar 2017 09:33:43 -0500
+MIME-Version: 1.0
+In-Reply-To: <58C3F064.4060904@tlinx.org>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- disk-utils/cfdisk.c              | 4 +++-
- disk-utils/sfdisk.c              | 2 +-
- libblkid/src/superblocks/minix.c | 7 +++----
- text-utils/hexdump-display.c     | 4 ++--
- 4 files changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
-index f06dad1c8..cb9f3421d 100644
---- a/disk-utils/cfdisk.c
-+++ b/disk-utils/cfdisk.c
-@@ -2092,6 +2092,8 @@ static int ui_create_label(struct cfdisk *cf)
- 
- 
- 	do {
-+		int key;
-+
- 		if (refresh_menu) {
- 			ui_draw_menu(cf);
- 			ui_hint(_("Select a type to create a new label or press 'L' to load script file."));
-@@ -2099,7 +2101,7 @@ static int ui_create_label(struct cfdisk *cf)
- 			refresh_menu = 0;
- 		}
- 
--		int key = getch();
-+		key = getch();
- 
- 		if (ui_resize)
- 			ui_menu_resize(cf);
-diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
-index f4f9b6b1a..cf5dd0052 100644
---- a/disk-utils/sfdisk.c
-+++ b/disk-utils/sfdisk.c
-@@ -1495,7 +1495,7 @@ static void follow_wipe_mode(struct sfdisk *sf)
- static int wipe_partition(struct sfdisk *sf, size_t partno)
- {
- 	int rc, yes = 0;
--	char *fstype = NULL;;
-+	char *fstype = NULL;
- 	struct fdisk_partition *tmp = NULL;
- 
- 	DBG(MISC, ul_debug("checking for signature"));
-diff --git a/libblkid/src/superblocks/minix.c b/libblkid/src/superblocks/minix.c
-index feebc96ad..b8881e574 100644
---- a/libblkid/src/superblocks/minix.c
-+++ b/libblkid/src/superblocks/minix.c
-@@ -77,6 +77,9 @@ static int probe_minix(blkid_probe pr,
- 	unsigned char *ext;
- 	const unsigned char *data;
- 	int version = 0, swabme = 0;
-+	unsigned long zones, ninodes, imaps, zmaps;
-+	off_t firstz;
-+	size_t zone_size;
- 
- 	data = blkid_probe_get_buffer(pr, 1024,
- 			max(sizeof(struct minix_super_block),
-@@ -87,10 +90,6 @@ static int probe_minix(blkid_probe pr,
- 	if (version < 1)
- 		return 1;
- 
--	unsigned long zones, ninodes, imaps, zmaps;
--	off_t firstz;
--	size_t zone_size;
--
- 	if (version <= 2) {
- 		struct minix_super_block *sb = (struct minix_super_block *) data;
- 
-diff --git a/text-utils/hexdump-display.c b/text-utils/hexdump-display.c
-index ce714f68c..3e017635b 100644
---- a/text-utils/hexdump-display.c
-+++ b/text-utils/hexdump-display.c
-@@ -299,9 +299,9 @@ void display(struct hexdump *hex)
- 			eaddress = address;
- 		}
- 		list_for_each (p, &endfu->prlist) {
--			pr = list_entry(p, struct hexdump_pr, prlist);
--
- 			const char *color = NULL;
-+
-+			pr = list_entry(p, struct hexdump_pr, prlist);
- 			if (colors_wanted() && pr->colorlist
- 			    && (color = color_cond(pr, bp, pr->bcnt))) {
- 				color_enable(color);
--- 
-2.12.0
 
+On 03/11/2017 07:41 AM, L A Walsh wrote:
+> I thought 'configure' was supposed to test for what was present and
+> what was missing?  Seems to have missed a few... :-(
+> 
+> 
+> In trying to make new release 2.29.2, I'm getting several undefined
+> symbols:
+> 
+> color_fdisable
+> 
+> color_scheme_fenable
+> 
+> color_sequence_from_colorname
+> 
+> colormode_or_err
+> 
+> colors_init get_fd_tabsize
+> 
+> get_terminal_name
+> 
+> initproctitle
+> 
+> pager_redirect
+> 
+> parse_kmsg_recordsetproctitle
+> 
+> plymouth_command
+> 
+> string_to_bitarray
+> 
+> strnchr strtimeval_iso
+> 
+> strtos32_or_err
+> 
+> strtou32_or_err
+> 
+> unhexmangle_to_buffer
+> 
+
+These are all in util-linux/src/include/*.h
+
+Where did you get your util-linux source from?
+
+
+> --- Was wondering what library I might be missing?  or why they are
+> being referenced when 'whatever library' they are in, evidently isn't
+> on my system...  configure bug?
+> 
+> I just ran the existing configure with the options listed further on
+> down...
+> 
+> Thanks!  -linda
+> 
+> 
+> 
+> 
+> uname -a: Linux Ishtar 4.10.1-Isht-Van #1 SMP PREEMPT Tue Feb 28
+> 18:57:48 PST 2017 x86_64 GNU/Linux
+> 
+> gcc (SUSE Linux) 4.9.0
+> 
+> glibc: Name        : glibc Version     : 2.19 Release     : 16.9.1
+> 
+> vendor openSuSE 13.2
+> 
+> options:
+> 
+> array enable=(
+>               
+> fs-paths-default
+> 
+>               
+> last libmount-support-mtab line
+>               
+> newgrp
+>               
+> reset
+>               
+> static-programs=mount sulogin-emergency-mount
+> 
+>               
+> vipw write
+> 
+> ) array disable=( assert nls pylibmount) array with=(   audit
+>               
+> bashcompletiondir=/usr/share/bash-completion
+> 
+>               
+> gnu-ld
+>               
+> readline) array without=( python )
+> 
+> 
+> -- To unsubscribe from this list: send the line "unsubscribe
+> util-linux" in
+> 
+> the body of a message to majordomo@vger.kernel.org
+> 
+> More majordomo info at http://vger.kernel.org/majordomo-info.html
+> 
+> 
