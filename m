@@ -1,231 +1,285 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qk0-f180.google.com ([209.85.220.180]:36822 "EHLO
-        mail-qk0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750897AbdCJRw3 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 10 Mar 2017 12:52:29 -0500
-Received: by mail-qk0-f180.google.com with SMTP id 1so178477935qkl.3
-        for <util-linux@vger.kernel.org>; Fri, 10 Mar 2017 09:52:28 -0800 (PST)
-Received: from gmail.com (housegordon.org. [104.236.108.240])
-        by smtp.gmail.com with ESMTPSA id t30sm6779244qtt.56.2017.03.10.09.52.26
-        for <util-linux@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 10 Mar 2017 09:52:26 -0800 (PST)
-Date: Fri, 10 Mar 2017 17:51:57 +0000
-From: Assaf Gordon <assafgordon@gmail.com>
-To: util-linux@vger.kernel.org
-Subject: correct usage of unshare+nsenter for persistent namespaces?
-Message-ID: <20170310175156.GB21783@gmail.com>
+Received: from mout.gmx.net ([212.227.17.20]:57501 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753818AbdCKROS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sat, 11 Mar 2017 12:14:18 -0500
+Subject: Re: [PATCH 07/13] blkid: define output names only once
+To: Sami Kerola <kerolasa@iki.fi>
+References: <20170305205232.24030-1-kerolasa@iki.fi>
+ <20170305205232.24030-8-kerolasa@iki.fi>
+ <c0779c68-d9cf-0eb0-f8e4-91130ee57db9@gmx.com>
+ <1998d830-63b1-a477-d5ae-4219171c0b3c@gmx.com>
+ <alpine.LNX.2.20.1703100917380.28674@imuri>
+ <alpine.LNX.2.20.1703101434490.19808@imuri>
+From: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux@vger.kernel.org
+Message-ID: <a3d2a81a-4620-f0d8-993b-b71828fb1f57@gmx.com>
+Date: Sat, 11 Mar 2017 12:14:04 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <alpine.LNX.2.20.1703101434490.19808@imuri>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello Karel and all,
-
-I'd like to ask you advice regarding proper usage of unshare+nsenter
-to create persistent containers. I understand unshare(1) is rather 
-low-level, but it would like to still be able to understand how to use 
-it.
-
-Apologise in advance for the long email, but I hope it will
-result in better documentation (or at least better understanding for 
-me).
-
-There are many bits and pieces of information
-around (man pages and blogs and stack-overflow, etc.),
-but I haven't been able to find an authoritative example
-of using it to create a contained re-entrant persistent environment.
-(If I missed it, please do point me to it).
 
 
+On 03/10/2017 09:48 AM, Sami Kerola wrote:
+> On Fri, 10 Mar 2017, Sami Kerola wrote:
+>> Notably I did not move list of recommended arguments to usage(). To do 
+>> that well will require inu_use_arguments() function, that can be used 
+>> where ever needed. But lets leave this as-is, and do these tidy 
+>> adjustments if there it's seen these option argument functions should be 
+>> generalized.
+> 
+> Hi again,
+> 
+> Having day off and idea to generalize this did not go away from my mind, 
+
+ I'm glad that I'm not the only one with this trouble :)
+
+> so I decided to give it a shot. I'm not sure how many utils might need 
+> this, but that is hardly a reason against or in favour to include this. 
+> Better question is if this is the way argument lists should be managed 
+> when they are deprecated.
+
+Seems correct to me on both accounts; with a few caveats:
+
+The following are based my interpretation of the patch. I haven't
+actually tested it. So I may have misread something.
+
+* Is arg_removed needed? I think a 'removed' argument should be handled
+  the same as an 'invalid' argument. Saying it was removed doesn't seem
+  helpful and could be confusing.
+
+* blkid: 'udev' is deprecated
+  Seems ambiguous to me. Perhaps follow your default message style of:
+  "invalid argument: udev". Like "deprecated argument: udev".
+
+* What about this scenario:
+  mycommand -a udev -b udev -c udev
+   mycommand: 'udev' is deprecated
+   mycommand: 'udev' is removed
+
+Which is deprecated, which is removed, and which is in_use?
+Is it the calling code's job to add the option name somehow?
+Do we add 'char *opt_name' to 'struct option_arguments'?
+Do we whistle a happy song and pretend this scenario cannot happen? :)
 
 
-
-Step 1: preparations
---------------------
-
-All my testing was done stock Debian 8.7,
-with kernel 3.16.39-1+deb8u1,
-and util-linux 2.29.2 compiled from source.
-All commands run as 'root'.
-
-Extrapolating from unshare's man page about creating
-a persistent environment:
-
-    basedir=/var/namespaces/ns1
-    mkdir -p $basedir
-    mount --bind $basedir $basedir
-    mount --make-private $basedir
-    for i in uts mnt pid net ipc user ;
-    do
-     touch $basedir/$i
-    done
-
-Are these correct?
-
-
-
-Step 2: creating shared namespace
----------------------------------
-
-(for now, I'm ignoring user-namespace, as it brings
-its own complications.)
-
-Starting a new environment using the following:
-
-    unshare --uts=$basedir/uts \
-            --mount=$basedir/mnt \
-            --ipc=$basedir/ipc \
-            --pid=$basedir/pid \
-            --net=$basedir/net \
-            --mount-proc \
-            --fork \
-            sh -c 'hostname foobar ; exec /bin/bash -il'
-
-And indeed I get a prompt inside the container:
-
-    root@foobar# ps ax
-    PID TTY      STAT   TIME COMMAND
-     1 pts/2    S      0:00 /bin/bash -il
-     8 pts/2    R+     0:00 ps ax
-
-
-    root@foobar# ifconfig -a
-    lo        Link encap:Local Loopback
-              LOOPBACK  MTU:65536  Metric:1
-              RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-              TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-              collisions:0 txqueuelen:0 
-              RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
-
-
-
-On the outside host, I see the mounts and the namespaces:
-
-    # findmnt -O TARGET
-    [...]
-    └─/var/namespaces/ns1
-     ├─/var/namespaces/ns1/ipc
-     ├─/var/namespaces/ns1/uts
-     ├─/var/namespaces/ns1/net
-     ├─/var/namespaces/ns1/pid
-     └─/var/namespaces/ns1/mnt
-
-    # lsns
-    NS        TYPE  NPROCS   PID USER     COMMAND
-    [...]
-    4026532329 mnt        2 19221 root     unshare --uts=..
-    4026532330 uts        2 19221 root     unshare --uts=..
-    4026532331 ipc        2 19221 root     unshare --uts=..
-    4026532332 pid        1 19223 root     /bin/bash -il
-    4026532334 net        2 19221 root     unshare --uts=..
-
-
-Step 3: Re-entering
--------------------
-
-Trying to enter based on PID works:
-
-    # nsenter -t 19223 -m -u -i -n -p \
-          sh -c 'hostname ; echo ; ps ax ; echo ; ifconfig -a'
-    foobar
-
-      PID TTY      STAT   TIME COMMAND
-        1 pts/2    S+     0:00 /bin/bash -il
-       15 pts/1    S+     0:00 sh -c hostname ; ps ax
-       17 pts/1    R+     0:00 ps ax
-
-    lo        Link encap:Local Loopback
-          LOOPBACK  MTU:65536  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0 
-          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
-
-
-However trying to enter by the persistent mounts does not
-re-enter the pid/net namespace:
-
-    # nsenter --uts=$basedir/uts \
-              --mount=$basedir/mnt \
-              --ipc=$basedir/ipc \
-              --pid=$basedir/pid \
-              --net=$basedir/net \
-              sh -c 'hostname ; echo ; ps ax ; echo ; ifconfig -a'
-    foobar
-
-    Error, do this: mount -t proc proc /proc
-
-    Warning: cannot open /proc/net/dev (No such file or directory).
-    Limited output.
-
-Listing /proc inside the container shows it only lists PID 1
-(the running '/bin/bash' from the original 'unshare' invocation).
-
-Based on naive reading of unshare(1) man page (with the example of 
-persistent UTS at the bottom), I assumed the above two examples with 
-PID and with persistent mount points should be equivalent.
-
-Is this a kernel limitation ?
-
-
-
-Step 4: PID namespace is never persistent?
-------------------------------------------
-
-IIUC, this is a kernel limitation:
-If the program which is PID1 inside the container
-terminates, there is no way to re-enter the PID namespace
-(http://man7.org/linux/man-pages/man7/pid_namespaces.7.html).
-
-Is that correct?
-
-If so, perhaps it would be helpful to add a caveat in the
-unshare/nsenter man pages, saying the PID namespace will
-not persist if the process termintes?
-
-And if this is the case, would the following
-work to create a re-entrant persistent namespace:
-
-    unshare --uts=$basedir/uts \
-            --mount=$basedir/mnt \
-            --ipc=$basedir/ipc \
-            --pid=$basedir/pid \
-            --net=$basedir/net \
-            --mount-proc \
-            --fork \
-            sleep inf
-
-Obviosuly sleep(1) is not a good PID1, but is it conceptually correct
-way to ensure the PID namespace is persistent?
-
-There are already some examples of minimal 'init' for containers:
-  https://github.com/Yelp/dumb-init
-  https://github.com/krallin/tini
-  and most minimal: https://gist.github.com/rofl0r/6168719 
-
-I wonder if you will be willing to consider a patch to add
-something like 'unshare --do-nothing-init' which
-will simply create a process that does nothing except handling signals
-and never terminates, to facilitate truly persistent namespaces with 
-unshare(1) ? (if so I'm happy to try and write it).
-
-
-Thank you for reaing so far.
-regards,
- - assaf
-
-P.S.
-I have more questions about proper usage of user-namespace and 
-switch_root/pivot_root, but I'll save them for later :)
-
-
-P.P.S.
-
-The download URL in the 2.92.2 announcement was http://ftp.kernel.org/
-and it seems broken:
-  $ host ftp.kernel.org
-  Host ftp.kernel.org not found: 3(NXDOMAIN)
-The working URL seems like 'www.kernel.org' (www. instead of ftp.):
-  https://www.kernel.org/pub/linux/utils/util-linux/
-
+> +	int id;
+> +	char *name;
+> +	int status;
+> +}
+> 
+> The below change can also be found from
+>   git://github.com/kerolasa/lelux-utiliteetit.git 2017wk09
+> 
+> --->8----
+> From: Sami Kerola <kerolasa@iki.fi>
+> Date: Fri, 10 Mar 2017 14:06:10 +0000
+> Subject: [PATCH] include/optutils: add option argument parsing and printing functions
+> 
+> Functions parse_arg_name() and print_valid_args() add methods that make
+> option argument life cycle management easy.
+> 
+> Based-on-feedback-from: J William Piggott <elseifthen@gmx.com>
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  include/optutils.h | 50 +++++++++++++++++++++++++++++++
+>  misc-utils/blkid.c | 87 
+> +++++++++++++++---------------------------------------
+>  2 files changed, 73 insertions(+), 64 deletions(-)
+> 
+> diff --git a/include/optutils.h b/include/optutils.h
+> index 325cb8812..62ccc90ae 100644
+> --- a/include/optutils.h
+> +++ b/include/optutils.h
+> @@ -6,6 +6,56 @@
+>  #include "c.h"
+>  #include "nls.h"
+>  
+> +enum {
+> +	arg_in_use = 0,
+> +	arg_hide,
+> +	arg_deprecate,
+> +	arg_removed
+> +};
+> +
+> +struct option_arguments {
+> +	int id;
+> +	char *name;
+> +	int status;
+> +};
+> +
+> +static inline int parse_arg_name(const struct option_arguments *valid_args,
+> +				 const char *arg)
+> +{
+> +	size_t i;
+> +
+> +	for (i = 0; valid_args[i].name; i++) {
+> +		if (strcmp(valid_args[i].name, arg) != 0)
+> +			continue;
+> +		switch (valid_args[i].status) {
+> +		case arg_in_use:
+> +		case arg_hide:
+> +			return valid_args[i].id;
+> +		case arg_deprecate:
+> +			warnx(_("'%s' is deprecated"), arg);
+> +			return valid_args[i].id;
+> +		case arg_removed:
+> +			warnx(_("'%s' is removed"), arg);
+> +			return -EINVAL;
+> +		default:
+> +			abort();
+> +		}
+> +	}
+> +	return -EINVAL;
+> +}
+> +
+> +static inline void print_valid_args(const struct option_arguments *valid_args,
+> +				    const char *message, FILE *out)
+> +{
+> +	size_t i;
+> +
+> +	fprintf(out, message);
+> +	for (i = 0; valid_args[i].name; i++)
+> +		if (valid_args[i].status == arg_in_use)
+> +			fprintf(out, " %s", valid_args[i].name);
+> +	fputc('\n', out);
+> +}
+> +
+>  static inline const char *option_to_longopt(int c, const struct option *opts)
+>  {
+>  	const struct option *o;
+> diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
+> index e0be5120c..5e3f58838 100644
+> --- a/misc-utils/blkid.c
+> +++ b/misc-utils/blkid.c
+> @@ -19,36 +19,6 @@
+>  #include <errno.h>
+>  #include <getopt.h>
+>  
+> -enum {
+> -	OUTPUT_FULL = 0,
+> -	OUTPUT_VALUE_ONLY,
+> -	OUTPUT_DEVICE_ONLY,
+> -	OUTPUT_PRETTY_LIST,
+> -	OUTPUT_UDEV_LIST,
+> -	OUTPUT_EXPORT_LIST
+> -};
+> -
+> -enum {
+> -	opt_in_use = 0,
+> -	opt_hide,
+> -	opt_deprecate,
+> -	opt_removed
+> -};
+> -
+> -struct option_arguments {
+> -	char *name;
+> -	int status;
+> -};
+> -
+> -static struct option_arguments output_formats[] = {
+> -	[OUTPUT_FULL]		= { "full", opt_in_use },
+> -	[OUTPUT_VALUE_ONLY]	= { "value", opt_in_use },
+> -	[OUTPUT_DEVICE_ONLY]	= { "device", opt_in_use },
+> -	[OUTPUT_PRETTY_LIST]	= { "list", opt_hide },		/* to be deprecated */
+> -	[OUTPUT_UDEV_LIST]	= { "udev", opt_hide },		/* to be deprecated */
+> -	[OUTPUT_EXPORT_LIST]	= { "export", opt_in_use },
+> -};
+> -
+>  #define LOWPROBE_TOPOLOGY	(1 << 1)
+>  #define LOWPROBE_SUPERBLOCKS	(1 << 2)
+>  
+> @@ -71,6 +41,25 @@ static struct option_arguments output_formats[] = {
+>  #include "ttyutils.h"
+>  #include "xalloc.h"
+>  
+> +enum {
+> +	OUTPUT_FULL = 0,
+> +	OUTPUT_VALUE_ONLY,
+> +	OUTPUT_DEVICE_ONLY,
+> +	OUTPUT_PRETTY_LIST,
+> +	OUTPUT_UDEV_LIST,
+> +	OUTPUT_EXPORT_LIST
+> +};
+> +
+> +static struct option_arguments output_formats[] = {
+> +	{ OUTPUT_FULL,  "full", arg_in_use },
+> +	{ OUTPUT_VALUE_ONLY, "value", arg_in_use },
+> +	{ OUTPUT_DEVICE_ONLY, "device", arg_in_use },
+> +	{ OUTPUT_PRETTY_LIST, "list", arg_hide },	/* to be deprecated */
+> +	{ OUTPUT_UDEV_LIST, "udev", arg_hide },		/* to be deprecated */
+> +	{ OUTPUT_EXPORT_LIST, "export", arg_in_use },
+> +	{ 0, NULL, 0 }
+> +};
+> +
+>  static int raw_chars;
+>  
+>  static void print_version(FILE *out)
+> @@ -98,8 +87,8 @@ static void usage(int error)
+>  	fputs(_(	" -d          don't encode non-printing characters\n"), out);
+>  	fputs(_(	" -h          print this usage message and exit\n"), out);
+>  	fputs(_(	" -g          garbage collect the blkid cache\n"), out);
+> -	fputs(_(	" -o <format> output format; can be one of:\n"
+> -			"               value, device, export or full; (default: full)\n"), out);
+> +	fputs(_(	" -o <format> output format; can be one of:\n"), out);
+> +	print_valid_args(output_formats, "              ", out);
+>  	fputs(_(	" -k          list all known filesystems/RAIDs and exit\n"), out);
+>  	fputs(_(	" -s <tag>    show specified tag(s) (default show all tags)\n"), out);
+>  	fputs(_(	" -t <token>  find device with a specific token (NAME=value pair)\n"), out);
+> @@ -121,36 +110,6 @@ static void usage(int error)
+>  	exit(error);
+>  }
+>  
+> -static int parse_format_name(const char *arg)
+> -{
+> -	size_t i;
+> -
+> -	for (i = 0; i < ARRAY_SIZE(output_formats); i++) {
+> -		if (strcmp(output_formats[i].name, arg) != 0)
+> -			continue;
+> -		switch (output_formats[i].status) {
+> -		case opt_in_use:
+> -		case opt_hide:
+> -			return i;
+> -		case opt_deprecate:
+> -			warnx(_("'%s' is deprecated"), arg);
+> -			return i;
+> -		case opt_removed:
+> -			warnx(_("'%s' is removed"), arg);
+> -			return -EINVAL;
+> -		default:
+> -			abort();
+> -		}
+> -	}
+> -	warnx(_("invalid argument: '%s'"), arg);
+> -	fprintf(stderr, _("recommended arguments to use are:"));
+> -	for (i = 0; i < ARRAY_SIZE(output_formats); i++)
+> -		if (output_formats[i].status == opt_in_use)
+> -			fprintf(stderr, " %s", output_formats[i].name);
+> -	fputc('\n', stderr);
+> -	return -EINVAL;
+> -}
+> -
+>  /*
+>   * This function does "safe" printing.  It will convert non-printable
+>   * ASCII characters using '^' and M- notation.
+> @@ -770,9 +729,9 @@ int main(int argc, char **argv)
+>  			exit(EXIT_SUCCESS);
+>  		}
+>  		case 'o':
+> -			output_format = parse_format_name(optarg);
+> +			output_format = parse_arg_name(output_formats, optarg);
+>  			if (output_format < 0)
+> -				exit(BLKID_EXIT_OTHER);
+> +				errx(BLKID_EXIT_OTHER, _("invalid argument: %s"), optarg);
+>  			break;
+>  		case 'O':
+>  			offset = strtosize_or_err(optarg, _("invalid offset argument"));
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
