@@ -1,67 +1,88 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f175.google.com ([209.85.128.175]:36156 "EHLO
-        mail-wr0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751781AbdCEUwi (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 5 Mar 2017 15:52:38 -0500
-Received: by mail-wr0-f175.google.com with SMTP id u108so104169967wrb.3
-        for <util-linux@vger.kernel.org>; Sun, 05 Mar 2017 12:52:37 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from ishtar.tlinx.org ([173.164.175.65]:42160 "EHLO
+        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751817AbdCKNNl (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 11 Mar 2017 08:13:41 -0500
+Received: from [192.168.3.12] (Athenae [192.168.3.12])
+        by Ishtar.sc.tlinx.org (8.14.7/8.14.4/SuSE Linux 0.8) with ESMTP id v2BCf8IU069456
+        for <util-linux@vger.kernel.org>; Sat, 11 Mar 2017 04:41:10 -0800
+Message-ID: <58C3F064.4060904@tlinx.org>
+Date: Sat, 11 Mar 2017 04:41:08 -0800
+From: L A Walsh <lkml@tlinx.org>
+MIME-Version: 1.0
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 00/13] pull: warnings fixes and blkid translations
-Date: Sun,  5 Mar 2017 20:52:19 +0000
-Message-Id: <20170305205232.24030-1-kerolasa@iki.fi>
+Subject: ideas of what lib might be missing?  (2.29.2 has missing symbols
+ @ link)
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+I thought 'configure' was supposed to test for what was present
+and what was missing?  Seems to have missed a few... :-(
 
-Following few changes are various small fixes.  Many of the changes are
-about warnings, and not that interesting.  Perhaps the most unexpected
-change is blkid translations.  I don't know how that command has slipped
-through so long time without being part of translations.  Oh well, now that
-is fixed.
+In trying to make new release 2.29.2, I'm getting
+several undefined symbols:
+
+color_fdisable
+color_scheme_fenable
+color_sequence_from_colorname
+colormode_or_err
+colors_init
+get_fd_tabsize
+get_terminal_name
+initproctitle
+pager_redirect
+parse_kmsg_recordsetproctitle
+plymouth_command
+string_to_bitarray
+strnchr
+strtimeval_iso
+strtos32_or_err
+strtou32_or_err
+unhexmangle_to_buffer
+---
+Was wondering what library I might be missing? or why they
+are being referenced when 'whatever library' they are in,
+evidently isn't on my system...  configure bug?
+
+I just ran the existing configure with the options listed
+further on down...
+
+Thanks!
+-linda
 
 
-----------------------------------------------------------------
-The following changes since commit 1765814521bf2aba7b8c03d3ab2e3b784e1ce2c4:
-  libsmartcols: allow to add column to already used table (2017-03-03 10:37:37 +0100)
-are available in the git repository at:
-  git://github.com/kerolasa/lelux-utiliteetit.git 2017wk09
-for you to fetch changes up to b8711cb7f2e0f739a491b6a95e7fb8dc537d977f:
-  lib/colors: assert rathen than overflow (2017-03-05 20:41:41 +0000)
-----------------------------------------------------------------
 
-Sami Kerola (13):
-  misc: stop mixing declarations and code
-  libmount: fix use of preprocessor identifier
-  libblkid: avoid overflow when initializing array
-  libblkid: ensure uninitialized variable is not used [clang]
-  blkid: add curly braces to do-while statement
-  blkid: add messages to translations
-  blkid: define output names only once
-  blkid: improve coding style
-  include: fix compiler warning
-  libfdisk: dos: fix potential null pointer dereferences
-  libfdisk: fix potentially null
-  docs: improve boilerplate.c options example
-  lib/colors: assert rathen than overflow
 
- Documentation/boilerplate.c           |  13 +-
- disk-utils/cfdisk.c                   |   4 +-
- disk-utils/sfdisk.c                   |   2 +-
- include/optutils.h                    |   3 +
- include/pt-mbr.h                      |   3 +
- lib/colors.c                          |   4 +-
- libblkid/src/superblocks/drbdmanage.c |   2 +-
- libblkid/src/superblocks/minix.c      |  22 +--
- libfdisk/src/dos.c                    |  61 +++++++-
- libfdisk/src/partition.c              |   4 +
- libmount/src/context_mount.c          |   2 +-
- misc-utils/blkid.c                    | 269 ++++++++++++++++++----------------
- text-utils/hexdump-display.c          |   4 +-
- 13 files changed, 241 insertions(+), 152 deletions(-)
+uname -a:
+Linux Ishtar 4.10.1-Isht-Van #1 SMP PREEMPT Tue Feb 28 18:57:48 PST 2017 
+x86_64 GNU/Linux
 
--- 
-2.12.0
+gcc (SUSE Linux) 4.9.0
+
+glibc:
+Name        : glibc
+Version     : 2.19
+Release     : 16.9.1
+
+vendor openSuSE 13.2
+
+options:
+
+array enable=( 
+                fs-paths-default
+                last libmount-support-mtab line
+                newgrp
+                reset
+                static-programs=mount sulogin-emergency-mount
+                vipw write
+)
+array disable=( assert nls pylibmount )
+array with=(    audit
+                bashcompletiondir=/usr/share/bash-completion
+                gnu-ld
+                readline
+)
+array without=( python )
+
 
