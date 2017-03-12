@@ -1,51 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from midir.magicbluesmoke.com ([82.195.144.46]:55246 "EHLO
-        mail.magicbluesmoke.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752138AbdC2C5n (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 28 Mar 2017 22:57:43 -0400
-Subject: Re: col issue
-To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <20170328121630.prr5s6aikqvt2awt@ws.net.home>
-Cc: Sami Kerola <kerolasa@iki.fi>
-From: =?UTF-8?Q?P=c3=a1draig_Brady?= <P@draigBrady.com>
-Message-ID: <1a5ce781-a9c9-11ef-d3d2-45f95d9cd7a8@draigBrady.com>
-Date: Tue, 28 Mar 2017 19:57:35 -0700
+Received: from mout.kundenserver.de ([212.227.126.130]:57287 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933837AbdCLQts (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 12 Mar 2017 12:49:48 -0400
+Received: from localhost ([91.7.170.176]) by mrelayeu.kundenserver.de
+ (mreue004 [212.227.15.129]) with ESMTPSA (Nemesis) id
+ 0LaYX5-1cOB3X3un9-00mLqD for <util-linux@vger.kernel.org>; Sun, 12 Mar 2017
+ 17:49:45 +0100
+Date: Sun, 12 Mar 2017 17:49:45 +0100
+From: Tobias Stoeckmann <tobias@stoeckmann.org>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] login: prevent OOB read on illegal /etc/hushlogins
+Message-ID: <20170312164945.GB28165@localhost>
 MIME-Version: 1.0
-In-Reply-To: <20170328121630.prr5s6aikqvt2awt@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 28/03/17 05:16, Karel Zak wrote:
-> 
->  Hi,
-> 
->  see https://bugzilla.redhat.com/show_bug.cgi?id=1436432
-> 
->  any idea what is the right col(1) behavior for escape sequences?
-> 
->  The current code reads two first bytes from the sequence and the rest
->  is interpreted as standard chars (because complex sequences like
->  ^[..m are completely unknown for the code), for example input:
-> 
->     ^[[1mtomcat-el^[(B^[[m
-> 
->  produces:
-> 
->     1mtomcat-elBm
-> 
->  It seems incorrect. I think for "col -p" all the sequence should be
->  filtered out, it means:
->    
->     tomcat-el
->  
->  and the default behavior (without -p) should be output all escape
->  sequences but do not increment internal width counters.
->  
->  Objections?
-> 
->     Karel
-> 
+If the file /etc/hushlogins exists and a line starts with '\0', the
+login tools are prone to an off-by-one read.
 
-I agree, but presuming you meant the opposite, and
-for `col -p` to pass through all these escape sequences unaltered
+I see no reliability issue with this, as it would clearly need a
+hostile action from a system administrator. But for the sake of
+correctness, I've sent this patch nonetheless.
+---
+ login-utils/logindefs.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/login-utils/logindefs.c b/login-utils/logindefs.c
+index f02c4752d..213ff8d25 100644
+--- a/login-utils/logindefs.c
++++ b/login-utils/logindefs.c
+@@ -344,7 +344,8 @@ int get_hushlogin_status(struct passwd *pwd, int force_check)
+ 				continue;	/* ignore errors... */
+ 
+ 			while (ok == 0 && fgets(buf, sizeof(buf), f)) {
+-				buf[strlen(buf) - 1] = '\0';
++				if (buf[0] != '\0')
++					buf[strlen(buf) - 1] = '\0';
+ 				ok = !strcmp(buf, *buf == '/' ? pwd->pw_shell :
+ 								pwd->pw_name);
+ 			}
+-- 
+2.12.0
+
