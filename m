@@ -1,31 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:48624 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751537AbdCMMFr (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 13 Mar 2017 08:05:47 -0400
-Date: Mon, 13 Mar 2017 13:05:43 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Tobias Stoeckmann <tobias@stoeckmann.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] libblkid: Fix blkid.conf parsing
-Message-ID: <20170313120543.nu2lrkcfavjg6fug@ws.net.home>
-References: <20170312164844.GA28165@localhost>
+Received: from mail-ot0-f176.google.com ([74.125.82.176]:33035 "EHLO
+        mail-ot0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934338AbdCLRIg (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 12 Mar 2017 13:08:36 -0400
+Received: by mail-ot0-f176.google.com with SMTP id 19so101423654oti.0
+        for <util-linux@vger.kernel.org>; Sun, 12 Mar 2017 10:08:36 -0700 (PDT)
+Subject: Re: missing syms @ link filed as bugzilla.kernel.org#194857
+To: L A Walsh <lkml@tlinx.org>, util-linux@vger.kernel.org
+References: <58C52223.1000008@tlinx.org>
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Message-ID: <58C58092.8060206@gmail.com>
+Date: Sun, 12 Mar 2017 12:08:34 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170312164844.GA28165@localhost>
+In-Reply-To: <58C52223.1000008@tlinx.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Mar 12, 2017 at 05:48:44PM +0100, Tobias Stoeckmann wrote:
->  libblkid/src/config.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+L A Walsh wrote:
+> https://bugzilla.kernel.org/show_bug.cgi?id=194857
+>
+> Different utils gave different syms -- wasn't just the color
+> related ones -- but like nothing is linking in files
+> from the '<proj>/libs' dir...
 
- Applied, thanks.
+May I suggest retrying at -j1.
+It would also be more clear if you post the options for configure, if any.
+Is this x86_64 or something different?
 
- Tobias, use Signed-off-by line for your patches next time, please ;-)
+That info would help narrow down the issue.
 
-    Karel
+   -- Bruce
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
