@@ -1,56 +1,26 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47504 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752900AbdCMOjb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 13 Mar 2017 10:39:31 -0400
-Date: Mon, 13 Mar 2017 15:39:26 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/13] pull: warnings fixes and blkid translations
-Message-ID: <20170313143926.hf5os4qxmxyvinz7@ws.net.home>
-References: <20170305205232.24030-1-kerolasa@iki.fi>
+Received: from ishtar.tlinx.org ([173.164.175.65]:58280 "EHLO
+        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755667AbdCLKZn (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 12 Mar 2017 06:25:43 -0400
+Received: from [192.168.3.12] (Athenae [192.168.3.12])
+        by Ishtar.sc.tlinx.org (8.14.7/8.14.4/SuSE Linux 0.8) with ESMTP id v2CAPdDu006849
+        for <util-linux@vger.kernel.org>; Sun, 12 Mar 2017 03:25:41 -0700
+Message-ID: <58C52223.1000008@tlinx.org>
+Date: Sun, 12 Mar 2017 03:25:39 -0700
+From: L A Walsh <lkml@tlinx.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170305205232.24030-1-kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Subject: missing syms @ link filed as bugzilla.kernel.org#194857
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Mar 05, 2017 at 08:52:19PM +0000, Sami Kerola wrote:
-> Sami Kerola (13):
->   misc: stop mixing declarations and code
->   libmount: fix use of preprocessor identifier
->   libblkid: avoid overflow when initializing array
->   libblkid: ensure uninitialized variable is not used [clang]
->   blkid: add curly braces to do-while statement
->   blkid: add messages to translations
+https://bugzilla.kernel.org/show_bug.cgi?id=194857
 
-Applied.
+Different utils gave different syms -- wasn't just the color
+related ones -- but like nothing is linking in files
+from the '<proj>/libs' dir...
 
->   blkid: define output names only once
->   blkid: improve coding style
 
-Not applied.
 
->   include: fix compiler warning
-
-Applied.
-
->   libfdisk: dos: fix potential null pointer dereferences
->   libfdisk: fix potentially null
-
-Applied a little different version.
-
->   docs: improve boilerplate.c options example
-
-Applied.
-
->   lib/colors: assert rathen than overflow
-
-Applied fixed version.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
