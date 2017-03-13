@@ -1,34 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45620 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:55880 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752054AbdC0LJQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 27 Mar 2017 07:09:16 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id BAAED624C6
-        for <util-linux@vger.kernel.org>; Mon, 27 Mar 2017 11:09:15 +0000 (UTC)
-Date: Mon, 27 Mar 2017 13:09:11 +0200
+        id S1751099AbdCMLli (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 13 Mar 2017 07:41:38 -0400
+Date: Mon, 13 Mar 2017 12:41:35 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Masatake YAMATO <yamato@redhat.com>
+To: L A Walsh <lkml@tlinx.org>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/4] fincore command
-Message-ID: <20170327110911.6uyoprjf3n3ds5cy@ws.net.home>
-References: <20170307023352.7340-1-yamato@redhat.com>
- <20170323115825.paxktr7xxgevrcju@ws.net.home>
- <20170323144523.24u45orqhq75oosj@ws.net.home>
- <20170327.094152.1904964943153919266.yamato@redhat.com>
+Subject: Re: ideas of what lib might be missing?  (2.29.2 has missing symbols
+ @ link)
+Message-ID: <20170313114135.riuh2pahfs3v4jkp@ws.net.home>
+References: <58C3F064.4060904@tlinx.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170327.094152.1904964943153919266.yamato@redhat.com>
+In-Reply-To: <58C3F064.4060904@tlinx.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Mar 27, 2017 at 09:41:52AM +0900, Masatake YAMATO wrote:
-> About RES and RSS, I don't know which is better.
-> As you know top command users RES and ps command uses RSS...
+On Sat, Mar 11, 2017 at 04:41:08AM -0800, L A Walsh wrote:
+> I thought 'configure' was supposed to test for what was present
+> and what was missing?  Seems to have missed a few... :-(
 
- Added column RES.
+ Please, send complete step by step way how to reproduce the problem
+ (used commands and output).
+
+> Was wondering what library I might be missing? or why they
+> are being referenced when 'whatever library' they are in,
+> evidently isn't on my system...  configure bug?
+
+ It's lib/ stuff in the package, nothing external.
+
+> array enable=(                fs-paths-default
+>                last libmount-support-mtab line
+>                newgrp
+>                reset
+>                static-programs=mount sulogin-emergency-mount
+>                vipw write
+> )
+> array disable=( assert nls pylibmount )
+> array with=(    audit
+>                bashcompletiondir=/usr/share/bash-completion
+>                gnu-ld
+>                readline
+> )
+> array without=( python )
+
+ This copy & past from some build system, or what? It would be better
+ to have ./configure command line.
 
     Karel
 
