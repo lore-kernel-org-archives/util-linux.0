@@ -1,59 +1,74 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:57664 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:36297 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752295AbdCaJA1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 31 Mar 2017 05:00:27 -0400
-Received: from [10.0.0.104] ([178.25.190.115]) by mail.gmx.com (mrgmx002
- [212.227.17.190]) with ESMTPSA (Nemesis) id 0M7pI0-1byrxB0Wki-00vSVc for
- <util-linux@vger.kernel.org>; Fri, 31 Mar 2017 11:00:25 +0200
-To: util-linux@vger.kernel.org
-From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
-Subject: find device of a known mountpoint
-Message-ID: <5f3534af-06b5-9c76-f5e3-9c1d489e570c@gmx.de>
-Date: Fri, 31 Mar 2017 11:00:24 +0200
+        id S1751941AbdCMNoB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 13 Mar 2017 09:44:01 -0400
+Date: Mon, 13 Mar 2017 14:43:54 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 13/13] lib/colors: assert rathen than overflow
+Message-ID: <20170313134354.ximcvarayhcv7b5s@ws.net.home>
+References: <20170305205232.24030-1-kerolasa@iki.fi>
+ <20170305205232.24030-14-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170305205232.24030-14-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+On Sun, Mar 05, 2017 at 08:52:32PM +0000, Sami Kerola wrote:
+> lib/colors.c: In function 'colors_read_schemes':
+> lib/colors.c:412:7: warning: potential null pointer dereference [-Wnull-dereference]
+>   *out = '\0';
+>   ~~~~~^~~~~~
+> 
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  lib/colors.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/lib/colors.c b/lib/colors.c
+> index 4b280fe27..baafe0a90 100644
+> --- a/lib/colors.c
+> +++ b/lib/colors.c
+> @@ -342,6 +342,7 @@ static char *colors_get_homedir(char *buf, size_t bufsz)
+>  static int cn_sequence(const char *str, char **seq)
+>  {
+>  	char *in, *out;
+> +	int len;
+>  
+>  	if (!str)
+>  		return -EINVAL;
+> @@ -357,7 +358,7 @@ static int cn_sequence(const char *str, char **seq)
+>  	}
+>  
+>  	/* convert xx;yy sequences to "\033[xx;yy" */
+> -	if (asprintf(seq, "\033[%sm", str) < 1)
+> +	if ((len = asprintf(seq, "\033[%sm", str)) < 1)
+>  		return -ENOMEM;
+>  
+>  	for (in = *seq, out = *seq; in && *in; in++) {
+> @@ -409,6 +410,7 @@ static int cn_sequence(const char *str, char **seq)
+>  		}
+>  		in++;
+>  	}
+> +	assert (len < (out - *seq));
 
-I wonder whether we have a command which tells me the device 
-corresponding to a known mount point. I want to avoid grepping the 
-output of mount because it may not unique (regarding mounts on shared 
-bind mounts) and because the original mount point may include symlinks 
-which are canonicalized by the kernel.
+This seems incorrect. Should be:
 
-Example:
+    assert ((out - *seq) <= len);
 
-$ truncate -s100M /tmp/img
-$ losetup /dev/loop0  /tmp/img
-$ mkfs.ext2  /dev/loop0
+note that asprintf() returns size without terminating byte.
 
-$ mkdir /tmp/mnt
-$ ln -s /tmp  /tmp/xyz/symlink
+Hmm.. we have no test_colors used in our regression tests. Simple
+test:
 
-$ mount /dev/loop0 /tmp/xyz/symlink/mnt
-$ mount | grep loop
-/dev/loop0 on /tmp/mnt type ext2 ...
+ $ echo 'mybell \a' > ~/.config/terminal-colors.d/foo.scheme
+ $ TERMINAL_COLORS_DEBUG=all ./test_colors --name foo --color-scheme mybell
 
+    Karel
 
-I need a command which outputs "/dev/loop0" when "/tmp/xyz/symlink/mnt" 
-is given.
-
-So far I found df as the only solution (but ugly and maybe GNU-only). 
-And it would succeed for any input file, not only mountpoints.
-
-$ df -P /tmp/xyz/symlink/mnt | awk 'NR==2{print $1}'
-/dev/loop0
-
-Our mountpoint(1) looks like the right tool but prints the device 
-numbers only
-
-$ mountpoint  -d /tmp/xyz/symlink/mnt
-7:0
-
-So how could I do this in a non-ugly way?
-
-cu,
-Rudi
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
