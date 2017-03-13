@@ -1,63 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:36795 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751269AbdCSKTU (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 19 Mar 2017 06:19:20 -0400
-Received: by mail-wm0-f66.google.com with SMTP id x124so9791049wmf.3
-        for <util-linux@vger.kernel.org>; Sun, 19 Mar 2017 03:19:19 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 1/5] libsmartcols: fix test variable shadowing
-Date: Sun, 19 Mar 2017 10:10:41 +0000
-Message-Id: <20170319101045.3018-2-kerolasa@iki.fi>
-In-Reply-To: <20170319101045.3018-1-kerolasa@iki.fi>
-References: <20170319101045.3018-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:46432 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751389AbdCMOhT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 13 Mar 2017 10:37:19 -0400
+Date: Mon, 13 Mar 2017 15:37:14 +0100
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 06/13] blkid: add messages to translations
+Message-ID: <20170313143714.6e35m66huz7ciwsm@ws.net.home>
+References: <20170305205232.24030-1-kerolasa@iki.fi>
+ <20170305205232.24030-7-kerolasa@iki.fi>
+ <83d6c687-8fec-0446-0914-ff00eb3837fc@gmx.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <83d6c687-8fec-0446-0914-ff00eb3837fc@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-libsmartcols/samples/fromfile.c:57:16: warning: declaration of 'flags'
-shadows a global declaration [-Wshadow]
-libsmartcols/samples/fromfile.c:29:33: note: shadowed declaration is here
-libsmartcols/samples/fromfile.c:101:8: warning: declaration of 'flags'
-shadows a global declaration [-Wshadow]
+On Tue, Mar 07, 2017 at 09:15:25AM -0500, J William Piggott wrote:
+> 
+> 
+> On 03/05/2017 03:52 PM, Sami Kerola wrote:
+> 
+>  8< ---
+> 
+> > +	fputs(_(	" -o <format> output format; can be one of:\n"
+> > +			"               value, device, export or full; (default: full)\n"), out);
+> 
+> 	This says there are four output formats, but the error message
+> 	below lists six?
+> 
+>  8< ---
+> 
+> > @@ -721,39 +724,38 @@ int main(int argc, char **argv)
+> >  			else if (!strcmp(optarg, "full"))
+> >  				output_format = 0;
+> >  			else {
+> > -				fprintf(stderr, "Invalid output format %s. "
+> > +				errx(BLKID_EXIT_OTHER, _("Invalid output format %s. "
+> >  					"Choose from value,\n\t"
+> > -					"device, list, udev or full\n", optarg);
+> > -				exit(BLKID_EXIT_OTHER);
+> > +					"value, device, list, udev, export, or full"), optarg);
+> 
+> 
+>  8< ---
+> 
+> 
+> Looks like the above outputs 'value' twice?
+> 
+> Maybe it should also have a colon "Choose from:\n\t"
+> 
+> A single line would be preferable I think:
+> "Choose from: value, device, list, udev, export, or full"
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- libsmartcols/samples/fromfile.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ The message is unnecessary complex, the list of the supported
+ arguments is overkill. I have merged:
 
-diff --git a/libsmartcols/samples/fromfile.c b/libsmartcols/samples/fromfile.c
-index 4c9fca468..1a90e2d4b 100644
---- a/libsmartcols/samples/fromfile.c
-+++ b/libsmartcols/samples/fromfile.c
-@@ -54,12 +54,12 @@ static long name_to_flag(const char *name, size_t namesz)
- 
- static int parse_column_flags(char *str)
- {
--	unsigned long flags = 0;
-+	unsigned long num_flags = 0;
- 
--	if (string_to_bitmask(str, &flags, name_to_flag))
-+	if (string_to_bitmask(str, &num_flags, name_to_flag))
- 		err(EXIT_FAILURE, "failed to parse column flags");
- 
--	return flags;
-+	return num_flags;
- }
- 
- static struct libscols_column *parse_column(FILE *f)
-@@ -98,8 +98,8 @@ static struct libscols_column *parse_column(FILE *f)
- 		}
- 		case 2: /* FLAGS */
- 		{
--			int flags = parse_column_flags(line);
--			if (scols_column_set_flags(cl, flags))
-+			int num_flags = parse_column_flags(line);
-+			if (scols_column_set_flags(cl, num_flags))
- 				goto fail;
- 			if (strcmp(line, "wrapnl") == 0) {
- 				scols_column_set_wrapfunc(cl,
+    errx(BLKID_EXIT_OTHER, _("unsupported output format %s"), optarg);
+
+    Karel
+
 -- 
-2.12.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
