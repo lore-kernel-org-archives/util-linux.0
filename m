@@ -1,38 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.18]:65167 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:39690 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755402AbdC1Tdc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 28 Mar 2017 15:33:32 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: col issue
-Date: Tue, 28 Mar 2017 21:32:08 +0200
-Cc: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
-References: <20170328121630.prr5s6aikqvt2awt@ws.net.home>
-In-Reply-To: <20170328121630.prr5s6aikqvt2awt@ws.net.home>
+        id S1752286AbdCMOuq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 13 Mar 2017 10:50:46 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 0737280462
+        for <util-linux@vger.kernel.org>; Mon, 13 Mar 2017 14:50:46 +0000 (UTC)
+Date: Mon, 13 Mar 2017 15:50:41 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Masatake YAMATO <yamato@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/4] fincore command
+Message-ID: <20170313145041.senno5cucpkp6s57@ws.net.home>
+References: <20170307023352.7340-1-yamato@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201703282132.08215.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170307023352.7340-1-yamato@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 28 March 2017, Karel Zak wrote:
->  Hi,
->
->  see https://bugzilla.redhat.com/show_bug.cgi?id=1436432
->
->  any idea what is the right col(1) behavior for escape sequences?
+On Tue, Mar 07, 2017 at 11:33:48AM +0900, Masatake YAMATO wrote:
+> This patch set proposes adding fincore command to util-linux
+> distribution.  The command counts pages of file contents being
+> resident in memory(in core), and reports the numbers.
+> 
+> It helps system administrators understand how their systems use
+> physical memory, especially about page caches when they have to do
+> trouble shooting and/or performance tuning.
+> 
+> This is just my case. A person in other role may also get benefits
+> from this command.
 
-I have no opinion and no clue about col but still one comment :)
+Not sure if I like the format ;-)
 
-While you are looking at this issue, maybe it's related to some test 
-failures on OSX and FreeBSD. In .travis-functions we have disabled 
-certain test for OSX:
+ $ fincore /etc/fstab /bin/emacs
+ 1          1544       /etc/fstab
+ 4156       17163144   /bin/emacs
 
-    export TS_OPT_col_multibyte_known_fail=yes
-    export TS_OPT_colcrt_regressions_known_fail=yes
-    export TS_OPT_column_invalid_multibyte_known_fail=yes
+Why we need file size there? Would be better to use filename as the
+first column?
 
-cu,
-Rudi
+ $ fincore /etc/fstab /bin/emacs
+ /etc/fstab 1
+ /bin/emacs 4156
+
+it would be also nice have a way how to print only the number if only one
+file specified. Then you can use it in scripts without awk (or so),
+just:
+
+  FILEPAGES=$(fincore /bin/emacs)
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
