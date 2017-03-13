@@ -1,55 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:65228 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:48624 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755246AbdCGOfs (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 7 Mar 2017 09:35:48 -0500
-Subject: Re: [PATCH 06/13] blkid: add messages to translations
-To: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
-References: <20170305205232.24030-1-kerolasa@iki.fi>
- <20170305205232.24030-7-kerolasa@iki.fi>
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <83d6c687-8fec-0446-0914-ff00eb3837fc@gmx.com>
-Date: Tue, 7 Mar 2017 09:15:25 -0500
+        id S1751537AbdCMMFr (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 13 Mar 2017 08:05:47 -0400
+Date: Mon, 13 Mar 2017 13:05:43 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Tobias Stoeckmann <tobias@stoeckmann.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] libblkid: Fix blkid.conf parsing
+Message-ID: <20170313120543.nu2lrkcfavjg6fug@ws.net.home>
+References: <20170312164844.GA28165@localhost>
 MIME-Version: 1.0
-In-Reply-To: <20170305205232.24030-7-kerolasa@iki.fi>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170312164844.GA28165@localhost>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sun, Mar 12, 2017 at 05:48:44PM +0100, Tobias Stoeckmann wrote:
+>  libblkid/src/config.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
+ Applied, thanks.
 
-On 03/05/2017 03:52 PM, Sami Kerola wrote:
+ Tobias, use Signed-off-by line for your patches next time, please ;-)
 
- 8< ---
+    Karel
 
-> +	fputs(_(	" -o <format> output format; can be one of:\n"
-> +			"               value, device, export or full; (default: full)\n"), out);
-
-	This says there are four output formats, but the error message
-	below lists six?
-
- 8< ---
-
-> @@ -721,39 +724,38 @@ int main(int argc, char **argv)
->  			else if (!strcmp(optarg, "full"))
->  				output_format = 0;
->  			else {
-> -				fprintf(stderr, "Invalid output format %s. "
-> +				errx(BLKID_EXIT_OTHER, _("Invalid output format %s. "
->  					"Choose from value,\n\t"
-> -					"device, list, udev or full\n", optarg);
-> -				exit(BLKID_EXIT_OTHER);
-> +					"value, device, list, udev, export, or full"), optarg);
-
-
- 8< ---
-
-
-Looks like the above outputs 'value' twice?
-
-Maybe it should also have a colon "Choose from:\n\t"
-
-A single line would be preferable I think:
-"Choose from: value, device, list, udev, export, or full"
-
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
