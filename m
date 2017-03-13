@@ -1,27 +1,59 @@
-Return-Path: elseifthen@gmx.com
-Subject: Re: [V3 PULL] hwclock: remove date(1)
-To: Karel Zak <kzak@redhat.com>
-References: <a1415b5d-4046-3b34-5836-40ce1a835a41@gmx.com>
- <20170314131705.vag4vmrlemrcfsj4@ws.net.home>
- <7335247a-fea0-80aa-c8b2-d86b6847b019@gmx.com>
- <20170323114129.t5ojgdam4jgwptjg@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:53764 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751095AbdCMMKW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 13 Mar 2017 08:10:22 -0400
+Date: Mon, 13 Mar 2017 13:10:19 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Tobias Stoeckmann <tobias@stoeckmann.org>
 Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <94934e18-0a62-a869-4177-2b4560a3998d@gmx.com>
-Date: Thu, 23 Mar 2017 10:37:35 -0400
+Subject: Re: [PATCH] last: Always terminate domain with '\0'
+Message-ID: <20170313121019.bnikafvfqtsckbpk@ws.net.home>
+References: <20170312165059.GC28165@localhost>
 MIME-Version: 1.0
-In-Reply-To: <20170323114129.t5ojgdam4jgwptjg@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170312165059.GC28165@localhost>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 03/23/2017 07:41 AM, Karel Zak wrote:
-> On Wed, Mar 22, 2017 at 08:43:05PM -0400, J William Piggott wrote:
->> ping
+On Sun, Mar 12, 2017 at 05:51:00PM +0100, Tobias Stoeckmann wrote:
+>  login-utils/last.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> Merged (sorry I has been busy with RHEL). Thanks!
+> diff --git a/login-utils/last.c b/login-utils/last.c
+> index 340705757..ddbdd84a3 100644
+> --- a/login-utils/last.c
+> +++ b/login-utils/last.c
+> @@ -507,8 +507,8 @@ static int list(const struct last_control *ctl, struct utmpx *p, time_t logout_t
+>  	if (r < 0) {
+>  		len = sizeof(p->ut_host);
+>  		if (len >= (int)sizeof(domain)) len = sizeof(domain) - 1;
+> -		domain[0] = 0;
+> -		strncat(domain, p->ut_host, len);
+> +		strncpy(domain, p->ut_host, len);
+> +		domain[len] = 0;
 
-No worries Karel, thank you for fixing the build system for me.
+ I have applied a little bit different solution, we have xstrcpy()
+ where is set \0 on len-1, so let's use it.
 
-> 
->     Karel
-> 
+    Karel
+
+diff --git a/login-utils/last.c b/login-utils/last.c
+index 3407057..679ea6c 100644
+--- a/login-utils/last.c
++++ b/login-utils/last.c
+@@ -505,10 +505,12 @@ static int list(const struct last_control *ctl, struct utmpx *p, time_t logout_t
+        if (ctl->usedns || ctl->useip)
+                r = dns_lookup(domain, sizeof(domain), ctl->useip, p->ut_addr_v6);
+        if (r < 0) {
+-               len = sizeof(p->ut_host);
+-               if (len >= (int)sizeof(domain)) len = sizeof(domain) - 1;
+-               domain[0] = 0;
+-               strncat(domain, p->ut_host, len);
++               size_t sz = sizeof(p->ut_host);
++
++               if (sz > sizeof(domain))
++                       sz = sizeof(domain);
++
++               xstrncpy(domain, p->ut_host, sz);
+        }
