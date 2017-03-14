@@ -1,46 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.126.130]:57287 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933837AbdCLQts (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 12 Mar 2017 12:49:48 -0400
-Received: from localhost ([91.7.170.176]) by mrelayeu.kundenserver.de
- (mreue004 [212.227.15.129]) with ESMTPSA (Nemesis) id
- 0LaYX5-1cOB3X3un9-00mLqD for <util-linux@vger.kernel.org>; Sun, 12 Mar 2017
- 17:49:45 +0100
-Date: Sun, 12 Mar 2017 17:49:45 +0100
-From: Tobias Stoeckmann <tobias@stoeckmann.org>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] login: prevent OOB read on illegal /etc/hushlogins
-Message-ID: <20170312164945.GB28165@localhost>
+Received: from mx1.redhat.com ([209.132.183.28]:48202 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751665AbdCNNRI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 14 Mar 2017 09:17:08 -0400
+Date: Tue, 14 Mar 2017 14:17:05 +0100
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [V3 PULL] hwclock: remove date(1)
+Message-ID: <20170314131705.vag4vmrlemrcfsj4@ws.net.home>
+References: <a1415b5d-4046-3b34-5836-40ce1a835a41@gmx.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <a1415b5d-4046-3b34-5836-40ce1a835a41@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-If the file /etc/hushlogins exists and a line starts with '\0', the
-login tools are prone to an off-by-one read.
+On Sat, Mar 04, 2017 at 04:56:12PM -0500, J William Piggott wrote:
+>  Here's the latest branch for adding parse-date.
 
-I see no reliability issue with this, as it would clearly need a
-hostile action from a system administrator. But for the sake of
-correctness, I've sent this patch nonetheless.
----
- login-utils/logindefs.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Reviewed, it seems ready do merge from my point of view. Objections?
 
-diff --git a/login-utils/logindefs.c b/login-utils/logindefs.c
-index f02c4752d..213ff8d25 100644
---- a/login-utils/logindefs.c
-+++ b/login-utils/logindefs.c
-@@ -344,7 +344,8 @@ int get_hushlogin_status(struct passwd *pwd, int force_check)
- 				continue;	/* ignore errors... */
- 
- 			while (ok == 0 && fgets(buf, sizeof(buf), f)) {
--				buf[strlen(buf) - 1] = '\0';
-+				if (buf[0] != '\0')
-+					buf[strlen(buf) - 1] = '\0';
- 				ok = !strcmp(buf, *buf == '/' ? pwd->pw_shell :
- 								pwd->pw_name);
- 			}
+TODO (after merge):
+  - add lib/test_parse_date.c
+  - add tests/ts/misc/parse_date regression test
+  - replace parse_timestamp() with new parse_date() 
+
+
+    Karel
+
 -- 
-2.12.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
