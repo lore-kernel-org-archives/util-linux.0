@@ -1,42 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:33842 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751781AbdCEUwm (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 5 Mar 2017 15:52:42 -0500
-Received: by mail-wr0-f193.google.com with SMTP id u48so19504365wrc.1
-        for <util-linux@vger.kernel.org>; Sun, 05 Mar 2017 12:52:40 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mail.netzguerilla.net ([217.11.57.120]:57979 "EHLO
+        mail.netzguerilla.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751536AbdCPPWP (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 16 Mar 2017 11:22:15 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by mail.netzguerilla.net (Postfix) with ESMTP id 0BF2210001A
+        for <util-linux@vger.kernel.org>; Thu, 16 Mar 2017 15:56:30 +0100 (CET)
+Received: from mail.netzguerilla.net ([IPv6:2a00:1828:2000:612::25])
+        by localhost (sal.netzguerilla.net [IPv6:::1]) (amavisd-new, port 10024)
+        with ESMTP id B67xWutBxxux for <util-linux@vger.kernel.org>;
+        Thu, 16 Mar 2017 15:56:28 +0100 (CET)
+Received: from [192.168.1.105] (unknown [2.171.217.220])
+        by mail.netzguerilla.net (Postfix) with ESMTPSA id 89C73100017
+        for <util-linux@vger.kernel.org>; Thu, 16 Mar 2017 15:56:28 +0100 (CET)
+From: kalle <kalle@projektwerkstatt.de>
+Subject: "more"
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 03/13] libblkid: avoid overflow when initializing array
-Date: Sun,  5 Mar 2017 20:52:22 +0000
-Message-Id: <20170305205232.24030-4-kerolasa@iki.fi>
-In-Reply-To: <20170305205232.24030-1-kerolasa@iki.fi>
-References: <20170305205232.24030-1-kerolasa@iki.fi>
+Message-ID: <58CAA79B.4010108@projektwerkstatt.de>
+Date: Thu, 16 Mar 2017 15:56:27 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-libblkid/src/superblocks/drbdmanage.c:38:42: warning: too long
-initializer-string for array of char(no space for nul char)
+hello.
+i have util-linux version 2.20.1 , the "more"-manpage says version 5.19
+of more, and found the following problems in "more":
+I start with more FILE.
+then "=" to get the line "57". It is to say here, that the first line of
+the screen, will not be shown again, even if typing "b".
+Then z ;then = again. Gives line 115.
+b;= :line 58
+s;= :line 116
+b;= :line 59
+f;= :line 173
+b;= :line 116
+b;= :line 59
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- libblkid/src/superblocks/drbdmanage.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/libblkid/src/superblocks/drbdmanage.c b/libblkid/src/superblocks/drbdmanage.c
-index 48bf1dabf..b45f89bc8 100644
---- a/libblkid/src/superblocks/drbdmanage.c
-+++ b/libblkid/src/superblocks/drbdmanage.c
-@@ -35,7 +35,7 @@ struct drbdmanage_pers {
- } __attribute__ ((packed));
- 
- 
--static const char persistence_magic[4] = "\x1a\xdb\x98\xa2";
-+static const char persistence_magic[4] = { '\x1a', '\xdb', '\x98', '\xa2' };
- 
- 
- static int probe_drbdmanage(blkid_probe pr,
--- 
-2.12.0
-
+This result seems to contradict to man more's definitions of
+-"s" :"skip forward k lines of text. Defaults to 1."
+-"f" :"skip forward k screenfuls of text. Defaults to 1."
