@@ -1,51 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:55978 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752056AbdCDV5V (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sat, 4 Mar 2017 16:57:21 -0500
-Subject: Re: [V2 0/4] hwclock: remove date(1)
-To: Assaf Gordon <assafgordon@gmail.com>, Karel Zak <kzak@redhat.com>
-References: <ee9e12b4-a921-b47e-975d-53a5b8575361@gmx.com>
- <20170228133713.377klbjm44roizx6@ws.net.home>
- <0d36f495-d691-9e80-9c05-461d3563b468@gmx.com>
- <20170228161000.ijlouecku6a37quk@ws.net.home>
- <20170228170122.GA18228@gmail.com>
-From: J William Piggott <elseifthen@gmx.com>
-Cc: util-linux@vger.kernel.org
-Message-ID: <5bde338e-a434-8e11-372f-9ef65b742aec@gmx.com>
-Date: Sat, 4 Mar 2017 16:57:12 -0500
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:60731 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751049AbdCQLa4 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Fri, 17 Mar 2017 07:30:56 -0400
+Date: Fri, 17 Mar 2017 12:30:53 +0100
+From: Michael Tretter <m.tretter@pengutronix.de>
+To: util-linux@vger.kernel.org, kernel@pengutronix.de
+Subject: agetty reorders characters in login prompt
+Message-ID: <20170317123053.37e73a6a@litschi.hi.pengutronix.de>
 MIME-Version: 1.0
-In-Reply-To: <20170228170122.GA18228@gmail.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Hello,
 
-On 02/28/2017 12:01 PM, Assaf Gordon wrote:
-> 
-> I might suggest doing away first with relative times, then perhaps
-> with timezones.
-> 
-> There are some confusing combinations, especially with relative times
-> (e.g.  "20170228 + 2 days" vs "20:45:45 + 2 days", the latter parsed
-> as "8:45:45pm+02:00TZ + 1 day"),
-> 
-> and then with all sorts of things that are taken as timezones (like
-> "2017A" which is parsed as '8:17pm in timezone -01:00'.
+agetty sometimes changes the order of the characters of the username in
+the login prompt. For example, if I enter 'root' as username, the echo
+reads 'orot' and the login fails, because the user does not exist.
 
-Hello Assaf,
+A little bit background on the issue: I am running automated tests on
+an embedded device with an i.MX6 processor which connects to the board
+via serial console with 115200 baud. The test waits for the login
+prompt and then sends the username via the serial console. In about
+20 % of the test runs the echoed username slightly differs from the
+sent username and the test fails.
 
-Because hwclock(8) was using date(1) to parse --date strings, it has
-always be subject to these issues. Some time ago I added a warning not
-to use relative times in hwclock.8. I just added a warning about
-timezones as well. 
+I can also reproduce the issue when connecting to the serial console
+via screen and pasting the username into the prompt. If I enter the
+username manually or connect strace to agetty, the username is always
+correct. I reproduced the problem on multiple different device
+(although all with the same SoC).
 
-I don't think blocking them from the parser is needed. They could be
-useful to some other util-linux module.
+I tested it with util-linux 2.29 with Linux 4.11-rc2 and 4.4.52.
 
-> 
-> I'm happy to help with testing if needed.
+I was able to trace the issue to the wait_for_term_input() function.
+This function reads the first (few) bytes from the input queue and
+after reading reinserts the bytes with the TIOCSTI ioctl back into the
+queue. If new bytes are inserted into the input queue before the
+TIOCSTI happens, the input queue will contain the bytes in the wrong
+order and later reads on the input queue will not yield the original
+input.
 
-Thank you very much Assaf.
+I also opened a bug in the kernel Bugzilla [1], because I am not sure
+about the correct way to report bugs in util-linux.
 
+Michael
 
+[1] https://bugzilla.kernel.org/show_bug.cgi?id=194905
