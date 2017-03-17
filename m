@@ -1,33 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40796 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755563AbdC2Jmf (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 29 Mar 2017 05:42:35 -0400
-Date: Wed, 29 Mar 2017 11:42:24 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Michael Tretter <m.tretter@pengutronix.de>
-Cc: util-linux@vger.kernel.org, Stef Walter <stefw@redhat.com>
-Subject: Re: agetty reorders characters in login prompt
-Message-ID: <20170329094224.vr4d7yucaa4ozplm@ws.net.home>
-References: <20170317123053.37e73a6a@litschi.hi.pengutronix.de>
- <20170317121055.c4hv6rb5y4tbpt2c@ws.net.home>
- <20170327130804.xjqfpnw434dtuol5@ws.net.home>
- <20170328183251.649bdb29@litschi.hi.pengutronix.de>
+Received: from mail-wr0-f195.google.com ([209.85.128.195]:34909 "EHLO
+        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751318AbdCQRr1 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 17 Mar 2017 13:47:27 -0400
+Received: by mail-wr0-f195.google.com with SMTP id u108so10428369wrb.2
+        for <util-linux@vger.kernel.org>; Fri, 17 Mar 2017 10:47:26 -0700 (PDT)
+To: Karel Zak <kzak@redhat.com>,
+        Ananth Mavinakayanahalli <ananth@in.ibm.com>,
+        Daniel Stekloff <dsteklof@us.ibm.com>,
+        util-linux@vger.kernel.org
+From: Xose Vazquez Perez <xose.vazquez@gmail.com>
+Subject: sysfsutils, aka systool, candidate for inclusion in util-linux-ng
+Message-ID: <6affdcde-0ec0-87ee-45f8-7da32ae1d1a5@gmail.com>
+Date: Fri, 17 Mar 2017 18:47:23 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170328183251.649bdb29@litschi.hi.pengutronix.de>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Mar 28, 2017 at 06:32:51PM +0200, Michael Tretter wrote:
-> Thanks. I tested master and it works now. The echoed user name is
-> correct in the automated tests and my manual tests and the login was
-> always successful.
+Hi,
 
-Thanks!
+Description: utilities for interfacing with sysfs.
 
-    Karel
+Background: unmaintained since ten years, included in
+enterprise distributions and widely used with plenty of
+downloads: https://sourceforge.net/projects/linux-diag/files/sysfsutils/stats/timeline?dates=2003-07-01++to+2017-03-17
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+
+$HOME: https://linux-diag.sf.net/Sysfsutils.html
+Source code: https://sf.net/projects/linux-diag/files/sysfsutils/
+
+
+Thank you.
