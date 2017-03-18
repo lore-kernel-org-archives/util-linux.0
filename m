@@ -1,242 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:33973 "EHLO
-        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751091AbdCJOsl (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 10 Mar 2017 09:48:41 -0500
-Received: by mail-lf0-f67.google.com with SMTP id y193so7042658lfd.1
-        for <util-linux@vger.kernel.org>; Fri, 10 Mar 2017 06:48:40 -0800 (PST)
-Date: Fri, 10 Mar 2017 14:48:24 +0000 (GMT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: J William Piggott <elseifthen@gmx.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 07/13] blkid: define output names only once
-In-Reply-To: <alpine.LNX.2.20.1703100917380.28674@imuri>
-Message-ID: <alpine.LNX.2.20.1703101434490.19808@imuri>
-References: <20170305205232.24030-1-kerolasa@iki.fi> <20170305205232.24030-8-kerolasa@iki.fi> <c0779c68-d9cf-0eb0-f8e4-91130ee57db9@gmx.com> <1998d830-63b1-a477-d5ae-4219171c0b3c@gmx.com> <alpine.LNX.2.20.1703100917380.28674@imuri>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:36017 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751037AbdCRT6p (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 18 Mar 2017 15:58:45 -0400
+Received: by mail-wm0-f68.google.com with SMTP id x124so8333082wmf.3
+        for <util-linux@vger.kernel.org>; Sat, 18 Mar 2017 12:58:44 -0700 (PDT)
+Subject: Re: sysfsutils, aka systool, candidate for inclusion in util-linux-ng
+To: Sami Kerola <kerolasa@iki.fi>, Karel Zak <kzak@redhat.com>,
+        Ananth Mavinakayanahalli <ananth@in.ibm.com>,
+        Daniel Stekloff <dan@wendan.org>,
+        Mohan Kumar <mohan@in.ibm.com>,
+        Nitin Vashisth <vnitin@in.ibm.com>
+References: <6affdcde-0ec0-87ee-45f8-7da32ae1d1a5@gmail.com>
+ <CAG27Bk3uXbmBs9cY8gK34YJuUVEY11CdGB0-ibiTQ9feXg_9og@mail.gmail.com>
+From: Xose Vazquez Perez <xose.vazquez@gmail.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Message-ID: <000ad5f7-f6cf-a54a-f6c9-405ad4017cda@gmail.com>
+Date: Sat, 18 Mar 2017 20:58:41 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <CAG27Bk3uXbmBs9cY8gK34YJuUVEY11CdGB0-ibiTQ9feXg_9og@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, 10 Mar 2017, Sami Kerola wrote:
-> Notably I did not move list of recommended arguments to usage(). To do 
-> that well will require inu_use_arguments() function, that can be used 
-> where ever needed. But lets leave this as-is, and do these tidy 
-> adjustments if there it's seen these option argument functions should be 
-> generalized.
+On 03/18/2017 08:41 PM, Sami Kerola wrote:
 
-Hi again,
+> On 17 March 2017 at 17:47, Xose Vazquez Perez <xose.vazquez@gmail.com> wrote:
+>> Description: utilities for interfacing with sysfs.
+>>
+>> Background: unmaintained since ten years, included in
+>> enterprise distributions and widely used with plenty of
+>> downloads: https://sourceforge.net/projects/linux-diag/files/sysfsutils/stats/timeline?dates=2003-07-01++to+2017-03-17
+>>
+>>
+>> $HOME: https://linux-diag.sf.net/Sysfsutils.html  <--- HTTPS broken!!
+>> $HOME: http://linux-diag.sf.net/Sysfsutils.html
+>> Source code: https://sf.net/projects/linux-diag/files/sysfsutils/
+> 
+> Good proposal, and after quick test to migrate sysfsutils to
+> util-linux this seems
+> do-able. But before proceeding any further I want to hear from Karel and old
+> sysfsutils maintainer if the project merge what is wanted.
+> 
+>   git://github.com/kerolasa/lelux-utiliteetit.git sysfsutils
+> 
+> If yes next steps:
+> 
+> 1. polish libsysfs, add for example .sym file
+> 2. polish systool, add translations, and other standard util-linux
+> conventions, such as atexit hook, xmalloc usage, and so on
+> 3. figure out what should be done with dlist_test, get_device,
+> get_driver, and get_module
+> 4. add tests, and make _PART_SYS_SYSTEM stuff work
+> 5. without a doubt something other as well
+> 6. send a pull month or two later
 
-Having day off and idea to generalize this did not go away from my mind, 
-so I decided to give it a shot. I'm not sure how many utils might need 
-this, but that is hardly a reason against or in favour to include this. 
-Better question is if this is the way argument lists should be managed 
-when they are deprecated.
-
-The below change can also be found from
-  git://github.com/kerolasa/lelux-utiliteetit.git 2017wk09
-
---->8----
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Fri, 10 Mar 2017 14:06:10 +0000
-Subject: [PATCH] include/optutils: add option argument parsing and printing functions
-
-Functions parse_arg_name() and print_valid_args() add methods that make
-option argument life cycle management easy.
-
-Based-on-feedback-from: J William Piggott <elseifthen@gmx.com>
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- include/optutils.h | 50 +++++++++++++++++++++++++++++++
- misc-utils/blkid.c | 87 
-+++++++++++++++---------------------------------------
- 2 files changed, 73 insertions(+), 64 deletions(-)
-
-diff --git a/include/optutils.h b/include/optutils.h
-index 325cb8812..62ccc90ae 100644
---- a/include/optutils.h
-+++ b/include/optutils.h
-@@ -6,6 +6,56 @@
- #include "c.h"
- #include "nls.h"
- 
-+enum {
-+	arg_in_use = 0,
-+	arg_hide,
-+	arg_deprecate,
-+	arg_removed
-+};
-+
-+struct option_arguments {
-+	int id;
-+	char *name;
-+	int status;
-+};
-+
-+static inline int parse_arg_name(const struct option_arguments *valid_args,
-+				 const char *arg)
-+{
-+	size_t i;
-+
-+	for (i = 0; valid_args[i].name; i++) {
-+		if (strcmp(valid_args[i].name, arg) != 0)
-+			continue;
-+		switch (valid_args[i].status) {
-+		case arg_in_use:
-+		case arg_hide:
-+			return valid_args[i].id;
-+		case arg_deprecate:
-+			warnx(_("'%s' is deprecated"), arg);
-+			return valid_args[i].id;
-+		case arg_removed:
-+			warnx(_("'%s' is removed"), arg);
-+			return -EINVAL;
-+		default:
-+			abort();
-+		}
-+	}
-+	return -EINVAL;
-+}
-+
-+static inline void print_valid_args(const struct option_arguments *valid_args,
-+				    const char *message, FILE *out)
-+{
-+	size_t i;
-+
-+	fprintf(out, message);
-+	for (i = 0; valid_args[i].name; i++)
-+		if (valid_args[i].status == arg_in_use)
-+			fprintf(out, " %s", valid_args[i].name);
-+	fputc('\n', out);
-+}
-+
- static inline const char *option_to_longopt(int c, const struct option *opts)
- {
- 	const struct option *o;
-diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
-index e0be5120c..5e3f58838 100644
---- a/misc-utils/blkid.c
-+++ b/misc-utils/blkid.c
-@@ -19,36 +19,6 @@
- #include <errno.h>
- #include <getopt.h>
- 
--enum {
--	OUTPUT_FULL = 0,
--	OUTPUT_VALUE_ONLY,
--	OUTPUT_DEVICE_ONLY,
--	OUTPUT_PRETTY_LIST,
--	OUTPUT_UDEV_LIST,
--	OUTPUT_EXPORT_LIST
--};
--
--enum {
--	opt_in_use = 0,
--	opt_hide,
--	opt_deprecate,
--	opt_removed
--};
--
--struct option_arguments {
--	char *name;
--	int status;
--};
--
--static struct option_arguments output_formats[] = {
--	[OUTPUT_FULL]		= { "full", opt_in_use },
--	[OUTPUT_VALUE_ONLY]	= { "value", opt_in_use },
--	[OUTPUT_DEVICE_ONLY]	= { "device", opt_in_use },
--	[OUTPUT_PRETTY_LIST]	= { "list", opt_hide },		/* to be deprecated */
--	[OUTPUT_UDEV_LIST]	= { "udev", opt_hide },		/* to be deprecated */
--	[OUTPUT_EXPORT_LIST]	= { "export", opt_in_use },
--};
--
- #define LOWPROBE_TOPOLOGY	(1 << 1)
- #define LOWPROBE_SUPERBLOCKS	(1 << 2)
- 
-@@ -71,6 +41,25 @@ static struct option_arguments output_formats[] = {
- #include "ttyutils.h"
- #include "xalloc.h"
- 
-+enum {
-+	OUTPUT_FULL = 0,
-+	OUTPUT_VALUE_ONLY,
-+	OUTPUT_DEVICE_ONLY,
-+	OUTPUT_PRETTY_LIST,
-+	OUTPUT_UDEV_LIST,
-+	OUTPUT_EXPORT_LIST
-+};
-+
-+static struct option_arguments output_formats[] = {
-+	{ OUTPUT_FULL,  "full", arg_in_use },
-+	{ OUTPUT_VALUE_ONLY, "value", arg_in_use },
-+	{ OUTPUT_DEVICE_ONLY, "device", arg_in_use },
-+	{ OUTPUT_PRETTY_LIST, "list", arg_hide },	/* to be deprecated */
-+	{ OUTPUT_UDEV_LIST, "udev", arg_hide },		/* to be deprecated */
-+	{ OUTPUT_EXPORT_LIST, "export", arg_in_use },
-+	{ 0, NULL, 0 }
-+};
-+
- static int raw_chars;
- 
- static void print_version(FILE *out)
-@@ -98,8 +87,8 @@ static void usage(int error)
- 	fputs(_(	" -d          don't encode non-printing characters\n"), out);
- 	fputs(_(	" -h          print this usage message and exit\n"), out);
- 	fputs(_(	" -g          garbage collect the blkid cache\n"), out);
--	fputs(_(	" -o <format> output format; can be one of:\n"
--			"               value, device, export or full; (default: full)\n"), out);
-+	fputs(_(	" -o <format> output format; can be one of:\n"), out);
-+	print_valid_args(output_formats, "              ", out);
- 	fputs(_(	" -k          list all known filesystems/RAIDs and exit\n"), out);
- 	fputs(_(	" -s <tag>    show specified tag(s) (default show all tags)\n"), out);
- 	fputs(_(	" -t <token>  find device with a specific token (NAME=value pair)\n"), out);
-@@ -121,36 +110,6 @@ static void usage(int error)
- 	exit(error);
- }
- 
--static int parse_format_name(const char *arg)
--{
--	size_t i;
--
--	for (i = 0; i < ARRAY_SIZE(output_formats); i++) {
--		if (strcmp(output_formats[i].name, arg) != 0)
--			continue;
--		switch (output_formats[i].status) {
--		case opt_in_use:
--		case opt_hide:
--			return i;
--		case opt_deprecate:
--			warnx(_("'%s' is deprecated"), arg);
--			return i;
--		case opt_removed:
--			warnx(_("'%s' is removed"), arg);
--			return -EINVAL;
--		default:
--			abort();
--		}
--	}
--	warnx(_("invalid argument: '%s'"), arg);
--	fprintf(stderr, _("recommended arguments to use are:"));
--	for (i = 0; i < ARRAY_SIZE(output_formats); i++)
--		if (output_formats[i].status == opt_in_use)
--			fprintf(stderr, " %s", output_formats[i].name);
--	fputc('\n', stderr);
--	return -EINVAL;
--}
--
- /*
-  * This function does "safe" printing.  It will convert non-printable
-  * ASCII characters using '^' and M- notation.
-@@ -770,9 +729,9 @@ int main(int argc, char **argv)
- 			exit(EXIT_SUCCESS);
- 		}
- 		case 'o':
--			output_format = parse_format_name(optarg);
-+			output_format = parse_arg_name(output_formats, optarg);
- 			if (output_format < 0)
--				exit(BLKID_EXIT_OTHER);
-+				errx(BLKID_EXIT_OTHER, _("invalid argument: %s"), optarg);
- 			break;
- 		case 'O':
- 			offset = strtosize_or_err(optarg, _("invalid offset argument"));
+Cced the rest of the sysfsutils crew.
