@@ -1,60 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:36711 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752454AbdCEUww (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 5 Mar 2017 15:52:52 -0500
-Received: by mail-wr0-f196.google.com with SMTP id l37so19448955wrc.3
-        for <util-linux@vger.kernel.org>; Sun, 05 Mar 2017 12:52:51 -0800 (PST)
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:36795 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751269AbdCSKTU (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 19 Mar 2017 06:19:20 -0400
+Received: by mail-wm0-f66.google.com with SMTP id x124so9791049wmf.3
+        for <util-linux@vger.kernel.org>; Sun, 19 Mar 2017 03:19:19 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 13/13] lib/colors: assert rathen than overflow
-Date: Sun,  5 Mar 2017 20:52:32 +0000
-Message-Id: <20170305205232.24030-14-kerolasa@iki.fi>
-In-Reply-To: <20170305205232.24030-1-kerolasa@iki.fi>
-References: <20170305205232.24030-1-kerolasa@iki.fi>
+Subject: [PATCH 1/5] libsmartcols: fix test variable shadowing
+Date: Sun, 19 Mar 2017 10:10:41 +0000
+Message-Id: <20170319101045.3018-2-kerolasa@iki.fi>
+In-Reply-To: <20170319101045.3018-1-kerolasa@iki.fi>
+References: <20170319101045.3018-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-lib/colors.c: In function 'colors_read_schemes':
-lib/colors.c:412:7: warning: potential null pointer dereference [-Wnull-dereference]
-  *out = '\0';
-  ~~~~~^~~~~~
+libsmartcols/samples/fromfile.c:57:16: warning: declaration of 'flags'
+shadows a global declaration [-Wshadow]
+libsmartcols/samples/fromfile.c:29:33: note: shadowed declaration is here
+libsmartcols/samples/fromfile.c:101:8: warning: declaration of 'flags'
+shadows a global declaration [-Wshadow]
 
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- lib/colors.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ libsmartcols/samples/fromfile.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/lib/colors.c b/lib/colors.c
-index 4b280fe27..baafe0a90 100644
---- a/lib/colors.c
-+++ b/lib/colors.c
-@@ -342,6 +342,7 @@ static char *colors_get_homedir(char *buf, size_t bufsz)
- static int cn_sequence(const char *str, char **seq)
+diff --git a/libsmartcols/samples/fromfile.c b/libsmartcols/samples/fromfile.c
+index 4c9fca468..1a90e2d4b 100644
+--- a/libsmartcols/samples/fromfile.c
++++ b/libsmartcols/samples/fromfile.c
+@@ -54,12 +54,12 @@ static long name_to_flag(const char *name, size_t namesz)
+ 
+ static int parse_column_flags(char *str)
  {
- 	char *in, *out;
-+	int len;
+-	unsigned long flags = 0;
++	unsigned long num_flags = 0;
  
- 	if (!str)
- 		return -EINVAL;
-@@ -357,7 +358,7 @@ static int cn_sequence(const char *str, char **seq)
- 	}
+-	if (string_to_bitmask(str, &flags, name_to_flag))
++	if (string_to_bitmask(str, &num_flags, name_to_flag))
+ 		err(EXIT_FAILURE, "failed to parse column flags");
  
- 	/* convert xx;yy sequences to "\033[xx;yy" */
--	if (asprintf(seq, "\033[%sm", str) < 1)
-+	if ((len = asprintf(seq, "\033[%sm", str)) < 1)
- 		return -ENOMEM;
+-	return flags;
++	return num_flags;
+ }
  
- 	for (in = *seq, out = *seq; in && *in; in++) {
-@@ -409,6 +410,7 @@ static int cn_sequence(const char *str, char **seq)
+ static struct libscols_column *parse_column(FILE *f)
+@@ -98,8 +98,8 @@ static struct libscols_column *parse_column(FILE *f)
  		}
- 		in++;
- 	}
-+	assert (len < (out - *seq));
- 	*out = '\0';
- 
- 	return 0;
+ 		case 2: /* FLAGS */
+ 		{
+-			int flags = parse_column_flags(line);
+-			if (scols_column_set_flags(cl, flags))
++			int num_flags = parse_column_flags(line);
++			if (scols_column_set_flags(cl, num_flags))
+ 				goto fail;
+ 			if (strcmp(line, "wrapnl") == 0) {
+ 				scols_column_set_wrapfunc(cl,
 -- 
 2.12.0
 
