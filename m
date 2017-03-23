@@ -1,52 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:55880 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:55632 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751099AbdCMLli (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 13 Mar 2017 07:41:38 -0400
-Date: Mon, 13 Mar 2017 12:41:35 +0100
+        id S1751505AbdCWL6a (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 23 Mar 2017 07:58:30 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 5CC8C3D941
+        for <util-linux@vger.kernel.org>; Thu, 23 Mar 2017 11:58:30 +0000 (UTC)
+Date: Thu, 23 Mar 2017 12:58:25 +0100
 From: Karel Zak <kzak@redhat.com>
-To: L A Walsh <lkml@tlinx.org>
+To: Masatake YAMATO <yamato@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: ideas of what lib might be missing?  (2.29.2 has missing symbols
- @ link)
-Message-ID: <20170313114135.riuh2pahfs3v4jkp@ws.net.home>
-References: <58C3F064.4060904@tlinx.org>
+Subject: Re: [PATCH 0/4] fincore command
+Message-ID: <20170323115825.paxktr7xxgevrcju@ws.net.home>
+References: <20170307023352.7340-1-yamato@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <58C3F064.4060904@tlinx.org>
+In-Reply-To: <20170307023352.7340-1-yamato@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Mar 11, 2017 at 04:41:08AM -0800, L A Walsh wrote:
-> I thought 'configure' was supposed to test for what was present
-> and what was missing?  Seems to have missed a few... :-(
+On Tue, Mar 07, 2017 at 11:33:48AM +0900, Masatake YAMATO wrote:
+>  bash-completion/Makemodule.am |   3 +
+>  bash-completion/fincore       |  25 +++++
+>  configure.ac                  |   4 +
+>  misc-utils/Makemodule.am      |   6 ++
+>  misc-utils/fincore.1          |  76 ++++++++++++++
+>  misc-utils/fincore.c          | 209 +++++++++++++++++++++++++++++++++++++
+>  misc-utils/fincore_orig.c     | 235 ++++++++++++++++++++++++++++++++++++++++++
+>  tests/commands.sh             |   1 +
+>  tests/expected/fincore/count  |  62 +++++++++++
+>  tests/ts/fincore/count        | 194 ++++++++++++++++++++++++++++++++++
+>  10 files changed, 815 insertions(+)
+>  create mode 100644 bash-completion/fincore
+>  create mode 100644 misc-utils/fincore.1
+>  create mode 100644 misc-utils/fincore.c
+>  create mode 100644 misc-utils/fincore_orig.c
+>  create mode 100644 tests/expected/fincore/count
+>  create mode 100755 tests/ts/fincore/count
 
- Please, send complete step by step way how to reproduce the problem
- (used commands and output).
+ Merged (except fincore_orig.c).
 
-> Was wondering what library I might be missing? or why they
-> are being referenced when 'whatever library' they are in,
-> evidently isn't on my system...  configure bug?
-
- It's lib/ stuff in the package, nothing external.
-
-> array enable=(                fs-paths-default
->                last libmount-support-mtab line
->                newgrp
->                reset
->                static-programs=mount sulogin-emergency-mount
->                vipw write
-> )
-> array disable=( assert nls pylibmount )
-> array with=(    audit
->                bashcompletiondir=/usr/share/bash-completion
->                gnu-ld
->                readline
-> )
-> array without=( python )
-
- This copy & past from some build system, or what? It would be better
- to have ./configure command line.
+ I'll very probably a little bit play with the output :-) It's like to
+ have human readable sizes (10M) by default, align the numbers to the
+ right (maybe use libsmartcols if more files specified).
 
     Karel
 
