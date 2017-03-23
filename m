@@ -1,45 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53652 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753069AbdC0NIg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 27 Mar 2017 09:08:36 -0400
-Date: Mon, 27 Mar 2017 15:08:04 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Michael Tretter <m.tretter@pengutronix.de>
-Cc: util-linux@vger.kernel.org, Stef Walter <stefw@redhat.com>
-Subject: Re: agetty reorders characters in login prompt
-Message-ID: <20170327130804.xjqfpnw434dtuol5@ws.net.home>
-References: <20170317123053.37e73a6a@litschi.hi.pengutronix.de>
- <20170317121055.c4hv6rb5y4tbpt2c@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170317121055.c4hv6rb5y4tbpt2c@ws.net.home>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:35042 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751349AbdCWWF1 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 23 Mar 2017 18:05:27 -0400
+Received: by mail-wm0-f66.google.com with SMTP id z133so1970660wmb.2
+        for <util-linux@vger.kernel.org>; Thu, 23 Mar 2017 15:05:26 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH] bash-completion: update fincore to have latest options
+Date: Thu, 23 Mar 2017 22:05:23 +0000
+Message-Id: <20170323220523.15309-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Mar 17, 2017 at 01:10:55PM +0100, Karel Zak wrote:
-> Maybe it would be better to remember already read bytes within agetty
-> rather than use TIOCSTI.
- 
- Implemented, please test:
+Also include --output smartcols fields.
 
-  git clone git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git
-  cd util-linux
-  ./autogen.sh
-  ./configure
-  make agetty
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ bash-completion/fincore | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
-  sudo cp /sbin/agetty /sbin/agetty.org
-  sudo cp agetty /sbin/agetty
-
- .. you will probably need to stop already running agetty(s) before
- the sudo commands, and start after cp(1). (for example "systemctl
- stop/stop getty@tty*" on Fedora).
-
- Thanks!
-
-    Karel
-
+diff --git a/bash-completion/fincore b/bash-completion/fincore
+index d213586ca..9b1aed8f3 100644
+--- a/bash-completion/fincore
++++ b/bash-completion/fincore
+@@ -5,14 +5,35 @@ _fincore_module()
+ 	cur="${COMP_WORDS[COMP_CWORD]}"
+ 	prev="${COMP_WORDS[COMP_CWORD-1]}"
+ 	case $prev in
++		'-o'|'--output')
++			local prefix realcur OUTPUT_ALL OUTPUT
++			realcur="${cur##*,}"
++			prefix="${cur%$realcur}"
++			OUTPUT_ALL='PAGES SIZE FILE'
++			for WORD in $OUTPUT_ALL; do
++				if ! [[ $prefix == *"$WORD"* ]]; then
++					OUTPUT="$WORD $OUTPUT"
++				fi
++			done
++			compopt -o nospace
++			COMPREPLY=( $(compgen -P "$prefix" -W "$OUTPUT" -S ',' -- "$realcur") )
++			return 0
++			;;
+ 		'-h'|'--help'|'-V'|'--version')
+ 			return 0
+ 			;;
+ 	esac
+ 	case $cur in
+ 	    -*)
+-			OPTS="--help
+-				--version"
++			OPTS="
++				--json
++				--bytes
++				--noheadings
++				--output
++				--raw
++				--help
++				--version
++			"
+ 			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
+ 			return 0
+ 			;;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.12.1
+
