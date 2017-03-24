@@ -1,59 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53764 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:55130 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751095AbdCMMKW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 13 Mar 2017 08:10:22 -0400
-Date: Mon, 13 Mar 2017 13:10:19 +0100
+        id S1751274AbdCXLKO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 24 Mar 2017 07:10:14 -0400
+Date: Fri, 24 Mar 2017 12:10:10 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Tobias Stoeckmann <tobias@stoeckmann.org>
+To: J William Piggott <elseifthen@gmx.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] last: Always terminate domain with '\0'
-Message-ID: <20170313121019.bnikafvfqtsckbpk@ws.net.home>
-References: <20170312165059.GC28165@localhost>
+Subject: Re: [PATCH] hwclock: try the 'new' rtc class first
+Message-ID: <20170324111010.dbkfk2fzo4aqk5ae@ws.net.home>
+References: <b1d10b04-eb5a-627d-b227-c23cc2a5bae2@gmx.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170312165059.GC28165@localhost>
+In-Reply-To: <b1d10b04-eb5a-627d-b227-c23cc2a5bae2@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Mar 12, 2017 at 05:51:00PM +0100, Tobias Stoeckmann wrote:
->  login-utils/last.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/login-utils/last.c b/login-utils/last.c
-> index 340705757..ddbdd84a3 100644
-> --- a/login-utils/last.c
-> +++ b/login-utils/last.c
-> @@ -507,8 +507,8 @@ static int list(const struct last_control *ctl, struct utmpx *p, time_t logout_t
->  	if (r < 0) {
->  		len = sizeof(p->ut_host);
->  		if (len >= (int)sizeof(domain)) len = sizeof(domain) - 1;
-> -		domain[0] = 0;
-> -		strncat(domain, p->ut_host, len);
-> +		strncpy(domain, p->ut_host, len);
-> +		domain[len] = 0;
+On Thu, Mar 23, 2017 at 04:36:16PM -0400, J William Piggott wrote:
+>  sys-utils/hwclock-rtc.c | 2 +-
+>  sys-utils/hwclock.8.in  | 8 ++++----
+>  2 files changed, 5 insertions(+), 5 deletions(-)
 
- I have applied a little bit different solution, we have xstrcpy()
- where is set \0 on len-1, so let's use it.
+Applied, thanks.
 
-    Karel
-
-diff --git a/login-utils/last.c b/login-utils/last.c
-index 3407057..679ea6c 100644
---- a/login-utils/last.c
-+++ b/login-utils/last.c
-@@ -505,10 +505,12 @@ static int list(const struct last_control *ctl, struct utmpx *p, time_t logout_t
-        if (ctl->usedns || ctl->useip)
-                r = dns_lookup(domain, sizeof(domain), ctl->useip, p->ut_addr_v6);
-        if (r < 0) {
--               len = sizeof(p->ut_host);
--               if (len >= (int)sizeof(domain)) len = sizeof(domain) - 1;
--               domain[0] = 0;
--               strncat(domain, p->ut_host, len);
-+               size_t sz = sizeof(p->ut_host);
-+
-+               if (sz > sizeof(domain))
-+                       sz = sizeof(domain);
-+
-+               xstrncpy(domain, p->ut_host, sz);
-        }
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
