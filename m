@@ -1,47 +1,38 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 0/6] remove alpha cmos
-To: Karel Zak <kzak@redhat.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:52610 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754211AbdCXLJp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 24 Mar 2017 07:09:45 -0400
+Date: Fri, 24 Mar 2017 12:09:40 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <24f2ccba-6144-9497-69fc-c5dbfd9a39fc@gmx.com>
-Date: Fri, 31 Mar 2017 10:40:12 -0400
+Subject: Re: [PATCH 0/5] pull: tests fixes and couple blkid changes
+Message-ID: <20170324110940.hvr6xkwv453o6oey@ws.net.home>
+References: <20170319101045.3018-1-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170319101045.3018-1-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sun, Mar 19, 2017 at 10:10:40AM +0000, Sami Kerola wrote:
+>  lib/colors.c                    |  10 +--
+>  lib/cpuset.c                    |   8 +-
+>  libfdisk/samples/mkpart.c       |   8 +-
+>  libmount/src/context.c          |   2 +-
+>  libmount/src/lock.c             |   2 +-
+>  libsmartcols/samples/fromfile.c |  34 ++++----
+>  libsmartcols/samples/title.c    |   6 +-
+>  libsmartcols/samples/tree.c     |  20 ++---
+>  misc-utils/blkid.c              | 181 ++++++++++++++++++++--------------------
+>  misc-utils/test_uuidd.c         |  10 +--
+>  tests/helpers/test_byteswap.c   |   6 +-
+>  tests/helpers/test_pathnames.c  |   2 +-
+>  12 files changed, 144 insertions(+), 145 deletions(-)
 
-    Remove alpha direct I/O access, use RTC instead:
-    http://marc.info/?l=util-linux-ng&m=141682406902804
-    
-    Resolves the alpha 2020 issue for util-linux:
-    http://marc.info/?l=util-linux-ng&m=148387021519787
-    
-    Now it is only the kernel's RTC problem.
+Applied, thanks.
 
-The following changes since commit eff2c9a42621b4cba81a81bc78f431b00e8a2968:
-
-  tests: add --mountpoint to findmnt calls (2017-03-31 14:00:24 +0200)
-
-are available in the git repository at:
-
-  git@github.com:jwpi/util-linux.git hwclock-date7-3
-
-for you to fetch changes up to af68bd014ab4f0eef8ef34f69365905385fd3b21:
-
-  hwclock: remove unused 'silent' arg (2017-03-31 10:04:53 -0400)
-
-----------------------------------------------------------------
-J William Piggott (6):
-      hwclock: remove alpha cmos
-      hwclock: remove unused cmos ctl structs
-      hwclock: remove unused atomic arg in cmos
-      hwclock: improve cmos message strings
-      hwclock: remove dead cmos code
-      hwclock: remove unused 'silent' arg
-
- sys-utils/hwclock-cmos.c | 417 +++++++++--------------------------------------
- sys-utils/hwclock-rtc.c  |  20 +--
- sys-utils/hwclock.8.in   | 110 ++++---------
- sys-utils/hwclock.c      |  34 +---
- sys-utils/hwclock.h      |  11 +-
- 5 files changed, 120 insertions(+), 472 deletions(-)
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
