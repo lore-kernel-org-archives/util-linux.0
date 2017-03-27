@@ -1,96 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:57143 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:35540 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933017AbdCaOtB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 31 Mar 2017 10:49:01 -0400
-Subject: [PATCH 5/6] hwclock: remove dead cmos code
-To: Karel Zak <kzak@redhat.com>
-References: <24f2ccba-6144-9497-69fc-c5dbfd9a39fc@gmx.com>
+        id S1751973AbdC0Llk (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 27 Mar 2017 07:41:40 -0400
+Date: Mon, 27 Mar 2017 13:41:22 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Assaf Gordon <assafgordon@gmail.com>
 Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <3e9fc1bb-8387-dd5c-d107-b397bae09495@gmx.com>
-Date: Fri, 31 Mar 2017 10:48:46 -0400
+Subject: Re: correct usage of unshare+nsenter for persistent namespaces?
+Message-ID: <20170327114122.f5mulpy62jcaq4du@ws.net.home>
+References: <20170310175156.GB21783@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <24f2ccba-6144-9497-69fc-c5dbfd9a39fc@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170310175156.GB21783@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Fri, Mar 10, 2017 at 05:51:57PM +0000, Assaf Gordon wrote:
+> IIUC, this is a kernel limitation:
+> If the program which is PID1 inside the container
+> terminates, there is no way to re-enter the PID namespace
+> (http://man7.org/linux/man-pages/man7/pid_namespaces.7.html).
+> 
+> Is that correct?
 
-* hwclock-cmos.c: remove unused 'century' code.
+Yes, this namespace is strictly based on the within namespace init
+process.
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock-cmos.c | 17 -----------------
- 1 file changed, 17 deletions(-)
+> If so, perhaps it would be helpful to add a caveat in the
+> unshare/nsenter man pages, saying the PID namespace will
+> not persist if the process termintes?
 
-diff --git a/sys-utils/hwclock-cmos.c b/sys-utils/hwclock-cmos.c
-index 5158369..6227b94 100644
---- a/sys-utils/hwclock-cmos.c
-+++ b/sys-utils/hwclock-cmos.c
-@@ -104,11 +104,6 @@ static int inb(int c __attribute__((__unused__)))
- static unsigned short clock_ctl_addr = 0x70;
- static unsigned short clock_data_addr = 0x71;
+Added.
+
+> There are already some examples of minimal 'init' for containers:
+>  https://github.com/Yelp/dumb-init
+>  https://github.com/krallin/tini
+>  and most minimal: https://gist.github.com/rofl0r/6168719
+> 
+> I wonder if you will be willing to consider a patch to add
+> something like 'unshare --do-nothing-init' which
+> will simply create a process that does nothing except handling signals
+> and never terminates, to facilitate truly persistent namespaces with
+> unshare(1) ? (if so I'm happy to try and write it).
+
+Hmm, when I think about it I'm not able to see any argument against
+this feature :-) So go ahead.
+
+Important is keep it simple and stupid and avoid arbitrary additional
+features. I think for serious containers people will use another
+solutions (systemd etc.).
  
--static int century_byte = 0;		/* 0: don't access a century byte
--					 * 50 (0x32): usual PC value
--					 * 55 (0x37): PS/2
--					 */
--
- /*
-  * Hmmh, this isn't very atomic. Maybe we should force an error instead?
-  *
-@@ -156,7 +151,6 @@ static unsigned long cmos_set_time(unsigned long arg)
- {
- 	unsigned char save_control, save_freq_select, pmbit = 0;
- 	struct tm tm = *(struct tm *)arg;
--	unsigned int century;
- 
- /*
-  * CMOS byte 10 (clock status register A) has 3 bitfields:
-@@ -180,7 +174,6 @@ static unsigned long cmos_set_time(unsigned long arg)
- 	save_freq_select = cmos_read(10);	/* stop and reset prescaler */
- 	cmos_write(10, (save_freq_select | 0x70));
- 
--	century = (tm.tm_year + TM_EPOCH) / 100;
- 	tm.tm_year %= 100;
- 	tm.tm_mon += 1;
- 	tm.tm_wday += 1;
-@@ -202,7 +195,6 @@ static unsigned long cmos_set_time(unsigned long arg)
- 		BIN_TO_BCD(tm.tm_mday);
- 		BIN_TO_BCD(tm.tm_mon);
- 		BIN_TO_BCD(tm.tm_year);
--		BIN_TO_BCD(century);
- 	}
- 
- 	cmos_write(0, tm.tm_sec);
-@@ -212,8 +204,6 @@ static unsigned long cmos_set_time(unsigned long arg)
- 	cmos_write(7, tm.tm_mday);
- 	cmos_write(8, tm.tm_mon);
- 	cmos_write(9, tm.tm_year);
--	if (century_byte)
--		cmos_write(century_byte, century);
- 
- 	/*
- 	 * The kernel sources, linux/arch/i386/kernel/time.c, have the
-@@ -316,10 +306,6 @@ static int read_hardware_clock_cmos(const struct hwclock_control *ctl
- 			tm->tm_mon = hclock_read(8);
- 			tm->tm_year = hclock_read(9);
- 			status = hclock_read(11);
--#if 0
--			if (century_byte)
--				century = hclock_read(century_byte);
--#endif
- 			/*
- 			 * Unless the clock changed while we were reading,
- 			 * consider this a good clock read .
-@@ -343,9 +329,6 @@ static int read_hardware_clock_cmos(const struct hwclock_control *ctl
- 		BCD_TO_BIN(tm->tm_mday);
- 		BCD_TO_BIN(tm->tm_mon);
- 		BCD_TO_BIN(tm->tm_year);
--#if 0
--		BCD_TO_BIN(century);
--#endif
- 	}
- 
- 	/*
+> The working URL seems like 'www.kernel.org' (www. instead of ftp.):
+>  https://www.kernel.org/pub/linux/utils/util-linux/
+
+Ah, thanks! (Seems my template is a little bit obsolete. Fixed.)
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
