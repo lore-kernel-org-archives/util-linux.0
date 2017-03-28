@@ -1,42 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:34218 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751328AbdBMWGv (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 13 Feb 2017 17:06:51 -0500
-Received: by mail-wm0-f65.google.com with SMTP id c85so554484wmi.1
-        for <util-linux@vger.kernel.org>; Mon, 13 Feb 2017 14:06:50 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 5/7] lib/idcache: add void to function declaration [smatch scan]
-Date: Mon, 13 Feb 2017 22:06:39 +0000
-Message-Id: <20170213220641.1395-6-kerolasa@iki.fi>
-In-Reply-To: <20170213220641.1395-1-kerolasa@iki.fi>
-References: <20170213220641.1395-1-kerolasa@iki.fi>
+Received: from mout.gmx.net ([212.227.15.18]:65167 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755402AbdC1Tdc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 28 Mar 2017 15:33:32 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: col issue
+Date: Tue, 28 Mar 2017 21:32:08 +0200
+Cc: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
+References: <20170328121630.prr5s6aikqvt2awt@ws.net.home>
+In-Reply-To: <20170328121630.prr5s6aikqvt2awt@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201703282132.08215.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-lib/idcache.c:29:29: warning: non-ANSI function declaration of function
-'new_idcache'
+On Tuesday 28 March 2017, Karel Zak wrote:
+>  Hi,
+>
+>  see https://bugzilla.redhat.com/show_bug.cgi?id=1436432
+>
+>  any idea what is the right col(1) behavior for escape sequences?
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- lib/idcache.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I have no opinion and no clue about col but still one comment :)
 
-diff --git a/lib/idcache.c b/lib/idcache.c
-index 3c358b8a8..a1a957b93 100644
---- a/lib/idcache.c
-+++ b/lib/idcache.c
-@@ -26,7 +26,7 @@ struct identry *get_id(struct idcache *ic, unsigned long int id)
- 	return NULL;
- }
- 
--struct idcache *new_idcache()
-+struct idcache *new_idcache(void)
- {
- 	return calloc(1, sizeof(struct idcache));
- }
--- 
-2.11.1
+While you are looking at this issue, maybe it's related to some test 
+failures on OSX and FreeBSD. In .travis-functions we have disabled 
+certain test for OSX:
 
+    export TS_OPT_col_multibyte_known_fail=yes
+    export TS_OPT_colcrt_regressions_known_fail=yes
+    export TS_OPT_column_invalid_multibyte_known_fail=yes
+
+cu,
+Rudi
