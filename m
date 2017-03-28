@@ -1,51 +1,45 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52424 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756464AbdCUMPE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 21 Mar 2017 08:15:04 -0400
-Date: Tue, 21 Mar 2017 13:14:26 +0100
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: sysfsutils, aka systool, candidate for inclusion in util-linux-ng
-Message-ID: <20170321111156.i6kjcbmktj34lsvq@ws.net.home>
-References: <6affdcde-0ec0-87ee-45f8-7da32ae1d1a5@gmail.com>
- <CAG27Bk3uXbmBs9cY8gK34YJuUVEY11CdGB0-ibiTQ9feXg_9og@mail.gmail.com>
+Return-Path: m.tretter@pengutronix.de
+Date: Tue, 28 Mar 2017 18:32:51 +0200
+From: Michael Tretter <m.tretter@pengutronix.de>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Stef Walter <stefw@redhat.com>
+Subject: Re: agetty reorders characters in login prompt
+Message-ID: <20170328183251.649bdb29@litschi.hi.pengutronix.de>
+In-Reply-To: <20170327130804.xjqfpnw434dtuol5@ws.net.home>
+References: <20170317123053.37e73a6a@litschi.hi.pengutronix.de>
+ <20170317121055.c4hv6rb5y4tbpt2c@ws.net.home>
+ <20170327130804.xjqfpnw434dtuol5@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk3uXbmBs9cY8gK34YJuUVEY11CdGB0-ibiTQ9feXg_9og@mail.gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Mar 18, 2017 at 07:41:53PM +0000, Sami Kerola wrote:
-> On 17 March 2017 at 17:47, Xose Vazquez Perez <xose.vazquez@gmail.com> wrote:
-> > Description: utilities for interfacing with sysfs.
-> >
-> > Background: unmaintained since ten years, included in
-> > enterprise distributions and widely used with plenty of
-> > downloads: https://sourceforge.net/projects/linux-diag/files/sysfsutils/stats/timeline?dates=2003-07-01++to+2017-03-17
-> >
-> >
-> > $HOME: https://linux-diag.sf.net/Sysfsutils.html
-> > Source code: https://sf.net/projects/linux-diag/files/sysfsutils/
+On Mon, 27 Mar 2017 15:08:04 +0200, Karel Zak wrote:
+> On Fri, Mar 17, 2017 at 01:10:55PM +0100, Karel Zak wrote:
+> > Maybe it would be better to remember already read bytes within
+> > agetty rather than use TIOCSTI.
+>  
+>  Implemented, please test:
 > 
-> Good proposal, and after quick test to migrate sysfsutils to
-> util-linux this seems
-> do-able. But before proceeding any further I want to hear from Karel and old
-> sysfsutils maintainer if the project merge what is wanted.
+>   git clone
+> git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git cd
+> util-linux ./autogen.sh
+>   ./configure
+>   make agetty
+> 
+>   sudo cp /sbin/agetty /sbin/agetty.org
+>   sudo cp agetty /sbin/agetty
+> 
+>  .. you will probably need to stop already running agetty(s) before
+>  the sudo commands, and start after cp(1). (for example "systemctl
+>  stop/stop getty@tty*" on Fedora).
 
-The question is if maintain it again is the right reaction to the
-current agony. Maybe death is better solution.
+Thanks. I tested master and it works now. The echoed user name is
+correct in the automated tests and my manual tests and the login was
+always successful.
 
-I don't think it's widely used and IMHO it's probably used for trivial
-things like write/read from sysfs.
+Michael
 
-For example we have for work with /sys/block a file lib/sysfs.c in
-utils-linux. Not sure if for something like this is necessary to have
-shared library.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+>  Thanks!
+> 
+>     Karel
+> 
