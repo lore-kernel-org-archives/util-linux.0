@@ -1,53 +1,63 @@
-Return-Path: sweet_f_a@gmx.de
-Subject: Re: find device of a known mountpoint
-To: Karel Zak <kzak@redhat.com>
-References: <5f3534af-06b5-9c76-f5e3-9c1d489e570c@gmx.de>
- <20170331091925.mpwmxxk4da4lsegr@ws.net.home>
- <cabd1dc9-8eff-8000-ed3b-39c0463ae376@gmx.de>
-Cc: util-linux@vger.kernel.org
-From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
-Message-ID: <de1756bf-3e8f-f2db-60ae-179067ff35f4@gmx.de>
-Date: Fri, 31 Mar 2017 12:41:22 +0200
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:40064 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754833AbdC2JfN (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 29 Mar 2017 05:35:13 -0400
+Date: Wed, 29 Mar 2017 11:35:08 +0200
+From: Karel Zak <kzak@redhat.com>
+To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Cc: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
+Subject: Re: col issue
+Message-ID: <20170329093508.mougxjykuyrtcutv@ws.net.home>
+References: <20170328121630.prr5s6aikqvt2awt@ws.net.home>
+ <1a5ce781-a9c9-11ef-d3d2-45f95d9cd7a8@draigBrady.com>
 MIME-Version: 1.0
-In-Reply-To: <cabd1dc9-8eff-8000-ed3b-39c0463ae376@gmx.de>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <1a5ce781-a9c9-11ef-d3d2-45f95d9cd7a8@draigBrady.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 03/31/2017 12:03 PM, Rüdiger Meier wrote:
->
->
-> On 03/31/2017 11:19 AM, Karel Zak wrote:
->> On Fri, Mar 31, 2017 at 11:00:24AM +0200, Rüdiger Meier wrote:
->>> $ truncate -s100M /tmp/img
->>> $ losetup /dev/loop0  /tmp/img
->>> $ mkfs.ext2  /dev/loop0
->>>
->>> $ mkdir /tmp/mnt
->>> $ ln -s /tmp  /tmp/xyz/symlink
->>>
->>> $ mount /dev/loop0 /tmp/xyz/symlink/mnt
->>> $ mount | grep loop
->>> /dev/loop0 on /tmp/mnt type ext2 ...
->>>
->>>
->>> I need a command which outputs "/dev/loop0" when
->>> "/tmp/xyz/symlink/mnt" is
->>> given.
->>
->>   $ findmnt -no SOURCE /tmp/xyz/symlink/mnt
->>   /dev/loop0
->
-> Thank's. Now I remember that you have told me that already one day. :)
+On Tue, Mar 28, 2017 at 07:57:35PM -0700, Pádraig Brady wrote:
+> On 28/03/17 05:16, Karel Zak wrote:
+> > 
+> >  Hi,
+> > 
+> >  see https://bugzilla.redhat.com/show_bug.cgi?id=1436432
+> > 
+> >  any idea what is the right col(1) behavior for escape sequences?
+> > 
+> >  The current code reads two first bytes from the sequence and the rest
+> >  is interpreted as standard chars (because complex sequences like
+> >  ^[..m are completely unknown for the code), for example input:
+> > 
+> >     ^[[1mtomcat-el^[(B^[[m
+> > 
+> >  produces:
+> > 
+> >     1mtomcat-elBm
+> > 
+> >  It seems incorrect. I think for "col -p" all the sequence should be
+> >  filtered out, it means:
+> >    
+> >     tomcat-el
+> >  
+> >  and the default behavior (without -p) should be output all escape
+> >  sequences but do not increment internal width counters.
+> >  
+> >  Objections?
+> > 
+> >     Karel
+> > 
+> 
+> I agree, but presuming you meant the opposite, and
+> for `col -p` to pass through all these escape sequences unaltered
 
-BTW is there also a way to get "findmnt -n -o SOURCE" working if the
-argument is not a mount point but a regular file on another mount
-point? (In opposite of my initial question.)
+ Yes, -p is opposite, it means "Force unknown control sequences to be
+ passed through unchanged."
 
-I don't like that all these questions here are answered using "df".
-http://unix.stackexchange.com/questions/90252/how-to-get-mount-point-of-filesystem-containing-given-file
+    Karel
+ 
 
-http://unix.stackexchange.com/questions/128471/determine-what-device-a-directory-is-located-on
-
-
-cu,
-Rudi
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
