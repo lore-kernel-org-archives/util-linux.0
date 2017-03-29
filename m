@@ -1,37 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52610 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:45272 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754211AbdCXLJp (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 24 Mar 2017 07:09:45 -0400
-Date: Fri, 24 Mar 2017 12:09:40 +0100
+        id S1755073AbdC2Jlq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 29 Mar 2017 05:41:46 -0400
+Date: Wed, 29 Mar 2017 11:41:36 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/5] pull: tests fixes and couple blkid changes
-Message-ID: <20170324110940.hvr6xkwv453o6oey@ws.net.home>
-References: <20170319101045.3018-1-kerolasa@iki.fi>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: col issue
+Message-ID: <20170329094136.u4m7gqpqohm6nsvn@ws.net.home>
+References: <20170328121630.prr5s6aikqvt2awt@ws.net.home>
+ <CAG27Bk2OsrRkvnUZEPjRPVFVgiow2iY4-yCszOU=KAfNYAcX5w@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170319101045.3018-1-kerolasa@iki.fi>
+In-Reply-To: <CAG27Bk2OsrRkvnUZEPjRPVFVgiow2iY4-yCszOU=KAfNYAcX5w@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Mar 19, 2017 at 10:10:40AM +0000, Sami Kerola wrote:
->  lib/colors.c                    |  10 +--
->  lib/cpuset.c                    |   8 +-
->  libfdisk/samples/mkpart.c       |   8 +-
->  libmount/src/context.c          |   2 +-
->  libmount/src/lock.c             |   2 +-
->  libsmartcols/samples/fromfile.c |  34 ++++----
->  libsmartcols/samples/title.c    |   6 +-
->  libsmartcols/samples/tree.c     |  20 ++---
->  misc-utils/blkid.c              | 181 ++++++++++++++++++++--------------------
->  misc-utils/test_uuidd.c         |  10 +--
->  tests/helpers/test_byteswap.c   |   6 +-
->  tests/helpers/test_pathnames.c  |   2 +-
->  12 files changed, 144 insertions(+), 145 deletions(-)
+On Tue, Mar 28, 2017 at 10:38:46PM +0100, Sami Kerola wrote:
+> This is what Open Group[1] has to say about col(1) input handling.
+> 
+> On input, the only control characters accepted are space, backspace, tab,
+> carriage-return and newline characters, SI, SO, VT, reverse line-feed,
+> forward half-line-feed and reverse half-line-feed.  The VT character
+> is an alternative form of full reverse line-feed, included for
+> compatibility with some earlier programs of this type.  The only
+> other characters to be copied to the output are those that are printable.
+> 
+> Last sentence is pretty clear that control characters must be removed.  I am
+> not sure if the definition was meant to include control sequences, but it
+> feels that is the spirit of the definition.  Maybe a silly question how to
+> choose control sequences that are recognised?  Maybe ECMA-48, VT100, and
+> Unicode.
 
-Applied, thanks.
+I think to keep the col(1) usable there is necessary to have a way how
+to filter out the sequences *or* keep the sequences unchanged (-p). The
+current behavior produces malformed output. From my point of view it
+would be enough to fix -p (at least for ^[..m).
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
