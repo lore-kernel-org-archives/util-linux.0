@@ -1,58 +1,102 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:36017 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751037AbdCRT6p (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 18 Mar 2017 15:58:45 -0400
-Received: by mail-wm0-f68.google.com with SMTP id x124so8333082wmf.3
-        for <util-linux@vger.kernel.org>; Sat, 18 Mar 2017 12:58:44 -0700 (PDT)
-Subject: Re: sysfsutils, aka systool, candidate for inclusion in util-linux-ng
-To: Sami Kerola <kerolasa@iki.fi>, Karel Zak <kzak@redhat.com>,
-        Ananth Mavinakayanahalli <ananth@in.ibm.com>,
-        Daniel Stekloff <dan@wendan.org>,
-        Mohan Kumar <mohan@in.ibm.com>,
-        Nitin Vashisth <vnitin@in.ibm.com>
-References: <6affdcde-0ec0-87ee-45f8-7da32ae1d1a5@gmail.com>
- <CAG27Bk3uXbmBs9cY8gK34YJuUVEY11CdGB0-ibiTQ9feXg_9og@mail.gmail.com>
-From: Xose Vazquez Perez <xose.vazquez@gmail.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Message-ID: <000ad5f7-f6cf-a54a-f6c9-405ad4017cda@gmail.com>
-Date: Sat, 18 Mar 2017 20:58:41 +0100
+Received: from mout.gmx.net ([212.227.17.22]:62173 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933017AbdCaOuV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 31 Mar 2017 10:50:21 -0400
+Subject: [PATCH 6/6] hwclock: remove unused 'silent' arg
+To: Karel Zak <kzak@redhat.com>
+References: <24f2ccba-6144-9497-69fc-c5dbfd9a39fc@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <73acf367-2f4f-5067-10ab-be0ec0479cfa@gmx.com>
+Date: Fri, 31 Mar 2017 10:49:58 -0400
 MIME-Version: 1.0
-In-Reply-To: <CAG27Bk3uXbmBs9cY8gK34YJuUVEY11CdGB0-ibiTQ9feXg_9og@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <24f2ccba-6144-9497-69fc-c5dbfd9a39fc@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 03/18/2017 08:41 PM, Sami Kerola wrote:
 
-> On 17 March 2017 at 17:47, Xose Vazquez Perez <xose.vazquez@gmail.com> wrote:
->> Description: utilities for interfacing with sysfs.
->>
->> Background: unmaintained since ten years, included in
->> enterprise distributions and widely used with plenty of
->> downloads: https://sourceforge.net/projects/linux-diag/files/sysfsutils/stats/timeline?dates=2003-07-01++to+2017-03-17
->>
->>
->> $HOME: https://linux-diag.sf.net/Sysfsutils.html  <--- HTTPS broken!!
->> $HOME: http://linux-diag.sf.net/Sysfsutils.html
->> Source code: https://sf.net/projects/linux-diag/files/sysfsutils/
-> 
-> Good proposal, and after quick test to migrate sysfsutils to
-> util-linux this seems
-> do-able. But before proceeding any further I want to hear from Karel and old
-> sysfsutils maintainer if the project merge what is wanted.
-> 
->   git://github.com/kerolasa/lelux-utiliteetit.git sysfsutils
-> 
-> If yes next steps:
-> 
-> 1. polish libsysfs, add for example .sym file
-> 2. polish systool, add translations, and other standard util-linux
-> conventions, such as atexit hook, xmalloc usage, and so on
-> 3. figure out what should be done with dlist_test, get_device,
-> get_driver, and get_module
-> 4. add tests, and make _PART_SYS_SYSTEM stuff work
-> 5. without a doubt something other as well
-> 6. send a pull month or two later
+The 'silent' argument for get_epoch_rtc() was used
+to silence error messages when querying the rtc
+driver for an alpha epoch while using cmos direct
+access. Alpha cmos has since been removed so
+'silent' is no longer used.
 
-Cced the rest of the sysfsutils crew.
+* sys-utils/hwclock.h: remove 'silent' argument
+* sys-utils/hwclock.c: same
+* sys-utils/hwclock-rtc.c: same
+
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock-rtc.c | 20 ++++++++------------
+ sys-utils/hwclock.c     |  2 +-
+ sys-utils/hwclock.h     |  2 +-
+ 3 files changed, 10 insertions(+), 14 deletions(-)
+
+diff --git a/sys-utils/hwclock-rtc.c b/sys-utils/hwclock-rtc.c
+index 077db73..f272828 100644
+--- a/sys-utils/hwclock-rtc.c
++++ b/sys-utils/hwclock-rtc.c
+@@ -396,27 +396,23 @@ struct clock_ops *probe_for_rtc_clock(const struct hwclock_control *ctl)
+ /*
+  * Get the Hardware Clock epoch setting from the kernel.
+  */
+-int get_epoch_rtc(const struct hwclock_control *ctl, unsigned long *epoch_p,
+-		  int silent)
++int get_epoch_rtc(const struct hwclock_control *ctl, unsigned long *epoch_p)
+ {
+ 	int rtc_fd;
+ 
+ 	rtc_fd = open_rtc(ctl);
+ 	if (rtc_fd < 0) {
+-		if (!silent) {
+-			if (errno == ENOENT)
+-				warnx(_
+-				      ("To manipulate the epoch value in the kernel, we must "
+-				       "access the Linux 'rtc' device driver via the device special "
+-				       "file.  This file does not exist on this system."));
+-			else
+-				warn(_("cannot open rtc device"));
+-		}
++		if (errno == ENOENT)
++			warnx(_
++			      ("To manipulate the epoch value in the kernel, we must "
++			       "access the Linux 'rtc' device driver via the device special "
++			       "file.  This file does not exist on this system."));
++		else
++			warn(_("cannot open rtc device"));
+ 		return 1;
+ 	}
+ 
+ 	if (ioctl(rtc_fd, RTC_EPOCH_READ, epoch_p) == -1) {
+-		if (!silent)
+ 			warn(_("ioctl(RTC_EPOCH_READ) to %s failed"),
+ 				  rtc_dev_name);
+ 		return 1;
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 8914f94..3875bcc 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1190,7 +1190,7 @@ manipulate_epoch(const struct hwclock_control *ctl)
+ 	if (ctl->getepoch) {
+ 		unsigned long epoch;
+ 
+-		if (get_epoch_rtc(ctl, &epoch, 0))
++		if (get_epoch_rtc(ctl, &epoch))
+ 			warnx(_
+ 			      ("Unable to get the epoch value from the kernel."));
+ 		else
+diff --git a/sys-utils/hwclock.h b/sys-utils/hwclock.h
+index f090ed7..37e8173 100644
+--- a/sys-utils/hwclock.h
++++ b/sys-utils/hwclock.h
+@@ -67,7 +67,7 @@ extern unsigned long epoch_option;
+ extern double time_diff(struct timeval subtrahend, struct timeval subtractor);
+ 
+ /* rtc.c */
+-extern int get_epoch_rtc(const struct hwclock_control *ctl, unsigned long *epoch, int silent);
++extern int get_epoch_rtc(const struct hwclock_control *ctl, unsigned long *epoch);
+ extern int set_epoch_rtc(const struct hwclock_control *ctl);
+ 
+ extern void hwclock_exit(const struct hwclock_control *ctl, int status);
