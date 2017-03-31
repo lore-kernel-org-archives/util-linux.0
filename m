@@ -1,70 +1,96 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60198 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.20]:57143 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751035AbdCQMLB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 17 Mar 2017 08:11:01 -0400
-Date: Fri, 17 Mar 2017 13:10:55 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Michael Tretter <m.tretter@pengutronix.de>
-Cc: util-linux@vger.kernel.org, kernel@pengutronix.de,
-        Stef Walter <stefw@redhat.com>
-Subject: Re: agetty reorders characters in login prompt
-Message-ID: <20170317121055.c4hv6rb5y4tbpt2c@ws.net.home>
-References: <20170317123053.37e73a6a@litschi.hi.pengutronix.de>
+        id S933017AbdCaOtB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 31 Mar 2017 10:49:01 -0400
+Subject: [PATCH 5/6] hwclock: remove dead cmos code
+To: Karel Zak <kzak@redhat.com>
+References: <24f2ccba-6144-9497-69fc-c5dbfd9a39fc@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <3e9fc1bb-8387-dd5c-d107-b397bae09495@gmx.com>
+Date: Fri, 31 Mar 2017 10:48:46 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170317123053.37e73a6a@litschi.hi.pengutronix.de>
+In-Reply-To: <24f2ccba-6144-9497-69fc-c5dbfd9a39fc@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Mar 17, 2017 at 12:30:53PM +0100, Michael Tretter wrote:
-> Hello,
-> 
-> agetty sometimes changes the order of the characters of the username in
-> the login prompt. For example, if I enter 'root' as username, the echo
-> reads 'orot' and the login fails, because the user does not exist.
-> 
-> A little bit background on the issue: I am running automated tests on
-> an embedded device with an i.MX6 processor which connects to the board
-> via serial console with 115200 baud. The test waits for the login
-> prompt and then sends the username via the serial console. In about
-> 20 % of the test runs the echoed username slightly differs from the
-> sent username and the test fails.
-> 
-> I can also reproduce the issue when connecting to the serial console
-> via screen and pasting the username into the prompt. If I enter the
-> username manually or connect strace to agetty, the username is always
-> correct. I reproduced the problem on multiple different device
-> (although all with the same SoC).
-> 
-> I tested it with util-linux 2.29 with Linux 4.11-rc2 and 4.4.52.
-> 
-> I was able to trace the issue to the wait_for_term_input() function.
-> This function reads the first (few) bytes from the input queue and
-> after reading reinserts the bytes with the TIOCSTI ioctl back into the
-> queue. If new bytes are inserted into the input queue before the
-> TIOCSTI happens, the input queue will contain the bytes in the wrong
-> order and later reads on the input queue will not yield the original
-> input.
 
-Hmm... the issue is that we use non-canonical mode when wait for user
-activity, then we need to switch back to canonical mode. I guess
-(according to the code) that we can lost unread data by tcsetattr().
-So agetty read before tcsetattr() and re-enter by TIOCSTI after
-tcsetattr(). This is probably pretty fragile.
+* hwclock-cmos.c: remove unused 'century' code.
 
-Maybe it would be better to remember already read bytes within agetty
-rather than use TIOCSTI.
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock-cmos.c | 17 -----------------
+ 1 file changed, 17 deletions(-)
 
-Stef, any idea?
-
-> I also opened a bug in the kernel Bugzilla [1], because I am not sure
-> about the correct way to report bugs in util-linux.
-
-We do no use kernel BZ, see "BUG REPORTING" in the README.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+diff --git a/sys-utils/hwclock-cmos.c b/sys-utils/hwclock-cmos.c
+index 5158369..6227b94 100644
+--- a/sys-utils/hwclock-cmos.c
++++ b/sys-utils/hwclock-cmos.c
+@@ -104,11 +104,6 @@ static int inb(int c __attribute__((__unused__)))
+ static unsigned short clock_ctl_addr = 0x70;
+ static unsigned short clock_data_addr = 0x71;
+ 
+-static int century_byte = 0;		/* 0: don't access a century byte
+-					 * 50 (0x32): usual PC value
+-					 * 55 (0x37): PS/2
+-					 */
+-
+ /*
+  * Hmmh, this isn't very atomic. Maybe we should force an error instead?
+  *
+@@ -156,7 +151,6 @@ static unsigned long cmos_set_time(unsigned long arg)
+ {
+ 	unsigned char save_control, save_freq_select, pmbit = 0;
+ 	struct tm tm = *(struct tm *)arg;
+-	unsigned int century;
+ 
+ /*
+  * CMOS byte 10 (clock status register A) has 3 bitfields:
+@@ -180,7 +174,6 @@ static unsigned long cmos_set_time(unsigned long arg)
+ 	save_freq_select = cmos_read(10);	/* stop and reset prescaler */
+ 	cmos_write(10, (save_freq_select | 0x70));
+ 
+-	century = (tm.tm_year + TM_EPOCH) / 100;
+ 	tm.tm_year %= 100;
+ 	tm.tm_mon += 1;
+ 	tm.tm_wday += 1;
+@@ -202,7 +195,6 @@ static unsigned long cmos_set_time(unsigned long arg)
+ 		BIN_TO_BCD(tm.tm_mday);
+ 		BIN_TO_BCD(tm.tm_mon);
+ 		BIN_TO_BCD(tm.tm_year);
+-		BIN_TO_BCD(century);
+ 	}
+ 
+ 	cmos_write(0, tm.tm_sec);
+@@ -212,8 +204,6 @@ static unsigned long cmos_set_time(unsigned long arg)
+ 	cmos_write(7, tm.tm_mday);
+ 	cmos_write(8, tm.tm_mon);
+ 	cmos_write(9, tm.tm_year);
+-	if (century_byte)
+-		cmos_write(century_byte, century);
+ 
+ 	/*
+ 	 * The kernel sources, linux/arch/i386/kernel/time.c, have the
+@@ -316,10 +306,6 @@ static int read_hardware_clock_cmos(const struct hwclock_control *ctl
+ 			tm->tm_mon = hclock_read(8);
+ 			tm->tm_year = hclock_read(9);
+ 			status = hclock_read(11);
+-#if 0
+-			if (century_byte)
+-				century = hclock_read(century_byte);
+-#endif
+ 			/*
+ 			 * Unless the clock changed while we were reading,
+ 			 * consider this a good clock read .
+@@ -343,9 +329,6 @@ static int read_hardware_clock_cmos(const struct hwclock_control *ctl
+ 		BCD_TO_BIN(tm->tm_mday);
+ 		BCD_TO_BIN(tm->tm_mon);
+ 		BCD_TO_BIN(tm->tm_year);
+-#if 0
+-		BCD_TO_BIN(century);
+-#endif
+ 	}
+ 
+ 	/*
