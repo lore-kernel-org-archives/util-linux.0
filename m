@@ -1,88 +1,95 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from ishtar.tlinx.org ([173.164.175.65]:42160 "EHLO
-        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751817AbdCKNNl (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 11 Mar 2017 08:13:41 -0500
-Received: from [192.168.3.12] (Athenae [192.168.3.12])
-        by Ishtar.sc.tlinx.org (8.14.7/8.14.4/SuSE Linux 0.8) with ESMTP id v2BCf8IU069456
-        for <util-linux@vger.kernel.org>; Sat, 11 Mar 2017 04:41:10 -0800
-Message-ID: <58C3F064.4060904@tlinx.org>
-Date: Sat, 11 Mar 2017 04:41:08 -0800
-From: L A Walsh <lkml@tlinx.org>
-MIME-Version: 1.0
+Received: from mout.gmx.net ([212.227.17.21]:58202 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932342AbdCaKJw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 31 Mar 2017 06:09:52 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: ideas of what lib might be missing?  (2.29.2 has missing symbols
- @ link)
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Cc: Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH] test: fix mountpoint device check in libmount/loop
+Date: Fri, 31 Mar 2017 12:09:46 +0200
+Message-Id: <1490954986-12713-1-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <20170331091925.mpwmxxk4da4lsegr@ws.net.home>
+References: <20170331091925.mpwmxxk4da4lsegr@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I thought 'configure' was supposed to test for what was present
-and what was missing?  Seems to have missed a few... :-(
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-In trying to make new release 2.29.2, I'm getting
-several undefined symbols:
+This test could fail if the build directory is somehow exoticly
+mounted (shared bind mounts, symlinks).
 
-color_fdisable
-color_scheme_fenable
-color_sequence_from_colorname
-colormode_or_err
-colors_init
-get_fd_tabsize
-get_terminal_name
-initproctitle
-pager_redirect
-parse_kmsg_recordsetproctitle
-plymouth_command
-string_to_bitarray
-strnchr
-strtimeval_iso
-strtos32_or_err
-strtou32_or_err
-unhexmangle_to_buffer
+CC: Stanislav Brabec <sbrabec@suse.cz>
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
-Was wondering what library I might be missing? or why they
-are being referenced when 'whatever library' they are in,
-evidently isn't on my system...  configure bug?
+ tests/ts/libmount/loop | 27 +++++++++++++++------------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
-I just ran the existing configure with the options listed
-further on down...
-
-Thanks!
--linda
-
-
-
-
-uname -a:
-Linux Ishtar 4.10.1-Isht-Van #1 SMP PREEMPT Tue Feb 28 18:57:48 PST 2017 
-x86_64 GNU/Linux
-
-gcc (SUSE Linux) 4.9.0
-
-glibc:
-Name        : glibc
-Version     : 2.19
-Release     : 16.9.1
-
-vendor openSuSE 13.2
-
-options:
-
-array enable=( 
-                fs-paths-default
-                last libmount-support-mtab line
-                newgrp
-                reset
-                static-programs=mount sulogin-emergency-mount
-                vipw write
-)
-array disable=( assert nls pylibmount )
-array with=(    audit
-                bashcompletiondir=/usr/share/bash-completion
-                gnu-ld
-                readline
-)
-array without=( python )
-
+diff --git a/tests/ts/libmount/loop b/tests/ts/libmount/loop
+index 452732f..893d902 100755
+--- a/tests/ts/libmount/loop
++++ b/tests/ts/libmount/loop
+@@ -23,12 +23,24 @@ TS_DESC="losetup-loop"
+ ts_init "$*"
+ 
+ ts_check_test_command "$TS_CMD_MOUNT"
++ts_check_test_command "$TS_CMD_FINDMNT"
+ ts_check_test_command "$TS_CMD_LOSETUP"
+ 
+ ts_skip_nonroot
+ ts_check_losetup
+ ts_check_prog "mkfs.ext3"
+ 
++function verify_mount_dev {
++	local dev=$1
++	local mp=$2
++	local dev_mounted=$($TS_CMD_FINDMNT -no SOURCE "$mp")
++
++	if test "$dev" != "$dev_mounted" ; then
++		echo "Mounted incorrect device: have '$dev_mounted', want '$dev'" >&2
++		return 1
++	fi
++}
++
+ #
+ # file-* tests: Backing file is a regular file
+ #
+@@ -61,10 +73,7 @@ ts_init_subtest "dev-loop"
+ [ -d "$TS_MOUNTPOINT" ] || mkdir -p $TS_MOUNTPOINT
+ LODEV=$( $TS_CMD_LOSETUP --find --nooverlap --show $BACKFILE 2>> $TS_OUTPUT )
+ $TS_CMD_MOUNT $LODEV "$TS_MOUNTPOINT" >> $TS_OUTPUT 2>&1
+-MOUNTED_LODEV="$( $TS_CMD_MOUNT | grep "$TS_MOUNTPOINT" | while read LODEV REST ; do echo $LODEV ; done )"
+-if test "$MOUNTED_LODEV" != "$LODEV" ; then
+-    echo "Mounted incorrect device mounts: $MOUNTED_LODEV, wants: $LODEV" >> $TS_OUTPUT
+-fi
++verify_mount_dev "$LODEV" "$TS_MOUNTPOINT" >> $TS_OUTPUT 2>&1
+ $TS_CMD_UMOUNT "$TS_MOUNTPOINT" >> $TS_OUTPUT 2>&1
+ $TS_CMD_LOSETUP --detach $LODEV >> $TS_OUTPUT 2>&1
+ udevadm settle
+@@ -75,10 +84,7 @@ ts_init_subtest "o-loop-val"
+ [ -d "$TS_MOUNTPOINT" ] || mkdir -p $TS_MOUNTPOINT
+ LODEV=$( $TS_CMD_LOSETUP --find 2>> $TS_OUTPUT )
+ $TS_CMD_MOUNT -oloop=$LODEV "$BACKFILE" "$TS_MOUNTPOINT" >> $TS_OUTPUT 2>&1
+-MOUNTED_LODEV="$( cat /proc/self/mounts |  grep "$TS_MOUNTPOINT" | while read LODEV REST ; do echo $LODEV ; done )"
+-if test "$MOUNTED_LODEV" != "$LODEV" ; then
+-    echo "Mounted incorrect device mounts: $MOUNTED_LODEV, wants: $LODEV" >> $TS_OUTPUT
+-fi
++verify_mount_dev "$LODEV" "$TS_MOUNTPOINT" >> $TS_OUTPUT 2>&1
+ $TS_CMD_UMOUNT "$TS_MOUNTPOINT" >> $TS_OUTPUT 2>&1
+ udevadm settle
+ ts_log "Success"
+@@ -88,10 +94,7 @@ ts_init_subtest "reuse"
+ [ -d "$TS_MOUNTPOINT" ] || mkdir -p $TS_MOUNTPOINT
+ LODEV=$( $TS_CMD_LOSETUP --find --nooverlap --show "$BACKFILE" 2>> $TS_OUTPUT )
+ $TS_CMD_MOUNT "$BACKFILE" "$TS_MOUNTPOINT" >> $TS_OUTPUT 2>&1
+-MOUNTED_LODEV="$( cat /proc/self/mounts |  grep "$TS_MOUNTPOINT" | while read LODEV REST ; do echo $LODEV ; done )"
+-if test "$MOUNTED_LODEV" != "$LODEV" ; then
+-    echo "Mounted incorrect device mounts: $MOUNTED_LODEV, wants: $LODEV" >> $TS_OUTPUT
+-fi
++verify_mount_dev "$LODEV" "$TS_MOUNTPOINT" >> $TS_OUTPUT 2>&1
+ $TS_CMD_UMOUNT "$TS_MOUNTPOINT" >> $TS_OUTPUT 2>&1
+ $TS_CMD_LOSETUP --detach $LODEV >> $TS_OUTPUT 2>&1
+ udevadm settle
+-- 
+1.8.5.6
 
