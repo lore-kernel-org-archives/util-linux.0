@@ -1,39 +1,48 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37412 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S935667AbdCXKtv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 24 Mar 2017 06:49:51 -0400
-Date: Fri, 24 Mar 2017 11:49:46 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Tobias Stoeckmann <tobias@stoeckmann.org>
+Return-Path: sweet_f_a@gmx.de
+Subject: Re: find device of a known mountpoint
+To: Karel Zak <kzak@redhat.com>
+References: <5f3534af-06b5-9c76-f5e3-9c1d489e570c@gmx.de>
+ <20170331091925.mpwmxxk4da4lsegr@ws.net.home>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] libblkid: prevent OOB access while probing HFS+
-Message-ID: <20170324104946.rk37klrch32t5p42@ws.net.home>
-References: <20170315211159.GA29768@localhost>
+From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
+Message-ID: <cabd1dc9-8eff-8000-ed3b-39c0463ae376@gmx.de>
+Date: Fri, 31 Mar 2017 12:03:02 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170315211159.GA29768@localhost>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20170331091925.mpwmxxk4da4lsegr@ws.net.home>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Mar 15, 2017 at 10:12:00PM +0100, Tobias Stoeckmann wrote:
-> -	if (be32_to_cpu(key->parent_id) != HFSPLUS_POR_CNID)
-> +	if (be32_to_cpu(key->parent_id) != HFSPLUS_POR_CNID ||
-> +	    be16_to_cpu(key->unicode_len > 255))
 
-Typo. Fixed. I guess it should be 
 
-    be16_to_cpu(key->unicode_len) > 255
+On 03/31/2017 11:19 AM, Karel Zak wrote:
+> On Fri, Mar 31, 2017 at 11:00:24AM +0200, Rüdiger Meier wrote:
+>> $ truncate -s100M /tmp/img
+>> $ losetup /dev/loop0  /tmp/img
+>> $ mkfs.ext2  /dev/loop0
+>>
+>> $ mkdir /tmp/mnt
+>> $ ln -s /tmp  /tmp/xyz/symlink
+>>
+>> $ mount /dev/loop0 /tmp/xyz/symlink/mnt
+>> $ mount | grep loop
+>> /dev/loop0 on /tmp/mnt type ext2 ...
+>>
+>>
+>> I need a command which outputs "/dev/loop0" when "/tmp/xyz/symlink/mnt" is
+>> given.
+>
+>   $ findmnt -no SOURCE /tmp/xyz/symlink/mnt
+>   /dev/loop0
 
-Note than we have regression tests for almost all filesystems. So you 
+Thank's. Now I remember that you have told me that already one day. :)
 
- $ cd tests
- $ ./run.sh blkid
+>
+> Note that for bind mounts there is nothing like primary (original)
+> and secondary mountpoints. It's two ways to the same filesystem.
 
-to see result.
+Yep in this case the problem was only duplicate mountpoints when you 
+mount something on a subdir a shared bind mount. I'll send a petch for 
+one libmount test. I really hate that systemd defaults to shared ...
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+cu,
+Rudi
