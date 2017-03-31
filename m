@@ -1,45 +1,59 @@
-Return-Path: m.tretter@pengutronix.de
-Date: Tue, 28 Mar 2017 18:32:51 +0200
-From: Michael Tretter <m.tretter@pengutronix.de>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Stef Walter <stefw@redhat.com>
-Subject: Re: agetty reorders characters in login prompt
-Message-ID: <20170328183251.649bdb29@litschi.hi.pengutronix.de>
-In-Reply-To: <20170327130804.xjqfpnw434dtuol5@ws.net.home>
-References: <20170317123053.37e73a6a@litschi.hi.pengutronix.de>
- <20170317121055.c4hv6rb5y4tbpt2c@ws.net.home>
- <20170327130804.xjqfpnw434dtuol5@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.15.15]:57664 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752295AbdCaJA1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 31 Mar 2017 05:00:27 -0400
+Received: from [10.0.0.104] ([178.25.190.115]) by mail.gmx.com (mrgmx002
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 0M7pI0-1byrxB0Wki-00vSVc for
+ <util-linux@vger.kernel.org>; Fri, 31 Mar 2017 11:00:25 +0200
+To: util-linux@vger.kernel.org
+From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
+Subject: find device of a known mountpoint
+Message-ID: <5f3534af-06b5-9c76-f5e3-9c1d489e570c@gmx.de>
+Date: Fri, 31 Mar 2017 11:00:24 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8; format=flowed
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 27 Mar 2017 15:08:04 +0200, Karel Zak wrote:
-> On Fri, Mar 17, 2017 at 01:10:55PM +0100, Karel Zak wrote:
-> > Maybe it would be better to remember already read bytes within
-> > agetty rather than use TIOCSTI.
->  
->  Implemented, please test:
-> 
->   git clone
-> git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git cd
-> util-linux ./autogen.sh
->   ./configure
->   make agetty
-> 
->   sudo cp /sbin/agetty /sbin/agetty.org
->   sudo cp agetty /sbin/agetty
-> 
->  .. you will probably need to stop already running agetty(s) before
->  the sudo commands, and start after cp(1). (for example "systemctl
->  stop/stop getty@tty*" on Fedora).
+Hi,
 
-Thanks. I tested master and it works now. The echoed user name is
-correct in the automated tests and my manual tests and the login was
-always successful.
+I wonder whether we have a command which tells me the device 
+corresponding to a known mount point. I want to avoid grepping the 
+output of mount because it may not unique (regarding mounts on shared 
+bind mounts) and because the original mount point may include symlinks 
+which are canonicalized by the kernel.
 
-Michael
+Example:
 
->  Thanks!
-> 
->     Karel
-> 
+$ truncate -s100M /tmp/img
+$ losetup /dev/loop0  /tmp/img
+$ mkfs.ext2  /dev/loop0
+
+$ mkdir /tmp/mnt
+$ ln -s /tmp  /tmp/xyz/symlink
+
+$ mount /dev/loop0 /tmp/xyz/symlink/mnt
+$ mount | grep loop
+/dev/loop0 on /tmp/mnt type ext2 ...
+
+
+I need a command which outputs "/dev/loop0" when "/tmp/xyz/symlink/mnt" 
+is given.
+
+So far I found df as the only solution (but ugly and maybe GNU-only). 
+And it would succeed for any input file, not only mountpoints.
+
+$ df -P /tmp/xyz/symlink/mnt | awk 'NR==2{print $1}'
+/dev/loop0
+
+Our mountpoint(1) looks like the right tool but prints the device 
+numbers only
+
+$ mountpoint  -d /tmp/xyz/symlink/mnt
+7:0
+
+So how could I do this in a non-ugly way?
+
+cu,
+Rudi
