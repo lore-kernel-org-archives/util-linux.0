@@ -1,68 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:35042 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751349AbdCWWF1 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 23 Mar 2017 18:05:27 -0400
-Received: by mail-wm0-f66.google.com with SMTP id z133so1970660wmb.2
-        for <util-linux@vger.kernel.org>; Thu, 23 Mar 2017 15:05:26 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] bash-completion: update fincore to have latest options
-Date: Thu, 23 Mar 2017 22:05:23 +0000
-Message-Id: <20170323220523.15309-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:57078 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932764AbdCaKy0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 31 Mar 2017 06:54:26 -0400
+Date: Fri, 31 Mar 2017 12:54:20 +0200
+From: Karel Zak <kzak@redhat.com>
+To: =?iso-8859-1?Q?R=FCdiger?= Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: find device of a known mountpoint
+Message-ID: <20170331105420.k7dgpllvk5ojxpvf@ws.net.home>
+References: <5f3534af-06b5-9c76-f5e3-9c1d489e570c@gmx.de>
+ <20170331091925.mpwmxxk4da4lsegr@ws.net.home>
+ <cabd1dc9-8eff-8000-ed3b-39c0463ae376@gmx.de>
+ <de1756bf-3e8f-f2db-60ae-179067ff35f4@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <de1756bf-3e8f-f2db-60ae-179067ff35f4@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Also include --output smartcols fields.
+On Fri, Mar 31, 2017 at 12:41:22PM +0200, Rüdiger Meier wrote:
+> On 03/31/2017 12:03 PM, Rüdiger Meier wrote:
+> > 
+> > 
+> > On 03/31/2017 11:19 AM, Karel Zak wrote:
+> > > On Fri, Mar 31, 2017 at 11:00:24AM +0200, Rüdiger Meier wrote:
+> > > > $ truncate -s100M /tmp/img
+> > > > $ losetup /dev/loop0  /tmp/img
+> > > > $ mkfs.ext2  /dev/loop0
+> > > > 
+> > > > $ mkdir /tmp/mnt
+> > > > $ ln -s /tmp  /tmp/xyz/symlink
+> > > > 
+> > > > $ mount /dev/loop0 /tmp/xyz/symlink/mnt
+> > > > $ mount | grep loop
+> > > > /dev/loop0 on /tmp/mnt type ext2 ...
+> > > > 
+> > > > 
+> > > > I need a command which outputs "/dev/loop0" when
+> > > > "/tmp/xyz/symlink/mnt" is
+> > > > given.
+> > > 
+> > >   $ findmnt -no SOURCE /tmp/xyz/symlink/mnt
+> > >   /dev/loop0
+> > 
+> > Thank's. Now I remember that you have told me that already one day. :)
+> 
+> BTW is there also a way to get "findmnt -n -o SOURCE" working if the
+> argument is not a mount point but a regular file on another mount
+> point? (In opposite of my initial question.)
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- bash-completion/fincore | 25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+$ findmnt --target /home/kzak/.bash_profile 
+TARGET SOURCE    FSTYPE OPTIONS
+/home  /dev/sda3 ext4   rw,relatime,data=ordered
 
-diff --git a/bash-completion/fincore b/bash-completion/fincore
-index d213586ca..9b1aed8f3 100644
---- a/bash-completion/fincore
-+++ b/bash-completion/fincore
-@@ -5,14 +5,35 @@ _fincore_module()
- 	cur="${COMP_WORDS[COMP_CWORD]}"
- 	prev="${COMP_WORDS[COMP_CWORD-1]}"
- 	case $prev in
-+		'-o'|'--output')
-+			local prefix realcur OUTPUT_ALL OUTPUT
-+			realcur="${cur##*,}"
-+			prefix="${cur%$realcur}"
-+			OUTPUT_ALL='PAGES SIZE FILE'
-+			for WORD in $OUTPUT_ALL; do
-+				if ! [[ $prefix == *"$WORD"* ]]; then
-+					OUTPUT="$WORD $OUTPUT"
-+				fi
-+			done
-+			compopt -o nospace
-+			COMPREPLY=( $(compgen -P "$prefix" -W "$OUTPUT" -S ',' -- "$realcur") )
-+			return 0
-+			;;
- 		'-h'|'--help'|'-V'|'--version')
- 			return 0
- 			;;
- 	esac
- 	case $cur in
- 	    -*)
--			OPTS="--help
--				--version"
-+			OPTS="
-+				--json
-+				--bytes
-+				--noheadings
-+				--output
-+				--raw
-+				--help
-+				--version
-+			"
- 			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
- 			return 0
- 			;;
+Note that it's probably better to use (for the previous example) the
+option --mountpoint if you want to be sure that the path is
+interpreted as mountpoint and never as a regular file.
+
+> I don't like that all these questions here are answered using "df".
+> http://unix.stackexchange.com/questions/90252/how-to-get-mount-point-of-filesystem-containing-given-file
+> 
+> http://unix.stackexchange.com/questions/128471/determine-what-device-a-directory-is-located-on
+
+ Well... :-)
+
+    Karel
+
 -- 
-2.12.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
