@@ -1,34 +1,53 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:48202 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751665AbdCNNRI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 14 Mar 2017 09:17:08 -0400
-Date: Tue, 14 Mar 2017 14:17:05 +0100
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
+Return-Path: sweet_f_a@gmx.de
+Subject: Re: find device of a known mountpoint
+To: Karel Zak <kzak@redhat.com>
+References: <5f3534af-06b5-9c76-f5e3-9c1d489e570c@gmx.de>
+ <20170331091925.mpwmxxk4da4lsegr@ws.net.home>
+ <cabd1dc9-8eff-8000-ed3b-39c0463ae376@gmx.de>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [V3 PULL] hwclock: remove date(1)
-Message-ID: <20170314131705.vag4vmrlemrcfsj4@ws.net.home>
-References: <a1415b5d-4046-3b34-5836-40ce1a835a41@gmx.com>
+From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
+Message-ID: <de1756bf-3e8f-f2db-60ae-179067ff35f4@gmx.de>
+Date: Fri, 31 Mar 2017 12:41:22 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <a1415b5d-4046-3b34-5836-40ce1a835a41@gmx.com>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <cabd1dc9-8eff-8000-ed3b-39c0463ae376@gmx.de>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Mar 04, 2017 at 04:56:12PM -0500, J William Piggott wrote:
->  Here's the latest branch for adding parse-date.
+On 03/31/2017 12:03 PM, Rüdiger Meier wrote:
+>
+>
+> On 03/31/2017 11:19 AM, Karel Zak wrote:
+>> On Fri, Mar 31, 2017 at 11:00:24AM +0200, Rüdiger Meier wrote:
+>>> $ truncate -s100M /tmp/img
+>>> $ losetup /dev/loop0  /tmp/img
+>>> $ mkfs.ext2  /dev/loop0
+>>>
+>>> $ mkdir /tmp/mnt
+>>> $ ln -s /tmp  /tmp/xyz/symlink
+>>>
+>>> $ mount /dev/loop0 /tmp/xyz/symlink/mnt
+>>> $ mount | grep loop
+>>> /dev/loop0 on /tmp/mnt type ext2 ...
+>>>
+>>>
+>>> I need a command which outputs "/dev/loop0" when
+>>> "/tmp/xyz/symlink/mnt" is
+>>> given.
+>>
+>>   $ findmnt -no SOURCE /tmp/xyz/symlink/mnt
+>>   /dev/loop0
+>
+> Thank's. Now I remember that you have told me that already one day. :)
 
-Reviewed, it seems ready do merge from my point of view. Objections?
+BTW is there also a way to get "findmnt -n -o SOURCE" working if the
+argument is not a mount point but a regular file on another mount
+point? (In opposite of my initial question.)
 
-TODO (after merge):
-  - add lib/test_parse_date.c
-  - add tests/ts/misc/parse_date regression test
-  - replace parse_timestamp() with new parse_date() 
+I don't like that all these questions here are answered using "df".
+http://unix.stackexchange.com/questions/90252/how-to-get-mount-point-of-filesystem-containing-given-file
+
+http://unix.stackexchange.com/questions/128471/determine-what-device-a-directory-is-located-on
 
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+cu,
+Rudi
