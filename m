@@ -1,47 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:61036 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754088AbdDKIGK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 11 Apr 2017 04:06:10 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] hwclock: fix non-linux build
-Date: Tue, 11 Apr 2017 10:05:55 +0200
-Message-Id: <1491897955-22436-1-git-send-email-sweet_f_a@gmx.de>
+Received: from mail-qk0-f195.google.com ([209.85.220.195]:33885 "EHLO
+        mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751210AbdDCVUH (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 3 Apr 2017 17:20:07 -0400
+Received: by mail-qk0-f195.google.com with SMTP id p68so792389qke.1
+        for <util-linux@vger.kernel.org>; Mon, 03 Apr 2017 14:20:07 -0700 (PDT)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <CAG27Bk36WxLCGDtWk+WHrK4eDqsjoQcNdc1sKxhpN4BmAEFmWA@mail.gmail.com>
+References: <20170402081436.861-1-kerolasa@iki.fi> <20170402081436.861-3-kerolasa@iki.fi>
+ <bb07f30a-74e6-0961-758a-67383ae417bf@gmx.com> <CAG27Bk36WxLCGDtWk+WHrK4eDqsjoQcNdc1sKxhpN4BmAEFmWA@mail.gmail.com>
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Mon, 3 Apr 2017 22:20:06 +0100
+Message-ID: <CAG27Bk2_YT8jEOrxb4ANwH59CAw-ramfZkpCBDHbAqkkDHOfwQ@mail.gmail.com>
+Subject: Re: [PATCH 3/3] agetty: make --remote to forward --nohostname as -H
+ to login
+To: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On 3 April 2017 at 09:40, Sami Kerola <kerolasa@iki.fi> wrote:
+> On 3 April 2017 at 02:13, J William Piggott <elseifthen@gmx.com> wrote:
+>>
+>> Hey Sami, since you're here you might want to fix this too?
+>
+> Hi JWP,
+>
+> Let me split the change in two:
+>
+> 1. --nohostname option forward + minimal manual change
+> 2. manual page update
+>
+> Karel, please hold on with these three changes. I will push changes to
+> a some branch in my git and tell when the stuff is fast forwardable.
 
-There was one missing ifdef since 336f7c5f.
+Here are the updated changes, first one is the minimal option forwarding
+and second tries to make manual page better.
 
-CC: Sami Kerola <kerolasa@iki.fi>
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- sys-utils/hwclock.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+https://github.com/kerolasa/lelux-utiliteetit/commit/343cc275591327bc2094f88387f09702a542dc8c
+https://github.com/kerolasa/lelux-utiliteetit/commit/c9151874b67a652b7095243fde2203ab8cd7d107
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 3875bcc..3e0d6e9 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -1520,9 +1520,12 @@ int main(int argc, char **argv)
- 		}
- 	}
- 
--	if (!(ctl.show | ctl.set | ctl.systohc | ctl.hctosys |
--	     ctl.systz | ctl.adjust | ctl.getepoch | ctl.setepoch |
--	     ctl.predict | ctl.get))
-+	if (!(ctl.show | ctl.set | ctl.systohc | ctl.hctosys
-+	     | ctl.systz | ctl.adjust | ctl.predict | ctl.get
-+#ifdef __linux__
-+	     | ctl.getepoch | ctl.setepoch
-+#endif
-+	     ))
- 		ctl.show = 1;	/* default to show */
- 
- #ifdef __linux__
+Branch name is: 2017wk13
+
 -- 
-1.8.5.6
-
+Sami Kerola
+http://www.iki.fi/kerolasa/
