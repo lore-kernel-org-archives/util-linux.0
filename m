@@ -1,137 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from esa5.hgst.iphmx.com ([216.71.153.144]:8141 "EHLO
-        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755523AbdDRK70 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 18 Apr 2017 06:59:26 -0400
-From: Damien Le Moal <Damien.LeMoal@wdc.com>
-To: "kzak@redhat.com" <kzak@redhat.com>
-CC: Bart Van Assche <Bart.VanAssche@sandisk.com>,
-        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
-        "bensberg@justemail.net" <bensberg@justemail.net>
-Subject: Re: [PATCH] blkzone: Fix zone condition strings handling
-Date: Tue, 18 Apr 2017 10:59:20 +0000
-Message-ID: <1492513158.3540.2.camel@wdc.com>
-References: <20170412092032.7234-1-damien.lemoal@wdc.com>
-         <20170418093440.4d6haj4iqfguonwd@ws.net.home>
-In-Reply-To: <20170418093440.4d6haj4iqfguonwd@ws.net.home>
-Content-Type: multipart/mixed; boundary="_002_149251315835402camelwdccom_"
+Received: from mx1.redhat.com ([209.132.183.28]:35198 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933219AbdDEKuT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 5 Apr 2017 06:50:19 -0400
+Date: Wed, 5 Apr 2017 12:50:15 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] libfdisk: fix gpt for 32bit systems
+Message-ID: <20170405105015.pymuuqicbzxmiucj@ws.net.home>
+References: <1491386189-8163-1-git-send-email-sweet_f_a@gmx.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1491386189-8163-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---_002_149251315835402camelwdccom_
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <FF71C621D0532A4295392C02B55F9E2D@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+On Wed, Apr 05, 2017 at 11:56:29AM +0200, Ruediger Meier wrote:
+> From: Ruediger Meier <ruediger.meier@ga-group.nl>
+> 
+> test libfdisk/gpt failed since bb676203 because UINT32_MAX does
+> not fit into ssize_t on 32bit systems.
+> 
+> This patch rewrites parts of commit f71b96bf. Also handling
+> multiplication overflow and some typos. Note that it still looks
+> questionable that we would try to read() SSIZE_MAX bytes in
+> gpt_read_entries().
 
-T24gVHVlLCAyMDE3LTA0LTE4IGF0IDExOjM0ICswMjAwLCBLYXJlbCBaYWsgd3JvdGU6DQo+IE9u
-IFdlZCwgQXByIDEyLCAyMDE3IGF0IDA2OjIwOjMyUE0gKzA5MDAsIERhbWllbiBMZSBNb2FsIHdy
-b3RlOg0KPiA+IEZpeGVkIHRoZSBjb25kaXRpb24gc3RyaW5ncyBmb3IgaW1wbGljaXQgb3BlbiBh
-bmQgZXhwbGljaXQgb3BlbiB0bw0KPiA+IG1hdGNoIHRoZSBtYW4gcGFnZSBkZWZpbmVkIHN0cmlu
-Z3MgKCJvaSIgYW5kICJvZSIpLiBBbHNvIHdoaWxlIGF0IGl0LA0KPiA+IGNvcnJlY3QgdGhlIGNv
-bmRpdGlvbl9zdHIgYXJyYXkgZW50cmllcyBhZGRpbmcgdGhlIHJlc2VydmVkICJ4QyIgY2FzZQ0K
-PiA+IHNvIHRoYXQgdGhlIHJlYWRfb25seSwgZnVsbCBhbmQgb2ZmbGluZSBjb25kaXRpb25zIG1h
-dGNoIHRoZSBjb25kaXRpb24NCj4gPiBjb2Rlcy4gVGhpcyBpbmNyZWFzZXMgdGhlIGFycmF5IHNp
-emUgdG8gMTYsIHNvIGFsc28gZml4IHRoZSBjb25kaXRpb24NCj4gPiBjb2RlIG1hc2tpbmcgd2hl
-biBkaXNwbGF5aW5nIHRoZSByZXN1bHQuDQo+ID4gDQo+ID4gU2lnbmVkLW9mZi1ieTogRGFtaWVu
-IExlIE1vYWwgPGRhbWllbi5sZW1vYWxAd2RjLmNvbT4NCj4gPiAtLS0NCj4gPiDCoHN5cy11dGls
-cy9ibGt6b25lLmMgfCA4ICsrKystLS0tDQo+ID4gwqAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRp
-b25zKCspLCA0IGRlbGV0aW9ucygtKQ0KPiANCj4gQXBwbGllZCwgdGhhbmtzLg0KPiANCj4gRGFt
-aWVuLCB3aGF0IGFib3V0IHRvIGFkZCBaT05FRCBjb2x1bW4gdG8gdGhlIGxzYmxrKDgpIGNvbW1h
-bmQgKGFsc28NCj4gZnJvbSB1dGlsLWxpbnV4KT/CoA0KPiANCj4gSXQgd291bGQgYmUgbmljZSB0
-byBoYXZlIHpvbmUgbW9kZWwgdGhlcmUuIEFsbCBsc2JsayBpcyBiYXNlZCBvbiAvc3lzLA0KPiBz
-byBhZGQgdGhlIHN0cmluZyBmcm9tIC9zeXMvYmxvY2svPGRpc2s+L3F1ZXVlL3pvbmVkIHNob3Vs
-ZCBiZSBlYXN5DQo+IChqdXN0IGFkZCBDT0xfWk9ORUQgd2l0aCBzeXNmc19zdHJkdXAoKSB0byBz
-ZXRfc2NvbHNfZGF0YSgpKS4NCj4gDQo+IMKgbHNibGsgLW8rWk9ORUQNCj4gDQo+IHdpbGwgZG8g
-YWxsIHRoZSBtYWdpYyBmb3IgZW5kIHVzZXJzLiBDYW4geW91IHRyeSBpdD8gSSBoYXZlIG5vIHdh
-eSB0bw0KPiB0ZXN0IGl0Lg0KDQpWZXJ5IGdvb2QgaWRlYS4gUGF0Y2ggYXR0YWNoZWQuDQooU29y
-cnkgZm9yIG5vdCBiZWluZyBhYmxlIHRvIHNlbmQgdGhhdCB0aGUgdXN1YWwgd2F5LiBJIGFtIGhh
-dmluZyBwcm9ibGVtIHdpdGgNCm9mZmljZTM2NSBhY2NvdW50IGFuZCBnaXQgc2VuZC1lbWFpbCkN
-Cg0KQmVzdCByZWdhcmRzLg0KDQotLSANCkRhbWllbiBMZSBNb2FsDQpXZXN0ZXJuIERpZ2l0YWw=
+Maybe it would be better to have
 
---_002_149251315835402camelwdccom_
-Content-Type: text/x-patch; name="0001-lsblk-add-ZONED-column.patch"
-Content-Description: 0001-lsblk-add-ZONED-column.patch
-Content-Disposition: attachment; filename="0001-lsblk-add-ZONED-column.patch";
-	size=4239; creation-date="Tue, 18 Apr 2017 10:59:20 GMT";
-	modification-date="Tue, 18 Apr 2017 10:59:20 GMT"
-Content-ID: <135755B941529E4B9EAC8192B2079923@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+  #define FDISK_GPT_NENTRIES_MAX  (SIZE_MAX/sizeof(struct gpt_entry))
 
-RnJvbSBiMzc2ODM0MmUwZmZkMThkODQzNjUwMTI1YmUyOTExN2MyODBjNzI0IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBEYW1pZW4gTGUgTW9hbCA8ZGFtaWVuLmxlbW9hbEB3ZGMuY29t
-PgpEYXRlOiBUdWUsIDE4IEFwciAyMDE3IDE5OjM3OjU4ICswOTAwClN1YmplY3Q6IFtQQVRDSCAx
-LzFdIGxzYmxrOiBhZGQgWk9ORUQgY29sdW1uCk1JTUUtVmVyc2lvbjogMS4wCkNvbnRlbnQtVHlw
-ZTogdGV4dC9wbGFpbjsgY2hhcnNldD1VVEYtOApDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiA4
-Yml0CgpBZGQgdGhlIGNvbHVtbiAiWk9ORUQiIHRvIHRoZSBvdXRwdXQgdG8gZGlzcGxheSBhIGJs
-b2NrIGRldmljZSB6b25lCm1vZGVsLgoKRXhhbXBsZSBvdXRwdXQ6Cgo+IGxzYmxrIC1vK1pPTkVE
-Ck5BTUUgICBNQUo6TUlOIFJNICAgU0laRSBSTyBUWVBFIE1PVU5UUE9JTlQgWk9ORUQKc2RhICAg
-ICAgODowICAgIDAgMTExLjhHICAwIGRpc2sgICAgICAgICAgICBub25lCuKUnOKUgHNkYTEgICA4
-OjEgICAgMCAgIDUwME0gIDAgcGFydCAvYm9vdCAgICAgIG5vbmUK4pSc4pSAc2RhMiAgIDg6MiAg
-ICAwICA4Ny4zRyAgMCBwYXJ0IC8gICAgICAgICAgbm9uZQrilJTilIBzZGEzICAgODozICAgIDAg
-ICAgMjRHICAwIHBhcnQgW1NXQVBdICAgICBub25lCnNkYiAgICAgIDg6MTYgICAwICAxMi44VCAg
-MCBkaXNrICAgICAgICAgICAgaG9zdC1tYW5hZ2VkCnNkYyAgICAgIDg6MzIgICAwICAgNS41VCAg
-MCBkaXNrICAgICAgICAgICAgaG9zdC1tYW5hZ2VkCgpvcjoKCj4gbHNibGsgLS16b25lCk5BTUUg
-ICBaT05FRApzZGEgICAgbm9uZQrilJzilIBzZGExIG5vbmUK4pSc4pSAc2RhMiBub25lCuKUlOKU
-gHNkYTMgbm9uZQpzZGIgICAgaG9zdC1tYW5hZ2VkCnNkYyAgICBob3N0LW1hbmFnZWQKClNpZ25l
-ZC1vZmYtYnk6IERhbWllbiBMZSBNb2FsIDxkYW1pZW4ubGVtb2FsQHdkYy5jb20+Ci0tLQogbWlz
-Yy11dGlscy9sc2Jsay44IHwgIDMgKysrCiBtaXNjLXV0aWxzL2xzYmxrLmMgfCAxNSArKysrKysr
-KysrKysrLS0KIDIgZmlsZXMgY2hhbmdlZCwgMTYgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMo
-LSkKCmRpZmYgLS1naXQgYS9taXNjLXV0aWxzL2xzYmxrLjggYi9taXNjLXV0aWxzL2xzYmxrLjgK
-aW5kZXggZWUxZDg3My4uZDlmYzFjMCAxMDA2NDQKLS0tIGEvbWlzYy11dGlscy9sc2Jsay44Cisr
-KyBiL21pc2MtdXRpbHMvbHNibGsuOApAQCAtNDksNiArNDksOSBAQCBQcmludCB0aGUgU0laRSBj
-b2x1bW4gaW4gYnl0ZXMgcmF0aGVyIHRoYW4gaW4gYSBodW1hbi1yZWFkYWJsZSBmb3JtYXQuCiAu
-QlIgXC1EICwgIiBcLVwtZGlzY2FyZCIKIFByaW50IGluZm9ybWF0aW9uIGFib3V0IHRoZSBkaXNj
-YXJkaW5nIGNhcGFiaWxpdGllcyAoVFJJTSwgVU5NQVApIGZvciBlYWNoIGRldmljZS4KIC5UUAor
-LkJSIFwteiAsICIgXC1cLXpvbmVkIgorUHJpbnQgdGhlIHpvbmUgbW9kZWwgZm9yIGVhY2ggZGV2
-aWNlLgorLlRQCiAuQlIgXC1kICwgIiBcLVwtbm9kZXBzIgogRG8gbm90IHByaW50IGhvbGRlciBk
-ZXZpY2VzIG9yIHNsYXZlcy4gIEZvciBleGFtcGxlLCBcZkJsc2JsayAtLW5vZGVwcyAvZGV2L3Nk
-YVxmUiBwcmludHMKIGluZm9ybWF0aW9uIGFib3V0IHRoZSBzZGEgZGV2aWNlIG9ubHkuCmRpZmYg
-LS1naXQgYS9taXNjLXV0aWxzL2xzYmxrLmMgYi9taXNjLXV0aWxzL2xzYmxrLmMKaW5kZXggNDc0
-MmE0ZC4uMjNiZmM0NiAxMDA2NDQKLS0tIGEvbWlzYy11dGlscy9sc2Jsay5jCisrKyBiL21pc2Mt
-dXRpbHMvbHNibGsuYwpAQCAtMTI0LDcgKzEyNCw4IEBAIGVudW0gewogCUNPTF9UUkFOU1BPUlQs
-CiAJQ09MX1NVQlNZUywKIAlDT0xfUkVWLAotCUNPTF9WRU5ET1IKKwlDT0xfVkVORE9SLAorCUNP
-TF9aT05FRCwKIH07CiAKIC8qIGJhc2ljIHRhYmxlIHNldHRpbmdzICovCkBAIC0yMDAsNiArMjAx
-LDcgQEAgc3RhdGljIHN0cnVjdCBjb2xpbmZvIGluZm9zW10gPSB7CiAJW0NPTF9TVUJTWVNdID0g
-eyAiU1VCU1lTVEVNUyIsIDAuMSwgU0NPTFNfRkxfTk9FWFRSRU1FUywgTl8oImRlLWR1cGxpY2F0
-ZWQgY2hhaW4gb2Ygc3Vic3lzdGVtcyIpIH0sCiAJW0NPTF9SRVZdICAgID0geyAiUkVWIiwgICA0
-LCBTQ09MU19GTF9SSUdIVCwgTl8oImRldmljZSByZXZpc2lvbiIpIH0sCiAJW0NPTF9WRU5ET1Jd
-ID0geyAiVkVORE9SIiwgMC4xLCBTQ09MU19GTF9UUlVOQywgTl8oImRldmljZSB2ZW5kb3IiKSB9
-LAorCVtDT0xfWk9ORURdICA9IHsgIlpPTkVEIiwgMC4zLCAwLCBOXygiem9uZSBtb2RlbCIpIH0s
-CiB9OwogCiBzdHJ1Y3QgbHNibGsgewpAQCAtMTE0OCw2ICsxMTUwLDkgQEAgc3RhdGljIHZvaWQg
-c2V0X3Njb2xzX2RhdGEoc3RydWN0IGJsa2Rldl9jeHQgKmN4dCwgaW50IGNvbCwgaW50IGlkLCBz
-dHJ1Y3QgbGlic2MKIAkJaWYgKCFzdHIpCiAJCQlzdHIgPSB4c3RyZHVwKCIwIik7CiAJCWJyZWFr
-OworCWNhc2UgQ09MX1pPTkVEOgorCQlzdHIgPSBzeXNmc19zdHJkdXAoJmN4dC0+c3lzZnMsICJx
-dWV1ZS96b25lZCIpOworCQlicmVhazsKIAl9OwogCiAJaWYgKHN0cikKQEAgLTE2MjYsNiArMTYz
-MSw3IEBAIHN0YXRpYyB2b2lkIF9fYXR0cmlidXRlX18oKF9fbm9yZXR1cm5fXykpIGhlbHAoRklM
-RSAqb3V0KQogCWZwdXRzKF8oIiAtYiwgLS1ieXRlcyAgICAgICAgICBwcmludCBTSVpFIGluIGJ5
-dGVzIHJhdGhlciB0aGFuIGluIGh1bWFuIHJlYWRhYmxlIGZvcm1hdFxuIiksIG91dCk7CiAJZnB1
-dHMoXygiIC1kLCAtLW5vZGVwcyAgICAgICAgIGRvbid0IHByaW50IHNsYXZlcyBvciBob2xkZXJz
-XG4iKSwgb3V0KTsKIAlmcHV0cyhfKCIgLUQsIC0tZGlzY2FyZCAgICAgICAgcHJpbnQgZGlzY2Fy
-ZCBjYXBhYmlsaXRpZXNcbiIpLCBvdXQpOworCWZwdXRzKF8oIiAteiwgLS16b25lICAgICAgICAg
-ICBwcmludCB6b25lIG1vZGVsXG4iKSwgb3V0KTsKIAlmcHV0cyhfKCIgLWUsIC0tZXhjbHVkZSA8
-bGlzdD4gZXhjbHVkZSBkZXZpY2VzIGJ5IG1ham9yIG51bWJlciAoZGVmYXVsdDogUkFNIGRpc2tz
-KVxuIiksIG91dCk7CiAJZnB1dHMoXygiIC1mLCAtLWZzICAgICAgICAgICAgIG91dHB1dCBpbmZv
-IGFib3V0IGZpbGVzeXN0ZW1zXG4iKSwgb3V0KTsKIAlmcHV0cyhfKCIgLWksIC0tYXNjaWkgICAg
-ICAgICAgdXNlIGFzY2lpIGNoYXJhY3RlcnMgb25seVxuIiksIG91dCk7CkBAIC0xNjc2LDYgKzE2
-ODIsNyBAQCBpbnQgbWFpbihpbnQgYXJnYywgY2hhciAqYXJndltdKQogCQl7ICJieXRlcyIsICAg
-ICAgbm9fYXJndW1lbnQsICAgICAgIE5VTEwsICdiJyB9LAogCQl7ICJub2RlcHMiLCAgICAgbm9f
-YXJndW1lbnQsICAgICAgIE5VTEwsICdkJyB9LAogCQl7ICJkaXNjYXJkIiwgICAgbm9fYXJndW1l
-bnQsICAgICAgIE5VTEwsICdEJyB9LAorCQl7ICJ6b25lZCIsICAgICAgbm9fYXJndW1lbnQsICAg
-ICAgIE5VTEwsICd6JyB9LAogCQl7ICJoZWxwIiwJbm9fYXJndW1lbnQsICAgICAgIE5VTEwsICdo
-JyB9LAogCQl7ICJqc29uIiwgICAgICAgbm9fYXJndW1lbnQsICAgICAgIE5VTEwsICdKJyB9LAog
-CQl7ICJvdXRwdXQiLCAgICAgcmVxdWlyZWRfYXJndW1lbnQsIE5VTEwsICdvJyB9LApAQCAtMTcy
-MSw3ICsxNzI4LDcgQEAgaW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKmFyZ3ZbXSkKIAlsc2Jsa19p
-bml0X2RlYnVnKCk7CiAKIAl3aGlsZSgoYyA9IGdldG9wdF9sb25nKGFyZ2MsIGFyZ3YsCi0JCQkg
-ICAgICAgImFiZERlOmZoSmxubW86T3BQaUk6cnN0VlN4OiIsIGxvbmdvcHRzLCBOVUxMKSkgIT0g
-LTEpIHsKKwkJCSAgICAgICAiYWJkRHplOmZoSmxubW86T3BQaUk6cnN0VlN4OiIsIGxvbmdvcHRz
-LCBOVUxMKSkgIT0gLTEpIHsKIAogCQllcnJfZXhjbHVzaXZlX29wdGlvbnMoYywgbG9uZ29wdHMs
-IGV4Y2wsIGV4Y2xfc3QpOwogCkBAIC0xNzQyLDYgKzE3NDksMTAgQEAgaW50IG1haW4oaW50IGFy
-Z2MsIGNoYXIgKmFyZ3ZbXSkKIAkJCWFkZF9jb2x1bW4oY29sdW1ucywgbmNvbHVtbnMrKywgQ09M
-X0RNQVgpOwogCQkJYWRkX2NvbHVtbihjb2x1bW5zLCBuY29sdW1ucysrLCBDT0xfRFpFUk8pOwog
-CQkJYnJlYWs7CisJCWNhc2UgJ3onOgorCQkJYWRkX2NvbHVtbihjb2x1bW5zLCBuY29sdW1ucysr
-LCBDT0xfTkFNRSk7CisJCQlhZGRfY29sdW1uKGNvbHVtbnMsIG5jb2x1bW5zKyssIENPTF9aT05F
-RCk7CisJCQlicmVhazsKIAkJY2FzZSAnZSc6CiAJCQlwYXJzZV9leGNsdWRlcyhvcHRhcmcpOwog
-CQkJYnJlYWs7Ci0tIAoyLjkuMwoK
+to avoid all the checks. We have to be able to store the entries
+array to the memory, so all should be based on this fact. Things like
 
---_002_149251315835402camelwdccom_--
+    uint64_t sz;
+    ...
+    ret = calloc(1, sz);
+
+are just crazy fun...
+
+It also seems that the code does not care if header->sizeof_partition_entry
+is the same as sizeof(struct gpt_entry), but we use the array as "struct gpt_entry".
+
+The really correct way is to use
+
+    (char *)buf + i * header->sizeof_partition_entry
+
+to get the entry.
+
+I'll play with it and send a patch for review.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
