@@ -1,48 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59534 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.18]:61359 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751156AbdDDNLb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 4 Apr 2017 09:11:31 -0400
-Date: Tue, 4 Apr 2017 15:11:25 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kalle <kalle@projektwerkstatt.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: not responding
-Message-ID: <20170404131125.vbq2ziezq3ekucyt@ws.net.home>
-References: <58CAA79B.4010108@projektwerkstatt.de>
- <95b803a1-8288-25d6-4bbe-738348016813@projektwerkstatt.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <95b803a1-8288-25d6-4bbe-738348016813@projektwerkstatt.de>
+        id S1756734AbdDFH4M (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 6 Apr 2017 03:56:12 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Cc: Masatake YAMATO <yamato@redhat.com>
+Subject: [PATCH 0/5] some fincore fixes
+Date: Thu,  6 Apr 2017 09:56:00 +0200
+Message-Id: <1491465365-7515-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Apr 02, 2017 at 08:56:07PM +0200, kalle wrote:
-> i have util-linux version 2.20.1 , the "more"-manpage says version 5.19
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Well, the current version is v2.29.2 ...
+This patch-set tries to make the fincore tests more reliable on non-x86
+systems and some non-default file systems. It discoverd one bug in
+fincore itself.
 
-> of more, and found the following problems in "more":
-> I start with more FILE.
-> then "=" to get the line "57". It is to say here, that the first line of
-> the screen, will not be shown again, even if typing "b".
-> Then z ;then = again. Gives line 115.
-> b;= :line 58
-> s;= :line 116
-> b;= :line 59
-> f;= :line 173
-> b;= :line 116
-> b;= :line 59
-> 
-> This result seems to contradict to man more's definitions of
-> -"s" :"skip forward k lines of text. Defaults to 1."
-> -"f" :"skip forward k screenfuls of text. Defaults to 1."
+Ruediger Meier (5):
+  tests: remove fincore SMALLER_THAN_PAGESIZE tests
+  tests: fix fincore/count for PAGE_SIZE != 4096
+  fincore: fix multiplication overflow
+  tests: handle dd errors in fincore/count
+  tests: fincore/count, skip unsupported FS
 
-Hmm... it's mess, like everything around more(1).
-Sami any comment? :-)
-
-    Karel
+ misc-utils/fincore.c                |  2 +-
+ tests/expected/fincore/count        | 61 --------------------------------
+ tests/expected/fincore/count.4096   | 55 +++++++++++++++++++++++++++++
+ tests/expected/fincore/count.65536  | 55 +++++++++++++++++++++++++++++
+ tests/expected/fincore/count.nosize | 55 +++++++++++++++++++++++++++++
+ tests/ts/fincore/count              | 70 ++++++++++++++++++++++++++-----------
+ 6 files changed, 215 insertions(+), 83 deletions(-)
+ delete mode 100644 tests/expected/fincore/count
+ create mode 100644 tests/expected/fincore/count.4096
+ create mode 100644 tests/expected/fincore/count.65536
+ create mode 100644 tests/expected/fincore/count.nosize
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.5.6
+
