@@ -1,58 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35198 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.18]:52135 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933219AbdDEKuT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 5 Apr 2017 06:50:19 -0400
-Date: Wed, 5 Apr 2017 12:50:15 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] libfdisk: fix gpt for 32bit systems
-Message-ID: <20170405105015.pymuuqicbzxmiucj@ws.net.home>
-References: <1491386189-8163-1-git-send-email-sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1491386189-8163-1-git-send-email-sweet_f_a@gmx.de>
+        id S1756699AbdDFH4M (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 6 Apr 2017 03:56:12 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Cc: Masatake YAMATO <yamato@redhat.com>
+Subject: [PATCH 3/5] fincore: fix multiplication overflow
+Date: Thu,  6 Apr 2017 09:56:03 +0200
+Message-Id: <1491465365-7515-4-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1491465365-7515-1-git-send-email-sweet_f_a@gmx.de>
+References: <1491465365-7515-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Apr 05, 2017 at 11:56:29AM +0200, Ruediger Meier wrote:
-> From: Ruediger Meier <ruediger.meier@ga-group.nl>
-> 
-> test libfdisk/gpt failed since bb676203 because UINT32_MAX does
-> not fit into ssize_t on 32bit systems.
-> 
-> This patch rewrites parts of commit f71b96bf. Also handling
-> multiplication overflow and some typos. Note that it still looks
-> questionable that we would try to read() SSIZE_MAX bytes in
-> gpt_read_entries().
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Maybe it would be better to have
+This failed on ppc64 with page size 64k.
 
-  #define FDISK_GPT_NENTRIES_MAX  (SIZE_MAX/sizeof(struct gpt_entry))
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ misc-utils/fincore.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-to avoid all the checks. We have to be able to store the entries
-array to the memory, so all should be based on this fact. Things like
-
-    uint64_t sz;
-    ...
-    ret = calloc(1, sz);
-
-are just crazy fun...
-
-It also seems that the code does not care if header->sizeof_partition_entry
-is the same as sizeof(struct gpt_entry), but we use the array as "struct gpt_entry".
-
-The really correct way is to use
-
-    (char *)buf + i * header->sizeof_partition_entry
-
-to get the entry.
-
-I'll play with it and send a patch for review.
-
-    Karel
-
+diff --git a/misc-utils/fincore.c b/misc-utils/fincore.c
+index b867c2d..425f1bf 100644
+--- a/misc-utils/fincore.c
++++ b/misc-utils/fincore.c
+@@ -188,7 +188,7 @@ static int fincore_fd (struct fincore_control *ctl,
+ 		       off_t file_size,
+ 		       off_t *count_incore)
+ {
+-	size_t window_size = N_PAGES_IN_WINDOW * ctl->pagesize;
++	size_t window_size = (size_t)N_PAGES_IN_WINDOW * ctl->pagesize;
+ 	off_t  file_offset;
+ 	void  *window = NULL;
+ 	int rc = 0;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.5.6
+
