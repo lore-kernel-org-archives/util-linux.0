@@ -1,76 +1,96 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:54722 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.15.19]:52675 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752489AbdDKSpP (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 11 Apr 2017 14:45:15 -0400
-Subject: Re: [PATCH] hwclock: fix non-linux build
-To: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
-References: <1491897955-22436-1-git-send-email-sweet_f_a@gmx.de>
-Cc: Sami Kerola <kerolasa@iki.fi>
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <64fc96d4-3e5f-ee6d-2ab9-bc90c8f8c5e9@gmx.com>
-Date: Tue, 11 Apr 2017 14:45:02 -0400
-MIME-Version: 1.0
-In-Reply-To: <1491897955-22436-1-git-send-email-sweet_f_a@gmx.de>
-Content-Type: text/plain; charset=windows-1252
+        id S1756716AbdDFH4M (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 6 Apr 2017 03:56:12 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Cc: Masatake YAMATO <yamato@redhat.com>
+Subject: [PATCH 4/5] tests: handle dd errors in fincore/count
+Date: Thu,  6 Apr 2017 09:56:04 +0200
+Message-Id: <1491465365-7515-5-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1491465365-7515-1-git-send-email-sweet_f_a@gmx.de>
+References: <1491465365-7515-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-On 04/11/2017 04:05 AM, Ruediger Meier wrote:
-> From: Ruediger Meier <ruediger.meier@ga-group.nl>
-> 
-> There was one missing ifdef since 336f7c5f.
+On dd error the test will fail earlier and the test diff will be
+more useful.
 
-They were both in that 'if' test before 336f7c5f:
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ tests/ts/fincore/count | 31 ++++++++++++++++++++-----------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
 
--       if (!(show | set | systohc | hctosys | systz | adjust | getepoch
--             | setepoch | predict | compare | get))
--               show = 1;       /* default to show */
+diff --git a/tests/ts/fincore/count b/tests/ts/fincore/count
+index be81552..fd50ff8 100755
+--- a/tests/ts/fincore/count
++++ b/tests/ts/fincore/count
+@@ -17,6 +17,20 @@ function make_input_name
+     echo ${prefix}$(sed -e "s/[^-+a-zA-Z0-9_]/_/g"<<<"$header")
+ }
+ 
++function _dd
++{
++	local msg
++	local ret=0
++
++	msg=$(dd "$@" 2>&1)
++	ret=$?
++	if [ $ret != 0 ]; then
++		echo "failed: dd $@" >&2
++		echo "$msg" >&2
++	fi
++	return $ret
++}
++
+ function run_dd_test
+ {
+     header=$1
+@@ -25,11 +39,12 @@ function run_dd_test
+ 
+     input=$(make_input_name "$header")
+     INPUT="${INPUT} ${input}"
++	rm -f "$input"
+ 
+     if [ "$bs" = 0 ]; then
+-	touch $input
++		touch $input
+     else
+-	$DD if=/dev/zero of=$input count=1 bs=$bs $flags &> /dev/null
++		_dd if=/dev/zero of=$input count=1 bs=$bs $flags || return
+     fi
+ 
+     $TS_CMD_FINCORE --output $COLUMNS  --bytes --noheadings $input
+@@ -47,9 +62,10 @@ function run_dd_dd_test
+ 
+     input=$(make_input_name "$header")
+     INPUT="${INPUT} ${input}"
++	rm -f "$input"
+ 
+-    $DD if=/dev/zero of=$input count=1 bs=$bs $flags0 &> /dev/null
+-    $DD if=/dev/zero of=$input count=1 bs=$bs $flags1 &> /dev/null
++    _dd if=/dev/zero of=$input count=1 bs=$bs $flags0 || return
++    _dd if=/dev/zero of=$input count=1 bs=$bs $flags1 || return
+ 
+     $TS_CMD_FINCORE --output $COLUMNS --bytes --noheadings $input
+ 
+@@ -75,13 +91,6 @@ else
+ fi
+ 
+ 
+-# seems unsupported by some dd(1) version
+-#DD_FLAGS="status=none"
+-
+-DD_FLAGS=
+-DD="dd $DD_FLAGS"
+-
+-
+ ts_check_test_command "$TS_CMD_FINCORE"
+ ts_cd "$TS_OUTDIR"
+ 
+-- 
+1.8.5.6
 
-But they were defined for all arches then:
-
--       /* Set option defaults */
--       show = set = systohc = hctosys = systz = adjust = noadjfile = predict =
--           compare = get = update = FALSE;
--       getepoch = setepoch = utc = local_opt = directisa = testing = debug = FALSE;
-
-
-I think the old way was a cleaner solution, so in sys-utils/hwclock.h:35:
-
-- #ifdef __linux__
-  		getepoch:1,
-  		setepoch:1,
-- #endif
-	
-Should work? I do not have a way to test it.
-
-
-> 
-> CC: Sami Kerola <kerolasa@iki.fi>
-> Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
-> ---
->  sys-utils/hwclock.c | 9 ++++++---
->  1 file changed, 6 insertions(+), 3 deletions(-)
-> 
-> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-> index 3875bcc..3e0d6e9 100644
-> --- a/sys-utils/hwclock.c
-> +++ b/sys-utils/hwclock.c
-> @@ -1520,9 +1520,12 @@ int main(int argc, char **argv)
->  		}
->  	}
->  
-> -	if (!(ctl.show | ctl.set | ctl.systohc | ctl.hctosys |
-> -	     ctl.systz | ctl.adjust | ctl.getepoch | ctl.setepoch |
-> -	     ctl.predict | ctl.get))
-> +	if (!(ctl.show | ctl.set | ctl.systohc | ctl.hctosys
-> +	     | ctl.systz | ctl.adjust | ctl.predict | ctl.get
-> +#ifdef __linux__
-> +	     | ctl.getepoch | ctl.setepoch
-> +#endif
-> +	     ))
->  		ctl.show = 1;	/* default to show */
->  
->  #ifdef __linux__
-> 
