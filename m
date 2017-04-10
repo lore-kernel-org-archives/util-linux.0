@@ -1,46 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:34005 "EHLO mx2.suse.de"
+Received: from mout.gmx.net ([212.227.17.21]:55590 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753285AbdDLJO5 (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
-        Wed, 12 Apr 2017 05:14:57 -0400
-Subject: Re: [PATCH] lspcu: use sysfs for table access if available
-To: Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        util-linux-ng@vger.kernel.org
-References: <20170412091129.27283-1-ard.biesheuvel@linaro.org>
-Cc: leif.lindholm@linaro.org, kzak@redhat.com
-From: Alexander Graf <agraf@suse.de>
-Message-ID: <ca8730a8-c200-3f93-4997-ae20322265c8@suse.de>
-Date: Wed, 12 Apr 2017 11:14:50 +0200
+        id S1751564AbdDJXAo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 10 Apr 2017 19:00:44 -0400
+Subject: [PATCH 5/5] hwclock: remove residual 'compare' from man-page
+To: Karel Zak <kzak@redhat.com>
+References: <d0e36cbd-1205-8ce8-3fb3-06efafb12227@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <dd50203f-e46e-808b-1604-53b6cb776b2e@gmx.com>
+Date: Mon, 10 Apr 2017 19:00:32 -0400
 MIME-Version: 1.0
-In-Reply-To: <20170412091129.27283-1-ard.biesheuvel@linaro.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+In-Reply-To: <d0e36cbd-1205-8ce8-3fb3-06efafb12227@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.8.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On 12.04.17 11:11, Ard Biesheuvel wrote:
-> On ARM systems, accessing SMBIOS tables via /dev/mem using read()
-> calls is not supported. The reason is that such tables are usually
-> located in EFI_RUNTIME_SERVICE_DATA memory, which is not covered
-> by the linear mapping on those systems, and so read() calls will
-> fail.
->
-> So instead, use the /sys/firmware/dmi/tables/DMI sysfs file, which
-> contains the entire structure table array, and will be available
-> on any recent Linux system, even on ones that only export the rev3
-> SMBIOS entry point, which is currently ignored by lscpu.
->
-> Note that the max 'num' value is inferred from the size. This is not
-> a limitation of the sysfs interface, but a limitation of the rev3
-> entry point, which no longer carries a number of array elements.
->
-> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-
-Tested-by: Alexander Graf <agraf@suse.de>
-Reviewed-by: Alexander Graf <agraf@suse.de>
-
-Thanks :)
-
-
-Alex
+diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
+index 80a579f..f11df80 100644
+--- a/sys-utils/hwclock.8.in
++++ b/sys-utils/hwclock.8.in
+@@ -19,7 +19,7 @@ Hardware Clock time; set the Hardware Clock to a specified time; set the
+ Hardware Clock from the System Clock; set the System Clock from the
+ Hardware Clock; compensate for Hardware Clock drift; correct the System
+ Clock timescale; set the kernel's timezone, NTP timescale, and epoch
+-(Alpha only); compare the System and Hardware Clocks; and predict future
++(Alpha only); and predict future
+ Hardware Clock values based on its drift rate.
+ .PP
+ Since v2.26 important changes were made to the
