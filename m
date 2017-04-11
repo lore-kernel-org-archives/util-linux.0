@@ -1,108 +1,76 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 4/5] hwclock: improve audit control
-To: Karel Zak <kzak@redhat.com>
-References: <7592945f-746d-7f67-192a-78dff67923d5@gmx.com>
-Cc: util-linux@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.21]:54722 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752489AbdDKSpP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 11 Apr 2017 14:45:15 -0400
+Subject: Re: [PATCH] hwclock: fix non-linux build
+To: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
+References: <1491897955-22436-1-git-send-email-sweet_f_a@gmx.de>
+Cc: Sami Kerola <kerolasa@iki.fi>
 From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <b6620933-96c1-fc35-93dc-4bed1923bb7d@gmx.com>
-Date: Tue, 18 Apr 2017 23:07:58 -0400
+Message-ID: <64fc96d4-3e5f-ee6d-2ab9-bc90c8f8c5e9@gmx.com>
+Date: Tue, 11 Apr 2017 14:45:02 -0400
 MIME-Version: 1.0
-In-Reply-To: <7592945f-746d-7f67-192a-78dff67923d5@gmx.com>
+In-Reply-To: <1491897955-22436-1-git-send-email-sweet_f_a@gmx.de>
 Content-Type: text/plain; charset=windows-1252
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
-Move audit control to option parsing. This fixes non-alpha build
-error and cleans up an unruly 'if' statement.
+On 04/11/2017 04:05 AM, Ruediger Meier wrote:
+> From: Ruediger Meier <ruediger.meier@ga-group.nl>
+> 
+> There was one missing ifdef since 336f7c5f.
 
-Having audit control in option parsing may also draw awareness to
-the audit system when adding new functions, which could easily be
-overlooked otherwise.
+They were both in that 'if' test before 336f7c5f:
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock.c | 17 ++++++-----------
- sys-utils/hwclock.h |  2 --
- 2 files changed, 6 insertions(+), 13 deletions(-)
+-       if (!(show | set | systohc | hctosys | systz | adjust | getepoch
+-             | setepoch | predict | compare | get))
+-               show = 1;       /* default to show */
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index bb3a9d8..a98f4e3 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -1395,6 +1395,7 @@ int main(int argc, char **argv)
- 		case 'a':
- 			ctl.adjust = 1;
- 			ctl.show = 0;
-+			ctl.hwaudit_on = 1;
- 			break;
- 		case 'r':
- 			ctl.show = 1;
-@@ -1402,6 +1403,7 @@ int main(int argc, char **argv)
- 		case 's':
- 			ctl.hctosys = 1;
- 			ctl.show = 0;
-+			ctl.hwaudit_on = 1;
- 			break;
- 		case 'u':
- 			ctl.utc = 1;
-@@ -1409,10 +1411,12 @@ int main(int argc, char **argv)
- 		case 'w':
- 			ctl.systohc = 1;
- 			ctl.show = 0;
-+			ctl.hwaudit_on = 1;
- 			break;
- 		case OPT_SET:
- 			ctl.set = 1;
- 			ctl.show = 0;
-+			ctl.hwaudit_on = 1;
- 			break;
- #if defined(__linux__) && defined(__alpha__)
- 		case OPT_GETEPOCH:
-@@ -1422,6 +1426,7 @@ int main(int argc, char **argv)
- 		case OPT_SETEPOCH:
- 			ctl.setepoch = 1;
- 			ctl.show = 0;
-+			ctl.hwaudit_on = 1;
- 			break;
- 		case OPT_EPOCH:
- 			ctl.epoch_option =	/* --epoch */
-@@ -1480,16 +1485,6 @@ int main(int argc, char **argv)
- 	argc -= optind;
- 	argv += optind;
- 
--#ifdef HAVE_LIBAUDIT
--	if (!ctl.testing) {
--		if (ctl.adjust || ctl.hctosys || ctl.systohc || ctl.set
--# if defined(__linux__) && defined(__alpha__)
--		    || ctl.setepoch
--# endif
--		    )
--			ctl.hwaudit_on = 1;
--	}
--#endif
- 	if (argc > 0) {
- 		warnx(_("%d too many arguments given"), argc);
- 		errtryhelp(EXIT_FAILURE);
-@@ -1550,7 +1545,7 @@ hwclock_exit(const struct hwclock_control *ctl
- 	     , int status)
- {
- #ifdef HAVE_LIBAUDIT
--	if (ctl->hwaudit_on) {
-+	if (ctl->hwaudit_on && !ctl->testing) {
- 		audit_log_user_message(hwaudit_fd, AUDIT_USYS_CONFIG,
- 				       "op=change-system-time", NULL, NULL, NULL,
- 				       status ? 0 : 1);
-diff --git a/sys-utils/hwclock.h b/sys-utils/hwclock.h
-index 7830ef6..7d2cc45 100644
---- a/sys-utils/hwclock.h
-+++ b/sys-utils/hwclock.h
-@@ -26,9 +26,7 @@ struct hwclock_control {
- #endif
- 	unsigned int debug;
- 	unsigned int
--#ifdef HAVE_LIBAUDIT
- 		hwaudit_on:1,
--#endif
- 		adjust:1,
- 		show:1,
- 		hctosys:1,
+But they were defined for all arches then:
+
+-       /* Set option defaults */
+-       show = set = systohc = hctosys = systz = adjust = noadjfile = predict =
+-           compare = get = update = FALSE;
+-       getepoch = setepoch = utc = local_opt = directisa = testing = debug = FALSE;
+
+
+I think the old way was a cleaner solution, so in sys-utils/hwclock.h:35:
+
+- #ifdef __linux__
+  		getepoch:1,
+  		setepoch:1,
+- #endif
+	
+Should work? I do not have a way to test it.
+
+
+> 
+> CC: Sami Kerola <kerolasa@iki.fi>
+> Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+> ---
+>  sys-utils/hwclock.c | 9 ++++++---
+>  1 file changed, 6 insertions(+), 3 deletions(-)
+> 
+> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+> index 3875bcc..3e0d6e9 100644
+> --- a/sys-utils/hwclock.c
+> +++ b/sys-utils/hwclock.c
+> @@ -1520,9 +1520,12 @@ int main(int argc, char **argv)
+>  		}
+>  	}
+>  
+> -	if (!(ctl.show | ctl.set | ctl.systohc | ctl.hctosys |
+> -	     ctl.systz | ctl.adjust | ctl.getepoch | ctl.setepoch |
+> -	     ctl.predict | ctl.get))
+> +	if (!(ctl.show | ctl.set | ctl.systohc | ctl.hctosys
+> +	     | ctl.systz | ctl.adjust | ctl.predict | ctl.get
+> +#ifdef __linux__
+> +	     | ctl.getepoch | ctl.setepoch
+> +#endif
+> +	     ))
+>  		ctl.show = 1;	/* default to show */
+>  
+>  #ifdef __linux__
+> 
