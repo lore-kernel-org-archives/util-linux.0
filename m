@@ -1,40 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:34876 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752770AbdDKKEQ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 11 Apr 2017 06:04:16 -0400
-Received: by mail-wm0-f68.google.com with SMTP id d79so13983399wmi.2
-        for <util-linux@vger.kernel.org>; Tue, 11 Apr 2017 03:04:15 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mout.gmx.net ([212.227.17.20]:61036 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754088AbdDKIGK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 11 Apr 2017 04:06:10 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
 Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] bash-completion: update fincore
-Date: Tue, 11 Apr 2017 11:04:12 +0100
-Message-Id: <20170411100412.7169-1-kerolasa@iki.fi>
+Subject: [PATCH] hwclock: fix non-linux build
+Date: Tue, 11 Apr 2017 10:05:55 +0200
+Message-Id: <1491897955-22436-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Add RES column to --output completions.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Commit: e4e8b57be2b63fed82647e4d5efd0e0eaf36b19e
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+There was one missing ifdef since 336f7c5f.
+
+CC: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- bash-completion/fincore | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sys-utils/hwclock.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/bash-completion/fincore b/bash-completion/fincore
-index 9b1aed8f3..4988f198b 100644
---- a/bash-completion/fincore
-+++ b/bash-completion/fincore
-@@ -9,7 +9,7 @@ _fincore_module()
- 			local prefix realcur OUTPUT_ALL OUTPUT
- 			realcur="${cur##*,}"
- 			prefix="${cur%$realcur}"
--			OUTPUT_ALL='PAGES SIZE FILE'
-+			OUTPUT_ALL='PAGES SIZE FILE RES'
- 			for WORD in $OUTPUT_ALL; do
- 				if ! [[ $prefix == *"$WORD"* ]]; then
- 					OUTPUT="$WORD $OUTPUT"
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 3875bcc..3e0d6e9 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1520,9 +1520,12 @@ int main(int argc, char **argv)
+ 		}
+ 	}
+ 
+-	if (!(ctl.show | ctl.set | ctl.systohc | ctl.hctosys |
+-	     ctl.systz | ctl.adjust | ctl.getepoch | ctl.setepoch |
+-	     ctl.predict | ctl.get))
++	if (!(ctl.show | ctl.set | ctl.systohc | ctl.hctosys
++	     | ctl.systz | ctl.adjust | ctl.predict | ctl.get
++#ifdef __linux__
++	     | ctl.getepoch | ctl.setepoch
++#endif
++	     ))
+ 		ctl.show = 1;	/* default to show */
+ 
+ #ifdef __linux__
 -- 
-2.12.2
+1.8.5.6
 
