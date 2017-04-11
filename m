@@ -1,33 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:11187 "EHLO mx1.redhat.com"
+Received: from mx2.suse.de ([195.135.220.15]:49774 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754135AbdDDMxj (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 4 Apr 2017 08:53:39 -0400
-Date: Tue, 4 Apr 2017 14:53:35 +0200
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/6] remove alpha cmos
-Message-ID: <20170404125335.zndffzxmkvzbmket@ws.net.home>
-References: <24f2ccba-6144-9497-69fc-c5dbfd9a39fc@gmx.com>
+        id S1752693AbdDKOMy (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 11 Apr 2017 10:12:54 -0400
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 2CE2EAAB2
+        for <util-linux@vger.kernel.org>; Tue, 11 Apr 2017 14:12:53 +0000 (UTC)
+To: util-linux@vger.kernel.org
+From: Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH] libmount: Ensure utab.lock mode 644
+Message-ID: <e837973e-9f84-827f-ba86-1799d291bf8b@suse.cz>
+Date: Tue, 11 Apr 2017 16:12:52 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <24f2ccba-6144-9497-69fc-c5dbfd9a39fc@gmx.com>
+Content-Type: text/plain; charset=iso-8859-2
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Mar 31, 2017 at 10:40:12AM -0400, J William Piggott wrote:
->  sys-utils/hwclock-cmos.c | 417 +++++++++--------------------------------------
->  sys-utils/hwclock-rtc.c  |  20 +--
->  sys-utils/hwclock.8.in   | 110 ++++---------
->  sys-utils/hwclock.c      |  34 +---
->  sys-utils/hwclock.h      |  11 +-
->  5 files changed, 120 insertions(+), 472 deletions(-)
+If utab.lock is created by a process with a restricted umask, utab.lock is
+created with restricted permissions. It breaks userspace monitor.
 
- Merged, let's hope we won't see negative feedback :-)
+Ensure that the mode is always 644.
 
-    Karel
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ libmount/src/lock.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/libmount/src/lock.c b/libmount/src/lock.c
+index 06eff1344..f9d0253fb 100644
+--- a/libmount/src/lock.c
++++ b/libmount/src/lock.c
+@@ -220,6 +220,11 @@ static int lock_simplelock(struct libmnt_lock *ml)
+ 		rc = -errno;
+ 		goto err;
+ 	}
++	rc = fchmod(ml->lockfile_fd, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
++	if (rc < 0) {
++		rc = -errno;
++		goto err;
++	}
  
+ 	while (flock(ml->lockfile_fd, LOCK_EX) < 0) {
+ 		int errsv;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.12.2
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
