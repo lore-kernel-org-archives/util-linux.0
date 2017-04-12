@@ -1,87 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:59397 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932128AbdDQBoO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 16 Apr 2017 21:44:14 -0400
-Subject: Re: [PATCH] hwclock: fix non-linux build
-To: Ruediger Meier <sweet_f_a@gmx.de>
-References: <1491897955-22436-1-git-send-email-sweet_f_a@gmx.de>
- <64fc96d4-3e5f-ee6d-2ab9-bc90c8f8c5e9@gmx.com>
- <201704112107.59250.sweet_f_a@gmx.de>
- <9dc22019-6710-1195-86c6-a1b5b3579e34@gmx.com>
-Cc: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <0f17a036-47aa-9696-34c3-e1f29f6b0901@gmx.com>
-Date: Sun, 16 Apr 2017 21:44:00 -0400
-MIME-Version: 1.0
-In-Reply-To: <9dc22019-6710-1195-86c6-a1b5b3579e34@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Received: from mail-wm0-f46.google.com ([74.125.82.46]:36378 "EHLO
+        mail-wm0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751876AbdDLJLm (ORCPT
+        <rfc822;util-linux-ng@vger.kernel.org>);
+        Wed, 12 Apr 2017 05:11:42 -0400
+Received: by mail-wm0-f46.google.com with SMTP id o81so82168431wmb.1
+        for <util-linux-ng@vger.kernel.org>; Wed, 12 Apr 2017 02:11:41 -0700 (PDT)
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+To: util-linux-ng@vger.kernel.org
+Cc: leif.lindholm@linaro.org, agraf@suse.de, kzak@redhat.com,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH] lspcu: use sysfs for table access if available
+Date: Wed, 12 Apr 2017 10:11:29 +0100
+Message-Id: <20170412091129.27283-1-ard.biesheuvel@linaro.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Rudi,
+On ARM systems, accessing SMBIOS tables via /dev/mem using read()
+calls is not supported. The reason is that such tables are usually
+located in EFI_RUNTIME_SERVICE_DATA memory, which is not covered
+by the linear mapping on those systems, and so read() calls will
+fail.
 
-I have a different solution that removes that default function test
-completely. It is part of another fix in my current working branch, so I
-will post it as soon as Karel accepts/rejects my current submission.
+So instead, use the /sys/firmware/dmi/tables/DMI sysfs file, which
+contains the entire structure table array, and will be available
+on any recent Linux system, even on ones that only export the rev3
+SMBIOS entry point, which is currently ignored by lscpu.
 
-On 04/11/2017 03:27 PM, J William Piggott wrote:
-> 
-> 
-> On 04/11/2017 03:07 PM, Ruediger Meier wrote:
->> On Tuesday 11 April 2017, J William Piggott wrote:
->>> On 04/11/2017 04:05 AM, Ruediger Meier wrote:
->>>> From: Ruediger Meier <ruediger.meier@ga-group.nl>
->>>>
->>>> There was one missing ifdef since 336f7c5f.
->>>
->>> They were both in that 'if' test before 336f7c5f:
->>>
->>> -       if (!(show | set | systohc | hctosys | systz | adjust |
->>> getepoch -             | setepoch | predict | compare | get))
->>> -               show = 1;       /* default to show */
->>>
->>> But they were defined for all arches then:
->>>
->>> -       /* Set option defaults */
->>> -       show = set = systohc = hctosys = systz = adjust = noadjfile =
->>> predict = -           compare = get = update = FALSE;
->>> -       getepoch = setepoch = utc = local_opt = directisa = testing =
->>> debug = FALSE;
->>>
->>>
->>> I think the old way was a cleaner solution, so in
->>> sys-utils/hwclock.h:35:
->>>
->>> - #ifdef __linux__
->>>   		getepoch:1,
->>>   		setepoch:1,
->>> - #endif
->>>
->>> Should work? I do not have a way to test it.
->>
->> Yes, I've had also thought about this but was not sure and also too lazy 
->> to check possible side effects. Somehow I think we should either remove 
->> all ifdefs (__linux__, __alpha__, HAVE_LIBAUDIT) from that struct or 
->> none.
-> 
-> I don't expect any side effects from getepoch setepoch, because they
-> were historically initialized on all arches. Alpha has already been
-> removed.  The other two, rtc_dev_name and hwaudit_on, are only used
-> inside of #ifdef so I think they must remain so in the struct as well.
-> 
-> 
-> 
->>
->> cu,
->> Rudi
->> --
->> To unsubscribe from this list: send the line "unsubscribe util-linux" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Note that the max 'num' value is inferred from the size. This is not
+a limitation of the sysfs interface, but a limitation of the rev3
+entry point, which no longer carries a number of array elements.
+
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+---
+ sys-utils/lscpu-dmi.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/sys-utils/lscpu-dmi.c b/sys-utils/lscpu-dmi.c
+index 0e497d10c..a8298ff74 100644
+--- a/sys-utils/lscpu-dmi.c
++++ b/sys-utils/lscpu-dmi.c
+@@ -192,6 +192,18 @@ static int hypervisor_decode_smbios(uint8_t *buf, const char *devmem)
+ 		devmem);
+ }
+ 
++static int hypervisor_decode_sysfw(void)
++{
++	static char const sys_fw_dmi_tables[] = "/sys/firmware/dmi/tables/DMI";
++	struct stat st;
++
++	if (stat(sys_fw_dmi_tables, &st))
++		return -1;
++
++	return hypervisor_from_dmi_table(0, st.st_size, st.st_size / 4,
++					 sys_fw_dmi_tables);
++}
++
+ /*
+  * Probe for EFI interface
+  */
+@@ -242,6 +254,10 @@ int read_hypervisor_dmi(void)
+ 	    || '\0' != 0)
+ 		return rc;
+ 
++	rc = hypervisor_decode_sysfw();
++	if (rc >= 0)
++		return rc;
++
+ 	/* First try EFI (ia64, Intel-based Mac) */
+ 	switch (address_from_efi(&fp)) {
+ 		case EFI_NOT_FOUND:
+-- 
+2.11.0
+
