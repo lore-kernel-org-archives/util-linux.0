@@ -1,43 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:55562 "EHLO mx1.redhat.com"
+Received: from mx2.suse.de ([195.135.220.15]:34005 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1168752AbdDXLGo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 24 Apr 2017 07:06:44 -0400
-Date: Mon, 24 Apr 2017 13:06:34 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 07/10] sulogin: reduce vulnerability surface
-Message-ID: <20170424110634.2djny227jsufz42i@ws.net.home>
-References: <20170423205821.7444-1-kerolasa@iki.fi>
- <20170423205821.7444-8-kerolasa@iki.fi>
+        id S1753285AbdDLJO5 (ORCPT <rfc822;util-linux-ng@vger.kernel.org>);
+        Wed, 12 Apr 2017 05:14:57 -0400
+Subject: Re: [PATCH] lspcu: use sysfs for table access if available
+To: Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        util-linux-ng@vger.kernel.org
+References: <20170412091129.27283-1-ard.biesheuvel@linaro.org>
+Cc: leif.lindholm@linaro.org, kzak@redhat.com
+From: Alexander Graf <agraf@suse.de>
+Message-ID: <ca8730a8-c200-3f93-4997-ae20322265c8@suse.de>
+Date: Wed, 12 Apr 2017 11:14:50 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170423205821.7444-8-kerolasa@iki.fi>
+In-Reply-To: <20170412091129.27283-1-ard.biesheuvel@linaro.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Apr 23, 2017 at 09:58:18PM +0100, Sami Kerola wrote:
-> --- a/login-utils/sulogin.c
-> +++ b/login-utils/sulogin.c
-...
->  static void tcinit(struct console *con)
->  {
-> -	int mode = 0, flags = 0;
-> +	int flags = 0;
->  	struct termios *tio = &con->tio;
-> -	int fd = con->fd;
-> +	const int mode = 0, fd = con->fd;
 
-Is it correct to use const for "mode" if we use it 
 
-    ioctl(fd, KDGKBMODE, &mode)
+On 12.04.17 11:11, Ard Biesheuvel wrote:
+> On ARM systems, accessing SMBIOS tables via /dev/mem using read()
+> calls is not supported. The reason is that such tables are usually
+> located in EFI_RUNTIME_SERVICE_DATA memory, which is not covered
+> by the linear mapping on those systems, and so read() calls will
+> fail.
+>
+> So instead, use the /sys/firmware/dmi/tables/DMI sysfs file, which
+> contains the entire structure table array, and will be available
+> on any recent Linux system, even on ones that only export the rev3
+> SMBIOS entry point, which is currently ignored by lscpu.
+>
+> Note that the max 'num' value is inferred from the size. This is not
+> a limitation of the sysfs interface, but a limitation of the rev3
+> entry point, which no longer carries a number of array elements.
+>
+> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-... I think gcc does not complain because ioclt() is promiscuous
-bastard :-)
+Tested-by: Alexander Graf <agraf@suse.de>
+Reviewed-by: Alexander Graf <agraf@suse.de>
 
-    Karel
+Thanks :)
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+
+Alex
