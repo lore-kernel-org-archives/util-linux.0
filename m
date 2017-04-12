@@ -1,67 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qk0-f194.google.com ([209.85.220.194]:33687 "EHLO
-        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751008AbdDCIkf (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 3 Apr 2017 04:40:35 -0400
-Received: by mail-qk0-f194.google.com with SMTP id p22so18331197qka.0
-        for <util-linux@vger.kernel.org>; Mon, 03 Apr 2017 01:40:35 -0700 (PDT)
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:54251 "EHLO
+        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751921AbdDLJUy (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 12 Apr 2017 05:20:54 -0400
+From: Damien Le Moal <damien.lemoal@wdc.com>
+To: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>,
+        Benno Schulenberg <bensberg@justemail.net>
+Cc: Bart Van Assche <Bart.VanAssche@sandisk.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH] blkzone: Fix zone condition strings handling
+Date: Wed, 12 Apr 2017 18:20:32 +0900
+Message-Id: <20170412092032.7234-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <bb07f30a-74e6-0961-758a-67383ae417bf@gmx.com>
-References: <20170402081436.861-1-kerolasa@iki.fi> <20170402081436.861-3-kerolasa@iki.fi>
- <bb07f30a-74e6-0961-758a-67383ae417bf@gmx.com>
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Mon, 3 Apr 2017 09:40:34 +0100
-Message-ID: <CAG27Bk36WxLCGDtWk+WHrK4eDqsjoQcNdc1sKxhpN4BmAEFmWA@mail.gmail.com>
-Subject: Re: [PATCH 3/3] agetty: make --remote to forward --nohostname as -H
- to login
-To: J William Piggott <elseifthen@gmx.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 3 April 2017 at 02:13, J William Piggott <elseifthen@gmx.com> wrote:
-> On 04/02/2017 04:14 AM, Sami Kerola wrote:
->> Without this change an attempt to remove hostname printing required following
->> rather clumsy agetty invocation.
->>
->>   /sbin/agetty --nohostname --login-options '/bin/login -H -- \u'
->>
->> After the change --nohostname behaves similar way with --host option, that
->> is when combined with --remote the effect is passed to login(1).
->>
->> In same go improve manual page a little bit.  This includes small mistake in
->> commit 01095ae33c that claimed option -r is added to command line when
->> passing hostname login while it should have been -h.
->>
->> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
->> ---
->>  term-utils/agetty.8 | 27 +++++++++++++++++----------
->>  term-utils/agetty.c |  9 ++++++---
->>  2 files changed, 23 insertions(+), 13 deletions(-)
->>
->> diff --git a/term-utils/agetty.8 b/term-utils/agetty.8
->> index 40be8b46c..bdb1a7d35 100644
->> --- a/term-utils/agetty.8
->> +++ b/term-utils/agetty.8
->> @@ -90,18 +90,22 @@ Assume that the tty is 8-bit clean, hence disable parity detection.
->>  .TP
->>  \-a, \-\-autologin \fIusername\fP
->>  Log the specified user automatically in without asking for a login name and
->
-> Hey Sami, since you're here you might want to fix this too?
+Fixed the condition strings for implicit open and explicit open to
+match the man page defined strings ("oi" and "oe"). Also while at it,
+correct the condition_str array entries adding the reserved "xC" case
+so that the read_only, full and offline conditions match the condition
+codes. This increases the array size to 16, so also fix the condition
+code masking when displaying the result.
 
-Hi JWP,
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+---
+ sys-utils/blkzone.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Let me split the change in two:
-
-1. --nohostname option forward + minimal manual change
-2. manual page update
-
-Karel, please hold on with these three changes. I will push changes to
-a some branch in my git and tell when the stuff is fast forwardable.
-
+diff --git a/sys-utils/blkzone.c b/sys-utils/blkzone.c
+index 1457225..7713ff3 100644
+--- a/sys-utils/blkzone.c
++++ b/sys-utils/blkzone.c
+@@ -151,10 +151,10 @@ static const char *type_text[] = {
+ static const char *condition_str[] = {
+ 	"nw", /* Not write pointer */
+ 	"em", /* Empty */
+-	"io", /* Implicitly opened */
+-	"eo", /* Explicitly opened */
++	"oi", /* Implicitly opened */
++	"oe", /* Explicitly opened */
+ 	"cl", /* Closed */
+-	"x5", "x6", "x7", "x8", "x9", "xA", "xB", /* xN: reserved */
++	"x5", "x6", "x7", "x8", "x9", "xA", "xB", "xC", /* xN: reserved */
+ 	"ro", /* Read only */
+ 	"fu", /* Full */
+ 	"of"  /* Offline */
+@@ -220,7 +220,7 @@ static int blkzone_report(struct blkzone_control *ctl)
+ 			 	" reset:%u non-seq:%u, zcond:%2u(%s) [type: %u(%s)]\n"),
+ 				start, len, (type == 0x1) ? 0 : wp - start,
+ 				entry->reset, entry->non_seq,
+-				cond, condition_str[cond & ARRAY_SIZE(condition_str)],
++				cond, condition_str[cond & (ARRAY_SIZE(condition_str) - 1)],
+ 				type, type_text[type]);
+ 
+ 			nr_zones--;
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+2.9.3
+
