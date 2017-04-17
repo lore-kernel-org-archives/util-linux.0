@@ -1,109 +1,136 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f195.google.com ([209.85.128.195]:36484 "EHLO
-        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1046000AbdDWU6i (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 23 Apr 2017 16:58:38 -0400
-Received: by mail-wr0-f195.google.com with SMTP id v42so10010876wrc.3
-        for <util-linux@vger.kernel.org>; Sun, 23 Apr 2017 13:58:37 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50772 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S932354AbdDQIbD (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Mon, 17 Apr 2017 04:31:03 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.20/8.16.0.20) with SMTP id v3H8T6t4070450
+        for <util-linux@vger.kernel.org>; Mon, 17 Apr 2017 04:31:02 -0400
+Received: from e28smtp09.in.ibm.com (e28smtp09.in.ibm.com [125.16.236.9])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 29udufvx2k-1
+        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
+        for <util-linux@vger.kernel.org>; Mon, 17 Apr 2017 04:31:02 -0400
+Received: from localhost
+        by e28smtp09.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <util-linux@vger.kernel.org> from <mamatha4@linux.vnet.ibm.com>;
+        Mon, 17 Apr 2017 14:00:55 +0530
+Received: from d28av02.in.ibm.com (d28av02.in.ibm.com [9.184.220.64])
+        by d28relay08.in.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id v3H8TU7w10944572
+        for <util-linux@vger.kernel.org>; Mon, 17 Apr 2017 13:59:31 +0530
+Received: from d28av02.in.ibm.com (localhost [127.0.0.1])
+        by d28av02.in.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id v3H8UsIV025268
+        for <util-linux@vger.kernel.org>; Mon, 17 Apr 2017 14:00:54 +0530
+Received: from localhost.localdomain ([9.124.158.109])
+        by d28av02.in.ibm.com (8.14.4/8.14.4/NCO v10.0 AVin) with ESMTP id v3H8UrlN025246
+        for <util-linux@vger.kernel.org>; Mon, 17 Apr 2017 14:00:53 +0530
+Subject: [PATCH]lscpu: Read available CPUs max and min frequencies 
+From: Mamatha Inamdar <mamatha4@linux.vnet.ibm.com>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 00/10] pull: various change, some options related
-Date: Sun, 23 Apr 2017 21:58:11 +0100
-Message-Id: <20170423205821.7444-1-kerolasa@iki.fi>
+Date: Mon, 17 Apr 2017 14:00:48 +0530
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <149241772437.12614.9759492302686190446.stgit@localhost.localdomain>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+Problem: On power syatems "lscpu frequency-info" command was always 
+reading CPU0 max and min frequencies. If CPU0 is guarded or offline 
+then it used to display max and min frequencies as NULL.
 
-Sometime ago bash completions got updates.  In this pull request lspci,
-blkid, and partx changes were directly inspired by the earlier changes.  For
-example I were pretty upset to notice partx had years solaris_x86 in --type
-argument hints, so I am proposing to derive valid strings from libblkid with
-full understanding this is probably over engineering.
+Solution: This patch will check for the available/online CPUs
+and read the max/min frequencies of that CPU
 
-While working with options updates and doing some raw(8) reseach I started
-to think we really should slap note to manual page these devices are no
-longer recommended.  There was discussion about 10 years ago about attempt
-to get rid of /dev/raw but that did not work out.
+Test Results:
 
-su(1) and logger(1) changes were something that -Wignored-qualifiers flagged
-when I tried my experimental 'try enabling all warnings' build.  Will these
-changes make practical difference is a good question.  The ternary operators
-change is very similar.
+Before Patch:
 
-After adding getops_long to findfs(8) there are not many commands left
-without libc options parsing that are blockdev(8), fsck(8), kill(1),
-more(1), pg(1), renice(1), switch_root(8), vipw(8), and whereis(1).  Some in
-the list are ok as is (blockdev), other are or should be deprecated (pg,
-whereis), and some do are quite difficult to make work with standard getopts
-(kill, renice).  Maybe the few commands that could be aligned should receive
-that treatment.
+#lscpu (CPU0 is guarded/offline)
+Architecture:          ppc64le
+Byte Order:            Little Endian
+CPU(s):                120
+On-line CPU(s) list:   8-127
+Thread(s) per core:    8
+Core(s) per socket:    3
+Socket(s):             4
+NUMA node(s):          4
+Model:                 2.1 (pvr 004b 0201)
+Model name:            POWER8E (raw), altivec supported
+CPU max MHz:           (null)
+CPU min MHz:           (null)
+L1d cache:             64K
+L1i cache:             32K
+L2 cache:              512K
+L3 cache:              8192K
+NUMA node0 CPU(s):     8-31
+NUMA node1 CPU(s):     32-63
+NUMA node16 CPU(s):    64-95
+NUMA node17 CPU(s):    96-127
 
-The chfn and chsh is about usability provided by readline().  I did not add
-#ifdev HAVE_LIBREADLINE and make none libreadline compilation to work
-because it looks like sfdisk is doing the same.  Let me know if fallback
-should be made to work.
+With Patch:
 
-----------------------------------------------------------------
-The following changes since commit be685b98c03b43c34d0f6e0447361f7d2dcdae9a:
-  lsblk: don't duplicate columns (2017-04-19 14:28:16 +0200)
-are available in the git repository at:
-  git://github.com/kerolasa/lelux-utiliteetit.git 2017wk16
-for you to fetch changes up to 5d24971f0c5ada2e1a69d37e69c97c70aee03657:
-  chfn, chsh: use readline(3) to receive user input (2017-04-23 18:52:58 +0100)
-----------------------------------------------------------------
+# ./lscpu
+Architecture:          ppc64le
+Byte Order:            Little Endian
+CPU(s):                120
+On-line CPU(s) list:   8-127
+Thread(s) per core:    8
+Core(s) per socket:    3
+Socket(s):             4
+NUMA node(s):          4
+Model:                 2.1 (pvr 004b 0201)
+Model name:            POWER8E (raw), altivec supported
+CPU max MHz:           4322.0000
+CPU min MHz:           2061.0000
+L1d cache:             64K
+L1i cache:             32K
+L2 cache:              512K
+L3 cache:              8192K
+NUMA node0 CPU(s):     8-31
+NUMA node1 CPU(s):     32-63
+NUMA node16 CPU(s):    64-95
+NUMA node17 CPU(s):    96-127
 
-Sami Kerola (10):
-  lsipc: fix options parsing and sync with man page
-  blkid: add long options
-  docs: raw devices are deprecated
-  libblkid: add blkid_return_known_pttypes()
-  partx: add --list-types option
-  misc: clarify ternary operators with parentheses
-  sulogin: reduce vulnerability surface
-  logger: make month names, login name, and tag read-only objects
-  findfs: use getopt_long() to parse options
-  chfn, chsh: use readline(3) to receive user input
+Signed-off-by: Mamatha Inamdar <mamatha4@linux.vnet.ibm.com>
+---
+ sys-utils/lscpu.c |   18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
- bash-completion/blkid                |  70 ++++++++++++++-----
- bash-completion/partx                |   4 +-
- disk-utils/blockdev.c                |   2 +-
- disk-utils/partx.8                   |  18 ++---
- disk-utils/partx.c                   |  22 +++++-
- disk-utils/raw.8                     |   7 ++
- lib/loopdev.c                        |   4 +-
- lib/strutils.c                       |  30 ++++-----
- libblkid/docs/libblkid-sections.txt  |   1 +
- libblkid/src/blkid.h.in              |   1 +
- libblkid/src/libblkid.sym            |   1 +
- libblkid/src/partitions/partitions.c |  24 +++++++
- libfdisk/src/bsd.c                   |  10 +--
- libfdisk/src/label.c                 |   2 +-
- libfdisk/src/sun.c                   |   4 +-
- libmount/src/context.c               |  38 +++++------
- libmount/src/context_mount.c         |   2 +-
- libsmartcols/src/column.c            |  14 ++--
- libsmartcols/src/table_print.c       |   6 +-
- login-utils/Makemodule.am            |   2 +-
- login-utils/chfn.c                   |  22 +++---
- login-utils/chsh.c                   |   8 +--
- login-utils/su-common.c              |  53 ++++++++-------
- login-utils/sulogin-consoles.c       |  20 +++---
- login-utils/sulogin.c                |  39 +++++------
- misc-utils/blkid.8                   | 127 +++++++++++++++++------------------
- misc-utils/blkid.c                   |  83 ++++++++++++++---------
- misc-utils/findfs.c                  |  26 ++++---
- misc-utils/findmnt.c                 |   2 +-
- misc-utils/logger.c                  |  12 ++--
- misc-utils/whereis.c                 |   6 +-
- sys-utils/ipcs.c                     |   4 +-
- sys-utils/lsipc.1                    |   7 +-
- sys-utils/lsipc.c                    |   3 +-
- sys-utils/wdctl.c                    |   8 +--
- term-utils/script.c                  |  12 ++--
- 36 files changed, 399 insertions(+), 295 deletions(-)
-
--- 
-2.12.2
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index 683fd66..7f92b20 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -1775,7 +1775,7 @@ static void
+ print_summary(struct lscpu_desc *desc, struct lscpu_modifier *mod)
+ {
+ 	char buf[512];
+-	int i;
++	int i = 0;
+ 	size_t setsize = CPU_ALLOC_SIZE(maxcpus);
+ 
+ 	print_s(_("Architecture:"), desc->arch);
+@@ -1898,9 +1898,21 @@ print_summary(struct lscpu_desc *desc, struct lscpu_modifier *mod)
+ 	if (desc->static_mhz)
+ 		print_s(_("CPU static MHz:"), desc->static_mhz);
+ 	if (desc->maxmhz)
+-		print_s(_("CPU max MHz:"), desc->maxmhz[0]);
++		for (i = 0; i < desc->ncpuspos; i++) {
++			/*Check for the first online CPU */
++			if (desc->present &&
++				CPU_ISSET(real_cpu_num(desc, i), desc->present))
++				break;
++			}
++	print_s(_("CPU max MHz:"), desc->maxmhz[i]);
+ 	if (desc->minmhz)
+-		print_s(_("CPU min MHz:"), desc->minmhz[0]);
++		for (i = 0; i < desc->ncpuspos; i++) {
++		/*Check for the first online CPU */
++			if (desc->present &&
++				CPU_ISSET(real_cpu_num(desc, i), desc->present))
++				break;
++		}
++	print_s(_("CPU min MHz:"), desc->minmhz[i]);
+ 	if (desc->bogomips)
+ 		print_s(_("BogoMIPS:"), desc->bogomips);
+ 	if (desc->virtflag) {
 
