@@ -1,74 +1,137 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:60082 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752580AbdDKT13 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 11 Apr 2017 15:27:29 -0400
-Subject: Re: [PATCH] hwclock: fix non-linux build
-To: Ruediger Meier <sweet_f_a@gmx.de>
-References: <1491897955-22436-1-git-send-email-sweet_f_a@gmx.de>
- <64fc96d4-3e5f-ee6d-2ab9-bc90c8f8c5e9@gmx.com>
- <201704112107.59250.sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <9dc22019-6710-1195-86c6-a1b5b3579e34@gmx.com>
-Date: Tue, 11 Apr 2017 15:27:15 -0400
+Received: from esa5.hgst.iphmx.com ([216.71.153.144]:8141 "EHLO
+        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755523AbdDRK70 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 18 Apr 2017 06:59:26 -0400
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+To: "kzak@redhat.com" <kzak@redhat.com>
+CC: Bart Van Assche <Bart.VanAssche@sandisk.com>,
+        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
+        "bensberg@justemail.net" <bensberg@justemail.net>
+Subject: Re: [PATCH] blkzone: Fix zone condition strings handling
+Date: Tue, 18 Apr 2017 10:59:20 +0000
+Message-ID: <1492513158.3540.2.camel@wdc.com>
+References: <20170412092032.7234-1-damien.lemoal@wdc.com>
+         <20170418093440.4d6haj4iqfguonwd@ws.net.home>
+In-Reply-To: <20170418093440.4d6haj4iqfguonwd@ws.net.home>
+Content-Type: multipart/mixed; boundary="_002_149251315835402camelwdccom_"
 MIME-Version: 1.0
-In-Reply-To: <201704112107.59250.sweet_f_a@gmx.de>
-Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+--_002_149251315835402camelwdccom_
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <FF71C621D0532A4295392C02B55F9E2D@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
 
+T24gVHVlLCAyMDE3LTA0LTE4IGF0IDExOjM0ICswMjAwLCBLYXJlbCBaYWsgd3JvdGU6DQo+IE9u
+IFdlZCwgQXByIDEyLCAyMDE3IGF0IDA2OjIwOjMyUE0gKzA5MDAsIERhbWllbiBMZSBNb2FsIHdy
+b3RlOg0KPiA+IEZpeGVkIHRoZSBjb25kaXRpb24gc3RyaW5ncyBmb3IgaW1wbGljaXQgb3BlbiBh
+bmQgZXhwbGljaXQgb3BlbiB0bw0KPiA+IG1hdGNoIHRoZSBtYW4gcGFnZSBkZWZpbmVkIHN0cmlu
+Z3MgKCJvaSIgYW5kICJvZSIpLiBBbHNvIHdoaWxlIGF0IGl0LA0KPiA+IGNvcnJlY3QgdGhlIGNv
+bmRpdGlvbl9zdHIgYXJyYXkgZW50cmllcyBhZGRpbmcgdGhlIHJlc2VydmVkICJ4QyIgY2FzZQ0K
+PiA+IHNvIHRoYXQgdGhlIHJlYWRfb25seSwgZnVsbCBhbmQgb2ZmbGluZSBjb25kaXRpb25zIG1h
+dGNoIHRoZSBjb25kaXRpb24NCj4gPiBjb2Rlcy4gVGhpcyBpbmNyZWFzZXMgdGhlIGFycmF5IHNp
+emUgdG8gMTYsIHNvIGFsc28gZml4IHRoZSBjb25kaXRpb24NCj4gPiBjb2RlIG1hc2tpbmcgd2hl
+biBkaXNwbGF5aW5nIHRoZSByZXN1bHQuDQo+ID4gDQo+ID4gU2lnbmVkLW9mZi1ieTogRGFtaWVu
+IExlIE1vYWwgPGRhbWllbi5sZW1vYWxAd2RjLmNvbT4NCj4gPiAtLS0NCj4gPiDCoHN5cy11dGls
+cy9ibGt6b25lLmMgfCA4ICsrKystLS0tDQo+ID4gwqAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRp
+b25zKCspLCA0IGRlbGV0aW9ucygtKQ0KPiANCj4gQXBwbGllZCwgdGhhbmtzLg0KPiANCj4gRGFt
+aWVuLCB3aGF0IGFib3V0IHRvIGFkZCBaT05FRCBjb2x1bW4gdG8gdGhlIGxzYmxrKDgpIGNvbW1h
+bmQgKGFsc28NCj4gZnJvbSB1dGlsLWxpbnV4KT/CoA0KPiANCj4gSXQgd291bGQgYmUgbmljZSB0
+byBoYXZlIHpvbmUgbW9kZWwgdGhlcmUuIEFsbCBsc2JsayBpcyBiYXNlZCBvbiAvc3lzLA0KPiBz
+byBhZGQgdGhlIHN0cmluZyBmcm9tIC9zeXMvYmxvY2svPGRpc2s+L3F1ZXVlL3pvbmVkIHNob3Vs
+ZCBiZSBlYXN5DQo+IChqdXN0IGFkZCBDT0xfWk9ORUQgd2l0aCBzeXNmc19zdHJkdXAoKSB0byBz
+ZXRfc2NvbHNfZGF0YSgpKS4NCj4gDQo+IMKgbHNibGsgLW8rWk9ORUQNCj4gDQo+IHdpbGwgZG8g
+YWxsIHRoZSBtYWdpYyBmb3IgZW5kIHVzZXJzLiBDYW4geW91IHRyeSBpdD8gSSBoYXZlIG5vIHdh
+eSB0bw0KPiB0ZXN0IGl0Lg0KDQpWZXJ5IGdvb2QgaWRlYS4gUGF0Y2ggYXR0YWNoZWQuDQooU29y
+cnkgZm9yIG5vdCBiZWluZyBhYmxlIHRvIHNlbmQgdGhhdCB0aGUgdXN1YWwgd2F5LiBJIGFtIGhh
+dmluZyBwcm9ibGVtIHdpdGgNCm9mZmljZTM2NSBhY2NvdW50IGFuZCBnaXQgc2VuZC1lbWFpbCkN
+Cg0KQmVzdCByZWdhcmRzLg0KDQotLSANCkRhbWllbiBMZSBNb2FsDQpXZXN0ZXJuIERpZ2l0YWw=
 
-On 04/11/2017 03:07 PM, Ruediger Meier wrote:
-> On Tuesday 11 April 2017, J William Piggott wrote:
->> On 04/11/2017 04:05 AM, Ruediger Meier wrote:
->>> From: Ruediger Meier <ruediger.meier@ga-group.nl>
->>>
->>> There was one missing ifdef since 336f7c5f.
->>
->> They were both in that 'if' test before 336f7c5f:
->>
->> -       if (!(show | set | systohc | hctosys | systz | adjust |
->> getepoch -             | setepoch | predict | compare | get))
->> -               show = 1;       /* default to show */
->>
->> But they were defined for all arches then:
->>
->> -       /* Set option defaults */
->> -       show = set = systohc = hctosys = systz = adjust = noadjfile =
->> predict = -           compare = get = update = FALSE;
->> -       getepoch = setepoch = utc = local_opt = directisa = testing =
->> debug = FALSE;
->>
->>
->> I think the old way was a cleaner solution, so in
->> sys-utils/hwclock.h:35:
->>
->> - #ifdef __linux__
->>   		getepoch:1,
->>   		setepoch:1,
->> - #endif
->>
->> Should work? I do not have a way to test it.
-> 
-> Yes, I've had also thought about this but was not sure and also too lazy 
-> to check possible side effects. Somehow I think we should either remove 
-> all ifdefs (__linux__, __alpha__, HAVE_LIBAUDIT) from that struct or 
-> none.
+--_002_149251315835402camelwdccom_
+Content-Type: text/x-patch; name="0001-lsblk-add-ZONED-column.patch"
+Content-Description: 0001-lsblk-add-ZONED-column.patch
+Content-Disposition: attachment; filename="0001-lsblk-add-ZONED-column.patch";
+	size=4239; creation-date="Tue, 18 Apr 2017 10:59:20 GMT";
+	modification-date="Tue, 18 Apr 2017 10:59:20 GMT"
+Content-ID: <135755B941529E4B9EAC8192B2079923@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
 
-I don't expect any side effects from getepoch setepoch, because they
-were historically initialized on all arches. Alpha has already been
-removed.  The other two, rtc_dev_name and hwaudit_on, are only used
-inside of #ifdef so I think they must remain so in the struct as well.
+RnJvbSBiMzc2ODM0MmUwZmZkMThkODQzNjUwMTI1YmUyOTExN2MyODBjNzI0IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBEYW1pZW4gTGUgTW9hbCA8ZGFtaWVuLmxlbW9hbEB3ZGMuY29t
+PgpEYXRlOiBUdWUsIDE4IEFwciAyMDE3IDE5OjM3OjU4ICswOTAwClN1YmplY3Q6IFtQQVRDSCAx
+LzFdIGxzYmxrOiBhZGQgWk9ORUQgY29sdW1uCk1JTUUtVmVyc2lvbjogMS4wCkNvbnRlbnQtVHlw
+ZTogdGV4dC9wbGFpbjsgY2hhcnNldD1VVEYtOApDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiA4
+Yml0CgpBZGQgdGhlIGNvbHVtbiAiWk9ORUQiIHRvIHRoZSBvdXRwdXQgdG8gZGlzcGxheSBhIGJs
+b2NrIGRldmljZSB6b25lCm1vZGVsLgoKRXhhbXBsZSBvdXRwdXQ6Cgo+IGxzYmxrIC1vK1pPTkVE
+Ck5BTUUgICBNQUo6TUlOIFJNICAgU0laRSBSTyBUWVBFIE1PVU5UUE9JTlQgWk9ORUQKc2RhICAg
+ICAgODowICAgIDAgMTExLjhHICAwIGRpc2sgICAgICAgICAgICBub25lCuKUnOKUgHNkYTEgICA4
+OjEgICAgMCAgIDUwME0gIDAgcGFydCAvYm9vdCAgICAgIG5vbmUK4pSc4pSAc2RhMiAgIDg6MiAg
+ICAwICA4Ny4zRyAgMCBwYXJ0IC8gICAgICAgICAgbm9uZQrilJTilIBzZGEzICAgODozICAgIDAg
+ICAgMjRHICAwIHBhcnQgW1NXQVBdICAgICBub25lCnNkYiAgICAgIDg6MTYgICAwICAxMi44VCAg
+MCBkaXNrICAgICAgICAgICAgaG9zdC1tYW5hZ2VkCnNkYyAgICAgIDg6MzIgICAwICAgNS41VCAg
+MCBkaXNrICAgICAgICAgICAgaG9zdC1tYW5hZ2VkCgpvcjoKCj4gbHNibGsgLS16b25lCk5BTUUg
+ICBaT05FRApzZGEgICAgbm9uZQrilJzilIBzZGExIG5vbmUK4pSc4pSAc2RhMiBub25lCuKUlOKU
+gHNkYTMgbm9uZQpzZGIgICAgaG9zdC1tYW5hZ2VkCnNkYyAgICBob3N0LW1hbmFnZWQKClNpZ25l
+ZC1vZmYtYnk6IERhbWllbiBMZSBNb2FsIDxkYW1pZW4ubGVtb2FsQHdkYy5jb20+Ci0tLQogbWlz
+Yy11dGlscy9sc2Jsay44IHwgIDMgKysrCiBtaXNjLXV0aWxzL2xzYmxrLmMgfCAxNSArKysrKysr
+KysrKysrLS0KIDIgZmlsZXMgY2hhbmdlZCwgMTYgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMo
+LSkKCmRpZmYgLS1naXQgYS9taXNjLXV0aWxzL2xzYmxrLjggYi9taXNjLXV0aWxzL2xzYmxrLjgK
+aW5kZXggZWUxZDg3My4uZDlmYzFjMCAxMDA2NDQKLS0tIGEvbWlzYy11dGlscy9sc2Jsay44Cisr
+KyBiL21pc2MtdXRpbHMvbHNibGsuOApAQCAtNDksNiArNDksOSBAQCBQcmludCB0aGUgU0laRSBj
+b2x1bW4gaW4gYnl0ZXMgcmF0aGVyIHRoYW4gaW4gYSBodW1hbi1yZWFkYWJsZSBmb3JtYXQuCiAu
+QlIgXC1EICwgIiBcLVwtZGlzY2FyZCIKIFByaW50IGluZm9ybWF0aW9uIGFib3V0IHRoZSBkaXNj
+YXJkaW5nIGNhcGFiaWxpdGllcyAoVFJJTSwgVU5NQVApIGZvciBlYWNoIGRldmljZS4KIC5UUAor
+LkJSIFwteiAsICIgXC1cLXpvbmVkIgorUHJpbnQgdGhlIHpvbmUgbW9kZWwgZm9yIGVhY2ggZGV2
+aWNlLgorLlRQCiAuQlIgXC1kICwgIiBcLVwtbm9kZXBzIgogRG8gbm90IHByaW50IGhvbGRlciBk
+ZXZpY2VzIG9yIHNsYXZlcy4gIEZvciBleGFtcGxlLCBcZkJsc2JsayAtLW5vZGVwcyAvZGV2L3Nk
+YVxmUiBwcmludHMKIGluZm9ybWF0aW9uIGFib3V0IHRoZSBzZGEgZGV2aWNlIG9ubHkuCmRpZmYg
+LS1naXQgYS9taXNjLXV0aWxzL2xzYmxrLmMgYi9taXNjLXV0aWxzL2xzYmxrLmMKaW5kZXggNDc0
+MmE0ZC4uMjNiZmM0NiAxMDA2NDQKLS0tIGEvbWlzYy11dGlscy9sc2Jsay5jCisrKyBiL21pc2Mt
+dXRpbHMvbHNibGsuYwpAQCAtMTI0LDcgKzEyNCw4IEBAIGVudW0gewogCUNPTF9UUkFOU1BPUlQs
+CiAJQ09MX1NVQlNZUywKIAlDT0xfUkVWLAotCUNPTF9WRU5ET1IKKwlDT0xfVkVORE9SLAorCUNP
+TF9aT05FRCwKIH07CiAKIC8qIGJhc2ljIHRhYmxlIHNldHRpbmdzICovCkBAIC0yMDAsNiArMjAx
+LDcgQEAgc3RhdGljIHN0cnVjdCBjb2xpbmZvIGluZm9zW10gPSB7CiAJW0NPTF9TVUJTWVNdID0g
+eyAiU1VCU1lTVEVNUyIsIDAuMSwgU0NPTFNfRkxfTk9FWFRSRU1FUywgTl8oImRlLWR1cGxpY2F0
+ZWQgY2hhaW4gb2Ygc3Vic3lzdGVtcyIpIH0sCiAJW0NPTF9SRVZdICAgID0geyAiUkVWIiwgICA0
+LCBTQ09MU19GTF9SSUdIVCwgTl8oImRldmljZSByZXZpc2lvbiIpIH0sCiAJW0NPTF9WRU5ET1Jd
+ID0geyAiVkVORE9SIiwgMC4xLCBTQ09MU19GTF9UUlVOQywgTl8oImRldmljZSB2ZW5kb3IiKSB9
+LAorCVtDT0xfWk9ORURdICA9IHsgIlpPTkVEIiwgMC4zLCAwLCBOXygiem9uZSBtb2RlbCIpIH0s
+CiB9OwogCiBzdHJ1Y3QgbHNibGsgewpAQCAtMTE0OCw2ICsxMTUwLDkgQEAgc3RhdGljIHZvaWQg
+c2V0X3Njb2xzX2RhdGEoc3RydWN0IGJsa2Rldl9jeHQgKmN4dCwgaW50IGNvbCwgaW50IGlkLCBz
+dHJ1Y3QgbGlic2MKIAkJaWYgKCFzdHIpCiAJCQlzdHIgPSB4c3RyZHVwKCIwIik7CiAJCWJyZWFr
+OworCWNhc2UgQ09MX1pPTkVEOgorCQlzdHIgPSBzeXNmc19zdHJkdXAoJmN4dC0+c3lzZnMsICJx
+dWV1ZS96b25lZCIpOworCQlicmVhazsKIAl9OwogCiAJaWYgKHN0cikKQEAgLTE2MjYsNiArMTYz
+MSw3IEBAIHN0YXRpYyB2b2lkIF9fYXR0cmlidXRlX18oKF9fbm9yZXR1cm5fXykpIGhlbHAoRklM
+RSAqb3V0KQogCWZwdXRzKF8oIiAtYiwgLS1ieXRlcyAgICAgICAgICBwcmludCBTSVpFIGluIGJ5
+dGVzIHJhdGhlciB0aGFuIGluIGh1bWFuIHJlYWRhYmxlIGZvcm1hdFxuIiksIG91dCk7CiAJZnB1
+dHMoXygiIC1kLCAtLW5vZGVwcyAgICAgICAgIGRvbid0IHByaW50IHNsYXZlcyBvciBob2xkZXJz
+XG4iKSwgb3V0KTsKIAlmcHV0cyhfKCIgLUQsIC0tZGlzY2FyZCAgICAgICAgcHJpbnQgZGlzY2Fy
+ZCBjYXBhYmlsaXRpZXNcbiIpLCBvdXQpOworCWZwdXRzKF8oIiAteiwgLS16b25lICAgICAgICAg
+ICBwcmludCB6b25lIG1vZGVsXG4iKSwgb3V0KTsKIAlmcHV0cyhfKCIgLWUsIC0tZXhjbHVkZSA8
+bGlzdD4gZXhjbHVkZSBkZXZpY2VzIGJ5IG1ham9yIG51bWJlciAoZGVmYXVsdDogUkFNIGRpc2tz
+KVxuIiksIG91dCk7CiAJZnB1dHMoXygiIC1mLCAtLWZzICAgICAgICAgICAgIG91dHB1dCBpbmZv
+IGFib3V0IGZpbGVzeXN0ZW1zXG4iKSwgb3V0KTsKIAlmcHV0cyhfKCIgLWksIC0tYXNjaWkgICAg
+ICAgICAgdXNlIGFzY2lpIGNoYXJhY3RlcnMgb25seVxuIiksIG91dCk7CkBAIC0xNjc2LDYgKzE2
+ODIsNyBAQCBpbnQgbWFpbihpbnQgYXJnYywgY2hhciAqYXJndltdKQogCQl7ICJieXRlcyIsICAg
+ICAgbm9fYXJndW1lbnQsICAgICAgIE5VTEwsICdiJyB9LAogCQl7ICJub2RlcHMiLCAgICAgbm9f
+YXJndW1lbnQsICAgICAgIE5VTEwsICdkJyB9LAogCQl7ICJkaXNjYXJkIiwgICAgbm9fYXJndW1l
+bnQsICAgICAgIE5VTEwsICdEJyB9LAorCQl7ICJ6b25lZCIsICAgICAgbm9fYXJndW1lbnQsICAg
+ICAgIE5VTEwsICd6JyB9LAogCQl7ICJoZWxwIiwJbm9fYXJndW1lbnQsICAgICAgIE5VTEwsICdo
+JyB9LAogCQl7ICJqc29uIiwgICAgICAgbm9fYXJndW1lbnQsICAgICAgIE5VTEwsICdKJyB9LAog
+CQl7ICJvdXRwdXQiLCAgICAgcmVxdWlyZWRfYXJndW1lbnQsIE5VTEwsICdvJyB9LApAQCAtMTcy
+MSw3ICsxNzI4LDcgQEAgaW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKmFyZ3ZbXSkKIAlsc2Jsa19p
+bml0X2RlYnVnKCk7CiAKIAl3aGlsZSgoYyA9IGdldG9wdF9sb25nKGFyZ2MsIGFyZ3YsCi0JCQkg
+ICAgICAgImFiZERlOmZoSmxubW86T3BQaUk6cnN0VlN4OiIsIGxvbmdvcHRzLCBOVUxMKSkgIT0g
+LTEpIHsKKwkJCSAgICAgICAiYWJkRHplOmZoSmxubW86T3BQaUk6cnN0VlN4OiIsIGxvbmdvcHRz
+LCBOVUxMKSkgIT0gLTEpIHsKIAogCQllcnJfZXhjbHVzaXZlX29wdGlvbnMoYywgbG9uZ29wdHMs
+IGV4Y2wsIGV4Y2xfc3QpOwogCkBAIC0xNzQyLDYgKzE3NDksMTAgQEAgaW50IG1haW4oaW50IGFy
+Z2MsIGNoYXIgKmFyZ3ZbXSkKIAkJCWFkZF9jb2x1bW4oY29sdW1ucywgbmNvbHVtbnMrKywgQ09M
+X0RNQVgpOwogCQkJYWRkX2NvbHVtbihjb2x1bW5zLCBuY29sdW1ucysrLCBDT0xfRFpFUk8pOwog
+CQkJYnJlYWs7CisJCWNhc2UgJ3onOgorCQkJYWRkX2NvbHVtbihjb2x1bW5zLCBuY29sdW1ucysr
+LCBDT0xfTkFNRSk7CisJCQlhZGRfY29sdW1uKGNvbHVtbnMsIG5jb2x1bW5zKyssIENPTF9aT05F
+RCk7CisJCQlicmVhazsKIAkJY2FzZSAnZSc6CiAJCQlwYXJzZV9leGNsdWRlcyhvcHRhcmcpOwog
+CQkJYnJlYWs7Ci0tIAoyLjkuMwoK
 
-
-
-> 
-> cu,
-> Rudi
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+--_002_149251315835402camelwdccom_--
