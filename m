@@ -1,75 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f46.google.com ([74.125.82.46]:36378 "EHLO
-        mail-wm0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751876AbdDLJLm (ORCPT
-        <rfc822;util-linux-ng@vger.kernel.org>);
-        Wed, 12 Apr 2017 05:11:42 -0400
-Received: by mail-wm0-f46.google.com with SMTP id o81so82168431wmb.1
-        for <util-linux-ng@vger.kernel.org>; Wed, 12 Apr 2017 02:11:41 -0700 (PDT)
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-To: util-linux-ng@vger.kernel.org
-Cc: leif.lindholm@linaro.org, agraf@suse.de, kzak@redhat.com,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH] lspcu: use sysfs for table access if available
-Date: Wed, 12 Apr 2017 10:11:29 +0100
-Message-Id: <20170412091129.27283-1-ard.biesheuvel@linaro.org>
+Received: from mail-db5eur01on0109.outbound.protection.outlook.com ([104.47.2.109]:58688
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1753372AbdDRQAG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 18 Apr 2017 12:00:06 -0400
+From: Pavel Butsykin <pbutsykin@virtuozzo.com>
+To: <util-linux@vger.kernel.org>
+CC: <kzak@redhat.com>, <pbutsykin@virtuozzo.com>
+Subject: [PATCH 1/1] libfdisk: allow to change an existing extended partition
+Date: Tue, 18 Apr 2017 18:59:18 +0300
+Message-ID: <20170418155918.32550-2-pbutsykin@virtuozzo.com>
+In-Reply-To: <20170418155918.32550-1-pbutsykin@virtuozzo.com>
+References: <20170418155918.32550-1-pbutsykin@virtuozzo.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On ARM systems, accessing SMBIOS tables via /dev/mem using read()
-calls is not supported. The reason is that such tables are usually
-located in EFI_RUNTIME_SERVICE_DATA memory, which is not covered
-by the linear mapping on those systems, and so read() calls will
-fail.
-
-So instead, use the /sys/firmware/dmi/tables/DMI sysfs file, which
-contains the entire structure table array, and will be available
-on any recent Linux system, even on ones that only export the rev3
-SMBIOS entry point, which is currently ignored by lscpu.
-
-Note that the max 'num' value is inferred from the size. This is not
-a limitation of the sysfs interface, but a limitation of the rev3
-entry point, which no longer carries a number of array elements.
-
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Pavel Butsykin <pbutsykin@virtuozzo.com>
 ---
- sys-utils/lscpu-dmi.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ libfdisk/src/dos.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sys-utils/lscpu-dmi.c b/sys-utils/lscpu-dmi.c
-index 0e497d10c..a8298ff74 100644
---- a/sys-utils/lscpu-dmi.c
-+++ b/sys-utils/lscpu-dmi.c
-@@ -192,6 +192,18 @@ static int hypervisor_decode_smbios(uint8_t *buf, const char *devmem)
- 		devmem);
- }
+diff --git a/libfdisk/src/dos.c b/libfdisk/src/dos.c
+index 39e42e3e6..8f54f7369 100644
+--- a/libfdisk/src/dos.c
++++ b/libfdisk/src/dos.c
+@@ -2025,7 +2025,7 @@ static int dos_set_partition(struct fdisk_context *cxt, size_t n,
+ 	orgtype = p->sys_ind;
  
-+static int hypervisor_decode_sysfw(void)
-+{
-+	static char const sys_fw_dmi_tables[] = "/sys/firmware/dmi/tables/DMI";
-+	struct stat st;
-+
-+	if (stat(sys_fw_dmi_tables, &st))
-+		return -1;
-+
-+	return hypervisor_from_dmi_table(0, st.st_size, st.st_size / 4,
-+					 sys_fw_dmi_tables);
-+}
-+
- /*
-  * Probe for EFI interface
-  */
-@@ -242,6 +254,10 @@ int read_hypervisor_dmi(void)
- 	    || '\0' != 0)
- 		return rc;
- 
-+	rc = hypervisor_decode_sysfw();
-+	if (rc >= 0)
-+		return rc;
-+
- 	/* First try EFI (ia64, Intel-based Mac) */
- 	switch (address_from_efi(&fp)) {
- 		case EFI_NOT_FOUND:
+ 	if (pa->type) {
+-		if (IS_EXTENDED(pa->type->code) && l->ext_offset) {
++		if (IS_EXTENDED(pa->type->code) && l->ext_offset && l->ext_index != n) {
+ 			fdisk_warnx(cxt, _("Extended partition already exists."));
+ 			return -EINVAL;
+ 		}
 -- 
 2.11.0
 
