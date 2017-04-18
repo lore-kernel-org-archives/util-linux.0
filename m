@@ -1,60 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55501 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752305AbdDQJ4O (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Mon, 17 Apr 2017 05:56:14 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.20/8.16.0.20) with SMTP id v3H9s5FK085941
-        for <util-linux@vger.kernel.org>; Mon, 17 Apr 2017 05:56:13 -0400
-Received: from e28smtp01.in.ibm.com (e28smtp01.in.ibm.com [125.16.236.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 29ug1c3wjs-1
-        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
-        for <util-linux@vger.kernel.org>; Mon, 17 Apr 2017 05:56:13 -0400
-Received: from localhost
-        by e28smtp01.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <util-linux@vger.kernel.org> from <mamatha4@linux.vnet.ibm.com>;
-        Mon, 17 Apr 2017 15:26:10 +0530
-Received: from d28av08.in.ibm.com (d28av08.in.ibm.com [9.184.220.148])
-        by d28relay09.in.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id v3H9u7Yq20774936
-        for <util-linux@vger.kernel.org>; Mon, 17 Apr 2017 15:26:07 +0530
-Received: from d28av08.in.ibm.com (localhost [127.0.0.1])
-        by d28av08.in.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id v3H9u6dR012358
-        for <util-linux@vger.kernel.org>; Mon, 17 Apr 2017 15:26:06 +0530
-Subject: Re: [PATCH]lscpu: Read available CPUs max and min frequencies
-To: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>,
-        util-linux@vger.kernel.org
-References: <149241772437.12614.9759492302686190446.stgit@localhost.localdomain>
- <de6f8c47-b5ff-a1a6-da61-9776bb0cc6a3@gmx.de>
-From: Mamatha Inamdar <mamatha4@linux.vnet.ibm.com>
-Date: Mon, 17 Apr 2017 15:26:06 +0530
+Received: from mail-db5eur01on0109.outbound.protection.outlook.com ([104.47.2.109]:58688
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S932413AbdDRQAD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 18 Apr 2017 12:00:03 -0400
+From: Pavel Butsykin <pbutsykin@virtuozzo.com>
+To: <util-linux@vger.kernel.org>
+CC: <kzak@redhat.com>, <pbutsykin@virtuozzo.com>
+Subject: [PATCH 0/1] libfdisk: allow to change an existing extended partition
+Date: Tue, 18 Apr 2017 18:59:17 +0300
+Message-ID: <20170418155918.32550-1-pbutsykin@virtuozzo.com>
 MIME-Version: 1.0
-In-Reply-To: <de6f8c47-b5ff-a1a6-da61-9776bb0cc6a3@gmx.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Message-Id: <06935f48-f6f1-d010-a86c-7b530743087c@linux.vnet.ibm.com>
+Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Thanks for reviewing,
+The sfdisk utility does not allow us to change any extended partition type to
+another extended type:
+# sfdisk --list /dev/nbd0
+Disk /dev/nbd0: 66 GiB, 70866960384 bytes, 138412032 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x006bf65f
 
+Device      Boot   Start       End   Sectors  Size Id Type
+/dev/nbd0p1 *       2048    999423    997376  487M 83 Linux
+/dev/nbd0p2      1001470 138412031 137410562 65,5G  5 Extended
 
-On 04/17/2017 02:30 PM, Rüdiger Meier wrote:
-> On 04/17/2017 10:30 AM, Mamatha Inamdar wrote:
->> Problem: On power syatems "lscpu frequency-info" command was always
->> reading CPU0 max and min frequencies. If CPU0 is guarded or offline
->> then it used to display max and min frequencies as NULL.
->>
->> Solution: This patch will check for the available/online CPUs
->> and read the max/min frequencies of that CPU
->
-> Maybe we could do it even more generically, not letting the first 
-> lookup win but really using the minimum/maximum over *all* CPUs. Who 
-> knows, maybe different cores could have different min/max.
+# sfdisk --part-type /dev/nbd0 2 0x85
+Extended partition already exists.
+lt-sfdisk: /dev/nbd0: partition 2: failed to set partition type
 
-ok..sure..let me check on this.
+But why? As far as I understand, this is done in order to avoid more than one
+extented partition on MBR disk (because MBR doesn't support more). But since
+extended partition there are three types:
+#define IS_EXTENDED(i) \
+    ((i) == MBR_DOS_EXTENDED_PARTITION \
+     || (i) == MBR_W95_EXTENDED_PARTITION \
+     || (i) == MBR_LINUX_EXTENDED_PARTITION)
 
->
-> cu,
-> Rudi
->
+It would be nice to have the option to change the type of an existing extended
+partition.
+
+Pavel Butsykin (1):
+  libfdisk: allow to change an existing extended partition
+
+ libfdisk/src/dos.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+-- 
+2.11.0
 
