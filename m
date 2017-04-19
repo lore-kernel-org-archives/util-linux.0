@@ -1,129 +1,102 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:36113 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1163346AbdDWU6u (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 23 Apr 2017 16:58:50 -0400
-Received: by mail-wm0-f68.google.com with SMTP id u65so13751181wmu.3
-        for <util-linux@vger.kernel.org>; Sun, 23 Apr 2017 13:58:49 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 10/10] chfn, chsh: use readline(3) to receive user input
-Date: Sun, 23 Apr 2017 21:58:21 +0100
-Message-Id: <20170423205821.7444-11-kerolasa@iki.fi>
-In-Reply-To: <20170423205821.7444-1-kerolasa@iki.fi>
-References: <20170423205821.7444-1-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 1/5] hwclock: improve default function handling
+To: Karel Zak <kzak@redhat.com>
+References: <7592945f-746d-7f67-192a-78dff67923d5@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <660056f5-eb57-cc74-95b1-0caacd0a3868@gmx.com>
+Date: Tue, 18 Apr 2017 22:59:33 -0400
+MIME-Version: 1.0
+In-Reply-To: <7592945f-746d-7f67-192a-78dff67923d5@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-The readline offers editing capabilities while the user is entering the
-line, unlike fgets(3) and getline(3) that were used earlier.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Removes long default function test. Instead handle the
+default when the options are parsed.
+
+Also fixes the non-linux build failure reported by Rudi:
+http://marc.info/?l=util-linux-ng&m=149189833115871
+
+Reported-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
- login-utils/Makemodule.am |  2 +-
- login-utils/chfn.c        | 22 ++++++++++++----------
- login-utils/chsh.c        |  8 +++-----
- 3 files changed, 16 insertions(+), 16 deletions(-)
+ sys-utils/hwclock.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/login-utils/Makemodule.am b/login-utils/Makemodule.am
-index be07ace43..f3397b9f4 100644
---- a/login-utils/Makemodule.am
-+++ b/login-utils/Makemodule.am
-@@ -82,7 +82,7 @@ chfn_chsh_sources = \
- 	login-utils/ch-common.c
- chfn_chsh_cflags = $(SUID_CFLAGS) $(AM_CFLAGS)
- chfn_chsh_ldflags = $(SUID_LDFLAGS) $(AM_LDFLAGS)
--chfn_chsh_ldadd = libcommon.la
-+chfn_chsh_ldadd = libcommon.la $(READLINE_LIBS)
- 
- if CHFN_CHSH_PASSWORD
- chfn_chsh_ldadd += -lpam
-diff --git a/login-utils/chfn.c b/login-utils/chfn.c
-index faddd89a7..6fd2a3d79 100644
---- a/login-utils/chfn.c
-+++ b/login-utils/chfn.c
-@@ -31,6 +31,7 @@
- #include <string.h>
- #include <sys/types.h>
- #include <unistd.h>
-+#include <readline/readline.h>
- 
- #include "c.h"
- #include "env.h"
-@@ -221,31 +222,32 @@ static char *ask_new_field(struct chfn_control *ctl, const char *question,
- 			   char *def_val)
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index a99eb6d..10436f2 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1301,7 +1301,7 @@ static void usage(const struct hwclock_control *ctl, const char *fmt, ...)
+  */
+ int main(int argc, char **argv)
  {
- 	int len;
--	char *ans;
--	char buf[MAX_FIELD_SIZE + 2];
-+	char *buf;
- 
- 	if (!def_val)
- 		def_val = "";
- 	while (true) {
- 		printf("%s [%s]: ", question, def_val);
- 		__fpurge(stdin);
--		if (fgets(buf, sizeof(buf), stdin) == NULL)
-+		if ((buf = readline(NULL)) == NULL)
- 			errx(EXIT_FAILURE, _("Aborted."));
--		ans = buf;
- 		/* remove white spaces from string end */
--		ltrim_whitespace((unsigned char *) ans);
--		len = rtrim_whitespace((unsigned char *) ans);
--		if (len == 0)
-+		ltrim_whitespace((unsigned char *) buf);
-+		len = rtrim_whitespace((unsigned char *) buf);
-+		if (len == 0) {
-+			free(buf);
- 			return xstrdup(def_val);
--		if (!strcasecmp(ans, "none")) {
-+		}
-+		if (!strcasecmp(buf, "none")) {
-+			free(buf);
- 			ctl->changed = 1;
- 			return xstrdup("");
- 		}
--		if (check_gecos_string(question, ans) >= 0)
-+		if (check_gecos_string(question, buf) >= 0)
+-	struct hwclock_control ctl = { NULL };
++	struct hwclock_control ctl = { .show = 1 }; /* default op is show */
+ 	struct timeval startup_time;
+ 	struct adjtime adjtime = { 0 };
+ 	struct timespec when = { 0 };
+@@ -1411,28 +1411,34 @@ int main(int argc, char **argv)
  			break;
+ 		case 'a':
+ 			ctl.adjust = 1;
++			ctl.show = 0;
+ 			break;
+ 		case 'r':
+ 			ctl.show = 1;
+ 			break;
+ 		case 's':
+ 			ctl.hctosys = 1;
++			ctl.show = 0;
+ 			break;
+ 		case 'u':
+ 			ctl.utc = 1;
+ 			break;
+ 		case 'w':
+ 			ctl.systohc = 1;
++			ctl.show = 0;
+ 			break;
+ 		case OPT_SET:
+ 			ctl.set = 1;
++			ctl.show = 0;
+ 			break;
+ #ifdef __linux__
+ 		case OPT_GETEPOCH:
+ 			ctl.getepoch = 1;
++			ctl.show = 0;
+ 			break;
+ 		case OPT_SETEPOCH:
+ 			ctl.setepoch = 1;
++			ctl.show = 0;
+ 			break;
+ #endif
+ 		case OPT_NOADJFILE:
+@@ -1459,12 +1465,15 @@ int main(int argc, char **argv)
+ 			break;
+ 		case OPT_SYSTZ:
+ 			ctl.systz = 1;		/* --systz */
++			ctl.show = 0;
+ 			break;
+ 		case OPT_PREDICT_HC:
+ 			ctl.predict = 1;	/* --predict-hc */
++			ctl.show = 0;
+ 			break;
+ 		case OPT_GET:
+ 			ctl.get = 1;		/* --get */
++			ctl.show = 0;
+ 			break;
+ 		case OPT_UPDATE:
+ 			ctl.update = 1;		/* --update-drift */
+@@ -1519,11 +1528,6 @@ int main(int argc, char **argv)
+ 		}
  	}
- 	ctl->changed = 1;
--	return xstrdup(ans);
-+	return buf;
- }
  
- /*
-diff --git a/login-utils/chsh.c b/login-utils/chsh.c
-index 979a287fe..69f6cf53c 100644
---- a/login-utils/chsh.c
-+++ b/login-utils/chsh.c
-@@ -31,6 +31,7 @@
- #include <string.h>
- #include <sys/types.h>
- #include <unistd.h>
-+#include <readline/readline.h>
- 
- #include "c.h"
- #include "env.h"
-@@ -172,15 +173,12 @@ static void parse_argv(int argc, char **argv, struct sinfo *pinfo)
- static char *ask_new_shell(char *question, char *oldshell)
- {
- 	int len;
--	char *ans = NULL;
--	size_t dummy = 0;
--	ssize_t sz;
-+	char *ans;
- 
- 	if (!oldshell)
- 		oldshell = "";
- 	printf("%s [%s]: ", question, oldshell);
--	sz = getline(&ans, &dummy, stdin);
--	if (sz == -1)
-+	if ((ans = readline(NULL)) == NULL)
- 		return NULL;
- 	/* remove the newline at the end of ans. */
- 	ltrim_whitespace((unsigned char *) ans);
--- 
-2.12.2
-
+-	if (!(ctl.show | ctl.set | ctl.systohc | ctl.hctosys |
+-	     ctl.systz | ctl.adjust | ctl.getepoch | ctl.setepoch |
+-	     ctl.predict | ctl.get))
+-		ctl.show = 1;	/* default to show */
+-
+ #ifdef __linux__
+ 	if (ctl.getepoch || ctl.setepoch) {
+ 		manipulate_epoch(&ctl);
