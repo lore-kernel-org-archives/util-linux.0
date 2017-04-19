@@ -1,63 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60648 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754620AbdDEIv4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 5 Apr 2017 04:51:56 -0400
-Date: Wed, 5 Apr 2017 10:51:51 +0200
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 3/3] agetty: make --remote to forward --nohostname as -H
- to login
-Message-ID: <20170405085151.beeuqeovoqrkumjx@ws.net.home>
-References: <20170402081436.861-1-kerolasa@iki.fi>
- <20170402081436.861-3-kerolasa@iki.fi>
- <bb07f30a-74e6-0961-758a-67383ae417bf@gmx.com>
- <CAG27Bk36WxLCGDtWk+WHrK4eDqsjoQcNdc1sKxhpN4BmAEFmWA@mail.gmail.com>
- <CAG27Bk2_YT8jEOrxb4ANwH59CAw-ramfZkpCBDHbAqkkDHOfwQ@mail.gmail.com>
- <35c0fb17-6b6e-35df-fe2f-18dd14f3987c@gmx.com>
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:34661 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S940010AbdDSWEa (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 19 Apr 2017 18:04:30 -0400
+Received: by mail-wr0-f194.google.com with SMTP id 6so661960wra.1
+        for <util-linux@vger.kernel.org>; Wed, 19 Apr 2017 15:04:29 -0700 (PDT)
+From: renyuneyun <renyuneyun@gmail.com>
+Subject: Re: [PATCH] scriptreplay: determine if script --quiet was used to
+ create typescript
+To: util-linux <util-linux@vger.kernel.org>
+Cc: kerolasa@gmail.com, Karel Zak <kzak@redhat.com>
+References: <20170414203948.12295-1-kerolasa@iki.fi>
+ <20170418102305.pfzvyukxj5fb6wsx@ws.net.home>
+ <CAG27Bk1iUXNAhc2Ene2h-9=RC4BLn0VK6q_JV_dJKe9Cc-iqsg@mail.gmail.com>
+Message-ID: <6e1ffae1-ef23-f65d-3397-4b963f069cab@gmail.com>
+Date: Wed, 19 Apr 2017 23:04:27 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <35c0fb17-6b6e-35df-fe2f-18dd14f3987c@gmx.com>
+In-Reply-To: <CAG27Bk1iUXNAhc2Ene2h-9=RC4BLn0VK6q_JV_dJKe9Cc-iqsg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Apr 04, 2017 at 09:03:08PM -0400, J William Piggott wrote:
-> 
-> I don't understand this:
-> 
->  8< ---
-> 
->        -o, --login-options "/path/command --option argument -- \u"
->               Options   that  are passed to the login program.  \u is replaced
->               by the login name.  The default is "/bin/login -- \u".
->  8< ---
-> 
-> Is this saying the argument must include the login command? Is that what
-> "/path/command" represents? If yes, then the second line is incorrect.
-> If no, then the last sentence is incorrect.
+On Fri, 14 Apr 2017 21:39:48 +0100, Sami Kerola wrote:
+> Recent commit that removed header timestamp from typescript output when
+> --quiet option is defined broke scriptreplay.  Trouble was that scriptreplay
+> always skipped first line of the typescript.  But --quiet makes that line to
+> be part of what must be printed by scriptreplay.
+Whoops, it's the first time I use script so I wasn't aware that would be 
+related to scriptreplay. Sorry for the unexpected influence ;)
 
-from code:
+Are there any special bytes or format to be used to determine that? For 
+example, can we assume the first line after the header is always a 
+command or empty line (meaning that nobody will try to mimic the header 
+in his input)?
 
-    login_argv[login_argc++] = options.login; 
-    ...
+On Tue, 18 Apr 2017 12:23:05 +0200, Karel Zak wrote:
+> Not sure about it. It seems like overkill...
+>
+> I have reverted Rui's change and fixed the man page.
+>
+> It seems better to keep things simple and stupid... it means keep
+> typescript file completely independent on the --quit option (for the
+> both, start and done messages).
+As it comes to man page, what do you think of adding a note there to 
+show why the start message isn't suppressed?
 
-    login_options_to_argv(login_argv, &login_argc,
-                        options.logopt, username);
-    ...
-    execv(options.login, login_argv);
+On Wed, 19 Apr 2017 19:11:57 +0100, Sami Kerola wrote:
+> On 18 April 2017 at 11:23, Karel Zak<kzak@redhat.com>  wrote:
+>
+>> Anyway, I don't like officially supported file formats without any
+>> header. IMHO it would be really nice to add to the typescript:
+>>
+>>   ### script(1) typescript; Version: util-linux v2.30; Date: 2017-04-18 12:10:43+0200
+>>
+>> ... and maybe more information. The same for timing file.
+> I agree. What comes to header data it should include header length
+> in bytes. Something like
+>
+> ### script(1) typescript; Header Length: 104 Version: util-linux
+> v2.30; Date: 2017-04-18 12:10:43+0200
+>
+> As long it's easy to know how long to jump rest of the format does
+> not really matter. Right.
+Forgive my witless, what's the point of introducing a length? Doesn't we 
+already know the header takes (and only takes) the first line?
 
-
-where:
-    options.login is --login-program
-    login-options is --login-options
-
-so the man page is wrong, --login-options should be without the path.
-
-I'll fix it.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
