@@ -1,40 +1,37 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 0/5] hwclock: epoch functions
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <7592945f-746d-7f67-192a-78dff67923d5@gmx.com>
-Date: Tue, 18 Apr 2017 22:55:43 -0400
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20170419113444.qfgmhgocuavp43id@ws.net.home>
+References: <20170419113444.qfgmhgocuavp43id@ws.net.home>
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Wed, 19 Apr 2017 13:35:45 +0100
+Message-ID: <CAG27Bk3GdEUDCGvi4Cn0q2JodDV+G82daHZOY9H9pXx4E4X5OA@mail.gmail.com>
+Subject: Re: column --table based on libsmartcols
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <util-linux.vger.kernel.org>
 
+On 19 April 2017 at 12:34, Karel Zak <kzak@redhat.com> wrote:
+>  Overkill or useful? ;-)
 
-This patch set centers on moving epoch functions to alpha only, see the
-commit message for patch 0002 for an explanation. The rest are related
-to making that change work correctly and bug fixes.
+Looks very useful.
 
-The following changes since commit d9f90f697c41a7040e5ff5e11a42c41adab173f6:
+The only Wish List item I can think of is --number-table-columns
+option that would print something like
 
-  tests: update script(1) tests (2017-04-18 12:42:58 +0200)
+$ echo a b c | column -t  --number-table-columns-header-and-tail
+1 2 3
+a b c
+1 2 3
 
-are available in the git repository at:
+In itself that is totally pointless rubbish line, but quite often I'm
+looking some tabular data and I know field number 'eh large' is the
+field I am interested - but afaik there is no tool that will tell me
+these numbers easily. Perhaps some awk END for i {1 ... NF} could do
+the same if adding this wish crosses a overkill line.
 
-  git@github.com:jwpi/util-linux.git 170415
-
-for you to fetch changes up to 9bf13750cb55d747314a472c306e66b02a2abda9:
-
-  optutils.h: don't print non-graph characters (2017-04-18 22:39:05 -0400)
-
-----------------------------------------------------------------
-J William Piggott (5):
-      hwclock: improve default function handling
-      hwclock: make epoch functions alpha only
-      hwclock: --set and --predict segmentation fault
-      hwclock: improve audit control
-      optutils.h: don't print non-graph characters
-
- include/optutils.h  |  7 +++--
- sys-utils/hwclock.c | 88 +++++++++++++++++++++++------------------------------
- sys-utils/hwclock.h | 10 +++---
- 3 files changed, 48 insertions(+), 57 deletions(-)
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
