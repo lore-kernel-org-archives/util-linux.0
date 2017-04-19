@@ -1,60 +1,62 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:54251 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751921AbdDLJUy (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 12 Apr 2017 05:20:54 -0400
-From: Damien Le Moal <damien.lemoal@wdc.com>
-To: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>,
-        Benno Schulenberg <bensberg@justemail.net>
-Cc: Bart Van Assche <Bart.VanAssche@sandisk.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH] blkzone: Fix zone condition strings handling
-Date: Wed, 12 Apr 2017 18:20:32 +0900
-Message-Id: <20170412092032.7234-1-damien.lemoal@wdc.com>
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 5/5] optutils.h: don't print non-graph characters
+To: Karel Zak <kzak@redhat.com>
+References: <7592945f-746d-7f67-192a-78dff67923d5@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <6ec461ac-79c9-ec72-4687-cb77db68bfbf@gmx.com>
+Date: Tue, 18 Apr 2017 23:11:33 -0400
 MIME-Version: 1.0
-Content-Type: text/plain
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <7592945f-746d-7f67-192a-78dff67923d5@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-Fixed the condition strings for implicit open and explicit open to
-match the man page defined strings ("oi" and "oe"). Also while at it,
-correct the condition_str array entries adding the reserved "xC" case
-so that the read_only, full and offline conditions match the condition
-codes. This increases the array size to 16, so also fix the condition
-code masking when displaying the result.
 
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+There is no eloquent way to exclude/include arch dependent arguments
+from the ul_excl_t array. So when an arch dependent argument is left
+undefined err_exclusive_options() was printing out-of-bounds values.
+This commit cause them to be skipped instead.
+
+err_exclusive_options() shouldn't be printing out-of-bounds values
+in any case.
+
+Also change the error massage from 'options' to 'arguments' as some
+programs, like hwclock, distinguish between options and functions.
+
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
- sys-utils/blkzone.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ include/optutils.h | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/sys-utils/blkzone.c b/sys-utils/blkzone.c
-index 1457225..7713ff3 100644
---- a/sys-utils/blkzone.c
-+++ b/sys-utils/blkzone.c
-@@ -151,10 +151,10 @@ static const char *type_text[] = {
- static const char *condition_str[] = {
- 	"nw", /* Not write pointer */
- 	"em", /* Empty */
--	"io", /* Implicitly opened */
--	"eo", /* Explicitly opened */
-+	"oi", /* Implicitly opened */
-+	"oe", /* Explicitly opened */
- 	"cl", /* Closed */
--	"x5", "x6", "x7", "x8", "x9", "xA", "xB", /* xN: reserved */
-+	"x5", "x6", "x7", "x8", "x9", "xA", "xB", "xC", /* xN: reserved */
- 	"ro", /* Read only */
- 	"fu", /* Full */
- 	"of"  /* Offline */
-@@ -220,7 +220,7 @@ static int blkzone_report(struct blkzone_control *ctl)
- 			 	" reset:%u non-seq:%u, zcond:%2u(%s) [type: %u(%s)]\n"),
- 				start, len, (type == 0x1) ? 0 : wp - start,
- 				entry->reset, entry->non_seq,
--				cond, condition_str[cond & ARRAY_SIZE(condition_str)],
-+				cond, condition_str[cond & (ARRAY_SIZE(condition_str) - 1)],
- 				type, type_text[type]);
+diff --git a/include/optutils.h b/include/optutils.h
+index 325cb88..0dc127b 100644
+--- a/include/optutils.h
++++ b/include/optutils.h
+@@ -5,6 +5,7 @@
  
- 			nr_zones--;
--- 
-2.9.3
-
+ #include "c.h"
+ #include "nls.h"
++#include "cctype.h"
+ 
+ static inline const char *option_to_longopt(int c, const struct option *opts)
+ {
+@@ -81,8 +82,8 @@ static inline void err_exclusive_options(
+ 			else if (status[e] != c) {
+ 				size_t ct = 0;
+ 
+-				fprintf(stderr, _("%s: these options are "
+-						  "mutually exclusive:"),
++				fprintf(stderr, _("%s: mutually exclusive "
++						  "arguments:"),
+ 						program_invocation_short_name);
+ 
+ 				for (op = excl[e];
+@@ -91,7 +92,7 @@ static inline void err_exclusive_options(
+ 					const char *n = option_to_longopt(*op, opts);
+ 					if (n)
+ 						fprintf(stderr, " --%s", n);
+-					else
++					else if (c_isgraph(*op))
+ 						fprintf(stderr, " -%c", *op);
+ 				}
+ 				fputc('\n', stderr);
