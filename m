@@ -1,39 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qk0-f196.google.com ([209.85.220.196]:36704 "EHLO
-        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755289AbdD0VI4 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 27 Apr 2017 17:08:56 -0400
-Received: by mail-qk0-f196.google.com with SMTP id y63so6510030qkd.3
-        for <util-linux@vger.kernel.org>; Thu, 27 Apr 2017 14:08:55 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20170424100021.kkxu56sqbhaqeiu4@ws.net.home>
-References: <20170423205821.7444-1-kerolasa@iki.fi> <20170423205821.7444-5-kerolasa@iki.fi>
- <20170424100021.kkxu56sqbhaqeiu4@ws.net.home>
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:35650 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1163337AbdDWU6s (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 23 Apr 2017 16:58:48 -0400
+Received: by mail-wr0-f193.google.com with SMTP id g12so252732wrg.2
+        for <util-linux@vger.kernel.org>; Sun, 23 Apr 2017 13:58:47 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
-Date: Thu, 27 Apr 2017 22:08:54 +0100
-Message-ID: <CAG27Bk28-FQf14BEC_PjJ4nbrS2p4kMQ3N6M9As_7oTd6boRwg@mail.gmail.com>
-Subject: Re: [PATCH 04/10] libblkid: add blkid_return_known_pttypes()
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 08/10] logger: make month names, login name, and tag read-only objects
+Date: Sun, 23 Apr 2017 21:58:19 +0100
+Message-Id: <20170423205821.7444-9-kerolasa@iki.fi>
+In-Reply-To: <20170423205821.7444-1-kerolasa@iki.fi>
+References: <20170423205821.7444-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 24 April 2017 at 11:00, Karel Zak <kzak@redhat.com> wrote:
-> On Sun, Apr 23, 2017 at 09:58:15PM +0100, Sami Kerola wrote:
->> This new function will return list partition types names libblkid is aware
->> of.  First use of this information will be in partx(8) to make bash
->> completion to work without a magic list.
->
->  See blkid_superblocks_get_name(), I think we can add the same
->  function for partitions, blkid_partitions_get_name().
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/logger.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Yep, that makes code nicer. Done in commits below.
-
-https://github.com/kerolasa/lelux-utiliteetit/commit/6baae2371c1fd0edb50375a782bd866b7ef2105a
-https://github.com/kerolasa/lelux-utiliteetit/commit/7c2294a8357d53fc09309447de3a34b12107947f
-
+diff --git a/misc-utils/logger.c b/misc-utils/logger.c
+index b9fcc8552..653adae94 100644
+--- a/misc-utils/logger.c
++++ b/misc-utils/logger.c
+@@ -115,7 +115,7 @@ struct logger_ctl {
+ 	int pri;
+ 	pid_t pid;			/* zero when unwanted */
+ 	char *hdr;			/* the syslog header (based on protocol) */
+-	char *tag;
++	char const *tag;
+ 	char *msgid;
+ 	char *unix_socket;		/* -u <path> or default to _PATH_DEVLOG */
+ 	char *server;
+@@ -369,9 +369,9 @@ static int journald_entry(struct logger_ctl *ctl, FILE *fp)
+ }
+ #endif
+ 
+-static char *xgetlogin(void)
++static char const *xgetlogin(void)
+ {
+-	char *cp;
++	char const *cp;
+ 	struct passwd *pw;
+ 
+ 	if (!(cp = getlogin()) || !*cp)
+@@ -385,12 +385,12 @@ static char *xgetlogin(void)
+  * of a leading 0). The function uses a static buffer which is
+  * overwritten on the next call (just like ctime() does).
+  */
+-static const char *rfc3164_current_time(void)
++static char const *rfc3164_current_time(void)
+ {
+ 	static char time[32];
+ 	struct timeval tv;
+ 	struct tm *tm;
+-	static char *monthnames[] = {
++	static char const * const monthnames[] = {
+ 		"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+ 		"Sep", "Oct", "Nov", "Dec"
+ 	};
+@@ -727,7 +727,7 @@ static void syslog_rfc5424_header(struct logger_ctl *const ctl)
+ {
+ 	char *time;
+ 	char *hostname;
+-	char *const app_name = ctl->tag;
++	char const *app_name = ctl->tag;
+ 	char *procid;
+ 	char *const msgid = xstrdup(ctl->msgid ? ctl->msgid : NILVALUE);
+ 	char *structured = NULL;
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+2.12.2
+
