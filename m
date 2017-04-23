@@ -1,71 +1,102 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47878 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755382AbdDRKXM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 18 Apr 2017 06:23:12 -0400
-Date: Tue, 18 Apr 2017 12:23:05 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org, Rui Zhao <renyuneyun@gmail.com>
-Subject: Re: [PATCH] scriptreplay: determine if script --quiet was used to
- create typescript
-Message-ID: <20170418102305.pfzvyukxj5fb6wsx@ws.net.home>
-References: <20170414203948.12295-1-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170414203948.12295-1-kerolasa@iki.fi>
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:35634 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1046082AbdDWU6n (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 23 Apr 2017 16:58:43 -0400
+Received: by mail-wr0-f194.google.com with SMTP id g12so252614wrg.2
+        for <util-linux@vger.kernel.org>; Sun, 23 Apr 2017 13:58:42 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 04/10] libblkid: add blkid_return_known_pttypes()
+Date: Sun, 23 Apr 2017 21:58:15 +0100
+Message-Id: <20170423205821.7444-5-kerolasa@iki.fi>
+In-Reply-To: <20170423205821.7444-1-kerolasa@iki.fi>
+References: <20170423205821.7444-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Apr 14, 2017 at 09:39:48PM +0100, Sami Kerola wrote:
-> Recent commit that removed header timestamp from typescript output when
-> --quiet option is defined broke scriptreplay.  Trouble was that scriptreplay
-> always skipped first line of the typescript.  But --quiet makes that line to
-> be part of what must be printed by scriptreplay.
+This new function will return list partition types names libblkid is aware
+of.  First use of this information will be in partx(8) to make bash
+completion to work without a magic list.
 
-This explain why I had bad feeing from the patch ;-)
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ libblkid/docs/libblkid-sections.txt  |  1 +
+ libblkid/src/blkid.h.in              |  1 +
+ libblkid/src/libblkid.sym            |  1 +
+ libblkid/src/partitions/partitions.c | 24 ++++++++++++++++++++++++
+ 4 files changed, 27 insertions(+)
 
-> +static int
-> +sfile_has_header(FILE *sfile, FILE *tfile)
-> +{
-> +	double delay;
-> +	size_t blk, total = 0;
-> +	char nl;
-> +	struct stat st;
-> +
-> +	if (fstat(fileno(sfile), &st) < 0)
-> +		return 0;
-> +	while (fscanf(tfile, "%lf %zu%c\n", &delay, &blk, &nl) == 3)
-> +		total += blk;
-> +	fseek(sfile, 0, SEEK_SET);
-> +	fseek(tfile, 0, SEEK_SET);
-> +	if ((size_t)st.st_size <= total)
-> +		return 0;
-> +	return 1;
-> +}
-
-Not sure about it. It seems like overkill... 
-
-I have reverted Rui's change and fixed the man page.
-
-It seems better to keep things simple and stupid... it means keep
-typescript file completely independent on the --quit option (for the
-both, start and done messages).
-
-Note that Rui also suggested to avoid strftime() for the messages due
-to problems with \n (and I have suggested to use ISO times). It's
-already committed.
-
-
-Anyway, I don't like officially supported file formats without any
-header. IMHO it would be really nice to add to the typescript:
-
- ### script(1) typescript; Version: util-linux v2.30; Date: 2017-04-18 12:10:43+0200
-
-... and maybe more information. The same for timing file.
-
-    Karel
-
+diff --git a/libblkid/docs/libblkid-sections.txt b/libblkid/docs/libblkid-sections.txt
+index 78db25ec9..3b46910bd 100644
+--- a/libblkid/docs/libblkid-sections.txt
++++ b/libblkid/docs/libblkid-sections.txt
+@@ -86,6 +86,7 @@ blkid_probe_invert_partitions_filter
+ blkid_probe_reset_partitions_filter
+ <SUBSECTION>
+ blkid_known_pttype
++blkid_return_known_pttypes
+ <SUBSECTION>
+ blkid_partition_get_name
+ blkid_partition_get_flags
+diff --git a/libblkid/src/blkid.h.in b/libblkid/src/blkid.h.in
+index 06e2c1771..953bed130 100644
+--- a/libblkid/src/blkid.h.in
++++ b/libblkid/src/blkid.h.in
+@@ -326,6 +326,7 @@ extern unsigned long blkid_topology_get_physical_sector_size(blkid_topology tp)
+  * partitions probing
+  */
+ extern int blkid_known_pttype(const char *pttype);
++extern char **blkid_return_known_pttypes(void);
+ 
+ extern int blkid_probe_enable_partitions(blkid_probe pr, int enable)
+ 			__ul_attribute__((nonnull));
+diff --git a/libblkid/src/libblkid.sym b/libblkid/src/libblkid.sym
+index cd76d6592..b88b2d547 100644
+--- a/libblkid/src/libblkid.sym
++++ b/libblkid/src/libblkid.sym
+@@ -167,4 +167,5 @@ BLKID_2.25 {
+ 
+ BLKID_2.30 {
+ 	blkid_probe_set_sectorsize;
++	blkid_return_known_pttypes;
+ } BLKID_2.25;
+diff --git a/libblkid/src/partitions/partitions.c b/libblkid/src/partitions/partitions.c
+index 533209761..c94c63de1 100644
+--- a/libblkid/src/partitions/partitions.c
++++ b/libblkid/src/partitions/partitions.c
+@@ -887,6 +887,30 @@ int blkid_known_pttype(const char *pttype)
+ }
+ 
+ /**
++ * blkid_return_known_pttypes:
++ *
++ * Returns: returns address to char ** list.  It is duty of user to free
++ * list elements and the list after use.
++ */
++char **blkid_return_known_pttypes(void)
++{
++	size_t i;
++	const size_t sz = ARRAY_SIZE(idinfos);
++	char **list;
++
++	list = malloc((sz + 1) * sizeof(char *));
++	if (!list)
++		return NULL;
++
++	for (i = 0; i < sz; i++) {
++		const struct blkid_idinfo *id = idinfos[i];
++		list[i] = strdup(id->name);
++	}
++	list[i] = NULL;
++	return list;
++}
++
++/**
+  * blkid_partlist_numof_partitions:
+  * @ls: partitions list
+  *
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.12.2
+
