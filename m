@@ -1,37 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:55590 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:58098 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751564AbdDJXAo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 10 Apr 2017 19:00:44 -0400
-Subject: [PATCH 5/5] hwclock: remove residual 'compare' from man-page
-To: Karel Zak <kzak@redhat.com>
-References: <d0e36cbd-1205-8ce8-3fb3-06efafb12227@gmx.com>
+        id S1166957AbdDXKKp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 24 Apr 2017 06:10:45 -0400
+Date: Mon, 24 Apr 2017 12:10:40 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <dd50203f-e46e-808b-1604-53b6cb776b2e@gmx.com>
-Date: Mon, 10 Apr 2017 19:00:32 -0400
+Subject: Re: [PATCH 03/10] docs: raw devices are deprecated
+Message-ID: <20170424101040.snryxu4sndqtyzza@ws.net.home>
+References: <20170423205821.7444-1-kerolasa@iki.fi>
+ <20170423205821.7444-4-kerolasa@iki.fi>
 MIME-Version: 1.0
-In-Reply-To: <d0e36cbd-1205-8ce8-3fb3-06efafb12227@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170423205821.7444-4-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sun, Apr 23, 2017 at 09:58:14PM +0100, Sami Kerola wrote:
+> Tell in manual page that one should use open(2) O_DIRECT flag rather than
+> raw device.
+> 
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  disk-utils/raw.8 | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/disk-utils/raw.8 b/disk-utils/raw.8
+> index 717f4ef1b..5d04aa226 100644
+> --- a/disk-utils/raw.8
+> +++ b/disk-utils/raw.8
+> @@ -88,6 +88,13 @@ device buffer cache.  If you use raw I/O to overwrite data already in
+>  the buffer cache, the buffer cache will no longer correspond to the
+>  contents of the actual storage device underneath.  This is deliberate,
+>  but is regarded either a bug or a feature depending on who you ask!
+> +.SH NOTES
+> +Kernel developers consider raw driver deprecated.  Applications should
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock.8.in | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Maybe you want to see "git log disk-utils/raw.8", raw devices are not
+deprecated any more. See kernel commit abd4aa5a97ebc0efb9a7fbc98ef0bcf39266fadf.
 
-diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
-index 80a579f..f11df80 100644
---- a/sys-utils/hwclock.8.in
-+++ b/sys-utils/hwclock.8.in
-@@ -19,7 +19,7 @@ Hardware Clock time; set the Hardware Clock to a specified time; set the
- Hardware Clock from the System Clock; set the System Clock from the
- Hardware Clock; compensate for Hardware Clock drift; correct the System
- Clock timescale; set the kernel's timezone, NTP timescale, and epoch
--(Alpha only); compare the System and Hardware Clocks; and predict future
-+(Alpha only); and predict future
- Hardware Clock values based on its drift rate.
- .PP
- Since v2.26 important changes were made to the
+    Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
