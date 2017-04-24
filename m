@@ -1,61 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60254 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:59986 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1168716AbdDXKmY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 24 Apr 2017 06:42:24 -0400
-Date: Mon, 24 Apr 2017 12:42:18 +0200
+        id S933802AbdDXKcQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 24 Apr 2017 06:32:16 -0400
+Date: Mon, 24 Apr 2017 12:32:12 +0200
 From: Karel Zak <kzak@redhat.com>
 To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/10] pull: various change, some options related
-Message-ID: <20170424104218.uouuogsxb5m356yi@ws.net.home>
+Subject: Re: [PATCH 06/10] misc: clarify ternary operators with parentheses
+Message-ID: <20170424103212.sqgix5wsechxlnxd@ws.net.home>
 References: <20170423205821.7444-1-kerolasa@iki.fi>
+ <20170423205821.7444-7-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20170423205821.7444-1-kerolasa@iki.fi>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170423205821.7444-7-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Apr 23, 2017 at 09:58:11PM +0100, Sami Kerola wrote:
-> The chfn and chsh is about usability provided by readline().  I did not add
-> #ifdev HAVE_LIBREADLINE and make none libreadline compilation to work
-> because it looks like sfdisk is doing the same.  Let me know if fallback
-> should be made to work.
+On Sun, Apr 23, 2017 at 09:58:17PM +0100, Sami Kerola wrote:
+> Compilers probably got these evaluations right, but it is best not to leave
+> any room of interpretation what is the human intention.
 
-Are you sure?
+ Not sure if I like the patch.... the operators precedence is
+ important to understand C code, not sure if we want to use '(' ')'
+ everywhere to keep readers uneducated. 
+ 
+ Yes, in some complex conditions it makes sense (multi-line if()), but
+ this is not the case.
 
-$ grep HAVE_LIBREADLINE disk-utils/sfdisk.c
-#ifdef HAVE_LIBREADLINE
-#ifdef HAVE_LIBREADLINE
-#ifdef HAVE_LIBREADLINE
-#ifdef HAVE_LIBREADLINE
-#ifndef HAVE_LIBREADLINE
+> -	return lb->flags & FDISK_LABEL_FL_REQUIRE_GEOMETRY ? 1 : 0;
+> +	return (lb->flags & FDISK_LABEL_FL_REQUIRE_GEOMETRY) ? 1 : 0;
 
- ... we want to be independent on libreadline of course and it's also
- important to keep the utils usable when stdin is not terminal. We use
- for example:
+ All the "<someting> ? 1 : 0" is non-elegant, what about:
 
+     return !!(lb->flags & FDISK_LABEL_FL_REQUIRE_GEOMETRY);
 
-#ifdef HAVE_LIBREADLINE
-	if (isatty(STDIN_FILENO)) {
-		p = readline(prompt);
-		if (!p)
-			return 1;
-		memcpy(buf, p, bufsz);
-		free(p);
-	} else
-#endif
-	{
-		fputs(prompt, stdout);
-		fflush(stdout);
-
-		if (!fgets(buf, bufsz, stdin))
-			return 1;
-	}
-
-for sfdisk.
+ to keep code simple, fast and humans happy :)
 
     Karel
+
 -- 
  Karel Zak  <kzak@redhat.com>
  http://karelzak.blogspot.com
