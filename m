@@ -1,29 +1,36 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45188 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2996962AbdDZJYr (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 26 Apr 2017 05:24:47 -0400
-Date: Wed, 26 Apr 2017 11:24:41 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Patrick Steinhardt <ps@pks.im>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] switch_root: unlink files without _DIRENT_HAVE_D_TYPE
-Message-ID: <20170426092441.fuhcv3ymzf4gn6sb@ws.net.home>
-References: <89de54c7029bebc3cbb9d5eaee67c5d38873985a.1492907475.git.ps@pks.im>
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 0/4] Pull Request
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, junk@gmx.li
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <50c7367a-c086-2c18-af81-9f86f1c2560a@gmx.com>
+Date: Wed, 26 Apr 2017 23:29:40 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <89de54c7029bebc3cbb9d5eaee67c5d38873985a.1492907475.git.ps@pks.im>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Apr 23, 2017 at 02:33:04AM +0200, Patrick Steinhardt wrote:
->  sys-utils/switch_root.c | 11 +++++++----
->  1 file changed, 7 insertions(+), 4 deletions(-)
 
-Good catch! Applied, thanks.
+ sys-utils/hwclock.c | 27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
-    Karel
+The following changes since commit 85bfb519afcbccccb63849b1a348dde76ff6bb83:
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+  switch_root: unlink files without _DIRENT_HAVE_D_TYPE (2017-04-26 11:23:50 +0200)
+
+are available in the git repository at:
+
+  git@github.com:jwpi/util-linux.git 170419
+
+for you to fetch changes up to 57415653a667cf2442d019f62287534931ab3da4:
+
+  hwclock: use a consistent name for --predict (2017-04-26 23:19:56 -0400)
+
+----------------------------------------------------------------
+J William Piggott (4):
+      hwclock: extra messages for debug only
+      hwclock: make clock test mode message consistent
+      hwclock: remove unneeded braces
+      hwclock: use a consistent name for --predict
+
+ sys-utils/hwclock.c | 27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
