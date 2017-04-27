@@ -1,30 +1,48 @@
-Return-Path: kerolasa@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-qk0-f177.google.com ([209.85.220.177]:35905 "EHLO
+        mail-qk0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1423042AbdD0VPf (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 27 Apr 2017 17:15:35 -0400
+Received: by mail-qk0-f177.google.com with SMTP id u75so38534733qka.3
+        for <util-linux@vger.kernel.org>; Thu, 27 Apr 2017 14:15:34 -0700 (PDT)
 MIME-Version: 1.0
 Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20170424101040.snryxu4sndqtyzza@ws.net.home>
-References: <20170423205821.7444-1-kerolasa@iki.fi> <20170423205821.7444-4-kerolasa@iki.fi>
- <20170424101040.snryxu4sndqtyzza@ws.net.home>
+In-Reply-To: <20170424103212.sqgix5wsechxlnxd@ws.net.home>
+References: <20170423205821.7444-1-kerolasa@iki.fi> <20170423205821.7444-7-kerolasa@iki.fi>
+ <20170424103212.sqgix5wsechxlnxd@ws.net.home>
 From: Sami Kerola <kerolasa@iki.fi>
-Date: Thu, 27 Apr 2017 22:13:57 +0100
-Message-ID: <CAG27Bk24B71HAfC3r9T_fK=hUw5vzXnT0xiSNHqqLpGudrY2zg@mail.gmail.com>
-Subject: Re: [PATCH 03/10] docs: raw devices are deprecated
+Date: Thu, 27 Apr 2017 22:15:33 +0100
+Message-ID: <CAG27Bk01ftyjsOLrr1x1VYqJXeESRjL+xWC+WyZ5b6eASjv1yw@mail.gmail.com>
+Subject: Re: [PATCH 06/10] misc: clarify ternary operators with parentheses
 To: Karel Zak <kzak@redhat.com>
 Cc: util-linux <util-linux@vger.kernel.org>
 Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 24 April 2017 at 11:10, Karel Zak <kzak@redhat.com> wrote:
-> On Sun, Apr 23, 2017 at 09:58:14PM +0100, Sami Kerola wrote:
->> Tell in manual page that one should use open(2) O_DIRECT flag rather than
->> raw device.
+On 24 April 2017 at 11:32, Karel Zak <kzak@redhat.com> wrote:
+> On Sun, Apr 23, 2017 at 09:58:17PM +0100, Sami Kerola wrote:
+>> Compilers probably got these evaluations right, but it is best not to leave
+>> any room of interpretation what is the human intention.
 >
-> Maybe you want to see "git log disk-utils/raw.8", raw devices are not
-> deprecated any more. See kernel commit abd4aa5a97ebc0efb9a7fbc98ef0bcf39266fadf.
+>  Not sure if I like the patch.... the operators precedence is
+>  important to understand C code, not sure if we want to use '(' ')'
+>  everywhere to keep readers uneducated.
+>
+>  Yes, in some complex conditions it makes sense (multi-line if()), but
+>  this is not the case.
+>
+>> -     return lb->flags & FDISK_LABEL_FL_REQUIRE_GEOMETRY ? 1 : 0;
+>> +     return (lb->flags & FDISK_LABEL_FL_REQUIRE_GEOMETRY) ? 1 : 0;
+>
+>  All the "<someting> ? 1 : 0" is non-elegant, what about:
+>
+>      return !!(lb->flags & FDISK_LABEL_FL_REQUIRE_GEOMETRY);
+>
+>  to keep code simple, fast and humans happy :)
 
-How about not saying 'deprecated' but hinting O_DIRECT is better?
-
-https://github.com/kerolasa/lelux-utiliteetit/commit/9cd7d4dad4c2753d14e125c7ea2af941a2c11be0
+I dropped this change from my 2017wk16 branch. Maybe someday
+later I will come back to getting rid of none-elegant stuff.
 
 -- 
 Sami Kerola
