@@ -1,48 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f44.google.com ([74.125.82.44]:35468 "EHLO
-        mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750732AbdE0SYQ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 27 May 2017 14:24:16 -0400
-Received: by mail-wm0-f44.google.com with SMTP id b84so16364493wmh.0
-        for <util-linux@vger.kernel.org>; Sat, 27 May 2017 11:24:16 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:55654 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751540AbdEDLkX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 4 May 2017 07:40:23 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 4C248C04BD26
+        for <util-linux@vger.kernel.org>; Thu,  4 May 2017 11:40:23 +0000 (UTC)
+Received: from ws.net.home (ovpn-117-204.ams2.redhat.com [10.36.117.204])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id B646917DAD
+        for <util-linux@vger.kernel.org>; Thu,  4 May 2017 11:40:22 +0000 (UTC)
+Date: Thu, 4 May 2017 13:40:19 +0200
+From: Karel Zak <kzak@redhat.com>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 2/4] libblkid: fix format overflow
-Date: Sat, 27 May 2017 19:24:07 +0100
-Message-Id: <20170527182409.13985-2-kerolasa@iki.fi>
-In-Reply-To: <20170527182409.13985-1-kerolasa@iki.fi>
-References: <20170527182409.13985-1-kerolasa@iki.fi>
+Subject: v2.30-rc1 plan
+Message-ID: <20170504114019.dfk7efvwfkb7fvv6@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-libblkid/src/devname.c:166:29: warning: '%s' directive writing up to 255
-bytes into a region of size 245 [-Wformat-overflow=]
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- libblkid/src/devname.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ Hi all,
 
-diff --git a/libblkid/src/devname.c b/libblkid/src/devname.c
-index ba3c57a41..4ee6e3119 100644
---- a/libblkid/src/devname.c
-+++ b/libblkid/src/devname.c
-@@ -152,12 +152,13 @@ static int is_dm_leaf(const char *devname)
- {
- 	struct dirent	*de, *d_de;
- 	DIR		*dir, *d_dir;
--	char		path[256];
- 	int		ret = 1;
- 
- 	if ((dir = opendir("/sys/block")) == NULL)
- 		return 0;
- 	while ((de = readdir(dir)) != NULL) {
-+		char path[strlen(de->d_name) + sizeof("/sys/block//slaves") + 1];
-+
- 		if (!strcmp(de->d_name, ".") || !strcmp(de->d_name, "..") ||
- 		    !strcmp(de->d_name, devname) ||
- 		    strncmp(de->d_name, "dm-", 3) ||
+ I'd like to release v2.30 -rc1 next week, probably on Tuesday. It's
+ fine to fix bugs or do trivial changes after the release, but all new
+ features or invasive refactoring should be postponed for v2.31.
+
+    Karel
+
 -- 
-2.13.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
