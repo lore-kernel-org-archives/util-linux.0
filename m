@@ -1,96 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:50152 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:44222 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750795AbdEQTIE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 17 May 2017 15:08:04 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Bruce Dubbs <bruce.dubbs@gmail.com>
-Subject: Re: versioning
-Date: Wed, 17 May 2017 21:07:49 +0200
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <20170517074741.ltxnoawwvj56gc3m@ws.net.home> <591C8A09.6070100@gmail.com>
-In-Reply-To: <591C8A09.6070100@gmail.com>
+        id S1751364AbdEEKVf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 5 May 2017 06:21:35 -0400
+Date: Fri, 5 May 2017 12:21:31 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: column tree id-parent loop crash
+Message-ID: <20170505102131.bmytzts2oi3enqme@ws.net.home>
+References: <CAG27Bk1XLAD3yK7EcuzrsCF5zj4wT0sAMjk4X=a3SB9+RQ1JWA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201705172107.49456.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <CAG27Bk1XLAD3yK7EcuzrsCF5zj4wT0sAMjk4X=a3SB9+RQ1JWA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 17 May 2017, Bruce Dubbs wrote:
-> Karel Zak wrote:
-> >   Hi,
-> >
-> >   Sami has good point on IRC... do we really want to continue with
-> > the current versioning schema? Now we use:
-> >
-> >      v2.xx[.y]
-> >
-> >   I don't expect v3 or v4, so the prefix v2 does not provide any
-> >   information... and the 'xx' ('30' now) is already large number.
-> >
-> >   Suggestions:
-> >
-> >   1) do nothing; nobody cares and v2.31 looks good
-> >
-> >   2) remove '2' from the version:
-> >
-> >          major release:  v31
-> >          update release: v31.1
-> >
-> >
-> >   3) <your suggestion>?
->
-> In managing about 1000 packages, I see a lot of different version
-> numbering.   The vast majority of packages use (my terminology)
-> major.minor.point for numbering. 
+On Thu, May 04, 2017 at 09:53:21PM +0100, Sami Kerola wrote:
+> Hi Karel,
+> 
+> $ printf "%s\n%s\n" "a 1 0" "b 0 1" | column
+> --table-columns=NAME,ID,PARENT --tree NAME --tree-id ID --tree-parent
+> PARENT
+> Segmentation fault (core dumped)
+> 
+> I'm not sure what the command should do in this case. Maybe print some
+> sort of symbol of circle, such as below??
 
-> The major number really should only 
-> be increased when there are incompatibilities introduced in a package
-> update.
+The library does not support such symbol, it seems better silently
+ignore such dependence and use only parent->child and ignore
+child->parent part of the loop. 
 
-I agree, so I'd also vote for keeping the current version scheme. But we 
-could talk about some (theoretically) incompatible clean-up changes to 
-justify v3.1.
+Fixed.
 
-I'm not talking about making things incompatible just to be incompatible 
-but about ugly, outdated ifdefs which probably nobody needs anymore but 
-also nobody would touch unless we actively review this.
+For example
 
-One thing already mentioned in this thread was to drop any code and 
-documention regarding kernel < 2.6  (maybe even <2.6.32 if it has any 
-benefits).
+echo -e '1 5 AA\n2 1 AA.A\n3 1 AA.B\n4 2 AA.A.A\n5 2 AA.A.B' | ./column --tree 3 --tree-id 1 --tree-parent 2
+1  5  AA
+2  1  ├─AA.A
+4  2  │ ├─AA.A.A
+5  2  │ └─AA.A.B
+3  1  └─AA.B
 
-Maybe others have even more ideas, e.g. officially requiring 
-POSIX.1-2008  or newer to cleanup include/c.h, configure.ac, etc..
+echo -e '1 5 AA\n2 1 AA.A\n3 1 AA.B\n4 2 AA.A.A\n5 1 AA.A.B' | ./column --tree 3 --tree-id 1 --tree-parent 2
+1  5  AA
+2  1  ├─AA.A
+4  2  │ └─AA.A.A
+3  1  ├─AA.B
+5  1  └─AA.A.B
 
-The benfit would be not only to have a smaller minor version but 
-hopefully to get a few well defined requirements for UL in 
-Documentation/ directory, which will not change until v4. 
+works as expected, although AA and AA.A.B have loop in dependencies. 
 
-cu,
-Rudi
+    Karel
 
-> Sometimes the numbering gets large,  For instance the current lvm2
-> package number is 2.02.171.  But that is OK.  It tells us that the
-> packages is updated frequently, but there is an effort to maintain
-> backward compatibility.
->
-> When a package like firefox is at 53.0.2, what does that tell us
-> about the changes?
->
-> Sometimes the numbering is downright silly.  I'll suggest that
-> chromium at 58.0.3029.96 falls into that category.
->
-> To give you an idea of what other packages use, take a look at
-> http://wiki.linuxfromscratch.org/blfs/browser/trunk/BOOK/packages.ent
->
-> The bottom line is that from our point of view, x.y.z works fine. 
-> There is no need to change the current numbering scheme.
->
->    -- Bruce Dubbs
->       linuxfromscratch.org
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
