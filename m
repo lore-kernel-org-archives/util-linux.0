@@ -1,44 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f194.google.com ([209.85.128.194]:36471 "EHLO
-        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752819AbdEISK6 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 9 May 2017 14:10:58 -0400
-Received: by mail-wr0-f194.google.com with SMTP id v42so2127724wrc.3
-        for <util-linux@vger.kernel.org>; Tue, 09 May 2017 11:10:58 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 2/5] col: avoid extra newline if no input
-Date: Tue,  9 May 2017 19:10:49 +0100
-Message-Id: <20170509181052.3610-2-kerolasa@iki.fi>
-In-Reply-To: <20170509181052.3610-1-kerolasa@iki.fi>
-References: <20170509181052.3610-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:34028 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752404AbdEJKcH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 10 May 2017 06:32:07 -0400
+Date: Wed, 10 May 2017 12:32:02 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: BUG: wipefs dry run
+Message-ID: <20170510103202.ssoqv7pzk5h2a24q@ws.net.home>
+References: <201705101154.50099.sweet_f_a@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201705101154.50099.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-BSD fix missed for 22 years, and all util-linux releases so far.
+On Wed, May 10, 2017 at 11:54:50AM +0200, Ruediger Meier wrote:
+> I wonder why wipefs does not show all MBR and GPT signatures which would
+> be deleted by using "-fa".
+> 
+> $ truncate -s 100M /tmp/CCC
+> $ ./sfdisk /tmp/CCC <<EOF
+> > label: gpt
+> > label-id: 384A8F14-17FF-4782-A190-A5B858E3FCF0
+> > device: /tmp/CCC
+> > unit: sectors
+> > first-lba: 34
+> > last-lba: 204766
+> > EOF
+> 
+> $ ./wipefs  -fa --no-act   /tmp/CCC
+> /tmp/CCC: 8 bytes were erased at offset 0x00000200 (gpt): 45 46 49 20 50 
+> 41 52 54
+> 
+> $ ./wipefs  -fa    /tmp/CCC
+> /tmp/CCC: 8 bytes were erased at offset 0x00000200 (gpt): 45 46 49 20 50 
+> 41 52 54
+> /tmp/CCC: 8 bytes were erased at offset 0x063ffe00 (gpt): 45 46 49 20 50 
+> 41 52 54
+> /tmp/CCC: 2 bytes were erased at offset 0x000001fe (PMBR): 55 aa
 
-Backported-from: https://github.com/dspinellis/unix-history-repo/commit/2a15260a2a3230e02f57c096fb4c5e1f797bf4f3
-Addresses: https://github.com/karelzak/util-linux/issues/422
-Reported-by: Pavel Raiskup <praiskup@redhat.com>
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/col.c | 2 ++
- 1 file changed, 2 insertions(+)
+This is not a bug, man wipefs:
 
-diff --git a/text-utils/col.c b/text-utils/col.c
-index b236b891f..bac48e7e3 100644
---- a/text-utils/col.c
-+++ b/text-utils/col.c
-@@ -391,6 +391,8 @@ int main(int argc, char **argv)
- 	/* goto the last line that had a character on it */
- 	for (; l->l_next; l = l->l_next)
- 		this_line++;
-+	if (max_line == 0)
-+		return EXIT_SUCCESS;	/* no lines, so just exit */
- 	flush_lines(this_line - nflushd_lines + extra_lines + 1);
- 
- 	/* make sure we leave things in a sane state */
+        Note that some filesystems and some partition tables store more magic
+        strings on the device.  The wipefs command lists only the  first
+        offset  where  a  magic  string  has  been detected.   The  device  is
+        not scanned for additional magic strings for the same filesystem.  It
+        is possible that after a wipefs -o offset the same filesystem or
+        partition table will still be visible because of another magic string
+        on another offset.
+
+
+The "-a" writes zeros, resets the scanner and repeat scan again and
+again until nothing is found. I will add note about it to the man
+page...
+
+It would be probably possible to extend libblkid to work in some
+"ignore previous result" mode to to gather all permutation for the
+FS/RAID/etc, but it won't be trivial task...
+
+    Karel
+
 -- 
-2.12.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
