@@ -1,41 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52040 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:41332 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750969AbdEQNvQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 17 May 2017 09:51:16 -0400
-Date: Wed, 17 May 2017 15:51:11 +0200
+        id S1751894AbdEJJrv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 10 May 2017 05:47:51 -0400
+Date: Wed, 10 May 2017 11:47:46 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Cc: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
-Subject: Re: versioning
-Message-ID: <20170517135111.2yi5oohkkohwjgma@ws.net.home>
-References: <20170517074741.ltxnoawwvj56gc3m@ws.net.home>
- <201705171042.53414.sweet_f_a@gmx.de>
- <201705171047.13926.sweet_f_a@gmx.de>
- <f47059fe-b66a-cd7b-7ce5-58e8fe5cbb5d@bernhard-voelker.de>
+To: L A Walsh <lkml@tlinx.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: util-linux-v2.25:mountpoint misnamed or bugged, and "-d" bugged
+Message-ID: <20170510094746.zpkebvktie7iauzf@ws.net.home>
+References: <58F2C401.5090001@tlinx.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <f47059fe-b66a-cd7b-7ce5-58e8fe5cbb5d@bernhard-voelker.de>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <58F2C401.5090001@tlinx.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, May 17, 2017 at 03:23:11PM +0200, Bernhard Voelker wrote:
-> On 05/17/2017 10:47 AM, Ruediger Meier wrote:
-> > v2.30
-> > v2.30.1
-> > v2.30.2
-> > v3.0
-> > v3.1
-> > v3.2
+On Sat, Apr 15, 2017 at 06:08:17PM -0700, L A Walsh wrote:
 > 
-> +1 to all your arguments - v31 and v31.1 look really odd.
+> mountpoint doesn't detect file, device
+> or other inode mount points.
+> 
+> Also, the "-d" switch doesn't show the maj:min of the mounted
+> inode.  Of note: "-x" does show the maj:min of a remounted blockdev.
 
-Well, the idea behind v31 is to make difference between the current
-schema and the new one. The version number v3.1 maybe interpreted as a
-new major release that is incompatible with v2.
+Version, distro, do you have classic mtab, etc, etc.... ?
 
-Anyway, I have no strong opinion about it. It's just number :-) I can
-live with v3.1 too.
+> #reproduce (showing additional variant w/a char device)
+> 
+> cd /tmp
+> mkdir foo1
+> cd foo1
+> mkdir mnt
+> sudo mount tmpfs -t tmpfs mnt
+> touch mnt/file mnt_file mnt_null
+> sudo mknod mnt/null c 1 3
+> sudo mount --bind mnt/file mnt_file
+> sudo mount --bind mnt/null mnt_null
+> function is_mountedQ {
+>  if /usr/bin/mountpoint -q $1; then
+>    echo "$1 is a mount point"
+>  else
+>    echo "$1 is not a mount point"
+>  fi
+> }
+> is_mountedQ mnt_file
+> is_mountedQ mnt_null
+
+Works for me:
+
+# cd /tmp               
+# mkdir foo1            
+# cd foo1               
+# mkdir mnt             
+# mount tmpfs -t tmpfs mnt
+# touch mnt/file mnt_file mnt_null
+# mknod mnt/null c 1 3  
+# mount --bind mnt/file mnt_file
+# mount --bind mnt/null mnt_null
+# mountpoint mnt_null   
+mnt_null is a mountpoint
+# mountpoint mnt_file   
+mnt_file is a mountpoint
+ 
+# findmnt --submounts /tmp
+TARGET               SOURCE       FSTYPE OPTIONS
+/tmp                 tmpfs        tmpfs  rw,nosuid,nodev
+├─/tmp/foo1/mnt      tmpfs        tmpfs  rw,relatime
+├─/tmp/foo1/mnt_file tmpfs[/file] tmpfs  rw,relatime
+└─/tmp/foo1/mnt_null tmpfs[/null] tmpfs  rw,relatime
+
 
     Karel
 
