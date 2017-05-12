@@ -1,46 +1,98 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50578 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.22]:62152 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750949AbdEPLBo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 16 May 2017 07:01:44 -0400
-Date: Tue, 16 May 2017 13:01:39 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: libblkid: udf: Incorrect implementation of Unicode strings
-Message-ID: <20170516110139.v63qiov2ndxw2gwa@ws.net.home>
-References: <201705121638.59416@pali>
- <20170515100940.lggq2um6xt3dg66p@ws.net.home>
- <20170515123845.GA10015@pali>
+        id S1756121AbdELODV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 12 May 2017 10:03:21 -0400
+Subject: [PATCH] Re: [ANNOUNCE] util-linux v2.30-rc1
+To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+References: <20170512120310.s7mmuciunmftd5en@ws.net.home>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <15e27e95-29e2-3362-265f-635666d59230@gmx.com>
+Date: Fri, 12 May 2017 10:03:04 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20170515123845.GA10015@pali>
+In-Reply-To: <20170512120310.s7mmuciunmftd5en@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, May 15, 2017 at 02:38:45PM +0200, Pali Rohár wrote:
-> But question remain what to do with UUID.
 
-It seem generated UUID is libblkid feature and another tools/systems
-don't use anything like UUID for UDF, right?
-
-If yes... then we can keep it unchanged, generate UUDI in the same way
-as now (hexadecimal digits). The "OSTA Unicode fix" maybe be used for
-LABEL= (etc) only. I guess nothing forces use to generate UUIDs from 
-decoded VolSetId.
-
-Anyway, UUID has to be printable.
-
-> I suggest to include all UDF changes in one release, so "breakage" would
-> be just between two versions. So if above Label/UUID changes would not
-> be ready for next release, I would suggest to postpone currently merged
-> UDF changes.
-
-Yes.
-
-    Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--- v2.30-ReleaseNotes-orig	2017-05-12 08:39:25.300530082 -0400
++++ v2.30-ReleaseNotes-new	2017-05-12 09:47:51.345896434 -0400
+@@ -9,7 +9,6 @@
+ 
+ The deprecated command tailf has been removed. Use "tail -f" from coreutils.
+ 
+-
+ blkzone -- NEW COMMAND to run zone commands on block device that support Zoned
+ Block Commands (ZBC) or Zoned-device ATA Commands (ZAC). The currently
+ supported functionality is 'report' and 'reset'.
+@@ -19,13 +18,12 @@
+ [thanks to Masatake YAMATO (Red Hat)]
+ 
+ lsmem -- NEW COMMAND to list the ranges of available memory with their online
+-status (originally implementd in Perl for s390-tools). [thanks to Clemens von Mann 
++status (originally implemented in Perl for s390-tools). [thanks to Clemens von Mann 
+ and Heiko Carstens (IBM)]
+ 
+-chmem -- NEW COMMAND to set memeory online/offline status [thanks to Heiko
++chmem -- NEW COMMAND to set memory online/offline status [thanks to Heiko
+ Carstens (IBM)]
+ 
+-
+ The old and dead Alpha and Cmos code has been removed from hwclock command.
+ 
+ The command fallocate supports "insert range" operation now.
+@@ -39,21 +37,36 @@
+ messages compatible with mount(8).
+ 
+ 
++Security issues
++---------------
++
++hwclock - no longer makes any internal permission checks. The System
++  Administrator must set proper permissions to control user access to
++  the RTC. It is NOT recommended to use set-user-ID.
++
++CVE-2016-2779 - This security issue is NOT FIXED yet.  It is possible to
++  disable the ioctl TIOCSTI by setsid() only.  Unfortunately, setsid()
++  has well-defined use cases in su(1) and runuser(1) and any changes
++  would introduce regressions.  It seems we need a better way -- ideally
++  another ioctl to disable TIOCSTI without setsid() or in userspace
++  implemented pty container (planned as experimental su(1) feature).
++
++
+ Stable maintenance releases between v2.29 and v2.30
+ ---------------------------------------------------
+-                              
+-util-linux 2.29.2 [Fed 02 2017]           
+-                              
++
++util-linux 2.29.2 [Fed 02 2017]
++
+  * https://www.kernel.org/pub/linux/utils/util-linux/v2.29/v2.29.2-ReleaseNotes
+    https://www.kernel.org/pub/linux/utils/util-linux/v2.29/v2.29.2-ChangeLog
+-                              
+-util-linux 2.29.1 [Jan 01 2017]          
+-                              
++
++util-linux 2.29.1 [Jan 01 2017]
++
+  * https://www.kernel.org/pub/linux/utils/util-linux/v2.29/v2.29.1-ReleaseNotes
+    https://www.kernel.org/pub/linux/utils/util-linux/v2.29/v2.29.1-ChangeLog
+-                              
++
+ Changes between v2.29 and v2.30
+--------------------------------          
++-------------------------------
+ 
+ agetty:
+    - fix a memory leak when parsing \S in issue files  [Matthias Gerstner]
+@@ -274,7 +287,7 @@
+    - clarify cmos inb and outb preprocessor directives  [Sami Kerola]
+    - clarify set_cmos_epoch() code  [Sami Kerola]
+    - do not hardcode date command magic string twice  [Sami Kerola]
+-   - don't check for permissions  [Karel Zak]
++   - *SECURITY* don't check for permissions  [Karel Zak] See 'Security issues'
+    - extra messages for debug only  [J William Piggott]
+    - fix rtc atexit registration  [Sami Kerola]
+    - fix whitespace in hwclock-rtc.c  [J William Piggott]
