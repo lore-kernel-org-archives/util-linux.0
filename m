@@ -1,83 +1,111 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35482 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.20]:55113 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933006AbdEOKJp (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 15 May 2017 06:09:45 -0400
-Date: Mon, 15 May 2017 12:09:40 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: util-linux@vger.kernel.org, Steve Kenton <skenton@ou.edu>,
-        =?utf-8?Q?Vojt=C4=9Bch?= Vladyka <xvlady00@stud.feec.vutbr.cz>,
-        Jan Kara <jack@suse.cz>
-Subject: Re: libblkid: udf: Incorrect implementation of Unicode strings
-Message-ID: <20170515100940.lggq2um6xt3dg66p@ws.net.home>
-References: <201705121638.59416@pali>
+        id S1757473AbdELOF6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 12 May 2017 10:05:58 -0400
+Subject: Re: [PATCH] Re: [ANNOUNCE] util-linux v2.30-rc1
+To: J William Piggott <elseifthen@gmx.com>,
+        Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+References: <20170512120310.s7mmuciunmftd5en@ws.net.home>
+ <15e27e95-29e2-3362-265f-635666d59230@gmx.com>
+From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
+Message-ID: <ff208f01-8d5e-49e7-bbbe-782fdec4b616@gmx.de>
+Date: Fri, 12 May 2017 16:05:46 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <201705121638.59416@pali>
+In-Reply-To: <15e27e95-29e2-3362-265f-635666d59230@gmx.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, May 12, 2017 at 04:38:59PM +0200, Pali Rohár wrote:
-> Hi!
-> 
-> Since beginning libblkid's udf code handles 16bit OSTA compressed 
-> unicode as UTF-16BE and 8bit OSTA compressed unicode as UTF-8.
-> 
-> In UDF 2.01 specification is written:
-> ====
-> For a CompressionID of 8 or 16, the value of the CompressionID shall 
-> specify the number of BitsPerCharacter for the d-characters defined in 
-> the CharacterBitStream field. Each sequence of CompressionID bits in the 
-> CharacterBitStream field shall represent an OSTA Compressed Unicode d-
-> character. The bits of the character being encoded shall be added to the 
-> CharacterBitStream from most- to least-significant-bit. The bits shall 
-> be added to the CharacterBitStream starting from the most significant 
-> bit of the current byte being encoded into. The value of the OSTA 
-> Compressed Unicode d-character interpreted as a Uint16 defines the value 
-> of the corresponding d-character in the Unicode 2.0 standard.
-> ====
-> 
-> So it means that 8bit OSTA compressed unicode buffer contains sequence 
-> of Unicode codepoints, one per 8 bits. What effectively means 
-> equivalence with Latin1 (ISO-8859-1) encoding.
-> 
-> And 16bit OSTA compressed unicode means sequence of Unicode codepoints, 
-> one per 16 bits in big endian. What is probably only UCS-2 and not full 
-> UTF-16.
-> 
-> So problem is with 8bit OSTA compressed unicode if contains bytes which 
-> are not UTF-8 invariants (ASCII). As those those are decoded differently 
-> with Latin1 and UTF-8.
-> 
-> Which means libblkid udf implementation of reading Unicode strings is 
-> wrong and affects all read operations (Label, UUID, ...).
-> 
-> To verify this problem I prepared small udf image (attached) which has 
-> logical volume identifier (known as label): 0x08 0xC3 0xBF 0x00 ... 0x03
-> 
-> According to spec it should be decoded as string "Ã¿"
-> (LATIN CAPITAL LETTER A WITH TILDE, INVERTED QUESTION MARK).
-> 
-> But blkid show me "ÿ" (LATIN SMALL LETTER Y WITH DIAERESIS).
-> 
-> I checked grub2 and Windows implementations and they show "Ã¿".
-> 
-> So... what to do with blkid implementation? Fixing it would mean to 
-> break all existing labels and uuids on Linux. Not fixing it would mean 
-> to have different labels across different systems which implements it 
-> properly.
 
-The issue has never been reported, so I guess the number of the affected
-LABELs is pretty small :-)
 
->From my point of view it would be better to follow the standard, fix
-the issue and be compatible with the another utils and systems. It
-would be nice to fix it now for v2.30 where we already have changes in
-udf/iso stuff. Please, send the patch :-)
+On 05/12/2017 04:03 PM, J William Piggott wrote:
+> 
+> --- v2.30-ReleaseNotes-orig	2017-05-12 08:39:25.300530082 -0400
+> +++ v2.30-ReleaseNotes-new	2017-05-12 09:47:51.345896434 -0400
+> @@ -9,7 +9,6 @@
+>   
+>   The deprecated command tailf has been removed. Use "tail -f" from coreutils.
+>   
+> -
+>   blkzone -- NEW COMMAND to run zone commands on block device that support Zoned
+>   Block Commands (ZBC) or Zoned-device ATA Commands (ZAC). The currently
+>   supported functionality is 'report' and 'reset'.
+> @@ -19,13 +18,12 @@
+>   [thanks to Masatake YAMATO (Red Hat)]
+>   
+>   lsmem -- NEW COMMAND to list the ranges of available memory with their online
+> -status (originally implementd in Perl for s390-tools). [thanks to Clemens von Mann
+> +status (originally implemented in Perl for s390-tools). [thanks to Clemens von Mann
+>   and Heiko Carstens (IBM)]
+>   
+> -chmem -- NEW COMMAND to set memeory online/offline status [thanks to Heiko
+> +chmem -- NEW COMMAND to set memory online/offline status [thanks to Heiko
+>   Carstens (IBM)]
+>   
+> -
+>   The old and dead Alpha and Cmos code has been removed from hwclock command.
+>   
+>   The command fallocate supports "insert range" operation now.
+> @@ -39,21 +37,36 @@
+>   messages compatible with mount(8).
+>   
+>   
+> +Security issues
+> +---------------
+> +
+> +hwclock - no longer makes any internal permission checks. The System
+> +  Administrator must set proper permissions to control user access to
+> +  the RTC. It is NOT recommended to use set-user-ID.
+> +
+> +CVE-2016-2779 - This security issue is NOT FIXED yet.  It is possible to
+> +  disable the ioctl TIOCSTI by setsid() only.  Unfortunately, setsid()
+> +  has well-defined use cases in su(1) and runuser(1) and any changes
+> +  would introduce regressions.  It seems we need a better way -- ideally
+> +  another ioctl to disable TIOCSTI without setsid() or in userspace
+> +  implemented pty container (planned as experimental su(1) feature).
+> +
+> +
+>   Stable maintenance releases between v2.29 and v2.30
+>   ---------------------------------------------------
+> -
+> -util-linux 2.29.2 [Fed 02 2017]
+> -
+> +
+> +util-linux 2.29.2 [Fed 02 2017]
 
-    Karel
+s/Fed/Feb/
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+> +
+>    * https://www.kernel.org/pub/linux/utils/util-linux/v2.29/v2.29.2-ReleaseNotes
+>      https://www.kernel.org/pub/linux/utils/util-linux/v2.29/v2.29.2-ChangeLog
+> -
+> -util-linux 2.29.1 [Jan 01 2017]
+> -
+> +
+> +util-linux 2.29.1 [Jan 01 2017]
+> +
+>    * https://www.kernel.org/pub/linux/utils/util-linux/v2.29/v2.29.1-ReleaseNotes
+>      https://www.kernel.org/pub/linux/utils/util-linux/v2.29/v2.29.1-ChangeLog
+> -
+> +
+>   Changes between v2.29 and v2.30
+> --------------------------------
+> +-------------------------------
+>   
+>   agetty:
+>      - fix a memory leak when parsing \S in issue files  [Matthias Gerstner]
+> @@ -274,7 +287,7 @@
+>      - clarify cmos inb and outb preprocessor directives  [Sami Kerola]
+>      - clarify set_cmos_epoch() code  [Sami Kerola]
+>      - do not hardcode date command magic string twice  [Sami Kerola]
+> -   - don't check for permissions  [Karel Zak]
+> +   - *SECURITY* don't check for permissions  [Karel Zak] See 'Security issues'
+>      - extra messages for debug only  [J William Piggott]
+>      - fix rtc atexit registration  [Sami Kerola]
+>      - fix whitespace in hwclock-rtc.c  [J William Piggott]
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
