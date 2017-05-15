@@ -1,27 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59980 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750877AbdEIKYk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 9 May 2017 06:24:40 -0400
-Date: Tue, 9 May 2017 12:24:35 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Mamatha Inamdar <mamatha4@linux.vnet.ibm.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH V2]lscpu: Read available CPUs max and min frequencies
-Message-ID: <20170509102435.wac7mskawbw7w66i@ws.net.home>
-References: <149328816596.3522.18183659350666784285.stgit@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <149328816596.3522.18183659350666784285.stgit@localhost.localdomain>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:34836 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932268AbdEOKyv (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 15 May 2017 06:54:51 -0400
+Received: by mail-wm0-f66.google.com with SMTP id v4so27404822wmb.2
+        for <util-linux@vger.kernel.org>; Mon, 15 May 2017 03:54:50 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH] fsck.minix: fix crash
+Date: Mon, 15 May 2017 11:54:43 +0100
+Message-Id: <20170515105443.8440-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Apr 27, 2017 at 03:52:59PM +0530, Mamatha Inamdar wrote:
->  sys-utils/lscpu.c |   45 ++++++++++++++++++++++++++++++++++++++++-----
->  1 file changed, 40 insertions(+), 5 deletions(-)
+disk-utils/fsck.minix.c:421:30: runtime error: index 513 out of bounds for
+type 'unsigned short [512]'
 
-Applied, thanks with some changes.
+Addresses: https://github.com/karelzak/util-linux/issues/373
+Reported-by: Hanno Bock <hanno@gentoo.org>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ disk-utils/fsck.minix.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
+diff --git a/disk-utils/fsck.minix.c b/disk-utils/fsck.minix.c
+index 34fbfdf72..1b4d9b461 100644
+--- a/disk-utils/fsck.minix.c
++++ b/disk-utils/fsck.minix.c
+@@ -401,6 +401,7 @@ map_block(struct minix_inode *inode, unsigned int blknr) {
+ 	unsigned short ind[MINIX_BLOCK_SIZE >> 1];
+ 	unsigned short dind[MINIX_BLOCK_SIZE >> 1];
+ 	int blk_chg, block, result;
++	size_t range;
+ 
+ 	if (blknr < 7)
+ 		return check_zone_nr(inode->i_zone + blknr, &changed);
+@@ -418,7 +419,12 @@ map_block(struct minix_inode *inode, unsigned int blknr) {
+ 	block = check_zone_nr(inode->i_zone + 8, &changed);
+ 	read_block(block, (char *)dind);
+ 	blk_chg = 0;
+-	result = check_zone_nr(dind + (blknr / 512), &blk_chg);
++	range = blknr / 512;
++	if (ARRAY_SIZE(dind) <= range) {
++		printf(_("Warning: block out of range\n"));
++		return 1;
++	}
++	result = check_zone_nr(dind + range, &blk_chg);
+ 	if (blk_chg)
+ 		write_block(block, (char *)dind);
+ 	block = result;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.13.0
+
