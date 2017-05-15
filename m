@@ -1,81 +1,33 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: BUG: wipefs dry run
-Date: Wed, 10 May 2017 13:03:10 +0200
-Cc: util-linux@vger.kernel.org
-References: <201705101154.50099.sweet_f_a@gmx.de> <20170510103202.ssoqv7pzk5h2a24q@ws.net.home>
-In-Reply-To: <20170510103202.ssoqv7pzk5h2a24q@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:34252 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750991AbdEOJpf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 15 May 2017 05:45:35 -0400
+Date: Mon, 15 May 2017 11:45:31 +0200
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: =?iso-8859-1?Q?R=FCdiger?= Meier <sweet_f_a@gmx.de>,
+        util-linux@vger.kernel.org
+Subject: Re: [PATCH] Re: [ANNOUNCE] util-linux v2.30-rc1
+Message-ID: <20170515094531.7bpqc62r75btg35n@ws.net.home>
+References: <20170512120310.s7mmuciunmftd5en@ws.net.home>
+ <15e27e95-29e2-3362-265f-635666d59230@gmx.com>
+ <ff208f01-8d5e-49e7-bbbe-782fdec4b616@gmx.de>
+ <c9a85252-5881-7452-dcb1-4e76325a3d31@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201705101303.10856.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <c9a85252-5881-7452-dcb1-4e76325a3d31@gmx.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 10 May 2017, Karel Zak wrote:
-> On Wed, May 10, 2017 at 11:54:50AM +0200, Ruediger Meier wrote:
-> > I wonder why wipefs does not show all MBR and GPT signatures which
-> > would be deleted by using "-fa".
-> >
-> > $ truncate -s 100M /tmp/CCC
-> > $ ./sfdisk /tmp/CCC <<EOF
-> >
-> > > label: gpt
-> > > label-id: 384A8F14-17FF-4782-A190-A5B858E3FCF0
-> > > device: /tmp/CCC
-> > > unit: sectors
-> > > first-lba: 34
-> > > last-lba: 204766
-> > > EOF
-> >
-> > $ ./wipefs  -fa --no-act   /tmp/CCC
-> > /tmp/CCC: 8 bytes were erased at offset 0x00000200 (gpt): 45 46 49
-> > 20 50 41 52 54
-> >
-> > $ ./wipefs  -fa    /tmp/CCC
-> > /tmp/CCC: 8 bytes were erased at offset 0x00000200 (gpt): 45 46 49
-> > 20 50 41 52 54
-> > /tmp/CCC: 8 bytes were erased at offset 0x063ffe00 (gpt): 45 46 49
-> > 20 50 41 52 54
-> > /tmp/CCC: 2 bytes were erased at offset 0x000001fe (PMBR): 55 aa
->
-> This is not a bug, man wipefs:
->
->         Note that some filesystems and some partition tables store
-> more magic strings on the device.  The wipefs command lists only the 
-> first offset  where  a  magic  string  has  been detected.   The 
-> device  is not scanned for additional magic strings for the same
-> filesystem.  It is possible that after a wipefs -o offset the same
-> filesystem or partition table will still be visible because of
-> another magic string on another offset.
+On Fri, May 12, 2017 at 10:19:22AM -0400, J William Piggott wrote:
+> --- v2.30-ReleaseNotes-orig	2017-05-12 08:39:25.300530082 -0400
+> +++ v2.30-ReleaseNotes-new	2017-05-12 10:13:43.159848475 -0400
 
+Applied, thanks!
 
-I see.
+    Karel
 
->
-> The "-a" writes zeros, resets the scanner and repeat scan again and
-> again until nothing is found. I will add note about it to the man
-> page...
-
-Thanks. For me it's a bit hard to guess what wipefs would
-actually do.
-
-I have another issue, using wipefs on the same image like above:
-
-$ ./wipefs -fa -t gpt  /tmp/CCC
-/tmp/CCC: 8 bytes were erased at offset 0x00000200 (gpt): 45 46 49 20 50 41 52 54
-/tmp/CCC: 8 bytes were erased at offset 0x063ffe00 (gpt): 45 46 49 20 50 41 52 54
-/tmp/CCC: 8 bytes were erased at offset 0x063ffe00 (gpt): 45 46 49 20 50 41 52 54
-
-There are two duplicated lines in the output and the not-mentioned (P)MBR
-is also removed.
-
-
-> It would be probably possible to extend libblkid to work in some
-> "ignore previous result" mode to to gather all permutation for the
-> FS/RAID/etc, but it won't be trivial task...
-
-This would be nice.
-
-cu,
-RUdi
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
