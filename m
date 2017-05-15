@@ -1,204 +1,123 @@
-Return-Path: elseifthen@gmx.com
-Subject: Re: versioning
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wm0-f52.google.com ([74.125.82.52]:37045 "EHLO
+        mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752817AbdEOMix (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 15 May 2017 08:38:53 -0400
+Received: by mail-wm0-f52.google.com with SMTP id d127so74830164wmf.0
+        for <util-linux@vger.kernel.org>; Mon, 15 May 2017 05:38:52 -0700 (PDT)
+Date: Mon, 15 May 2017 14:38:45 +0200
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
 To: Karel Zak <kzak@redhat.com>
-References: <20170517074741.ltxnoawwvj56gc3m@ws.net.home>
- <591C8A09.6070100@gmail.com> <201705172107.49456.sweet_f_a@gmx.de>
- <20170517210953.dskdxcr3rdmbtvgs@ws.net.home>
- <CAG27Bk17xasjeZQP6YpzUvchZJ5mtG2K4w0dirRybxu98-pAcQ@mail.gmail.com>
- <20170518103640.3dedmk7lat74biev@ws.net.home>
- <24e52021-2e94-68a7-bd8c-51362af1d749@gmx.com>
- <20170518195648.gxhsd4zak57wfcg3@ws.net.home>
- <2d5ad507-f51c-7b1b-3aa3-355609cb609c@gmx.de>
- <dfa49f1d-e310-667a-20d3-897bbff2ea83@gmx.com>
- <20170520193446.bt44te35kji2gmzo@ws.net.home>
-Cc: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>,
- util-linux <util-linux@vger.kernel.org>
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <b6e7901f-4df8-6842-0475-0290d110f68e@gmx.com>
-Date: Mon, 22 May 2017 17:37:28 -0400
+Cc: util-linux@vger.kernel.org, Steve Kenton <skenton@ou.edu>,
+        =?utf-8?Q?Vojt=C4=9Bch?= Vladyka <xvlady00@stud.feec.vutbr.cz>,
+        Jan Kara <jack@suse.cz>
+Subject: Re: libblkid: udf: Incorrect implementation of Unicode strings
+Message-ID: <20170515123845.GA10015@pali>
+References: <201705121638.59416@pali>
+ <20170515100940.lggq2um6xt3dg66p@ws.net.home>
 MIME-Version: 1.0
-In-Reply-To: <20170520193446.bt44te35kji2gmzo@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20170515100940.lggq2um6xt3dg66p@ws.net.home>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-
-
-On 05/20/2017 03:34 PM, Karel Zak wrote:
-> On Fri, May 19, 2017 at 03:00:14PM -0400, J William Piggott wrote:
->> git-pull(1): By default, tags that point at objects that are downloaded
->> from the remote repository are fetched and stored locally.
->>
->> If a tag is created from the master branch, then (with the default
->> configuration) pulling the master branch will pull the tag as well.
->>
->> I think perhaps Karel changed his bugfix release workflow and started
->> creating them from a working branch. 
+On Monday 15 May 2017 12:09:40 Karel Zak wrote:
+> On Fri, May 12, 2017 at 04:38:59PM +0200, Pali Rohár wrote:
+> > Hi!
+> > 
+> > Since beginning libblkid's udf code handles 16bit OSTA compressed 
+> > unicode as UTF-16BE and 8bit OSTA compressed unicode as UTF-8.
+> > 
+> > In UDF 2.01 specification is written:
+> > ====
+> > For a CompressionID of 8 or 16, the value of the CompressionID shall 
+> > specify the number of BitsPerCharacter for the d-characters defined in 
+> > the CharacterBitStream field. Each sequence of CompressionID bits in the 
+> > CharacterBitStream field shall represent an OSTA Compressed Unicode d-
+> > character. The bits of the character being encoded shall be added to the 
+> > CharacterBitStream from most- to least-significant-bit. The bits shall 
+> > be added to the CharacterBitStream starting from the most significant 
+> > bit of the current byte being encoded into. The value of the OSTA 
+> > Compressed Unicode d-character interpreted as a Uint16 defines the value 
+> > of the corresponding d-character in the Unicode 2.0 standard.
+> > ====
+> > 
+> > So it means that 8bit OSTA compressed unicode buffer contains sequence 
+> > of Unicode codepoints, one per 8 bits. What effectively means 
+> > equivalence with Latin1 (ISO-8859-1) encoding.
+> > 
+> > And 16bit OSTA compressed unicode means sequence of Unicode codepoints, 
+> > one per 16 bits in big endian. What is probably only UCS-2 and not full 
+> > UTF-16.
+> > 
+> > So problem is with 8bit OSTA compressed unicode if contains bytes which 
+> > are not UTF-8 invariants (ASCII). As those those are decoded differently 
+> > with Latin1 and UTF-8.
+> > 
+> > Which means libblkid udf implementation of reading Unicode strings is 
+> > wrong and affects all read operations (Label, UUID, ...).
+> > 
+> > To verify this problem I prepared small udf image (attached) which has 
+> > logical volume identifier (known as label): 0x08 0xC3 0xBF 0x00 ... 0x03
+> > 
+> > According to spec it should be decoded as string "Ã¿"
+> > (LATIN CAPITAL LETTER A WITH TILDE, INVERTED QUESTION MARK).
+> > 
+> > But blkid show me "ÿ" (LATIN SMALL LETTER Y WITH DIAERESIS).
+> > 
+> > I checked grub2 and Windows implementations and they show "Ã¿".
+> > 
+> > So... what to do with blkid implementation? Fixing it would mean to 
+> > break all existing labels and uuids on Linux. Not fixing it would mean 
+> > to have different labels across different systems which implements it 
+> > properly.
 > 
-> I always use master branch.
-> 
-> $ git branch --contains  v2.30-rc1
-> * master
->
+> The issue has never been reported, so I guess the number of the affected
+> LABELs is pretty small :-)
 
-So, I muddied the waters by talking about two different topics.
-What I really want to discuss are bugfix releases: v2.xx.x.
+Yes, that is possible. As most labels are just ASCII and if somebody
+needs something special, then it is probably non-Latin and so above
+U+FF codepoint...
 
-The following comment should have been a separate topic. I mentioned it
-only because the odd behavior that I experienced with the recent rc
-release sparked the thought that the bugfix releases are being created
-in a working branch and that could explain why 'git pull' is not
-fetching their tags.
+> From my point of view it would be better to follow the standard, fix
+> the issue and be compatible with the another utils and systems. It
+> would be nice to fix it now for v2.30 where we already have changes in
+> udf/iso stuff. Please, send the patch :-)
 
->> I say that because the
->> v2.30-ReleaseNotes file never hit my local repo, the master branch,
->> until May 16th. That is why I submitted my patch for it as a simple diff
->> instead of a git format-patch.
-> 
-> https://github.com/karelzak/util-linux/blob/master/Documentation/releases/v2.30-ReleaseNotes
->                                             ^^^^^^
-> 
-> as well as on kernel.org:
-> 
-> https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/tag/?h=v2.30-rc1
+Ok, I can do that.
 
-I wasn't trying to say that this file isn't in 'master', nor that the
-stable releases cannot be reached from 'master'; they certainly can be
-as they are in the 'master' commit log.
+But question remain what to do with UUID. First 16 characters of Volume
+Set Identifier are unique, non trivial and should represent hexadecimal
+representation of timestamp. Currently blkid use it for generating UUID.
 
-What I was saying is that the release was on May 12. The commit the tag
-references hit my repo on May 14, but the v2.30-ReleaseNotes file did
-not pull until May 16; May 15 had nothing:
+But "character" here means Unicode codepoint, not byte. So what to do if
+Volume Set Identifier (which we use for UUID) contains non hexadecimal
+and also non-alphabetical or non-ASCII characters?
 
-$ find -newermt "-12 day" -printf "%TD %p\n" | sort
+Currently blkid read non-alphabetical chars somehow as bytes and encode
+them as two hexadecimal digit. But due to broken implementation of
+reading OSTA compressed unicode this would be changed (after fixing
+reading OSTA Unicode).
 
- 8< ...
+So what can be stored in UUID? If any UTF-8 sequence, then we can just
+take 16chars of VolSetId, convert OSTA Unicode to UTF-8 and store into
+UUID. But it mean that UUID could contain also non printable characters
+and also some exotic or non-Latin characters... Other option if
+arbitrary Unicode characters is not allowed in UUID then we need to
+decide how to convert/escape them into printable-ASCII, alphanumeric or
+hexdigit.
 
-05/14/17 ./AUTHORS
-05/14/17 ./NEWS
-05/14/17 ./aclocal.m4
-05/14/17 ./config.h.in
-05/14/17 ./configure.ac
-05/14/17 ./po/ca.po
+The simplest way for UUID is of course to take first 16 chars of
+VolSetId and encode them in UTF-8... but it allowed? And it is usable
+for users (to specify disk by arbitrary Unicode/UTF-8 sequence)?
 
- 8< ...
+Let me know your opinion.
 
-05/16/17 ./Documentation/TODO
-05/16/17 ./Documentation/releases/v2.30-ReleaseNotes
+I suggest to include all UDF changes in one release, so "breakage" would
+be just between two versions. So if above Label/UUID changes would not
+be ready for next release, I would suggest to postpone currently merged
+UDF changes.
 
-This seems odd to me, but has all worked out now. The v2.30-rc1 tag
-contains the unpatched v2.30-ReleaseNotes without the security warnings,
-but I guess that is what v2.30-rc2 is for ;)
-
-Enough of that, the real topic is below.
-
-> 
->> It seems to me that the working branch should be merged into master
->> first, and then create the tag, tarball, etc. from master.  That way
->> pulling master will fetch the release tags. That should be expected
->> behavior.
->>
->> IMO, creating releases from an ephemeral branch, or anything other than
->> master, is asking for headaches.
-> 
-> Maybe you need 'git clean -xdf' before 'git pull' or so.
->
-
-The bugfix tags 2.xx.x are from another branch and not reachable from
-'master', it's not because my local repo is dirty. Here is an example
-with a fresh repo:
-
-S git clone https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git
- 8< ...
-$ cd util-linux
-$ git branch --contains v2.29.1  
-$ git branch --contains v2.29.2
-$ git branch --contains v2.28.1
-$ git branch --contains v2.27.1
-$ git branch --contains v2.26.1
-$ git branch --contains v2.25.1
-$ git branch --contains v2.24.1
-$ git branch --contains v2.23.1
-$ git branch --contains v2.22.1
-$ git branch --contains v2.21.1
-$ git branch --contains v2.20.1
-$ git branch --contains v2.19.1
-$ git branch --contains v2.17.1
-$ git branch --contains v2.16.1
-$ git branch --contains v2.15.1
-$ git branch --contains v2.14.1
-$ git branch --contains v2.13.1
-
-For example this tag was created from a working branch:
-
-$ git show v2.29.1
-
- 8< ...
-
-commit 9ebc8a7a882ddfd93bc3262514791a0dcaadba09
-Author: Karel Zak <kzak@redhat.com>
-Date:   Fri Jan 20 14:13:08 2017 +0100
-
-    build-sys: release++ (v2.29.1)
-    
-    Signed-off-by: Karel Zak <kzak@redhat.com>
-
- 8< ...
- ____________________________________________________
-
-The commit, and therefore the tag, is not in 'master' and is not
-reachable from master.
-
-Some issues with this model:
-
-* 'git pull upstream master', etcetera, will not fetch the bugfix
-     release tags because they are not reachable from 'master'.
-     This could be unexpected behavior for someone new to the project.
-
-* A checked-out bugfix release tag has all of the releases in the NEWS
-     file. Whereas, 'master' omits the bugfix releases.
-
-* A checked-out bugfix release tag has all of the v*-ReleaseNotes.
-     Whereas, 'master' omits all of the bugfix v2.xx.x-ReleaseNotes.
-
-* The previous two make these orphaned tags more complete then 'master' is.
-
-* I don't know this for a fact, but I suspect that due to the tags not
-    being reachable from any branch that they might have to store the
-    entire file tree? If yes, it means more bandwidth and storage use.
-
-These aren't issues for me personally, I just thought it was something
-the project should consider.
-
-My thoughts are that bugfix releases should be committed to 'master' the
-same as the stable/rc releases are. Then the tag created from that commit.
-
-
->>>> I push to the both repos in the same time
->>>> $ git push; git push github master; git push --tags; git push github --tags
->>
->> I think it would be better to:
->>
->> git push --follow-tags; git push --follow-tags github master
-> 
-> $ git push --follow-tags; git push --follow-tags github master
-> Everything up-to-date
-> Everything up-to-date
->
-
-Well, 'git push --tags' already uploaded all of the tags, so at the moment
-using --follow-tags isn't very meaningful. It could be in the future
-though. Of course, if the bugfix tags continue to be unreachable from
-master, then you will have to go back to using 'git push --tags'.
-
-
->> This would be a good crosscheck to know that the release tags were
->> created against master and not some other branch.
->>
->> Also, one day you may want to have some private tags and --tags will
->> push everything.  Whereas, --follow-tags will only push tags associated
->> with what is being pushed, that is, the master branch.
-> 
-> OK.
-> 
->     Karel
-> 
+-- 
+Pali Rohár
+pali.rohar@gmail.com
