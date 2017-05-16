@@ -1,52 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:36503 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753819AbdEISLC (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 9 May 2017 14:11:02 -0400
-Received: by mail-wr0-f196.google.com with SMTP id v42so2128044wrc.3
-        for <util-linux@vger.kernel.org>; Tue, 09 May 2017 11:11:01 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 5/5] docs: make column.1 example to use ascii output
-Date: Tue,  9 May 2017 19:10:52 +0100
-Message-Id: <20170509181052.3610-5-kerolasa@iki.fi>
-In-Reply-To: <20170509181052.3610-1-kerolasa@iki.fi>
-References: <20170509181052.3610-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:43700 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752541AbdEPMxC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 16 May 2017 08:53:02 -0400
+Date: Tue, 16 May 2017 14:52:57 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: libblkid: udf: Incorrect implementation of Unicode strings
+Message-ID: <20170516125257.s6ndqrergbkghcoh@ws.net.home>
+References: <201705121638.59416@pali>
+ <20170515100940.lggq2um6xt3dg66p@ws.net.home>
+ <20170515123845.GA10015@pali>
+ <20170516110139.v63qiov2ndxw2gwa@ws.net.home>
+ <20170516115940.GD10015@pali>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20170516115940.GD10015@pali>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-In same go ease reading by having data and arguments in same order.
+On Tue, May 16, 2017 at 01:59:40PM +0200, Pali Roh�r wrote:
+> On Tuesday 16 May 2017 13:01:39 Karel Zak wrote:
+> > On Mon, May 15, 2017 at 02:38:45PM +0200, Pali Roh�r wrote:
+> > > But question remain what to do with UUID.
+> > 
+> > It seem generated UUID is libblkid feature and another tools/systems
+> > don't use anything like UUID for UDF, right?
+> 
+> Yes. Introduced in https://github.com/karelzak/util-linux/pull/135
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/column.1 | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+:-)
 
-diff --git a/text-utils/column.1 b/text-utils/column.1
-index b605d505d..03f669789 100644
---- a/text-utils/column.1
-+++ b/text-utils/column.1
-@@ -125,12 +125,12 @@ Print fstab with header line and align number to the right:
- .PP
- Print a tree:
- .EX
--\fBecho -e '1 0 A\\n2 1 AA\\n3 1 AB\\n4 2 AAA\\n5 2 AAB' | column --tree 3 --tree-id 1 --tree-parent 2\fR
-+\fBecho -e '1 0 A\\n2 1 AA\\n3 1 AB\\n4 2 AAA\\n5 2 AAB' | column --tree-id 1 --tree-parent 2 --tree 3\fR
- 1  0  A
--2  1  ├─AA
--4  2  │ ├─AAA
--5  2  │ └─AAB
--3  1  └─AB
-+2  1  |-AA
-+4  2  | |-AAA
-+5  2  | `-AAB
-+3  1  `-AB
- .EE
- .SH BUGS
- Version 2.23 changed the
+> But I would like to see UUID support also on other places (e.g. Grub2)
+> so it would be possible to use it really as UUID of FS. Which means we
+> need some normalized way of generation.
+
+OK.
+
+> > If yes... then we can keep it unchanged, generate UUDI in the same way
+> > as now (hexadecimal digits). The "OSTA Unicode fix" maybe be used for
+> > LABEL= (etc) only. I guess nothing forces use to generate UUIDs from 
+> > decoded VolSetId.
+> > 
+> > Anyway, UUID has to be printable.
+> 
+> Lets first define allowed characters in UUID and then what we do with
+> UDF's UUID.
+> 
+> Printable means only printable ASCII? Or also printable from Unicode? Or
+> only alphanumeric?
+
+I'd like to be very conservative and avoid anything else than ASCII.
+It's identifier that should be usable everywhere.
+
+udev uses the UUID for paths and symlinks, "bad chars" are escaped and
+it's very user unfriendly. We should be also user friendly to non-UTF
+users, terminals, etc.
+
+IMHO the best solution would be to use lowercase hex-digits like for
+another filesystems (and super ideal would be follow UUID notation for
+formatting (e.g. "c5490147-2a6c-4c8a-aa1b-33492034f927") ;-).
+
+> > > I suggest to include all UDF changes in one release, so "breakage" would
+> > > be just between two versions. So if above Label/UUID changes would not
+> > > be ready for next release, I would suggest to postpone currently merged
+> > > UDF changes.
+> > 
+> > Yes.
+
+I have released v2.30-rc1, we have time to -rc2 (~1 month).
+
+    Karel
+
 -- 
-2.12.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
