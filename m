@@ -1,60 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:36582 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754992AbdE0JEF (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 27 May 2017 05:04:05 -0400
-Received: by mail-wm0-f66.google.com with SMTP id k15so7480696wmh.3
-        for <util-linux@vger.kernel.org>; Sat, 27 May 2017 02:04:05 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] libfdisk: fix variable shadowing
-Date: Sat, 27 May 2017 10:03:55 +0100
-Message-Id: <20170527090355.28183-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:50578 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750949AbdEPLBo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 16 May 2017 07:01:44 -0400
+Date: Tue, 16 May 2017 13:01:39 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: libblkid: udf: Incorrect implementation of Unicode strings
+Message-ID: <20170516110139.v63qiov2ndxw2gwa@ws.net.home>
+References: <201705121638.59416@pali>
+ <20170515100940.lggq2um6xt3dg66p@ws.net.home>
+ <20170515123845.GA10015@pali>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20170515123845.GA10015@pali>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-libfdisk/src/context.c: In function 'fdisk_assign_device':
-libfdisk/src/context.c:549:7: warning: declaration of 'rc' shadows a previous local [-Wshadow]
-libfdisk/src/context.c:542:10: note: shadowed declaration is here
+On Mon, May 15, 2017 at 02:38:45PM +0200, Pali Rohár wrote:
+> But question remain what to do with UUID.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- libfdisk/src/context.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+It seem generated UUID is libblkid feature and another tools/systems
+don't use anything like UUID for UDF, right?
 
-diff --git a/libfdisk/src/context.c b/libfdisk/src/context.c
-index 52fd57987..5cf27a948 100644
---- a/libfdisk/src/context.c
-+++ b/libfdisk/src/context.c
-@@ -539,7 +539,7 @@ static void reset_context(struct fdisk_context *cxt)
- int fdisk_assign_device(struct fdisk_context *cxt,
- 			const char *fname, int readonly)
- {
--	int fd, rc = 0;
-+	int fd;
- 
- 	DBG(CXT, ul_debugobj(cxt, "assigning device %s", fname));
- 	assert(cxt);
-@@ -600,11 +600,13 @@ int fdisk_assign_device(struct fdisk_context *cxt,
- 			      fname, readonly ? "READ-ONLY" : "READ-WRITE"));
- 	return 0;
- fail:
--	rc = -errno;
--	if (fd >= 0)
--		close(fd);
--	DBG(CXT, ul_debugobj(cxt, "failed to assign device"));
--	return rc;
-+	{
-+		int rc = -errno;
-+		if (fd >= 0)
-+			close(fd);
-+			DBG(CXT, ul_debugobj(cxt, "failed to assign device"));
-+		return rc;
-+	}
- }
- 
- /**
+If yes... then we can keep it unchanged, generate UUDI in the same way
+as now (hexadecimal digits). The "OSTA Unicode fix" maybe be used for
+LABEL= (etc) only. I guess nothing forces use to generate UUIDs from 
+decoded VolSetId.
+
+Anyway, UUID has to be printable.
+
+> I suggest to include all UDF changes in one release, so "breakage" would
+> be just between two versions. So if above Label/UUID changes would not
+> be ready for next release, I would suggest to postpone currently merged
+> UDF changes.
+
+Yes.
+
+    Karel
+
+
 -- 
-2.13.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
