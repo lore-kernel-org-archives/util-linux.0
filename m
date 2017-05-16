@@ -1,136 +1,27 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:64915 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:35116 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750999AbdEaSgw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 31 May 2017 14:36:52 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Assaf Gordon <assafgordon@gmail.com>
-Subject: Re: [ANNOUNCE] util-linux v2.30-rc2
-Date: Wed, 31 May 2017 20:36:38 +0200
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <20170523105038.hm3ryvwvghgife4j@ws.net.home> <20170531091648.3eql47zhfo6sy6sd@ws.net.home> <20170531174139.GA30064@gmail.com>
-In-Reply-To: <20170531174139.GA30064@gmail.com>
+        id S1752228AbdEPM4d (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 16 May 2017 08:56:33 -0400
+Date: Tue, 16 May 2017 14:56:26 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] getops: make --a-long option work again
+Message-ID: <20170516125626.pzxyn3nbjaro7tfp@ws.net.home>
+References: <20170516073741.10811-1-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201705312036.39054.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170516073741.10811-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 31 May 2017, Assaf Gordon wrote:
-> Hello,
->
-> On Wed, May 31, 2017 at 11:16:48AM +0200, Karel Zak wrote:
-> >On Tue, May 30, 2017 at 11:48:46PM -0400, Assaf Gordon wrote:
-> >> I'm still seeing this error (tested with
-> >> util-linux-2.30-rc2-16-2ac1b on same Debian 8.1 system).
-> >
-> >Ah, I had another issues with ncurses on debian, so I forget to very
-> >this one. Fixed now (I hope).
->
-> Thanks, works now (tested with Debian 8.1, 7.6, Ubuntu 16.04, 15.04,
-> 14.04).
->
-> >> On alpine-linux, the compilation now fails with:
-> >
-> >So, now the header file <linux/version.h> is required by ./configure
-> >on Linux. I guess it's not overkill.
->
-> Yes, works well and the error message is clear.
-> Adding linux-headers with `sudo apk add linux-headers` solves the
-> issue.
->
-> Now that it builds on alpine-linux, two other issues (not necessarily
-> show-stoppers for the release):
->
-> 1.
-> The test infrastrucutre uses some GNU extensions which aren't
-> available by default on Alpine-Linux (it has busybox instead of GNU
-> coreuils). Specifically: ./tests/run.sh uses `#!/bin/bash`, `xargs
-> -P` and `grep --after-context=1` .
-> The `grep` at least is easy to fix as busybox's grep supports the
-> short-option equivalent of `-A1`.
->
-> As a work-around, the GNU programs can be installed on alpine with:
->     sudo apk add findutils bash grep
+On Tue, May 16, 2017 at 08:37:41AM +0100, Sami Kerola wrote:
+>  misc-utils/getopt-parse.bash | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-This is a known issue in the test-suite only. It is pseudo-documented 
-in .travis-functions.sh, osx_prepare_check(). We require bash and 
-non-POSIX features of readlink, seq, truncate, find, xargs, tar and 
-sed.
+Applied, thanks.
 
->
-> 2.
-> After installing the gnu programs `make check` works, but few tests
-> fail:
-
-> ============
->    col: multibyte input                ... FAILED (col/multibyte)
-> colcrt: regressions                    ...
->
->       : crash1                      ... FAILED
->       : (colcrt/regressions-crash1) crash2                      ...
->       : FAILED (colcrt/regressions-crash2) hang1                     
->       :  ... FAILED (colcrt/regressions-hang1)
->
->       ... FAILED (3 from 3 sub-tests)
-> column: invalid multibyte              ... FAILED
-> (column/invalid-multibyte) fdisk: invalid input tests            ...
-> FAILED (fdisk/oddinput) getopt: options                        ...
->
->       : alternative_option_clash    ... FAILED
->       : (getopt/options-alternative_option_clash) posix_correctly    
->       :         ... FAILED (getopt/options-posix_correctly)
-
->       ... FAILED (2 from 29 sub-tests)
->   misc: swaplabel                      ... FAILED (misc/swaplabel)
-> rename: exit codes                     ... FAILED (rename/exit_codes)
->   utmp: subsecond                      ... FAILED
-> (utmp/utmpdump-subsecond) ==============
->
-> Regarding the 'multibyte' failures - these could stem from
-> musl-libc's differences (compared to glibc).
-
-
-> 'utmp' failure might be because musl-libc does not implement utmp
-> support (only stubs).
-
-musl supports both utmp and utmpx. We are using utmpx. Could you show us 
-all your test diffs?:
-
-  find tests/diff -type f  | xargs tail -n +1
-
-> I'm happy to test further if you have specific suggestions of what to
-> test.
->
-> -----
->
->
-> Lastly,
-> I've hit a snag when trying to run 'make dist' on the latest version.
-> make failed with:
-
-"make dist" is something we do not really care to make it fully 
-portable. It should run on "usual" maintainer machines to provide 
-portable tarballs for other machines. "make distcheck" will be even 
-less portable.
-
-> ===
-> make[5]: Entering directory `/localdata2/sources/util-linux/po'
-> File da.new.po does not exist. If you are a translator, you can
-> create it through 'msginit'. make[5]: *** [da.new.po-create] Error 1
-> make[5]: Leaving directory `/localdata2/sources/util-linux/po'
-> ===
->
-> I have no clue when this is coming from (it didn't fail on in
-> previous builds). Could be a problem on my system, or something else.
-> Didn't investigate further (just manually removed 'da.new.*' from
-> po/Makefile).
->
->
-> regards,
->  - assaf
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
