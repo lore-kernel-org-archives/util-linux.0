@@ -1,59 +1,57 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36406 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752075AbdERIeE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 18 May 2017 04:34:04 -0400
-Date: Thu, 18 May 2017 10:34:00 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: versioning
+Date: Wed, 17 May 2017 10:42:53 +0200
 Cc: util-linux@vger.kernel.org
-Subject: Re: libblkid: udf: Incorrect implementation of Unicode strings
-Message-ID: <20170518083400.pi6l3r3kbombo6qa@ws.net.home>
-References: <201705121638.59416@pali>
- <20170516140245.GE10015@pali>
- <20170517071333.wj4glanhfh2aje72@ws.net.home>
- <201705172050.48793@pali>
+References: <20170517074741.ltxnoawwvj56gc3m@ws.net.home>
+In-Reply-To: <20170517074741.ltxnoawwvj56gc3m@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <201705172050.48793@pali>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201705171042.53414.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, May 17, 2017 at 08:50:48PM +0200, Pali Rohár wrote:
-> Still, more UDF disks created by Nero, new mkudffs or new udfclient have 
-> only hexdigits stored in VolSetID. So it is better to use them directly 
-> instead of encoding hexdigits characters via %02x.
+On Wednesday 17 May 2017, Karel Zak wrote:
+>  Hi,
+>
+>  Sami has good point on IRC... do we really want to continue with the
+>  current versioning schema? Now we use:
+>
+>     v2.xx[.y]
+>
+>  I don't expect v3 or v4, so the prefix v2 does not provide any
+>  information... and the 'xx' ('30' now) is already large number.
+>
+>  Suggestions:
+>
+>  1) do nothing; nobody cares and v2.31 looks good
+>
+>  2) remove '2' from the version:
+>
+>         major release:  v31
+>         update release: v31.1
 
-OK, I see.
+I don't see why v31 would be better than v3? I always appreciate if 
+there are no gaps in version numbers. So v31 should be released after 
+v30 ;)
 
-> I tried to modify current algorithm to take UTF-8 representation for its 
-> input (therefore correctly handle both 8bit and 16bit OSTA Unicode) and 
-> honor above hexdigits in VolSetID.
-> 
-> Please look at review my proposed changes:
-> https://github.com/karelzak/util-linux/pull/439
+>
+>  3) <your suggestion>?
+>
 
-Looks good.
+I would prefer either v2.31 or v3.1.
 
-It seems the most invasive change (in many cases) is the tolower() :-)
-IMHO it's good idea to generate normalized UUID.
+v3 just to avoid big numbers. But could also be a hint regarding the 
+minimum supported/tested kernel version. I believe that we have already 
+a few incompatibilities for kernel <2.6.32. Maybe we could cleanup our 
+code, only supporting kernel >=3.1.
 
-> > The another option would be use some hash sum to standardize
-> > arbitrary number of bytes (for example we use MD5 to generate UUID
-> > for libblkid/src/superblocks/hfs.c). In this case we can use also
-> > some another bytes from the header, for example
-> > volume_descriptor.tag. The disadvantage is dependence on checksum
-> > code, so bad portability to another projects (grub, etc.).
-> 
-> Looks like too complicated, specially decision on checksum/hash function 
-> could be problematic to implement in other projects. Probably hash 
-> functions does not have to be fast (even there are fast MD5 
-> implementations).
+cu,
+Rudi
 
-Yes, the portability to the another projects is painful in this case.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+>  Note that for v2.30 is to late to do any change in version numbers
+>  (we need changes in our libraries and I have to update some my
+> scripts).
+>
+>     Karel
