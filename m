@@ -1,36 +1,31 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35304 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755471AbdESI02 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 19 May 2017 04:26:28 -0400
-Date: Fri, 19 May 2017 10:26:18 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+Received: from mout.kundenserver.de ([212.227.126.134]:54075 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753820AbdEQNXS (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 17 May 2017 09:23:18 -0400
+Subject: Re: versioning
+To: Ruediger Meier <sweet_f_a@gmx.de>, Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/3] chsh: make readline completion to propose valid
- shells
-Message-ID: <20170519082618.7karkcbuugicnmvx@ws.net.home>
-References: <20170518211936.28153-1-kerolasa@iki.fi>
- <20170518211936.28153-4-kerolasa@iki.fi>
+References: <20170517074741.ltxnoawwvj56gc3m@ws.net.home>
+ <201705171042.53414.sweet_f_a@gmx.de> <201705171047.13926.sweet_f_a@gmx.de>
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Message-ID: <f47059fe-b66a-cd7b-7ce5-58e8fe5cbb5d@bernhard-voelker.de>
+Date: Wed, 17 May 2017 15:23:11 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170518211936.28153-4-kerolasa@iki.fi>
+In-Reply-To: <201705171047.13926.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, May 18, 2017 at 10:19:36PM +0100, Sami Kerola wrote:
-> This is better than default readline completion, that gives paths from
-> current directory onwards.
-> 
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  login-utils/chsh.c | 117 ++++++++++++++++++++++++++++++++++++++++-------------
->  1 file changed, 90 insertions(+), 27 deletions(-)
+On 05/17/2017 10:47 AM, Ruediger Meier wrote:
+> v2.30
+> v2.30.1
+> v2.30.2
+> v3.0
+> v3.1
+> v3.2
 
-Not sure with this patch, seems too invasive for rc2. Let's wait for v2.31
++1 to all your arguments - v31 and v31.1 look really odd.
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Have a nice day,
+Berny
