@@ -1,98 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:62152 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756121AbdELODV (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 12 May 2017 10:03:21 -0400
-Subject: [PATCH] Re: [ANNOUNCE] util-linux v2.30-rc1
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:36468 "EHLO
+        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752318AbdEQRgR (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 17 May 2017 13:36:17 -0400
+Received: by mail-oi0-f66.google.com with SMTP id w138so3275413oiw.3
+        for <util-linux@vger.kernel.org>; Wed, 17 May 2017 10:36:17 -0700 (PDT)
+Subject: Re: versioning
 To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <20170512120310.s7mmuciunmftd5en@ws.net.home>
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <15e27e95-29e2-3362-265f-635666d59230@gmx.com>
-Date: Fri, 12 May 2017 10:03:04 -0400
+References: <20170517074741.ltxnoawwvj56gc3m@ws.net.home>
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Message-ID: <591C8A09.6070100@gmail.com>
+Date: Wed, 17 May 2017 12:36:09 -0500
 MIME-Version: 1.0
-In-Reply-To: <20170512120310.s7mmuciunmftd5en@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <20170517074741.ltxnoawwvj56gc3m@ws.net.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Karel Zak wrote:
+>
+>   Hi,
+>
+>   Sami has good point on IRC... do we really want to continue with the
+>   current versioning schema? Now we use:
+>
+>      v2.xx[.y]
+>
+>   I don't expect v3 or v4, so the prefix v2 does not provide any
+>   information... and the 'xx' ('30' now) is already large number.
+>
+>   Suggestions:
+>
+>   1) do nothing; nobody cares and v2.31 looks good
+>
+>   2) remove '2' from the version:
+>
+>          major release:  v31
+>          update release: v31.1
+>
+>
+>   3) <your suggestion>?
 
---- v2.30-ReleaseNotes-orig	2017-05-12 08:39:25.300530082 -0400
-+++ v2.30-ReleaseNotes-new	2017-05-12 09:47:51.345896434 -0400
-@@ -9,7 +9,6 @@
- 
- The deprecated command tailf has been removed. Use "tail -f" from coreutils.
- 
--
- blkzone -- NEW COMMAND to run zone commands on block device that support Zoned
- Block Commands (ZBC) or Zoned-device ATA Commands (ZAC). The currently
- supported functionality is 'report' and 'reset'.
-@@ -19,13 +18,12 @@
- [thanks to Masatake YAMATO (Red Hat)]
- 
- lsmem -- NEW COMMAND to list the ranges of available memory with their online
--status (originally implementd in Perl for s390-tools). [thanks to Clemens von Mann 
-+status (originally implemented in Perl for s390-tools). [thanks to Clemens von Mann 
- and Heiko Carstens (IBM)]
- 
--chmem -- NEW COMMAND to set memeory online/offline status [thanks to Heiko
-+chmem -- NEW COMMAND to set memory online/offline status [thanks to Heiko
- Carstens (IBM)]
- 
--
- The old and dead Alpha and Cmos code has been removed from hwclock command.
- 
- The command fallocate supports "insert range" operation now.
-@@ -39,21 +37,36 @@
- messages compatible with mount(8).
- 
- 
-+Security issues
-+---------------
-+
-+hwclock - no longer makes any internal permission checks. The System
-+  Administrator must set proper permissions to control user access to
-+  the RTC. It is NOT recommended to use set-user-ID.
-+
-+CVE-2016-2779 - This security issue is NOT FIXED yet.  It is possible to
-+  disable the ioctl TIOCSTI by setsid() only.  Unfortunately, setsid()
-+  has well-defined use cases in su(1) and runuser(1) and any changes
-+  would introduce regressions.  It seems we need a better way -- ideally
-+  another ioctl to disable TIOCSTI without setsid() or in userspace
-+  implemented pty container (planned as experimental su(1) feature).
-+
-+
- Stable maintenance releases between v2.29 and v2.30
- ---------------------------------------------------
--                              
--util-linux 2.29.2 [Fed 02 2017]           
--                              
-+
-+util-linux 2.29.2 [Fed 02 2017]
-+
-  * https://www.kernel.org/pub/linux/utils/util-linux/v2.29/v2.29.2-ReleaseNotes
-    https://www.kernel.org/pub/linux/utils/util-linux/v2.29/v2.29.2-ChangeLog
--                              
--util-linux 2.29.1 [Jan 01 2017]          
--                              
-+
-+util-linux 2.29.1 [Jan 01 2017]
-+
-  * https://www.kernel.org/pub/linux/utils/util-linux/v2.29/v2.29.1-ReleaseNotes
-    https://www.kernel.org/pub/linux/utils/util-linux/v2.29/v2.29.1-ChangeLog
--                              
-+
- Changes between v2.29 and v2.30
---------------------------------          
-+-------------------------------
- 
- agetty:
-    - fix a memory leak when parsing \S in issue files  [Matthias Gerstner]
-@@ -274,7 +287,7 @@
-    - clarify cmos inb and outb preprocessor directives  [Sami Kerola]
-    - clarify set_cmos_epoch() code  [Sami Kerola]
-    - do not hardcode date command magic string twice  [Sami Kerola]
--   - don't check for permissions  [Karel Zak]
-+   - *SECURITY* don't check for permissions  [Karel Zak] See 'Security issues'
-    - extra messages for debug only  [J William Piggott]
-    - fix rtc atexit registration  [Sami Kerola]
-    - fix whitespace in hwclock-rtc.c  [J William Piggott]
+In managing about 1000 packages, I see a lot of different version 
+numbering.   The vast majority of packages use (my terminology) 
+major.minor.point for numbering.  The major number really should only be 
+increased when there are incompatibilities introduced in a package update.
+
+Sometimes the numbering gets large,  For instance the current lvm2 package 
+number is 2.02.171.  But that is OK.  It tells us that the packages is 
+updated frequently, but there is an effort to maintain backward compatibility.
+
+When a package like firefox is at 53.0.2, what does that tell us about the 
+changes?
+
+Sometimes the numbering is downright silly.  I'll suggest that chromium at 
+58.0.3029.96 falls into that category.
+
+To give you an idea of what other packages use, take a look at 
+http://wiki.linuxfromscratch.org/blfs/browser/trunk/BOOK/packages.ent
+
+The bottom line is that from our point of view, x.y.z works fine.  There 
+is no need to change the current numbering scheme.
+
+   -- Bruce Dubbs
+      linuxfromscratch.org
