@@ -1,29 +1,73 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33986 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752262AbdEPM5v (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 16 May 2017 08:57:51 -0400
-Date: Tue, 16 May 2017 14:57:35 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: versioning
+Date: Wed, 17 May 2017 10:47:13 +0200
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] sulogin: remove duplicate const declaration
-Message-ID: <20170516125735.kr3zxx4i63nikf3u@ws.net.home>
-References: <20170516082557.18918-1-kerolasa@iki.fi>
+References: <20170517074741.ltxnoawwvj56gc3m@ws.net.home> <201705171042.53414.sweet_f_a@gmx.de>
+In-Reply-To: <201705171042.53414.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170516082557.18918-1-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201705171047.13926.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, May 16, 2017 at 09:25:57AM +0100, Sami Kerola wrote:
->  login-utils/su-common.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On Wednesday 17 May 2017, Ruediger Meier wrote:
+> On Wednesday 17 May 2017, Karel Zak wrote:
+> >  Hi,
+> >
+> >  Sami has good point on IRC... do we really want to continue with
+> > the current versioning schema? Now we use:
+> >
+> >     v2.xx[.y]
+> >
+> >  I don't expect v3 or v4, so the prefix v2 does not provide any
+> >  information... and the 'xx' ('30' now) is already large number.
+> >
+> >  Suggestions:
+> >
+> >  1) do nothing; nobody cares and v2.31 looks good
+> >
+> >  2) remove '2' from the version:
+> >
+> >         major release:  v31
+> >         update release: v31.1
+>
+> I don't see why v31 would be better than v3? I always appreciate if
+> there are no gaps in version numbers. So v31 should be released after
+> v30 ;)
+>
+> >  3) <your suggestion>?
+>
+> I would prefer either v2.31 or v3.1.
+>
+> v3 just to avoid big numbers. But could also be a hint regarding the
+> minimum supported/tested kernel version. I believe that we have
+> already a few incompatibilities for kernel <2.6.32. Maybe we could
+> cleanup our code, only supporting kernel >=3.1.
 
- Applied (but with 'su:' rather than 'sulogin:' prefix), thanks.
+Note we could still continue with 2 digit version numbers as well 
+without jumping to v31:
 
-    Karel
+v2.30
+v2.30.1
+v2.30.2
+v3.0
+v3.1
+v3.2
+v4.0
+[...]
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+> cu,
+> Rudi
+>
+> >  Note that for v2.30 is to late to do any change in version numbers
+> >  (we need changes in our libraries and I have to update some my
+> > scripts).
+> >
+> >     Karel
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
