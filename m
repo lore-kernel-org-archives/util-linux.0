@@ -1,201 +1,96 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 3/4] docs: update howto-contribute.txt
-To: Karel Zak <kzak@redhat.com>
-References: <584f9692-26d2-0385-ccf0-7805403cddb6@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <69045dce-51a3-193c-c1b1-37b5c1ccb272@gmx.com>
-Date: Wed, 31 May 2017 14:53:29 -0400
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.15.15]:50152 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750795AbdEQTIE (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 17 May 2017 15:08:04 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Bruce Dubbs <bruce.dubbs@gmail.com>
+Subject: Re: versioning
+Date: Wed, 17 May 2017 21:07:49 +0200
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+References: <20170517074741.ltxnoawwvj56gc3m@ws.net.home> <591C8A09.6070100@gmail.com>
+In-Reply-To: <591C8A09.6070100@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <584f9692-26d2-0385-ccf0-7805403cddb6@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201705172107.49456.sweet_f_a@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wednesday 17 May 2017, Bruce Dubbs wrote:
+> Karel Zak wrote:
+> >   Hi,
+> >
+> >   Sami has good point on IRC... do we really want to continue with
+> > the current versioning schema? Now we use:
+> >
+> >      v2.xx[.y]
+> >
+> >   I don't expect v3 or v4, so the prefix v2 does not provide any
+> >   information... and the 'xx' ('30' now) is already large number.
+> >
+> >   Suggestions:
+> >
+> >   1) do nothing; nobody cares and v2.31 looks good
+> >
+> >   2) remove '2' from the version:
+> >
+> >          major release:  v31
+> >          update release: v31.1
+> >
+> >
+> >   3) <your suggestion>?
+>
+> In managing about 1000 packages, I see a lot of different version
+> numbering.   The vast majority of packages use (my terminology)
+> major.minor.point for numbering. 
 
-This patch does not change any wording or grammar. It
-only shuffles the order of things and adds a table of
-contents. For example: it moves coding related bullet
-points into the Coding Style Chapter; it groups email
-related Chapters together, and so fourth.
+> The major number really should only 
+> be increased when there are incompatibilities introduced in a package
+> update.
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- Documentation/howto-contribute.txt | 123 ++++++++++++++++++++-----------------
- 1 file changed, 65 insertions(+), 58 deletions(-)
+I agree, so I'd also vote for keeping the current version scheme. But we 
+could talk about some (theoretically) incompatible clean-up changes to 
+justify v3.1.
 
-diff --git a/Documentation/howto-contribute.txt b/Documentation/howto-contribute.txt
-index 729f4cb..fc2c503 100644
---- a/Documentation/howto-contribute.txt
-+++ b/Documentation/howto-contribute.txt
-@@ -1,31 +1,74 @@
--Patches
-+CONTENTS
-+ Sending Patches
-+ Patching Process
-+ Email Format
-+ Coding Style
-+ Various Notes
-+ Standards Compliance
-+ IRC Channel
-+
-+Sending Patches
- 
- 	* send your patches to the mailing list or to the project maintainer.
- 	  See ../README.
- 
--	* don't include generated (autotools) files in your patches.
--	  Hint: use 'git clean -Xd'.
--
--	* neutrality: the files in util-linux should be distribution-neutral.
--	  Packages like RPMs, DEBs, and the rest, are not provided. They should
--	  be available from the distribution.
--
- 	* email is accepted as an inline patch with, or without, a git pull
- 	  request. Pull request emails need to include the patch set for review
- 	  purposes. See howto-pull-request.txt and source-code-management.txt
- 	  for git repository instructions.
- 
-+	* email attachments are difficult to review and not recommended.
-+	  Hint: use git send-email.
-+
- 	* one patch per email.
- 	  See Email Format.
- 
--	* email attachments are difficult to review and not recommended.
--	  Hint: use 'git send-email'.
--
- 	* many small patches are preferred over a single large patch. Split
- 	  patch sets based upon logical functionality. For example: #endif mark
- 	  ups, compiler warnings, and exit code fixes should all be individual
- 	  small patches.
- 
-+	* don't include generated (autotools) files in your patches.
-+	  Hint: use 'git clean -Xd'.
-+
-+	* neutrality: the files in util-linux should be distribution-neutral.
-+	  Packages like RPMs, DEBs, and the rest, are not provided. They should
-+	  be available from the distribution.
-+
-+Patching Process
-+
-+	* announce it on the mailing list when you are going to work with some
-+	  particular piece of code for a long time. This helps others to avoid
-+	  massive merge conflicts. Small or quick work, does not need to be
-+	  announced.
-+
-+	* make sure that after applying your patch the file(s) will compile
-+	  without errors.
-+
-+	* test that the previously existing program behavior is not altered. If
-+	  the patch intentionally alters the behavior explain what changed, and
-+	  the reason for it, in the changelog/commit message.
-+
-+	* only submit changes that you believe are ready to merge. To post a
-+	  patch for peer review only, state it clearly in the email and use
-+	  the Subject: [PATCH RFC] ...
-+
-+	* incorporate reviewer comments in the patches. Resubmitting without
-+	  changes is neither recommended nor polite.
-+
-+	* resubmission can be partial or complete. If only a few alterations are
-+	  needed then resubmit those particular patches. When comments cause a
-+	  greater effect then resubmit the entire patch set.
-+
-+	* When resubmitting use the email Subject: [PATCH v2] ...
-+	  Hint: use the --subject-prefix='PATCH v2' option with 'git format-patch'
-+
-+	* using a git repository for (re)submissions can make life easier.
-+	  See howto-pull-request.txt and source-code-management.txt.
-+
-+	* all patch submissions are either commented, rejected, or accepted.
-+	  If the maintainer rejects a patch set it is pointless to resubmit it.
-+
- Email Format
- 
- 	* Subject: [PATCH] subsystem: description.
-@@ -82,16 +125,7 @@ Email Format
- 
- 	* Followed by the unified diff patch.
- 
--Before sending a patch
--
--	* make sure that after applying your patch the file(s) will compile
--	  without errors.
--
--	* test that the previously existing program behavior is not altered. If
--	  the patch intentionally alters the behavior explain what changed, and
--	  the reason for it, in the changelog/commit message.
--
--Coding style
-+Coding Style
- 
- 	* the preferred coding style is based on the linux kernel coding-style.
- 	  Available here:
-@@ -102,41 +136,6 @@ Coding style
- 	  that something is not quite right, and you are unwilling to fix the
- 	  issue in the submitted change.
- 
--Patching process
--
--	* announce it on the mailing list when you are going to work with some
--	  particular piece of code for a long time. This helps others to avoid
--	  massive merge conflicts. Small or quick work, does not need to be
--	  announced.
--
--	* only submit changes that you believe are ready to merge. To post a
--	  patch for peer review only, state it clearly in the email and use
--	  the Subject: [PATCH RFC] ...
--
--	* incorporate reviewer comments in the patches. Resubmitting without
--	  changes is neither recommended nor polite.
--
--	* resubmission can be partial or complete. If only a few alterations are
--	  needed then resubmit those particular patches. When comments cause a
--	  greater effect then resubmit the entire patch set.
--
--	* When resubmitting use the email Subject: [PATCH v2] ...
--	  Hint: use the --subject-prefix='PATCH v2' option with 'git format-patch'
--
--	* using a git repository for (re)submissions can make life easier.
--	  See howto-pull-request.txt and source-code-management.txt.
--
--	* all patch submissions are either commented, rejected, or accepted.
--	  If the maintainer rejects a patch set it is pointless to resubmit it.
--
--Various notes
--
--	* util-linux does not use kernel headers for file system super
--	  blocks structures.
--
--	* patches relying on kernel features that are not in Linus Torvalds's
--	  tree are not accepted.
--
- 	* do not use `else' after non-returning functions. For
- 	  example:
- 
-@@ -155,7 +154,15 @@ Various notes
- 	  multiple lines. In case the shorthand does not look good on one line
- 	  use the normal "if () else" syntax.
- 
--Standards compliance
-+Various Notes
-+
-+	* util-linux does not use kernel headers for file system super
-+	  blocks structures.
-+
-+	* patches relying on kernel features that are not in Linus Torvalds's
-+	  tree are not accepted.
-+
-+Standards Compliance
- 
- 	Some of the commands maintained in this package have Open Group
- 	requirements. These commands are:
-@@ -183,7 +190,7 @@ Standards compliance
- 
- 		http://pubs.opengroup.org/onlinepubs/7908799/xcuix.html
- 
--IRC channel
-+IRC Channel
- 
- 	* #util-linux at freenode.net:
- 
+I'm not talking about making things incompatible just to be incompatible 
+but about ugly, outdated ifdefs which probably nobody needs anymore but 
+also nobody would touch unless we actively review this.
+
+One thing already mentioned in this thread was to drop any code and 
+documention regarding kernel < 2.6  (maybe even <2.6.32 if it has any 
+benefits).
+
+Maybe others have even more ideas, e.g. officially requiring 
+POSIX.1-2008  or newer to cleanup include/c.h, configure.ac, etc..
+
+The benfit would be not only to have a smaller minor version but 
+hopefully to get a few well defined requirements for UL in 
+Documentation/ directory, which will not change until v4. 
+
+cu,
+Rudi
+
+> Sometimes the numbering gets large,  For instance the current lvm2
+> package number is 2.02.171.  But that is OK.  It tells us that the
+> packages is updated frequently, but there is an effort to maintain
+> backward compatibility.
+>
+> When a package like firefox is at 53.0.2, what does that tell us
+> about the changes?
+>
+> Sometimes the numbering is downright silly.  I'll suggest that
+> chromium at 58.0.3029.96 falls into that category.
+>
+> To give you an idea of what other packages use, take a look at
+> http://wiki.linuxfromscratch.org/blfs/browser/trunk/BOOK/packages.ent
+>
+> The bottom line is that from our point of view, x.y.z works fine. 
+> There is no need to change the current numbering scheme.
+>
+>    -- Bruce Dubbs
+>       linuxfromscratch.org
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
