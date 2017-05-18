@@ -1,49 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33094 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750951AbdE3N2s (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 30 May 2017 09:28:48 -0400
-Date: Tue, 30 May 2017 15:28:43 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Assaf Gordon <assafgordon@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.30-rc2
-Message-ID: <20170530132843.v4mykfwkrwdkxolt@ws.net.home>
-References: <20170523105038.hm3ryvwvghgife4j@ws.net.home>
- <E6F9AA27-1BC9-4595-9FB2-30F1BA3663CA@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <E6F9AA27-1BC9-4595-9FB2-30F1BA3663CA@gmail.com>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:33031 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756046AbdERVTz (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 18 May 2017 17:19:55 -0400
+Received: by mail-wm0-f66.google.com with SMTP id y10so14089957wmh.0
+        for <util-linux@vger.kernel.org>; Thu, 18 May 2017 14:19:55 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 2/3] chfn: disable tab completion
+Date: Thu, 18 May 2017 22:19:35 +0100
+Message-Id: <20170518211936.28153-3-kerolasa@iki.fi>
+In-Reply-To: <20170518211936.28153-1-kerolasa@iki.fi>
+References: <20170518211936.28153-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, May 30, 2017 at 01:03:53AM -0400, Assaf Gordon wrote:
-> Hello
-> 
-> > On May 23, 2017, at 06:50, Karel Zak <kzak@redhat.com> wrote:
-> > 
-> > The util-linux release v2.30-rc2 is available at
-> > 
-> >  http://www.kernel.org/pub/linux/utils/util-linux/v2.30/
-> 
-> Few results from various system:
-> 
-> 1.
-> On several systems which do not have ncurses development files
-> installed, the "configure" script does not detect it,
-> and completion later fails.
-> Example with Debian 8.1:
+The default readline tab completion that offers file listing from current
+directory does not make any sense in this context.
 
-I see where is the problem. We assume that successful ncurses-config
-call means that devel stuff is installed. Unfortunately, on Debian 8
-this script is installed by ncurses-bin where is nothing like header
-files etc. 
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ login-utils/chfn.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-IMHO it's packaging bug, but I'll improve our build system to be more
-paranoid...
-
-   Karel
-
+diff --git a/login-utils/chfn.c b/login-utils/chfn.c
+index d79a192cf..3a951a193 100644
+--- a/login-utils/chfn.c
++++ b/login-utils/chfn.c
+@@ -237,6 +237,7 @@ static char *ask_new_field(struct chfn_control *ctl, const char *question,
+ 		printf("%s [%s]: ", question, def_val);
+ 		__fpurge(stdin);
+ #ifdef HAVE_LIBREADLINE
++		rl_bind_key('\t', rl_insert);
+ 		if ((buf = readline(NULL)) == NULL)
+ #else
+ 		if (getline(&buf, &dummy, stdin) < 0)
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.13.0
+
