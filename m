@@ -1,144 +1,69 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53196 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755933AbdELHy4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 12 May 2017 03:54:56 -0400
-Date: Fri, 12 May 2017 09:54:51 +0200
-From: Karel Zak <kzak@redhat.com>
-To: "W. Trevor King" <wking@tremily.us>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] WIP: mount.8: Split out fstab-specific mount options
-Message-ID: <20170512075451.auqemicjfogreepq@ws.net.home>
-References: <20170511122442.qwzpw7f6xdsc7im2@ws.net.home>
- <cee125bdea0faac3b4c9d7e856425fe9106756e7.1494510090.git.wking@tremily.us>
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: kerolasa@gmail.com
+Subject: Re: versioning
+Date: Thu, 18 May 2017 12:43:31 +0200
+Cc: Karel Zak <kzak@redhat.com>,
+ Bruce Dubbs <bruce.dubbs@gmail.com>,
+ "util-linux" <util-linux@vger.kernel.org>
+References: <20170517074741.ltxnoawwvj56gc3m@ws.net.home> <20170517210953.dskdxcr3rdmbtvgs@ws.net.home> <CAG27Bk17xasjeZQP6YpzUvchZJ5mtG2K4w0dirRybxu98-pAcQ@mail.gmail.com>
+In-Reply-To: <CAG27Bk17xasjeZQP6YpzUvchZJ5mtG2K4w0dirRybxu98-pAcQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <cee125bdea0faac3b4c9d7e856425fe9106756e7.1494510090.git.wking@tremily.us>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201705181243.31801.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, May 11, 2017 at 06:48:54AM -0700, W. Trevor King wrote:
-> And list the default settings for the X/noX pairs.  This clears up
-> some ambiguity around the meaning of "defaults" and fills in some
-> entries missing from the earlier man pages.
-> 
-> Signed-off-by: W. Trevor King <wking@tremily.us>
-> ---
-> On Thu, May 11, 2017 at 02:24:42PM +0200, Karel Zak wrote:
-> > It's placeholder, but kernel uses some options like "rw,exec,suid"
-> > by default…
-> 
-> And these are “everying marked with MNT_INVERT in optmap.c as well as
-> whatever filesystem-specific defaults”, right?
-
-Well, inverted options may be used to invert previously used options.
-The way how the options has been set is arbitrary (default, remount,
-on command line invert fstab setting, etc.). You can use it together
-on the same command line
-
-  mount -o async,noasync,foo,bar
-
-is pretty valid. The last used option win (=noasync).
-
-> >    The real mount options depends on built-in kernel defaults and
-> >    default mount options defined by filesystem superblock. The usual
-> >    kernel behaviour is to mount filesystems with rw, suid and exec
-> >    flags by default. See the beginning of this section for more details.
+On Thursday 18 May 2017, Sami Kerola wrote:
+> On 17 May 2017 at 22:09, Karel Zak <kzak@redhat.com> wrote:
+> > On Wed, May 17, 2017 at 09:07:49PM +0200, Ruediger Meier wrote:
+> >> I'm not talking about making things incompatible just to be
+> >> incompatible but about ugly, outdated ifdefs which probably nobody
+> >> needs anymore but also nobody would touch unless we actively
+> >> review this.
 > >
-> >    The "default" is interpreted as "auto" by "mount -a".
-> 
-> This last line means "defaults" is effectively a synonym for "auto" in
-> fstab, an presumably "auto" would always be preferred (because it more
+> > This would be better to discuss per patch. I don't think the
+> > current code is affected by many obscure #ifdef and if we have
+> > #ifdef then it's usually to be compatible with some libc, non-linux
+> > systems, old gcc, etc.
+> >
+> > Anyway, it seems the conclusion is to continue with vX.Y.Z :-)
+>
+> So will we get 3.0.0 next and stick with 3.y.z for couple years until
+> numbers grow large?  Then v4.y.z and so on.  My initial thinking was
+> really as simple as 2.30.0 is a bit large number, and the 2 has not
+> changed for 10 years so maybe it's time to update that.
+>
+> Seeing v31 proposal was interesting, but no.  Two number system could
+> also work fine, but there does not seem to be apetite to that.  Lets
+> go with concencus and stick with X.Y.Z format.
+>
+> Now when we are talking about versioning - do we get much benefit
+> from rcN series?
 
-More precisely, mount -a cares about "noauto" only, everything else is
-"auto".
+I think some distro maintainers use and test it to report bugs before 
+final release. Maybe even translaters use it.  The benfit for them is 
+that they need less dependencies for the build. Also the rcN tag makes 
+them able to get informed automatically a few times per year rather 
+then continuously following our master branch or mailing list.
 
-> clearly marks the change from the "no flag bits set" initial state).
-> I've started roughing out a sketch of where I think this should go
-> below, although there are a number of things that I'm not clear on
-> (e.g. are the X-* and x-* options in the same boat as comment=*?  What
-> is (no)sub about?).
+Only for cosmetics I would remove the old rcN tarballs from the server. 
+Nobody needs them nor should still use them after release.
 
-Yes, we use x- and X- for 3rd party options (e.g. x-systemd), the
-options are ignored for mount(2) syscall.
+> As far I can tell the project is good shape to 
+> release after every single commit.  What I don't see is distros using
+> rc series for any users so currently they primarily tell to
+> contributors 'stop sending intrusive crazy stuff for couple weeks, a
+> release is about to happen'.  And if that's all these releases do the
+> same could be achieved by sending a maintainer note to maillist
+> informing when is the expected day of next release.
+>
+> In short dropping the -rc's in favour of releasing for real more
+> often is something I would like to see.
 
->  sys-utils/fstab.5 |  33 +----------
->  sys-utils/mount.8 | 164 ++++++++++++++++++++++++++++++------------------------
->  2 files changed, 95 insertions(+), 102 deletions(-)
-> 
-> diff --git a/sys-utils/fstab.5 b/sys-utils/fstab.5
-> index 07d0287..16f6662 100644
-> --- a/sys-utils/fstab.5
-> +++ b/sys-utils/fstab.5
-> @@ -62,7 +62,7 @@ The following is a typical example of an
->  entry:
->  .sp
->  .RS 7
-> -LABEL=t-home2   /home      ext4    defaults,auto_da_alloc      0  2
-> +LABEL=t-home2   /home      ext4    auto,auto_da_alloc      0  2
+IMO we are releasing often enough. Personally I find the stable bug fix 
+releases most interesting. If I want a more recent UL I would build 
+from git anyways.
 
-I think it's fine to have an example with the placeholder, maybe add more
-lines to the example:
-
-LABEL=MyHomeDev   /home      ext4    defaults            0  2
-LABEL=MyOptDev    /opt       ext4    auto,auto_da_alloc  0  2
-
-
-> -Basic filesystem-independent options are:
-
-It's probably good idea to maintain the options description on one place, but it 
-would be nice to add note about mount(8), something like
-
- For filesystem-independent options see mount(8).
-
->  .SH FILESYSTEM-INDEPENDENT MOUNT OPTIONS
-> -Some of these options are only useful when they appear in the
-> -.I /etc/fstab
-> -file.
->  
->  Some of these options could be enabled or disabled by default
->  in the system kernel.  To check the current setting see the options
-> @@ -837,7 +835,7 @@ mounted (but not every filesystem actually honors them \(en e.g.\&, the
->  option today has an effect only for ext2, ext3, fat, vfat and ufs):
->  
->  .TP
-> -.B async
-> +.B async \fR(default)
-
-Please, don't use "(default)" there. We don't control what is the
-default. It does not have to be the same for all kernels (and kernel
-versions).
-
-> +.SH FSTAB-SPECIFIC MOUNT OPTIONS
-> +The following options apply only to fstab entries and are not useful when calling
-> +.BR mount
-> +directly.
-
-Not true. mount(8) does not care about mount options source.
-(Yes, "defaults" is placeholder that makes sense only in fstab, but
-it's not an error to use it on command line, etc.). 
-
-Maybe rather than "FSTAB-SPECIFIC ..." use two subsections, one for
-kernel and another for user-sapce:
-
-.SH FILESYSTEM-INDEPENDENT MOUNT OPTIONS
-.SS Generic kernel mount options
-async
- ...
-atime
- ...
-
-.SS User-space mount options
-default
-  ...
-auto
-  ...
-
-
-Does it make more sense?
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+cu,
+Rudi
