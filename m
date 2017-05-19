@@ -1,105 +1,132 @@
-Return-Path: assafgordon@gmail.com
-Content-Type: text/plain; charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2102\))
-Subject: Re: [ANNOUNCE] util-linux v2.30-rc2
-From: Assaf Gordon <assafgordon@gmail.com>
-In-Reply-To: <20170530151814.wm26bajmdihwaryo@ws.net.home>
-Date: Tue, 30 May 2017 23:48:46 -0400
-Cc: util-linux@vger.kernel.org
-Message-Id: <89E326AC-7FC7-48E9-8781-02791E0E8A7F@gmail.com>
-References: <20170523105038.hm3ryvwvghgife4j@ws.net.home> <E6F9AA27-1BC9-4595-9FB2-30F1BA3663CA@gmail.com> <20170530151814.wm26bajmdihwaryo@ws.net.home>
-To: Karel Zak <kzak@redhat.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.22]:54353 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1756512AbdESTA3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 19 May 2017 15:00:29 -0400
+Subject: Re: versioning
+To: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>,
+        Karel Zak <kzak@redhat.com>
+References: <20170517074741.ltxnoawwvj56gc3m@ws.net.home>
+ <591C8A09.6070100@gmail.com> <201705172107.49456.sweet_f_a@gmx.de>
+ <20170517210953.dskdxcr3rdmbtvgs@ws.net.home>
+ <CAG27Bk17xasjeZQP6YpzUvchZJ5mtG2K4w0dirRybxu98-pAcQ@mail.gmail.com>
+ <20170518103640.3dedmk7lat74biev@ws.net.home>
+ <24e52021-2e94-68a7-bd8c-51362af1d749@gmx.com>
+ <20170518195648.gxhsd4zak57wfcg3@ws.net.home>
+ <2d5ad507-f51c-7b1b-3aa3-355609cb609c@gmx.de>
+From: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Message-ID: <dfa49f1d-e310-667a-20d3-897bbff2ea83@gmx.com>
+Date: Fri, 19 May 2017 15:00:14 -0400
+MIME-Version: 1.0
+In-Reply-To: <2d5ad507-f51c-7b1b-3aa3-355609cb609c@gmx.de>
+Content-Type: text/plain; charset=windows-1252
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+On 05/18/2017 04:55 PM, Rüdiger Meier wrote:
+> 
+> 
+> On 05/18/2017 09:56 PM, Karel Zak wrote:
+>> On Thu, May 18, 2017 at 02:08:49PM -0400, J William Piggott wrote:
+>>> On 05/18/2017 06:36 AM, Karel Zak wrote:
+>>>
+>>>   8< ---
+>>>
+>>>>
+>>>> The important thing on rcN is that we have official tarball, so you
+>>>>
+>>>> can use it independently on git, add to distros etc.
+>>>>
+>>>
+>>>   8< ---
+>>>
+>>> Karel, I pull from github and haven't seen a new tag since v2.29.
+>>> Perhaps I should be pulling from kernel.org, but github should work,
+>>> no?
+> 
+> I think "git pull" does not always give you all the tags. In doubt I
+> do explicitly "git fetch --tag remote-name".  Maybe "git pull" only
+> pulls tags if remote-name == origin, I still don't got the full logic.
 
-> On May 30, 2017, at 11:18, Karel Zak <kzak@redhat.com> wrote:
->=20
-> On Tue, May 30, 2017 at 01:03:53AM -0400, Assaf Gordon wrote:
->> /usr/bin/ld: cannot find -lncursesw
->> collect2: error: ld returned 1 exit status
->> make[2]: *** [cfdisk] Error 1
->> =3D=3D=3D
->=20
-> OK, I had nice afternoon with Debian (after 10 years;-)
+Using 'git pull' against master fetched the tags up through v2.29. Then
+it stopped.
 
+git-pull(1): By default, tags that point at objects that are downloaded
+from the remote repository are fetched and stored locally.
 
-I'm still seeing this error (tested with util-linux-2.30-rc2-16-2ac1b on
-same Debian 8.1 system).
+If a tag is created from the master branch, then (with the default
+configuration) pulling the master branch will pull the tag as well.
 
-"config.log" is here: http://sprunge.us/XXfX
+I think perhaps Karel changed his bugfix release workflow and started
+creating them from a working branch. I say that because the
+v2.30-ReleaseNotes file never hit my local repo, the master branch,
+until May 16th. That is why I submitted my patch for it as a simple diff
+instead of a git format-patch.
 
-This might be a problem with some interplay between 'libncurses' and =
-'libncursesw' (the wide-character variant).
+It seems to me that the working branch should be merged into master
+first, and then create the tag, tarball, etc. from master.  That way
+pulling master will fetch the release tags. That should be expected
+behavior.
 
-The installed packages on the system are:
-=3D=3D=3D=3D
-$ dpkg -l '*ncurs*'
-Desired=3DUnknown/Install/Remove/Purge/Hold
-| =
-Status=3DNot/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-=
-pend
-|/ Err?=3D(none)/Reinst-required (Status,Err: uppercase=3Dbad)
-||/ Name                    Version          Architecture     =
-Description
-=
-+++-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D-=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D-=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D
-un  libncurses-dev          <none>           <none>           (no =
-description available)
-ii  libncurses5:amd64       5.9+20140913-1+b amd64            shared =
-libraries for terminal handling
-ii  libncurses5-dev:amd64   5.9+20140913-1+b amd64            =
-developer's libraries for ncurses
-ii  libncursesw5:amd64      5.9+20140913-1+b amd64            shared =
-libraries for terminal handling (wide charact
-un  ncurses                 <none>           <none>           (no =
-description available)
-ii  ncurses-base            5.9+20140913-1   all              basic =
-terminal type definitions
-ii  ncurses-bin             5.9+20140913-1+b amd64            =
-terminal-related programs and man pages
-un  ncurses-dev             <none>           <none>           (no =
-description available)
-un  ncurses-doc             <none>           <none>           (no =
-description available)
-un  ncurses-runtime         <none>           <none>           (no =
-description available)
-ii  ncurses-term            5.9+20140913-1   all              additional =
-terminal type definitions
-=3D=3D=3D=3D
+IMO, creating releases from an ephemeral branch, or anything other than
+master, is asking for headaches.
 
-I see that both the uni-byte and the wide-character versions are =
-installed,
-but only the uni-byte '-dev' version is installed,
-And the error is about linking with the wide-char variant:
-  /usr/bin/ld: cannot find -lncursesw
+>> I push to the both repos in the same time
+>> $ git push; git push github master; git push --tags; git push github --tags
 
-It could be that this is not an optimal system to build util-linux on
-(e.g. messed up packages combination? yet all done with valid 'apt-get' =
-commands).
-However it would be nice to detect it during "./configure" if possible.
+I think it would be better to:
 
-----
+git push --follow-tags; git push --follow-tags github master
 
-Also,
-On alpine-linux, the compilation now fails with:
-=3D=3D=3D
-CC       sys-utils/dmesg-dmesg.o
-sys-utils/dmesg.c:9:26: fatal error: linux/unistd.h: No such file or =
-directory
-compilation terminated.
-Makefile:9274: recipe for target 'sys-utils/dmesg-dmesg.o' failed
-make[2]: *** [sys-utils/dmesg-dmesg.o] Error 1
-=3D=3D=3D
-Again, this could be due to missing "linux-headers" package - but is it =
-really the kernel's
-"unistd.h" that's needed, or could this work with the standard one?
+This would be a good crosscheck to know that the release tags were
+created against master and not some other branch.
+
+Also, one day you may want to have some private tags and --tags will
+push everything.  Whereas, --follow-tags will only push tags associated
+with what is being pushed, that is, the master branch.
 
 
+ 8< ---
 
-Thanks for all your quick fixes,
- - assaf
+>>
+>>> Isn't the KNOWN BUGS: referring to the v2.13.1 branch as a typo, not
+>>> the tag?
+>>
+>> $ git tag -l | grep v2.13.1 v2.13.1 v2.13.1-REAL
+>>
+>> v2.13.1-rc1
+>>
+>> v2.13.1-rc2
+>>
+>> v2.13.1.1
+>>
+>> the first line is unwanted tag...  it would be possible to delete it,
+>> but I don't think that remove already published tags is a good idea.
+
+I see, but isn't the v2.13.1 branch a 'bug' also, because there are not
+any bugfix release branches? Well like you said, it's old and doesn't
+matter much now.
+
+
+> 
+> It should not be a problem to delete tags like it's no problem to
+> delete branches.  Only rebasing branches or re-creating conflicting
+> tags could be annoying or at least confusing.
+> 
+> 
+> cu, Rudi
+> 
+> 
+> 
+>>     
+>> Karel
+>>
+> -- To unsubscribe from this list: send the line "unsubscribe
+> util-linux" in
+> 
+> the body of a message to majordomo@vger.kernel.org
+> 
+> More majordomo info at http://vger.kernel.org/majordomo-info.html
+> 
+> 
