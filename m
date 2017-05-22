@@ -1,103 +1,204 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:58944 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751708AbdESHOb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 19 May 2017 03:14:31 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id B4F18AD03
-        for <util-linux@vger.kernel.org>; Fri, 19 May 2017 07:14:29 +0000 (UTC)
-From: NeilBrown <neilb@suse.com>
-To: util-linux@vger.kernel.org
-Date: Fri, 19 May 2017 17:14:24 +1000
-Subject: "mount -o remount,rw" sometimes doesn't work as expected.
-Message-ID: <87wp9djp2n.fsf@notabene.neil.brown.name>
+Return-Path: elseifthen@gmx.com
+Subject: Re: versioning
+To: Karel Zak <kzak@redhat.com>
+References: <20170517074741.ltxnoawwvj56gc3m@ws.net.home>
+ <591C8A09.6070100@gmail.com> <201705172107.49456.sweet_f_a@gmx.de>
+ <20170517210953.dskdxcr3rdmbtvgs@ws.net.home>
+ <CAG27Bk17xasjeZQP6YpzUvchZJ5mtG2K4w0dirRybxu98-pAcQ@mail.gmail.com>
+ <20170518103640.3dedmk7lat74biev@ws.net.home>
+ <24e52021-2e94-68a7-bd8c-51362af1d749@gmx.com>
+ <20170518195648.gxhsd4zak57wfcg3@ws.net.home>
+ <2d5ad507-f51c-7b1b-3aa3-355609cb609c@gmx.de>
+ <dfa49f1d-e310-667a-20d3-897bbff2ea83@gmx.com>
+ <20170520193446.bt44te35kji2gmzo@ws.net.home>
+Cc: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>,
+ util-linux <util-linux@vger.kernel.org>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <b6e7901f-4df8-6842-0475-0290d110f68e@gmx.com>
+Date: Mon, 22 May 2017 17:37:28 -0400
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha256; protocol="application/pgp-signature"
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20170520193446.bt44te35kji2gmzo@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
---=-=-=
-Content-Type: text/plain
 
 
+On 05/20/2017 03:34 PM, Karel Zak wrote:
+> On Fri, May 19, 2017 at 03:00:14PM -0400, J William Piggott wrote:
+>> git-pull(1): By default, tags that point at objects that are downloaded
+>> from the remote repository are fetched and stored locally.
+>>
+>> If a tag is created from the master branch, then (with the default
+>> configuration) pulling the master branch will pull the tag as well.
+>>
+>> I think perhaps Karel changed his bugfix release workflow and started
+>> creating them from a working branch. 
+> 
+> I always use master branch.
+> 
+> $ git branch --contains  v2.30-rc1
+> * master
+>
 
-Suppose /foo and /bar are bind mounts to the same
-filesystem which is currently mounted read-only,
-and suppose the /etc/fstab contains
+So, I muddied the waters by talking about two different topics.
+What I really want to discuss are bugfix releases: v2.xx.x.
 
-  /dev/sda1 /bar ext4 defaults 0 1
-  /bar /foo none bind 0 0
+The following comment should have been a separate topic. I mentioned it
+only because the odd behavior that I experienced with the recent rc
+release sparked the thought that the bugfix releases are being created
+in a working branch and that could explain why 'git pull' is not
+fetching their tags.
 
-Now if I want /foo to be writeable I might try:
+>> I say that because the
+>> v2.30-ReleaseNotes file never hit my local repo, the master branch,
+>> until May 16th. That is why I submitted my patch for it as a simple diff
+>> instead of a git format-patch.
+> 
+> https://github.com/karelzak/util-linux/blob/master/Documentation/releases/v2.30-ReleaseNotes
+>                                             ^^^^^^
+> 
+> as well as on kernel.org:
+> 
+> https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/tag/?h=v2.30-rc1
 
-  mount /foo -o remount,rw
+I wasn't trying to say that this file isn't in 'master', nor that the
+stable releases cannot be reached from 'master'; they certainly can be
+as they are in the 'master' commit log.
 
-and would then be surprised that this doesn't work.
+What I was saying is that the release was on May 12. The commit the tag
+references hit my repo on May 14, but the v2.30-ReleaseNotes file did
+not pull until May 16; May 15 had nothing:
 
-What is happening is that because only one path has been given, mount
-needs to find the other and goes looking in /etc/fstab.
-If finds an appropriate line and parses out the options.
-Then the mount system call used is
+$ find -newermt "-12 day" -printf "%TD %p\n" | sort
 
- mount( "/bar", "/foo", ..., MS_REMOUNT | MS_BIND ,....)
+ 8< ...
 
-This changes the per-mountpoint ro flag to rw, but doesn't change the
-filesystem itself.  This can be seen in /proc/self/mountinfo.  There
-are two r[wo] flags, and they are different.
+05/14/17 ./AUTHORS
+05/14/17 ./NEWS
+05/14/17 ./aclocal.m4
+05/14/17 ./config.h.in
+05/14/17 ./configure.ac
+05/14/17 ./po/ca.po
 
-Had I run:
+ 8< ...
 
-  mount /foo -o remount,bind,rw
+05/16/17 ./Documentation/TODO
+05/16/17 ./Documentation/releases/v2.30-ReleaseNotes
 
-I would have expected this.  But as I didn't explicitly ask for "bind",
-it is confusing.
+This seems odd to me, but has all worked out now. The v2.30-rc1 tag
+contains the unpatched v2.30-ReleaseNotes without the security warnings,
+but I guess that is what v2.30-rc2 is for ;)
 
-I think it might be good to ignore "bind" in /etc/fstab when "remount"
-is used.
-However.... when "remount" is used, the "device" is ignored, so there
-isn't a lot of point hunting through /etc/fstab to find it.
-If mount is given just one path and the "remount" option, then maybe
-it shouldn't try to find an /etc/fstab entry at all?
-I guess you might want to remount a device??
-Is
-   mount -o remount,rw /dev/sda1
-allowed?  In that case, don't look through /etc/fstab if the path
-is a directory.
+Enough of that, the real topic is below.
 
-I haven't provided a patch because I'm not 100% sure what the best
-approach would be.
-Does anyone have opinions on what mount should or shouldn't do when
-remounting and only one path is given?
+> 
+>> It seems to me that the working branch should be merged into master
+>> first, and then create the tag, tarball, etc. from master.  That way
+>> pulling master will fetch the release tags. That should be expected
+>> behavior.
+>>
+>> IMO, creating releases from an ephemeral branch, or anything other than
+>> master, is asking for headaches.
+> 
+> Maybe you need 'git clean -xdf' before 'git pull' or so.
+>
 
-You could possibly argue that the current behaviour is correct
-as /foo is listed as bind mount.  That doesn't stop is being surprising.
-Also
-   mount /bar /foo -o remount,rw
+The bugfix tags 2.xx.x are from another branch and not reachable from
+'master', it's not because my local repo is dirty. Here is an example
+with a fresh repo:
 
-doesn't pick up the "bind" flag, so the filesystem gets remounted.
-So I think there is definitely something wrong.
+S git clone https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git
+ 8< ...
+$ cd util-linux
+$ git branch --contains v2.29.1  
+$ git branch --contains v2.29.2
+$ git branch --contains v2.28.1
+$ git branch --contains v2.27.1
+$ git branch --contains v2.26.1
+$ git branch --contains v2.25.1
+$ git branch --contains v2.24.1
+$ git branch --contains v2.23.1
+$ git branch --contains v2.22.1
+$ git branch --contains v2.21.1
+$ git branch --contains v2.20.1
+$ git branch --contains v2.19.1
+$ git branch --contains v2.17.1
+$ git branch --contains v2.16.1
+$ git branch --contains v2.15.1
+$ git branch --contains v2.14.1
+$ git branch --contains v2.13.1
 
-Thanks,
-NeilBrown
+For example this tag was created from a working branch:
 
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
+$ git show v2.29.1
 
------BEGIN PGP SIGNATURE-----
+ 8< ...
 
-iQIzBAEBCAAdFiEEG8Yp69OQ2HB7X0l6Oeye3VZigbkFAlkem1AACgkQOeye3VZi
-gbk0pA//cwVbaKgBn8sKb2xj405DFpwG8rFSKeIuU2oAaX3wQyzIjtIkSbiQsX7S
-GMrFTAabb1z8Y5TONY+YOGAJHENIqcLhBqkN9kd85gbl3DDN+9bTHZyztrX1LTIQ
-u+BPXq0vE8JNaRAyHomZ5lgAcJBpcAp46xa/uDHQkBodnH6qR0uWVUeCGu9+BzfA
-VS7nA+1U34sDH73MTFv9uVLMslgnQ80ILa1kKF/40coQ6+jnxBQNdXBUwKhPte6E
-eAK4r/nndMxy9mqqbfjPVyHv4AQYxK8Cb53IdsFa+TJOLPxEHWDWZNf60IPNUSyF
-0+19h+kr8fFRtuZ5Zz3KEQHObc0t21/eX5UW0F9FosCPVUQIncUlY4AeP/q3MwU3
-uyuU7IGf2aJMgEzrQfjFrZ0F3aJv53lZyIklp9Crbvqp3FziYSu9LZdat0z6/PMJ
-2nACg4zrRU7XimbrvJYxLzVxCuj/spwDKU1nQxyP0xQ6JYcPHMMqLULRomEZgkuC
-v+cHVuDFDDFk6Qet3HckUzOxvnxolrjND/kuFwRE7sTl19SFYxyAHZXTYh27zKVR
-FV/JPER0+/H8t/0owQzvkIS+jsWbrwd1WTS5nYd+cQ3+7iHITgmhdEt5puwkxVu7
-bGhPeDXHRJ2pdaQGdaotb8QLZfaHtQtJ9khhBZ6gP4S3hz1ZU2c=
-=odhj
------END PGP SIGNATURE-----
---=-=-=--
+commit 9ebc8a7a882ddfd93bc3262514791a0dcaadba09
+Author: Karel Zak <kzak@redhat.com>
+Date:   Fri Jan 20 14:13:08 2017 +0100
+
+    build-sys: release++ (v2.29.1)
+    
+    Signed-off-by: Karel Zak <kzak@redhat.com>
+
+ 8< ...
+ ____________________________________________________
+
+The commit, and therefore the tag, is not in 'master' and is not
+reachable from master.
+
+Some issues with this model:
+
+* 'git pull upstream master', etcetera, will not fetch the bugfix
+     release tags because they are not reachable from 'master'.
+     This could be unexpected behavior for someone new to the project.
+
+* A checked-out bugfix release tag has all of the releases in the NEWS
+     file. Whereas, 'master' omits the bugfix releases.
+
+* A checked-out bugfix release tag has all of the v*-ReleaseNotes.
+     Whereas, 'master' omits all of the bugfix v2.xx.x-ReleaseNotes.
+
+* The previous two make these orphaned tags more complete then 'master' is.
+
+* I don't know this for a fact, but I suspect that due to the tags not
+    being reachable from any branch that they might have to store the
+    entire file tree? If yes, it means more bandwidth and storage use.
+
+These aren't issues for me personally, I just thought it was something
+the project should consider.
+
+My thoughts are that bugfix releases should be committed to 'master' the
+same as the stable/rc releases are. Then the tag created from that commit.
+
+
+>>>> I push to the both repos in the same time
+>>>> $ git push; git push github master; git push --tags; git push github --tags
+>>
+>> I think it would be better to:
+>>
+>> git push --follow-tags; git push --follow-tags github master
+> 
+> $ git push --follow-tags; git push --follow-tags github master
+> Everything up-to-date
+> Everything up-to-date
+>
+
+Well, 'git push --tags' already uploaded all of the tags, so at the moment
+using --follow-tags isn't very meaningful. It could be in the future
+though. Of course, if the bugfix tags continue to be unreachable from
+master, then you will have to go back to using 'git push --tags'.
+
+
+>> This would be a good crosscheck to know that the release tags were
+>> created against master and not some other branch.
+>>
+>> Also, one day you may want to have some private tags and --tags will
+>> push everything.  Whereas, --follow-tags will only push tags associated
+>> with what is being pushed, that is, the master branch.
+> 
+> OK.
+> 
+>     Karel
+> 
