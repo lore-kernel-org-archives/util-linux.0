@@ -1,42 +1,60 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:33614 "EHLO
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:36582 "EHLO
         mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750949AbdEPI0B (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 16 May 2017 04:26:01 -0400
-Received: by mail-wm0-f66.google.com with SMTP id y10so36097712wmh.0
-        for <util-linux@vger.kernel.org>; Tue, 16 May 2017 01:26:00 -0700 (PDT)
+        with ESMTP id S1754992AbdE0JEF (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 27 May 2017 05:04:05 -0400
+Received: by mail-wm0-f66.google.com with SMTP id k15so7480696wmh.3
+        for <util-linux@vger.kernel.org>; Sat, 27 May 2017 02:04:05 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
 Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] sulogin: remove duplicate const declaration
-Date: Tue, 16 May 2017 09:25:57 +0100
-Message-Id: <20170516082557.18918-1-kerolasa@iki.fi>
+Subject: [PATCH] libfdisk: fix variable shadowing
+Date: Sat, 27 May 2017 10:03:55 +0100
+Message-Id: <20170527090355.28183-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-login-utils/su-common.c:619:14: warning: duplicate 'const' declaration
-specifier [-Wduplicate-decl-specifier]
-   const char const **args = xcalloc (n_args, sizeof *args);
+libfdisk/src/context.c: In function 'fdisk_assign_device':
+libfdisk/src/context.c:549:7: warning: declaration of 'rc' shadows a previous local [-Wshadow]
+libfdisk/src/context.c:542:10: note: shadowed declaration is here
 
-Regression-from: 71f207a5f598623a539ba825b97a503072c4a1b4
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- login-utils/su-common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libfdisk/src/context.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/login-utils/su-common.c b/login-utils/su-common.c
-index 32f3641ba..0999795c8 100644
---- a/login-utils/su-common.c
-+++ b/login-utils/su-common.c
-@@ -616,7 +616,7 @@ run_shell (char const * const shell, char const * const command, char ** const a
- 	   const size_t n_additional_args)
+diff --git a/libfdisk/src/context.c b/libfdisk/src/context.c
+index 52fd57987..5cf27a948 100644
+--- a/libfdisk/src/context.c
++++ b/libfdisk/src/context.c
+@@ -539,7 +539,7 @@ static void reset_context(struct fdisk_context *cxt)
+ int fdisk_assign_device(struct fdisk_context *cxt,
+ 			const char *fname, int readonly)
  {
-   const size_t n_args = 1 + fast_startup + 2 * !!command + n_additional_args + 1;
--  const char const **args = xcalloc (n_args, sizeof *args);
-+  const char **args = xcalloc (n_args, sizeof *args);
-   size_t argno = 1;
+-	int fd, rc = 0;
++	int fd;
  
-   if (simulate_login)
+ 	DBG(CXT, ul_debugobj(cxt, "assigning device %s", fname));
+ 	assert(cxt);
+@@ -600,11 +600,13 @@ int fdisk_assign_device(struct fdisk_context *cxt,
+ 			      fname, readonly ? "READ-ONLY" : "READ-WRITE"));
+ 	return 0;
+ fail:
+-	rc = -errno;
+-	if (fd >= 0)
+-		close(fd);
+-	DBG(CXT, ul_debugobj(cxt, "failed to assign device"));
+-	return rc;
++	{
++		int rc = -errno;
++		if (fd >= 0)
++			close(fd);
++			DBG(CXT, ul_debugobj(cxt, "failed to assign device"));
++		return rc;
++	}
+ }
+ 
+ /**
 -- 
 2.13.0
 
