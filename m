@@ -1,57 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.19]:49771 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752534AbdDKTIO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 11 Apr 2017 15:08:14 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: J William Piggott <elseifthen@gmx.com>
-Subject: Re: [PATCH] hwclock: fix non-linux build
-Date: Tue, 11 Apr 2017 21:07:59 +0200
-Cc: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
-References: <1491897955-22436-1-git-send-email-sweet_f_a@gmx.de> <64fc96d4-3e5f-ee6d-2ab9-bc90c8f8c5e9@gmx.com>
-In-Reply-To: <64fc96d4-3e5f-ee6d-2ab9-bc90c8f8c5e9@gmx.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1252"
-Message-Id: <201704112107.59250.sweet_f_a@gmx.de>
+Received: from mail-wm0-f44.google.com ([74.125.82.44]:35468 "EHLO
+        mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750732AbdE0SYQ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 27 May 2017 14:24:16 -0400
+Received: by mail-wm0-f44.google.com with SMTP id b84so16364493wmh.0
+        for <util-linux@vger.kernel.org>; Sat, 27 May 2017 11:24:16 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 2/4] libblkid: fix format overflow
+Date: Sat, 27 May 2017 19:24:07 +0100
+Message-Id: <20170527182409.13985-2-kerolasa@iki.fi>
+In-Reply-To: <20170527182409.13985-1-kerolasa@iki.fi>
+References: <20170527182409.13985-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 11 April 2017, J William Piggott wrote:
-> On 04/11/2017 04:05 AM, Ruediger Meier wrote:
-> > From: Ruediger Meier <ruediger.meier@ga-group.nl>
-> >
-> > There was one missing ifdef since 336f7c5f.
->
-> They were both in that 'if' test before 336f7c5f:
->
-> -       if (!(show | set | systohc | hctosys | systz | adjust |
-> getepoch -             | setepoch | predict | compare | get))
-> -               show = 1;       /* default to show */
->
-> But they were defined for all arches then:
->
-> -       /* Set option defaults */
-> -       show = set = systohc = hctosys = systz = adjust = noadjfile =
-> predict = -           compare = get = update = FALSE;
-> -       getepoch = setepoch = utc = local_opt = directisa = testing =
-> debug = FALSE;
->
->
-> I think the old way was a cleaner solution, so in
-> sys-utils/hwclock.h:35:
->
-> - #ifdef __linux__
->   		getepoch:1,
->   		setepoch:1,
-> - #endif
->
-> Should work? I do not have a way to test it.
+libblkid/src/devname.c:166:29: warning: '%s' directive writing up to 255
+bytes into a region of size 245 [-Wformat-overflow=]
 
-Yes, I've had also thought about this but was not sure and also too lazy 
-to check possible side effects. Somehow I think we should either remove 
-all ifdefs (__linux__, __alpha__, HAVE_LIBAUDIT) from that struct or 
-none.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ libblkid/src/devname.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-cu,
-Rudi
+diff --git a/libblkid/src/devname.c b/libblkid/src/devname.c
+index ba3c57a41..4ee6e3119 100644
+--- a/libblkid/src/devname.c
++++ b/libblkid/src/devname.c
+@@ -152,12 +152,13 @@ static int is_dm_leaf(const char *devname)
+ {
+ 	struct dirent	*de, *d_de;
+ 	DIR		*dir, *d_dir;
+-	char		path[256];
+ 	int		ret = 1;
+ 
+ 	if ((dir = opendir("/sys/block")) == NULL)
+ 		return 0;
+ 	while ((de = readdir(dir)) != NULL) {
++		char path[strlen(de->d_name) + sizeof("/sys/block//slaves") + 1];
++
+ 		if (!strcmp(de->d_name, ".") || !strcmp(de->d_name, "..") ||
+ 		    !strcmp(de->d_name, devname) ||
+ 		    strncmp(de->d_name, "dm-", 3) ||
+-- 
+2.13.0
+
