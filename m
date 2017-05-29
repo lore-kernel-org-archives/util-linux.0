@@ -1,74 +1,86 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42662 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757355AbdEWIFS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 23 May 2017 04:05:18 -0400
-Date: Tue, 23 May 2017 10:05:13 +0200
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: =?iso-8859-1?Q?R=FCdiger?= Meier <sweet_f_a@gmx.de>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: versioning
-Message-ID: <20170523080513.3yhhfzlmnyqoovpd@ws.net.home>
-References: <20170517210953.dskdxcr3rdmbtvgs@ws.net.home>
- <CAG27Bk17xasjeZQP6YpzUvchZJ5mtG2K4w0dirRybxu98-pAcQ@mail.gmail.com>
- <20170518103640.3dedmk7lat74biev@ws.net.home>
- <24e52021-2e94-68a7-bd8c-51362af1d749@gmx.com>
- <20170518195648.gxhsd4zak57wfcg3@ws.net.home>
- <2d5ad507-f51c-7b1b-3aa3-355609cb609c@gmx.de>
- <dfa49f1d-e310-667a-20d3-897bbff2ea83@gmx.com>
- <20170520193446.bt44te35kji2gmzo@ws.net.home>
- <b6e7901f-4df8-6842-0475-0290d110f68e@gmx.com>
- <20170523075733.wwlzrff6atybmsal@ws.net.home>
+Received: from mail-qk0-f195.google.com ([209.85.220.195]:34083 "EHLO
+        mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750986AbdE2OGc (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 29 May 2017 10:06:32 -0400
+Received: by mail-qk0-f195.google.com with SMTP id u75so8743638qka.1
+        for <util-linux@vger.kernel.org>; Mon, 29 May 2017 07:06:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170523075733.wwlzrff6atybmsal@ws.net.home>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20170529100913.er6mwukht5pq4ixc@ws.net.home>
+References: <20170527182409.13985-1-kerolasa@iki.fi> <20170527182409.13985-4-kerolasa@iki.fi>
+ <20170529100913.er6mwukht5pq4ixc@ws.net.home>
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Mon, 29 May 2017 15:06:31 +0100
+Message-ID: <CAG27Bk1SKKz8xhp-HTH8yn=UqXEVkY7+1=n-8tN7PknzxoDXqw@mail.gmail.com>
+Subject: Re: [PATCH 4/4] lib/sysfs: fix format overflow
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, May 23, 2017 at 09:57:33AM +0200, Karel Zak wrote:
-> On Mon, May 22, 2017 at 05:37:28PM -0400, J William Piggott wrote:
-> > My thoughts are that bugfix releases should be committed to 'master' the
-> > same as the stable/rc releases are. Then the tag created from that commit.
-> 
-> How do you want to commit bugfix release (e.g. v2.29.2) to the
-> 'master' if the master and 'stable/' branches contain a different
-> code? 
-> 
-> The current workflow:
-> 
->  1) development (branch: <master>)
-> 
->  2) master release (tags: v2.29-rc1, v2.29-rc2, v2.29, branch: <master>)
-> 
->  3) development (work on v2.30, branch: <master>)
-> 
->  4) fork -- create a new branch <stable/v2.29> based on tag v2.29
-> 
->      4a) new patches or cherry-pick patches from <master> (branch: <stable/v2.29>)
-> 
->      4b) stable release (tag: v2.29.1, branch: <stable/v2.29>)
-> 
->      4c) another patches, another release (tag: v2.29.2, branch: <stable/v2.29>)
-> 
->  5) master release v2.30 (branch: <master>)
->     ...
-> 
-> 
-> where 3) and 4) happen in the same time.
+On 29 May 2017 at 11:09, Karel Zak <kzak@redhat.com> wrote:
+> On Sat, May 27, 2017 at 07:24:09PM +0100, Sami Kerola wrote:
+>> lib/sysfs.c:343:31: warning: '/start' directive output may be truncated
+>> writing 6 bytes into a region of size between 1 and 256
+>> [-Wformat-truncation=]
+>>
+>> lib/sysfs.c:372:32: warning: '/partition' directive output may be truncated
+>> writing 10 bytes into a region of size between 1 and 256
+>> [-Wformat-truncation=]
+>>
+>> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+>> ---
+>>  lib/sysfs.c | 4 ++--
+>>  1 file changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/lib/sysfs.c b/lib/sysfs.c
+>> index cc290faac..6272b80b4 100644
+>> --- a/lib/sysfs.c
+>> +++ b/lib/sysfs.c
+>> @@ -307,7 +307,7 @@ static struct dirent *xreaddir(DIR *dp)
+>>
+>>  int sysfs_is_partition_dirent(DIR *dir, struct dirent *d, const char *parent_name)
+>>  {
+>> -     char path[256];
+>> +     char path[strlen(d->d_name) + sizeof("/start") + 1];
+>>
+>>  #ifdef _DIRENT_HAVE_D_TYPE
+>>       if (d->d_type != DT_DIR &&
+>> @@ -356,7 +356,6 @@ dev_t sysfs_partno_to_devno(struct sysfs_cxt *cxt, int partno)
+>>  {
+>>       DIR *dir;
+>>       struct dirent *d;
+>> -     char path[256];
+>>       dev_t devno = 0;
+>>
+>>       dir = sysfs_opendir(cxt, NULL);
+>> @@ -365,6 +364,7 @@ dev_t sysfs_partno_to_devno(struct sysfs_cxt *cxt, int partno)
+>>
+>>       while ((d = xreaddir(dir))) {
+>>               int n, maj, min;
+>> +             char path[strlen(d->d_name) + sizeof("/partition") + 1];
+>
+> why strlen() here? Maybe we can add to c.h macro
+>
+>  #define ul_dname_sizeof(x)
+>     (sizeof(((struct dirent *)0)->d_dname) + sizeof(x) + 1)
+>
+> or use PATH_MAX ...
 
-And yes, NEWS file in the master does not contain info about
-maintenance release (e.g. v2.29.1). Maybe it's mistake.
+For some reason I thought d_name would be allocated, in which case
+strlen() would be
+more appropriate. Thank you for pointing out it is very static 255
+buffer, so added the
+proposed ul_dname_sizeof() to c.h and changed the rest of the commits
+accordingly.
 
-This information is in the ReleaseNotes where are links to the
-previous maintenance releases. 
+https://github.com/kerolasa/lelux-utiliteetit/commit/5eb0ea80b376e295aca649acc8f8e2eaa91f30bb
 
-We can add a hint about maintenance releases to the master branch NEWS
-file, but stable maintenance tags (v2.29.1) has to be in the stable/
-branches. It's released code what has to be tagged and signed.
-
-    Karel
+Updates to changes are available in the git repository at:
+  git://github.com/kerolasa/lelux-utiliteetit.git rc2-fixes
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
