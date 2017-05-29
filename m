@@ -1,69 +1,73 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: kerolasa@gmail.com
-Subject: Re: versioning
-Date: Thu, 18 May 2017 12:43:31 +0200
-Cc: Karel Zak <kzak@redhat.com>,
- Bruce Dubbs <bruce.dubbs@gmail.com>,
- "util-linux" <util-linux@vger.kernel.org>
-References: <20170517074741.ltxnoawwvj56gc3m@ws.net.home> <20170517210953.dskdxcr3rdmbtvgs@ws.net.home> <CAG27Bk17xasjeZQP6YpzUvchZJ5mtG2K4w0dirRybxu98-pAcQ@mail.gmail.com>
-In-Reply-To: <CAG27Bk17xasjeZQP6YpzUvchZJ5mtG2K4w0dirRybxu98-pAcQ@mail.gmail.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:54124 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750898AbdE2KJS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 29 May 2017 06:09:18 -0400
+Date: Mon, 29 May 2017 12:09:13 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 4/4] lib/sysfs: fix format overflow
+Message-ID: <20170529100913.er6mwukht5pq4ixc@ws.net.home>
+References: <20170527182409.13985-1-kerolasa@iki.fi>
+ <20170527182409.13985-4-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201705181243.31801.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170527182409.13985-4-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 18 May 2017, Sami Kerola wrote:
-> On 17 May 2017 at 22:09, Karel Zak <kzak@redhat.com> wrote:
-> > On Wed, May 17, 2017 at 09:07:49PM +0200, Ruediger Meier wrote:
-> >> I'm not talking about making things incompatible just to be
-> >> incompatible but about ugly, outdated ifdefs which probably nobody
-> >> needs anymore but also nobody would touch unless we actively
-> >> review this.
-> >
-> > This would be better to discuss per patch. I don't think the
-> > current code is affected by many obscure #ifdef and if we have
-> > #ifdef then it's usually to be compatible with some libc, non-linux
-> > systems, old gcc, etc.
-> >
-> > Anyway, it seems the conclusion is to continue with vX.Y.Z :-)
->
-> So will we get 3.0.0 next and stick with 3.y.z for couple years until
-> numbers grow large?  Then v4.y.z and so on.  My initial thinking was
-> really as simple as 2.30.0 is a bit large number, and the 2 has not
-> changed for 10 years so maybe it's time to update that.
->
-> Seeing v31 proposal was interesting, but no.  Two number system could
-> also work fine, but there does not seem to be apetite to that.  Lets
-> go with concencus and stick with X.Y.Z format.
->
-> Now when we are talking about versioning - do we get much benefit
-> from rcN series?
+On Sat, May 27, 2017 at 07:24:09PM +0100, Sami Kerola wrote:
+> lib/sysfs.c:343:31: warning: '/start' directive output may be truncated
+> writing 6 bytes into a region of size between 1 and 256
+> [-Wformat-truncation=]
+> 
+> lib/sysfs.c:372:32: warning: '/partition' directive output may be truncated
+> writing 10 bytes into a region of size between 1 and 256
+> [-Wformat-truncation=]
+> 
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  lib/sysfs.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/lib/sysfs.c b/lib/sysfs.c
+> index cc290faac..6272b80b4 100644
+> --- a/lib/sysfs.c
+> +++ b/lib/sysfs.c
+> @@ -307,7 +307,7 @@ static struct dirent *xreaddir(DIR *dp)
+>  
+>  int sysfs_is_partition_dirent(DIR *dir, struct dirent *d, const char *parent_name)
+>  {
+> -	char path[256];
+> +	char path[strlen(d->d_name) + sizeof("/start") + 1];
+>  
+>  #ifdef _DIRENT_HAVE_D_TYPE
+>  	if (d->d_type != DT_DIR &&
+> @@ -356,7 +356,6 @@ dev_t sysfs_partno_to_devno(struct sysfs_cxt *cxt, int partno)
+>  {
+>  	DIR *dir;
+>  	struct dirent *d;
+> -	char path[256];
+>  	dev_t devno = 0;
+>  
+>  	dir = sysfs_opendir(cxt, NULL);
+> @@ -365,6 +364,7 @@ dev_t sysfs_partno_to_devno(struct sysfs_cxt *cxt, int partno)
+>  
+>  	while ((d = xreaddir(dir))) {
+>  		int n, maj, min;
+> +		char path[strlen(d->d_name) + sizeof("/partition") + 1];
 
-I think some distro maintainers use and test it to report bugs before 
-final release. Maybe even translaters use it.  The benfit for them is 
-that they need less dependencies for the build. Also the rcN tag makes 
-them able to get informed automatically a few times per year rather 
-then continuously following our master branch or mailing list.
+why strlen() here? Maybe we can add to c.h macro 
 
-Only for cosmetics I would remove the old rcN tarballs from the server. 
-Nobody needs them nor should still use them after release.
+ #define ul_dname_sizeof(x)
+    (sizeof(((struct dirent *)0)->d_dname) + sizeof(x) + 1)
 
-> As far I can tell the project is good shape to 
-> release after every single commit.  What I don't see is distros using
-> rc series for any users so currently they primarily tell to
-> contributors 'stop sending intrusive crazy stuff for couple weeks, a
-> release is about to happen'.  And if that's all these releases do the
-> same could be achieved by sending a maintainer note to maillist
-> informing when is the expected day of next release.
->
-> In short dropping the -rc's in favour of releasing for real more
-> often is something I would like to see.
+or use PATH_MAX ...
 
-IMO we are releasing often enough. Personally I find the stable bug fix 
-releases most interesting. If I want a more recent UL I would build 
-from git anyways.
+    Karel
 
-cu,
-Rudi
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
