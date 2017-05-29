@@ -1,70 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:36492 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753671AbdEISLB (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 9 May 2017 14:11:01 -0400
-Received: by mail-wr0-f196.google.com with SMTP id v42so2127955wrc.3
-        for <util-linux@vger.kernel.org>; Tue, 09 May 2017 11:11:00 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 4/5] switch_root: use getopt_long() to parse options
-Date: Tue,  9 May 2017 19:10:51 +0100
-Message-Id: <20170509181052.3610-4-kerolasa@iki.fi>
-In-Reply-To: <20170509181052.3610-1-kerolasa@iki.fi>
-References: <20170509181052.3610-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:46590 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751009AbdE2KWt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 29 May 2017 06:22:49 -0400
+Date: Mon, 29 May 2017 12:22:45 +0200
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: =?iso-8859-1?Q?R=FCdiger?= Meier <sweet_f_a@gmx.de>,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: versioning
+Message-ID: <20170529102245.cbwndbup2nwbbcna@ws.net.home>
+References: <24e52021-2e94-68a7-bd8c-51362af1d749@gmx.com>
+ <20170518195648.gxhsd4zak57wfcg3@ws.net.home>
+ <2d5ad507-f51c-7b1b-3aa3-355609cb609c@gmx.de>
+ <dfa49f1d-e310-667a-20d3-897bbff2ea83@gmx.com>
+ <20170520193446.bt44te35kji2gmzo@ws.net.home>
+ <b6e7901f-4df8-6842-0475-0290d110f68e@gmx.com>
+ <20170523075733.wwlzrff6atybmsal@ws.net.home>
+ <20170523080513.3yhhfzlmnyqoovpd@ws.net.home>
+ <614d0e03-6baf-861b-8636-71c07443b3b6@gmx.com>
+ <671ded97-cdf5-6f01-393d-a96372382f13@gmx.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <671ded97-cdf5-6f01-393d-a96372382f13@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/switch_root.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+On Sat, May 27, 2017 at 02:55:41PM -0400, J William Piggott wrote:
+> 
+> 
+> On 05/23/2017 04:54 PM, J William Piggott wrote:
+> > 
+> > I think I will submit a patch to add something to Documentation about
+> > this so that someone else might not ask the same dumb questions.
+> 
+> I started on this and noticed that the source-code-management.txt and
+> README files are very similar. README actually has a more complete
+> version schema breakdown. Is there any reason that they should not be
+> combined into a single file?
 
-diff --git a/sys-utils/switch_root.c b/sys-utils/switch_root.c
-index 2b42ddf85..7bd07783e 100644
---- a/sys-utils/switch_root.c
-+++ b/sys-utils/switch_root.c
-@@ -33,6 +33,7 @@
- #include <errno.h>
- #include <ctype.h>
- #include <dirent.h>
-+#include <getopt.h>
- 
- #include "c.h"
- #include "nls.h"
-@@ -217,14 +218,25 @@ static void __attribute__((__noreturn__)) usage(FILE *output)
- int main(int argc, char *argv[])
- {
- 	char *newroot, *init, **initargs;
-+	int c;
-+	static const struct option longopts[] = {
-+		{"version", no_argument, NULL, 'V'},
-+		{"help", no_argument, NULL, 'h'},
-+		{NULL, 0, NULL, 0}
-+	};
-+
- 	atexit(close_stdout);
- 
--	if (argv[1] && (!strcmp(argv[1], "--help") || !strcmp(argv[1], "-h")))
--		usage(stdout);
--	if (argv[1] && (!strcmp(argv[1], "--version") || !strcmp(argv[1], "-V"))) {
--		printf(UTIL_LINUX_VERSION);
--		return EXIT_SUCCESS;
--	}
-+	while ((c = getopt_long(argc, argv, "Vh", longopts, NULL)) != -1)
-+		switch (c) {
-+		case 'V':
-+			printf(UTIL_LINUX_VERSION);
-+			return EXIT_SUCCESS;
-+		case 'h':
-+			usage(stdout);
-+		default:
-+			errtryhelp(EXIT_FAILURE);
-+		}
- 	if (argc < 3)
- 		usage(stderr);
- 
+No problem, but I'd like to keep all most important information
+(=links, addresses, etc.) in the README file.
+
+Send patch :-)
+
+> README includes the mailing list. Is there any reason that the IRC
+> channel shouldn't be there instead of in howto-contribute.txt?
+
+Send patch :-)
+
+> The howto-contribute.txt file says patches can be sent to the mailing
+> list or directly to Karel, and points to README for the addresses. Is
+> there any reason not to have Karel's email contact in the README?
+
+I don't think it's so important, but no problem to change it.
+
+    Karel
+
 -- 
-2.12.2
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
