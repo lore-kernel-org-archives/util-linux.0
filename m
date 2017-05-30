@@ -1,31 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.126.134]:54075 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753820AbdEQNXS (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 17 May 2017 09:23:18 -0400
-Subject: Re: versioning
-To: Ruediger Meier <sweet_f_a@gmx.de>, Karel Zak <kzak@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:43046 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750767AbdE3PSS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 30 May 2017 11:18:18 -0400
+Date: Tue, 30 May 2017 17:18:14 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Assaf Gordon <assafgordon@gmail.com>
 Cc: util-linux@vger.kernel.org
-References: <20170517074741.ltxnoawwvj56gc3m@ws.net.home>
- <201705171042.53414.sweet_f_a@gmx.de> <201705171047.13926.sweet_f_a@gmx.de>
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Message-ID: <f47059fe-b66a-cd7b-7ce5-58e8fe5cbb5d@bernhard-voelker.de>
-Date: Wed, 17 May 2017 15:23:11 +0200
+Subject: Re: [ANNOUNCE] util-linux v2.30-rc2
+Message-ID: <20170530151814.wm26bajmdihwaryo@ws.net.home>
+References: <20170523105038.hm3ryvwvghgife4j@ws.net.home>
+ <E6F9AA27-1BC9-4595-9FB2-30F1BA3663CA@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <201705171047.13926.sweet_f_a@gmx.de>
 Content-Type: text/plain; charset=utf-8
+In-Reply-To: <E6F9AA27-1BC9-4595-9FB2-30F1BA3663CA@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 05/17/2017 10:47 AM, Ruediger Meier wrote:
-> v2.30
-> v2.30.1
-> v2.30.2
-> v3.0
-> v3.1
-> v3.2
+On Tue, May 30, 2017 at 01:03:53AM -0400, Assaf Gordon wrote:
+> Hello
+> 
+> > On May 23, 2017, at 06:50, Karel Zak <kzak@redhat.com> wrote:
+> > 
+> > The util-linux release v2.30-rc2 is available at
+> > 
+> >  http://www.kernel.org/pub/linux/utils/util-linux/v2.30/
+> 
+> Few results from various system:
+> 
+> 1.
+> On several systems which do not have ncurses development files
+> installed, the "configure" script does not detect it,
+> and completion later fails.
+> Example with Debian 8.1:
+> 
+> ===
+>   CC       disk-utils/cfdisk-cfdisk.o
+> disk-utils/cfdisk.c: In function ‘ui_get_string’:
+> disk-utils/cfdisk.c:1757:3: warning: implicit declaration of function ‘get_wch’ [-Wimplicit-function-declaration]
+>    if (get_wch(&c) == ERR) {
+>    ^
+> disk-utils/cfdisk.c:1757:3: warning: nested extern declaration of ‘get_wch’ [-Wnested-externs]
+>   CCLD     cfdisk
+> /usr/bin/ld: cannot find -lncursesw
+> collect2: error: ld returned 1 exit status
+> make[2]: *** [cfdisk] Error 1
+> ===
 
-+1 to all your arguments - v31 and v31.1 look really odd.
+OK, I had nice afternoon with Debian (after 10 years;-)
 
-Have a nice day,
-Berny
+All should be fixed. Please, test it. I'd like to release v2.30 ASAP.
+
+    Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
