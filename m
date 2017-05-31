@@ -1,125 +1,101 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:5486 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753150AbdEVL0j (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 22 May 2017 07:26:39 -0400
-Date: Mon, 22 May 2017 13:26:35 +0200
-From: Karel Zak <kzak@redhat.com>
-To: NeilBrown <neilb@suse.com>
+Return-Path: assafgordon@gmail.com
+Date: Wed, 31 May 2017 17:41:40 +0000
+From: Assaf Gordon <assafgordon@gmail.com>
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: "mount -o remount,rw" sometimes doesn't work as expected.
-Message-ID: <20170522112635.bcnfvxuqi7xbifb5@ws.net.home>
-References: <87wp9djp2n.fsf@notabene.neil.brown.name>
- <20170519091125.bdans7hirua3blb5@ws.net.home>
- <87r2zhkg8r.fsf@notabene.neil.brown.name>
+Subject: Re: [ANNOUNCE] util-linux v2.30-rc2
+Message-ID: <20170531174139.GA30064@gmail.com>
+References: <20170523105038.hm3ryvwvghgife4j@ws.net.home>
+ <E6F9AA27-1BC9-4595-9FB2-30F1BA3663CA@gmail.com>
+ <20170530151814.wm26bajmdihwaryo@ws.net.home>
+ <89E326AC-7FC7-48E9-8781-02791E0E8A7F@gmail.com>
+ <20170531091648.3eql47zhfo6sy6sd@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <87r2zhkg8r.fsf@notabene.neil.brown.name>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <20170531091648.3eql47zhfo6sy6sd@ws.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, May 22, 2017 at 08:16:36AM +1000, NeilBrown wrote:
-> oooh... it just occurred to me that for a mount, I can make it
-> read/write by:
-> 
->    mount -o remount,rw none /mount/point
-> 
-> providing I know that no other flags are needed.  I don't need to give
-> the correct device path, do I?
+Hello,
 
-Yes, "none" is an usable placeholder there.
+On Wed, May 31, 2017 at 11:16:48AM +0200, Karel Zak wrote:
+>On Tue, May 30, 2017 at 11:48:46PM -0400, Assaf Gordon wrote:
+>> I'm still seeing this error (tested with util-linux-2.30-rc2-16-2ac1b on
+>> same Debian 8.1 system).
+>
+>Ah, I had another issues with ncurses on debian, so I forget to very
+>this one. Fixed now (I hope).
 
-> > After this call, mount reads fstab and merges these options with the
-> > options from the command line (-o).  If no mountpoint is found in
-> > fstab, then a remount with  unspecified source is allowed.
-> 
-> BTW, if fstab contains just
-> 
->    /bar /foo none bind 0 0
-> 
-> 
-> Then both
->   mount -o remount,rw /bar
-> and
->   mount -o remount,rw /foo
-> 
-> will try to remount /foo.  This is also surprising....
-
-Yes, mount(8) goal is to accept "whatever" to keep users happy :-)
-
-This your example is well known disadvantage, the solution is to use
---source and --target options (it's strongly recommended for scripts):
-
-   mount -o remount,rw --source /bar
-   mount -o remount,rw --target /foo
-
-in this case mount(8) will not try to be smart...
-
-...
-
-> >> You could possibly argue that the current behaviour is correct
-> >> as /foo is listed as bind mount.  That doesn't stop is being surprising.
-> >> Also
-> >>    mount /bar /foo -o remount,rw
-> >> 
-> >> doesn't pick up the "bind" flag, so the filesystem gets remounted.
-> >> So I think there is definitely something wrong.
-> >
-> > That's question... "remount,bind" is really special and maybe "bind"
-> > from fstab should be really ignored in this case.
-> 
-> I think that is probably the best way forward, at least in the short
-> term.
-> I might try to dig into the code and see how easy this would be.
-
-It's trivial patch, see below. Seems to work as expected (I use
-"findmnt -o TARGET,VFS-OPTIONS,FS-OPTION" to see ro/rw).
-
-    Karel
+Thanks, works now (tested with Debian 8.1, 7.6, Ubuntu 16.04, 15.04,
+14.04).
 
 
-diff --git a/libmount/src/context.c b/libmount/src/context.c
-index 38e0363..a574758 100644
---- a/libmount/src/context.c
-+++ b/libmount/src/context.c
-@@ -2038,7 +2038,7 @@ static int apply_table(struct libmnt_context *cxt, struct libmnt_table *tb,
-  */
- int mnt_context_apply_fstab(struct libmnt_context *cxt)
- {
--	int rc = -1, isremount = 0;
-+	int rc = -1, isremount = 0, iscmdbind = 0;
- 	struct libmnt_table *tab = NULL;
- 	const char *src = NULL, *tgt = NULL;
- 	unsigned long mflags = 0;
-@@ -2063,8 +2063,10 @@ int mnt_context_apply_fstab(struct libmnt_context *cxt)
- 		cxt->optsmode &= ~MNT_OMODE_FORCE;
- 	}
- 
--	if (mnt_context_get_mflags(cxt, &mflags) == 0 && mflags & MS_REMOUNT)
--		isremount = 1;
-+	if (mnt_context_get_mflags(cxt, &mflags) == 0) {
-+		isremount = !!(mflags & MS_REMOUNT);
-+		iscmdbind = !!(mflags & MS_BIND);
-+	}
- 
- 	if (cxt->fs) {
- 		src = mnt_fs_get_source(cxt->fs);
-@@ -2131,6 +2133,12 @@ int mnt_context_apply_fstab(struct libmnt_context *cxt)
- 		 * not found are not so important and may be misinterpreted by
- 		 * applications... */
- 		rc = -MNT_ERR_NOFSTAB;
-+
-+
-+	} else if (isremount && !iscmdbind) {
-+
-+		/* remove "bind" from fstab (or no-op if not present) */
-+		mnt_optstr_remove_option(&cxt->fs->optstr, "bind");
- 	}
- 	return rc;
- }
+>> On alpine-linux, the compilation now fails with:
+>
+>So, now the header file <linux/version.h> is required by ./configure
+>on Linux. I guess it's not overkill.
+
+Yes, works well and the error message is clear.
+Adding linux-headers with `sudo apk add linux-headers` solves the issue.
+
+Now that it builds on alpine-linux, two other issues (not necessarily 
+show-stoppers for the release):
+
+1.
+The test infrastrucutre uses some GNU extensions which aren't
+available by default on Alpine-Linux (it has busybox instead of GNU 
+coreuils). Specifically: ./tests/run.sh uses `#!/bin/bash`, `xargs -P` 
+and `grep --after-context=1` .
+The `grep` at least is easy to fix as busybox's grep supports the 
+short-option equivalent of `-A1`.
+
+As a work-around, the GNU programs can be installed on alpine with:
+    sudo apk add findutils bash grep
 
 
+2.
+After installing the gnu programs `make check` works, but few tests 
+fail:
+============
+   col: multibyte input                ... FAILED (col/multibyte)
+colcrt: regressions                    ...
+      : crash1                      ... FAILED (colcrt/regressions-crash1)
+      : crash2                      ... FAILED (colcrt/regressions-crash2)
+      : hang1                       ... FAILED (colcrt/regressions-hang1)
+      ... FAILED (3 from 3 sub-tests)
+column: invalid multibyte              ... FAILED (column/invalid-multibyte)
+ fdisk: invalid input tests            ... FAILED (fdisk/oddinput)
+getopt: options                        ...
+      : alternative_option_clash    ... FAILED (getopt/options-alternative_option_clash)
+      : posix_correctly             ... FAILED (getopt/options-posix_correctly)
+      ... FAILED (2 from 29 sub-tests)
+  misc: swaplabel                      ... FAILED (misc/swaplabel)
+rename: exit codes                     ... FAILED (rename/exit_codes)
+  utmp: subsecond                      ... FAILED (utmp/utmpdump-subsecond)
+==============
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Regarding the 'multibyte' failures - these could stem from musl-libc's differences
+(compared to glibc).
+'utmp' failure might be because musl-libc does not implement utmp support (only stubs).
+
+I'm happy to test further if you have specific suggestions of what to test.
+
+-----
+
+
+Lastly,
+I've hit a snag when trying to run 'make dist' on the latest version.
+make failed with:
+===
+make[5]: Entering directory `/localdata2/sources/util-linux/po'
+File da.new.po does not exist. If you are a translator, you can create it through 'msginit'.
+make[5]: *** [da.new.po-create] Error 1
+make[5]: Leaving directory `/localdata2/sources/util-linux/po'
+===
+
+I have no clue when this is coming from (it didn't fail on in previous builds).
+Could be a problem on my system, or something else. Didn't investigate further
+(just manually removed 'da.new.*' from po/Makefile).
+
+
+regards,
+ - assaf
