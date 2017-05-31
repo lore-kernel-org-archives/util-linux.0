@@ -1,101 +1,40 @@
-Return-Path: assafgordon@gmail.com
-Date: Wed, 31 May 2017 17:41:40 +0000
-From: Assaf Gordon <assafgordon@gmail.com>
-To: Karel Zak <kzak@redhat.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:60038 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751200AbdEaJSg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 31 May 2017 05:18:36 -0400
+Date: Wed, 31 May 2017 11:18:32 +0200
+From: Karel Zak <kzak@redhat.com>
+To: NeilBrown <neilb@suse.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.30-rc2
-Message-ID: <20170531174139.GA30064@gmail.com>
-References: <20170523105038.hm3ryvwvghgife4j@ws.net.home>
- <E6F9AA27-1BC9-4595-9FB2-30F1BA3663CA@gmail.com>
- <20170530151814.wm26bajmdihwaryo@ws.net.home>
- <89E326AC-7FC7-48E9-8781-02791E0E8A7F@gmail.com>
- <20170531091648.3eql47zhfo6sy6sd@ws.net.home>
+Subject: Re: "mount -o remount,rw" sometimes doesn't work as expected.
+Message-ID: <20170531091832.3pjvxrhnc7ptd75g@ws.net.home>
+References: <87wp9djp2n.fsf@notabene.neil.brown.name>
+ <20170519091125.bdans7hirua3blb5@ws.net.home>
+ <87r2zhkg8r.fsf@notabene.neil.brown.name>
+ <20170522112635.bcnfvxuqi7xbifb5@ws.net.home>
+ <87zidtenex.fsf@notabene.neil.brown.name>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-In-Reply-To: <20170531091648.3eql47zhfo6sy6sd@ws.net.home>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <87zidtenex.fsf@notabene.neil.brown.name>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+On Wed, May 31, 2017 at 01:05:26PM +1000, NeilBrown wrote:
+> Sorry for the delay.
+> 
+> Yes, this does look easy, makes sense, and does work as expected for me
+> too.
+> 
+> Reported-and-tested-by: NeilBrown <neilb@suse.com>
+> 
+> will you be queuing this for the next release?
 
-On Wed, May 31, 2017 at 11:16:48AM +0200, Karel Zak wrote:
->On Tue, May 30, 2017 at 11:48:46PM -0400, Assaf Gordon wrote:
->> I'm still seeing this error (tested with util-linux-2.30-rc2-16-2ac1b on
->> same Debian 8.1 system).
->
->Ah, I had another issues with ncurses on debian, so I forget to very
->this one. Fixed now (I hope).
+IMHO it's too late for v2.30. I'd like to wait for v2.31 (September)
+as it is not so urgent and common issue :-)
 
-Thanks, works now (tested with Debian 8.1, 7.6, Ubuntu 16.04, 15.04,
-14.04).
+    Karel
 
-
->> On alpine-linux, the compilation now fails with:
->
->So, now the header file <linux/version.h> is required by ./configure
->on Linux. I guess it's not overkill.
-
-Yes, works well and the error message is clear.
-Adding linux-headers with `sudo apk add linux-headers` solves the issue.
-
-Now that it builds on alpine-linux, two other issues (not necessarily 
-show-stoppers for the release):
-
-1.
-The test infrastrucutre uses some GNU extensions which aren't
-available by default on Alpine-Linux (it has busybox instead of GNU 
-coreuils). Specifically: ./tests/run.sh uses `#!/bin/bash`, `xargs -P` 
-and `grep --after-context=1` .
-The `grep` at least is easy to fix as busybox's grep supports the 
-short-option equivalent of `-A1`.
-
-As a work-around, the GNU programs can be installed on alpine with:
-    sudo apk add findutils bash grep
-
-
-2.
-After installing the gnu programs `make check` works, but few tests 
-fail:
-============
-   col: multibyte input                ... FAILED (col/multibyte)
-colcrt: regressions                    ...
-      : crash1                      ... FAILED (colcrt/regressions-crash1)
-      : crash2                      ... FAILED (colcrt/regressions-crash2)
-      : hang1                       ... FAILED (colcrt/regressions-hang1)
-      ... FAILED (3 from 3 sub-tests)
-column: invalid multibyte              ... FAILED (column/invalid-multibyte)
- fdisk: invalid input tests            ... FAILED (fdisk/oddinput)
-getopt: options                        ...
-      : alternative_option_clash    ... FAILED (getopt/options-alternative_option_clash)
-      : posix_correctly             ... FAILED (getopt/options-posix_correctly)
-      ... FAILED (2 from 29 sub-tests)
-  misc: swaplabel                      ... FAILED (misc/swaplabel)
-rename: exit codes                     ... FAILED (rename/exit_codes)
-  utmp: subsecond                      ... FAILED (utmp/utmpdump-subsecond)
-==============
-
-Regarding the 'multibyte' failures - these could stem from musl-libc's differences
-(compared to glibc).
-'utmp' failure might be because musl-libc does not implement utmp support (only stubs).
-
-I'm happy to test further if you have specific suggestions of what to test.
-
------
-
-
-Lastly,
-I've hit a snag when trying to run 'make dist' on the latest version.
-make failed with:
-===
-make[5]: Entering directory `/localdata2/sources/util-linux/po'
-File da.new.po does not exist. If you are a translator, you can create it through 'msginit'.
-make[5]: *** [da.new.po-create] Error 1
-make[5]: Leaving directory `/localdata2/sources/util-linux/po'
-===
-
-I have no clue when this is coming from (it didn't fail on in previous builds).
-Could be a problem on my system, or something else. Didn't investigate further
-(just manually removed 'da.new.*' from po/Makefile).
-
-
-regards,
- - assaf
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
