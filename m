@@ -1,37 +1,74 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50696 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36712 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751507AbdEJJt2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 10 May 2017 05:49:28 -0400
-Date: Wed, 10 May 2017 11:49:22 +0200
+        id S1750993AbdEaJRD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 31 May 2017 05:17:03 -0400
+Date: Wed, 31 May 2017 11:16:48 +0200
 From: Karel Zak <kzak@redhat.com>
-To: L A Walsh <lkml@tlinx.org>
+To: Assaf Gordon <assafgordon@gmail.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: util-linux-v2.25:mountpoint misnamed or bugged, and "-d" bugged
-Message-ID: <20170510094922.kuebyztjs55szzxu@ws.net.home>
-References: <58F2C401.5090001@tlinx.org>
- <20170510094746.zpkebvktie7iauzf@ws.net.home>
+Subject: Re: [ANNOUNCE] util-linux v2.30-rc2
+Message-ID: <20170531091648.3eql47zhfo6sy6sd@ws.net.home>
+References: <20170523105038.hm3ryvwvghgife4j@ws.net.home>
+ <E6F9AA27-1BC9-4595-9FB2-30F1BA3663CA@gmail.com>
+ <20170530151814.wm26bajmdihwaryo@ws.net.home>
+ <89E326AC-7FC7-48E9-8781-02791E0E8A7F@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170510094746.zpkebvktie7iauzf@ws.net.home>
+In-Reply-To: <89E326AC-7FC7-48E9-8781-02791E0E8A7F@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, May 10, 2017 at 11:47:46AM +0200, Karel Zak wrote:
-> On Sat, Apr 15, 2017 at 06:08:17PM -0700, L A Walsh wrote:
-> > 
-> > mountpoint doesn't detect file, device
-> > or other inode mount points.
-> > 
-> > Also, the "-d" switch doesn't show the maj:min of the mounted
-> > inode.  Of note: "-x" does show the maj:min of a remounted blockdev.
+On Tue, May 30, 2017 at 11:48:46PM -0400, Assaf Gordon wrote:
+> Hello,
 > 
-> Version, distro, do you have classic mtab, etc, etc.... ?
+> > On May 30, 2017, at 11:18, Karel Zak <kzak@redhat.com> wrote:
+> > 
+> > On Tue, May 30, 2017 at 01:03:53AM -0400, Assaf Gordon wrote:
+> >> /usr/bin/ld: cannot find -lncursesw
+> >> collect2: error: ld returned 1 exit status
+> >> make[2]: *** [cfdisk] Error 1
+> >> ===
+> > 
+> > OK, I had nice afternoon with Debian (after 10 years;-)
+> 
+> 
+> I'm still seeing this error (tested with util-linux-2.30-rc2-16-2ac1b on
+> same Debian 8.1 system).
 
-Ah, now I see v2.25 in the subject. Sorry. My test is with v2.28 and
-current git tree.
+Ah, I had another issues with ncurses on debian, so I forget to very
+this one. Fixed now (I hope).
 
-        Karel
+> +++-=======================-================-================-====================================================
+> un  libncurses-dev          <none>           <none>           (no description available)
+> ii  libncurses5:amd64       5.9+20140913-1+b amd64            shared libraries for terminal handling
+> ii  libncurses5-dev:amd64   5.9+20140913-1+b amd64            developer's libraries for ncurses
+> ii  libncursesw5:amd64      5.9+20140913-1+b amd64            shared libraries for terminal handling (wide charact
+
+The issue is that we get -lncursesw from pkg-config (probably due to
+installed ncursesw-config), but the rest of the build system assumes
+non-widechar version. It seems better to use pkg-config as fallback
+solution only.
+
+> Also,
+> On alpine-linux, the compilation now fails with:
+> ===
+> CC       sys-utils/dmesg-dmesg.o
+> sys-utils/dmesg.c:9:26: fatal error: linux/unistd.h: No such file or directory
+> compilation terminated.
+> Makefile:9274: recipe for target 'sys-utils/dmesg-dmesg.o' failed
+> make[2]: *** [sys-utils/dmesg-dmesg.o] Error 1
+> ===
+> Again, this could be due to missing "linux-headers" package - but is it really the kernel's
+> "unistd.h" that's needed, or could this work with the standard one?
+
+The file linux/unistd.h is unnecessary for dmesg (fixed), but we have
+many another places where kernel header files are required.
+
+So, now the header file <linux/version.h> is required by ./configure
+on Linux. I guess it's not overkill.
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
