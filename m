@@ -1,107 +1,201 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:57010 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1163418AbdEXKC5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 24 May 2017 06:02:57 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: J William Piggott <elseifthen@gmx.com>
-Subject: Re: versioning
-Date: Wed, 24 May 2017 12:02:43 +0200
-Cc: Karel Zak <kzak@redhat.com>,
-        "util-linux" <util-linux@vger.kernel.org>
-References: <20170517210953.dskdxcr3rdmbtvgs@ws.net.home> <20170523080513.3yhhfzlmnyqoovpd@ws.net.home> <614d0e03-6baf-861b-8636-71c07443b3b6@gmx.com>
-In-Reply-To: <614d0e03-6baf-861b-8636-71c07443b3b6@gmx.com>
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 3/4] docs: update howto-contribute.txt
+To: Karel Zak <kzak@redhat.com>
+References: <584f9692-26d2-0385-ccf0-7805403cddb6@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <69045dce-51a3-193c-c1b1-37b5c1ccb272@gmx.com>
+Date: Wed, 31 May 2017 14:53:29 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1252"
-Message-Id: <201705241202.43348.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <584f9692-26d2-0385-ccf0-7805403cddb6@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 23 May 2017, J William Piggott wrote:
-> On 05/23/2017 04:05 AM, Karel Zak wrote:
-> > On Tue, May 23, 2017 at 09:57:33AM +0200, Karel Zak wrote:
-> >> On Mon, May 22, 2017 at 05:37:28PM -0400, J William Piggott wrote:
-> >>> My thoughts are that bugfix releases should be committed to
-> >>> 'master' the same as the stable/rc releases are. Then the tag
-> >>> created from that commit.
-> >>
-> >> How do you want to commit bugfix release (e.g. v2.29.2) to the
-> >> 'master' if the master and 'stable/' branches contain a different
-> >> code?
-> >>
-> >> The current workflow:
-> >>
-> >>  1) development (branch: <master>)
-> >>
-> >>  2) master release (tags: v2.29-rc1, v2.29-rc2, v2.29, branch:
-> >> <master>)
-> >>
-> >>  3) development (work on v2.30, branch: <master>)
-> >>
-> >>  4) fork -- create a new branch <stable/v2.29> based on tag v2.29
-> >>
-> >>      4a) new patches or cherry-pick patches from <master> (branch:
-> >> <stable/v2.29>)
-> >>
-> >>      4b) stable release (tag: v2.29.1, branch: <stable/v2.29>)
-> >>
-> >>      4c) another patches, another release (tag: v2.29.2, branch:
-> >> <stable/v2.29>)
-> >>
-> >>  5) master release v2.30 (branch: <master>)
-> >>     ...
-> >>
-> >>
-> >> where 3) and 4) happen in the same time.
->
-> Argh, my brain was broken. I wrongheadedly believed that this project
-> was using linear development.
->
-> > And yes, NEWS file in the master does not contain info about
-> > maintenance release (e.g. v2.29.1). Maybe it's mistake.
->
-> No, I was the mistake ;)
->
-> > This information is in the ReleaseNotes where are links to the
-> > previous maintenance releases.
-> >
-> > We can add a hint about maintenance releases to the master branch
-> > NEWS file, but stable maintenance tags (v2.29.1) has to be in the
-> > stable/ branches. It's released code what has to be tagged and
-> > signed.
->
-> It's all clear now that you've pulled my head out of ... its 'master'
-> branch walled garden. The stable maintenance tags are not reachable
-> from, pulled by, or have anything else to do with the 'master'
-> branch. They belong only to their respective forked stable branches
-> being developed independently. Hinting about them in master would
-> probably be misleading.
->
-> I think I will submit a patch to add something to Documentation about
-> this so that someone else might not ask the same dumb questions. With
-> your permission, I might include your well written workflow
-> description.
 
-FYI there is also "man 7 gitworkflows", worth to read IMO.
+This patch does not change any wording or grammar. It
+only shuffles the order of things and adds a table of
+contents. For example: it moves coding related bullet
+points into the Coding Style Chapter; it groups email
+related Chapters together, and so fourth.
 
-Beside the trivial fact that they use "maint" instead of "stable" they 
-always provide one non-versioned "stable" branch which contains *all* 
-tags, more easy to be followed by users. To be able to do that they 
-*commit* bugfixes only to "stable" and *merge* them into master 
-(instead of cherry-picking from master).
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ Documentation/howto-contribute.txt | 123 ++++++++++++++++++++-----------------
+ 1 file changed, 65 insertions(+), 58 deletions(-)
 
-cu,
-Rudi
-
-> Sorry for wasting your time Karel (and anyone else reading this).
-> Thank you for setting me straight.
->
-> >     Karel
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
+diff --git a/Documentation/howto-contribute.txt b/Documentation/howto-contribute.txt
+index 729f4cb..fc2c503 100644
+--- a/Documentation/howto-contribute.txt
++++ b/Documentation/howto-contribute.txt
+@@ -1,31 +1,74 @@
+-Patches
++CONTENTS
++ Sending Patches
++ Patching Process
++ Email Format
++ Coding Style
++ Various Notes
++ Standards Compliance
++ IRC Channel
++
++Sending Patches
+ 
+ 	* send your patches to the mailing list or to the project maintainer.
+ 	  See ../README.
+ 
+-	* don't include generated (autotools) files in your patches.
+-	  Hint: use 'git clean -Xd'.
+-
+-	* neutrality: the files in util-linux should be distribution-neutral.
+-	  Packages like RPMs, DEBs, and the rest, are not provided. They should
+-	  be available from the distribution.
+-
+ 	* email is accepted as an inline patch with, or without, a git pull
+ 	  request. Pull request emails need to include the patch set for review
+ 	  purposes. See howto-pull-request.txt and source-code-management.txt
+ 	  for git repository instructions.
+ 
++	* email attachments are difficult to review and not recommended.
++	  Hint: use git send-email.
++
+ 	* one patch per email.
+ 	  See Email Format.
+ 
+-	* email attachments are difficult to review and not recommended.
+-	  Hint: use 'git send-email'.
+-
+ 	* many small patches are preferred over a single large patch. Split
+ 	  patch sets based upon logical functionality. For example: #endif mark
+ 	  ups, compiler warnings, and exit code fixes should all be individual
+ 	  small patches.
+ 
++	* don't include generated (autotools) files in your patches.
++	  Hint: use 'git clean -Xd'.
++
++	* neutrality: the files in util-linux should be distribution-neutral.
++	  Packages like RPMs, DEBs, and the rest, are not provided. They should
++	  be available from the distribution.
++
++Patching Process
++
++	* announce it on the mailing list when you are going to work with some
++	  particular piece of code for a long time. This helps others to avoid
++	  massive merge conflicts. Small or quick work, does not need to be
++	  announced.
++
++	* make sure that after applying your patch the file(s) will compile
++	  without errors.
++
++	* test that the previously existing program behavior is not altered. If
++	  the patch intentionally alters the behavior explain what changed, and
++	  the reason for it, in the changelog/commit message.
++
++	* only submit changes that you believe are ready to merge. To post a
++	  patch for peer review only, state it clearly in the email and use
++	  the Subject: [PATCH RFC] ...
++
++	* incorporate reviewer comments in the patches. Resubmitting without
++	  changes is neither recommended nor polite.
++
++	* resubmission can be partial or complete. If only a few alterations are
++	  needed then resubmit those particular patches. When comments cause a
++	  greater effect then resubmit the entire patch set.
++
++	* When resubmitting use the email Subject: [PATCH v2] ...
++	  Hint: use the --subject-prefix='PATCH v2' option with 'git format-patch'
++
++	* using a git repository for (re)submissions can make life easier.
++	  See howto-pull-request.txt and source-code-management.txt.
++
++	* all patch submissions are either commented, rejected, or accepted.
++	  If the maintainer rejects a patch set it is pointless to resubmit it.
++
+ Email Format
+ 
+ 	* Subject: [PATCH] subsystem: description.
+@@ -82,16 +125,7 @@ Email Format
+ 
+ 	* Followed by the unified diff patch.
+ 
+-Before sending a patch
+-
+-	* make sure that after applying your patch the file(s) will compile
+-	  without errors.
+-
+-	* test that the previously existing program behavior is not altered. If
+-	  the patch intentionally alters the behavior explain what changed, and
+-	  the reason for it, in the changelog/commit message.
+-
+-Coding style
++Coding Style
+ 
+ 	* the preferred coding style is based on the linux kernel coding-style.
+ 	  Available here:
+@@ -102,41 +136,6 @@ Coding style
+ 	  that something is not quite right, and you are unwilling to fix the
+ 	  issue in the submitted change.
+ 
+-Patching process
+-
+-	* announce it on the mailing list when you are going to work with some
+-	  particular piece of code for a long time. This helps others to avoid
+-	  massive merge conflicts. Small or quick work, does not need to be
+-	  announced.
+-
+-	* only submit changes that you believe are ready to merge. To post a
+-	  patch for peer review only, state it clearly in the email and use
+-	  the Subject: [PATCH RFC] ...
+-
+-	* incorporate reviewer comments in the patches. Resubmitting without
+-	  changes is neither recommended nor polite.
+-
+-	* resubmission can be partial or complete. If only a few alterations are
+-	  needed then resubmit those particular patches. When comments cause a
+-	  greater effect then resubmit the entire patch set.
+-
+-	* When resubmitting use the email Subject: [PATCH v2] ...
+-	  Hint: use the --subject-prefix='PATCH v2' option with 'git format-patch'
+-
+-	* using a git repository for (re)submissions can make life easier.
+-	  See howto-pull-request.txt and source-code-management.txt.
+-
+-	* all patch submissions are either commented, rejected, or accepted.
+-	  If the maintainer rejects a patch set it is pointless to resubmit it.
+-
+-Various notes
+-
+-	* util-linux does not use kernel headers for file system super
+-	  blocks structures.
+-
+-	* patches relying on kernel features that are not in Linus Torvalds's
+-	  tree are not accepted.
+-
+ 	* do not use `else' after non-returning functions. For
+ 	  example:
+ 
+@@ -155,7 +154,15 @@ Various notes
+ 	  multiple lines. In case the shorthand does not look good on one line
+ 	  use the normal "if () else" syntax.
+ 
+-Standards compliance
++Various Notes
++
++	* util-linux does not use kernel headers for file system super
++	  blocks structures.
++
++	* patches relying on kernel features that are not in Linus Torvalds's
++	  tree are not accepted.
++
++Standards Compliance
+ 
+ 	Some of the commands maintained in this package have Open Group
+ 	requirements. These commands are:
+@@ -183,7 +190,7 @@ Standards compliance
+ 
+ 		http://pubs.opengroup.org/onlinepubs/7908799/xcuix.html
+ 
+-IRC channel
++IRC Channel
+ 
+ 	* #util-linux at freenode.net:
+ 
