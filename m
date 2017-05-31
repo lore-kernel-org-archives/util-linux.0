@@ -1,263 +1,215 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:59336 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752311AbdF0TIe (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 27 Jun 2017 15:08:34 -0400
-Subject: Re: [PATCH 6/6] misc: update --help content again
-To: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>,
-        util-linux@vger.kernel.org
-References: <20170626182952.15988-1-sweet_f_a@gmx.de>
- <20170626182952.15988-7-sweet_f_a@gmx.de>
- <965eb1e3-7439-809e-5d71-bb794997a950@gmx.com>
- <95e29533-5747-15de-79a8-681c726ec058@gmx.de>
- <6e5ba694-ccd2-8175-c3f5-c0a3c85154d2@gmx.com>
- <1076b7a3-6e0f-6e38-0486-a08de23a4f91@gmx.de>
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <60165400-ce08-fb7a-f435-681a10511fe9@gmx.com>
-Date: Tue, 27 Jun 2017 15:08:26 -0400
-MIME-Version: 1.0
-In-Reply-To: <1076b7a3-6e0f-6e38-0486-a08de23a4f91@gmx.de>
-Content-Type: text/plain; charset=windows-1252
+Received: from [195.159.176.226] ([195.159.176.226]:43381 "EHLO
+        blaine.gmane.org" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
+        with ESMTP id S1751056AbdEaTqU (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 31 May 2017 15:46:20 -0400
+Received: from list by blaine.gmane.org with local (Exim 4.84_2)
+        (envelope-from <gcuu-util-linux-ng@m.gmane.org>)
+        id 1dG9ZL-0005wZ-5A
+        for util-linux@vger.kernel.org; Wed, 31 May 2017 21:46:11 +0200
+To: util-linux@vger.kernel.org
+From: yumkam@gmail.com (Yuriy M. Kaminskiy)
+Subject: Re: [PATCH] setpriv: Add --init-groups option
+Date: Wed, 31 May 2017 22:46:05 +0300
+Message-ID: <m3mv9sernm.fsf@gmail.com>
+References: <20170531160117.27803-1-sebastian.schrader@ossmail.de>
+Mime-Version: 1.0
+Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Sebastian Schrader
+<sebastian.schrader@ossmail.de> writes:
 
-
-On 06/27/2017 12:35 PM, Rüdiger Meier wrote:
-> 
-> 
-> On 06/27/2017 05:12 PM, J William Piggott wrote:
->> On 06/27/2017 09:26 AM, Rüdiger Meier wrote:
->>> On 06/27/2017 02:42 PM, J William Piggott wrote:
->>>> On 06/26/2017 02:29 PM, Ruediger Meier wrote:
->>>>> From: Ruediger Meier <ruediger.meier@ga-group.nl>
->>>>> We change
->>>>>
->>>>>   
->>>>> -h, --help    display this help and exit
->>>>> -V, --version output version information and exit
->>>>>
->>>>> to
->>>>>   
->>>>> -h, --help    display this help
->>>>> -V, --version print version
->>>>>
->>>>> Some thoughts about this:
->>>>>
->>>>>     * use "display" for --help because it matches better if we
->>>>>       would add pager support (like git --help)
->>>>>
->>>>>     * "print" for --version to be different
->>>>
->>>> To be different why?
->>>>
->>>
->>> Because AFAIR somewhere Karel or somebody else mentioned that we
->>> could add auto-pager support on terminal for long --help output
->>> (like findmnt) or otherwise colored help texts.  This would be a
->>> difference, doing more than printf only.
->>
->> If I understand you correctly, using the word 'display' should imply
->> that a pager might be used?
->>
->> When reading open source documentation, messages, etc., I make
->> absolutely no distinction between: show, to stdout, display, print,
->> or output; to me they are absolute synonyms unless there is
->> additional language stating otherwise; such as:
->>
-> 
-> Maybe I make this difference between display and print because there
-> is a *print*() function in almost any programming language I know.
-> But *display*() or *show*() are usually only known in any graphical
-> libraries (widget toolkits, plotting, etc.).
-
-Okay, I get that. It seems that there is a conflict between what makes
-sense to a programmer, and what makes sense to a user.
-
-How about this: programmatically print is ambiguous also. It can be
-print to file, var, screen. So your associating the term 'display' with
-gui tools should create a connection to the display device. I think that
-is the goal here. A one-word term that connects an action with a device.
-
-> 
-> BTW regarding show, see
->    
-> --status     don't output anything, status code shows success
-> So something can be "shown" without any output at all ;)
-
-Show, would not be my first choice. The reason I favor 'display' is
-because it is a synonym for a terminal monitor. So using it as a verb
-hints at the intended target device. It also avoids the ambiguity as to
-whether 'print' means 'print to screen', 'print to printer', or perhaps
-something else. Same problem with 'output'. I think most, programmers
-and users, would interpret 'display' as being sent to the display device
-(pager or not). For conciseness in places like usage(), display is an
-attempt to imply the device. I don't think any of the other synonyms can
-do that.
-
->>> --version just print and exit
->>>  
->>> --help   display something and keep the display (pager) open.
->>>
->>
->> With this additional language it makes no difference for us whether
->> we use the same term, print or display, in both statements.  But to a
->> new student of open source using different terms changes the meaning;
->> or at the very least is ambiguous.  They may wonder: there must be a
->> reason they are using these different terms; what is it?
->>
->>>> It makes it sound like help and version will not have the same
->>>> action.  Laymen think 'print' means send to the printer.
->>>>
->>>> Translators will have to figure out which different words to use.
->>>
->>> Hehe, I have never thought about printers.  But for my bad English
->>> "display" sounds more like TV show or graphical X-display.  ;)
->>>
->>> Seriously IMO "print" is the right term for command-line and shell
->>> environment .  It's also more often used than "display" in POSIX and
->>> coreutils manpages.
->>
->> Using the term 'print' is residue from the days when a printer was
->> the only human readable output.  I think it is unfortunate that it
->> has now become synonymous with sending output to the terminal display
->> monitor.
->>
->> However, whatever the consensus is for the best term, all I'm hoping
->> for is to use it consistently instead of all the other synonyms.
->>
->>>> What is broken by:
->>>>
->>>>    -h, --help    display this help
->>>>    -V, --version display version
->>>>
->>>>
->>>> I really think it is a good idea to use consistent language for
->>>
->>> Consistent language is not always human-friendly
->>>
->>
->>   For comprehension of technical material, consistency is not only
->>   more human-friendly, it is imperative.
->>
->>> and can also be more hard or boring to read.  See
->>
->> We are not talking about a novel.  Technical material by necessity is
->> boring to read (unless you are enthusiastic about learning).  Think
->> textbooks.
->>
-> 
-> Yes, but I find my eyes are more relaxed when not everything looks
-> like the same pattern with minor differences.  Worst case example:
-> 
->  
-> --show-file-size     display the size of the file
-> --show-link-size     display the size of the link
-> --show-file-color    display the color of the file
-> --show-link-color    display the color of the link
-> --show-file-taste    display the taste of the file
-> --show-link-taste    display the taste of the link
-> 
-> This makes me ill. So I don't like to read the term "display" or
-> "print" 20 times on the same screen.  The --help and --version options
-> are boring enough already. I see no problem mixing print and display
-> there.
-> 
-> A bit reordering and rewording makes it better:
-> 
->  
-> --show-file-size     display the size of the file
-> --show-file-color    display the color of the file
-> --show-file-taste    display the taste of the file
-> --show-link-size     print link size
-> --show-link-color    print link color
-> --show-link-taste    print link taste
-> 
-
-I understand your position. Personally, I think being ambiguous to gain
-readability is a poor trade off for technical information. The above
-implies that there is something different between the first three and
-the last three.
-
-
->>>> comparable actions.  It is easier to comprehend, especially for
->>>> non-native speakers.  Once they understand the meaning of a term,
->>>> possibly from a context that they the understand well, then that
->>>> knowledge is transferable to other contexts.  Why add confusion by
->>>> constantly interchanging term synonyms?
->>>>
->>>
->>> Anyways, I'm also fine with display.  This was just my favorite
->>> proposal.
->>>
->>
->> I know when it comes to docs and strings that there is a long
->> tradition for hackers interjecting humor, wisecracks and generally
->> not taking things to seriously.  I'm generally of that mindset
->> myself.  However, it wasn't so long ago when I began using Linux that
->> I cannot remember being confused by all of the interchanging of
->> synonyms. Promoting this idea of using consistent language doesn't
->> matter that much to me personally, I'm trying to help new students.
-> 
-> FYI I just investigated the coreutils history.  They changed their
-> strings the last time in 1993.  Maybe that's also kind of consistent
-> in tradition.
-> 
-> 
-> This was their change 24 years ago
-> 
-> -     --help             provide this help\n\
-> -     --version          show program version\n");
-> 
-> +     --help             display this help and exit\n\
-> +     --version          output version information and exit\n");
-> 
-
-That's an interesting change. I don't know that I'd call it an
-improvement. I wonder if they went through the same discussions as we
-are.
-
-> Grepping all their manpages shows that they are using "display" almost
-> only in this single help string, normally using "print" and sometimes
-> "show".
-> 
-> In their real (info) documentation they use:
-> 
-> `--help'
->      Print a usage message listing all available options, then exit
->      successfully.
-> 
-> `--version'
->      Print the version number, then exit successfully.
+> Add an --init-groups option which initializes the supplementary groups
+> from the system's group database (e.g /etc/group) using initgroups(3).
+> ---
+>  sys-utils/setpriv.1 |  8 +++++++
+>  sys-utils/setpriv.c | 63 ++++++++++++++++++++++++++++++++++++++++++++++++-----
+>  2 files changed, 66 insertions(+), 5 deletions(-)
 >
+> diff --git a/sys-utils/setpriv.1 b/sys-utils/setpriv.1
+> index bf18fe050..be97c0799 100644
+> --- a/sys-utils/setpriv.1
+> +++ b/sys-utils/setpriv.1
+> @@ -52,6 +52,14 @@ Preserve supplementary groups.  Only useful in conjunction with
+>  .BR \-\-egid ", or"
+>  .BR \-\-regid .
+>  .TP
+> +.B \-\-init\-groups
+> +Initialize supplementary groups using
+> +.BR initgroups "(3)."
+> +Only useful in conjunction with
+> +.BR \-\-ruid
+> +or
+> +.BR \-\-reuid .
+> +.TP
+>  .BR \-\-list\-caps
+>  List all known capabilities.  This option must be specified alone.
+>  .TP
+> diff --git a/sys-utils/setpriv.c b/sys-utils/setpriv.c
+> index 2129115a0..618119385 100644
+> --- a/sys-utils/setpriv.c
+> +++ b/sys-utils/setpriv.c
+> @@ -62,15 +62,20 @@ struct privctx {
+>  		have_euid:1,		/* effective uid */
+>  		have_rgid:1,		/* real gid */
+>  		have_egid:1,		/* effective gid */
+> +		have_passwd:1,		/* passwd entry */
+>  		have_groups:1,		/* add groups */
+>  		keep_groups:1,		/* keep groups */
+>  		clear_groups:1,		/* remove groups */
+> +		init_groups:1,		/* initialize groups */
+>  		have_securebits:1;	/* remove groups */
+>  
+>  	/* uids and gids */
+>  	uid_t ruid, euid;
+>  	gid_t rgid, egid;
+>  
+> +	/* real user passwd entry */
+> +	struct passwd passwd;
+> +
+>  	/* supplementary groups */
+>  	size_t num_groups;
+>  	gid_t *groups;
+> @@ -109,6 +114,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
+>  	fputs(_(" --regid <gid>            set real and effective gid\n"), out);
+>  	fputs(_(" --clear-groups           clear supplementary groups\n"), out);
+>  	fputs(_(" --keep-groups            keep supplementary groups\n"), out);
+> +	fputs(_(" --init-groups            initialize supplementary groups\n"), out);
+>  	fputs(_(" --groups <group,...>     set supplementary groups\n"), out);
+>  	fputs(_(" --securebits <bits>      set securebits\n"), out);
+>  	fputs(_(" --selinux-label <label>  set SELinux label\n"), out);
+> @@ -580,6 +586,21 @@ static gid_t get_group(const char *s, const char *err)
+>  	return tmp;
+>  }
+>  
+> +static struct passwd *get_passwd(const char *s, uid_t *uid, const char *err)
+> +{
+> +	struct passwd *pw;
+> +	long tmp;
+> +	pw = getpwnam(s);
+> +	if (pw) {
+> +		*uid = pw->pw_uid;
+> +	} else {
+> +		tmp = strtol_or_err(s, err);
+> +		*uid = tmp;
+> +		pw = getpwuid(*uid);
+> +	}
+> +	return pw;
+> +}
+> +
+>  int main(int argc, char **argv)
+>  {
+>  	enum {
+> @@ -592,6 +613,7 @@ int main(int argc, char **argv)
+>  		REGID,
+>  		CLEAR_GROUPS,
+>  		KEEP_GROUPS,
+> +		INIT_GROUPS,
+>  		GROUPS,
+>  		INHCAPS,
+>  		LISTCAPS,
+> @@ -615,6 +637,7 @@ int main(int argc, char **argv)
+>  		{ "regid",            required_argument, NULL, REGID            },
+>  		{ "clear-groups",     no_argument,       NULL, CLEAR_GROUPS     },
+>  		{ "keep-groups",      no_argument,       NULL, KEEP_GROUPS      },
+> +		{ "init-groups",      no_argument,       NULL, INIT_GROUPS      },
+>  		{ "groups",           required_argument, NULL, GROUPS           },
+>  		{ "bounding-set",     required_argument, NULL, CAPBSET          },
+>  		{ "securebits",       required_argument, NULL, SECUREBITS       },
+> @@ -627,13 +650,14 @@ int main(int argc, char **argv)
+>  
+>  	static const ul_excl_t excl[] = {
+>  		/* keep in same order with enum definitions */
+> -		{CLEAR_GROUPS, KEEP_GROUPS, GROUPS},
+> +		{CLEAR_GROUPS, KEEP_GROUPS, INIT_GROUPS, GROUPS},
+>  		{0}
+>  	};
+>  	int excl_st[ARRAY_SIZE(excl)] = UL_EXCL_STATUS_INIT;
+>  
+>  	int c;
+>  	struct privctx opts;
+> +	struct passwd *pw = NULL;
+>  	int dumplevel = 0;
+>  	int total_opts = 0;
+>  	int list_caps = 0;
+> @@ -662,7 +686,11 @@ int main(int argc, char **argv)
+>  			if (opts.have_ruid)
+>  				errx(EXIT_FAILURE, _("duplicate ruid"));
+>  			opts.have_ruid = 1;
+> -			opts.ruid = get_user(optarg, _("failed to parse ruid"));
+> +			pw = get_passwd(optarg, &opts.ruid, _("failed to parse ruid"));
+> +			if (pw) {
+> +				memcpy(&opts.passwd, pw, sizeof(opts.passwd));
 
-At least they used 'print' in both of them. Although I don't love the
-term 'print', my goal would be met if it was just used consistently.
+This looks somewhat fragile. E.g. with
+   setpriv --ruid foo --euid bar ...
+second call to getpw{nam,id} can overwrite/free memory pointed by opts.passwd.pw_name
 
-Well, can see why this as never been addressed. If two people cannot
-come to a consensus, than how will the project as a whole, or the entire
-open source community. I guess I'll leave this can-of-worms alone and
-agree to disagree.
+> +				opts.have_passwd = 1;
+> +			}
+>  			break;
+>  		case EUID:
+>  			if (opts.have_euid)
+> @@ -674,7 +702,12 @@ int main(int argc, char **argv)
+>  			if (opts.have_ruid || opts.have_euid)
+>  				errx(EXIT_FAILURE, _("duplicate ruid or euid"));
+>  			opts.have_ruid = opts.have_euid = 1;
+> -			opts.ruid = opts.euid = get_user(optarg, _("failed to parse reuid"));
+> +			pw = get_passwd(optarg, &opts.ruid, _("failed to parse reuid"));
+> +			opts.euid = opts.ruid;
+> +			if (pw) {
+> +				memcpy(&opts.passwd, pw, sizeof(opts.passwd));
+> +				opts.have_passwd = 1;
+> +			}
+>  			break;
+>  		case RGID:
+>  			if (opts.have_rgid)
+> @@ -706,6 +739,12 @@ int main(int argc, char **argv)
+>  				     _("duplicate --keep-groups option"));
+>  			opts.keep_groups = 1;
+>  			break;
+> +		case INIT_GROUPS:
+> +			if (opts.init_groups)
+> +				errx(EXIT_FAILURE,
+> +				     _("duplicate --init-groups option"));
+> +			opts.init_groups = 1;
+> +			break;
+>  		case GROUPS:
+>  			if (opts.have_groups)
+>  				errx(EXIT_FAILURE,
+> @@ -775,9 +814,20 @@ int main(int argc, char **argv)
+>  		errx(EXIT_FAILURE, _("No program specified"));
+>  
+>  	if ((opts.have_rgid || opts.have_egid)
+> -	    && !opts.keep_groups && !opts.clear_groups && !opts.have_groups)
+> +	    && !opts.keep_groups && !opts.clear_groups && !opts.init_groups
+> +	    && !opts.have_groups)
+> +		errx(EXIT_FAILURE,
+> +		     _("--[re]gid requires --keep-groups, --clear-groups, --init-groups, or --groups"));
+> +
+> +	if (opts.init_groups && !opts.have_ruid)
+> +		errx(EXIT_FAILURE,
+> +		     _("--init-groups requires --ruid or --reuid"));
+> +
+> +	if (opts.init_groups && !opts.have_passwd)
+>  		errx(EXIT_FAILURE,
+> -		     _("--[re]gid requires --keep-groups, --clear-groups, or --groups"));
+> +		     _("uid %ld not found, --init-groups requires an user that "
+> +		       "can be found on the system"),
+> +		     (long) opts.ruid);
+>  
+>  	if (opts.nnp && prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) == -1)
+>  		err(EXIT_FAILURE, _("disallow granting new privileges failed"));
+> @@ -811,6 +861,9 @@ int main(int argc, char **argv)
+>  	if (opts.have_groups) {
+>  		if (setgroups(opts.num_groups, opts.groups) != 0)
+>  			err(SETPRIV_EXIT_PRIVERR, _("setgroups failed"));
+> +	} else if (opts.init_groups) {
+> +		if (initgroups(opts.passwd.pw_name, opts.passwd.pw_gid) != 0)
+> +			err(SETPRIV_EXIT_PRIVERR, _("initgroups failed"));
+>  	} else if (opts.clear_groups) {
+>  		gid_t x = 0;
+>  		if (setgroups(0, &x) != 0)
 
-> 
-> I think these ones would fit also for our manpages.  I like their
-> statement "listing *all* available options".  It was not always clear
-> to me whether
-> 
-> or not I should hide unimportant/redundant options from --help output.
-> 
-> cu, Rudi
-> 
->> I also have the impression that many of us are working to make open
->> source polished and professional.  I believe that technical writing
->>
->> should be focused on comprehension and that using consistent
->> language, especially for terms, is imperative to that end.
-> -- To unsubscribe from this list: send the line "unsubscribe
-> util-linux" in
-> 
-> the body of a message to majordomo@vger.kernel.org
-> 
-> More majordomo info at http://vger.kernel.org/majordomo-info.html
-> 
-> 
