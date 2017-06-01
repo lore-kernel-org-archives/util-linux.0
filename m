@@ -1,71 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from hotei.ga-group.nl ([138.201.147.219]:39960 "EHLO
-        hotei.ga-group.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750761AbdFSOqW (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 19 Jun 2017 10:46:22 -0400
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH 2/4] flock: cleanup usage issues
-Date: Mon, 19 Jun 2017 16:40:14 +0200
-Cc: util-linux@vger.kernel.org
-References: <1497872174-9852-1-git-send-email-sweet_f_a@gmx.de> <20170619142420.yzmqhilscitwgsmz@ws.net.home> <201706191637.17889.sweet_f_a@gmx.de>
-In-Reply-To: <201706191637.17889.sweet_f_a@gmx.de>
+Received: from mout.gmx.net ([212.227.17.20]:57268 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751201AbdFASum (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 1 Jun 2017 14:50:42 -0400
+Subject: Re: [PATCH 6/6] misc: fix some warnings
+To: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
+References: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
+ <1496279320-14541-7-git-send-email-sweet_f_a@gmx.de>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <0035d164-75ac-f892-2cbe-0fb8184116cb@gmx.com>
+Date: Thu, 1 Jun 2017 14:50:34 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201706191640.14280.ruediger.meier@ga-group.nl>
+In-Reply-To: <1496279320-14541-7-git-send-email-sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 19 June 2017, Ruediger Meier wrote:
-> On Monday 19 June 2017, Karel Zak wrote:
-> > On Mon, Jun 19, 2017 at 02:36:17PM +0200, Ruediger Meier wrote:
-> > > Sorry I forgot that the fputs/puts repacement adds another
-> > > newline.
-> > >
-> > > I could either
-> > >   1. remove the newlines from the strings (but would this cause
-> > > extra work for translators?)
-> > >   2. use printf instead of puts
-> > >   3. don't change anything, just use constant FILE argument
-> > > stdout.
-> >
-> > I think fputs(..., stdout) is non-invasive change, better than
-> > modify all strings and probably more effective than printf().
-> >
-> >     Karel
->
-> I'm using
->
-> -static void usage(FILE * out) {
-> -    FILE * out = stdout;
-> -    fputs(USAGE_HEADER, out);
-> +static void usage(void) {
-> +    FILE * out = stdout;
-> +    fputs(USAGE_HEADER, out);
->     ...
-> }
 
-Sorry I mean this 
+On 05/31/2017 09:08 PM, Ruediger Meier wrote:
+> From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
--static void usage(FILE * out) {
-+static void usage(void) {
-+    FILE * out = stdout;
-     fputs(USAGE_HEADER, out);
-     ...
-}
+ 8< ---
 
-> This will give the smallest patches when I go through all the other
-> commands.
->
-> Here it is updated:
-> https://github.com/karelzak/util-linux/pull/465
->
-> cu,
-> Rudi
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> diff --git a/lib/plymouth-ctrl.c b/lib/plymouth-ctrl.c
+> index 75d8b93..0e60341 100644
+> --- a/lib/plymouth-ctrl.c
+> +++ b/lib/plymouth-ctrl.c
+> @@ -85,7 +85,8 @@ static int open_un_socket_and_connect(void)
+>  	 * Please note that the PLYMOUTH_SOCKET_PATH has a
+>  	 * leading NULL byte to mark it as an abstract socket
+>  	 */
+> -	ret = connect(fd, &su, offsetof(struct sockaddr_un, sun_path) + 1 + strlen(su.sun_path+1));
+> +	ret = connect(fd, (const struct sockaddr *) &su,
+> +	              offsetof(struct sockaddr_un, sun_path) + 1 + strlen(su.sun_path+1));
+        ^^^^^^^^^^^^^^ whitespace
 
+ 8< ---
 
