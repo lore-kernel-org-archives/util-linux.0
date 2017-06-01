@@ -1,157 +1,153 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:52755 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.15.18]:51361 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753430AbdFMPdI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 13 Jun 2017 11:33:08 -0400
-Received: from adsiz.fritz.box ([146.52.24.88]) by mail.gmx.com (mrgmx102
- [212.227.17.168]) with ESMTPSA (Nemesis) id 0MWxtA-1dHcQq2e3g-00W1TO for
- <util-linux@vger.kernel.org>; Tue, 13 Jun 2017 17:32:36 +0200
+        id S1751097AbdFABIo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 31 May 2017 21:08:44 -0400
+Received: from tenfore.ga-group.nl ([77.12.147.210]) by mail.gmx.com (mrgmx003
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 0LnxQO-1drmL42Nom-00fz6p for
+ <util-linux@vger.kernel.org>; Thu, 01 Jun 2017 03:08:42 +0200
 From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 2/5] libfdisk: fix guid usage of packed structure gpt_entry
-Date: Tue, 13 Jun 2017 17:32:32 +0200
-Message-Id: <20170613153235.11164-3-sweet_f_a@gmx.de>
-In-Reply-To: <20170613153235.11164-1-sweet_f_a@gmx.de>
-References: <20170613153235.11164-1-sweet_f_a@gmx.de>
+Subject: [PATCH 6/6] misc: fix some warnings
+Date: Thu,  1 Jun 2017 03:08:40 +0200
+Message-Id: <1496279320-14541-7-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
+References: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-clang issued warnings like this:
+sys-utils/prlimit.c: In function 'do_prlimit':
+sys-utils/prlimit.c:367:16: warning: format '%ju' expects argument of type 'uintmax_t', but argument 2 has type 'rlim_t {aka long long unsigned int}' [-Wformat=]
+     printf("<%ju", new->rlim_cur);
 
-../libfdisk/src/gpt.c:371:18: warning: taking address of packed member 'type' of class or structure 'gpt_entry' may result in an unaligned pointer value [-Waddress-of-packed-member]
-        guid_to_string(&e->type, str);
-                        ^~~~~~~
+lib/plymouth-ctrl.c: In function 'open_un_socket_and_connect':
+lib/plymouth-ctrl.c:88:20: warning: passing argument 2 of 'connect' from incompatible pointer type [-Wincompatible-pointer-types]
+  ret = connect(fd, &su, offsetof(struct sockaddr_un, sun_path) + 1 + strlen(su.sun_path+1));
+                    ^
+In file included from lib/plymouth-ctrl.c:35:0:
+/usr/include/sys/socket.h:314:5: note: expected 'const struct sockaddr *' but argument is of type 'struct sockaddr_un *'
+ int connect (int, const struct sockaddr *, socklen_t);
+
+login-utils/last.c: In function 'list':
+login-utils/last.c:506:54: warning: pointer targets in passing argument 4 of 'dns_lookup' differ in signedness [-Wpointer-sign]
+   r = dns_lookup(domain, sizeof(domain), ctl->useip, p->ut_addr_v6);
+                                                      ^
+login-utils/last.c:291:12: note: expected 'int32_t * {aka int *}' but argument is of type 'unsigned int *'
+ static int dns_lookup(char *result, int size, int useip, int32_t *a)
+            ^~~~~~~~~~
+
+In file included from sys-utils/hwclock-cmos.c:92:0:
+sys-utils/hwclock.h:67:32: warning: 'struct timeval' declared inside parameter list will not be visible outside of this definition or declaration
+ extern double time_diff(struct timeval subtrahend, struct timeval subtractor);
+
+misc-utils/test_uuidd.c: In function 'create_nthreads':
+misc-utils/test_uuidd.c:187:19: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+        proc->pid, (int) th->tid, th->index));
 
 Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- libfdisk/src/gpt.c | 37 +++++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ lib/plymouth-ctrl.c     |  3 ++-
+ login-utils/last.c      |  2 +-
+ misc-utils/test_uuidd.c | 10 +++++-----
+ sys-utils/hwclock.h     |  1 +
+ sys-utils/prlimit.c     |  4 ++--
+ 5 files changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
-index 249feb74d..40d0912ec 100644
---- a/libfdisk/src/gpt.c
-+++ b/libfdisk/src/gpt.c
-@@ -367,8 +367,9 @@ static struct fdisk_parttype *gpt_partition_parttype(
- {
- 	struct fdisk_parttype *t;
- 	char str[37];
-+	struct gpt_guid guid = e->type;
+diff --git a/lib/plymouth-ctrl.c b/lib/plymouth-ctrl.c
+index 75d8b93..0e60341 100644
+--- a/lib/plymouth-ctrl.c
++++ b/lib/plymouth-ctrl.c
+@@ -85,7 +85,8 @@ static int open_un_socket_and_connect(void)
+ 	 * Please note that the PLYMOUTH_SOCKET_PATH has a
+ 	 * leading NULL byte to mark it as an abstract socket
+ 	 */
+-	ret = connect(fd, &su, offsetof(struct sockaddr_un, sun_path) + 1 + strlen(su.sun_path+1));
++	ret = connect(fd, (const struct sockaddr *) &su,
++	              offsetof(struct sockaddr_un, sun_path) + 1 + strlen(su.sun_path+1));
+ 	if (ret < 0) {
+ 		if (errno != ECONNREFUSED)
+ 			warnx(_("cannot connect on UNIX socket"));
+diff --git a/login-utils/last.c b/login-utils/last.c
+index 679ea6c..f93ec7f 100644
+--- a/login-utils/last.c
++++ b/login-utils/last.c
+@@ -503,7 +503,7 @@ static int list(const struct last_control *ctl, struct utmpx *p, time_t logout_t
+ 	 */
+ 	r = -1;
+ 	if (ctl->usedns || ctl->useip)
+-		r = dns_lookup(domain, sizeof(domain), ctl->useip, p->ut_addr_v6);
++		r = dns_lookup(domain, sizeof(domain), ctl->useip, (int32_t*)p->ut_addr_v6);
+ 	if (r < 0) {
+ 		size_t sz = sizeof(p->ut_host);
  
--	guid_to_string(&e->type, str);
-+	guid_to_string(&guid, str);
- 	t = fdisk_label_get_parttype_from_string(cxt->label, str);
- 	return t ? : fdisk_new_unknown_parttype(0, str);
- }
-@@ -376,7 +377,7 @@ static struct fdisk_parttype *gpt_partition_parttype(
- static void gpt_entry_set_type(struct gpt_entry *e, struct gpt_guid *uuid)
- {
- 	e->type = *uuid;
--	DBG(LABEL, gpt_debug_uuid("new type", &(e->type)));
-+	DBG(LABEL, gpt_debug_uuid("new type", uuid));
- }
+diff --git a/misc-utils/test_uuidd.c b/misc-utils/test_uuidd.c
+index 73cc90a..9883cbf 100644
+--- a/misc-utils/test_uuidd.c
++++ b/misc-utils/test_uuidd.c
+@@ -183,8 +183,8 @@ static void create_nthreads(process_t *proc, size_t index)
+ 			break;
+ 		}
  
- static void gpt_entry_set_name(struct gpt_entry *e, char *str)
-@@ -480,8 +481,9 @@ static inline int gpt_sizeof_ents(struct gpt_header *hdr, size_t *sz)
- static char *gpt_get_header_id(struct gpt_header *header)
- {
- 	char str[37];
-+	struct gpt_guid guid = header->disk_guid;
- 
--	guid_to_string(&header->disk_guid, str);
-+	guid_to_string(&guid, str);
- 
- 	return strdup(str);
- }
-@@ -742,13 +744,18 @@ static int gpt_mknew_header(struct fdisk_context *cxt,
- 
- 	if (cxt->script) {
- 		const char *id = fdisk_script_get_header(cxt->script, "label-id");
--		if (id && string_to_guid(id, &header->disk_guid) == 0)
-+		struct gpt_guid guid = header->disk_guid;
-+		if (id && string_to_guid(id, &guid) == 0)
- 			has_id = 1;
-+		header->disk_guid = guid;
+-		LOG(2, (stderr, "%d: started thread [tid=%d,index=%zu]\n",
+-		     proc->pid, (int) th->tid, th->index));
++		LOG(2, (stderr, "%d: started thread [tid=%jd,index=%zu]\n",
++		     proc->pid, (intmax_t) th->tid, th->index));
+ 		index += nobjects;
+ 		ncreated++;
  	}
+@@ -203,8 +203,8 @@ static void create_nthreads(process_t *proc, size_t index)
+ 			err(EXIT_FAILURE, "pthread_join failed");
+ 		}
  
- 	if (!has_id) {
-+		struct gpt_guid guid;
-+
- 		uuid_generate_random((unsigned char *) &header->disk_guid);
--		swap_efi_guid(&header->disk_guid);
-+		guid = header->disk_guid;
-+		swap_efi_guid(&guid);
+-		LOG(2, (stderr, "%d: thread exited [tid=%d,return=%d]\n",
+-		     proc->pid, (int) th->tid, th->retval));
++		LOG(2, (stderr, "%d: thread exited [tid=%jd,return=%d]\n",
++		     proc->pid, (intmax_t) th->tid, th->retval));
  	}
- 	return 0;
  }
-@@ -1727,6 +1734,7 @@ static int gpt_get_partition(struct fdisk_context *cxt, size_t n,
- 	struct gpt_entry *e;
- 	char u_str[37];
- 	int rc = 0;
-+	struct gpt_guid guid;
  
- 	assert(cxt);
- 	assert(cxt->label);
-@@ -1748,7 +1756,8 @@ static int gpt_get_partition(struct fdisk_context *cxt, size_t n,
- 	pa->size = gpt_partition_size(e);
- 	pa->type = gpt_partition_parttype(cxt, e);
+@@ -256,7 +256,7 @@ static void object_dump(size_t idx, object_t *obj)
+ 	fprintf(stderr, "  uuid:    <%s>\n", p);
+ 	fprintf(stderr, "  idx:     %zu\n", obj->idx);
+ 	fprintf(stderr, "  process: %d\n", (int) obj->pid);
+-	fprintf(stderr, "  thread:  %d\n", (int) obj->tid);
++	fprintf(stderr, "  thread:  %jd\n", (intmax_t) obj->tid);
+ 	fprintf(stderr, "}\n");
+ }
  
--	if (guid_to_string(&e->partition_guid, u_str)) {
-+	guid = e->partition_guid;
-+	if (guid_to_string(&guid, u_str)) {
- 		pa->uuid = strdup(u_str);
- 		if (!pa->uuid) {
- 			rc = -errno;
-@@ -1794,12 +1803,15 @@ static int gpt_set_partition(struct fdisk_context *cxt, size_t n,
+diff --git a/sys-utils/hwclock.h b/sys-utils/hwclock.h
+index 7d2cc45..f3f76a6 100644
+--- a/sys-utils/hwclock.h
++++ b/sys-utils/hwclock.h
+@@ -5,6 +5,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <sys/time.h>
+ #include <time.h>
  
- 	if (pa->uuid) {
- 		char new_u[37], old_u[37];
-+		struct gpt_guid guid;
+ #include "c.h"
+diff --git a/sys-utils/prlimit.c b/sys-utils/prlimit.c
+index a62d457..afd1928 100644
+--- a/sys-utils/prlimit.c
++++ b/sys-utils/prlimit.c
+@@ -364,12 +364,12 @@ static void do_prlimit(struct list_head *lims)
+ 			if (new->rlim_cur == RLIM_INFINITY)
+ 				printf("<%s", _("unlimited"));
+ 			else
+-				printf("<%ju", new->rlim_cur);
++				printf("<%ju", (uintmax_t)new->rlim_cur);
  
--		guid_to_string(&e->partition_guid, old_u);
-+		guid = e->partition_guid;
-+		guid_to_string(&guid, old_u);
- 		rc = gpt_entry_set_uuid(e, pa->uuid);
- 		if (rc)
- 			return rc;
--		guid_to_string(&e->partition_guid, new_u);
-+		guid = e->partition_guid;
-+		guid_to_string(&guid, new_u);
- 		fdisk_info(cxt, _("Partition UUID changed from %s to %s."),
- 			old_u, new_u);
- 	}
-@@ -2404,8 +2416,11 @@ static int gpt_add_partition(
- 		 * generated for that partition, and every partition is guaranteed
- 		 * to have a unique GUID.
- 		 */
-+		struct gpt_guid guid;
-+
- 		uuid_generate_random((unsigned char *) &e->partition_guid);
--		swap_efi_guid(&e->partition_guid);
-+		guid = e->partition_guid;
-+		swap_efi_guid(&guid);
- 	}
+ 			if (new->rlim_max == RLIM_INFINITY)
+ 				printf(":%s>\n", _("unlimited"));
+ 			else
+-				printf(":%ju>\n", new->rlim_max);
++				printf(":%ju>\n", (uintmax_t)new->rlim_max);
+ 		}
  
- 	if (pa && pa->name && *pa->name)
-@@ -2451,6 +2466,7 @@ static int gpt_create_disklabel(struct fdisk_context *cxt)
- 	size_t esz = 0;
- 	char str[37];
- 	struct fdisk_gpt_label *gpt;
-+	struct gpt_guid guid;
- 
- 	assert(cxt);
- 	assert(cxt->label);
-@@ -2508,7 +2524,8 @@ static int gpt_create_disklabel(struct fdisk_context *cxt)
- 	cxt->label->nparts_max = gpt_get_nentries(gpt);
- 	cxt->label->nparts_cur = 0;
- 
--	guid_to_string(&gpt->pheader->disk_guid, str);
-+	guid = gpt->pheader->disk_guid;
-+	guid_to_string(&guid, str);
- 	fdisk_label_set_changed(cxt->label, 1);
- 	fdisk_info(cxt, _("Created a new GPT disklabel (GUID: %s)."), str);
- done:
+ 		if (prlimit(pid, lim->desc->resource, new, old) == -1)
 -- 
-2.12.3
+1.8.5.6
 
