@@ -1,45 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from ishtar.tlinx.org ([173.164.175.65]:59608 "EHLO
-        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751281AbdFFOPI (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 6 Jun 2017 10:15:08 -0400
-Message-ID: <5936B8E5.8050901@tlinx.org>
-Date: Tue, 06 Jun 2017 07:15:01 -0700
-From: L A Walsh <lkml@tlinx.org>
+Received: from mx1.redhat.com ([209.132.183.28]:35064 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751180AbdFAKcM (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 1 Jun 2017 06:32:12 -0400
+Date: Thu, 1 Jun 2017 12:32:08 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/6] minor last minute fixes for v2.30
+Message-ID: <20170601103208.ysx7bpxreu2rsvs4@ws.net.home>
+References: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
+ <201706010952.43726.sweet_f_a@gmx.de>
+ <20170601085516.vscfhvqtwhixr6hu@ws.net.home>
+ <201706011115.10999.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: Bug: mount doing bad security check: only root can use -types,
- (effective EUID is 5013)
-References: <5935E44B.8000405@tlinx.org> <20170606093607.xrxel4ny4hjoe4iv@ws.net.home>
-In-Reply-To: <20170606093607.xrxel4ny4hjoe4iv@ws.net.home>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201706011115.10999.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> ruid = getuid();
->     euid = geteuid();
->
->     cxt->restricted = (uid_t) 0 == ruid && ruid == euid ? 0 : 1;
->
-> in your case geteuid() returns 5013.
->   
-----
-    But my EUID isn't 5013 ("LOGINUID" is). That's the complaint/bug. 
-I looked at 'id': it doesn't show euid:
+On Thu, Jun 01, 2017 at 11:15:10AM +0200, Ruediger Meier wrote:
+> On Thursday 01 June 2017, Karel Zak wrote:
+> > On Thu, Jun 01, 2017 at 09:52:43AM +0200, Ruediger Meier wrote:
+> > > I've fixed some typos via github pull request.
+> > > https://github.com/karelzak/util-linux/pull/450
+> >
+> > Applied, thanks.
+> 
+> Hm, maybe you could revert the stdbuf patch. It does not work on 
+> OSX/travis.
 
-Ishtar:/tmp> sudo bash -c 'id; echo "UID=$UID, EUID=$EUID"; /bin/mount 
-devpts /tmp/mnt -t devpts'
-uid=0(root) gid=0(root) groups=...
-UID=0, EUID=0
-mount: only root can use "--types" option (effective UID is 5013)
+OK:-) I see the pull request... merged.
 
-I also mentioned I'm using
-'sudo', which also sets both the UID & EUID to the new USER (unless
-you go out of your way to configure it not to do so -- in which case
-many things don't function normally -- including bash which would
-operate in restricted mode (like rbash).
+    Karel
 
-
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
