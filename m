@@ -1,47 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:35244 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751658AbdFHTwa (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 8 Jun 2017 15:52:30 -0400
-Received: by mail-wm0-f68.google.com with SMTP id g15so8876251wmc.2
-        for <util-linux@vger.kernel.org>; Thu, 08 Jun 2017 12:52:30 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mout.gmx.net ([212.227.15.19]:55747 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751036AbdFAHwq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 1 Jun 2017 03:52:46 -0400
+Received: from tenfore.site ([77.12.131.100]) by mail.gmx.com (mrgmx001
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 0MBVwM-1d5un41T30-00ASUc for
+ <util-linux@vger.kernel.org>; Thu, 01 Jun 2017 09:52:44 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 04/11] uuidgen: slice up the usage text
-Date: Thu,  8 Jun 2017 20:52:08 +0100
-Message-Id: <20170608195215.1702-5-kerolasa@iki.fi>
-In-Reply-To: <20170608195215.1702-1-kerolasa@iki.fi>
-References: <20170608195215.1702-1-kerolasa@iki.fi>
+Subject: Re: [PATCH 0/6] minor last minute fixes for v2.30
+Date: Thu, 1 Jun 2017 09:52:43 +0200
+References: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201706010952.43726.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/uuidgen.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+On Thursday 01 June 2017, Ruediger Meier wrote:
+> From: Ruediger Meier <ruediger.meier@ga-group.nl>
+>
+> This is all non-critical, in doubt skip it.
 
-diff --git a/misc-utils/uuidgen.c b/misc-utils/uuidgen.c
-index 911fead72..4c1d47d5e 100644
---- a/misc-utils/uuidgen.c
-+++ b/misc-utils/uuidgen.c
-@@ -28,11 +28,11 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- 	fputs(_("Create a new UUID value.\n"), out);
- 
- 	fputs(USAGE_OPTIONS, out);
--	fputs(_(" -r, --random     generate random-based uuid\n"
--		" -t, --time       generate time-based uuid\n"
--		" -V, --version    output version information and exit\n"
--		" -h, --help       display this help and exit\n\n"), out);
--
-+	fputs(_(" -r, --random     generate random-based uuid\n"), out);
-+	fputs(_(" -t, --time       generate time-based uuid\n"), out);
-+	fputs(USAGE_SEPARATOR, out);
-+	fputs(USAGE_HELP, out);
-+	fputs(USAGE_VERSION, out);
- 	fprintf(out, USAGE_MAN_TAIL("uuidgen(1)"));
- 	exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
- }
--- 
-2.13.1
+I've fixed some typos via github pull request.
+https://github.com/karelzak/util-linux/pull/450
 
+
+> Linux User (1):
+>   tests: use stdbuf when stderr and stdout is randomly ordered
+>
+> Ruediger Meier (5):
+>   tests: grep's short option -A is more portable
+>   tests: avoid diff of diffs
+>   build-sys: fix library order when linking
+>   tests: handle non glibc error message for fallocate
+>   misc: fix some warnings
+>
+>  lib/Makemodule.am                      |  2 +-
+>  lib/plymouth-ctrl.c                    |  3 ++-
+>  libblkid/samples/Makemodule.am         |  8 ++++----
+>  libfdisk/src/Makemodule.am             |  2 +-
+>  libmount/src/Makemodule.am             |  2 +-
+>  libsmartcols/samples/Makemodule.am     |  2 +-
+>  libuuid/src/Makemodule.am              |  2 +-
+>  login-utils/last.c                     |  2 +-
+>  misc-utils/test_uuidd.c                | 10 +++++-----
+>  sys-utils/hwclock.h                    |  1 +
+>  sys-utils/prlimit.c                    |  4 ++--
+>  tests/expected/misc/swaplabel          |  2 +-
+>  tests/expected/rename/exit_codes       |  2 +-
+>  tests/expected/utmp/utmpdump-subsecond |  7 +++----
+>  tests/ts/ipcs/headers                  | 26
+> +++++++++++++------------- tests/ts/misc/fallocate                | 
+> 5 ++---
+>  tests/ts/misc/swaplabel                |  3 ++-
+>  tests/ts/rename/exit_codes             |  3 ++-
+>  tests/ts/utmp/utmpdump-subsecond       |  4 +---
+>  19 files changed, 45 insertions(+), 45 deletions(-)
