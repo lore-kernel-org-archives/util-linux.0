@@ -1,50 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:58304 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.15.19]:62467 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753382AbdFMVLf (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 13 Jun 2017 17:11:35 -0400
-Received: from [10.0.0.104] ([146.52.24.88]) by mail.gmx.com (mrgmx103
- [212.227.17.168]) with ESMTPSA (Nemesis) id 0MKHik-1dMXG2028E-001jKt for
- <util-linux@vger.kernel.org>; Tue, 13 Jun 2017 23:11:28 +0200
-Subject: Re: [PATCH 0/5] Fix even more random compiler warnings
-From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
+        id S1751097AbdFABIn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 31 May 2017 21:08:43 -0400
+Received: from tenfore.ga-group.nl ([77.12.147.210]) by mail.gmx.com (mrgmx003
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 0Lp3sy-1dstKv04to-00es7L for
+ <util-linux@vger.kernel.org>; Thu, 01 Jun 2017 03:08:41 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-References: <20170613153235.11164-1-sweet_f_a@gmx.de>
-Message-ID: <8d8b34ff-6173-55b7-7aea-6afe6b960804@gmx.de>
-Date: Tue, 13 Jun 2017 23:11:27 +0200
-MIME-Version: 1.0
-In-Reply-To: <20170613153235.11164-1-sweet_f_a@gmx.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: [PATCH 0/6] minor last minute fixes for v2.30
+Date: Thu,  1 Jun 2017 03:08:34 +0200
+Message-Id: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I will resubmit this and my other pull request via github.
-There are some minor issues and typos.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-On 06/13/2017 05:32 PM, Ruediger Meier wrote:
-> From: Ruediger Meier <ruediger.meier@ga-group.nl>
-> 
-> Two patches regarding "taking address of packed member". The first
-> one (sun) makes things more nice, the second one (gpt) is more ugly.
-> Don't know how serious the problem is, see
-> https://stackoverflow.com/questions/8568432/is-gccs-attribute-packed-pragma-pack-unsafe
-> 
-> The wall/OSX patch is maybe too ugly and probably does not fix
-> a real issue. Maybe skip it.
-> 
-> Ruediger Meier (5):
->    libfdisk: cleanup sun label checksum usuage
->    libfdisk: fix guid usage of packed structure gpt_entry
->    libsmartcols: fix warning "unused parameter"
->    wall: fix OSX getgrouplist, gid_t* vs int*
->    tests: add more tests for line(1)
-> 
->   include/pt-sun.h               |  2 +-
->   libfdisk/src/gpt.c             | 37 +++++++++++++++++++++++++++----------
->   libfdisk/src/sun.c             | 33 +++++++--------------------------
->   libsmartcols/src/table_print.c |  9 +++++++--
->   term-utils/wall.c              | 13 ++++++++++---
->   tests/expected/misc/line       | 18 ++++++++++++++++++
->   tests/ts/misc/line             | 28 ++++++++++++++++++++++++----
->   7 files changed, 94 insertions(+), 46 deletions(-)
-> 
+This is all non-critical, in doubt skip it.
+
+Linux User (1):
+  tests: use stdbuf when stderr and stdout is randomly ordered
+
+Ruediger Meier (5):
+  tests: grep's short option -A is more portable
+  tests: avoid diff of diffs
+  build-sys: fix library order when linking
+  tests: handle non glibc error message for fallocate
+  misc: fix some warnings
+
+ lib/Makemodule.am                      |  2 +-
+ lib/plymouth-ctrl.c                    |  3 ++-
+ libblkid/samples/Makemodule.am         |  8 ++++----
+ libfdisk/src/Makemodule.am             |  2 +-
+ libmount/src/Makemodule.am             |  2 +-
+ libsmartcols/samples/Makemodule.am     |  2 +-
+ libuuid/src/Makemodule.am              |  2 +-
+ login-utils/last.c                     |  2 +-
+ misc-utils/test_uuidd.c                | 10 +++++-----
+ sys-utils/hwclock.h                    |  1 +
+ sys-utils/prlimit.c                    |  4 ++--
+ tests/expected/misc/swaplabel          |  2 +-
+ tests/expected/rename/exit_codes       |  2 +-
+ tests/expected/utmp/utmpdump-subsecond |  7 +++----
+ tests/ts/ipcs/headers                  | 26 +++++++++++++-------------
+ tests/ts/misc/fallocate                |  5 ++---
+ tests/ts/misc/swaplabel                |  3 ++-
+ tests/ts/rename/exit_codes             |  3 ++-
+ tests/ts/utmp/utmpdump-subsecond       |  4 +---
+ 19 files changed, 45 insertions(+), 45 deletions(-)
+
+-- 
+1.8.5.6
+
