@@ -1,27 +1,84 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53332 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.15]:59904 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752832AbdFVIqo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 22 Jun 2017 04:46:44 -0400
-Date: Thu, 22 Jun 2017 10:46:40 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ivan Delalande <colona@arista.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] dmesg: print only 2 hex digits for each hex-escaped byte
-Message-ID: <20170622084640.2j7yojlmm3lu2kgb@ws.net.home>
-References: <20170621234305.GA7746@visor>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170621234305.GA7746@visor>
+        id S1751216AbdFABIn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 31 May 2017 21:08:43 -0400
+Received: from tenfore.ga-group.nl ([77.12.147.210]) by mail.gmx.com (mrgmx003
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 0M7YF5-1e9b8o0yG7-00xMRI for
+ <util-linux@vger.kernel.org>; Thu, 01 Jun 2017 03:08:41 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 1/6] tests: grep's short option -A is more portable
+Date: Thu,  1 Jun 2017 03:08:35 +0200
+Message-Id: <1496279320-14541-2-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
+References: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jun 21, 2017 at 04:43:05PM -0700, Ivan Delalande wrote:
->  sys-utils/dmesg.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Applied, thanks.
+Noticed on Alpine Linux/busybox.
 
+Reported-by: Assaf Gordon <assafgordon@gmail.com>
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ tests/ts/ipcs/headers | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/tests/ts/ipcs/headers b/tests/ts/ipcs/headers
+index 5089ea5..475ed56 100755
+--- a/tests/ts/ipcs/headers
++++ b/tests/ts/ipcs/headers
+@@ -24,35 +24,35 @@ ts_init "$*"
+ ts_check_test_command "$TS_CMD_IPCS"
+ 
+ ts_log "test: shm headers"
+-$TS_CMD_IPCS -m -t | grep --after-context=1 "^---"  >> $TS_OUTPUT
+-$TS_CMD_IPCS -m -p | grep --after-context=1 "^---"  >> $TS_OUTPUT
+-$TS_CMD_IPCS -m -c | grep --after-context=1 "^---"  >> $TS_OUTPUT
++$TS_CMD_IPCS -m -t | grep -A1 "^---"  >> $TS_OUTPUT
++$TS_CMD_IPCS -m -p | grep -A1 "^---"  >> $TS_OUTPUT
++$TS_CMD_IPCS -m -c | grep -A1 "^---"  >> $TS_OUTPUT
+ $TS_CMD_IPCS -m -l | grep "^---"  >> $TS_OUTPUT
+ $TS_CMD_IPCS -m -u | grep "^---"  >> $TS_OUTPUT
+ echo >> $TS_OUTPUT
+ 
+ ts_log "test: mesg headers"
+-$TS_CMD_IPCS -q -t | grep --after-context=1 "^---"  >> $TS_OUTPUT
+-$TS_CMD_IPCS -q -p | grep --after-context=1 "^---"  >> $TS_OUTPUT
+-$TS_CMD_IPCS -q -c | grep --after-context=1 "^---"  >> $TS_OUTPUT
++$TS_CMD_IPCS -q -t | grep -A1 "^---"  >> $TS_OUTPUT
++$TS_CMD_IPCS -q -p | grep -A1 "^---"  >> $TS_OUTPUT
++$TS_CMD_IPCS -q -c | grep -A1 "^---"  >> $TS_OUTPUT
+ $TS_CMD_IPCS -q -l | grep  "^---"  >> $TS_OUTPUT
+ $TS_CMD_IPCS -q -u | grep  "^---"  >> $TS_OUTPUT
+ echo >> $TS_OUTPUT
+ 
+ ts_log "test: sem headers"
+-$TS_CMD_IPCS -s -t | grep --after-context=1 "^---"  >> $TS_OUTPUT
+-$TS_CMD_IPCS -s -p | grep --after-context=1 "^---"  >> $TS_OUTPUT
+-$TS_CMD_IPCS -s -c | grep --after-context=1 "^---"  >> $TS_OUTPUT
++$TS_CMD_IPCS -s -t | grep -A1 "^---"  >> $TS_OUTPUT
++$TS_CMD_IPCS -s -p | grep -A1 "^---"  >> $TS_OUTPUT
++$TS_CMD_IPCS -s -c | grep -A1 "^---"  >> $TS_OUTPUT
+ $TS_CMD_IPCS -s -l | grep  "^---"  >> $TS_OUTPUT
+ $TS_CMD_IPCS -s -u | grep  "^---"  >> $TS_OUTPUT
+ echo >> $TS_OUTPUT
+ 
+ ts_log "test: all headers"
+-$TS_CMD_IPCS -a | grep --after-context=1 "^---"  >> $TS_OUTPUT
++$TS_CMD_IPCS -a | grep -A1 "^---"  >> $TS_OUTPUT
+ 
+-$TS_CMD_IPCS -a -t | grep --after-context=1 "^---"  >> $TS_OUTPUT
+-$TS_CMD_IPCS -a -p | grep --after-context=1 "^---"  >> $TS_OUTPUT
+-$TS_CMD_IPCS -a -c | grep --after-context=1 "^---"  >> $TS_OUTPUT
++$TS_CMD_IPCS -a -t | grep -A1 "^---"  >> $TS_OUTPUT
++$TS_CMD_IPCS -a -p | grep -A1 "^---"  >> $TS_OUTPUT
++$TS_CMD_IPCS -a -c | grep -A1 "^---"  >> $TS_OUTPUT
+ $TS_CMD_IPCS -a -l | grep "^---"  >> $TS_OUTPUT
+ $TS_CMD_IPCS -a -u | grep "^---"  >> $TS_OUTPUT
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.5.6
+
