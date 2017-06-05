@@ -1,42 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:53504 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751283AbdFAIk3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 1 Jun 2017 04:40:29 -0400
-Date: Thu, 1 Jun 2017 10:40:24 +0200
-From: Karel Zak <kzak@redhat.com>
-To: "Yuriy M. Kaminskiy" <yumkam@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 4/4] lib/sysfs: fix format overflow
-Message-ID: <20170601084024.2qahqwvr77hf5iua@ws.net.home>
-References: <20170527182409.13985-1-kerolasa@iki.fi>
- <20170527182409.13985-4-kerolasa@iki.fi>
- <20170529100913.er6mwukht5pq4ixc@ws.net.home>
- <CAG27Bk1SKKz8xhp-HTH8yn=UqXEVkY7+1=n-8tN7PknzxoDXqw@mail.gmail.com>
- <m3r2z4eshj.fsf@gmail.com>
+Received: from ishtar.tlinx.org ([173.164.175.65]:55612 "EHLO
+        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751181AbdFEXXi (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 5 Jun 2017 19:23:38 -0400
+Received: from [192.168.3.12] (Athenae [192.168.3.12])
+        by Ishtar.sc.tlinx.org (8.14.7/8.14.4/SuSE Linux 0.8) with ESMTP id v55N7t9W071126
+        for <util-linux@vger.kernel.org>; Mon, 5 Jun 2017 16:07:57 -0700
+Message-ID: <5935E44B.8000405@tlinx.org>
+Date: Mon, 05 Jun 2017 16:07:55 -0700
+From: L A Walsh <lkml@tlinx.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <m3r2z4eshj.fsf@gmail.com>
+To: util-linux@vger.kernel.org
+Subject: Bug: mount doing bad security check: only root can use -types, (effective
+ EUID is 5013)
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, May 31, 2017 at 10:28:08PM +0300, Yuriy M. Kaminskiy wrote:
-> > For some reason I thought d_name would be allocated, in which case
-> > strlen() would be
-> > more appropriate. Thank you for pointing out it is very static 255
-> > buffer, so added the
-> 
-> Is this *defined by standard*? I believe not.
-> === man dirent.h ===
->        The character array d_name is of unspecified size, but  the  number  of
->        bytes preceding the terminating null byte shall not exceed {NAME_MAX}.
+mount is Using util-linux 2.30-rc2 (libmount 2.30.0: smack, btrfs, mtab, 
+debug).
 
-I don't read this as sizeof(d->d_name) is wrong thing as it's array.
-Anyway, use NAME_MAX seems like the most robust solution.
+Trying to mount any file system, thinks I have bad UID:
 
-    Karel
+Ishtar:/mnt# /bin/mount /dev/tmpfs /mnt/tmpfs -t tmpfs
+mount: only root can use "--types" option (effective UID is 5013)
+Ishtar:/mnt# echo "$UID $EUID"
+0 0
+
+The previous version of mount works fine -- so it seems clear that the
+new version of mount is doing something wrong.
+
+Someone else had a problem w/mount doing some bad check
+that wasn't the case.  Think they had the right bits (CAP_SYS_ADMIN),
+but the mount command was ignoring caps and looking for UID==0.
+
+But in this case, it "double" shouldn't matter, since I'm
+running as root.
 
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+
+
+
+
+
+
