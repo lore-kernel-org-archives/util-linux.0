@@ -1,55 +1,33 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH 06/13] setarch: print usage error if no argument given
-Date: Thu, 22 Jun 2017 10:44:58 +0200
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:55106 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751293AbdFELow (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 5 Jun 2017 07:44:52 -0400
+Date: Mon, 5 Jun 2017 13:44:46 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sebastian Schrader <sebastian.schrader@ossmail.de>
 Cc: util-linux@vger.kernel.org
-References: <1498099066-24235-1-git-send-email-sweet_f_a@gmx.de> <1498099066-24235-7-git-send-email-sweet_f_a@gmx.de> <20170622083824.hqgqykwccfb7jmbb@ws.net.home>
-In-Reply-To: <20170622083824.hqgqykwccfb7jmbb@ws.net.home>
+Subject: Re: [PATCH] setpriv: Add --init-groups option
+Message-ID: <20170605114446.i2ocxojdumfuaan2@ws.net.home>
+References: <m3mv9sernm.fsf@gmail.com>
+ <20170601145210.9588-1-sebastian.schrader@ossmail.de>
+ <20170601145210.9588-2-sebastian.schrader@ossmail.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201706221044.59203.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170601145210.9588-2-sebastian.schrader@ossmail.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 22 June 2017, Karel Zak wrote:
-> On Thu, Jun 22, 2017 at 04:37:39AM +0200, Ruediger Meier wrote:
-> > From: Ruediger Meier <ruediger.meier@ga-group.nl>
-> >
-> > This looks more likely as intended.
-> >
-> > Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
-> > ---
-> >  sys-utils/setarch.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/sys-utils/setarch.c b/sys-utils/setarch.c
-> > index eb9cf21..6481eb2 100644
-> > --- a/sys-utils/setarch.c
-> > +++ b/sys-utils/setarch.c
-> > @@ -301,7 +301,7 @@ int main(int argc, char *argv[])
-> >  	textdomain(PACKAGE);
-> >  	atexit(close_stdout);
-> >
-> > -	if (argc < 1)
-> > +	if (argc < 2)
-> >  		show_usage(_("Not enough arguments"));
->
-> I don't think so.
->
-> We use setarch by symlinks (i386, uname26 linux32 linux64, ...) and
-> in this case it's executed without argument. The symlink name is good
-> enough.
->
-> The right solutions is to remove this entire if() block.
+On Thu, Jun 01, 2017 at 04:52:10PM +0200, Sebastian Schrader wrote:
+> Add an --init-groups option which initializes the supplementary groups
+> from the system's group database (e.g /etc/group) using initgroups(3).
+> ---
+>  sys-utils/setpriv.1 |  8 ++++++
+>  sys-utils/setpriv.c | 75 +++++++++++++++++++++++++++++++++++++++++++++++++----
+>  2 files changed, 78 insertions(+), 5 deletions(-)
 
-Maybe argc can be 0 when not invoked from a sane shell
-https://stackoverflow.com/questions/2794150/when-can-argv0-have-null
+Applied, thanks.
 
-Just skip this patch, I will update this on github later.
-
-
-> Later in the code we have "no architecture argument specified".
->
->
->     Karel
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
