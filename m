@@ -1,101 +1,84 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from resqmta-ch2-08v.sys.comcast.net ([69.252.207.40]:60166 "EHLO
-        resqmta-ch2-08v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753849AbdFWVik (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Fri, 23 Jun 2017 17:38:40 -0400
-From: "W. Trevor King" <wking@tremily.us>
-To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>, "W. Trevor King" <wking@tremily.us>
-Subject: [PATCH v2 2/8] sys-utils/fstab.5: Remove 'defaults' from examples
-Date: Fri, 23 Jun 2017 14:30:20 -0700
-Message-Id: <711d668bfd6f6466fce75f1dfae8d21deaa4e924.1498252231.git.wking@tremily.us>
-In-Reply-To: <cover.1498252231.git.wking@tremily.us>
-References: <cover.1498252231.git.wking@tremily.us>
-In-Reply-To: <cover.1498252231.git.wking@tremily.us>
-References: <cover.1498252231.git.wking@tremily.us>
+Received: from mx2.suse.de ([195.135.220.15]:56764 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751204AbdFECir (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 4 Jun 2017 22:38:47 -0400
+From: NeilBrown <neilb@suse.com>
+To: util-linux@vger.kernel.org,
+        Linux NFS Mailing list <linux-nfs@vger.kernel.org>
+Date: Mon, 05 Jun 2017 12:38:39 +1000
+Cc: Franck Bui <fbui@suse.com>
+Subject: [nfs-utils PATCH] umount.nfs: assume path name is canonical.
+In-Reply-To: <8760gbduzp.fsf@notabene.neil.brown.name>
+References: <8760gbduzp.fsf@notabene.neil.brown.name>
+Message-ID: <8737bfduq8.fsf@notabene.neil.brown.name>
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-For each option ((no)auto, rw/ro, etc.), whether an informed user
-should explicitly set an option in the fstab entry depends on
-something like the following decision tree:
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-a. If you have a preference (e.g. you want a rw mount)...
 
-   a. If the default is unreliable (e.g. you don't trust the admin who
-      configured some tune2fs defaults, or you don't trust the Linux
-      devs to not make ro the default in the future), then explicitly
-      set the option.
+/usr/bin/umount will always pass a canonical name
+to umount.nfs, so it is safe to disable canonicalization.
 
-   b. If the default is reliable (e.g. you trust the Linux devs to
-      continue to default to rw)...
+When umounting an NFS filesystem, it is generally safest to
+not "stat" the mountpoint at all as that can block
+indefinitely.  umount() will not block, but lstat() etc can.
+By disabling canonicalization in libmount, we discourage it
+from ever calling 'stat' family operations, and thus reduce
+the chance of a hang.
 
-      a. If your preference matches the default (e.g. you prefer rw
-         and the kernel default is rw)...
+Note that to be fully effective, this requires changes to
+util-linux which have not yet been accepted.
+When both that change and this are in effect, automounters
+can use "umount -c $PATH" to safely unmount a filesystem
+without blocking.
 
-         a. If you like being explicit, explicitly set the option.
+Signed-off-by: NeilBrown <neilb@suse.com>
+=2D--
+ utils/mount/mount_libmount.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-         b. You don't mind being implicit, so leave the option unset.
+diff --git a/utils/mount/mount_libmount.c b/utils/mount/mount_libmount.c
+index 1f01f7f7a4e7..2d4065759a6c 100644
+=2D-- a/utils/mount/mount_libmount.c
++++ b/utils/mount/mount_libmount.c
+@@ -188,6 +188,7 @@ static int umount_main(struct libmnt_context *cxt, int =
+argc, char **argv)
+ 	};
+=20
+ 	mnt_context_init_helper(cxt, MNT_ACT_UMOUNT, 0);
++	mnt_context_disable_canonicalize(cxt, 1);
+=20
+ 	while ((c =3D getopt_long (argc, argv, "fvnrlh", longopts, NULL)) !=3D -1=
+) {
+=20
+=2D-=20
+2.12.2
 
-      b. Your preference does not match the default (e.g. you prefer
-         rw), so explicitly set the option.
 
-b. You don't have a preference (e.g. you're fine leaving (no)lazytime
-   up to the kernel devs, even if they change their mind), so leave
-   the option unset.
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
-'defaults' is a no-op placeholder where you fall into either case
-a.b.a.b or case b for *every* possible option.  Once you have a
-preference on any option (e.g. you want to use auto_da_alloc and you
-don't want to rely on 'tune2fs -o auto_da_alloc', putting you in case
-a.a for that option), there's no reason to use defaults.
+-----BEGIN PGP SIGNATURE-----
 
-Falling into case b for every option seems unlikely for a "typical"
-example.  Falling into case a.b.a.b for every option is more
-reasonable, but neither "is the setting reliable?" (the switch between
-case a.a and case a.b) no "do you like being explicit?" (the switch
-between case a.b.a.a. and case a.b.a.b) seem like likely choices to
-take a hard line on.  Using an explicit setting (e.g. rw, as in the
-first example added by this commit) instead of defaults gives you some
-paranoid protection from a swapped default at no cost (even saving a
-few characters ;).
-
-The label values (MyHomeDev and MyOptDev) are Karel's suggestions [1].
-I'd probably use "home" and "opt" as the labels in my own fstab, but
-Karel's values make it more clear that the labels are independent from
-the target directory.
-
-[1]: Message-ID: <20170512075451.auqemicjfogreepq@ws.net.home>
-     Subject: Re: [PATCH] WIP: mount.8: Split out fstab-specific mount options
-     Date: Fri, 12 May 2017 09:54:51 +0200
-
-Signed-off-by: W. Trevor King <wking@tremily.us>
----
- sys-utils/fstab.5 | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/sys-utils/fstab.5 b/sys-utils/fstab.5
-index d292f1f..f3eeda4 100644
---- a/sys-utils/fstab.5
-+++ b/sys-utils/fstab.5
-@@ -57,12 +57,13 @@ Each filesystem is described on a separate line.
- Fields on each line are separated by tabs or spaces.
- Lines starting with '#' are comments.  Blank lines are ignored.
- .PP
--The following is a typical example of an
-+The following are two typical
- .B fstab
--entry:
-+entries:
- .sp
- .RS 7
--LABEL=t-home2   /home      ext4    defaults,auto_da_alloc      0  2
-+LABEL=MyHomeDev  /home  ext4  rw             0  2
-+LABEL=MyOptDev   /opt   ext4  auto_da_alloc  0  2
- .RE
- 
- .B The first field
--- 
-2.1.0.60.g85f0837
-
+iQIzBAEBCAAdFiEEG8Yp69OQ2HB7X0l6Oeye3VZigbkFAlk0xDAACgkQOeye3VZi
+gbkQkQ/6AlOcgJFkr49ABY0mx1sKyJEKHVf1F13NmHp1WVDC4Mw8mStJ51keSiDj
+hlKfGL1w9j9OASdhr+QbHQab/Nnn/vollP/hc5ev2rpXupgr/JNk3Y34FqFb8Dgo
+wztp7SDEsfU/d7NU0BVxlm6Xh2uNYflquqxCnXpRKPsTF5wGUsbQWCXXTchUpbZ7
+2KzkaEqjm0sMXWMNd0mMW50l99ZYf5DR2NtszijbxS4Mj2EgQQQZPQTDeix0i8m1
+wHNCSfHyyPvKrxGPsFOGDp4KO/zC5E+PrrHHzqU8Ux7HysdhLewcXHxinJI74GEf
+L25pl896VP174FAq2h+bahBlrH8IQ6uQpj8WCLId8ua0Rk2Acl/Xa19aI53EH/7B
+sdmaBBwDghH9TgYRZ4+CYdB31Zzwt6YAkLEaAXiewg2ZUIG0PLlMw+NkaO8nbcKj
+aGWrKWLbYe3i1+sGJq9veFuqxqG9NV+XCmNEvcQXFtW3QP9V9+HLmrYNAeu0r8Ry
+J7gAoeNyvCW9kBhr3uaZeyxYXJbkI6RXhaY5nAs2mN1MpeIQ7hwKXbsETeme9QqC
+ZPyecoUzu1x8ZPvktLNJsWQkNGPQgG8rGySDjQN7khe2ED8lJjpkTXjJ/VGUy7Pu
+5/zQYmAtaTHswAJkDOguGHnXxCmFtY/G4erq0zhlUKoA/x5PI7Q=
+=Aq70
+-----END PGP SIGNATURE-----
+--=-=-=--
