@@ -1,51 +1,62 @@
-Return-Path: sweet_f_a@gmx.de
-Subject: Re: remove stderr usage (was: [PATCH] uuidparse)
-To: J William Piggott <elseifthen@gmx.com>
-Cc: Karel Zak <kzak@redhat.com>, Sami Kerola <kerolasa@iki.fi>,
- util-linux@vger.kernel.org
-References: <20170618172536.21544-1-kerolasa@iki.fi>
- <201706191155.23149.sweet_f_a@gmx.de>
- <072f3a28-9fd9-dc68-adcf-d35081437d0c@gmx.com>
- <201706192103.01740.sweet_f_a@gmx.de>
- <fa11835d-6ce5-1e2c-befd-29538fedf97a@gmx.com>
-From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
-Message-ID: <8b27f49b-a986-a83f-b049-59e4e46b6cd2@gmx.de>
-Date: Mon, 19 Jun 2017 22:39:09 +0200
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:35606 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751333AbdFFJg0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 6 Jun 2017 05:36:26 -0400
+Date: Tue, 6 Jun 2017 11:36:07 +0200
+From: Karel Zak <kzak@redhat.com>
+To: L A Walsh <lkml@tlinx.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Bug: mount doing bad security check: only root can use -types,
+ (effective EUID is 5013)
+Message-ID: <20170606093607.xrxel4ny4hjoe4iv@ws.net.home>
+References: <5935E44B.8000405@tlinx.org>
 MIME-Version: 1.0
-In-Reply-To: <fa11835d-6ce5-1e2c-befd-29538fedf97a@gmx.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5935E44B.8000405@tlinx.org>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 06/19/2017 09:47 PM, J William Piggott wrote:> 
+On Mon, Jun 05, 2017 at 04:07:55PM -0700, L A Walsh wrote:
+> mount is Using util-linux 2.30-rc2 (libmount 2.30.0: smack, btrfs, mtab,
+> debug).
 > 
-> On 06/19/2017 03:03 PM, Ruediger Meier wrote:
->> On Monday 19 June 2017, J William Piggott wrote:
->>> On 06/19/2017 05:55 AM, Ruediger Meier wrote:
->>>> On Monday 19 June 2017, Karel Zak wrote:
->>>>> On Mon, Jun 19, 2017 at 11:22:48AM +0200, Ruediger Meier wrote:
->>>
->>>   -->8
->>>
->>> On a related note: could we add USAGE_*_NN with no trailing newline
->>> for use with puts() on new/converted commands? For example:
->>>
->>> #define USAGE_HEADER        _("\nUsage:\n")
->>> #define USAGE_HEADER_NN     _("\nUsage:")
->>
->> My plan is to remove the trailing newline from USAGE_HEADER and friends
->> when no usage() funtion needs to use fputs() anymore.
+> Trying to mount any file system, thinks I have bad UID:
 > 
-> I got the impression from the other discussion that legacy apps would
-> continue to use fputs() so that their strings would not have to be
-> modified. But I guess they won't need to use it for USAGE_*, if that is
-> what you mean.
-> 
-> Removing the trailing newline from USAGE_* will mean changing
-> fputs(USAGE_*) to puts(USAGE_*) in every command project wide, yes?
+> Ishtar:/mnt# /bin/mount /dev/tmpfs /mnt/tmpfs -t tmpfs
+> mount: only root can use "--types" option (effective UID is 5013)
 
-I don't know yet. I thought we could do the next huge cosmetic puts patch
-semi-automatic in UL and also in the translation project. I will figure
-out after this first step of boring work is done. ;)
+geteuid() returns 5013, so it runs in restricted mode.
 
-cu,
-Rudi
+> Ishtar:/mnt# echo "$UID $EUID"
+> 0 0
+
+Well, it's better to use commands like "id" rather than rely on env
+variables.
+
+> Someone else had a problem w/mount doing some bad check
+> that wasn't the case.  Think they had the right bits (CAP_SYS_ADMIN),
+> but the mount command was ignoring caps and looking for UID==0.
+
+Yes, it's:
+
+    ruid = getuid();
+    euid = geteuid();
+
+    cxt->restricted = (uid_t) 0 == ruid && ruid == euid ? 0 : 1;
+
+in your case geteuid() returns 5013.
+
+BTW, there is no change in this libmount code since 2010, and no
+change in "only root can use" mount.c code since year 2013.
+
+> But in this case, it "double" shouldn't matter, since I'm
+> running as root.
+
+Try to verify that you're really root ;-)
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
