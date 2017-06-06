@@ -1,73 +1,53 @@
-Return-Path: elseifthen@gmx.com
-Subject: Re: [PATCH 11/12] hwclock: remove unused usage() FILE argument
-To: Karel Zak <kzak@redhat.com>
-References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
- <ce8ce9d6-d266-12da-8e7e-c41e6a185714@gmx.com>
- <20170621092647.b7zgmeeqflfmc2mt@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.15.15]:59403 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750738AbdFFIKL (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 6 Jun 2017 04:10:11 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: J William Piggott <elseifthen@gmx.com>
+Subject: Re: [PATCH 6/6] misc: fix some warnings
+Date: Tue, 6 Jun 2017 10:10:07 +0200
 Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <68c377a2-191e-43f5-34aa-c5a69d049c24@gmx.com>
-Date: Wed, 21 Jun 2017 11:48:47 -0400
+References: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de> <1496279320-14541-7-git-send-email-sweet_f_a@gmx.de> <0035d164-75ac-f892-2cbe-0fb8184116cb@gmx.com>
+In-Reply-To: <0035d164-75ac-f892-2cbe-0fb8184116cb@gmx.com>
 MIME-Version: 1.0
-In-Reply-To: <20170621092647.b7zgmeeqflfmc2mt@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain;
+  charset="windows-1252"
+Message-Id: <201706061010.07911.sweet_f_a@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Thursday 01 June 2017, J William Piggott wrote:
+> On 05/31/2017 09:08 PM, Ruediger Meier wrote:
+> > From: Ruediger Meier <ruediger.meier@ga-group.nl>
+>
+>  8< ---
+>
+> > diff --git a/lib/plymouth-ctrl.c b/lib/plymouth-ctrl.c
+> > index 75d8b93..0e60341 100644
+> > --- a/lib/plymouth-ctrl.c
+> > +++ b/lib/plymouth-ctrl.c
+> > @@ -85,7 +85,8 @@ static int open_un_socket_and_connect(void)
+> >  	 * Please note that the PLYMOUTH_SOCKET_PATH has a
+> >  	 * leading NULL byte to mark it as an abstract socket
+> >  	 */
+> > -	ret = connect(fd, &su, offsetof(struct sockaddr_un, sun_path) + 1
+> > + strlen(su.sun_path+1)); +	ret = connect(fd, (const struct
+> > sockaddr *) &su,
+> > +	              offsetof(struct sockaddr_un, sun_path) + 1 +
+> > strlen(su.sun_path+1));
+>
+>         ^^^^^^^^^^^^^^ whitespace
+>
+>  8< ---
+
+What would be the right whitespace style? I've made one indentation 
+(tab) and some spaces to align the broken line regarding  "connect(".
+
+I'm using tab only for indentation but not for alignment, to let it look 
+nice independently of editors tab witdth. Is that wrong?
+
+cu,
+Rudi
 
 
-On 06/21/2017 05:26 AM, Karel Zak wrote:
-> On Sun, Jun 18, 2017 at 08:49:49PM -0400, J William Piggott wrote:
->>
->> Signed-off-by: J William Piggott <elseifthen@gmx.com>
->> ---
->>  sys-utils/hwclock.c | 74 ++++++++++++++++++++++++++---------------------------
->>  1 file changed, 37 insertions(+), 37 deletions(-)
->>
->> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
->> index 7d69b7a..636d36a 100644
->> --- a/sys-utils/hwclock.c
->> +++ b/sys-utils/hwclock.c
->> @@ -1200,49 +1200,49 @@ static void out_version(void)
->>  }
->>  
->>  static void __attribute__((__noreturn__))
->> -usage(const struct hwclock_control *ctl, FILE *out)
->> +usage(const struct hwclock_control *ctl)
->>  {
->> -	fputs(USAGE_HEADER, out);
->> -	fputs(_(" hwclock [function] [option...]\n"), out);
->> -
->> -	fputs(USAGE_SEPARATOR, out);
->> -	fputs(_(" Query or set the RTC (Real Time Clock / Hardware Clock)\n"), out);
->> -
->> -	fputs(USAGE_FUNCTIONS, out);
->> -	fputs(_(" -r, --show           display the RTC time\n"), out);
->> -	fputs(_("     --get            display drift corrected RTC time\n"), out);
->> -	fputs(_("     --set            set the RTC according to --date\n"), out);
->> -	fputs(_(" -s, --hctosys        set the system time from the RTC\n"), out);
->> -	fputs(_(" -w, --systohc        set the RTC from the system time\n"), out);
->> -	fputs(_("     --systz          send timescale configurations to the kernel\n"), out);
->> -	fputs(_("     --adjust         adjust the RTC to account for systematic drift\n"), out);
->> +	fputs(USAGE_HEADER, stdout);
->> +	puts(_(" hwclock [function] [option...]"));
->> +
->> +	fputs(USAGE_SEPARATOR, stdout);
->> +	puts(_(" Query or set the RTC (Real Time Clock / Hardware Clock)"));
->             ^
-> We don't use this space here. Fixed.
-
-Ah, I miss read this in howto-usage-function.txt:
-
-> The usage output begins with an empty line, followed by 'Usage:', and
-> then the synopsis on the line after that.  The synopsis and option-
-> description lines are all indented by one space (0x40).
-
-I read 'synopsis and description', not 'option-description'. Also, it's
-the entire option line, not the option-description that is indented. 
-
-There is not an example in boilerplate.c for a command description,
-there probably should be.
-
-> 
->     Karel
-> 
