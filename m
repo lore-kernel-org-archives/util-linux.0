@@ -1,141 +1,74 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.19]:64072 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.21]:64644 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751595AbdF2Khc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 29 Jun 2017 06:37:32 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: fputs() vs puts() (was: [PATCH] hwclock: remove unused usage() FILE argument)
-Date: Thu, 29 Jun 2017 12:37:19 +0200
-Cc: J William Piggott <elseifthen@gmx.com>, util-linux@vger.kernel.org
-References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com> <201706282129.41161.sweet_f_a@gmx.de> <20170629085114.66lbbszwxnooszbb@ws.net.home>
-In-Reply-To: <20170629085114.66lbbszwxnooszbb@ws.net.home>
+        id S1751239AbdFFSSj (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 6 Jun 2017 14:18:39 -0400
+Subject: Re: [PATCH 6/6] misc: fix some warnings
+To: Ruediger Meier <sweet_f_a@gmx.de>
+References: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
+ <1496279320-14541-7-git-send-email-sweet_f_a@gmx.de>
+ <0035d164-75ac-f892-2cbe-0fb8184116cb@gmx.com>
+ <201706061010.07911.sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <de2ea265-ed30-8493-7267-a113b9140a5d@gmx.com>
+Date: Tue, 6 Jun 2017 14:18:32 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201706291237.19507.sweet_f_a@gmx.de>
+In-Reply-To: <201706061010.07911.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 29 June 2017, Karel Zak wrote:
-> On Wed, Jun 28, 2017 at 09:29:40PM +0200, Ruediger Meier wrote:
-> > On Tuesday 20 June 2017, Karel Zak wrote:
-> > > On Sun, Jun 18, 2017 at 08:49:49PM -0400, J William Piggott wrote:
-> > > >  sys-utils/hwclock.c | 74
-> > > > ++++++++++++++++++++++++++--------------------------- 1 file
-> > > > changed, 37 insertions(+), 37 deletions(-)
-> > >
-> > > It would be better to remove this patch from the pull-request;
-> > > let's keep fputs() in the code and wait for any solution from
-> > > Rudi :-)
-> >
-> > I have now finished my cleanup regarding stdout only. To make the
-> > diffs small I have left a useless definition "FILE *out = stdout;"
-> > in almost any usage function.
-> >
-> > We can remove this "out" variable now everwhere using a sed or awk.
-> > But a few questions about what would be the best end state.
-> >
-> > 1. fputs vs puts?:
-> >
-> >    Is it a problem for translators if we remove a newline from
-> > almost any string? And, does puts() look more nice at all? I mean
-> > many usage functions have to use printf too, so does it look good
-> > if some strings are '\n' terminated and others not?
->
-> Frankly, I prefer to have \n in the string, because in this case you
-> have full control on the output. And it also means all the strings
-> modification... for me fputs() is the winner :-)
->
-> > 2. Alignment for better readabilty in the code.
-> >
-> >    I would prefer leading spaces before the first string argument
-> > to match the longest possible prefix 'printf(_("'. Is that ok?:
-> >
-> >    puts(  _(" -q             quiet mode"));
-> >    fputs( _(" -v, --verbose  verbose mode"), stdout);
-> >    printf(_(" -f, --rtc      use alternate to %1$s\n"), _BLA);
-> >    printf(  "     --help     %s\n", USAGE_OPTSTR_HELP);
->
-> Yes, good idea.
->
-> > 3. Maybe we should always decouple options and descriptions?
-> >
-> >    Introducing a macro like:
-> >
-> >    #define prnt_opt(opt, marg_dsc, dsc) \
-> >        printf( "%-" #marg_dsc "s%s\n", opt, dscr)
-> >
-> >    /* the magic margin number for the whole function */
-> >    int m = 16;
-> >    prnt_opt(" -q",              m, _("quiet mode");
-> >    prnt_opt(" -v, --verbose",   m, _("verbose mode");
-> >    prnt_opt("      --help",     m, USAGE_OPTSTR_HELP);
-> >    /* or standard help, as exist already */
-> >    print_usage_help_options(m);
->
-> Hmm... now translator can also translate option arguments
->
->   --something <time>     this is nice option
->
-> in this case <time> is possible to translate too, and maybe in some
-> languages it's possible that you will need to change number of blank
-> spaces between option and option description.
->
-> IMHO it's against KISS principle :-)
->
-> > 4. About our USAGE_* macros
-> >
-> >    We can remove the trailing newlines in all macros if puts() is
-> >    preferred (regarding 1.). Or we can just let them print like
-> >    print_usage_help_options().
->
-> Frankly, for me it's more readable to have
->
->     fputs(USAGE_OPTIONS, stdout);
->
-> than introduce another function. (It was also reason why I was not
-> sure with print_usage_help_options(), but it resolves more issues.)
-
-I can still change it to be used like MAN_TAIL, then we are consistent 
-again.
-
-  print_usage_help_options(16);
-  vs.
-  printf( USAGE_HELP_OPTIONS(16) );
-
-> > 5. We can leave everything as is and touch all these usage lines
-> > only if needed. For example I did it without extra noise in
-> > a861538c. Karel missed his chance in 4fb515f9 ;)
->
-> It was my goal not to do any change if you work in this area. And
-> yes, "touch only if needed" is good idea. The blockdev usage() is
-> nice example that mix more things together is no problem, it's still
-> readable and without extra complexity (well, maybe use COMMANDS:
-> there :-).
->
-> >    Note since introducing print_usage_help_options() we *are*
-> > already mixing hardcoded stdout and variable out. So we can also
-> > convert single lines from fprintf to printf, like i did in my last
-> > pending hwclock patch "don't ifdef printf arguments".
->
-> All the issue is libc stupidity, imagine world where puts() is
-> without \n junk (like printf and fprintf). I think printf() is no
-> problem there.
->
-> For me it's about:
->
->     * nice usage() output
->     * usage() function readability
->     * all without extra complexity (random contributor has to be able
->       add new option easily)
->     * translators-friendly (minimize changes, keep it open as much as
->       possible)
 
 
-I see it all like you, so let's stop code cosmetics unless we have real 
-changes. I'll send a patch for boilerpalate.c only. and maybe the 
-mentioned help_options macro.
+On 06/06/2017 04:10 AM, Ruediger Meier wrote:
+> On Thursday 01 June 2017, J William Piggott wrote:
+>> On 05/31/2017 09:08 PM, Ruediger Meier wrote:
+>>> From: Ruediger Meier <ruediger.meier@ga-group.nl>
+>>
+>>  8< ---
+>>
+>>> diff --git a/lib/plymouth-ctrl.c b/lib/plymouth-ctrl.c
+>>> index 75d8b93..0e60341 100644
+>>> --- a/lib/plymouth-ctrl.c
+>>> +++ b/lib/plymouth-ctrl.c
+>>> @@ -85,7 +85,8 @@ static int open_un_socket_and_connect(void)
+>>>  	 * Please note that the PLYMOUTH_SOCKET_PATH has a
+>>>  	 * leading NULL byte to mark it as an abstract socket
+>>>  	 */
+>>> -	ret = connect(fd, &su, offsetof(struct sockaddr_un, sun_path) + 1
+>>> + strlen(su.sun_path+1)); +	ret = connect(fd, (const struct
+>>> sockaddr *) &su,
+>>> +	              offsetof(struct sockaddr_un, sun_path) + 1 +
+>>> strlen(su.sun_path+1));
+>>
+>>         ^^^^^^^^^^^^^^ whitespace
+>>
+>>  8< ---
+> 
+> What would be the right whitespace style? I've made one indentation 
+> (tab) and some spaces to align the broken line regarding  "connect(".
+> 
+> I'm using tab only for indentation but not for alignment, to let it look 
+> nice independently of editors tab witdth. Is that wrong?
 
-cu,
-Rudi
+I wouldn't call it 'wrong'. To my knowledge, it is not the style this
+project uses. Eight spaces should be a tab. You have one tab and 14
+spaces, it should be 2 tabs and 6 spaces. Actually, the Linux kernel
+style guide (the chosen style guide for util-linux) says no spaces are
+allowed for c indentation, but Karel seems to make an exception for that.
+
+I have git configured to highlight eight spaces and when I looked at
+this commit with 'git show' that line lit up in red. Something I do
+not normally see happen in this project.
+
+> 
+> cu,
+> Rudi
+> 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
