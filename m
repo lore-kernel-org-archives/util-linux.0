@@ -1,53 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:53787 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751308AbdFZSaA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 26 Jun 2017 14:30:00 -0400
-Received: from adsiz.fritz.box ([146.52.24.88]) by mail.gmx.com (mrgmx102
- [212.227.17.168]) with ESMTPSA (Nemesis) id 0MW9TR-1dEFBI27A1-00XM7T for
- <util-linux@vger.kernel.org>; Mon, 26 Jun 2017 20:29:53 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/6] misc: revert to the old USAGE_HELP strings
-Date: Mon, 26 Jun 2017 20:29:47 +0200
-Message-Id: <20170626182952.15988-2-sweet_f_a@gmx.de>
-In-Reply-To: <20170626182952.15988-1-sweet_f_a@gmx.de>
-References: <20170626182952.15988-1-sweet_f_a@gmx.de>
+Received: from ishtar.tlinx.org ([173.164.175.65]:59608 "EHLO
+        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751281AbdFFOPI (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 6 Jun 2017 10:15:08 -0400
+Message-ID: <5936B8E5.8050901@tlinx.org>
+Date: Tue, 06 Jun 2017 07:15:01 -0700
+From: L A Walsh <lkml@tlinx.org>
+MIME-Version: 1.0
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: Bug: mount doing bad security check: only root can use -types,
+ (effective EUID is 5013)
+References: <5935E44B.8000405@tlinx.org> <20170606093607.xrxel4ny4hjoe4iv@ws.net.home>
+In-Reply-To: <20170606093607.xrxel4ny4hjoe4iv@ws.net.home>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+Karel Zak wrote:
+> ruid = getuid();
+>     euid = geteuid();
+>
+>     cxt->restricted = (uid_t) 0 == ruid && ruid == euid ? 0 : 1;
+>
+> in your case geteuid() returns 5013.
+>   
+----
+    But my EUID isn't 5013 ("LOGINUID" is). That's the complaint/bug. 
+I looked at 'id': it doesn't show euid:
 
-This reverts the include/c.h part of cc7cb070.
+Ishtar:/tmp> sudo bash -c 'id; echo "UID=$UID, EUID=$EUID"; /bin/mount 
+devpts /tmp/mnt -t devpts'
+uid=0(root) gid=0(root) groups=...
+UID=0, EUID=0
+mount: only root can use "--types" option (effective UID is 5013)
 
-As discussed on ml. Our current strings are imported from
-coreutils and not too bad. Also the old strings are still
-hardcoded at many places.
+I also mentioned I'm using
+'sudo', which also sets both the UID & EUID to the new USER (unless
+you go out of your way to configure it not to do so -- in which case
+many things don't function normally -- including bash which would
+operate in restricted mode (like rbash).
 
-So let's revert the change, then consolidate these strings
-really everywhere and then think again whether and how we
-should change them.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- include/c.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/include/c.h b/include/c.h
-index 3e5b87d3f..fe46b8c2d 100644
---- a/include/c.h
-+++ b/include/c.h
-@@ -315,8 +315,8 @@ static inline int xusleep(useconds_t usec)
- #define USAGE_COMMANDS   _("\nCommands:\n")
- #define USAGE_COLUMNS    _("\nAvailable output columns:\n")
- #define USAGE_SEPARATOR    "\n"
--#define USAGE_HELP       _(" -h, --help     display help information and exit\n")
--#define USAGE_VERSION    _(" -V, --version  display version information and exit\n")
-+#define USAGE_HELP       _(" -h, --help     display this help and exit\n")
-+#define USAGE_VERSION    _(" -V, --version  output version information and exit\n")
- #define USAGE_MAN_TAIL(_man)   _("\nFor more details see %s.\n"), _man
- 
- #define UTIL_LINUX_VERSION _("%s from %s\n"), program_invocation_short_name, PACKAGE_STRING
--- 
-2.12.3
 
