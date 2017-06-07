@@ -1,27 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lf0-f66.google.com ([209.85.215.66]:36719 "EHLO
-        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753917AbdFVWiX (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 22 Jun 2017 18:38:23 -0400
-Received: by mail-lf0-f66.google.com with SMTP id f28so4431754lfi.3
-        for <util-linux@vger.kernel.org>; Thu, 22 Jun 2017 15:38:22 -0700 (PDT)
-Received: from HomePC.localdomain ([178.68.235.121])
-        by smtp.gmail.com with ESMTPSA id n71sm764819lje.14.2017.06.22.15.38.20
-        for <util-linux@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 22 Jun 2017 15:38:21 -0700 (PDT)
-Date: Fri, 23 Jun 2017 01:38:12 +0300
-From: Daniil Zhilin <just4steam778@gmail.com>
-To: util-linux@vger.kernel.org
-Subject: agetty doesn't handle the second backspace properly during login
-Message-ID: <20170623013812.5cf11bec@HomePC.localdomain>
+Received: from mx1.redhat.com ([209.132.183.28]:40110 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751483AbdFGJoz (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 7 Jun 2017 05:44:55 -0400
+Date: Wed, 7 Jun 2017 11:44:51 +0200
+From: Karel Zak <kzak@redhat.com>
+To: NeilBrown <neilb@suse.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [util-linux PATCH] umount: never 'stat' the path when "-c" is
+ given.
+Message-ID: <20170607094451.vcesromvdygstjmw@ws.net.home>
+References: <8760gbduzp.fsf@notabene.neil.brown.name>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <8760gbduzp.fsf@notabene.neil.brown.name>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello. When using the Colemak keyboard layout that assigns a second
-backspace to Caps Lock, during TTY login this mapping generates '^H'
-instead.
+On Mon, Jun 05, 2017 at 12:32:58PM +1000, NeilBrown wrote:
+> diff --git a/libmount/src/context_umount.c b/libmount/src/context_umount.c
+> index e663a703cca0..693891def0e1 100644
+> --- a/libmount/src/context_umount.c
+> +++ b/libmount/src/context_umount.c
+> @@ -77,6 +77,7 @@ int mnt_context_find_umount_fs(struct libmnt_context *cxt,
+>  	 * it's usable only for canonicalized stuff (e.g. kernel mountinfo).
+>  	 */
+>  	if (!mnt_context_mtab_writable(cxt) && *tgt == '/' &&
+> +	    !mnt_context_is_nocanonicalize(cxt) &&
+>  	    !mnt_context_is_force(cxt) && !mnt_context_is_lazy(cxt))
+>  		rc = mnt_context_get_mtab_for_target(cxt, &mtab, tgt);
 
-util-linux version 2.29.2-2 on Arch Linux.
+I've changed the code to be the mount table filter also usable for
+--no-canonicalize. It seems better to avoid mnt_resolve_path() than
+avoid all the filter.
+
+It seems we can do more optimizations for huge mount tables (=autofs
+issues) and canonicalizations (=NFS issues). I'll try to do it for
+v2.30.1.
+
+    Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
