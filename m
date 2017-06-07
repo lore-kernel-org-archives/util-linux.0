@@ -1,83 +1,95 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:61385 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.20]:56800 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752891AbdFSAhg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 18 Jun 2017 20:37:36 -0400
-Subject: [PATCH 01/12] hwclock: remove dead code in usage()
-To: Karel Zak <kzak@redhat.com>
-References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <9cfb5b20-1019-c550-fe92-9df337b1fa14@gmx.com>
-Date: Sun, 18 Jun 2017 20:37:18 -0400
+        id S1753143AbdFGXjc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 7 Jun 2017 19:39:32 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Bruce Dubbs <bruce.dubbs@gmail.com>
+Subject: Re: [PATCH 6/6] misc: fix some warnings
+Date: Thu, 8 Jun 2017 01:39:23 +0200
+Cc: kerolasa@gmail.com, J William Piggott <elseifthen@gmx.com>,
+        "util-linux" <util-linux@vger.kernel.org>
+References: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de> <CAG27Bk1W2wbSFoAV70EpWT-2USvmuHV_muC2DODr8ALODTS_ww@mail.gmail.com> <5938335F.9090108@gmail.com>
+In-Reply-To: <5938335F.9090108@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201706080139.23893.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wednesday 07 June 2017, Bruce Dubbs wrote:
+> Sami Kerola wrote:
+> > On 6 June 2017 at 20:17, J William Piggott <elseifthen@gmx.com> 
+wrote:
+> >> I forgot to mention, the line in question exceeds 80 columns and
+> >> should be split again (the line changed in last.c wraps now also).
+> >
+> > I would say 80 columns is preferred, but we should not be too
+> > strict with it. Sometimes code does look better when wider, and
+> > that's fine.
+> >
+> > And the spaces vs tab. Yep, we should prefer tabs but sometimes
+> > accidents happen. Calling these 'wrong' is too strong. This is yet
+> > another preference thing, and if someone notices during review
+> > spaces where there should be tabs then that's a good review commend
+> > and should be fixed. But I would not go so far that existing
+> > whitespaces ought to be fixed without a change to code line where
+> > they are.
+> >
+> > util-linux $ for i in $(find . -name '*.c'); do unexpand $i > $i- ;
+> > mv $i- $i; done
+> > util-linux $ git diff --stat
+>
+> Just to throw in my two cents, tabs in source code cause problems
+> unless you have a comment like:
+>
+> // vim: noai:ts=8:sw=8
+>
+> and the emacs equivalent.
+>
+> I spend a lot of effort aligning source code to make it readable.
+> Research from the 1980s and early 1990s indicated the best levels of
+> indentations for readability and comprehension of source code is
+> between 2 and 4 spaces.  I personally use 3 characters.
+>
+> Using tabs with different settings destroys that readability.
+>
+> IMO, embedded tabs in source code add nothing but problems.  Editors
+> can easily substitute the correct number of spaces when you hit the
+> tab key and spaces allow the reader to always see the code as the
+> author intended.
 
-Commit 677ec86 caused usage() to be called only by --help.
+IMO it is no problem to write nice looking code if you don't "mix" tabs 
+and spaces. Distinguish between indentation and alignment.
 
-So remove the now dead code from usage().
+So I use these rules which do not conflict with kernel coding style and 
+tab-width=8:
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock.c | 28 +++-------------------------
- 1 file changed, 3 insertions(+), 25 deletions(-)
+  1. tabs for indentation level only (same as the previous line)
+  2. spaces for alignment only
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 55f54f5..4782318 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -1199,24 +1199,9 @@ static void out_version(void)
- 	printf(UTIL_LINUX_VERSION);
- }
- 
--/*
-- * usage - Output (error and) usage information
-- *
-- * This function is called both directly from main to show usage information
-- * and as fatal function from shhopt if some argument is not understood. In
-- * case of normal usage info FMT should be NULL. In that case the info is
-- * printed to stdout. If FMT is given usage will act like fprintf( stderr,
-- * fmt, ... ), show a usage information and terminate the program
-- * afterwards.
-- */
- static void __attribute__((__noreturn__))
--usage(const struct hwclock_control *ctl, const char *fmt, ...)
-+usage(const struct hwclock_control *ctl, FILE *usageto)
- {
--	FILE *usageto;
--	va_list ap;
--
--	usageto = fmt ? stderr : stdout;
--
- 	fputs(USAGE_HEADER, usageto);
- 	fputs(_(" hwclock [function] [option...]\n"), usageto);
- 
-@@ -1263,14 +1248,7 @@ usage(const struct hwclock_control *ctl, const char *fmt, ...)
- 	fputs(_("     --test           do not update anything, just show what would happen\n"
- 		" -D, --debug          debugging mode\n" "\n"), usageto);
- 
--	if (fmt) {
--		va_start(ap, fmt);
--		vfprintf(usageto, fmt, ap);
--		va_end(ap);
--	}
--
--	fflush(usageto);
--	hwclock_exit(ctl, fmt ? EX_USAGE : EX_OK);
-+	hwclock_exit(ctl, EXIT_SUCCESS);
- }
- 
- /*
-@@ -1475,7 +1453,7 @@ int main(int argc, char **argv)
- 			out_version();
- 			return 0;
- 		case 'h':			/* --help */
--			usage(&ctl, NULL);
-+			usage(&ctl, stdout);
- 		default:
- 			errtryhelp(EXIT_FAILURE);
- 		}
+That's why in this particular case I've made one tab for the indentation 
+and 14 spaces for the nice looking alignment. Though usually alignment 
+is nonsense anyways, so I could have better just used one more 
+indentation (one tab) instead of that 14 spaces. But I would never use 
+1 tab and 6 spaces to let look like 14 spaces. This would have also 
+satisfied the 80 char limit without adding another ugly line break.
+
+BTW we have many lines in the our code which are more than 80 chars when 
+assuming tab-width=8. That's why I take it as de-facto standard to 
+count the line length assuming tab-width=4.
+
+
+> However, it is your project and your rules.  I am not asking for a
+> change.
+>
+>    -- Bruce Dubbs
+>       linuxfromscratch.org
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
