@@ -1,99 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:33426 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1753879AbdFLPcm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 12 Jun 2017 11:32:42 -0400
-From: Michal Suchanek <msuchanek@suse.de>
-To: util-linux@vger.kernel.org,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Alexander Graf <agraf@suse.de>,
-        Ondrej Oprala <ooprala@redhat.com>,
-        Karel Zak <kzak@redhat.com>, sbrabec@suse.com
-Cc: Michal Suchanek <msuchanek@suse.de>
-Subject: [PATCH] lscpu: dmi: return HYPER_NONE when detection fails
-Date: Mon, 12 Jun 2017 17:32:28 +0200
-Message-Id: <20170612153228.2766-1-msuchanek@suse.de>
+Received: from mail-oi0-f68.google.com ([209.85.218.68]:35423 "EHLO
+        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751571AbdFGRJy (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 7 Jun 2017 13:09:54 -0400
+Received: by mail-oi0-f68.google.com with SMTP id v74so1210892oie.2
+        for <util-linux@vger.kernel.org>; Wed, 07 Jun 2017 10:09:53 -0700 (PDT)
+Subject: Re: [PATCH 6/6] misc: fix some warnings
+To: kerolasa@gmail.com, J William Piggott <elseifthen@gmx.com>
+Cc: Ruediger Meier <sweet_f_a@gmx.de>,
+        util-linux <util-linux@vger.kernel.org>
+References: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
+ <1496279320-14541-7-git-send-email-sweet_f_a@gmx.de>
+ <0035d164-75ac-f892-2cbe-0fb8184116cb@gmx.com>
+ <201706061010.07911.sweet_f_a@gmx.de>
+ <de2ea265-ed30-8493-7267-a113b9140a5d@gmx.com>
+ <42e92093-bed4-daa0-e2cd-f90205e17f8b@gmx.com>
+ <CAG27Bk1W2wbSFoAV70EpWT-2USvmuHV_muC2DODr8ALODTS_ww@mail.gmail.com>
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Message-ID: <5938335F.9090108@gmail.com>
+Date: Wed, 7 Jun 2017 12:09:51 -0500
+MIME-Version: 1.0
+In-Reply-To: <CAG27Bk1W2wbSFoAV70EpWT-2USvmuHV_muC2DODr8ALODTS_ww@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-There is weird mix of logic in lscpu-dmi.c which sometimes returns 0 and
-sometimes -1 on error. Since most checks are if (rc) goto done; this
-bails out early on error skipping some detection methods. Further, in
-lscpu.c all following detections are guarder by if(hyper) so returnning
--1 causes all following methods to be skipped. The hyper value is used
-as array index so -1 is out of bounds.
+Sami Kerola wrote:
+> On 6 June 2017 at 20:17, J William Piggott <elseifthen@gmx.com> wrote:
 
-Some users observe that they are running under hypervisor and this is
-not detected so it is probably good idea to just try everything.
+>> I forgot to mention, the line in question exceeds 80 columns and should
+>> be split again (the line changed in last.c wraps now also).
+>
+> I would say 80 columns is preferred, but we should not be too strict with it.
+> Sometimes code does look better when wider, and that's fine.
+>
+> And the spaces vs tab. Yep, we should prefer tabs but sometimes accidents
+> happen. Calling these 'wrong' is too strong. This is yet another preference
+> thing, and if someone notices during review spaces where there should be
+> tabs then that's a good review commend and should be fixed. But I would
+> not go so far that existing whitespaces ought to be fixed without a change
+> to code line where they are.
+>
+> util-linux $ for i in $(find . -name '*.c'); do unexpand $i > $i- ; mv
+> $i- $i; done
+> util-linux $ git diff --stat
 
-On the other hand, on some versions of Linux on arm64 reading /dev/mem
-causes kernel oops killing lscpu. If it is desirable for lscpu to work
-on these broken kernels an additional ifdef is required.
+Just to throw in my two cents, tabs in source code cause problems unless 
+you have a comment like:
 
-Fixes: 92a6392c41c1 ("lscpu: use sysfs for table access if available")
-Fixes: fb2627cec4c8 ("lscpu: detect more hypervisor vendors")
+// vim: noai:ts=8:sw=8
 
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
----
- sys-utils/lscpu-dmi.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+and the emacs equivalent.
 
-diff --git a/sys-utils/lscpu-dmi.c b/sys-utils/lscpu-dmi.c
-index 3ba999124a2e..71d6874c919d 100644
---- a/sys-utils/lscpu-dmi.c
-+++ b/sys-utils/lscpu-dmi.c
-@@ -187,7 +187,7 @@ static int hypervisor_decode_smbios(uint8_t *buf, const char *devmem)
- 	if (!checksum(buf, buf[0x05])
- 	    || memcmp(buf + 0x10, "_DMI_", 5) != 0
- 	    || !checksum(buf + 0x10, 0x0F))
--		return -1;
-+		return HYPER_NONE;
- 
- 	return hypervisor_from_dmi_table(DWORD(buf + 0x18), WORD(buf + 0x16),
- 			 WORD(buf + 0x1C),
-@@ -200,7 +200,7 @@ static int hypervisor_decode_sysfw(void)
- 	struct stat st;
- 
- 	if (stat(sys_fw_dmi_tables, &st))
--		return -1;
-+		return HYPER_NONE;
- 
- 	return hypervisor_from_dmi_table(0, st.st_size, st.st_size / 4,
- 					 sys_fw_dmi_tables);
-@@ -257,7 +257,7 @@ int read_hypervisor_dmi(void)
- 		return rc;
- 
- 	rc = hypervisor_decode_sysfw();
--	if (rc >= 0)
-+	if (rc > HYPER_NONE)
- 		return rc;
- 
- 	/* First try EFI (ia64, Intel-based Mac) */
-@@ -273,7 +273,7 @@ int read_hypervisor_dmi(void)
- 		goto done;
- 
- 	rc = hypervisor_decode_smbios(buf, _PATH_DEV_MEM);
--	if (rc)
-+	if (rc > HYPER_NONE)
- 		goto done;
- 	free(buf);
- 	buf = NULL;
-@@ -287,13 +287,13 @@ memory_scan:
- 	for (fp = 0; fp <= 0xFFF0; fp += 16) {
- 		if (memcmp(buf + fp, "_SM_", 4) == 0 && fp <= 0xFFE0) {
- 			rc = hypervisor_decode_smbios(buf + fp, _PATH_DEV_MEM);
--			if (rc == -1)
-+			if ( ! (rc > HYPER_NONE))
- 				fp += 16;
- 
- 		} else if (memcmp(buf + fp, "_DMI_", 5) == 0)
- 			rc = hypervisor_decode_legacy(buf + fp, _PATH_DEV_MEM);
- 
--		if (rc >= 0)
-+		if (rc > HYPER_NONE)
- 			break;
- 	}
- #endif
--- 
-2.12.3
+I spend a lot of effort aligning source code to make it readable. 
+Research from the 1980s and early 1990s indicated the best levels of 
+indentations for readability and comprehension of source code is between 2 
+and 4 spaces.  I personally use 3 characters.
+
+Using tabs with different settings destroys that readability.
+
+IMO, embedded tabs in source code add nothing but problems.  Editors can 
+easily substitute the correct number of spaces when you hit the tab key 
+and spaces allow the reader to always see the code as the author intended.
+
+However, it is your project and your rules.  I am not asking for a change.
+
+   -- Bruce Dubbs
+      linuxfromscratch.org
 
