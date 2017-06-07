@@ -1,26 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:48834 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:51690 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751093AbdFAI4o (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 1 Jun 2017 04:56:44 -0400
-Date: Thu, 1 Jun 2017 10:56:40 +0200
+        id S1751008AbdFGKyd (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 7 Jun 2017 06:54:33 -0400
+Date: Wed, 7 Jun 2017 12:54:28 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Alexander Kuleshov <kuleshovmail@gmail.com>
+To: NeilBrown <neilb@suse.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] column: add missed semicolons in case of !HAVE_WIDECHAR
-Message-ID: <20170601085640.ti6jwmueljvbb74k@ws.net.home>
-References: <20170529184917.18559-1-kuleshovmail@gmail.com>
+Subject: Re: [util-linux PATCH] umount: never 'stat' the path when "-c" is
+ given.
+Message-ID: <20170607105428.2st27zihhwpcnrwi@ws.net.home>
+References: <8760gbduzp.fsf@notabene.neil.brown.name>
+ <20170607094451.vcesromvdygstjmw@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170529184917.18559-1-kuleshovmail@gmail.com>
+In-Reply-To: <20170607094451.vcesromvdygstjmw@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, May 30, 2017 at 12:49:17AM +0600, Alexander Kuleshov wrote:
->  text-utils/column.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+On Wed, Jun 07, 2017 at 11:44:51AM +0200, Karel Zak wrote:
+> On Mon, Jun 05, 2017 at 12:32:58PM +1000, NeilBrown wrote:
+> > diff --git a/libmount/src/context_umount.c b/libmount/src/context_umount.c
+> > index e663a703cca0..693891def0e1 100644
+> > --- a/libmount/src/context_umount.c
+> > +++ b/libmount/src/context_umount.c
+> > @@ -77,6 +77,7 @@ int mnt_context_find_umount_fs(struct libmnt_context *cxt,
+> >  	 * it's usable only for canonicalized stuff (e.g. kernel mountinfo).
+> >  	 */
+> >  	if (!mnt_context_mtab_writable(cxt) && *tgt == '/' &&
+> > +	    !mnt_context_is_nocanonicalize(cxt) &&
+> >  	    !mnt_context_is_force(cxt) && !mnt_context_is_lazy(cxt))
+> >  		rc = mnt_context_get_mtab_for_target(cxt, &mtab, tgt);
+> 
+> I've changed the code to be the mount table filter also usable for
+> --no-canonicalize. It seems better to avoid mnt_resolve_path() than
+> avoid all the filter.
 
-Applied, thanks.
+Hmm... the filter seems like bad optimization for umount, because it
+triggers path canonicalization. I did some another changes and umount
+should be less aggressive with work with paths now.
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
