@@ -1,45 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:33744 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751698AbdFHTwe (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 8 Jun 2017 15:52:34 -0400
-Received: by mail-wm0-f68.google.com with SMTP id x3so8901601wme.0
-        for <util-linux@vger.kernel.org>; Thu, 08 Jun 2017 12:52:34 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 11/11] lib: remove _RLD_ from forbid environment variable list
-Date: Thu,  8 Jun 2017 20:52:15 +0100
-Message-Id: <20170608195215.1702-12-kerolasa@iki.fi>
-In-Reply-To: <20170608195215.1702-1-kerolasa@iki.fi>
-References: <20170608195215.1702-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:38278 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751252AbdFGPwJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 7 Jun 2017 11:52:09 -0400
+Date: Wed, 7 Jun 2017 17:52:02 +0200
+From: Karel Zak <kzak@redhat.com>
+To: NeilBrown <neilb@suse.com>
+Cc: Ian Kent <raven@themaw.net>,
+        autofs mailing list <autofs@vger.kernel.org>,
+        linux-nfs@vger.kernel.org, util-linux@vger.kernel.org
+Subject: Re: [autofs PATCH] Add -c option when calling /bin/umount - if
+ supported.
+Message-ID: <20170607155202.5zyzuvy6l3fsawkl@ws.net.home>
+References: <87d1agd4cu.fsf@notabene.neil.brown.name>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <87d1agd4cu.fsf@notabene.neil.brown.name>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The RLD environment variables are related to runtime linker vulnerability in
-TELNET on systems running Silicon Graphics IRIX.  It is extremely unlikely
-current util-linux would be compiled on such system.
+On Wed, Jun 07, 2017 at 10:32:49AM +1000, NeilBrown wrote:
+> 
+> The "-c" option has been supported by umount since util-linux 2.17.
+> It tells umount that the path name is "canonical", meaning no
+> symlinks or ".." etc.
+> This is appropriate for autofs to use and it always uses canonical
+> path names.
+> The advantage of "-c" is that it means umount doesn't need to
+> 'lstat()' the path so much.
 
-Reference: http://www.cert.org/historical/advisories/CA-1995-14.cfm
-Reference: http://signatures.juniper.net/documentation/signatures/TELNET%3AEXPLOIT%3ASGI-RLD.html
-Refefence: http://www.polarhome.com/service/man/?qf=rld&tf=2&of=IRIX&sf=1
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- lib/env.c | 1 -
- 1 file changed, 1 deletion(-)
+It would be also nice to force systemd to use "umount -c" on shutdown
+to avoid automount storm...
 
-diff --git a/lib/env.c b/lib/env.c
-index c79e0e0de..b2e3d975a 100644
---- a/lib/env.c
-+++ b/lib/env.c
-@@ -26,7 +26,6 @@ extern char **environ;
- #endif
- 
- static char * const forbid[] = {
--        "_RLD_=",
-         "BASH_ENV=",    /* GNU creeping featurism strikes again... */
-         "ENV=",
-         "HOME=",
+    Karel
+
 -- 
-2.13.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
