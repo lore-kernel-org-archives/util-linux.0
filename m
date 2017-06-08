@@ -1,217 +1,119 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from resqmta-ch2-06v.sys.comcast.net ([69.252.207.38]:57610 "EHLO
-        resqmta-ch2-06v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753900AbdFWViq (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Fri, 23 Jun 2017 17:38:46 -0400
-From: "W. Trevor King" <wking@tremily.us>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:34739 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751658AbdFHTw2 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 8 Jun 2017 15:52:28 -0400
+Received: by mail-wm0-f66.google.com with SMTP id 70so8887018wme.1
+        for <util-linux@vger.kernel.org>; Thu, 08 Jun 2017 12:52:27 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>, "W. Trevor King" <wking@tremily.us>
-Subject: [PATCH v2 7/8] sys-utils/mount.8: Split filesystem-independent options into kernel and userspace subsections
-Date: Fri, 23 Jun 2017 14:30:25 -0700
-Message-Id: <508d12736bcdab265cc57a78bd45585ea185786e.1498252231.git.wking@tremily.us>
-In-Reply-To: <cover.1498252231.git.wking@tremily.us>
-References: <cover.1498252231.git.wking@tremily.us>
-In-Reply-To: <cover.1498252231.git.wking@tremily.us>
-References: <cover.1498252231.git.wking@tremily.us>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 06/11] isosize: avoid reading more data than what is needed
+Date: Thu,  8 Jun 2017 20:52:10 +0100
+Message-Id: <20170608195215.1702-7-kerolasa@iki.fi>
+In-Reply-To: <20170608195215.1702-1-kerolasa@iki.fi>
+References: <20170608195215.1702-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The filesystem-independent userspace options are useful in fstab.
-Separating those options from the filesytem-independent kernel options
-avoids distracting folks reading mount(8) while setting up direct
-mount(8) calls and similar.  It also makes it easy to punt to mount(2)
-for defaults for the kernel-backed options, now that the defaults
-entry no longer mentions rw, suid, dev, etc.
+In same go fix error reporting when input file is not long enough.
 
-The mount(2) default reference also lets us remove "This is the
-default" from the diratime entry.  Consistently punting the default
-definition to mount(2) is more maintainable than duplicating all of
-that mount(2) information locally in mount(8).
+$ touch empty
+$ isosize empty
+isosize: empty: might not be an ISO filesystem
+isosize: read error on empty: Success
 
-While the filesystem-independent userspace options aren't particularly
-useful outside of fstab, it's not an error to use them in direct
-mount(8) calls.  So the subection is not titled "FSTAB-SPECIFIC MOUNT
-OPTIONS" or anything more opinionated.
-
-Also add the previously-undocumentated nogroup, noowner, and nousers
-options.
-
-Signed-off-by: W. Trevor King <wking@tremily.us>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- sys-utils/mount.8 | 108 +++++++++++++++++++++++++++++++-----------------------
- 1 file changed, 62 insertions(+), 46 deletions(-)
+ disk-utils/isosize.c | 57 +++++++++-------------------------------------------
+ 1 file changed, 10 insertions(+), 47 deletions(-)
 
-diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
-index d5ca65e..a589f76 100644
---- a/sys-utils/mount.8
-+++ b/sys-utils/mount.8
-@@ -835,15 +835,16 @@ Display version information and exit.
- Display help text and exit.
+diff --git a/disk-utils/isosize.c b/disk-utils/isosize.c
+index d3d11c921..b5ac56262 100644
+--- a/disk-utils/isosize.c
++++ b/disk-utils/isosize.c
+@@ -30,8 +30,6 @@
+ #include "strutils.h"
+ #include "closestream.h"
  
- .SH FILESYSTEM-INDEPENDENT MOUNT OPTIONS
--Some of these options are only useful when they appear in the
--.I /etc/fstab
--file.
-+.SS Generic kernel mount options
+-#define ISODCL(from, to) (to - from + 1)
+-
+ static int is_iso(int fd)
+ {
+ 	char label[8];
+@@ -88,62 +86,27 @@ static int isonum_733(unsigned char *p, int xflag)
+ 	return (le);
+ }
  
- Some of these options could be enabled or disabled by default
--in the system kernel.  To check the current setting see the options
--in /proc/mounts.  Note that filesystems also have per-filesystem
--specific default mount options (see for example \fBtune2fs \-l\fP
--output for extN filesystems).
-+in the system kernel as documented in
-+.BR mount (2).
-+To check the current setting see the options in
-+.I /proc/mounts\fR.
-+Note that filesystems also have per-filesystem specific default mount
-+options (see for example \fBtune2fs \-l\fP output for extN
-+filesystems).
+-struct iso_primary_descriptor
+-{
+-	unsigned char type			[ISODCL (   1,	  1)]; /* 711 */
+-	unsigned char id			[ISODCL (   2,	  6)];
+-	unsigned char version			[ISODCL (   7,	  7)]; /* 711 */
+-	unsigned char unused1			[ISODCL (   8,	  8)];
+-	unsigned char system_id			[ISODCL (   9,	 40)]; /* auchars */
+-	unsigned char volume_id			[ISODCL (  41,	 72)]; /* duchars */
+-	unsigned char unused2			[ISODCL (  73,	 80)];
+-	unsigned char volume_space_size		[ISODCL (  81,	 88)]; /* 733 */
+-	unsigned char unused3			[ISODCL (  89,	120)];
+-	unsigned char volume_set_size		[ISODCL ( 121,	124)]; /* 723 */
+-	unsigned char volume_sequence_number	[ISODCL ( 125,	128)]; /* 723 */
+-	unsigned char logical_block_size	[ISODCL ( 129,	132)]; /* 723 */
+-	unsigned char path_table_size		[ISODCL ( 133,	140)]; /* 733 */
+-	unsigned char type_l_path_table		[ISODCL ( 141,	144)]; /* 731 */
+-	unsigned char opt_type_l_path_table	[ISODCL ( 145,	148)]; /* 731 */
+-	unsigned char type_m_path_table		[ISODCL ( 149,	152)]; /* 732 */
+-	unsigned char opt_type_m_path_table	[ISODCL ( 153,	156)]; /* 732 */
+-	unsigned char root_directory_record	[ISODCL ( 157,	190)]; /* 9.1 */
+-	unsigned char volume_set_id		[ISODCL ( 191,	318)]; /* duchars */
+-	unsigned char publisher_id		[ISODCL ( 319,	446)]; /* achars */
+-	unsigned char preparer_id		[ISODCL ( 447,	574)]; /* achars */
+-	unsigned char application_id		[ISODCL ( 575,	702)]; /* achars */
+-	unsigned char copyright_file_id		[ISODCL ( 703,	739)]; /* 7.5 dchars */
+-	unsigned char abstract_file_id		[ISODCL ( 740,	776)]; /* 7.5 dchars */
+-	unsigned char bibliographic_file_id	[ISODCL ( 777,	813)]; /* 7.5 dchars */
+-	unsigned char creation_date		[ISODCL ( 814,	830)]; /* 8.4.26.1 */
+-	unsigned char modification_date		[ISODCL ( 831,	847)]; /* 8.4.26.1 */
+-	unsigned char expiration_date		[ISODCL ( 848,	864)]; /* 8.4.26.1 */
+-	unsigned char effective_date		[ISODCL ( 865,	881)]; /* 8.4.26.1 */
+-	unsigned char file_structure_version	[ISODCL ( 882,	882)]; /* 711 */
+-	unsigned char unused4			[ISODCL ( 883,	883)];
+-	unsigned char application_data		[ISODCL ( 884, 1395)];
+-	unsigned char unused5			[ISODCL (1396, 2048)];
+-};
+-
+ static void isosize(int argc, char *filenamep, int xflag, long divisor)
+ {
+ 	int fd, nsecs, ssize;
+-	struct iso_primary_descriptor ipd;
++	unsigned char volume_space_size[8];
++	unsigned char logical_block_size[4];
  
- The following options apply to any filesystem that is being
- mounted (but not every filesystem actually honors them \(en e.g.\&, the
-@@ -867,25 +868,6 @@ Do not update inode access times on this filesystem (e.g.\& for faster
- access on the news spool to speed up news servers).  This works for all
- inode types (directories too), so it implies \fB\%nodiratime\fR.
- .TP
--.B auto
--Can be mounted with the
--.B \-a
--option (e.g., at boot time).
--.TP
--.B noauto
--Can only be mounted explicitly (i.e., the
--.B \-a
--option will not cause the filesystem to be mounted).
--.TP
--.B comment=*
--All options prefixed with
--.BR comment=
--are interpreted as comments or as userspace application-specific options.
--These options are not stored in the user space (e.g. mtab file),
--nor sent to the mount.\fItype\fR helpers nor to the
--.BR mount (2)
--system call.  The suggested format is \fBcomment=\fIappname\fR.\fIoption\fR.
--.TP
- .na
- .BR context=\fIcontext ", " fscontext=\fIcontext ", " defcontext=\fIcontext ", and " \%rootcontext=\fIcontext
- .ad
-@@ -959,9 +941,6 @@ For more details, see
- .RE
+ 	if ((fd = open(filenamep, O_RDONLY)) < 0)
+ 		err(EXIT_FAILURE, _("cannot open %s"), filenamep);
+ 	if (is_iso(fd))
+ 		warnx(_("%s: might not be an ISO filesystem"), filenamep);
  
- .TP
--.B defaults
--A no-op placeholder with no impact to the filesystem mount options.
--.TP
- .B dev
- Interpret character or block special devices on the filesystem.
- .TP
-@@ -970,7 +949,7 @@ Do not interpret character or block special devices on the file
- system.
- .TP
- .B diratime
--Update directory inode access times on this filesystem.  This is the default.
-+Update directory inode access times on this filesystem.
- (This option is ignored when \fBnoatime\fR is set.)
- .TP
- .B nodiratime
-@@ -990,14 +969,6 @@ Do not permit direct execution of any binaries on the mounted filesystem.
- (Until recently it was possible to run binaries anyway using a command like
- /lib/ld*.so /mnt/binary.  This trick fails since Linux 2.4.25 / 2.6.0.)
- .TP
--.B group
--Allow an ordinary user to mount the filesystem if one
--of that user's groups matches the group of the device.
--This option implies the options
--.BR nosuid " and " nodev
--(unless overridden by subsequent options, as in the option line
--.BR group,dev,suid ).
--.TP
- .B iversion
- Every time the inode is modified, the i_version field will be incremented.
- .TP
-@@ -1094,14 +1065,6 @@ Turn on the silent flag.
- .B loud
- Turn off the silent flag.
- .TP
--.B owner
--Allow an ordinary user to mount the filesystem if that
--user is the owner of the device.
--This option implies the options
--.BR nosuid " and " nodev
--(unless overridden by subsequent options, as in the option line
--.BR owner,dev,suid ).
--.TP
- .B remount
- Attempt to remount an already-mounted filesystem.  This is commonly
- used to change the mount flags for a filesystem, especially to make a
-@@ -1146,6 +1109,56 @@ Mount the filesystem read-write.
- All I/O to the filesystem should be done synchronously.  In the case of
- media with a limited number of write cycles
- (e.g.\& some flash drives), \fBsync\fR may cause life-cycle shortening.
-+
-+.SS User-space mount options
-+The following filesystem-independent mount options affect the behavior of
-+.BR mount (8)
-+but are not passed through to the kernel.
-+
-+.TP
-+.B auto
-+Can be mounted with the
-+.B \-a
-+option (e.g., at boot time).
-+.TP
-+.B noauto
-+Can only be mounted explicitly (i.e., the
-+.B \-a
-+option will not cause the filesystem to be mounted).
-+.TP
-+.B comment=*
-+All options prefixed with
-+.BR comment=
-+are interpreted as comments or as userspace application-specific options.
-+These options are not stored in the userspace (e.g. mtab file),
-+nor sent to the mount.\fItype\fR helpers nor to the
-+.BR mount (2)
-+system call.  The suggested format is \fBcomment=\fIappname\fR.\fIoption\fR.
-+.TP
-+.B defaults
-+A no-op placeholder with no impact to the filesystem mount options.
-+.TP
-+.B group
-+Allow an ordinary user to mount the filesystem if one
-+of that user's groups matches the group of the device.
-+This option implies the options
-+.BR nosuid " and " nodev
-+(unless overridden by subsequent options, as in the option line
-+.BR group,dev,suid ).
-+.TP
-+.B nogroup
-+Unset \fBgroup\fR.
-+.TP
-+.B owner
-+Allow an ordinary user to mount the filesystem if that
-+user is the owner of the device.
-+This option implies the options
-+.BR nosuid " and " nodev
-+(unless overridden by subsequent options, as in the option line
-+.BR owner,dev,suid ).
-+.TP
-+.B noowner
-+Unset \fBowner\fR.
- .TP
- .B user
- Allow an ordinary user to mount the filesystem.
-@@ -1168,6 +1181,9 @@ This option implies the options
- (unless overridden by subsequent options, as in the option line
- .BR users,exec,dev,suid ).
- .TP
-+.B nousers
-+Unset \fBusers\fR.
-+.TP
- .B X-*
- All options prefixed with
- .BR X-
+-	if (lseek(fd, 16 << 11, 0) == (off_t) - 1)
+-		err(EXIT_FAILURE, _("seek error on %s"), filenamep);
+-
+-	if (read(fd, &ipd, sizeof(ipd)) <= 0)
+-		err(EXIT_FAILURE, _("read error on %s"), filenamep);
++	if (pread(fd, volume_space_size, sizeof(volume_space_size), 0x8050) <= 0 ||
++	    pread(fd, logical_block_size, sizeof(logical_block_size), 0x8080) <= 0) {
++		if (errno)
++			err(EXIT_FAILURE, _("read error on %s"), filenamep);
++		errx(EXIT_FAILURE, _("read error on %s"), filenamep);
++	}
+ 
+-	nsecs = isonum_733(ipd.volume_space_size, xflag);
++	nsecs = isonum_733(volume_space_size, xflag);
+ 	/* isonum_723 returns nowadays always 2048 */
+-	ssize = isonum_723(ipd.logical_block_size, xflag);
++	ssize = isonum_723(logical_block_size, xflag);
+ 
+ 	if (1 < argc)
+ 		printf("%s: ", filenamep);
 -- 
-2.1.0.60.g85f0837
+2.13.1
 
