@@ -1,97 +1,112 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45118 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752915AbdF0Mtw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 27 Jun 2017 08:49:52 -0400
-Date: Tue, 27 Jun 2017 14:49:48 +0200
-From: Karel Zak <kzak@redhat.com>
-To: "W. Trevor King" <wking@tremily.us>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH v2 0/8] sys-utils/mount.8: Clarify 'defaults' and
- separate kernel/userspace options
-Message-ID: <20170627124948.j2msp3fvvtrm4gtq@ws.net.home>
-References: <cover.1498252231.git.wking@tremily.us>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <cover.1498252231.git.wking@tremily.us>
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:36396 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750788AbdFHTwU (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 8 Jun 2017 15:52:20 -0400
+Received: by mail-wr0-f194.google.com with SMTP id e23so4713191wre.3
+        for <util-linux@vger.kernel.org>; Thu, 08 Jun 2017 12:52:19 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 00/11] pull: various small changes
+Date: Thu,  8 Jun 2017 20:52:04 +0100
+Message-Id: <20170608195215.1702-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jun 23, 2017 at 02:30:18PM -0700, W. Trevor King wrote:
-> Here's a reroll of May's v1 [1].  Larger changes since v1:
-> 
-> * Split into multiple patches, something like Karel had suggested [2].
-> * Punt to mount(2) for defaults for filesystem-independent kernel
->   options, instead of adding local "(default)" marks.  This is is also
->   something like Karl had suggested in [2].
-> * Replaced the broken "synonym for auto" 'defaults' definition which
->   I'd floated in v1 with a line from Karel's earlier suggestion [3].
-> * Added two examples to fstab(5) based on Karel's initial suggestions
->   [4] and subsequent discussion.
-> * Added a few copy-edit patches.
-> 
-> After the v1 discussion, I think something should happen to (no)auto
-> as well:
-> 
-> On Tue, May 16, 2017 at 02:41:27PM +0200, Karel Zak wrote [2]:
-> > On Fri, May 12, 2017 at 10:36:29AM -0700, W. Trevor King wrote:
-> > > > > >    The "default" is interpreted as "auto" by "mount -a".
-> > > > >
-> > > > > This last line means "defaults" is effectively a synonym for
-> > > > > "auto" in fstab, an presumably "auto" would always be
-> > > > > preferred (because it more
-> > > >
-> > > > More precisely, mount -a cares about "noauto" only, everything
-> > > > else is "auto".
-> > >
-> > > Is that really true?  I think:
-> > >
-> > > * ‘noauto,auto’ means the same thing as a bare ‘auto’.
-> >
-> > Unfortunately no.
-> >
-> > It's strange, but "mount -a" search for "noauto" and do not evaluate
-> > the options as flags. The libmount follows the original mount(8)
-> > with this behavior. I'll try to fix it.
-> 
-> It's not clear to me whether Karel intends to clarify the mount(8)
+Hello,
 
-It would be better to describe the current behavior. I'm not sure if I
-want to fix it :-) 
+Here's few changes that I have been holding back while the project was
+having release freeze.  Most of the changes are related to various warnings
+noticed before release, but that I did not think are important enough to be
+sent while seeking for stability.  Functional improvements include rename(1)
+shortcut to exit, and uuidgen(1) date parsing option.  Even if everything
+else is rejected I really hope these two are accepted.
+ 
+----------------------------------------------------------------
+The following changes since commit f8416301c195d50a21cb54d9ea9abeccc40f9ee7:
+  libmount: use mount table filter on --no-canonicalize (2017-06-07 11:35:26 +0200)
+are available in the git repository at:
+  git://github.com/kerolasa/lelux-utiliteetit.git 2017wk23
+for you to fetch changes up to 53949f09430181beee4fb9f546d9a31313f4fd68:
+  lib: remove _RLD_ from forbid environment variable list (2017-06-08 20:42:20 +0100)
+----------------------------------------------------------------
 
-The problem is that convert all mount options to the flags is relatively 
-expensive, and I'm not sure it such change will provide any real
-improvement for "mount -a". I guess "noauto,auto" is extremely unusual
-setting, the another story is that fstab may be interpreted by another
-tools (like systemd), so support this crazy setting will no change
-anything in the real world.
+Sami Kerola (11):
+  misc: fallthrough fixes
+  line: do not print new line if nothing else was printed
+  rename: notice when expression and replacement are the same string
+  uuidgen: slice up the usage text
+  uuidgen: add --date option to display time when uuid was generated
+  isosize: avoid reading more data than what is needed
+  misc: fix reassigned values before old ones has been used [cppcheck]
+  losetup: add missing initializer [clang]
+  misc: remove stray semicolons
+  lib: simplify cpuset if clauses that return
+  lib: remove _RLD_ from forbid environment variable list
 
-It will be better to add to the man page a small note: "noauto" always win
-and later specified "auto" does not change it :-)
-
-
-> current implementation), I'm happy to submit an additional patch.
-
-Please.
-
->   sys-utils/fstab.5: Remove basic filesystem-independent options
->   sys-utils/fstab.5: Remove 'defaults' from examples
->   sys-utils/mount.8: Document 'defaults' as a no-op
->   sys-utils/mount.8: Simplify nouser
->   sys-utils/mount.8: Drop systemd paragraph from x-* entry
->   sys-utils/mount.8: Clarify x-mount.mkdir deprecation
->   sys-utils/mount.8: Split filesystem-independent options into kernel
->     and userspace subsections
->   sys-utils/mount.8: Document libmount defaults
-> 
->  sys-utils/fstab.5 |  38 +++------------
->  sys-utils/mount.8 | 137 +++++++++++++++++++++++++++++++-----------------------
->  2 files changed, 84 insertions(+), 91 deletions(-)
-
-All the patches seems good.
-
-    Karel
+ bash-completion/uuidgen                 |  5 ++-
+ disk-utils/cfdisk.c                     | 10 +++---
+ disk-utils/fdisk-menu.c                 |  2 +-
+ disk-utils/isosize.c                    | 57 ++++++---------------------------
+ disk-utils/mkfs.cramfs.c                |  2 +-
+ disk-utils/mkfs.minix.c                 |  2 +-
+ disk-utils/sfdisk.c                     |  6 ++--
+ include/c.h                             | 18 +++++++++++
+ lib/cpuset.c                            | 12 +++----
+ lib/env.c                               |  1 -
+ lib/mbsalign.c                          |  2 +-
+ libblkid/src/devno.c                    |  2 +-
+ libblkid/src/probe.c                    |  2 +-
+ libblkid/src/superblocks/adaptec_raid.c |  2 +-
+ libblkid/src/topology/md.c              |  4 +--
+ libfdisk/src/gpt.c                      |  2 +-
+ libfdisk/src/script.c                   |  2 +-
+ libmount/src/btrfs.c                    |  6 ++--
+ libmount/src/cache.c                    |  6 ++--
+ libmount/src/context.c                  |  2 +-
+ libmount/src/context_mount.c            |  2 +-
+ libmount/src/context_umount.c           |  4 +--
+ libmount/src/optstr.c                   |  2 +-
+ libmount/src/tab_diff.c                 |  4 +--
+ libmount/src/tab_update.c               |  2 +-
+ libsmartcols/src/column.c               |  4 +--
+ libsmartcols/src/table_print.c          |  2 +-
+ login-utils/last.c                      |  2 +-
+ login-utils/lslogins.c                  |  4 +--
+ login-utils/su-common.c                 |  1 +
+ login-utils/sulogin.c                   |  7 ++--
+ misc-utils/Makemodule.am                |  2 +-
+ misc-utils/cal.c                        |  8 ++---
+ misc-utils/findmnt-verify.c             |  2 +-
+ misc-utils/findmnt.c                    | 10 +++---
+ misc-utils/lsblk.c                      |  2 +-
+ misc-utils/rename.c                     |  6 ++--
+ misc-utils/test_uuidd.c                 |  2 +-
+ misc-utils/uuidgen.1                    |  8 +++++
+ misc-utils/uuidgen.c                    | 47 ++++++++++++++++++++++++---
+ sys-utils/flock.c                       |  2 +-
+ sys-utils/hwclock.c                     |  3 +-
+ sys-utils/ipcrm.c                       |  3 ++
+ sys-utils/losetup.c                     |  4 +--
+ sys-utils/lsipc.c                       |  2 +-
+ sys-utils/nsenter.c                     |  2 +-
+ sys-utils/setarch.c                     |  2 +-
+ sys-utils/swapon.c                      |  2 +-
+ sys-utils/unshare.c                     |  4 +--
+ term-utils/agetty.c                     |  4 +--
+ term-utils/script.c                     |  4 +--
+ term-utils/wall.c                       |  2 +-
+ tests/expected/uuid/uuidgen             |  6 ++++
+ tests/ts/uuid/uuidgen                   | 10 ++++++
+ text-utils/column.c                     |  2 +-
+ text-utils/hexdump-parse.c              |  2 +-
+ text-utils/line.c                       |  6 ++--
+ text-utils/more.c                       |  5 +--
+ text-utils/pg.c                         |  4 +--
+ text-utils/ul.c                         |  4 +--
+ 60 files changed, 195 insertions(+), 144 deletions(-)
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.13.1
+
