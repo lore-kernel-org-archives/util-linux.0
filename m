@@ -1,106 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:43494 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752926AbdFMNlU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 13 Jun 2017 09:41:20 -0400
-Date: Tue, 13 Jun 2017 15:41:15 +0200
-From: Karel Zak <kzak@redhat.com>
-To: =?iso-8859-1?Q?R=FCdiger?= Meier <sweet_f_a@gmx.de>
-Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 01/11] misc: fallthrough fixes
-Message-ID: <20170613134115.2bko6uejkrna65j6@ws.net.home>
-References: <20170608195215.1702-1-kerolasa@iki.fi>
- <20170608195215.1702-2-kerolasa@iki.fi>
- <201706091314.08008.sweet_f_a@gmx.de>
- <968790d0-c49c-538b-d034-ffcda9c20efc@gmx.de>
- <CAG27Bk3OEBrnGbrD+2tuxu-UGUjQXLB+TrsFLiQRvOtcns8FsQ@mail.gmail.com>
- <55d88bf2-3c67-4d79-984e-b16d6b835702@gmx.de>
- <CAG27Bk03PW7GWHdm5G0Xcu1LXbAXwebQyyvk3HoHx7hP8e-Bgg@mail.gmail.com>
- <4ae98acb-325d-39dd-faa9-2cdf8ce62c3e@gmx.de>
- <20170613125115.yq7a63ngzpk2hiod@ws.net.home>
- <b8cf693f-a1d9-ba25-642a-056ed6fc717b@gmx.de>
+Received: from mx2.suse.de ([195.135.220.15]:58089 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750934AbdFIEXf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 9 Jun 2017 00:23:35 -0400
+From: NeilBrown <neilb@suse.com>
+To: Karel Zak <kzak@redhat.com>
+Date: Fri, 09 Jun 2017 14:23:25 +1000
+Cc: util-linux@vger.kernel.org
+Subject: Re: [util-linux PATCH] umount: never 'stat' the path when "-c" is given.
+In-Reply-To: <20170607105428.2st27zihhwpcnrwi@ws.net.home>
+References: <8760gbduzp.fsf@notabene.neil.brown.name> <20170607094451.vcesromvdygstjmw@ws.net.home> <20170607105428.2st27zihhwpcnrwi@ws.net.home>
+Message-ID: <87fuf9aiwy.fsf@notabene.neil.brown.name>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <b8cf693f-a1d9-ba25-642a-056ed6fc717b@gmx.de>
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jun 13, 2017 at 03:03:12PM +0200, Rüdiger Meier wrote:
-> 
-> 
-> On 06/13/2017 02:51 PM, Karel Zak wrote:
-> > On Tue, Jun 13, 2017 at 01:16:57AM +0200, Rüdiger Meier wrote:
-> > > > > BTW just for cosmetics. Maybe we should rename UL_FALLTHROUGH to
-> > > > > __ul_fallthrough
-> > > > > like we have already __ul_calloc_size. IMO it would look more obvious to the
-> > > > > reader.
-> > > > 
-> > > > I don't have strong opinion about that, changed to one you proposed.
-> > > 
-> > > Thanks, let's see whether Karel likes this attribute at all ;)
-> > 
-> > Hmm...
-> > 
-> >   I don't like "meta-programming" where language keywords are
-> >   replaced by local macros, for example we have fallback (in c.h) for all
-> >   __attribute__ rather than define local macro for all attributes.
-> > 
-> >     __attribute__((fallthrough))
-> > 
-> >   should be fine on non-__GNUC__ as in this case __attribute__ is empty
-> >   macro (see c.h).
-> > 
-> >   Yes, __ul_fallthrough seems better, and __attribute__((fallthrough))
-> >   would be the best :-)
-> > 
-> >   It's strange if clang will use a different syntax for the same
-> >   things. IMHO it would be better to ignore clang for this attribute.
-> 
-> Yes, Sami's last version just ignores clang. Seems that the different syntax
-> was for C++ only.
-> 
-> So branch 2017wk23 from git@github.com:kerolasa/lelux-utiliteetit.git is the
-> last version for merging.
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Cool, I see. 
+On Wed, Jun 07 2017, Karel Zak wrote:
 
-Now I read something about gcc and it seem it's able to recognize and
-use comments, so  __attribute__((fallthrough)) is unnecessary.
+> On Wed, Jun 07, 2017 at 11:44:51AM +0200, Karel Zak wrote:
+>> On Mon, Jun 05, 2017 at 12:32:58PM +1000, NeilBrown wrote:
+>> > diff --git a/libmount/src/context_umount.c b/libmount/src/context_umou=
+nt.c
+>> > index e663a703cca0..693891def0e1 100644
+>> > --- a/libmount/src/context_umount.c
+>> > +++ b/libmount/src/context_umount.c
+>> > @@ -77,6 +77,7 @@ int mnt_context_find_umount_fs(struct libmnt_context=
+ *cxt,
+>> >  	 * it's usable only for canonicalized stuff (e.g. kernel mountinfo).
+>> >  	 */
+>> >  	if (!mnt_context_mtab_writable(cxt) && *tgt =3D=3D '/' &&
+>> > +	    !mnt_context_is_nocanonicalize(cxt) &&
+>> >  	    !mnt_context_is_force(cxt) && !mnt_context_is_lazy(cxt))
+>> >  		rc =3D mnt_context_get_mtab_for_target(cxt, &mtab, tgt);
+>>=20
+>> I've changed the code to be the mount table filter also usable for
+>> --no-canonicalize. It seems better to avoid mnt_resolve_path() than
+>> avoid all the filter.
+>
+> Hmm... the filter seems like bad optimization for umount, because it
+> triggers path canonicalization. I did some another changes and umount
+> should be less aggressive with work with paths now.
 
-The default -Wimplicit-fallthrough setting is '3' and it means "parse
-comments".
+I think I understand what you did, and it appears to still have the
+desired effect for me, so I'm happy :-)
 
-So, do we really need this patch? ;-)
+Thanks,
+NeilBrown
 
-    https://developers.redhat.com/blog/2017/03/10/wimplicit-fallthrough-in-gcc-7/
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
-and man gcc man page:
+-----BEGIN PGP SIGNATURE-----
 
-    -Wimplicit-fallthrough=0 disables the warning altogether.
-    -Wimplicit-fallthrough=1 matches .* regular expression, any comment is used as fallthrough comment.
-    -Wimplicit-fallthrough=2 case insensitively matches .*falls?[ \t-]*thr(ough|u).* regular expression.
-    -Wimplicit-fallthrough=3 case sensitively matches one of the following regular expressions:
-        -fallthrough
-        @fallthrough@
-        lint -fallthrough[ \t]*
-        [ \t.!]*(ELSE,? |INTENTIONAL(LY)? )?
-        FALL(S | |-)?THR(OUGH|U)[ \t.!]*(-[^\n\r]*)?
-        [ \t.!]*(Else,? |Intentional(ly)? )?
-        Fall((s | |-)[Tt]|t)hr(ough|u)[ \t.!]*(-[^\n\r]*)?
-        [ \t.!]*([Ee]lse,? |[Ii]ntentional(ly)? )?
-        fall(s | |-)?thr(ough|u)[ \t.!]*(-[^\n\r]*)? 
-    -Wimplicit-fallthrough=4 case sensitively matches one of the following regular expressions:
-        -fallthrough
-        @fallthrough@
-        lint -fallthrough[ \t]*
-        [ \t]*FALLTHR(OUGH|U)[ \t]* 
-    -Wimplicit-fallthrough=5 doesn’t recognize any comments as fallthrough comments, only attributes disable the warning. 
-
-sounds all we need is to add  -Wimplicit-fallthrough=3 to ./configure.
-
-    Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+iQIzBAEBCAAdFiEEG8Yp69OQ2HB7X0l6Oeye3VZigbkFAlk6Ir8ACgkQOeye3VZi
+gbm1sA//YfvdBAdnt5QFaKvHfmT9Idc06Tv8kWZzy4FJqlkJ35OIvPTyHaSxk5gJ
+/y99U78qKjPPdL5wkjSeXGRvLl0a47QXkt2zUl0Lok4V639D0c2cS35qJlxw3bEc
+KOngD9rB079hRJKoZviFcppe0/ph9zZ2nY68CEndud2nE0liGV8f70m0SHK+BxLG
+rU0idvYiAs2MNx5MBuO40CKIhvanDxSP8aHoZr0ExojWQFuGNywBuqatr00522rK
+R4vfGGGalVz6a88GTCcDdBupI6Fsocy0hGlLbhpHCMRh876ixSPpMcwf+i30CvrS
+XddOb4DjHOBUKOTJckb9KzlwthlNcvL8QFofylx3mbJ5if1wzJiQxKI/DePTYhno
+97nQxMwZZ9Dj00Gev3ku7WdBiU27w/B3v4Z9zMG9adjekXlV/hLeGRG/NP5DVGi3
+ExS+KXWp1iWeVBB/h7Vg5UDFfI3uw7r3PfVRA3LsWh+HbebebPMc2wiSZg8iFtQB
+Zdb9P/Upi4VpiwS47tN2ZIP9R6vcBGArMRuzvbKyyTkK9KtBlVvfmFKmdk12EKrr
+/WgBLBN1US2PEve7wAcbfLQCpGsSeWc9/ko7o9cKfYuQjamMWCDchaF8sV/qctP6
+yiV9XijKhtAzZsXlLGetVzfrhtD0C122X/mw8IxkDEyAuF6mxb4=
+=RE3c
+-----END PGP SIGNATURE-----
+--=-=-=--
