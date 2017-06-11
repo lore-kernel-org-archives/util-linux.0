@@ -1,32 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35342 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751491AbdFZMMZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 26 Jun 2017 08:12:25 -0400
-Date: Mon, 26 Jun 2017 14:12:21 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Daniil Zhilin <just4steam778@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: agetty doesn't handle the second backspace properly during login
-Message-ID: <20170626121221.wxkccti4del3buvf@ws.net.home>
-References: <20170623013812.5cf11bec@HomePC.localdomain>
+Received: from mail-qt0-f173.google.com ([209.85.216.173]:34333 "EHLO
+        mail-qt0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751743AbdFKIT2 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 11 Jun 2017 04:19:28 -0400
+Received: by mail-qt0-f173.google.com with SMTP id c10so102123051qtd.1
+        for <util-linux@vger.kernel.org>; Sun, 11 Jun 2017 01:19:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170623013812.5cf11bec@HomePC.localdomain>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <201706091401.24156.sweet_f_a@gmx.de>
+References: <20170608195215.1702-1-kerolasa@iki.fi> <20170608195215.1702-3-kerolasa@iki.fi>
+ <201706091401.24156.sweet_f_a@gmx.de>
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Sun, 11 Jun 2017 09:19:27 +0100
+Message-ID: <CAG27Bk3fL5atLp9Ex-nEOAPP88eVU0qW1iBV6LC07Ds5btxyEQ@mail.gmail.com>
+Subject: Re: [PATCH 02/11] line: do not print new line if nothing else was printed
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jun 23, 2017 at 01:38:12AM +0300, Daniil Zhilin wrote:
-> Hello. When using the Colemak keyboard layout that assigns a second
-> backspace to Caps Lock, during TTY login this mapping generates '^H'
-> instead.
-> 
-> util-linux version 2.29.2-2 on Arch Linux.
+On 9 June 2017 at 13:01, Ruediger Meier <sweet_f_a@gmx.de> wrote:
+> On Thursday 08 June 2017, Sami Kerola wrote:
+>> Earlier the following printed stray new line.
+>>
+>> $ printf "" | ./line
+>
+> This breaks test "misc/line", see commit caad4ded
+> and
+> https://github.com/karelzak/util-linux/issues/236
 
-All this should be fixed in the next v2.30.1.
-
-    Karel
+Thank you Rudi for noticing, the line(1) change is dropped from my
+remote branch.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
