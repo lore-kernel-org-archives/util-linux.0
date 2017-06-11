@@ -1,97 +1,109 @@
-Return-Path: jack@suse.cz
-Date: Wed, 14 Jun 2017 11:46:14 +0200
-From: Jan Kara <jack@suse.cz>
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Jan Kara <jack@suse.com>, Steve Kenton <skenton@ou.edu>,
-	=?utf-8?Q?Vojt=C4=9Bch?= Vladyka <xvlady00@stud.feec.vutbr.cz>,
-	Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: UDF & dstring
-Message-ID: <20170614094614.GA20247@quack2.suse.cz>
-References: <201706111710.03013@pali>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-qk0-f178.google.com ([209.85.220.178]:34512 "EHLO
+        mail-qk0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751743AbdFKIgv (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 11 Jun 2017 04:36:51 -0400
+Received: by mail-qk0-f178.google.com with SMTP id d14so19750069qkb.1
+        for <util-linux@vger.kernel.org>; Sun, 11 Jun 2017 01:36:51 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <201706111710.03013@pali>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <968790d0-c49c-538b-d034-ffcda9c20efc@gmx.de>
+References: <20170608195215.1702-1-kerolasa@iki.fi> <20170608195215.1702-2-kerolasa@iki.fi>
+ <201706091314.08008.sweet_f_a@gmx.de> <968790d0-c49c-538b-d034-ffcda9c20efc@gmx.de>
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Sun, 11 Jun 2017 09:36:50 +0100
+Message-ID: <CAG27Bk3OEBrnGbrD+2tuxu-UGUjQXLB+TrsFLiQRvOtcns8FsQ@mail.gmail.com>
+Subject: Re: [PATCH 01/11] misc: fallthrough fixes
+To: =?UTF-8?Q?R=C3=BCdiger_Meier?= <sweet_f_a@gmx.de>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+On 9 June 2017 at 22:10, R=C3=BCdiger Meier <sweet_f_a@gmx.de> wrote:
+>
+>
+> On 06/09/2017 01:14 PM, Ruediger Meier wrote:
+>>
+>> Hi,
+>>
+>> This patch looks a bit ugly, for example:
+>>
+>> ## gcc 4.8.1
+>>
+>>    CC       text-utils/more-more.o
+>> ../text-utils/more.c: In function =E2=80=98command=E2=80=99:
+>> ../text-utils/more.c:1273:4: warning: empty declaration [enabled by
+>> default]
+>>      UL_FALLTHROUGH;
+>>
+>> ## icc 16.0.0
+>>
+>> text-utils/more.c(1273): warning #1292: unknown attribute "fallthrough"
+>>                          UL_FALLTHROUGH;
+>>                          ^
+>>
+>>> diff --git a/include/c.h b/include/c.h
+>>> index a5162b964..8a67b5dfb 100644
+>>> --- a/include/c.h
+>>> +++ b/include/c.h
+>>> @@ -77,6 +77,24 @@
+>>>   #endif
+>>>     /*
+>>> + * Statement Attributes
+>>> + */
+>>> +#if defined(__clang__)
+>>> +# ifndef __has_cpp_attribute
+>>> +#  define __has_cpp_attribute(x) 0
+>>> +# endif
+>>> +# if __has_cpp_attribute(clang::fallthrough)
+>>> +#  define UL_FALLTHROUGH [[clang::fallthrough]]
+>>> +# else
+>>> +#  define UL_FALLTHROUGH /* fall through */
+>>> +# endif
+>>> +#elif defined(__GNUC__) || defined(__GNUG__)
+>>> +# define UL_FALLTHROUGH __attribute__((fallthrough))
+>>> +#else
+>>> +# define UL_FALLTHROUGH /* FALLTHRU */
+>>> +#endif
+>>> +
+>>> +/*
+>
+>
+> Sorry this was broken. But I've checked now all clang and gcc versions.
+> Looks
+> like for clang the warning is only enabled when using C++ (clang++). So t=
+he
+> fallthrough warning appears currently only on gcc>=3D7 and this works to
+> disable
+> it in a compatible way:
+>
+> #ifndef __has_cpp_attribute
+> # define __has_cpp_attribute(x) 0
+> #endif
+>
+> #if __has_cpp_attribute(fallthrough)
+> # define UL_FALLTHROUGH __attribute__((fallthrough))
+> #else
+> # define UL_FALLTHROUGH /* fall through */
+> #endif
 
-On Sun 11-06-17 17:10:02, Pali Rohár wrote:
-> 2.1.3 Dstrings
-> 
-> The ECMA 167 standard, as well as this document, has normally defined 
-> byte positions relative to 0. In section 7.2.12 of ECMA 167, dstrings 
-> are defined in terms of being relative to 1. Since this offers an 
-> opportunity for confusion, the following shows what the definition would 
-> be if described relative to 0.
-> 
-> 7.2.12 Fixed-length character fields
-> 
-> A dstring of length n is a field of n bytes where d-characters (1/7.2) 
-> are recorded. The number of bytes used to record the characters shall be 
-> recorded as a Uint8 (1/7.1.1) in byte n-1, where n is the length of the 
-> field. The characters shall be recorded starting with the first byte of 
-> the field, and any remaining byte positions after the characters up 
-> until byte n-2 inclusive shall be set to #00.
-> 
-> If the number of d-characters to be encoded is zero, the length of the 
-> dstring shall be zero.
-> 
-> NOTE: The length of a dstring includes the compression code byte (2.1.1) 
-> except for the case of a zero length string. A zero length string shall 
-> be recorded by setting the entire dstring field to all zeros.
-> =====
-> 
-> Next in previous section 2.1.1 Character Sets is Compression Algorithm 
-> table where IDs 0-7 are reserved.
-> 
-> I'm not sure how to correctly interpret those sections.
-> 
-> Does it mean that every dstring should consist of following buffer?
-> 
-> L - length of encoded characters
-> N - size of dstring buffer
-> 
-> buffer:
->       1   byte: 0x08 (for Latin1) or 0x10 (for UCS-2BE)
->   2 - L+2 byte: encoded characters (data either in Latin1 or UCS-2BE)
-> L+2 - N-2 byte: 0x00
->       N-1 byte: number L+1
-> 
-> And in special case when L = 0, then first and last byte is also zero?
+Thank you for review Rudi. I had a look of the c.h again and did the
+change a little bit differently:
 
-Yes, apparently that's what the spec says.
+#ifdef __has_cpp_attribute
+# if __has_cpp_attribute(deprecated)
+#  define UL_FALLTHROUGH __attribute__((fallthrough))
+# elif __has_cpp_attribute(clang::fallthrough)
+#  define UL_FALLTHROUGH [[clang::fallthrough]]
+# endif
+#endif
+#ifndef UL_FALLTHROUGH
+# define UL_FALLTHROUGH /* FALLTHRU */
+#endif
 
-> Because currently we have different implementation in kernel udf driver, 
-> util-linux blkid library and in mkudffs from udftools.
-> None of those implementation accept fully empty buffer as valid dstring.
+The above is now part of my remote branch '2017wk23'.
 
-As far as I'm looking, kernel handles this just fine. Note that 'dstring'
-is actually rather rare in UDF. E.g. filenames are recorded as d-characters
-which is something different. For converting dstrings (only used for
-getting volume and set identifiers) we use udf_dstrCS0toUTF8() which uses
-udf_name_from_CS0() and that handles input length of 0 just fine.
- 
-> mkudffs stores at last byte length of encoded characters + 1 (for 
-> compression id) as written above. On the other hand blkid from util-
-> linux things that last byte is part of encoded characters and Linux 
-> kernel driver does not set last byte to some value.
-
-Linux kernel UDF driver never writes any dstring.
-
-> So... how should be understood that UDF specification? Should last byte 
-> be set to length encoded characters + 1 or not? And should be fully 
-> empty buffer (also with compression id set to 0x00 which is reserved) 
-> treated as valid string (empty one)?
-> 
-> And... we should unify implementation of blkid, kernel udf driver and 
-> mkudffs.
-
-I think you understood the spec correctly. What I think we should do is to
-make udf-tools and blkid accept both variants but create the one defined in
-the spec (to have higher chances for interoperability).
-
-								Honza
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+--=20
+Sami Kerola
+http://www.iki.fi/kerolasa/
