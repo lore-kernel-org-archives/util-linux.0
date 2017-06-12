@@ -1,46 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40110 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.22]:61474 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751483AbdFGJoz (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 7 Jun 2017 05:44:55 -0400
-Date: Wed, 7 Jun 2017 11:44:51 +0200
-From: Karel Zak <kzak@redhat.com>
-To: NeilBrown <neilb@suse.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [util-linux PATCH] umount: never 'stat' the path when "-c" is
- given.
-Message-ID: <20170607094451.vcesromvdygstjmw@ws.net.home>
-References: <8760gbduzp.fsf@notabene.neil.brown.name>
+        id S1750868AbdFLIuB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 12 Jun 2017 04:50:01 -0400
+Received: from adsiz.fritz.box ([146.52.24.88]) by mail.gmx.com (mrgmx101
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0MdnN3-1dUQjy0FwL-00Pahj for
+ <util-linux@vger.kernel.org>; Mon, 12 Jun 2017 10:49:59 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 0/6] fix various minor issues and warnings
+Date: Mon, 12 Jun 2017 10:49:52 +0200
+Message-Id: <20170612084958.22054-1-sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <8760gbduzp.fsf@notabene.neil.brown.name>
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 05, 2017 at 12:32:58PM +1000, NeilBrown wrote:
-> diff --git a/libmount/src/context_umount.c b/libmount/src/context_umount.c
-> index e663a703cca0..693891def0e1 100644
-> --- a/libmount/src/context_umount.c
-> +++ b/libmount/src/context_umount.c
-> @@ -77,6 +77,7 @@ int mnt_context_find_umount_fs(struct libmnt_context *cxt,
->  	 * it's usable only for canonicalized stuff (e.g. kernel mountinfo).
->  	 */
->  	if (!mnt_context_mtab_writable(cxt) && *tgt == '/' &&
-> +	    !mnt_context_is_nocanonicalize(cxt) &&
->  	    !mnt_context_is_force(cxt) && !mnt_context_is_lazy(cxt))
->  		rc = mnt_context_get_mtab_for_target(cxt, &mtab, tgt);
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-I've changed the code to be the mount table filter also usable for
---no-canonicalize. It seems better to avoid mnt_resolve_path() than
-avoid all the filter.
+Ruediger Meier (6):
+  tests: fix fincore, don't use variable COLUMNS
+  libmount: btrfs, remove unused setter functions
+  hwclock: fix warning [-Winvalid-noreturn]
+  misc: fix gcc-7 sprintf warnings -Wformat-overflow
+  misc: fix gcc-7 snprintf warnings -Wformat-truncation
+  libblkid: fix gcc-7 warning -Wint-in-bool-context
 
-It seems we can do more optimizations for huge mount tables (=autofs
-issues) and canonicalizations (=NFS issues). I'll try to do it for
-v2.30.1.
-
-    Karel
-
+ lib/loopdev.c                    |  2 +-
+ lib/sysfs.c                      |  4 ++--
+ libblkid/src/devname.c           |  2 +-
+ libblkid/src/superblocks/exfat.c |  4 ++--
+ libmount/src/btrfs.c             |  4 ----
+ login-utils/last.c               |  2 +-
+ sys-utils/hwclock.c              |  2 +-
+ sys-utils/hwclock.h              |  3 ++-
+ tests/ts/fincore/count           | 12 ++++++------
+ 9 files changed, 16 insertions(+), 19 deletions(-)
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.12.3
+
