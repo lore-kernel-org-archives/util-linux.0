@@ -1,71 +1,86 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:49346 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:57917 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751227AbdFSPBF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 19 Jun 2017 11:01:05 -0400
-Date: Mon, 19 Jun 2017 17:01:01 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <ruediger.meier@ga-group.nl>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/4] flock: cleanup usage issues
-Message-ID: <20170619150101.zm5heihmzcentutb@ws.net.home>
-References: <1497872174-9852-1-git-send-email-sweet_f_a@gmx.de>
- <20170619142420.yzmqhilscitwgsmz@ws.net.home>
- <201706191637.17889.sweet_f_a@gmx.de>
- <201706191640.14280.ruediger.meier@ga-group.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201706191640.14280.ruediger.meier@ga-group.nl>
+        id S1751949AbdFLIuB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 12 Jun 2017 04:50:01 -0400
+Received: from adsiz.fritz.box ([146.52.24.88]) by mail.gmx.com (mrgmx101
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0McR00-1dbrvj0rIG-00Hbwg for
+ <util-linux@vger.kernel.org>; Mon, 12 Jun 2017 10:49:59 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 1/6] tests: fix fincore, don't use variable COLUMNS
+Date: Mon, 12 Jun 2017 10:49:53 +0200
+Message-Id: <20170612084958.22054-2-sweet_f_a@gmx.de>
+In-Reply-To: <20170612084958.22054-1-sweet_f_a@gmx.de>
+References: <20170612084958.22054-1-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 19, 2017 at 04:40:14PM +0200, Ruediger Meier wrote:
-> On Monday 19 June 2017, Ruediger Meier wrote:
-> > On Monday 19 June 2017, Karel Zak wrote:
-> > > On Mon, Jun 19, 2017 at 02:36:17PM +0200, Ruediger Meier wrote:
-> > > > Sorry I forgot that the fputs/puts repacement adds another
-> > > > newline.
-> > > >
-> > > > I could either
-> > > >   1. remove the newlines from the strings (but would this cause
-> > > > extra work for translators?)
-> > > >   2. use printf instead of puts
-> > > >   3. don't change anything, just use constant FILE argument
-> > > > stdout.
-> > >
-> > > I think fputs(..., stdout) is non-invasive change, better than
-> > > modify all strings and probably more effective than printf().
-> > >
-> > >     Karel
-> >
-> > I'm using
-> >
-> > -static void usage(FILE * out) {
-> > -    FILE * out = stdout;
-> > -    fputs(USAGE_HEADER, out);
-> > +static void usage(void) {
-> > +    FILE * out = stdout;
-> > +    fputs(USAGE_HEADER, out);
-> >     ...
-> > }
-> 
-> Sorry I mean this 
-> 
-> -static void usage(FILE * out) {
-> +static void usage(void) {
-> +    FILE * out = stdout;
->      fputs(USAGE_HEADER, out);
->      ...
-> }
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Yes, seems good, but I sure one day someone will ask: 
+COLUMNS is automatically set by bash and may result in stupid
+errors like
 
-    what the hell are you doing with "out = stdout;" ?
+  fincore: unknown column: 160
 
-:-)
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ tests/ts/fincore/count | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-    Karel
-
+diff --git a/tests/ts/fincore/count b/tests/ts/fincore/count
+index 7a1c5d426..0151016ee 100755
+--- a/tests/ts/fincore/count
++++ b/tests/ts/fincore/count
+@@ -70,7 +70,7 @@ function run_dd_test
+ 		_dd if=/dev/zero of=$input count=1 bs=$bs $flags || return
+     fi
+ 
+-    $TS_CMD_FINCORE --output $COLUMNS  --bytes --noheadings $input
++    $TS_CMD_FINCORE --output $OUT_COLUMNS  --bytes --noheadings $input
+ 
+     footer "$?"
+ }
+@@ -90,7 +90,7 @@ function run_dd_dd_test
+     _dd if=/dev/zero of=$input count=1 bs=$bs $flags0 || return
+     _dd if=/dev/zero of=$input count=1 bs=$bs $flags1 || return
+ 
+-    $TS_CMD_FINCORE --output $COLUMNS --bytes --noheadings $input
++    $TS_CMD_FINCORE --output $OUT_COLUMNS --bytes --noheadings $input
+ 
+     footer "$?"
+ }
+@@ -102,10 +102,10 @@ WINDOW_SIZE=$(( 32 * 1024 * PAGE_SIZE ))
+ # we use PAGE_SIZE dependent output for a few systems
+ if test -f "$TS_EXPECTED.$PAGE_SIZE"; then
+ 	TS_EXPECTED+=".$PAGE_SIZE"
+-	COLUMNS="PAGES,SIZE,FILE"
++	OUT_COLUMNS="PAGES,SIZE,FILE"
+ else
+ 	TS_EXPECTED+=".nosize"
+-	COLUMNS="PAGES,FILE"
++	OUT_COLUMNS="PAGES,FILE"
+ fi
+ 
+ 
+@@ -122,7 +122,7 @@ input=
+     INPUT="${INPUT} ${input}"
+ 
+     header "NO EXCITING FILE"
+-    $TS_CMD_FINCORE --output $COLUMNS --bytes --noheadings $input
++    $TS_CMD_FINCORE --output $OUT_COLUMNS --bytes --noheadings $input
+     footer "$?"
+ } >> $TS_OUTPUT 2>&1
+ 
+@@ -220,7 +220,7 @@ input=
+ 
+ {
+     header "MULTIPLE FILES"
+-    $TS_CMD_FINCORE --output $COLUMNS --bytes $INPUT
++    $TS_CMD_FINCORE --output $OUT_COLUMNS --bytes $INPUT
+     footer "$?"
+ } >> $TS_OUTPUT 2>&1
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.12.3
+
