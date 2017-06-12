@@ -1,38 +1,55 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 06/10] parse-date: use to_uchar() instead of assignment.
-To: Karel Zak <kzak@redhat.com>
-References: <1b57c4a5-9517-e005-dd05-265004d58948@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <c74836f4-3d03-9d29-beea-08e08b4b1aa3@gmx.com>
-Date: Thu, 15 Jun 2017 19:45:05 -0400
-MIME-Version: 1.0
-In-Reply-To: <1b57c4a5-9517-e005-dd05-265004d58948@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.22]:60954 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752107AbdFLIuB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 12 Jun 2017 04:50:01 -0400
+Received: from adsiz.fritz.box ([146.52.24.88]) by mail.gmx.com (mrgmx101
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0MKLeM-1dIgcL49bC-001jDo for
+ <util-linux@vger.kernel.org>; Mon, 12 Jun 2017 10:50:00 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 6/6] libblkid: fix gcc-7 warning -Wint-in-bool-context
+Date: Mon, 12 Jun 2017 10:49:58 +0200
+Message-Id: <20170612084958.22054-7-sweet_f_a@gmx.de>
+In-Reply-To: <20170612084958.22054-1-sweet_f_a@gmx.de>
+References: <20170612084958.22054-1-sweet_f_a@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Reported-by: Ruediger Meier <ruediger.meier@ga-group.nl>
-Influenced-by: gnulib 30784c4 Paul Eggert <eggert@cs.ucla.edu>
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
+BLOCK_SIZE(sb) should be unsigned so that the left shift is defined.
+
+This was the warning:
+
+../libblkid/src/superblocks/exfat.c: In function 'probe_exfat':
+../libblkid/src/superblocks/exfat.c:40:42: warning: '<<' in boolean context, did you mean '<' ? [-Wint-in-bool-context]
+ #define CLUSTER_SIZE(sb) (BLOCK_SIZE(sb) << (sb)->bpc_bits)
+                          ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+../libblkid/src/superblocks/exfat.c:122:14: note: in expansion of macro 'CLUSTER_SIZE'
+  if (!sb || !CLUSTER_SIZE(sb))
+              ^~~~~~~~~~~~
+
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- lib/parse-date.y | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ libblkid/src/superblocks/exfat.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/lib/parse-date.y b/lib/parse-date.y
-index a8f710c..620626e 100644
---- a/lib/parse-date.y
-+++ b/lib/parse-date.y
-@@ -990,10 +990,8 @@ static table const * lookup_word(parser_control const *pc, char *word)
- 	int abbrev;
+diff --git a/libblkid/src/superblocks/exfat.c b/libblkid/src/superblocks/exfat.c
+index 659e196c2..f5a22ee81 100644
+--- a/libblkid/src/superblocks/exfat.c
++++ b/libblkid/src/superblocks/exfat.c
+@@ -36,8 +36,8 @@ struct exfat_entry_label {
+ 	uint8_t name[30];
+ } __attribute__((__packed__));
  
- 	/* Make it uppercase. */
--	for (p = word; *p; p++) {
--		unsigned char ch = *p;
--		*p = c_toupper (ch);
--	}
-+	for (p = word; *p; p++)
-+		*p = c_toupper (to_uchar (*p));
- 
- 	for (tp = meridian_table; tp->name; tp++)
- 		if (strcmp (word, tp->name) == 0)
+-#define BLOCK_SIZE(sb) (1 << (sb)->block_bits)
+-#define CLUSTER_SIZE(sb) (BLOCK_SIZE(sb) << (sb)->bpc_bits)
++#define BLOCK_SIZE(sb) (1u << (sb)->block_bits)
++#define CLUSTER_SIZE(sb) ((BLOCK_SIZE(sb) << (sb)->bpc_bits))
+ #define EXFAT_FIRST_DATA_CLUSTER 2
+ #define EXFAT_LAST_DATA_CLUSTER 0xffffff6
+ #define EXFAT_ENTRY_SIZE 32
+-- 
+2.12.3
+
