@@ -1,93 +1,119 @@
-Return-Path: elseifthen@gmx.com
-Subject: Re: [PATCH 07/12] hwclock: update --help content and grammar
-To: Karel Zak <kzak@redhat.com>, Ruediger Meier <sweet_f_a@gmx.de>
-References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
- <bf8f26c6-c0d8-2190-38ed-456dfe0fe58a@gmx.com>
- <20170620085143.cu5dpcobcr3t254m@ws.net.home>
- <201706211505.04914.sweet_f_a@gmx.de>
- <20170621145537.5kwvb3zws26awlye@ws.net.home>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <1de4c787-0e91-bdbd-1466-68416fc15335@gmx.com>
-Date: Wed, 21 Jun 2017 11:30:56 -0400
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.21]:59976 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752871AbdFLXRA (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 12 Jun 2017 19:17:00 -0400
+Subject: Re: [PATCH 01/11] misc: fallthrough fixes
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+References: <20170608195215.1702-1-kerolasa@iki.fi>
+ <20170608195215.1702-2-kerolasa@iki.fi> <201706091314.08008.sweet_f_a@gmx.de>
+ <968790d0-c49c-538b-d034-ffcda9c20efc@gmx.de>
+ <CAG27Bk3OEBrnGbrD+2tuxu-UGUjQXLB+TrsFLiQRvOtcns8FsQ@mail.gmail.com>
+ <55d88bf2-3c67-4d79-984e-b16d6b835702@gmx.de>
+ <CAG27Bk03PW7GWHdm5G0Xcu1LXbAXwebQyyvk3HoHx7hP8e-Bgg@mail.gmail.com>
+From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
+Message-ID: <4ae98acb-325d-39dd-faa9-2cdf8ce62c3e@gmx.de>
+Date: Tue, 13 Jun 2017 01:16:57 +0200
 MIME-Version: 1.0
-In-Reply-To: <20170621145537.5kwvb3zws26awlye@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <CAG27Bk03PW7GWHdm5G0Xcu1LXbAXwebQyyvk3HoHx7hP8e-Bgg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
 
-On 06/21/2017 10:55 AM, Karel Zak wrote:
-> On Wed, Jun 21, 2017 at 03:05:04PM +0200, Ruediger Meier wrote:
->> On Tuesday 20 June 2017, Karel Zak wrote:
->>> On Sun, Jun 18, 2017 at 08:45:09PM -0400, J William Piggott wrote:
->>>> Signed-off-by: J William Piggott <elseifthen@gmx.com>
->>>> ---
->>>>  include/c.h         |  4 ++--
->>>>  sys-utils/hwclock.c | 48
->>>> +++++++++++++++++++++--------------------------- 2 files changed,
->>>> 23 insertions(+), 29 deletions(-)
+On 06/12/2017 11:54 PM, Sami Kerola wrote:
+> On 12 June 2017 at 09:40, Rüdiger Meier <sweet_f_a@gmx.de> wrote:
+>> On 06/11/2017 10:36 AM, Sami Kerola wrote:
+>>>
+>>> On 9 June 2017 at 22:10, Rüdiger Meier <sweet_f_a@gmx.de> wrote:
+>>
+>>
+>>>> Sorry this was broken. But I've checked now all clang and gcc versions.
+>>>> Looks
+>>>> like for clang the warning is only enabled when using C++ (clang++). So
+>>>> the
+>>>> fallthrough warning appears currently only on gcc>=7 and this works to
+>>>> disable
+>>>> it in a compatible way:
 >>>>
->>>> diff --git a/include/c.h b/include/c.h
->>>> index 9c19965..bd073fc 100644
->>>> --- a/include/c.h
->>>> +++ b/include/c.h
->>>> @@ -319,8 +319,8 @@ static inline int xusleep(useconds_t usec)
->>>>  #define USAGE_OPTIONS    _("\nOptions:\n")
->>>>  #define USAGE_FUNCTIONS  _("\nFunctions:\n")
->>>>  #define USAGE_SEPARATOR    "\n"
->>>> -#define USAGE_HELP       _(" -h, --help     display this help and
->>>> exit\n") -#define USAGE_VERSION    _(" -V, --version  output
->>>> version information and exit\n") +#define USAGE_HELP       _(" -h,
->>>> --help     display this information and exit\n")
+>>>> #ifndef __has_cpp_attribute
+>>>> # define __has_cpp_attribute(x) 0
+>>>> #endif
+>>>>
+>>>> #if __has_cpp_attribute(fallthrough)
+>>>> # define UL_FALLTHROUGH __attribute__((fallthrough))
+>>>> #else
+>>>> # define UL_FALLTHROUGH /* fall through */
+>>>> #endif
 >>>
->>>  "display this help and exit\n"
->>> or
->>>  "display help information and exit\n"
 >>>
->>> sounds better than "this information".
->>
->> IMO "this" is important because it makes clear that running --help would 
->> not give you any better information than the one you see already.
->>
->> Compare this:
->> $ xz --help | grep help
->>   -h, --help        display this short help and exit
->>   -H, --long-help   display the long help (lists also the ...
->>
->> $ xz --long-help | grep help
->>   -h, --help        display the short help (lists only the basic ...
->>   -H, --long-help   display this long help and exit
+>>> Thank you for review Rudi. I had a look of the c.h again and did the
+>>> change a little bit differently:
+>>>
+>>> #ifdef __has_cpp_attribute
+>>> # if __has_cpp_attribute(deprecated)
 >>
 >>
->> Our old errtryhelp, USAGE_HELP and USAGE_VERSION were 100% the same like 
->> coreutils. This was a nice consensus and even a bit shorter.
->>
->> Anyways, instead of improving the grammer and correctness I would rather 
->> make these trivial option descriptions as short as possible, like
->>
-
-My intent was to have these two very similar messages using the same
-language. I think it would be easier to understand for non-native
-speakers and easier for translators to work with if they did. I'm all
-for making them more concise, but how about this:
-
-  -h, --help     display this help
-  -V, --version  display version
-or
-  -h, --help     show this help
-  -V, --version  show version
-
-I like display better.
-
->>  -h, --help     display this help
->>  -V, --version  show version
->>
->> Everybody knows what these options do when they exist.
+>> Is this a typoo? s/deprecated/fallthrough
 > 
-> Good points, please, send a patch. It would be also nice to add any
-> comment to the c.h to avoid future updates on this area.
+> Hi Rudi,
 > 
->     Karel
+> Yes, it was a typo. Fixed in following.
 > 
+> https://github.com/kerolasa/lelux-utiliteetit/commit/aa1ed6ac309a2bd6f0c5371a3117618074e7634a
+> 
+>>> #  define UL_FALLTHROUGH __attribute__((fallthrough))
+>>> # elif __has_cpp_attribute(clang::fallthrough)
+>>> #  define UL_FALLTHROUGH [[clang::fallthrough]]
+>>
+>>
+>> I still wonder. Have you really seen such a fallthrough warning from clang?
+>> I've even tried with explicit -Wimplicit-fallthrough but could not get one.
+>>
+>> As far as I understood these namespaced "clang::" attributes are for C++
+>> only.
+>>
+>> man clang:
+>>     Non-standard C++11 Attributes
+>>         Clang's non-standard C++11 attributes live in the clang attribute
+>> namespace
+>>
+>> So IMO it makes no sense to use clang::fallthrough for C code.
+> 
+> Removed in same commit. Strange enough I'm pretty sure that attribute
+> worked.
+
+Yes, clang does not seem to complain about clang++ attributes. I guess they
+don't want to introduce even more incompatibilities. Similar I've noticed
+that even old gcc and clang compilers accept (ignore) the  option
+-Wimplicit-fallthrough" and probably any other warning option.
+
+FYI I've set up a travis build script to test many gcc and clang versions.
+The current build logs contain your and my other pull request
+https://travis-ci.org/rudimeier/util-linux/builds/242109953
+
+>>> # endif
+>>> #endif
+>>> #ifndef UL_FALLTHROUGH
+>>> # define UL_FALLTHROUGH /* FALLTHRU */
+>>> #endif
+>>
+>>
+>> BTW just for cosmetics. Maybe we should rename UL_FALLTHROUGH to
+>> __ul_fallthrough
+>> like we have already __ul_calloc_size. IMO it would look more obvious to the
+>> reader.
+> 
+> I don't have strong opinion about that, changed to one you proposed.
+
+Thanks, let's see whether Karel likes this attribute at all ;)
+
+>> Also I would use it without semicolon because some compilers may complain
+>> about
+>> useless ";" statements.
+> 
+> Semicolon is removed. Whether this will fool various indent tools is something
+> to be seen.
 > 
