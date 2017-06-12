@@ -1,65 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47608 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.20]:61566 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750859AbdFTJ5d (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 20 Jun 2017 05:57:33 -0400
-Date: Tue, 20 Jun 2017 11:57:27 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/4] flock: cleanup usage issues
-Message-ID: <20170620095727.axbjbm7l2z3loodb@ws.net.home>
-References: <1497872174-9852-1-git-send-email-sweet_f_a@gmx.de>
- <201706191640.14280.ruediger.meier@ga-group.nl>
- <20170619150101.zm5heihmzcentutb@ws.net.home>
- <201706191745.24555.sweet_f_a@gmx.de>
+        id S1752065AbdFLT2A (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 12 Jun 2017 15:28:00 -0400
+Received: from [10.0.0.104] ([146.52.24.88]) by mail.gmx.com (mrgmx101
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0M2Glc-1e9zj82ks8-00s3YL for
+ <util-linux@vger.kernel.org>; Mon, 12 Jun 2017 21:27:58 +0200
+Subject: Re: [PATCH 5/6] misc: fix gcc-7 snprintf warnings -Wformat-truncation
+From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+References: <20170612084958.22054-1-sweet_f_a@gmx.de>
+ <20170612084958.22054-6-sweet_f_a@gmx.de>
+Message-ID: <64d3bf7c-84b8-1f5b-663f-82860b3d2d56@gmx.de>
+Date: Mon, 12 Jun 2017 21:27:58 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201706191745.24555.sweet_f_a@gmx.de>
+In-Reply-To: <20170612084958.22054-6-sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 19, 2017 at 05:45:24PM +0200, Ruediger Meier wrote:
-> > > -static void usage(FILE * out) {
-> > > +static void usage(void) {
-> > > +    FILE * out = stdout;
-> > >      fputs(USAGE_HEADER, out);
-> > >      ...
-> > > }
-> >
-> > Yes, seems good, but I sure one day someone will ask:
-> >
-> >     what the hell are you doing with "out = stdout;" ?
-> >
-> > :-)
-> 
-> Hehe I know :)
-> 
-> This is all legacy. It's funny, eventhough I hate usage messages on 
-> error, my new checkusage.sh script does it also that way. That's how 
-> most simple commands are born ;)
+BTW there is another of these warnings left, see below. I'm not sure here what
+to do. Note, it's pssible to silent this warning also by _using_ snprintf's
+return value.
 
-It would be better to make a conclusion (about FILE in the usage())
-and follow this conclusion in the patches. I don't think 
+../libblkid/src/partitions/partitions.c:1371:45: warning: '%02x' directive output may be truncated writing between 2 and 8 bytes into a region of size between 0 and 36 [-Wformat-truncation=]
+   snprintf(par->uuid, sizeof(par->uuid), "%s-%02x",
+                                              ^~~~
+../libblkid/src/partitions/partitions.c:1371:41: note: using the range [0, 4294967295] for directive argument
+   snprintf(par->uuid, sizeof(par->uuid), "%s-%02x",
+                                          ^~~~~~~~~
+../libblkid/src/partitions/partitions.c:1371:2: note: 'snprintf' output between 4 and 46 bytes into a destination of size 37
+   snprintf(par->uuid, sizeof(par->uuid), "%s-%02x",
+   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     par->tab->id, par->partno);
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  FILE * out = stdout;
-  
-and replace 'stderr' with 'out' is necessary step. It already changes
-all the lines with stderr, so why not use stdout?
-
-If we agree about
-
-  fputs(_("text\n"), stdout);
-
-then we should do the change.
-
-BTW, maybe it would be possible to use Coccinelle to generate the
-patches :-)
-
-Comments?
-
-    Karel
-  
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
