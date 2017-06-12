@@ -1,98 +1,99 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from resqmta-po-04v.sys.comcast.net ([96.114.154.163]:59712 "EHLO
-        resqmta-po-04v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1750879AbdFPRYW (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Fri, 16 Jun 2017 13:24:22 -0400
-Date: Fri, 16 Jun 2017 10:24:15 -0700
-From: "W. Trevor King" <wking@tremily.us>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: Karel Zak <kzak@redhat.com>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: Identical commits?
-Message-ID: <20170616172415.GA8561@valgrind.tremily.us>
-References: <594546ee-275e-bce4-6578-4676009c2922@gmx.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
-In-Reply-To: <594546ee-275e-bce4-6578-4676009c2922@gmx.com>
+Received: from mx2.suse.de ([195.135.220.15]:33426 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1753879AbdFLPcm (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 12 Jun 2017 11:32:42 -0400
+From: Michal Suchanek <msuchanek@suse.de>
+To: util-linux@vger.kernel.org,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Alexander Graf <agraf@suse.de>,
+        Ondrej Oprala <ooprala@redhat.com>,
+        Karel Zak <kzak@redhat.com>, sbrabec@suse.com
+Cc: Michal Suchanek <msuchanek@suse.de>
+Subject: [PATCH] lscpu: dmi: return HYPER_NONE when detection fails
+Date: Mon, 12 Jun 2017 17:32:28 +0200
+Message-Id: <20170612153228.2766-1-msuchanek@suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+There is weird mix of logic in lscpu-dmi.c which sometimes returns 0 and
+sometimes -1 on error. Since most checks are if (rc) goto done; this
+bails out early on error skipping some detection methods. Further, in
+lscpu.c all following detections are guarder by if(hyper) so returnning
+-1 causes all following methods to be skipped. The hyper value is used
+as array index so -1 is out of bounds.
 
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Some users observe that they are running under hypervisor and this is
+not detected so it is probably good idea to just try everything.
 
-On Fri, Jun 16, 2017 at 10:48:25AM -0400, J William Piggott wrote:
->=20
-> This seems unusual, two identical commits:
->=20
-> --- patch.1	2017-06-15 14:07:08.316861600 -0400
-> +++ patch.2	2017-06-15 14:07:25.964305209 -0400
-> @@ -1,4 +1,4 @@
-> -commit b1557fe98120132e6671924af4ed69f4e21d3de4
-> +commit 3a5ce6e7efe62e1f583c090f907bf8518ce2f4ba
->  Author: Sami Kerola <kerolasa@iki.fi>
->  Date:   Tue May 16 09:18:24 2017 +0100
-> =20
-> @@ -35,7 +35,7 @@
->   	FILE *stream =3D status ? stderr : stdout;
->  =20
->  diff --git a/login-utils/last.c b/login-utils/last.c
-> -index c90b574..50451b2 100644
-> +index f93ec7f..d230deb 100644
+On the other hand, on some versions of Linux on arm64 reading /dev/mem
+causes kernel oops killing lscpu. If it is desirable for lscpu to work
+on these broken kernels an additional ifdef is required.
 
-This can happen if you rebase a commit, and the files you touch have
-changed in the meantime, but your original hunks still apply without
-any conflicts or changes in the context.  In this case, the
-surrounding history looks like:
+Fixes: 92a6392c41c1 ("lscpu: use sysfs for table access if available")
+Fixes: fb2627cec4c8 ("lscpu: detect more hypervisor vendors")
 
-  $ git log --graph --topo-order --oneline --decorate e228735 | head -n9
-  *   e228735 Merge branch 'master' of ra.kernel.org:/pub/scm/utils/util-li=
-nux/util-linux
-  |\ =20
-  | *   2a38433 Merge branch 'sami-fallthrough' of https://github.com/rudim=
-eier/util-linux
-  | |\ =20
-  | | * 3a5ce6e misc: fix ggc-7 fallthrough warnings
-  * | | 098a75a wall: fix OSX getgrouplist, gid_t* vs int*
-  * | | bda2676 misc: POSIX usage dd, regarding unit suffixes
-  * | | 5abaf5b tests: add more tests for line(1)
-  * | | b1557fe misc: fix ggc-7 fallthrough warnings
+Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+---
+ sys-utils/lscpu-dmi.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-So 2a38433, for whatever reason, decided to pull in the 3a5ce6e
-version of that commit, while the first-parent branch decided to pull
-in the b1557fe version.  It ends up being a bit redundant, but
-shouldn't cause problems.
+diff --git a/sys-utils/lscpu-dmi.c b/sys-utils/lscpu-dmi.c
+index 3ba999124a2e..71d6874c919d 100644
+--- a/sys-utils/lscpu-dmi.c
++++ b/sys-utils/lscpu-dmi.c
+@@ -187,7 +187,7 @@ static int hypervisor_decode_smbios(uint8_t *buf, const char *devmem)
+ 	if (!checksum(buf, buf[0x05])
+ 	    || memcmp(buf + 0x10, "_DMI_", 5) != 0
+ 	    || !checksum(buf + 0x10, 0x0F))
+-		return -1;
++		return HYPER_NONE;
+ 
+ 	return hypervisor_from_dmi_table(DWORD(buf + 0x18), WORD(buf + 0x16),
+ 			 WORD(buf + 0x1C),
+@@ -200,7 +200,7 @@ static int hypervisor_decode_sysfw(void)
+ 	struct stat st;
+ 
+ 	if (stat(sys_fw_dmi_tables, &st))
+-		return -1;
++		return HYPER_NONE;
+ 
+ 	return hypervisor_from_dmi_table(0, st.st_size, st.st_size / 4,
+ 					 sys_fw_dmi_tables);
+@@ -257,7 +257,7 @@ int read_hypervisor_dmi(void)
+ 		return rc;
+ 
+ 	rc = hypervisor_decode_sysfw();
+-	if (rc >= 0)
++	if (rc > HYPER_NONE)
+ 		return rc;
+ 
+ 	/* First try EFI (ia64, Intel-based Mac) */
+@@ -273,7 +273,7 @@ int read_hypervisor_dmi(void)
+ 		goto done;
+ 
+ 	rc = hypervisor_decode_smbios(buf, _PATH_DEV_MEM);
+-	if (rc)
++	if (rc > HYPER_NONE)
+ 		goto done;
+ 	free(buf);
+ 	buf = NULL;
+@@ -287,13 +287,13 @@ memory_scan:
+ 	for (fp = 0; fp <= 0xFFF0; fp += 16) {
+ 		if (memcmp(buf + fp, "_SM_", 4) == 0 && fp <= 0xFFE0) {
+ 			rc = hypervisor_decode_smbios(buf + fp, _PATH_DEV_MEM);
+-			if (rc == -1)
++			if ( ! (rc > HYPER_NONE))
+ 				fp += 16;
+ 
+ 		} else if (memcmp(buf + fp, "_DMI_", 5) == 0)
+ 			rc = hypervisor_decode_legacy(buf + fp, _PATH_DEV_MEM);
+ 
+-		if (rc >= 0)
++		if (rc > HYPER_NONE)
+ 			break;
+ 	}
+ #endif
+-- 
+2.12.3
 
-Cheers,
-Trevor
-
---=20
-This email may be signed or encrypted with GnuPG (http://www.gnupg.org).
-For more information, see http://en.wikipedia.org/wiki/Pretty_Good_Privacy
-
---sm4nu43k4a2Rpi4c
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEpgNNa8H/zemHkt2gprXBz9Wld7YFAllEFD4ACgkQprXBz9Wl
-d7ZI4A/9FU9D21/5p9XOb9YKfQB14sfLpMijxFRQFAkU6fzpZzb2y1i2YXn19EjQ
-5BT4h41cCGJMX2INzdaXa+lATUMU7zDWB5EWOrglzaEt1My7Y0TH1UcRp9Hyp33Q
-wxRUIdw0n3Omxixo2tOO+Uln5NaPKR9qFJbh4aAWWBorUfIQ9g+BDQKRtkUEYO4x
-HiaIwYO8kIMp+BDHd58b9KOe2WBhWECqvFSt1XSsqCz1w9bdhWnL5PzyryvSDjp0
-iE9/dPEYeM8JeWcbvBm4WJrYUdyMolQpf+vkemKcXHLW8fa0320S61OtX7cuAHfg
-c/RMzQZ0kYyM+U89eYpTHxIaY7pfbyKwECGdhRr3Le6rh1gG1pDLLmWExq38SY/o
-R7DOxraB5wU/xEVqIydNPpLYqUixQ6y7xCK+00piMf1GabzhI+OH76TaMOPns5Rn
-/ozzXCJoHIQ/Kxvc8zlI8tEimxmid8J9ETr0njqFqCHbsKrsCHWSG6iua9GNq8jT
-8SbvD6/TkM6tvjPAp1yav65wrJnRw4GNzj/Zyn+zn1u2/Nx1HL5MNNVSGlImD8Xf
-xf+NrerwXDF6kjQwba7uPZKd5/VWCUtRDXXkcliKvCK2TJ8sznA6iwZMsYqORm62
-r15BqJrzu7QhJMygdb0we4Y8hspRLD1rZKniv9CghFf6LOBwQIY=
-=61Yp
------END PGP SIGNATURE-----
-
---sm4nu43k4a2Rpi4c--
