@@ -1,32 +1,105 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:55106 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:43494 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751293AbdFELow (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 5 Jun 2017 07:44:52 -0400
-Date: Mon, 5 Jun 2017 13:44:46 +0200
+        id S1752926AbdFMNlU (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 13 Jun 2017 09:41:20 -0400
+Date: Tue, 13 Jun 2017 15:41:15 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Sebastian Schrader <sebastian.schrader@ossmail.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] setpriv: Add --init-groups option
-Message-ID: <20170605114446.i2ocxojdumfuaan2@ws.net.home>
-References: <m3mv9sernm.fsf@gmail.com>
- <20170601145210.9588-1-sebastian.schrader@ossmail.de>
- <20170601145210.9588-2-sebastian.schrader@ossmail.de>
+To: =?iso-8859-1?Q?R=FCdiger?= Meier <sweet_f_a@gmx.de>
+Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 01/11] misc: fallthrough fixes
+Message-ID: <20170613134115.2bko6uejkrna65j6@ws.net.home>
+References: <20170608195215.1702-1-kerolasa@iki.fi>
+ <20170608195215.1702-2-kerolasa@iki.fi>
+ <201706091314.08008.sweet_f_a@gmx.de>
+ <968790d0-c49c-538b-d034-ffcda9c20efc@gmx.de>
+ <CAG27Bk3OEBrnGbrD+2tuxu-UGUjQXLB+TrsFLiQRvOtcns8FsQ@mail.gmail.com>
+ <55d88bf2-3c67-4d79-984e-b16d6b835702@gmx.de>
+ <CAG27Bk03PW7GWHdm5G0Xcu1LXbAXwebQyyvk3HoHx7hP8e-Bgg@mail.gmail.com>
+ <4ae98acb-325d-39dd-faa9-2cdf8ce62c3e@gmx.de>
+ <20170613125115.yq7a63ngzpk2hiod@ws.net.home>
+ <b8cf693f-a1d9-ba25-642a-056ed6fc717b@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170601145210.9588-2-sebastian.schrader@ossmail.de>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <b8cf693f-a1d9-ba25-642a-056ed6fc717b@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 01, 2017 at 04:52:10PM +0200, Sebastian Schrader wrote:
-> Add an --init-groups option which initializes the supplementary groups
-> from the system's group database (e.g /etc/group) using initgroups(3).
-> ---
->  sys-utils/setpriv.1 |  8 ++++++
->  sys-utils/setpriv.c | 75 +++++++++++++++++++++++++++++++++++++++++++++++++----
->  2 files changed, 78 insertions(+), 5 deletions(-)
+On Tue, Jun 13, 2017 at 03:03:12PM +0200, Rüdiger Meier wrote:
+> 
+> 
+> On 06/13/2017 02:51 PM, Karel Zak wrote:
+> > On Tue, Jun 13, 2017 at 01:16:57AM +0200, Rüdiger Meier wrote:
+> > > > > BTW just for cosmetics. Maybe we should rename UL_FALLTHROUGH to
+> > > > > __ul_fallthrough
+> > > > > like we have already __ul_calloc_size. IMO it would look more obvious to the
+> > > > > reader.
+> > > > 
+> > > > I don't have strong opinion about that, changed to one you proposed.
+> > > 
+> > > Thanks, let's see whether Karel likes this attribute at all ;)
+> > 
+> > Hmm...
+> > 
+> >   I don't like "meta-programming" where language keywords are
+> >   replaced by local macros, for example we have fallback (in c.h) for all
+> >   __attribute__ rather than define local macro for all attributes.
+> > 
+> >     __attribute__((fallthrough))
+> > 
+> >   should be fine on non-__GNUC__ as in this case __attribute__ is empty
+> >   macro (see c.h).
+> > 
+> >   Yes, __ul_fallthrough seems better, and __attribute__((fallthrough))
+> >   would be the best :-)
+> > 
+> >   It's strange if clang will use a different syntax for the same
+> >   things. IMHO it would be better to ignore clang for this attribute.
+> 
+> Yes, Sami's last version just ignores clang. Seems that the different syntax
+> was for C++ only.
+> 
+> So branch 2017wk23 from git@github.com:kerolasa/lelux-utiliteetit.git is the
+> last version for merging.
 
-Applied, thanks.
+Cool, I see. 
+
+Now I read something about gcc and it seem it's able to recognize and
+use comments, so  __attribute__((fallthrough)) is unnecessary.
+
+The default -Wimplicit-fallthrough setting is '3' and it means "parse
+comments".
+
+So, do we really need this patch? ;-)
+
+    https://developers.redhat.com/blog/2017/03/10/wimplicit-fallthrough-in-gcc-7/
+
+and man gcc man page:
+
+    -Wimplicit-fallthrough=0 disables the warning altogether.
+    -Wimplicit-fallthrough=1 matches .* regular expression, any comment is used as fallthrough comment.
+    -Wimplicit-fallthrough=2 case insensitively matches .*falls?[ \t-]*thr(ough|u).* regular expression.
+    -Wimplicit-fallthrough=3 case sensitively matches one of the following regular expressions:
+        -fallthrough
+        @fallthrough@
+        lint -fallthrough[ \t]*
+        [ \t.!]*(ELSE,? |INTENTIONAL(LY)? )?
+        FALL(S | |-)?THR(OUGH|U)[ \t.!]*(-[^\n\r]*)?
+        [ \t.!]*(Else,? |Intentional(ly)? )?
+        Fall((s | |-)[Tt]|t)hr(ough|u)[ \t.!]*(-[^\n\r]*)?
+        [ \t.!]*([Ee]lse,? |[Ii]ntentional(ly)? )?
+        fall(s | |-)?thr(ough|u)[ \t.!]*(-[^\n\r]*)? 
+    -Wimplicit-fallthrough=4 case sensitively matches one of the following regular expressions:
+        -fallthrough
+        @fallthrough@
+        lint -fallthrough[ \t]*
+        [ \t]*FALLTHR(OUGH|U)[ \t]* 
+    -Wimplicit-fallthrough=5 doesn’t recognize any comments as fallthrough comments, only attributes disable the warning. 
+
+sounds all we need is to add  -Wimplicit-fallthrough=3 to ./configure.
+
+    Karel
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
