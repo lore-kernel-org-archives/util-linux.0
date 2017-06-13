@@ -1,60 +1,45 @@
-Return-Path: neilb@suse.de
-From: NeilBrown <neilb@suse.com>
-To: Karel Zak <kzak@redhat.com>
-Date: Thu, 01 Jun 2017 08:55:38 +1000
-Cc: util-linux@vger.kernel.org
-Subject: Re: "mount -o remount,rw" sometimes doesn't work as expected.
-In-Reply-To: <20170531091832.3pjvxrhnc7ptd75g@ws.net.home>
-References: <87wp9djp2n.fsf@notabene.neil.brown.name> <20170519091125.bdans7hirua3blb5@ws.net.home> <87r2zhkg8r.fsf@notabene.neil.brown.name> <20170522112635.bcnfvxuqi7xbifb5@ws.net.home> <87zidtenex.fsf@notabene.neil.brown.name> <20170531091832.3pjvxrhnc7ptd75g@ws.net.home>
-Message-ID: <87r2z4eivp.fsf@notabene.neil.brown.name>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:51120 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753311AbdFMUAG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 13 Jun 2017 16:00:06 -0400
+Date: Tue, 13 Jun 2017 22:00:00 +0200
+From: Karel Zak <kzak@redhat.com>
+To: =?iso-8859-1?Q?R=FCdiger?= Meier <sweet_f_a@gmx.de>
+Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 01/11] misc: fallthrough fixes
+Message-ID: <20170613200000.ravhgjs7kvqnhihq@ws.net.home>
+References: <201706091314.08008.sweet_f_a@gmx.de>
+ <968790d0-c49c-538b-d034-ffcda9c20efc@gmx.de>
+ <CAG27Bk3OEBrnGbrD+2tuxu-UGUjQXLB+TrsFLiQRvOtcns8FsQ@mail.gmail.com>
+ <55d88bf2-3c67-4d79-984e-b16d6b835702@gmx.de>
+ <CAG27Bk03PW7GWHdm5G0Xcu1LXbAXwebQyyvk3HoHx7hP8e-Bgg@mail.gmail.com>
+ <4ae98acb-325d-39dd-faa9-2cdf8ce62c3e@gmx.de>
+ <20170613125115.yq7a63ngzpk2hiod@ws.net.home>
+ <b8cf693f-a1d9-ba25-642a-056ed6fc717b@gmx.de>
+ <20170613134115.2bko6uejkrna65j6@ws.net.home>
+ <35f6001e-ab3e-e96d-c872-67869ec8c3d6@gmx.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha256; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <35f6001e-ab3e-e96d-c872-67869ec8c3d6@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---=-=-=
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Tue, Jun 13, 2017 at 04:52:20PM +0200, Rüdiger Meier wrote:
+> > sounds all we need is to add  -Wimplicit-fallthrough=3 to ./configur
+> No, -Wimplicit-fallthrough=3 is what we have already now by default.
+> Just tested. Without doing anything "/* fallthrough */" disables the
+> warning. But Sami fixed also other comments and places without comments.
+> 
+> So we could simply use "/* fallthrough */" everythere.
 
-On Wed, May 31 2017, Karel Zak wrote:
+Yes, that's what I mean (don't use the macro at all).
 
-> On Wed, May 31, 2017 at 01:05:26PM +1000, NeilBrown wrote:
->> Sorry for the delay.
->>=20
->> Yes, this does look easy, makes sense, and does work as expected for me
->> too.
->>=20
->> Reported-and-tested-by: NeilBrown <neilb@suse.com>
->>=20
->> will you be queuing this for the next release?
->
-> IMHO it's too late for v2.30. I'd like to wait for v2.31 (September)
-> as it is not so urgent and common issue :-)
+Sami, can you update the patch and replace __ul_fallthrough with 
+/* fallthrough */ ?
 
-I'm quite happy with September.  As long as I know it is on some sort of
-track, I can forget about it.
+    Karel
 
-Thanks!
-NeilBrown
-
-
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEG8Yp69OQ2HB7X0l6Oeye3VZigbkFAlkvSesACgkQOeye3VZi
-gbk8ug/+MPd4a43QmlyJVGLQuku6+1zSQSTFpaTrT/VK/RouR7hBYG5xwcybPi0x
-tlMmRyZvLT+l1iI8qVyoeGTrlJospx6cWZTbWBjcvjrqHC8r+D68PMl7oKPVvcBz
-XSAOD/sfx++fmnG2RM6bz9VnpmMic6LSOhq5ah60j4q7K4Amzlg5jcEQ2vTkHVdD
-u2yrqPMYa3iue0wz62R3xoc5w0qGtR1p2pMaqAmRL0dfA0hnbYjd5D+8JmwW+8su
-RPRZDc0FXDVPOpguAMliWxxW9JBba7LBkUkeUgGBtuvFxWkejqf68UMeurAa0AYb
-cpHere2nxJhHHxu4+THZiqlF4RMeYeRYext2ju7CUp7SMKfAGtmd2MmzyRK8/Ktb
-IiCcT1aYbmWQzT9IK4im6Z4cUFAkwoVgJ8W8vGD5GnUWjw7Phrbn7D37dJ+9hnYb
-wVdHSE+lFMEL5YdMj+eMZD1juJPIXuX93Tdr69hLfwjoAwWKlaESNZsTpUgPaGkC
-GrDlabFTWQIJhfev8t/n2lHhTxI/CX8tOtM/1xCFoir+6pUc151NXT8PpqaucBF0
-xjctUh7P4SnKBzSFOZToCrp677GgHucsvVNLIRfBx/T2C1ly3O+pT31fc+bDU2g6
-pR9jrn5O1LN7D9N97Xr3gpV4NapoLIUqcOLZ3oWT72RM/hPuP6k=
-=lYpI
------END PGP SIGNATURE-----
---=-=-=--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
