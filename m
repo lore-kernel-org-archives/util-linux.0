@@ -1,46 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:4640 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:58820 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750846AbdFTKKN (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 20 Jun 2017 06:10:13 -0400
-Date: Tue, 20 Jun 2017 12:10:09 +0200
+        id S1752021AbdFMKY1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 13 Jun 2017 06:24:27 -0400
+Date: Tue, 13 Jun 2017 12:24:18 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 4/4] agetty: cleanup usage issues
-Message-ID: <20170620101009.ovse5b43niqngfyz@ws.net.home>
-References: <1497872174-9852-1-git-send-email-sweet_f_a@gmx.de>
- <1497872174-9852-5-git-send-email-sweet_f_a@gmx.de>
- <201706201135.43824.sweet_f_a@gmx.de>
+To: Michal Suchanek <msuchanek@suse.de>
+Cc: util-linux@vger.kernel.org,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Alexander Graf <agraf@suse.de>, sbrabec@suse.com
+Subject: Re: [PATCH] lscpu: dmi: return HYPER_NONE when detection fails
+Message-ID: <20170613102418.l6uhgpmqabacih3g@ws.net.home>
+References: <20170612153228.2766-1-msuchanek@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201706201135.43824.sweet_f_a@gmx.de>
+In-Reply-To: <20170612153228.2766-1-msuchanek@suse.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jun 20, 2017 at 11:35:43AM +0200, Ruediger Meier wrote:
-> >  	if (argc < optind + 1) {
-> >  		log_warn(_("not enough arguments"));
-> > -		usage(stderr);
-> > +		errtryhelp(EXIT_FAILURE);
-> >  	}
+On Mon, Jun 12, 2017 at 05:32:28PM +0200, Michal Suchanek wrote:
+> There is weird mix of logic in lscpu-dmi.c which sometimes returns 0 and
+> sometimes -1 on error. Since most checks are if (rc) goto done; this
+> bails out early on error skipping some detection methods. Further, in
+> lscpu.c all following detections are guarder by if(hyper) so returnning
+> -1 causes all following methods to be skipped. The hyper value is used
+> as array index so -1 is out of bounds.
+
+Yes, that's bug.
+
+> Some users observe that they are running under hypervisor and this is
+> not detected so it is probably good idea to just try everything.
 > 
-> BTW here we print the real warning to syslog only. But a few lines below 
-> we have this
->             warn(_("not enough arguments"));
->             errtryhelp(EXIT_FAILURE);
-> 
-> Could somebody review this, I'm not sure when agetty is allowed to write 
-> to the terminal and when not. 
+> On the other hand, on some versions of Linux on arm64 reading /dev/mem
+> causes kernel oops killing lscpu. If it is desirable for lscpu to work
+> on these broken kernels an additional ifdef is required.
 
-It's probably bad idea to use stdout/stdin/stderr before open_tty().
-The file descriptors maybe open, but for sure it's better to rely on
-open_tty().
+We read /sys if possible, and it should be good enough for the current
+arm64 kernel (I guess).
 
-For parse_args() it would be better to use log_* functions only. It
-means that strtou32_or_err() and warnx() are bad idea.
+> @@ -200,7 +200,7 @@ static int hypervisor_decode_sysfw(void)
+>  	struct stat st;
+>  
+>  	if (stat(sys_fw_dmi_tables, &st))
+> -		return -1;
+> +		return HYPER_NONE;
+>  
+>  	return hypervisor_from_dmi_table(0, st.st_size, st.st_size / 4,
+>  					 sys_fw_dmi_tables);
 
-For the --help and --version it's probably fine to use stdout.
+Not applied.
+
+I don't think this is correct. We need to differentiate between
+
+ 1/ DMI not in /sys   (rc == -1)
+ 2/ DMI available, but nothing detected (rc == HYPER_NONE)
+
+For the 1/ we need to try /dev/mem.
+
+I did some changes to the code to make it more robust. Now
+read_hypervisor_dmi() does not return -1 at all.
+
+Please, test it. Thanks!
 
     Karel
 
