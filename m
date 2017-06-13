@@ -1,42 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:61474 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:41398 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750868AbdFLIuB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 12 Jun 2017 04:50:01 -0400
-Received: from adsiz.fritz.box ([146.52.24.88]) by mail.gmx.com (mrgmx101
- [212.227.17.168]) with ESMTPSA (Nemesis) id 0MdnN3-1dUQjy0FwL-00Pahj for
- <util-linux@vger.kernel.org>; Mon, 12 Jun 2017 10:49:59 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 0/6] fix various minor issues and warnings
-Date: Mon, 12 Jun 2017 10:49:52 +0200
-Message-Id: <20170612084958.22054-1-sweet_f_a@gmx.de>
+        id S1752515AbdFMNQq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 13 Jun 2017 09:16:46 -0400
+Date: Tue, 13 Jun 2017 15:16:27 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 05/11] uuidgen: add --date option to display time when
+ uuid was generated
+Message-ID: <20170613131627.ajcqe2k6gicrtelv@ws.net.home>
+References: <20170608195215.1702-1-kerolasa@iki.fi>
+ <20170608195215.1702-6-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170608195215.1702-6-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Thu, Jun 08, 2017 at 08:52:09PM +0100, Sami Kerola wrote:
+> The uuidgen has always had option to use time as a uuid value.  To common
+> users these timestamps have been difficult to convert to readable format, so
+> add an option to do that.
 
-Ruediger Meier (6):
-  tests: fix fincore, don't use variable COLUMNS
-  libmount: btrfs, remove unused setter functions
-  hwclock: fix warning [-Winvalid-noreturn]
-  misc: fix gcc-7 sprintf warnings -Wformat-overflow
-  misc: fix gcc-7 snprintf warnings -Wformat-truncation
-  libblkid: fix gcc-7 warning -Wint-in-bool-context
+The name of the tool is uuidgen and at first glance it seems like
+--date is a way how to use a different time than the current ;-)
 
- lib/loopdev.c                    |  2 +-
- lib/sysfs.c                      |  4 ++--
- libblkid/src/devname.c           |  2 +-
- libblkid/src/superblocks/exfat.c |  4 ++--
- libmount/src/btrfs.c             |  4 ----
- login-utils/last.c               |  2 +-
- sys-utils/hwclock.c              |  2 +-
- sys-utils/hwclock.h              |  3 ++-
- tests/ts/fincore/count           | 12 ++++++------
- 9 files changed, 16 insertions(+), 19 deletions(-)
+Maybe it would be better to create a small independent tool uuidparse
+and print all available details about UUID (variant, type and time).
+
+ $ uuidparse  7e400110-3e4a-11e7-8af1-00037f500001
+ variant: DCE
+ type: time
+ time: 2017-05-21 17:25:32,471528+0000
+
+ $ uuidparse --time
+ 2017-05-21 17:25:32,471528+0000
+
+ It would be also nice to accept more than one UUID on command line/stdin.
+
+or so... Comments?
+
+ See libuuid/src/uuid_time.c where is test program.
+
+> +static int print_uuid_date(char *date)
+> +{
+> +	uuid_t uuid;
+> +	struct timeval tv;
+> +	char buf[ISO_8601_BUFSIZ];
+> +
+> +	if (uuid_parse(date, uuid)) {
+> +		printf(_("invalid uuid: %s\n"), date);
+
+ "failed to parse UUID" sounds better
+
+> +		return 1;
+> +	}
+
+Maybe you want to check UUID type and variant, only DCE time is
+supported.
+
+I think separated pull request would be better ;-)
+
+    Karel
 
 -- 
-2.12.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
