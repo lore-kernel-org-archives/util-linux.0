@@ -1,59 +1,105 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.18]:51110 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751009AbdEaUEC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 31 May 2017 16:04:02 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Assaf Gordon <assafgordon@gmail.com>
-Subject: Re: [ANNOUNCE] util-linux v2.30-rc2
-Date: Wed, 31 May 2017 22:03:53 +0200
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <20170523105038.hm3ryvwvghgife4j@ws.net.home> <20170531091648.3eql47zhfo6sy6sd@ws.net.home> <20170531174139.GA30064@gmail.com>
-In-Reply-To: <20170531174139.GA30064@gmail.com>
+Return-Path: sweet_f_a@gmx.de
+Subject: Re: [PATCH 01/11] misc: fallthrough fixes
+To: Karel Zak <kzak@redhat.com>
+Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+References: <20170608195215.1702-1-kerolasa@iki.fi>
+ <20170608195215.1702-2-kerolasa@iki.fi> <201706091314.08008.sweet_f_a@gmx.de>
+ <968790d0-c49c-538b-d034-ffcda9c20efc@gmx.de>
+ <CAG27Bk3OEBrnGbrD+2tuxu-UGUjQXLB+TrsFLiQRvOtcns8FsQ@mail.gmail.com>
+ <55d88bf2-3c67-4d79-984e-b16d6b835702@gmx.de>
+ <CAG27Bk03PW7GWHdm5G0Xcu1LXbAXwebQyyvk3HoHx7hP8e-Bgg@mail.gmail.com>
+ <4ae98acb-325d-39dd-faa9-2cdf8ce62c3e@gmx.de>
+ <20170613125115.yq7a63ngzpk2hiod@ws.net.home>
+ <b8cf693f-a1d9-ba25-642a-056ed6fc717b@gmx.de>
+ <20170613134115.2bko6uejkrna65j6@ws.net.home>
+From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
+Message-ID: <35f6001e-ab3e-e96d-c872-67869ec8c3d6@gmx.de>
+Date: Tue, 13 Jun 2017 16:52:20 +0200
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201705312203.53697.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20170613134115.2bko6uejkrna65j6@ws.net.home>
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 31 May 2017, Assaf Gordon wrote:
+On 06/13/2017 03:41 PM, Karel Zak wrote:
+> On Tue, Jun 13, 2017 at 03:03:12PM +0200, Rüdiger Meier wrote:
+>>
+>>
+>> On 06/13/2017 02:51 PM, Karel Zak wrote:
+>>> On Tue, Jun 13, 2017 at 01:16:57AM +0200, Rüdiger Meier wrote:
+>>>>>> BTW just for cosmetics. Maybe we should rename UL_FALLTHROUGH to
+>>>>>> __ul_fallthrough
+>>>>>> like we have already __ul_calloc_size. IMO it would look more obvious to the
+>>>>>> reader.
+>>>>>
+>>>>> I don't have strong opinion about that, changed to one you proposed.
+>>>>
+>>>> Thanks, let's see whether Karel likes this attribute at all ;)
+>>>
+>>> Hmm...
+>>>
+>>>    I don't like "meta-programming" where language keywords are
+>>>    replaced by local macros, for example we have fallback (in c.h) for all
+>>>    __attribute__ rather than define local macro for all attributes.
+>>>
+>>>      __attribute__((fallthrough))
+>>>
+>>>    should be fine on non-__GNUC__ as in this case __attribute__ is empty
+>>>    macro (see c.h).
+>>>
+>>>    Yes, __ul_fallthrough seems better, and __attribute__((fallthrough))
+>>>    would be the best :-)
+>>>
+>>>    It's strange if clang will use a different syntax for the same
+>>>    things. IMHO it would be better to ignore clang for this attribute.
+>>
+>> Yes, Sami's last version just ignores clang. Seems that the different syntax
+>> was for C++ only.
+>>
+>> So branch 2017wk23 from git@github.com:kerolasa/lelux-utiliteetit.git is the
+>> last version for merging.
+> 
+> Cool, I see.
+> 
+> Now I read something about gcc and it seem it's able to recognize and
+> use comments, so  __attribute__((fallthrough)) is unnecessary.
+> 
+> The default -Wimplicit-fallthrough setting is '3' and it means "parse
+> comments"
+> So, do we really need this patch? ;-)
+> 
+>      https://developers.redhat.com/blog/2017/03/10/wimplicit-fallthrough-in-gcc-7/
+> 
+> and man gcc man page:
+> 
+>      -Wimplicit-fallthrough=0 disables the warning altogether.
+>      -Wimplicit-fallthrough=1 matches .* regular expression, any comment is used as fallthrough comment.
+>      -Wimplicit-fallthrough=2 case insensitively matches .*falls?[ \t-]*thr(ough|u).* regular expression.
+>      -Wimplicit-fallthrough=3 case sensitively matches one of the following regular expressions:
+>          -fallthrough
+>          @fallthrough@
+>          lint -fallthrough[ \t]*
+>          [ \t.!]*(ELSE,? |INTENTIONAL(LY)? )?
+>          FALL(S | |-)?THR(OUGH|U)[ \t.!]*(-[^\n\r]*)?
+>          [ \t.!]*(Else,? |Intentional(ly)? )?
+>          Fall((s | |-)[Tt]|t)hr(ough|u)[ \t.!]*(-[^\n\r]*)?
+>          [ \t.!]*([Ee]lse,? |[Ii]ntentional(ly)? )?
+>          fall(s | |-)?thr(ough|u)[ \t.!]*(-[^\n\r]*)?
+>      -Wimplicit-fallthrough=4 case sensitively matches one of the following regular expressions:
+>          -fallthrough
+>          @fallthrough@
+>          lint -fallthrough[ \t]*
+>          [ \t]*FALLTHR(OUGH|U)[ \t]*
+>      -Wimplicit-fallthrough=5 doesn’t recognize any comments as fallthrough comments, only attributes disable the warning.
+> 
+> sounds all we need is to add  -Wimplicit-fallthrough=3 to ./configur
+No, -Wimplicit-fallthrough=3 is what we have already now by default.
+Just tested. Without doing anything "/* fallthrough */" disables the
+warning. But Sami fixed also other comments and places without comments.
 
-> rename: exit codes                     ... FAILED (rename/exit_codes)
+So we could simply use "/* fallthrough */" everythere.
 
-This is because stdout and stderr are mixed:
-
-musl seems to behave like the patch below, while glibc always prints 
-the "wrong" order.
-
---------------
-diff --git a/misc-utils/rename.c b/misc-utils/rename.c
-index 502e888..edfc4e0 100644
---- a/misc-utils/rename.c
-+++ b/misc-utils/rename.c
-@@ -103,10 +103,13 @@ static int do_file(char *from, char *to, char *s, 
-int verbose, int noact)
-                return 0;
-        else if (!noact && rename(s, newname) != 0) {
-                warn(_("%s: rename to %s failed"), s, newname);
-+               fflush(stderr);
-                ret = 2;
-        }
--       if (verbose && (noact || ret == 1))
-+       if (verbose && (noact || ret == 1)) {
-                printf("`%s' -> `%s'\n", s, newname);
-+               fflush(stdout);
-+       }
-        free(newname);
-        return ret;
- }
--------------
-
-Not sure whether we should really use fflush() to define the order of 
-error and non-error messages. We could also simply "fix" the the test 
-script by not using "--verbose". or by using "stdbuf -o0 -e0 
-rename ..."
-
+Note, -Wimplicit-fallthrough=2 would be even more relaxed, e.g.
+   /* Fallthrough because bla. */  would work too.
 
 cu,
 Rudi
