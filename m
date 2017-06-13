@@ -1,45 +1,61 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 2/4] Docs: add a comment for constants to boilerplate.c
-To: Karel Zak <kzak@redhat.com>
-References: <e5059958-a9b9-2ff4-f1b8-6122520bacac@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <114eaa89-93f4-e878-5619-19baf7fbdd84@gmx.com>
-Date: Sun, 25 Jun 2017 17:49:06 -0400
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:37532 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752480AbdFMMvV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 13 Jun 2017 08:51:21 -0400
+Date: Tue, 13 Jun 2017 14:51:15 +0200
+From: Karel Zak <kzak@redhat.com>
+To: =?iso-8859-1?Q?R=FCdiger?= Meier <sweet_f_a@gmx.de>
+Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 01/11] misc: fallthrough fixes
+Message-ID: <20170613125115.yq7a63ngzpk2hiod@ws.net.home>
+References: <20170608195215.1702-1-kerolasa@iki.fi>
+ <20170608195215.1702-2-kerolasa@iki.fi>
+ <201706091314.08008.sweet_f_a@gmx.de>
+ <968790d0-c49c-538b-d034-ffcda9c20efc@gmx.de>
+ <CAG27Bk3OEBrnGbrD+2tuxu-UGUjQXLB+TrsFLiQRvOtcns8FsQ@mail.gmail.com>
+ <55d88bf2-3c67-4d79-984e-b16d6b835702@gmx.de>
+ <CAG27Bk03PW7GWHdm5G0Xcu1LXbAXwebQyyvk3HoHx7hP8e-Bgg@mail.gmail.com>
+ <4ae98acb-325d-39dd-faa9-2cdf8ce62c3e@gmx.de>
 MIME-Version: 1.0
-In-Reply-To: <e5059958-a9b9-2ff4-f1b8-6122520bacac@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <4ae98acb-325d-39dd-faa9-2cdf8ce62c3e@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, Jun 13, 2017 at 01:16:57AM +0200, Rüdiger Meier wrote:
+> > > BTW just for cosmetics. Maybe we should rename UL_FALLTHROUGH to
+> > > __ul_fallthrough
+> > > like we have already __ul_calloc_size. IMO it would look more obvious to the
+> > > reader.
+> > 
+> > I don't have strong opinion about that, changed to one you proposed.
+> 
+> Thanks, let's see whether Karel likes this attribute at all ;)
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- Documentation/boilerplate.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+Hmm...
 
-diff --git a/Documentation/boilerplate.c b/Documentation/boilerplate.c
-index 5b2e59b..b70955d 100644
---- a/Documentation/boilerplate.c
-+++ b/Documentation/boilerplate.c
-@@ -29,6 +29,11 @@
- #include "closestream.h"
- #include "nls.h"
- 
-+/*
-+ * FIXME: remove this comment.
-+ * Other usage() constants that are not demonstrated below:
-+ * USAGE_FUNCTIONS USAGE_COMMANDS USAGE_COLUMNS
-+ */
- static void __attribute__((__noreturn__)) usage(FILE *out)
- {
- 	fputs(USAGE_HEADER, out);
-@@ -37,9 +42,6 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
-         fputs(USAGE_SEPARATOR, out);
-         fputs(_("Short program description.\n"), out);
- 
--	fputs(USAGE_FUNCTIONS, out);
--	fputs(_(" -s, --do-something      some specific task\n"), out);
--	fputs(_(" -o, --do-other          some different task\n"), out);
- 	fputs(USAGE_OPTIONS, out);
- 	fputs(_(" -n, --no-argument       option does not use argument\n"), out);
- 	fputs(_("     --optional[=<arg>]  option argument is optional\n"), out);
+ I don't like "meta-programming" where language keywords are
+ replaced by local macros, for example we have fallback (in c.h) for all
+ __attribute__ rather than define local macro for all attributes. 
+
+   __attribute__((fallthrough))
+
+ should be fine on non-__GNUC__ as in this case __attribute__ is empty
+ macro (see c.h).
+
+ Yes, __ul_fallthrough seems better, and __attribute__((fallthrough))
+ would be the best :-)
+
+ It's strange if clang will use a different syntax for the same
+ things. IMHO it would be better to ignore clang for this attribute.
+
+ And I'm not sure if the change is compatible with coverity-scan where 
+ comment line /* fallthrough */ is required, but this not so important
+ (coverity is maintained, so attribute will be supported one day...).
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
