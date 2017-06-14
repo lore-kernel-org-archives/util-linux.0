@@ -1,58 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f173.google.com ([209.85.128.173]:35890 "EHLO
-        mail-wr0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751760AbdFNVEh (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 14 Jun 2017 17:04:37 -0400
-Received: by mail-wr0-f173.google.com with SMTP id 36so17261105wry.3
-        for <util-linux@vger.kernel.org>; Wed, 14 Jun 2017 14:04:37 -0700 (PDT)
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-To: util-linux@vger.kernel.org
-Subject: libblkid & empty identifier values
-Date: Wed, 14 Jun 2017 23:04:34 +0200
-Cc: Karel Zak <kzak@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:38720 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751875AbdFNKaF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 14 Jun 2017 06:30:05 -0400
+Date: Wed, 14 Jun 2017 12:30:01 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 00/11] pull: various small changes
+Message-ID: <20170614103001.hjkkffrliufwo6ms@ws.net.home>
+References: <20170608195215.1702-1-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart6191489.qGPn2sgcKh";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <201706142304.34356@pali>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170608195215.1702-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---nextPart6191489.qGPn2sgcKh
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+On Thu, Jun 08, 2017 at 08:52:04PM +0100, Sami Kerola wrote:
+>   misc: fallthrough fixes
 
-Hello!
+Fixed by patches from Rudi.
 
-Technically UDF filesystem allows to store empty string values.=20
-LogicalVolumeIdentifier (label) according to UDF specification shall not=20
-be null, but it is possible to store empty string there.
+>   line: do not print new line if nothing else was printed
+>   rename: notice when expression and replacement are the same string
+>   uuidgen: slice up the usage text
 
-Question is, what should libblkid's udf code do if e.g. LABEL identifier=20
-is empty string? Should it set empty LABEL for libblkid? Or it should=20
-not set LABEL at all?
+Applied.
 
-Currently in blkid_probe_set_label() is check for len > 1, so empty=20
-string is not possible to store for LABEL. But when check fails function=20
-return non-negative value which is understood as succeeded -- even it=20
-did not store empty string. It does not looks good... Or it is expected?
+>   uuidgen: add --date option to display time when uuid was generated
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+Not applied, "uuidparse" suggested.
 
---nextPart6191489.qGPn2sgcKh
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+>   isosize: avoid reading more data than what is needed
+>   misc: fix reassigned values before old ones has been used [cppcheck]
+>   losetup: add missing initializer [clang]
+>   misc: remove stray semicolons
+>   lib: simplify cpuset if clauses that return
+>   lib: remove _RLD_ from forbid environment variable list
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+Applied, thanks.
 
-iEYEABECAAYFAllBpOIACgkQi/DJPQPkQ1LBvACZATvUJr5T+SfrhqFqb83YpaRd
-SDUAoJzdCOzcYOGQPoi1/zrrB8672Kp3
-=RX+v
------END PGP SIGNATURE-----
+Please, don't add new features to cleanup pull requests, and always
+use separate pull request for stuff you're not sure with it :)
 
---nextPart6191489.qGPn2sgcKh--
+    Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
