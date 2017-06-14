@@ -1,29 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59572 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:52886 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750863AbdFTIgy (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 20 Jun 2017 04:36:54 -0400
-Date: Tue, 20 Jun 2017 10:36:49 +0200
+        id S1751719AbdFNKJF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 14 Jun 2017 06:09:05 -0400
+Date: Wed, 14 Jun 2017 12:09:00 +0200
 From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
+To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 04/12] hwclock: add usage() functions heading
-Message-ID: <20170620083649.qunrwp7dsxcaspot@ws.net.home>
-References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
- <68a54120-d8ad-59c2-89b6-4ccdd961300b@gmx.com>
+Subject: Re: [PATCH 1/4] last: fix format overflow
+Message-ID: <20170614100900.nt2v47n65qfadkhl@ws.net.home>
+References: <20170527182409.13985-1-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <68a54120-d8ad-59c2-89b6-4ccdd961300b@gmx.com>
+In-Reply-To: <20170527182409.13985-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jun 18, 2017 at 08:41:45PM -0400, J William Piggott wrote:
-> -#define USAGE_MAN_TAIL(_man)   _("\nFor more details see %s.\n"), _man
-> +#define USAGE_MAN_TAIL(_man)   _("\nFor more details see %s\n"), _man
+On Sat, May 27, 2017 at 07:24:06PM +0100, Sami Kerola wrote:
+> login-utils/last.c:624:23: warning: '%s' directive writing up to 31 bytes
+> into a region of size 27 [-Wformat-overflow=]
+> 
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  login-utils/last.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/login-utils/last.c b/login-utils/last.c
+> index 679ea6c12..153130ac0 100644
+> --- a/login-utils/last.c
+> +++ b/login-utils/last.c
+> @@ -598,7 +598,7 @@ static void __attribute__((__noreturn__)) usage(const struct last_control *ctl,
+>  static int is_phantom(const struct last_control *ctl, struct utmpx *ut)
+>  {
+>  	struct passwd *pw;
+> -	char path[32];
+> +	char path[sizeof("/dev/") + sizeof(ut->ut_line) + 1];
 
-What's wrong with the period?
+ I have applied patches from Rudi with NAME_MAX.
 
     Karel
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
