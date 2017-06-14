@@ -1,66 +1,54 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx.datacom.ind.br ([177.66.5.10]:43489 "EHLO
-        mail.datacom.ind.br" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751725AbdF2Kzu (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 29 Jun 2017 06:55:50 -0400
-From: Carlos Santos <casantos@datacom.ind.br>
-To: util-linux@vger.kernel.org
-Cc: Carlos Santos <casantos@datacom.ind.br>
-Subject: [PATCH v2] column: fix compilation when libc lacks wide-character support
-Date: Thu, 29 Jun 2017 07:55:42 -0300
-Message-Id: <1498733742-28381-1-git-send-email-casantos@datacom.ind.br>
-In-Reply-To: <1498582242-19840-1-git-send-email-casantos@datacom.ind.br>
-References: <1498582242-19840-1-git-send-email-casantos@datacom.ind.br>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH 0/6] fix various minor issues and warnings
+Date: Wed, 14 Jun 2017 13:06:46 +0200
+Cc: util-linux@vger.kernel.org
+References: <20170612084958.22054-1-sweet_f_a@gmx.de> <597df757-fae1-c1f8-a5cf-dea177b2d9a3@gmx.de> <20170614101014.qnttyscgvcsruh4m@ws.net.home>
+In-Reply-To: <20170614101014.qnttyscgvcsruh4m@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201706141306.46931.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-Commit 4762ae9d removed mtsafe_strtok() but left behind calls to wcstok
-and wcspbrk. This leads to build failures when libc does not have the
-wide-character functions, like some uClibc builds.
+On Wednesday 14 June 2017, Karel Zak wrote:
+> On Tue, Jun 13, 2017 at 05:18:33PM +0200, R=FCdiger Meier wrote:
+> > On 06/13/2017 03:47 PM, Karel Zak wrote:
+> > > On Mon, Jun 12, 2017 at 10:49:52AM +0200, Ruediger Meier wrote:
+> > > > From: Ruediger Meier <ruediger.meier@ga-group.nl>
+> > > >
+> > > > Ruediger Meier (6):
+> > > >    tests: fix fincore, don't use variable COLUMNS
+> > > >    libmount: btrfs, remove unused setter functions
+> > > >    hwclock: fix warning [-Winvalid-noreturn]
+> > > >    misc: fix gcc-7 sprintf warnings -Wformat-overflow
+> > > >    misc: fix gcc-7 snprintf warnings -Wformat-truncation
+> > > >    libblkid: fix gcc-7 warning -Wint-in-bool-context
+> > > >
+> > > >   lib/loopdev.c                    |  2 +-
+> > > >   lib/sysfs.c                      |  4 ++--
+> > > >   libblkid/src/devname.c           |  2 +-
+> > > >   libblkid/src/superblocks/exfat.c |  4 ++--
+> > > >   libmount/src/btrfs.c             |  4 ----
+> > > >   login-utils/last.c               |  2 +-
+> > > >   sys-utils/hwclock.c              |  2 +-
+> > > >   sys-utils/hwclock.h              |  3 ++-
+> > > >   tests/ts/fincore/count           | 12 ++++++------
+> > > >   9 files changed, 16 insertions(+), 19 deletions(-)
+> > >
+> > > Seems better than the previous version from Sami (May 27).
+> >
+> > These fixed are completely independent/unrelated to the other pull
+> > request from Sami. Sami's PR just motivated me to try out gcc-7
+> > too.
+>
+> Yep, you both tried to fix the sprintf warnings, your version with
+> NAME_MAX seems better.
 
-Solve the problem by using strtok_r and strpbrk when HAVE_WIDECHAR is
-not defined.
+Ooops, I didn't even noticed and could merge all together without=20
+confilcts.
 
-Fixes:
-  http://autobuild.buildroot.net/results/fd8a1a8e0cef3aeed9588540e8e663664f6b43aa
-  http://autobuild.buildroot.net/results/5ad73ea8b471321988c50d80a5e50d4504151dd6
-  http://autobuild.buildroot.net/results/04411b7280dc51ecd51236967981a42352bbeb3e
-
-Signed-off-by: Carlos Santos <casantos@datacom.ind.br>
-
----
-Changes v1->v2: fix commit message ("problem", not "broblem").
----
- text-utils/column.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/text-utils/column.c b/text-utils/column.c
-index be99f94..fb57b47 100644
---- a/text-utils/column.c
-+++ b/text-utils/column.c
-@@ -160,14 +160,22 @@ static wchar_t *local_wcstok(wchar_t *p, const wchar_t *separator, int greedy, w
- 	wchar_t *result = NULL;
- 
- 	if (greedy)
-+#ifdef HAVE_WIDECHAR
- 		return wcstok(p, separator, state);
-+#else
-+		return strtok_r(p, separator, state);
-+#endif
- 	if (!p) {
- 		if (!*state || !**state)
- 			return NULL;
- 		p = *state;
- 	}
- 	result = p;
-+#ifdef HAVE_WIDECHAR
- 	p = wcspbrk(result, separator);
-+#else
-+	p = strpbrk(result, separator);
-+#endif
- 	if (!p)
- 		*state = NULL;
- 	else {
--- 
-2.7.5
-
+> Applied, thanks.
+>
+>     Karel
