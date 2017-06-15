@@ -1,54 +1,38 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Date: Mon, 26 Jun 2017 11:58:18 +0900
-From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-To: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Cc: Sami Kerola <kerolasa@iki.fi>, Minchan Kim <minchan@kernel.org>,
-        Nitin Gupta <ngupta@vflare.org>, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Karel Zak <kzak@redhat.com>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: zram hot_add device busy
-Message-ID: <20170626025818.GB373@jagdpanzerIV.localdomain>
-References: <CAG27Bk06F72rk7i-dL=DhDmhX3BhCZFct+AAVBis7NMqTEF98w@mail.gmail.com>
- <20170626023912.GA373@jagdpanzerIV.localdomain>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.21]:56393 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750830AbdFOXjT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 15 Jun 2017 19:39:19 -0400
+Subject: [PATCH 02/10] parse-date: remove unused EPOCH_YEAR
+To: Karel Zak <kzak@redhat.com>
+References: <1b57c4a5-9517-e005-dd05-265004d58948@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <78833b6e-0abc-b5b8-9661-b16fd9442c0a@gmx.com>
+Date: Thu, 15 Jun 2017 19:39:03 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170626023912.GA373@jagdpanzerIV.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <1b57c4a5-9517-e005-dd05-265004d58948@gmx.com>
+Content-Type: text/plain; charset=windows-1252
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On (06/26/17 11:39), Sergey Senozhatsky wrote:
-[..]
-> ok... I don't think I see what we can do in zram about the
-> issue in question.
 
-... check init_done() in reset_store() and avoid the whole ->bd_openers
-branch if the device is already reset?
-
-// not compile tested. just a sketch. //
-
+Reported-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+Influenced-by: gnulib 30784c4 Paul Eggert <eggert@cs.ucla.edu>
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
+ lib/parse-date.y | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
-index debee952dcc1..79b1a957a6bd 100644
---- a/drivers/block/zram/zram_drv.c
-+++ b/drivers/block/zram/zram_drv.c
-@@ -1047,6 +1047,14 @@ static ssize_t reset_store(struct device *dev,
-                return -EINVAL;
+diff --git a/lib/parse-date.y b/lib/parse-date.y
+index f4f9a10..97f4db9 100644
+--- a/lib/parse-date.y
++++ b/lib/parse-date.y
+@@ -109,7 +109,6 @@
+ 	 ? (a) >> (b) \
+ 	 : (a) / (1 << (b)) - ((a) % (1 << (b)) < 0))
  
-        zram = dev_to_zram(dev);
-+
-+       down_write(&zram->init_lock);
-+       if (!init_done(zram)) {
-+               up_write(&zram->init_lock);
-+               return len;
-+       }
-+       up_write(&zram->init_lock);
-+
-        bdev = bdget_disk(zram->disk, 0);
-        if (!bdev)
-                return -ENOMEM;
-
----
-
-	-ss
+-#define EPOCH_YEAR 1970
+ #define TM_YEAR_BASE 1900
+ 
+ #define HOUR(x) ((x) * 60)
