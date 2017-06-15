@@ -1,34 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:51770 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751193AbdFVUth (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 22 Jun 2017 16:49:37 -0400
-Received: from tenfore.site ([92.195.15.151]) by mail.gmx.com (mrgmx001
- [212.227.17.190]) with ESMTPSA (Nemesis) id 0LiDKt-1eBUMO2zid-00nS9T for
- <util-linux@vger.kernel.org>; Thu, 22 Jun 2017 22:49:35 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from lb1.openmailbox.org ([5.79.108.160]:56926 "EHLO
+        mail.openmailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752064AbdFOIfC (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 15 Jun 2017 04:35:02 -0400
+From: Alex Ivanov <yourbestfriend@openmailbox.org>
 To: util-linux@vger.kernel.org
-Subject: Re: [PATCH 03/13] misc: fix some broken exit codes
-Date: Thu, 22 Jun 2017 22:49:34 +0200
-References: <1498099066-24235-1-git-send-email-sweet_f_a@gmx.de> <1498099066-24235-4-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1498099066-24235-4-git-send-email-sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201706222249.35084.sweet_f_a@gmx.de>
+Subject: [PATCH] fstrim: prefer earlier mounted filesystems
+Date: Thu, 15 Jun 2017 11:26:25 +0300
+Message-Id: <20170615082625.11219-1-yourbestfriend@openmailbox.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 22 June 2017, Ruediger Meier wrote:
-> From: Ruediger Meier <ruediger.meier@ga-group.nl>
->
-> These tools have special exit codes. They got changed mistakenly.
+fstrim --all is broken in a way that if there is a bind mount for some filesystem, 
+that filesystem will not be trimmed. This is especially critical for e.g. 
+NixOS distribution, which needs bind mount within root fs: 
+https://github.com/NixOS/nixos/blob/master/modules/system/boot/stage-2-init.sh#L55
 
-I've moved this patch to my other "exit-code" pull request.
-Updated on github.
+Currently for a given filesystem during "de-duplication by source and root" phase,
+an early mounted fs path is filtered (e.g. "/"), while later mounted fs path is kept 
+(e.g. "/nix/store") though anyway discarded later (since it's an overlaying mount). 
+This leads to skipped trimming.
+
+So flip this behaviour. Should also help for other types of overlaying mounts.
+
+Reference: 
+https://github.com/karelzak/util-linux/blob/stable/v2.29/libmount/src/tab.c#L715
+
+Signed-off-by: Alex Ivanov <yourbestfriend@openmailbox.org>
+---
+ sys-utils/fstrim.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sys-utils/fstrim.c b/sys-utils/fstrim.c
+index b884af6d0..be3cd34a3 100644
+--- a/sys-utils/fstrim.c
++++ b/sys-utils/fstrim.c
+@@ -194,7 +194,7 @@ static int fstrim_all(struct fstrim_range *rangetpl, int verbose)
+ 	mnt_table_uniq_fs(tab, 0, uniq_fs_target_cmp);
  
-Both patch-sets are independent and rebased on master
-branch
+ 	/* de-duplicate by source and root */
+-	mnt_table_uniq_fs(tab, 0, uniq_fs_source_cmp);
++	mnt_table_uniq_fs(tab, MNT_UNIQ_FORWARD, uniq_fs_source_cmp);
+ 
+ 	while (mnt_table_next_fs(tab, itr, &fs) == 0) {
+ 		const char *src = mnt_fs_get_srcpath(fs),
+-- 
+2.12.2
 
-cu,
-Rudi
