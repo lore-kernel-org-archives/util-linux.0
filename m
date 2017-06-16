@@ -1,45 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.kernel.org ([198.145.29.99]:36022 "EHLO mail.kernel.org"
+Received: from mx1.redhat.com ([209.132.183.28]:55968 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751586AbdFXUrv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sat, 24 Jun 2017 16:47:51 -0400
-Received: from mail-ua0-f179.google.com (mail-ua0-f179.google.com [209.85.217.179])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11EA022B6F
-        for <util-linux@vger.kernel.org>; Sat, 24 Jun 2017 20:47:51 +0000 (UTC)
-Received: by mail-ua0-f179.google.com with SMTP id 70so52845174uau.0
-        for <util-linux@vger.kernel.org>; Sat, 24 Jun 2017 13:47:51 -0700 (PDT)
+        id S1751979AbdFPJj2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 16 Jun 2017 05:39:28 -0400
+Date: Fri, 16 Jun 2017 11:39:23 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: BUG: wipefs dry run
+Message-ID: <20170616093923.fbikmnobs55hnhlz@ws.net.home>
+References: <201705101154.50099.sweet_f_a@gmx.de>
+ <201705101303.10856.sweet_f_a@gmx.de>
+ <20170526112120.kinsu7oi7fldx2o4@ws.net.home>
+ <201706151647.06899.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-In-Reply-To: <cd10a8262a2accb0f3fdaf92aad8cdc488c5d3c7.1498312679.git.ps@pks.im>
-References: <9ace66eed2d16303fd2a8d157875c4acca043f14.1498312679.git.ps@pks.im>
- <cover.1498312509.git.ps@pks.im> <cd10a8262a2accb0f3fdaf92aad8cdc488c5d3c7.1498312679.git.ps@pks.im>
-From: Andy Lutomirski <luto@kernel.org>
-Date: Sat, 24 Jun 2017 13:47:29 -0700
-Message-ID: <CALCETrUe4-Tv=i7tAkdnKmEZtU76UA2vOWuBYmQsspobinjGpg@mail.gmail.com>
-Subject: Re: [PATCH 5/5] setpriv: support modifying the set of ambient capabilities
-To: Patrick Steinhardt <ps@pks.im>
-Cc: util-linux@vger.kernel.org, Andrew Lutomirski <luto@kernel.org>,
-        Karel Zak <kzak@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201706151647.06899.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Jun 24, 2017 at 7:04 AM, Patrick Steinhardt <ps@pks.im> wrote:
-> Right now, we do not support modifying the set of ambient capabilities,
-> which has been introduced quite recently with Linux 4.3. As libcap-ng
-> does not yet provide any ability to modify this set, we do have to roll
-> our own support via `prctl`, which is now easy to do due to the
-> indirections introduced in the preceding commits. We add a new command
-> line argument "--ambient-caps", which uses the same syntax as both
-> "--inh-caps" and "--bounding-set" to specify either adding or dropping
-> capabilities.
->
-> This commit also adjusts documentation to mention the newly introduced
-> ability to modify the ambient capability set.
->
+On Thu, Jun 15, 2017 at 04:47:06PM +0200, Ruediger Meier wrote:
+> On Friday 26 May 2017, Karel Zak wrote:
+> > On Wed, May 10, 2017 at 01:03:10PM +0200, Ruediger Meier wrote:
+> > > > It would be probably possible to extend libblkid to work in some
+> > > > "ignore previous result" mode to to gather all permutation for
+> > > > the FS/RAID/etc, but it won't be trivial task...
+> > >
+> > > This would be nice.
+> >
+> > Implemented (and it was relatively easy to implement :-)
+> >
+> > Try "blkid-hide" branch from github, will be in v2.31.
+> 
+> > # wipefs -a --no-act /dev/sdc
+> 
+> 
+> Thanks, this looks good. There are still a few issues-
 
-One question here: should requesting an ambient cap also implicitly
-put it in the inheritable set, at least if --inh-caps isn't specified?
+Thanks for testing!
 
---Andy
+> 
+> $ truncate -s 100M /tmp/test.img
+> $ echo "label: gpt" | ./sfdisk /tmp/test.img
+> 
+> ### this hangs indefinitely
+> $ wipefs -t gpt /tmp/test.img
+
+Fixed.
+
+> ### the default list shows too many newlines 
+> $ ./wipefs  /tmp/test.img
+> offset               type
+> ----------------------------------------------------------------
+> 0x1fe                PMBR   [partition table]
+> 
+> 0x63ffe00            gpt   [partition table]
+> 
+> 0x200                gpt   [partition table]
+
+All the output is ugly. I'll probably link it with libsmartcols,
+because we support "wipefs /dev/sd*" to list more devices and then the
+output is absolutely useless.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
