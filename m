@@ -1,54 +1,88 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH 0/6] fix various minor issues and warnings
-Date: Wed, 14 Jun 2017 13:06:46 +0200
-Cc: util-linux@vger.kernel.org
-References: <20170612084958.22054-1-sweet_f_a@gmx.de> <597df757-fae1-c1f8-a5cf-dea177b2d9a3@gmx.de> <20170614101014.qnttyscgvcsruh4m@ws.net.home>
-In-Reply-To: <20170614101014.qnttyscgvcsruh4m@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail.gmail.hu ([94.199.52.210]:46595 "EHLO mail.gmail.hu"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751023AbdFRRqk (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 18 Jun 2017 13:46:40 -0400
+Received: from filter.gmail.hu (filter.gmail.hu [192.168.0.125])
+        by mail.gmail.hu (Postfix) with ESMTP id 86BA519BBC67F
+        for <util-linux@vger.kernel.org>; Sun, 18 Jun 2017 19:37:44 +0200 (CEST)
+Received: from mail.gmail.hu (storage1.gmail.hu [192.168.0.121])
+        by mail.gmail.hu (Postfix) with ESMTPA id 9ACFF19BBC4B9
+        for <util-linux@vger.kernel.org>; Sun, 18 Jun 2017 19:37:43 +0200 (CEST)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201706141306.46931.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Date: Sun, 18 Jun 2017 19:37:35 +0200
+From: Istvan Gabor <suseuser04@gmail.hu>
+To: <util-linux@vger.kernel.org>
+Subject: adding new logical partition in cfdisk
+Message-ID: <a1a3d4f7ce3c9cc861d96feb4f9f85e7@gmail.hu>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 14 June 2017, Karel Zak wrote:
-> On Tue, Jun 13, 2017 at 05:18:33PM +0200, R=FCdiger Meier wrote:
-> > On 06/13/2017 03:47 PM, Karel Zak wrote:
-> > > On Mon, Jun 12, 2017 at 10:49:52AM +0200, Ruediger Meier wrote:
-> > > > From: Ruediger Meier <ruediger.meier@ga-group.nl>
-> > > >
-> > > > Ruediger Meier (6):
-> > > >    tests: fix fincore, don't use variable COLUMNS
-> > > >    libmount: btrfs, remove unused setter functions
-> > > >    hwclock: fix warning [-Winvalid-noreturn]
-> > > >    misc: fix gcc-7 sprintf warnings -Wformat-overflow
-> > > >    misc: fix gcc-7 snprintf warnings -Wformat-truncation
-> > > >    libblkid: fix gcc-7 warning -Wint-in-bool-context
-> > > >
-> > > >   lib/loopdev.c                    |  2 +-
-> > > >   lib/sysfs.c                      |  4 ++--
-> > > >   libblkid/src/devname.c           |  2 +-
-> > > >   libblkid/src/superblocks/exfat.c |  4 ++--
-> > > >   libmount/src/btrfs.c             |  4 ----
-> > > >   login-utils/last.c               |  2 +-
-> > > >   sys-utils/hwclock.c              |  2 +-
-> > > >   sys-utils/hwclock.h              |  3 ++-
-> > > >   tests/ts/fincore/count           | 12 ++++++------
-> > > >   9 files changed, 16 insertions(+), 19 deletions(-)
-> > >
-> > > Seems better than the previous version from Sami (May 27).
-> >
-> > These fixed are completely independent/unrelated to the other pull
-> > request from Sami. Sami's PR just motivated me to try out gcc-7
-> > too.
->
-> Yep, you both tried to fix the sprintf warnings, your version with
-> NAME_MAX seems better.
+Dear util-linux users/developers:
 
-Ooops, I didn't even noticed and could merge all together without=20
-confilcts.
+I have been using cfdisk for several years
+for editing my disks' partitions.
 
-> Applied, thanks.
->
->     Karel
+I noticed/read that util-linux after version
+~2.23 has been completely rewritten.
+
+Currently I have version 2.28 which comes
+with default openSUSE Leap 42.2.
+
+This version doesn't show volume labels
+and it doesn't indicate the file systems
+on the partitions (eg ext3, ext4).
+
+It would be really nice if these options
+could be added back to cfdisk.
+
+There is also a problem I don't know how
+to solve. I have a disk with several partitions:
+
+Device           Boot               Start            End        Sectors=20
+      Size      Id Type
+     /dev/sdd1        *                   2048      104859647     =20
+104857600        50G      83 Linux
+     /dev/sdd2                       104859648      209717247     =20
+104857600        50G      83 Linux
+     /dev/sdd3                       209717248      336662877     =20
+126945630      60.5G      83 Linux
+     /dev/sdd4                       336662878      516333837     =20
+179670960      85.7G       5 Extended
+     =E2=94=9C=E2=94=80/dev/sdd5                     336662941      3405666=
+72       =20
+3903732       1.9G      82 Linux swap / Solaris
+     =E2=94=9C=E2=94=80/dev/sdd6                     340566736      3991557=
+27      =20
+58588992        28G      83 Linux
+     =E2=94=9C=E2=94=80/dev/sdd7                     399155791      4577447=
+82      =20
+58588992        28G      83 Linux
+     =E2=94=94=E2=94=80/dev/sdd8                     457744846      5163338=
+37      =20
+58588992        28G      83 Linux
+>>  Free space                      516335616      625134190     =20
+>> 108798575      51.9G
+
+I would like to add a new logical partition to the
+free space. I select/highlight free space, then select
+"New".
+
+I set the size of the new partition:
+  Partition size: 28G
+
+But cfdisk doesn't create the new partition,
+instead it says:
+All primary partitions are in use.
+
+How can I add new partition to the free space
+using cfdisk?
+
+This worked in cfdisk 2.23.
+
+Thanks,
+
+Istvan
+
