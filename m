@@ -1,111 +1,74 @@
 Return-Path: elseifthen@gmx.com
-Subject: [PATCH 4/4] Docs: move option naming to howto-contribute.txt
+Subject: [PATCH 06/12] hwclock: use RTC in help output
 To: Karel Zak <kzak@redhat.com>
-References: <e5059958-a9b9-2ff4-f1b8-6122520bacac@gmx.com>
+References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
 Cc: util-linux@vger.kernel.org
 From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <5dbba0e9-b262-00db-3863-e4d71f68b2e6@gmx.com>
-Date: Sun, 25 Jun 2017 17:51:49 -0400
+Message-ID: <5e0d3131-5637-d9dd-71e7-57cffbde19e3@gmx.com>
+Date: Sun, 18 Jun 2017 20:44:06 -0400
 MIME-Version: 1.0
-In-Reply-To: <e5059958-a9b9-2ff4-f1b8-6122520bacac@gmx.com>
+In-Reply-To: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
 Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
 
-Creating and naming options is not done when writing usage().
-A contributor may not even read howto-usage-function.txt, but
-they should read howto-contribute.txt. So move option naming
-and change information there.
+Switching between 'hardware clock' and 'RTC' is ambiguous.
+RTC is used due to space constraints, so use it consistently.
 
 Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
- Documentation/howto-contribute.txt     | 25 +++++++++++++++++++++++++
- Documentation/howto-usage-function.txt | 28 ----------------------------
- 2 files changed, 25 insertions(+), 28 deletions(-)
+ sys-utils/hwclock.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/Documentation/howto-contribute.txt b/Documentation/howto-contribute.txt
-index 245f9ab..e63d390 100644
---- a/Documentation/howto-contribute.txt
-+++ b/Documentation/howto-contribute.txt
-@@ -3,6 +3,7 @@ CONTENTS
-  Patching Process
-  Email Format
-  Coding Style
-+ Options
-  Various Notes
-  Standards Compliance
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 9d6bb11..25b159d 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1206,35 +1206,35 @@ usage(const struct hwclock_control *ctl, FILE *out)
+ 	fputs(_(" hwclock [function] [option...]\n"), out);
  
-@@ -155,6 +156,30 @@ Coding Style
- 	  multiple lines. In case the shorthand does not look good on one line
- 	  use the normal "if () else" syntax.
+ 	fputs(USAGE_SEPARATOR, out);
+-	fputs(_(" Query or set the hardware clock\n"), out);
++	fputs(_(" Query or set the RTC (Real Time Clock / Hardware Clock)\n"), out);
  
-+Options
-+
-+	* The rule of thumb for options is that once they exist, you may not
-+	  change them, nor change how they work, nor remove them.
-+
-+	* The following options are well-known, and should not be used for any
-+	  other purpose:
-+
-+		-h, --help     display usage and exit
-+		-V, --version  display version and exit
-+
-+	* Some commands use peculiar options and arguments. These will continue
-+	  to be supported, but anything like them will not be accepted as new
-+	  additions. A short list of examples:
-+
-+		Characters other than '-' to start an option. See '+' in 'more'.
-+
-+		Using a number as an option. See '-<number>' in 'more'.
-+
-+		Long options that start with a single '-'. See 'setterm'.
-+
-+		'-?' is not a synonym for '--help', but is an unknown option
-+		resulting in a suggestion to try --help due to a getopt failure.
-+
- Various Notes
+ 	fputs(USAGE_FUNCTIONS, out);
+-	fputs(_(" -r, --show           read hardware clock and print result\n"
+-		"     --get            read hardware clock and print drift corrected result\n"
++	fputs(_(" -r, --show           read the RTC and print result\n"
++		"     --get            read the RTC and print drift corrected result\n"
+ 		"     --set            set the RTC to the time given with --date\n"), out);
+-	fputs(_(" -s, --hctosys        set the system time from the hardware clock\n"
+-		" -w, --systohc        set the hardware clock from the current system time\n"
++	fputs(_(" -s, --hctosys        set the system time from the RTC\n"
++		" -w, --systohc        set the RTC from the current system time\n"
+ 		"     --systz          set the system time based on the current timezone\n"
+ 		"     --adjust         adjust the RTC to account for systematic drift since\n"
+ 		"                        the clock was last set or adjusted\n"), out);
+ #if defined(__linux__) && defined(__alpha__)
+-	fputs(_("     --getepoch       print out the kernel's hardware clock epoch value\n"
+-		"     --setepoch       set the kernel's hardware clock epoch value to the \n"
++	fputs(_("     --getepoch       print out the kernel's RTC epoch value\n"
++		"     --setepoch       set the kernel's RTC epoch value to the \n"
+ 		"                        value given with --epoch\n"), out);
+ #endif
+-	fputs(_("     --predict        predict RTC reading at time given with --date\n"), out);
++	fputs(_("     --predict        predict the RTC reading at time given with --date\n"), out);
  
- 	* util-linux does not use kernel headers for file system super
-diff --git a/Documentation/howto-usage-function.txt b/Documentation/howto-usage-function.txt
-index 1c5c4b8..a666d44 100644
---- a/Documentation/howto-usage-function.txt
-+++ b/Documentation/howto-usage-function.txt
-@@ -4,20 +4,6 @@ Example file
- 
- Refer to the ./boilerplate.c example file while reading this howto.
- 
--Well-known options
--------------------
--
--The following options are well-known, and should not be used for any
--other purpose:
--
-- -h, --help     display usage and exit
-- -V, --version  display version and exit
--
--The rule of thumb with other options is that once they exist, you may
--not change them, nor change how they work, nor remove them.
--
--See Legacy options below.
--
- 
- How a usage text is supposed to look
- ------------------------------------
-@@ -146,17 +132,3 @@ define. The command author, package maintainer or patch submitter will
- usually know when it should be done that way.
- 
- 
--Legacy options
----------------
--
--Some commands use peculiar options and arguments.  These will continue
--to be supported, but anything like them will not be accepted as new
--additions.  A short list of examples:
--
--- Characters other than '-' to start an option.  See '+' in 'more'.
--- Using a number as an option.  See '-<number>' in 'more'.
--- Long options that start with a single '-'.  See 'setterm'.
--- '-?' is not expected to be a synonym of '--help', but is an unknown
--  option resulting in a suggestion to try --help due to a getopt failure.
--
--
+ 	fputs(USAGE_OPTIONS, out);
+-	fputs(_(" -u, --utc            the hardware clock is kept in UTC\n"
+-		" -l, --localtime      the hardware clock is kept in local time\n"), out);
++	fputs(_(" -u, --utc            the RTC is kept in UTC\n"
++		" -l, --localtime      the RTC is kept in local time\n"), out);
+ #ifdef __linux__
+ 	fputs(_(" -f, --rtc <file>     special /dev/... file to use instead of default\n"), out);
+ #endif
+ 	fprintf(out, _(
+ 		"     --directisa      access the ISA bus directly instead of %s\n"
+-		"     --date <time>    specifies the time to which to set the hardware clock\n"), _PATH_RTC_DEV);
++		"     --date <time>    specifies the time to which to set the RTC\n"), _PATH_RTC_DEV);
+ #if defined(__linux__) && defined(__alpha__)
+-	fputs(_("     --epoch <year>   specifies the hardware clock's epoch value\n"), out);
++	fputs(_("     --epoch <year>   specifies the RTC's epoch value\n"), out);
+ #endif
+ 	fprintf(out, _(
+ 		"     --update-drift   update drift factor in %1$s (requires\n"
