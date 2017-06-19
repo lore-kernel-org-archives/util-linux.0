@@ -1,80 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from resqmta-ch2-06v.sys.comcast.net ([69.252.207.38]:57610 "EHLO
-        resqmta-ch2-06v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753900AbdFWVim (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Fri, 23 Jun 2017 17:38:42 -0400
-From: "W. Trevor King" <wking@tremily.us>
-To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>, "W. Trevor King" <wking@tremily.us>
-Subject: [PATCH v2 8/8] sys-utils/mount.8: Document libmount defaults
-Date: Fri, 23 Jun 2017 14:30:26 -0700
-Message-Id: <17bff7efa55b6ff4f04cf795de8b5d771cf43441.1498252231.git.wking@tremily.us>
-In-Reply-To: <cover.1498252231.git.wking@tremily.us>
-References: <cover.1498252231.git.wking@tremily.us>
-In-Reply-To: <cover.1498252231.git.wking@tremily.us>
-References: <cover.1498252231.git.wking@tremily.us>
+Received: from mx1.redhat.com ([209.132.183.28]:36132 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751166AbdFSIlz (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 19 Jun 2017 04:41:55 -0400
+Date: Mon, 19 Jun 2017 10:41:51 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] uuidparse: add new command
+Message-ID: <20170619084151.nejowhp7pkeeeifd@ws.net.home>
+References: <20170618172536.21544-1-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170618172536.21544-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-For filesystem-independent kernel options (e.g. rw/ro) we're punting
-to mount(2).  But these libmount options dare only defined in
-util-linux, so we need to document the defaults locally.
+On Sun, Jun 18, 2017 at 05:25:36PM +0000, Sami Kerola wrote:
+> +static void uuid_unpack(const uuid_t in, struct uuid *uu)
+> +time_t uuid_time(const uuid_t uu, struct timeval *ret_tv)
+> +int uuid_type(const uuid_t uu)
+> +int uuid_variant(const uuid_t uu)
 
-Signed-off-by: W. Trevor King <wking@tremily.us>
----
- sys-utils/mount.8 | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+Why? The functions are exported by library API.
 
-diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
-index a589f76..2b03cbe 100644
---- a/sys-utils/mount.8
-+++ b/sys-utils/mount.8
-@@ -1121,7 +1121,7 @@ Can be mounted with the
- .B \-a
- option (e.g., at boot time).
- .TP
--.B noauto
-+.B noauto \fR(default)
- Can only be mounted explicitly (i.e., the
- .B \-a
- option will not cause the filesystem to be mounted).
-@@ -1146,7 +1146,7 @@ This option implies the options
- (unless overridden by subsequent options, as in the option line
- .BR group,dev,suid ).
- .TP
--.B nogroup
-+.B nogroup \fR(default)
- Unset \fBgroup\fR.
- .TP
- .B owner
-@@ -1157,7 +1157,7 @@ This option implies the options
- (unless overridden by subsequent options, as in the option line
- .BR owner,dev,suid ).
- .TP
--.B noowner
-+.B noowner \fR(default)
- Unset \fBowner\fR.
- .TP
- .B user
-@@ -1170,7 +1170,7 @@ This option implies the options
- (unless overridden by subsequent options, as in the option line
- .BR user,exec,dev,suid ).
- .TP
--.B nouser
-+.B nouser \fR(default)
- Unset \fBuser\fR.
- .TP
- .B users
-@@ -1181,7 +1181,7 @@ This option implies the options
- (unless overridden by subsequent options, as in the option line
- .BR users,exec,dev,suid ).
- .TP
--.B nousers
-+.B nousers \fR(default)
- Unset \fBusers\fR.
- .TP
- .B X-*
+The rest seems good.
+
+    Karel
+
 -- 
-2.1.0.60.g85f0837
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
