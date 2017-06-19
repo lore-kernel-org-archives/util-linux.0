@@ -1,44 +1,51 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:35279 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751643AbdFHTwY (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 8 Jun 2017 15:52:24 -0400
-Received: by mail-wr0-f193.google.com with SMTP id g76so4710712wrd.2
-        for <util-linux@vger.kernel.org>; Thu, 08 Jun 2017 12:52:24 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 03/11] rename: notice when expression and replacement are the same string
-Date: Thu,  8 Jun 2017 20:52:07 +0100
-Message-Id: <20170608195215.1702-4-kerolasa@iki.fi>
-In-Reply-To: <20170608195215.1702-1-kerolasa@iki.fi>
-References: <20170608195215.1702-1-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: sweet_f_a@gmx.de
+Subject: Re: remove stderr usage (was: [PATCH] uuidparse)
+To: J William Piggott <elseifthen@gmx.com>
+Cc: Karel Zak <kzak@redhat.com>, Sami Kerola <kerolasa@iki.fi>,
+ util-linux@vger.kernel.org
+References: <20170618172536.21544-1-kerolasa@iki.fi>
+ <201706191155.23149.sweet_f_a@gmx.de>
+ <072f3a28-9fd9-dc68-adcf-d35081437d0c@gmx.com>
+ <201706192103.01740.sweet_f_a@gmx.de>
+ <fa11835d-6ce5-1e2c-befd-29538fedf97a@gmx.com>
+From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
+Message-ID: <8b27f49b-a986-a83f-b049-59e4e46b6cd2@gmx.de>
+Date: Mon, 19 Jun 2017 22:39:09 +0200
+MIME-Version: 1.0
+In-Reply-To: <fa11835d-6ce5-1e2c-befd-29538fedf97a@gmx.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-The rename(1) can exit early when replace expression and replacement are
-identical string.  It is also appropriate to change return value in this
-case to 'nothing was renamed'.
+On 06/19/2017 09:47 PM, J William Piggott wrote:> 
+> 
+> On 06/19/2017 03:03 PM, Ruediger Meier wrote:
+>> On Monday 19 June 2017, J William Piggott wrote:
+>>> On 06/19/2017 05:55 AM, Ruediger Meier wrote:
+>>>> On Monday 19 June 2017, Karel Zak wrote:
+>>>>> On Mon, Jun 19, 2017 at 11:22:48AM +0200, Ruediger Meier wrote:
+>>>
+>>>   -->8
+>>>
+>>> On a related note: could we add USAGE_*_NN with no trailing newline
+>>> for use with puts() on new/converted commands? For example:
+>>>
+>>> #define USAGE_HEADER        _("\nUsage:\n")
+>>> #define USAGE_HEADER_NN     _("\nUsage:")
+>>
+>> My plan is to remove the trailing newline from USAGE_HEADER and friends
+>> when no usage() funtion needs to use fputs() anymore.
+> 
+> I got the impression from the other discussion that legacy apps would
+> continue to use fputs() so that their strings would not have to be
+> modified. But I guess they won't need to use it for USAGE_*, if that is
+> what you mean.
+> 
+> Removing the trailing newline from USAGE_* will mean changing
+> fputs(USAGE_*) to puts(USAGE_*) in every command project wide, yes?
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/rename.c | 3 +++
- 1 file changed, 3 insertions(+)
+I don't know yet. I thought we could do the next huge cosmetic puts patch
+semi-automatic in UL and also in the translation project. I will figure
+out after this first step of boring work is done. ;)
 
-diff --git a/misc-utils/rename.c b/misc-utils/rename.c
-index a7671fa11..1cee40697 100644
---- a/misc-utils/rename.c
-+++ b/misc-utils/rename.c
-@@ -204,6 +204,9 @@ int main(int argc, char **argv)
- 	from = argv[0];
- 	to = argv[1];
- 
-+	if (!strcmp(from, to))
-+		return RENAME_EXIT_NOTHING;
-+
- 	for (i = 2; i < argc; i++)
- 		ret |= do_rename(from, to, argv[i], verbose, noact, nooverwrite);
- 
--- 
-2.13.1
-
+cu,
+Rudi
