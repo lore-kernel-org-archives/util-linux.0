@@ -1,40 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35240 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:60671 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751632AbdF0NOH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 27 Jun 2017 09:14:07 -0400
-Date: Tue, 27 Jun 2017 15:14:01 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Patrick Steinhardt <ps@pks.im>
-Cc: util-linux@vger.kernel.org, luto@kernel.org
-Subject: Re: [PATCH 0/5] Ambient capabilities for setpriv
-Message-ID: <20170627131401.esuakjnceifwpwn4@ws.net.home>
-References: <cover.1498312509.git.ps@pks.im>
+        id S1750886AbdFSOhb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 19 Jun 2017 10:37:31 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH 2/4] flock: cleanup usage issues
+Date: Mon, 19 Jun 2017 16:37:17 +0200
+Cc: util-linux@vger.kernel.org
+References: <1497872174-9852-1-git-send-email-sweet_f_a@gmx.de> <201706191436.17101.sweet_f_a@gmx.de> <20170619142420.yzmqhilscitwgsmz@ws.net.home>
+In-Reply-To: <20170619142420.yzmqhilscitwgsmz@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <cover.1498312509.git.ps@pks.im>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201706191637.17889.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Jun 24, 2017 at 04:04:29PM +0200, Patrick Steinhardt wrote:
-> Patrick Steinhardt (5):
->   setpriv: introduce indirection for `capng_type` enum
->   setpriv: proxy function checking whether a capability is set
->   setpriv: proxy function to update capabilities
->   setpriv: support dumping ambient capabilities
->   setpriv: support modifying the set of ambient capabilities
-> 
->  sys-utils/setpriv.1 |   8 ++--
->  sys-utils/setpriv.c | 109 ++++++++++++++++++++++++++++++++++++++++++++++------
->  2 files changed, 103 insertions(+), 14 deletions(-)
+On Monday 19 June 2017, Karel Zak wrote:
+> On Mon, Jun 19, 2017 at 02:36:17PM +0200, Ruediger Meier wrote:
+> > Sorry I forgot that the fputs/puts repacement adds another newline.
+> >
+> > I could either
+> >   1. remove the newlines from the strings (but would this cause
+> > extra work for translators?)
+> >   2. use printf instead of puts
+> >   3. don't change anything, just use constant FILE argument stdout.
+>
+> I think fputs(..., stdout) is non-invasive change, better than modify
+> all strings and probably more effective than printf().
+>
+>     Karel
 
-Applied. (You've forgot to add --ambient-caps to usage(), fixed by
-additional commit.)
 
-Thanks!
+I'm using
 
-    Karel
+-static void usage(FILE * out) {
+-    FILE * out = stdout;
+-    fputs(USAGE_HEADER, out);
++static void usage(void) {
++    FILE * out = stdout;
++    fputs(USAGE_HEADER, out);
+    ...
+}
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+This will give the smallest patches when I go through all the other 
+commands.
+
+Here it is updated:
+https://github.com/karelzak/util-linux/pull/465
+
+cu,
+Rudi
