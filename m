@@ -1,54 +1,67 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:60671 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750886AbdFSOhb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 19 Jun 2017 10:37:31 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 02/12] hwclock: update usage() to util-linux style
 To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH 2/4] flock: cleanup usage issues
-Date: Mon, 19 Jun 2017 16:37:17 +0200
+References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
 Cc: util-linux@vger.kernel.org
-References: <1497872174-9852-1-git-send-email-sweet_f_a@gmx.de> <201706191436.17101.sweet_f_a@gmx.de> <20170619142420.yzmqhilscitwgsmz@ws.net.home>
-In-Reply-To: <20170619142420.yzmqhilscitwgsmz@ws.net.home>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <a3863911-bf34-a0da-8f67-b5600ea46cfc@gmx.com>
+Date: Sun, 18 Jun 2017 20:38:51 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201706191637.17889.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 19 June 2017, Karel Zak wrote:
-> On Mon, Jun 19, 2017 at 02:36:17PM +0200, Ruediger Meier wrote:
-> > Sorry I forgot that the fputs/puts repacement adds another newline.
-> >
-> > I could either
-> >   1. remove the newlines from the strings (but would this cause
-> > extra work for translators?)
-> >   2. use printf instead of puts
-> >   3. don't change anything, just use constant FILE argument stdout.
->
-> I think fputs(..., stdout) is non-invasive change, better than modify
-> all strings and probably more effective than printf().
->
->     Karel
 
+Update usage() according to:
+  Documentation/howto-usage-function.txt
+  Documentation/boilerplate.c
 
-I'm using
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
--static void usage(FILE * out) {
--    FILE * out = stdout;
--    fputs(USAGE_HEADER, out);
-+static void usage(void) {
-+    FILE * out = stdout;
-+    fputs(USAGE_HEADER, out);
-    ...
-}
-
-This will give the smallest patches when I go through all the other 
-commands.
-
-Here it is updated:
-https://github.com/karelzak/util-linux/pull/465
-
-cu,
-Rudi
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 4782318..d2f8ad1 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1206,11 +1206,11 @@ usage(const struct hwclock_control *ctl, FILE *usageto)
+ 	fputs(_(" hwclock [function] [option...]\n"), usageto);
+ 
+ 	fputs(USAGE_SEPARATOR, usageto);
+-	fputs(_("Query or set the hardware clock.\n"), usageto);
++	fputs(_(" Query or set the hardware clock\n"), usageto);
+ 
+-	fputs(_("\nFunctions:\n"), usageto);
+-	fputs(_(" -h, --help           show this help text and exit\n"
+-		" -r, --show           read hardware clock and print result\n"
++	fputs(USAGE_SEPARATOR, usageto);
++	fputs(_("Functions:\n"), usageto);
++	fputs(_(" -r, --show           read hardware clock and print result\n"
+ 		"     --get            read hardware clock and print drift corrected result\n"
+ 		"     --set            set the RTC to the time given with --date\n"), usageto);
+ 	fputs(_(" -s, --hctosys        set the system time from the hardware clock\n"
+@@ -1223,8 +1223,7 @@ usage(const struct hwclock_control *ctl, FILE *usageto)
+ 		"     --setepoch       set the kernel's hardware clock epoch value to the \n"
+ 		"                        value given with --epoch\n"), usageto);
+ #endif
+-	fputs(_("     --predict        predict RTC reading at time given with --date\n"
+-		" -V, --version        display version information and exit\n"), usageto);
++	fputs(_("     --predict        predict RTC reading at time given with --date\n"), usageto);
+ 
+ 	fputs(USAGE_OPTIONS, usageto);
+ 	fputs(_(" -u, --utc            the hardware clock is kept in UTC\n"
+@@ -1246,8 +1245,11 @@ usage(const struct hwclock_control *ctl, FILE *usageto)
+ 		"     --adjfile <file> specifies the path to the adjust file;\n"
+ 		"                        the default is %1$s\n"), _PATH_ADJTIME);
+ 	fputs(_("     --test           do not update anything, just show what would happen\n"
+-		" -D, --debug          debugging mode\n" "\n"), usageto);
+-
++		" -D, --debug          debugging mode\n"), usageto);
++	fputs(USAGE_SEPARATOR, usageto);
++	fputs(USAGE_HELP, usageto);
++	fputs(USAGE_VERSION, usageto);
++	fprintf(usageto, USAGE_MAN_TAIL("hwclock(8)"));
+ 	hwclock_exit(ctl, EXIT_SUCCESS);
+ }
+ 
