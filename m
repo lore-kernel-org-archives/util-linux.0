@@ -1,48 +1,123 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40734 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:52600 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753091AbdFMNr2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 13 Jun 2017 09:47:28 -0400
-Date: Tue, 13 Jun 2017 15:47:19 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
+        id S1752851AbdFSAuH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 18 Jun 2017 20:50:07 -0400
+Subject: [PATCH 11/12] hwclock: remove unused usage() FILE argument
+To: Karel Zak <kzak@redhat.com>
+References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/6] fix various minor issues and warnings
-Message-ID: <20170613134719.qshrdtvvcystm4vd@ws.net.home>
-References: <20170612084958.22054-1-sweet_f_a@gmx.de>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <ce8ce9d6-d266-12da-8e7e-c41e6a185714@gmx.com>
+Date: Sun, 18 Jun 2017 20:49:49 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170612084958.22054-1-sweet_f_a@gmx.de>
+In-Reply-To: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 12, 2017 at 10:49:52AM +0200, Ruediger Meier wrote:
-> From: Ruediger Meier <ruediger.meier@ga-group.nl>
-> 
-> Ruediger Meier (6):
->   tests: fix fincore, don't use variable COLUMNS
->   libmount: btrfs, remove unused setter functions
->   hwclock: fix warning [-Winvalid-noreturn]
->   misc: fix gcc-7 sprintf warnings -Wformat-overflow
->   misc: fix gcc-7 snprintf warnings -Wformat-truncation
->   libblkid: fix gcc-7 warning -Wint-in-bool-context
-> 
->  lib/loopdev.c                    |  2 +-
->  lib/sysfs.c                      |  4 ++--
->  libblkid/src/devname.c           |  2 +-
->  libblkid/src/superblocks/exfat.c |  4 ++--
->  libmount/src/btrfs.c             |  4 ----
->  login-utils/last.c               |  2 +-
->  sys-utils/hwclock.c              |  2 +-
->  sys-utils/hwclock.h              |  3 ++-
->  tests/ts/fincore/count           | 12 ++++++------
->  9 files changed, 16 insertions(+), 19 deletions(-)
 
-Seems better than the previous version from Sami (May 27).
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.c | 74 ++++++++++++++++++++++++++---------------------------
+ 1 file changed, 37 insertions(+), 37 deletions(-)
 
-    Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 7d69b7a..636d36a 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1200,49 +1200,49 @@ static void out_version(void)
+ }
+ 
+ static void __attribute__((__noreturn__))
+-usage(const struct hwclock_control *ctl, FILE *out)
++usage(const struct hwclock_control *ctl)
+ {
+-	fputs(USAGE_HEADER, out);
+-	fputs(_(" hwclock [function] [option...]\n"), out);
+-
+-	fputs(USAGE_SEPARATOR, out);
+-	fputs(_(" Query or set the RTC (Real Time Clock / Hardware Clock)\n"), out);
+-
+-	fputs(USAGE_FUNCTIONS, out);
+-	fputs(_(" -r, --show           display the RTC time\n"), out);
+-	fputs(_("     --get            display drift corrected RTC time\n"), out);
+-	fputs(_("     --set            set the RTC according to --date\n"), out);
+-	fputs(_(" -s, --hctosys        set the system time from the RTC\n"), out);
+-	fputs(_(" -w, --systohc        set the RTC from the system time\n"), out);
+-	fputs(_("     --systz          send timescale configurations to the kernel\n"), out);
+-	fputs(_("     --adjust         adjust the RTC to account for systematic drift\n"), out);
++	fputs(USAGE_HEADER, stdout);
++	puts(_(" hwclock [function] [option...]"));
++
++	fputs(USAGE_SEPARATOR, stdout);
++	puts(_(" Query or set the RTC (Real Time Clock / Hardware Clock)"));
++
++	fputs(USAGE_FUNCTIONS, stdout);
++	puts(_(" -r, --show           display the RTC time"));
++	puts(_("     --get            display drift corrected RTC time"));
++	puts(_("     --set            set the RTC according to --date"));
++	puts(_(" -s, --hctosys        set the system time from the RTC"));
++	puts(_(" -w, --systohc        set the RTC from the system time"));
++	puts(_("     --systz          send timescale configurations to the kernel"));
++	puts(_("     --adjust         adjust the RTC to account for systematic drift"));
+ #if defined(__linux__) && defined(__alpha__)
+-	fputs(_("     --getepoch       display the RTC epoch\n"), out);
+-	fputs(_("     --setepoch       set the RTC epoch according to --epoch\n"), out);
++	puts(_("     --getepoch       display the RTC epoch"));
++	puts(_("     --setepoch       set the RTC epoch according to --epoch"));
+ #endif
+-	fputs(_("     --predict        predict the drifted RTC time according to --date\n"), out);
+-	fputs(USAGE_OPTIONS, out);
+-	fputs(_(" -u, --utc            inform hwclock the RTC timescale is UTC\n"), out);
+-	fputs(_(" -l, --localtime      inform hwclock the RTC timescale is Local\n"), out);
+-	fprintf(out, _(
++	puts(_("     --predict        predict the drifted RTC time according to --date"));
++	fputs(USAGE_OPTIONS, stdout);
++	puts(_(" -u, --utc            inform hwclock the RTC timescale is UTC"));
++	puts(_(" -l, --localtime      inform hwclock the RTC timescale is Local"));
++	printf(_(
+ #ifdef __linux__
+-		" -f, --rtc <file>     use an alternate file to %1$s\n"
++	       " -f, --rtc <file>     use an alternate file to %1$s\n"
+ #endif
+-		"     --directisa      use the ISA bus instead of %1$s access\n"), _PATH_RTC_DEV);
+-	fputs(_("     --date <time>    date/time input for --set and --predict\n"), out);
++	       "     --directisa      use the ISA bus instead of %1$s access\n"), _PATH_RTC_DEV);
++	puts(_("     --date <time>    date/time input for --set and --predict"));
+ #if defined(__linux__) && defined(__alpha__)
+-	fputs(_("     --epoch <year>   epoch input for --setepoch\n"), out);
++	puts(_("     --epoch <year>   epoch input for --setepoch"));
+ #endif
+-	fputs(_("     --update-drift   update the RTC drift factor\n"), out);
+-	fprintf(out, _(
+-		"     --noadjfile      do not use %1$s\n"
+-		"     --adjfile <file> use an alternate file to %1$s\n"), _PATH_ADJTIME);
+-	fputs(_("     --test           dry run; use -D to view what would have happened\n"), out);
+-	fputs(_(" -D, --debug          use debug mode\n"), out);
+-	fputs(USAGE_SEPARATOR, out);
+-	fputs(USAGE_HELP, out);
+-	fputs(USAGE_VERSION, out);
+-	fprintf(out, USAGE_MAN_TAIL("hwclock(8)"));
++	puts(_("     --update-drift   update the RTC drift factor"));
++	printf(_(
++	       "     --noadjfile      do not use %1$s\n"
++	       "     --adjfile <file> use an alternate file to %1$s\n"), _PATH_ADJTIME);
++	puts(_("     --test           dry run; use -D to view what would have happened"));
++	puts(_(" -D, --debug          use debug mode"));
++	fputs(USAGE_SEPARATOR, stdout);
++	fputs(USAGE_HELP, stdout);
++	fputs(USAGE_VERSION, stdout);
++	fprintf(stdout, USAGE_MAN_TAIL("hwclock(8)"));
+ 	hwclock_exit(ctl, EXIT_SUCCESS);
+ }
+ 
+@@ -1448,7 +1448,7 @@ int main(int argc, char **argv)
+ 			out_version();
+ 			return 0;
+ 		case 'h':			/* --help */
+-			usage(&ctl, stdout);
++			usage(&ctl);
+ 		default:
+ 			errtryhelp(EXIT_FAILURE);
+ 		}
