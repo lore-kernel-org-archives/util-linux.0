@@ -1,84 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:56753 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:46052 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751495AbdF1T3z (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 28 Jun 2017 15:29:55 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: fputs() vs puts() (was: [PATCH] hwclock: remove unused usage() FILE argument)
-Date: Wed, 28 Jun 2017 21:29:40 +0200
-Cc: J William Piggott <elseifthen@gmx.com>, util-linux@vger.kernel.org
-References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com> <ce8ce9d6-d266-12da-8e7e-c41e6a185714@gmx.com> <20170620085610.5eacn7kl5agfemmk@ws.net.home>
-In-Reply-To: <20170620085610.5eacn7kl5agfemmk@ws.net.home>
+        id S1753949AbdFSJ2R (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 19 Jun 2017 05:28:17 -0400
+Date: Mon, 19 Jun 2017 11:28:13 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] uuidparse: add new command
+Message-ID: <20170619092813.evirrk3zy6omv6xi@ws.net.home>
+References: <20170618172536.21544-1-kerolasa@iki.fi>
+ <201706191122.48481.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201706282129.41161.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201706191122.48481.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 20 June 2017, Karel Zak wrote:
-> On Sun, Jun 18, 2017 at 08:49:49PM -0400, J William Piggott wrote:
-> >  sys-utils/hwclock.c | 74
-> > ++++++++++++++++++++++++++--------------------------- 1 file
-> > changed, 37 insertions(+), 37 deletions(-)
->
-> It would be better to remove this patch from the pull-request; let's
-> keep fputs() in the code and wait for any solution from Rudi :-)
+On Mon, Jun 19, 2017 at 11:22:48AM +0200, Ruediger Meier wrote:
+> > +static void __attribute__((__noreturn__)) usage(FILE *out)
+> 
+> Do we really need this FILE argument? You are using only stdout in 
+> uuidparse and that's good and should never change ;) I can't imagine 
+> any good reason why usage should ever go to stderr and exit(1).
+> 
+> BTW currently I'm going through the whole project to correct all 
+> commands where we spam the whole usage in case of errors.
 
-I have now finished my cleanup regarding stdout only. To make the diffs 
-small I have left a useless definition "FILE *out = stdout;" in almost 
-any usage function.
+That's legacy from time we used usage(stderr) for command line parsing
+errors. Now we use errtryhelp().
 
-We can remove this "out" variable now everwhere using a sed or awk. But 
-a few questions about what would be the best end state.
+    Karel
 
-1. fputs vs puts?:
-
-   Is it a problem for translators if we remove a newline from almost
-   any string? And, does puts() look more nice at all? I mean many usage
-   functions have to use printf too, so does it look good if some
-   strings are '\n' terminated and others not?
-
-2. Alignment for better readabilty in the code.
-
-   I would prefer leading spaces before the first string argument to
-   match the longest possible prefix 'printf(_("'. Is that ok?:
-
-   puts(  _(" -q             quiet mode"));
-   fputs( _(" -v, --verbose  verbose mode"), stdout);
-   printf(_(" -f, --rtc      use alternate to %1$s\n"), _BLA);
-   printf(  "     --help     %s\n", USAGE_OPTSTR_HELP);
-
-3. Maybe we should always decouple options and descriptions?
-
-   Introducing a macro like:
-
-   #define prnt_opt(opt, marg_dsc, dsc) \
-       printf( "%-" #marg_dsc "s%s\n", opt, dscr)
-
-   /* the magic margin number for the whole function */
-   int m = 16;
-   prnt_opt(" -q",              m, _("quiet mode");
-   prnt_opt(" -v, --verbose",   m, _("verbose mode");
-   prnt_opt("      --help",     m, USAGE_OPTSTR_HELP);
-   /* or standard help, as exist already */
-   print_usage_help_options(m);
-
-4. About our USAGE_* macros
-
-   We can remove the trailing newlines in all macros if puts() is
-   preferred (regarding 1.). Or we can just let them print like
-   print_usage_help_options().
-
-5. We can leave everything as is and touch all these usage lines only
-   if needed. For example I did it without extra noise in a861538c.
-   Karel missed his chance in 4fb515f9 ;)
-
-   Note since introducing print_usage_help_options() we *are* already
-   mixing hardcoded stdout and variable out. So we can also convert
-   single lines from fprintf to printf, like i did in my last pending
-   hwclock patch "don't ifdef printf arguments".
-
-cu,
-Rudi
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
