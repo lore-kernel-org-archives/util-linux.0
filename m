@@ -1,117 +1,168 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qt0-f169.google.com ([209.85.216.169]:32928 "EHLO
-        mail-qt0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750823AbdFUMQA (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 21 Jun 2017 08:16:00 -0400
-Received: by mail-qt0-f169.google.com with SMTP id u12so155441649qth.0
-        for <util-linux@vger.kernel.org>; Wed, 21 Jun 2017 05:15:59 -0700 (PDT)
+Received: from mout.gmx.net ([212.227.15.18]:61327 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753922AbdFSMgU (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 19 Jun 2017 08:36:20 -0400
+Received: from zappa.l.ga-group.nl ([87.128.112.108]) by mail.gmx.com
+ (mrgmx001 [212.227.17.190]) with ESMTPSA (Nemesis) id
+ 0LaXIV-1e56lx13Zn-00mKhM for <util-linux@vger.kernel.org>; Mon, 19 Jun 2017
+ 14:36:18 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/4] flock: cleanup usage issues
+Date: Mon, 19 Jun 2017 14:36:17 +0200
+References: <1497872174-9852-1-git-send-email-sweet_f_a@gmx.de> <1497872174-9852-3-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1497872174-9852-3-git-send-email-sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Wed, 21 Jun 2017 13:15:58 +0100
-Message-ID: <CAG27Bk2qLRTEQStSvo7wWeychM+MQofvDGhT_ZOx=4yD7C2v2w@mail.gmail.com>
-Subject: mount(8) does not work when using a specific target dir
-To: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201706191436.17101.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+On Monday 19 June 2017, Ruediger Meier wrote:
+> From: Ruediger Meier <ruediger.meier@ga-group.nl>
+>
+> Write --help always to stdout.
+> Always use errtryhelp(EX_USAGE) instead of errx(EX_USAGE, ...)
+>
+> Noticed by
+>
+> $ ./tools/checkusage.sh flock
+> flock: help no stdout
+> flock: help non-empty stderr
+>
+> Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+> ---
+>  sys-utils/flock.c | 67
+> +++++++++++++++++++++++++++---------------------------- 1 file
+> changed, 33 insertions(+), 34 deletions(-)
+>
+> diff --git a/sys-utils/flock.c b/sys-utils/flock.c
+> index 50194bd..5eab1db 100644
+> --- a/sys-utils/flock.c
+> +++ b/sys-utils/flock.c
+> @@ -46,34 +46,34 @@
+>  #include "monotonic.h"
+>  #include "timer.h"
+>
+> -static void __attribute__((__noreturn__)) usage(int ex)
+> +static void __attribute__((__noreturn__)) usage(void)
+>  {
+> -	fprintf(stderr, USAGE_HEADER);
+> -	fprintf(stderr,
+> +	printf(USAGE_HEADER);
+> +	printf(
+>  		_(" %1$s [options] <file>|<directory> <command> [<argument>...]\n"
+>  		  " %1$s [options] <file>|<directory> -c <command>\n"
+>  		  " %1$s [options] <file descriptor number>\n"),
+>  		program_invocation_short_name);
+>
+> -	fputs(USAGE_SEPARATOR, stderr);
+> -	fputs(_("Manage file locks from shell scripts.\n"), stderr);
+> -
+> -	fputs(USAGE_OPTIONS, stderr);
+> -	fputs(_(  " -s, --shared             get a shared lock\n"),
+> stderr); -	fputs(_(  " -x, --exclusive          get an exclusive lock
+> (default)\n"), stderr); -	fputs(_(  " -u, --unlock             remove
+> a lock\n"), stderr); -	fputs(_(  " -n, --nonblock           fail
+> rather than wait\n"), stderr); -	fputs(_(  " -w, --timeout <secs>    
+> wait for a limited amount of time\n"), stderr); -	fputs(_(  " -E,
+> --conflict-exit-code <number>  exit code after conflict or
+> timeout\n"), stderr); -	fputs(_(  " -o, --close              close
+> file descriptor before running command\n"), stderr); -	fputs(_(  "
+> -c, --command <command>  run a single command string through the
+> shell\n"), stderr); -	fputs(_(  " -F, --no-fork            execute
+> command without forking\n"), stderr); -	fputs(_(  "     --verbose    
+>        increase verbosity\n"), stderr); -	fprintf(stderr,
+> USAGE_SEPARATOR);
+> -	fprintf(stderr, USAGE_HELP);
+> -	fprintf(stderr, USAGE_VERSION);
+> -	fprintf(stderr, USAGE_MAN_TAIL("flock(1)"));
+> -	exit(ex);
+> +	puts(USAGE_SEPARATOR);
+> +	puts(_("Manage file locks from shell scripts.\n"));
+> +
+> +	puts(USAGE_OPTIONS);
+> +	puts(_(  " -s, --shared             get a shared lock\n"));
+> +	puts(_(  " -x, --exclusive          get an exclusive lock
+> (default)\n")); +	puts(_(  " -u, --unlock             remove a
+> lock\n"));
+> +	puts(_(  " -n, --nonblock           fail rather than wait\n"));
+> +	puts(_(  " -w, --timeout <secs>     wait for a limited amount of
+> time\n")); +	puts(_(  " -E, --conflict-exit-code <number>  exit code
+> after conflict or timeout\n")); +	puts(_(  " -o, --close             
+> close file descriptor before running command\n")); +	puts(_(  " -c,
+> --command <command>  run a single command string through the
+> shell\n")); +	puts(_(  " -F, --no-fork            execute command
+> without forking\n")); +	puts(_(  "     --verbose            increase
+> verbosity\n")); +	printf(USAGE_SEPARATOR);
+> +	printf(USAGE_HELP);
+> +	printf(USAGE_VERSION);
+> +	printf(USAGE_MAN_TAIL("flock(1)"));
+> +	exit(EXIT_SUCCESS);
+>  }
 
-We (Cloudflare) got a strange issue with mount(8) from debian jessie
-package v2.25.2. Kernel version is 4.4.46 (self compiled, works on
-other servers).
+Sorry I forgot that the fputs/puts repacement adds another newline.
 
-An md device, that is constructed of 12 luks encrypted disks, will not
-mount to a path /disk/data but it happily mounts to any other path.
-This is rather unfortunate because we expect to see our device in that
-path. The same happens with a dummy file-based filesystem[1], so this
-is unlikely to be related to the device. Here is a debug sample.
+I could either
+  1. remove the newlines from the strings (but would this cause extra
+     work for translators?)
+  2. use printf instead of puts
+  3. don't change anything, just use constant FILE argument stdout.
 
-root:/disk# export LIBMOUNT_DEBUG=0xffff
-root:/disk# mount /dev/md127 /disk/data
-10191: libmount:     INIT: debug mask: 0xffff
-10191: libmount:     INIT: library version: 2.25.0
-10191: libmount:     INIT:     feature: selinux
-10191: libmount:     INIT:     feature: assert
-10191: libmount:     INIT:     feature: debug
-10191: libmount:      CXT: [0x1a5d080]: ----> allocate
-10191: libmount:      CXT: [0x1a5d080]: mount: preparing
-10191: libmount:      CXT: [0x1a5d080]: use default optsmode
-10191: libmount:      CXT: [0x1a5d080]: OPTSMODE: ignore=0, append=0,
-prepend=1, replace=0, force=0, fstab=1, mtab=1
-10191: libmount:      CXT: [0x1a5d080]: fstab not required -- skip
-10191: libmount:      CXT: [0x1a5d080]: merging mount flags
-10191: libmount:      CXT: [0x1a5d080]: final flags: VFS=00000000 user=00000000
-10191: libmount:      CXT: [0x1a5d080]: mount: evaluating permissions
-10191: libmount:      CXT: [0x1a5d080]: mount: fixing optstr
-10191: libmount:      CXT: [0x1a5d080]: mount: fixing vfs optstr
-10191: libmount:      CXT: applying 0x00000000 flags to '(null)'
-10191: libmount:      CXT: new optstr 'rw'
-10191: libmount:      CXT: [0x1a5d080]: mount: fixing user optstr
-10191: libmount:      CXT: applying 0x00000000 flags to '(null)'
-10191: libmount:      CXT: new optstr '(null)'
-10191: libmount:      CXT: [0x1a5d080]: fixed options [rc=0]: vfs:
-'rw' fs: '(null)' user: '(null)', optstr: 'rw'
-10191: libmount:      CXT: [0x1a5d080]: preparing source path
-10191: libmount:      CXT: [0x1a5d080]: srcpath '/dev/md127'
-10191: libmount:    CACHE: [0x1a5d2c0]: alloc
-10191: libmount:    CACHE: [0x1a5d2c0]: canonicalize path /dev/md127
-10191: libmount:    CACHE: [0x1a5d2c0]: add entry [ 1] (path):
-/dev/md127: /dev/md127
-10191: libmount:      CXT: [0x1a5d080]: final srcpath '/dev/md127'
-10191: libmount:      CXT: [0x1a5d080]: preparing target path
-10191: libmount:    CACHE: [0x1a5d2c0]: canonicalize path /disk/data
-10191: libmount:    CACHE: [0x1a5d2c0]: add entry [ 2] (path):
-/disk/data: /disk/data
-10191: libmount:      CXT: [0x1a5d080]: final target '/disk/data'
-10191: libmount:    CACHE: [0x1a5d2c0]: get /dev/md127 FS type
-10191: libmount:    CACHE: [0x1a5d2c0]: tags for /dev/md127 requested
-10191: libmount:    CACHE: [0x1a5d2c0]: reading tags for: /dev/md127
-10191: libmount:    CACHE: [0x1a5d2c0]: add entry [ 3] (tag): /dev/md127: UUID
-10191: libmount:    CACHE: [0x1a5d2c0]: add entry [ 4] (tag): /dev/md127: TYPE
-10191: libmount:    CACHE: [0x1a5d2c0]:         read 2 tags
-10191: libmount:      CXT: [0x1a5d080]: FS type: ext4 [rc=0]
-10191: libmount:      CXT: [0x1a5d080]: /sbin/mount.ext4          ... not found
-10191: libmount:      CXT: [0x1a5d080]: /sbin/fs.d/mount.ext4     ... not found
-10191: libmount:      CXT: [0x1a5d080]: /sbin/fs/mount.ext4       ... not found
-10191: libmount:      CXT: [0x1a5d080]: prepare update
-10191: libmount:      CXT: [0x1a5d080]: checking for writable tab files
-10191: libmount:    UTILS: mtab: /etc/mtab
-10191: libmount:    UTILS: /etc/mtab: irregular/non-writable
-10191: libmount:    UTILS: utab: /run/mount/utab
-10191: libmount:   UPDATE: [0x1a62270]: allocate
-10191: libmount:   UPDATE: [0x1a62270]: resetting FS [fs=0x0x1a5d180,
-target=(null), flags=0x00000000]
-10191: libmount:   UPDATE: [0x1a62270]: FS template:
-10191: libmount:   UPDATE: ------ fs: 0x1a5d180
-source: /dev/md127
-target: /disk/data
-fstype: ext4
-optstr: rw
-VFS-optstr: rw
-10191: libmount:   UPDATE: prepare utab entry
-10191: libmount:   UPDATE: utab entry unnecessary (no options)
-10191: libmount:      CXT: [0x1a5d080]: mount: do mount
-10191: libmount:      CXT: [0x1a5d080]: mount(2) [source=/dev/md127,
-target=/disk/data, type=ext4,  mountflags=0xc0ed0000,
-mountdata=<none>]
-[ 9023.111850] EXT4-fs (md127): mounted filesystem with ordered data
-mode. Opts: (null)
-10191: libmount:      CXT: [0x1a5d080]: mount(2) success
-10191: libmount:      CXT: [0x1a5d080]: don't update: no update prepared
-10191: libmount:      CXT: [0x1a5d080]: <---- reset [status=1] ---->
-10191: libmount:       FS: [0x1a5d180]: free [refcount=0]
-10191: libmount:    CACHE: [0x1a5d2c0]: free [refcount=0]
-10191: libmount:   UPDATE: [0x1a62270]: free
-10191: libmount:      CXT: [0x1a5d080]: <---- free
-
-Any ideas what could cause that? And just to repeat in sake of being
-clear, mounting to other destination directory works fine - even debug
-messages are practically identical.
-
-[1] dd if=/dev/zero bs=10M count=1 of=/dummy; mkfs.ext4 /dummy; mount /disk/data
-
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+>  static sig_atomic_t timeout_expired = 0;
+> @@ -170,9 +170,6 @@ int main(int argc, char *argv[])
+>  	textdomain(PACKAGE);
+>  	atexit(close_stdout);
+>
+> -	if (argc < 2)
+> -		usage(EX_USAGE);
+> -
+>  	memset(&timeout, 0, sizeof timeout);
+>
+>  	optopt = 0;
+> @@ -215,24 +212,25 @@ int main(int argc, char *argv[])
+>  			printf(UTIL_LINUX_VERSION);
+>  			exit(EX_OK);
+>  		case 'h':
+> -			usage(0);
+> +			usage();
+>  		default:
+>  			errtryhelp(EX_USAGE);
+>  		}
+>  	}
+>
+> -	if (no_fork && do_close)
+> -		errx(EX_USAGE,
+> -			_("the --no-fork and --close options are incompatible"));
+> -
+> +	if (no_fork && do_close) {
+> +		warnx(_("the --no-fork and --close options are incompatible"));
+> +		errtryhelp(EX_USAGE);
+> +	}
+>  	if (argc > optind + 1) {
+>  		/* Run command */
+>  		if (!strcmp(argv[optind + 1], "-c") ||
+>  		    !strcmp(argv[optind + 1], "--command")) {
+> -			if (argc != optind + 3)
+> -				errx(EX_USAGE,
+> -				     _("%s requires exactly one command argument"),
+> +			if (argc != optind + 3) {
+> +				warnx(_("%s requires exactly one command argument"),
+>  				     argv[optind + 1]);
+> +				errtryhelp(EX_USAGE);
+> +			}
+>  			cmd_argv = sh_c_argv;
+>  			cmd_argv[0] = getenv("SHELL");
+>  			if (!cmd_argv[0] || !*cmd_argv[0])
+> @@ -252,7 +250,8 @@ int main(int argc, char *argv[])
+>  		fd = strtos32_or_err(argv[optind], _("bad file descriptor"));
+>  	} else {
+>  		/* Bad options */
+> -		errx(EX_USAGE, _("requires file descriptor, file or directory"));
+> +		warnx(_("requires file descriptor, file or directory"));
+> +		errtryhelp(EX_USAGE);
+>  	}
+>
+>  	if (have_timeout) {
