@@ -1,110 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.19]:51017 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.21]:50558 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751561AbdFIVKT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 9 Jun 2017 17:10:19 -0400
-Subject: Re: [PATCH 01/11] misc: fallthrough fixes
-From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
-To: Sami Kerola <kerolasa@iki.fi>
+        id S1753236AbdFSArk (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 18 Jun 2017 20:47:40 -0400
+Subject: [PATCH 09/12] hwclock: add --update-drift check
+To: Karel Zak <kzak@redhat.com>
+References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
 Cc: util-linux@vger.kernel.org
-References: <20170608195215.1702-1-kerolasa@iki.fi>
- <20170608195215.1702-2-kerolasa@iki.fi> <201706091314.08008.sweet_f_a@gmx.de>
-Message-ID: <968790d0-c49c-538b-d034-ffcda9c20efc@gmx.de>
-Date: Fri, 9 Jun 2017 23:10:09 +0200
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <7d4b3895-4b1b-eabe-e09a-eccb5b8b8fb9@gmx.com>
+Date: Sun, 18 Jun 2017 20:47:24 -0400
 MIME-Version: 1.0
-In-Reply-To: <201706091314.08008.sweet_f_a@gmx.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
+Only allow --update-drift for --set or --systohc
 
-On 06/09/2017 01:14 PM, Ruediger Meier wrote:
-> Hi,
-> 
-> This patch looks a bit ugly, for example:
-> 
-> ## gcc 4.8.1
-> 
->    CC       text-utils/more-more.o
-> ../text-utils/more.c: In function ‘command’:
-> ../text-utils/more.c:1273:4: warning: empty declaration [enabled by
-> default]
->      UL_FALLTHROUGH;
-> 
-> ## icc 16.0.0
-> 
-> text-utils/more.c(1273): warning #1292: unknown attribute "fallthrough"
->                          UL_FALLTHROUGH;
->                          ^
-> 
->> diff --git a/include/c.h b/include/c.h
->> index a5162b964..8a67b5dfb 100644
->> --- a/include/c.h
->> +++ b/include/c.h
->> @@ -77,6 +77,24 @@
->>   #endif
->>   
->>   /*
->> + * Statement Attributes
->> + */
->> +#if defined(__clang__)
->> +# ifndef __has_cpp_attribute
->> +#  define __has_cpp_attribute(x) 0
->> +# endif
->> +# if __has_cpp_attribute(clang::fallthrough)
->> +#  define UL_FALLTHROUGH [[clang::fallthrough]]
->> +# else
->> +#  define UL_FALLTHROUGH /* fall through */
->> +# endif
->> +#elif defined(__GNUC__) || defined(__GNUG__)
->> +# define UL_FALLTHROUGH __attribute__((fallthrough))
->> +#else
->> +# define UL_FALLTHROUGH /* FALLTHRU */
->> +#endif
->> +
->> +/*
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.8.in | 3 +--
+ sys-utils/hwclock.c    | 7 ++++++-
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
-Sorry this was broken. But I've checked now all clang and gcc versions. Looks
-like for clang the warning is only enabled when using C++ (clang++). So the
-fallthrough warning appears currently only on gcc>=7 and this works to disable
-it in a compatible way:
-
-#ifndef __has_cpp_attribute
-# define __has_cpp_attribute(x) 0
-#endif
-
-#if __has_cpp_attribute(fallthrough)
-# define UL_FALLTHROUGH __attribute__((fallthrough))
-#else
-# define UL_FALLTHROUGH /* fall through */
-#endif
-
-
-> Maybe just simplify like this:
-> 
-> #ifndef __has_attribute
->    #define __has_attribute(x) 0
-> #endif
-> 
-> #if __has_cpp_attribute(fallthrough)
-> # define UL_FALLTHROUGH [[fallthrough]]
-> #else
-> # define UL_FALLTHROUGH /* fall through */
-> #endif
-> 
-> The attribute works without "clang::" prefix on recent gcc and clang,
-> and maybe icc in future.
-> 
-> Otherwise we could check for the attribute in configure, using
-> autoconf-archive
->    AX_GCC_FUNC_ATTRIBUTE(fallthrough)
-> https://www.gnu.org/software/autoconf-archive/ax_gcc_func_attribute.html
-> 
-> cu,
-> Rudi
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
+index cf33e63..72b842e 100644
+--- a/sys-utils/hwclock.8.in
++++ b/sys-utils/hwclock.8.in
+@@ -376,9 +376,8 @@ in learning about the internal operations of hwclock.
+ .B \-\-update\-drift
+ Update the Hardware Clock's drift factor in
+ .IR @ADJTIME_PATH@ .
+-It is used with
++It can only be used with
+ .BR \-\-set " or " \%\-\-systohc ,
+-otherwise it is ignored.
+ .sp
+ A minimum four hour period between settings is required.  This is to
+ avoid invalid calculations.  The longer the period, the more precise the
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 5868ad6..7d69b7a 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1233,7 +1233,7 @@ usage(const struct hwclock_control *ctl, FILE *out)
+ #if defined(__linux__) && defined(__alpha__)
+ 	fputs(_("     --epoch <year>   epoch input for --setepoch\n"), out);
+ #endif
+-	fputs(_("     --update-drift   update drift factor (requires --set or --systohc)\n"), out);
++	fputs(_("     --update-drift   update the RTC drift factor\n"), out);
+ 	fprintf(out, _(
+ 		"     --noadjfile      do not use %1$s\n"
+ 		"     --adjfile <file> use an alternate file to %1$s\n"), _PATH_ADJTIME);
+@@ -1465,6 +1465,11 @@ int main(int argc, char **argv)
+ 	if (!ctl.adj_file_name)
+ 		ctl.adj_file_name = _PATH_ADJTIME;
+ 
++	if (ctl.update && !ctl.set && !ctl.systohc) {
++		warnx(_("--update-drift requires --set or --systohc"));
++		hwclock_exit(&ctl, EX_USAGE);
++	}
++
+ 	if (ctl.noadjfile && !ctl.utc && !ctl.local_opt) {
+ 		warnx(_("With --noadjfile, you must specify "
+ 			"either --utc or --localtime"));
