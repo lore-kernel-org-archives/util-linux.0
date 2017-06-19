@@ -1,44 +1,60 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from resqmta-ch2-03v.sys.comcast.net ([69.252.207.35]:59386 "EHLO
-        resqmta-ch2-03v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753900AbdFWVik (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Fri, 23 Jun 2017 17:38:40 -0400
-From: "W. Trevor King" <wking@tremily.us>
-To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>, "W. Trevor King" <wking@tremily.us>
-Subject: [PATCH v2 4/8] sys-utils/mount.8: Simplify nouser
-Date: Fri, 23 Jun 2017 14:30:22 -0700
-Message-Id: <2f9424002b9b0c3a570dd2cc54ad1ad3844960ef.1498252231.git.wking@tremily.us>
-In-Reply-To: <cover.1498252231.git.wking@tremily.us>
-References: <cover.1498252231.git.wking@tremily.us>
-In-Reply-To: <cover.1498252231.git.wking@tremily.us>
-References: <cover.1498252231.git.wking@tremily.us>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 10/12] Docs: update howto-usage-function.txt
+To: Karel Zak <kzak@redhat.com>
+References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <826b3038-077e-97e2-4e97-65c793acc8fd@gmx.com>
+Date: Sun, 18 Jun 2017 20:48:34 -0400
+MIME-Version: 1.0
+In-Reply-To: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-Don't try to explain how this happens in isolation, since "unsets any
-previous user option", is sufficient.
 
-Signed-off-by: W. Trevor King <wking@tremily.us>
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
- sys-utils/mount.8 | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ Documentation/howto-usage-function.txt | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
-index 26e6ce0..d20e35d 100644
---- a/sys-utils/mount.8
-+++ b/sys-utils/mount.8
-@@ -1158,8 +1158,7 @@ This option implies the options
- .BR user,exec,dev,suid ).
- .TP
- .B nouser
--Forbid an ordinary user to mount the filesystem.
--This is the default; it does not imply any other options.
-+Unset \fBuser\fR.
- .TP
- .B users
- Allow any user to mount and to unmount the filesystem, even
--- 
-2.1.0.60.g85f0837
-
+diff --git a/Documentation/howto-usage-function.txt b/Documentation/howto-usage-function.txt
+index 54d3084..8da8deb 100644
+--- a/Documentation/howto-usage-function.txt
++++ b/Documentation/howto-usage-function.txt
+@@ -10,8 +10,7 @@ other purpose:
+ The rule of thumb with other options is that once they exist, you may
+ not change them, nor change how they work, nor remove them.
+ 
+-Notice that '-?' is not expected to be a synonym of '--help', but is an
+-unknown option resulting in a usage print-out due to a getopt failure.
++See Legacy options below.
+ 
+ 
+ How a usage text is supposed to look
+@@ -118,6 +117,7 @@ entail for translators will pay off later, at the time of the next change,
+ when they will not need to search in the long fuzzy text what was changed,
+ where, how, and whether it was the only change.
+ 
++
+ Synopsis
+ --------
+ 
+@@ -143,13 +143,15 @@ Some commands use peculiar options and arguments.  These will continue
+ to be supported, but anything like them will not be accepted as new
+ additions.  A short list of examples:
+ 
+-- Other characters than '-' to start an option.  See '+' in 'more'.
+-- Using a number as an option argument.  See '-<number>' in 'more'.
++- Characters other than '-' to start an option.  See '+' in 'more'.
++- Using a number as an option.  See '-<number>' in 'more'.
+ - Long options that start with a single '-'.  See 'setterm'.
++- '-?' is not expected to be a synonym of '--help', but is an unknown
++  option resulting in a suggestion to try --help due to a getopt failure.
+ 
+ 
+ Example file
+ ------------
+ 
+-The file disk-utils/delpart.c is a minimal example of how to write
++The file ./boilerplate.c is a minimal example of how to write
+ a usage function, set up option parsing, version printing and so on.
