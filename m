@@ -1,42 +1,39 @@
-Return-Path: johannes@sipsolutions.net
-Message-ID: <1498745040.3141.6.camel@sipsolutions.net>
-Subject: Re: rfkill(8) move and improvements
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Sami Kerola <kerolasa@iki.fi>, Marcel Holtmann <marcel@holtmann.org>,
-	Tim Gardner <tim.gardner@canonical.com>, Karel Zak <kzak@redhat.com>
-Cc: linux-wireless@vger.kernel.org, util-linux@vger.kernel.org
-Date: Thu, 29 Jun 2017 16:04:00 +0200
-In-Reply-To: <alpine.LNX.2.20.1706251339500.25762@imuri> (sfid-20170625_150452_207599_1328128A)
-References: <alpine.LNX.2.20.1706251339500.25762@imuri>
-	 (sfid-20170625_150452_207599_1328128A)
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:42122 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751138AbdFTJcC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 20 Jun 2017 05:32:02 -0400
+Date: Tue, 20 Jun 2017 11:31:58 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Vinnie Magro <vmagro@fb.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] dmesg: fragment concatenation
+Message-ID: <20170620093158.b3sgxw26ajwbh6s3@ws.net.home>
+References: <20170619214502.968882-1-vmagro@fb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170619214502.968882-1-vmagro@fb.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Sami, all,
+On Mon, Jun 19, 2017 at 02:45:02PM -0700, Vinnie Magro wrote:
+>  sys-utils/dmesg.c | 118 ++++++++++++++++++++++++++++++++++++++++++++++++++----
+>  1 file changed, 111 insertions(+), 7 deletions(-)
 
-> The otherday I ran powertop and it did rfkill to save battery, which
-> was particularly annoying because I had not installed rfkill(8)
-> package.  
-> Fixing the immediate issue was relatively easy, but the ordeal made
-> me wonder if this tool could be moved to a package that is installed
-> by default to all systems, such as util-linux.
+Applied with minor changes, thanks.
 
-[...]
+> +	char		kmsg_saved[BUFSIZ];/* buffer to save line after fragment */
+> +	ssize_t		kmsg_read_buf;  /* if nonzero, read from kmsg_saved */
+                ^^^^^^^^^^^^^
 
-> What do you think, would the move and proposed updates be ok?
+Renamed to kmsg_saved_size.
 
-I can't say I mind, and most of your proposed changes seem sensible,
-though I haven't reviewed them in enough detail to comment on them.
-Something that caught my eye here was comparing a string to _("all")
-which seems wrong, since that'd mean you'd have to type the translated
-version even on the command line? That seems really awkward (to put it
-charitably).
+Is there any elegant way how I can test it? Frankly, I'm not sure what
+means "extended console" (it does not seem we have any kernel CONFIG_
+option for this).
 
-However, at the same time, I have very little desire to get involved
-with util-linux as yet another project, so frankly I'd probably
-continue to "maintain" the current rfkill tool - which really hasn't
-changed in a very long time, and hope somebody else picks up
-maintenance of rfkill included in util-linux.
+    Karel
 
-johannes
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
