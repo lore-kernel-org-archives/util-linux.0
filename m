@@ -1,87 +1,107 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:57093 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.20]:56909 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751606AbdFFTRS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 6 Jun 2017 15:17:18 -0400
-Subject: Re: [PATCH 6/6] misc: fix some warnings
+        id S1750899AbdFUQXh (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 21 Jun 2017 12:23:37 -0400
+Subject: Re: [PATCH 04/12] hwclock: add usage() functions heading
 To: Ruediger Meier <sweet_f_a@gmx.de>
-References: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
- <1496279320-14541-7-git-send-email-sweet_f_a@gmx.de>
- <0035d164-75ac-f892-2cbe-0fb8184116cb@gmx.com>
- <201706061010.07911.sweet_f_a@gmx.de>
- <de2ea265-ed30-8493-7267-a113b9140a5d@gmx.com>
-Cc: util-linux@vger.kernel.org
+References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
+ <68a54120-d8ad-59c2-89b6-4ccdd961300b@gmx.com>
+ <201706211421.12132.sweet_f_a@gmx.de>
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
 From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <42e92093-bed4-daa0-e2cd-f90205e17f8b@gmx.com>
-Date: Tue, 6 Jun 2017 15:17:12 -0400
+Message-ID: <e845c961-1d38-6258-ef68-9b44528a5f77@gmx.com>
+Date: Wed, 21 Jun 2017 11:59:04 -0400
 MIME-Version: 1.0
-In-Reply-To: <de2ea265-ed30-8493-7267-a113b9140a5d@gmx.com>
+In-Reply-To: <201706211421.12132.sweet_f_a@gmx.de>
 Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
 
-On 06/06/2017 02:18 PM, J William Piggott wrote:
-> 
-> 
-> On 06/06/2017 04:10 AM, Ruediger Meier wrote:
->> On Thursday 01 June 2017, J William Piggott wrote:
->>> On 05/31/2017 09:08 PM, Ruediger Meier wrote:
->>>> From: Ruediger Meier <ruediger.meier@ga-group.nl>
->>>
->>>  8< ---
->>>
->>>> diff --git a/lib/plymouth-ctrl.c b/lib/plymouth-ctrl.c
->>>> index 75d8b93..0e60341 100644
->>>> --- a/lib/plymouth-ctrl.c
->>>> +++ b/lib/plymouth-ctrl.c
->>>> @@ -85,7 +85,8 @@ static int open_un_socket_and_connect(void)
->>>>  	 * Please note that the PLYMOUTH_SOCKET_PATH has a
->>>>  	 * leading NULL byte to mark it as an abstract socket
->>>>  	 */
->>>> -	ret = connect(fd, &su, offsetof(struct sockaddr_un, sun_path) + 1
->>>> + strlen(su.sun_path+1)); +	ret = connect(fd, (const struct
->>>> sockaddr *) &su,
->>>> +	              offsetof(struct sockaddr_un, sun_path) + 1 +
->>>> strlen(su.sun_path+1));
->>>
->>>         ^^^^^^^^^^^^^^ whitespace
->>>
->>>  8< ---
+On 06/21/2017 08:21 AM, Ruediger Meier wrote:
+> On Monday 19 June 2017, J William Piggott wrote:
+>> Make a functions heading, similar to the existing options heading.
 >>
->> What would be the right whitespace style? I've made one indentation 
->> (tab) and some spaces to align the broken line regarding  "connect(".
+>> * include/c.h: define USAGE_FUNCTIONS
+>> * Documentation/boilerplate.c: add USAGE_FUNCTIONS
+>> * sys-utils/hwclock.c add functions header to usage()
 >>
->> I'm using tab only for indentation but not for alignment, to let it look 
->> nice independently of editors tab witdth. Is that wrong?
+>> Signed-off-by: J William Piggott <elseifthen@gmx.com>
+>> ---
+>>  Documentation/boilerplate.c | 3 +++
+>>  include/c.h                 | 3 ++-
+>>  sys-utils/hwclock.c         | 3 +--
+>>  3 files changed, 6 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/Documentation/boilerplate.c
+>> b/Documentation/boilerplate.c index 7da9374..057893b 100644
+>> --- a/Documentation/boilerplate.c
+>> +++ b/Documentation/boilerplate.c
+>> @@ -33,6 +33,9 @@ static void __attribute__((__noreturn__))
+>> usage(FILE *out) {
+>>  	fputs(USAGE_HEADER, out);
+>>  	fprintf(out, _(" %s [options] file...\n"),
+>> program_invocation_short_name); +	fputs(USAGE_FUNCTIONS, out);
+>> +	fputs(_(" -s, --do-something      some specific task\n"), out);
+>> +	fputs(_(" -o, --do-other          some different task\n"), out);
 > 
-> I wouldn't call it 'wrong'. To my knowledge, it is not the style this
-> project uses. Eight spaces should be a tab. You have one tab and 14
-> spaces, it should be 2 tabs and 6 spaces. Actually, the Linux kernel
-> style guide (the chosen style guide for util-linux) says no spaces are
-> allowed for c indentation, but Karel seems to make an exception for that.
-> 
-> I have git configured to highlight eight spaces and when I looked at
-> this commit with 'git show' that line lit up in red. Something I do
-> not normally see happen in this project.
->
+> These options -s and -o are not implemented in the boilerplate.c. Also 
+> the short usage line does not mention "functions" but "options" only.
 
-I forgot to mention, the line in question exceeds 80 columns and should
-be split again (the line changed in last.c wraps now also).
+Good point, I didn't think to add them.
 
+> 
+> I think this USAGE_FUNCTIONS looks quite good in hwclock and would be 
+> nice for some other commands too. But I guess 90% of all commands do 
+> not need this. So maybe we should not add this to the boilerplate.
+
+I agree that it is not common, but I think it belongs in boilerplate for
+discovery purposes by new contributors.
+
+> 
+> cu,
+> Rudi
+> 
+>>  	fputs(USAGE_OPTIONS, out);
+>>  	fputs(_(" -n, --no-argument       option does not use argument\n"),
+>> out); fputs(_("     --optional[=<arg>]  option argument is
+>> optional\n"), out); diff --git a/include/c.h b/include/c.h
+>> index a5162b9..9c19965 100644
+>> --- a/include/c.h
+>> +++ b/include/c.h
+>> @@ -317,10 +317,11 @@ static inline int xusleep(useconds_t usec)
+>>   */
+>>  #define USAGE_HEADER     _("\nUsage:\n")
+>>  #define USAGE_OPTIONS    _("\nOptions:\n")
+>> +#define USAGE_FUNCTIONS  _("\nFunctions:\n")
+>>  #define USAGE_SEPARATOR    "\n"
+>>  #define USAGE_HELP       _(" -h, --help     display this help and
+>> exit\n") #define USAGE_VERSION    _(" -V, --version  output version
+>> information and exit\n") -#define USAGE_MAN_TAIL(_man)   _("\nFor
+>> more details see %s.\n"), _man +#define USAGE_MAN_TAIL(_man)  
+>> _("\nFor more details see %s\n"), _man
 >>
->> cu,
->> Rudi
+>>  #define UTIL_LINUX_VERSION _("%s from %s\n"),
+>> program_invocation_short_name, PACKAGE_STRING
 >>
+>> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+>> index 28655b0..9d6bb11 100644
+>> --- a/sys-utils/hwclock.c
+>> +++ b/sys-utils/hwclock.c
+>> @@ -1208,8 +1208,7 @@ usage(const struct hwclock_control *ctl, FILE
+>> *out) fputs(USAGE_SEPARATOR, out);
+>>  	fputs(_(" Query or set the hardware clock\n"), out);
 >>
->> --
->> To unsubscribe from this list: send the line "unsubscribe util-linux" in
->> the body of a message to majordomo@vger.kernel.org
+>> -	fputs(USAGE_SEPARATOR, out);
+>> -	fputs(_("Functions:\n"), out);
+>> +	fputs(USAGE_FUNCTIONS, out);
+>>  	fputs(_(" -r, --show           read hardware clock and print
+>> result\n" "     --get            read hardware clock and print drift
+>> corrected result\n" "     --set            set the RTC to the time
+>> given with --date\n"), out); --
+>> To unsubscribe from this list: send the line "unsubscribe util-linux"
+>> in the body of a message to majordomo@vger.kernel.org
 >> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
