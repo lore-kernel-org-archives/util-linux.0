@@ -1,84 +1,33 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:59904 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751216AbdFABIn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 31 May 2017 21:08:43 -0400
-Received: from tenfore.ga-group.nl ([77.12.147.210]) by mail.gmx.com (mrgmx003
- [212.227.17.190]) with ESMTPSA (Nemesis) id 0M7YF5-1e9b8o0yG7-00xMRI for
- <util-linux@vger.kernel.org>; Thu, 01 Jun 2017 03:08:41 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/6] tests: grep's short option -A is more portable
-Date: Thu,  1 Jun 2017 03:08:35 +0200
-Message-Id: <1496279320-14541-2-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
-References: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: elseifthen@gmx.com
+Subject: Re: [PATCH 11/12] hwclock: remove unused usage() FILE argument
+To: Karel Zak <kzak@redhat.com>
+References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
+ <ce8ce9d6-d266-12da-8e7e-c41e6a185714@gmx.com>
+ <20170620085610.5eacn7kl5agfemmk@ws.net.home>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <3329fb6f-1916-f2e1-a720-91833a146794@gmx.com>
+Date: Tue, 20 Jun 2017 20:52:32 -0400
+MIME-Version: 1.0
+In-Reply-To: <20170620085610.5eacn7kl5agfemmk@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Noticed on Alpine Linux/busybox.
 
-Reported-by: Assaf Gordon <assafgordon@gmail.com>
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- tests/ts/ipcs/headers | 26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+On 06/20/2017 04:56 AM, Karel Zak wrote:
+> On Sun, Jun 18, 2017 at 08:49:49PM -0400, J William Piggott wrote:
+>>  sys-utils/hwclock.c | 74 ++++++++++++++++++++++++++---------------------------
+>>  1 file changed, 37 insertions(+), 37 deletions(-)
+> 
+> It would be better to remove this patch from the pull-request; let's
+> keep fputs() in the code and wait for any solution from Rudi :-)
 
-diff --git a/tests/ts/ipcs/headers b/tests/ts/ipcs/headers
-index 5089ea5..475ed56 100755
---- a/tests/ts/ipcs/headers
-+++ b/tests/ts/ipcs/headers
-@@ -24,35 +24,35 @@ ts_init "$*"
- ts_check_test_command "$TS_CMD_IPCS"
- 
- ts_log "test: shm headers"
--$TS_CMD_IPCS -m -t | grep --after-context=1 "^---"  >> $TS_OUTPUT
--$TS_CMD_IPCS -m -p | grep --after-context=1 "^---"  >> $TS_OUTPUT
--$TS_CMD_IPCS -m -c | grep --after-context=1 "^---"  >> $TS_OUTPUT
-+$TS_CMD_IPCS -m -t | grep -A1 "^---"  >> $TS_OUTPUT
-+$TS_CMD_IPCS -m -p | grep -A1 "^---"  >> $TS_OUTPUT
-+$TS_CMD_IPCS -m -c | grep -A1 "^---"  >> $TS_OUTPUT
- $TS_CMD_IPCS -m -l | grep "^---"  >> $TS_OUTPUT
- $TS_CMD_IPCS -m -u | grep "^---"  >> $TS_OUTPUT
- echo >> $TS_OUTPUT
- 
- ts_log "test: mesg headers"
--$TS_CMD_IPCS -q -t | grep --after-context=1 "^---"  >> $TS_OUTPUT
--$TS_CMD_IPCS -q -p | grep --after-context=1 "^---"  >> $TS_OUTPUT
--$TS_CMD_IPCS -q -c | grep --after-context=1 "^---"  >> $TS_OUTPUT
-+$TS_CMD_IPCS -q -t | grep -A1 "^---"  >> $TS_OUTPUT
-+$TS_CMD_IPCS -q -p | grep -A1 "^---"  >> $TS_OUTPUT
-+$TS_CMD_IPCS -q -c | grep -A1 "^---"  >> $TS_OUTPUT
- $TS_CMD_IPCS -q -l | grep  "^---"  >> $TS_OUTPUT
- $TS_CMD_IPCS -q -u | grep  "^---"  >> $TS_OUTPUT
- echo >> $TS_OUTPUT
- 
- ts_log "test: sem headers"
--$TS_CMD_IPCS -s -t | grep --after-context=1 "^---"  >> $TS_OUTPUT
--$TS_CMD_IPCS -s -p | grep --after-context=1 "^---"  >> $TS_OUTPUT
--$TS_CMD_IPCS -s -c | grep --after-context=1 "^---"  >> $TS_OUTPUT
-+$TS_CMD_IPCS -s -t | grep -A1 "^---"  >> $TS_OUTPUT
-+$TS_CMD_IPCS -s -p | grep -A1 "^---"  >> $TS_OUTPUT
-+$TS_CMD_IPCS -s -c | grep -A1 "^---"  >> $TS_OUTPUT
- $TS_CMD_IPCS -s -l | grep  "^---"  >> $TS_OUTPUT
- $TS_CMD_IPCS -s -u | grep  "^---"  >> $TS_OUTPUT
- echo >> $TS_OUTPUT
- 
- ts_log "test: all headers"
--$TS_CMD_IPCS -a | grep --after-context=1 "^---"  >> $TS_OUTPUT
-+$TS_CMD_IPCS -a | grep -A1 "^---"  >> $TS_OUTPUT
- 
--$TS_CMD_IPCS -a -t | grep --after-context=1 "^---"  >> $TS_OUTPUT
--$TS_CMD_IPCS -a -p | grep --after-context=1 "^---"  >> $TS_OUTPUT
--$TS_CMD_IPCS -a -c | grep --after-context=1 "^---"  >> $TS_OUTPUT
-+$TS_CMD_IPCS -a -t | grep -A1 "^---"  >> $TS_OUTPUT
-+$TS_CMD_IPCS -a -p | grep -A1 "^---"  >> $TS_OUTPUT
-+$TS_CMD_IPCS -a -c | grep -A1 "^---"  >> $TS_OUTPUT
- $TS_CMD_IPCS -a -l | grep "^---"  >> $TS_OUTPUT
- $TS_CMD_IPCS -a -u | grep "^---"  >> $TS_OUTPUT
- 
--- 
-1.8.5.6
+Dropped.
 
+> 
+> It's bad ideal to introduce any local (hwclock-only) solution right
+> now.
+> 
+>     Karel
+> 
