@@ -1,62 +1,73 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37584 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751965AbdFMMk2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 13 Jun 2017 08:40:28 -0400
-Subject: Re: [nfs-utils PATCH] umount.nfs: assume path name is canonical.
-To: NeilBrown <neilb@suse.com>, util-linux@vger.kernel.org,
-        Linux NFS Mailing list <linux-nfs@vger.kernel.org>
-Cc: Franck Bui <fbui@suse.com>
-References: <8760gbduzp.fsf@notabene.neil.brown.name>
- <8737bfduq8.fsf@notabene.neil.brown.name>
-From: Steve Dickson <SteveD@RedHat.com>
-Message-ID: <fddad636-4a27-dd44-1b7f-edfb81005049@RedHat.com>
-Date: Tue, 13 Jun 2017 08:40:26 -0400
+Return-Path: elseifthen@gmx.com
+Subject: Re: [PATCH 11/12] hwclock: remove unused usage() FILE argument
+To: Karel Zak <kzak@redhat.com>
+References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
+ <ce8ce9d6-d266-12da-8e7e-c41e6a185714@gmx.com>
+ <20170621092647.b7zgmeeqflfmc2mt@ws.net.home>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <68c377a2-191e-43f5-34aa-c5a69d049c24@gmx.com>
+Date: Wed, 21 Jun 2017 11:48:47 -0400
 MIME-Version: 1.0
-In-Reply-To: <8737bfduq8.fsf@notabene.neil.brown.name>
-Content-Type: text/plain; charset=utf-8
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20170621092647.b7zgmeeqflfmc2mt@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
 
 
-On 06/04/2017 10:38 PM, NeilBrown wrote:
-> 
-> /usr/bin/umount will always pass a canonical name
-> to umount.nfs, so it is safe to disable canonicalization.
-> 
-> When umounting an NFS filesystem, it is generally safest to
-> not "stat" the mountpoint at all as that can block
-> indefinitely.  umount() will not block, but lstat() etc can.
-> By disabling canonicalization in libmount, we discourage it
-> from ever calling 'stat' family operations, and thus reduce
-> the chance of a hang.
-> 
-> Note that to be fully effective, this requires changes to
-> util-linux which have not yet been accepted.
-> When both that change and this are in effect, automounters
-> can use "umount -c $PATH" to safely unmount a filesystem
-> without blocking.
-> 
-> Signed-off-by: NeilBrown <neilb@suse.com>
-Committed... 
+On 06/21/2017 05:26 AM, Karel Zak wrote:
+> On Sun, Jun 18, 2017 at 08:49:49PM -0400, J William Piggott wrote:
+>>
+>> Signed-off-by: J William Piggott <elseifthen@gmx.com>
+>> ---
+>>  sys-utils/hwclock.c | 74 ++++++++++++++++++++++++++---------------------------
+>>  1 file changed, 37 insertions(+), 37 deletions(-)
+>>
+>> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+>> index 7d69b7a..636d36a 100644
+>> --- a/sys-utils/hwclock.c
+>> +++ b/sys-utils/hwclock.c
+>> @@ -1200,49 +1200,49 @@ static void out_version(void)
+>>  }
+>>  
+>>  static void __attribute__((__noreturn__))
+>> -usage(const struct hwclock_control *ctl, FILE *out)
+>> +usage(const struct hwclock_control *ctl)
+>>  {
+>> -	fputs(USAGE_HEADER, out);
+>> -	fputs(_(" hwclock [function] [option...]\n"), out);
+>> -
+>> -	fputs(USAGE_SEPARATOR, out);
+>> -	fputs(_(" Query or set the RTC (Real Time Clock / Hardware Clock)\n"), out);
+>> -
+>> -	fputs(USAGE_FUNCTIONS, out);
+>> -	fputs(_(" -r, --show           display the RTC time\n"), out);
+>> -	fputs(_("     --get            display drift corrected RTC time\n"), out);
+>> -	fputs(_("     --set            set the RTC according to --date\n"), out);
+>> -	fputs(_(" -s, --hctosys        set the system time from the RTC\n"), out);
+>> -	fputs(_(" -w, --systohc        set the RTC from the system time\n"), out);
+>> -	fputs(_("     --systz          send timescale configurations to the kernel\n"), out);
+>> -	fputs(_("     --adjust         adjust the RTC to account for systematic drift\n"), out);
+>> +	fputs(USAGE_HEADER, stdout);
+>> +	puts(_(" hwclock [function] [option...]"));
+>> +
+>> +	fputs(USAGE_SEPARATOR, stdout);
+>> +	puts(_(" Query or set the RTC (Real Time Clock / Hardware Clock)"));
+>             ^
+> We don't use this space here. Fixed.
 
-steved.
+Ah, I miss read this in howto-usage-function.txt:
 
-> ---
->  utils/mount/mount_libmount.c | 1 +
->  1 file changed, 1 insertion(+)
+> The usage output begins with an empty line, followed by 'Usage:', and
+> then the synopsis on the line after that.  The synopsis and option-
+> description lines are all indented by one space (0x40).
+
+I read 'synopsis and description', not 'option-description'. Also, it's
+the entire option line, not the option-description that is indented. 
+
+There is not an example in boilerplate.c for a command description,
+there probably should be.
+
 > 
-> diff --git a/utils/mount/mount_libmount.c b/utils/mount/mount_libmount.c
-> index 1f01f7f7a4e7..2d4065759a6c 100644
-> --- a/utils/mount/mount_libmount.c
-> +++ b/utils/mount/mount_libmount.c
-> @@ -188,6 +188,7 @@ static int umount_main(struct libmnt_context *cxt, int argc, char **argv)
->  	};
->  
->  	mnt_context_init_helper(cxt, MNT_ACT_UMOUNT, 0);
-> +	mnt_context_disable_canonicalize(cxt, 1);
->  
->  	while ((c = getopt_long (argc, argv, "fvnrlh", longopts, NULL)) != -1) {
->  
+>     Karel
 > 
