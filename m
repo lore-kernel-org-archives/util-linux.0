@@ -1,38 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:56393 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:45226 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750830AbdFOXjT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 15 Jun 2017 19:39:19 -0400
-Subject: [PATCH 02/10] parse-date: remove unused EPOCH_YEAR
-To: Karel Zak <kzak@redhat.com>
-References: <1b57c4a5-9517-e005-dd05-265004d58948@gmx.com>
+        id S1751667AbdFUWGo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 21 Jun 2017 18:06:44 -0400
+Date: Thu, 22 Jun 2017 00:06:40 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
 Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <78833b6e-0abc-b5b8-9661-b16fd9442c0a@gmx.com>
-Date: Thu, 15 Jun 2017 19:39:03 -0400
+Subject: Re: overriding STRTOXX_EXIT_CODE does not work
+Message-ID: <20170621220640.dujsbx45ndk3mpdk@ws.net.home>
+References: <201706211856.05354.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-In-Reply-To: <1b57c4a5-9517-e005-dd05-265004d58948@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201706211856.05354.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wed, Jun 21, 2017 at 06:56:05PM +0200, Ruediger Meier wrote:
+> Hi,
+> 
+> I found a little annoying issue. The trick to re-define
+> STRTOXX_EXIT_CODE (see a99c913091c, 2012-03-30) can't work.
+> When compiling strutils.c it will always use the default from
+> strutils.h
+> 
+> 
+> STRTOXX_EXIT_CODE is used only at 3 places:
+> 
+> disk-utils/fsck.c:#define STRTOXX_EXIT_CODE     FSCK_EX_USAGE
+> misc-utils/blkid.c:#define STRTOXX_EXIT_CODE    BLKID_EXIT_OTHER
+> sys-utils/tunelp.c:#define STRTOXX_EXIT_CODE    3
+> 
+> 
+> But there are more candidates where the return codes are broken
+> since strutils.h was introduced, for example here f150ac37.
+> 
+> $ grep -l "strutils.h" `git grep -l   "FINDFS_\|MNT_EX\|MKFS_EX\|FSCK_EX" --  "*.c"`
+> disk-utils/fsck.c
+> disk-utils/fsck.cramfs.c
+> disk-utils/fsck.minix.c
+> disk-utils/mkfs.cramfs.c
+> disk-utils/mkfs.minix.c
+> libmount/src/context_mount.c
+> libmount/src/context_umount.c
+> sys-utils/fstrim.c
+> sys-utils/mount.c
+> 
+> 
+> Should we make STRTOXX_EXIT_CODE usable by moving  strutils.c to
+> strutils.h, like optutils.h? Or any other ideas?
 
-Reported-by: Ruediger Meier <ruediger.meier@ga-group.nl>
-Influenced-by: gnulib 30784c4 Paul Eggert <eggert@cs.ucla.edu>
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- lib/parse-date.y | 1 -
- 1 file changed, 1 deletion(-)
+I don't think use static inline for everything is the right way, maybe
+we can introduce 
 
-diff --git a/lib/parse-date.y b/lib/parse-date.y
-index f4f9a10..97f4db9 100644
---- a/lib/parse-date.y
-+++ b/lib/parse-date.y
-@@ -109,7 +109,6 @@
- 	 ? (a) >> (b) \
- 	 : (a) / (1 << (b)) - ((a) % (1 << (b)) < 0))
- 
--#define EPOCH_YEAR 1970
- #define TM_YEAR_BASE 1900
- 
- #define HOUR(x) ((x) * 60)
+  static int _strutils_exitcode;
+
+  void strutils_set_exitcode(int ex) {
+    _strutils_exitcode  = ex;
+  }
+
+function and call the function from main() for utils where it matter. 
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
