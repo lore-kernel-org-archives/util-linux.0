@@ -1,109 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qk0-f178.google.com ([209.85.220.178]:34512 "EHLO
-        mail-qk0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751743AbdFKIgv (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 11 Jun 2017 04:36:51 -0400
-Received: by mail-qk0-f178.google.com with SMTP id d14so19750069qkb.1
-        for <util-linux@vger.kernel.org>; Sun, 11 Jun 2017 01:36:51 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <968790d0-c49c-538b-d034-ffcda9c20efc@gmx.de>
-References: <20170608195215.1702-1-kerolasa@iki.fi> <20170608195215.1702-2-kerolasa@iki.fi>
- <201706091314.08008.sweet_f_a@gmx.de> <968790d0-c49c-538b-d034-ffcda9c20efc@gmx.de>
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Sun, 11 Jun 2017 09:36:50 +0100
-Message-ID: <CAG27Bk3OEBrnGbrD+2tuxu-UGUjQXLB+TrsFLiQRvOtcns8FsQ@mail.gmail.com>
-Subject: Re: [PATCH 01/11] misc: fallthrough fixes
-To: =?UTF-8?Q?R=C3=BCdiger_Meier?= <sweet_f_a@gmx.de>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Received: from mout.gmx.net ([212.227.17.20]:57742 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751858AbdFVCht (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 21 Jun 2017 22:37:49 -0400
+Received: from tenfore.ga-group.nl ([92.195.15.151]) by mail.gmx.com (mrgmx102
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0LcVOE-1e6WD634B4-00jnpK for
+ <util-linux@vger.kernel.org>; Thu, 22 Jun 2017 04:37:46 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 00/13] usage cleanup part 1
+Date: Thu, 22 Jun 2017 04:37:33 +0200
+Message-Id: <1498099066-24235-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 9 June 2017 at 22:10, R=C3=BCdiger Meier <sweet_f_a@gmx.de> wrote:
->
->
-> On 06/09/2017 01:14 PM, Ruediger Meier wrote:
->>
->> Hi,
->>
->> This patch looks a bit ugly, for example:
->>
->> ## gcc 4.8.1
->>
->>    CC       text-utils/more-more.o
->> ../text-utils/more.c: In function =E2=80=98command=E2=80=99:
->> ../text-utils/more.c:1273:4: warning: empty declaration [enabled by
->> default]
->>      UL_FALLTHROUGH;
->>
->> ## icc 16.0.0
->>
->> text-utils/more.c(1273): warning #1292: unknown attribute "fallthrough"
->>                          UL_FALLTHROUGH;
->>                          ^
->>
->>> diff --git a/include/c.h b/include/c.h
->>> index a5162b964..8a67b5dfb 100644
->>> --- a/include/c.h
->>> +++ b/include/c.h
->>> @@ -77,6 +77,24 @@
->>>   #endif
->>>     /*
->>> + * Statement Attributes
->>> + */
->>> +#if defined(__clang__)
->>> +# ifndef __has_cpp_attribute
->>> +#  define __has_cpp_attribute(x) 0
->>> +# endif
->>> +# if __has_cpp_attribute(clang::fallthrough)
->>> +#  define UL_FALLTHROUGH [[clang::fallthrough]]
->>> +# else
->>> +#  define UL_FALLTHROUGH /* fall through */
->>> +# endif
->>> +#elif defined(__GNUC__) || defined(__GNUG__)
->>> +# define UL_FALLTHROUGH __attribute__((fallthrough))
->>> +#else
->>> +# define UL_FALLTHROUGH /* FALLTHRU */
->>> +#endif
->>> +
->>> +/*
->
->
-> Sorry this was broken. But I've checked now all clang and gcc versions.
-> Looks
-> like for clang the warning is only enabled when using C++ (clang++). So t=
-he
-> fallthrough warning appears currently only on gcc>=3D7 and this works to
-> disable
-> it in a compatible way:
->
-> #ifndef __has_cpp_attribute
-> # define __has_cpp_attribute(x) 0
-> #endif
->
-> #if __has_cpp_attribute(fallthrough)
-> # define UL_FALLTHROUGH __attribute__((fallthrough))
-> #else
-> # define UL_FALLTHROUGH /* fall through */
-> #endif
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Thank you for review Rudi. I had a look of the c.h again and did the
-change a little bit differently:
+This is pull request #467 on github
+https://github.com/karelzak/util-linux/pull/467
 
-#ifdef __has_cpp_attribute
-# if __has_cpp_attribute(deprecated)
-#  define UL_FALLTHROUGH __attribute__((fallthrough))
-# elif __has_cpp_attribute(clang::fallthrough)
-#  define UL_FALLTHROUGH [[clang::fallthrough]]
-# endif
-#endif
-#ifndef UL_FALLTHROUGH
-# define UL_FALLTHROUGH /* FALLTHRU */
-#endif
+The major goal is to avoid printing usage/help messages on stderr.
 
-The above is now part of my remote branch '2017wk23'.
+This is the preparing first part of a bigger patch-set. There are
+some minor bug fixes and finally we add --help options to all our
+commands (just 5 commands were missing it).
 
---=20
-Sami Kerola
-http://www.iki.fi/kerolasa/
+The next completing patch-set (part 2) will be more invasive but
+even more trivial.
+
+Ruediger Meier (13):
+  uuidd: remove unused define
+  misc: remove superfluous null pointer checks for optarg
+  misc: fix some broken exit codes
+  blkid: use errtryhelp instead of errtryh
+  dmesg: do not accept any non-option arguments
+  setarch: print usage error if no argument given
+  setarch: use errtryhelp()
+  fsck: add --help and --version
+  login: add --help and --version
+  whereis: add --help and --version
+  more: add --help and --version
+  mkfs.cramfs: add --help and --version
+  misc: no more errtryh()
+
+ disk-utils/fsck.8        |  6 ++++++
+ disk-utils/fsck.c        | 29 +++++++++++++++++++++--------
+ disk-utils/fsck.cramfs.c |  2 +-
+ disk-utils/mkfs.cramfs.8 |  8 ++++----
+ disk-utils/mkfs.cramfs.c | 35 ++++++++++++++++++++++++-----------
+ include/c.h              |  6 ------
+ login-utils/chsh.c       |  2 --
+ login-utils/login.1      |  5 ++++-
+ login-utils/login.c      | 28 ++++++++++++++++++++++------
+ login-utils/lslogins.c   | 15 ++++++---------
+ misc-utils/blkid.c       |  8 ++++----
+ misc-utils/findfs.c      |  4 ++--
+ misc-utils/test_uuidd.c  | 25 ++++++++++++++-----------
+ misc-utils/uuidd.c       |  6 ------
+ misc-utils/whereis.1     |  6 ++++++
+ misc-utils/whereis.c     | 48 +++++++++++++++++++++++++++++++++++-------------
+ sys-utils/dmesg.c        |  4 +---
+ sys-utils/setarch.c      | 22 ++++++----------------
+ text-utils/hexdump.c     |  2 +-
+ text-utils/more.1        |  6 ++++++
+ text-utils/more.c        | 29 ++++++++++++++++++++++-------
+ 21 files changed, 185 insertions(+), 111 deletions(-)
+
+-- 
+1.8.5.6
+
