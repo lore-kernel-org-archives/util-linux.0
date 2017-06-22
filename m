@@ -1,31 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx0.ossmail.de ([79.143.186.47]:49741 "EHLO mx0.ossmail.de"
+Received: from mout.gmx.net ([212.227.17.20]:63600 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751078AbdFAOwa (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 1 Jun 2017 10:52:30 -0400
-From: Sebastian Schrader <sebastian.schrader@ossmail.de>
+        id S1752087AbdFVCht (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 21 Jun 2017 22:37:49 -0400
+Received: from tenfore.ga-group.nl ([92.195.15.151]) by mail.gmx.com (mrgmx102
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0MaE4a-1d48Bv3P8C-00JvzI for
+ <util-linux@vger.kernel.org>; Thu, 22 Jun 2017 04:37:47 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Cc: sebastian.schrader@ossmail.de
-Subject: Re: [PATCH] setpriv: Add --init-groups option
-Date: Thu,  1 Jun 2017 16:52:09 +0200
-Message-Id: <20170601145210.9588-1-sebastian.schrader@ossmail.de>
-In-Reply-To: <m3mv9sernm.fsf@gmail.com>
-References: <m3mv9sernm.fsf@gmail.com>
+Subject: [PATCH 05/13] dmesg: do not accept any non-option arguments
+Date: Thu, 22 Jun 2017 04:37:38 +0200
+Message-Id: <1498099066-24235-6-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1498099066-24235-1-git-send-email-sweet_f_a@gmx.de>
+References: <1498099066-24235-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
->> @@ -662,7 +686,11 @@ int main(int argc, char **argv)
->>  			if (opts.have_ruid)
->>  				errx(EXIT_FAILURE, _("duplicate ruid"));
->>  			opts.have_ruid = 1;
->> -			opts.ruid = get_user(optarg, _("failed to parse ruid"));
->> +			pw = get_passwd(optarg, &opts.ruid, _("failed to parse ruid"));
->> +			if (pw) {
->> +				memcpy(&opts.passwd, pw, sizeof(opts.passwd));
->
-> This looks somewhat fragile. E.g. with
->    setpriv --ruid foo --euid bar ...
-> second call to getpw{nam,id} can overwrite/free memory pointed by opts.passwd.pw_name
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-You're right, a deep copy should be performed. I've fixed this.
+'dmesg foo' is no valid syntax and gives an error now.
+BTW we avoid the "dead increment of argc and argv.
+
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ sys-utils/dmesg.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+index b83cfb1..5be4ff6 100644
+--- a/sys-utils/dmesg.c
++++ b/sys-utils/dmesg.c
+@@ -1486,10 +1486,8 @@ int main(int argc, char *argv[])
+ 			errtryhelp(EXIT_FAILURE);
+ 		}
+ 	}
+-	argc -= optind;
+-	argv += optind;
+ 
+-	if (argc > 1)
++	if (argc != optind)
+ 		usage(stderr);
+ 
+ 	if ((is_timefmt(&ctl, RELTIME) ||
+-- 
+1.8.5.6
 
