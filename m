@@ -1,106 +1,133 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:63014 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.20]:51933 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753195AbdFMPco (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 13 Jun 2017 11:32:44 -0400
-Received: from adsiz.fritz.box ([146.52.24.88]) by mail.gmx.com (mrgmx102
- [212.227.17.168]) with ESMTPSA (Nemesis) id 0MAkkB-1dWfeQ0Fat-00Brvp for
- <util-linux@vger.kernel.org>; Tue, 13 Jun 2017 17:32:37 +0200
+        id S1751221AbdFVUnr (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 22 Jun 2017 16:43:47 -0400
+Received: from tenfore.ga-group.nl ([92.195.15.151]) by mail.gmx.com (mrgmx102
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0LzYY2-1dtgRf1S2E-014kxe for
+ <util-linux@vger.kernel.org>; Thu, 22 Jun 2017 22:43:45 +0200
 From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 5/5] tests: add more tests for line(1)
-Date: Tue, 13 Jun 2017 17:32:35 +0200
-Message-Id: <20170613153235.11164-6-sweet_f_a@gmx.de>
-In-Reply-To: <20170613153235.11164-1-sweet_f_a@gmx.de>
-References: <20170613153235.11164-1-sweet_f_a@gmx.de>
+Subject: [PATCH 3/5] misc: fix more strutils related exit codes
+Date: Thu, 22 Jun 2017 22:43:42 +0200
+Message-Id: <1498164224-13549-4-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1498164224-13549-1-git-send-email-sweet_f_a@gmx.de>
+References: <1498164224-13549-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
+Found by grep:
+
+grep -l "\bEXIT_\|exit *( *[0-9][0-9] *)\|strutils\.h" $(grep -L \
+    strutils_set_exitcode  $(git grep -l "_EX_\|FINDFS_\|BLKID_EXIT\|EX_USAGE" -- "*.c"))
+
+The Command shows also some false positives (fstrim.c,
+context_mount.c, ...)
+
 Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- tests/expected/misc/line | 18 ++++++++++++++++++
- tests/ts/misc/line       | 28 ++++++++++++++++++++++++----
- 2 files changed, 42 insertions(+), 4 deletions(-)
+ disk-utils/fsck.cramfs.c | 2 ++
+ disk-utils/fsck.minix.c  | 2 ++
+ disk-utils/mkfs.cramfs.c | 2 ++
+ disk-utils/mkfs.minix.c  | 2 ++
+ sys-utils/flock.c        | 2 ++
+ sys-utils/hwclock.c      | 2 ++
+ sys-utils/mount.c        | 2 ++
+ 7 files changed, 14 insertions(+)
 
-diff --git a/tests/expected/misc/line b/tests/expected/misc/line
-index fa7dcebb0..783ef801f 100644
---- a/tests/expected/misc/line
-+++ b/tests/expected/misc/line
-@@ -1,7 +1,25 @@
-+# usually behave like "head -n 1"
- a
- ret: 0
-+# never consume more than one line
- 1
- 2
- ret: 0
-+# add a newline
-+abc
-+ret: 1
-+# print one newline on empty input
+diff --git a/disk-utils/fsck.cramfs.c b/disk-utils/fsck.cramfs.c
+index 952f153..1dba95e 100644
+--- a/disk-utils/fsck.cramfs.c
++++ b/disk-utils/fsck.cramfs.c
+@@ -660,6 +660,8 @@ int main(int argc, char **argv)
+ 	textdomain(PACKAGE);
+ 	atexit(close_stdout);
  
- ret: 1
-+# add a newline, return 1 when EOF
-+xyz
-+ret: 1
-+# print one newline on empty input, return 1 when EOF
++	strutils_set_exitcode(FSCK_EX_USAGE);
 +
-+ret: 1
-+# large line of zero bytes
-+00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-+*
-+00100000  0a                                                |.|
-+00100001
-+ret: 0
-diff --git a/tests/ts/misc/line b/tests/ts/misc/line
-index 71d5c0424..ec92f7abc 100755
---- a/tests/ts/misc/line
-+++ b/tests/ts/misc/line
-@@ -20,18 +20,38 @@ ts_init "$*"
+ 	/* command line options */
+ 	while ((c = getopt_long(argc, argv, "ayvVhb:", longopts, NULL)) != EOF)
+ 		switch (c) {
+diff --git a/disk-utils/fsck.minix.c b/disk-utils/fsck.minix.c
+index dea3436..bff810e 100644
+--- a/disk-utils/fsck.minix.c
++++ b/disk-utils/fsck.minix.c
+@@ -1293,6 +1293,8 @@ main(int argc, char **argv) {
+ 	textdomain(PACKAGE);
+ 	atexit(close_stdout);
  
- ts_check_test_command "$TS_CMD_LINE"
- 
--# usually behave like "head -n 1"
-+ts_log '# usually behave like "head -n 1"'
- printf "a\nb\n" |
--	$TS_CMD_LINE > $TS_OUTPUT 2>&1
-+	$TS_CMD_LINE >> $TS_OUTPUT 2>&1
- echo "ret: $?" >> $TS_OUTPUT
- 
--# never consume more than one line
-+ts_log '# never consume more than one line'
- printf "1\n2\n" |
- 	($TS_CMD_LINE && $TS_CMD_LINE) >> $TS_OUTPUT 2>&1
- echo "ret: $?" >> $TS_OUTPUT
- 
--# always print one newline, return 1 on EOF
-+ts_log '# add a newline'
-+printf "abc" |
-+	$TS_CMD_LINE >> $TS_OUTPUT 2>&1
-+echo "ret: $?" >> $TS_OUTPUT
++	strutils_set_exitcode(FSCK_EX_USAGE);
 +
-+ts_log '# print one newline on empty input'
-+printf "" |
-+	$TS_CMD_LINE >> $TS_OUTPUT 2>&1
-+echo "ret: $?" >> $TS_OUTPUT
-+
-+ts_log '# add a newline, return 1 when EOF'
-+(printf "xyz" && cat </dev/null) |
-+	$TS_CMD_LINE >> $TS_OUTPUT 2>&1
-+echo "ret: $?" >> $TS_OUTPUT
-+
-+ts_log '# print one newline on empty input, return 1 when EOF'
- $TS_CMD_LINE </dev/null >> $TS_OUTPUT 2>&1
- echo "ret: $?" >> $TS_OUTPUT
+ 	if (INODE_SIZE * MINIX_INODES_PER_BLOCK != MINIX_BLOCK_SIZE)
+ 		die(_("bad inode size"));
+ 	if (INODE2_SIZE * MINIX2_INODES_PER_BLOCK != MINIX_BLOCK_SIZE)
+diff --git a/disk-utils/mkfs.cramfs.c b/disk-utils/mkfs.cramfs.c
+index 041c6d7..6a6d9a1 100644
+--- a/disk-utils/mkfs.cramfs.c
++++ b/disk-utils/mkfs.cramfs.c
+@@ -717,6 +717,8 @@ int main(int argc, char **argv)
+ 	textdomain(PACKAGE);
+ 	atexit(close_stdout);
  
-+ts_log '# large line of zero bytes'
-+dd if=/dev/zero  bs=1K count=1K 2>/dev/null |
-+	$TS_CMD_LINE line | hexdump -C >> $TS_OUTPUT 2>&1
-+echo "ret: $?" >> $TS_OUTPUT
++	strutils_set_exitcode(MKFS_EX_USAGE);
 +
- ts_finalize
+ 	/* command line options */
+ 	while ((c = getopt(argc, argv, "hb:Ee:i:n:N:psVvz")) != EOF) {
+ 		switch (c) {
+diff --git a/disk-utils/mkfs.minix.c b/disk-utils/mkfs.minix.c
+index 47a155c..96d36b0 100644
+--- a/disk-utils/mkfs.minix.c
++++ b/disk-utils/mkfs.minix.c
+@@ -758,6 +758,8 @@ int main(int argc, char ** argv)
+ 	textdomain(PACKAGE);
+ 	atexit(close_stdout);
+ 
++	strutils_set_exitcode(MKFS_EX_USAGE);
++
+ 	while ((i = getopt_long(argc, argv, "1v23n:i:cl:Vh", longopts, NULL)) != -1)
+ 		switch (i) {
+ 		case '1':
+diff --git a/sys-utils/flock.c b/sys-utils/flock.c
+index 50194bd..003a126 100644
+--- a/sys-utils/flock.c
++++ b/sys-utils/flock.c
+@@ -170,6 +170,8 @@ int main(int argc, char *argv[])
+ 	textdomain(PACKAGE);
+ 	atexit(close_stdout);
+ 
++	strutils_set_exitcode(EX_USAGE);
++
+ 	if (argc < 2)
+ 		usage(EX_USAGE);
+ 
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 5433cd0..325106a 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1326,6 +1326,8 @@ int main(int argc, char **argv)
+ 	};
+ 	int excl_st[ARRAY_SIZE(excl)] = UL_EXCL_STATUS_INIT;
+ 
++	strutils_set_exitcode(EX_USAGE);
++
+ 	/* Remember what time we were invoked */
+ 	gettimeofday(&startup_time, NULL);
+ 
+diff --git a/sys-utils/mount.c b/sys-utils/mount.c
+index 4d7a5fc..0f7fa90 100644
+--- a/sys-utils/mount.c
++++ b/sys-utils/mount.c
+@@ -534,6 +534,8 @@ int main(int argc, char **argv)
+ 	textdomain(PACKAGE);
+ 	atexit(close_stdout);
+ 
++	strutils_set_exitcode(MNT_EX_USAGE);
++
+ 	mnt_init_debug(0);
+ 	cxt = mnt_new_context();
+ 	if (!cxt)
 -- 
-2.12.3
+1.8.5.6
 
