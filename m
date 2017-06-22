@@ -1,126 +1,121 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from resqmta-ch2-03v.sys.comcast.net ([69.252.207.35]:58864 "EHLO
-        resqmta-ch2-03v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1754493AbdFWVhQ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Fri, 23 Jun 2017 17:37:16 -0400
-From: "W. Trevor King" <wking@tremily.us>
+Received: from mout.gmx.net ([212.227.17.21]:60982 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751193AbdFVUnq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 22 Jun 2017 16:43:46 -0400
+Received: from tenfore.ga-group.nl ([92.195.15.151]) by mail.gmx.com (mrgmx102
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0Lwoiq-1dqvI83itE-016Puy for
+ <util-linux@vger.kernel.org>; Thu, 22 Jun 2017 22:43:44 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>, "W. Trevor King" <wking@tremily.us>
-Subject: [PATCH v2 1/8] sys-utils/fstab.5: Remove basic filesystem-independent options
-Date: Fri, 23 Jun 2017 14:30:19 -0700
-Message-Id: <c04b40fb8c6e7d06806b060ff7bc74f65ded9aee.1498252231.git.wking@tremily.us>
-In-Reply-To: <cover.1498252231.git.wking@tremily.us>
-References: <cover.1498252231.git.wking@tremily.us>
-In-Reply-To: <cover.1498252231.git.wking@tremily.us>
-References: <cover.1498252231.git.wking@tremily.us>
+Subject: [PATCH 1/5] misc: fix some broken exit codes
+Date: Thu, 22 Jun 2017 22:43:40 +0200
+Message-Id: <1498164224-13549-2-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1498164224-13549-1-git-send-email-sweet_f_a@gmx.de>
+References: <1498164224-13549-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-These options are covered in mount(8), so there's no need to repeat
-them here.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Also update mount(8):
+These tools have special exit codes. They got changed mistakenly.
 
-* Add the text linking (no)auto to boot time, which was previously
-  documented only in fstab(5).
-* Document comment=, previously documented only in fstab(5), borrowing
-  language from the current mount(8) X-* entry.
-* Use bold (instead of quotes) for X- in the X-* entry.
+See:
+  findfs       0e1fa6b6
+  fsck         658c0891
+  fsck.cramfs  922ec175
+  mkfs.cramfs  16154b1f
+  tunelp       2ab428f6
 
-Signed-off-by: W. Trevor King <wking@tremily.us>
+FIXME: STRTOXX_EXIT_CODE doesn't work as it should.
+
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- sys-utils/fstab.5 | 31 ++-----------------------------
- sys-utils/mount.8 | 17 ++++++++++++++---
- 2 files changed, 16 insertions(+), 32 deletions(-)
+ disk-utils/fsck.c        | 2 +-
+ disk-utils/fsck.cramfs.c | 2 +-
+ disk-utils/mkfs.cramfs.c | 2 +-
+ misc-utils/findfs.c      | 4 ++--
+ sys-utils/tunelp.c       | 5 ++++-
+ 5 files changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/sys-utils/fstab.5 b/sys-utils/fstab.5
-index 07d0287..d292f1f 100644
---- a/sys-utils/fstab.5
-+++ b/sys-utils/fstab.5
-@@ -155,39 +155,12 @@ deprecated).
- .RS
- This field describes the mount options associated with the filesystem.
+diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
+index cb1b212..5a418fc 100644
+--- a/disk-utils/fsck.c
++++ b/disk-utils/fsck.c
+@@ -55,7 +55,7 @@
+ #include "fileutils.h"
+ #include "monotonic.h"
  
--It is formatted as a comma-separated list of options.
--It contains at least the type of mount
--.RB ( ro
--or
--.BR rw ),
--plus any additional options appropriate to the filesystem
--type (including performance-tuning options).
-+It is formatted as a comma-separated list of options, which may depend
-+on the filesystem type (including performance-tuning options).
- For details, see
- .BR mount (8)
- or
- .BR swapon (8).
--
--Basic filesystem-independent options are:
--.TP
--.B defaults
--use default options: rw, suid, dev, exec, auto, nouser, and async.
--.TP
--.B noauto
--do not mount when "mount -a" is given (e.g., at boot time)
--.TP
--.B user
--allow a user to mount
--.TP
--.B owner
--allow device owner to mount
--.TP
--.B comment
--or
--.B x-<name>
--for use by fstab-maintaining programs
--.TP
--.B nofail
--do not report errors for this device if it does not exist.
- .RE
+-#define STRTOXX_EXIT_CODE	FSCK_EX_ERROR
++#define STRTOXX_EXIT_CODE	FSCK_EX_USAGE
+ #include "strutils.h"
  
- .B The fifth field
-diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
-index 3bd278e..7800734 100644
---- a/sys-utils/mount.8
-+++ b/sys-utils/mount.8
-@@ -870,13 +870,22 @@ inode types (directories too), so it implies \fB\%nodiratime\fR.
- .B auto
- Can be mounted with the
- .B \-a
--option.
-+option (e.g., at boot time).
- .TP
- .B noauto
- Can only be mounted explicitly (i.e., the
- .B \-a
- option will not cause the filesystem to be mounted).
- .TP
-+.B comment=*
-+All options prefixed with
-+.BR comment=
-+are interpreted as comments or as userspace application-specific options.
-+These options are not stored in the user space (e.g. mtab file),
-+nor sent to the mount.\fItype\fR helpers nor to the
-+.BR mount (2)
-+system call.  The suggested format is \fBcomment=\fIappname\fR.\fIoption\fR.
-+.TP
- .na
- .BR context=\fIcontext ", " fscontext=\fIcontext ", " defcontext=\fIcontext ", and " \%rootcontext=\fIcontext
- .ad
-@@ -1165,8 +1174,10 @@ This option implies the options
- .BR users,exec,dev,suid ).
- .TP
- .B X-*
--All options prefixed with "X-" are interpreted as comments or as userspace
--application-specific options.  These options are not stored in the user space (e.g. mtab file),
-+All options prefixed with
-+.BR X-
-+are interpreted as comments or as userspace application-specific options.
-+These options are not stored in the user space (e.g. mtab file),
- nor sent to the mount.\fItype\fR helpers nor to the
- .BR mount (2)
- system call.  The suggested format is \fBX-\fIappname\fR.\fIoption\fR.
+ #define XALLOC_EXIT_CODE	FSCK_EX_ERROR
+diff --git a/disk-utils/fsck.cramfs.c b/disk-utils/fsck.cramfs.c
+index 63033d6..952f153 100644
+--- a/disk-utils/fsck.cramfs.c
++++ b/disk-utils/fsck.cramfs.c
+@@ -671,7 +671,7 @@ int main(int argc, char **argv)
+ 			break;
+ 		case 'V':
+ 			printf(UTIL_LINUX_VERSION);
+-			return EXIT_SUCCESS;
++			return FSCK_EX_OK;
+ 		case 'x':
+ 			opt_extract = 1;
+ 			if(optarg)
+diff --git a/disk-utils/mkfs.cramfs.c b/disk-utils/mkfs.cramfs.c
+index 77b4467..041c6d7 100644
+--- a/disk-utils/mkfs.cramfs.c
++++ b/disk-utils/mkfs.cramfs.c
+@@ -910,5 +910,5 @@ int main(int argc, char **argv)
+ 	    (warn_namelen|warn_skip|warn_size|warn_uid|warn_gid|warn_dev))
+ 		exit(MKFS_EX_ERROR);
+ 
+-	return EXIT_SUCCESS;
++	return MKFS_EX_OK;
+ }
+diff --git a/misc-utils/findfs.c b/misc-utils/findfs.c
+index 7935232..7d2d803 100644
+--- a/misc-utils/findfs.c
++++ b/misc-utils/findfs.c
+@@ -63,11 +63,11 @@ int main(int argc, char **argv)
+ 		switch (c) {
+ 		case 'V':
+ 			printf(UTIL_LINUX_VERSION);
+-			return EXIT_SUCCESS;
++			return FINDFS_SUCCESS;
+ 		case 'h':
+ 			usage(FINDFS_SUCCESS);
+ 		default:
+-			errtryhelp(EXIT_FAILURE);
++			errtryhelp(FINDFS_USAGE_ERROR);
+ 		}
+ 
+ 	dev = blkid_evaluate_tag(argv[1], NULL, NULL);
+diff --git a/sys-utils/tunelp.c b/sys-utils/tunelp.c
+index 8cfbe80..89afff1 100644
+--- a/sys-utils/tunelp.c
++++ b/sys-utils/tunelp.c
+@@ -71,14 +71,17 @@
+ 
+ #include "lp.h"
+ #include "nls.h"
+-#include "xalloc.h"
+ #include "closestream.h"
+ 
++#define EXIT_LP_MALLOC		2
+ #define STRTOXX_EXIT_CODE	3
+ #define EXIT_LP_IO_ERR		4
+ 
+ #include "strutils.h"
+ 
++#define XALLOC_EXIT_CODE EXIT_LP_MALLOC
++#include "xalloc.h"
++
+ struct command {
+ 	long op;
+ 	long val;
 -- 
-2.1.0.60.g85f0837
+1.8.5.6
 
