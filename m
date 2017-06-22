@@ -1,50 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f176.google.com ([209.85.128.176]:34770 "EHLO
-        mail-wr0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752073AbdFOH5a (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 15 Jun 2017 03:57:30 -0400
-Received: by mail-wr0-f176.google.com with SMTP id 77so10003602wrb.1
-        for <util-linux@vger.kernel.org>; Thu, 15 Jun 2017 00:57:25 -0700 (PDT)
-Date: Thu, 15 Jun 2017 09:57:22 +0200
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: libblkid & empty identifier values
-Message-ID: <20170615075722.GO5248@pali>
-References: <201706142304.34356@pali>
- <20170615075244.xarzdd754ofbx3rp@ws.net.home>
+Received: from mout.gmx.net ([212.227.15.15]:51770 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751193AbdFVUth (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 22 Jun 2017 16:49:37 -0400
+Received: from tenfore.site ([92.195.15.151]) by mail.gmx.com (mrgmx001
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 0LiDKt-1eBUMO2zid-00nS9T for
+ <util-linux@vger.kernel.org>; Thu, 22 Jun 2017 22:49:35 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: Re: [PATCH 03/13] misc: fix some broken exit codes
+Date: Thu, 22 Jun 2017 22:49:34 +0200
+References: <1498099066-24235-1-git-send-email-sweet_f_a@gmx.de> <1498099066-24235-4-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1498099066-24235-4-git-send-email-sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20170615075244.xarzdd754ofbx3rp@ws.net.home>
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201706222249.35084.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 15 June 2017 09:52:44 Karel Zak wrote:
-> On Wed, Jun 14, 2017 at 11:04:34PM +0200, Pali Rohár wrote:
-> > Hello!
-> > 
-> > Technically UDF filesystem allows to store empty string values. 
-> > LogicalVolumeIdentifier (label) according to UDF specification shall not 
-> > be null, but it is possible to store empty string there.
-> > 
-> > Question is, what should libblkid's udf code do if e.g. LABEL identifier 
-> > is empty string? Should it set empty LABEL for libblkid? Or it should 
-> > not set LABEL at all?
-> > 
-> > Currently in blkid_probe_set_label() is check for len > 1, so empty 
-> > string is not possible to store for LABEL. But when check fails function 
-> > return non-negative value which is understood as succeeded -- even it 
-> > did not store empty string. It does not looks good... Or it is expected?
-> 
-> IMHO think it's expected, blkid_probe_set_label() hides all the logic
-> to keep probing functions simple. So, LABEL is optional and libblkid
-> should not return any error if FS does not define any LABEL.  The
-> empty string as label is unwanted and unexpected by library clients.
+On Thursday 22 June 2017, Ruediger Meier wrote:
+> From: Ruediger Meier <ruediger.meier@ga-group.nl>
+>
+> These tools have special exit codes. They got changed mistakenly.
 
-Ok, in this case special logic for parsing empty UDF dstring identifiers
-is not needed as they would be just ignored by libblkid (empty dstrings
-are stored specially).
+I've moved this patch to my other "exit-code" pull request.
+Updated on github.
+ 
+Both patch-sets are independent and rebased on master
+branch
 
--- 
-Pali Rohár
-pali.rohar@gmail.com
+cu,
+Rudi
