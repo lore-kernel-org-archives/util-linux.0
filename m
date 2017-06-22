@@ -1,40 +1,31 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 2/2] hwclock: add audit for --systz
+To: Karel Zak <kzak@redhat.com>
+References: <22e50897-04c9-a413-3b84-d2f968185c43@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <f7996220-7e35-c152-0d4e-714cc61a1fcd@gmx.com>
+Date: Wed, 21 Jun 2017 20:53:20 -0400
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Sat, 24 Jun 2017 11:08:01 +0100
-Message-ID: <CAG27Bk06F72rk7i-dL=DhDmhX3BhCZFct+AAVBis7NMqTEF98w@mail.gmail.com>
-Subject: zram hot_add device busy
-To: Minchan Kim <minchan@kernel.org>,
-        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
-        Nitin Gupta <ngupta@vflare.org>
-Cc: linux-kernel@vger.kernel.org,
-        util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <22e50897-04c9-a413-3b84-d2f968185c43@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
 
-While going through if there are new util-linux bugs reported I came a
-cross this https://bugs.launchpad.net/ubuntu/+source/util-linux/+bug/1645846
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Simple way to reproduce the issue is:
-d=$(cat /sys/class/zram-control/hot_add) && zramctl --size 256M /dev/zram$d
-
-I am not entirely sure, but drivers/block/zram/zram_drv.c function
-zram_add() should block until the device is usable. Looking the code
-that it might be the device_add_disk() from block/genhd.c that should
-do the blocking. But perhaps it's best if I leave such detail to
-people who know the code a bit better.
-
-One thing annoys me. I expected 'zramctl --find --size 256M' to suffer
-from same issue but it does not. I can only reproduce the issue when
-triggering hot_add separately, and as quick as possibly using the
-path. Notice that sometimes it takes second try before the hot_add and
-use triggers the issue. That is almost certainly down to speed the
-system in hand, e.g., quicker the computer less likely to trigger.
-
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index f6a87c7..0f60496 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1425,6 +1425,7 @@ int main(int argc, char **argv)
+ 		case OPT_SYSTZ:
+ 			ctl.systz = 1;		/* --systz */
+ 			ctl.show = 0;
++			ctl.hwaudit_on = 1;
+ 			break;
+ 		case OPT_PREDICT:
+ 			ctl.predict = 1;	/* --predict */
