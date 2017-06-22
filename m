@@ -1,40 +1,118 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qk0-f193.google.com ([209.85.220.193]:35676 "EHLO
-        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751025AbdFTTnZ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 20 Jun 2017 15:43:25 -0400
-Received: by mail-qk0-f193.google.com with SMTP id 16so7083933qkg.2
-        for <util-linux@vger.kernel.org>; Tue, 20 Jun 2017 12:43:25 -0700 (PDT)
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: J William Piggott <elseifthen@gmx.com>
+Subject: Re: [PATCH 07/12] hwclock: update --help content and grammar
+Date: Thu, 22 Jun 2017 04:04:58 +0200
+Cc: Karel Zak <kzak@redhat.com>,
+ util-linux@vger.kernel.org
+References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com> <20170621145537.5kwvb3zws26awlye@ws.net.home> <1de4c787-0e91-bdbd-1466-68416fc15335@gmx.com>
+In-Reply-To: <1de4c787-0e91-bdbd-1466-68416fc15335@gmx.com>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <20170619084151.nejowhp7pkeeeifd@ws.net.home>
-References: <20170618172536.21544-1-kerolasa@iki.fi> <20170619084151.nejowhp7pkeeeifd@ws.net.home>
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Tue, 20 Jun 2017 20:43:24 +0100
-Message-ID: <CAG27Bk2VBnmNJV8DWdoPLrU-4XptohuK-+p-tx4MUiyHnce4Jg@mail.gmail.com>
-Subject: Re: [PATCH] uuidparse: add new command
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="windows-1252"
+Message-Id: <201706220404.59013.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On 19 June 2017 at 09:41, Karel Zak <kzak@redhat.com> wrote:
-> On Sun, Jun 18, 2017 at 05:25:36PM +0000, Sami Kerola wrote:
->> +static void uuid_unpack(const uuid_t in, struct uuid *uu)
->> +time_t uuid_time(const uuid_t uu, struct timeval *ret_tv)
->> +int uuid_type(const uuid_t uu)
->> +int uuid_variant(const uuid_t uu)
+On Wednesday 21 June 2017, J William Piggott wrote:
+> On 06/21/2017 10:55 AM, Karel Zak wrote:
+> > On Wed, Jun 21, 2017 at 03:05:04PM +0200, Ruediger Meier wrote:
+> >> On Tuesday 20 June 2017, Karel Zak wrote:
+> >>> On Sun, Jun 18, 2017 at 08:45:09PM -0400, J William Piggott wrote:
+> >>>> Signed-off-by: J William Piggott <elseifthen@gmx.com>
+> >>>> ---
+> >>>>  include/c.h         |  4 ++--
+> >>>>  sys-utils/hwclock.c | 48
+> >>>> +++++++++++++++++++++--------------------------- 2 files
+> >>>> changed, 23 insertions(+), 29 deletions(-)
+> >>>>
+> >>>> diff --git a/include/c.h b/include/c.h
+> >>>> index 9c19965..bd073fc 100644
+> >>>> --- a/include/c.h
+> >>>> +++ b/include/c.h
+> >>>> @@ -319,8 +319,8 @@ static inline int xusleep(useconds_t usec)
+> >>>>  #define USAGE_OPTIONS    _("\nOptions:\n")
+> >>>>  #define USAGE_FUNCTIONS  _("\nFunctions:\n")
+> >>>>  #define USAGE_SEPARATOR    "\n"
+> >>>> -#define USAGE_HELP       _(" -h, --help     display this help
+> >>>> and exit\n") -#define USAGE_VERSION    _(" -V, --version  output
+> >>>> version information and exit\n") +#define USAGE_HELP       _("
+> >>>> -h, --help     display this information and exit\n")
+> >>>
+> >>>  "display this help and exit\n"
+> >>> or
+> >>>  "display help information and exit\n"
+> >>>
+> >>> sounds better than "this information".
+> >>
+> >> IMO "this" is important because it makes clear that running --help
+> >> would not give you any better information than the one you see
+> >> already.
+> >>
+> >> Compare this:
+> >> $ xz --help | grep help
+> >>   -h, --help        display this short help and exit
+> >>   -H, --long-help   display the long help (lists also the ...
+> >>
+> >> $ xz --long-help | grep help
+> >>   -h, --help        display the short help (lists only the basic
+> >> ... -H, --long-help   display this long help and exit
+> >>
+> >>
+> >> Our old errtryhelp, USAGE_HELP and USAGE_VERSION were 100% the
+> >> same like coreutils. This was a nice consensus and even a bit
+> >> shorter.
+> >>
+> >> Anyways, instead of improving the grammer and correctness I would
+> >> rather make these trivial option descriptions as short as
+> >> possible, like
 >
-> Why? The functions are exported by library API.
+> My intent was to have these two very similar messages using the same
+> language. I think it would be easier to understand for non-native
+> speakers and easier for translators to work with if they did. I'm all
+> for making them more concise, but how about this:
 >
-> The rest seems good.
+>   -h, --help     display this help
+>   -V, --version  display version
+> or
+>   -h, --help     show this help
+>   -V, --version  show version
+>
+> I like display better.
 
-I followed a little bit too closely an example in libuuid/src/uuid_time.c
-Sorry about that. Updated version is in my git branch uuidparse:
+The more I think about it the more I am against any change at all. We 
+have some commands with different short- or longopts for help/version. 
+These commands hardcoded our old strings and now it looks inconsistent 
+again.
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/8756bd4eacc1986d4e5fb86919f5eac6c6a98ede
+So for now I would revert this "include/c.h" part of your patch.
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+If we still want to change it we should wait until my other usage/stderr 
+cleanup settled down. For example I've added now --help and --version 
+longopts for *all* our commands. So another idea would be to only show 
+the longopts in the short help. Then all tools could use the macros.
+
+Like
+
+   --help     display this help
+   --version  display version
+
+... and corresponding short opts will be documented for correctness in 
+the man pages only. IMO this would be ok for these trivial options. And 
+personally I don't want to be teached about 'fsck -?' or 'chsh -u'. 
+Lets hide these random short opts.
+
+
+> >>  -h, --help     display this help
+> >>  -V, --version  show version
+> >>
+> >> Everybody knows what these options do when they exist.
+> >
+> > Good points, please, send a patch. It would be also nice to add any
+> > comment to the c.h to avoid future updates on this area.
+> >
+> >     Karel
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
