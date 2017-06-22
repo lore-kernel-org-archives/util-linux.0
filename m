@@ -1,82 +1,112 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51034 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.22]:63819 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751038AbdFZOHu (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 26 Jun 2017 10:07:50 -0400
-Date: Mon, 26 Jun 2017 16:07:46 +0200
-From: Karel Zak <kzak@redhat.com>
-To: =?iso-8859-1?Q?R=FCdiger?= Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/13] usage cleanup part 1
-Message-ID: <20170626140746.zv5vfomubhy7437u@ws.net.home>
+        id S1752111AbdFVChu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 21 Jun 2017 22:37:50 -0400
+Received: from tenfore.ga-group.nl ([92.195.15.151]) by mail.gmx.com (mrgmx102
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0M6P5z-1dh3m33DJb-00yTTT for
+ <util-linux@vger.kernel.org>; Thu, 22 Jun 2017 04:37:48 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 09/13] login: add --help and --version
+Date: Thu, 22 Jun 2017 04:37:42 +0200
+Message-Id: <1498099066-24235-10-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1498099066-24235-1-git-send-email-sweet_f_a@gmx.de>
 References: <1498099066-24235-1-git-send-email-sweet_f_a@gmx.de>
- <86e4396d-ee18-c049-a660-b03f6db951a5@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <86e4396d-ee18-c049-a660-b03f6db951a5@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 26, 2017 at 03:04:30PM +0200, Rüdiger Meier wrote:
-> On 06/22/2017 04:37 AM, Ruediger Meier wrote:
-> > From: Ruediger Meier <ruediger.meier@ga-group.nl>
-> > 
-> > This is pull request #467 on github
-> > https://github.com/karelzak/util-linux/pull/467
-> 
-> > The major goal is to avoid printing usage/help messages on stderr.
-> > 
-> > This is the preparing first part of a bigger patch-set. There are
-> > some minor bug fixes and finally we add --help options to all our
-> > commands (just 5 commands were missing it).
-> > 
-> > The next completing patch-set (part 2) will be more invasive but
-> > even more trivial.
-> 
-> Thanks for merging.
-> 
-> FYI I've PR'ed the second part on github only because it's almost
-> trivial but invasive.
->    https://github.com/karelzak/util-linux/pull/471
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Merged, thanks!
+Also we don't print the usage text on stderr anymore.
 
-It seems we have many places with "not enough arguments" or "device no
-specified" or "bad usage". What about to create some inline function
-for these things?
+Note, the usage text could be improved, currently it
+does not describe any options. I have only added a
+pointer to the man page.
 
-static inline err_usage(int eval, char *msg)
-{
-    warnx(msg);
-    errtryhelp(eval);
-}
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ login-utils/login.1 |  5 ++++-
+ login-utils/login.c | 28 ++++++++++++++++++++++------
+ 2 files changed, 26 insertions(+), 7 deletions(-)
 
-#define errnoargs(x)    err_usage(x, _("not enough arguments"))
-#define errnodevice(x)  err_usage(x, _("no device specified"))
-#define errbadusage(x)  err_usage(x, _("bad usage"))
-
-
-Maybe it seems like over-engineering, but it's pretty common in the
-code and some consolidation to avoid creativity would be nice. The current 
-solution requires
-
-    if (argv < 2) {
-        warnx(_("not enough arguments")));
-        errtryhelp(EXIT_FAILURE);
-    }
-
-I think
-
-   if (argv < 2)
-       errnoargs(EXIT_FAILURE);
-
-is shorter, seems better and provides control on the messages
-(errtryhelp() call, etc).
-
-Comments?
-
-    Karel
-
+diff --git a/login-utils/login.1 b/login-utils/login.1
+index 2fc7a50..5d43fdc 100644
+--- a/login-utils/login.1
++++ b/login-utils/login.1
+@@ -131,7 +131,10 @@ to tell
+ .B login
+ that printing the hostname should be suppressed in the login: prompt.
+ .TP
+-.B \-V
++\fB\-\-help\fR
++Display help text and exit.
++.TP
++\fB\-V\fR, \fB\-\-version\fR
+ Display version information and exit.
+ .SH CONFIG FILE ITEMS
+ .B login
+diff --git a/login-utils/login.c b/login-utils/login.c
+index 37553ef..ee06d03 100644
+--- a/login-utils/login.c
++++ b/login-utils/login.c
+@@ -1095,6 +1095,16 @@ static void init_remote_info(struct login_context *cxt, char *remotehost)
+ 	}
+ }
+ 
++static void __attribute__((__noreturn__)) usage(void)
++{
++	fputs(USAGE_HEADER, stdout);
++	printf(_(" %s [-p] [-h <host>] [-H] [[-f] <username>]\n"), program_invocation_short_name);
++	fputs(USAGE_SEPARATOR, stdout);
++	fputs(_("Begin a session on the system.\n"), stdout);
++	printf(USAGE_MAN_TAIL("login(1)"));
++	exit(EXIT_SUCCESS);
++}
++
+ int main(int argc, char **argv)
+ {
+ 	int c;
+@@ -1119,6 +1129,14 @@ int main(int argc, char **argv)
+ 
+ 	};
+ 
++	/* the only two longopts to satisfy UL standards */
++	enum { HELP_OPTION = CHAR_MAX + 1 };
++	static const struct option longopts[] = {
++		{"help", no_argument, NULL, HELP_OPTION},
++		{"version", no_argument, NULL, 'V'},
++		{NULL, 0, NULL, 0}
++	};
++
+ 	timeout = (unsigned int)getlogindefs_num("LOGIN_TIMEOUT", LOGIN_TIMEOUT);
+ 
+ 	signal(SIGALRM, timedout);
+@@ -1142,7 +1160,7 @@ int main(int argc, char **argv)
+ 	 * -h is used by other servers to pass the name of the remote
+ 	 *    host to login so that it may be placed in utmp and wtmp
+ 	 */
+-	while ((c = getopt(argc, argv, "fHh:pV")) != -1)
++	while ((c = getopt_long(argc, argv, "fHh:pV", longopts, NULL)) != -1)
+ 		switch (c) {
+ 		case 'f':
+ 			cxt.noauth = 1;
+@@ -1168,12 +1186,10 @@ int main(int argc, char **argv)
+ 		case 'V':
+ 			printf(UTIL_LINUX_VERSION);
+ 			return EXIT_SUCCESS;
+-		case '?':
++		case HELP_OPTION:
++			usage();
+ 		default:
+-			fprintf(stderr, _("Usage: login [-p] [-h <host>] [-H] [[-f] <username>]\n"));
+-			fputs(USAGE_SEPARATOR, stderr);
+-			fputs(_("Begin a session on the system.\n"), stderr);
+-			exit(EXIT_FAILURE);
++			errtryhelp(EXIT_FAILURE);
+ 		}
+ 	argc -= optind;
+ 	argv += optind;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+1.8.5.6
+
