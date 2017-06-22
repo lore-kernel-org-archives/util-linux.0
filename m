@@ -1,97 +1,96 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from resqmta-ch2-05v.sys.comcast.net ([69.252.207.37]:39870 "EHLO
-        resqmta-ch2-05v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752170AbdFWVik (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Fri, 23 Jun 2017 17:38:40 -0400
-From: "W. Trevor King" <wking@tremily.us>
+Received: from mout.gmx.net ([212.227.17.22]:54536 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751920AbdFVCht (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 21 Jun 2017 22:37:49 -0400
+Received: from tenfore.ga-group.nl ([92.195.15.151]) by mail.gmx.com (mrgmx102
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0LjuR3-1duimI1djF-00bsPd for
+ <util-linux@vger.kernel.org>; Thu, 22 Jun 2017 04:37:47 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>, "W. Trevor King" <wking@tremily.us>
-Subject: [PATCH v2 0/8] sys-utils/mount.8: Clarify 'defaults' and separate kernel/userspace options
-Date: Fri, 23 Jun 2017 14:30:18 -0700
-Message-Id: <cover.1498252231.git.wking@tremily.us>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH 03/13] misc: fix some broken exit codes
+Date: Thu, 22 Jun 2017 04:37:36 +0200
+Message-Id: <1498099066-24235-4-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1498099066-24235-1-git-send-email-sweet_f_a@gmx.de>
+References: <1498099066-24235-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Here's a reroll of May's v1 [1].  Larger changes since v1:
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-* Split into multiple patches, something like Karel had suggested [2].
-* Punt to mount(2) for defaults for filesystem-independent kernel
-  options, instead of adding local "(default)" marks.  This is is also
-  something like Karl had suggested in [2].
-* Replaced the broken "synonym for auto" 'defaults' definition which
-  I'd floated in v1 with a line from Karel's earlier suggestion [3].
-* Added two examples to fstab(5) based on Karel's initial suggestions
-  [4] and subsequent discussion.
-* Added a few copy-edit patches.
+These tools have special exit codes. They got changed mistakenly.
 
-After the v1 discussion, I think something should happen to (no)auto
-as well:
+See:
+  findfs       0e1fa6b6
+  fsck         658c0891
+  fsck.cramfs  922ec175
+  mkfs.cramfs  16154b1f
 
-On Tue, May 16, 2017 at 02:41:27PM +0200, Karel Zak wrote [2]:
-> On Fri, May 12, 2017 at 10:36:29AM -0700, W. Trevor King wrote:
-> > > > >    The "default" is interpreted as "auto" by "mount -a".
-> > > >
-> > > > This last line means "defaults" is effectively a synonym for
-> > > > "auto" in fstab, an presumably "auto" would always be
-> > > > preferred (because it more
-> > >
-> > > More precisely, mount -a cares about "noauto" only, everything
-> > > else is "auto".
-> >
-> > Is that really true?  I think:
-> >
-> > * ‘noauto,auto’ means the same thing as a bare ‘auto’.
->
-> Unfortunately no.
->
-> It's strange, but "mount -a" search for "noauto" and do not evaluate
-> the options as flags. The libmount follows the original mount(8)
-> with this behavior. I'll try to fix it.
+FIXME: STRTOXX_EXIT_CODE doesn't work as it should.
 
-It's not clear to me whether Karel intends to clarify the mount(8)
-documentation on this point or if he intends to adjust the current
-libmount behavior, so I've left that language alone in this series.
-If the intention is to document 'auto' as another no-op (matching the
-current implementation), I'm happy to submit an additional patch.
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ disk-utils/fsck.c        | 2 +-
+ disk-utils/fsck.cramfs.c | 2 +-
+ disk-utils/mkfs.cramfs.c | 2 +-
+ misc-utils/findfs.c      | 4 ++--
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
-Cheers,
-Trevor
-
-[1]: http://marc.info/?l=util-linux-ng&m=149451719727754&w=2
-     Message-Id: <cee125bdea0faac3b4c9d7e856425fe9106756e7.1494510090.git.wking@tremily.us>
-     Subject: [PATCH] WIP: mount.8: Split out fstab-specific mount options
-     Date: Thu, 11 May 2017 06:48:54 -0700
-[2]: http://marc.info/?l=util-linux-ng&m=149493849402047&w=2
-     Message-ID: <20170516124127.tuul34kfniki7f4y@ws.net.home>
-     Subject: Re: [PATCH] WIP: mount.8: Split out fstab-specific mount options
-     Date: Tue, 16 May 2017 14:41:27 +0200
-[3]: http://marc.info/?l=util-linux-ng&m=149450548823490&w=2
-     Message-ID: <20170511122442.qwzpw7f6xdsc7im2@ws.net.home>
-     Subject: Re: libmount: Is the 'defaults' option intentionally a no-op?
-     Date: Thu, 11 May 2017 14:24:42 +0200
-[4]: http://marc.info/?l=util-linux-ng&m=149457573010153&w=2
-     Message-ID: <20170512075451.auqemicjfogreepq@ws.net.home>
-     Subject: Re: [PATCH] WIP: mount.8: Split out fstab-specific mount options
-     Date: Fri, 12 May 2017 09:54:51 +0200
-
-W. Trevor King (8):
-  sys-utils/fstab.5: Remove basic filesystem-independent options
-  sys-utils/fstab.5: Remove 'defaults' from examples
-  sys-utils/mount.8: Document 'defaults' as a no-op
-  sys-utils/mount.8: Simplify nouser
-  sys-utils/mount.8: Drop systemd paragraph from x-* entry
-  sys-utils/mount.8: Clarify x-mount.mkdir deprecation
-  sys-utils/mount.8: Split filesystem-independent options into kernel
-    and userspace subsections
-  sys-utils/mount.8: Document libmount defaults
-
- sys-utils/fstab.5 |  38 +++------------
- sys-utils/mount.8 | 137 +++++++++++++++++++++++++++++++-----------------------
- 2 files changed, 84 insertions(+), 91 deletions(-)
-
+diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
+index cb1b212..5a418fc 100644
+--- a/disk-utils/fsck.c
++++ b/disk-utils/fsck.c
+@@ -55,7 +55,7 @@
+ #include "fileutils.h"
+ #include "monotonic.h"
+ 
+-#define STRTOXX_EXIT_CODE	FSCK_EX_ERROR
++#define STRTOXX_EXIT_CODE	FSCK_EX_USAGE
+ #include "strutils.h"
+ 
+ #define XALLOC_EXIT_CODE	FSCK_EX_ERROR
+diff --git a/disk-utils/fsck.cramfs.c b/disk-utils/fsck.cramfs.c
+index 63033d6..952f153 100644
+--- a/disk-utils/fsck.cramfs.c
++++ b/disk-utils/fsck.cramfs.c
+@@ -671,7 +671,7 @@ int main(int argc, char **argv)
+ 			break;
+ 		case 'V':
+ 			printf(UTIL_LINUX_VERSION);
+-			return EXIT_SUCCESS;
++			return FSCK_EX_OK;
+ 		case 'x':
+ 			opt_extract = 1;
+ 			if(optarg)
+diff --git a/disk-utils/mkfs.cramfs.c b/disk-utils/mkfs.cramfs.c
+index 77b4467..041c6d7 100644
+--- a/disk-utils/mkfs.cramfs.c
++++ b/disk-utils/mkfs.cramfs.c
+@@ -910,5 +910,5 @@ int main(int argc, char **argv)
+ 	    (warn_namelen|warn_skip|warn_size|warn_uid|warn_gid|warn_dev))
+ 		exit(MKFS_EX_ERROR);
+ 
+-	return EXIT_SUCCESS;
++	return MKFS_EX_OK;
+ }
+diff --git a/misc-utils/findfs.c b/misc-utils/findfs.c
+index 7935232..7d2d803 100644
+--- a/misc-utils/findfs.c
++++ b/misc-utils/findfs.c
+@@ -63,11 +63,11 @@ int main(int argc, char **argv)
+ 		switch (c) {
+ 		case 'V':
+ 			printf(UTIL_LINUX_VERSION);
+-			return EXIT_SUCCESS;
++			return FINDFS_SUCCESS;
+ 		case 'h':
+ 			usage(FINDFS_SUCCESS);
+ 		default:
+-			errtryhelp(EXIT_FAILURE);
++			errtryhelp(FINDFS_USAGE_ERROR);
+ 		}
+ 
+ 	dev = blkid_evaluate_tag(argv[1], NULL, NULL);
 -- 
-2.1.0.60.g85f0837
+1.8.5.6
 
