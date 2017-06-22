@@ -1,49 +1,55 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from lb1.openmailbox.org ([5.79.108.160]:56926 "EHLO
-        mail.openmailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752064AbdFOIfC (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 15 Jun 2017 04:35:02 -0400
-From: Alex Ivanov <yourbestfriend@openmailbox.org>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] fstrim: prefer earlier mounted filesystems
-Date: Thu, 15 Jun 2017 11:26:25 +0300
-Message-Id: <20170615082625.11219-1-yourbestfriend@openmailbox.org>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH 06/13] setarch: print usage error if no argument given
+Date: Thu, 22 Jun 2017 10:44:58 +0200
+Cc: util-linux@vger.kernel.org
+References: <1498099066-24235-1-git-send-email-sweet_f_a@gmx.de> <1498099066-24235-7-git-send-email-sweet_f_a@gmx.de> <20170622083824.hqgqykwccfb7jmbb@ws.net.home>
+In-Reply-To: <20170622083824.hqgqykwccfb7jmbb@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201706221044.59203.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-fstrim --all is broken in a way that if there is a bind mount for some filesystem, 
-that filesystem will not be trimmed. This is especially critical for e.g. 
-NixOS distribution, which needs bind mount within root fs: 
-https://github.com/NixOS/nixos/blob/master/modules/system/boot/stage-2-init.sh#L55
+On Thursday 22 June 2017, Karel Zak wrote:
+> On Thu, Jun 22, 2017 at 04:37:39AM +0200, Ruediger Meier wrote:
+> > From: Ruediger Meier <ruediger.meier@ga-group.nl>
+> >
+> > This looks more likely as intended.
+> >
+> > Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+> > ---
+> >  sys-utils/setarch.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/sys-utils/setarch.c b/sys-utils/setarch.c
+> > index eb9cf21..6481eb2 100644
+> > --- a/sys-utils/setarch.c
+> > +++ b/sys-utils/setarch.c
+> > @@ -301,7 +301,7 @@ int main(int argc, char *argv[])
+> >  	textdomain(PACKAGE);
+> >  	atexit(close_stdout);
+> >
+> > -	if (argc < 1)
+> > +	if (argc < 2)
+> >  		show_usage(_("Not enough arguments"));
+>
+> I don't think so.
+>
+> We use setarch by symlinks (i386, uname26 linux32 linux64, ...) and
+> in this case it's executed without argument. The symlink name is good
+> enough.
+>
+> The right solutions is to remove this entire if() block.
 
-Currently for a given filesystem during "de-duplication by source and root" phase,
-an early mounted fs path is filtered (e.g. "/"), while later mounted fs path is kept 
-(e.g. "/nix/store") though anyway discarded later (since it's an overlaying mount). 
-This leads to skipped trimming.
+Maybe argc can be 0 when not invoked from a sane shell
+https://stackoverflow.com/questions/2794150/when-can-argv0-have-null
 
-So flip this behaviour. Should also help for other types of overlaying mounts.
+Just skip this patch, I will update this on github later.
 
-Reference: 
-https://github.com/karelzak/util-linux/blob/stable/v2.29/libmount/src/tab.c#L715
 
-Signed-off-by: Alex Ivanov <yourbestfriend@openmailbox.org>
----
- sys-utils/fstrim.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/sys-utils/fstrim.c b/sys-utils/fstrim.c
-index b884af6d0..be3cd34a3 100644
---- a/sys-utils/fstrim.c
-+++ b/sys-utils/fstrim.c
-@@ -194,7 +194,7 @@ static int fstrim_all(struct fstrim_range *rangetpl, int verbose)
- 	mnt_table_uniq_fs(tab, 0, uniq_fs_target_cmp);
- 
- 	/* de-duplicate by source and root */
--	mnt_table_uniq_fs(tab, 0, uniq_fs_source_cmp);
-+	mnt_table_uniq_fs(tab, MNT_UNIQ_FORWARD, uniq_fs_source_cmp);
- 
- 	while (mnt_table_next_fs(tab, itr, &fs) == 0) {
- 		const char *src = mnt_fs_get_srcpath(fs),
--- 
-2.12.2
-
+> Later in the code we have "no architecture argument specified".
+>
+>
+>     Karel
