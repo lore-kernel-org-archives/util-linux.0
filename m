@@ -1,65 +1,84 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Date: Mon, 26 Jun 2017 11:23:01 +0900
-From: Minchan Kim <minchan@kernel.org>
-To: kerolasa@gmail.com
-Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
-        Nitin Gupta <ngupta@vflare.org>, linux-kernel@vger.kernel.org,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: zram hot_add device busy
-Message-ID: <20170626022301.GA18490@bbox>
-References: <CAG27Bk06F72rk7i-dL=DhDmhX3BhCZFct+AAVBis7NMqTEF98w@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk06F72rk7i-dL=DhDmhX3BhCZFct+AAVBis7NMqTEF98w@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.20]:61046 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751866AbdFVCht (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 21 Jun 2017 22:37:49 -0400
+Received: from tenfore.ga-group.nl ([92.195.15.151]) by mail.gmx.com (mrgmx102
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0MaV3V-1d3r4k0lVB-00KCyD for
+ <util-linux@vger.kernel.org>; Thu, 22 Jun 2017 04:37:47 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 02/13] misc: remove superfluous null pointer checks for optarg
+Date: Thu, 22 Jun 2017 04:37:35 +0200
+Message-Id: <1498099066-24235-3-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1498099066-24235-1-git-send-email-sweet_f_a@gmx.de>
+References: <1498099066-24235-1-git-send-email-sweet_f_a@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-On Sat, Jun 24, 2017 at 11:08:01AM +0100, Sami Kerola wrote:
-> Hello,
-> 
-> While going through if there are new util-linux bugs reported I came a
-> cross this https://bugs.launchpad.net/ubuntu/+source/util-linux/+bug/1645846
-> 
-> Simple way to reproduce the issue is:
-> d=$(cat /sys/class/zram-control/hot_add) && zramctl --size 256M /dev/zram$d
+This is only needed for optional arguments.
 
-To know the problem comes from any side, could you test it without zramctl
-command?
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ login-utils/chsh.c     |  2 --
+ login-utils/lslogins.c | 15 ++++++---------
+ text-utils/hexdump.c   |  2 +-
+ 3 files changed, 7 insertions(+), 12 deletions(-)
 
-IOW,
-        d=$(cat /sys/class/zram-control/hot_add) && echo $((256<<20)) /dev/zram$d
+diff --git a/login-utils/chsh.c b/login-utils/chsh.c
+index 3bea971..10b0bdc 100644
+--- a/login-utils/chsh.c
++++ b/login-utils/chsh.c
+@@ -235,8 +235,6 @@ static void parse_argv(int argc, char **argv, struct sinfo *pinfo)
+ 			print_shells();
+ 			exit(EXIT_SUCCESS);
+ 		case 's':
+-			if (!optarg)
+-				usage(stderr);
+ 			pinfo->shell = optarg;
+ 			break;
+ 		default:
+diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
+index ab04c10..1e89d27 100644
+--- a/login-utils/lslogins.c
++++ b/login-utils/lslogins.c
+@@ -1381,15 +1381,12 @@ int main(int argc, char *argv[])
+ 			outmode = OUT_NEWLINE;
+ 			break;
+ 		case 'o':
+-			if (optarg) {
+-				if (*optarg == '=')
+-					optarg++;
+-				ncolumns = string_to_idarray(optarg,
+-						columns, ARRAY_SIZE(columns),
+-						column_name_to_id);
+-				if (ncolumns < 0)
+-					return EXIT_FAILURE;
+-			}
++			if (*optarg == '=')
++				optarg++;
++			ncolumns = string_to_idarray(optarg, columns,
++					ARRAY_SIZE(columns), column_name_to_id);
++			if (ncolumns < 0)
++				return EXIT_FAILURE;
+ 			opt_o = 1;
+ 			break;
+ 		case 'r':
+diff --git a/text-utils/hexdump.c b/text-utils/hexdump.c
+index 125734d..bf06316 100644
+--- a/text-utils/hexdump.c
++++ b/text-utils/hexdump.c
+@@ -107,7 +107,7 @@ parse_args(int argc, char **argv, struct hexdump *hex)
+ 		case 'f':
+ 			addfile(optarg, hex);
+ 			break;
+-                case 'L':
++		case 'L':
+ 			colormode = UL_COLORMODE_AUTO;
+ 			if (optarg)
+ 				colormode = colormode_or_err(optarg,
+-- 
+1.8.5.6
 
-If it still has a problem, please show your test code which helps
-understanding of fundamental problem a lot. ;-)
-
-> 
-> I am not entirely sure, but drivers/block/zram/zram_drv.c function
-> zram_add() should block until the device is usable. Looking the code
-> that it might be the device_add_disk() from block/genhd.c that should
-> do the blocking. But perhaps it's best if I leave such detail to
-> people who know the code a bit better.
-
-I might miss something but I believe device is usable state after zram_add done.
-Just in case, please test return value after some operation.
-
-if [ $? -ne 0  ];
-then
-        echo "fail to some op"
-        blah blah
-fi
-
-Thanks.
-
-> 
-> One thing annoys me. I expected 'zramctl --find --size 256M' to suffer
-> from same issue but it does not. I can only reproduce the issue when
-> triggering hot_add separately, and as quick as possibly using the
-> path. Notice that sometimes it takes second try before the hot_add and
-> use triggers the issue. That is almost certainly down to speed the
-> system in hand, e.g., quicker the computer less likely to trigger.
-> 
-> -- 
-> Sami Kerola
-> http://www.iki.fi/kerolasa/
