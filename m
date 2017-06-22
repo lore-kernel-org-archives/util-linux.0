@@ -1,52 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:58239 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.21]:60449 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752891AbdFSAfo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 18 Jun 2017 20:35:44 -0400
-Subject: [PATCH 00/12] pull request
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
-Date: Sun, 18 Jun 2017 20:35:25 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+        id S1750847AbdFVUnq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 22 Jun 2017 16:43:46 -0400
+Received: from tenfore.ga-group.nl ([92.195.15.151]) by mail.gmx.com (mrgmx102
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0MOCSm-1dRSLM2sYG-005XNE for
+ <util-linux@vger.kernel.org>; Thu, 22 Jun 2017 22:43:44 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 0/5] Fix some exit codes (strutils.h and friends)
+Date: Thu, 22 Jun 2017 22:43:39 +0200
+Message-Id: <1498164224-13549-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-The following changes since commit 998ae28704281303b9131c717ec30e39ca8d62f8:
+As discussed on the mailing list, most importantly
+we remove the -nonworking define STRTOXX_EXIT_CODE.
 
-  Merge branch 'some-fixes' of https://github.com/rudimeier/util-linux (2017-06-16 10:50:24 +0200)
+This is pull request #470 on github
+https://github.com/karelzak/util-linux/pull/470
 
-are available in the git repository at:
+Ruediger Meier (5):
+  misc: fix some broken exit codes
+  lib: fix strutils.h, remove STRTOXX_EXIT_CODE
+  misc: fix more strutils related exit codes
+  misc: fix xalloc.h related exit codes
+  misc: fix optutils.h related exit codes
 
-  git@github.com:jwpi/util-linux.git 170427
+ disk-utils/fsck.c        |  3 +--
+ disk-utils/fsck.cramfs.c |  4 +++-
+ disk-utils/fsck.minix.c  |  2 ++
+ disk-utils/mkfs.cramfs.c |  4 +++-
+ disk-utils/mkfs.minix.c  |  4 ++++
+ include/strutils.h       |  7 ++-----
+ lib/strutils.c           |  6 ++++++
+ misc-utils/blkid.c       |  5 ++++-
+ misc-utils/findfs.c      |  4 ++--
+ sys-utils/flock.c        |  2 ++
+ sys-utils/hwclock.c      |  3 +++
+ sys-utils/mount.c        |  6 +++++-
+ sys-utils/tunelp.c       | 10 +++++++---
+ sys-utils/umount.c       |  6 +++++-
+ 14 files changed, 49 insertions(+), 17 deletions(-)
 
-for you to fetch changes up to f7aaa75d6e9b70564114d20fbe2163c7c989fa55:
-
-  hwclock: remove unused stdarg.h (2017-06-18 20:21:27 -0400)
-
-----------------------------------------------------------------
-J William Piggott (12):
-      hwclock: remove dead code in usage()
-      hwclock: update usage() to util-linux style
-      hwclock: update usage() FILE name
-      hwclock: add usage() functions heading
-      include: update pathnames.h
-      hwclock: use RTC in help output
-      hwclock: update --help content and grammar
-      hwclock: slice up the usage text
-      hwclock: add --update-drift check
-      Docs: update howto-usage-function.txt
-      hwclock: remove unused usage() FILE argument
-      hwclock: remove unused stdarg.h
-
- Documentation/boilerplate.c            |   3 +
- Documentation/howto-usage-function.txt |  12 ++--
- include/c.h                            |   7 ++-
- include/pathnames.h                    |  21 +++----
- sys-utils/hwclock.8.in                 |   3 +-
- sys-utils/hwclock.c                    | 109 +++++++++++++--------------------
- 6 files changed, 67 insertions(+), 88 deletions(-)
+-- 
+1.8.5.6
 
