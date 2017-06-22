@@ -1,43 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.18]:52206 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.15.19]:52922 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751402AbdFZQUO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 26 Jun 2017 12:20:14 -0400
-Received: from adsiz.fritz.box ([146.52.24.88]) by mail.gmx.com (mrgmx003
- [212.227.17.190]) with ESMTPSA (Nemesis) id 0LiTF6-1e2APr1Y8S-00clCh for
- <util-linux@vger.kernel.org>; Mon, 26 Jun 2017 18:20:07 +0200
+        id S1752409AbdFVCTf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 21 Jun 2017 22:19:35 -0400
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] uuidparse: fix getopt crash
-Date: Mon, 26 Jun 2017 18:20:06 +0200
-Message-Id: <20170626162006.25240-1-sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: overriding STRTOXX_EXIT_CODE does not work
+Date: Thu, 22 Jun 2017 04:19:26 +0200
+Cc: util-linux@vger.kernel.org
+References: <201706211856.05354.sweet_f_a@gmx.de> <20170621220640.dujsbx45ndk3mpdk@ws.net.home>
+In-Reply-To: <20170621220640.dujsbx45ndk3mpdk@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201706220419.27112.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Thursday 22 June 2017, Karel Zak wrote:
+> On Wed, Jun 21, 2017 at 06:56:05PM +0200, Ruediger Meier wrote:
+> > Hi,
+> >
+> > I found a little annoying issue. The trick to re-define
+> > STRTOXX_EXIT_CODE (see a99c913091c, 2012-03-30) can't work.
+> > When compiling strutils.c it will always use the default from
+> > strutils.h
+> >
+> >
+> > STRTOXX_EXIT_CODE is used only at 3 places:
+> >
+> > disk-utils/fsck.c:#define STRTOXX_EXIT_CODE     FSCK_EX_USAGE
+> > misc-utils/blkid.c:#define STRTOXX_EXIT_CODE    BLKID_EXIT_OTHER
+> > sys-utils/tunelp.c:#define STRTOXX_EXIT_CODE    3
+> >
+> >
+> > But there are more candidates where the return codes are broken
+> > since strutils.h was introduced, for example here f150ac37.
+> >
+> > $ grep -l "strutils.h" `git grep -l  
+> > "FINDFS_\|MNT_EX\|MKFS_EX\|FSCK_EX" --  "*.c"` disk-utils/fsck.c
+> > disk-utils/fsck.cramfs.c
+> > disk-utils/fsck.minix.c
+> > disk-utils/mkfs.cramfs.c
+> > disk-utils/mkfs.minix.c
+> > libmount/src/context_mount.c
+> > libmount/src/context_umount.c
+> > sys-utils/fstrim.c
+> > sys-utils/mount.c
+> >
+> >
+> > Should we make STRTOXX_EXIT_CODE usable by moving  strutils.c to
+> > strutils.h, like optutils.h? Or any other ideas?
+>
+> I don't think use static inline for everything is the right way,
+> maybe we can introduce
+>
+>   static int _strutils_exitcode;
+>
+>   void strutils_set_exitcode(int ex) {
+>     _strutils_exitcode  = ex;
+>   }
+>
+> function and call the function from main() for utils where it matter.
 
-$ ./uuidparse --unknownopt
-Segmentation fault (core dumped)
+Should be good enough for our use cases.
 
-Hehe, this is the first real bug found by 'make checkusage'.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- misc-utils/uuidparse.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/misc-utils/uuidparse.c b/misc-utils/uuidparse.c
-index 0938b8559..09a6b46a8 100644
---- a/misc-utils/uuidparse.c
-+++ b/misc-utils/uuidparse.c
-@@ -299,6 +299,7 @@ int main(int argc, char **argv)
- 		{"raw",        no_argument,       NULL, 'r'},
- 		{"version",    no_argument,       NULL, 'V'},
- 		{"help",       no_argument,       NULL, 'h'},
-+		{NULL, 0, NULL, 0}
- 	};
- 	static const ul_excl_t excl[] = {
- 		{'J', 'r'},
--- 
-2.12.3
-
+cu,
+Rudi
