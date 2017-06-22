@@ -1,84 +1,36 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:56764 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751204AbdFECir (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 4 Jun 2017 22:38:47 -0400
-From: NeilBrown <neilb@suse.com>
-To: util-linux@vger.kernel.org,
-        Linux NFS Mailing list <linux-nfs@vger.kernel.org>
-Date: Mon, 05 Jun 2017 12:38:39 +1000
-Cc: Franck Bui <fbui@suse.com>
-Subject: [nfs-utils PATCH] umount.nfs: assume path name is canonical.
-In-Reply-To: <8760gbduzp.fsf@notabene.neil.brown.name>
-References: <8760gbduzp.fsf@notabene.neil.brown.name>
-Message-ID: <8737bfduq8.fsf@notabene.neil.brown.name>
+Received: from mout.gmx.net ([212.227.17.21]:58112 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750854AbdFVAuQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 21 Jun 2017 20:50:16 -0400
+Subject: [PATCH 0/2] pull request
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <22e50897-04c9-a413-3b84-d2f968185c43@gmx.com>
+Date: Wed, 21 Jun 2017 20:49:56 -0400
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha256; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---=-=-=
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
+The following changes since commit fad561b0e4b862e320b3c7b72527b09bc1b04860:
 
-/usr/bin/umount will always pass a canonical name
-to umount.nfs, so it is safe to disable canonicalization.
+  build-sys: update DISTCHECK_CONFIGURE_FLAGS (2017-06-21 15:41:21 +0200)
 
-When umounting an NFS filesystem, it is generally safest to
-not "stat" the mountpoint at all as that can block
-indefinitely.  umount() will not block, but lstat() etc can.
-By disabling canonicalization in libmount, we discourage it
-from ever calling 'stat' family operations, and thus reduce
-the chance of a hang.
+are available in the git repository at:
 
-Note that to be fully effective, this requires changes to
-util-linux which have not yet been accepted.
-When both that change and this are in effect, automounters
-can use "umount -c $PATH" to safely unmount a filesystem
-without blocking.
+  git@github.com:jwpi/util-linux.git 170618
 
-Signed-off-by: NeilBrown <neilb@suse.com>
-=2D--
- utils/mount/mount_libmount.c | 1 +
- 1 file changed, 1 insertion(+)
+for you to fetch changes up to 2cb89055c57143f120a404e1c00757eb1b7d41b0:
 
-diff --git a/utils/mount/mount_libmount.c b/utils/mount/mount_libmount.c
-index 1f01f7f7a4e7..2d4065759a6c 100644
-=2D-- a/utils/mount/mount_libmount.c
-+++ b/utils/mount/mount_libmount.c
-@@ -188,6 +188,7 @@ static int umount_main(struct libmnt_context *cxt, int =
-argc, char **argv)
- 	};
-=20
- 	mnt_context_init_helper(cxt, MNT_ACT_UMOUNT, 0);
-+	mnt_context_disable_canonicalize(cxt, 1);
-=20
- 	while ((c =3D getopt_long (argc, argv, "fvnrlh", longopts, NULL)) !=3D -1=
-) {
-=20
-=2D-=20
-2.12.2
+  hwclock: add audit for --systz (2017-06-21 20:37:41 -0400)
 
+----------------------------------------------------------------
+J William Piggott (2):
+      hwclock: remove unused optstring characters
+      hwclock: add audit for --systz
 
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEG8Yp69OQ2HB7X0l6Oeye3VZigbkFAlk0xDAACgkQOeye3VZi
-gbkQkQ/6AlOcgJFkr49ABY0mx1sKyJEKHVf1F13NmHp1WVDC4Mw8mStJ51keSiDj
-hlKfGL1w9j9OASdhr+QbHQab/Nnn/vollP/hc5ev2rpXupgr/JNk3Y34FqFb8Dgo
-wztp7SDEsfU/d7NU0BVxlm6Xh2uNYflquqxCnXpRKPsTF5wGUsbQWCXXTchUpbZ7
-2KzkaEqjm0sMXWMNd0mMW50l99ZYf5DR2NtszijbxS4Mj2EgQQQZPQTDeix0i8m1
-wHNCSfHyyPvKrxGPsFOGDp4KO/zC5E+PrrHHzqU8Ux7HysdhLewcXHxinJI74GEf
-L25pl896VP174FAq2h+bahBlrH8IQ6uQpj8WCLId8ua0Rk2Acl/Xa19aI53EH/7B
-sdmaBBwDghH9TgYRZ4+CYdB31Zzwt6YAkLEaAXiewg2ZUIG0PLlMw+NkaO8nbcKj
-aGWrKWLbYe3i1+sGJq9veFuqxqG9NV+XCmNEvcQXFtW3QP9V9+HLmrYNAeu0r8Ry
-J7gAoeNyvCW9kBhr3uaZeyxYXJbkI6RXhaY5nAs2mN1MpeIQ7hwKXbsETeme9QqC
-ZPyecoUzu1x8ZPvktLNJsWQkNGPQgG8rGySDjQN7khe2ED8lJjpkTXjJ/VGUy7Pu
-5/zQYmAtaTHswAJkDOguGHnXxCmFtY/G4erq0zhlUKoA/x5PI7Q=
-=Aq70
------END PGP SIGNATURE-----
---=-=-=--
+ sys-utils/hwclock.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
