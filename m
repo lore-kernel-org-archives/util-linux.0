@@ -1,54 +1,80 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.19]:62467 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751097AbdFABIn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 31 May 2017 21:08:43 -0400
-Received: from tenfore.ga-group.nl ([77.12.147.210]) by mail.gmx.com (mrgmx003
- [212.227.17.190]) with ESMTPSA (Nemesis) id 0Lp3sy-1dstKv04to-00es7L for
- <util-linux@vger.kernel.org>; Thu, 01 Jun 2017 03:08:41 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from resqmta-ch2-06v.sys.comcast.net ([69.252.207.38]:57610 "EHLO
+        resqmta-ch2-06v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753900AbdFWVim (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Fri, 23 Jun 2017 17:38:42 -0400
+From: "W. Trevor King" <wking@tremily.us>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 0/6] minor last minute fixes for v2.30
-Date: Thu,  1 Jun 2017 03:08:34 +0200
-Message-Id: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
+Cc: Karel Zak <kzak@redhat.com>, "W. Trevor King" <wking@tremily.us>
+Subject: [PATCH v2 8/8] sys-utils/mount.8: Document libmount defaults
+Date: Fri, 23 Jun 2017 14:30:26 -0700
+Message-Id: <17bff7efa55b6ff4f04cf795de8b5d771cf43441.1498252231.git.wking@tremily.us>
+In-Reply-To: <cover.1498252231.git.wking@tremily.us>
+References: <cover.1498252231.git.wking@tremily.us>
+In-Reply-To: <cover.1498252231.git.wking@tremily.us>
+References: <cover.1498252231.git.wking@tremily.us>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+For filesystem-independent kernel options (e.g. rw/ro) we're punting
+to mount(2).  But these libmount options dare only defined in
+util-linux, so we need to document the defaults locally.
 
-This is all non-critical, in doubt skip it.
+Signed-off-by: W. Trevor King <wking@tremily.us>
+---
+ sys-utils/mount.8 | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-Linux User (1):
-  tests: use stdbuf when stderr and stdout is randomly ordered
-
-Ruediger Meier (5):
-  tests: grep's short option -A is more portable
-  tests: avoid diff of diffs
-  build-sys: fix library order when linking
-  tests: handle non glibc error message for fallocate
-  misc: fix some warnings
-
- lib/Makemodule.am                      |  2 +-
- lib/plymouth-ctrl.c                    |  3 ++-
- libblkid/samples/Makemodule.am         |  8 ++++----
- libfdisk/src/Makemodule.am             |  2 +-
- libmount/src/Makemodule.am             |  2 +-
- libsmartcols/samples/Makemodule.am     |  2 +-
- libuuid/src/Makemodule.am              |  2 +-
- login-utils/last.c                     |  2 +-
- misc-utils/test_uuidd.c                | 10 +++++-----
- sys-utils/hwclock.h                    |  1 +
- sys-utils/prlimit.c                    |  4 ++--
- tests/expected/misc/swaplabel          |  2 +-
- tests/expected/rename/exit_codes       |  2 +-
- tests/expected/utmp/utmpdump-subsecond |  7 +++----
- tests/ts/ipcs/headers                  | 26 +++++++++++++-------------
- tests/ts/misc/fallocate                |  5 ++---
- tests/ts/misc/swaplabel                |  3 ++-
- tests/ts/rename/exit_codes             |  3 ++-
- tests/ts/utmp/utmpdump-subsecond       |  4 +---
- 19 files changed, 45 insertions(+), 45 deletions(-)
-
+diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
+index a589f76..2b03cbe 100644
+--- a/sys-utils/mount.8
++++ b/sys-utils/mount.8
+@@ -1121,7 +1121,7 @@ Can be mounted with the
+ .B \-a
+ option (e.g., at boot time).
+ .TP
+-.B noauto
++.B noauto \fR(default)
+ Can only be mounted explicitly (i.e., the
+ .B \-a
+ option will not cause the filesystem to be mounted).
+@@ -1146,7 +1146,7 @@ This option implies the options
+ (unless overridden by subsequent options, as in the option line
+ .BR group,dev,suid ).
+ .TP
+-.B nogroup
++.B nogroup \fR(default)
+ Unset \fBgroup\fR.
+ .TP
+ .B owner
+@@ -1157,7 +1157,7 @@ This option implies the options
+ (unless overridden by subsequent options, as in the option line
+ .BR owner,dev,suid ).
+ .TP
+-.B noowner
++.B noowner \fR(default)
+ Unset \fBowner\fR.
+ .TP
+ .B user
+@@ -1170,7 +1170,7 @@ This option implies the options
+ (unless overridden by subsequent options, as in the option line
+ .BR user,exec,dev,suid ).
+ .TP
+-.B nouser
++.B nouser \fR(default)
+ Unset \fBuser\fR.
+ .TP
+ .B users
+@@ -1181,7 +1181,7 @@ This option implies the options
+ (unless overridden by subsequent options, as in the option line
+ .BR users,exec,dev,suid ).
+ .TP
+-.B nousers
++.B nousers \fR(default)
+ Unset \fBusers\fR.
+ .TP
+ .B X-*
 -- 
-1.8.5.6
+2.1.0.60.g85f0837
 
