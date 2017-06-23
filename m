@@ -1,53 +1,64 @@
-Return-Path: elseifthen@gmx.com
-Subject: Re: [PATCH 07/12] hwclock: update --help content and grammar
-To: Karel Zak <kzak@redhat.com>
-References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
- <bf8f26c6-c0d8-2190-38ed-456dfe0fe58a@gmx.com>
- <20170620085143.cu5dpcobcr3t254m@ws.net.home>
-Cc: util-linux@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.20]:49980 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754141AbdFWR2s (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 23 Jun 2017 13:28:48 -0400
+Subject: Re: [PATCH 3/5] misc: fix more strutils related exit codes
+To: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
+References: <1498164224-13549-1-git-send-email-sweet_f_a@gmx.de>
+ <1498164224-13549-4-git-send-email-sweet_f_a@gmx.de>
 From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <1fa816ff-330f-236a-6cdd-9dd8d5a3db9a@gmx.com>
-Date: Tue, 20 Jun 2017 20:53:02 -0400
+Message-ID: <e50780b9-ba85-5e7e-11cb-2db12c4c5bef@gmx.com>
+Date: Fri, 23 Jun 2017 13:28:40 -0400
 MIME-Version: 1.0
-In-Reply-To: <20170620085143.cu5dpcobcr3t254m@ws.net.home>
+In-Reply-To: <1498164224-13549-4-git-send-email-sweet_f_a@gmx.de>
 Content-Type: text/plain; charset=windows-1252
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
 
-On 06/20/2017 04:51 AM, Karel Zak wrote:
-> On Sun, Jun 18, 2017 at 08:45:09PM -0400, J William Piggott wrote:
->>
->> Signed-off-by: J William Piggott <elseifthen@gmx.com>
->> ---
->>  include/c.h         |  4 ++--
->>  sys-utils/hwclock.c | 48 +++++++++++++++++++++---------------------------
->>  2 files changed, 23 insertions(+), 29 deletions(-)
->>
->> diff --git a/include/c.h b/include/c.h
->> index 9c19965..bd073fc 100644
->> --- a/include/c.h
->> +++ b/include/c.h
->> @@ -319,8 +319,8 @@ static inline int xusleep(useconds_t usec)
->>  #define USAGE_OPTIONS    _("\nOptions:\n")
->>  #define USAGE_FUNCTIONS  _("\nFunctions:\n")
->>  #define USAGE_SEPARATOR    "\n"
->> -#define USAGE_HELP       _(" -h, --help     display this help and exit\n")
->> -#define USAGE_VERSION    _(" -V, --version  output version information and exit\n")
->> +#define USAGE_HELP       _(" -h, --help     display this information and exit\n")
+On 06/22/2017 04:43 PM, Ruediger Meier wrote:
+> From: Ruediger Meier <ruediger.meier@ga-group.nl>
 > 
->  "display this help and exit\n"
-> or
->  "display help information and exit\n"
+> Found by grep:
+> 
+> grep -l "\bEXIT_\|exit *( *[0-9][0-9] *)\|strutils\.h" $(grep -L \
+>     strutils_set_exitcode  $(git grep -l "_EX_\|FINDFS_\|BLKID_EXIT\|EX_USAGE" -- "*.c"))
+> 
+> The Command shows also some false positives (fstrim.c,
+> context_mount.c, ...)
+> 
+> Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+> ---
+>  disk-utils/fsck.cramfs.c | 2 ++
+>  disk-utils/fsck.minix.c  | 2 ++
+>  disk-utils/mkfs.cramfs.c | 2 ++
+>  disk-utils/mkfs.minix.c  | 2 ++
+>  sys-utils/flock.c        | 2 ++
+>  sys-utils/hwclock.c      | 2 ++
+>  sys-utils/mount.c        | 2 ++
+>  7 files changed, 14 insertions(+)
+>
 
-Done.
+ --- >8
 
-> 
-> sounds better than "this information".
-> 
->> +#define USAGE_VERSION    _(" -V, --version  display version information and exit\n")
-> 
-> This is better than the original.
-> 
->     Karel
-> 
+>  
+> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+> index 5433cd0..325106a 100644
+> --- a/sys-utils/hwclock.c
+> +++ b/sys-utils/hwclock.c
+> @@ -1326,6 +1326,8 @@ int main(int argc, char **argv)
+>  	};
+>  	int excl_st[ARRAY_SIZE(excl)] = UL_EXCL_STATUS_INIT;
+>  
+> +	strutils_set_exitcode(EX_USAGE);
+> +
+>  	/* Remember what time we were invoked */
+>  	gettimeofday(&startup_time, NULL);
+>
+
+If we keep this it needs to be: #if defined(__linux__) && defined(__alpha__)
+
+I think the default EXIT_FAILURE is fine for this case.
+
