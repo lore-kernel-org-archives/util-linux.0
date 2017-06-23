@@ -1,119 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:59976 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752871AbdFLXRA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 12 Jun 2017 19:17:00 -0400
-Subject: Re: [PATCH 01/11] misc: fallthrough fixes
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-References: <20170608195215.1702-1-kerolasa@iki.fi>
- <20170608195215.1702-2-kerolasa@iki.fi> <201706091314.08008.sweet_f_a@gmx.de>
- <968790d0-c49c-538b-d034-ffcda9c20efc@gmx.de>
- <CAG27Bk3OEBrnGbrD+2tuxu-UGUjQXLB+TrsFLiQRvOtcns8FsQ@mail.gmail.com>
- <55d88bf2-3c67-4d79-984e-b16d6b835702@gmx.de>
- <CAG27Bk03PW7GWHdm5G0Xcu1LXbAXwebQyyvk3HoHx7hP8e-Bgg@mail.gmail.com>
-From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
-Message-ID: <4ae98acb-325d-39dd-faa9-2cdf8ce62c3e@gmx.de>
-Date: Tue, 13 Jun 2017 01:16:57 +0200
-MIME-Version: 1.0
-In-Reply-To: <CAG27Bk03PW7GWHdm5G0Xcu1LXbAXwebQyyvk3HoHx7hP8e-Bgg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Received: from resqmta-ch2-05v.sys.comcast.net ([69.252.207.37]:39116 "EHLO
+        resqmta-ch2-05v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1754558AbdFWVh2 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Fri, 23 Jun 2017 17:37:28 -0400
+From: "W. Trevor King" <wking@tremily.us>
+To: util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>, "W. Trevor King" <wking@tremily.us>
+Subject: [PATCH v2 5/8] sys-utils/mount.8: Drop systemd paragraph from x-* entry
+Date: Fri, 23 Jun 2017 14:30:23 -0700
+Message-Id: <f6bcd3c58828ee2b3e321d6c3c0b6f002c63d400.1498252231.git.wking@tremily.us>
+In-Reply-To: <cover.1498252231.git.wking@tremily.us>
+References: <cover.1498252231.git.wking@tremily.us>
+In-Reply-To: <cover.1498252231.git.wking@tremily.us>
+References: <cover.1498252231.git.wking@tremily.us>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Removing the second paragraph from the x-* entry in favor of a "since
+util-linux v2.30" parenthetical.  While the motivation for the
+userspace storage is interesting, it's covered in more detail in the
+0a14cc8b (libmount: revert X-* and x-* meaning, 2016-12-09) commit
+message.
 
+For example, the "keep existing fstab configurations usable" wording
+I'm removing was a bit confusing, because fstabs using x-* and
+expecting the options to be preserved in userspace were broken before
+util-linux v2.30.  The clearer language from 0a14cc8b's commit message
+is:
 
-On 06/12/2017 11:54 PM, Sami Kerola wrote:
-> On 12 June 2017 at 09:40, Rüdiger Meier <sweet_f_a@gmx.de> wrote:
->> On 06/11/2017 10:36 AM, Sami Kerola wrote:
->>>
->>> On 9 June 2017 at 22:10, Rüdiger Meier <sweet_f_a@gmx.de> wrote:
->>
->>
->>>> Sorry this was broken. But I've checked now all clang and gcc versions.
->>>> Looks
->>>> like for clang the warning is only enabled when using C++ (clang++). So
->>>> the
->>>> fallthrough warning appears currently only on gcc>=7 and this works to
->>>> disable
->>>> it in a compatible way:
->>>>
->>>> #ifndef __has_cpp_attribute
->>>> # define __has_cpp_attribute(x) 0
->>>> #endif
->>>>
->>>> #if __has_cpp_attribute(fallthrough)
->>>> # define UL_FALLTHROUGH __attribute__((fallthrough))
->>>> #else
->>>> # define UL_FALLTHROUGH /* fall through */
->>>> #endif
->>>
->>>
->>> Thank you for review Rudi. I had a look of the c.h again and did the
->>> change a little bit differently:
->>>
->>> #ifdef __has_cpp_attribute
->>> # if __has_cpp_attribute(deprecated)
->>
->>
->> Is this a typoo? s/deprecated/fallthrough
-> 
-> Hi Rudi,
-> 
-> Yes, it was a typo. Fixed in following.
-> 
-> https://github.com/kerolasa/lelux-utiliteetit/commit/aa1ed6ac309a2bd6f0c5371a3117618074e7634a
-> 
->>> #  define UL_FALLTHROUGH __attribute__((fallthrough))
->>> # elif __has_cpp_attribute(clang::fallthrough)
->>> #  define UL_FALLTHROUGH [[clang::fallthrough]]
->>
->>
->> I still wonder. Have you really seen such a fallthrough warning from clang?
->> I've even tried with explicit -Wimplicit-fallthrough but could not get one.
->>
->> As far as I understood these namespaced "clang::" attributes are for C++
->> only.
->>
->> man clang:
->>     Non-standard C++11 Attributes
->>         Clang's non-standard C++11 attributes live in the clang attribute
->> namespace
->>
->> So IMO it makes no sense to use clang::fallthrough for C code.
-> 
-> Removed in same commit. Strange enough I'm pretty sure that attribute
-> worked.
+  The systemd and dracut users will get the new (=fixed) functionality
+  without a change in fstab configuration.
 
-Yes, clang does not seem to complain about clang++ attributes. I guess they
-don't want to introduce even more incompatibilities. Similar I've noticed
-that even old gcc and clang compilers accept (ignore) the  option
--Wimplicit-fallthrough" and probably any other warning option.
+It's not clear to me if there was an earlier version of util-linux
+that also preserved x-* options.  Without that, the existing fstabs
+using x-* and intending to have the options preserved *become* usable
+with v2.30; they weren't usable before.
 
-FYI I've set up a travis build script to test many gcc and clang versions.
-The current build logs contain your and my other pull request
-https://travis-ci.org/rudimeier/util-linux/builds/242109953
+Also some minor grammar fixes to the first paragraph.
 
->>> # endif
->>> #endif
->>> #ifndef UL_FALLTHROUGH
->>> # define UL_FALLTHROUGH /* FALLTHRU */
->>> #endif
->>
->>
->> BTW just for cosmetics. Maybe we should rename UL_FALLTHROUGH to
->> __ul_fallthrough
->> like we have already __ul_calloc_size. IMO it would look more obvious to the
->> reader.
-> 
-> I don't have strong opinion about that, changed to one you proposed.
+Signed-off-by: W. Trevor King <wking@tremily.us>
+---
+ sys-utils/mount.8 | 18 +++++++-----------
+ 1 file changed, 7 insertions(+), 11 deletions(-)
 
-Thanks, let's see whether Karel likes this attribute at all ;)
+diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
+index d20e35d..2bcb12a 100644
+--- a/sys-utils/mount.8
++++ b/sys-utils/mount.8
+@@ -1178,17 +1178,13 @@ nor sent to the mount.\fItype\fR helpers nor to the
+ system call.  The suggested format is \fBX-\fIappname\fR.\fIoption\fR.
+ .TP
+ .B x-*
+-The same as \fBX-*\fR options, but stored permanently in the user space. It
+-means the options are also available for umount or another operations.  Note
+-that maintain mount options in user space is tricky, because it's necessary use
+-libmount based tools and there is no guarantee that the options will be always
+-available (for example after a move mount operation or in unshared namespace).
+-
+-Note that before util-linux v2.30 the x-* options have not been maintained by
+-libmount and stored in user space (functionality was the same as have X-* now),
+-but due to growing number of use-cases (in initrd, systemd etc.) the
+-functionality have been extended to keep existing fstab configurations usable
+-without a change.
++The same as \fBX-*\fR options, but (since util-linux v2.30) stored
++permanently in the user space.  Storing the options means they are
++also available for umount and other operations.  Note that maintaining
++mount options in user space is tricky, because it's necessary use
++libmount-based tools and there is no guarantee that the options will
++be always available (for example after a move mount operation or in an
++unshared namespace).
+ .TP
+ .BR X-mount.mkdir [ = \fImode\fR ]
+ Allow to make a target directory (mountpoint).  The optional argument
+-- 
+2.1.0.60.g85f0837
 
->> Also I would use it without semicolon because some compilers may complain
->> about
->> useless ";" statements.
-> 
-> Semicolon is removed. Whether this will fool various indent tools is something
-> to be seen.
-> 
