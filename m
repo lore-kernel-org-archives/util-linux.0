@@ -1,69 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:55968 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751979AbdFPJj2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 16 Jun 2017 05:39:28 -0400
-Date: Fri, 16 Jun 2017 11:39:23 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: BUG: wipefs dry run
-Message-ID: <20170616093923.fbikmnobs55hnhlz@ws.net.home>
-References: <201705101154.50099.sweet_f_a@gmx.de>
- <201705101303.10856.sweet_f_a@gmx.de>
- <20170526112120.kinsu7oi7fldx2o4@ws.net.home>
- <201706151647.06899.sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201706151647.06899.sweet_f_a@gmx.de>
+Received: from resqmta-ch2-03v.sys.comcast.net ([69.252.207.35]:59386 "EHLO
+        resqmta-ch2-03v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753900AbdFWVik (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Fri, 23 Jun 2017 17:38:40 -0400
+From: "W. Trevor King" <wking@tremily.us>
+To: util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>, "W. Trevor King" <wking@tremily.us>
+Subject: [PATCH v2 4/8] sys-utils/mount.8: Simplify nouser
+Date: Fri, 23 Jun 2017 14:30:22 -0700
+Message-Id: <2f9424002b9b0c3a570dd2cc54ad1ad3844960ef.1498252231.git.wking@tremily.us>
+In-Reply-To: <cover.1498252231.git.wking@tremily.us>
+References: <cover.1498252231.git.wking@tremily.us>
+In-Reply-To: <cover.1498252231.git.wking@tremily.us>
+References: <cover.1498252231.git.wking@tremily.us>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 15, 2017 at 04:47:06PM +0200, Ruediger Meier wrote:
-> On Friday 26 May 2017, Karel Zak wrote:
-> > On Wed, May 10, 2017 at 01:03:10PM +0200, Ruediger Meier wrote:
-> > > > It would be probably possible to extend libblkid to work in some
-> > > > "ignore previous result" mode to to gather all permutation for
-> > > > the FS/RAID/etc, but it won't be trivial task...
-> > >
-> > > This would be nice.
-> >
-> > Implemented (and it was relatively easy to implement :-)
-> >
-> > Try "blkid-hide" branch from github, will be in v2.31.
-> 
-> > # wipefs -a --no-act /dev/sdc
-> 
-> 
-> Thanks, this looks good. There are still a few issues-
+Don't try to explain how this happens in isolation, since "unsets any
+previous user option", is sufficient.
 
-Thanks for testing!
+Signed-off-by: W. Trevor King <wking@tremily.us>
+---
+ sys-utils/mount.8 | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-> 
-> $ truncate -s 100M /tmp/test.img
-> $ echo "label: gpt" | ./sfdisk /tmp/test.img
-> 
-> ### this hangs indefinitely
-> $ wipefs -t gpt /tmp/test.img
-
-Fixed.
-
-> ### the default list shows too many newlines 
-> $ ./wipefs  /tmp/test.img
-> offset               type
-> ----------------------------------------------------------------
-> 0x1fe                PMBR   [partition table]
-> 
-> 0x63ffe00            gpt   [partition table]
-> 
-> 0x200                gpt   [partition table]
-
-All the output is ugly. I'll probably link it with libsmartcols,
-because we support "wipefs /dev/sd*" to list more devices and then the
-output is absolutely useless.
-
-    Karel
-
+diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
+index 26e6ce0..d20e35d 100644
+--- a/sys-utils/mount.8
++++ b/sys-utils/mount.8
+@@ -1158,8 +1158,7 @@ This option implies the options
+ .BR user,exec,dev,suid ).
+ .TP
+ .B nouser
+-Forbid an ordinary user to mount the filesystem.
+-This is the default; it does not imply any other options.
++Unset \fBuser\fR.
+ .TP
+ .B users
+ Allow any user to mount and to unmount the filesystem, even
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.1.0.60.g85f0837
+
