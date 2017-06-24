@@ -1,38 +1,25 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59596 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751647AbdF2IDT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 29 Jun 2017 04:03:19 -0400
-Date: Thu, 29 Jun 2017 10:03:15 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: exit() vs _exit()
-Message-ID: <20170629080315.pjkzfmafatabq5kl@ws.net.home>
-References: <201706290331.04310.sweet_f_a@gmx.de>
+Return-Path: luto@kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201706290331.04310.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <ccd7b1ecb6290d245c94ab606bb375b4787b2e1b.1498312679.git.ps@pks.im>
+References: <9ace66eed2d16303fd2a8d157875c4acca043f14.1498312679.git.ps@pks.im>
+ <cover.1498312509.git.ps@pks.im> <ccd7b1ecb6290d245c94ab606bb375b4787b2e1b.1498312679.git.ps@pks.im>
+From: Andy Lutomirski <luto@kernel.org>
+Date: Sat, 24 Jun 2017 13:46:18 -0700
+Message-ID: <CALCETrU4OfnOe_jKUfrAmThndi++M+j2Ywpm+nRbvrOD1K5mbg@mail.gmail.com>
+Subject: Re: [PATCH 4/5] setpriv: support dumping ambient capabilities
+To: Patrick Steinhardt <ps@pks.im>
+Cc: util-linux@vger.kernel.org, Andrew Lutomirski <luto@kernel.org>,
+	Karel Zak <kzak@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 29, 2017 at 03:31:04AM +0200, Ruediger Meier wrote:
-> Hi,
-> 
-> I've noticed we have some exit() calls in the libs,
-> 
-> e.g. in exec_helper()
-> 
->   libmount/src/context_mount.c
->   libmount/src/context_umount.c
-> 
-> Is this really ok or shouldn't we use _exit() there?
+On Sat, Jun 24, 2017 at 7:04 AM, Patrick Steinhardt <ps@pks.im> wrote:
+> Our code dumping owned capabilities does not yet handle ambient
+> capabilities, which were only recently introduced with Linux 4.3. This
+> commit implements printing ambient capabilities if they're supported by
+> the system.
+>
+> Based on a patch by Andy Lutomirski.
+>
 
-I think _exit() is better in this case.
-
-    Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Reviewed-by: Andy Lutomirski <luto@kernel.org>
