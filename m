@@ -1,61 +1,84 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.19]:55747 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751036AbdFAHwq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 1 Jun 2017 03:52:46 -0400
-Received: from tenfore.site ([77.12.131.100]) by mail.gmx.com (mrgmx001
- [212.227.17.190]) with ESMTPSA (Nemesis) id 0MBVwM-1d5un41T30-00ASUc for
- <util-linux@vger.kernel.org>; Thu, 01 Jun 2017 09:52:44 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:36817 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751235AbdFXOFG (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Sat, 24 Jun 2017 10:05:06 -0400
+From: Patrick Steinhardt <ps@pks.im>
 To: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/6] minor last minute fixes for v2.30
-Date: Thu, 1 Jun 2017 09:52:43 +0200
-References: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201706010952.43726.sweet_f_a@gmx.de>
+Cc: Patrick Steinhardt <ps@pks.im>, luto@kernel.org, kzak@redhat.com
+Subject: [PATCH 4/5] setpriv: support dumping ambient capabilities
+Date: Sat, 24 Jun 2017 16:04:33 +0200
+Message-Id: <ccd7b1ecb6290d245c94ab606bb375b4787b2e1b.1498312679.git.ps@pks.im>
+In-Reply-To: <cover.1498312509.git.ps@pks.im>
+References: <cover.1498312509.git.ps@pks.im>
+In-Reply-To: <9ace66eed2d16303fd2a8d157875c4acca043f14.1498312679.git.ps@pks.im>
+References: <9ace66eed2d16303fd2a8d157875c4acca043f14.1498312679.git.ps@pks.im>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 01 June 2017, Ruediger Meier wrote:
-> From: Ruediger Meier <ruediger.meier@ga-group.nl>
->
-> This is all non-critical, in doubt skip it.
+Our code dumping owned capabilities does not yet handle ambient
+capabilities, which were only recently introduced with Linux 4.3. This
+commit implements printing ambient capabilities if they're supported by
+the system.
 
-I've fixed some typos via github pull request.
-https://github.com/karelzak/util-linux/pull/450
+Based on a patch by Andy Lutomirski.
 
+Signed-off-by: Patrick Steinhardt <ps@pks.im>
+---
+ sys-utils/setpriv.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-> Linux User (1):
->   tests: use stdbuf when stderr and stdout is randomly ordered
->
-> Ruediger Meier (5):
->   tests: grep's short option -A is more portable
->   tests: avoid diff of diffs
->   build-sys: fix library order when linking
->   tests: handle non glibc error message for fallocate
->   misc: fix some warnings
->
->  lib/Makemodule.am                      |  2 +-
->  lib/plymouth-ctrl.c                    |  3 ++-
->  libblkid/samples/Makemodule.am         |  8 ++++----
->  libfdisk/src/Makemodule.am             |  2 +-
->  libmount/src/Makemodule.am             |  2 +-
->  libsmartcols/samples/Makemodule.am     |  2 +-
->  libuuid/src/Makemodule.am              |  2 +-
->  login-utils/last.c                     |  2 +-
->  misc-utils/test_uuidd.c                | 10 +++++-----
->  sys-utils/hwclock.h                    |  1 +
->  sys-utils/prlimit.c                    |  4 ++--
->  tests/expected/misc/swaplabel          |  2 +-
->  tests/expected/rename/exit_codes       |  2 +-
->  tests/expected/utmp/utmpdump-subsecond |  7 +++----
->  tests/ts/ipcs/headers                  | 26
-> +++++++++++++------------- tests/ts/misc/fallocate                | 
-> 5 ++---
->  tests/ts/misc/swaplabel                |  3 ++-
->  tests/ts/rename/exit_codes             |  3 ++-
->  tests/ts/utmp/utmpdump-subsecond       |  4 +---
->  19 files changed, 45 insertions(+), 45 deletions(-)
+diff --git a/sys-utils/setpriv.c b/sys-utils/setpriv.c
+index 549d2b298..c0276ed27 100644
+--- a/sys-utils/setpriv.c
++++ b/sys-utils/setpriv.c
+@@ -46,13 +46,19 @@
+ # define PR_GET_NO_NEW_PRIVS 39
+ #endif
+ 
++#ifndef PR_CAP_AMBIENT
++# define PR_CAP_AMBIENT		47
++#  define PR_CAP_AMBIENT_IS_SET	1
++#endif
++
+ #define SETPRIV_EXIT_PRIVERR 127	/* how we exit when we fail to set privs */
+ 
+ enum cap_type {
+ 	CAP_TYPE_EFFECTIVE   = CAPNG_EFFECTIVE,
+ 	CAP_TYPE_PERMITTED   = CAPNG_PERMITTED,
+ 	CAP_TYPE_INHERITABLE = CAPNG_INHERITABLE,
+-	CAP_TYPE_BOUNDING    = CAPNG_BOUNDING_SET
++	CAP_TYPE_BOUNDING    = CAPNG_BOUNDING_SET,
++	CAP_TYPE_AMBIENT     = (1 << 4)
+ };
+ 
+ /*
+@@ -170,6 +176,9 @@ static int has_cap(enum cap_type which, unsigned int i)
+ 	case CAP_TYPE_INHERITABLE:
+ 	case CAP_TYPE_PERMITTED:
+ 		return capng_have_capability(which, i);
++	case CAP_TYPE_AMBIENT:
++		return prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_IS_SET,
++				(unsigned long) i, 0UL, 0UL);
+ 	default:
+ 		warnx(_("invalid capability type"));
+ 		return -1;
+@@ -365,6 +374,14 @@ static void dump(int dumplevel)
+ 		printf(_("[none]"));
+ 	printf("\n");
+ 
++	printf(_("Ambient capabilities: "));
++	x = print_caps(stdout, CAP_TYPE_AMBIENT);
++	if (x == 0)
++		printf(_("[none]"));
++	if (x < 0)
++		printf(_("[unsupported]"));
++	printf("\n");
++
+ 	printf(_("Capability bounding set: "));
+ 	if (print_caps(stdout, CAP_TYPE_BOUNDING) == 0)
+ 		printf(_("[none]"));
+-- 
+2.13.1
+
