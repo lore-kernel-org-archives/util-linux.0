@@ -1,107 +1,76 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:56909 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750899AbdFUQXh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 21 Jun 2017 12:23:37 -0400
-Subject: Re: [PATCH 04/12] hwclock: add usage() functions heading
-To: Ruediger Meier <sweet_f_a@gmx.de>
-References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
- <68a54120-d8ad-59c2-89b6-4ccdd961300b@gmx.com>
- <201706211421.12132.sweet_f_a@gmx.de>
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <e845c961-1d38-6258-ef68-9b44528a5f77@gmx.com>
-Date: Wed, 21 Jun 2017 11:59:04 -0400
-MIME-Version: 1.0
-In-Reply-To: <201706211421.12132.sweet_f_a@gmx.de>
-Content-Type: text/plain; charset=windows-1252
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:46817 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751055AbdFXOE6 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Sat, 24 Jun 2017 10:04:58 -0400
+From: Patrick Steinhardt <ps@pks.im>
+To: util-linux@vger.kernel.org
+Cc: Patrick Steinhardt <ps@pks.im>, luto@kernel.org, kzak@redhat.com
+Subject: [PATCH 2/5] setpriv: proxy function checking whether a capability is set
+Date: Sat, 24 Jun 2017 16:04:31 +0200
+Message-Id: <a71a588d9507911d541388872a987d219d236f49.1498312679.git.ps@pks.im>
+In-Reply-To: <cover.1498312509.git.ps@pks.im>
+References: <cover.1498312509.git.ps@pks.im>
+In-Reply-To: <9ace66eed2d16303fd2a8d157875c4acca043f14.1498312679.git.ps@pks.im>
+References: <9ace66eed2d16303fd2a8d157875c4acca043f14.1498312679.git.ps@pks.im>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+The loop in `print_caps` iterates over every capability, checks whether
+it is set and, if so, prints out its name. Currently, the checking and
+printing is rather intertwined, making it harder to extend the check
+whether we own a capability.
 
+Prepare code for the introduction of ambient capabilities by
+disentangling the code checking for a capability and printing code. A
+new function `has_cap` is introduced and `print_caps` will now simply
+call out to it and only handle printing itself. This easily allows to
+extend the capability check based on which capability set is queried.
 
-On 06/21/2017 08:21 AM, Ruediger Meier wrote:
-> On Monday 19 June 2017, J William Piggott wrote:
->> Make a functions heading, similar to the existing options heading.
->>
->> * include/c.h: define USAGE_FUNCTIONS
->> * Documentation/boilerplate.c: add USAGE_FUNCTIONS
->> * sys-utils/hwclock.c add functions header to usage()
->>
->> Signed-off-by: J William Piggott <elseifthen@gmx.com>
->> ---
->>  Documentation/boilerplate.c | 3 +++
->>  include/c.h                 | 3 ++-
->>  sys-utils/hwclock.c         | 3 +--
->>  3 files changed, 6 insertions(+), 3 deletions(-)
->>
->> diff --git a/Documentation/boilerplate.c
->> b/Documentation/boilerplate.c index 7da9374..057893b 100644
->> --- a/Documentation/boilerplate.c
->> +++ b/Documentation/boilerplate.c
->> @@ -33,6 +33,9 @@ static void __attribute__((__noreturn__))
->> usage(FILE *out) {
->>  	fputs(USAGE_HEADER, out);
->>  	fprintf(out, _(" %s [options] file...\n"),
->> program_invocation_short_name); +	fputs(USAGE_FUNCTIONS, out);
->> +	fputs(_(" -s, --do-something      some specific task\n"), out);
->> +	fputs(_(" -o, --do-other          some different task\n"), out);
-> 
-> These options -s and -o are not implemented in the boilerplate.c. Also 
-> the short usage line does not mention "functions" but "options" only.
+Signed-off-by: Patrick Steinhardt <ps@pks.im>
+---
+ sys-utils/setpriv.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
-Good point, I didn't think to add them.
+diff --git a/sys-utils/setpriv.c b/sys-utils/setpriv.c
+index 4ee07862f..23224eff9 100644
+--- a/sys-utils/setpriv.c
++++ b/sys-utils/setpriv.c
+@@ -162,13 +162,32 @@ static int real_cap_last_cap(void)
+ 	return ret;
+ }
+ 
++static int has_cap(enum cap_type which, unsigned int i)
++{
++	switch (which) {
++	case CAP_TYPE_EFFECTIVE:
++	case CAP_TYPE_BOUNDING:
++	case CAP_TYPE_INHERITABLE:
++	case CAP_TYPE_PERMITTED:
++		return capng_have_capability(which, i);
++	default:
++		warnx(_("invalid capability type"));
++		return -1;
++	}
++}
++
+ /* Returns the number of capabilities printed. */
+ static int print_caps(FILE *f, enum cap_type which)
+ {
+ 	int i, n = 0, max = real_cap_last_cap();
+ 
+ 	for (i = 0; i <= max; i++) {
+-		if (capng_have_capability((capng_type_t) which, i)) {
++		int ret = has_cap(which, i);
++
++		if (i == 0 && ret < 0)
++			return -1;
++
++		if (ret == 1) {
+ 			const char *name = capng_capability_to_name(i);
+ 			if (n)
+ 				fputc(',', f);
+-- 
+2.13.1
 
-> 
-> I think this USAGE_FUNCTIONS looks quite good in hwclock and would be 
-> nice for some other commands too. But I guess 90% of all commands do 
-> not need this. So maybe we should not add this to the boilerplate.
-
-I agree that it is not common, but I think it belongs in boilerplate for
-discovery purposes by new contributors.
-
-> 
-> cu,
-> Rudi
-> 
->>  	fputs(USAGE_OPTIONS, out);
->>  	fputs(_(" -n, --no-argument       option does not use argument\n"),
->> out); fputs(_("     --optional[=<arg>]  option argument is
->> optional\n"), out); diff --git a/include/c.h b/include/c.h
->> index a5162b9..9c19965 100644
->> --- a/include/c.h
->> +++ b/include/c.h
->> @@ -317,10 +317,11 @@ static inline int xusleep(useconds_t usec)
->>   */
->>  #define USAGE_HEADER     _("\nUsage:\n")
->>  #define USAGE_OPTIONS    _("\nOptions:\n")
->> +#define USAGE_FUNCTIONS  _("\nFunctions:\n")
->>  #define USAGE_SEPARATOR    "\n"
->>  #define USAGE_HELP       _(" -h, --help     display this help and
->> exit\n") #define USAGE_VERSION    _(" -V, --version  output version
->> information and exit\n") -#define USAGE_MAN_TAIL(_man)   _("\nFor
->> more details see %s.\n"), _man +#define USAGE_MAN_TAIL(_man)  
->> _("\nFor more details see %s\n"), _man
->>
->>  #define UTIL_LINUX_VERSION _("%s from %s\n"),
->> program_invocation_short_name, PACKAGE_STRING
->>
->> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
->> index 28655b0..9d6bb11 100644
->> --- a/sys-utils/hwclock.c
->> +++ b/sys-utils/hwclock.c
->> @@ -1208,8 +1208,7 @@ usage(const struct hwclock_control *ctl, FILE
->> *out) fputs(USAGE_SEPARATOR, out);
->>  	fputs(_(" Query or set the hardware clock\n"), out);
->>
->> -	fputs(USAGE_SEPARATOR, out);
->> -	fputs(_("Functions:\n"), out);
->> +	fputs(USAGE_FUNCTIONS, out);
->>  	fputs(_(" -r, --show           read hardware clock and print
->> result\n" "     --get            read hardware clock and print drift
->> corrected result\n" "     --set            set the RTC to the time
->> given with --date\n"), out); --
->> To unsubscribe from this list: send the line "unsubscribe util-linux"
->> in the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
