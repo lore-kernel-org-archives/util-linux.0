@@ -1,49 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:59066 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751590AbdFOXqT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 15 Jun 2017 19:46:19 -0400
-Subject: [PATCH 07/10] parse-date: refactor tm_diff()
-To: Karel Zak <kzak@redhat.com>
-References: <1b57c4a5-9517-e005-dd05-265004d58948@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <c7c83981-f744-303e-aa25-4143ae819aea@gmx.com>
-Date: Thu, 15 Jun 2017 19:46:04 -0400
-MIME-Version: 1.0
-In-Reply-To: <1b57c4a5-9517-e005-dd05-265004d58948@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:36240 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751271AbdFXKsP (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 24 Jun 2017 06:48:15 -0400
+Received: by mail-wr0-f193.google.com with SMTP id 77so18496311wrb.3
+        for <util-linux@vger.kernel.org>; Sat, 24 Jun 2017 03:48:14 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH] script: ensure typescript and timing errors do not break terminal
+Date: Sat, 24 Jun 2017 11:48:08 +0100
+Message-Id: <20170624104808.11814-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Earlier when typescript file failed new line after the error did not cause
+carriage return.  Here is an example how prompt> travels to wrong place:
 
-Reported-by: Ruediger Meier <ruediger.meier@ga-group.nl>
-Influenced-by: gnulib 30784c4 Paul Eggert <eggert@cs.ucla.edu>
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
+prompt> script 0500-perms/typescript
+Script started, file is 0500-perms/typescript
+script: cannot open 0500-perms/typescript: Permission denied
+                                                            prompt>
+
+But that wasn't quite as bad as what happen with timing file, that at
+failure left terminal to state where a reset(1) run was needed.
+
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- lib/parse-date.y | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ term-utils/script.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/lib/parse-date.y b/lib/parse-date.y
-index 620626e..f96fc09 100644
---- a/lib/parse-date.y
-+++ b/lib/parse-date.y
-@@ -957,7 +957,7 @@ static table const * lookup_zone(parser_control const *pc, char const *name)
-  * The body of this function is taken directly from the GNU C Library;
-  * see src/strftime.c.
-  */
--static long int tm_diff(struct tm const *a, struct tm const *b)
-+static int tm_diff(struct tm const *a, struct tm const *b)
- {
- 	/**
- 	 * Compute intervening leap days correctly even if year is negative.
-@@ -970,8 +970,7 @@ static long int tm_diff(struct tm const *a, struct tm const *b)
- 	int a400 = SHR (a100, 2);
- 	int b400 = SHR (b100, 2);
- 	int intervening_leap_days = (a4 - b4) - (a100 - b100) + (a400 - b400);
--	int ayear = a->tm_year;
--	int years = ayear - b->tm_year;
-+	int years = a->tm_year - b->tm_year;
- 	int days = (365 * years + intervening_leap_days
- 			 + (a->tm_yday - b->tm_yday));
- 	return (60 * (60 * (24 * days + (a->tm_hour - b->tm_hour))
+diff --git a/term-utils/script.c b/term-utils/script.c
+index f2fc2f59c..be869654e 100644
+--- a/term-utils/script.c
++++ b/term-utils/script.c
+@@ -423,15 +423,27 @@ static void do_io(struct script_control *ctl)
+ 
+ 	if ((ctl->typescriptfp =
+ 	     fopen(ctl->fname, ctl->append ? "a" UL_CLOEXECSTR : "w" UL_CLOEXECSTR)) == NULL) {
++		struct termios rtt;
++
++		rtt = ctl->attrs;
++		tcsetattr(STDIN_FILENO, TCSANOW, &rtt);
+ 		warn(_("cannot open %s"), ctl->fname);
+ 		fail(ctl);
+ 	}
+ 	if (ctl->timing) {
+-		if (!ctl->tname) {
+-			if (!(ctl->timingfp = fopen("/dev/stderr", "w" UL_CLOEXECSTR)))
+-				err(EXIT_FAILURE, _("cannot open %s"), "/dev/stderr");
+-		} else if (!(ctl->timingfp = fopen(ctl->tname, "w" UL_CLOEXECSTR)))
+-			err(EXIT_FAILURE, _("cannot open %s"), ctl->tname);
++		char *tname;
++		if (ctl->tname)
++			tname = ctl->tname;
++		else
++			tname = "/dev/stderr";
++		if (!(ctl->timingfp = fopen(tname, "w" UL_CLOEXECSTR))) {
++			struct termios rtt;
++
++			rtt = ctl->attrs;
++			tcsetattr(STDIN_FILENO, TCSANOW, &rtt);
++			warn(_("cannot open %s"), tname);
++			fail(ctl);
++		}
+ 	}
+ 
+ 
+-- 
+2.13.1
+
