@@ -1,58 +1,53 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:57408 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752042AbdF1QlH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 28 Jun 2017 12:41:07 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Cc: J William Piggott <elseifthen@gmx.com>
-Subject: [PATCH 8/8] hwclock: don't ifdef printf arguments
-Date: Wed, 28 Jun 2017 18:40:57 +0200
-Message-Id: <1498668057-8256-9-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1498668057-8256-1-git-send-email-sweet_f_a@gmx.de>
-References: <1498668057-8256-1-git-send-email-sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: kerolasa@gmail.com
+Sender: Sami Kerola <kerolasa@gmail.com>
+Date: Sun, 25 Jun 2017 14:04:37 +0100 (BST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: Johannes Berg <johannes@sipsolutions.net>,
+    Marcel Holtmann <marcel@holtmann.org>,
+    Tim Gardner <tim.gardner@canonical.com>, Karel Zak <kzak@redhat.com>
+cc: linux-wireless@vger.kernel.org, util-linux@vger.kernel.org
+Subject: rfkill(8) move and improvements
+Message-ID: <alpine.LNX.2.20.1706251339500.25762@imuri>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+Hello maintainers and other,
 
-This may fails if printf() is macro, introduced in cc7cb070.
+The otherday I ran powertop and it did rfkill to save battery, which was 
+particularly annoying because I had not installed rfkill(8) package.  
+Fixing the immediate issue was relatively easy, but the ordeal made me 
+wonder if this tool could be moved to a package that is installed by 
+default to all systems, such as util-linux.
 
-clang compiler warnings:
+To put money where my mouth is I have done the time consuming bits of the 
+move.  Notice that full history of the rfkill project is saved in the git 
+branch below, with attribution to original authors and no change to 
+copyleft statement.
 
-    CC       sys-utils/hwclock.o
-  ../sys-utils/hwclock.c:1228:2: warning: embedding a directive within macro arguments has undefined behavior [-Wembedded-directive]
-  #ifdef __linux__
-   ^
-  ../sys-utils/hwclock.c:1230:2: warning: embedding a directive within macro arguments has undefined behavior [-Wembedded-directive]
-  #endif
-   ^
-  2 warnings generated.
+https://github.com/kerolasa/lelux-utiliteetit/tree/rfkill
 
-CC: J William Piggott <elseifthen@gmx.com>
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- sys-utils/hwclock.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+But it would not be sufficient to do just the minimal, so I took liberty 
+to make few additional changes. These include libsmartcols output, 
+bash-completion file, add syslog message when state changes happen, and 
+converting unix timestamps in event output to human readable format. 
+Perhaps the easiest is to simply to see what I have done something like:
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 2f2c03a..a0a48dd 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -1225,10 +1225,11 @@ usage(const struct hwclock_control *ctl)
- 	fputs(USAGE_OPTIONS, out);
- 	fputs(_(" -u, --utc            inform hwclock the RTC timescale is UTC\n"), out);
- 	fputs(_(" -l, --localtime      inform hwclock the RTC timescale is Local\n"), out);
--	fprintf(out, _(
- #ifdef __linux__
--		" -f, --rtc <file>     use an alternate file to %1$s\n"
-+	printf(_(
-+		" -f, --rtc <file>     use an alternate file to %1$s\n"), _PATH_RTC_DEV);
- #endif
-+	printf(_(
- 		"     --directisa      use the ISA bus instead of %1$s access\n"), _PATH_RTC_DEV);
- 	fputs(_("     --date <time>    date/time input for --set and --predict\n"), out);
- #if defined(__linux__) && defined(__alpha__)
+git clone https://github.com/kerolasa/lelux-utiliteetit.git rfkill-proposal
+cd rfkill-proposal
+./autogen.sh && ./configure && make -j4
+git checkout rfkill
+./rfkill
+./rfkill --help
+./rfkill event
+man ./sys-utils/rfkill.8
+. bash-completion/rfkill
+PATH="$PWD:$PATH"
+rfkill <tab tab>
+git show origin/rfkill-master..origin/rfkill
+
+What do you think, would the move and proposed updates be ok?
+
 -- 
-1.8.5.6
-
+Sami Kerola
+http://www.iki.fi/kerolasa/
