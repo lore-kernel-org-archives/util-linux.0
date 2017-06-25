@@ -1,96 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:54536 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751920AbdFVCht (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 21 Jun 2017 22:37:49 -0400
-Received: from tenfore.ga-group.nl ([92.195.15.151]) by mail.gmx.com (mrgmx102
- [212.227.17.168]) with ESMTPSA (Nemesis) id 0LjuR3-1duimI1djF-00bsPd for
- <util-linux@vger.kernel.org>; Thu, 22 Jun 2017 04:37:47 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 03/13] misc: fix some broken exit codes
-Date: Thu, 22 Jun 2017 04:37:36 +0200
-Message-Id: <1498099066-24235-4-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1498099066-24235-1-git-send-email-sweet_f_a@gmx.de>
-References: <1498099066-24235-1-git-send-email-sweet_f_a@gmx.de>
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:33721 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751058AbdFYJMC (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Sun, 25 Jun 2017 05:12:02 -0400
+Date: Sun, 25 Jun 2017 11:11:59 +0200
+From: Patrick Steinhardt <ps@pks.im>
+To: Andy Lutomirski <luto@kernel.org>
+Cc: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH 0/5] Ambient capabilities for setpriv
+Message-ID: <20170625091159.GA981@pks-xps>
+References: <cover.1498312509.git.ps@pks.im>
+ <CALCETrVGTZ=2Y+fOKONYZ8_nuvZC7HE2TUsJTH-beQHU7vLgJw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
+In-Reply-To: <CALCETrVGTZ=2Y+fOKONYZ8_nuvZC7HE2TUsJTH-beQHU7vLgJw@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-These tools have special exit codes. They got changed mistakenly.
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-See:
-  findfs       0e1fa6b6
-  fsck         658c0891
-  fsck.cramfs  922ec175
-  mkfs.cramfs  16154b1f
+On Sat, Jun 24, 2017 at 01:43:10PM -0700, Andy Lutomirski wrote:
+> On Sat, Jun 24, 2017 at 7:04 AM, Patrick Steinhardt <ps@pks.im> wrote:
+> > Hi,
+> >
+> > this patch series implements support for ambient capabilities in
+> > setpriv(1). Ambient capabilities have been implemented with Linux
+> > 4.3 by Andy Lutomirski [1]. Quoting from capabilities(7):
+> >
+> >     This is a set of capabilities that are preserved across an
+> >     execve(2) of a program that is not privileged.
+> >
+> > The patches are inspired and squarely based on published patches
+> > for util-linux by Andy [2]. As these commits seem to never have
+> > been upstreamed, I've contacted Andy a few days ago whether he
+> > intends to do so in the near future, but got no response. Anyway,
+> > as I would like to have ambient capabilities available in
+> > setpriv, I took up the baton and wrote this patch series.
+>=20
+> Sorry, was swamped.  I very much appreciate your doing this.
 
-FIXME: STRTOXX_EXIT_CODE doesn't work as it should.
+No problem, and thanks for having a look!
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- disk-utils/fsck.c        | 2 +-
- disk-utils/fsck.cramfs.c | 2 +-
- disk-utils/mkfs.cramfs.c | 2 +-
- misc-utils/findfs.c      | 4 ++--
- 4 files changed, 5 insertions(+), 5 deletions(-)
+Patrick
 
-diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
-index cb1b212..5a418fc 100644
---- a/disk-utils/fsck.c
-+++ b/disk-utils/fsck.c
-@@ -55,7 +55,7 @@
- #include "fileutils.h"
- #include "monotonic.h"
- 
--#define STRTOXX_EXIT_CODE	FSCK_EX_ERROR
-+#define STRTOXX_EXIT_CODE	FSCK_EX_USAGE
- #include "strutils.h"
- 
- #define XALLOC_EXIT_CODE	FSCK_EX_ERROR
-diff --git a/disk-utils/fsck.cramfs.c b/disk-utils/fsck.cramfs.c
-index 63033d6..952f153 100644
---- a/disk-utils/fsck.cramfs.c
-+++ b/disk-utils/fsck.cramfs.c
-@@ -671,7 +671,7 @@ int main(int argc, char **argv)
- 			break;
- 		case 'V':
- 			printf(UTIL_LINUX_VERSION);
--			return EXIT_SUCCESS;
-+			return FSCK_EX_OK;
- 		case 'x':
- 			opt_extract = 1;
- 			if(optarg)
-diff --git a/disk-utils/mkfs.cramfs.c b/disk-utils/mkfs.cramfs.c
-index 77b4467..041c6d7 100644
---- a/disk-utils/mkfs.cramfs.c
-+++ b/disk-utils/mkfs.cramfs.c
-@@ -910,5 +910,5 @@ int main(int argc, char **argv)
- 	    (warn_namelen|warn_skip|warn_size|warn_uid|warn_gid|warn_dev))
- 		exit(MKFS_EX_ERROR);
- 
--	return EXIT_SUCCESS;
-+	return MKFS_EX_OK;
- }
-diff --git a/misc-utils/findfs.c b/misc-utils/findfs.c
-index 7935232..7d2d803 100644
---- a/misc-utils/findfs.c
-+++ b/misc-utils/findfs.c
-@@ -63,11 +63,11 @@ int main(int argc, char **argv)
- 		switch (c) {
- 		case 'V':
- 			printf(UTIL_LINUX_VERSION);
--			return EXIT_SUCCESS;
-+			return FINDFS_SUCCESS;
- 		case 'h':
- 			usage(FINDFS_SUCCESS);
- 		default:
--			errtryhelp(EXIT_FAILURE);
-+			errtryhelp(FINDFS_USAGE_ERROR);
- 		}
- 
- 	dev = blkid_evaluate_tag(argv[1], NULL, NULL);
--- 
-1.8.5.6
+--ReaqsoxgOBHFXBhH
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEtmscHsieVjl9VyNUEXxntp6r8SwFAllPfl8ACgkQEXxntp6r
+8SxCAw//VSLNtQHNVw2KlZCGfHo6NAjmvvbO5XHKUmcIbDIuiQz9CqoQlAmL5sth
+oW21OQ1sWu0K4poeP583P51KfW0e5KUMHE7HZqEigEkYFTV3zk80vkAignKlZwvS
+RMs9DsmArA5wyaeTSx5LsywtdhTLRRfSGFfCtoZXuSWWIABHZXD9278x+fYEDbL2
+dR4enSu+0rhktjdqlUPrcT269kxHndjh76upMbzsrf9nrzj3et08os8zkc79AmAH
+HoFarLxHqvf9HE5CECCO0gNlTnGYGfnkGBrN6gu/MSApeZg9E6wp6CDObHPh0Ni6
+moxhK/7xvR7OmDMrbKQRl1pg9OJ7XMFgvDcVF/VLmpk5aHicmtkAsr6NTToMpI0J
+BaaEdVl7kq0OK4dTYSMylOp6hpZZ/6Vc4pV+msZlukrpDjR/+iekFZMq2P6SbWYo
+A1QzSXEU/8/c4QZNbABeeuxUc8po8r15g33MlsHPMciuInHmi3WoxMkDVmlX2PaH
+doXHZBxGPOt+tRIeFFsWXnbiKNL8znwqipfoPY1U47xxWCQbsA72wLLbqhp2osQS
+LjWfnI3ieL/CKkPu2vYQWaqPQLj8lGq/cRqNg8l+eUKbIGavUB2c4nzFgLnftZtR
+abLi04JqXf17GqIE0WfrQ6Xn20Trb/1JOPsMSf+FXqpGGAaD+7w=
+=RBXa
+-----END PGP SIGNATURE-----
+
+--ReaqsoxgOBHFXBhH--
