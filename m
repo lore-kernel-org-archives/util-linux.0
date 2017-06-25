@@ -1,46 +1,85 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33930 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:50486 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751321AbdFGPzx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 7 Jun 2017 11:55:53 -0400
-Date: Wed, 7 Jun 2017 17:55:46 +0200
-From: Karel Zak <kzak@redhat.com>
-To: NeilBrown <neilb@suse.com>
-Cc: Ian Kent <raven@themaw.net>,
-        autofs mailing list <autofs@vger.kernel.org>,
-        linux-nfs@vger.kernel.org, util-linux@vger.kernel.org
-Subject: Re: [autofs PATCH] Add -c option when calling /bin/umount - if
- supported.
-Message-ID: <20170607155546.os45xr6zv5emhf7g@ws.net.home>
-References: <87d1agd4cu.fsf@notabene.neil.brown.name>
- <20170607155202.5zyzuvy6l3fsawkl@ws.net.home>
+        id S1751349AbdFYVj7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 25 Jun 2017 17:39:59 -0400
+Subject: Re: [PATCH 3/5] misc: fix more strutils related exit codes
+To: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>,
+        util-linux@vger.kernel.org
+References: <1498164224-13549-1-git-send-email-sweet_f_a@gmx.de>
+ <1498164224-13549-4-git-send-email-sweet_f_a@gmx.de>
+ <e50780b9-ba85-5e7e-11cb-2db12c4c5bef@gmx.com>
+ <a76d9de4-253f-0d0a-914c-32caeedba330@gmx.de>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <6ceeab78-c19e-9b48-0abd-80b0a6c6624d@gmx.com>
+Date: Sun, 25 Jun 2017 17:39:51 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170607155202.5zyzuvy6l3fsawkl@ws.net.home>
+In-Reply-To: <a76d9de4-253f-0d0a-914c-32caeedba330@gmx.de>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jun 07, 2017 at 05:52:02PM +0200, Karel Zak wrote:
-> On Wed, Jun 07, 2017 at 10:32:49AM +1000, NeilBrown wrote:
-> > 
-> > The "-c" option has been supported by umount since util-linux 2.17.
-> > It tells umount that the path name is "canonical", meaning no
-> > symlinks or ".." etc.
-> > This is appropriate for autofs to use and it always uses canonical
-> > path names.
-> > The advantage of "-c" is that it means umount doesn't need to
-> > 'lstat()' the path so much.
+
+
+On 06/24/2017 07:42 AM, Rüdiger Meier wrote:
 > 
-> It would be also nice to force systemd to use "umount -c" on shutdown
-> to avoid automount storm...
+> On 06/23/2017 07:28 PM, J William Piggott wrote:
+>>
+>> On 06/22/2017 04:43 PM, Ruediger Meier wrote:
+>>> From: Ruediger Meier <ruediger.meier@ga-group.nl>
+>>>
 
-$ git blame -L889,+1 src/core/mount.c
-83897d54 (Neil Brown 2017-06-07 22:28:23 +1000 889)         r = exec_command_set(m->control_command, UMOUNT_PATH, m->where, "-c", NULL);
+>>   --- >8
+>>
+>>
+>>>   diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+>>> index 5433cd0..325106a 100644 --- a/sys-utils/hwclock.c
+>>> +++ b/sys-utils/hwclock.c
+>>> @@ -1326,6 +1326,8 @@ int main(int argc, char **argv)
+>>>      
+>>> };
+>>>      
+>>> int excl_st[ARRAY_SIZE(excl)] = UL_EXCL_STATUS_INIT;
+>>>   +   strutils_set_exitcode(EX_USAGE);
+>>> +
+>>> /* Remember what time we were invoked */
+>>> gettimeofday(&startup_time, NULL);
+>>>
+>>
+>> If we keep this it needs to be: #if defined(__linux__) &&
+>> defined(__alpha__)
+>>
+> 
+> I think the non-needed strutils_set_exitcode() call on non-alpha
+> doesn't hurt but would ensure that it stays correct if someone would
+> use more *_or_err functions in future.  Otherwise we should also have
+> 
+> #if defined(__linux__) && defined(__alpha__)
+> # include "strutils.h"
+> #endif
+> 
+> In general I don't really like that we have soo many exiting functions
+> at all.
 
-OK.... ;-)
+It seems over engineered to me.
 
-    Karel
+I don't want to block your work, so I withdraw my comments. After this
+set is committed I'll submit a patch to remove strutils from hwclock.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+> They all should take an exit_code argument at least.  Like
+> errx() or errtryhelp().  On average this would look less ugly than all
+> these hacky exit code re-defines.
+> 
+> 
+>> I think the default EXIT_FAILURE is fine for this case.
+>>
+> 
+> 
+> -- To unsubscribe from this list: send the line "unsubscribe
+> util-linux" in
+> 
+> the body of a message to majordomo@vger.kernel.org
+> 
+> More majordomo info at http://vger.kernel.org/majordomo-info.html
+> 
+> 
