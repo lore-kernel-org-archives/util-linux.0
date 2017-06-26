@@ -1,132 +1,152 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42128 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:61278 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751861AbdF2IvU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 29 Jun 2017 04:51:20 -0400
-Date: Thu, 29 Jun 2017 10:51:14 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: J William Piggott <elseifthen@gmx.com>, util-linux@vger.kernel.org
-Subject: Re: fputs() vs puts() (was: [PATCH] hwclock: remove unused usage()
- FILE argument)
-Message-ID: <20170629085114.66lbbszwxnooszbb@ws.net.home>
-References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
- <ce8ce9d6-d266-12da-8e7e-c41e6a185714@gmx.com>
- <20170620085610.5eacn7kl5agfemmk@ws.net.home>
- <201706282129.41161.sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201706282129.41161.sweet_f_a@gmx.de>
+        id S1751308AbdFZS3z (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 26 Jun 2017 14:29:55 -0400
+Received: from adsiz.fritz.box ([146.52.24.88]) by mail.gmx.com (mrgmx102
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0MOTRh-1dLyPE1SVh-005oJv for
+ <util-linux@vger.kernel.org>; Mon, 26 Jun 2017 20:29:53 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 0/6] consolidate help/version option descriptions
+Date: Mon, 26 Jun 2017 20:29:46 +0200
+Message-Id: <20170626182952.15988-1-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jun 28, 2017 at 09:29:40PM +0200, Ruediger Meier wrote:
-> On Tuesday 20 June 2017, Karel Zak wrote:
-> > On Sun, Jun 18, 2017 at 08:49:49PM -0400, J William Piggott wrote:
-> > >  sys-utils/hwclock.c | 74
-> > > ++++++++++++++++++++++++++--------------------------- 1 file
-> > > changed, 37 insertions(+), 37 deletions(-)
-> >
-> > It would be better to remove this patch from the pull-request; let's
-> > keep fputs() in the code and wait for any solution from Rudi :-)
-> 
-> I have now finished my cleanup regarding stdout only. To make the diffs 
-> small I have left a useless definition "FILE *out = stdout;" in almost 
-> any usage function.
-> 
-> We can remove this "out" variable now everwhere using a sed or awk. But 
-> a few questions about what would be the best end state.
-> 
-> 1. fputs vs puts?:
-> 
->    Is it a problem for translators if we remove a newline from almost
->    any string? And, does puts() look more nice at all? I mean many usage
->    functions have to use printf too, so does it look good if some
->    strings are '\n' terminated and others not?
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Frankly, I prefer to have \n in the string, because in this case you
-have full control on the output. And it also means all the strings
-modification... for me fputs() is the winner :-)
+Hope you will like it.
 
-> 2. Alignment for better readabilty in the code.
-> 
->    I would prefer leading spaces before the first string argument to
->    match the longest possible prefix 'printf(_("'. Is that ok?:
-> 
->    puts(  _(" -q             quiet mode"));
->    fputs( _(" -v, --verbose  verbose mode"), stdout);
->    printf(_(" -f, --rtc      use alternate to %1$s\n"), _BLA);
->    printf(  "     --help     %s\n", USAGE_OPTSTR_HELP);
+The final description strings (last patch) are just a
+proposal. ALso maybe better macro names!?
 
-Yes, good idea.
+This pull request is also on github:
+https://github.com/karelzak/util-linux/pull/474
 
-> 3. Maybe we should always decouple options and descriptions?
-> 
->    Introducing a macro like:
-> 
->    #define prnt_opt(opt, marg_dsc, dsc) \
->        printf( "%-" #marg_dsc "s%s\n", opt, dscr)
-> 
->    /* the magic margin number for the whole function */
->    int m = 16;
->    prnt_opt(" -q",              m, _("quiet mode");
->    prnt_opt(" -v, --verbose",   m, _("verbose mode");
->    prnt_opt("      --help",     m, USAGE_OPTSTR_HELP);
->    /* or standard help, as exist already */
->    print_usage_help_options(m);
+Ruediger Meier (6):
+  misc: revert to the old USAGE_HELP strings
+  misc: introduce PRINT_USAGE_HELP()
+  misc: consolidate all --help option descriptions
+  blockdev: improve --help and man page
+  login: add --help text
+  misc: update --help content again
 
-Hmm... now translator can also translate option arguments
-
-  --something <time>     this is nice option
-
-in this case <time> is possible to translate too, and maybe in some
-languages it's possible that you will need to change number of blank
-spaces between option and option description.
-
-IMHO it's against KISS principle :-)
-
-> 4. About our USAGE_* macros
-> 
->    We can remove the trailing newlines in all macros if puts() is
->    preferred (regarding 1.). Or we can just let them print like
->    print_usage_help_options().
-
-Frankly, for me it's more readable to have
-
-    fputs(USAGE_OPTIONS, stdout);
-
-than introduce another function. (It was also reason why I was not
-sure with print_usage_help_options(), but it resolves more issues.)
-
-> 5. We can leave everything as is and touch all these usage lines only
->    if needed. For example I did it without extra noise in a861538c.
->    Karel missed his chance in 4fb515f9 ;)
-
-It was my goal not to do any change if you work in this area. And yes,
-"touch only if needed" is good idea. The blockdev usage() is nice
-example that mix more things together is no problem, it's still
-readable and without extra complexity (well, maybe use COMMANDS: there :-).
-
->    Note since introducing print_usage_help_options() we *are* already
->    mixing hardcoded stdout and variable out. So we can also convert
->    single lines from fprintf to printf, like i did in my last pending
->    hwclock patch "don't ifdef printf arguments".
-
-All the issue is libc stupidity, imagine world where puts() is without
-\n junk (like printf and fprintf). I think printf() is no problem
-there.
-
-For me it's about:
-
-    * nice usage() output
-    * usage() function readability
-    * all without extra complexity (random contributor has to be able
-      add new option easily)
-    * translators-friendly (minimize changes, keep it open as much as
-      possible)
-
-    Karel
+ Documentation/boilerplate.c |  3 +--
+ disk-utils/addpart.c        |  3 +--
+ disk-utils/blockdev.8       |  9 +++++++--
+ disk-utils/blockdev.c       | 34 +++++++++++++++++++++++-----------
+ disk-utils/cfdisk.c         |  3 +--
+ disk-utils/delpart.c        |  3 +--
+ disk-utils/fdformat.c       |  3 +--
+ disk-utils/fdisk.c          |  3 +--
+ disk-utils/fsck.c           |  4 ++--
+ disk-utils/fsck.cramfs.c    |  5 ++---
+ disk-utils/fsck.minix.c     |  3 +--
+ disk-utils/isosize.c        |  3 +--
+ disk-utils/mkfs.bfs.c       |  5 ++---
+ disk-utils/mkfs.c           |  5 +----
+ disk-utils/mkfs.cramfs.c    |  3 +--
+ disk-utils/mkfs.minix.c     |  3 +--
+ disk-utils/mkswap.c         |  5 +++--
+ disk-utils/partx.c          |  3 +--
+ disk-utils/raw.c            |  3 +--
+ disk-utils/resizepart.c     |  3 +--
+ disk-utils/sfdisk.c         |  4 ++--
+ disk-utils/swaplabel.c      |  3 +--
+ include/c.h                 | 14 ++++++++++++--
+ login-utils/chfn.c          |  4 ++--
+ login-utils/chsh.c          |  4 ++--
+ login-utils/last.c          |  3 +--
+ login-utils/login.c         |  8 ++++++++
+ login-utils/lslogins.c      |  3 +--
+ login-utils/newgrp.c        |  3 +--
+ login-utils/nologin.c       |  3 +--
+ login-utils/su-common.c     |  3 +--
+ login-utils/sulogin.c       |  3 +--
+ login-utils/utmpdump.c      |  3 +--
+ login-utils/vipw.c          |  3 +--
+ misc-utils/blkid.c          |  3 +--
+ misc-utils/cal.c            |  3 +--
+ misc-utils/fincore.c        |  3 +--
+ misc-utils/findfs.c         |  3 +--
+ misc-utils/findmnt.c        |  4 +---
+ misc-utils/getopt.c         |  3 +--
+ misc-utils/kill.c           |  3 +--
+ misc-utils/logger.c         |  3 +--
+ misc-utils/look.c           |  3 +--
+ misc-utils/lsblk.c          |  3 +--
+ misc-utils/lslocks.c        |  3 +--
+ misc-utils/mcookie.c        |  3 +--
+ misc-utils/namei.c          |  4 ++--
+ misc-utils/rename.c         |  3 +--
+ misc-utils/uuidd.c          |  3 +--
+ misc-utils/uuidgen.c        |  3 +--
+ misc-utils/uuidparse.c      |  3 +--
+ misc-utils/whereis.c        |  3 +--
+ misc-utils/wipefs.c         |  5 ++---
+ schedutils/chrt.c           |  3 +--
+ schedutils/ionice.c         |  3 +--
+ schedutils/taskset.c        |  6 +++---
+ sys-utils/blkdiscard.c      |  3 +--
+ sys-utils/blkzone.c         |  3 +--
+ sys-utils/chcpu.c           | 22 ++++++++++++----------
+ sys-utils/chmem.c           |  3 +--
+ sys-utils/ctrlaltdel.c      |  3 +--
+ sys-utils/dmesg.c           |  5 ++---
+ sys-utils/eject.c           |  3 +--
+ sys-utils/fallocate.c       |  3 +--
+ sys-utils/flock.c           |  3 +--
+ sys-utils/fsfreeze.c        |  3 +--
+ sys-utils/fstrim.c          |  3 +--
+ sys-utils/hwclock.c         |  3 +--
+ sys-utils/ipcmk.c           |  3 +--
+ sys-utils/ipcrm.c           |  3 +--
+ sys-utils/ipcs.c            |  3 +--
+ sys-utils/ldattach.c        |  3 +--
+ sys-utils/losetup.c         |  3 +--
+ sys-utils/lscpu.c           |  3 +--
+ sys-utils/lsipc.c           |  3 +--
+ sys-utils/lsmem.c           |  3 +--
+ sys-utils/lsns.c            |  3 +--
+ sys-utils/mount.c           |  3 +--
+ sys-utils/mountpoint.c      |  3 +--
+ sys-utils/nsenter.c         |  3 +--
+ sys-utils/pivot_root.c      |  3 +--
+ sys-utils/prlimit.c         |  4 ++--
+ sys-utils/readprofile.c     |  3 +--
+ sys-utils/renice.c          |  3 +--
+ sys-utils/rtcwake.c         |  3 +--
+ sys-utils/setarch.c         |  3 +--
+ sys-utils/setpriv.c         |  3 +--
+ sys-utils/setsid.c          |  3 +--
+ sys-utils/swapoff.c         |  3 +--
+ sys-utils/swapon.c          |  3 +--
+ sys-utils/switch_root.c     |  3 +--
+ sys-utils/tunelp.c          |  3 +--
+ sys-utils/umount.c          |  3 +--
+ sys-utils/unshare.c         |  3 +--
+ sys-utils/wdctl.c           |  3 +--
+ sys-utils/zramctl.c         |  3 +--
+ term-utils/agetty.c         |  4 ++--
+ term-utils/mesg.c           |  3 +--
+ term-utils/script.c         |  4 ++--
+ term-utils/scriptreplay.c   |  4 ++--
+ term-utils/setterm.c        |  5 +++--
+ term-utils/wall.c           |  3 +--
+ term-utils/write.c          |  3 +--
+ text-utils/col.c            |  6 ++++--
+ text-utils/colcrt.c         |  3 +--
+ text-utils/colrm.c          |  3 +--
+ text-utils/column.c         |  3 +--
+ text-utils/hexdump.c        |  3 +--
+ text-utils/line.c           |  3 +--
+ text-utils/more.c           |  4 ++--
+ text-utils/pg.c             |  3 +--
+ text-utils/rev.c            |  3 +--
+ text-utils/ul.c             |  3 +--
+ 113 files changed, 193 insertions(+), 249 deletions(-)
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.12.3
+
