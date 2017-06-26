@@ -1,78 +1,65 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from resqmta-ch2-05v.sys.comcast.net ([69.252.207.37]:39116 "EHLO
-        resqmta-ch2-05v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1754558AbdFWVh2 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Fri, 23 Jun 2017 17:37:28 -0400
-From: "W. Trevor King" <wking@tremily.us>
-To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>, "W. Trevor King" <wking@tremily.us>
-Subject: [PATCH v2 5/8] sys-utils/mount.8: Drop systemd paragraph from x-* entry
-Date: Fri, 23 Jun 2017 14:30:23 -0700
-Message-Id: <f6bcd3c58828ee2b3e321d6c3c0b6f002c63d400.1498252231.git.wking@tremily.us>
-In-Reply-To: <cover.1498252231.git.wking@tremily.us>
-References: <cover.1498252231.git.wking@tremily.us>
-In-Reply-To: <cover.1498252231.git.wking@tremily.us>
-References: <cover.1498252231.git.wking@tremily.us>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: linux-kernel-owner@vger.kernel.org
+Date: Mon, 26 Jun 2017 11:23:01 +0900
+From: Minchan Kim <minchan@kernel.org>
+To: kerolasa@gmail.com
+Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
+        Nitin Gupta <ngupta@vflare.org>, linux-kernel@vger.kernel.org,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: zram hot_add device busy
+Message-ID: <20170626022301.GA18490@bbox>
+References: <CAG27Bk06F72rk7i-dL=DhDmhX3BhCZFct+AAVBis7NMqTEF98w@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk06F72rk7i-dL=DhDmhX3BhCZFct+AAVBis7NMqTEF98w@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Removing the second paragraph from the x-* entry in favor of a "since
-util-linux v2.30" parenthetical.  While the motivation for the
-userspace storage is interesting, it's covered in more detail in the
-0a14cc8b (libmount: revert X-* and x-* meaning, 2016-12-09) commit
-message.
+Hello,
 
-For example, the "keep existing fstab configurations usable" wording
-I'm removing was a bit confusing, because fstabs using x-* and
-expecting the options to be preserved in userspace were broken before
-util-linux v2.30.  The clearer language from 0a14cc8b's commit message
-is:
+On Sat, Jun 24, 2017 at 11:08:01AM +0100, Sami Kerola wrote:
+> Hello,
+> 
+> While going through if there are new util-linux bugs reported I came a
+> cross this https://bugs.launchpad.net/ubuntu/+source/util-linux/+bug/1645846
+> 
+> Simple way to reproduce the issue is:
+> d=$(cat /sys/class/zram-control/hot_add) && zramctl --size 256M /dev/zram$d
 
-  The systemd and dracut users will get the new (=fixed) functionality
-  without a change in fstab configuration.
+To know the problem comes from any side, could you test it without zramctl
+command?
 
-It's not clear to me if there was an earlier version of util-linux
-that also preserved x-* options.  Without that, the existing fstabs
-using x-* and intending to have the options preserved *become* usable
-with v2.30; they weren't usable before.
+IOW,
+        d=$(cat /sys/class/zram-control/hot_add) && echo $((256<<20)) /dev/zram$d
 
-Also some minor grammar fixes to the first paragraph.
+If it still has a problem, please show your test code which helps
+understanding of fundamental problem a lot. ;-)
 
-Signed-off-by: W. Trevor King <wking@tremily.us>
----
- sys-utils/mount.8 | 18 +++++++-----------
- 1 file changed, 7 insertions(+), 11 deletions(-)
+> 
+> I am not entirely sure, but drivers/block/zram/zram_drv.c function
+> zram_add() should block until the device is usable. Looking the code
+> that it might be the device_add_disk() from block/genhd.c that should
+> do the blocking. But perhaps it's best if I leave such detail to
+> people who know the code a bit better.
 
-diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
-index d20e35d..2bcb12a 100644
---- a/sys-utils/mount.8
-+++ b/sys-utils/mount.8
-@@ -1178,17 +1178,13 @@ nor sent to the mount.\fItype\fR helpers nor to the
- system call.  The suggested format is \fBX-\fIappname\fR.\fIoption\fR.
- .TP
- .B x-*
--The same as \fBX-*\fR options, but stored permanently in the user space. It
--means the options are also available for umount or another operations.  Note
--that maintain mount options in user space is tricky, because it's necessary use
--libmount based tools and there is no guarantee that the options will be always
--available (for example after a move mount operation or in unshared namespace).
--
--Note that before util-linux v2.30 the x-* options have not been maintained by
--libmount and stored in user space (functionality was the same as have X-* now),
--but due to growing number of use-cases (in initrd, systemd etc.) the
--functionality have been extended to keep existing fstab configurations usable
--without a change.
-+The same as \fBX-*\fR options, but (since util-linux v2.30) stored
-+permanently in the user space.  Storing the options means they are
-+also available for umount and other operations.  Note that maintaining
-+mount options in user space is tricky, because it's necessary use
-+libmount-based tools and there is no guarantee that the options will
-+be always available (for example after a move mount operation or in an
-+unshared namespace).
- .TP
- .BR X-mount.mkdir [ = \fImode\fR ]
- Allow to make a target directory (mountpoint).  The optional argument
--- 
-2.1.0.60.g85f0837
+I might miss something but I believe device is usable state after zram_add done.
+Just in case, please test return value after some operation.
 
+if [ $? -ne 0  ];
+then
+        echo "fail to some op"
+        blah blah
+fi
+
+Thanks.
+
+> 
+> One thing annoys me. I expected 'zramctl --find --size 256M' to suffer
+> from same issue but it does not. I can only reproduce the issue when
+> triggering hot_add separately, and as quick as possibly using the
+> path. Notice that sometimes it takes second try before the hot_add and
+> use triggers the issue. That is almost certainly down to speed the
+> system in hand, e.g., quicker the computer less likely to trigger.
+> 
+> -- 
+> Sami Kerola
+> http://www.iki.fi/kerolasa/
