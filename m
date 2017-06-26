@@ -1,31 +1,43 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 12/12] hwclock: remove unused stdarg.h
-To: Karel Zak <kzak@redhat.com>
-References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:54682 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751414AbdFZMLM (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 26 Jun 2017 08:11:12 -0400
+Date: Mon, 26 Jun 2017 14:11:07 +0200
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
 Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <21f01805-814b-efe8-a0c1-33001fa5a271@gmx.com>
-Date: Sun, 18 Jun 2017 20:51:02 -0400
+Subject: Re: [PATCH 0/4] pull request
+Message-ID: <20170626121107.awpawwfblk2bpopn@ws.net.home>
+References: <e5059958-a9b9-2ff4-f1b8-6122520bacac@gmx.com>
+ <20170626082744.fx4zzuq4sgpzdkk6@ws.net.home>
 MIME-Version: 1.0
-In-Reply-To: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170626082744.fx4zzuq4sgpzdkk6@ws.net.home>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Mon, Jun 26, 2017 at 10:27:44AM +0200, Karel Zak wrote:
+> On Sun, Jun 25, 2017 at 05:45:56PM -0400, J William Piggott wrote:
+> > 
+> > * Rudi didn't like cluttering boilerplate.c with seldom used USAGE_*
+> >   constants and I don't disagree with that point. I do think they should
+> >   be in the file for new contributor discovery purposes. As a compromise
+> >   I added the missing ones as a comment.
+> > 
+> > * the newly added USAGE_COLUMNS could be used in disk-utils/fdisk-list.c:432
+> >   if Karel wants to drop the ' (for -o)'. I did not change it.
+> 
+> I think USAGE_COLUMNS should be good enough everywhere and the
+> additional notes (like ' (for -o)') are unnecessary.
+> 
+> Maybe we can change the text to "Available output columns:" to make it
+> more specific for readers.
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock.c | 1 -
- 1 file changed, 1 deletion(-)
+ Implemented & pull request merged. Thanks.
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 636d36a..e05ee96 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -61,7 +61,6 @@
- #include <getopt.h>
- #include <limits.h>
- #include <math.h>
--#include <stdarg.h>
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
