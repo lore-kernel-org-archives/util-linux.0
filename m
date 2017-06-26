@@ -1,49 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:56115 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.21]:54780 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752451AbdEJJyx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 10 May 2017 05:54:53 -0400
-Received: from zappa.l.ga-group.nl ([87.128.112.108]) by mail.gmx.com
- (mrgmx003 [212.227.17.190]) with ESMTPSA (Nemesis) id
- 0M2cYX-1e0MOd48Jh-00sQg3 for <util-linux@vger.kernel.org>; Wed, 10 May 2017
- 11:54:51 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: BUG: wipefs dry run
-Date: Wed, 10 May 2017 11:54:50 +0200
+        id S1750799AbdFZNsB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 26 Jun 2017 09:48:01 -0400
+Subject: Re: [PATCH 0/4] pull request
+To: Karel Zak <kzak@redhat.com>
+References: <e5059958-a9b9-2ff4-f1b8-6122520bacac@gmx.com>
+ <20170626082744.fx4zzuq4sgpzdkk6@ws.net.home>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <4aaa7de1-b06c-331c-55fe-2cadcdcee87b@gmx.com>
+Date: Mon, 26 Jun 2017 09:47:42 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <201705101154.50099.sweet_f_a@gmx.de>
+In-Reply-To: <20170626082744.fx4zzuq4sgpzdkk6@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
-
-I wonder why wipefs does not show all MBR and GPT signatures which would
-be deleted by using "-fa".
-
-$ truncate -s 100M /tmp/CCC
-$ ./sfdisk /tmp/CCC <<EOF
-> label: gpt
-> label-id: 384A8F14-17FF-4782-A190-A5B858E3FCF0
-> device: /tmp/CCC
-> unit: sectors
-> first-lba: 34
-> last-lba: 204766
-> EOF
-
-$ ./wipefs  -fa --no-act   /tmp/CCC
-/tmp/CCC: 8 bytes were erased at offset 0x00000200 (gpt): 45 46 49 20 50 
-41 52 54
-
-$ ./wipefs  -fa    /tmp/CCC
-/tmp/CCC: 8 bytes were erased at offset 0x00000200 (gpt): 45 46 49 20 50 
-41 52 54
-/tmp/CCC: 8 bytes were erased at offset 0x063ffe00 (gpt): 45 46 49 20 50 
-41 52 54
-/tmp/CCC: 2 bytes were erased at offset 0x000001fe (PMBR): 55 aa
 
 
-cu,
-Rudi
+On 06/26/2017 04:27 AM, Karel Zak wrote:
+> On Sun, Jun 25, 2017 at 05:45:56PM -0400, J William Piggott wrote:
+>>
+>> * Rudi didn't like cluttering boilerplate.c with seldom used USAGE_*
+>>   constants and I don't disagree with that point. I do think they should
+>>   be in the file for new contributor discovery purposes. As a compromise
+>>   I added the missing ones as a comment.
+>>
+>> * the newly added USAGE_COLUMNS could be used in disk-utils/fdisk-list.c:432
+>>   if Karel wants to drop the ' (for -o)'. I did not change it.
+> 
+> I think USAGE_COLUMNS should be good enough everywhere and the
+> additional notes (like ' (for -o)') are unnecessary.
+> 
+> Maybe we can change the text to "Available output columns:" to make it
+> more specific for readers.
+
+Since we cannot guarantee that the 'output' option name will always be
+available. It might be better to stay generic with the header and
+instead create the reference in the option description like:
+
+ -o, --output <list>    columns to display (see Columns:)
+
+ Columns:
+      SOURCE  source device
+      ...
+
+This would also keep the Columns header format consistent with the others.
+
+On a somewhat related note; in recent discussion I've been trying to
+promote the idea of using consistent language. For example, with all of
+the synonyms: output, show, to stdout, display, print, etc. I think it
+would be helpful to both users and translators to choose one to be used
+consistently. Especially for technical writing it is important to use
+consistent terms.
+
+An idea from the Linux man-pages project is that man-pages.7 has a list
+of preferred terms/spellings; perhaps util-linux could have a list of
+preferred terms to be used in documentation and message strings?
+
+We also might want to consider replacing Documentation/howto-man-page.txt
+with a link to, or a copy of, man-pages.7. Michael and company have
+added a lot to it in recent times.
+
+
+> 
+>     Karel
+> 
+> 
