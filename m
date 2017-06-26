@@ -1,53 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:60936 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:43858 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752041AbdF1QlG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 28 Jun 2017 12:41:06 -0400
-Received: from zappa.l.ga-group.nl ([87.128.112.108]) by mail.gmx.com
- (mrgmx102 [212.227.17.168]) with ESMTPSA (Nemesis) id
- 0Lv8hi-1dpw9h2isk-010NUw for <util-linux@vger.kernel.org>; Wed, 28 Jun 2017
- 18:40:59 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 6/8] tools: add segfault detection for checkusage.sh
-Date: Wed, 28 Jun 2017 18:40:55 +0200
-Message-Id: <1498668057-8256-7-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1498668057-8256-1-git-send-email-sweet_f_a@gmx.de>
-References: <1498668057-8256-1-git-send-email-sweet_f_a@gmx.de>
+        id S1751364AbdFZI1s (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 26 Jun 2017 04:27:48 -0400
+Date: Mon, 26 Jun 2017 10:27:44 +0200
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/4] pull request
+Message-ID: <20170626082744.fx4zzuq4sgpzdkk6@ws.net.home>
+References: <e5059958-a9b9-2ff4-f1b8-6122520bacac@gmx.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <e5059958-a9b9-2ff4-f1b8-6122520bacac@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Sun, Jun 25, 2017 at 05:45:56PM -0400, J William Piggott wrote:
+> 
+> * Rudi didn't like cluttering boilerplate.c with seldom used USAGE_*
+>   constants and I don't disagree with that point. I do think they should
+>   be in the file for new contributor discovery purposes. As a compromise
+>   I added the missing ones as a comment.
+> 
+> * the newly added USAGE_COLUMNS could be used in disk-utils/fdisk-list.c:432
+>   if Karel wants to drop the ' (for -o)'. I did not change it.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- tools/checkusage.sh | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+I think USAGE_COLUMNS should be good enough everywhere and the
+additional notes (like ' (for -o)') are unnecessary.
 
-diff --git a/tools/checkusage.sh b/tools/checkusage.sh
-index 6cde8fb..69d69fd 100755
---- a/tools/checkusage.sh
-+++ b/tools/checkusage.sh
-@@ -61,8 +61,8 @@ function exec_option {
- 	# hardcoded ... nologin should always return false
- 	if test "$cmdb" = "nologin" &&
- 			test "$opt" = "--help" -o "$opt" = "--version"; then
--		if test "$ret" = "0"; then
--			echo "$cmdb, $opt, should return false"
-+		if test "$ret" -eq 0 -o "$ret" -ge 128; then
-+			echo "$cmdb, $opt, should return false: $ret"
- 		fi
- 		ret=0
- 	fi
-@@ -123,6 +123,8 @@ function check_unknownopt {
- 
- 	if test $ret = 0; then
- 		echo "$cb: $opt, returns no error"
-+	elif test $ret -ge 128; then
-+		echo "$cb: $opt, abnormal exit: $ret"
- 	fi
- 	if test -n "$out"; then
- 		echo "$cb: $opt, non-empty stdout"
+Maybe we can change the text to "Available output columns:" to make it
+more specific for readers.
+
+    Karel
+
+
 -- 
-1.8.5.6
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
