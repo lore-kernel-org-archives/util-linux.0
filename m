@@ -1,39 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33054 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750923AbdFOKJH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 15 Jun 2017 06:09:07 -0400
-Date: Thu, 15 Jun 2017 12:09:03 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Alex Ivanov <yourbestfriend@openmailbox.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] fstrim: prefer earlier mounted filesystems
-Message-ID: <20170615095457.dqfrwzyb4va4zqrw@ws.net.home>
-References: <20170615082625.11219-1-yourbestfriend@openmailbox.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170615082625.11219-1-yourbestfriend@openmailbox.org>
+Received: from mx.datacom.ind.br ([177.66.5.10]:46484 "EHLO
+        mail.datacom.ind.br" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751501AbdF0RAi (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 27 Jun 2017 13:00:38 -0400
+From: Carlos Santos <casantos@datacom.ind.br>
+To: util-linux@vger.kernel.org
+Cc: casantos@datacom.ind.br
+Subject: [PATCH] column: fix compilation when libc lacks wide-character support
+Date: Tue, 27 Jun 2017 13:50:42 -0300
+Message-Id: <1498582242-19840-1-git-send-email-casantos@datacom.ind.br>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 15, 2017 at 11:26:25AM +0300, Alex Ivanov wrote:
-> fstrim --all is broken in a way that if there is a bind mount for some filesystem, 
-> that filesystem will not be trimmed. This is especially critical for e.g. 
-> NixOS distribution, which needs bind mount within root fs: 
-> https://github.com/NixOS/nixos/blob/master/modules/system/boot/stage-2-init.sh#L55
-> 
-> Currently for a given filesystem during "de-duplication by source and root" phase,
-> an early mounted fs path is filtered (e.g. "/"), while later mounted fs path is kept 
-> (e.g. "/nix/store") though anyway discarded later (since it's an overlaying mount). 
-> This leads to skipped trimming.
-> 
-> So flip this behaviour. Should also help for other types of overlaying mounts.
+Commit 4762ae9d removed mtsafe_strtok() but left behind calls to wcstok
+and wcspbrk. This leads to build failures when libc does not have the
+wide-character functions, like some uClibc builds.
 
-Seems good (for mountpoints we need de-duplication in backward way,
-but for sources it seems like a good solution). Applied, thanks.
+Solve the broblem by using strtok_r and strpbrk when HAVE_WIDECHAR is
+not defined.
 
-    Karel
+Fixes:
+  http://autobuild.buildroot.net/results/fd8a1a8e0cef3aeed9588540e8e663664f6b43aa
+  http://autobuild.buildroot.net/results/5ad73ea8b471321988c50d80a5e50d4504151dd6
+  http://autobuild.buildroot.net/results/04411b7280dc51ecd51236967981a42352bbeb3e
 
+Signed-off-by: Carlos Santos <casantos@datacom.ind.br>
+---
+ text-utils/column.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/text-utils/column.c b/text-utils/column.c
+index be99f94..fb57b47 100644
+--- a/text-utils/column.c
++++ b/text-utils/column.c
+@@ -160,14 +160,22 @@ static wchar_t *local_wcstok(wchar_t *p, const wchar_t *separator, int greedy, w
+ 	wchar_t *result = NULL;
+ 
+ 	if (greedy)
++#ifdef HAVE_WIDECHAR
+ 		return wcstok(p, separator, state);
++#else
++		return strtok_r(p, separator, state);
++#endif
+ 	if (!p) {
+ 		if (!*state || !**state)
+ 			return NULL;
+ 		p = *state;
+ 	}
+ 	result = p;
++#ifdef HAVE_WIDECHAR
+ 	p = wcspbrk(result, separator);
++#else
++	p = strpbrk(result, separator);
++#endif
+ 	if (!p)
+ 		*state = NULL;
+ 	else {
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.7.5
+
