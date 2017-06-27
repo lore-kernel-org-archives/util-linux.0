@@ -1,59 +1,80 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60768 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36820 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752538AbdF2KiC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 29 Jun 2017 06:38:02 -0400
-Date: Thu, 29 Jun 2017 12:37:57 +0200
+        id S1752090AbdF0MTV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 27 Jun 2017 08:19:21 -0400
+Date: Tue, 27 Jun 2017 14:19:17 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: J William Piggott <elseifthen@gmx.com>, util-linux@vger.kernel.org
-Subject: Re: fputs() vs puts() (was: [PATCH] hwclock: remove unused usage()
- FILE argument)
-Message-ID: <20170629103757.7vcd5dlpr42doez4@ws.net.home>
-References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
- <ce8ce9d6-d266-12da-8e7e-c41e6a185714@gmx.com>
- <20170620085610.5eacn7kl5agfemmk@ws.net.home>
- <201706282129.41161.sweet_f_a@gmx.de>
- <20170629085114.66lbbszwxnooszbb@ws.net.home>
+To: =?iso-8859-1?Q?R=FCdiger?= Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/6] misc: introduce PRINT_USAGE_HELP()
+Message-ID: <20170627121917.v3ghpw4ap2wyyoot@ws.net.home>
+References: <20170626182952.15988-1-sweet_f_a@gmx.de>
+ <20170626182952.15988-3-sweet_f_a@gmx.de>
+ <20170627094652.fz3grdtj5qe5cmhi@ws.net.home>
+ <e39a60ec-8aaf-de01-1d22-0064b1b2b2ed@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170629085114.66lbbszwxnooszbb@ws.net.home>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <e39a60ec-8aaf-de01-1d22-0064b1b2b2ed@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jun 29, 2017 at 10:51:14AM +0200, Karel Zak wrote:
-> On Wed, Jun 28, 2017 at 09:29:40PM +0200, Ruediger Meier wrote:
-> > On Tuesday 20 June 2017, Karel Zak wrote:
-> > > On Sun, Jun 18, 2017 at 08:49:49PM -0400, J William Piggott wrote:
-> > > >  sys-utils/hwclock.c | 74
-> > > > ++++++++++++++++++++++++++--------------------------- 1 file
-> > > > changed, 37 insertions(+), 37 deletions(-)
-> > >
-> > > It would be better to remove this patch from the pull-request; let's
-> > > keep fputs() in the code and wait for any solution from Rudi :-)
-> > 
-> > I have now finished my cleanup regarding stdout only. To make the diffs 
-> > small I have left a useless definition "FILE *out = stdout;" in almost 
-> > any usage function.
-> > 
-> > We can remove this "out" variable now everwhere using a sed or awk. But 
-> > a few questions about what would be the best end state.
-> > 
-> > 1. fputs vs puts?:
-> > 
-> >    Is it a problem for translators if we remove a newline from almost
-> >    any string? And, does puts() look more nice at all? I mean many usage
-> >    functions have to use printf too, so does it look good if some
-> >    strings are '\n' terminated and others not?
+On Tue, Jun 27, 2017 at 12:48:44PM +0200, Rüdiger Meier wrote:
 > 
-> Frankly, I prefer to have \n in the string, because in this case you
-> have full control on the output. And it also means all the strings
-> modification... for me fputs() is the winner :-)
+> 
+> On 06/27/2017 11:46 AM, Karel Zak wrote:
+> > On Mon, Jun 26, 2017 at 08:29:48PM +0200, Ruediger Meier wrote:
+> > > --- a/include/c.h
+> > > +++ b/include/c.h
+> > > @@ -315,8 +315,18 @@ static inline int xusleep(useconds_t usec)
+> > >   #define USAGE_COMMANDS   _("\nCommands:\n")
+> > >   #define USAGE_COLUMNS    _("\nAvailable output columns:\n")
+> > >   #define USAGE_SEPARATOR    "\n"
+> > > -#define USAGE_HELP       _(" -h, --help     display this help and exit\n")
+> > > -#define USAGE_VERSION    _(" -V, --version  output version information and exit\n")
+> > > +
+> > > +#define USAGE_HELP_TXT    _("display this help and exit")
+> > > +#define USAGE_VERSION_TXT _("output version information and exit")
+> > > +
+> > > +#define PRINT_USAGE_HELP(marg_dsc) \
+> > > +	printf( \
+> > > +		"%-" #marg_dsc "s%s\n" \
+> > > +		"%-" #marg_dsc "s%s\n" \
+> > > +		, " -h, --help",    USAGE_HELP_TXT \
+> > > +		, " -V, --version", USAGE_VERSION_TXT \
+> > > +	)
+> > 
+> > Would be possible to use lowercase for the macro name?
+> > 
+> > For example USAGE_HELP_TXT is fine, but for something like function I
+> > would prefer
+> > 
+> >   #define print_usage_help(marg_dsc)
+> 
+> I've updated on github to
 
-Note that I don't think we have to be so strict about it. For old already 
-translated strings I prefer fputs to avoid \n changes, but for new
-tools or after some massive change in usage() it's probbaly fine to
-use puts(). Use common sense :-)
+ Cool, merged.
+
+> > and what about USAGE_SEPARATOR that we have always before --help?
+> > Maybe we can add \n to  the print_usage_help() too.
+> 
+> No, because
+> 
+> 1. There are commands with help options only:
+> 
+> $ ctrlaltdel --help
+>  [...]
+>  Options:
+>  -h, --help     display this help
+>  -V, --version  print version
+> 
+> 2. Since we have we help descriptions now aligned we do not need
+>    the separator always IMO. ipcs(1) and also others which
+>    still don't have separators are looking ok:
+
+ I see (I've expected this reply :-).
+
+ Thanks!
 
     Karel
 
