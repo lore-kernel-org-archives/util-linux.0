@@ -1,38 +1,104 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qt0-f173.google.com ([209.85.216.173]:34333 "EHLO
-        mail-qt0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751743AbdFKIT2 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 11 Jun 2017 04:19:28 -0400
-Received: by mail-qt0-f173.google.com with SMTP id c10so102123051qtd.1
-        for <util-linux@vger.kernel.org>; Sun, 11 Jun 2017 01:19:27 -0700 (PDT)
+Return-Path: sweet_f_a@gmx.de
+Subject: Re: [PATCH 2/6] misc: introduce PRINT_USAGE_HELP()
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+References: <20170626182952.15988-1-sweet_f_a@gmx.de>
+ <20170626182952.15988-3-sweet_f_a@gmx.de>
+ <20170627094652.fz3grdtj5qe5cmhi@ws.net.home>
+From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
+Message-ID: <e39a60ec-8aaf-de01-1d22-0064b1b2b2ed@gmx.de>
+Date: Tue, 27 Jun 2017 12:48:44 +0200
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <201706091401.24156.sweet_f_a@gmx.de>
-References: <20170608195215.1702-1-kerolasa@iki.fi> <20170608195215.1702-3-kerolasa@iki.fi>
- <201706091401.24156.sweet_f_a@gmx.de>
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Sun, 11 Jun 2017 09:19:27 +0100
-Message-ID: <CAG27Bk3fL5atLp9Ex-nEOAPP88eVU0qW1iBV6LC07Ds5btxyEQ@mail.gmail.com>
-Subject: Re: [PATCH 02/11] line: do not print new line if nothing else was printed
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20170627094652.fz3grdtj5qe5cmhi@ws.net.home>
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On 9 June 2017 at 13:01, Ruediger Meier <sweet_f_a@gmx.de> wrote:
-> On Thursday 08 June 2017, Sami Kerola wrote:
->> Earlier the following printed stray new line.
->>
->> $ printf "" | ./line
->
-> This breaks test "misc/line", see commit caad4ded
-> and
-> https://github.com/karelzak/util-linux/issues/236
 
-Thank you Rudi for noticing, the line(1) change is dropped from my
-remote branch.
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+On 06/27/2017 11:46 AM, Karel Zak wrote:
+> On Mon, Jun 26, 2017 at 08:29:48PM +0200, Ruediger Meier wrote:
+>> --- a/include/c.h
+>> +++ b/include/c.h
+>> @@ -315,8 +315,18 @@ static inline int xusleep(useconds_t usec)
+>>   #define USAGE_COMMANDS   _("\nCommands:\n")
+>>   #define USAGE_COLUMNS    _("\nAvailable output columns:\n")
+>>   #define USAGE_SEPARATOR    "\n"
+>> -#define USAGE_HELP       _(" -h, --help     display this help and exit\n")
+>> -#define USAGE_VERSION    _(" -V, --version  output version information and exit\n")
+>> +
+>> +#define USAGE_HELP_TXT    _("display this help and exit")
+>> +#define USAGE_VERSION_TXT _("output version information and exit")
+>> +
+>> +#define PRINT_USAGE_HELP(marg_dsc) \
+>> +	printf( \
+>> +		"%-" #marg_dsc "s%s\n" \
+>> +		"%-" #marg_dsc "s%s\n" \
+>> +		, " -h, --help",    USAGE_HELP_TXT \
+>> +		, " -V, --version", USAGE_VERSION_TXT \
+>> +	)
+> 
+> Would be possible to use lowercase for the macro name?
+> 
+> For example USAGE_HELP_TXT is fine, but for something like function I
+> would prefer
+> 
+>   #define print_usage_help(marg_dsc)
+
+I've updated on github to
+
+#define USAGE_OPTSTR_HELP     _("display this help")
+#define USAGE_OPTSTR_VERSION  _("print version")
+
+#define print_usage_help_options(marg_dsc) \
+	[...]
+
+> and what about USAGE_SEPARATOR that we have always before --help?
+> Maybe we can add \n to  the print_usage_help() too.
+
+No, because
+
+1. There are commands with help options only:
+
+$ ctrlaltdel --help
+  [...]
+  Options:
+  -h, --help     display this help
+  -V, --version  print version
+
+2. Since we have we help descriptions now aligned we do not need
+    the separator always IMO. ipcs(1) and also others which
+    still don't have separators are looking ok:
+
+$ ipcs --help
+Usage:
+  ipcs [resource-option...] [output-option]
+  ipcs -m|-q|-s -i <id>
+
+Show information on IPC facilities.
+
+Options:
+  -i, --id <id>  print details on resource identified by <id>
+  -h, --help     display this help
+  -V, --version  print version
+
+Resource options:
+  -m, --shmems      shared memory segments
+[...]
+
+cu,
+Rudi
+
+>> --- a/login-utils/last.c
+>> +++ b/login-utils/last.c
+>> @@ -589,8 +589,7 @@ static void __attribute__((__noreturn__)) usage(const struct last_control *ctl)
+>>   		"                               notime|short|full|iso\n"), out);
+>>   
+>>   	fputs(USAGE_SEPARATOR, out);
+>> -	fputs(USAGE_HELP, out);
+>> -	fputs(USAGE_VERSION, out);
+>> +	PRINT_USAGE_HELP(22);
+>>   	fprintf(out, USAGE_MAN_TAIL("last(1)"));
+> 
+> 
+>   Karel
+> 
