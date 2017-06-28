@@ -1,95 +1,105 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:56800 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.21]:52632 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753143AbdFGXjc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 7 Jun 2017 19:39:32 -0400
+        id S1751994AbdF1QlB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 28 Jun 2017 12:41:01 -0400
+Received: from zappa.l.ga-group.nl ([87.128.112.108]) by mail.gmx.com
+ (mrgmx102 [212.227.17.168]) with ESMTPSA (Nemesis) id
+ 0MK3bN-1dR4yE1tDB-001RRV for <util-linux@vger.kernel.org>; Wed, 28 Jun 2017
+ 18:40:59 +0200
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Bruce Dubbs <bruce.dubbs@gmail.com>
-Subject: Re: [PATCH 6/6] misc: fix some warnings
-Date: Thu, 8 Jun 2017 01:39:23 +0200
-Cc: kerolasa@gmail.com, J William Piggott <elseifthen@gmx.com>,
-        "util-linux" <util-linux@vger.kernel.org>
-References: <1496279320-14541-1-git-send-email-sweet_f_a@gmx.de> <CAG27Bk1W2wbSFoAV70EpWT-2USvmuHV_muC2DODr8ALODTS_ww@mail.gmail.com> <5938335F.9090108@gmail.com>
-In-Reply-To: <5938335F.9090108@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201706080139.23893.sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 5/8] misc: avoid some dead initialization warnings
+Date: Wed, 28 Jun 2017 18:40:54 +0200
+Message-Id: <1498668057-8256-6-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1498668057-8256-1-git-send-email-sweet_f_a@gmx.de>
+References: <1498668057-8256-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 07 June 2017, Bruce Dubbs wrote:
-> Sami Kerola wrote:
-> > On 6 June 2017 at 20:17, J William Piggott <elseifthen@gmx.com> 
-wrote:
-> >> I forgot to mention, the line in question exceeds 80 columns and
-> >> should be split again (the line changed in last.c wraps now also).
-> >
-> > I would say 80 columns is preferred, but we should not be too
-> > strict with it. Sometimes code does look better when wider, and
-> > that's fine.
-> >
-> > And the spaces vs tab. Yep, we should prefer tabs but sometimes
-> > accidents happen. Calling these 'wrong' is too strong. This is yet
-> > another preference thing, and if someone notices during review
-> > spaces where there should be tabs then that's a good review commend
-> > and should be fixed. But I would not go so far that existing
-> > whitespaces ought to be fixed without a change to code line where
-> > they are.
-> >
-> > util-linux $ for i in $(find . -name '*.c'); do unexpand $i > $i- ;
-> > mv $i- $i; done
-> > util-linux $ git diff --stat
->
-> Just to throw in my two cents, tabs in source code cause problems
-> unless you have a comment like:
->
-> // vim: noai:ts=8:sw=8
->
-> and the emacs equivalent.
->
-> I spend a lot of effort aligning source code to make it readable.
-> Research from the 1980s and early 1990s indicated the best levels of
-> indentations for readability and comprehension of source code is
-> between 2 and 4 spaces.  I personally use 3 characters.
->
-> Using tabs with different settings destroys that readability.
->
-> IMO, embedded tabs in source code add nothing but problems.  Editors
-> can easily substitute the correct number of spaces when you hit the
-> tab key and spaces allow the reader to always see the code as the
-> author intended.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-IMO it is no problem to write nice looking code if you don't "mix" tabs 
-and spaces. Distinguish between indentation and alignment.
+Clang analyzer warnings:
 
-So I use these rules which do not conflict with kernel coding style and 
-tab-width=8:
+Dead store, Dead initialization:
 
-  1. tabs for indentation level only (same as the previous line)
-  2. spaces for alignment only
+    lib/mbsedit.c:154:8: warning: Value stored to 'in' during its initialization is never read
+            char *in = (char *) &c;
+                  ^~   ~~~~~~~~~~~
 
-That's why in this particular case I've made one tab for the indentation 
-and 14 spaces for the nice looking alignment. Though usually alignment 
-is nonsense anyways, so I could have better just used one more 
-indentation (one tab) instead of that 14 spaces. But I would never use 
-1 tab and 6 spaces to let look like 14 spaces. This would have also 
-satisfied the 80 char limit without adding another ugly line break.
+    misc-utils/findmnt-verify.c:129:14: warning: Value stored to 'cn' during its initialization is never read
+            const char *cn = tgt;
+                        ^~   ~~~
+Dead store, Dead increment:
 
-BTW we have many lines in the our code which are more than 80 chars when 
-assuming tab-width=8. That's why I take it as de-facto standard to 
-count the line length assuming tab-width=4.
+    sys-utils/hwclock.c:1461:2: warning: Value stored to 'argv' is never read
+            argv += optind;
+            ^       ~~~~~~
 
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ lib/mbsedit.c               | 3 ++-
+ misc-utils/findmnt-verify.c | 3 +--
+ sys-utils/hwclock.c         | 5 +----
+ 3 files changed, 4 insertions(+), 7 deletions(-)
 
-> However, it is your project and your rules.  I am not asking for a
-> change.
->
->    -- Bruce Dubbs
->       linuxfromscratch.org
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+diff --git a/lib/mbsedit.c b/lib/mbsedit.c
+index d464358..e028c49 100644
+--- a/lib/mbsedit.c
++++ b/lib/mbsedit.c
+@@ -151,7 +151,7 @@ static size_t mbs_insert(char *str, wint_t c, size_t *ncells)
+ {
+ 	/* all in bytes! */
+ 	size_t n = 1, bytes;
+-	char *in = (char *) &c;
++	char *in;
+ 
+ #ifdef HAVE_WIDECHAR
+ 	wchar_t wc = (wchar_t) c;
+@@ -162,6 +162,7 @@ static size_t mbs_insert(char *str, wint_t c, size_t *ncells)
+ 	in = in_buf;
+ #else
+ 	*ncells = 1;
++	in = (char *) &c;
+ #endif
+ 	bytes       = strlen(str);
+ 
+diff --git a/misc-utils/findmnt-verify.c b/misc-utils/findmnt-verify.c
+index b32901d..1cc62de 100644
+--- a/misc-utils/findmnt-verify.c
++++ b/misc-utils/findmnt-verify.c
+@@ -126,14 +126,13 @@ done:
+ static int verify_target(struct verify_context *vfy)
+ {
+ 	const char *tgt = mnt_fs_get_target(vfy->fs);
+-	const char *cn = tgt;
+ 	struct stat sb;
+ 
+ 	if (!tgt)
+ 		return verify_err(vfy, _("undefined target (fs_file)"));
+ 
+ 	if (!(flags & FL_NOCACHE)) {
+-		cn = mnt_resolve_target(tgt, cache);
++		const char *cn = mnt_resolve_target(tgt, cache);
+ 		if (!cn)
+ 			return -ENOMEM;
+ 		if (strcmp(cn, tgt) != 0)
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 98ee5be..2f2c03a 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1457,10 +1457,7 @@ int main(int argc, char **argv)
+ 		}
+ 	}
+ 
+-	argc -= optind;
+-	argv += optind;
+-
+-	if (argc > 0) {
++	if (argc > optind) {
+ 		warnx(_("%d too many arguments given"), argc);
+ 		errtryhelp(EXIT_FAILURE);
+ 	}
+-- 
+1.8.5.6
 
