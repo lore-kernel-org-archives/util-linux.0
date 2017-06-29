@@ -1,66 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:6929 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:59596 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752851AbdF0JrC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 27 Jun 2017 05:47:02 -0400
-Date: Tue, 27 Jun 2017 11:46:52 +0200
+        id S1751647AbdF2IDT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 29 Jun 2017 04:03:19 -0400
+Date: Thu, 29 Jun 2017 10:03:15 +0200
 From: Karel Zak <kzak@redhat.com>
 To: Ruediger Meier <sweet_f_a@gmx.de>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/6] misc: introduce PRINT_USAGE_HELP()
-Message-ID: <20170627094652.fz3grdtj5qe5cmhi@ws.net.home>
-References: <20170626182952.15988-1-sweet_f_a@gmx.de>
- <20170626182952.15988-3-sweet_f_a@gmx.de>
+Subject: Re: exit() vs _exit()
+Message-ID: <20170629080315.pjkzfmafatabq5kl@ws.net.home>
+References: <201706290331.04310.sweet_f_a@gmx.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170626182952.15988-3-sweet_f_a@gmx.de>
+In-Reply-To: <201706290331.04310.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 26, 2017 at 08:29:48PM +0200, Ruediger Meier wrote:
-> --- a/include/c.h
-> +++ b/include/c.h
-> @@ -315,8 +315,18 @@ static inline int xusleep(useconds_t usec)
->  #define USAGE_COMMANDS   _("\nCommands:\n")
->  #define USAGE_COLUMNS    _("\nAvailable output columns:\n")
->  #define USAGE_SEPARATOR    "\n"
-> -#define USAGE_HELP       _(" -h, --help     display this help and exit\n")
-> -#define USAGE_VERSION    _(" -V, --version  output version information and exit\n")
-> +
-> +#define USAGE_HELP_TXT    _("display this help and exit")
-> +#define USAGE_VERSION_TXT _("output version information and exit")
-> +
-> +#define PRINT_USAGE_HELP(marg_dsc) \
-> +	printf( \
-> +		"%-" #marg_dsc "s%s\n" \
-> +		"%-" #marg_dsc "s%s\n" \
-> +		, " -h, --help",    USAGE_HELP_TXT \
-> +		, " -V, --version", USAGE_VERSION_TXT \
-> +	)
+On Thu, Jun 29, 2017 at 03:31:04AM +0200, Ruediger Meier wrote:
+> Hi,
+> 
+> I've noticed we have some exit() calls in the libs,
+> 
+> e.g. in exec_helper()
+> 
+>   libmount/src/context_mount.c
+>   libmount/src/context_umount.c
+> 
+> Is this really ok or shouldn't we use _exit() there?
 
-Would be possible to use lowercase for the macro name?
+I think _exit() is better in this case.
 
-For example USAGE_HELP_TXT is fine, but for something like function I
-would prefer 
+    Karel
 
- #define print_usage_help(marg_dsc)
-
-and what about USAGE_SEPARATOR that we have always before --help?
-Maybe we can add \n to  the print_usage_help() too.
-
-> --- a/login-utils/last.c
-> +++ b/login-utils/last.c
-> @@ -589,8 +589,7 @@ static void __attribute__((__noreturn__)) usage(const struct last_control *ctl)
->  		"                               notime|short|full|iso\n"), out);
->  
->  	fputs(USAGE_SEPARATOR, out);
-> -	fputs(USAGE_HELP, out);
-> -	fputs(USAGE_VERSION, out);
-> +	PRINT_USAGE_HELP(22);
->  	fprintf(out, USAGE_MAN_TAIL("last(1)"));
-
-
- Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
