@@ -1,38 +1,132 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qk0-f175.google.com ([209.85.220.175]:33676 "EHLO
-        mail-qk0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750994AbdFUONi (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 21 Jun 2017 10:13:38 -0400
-Received: by mail-qk0-f175.google.com with SMTP id r62so83545482qkf.0
-        for <util-linux@vger.kernel.org>; Wed, 21 Jun 2017 07:13:38 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:42128 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751861AbdF2IvU (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 29 Jun 2017 04:51:20 -0400
+Date: Thu, 29 Jun 2017 10:51:14 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: J William Piggott <elseifthen@gmx.com>, util-linux@vger.kernel.org
+Subject: Re: fputs() vs puts() (was: [PATCH] hwclock: remove unused usage()
+ FILE argument)
+Message-ID: <20170629085114.66lbbszwxnooszbb@ws.net.home>
+References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
+ <ce8ce9d6-d266-12da-8e7e-c41e6a185714@gmx.com>
+ <20170620085610.5eacn7kl5agfemmk@ws.net.home>
+ <201706282129.41161.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <CAG27Bk2qLRTEQStSvo7wWeychM+MQofvDGhT_ZOx=4yD7C2v2w@mail.gmail.com>
-References: <CAG27Bk2qLRTEQStSvo7wWeychM+MQofvDGhT_ZOx=4yD7C2v2w@mail.gmail.com>
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Wed, 21 Jun 2017 15:13:36 +0100
-Message-ID: <CAG27Bk1ufCja=52nynOtPD5E0=nyi+DjAJ8d7Du3dbuG3ZSLvQ@mail.gmail.com>
-Subject: Re: mount(8) does not work when using a specific target dir
-To: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201706282129.41161.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 21 June 2017 at 13:15, Sami Kerola <kerolasa@iki.fi> wrote:
-> We (Cloudflare) got a strange issue with mount(8) from debian jessie
-> package v2.25.2. Kernel version is 4.4.46 (self compiled, works on
-> other servers).
->
-> An md device, that is constructed of 12 luks encrypted disks, will not
-> mount to a path /disk/data but it happily mounts to any other path.
-> This is rather unfortunate because we expect to see our device in that
-> path. The same happens with a dummy file-based filesystem[1], so this
-> is unlikely to be related to the device. Here is a debug sample.
+On Wed, Jun 28, 2017 at 09:29:40PM +0200, Ruediger Meier wrote:
+> On Tuesday 20 June 2017, Karel Zak wrote:
+> > On Sun, Jun 18, 2017 at 08:49:49PM -0400, J William Piggott wrote:
+> > >  sys-utils/hwclock.c | 74
+> > > ++++++++++++++++++++++++++--------------------------- 1 file
+> > > changed, 37 insertions(+), 37 deletions(-)
+> >
+> > It would be better to remove this patch from the pull-request; let's
+> > keep fputs() in the code and wait for any solution from Rudi :-)
+> 
+> I have now finished my cleanup regarding stdout only. To make the diffs 
+> small I have left a useless definition "FILE *out = stdout;" in almost 
+> any usage function.
+> 
+> We can remove this "out" variable now everwhere using a sed or awk. But 
+> a few questions about what would be the best end state.
+> 
+> 1. fputs vs puts?:
+> 
+>    Is it a problem for translators if we remove a newline from almost
+>    any string? And, does puts() look more nice at all? I mean many usage
+>    functions have to use printf too, so does it look good if some
+>    strings are '\n' terminated and others not?
 
-Found it. A systemd mount unit defined a label, that the device did
-not have and neither the dummy filesystem, so the systemd immediately
-umounted the /data/disk/ mount point.
+Frankly, I prefer to have \n in the string, because in this case you
+have full control on the output. And it also means all the strings
+modification... for me fputs() is the winner :-)
+
+> 2. Alignment for better readabilty in the code.
+> 
+>    I would prefer leading spaces before the first string argument to
+>    match the longest possible prefix 'printf(_("'. Is that ok?:
+> 
+>    puts(  _(" -q             quiet mode"));
+>    fputs( _(" -v, --verbose  verbose mode"), stdout);
+>    printf(_(" -f, --rtc      use alternate to %1$s\n"), _BLA);
+>    printf(  "     --help     %s\n", USAGE_OPTSTR_HELP);
+
+Yes, good idea.
+
+> 3. Maybe we should always decouple options and descriptions?
+> 
+>    Introducing a macro like:
+> 
+>    #define prnt_opt(opt, marg_dsc, dsc) \
+>        printf( "%-" #marg_dsc "s%s\n", opt, dscr)
+> 
+>    /* the magic margin number for the whole function */
+>    int m = 16;
+>    prnt_opt(" -q",              m, _("quiet mode");
+>    prnt_opt(" -v, --verbose",   m, _("verbose mode");
+>    prnt_opt("      --help",     m, USAGE_OPTSTR_HELP);
+>    /* or standard help, as exist already */
+>    print_usage_help_options(m);
+
+Hmm... now translator can also translate option arguments
+
+  --something <time>     this is nice option
+
+in this case <time> is possible to translate too, and maybe in some
+languages it's possible that you will need to change number of blank
+spaces between option and option description.
+
+IMHO it's against KISS principle :-)
+
+> 4. About our USAGE_* macros
+> 
+>    We can remove the trailing newlines in all macros if puts() is
+>    preferred (regarding 1.). Or we can just let them print like
+>    print_usage_help_options().
+
+Frankly, for me it's more readable to have
+
+    fputs(USAGE_OPTIONS, stdout);
+
+than introduce another function. (It was also reason why I was not
+sure with print_usage_help_options(), but it resolves more issues.)
+
+> 5. We can leave everything as is and touch all these usage lines only
+>    if needed. For example I did it without extra noise in a861538c.
+>    Karel missed his chance in 4fb515f9 ;)
+
+It was my goal not to do any change if you work in this area. And yes,
+"touch only if needed" is good idea. The blockdev usage() is nice
+example that mix more things together is no problem, it's still
+readable and without extra complexity (well, maybe use COMMANDS: there :-).
+
+>    Note since introducing print_usage_help_options() we *are* already
+>    mixing hardcoded stdout and variable out. So we can also convert
+>    single lines from fprintf to printf, like i did in my last pending
+>    hwclock patch "don't ifdef printf arguments".
+
+All the issue is libc stupidity, imagine world where puts() is without
+\n junk (like printf and fprintf). I think printf() is no problem
+there.
+
+For me it's about:
+
+    * nice usage() output
+    * usage() function readability
+    * all without extra complexity (random contributor has to be able
+      add new option easily)
+    * translators-friendly (minimize changes, keep it open as much as
+      possible)
+
+    Karel
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
