@@ -1,81 +1,66 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:60316 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753236AbdFSAqf (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 18 Jun 2017 20:46:35 -0400
-Subject: [PATCH 08/12] hwclock: slice up the usage text
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: Karel Zak <kzak@redhat.com>
-References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
+Subject: Re: [PATCH] misc: standardize USAGE_COLUMNS
+Date: Thu, 29 Jun 2017 02:27:35 +0200
 Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <dfcb2bd8-4372-4588-7f47-783404c30732@gmx.com>
-Date: Sun, 18 Jun 2017 20:46:19 -0400
+References: <1621510c-227f-325b-7867-c305f738174a@gmx.com>
+In-Reply-To: <1621510c-227f-325b-7867-c305f738174a@gmx.com>
 MIME-Version: 1.0
-In-Reply-To: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
-Content-Type: text/plain; charset=windows-1252
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="windows-1252"
+Message-Id: <201706290227.35921.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
+On Thursday 29 June 2017 at 00:44, you wrote:
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock.c | 32 ++++++++++++++++----------------
- 1 file changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 33d1bd2..5868ad6 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -1209,36 +1209,36 @@ usage(const struct hwclock_control *ctl, FILE *out)
- 	fputs(_(" Query or set the RTC (Real Time Clock / Hardware Clock)\n"), out);
- 
- 	fputs(USAGE_FUNCTIONS, out);
--	fputs(_(" -r, --show           display the RTC time\n"
--		"     --get            display drift corrected RTC time\n"
--		"     --set            set the RTC according to --date\n"), out);
--	fputs(_(" -s, --hctosys        set the system time from the RTC\n"
--		" -w, --systohc        set the RTC from the system time\n"
--		"     --systz          send timescale configurations to the kernel\n"
--		"     --adjust         adjust the RTC to account for systematic drift\n"), out);
-+	fputs(_(" -r, --show           display the RTC time\n"), out);
-+	fputs(_("     --get            display drift corrected RTC time\n"), out);
-+	fputs(_("     --set            set the RTC according to --date\n"), out);
-+	fputs(_(" -s, --hctosys        set the system time from the RTC\n"), out);
-+	fputs(_(" -w, --systohc        set the RTC from the system time\n"), out);
-+	fputs(_("     --systz          send timescale configurations to the kernel\n"), out);
-+	fputs(_("     --adjust         adjust the RTC to account for systematic drift\n"), out);
- #if defined(__linux__) && defined(__alpha__)
--	fputs(_("     --getepoch       display the RTC epoch\n"
--		"     --setepoch       set the RTC epoch according to --epoch\n"), out);
-+	fputs(_("     --getepoch       display the RTC epoch\n"), out);
-+	fputs(_("     --setepoch       set the RTC epoch according to --epoch\n"), out);
- #endif
- 	fputs(_("     --predict        predict the drifted RTC time according to --date\n"), out);
- 	fputs(USAGE_OPTIONS, out);
--	fputs(_(" -u, --utc            inform hwclock the RTC timescale is UTC\n"
--		" -l, --localtime      inform hwclock the RTC timescale is Local\n"), out);
-+	fputs(_(" -u, --utc            inform hwclock the RTC timescale is UTC\n"), out);
-+	fputs(_(" -l, --localtime      inform hwclock the RTC timescale is Local\n"), out);
- 	fprintf(out, _(
- #ifdef __linux__
- 		" -f, --rtc <file>     use an alternate file to %1$s\n"
- #endif
--		"     --directisa      use the ISA bus instead of %1$s access\n"
--		"     --date <time>    date/time input for --set and --predict\n"), _PATH_RTC_DEV);
-+		"     --directisa      use the ISA bus instead of %1$s access\n"), _PATH_RTC_DEV);
-+	fputs(_("     --date <time>    date/time input for --set and --predict\n"), out);
- #if defined(__linux__) && defined(__alpha__)
- 	fputs(_("     --epoch <year>   epoch input for --setepoch\n"), out);
- #endif
-+	fputs(_("     --update-drift   update drift factor (requires --set or --systohc)\n"), out);
- 	fprintf(out, _(
--		"     --update-drift   update drift factor (requires --set or --systohc)\n"
- 		"     --noadjfile      do not use %1$s\n"
- 		"     --adjfile <file> use an alternate file to %1$s\n"), _PATH_ADJTIME);
--	fputs(_("     --test           dry run; use -D to view what would have happened\n"
--		" -D, --debug          use debug mode\n"), out);
-+	fputs(_("     --test           dry run; use -D to view what would have happened\n"), out);
-+	fputs(_(" -D, --debug          use debug mode\n"), out);
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(USAGE_HELP, out);
- 	fputs(USAGE_VERSION, out);
+> @@ -101,7 +101,7 @@ static void __attribute__((__noreturn__)) 
+usage(void)
+>         fputs(USAGE_OPTIONS, stdout);
+>         fputs(_(" -J, --json             use JSON output format\n"), 
+stdout);
+>         fputs(_(" -n, --noheadings       don't print headings\n"), 
+stdout);
+> -       fputs(_(" -o, --output <list>    define which output columns 
+to use\n"), stdout);
+> +       fputs(_(" -o, --output <list>    columns to display (see 
+Columns:)\n"), stdout);
+>         fputs(_(" -r, --raw              use the raw output 
+format\n"), stdout);
+
+
+That's not bad but the standard is IMO to use capital letters
+for everthing which is explained below.
+
+This avoids sometimes even the need to explicitly write extra
+terms like "see Columns", see:
+
+Options:
+ -n, --noheadings       don't print headings
+ -o, --output COLUMNS   columns to display
+ -r, --raw              use the raw output format
+ -h, --help             display this help
+ -V, --version          print version
+
+Available output COLUMNS:
+     UUID  unique identifier
+  VARIANT  variant name
+     TYPE  type name
+     TIME  timestamp
+
+
+This is short and easy and quickly to see or search. Anyways
+even if you want to keep "see blabla below", BLABLA should be in
+capital letters in any case. Compare
+
+$ ls --help | grep SIZE
+$ man bash | grep INVOCATION
+$ dd --help | grep "\bN\b\|\bBYTES\b"
+
+You see the difference? Imagine if dd would always write
+"see BYTES below". That would be pain for the eyes, like
+I mentioned in my other email. 
+
+cu,
+Rudi
