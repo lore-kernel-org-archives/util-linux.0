@@ -1,77 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:50434 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.21]:61776 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752643AbdFSAmB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 18 Jun 2017 20:42:01 -0400
-Subject: [PATCH 04/12] hwclock: add usage() functions heading
-To: Karel Zak <kzak@redhat.com>
-References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <68a54120-d8ad-59c2-89b6-4ccdd961300b@gmx.com>
-Date: Sun, 18 Jun 2017 20:41:45 -0400
-MIME-Version: 1.0
-In-Reply-To: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+        id S1751545AbdF2CJM (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 28 Jun 2017 22:09:12 -0400
+Received: from tenfore.ga-group.nl ([92.195.15.151]) by mail.gmx.com (mrgmx103
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0LbuIK-1e7PDm0FIC-00jFdv for
+ <util-linux@vger.kernel.org>; Thu, 29 Jun 2017 04:09:10 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 2/3] lib/blkdev: remove support for Linux < 2.6
+Date: Thu, 29 Jun 2017 04:09:07 +0200
+Message-Id: <1498702148-11755-3-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1498702148-11755-1-git-send-email-sweet_f_a@gmx.de>
+References: <1498702148-11755-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Make a functions heading, similar to the existing options heading.
+Remove a hack for kernels between  2.4.15 and 2.4.17
 
-* include/c.h: define USAGE_FUNCTIONS
-* Documentation/boilerplate.c: add USAGE_FUNCTIONS
-* sys-utils/hwclock.c add functions header to usage()
-
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- Documentation/boilerplate.c | 3 +++
- include/c.h                 | 3 ++-
- sys-utils/hwclock.c         | 3 +--
- 3 files changed, 6 insertions(+), 3 deletions(-)
+ lib/blkdev.c | 13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
-diff --git a/Documentation/boilerplate.c b/Documentation/boilerplate.c
-index 7da9374..057893b 100644
---- a/Documentation/boilerplate.c
-+++ b/Documentation/boilerplate.c
-@@ -33,6 +33,9 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- {
- 	fputs(USAGE_HEADER, out);
- 	fprintf(out, _(" %s [options] file...\n"), program_invocation_short_name);
-+	fputs(USAGE_FUNCTIONS, out);
-+	fputs(_(" -s, --do-something      some specific task\n"), out);
-+	fputs(_(" -o, --do-other          some different task\n"), out);
- 	fputs(USAGE_OPTIONS, out);
- 	fputs(_(" -n, --no-argument       option does not use argument\n"), out);
- 	fputs(_("     --optional[=<arg>]  option argument is optional\n"), out);
-diff --git a/include/c.h b/include/c.h
-index a5162b9..9c19965 100644
---- a/include/c.h
-+++ b/include/c.h
-@@ -317,10 +317,11 @@ static inline int xusleep(useconds_t usec)
-  */
- #define USAGE_HEADER     _("\nUsage:\n")
- #define USAGE_OPTIONS    _("\nOptions:\n")
-+#define USAGE_FUNCTIONS  _("\nFunctions:\n")
- #define USAGE_SEPARATOR    "\n"
- #define USAGE_HELP       _(" -h, --help     display this help and exit\n")
- #define USAGE_VERSION    _(" -V, --version  output version information and exit\n")
--#define USAGE_MAN_TAIL(_man)   _("\nFor more details see %s.\n"), _man
-+#define USAGE_MAN_TAIL(_man)   _("\nFor more details see %s\n"), _man
+diff --git a/lib/blkdev.c b/lib/blkdev.c
+index 2b62f09..0616142 100644
+--- a/lib/blkdev.c
++++ b/lib/blkdev.c
+@@ -91,18 +91,9 @@ blkdev_get_size(int fd, unsigned long long *bytes)
+ #endif
  
- #define UTIL_LINUX_VERSION _("%s from %s\n"), program_invocation_short_name, PACKAGE_STRING
+ #ifdef BLKGETSIZE64
+-	{
+-#ifdef __linux__
+-		int ver = get_linux_version();
+-
+-		/* kernels 2.4.15-2.4.17, had a broken BLKGETSIZE64 */
+-		if (ver >= KERNEL_VERSION (2,6,0) ||
+-		   (ver >= KERNEL_VERSION (2,4,18) && ver < KERNEL_VERSION (2,5,0)))
++	if (ioctl(fd, BLKGETSIZE64, bytes) >= 0)
++		return 0;
+ #endif
+-			if (ioctl(fd, BLKGETSIZE64, bytes) >= 0)
+-				return 0;
+-	}
+-#endif /* BLKGETSIZE64 */
  
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 28655b0..9d6bb11 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -1208,8 +1208,7 @@ usage(const struct hwclock_control *ctl, FILE *out)
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(_(" Query or set the hardware clock\n"), out);
- 
--	fputs(USAGE_SEPARATOR, out);
--	fputs(_("Functions:\n"), out);
-+	fputs(USAGE_FUNCTIONS, out);
- 	fputs(_(" -r, --show           read hardware clock and print result\n"
- 		"     --get            read hardware clock and print drift corrected result\n"
- 		"     --set            set the RTC to the time given with --date\n"), out);
+ #ifdef BLKGETSIZE
+ 	{
+-- 
+1.8.5.6
+
