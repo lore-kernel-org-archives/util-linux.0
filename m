@@ -1,47 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51690 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.15]:60451 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751008AbdFGKyd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 7 Jun 2017 06:54:33 -0400
-Date: Wed, 7 Jun 2017 12:54:28 +0200
-From: Karel Zak <kzak@redhat.com>
-To: NeilBrown <neilb@suse.com>
+        id S1751553AbdF2AqE (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 28 Jun 2017 20:46:04 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH] misc: standardize USAGE_COLUMNS
+Date: Thu, 29 Jun 2017 02:45:50 +0200
 Cc: util-linux@vger.kernel.org
-Subject: Re: [util-linux PATCH] umount: never 'stat' the path when "-c" is
- given.
-Message-ID: <20170607105428.2st27zihhwpcnrwi@ws.net.home>
-References: <8760gbduzp.fsf@notabene.neil.brown.name>
- <20170607094451.vcesromvdygstjmw@ws.net.home>
+References: <1621510c-227f-325b-7867-c305f738174a@gmx.com> <201706290227.35921.sweet_f_a@gmx.de>
+In-Reply-To: <201706290227.35921.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170607094451.vcesromvdygstjmw@ws.net.home>
+Content-Type: text/plain;
+  charset="windows-1252"
+Message-Id: <201706290245.50496.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jun 07, 2017 at 11:44:51AM +0200, Karel Zak wrote:
-> On Mon, Jun 05, 2017 at 12:32:58PM +1000, NeilBrown wrote:
-> > diff --git a/libmount/src/context_umount.c b/libmount/src/context_umount.c
-> > index e663a703cca0..693891def0e1 100644
-> > --- a/libmount/src/context_umount.c
-> > +++ b/libmount/src/context_umount.c
-> > @@ -77,6 +77,7 @@ int mnt_context_find_umount_fs(struct libmnt_context *cxt,
-> >  	 * it's usable only for canonicalized stuff (e.g. kernel mountinfo).
-> >  	 */
-> >  	if (!mnt_context_mtab_writable(cxt) && *tgt == '/' &&
-> > +	    !mnt_context_is_nocanonicalize(cxt) &&
-> >  	    !mnt_context_is_force(cxt) && !mnt_context_is_lazy(cxt))
-> >  		rc = mnt_context_get_mtab_for_target(cxt, &mtab, tgt);
-> 
-> I've changed the code to be the mount table filter also usable for
-> --no-canonicalize. It seems better to avoid mnt_resolve_path() than
-> avoid all the filter.
+On Thursday 29 June 2017, Ruediger Meier wrote:
+> On Thursday 29 June 2017 at 00:44, you wrote:
 
-Hmm... the filter seems like bad optimization for umount, because it
-triggers path canonicalization. I did some another changes and umount
-should be less aggressive with work with paths now.
+> "columns to display (see Columns:)"
 
-    Karel
+Another point. This is the SHORT help. Maybe it's too much that
+2 of 3 nouns are the same.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Better:
+
+  "COLUMNS to display (see below)"
+
+where "(see below)" could be skipped as mentioned.
+
+or just inlined
+
+  "output columns (gpt, dos, bsd, sgi, sun)"
+
+cu,
+Rudi
