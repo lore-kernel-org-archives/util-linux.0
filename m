@@ -1,46 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from ishtar.tlinx.org ([173.164.175.65]:55612 "EHLO
-        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751181AbdFEXXi (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 5 Jun 2017 19:23:38 -0400
-Received: from [192.168.3.12] (Athenae [192.168.3.12])
-        by Ishtar.sc.tlinx.org (8.14.7/8.14.4/SuSE Linux 0.8) with ESMTP id v55N7t9W071126
-        for <util-linux@vger.kernel.org>; Mon, 5 Jun 2017 16:07:57 -0700
-Message-ID: <5935E44B.8000405@tlinx.org>
-Date: Mon, 05 Jun 2017 16:07:55 -0700
-From: L A Walsh <lkml@tlinx.org>
-MIME-Version: 1.0
+Received: from mout.gmx.net ([212.227.17.20]:51475 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751541AbdF2BbH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 28 Jun 2017 21:31:07 -0400
+Received: from tenfore.site ([92.195.15.151]) by mail.gmx.com (mrgmx101
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0Mecqq-1d6UtM3zpY-00OIkM for
+ <util-linux@vger.kernel.org>; Thu, 29 Jun 2017 03:31:05 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: Bug: mount doing bad security check: only root can use -types, (effective
- EUID is 5013)
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: exit() vs _exit()
+Date: Thu, 29 Jun 2017 03:31:04 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <201706290331.04310.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-mount is Using util-linux 2.30-rc2 (libmount 2.30.0: smack, btrfs, mtab, 
-debug).
+Hi,
 
-Trying to mount any file system, thinks I have bad UID:
+I've noticed we have some exit() calls in the libs,
 
-Ishtar:/mnt# /bin/mount /dev/tmpfs /mnt/tmpfs -t tmpfs
-mount: only root can use "--types" option (effective UID is 5013)
-Ishtar:/mnt# echo "$UID $EUID"
-0 0
+e.g. in exec_helper()
 
-The previous version of mount works fine -- so it seems clear that the
-new version of mount is doing something wrong.
+  libmount/src/context_mount.c
+  libmount/src/context_umount.c
 
-Someone else had a problem w/mount doing some bad check
-that wasn't the case.  Think they had the right bits (CAP_SYS_ADMIN),
-but the mount command was ignoring caps and looking for UID==0.
+Is this really ok or shouldn't we use _exit() there?
 
-But in this case, it "double" shouldn't matter, since I'm
-running as root.
-
-
-
-
-
-
-
-
+cu,
+Rudi
