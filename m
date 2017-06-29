@@ -1,90 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:57570 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752335AbdF0MmW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 27 Jun 2017 08:42:22 -0400
-Subject: Re: [PATCH 6/6] misc: update --help content again
-To: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
-References: <20170626182952.15988-1-sweet_f_a@gmx.de>
- <20170626182952.15988-7-sweet_f_a@gmx.de>
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <965eb1e3-7439-809e-5d71-bb794997a950@gmx.com>
-Date: Tue, 27 Jun 2017 08:42:13 -0400
-MIME-Version: 1.0
-In-Reply-To: <20170626182952.15988-7-sweet_f_a@gmx.de>
-Content-Type: text/plain; charset=windows-1252
+Received: from mx.datacom.ind.br ([177.66.5.10]:43489 "EHLO
+        mail.datacom.ind.br" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751725AbdF2Kzu (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 29 Jun 2017 06:55:50 -0400
+From: Carlos Santos <casantos@datacom.ind.br>
+To: util-linux@vger.kernel.org
+Cc: Carlos Santos <casantos@datacom.ind.br>
+Subject: [PATCH v2] column: fix compilation when libc lacks wide-character support
+Date: Thu, 29 Jun 2017 07:55:42 -0300
+Message-Id: <1498733742-28381-1-git-send-email-casantos@datacom.ind.br>
+In-Reply-To: <1498582242-19840-1-git-send-email-casantos@datacom.ind.br>
+References: <1498582242-19840-1-git-send-email-casantos@datacom.ind.br>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Commit 4762ae9d removed mtsafe_strtok() but left behind calls to wcstok
+and wcspbrk. This leads to build failures when libc does not have the
+wide-character functions, like some uClibc builds.
 
+Solve the problem by using strtok_r and strpbrk when HAVE_WIDECHAR is
+not defined.
 
-On 06/26/2017 02:29 PM, Ruediger Meier wrote:
-> From: Ruediger Meier <ruediger.meier@ga-group.nl>
-> 
-> We change
-> 
->  -h, --help     display this help and exit
->  -V, --version  output version information and exit
-> 
-> to
-> 
->  -h, --help     display this help
->  -V, --version  print version
-> 
-> Some thoughts about this:
-> 
->   * use "display" for --help because it matches better if we
->     would add pager support (like git --help)
->   * "print" for --version to be different
+Fixes:
+  http://autobuild.buildroot.net/results/fd8a1a8e0cef3aeed9588540e8e663664f6b43aa
+  http://autobuild.buildroot.net/results/5ad73ea8b471321988c50d80a5e50d4504151dd6
+  http://autobuild.buildroot.net/results/04411b7280dc51ecd51236967981a42352bbeb3e
 
-To be different why? It makes it sound like help and version will not
-have the same action. Laymen think 'print' means send to the printer.
-Translators will have to figure out which different words to use.
+Signed-off-by: Carlos Santos <casantos@datacom.ind.br>
 
-What is broken by:
+---
+Changes v1->v2: fix commit message ("problem", not "broblem").
+---
+ text-utils/column.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
- -h, --help     display this help
- -V, --version  display version
+diff --git a/text-utils/column.c b/text-utils/column.c
+index be99f94..fb57b47 100644
+--- a/text-utils/column.c
++++ b/text-utils/column.c
+@@ -160,14 +160,22 @@ static wchar_t *local_wcstok(wchar_t *p, const wchar_t *separator, int greedy, w
+ 	wchar_t *result = NULL;
+ 
+ 	if (greedy)
++#ifdef HAVE_WIDECHAR
+ 		return wcstok(p, separator, state);
++#else
++		return strtok_r(p, separator, state);
++#endif
+ 	if (!p) {
+ 		if (!*state || !**state)
+ 			return NULL;
+ 		p = *state;
+ 	}
+ 	result = p;
++#ifdef HAVE_WIDECHAR
+ 	p = wcspbrk(result, separator);
++#else
++	p = strpbrk(result, separator);
++#endif
+ 	if (!p)
+ 		*state = NULL;
+ 	else {
+-- 
+2.7.5
 
-I really think it is a  good idea to use consistent language for
-comparable actions. It is easier to comprehend, especially for
-non-native speakers. Once they understand the meaning of a term,
-possibly from a context that they the understand well, then that
-knowledge is transferable to other contexts. Why add confusion by
-constantly interchanging term synonyms?
-
-
->   * "this" for --help is important to make clear that running
->     --help would not give you any better information than the
->     one you see already
->   * remove "information and exit" because it's bloat for the
->     short-help, everybody knows what it does if it exists
-> 
-> In the manpages we should use the old, longer but more correct
-> descriptions, inclusive a reminder if --help/--version are only
-> working when used as the only option. Note the term "version
-> information" indicates that we don't only print a single version
-> number.
-> 
-> CC: J William Piggott <elseifthen@gmx.com>
-> Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
-> ---
->  include/c.h | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/include/c.h b/include/c.h
-> index ce5551535..be7e6fd53 100644
-> --- a/include/c.h
-> +++ b/include/c.h
-> @@ -316,8 +316,8 @@ static inline int xusleep(useconds_t usec)
->  #define USAGE_COLUMNS    _("\nAvailable output columns:\n")
->  #define USAGE_SEPARATOR    "\n"
->  
-> -#define USAGE_HELP_TXT    _("display this help and exit")
-> -#define USAGE_VERSION_TXT _("output version information and exit")
-> +#define USAGE_HELP_TXT    _("display this help")
-> +#define USAGE_VERSION_TXT _("print version")
->  
->  #define PRINT_USAGE_HELP(marg_dsc) \
->  	printf( \
-> 
