@@ -1,35 +1,42 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:61943 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751075AbdEaUhD (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 31 May 2017 16:37:03 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Assaf Gordon <assafgordon@gmail.com>
-Subject: Re: [ANNOUNCE] util-linux v2.30-rc2
-Date: Wed, 31 May 2017 22:36:49 +0200
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <20170523105038.hm3ryvwvghgife4j@ws.net.home> <201705312036.39054.sweet_f_a@gmx.de> <20170531200553.GB30064@gmail.com>
-In-Reply-To: <20170531200553.GB30064@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201705312236.49632.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: johannes@sipsolutions.net
+Message-ID: <1498745040.3141.6.camel@sipsolutions.net>
+Subject: Re: rfkill(8) move and improvements
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Sami Kerola <kerolasa@iki.fi>, Marcel Holtmann <marcel@holtmann.org>,
+	Tim Gardner <tim.gardner@canonical.com>, Karel Zak <kzak@redhat.com>
+Cc: linux-wireless@vger.kernel.org, util-linux@vger.kernel.org
+Date: Thu, 29 Jun 2017 16:04:00 +0200
+In-Reply-To: <alpine.LNX.2.20.1706251339500.25762@imuri> (sfid-20170625_150452_207599_1328128A)
+References: <alpine.LNX.2.20.1706251339500.25762@imuri>
+	 (sfid-20170625_150452_207599_1328128A)
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 31 May 2017, Assaf Gordon wrote:
-> On Wed, May 31, 2017 at 08:36:38PM +0200, Ruediger Meier wrote:
-> >musl supports both utmp and utmpx. We are using utmpx. Could you
-> > show us all your test diffs?:
-> >
-> >  find tests/diff -type f  | xargs tail -n +1
->
-> Attached.
+Hi Sami, all,
 
-Thanks. The utmp problem is just another gnu-diff incompatibility. I'll 
-fix a few of your issues and send patches later. 
+> The otherday I ran powertop and it did rfkill to save battery, which
+> was particularly annoying because I had not installed rfkill(8)
+> package.  
+> Fixing the immediate issue was relatively easy, but the ordeal made
+> me wonder if this tool could be moved to a package that is installed
+> by default to all systems, such as util-linux.
 
-cu,
-Rudi
+[...]
 
+> What do you think, would the move and proposed updates be ok?
 
+I can't say I mind, and most of your proposed changes seem sensible,
+though I haven't reviewed them in enough detail to comment on them.
+Something that caught my eye here was comparing a string to _("all")
+which seems wrong, since that'd mean you'd have to type the translated
+version even on the command line? That seems really awkward (to put it
+charitably).
+
+However, at the same time, I have very little desire to get involved
+with util-linux as yet another project, so frankly I'd probably
+continue to "maintain" the current rfkill tool - which really hasn't
+changed in a very long time, and hope somebody else picks up
+maintenance of rfkill included in util-linux.
+
+johannes
