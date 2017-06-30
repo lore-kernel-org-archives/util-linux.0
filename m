@@ -1,64 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:53025 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:18292 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752515AbdFOXoI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 15 Jun 2017 19:44:08 -0400
-Subject: [PATCH 05/10] parse-date: use uintmax_t where appropriate
-To: Karel Zak <kzak@redhat.com>
-References: <1b57c4a5-9517-e005-dd05-265004d58948@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <e7689962-9c30-6dad-1dc2-7ed4f1932543@gmx.com>
-Date: Thu, 15 Jun 2017 19:43:52 -0400
+        id S1751577AbdF3Hre (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 30 Jun 2017 03:47:34 -0400
+Date: Fri, 30 Jun 2017 09:47:29 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: Johannes Berg <johannes@sipsolutions.net>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        linux-wireless@vger.kernel.org,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: rfkill(8) move and improvements
+Message-ID: <20170630074729.s3gknfobabgepk4h@ws.net.home>
+References: <alpine.LNX.2.20.1706251339500.25762@imuri>
+ <1498745040.3141.6.camel@sipsolutions.net>
+ <CAG27Bk0tKzqxkm6qqjGO6GJE7vxReRAQbvYGexjp+PBLo+RK_A@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1b57c4a5-9517-e005-dd05-265004d58948@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk0tKzqxkm6qqjGO6GJE7vxReRAQbvYGexjp+PBLo+RK_A@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Thu, Jun 29, 2017 at 10:23:12PM +0100, Sami Kerola wrote:
+> On 29 June 2017 at 15:04, Johannes Berg <johannes@sipsolutions.net> wrote:
+> >> The otherday I ran powertop and it did rfkill to save battery, which
+> >> was particularly annoying because I had not installed rfkill(8)
+> >> package.
+> >> Fixing the immediate issue was relatively easy, but the ordeal made
+> >> me wonder if this tool could be moved to a package that is installed
+> >> by default to all systems, such as util-linux.
+> >
+> > [...]
+> >
+> >> What do you think, would the move and proposed updates be ok?
+> >
+> > I can't say I mind, and most of your proposed changes seem sensible,
+> > though I haven't reviewed them in enough detail to comment on them.
+> > Something that caught my eye here was comparing a string to _("all")
+> > which seems wrong, since that'd mean you'd have to type the translated
+> > version even on the command line? That seems really awkward (to put it
+> > charitably).
+> >
+> > However, at the same time, I have very little desire to get involved
+> > with util-linux as yet another project, so frankly I'd probably
+> > continue to "maintain" the current rfkill tool - which really hasn't
+> > changed in a very long time, and hope somebody else picks up
+> > maintenance of rfkill included in util-linux.
+> 
+> Hello Johannes,
+> 
+> Thank you for feedback. I removed the rfkill command strings from
+> translations, and gave hint to translators how to deal with them in
+> usage() output. Also in same go updates are rebased on top of
+> most recent upstream to get usage() --help and --version handling
+> done correctly.
+> 
+> What comes  to maintenance I am fairly optimistic util-linux is a
+> good home for the rfkill. Karel, what do you think?
 
-Reported-by: Ruediger Meier <ruediger.meier@ga-group.nl>
-Influenced-by: gnulib 30784c4 Paul Eggert <eggert@cs.ucla.edu>
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- lib/parse-date.y | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+I have no problem with it, if Johannes agree with this step. We have
+definitely manpower to maintain it.
 
-diff --git a/lib/parse-date.y b/lib/parse-date.y
-index b79b333..a8f710c 100644
---- a/lib/parse-date.y
-+++ b/lib/parse-date.y
-@@ -1061,7 +1061,7 @@ static int yylex (union YYSTYPE *lvalp, parser_control *pc)
- 		if (c_isdigit (c) || c == '-' || c == '+') {
- 			char const *p;
- 			int sign;
--			unsigned long int value;
-+			uintmax_t value;
- 			if (c == '-' || c == '+') {
- 				sign = c == '-' ? -1 : 1;
- 				while (c = *++pc->input, c_isspace (c))
-@@ -1073,21 +1073,21 @@ static int yylex (union YYSTYPE *lvalp, parser_control *pc)
- 				sign = 0;
- 			p = pc->input;
- 			for (value = 0; ; value *= 10) {
--				unsigned long int value1 = value + (c - '0');
-+				uintmax_t value1 = value + (c - '0');
- 				if (value1 < value)
- 					return '?';
- 				value = value1;
- 				c = *++p;
- 				if (! c_isdigit (c))
- 					break;
--				if (ULONG_MAX / 10 < value)
-+				if (UINTMAX_MAX / 10 < value)
- 					return '?';
- 			}
- 			if ((c == '.' || c == ',') && c_isdigit (p[1])) {
- 				time_t s;
- 				int ns;
- 				int digits;
--				unsigned long int value1;
-+				uintmax_t value1;
- 
- 				/* Check for overflow when converting value to
- 				 * time_t.
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
