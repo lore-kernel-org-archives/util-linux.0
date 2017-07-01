@@ -1,48 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:52654 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:42402 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756346AbdGCO3d (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 3 Jul 2017 10:29:33 -0400
-Date: Mon, 3 Jul 2017 16:29:26 +0200
+        id S1751976AbdGAXvV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sat, 1 Jul 2017 19:51:21 -0400
+Date: Sun, 2 Jul 2017 01:51:15 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/6] path: add some standard functions
-Message-ID: <20170703142926.czaqja7if3vej77a@ws.net.home>
-References: <1499082781-16968-1-git-send-email-sweet_f_a@gmx.de>
- <1499082781-16968-3-git-send-email-sweet_f_a@gmx.de>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux <util-linux@vger.kernel.org>,
+        Ruediger Meier <sweet_f_a@gmx.de>
+Subject: Re: 0b2b32e8a7 caused an unusual increase in hwclock size
+Message-ID: <20170701235115.qtoui3merx5nmoje@ws.net.home>
+References: <bbb77383-8a90-b1b1-0dfa-78cee5fb6267@gmx.com>
+ <919e5992-abd9-b66c-5799-833c594cece1@gmx.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1499082781-16968-3-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <919e5992-abd9-b66c-5799-833c594cece1@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jul 03, 2017 at 01:52:57PM +0200, Ruediger Meier wrote:
-> From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Sat, Jul 01, 2017 at 12:07:24PM -0400, J William Piggott wrote:
 > 
-> Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
-> ---
->  include/path.h | 15 +++++++++++++++
->  lib/path.c     | 51 +++++++++++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 66 insertions(+)
+> On 06/30/2017 04:41 PM, J William Piggott wrote:
+> > 
+> > Does anyone know why this small change added 43K (+23%) to the binary?
 > 
-> diff --git a/include/path.h b/include/path.h
-> index ae36d7f..30c1133 100644
-> --- a/include/path.h
-> +++ b/include/path.h
-> @@ -3,6 +3,11 @@
->  
->  #include <stdio.h>
->  #include <stdint.h>
-> +#include <dirent.h>
-> +
-> +/* Check your code: Absolute paths must be used with path_* functions! */
-> +#define PATH_REQUIRE_RELATIVE(path) \
-> +	assert( *path != '/' )
+> I'm no compiler guru, but it appears to me that gcc is smart enough to
+> exclude the unused strutils.h file without using '#if defined', and this
+> new code pulls it in.
+> 
+> So as I said when reviewing the commit, the new code needs to be in:
+> #if defined(__linux__) && defined(__alpha__)
+> https://marc.info/?l=util-linux-ng&m=149830453215524&w=2
+> 
+> After doing so the unused fat is no longer in the binary. I'm a bit
+> surprised that strutils adds 43K though.
+> 
+> Then adding '#if defined' to the header include actually made the binary
+> 32 bytes larger. The striped binary was unchanged.
+> 
+> I'm going to submit a patch to remove strutils from hwclock, but this
+> information might apply to other commands that were changed?
 
- #define assert_abs_path
-
-or something else with "assert" :-)
+It would be better to compare striped versions.
 
     Karel
 
