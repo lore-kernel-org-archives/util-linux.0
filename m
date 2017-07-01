@@ -1,55 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:37899 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751126AbdGaTz2 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 31 Jul 2017 15:55:28 -0400
-Received: by mail-wr0-f193.google.com with SMTP id g32so15163253wrd.5
-        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 12:55:27 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 9/9] agetty: fix invalid usage crash
-Date: Mon, 31 Jul 2017 20:55:08 +0100
-Message-Id: <20170731195508.11661-10-kerolasa@iki.fi>
-In-Reply-To: <20170731195508.11661-1-kerolasa@iki.fi>
-References: <20170731195508.11661-1-kerolasa@iki.fi>
+Received: from mout.gmx.net ([212.227.17.20]:60583 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751851AbdGAQHo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sat, 1 Jul 2017 12:07:44 -0400
+Subject: Re: 0b2b32e8a7 caused an unusual increase in hwclock size
+To: util-linux <util-linux@vger.kernel.org>,
+        Karel Zak <kzak@redhat.com>, Ruediger Meier <sweet_f_a@gmx.de>
+References: <bbb77383-8a90-b1b1-0dfa-78cee5fb6267@gmx.com>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <919e5992-abd9-b66c-5799-833c594cece1@gmx.com>
+Date: Sat, 1 Jul 2017 12:07:24 -0400
+MIME-Version: 1.0
+In-Reply-To: <bbb77383-8a90-b1b1-0dfa-78cee5fb6267@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-$ agetty
-agetty: not enough arguments: Success
-Segmentation fault (core dumped)
 
-Reference: 9325dbfd2018b2a3b510617f4aa13777fbbe23c3
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- term-utils/agetty.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+On 06/30/2017 04:41 PM, J William Piggott wrote:
+> 
+> Does anyone know why this small change added 43K (+23%) to the binary?
 
-diff --git a/term-utils/agetty.c b/term-utils/agetty.c
-index f06b9fc6e..d9e9548fa 100644
---- a/term-utils/agetty.c
-+++ b/term-utils/agetty.c
-@@ -803,7 +803,8 @@ static void parse_args(int argc, char **argv, struct options *op)
- 
- 	if (argc < optind + 1) {
- 		log_warn(_("not enough arguments"));
--		warn(_("not enough arguments"));
-+		warnx(_("not enough arguments"));
-+		errtryhelp(EXIT_FAILURE);
- 	}
- 
- 	/* Accept "tty", "baudrate tty", and "tty baudrate". */
-@@ -812,7 +813,8 @@ static void parse_args(int argc, char **argv, struct options *op)
- 		parse_speeds(op, argv[optind++]);
- 		if (argc < optind + 1) {
- 			log_warn(_("not enough arguments"));
--			warn(_("not enough arguments"));
-+			warnx(_("not enough arguments"));
-+			exit(EXIT_FAILURE);
- 		}
- 		op->tty = argv[optind++];
- 	} else {
--- 
-2.13.3
+I'm no compiler guru, but it appears to me that gcc is smart enough to
+exclude the unused strutils.h file without using '#if defined', and this
+new code pulls it in.
 
+So as I said when reviewing the commit, the new code needs to be in:
+#if defined(__linux__) && defined(__alpha__)
+https://marc.info/?l=util-linux-ng&m=149830453215524&w=2
+
+After doing so the unused fat is no longer in the binary. I'm a bit
+surprised that strutils adds 43K though.
+
+Then adding '#if defined' to the header include actually made the binary
+32 bytes larger. The striped binary was unchanged.
+
+I'm going to submit a patch to remove strutils from hwclock, but this
+information might apply to other commands that were changed?
+
+> 
+> 222802 2017-06-30 15:55:54 hwclock-0b2b32e*
+> 180175 2017-06-30 16:06:12 hwclock-9c8b9fb*
+> 
+> 
+> commit 0b2b32e8a7a6aed1e3ff1cfc3f63cf33361a67b8
+> 
+> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+> index 5433cd0..325106a 100644
+> --- a/sys-utils/hwclock.c
+> +++ b/sys-utils/hwclock.c
+> @@ -1326,6 +1326,8 @@ int main(int argc, char **argv)
+>         };
+>         int excl_st[ARRAY_SIZE(excl)] = UL_EXCL_STATUS_INIT;
+>  
+> +       strutils_set_exitcode(EX_USAGE);
+> +
+>         /* Remember what time we were invoked */
+>         gettimeofday(&startup_time, NULL);
+>  
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
