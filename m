@@ -1,63 +1,70 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:39479 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752155AbdGQVON (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Mon, 17 Jul 2017 17:14:13 -0400
-From: Patrick Steinhardt <ps@pks.im>
-To: util-linux@vger.kernel.org
-Cc: kzak@redhat.com, Patrick Steinhardt <ps@pks.im>
-Subject: [PATCH] setpriv: support setting unnamed capabilities
-Date: Mon, 17 Jul 2017 23:14:09 +0200
-Message-Id: <4ae084e6a1c46726a24057c71d20787680fa3da1.1500326001.git.ps@pks.im>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 4/5] docs: update boilerplate.c usage()
+To: Karel Zak <kzak@redhat.com>
+References: <9cf88d57-3a45-cd47-ac96-3495e09d81c5@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <9ba07b4f-74a7-084a-e10c-e512d2198441@gmx.com>
+Date: Sun, 2 Jul 2017 15:54:24 -0400
+MIME-Version: 1.0
+In-Reply-To: <9cf88d57-3a45-cd47-ac96-3495e09d81c5@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-When setting capabilities, we accept human readable names like for
-example `sys_rawio` or `net_admin`. To do so the translation between the
-capability name and its in-kernel index, we rely on the function
-`capng_name_to_capability`. When the function does not know the named
-capability, it will return an error value and we abort setting the
-capability.
 
-This relies upon the ability of libcap to know all capabilities inside
-of the kernel. But actually, it is possible that new capabilities are
-introduced inside of the Linux kernel which are not recognized yet by
-the library. When dumping these unknown capabilities, libcap will simply
-return a string like "cap_38", that is it will append the capability's
-in-kernel index to the prefix "cap_". This may lead a user to also think
-that "cap_38" may be passed to the switches "--inh-caps" or
-"--ambient-caps", which is unfortunately not the case.
-
-We can do better here by instead accepting strings in the form of
-"cap_N". To do so, we can simply rely on the fact that capability
-indices are steadily increasing and that the highest index known to the
-kernel is stored inside of the kernel's procfs, made readily available
-by our function `real_cap_last_cap()`. So in case libcap does not know a
-capability name, we can simply parse the string and, if it is in the
-correct format, check whether the detected index is between 0 and the
-highest capability index. If so, we can treat it as a valid capability
-string and apply it.
-
-Signed-off-by: Patrick Steinhardt <ps@pks.im>
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
- sys-utils/setpriv.c | 3 +++
- 1 file changed, 3 insertions(+)
+ Documentation/boilerplate.c | 37 ++++++++++++++++++-------------------
+ 1 file changed, 18 insertions(+), 19 deletions(-)
 
-diff --git a/sys-utils/setpriv.c b/sys-utils/setpriv.c
-index 19753aab8..2402e624f 100644
---- a/sys-utils/setpriv.c
-+++ b/sys-utils/setpriv.c
-@@ -529,6 +529,9 @@ static void do_caps(enum cap_type type, const char *caps)
- 			int cap = capng_name_to_capability(c + 1);
- 			if (0 <= cap)
- 				cap_update(action, type, cap);
-+			else if (sscanf(c + 1, "cap_%d", &cap) == 1
-+			    && 0 <= cap && cap <= real_cap_last_cap())
-+				cap_update(action, type, cap);
- 			else
- 				errx(EXIT_FAILURE,
- 				     _("unknown capability \"%s\""), c + 1);
--- 
-2.13.3
-
+diff --git a/Documentation/boilerplate.c b/Documentation/boilerplate.c
+index c97ad46..ae3fb5c 100644
+--- a/Documentation/boilerplate.c
++++ b/Documentation/boilerplate.c
+@@ -36,28 +36,27 @@
+  */
+ static void __attribute__((__noreturn__)) usage(void)
+ {
+-	FILE *out = stdout;
+-	fputs(USAGE_HEADER, out);
+-	fprintf(out, _(" %s [options] file...\n"), program_invocation_short_name);
++	fputs(USAGE_HEADER, stdout);
++	printf(_(" %s [options] file...\n"), program_invocation_short_name);
+ 
+-        fputs(USAGE_SEPARATOR, out);
+-        fputs(_("Short program description.\n"), out);
++	fputs(USAGE_SEPARATOR, stdout);
++	puts(_("Short program description."));
+ 
+-	fputs(USAGE_OPTIONS, out);
+-	fputs(_(" -n, --no-argument       option does not use argument\n"), out);
+-	fputs(_("     --optional[=<arg>]  option argument is optional\n"), out);
+-	fputs(_(" -r, --required <arg>    option requires an argument\n"), out);
+-	fputs(_(" -z                      no long option\n"), out);
+-	fputs(_("     --xyzzy             a long option only\n"), out);
+-	fputs(_(" -e, --extremely-long-long-option\n"
+-		"                         use next line for description when needed\n"), out);
+-	fputs(_(" -l, --long-explanation  an example of very verbose, and chatty option\n"
+-		"                           description on two, or multiple lines, where the\n"
+-		"                           consecutive lines are intended by two spaces\n"), out);
+-	fputs(_(" -f, --foobar            next option description resets indent\n"), out);
+-	fputs(USAGE_SEPARATOR, out);
++	fputs(USAGE_OPTIONS, stdout);
++	puts(_(" -n, --no-argument       option does not use argument"));
++	puts(_("     --optional[=<arg>]  option argument is optional"));
++	puts(_(" -r, --required <arg>    option requires an argument"));
++	puts(_(" -z                      no long option"));
++	puts(_("     --xyzzy             a long option only"));
++	puts(_(" -e, --extremely-long-long-option\n"
++	       "                         use next line for description when needed"));
++	puts(_(" -l, --long-explanation  an example of very verbose, and chatty option\n"
++	       "                           description on two, or multiple lines, where the\n"
++	       "                           consecutive lines are intended by two spaces"));
++	puts(_(" -f, --foobar            next option description resets indent"));
++	fputs(USAGE_SEPARATOR, stdout);
+ 	print_usage_help_options(25); /* char offset to align option descriptions */
+-	fprintf(out, USAGE_MAN_TAIL("fixme-command-name(1)"));
++	printf(USAGE_MAN_TAIL("fixme-command-name(1)"));
+ 	exit(EXIT_SUCCESS);
+ }
+ 
