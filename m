@@ -1,52 +1,99 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:45572
-        "EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751607AbdGaRwa (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 31 Jul 2017 13:52:30 -0400
-Date: Mon, 31 Jul 2017 19:52:27 +0200
-From: Andreas Henriksson <andreas@fatal.se>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
-Subject: Re: [PATCH] build: use --runstatedir instead of --localstatedir
-Message-ID: <20170731175227.GA23732@fatal.se>
-References: <1501164042-27281-1-git-send-email-andreas@fatal.se>
- <20170731133156.2pk6qz7d6zmsevor@ws.net.home>
+Received: from mx1.redhat.com ([209.132.183.28]:48264 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755794AbdGCOZV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 3 Jul 2017 10:25:21 -0400
+Date: Mon, 3 Jul 2017 16:25:15 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: J William Piggott <elseifthen@gmx.com>, util-linux@vger.kernel.org
+Subject: Re: fputs() vs puts()
+Message-ID: <20170703142515.rg43rgobwfvykooz@ws.net.home>
+References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
+ <201707031030.22137.sweet_f_a@gmx.de>
+ <20170703120752.25fkjobw6dxgqo2w@ws.net.home>
+ <201707031438.33652.sweet_f_a@gmx.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170731133156.2pk6qz7d6zmsevor@ws.net.home>
+In-Reply-To: <201707031438.33652.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello Karel Zak,
-
-On Mon, Jul 31, 2017 at 03:31:56PM +0200, Karel Zak wrote:
-[...]
-> It seems we need somehow to support autoconf < 2.70 where is no
-> $runstatedir. So, I have modified the code to use fallback
+On Mon, Jul 03, 2017 at 02:38:33PM +0200, Ruediger Meier wrote:
+> On Monday 03 July 2017, Karel Zak wrote:
+> >  Maybe it would be possible to convince me that coreutils way for
+> >  options arguments is the right way :-))
+> >
+> >  I mean:
+> >
+> >    --output COLUMNS
+> >    --length SIZE
+> >    --net[=FILE]
+> >
+> >  ...etc. The question is how to compose the option string to minimize
+> >  duplication and inform about a format, for example
+> >
+> >    --output COLUMNS    list of columns to display (see below)
+> >
+> >
+> >  Note that on many places we for example for SIZE accept suffixes
+> >  (MiB, GiB...) but this info is nowhere in the --help output.
 > 
->     runstatedir='${localstatedir}/run'
+> Coreutils is using some of these capitalized words really as
+> system-wide keywords. For example SIZE:
 > 
-> It also seems we need to check for unmodified $localstatedir rather
-> than care about $prefix. So, I have improved the AS_CASE().
+>   The SIZE argument is an integer and optional unit (example: 10K is 10*1024).
+>   Units are K,M,G,T,P,E,Z,Y (powers of 1024) or KB,MB,... (powers of 1000).
 > 
-> Please, git-pull from master branch and retest it with new autoconf
-> and your environment. Thanks.
+> BTW this is my only coreutils patch to make the size description
+> human understandable and let it fit into two 80 char columns. ;)
+> 
+> There was a big discussion about this here in bug#9939
+> https://lists.gnu.org/archive/html/bug-coreutils/2011-11/threads.html#00002
+> 
+> 
+> >  And note that I like the William's idea with the explicit reader
+> >  redirection "(see below)".
+> 
+> Yep, IMO the "see below" is good *always* if the overall text is a bit
+> longer. In case there are only a few lines or if obvious (like FILE), it
+> *may* be skipped, I would say.
 
-Thanks for picking it up and improving it. I'm quite sure that
-none of your changes will affect debian/debhelper builds.
+I agree. What about the section where we explain the references? I
+personally prefer sentence-like way:
 
-(If I find something when I find time to test it properly I'll
-report back.)
+   Available COLUMNS:
+      ...
+   The SIZE argument...
 
-The important point for debhelpers point of view is that
-./configure --runstatedir is used instead of
-./configure --localstatedir (and the upstream AS_CASE/AS_IF
-doesn't apply here since debhelper will pass both of those
-configure flags explicitly.)
+More complex example (lsblk):
 
-Please note clearly in the upcoming release notes than anyone
-explicitly using the --localstatedir flag will need to move
-over to --runstatedir (or accept/rely on util-linux defaults).
+ now:
+   -e, --exclude <list>    exclude devices by major number (default: RAM disks)
+   -I, --include <list>    show only devices with specified major numbers
+   -o, --output <list>     output columns
+   -x, --sort <column>     sort output by <column>
 
-Regards,
-Andreas Henriksson
+
+ after change:
+   -e, --exclude MAJOR     exclude specified devices (see below)
+   -I, --include MAJOR     show only specified devices (see below)
+   -o, --output COLUMNS    output columns (see below)
+   -x, --sort COLUMN       sort output by column
+
+ The MAJOR command separated list of the device major numbers. The
+ ramdisk devices are excluded by default.
+
+ Available COLUMNS:
+   NAME  device name
+   KNAME  internal kernel device name
+   ...
+
+
+Objections, comment? 
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
