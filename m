@@ -1,54 +1,74 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:59976 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.20]:54314 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752507AbdGRJxA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 18 Jul 2017 05:53:00 -0400
+        id S1753755AbdGCLxF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 3 Jul 2017 07:53:05 -0400
+Received: from zappa.l.ga-group.nl ([87.128.112.108]) by mail.gmx.com
+ (mrgmx101 [212.227.17.168]) with ESMTPSA (Nemesis) id
+ 0LtVLE-1dtfmV2gYG-010vuG for <util-linux@vger.kernel.org>; Mon, 03 Jul 2017
+ 13:53:03 +0200
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: uuidparse: test fails on 32bit machines
-Date: Tue, 18 Jul 2017 11:52:36 +0200
-Cc: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
-References: <201707122115.01476.ruediger.meier@ga-group.nl> <20170718080709.s6fra6bgxkxd6f23@ws.net.home>
-In-Reply-To: <20170718080709.s6fra6bgxkxd6f23@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201707181152.36773.sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 5/6] zramctl: add --sysroot
+Date: Mon,  3 Jul 2017 13:53:00 +0200
+Message-Id: <1499082781-16968-6-git-send-email-sweet_f_a@gmx.de>
+In-Reply-To: <1499082781-16968-1-git-send-email-sweet_f_a@gmx.de>
+References: <1499082781-16968-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 18 July 2017, Karel Zak wrote:
-> I have removed this dates from the test. The things are internally
-> based on time_t (=long) and uint32_t. It does not make sense to use
-> it for huge numbers.
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ sys-utils/zramctl.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-FYI I have created two travis testing branches in my private github 
-repo: https://travis-ci.org/rudimeier/util-linux/builds
+diff --git a/sys-utils/zramctl.c b/sys-utils/zramctl.c
+index aee28cc..c6224b3 100644
+--- a/sys-utils/zramctl.c
++++ b/sys-utils/zramctl.c
+@@ -278,7 +278,7 @@ static int zram_used(struct zram *z)
+ static int zram_has_control(struct zram *z)
+ {
+ 	if (!z->control_probed) {
+-		z->has_control = access(_PATH_SYS_CLASS "/zram-control/", F_OK) == 0 ? 1 : 0;
++		z->has_control = path_exist(_PATH_SYS_CLASS "/zram-control/") == 0 ? 1 : 0;
+ 		z->control_probed = 1;
+ 		DBG(fprintf(stderr, "zram-control: %s", z->has_control ? "yes" : "no"));
+ 	}
+@@ -569,7 +569,10 @@ int main(int argc, char **argv)
+ 	int rc = 0, c, find = 0, act = A_NONE;
+ 	struct zram *zram = NULL;
+ 
+-	enum { OPT_RAW = CHAR_MAX + 1 };
++	enum {
++		OPT_RAW = CHAR_MAX + 1,
++		OPT_SYSROOT,
++	};
+ 
+ 	static const struct option longopts[] = {
+ 		{ "algorithm", required_argument, NULL, 'a' },
+@@ -583,6 +586,7 @@ int main(int argc, char **argv)
+ 		{ "size",      required_argument, NULL, 's' },
+ 		{ "streams",   required_argument, NULL, 't' },
+ 		{ "version",   no_argument, NULL, 'V' },
++		{ "sysroot",   required_argument, NULL, OPT_SYSROOT },
+ 		{ NULL, 0, NULL, 0 }
+ 	};
+ 
+@@ -641,6 +645,11 @@ int main(int argc, char **argv)
+ 		case 'V':
+ 			printf(UTIL_LINUX_VERSION);
+ 			return EXIT_SUCCESS;
++		case OPT_SYSROOT:
++			if(path_set_prefix(optarg))
++				err(EXIT_FAILURE, _("invalid argument to %s"), "--sysroot");
++			/* TODO: mod->system = SYSTEM_SNAPSHOT; */
++			break;
+ 		case 'h':
+ 			usage();
+ 		default:
+-- 
+1.8.5.6
 
-  travis-cc-test
-     - testing many different compilers versions, even using -Werror
-     - gcc 4.6, 4.8, 5, 6 and 7
-     - clang 3.4, 3.5, 3.9, 4.0 and 5.0
-     - OSX xcode 6.4, 7.3, 8.3
-
-  travis-cc-test
-     - testing 32bit build, -m32 -Werror
-
-These build matrices are too big and ugly for our master branch, but 
-probably I will keep them in my private repo to run them 
-regularly/automated. So now, because of -Werror, we can stop wasting 
-time, reviewing again and again our major travis logs for compiler 
-warnings, etc.
-
-Regarding -Werror, see the env column of the currently latest build here
-https://travis-ci.org/rudimeier/util-linux/builds/254776766
-
-I have added a few -Wno-error=xyz flags for gcc 4.x (false positives). 
-And also one for gcc-7 which might be worth to fix.
-
-Note, my both branches above include open pull request #486:
-https://github.com/karelzak/util-linux/pull/486
-
-cu,
-Rudi
