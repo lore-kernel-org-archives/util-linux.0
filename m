@@ -1,17 +1,17 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:60396 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.22]:65177 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753689AbdGCLxF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        id S1753240AbdGCLxF (ORCPT <rfc822;util-linux@vger.kernel.org>);
         Mon, 3 Jul 2017 07:53:05 -0400
 Received: from zappa.l.ga-group.nl ([87.128.112.108]) by mail.gmx.com
  (mrgmx101 [212.227.17.168]) with ESMTPSA (Nemesis) id
- 0Mh5h7-1d6KK60aun-00MNtZ for <util-linux@vger.kernel.org>; Mon, 03 Jul 2017
+ 0MUUWN-1dIxeX45Yp-00RJq7 for <util-linux@vger.kernel.org>; Mon, 03 Jul 2017
  13:53:03 +0200
 From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 2/6] path: add some standard functions
-Date: Mon,  3 Jul 2017 13:52:57 +0200
-Message-Id: <1499082781-16968-3-git-send-email-sweet_f_a@gmx.de>
+Subject: [PATCH 1/6] path: use openat()
+Date: Mon,  3 Jul 2017 13:52:56 +0200
+Message-Id: <1499082781-16968-2-git-send-email-sweet_f_a@gmx.de>
 In-Reply-To: <1499082781-16968-1-git-send-email-sweet_f_a@gmx.de>
 References: <1499082781-16968-1-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
@@ -19,114 +19,234 @@ List-ID: <util-linux.vger.kernel.org>
 
 From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
+path_vcreate_with_prefix() is going to be removed.
+
 Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- include/path.h | 15 +++++++++++++++
- lib/path.c     | 51 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 66 insertions(+)
+ lib/path.c | 111 ++++++++++++++++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 96 insertions(+), 15 deletions(-)
 
-diff --git a/include/path.h b/include/path.h
-index ae36d7f..30c1133 100644
---- a/include/path.h
-+++ b/include/path.h
-@@ -3,6 +3,11 @@
- 
- #include <stdio.h>
- #include <stdint.h>
-+#include <dirent.h>
-+
-+/* Check your code: Absolute paths must be used with path_* functions! */
-+#define PATH_REQUIRE_RELATIVE(path) \
-+	assert( *path != '/' )
- 
- /* Returns a pointer to a static buffer which may be destroyed by any later
- path_* function call. NULL means error and errno will be set. */
-@@ -23,6 +28,16 @@ extern uint64_t path_read_u64(const char *path, ...)
- extern int path_exist(const char *path, ...)
- 		      __attribute__ ((__format__ (__printf__, 1, 2)));
- 
-+extern int path_stat(const char *pathname, struct stat *buf);
-+extern int path_open(const char *pathname, int flags);
-+extern FILE *path_fopenP(const char *path, const char *mode);
-+extern size_t path_readlink(const char *pathname, char *buf, size_t bufsiz);
-+extern DIR *path_opendir(const char *dirname);
-+extern int path_scandir(const char *dir, struct dirent ***namelist,
-+	int (*sel)(const struct dirent *),
-+	int (*compar)(const struct dirent **, const struct dirent **));
-+
-+
- #ifdef HAVE_CPU_SET_T
- # include "cpuset.h"
- 
 diff --git a/lib/path.c b/lib/path.c
-index 94181fe..c286709 100644
+index 79c1e7a..94181fe 100644
 --- a/lib/path.c
 +++ b/lib/path.c
-@@ -27,6 +27,7 @@
+@@ -26,18 +26,60 @@
+ #include <stdio.h>
  #include <inttypes.h>
  #include <errno.h>
- #include <sys/stat.h>
-+#include <dirent.h>
++#include <sys/stat.h>
  
  #include "all-io.h"
  #include "path.h"
-@@ -272,6 +273,56 @@ path_exist(const char *path, ...)
- 	return p && faccessat(rootfd, p, F_OK, 0) == 0;
+ #include "nls.h"
+ #include "c.h"
+ 
++static int rootfd = -1;
+ static size_t prefixlen;
++static char pathbuf_prefix[PATH_MAX];
+ static char pathbuf[PATH_MAX];
+ 
++/* It's a programming error if they try us to use with relative paths. */
++#define PATH_REQUIRE_ABSOLUTE(path) \
++	assert( !path || *path == '/' )
++
++static inline const char *
++path_relative_if_sysroot(const char *p)
++{
++	/* Convert to relative path if we have a prefix (sysroot). Otherwise
++	 * openat() functions would ignore the dirfd. */
++	if(p && rootfd >= 0)
++		while(*p && *p == '/') ++p;
++	return p;
++}
++
+ static const char *
+ path_vcreate(const char *path, va_list ap)
+ {
++	const char * p = pathbuf;
++	int rc = vsnprintf(
++		pathbuf, sizeof(pathbuf), path, ap);
++
++	if (rc < 0)
++		goto err;
++	if ((size_t)rc >= sizeof(pathbuf)) {
++		errno = ENAMETOOLONG;
++		goto err;
++	}
++
++	PATH_REQUIRE_ABSOLUTE(p);
++	p = path_relative_if_sysroot(p);
++
++	return p;
++err:
++	/* Only for error messages when we could not construct a path. */
++	strcpy(pathbuf, "path");
++	return NULL;
++}
++
++static const char *
++path_vcreate_with_prefix(const char *path, va_list ap)
++{
++	strcpy(pathbuf, pathbuf_prefix);
+ 	int rc = vsnprintf(
+ 		pathbuf + prefixlen, sizeof(pathbuf) - prefixlen, path, ap);
+ 
+@@ -55,30 +97,60 @@ path_get(const char *path, ...)
+ {
+ 	const char *p;
+ 	va_list ap;
++	static char userbuf[sizeof(pathbuf)];
+ 
+ 	va_start(ap, path);
+-	p = path_vcreate(path, ap);
++	p = path_vcreate_with_prefix(path, ap);
+ 	va_end(ap);
+ 
++	if (p) {
++		/* do not hand out our global buffer to the user to avoid overlapping
++		 * problems in case we get this string back from the user */
++		p = strcpy(userbuf, p);
++	}
++
+ 	return p;
  }
  
-+int
-+path_stat(const char *p, struct stat *buf)
++/* Get the last used path. Only for error messages. */
++static const char *
++path_last_path(void)
 +{
-+	PATH_REQUIRE_ABSOLUTE(p);
-+	p = path_relative_if_sysroot(p);
-+	return fstatat(rootfd, p, buf, 0);
-+}
-+
-+int
-+path_open(const char *p, int flags)
-+{
-+	PATH_REQUIRE_ABSOLUTE(p);
-+	p = path_relative_if_sysroot(p);
-+	return openat(rootfd, p, flags);
-+}
-+
-+FILE*
-+path_fopenP(const char *path, const char *mode)
-+{
-+	return path_fopen(mode, 0, path);
-+}
-+
-+size_t
-+path_readlink(const char *p, char *buf, size_t bufsiz)
-+{
-+	PATH_REQUIRE_ABSOLUTE(p);
-+	p = path_relative_if_sysroot(p);
-+	return readlinkat(rootfd, p, buf, bufsiz);
-+}
-+
-+DIR *
-+path_opendir(const char *dirname)
-+{
-+	int fd = path_open(dirname, O_RDONLY|O_CLOEXEC|O_DIRECTORY);
-+	if (fd < 0) {
-+		return NULL;
++	if (rootfd < 0) {
++		return pathbuf;
++	} else {
++		char prfx[] = "[sysroot]/"; /* we could also add the real prefix */
++		size_t n = sizeof(prfx) - 1 ;
++		memmove(pathbuf+n, pathbuf, sizeof(pathbuf)-n);
++		pathbuf[sizeof(pathbuf)-1] = '\0';
++		strncpy(pathbuf, prfx, n);
++		return pathbuf;
 +	}
-+	return fdopendir(fd);
 +}
 +
-+int
-+path_scandir(const char *p, struct dirent ***namelist,
-+	int (*sel)(const struct dirent *),
-+	int (*compar)(const struct dirent **, const struct dirent **))
-+{
-+	PATH_REQUIRE_ABSOLUTE(p);
-+	p = path_relative_if_sysroot(p);
-+	return scandirat(rootfd, p, namelist, sel, compar);
-+}
-+
- #ifdef HAVE_CPU_SET_T
+ static FILE *
+ path_vfopen(const char *mode, int exit_on_error, const char *path, va_list ap)
+ {
++	int fd;
+ 	FILE *f;
+ 	const char *p = path_vcreate(path, ap);
+ 	if (!p)
+ 		goto err;
  
- static cpu_set_t *
+-	f = fopen(p, mode);
+-	if (!f)
++	fd = openat(rootfd, p, O_RDONLY);
++	if (fd == -1)
++		goto err;
++
++	f = fdopen(fd, mode);
++	if (!f) {
++		close(fd);
+ 		goto err;
++	}
+ 
+ 	return f;
+ err:
+ 	if (exit_on_error)
+-		err(EXIT_FAILURE, _("cannot open %s"), p ? p : "path");
++		err(EXIT_FAILURE, _("cannot open %s"), path_last_path());
+ 	return NULL;
+ }
+ 
+@@ -90,13 +162,13 @@ path_vopen(int flags, const char *path, va_list ap)
+ 	if (!p)
+ 		goto err;
+ 
+-	fd = open(p, flags);
++	fd = openat(rootfd, p, flags);
+ 	if (fd == -1)
+ 		goto err;
+ 
+ 	return fd;
+ err:
+-	err(EXIT_FAILURE, _("cannot open %s"), p ? p : "path");
++	err(EXIT_FAILURE, _("cannot open %s"), path_last_path());
+ }
+ 
+ FILE *
+@@ -123,7 +195,7 @@ path_read_str(char *result, size_t len, const char *path, ...)
+ 	va_end(ap);
+ 
+ 	if (!fgets(result, len, fd))
+-		err(EXIT_FAILURE, _("cannot read %s"), pathbuf);
++		err(EXIT_FAILURE, _("cannot read %s"), path_last_path());
+ 	fclose(fd);
+ 
+ 	len = strlen(result);
+@@ -144,9 +216,9 @@ path_read_s32(const char *path, ...)
+ 
+ 	if (fscanf(fd, "%d", &result) != 1) {
+ 		if (ferror(fd))
+-			err(EXIT_FAILURE, _("cannot read %s"), pathbuf);
++			err(EXIT_FAILURE, _("cannot read %s"), path_last_path());
+ 		else
+-			errx(EXIT_FAILURE, _("parse error: %s"), pathbuf);
++			errx(EXIT_FAILURE, _("parse error: %s"), path_last_path());
+ 	}
+ 	fclose(fd);
+ 	return result;
+@@ -165,9 +237,9 @@ path_read_u64(const char *path, ...)
+ 
+ 	if (fscanf(fd, "%"SCNu64, &result) != 1) {
+ 		if (ferror(fd))
+-			err(EXIT_FAILURE, _("cannot read %s"), pathbuf);
++			err(EXIT_FAILURE, _("cannot read %s"), path_last_path());
+ 		else
+-			errx(EXIT_FAILURE, _("parse error: %s"), pathbuf);
++			errx(EXIT_FAILURE, _("parse error: %s"), path_last_path());
+ 	}
+ 	fclose(fd);
+ 	return result;
+@@ -197,7 +269,7 @@ path_exist(const char *path, ...)
+ 	p = path_vcreate(path, ap);
+ 	va_end(ap);
+ 
+-	return p && access(p, F_OK) == 0;
++	return p && faccessat(rootfd, p, F_OK, 0) == 0;
+ }
+ 
+ #ifdef HAVE_CPU_SET_T
+@@ -213,7 +285,7 @@ path_cpuparse(int maxcpus, int islist, const char *path, va_list ap)
+ 	fd = path_vfopen("r" UL_CLOEXECSTR, 1, path, ap);
+ 
+ 	if (!fgets(buf, len, fd))
+-		err(EXIT_FAILURE, _("cannot read %s"), pathbuf);
++		err(EXIT_FAILURE, _("cannot read %s"), path_last_path());
+ 	fclose(fd);
+ 
+ 	len = strlen(buf);
+@@ -265,12 +337,21 @@ path_set_prefix(const char *prefix)
+ {
+ 	size_t len = strlen(prefix);
+ 
+-	if (len >= sizeof(pathbuf) - 1) {
++	/* ignore trivial prefix */
++	if (len == 0)
++		return 0;
++
++	if (len >= sizeof(pathbuf_prefix) - 1) {
+ 		errno = ENAMETOOLONG;
+ 		return -1;
+ 	}
++
++	rootfd = open(prefix, O_RDONLY|O_DIRECTORY|O_CLOEXEC);
++	if (rootfd < 0)
++		return -1;
++
+ 	prefixlen = len;
+-	strcpy(pathbuf, prefix);
++	strcpy(pathbuf_prefix, prefix);
+ 	return 0;
+ }
+ 
 -- 
 1.8.5.6
 
