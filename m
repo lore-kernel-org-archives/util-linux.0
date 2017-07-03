@@ -1,42 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:49745 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:20750 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751216AbdGPRrK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 16 Jul 2017 13:47:10 -0400
-Subject: [PATCH 0/4] Pull Request
-To: Karel Zak <kzak@redhat.com>
+        id S1754062AbdGCOjx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 3 Jul 2017 10:39:53 -0400
+Date: Mon, 3 Jul 2017 16:39:49 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
 Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <4a0f9283-7a08-a2c3-acc3-fb35ab51ec59@gmx.com>
-Date: Sun, 16 Jul 2017 13:46:38 -0400
+Subject: Re: [PATCH 1/6] path: use openat()
+Message-ID: <20170703143949.pifm6ebon7dr3fww@ws.net.home>
+References: <1499082781-16968-1-git-send-email-sweet_f_a@gmx.de>
+ <1499082781-16968-2-git-send-email-sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1499082781-16968-2-git-send-email-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Mon, Jul 03, 2017 at 01:52:56PM +0200, Ruediger Meier wrote:
+> From: Ruediger Meier <ruediger.meier@ga-group.nl>
+> 
+> path_vcreate_with_prefix() is going to be removed.
+> 
+> Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+> ---
+>  lib/path.c | 111 ++++++++++++++++++++++++++++++++++++++++++++++++++++---------
+>  1 file changed, 96 insertions(+), 15 deletions(-)
+> 
+> diff --git a/lib/path.c b/lib/path.c
+> index 79c1e7a..94181fe 100644
+> --- a/lib/path.c
+> +++ b/lib/path.c
+> @@ -26,18 +26,60 @@
+>  #include <stdio.h>
+>  #include <inttypes.h>
+>  #include <errno.h>
+> +#include <sys/stat.h>
+>  
+>  #include "all-io.h"
+>  #include "path.h"
+>  #include "nls.h"
+>  #include "c.h"
+>  
+> +static int rootfd = -1;
+>  static size_t prefixlen;
+> +static char pathbuf_prefix[PATH_MAX];
+>  static char pathbuf[PATH_MAX];
 
-The following changes since commit 8ffa3b651d7e74acba8f1d831b7f68fdb3c66aae:
+We use sysfs.c in shared libs, it means that global variables are
+unacceptable.
 
-  libfdisk: make fdisk compliant to UEFI/GPT specification on PMBR (2017-07-14 12:48:18 +0200)
+It would be better to have "struct path_cxt" and use it within "struct
+sysfs_cxt". For tools where we don't use "struct sysfs_cxt" (e.g.
+lscpu) we can directly use "struct path_cxt".
 
-are available in the git repository at:
+I guess it should be possible to replace sysfs_cxt->dir_fd with
+"struct path_cxt" where it points to $SYSROOT/sysfs/block/<device>.
 
-  git@github.com:jwpi/util-linux.git 170711
+    Karel
 
-for you to fetch changes up to c26ddc568f3fb26b45a22cbf89d3294113e70377:
-
-  hwclock: improve RTC epoch messages (2017-07-16 08:41:54 -0400)
-
-----------------------------------------------------------------
-J William Piggott (4):
-      hwclock: --epoch presence test fails
-      hwclock: remove dead ioctl check
-      hwclock: improve RTC epoch messages
-      hwclock: improve RTC epoch messages
-
- sys-utils/hwclock-rtc.c | 56 +++++++++++++++++++------------------------------
- sys-utils/hwclock.8.in  |  3 +++
- sys-utils/hwclock.c     | 24 +++++++--------------
- sys-utils/hwclock.h     |  2 +-
- 4 files changed, 32 insertions(+), 53 deletions(-)
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
