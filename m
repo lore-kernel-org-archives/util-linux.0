@@ -1,49 +1,35 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: uuidparse: test fails on 32bit machines
-Date: Tue, 18 Jul 2017 13:18:59 +0200
-Cc: util-linux@vger.kernel.org,
- Sami Kerola <kerolasa@iki.fi>
-References: <201707122115.01476.ruediger.meier@ga-group.nl> <201707181152.36773.sweet_f_a@gmx.de> <20170718104052.hhtwgjnlleahthmf@ws.net.home>
-In-Reply-To: <20170718104052.hhtwgjnlleahthmf@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.kundenserver.de ([212.227.126.135]:55579 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751986AbdGDIei (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 4 Jul 2017 04:34:38 -0400
+Subject: Re: [PATCH 3/5] hwclock: final usage() strings slice
+To: Karel Zak <kzak@redhat.com>, J William Piggott <elseifthen@gmx.com>
+Cc: Ruediger Meier <ruediger.meier@ga-group.nl>,
+        util-linux@vger.kernel.org
+References: <9cf88d57-3a45-cd47-ac96-3495e09d81c5@gmx.com>
+ <40df38f4-6bf5-1959-74af-6ee481b88a12@gmx.com>
+ <201707031051.27992.ruediger.meier@ga-group.nl>
+ <05bbcea5-5f5a-4767-7d98-6b0a4e6575a6@gmx.com>
+ <20170704075833.eqhwwhpo36s2i63d@ws.net.home>
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Message-ID: <192a27a9-6e22-5483-0222-23cd992af8d2@bernhard-voelker.de>
+Date: Tue, 4 Jul 2017 10:34:02 +0200
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201707181319.00115.sweet_f_a@gmx.de>
+In-Reply-To: <20170704075833.eqhwwhpo36s2i63d@ws.net.home>
+Content-Type: text/plain; charset=utf-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 18 July 2017, Karel Zak wrote:
-> On Tue, Jul 18, 2017 at 11:52:36AM +0200, Ruediger Meier wrote:
-> > On Tuesday 18 July 2017, Karel Zak wrote:
-> > > I have removed this dates from the test. The things are
-> > > internally based on time_t (=long) and uint32_t. It does not make
-> > > sense to use it for huge numbers.
-> >
-> > FYI I have created two travis testing branches in my private github
-> > repo: https://travis-ci.org/rudimeier/util-linux/builds
-> >
-> >   travis-cc-test
-> >      - testing many different compilers versions, even using
-> > -Werror - gcc 4.6, 4.8, 5, 6 and 7
-> >      - clang 3.4, 3.5, 3.9, 4.0 and 5.0
-> >      - OSX xcode 6.4, 7.3, 8.3
-> >
-> >   travis-cc-test
-> >      - testing 32bit build, -m32 -Werror
->
-> Would be possible to enable build by date? I would be nice to run
-> basic builds tests for each commit and enable some additional
-> expensive builds for example every 10 days (or/and trigger the build
-> by git tags, e.g. -rcN).
+On 07/04/2017 09:58 AM, Karel Zak wrote:
+> I think the idea is to use the extra space only if you mix printf and
+> puts in the same code block. We have on many place only puts (or
+> fputs) -- in this case the extra space is unnecessary.
 
-Yep, I will sort that out soon. Maybe creating another project "ul-test" 
-which contains only test scripts. We could add even more checks there 
-without polluting our main repo.
+What about putting the strings on an extra line regardless whether
+that is output via printf or fputf or ...; e.g.
+  http://git.savannah.gnu.org/cgit/coreutils.git/tree/src/du.c#n278
+?
 
-The tests should be invoked for interesting tags and once per week or 
-something. To avoid unnecessary noise the extended tests should only 
-run after at least our regular travis check finnished successfully.
-
-cu,
-Rudi
+Have a nice day,
+Berny
