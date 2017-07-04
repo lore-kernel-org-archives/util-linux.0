@@ -1,83 +1,54 @@
-Return-Path: elseifthen@gmx.com
-Subject: Re: [PATCH 2/2] hwclock: fix regression from c3ae785
-To: Ruediger Meier <sweet_f_a@gmx.de>
-References: <b8d24f10-1bea-aa80-0a28-9f573dd81d2a@gmx.com>
- <13448500-dbe1-b7f8-3514-651d448f00d1@gmx.com>
- <201707182233.42270.sweet_f_a@gmx.de>
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <b13f5e0a-368c-8c8f-6abc-b5d60d6f48b1@gmx.com>
-Date: Tue, 18 Jul 2017 21:20:56 -0400
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:38594 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752448AbdGDH6j (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 4 Jul 2017 03:58:39 -0400
+Date: Tue, 4 Jul 2017 09:58:33 +0200
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: Ruediger Meier <ruediger.meier@ga-group.nl>,
+        util-linux@vger.kernel.org
+Subject: Re: [PATCH 3/5] hwclock: final usage() strings slice
+Message-ID: <20170704075833.eqhwwhpo36s2i63d@ws.net.home>
+References: <9cf88d57-3a45-cd47-ac96-3495e09d81c5@gmx.com>
+ <40df38f4-6bf5-1959-74af-6ee481b88a12@gmx.com>
+ <201707031051.27992.ruediger.meier@ga-group.nl>
+ <05bbcea5-5f5a-4767-7d98-6b0a4e6575a6@gmx.com>
 MIME-Version: 1.0
-In-Reply-To: <201707182233.42270.sweet_f_a@gmx.de>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <05bbcea5-5f5a-4767-7d98-6b0a4e6575a6@gmx.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-
-
-On 07/18/2017 04:33 PM, Ruediger Meier wrote:
-> On Tuesday 18 July 2017, J William Piggott wrote:
->> hwclock --get foobar
->> hwclock: 3 too many arguments given
->>
->> Fixed:
->>
->> hwclock --get foobar
->> hwclock: 1 too many arguments given
->>
->> Signed-off-by: J William Piggott <elseifthen@gmx.com>
->> ---
->>  sys-utils/hwclock.c | 5 +++--
->>  1 file changed, 3 insertions(+), 2 deletions(-)
->>
->> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
->> index 9745158..9b313cf 100644
->> --- a/sys-utils/hwclock.c
->> +++ b/sys-utils/hwclock.c
->> @@ -1448,9 +1448,10 @@ int main(int argc, char **argv)
->>  		}
->>  	}
->>
->> -	if (argc > optind) {
->> +	argc -= optind;
->> +	if (argc > 0) {
->>  		warnx(_("%d too many arguments given"), argc);
+On Mon, Jul 03, 2017 at 11:35:01AM -0400, J William Piggott wrote:
+> >> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> >> the body of a message to majordomo@vger.kernel.org
+> >> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >>
+> >>
+> > 
+> > What about the mentioned whitespaces for puts() to get printf
+> > on one line? 
+> > 
+> >   puts(  _("     --update-drift   update the RTC drift factor"));
+> >   printf(_("     --noadjfile      do not use %1$s\n"), _PATH_ADJTIME);
+> >   printf(_("     --adjfile <file> use an alternate file to %1$s\n"), _PATH_ADJTIME);
+> >   puts(  _("     --test           dry run; use -D to view what would have happened"));
+> >   puts(  _(" -D, --debug          use debug mode"));
 > 
-> Oops, sorry for this regression ;)
+> Sure, if that is what Karel wants (it can be a separate patch).
 > 
-> Anyways, at least for me "1 too many arguments given" does not sound 
-> really understandable.  Maybe we don't need that number at all!?
->
+> The only thing that I don't like about that choice is that it can cause
+> puts() lines to wrap that otherwise would not. Since puts() is a lot
+> more common than printf(), it seems like putting the alignment burden on
+> printf() makes more sense.
 
-I don't how it would be misunderstood, it's pretty straight forward
-language.
+I think the idea is to use the extra space only if you mix printf and
+puts in the same code block. We have on many place only puts (or
+fputs) -- in this case the extra space is unnecessary.
 
-I think the number could be helpful for complex commands like:
+    Karel
 
-hwclock --predict --date jan 10 2017 --utc foo --noadjfile
-hwclock: 3 too many arguments given
-
-
-> 
->> -		errtryhelp(EXIT_FAILURE);
->> +		errtryhelp(EX_USAGE);
-> 
-> What about changing also the last other errtryhelp(EXIT_FAILURE) to 
-> EX_USAGE, 5 lines above?
-
-Good point. Pushed the change.
-
-> 
-> 
->>  	}
->>
->>  	if (!ctl.adj_file_name)
->> --
->> To unsubscribe from this list: send the line "unsubscribe util-linux"
->> in the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
