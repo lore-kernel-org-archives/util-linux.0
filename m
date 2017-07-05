@@ -1,232 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:33969 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751184AbdGOVU7 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 15 Jul 2017 17:20:59 -0400
-Received: by mail-wm0-f66.google.com with SMTP id p204so16599994wmg.1
-        for <util-linux@vger.kernel.org>; Sat, 15 Jul 2017 14:20:58 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 5/5] bash-completion: make completions to work when bash set -u is in use
-Date: Sat, 15 Jul 2017 22:20:46 +0100
-Message-Id: <20170715212046.1655-6-kerolasa@iki.fi>
-In-Reply-To: <20170715212046.1655-1-kerolasa@iki.fi>
-References: <20170715212046.1655-1-kerolasa@iki.fi>
+Received: from mout.gmx.net ([212.227.17.21]:55969 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751664AbdGERqB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 5 Jul 2017 13:46:01 -0400
+Subject: Re: [PATCH 3/5] hwclock: final usage() strings slice
+To: Karel Zak <kzak@redhat.com>
+References: <9cf88d57-3a45-cd47-ac96-3495e09d81c5@gmx.com>
+ <40df38f4-6bf5-1959-74af-6ee481b88a12@gmx.com>
+ <201707031051.27992.ruediger.meier@ga-group.nl>
+ <05bbcea5-5f5a-4767-7d98-6b0a4e6575a6@gmx.com>
+ <20170704075833.eqhwwhpo36s2i63d@ws.net.home>
+Cc: Ruediger Meier <ruediger.meier@ga-group.nl>,
+        util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <7824f55b-9494-6fad-a12f-aeff6be6dba6@gmx.com>
+Date: Wed, 5 Jul 2017 13:45:42 -0400
+MIME-Version: 1.0
+In-Reply-To: <20170704075833.eqhwwhpo36s2i63d@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-User who want to avoid refering to none-existing variables got earlier the
-following error.
 
-$ set -u
-$ findmnt --output <tab>bash: OUTPUT: unbound variable
 
-Here is short explanation of this setting.
+On 07/04/2017 03:58 AM, Karel Zak wrote:
+> On Mon, Jul 03, 2017 at 11:35:01AM -0400, J William Piggott wrote:
+>>>> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+>>>> the body of a message to majordomo@vger.kernel.org
+>>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>>>
+>>>>
+>>>
+>>> What about the mentioned whitespaces for puts() to get printf
+>>> on one line? 
+>>>
+>>>   puts(  _("     --update-drift   update the RTC drift factor"));
+>>>   printf(_("     --noadjfile      do not use %1$s\n"), _PATH_ADJTIME);
+>>>   printf(_("     --adjfile <file> use an alternate file to %1$s\n"), _PATH_ADJTIME);
+>>>   puts(  _("     --test           dry run; use -D to view what would have happened"));
+>>>   puts(  _(" -D, --debug          use debug mode"));
+>>
+>> Sure, if that is what Karel wants (it can be a separate patch).
+>>
+>> The only thing that I don't like about that choice is that it can cause
+>> puts() lines to wrap that otherwise would not. Since puts() is a lot
+>> more common than printf(), it seems like putting the alignment burden on
+>> printf() makes more sense.
+> 
+> I think the idea is to use the extra space only if you mix printf and
+> puts in the same code block. We have on many place only puts (or
+> fputs) -- in this case the extra space is unnecessary.
 
-$ help set
- -u  Treat unset variables as an error when substituting.
+True. I meant that in mixed conditions *puts() seems more common. So if
+you have a full column of *puts() and one *printf(), forcing the puts
+lines to add whitespace could make many of them wrap, thus adding more
+ugliness to the source than if the alignment burden is on *printf().
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- bash-completion/blkid   | 2 +-
- bash-completion/fdisk   | 2 +-
- bash-completion/fincore | 2 +-
- bash-completion/findmnt | 2 +-
- bash-completion/losetup | 2 +-
- bash-completion/lsipc   | 2 +-
- bash-completion/lslocks | 2 +-
- bash-completion/lsmem   | 2 +-
- bash-completion/partx   | 2 +-
- bash-completion/prlimit | 2 +-
- bash-completion/sfdisk  | 2 +-
- bash-completion/swapon  | 2 +-
- bash-completion/wdctl   | 2 +-
- bash-completion/zramctl | 2 +-
- 14 files changed, 14 insertions(+), 14 deletions(-)
+Again, this is an anecdotal comment only, I don't have a strong opinion
+about it. For messy usage() blocks I typically toggle nowrap in my
+editor; so the alignment choice is not a big deal for me.
 
-diff --git a/bash-completion/blkid b/bash-completion/blkid
-index eb2ecf3fe..57b34c3f4 100644
---- a/bash-completion/blkid
-+++ b/bash-completion/blkid
-@@ -59,7 +59,7 @@ _blkid_module()
- 		prefix="${cur%$realcur}"
- 		for WORD in $OUTPUT_ALL; do
- 			if ! [[ $prefix == *"$WORD"* ]]; then
--				OUTPUT="$WORD $OUTPUT"
-+				OUTPUT="$WORD ${OUTPUT:-""}"
- 			fi
- 		done
- 		compopt -o nospace
-diff --git a/bash-completion/fdisk b/bash-completion/fdisk
-index ef6c5beb4..855de1468 100644
---- a/bash-completion/fdisk
-+++ b/bash-completion/fdisk
-@@ -49,7 +49,7 @@ _fdisk_module()
- 			"
- 			for WORD in $OUTPUT_ALL; do
- 				if ! [[ $prefix == *"$WORD"* ]]; then
--					OUTPUT="$WORD $OUTPUT"
-+					OUTPUT="$WORD ${OUTPUT:-""}"
- 				fi
- 			done
- 			compopt -o nospace
-diff --git a/bash-completion/fincore b/bash-completion/fincore
-index 4988f198b..3639763b5 100644
---- a/bash-completion/fincore
-+++ b/bash-completion/fincore
-@@ -12,7 +12,7 @@ _fincore_module()
- 			OUTPUT_ALL='PAGES SIZE FILE RES'
- 			for WORD in $OUTPUT_ALL; do
- 				if ! [[ $prefix == *"$WORD"* ]]; then
--					OUTPUT="$WORD $OUTPUT"
-+					OUTPUT="$WORD ${OUTPUT:-""}"
- 				fi
- 			done
- 			compopt -o nospace
-diff --git a/bash-completion/findmnt b/bash-completion/findmnt
-index 5583fbf6c..bdfa5de5c 100644
---- a/bash-completion/findmnt
-+++ b/bash-completion/findmnt
-@@ -55,7 +55,7 @@ _findmnt_module()
- 
- 			for WORD in $OUTPUT_ALL; do
- 				if ! [[ $prefix == *"$WORD"* ]]; then
--					OUTPUT="$WORD $OUTPUT"
-+					OUTPUT="$WORD ${OUTPUT:-""}"
- 				fi
- 			done
- 			compopt -o nospace
-diff --git a/bash-completion/losetup b/bash-completion/losetup
-index 7fee1d0ae..b58d8de94 100644
---- a/bash-completion/losetup
-+++ b/bash-completion/losetup
-@@ -33,7 +33,7 @@ _losetup_module()
- 				SIZELIMIT DIO"
- 			for WORD in $OUTPUT_ALL; do
- 				if ! [[ $prefix == *"$WORD"* ]]; then
--					OUTPUT="$WORD $OUTPUT"
-+					OUTPUT="$WORD ${OUTPUT:-""}"
- 				fi
- 			done
- 			compopt -o nospace
-diff --git a/bash-completion/lsipc b/bash-completion/lsipc
-index ffe44b7d1..a40fe4286 100644
---- a/bash-completion/lsipc
-+++ b/bash-completion/lsipc
-@@ -35,7 +35,7 @@ _lsipc_module()
- 			"
- 			for WORD in $OUTPUT_ALL; do
- 				if ! [[ $prefix == *"$WORD"* ]]; then
--					OUTPUT="$WORD $OUTPUT"
-+					OUTPUT="$WORD ${OUTPUT:-""}"
- 				fi
- 			done
- 			compopt -o nospace
-diff --git a/bash-completion/lslocks b/bash-completion/lslocks
-index 4ca1e6b6e..acc7b1ff6 100644
---- a/bash-completion/lslocks
-+++ b/bash-completion/lslocks
-@@ -20,7 +20,7 @@ _lslocks_module()
- 			OUTPUT_ALL="COMMAND PID TYPE SIZE MODE M START END PATH BLOCKER"
- 			for WORD in $OUTPUT_ALL; do
- 				if ! [[ $prefix == *"$WORD"* ]]; then
--					OUTPUT="$WORD $OUTPUT"
-+					OUTPUT="$WORD ${OUTPUT:-""}"
- 				fi
- 			done
- 			compopt -o nospace
-diff --git a/bash-completion/lsmem b/bash-completion/lsmem
-index 85cf3e01a..8f7a46ec3 100644
---- a/bash-completion/lsmem
-+++ b/bash-completion/lsmem
-@@ -12,7 +12,7 @@ _lsmem_module()
- 			OUTPUT_ALL='RANGE SIZE STATE REMOVABLE BLOCK NODE'
- 			for WORD in $OUTPUT_ALL; do
- 				if ! [[ $prefix == *"$WORD"* ]]; then
--					OUTPUT="$WORD $OUTPUT"
-+					OUTPUT="$WORD ${OUTPUT:-""}"
- 				fi
- 			done
- 			compopt -o nospace
-diff --git a/bash-completion/partx b/bash-completion/partx
-index 929000013..2368336ed 100644
---- a/bash-completion/partx
-+++ b/bash-completion/partx
-@@ -15,7 +15,7 @@ _partx_module()
- 			prefix="${cur%$realcur}"
- 			for WORD in $OUTPUT_ALL; do
- 				if ! [[ $prefix == *"$WORD"* ]]; then
--					OUTPUT="$WORD $OUTPUT"
-+					OUTPUT="$WORD ${OUTPUT:-""}"
- 				fi
- 			done
- 			compopt -o nospace
-diff --git a/bash-completion/prlimit b/bash-completion/prlimit
-index fff7a85c5..f5e00bb16 100644
---- a/bash-completion/prlimit
-+++ b/bash-completion/prlimit
-@@ -17,7 +17,7 @@ _prlimit_module()
- 			OUTPUT_ALL="DESCRIPTION RESOURCE SOFT HARD UNITS"
- 			for WORD in $OUTPUT_ALL; do
- 				if ! [[ $prefix == *"$WORD"* ]]; then
--					OUTPUT="$WORD $OUTPUT"
-+					OUTPUT="$WORD ${OUTPUT:-""}"
- 				fi
- 			done
- 			compopt -o nospace
-diff --git a/bash-completion/sfdisk b/bash-completion/sfdisk
-index c00e8c799..9401f89ac 100644
---- a/bash-completion/sfdisk
-+++ b/bash-completion/sfdisk
-@@ -28,7 +28,7 @@ _sfdisk_module()
- 			"
- 			for WORD in $OUTPUT_ALL; do
- 				if ! [[ $prefix == *"$WORD"* ]]; then
--					OUTPUT="$WORD $OUTPUT"
-+					OUTPUT="$WORD ${OUTPUT:-""}"
- 				fi
- 			done
- 			compopt -o nospace
-diff --git a/bash-completion/swapon b/bash-completion/swapon
-index fc80af5eb..4a53ec5ac 100644
---- a/bash-completion/swapon
-+++ b/bash-completion/swapon
-@@ -18,7 +18,7 @@ _swapon_module()
- 			OUTPUT_ALL="NAME TYPE SIZE USED PRIO UUID LABEL"
- 			for WORD in $OUTPUT_ALL; do
- 				if ! [[ $prefix == *"$WORD"* ]]; then
--					OUTPUT="$WORD $OUTPUT"
-+					OUTPUT="$WORD ${OUTPUT:-""}"
- 				fi
- 			done
- 			compopt -o nospace
-diff --git a/bash-completion/wdctl b/bash-completion/wdctl
-index 811b5e3cc..f1a870ef6 100644
---- a/bash-completion/wdctl
-+++ b/bash-completion/wdctl
-@@ -29,7 +29,7 @@ _wdctl_module()
- 			OUTPUT_ALL="FLAG DESCRIPTION STATUS BOOT-STATUS DEVICE"
- 			for WORD in $OUTPUT_ALL; do
- 				if ! [[ $prefix == *"$WORD"* ]]; then
--					OUTPUT="$WORD $OUTPUT"
-+					OUTPUT="$WORD ${OUTPUT:-""}"
- 				fi
- 			done
- 			compopt -o nospace
-diff --git a/bash-completion/zramctl b/bash-completion/zramctl
-index 8c7767ce0..672d8102a 100644
---- a/bash-completion/zramctl
-+++ b/bash-completion/zramctl
-@@ -18,7 +18,7 @@ _zramctl_module()
- 				MIGRATED MOUNTPOINT"
- 			for WORD in $OUTPUT_ALL; do
- 				if ! [[ $prefix == *"$WORD"* ]]; then
--					OUTPUT="$WORD $OUTPUT"
-+					OUTPUT="$WORD ${OUTPUT:-""}"
- 				fi
- 			done
- 			compopt -o nospace
--- 
-2.13.3
+If there aren't any other objections you could commit this set; the
+alignment change qualifies for a separate commit, I think.
 
+
+> 
+>     Karel
+> 
