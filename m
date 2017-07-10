@@ -1,74 +1,89 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:54314 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753755AbdGCLxF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 3 Jul 2017 07:53:05 -0400
-Received: from zappa.l.ga-group.nl ([87.128.112.108]) by mail.gmx.com
- (mrgmx101 [212.227.17.168]) with ESMTPSA (Nemesis) id
- 0LtVLE-1dtfmV2gYG-010vuG for <util-linux@vger.kernel.org>; Mon, 03 Jul 2017
- 13:53:03 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 5/6] zramctl: add --sysroot
-Date: Mon,  3 Jul 2017 13:53:00 +0200
-Message-Id: <1499082781-16968-6-git-send-email-sweet_f_a@gmx.de>
-In-Reply-To: <1499082781-16968-1-git-send-email-sweet_f_a@gmx.de>
-References: <1499082781-16968-1-git-send-email-sweet_f_a@gmx.de>
+Received: from mail-wr0-f175.google.com ([209.85.128.175]:33723 "EHLO
+        mail-wr0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754758AbdGJRs7 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 10 Jul 2017 13:48:59 -0400
+Received: by mail-wr0-f175.google.com with SMTP id r103so148653789wrb.0
+        for <util-linux@vger.kernel.org>; Mon, 10 Jul 2017 10:48:59 -0700 (PDT)
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: libblkid: ID_FS_VERSION
+Date: Mon, 10 Jul 2017 19:48:54 +0200
+Cc: util-linux@vger.kernel.org
+References: <201707051349.26662@pali> <20170710111509.GB560@pali> <20170710115236.c45ivf43w5cjvfxm@ws.net.home>
+In-Reply-To: <20170710115236.c45ivf43w5cjvfxm@ws.net.home>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3805756.0FQFIHaL2h";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <201707101948.55088@pali>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+--nextPart3805756.0FQFIHaL2h
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- sys-utils/zramctl.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+On Monday 10 July 2017 13:52:36 Karel Zak wrote:
+> On Mon, Jul 10, 2017 at 01:15:09PM +0200, Pali Roh=C3=A1r wrote:
+> > On Monday 10 July 2017 13:08:28 Karel Zak wrote:
+> > > On Wed, Jul 05, 2017 at 01:49:26PM +0200, Pali Roh=C3=A1r wrote:
+> > > > Hi! What is the meaning of the ID_FS_VERSION attribute? I'm
+> > > > trying to find documentation about libblkid attributes, but
+> > > > seems there is none.
+> > >=20
+> > > libblkid/src/superblocks/superblocks.c
+> > >=20
+> > >    * @VERSION: filesystem version
+> > > :
+> > > :-)
+> >=20
+> > That does not provide more information :-)
+> >=20
+> > > Well, the field is to provide more details about the filesystem,
+> > > for example we have VERSION=3D"FAT16" TYPE=3D"vfat", and so on. Note
+> > > that TYPE is usually name used by kernel (to be usable for
+> > > "mount -t <type>").
+> > >=20
+> > > I guess the VERSION is used by some userspace stuff (udisks?) to
+> > > get more information (or provide more details to end-users).
+> > > It's probably nothing critical.
+> >=20
+> > I'm thinking if we can provide UDF revision/version of UDF
+> > filesystem to userspace and looks like ID_FS_VERSION is good
+> > candidate for it...
+> >=20
+> > What do you think?
+>=20
+> It seems blkid_probe_set_version() is nowhere used for UD now, so we
+> have absolute freedom to use it in some way.
+>=20
+> > E.g. Linux kernel is able to read UDF filesystem up to revision
+> > 2.50 and has read-write support up to revision 2.01. So for
+> > userspace this information can be useful.
+>=20
+> Yes, sounds good.
+>=20
+>     Karel
 
-diff --git a/sys-utils/zramctl.c b/sys-utils/zramctl.c
-index aee28cc..c6224b3 100644
---- a/sys-utils/zramctl.c
-+++ b/sys-utils/zramctl.c
-@@ -278,7 +278,7 @@ static int zram_used(struct zram *z)
- static int zram_has_control(struct zram *z)
- {
- 	if (!z->control_probed) {
--		z->has_control = access(_PATH_SYS_CLASS "/zram-control/", F_OK) == 0 ? 1 : 0;
-+		z->has_control = path_exist(_PATH_SYS_CLASS "/zram-control/") == 0 ? 1 : 0;
- 		z->control_probed = 1;
- 		DBG(fprintf(stderr, "zram-control: %s", z->has_control ? "yes" : "no"));
- 	}
-@@ -569,7 +569,10 @@ int main(int argc, char **argv)
- 	int rc = 0, c, find = 0, act = A_NONE;
- 	struct zram *zram = NULL;
- 
--	enum { OPT_RAW = CHAR_MAX + 1 };
-+	enum {
-+		OPT_RAW = CHAR_MAX + 1,
-+		OPT_SYSROOT,
-+	};
- 
- 	static const struct option longopts[] = {
- 		{ "algorithm", required_argument, NULL, 'a' },
-@@ -583,6 +586,7 @@ int main(int argc, char **argv)
- 		{ "size",      required_argument, NULL, 's' },
- 		{ "streams",   required_argument, NULL, 't' },
- 		{ "version",   no_argument, NULL, 'V' },
-+		{ "sysroot",   required_argument, NULL, OPT_SYSROOT },
- 		{ NULL, 0, NULL, 0 }
- 	};
- 
-@@ -641,6 +645,11 @@ int main(int argc, char **argv)
- 		case 'V':
- 			printf(UTIL_LINUX_VERSION);
- 			return EXIT_SUCCESS;
-+		case OPT_SYSROOT:
-+			if(path_set_prefix(optarg))
-+				err(EXIT_FAILURE, _("invalid argument to %s"), "--sysroot");
-+			/* TODO: mod->system = SYSTEM_SNAPSHOT; */
-+			break;
- 		case 'h':
- 			usage();
- 		default:
--- 
-1.8.5.6
+https://github.com/karelzak/util-linux/pull/483
 
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--nextPart3805756.0FQFIHaL2h
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlljvgcACgkQi/DJPQPkQ1JelACfbQzinKmaqhCB+Vjo1n554Nqr
+gd0AniwxCOwXcls94P8ziFTjbxo8bbY/
+=Cp+3
+-----END PGP SIGNATURE-----
+
+--nextPart3805756.0FQFIHaL2h--
