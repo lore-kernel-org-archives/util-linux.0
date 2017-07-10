@@ -1,99 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:48264 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755794AbdGCOZV (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 3 Jul 2017 10:25:21 -0400
-Date: Mon, 3 Jul 2017 16:25:15 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: J William Piggott <elseifthen@gmx.com>, util-linux@vger.kernel.org
-Subject: Re: fputs() vs puts()
-Message-ID: <20170703142515.rg43rgobwfvykooz@ws.net.home>
-References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
- <201707031030.22137.sweet_f_a@gmx.de>
- <20170703120752.25fkjobw6dxgqo2w@ws.net.home>
- <201707031438.33652.sweet_f_a@gmx.de>
+Received: from mail-wr0-f170.google.com ([209.85.128.170]:35367 "EHLO
+        mail-wr0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753709AbdGJLPW (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 10 Jul 2017 07:15:22 -0400
+Received: by mail-wr0-f170.google.com with SMTP id k67so133682707wrc.2
+        for <util-linux@vger.kernel.org>; Mon, 10 Jul 2017 04:15:21 -0700 (PDT)
+Date: Mon, 10 Jul 2017 13:15:09 +0200
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: libblkid: ID_FS_VERSION
+Message-ID: <20170710111509.GB560@pali>
+References: <201707051349.26662@pali>
+ <20170710110828.r6dr6buolw4xtgpm@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201707031438.33652.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20170710110828.r6dr6buolw4xtgpm@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jul 03, 2017 at 02:38:33PM +0200, Ruediger Meier wrote:
-> On Monday 03 July 2017, Karel Zak wrote:
-> >  Maybe it would be possible to convince me that coreutils way for
-> >  options arguments is the right way :-))
-> >
-> >  I mean:
-> >
-> >    --output COLUMNS
-> >    --length SIZE
-> >    --net[=FILE]
-> >
-> >  ...etc. The question is how to compose the option string to minimize
-> >  duplication and inform about a format, for example
-> >
-> >    --output COLUMNS    list of columns to display (see below)
-> >
-> >
-> >  Note that on many places we for example for SIZE accept suffixes
-> >  (MiB, GiB...) but this info is nowhere in the --help output.
+On Monday 10 July 2017 13:08:28 Karel Zak wrote:
+> On Wed, Jul 05, 2017 at 01:49:26PM +0200, Pali Rohár wrote:
+> > Hi! What is the meaning of the ID_FS_VERSION attribute? I'm trying to 
+> > find documentation about libblkid attributes, but seems there is none.
 > 
-> Coreutils is using some of these capitalized words really as
-> system-wide keywords. For example SIZE:
+> libblkid/src/superblocks/superblocks.c
 > 
->   The SIZE argument is an integer and optional unit (example: 10K is 10*1024).
->   Units are K,M,G,T,P,E,Z,Y (powers of 1024) or KB,MB,... (powers of 1000).
+>    * @VERSION: filesystem version
 > 
-> BTW this is my only coreutils patch to make the size description
-> human understandable and let it fit into two 80 char columns. ;)
+> :-)
+
+That does not provide more information :-)
+
+> Well, the field is to provide more details about the filesystem, for
+> example we have VERSION="FAT16" TYPE="vfat", and so on. Note that TYPE
+> is usually name used by kernel (to be usable for "mount -t <type>").
 > 
-> There was a big discussion about this here in bug#9939
-> https://lists.gnu.org/archive/html/bug-coreutils/2011-11/threads.html#00002
-> 
-> 
-> >  And note that I like the William's idea with the explicit reader
-> >  redirection "(see below)".
-> 
-> Yep, IMO the "see below" is good *always* if the overall text is a bit
-> longer. In case there are only a few lines or if obvious (like FILE), it
-> *may* be skipped, I would say.
+> I guess the VERSION is used by some userspace stuff (udisks?) to get
+> more information (or provide more details to end-users). It's probably
+> nothing critical.
 
-I agree. What about the section where we explain the references? I
-personally prefer sentence-like way:
+I'm thinking if we can provide UDF revision/version of UDF filesystem to
+userspace and looks like ID_FS_VERSION is good candidate for it...
 
-   Available COLUMNS:
-      ...
-   The SIZE argument...
+What do you think?
 
-More complex example (lsblk):
-
- now:
-   -e, --exclude <list>    exclude devices by major number (default: RAM disks)
-   -I, --include <list>    show only devices with specified major numbers
-   -o, --output <list>     output columns
-   -x, --sort <column>     sort output by <column>
-
-
- after change:
-   -e, --exclude MAJOR     exclude specified devices (see below)
-   -I, --include MAJOR     show only specified devices (see below)
-   -o, --output COLUMNS    output columns (see below)
-   -x, --sort COLUMN       sort output by column
-
- The MAJOR command separated list of the device major numbers. The
- ramdisk devices are excluded by default.
-
- Available COLUMNS:
-   NAME  device name
-   KNAME  internal kernel device name
-   ...
-
-
-Objections, comment? 
-
-    Karel
+E.g. Linux kernel is able to read UDF filesystem up to revision 2.50 and
+has read-write support up to revision 2.01. So for userspace this
+information can be useful.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Pali Rohár
+pali.rohar@gmail.com
