@@ -1,46 +1,46 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47598 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751178AbdGQJ3C (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 17 Jul 2017 05:29:02 -0400
-Date: Mon, 17 Jul 2017 11:28:58 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Bruce Dubbs <bruce.dubbs@gmail.com>
-Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 0/5] pull: five mutually unrelated changes
-Message-ID: <20170717092858.xoxpracpdbbv6xvo@ws.net.home>
-References: <20170715212046.1655-1-kerolasa@iki.fi>
- <596A9B0D.6060400@gmail.com>
- <CAG27Bk0TFAUb_cDv9fADiFpVzwP_fboUP6o9ZrZELQiCa=Vq3Q@mail.gmail.com>
- <596B8585.2060405@gmail.com>
+Return-Path: elseifthen@gmx.com
+Subject: [PING - REBASED][PATCH 0/5] pull request
+To: Karel Zak <kzak@redhat.com>
+References: <9cf88d57-3a45-cd47-ac96-3495e09d81c5@gmx.com>
+From: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux@vger.kernel.org
+Message-ID: <36c342d3-ec59-59fe-f98e-233d72696d84@gmx.com>
+Date: Mon, 10 Jul 2017 19:34:55 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <596B8585.2060405@gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <9cf88d57-3a45-cd47-ac96-3495e09d81c5@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Jul 16, 2017 at 10:25:57AM -0500, Bruce Dubbs wrote:
-> Sami Kerola wrote:
-> > On 15 July 2017 at 23:45, Bruce Dubbs <bruce.dubbs@gmail.com> wrote:
-> > > > The 'big' change in this pull request is to drop reset(1) from util-linux.
-> > > > I don't think there is any point of keep this script hanging around.
-> > > 
-> > > Why do you think that.  I find it useful when some application corrupts the
-> > > screen.  I realize that reset is a symlink to tset, but I find reset easier
-> > > to remember/use.
-> > 
-> > The ncurses package contains both binaries tput(1) and reset(1). So this
-> > script will not work without ncurses, and the very same package has the
-> > binary that obsoletes the script.
+
+
+On 07/02/2017 03:45 PM, J William Piggott wrote:
 > 
-> Thanks.  I agree that duplicate functions should be removed.
-
-And note that it's already deprecated and disabled by default. You
-need --enable-reset now. I guess distros use reset(1) from ncurses for
-really long time.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+> The following changes since commit 07fd6640c80ffd7a2067844aadcb6162431b3525:
+> 
+>   Merge branch 'path-fixes' of https://github.com/rudimeier/util-linux (2017-06-29 15:29:33 +0200)
+> 
+> are available in the git repository at:
+> 
+>   git@github.com:jwpi/util-linux.git 170701
+> 
+> for you to fetch changes up to 9c50e384c89d5f9391c3eaed8df89ec965f2fda7:
+> 
+>   hwclock: sync one-liner descriptions (2017-07-02 14:09:41 -0400)
+> 
+> ----------------------------------------------------------------
+> J William Piggott (5):
+>       hwclock: remove from usage() FILE *out = stdout
+>       hwclock: usage() use program_invocation_short_name
+>       hwclock: final usage() strings slice
+>       docs: update boilerplate.c usage()
+>       hwclock: sync one-liner descriptions
+> 
+>  Documentation/boilerplate.c | 37 ++++++++++++------------
+>  sys-utils/hwclock.8.in      |  4 +--
+>  sys-utils/hwclock.c         | 68 +++++++++++++++++++++++----------------------
+>  3 files changed, 55 insertions(+), 54 deletions(-)
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
