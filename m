@@ -1,55 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:38982 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:53864 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752376AbdGDRGZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 4 Jul 2017 13:06:25 -0400
-Date: Tue, 4 Jul 2017 19:06:20 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>,
-        J William Piggott <elseifthen@gmx.com>,
-        util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/5] hwclock: final usage() strings slice
-Message-ID: <20170704170620.r67jydc4s3vvm6cg@ws.net.home>
+        id S1755866AbdGKRyt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 11 Jul 2017 13:54:49 -0400
+Subject: Re: [PING - REBASED][PATCH 0/5] pull request
+To: Karel Zak <kzak@redhat.com>
 References: <9cf88d57-3a45-cd47-ac96-3495e09d81c5@gmx.com>
- <20170704075833.eqhwwhpo36s2i63d@ws.net.home>
- <192a27a9-6e22-5483-0222-23cd992af8d2@bernhard-voelker.de>
- <201707041055.05661.sweet_f_a@gmx.de>
- <20170704165350.2q72x4o2zwl5ygji@ws.net.home>
+ <36c342d3-ec59-59fe-f98e-233d72696d84@gmx.com>
+ <20170711080612.jundydfm6zlxaes4@ws.net.home>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <cead562a-c9d4-5c67-9817-73c5e20e7098@gmx.com>
+Date: Tue, 11 Jul 2017 13:54:17 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170704165350.2q72x4o2zwl5ygji@ws.net.home>
+In-Reply-To: <20170711080612.jundydfm6zlxaes4@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jul 04, 2017 at 06:53:50PM +0200, Karel Zak wrote:
-> On Tue, Jul 04, 2017 at 10:55:05AM +0200, Ruediger Meier wrote:
-> > On Tuesday 04 July 2017, Bernhard Voelker wrote:
-> > > On 07/04/2017 09:58 AM, Karel Zak wrote:
-> > > > I think the idea is to use the extra space only if you mix printf
-> > > > and puts in the same code block. We have on many place only puts
-> > > > (or fputs) -- in this case the extra space is unnecessary.
-> > >
-> > > What about putting the strings on an extra line regardless whether
-> > > that is output via printf or fputf or ...; e.g.
-> > >   http://git.savannah.gnu.org/cgit/coreutils.git/tree/src/du.c#n278
-> > > ?
-> > 
-> > Yes this is nice because easy to count that no usage output is longer 
-> > than 80 chars. But I guess there are too many different opinions about 
-> > these stylish things. I'd also like to have just one string and only 
-> > one printf command for all options (like mkfs.cramfs.c). But this may 
-> > cause more work for translators each time we add a new option. Don't 
-> > know if that would be a real problem.
+
+
+On 07/11/2017 04:06 AM, Karel Zak wrote:
+> On Mon, Jul 10, 2017 at 07:34:55PM -0400, J William Piggott wrote:
+>> On 07/02/2017 03:45 PM, J William Piggott wrote:
+>>>
+>>> The following changes since commit 07fd6640c80ffd7a2067844aadcb6162431b3525:
+>>>
+>>>   Merge branch 'path-fixes' of https://github.com/rudimeier/util-linux (2017-06-29 15:29:33 +0200)
+>>>
+>>> are available in the git repository at:
+>>>
+>>>   git@github.com:jwpi/util-linux.git 170701
+>>>
+>>> for you to fetch changes up to 9c50e384c89d5f9391c3eaed8df89ec965f2fda7:
+>>>
+>>>   hwclock: sync one-liner descriptions (2017-07-02 14:09:41 -0400)
+>>>
+>>> ----------------------------------------------------------------
+>>> J William Piggott (5):
+>>>       hwclock: remove from usage() FILE *out = stdout
+>>>       hwclock: usage() use program_invocation_short_name
+>>>       hwclock: final usage() strings slice
+>>>       docs: update boilerplate.c usage()
+>>>       hwclock: sync one-liner descriptions
+>>>
+>>>  Documentation/boilerplate.c | 37 ++++++++++++------------
+>>>  sys-utils/hwclock.8.in      |  4 +--
+>>>  sys-utils/hwclock.c         | 68 +++++++++++++++++++++++----------------------
+>>>  3 files changed, 55 insertions(+), 54 deletions(-)
 > 
-> The one line for one option is what we want and what has been
-> requested by translators years ago. I really don't like the example
-> from the coreutils. Sorry :-)
+> Merged. (Sorry for delay, I had vacation since Wed).
 
-More information: http://www.spinics.net/lists/util-linux-ng/msg07489.html
+Thank you! (No problem, I hope you had a good holiday).
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+> 
+>     Karel
+> 
