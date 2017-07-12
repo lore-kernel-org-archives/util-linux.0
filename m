@@ -1,40 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:45414
-        "EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751701AbdG0VAU (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 27 Jul 2017 17:00:20 -0400
-From: Andreas Henriksson <andreas@fatal.se>
+Received: from hotei.ga-group.nl ([138.201.147.219]:36954 "EHLO
+        hotei.ga-group.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752450AbdGLTPF (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 12 Jul 2017 15:15:05 -0400
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 To: util-linux@vger.kernel.org
-Cc: Andreas Henriksson <andreas@fatal.se>
-Subject: [PATCH] fstab(5): mention how tabs are escaped
-Date: Thu, 27 Jul 2017 23:00:15 +0200
-Message-Id: <1501189215-22318-1-git-send-email-andreas@fatal.se>
+Subject: uuidparse: test fails on 32bit machines
+Date: Wed, 12 Jul 2017 21:15:01 +0200
+Cc: Sami Kerola <kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <201707122115.01476.ruediger.meier@ga-group.nl>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Someone requested explicitly mentioning how tabs are escaped,
-in addition to the already existing spaces example.
+Hi,
 
-Addresses: https://bugs.debian.org/580047
-Signed-off-by: Andreas Henriksson <andreas@fatal.se>
----
- sys-utils/fstab.5 | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+below you see the test diff when running on i586 or other
+32bit archs. Could be that the program is fine and we could
+simply fix the test by not using such large timestamps, but
+maybe it's worth to review strtimeval_iso() and also
+libuuid/src/uuid_time.c for overflow handling.
 
-diff --git a/sys-utils/fstab.5 b/sys-utils/fstab.5
-index 07d028765..a9e9f8c54 100644
---- a/sys-utils/fstab.5
-+++ b/sys-utils/fstab.5
-@@ -116,7 +116,8 @@ lower case characters.
- .RS
- This field describes the mount point (target) for the filesystem.  For swap partitions, this
- field should be specified as `none'. If the name of the mount point
--contains spaces these can be escaped as `\\040'.
-+contains spaces or tabs these can be escaped as `\\040' and '\\011'
-+respectively.
- .RE
- 
- .B The third field
--- 
-2.11.0
 
+--- /home/rudi/devel/util-linux/tests/expected/uuid/uuidparse   2017-06-29 20:41:46.847789376 +0000
++++ /home/rudi/devel/util-linux/build-32/tests/output/uuid/uuidparse    2017-07-12 18:48:04.874392934 +0000
+@@ -7,7 +7,7 @@
+ 00000000-0000-5000-0000-000000000000  NCS       sha1-based
+ 00000000-0000-6000-0000-000000000000  NCS       unknown
+ 00000000-0000-0000-8000-000000000000  DCE       nil
+-00000000-0000-1000-8000-000000000000  DCE       time-based 60038-03-11 05:36:10,955161+0000
++00000000-0000-1000-8000-000000000000  DCE       time-based 1922-08-07 02:26:18,955161+0000
+ 00000000-0000-2000-8000-000000000000  DCE       DCE
+ 00000000-0000-3000-8000-000000000000  DCE       name-based
+ 00000000-0000-4000-8000-000000000000  DCE       random
+@@ -28,6 +28,6 @@
+ 00000000-0000-5000-f000-000000000000  other     sha1-based
+ 00000000-0000-6000-f000-000000000000  other     unknown
+ 9b274c46-544a-11e7-a972-00037f500001  DCE       time-based 2017-06-18 17:21:46,544647+0000
+-ffffffff-ffff-1fff-8fff-ffffffffffff  DCE       time-based 5236-03-31 21:21:00,684697+0000
++ffffffff-ffff-1fff-8fff-ffffffffffff  DCE       time-based 1969-10-19 10:02:36,684697+0000
+ invalid-input                         invalid   invalid    invalid
+ return value: 0
+
+cu,
+Rudi
