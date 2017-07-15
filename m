@@ -1,67 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:60463 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751889AbdGBTzn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 2 Jul 2017 15:55:43 -0400
-Subject: [PATCH 5/5] hwclock: sync one-liner descriptions
-To: Karel Zak <kzak@redhat.com>
-References: <9cf88d57-3a45-cd47-ac96-3495e09d81c5@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <13c53c4b-8842-71b8-5d7c-827d5d8d04bd@gmx.com>
-Date: Sun, 2 Jul 2017 15:55:26 -0400
-MIME-Version: 1.0
-In-Reply-To: <9cf88d57-3a45-cd47-ac96-3495e09d81c5@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:35537 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751323AbdGOVU4 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 15 Jul 2017 17:20:56 -0400
+Received: by mail-wm0-f65.google.com with SMTP id u23so16610706wma.2
+        for <util-linux@vger.kernel.org>; Sat, 15 Jul 2017 14:20:55 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 2/5] ldattach: simplify debugging function when vwarnx(3) is available
+Date: Sat, 15 Jul 2017 22:20:43 +0100
+Message-Id: <20170715212046.1655-3-kerolasa@iki.fi>
+In-Reply-To: <20170715212046.1655-1-kerolasa@iki.fi>
+References: <20170715212046.1655-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+The vwarnx(3) is probably not available in all libc implementations, in such
+cases use the earlier printout as a fallback.
 
-Make whatisdb/manpage and usage() one-line descriptions match.
-
-Also update the description; hwclock has evolved into much more
-than reading and setting the Hardware Clock. It also sets the
-System Clock, warps the System Clock, sets the kernel time
-configurations, and more.
-
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- sys-utils/hwclock.8.in | 4 ++--
- sys-utils/hwclock.c    | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ configure.ac         |  1 +
+ sys-utils/ldattach.c | 10 +++++++---
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
-index 72b842e..fa8a19a 100644
---- a/sys-utils/hwclock.8.in
-+++ b/sys-utils/hwclock.8.in
-@@ -6,7 +6,7 @@
- .\"
- .TH HWCLOCK 8 "April 2015" "util-linux" "System Administration"
- .SH NAME
--hwclock \- read or set the hardware clock (RTC)
-+hwclock \- time clocks utility
- .SH SYNOPSIS
- .B hwclock
- .RI [ function ]
-@@ -14,7 +14,7 @@ hwclock \- read or set the hardware clock (RTC)
- .
- .SH DESCRIPTION
- .B hwclock
--is a tool for accessing the Hardware Clock.  It can: display the
-+is an administration tool for the time clocks.  It can: display the
- Hardware Clock time; set the Hardware Clock to a specified time; set the
- Hardware Clock from the System Clock; set the System Clock from the
- Hardware Clock; compensate for Hardware Clock drift; correct the System
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 19d7652..5320683 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -1206,7 +1206,7 @@ usage(const struct hwclock_control *ctl)
- 	printf(_(" %s [function] [option...]\n"), program_invocation_short_name);
+diff --git a/configure.ac b/configure.ac
+index c76c2a0f3..38b968878 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -428,6 +428,7 @@ AC_CHECK_FUNCS([ \
+ 	sysinfo \
+ 	timegm \
+ 	usleep \
++	vwarnx \
+ 	warn \
+ 	warnx \
+ ])
+diff --git a/sys-utils/ldattach.c b/sys-utils/ldattach.c
+index eb04b5e33..d33d68535 100644
+--- a/sys-utils/ldattach.c
++++ b/sys-utils/ldattach.c
+@@ -137,11 +137,15 @@ static void dbg(char *fmt, ...)
+ 	if (debug == 0)
+ 		return;
+ 	fflush(NULL);
+-	fprintf(stderr, "%s: ", program_invocation_short_name);
+ 	va_start(args, fmt);
++#ifdef HAVE_VWARNX
++	vwarnx(fmt, args);
++#else
++	fprintf(stderr, "%s: ", program_invocation_short_name);
+ 	vfprintf(stderr, fmt, args);
+-	va_end(args);
+ 	fprintf(stderr, "\n");
++#endif
++	va_end(args);
+ 	fflush(NULL);
+ 	return;
+ }
+@@ -252,7 +256,7 @@ static int my_cfsetspeed(struct termios *ts, int speed)
  
- 	fputs(USAGE_SEPARATOR, stdout);
--	puts(_("Query or set the RTC (Real Time Clock / Hardware Clock)"));
-+	puts(_("Time clocks utility."));
+ static void handler(int s)
+ {
+-	dbg("got SIG %i -> exiting\n", s);
++	dbg("got SIG %i -> exiting", s);
+ 	exit(EXIT_SUCCESS);
+ }
  
- 	fputs(USAGE_FUNCTIONS, stdout);
- 	puts(_(" -r, --show           display the RTC time"));
+-- 
+2.13.3
+
