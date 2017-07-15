@@ -1,35 +1,85 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.126.135]:55579 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751986AbdGDIei (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 4 Jul 2017 04:34:38 -0400
-Subject: Re: [PATCH 3/5] hwclock: final usage() strings slice
-To: Karel Zak <kzak@redhat.com>, J William Piggott <elseifthen@gmx.com>
-Cc: Ruediger Meier <ruediger.meier@ga-group.nl>,
-        util-linux@vger.kernel.org
-References: <9cf88d57-3a45-cd47-ac96-3495e09d81c5@gmx.com>
- <40df38f4-6bf5-1959-74af-6ee481b88a12@gmx.com>
- <201707031051.27992.ruediger.meier@ga-group.nl>
- <05bbcea5-5f5a-4767-7d98-6b0a4e6575a6@gmx.com>
- <20170704075833.eqhwwhpo36s2i63d@ws.net.home>
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Message-ID: <192a27a9-6e22-5483-0222-23cd992af8d2@bernhard-voelker.de>
-Date: Tue, 4 Jul 2017 10:34:02 +0200
-MIME-Version: 1.0
-In-Reply-To: <20170704075833.eqhwwhpo36s2i63d@ws.net.home>
-Content-Type: text/plain; charset=utf-8
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:33654 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751323AbdGOVU6 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 15 Jul 2017 17:20:58 -0400
+Received: by mail-wm0-f66.google.com with SMTP id j85so16556719wmj.0
+        for <util-linux@vger.kernel.org>; Sat, 15 Jul 2017 14:20:57 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 4/5] uuidparse: add bash-completion file
+Date: Sat, 15 Jul 2017 22:20:45 +0100
+Message-Id: <20170715212046.1655-5-kerolasa@iki.fi>
+In-Reply-To: <20170715212046.1655-1-kerolasa@iki.fi>
+References: <20170715212046.1655-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 07/04/2017 09:58 AM, Karel Zak wrote:
-> I think the idea is to use the extra space only if you mix printf and
-> puts in the same code block. We have on many place only puts (or
-> fputs) -- in this case the extra space is unnecessary.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ bash-completion/Makemodule.am |  3 +++
+ bash-completion/uuidparse     | 37 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 40 insertions(+)
+ create mode 100644 bash-completion/uuidparse
 
-What about putting the strings on an extra line regardless whether
-that is output via printf or fputf or ...; e.g.
-  http://git.savannah.gnu.org/cgit/coreutils.git/tree/src/du.c#n278
-?
+diff --git a/bash-completion/Makemodule.am b/bash-completion/Makemodule.am
+index a884a138e..a4cd4fc36 100644
+--- a/bash-completion/Makemodule.am
++++ b/bash-completion/Makemodule.am
+@@ -183,6 +183,9 @@ endif
+ if BUILD_LIBUUID
+ dist_bashcompletion_DATA += bash-completion/uuidgen
+ endif
++if BUILD_UUIDPARSE
++dist_bashcompletion_DATA += bash-completion/uuidparse
++endif
+ if BUILD_UUIDD
+ dist_bashcompletion_DATA += bash-completion/uuidd
+ endif
+diff --git a/bash-completion/uuidparse b/bash-completion/uuidparse
+new file mode 100644
+index 000000000..a646844f2
+--- /dev/null
++++ b/bash-completion/uuidparse
+@@ -0,0 +1,37 @@
++_uuidparse_module()
++{
++	local cur prev OPTS
++	COMPREPLY=()
++	cur="${COMP_WORDS[COMP_CWORD]}"
++	prev="${COMP_WORDS[COMP_CWORD-1]}"
++	case $prev in
++		'-o'|'--output')
++			local prefix realcur OUTPUT
++			realcur="${cur##*,}"
++			prefix="${cur%$realcur}"
++			for WORD in "UUID VARIANT TYPE TIME"; do
++				if ! [[ $prefix == *"$WORD"* ]]; then
++					OUTPUT="$WORD ${OUTPUT:-""}"
++				fi
++			done
++			compopt -o nospace
++			COMPREPLY=( $(compgen -P "$prefix" -W "$OUTPUT" -S ',' -- $realcur) )
++			return 0
++			;;
++		'-h'|'--help'|'-V'|'--version')
++			return 0
++			;;
++	esac
++	OPTS="
++		--json
++		--noheadings
++		--output
++		--raw
++		--help
++		--version
++	"
++	COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
++	return 0
++
++}
++complete -F _uuidparse_module uuidparse
+-- 
+2.13.3
 
-Have a nice day,
-Berny
