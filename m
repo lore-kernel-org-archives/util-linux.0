@@ -1,41 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35280 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.22]:56029 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752387AbdGJLId (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 10 Jul 2017 07:08:33 -0400
-Date: Mon, 10 Jul 2017 13:08:28 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+        id S1751216AbdGPRxu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 16 Jul 2017 13:53:50 -0400
+Subject: [PATCH 4/4] hwclock: improve RTC epoch messages
+To: Karel Zak <kzak@redhat.com>
+References: <4a0f9283-7a08-a2c3-acc3-fb35ab51ec59@gmx.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: libblkid: ID_FS_VERSION
-Message-ID: <20170710110828.r6dr6buolw4xtgpm@ws.net.home>
-References: <201707051349.26662@pali>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <660825e1-8887-731b-e8b0-29fa2b92cd5c@gmx.com>
+Date: Sun, 16 Jul 2017 13:53:34 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <201707051349.26662@pali>
+In-Reply-To: <4a0f9283-7a08-a2c3-acc3-fb35ab51ec59@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 05, 2017 at 01:49:26PM +0200, Pali Rohár wrote:
-> Hi! What is the meaning of the ID_FS_VERSION attribute? I'm trying to 
-> find documentation about libblkid attributes, but seems there is none.
 
-libblkid/src/superblocks/superblocks.c
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.c | 16 +++++-----------
+ 1 file changed, 5 insertions(+), 11 deletions(-)
 
-   * @VERSION: filesystem version
-
-:-)
-
-Well, the field is to provide more details about the filesystem, for
-example we have VERSION="FAT16" TYPE="vfat", and so on. Note that TYPE
-is usually name used by kernel (to be usable for "mount -t <type>").
-
-I guess the VERSION is used by some userspace stuff (udisks?) to get
-more information (or provide more details to end-users). It's probably
-nothing critical.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 445d736..423ebcd 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1172,23 +1172,17 @@ manipulate_epoch(const struct hwclock_control *ctl)
+ 		unsigned long epoch;
+ 
+ 		if (get_epoch_rtc(ctl, &epoch))
+-			warnx(_
+-			      ("Unable to get the epoch value from the kernel."));
++			warnx(_("unable to read the RTC epoch."));
+ 		else
+-			printf(_("Kernel is assuming an epoch value of %lu\n"),
+-			       epoch);
++			printf(_("The RTC epoch is set to %lu.\n"), epoch);
+ 	} else if (ctl->setepoch) {
+ 		if (!ctl->epoch_option)
+-			warnx(_
+-			      ("To set the epoch value, you must use the 'epoch' "
+-			       "option to tell to what value to set it."));
++			warnx(_("--epoch is required for --setepoch."));
+ 		else if (ctl->testing)
+-			printf(_
+-			       ("Not setting the epoch to %s - testing only.\n"),
++			printf(_("Test mode: epoch was not set to %s.\n"),
+ 			       ctl->epoch_option);
+ 		else if (set_epoch_rtc(ctl))
+-			printf(_
+-			       ("Unable to set the epoch value in the kernel.\n"));
++			warnx(_("unable to set the RTC epoch."));
+ 	}
+ }
+ #endif		/* __linux__ __alpha__ */
