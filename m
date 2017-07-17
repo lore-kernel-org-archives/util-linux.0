@@ -1,64 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from hotei.ga-group.nl ([138.201.147.219]:42376 "EHLO
-        hotei.ga-group.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753202AbdGCIvg (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 3 Jul 2017 04:51:36 -0400
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
-To: J William Piggott <elseifthen@gmx.com>
-Subject: Re: [PATCH 3/5] hwclock: final usage() strings slice
-Date: Mon, 3 Jul 2017 10:51:27 +0200
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <9cf88d57-3a45-cd47-ac96-3495e09d81c5@gmx.com> <40df38f4-6bf5-1959-74af-6ee481b88a12@gmx.com>
-In-Reply-To: <40df38f4-6bf5-1959-74af-6ee481b88a12@gmx.com>
+Received: from mx1.redhat.com ([209.132.183.28]:43444 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751272AbdGQKEO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 17 Jul 2017 06:04:14 -0400
+Date: Mon, 17 Jul 2017 12:04:06 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/5] pull: five mutually unrelated changes
+Message-ID: <20170717100406.nv7ur6j2a3gbq4k6@ws.net.home>
+References: <20170715212046.1655-1-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1252"
-Message-Id: <201707031051.27992.ruediger.meier@ga-group.nl>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170715212046.1655-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sunday 02 July 2017, J William Piggott wrote:
-> 
-> Signed-off-by: J William Piggott <elseifthen@gmx.com>
-> ---
->  sys-utils/hwclock.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-> index eeb68e7..19d7652 100644
-> --- a/sys-utils/hwclock.c
-> +++ b/sys-utils/hwclock.c
-> @@ -1238,7 +1238,8 @@ usage(const struct hwclock_control *ctl)
->  #endif
->  	puts(_("     --update-drift   update the RTC drift factor"));
->  	printf(_(
-> -	       "     --noadjfile      do not use %1$s\n"
-> +	       "     --noadjfile      do not use %1$s\n"), _PATH_ADJTIME);
-> +	printf(_(
->  	       "     --adjfile <file> use an alternate file to %1$s\n"), _PATH_ADJTIME);
->  	puts(_("     --test           dry run; use -D to view what would have happened"));
->  	puts(_(" -D, --debug          use debug mode"));
+On Sat, Jul 15, 2017 at 10:20:41PM +0100, Sami Kerola wrote:
+>  Documentation/boilerplate.c   | 17 ++++++++--------
+>  Documentation/deprecated.txt  |  5 -----
+>  bash-completion/Makemodule.am |  3 +++
+>  bash-completion/blkid         |  2 +-
+>  bash-completion/fdisk         |  2 +-
+>  bash-completion/fincore       |  2 +-
+>  bash-completion/findmnt       |  2 +-
+>  bash-completion/losetup       |  2 +-
+>  bash-completion/lsipc         |  2 +-
+>  bash-completion/lslocks       |  2 +-
+>  bash-completion/lsmem         |  2 +-
+>  bash-completion/partx         |  2 +-
+>  bash-completion/prlimit       |  2 +-
+>  bash-completion/sfdisk        |  2 +-
+>  bash-completion/swapon        |  2 +-
+>  bash-completion/uuidparse     | 37 +++++++++++++++++++++++++++++++++++
+>  bash-completion/wdctl         |  2 +-
+>  bash-completion/zramctl       |  2 +-
+>  configure.ac                  |  9 +--------
+>  sys-utils/ldattach.c          | 10 +++++++---
+>  term-utils/Makemodule.am      |  6 ------
+>  term-utils/reset              | 19 ------------------
+>  term-utils/reset.1            | 45 -------------------------------------------
+>  23 files changed, 71 insertions(+), 108 deletions(-)
+>  create mode 100644 bash-completion/uuidparse
+>  delete mode 100755 term-utils/reset
+>  delete mode 100644 term-utils/reset.1
 
-What about
+ Applied, thanks.
 
+    Karel
 
-
-
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-> 
-
-What about the mentioned whitespaces for puts() to get printf
-on one line? 
-
-  puts(  _("     --update-drift   update the RTC drift factor"));
-  printf(_("     --noadjfile      do not use %1$s\n"), _PATH_ADJTIME);
-  printf(_("     --adjfile <file> use an alternate file to %1$s\n"), _PATH_ADJTIME);
-  puts(  _("     --test           dry run; use -D to view what would have happened"));
-  puts(  _(" -D, --debug          use debug mode"));
-
-cu,
-Rudi
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
