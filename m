@@ -1,49 +1,62 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([217.72.192.75]:61125 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751376AbdGSGTE (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 19 Jul 2017 02:19:04 -0400
-Subject: Re: [PATCH] setpriv: support setting unnamed capabilities
-To: Patrick Steinhardt <ps@pks.im>, util-linux@vger.kernel.org
-References: <4ae084e6a1c46726a24057c71d20787680fa3da1.1500326001.git.ps@pks.im>
-Cc: kzak@redhat.com
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Message-ID: <2105c6b6-3574-be3c-3f2a-e951e6d8e61d@bernhard-voelker.de>
-Date: Wed, 19 Jul 2017 08:18:55 +0200
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: J William Piggott <elseifthen@gmx.com>
+Subject: Re: [PATCH 2/2] hwclock: fix regression from c3ae785
+Date: Tue, 18 Jul 2017 22:33:42 +0200
+Cc: Karel Zak <kzak@redhat.com>,
+ util-linux@vger.kernel.org
+References: <b8d24f10-1bea-aa80-0a28-9f573dd81d2a@gmx.com> <13448500-dbe1-b7f8-3514-651d448f00d1@gmx.com>
+In-Reply-To: <13448500-dbe1-b7f8-3514-651d448f00d1@gmx.com>
 MIME-Version: 1.0
-In-Reply-To: <4ae084e6a1c46726a24057c71d20787680fa3da1.1500326001.git.ps@pks.im>
-Content-Type: text/plain; charset=windows-1252
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="windows-1252"
+Message-Id: <201707182233.42270.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On 07/17/2017 11:14 PM, Patrick Steinhardt wrote:
-> When setting capabilities, we accept human readable names like for
-> example `sys_rawio` or `net_admin`. To do so the translation between the
-> capability name and its in-kernel index, we rely on the function
-> `capng_name_to_capability`. When the function does not know the named
-> capability, it will return an error value and we abort setting the
-> capability.
-> 
-> This relies upon the ability of libcap to know all capabilities inside
-> of the kernel. But actually, it is possible that new capabilities are
-> introduced inside of the Linux kernel which are not recognized yet by
-> the library. When dumping these unknown capabilities, libcap will simply
-> return a string like "cap_38", that is it will append the capability's
-> in-kernel index to the prefix "cap_". This may lead a user to also think
-> that "cap_38" may be passed to the switches "--inh-caps" or
-> "--ambient-caps", which is unfortunately not the case.
-> 
-> We can do better here by instead accepting strings in the form of
-> "cap_N". To do so, we can simply rely on the fact that capability
-> indices are steadily increasing and that the highest index known to the
-> kernel is stored inside of the kernel's procfs, made readily available
-> by our function `real_cap_last_cap()`. So in case libcap does not know a
-> capability name, we can simply parse the string and, if it is in the
-> correct format, check whether the detected index is between 0 and the
-> highest capability index. If so, we can treat it as a valid capability
-> string and apply it.
+On Tuesday 18 July 2017, J William Piggott wrote:
+> hwclock --get foobar
+> hwclock: 3 too many arguments given
+>
+> Fixed:
+>
+> hwclock --get foobar
+> hwclock: 1 too many arguments given
+>
+> Signed-off-by: J William Piggott <elseifthen@gmx.com>
+> ---
+>  sys-utils/hwclock.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+>
+> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+> index 9745158..9b313cf 100644
+> --- a/sys-utils/hwclock.c
+> +++ b/sys-utils/hwclock.c
+> @@ -1448,9 +1448,10 @@ int main(int argc, char **argv)
+>  		}
+>  	}
+>
+> -	if (argc > optind) {
+> +	argc -= optind;
+> +	if (argc > 0) {
+>  		warnx(_("%d too many arguments given"), argc);
 
-Thanks - would you mind to also add a sentence to the man page?
+Oops, sorry for this regression ;)
 
-Thanks & have a nice day,
-Berny
+Anyways, at least for me "1 too many arguments given" does not sound 
+really understandable.  Maybe we don't need that number at all!?
+
+
+> -		errtryhelp(EXIT_FAILURE);
+> +		errtryhelp(EX_USAGE);
+
+What about changing also the last other errtryhelp(EXIT_FAILURE) to 
+EX_USAGE, 5 lines above?
+
+
+>  	}
+>
+>  	if (!ctl.adj_file_name)
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
