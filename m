@@ -1,56 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:37710 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751176AbdGaTzY (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 31 Jul 2017 15:55:24 -0400
-Received: by mail-wm0-f65.google.com with SMTP id t138so83960wmt.4
-        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 12:55:23 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 6/9] bash-completion: look for look completions
-Date: Mon, 31 Jul 2017 20:55:05 +0100
-Message-Id: <20170731195508.11661-7-kerolasa@iki.fi>
-In-Reply-To: <20170731195508.11661-1-kerolasa@iki.fi>
-References: <20170731195508.11661-1-kerolasa@iki.fi>
+Received: from mout.gmx.net ([212.227.17.21]:59976 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752507AbdGRJxA (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 18 Jul 2017 05:53:00 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: uuidparse: test fails on 32bit machines
+Date: Tue, 18 Jul 2017 11:52:36 +0200
+Cc: util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
+References: <201707122115.01476.ruediger.meier@ga-group.nl> <20170718080709.s6fra6bgxkxd6f23@ws.net.home>
+In-Reply-To: <20170718080709.s6fra6bgxkxd6f23@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201707181152.36773.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The look(1) uses positional arguments, where first one is a word from
-dictionary.  It is reasonable to assume most of the time people search from
-system word lists so propose completions from there.  The second argument is
-a dictionary file, that might invalidate the first input but that only
-happens to users who have an idea what the want without bash-completion.
+On Tuesday 18 July 2017, Karel Zak wrote:
+> I have removed this dates from the test. The things are internally
+> based on time_t (=long) and uint32_t. It does not make sense to use
+> it for huge numbers.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- bash-completion/look | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/bash-completion/look b/bash-completion/look
-index 303a7565a..feafe2379 100644
---- a/bash-completion/look
-+++ b/bash-completion/look
-@@ -20,9 +20,16 @@ _look_module()
- 			return 0
- 			;;
- 	esac
--	local IFS=$'\n'
--	compopt -o filenames
--	COMPREPLY=( $(compgen -f -- $cur) )
-+	case $COMP_CWORD in
-+		1)
-+			COMPREPLY=( $(compgen -W "$(look "$cur")" -- $cur) )
-+			;;
-+		2)
-+			local IFS=$'\n'
-+			compopt -o filenames
-+			COMPREPLY=( $(compgen -f -- $cur) )
-+			;;
-+	esac
- 	return 0
- }
- complete -F _look_module look
--- 
-2.13.3
+FYI I have created two travis testing branches in my private github 
+repo: https://travis-ci.org/rudimeier/util-linux/builds
 
+  travis-cc-test
+     - testing many different compilers versions, even using -Werror
+     - gcc 4.6, 4.8, 5, 6 and 7
+     - clang 3.4, 3.5, 3.9, 4.0 and 5.0
+     - OSX xcode 6.4, 7.3, 8.3
+
+  travis-cc-test
+     - testing 32bit build, -m32 -Werror
+
+These build matrices are too big and ugly for our master branch, but 
+probably I will keep them in my private repo to run them 
+regularly/automated. So now, because of -Werror, we can stop wasting 
+time, reviewing again and again our major travis logs for compiler 
+warnings, etc.
+
+Regarding -Werror, see the env column of the currently latest build here
+https://travis-ci.org/rudimeier/util-linux/builds/254776766
+
+I have added a few -Wno-error=xyz flags for gcc 4.x (false positives). 
+And also one for gcc-7 which might be worth to fix.
+
+Note, my both branches above include open pull request #486:
+https://github.com/karelzak/util-linux/pull/486
+
+cu,
+Rudi
