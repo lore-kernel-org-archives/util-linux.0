@@ -1,45 +1,47 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:36731 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751126AbdGaTzW (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 31 Jul 2017 15:55:22 -0400
-Received: by mail-wr0-f196.google.com with SMTP id y67so31617189wrb.3
-        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 12:55:22 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 5/9] libuuid: use access(2) when checking /dev/random availability
-Date: Mon, 31 Jul 2017 20:55:04 +0100
-Message-Id: <20170731195508.11661-6-kerolasa@iki.fi>
-In-Reply-To: <20170731195508.11661-1-kerolasa@iki.fi>
-References: <20170731195508.11661-1-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 1/2] hwclock: remove unused epoch_option
+To: Karel Zak <kzak@redhat.com>
+References: <b8d24f10-1bea-aa80-0a28-9f573dd81d2a@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <9a83ee2d-3fa4-f871-55fd-70d135dea7e9@gmx.com>
+Date: Tue, 18 Jul 2017 16:00:51 -0400
+MIME-Version: 1.0
+In-Reply-To: <b8d24f10-1bea-aa80-0a28-9f573dd81d2a@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-The access(2) is more lightwight than stat(2), and tells whether random
-device(s) can be read or not, unlike the earlier stat() call.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Also one whitespace fix.
+
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
- libuuid/src/gen_uuid.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ sys-utils/hwclock.c | 2 +-
+ sys-utils/hwclock.h | 1 -
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/libuuid/src/gen_uuid.c b/libuuid/src/gen_uuid.c
-index 21e361293..7dafcaeed 100644
---- a/libuuid/src/gen_uuid.c
-+++ b/libuuid/src/gen_uuid.c
-@@ -534,9 +534,8 @@ void uuid_generate_random(uuid_t out)
-  */
- static int have_random_source(void)
- {
--	struct stat s;
--
--	return (!stat("/dev/random", &s) || !stat("/dev/urandom", &s));
-+	return (access("/dev/random", R_OK) == 0 ||
-+		access("/dev/urandom", R_OK) == 0);
- }
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 423ebcd..9745158 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1468,7 +1468,7 @@ int main(int argc, char **argv)
+ 	}
  
+ 	if (ctl.set || ctl.predict) {
+-		if (!ctl.date_opt){
++		if (!ctl.date_opt) {
+ 		warnx(_("--date is required for --set or --predict"));
+ 		hwclock_exit(&ctl, EX_USAGE);
+ 		}
+diff --git a/sys-utils/hwclock.h b/sys-utils/hwclock.h
+index 61be57a..a1ef80c 100644
+--- a/sys-utils/hwclock.h
++++ b/sys-utils/hwclock.h
+@@ -64,7 +64,6 @@ typedef int bool;
  
--- 
-2.13.3
-
+ /* hwclock.c */
+ extern int debug;
+-extern unsigned long epoch_option;
+ extern double time_diff(struct timeval subtrahend, struct timeval subtractor);
+ 
+ /* rtc.c */
