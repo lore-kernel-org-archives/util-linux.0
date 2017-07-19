@@ -1,58 +1,93 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:53864 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.22]:63696 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755866AbdGKRyt (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 11 Jul 2017 13:54:49 -0400
-Subject: Re: [PING - REBASED][PATCH 0/5] pull request
-To: Karel Zak <kzak@redhat.com>
-References: <9cf88d57-3a45-cd47-ac96-3495e09d81c5@gmx.com>
- <36c342d3-ec59-59fe-f98e-233d72696d84@gmx.com>
- <20170711080612.jundydfm6zlxaes4@ws.net.home>
-Cc: util-linux@vger.kernel.org
+        id S1751560AbdGSB0A (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 18 Jul 2017 21:26:00 -0400
+Subject: Re: [PATCH 2/2] hwclock: fix regression from c3ae785
+To: Ruediger Meier <sweet_f_a@gmx.de>
+References: <b8d24f10-1bea-aa80-0a28-9f573dd81d2a@gmx.com>
+ <13448500-dbe1-b7f8-3514-651d448f00d1@gmx.com>
+ <201707182233.42270.sweet_f_a@gmx.de> <201707182246.06679.sweet_f_a@gmx.de>
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
 From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <cead562a-c9d4-5c67-9817-73c5e20e7098@gmx.com>
-Date: Tue, 11 Jul 2017 13:54:17 -0400
+Message-ID: <65e0a627-81ec-5cfa-fc2b-fd5946f4a5a9@gmx.com>
+Date: Tue, 18 Jul 2017 21:25:44 -0400
 MIME-Version: 1.0
-In-Reply-To: <20170711080612.jundydfm6zlxaes4@ws.net.home>
+In-Reply-To: <201707182246.06679.sweet_f_a@gmx.de>
 Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
 
-On 07/11/2017 04:06 AM, Karel Zak wrote:
-> On Mon, Jul 10, 2017 at 07:34:55PM -0400, J William Piggott wrote:
->> On 07/02/2017 03:45 PM, J William Piggott wrote:
+On 07/18/2017 04:46 PM, Ruediger Meier wrote:
+> On Tuesday 18 July 2017, Ruediger Meier wrote:
+>> On Tuesday 18 July 2017, J William Piggott wrote:
+>>> hwclock --get foobar
+>>> hwclock: 3 too many arguments given
 >>>
->>> The following changes since commit 07fd6640c80ffd7a2067844aadcb6162431b3525:
+>>> Fixed:
 >>>
->>>   Merge branch 'path-fixes' of https://github.com/rudimeier/util-linux (2017-06-29 15:29:33 +0200)
+>>> hwclock --get foobar
+>>> hwclock: 1 too many arguments given
 >>>
->>> are available in the git repository at:
+>>> Signed-off-by: J William Piggott <elseifthen@gmx.com>
+>>> ---
+>>>  sys-utils/hwclock.c | 5 +++--
+>>>  1 file changed, 3 insertions(+), 2 deletions(-)
 >>>
->>>   git@github.com:jwpi/util-linux.git 170701
+>>> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+>>> index 9745158..9b313cf 100644
+>>> --- a/sys-utils/hwclock.c
+>>> +++ b/sys-utils/hwclock.c
+>>> @@ -1448,9 +1448,10 @@ int main(int argc, char **argv)
+>>>  		}
+>>>  	}
 >>>
->>> for you to fetch changes up to 9c50e384c89d5f9391c3eaed8df89ec965f2fda7:
->>>
->>>   hwclock: sync one-liner descriptions (2017-07-02 14:09:41 -0400)
->>>
->>> ----------------------------------------------------------------
->>> J William Piggott (5):
->>>       hwclock: remove from usage() FILE *out = stdout
->>>       hwclock: usage() use program_invocation_short_name
->>>       hwclock: final usage() strings slice
->>>       docs: update boilerplate.c usage()
->>>       hwclock: sync one-liner descriptions
->>>
->>>  Documentation/boilerplate.c | 37 ++++++++++++------------
->>>  sys-utils/hwclock.8.in      |  4 +--
->>>  sys-utils/hwclock.c         | 68 +++++++++++++++++++++++----------------------
->>>  3 files changed, 55 insertions(+), 54 deletions(-)
+>>> -	if (argc > optind) {
+>>> +	argc -= optind;
+>>> +	if (argc > 0) {
+>>>  		warnx(_("%d too many arguments given"), argc);
+>>
+>> Oops, sorry for this regression ;)
 > 
-> Merged. (Sorry for delay, I had vacation since Wed).
-
-Thank you! (No problem, I hope you had a good holiday).
-
+> BTW I removed
 > 
->     Karel
+> -       argc -= optind;
+> -       argv += optind;
+> 
+> only where I thought *both* are not used later. In this case I've made a 
+> mistake. If you really want to keep "argc -= optind" then you could 
+> also re-add the unused "argv += optind" to avoid confusing other 
+> code-readers in future. Making the clang-analyzer happy is not the most 
+> important thing.
+>
+
+Including it is confusing; it doesn't do anything.
+
+>> Anyways, at least for me "1 too many arguments given" does not sound
+>> really understandable.  Maybe we don't need that number at all!?
+>>
+>>> -		errtryhelp(EXIT_FAILURE);
+>>> +		errtryhelp(EX_USAGE);
+>>
+>> What about changing also the last other errtryhelp(EXIT_FAILURE) to
+>> EX_USAGE, 5 lines above?
+>>
+>>>  	}
+>>>
+>>>  	if (!ctl.adj_file_name)
+>>> --
+>>> To unsubscribe from this list: send the line "unsubscribe
+>>> util-linux" in the body of a message to majordomo@vger.kernel.org
+>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe util-linux"
+>> in the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
