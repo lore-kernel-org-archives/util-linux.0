@@ -1,109 +1,83 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:56021 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752364AbdGCIag (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 3 Jul 2017 04:30:36 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: J William Piggott <elseifthen@gmx.com>
-Subject: Re: fputs() vs puts()
-Date: Mon, 3 Jul 2017 10:30:21 +0200
+Return-Path: elseifthen@gmx.com
+Subject: Re: [PATCH 2/2] hwclock: fix regression from c3ae785
+To: Ruediger Meier <sweet_f_a@gmx.de>
+References: <b8d24f10-1bea-aa80-0a28-9f573dd81d2a@gmx.com>
+ <13448500-dbe1-b7f8-3514-651d448f00d1@gmx.com>
+ <201707182233.42270.sweet_f_a@gmx.de>
 Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com> <20170629201231.vjxp6mkecuqoalfo@ws.net.home> <1d036b95-430d-839f-031c-31b80e6e2b4f@gmx.com>
-In-Reply-To: <1d036b95-430d-839f-031c-31b80e6e2b4f@gmx.com>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <b13f5e0a-368c-8c8f-6abc-b5d60d6f48b1@gmx.com>
+Date: Tue, 18 Jul 2017 21:20:56 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1252"
-Message-Id: <201707031030.22137.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <201707182233.42270.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Friday 30 June 2017, J William Piggott wrote:
-> On 06/29/2017 04:12 PM, Karel Zak wrote:
-> > On Thu, Jun 29, 2017 at 10:46:50AM -0400, J William Piggott wrote:
-> >>>    (William, can you update your "standardize USAGE_COLUMNS"
-> >>> patches? Please.)
-> >>
-> >> Sure, one clarification please: you want only the columns header
-> >> in all caps? So:
-> >>
-> >> Usage:
-> >> Options:
-> >> Functions:
-> >> Commands:
-> >> COLUMNS:
-> >
-> > ha.. that's a good question. Suggestions?
-> >
-> > For example coreutils project uses uppercase for keywords only, for
-> > example dd(1)
-> >
-> >     Each FLAG symbol may be:
-> >        ...
-> >     Each CONV symbol may be:
-> >        ...
-> >
-> > it seems like original Rudi's idea
-> >
-> >     Available COLUMNS:
->
-> But they also use:
-> of=FILE
-> conv=CONVS
->
-> So we cannot completely follow that paradigm. The above are not
-> option args, and you do not want option args in all caps.
->
-> The columns situation is unique, we don't have to play follow the
-> leader.
->
-> Comparing:
->
->         --output <list>    COLUMNS to display (see below)
->         ...
->         Available COLUMNS:
->
-> With:
->         --output <list>    columns to display (see Columns:)
->         ...
->         Columns:
->
->
-> What does the reader learn by yelling COLUMNS at them.
-
-It's just de-facto standard for "--help/man"-like technical 
-documentation. If you would write html or info docs, then you would not 
-use capital letters but links to click on.
-
-Compare:
-
-$ man bash | grep -i EXPANSION
-$ man bash | grep  EXPANSION
-
-or
-
-$ xz --help | grep -i FILE
-$ xz --help | grep FILE 
-
-It's a very useful style and users *use* this by case-sensitive search 
-in less or grep. This style is not always used 100% consistently but 
-I'm happy whenever I see it, saves me a lot of time usually.
-
-cu,
-Rudi
-
-> Sometimes a 
-> vague reference like 'see below' is required. In this case the reader
-> can be told exactly what they a looking for. It also keeps our
-> usage() headings consistent.
->
-> The two are not so different; I just think my solution is less
-> ambiguous, is easier to read, and looks a bit cleaner.
->
-> It's your call to make Karel.
->
-> > it's more compatible with the rest than alone "COLUMNS". So I vote
-> > this one.
-> >
-> >     Karel
 
 
+On 07/18/2017 04:33 PM, Ruediger Meier wrote:
+> On Tuesday 18 July 2017, J William Piggott wrote:
+>> hwclock --get foobar
+>> hwclock: 3 too many arguments given
+>>
+>> Fixed:
+>>
+>> hwclock --get foobar
+>> hwclock: 1 too many arguments given
+>>
+>> Signed-off-by: J William Piggott <elseifthen@gmx.com>
+>> ---
+>>  sys-utils/hwclock.c | 5 +++--
+>>  1 file changed, 3 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+>> index 9745158..9b313cf 100644
+>> --- a/sys-utils/hwclock.c
+>> +++ b/sys-utils/hwclock.c
+>> @@ -1448,9 +1448,10 @@ int main(int argc, char **argv)
+>>  		}
+>>  	}
+>>
+>> -	if (argc > optind) {
+>> +	argc -= optind;
+>> +	if (argc > 0) {
+>>  		warnx(_("%d too many arguments given"), argc);
+> 
+> Oops, sorry for this regression ;)
+> 
+> Anyways, at least for me "1 too many arguments given" does not sound 
+> really understandable.  Maybe we don't need that number at all!?
+>
+
+I don't how it would be misunderstood, it's pretty straight forward
+language.
+
+I think the number could be helpful for complex commands like:
+
+hwclock --predict --date jan 10 2017 --utc foo --noadjfile
+hwclock: 3 too many arguments given
+
+
+> 
+>> -		errtryhelp(EXIT_FAILURE);
+>> +		errtryhelp(EX_USAGE);
+> 
+> What about changing also the last other errtryhelp(EXIT_FAILURE) to 
+> EX_USAGE, 5 lines above?
+
+Good point. Pushed the change.
+
+> 
+> 
+>>  	}
+>>
+>>  	if (!ctl.adj_file_name)
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe util-linux"
+>> in the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
