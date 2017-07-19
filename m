@@ -1,54 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:38594 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752448AbdGDH6j (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 4 Jul 2017 03:58:39 -0400
-Date: Tue, 4 Jul 2017 09:58:33 +0200
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: Ruediger Meier <ruediger.meier@ga-group.nl>,
-        util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/5] hwclock: final usage() strings slice
-Message-ID: <20170704075833.eqhwwhpo36s2i63d@ws.net.home>
-References: <9cf88d57-3a45-cd47-ac96-3495e09d81c5@gmx.com>
- <40df38f4-6bf5-1959-74af-6ee481b88a12@gmx.com>
- <201707031051.27992.ruediger.meier@ga-group.nl>
- <05bbcea5-5f5a-4767-7d98-6b0a4e6575a6@gmx.com>
+Received: from mout.kundenserver.de ([212.227.17.13]:63773 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754579AbdGSVfG (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 19 Jul 2017 17:35:06 -0400
+Subject: Re: [PATCH] setpriv: support setting unnamed capabilities
+To: Patrick Steinhardt <ps@pks.im>
+References: <4ae084e6a1c46726a24057c71d20787680fa3da1.1500326001.git.ps@pks.im>
+ <2105c6b6-3574-be3c-3f2a-e951e6d8e61d@bernhard-voelker.de>
+ <20170719074220.GA1186@pks-xps>
+Cc: util-linux@vger.kernel.org, kzak@redhat.com
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Message-ID: <11b84c97-a6df-93ea-73df-c33109dfd916@bernhard-voelker.de>
+Date: Wed, 19 Jul 2017 23:34:54 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <05bbcea5-5f5a-4767-7d98-6b0a4e6575a6@gmx.com>
+In-Reply-To: <20170719074220.GA1186@pks-xps>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jul 03, 2017 at 11:35:01AM -0400, J William Piggott wrote:
-> >> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> >> the body of a message to majordomo@vger.kernel.org
-> >> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >>
-> >>
-> > 
-> > What about the mentioned whitespaces for puts() to get printf
-> > on one line? 
-> > 
-> >   puts(  _("     --update-drift   update the RTC drift factor"));
-> >   printf(_("     --noadjfile      do not use %1$s\n"), _PATH_ADJTIME);
-> >   printf(_("     --adjfile <file> use an alternate file to %1$s\n"), _PATH_ADJTIME);
-> >   puts(  _("     --test           dry run; use -D to view what would have happened"));
-> >   puts(  _(" -D, --debug          use debug mode"));
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On 07/19/2017 09:42 AM, Patrick Steinhardt wrote:
+> On Wed, Jul 19, 2017 at 08:18:55AM +0200, Bernhard Voelker wrote:
+>> 
+>> Thanks - would you mind to also add a sentence to the man page?
+>> 
+>> Thanks & have a nice day, Berny
 > 
-> Sure, if that is what Karel wants (it can be a separate patch).
-> 
-> The only thing that I don't like about that choice is that it can cause
-> puts() lines to wrap that otherwise would not. Since puts() is a lot
-> more common than printf(), it seems like putting the alignment burden on
-> printf() makes more sense.
+> Sure, can do this. I'll send a follow-up patch tomorrow as the patch has already been applied.
 
-I think the idea is to use the extra space only if you mix printf and
-puts in the same code block. We have on many place only puts (or
-fputs) -- in this case the extra space is unnecessary.
+Thanks!
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+iQEcBAEBAgAGBQJZb9B+AAoJEEZQLveWkXGV2k4H/25iCFMl+d+XZoi9MXwzvK7l
+3bw9k+zZSmyK1KXnDC/u+mY8xYd662SUZoF24b4ZqK7RwNBE9qUkJ/DBVCYOLChk
+xSRZIrW3i9eEBknYXB48A6MTOg9nclkj/Y1wABPYd8wHumcuAp2sZ3rEuFi/ftii
+uWnCxRU/uqp5KMIr6xmMNCbhhEnfmaqVNHsgB5cfhRDT+6Da+1d5Rh7ASqk5Lfht
+5d2bNaPqeyvzaoGcw/Ien4M2gveC/47sLxH8VsbK3Wm+yFdI12pld+NROef7zIuM
+B/oB+40MH5suWHgPBq5MPPH7PiKk5AfkjahfOWGsQnJke/KuZl7gJEVQrEJSt8c=
+=73Hp
+-----END PGP SIGNATURE-----
