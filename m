@@ -1,97 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40168 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932148AbdGCOwd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 3 Jul 2017 10:52:33 -0400
-Date: Mon, 3 Jul 2017 16:52:28 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/6] path: use openat()
-Message-ID: <20170703145228.exv6hbsqhwwd45w2@ws.net.home>
-References: <1499082781-16968-1-git-send-email-sweet_f_a@gmx.de>
- <1499082781-16968-2-git-send-email-sweet_f_a@gmx.de>
- <20170703143949.pifm6ebon7dr3fww@ws.net.home>
+Received: from mout.kundenserver.de ([217.72.192.75]:61125 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751376AbdGSGTE (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 19 Jul 2017 02:19:04 -0400
+Subject: Re: [PATCH] setpriv: support setting unnamed capabilities
+To: Patrick Steinhardt <ps@pks.im>, util-linux@vger.kernel.org
+References: <4ae084e6a1c46726a24057c71d20787680fa3da1.1500326001.git.ps@pks.im>
+Cc: kzak@redhat.com
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Message-ID: <2105c6b6-3574-be3c-3f2a-e951e6d8e61d@bernhard-voelker.de>
+Date: Wed, 19 Jul 2017 08:18:55 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170703143949.pifm6ebon7dr3fww@ws.net.home>
+In-Reply-To: <4ae084e6a1c46726a24057c71d20787680fa3da1.1500326001.git.ps@pks.im>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jul 03, 2017 at 04:39:49PM +0200, Karel Zak wrote:
-> On Mon, Jul 03, 2017 at 01:52:56PM +0200, Ruediger Meier wrote:
-> > From: Ruediger Meier <ruediger.meier@ga-group.nl>
-> > 
-> > path_vcreate_with_prefix() is going to be removed.
-> > 
-> > Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
-> > ---
-> >  lib/path.c | 111 ++++++++++++++++++++++++++++++++++++++++++++++++++++---------
-> >  1 file changed, 96 insertions(+), 15 deletions(-)
-> > 
-> > diff --git a/lib/path.c b/lib/path.c
-> > index 79c1e7a..94181fe 100644
-> > --- a/lib/path.c
-> > +++ b/lib/path.c
-> > @@ -26,18 +26,60 @@
-> >  #include <stdio.h>
-> >  #include <inttypes.h>
-> >  #include <errno.h>
-> > +#include <sys/stat.h>
-> >  
-> >  #include "all-io.h"
-> >  #include "path.h"
-> >  #include "nls.h"
-> >  #include "c.h"
-> >  
-> > +static int rootfd = -1;
-> >  static size_t prefixlen;
-> > +static char pathbuf_prefix[PATH_MAX];
-> >  static char pathbuf[PATH_MAX];
+On 07/17/2017 11:14 PM, Patrick Steinhardt wrote:
+> When setting capabilities, we accept human readable names like for
+> example `sys_rawio` or `net_admin`. To do so the translation between the
+> capability name and its in-kernel index, we rely on the function
+> `capng_name_to_capability`. When the function does not know the named
+> capability, it will return an error value and we abort setting the
+> capability.
 > 
-> We use sysfs.c in shared libs, it means that global variables are
-> unacceptable.
+> This relies upon the ability of libcap to know all capabilities inside
+> of the kernel. But actually, it is possible that new capabilities are
+> introduced inside of the Linux kernel which are not recognized yet by
+> the library. When dumping these unknown capabilities, libcap will simply
+> return a string like "cap_38", that is it will append the capability's
+> in-kernel index to the prefix "cap_". This may lead a user to also think
+> that "cap_38" may be passed to the switches "--inh-caps" or
+> "--ambient-caps", which is unfortunately not the case.
 > 
-> It would be better to have "struct path_cxt" and use it within "struct
-> sysfs_cxt". For tools where we don't use "struct sysfs_cxt" (e.g.
-> lscpu) we can directly use "struct path_cxt".
-> 
-> I guess it should be possible to replace sysfs_cxt->dir_fd with
-> "struct path_cxt" where it points to $SYSROOT/sysfs/block/<device>.
+> We can do better here by instead accepting strings in the form of
+> "cap_N". To do so, we can simply rely on the fact that capability
+> indices are steadily increasing and that the highest index known to the
+> kernel is stored inside of the kernel's procfs, made readily available
+> by our function `real_cap_last_cap()`. So in case libcap does not know a
+> capability name, we can simply parse the string and, if it is in the
+> correct format, check whether the detected index is between 0 and the
+> highest capability index. If so, we can treat it as a valid capability
+> string and apply it.
 
-And if we want to be real perfectionists than in sysfs.c we should
-differentiate between block functions ($SYSROOT/sysfs/block/) and
-another targets ($SYSROOT/sys/devices/system/cpu, ...etc).
+Thanks - would you mind to also add a sentence to the man page?
 
-Examples:
-
-path.c only code:
-
- uint64_t x;
- struct path_cxt *path = path_new_context();
-
- path_set_system_root(path, argv[1]);
-
- path_read_s32(path, _PATH_SYS_CPU "/kernel_max", &x);
-
-
-sysfs based code:
-
- uint64_t x;
- struct path_cxt *path = path_new_context();
-
- path_set_system_root(path, argv[1]);
-
- sysfs = sysfs_new_context(path);
- sysfs_assign_block_device(sysfs, devno, NULL);
- 
- sysfs_read_u64(sysfs, "queue/minimum_io_size", &x);
-
-
-Do you see more light in the proposal now? :-)
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Thanks & have a nice day,
+Berny
