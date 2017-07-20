@@ -1,69 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from prod-mx.aristanetworks.com ([162.210.130.12]:13600 "EHLO
-        prod-mx.aristanetworks.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753126AbdGGB1M (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 6 Jul 2017 21:27:12 -0400
-Date: Thu, 6 Jul 2017 18:27:11 -0700
-From: Ivan Delalande <colona@arista.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: [PATCH] libmount: make mnt_context_is_fs_mounted work for /proc
-Message-ID: <20170707012711.GA1306@visor>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:33161 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S933066AbdGTGaP (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Thu, 20 Jul 2017 02:30:15 -0400
+From: Patrick Steinhardt <ps@pks.im>
+To: util-linux@vger.kernel.org
+Cc: Patrick Steinhardt <ps@pks.im>, kzak@redhat.com,
+        mail@bernhard-voelker.de
+Subject: [PATCH] setpriv: document accepted formats for naming caps
+Date: Thu, 20 Jul 2017 08:30:04 +0200
+Message-Id: <0eb0244be9842935dbe92e0c5b383b8563626424.1500532177.git.ps@pks.im>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Assume that /proc is not mounted instead of returning an error when we
-are unable to open the mounts and mountinfo files in /proc. Also set
-cxt->mtab back to NULL so that it gets properly parsed when we check if
-the next filesystem is mounted.
+Since commit fbd15c4d4 (setpriv: support setting unnamed capabilities,
+2017-07-17), it is possible to name capabilities not only by name, but
+also by their index. While using the human-readable name is usually
+recommended, using the index may be required in case new capabilities
+have been introduced to the kernel for which we have no name yet. The
+newly introduce format format is not documented inside of setpriv(1),
+though, which is being fixed in this commit.
 
-The goal is to have mount -a work when /proc is not mounted, typically
-with /proc on the first line of fstab.
-
-Signed-off-by: Ivan Delalande <colona@arista.com>
+Signed-off-by: Patrick Steinhardt <ps@pks.im>
 ---
- libmount/src/context.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ sys-utils/setpriv.1 | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/libmount/src/context.c b/libmount/src/context.c
-index 7c34cad95..e7f1ee934 100644
---- a/libmount/src/context.c
-+++ b/libmount/src/context.c
-@@ -33,6 +33,7 @@
- 
- #include "mountP.h"
- #include "fileutils.h"
-+#include "strutils.h"
- 
- #include <sys/wait.h>
- 
-@@ -2458,14 +2459,23 @@ int mnt_context_helper_setopt(struct libmnt_context *cxt, int c, char *arg)
- int mnt_context_is_fs_mounted(struct libmnt_context *cxt,
- 			      struct libmnt_fs *fs, int *mounted)
- {
--	struct libmnt_table *mtab;
-+	struct libmnt_table *mtab, *orig;
- 	int rc;
- 
- 	if (!cxt || !fs || !mounted)
- 		return -EINVAL;
- 
-+	orig = cxt->mtab;
- 	rc = mnt_context_get_mtab(cxt, &mtab);
--	if (rc)
-+	if (rc == -ENOENT && mnt_fs_streq_target(fs, "/proc") &&
-+	    (!cxt->mtab_path || startswith(cxt->mtab_path, "/proc/"))) {
-+		if (!orig) {
-+			mnt_unref_table(cxt->mtab);
-+			cxt->mtab = NULL;
-+		}
-+		*mounted = 0;
-+		return 0;	/* /proc not mounted */
-+	} else if (rc)
- 		return rc;
- 
- 	*mounted = mnt_table_is_fs_mounted(mtab, fs);
+diff --git a/sys-utils/setpriv.1 b/sys-utils/setpriv.1
+index b0cc33a2b..75dadeca8 100644
+--- a/sys-utils/setpriv.1
++++ b/sys-utils/setpriv.1
+@@ -34,7 +34,12 @@ The argument is a comma-separated list of
+ .BI + cap
+ and
+ .BI \- cap
+-entries, which add or remove an entry respectively.
++entries, which add or remove an entry respectively. \fIcap\fR can either be a
++human-readable name as seen in
++.BR capabilities (7)
++without the \fIcap_\fR prefix or of the format
++.BI cap_N ,
++where \fIN\fR is the internal capability index used by Linux.
+ .B +all
+ and
+ .B \-all
 -- 
-2.13.2
+2.13.3
+
