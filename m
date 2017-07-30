@@ -1,57 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:56029 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751216AbdGPRxu (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 16 Jul 2017 13:53:50 -0400
-Subject: [PATCH 4/4] hwclock: improve RTC epoch messages
-To: Karel Zak <kzak@redhat.com>
-References: <4a0f9283-7a08-a2c3-acc3-fb35ab51ec59@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <660825e1-8887-731b-e8b0-29fa2b92cd5c@gmx.com>
-Date: Sun, 16 Jul 2017 13:53:34 -0400
-MIME-Version: 1.0
-In-Reply-To: <4a0f9283-7a08-a2c3-acc3-fb35ab51ec59@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:45446
+        "EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754183AbdG3Rw1 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 30 Jul 2017 13:52:27 -0400
+From: Andreas Henriksson <andreas@fatal.se>
+To: util-linux@vger.kernel.org
+Cc: Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH] whereis: include native multiarch path in lib search paths
+Date: Sun, 30 Jul 2017 19:52:17 +0200
+Message-Id: <1501437137-30759-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+This includes atleast the native multiarch path in the paths to search.
+(Maybe also other multiarch paths should also be searched? But atleast
+this is a first step.)
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
+Before this change (on Debian):
+$ whereis libc
+libc: /usr/share/man/man7/libc.7.gz
+
+After this change:
+$ whereis libc
+libc: /usr/lib/x86_64-linux-gnu/libc.so /usr/lib/x86_64-linux-gnu/libc.a /usr/share/man/man7/libc.7.gz
+
+Addresses: https://bugs.debian.org/856968
+Signed-off-by: Andreas Henriksson <andreas@fatal.se>
 ---
- sys-utils/hwclock.c | 16 +++++-----------
- 1 file changed, 5 insertions(+), 11 deletions(-)
+ configure.ac         | 5 +++++
+ misc-utils/whereis.c | 5 +++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 445d736..423ebcd 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -1172,23 +1172,17 @@ manipulate_epoch(const struct hwclock_control *ctl)
- 		unsigned long epoch;
+diff --git a/configure.ac b/configure.ac
+index 38b968878..dc71faa00 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1490,6 +1490,11 @@ AM_CONDITIONAL([BUILD_MCOOKIE], [test "x$build_mcookie" = xyes])
+ UL_BUILD_INIT([namei], [yes])
+ AM_CONDITIONAL([BUILD_NAMEI], [test "x$build_namei" = xyes])
  
- 		if (get_epoch_rtc(ctl, &epoch))
--			warnx(_
--			      ("Unable to get the epoch value from the kernel."));
-+			warnx(_("unable to read the RTC epoch."));
- 		else
--			printf(_("Kernel is assuming an epoch value of %lu\n"),
--			       epoch);
-+			printf(_("The RTC epoch is set to %lu.\n"), epoch);
- 	} else if (ctl->setepoch) {
- 		if (!ctl->epoch_option)
--			warnx(_
--			      ("To set the epoch value, you must use the 'epoch' "
--			       "option to tell to what value to set it."));
-+			warnx(_("--epoch is required for --setepoch."));
- 		else if (ctl->testing)
--			printf(_
--			       ("Not setting the epoch to %s - testing only.\n"),
-+			printf(_("Test mode: epoch was not set to %s.\n"),
- 			       ctl->epoch_option);
- 		else if (set_epoch_rtc(ctl))
--			printf(_
--			       ("Unable to set the epoch value in the kernel.\n"));
-+			warnx(_("unable to set the RTC epoch."));
- 	}
- }
- #endif		/* __linux__ __alpha__ */
++matriplet="$($CC -print-multiarch 2>/dev/null || true)"
++if test "x$matriplet" != "x"; then
++  AC_DEFINE_UNQUOTED([MULTIARCHTRIPLET], ["$matriplet"],
++  ["Multi-arch triplet for whereis library search path"])
++fi
+ UL_BUILD_INIT([whereis], [yes])
+ AM_CONDITIONAL([BUILD_WHEREIS], [test "x$build_whereis" = xyes])
+ 
+diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
+index bac158d46..caa155ca3 100644
+--- a/misc-utils/whereis.c
++++ b/misc-utils/whereis.c
+@@ -96,6 +96,11 @@ struct wh_dirlist {
+ static const char *bindirs[] = {
+ 	"/usr/bin",
+ 	"/usr/sbin",
++#if defined(MULTIARCHTRIPLET)
++	"/lib/" MULTIARCHTRIPLET,
++	"/usr/lib/" MULTIARCHTRIPLET,
++	"/usr/local/lib/" MULTIARCHTRIPLET,
++#endif
+ 	"/usr/lib",
+ 	"/usr/lib64",
+ 	"/bin",
+-- 
+2.11.0
+
