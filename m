@@ -1,109 +1,231 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:60373 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1753527AbdGUSoF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 21 Jul 2017 14:44:05 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id DA55DABC3
-        for <util-linux@vger.kernel.org>; Fri, 21 Jul 2017 18:44:03 +0000 (UTC)
-Subject: [PATCH] libmount: if ENOMEDIUM and tray is open, close tray and retry
-From: Stanislav Brabec <sbrabec@suse.cz>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:37672 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751126AbdGaTzS (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 31 Jul 2017 15:55:18 -0400
+Received: by mail-wm0-f65.google.com with SMTP id t138so83701wmt.4
+        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 12:55:17 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-References: <0e40cb41-a64a-93b1-0c06-620cca40a575@suse.cz>
- <f29ab5ef-753d-2ea8-e348-d53cdf4262cf@suse.cz>
-Message-ID: <db7a8eaa-3519-234c-72c9-428ca1b80ff0@suse.cz>
-Date: Fri, 21 Jul 2017 20:44:03 +0200
-MIME-Version: 1.0
-In-Reply-To: <f29ab5ef-753d-2ea8-e348-d53cdf4262cf@suse.cz>
-Content-Type: text/plain; charset=iso-8859-2
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 1/9] chfn, chsh: merge auth.h, islocal.h and libuser.h to ch-common.h
+Date: Mon, 31 Jul 2017 20:55:00 +0100
+Message-Id: <20170731195508.11661-2-kerolasa@iki.fi>
+In-Reply-To: <20170731195508.11661-1-kerolasa@iki.fi>
+References: <20170731195508.11661-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-In past, d50c5917 introduced an interesting behavior: If mount was called on a
-CDROM with open tray, the tray was closed and mount was retried. But the
-implementation caused 15 seconds delay, so ca55a451 reverted it.
+Merging header files is fine.  Merging sources files ch-common.c is
+bad idea due linking needs, and differences in licences.
 
-This is another attempt to implement that:
-If tray is closed: No delay, no retry, simply fail.
-If tray is open: Check, whether the drive can close tray.
-  If yes, close tray and retry after 3 seconds.
-  If not, no delay, no retry, simply fail.
-
-It can never cause delay more than time to close tray + 3 sec.
-
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- libmount/src/context_mount.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ login-utils/Makemodule.am |  7 ++-----
+ login-utils/auth.c        |  2 +-
+ login-utils/auth.h        | 13 -------------
+ login-utils/ch-common.h   | 17 +++++++++++++++++
+ login-utils/chfn.c        |  4 ----
+ login-utils/chsh.c        |  4 ----
+ login-utils/islocal.c     |  2 +-
+ login-utils/islocal.h     |  1 -
+ login-utils/libuser.c     |  3 +--
+ login-utils/libuser.h     | 14 --------------
+ 10 files changed, 22 insertions(+), 45 deletions(-)
+ delete mode 100644 login-utils/auth.h
+ delete mode 100644 login-utils/islocal.h
+ delete mode 100644 login-utils/libuser.h
 
-diff --git a/libmount/src/context_mount.c b/libmount/src/context_mount.c
-index 65f7dbfd0..ed0b84080 100644
---- a/libmount/src/context_mount.c
-+++ b/libmount/src/context_mount.c
-@@ -18,11 +18,15 @@
+diff --git a/login-utils/Makemodule.am b/login-utils/Makemodule.am
+index 67a0c98ec..2cc91b658 100644
+--- a/login-utils/Makemodule.am
++++ b/login-utils/Makemodule.am
+@@ -90,20 +90,17 @@ if HAVE_LINUXPAM
+ chfn_chsh_ldadd += -lpam_misc
+ endif
+ chfn_chsh_sources += \
+-	login-utils/auth.c \
+-	login-utils/auth.h
++	login-utils/auth.c
+ endif # CHFN_CHSH_PASSWORD
  
- #include <sys/wait.h>
- #include <sys/mount.h>
-+#include <linux/cdrom.h>
+ if HAVE_USER
+ chfn_chsh_ldflags += $(LIBUSER_LIBS)
+ chfn_chsh_cflags += $(LIBUSER_CFLAGS)
+ chfn_chsh_sources+= \
+-	login-utils/libuser.c \
+-	login-utils/libuser.h
++	login-utils/libuser.c
+ else
+ chfn_chsh_sources += \
+ 	login-utils/islocal.c \
+-	login-utils/islocal.h \
+ 	login-utils/setpwnam.c \
+ 	login-utils/setpwnam.h
+ endif
+diff --git a/login-utils/auth.c b/login-utils/auth.c
+index aaf6c536b..68d4ea3b0 100644
+--- a/login-utils/auth.c
++++ b/login-utils/auth.c
+@@ -7,7 +7,7 @@
+  *   there is no warranty.
+  *
+  */
+-#include "auth.h"
++#include "ch-common.h"
+ #include "pamfail.h"
  
- #include "linux_version.h"
- #include "mountP.h"
- #include "strutils.h"
+ int auth_pam(const char *service_name, uid_t uid, const char *username)
+diff --git a/login-utils/auth.h b/login-utils/auth.h
+deleted file mode 100644
+index bf7c36924..000000000
+--- a/login-utils/auth.h
++++ /dev/null
+@@ -1,13 +0,0 @@
+-/*
+- *   auth.h -- PAM authorization code, common between chsh and chfn
+- *   (c) 2012 by Cody Maloney <cmaloney@theoreticalchaos.com>
+- *
+- *   this program is free software.  you can redistribute it and
+- *   modify it under the terms of the gnu general public license.
+- *   there is no warranty.
+- *
+- */
+-
+-#include <sys/types.h>
+-
+-extern int auth_pam(const char *service_name, uid_t uid, const char *username);
+diff --git a/login-utils/ch-common.h b/login-utils/ch-common.h
+index 7f70e50e1..e2b402cc2 100644
+--- a/login-utils/ch-common.h
++++ b/login-utils/ch-common.h
+@@ -1,6 +1,23 @@
+ #ifndef UTIL_LINUX_CH_COMMON_H
+ #define UTIL_LINUX_CH_COMMON_H
  
-+/* open() retries when errno is ENOMEDIUM and tray is open */
-+#define CRDOM_TRAYOPEN_RETRIES    5
++#include <sys/types.h>
 +
- /*
-  * Kernel supports only one MS_PROPAGATION flag change by one mount(2) syscall,
-  * to bypass this restriction we call mount(2) per flag. It's really not a perfect
-@@ -1292,6 +1296,8 @@ int mnt_context_get_mount_excode(
- 	int syserr;
- 	struct stat st;
- 	unsigned long uflags = 0, mflags = 0;
-+	int cdrom;
-+	unsigned int retries = 0;
+ extern int illegal_passwd_chars(const char *str);
++extern int is_local(const char *user);
++
++/*
++ *   Utilize libuser to set a user attribute
++ *   (c) 2012 by Cody Maloney <cmaloney@theoreticalchaos.com>
++ */
++
++extern int set_value_libuser(const char *service_name, const char *username,
++                        uid_t uid, const char *attr, const char *val);
++
++/*
++ *   PAM authorization code, common between chsh and chfn
++ *   (c) 2012 by Cody Maloney <cmaloney@theoreticalchaos.com>
++ */
++extern int auth_pam(const char *service_name, uid_t uid, const char *username);
  
- 	int restricted = mnt_context_is_restricted(cxt);
- 	const char *tgt = mnt_context_get_target(cxt);
-@@ -1399,6 +1405,7 @@ int mnt_context_get_mount_excode(
- 	/*
- 	 * mount(2) errors
- 	 */
-+mount_retry:
- 	syserr = mnt_context_get_syscall_errno(cxt);
+ #endif	/* UTIL_LINUX_CH_COMMON */
+diff --git a/login-utils/chfn.c b/login-utils/chfn.c
+index c5312fa0c..d7d0d03f2 100644
+--- a/login-utils/chfn.c
++++ b/login-utils/chfn.c
+@@ -35,7 +35,6 @@
+ #include "c.h"
+ #include "env.h"
+ #include "closestream.h"
+-#include "islocal.h"
+ #include "nls.h"
+ #include "setpwnam.h"
+ #include "strutils.h"
+@@ -51,9 +50,6 @@
  
+ #ifdef HAVE_LIBUSER
+ # include <libuser/user.h>
+-# include "libuser.h"
+-#elif CHFN_CHSH_PASSWORD
+-# include "auth.h"
+ #endif
  
-@@ -1563,6 +1570,19 @@ int mnt_context_get_mount_excode(
- 		break;
+ #ifdef HAVE_LIBREADLINE
+diff --git a/login-utils/chsh.c b/login-utils/chsh.c
+index 4721c870e..cdbfbc405 100644
+--- a/login-utils/chsh.c
++++ b/login-utils/chsh.c
+@@ -35,7 +35,6 @@
+ #include "c.h"
+ #include "env.h"
+ #include "closestream.h"
+-#include "islocal.h"
+ #include "nls.h"
+ #include "pathnames.h"
+ #include "setpwnam.h"
+@@ -52,9 +51,6 @@
  
- 	case ENOMEDIUM:
-+		cdrom = open(mnt_context_get_source(cxt), O_RDONLY | O_NONBLOCK);
-+		if (cdrom != -1) {
-+			if (retries < CRDOM_TRAYOPEN_RETRIES &&
-+			    (ioctl(cdrom, CDROM_GET_CAPABILITY, NULL) & CDC_CLOSE_TRAY) &&
-+			    ioctl(cdrom, CDROM_DRIVE_STATUS, NULL) == CDS_TRAY_OPEN) {
-+				ioctl(cdrom, CDROMCLOSETRAY);
-+				close(cdrom);
-+				sleep(3);
-+				++retries;
-+				goto mount_retry;
-+			} else
-+				close(cdrom);
-+		}
- 		if (uflags & MNT_MS_NOFAIL)
- 			return MNT_EX_SUCCESS;
- 		if (buf)
+ #ifdef HAVE_LIBUSER
+ # include <libuser/user.h>
+-# include "libuser.h"
+-#elif CHFN_CHSH_PASSWORD
+-# include "auth.h"
+ #endif
+ 
+ #ifdef HAVE_LIBREADLINE
+diff --git a/login-utils/islocal.c b/login-utils/islocal.c
+index 7c4e775c1..5bfe61982 100644
+--- a/login-utils/islocal.c
++++ b/login-utils/islocal.c
+@@ -23,7 +23,7 @@
+ #include <stdlib.h>
+ 
+ #include "closestream.h"
+-#include "islocal.h"
++#include "ch-common.h"
+ #include "nls.h"
+ #include "pathnames.h"
+ 
+diff --git a/login-utils/islocal.h b/login-utils/islocal.h
+deleted file mode 100644
+index 2c5879906..000000000
+--- a/login-utils/islocal.h
++++ /dev/null
+@@ -1 +0,0 @@
+-extern int is_local(const char *user);
+diff --git a/login-utils/libuser.c b/login-utils/libuser.c
+index b11fadc1c..65538d7d4 100644
+--- a/login-utils/libuser.c
++++ b/login-utils/libuser.c
+@@ -8,13 +8,12 @@
+  *
+  */
+ 
+-#include "libuser.h"
++#include "ch-common.h"
+ 
+ #include <grp.h>
+ #include <libuser/user.h>
+ #include <unistd.h>
+ 
+-#include "auth.h"
+ #include "c.h"
+ #include "nls.h"
+ 
+diff --git a/login-utils/libuser.h b/login-utils/libuser.h
+deleted file mode 100644
+index 7454b997e..000000000
+--- a/login-utils/libuser.h
++++ /dev/null
+@@ -1,14 +0,0 @@
+-/*
+- *   libuser.h -- Utilize libuser to set a user attribute
+- *   (c) 2012 by Cody Maloney <cmaloney@theoreticalchaos.com>
+- *
+- *   this program is free software.  you can redistribute it and
+- *   modify it under the terms of the gnu general public license.
+- *   there is no warranty.
+- *
+- */
+-
+-#include <sys/types.h>
+-
+-extern int set_value_libuser(const char *service_name, const char *username,
+-			uid_t uid, const char *attr, const char *val);
 -- 
-2.13.2
+2.13.3
 
--- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
