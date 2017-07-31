@@ -1,69 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:56167 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751761AbdG1PsY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 28 Jul 2017 11:48:24 -0400
-Subject: Re: [PATCH] libmount: if ENOMEDIUM and tray is open, close tray and
- retry
-From: Stanislav Brabec <sbrabec@suse.cz>
-To: "Yuriy M. Kaminskiy" <yumkam@gmail.com>, util-linux@vger.kernel.org
-References: <0e40cb41-a64a-93b1-0c06-620cca40a575@suse.cz>
- <f29ab5ef-753d-2ea8-e348-d53cdf4262cf@suse.cz>
- <db7a8eaa-3519-234c-72c9-428ca1b80ff0@suse.cz> <m3wp6u5k8z.fsf@gmail.com>
- <68bc995a-3b0c-5b2c-cb7a-5f0052d19bef@suse.cz>
-Message-ID: <45a7e1bc-62cb-cf96-07c7-c4801dcf23d4@suse.cz>
-Date: Fri, 28 Jul 2017 17:48:22 +0200
-MIME-Version: 1.0
-In-Reply-To: <68bc995a-3b0c-5b2c-cb7a-5f0052d19bef@suse.cz>
-Content-Type: text/plain; charset=iso-8859-2
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:36728 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751176AbdGaTzV (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 31 Jul 2017 15:55:21 -0400
+Received: by mail-wr0-f193.google.com with SMTP id y67so31617159wrb.3
+        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 12:55:21 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 4/9] uuidparse: nil uuid have all bits set to zero
+Date: Mon, 31 Jul 2017 20:55:03 +0100
+Message-Id: <20170731195508.11661-5-kerolasa@iki.fi>
+In-Reply-To: <20170731195508.11661-1-kerolasa@iki.fi>
+References: <20170731195508.11661-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Dne 28.7.2017 v 17:26 Stanislav Brabec napsal(a):
-> Dne 27.7.2017 v 10:58 Yuriy M. Kaminskiy napsal(a):
->> (And, I used cdrom a long time ago, but IIRC there were some driver
->> settings to automatically close tray on device open, so that this patch
->> should not be needed?)
-> 
-> Thanks for this hint. Yes, you are true:
-> /proc/sys/dev/cdrom/autoclose
-> /proc/sys/dev/cdrom/autoeject
-> 
-> But this does not work with the current mount. The mount request will
-> expire on timeout earlier than the tray of ordinary CDROM closes.
-> 
-> But yes, it is possible to implement a different, simpler patch that
-> will make the autoclose feature working, and not cause delays in case of
-> no medium.
-> 
+The nil UUID is special form of UUID that is specified to have all 128 bits
+set to zero.
 
-I did some testing.
+Reference: https://tools.ietf.org/html/rfc4122#section-4.1.7
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/uuidparse.c        | 5 ++++-
+ tests/expected/uuid/uuidparse | 6 +++---
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
-The kernel autoclose feature should do exactly the same as my patch
-attempts. But kernel seems to be broken. Before the tray actually
-closes, kernel returns ENOMEDIUM.
-
->From strace log when a standard DVD drive is open with a DVD laying on
-the tray:
-
-17:30:32.719041 access("/dev/sr0", F_OK) = 0 <0.000005>
-(here the tray starts to close)
-17:30:32.719054 open("/dev/sr0", O_RDONLY|O_CLOEXEC) = -1 ENOMEDIUM (No
-medium found) <1.450436>
-...
-17:30:34.169943 mount("/dev/sr0", "/mnt", "vfat", MS_MGC_VAL|MS_SILENT,
-NULL) = -1 ENOMEDIUM (No medium found) <0.083741>
-
-I am nearly sure that it worked ~20 years ago.
-
+diff --git a/misc-utils/uuidparse.c b/misc-utils/uuidparse.c
+index 49225ae2c..5fa34b23d 100644
+--- a/misc-utils/uuidparse.c
++++ b/misc-utils/uuidparse.c
+@@ -195,7 +195,10 @@ static void fill_table_row(struct libscols_table *tb, char const *const uuid)
+ 			}
+ 			switch (type) {
+ 			case 0:
+-				str = xstrdup(_("nil"));
++				if (strspn(uuid, "0-") == 36)
++					str = xstrdup(_("nil"));
++				else
++					str = xstrdup(_("unknown"));
+ 				break;
+ 			case 1:
+ 				str = xstrdup(_("time-based"));
+diff --git a/tests/expected/uuid/uuidparse b/tests/expected/uuid/uuidparse
+index 7fc64bcd2..c4959be8d 100644
+--- a/tests/expected/uuid/uuidparse
++++ b/tests/expected/uuid/uuidparse
+@@ -6,20 +6,20 @@ UUID                                  VARIANT   TYPE       TIME
+ 00000000-0000-4000-0000-000000000000  NCS       random     
+ 00000000-0000-5000-0000-000000000000  NCS       sha1-based 
+ 00000000-0000-6000-0000-000000000000  NCS       unknown    
+-00000000-0000-0000-8000-000000000000  DCE       nil        
++00000000-0000-0000-8000-000000000000  DCE       unknown    
+ 00000000-0000-2000-8000-000000000000  DCE       DCE        
+ 00000000-0000-3000-8000-000000000000  DCE       name-based 
+ 00000000-0000-4000-8000-000000000000  DCE       random     
+ 00000000-0000-5000-8000-000000000000  DCE       sha1-based 
+ 00000000-0000-6000-8000-000000000000  DCE       unknown    
+-00000000-0000-0000-d000-000000000000  Microsoft nil        
++00000000-0000-0000-d000-000000000000  Microsoft unknown    
+ 00000000-0000-1000-d000-000000000000  Microsoft time-based 
+ 00000000-0000-2000-d000-000000000000  Microsoft DCE        
+ 00000000-0000-3000-d000-000000000000  Microsoft name-based 
+ 00000000-0000-4000-d000-000000000000  Microsoft random     
+ 00000000-0000-5000-d000-000000000000  Microsoft sha1-based 
+ 00000000-0000-6000-d000-000000000000  Microsoft unknown    
+-00000000-0000-0000-f000-000000000000  other     nil        
++00000000-0000-0000-f000-000000000000  other     unknown    
+ 00000000-0000-1000-f000-000000000000  other     time-based 
+ 00000000-0000-2000-f000-000000000000  other     DCE        
+ 00000000-0000-3000-f000-000000000000  other     name-based 
 -- 
-Best Regards / S pozdravem,
+2.13.3
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
