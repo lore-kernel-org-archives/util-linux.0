@@ -1,52 +1,55 @@
-Return-Path: elseifthen@gmx.com
-Subject: Re: 0b2b32e8a7 caused an unusual increase in hwclock size
-To: Karel Zak <kzak@redhat.com>
-References: <bbb77383-8a90-b1b1-0dfa-78cee5fb6267@gmx.com>
- <919e5992-abd9-b66c-5799-833c594cece1@gmx.com>
- <20170701235115.qtoui3merx5nmoje@ws.net.home>
-Cc: util-linux <util-linux@vger.kernel.org>, Ruediger Meier <sweet_f_a@gmx.de>
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <afb61dc9-b816-daa4-2b5d-690de619926b@gmx.com>
-Date: Sun, 2 Jul 2017 15:20:12 -0400
-MIME-Version: 1.0
-In-Reply-To: <20170701235115.qtoui3merx5nmoje@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:37899 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751126AbdGaTz2 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 31 Jul 2017 15:55:28 -0400
+Received: by mail-wr0-f193.google.com with SMTP id g32so15163253wrd.5
+        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 12:55:27 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 9/9] agetty: fix invalid usage crash
+Date: Mon, 31 Jul 2017 20:55:08 +0100
+Message-Id: <20170731195508.11661-10-kerolasa@iki.fi>
+In-Reply-To: <20170731195508.11661-1-kerolasa@iki.fi>
+References: <20170731195508.11661-1-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+$ agetty
+agetty: not enough arguments: Success
+Segmentation fault (core dumped)
 
+Reference: 9325dbfd2018b2a3b510617f4aa13777fbbe23c3
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ term-utils/agetty.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-On 07/01/2017 07:51 PM, Karel Zak wrote:
-> On Sat, Jul 01, 2017 at 12:07:24PM -0400, J William Piggott wrote:
->>
->> On 06/30/2017 04:41 PM, J William Piggott wrote:
->>>
->>> Does anyone know why this small change added 43K (+23%) to the binary?
->>
->> I'm no compiler guru, but it appears to me that gcc is smart enough to
->> exclude the unused strutils.h file without using '#if defined', and this
->> new code pulls it in.
->>
->> So as I said when reviewing the commit, the new code needs to be in:
->> #if defined(__linux__) && defined(__alpha__)
->> https://marc.info/?l=util-linux-ng&m=149830453215524&w=2
->>
->> After doing so the unused fat is no longer in the binary. I'm a bit
->> surprised that strutils adds 43K though.
->>
->> Then adding '#if defined' to the header include actually made the binary
->> 32 bytes larger. The striped binary was unchanged.
->>
->> I'm going to submit a patch to remove strutils from hwclock, but this
->> information might apply to other commands that were changed?
-> 
-> It would be better to compare striped versions.
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index f06b9fc6e..d9e9548fa 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -803,7 +803,8 @@ static void parse_args(int argc, char **argv, struct options *op)
+ 
+ 	if (argc < optind + 1) {
+ 		log_warn(_("not enough arguments"));
+-		warn(_("not enough arguments"));
++		warnx(_("not enough arguments"));
++		errtryhelp(EXIT_FAILURE);
+ 	}
+ 
+ 	/* Accept "tty", "baudrate tty", and "tty baudrate". */
+@@ -812,7 +813,8 @@ static void parse_args(int argc, char **argv, struct options *op)
+ 		parse_speeds(op, argv[optind++]);
+ 		if (argc < optind + 1) {
+ 			log_warn(_("not enough arguments"));
+-			warn(_("not enough arguments"));
++			warnx(_("not enough arguments"));
++			exit(EXIT_FAILURE);
+ 		}
+ 		op->tty = argv[optind++];
+ 	} else {
+-- 
+2.13.3
 
-Percentage wise it's close to the same 19% (+10K).
-Seems unexpectedly large for just adding:
-
-+       strutils_set_exitcode(EX_USAGE);
-+
-
-> 
->     Karel
-> 
