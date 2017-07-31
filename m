@@ -1,41 +1,76 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:37060 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751031AbdHOSNm (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 15 Aug 2017 14:13:42 -0400
-Received: by mail-wm0-f68.google.com with SMTP id t138so2256339wmt.4
-        for <util-linux@vger.kernel.org>; Tue, 15 Aug 2017 11:13:41 -0700 (PDT)
-Date: Tue, 15 Aug 2017 19:13:34 +0100 (BST)
-From: Sami Kerola <kerolasa@iki.fi>
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 5/5] hwclock: remove custom errno string
 To: Karel Zak <kzak@redhat.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] look: use WORDLIST environment variable to find word
- list
-In-Reply-To: <20170814091257.rq7kqgoi4vsqo2rb@ws.net.home>
-Message-ID: <alpine.LNX.2.20.1708151911190.1230@imuri>
-References: <20170812083208.1208-1-kerolasa@iki.fi> <20170812083208.1208-2-kerolasa@iki.fi> <20170814091257.rq7kqgoi4vsqo2rb@ws.net.home>
+References: <ccb78676-1284-5880-0ca9-ff15d2920de7@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <1cede91e-89c0-84a6-3440-ba2ef65c9330@gmx.com>
+Date: Mon, 31 Jul 2017 19:52:50 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <ccb78676-1284-5880-0ca9-ff15d2920de7@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 14 Aug 2017, Karel Zak wrote:
 
-> Would be better fallback to _PATH_WORDS if WORDLIST= points to
-> nowhere?
-> 
->     file = _PATH_WORDS; /* default */
->     if ((x = getenv("WORDLIST")) && access(file, R_OK) == 0)
->         file = x;
-> 
-> seems like more backwardly compatible way.
+Custom errno messages are unnecessary and problematic for translators.
 
-No problems, change is updated much like proposed above.
+hwclock --directisa
+hwclock: iopl() port access failed: Operation not permitted
+hwclock: root privileges may be required
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/dd8be07d84988b130286a1194210bdb26b223736
+The custom errno message is misleading. We do not know what
+the system permissions are set to. The default errno string is
+correct, and enough.
 
-That is in branch: 2017wk32
+Patched:
+hwclock --directisa
+hwclock: iopl() port access failed: Operation not permitted
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+root@:~# hwclock --directisa -D
+Using direct ISA access to the clock
+2017-07-24 14:49:17.782716-0400
+
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock-cmos.c | 6 +-----
+ sys-utils/hwclock.h      | 1 -
+ 2 files changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/sys-utils/hwclock-cmos.c b/sys-utils/hwclock-cmos.c
+index 6227b94..cdbc88b 100644
+--- a/sys-utils/hwclock-cmos.c
++++ b/sys-utils/hwclock-cmos.c
+@@ -45,7 +45,6 @@
+  *   tm_isdst	>0: yes, 0: no, <0: unknown
+  */
+ 
+-#include <errno.h>
+ #include <fcntl.h>
+ #include <stdio.h>
+ #include <string.h>
+@@ -390,12 +389,9 @@ static int get_permissions_cmos(void)
+ 	if (rc == IOPL_NOT_IMPLEMENTED) {
+ 		warnx(_("ISA port access is not implemented"));
+ 	} else if (rc != 0) {
+-		rc = errno;
+ 		warn(_("iopl() port access failed"));
+-		if (rc == EPERM && geteuid())
+-			warnx(_("root privileges may be required"));
+ 	}
+-	return rc ? 1 : 0;
++	return rc;
+ }
+ 
+ static struct clock_ops cmos_interface = {
+diff --git a/sys-utils/hwclock.h b/sys-utils/hwclock.h
+index a1ef80c..8843501 100644
+--- a/sys-utils/hwclock.h
++++ b/sys-utils/hwclock.h
+@@ -1,7 +1,6 @@
+ #ifndef HWCLOCK_CLOCK_H
+ #define HWCLOCK_CLOCK_H
+ 
+-#include <errno.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
