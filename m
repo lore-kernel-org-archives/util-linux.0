@@ -1,41 +1,79 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:56658 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751960AbdGDIzY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 4 Jul 2017 04:55:24 -0400
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Bernhard Voelker <mail@bernhard-voelker.de>
-Subject: Re: [PATCH 3/5] hwclock: final usage() strings slice
-Date: Tue, 4 Jul 2017 10:55:05 +0200
-Cc: Karel Zak <kzak@redhat.com>,
-        J William Piggott <elseifthen@gmx.com>,
-        util-linux@vger.kernel.org
-References: <9cf88d57-3a45-cd47-ac96-3495e09d81c5@gmx.com> <20170704075833.eqhwwhpo36s2i63d@ws.net.home> <192a27a9-6e22-5483-0222-23cd992af8d2@bernhard-voelker.de>
-In-Reply-To: <192a27a9-6e22-5483-0222-23cd992af8d2@bernhard-voelker.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201707041055.05661.sweet_f_a@gmx.de>
+Received: from mail-wr0-f195.google.com ([209.85.128.195]:37443 "EHLO
+        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751126AbdGaTzZ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 31 Jul 2017 15:55:25 -0400
+Received: by mail-wr0-f195.google.com with SMTP id 12so24395003wrb.4
+        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 12:55:25 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 7/9] agetty: remove dead DO_DEVFS_FIDDLING code segment
+Date: Mon, 31 Jul 2017 20:55:06 +0100
+Message-Id: <20170731195508.11661-8-kerolasa@iki.fi>
+In-Reply-To: <20170731195508.11661-1-kerolasa@iki.fi>
+References: <20170731195508.11661-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 04 July 2017, Bernhard Voelker wrote:
-> On 07/04/2017 09:58 AM, Karel Zak wrote:
-> > I think the idea is to use the extra space only if you mix printf
-> > and puts in the same code block. We have on many place only puts
-> > (or fputs) -- in this case the extra space is unnecessary.
->
-> What about putting the strings on an extra line regardless whether
-> that is output via printf or fputf or ...; e.g.
->   http://git.savannah.gnu.org/cgit/coreutils.git/tree/src/du.c#n278
-> ?
+There is no ./configure option to enable this, and it is unlikely any
+distribution hot patching to enable fiddling when building package.
 
-Yes this is nice because easy to count that no usage output is longer 
-than 80 chars. But I guess there are too many different opinions about 
-these stylish things. I'd also like to have just one string and only 
-one printf command for all options (like mkfs.cramfs.c). But this may 
-cause more work for translators each time we add a new option. Don't 
-know if that would be a real problem.
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ term-utils/agetty.c | 39 ---------------------------------------
+ 1 file changed, 39 deletions(-)
 
-cu,
-Rudi
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index cc0cc3f62..a95da6f3d 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -829,45 +829,6 @@ static void parse_args(int argc, char **argv, struct options *op)
+ 	if (argc > optind && argv[optind])
+ 		op->term = argv[optind];
+ 
+-#ifdef DO_DEVFS_FIDDLING
+-	/*
+-	 * Some devfs junk, following Goswin Brederlow:
+-	 *   turn ttyS<n> into tts/<n>
+-	 *   turn tty<n> into vc/<n>
+-	 * http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=72241
+-	 */
+-	if (op->tty && strlen(op->tty) < 90) {
+-		char dev_name[100];
+-		struct stat st;
+-
+-		if (strncmp(op->tty, "ttyS", 4) == 0) {
+-			strcpy(dev_name, "/dev/");
+-			strcat(dev_name, op->tty);
+-			if (stat(dev_name, &st) < 0) {
+-				strcpy(dev_name, "/dev/tts/");
+-				strcat(dev_name, op->tty + 4);
+-				if (stat(dev_name, &st) == 0) {
+-					op->tty = strdup(dev_name + 5);
+-					if (!op->tty)
+-						log_err(_("failed to allocate memory: %m"));
+-				}
+-			}
+-		} else if (strncmp(op->tty, "tty", 3) == 0) {
+-			strcpy(dev_name, "/dev/");
+-			strncat(dev_name, op->tty, 90);
+-			if (stat(dev_name, &st) < 0) {
+-				strcpy(dev_name, "/dev/vc/");
+-				strcat(dev_name, op->tty + 3);
+-				if (stat(dev_name, &st) == 0) {
+-					op->tty = strdup(dev_name + 5);
+-					if (!op->tty)
+-						log_err(_("failed to allocate memory: %m"));
+-				}
+-			}
+-		}
+-	}
+-#endif				/* DO_DEVFS_FIDDLING */
+-
+ 	debug("exiting parseargs\n");
+ }
+ 
+-- 
+2.13.3
+
