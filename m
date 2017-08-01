@@ -1,172 +1,241 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lf0-f68.google.com ([209.85.215.68]:36807 "EHLO
-        mail-lf0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752161AbdHBMPU (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 2 Aug 2017 08:15:20 -0400
-Received: by mail-lf0-f68.google.com with SMTP id t128so3659055lff.3
-        for <util-linux@vger.kernel.org>; Wed, 02 Aug 2017 05:15:20 -0700 (PDT)
-From: =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>
-To: util-linux@vger.kernel.org
-Cc: =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>
-Subject: [PATCH V2] libblkid: add support for UBI superblock
-Date: Wed,  2 Aug 2017 14:14:18 +0200
-Message-Id: <20170802121418.10628-1-zajec5@gmail.com>
-In-Reply-To: <20170801140309.17646-1-zajec5@gmail.com>
-References: <20170801140309.17646-1-zajec5@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:39942 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751008AbdHAJlX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 1 Aug 2017 05:41:23 -0400
+Date: Tue, 1 Aug 2017 11:41:19 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 8/9] agetty: add --compile-time option
+Message-ID: <20170801094119.4cgxngx757rhtulh@ws.net.home>
+References: <20170731195508.11661-1-kerolasa@iki.fi>
+ <20170731195508.11661-9-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170731195508.11661-9-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Rafał Miłecki <rafal@milecki.pl>
+On Mon, Jul 31, 2017 at 08:55:07PM +0100, Sami Kerola wrote:
+> This command has the most compile time #ifdef code.  It is time to add an
+> option to print what was defined when the command was compiled, so that
+> debugging is easier.
+> 
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  term-utils/agetty.8 |   3 +
+>  term-utils/agetty.c | 251 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 254 insertions(+)
+> 
+> diff --git a/term-utils/agetty.8 b/term-utils/agetty.8
+> index 23adff3b1..230c47cd5 100644
+> --- a/term-utils/agetty.8
+> +++ b/term-utils/agetty.8
+> @@ -281,6 +281,9 @@ if the user has not yet commenced logging in.  After doing so the command will
+>  exit.  This feature might be unsupported on systems without Linux
+>  .BR inotify (7).
+>  .TP
+> +\-\-compile\-time
+> +Display compile time definitions.
 
-UBI is a volume management system that can be used on a raw flash
-partition for providing multiple logical volumes. Detecting UBI
-superblock may be useful for tools wanting to simplify or automate
-attaching UBI.
+I don't like the option name ;-)
 
-Please note it's not directly related to the ubifs support which is just
-a filesystem working on top of UBI volume.
+> +static void __attribute__((__noreturn__)) compile_time(void)
+> +{
+> +#ifdef B19200
+> +printf("%-30s: defined\n", "B19200");
+> +#else
+> +printf("%-30s: not in use\n", "B19200");
+> +#endif
 
-In other words: UBI can be used on MTD partition (e.g. /dev/mtdblock0)
-while ubifs can be used on UBI volume (e.g. /dev/ubi0_0).
+This is overkill. I can imagine --list-speeds to list built-in speeds
+in format "<speed>\n"
 
-This patch adds simple code reading UBI version and unique number and
-setting it in the blkid_probe.
+static cost char *speeds[] = {
+#ifdef B19200
+    "B19200",
+#endif
+};
 
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
----
-V2: Update commit message (more UBI vs. ubifs details)
-    Pass &hdr->image_seq to the blkid_probe_sprintf_uuid
-    Add test
----
- libblkid/src/Makemodule.am             |   1 +
- libblkid/src/superblocks/superblocks.c |   1 +
- libblkid/src/superblocks/superblocks.h |   1 +
- libblkid/src/superblocks/ubi.c         |  51 +++++++++++++++++++++++++++++++++
- tests/expected/blkid/low-probe-ubi     |   5 ++++
- tests/ts/blkid/images-fs/ubi.img.xz    | Bin 0 -> 136 bytes
- 6 files changed, 59 insertions(+)
- create mode 100644 libblkid/src/superblocks/ubi.c
- create mode 100644 tests/expected/blkid/low-probe-ubi
- create mode 100644 tests/ts/blkid/images-fs/ubi.img.xz
+... and so on.
 
-diff --git a/libblkid/src/Makemodule.am b/libblkid/src/Makemodule.am
-index 2b70742bc..8dfe892ff 100644
---- a/libblkid/src/Makemodule.am
-+++ b/libblkid/src/Makemodule.am
-@@ -85,6 +85,7 @@ libblkid_la_SOURCES = \
- 	libblkid/src/superblocks/superblocks.h \
- 	libblkid/src/superblocks/swap.c \
- 	libblkid/src/superblocks/sysv.c \
-+	libblkid/src/superblocks/ubi.c \
- 	libblkid/src/superblocks/ubifs.c \
- 	libblkid/src/superblocks/udf.c \
- 	libblkid/src/superblocks/ufs.c \
-diff --git a/libblkid/src/superblocks/superblocks.c b/libblkid/src/superblocks/superblocks.c
-index 88578c8db..cb887f8f1 100644
---- a/libblkid/src/superblocks/superblocks.c
-+++ b/libblkid/src/superblocks/superblocks.c
-@@ -152,6 +152,7 @@ static const struct blkid_idinfo *idinfos[] =
- 	&squashfs3_idinfo,
- 	&netware_idinfo,
- 	&btrfs_idinfo,
-+	&ubi_idinfo,
- 	&ubifs_idinfo,
- 	&bfs_idinfo,
- 	&vmfs_fs_idinfo,
-diff --git a/libblkid/src/superblocks/superblocks.h b/libblkid/src/superblocks/superblocks.h
-index ea875d768..695c3b783 100644
---- a/libblkid/src/superblocks/superblocks.h
-+++ b/libblkid/src/superblocks/superblocks.h
-@@ -64,6 +64,7 @@ extern const struct blkid_idinfo netware_idinfo;
- extern const struct blkid_idinfo sysv_idinfo;
- extern const struct blkid_idinfo xenix_idinfo;
- extern const struct blkid_idinfo btrfs_idinfo;
-+extern const struct blkid_idinfo ubi_idinfo;
- extern const struct blkid_idinfo ubifs_idinfo;
- extern const struct blkid_idinfo zfs_idinfo;
- extern const struct blkid_idinfo bfs_idinfo;
-diff --git a/libblkid/src/superblocks/ubi.c b/libblkid/src/superblocks/ubi.c
-new file mode 100644
-index 000000000..ee2644792
---- /dev/null
-+++ b/libblkid/src/superblocks/ubi.c
-@@ -0,0 +1,51 @@
-+/*
-+ * Copyright (C) 2017 Rafał Miłecki <rafal@milecki.pl>
-+ *
-+ * This file may be redistributed under the terms of the
-+ * GNU Lesser General Public License.
-+ */
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <string.h>
-+#include <stdint.h>
-+
-+#include "superblocks.h"
-+
-+struct ubi_ec_hdr {
-+	uint32_t	magic;
-+	uint8_t		version;
-+	uint8_t		padding1[3];
-+	uint64_t	ec;
-+	uint32_t	vid_hdr_offset;
-+	uint32_t	data_offset;
-+	uint32_t	image_seq;
-+	uint8_t		padding2[32];
-+	uint32_t	hdr_crc;
-+} __attribute__((packed));
-+
-+static int probe_ubi(blkid_probe pr, const struct blkid_idmag *mag)
-+{
-+	struct ubi_ec_hdr *hdr;
-+
-+	hdr = blkid_probe_get_sb(pr, mag, struct ubi_ec_hdr);
-+	if (!hdr)
-+		return -1;
-+
-+	blkid_probe_sprintf_version(pr, "%u", hdr->version);
-+	blkid_probe_sprintf_uuid(pr, (unsigned char *)&hdr->image_seq, 4, "%u",
-+				 be32_to_cpu(hdr->image_seq));
-+	return 0;
-+}
-+
-+const struct blkid_idinfo ubi_idinfo =
-+{
-+	.name		= "ubi",
-+	.usage		= BLKID_USAGE_FILESYSTEM,
-+	.probefunc	= probe_ubi,
-+	.magics		=
-+	{
-+		{ .magic = "UBI#", .len = 4 },
-+		{ NULL }
-+	}
-+};
-diff --git a/tests/expected/blkid/low-probe-ubi b/tests/expected/blkid/low-probe-ubi
-new file mode 100644
-index 000000000..318a35152
---- /dev/null
-+++ b/tests/expected/blkid/low-probe-ubi
-@@ -0,0 +1,5 @@
-+ID_FS_TYPE=ubi
-+ID_FS_USAGE=filesystem
-+ID_FS_UUID=1329411831
-+ID_FS_UUID_ENC=1329411831
-+ID_FS_VERSION=1
-diff --git a/tests/ts/blkid/images-fs/ubi.img.xz b/tests/ts/blkid/images-fs/ubi.img.xz
-new file mode 100644
-index 0000000000000000000000000000000000000000..ed3b3f4260f543608887d7cf09c9ff8fec8a7f1b
-GIT binary patch
-literal 136
-zcmexsUKJ6=z`*kC+7>q^21Q0O1_p)_{ill`$p2?>jb+f9(CWul(ej4RWS(FA_j9dN
-z(smqrqi{nbSMJ?3yNB5tZQ?r?Mrd4W6HgS&b;)>R@gwNIW<|r6?CWK@fgXCx7W1fm
-n<p7$<z!2G>;%M<%&4qz6vB3ez?|s0pwed*$Zzhl=OJo!PP&YE!
+> +#ifdef AGETTY_RELOAD
+> +printf("%-30s: defined\n", "AGETTY_RELOAD");
+> +#else
+> +printf("%-30s: not in use\n", "AGETTY_RELOAD");
+> +#endif
 
-literal 0
-HcmV?d00001
+For this purpose we can use --version, see for example mount:
+
+ $ mount -V
+ mount from util-linux 2.28.2 (libmount 2.28.2: selinux, btrfs, force-mountinfo, assert, debug)
+
+the same we can use for agetty to list *really important* enabled
+features, for example:
+
+ $ agetty -V
+ agetty from util-linux 2.31 (reload, issue, plymouth, debug)
+
+
+> +#ifdef CRTSCTS
+> +printf("%-30s: defined\n", "CRTSCTS");
+> +#else
+> +printf("%-30s: not in use\n", "CRTSCTS");
+> +#endif
+
+not sure if this is important
+
+> +#ifdef DEBUGGING
+> +printf("%-30s: defined\n", "DEBUGGING");
+> +#else
+> +printf("%-30s: not in use\n", "DEBUGGING");
+> +#endif
+
+ok
+
+> +#ifdef HAVE_GETDOMAINNAME
+> +printf("%-30s: defined\n", "HAVE_GETDOMAINNAME");
+> +#else
+> +printf("%-30s: not in use\n", "HAVE_GETDOMAINNAME");
+> +#endif
+> +
+> +#ifdef HAVE_LIBUTIL_H
+> +printf("%-30s: defined\n", "HAVE_LIBUTIL_H");
+> +#else
+> +printf("%-30s: not in use\n", "HAVE_LIBUTIL_H");
+> +#endif
+
+unimportant
+
+> +#ifdef HAVE_STRUCT_TERMIOS_C_LINE
+> +printf("%-30s: defined\n", "HAVE_STRUCT_TERMIOS_C_LINE");
+> +#else
+> +printf("%-30s: not in use\n", "HAVE_STRUCT_TERMIOS_C_LINE");
+> +#endif
+> +
+> +#ifdef HAVE_SYS_PARAM_H
+> +printf("%-30s: defined\n", "HAVE_SYS_PARAM_H");
+> +#else
+> +printf("%-30s: not in use\n", "HAVE_SYS_PARAM_H");
+> +#endif
+> +
+> +#ifdef HAVE_UTMP_H
+> +printf("%-30s: defined\n", "HAVE_UTMP_H");
+> +#else
+> +printf("%-30s: not in use\n", "HAVE_UTMP_H");
+> +#endif
+
+really unimportant
+
+> +#ifdef HAVE_WIDECHAR
+> +printf("%-30s: defined\n", "HAVE_WIDECHAR");
+> +#else
+> +printf("%-30s: not in use\n", "HAVE_WIDECHAR");
+> +#endif
+
+ok
+
+> +#ifdef ISSUE
+> +printf("%-30s: defined\n", "ISSUE");
+> +#else
+> +printf("%-30s: not in use\n", "ISSUE");
+> +#endif
+
+ok
+
+> +#ifdef IUCLC
+> +printf("%-30s: defined\n", "IUCLC");
+> +#else
+> +printf("%-30s: not in use\n", "IUCLC");
+> +#endif
+>
+> +#ifdef IUTF8
+> +printf("%-30s: defined\n", "IUTF8");
+> +#else
+> +printf("%-30s: not in use\n", "IUTF8");
+> +#endif
+
+unimportant
+
+> +#ifdef KDGKBLED
+> +printf("%-30s: defined\n", "KDGKBLED");
+> +#else
+> +printf("%-30s: not in use\n", "KDGKBLED");
+> +#endif
+> +
+> +#ifdef KDGKBMODE
+> +printf("%-30s: defined\n", "KDGKBMODE");
+> +#else
+> +printf("%-30s: not in use\n", "KDGKBMODE");
+> +#endif
+
+ok
+
+> +#ifdef K_RAW
+> +printf("%-30s: defined\n", "K_RAW");
+> +#else
+> +printf("%-30s: not in use\n", "K_RAW");
+> +#endif
+> +
+> +#ifdef LOGIN_PROCESS
+> +printf("%-30s: defined\n", "LOGIN_PROCESS");
+> +#else
+> +printf("%-30s: not in use\n", "LOGIN_PROCESS");
+> +#endif
+> +
+> +#ifdef OLCUC
+> +printf("%-30s: defined\n", "OLCUC");
+> +#else
+> +printf("%-30s: not in use\n", "OLCUC");
+> +#endif
+> +
+> +#ifdef SYSV_STYLE
+> +printf("%-30s: defined\n", "SYSV_STYLE");
+> +#else
+> +printf("%-30s: not in use\n", "SYSV_STYLE");
+> +#endif
+
+unimportant
+
+> +#ifdef USE_PLYMOUTH_SUPPORT
+> +printf("%-30s: defined\n", "USE_PLYMOUTH_SUPPORT");
+> +#else
+> +printf("%-30s: not in use\n", "USE_PLYMOUTH_SUPPORT");
+> +#endif
+
+ok
+
+> +#ifdef USE_SYSLOG
+> +printf("%-30s: defined\n", "USE_SYSLOG");
+> +#else
+> +printf("%-30s: not in use\n", "USE_SYSLOG");
+> +#endif
+
+ok
+
+> +#ifdef XCASE
+> +printf("%-30s: defined\n", "XCASE");
+> +#else
+> +printf("%-30s: not in use\n", "XCASE");
+> +#endif
+> +
+> +#ifdef __FreeBSD_kernel__
+> +printf("%-30s: defined\n", "__FreeBSD_kernel__");
+> +#else
+> +printf("%-30s: not in use\n", "__FreeBSD_kernel__");
+> +#endif
+> +
+> +#ifdef __linux__
+> +printf("%-30s: defined\n", "__linux__");
+> +#else
+> +printf("%-30s: not in use\n", "__linux__");
+> +#endif
+
+unimportant
+
+    Karel
 
 -- 
-2.11.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
