@@ -1,89 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34386 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751352AbdHAMoJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 1 Aug 2017 08:44:09 -0400
-Date: Tue, 1 Aug 2017 14:44:05 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Carlos Santos <casantos@datacom.ind.br>
-Cc: util-linux@vger.kernel.org
-Subject: Re: Problem building util-linux without a separate ncursesw include
- dir
-Message-ID: <20170801124405.ikj44ulhisvfthnf@ws.net.home>
-References: <1971282138.2691482.1501546323018.JavaMail.zimbra@datacom.ind.br>
- <1705151756.2691717.1501548399616.JavaMail.zimbra@datacom.ind.br>
- <20170801072017.yl7mgv64pq7ccj5e@ws.net.home>
- <1033867833.2726878.1501589362348.JavaMail.zimbra@datacom.ind.br>
+Received: from mx.datacom.ind.br ([177.66.5.10]:36605 "EHLO
+        mail.datacom.ind.br" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751106AbdHAAOe (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 31 Jul 2017 20:14:34 -0400
+Received: from mail.datacom.ind.br (localhost [127.0.0.1])
+        by mail.datacom.ind.br (Postfix) with ESMTPS id 4865E150735A
+        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 21:12:03 -0300 (BRT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.datacom.ind.br (Postfix) with ESMTP id 39F2D1507345
+        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 21:12:03 -0300 (BRT)
+Received: from mail.datacom.ind.br ([127.0.0.1])
+        by localhost (mail.datacom.ind.br [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id x7iDLh37urb8 for <util-linux@vger.kernel.org>;
+        Mon, 31 Jul 2017 21:12:03 -0300 (BRT)
+Received: from mail.datacom.ind.br (mail.datacom.ind.br [172.25.4.13])
+        by mail.datacom.ind.br (Postfix) with ESMTP id 2332C1507355
+        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 21:12:03 -0300 (BRT)
+Date: Mon, 31 Jul 2017 21:12:03 -0300 (BRT)
+From: Carlos Santos <casantos@datacom.ind.br>
+To: util-linux@vger.kernel.org
+Message-ID: <1971282138.2691482.1501546323018.JavaMail.zimbra@datacom.ind.br>
+Subject: Problem building util-linux without a separate ncursesw include dir
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1033867833.2726878.1501589362348.JavaMail.zimbra@datacom.ind.br>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 01, 2017 at 09:09:22AM -0300, Carlos Santos wrote:
-> > From: "Karel Zak" <kzak@redhat.com>
-> > To: "Carlos Santos" <casantos@datacom.ind.br>
-> > Cc: util-linux@vger.kernel.org
-> > Sent: Tuesday, August 1, 2017 4:20:17 AM
-> > Subject: Re: Problem building util-linux without a separate ncursesw include dir
-> 
-> > On Mon, Jul 31, 2017 at 09:46:39PM -0300, Carlos Santos wrote:
-> >> > From: "Carlos Santos" <casantos@datacom.ind.br>
-> >> > To: util-linux@vger.kernel.org
-> >> > Sent: Monday, July 31, 2017 9:12:03 PM
-> >> > Subject: Problem building util-linux without a separate ncursesw include dir
-> >> 
-> >> > of util-linux. Would it be possible to make the location of ncursesw
-> >> > headers configurable, instead?
-> > 
-> > We test for alone ncurses.h and term.h in the for non-wide ncurses.
-> > Can you send output from your configure from the current master
-> > branch (or v2.30.1)?
-> 
-> config.log: https://pastebin.com/DVAyx1Zb
+Hello,
 
-I see --with-ncursesw, it means the configure.ac code where we check
-for alone ncurses.h is not executed. Try it without this --with... I
-guess it will work.
+Since commit 3947ca4ca (build-sys: ncurses headers cleanup), util-linux
+assumes that ncursesw headers are in an "ncursesw" subdirectory. That's
+valid on systems that have both ncurses variants but not on embedded
+systems like Buildroot on which only one variant is build, with headers
+always installed directly at /usr/include.
 
-> defconfig for buildroot: https://pastebin.com/U3pz0hvm
-> 
-> >> I was thinking on something simple, like https://pastebin.com/VqM9G9yu
-> > 
-> > Hmm, but you don't distinguish between wide and non-wide ncurses.
-> 
-> That's because on Buildroot only one of the variants can exist.
-> 
-> BTW I noticed that on Fedora each /usr/include/ncurses/<foo> is a
-> symlink to ../<foo>, so the situation is exactly the same.
+I added a patch to revert commit 3947ca4ca to the Buildroot recipe but
+such a drastic solution can easily become incompatible with new versions
+of util-linux. Would it be possible to make the location of ncursesw
+headers configurable, instead?
 
-Yes, but the symlink is good enough (f25):
-
-        checking for ncursesw6-config... ncursesw6-config
-        checking ncursesw/ncurses.h usability... yes
-        checking ncursesw/ncurses.h presence... yes
-        ...
-
-
-Anyway, you're right with your suggested patch :-)
-
-We don't have to distinguish between wide and non-wide ncurses when we
-check for header files, because it's already done by
-UL_NCURSES_CHECK() and AC_CHECK_HEADERS() is executed only if we
-already have widechar lib.
-
-Fixed... git-pull and try it. 
-
-    Karel
-
-> “The greatest triumph that modern PR can offer is the transcendent 
-> success of having your words and actions judged by your reputation, 
-> rather than the other way about.” — Christopher Hitchens
-
-Nice ;-)
-
-    Karel
+Thanks in advance.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Carlos Santos (Casantos) - DATACOM, P&D
+Rua América, 1000 - Eldorado do Sul, RS, Brasil - 92990-000
+casantos@datacom.ind.br          +55 51 3933.3000 ext. 3627
+http://www.datacom.ind.br
