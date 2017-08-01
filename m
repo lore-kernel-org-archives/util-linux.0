@@ -1,126 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40006 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.22]:50186 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750835AbdGCMH4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 3 Jul 2017 08:07:56 -0400
-Date: Mon, 3 Jul 2017 14:07:52 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: J William Piggott <elseifthen@gmx.com>, util-linux@vger.kernel.org
-Subject: Re: fputs() vs puts()
-Message-ID: <20170703120752.25fkjobw6dxgqo2w@ws.net.home>
-References: <011634ef-e5e7-354e-6064-3191450b4fc8@gmx.com>
- <20170629201231.vjxp6mkecuqoalfo@ws.net.home>
- <1d036b95-430d-839f-031c-31b80e6e2b4f@gmx.com>
- <201707031030.22137.sweet_f_a@gmx.de>
+        id S1751368AbdHANK3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 1 Aug 2017 09:10:29 -0400
+Subject: [PATCH 0/8] Pull Request
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
+Date: Tue, 1 Aug 2017 09:10:14 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201707031030.22137.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jul 03, 2017 at 10:30:21AM +0200, Ruediger Meier wrote:
-> On Friday 30 June 2017, J William Piggott wrote:
-> > On 06/29/2017 04:12 PM, Karel Zak wrote:
-> > > On Thu, Jun 29, 2017 at 10:46:50AM -0400, J William Piggott wrote:
-> > >>>    (William, can you update your "standardize USAGE_COLUMNS"
-> > >>> patches? Please.)
-> > >>
-> > >> Sure, one clarification please: you want only the columns header
-> > >> in all caps? So:
-> > >>
-> > >> Usage:
-> > >> Options:
-> > >> Functions:
-> > >> Commands:
-> > >> COLUMNS:
-> > >
-> > > ha.. that's a good question. Suggestions?
-> > >
-> > > For example coreutils project uses uppercase for keywords only, for
-> > > example dd(1)
-> > >
-> > >     Each FLAG symbol may be:
-> > >        ...
-> > >     Each CONV symbol may be:
-> > >        ...
-> > >
-> > > it seems like original Rudi's idea
-> > >
-> > >     Available COLUMNS:
-> >
-> > But they also use:
-> > of=FILE
-> > conv=CONVS
-> >
-> > So we cannot completely follow that paradigm. The above are not
-> > option args, and you do not want option args in all caps.
-> >
-> > The columns situation is unique, we don't have to play follow the
-> > leader.
-> >
-> > Comparing:
-> >
-> >         --output <list>    COLUMNS to display (see below)
-> >         ...
-> >         Available COLUMNS:
 
-For me it looks better (including esthetical point of view ;-)
+The focus of this  patch set is fixing RTC read logic, which is PATCH 4/8.
 
-But wait with it...
+The following changes since commit 55b3fe7824c261b6b3d2a8869a8cb509fdd2569f:
 
-> > With:
-> >         --output <list>    columns to display (see Columns:)
-> >         ...
-> >         Columns:
-> >
-> >
-> > What does the reader learn by yelling COLUMNS at them.
->
-> It's just de-facto standard for "--help/man"-like technical 
-> documentation. If you would write html or info docs, then you would not 
-> use capital letters but links to click on.
-> 
-> Compare:
-> 
-> $ man bash | grep -i EXPANSION
-> $ man bash | grep  EXPANSION
-> 
-> or
-> 
-> $ xz --help | grep -i FILE
-> $ xz --help | grep FILE 
-> 
-> It's a very useful style and users *use* this by case-sensitive search 
-> in less or grep. This style is not always used 100% consistently but 
-> I'm happy whenever I see it, saves me a lot of time usually.
+  setpriv: document accepted formats for naming caps (2017-08-01 11:52:31 +0200)
 
- Maybe it would be possible to convince me that coreutils way for
- options arguments is the right way :-))
- 
- I mean:
+are available in the git repository at:
 
-   --output COLUMNS      
-   --length SIZE
-   --net[=FILE]
+  git@github.com:jwpi/util-linux.git 170724
 
- ...etc. The question is how to compose the option string to minimize
- duplication and inform about a format, for example
+for you to fetch changes up to fd1fbfc789541957088734df4a30af7b30d36763:
 
-   --output COLUMNS    list of columns to display (see below)
+  hwclock: remove busywait tristate return status (2017-08-01 08:41:43 -0400)
 
-  
- Note that on many places we for example for SIZE accept suffixes
- (MiB, GiB...) but this info is nowhere in the --help output.
+----------------------------------------------------------------
+J William Piggott (8):
+      hwclock: move systz above init clocks read
+      hwclock: move rtc permissions test
+      hwclock: move drift correction and --predict
+      hwclock: fix RTC read logic
+      hwclock: correlate hclocktime instead of set_time.
+      hwclock: update man page
+      hwclock: restore select() timeout warning
+      hwclock: remove busywait tristate return status
 
- And note that I like the William's idea with the explicit reader
- redirection "(see below)".
-
- Maybe Rudy is right and it's time to think about it for this release
- if we already decided to cleanup usage().
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+ sys-utils/hwclock-rtc.c |  16 +++----
+ sys-utils/hwclock.8.in  |  26 ++++++++---
+ sys-utils/hwclock.c     | 118 ++++++++++++++++++++++++------------------------
+ sys-utils/hwclock.h     |   6 ---
+ 4 files changed, 87 insertions(+), 79 deletions(-)
