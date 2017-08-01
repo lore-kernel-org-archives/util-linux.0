@@ -1,66 +1,76 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:56988 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.20]:56559 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753834AbdHWMnB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 23 Aug 2017 08:43:01 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 39B4283F42
-        for <util-linux@vger.kernel.org>; Wed, 23 Aug 2017 12:43:01 +0000 (UTC)
-Received: from ws.net.home (ovpn-117-68.ams2.redhat.com [10.36.117.68])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 05A7A60C28
-        for <util-linux@vger.kernel.org>; Wed, 23 Aug 2017 12:42:59 +0000 (UTC)
-Date: Wed, 23 Aug 2017 14:42:55 +0200
-From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org
-Subject: su refactoring and --pty implemenation
-Message-ID: <20170823124255.cw6fv33alrrfcppl@ws.net.home>
+        id S1751217AbdHANSP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 1 Aug 2017 09:18:15 -0400
+Subject: [PATCH 5/8] hwclock: correlate hclocktime instead of set_time.
+To: Karel Zak <kzak@redhat.com>
+References: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <2cf04064-2963-1c14-d2ed-7804b31c590c@gmx.com>
+Date: Tue, 1 Aug 2017 09:18:01 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
- In the last releases we ignore TIOCSTI su(1) issue. The issue is that
- (unprivileged) bad user can inject command to the privileged terminal.
- For more details see tests/helpers/test_tiocsti.c.
+Correlate hclocktime with set_time instead of the other way around,
+because set_time is used for timestamps in the adjtime file so it needs
+to be unadulterated.
 
- The easy way how fix this issue is setsid() syscall; unfortunately
- it's bad idea in some cases (for example if you want to run su(1)
- session on background).
+Also create var startup_hclocktime for correlated time.
+
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
+
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index e172fb1..df6b59e 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1029,9 +1029,14 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 	bool hclock_valid = FALSE;
+ 	/*
+ 	 * Tick synchronized time read from the Hardware Clock and
+-	 * then drift correct for all operations except --show.
++	 * then drift corrected for all operations except --show.
+ 	 */
+-	struct timeval hclocktime = { 0, 0 };
++	struct timeval hclocktime = { 0 };
++	/*
++	 * hclocktime correlated to startup_time. That is, what drift
++	 * corrected Hardware Clock time would have been at start up.
++	 */
++	struct timeval startup_hclocktime = { 0 };
+ 	/* Total Hardware Clock drift correction needed. */
+ 	struct timeval tdrift;
  
- And setsid() fixes TIOCSTI issue only. The core of the problem is
- that we share terminal file descriptors between privileged and
- unprivileged sessions.
- 
- The real solution seems to be create independent pseudo-terminal for
- all the session and proxy (copy) stdin and stdout between original
- terminal and su(1) session terminal.
-
- I have created two branches:
-
- * su-refact: https://github.com/karelzak/util-linux/tree/su-refact
-              https://github.com/karelzak/util-linux/commits/su-refact
-
-   This branch does NOT introduce any change or a new feature to
-   su(1). All the changes are about refactoring to make later feature
-   improvements more easy to implement.
-
- * su-pty: https://github.com/karelzak/util-linux/tree/su-pty
-           https://github.com/karelzak/util-linux/commits/su-refact
-
-   This branch implements a new --pty command line option and it's
-   based on su-refact. The new feature is marked as experimental and
-   not enabled as default. It means all the current use-cases (scripts,
-   ...) should not be affected by the new feature.
-
-
- I'd like to ask for review, the number of patches is large, so it's
- probably better to use git-hub. Please ;-)
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+@@ -1096,18 +1101,17 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 				     hclocktime.tv_sec, &tdrift);
+ 		if (!ctl->show)
+ 			hclocktime = time_inc(tdrift, hclocktime.tv_sec);
++
++		startup_hclocktime =
++		 time_inc(hclocktime, time_diff(startup_time, read_time));
+ 	}
+ 	if (ctl->show || ctl->get) {
+-		display_time(hclock_valid,
+-			     time_inc(hclocktime, -time_diff
+-				      (read_time, startup_time)));
++		display_time(hclock_valid, startup_hclocktime);
+ 	} else if (ctl->set) {
+ 		set_hardware_clock_exact(ctl, set_time, startup_time);
+ 		if (!ctl->noadjfile)
+-			adjust_drift_factor(ctl, adjtime,
+-					    time_inc(t2tv(set_time), time_diff
+-						     (read_time, startup_time)),
+-					    hclock_valid, hclocktime);
++			adjust_drift_factor(ctl, adjtime, t2tv(set_time),
++					    hclock_valid, startup_hclocktime);
+ 	} else if (ctl->adjust) {
+ 		if (tdrift.tv_sec > 0 || tdrift.tv_sec < -1)
+ 			do_adjustment(ctl, adjtime, hclock_valid,
