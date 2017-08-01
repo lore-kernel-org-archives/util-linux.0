@@ -1,56 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:56678 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:60932 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932205AbdHVJPm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 22 Aug 2017 05:15:42 -0400
-Date: Tue, 22 Aug 2017 11:15:38 +0200
+        id S1751115AbdHAJvZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 1 Aug 2017 05:51:25 -0400
+Date: Tue, 1 Aug 2017 11:51:21 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Renzo Davoli <renzo@cs.unibo.it>
+To: J William Piggott <elseifthen@gmx.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: mount(8) does not support cap_sys_admin
-Message-ID: <20170822091538.f6q7ihuhskc7hw6u@ws.net.home>
-References: <20170822082047.eczufv3naqlvulsn@cs.unibo.it>
- <20170822084011.vzahylh7qxvcmj3b@cs.unibo.it>
+Subject: Re: [PATCH 0/5] Pull Request
+Message-ID: <20170801095121.55s26xvmdoq4vfml@ws.net.home>
+References: <ccb78676-1284-5880-0ca9-ff15d2920de7@gmx.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170822084011.vzahylh7qxvcmj3b@cs.unibo.it>
+In-Reply-To: <ccb78676-1284-5880-0ca9-ff15d2920de7@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 22, 2017 at 10:40:11AM +0200, Renzo Davoli wrote:
-> mount command does not seem to support the cap_sys_admin capability.
-> 
-> In fact the command fails when the mount system call would succeeds
-> for operation permitted to users (e.g. bind mounts in user-namespaces)
-> 
-> For example using userbindmount
-> https://github.com/rd235/userbindmount
-> 
-> $ userbindmount -s --
-> $ mount --bind /tmp/resolv.conf /etc/resolv.conf 
-> mount: only root can use "--bind" option
-> $ busybox mount --bind /tmp/resolv.conf /etc/resolv.conf 
-> $
-> 
-> As it can be seen from the example above, busybox mount
-> succeeds on the same command where mount(8) fails.
-> 
-> "Mount" erroneously checks that the effective user is root
-> and returns an error prior to invoke the system call mount(2),
-> forbidding in this way permitted operations.
+On Mon, Jul 31, 2017 at 07:36:22PM -0400, J William Piggott wrote:
+>       hwclock: squash custom errno strings
+>       hwclock: squash custom errno strings
+>       hwclock: fix unimplemented ioctl test
+>       hwclock: remove custom errno string
+>       hwclock: remove custom errno string
 
-Well, historically mount(8) is not about mount(2) syscall only. It
-also check filesystem type (read from devices), write userspace files
-(/etc/mtab or /run/mount/utab), create loop devices, call btrfs
-ioctls and execute mount helpers.
+ Cool, I like it a lot. This is exactly how error/warning messages
+ should be composed. Don't guess anything, don't try to explain
+ everything, etc ... just print errno based string.
 
-We can improve libmount to accept capabilities for simple use-cases
-like --bind, but the question is if it does make sense if for another
-tasks it will be hard to use. 
-
-Frankly, I have never tried it. Maybe it will not so big issue to try
-it, test it and describe possible limitation in the man page. I'll add
-this to our TODO list.
+ Applied, thanks.
 
     Karel
 
