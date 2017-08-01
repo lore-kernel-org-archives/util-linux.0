@@ -1,39 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.virtlab.unibo.it ([130.136.161.50]:33064 "EHLO
-        mail.virtlab.unibo.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932148AbdHVI2q (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 22 Aug 2017 04:28:46 -0400
-Date: Tue, 22 Aug 2017 10:20:47 +0200
-From: Renzo Davoli <renzo@cs.unibo.it>
-To: util-linux@vger.kernel.org
-Subject: muont(1) does not support cap_sys_admin
-Message-ID: <20170822082047.eczufv3naqlvulsn@cs.unibo.it>
+Received: from mout.gmx.net ([212.227.17.22]:57304 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751008AbdHANEF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 1 Aug 2017 09:04:05 -0400
+Subject: Re: [PATCH 0/5] Pull Request
+To: Karel Zak <kzak@redhat.com>
+References: <ccb78676-1284-5880-0ca9-ff15d2920de7@gmx.com>
+ <20170801095121.55s26xvmdoq4vfml@ws.net.home>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <75bd90f4-a977-c767-5141-002092032b6b@gmx.com>
+Date: Tue, 1 Aug 2017 09:03:51 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170801095121.55s26xvmdoq4vfml@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-mount command does not seem to support the cap_sys_admin capability.
 
-In fact the command fails when the mount system call would succeeds
-for operation permitted to users (e.g. bind mounts in user-namespaces)
 
-For example using userbindmount
-https://github.com/rd235/userbindmount
+On 08/01/2017 05:51 AM, Karel Zak wrote:
+> On Mon, Jul 31, 2017 at 07:36:22PM -0400, J William Piggott wrote:
+>>       hwclock: squash custom errno strings
+>>       hwclock: squash custom errno strings
+>>       hwclock: fix unimplemented ioctl test
+>>       hwclock: remove custom errno string
+>>       hwclock: remove custom errno string
+> 
+>  Cool, I like it a lot. This is exactly how error/warning messages
+>  should be composed. Don't guess anything, don't try to explain
+>  everything, etc ... just print errno based string.
 
-$ userbindmount -s --
-$ mount --bind /tmp/resolv.conf /etc/resolv.conf 
-mount: only root can use "--bind" option
-$ busybox mount --bind /tmp/resolv.conf /etc/resolv.conf 
-$
+Thanks for the feedback. I feel the same. hwclock messages editorialize
+and are too verbose. There are more to fix on my todo list. The --systz
+function has the "Don't guess anything" problem. It prints what it
+expects the kernel to do as being fact.
 
-As it can be seen from the example above, busybox mount
-succeeds on the same command where mount(1) fails.
 
-"Mount" erroneously checks that the effective user is root
-and returns an error prior to invoke the system call mount(2),
-forbidding in this way permitted operations.
-
-thank you
-
-	renzo
+> 
+>  Applied, thanks.
+> 
+>     Karel
+> 
