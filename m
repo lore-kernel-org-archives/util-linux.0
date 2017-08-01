@@ -1,73 +1,75 @@
-Return-Path: zajec5@gmail.com
-MIME-Version: 1.0
-In-Reply-To: <20170807081801.rpupulq6hbcd7zra@ws.net.home>
-References: <20170801140309.17646-1-zajec5@gmail.com> <20170802121418.10628-1-zajec5@gmail.com>
- <20170803122608.bpqcsfdfek3fvf26@ws.net.home> <CACna6rwPwb9WjzJor3rYf1WSJs2_NNBKR5S3Ya8YPVEk3EK7tg@mail.gmail.com>
- <20170807081801.rpupulq6hbcd7zra@ws.net.home>
-From: =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
-Date: Mon, 7 Aug 2017 10:21:55 +0200
-Message-ID: <CACna6rz-1CAeLWTB69OQ=219ZjX7f1uzQmeXhfYxd5qfC9m=qQ@mail.gmail.com>
-Subject: Re: [PATCH V2] libblkid: add support for UBI superblock
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 8/8] hwclock: remove busywait tristate return status
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>
-Content-Type: text/plain; charset="UTF-8"
+References: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <4b9e95a6-a4ab-85ed-5736-031f92098a2e@gmx.com>
+Date: Tue, 1 Aug 2017 09:37:05 -0400
+MIME-Version: 1.0
+In-Reply-To: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On 7 August 2017 at 10:18, Karel Zak <kzak@redhat.com> wrote:
-> On Mon, Aug 07, 2017 at 07:40:17AM +0200, Rafa=C5=82 Mi=C5=82ecki wrote:
->> On 3 August 2017 at 14:26, Karel Zak <kzak@redhat.com> wrote:
->> > On Wed, Aug 02, 2017 at 02:14:18PM +0200, Rafa=C5=82 Mi=C5=82ecki wrot=
-e:
->> >> From: Rafa=C5=82 Mi=C5=82ecki <rafal@milecki.pl>
->> >>
->> >> UBI is a volume management system that can be used on a raw flash
->> >> partition for providing multiple logical volumes. Detecting UBI
->> >> superblock may be useful for tools wanting to simplify or automate
->> >> attaching UBI.
->> >>
->> >> Please note it's not directly related to the ubifs support which is j=
-ust
->> >> a filesystem working on top of UBI volume.
->> >>
->> >> In other words: UBI can be used on MTD partition (e.g. /dev/mtdblock0=
-)
->> >> while ubifs can be used on UBI volume (e.g. /dev/ubi0_0).
->> >>
->> >> This patch adds simple code reading UBI version and unique number and
->> >> setting it in the blkid_probe.
->> >>
->> >> Signed-off-by: Rafa=C5=82 Mi=C5=82ecki <rafal@milecki.pl>
->> >> ---
->> >> V2: Update commit message (more UBI vs. ubifs details)
->> >>     Pass &hdr->image_seq to the blkid_probe_sprintf_uuid
->> >>     Add test
->> >
->> > Applied, thanks.
->> >
->> >> +ID_FS_TYPE=3Dubi
->> >> +ID_FS_USAGE=3Dfilesystem
->> >
->> > This is probably not ideal. We use "RAID" flag for logic volume
->> > managers. The advantage is that probing is faster as it does not try
->> > to check for another signature when "RAID" is detected.
->> >
->> > The question is how small could be the UBI device? We don't probe for
->> > "RAID" on very small devices (<=3D1MiB).
->>
->> UBI is responsible for bad blocks handling, so it needs enough erase
->> blocks (PEBs) reserved in order to work. If one's MTD partition is as
->> small as 1 MiB, it won't have enough of erase blocks (PEBs) [0].
->>
->> There is some formula for amount of reserved blocks, like:
->> n_reserved =3D n_max_bad_blocks + n_internal_volumes_blocks  + 1
->> but basically 1 MiB is said to be too small.
->>
->> Does it mean we should & we're save to switch from OTHER to the RAID?
->
-> I have pushed this change to the master branch. Now UBI uses
-> BLKID_USAGE_RAID flag (and the test image has been enlarged (> 1MiB)).
 
-Thank you! I appreciate your help on getting this feature in place :)
+The select() synchronization branch only returns success or
+fail. There is no reason for the busywait branch to do more.
+If synchronization fails for any reason then it must exit,
+otherwise all drift correction operation will be invalid.
 
---=20
-Rafa=C5=82
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock-rtc.c | 11 +++++------
+ sys-utils/hwclock.h     |  6 ------
+ 2 files changed, 5 insertions(+), 12 deletions(-)
+
+diff --git a/sys-utils/hwclock-rtc.c b/sys-utils/hwclock-rtc.c
+index a660e32..c50011a 100644
+--- a/sys-utils/hwclock-rtc.c
++++ b/sys-utils/hwclock-rtc.c
+@@ -216,9 +216,8 @@ static int busywait_for_rtc_clock_tick(const struct hwclock_control *ctl,
+ 		       rtc_dev_name);
+ 	}
+ 
+-	rc = do_rtc_read_ioctl(rtc_fd, &start_time);
+-	if (rc)
+-		return RTC_BUSYWAIT_FAILED;
++	if (do_rtc_read_ioctl(rtc_fd, &start_time))
++		return 1;
+ 
+ 	/*
+ 	 * Wait for change.  Should be within a second, but in case
+@@ -233,13 +232,13 @@ static int busywait_for_rtc_clock_tick(const struct hwclock_control *ctl,
+ 		gettimeofday(&now, NULL);
+ 		if (time_diff(now, begin) > 1.5) {
+ 			warnx(_("Timed out waiting for time change."));
+-			return RTC_BUSYWAIT_TIMEOUT;
++			return 1;
+ 		}
+ 	} while (1);
+ 
+ 	if (rc)
+-		return RTC_BUSYWAIT_FAILED;
+-	return RTC_BUSYWAIT_OK;
++		return 1;
++	return 0;
+ }
+ 
+ /*
+diff --git a/sys-utils/hwclock.h b/sys-utils/hwclock.h
+index 8843501..6943d8d 100644
+--- a/sys-utils/hwclock.h
++++ b/sys-utils/hwclock.h
+@@ -9,12 +9,6 @@
+ 
+ #include "c.h"
+ 
+-enum {
+-	RTC_BUSYWAIT_OK = 0,
+-	RTC_BUSYWAIT_FAILED,
+-	RTC_BUSYWAIT_TIMEOUT
+-};
+-
+ struct hwclock_control {
+ 	char *date_opt;
+ 	char *adj_file_name;
