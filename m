@@ -1,79 +1,117 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:25447 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752457AbdHNJNB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 14 Aug 2017 05:13:01 -0400
-Date: Mon, 14 Aug 2017 11:12:57 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 3/8] hwclock: move drift correction and --predict
+To: Karel Zak <kzak@redhat.com>
+References: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] look: use WORDLIST environment variable to find word list
-Message-ID: <20170814091257.rq7kqgoi4vsqo2rb@ws.net.home>
-References: <20170812083208.1208-1-kerolasa@iki.fi>
- <20170812083208.1208-2-kerolasa@iki.fi>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <ae9a3cf6-7eed-26c9-6247-bafa7d842cf8@gmx.com>
+Date: Tue, 1 Aug 2017 09:16:02 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170812083208.1208-2-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Aug 12, 2017 at 09:32:08AM +0100, Sami Kerola wrote:
-> The WORDLIST is the same hunspell(1) and ispell(1) uses to achieve the same.
-> Apparently aspell(1) does not work with files like traditional dict lists.
-> 
-> Reference: https://github.com/hunspell/hunspell/blob/master/man/hunspell.1#L388
-> Reference: http://www.skrenta.com/rt/man/ispell.1.html
-> Reference: http://aspell.net/man-html/Creating-an-Individual-Word-List.html#Creating-an-Individual-Word-List
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  misc-utils/look.1 | 5 +++++
->  misc-utils/look.c | 7 ++++++-
->  2 files changed, 11 insertions(+), 1 deletion(-)
-> 
-> diff --git a/misc-utils/look.1 b/misc-utils/look.1
-> index 503e38584..cca83416e 100644
-> --- a/misc-utils/look.1
-> +++ b/misc-utils/look.1
-> @@ -101,6 +101,11 @@ sort -d /etc/passwd -o /tmp/look.dict
->  look -t: root:foobar /tmp/look.dict
->  .nf
->  .RE
-> +.SH ENVIRONMENT
-> +.TP
-> +.B WORDLIST
-> +Path to a dictionary file.  The environment variable has greater priority
-> +than the dictionary path defined in FILES segment.
->  .SH FILES
->  .IP "\fB/usr/share/dict/words\fR" 4
->  the dictionary
-> diff --git a/misc-utils/look.c b/misc-utils/look.c
-> index 60fbbbfca..00061f2a3 100644
-> --- a/misc-utils/look.c
-> +++ b/misc-utils/look.c
-> @@ -104,7 +104,12 @@ main(int argc, char *argv[])
->  
->  	setlocale(LC_ALL, "");
->  
-> -	file = _PATH_WORDS;
-> +	if ((file = getenv("WORDLIST"))) {
-> +		if (access(file, R_OK))
-> +			err(EXIT_FAILURE, "WORDLIST=%s", file);
-> +	} else
-> +		file = _PATH_WORDS;
-> +
 
+Move the predict branch above the RTC read branch.
 
-Would be better fallback to _PATH_WORDS if WORDLIST= points to
-nowhere?
+Move drift correction into the RTC read branch, because it
+requires an accurate RTC read, and it needs to be skipped for
+operations that do not require an RTC read.
 
-    file = _PATH_WORDS; /* default */
-    if ((x = getenv("WORDLIST")) && access(file, R_OK) == 0)
-        file = x;
+Simplify the RTC read branch test.
 
-seems like more backwardly compatible way.
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.c | 57 +++++++++++++++++++++++++++++------------------------
+ 1 file changed, 31 insertions(+), 26 deletions(-)
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index ad9c502..1550dfe 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1042,15 +1042,34 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 		adjtime->local_utc = ctl->universal ? UTC : LOCAL;
+ 		adjtime->dirty = TRUE;
+ 	}
++	/*
++	 * Negate the drift correction, because we want to 'predict' a
++	 * Hardware Clock time that includes drift.
++	 */
++	if (ctl->predict) {
++		hclocktime = t2tv(set_time);
++		calculate_adjustment(ctl, adjtime->drift_factor,
++				     adjtime->last_adj_time,
++				     adjtime->not_adjusted,
++				     hclocktime.tv_sec, &tdrift);
++		hclocktime = time_inc(hclocktime, (double)
++				      -(tdrift.tv_sec + tdrift.tv_usec / 1E6));
++		if (ctl->debug) {
++			printf(_ ("Target date:   %ld\n"), set_time);
++			printf(_ ("Predicted RTC: %ld\n"), hclocktime.tv_sec);
++		}
++		display_time(TRUE, hclocktime);
++		return 0;
++	}
+ 
+ 	if (ctl->systz)
+ 		return set_system_clock_timezone(ctl);
+ 
+-	if (!ctl->predict && ur->get_permissions())
++	if (ur->get_permissions())
+ 		return EX_NOPERM;
+ 
+ 	if (ctl->show || ctl->get || ctl->adjust || ctl->hctosys
+-	    || (!ctl->noadjfile && !ctl->predict)) {
++	    || !ctl->noadjfile) {
+ 		/* data from HW-clock are required */
+ 		rc = synchronize_to_clock_tick(ctl);
+ 
+@@ -1075,22 +1094,17 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 			if (rc && !ctl->set && !ctl->systohc)
+ 				return EX_IOERR;
+ 		}
++		/*
++		 * Calculate and apply drift correction to the Hardware Clock
++		 * time for everything except --show
++		 */
++		calculate_adjustment(ctl, adjtime->drift_factor,
++				     adjtime->last_adj_time,
++				     adjtime->not_adjusted,
++				     hclocktime.tv_sec, &tdrift);
++		if (!ctl->show)
++			hclocktime = time_inc(tdrift, hclocktime.tv_sec);
+ 	}
+-	/*
+-	 * Calculate Hardware Clock drift for --predict with the user
+-	 * supplied --date option time, and with the time read from the
+-	 * Hardware Clock for all other operations.  Apply drift correction
+-	 * to the Hardware Clock time for everything except --show and
+-	 * --predict.  For --predict negate the drift correction, because we
+-	 * want to 'predict' a future Hardware Clock time that includes drift.
+-	 */
+-	hclocktime = ctl->predict ? t2tv(set_time) : hclocktime;
+-	calculate_adjustment(ctl, adjtime->drift_factor,
+-			     adjtime->last_adj_time,
+-			     adjtime->not_adjusted,
+-			     hclocktime.tv_sec, &tdrift);
+-	if (!ctl->show && !ctl->predict)
+-		hclocktime = time_inc(tdrift, hclocktime.tv_sec);
+ 	if (ctl->show || ctl->get) {
+ 		display_time(hclock_valid,
+ 			     time_inc(hclocktime, -time_diff
+@@ -1126,15 +1140,6 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 					    hclock_valid, hclocktime);
+ 	} else if (ctl->hctosys) {
+ 		return set_system_clock(ctl, hclock_valid, hclocktime);
+-	} else if (ctl->predict) {
+-		hclocktime = time_inc(hclocktime, (double)
+-				      -(tdrift.tv_sec + tdrift.tv_usec / 1E6));
+-		if (ctl->debug) {
+-			printf(_
+-			       ("At %ld seconds after 1969, RTC is predicted to read %ld seconds after 1969.\n"),
+-			       set_time, hclocktime.tv_sec);
+-		}
+-		display_time(TRUE, hclocktime);
+ 	}
+ 	if (!ctl->noadjfile)
+ 		save_adjtime(ctl, adjtime);
