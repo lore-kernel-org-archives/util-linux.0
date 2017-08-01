@@ -1,48 +1,48 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx.datacom.ind.br ([177.66.5.10]:36605 "EHLO
-        mail.datacom.ind.br" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751106AbdHAAOe (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 31 Jul 2017 20:14:34 -0400
-Received: from mail.datacom.ind.br (localhost [127.0.0.1])
-        by mail.datacom.ind.br (Postfix) with ESMTPS id 4865E150735A
-        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 21:12:03 -0300 (BRT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.datacom.ind.br (Postfix) with ESMTP id 39F2D1507345
-        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 21:12:03 -0300 (BRT)
-Received: from mail.datacom.ind.br ([127.0.0.1])
-        by localhost (mail.datacom.ind.br [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id x7iDLh37urb8 for <util-linux@vger.kernel.org>;
-        Mon, 31 Jul 2017 21:12:03 -0300 (BRT)
-Received: from mail.datacom.ind.br (mail.datacom.ind.br [172.25.4.13])
-        by mail.datacom.ind.br (Postfix) with ESMTP id 2332C1507355
-        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 21:12:03 -0300 (BRT)
-Date: Mon, 31 Jul 2017 21:12:03 -0300 (BRT)
-From: Carlos Santos <casantos@datacom.ind.br>
-To: util-linux@vger.kernel.org
-Message-ID: <1971282138.2691482.1501546323018.JavaMail.zimbra@datacom.ind.br>
-Subject: Problem building util-linux without a separate ncursesw include dir
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 1/8] hwclock: move systz above init clocks read
+To: Karel Zak <kzak@redhat.com>
+References: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <5eb1bcb1-c50f-f952-c0a0-a2a3027a0172@gmx.com>
+Date: Tue, 1 Aug 2017 09:11:31 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-Hello,
 
-Since commit 3947ca4ca (build-sys: ncurses headers cleanup), util-linux
-assumes that ncursesw headers are in an "ncursesw" subdirectory. That's
-valid on systems that have both ncurses variants but not on embedded
-systems like Buildroot on which only one variant is build, with headers
-always installed directly at /usr/include.
+The systz option is all about speed, so move it to the
+top and simplify the init clocks read test.
 
-I added a patch to revert commit 3947ca4ca to the Buildroot recipe but
-such a drastic solution can easily become incompatible with new versions
-of util-linux. Would it be possible to make the location of ncursesw
-headers configurable, instead?
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-Thanks in advance.
-
--- 
-Carlos Santos (Casantos) - DATACOM, P&D
-Rua América, 1000 - Eldorado do Sul, RS, Brasil - 92990-000
-casantos@datacom.ind.br          +55 51 3933.3000 ext. 3627
-http://www.datacom.ind.br
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index c74e0e2..cec712d 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1046,8 +1046,11 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 		adjtime->dirty = TRUE;
+ 	}
+ 
++	if (ctl->systz)
++		return set_system_clock_timezone(ctl);
++
+ 	if (ctl->show || ctl->get || ctl->adjust || ctl->hctosys
+-	    || (!ctl->noadjfile && !ctl->systz && !ctl->predict)) {
++	    || (!ctl->noadjfile && !ctl->predict)) {
+ 		/* data from HW-clock are required */
+ 		rc = synchronize_to_clock_tick(ctl);
+ 
+@@ -1123,8 +1126,6 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 					    hclock_valid, hclocktime);
+ 	} else if (ctl->hctosys) {
+ 		return set_system_clock(ctl, hclock_valid, hclocktime);
+-	} else if (ctl->systz) {
+-		return set_system_clock_timezone(ctl);
+ 	} else if (ctl->predict) {
+ 		hclocktime = time_inc(hclocktime, (double)
+ 				      -(tdrift.tv_sec + tdrift.tv_usec / 1E6));
