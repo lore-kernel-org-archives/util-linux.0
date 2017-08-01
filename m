@@ -1,35 +1,42 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 0/3] Pull Request
-To: Karel Zak <kzak@redhat.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:39272 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750763AbdHAHUW (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 1 Aug 2017 03:20:22 -0400
+Date: Tue, 1 Aug 2017 09:20:17 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Carlos Santos <casantos@datacom.ind.br>
 Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <71b98184-ea32-0e83-013c-2fdb8edc621f@gmx.com>
-Date: Tue, 29 Aug 2017 12:30:20 -0400
+Subject: Re: Problem building util-linux without a separate ncursesw include
+ dir
+Message-ID: <20170801072017.yl7mgv64pq7ccj5e@ws.net.home>
+References: <1971282138.2691482.1501546323018.JavaMail.zimbra@datacom.ind.br>
+ <1705151756.2691717.1501548399616.JavaMail.zimbra@datacom.ind.br>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1705151756.2691717.1501548399616.JavaMail.zimbra@datacom.ind.br>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Mon, Jul 31, 2017 at 09:46:39PM -0300, Carlos Santos wrote:
+> > From: "Carlos Santos" <casantos@datacom.ind.br>
+> > To: util-linux@vger.kernel.org
+> > Sent: Monday, July 31, 2017 9:12:03 PM
+> > Subject: Problem building util-linux without a separate ncursesw include dir
+> 
+> > of util-linux. Would it be possible to make the location of ncursesw
+> > headers configurable, instead?
 
-The following changes since commit e406be01b450dd7ed5e694bc15a39719d6f86967:
+We test for alone ncurses.h and term.h in the for non-wide ncurses.
+Can you send output from your configure from the current master
+branch (or v2.30.1)?
 
-  hwclock: for debugging print startup system time (2017-08-24 18:49:11 -0400)
+> I was thinking on something simple, like https://pastebin.com/VqM9G9yu
 
-are available in the git repository at:
+Hmm, but you don't distinguish between wide and non-wide ncurses.
 
-  git@github.com:jwpi/util-linux.git 170825
+    Karel
 
-for you to fetch changes up to 0396d0c2bc33a34d132b0d4f9f5f055668732989:
-
-  hwclock: close hwaudit_fd unconditionally (2017-08-28 21:19:55 -0400)
-
-----------------------------------------------------------------
-J William Piggott (3):
-      hwclock: remove sysexits.h
-      hwclock: remove audit from control struct
-      hwclock: close hwaudit_fd unconditionally
-
- sys-utils/hwclock-rtc.c |   5 +--
- sys-utils/hwclock.8.in  |   8 ++++
- sys-utils/hwclock.c     | 104 +++++++++++++++++++-----------------------------
- sys-utils/hwclock.h     |   3 +-
- 4 files changed, 52 insertions(+), 68 deletions(-)
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
