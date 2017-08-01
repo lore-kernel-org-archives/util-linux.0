@@ -1,82 +1,89 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:34718 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752211AbdHZMpQ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 26 Aug 2017 08:45:16 -0400
-Received: by mail-wr0-f193.google.com with SMTP id y14so1353642wrd.1
-        for <util-linux@vger.kernel.org>; Sat, 26 Aug 2017 05:45:16 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] bash-completion: simplify pid listing
-Date: Sat, 26 Aug 2017 13:45:13 +0100
-Message-Id: <20170826124513.7823-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:34386 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751352AbdHAMoJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 1 Aug 2017 08:44:09 -0400
+Date: Tue, 1 Aug 2017 14:44:05 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Carlos Santos <casantos@datacom.ind.br>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Problem building util-linux without a separate ncursesw include
+ dir
+Message-ID: <20170801124405.ikj44ulhisvfthnf@ws.net.home>
+References: <1971282138.2691482.1501546323018.JavaMail.zimbra@datacom.ind.br>
+ <1705151756.2691717.1501548399616.JavaMail.zimbra@datacom.ind.br>
+ <20170801072017.yl7mgv64pq7ccj5e@ws.net.home>
+ <1033867833.2726878.1501589362348.JavaMail.zimbra@datacom.ind.br>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1033867833.2726878.1501589362348.JavaMail.zimbra@datacom.ind.br>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Changing directory in subshell does not effect parent process, so this is
-better and possibly quicker way to list pids.
+On Tue, Aug 01, 2017 at 09:09:22AM -0300, Carlos Santos wrote:
+> > From: "Karel Zak" <kzak@redhat.com>
+> > To: "Carlos Santos" <casantos@datacom.ind.br>
+> > Cc: util-linux@vger.kernel.org
+> > Sent: Tuesday, August 1, 2017 4:20:17 AM
+> > Subject: Re: Problem building util-linux without a separate ncursesw include dir
+> 
+> > On Mon, Jul 31, 2017 at 09:46:39PM -0300, Carlos Santos wrote:
+> >> > From: "Carlos Santos" <casantos@datacom.ind.br>
+> >> > To: util-linux@vger.kernel.org
+> >> > Sent: Monday, July 31, 2017 9:12:03 PM
+> >> > Subject: Problem building util-linux without a separate ncursesw include dir
+> >> 
+> >> > of util-linux. Would it be possible to make the location of ncursesw
+> >> > headers configurable, instead?
+> > 
+> > We test for alone ncurses.h and term.h in the for non-wide ncurses.
+> > Can you send output from your configure from the current master
+> > branch (or v2.30.1)?
+> 
+> config.log: https://pastebin.com/DVAyx1Zb
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- bash-completion/nsenter | 2 +-
- bash-completion/prlimit | 2 +-
- bash-completion/renice  | 2 +-
- bash-completion/taskset | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+I see --with-ncursesw, it means the configure.ac code where we check
+for alone ncurses.h is not executed. Try it without this --with... I
+guess it will work.
 
-diff --git a/bash-completion/nsenter b/bash-completion/nsenter
-index ceea61001..ad56f06e4 100644
---- a/bash-completion/nsenter
-+++ b/bash-completion/nsenter
-@@ -15,7 +15,7 @@ _nsenter_module()
- 			;;
- 		'-t'|'--target')
- 			local PIDS
--			PIDS=$(for I in /proc/[0-9]*; do echo ${I##"/proc/"}; done)
-+			PIDS=$(cd /proc && echo [0-9]*)
- 			COMPREPLY=( $(compgen -W "$PIDS" -- $cur) )
- 			return 0
- 			;;
-diff --git a/bash-completion/prlimit b/bash-completion/prlimit
-index f5e00bb16..fc60c6461 100644
---- a/bash-completion/prlimit
-+++ b/bash-completion/prlimit
-@@ -6,7 +6,7 @@ _prlimit_module()
- 	prev="${COMP_WORDS[COMP_CWORD-1]}"
- 	case $prev in
- 		'-p'|'--pid')
--			PIDS=$(for I in /proc/[0-9]*; do echo ${I##"/proc/"}; done)
-+			PIDS=$(cd /proc && echo [0-9]*)
- 			COMPREPLY=( $(compgen -W "$PIDS" -- $cur) )
- 			return 0
- 			;;
-diff --git a/bash-completion/renice b/bash-completion/renice
-index c3e9331b0..2495f3785 100644
---- a/bash-completion/renice
-+++ b/bash-completion/renice
-@@ -17,7 +17,7 @@ _renice_module()
- 			;;
- 		'-p'|'--pid')
- 			local PIDS
--			PIDS=$(for I in /proc/[0-9]*; do echo ${I##"/proc/"}; done)
-+			PIDS=$(cd /proc && echo [0-9]*)
- 			COMPREPLY=( $(compgen -W "$PIDS" -- $cur) )
- 			return 0
- 			;;
-diff --git a/bash-completion/taskset b/bash-completion/taskset
-index 8e62a3b67..453b17b4a 100644
---- a/bash-completion/taskset
-+++ b/bash-completion/taskset
-@@ -25,7 +25,7 @@ _taskset_module()
- 			# setting an affinity the optarg has to be cpu
- 			# mask.  The following is good only for getting
- 			# affinity.
--			PIDS=$(for I in /proc/[0-9]*; do echo ${I##"/proc/"}; done)
-+			PIDS=$(cd /proc && echo [0-9]*)
- 			COMPREPLY=( $(compgen -W "$PIDS" -- $cur) )
- 			return 0
- 			;;
+> defconfig for buildroot: https://pastebin.com/U3pz0hvm
+> 
+> >> I was thinking on something simple, like https://pastebin.com/VqM9G9yu
+> > 
+> > Hmm, but you don't distinguish between wide and non-wide ncurses.
+> 
+> That's because on Buildroot only one of the variants can exist.
+> 
+> BTW I noticed that on Fedora each /usr/include/ncurses/<foo> is a
+> symlink to ../<foo>, so the situation is exactly the same.
+
+Yes, but the symlink is good enough (f25):
+
+        checking for ncursesw6-config... ncursesw6-config
+        checking ncursesw/ncurses.h usability... yes
+        checking ncursesw/ncurses.h presence... yes
+        ...
+
+
+Anyway, you're right with your suggested patch :-)
+
+We don't have to distinguish between wide and non-wide ncurses when we
+check for header files, because it's already done by
+UL_NCURSES_CHECK() and AC_CHECK_HEADERS() is executed only if we
+already have widechar lib.
+
+Fixed... git-pull and try it. 
+
+    Karel
+
+> “The greatest triumph that modern PR can offer is the transcendent 
+> success of having your words and actions judged by your reputation, 
+> rather than the other way about.” — Christopher Hitchens
+
+Nice ;-)
+
+    Karel
+
 -- 
-2.14.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
