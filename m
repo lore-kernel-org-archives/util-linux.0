@@ -1,76 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47106 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:49679 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752298AbdHBIVK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 2 Aug 2017 04:21:10 -0400
-Date: Wed, 2 Aug 2017 10:21:01 +0200
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 4/8] hwclock: fix RTC read logic
-Message-ID: <20170802082101.swemgk2zligiib42@ws.net.home>
+        id S1751872AbdHANNx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 1 Aug 2017 09:13:53 -0400
+Subject: [PATCH 2/8] hwclock: move rtc permissions test
+To: Karel Zak <kzak@redhat.com>
 References: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
- <5714882c-8ed5-c703-410e-c0dd191051f6@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <c2bfd6c4-8499-f90f-5824-d3e96628d3f2@gmx.com>
+Date: Tue, 1 Aug 2017 09:13:39 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5714882c-8ed5-c703-410e-c0dd191051f6@gmx.com>
+In-Reply-To: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 01, 2017 at 09:17:08AM -0400, J William Piggott wrote:
-> 
-> Over the past decade a few commits for a corner case problem
-> have left the RTC read branch in a bad place.
-> 
-> The problem was: when a corrupted RTC could not be read, then
-> it also could not be reset, because hwclock would error out
-> due to the RTC read failure.
-> 
-> 2.15-rc1 commit 3b96a7a Aug  9 2008
-> 2.19-rc1 commit 5606df5 Dec 29 2010
-> 2.23-rc1 commit ab8f402 Mar 21 2013
-> 
-> The first fix was to ignore a synchronization timeout only for
-> the busywait branch.
-> 
-> Two and a half years later a commit describing the same problem
-> took a little more heavy-handed approach by ignoring all
-> synchronization failures and the RTC read after it, for both of
-> the RTC set functions.
-> 
-> Because the previous fix also ignored the select() branch timeout
-> it caused a bogus warning. The chosen workaround for that was to
-> only print the select() timeout message in debug mode (this is
-> reverted by another patch).
-> 
-> The problem with these fixes is that we cannot just ignore the
-> synchronization timeout like that, because then the drift
-> correction operations will be invalid. The original logic was
-> correct; we must exit when synchronization fails.
 
-... but will be possible to set RTC with invalid data?
+Move the rtc permissions test below the systz call and
+simplify it's 'if' test.
 
-> Another problem is that now there are statements between the
-> timing-critical synchronize-read-timestamp trio (which were
-> also in the wrong order, but that part of the problem goes
-> back further in history).
-> 
-> The solution is to skip the RTC read block completely for the
-> RTC set functions when not also using the --update-drift
-> option. If we are updating the drift correction factor during
-> a set function then we must synchronize and read the RTC.
-> Otherwise reading the RTC is not needed. Anyone trying to set
-> a corrupt RTC should not be using --update-drift, because the
-> resulting drift correction factor would be invalid.
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-OK, I see. The issue is --update-drift.
-
-Maybe it would be nice to be more explicit in the man page and do 
-NOT recommend to use --systohc together with --update-drift.
-
-    Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index cec712d..ad9c502 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1037,9 +1037,6 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 	/* local return code */
+ 	int rc = 0;
+ 
+-	if (!ctl->systz && !ctl->predict && ur->get_permissions())
+-		return EX_NOPERM;
+-
+ 	if ((ctl->set || ctl->systohc || ctl->adjust) &&
+ 	    (adjtime->local_utc == UTC) != ctl->universal) {
+ 		adjtime->local_utc = ctl->universal ? UTC : LOCAL;
+@@ -1049,6 +1046,9 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 	if (ctl->systz)
+ 		return set_system_clock_timezone(ctl);
+ 
++	if (!ctl->predict && ur->get_permissions())
++		return EX_NOPERM;
++
+ 	if (ctl->show || ctl->get || ctl->adjust || ctl->hctosys
+ 	    || (!ctl->noadjfile && !ctl->predict)) {
+ 		/* data from HW-clock are required */
