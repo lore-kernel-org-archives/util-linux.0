@@ -1,46 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42416 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750911AbdHaJrI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 31 Aug 2017 05:47:08 -0400
-Date: Thu, 31 Aug 2017 11:47:02 +0200
-From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: Johannes Berg <johannes@sipsolutions.net>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        linux-wireless@vger.kernel.org,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: rfkill(8) move and improvements
-Message-ID: <20170831094702.m5jsvpq4uftu37p3@ws.net.home>
-References: <alpine.LNX.2.20.1706251339500.25762@imuri>
- <1498745040.3141.6.camel@sipsolutions.net>
- <CAG27Bk0tKzqxkm6qqjGO6GJE7vxReRAQbvYGexjp+PBLo+RK_A@mail.gmail.com>
- <20170630074729.s3gknfobabgepk4h@ws.net.home>
- <alpine.LNX.2.20.1707010956520.7939@imuri>
- <CAG27Bk0u8C4u3PnT1g_B8MeFBkou+dYdpp9Rdn7z87gd-XskBQ@mail.gmail.com>
+Received: from mx.datacom.ind.br ([177.66.5.10]:37939 "EHLO
+        mail.datacom.ind.br" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752460AbdHAWNH (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 1 Aug 2017 18:13:07 -0400
+Date: Tue, 1 Aug 2017 19:10:32 -0300 (BRT)
+From: Carlos Santos <casantos@datacom.ind.br>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Message-ID: <1706511560.2888472.1501625432873.JavaMail.zimbra@datacom.ind.br>
+In-Reply-To: <20170801124405.ikj44ulhisvfthnf@ws.net.home>
+References: <1971282138.2691482.1501546323018.JavaMail.zimbra@datacom.ind.br> <1705151756.2691717.1501548399616.JavaMail.zimbra@datacom.ind.br> <20170801072017.yl7mgv64pq7ccj5e@ws.net.home> <1033867833.2726878.1501589362348.JavaMail.zimbra@datacom.ind.br> <20170801124405.ikj44ulhisvfthnf@ws.net.home>
+Subject: Re: Problem building util-linux without a separate ncursesw include
+ dir
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk0u8C4u3PnT1g_B8MeFBkou+dYdpp9Rdn7z87gd-XskBQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 30, 2017 at 08:40:01PM +0100, Sami Kerola wrote:
-> On 1 July 2017 at 10:06, Sami Kerola <kerolasa@iki.fi> wrote:
-> > I did couple last minute changes to my remote branch, that should now be
-> > ready for final review.
-> >
-> > git://github.com/kerolasa/lelux-utiliteetit.git rfkill
-> 
-> Hello,
-> 
-> It's been a while. I did not get any review feedback, so I assume changes
-> were ok. Would it be possible to move forward with the merge to
-> util-linux upstream?
+> From: "Karel Zak" <kzak@redhat.com>
+> To: "Carlos Santos" <casantos@datacom.ind.br>
+> Cc: util-linux@vger.kernel.org
+> Sent: Tuesday, August 1, 2017 9:44:05 AM
+> Subject: Re: Problem building util-linux without a separate ncursesw include dir
 
-Merged to util-linux.
+[...]
+> 
+> We don't have to distinguish between wide and non-wide ncurses when we
+> check for header files, because it's already done by
+> UL_NCURSES_CHECK() and AC_CHECK_HEADERS() is executed only if we
+> already have widechar lib.
+> 
+> Fixed... git-pull and try it.
+> 
+>    Karel
 
-    Karel
+Works like a charm. Thanks!
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Carlos Santos (Casantos) - DATACOM, P&D
+“The greatest triumph that modern PR can offer is the transcendent 
+success of having your words and actions judged by your reputation, 
+rather than the other way about.” — Christopher Hitchens
