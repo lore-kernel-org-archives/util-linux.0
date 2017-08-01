@@ -1,57 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:48302 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752168AbdHBIh4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 2 Aug 2017 04:37:56 -0400
-Date: Wed, 2 Aug 2017 10:37:48 +0200
-From: Karel Zak <kzak@redhat.com>
-To: =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: libblkid: broken calculation of blkid_probe size for ubiN_M
-Message-ID: <20170802083748.ui36mn4lvpdbgrt2@ws.net.home>
-References: <CACna6rwn+Kf+DCqRS_TQTdv5WakGCNaEqQgc3QwibuyV3KM5=A@mail.gmail.com>
+Received: from mx.datacom.ind.br ([177.66.5.10]:38046 "EHLO
+        mail.datacom.ind.br" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751655AbdHAAtL (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 31 Jul 2017 20:49:11 -0400
+Received: from mail.datacom.ind.br (localhost [127.0.0.1])
+        by mail.datacom.ind.br (Postfix) with ESMTPS id BC6C315073BD
+        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 21:46:39 -0300 (BRT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.datacom.ind.br (Postfix) with ESMTP id B06E015073BA
+        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 21:46:39 -0300 (BRT)
+Received: from mail.datacom.ind.br ([127.0.0.1])
+        by localhost (mail.datacom.ind.br [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id WeZ3anUE8vnL for <util-linux@vger.kernel.org>;
+        Mon, 31 Jul 2017 21:46:39 -0300 (BRT)
+Received: from mail.datacom.ind.br (mail.datacom.ind.br [172.25.4.13])
+        by mail.datacom.ind.br (Postfix) with ESMTP id A011515073BB
+        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 21:46:39 -0300 (BRT)
+Date: Mon, 31 Jul 2017 21:46:39 -0300 (BRT)
+From: Carlos Santos <casantos@datacom.ind.br>
+To: util-linux@vger.kernel.org
+Message-ID: <1705151756.2691717.1501548399616.JavaMail.zimbra@datacom.ind.br>
+In-Reply-To: <1971282138.2691482.1501546323018.JavaMail.zimbra@datacom.ind.br>
+References: <1971282138.2691482.1501546323018.JavaMail.zimbra@datacom.ind.br>
+Subject: Re: Problem building util-linux without a separate ncursesw include
+ dir
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-In-Reply-To: <CACna6rwn+Kf+DCqRS_TQTdv5WakGCNaEqQgc3QwibuyV3KM5=A@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 01, 2017 at 03:25:40PM +0200, Rafał Miłecki wrote:
-> Hi,
-> 
-> Today I discovered libblkid can't recognize my UBI volume with ubifs
-> filesystem. The code in libblkid/src/superblocks/ubifs.c seems
-> alright, but it's never used because of:
-> # LIBBLKID_DEBUG=lowprobe,buffer blkid /dev/ubi0_0
-> (...)
-> 4166: libblkid: LOWPROBE: [59] ubifs:
-> 4166: libblkid:   BUFFER:         ignore: request out of probing area
-> 
-> Above error comes from blkid_probe_get_buffer and its
-> pr->off + pr->size < real_off + len
-> condition. In my case its evaulated as:
-> 0 + 1 < 0 + 4
-> (pr->size is 1 which looks wrong obviously).
+> From: "Carlos Santos" <casantos@datacom.ind.br>
+> To: util-linux@vger.kernel.org
+> Sent: Monday, July 31, 2017 9:12:03 PM
+> Subject: Problem building util-linux without a separate ncursesw include dir
 
-Version? Is it the current git master branch?
+> of util-linux. Would it be possible to make the location of ncursesw
+> headers configurable, instead?
 
-I fixed something like this two weeks ago:
-
-        commit 4360f56cf6e40b10ab6ace4cf74073de2381c192
-        Author: Karel Zak <kzak@redhat.com>
-        Date:   Tue Jul 11 12:17:40 2017 +0200
-
-            libblkid: don't check for size on UBI (char dev)
-
-            Signed-off-by: Karel Zak <kzak@redhat.com>
-
- and now the condition is not used for char devices:
-
-    if (len == 0 || (!S_ISCHR(pr->mode) && pr->off + pr->size < real_off + len))
-
- Karel
-
+I was thinking on something simple, like https://pastebin.com/VqM9G9yu
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Carlos Santos (Casantos) - DATACOM, P&D
+“The greatest triumph that modern PR can offer is the transcendent 
+success of having your words and actions judged by your reputation, 
+rather than the other way about.” — Christopher Hitchens
