@@ -1,27 +1,346 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:32852 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.22]:52685 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752361AbdHGHyI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 7 Aug 2017 03:54:08 -0400
-Date: Mon, 7 Aug 2017 09:54:05 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+        id S1751963AbdHCACG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 2 Aug 2017 20:02:06 -0400
+Subject: [PATCH 9/8] hwclock: fix hclock_valid test and error messages
+To: Karel Zak <kzak@redhat.com>
+References: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/9] pull: various removals and few fixes
-Message-ID: <20170807075405.etj5x3vvy3ve7f6w@ws.net.home>
-References: <20170731195508.11661-1-kerolasa@iki.fi>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <3c5479c2-62fa-a220-6333-2e4b81108bd7@gmx.com>
+Date: Wed, 2 Aug 2017 20:01:49 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170731195508.11661-1-kerolasa@iki.fi>
+In-Reply-To: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jul 31, 2017 at 08:54:59PM +0100, Sami Kerola wrote:
->   git://github.com/kerolasa/lelux-utiliteetit.git 2017wk30
 
-Merged, thanks!
+Every hwclock operation that requires reading the RTC, tests
+hclock_valid and prints a different warning. This redundancy
+is unnecessary.
 
-    Karel
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Move the warning to the RTC read block (the test was moved in
+a previous patch in this set). This reduces function arguments
+and is a significant code clean up. It will also benefit the
+translators.
+
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+
+Oops, I forgot this one. It is a complement to 4/8 which moved
+the hclock_valid test to the RTC read block. There is no reason
+to duplicate these and, as Karel would say, 'be creative' with
+each of six warnings. This patch reduces function args, I think
+Karel will like that too, because he growls at me when I add
+them :). It reduces indention levels and quite a bit of code.
+
+The new results for an invalid RTC return:
+$ hwclock
+hwclock: RTC read returned an invalid value.
+
+The new results for a failed RTC read:
+$ hwclock
+hwclock: ioctl(RTC_RD_TIME) to /dev/rtc0 to read the time failed: No such file or directory
+hwclock: RTC read returned an invalid value.
+
+I pushed this to the same branch on my repo:
+
+The following changes since commit 87c26ce5b689abe1b52181f98ef3c9eb1b1a5165:
+
+  build-sys: support ncursesw without headers in ncursesw/ directory (2017-08-01 14:36:25 +0200)
+
+are available in the git repository at:
+
+  git@github.com:jwpi/util-linux.git 170724
+
+for you to fetch changes up to ae4d6cdb30caf61feeb7babb2067dbe4161e48bf:
+
+  hwclock: fix hclock_valid test and error messages (2017-08-02 19:34:58 -0400)
+
+----------------------------------------------------------------
+J William Piggott (9):
+      hwclock: move systz above init clocks read
+      hwclock: move rtc permissions test
+      hwclock: move drift correction and --predict
+      hwclock: fix RTC read logic
+      hwclock: correlate hclocktime instead of set_time.
+      hwclock: update man page
+      hwclock: restore select() timeout warning
+      hwclock: remove busywait tristate return status
+      hwclock: fix hclock_valid test and error messages
+
+ sys-utils/hwclock-rtc.c |  16 ++-
+ sys-utils/hwclock.8.in  |  31 ++++--
+ sys-utils/hwclock.c     | 257 ++++++++++++++++++++----------------------------
+ sys-utils/hwclock.h     |   6 --
+ 4 files changed, 138 insertions(+), 172 deletions(-)
+
+diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
+index 107e3f1..9d475cb 100644
+--- a/sys-utils/hwclock.8.in
++++ b/sys-utils/hwclock.8.in
+@@ -174,9 +174,8 @@ function.  A third method is to delete the
+ will then default to using the UTC timescale for the Hardware Clock.  If
+ the Hardware Clock is ticking local time it will need to be defined in
+ the file.  This can be done by calling
+-.BR hwclock\ \-\-localtime\ \-\-adjust ;
+-when the file is not present this command will not actually
+-adjust the Clock, but it will create the file with local time
++.BR hwclock\ \-\-localtime\ \-\-systohc ;
++when the file is not present this command will create the file with local time
+ configured, and a drift factor of zero.
+ .sp
+ A condition under which inhibiting
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index df6b59e..910e39f 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -557,27 +557,15 @@ set_hardware_clock_exact(const struct hwclock_control *ctl,
+ 	set_hardware_clock(ctl, newhwtime);
+ }
+ 
+-/*
+- * Put the time "hwctime" on standard output in display format. Except if
+- * hclock_valid == false, just tell standard output that we don't know what
+- * time it is.
+- */
+ static void
+-display_time(const bool hclock_valid, struct timeval hwctime)
++display_time(struct timeval hwctime)
+ {
+-	if (!hclock_valid)
+-		warnx(_
+-		      ("The Hardware Clock registers contain values that are "
+-		       "either invalid (e.g. 50th day of month) or beyond the range "
+-		       "we can handle (e.g. Year 2095)."));
+-	else {
+-		char buf[ISO_8601_BUFSIZ];
+-
+-		strtimeval_iso(&hwctime, ISO_8601_DATE|ISO_8601_TIME|ISO_8601_DOTUSEC|
+-					 ISO_8601_TIMEZONE|ISO_8601_SPACE,
+-					 buf, sizeof(buf));
+-		printf("%s\n", buf);
+-	}
++	char buf[ISO_8601_BUFSIZ];
++
++	strtimeval_iso(&hwctime, ISO_8601_DATE|ISO_8601_TIME|ISO_8601_DOTUSEC|
++				 ISO_8601_TIMEZONE|ISO_8601_SPACE,
++				 buf, sizeof(buf));
++	printf("%s\n", buf);
+ }
+ 
+ /*
+@@ -593,66 +581,55 @@ display_time(const bool hclock_valid, struct timeval hwctime)
+  * Clock's timescale configuration is changed then a reboot is required for
+  * persistent_clock_is_local to be updated.
+  *
+- * EXCEPT: if hclock_valid is false, just issue an error message saying
+- * there is no valid time in the Hardware Clock to which to set the system
+- * time.
+- *
+  * If 'testing' is true, don't actually update anything -- just say we would
+  * have.
+  */
+ static int
+-set_system_clock(const struct hwclock_control *ctl, const bool hclock_valid,
++set_system_clock(const struct hwclock_control *ctl,
+ 		 const struct timeval newtime)
+ {
+ 	int retcode;
+ 
+-	if (!hclock_valid) {
+-		warnx(_
+-		      ("The Hardware Clock does not contain a valid time, so "
+-		       "we cannot set the System Time from it."));
+-		retcode = 1;
+-	} else {
+-		const struct timeval *tv_null = NULL;
+-		struct tm *broken;
+-		int minuteswest;
+-		int rc = 0;
++	const struct timeval *tv_null = NULL;
++	struct tm *broken;
++	int minuteswest;
++	int rc = 0;
+ 
+-		broken = localtime(&newtime.tv_sec);
++	broken = localtime(&newtime.tv_sec);
+ #ifdef HAVE_TM_GMTOFF
+-		minuteswest = -broken->tm_gmtoff / 60;	/* GNU extension */
++	minuteswest = -broken->tm_gmtoff / 60;	/* GNU extension */
+ #else
+-		minuteswest = timezone / 60;
+-		if (broken->tm_isdst)
+-			minuteswest -= 60;
++	minuteswest = timezone / 60;
++	if (broken->tm_isdst)
++		minuteswest -= 60;
+ #endif
+ 
+-		if (ctl->debug) {
+-			printf(_("Calling settimeofday:\n"));
+-			printf(_("\ttv.tv_sec = %ld, tv.tv_usec = %ld\n"),
+-			       newtime.tv_sec, newtime.tv_usec);
+-			printf(_("\ttz.tz_minuteswest = %d\n"), minuteswest);
+-		}
+-		if (ctl->testing) {
+-			printf(_
+-			       ("Test mode: clock was not changed\n"));
+-			retcode = 0;
+-		} else {
+-			const struct timezone tz = { minuteswest, 0 };
++	if (ctl->debug) {
++		printf(_("Calling settimeofday:\n"));
++		printf(_("\ttv.tv_sec = %ld, tv.tv_usec = %ld\n"),
++		       newtime.tv_sec, newtime.tv_usec);
++		printf(_("\ttz.tz_minuteswest = %d\n"), minuteswest);
++	}
++	if (ctl->testing) {
++		printf(_
++		       ("Test mode: clock was not changed\n"));
++		retcode = 0;
++	} else {
++		const struct timezone tz = { minuteswest, 0 };
+ 
+-			/* Set kernel persistent_clock_is_local so that 11 minute
+-			 * mode does not clobber the Hardware Clock with UTC. This
+-			 * is only available on first call of settimeofday after boot.
+-			 */
+-			if (!ctl->universal)
+-				rc = settimeofday(tv_null, &tz);
+-			if (!rc)
+-				rc = settimeofday(&newtime, &tz);
+-			if (rc) {
+-				warn(_("settimeofday() failed"));
+-				retcode = 1;
+-			} else
+-				retcode = 0;
+-		}
++		/* Set kernel persistent_clock_is_local so that 11 minute
++		 * mode does not clobber the Hardware Clock with UTC. This
++		 * is only available on first call of settimeofday after boot.
++		 */
++		if (!ctl->universal)
++			rc = settimeofday(tv_null, &tz);
++		if (!rc)
++			rc = settimeofday(&newtime, &tz);
++		if (rc) {
++			warn(_("settimeofday() failed"));
++			retcode = 1;
++		} else
++			retcode = 0;
+ 	}
+ 	return retcode;
+ }
+@@ -754,27 +731,17 @@ static int set_system_clock_timezone(const struct hwclock_control *ctl)
+  * Update the drift factor in <*adjtime_p> based on the fact that the
+  * Hardware Clock was just calibrated to <nowtime> and before that was
+  * set to the <hclocktime> time scale.
+- *
+- * EXCEPT: if <hclock_valid> is false, assume Hardware Clock was not set
+- * before to anything meaningful and regular adjustments have not been done,
+- * so don't adjust the drift factor.
+  */
+ static void
+ adjust_drift_factor(const struct hwclock_control *ctl,
+ 		    struct adjtime *adjtime_p,
+ 		    const struct timeval nowtime,
+-		    const bool hclock_valid,
+ 		    const struct timeval hclocktime)
+ {
+ 	if (!ctl->update) {
+ 		if (ctl->debug)
+ 			printf(_("Not adjusting drift factor because the "
+ 				 "--update-drift option was not used.\n"));
+-	} else if (!hclock_valid) {
+-		if (ctl->debug)
+-			printf(_("Not adjusting drift factor because the "
+-				 "Hardware Clock previously contained "
+-				 "garbage.\n"));
+ 	} else if (adjtime_p->last_calib_time == 0) {
+ 		if (ctl->debug)
+ 			printf(_("Not adjusting drift factor because last "
+@@ -936,8 +903,6 @@ static void save_adjtime(const struct hwclock_control *ctl,
+  * Do not update anything if the Hardware Clock does not currently present a
+  * valid time.
+  *
+- * <hclock_valid> means the Hardware Clock contains a valid time.
+- *
+  * <hclocktime> is the drift corrected time read from the Hardware Clock.
+  *
+  * <read_time> was the system time when the <hclocktime> was read, which due
+@@ -954,17 +919,10 @@ static void save_adjtime(const struct hwclock_control *ctl,
+  */
+ static void
+ do_adjustment(const struct hwclock_control *ctl, struct adjtime *adjtime_p,
+-	      const bool hclock_valid, const struct timeval hclocktime,
++	      const struct timeval hclocktime,
+ 	      const struct timeval read_time)
+ {
+-	if (!hclock_valid) {
+-		warnx(_("The Hardware Clock does not contain a valid time, "
+-			"so we cannot adjust it."));
+-		adjtime_p->last_calib_time = 0;	/* calibration startover is required */
+-		adjtime_p->last_adj_time = 0;
+-		adjtime_p->not_adjusted = 0;
+-		adjtime_p->dirty = TRUE;
+-	} else if (adjtime_p->last_adj_time == 0) {
++	if (adjtime_p->last_adj_time == 0) {
+ 		if (ctl->debug)
+ 			printf(_("Not setting clock because last adjustment time is zero, "
+ 				 "so history is bad.\n"));
+@@ -1061,7 +1019,7 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 			printf(_ ("Target date:   %ld\n"), set_time);
+ 			printf(_ ("Predicted RTC: %ld\n"), hclocktime.tv_sec);
+ 		}
+-		display_time(TRUE, hclocktime);
++		display_time(hclocktime);
+ 		return 0;
+ 	}
+ 
+@@ -1089,8 +1047,10 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 		read_hardware_clock(ctl, &hclock_valid, &hclocktime.tv_sec);
+ 		gettimeofday(&read_time, NULL);
+ 
+-		if (!hclock_valid)
++		if (!hclock_valid) {
++			warnx(_("RTC read returned an invalid value."));
+ 			return EX_IOERR;
++		}
+ 		/*
+ 		 * Calculate and apply drift correction to the Hardware Clock
+ 		 * time for everything except --show
+@@ -1106,16 +1066,15 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 		 time_inc(hclocktime, time_diff(startup_time, read_time));
+ 	}
+ 	if (ctl->show || ctl->get) {
+-		display_time(hclock_valid, startup_hclocktime);
++		display_time(startup_hclocktime);
+ 	} else if (ctl->set) {
+ 		set_hardware_clock_exact(ctl, set_time, startup_time);
+ 		if (!ctl->noadjfile)
+ 			adjust_drift_factor(ctl, adjtime, t2tv(set_time),
+-					    hclock_valid, startup_hclocktime);
++					    startup_hclocktime);
+ 	} else if (ctl->adjust) {
+ 		if (tdrift.tv_sec > 0 || tdrift.tv_sec < -1)
+-			do_adjustment(ctl, adjtime, hclock_valid,
+-				      hclocktime, read_time);
++			do_adjustment(ctl, adjtime, hclocktime, read_time);
+ 		else
+ 			printf(_("Needed adjustment is less than one second, "
+ 				 "so not setting clock.\n"));
+@@ -1133,9 +1092,9 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 		set_hardware_clock_exact(ctl, (time_t) reftime.tv_sec, reftime);
+ 		if (!ctl->noadjfile)
+ 			adjust_drift_factor(ctl, adjtime, nowtime,
+-					    hclock_valid, hclocktime);
++					    hclocktime);
+ 	} else if (ctl->hctosys) {
+-		return set_system_clock(ctl, hclock_valid, hclocktime);
++		return set_system_clock(ctl, hclocktime);
+ 	}
+ 	if (!ctl->noadjfile)
+ 		save_adjtime(ctl, adjtime);
