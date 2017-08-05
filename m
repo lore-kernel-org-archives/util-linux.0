@@ -1,43 +1,25 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.virtlab.unibo.it ([130.136.161.50]:33066 "EHLO
-        mail.virtlab.unibo.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932132AbdHVIkP (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 22 Aug 2017 04:40:15 -0400
-Date: Tue, 22 Aug 2017 10:40:11 +0200
-From: Renzo Davoli <renzo@cs.unibo.it>
-To: util-linux@vger.kernel.org
-Subject: mount(8) does not support cap_sys_admin
-Message-ID: <20170822084011.vzahylh7qxvcmj3b@cs.unibo.it>
-References: <20170822082047.eczufv3naqlvulsn@cs.unibo.it>
+Return-Path: kerolasa@gmail.com
+Sender: Sami Kerola <kerolasa@gmail.com>
+Date: Sat, 5 Aug 2017 17:33:16 +0100 (BST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/9] chfn, chsh: merge auth.h, islocal.h and libuser.h
+ to ch-common.h
+In-Reply-To: <20170801092726.jyajaltu5mpihjgo@ws.net.home>
+Message-ID: <alpine.LNX.2.20.1708051732280.4995@imuri>
+References: <20170731195508.11661-1-kerolasa@iki.fi> <20170731195508.11661-2-kerolasa@iki.fi> <20170801092726.jyajaltu5mpihjgo@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170822082047.eczufv3naqlvulsn@cs.unibo.it>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
 List-ID: <util-linux.vger.kernel.org>
 
-mount command does not seem to support the cap_sys_admin capability.
+On Tue, 1 Aug 2017, Karel Zak wrote:
+> Frankly, I'm not sure if this patch improves readability of the code.
+> Now we have to ways (pam and libuser) and both is pretty separated by
+> .c and .h files. Not sure if merge it makes it better.
 
-In fact the command fails when the mount system call would succeeds
-for operation permitted to users (e.g. bind mounts in user-namespaces)
+Fair enough. This change is dropped from my 2017wk30 branch.
 
-For example using userbindmount
-https://github.com/rd235/userbindmount
-
-$ userbindmount -s --
-$ mount --bind /tmp/resolv.conf /etc/resolv.conf 
-mount: only root can use "--bind" option
-$ busybox mount --bind /tmp/resolv.conf /etc/resolv.conf 
-$
-
-As it can be seen from the example above, busybox mount
-succeeds on the same command where mount(8) fails.
-
-"Mount" erroneously checks that the effective user is root
-and returns an error prior to invoke the system call mount(2),
-forbidding in this way permitted operations.
-
-thank you
-
-	renzo
-
-PS: I am sorry my previous mail had typos in the subject
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
