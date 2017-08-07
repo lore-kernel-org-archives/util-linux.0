@@ -1,55 +1,77 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33124 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:49542 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750882AbdHaJqc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 31 Aug 2017 05:46:32 -0400
-Date: Thu, 31 Aug 2017 11:46:29 +0200
+        id S1751743AbdHGISF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 7 Aug 2017 04:18:05 -0400
+Date: Mon, 7 Aug 2017 10:18:01 +0200
 From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: rfkill(8) move and improvements
-Message-ID: <20170831094629.2ct2pcs4rq3loowp@ws.net.home>
-References: <alpine.LNX.2.20.1706251339500.25762@imuri>
- <1498745040.3141.6.camel@sipsolutions.net>
- <CAG27Bk0tKzqxkm6qqjGO6GJE7vxReRAQbvYGexjp+PBLo+RK_A@mail.gmail.com>
- <20170630074729.s3gknfobabgepk4h@ws.net.home>
- <alpine.LNX.2.20.1707010956520.7939@imuri>
- <CAG27Bk0u8C4u3PnT1g_B8MeFBkou+dYdpp9Rdn7z87gd-XskBQ@mail.gmail.com>
+To: =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
+Cc: util-linux@vger.kernel.org,
+        =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>
+Subject: Re: [PATCH V2] libblkid: add support for UBI superblock
+Message-ID: <20170807081801.rpupulq6hbcd7zra@ws.net.home>
+References: <20170801140309.17646-1-zajec5@gmail.com>
+ <20170802121418.10628-1-zajec5@gmail.com>
+ <20170803122608.bpqcsfdfek3fvf26@ws.net.home>
+ <CACna6rwPwb9WjzJor3rYf1WSJs2_NNBKR5S3Ya8YPVEk3EK7tg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk0u8C4u3PnT1g_B8MeFBkou+dYdpp9Rdn7z87gd-XskBQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <CACna6rwPwb9WjzJor3rYf1WSJs2_NNBKR5S3Ya8YPVEk3EK7tg@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 30, 2017 at 08:40:01PM +0100, Sami Kerola wrote:
-> On 1 July 2017 at 10:06, Sami Kerola <kerolasa@iki.fi> wrote:
-> > I did couple last minute changes to my remote branch, that should now be
-> > ready for final review.
+On Mon, Aug 07, 2017 at 07:40:17AM +0200, Rafał Miłecki wrote:
+> On 3 August 2017 at 14:26, Karel Zak <kzak@redhat.com> wrote:
+> > On Wed, Aug 02, 2017 at 02:14:18PM +0200, Rafał Miłecki wrote:
+> >> From: Rafał Miłecki <rafal@milecki.pl>
+> >>
+> >> UBI is a volume management system that can be used on a raw flash
+> >> partition for providing multiple logical volumes. Detecting UBI
+> >> superblock may be useful for tools wanting to simplify or automate
+> >> attaching UBI.
+> >>
+> >> Please note it's not directly related to the ubifs support which is just
+> >> a filesystem working on top of UBI volume.
+> >>
+> >> In other words: UBI can be used on MTD partition (e.g. /dev/mtdblock0)
+> >> while ubifs can be used on UBI volume (e.g. /dev/ubi0_0).
+> >>
+> >> This patch adds simple code reading UBI version and unique number and
+> >> setting it in the blkid_probe.
+> >>
+> >> Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+> >> ---
+> >> V2: Update commit message (more UBI vs. ubifs details)
+> >>     Pass &hdr->image_seq to the blkid_probe_sprintf_uuid
+> >>     Add test
 > >
-> > git://github.com/kerolasa/lelux-utiliteetit.git rfkill
+> > Applied, thanks.
+> >
+> >> +ID_FS_TYPE=ubi
+> >> +ID_FS_USAGE=filesystem
+> >
+> > This is probably not ideal. We use "RAID" flag for logic volume
+> > managers. The advantage is that probing is faster as it does not try
+> > to check for another signature when "RAID" is detected.
+> >
+> > The question is how small could be the UBI device? We don't probe for
+> > "RAID" on very small devices (<=1MiB).
 > 
-> Hello,
+> UBI is responsible for bad blocks handling, so it needs enough erase
+> blocks (PEBs) reserved in order to work. If one's MTD partition is as
+> small as 1 MiB, it won't have enough of erase blocks (PEBs) [0].
 > 
-> It's been a while. I did not get any review feedback, so I assume changes
-> were ok. Would it be possible to move forward with the merge to
-> util-linux upstream?
+> There is some formula for amount of reserved blocks, like:
+> n_reserved = n_max_bad_blocks + n_internal_volumes_blocks  + 1
+> but basically 1 MiB is said to be too small.
+> 
+> Does it mean we should & we're save to switch from OTHER to the RAID?
 
-Merged. Changes:
-
-* removed sys-utils/rfkill.py (nowhere used by build-system, also
-  missing in Fedora package)
-
-* added --disable-rfkill to make it possible to resolve conflicts with
-  the original version
-
-* usage() cleanup (USAGE_COMMANDS,  USAGE_COLUMNS, etc..)
-
-* cleanup returns; it's always better to return 0,1,<0 in functions
-  and use EXIT_* in the main() only (well, except err())
-
-Please, tests it (now I'm on workstation without any relevant HW).
+I have pushed this change to the master branch. Now UBI uses
+BLKID_USAGE_RAID flag (and the test image has been enlarged (> 1MiB)).
 
     Karel
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
