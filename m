@@ -1,103 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:57947 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751658AbdGaXhw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 31 Jul 2017 19:37:52 -0400
-Subject: [PATCH 1/5] hwclock: squash custom errno strings
-To: Karel Zak <kzak@redhat.com>
-References: <ccb78676-1284-5880-0ca9-ff15d2920de7@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <18605853-d895-83bb-68f8-d1e645516ddf@gmx.com>
-Date: Mon, 31 Jul 2017 19:37:44 -0400
-MIME-Version: 1.0
-In-Reply-To: <ccb78676-1284-5880-0ca9-ff15d2920de7@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:45992
+        "EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751890AbdHIURj (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 9 Aug 2017 16:17:39 -0400
+From: Andreas Henriksson <andreas@fatal.se>
+To: util-linux@vger.kernel.org
+Cc: Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH] Fix syntax error in fsck(8) manpage
+Date: Wed,  9 Aug 2017 22:17:34 +0200
+Message-Id: <1502309854-10756-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+$ LC_ALL=en_US.UTF-8 MANROFFSEQ='' MANWIDTH=80     \
+        man --warnings -E UTF-8 -l -Tutf8 -Z disk-utils/fsck.8 >/dev/null
+<standard input>:407: warning: macro `fi.' not defined (possibly missing space after `fi')
 
-hwclock previously used printf for custom errno messages.
-Later they were converted to use warn(), but were not
-squashed. One of the reasons for warn and errno is to avoid
-making translators deal with a multitude custom strings.
+As spotted by 'lintian':
+https://lintian.debian.org/tags/manpage-has-errors-from-man.html
 
-Also the custom strings are incorrect:
-
-hwclock --hctosys
-hwclock: Must be superuser to set system clock.
-Unable to set system clock.
-
-We do not know what the system permissions are set to.  The
-correct response is to simply say permission was denied; as
-the default errno string does. The second line is redundant
-and just adds noise the code and to logs.
-
-Patched:
-
-hwclock --hctosys
-hwclock: settimeofday() failed: Operation not permitted
-
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
+Signed-off-by: Andreas Henriksson <andreas@fatal.se>
 ---
- sys-utils/hwclock.c | 32 ++++++--------------------------
- 1 file changed, 6 insertions(+), 26 deletions(-)
+ disk-utils/fsck.8 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index aadf196..c74e0e2 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -648,14 +648,8 @@ set_system_clock(const struct hwclock_control *ctl, const bool hclock_valid,
- 			if (!rc)
- 				rc = settimeofday(&newtime, &tz);
- 			if (rc) {
--				if (errno == EPERM) {
--					warnx(_
--					      ("Must be superuser to set system clock."));
--					retcode = EX_NOPERM;
--				} else {
--					warn(_("settimeofday() failed"));
--					retcode = 1;
--				}
-+				warn(_("settimeofday() failed"));
-+				retcode = 1;
- 			} else
- 				retcode = 0;
- 		}
-@@ -744,14 +738,8 @@ static int set_system_clock_timezone(const struct hwclock_control *ctl)
- 			rc = settimeofday(tv_null, &tz);
- 
- 		if (rc) {
--			if (errno == EPERM) {
--				warnx(_
--				      ("Must be superuser to set system clock."));
--				retcode = EX_NOPERM;
--			} else {
--				warn(_("settimeofday() failed"));
--				retcode = 1;
--			}
-+			warn(_("settimeofday() failed"));
-+			retcode = 1;
- 		} else
- 			retcode = 0;
- 	}
-@@ -1134,17 +1122,9 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
- 			adjust_drift_factor(ctl, adjtime, nowtime,
- 					    hclock_valid, hclocktime);
- 	} else if (ctl->hctosys) {
--		rc = set_system_clock(ctl, hclock_valid, hclocktime);
--		if (rc) {
--			printf(_("Unable to set system clock.\n"));
--			return rc;
--		}
-+		return set_system_clock(ctl, hclock_valid, hclocktime);
- 	} else if (ctl->systz) {
--		rc = set_system_clock_timezone(ctl);
--		if (rc) {
--			printf(_("Unable to set system clock.\n"));
--			return rc;
--		}
-+		return set_system_clock_timezone(ctl);
- 	} else if (ctl->predict) {
- 		hclocktime = time_inc(hclocktime, (double)
- 				      -(tdrift.tv_sec + tdrift.tv_usec / 1E6));
+diff --git a/disk-utils/fsck.8 b/disk-utils/fsck.8
+index dc3f5a773..01e39e288 100644
+--- a/disk-utils/fsck.8
++++ b/disk-utils/fsck.8
+@@ -404,7 +404,7 @@ or
+ .nf
+ Theodore Ts'o <tytso@mit.edu>
+ Karel Zak <kzak@redhat.com>
+-.fi.
++.fi
+ .SH AVAILABILITY
+ The fsck command is part of the util-linux package and is available from
+ .UR ftp://\:ftp.kernel.org\:/pub\:/linux\:/utils\:/util-linux/
+-- 
+2.14.0
+
