@@ -1,42 +1,23 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:62258 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751701AbdGaXgb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 31 Jul 2017 19:36:31 -0400
-Subject: [PATCH 0/5] Pull Request
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <ccb78676-1284-5880-0ca9-ff15d2920de7@gmx.com>
-Date: Mon, 31 Jul 2017 19:36:22 -0400
+Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:45994
+        "EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750866AbdHIUVQ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 9 Aug 2017 16:21:16 -0400
+Date: Wed, 9 Aug 2017 22:21:14 +0200
+From: Andreas Henriksson <andreas@fatal.se>
+To: util-linux@vger.kernel.org
+Subject: Re: [PATCH] Fix syntax error in fsck(8) manpage
+Message-ID: <20170809202113.GA10843@fatal.se>
+References: <1502309854-10756-1-git-send-email-andreas@fatal.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1502309854-10756-1-git-send-email-andreas@fatal.se>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Err, scratch that. Sorry.
 
-The following changes since commit 8df545592d73b67b0bf119732b52a5e4c0662ec4:
+This is apparently already fixed. I was on the wrong branch.
 
-  build: use --runstatedir instead of --localstatedir (2017-07-31 15:24:46 +0200)
-
-are available in the git repository at:
-
-  git@github.com:jwpi/util-linux.git 170722
-
-for you to fetch changes up to b3e8105837505fc9b4637b4e41cca39eecb48ebf:
-
-  hwclock: remove custom errno string (2017-07-31 16:10:47 -0400)
-
-----------------------------------------------------------------
-J William Piggott (5):
-      hwclock: squash custom errno strings
-      hwclock: squash custom errno strings
-      hwclock: fix unimplemented ioctl test
-      hwclock: remove custom errno string
-      hwclock: remove custom errno string
-
- sys-utils/hwclock-cmos.c |  6 +-----
- sys-utils/hwclock-rtc.c  | 40 ++++++++++++++++------------------------
- sys-utils/hwclock.c      | 32 ++++++--------------------------
- sys-utils/hwclock.h      |  1 -
- 4 files changed, 23 insertions(+), 56 deletions(-)
+Regards,
+Andreas Henriksson
