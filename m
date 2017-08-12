@@ -1,139 +1,67 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 4/8] hwclock: fix RTC read logic
-To: Karel Zak <kzak@redhat.com>
-References: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <5714882c-8ed5-c703-410e-c0dd191051f6@gmx.com>
-Date: Tue, 1 Aug 2017 09:17:08 -0400
-MIME-Version: 1.0
-In-Reply-To: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:35864 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750803AbdHLIcQ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 12 Aug 2017 04:32:16 -0400
+Received: by mail-wm0-f68.google.com with SMTP id d40so8769734wma.3
+        for <util-linux@vger.kernel.org>; Sat, 12 Aug 2017 01:32:15 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH] look: use WORDLIST environment variable to find word list
+Date: Sat, 12 Aug 2017 09:32:08 +0100
+Message-Id: <20170812083208.1208-2-kerolasa@iki.fi>
+In-Reply-To: <20170812083208.1208-1-kerolasa@iki.fi>
+References: <20170812083208.1208-1-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+The WORDLIST is the same hunspell(1) and ispell(1) uses to achieve the same.
+Apparently aspell(1) does not work with files like traditional dict lists.
 
-Over the past decade a few commits for a corner case problem
-have left the RTC read branch in a bad place.
-
-The problem was: when a corrupted RTC could not be read, then
-it also could not be reset, because hwclock would error out
-due to the RTC read failure.
-
-2.15-rc1 commit 3b96a7a Aug  9 2008
-2.19-rc1 commit 5606df5 Dec 29 2010
-2.23-rc1 commit ab8f402 Mar 21 2013
-
-The first fix was to ignore a synchronization timeout only for
-the busywait branch.
-
-Two and a half years later a commit describing the same problem
-took a little more heavy-handed approach by ignoring all
-synchronization failures and the RTC read after it, for both of
-the RTC set functions.
-
-Because the previous fix also ignored the select() branch timeout
-it caused a bogus warning. The chosen workaround for that was to
-only print the select() timeout message in debug mode (this is
-reverted by another patch).
-
-The problem with these fixes is that we cannot just ignore the
-synchronization timeout like that, because then the drift
-correction operations will be invalid. The original logic was
-correct; we must exit when synchronization fails.
-
-Another problem is that now there are statements between the
-timing-critical synchronize-read-timestamp trio (which were
-also in the wrong order, but that part of the problem goes
-back further in history).
-
-The solution is to skip the RTC read block completely for the
-RTC set functions when not also using the --update-drift
-option. If we are updating the drift correction factor during
-a set function then we must synchronize and read the RTC.
-Otherwise reading the RTC is not needed. Anyone trying to set
-a corrupt RTC should not be using --update-drift, because the
-resulting drift correction factor would be invalid.
-
-Using this approach has the added benefit of significantly
-reducing system shutdown time when not using --update-drift:
-
-time ./hwclock --test --systohc; time ./hwclock-master --test --systohc
-Test mode: clock was not changed
-
-real    0m0.072s
-user    0m0.066s
-sys     0m0.003s
-Test mode: clock was not changed
-
-real    0m1.000s
-user    0m0.169s
-sys     0m0.005s
-
-I've see differences as high as 1.518 seconds.
-
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
+Reference: https://github.com/hunspell/hunspell/blob/master/man/hunspell.1#L388
+Reference: http://www.skrenta.com/rt/man/ispell.1.html
+Reference: http://aspell.net/man-html/Creating-an-Individual-Word-List.html#Creating-an-Individual-Word-List
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- sys-utils/hwclock.c | 38 +++++++++++++++-----------------------
- 1 file changed, 15 insertions(+), 23 deletions(-)
+ misc-utils/look.1 | 5 +++++
+ misc-utils/look.c | 7 ++++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 1550dfe..e172fb1 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -1034,8 +1034,6 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
- 	struct timeval hclocktime = { 0, 0 };
- 	/* Total Hardware Clock drift correction needed. */
- 	struct timeval tdrift;
--	/* local return code */
--	int rc = 0;
+diff --git a/misc-utils/look.1 b/misc-utils/look.1
+index 503e38584..cca83416e 100644
+--- a/misc-utils/look.1
++++ b/misc-utils/look.1
+@@ -101,6 +101,11 @@ sort -d /etc/passwd -o /tmp/look.dict
+ look -t: root:foobar /tmp/look.dict
+ .nf
+ .RE
++.SH ENVIRONMENT
++.TP
++.B WORDLIST
++Path to a dictionary file.  The environment variable has greater priority
++than the dictionary path defined in FILES segment.
+ .SH FILES
+ .IP "\fB/usr/share/dict/words\fR" 4
+ the dictionary
+diff --git a/misc-utils/look.c b/misc-utils/look.c
+index 60fbbbfca..00061f2a3 100644
+--- a/misc-utils/look.c
++++ b/misc-utils/look.c
+@@ -104,7 +104,12 @@ main(int argc, char *argv[])
  
- 	if ((ctl->set || ctl->systohc || ctl->adjust) &&
- 	    (adjtime->local_utc == UTC) != ctl->universal) {
-@@ -1068,32 +1066,26 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
- 	if (ur->get_permissions())
- 		return EX_NOPERM;
+ 	setlocale(LC_ALL, "");
  
--	if (ctl->show || ctl->get || ctl->adjust || ctl->hctosys
--	    || !ctl->noadjfile) {
--		/* data from HW-clock are required */
--		rc = synchronize_to_clock_tick(ctl);
--
-+	/*
-+	 * Read and drift correct RTC time; except for RTC set functions
-+	 * without the --update-drift option because: 1) it's not needed;
-+	 * 2) it enables setting a corrupted RTC without reading it first;
-+	 * 3) it significantly reduces system shutdown time.
-+	 */
-+	if ( ! ((ctl->set || ctl->systohc) && !ctl->update)) {
- 		/*
--		 * We don't error out if the user is attempting to set the
--		 * RTC and synchronization timeout happens - the RTC could
--		 * be functioning but contain invalid time data so we still
--		 * want to allow a user to set the RTC time.
-+		 * Timing critical - do not change the order of, or put
-+		 * anything between the follow three statements.
-+		 * Synchronization failure MUST exit, because all drift
-+		 * operations are invalid without it.
- 		 */
--		if (rc == RTC_BUSYWAIT_FAILED && !ctl->set && !ctl->systohc)
-+		if (synchronize_to_clock_tick(ctl))
- 			return EX_IOERR;
-+		read_hardware_clock(ctl, &hclock_valid, &hclocktime.tv_sec);
- 		gettimeofday(&read_time, NULL);
+-	file = _PATH_WORDS;
++	if ((file = getenv("WORDLIST"))) {
++		if (access(file, R_OK))
++			err(EXIT_FAILURE, "WORDLIST=%s", file);
++	} else
++		file = _PATH_WORDS;
++
+ 	termchar = '\0';
+ 	string = NULL;		/* just for gcc */
  
--		/*
--		 * If we can't synchronize to a clock tick,
--		 * we likely can't read from the RTC so
--		 * don't bother reading it again.
--		 */
--		if (!rc) {
--			rc = read_hardware_clock(ctl, &hclock_valid,
--						 &hclocktime.tv_sec);
--			if (rc && !ctl->set && !ctl->systohc)
--				return EX_IOERR;
--		}
-+		if (!hclock_valid)
-+			return EX_IOERR;
- 		/*
- 		 * Calculate and apply drift correction to the Hardware Clock
- 		 * time for everything except --show
+-- 
+2.14.1
+
