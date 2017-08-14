@@ -1,127 +1,79 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:51068 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:25447 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751090AbdHSATS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 18 Aug 2017 20:19:18 -0400
-Subject: [PATCH 2/6] hwclock: remove set_system_clock_timezone()
-To: Karel Zak <kzak@redhat.com>
-References: <7059c516-6d5f-0579-81be-60b4519f0ce7@gmx.com>
+        id S1752457AbdHNJNB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 14 Aug 2017 05:13:01 -0400
+Date: Mon, 14 Aug 2017 11:12:57 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <9b497c68-bbb8-5f95-1de9-1acbcc5368a1@gmx.com>
-Date: Fri, 18 Aug 2017 20:19:15 -0400
+Subject: Re: [PATCH] look: use WORDLIST environment variable to find word list
+Message-ID: <20170814091257.rq7kqgoi4vsqo2rb@ws.net.home>
+References: <20170812083208.1208-1-kerolasa@iki.fi>
+ <20170812083208.1208-2-kerolasa@iki.fi>
 MIME-Version: 1.0
-In-Reply-To: <7059c516-6d5f-0579-81be-60b4519f0ce7@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170812083208.1208-2-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sat, Aug 12, 2017 at 09:32:08AM +0100, Sami Kerola wrote:
+> The WORDLIST is the same hunspell(1) and ispell(1) uses to achieve the same.
+> Apparently aspell(1) does not work with files like traditional dict lists.
+> 
+> Reference: https://github.com/hunspell/hunspell/blob/master/man/hunspell.1#L388
+> Reference: http://www.skrenta.com/rt/man/ispell.1.html
+> Reference: http://aspell.net/man-html/Creating-an-Individual-Word-List.html#Creating-an-Individual-Word-List
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  misc-utils/look.1 | 5 +++++
+>  misc-utils/look.c | 7 ++++++-
+>  2 files changed, 11 insertions(+), 1 deletion(-)
+> 
+> diff --git a/misc-utils/look.1 b/misc-utils/look.1
+> index 503e38584..cca83416e 100644
+> --- a/misc-utils/look.1
+> +++ b/misc-utils/look.1
+> @@ -101,6 +101,11 @@ sort -d /etc/passwd -o /tmp/look.dict
+>  look -t: root:foobar /tmp/look.dict
+>  .nf
+>  .RE
+> +.SH ENVIRONMENT
+> +.TP
+> +.B WORDLIST
+> +Path to a dictionary file.  The environment variable has greater priority
+> +than the dictionary path defined in FILES segment.
+>  .SH FILES
+>  .IP "\fB/usr/share/dict/words\fR" 4
+>  the dictionary
+> diff --git a/misc-utils/look.c b/misc-utils/look.c
+> index 60fbbbfca..00061f2a3 100644
+> --- a/misc-utils/look.c
+> +++ b/misc-utils/look.c
+> @@ -104,7 +104,12 @@ main(int argc, char *argv[])
+>  
+>  	setlocale(LC_ALL, "");
+>  
+> -	file = _PATH_WORDS;
+> +	if ((file = getenv("WORDLIST"))) {
+> +		if (access(file, R_OK))
+> +			err(EXIT_FAILURE, "WORDLIST=%s", file);
+> +	} else
+> +		file = _PATH_WORDS;
+> +
 
-Remove set_system_clock_timezone() because the previous patch
-moved its functionality into set_system_clock().
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock.c | 89 -----------------------------------------------------
- 1 file changed, 89 deletions(-)
+Would be better fallback to _PATH_WORDS if WORDLIST= points to
+nowhere?
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index e49f1a1..ddd6413 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -641,95 +641,6 @@ set_system_clock(const struct hwclock_control *ctl,
- }
- 
- /*
-- * Reset the System Clock from local time to UTC, based on its current value
-- * and the timezone unless universal is TRUE.
-- *
-- * Also set the kernel time zone value to the value indicated by the TZ
-- * environment variable and/or /usr/lib/zoneinfo/, interpreted as tzset()
-- * would interpret them.
-- *
-- * If 'testing' is true, don't actually update anything -- just say we would
-- * have.
-- */
--static int set_system_clock_timezone(const struct hwclock_control *ctl)
--{
--	int retcode;
--	struct timeval tv;
--	struct tm *broken;
--	int minuteswest;
--
--	gettimeofday(&tv, NULL);
--	if (ctl->debug) {
--		struct tm broken_time;
--		char ctime_now[200];
--
--		broken_time = *gmtime(&tv.tv_sec);
--		strftime(ctime_now, sizeof(ctime_now), "%Y/%m/%d %H:%M:%S",
--			 &broken_time);
--		printf(_("Current system time: %ld = %s\n"), tv.tv_sec,
--		       ctime_now);
--	}
--
--	broken = localtime(&tv.tv_sec);
--#ifdef HAVE_TM_GMTOFF
--	minuteswest = -broken->tm_gmtoff / 60;	/* GNU extension */
--#else
--	minuteswest = timezone / 60;
--	if (broken->tm_isdst)
--		minuteswest -= 60;
--#endif
--
--	if (ctl->debug) {
--		struct tm broken_time;
--		char ctime_now[200];
--
--		gettimeofday(&tv, NULL);
--		if (!ctl->universal)
--			tv.tv_sec += minuteswest * 60;
--
--		broken_time = *gmtime(&tv.tv_sec);
--		strftime(ctime_now, sizeof(ctime_now), "%Y/%m/%d %H:%M:%S",
--			 &broken_time);
--
--		printf(_("Calling settimeofday:\n"));
--		printf(_("\tUTC: %s\n"), ctime_now);
--		printf(_("\ttv.tv_sec = %ld, tv.tv_usec = %ld\n"),
--		       tv.tv_sec, tv.tv_usec);
--		printf(_("\ttz.tz_minuteswest = %d\n"), minuteswest);
--	}
--	if (ctl->testing) {
--		printf(_
--		       ("Test mode: clock was not changed\n"));
--		retcode = 0;
--	} else {
--		const struct timezone tz_utc = { 0, 0 };
--		const struct timezone tz = { minuteswest, 0 };
--		const struct timeval *tv_null = NULL;
--		int rc = 0;
--
--		/* The first call to settimeofday after boot will assume the systemtime
--		 * is in localtime, and adjust it according to the given timezone to
--		 * compensate. If the systemtime is in fact in UTC, then this is wrong
--		 * so we first do a dummy call to make sure the time is not shifted.
--		 */
--		if (ctl->universal)
--			rc = settimeofday(tv_null, &tz_utc);
--
--		/* Now we set the real timezone. Due to the above dummy call, this will
--		 * only warp the systemtime if the RTC is not in UTC. */
--		if (!rc)
--			rc = settimeofday(tv_null, &tz);
--
--		if (rc) {
--			warn(_("settimeofday() failed"));
--			retcode = 1;
--		} else
--			retcode = 0;
--	}
--	return retcode;
--}
--
--/*
-  * Refresh the last calibrated and last adjusted timestamps in <*adjtime_p>
-  * to facilitate future drift calculations based on this set point.
-  *
+    file = _PATH_WORDS; /* default */
+    if ((x = getenv("WORDLIST")) && access(file, R_OK) == 0)
+        file = x;
+
+seems like more backwardly compatible way.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
