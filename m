@@ -1,30 +1,33 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47370 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752110AbdHBLAR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 2 Aug 2017 07:00:17 -0400
-Date: Wed, 2 Aug 2017 13:00:09 +0200
-From: Karel Zak <kzak@redhat.com>
-To: =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
-Cc: util-linux@vger.kernel.org,
-        =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>
-Subject: Re: [PATCH] libblkid: add support for UBI superblock
-Message-ID: <20170802110009.iucpi4ghaabyhwkt@ws.net.home>
-References: <20170801140309.17646-1-zajec5@gmail.com>
- <20170802104147.xkowycdmzgsfk4mp@ws.net.home>
+Return-Path: kerolasa@gmail.com
+Sender: Sami Kerola <kerolasa@gmail.com>
+Date: Tue, 15 Aug 2017 19:23:39 +0100 (BST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] isosize: iterate over all arguments even when something
+ fails
+In-Reply-To: <20170814090821.qxqr4ill4ihtjlyc@ws.net.home>
+Message-ID: <alpine.LNX.2.20.1708151913490.1230@imuri>
+References: <20170812083208.1208-1-kerolasa@iki.fi> <20170814090821.qxqr4ill4ihtjlyc@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170802104147.xkowycdmzgsfk4mp@ws.net.home>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 02, 2017 at 12:41:47PM +0200, Karel Zak wrote:
-> It would be nice to have lsblk output with mounted ubifs.
+On Mon, 14 Aug 2017, Karel Zak wrote:
+> Seems like overkill, why we need so specific information? I guess it
+> would be enough
+> 
+>     0 - EXIT_SUCCESS
+>     1 - EXIT_FAILURE
+>    64 - EXIT_SOMEOK  (already used for mount, lsblk, kill, ...)
 
-Ah, I've forgot, it's not block device...
+I kept small overkill and used two different return values: 64 for some 
+ok, and 32 all failed.
 
-    Karel
+https://github.com/kerolasa/lelux-utiliteetit/commit/dea7a778beb6b043a889904d43b2b2b561814326
+
+That is in branch: 2017wk32
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
