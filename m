@@ -1,75 +1,35 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:64002 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751090AbdHSASH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 18 Aug 2017 20:18:07 -0400
-Subject: [PATCH 1/6] hwclock: move systz into hctosys
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 0/6] Pull Request
 To: Karel Zak <kzak@redhat.com>
-References: <7059c516-6d5f-0579-81be-60b4519f0ce7@gmx.com>
 Cc: util-linux@vger.kernel.org
 From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <42ac6811-69d7-2bbf-56a7-ead6d1a0d489@gmx.com>
-Date: Fri, 18 Aug 2017 20:18:04 -0400
+Message-ID: <7059c516-6d5f-0579-81be-60b4519f0ce7@gmx.com>
+Date: Fri, 18 Aug 2017 20:16:47 -0400
 MIME-Version: 1.0
-In-Reply-To: <7059c516-6d5f-0579-81be-60b4519f0ce7@gmx.com>
 Content-Type: text/plain; charset=windows-1252
-Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
-The set_system_clock_timezone() function is nearly identical to
-set_system_clock(). Three additional statements are required
-to include systz in hctosys.
+The following changes since commit 6047c6db9c261c8048c54279ba1206ad0ca5d61e:
 
-This patch is intentionally incomplete to make reviewing the
-actual required changes easier. Other patches in this set will:
+  lslogins: be more explicit with -g in man page (2017-08-18 10:29:54 +0200)
 
- * remove set_system_clock_timezone()
- * fix messages and debugging
- * fix comments
- * and finally refactor set_system_clock()
+are available in the git repository at:
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+  git@github.com:jwpi/util-linux.git 170803
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 910e39f..e49f1a1 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -594,6 +594,7 @@ set_system_clock(const struct hwclock_control *ctl,
- 	struct tm *broken;
- 	int minuteswest;
- 	int rc = 0;
-+	const struct timezone tz_utc = { 0 };
- 
- 	broken = localtime(&newtime.tv_sec);
- #ifdef HAVE_TM_GMTOFF
-@@ -621,10 +622,15 @@ set_system_clock(const struct hwclock_control *ctl,
- 		 * mode does not clobber the Hardware Clock with UTC. This
- 		 * is only available on first call of settimeofday after boot.
- 		 */
--		if (!ctl->universal)
-+		if (ctl->hctosys && !ctl->universal)	/* set PCIL */
- 			rc = settimeofday(tv_null, &tz);
--		if (!rc)
-+		if (ctl->systz && ctl->universal)	/* lock warp_clock */
-+			rc = settimeofday(tv_null, &tz_utc);
-+		if (!rc && ctl->hctosys)
- 			rc = settimeofday(&newtime, &tz);
-+		else if (!rc)
-+			rc = settimeofday(NULL, &tz);
-+
- 		if (rc) {
- 			warn(_("settimeofday() failed"));
- 			retcode = 1;
-@@ -1024,7 +1030,7 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
- 	}
- 
- 	if (ctl->systz)
--		return set_system_clock_timezone(ctl);
-+		return set_system_clock(ctl, startup_time);
- 
- 	if (ur->get_permissions())
- 		return EX_NOPERM;
+for you to fetch changes up to 6524846ce501f7cfb9cc9a5ba369f37ef47d5ea2:
+
+  hwclock: for debugging print startup system time (2017-08-18 16:07:28 -0400)
+
+----------------------------------------------------------------
+J William Piggott (6):
+      hwclock: move systz into hctosys
+      hwclock: remove set_system_clock_timezone()
+      hwclock: update set_system_clock debugging
+      hwclock: update set_system_clock comments
+      hwclock: rename/refactor set_system_clock()
+      hwclock: for debugging print startup system time
+
+ sys-utils/hwclock.c | 187 ++++++++++++++++++----------------------------------
+ 1 file changed, 63 insertions(+), 124 deletions(-)
