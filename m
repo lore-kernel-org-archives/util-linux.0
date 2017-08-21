@@ -1,76 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:56559 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:34884 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751217AbdHANSP (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 1 Aug 2017 09:18:15 -0400
-Subject: [PATCH 5/8] hwclock: correlate hclocktime instead of set_time.
-To: Karel Zak <kzak@redhat.com>
-References: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
+        id S1751866AbdHUJUE (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 21 Aug 2017 05:20:04 -0400
+Date: Mon, 21 Aug 2017 11:20:00 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <2cf04064-2963-1c14-d2ed-7804b31c590c@gmx.com>
-Date: Tue, 1 Aug 2017 09:18:01 -0400
+Subject: Re: [PATCH] look: use WORDLIST environment variable to find word list
+Message-ID: <20170821092000.q3vyxgosrcbqivwx@ws.net.home>
+References: <20170812083208.1208-1-kerolasa@iki.fi>
+ <20170812083208.1208-2-kerolasa@iki.fi>
+ <20170814091257.rq7kqgoi4vsqo2rb@ws.net.home>
+ <alpine.LNX.2.20.1708151911190.1230@imuri>
 MIME-Version: 1.0
-In-Reply-To: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <alpine.LNX.2.20.1708151911190.1230@imuri>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, Aug 15, 2017 at 07:13:34PM +0100, Sami Kerola wrote:
+> On Mon, 14 Aug 2017, Karel Zak wrote:
+> 
+> > Would be better fallback to _PATH_WORDS if WORDLIST= points to
+> > nowhere?
+> > 
+> >     file = _PATH_WORDS; /* default */
+> >     if ((x = getenv("WORDLIST")) && access(file, R_OK) == 0)
+> >         file = x;
+> > 
+> > seems like more backwardly compatible way.
+> 
+> No problems, change is updated much like proposed above.
+> 
+> https://github.com/kerolasa/lelux-utiliteetit/commit/dd8be07d84988b130286a1194210bdb26b223736
+> 
+> That is in branch: 2017wk32
 
-Correlate hclocktime with set_time instead of the other way around,
-because set_time is used for timestamps in the adjtime file so it needs
-to be unadulterated.
+Applied, thanks.
 
-Also create var startup_hclocktime for correlated time.
-
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock.c | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
-
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index e172fb1..df6b59e 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -1029,9 +1029,14 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
- 	bool hclock_valid = FALSE;
- 	/*
- 	 * Tick synchronized time read from the Hardware Clock and
--	 * then drift correct for all operations except --show.
-+	 * then drift corrected for all operations except --show.
- 	 */
--	struct timeval hclocktime = { 0, 0 };
-+	struct timeval hclocktime = { 0 };
-+	/*
-+	 * hclocktime correlated to startup_time. That is, what drift
-+	 * corrected Hardware Clock time would have been at start up.
-+	 */
-+	struct timeval startup_hclocktime = { 0 };
- 	/* Total Hardware Clock drift correction needed. */
- 	struct timeval tdrift;
- 
-@@ -1096,18 +1101,17 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
- 				     hclocktime.tv_sec, &tdrift);
- 		if (!ctl->show)
- 			hclocktime = time_inc(tdrift, hclocktime.tv_sec);
-+
-+		startup_hclocktime =
-+		 time_inc(hclocktime, time_diff(startup_time, read_time));
- 	}
- 	if (ctl->show || ctl->get) {
--		display_time(hclock_valid,
--			     time_inc(hclocktime, -time_diff
--				      (read_time, startup_time)));
-+		display_time(hclock_valid, startup_hclocktime);
- 	} else if (ctl->set) {
- 		set_hardware_clock_exact(ctl, set_time, startup_time);
- 		if (!ctl->noadjfile)
--			adjust_drift_factor(ctl, adjtime,
--					    time_inc(t2tv(set_time), time_diff
--						     (read_time, startup_time)),
--					    hclock_valid, hclocktime);
-+			adjust_drift_factor(ctl, adjtime, t2tv(set_time),
-+					    hclock_valid, startup_hclocktime);
- 	} else if (ctl->adjust) {
- 		if (tdrift.tv_sec > 0 || tdrift.tv_sec < -1)
- 			do_adjustment(ctl, adjtime, hclock_valid,
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
