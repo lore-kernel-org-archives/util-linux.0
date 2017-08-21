@@ -1,60 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59050 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:37772 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751607AbdHAJmQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 1 Aug 2017 05:42:16 -0400
-Date: Tue, 1 Aug 2017 11:42:12 +0200
+        id S1751821AbdHUJUu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 21 Aug 2017 05:20:50 -0400
+Date: Mon, 21 Aug 2017 11:20:46 +0200
 From: Karel Zak <kzak@redhat.com>
 To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 9/9] agetty: fix invalid usage crash
-Message-ID: <20170801094212.72yitooyxbnq6o4j@ws.net.home>
-References: <20170731195508.11661-1-kerolasa@iki.fi>
- <20170731195508.11661-10-kerolasa@iki.fi>
+Subject: Re: [PATCH] isosize: iterate over all arguments even when something
+ fails
+Message-ID: <20170821092046.khbqoc6zmky7wh5m@ws.net.home>
+References: <20170812083208.1208-1-kerolasa@iki.fi>
+ <20170814090821.qxqr4ill4ihtjlyc@ws.net.home>
+ <alpine.LNX.2.20.1708151913490.1230@imuri>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170731195508.11661-10-kerolasa@iki.fi>
+In-Reply-To: <alpine.LNX.2.20.1708151913490.1230@imuri>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jul 31, 2017 at 08:55:08PM +0100, Sami Kerola wrote:
-> $ agetty
-> agetty: not enough arguments: Success
-> Segmentation fault (core dumped)
+On Tue, Aug 15, 2017 at 07:23:39PM +0100, Sami Kerola wrote:
+> On Mon, 14 Aug 2017, Karel Zak wrote:
+> > Seems like overkill, why we need so specific information? I guess it
+> > would be enough
+> > 
+> >     0 - EXIT_SUCCESS
+> >     1 - EXIT_FAILURE
+> >    64 - EXIT_SOMEOK  (already used for mount, lsblk, kill, ...)
 > 
-> Reference: 9325dbfd2018b2a3b510617f4aa13777fbbe23c3
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  term-utils/agetty.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/term-utils/agetty.c b/term-utils/agetty.c
-> index f06b9fc6e..d9e9548fa 100644
-> --- a/term-utils/agetty.c
-> +++ b/term-utils/agetty.c
-> @@ -803,7 +803,8 @@ static void parse_args(int argc, char **argv, struct options *op)
->  
->  	if (argc < optind + 1) {
->  		log_warn(_("not enough arguments"));
-> -		warn(_("not enough arguments"));
-> +		warnx(_("not enough arguments"));
-> +		errtryhelp(EXIT_FAILURE);
->  	}
->  
->  	/* Accept "tty", "baudrate tty", and "tty baudrate". */
-> @@ -812,7 +813,8 @@ static void parse_args(int argc, char **argv, struct options *op)
->  		parse_speeds(op, argv[optind++]);
->  		if (argc < optind + 1) {
->  			log_warn(_("not enough arguments"));
-> -			warn(_("not enough arguments"));
-> +			warnx(_("not enough arguments"));
-> +			exit(EXIT_FAILURE);
+> I kept small overkill and used two different return values: 64 for some 
+> ok, and 32 all failed.
 
-what about:
+OK, I have merged a little different way how to implement it.
 
-            errx(EXIT_FAILURE, _("not enough arguments"));
+    Karel
 
-   Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
