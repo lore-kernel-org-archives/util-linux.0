@@ -1,43 +1,26 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 7/8] hwclock: restore select() timeout warning
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail.virtlab.unibo.it ([130.136.161.50]:33194 "EHLO
+        mail.virtlab.unibo.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753329AbdHWHb7 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 23 Aug 2017 03:31:59 -0400
+Date: Wed, 23 Aug 2017 09:31:55 +0200
+From: Renzo Davoli <renzo@cs.unibo.it>
 To: Karel Zak <kzak@redhat.com>
-References: <e1d514d0-132d-d142-41fb-cf179de5606a@gmx.com>
- <c2bfd6c4-8499-f90f-5824-d3e96628d3f2@gmx.com>
 Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <b4527a76-55fe-91ab-6587-598048978152@gmx.com>
-Date: Tue, 1 Aug 2017 09:35:42 -0400
+Subject: Re: mount(8) does not support cap_sys_admin
+Message-ID: <20170823073155.6sne537o4ykgv7g4@cs.unibo.it>
+References: <20170822082047.eczufv3naqlvulsn@cs.unibo.it>
+ <20170822084011.vzahylh7qxvcmj3b@cs.unibo.it>
+ <20170822091538.f6q7ihuhskc7hw6u@ws.net.home>
 MIME-Version: 1.0
-In-Reply-To: <c2bfd6c4-8499-f90f-5824-d3e96628d3f2@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170822091538.f6q7ihuhskc7hw6u@ws.net.home>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, Aug 22, 2017 at 11:15:38AM +0200, Karel Zak wrote:
+> I'll add this to our TODO list.
 
-hwclock now exits on select(2) timeout so restore the warning.
+Thank you. Maybe I can help, proposing patches to support this feature.
 
-Reverts commit ab8f402952301106ad0bd5c5a51dc8646d1bff64
- and    commit efc4eaf4229f78f14430d8739ddef2c5101f05cc
-
-Except use warnx(), because select() timeout does not set errno.
-
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock-rtc.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/sys-utils/hwclock-rtc.c b/sys-utils/hwclock-rtc.c
-index c738076..a660e32 100644
---- a/sys-utils/hwclock-rtc.c
-+++ b/sys-utils/hwclock-rtc.c
-@@ -288,9 +288,8 @@ static int synchronize_to_clock_tick_rtc(const struct hwclock_control *ctl)
- 			if (0 < rc)
- 				ret = 0;
- 			else if (rc == 0) {
--				if (ctl->debug)
--					printf(_("select() to %s to wait for clock tick timed out"),
--					       rtc_dev_name);
-+				warnx(_("select() to %s to wait for clock tick timed out"),
-+				      rtc_dev_name);
- 			} else
- 				warn(_("select() to %s to wait for clock tick failed"),
- 				     rtc_dev_name);
+renzo
