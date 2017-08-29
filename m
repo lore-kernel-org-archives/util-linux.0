@@ -1,42 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from c-83-233-174-181.cust.bredband2.com ([83.233.174.181]:45992
-        "EHLO pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751890AbdHIURj (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 9 Aug 2017 16:17:39 -0400
-From: Andreas Henriksson <andreas@fatal.se>
-To: util-linux@vger.kernel.org
-Cc: Andreas Henriksson <andreas@fatal.se>
-Subject: [PATCH] Fix syntax error in fsck(8) manpage
-Date: Wed,  9 Aug 2017 22:17:34 +0200
-Message-Id: <1502309854-10756-1-git-send-email-andreas@fatal.se>
+Received: from mout.gmx.net ([212.227.17.20]:59614 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751290AbdH2QfO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 29 Aug 2017 12:35:14 -0400
+Subject: [PATCH 3/3] hwclock: close hwaudit_fd unconditionally
+To: Karel Zak <kzak@redhat.com>
+References: <71b98184-ea32-0e83-013c-2fdb8edc621f@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <9397486e-e8a1-0668-dcec-cc479a1ac500@gmx.com>
+Date: Tue, 29 Aug 2017 12:35:02 -0400
+MIME-Version: 1.0
+In-Reply-To: <71b98184-ea32-0e83-013c-2fdb8edc621f@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-$ LC_ALL=en_US.UTF-8 MANROFFSEQ='' MANWIDTH=80     \
-        man --warnings -E UTF-8 -l -Tutf8 -Z disk-utils/fsck.8 >/dev/null
-<standard input>:407: warning: macro `fi.' not defined (possibly missing space after `fi')
 
-As spotted by 'lintian':
-https://lintian.debian.org/tags/manpage-has-errors-from-man.html
-
-Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
- disk-utils/fsck.8 | 2 +-
+ sys-utils/hwclock.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/disk-utils/fsck.8 b/disk-utils/fsck.8
-index dc3f5a773..01e39e288 100644
---- a/disk-utils/fsck.8
-+++ b/disk-utils/fsck.8
-@@ -404,7 +404,7 @@ or
- .nf
- Theodore Ts'o <tytso@mit.edu>
- Karel Zak <kzak@redhat.com>
--.fi.
-+.fi
- .SH AVAILABILITY
- The fsck command is part of the util-linux package and is available from
- .UR ftp://\:ftp.kernel.org\:/pub\:/linux\:/utils\:/util-linux/
--- 
-2.14.0
-
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 6f868df..81ede0a 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1376,8 +1376,8 @@ hwclock_exit(int status)
+ 		audit_log_user_message(hwaudit_fd, AUDIT_USYS_CONFIG,
+ 				       "op=change-system-time", NULL, NULL, NULL,
+ 				       status);
+-		close(hwaudit_fd);
+ 	}
++	close(hwaudit_fd);
+ #endif
+ 	exit(status);
+ }
