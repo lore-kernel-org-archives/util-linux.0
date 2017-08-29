@@ -1,33 +1,35 @@
-Return-Path: kerolasa@gmail.com
-Sender: Sami Kerola <kerolasa@gmail.com>
-Date: Tue, 15 Aug 2017 19:23:39 +0100 (BST)
-From: Sami Kerola <kerolasa@iki.fi>
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 0/3] Pull Request
 To: Karel Zak <kzak@redhat.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] isosize: iterate over all arguments even when something
- fails
-In-Reply-To: <20170814090821.qxqr4ill4ihtjlyc@ws.net.home>
-Message-ID: <alpine.LNX.2.20.1708151913490.1230@imuri>
-References: <20170812083208.1208-1-kerolasa@iki.fi> <20170814090821.qxqr4ill4ihtjlyc@ws.net.home>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <71b98184-ea32-0e83-013c-2fdb8edc621f@gmx.com>
+Date: Tue, 29 Aug 2017 12:30:20 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 14 Aug 2017, Karel Zak wrote:
-> Seems like overkill, why we need so specific information? I guess it
-> would be enough
-> 
->     0 - EXIT_SUCCESS
->     1 - EXIT_FAILURE
->    64 - EXIT_SOMEOK  (already used for mount, lsblk, kill, ...)
 
-I kept small overkill and used two different return values: 64 for some 
-ok, and 32 all failed.
+The following changes since commit e406be01b450dd7ed5e694bc15a39719d6f86967:
 
-https://github.com/kerolasa/lelux-utiliteetit/commit/dea7a778beb6b043a889904d43b2b2b561814326
+  hwclock: for debugging print startup system time (2017-08-24 18:49:11 -0400)
 
-That is in branch: 2017wk32
+are available in the git repository at:
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+  git@github.com:jwpi/util-linux.git 170825
+
+for you to fetch changes up to 0396d0c2bc33a34d132b0d4f9f5f055668732989:
+
+  hwclock: close hwaudit_fd unconditionally (2017-08-28 21:19:55 -0400)
+
+----------------------------------------------------------------
+J William Piggott (3):
+      hwclock: remove sysexits.h
+      hwclock: remove audit from control struct
+      hwclock: close hwaudit_fd unconditionally
+
+ sys-utils/hwclock-rtc.c |   5 +--
+ sys-utils/hwclock.8.in  |   8 ++++
+ sys-utils/hwclock.c     | 104 +++++++++++++++++++-----------------------------
+ sys-utils/hwclock.h     |   3 +-
+ 4 files changed, 52 insertions(+), 68 deletions(-)
