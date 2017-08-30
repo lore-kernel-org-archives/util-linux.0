@@ -1,84 +1,35 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 4/5] hwclock: remove custom errno string
-To: Karel Zak <kzak@redhat.com>
-References: <ccb78676-1284-5880-0ca9-ff15d2920de7@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <92a45f1d-ddfb-ac43-89d9-a47d328c64c9@gmx.com>
-Date: Mon, 31 Jul 2017 19:51:55 -0400
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-In-Reply-To: <ccb78676-1284-5880-0ca9-ff15d2920de7@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20170830073205.h4czf7hv5nrnwtcd@ws.net.home>
+References: <20170828203813.12698-1-kerolasa@iki.fi> <20170830073205.h4czf7hv5nrnwtcd@ws.net.home>
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Wed, 30 Aug 2017 10:09:41 +0100
+Message-ID: <CAG27Bk0OvYHEq29aSCHkSSBcMjfDWX=D-9CurLoN9c2DxyPXTQ@mail.gmail.com>
+Subject: Re: [PATCH] chsh: remove local /etc/shells parsing in favour of getusershell(3)
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <util-linux.vger.kernel.org>
 
+On 30 August 2017 at 08:32, Karel Zak <kzak@redhat.com> wrote:
+> On Mon, Aug 28, 2017 at 09:38:13PM +0100, Sami Kerola wrote:
+>> Less code, less bugs.  And if there are bugs at least share them with all
+>> other programs that use getusershell(3) from libc.
+>
+> Is it portable? ulibC etc.. ?
 
-Custom errno messages are unnecessary and problematic for translators.
+It is available in uClib
+https://git.uclibc.org/uClibc/tree/libc/unistd/usershell.c
 
-The current messages are also too long, > 90 columns:
-/dev/rtc0 does not have interrupt functions. Waiting in loop for time from \
-/dev/rtc0 to change
+Also in musl, but strangely in legacy directory
+https://git.musl-libc.org/cgit/musl/tree/src/legacy/getusershell.c
 
-Fixed:
-ioctl(3, RTC_UIE_ON, 0): Inappropriate ioctl for device
-Waiting in loop for time from /dev/rtc0 to change
+But I guess the best option is to add check to configure.ac and write
+util-linux getusershell() fallback when it is not available. I'll do that
+sometime soonish, about before end of the week.
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock-rtc.c | 26 ++++++++++++--------------
- 1 file changed, 12 insertions(+), 14 deletions(-)
-
-diff --git a/sys-utils/hwclock-rtc.c b/sys-utils/hwclock-rtc.c
-index ea8357d..c738076 100644
---- a/sys-utils/hwclock-rtc.c
-+++ b/sys-utils/hwclock-rtc.c
-@@ -194,8 +194,11 @@ static int do_rtc_read_ioctl(int rtc_fd, struct tm *tm)
- }
- 
- /*
-- * Wait for the top of a clock tick by reading /dev/rtc in a busy loop until
-- * we see it.
-+ * Wait for the top of a clock tick by reading /dev/rtc in a busy loop
-+ * until we see it. This function is used for rtc drivers without ioctl
-+ * interrupts. This is typical on an Alpha, where the Hardware Clock
-+ * interrupts are used by the kernel for the system clock, so aren't at
-+ * the user's disposal.
-  */
- static int busywait_for_rtc_clock_tick(const struct hwclock_control *ctl,
- 				       const int rtc_fd)
-@@ -206,9 +209,12 @@ static int busywait_for_rtc_clock_tick(const struct hwclock_control *ctl,
- 	int rc;
- 	struct timeval begin, now;
- 
--	if (ctl->debug)
-+	if (ctl->debug) {
-+		printf("ioctl(%d, RTC_UIE_ON, 0): %s\n",
-+		       rtc_fd, strerror(errno));
- 		printf(_("Waiting in loop for time from %s to change\n"),
- 		       rtc_dev_name);
-+	}
- 
- 	rc = do_rtc_read_ioctl(rtc_fd, &start_time);
- 	if (rc)
-@@ -294,19 +300,11 @@ static int synchronize_to_clock_tick_rtc(const struct hwclock_control *ctl)
- 				warn(_("ioctl() to %s to turn off update interrupts failed"),
- 				     rtc_dev_name);
- 		} else if (errno == ENOTTY) {
--			/*
--			 * This rtc device doesn't have interrupt functions.
--			 * This is typical on an Alpha, where the Hardware
--			 * Clock interrupts are used by the kernel for the
--			 * system clock, so aren't at the user's disposal.
--			 */
--			if (ctl->debug)
--				printf(_("%s does not have interrupt functions. "),
--				       rtc_dev_name);
-+			/* rtc ioctl interrupts are unimplemented */
- 			ret = busywait_for_rtc_clock_tick(ctl, rtc_fd);
- 		} else
--			warn(_("ioctl() to %s to turn on update interrupts "
--			      "failed unexpectedly"), rtc_dev_name);
-+			warn(_("ioctl(%d, RTC_UIE_ON, 0) to %s failed"),
-+			     rtc_fd, rtc_dev_name);
- 	}
- 	return ret;
- }
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
