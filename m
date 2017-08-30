@@ -1,44 +1,33 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34884 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751866AbdHUJUE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 21 Aug 2017 05:20:04 -0400
-Date: Mon, 21 Aug 2017 11:20:00 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] look: use WORDLIST environment variable to find word list
-Message-ID: <20170821092000.q3vyxgosrcbqivwx@ws.net.home>
-References: <20170812083208.1208-1-kerolasa@iki.fi>
- <20170812083208.1208-2-kerolasa@iki.fi>
- <20170814091257.rq7kqgoi4vsqo2rb@ws.net.home>
- <alpine.LNX.2.20.1708151911190.1230@imuri>
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LNX.2.20.1708151911190.1230@imuri>
-Sender: util-linux-owner@vger.kernel.org
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <alpine.LNX.2.20.1707010956520.7939@imuri>
+References: <alpine.LNX.2.20.1706251339500.25762@imuri> <1498745040.3141.6.camel@sipsolutions.net>
+ <CAG27Bk0tKzqxkm6qqjGO6GJE7vxReRAQbvYGexjp+PBLo+RK_A@mail.gmail.com>
+ <20170630074729.s3gknfobabgepk4h@ws.net.home> <alpine.LNX.2.20.1707010956520.7939@imuri>
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Wed, 30 Aug 2017 20:40:01 +0100
+Message-ID: <CAG27Bk0u8C4u3PnT1g_B8MeFBkou+dYdpp9Rdn7z87gd-XskBQ@mail.gmail.com>
+Subject: Re: rfkill(8) move and improvements
+To: Karel Zak <kzak@redhat.com>
+Cc: Johannes Berg <johannes@sipsolutions.net>, Marcel Holtmann <marcel@holtmann.org>,
+	linux-wireless@vger.kernel.org, util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 15, 2017 at 07:13:34PM +0100, Sami Kerola wrote:
-> On Mon, 14 Aug 2017, Karel Zak wrote:
-> 
-> > Would be better fallback to _PATH_WORDS if WORDLIST= points to
-> > nowhere?
-> > 
-> >     file = _PATH_WORDS; /* default */
-> >     if ((x = getenv("WORDLIST")) && access(file, R_OK) == 0)
-> >         file = x;
-> > 
-> > seems like more backwardly compatible way.
-> 
-> No problems, change is updated much like proposed above.
-> 
-> https://github.com/kerolasa/lelux-utiliteetit/commit/dd8be07d84988b130286a1194210bdb26b223736
-> 
-> That is in branch: 2017wk32
+On 1 July 2017 at 10:06, Sami Kerola <kerolasa@iki.fi> wrote:
+> I did couple last minute changes to my remote branch, that should now be
+> ready for final review.
+>
+> git://github.com/kerolasa/lelux-utiliteetit.git rfkill
 
-Applied, thanks.
+Hello,
+
+It's been a while. I did not get any review feedback, so I assume changes
+were ok. Would it be possible to move forward with the merge to
+util-linux upstream?
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
