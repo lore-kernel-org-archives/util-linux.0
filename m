@@ -1,53 +1,51 @@
-Return-Path: casantos@datacom.ind.br
-Date: Tue, 1 Aug 2017 09:09:22 -0300 (BRT)
-From: Carlos Santos <casantos@datacom.ind.br>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.21]:59532 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751357AbdH3R4e (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 30 Aug 2017 13:56:34 -0400
+Subject: Re: [PATCH 2/3] hwclock: remove audit from control struct
 To: Karel Zak <kzak@redhat.com>
+References: <71b98184-ea32-0e83-013c-2fdb8edc621f@gmx.com>
+ <484f55d0-ecaf-437c-cb70-e6a871f06878@gmx.com>
+ <20170830074001.brchka4sfp36wukz@ws.net.home>
 Cc: util-linux@vger.kernel.org
-Message-ID: <1033867833.2726878.1501589362348.JavaMail.zimbra@datacom.ind.br>
-In-Reply-To: <20170801072017.yl7mgv64pq7ccj5e@ws.net.home>
-References: <1971282138.2691482.1501546323018.JavaMail.zimbra@datacom.ind.br> <1705151756.2691717.1501548399616.JavaMail.zimbra@datacom.ind.br> <20170801072017.yl7mgv64pq7ccj5e@ws.net.home>
-Subject: Re: Problem building util-linux without a separate ncursesw include
- dir
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <50bfaf8d-7036-deb7-5cde-854da4e23f64@gmx.com>
+Date: Wed, 30 Aug 2017 13:56:21 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20170830074001.brchka4sfp36wukz@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-> From: "Karel Zak" <kzak@redhat.com>
-> To: "Carlos Santos" <casantos@datacom.ind.br>
-> Cc: util-linux@vger.kernel.org
-> Sent: Tuesday, August 1, 2017 4:20:17 AM
-> Subject: Re: Problem building util-linux without a separate ncursesw incl=
-ude dir
 
-> On Mon, Jul 31, 2017 at 09:46:39PM -0300, Carlos Santos wrote:
->> > From: "Carlos Santos" <casantos@datacom.ind.br>
->> > To: util-linux@vger.kernel.org
->> > Sent: Monday, July 31, 2017 9:12:03 PM
->> > Subject: Problem building util-linux without a separate ncursesw inclu=
-de dir
->>=20
->> > of util-linux. Would it be possible to make the location of ncursesw
->> > headers configurable, instead?
->=20
-> We test for alone ncurses.h and term.h in the for non-wide ncurses.
-> Can you send output from your configure from the current master
-> branch (or v2.30.1)?
 
-config.log: https://pastebin.com/DVAyx1Zb
-defconfig for buildroot: https://pastebin.com/U3pz0hvm
+On 08/30/2017 03:40 AM, Karel Zak wrote:
+> On Tue, Aug 29, 2017 at 12:34:07PM -0400, J William Piggott wrote:
+>>
+>> hwaudit_on is only used in main() and hwclock_exit() and
+>> that is unlikely to ever change.
+> 
+>  Hmm... the goal is minimize global variables to keep code readable.
+>  It's strange to have a control struct and use global variable in the
+>  same time.
+> 
+>> Remove it from the control struct because it:
+>>  * cleans up an ugly directive in hwclock_exit
+>>  * removes an argument from usage() and hwclock_exit()
+>>  * makes usage() comply with util-linux standards
+> 
+>  I think usage() can call exit(EXIT_SUCCESS) and do not need play any
+>  games with audit at all.
 
->> I was thinking on something simple, like https://pastebin.com/VqM9G9yu
->=20
-> Hmm, but you don't distinguish between wide and non-wide ncurses.
+True for half of hwclock's functions. Perhaps this special exit
+handling should only exist when we HAVE_LIBAUDIT?
 
-That's because on Buildroot only one of the variants can exist.
+Okay, I'll rethink this and update the pull request.
 
-BTW I noticed that on Fedora each /usr/include/ncurses/<foo> is a
-symlink to ../<foo>, so the situation is exactly the same.
-
---=20
-Carlos Santos (Casantos) - DATACOM, P&D
-=E2=80=9CThe greatest triumph that modern PR can offer is the transcendent=
-=20
-success of having your words and actions judged by your reputation,=20
-rather than the other way about.=E2=80=9D =E2=80=94 Christopher Hitchens
+>  
+>  On another places we have "ctl" so it's fine fine to keep hwaudit_on
+>  within the control struct.
+> 
+>     Karel
+> 
