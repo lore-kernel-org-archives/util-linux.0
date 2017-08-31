@@ -1,51 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:54243 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:33124 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751339AbdGaXjg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 31 Jul 2017 19:39:36 -0400
-Subject: [PATCH 3/5] hwclock: fix unimplemented ioctl test
-To: Karel Zak <kzak@redhat.com>
-References: <ccb78676-1284-5880-0ca9-ff15d2920de7@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <5e672d66-60ab-4250-408c-dedec3df234b@gmx.com>
-Date: Mon, 31 Jul 2017 19:39:32 -0400
+        id S1750882AbdHaJqc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 31 Aug 2017 05:46:32 -0400
+Date: Thu, 31 Aug 2017 11:46:29 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: rfkill(8) move and improvements
+Message-ID: <20170831094629.2ct2pcs4rq3loowp@ws.net.home>
+References: <alpine.LNX.2.20.1706251339500.25762@imuri>
+ <1498745040.3141.6.camel@sipsolutions.net>
+ <CAG27Bk0tKzqxkm6qqjGO6GJE7vxReRAQbvYGexjp+PBLo+RK_A@mail.gmail.com>
+ <20170630074729.s3gknfobabgepk4h@ws.net.home>
+ <alpine.LNX.2.20.1707010956520.7939@imuri>
+ <CAG27Bk0u8C4u3PnT1g_B8MeFBkou+dYdpp9Rdn7z87gd-XskBQ@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <ccb78676-1284-5880-0ca9-ff15d2920de7@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk0u8C4u3PnT1g_B8MeFBkou+dYdpp9Rdn7z87gd-XskBQ@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wed, Aug 30, 2017 at 08:40:01PM +0100, Sami Kerola wrote:
+> On 1 July 2017 at 10:06, Sami Kerola <kerolasa@iki.fi> wrote:
+> > I did couple last minute changes to my remote branch, that should now be
+> > ready for final review.
+> >
+> > git://github.com/kerolasa/lelux-utiliteetit.git rfkill
+> 
+> Hello,
+> 
+> It's been a while. I did not get any review feedback, so I assume changes
+> were ok. Would it be possible to move forward with the merge to
+> util-linux upstream?
 
-The rtc driver has not returned EINVAL for unimplemented ioctls since
-v2.5.8 in 2002. However, it does return it for other errors; making the
-current test potentially problematic. Since 9f3d0fc util-linux assumes
-kernel >= 2.6.0 so remove EINVAL as an ioctl test.
+Merged. Changes:
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock-rtc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+* removed sys-utils/rfkill.py (nowhere used by build-system, also
+  missing in Fedora package)
 
-diff --git a/sys-utils/hwclock-rtc.c b/sys-utils/hwclock-rtc.c
-index 36ce397..ea8357d 100644
---- a/sys-utils/hwclock-rtc.c
-+++ b/sys-utils/hwclock-rtc.c
-@@ -257,7 +257,7 @@ static int synchronize_to_clock_tick_rtc(const struct hwclock_control *ctl)
- 		 * they should.
- 		 */
- 		rc = -1;
--		errno = EINVAL;
-+		errno = ENOTTY;
- #else
- 		rc = ioctl(rtc_fd, RTC_UIE_ON, 0);
- #endif
-@@ -293,7 +293,7 @@ static int synchronize_to_clock_tick_rtc(const struct hwclock_control *ctl)
- 			if (rc == -1)
- 				warn(_("ioctl() to %s to turn off update interrupts failed"),
- 				     rtc_dev_name);
--		} else if (errno == ENOTTY || errno == EINVAL) {
-+		} else if (errno == ENOTTY) {
- 			/*
- 			 * This rtc device doesn't have interrupt functions.
- 			 * This is typical on an Alpha, where the Hardware
+* added --disable-rfkill to make it possible to resolve conflicts with
+  the original version
+
+* usage() cleanup (USAGE_COMMANDS,  USAGE_COLUMNS, etc..)
+
+* cleanup returns; it's always better to return 0,1,<0 in functions
+  and use EXIT_* in the main() only (well, except err())
+
+Please, tests it (now I'm on workstation without any relevant HW).
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
