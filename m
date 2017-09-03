@@ -1,35 +1,90 @@
-Return-Path: sbrabec@suse.cz
-Subject: Re: [PATCH] libmount: if ENOMEDIUM and tray is open, close tray and
- retry
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.21]:59094 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751509AbdICUCC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 3 Sep 2017 16:02:02 -0400
+Subject: [v2 PATCH 2/3] hwclock: don't always use hwclock_exit
 To: Karel Zak <kzak@redhat.com>
+References: <71b98184-ea32-0e83-013c-2fdb8edc621f@gmx.com>
+ <484f55d0-ecaf-437c-cb70-e6a871f06878@gmx.com>
 Cc: util-linux@vger.kernel.org
-References: <0e40cb41-a64a-93b1-0c06-620cca40a575@suse.cz>
- <f29ab5ef-753d-2ea8-e348-d53cdf4262cf@suse.cz>
- <db7a8eaa-3519-234c-72c9-428ca1b80ff0@suse.cz>
- <20170801121615.nxqolue5qv3rwlrh@ws.net.home>
- <20170905110413.jy24jrfd2pr7ts4k@ws>
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <dd52f640-cf48-a190-3c5c-b856aeb2dadf@suse.cz>
-Date: Tue, 5 Sep 2017 14:53:41 +0200
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <ed4db76b-e015-6066-7992-8d6efc8002ea@gmx.com>
+Date: Sun, 3 Sep 2017 16:01:49 -0400
 MIME-Version: 1.0
-In-Reply-To: <20170905110413.jy24jrfd2pr7ts4k@ws>
-Content-Type: text/plain; charset=iso-8859-2
+In-Reply-To: <484f55d0-ecaf-437c-cb70-e6a871f06878@gmx.com>
+Content-Type: text/plain; charset=windows-1252
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> Stanislav, do you want to update the patch before the next release?
 
-Probably not. Kernel autoclose feature should be fixed instead, and this
-patch will not be needed.
+Special exit handling is not wanted for usage() or bad
+command syntax. For example we do not want to audit:
+hwclock --set --date foo
 
--- 
-Best Regards / S pozdravem,
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 82f919048..e471fe1ae 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1061,7 +1061,7 @@ static void out_version(void)
+ }
+ 
+ static void __attribute__((__noreturn__))
+-usage(const struct hwclock_control *ctl)
++usage(void)
+ {
+ 	fputs(USAGE_HEADER, stdout);
+ 	printf(_(" %s [function] [option...]\n"), program_invocation_short_name);
+@@ -1105,7 +1105,7 @@ usage(const struct hwclock_control *ctl)
+ 	fputs(USAGE_SEPARATOR, stdout);
+ 	printf(USAGE_HELP_OPTIONS(22));
+ 	printf(USAGE_MAN_TAIL("hwclock(8)"));
+-	hwclock_exit(ctl, EXIT_SUCCESS);
++	exit(EXIT_SUCCESS);
+ }
+ 
+ int main(int argc, char **argv)
+@@ -1301,7 +1301,7 @@ int main(int argc, char **argv)
+ 			out_version();
+ 			return 0;
+ 		case 'h':			/* --help */
+-			usage(&ctl);
++			usage();
+ 		default:
+ 			errtryhelp(EXIT_FAILURE);
+ 		}
+@@ -1317,25 +1317,25 @@ int main(int argc, char **argv)
+ 
+ 	if (ctl.update && !ctl.set && !ctl.systohc) {
+ 		warnx(_("--update-drift requires --set or --systohc"));
+-		hwclock_exit(&ctl, EXIT_FAILURE);
++		exit(EXIT_FAILURE);
+ 	}
+ 
+ 	if (ctl.noadjfile && !ctl.utc && !ctl.local_opt) {
+ 		warnx(_("With --noadjfile, you must specify "
+ 			"either --utc or --localtime"));
+-		hwclock_exit(&ctl, EXIT_FAILURE);
++		exit(EXIT_FAILURE);
+ 	}
+ 
+ 	if (ctl.set || ctl.predict) {
+ 		if (!ctl.date_opt) {
+ 		warnx(_("--date is required for --set or --predict"));
+-		hwclock_exit(&ctl, EXIT_FAILURE);
++		exit(EXIT_FAILURE);
+ 		}
+ 		if (parse_date(&when, ctl.date_opt, NULL))
+ 			set_time = when.tv_sec;
+ 		else {
+ 			warnx(_("invalid date '%s'"), ctl.date_opt);
+-			hwclock_exit(&ctl, EXIT_FAILURE);
++			exit(EXIT_FAILURE);
+ 		}
+ 	}
+ 
