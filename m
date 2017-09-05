@@ -1,96 +1,88 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33014 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:50258 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753206AbdIHHjZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 8 Sep 2017 03:39:25 -0400
-Date: Fri, 8 Sep 2017 09:39:21 +0200
+        id S1750762AbdIELER (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 5 Sep 2017 07:04:17 -0400
+Date: Tue, 5 Sep 2017 13:04:13 +0200
 From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/1] Two changes before we go to rc
-Message-ID: <20170908073921.a537fid3dnghsgme@ws.net.home>
-References: <e5219e08-60f7-d35d-c81c-64cb598c7e84@gmx.com>
- <20170905110005.jjcfq3rvch7jtqhi@ws>
- <2072373a-a369-863d-40d7-ebf4abb3fe78@gmx.com>
+Subject: Re: [PATCH] libmount: if ENOMEDIUM and tray is open, close tray and
+ retry
+Message-ID: <20170905110413.jy24jrfd2pr7ts4k@ws>
+References: <0e40cb41-a64a-93b1-0c06-620cca40a575@suse.cz>
+ <f29ab5ef-753d-2ea8-e348-d53cdf4262cf@suse.cz>
+ <db7a8eaa-3519-234c-72c9-428ca1b80ff0@suse.cz>
+ <20170801121615.nxqolue5qv3rwlrh@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <2072373a-a369-863d-40d7-ebf4abb3fe78@gmx.com>
+In-Reply-To: <20170801121615.nxqolue5qv3rwlrh@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Sep 07, 2017 at 04:50:00PM -0400, J William Piggott wrote:
-> My thoughts were:
+On Tue, Aug 01, 2017 at 02:16:15PM +0200, Karel Zak wrote:
+> On Fri, Jul 21, 2017 at 08:44:03PM +0200, Stanislav Brabec wrote:
+> > @@ -1399,6 +1405,7 @@ int mnt_context_get_mount_excode(
+> >  	/*
+> >  	 * mount(2) errors
+> >  	 */
+> > +mount_retry:
+> >  	syserr = mnt_context_get_syscall_errno(cxt);
+> >  
+> >  
+> > @@ -1563,6 +1570,19 @@ int mnt_context_get_mount_excode(
+> >  		break;
+> >  
+> >  	case ENOMEDIUM:
+> > +		cdrom = open(mnt_context_get_source(cxt), O_RDONLY | O_NONBLOCK);
+> > +		if (cdrom != -1) {
+> > +			if (retries < CRDOM_TRAYOPEN_RETRIES &&
+> > +			    (ioctl(cdrom, CDROM_GET_CAPABILITY, NULL) & CDC_CLOSE_TRAY) &&
+> > +			    ioctl(cdrom, CDROM_DRIVE_STATUS, NULL) == CDS_TRAY_OPEN) {
+> > +				ioctl(cdrom, CDROMCLOSETRAY);
+> > +				close(cdrom);
+> > +				sleep(3);
+> > +				++retries;
+> > +				goto mount_retry;
+> > +			} else
+> > +				close(cdrom);
+> > +		}
 > 
->  It was Rudi's idea, so I assumed he wanted to implement it.
-> 
->  It doesn't look to me like this can be done with sed alone. It seems
->  like it would take too long to finish for this cycle?
+> This cannot work.
 
-Probably yes. It is not anything urgent so it could be done later (or
-never -- the current usage() output seems good too). The idea is not
-bad, but it's pretty invasive... I have no strong opinion about it.
-
->  I didn't think all of the details had been hammered out yet, like:
-> 
->  * ul currently uses the same argument notation for usage and docs.
->    coreutils usages and docs both use their notation style.
->    So won't this switch mean changing all of the docs as well?
-
-Good point.
-
->  * Your final example was:
-> 
-> > after change:
-> >    -e, --exclude MAJOR     exclude specified devices (see below)
-> >    -I, --include MAJOR     show only specified devices (see below)
-> >    -o, --output COLUMNS    output columns (see below)
-> >    -x, --sort COLUMN       sort output by column
-> > 
-> >  The MAJOR command separated list of the device major numbers. The
-> >  ramdisk devices are excluded by default.
-> > 
-> >  Available COLUMNS:
-> >    NAME  device name
-> >    KNAME  internal kernel device name
-> >    ...
-> 
-> Coreutils starts the details sections with the magic argument. See
-> 'split --help' and 'date --help'. I think that is better because they
-> align and you don't have to look for them.
-> 
-> IMO, coreutils usage is too verbose and busy; it should be a quick
-
-Well, I'd like to keep our usage() stuff compact and short.
-
-> reference for users that already understand the command and should be as
-> terse as possible. Otherwise they probably need to read the manual.
-> 
-> Perhaps the magic argument name should not be too abstract(MAJOR) and
-> its details should be a simple example list? Something like:
-> 
->    -e, --exclude DEV       exclude specified devices (see below)
->    -I, --include DEV       show only specified devices (see below)
->    -o, --output COLUMNS    output columns (see below)
->    -x, --sort COLUMN       sort output by column
-> 
-> DEV: 1,2,3 ... major_dev_number
-> 
-> COLUMNS: NAME,KNAME, ...
-> 
-> The linkage between the magic argument and its details section should be
-> strong enough to not require any more explanation.
-
-"(see below)" seems good enough 
-
-> I think mixed case for section headers is fine:
-> Usage:
-> Options:
-> SIZE:
-> ...
-
-Yes.
+Stanislav, do you want to update the patch before the next release?
 
     Karel
+
+> 
+> It seem you have tested the tray-close only, but I guess your goal is
+> also *mount* the device. The "goto mount_retry" does not call any
+> mount(2) stuff :-)
+> 
+> The function mnt_context_get_mount_excode() is wrong place. This
+> optional function is there to generate error message and exit code.
+> Nothing else.
+> 
+> The right place for your code is mnt_context_mount() where we already
+> have the same logic ("try mount again") for read-only devices. You
+> need something like:
+> 
+>  if (mnt_context_syscall_called(cxt) &&
+>      mnt_context_get_syscall_errno(cxt) == ENOMEDIUM) {
+> 
+>     ... your open() and ioctls ...
+> 
+>     goto again;
+>  }
+> 
+> 
+> Use findmnt(8) to be sure that CDROM is really mounted.
+> 
+>     Karel
+> 
+> -- 
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
 
 -- 
  Karel Zak  <kzak@redhat.com>
