@@ -1,28 +1,35 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:54608 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751198AbdIOLcA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 15 Sep 2017 07:32:00 -0400
-Date: Fri, 15 Sep 2017 13:31:56 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+Return-Path: sbrabec@suse.cz
+Subject: Re: [PATCH] libmount: if ENOMEDIUM and tray is open, close tray and
+ retry
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] rfkill: allow use of multiple arguments
-Message-ID: <20170915113156.f3e3ic4qmhpmo573@ws.net.home>
-References: <20170911195558.740-1-kerolasa@iki.fi>
+References: <0e40cb41-a64a-93b1-0c06-620cca40a575@suse.cz>
+ <f29ab5ef-753d-2ea8-e348-d53cdf4262cf@suse.cz>
+ <db7a8eaa-3519-234c-72c9-428ca1b80ff0@suse.cz>
+ <20170801121615.nxqolue5qv3rwlrh@ws.net.home>
+ <20170905110413.jy24jrfd2pr7ts4k@ws>
+From: Stanislav Brabec <sbrabec@suse.cz>
+Message-ID: <dd52f640-cf48-a190-3c5c-b856aeb2dadf@suse.cz>
+Date: Tue, 5 Sep 2017 14:53:41 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170911195558.740-1-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20170905110413.jy24jrfd2pr7ts4k@ws>
+Content-Type: text/plain; charset=iso-8859-2
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Sep 11, 2017 at 08:55:57PM +0100, Sami Kerola wrote:
->  sys-utils/rfkill.8 | 18 ++++++++------
->  sys-utils/rfkill.c | 73 +++++++++++++++++++++++++++++++++---------------------
->  2 files changed, 56 insertions(+), 35 deletions(-)
+Karel Zak wrote:
+> Stanislav, do you want to update the patch before the next release?
 
-Applied, thanks.
+Probably not. Kernel autoclose feature should be fixed instead, and this
+patch will not be needed.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
