@@ -1,71 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:49812 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750782AbdIELB6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 5 Sep 2017 07:01:58 -0400
-Date: Tue, 5 Sep 2017 13:01:54 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] hwclock: add -a that is short of --adjust to manual page
- and usage
-Message-ID: <20170905110154.s3ld4ziq2fifprj2@ws>
-References: <20170903223407.5459-1-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170903223407.5459-1-kerolasa@iki.fi>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:38135 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751031AbdIKT5W (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 11 Sep 2017 15:57:22 -0400
+Received: by mail-wm0-f67.google.com with SMTP id x17so7684840wmd.5
+        for <util-linux@vger.kernel.org>; Mon, 11 Sep 2017 12:57:21 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 2/4] libsmartcols: fix heap-buffer-overflow [asan]
+Date: Mon, 11 Sep 2017 20:57:15 +0100
+Message-Id: <20170911195717.817-2-kerolasa@iki.fi>
+In-Reply-To: <20170911195717.817-1-kerolasa@iki.fi>
+References: <20170911195717.817-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Sep 03, 2017 at 11:34:07PM +0100, Sami Kerola wrote:
-> In same go use -V as return value of --version from getopts_long().
-> 
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  sys-utils/hwclock.8.in | 2 +-
->  sys-utils/hwclock.c    | 4 ++--
->  2 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
-> index 107e3f196..2be7147e2 100644
-> --- a/sys-utils/hwclock.8.in
-> +++ b/sys-utils/hwclock.8.in
-> @@ -34,7 +34,7 @@ was added.  See their respective descriptions below.
->  The following functions are mutually exclusive, only one can be given at
->  a time.  If none is given, the default is \fB\-\-show\fR.
->  .TP
-> -.B \-\-adjust
-> +.B \-a, \-\-adjust
+This gives room for element 0 in array of column cells.
 
-Good idea.
+ERROR: AddressSanitizer: heap-buffer-overflow on address 0x608000000080 at
+pc 0x5596bfaaca26 bp 0x7ffd8352a550 sp 0x7ffd83529d00
+READ of size 64 at 0x608000000080 thread T0
+    #0 0x5596bfaaca25 in __asan_memmove (/home/src/util-linux/.libs/lt-column+0xc2a25)
+    #1 0x7f8d53660d1b in scols_line_move_cells /home/src/util-linux/libsmartcols/src/line.c:164:2
+    #2 0x7f8d5366502c in scols_table_move_column /home/src/util-linux/libsmartcols/src/table.c:307:3
+    #3 0x5596bfb0214b in reorder_table /home/src/util-linux/text-utils/column.c:303:3
+    #4 0x5596bfaff7ec in modify_table /home/src/util-linux/text-utils/column.c:393:3
+    #5 0x5596bfafdbb6 in main /home/src/util-linux/text-utils/column.c:770:4
+    #6 0x7f8d52718f69 in __libc_start_main (/usr/lib/libc.so.6+0x20f69)
+    #7 0x5596bfa089b9 in _start (/home/src/util-linux/.libs/lt-column+0x1e9b9)
 
->  Add or subtract time from the Hardware Clock to account for systematic
->  drift since the last time the clock was set or adjusted.  See the
->  discussion below, under
-> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-> index 0b8444156..0da053617 100644
-> --- a/sys-utils/hwclock.c
-> +++ b/sys-utils/hwclock.c
-> @@ -1089,7 +1089,7 @@ usage(const struct hwclock_control *ctl)
->  	puts(_(" -s, --hctosys        set the system time from the RTC"));
->  	puts(_(" -w, --systohc        set the RTC from the system time"));
->  	puts(_("     --systz          send timescale configurations to the kernel"));
-> -	puts(_("     --adjust         adjust the RTC to account for systematic drift"));
-> +	puts(_(" -a, --adjust         adjust the RTC to account for systematic drift"));
->  #if defined(__linux__) && defined(__alpha__)
->  	puts(_("     --getepoch       display the RTC epoch"));
->  	puts(_("     --setepoch       set the RTC epoch according to --epoch"));
-> @@ -1167,7 +1167,7 @@ int main(int argc, char **argv)
->  		{ "show",         no_argument,       NULL, 'r'            },
->  		{ "hctosys",      no_argument,       NULL, 's'            },
->  		{ "utc",          no_argument,       NULL, 'u'            },
-> -		{ "version",      no_argument,       NULL, 'v'            },
-> +		{ "version",      no_argument,       NULL, 'V'            },
+0x608000000080 is located 0 bytes to the right of 96-byte region [0x608000000020,0x608000000080)
 
-What about backward compatibility? I can imagine script with "hwclock -v".
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ libsmartcols/src/line.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-    Karel
-
+diff --git a/libsmartcols/src/line.c b/libsmartcols/src/line.c
+index aa339ce38..a041eeb60 100644
+--- a/libsmartcols/src/line.c
++++ b/libsmartcols/src/line.c
+@@ -133,7 +133,7 @@ int scols_line_alloc_cells(struct libscols_line *ln, size_t n)
+ 
+ 	DBG(LINE, ul_debugobj(ln, "alloc %zu cells", n));
+ 
+-	ce = realloc(ln->cells, n * sizeof(struct libscols_cell));
++	ce = realloc(ln->cells, (n + 1) * sizeof(struct libscols_cell));
+ 	if (!ce)
+ 		return -errno;
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.14.1
+
