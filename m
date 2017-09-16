@@ -1,60 +1,57 @@
-Return-Path: kerolasa@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-it0-f65.google.com ([209.85.214.65]:34758 "EHLO
+        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750796AbdIPHb3 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 16 Sep 2017 03:31:29 -0400
+Received: by mail-it0-f65.google.com with SMTP id o200so2669676itg.1
+        for <util-linux@vger.kernel.org>; Sat, 16 Sep 2017 00:31:28 -0700 (PDT)
 MIME-Version: 1.0
 Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <00f84d55-932f-854f-2492-f77e119913e2@gmx.de>
-References: <20170917184902.1218-1-kerolasa@iki.fi> <20170917184902.1218-2-kerolasa@iki.fi>
- <20170918090755.mxogoxmodbq2hlzp@ws.net.home> <00f84d55-932f-854f-2492-f77e119913e2@gmx.de>
+In-Reply-To: <c51ca22c-801a-1711-144a-aba8d008bb18@gmx.com>
+References: <20170911195717.817-1-kerolasa@iki.fi> <20170911195717.817-3-kerolasa@iki.fi>
+ <20170915110547.7znrzkpd7wf3mmdq@ws.net.home> <c51ca22c-801a-1711-144a-aba8d008bb18@gmx.com>
 From: Sami Kerola <kerolasa@iki.fi>
-Date: Wed, 20 Sep 2017 12:56:32 +0100
-Message-ID: <CAG27Bk0UEWPyG7w7jCeVmwmZ1O7gtAcOpBy7S_=JMV-707-KPg@mail.gmail.com>
-Subject: Re: [PATCH 2/3] tools: update git-version-gen from gnulib
-To: =?UTF-8?Q?R=C3=BCdiger_Meier?= <sweet_f_a@gmx.de>
-Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
+Date: Sat, 16 Sep 2017 08:31:27 +0100
+Message-ID: <CAG27Bk3e3na7G_VTEC1vqOP5=pJrKePo-2y9=_qf28o92W7BjA@mail.gmail.com>
+Subject: Re: [PATCH 3/4] logger: fix memory leaks [asan]
+To: J William Piggott <elseifthen@gmx.com>
+Cc: Karel Zak <kzak@redhat.com>,
+        util-linux <util-linux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 18 September 2017 at 14:36, R=C3=BCdiger Meier <sweet_f_a@gmx.de> wrote:
-> On 09/18/2017 11:07 AM, Karel Zak wrote:
->> On Sun, Sep 17, 2017 at 07:49:01PM +0100, Sami Kerola wrote:
->>> from-gnulib-commit: e277cd7c6cf6435d9d4d380fd6cef0510e3f5afe
->>> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
->>> ---
->>>   tools/git-version-gen | 137
->>> +++++++++++++++++++++++++++++++++++++-------------
->>>   1 file changed, 102 insertions(+), 35 deletions(-)
->>
->>
->> I'm not sure about this. Did you check all the changes?
->>
->> We have some local changes to the file, see
->>
->>      git whatchanged tools/git-version-gen
->>      It would be nice to be sure that all works as expected.
+On 16 September 2017 at 01:54, J William Piggott <elseifthen@gmx.com> wrote:
+> On 09/15/2017 07:05 AM, Karel Zak wrote:
+>> On Mon, Sep 11, 2017 at 08:57:16PM +0100, Sami Kerola wrote:
+>>  The mem-leaks are bad thing in daemons, libs, libs tests, and
+>>  allocation in loop is dangerous, otherwise for command line utils you
+>>  waste time with this kind of free() calls, because kernel on exit()
+>>  will be faster to remove all the program from memory.
 >
->
-> I wouldn't touch this neither. Last year I've reviewed that really carefu=
-lly
-> while fixing some issues with broken version numbers, see 85004b14 and al=
-so
-> the other ones from the same patch-set. Seems that Sami's patch would rev=
-ert
-> some of these changes.
->
-> At that time there was also the question why not following gnulib and I
-> tried to
-> justify this like this:
->
-> https://www.spinics.net/lists/util-linux-ng/msg13374.html
+> Does this rule apply to the free() calls in hwclock.c?
 
-Hi Rudi and Karel,
+What I was trying to to achieve was as few ASAN failures as possible.
+That makes seeing memory corruptions, buffer overflows and other
+things that do matter easier. Maybe adding supressions is good
+enough way to deal the rest.
 
-Oh yes, I did not think too much how this was modified to be
-util-linux specific.
-Adding a comment that will tell it clearly that one should not simply sync =
-from
-gnulib would be nice.
+https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer
 
---=20
+Thank you Karel making my patches better. Here's what I can still
+see:
+
+https://pastebin.com/raw/U4CSUrxS
+
+Compiled with these:
+
+export CC=clang
+export CFLAGS='-fsanitize=address -ggdb'
+export ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer
+
+And disk-utils/partx.c needs atexit(close_stdout); commented out
+to display errors.
+
+-- 
 Sami Kerola
 http://www.iki.fi/kerolasa/
