@@ -1,96 +1,202 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qk0-f196.google.com ([209.85.220.196]:37376 "EHLO
-        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753040AbdICVyp (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 3 Sep 2017 17:54:45 -0400
-Received: by mail-qk0-f196.google.com with SMTP id n64so12592qki.4
-        for <util-linux@vger.kernel.org>; Sun, 03 Sep 2017 14:54:45 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <2916a0af-0cb7-7145-e05e-ac2eefb46fa4@gmx.com>
-References: <71b98184-ea32-0e83-013c-2fdb8edc621f@gmx.com> <484f55d0-ecaf-437c-cb70-e6a871f06878@gmx.com>
- <20170830074001.brchka4sfp36wukz@ws.net.home> <50bfaf8d-7036-deb7-5cde-854da4e23f64@gmx.com>
- <2916a0af-0cb7-7145-e05e-ac2eefb46fa4@gmx.com>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:35282 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751586AbdIQStK (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 17 Sep 2017 14:49:10 -0400
+Received: by mail-wm0-f66.google.com with SMTP id e64so6943627wmi.2
+        for <util-linux@vger.kernel.org>; Sun, 17 Sep 2017 11:49:09 -0700 (PDT)
 From: Sami Kerola <kerolasa@iki.fi>
-Date: Sun, 3 Sep 2017 22:54:44 +0100
-Message-ID: <CAG27Bk2VxKPnnwB4yHE5We6JUO7Y7Ry31=di6OkzbABL6g4-=g@mail.gmail.com>
-Subject: Re: [PATCH 2/3] hwclock: remove audit from control struct
-To: J William Piggott <elseifthen@gmx.com>
-Cc: Karel Zak <kzak@redhat.com>,
-        util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 3/3] bash-completion: update uuidgen, wipefs, tunelp, setpriv, and hwclock
+Date: Sun, 17 Sep 2017 19:49:02 +0100
+Message-Id: <20170917184902.1218-3-kerolasa@iki.fi>
+In-Reply-To: <20170917184902.1218-1-kerolasa@iki.fi>
+References: <20170917184902.1218-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 3 September 2017 at 20:59, J William Piggott <elseifthen@gmx.com> wrote:
-> On 08/30/2017 01:56 PM, J William Piggott wrote:
->> On 08/30/2017 03:40 AM, Karel Zak wrote:
->>> On Tue, Aug 29, 2017 at 12:34:07PM -0400, J William Piggott wrote:
->>>>
->>>> hwaudit_on is only used in main() and hwclock_exit() and
->>>> that is unlikely to ever change.
->>>
->>>  Hmm... the goal is minimize global variables to keep code readable.
->>>  It's strange to have a control struct and use global variable in the
->>>  same time.
->>>
->>>> Remove it from the control struct because it:
->>>>  * cleans up an ugly directive in hwclock_exit
->>>>  * removes an argument from usage() and hwclock_exit()
->>>>  * makes usage() comply with util-linux standards
->>>
->>>  I think usage() can call exit(EXIT_SUCCESS) and do not need play any
->>>  games with audit at all.
->>
->> True for half of hwclock's functions. Perhaps this special exit
->> handling should only exist when we HAVE_LIBAUDIT?
->>
->> Okay, I'll rethink this and update the pull request.
->
-> So it seems that there are more problems with exit and audit handling
-> then I first thought. Improving them is going to be more invasive and
-> will need to wait for refactoring of main() and manipulate_clock().
->
-> For now I have implemented Karel's idea to mix the use of hwclock_exit()
-> and exit().
->
-> Pushed changes to the same branch:
->
-> The following changes since commit 58d57ae2d88ef638e3ff07c213b5158334d3f658:
->
->   tests: update sfdisk wipe test (2017-09-01 10:42:51 +0200)
->
-> are available in the git repository at:
->
->   git@github.com:jwpi/util-linux.git 170825
->
-> for you to fetch changes up to 5b8e46f7e7710e2bb88ff8e763997830c9494df2:
->
->   hwclock: close hwaudit_fd unconditionally (2017-09-03 12:34:03 -0400)
->
-> ----------------------------------------------------------------
-> J William Piggott (3):
->       hwclock: remove sysexits.h
->       hwclock: don't always use hwclock_exit
->       hwclock: close hwaudit_fd unconditionally
->
->  sys-utils/hwclock-rtc.c |  5 ++--
->  sys-utils/hwclock.8.in  |  8 ++++++
+uuidgen: Add hash-based UUIDs to bash-completion.  These were added in
+commit c6f1ec68a8b38863efff2a18e30b7272db4fb273.
 
-Update to manual telling return zero is success and one is failure feels
-unnecessary. I don't think any other manual page does that, and most
-users know these values without being explicit. It's the unusual return
-codes that we should document so that users has some idea what
-could it mean  when a command returns 42.
+wipefs: Command started to use libsmartcols, and it got some new options.
+Commit d9921b2a128f17aa9a9a110444d5faa43e1b371c.
 
->  sys-utils/hwclock.c     | 76 ++++++++++++++++++-------------------------------
->  3 files changed, 37 insertions(+), 52 deletions(-)
->
->>
->>>
->>>  On another places we have "ctl" so it's fine fine to keep hwaudit_on
->>>  within the control struct.
+rename: New option was added in commit fabb90676af89bcb5f429793746f141c0.
 
+tunelp: The --trust-irq was removed it being years broken.  Commit
+d52eb4bd9062081c8420b22c029c694f29d036c7.
+
+setpriv: Add --ambient-caps option from commit 0c92194eeee9c1fd58580ef852.
+In same go fix 'bash set -u' issue, that is the same as mentioned commit
+abbcec4fc9c8d7fb835b4eafd1bc9d82acbf0056.
+
+hwclock: For some reason --get has always been missing from this file.
+
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ bash-completion/hwclock |  1 +
+ bash-completion/rename  |  2 +-
+ bash-completion/setpriv |  5 +++--
+ bash-completion/tunelp  |  3 +--
+ bash-completion/uuidgen | 20 +++++++++++++++++++-
+ bash-completion/wipefs  | 19 ++++++++++++++++++-
+ 6 files changed, 43 insertions(+), 7 deletions(-)
+
+diff --git a/bash-completion/hwclock b/bash-completion/hwclock
+index b90f00c0c..4bd87e42e 100644
+--- a/bash-completion/hwclock
++++ b/bash-completion/hwclock
+@@ -27,6 +27,7 @@ _hwclock_module()
+ 		-*)
+ 			OPTS="--help
+ 				--show
++				--get
+ 				--set
+ 				--hctosys
+ 				--systohc
+diff --git a/bash-completion/rename b/bash-completion/rename
+index 06a7dcd4d..143121976 100644
+--- a/bash-completion/rename
++++ b/bash-completion/rename
+@@ -11,7 +11,7 @@ _rename_module()
+ 	esac
+ 	case $cur in
+ 		-*)
+-			OPTS="--verbose --symlink --help --version --no-act"
++			OPTS="--verbose --symlink --help --version --no-act --no-override"
+ 			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
+ 			return 0
+ 			;;
+diff --git a/bash-completion/setpriv b/bash-completion/setpriv
+index bdd3b7dab..8ab9e0722 100644
+--- a/bash-completion/setpriv
++++ b/bash-completion/setpriv
+@@ -5,14 +5,14 @@ _setpriv_module()
+ 	cur="${COMP_WORDS[COMP_CWORD]}"
+ 	prev="${COMP_WORDS[COMP_CWORD-1]}"
+ 	case $prev in
+-		'--inh-caps'|'--bounding-set')
++		'--ambient-caps'|'--inh-caps'|'--bounding-set')
+ 			local prefix realcur INHERIT_ALL INHERIT
+ 			realcur="${cur##*,}"
+ 			prefix="${cur%$realcur}"
+ 			INHERIT_ALL=$($1 --list-caps| awk '{print $1, "-" $1}')
+ 			for WORD in $INHERIT_ALL; do
+ 				if ! [[ $prefix == *"$WORD"* ]]; then
+-					INHERIT="$WORD $INHERIT"
++					INHERIT="$WORD ${INHERIT:-""}"
+ 				fi
+ 			done
+ 			compopt -o nospace
+@@ -70,6 +70,7 @@ _setpriv_module()
+ 		-*)
+ 			OPTS="--dump
+ 				--no-new-privs
++				--ambient-caps
+ 				--inh-caps
+ 				--bounding-set
+ 				--ruid
+diff --git a/bash-completion/tunelp b/bash-completion/tunelp
+index bd2cce2aa..2be3d544d 100644
+--- a/bash-completion/tunelp
++++ b/bash-completion/tunelp
+@@ -17,7 +17,7 @@ _tunelp_module()
+ 			COMPREPLY=( $(compgen -W "microseconds" -- $cur) )
+ 			return 0
+ 			;;
+-		'-a'|'--abort'|'-o'|'--check-status'|'-C'|'--careful'|'-T'|'--trust-irq'|'-q'|'--print-irq')
++		'-a'|'--abort'|'-o'|'--check-status'|'-C'|'--careful'|'-q'|'--print-irq')
+ 			COMPREPLY=( $(compgen -W "off on" -- $cur) )
+ 			return 0
+ 			;;
+@@ -35,7 +35,6 @@ _tunelp_module()
+ 				--check-status
+ 				--careful
+ 				--status
+-				--trust-irq
+ 				--reset
+ 				--print-irq
+ 				--help
+diff --git a/bash-completion/uuidgen b/bash-completion/uuidgen
+index 42d95d42f..8e64015c0 100644
+--- a/bash-completion/uuidgen
++++ b/bash-completion/uuidgen
+@@ -5,13 +5,31 @@ _uuidgen_module()
+ 	cur="${COMP_WORDS[COMP_CWORD]}"
+ 	prev="${COMP_WORDS[COMP_CWORD-1]}"
+ 	case $prev in
++		'-n'|'--namespace')
++			COMPREPLY=( $(compgen -W "@dns @url @oid @x500 @x.500" -- "$cur") )
++			return 0
++			;;
++		'-N'|'--name')
++			COMPREPLY=( $(compgen -W "name" -- "$cur") )
++			return 0
++			;;
+ 		'-h'|'--help'|'-V'|'--version')
+ 			return 0
+ 			;;
+ 	esac
+ 	case $cur in
+ 		-*)
+-			OPTS="--random --time --version --help"
++			OPTS="
++				--random
++				--time
++				--namespace
++				--name
++				--md5
++				--sha1
++				--hex
++				--help
++				--version
++			"
+ 			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
+ 			return 0
+ 			;;
+diff --git a/bash-completion/wipefs b/bash-completion/wipefs
+index 577819182..13568ca32 100644
+--- a/bash-completion/wipefs
++++ b/bash-completion/wipefs
+@@ -5,6 +5,20 @@ _wipefs_module()
+ 	cur="${COMP_WORDS[COMP_CWORD]}"
+ 	prev="${COMP_WORDS[COMP_CWORD-1]}"
+ 	case $prev in
++		'-O'|'--output')
++			local prefix realcur OUTPUT_ALL OUTPUT
++			realcur="${cur##*,}"
++			prefix="${cur%$realcur}"
++			OUTPUT_ALL="UUID LABEL LENGTH TYPE OFFSET USAGE DEVICE"
++			for WORD in $OUTPUT_ALL; do
++				if ! [[ $prefix == *"$WORD"* ]]; then
++					OUTPUT="$WORD ${OUTPUT:-""}"
++				fi
++			done
++			compopt -o nospace
++			COMPREPLY=( $(compgen -P "$prefix" -W "$OUTPUT" -S ',' -- $realcur) )
++			return 0
++			;;
+ 		'-o'|'--offset')
+ 			COMPREPLY=( $(compgen -W "offset" -- $cur) )
+ 			return 0
+@@ -25,12 +39,15 @@ _wipefs_module()
+ 				--all
+ 				--backup
+ 				--force
+-				--help
++				--noheadings
++				--json
+ 				--no-act
+ 				--offset
++				--output
+ 				--parsable
+ 				--quiet
+ 				--types
++				--help
+ 				--version
+ 			"
+ 			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+2.14.1
+
