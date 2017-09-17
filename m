@@ -1,38 +1,37 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 2/2] Docs: add hwclock 'highlights' v2.31-ReleaseNotes
-To: Karel Zak <kzak@redhat.com>
-References: <20170920093910.topplypo723gwper@ws.net.home>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <d0c89b94-8a82-f3f0-ecf6-3c0c874dddf8@gmx.com>
-Date: Wed, 20 Sep 2017 21:20:47 -0400
-MIME-Version: 1.0
-In-Reply-To: <20170920093910.topplypo723gwper@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wr0-f195.google.com ([209.85.128.195]:38343 "EHLO
+        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751537AbdIQStH (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 17 Sep 2017 14:49:07 -0400
+Received: by mail-wr0-f195.google.com with SMTP id p37so3928258wrb.5
+        for <util-linux@vger.kernel.org>; Sun, 17 Sep 2017 11:49:06 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 1/3] docs: remove repeated word from mount(8) man page
+Date: Sun, 17 Sep 2017 19:49:00 +0100
+Message-Id: <20170917184902.1218-1-kerolasa@iki.fi>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- Documentation/releases/v2.31-ReleaseNotes | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ sys-utils/mount.8 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/releases/v2.31-ReleaseNotes b/Documentation/releases/v2.31-ReleaseNotes
-index bc0c6f4ea..fb3e29e87 100644
---- a/Documentation/releases/v2.31-ReleaseNotes
-+++ b/Documentation/releases/v2.31-ReleaseNotes
-@@ -67,6 +67,14 @@ option --ambient-caps (thanks Patrick Steinhardt) and the new command line
- option --init-groups allows initialization of supplementary groups (thanks to
- Sebastian Schrader).
- 
-+The hwclock command now significantly reduces system shutdown times by not
-+reading the RTC before setting it (except when the --update-drift option is
-+used). This also mitigates other potential shutdown and RTC setting problems
-+caused by requiring an RTC read.
-+
-+The hwclock command now logs --systz when using libaudit. Also, for busybox
-+compatibility -l is now aliased to --localtime.
-+
- 
- Security issues
- ---------------
+diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
+index 52c8bdab3..4f9500593 100644
+--- a/sys-utils/mount.8
++++ b/sys-utils/mount.8
+@@ -1715,7 +1715,7 @@ local time.
+ Set offset for conversion of timestamps from local time used by FAT to UTC.
+ I.e.,
+ .I minutes
+-minutes will be subtracted from each timestamp to convert it to UTC used
++will be subtracted from each timestamp to convert it to UTC used
+ internally by Linux.  This is useful when the time zone set in the kernel via
+ .BR settimeofday (2)
+ is not the time zone used by the filesystem.  Note
+-- 
+2.14.1
+
