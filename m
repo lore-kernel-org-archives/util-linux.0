@@ -1,90 +1,56 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45810 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36754 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751579AbdIZKLb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 26 Sep 2017 06:11:31 -0400
-Date: Tue, 26 Sep 2017 12:11:25 +0200
+        id S1755447AbdIRJlC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 18 Sep 2017 05:41:02 -0400
+Date: Mon, 18 Sep 2017 11:40:56 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Tobias Stoeckmann <tobias@stoeckmann.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] login: fix signal race
-Message-ID: <20170926101125.vbsyvphtndcnozjr@ws.net.home>
-References: <20170925195411.GA25565@localhost>
+To: kerolasa@gmail.com
+Cc: J William Piggott <elseifthen@gmx.com>,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 3/4] logger: fix memory leaks [asan]
+Message-ID: <20170918094056.gfqiul6xqvlxjhhf@ws.net.home>
+References: <20170911195717.817-1-kerolasa@iki.fi>
+ <20170911195717.817-3-kerolasa@iki.fi>
+ <20170915110547.7znrzkpd7wf3mmdq@ws.net.home>
+ <c51ca22c-801a-1711-144a-aba8d008bb18@gmx.com>
+ <CAG27Bk3e3na7G_VTEC1vqOP5=pJrKePo-2y9=_qf28o92W7BjA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170925195411.GA25565@localhost>
+In-Reply-To: <CAG27Bk3e3na7G_VTEC1vqOP5=pJrKePo-2y9=_qf28o92W7BjA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Sep 25, 2017 at 09:54:11PM +0200, Tobias Stoeckmann wrote:
-> The functions warnx(3) and gettext(3) are not safe to use within signal
-> handlers and should be avoided. Preparing the message beforehand and
-> calling write(2) as well as calling _exit(2) solves the problem.
+On Sat, Sep 16, 2017 at 08:31:27AM +0100, Sami Kerola wrote:
+> Compiled with these:
+> 
+> export CC=clang
+> export CFLAGS='-fsanitize=address -ggdb'
+> export ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer
 
-Applied with small changes:
+An idea for the next release v2.32:
 
->  po/ca.po            |  6 +++---
->  po/cs.po            |  6 +++---
->  po/da.po            |  6 +++---
->  po/de.po            |  6 +++---
->  po/es.po            |  6 +++---
->  po/et.po            |  6 +++---
->  po/eu.po            |  4 ++--
->  po/fi.po            |  6 +++---
->  po/fr.po            |  6 +++---
->  po/gl.po            |  4 ++--
->  po/hr.po            |  4 ++--
->  po/hu.po            |  6 +++---
->  po/id.po            |  6 +++---
->  po/it.po            |  6 +++---
->  po/ja.po            |  6 +++---
->  po/nl.po            |  6 +++---
->  po/pl.po            |  6 +++---
->  po/pt_BR.po         |  6 +++---
->  po/ru.po            |  6 +++---
->  po/sl.po            |  6 +++---
->  po/sv.po            |  6 +++---
->  po/tr.po            |  6 +++---
->  po/uk.po            |  6 +++---
->  po/util-linux.pot   |  4 ++--
->  po/vi.po            |  6 +++---
->  po/zh_CN.po         |  6 +++---
->  po/zh_TW.po         |  6 +++---
+ * add a new --enable-clang-asan to ./configure
+ * add a new --asan option to tests/run.sh
+ * rename tests/run.sh --memcheck to --valgrind 
+ * rename tests/functions.sh:ts_valgrind() to ts_run()
+ * improve ts_run() to be sensitive to --asan or --valgrind (etc.)
+ * use export ASAN_OPTIONS='detect_leaks=0' by default
+ * add TS_ENABLE_MEMLEAK_CHECK=yes to tests where we want to check for
+   memory leaks (library tests, daemons, etc.)
 
-Please, don't send patches with po/ stuff ("git checkout -f po/" is fine), it's
-updated before release by maintainer.
 
->  static void timedout(int sig __attribute__ ((__unused__)))
->  {
->  	signal(SIGALRM, timedout2);
->  	alarm(10);
-> -	/* TRANSLATORS: The standard value for %u is 60. */
-> -	warnx(_("timed out after %u seconds"), timeout);
-> +	write(STDERR_FILENO, timeout_msg, strlen(timeout_msg));
+and then we can use
 
-It seems we need our ignore_result() here to keep compiler happy, because
-write() is marked as warn_unused_result in glibc header files...
+    $ ./configure --enable-clang-asan
+    $ cd tests
+    $ ./run.sh --asan
 
->  	signal(SIGALRM, SIG_IGN);
->  	alarm(0);
->  	timedout2(0);
-> @@ -1134,6 +1134,13 @@ int main(int argc, char **argv)
->  
->  	timeout = (unsigned int)getlogindefs_num("LOGIN_TIMEOUT", LOGIN_TIMEOUT);
->  
-> +	setlocale(LC_ALL, "");
-> +	bindtextdomain(PACKAGE, LOCALEDIR);
-> +	textdomain(PACKAGE);
-> +
-> +	/* TRANSLATORS: The standard value for %u is 60. */
-> +	snprintf(timeout_msg, sizeof(timeout_msg),
-> +	    _("%s: timed out after %u seconds"), argv[0], timeout);
+to be sure we're without memory corruptions or relevant memory leaks.
 
-I've replaced argv[0] with program_invocation_short_name.
+    Karel
 
-Thanks, good catch!
 
-	Karel
 -- 
  Karel Zak  <kzak@redhat.com>
  http://karelzak.blogspot.com
