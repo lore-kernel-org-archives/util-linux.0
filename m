@@ -1,63 +1,53 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 2/2] hwclock: make debug implicit for test mode.
-To: Karel Zak <kzak@redhat.com>
-References: <a996a4b2-89f5-eb63-a0cb-499830bce2e6@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <719020ca-427f-971d-31b1-14f4fda54f00@gmx.com>
-Date: Thu, 21 Sep 2017 16:10:51 -0400
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:42170 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751340AbdIRIzl (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 18 Sep 2017 04:55:41 -0400
+Date: Mon, 18 Sep 2017 10:55:36 +0200
+From: Karel Zak <kzak@redhat.com>
+To: kerolasa@gmail.com
+Cc: J William Piggott <elseifthen@gmx.com>,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 3/4] logger: fix memory leaks [asan]
+Message-ID: <20170918085536.6y6kp5jaxaatqrvj@ws.net.home>
+References: <20170911195717.817-1-kerolasa@iki.fi>
+ <20170911195717.817-3-kerolasa@iki.fi>
+ <20170915110547.7znrzkpd7wf3mmdq@ws.net.home>
+ <c51ca22c-801a-1711-144a-aba8d008bb18@gmx.com>
+ <CAG27Bk3e3na7G_VTEC1vqOP5=pJrKePo-2y9=_qf28o92W7BjA@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <a996a4b2-89f5-eb63-a0cb-499830bce2e6@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAG27Bk3e3na7G_VTEC1vqOP5=pJrKePo-2y9=_qf28o92W7BjA@mail.gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sat, Sep 16, 2017 at 08:31:27AM +0100, Sami Kerola wrote:
+> On 16 September 2017 at 01:54, J William Piggott <elseifthen@gmx.com> wrote:
+> > On 09/15/2017 07:05 AM, Karel Zak wrote:
+> >> On Mon, Sep 11, 2017 at 08:57:16PM +0100, Sami Kerola wrote:
+> >>  The mem-leaks are bad thing in daemons, libs, libs tests, and
+> >>  allocation in loop is dangerous, otherwise for command line utils you
+> >>  waste time with this kind of free() calls, because kernel on exit()
+> >>  will be faster to remove all the program from memory.
+> >
+> > Does this rule apply to the free() calls in hwclock.c?
+> 
+> What I was trying to to achieve was as few ASAN failures as possible.
+> That makes seeing memory corruptions, buffer overflows and other
+> things that do matter easier. Maybe adding supressions is good
+> enough way to deal the rest.
+> 
+> https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer
+> 
+> Thank you Karel making my patches better. Here's what I can still
+> see:
+> 
+> https://pastebin.com/raw/U4CSUrxS
 
-Calling --test without --debug is not useful, so
-make it implicit.
+Fixed. Thanks!
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock.8.in | 8 ++++----
- sys-utils/hwclock.c    | 3 ++-
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ Karel
 
-diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
-index a3cbc015e..d88feb07b 100644
---- a/sys-utils/hwclock.8.in
-+++ b/sys-utils/hwclock.8.in
-@@ -372,10 +372,10 @@ must be specified when using this option.
- .
- .TP
- .B \-\-test
--Do not actually change anything on the system, i.e., the Clocks or
--adjtime file.  This is useful, especially in conjunction with
--.BR \%\-\-debug ,
--in learning about the internal operations of hwclock.
-+Do not actually change anything on the system, that is, the Clocks or
-+.I @ADJTIME_PATH@
-+.RB ( \%\-\-debug
-+is implicit with this option).
- .
- .TP
- .B \-\-update\-drift
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 6a23bf2b0..36b6204b0 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -1083,7 +1083,7 @@ usage(void)
- 	       "     --noadjfile      do not use %1$s\n"), _PATH_ADJTIME);
- 	printf(_(
- 	       "     --adjfile <file> use an alternate file to %1$s\n"), _PATH_ADJTIME);
--	puts(_("     --test           dry run; use -D to view what would have happened"));
-+	puts(_("     --test           dry run; implies --debug"));
- 	puts(_(" -D, --debug          display more details"));
- 	fputs(USAGE_SEPARATOR, stdout);
- 	printf(USAGE_HELP_OPTIONS(22));
-@@ -1251,6 +1251,7 @@ int main(int argc, char **argv)
- 			break;
- 		case OPT_TEST:
- 			ctl.testing = 1;	/* --test */
-+			ctl.debug++;
- 			break;
- 		case OPT_DATE:
- 			ctl.date_opt = optarg;	/* --date */
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
