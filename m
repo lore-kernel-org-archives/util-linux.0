@@ -1,46 +1,57 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx.datacom.ind.br ([177.66.5.10]:38046 "EHLO
-        mail.datacom.ind.br" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751655AbdHAAtL (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 31 Jul 2017 20:49:11 -0400
-Received: from mail.datacom.ind.br (localhost [127.0.0.1])
-        by mail.datacom.ind.br (Postfix) with ESMTPS id BC6C315073BD
-        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 21:46:39 -0300 (BRT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.datacom.ind.br (Postfix) with ESMTP id B06E015073BA
-        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 21:46:39 -0300 (BRT)
-Received: from mail.datacom.ind.br ([127.0.0.1])
-        by localhost (mail.datacom.ind.br [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id WeZ3anUE8vnL for <util-linux@vger.kernel.org>;
-        Mon, 31 Jul 2017 21:46:39 -0300 (BRT)
-Received: from mail.datacom.ind.br (mail.datacom.ind.br [172.25.4.13])
-        by mail.datacom.ind.br (Postfix) with ESMTP id A011515073BB
-        for <util-linux@vger.kernel.org>; Mon, 31 Jul 2017 21:46:39 -0300 (BRT)
-Date: Mon, 31 Jul 2017 21:46:39 -0300 (BRT)
-From: Carlos Santos <casantos@datacom.ind.br>
-To: util-linux@vger.kernel.org
-Message-ID: <1705151756.2691717.1501548399616.JavaMail.zimbra@datacom.ind.br>
-In-Reply-To: <1971282138.2691482.1501546323018.JavaMail.zimbra@datacom.ind.br>
-References: <1971282138.2691482.1501546323018.JavaMail.zimbra@datacom.ind.br>
-Subject: Re: Problem building util-linux without a separate ncursesw include
- dir
+Return-Path: sbrabec@suse.cz
+From: Stanislav Brabec <sbrabec@suse.cz>
+Subject: Re: [PATCH] If using wide nscurses, use wide tinfo (tinfow)
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+References: <89952e72-6858-5a11-8157-995f75b3774b@suse.cz>
+ <20170919110556.g4chfnwz3wkcoe5o@ws.net.home>
+Message-ID: <82afdf03-bfcb-700f-67a4-35f1aa631df0@suse.cz>
+Date: Tue, 19 Sep 2017 14:10:26 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20170919110556.g4chfnwz3wkcoe5o@ws.net.home>
+Content-Type: text/plain; charset=iso-8859-2
 List-ID: <util-linux.vger.kernel.org>
 
-> From: "Carlos Santos" <casantos@datacom.ind.br>
-> To: util-linux@vger.kernel.org
-> Sent: Monday, July 31, 2017 9:12:03 PM
-> Subject: Problem building util-linux without a separate ncursesw include dir
+Karel Zak wrote:
+> On Mon, Sep 18, 2017 at 06:10:09PM +0200, Stanislav Brabec wrote:
+>> util-linux checks for libtinfo, even if libncursesw is used. It can cause
+>> ugly crashes inside ncurses, e. g. in cfdisk.
+> 
+> Hmm... this i is first time I see this problem. Ah yes, it seems we
+> need another permutation for the wonderful ncurses world :-)
 
-> of util-linux. Would it be possible to make the location of ncursesw
-> headers configurable, instead?
+I got additional information about this issue:
 
-I was thinking on something simple, like https://pastebin.com/VqM9G9yu
+In past, there was only tinfo. Few weeks ago tinfo and tinfow stopped to
+be binary compatible and tinfow was created. It caused many crashes.
+Then ncurses developers decided to make them binary compatible again,
+but the format split will probably stay, open to future development.
+
+So we can suppose that:
+
+IF tinfow does not exist AND ncursesw is used THEN we can safely use tinfo.
+
+IF tinfow exists AND ncursesw is used THEN it is unsafe to use tinfo and
+we should (have to?) use tinfow.
+
+=> My patch is too strict.
+
+> I've committed a little different solution. I've added UL_TINFO_CHECK()
+> and call it from configure with "tinfow" and fallback to "tinfo" if
+> not found the widechar version or for non-widechar ncurses.
+> 
+> Please, test it for your environment. I'd like to release -rc1 ASAP.
+
+Works perfectly! Thanks.
 
 -- 
-Carlos Santos (Casantos) - DATACOM, P&D
-‚ÄúThe greatest triumph that modern PR can offer is the transcendent 
-success of having your words and actions judged by your reputation, 
-rather than the other way about.‚Äù ‚Äî Christopher Hitchens
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+K¯iæÌkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-KarlÌn                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
