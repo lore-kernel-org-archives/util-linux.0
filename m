@@ -1,55 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:38135 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751031AbdIKT5W (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 11 Sep 2017 15:57:22 -0400
-Received: by mail-wm0-f67.google.com with SMTP id x17so7684840wmd.5
-        for <util-linux@vger.kernel.org>; Mon, 11 Sep 2017 12:57:21 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 2/4] libsmartcols: fix heap-buffer-overflow [asan]
-Date: Mon, 11 Sep 2017 20:57:15 +0100
-Message-Id: <20170911195717.817-2-kerolasa@iki.fi>
-In-Reply-To: <20170911195717.817-1-kerolasa@iki.fi>
-References: <20170911195717.817-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:57122 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751237AbdISLGB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 19 Sep 2017 07:06:01 -0400
+Date: Tue, 19 Sep 2017 13:05:56 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] If using wide nscurses, use wide tinfo (tinfow)
+Message-ID: <20170919110556.g4chfnwz3wkcoe5o@ws.net.home>
+References: <89952e72-6858-5a11-8157-995f75b3774b@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <89952e72-6858-5a11-8157-995f75b3774b@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This gives room for element 0 in array of column cells.
+On Mon, Sep 18, 2017 at 06:10:09PM +0200, Stanislav Brabec wrote:
+> util-linux checks for libtinfo, even if libncursesw is used. It can cause
+> ugly crashes inside ncurses, e. g. in cfdisk.
 
-ERROR: AddressSanitizer: heap-buffer-overflow on address 0x608000000080 at
-pc 0x5596bfaaca26 bp 0x7ffd8352a550 sp 0x7ffd83529d00
-READ of size 64 at 0x608000000080 thread T0
-    #0 0x5596bfaaca25 in __asan_memmove (/home/src/util-linux/.libs/lt-column+0xc2a25)
-    #1 0x7f8d53660d1b in scols_line_move_cells /home/src/util-linux/libsmartcols/src/line.c:164:2
-    #2 0x7f8d5366502c in scols_table_move_column /home/src/util-linux/libsmartcols/src/table.c:307:3
-    #3 0x5596bfb0214b in reorder_table /home/src/util-linux/text-utils/column.c:303:3
-    #4 0x5596bfaff7ec in modify_table /home/src/util-linux/text-utils/column.c:393:3
-    #5 0x5596bfafdbb6 in main /home/src/util-linux/text-utils/column.c:770:4
-    #6 0x7f8d52718f69 in __libc_start_main (/usr/lib/libc.so.6+0x20f69)
-    #7 0x5596bfa089b9 in _start (/home/src/util-linux/.libs/lt-column+0x1e9b9)
+Hmm... this i is first time I see this problem. Ah yes, it seems we
+need another permutation for the wonderful ncurses world :-)
 
-0x608000000080 is located 0 bytes to the right of 96-byte region [0x608000000020,0x608000000080)
+> To prevent these crashes, never link non-wide libtinfo together with
+> libncursesw.
+> 
+> This change can cause non-detection of tinfo on some systems with
+> ncursesw but without tinfow. It would be easy to fix, but I am not sure
+> whether to check for a combination that can cause crash.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- libsmartcols/src/line.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Unfortunately on Fedora we have two ncurses libs (wide/nonwide), but
+only one tinfo lib. So, the patch without fallback to tinfo is
+useless.
 
-diff --git a/libsmartcols/src/line.c b/libsmartcols/src/line.c
-index aa339ce38..a041eeb60 100644
---- a/libsmartcols/src/line.c
-+++ b/libsmartcols/src/line.c
-@@ -133,7 +133,7 @@ int scols_line_alloc_cells(struct libscols_line *ln, size_t n)
- 
- 	DBG(LINE, ul_debugobj(ln, "alloc %zu cells", n));
- 
--	ce = realloc(ln->cells, n * sizeof(struct libscols_cell));
-+	ce = realloc(ln->cells, (n + 1) * sizeof(struct libscols_cell));
- 	if (!ce)
- 		return -errno;
- 
+I've committed a little different solution. I've added UL_TINFO_CHECK()
+and call it from configure with "tinfow" and fallback to "tinfo" if
+not found the widechar version or for non-widechar ncurses.
+
+Please, test it for your environment. I'd like to release -rc1 ASAP.
+Thanks!
+
+    Karel
+
 -- 
-2.14.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
