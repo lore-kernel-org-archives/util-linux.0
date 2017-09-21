@@ -1,31 +1,43 @@
-Return-Path: just4steam778@gmail.com
-Date: Sun, 3 Sep 2017 14:36:13 +0300
-From: Daniil Zhilin <just4steam778@gmail.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.20]:63123 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751697AbdIUUI5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 21 Sep 2017 16:08:57 -0400
+Subject: [PATCH 0/2] pull request
 To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: agetty doesn't handle the second backspace properly during
- login
-Message-ID: <20170903143613.20e52869@HomePC.localdomain>
-In-Reply-To: <20170626121221.wxkccti4del3buvf@ws.net.home>
-References: <20170623013812.5cf11bec@HomePC.localdomain>
-	<20170626121221.wxkccti4del3buvf@ws.net.home>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <a996a4b2-89f5-eb63-a0cb-499830bce2e6@gmx.com>
+Date: Thu, 21 Sep 2017 16:08:46 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=windows-1252
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 26 Jun 2017 14:12:21 +0200
-Karel Zak <kzak@redhat.com> wrote:
 
-> On Fri, Jun 23, 2017 at 01:38:12AM +0300, Daniil Zhilin wrote:
-> > Hello. When using the Colemak keyboard layout that assigns a second
-> > backspace to Caps Lock, during TTY login this mapping generates '^H'
-> > instead.
-> > 
-> > util-linux version 2.29.2-2 on Arch Linux.  
-> 
-> All this should be fixed in the next v2.30.1.
-> 
->     Karel
-> 
+Karel, these include a minor bug fix and another change that yet again
+affects hwclock's usage strings, so I thought you might want them for
+the upcoming release.
 
-FYI, this issue still reproduces for me.
+If you'd rather wait until the next cycle, that is fine with me as well.
+
+The following changes since commit 323e0668cd380b3353da03d5bd74887ab26f1ea3:
+
+  po: fix ipcrm translation error fr.po (2017-09-20 12:14:42 +0200)
+
+are available in the git repository at:
+
+  git@github.com:jwpi/util-linux.git 170915
+
+for you to fetch changes up to f0a0ce744573bc3b3164062bc25e8fc6ddc7d9b9:
+
+  hwclock: make debug implicit for test mode. (2017-09-21 14:53:43 -0400)
+
+----------------------------------------------------------------
+J William Piggott (2):
+      hwclock: exit bug fix and single test mode message
+      hwclock: make debug implicit for test mode.
+
+ sys-utils/hwclock.8.in |  8 +++----
+ sys-utils/hwclock.c    | 64 ++++++++++++++++++++------------------------------
+ 2 files changed, 29 insertions(+), 43 deletions(-)
