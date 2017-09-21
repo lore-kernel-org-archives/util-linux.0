@@ -1,55 +1,144 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:51257 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751293AbdI0OuO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 27 Sep 2017 10:50:14 -0400
-Subject: Re: [PATCH] losetup: Add support for logical block size
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 1/2] hwclock: exit bug fix and single test mode message
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Hannes Reinecke <hare@suse.com>,
-        Omar Sandoval <osandov@fb.com>, Jens Axboe <axboe@kernel.dk>
-References: <ea2d1f7c-ca7b-331f-06c6-54e122a74382@suse.cz>
- <20170927115057.avd7knn7qbqheeld@ws.net.home>
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <7f98d06d-cc41-d108-e15d-e35c76de017a@suse.cz>
-Date: Wed, 27 Sep 2017 16:50:12 +0200
+References: <a996a4b2-89f5-eb63-a0cb-499830bce2e6@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <588cfc67-ec30-41b9-f778-f53b392a804c@gmx.com>
+Date: Thu, 21 Sep 2017 16:09:58 -0400
 MIME-Version: 1.0
-In-Reply-To: <20170927115057.avd7knn7qbqheeld@ws.net.home>
-Content-Type: text/plain; charset=iso-8859-2
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <a996a4b2-89f5-eb63-a0cb-499830bce2e6@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> 
-> I'll fix it and ask for review.
 
-a1a4159 looks good and works well. Tested with linux-4.14.0-rc1-3.g6627c5a-default.
+Bug fix: hwclock returns success when saving /etc/adjtime fails.
 
-/home/sbrabec/VCS/util-linux # ./losetup --logical-blocksize 4096 --find --show ~/cdrom.iso
-/dev/loop0
-/home/sbrabec/VCS/util-linux # ./losetup
-NAME       SIZELIMIT OFFSET AUTOCLEAR RO BACK-FILE       DIO BLOCKSIZE
-/dev/loop0         0      0         0  0 /root/cdrom.iso   0      4096
-/home/sbrabec/VCS/util-linux # ./losetup -d /dev/loop0
-/home/sbrabec/VCS/util-linux # ./losetup --find --show ~/cdrom.iso
-/dev/loop0
-/home/sbrabec/VCS/util-linux # ./losetup
-NAME       SIZELIMIT OFFSET AUTOCLEAR RO BACK-FILE       DIO BLOCKSIZE
-/dev/loop0         0      0         0  0 /root/cdrom.iso   0       512
-/home/sbrabec/VCS/util-linux # ./losetup --logical-blocksize 4096 /dev/loop0
-/home/sbrabec/VCS/util-linux # ./losetup 
-NAME       SIZELIMIT OFFSET AUTOCLEAR RO BACK-FILE       DIO BLOCKSIZE
-/dev/loop0         0      0         0  0 /root/cdrom.iso   0      4096
-/home/sbrabec/VCS/util-linux # ./losetup -d /dev/loop0
+Remove redundant test mode messages.
 
--- 
-Best Regards / S pozdravem,
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.c | 61 ++++++++++++++++++++---------------------------------
+ 1 file changed, 23 insertions(+), 38 deletions(-)
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 9fa26bd0b..6a23bf2b0 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -385,9 +385,7 @@ set_hardware_clock(const struct hwclock_control *ctl, const time_t newtime)
+ 		       new_broken_time.tm_hour, new_broken_time.tm_min,
+ 		       new_broken_time.tm_sec, (long)newtime);
+ 
+-	if (ctl->testing)
+-		printf(_("Test mode: clock was not changed\n"));
+-	else
++	if (!ctl->testing)
+ 		ur->set_hardware_clock(ctl, &new_broken_time);
+ }
+ 
+@@ -633,10 +631,7 @@ set_system_clock(const struct hwclock_control *ctl,
+ 		}
+ 	}
+ 
+-	if (ctl->testing) {
+-		printf(_
+-		       ("Test mode: clock was not changed\n"));
+-	} else {
++	if (!ctl->testing) {
+ 		const struct timezone tz = { minuteswest };
+ 
+ 		if (ctl->hctosys && !ctl->universal)	/* set PCIL */
+@@ -787,15 +782,11 @@ calculate_adjustment(const struct hwclock_control *ctl,
+  * But if the contents are clean (unchanged since read from disk), don't
+  * bother.
+  */
+-static void save_adjtime(const struct hwclock_control *ctl,
++static int save_adjtime(const struct hwclock_control *ctl,
+ 			 const struct adjtime *adjtime)
+ {
+ 	char *content;		/* Stuff to write to disk file */
+ 	FILE *fp;
+-	int err = 0;
+-
+-	if (!adjtime->dirty)
+-		return;
+ 
+ 	xasprintf(&content, "%f %ld %f\n%ld\n%s\n",
+ 		  adjtime->drift_factor,
+@@ -804,28 +795,22 @@ static void save_adjtime(const struct hwclock_control *ctl,
+ 		  adjtime->last_calib_time,
+ 		  (adjtime->local_utc == LOCAL) ? "LOCAL" : "UTC");
+ 
+-	if (ctl->testing) {
+-		if (ctl->debug){
+-			printf(_("Test mode: %s was not updated with:\n%s"),
+-			       ctl->adj_file_name, content);
+-		}
+-		free(content);
+-		return;
++	if (ctl->debug){
++		printf(_("New %s data:\n%s"),
++		       ctl->adj_file_name, content);
+ 	}
+ 
+-	fp = fopen(ctl->adj_file_name, "w");
+-	if (fp == NULL) {
+-		warn(_("Could not open file with the clock adjustment parameters "
+-		       "in it (%s) for writing"), ctl->adj_file_name);
+-		err = 1;
+-	} else if (fputs(content, fp) < 0 || close_stream(fp) != 0) {
+-		warn(_("Could not update file with the clock adjustment "
+-		       "parameters (%s) in it"), ctl->adj_file_name);
+-		err = 1;
++	if (!ctl->testing) {
++		fp = fopen(ctl->adj_file_name, "w");
++		if (fp == NULL) {
++			warn(_("cannot open %s"), ctl->adj_file_name);
++			return EXIT_FAILURE;
++		} else if (fputs(content, fp) < 0 || close_stream(fp) != 0) {
++			warn(_("cannot update %s"), ctl->adj_file_name);
++			return EXIT_FAILURE;
++		}
+ 	}
+-	free(content);
+-	if (err)
+-		warnx(_("Drift adjustment parameters not updated."));
++	return EXIT_SUCCESS;
+ }
+ 
+ /*
+@@ -1023,8 +1008,8 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 	} else if (ctl->hctosys) {
+ 		return set_system_clock(ctl, hclocktime);
+ 	}
+-	if (!ctl->noadjfile)
+-		save_adjtime(ctl, adjtime);
++	if (!ctl->noadjfile && adjtime->dirty)
++		return save_adjtime(ctl, adjtime);
+ 	return EXIT_SUCCESS;
+ }
+ 
+@@ -1046,11 +1031,9 @@ manipulate_epoch(const struct hwclock_control *ctl)
+ 	} else if (ctl->setepoch) {
+ 		if (!ctl->epoch_option)
+ 			warnx(_("--epoch is required for --setepoch."));
+-		else if (ctl->testing)
+-			printf(_("Test mode: epoch was not set to %s.\n"),
+-			       ctl->epoch_option);
+-		else if (set_epoch_rtc(ctl))
+-			warnx(_("unable to set the RTC epoch."));
++		else if (!ctl->testing)
++			if (set_epoch_rtc(ctl))
++				warnx(_("unable to set the RTC epoch."));
+ 	}
+ }
+ #endif		/* __linux__ __alpha__ */
+@@ -1363,6 +1346,8 @@ int main(int argc, char **argv)
+ 		adjtime.dirty = 0;
+ 	ctl.universal = hw_clock_is_utc(&ctl, adjtime);
+ 	rc = manipulate_clock(&ctl, set_time, startup_time, &adjtime);
++	if (ctl.testing)
++		puts(_("Test mode: nothing was changed."));
+ 	hwclock_exit(&ctl, rc);
+ 	return rc;		/* Not reached */
+ }
