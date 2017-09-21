@@ -1,38 +1,63 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51976 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1031076AbdIZO5V (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 26 Sep 2017 10:57:21 -0400
-Date: Tue, 26 Sep 2017 16:57:12 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Hannes Reinecke <hare@suse.com>,
-        Omar Sandoval <osandov@fb.com>, Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH] losetup: Add support for logical block size
-Message-ID: <20170926145712.qvfd4fta6u24x565@ws.net.home>
-References: <ea2d1f7c-ca7b-331f-06c6-54e122a74382@suse.cz>
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 2/2] hwclock: make debug implicit for test mode.
+To: Karel Zak <kzak@redhat.com>
+References: <a996a4b2-89f5-eb63-a0cb-499830bce2e6@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <719020ca-427f-971d-31b1-14f4fda54f00@gmx.com>
+Date: Thu, 21 Sep 2017 16:10:51 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <ea2d1f7c-ca7b-331f-06c6-54e122a74382@suse.cz>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <a996a4b2-89f5-eb63-a0cb-499830bce2e6@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Sep 26, 2017 at 04:14:51PM +0200, Stanislav Brabec wrote:
-> Kernel since 4.14 supports setting of logical block size[1]. It allows to
-> create loop devices that report logical block size different from 512.
-> 
-> Add support for this feature to losetup.
-> 
-> References:
-> [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/drivers/block/loop.c?id=89e4fdecb51cf5535867026274bc97de9480ade5
 
-This kernel change has been reverted (1e6ec9ea89d30739b9447c1860fcb07fc29f3aef) after
-discussion on LKML.
+Calling --test without --debug is not useful, so
+make it implicit.
 
-	Karel
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.8.in | 8 ++++----
+ sys-utils/hwclock.c    | 3 ++-
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
+index a3cbc015e..d88feb07b 100644
+--- a/sys-utils/hwclock.8.in
++++ b/sys-utils/hwclock.8.in
+@@ -372,10 +372,10 @@ must be specified when using this option.
+ .
+ .TP
+ .B \-\-test
+-Do not actually change anything on the system, i.e., the Clocks or
+-adjtime file.  This is useful, especially in conjunction with
+-.BR \%\-\-debug ,
+-in learning about the internal operations of hwclock.
++Do not actually change anything on the system, that is, the Clocks or
++.I @ADJTIME_PATH@
++.RB ( \%\-\-debug
++is implicit with this option).
+ .
+ .TP
+ .B \-\-update\-drift
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 6a23bf2b0..36b6204b0 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -1083,7 +1083,7 @@ usage(void)
+ 	       "     --noadjfile      do not use %1$s\n"), _PATH_ADJTIME);
+ 	printf(_(
+ 	       "     --adjfile <file> use an alternate file to %1$s\n"), _PATH_ADJTIME);
+-	puts(_("     --test           dry run; use -D to view what would have happened"));
++	puts(_("     --test           dry run; implies --debug"));
+ 	puts(_(" -D, --debug          display more details"));
+ 	fputs(USAGE_SEPARATOR, stdout);
+ 	printf(USAGE_HELP_OPTIONS(22));
+@@ -1251,6 +1251,7 @@ int main(int argc, char **argv)
+ 			break;
+ 		case OPT_TEST:
+ 			ctl.testing = 1;	/* --test */
++			ctl.debug++;
+ 			break;
+ 		case OPT_DATE:
+ 			ctl.date_opt = optarg;	/* --date */
