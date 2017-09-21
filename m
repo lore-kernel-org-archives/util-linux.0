@@ -1,45 +1,40 @@
-Return-Path: sweet_f_a@gmx.de
-Subject: Re: [PATCH 2/3] tools: update git-version-gen from gnulib
-To: Karel Zak <kzak@redhat.com>, Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-References: <20170917184902.1218-1-kerolasa@iki.fi>
- <20170917184902.1218-2-kerolasa@iki.fi>
- <20170918090755.mxogoxmodbq2hlzp@ws.net.home>
-From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
-Message-ID: <00f84d55-932f-854f-2492-f77e119913e2@gmx.de>
-Date: Mon, 18 Sep 2017 15:36:52 +0200
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:33088 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751900AbdIUOXg (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 21 Sep 2017 10:23:36 -0400
+Received: by mail-pg0-f66.google.com with SMTP id i130so3523872pgc.0
+        for <util-linux@vger.kernel.org>; Thu, 21 Sep 2017 07:23:36 -0700 (PDT)
+From: Masanari Iida <standby24x7@gmail.com>
+To: translation-team-ja@lists.sourceforge.net,
+        hmatrjp@users.sourceforge.jp
+Cc: util-linux@vger.kernel.org, Masanari Iida <standby24x7@gmail.com>
+Subject: [PATCH 1/2] po:Fix a typo
+Date: Thu, 21 Sep 2017 23:23:24 +0900
+Message-Id: <20170921142325.1825-1-standby24x7@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20170918090755.mxogoxmodbq2hlzp@ws.net.home>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Signed-off-by: Masanari Iida <standby24x7@gmail.com>
+---
+ po/ja.po | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/po/ja.po b/po/ja.po
+index e3bae1fd079c..9b8dc587d860 100644
+--- a/po/ja.po
++++ b/po/ja.po
+@@ -2275,7 +2275,7 @@ msgstr "ファイル `%s' 内で Zone nr が FIRSTZONE より小さくなって
+ #: disk-utils/fsck.minix.c:322 disk-utils/fsck.minix.c:343
+ #, c-format
+ msgid "Zone nr >= ZONES in file `%s'."
+-msgstr "ファイル `%s' 内で Zone nr が ZONES と久しいか、より大きくなっています。"
++msgstr "ファイル `%s' 内で Zone nr が ZONES と等しいか、より大きくなっています。"
+ 
+ #: disk-utils/fsck.minix.c:326 disk-utils/fsck.minix.c:347
+ msgid "Remove block"
+-- 
+2.14.1.459.g238e487ea943
 
-On 09/18/2017 11:07 AM, Karel Zak wrote:
-> On Sun, Sep 17, 2017 at 07:49:01PM +0100, Sami Kerola wrote:
->> from-gnulib-commit: e277cd7c6cf6435d9d4d380fd6cef0510e3f5afe
->> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
->> ---
->>   tools/git-version-gen | 137 +++++++++++++++++++++++++++++++++++++-------------
->>   1 file changed, 102 insertions(+), 35 deletions(-)
-> 
-> I'm not sure about this. Did you check all the changes?
-> 
-> We have some local changes to the file, see
-> 
->      git whatchanged tools/git-version-gen
->      
-> It would be nice to be sure that all works as expected.
-
-I wouldn't touch this neither. Last year I've reviewed that really carefully
-while fixing some issues with broken version numbers, see 85004b14 and also
-the other ones from the same patch-set. Seems that Sami's patch would revert
-some of these changes.
-
-At that time there was also the question why not following gnulib and I tried to
-justify this like this:
-
-https://www.spinics.net/lists/util-linux-ng/msg13374.html
-
-cu,
-Rudi
