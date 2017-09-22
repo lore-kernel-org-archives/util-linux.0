@@ -1,27 +1,29 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59728 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.22]:62855 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753095AbdIRJFY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 18 Sep 2017 05:05:24 -0400
-Date: Mon, 18 Sep 2017 11:05:19 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/3] docs: remove repeated word from mount(8) man page
-Message-ID: <20170918090519.xoqql7mtnf4r3fld@ws.net.home>
-References: <20170917184902.1218-1-kerolasa@iki.fi>
+        id S1751866AbdIVTyj (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 22 Sep 2017 15:54:39 -0400
+Subject: Re: [ANNOUNCE] util-linux v2.31-rc1
+To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+References: <20170922105450.hosxzphxkvlhdmjd@ws.net.home>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <36016648-d183-0f54-9700-143928f2c652@gmx.com>
+Date: Fri, 22 Sep 2017 15:54:26 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170917184902.1218-1-kerolasa@iki.fi>
+In-Reply-To: <20170922105450.hosxzphxkvlhdmjd@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Sep 17, 2017 at 07:49:00PM +0100, Sami Kerola wrote:
->  sys-utils/mount.8 | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Applied, thanks.
+On 09/22/2017 06:54 AM, Karel Zak wrote:
+> Stable maintenance releases between v2.30 and v2.31
+> ---------------------------------------------------
+> 
+> util-linux 2.30.1 [Jul 07 2017]
+> 
+>  * https://www.kernel.org/pub/linux/utils/util-linux/v2.30/v2.30.1-ReleaseNotes
+>    https://www.kernel.org/pub/linux/utils/util-linux/v2.30/v2.30.1-ChangeLog
+> 
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Should add util-linux 2.30.2 [Sep 21 2017]?
