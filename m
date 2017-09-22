@@ -1,25 +1,25 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35344 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:58656 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751198AbdIOLc2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 15 Sep 2017 07:32:28 -0400
-Date: Fri, 15 Sep 2017 13:32:24 +0200
+        id S1751847AbdIVKEg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 22 Sep 2017 06:04:36 -0400
+Date: Fri, 22 Sep 2017 12:04:31 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+To: J William Piggott <elseifthen@gmx.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/2] rfkill: do not fsync(3) /dev/rfkill file descriptor
-Message-ID: <20170915113224.lptz5p4qhspno7so@ws.net.home>
-References: <20170911195558.740-1-kerolasa@iki.fi>
- <20170911195558.740-2-kerolasa@iki.fi>
+Subject: Re: [PATCH 0/2] pull request
+Message-ID: <20170922100431.bp7ofchyngk54bw4@ws.net.home>
+References: <a996a4b2-89f5-eb63-a0cb-499830bce2e6@gmx.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170911195558.740-2-kerolasa@iki.fi>
+In-Reply-To: <a996a4b2-89f5-eb63-a0cb-499830bce2e6@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Sep 11, 2017 at 08:55:58PM +0100, Sami Kerola wrote:
->  sys-utils/rfkill.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On Thu, Sep 21, 2017 at 04:08:46PM -0400, J William Piggott wrote:
+> J William Piggott (2):
+>       hwclock: exit bug fix and single test mode message
+>       hwclock: make debug implicit for test mode.
 
 Applied, thanks.
 
