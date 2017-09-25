@@ -1,235 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:37102 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757293AbdIILBx (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 9 Sep 2017 07:01:53 -0400
-Received: by mail-wm0-f65.google.com with SMTP id f4so3292690wmh.4
-        for <util-linux@vger.kernel.org>; Sat, 09 Sep 2017 04:01:52 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mout.kundenserver.de ([212.227.126.134]:59679 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932107AbdIYTzh (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 25 Sep 2017 15:55:37 -0400
+Received: from localhost ([217.87.201.56]) by mrelayeu.kundenserver.de
+ (mreue005 [212.227.15.129]) with ESMTPSA (Nemesis) id
+ 0LqYLt-1dRcN41umP-00e2Wv for <util-linux@vger.kernel.org>; Mon, 25 Sep 2017
+ 21:55:35 +0200
+Date: Mon, 25 Sep 2017 21:55:34 +0200
+From: Tobias Stoeckmann <tobias@stoeckmann.org>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] rfkill: allow use of multiple arguments
-Date: Sat,  9 Sep 2017 12:01:49 +0100
-Message-Id: <20170909110149.23578-1-kerolasa@iki.fi>
+Subject: [PATCH] setproctitle: fix out of boundary access
+Message-ID: <20170925195534.GB25565@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-There is no reason why multiple arguments could not be supported.
+A program using setproctitle can trigger an out of boundary access
+if an attacker was able to clear the environment before execution.
 
-Most common use case is to do multiple control commands in one go without us
-of 'all' argument that can cause unnecessary connection breakage.  For
-example someone might want to add to a system initialization following
-commands.
+The check in setproctitle prevents overflows, but does not take into
+account that the whole length of the arguments could be 1, which is
+possible by supplying such a program name to execlp(3) or using a
+symbolic link, e.g. argv[0] = "l", argv[1] = NULL.
 
-    rfkill block bluetooth uwb wimax wwan gps fm nfc
-
-That will ensure everything but wifi is turned off with as few commands as
-possible, without killing wifi at any point.
-
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Only login uses setproctitle, which is not affected by this
+problem due to initializing the environment right before the call.
 ---
- sys-utils/rfkill.8 | 18 ++++++++------
- sys-utils/rfkill.c | 73 +++++++++++++++++++++++++++++++++---------------------
- 2 files changed, 56 insertions(+), 35 deletions(-)
+ lib/setproctitle.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/sys-utils/rfkill.8 b/sys-utils/rfkill.8
-index f6ecc1e48..ce0aadc31 100644
---- a/sys-utils/rfkill.8
-+++ b/sys-utils/rfkill.8
-@@ -4,7 +4,7 @@
- rfkill \- tool for enabling and disabling wireless devices
- .SH SYNOPSIS
- .B rfkill
--.RI [ options ] " command" " [" id | type ]
-+.RI [ options ] " command" " [" id | type \ ...]
- .SH OPTIONS
- .TP
- \fB\-J\fR, \fB\-\-json\fR
-@@ -33,23 +33,25 @@ Display help text and exit.
- .B event
- Listen for rfkill events and display them on stdout.
- .TP
--\fBlist \fR[\fIid\fR|\fItype\fR]
-+\fBlist \fR[\fIid\fR|\fItype\fR ...]
- List the current state of all available devices.  The full list has TYPE and
- ID columns that one can use to limit the scope.  It is a good idea to check
- with
- .B list
- command
--.BR id " or " type
-+.IR id " or " type
- scope is appropriate before setting
- .BR block " or " unblock .
- Special
--.B all
--type string will match everything.
-+.I all
-+type string will match everything.  Use of multiple
-+.IR id " or " type
-+arguments is supported.
- .TP
--\fBblock \fBid\fR|\fBtype\fR
-+\fBblock \fBid\fR|\fBtype\fR [...]
- Disable the corresponding device.
- .TP
--\fBunblock \fBid\fR|\fBtype\fR
-+\fBunblock \fBid\fR|\fBtype\fR [...]
- Enable the corresponding device.  If the device is hard\-blocked, for example
- via a hardware switch, it will remain unavailable though it is now
- soft\-unblocked.
-@@ -59,6 +61,8 @@ rfkill list
- rfkill block all
- .br
- rfkill unblock wlan
-+.br
-+rfkill block bluetooth uwb wimax wwan gps fm nfc
- .SH AUTHORS
- .B rfkill
- was originally written by
-diff --git a/sys-utils/rfkill.c b/sys-utils/rfkill.c
-index 380d29e56..6b586d2ed 100644
---- a/sys-utils/rfkill.c
-+++ b/sys-utils/rfkill.c
-@@ -109,6 +109,7 @@ static int columns[ARRAY_SIZE(infos) * 2];
- static size_t ncolumns;
+diff --git a/lib/setproctitle.c b/lib/setproctitle.c
+index 93bc82e47..7168e4658 100644
+--- a/lib/setproctitle.c
++++ b/lib/setproctitle.c
+@@ -17,7 +17,7 @@
+ extern char **environ;
  
- struct control {
-+	struct libscols_table *tb;
- 	unsigned int
- 		json:1,
- 		no_headings:1,
-@@ -308,32 +309,35 @@ static void fill_table_row(struct libscols_table *tb, struct rfkill_event *event
- 	}
+ static char **argv0;
+-static int argv_lth;
++static size_t argv_lth;
+ 
+ void initproctitle (int argc, char **argv)
+ {
+@@ -42,16 +42,17 @@ void initproctitle (int argc, char **argv)
+ 			return;
+ 	environ[i] = NULL;
+ 
+-	argv0 = argv;
+ 	if (i > 0)
+-		argv_lth = envp[i-1] + strlen(envp[i-1]) - argv0[0];
++		argv_lth = envp[i-1] + strlen(envp[i-1]) - argv[0];
+ 	else
+-		argv_lth = argv0[argc-1] + strlen(argv0[argc-1]) - argv0[0];
++		argv_lth = argv[argc-1] + strlen(argv[argc-1]) - argv[0];
++	if (argv_lth > 1)
++		argv0 = argv;
  }
  
--static int rfkill_list(struct control const *const ctrl, const char *param)
-+static void rfkill_list_init(struct control *ctrl)
+ void setproctitle (const char *prog, const char *txt)
  {
--	struct rfkill_id id = { .result = RFKILL_IS_ALL };
--	struct rfkill_event event;
--	ssize_t len;
--	int fd;
--	struct libscols_table *tb;
--
- 	scols_init_debug(0);
--	tb = scols_new_table();
--	if (!tb)
-+	ctrl->tb = scols_new_table();
-+	if (!ctrl->tb)
- 		err(EXIT_FAILURE, _("failed to allocate output table"));
+-        int i;
++        size_t i;
+         char buf[SPT_BUFSIZE];
  
--	scols_table_enable_json(tb, ctrl->json);
--	scols_table_enable_noheadings(tb, ctrl->no_headings);
--	scols_table_enable_raw(tb, ctrl->raw);
-+	scols_table_enable_json(ctrl->tb, ctrl->json);
-+	scols_table_enable_noheadings(ctrl->tb, ctrl->no_headings);
-+	scols_table_enable_raw(ctrl->tb, ctrl->raw);
- 	{
- 		size_t i;
- 
- 		for (i = 0; i < (size_t)ncolumns; i++) {
- 			const struct colinfo *col = get_column_info(i);
- 
--			if (!scols_table_new_column(tb, col->name, col->whint, col->flags))
-+			if (!scols_table_new_column(ctrl->tb, col->name, col->whint, col->flags))
- 				err(EXIT_FAILURE, _("failed to initialize output column"));
- 		}
- 	}
-+}
-+
-+
-+static int rfkill_list_fill(struct control const *ctrl, const char *param)
-+{
-+	struct rfkill_id id = { .result = RFKILL_IS_ALL };
-+	struct rfkill_event event;
-+	ssize_t len;
-+	int fd;
- 
- 	if (param) {
- 		id = rfkill_id_to_type(param);
-@@ -386,14 +390,18 @@ static int rfkill_list(struct control const *const ctrl, const char *param)
- 		default:
- 			abort();
- 		}
--		fill_table_row(tb, &event);
-+		fill_table_row(ctrl->tb, &event);
- 	}
- 	close(fd);
--	scols_print_table(tb);
--	scols_unref_table(tb);
- 	return 0;
- }
- 
-+static void rfkill_list_output(struct control const *ctrl)
-+{
-+	scols_print_table(ctrl->tb);
-+	scols_unref_table(ctrl->tb);
-+}
-+
- static int rfkill_block(uint8_t block, const char *param)
- {
- 	struct rfkill_id id;
-@@ -452,7 +460,7 @@ static void __attribute__((__noreturn__)) usage(void)
- 	size_t i;
- 
- 	fputs(USAGE_HEADER, stdout);
--	fprintf(stdout, _(" %s [options] command [identifier]\n"), program_invocation_short_name);
-+	fprintf(stdout, _(" %s [options] command [identifier ...]\n"), program_invocation_short_name);
- 
- 	fputs(USAGE_SEPARATOR, stdout);
- 	fputs(_("Tool for enabling and disabling wireless devices.\n"), stdout);
-@@ -507,7 +515,7 @@ int main(int argc, char **argv)
- 		{0}
- 	};
- 	int excl_st[ARRAY_SIZE(excl)] = UL_EXCL_STATUS_INIT;
--	int ret;
-+	int ret = 0;
- 
- 	setlocale(LC_ALL, "");
- 	bindtextdomain(PACKAGE, LOCALEDIR);
-@@ -553,23 +561,32 @@ int main(int argc, char **argv)
- 					     ARRAY_SIZE(columns), &ncolumns,
- 					     column_name_to_id) < 0)
- 			return EXIT_FAILURE;
--		if (argc) {
--			argc--;
--			argv++;
-+		rfkill_list_init(&ctrl);
-+		if (argc < 2) {
-+			if (*argv && strcmp(*argv, "list") == 0)
-+				argv++;
-+			ret |= rfkill_list_fill(&ctrl, *argv);
-+		} else {
-+			while (--argc) {
-+				argv++;
-+				ret |= rfkill_list_fill(&ctrl, *argv);
-+			}
- 		}
--		ret = rfkill_list(&ctrl, *argv);
-+		rfkill_list_output(&ctrl);
- 	} else if (strcmp(*argv, "event") == 0) {
- 		ret = rfkill_event();
- 	} else if (strcmp(*argv, "help") == 0) {
- 		usage();
- 	} else if (strcmp(*argv, "block") == 0 && argc > 1) {
--		argc--;
--		argv++;
--		ret = rfkill_block(1, *argv);
-+		while (--argc) {
-+			argv++;
-+			ret |= rfkill_block(1, *argv);
-+		}
- 	} else if (strcmp(*argv, "unblock") == 0 && argc > 1) {
--		argc--;
--		argv++;
--		ret = rfkill_block(0, *argv);
-+		while (--argc) {
-+			argv++;
-+			ret |= rfkill_block(0, *argv);
-+		}
- 	} else
- 		errtryhelp(EXIT_FAILURE);
- 
+         if (!argv0)
 -- 
 2.14.1
 
