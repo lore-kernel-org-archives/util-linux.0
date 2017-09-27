@@ -1,49 +1,46 @@
-Return-Path: sbrabec@suse.cz
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx2.suse.de ([195.135.220.15]:51257 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751293AbdI0OuO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 27 Sep 2017 10:50:14 -0400
 Subject: Re: [PATCH] losetup: Add support for logical block size
 To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
- Hannes Reinecke <hare@suse.com>, Omar Sandoval <osandov@fb.com>,
- Jens Axboe <axboe@kernel.dk>
+        Hannes Reinecke <hare@suse.com>,
+        Omar Sandoval <osandov@fb.com>, Jens Axboe <axboe@kernel.dk>
 References: <ea2d1f7c-ca7b-331f-06c6-54e122a74382@suse.cz>
- <20170926145712.qvfd4fta6u24x565@ws.net.home>
+ <20170927115057.avd7knn7qbqheeld@ws.net.home>
 From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <d7fb6e59-c7cd-2a58-ce0a-064e1398fd8b@suse.cz>
-Date: Tue, 26 Sep 2017 17:25:00 +0200
+Message-ID: <7f98d06d-cc41-d108-e15d-e35c76de017a@suse.cz>
+Date: Wed, 27 Sep 2017 16:50:12 +0200
 MIME-Version: 1.0
-In-Reply-To: <20170926145712.qvfd4fta6u24x565@ws.net.home>
+In-Reply-To: <20170927115057.avd7knn7qbqheeld@ws.net.home>
 Content-Type: text/plain; charset=iso-8859-2
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 Karel Zak wrote:
-> On Tue, Sep 26, 2017 at 04:14:51PM +0200, Stanislav Brabec wrote:
-
->> References:
->> [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/drivers/block/loop.c?id=89e4fdecb51cf5535867026274bc97de9480ade5
 > 
-> This kernel change has been reverted (1e6ec9ea89d30739b9447c1860fcb07fc29f3aef) after
-> discussion on LKML.
+> I'll fix it and ask for review.
 
-No, it was not. The reverted one is the previous implementation from
-Hannes Reinecke. It introduced new flag LO_FLAGS_BLOCKSIZE.
+a1a4159 looks good and works well. Tested with linux-4.14.0-rc1-3.g6627c5a-default.
 
-The link refers to the new implementation introducing new ioctl()
-LOOP_SET_BLOCK_SIZE written by Omar Sandoval. I hope that this will stay
-in the kernel.
-
-This losetup patch already uses the new implementation with the new
-ioctl(,LOOP_SET_BLOCK_SIZE,), including syntax changes caused by the new
-implementation. (The old implementation did not make possible "losetup
---logical-blocksize=4096 /dev/loop0", the new one does.)
-
-The previous SUSE patch can be found here:
-https://build.opensuse.org/package/view_file/openSUSE:Factory/util-linux/util-linux-losetup-Add-support-for-setting-logical-blocksize.patch?expand=1
-
-
-Just an additional off topic note:
-I reserved 4 characters for the blocksize. I am not sure, whether it is
-sufficient, or whether kernel allows much larger logical blocks. (But
-actually, the real column width is determined by width of string
-"BLOCKSIZE").
+/home/sbrabec/VCS/util-linux # ./losetup --logical-blocksize 4096 --find --show ~/cdrom.iso
+/dev/loop0
+/home/sbrabec/VCS/util-linux # ./losetup
+NAME       SIZELIMIT OFFSET AUTOCLEAR RO BACK-FILE       DIO BLOCKSIZE
+/dev/loop0         0      0         0  0 /root/cdrom.iso   0      4096
+/home/sbrabec/VCS/util-linux # ./losetup -d /dev/loop0
+/home/sbrabec/VCS/util-linux # ./losetup --find --show ~/cdrom.iso
+/dev/loop0
+/home/sbrabec/VCS/util-linux # ./losetup
+NAME       SIZELIMIT OFFSET AUTOCLEAR RO BACK-FILE       DIO BLOCKSIZE
+/dev/loop0         0      0         0  0 /root/cdrom.iso   0       512
+/home/sbrabec/VCS/util-linux # ./losetup --logical-blocksize 4096 /dev/loop0
+/home/sbrabec/VCS/util-linux # ./losetup 
+NAME       SIZELIMIT OFFSET AUTOCLEAR RO BACK-FILE       DIO BLOCKSIZE
+/dev/loop0         0      0         0  0 /root/cdrom.iso   0      4096
+/home/sbrabec/VCS/util-linux # ./losetup -d /dev/loop0
 
 -- 
 Best Regards / S pozdravem,
