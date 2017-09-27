@@ -1,93 +1,63 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:57823 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:44822 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751454AbdICT7p (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 3 Sep 2017 15:59:45 -0400
-Subject: Re: [PATCH 2/3] hwclock: remove audit from control struct
-To: Karel Zak <kzak@redhat.com>
-References: <71b98184-ea32-0e83-013c-2fdb8edc621f@gmx.com>
- <484f55d0-ecaf-437c-cb70-e6a871f06878@gmx.com>
- <20170830074001.brchka4sfp36wukz@ws.net.home>
- <50bfaf8d-7036-deb7-5cde-854da4e23f64@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <2916a0af-0cb7-7145-e05e-ac2eefb46fa4@gmx.com>
-Date: Sun, 3 Sep 2017 15:59:31 -0400
+        id S1752654AbdI0LvG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 27 Sep 2017 07:51:06 -0400
+Date: Wed, 27 Sep 2017 13:50:57 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Hannes Reinecke <hare@suse.com>,
+        Omar Sandoval <osandov@fb.com>, Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] losetup: Add support for logical block size
+Message-ID: <20170927115057.avd7knn7qbqheeld@ws.net.home>
+References: <ea2d1f7c-ca7b-331f-06c6-54e122a74382@suse.cz>
 MIME-Version: 1.0
-In-Reply-To: <50bfaf8d-7036-deb7-5cde-854da4e23f64@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <ea2d1f7c-ca7b-331f-06c6-54e122a74382@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, Sep 26, 2017 at 04:14:51PM +0200, Stanislav Brabec wrote:
+> @@ -55,6 +56,7 @@ struct loop_info64 {
+>  	uint64_t	lo_rdevice;
+>  	uint64_t	lo_offset;
+>  	uint64_t	lo_sizelimit; /* bytes, 0 == max available */
+> +	uint64_t	lo_blocksize;
+>  	uint32_t	lo_number;
+>  	uint32_t	lo_encrypt_type;
+>  	uint32_t	lo_encrypt_key_size;
 
+See kernel include/uapi/linux/loop.h and the Omars' commit. It does not extend
+LOOP_{GET,SET}_STATUS ioctl and loop_info64 struct. All the block size patch is
+completely independent ioctl.
 
-On 08/30/2017 01:56 PM, J William Piggott wrote:
-> 
-> 
-> On 08/30/2017 03:40 AM, Karel Zak wrote:
->> On Tue, Aug 29, 2017 at 12:34:07PM -0400, J William Piggott wrote:
->>>
->>> hwaudit_on is only used in main() and hwclock_exit() and
->>> that is unlikely to ever change.
->>
->>  Hmm... the goal is minimize global variables to keep code readable.
->>  It's strange to have a control struct and use global variable in the
->>  same time.
->>
->>> Remove it from the control struct because it:
->>>  * cleans up an ugly directive in hwclock_exit
->>>  * removes an argument from usage() and hwclock_exit()
->>>  * makes usage() comply with util-linux standards
->>
->>  I think usage() can call exit(EXIT_SUCCESS) and do not need play any
->>  games with audit at all.
-> 
-> True for half of hwclock's functions. Perhaps this special exit
-> handling should only exist when we HAVE_LIBAUDIT?
-> 
-> Okay, I'll rethink this and update the pull request.
+> +int loopcxt_get_blocksize(struct loopdev_cxt *lc, uint64_t *blocksize)
+> +{
+> +	struct sysfs_cxt *sysfs = loopcxt_get_sysfs(lc);
+> +	int rc = -EINVAL;
+> +
+> +	if (sysfs)
+> +		rc = sysfs_read_u64(sysfs, "queue/logical_block_size", blocksize);
 
-So it seems that there are more problems with exit and audit handling
-then I first thought. Improving them is going to be more invasive and
-will need to wait for refactoring of main() and manipulate_clock().
+Yes, /sys is fine.
 
-For now I have implemented Karel's idea to mix the use of hwclock_exit()
-and exit().
+> +	if (rc && loopcxt_ioctl_enabled(lc)) {
+> +		struct loop_info64 *lo = loopcxt_get_info(lc);
+> +		if (lo) {
+> +			if (blocksize)
+> +				*blocksize = lo->lo_blocksize;
+> +			rc = 0;
+> +		} else
+> +			rc = -errno;
 
-Pushed changes to the same branch:
+This fallback cannot work, because kernel does not provides lo_blocksize by
+LOOP_GET_STATUS64. You have to use common BLKSSZGET ioctl.
 
-The following changes since commit 58d57ae2d88ef638e3ff07c213b5158334d3f658:
+I'll fix it and ask for review.
 
-  tests: update sfdisk wipe test (2017-09-01 10:42:51 +0200)
+	Karel
 
-are available in the git repository at:
-
-  git@github.com:jwpi/util-linux.git 170825
-
-for you to fetch changes up to 5b8e46f7e7710e2bb88ff8e763997830c9494df2:
-
-  hwclock: close hwaudit_fd unconditionally (2017-09-03 12:34:03 -0400)
-
-----------------------------------------------------------------
-J William Piggott (3):
-      hwclock: remove sysexits.h
-      hwclock: don't always use hwclock_exit
-      hwclock: close hwaudit_fd unconditionally
-
- sys-utils/hwclock-rtc.c |  5 ++--
- sys-utils/hwclock.8.in  |  8 ++++++
- sys-utils/hwclock.c     | 76 ++++++++++++++++++-------------------------------
- 3 files changed, 37 insertions(+), 52 deletions(-)
-
-> 
->>  
->>  On another places we have "ctl" so it's fine fine to keep hwaudit_on
->>  within the control struct.
->>
->>     Karel
->>
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
