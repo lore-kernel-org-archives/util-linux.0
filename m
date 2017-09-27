@@ -1,89 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50258 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750762AbdIELER (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 5 Sep 2017 07:04:17 -0400
-Date: Tue, 5 Sep 2017 13:04:13 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] libmount: if ENOMEDIUM and tray is open, close tray and
- retry
-Message-ID: <20170905110413.jy24jrfd2pr7ts4k@ws>
-References: <0e40cb41-a64a-93b1-0c06-620cca40a575@suse.cz>
- <f29ab5ef-753d-2ea8-e348-d53cdf4262cf@suse.cz>
- <db7a8eaa-3519-234c-72c9-428ca1b80ff0@suse.cz>
- <20170801121615.nxqolue5qv3rwlrh@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170801121615.nxqolue5qv3rwlrh@ws.net.home>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33252 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751016AbdI0RpP (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Wed, 27 Sep 2017 13:45:15 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.21/8.16.0.21) with SMTP id v8RHiQKP114397
+        for <util-linux@vger.kernel.org>; Wed, 27 Sep 2017 13:45:15 -0400
+Received: from e06smtp10.uk.ibm.com (e06smtp10.uk.ibm.com [195.75.94.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2d8f3snh3x-1
+        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
+        for <util-linux@vger.kernel.org>; Wed, 27 Sep 2017 13:45:15 -0400
+Received: from localhost
+        by e06smtp10.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <util-linux@vger.kernel.org> from <gerald.schaefer@de.ibm.com>;
+        Wed, 27 Sep 2017 18:45:13 +0100
+From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+To: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
+Cc: Michal Hocko <mhocko@kernel.org>, linux-mm <linux-mm@kvack.org>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Andre Wild <wild@linux.vnet.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Subject: [PATCH 3/3] lsmem/chmem: add memory zone awareness to bash-completion
+Date: Wed, 27 Sep 2017 19:44:46 +0200
+In-Reply-To: <20170927174446.20459-1-gerald.schaefer@de.ibm.com>
+References: <20170927174446.20459-1-gerald.schaefer@de.ibm.com>
+Message-Id: <20170927174446.20459-4-gerald.schaefer@de.ibm.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 01, 2017 at 02:16:15PM +0200, Karel Zak wrote:
-> On Fri, Jul 21, 2017 at 08:44:03PM +0200, Stanislav Brabec wrote:
-> > @@ -1399,6 +1405,7 @@ int mnt_context_get_mount_excode(
-> >  	/*
-> >  	 * mount(2) errors
-> >  	 */
-> > +mount_retry:
-> >  	syserr = mnt_context_get_syscall_errno(cxt);
-> >  
-> >  
-> > @@ -1563,6 +1570,19 @@ int mnt_context_get_mount_excode(
-> >  		break;
-> >  
-> >  	case ENOMEDIUM:
-> > +		cdrom = open(mnt_context_get_source(cxt), O_RDONLY | O_NONBLOCK);
-> > +		if (cdrom != -1) {
-> > +			if (retries < CRDOM_TRAYOPEN_RETRIES &&
-> > +			    (ioctl(cdrom, CDROM_GET_CAPABILITY, NULL) & CDC_CLOSE_TRAY) &&
-> > +			    ioctl(cdrom, CDROM_DRIVE_STATUS, NULL) == CDS_TRAY_OPEN) {
-> > +				ioctl(cdrom, CDROMCLOSETRAY);
-> > +				close(cdrom);
-> > +				sleep(3);
-> > +				++retries;
-> > +				goto mount_retry;
-> > +			} else
-> > +				close(cdrom);
-> > +		}
-> 
-> This cannot work.
+From: Andre Wild <wild@linux.vnet.ibm.com>
 
-Stanislav, do you want to update the patch before the next release?
+This patch extends the valid --output values with ZONES for the
+lsmem bash-completion, and adds the --zone option for the chmem
+bash-completion.
 
-    Karel
+Signed-off-by: Andre Wild <wild@linux.vnet.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+---
+ bash-completion/chmem | 1 +
+ bash-completion/lsmem | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-> 
-> It seem you have tested the tray-close only, but I guess your goal is
-> also *mount* the device. The "goto mount_retry" does not call any
-> mount(2) stuff :-)
-> 
-> The function mnt_context_get_mount_excode() is wrong place. This
-> optional function is there to generate error message and exit code.
-> Nothing else.
-> 
-> The right place for your code is mnt_context_mount() where we already
-> have the same logic ("try mount again") for read-only devices. You
-> need something like:
-> 
->  if (mnt_context_syscall_called(cxt) &&
->      mnt_context_get_syscall_errno(cxt) == ENOMEDIUM) {
-> 
->     ... your open() and ioctls ...
-> 
->     goto again;
->  }
-> 
-> 
-> Use findmnt(8) to be sure that CDROM is really mounted.
-> 
->     Karel
-> 
-> -- 
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
-
+diff --git a/bash-completion/chmem b/bash-completion/chmem
+index 00b870dbd90d..3e3af87acaa5 100644
+--- a/bash-completion/chmem
++++ b/bash-completion/chmem
+@@ -16,6 +16,7 @@ _chmem_module()
+ 				--disable
+ 				--blocks
+ 				--verbose
++				--zone
+ 				--help
+ 				--version
+ 			"
+diff --git a/bash-completion/lsmem b/bash-completion/lsmem
+index 8f7a46ec30af..9aa124569d53 100644
+--- a/bash-completion/lsmem
++++ b/bash-completion/lsmem
+@@ -9,7 +9,7 @@ _lsmem_module()
+ 			local prefix realcur OUTPUT_ALL OUTPUT
+ 			realcur="${cur##*,}"
+ 			prefix="${cur%$realcur}"
+-			OUTPUT_ALL='RANGE SIZE STATE REMOVABLE BLOCK NODE'
++			OUTPUT_ALL='RANGE SIZE STATE REMOVABLE BLOCK NODE ZONES'
+ 			for WORD in $OUTPUT_ALL; do
+ 				if ! [[ $prefix == *"$WORD"* ]]; then
+ 					OUTPUT="$WORD ${OUTPUT:-""}"
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.13.5
+
