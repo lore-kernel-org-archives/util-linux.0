@@ -1,73 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qk0-f178.google.com ([209.85.220.178]:54757 "EHLO
-        mail-qk0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750725AbdJaIfu (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 31 Oct 2017 04:35:50 -0400
+Received: from mx2.suse.de ([195.135.220.15]:52035 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751128AbdJBNuG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 2 Oct 2017 09:50:06 -0400
+Date: Mon, 2 Oct 2017 15:50:04 +0200
+From: Michal =?UTF-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: "Yuriy M. Kaminskiy" <yumkam@gmail.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] libmount: if ENOMEDIUM and tray is open, close tray and
+ retry
+Message-ID: <20171002155004.5878caee@kitsune.suse.cz>
+In-Reply-To: <eb224df4-615b-18e2-a9ee-5d98db9db225@suse.cz>
+References: <0e40cb41-a64a-93b1-0c06-620cca40a575@suse.cz>
+        <f29ab5ef-753d-2ea8-e348-d53cdf4262cf@suse.cz>
+        <db7a8eaa-3519-234c-72c9-428ca1b80ff0@suse.cz>
+        <m3wp6u5k8z.fsf@gmail.com>
+        <68bc995a-3b0c-5b2c-cb7a-5f0052d19bef@suse.cz>
+        <45a7e1bc-62cb-cf96-07c7-c4801dcf23d4@suse.cz>
+        <20171002150048.3a609f57@kitsune.suse.cz>
+        <eb224df4-615b-18e2-a9ee-5d98db9db225@suse.cz>
 MIME-Version: 1.0
-In-Reply-To: <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
-References: <20171004153332.GA6696@pali> <20171011212435.znmtdnsxcd5ectub@pali>
- <20171011214426.wa5endlb3kb4yhbv@pali> <20171012085658.iwrusvy4ay4s7hbb@ws.net.home>
- <20171012092113.2bsb3pzv6un4xahr@pali> <20171012101311.zfvg6edfvszlujom@ws.net.home>
- <20171012204931.tfd2bhmwu5b6rbpz@pali> <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Tue, 31 Oct 2017 10:35:48 +0200
-Message-ID: <CAHp75VdWXHtCHiRxnbAidr9inehVC=av6gp7-jtJqN6WPYh4fg@mail.gmail.com>
-Subject: Re: Linux & FAT32 label
-To: Andreas Bombe <aeb@debian.org>
-Cc: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>,
-        Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        =?UTF-8?Q?Andrius_=C5=A0tikonas?= <andrius@stikonas.eu>,
-        Curtis Gedak <gedakc@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Oct 16, 2017 at 4:12 AM, Andreas Bombe <aeb@debian.org> wrote:
-> On Thu, Oct 12, 2017 at 10:49:31PM +0200, Pali Roh=C3=A1r wrote:
->> On Thursday 12 October 2017 12:13:11 Karel Zak wrote:
->> > On Thu, Oct 12, 2017 at 11:21:13AM +0200, Pali Roh=C3=A1r wrote:
->> > > > The best for me is to keep blkid output backwardly compatible as m=
-uch
->> > > > as possible :-)
->> > >
->> > > Backward compatibility is a good reason. But what with situation whe=
-n
->> > > interoperability with other systems (e.g. Windows) does not work as
->> > > expected?
->> >
->> > Then... I'm ready to do the changes to keep interoperability with the
->> > rest of the universe. It's the same situation as with UDF, you know...
->>
->> Apparently situation is not same as with UDF. For UDF we have
->> specification and basically all known UDF implementation by me were
->> compatible how to treat label except blkid (which read different think).
->>
->> For FAT32 we have 3 different linux implementations (blkid, fatlabel,
->> mlabel) and every one is slightly different in reading label (see
->> results sent in previous emails).
->>
->> What is first needed to know if implementations are willing to change to
->> be more or less same. And then decide what we want to change.
->>
->> Andreas, as fatlabel maintainer, what do you think about it?
->>
->> If you want, I can prepare patches for blkid and fatlabel to mimic
->> behavior written in proposed solution. But I think it does not make
->> sense to change just one Linux tool...
->
-> I was worried that there might be some scripts or programs that expect
+On Mon, 2 Oct 2017 15:06:33 +0200
+Stanislav Brabec <sbrabec@suse.cz> wrote:
 
-If we really care about such scripts another approach might be to
-introduce a CLI switch to "spec compatible mode" to each tool and
-suggest in documentation to use it.
+> Michal Suchánek wrote:
+> > it is completely reasonable to return ENOMEDIUM from kernel when the
+> > tray is open and let userspace decide if it wants to attempt to
+> > close the tray and how long it wants to wait for the tray to close
+> > (it may be blocked/broken).
+> >   
+> But then, what is the purpose of /proc/sys/dev/cdrom/autoclose?
 
-There are also variants:
-- spec compatible
-- WinXX compatible
-- DOS compatible
-- etc
+It can be used as a hint in mount if closing the tray is desired or
+not.
 
---=20
-With Best Regards,
-Andy Shevchenko
+I guess this used to work with IDE drivers not using SCSI emulation.
+
+With SCSI the close tray command is executed like any other with
+default timeout and obviously does time out in most cases. 
+
+But how long should the kernel wait? Is 1 minute ok? Should it wait 5
+minutes in case the user did not align the medium properly and needs to
+realign it? Who should set this timeout, where?
+
+Thanks
+
+Michal
