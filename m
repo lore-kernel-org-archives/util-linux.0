@@ -1,131 +1,126 @@
-Return-Path: pali.rohar@gmail.com
-Date: Thu, 12 Oct 2017 11:21:13 +0200
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: Andreas Bombe <aeb@debian.org>, util-linux@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
-	Curtis Gedak <gedakc@gmail.com>
-Subject: Re: Linux & FAT32 label
-Message-ID: <20171012092113.2bsb3pzv6un4xahr@pali>
-References: <20171004153332.GA6696@pali>
- <20171011212435.znmtdnsxcd5ectub@pali>
- <20171011214426.wa5endlb3kb4yhbv@pali>
- <20171012085658.iwrusvy4ay4s7hbb@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx2.suse.de ([195.135.220.15]:58908 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751067AbdJBOg7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 2 Oct 2017 10:36:59 -0400
+Date: Mon, 2 Oct 2017 16:36:57 +0200
+From: Michal =?UTF-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: "Yuriy M. Kaminskiy" <yumkam@gmail.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] libmount: if ENOMEDIUM and tray is open, close tray and
+ retry
+Message-ID: <20171002163657.559ccff0@kitsune.suse.cz>
+In-Reply-To: <6685d3eb-09b9-3904-1565-2bcfdc83eac5@suse.cz>
+References: <0e40cb41-a64a-93b1-0c06-620cca40a575@suse.cz>
+        <f29ab5ef-753d-2ea8-e348-d53cdf4262cf@suse.cz>
+        <db7a8eaa-3519-234c-72c9-428ca1b80ff0@suse.cz>
+        <m3wp6u5k8z.fsf@gmail.com>
+        <68bc995a-3b0c-5b2c-cb7a-5f0052d19bef@suse.cz>
+        <45a7e1bc-62cb-cf96-07c7-c4801dcf23d4@suse.cz>
+        <20171002150048.3a609f57@kitsune.suse.cz>
+        <eb224df4-615b-18e2-a9ee-5d98db9db225@suse.cz>
+        <20171002155004.5878caee@kitsune.suse.cz>
+        <6685d3eb-09b9-3904-1565-2bcfdc83eac5@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20171012085658.iwrusvy4ay4s7hbb@ws.net.home>
+Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 12 October 2017 10:56:58 Karel Zak wrote:
-> On Wed, Oct 11, 2017 at 11:44:26PM +0200, Pali Rohár wrote:
-> > On Wednesday 11 October 2017 23:24:35 Pali Rohár wrote:
-> > > On Wednesday 04 October 2017 17:33:32 Pali Rohár wrote:
-> > > > Hi! There is a big inconsistency in Linux tools which read or write
-> > > > FAT32 label in filesystem images. The most common used are tools:
-> > > > blkid (from util-linux project), fatlabel (previously known as
-> > > > dosfslabel; from dosfstools project) and mlabel (from mtools project).
-> > > > 
-> > > > FAT32 is itself a big mess from Microsoft hell and even FAT32
-> > > > implementation in Microsoft Windows systems is not compliant to the
-> > > > released FAT32 documentation from Microsoft.
-> > > > 
-> > > > In past months I observed that Linux FAT32 tools has its own way how
-> > > > they interpret FAT32 label (known as volume id) and because every GUI
-> > > > application uses one of those low-level command line tool, it is a big
-> > > > mess if one application say that FAT32 label is A and another that it is
-> > > > B. And then Windows XP say, it is C.
-> > > > 
-> > > > I would like to open discussion if it would be possible to change
-> > > > behavior how blkid (from util-linux project) and fatlabel (from
-> > > > dosfstool project) handle FAT32 label. Ideally to report exactly same
-> > > > output.
+On Mon, 2 Oct 2017 16:11:04 +0200
+Stanislav Brabec <sbrabec@suse.cz> wrote:
+
+> Michal Suchánek wrote:
+> > On Mon, 2 Oct 2017 15:06:33 +0200
+> > Stanislav Brabec <sbrabec@suse.cz> wrote:
+> >   
+> >> Michal Suchánek wrote:  
+> >>> it is completely reasonable to return ENOMEDIUM from kernel when
+> >>> the tray is open and let userspace decide if it wants to attempt
+> >>> to close the tray and how long it wants to wait for the tray to
+> >>> close (it may be blocked/broken).
+> >>>     
+> >> But then, what is the purpose of /proc/sys/dev/cdrom/autoclose?  
+> > 
+> > It can be used as a hint in mount if closing the tray is desired or
+> > not.  
 > 
-> The stuff in blkid is not "how we believe that FAT should be handled",
-> but "what users expect" :-)
-
-I, as a user, would expect that e.g. label set on Windows machine would
-be visible also on Linux. Or if I remove label on Windows machine, then
-Linux see also information that it is removed.
-
-> There is nothing like FAT standard and
-
-There are two "official" FAT32 documents as a "standard" from Microsoft:
-
-fatgen103.doc
-FAT32 Spec (SDA Contribution).doc
-
-But even Microsoft Windows implementations of FAT32 are not compliant to
-those documents... So it can be used just as reference.
-
-> unfortunately on may disks and USB devices is huge number FATS created
-> by many 3rd-party tools. For me the LABEL is not so important, the most
-> important is to keep libblkid ability to detect all the crazy FATs.
-
-Yes, detecting as many possible FATs as possible...
-
-> > Based on results I would propose following unification:
-> > 
-> > 1. If there is entry for label in root directory, including erased entry
-> >    which starts with 0xE5, then do *not* process boot entry.
-> > 
-> >    --> Reason: Setting label to empty on Windows XP just marks label in
-> >        root directory as erased (set first byte to 0xE5) and it does not
-> >        touch boot sector when label can be always old. Test case is in
-> >        file fat32_mkdosfs_label1_xp_erase.
-> > 
-> >        Same behavior can be seen in mlabel.
-> > 
-> > 2. Process 'NO NAME    ' label in root directory as 'NO NAME' name. Not
-> >    as empty label.
-> > 
-> >    --> Reason: 'NO NAME    ' is regular entry in root directory and both
-> >        Windows XP and mlabel handle it in this way.
-> > 
-> > 3. Process 'NO NAME    ' label in boot directory as empty label. Not as
-> >    label with name 'NO NAME'.
+> Such feature could be completely implemented in the user space, so
+> there is no reason to stay in the kernel in such a limited form.
 > 
-> I prefer this solution. The label also means entry in udev DB, symlink
-> somewhere in /dev, field in lsblk output, etc. I'd like to avoid "NO
-> NAME" everywhere in the system (especially if you have more than one
-> device with this "label"). The "NO NAME" dummy label provides zero
-> value to end users.
-
-Ok.
-
-> >    --> Reason: On Windows XP when formatting empty disk and label is not
-> >        specified then 'NO NAME    ' is stored to boot directory.
-> > 
-> > 4. Prefer label from the root directory. If there is none entry (means
-> >    there is also no erased entry), then read label from root sector.
-> > 
-> >    --> Reason: Windows XP and mlabel ignores what is written in boot
-> >        sector. Windows XP even do not update boot sector, so label
-> >        stored in boot sector is incorrect after any change done by
-> >        Windows XP.
-> > 
-> >        But due to compatibility with older dosfslabel, which stores
-> >        label only to boot sector, there is need for some fallback. Due
-> >        to point 1. the best seems to be to process also erased label in
-> >        root directory (marked with leading 0xE5) and fallback to boot
-> >        sector only in case label in root directory is missing.
-> > 
-> > What do you think about it?
+> 20 years ago, it was a completely working implementation inside the
+> kernel. User space just called mount(), and it succeeded.
 > 
-> The best for me is to keep blkid output backwardly compatible as much
-> as possible :-)
+> If that requires user space loop loop, then there is no reason to
+> implement sysfs entry just to perform tray close inside mount()
+> syscall and then fail anyway.
+> 
+> > I guess this used to work with IDE drivers not using SCSI emulation.
+> > 
+> > With SCSI the close tray command is executed like any other with
+> > default timeout and obviously does time out in most cases. 
+> > 
+> > But how long should the kernel wait? Is 1 minute ok? Should it wait
+> > 5 minutes in case the user did not align the medium properly and
+> > needs to realign it? Who should set this timeout, where?
+> >   
+> The timeout should be equal to the time to close tray on the slowest
+> device. Guessing something about 3 to 5 seconds may be fine. After
+> that time (or several times until that time), just check when the
+> tray starts to report that it is closed.
 
-Backward compatibility is a good reason. But what with situation when
-interoperability with other systems (e.g. Windows) does not work as
-expected? From test results we can see that blkid does not see change
-when Windows removes label.
+It may take 5s to physically close the drive but it takes much longer
+until the medium is detected and can be read. I suspect there might be
+some issue with interpreting the timeout in SCSI ioctls, though.
 
-> Note that the current version is v2.31-rc, you use pretty old v2.20 in
-> your tests.
+You get 
 
-I used older system for testing, but it seems that handling FAT32 label
-was not changed since 2.20. Git version still shows me same results.
+/* The CDROM is fairly slow, so we need a little extra time */
+/* In fact, it is very slow if it has to spin up first */
+#define IOCTL_TIMEOUT 30*HZ
 
--- 
-Pali Rohár
-pali.rohar@gmail.com
+which looks like the intended timeout is 30s.
+
+However, the timeout is passed like
+
+cgc.timeout = IOCTL_TIMEOUT (units for struct packet_command
+unspecified)
+
+result = scsi_execute(SDev, cgc->cmd, cgc->data_direction,
+                              cgc->buffer, cgc->buflen,
+                              (unsigned char *)cgc->sense, &sshdr,
+                              cgc->timeout, IOCTL_RETRIES, 0, 0, NULL);
+
+and finally
+
+**
+ * scsi_execute - insert request and wait for the result
+ * @sdev:       scsi device
+ * @cmd:        scsi command
+ * @data_direction: data direction
+ * @buffer:     data buffer
+ * @bufflen:    len of buffer
+ * @sense:      optional sense buffer
+ * @sshdr:      optional decoded sense header
+ * @timeout:    request timeout in seconds
+ * @retries:    number of times to retry request
+ * @flags:      flags for ->cmd_flags
+ * @rq_flags:   flags for ->rq_flags
+ * @resid:      optional residual length
+ *
+ * Returns the scsi_cmnd result field if a command was executed, or a
+negative
+ * Linux error code if we didn't get that far.
+ */
+int scsi_execute(struct scsi_device *sdev, const unsigned char *cmd,
+                 int data_direction, void *buffer, unsigned bufflen,
+                 unsigned char *sense, struct scsi_sense_hdr *sshdr,
+                 int timeout, int retries, u64 flags, req_flags_t
+rq_flags, int *resid)
+
+
+meaning that the 30*HZ value is interpreted as seconds if the docs are
+right. Looks fishy to me.
+
+Thanks
+
+Michal
