@@ -1,169 +1,78 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 3/4] lib/timeutils: add get_gmtoff()
-To: Karel Zak <kzak@redhat.com>
-References: <ac1afb00-aed1-4eed-aabe-89d26e29ca0d@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <1570cbd6-bfec-98ea-ec20-3f3ee229ffae@gmx.com>
-Date: Sun, 22 Oct 2017 20:40:25 -0400
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx2.suse.de ([195.135.220.15]:54952 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751082AbdJBOLG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 2 Oct 2017 10:11:06 -0400
+Subject: Re: [PATCH] libmount: if ENOMEDIUM and tray is open, close tray and
+ retry
+To: =?UTF-8?Q?Michal_Such=c3=a1nek?= <msuchanek@suse.de>
+Cc: "Yuriy M. Kaminskiy" <yumkam@gmail.com>, util-linux@vger.kernel.org
+References: <0e40cb41-a64a-93b1-0c06-620cca40a575@suse.cz>
+ <f29ab5ef-753d-2ea8-e348-d53cdf4262cf@suse.cz>
+ <db7a8eaa-3519-234c-72c9-428ca1b80ff0@suse.cz> <m3wp6u5k8z.fsf@gmail.com>
+ <68bc995a-3b0c-5b2c-cb7a-5f0052d19bef@suse.cz>
+ <45a7e1bc-62cb-cf96-07c7-c4801dcf23d4@suse.cz>
+ <20171002150048.3a609f57@kitsune.suse.cz>
+ <eb224df4-615b-18e2-a9ee-5d98db9db225@suse.cz>
+ <20171002155004.5878caee@kitsune.suse.cz>
+From: Stanislav Brabec <sbrabec@suse.cz>
+Message-ID: <6685d3eb-09b9-3904-1565-2bcfdc83eac5@suse.cz>
+Date: Mon, 2 Oct 2017 16:11:04 +0200
 MIME-Version: 1.0
-In-Reply-To: <ac1afb00-aed1-4eed-aabe-89d26e29ca0d@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <20171002155004.5878caee@kitsune.suse.cz>
+Content-Type: text/plain; charset=utf-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Michal Suchánek wrote:
+> On Mon, 2 Oct 2017 15:06:33 +0200
+> Stanislav Brabec <sbrabec@suse.cz> wrote:
+> 
+>> Michal Suchánek wrote:
+>>> it is completely reasonable to return ENOMEDIUM from kernel when the
+>>> tray is open and let userspace decide if it wants to attempt to
+>>> close the tray and how long it wants to wait for the tray to close
+>>> (it may be blocked/broken).
+>>>   
+>> But then, what is the purpose of /proc/sys/dev/cdrom/autoclose?
+> 
+> It can be used as a hint in mount if closing the tray is desired or
+> not.
 
-This new function returns the GMT offset relative to its
-argument. It is used in this patch to fix two bugs:
+Such feature could be completely implemented in the user space, so there
+is no reason to stay in the kernel in such a limited form.
 
-1) On platforms that the tm struct excludes tm_gmtoff,
-   hwclock assumes a one hour DST offset. This can cause
-   an incorrect kernel timezone setting. For example:
+20 years ago, it was a completely working implementation inside the
+kernel. User space just called mount(), and it succeeded.
 
- Current; with tm_gmtoff illustrates the correct offset:
-$ TZ="Australia/Lord_Howe" hwclock --hctosys --test | grep settimeofday
-Calling settimeofday(1507494204.192398, -660)
+If that requires user space loop loop, then there is no reason to
+implement sysfs entry just to perform tray close inside mount() syscall
+and then fail anyway.
 
- Current; without tm_gmtoff:
-$ TZ="Australia/Lord_Howe" hwclock --hctosys --test | grep settimeofday
-Calling settimeofday(1507494249.193852, -690)
+> I guess this used to work with IDE drivers not using SCSI emulation.
+> 
+> With SCSI the close tray command is executed like any other with
+> default timeout and obviously does time out in most cases. 
+> 
+> But how long should the kernel wait? Is 1 minute ok? Should it wait 5
+> minutes in case the user did not align the medium properly and needs to
+> realign it? Who should set this timeout, where?
+> 
+The timeout should be equal to the time to close tray on the slowest
+device. Guessing something about 3 to 5 seconds may be fine. After that
+time (or several times until that time), just check when the tray starts
+to report that it is closed.
 
- Patched; without tm_gmtoff:
-$ TZ="Australia/Lord_Howe" hwclock --hctosys --test | grep settimeofday
-Calling settimeofday(1507494260.194208, -660)
+By the way, most drives open the tray in the case of medium misalignment.
 
-2) ISO 8601 'extended' format requires all time elements
-   to use a colon (:).
+-- 
+Best Regards / S pozdravem,
 
-Current invalid ISO 8601:
-$ hwclock
-2017-10-08 16:25:17.895462-0400
-
-Patched:
-$ hwclock
-2017-10-08 16:25:34.141895-04:00
-
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- include/timeutils.h |  1 +
- lib/timeutils.c     | 68 +++++++++++++++++++++++++++++++++++++++++++++++++++--
- sys-utils/hwclock.c |  8 +------
- 3 files changed, 68 insertions(+), 9 deletions(-)
-
-diff --git a/include/timeutils.h b/include/timeutils.h
-index edd42f7fe..e8a261462 100644
---- a/include/timeutils.h
-+++ b/include/timeutils.h
-@@ -53,6 +53,7 @@ typedef uint64_t nsec_t;
- #define FORMAT_TIMESPAN_MAX 64
- 
- int parse_timestamp(const char *t, usec_t *usec);
-+int get_gmtoff(const struct tm *tp);
- 
- /* flags for strxxx_iso() functions */
- enum {
-diff --git a/lib/timeutils.c b/lib/timeutils.c
-index d38970c10..adc255c33 100644
---- a/lib/timeutils.c
-+++ b/lib/timeutils.c
-@@ -341,6 +341,65 @@ int parse_timestamp(const char *t, usec_t *usec)
- 	return 0;
- }
- 
-+/* Returns the difference in seconds between its argument and GMT. If if TP is
-+ * invalid or no DST information is available default to UTC, that is, zero.
-+ * tzset is called so, for example, 'TZ="UTC" hwclock' will work as expected.
-+ * Derived from glibc/time/strftime_l.c
-+ */
-+int get_gmtoff(const struct tm *tp)
-+{
-+	if (tp->tm_isdst < 0)
-+	return 0;
-+
-+#if HAVE_TM_GMTOFF
-+	return tp->tm_gmtoff;
-+#else
-+	struct tm tm;
-+	struct tm gtm;
-+	struct tm ltm = *tp;
-+	time_t lt;
-+
-+	tzset();
-+	lt = mktime(&ltm);
-+	/* Check if mktime returning -1 is an error or a valid time_t */
-+	if (lt == (time_t) -1) {
-+		if (! localtime_r(&lt, &tm)
-+			|| ((ltm.tm_sec ^ tm.tm_sec)
-+			    | (ltm.tm_min ^ tm.tm_min)
-+			    | (ltm.tm_hour ^ tm.tm_hour)
-+			    | (ltm.tm_mday ^ tm.tm_mday)
-+			    | (ltm.tm_mon ^ tm.tm_mon)
-+			    | (ltm.tm_year ^ tm.tm_year)))
-+			return 0;
-+	}
-+
-+	if (! gmtime_r(&lt, &gtm))
-+		return 0;
-+
-+	/* Calculate the GMT offset, that is, the difference between the
-+	 * TP argument (ltm) and GMT (gtm).
-+	 *
-+	 * Compute intervening leap days correctly even if year is negative.
-+	 * Take care to avoid int overflow in leap day calculations, but it's OK
-+	 * to assume that A and B are close to each other.
-+	 */
-+	int a4 = (ltm.tm_year >> 2) + (1900 >> 2) - ! (ltm.tm_year & 3);
-+	int b4 = (gtm.tm_year >> 2) + (1900 >> 2) - ! (gtm.tm_year & 3);
-+	int a100 = a4 / 25 - (a4 % 25 < 0);
-+	int b100 = b4 / 25 - (b4 % 25 < 0);
-+	int a400 = a100 >> 2;
-+	int b400 = b100 >> 2;
-+	int intervening_leap_days = (a4 - b4) - (a100 - b100) + (a400 - b400);
-+
-+	int years = ltm.tm_year - gtm.tm_year;
-+	int days = (365 * years + intervening_leap_days
-+		    + (ltm.tm_yday - gtm.tm_yday));
-+
-+	return (60 * (60 * (24 * days + (ltm.tm_hour - gtm.tm_hour))
-+		+ (ltm.tm_min - gtm.tm_min)) + (ltm.tm_sec - gtm.tm_sec));
-+#endif
-+}
-+
- static int format_iso_time(struct tm *tm, suseconds_t usec, int flags, char *buf, size_t bufsz)
- {
- 	char *p = buf;
-@@ -386,9 +445,14 @@ static int format_iso_time(struct tm *tm, suseconds_t usec, int flags, char *buf
- 		p += len;
- 	}
- 
--	if (flags & ISO_8601_TIMEZONE && strftime(p, bufsz, "%z", tm) <= 0)
-+	if (flags & ISO_8601_TIMEZONE) {
-+		int tmin  = get_gmtoff(tm) / 60;
-+		int zhour = tmin / 60;
-+		int zmin  = abs(tmin % 60);
-+		len = snprintf(p, bufsz, "%+03d:%02d", zhour,zmin);
-+		if (len < 0 || (size_t) len > bufsz)
- 		return -1;
--
-+	}
- 	return 0;
- }
- 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index c2c20812c..3ac43efee 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -608,13 +608,7 @@ set_system_clock(const struct hwclock_control *ctl,
- 	const struct timezone tz_utc = { 0 };
- 
- 	broken = localtime(&newtime.tv_sec);
--#ifdef HAVE_TM_GMTOFF
--	minuteswest = -broken->tm_gmtoff / 60;	/* GNU extension */
--#else
--	minuteswest = timezone / 60;
--	if (broken->tm_isdst)
--		minuteswest -= 60;
--#endif
-+	minuteswest = -get_gmtoff(broken) / 60;
- 
- 	if (ctl->debug) {
- 		if (ctl->hctosys && !ctl->universal)
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Křižíkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
