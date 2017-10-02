@@ -1,48 +1,40 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Date: Sun, 15 Oct 2017 08:59:01 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Andreas Bombe <aeb@debian.org>, Karel Zak <kzak@redhat.com>,
-        util-linux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
-        Curtis Gedak <gedakc@gmail.com>
-Subject: Re: Linux & FAT32 label
-Message-ID: <20171015065901.GD3916@xo-6d-61-c0.localdomain>
-References: <20171004153332.GA6696@pali>
- <20171011212435.znmtdnsxcd5ectub@pali>
- <20171011214426.wa5endlb3kb4yhbv@pali>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx2.suse.de ([195.135.220.15]:59198 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750788AbdJBL1V (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 2 Oct 2017 07:27:21 -0400
+Subject: Re: [PATCH] losetup: Add support for logical block size
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+References: <ea2d1f7c-ca7b-331f-06c6-54e122a74382@suse.cz>
+ <20170927124130.774g7kysxbdlc2wv@ws.net.home>
+ <e5377128-622b-5c01-bfa8-2cbbacd513f2@suse.cz>
+ <20171002100302.n7cckjml5vj72cyt@ws.net.home>
+From: Stanislav Brabec <sbrabec@suse.cz>
+Message-ID: <80fbf77a-f21e-ee15-ca2b-ba6000b3a79d@suse.cz>
+Date: Mon, 2 Oct 2017 13:27:20 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171011214426.wa5endlb3kb4yhbv@pali>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20171002100302.n7cckjml5vj72cyt@ws.net.home>
+Content-Type: text/plain; charset=iso-8859-2
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi!
+Karel Zak wrote:
+> OK, renamed to LOG-SEC and to --sector-size. We already use --sector-size
+> for fdisk and I guess we will never see configurable physical sector
+> size for loop devices.
+> 
 
-> Based on results I would propose following unification:
-> 
-...
-> 4. Prefer label from the root directory. If there is none entry (means
->    there is also no erased entry), then read label from root sector.
-> 
->    --> Reason: Windows XP and mlabel ignores what is written in boot
->        sector. Windows XP even do not update boot sector, so label
->        stored in boot sector is incorrect after any change done by
->        Windows XP.
-> 
->        But due to compatibility with older dosfslabel, which stores
->        label only to boot sector, there is need for some fallback. Due
->        to point 1. the best seems to be to process also erased label in
->        root directory (marked with leading 0xE5) and fallback to boot
->        sector only in case label in root directory is missing.
-> 
-> What do you think about it?
-
-4. seems dangerous. Assume we have "OLD" in boot sector and "0xe5-EW" in the directory
-entry. The label will change from <none> to "OLD" when the directory entry is reused by
-"FOO.TXT", right? That seems surprising / dangerous.
-										Pavel
+Then maybe change "-b" command line option to something more appropriate.
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
