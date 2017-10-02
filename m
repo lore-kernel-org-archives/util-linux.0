@@ -1,33 +1,81 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lf0-f65.google.com ([209.85.215.65]:52168 "EHLO
-        mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751548AbdJWQs1 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 23 Oct 2017 12:48:27 -0400
-Received: by mail-lf0-f65.google.com with SMTP id r129so20885291lff.8
-        for <util-linux@vger.kernel.org>; Mon, 23 Oct 2017 09:48:26 -0700 (PDT)
+Received: from mx2.suse.de ([195.135.220.15]:44566 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751036AbdJBNAu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 2 Oct 2017 09:00:50 -0400
+Date: Mon, 2 Oct 2017 15:00:48 +0200
+From: Michal =?UTF-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: "Yuriy M. Kaminskiy" <yumkam@gmail.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] libmount: if ENOMEDIUM and tray is open, close tray and
+ retry
+Message-ID: <20171002150048.3a609f57@kitsune.suse.cz>
+In-Reply-To: <45a7e1bc-62cb-cf96-07c7-c4801dcf23d4@suse.cz>
+References: <0e40cb41-a64a-93b1-0c06-620cca40a575@suse.cz>
+        <f29ab5ef-753d-2ea8-e348-d53cdf4262cf@suse.cz>
+        <db7a8eaa-3519-234c-72c9-428ca1b80ff0@suse.cz>
+        <m3wp6u5k8z.fsf@gmail.com>
+        <68bc995a-3b0c-5b2c-cb7a-5f0052d19bef@suse.cz>
+        <45a7e1bc-62cb-cf96-07c7-c4801dcf23d4@suse.cz>
 MIME-Version: 1.0
-From: Na Nha <minhnhan0801@gmail.com>
-Date: Mon, 23 Oct 2017 23:48:25 +0700
-Message-ID: <CAPiF6Th05_w6xE49Sym2XNLQrDPvrQ+74N1EcL2w9SESQ5ZpaA@mail.gmail.com>
-Subject: Set_disksize_zram_LTP_testsuite
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-My name is Le Minh nhan, I am a Linux developer.
+On Fri, 28 Jul 2017 17:48:22 +0200
+Stanislav Brabec <sbrabec@suse.cz> wrote:
 
-When I had used LTP testsuite to test our kernel, I encountered an error.
-Testcase "zram02" of LTP testsuite  sets 100G disksize to zram, the
-kernel says "cannot allocate memory". But there is no problem if I use
-other values: 10G,20G...90G to set disksize of zram.
+> Dne 28.7.2017 v 17:26 Stanislav Brabec napsal(a):
+> > Dne 27.7.2017 v 10:58 Yuriy M. Kaminskiy napsal(a):  
+> >> (And, I used cdrom a long time ago, but IIRC there were some driver
+> >> settings to automatically close tray on device open, so that this
+> >> patch should not be needed?)  
+> > 
+> > Thanks for this hint. Yes, you are true:
+> > /proc/sys/dev/cdrom/autoclose
+> > /proc/sys/dev/cdrom/autoeject
+> > 
+> > But this does not work with the current mount. The mount request
+> > will expire on timeout earlier than the tray of ordinary CDROM
+> > closes.
+> > 
+> > But yes, it is possible to implement a different, simpler patch that
+> > will make the autoclose feature working, and not cause delays in
+> > case of no medium.
+> >   
+> 
+> I did some testing.
+> 
+> The kernel autoclose feature should do exactly the same as my patch
+> attempts. But kernel seems to be broken. Before the tray actually
+> closes, kernel returns ENOMEDIUM.
+> 
+> From strace log when a standard DVD drive is open with a DVD laying on
+> the tray:
+> 
+> 17:30:32.719041 access("/dev/sr0", F_OK) = 0 <0.000005>
+> (here the tray starts to close)
+> 17:30:32.719054 open("/dev/sr0", O_RDONLY|O_CLOEXEC) = -1 ENOMEDIUM
+> (No medium found) <1.450436>
+> ...
+> 17:30:34.169943 mount("/dev/sr0", "/mnt", "vfat",
+> MS_MGC_VAL|MS_SILENT, NULL) = -1 ENOMEDIUM (No medium found)
+> <0.083741>
+> 
+> I am nearly sure that it worked ~20 years ago.
+> 
 
-Could you please help me to find what the problem is?
-What is the limitation of disksize I can set to zram or any suggestion
-I could do?
+Since we have facility for
 
-I am so happy and grateful if you repsond my email.
+ - telling if the drive is closed
+ - telling if the drive can be closed
+ - closing the drive
 
-Thanks and best regards,
+it is completely reasonable to return ENOMEDIUM from kernel when the
+tray is open and let userspace decide if it wants to attempt to close
+the tray and how long it wants to wait for the tray to close (it may be
+blocked/broken).
 
-Le Minh Nhan
+Thanks
+
+Michal
