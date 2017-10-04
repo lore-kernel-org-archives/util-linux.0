@@ -1,103 +1,107 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:64345 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754620AbdJRLkO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 18 Oct 2017 07:40:14 -0400
-Date: Wed, 18 Oct 2017 13:40:09 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Cc: util-linux@vger.kernel.org, Michal Hocko <mhocko@kernel.org>,
-        linux-mm <linux-mm@kvack.org>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Andre Wild <wild@linux.vnet.ibm.com>
-Subject: Re: [PATCH 0/3] lsmem/chmem: add memory zone awareness
-Message-ID: <20171018114009.7b4iax6536un5bnr@ws.net.home>
-References: <20170927174446.20459-1-gerald.schaefer@de.ibm.com>
+Received: from mail-wm0-f45.google.com ([74.125.82.45]:57336 "EHLO
+        mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752364AbdJDPdj (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 4 Oct 2017 11:33:39 -0400
+Date: Wed, 4 Oct 2017 17:33:32 +0200
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+To: Andreas Bombe <aeb@debian.org>, Karel Zak <kzak@redhat.com>,
+        util-linux@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
+        Curtis Gedak <gedakc@gmail.com>
+Subject: Linux & FAT32 label
+Message-ID: <20171004153332.GA6696@pali>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170927174446.20459-1-gerald.schaefer@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Sep 27, 2017 at 07:44:43PM +0200, Gerald Schaefer wrote:
->  bash-completion/chmem                  |   1 +
->  bash-completion/lsmem                  |   2 +-
->  sys-utils/chmem.8                      |  19 +++++
->  sys-utils/chmem.c                      | 136 +++++++++++++++++++++++++++++++--
->  sys-utils/lsmem.1                      |   4 +-
->  sys-utils/lsmem.c                      |  98 +++++++++++++++++++++++-
->  tests/expected/lsmem/lsmem-s390-zvm-6g |  21 +++++
->  tests/expected/lsmem/lsmem-x86_64-16g  |  39 ++++++++++
->  tests/ts/lsmem/lsmem                   |   1 +
->  9 files changed, 309 insertions(+), 12 deletions(-)
+Hi! There is a big inconsistency in Linux tools which read or write
+FAT32 label in filesystem images. The most common used are tools:
+blkid (from util-linux project), fatlabel (previously known as
+dosfslabel; from dosfstools project) and mlabel (from mtools project).
 
-Merged to my "next" branch (in master we have still feature-freeze).
+FAT32 is itself a big mess from Microsoft hell and even FAT32
+implementation in Microsoft Windows systems is not compliant to the
+released FAT32 documentation from Microsoft.
 
-I have also added a note about the way how lsmem merges blocks to
-create the RANGE column. It seems important, because the number of
-ranges is affected by ZONES (or REMOVABLE). See:
+In past months I observed that Linux FAT32 tools has its own way how
+they interpret FAT32 label (known as volume id) and because every GUI
+application uses one of those low-level command line tool, it is a big
+mess if one application say that FAT32 label is A and another that it is
+B. And then Windows XP say, it is C.
 
-  https://github.com/karelzak/util-linux/commit/ffe5267c91018ca8cac8bedc14b695478c11a5dd
+I would like to open discussion if it would be possible to change
+behavior how blkid (from util-linux project) and fatlabel (from
+dosfstool project) handle FAT32 label. Ideally to report exactly same
+output.
 
-Maybe it's possible to explain it in a better way... (send patch;-)
+Basic information about FAT32 label:
 
-The another possibility is to *always use* zones and removable
-attributes to create the ranges (merge blocks) independently on the
-output columns (e.g. -o ZONES). So, the result will be always the same
-number of ranges with the same <start>-<end>. 
+1) It is stored in two locations: boot sector and root directory as
+   file name.
 
-Now (see the first range):
+2) In both location format is 11 bytes, padded with spaces (not nulls).
 
-$ lsmem 
-RANGE                                  SIZE  STATE REMOVABLE  BLOCK
-0x0000000000000000-0x0000000047ffffff  1.1G online        no    0-8
-0x0000000048000000-0x0000000057ffffff  256M online       yes   9-10
-0x0000000058000000-0x000000005fffffff  128M online        no     11
-0x0000000060000000-0x0000000067ffffff  128M online       yes     12
-0x0000000068000000-0x0000000087ffffff  512M online        no  13-16
-0x0000000088000000-0x000000008fffffff  128M online       yes     17
-0x0000000090000000-0x00000000afffffff  512M online        no  18-21
-0x00000000b0000000-0x00000000bfffffff  256M online       yes  22-23
-0x0000000100000000-0x000000042fffffff 12.8G online        no 32-133
-0x0000000430000000-0x0000000437ffffff  128M online       yes    134
-0x0000000438000000-0x000000043fffffff  128M online        no    135
+3) Empty label in boot sector is stored as "NO NAME    " and not as
+   empty string.
 
-lsmem -o+ZONES
-RANGE                                  SIZE  STATE REMOVABLE  BLOCK  ZONES
-0x0000000000000000-0x0000000007ffffff  128M online        no      0   None
-0x0000000008000000-0x0000000047ffffff    1G online        no    1-8  DMA32
-0x0000000048000000-0x0000000057ffffff  256M online       yes   9-10  DMA32
-0x0000000058000000-0x000000005fffffff  128M online        no     11  DMA32
-0x0000000060000000-0x0000000067ffffff  128M online       yes     12  DMA32
-0x0000000068000000-0x0000000087ffffff  512M online        no  13-16  DMA32
-0x0000000088000000-0x000000008fffffff  128M online       yes     17  DMA32
-0x0000000090000000-0x00000000afffffff  512M online        no  18-21  DMA32
-0x00000000b0000000-0x00000000bfffffff  256M online       yes  22-23  DMA32
-0x0000000100000000-0x000000042fffffff 12.8G online        no 32-133 Normal
-0x0000000430000000-0x0000000437ffffff  128M online       yes    134 Normal
-0x0000000438000000-0x000000043fffffff  128M online        no    135   None
+4) Empty label in root directory is stored either as name which starts
+   with byte 0xE5, or is not stored in root directory at all.
 
-lsmem -oRANGE,SIZE
-RANGE                                 SIZE
-0x0000000000000000-0x00000000bfffffff   3G
-0x0000000100000000-0x000000043fffffff  13G
+5) If label contains leading byte 0xE5, then in root directory is stored
+   as byte 0x05.
 
+6) Label string is stored according to current DOS code page. Therefore
+   label string needs to be converted to bytes.
 
-I didn't test it, but the question is how usable is 
-0x0000000000000000-<end> as option for chmem.
+7) Label string cannot contain control characters and characters from
+   the set   ? / \ | . , ; : + = [ ] < > "   plus lower case characters
+   are stored as their upper case variant (not only ASCII).
 
-It's also seems difficult to use it in scripts if you want to output only
-a RANGE, for example
+(Please correct me if I'm wrong in some of those points)
 
-    FOO=$(lsmem -oRANGE -n --summary=never | head -1)
-    
-but the range is affected by missing columns.
+Plus Microsoft Windows systems fully ignores label stored in boot
+sector. Seems they do not read it nor they do not update it on changes.
 
-Comments?
+Looks like that mlabel (from mtools) applies all above rules and uses
+DOS code page 850 by default (can be changed in config file).
 
-    Karel
+blkid and fatlabel process special cases from 1) to 5) differently and
+they operates on raw bytes, not strings (in DOS code page).
 
+mlabel reads label from the root directory (missing entry is interpreted
+as no label; there is no fallback to boot sector), but "set" operation
+modify label in both location boot sector + root directory. Basically it
+is near to Windows implementation. And reason why Gparted GUI
+application uses mlabel and not fatlabel.
+
+As Linux does not have "current DOS code page" and argv arguments are
+not (Unicode) strings, but arbitrary bytes, I understand that for point
+6) it is easier to operates not on FAT strings (in current code page),
+but rather on bytes. Which also would be same on all machines with any
+configuration.
+
+But would it be possible to decide and unify handling of point 2), 3),
+4), 5)? Ideally with combination how to handle situation when different
+label is stored in boot sector and root directory.
+
+As Windows does not use label in boot sector, it is very common
+situation that label in boot sector differs from the root directory.
+
+The best would be see in all cases same label from blkid, fatlabel and
+mlabel. Ideally same as Windows machines -- but due to DOS code page,
+this is possible only for ASCII subset of the 8bit encoding. IIRC most
+(or all?) DOS code page has same characters in printable ASCII range.
+
+It is really bad situation if I open disk in Gparted which show me label
+via mlabel and then I open in KDE Partition Manager and I see different
+label string (as it reads it from fatlabel).
+
+Also note that older version of fatlabel (when it was named dosfslabel)
+operated only the label stored in boot sector (and label stored in root
+directory was not read or touched).
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Pali Rohár
+pali.rohar@gmail.com
