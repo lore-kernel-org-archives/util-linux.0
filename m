@@ -1,64 +1,95 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-yw0-f178.google.com ([209.85.161.178]:45510 "EHLO
-        mail-yw0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751200AbdJWPEu (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 23 Oct 2017 11:04:50 -0400
-Received: by mail-yw0-f178.google.com with SMTP id j4so12307220ywb.2
-        for <util-linux@vger.kernel.org>; Mon, 23 Oct 2017 08:04:50 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20171023105347.e6k3xwnwmhvgfzgw@ws.net.home>
-References: <CAM9ceLjMPtUHNxj-G2YL=5w+dE+EoD+6rYKE1uDCDn5k19z8gw@mail.gmail.com>
- <20171023105347.e6k3xwnwmhvgfzgw@ws.net.home>
-From: Jeff Sadowski <jeff.sadowski@gmail.com>
-Date: Mon, 23 Oct 2017 09:04:49 -0600
-Message-ID: <CAM9ceLhURzEtMnpr21VwqUR1HG31J5hoRRWWbw0bZu1fQFLYmA@mail.gmail.com>
-Subject: Re: wall logging or run command each post?
+Received: from mail-oi0-f43.google.com ([209.85.218.43]:52665 "EHLO
+        mail-oi0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751332AbdJEQEP (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 5 Oct 2017 12:04:15 -0400
+Received: by mail-oi0-f43.google.com with SMTP id p126so25376657oih.9
+        for <util-linux@vger.kernel.org>; Thu, 05 Oct 2017 09:04:15 -0700 (PDT)
+Subject: Re: fdisk request for functionality (or info)
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Cc: Util-Linux <util-linux@vger.kernel.org>
+References: <59D3C162.4050005@gmail.com>
+ <20171004082728.if274peupxjljbxd@ws.net.home> <59D4F322.7040805@gmail.com>
+ <20171005105900.s5uctyqsxzlfwhsk@ws.net.home>
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Message-ID: <59D657FD.6070009@gmail.com>
+Date: Thu, 5 Oct 2017 11:04:13 -0500
+MIME-Version: 1.0
+In-Reply-To: <20171005105900.s5uctyqsxzlfwhsk@ws.net.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-So my best bet is going to be to put
+Karel Zak wrote:
+> On Wed, Oct 04, 2017 at 09:41:38AM -0500, Bruce Dubbs wrote:
 
-alias wall=/script/wall.sh
+>> Would it be reasonable to set that flag by default
+>> when 'g create a new empty GPT partition table' is selected?
+>
+> Not sure, according to UEFI standard the boot flag should be ignored
+> by EFI boot loaders and for non-EFI systems the behavior is undefined.
+>
+> The first partition on protective MBR covers all disk and the start
+> offset of the partition is the place where is GPT header. So, the
+> partition is useless as source for boot.
 
-in my /etc/bash.bashrc
-and any other allowed shell rc's
-where my /script/wall.sh does the things I want.
-and change any scripts like my /etc/apcupsd/apccontrol
-and change its WALL=wall to WALL=/script/wall.sh
-as well.
+Agree.  The problem is the BIOS on fairly old Core2Duo systems.  These 
+systems are in a classroom with 16 identical computers.  I've complained 
+for a couple of years now that the computers are slow and way out of date 
+for what is supposed to be a class teaching technology.
 
-I'll just have to go searching through /etc/ for files containing wall
+> The question is what your old BIOS expects and why does it parses MBR
+> at all :) It should be enough for BIOS to read boot-bits (begin of the
+> disk) where is boot loader rather than try to be smart and parse any
+> PT...)
 
-This will get most things I care about but it might skip messages that
-some users may broadcast
-should adding the "#!/bin/bash" as the first line to shell scripts
-cause the script to use the alias?
+What the BIOS should do and what is does are different.  In a different 
+classroom with better systems there is no problem.
+
+> If you want to boot from the MBR than it's probably some kind of crazy
+> hybrid MBR and it's completely out of fdisk/parted interest.
+
+No, I do not want to boot from the MBR.  I am trying to instruct the 
+students how to install and use a GPT.  It seems that the Debian expert 
+installer has no option to create a GPT, although it will use it if found. 
+  What I have the students do during install is to drop to the command 
+line and run fdisk manually, creating a new, empty GPT and new partitions 
+for the installer.  It is a good learning exercise.
+
+The problem then, after install, is that the BIOS returns "No bootable 
+disk found".  Using a rescue disk and setting the pmbr boot flag allows 
+the system to boot properly.
+
+> fdisk and sfdisk allows to manually work with (hybrid)MBR, but it's
+> under user's control and fdisk does not do anything by default in this
+> case.
+>
+> So, from my point of view all we need is to make changes to fdisk main
+> menu to make PMBR/HybridMBR easy to access for creative users with
+> legacy BIOS.
+
+Even an entry in the expert menu would be OK for me. This is probably
+a rare enough situation that it does not need to be in the main menu.
+
+> BTW, what returns:
+>
+>      # fdisk  /dev/sda --type dos --list
+>
+> for standard PMBR on EFI system it's:
+>
+>          Disk /dev/sda: 223.6 GiB, 240057409536 bytes, 468862128 sectors
+>          Units: sectors of 1 * 512 = 512 bytes
+>          Sector size (logical/physical): 512 bytes / 512 bytes
+>          I/O size (minimum/optimal): 512 bytes / 512 bytes
+>          Disklabel type: dos
+>          Disk identifier: 0x00000000
+>
+>          Device     Boot Start       End   Sectors   Size Id Type
+>          /dev/sda1           1 468862127 468862127 223.6G ee GPT
+
+Yes, that's what I get too.  Setting the pmbr boot bit adds an asterisk 
+under boot.
+
+   -- Bruce
 
 
-On Mon, Oct 23, 2017 at 4:53 AM, Karel Zak <kzak@redhat.com> wrote:
-> On Wed, Oct 18, 2017 at 02:06:25PM -0600, Jeff Sadowski wrote:
->> I would like to know if this feature is built into wall or is there a
->> good work around?
->
-> wall is usually used by superuser. I guess if you can all "wall" than
-> you can also call for example logger to write to the system logs. I
-> don't see reason to merge functionally of these tools together.
->
->> I would like to configure wall to run a script after anything is posted to wall.
->
-> Why? Maybe there is better way go get your goal.
->
->> I would also like to log all wall messages. I could easily do that
->> with a script.
->
-> yes, script(1) is the right way
->
->     Karel
->
->
-> --
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
