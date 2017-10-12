@@ -1,67 +1,53 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:53825 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932158AbdJWAjo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 22 Oct 2017 20:39:44 -0400
-Subject: [PATCH 2/4] lib/timeutils: ISO_8601_BUFSIZ too small
-To: Karel Zak <kzak@redhat.com>
-References: <ac1afb00-aed1-4eed-aabe-89d26e29ca0d@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <946b185d-2c3e-cb6d-f2ca-4a67274da256@gmx.com>
-Date: Sun, 22 Oct 2017 20:39:37 -0400
+Return-Path: linux-kernel-owner@vger.kernel.org
+Date: Thu, 12 Oct 2017 22:49:31 +0200
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+To: Karel Zak <kzak@redhat.com>, Andreas Bombe <aeb@debian.org>
+Cc: util-linux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
+        Curtis Gedak <gedakc@gmail.com>
+Subject: Re: Linux & FAT32 label
+Message-ID: <20171012204931.tfd2bhmwu5b6rbpz@pali>
+References: <20171004153332.GA6696@pali>
+ <20171011212435.znmtdnsxcd5ectub@pali>
+ <20171011214426.wa5endlb3kb4yhbv@pali>
+ <20171012085658.iwrusvy4ay4s7hbb@ws.net.home>
+ <20171012092113.2bsb3pzv6un4xahr@pali>
+ <20171012101311.zfvg6edfvszlujom@ws.net.home>
 MIME-Version: 1.0
-In-Reply-To: <ac1afb00-aed1-4eed-aabe-89d26e29ca0d@gmx.com>
-Content-Type: text/plain; charset=windows-1252
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20171012101311.zfvg6edfvszlujom@ws.net.home>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Thursday 12 October 2017 12:13:11 Karel Zak wrote:
+> On Thu, Oct 12, 2017 at 11:21:13AM +0200, Pali Rohár wrote:
+> > > The best for me is to keep blkid output backwardly compatible as much
+> > > as possible :-)
+> > 
+> > Backward compatibility is a good reason. But what with situation when
+> > interoperability with other systems (e.g. Windows) does not work as
+> > expected?
+> 
+> Then... I'm ready to do the changes to keep interoperability with the
+> rest of the universe. It's the same situation as with UDF, you know...
 
-Although iso-8601 specifies years as 4 digits, it allows
-them to be wider.
+Apparently situation is not same as with UDF. For UDF we have
+specification and basically all known UDF implementation by me were
+compatible how to treat label except blkid (which read different think).
 
-The current POSIX year width is limited by 'int tm_year'
-at 10 digits plus a negative sign.
+For FAT32 we have 3 different linux implementations (blkid, fatlabel,
+mlabel) and every one is slightly different in reading label (see
+results sent in previous emails).
 
-That, and the possibility of nanosecond time makes the
-widest POSIX iso-8601 time 41 characters. Plus the \0
-string terminator yields a buffer size of 42.
+What is first needed to know if implementations are willing to change to
+be more or less same. And then decide what we want to change.
 
-Before truncated output:
-/sbin/hwclock --utc --noadjfile --predict --date '-2147483765 years'
--2147481748-09-25 20:29:45.0000
+Andreas, as fatlabel maintainer, what do you think about it?
 
-Patched:
-./hwclock --utc --noadjfile --predict --date '-2147483765 years'
--2147481748-09-25 20:17:21.000000-0456
+If you want, I can prepare patches for blkid and fatlabel to mimic
+behavior written in proposed solution. But I think it does not make
+sense to change just one Linux tool...
 
-./hwclock --utc --noadjfile --predict --date '-2147483766 years'
-hwclock: invalid date '-2147483766 years'
-
-Comparable to coreutils 'date' command:
-date -Ins --date '-2147483765 years'
--2147481748-09-25T19:49:31,578899297-0456
-
-date -Ins --date '-2147483766 years'
-date: invalid date '-2147483766 years'
-
-The 'date' output illustrates the full 41 character POSIX iso-8601
-
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- include/timeutils.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/include/timeutils.h b/include/timeutils.h
-index 874f853b7..edd42f7fe 100644
---- a/include/timeutils.h
-+++ b/include/timeutils.h
-@@ -65,7 +65,7 @@ enum {
- 	ISO_8601_GMTIME		= (1 << 7)
- };
- 
--#define ISO_8601_BUFSIZ	32
-+#define ISO_8601_BUFSIZ	42
- 
- int strtimeval_iso(struct timeval *tv, int flags, char *buf, size_t bufsz);
- int strtm_iso(struct tm *tm, int flags, char *buf, size_t bufsz);
+-- 
+Pali Rohár
+pali.rohar@gmail.com
