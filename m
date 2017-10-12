@@ -1,40 +1,131 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:59198 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750788AbdJBL1V (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 2 Oct 2017 07:27:21 -0400
-Subject: Re: [PATCH] losetup: Add support for logical block size
+Return-Path: pali.rohar@gmail.com
+Date: Thu, 12 Oct 2017 11:21:13 +0200
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-References: <ea2d1f7c-ca7b-331f-06c6-54e122a74382@suse.cz>
- <20170927124130.774g7kysxbdlc2wv@ws.net.home>
- <e5377128-622b-5c01-bfa8-2cbbacd513f2@suse.cz>
- <20171002100302.n7cckjml5vj72cyt@ws.net.home>
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <80fbf77a-f21e-ee15-ca2b-ba6000b3a79d@suse.cz>
-Date: Mon, 2 Oct 2017 13:27:20 +0200
+Cc: Andreas Bombe <aeb@debian.org>, util-linux@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
+	Curtis Gedak <gedakc@gmail.com>
+Subject: Re: Linux & FAT32 label
+Message-ID: <20171012092113.2bsb3pzv6un4xahr@pali>
+References: <20171004153332.GA6696@pali>
+ <20171011212435.znmtdnsxcd5ectub@pali>
+ <20171011214426.wa5endlb3kb4yhbv@pali>
+ <20171012085658.iwrusvy4ay4s7hbb@ws.net.home>
 MIME-Version: 1.0
-In-Reply-To: <20171002100302.n7cckjml5vj72cyt@ws.net.home>
-Content-Type: text/plain; charset=iso-8859-2
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20171012085658.iwrusvy4ay4s7hbb@ws.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> OK, renamed to LOG-SEC and to --sector-size. We already use --sector-size
-> for fdisk and I guess we will never see configurable physical sector
-> size for loop devices.
+On Thursday 12 October 2017 10:56:58 Karel Zak wrote:
+> On Wed, Oct 11, 2017 at 11:44:26PM +0200, Pali RohÃ¡r wrote:
+> > On Wednesday 11 October 2017 23:24:35 Pali RohÃ¡r wrote:
+> > > On Wednesday 04 October 2017 17:33:32 Pali RohÃ¡r wrote:
+> > > > Hi! There is a big inconsistency in Linux tools which read or write
+> > > > FAT32 label in filesystem images. The most common used are tools:
+> > > > blkid (from util-linux project), fatlabel (previously known as
+> > > > dosfslabel; from dosfstools project) and mlabel (from mtools project).
+> > > > 
+> > > > FAT32 is itself a big mess from Microsoft hell and even FAT32
+> > > > implementation in Microsoft Windows systems is not compliant to the
+> > > > released FAT32 documentation from Microsoft.
+> > > > 
+> > > > In past months I observed that Linux FAT32 tools has its own way how
+> > > > they interpret FAT32 label (known as volume id) and because every GUI
+> > > > application uses one of those low-level command line tool, it is a big
+> > > > mess if one application say that FAT32 label is A and another that it is
+> > > > B. And then Windows XP say, it is C.
+> > > > 
+> > > > I would like to open discussion if it would be possible to change
+> > > > behavior how blkid (from util-linux project) and fatlabel (from
+> > > > dosfstool project) handle FAT32 label. Ideally to report exactly same
+> > > > output.
 > 
+> The stuff in blkid is not "how we believe that FAT should be handled",
+> but "what users expect" :-)
 
-Then maybe change "-b" command line option to something more appropriate.
+I, as a user, would expect that e.g. label set on Windows machine would
+be visible also on Linux. Or if I remove label on Windows machine, then
+Linux see also information that it is removed.
+
+> There is nothing like FAT standard and
+
+There are two "official" FAT32 documents as a "standard" from Microsoft:
+
+fatgen103.doc
+FAT32 Spec (SDA Contribution).doc
+
+But even Microsoft Windows implementations of FAT32 are not compliant to
+those documents... So it can be used just as reference.
+
+> unfortunately on may disks and USB devices is huge number FATS created
+> by many 3rd-party tools. For me the LABEL is not so important, the most
+> important is to keep libblkid ability to detect all the crazy FATs.
+
+Yes, detecting as many possible FATs as possible...
+
+> > Based on results I would propose following unification:
+> > 
+> > 1. If there is entry for label in root directory, including erased entry
+> >    which starts with 0xE5, then do *not* process boot entry.
+> > 
+> >    --> Reason: Setting label to empty on Windows XP just marks label in
+> >        root directory as erased (set first byte to 0xE5) and it does not
+> >        touch boot sector when label can be always old. Test case is in
+> >        file fat32_mkdosfs_label1_xp_erase.
+> > 
+> >        Same behavior can be seen in mlabel.
+> > 
+> > 2. Process 'NO NAME    ' label in root directory as 'NO NAME' name. Not
+> >    as empty label.
+> > 
+> >    --> Reason: 'NO NAME    ' is regular entry in root directory and both
+> >        Windows XP and mlabel handle it in this way.
+> > 
+> > 3. Process 'NO NAME    ' label in boot directory as empty label. Not as
+> >    label with name 'NO NAME'.
+> 
+> I prefer this solution. The label also means entry in udev DB, symlink
+> somewhere in /dev, field in lsblk output, etc. I'd like to avoid "NO
+> NAME" everywhere in the system (especially if you have more than one
+> device with this "label"). The "NO NAME" dummy label provides zero
+> value to end users.
+
+Ok.
+
+> >    --> Reason: On Windows XP when formatting empty disk and label is not
+> >        specified then 'NO NAME    ' is stored to boot directory.
+> > 
+> > 4. Prefer label from the root directory. If there is none entry (means
+> >    there is also no erased entry), then read label from root sector.
+> > 
+> >    --> Reason: Windows XP and mlabel ignores what is written in boot
+> >        sector. Windows XP even do not update boot sector, so label
+> >        stored in boot sector is incorrect after any change done by
+> >        Windows XP.
+> > 
+> >        But due to compatibility with older dosfslabel, which stores
+> >        label only to boot sector, there is need for some fallback. Due
+> >        to point 1. the best seems to be to process also erased label in
+> >        root directory (marked with leading 0xE5) and fallback to boot
+> >        sector only in case label in root directory is missing.
+> > 
+> > What do you think about it?
+> 
+> The best for me is to keep blkid output backwardly compatible as much
+> as possible :-)
+
+Backward compatibility is a good reason. But what with situation when
+interoperability with other systems (e.g. Windows) does not work as
+expected? From test results we can see that blkid does not see change
+when Windows removes label.
+
+> Note that the current version is v2.31-rc, you use pretty old v2.20 in
+> your tests.
+
+I used older system for testing, but it seems that handling FAT32 label
+was not changed since 2.20. Git version still shows me same results.
 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+Pali RohÃ¡r
+pali.rohar@gmail.com
