@@ -1,93 +1,110 @@
-Return-Path: elseifthen@gmx.com
-Subject: Re: [PATCH 4/4] lib/timeutils: add common ISO timestamp masks
-To: Karel Zak <kzak@redhat.com>
-References: <ac1afb00-aed1-4eed-aabe-89d26e29ca0d@gmx.com>
- <661c0a48-59bb-8263-9fd7-c1ef80b160f2@gmx.com>
- <20171023094959.dxlot6uqj5pvymwk@ws.net.home>
- <54ed1151-d782-815c-c986-1ae6ea9d20fe@gmx.com>
- <20171024093728.cwri5elvpqxk6tl7@ws.net.home>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <8421ce81-278a-65d9-9470-bc86e3103b73@gmx.com>
-Date: Tue, 24 Oct 2017 12:19:59 -0400
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:52716 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750716AbdJLI5D (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 12 Oct 2017 04:57:03 -0400
+Date: Thu, 12 Oct 2017 10:56:58 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Andreas Bombe <aeb@debian.org>, util-linux@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
+        Curtis Gedak <gedakc@gmail.com>
+Subject: Re: Linux & FAT32 label
+Message-ID: <20171012085658.iwrusvy4ay4s7hbb@ws.net.home>
+References: <20171004153332.GA6696@pali>
+ <20171011212435.znmtdnsxcd5ectub@pali>
+ <20171011214426.wa5endlb3kb4yhbv@pali>
 MIME-Version: 1.0
-In-Reply-To: <20171024093728.cwri5elvpqxk6tl7@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20171011214426.wa5endlb3kb4yhbv@pali>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wed, Oct 11, 2017 at 11:44:26PM +0200, Pali Rohár wrote:
+> On Wednesday 11 October 2017 23:24:35 Pali Rohár wrote:
+> > On Wednesday 04 October 2017 17:33:32 Pali Rohár wrote:
+> > > Hi! There is a big inconsistency in Linux tools which read or write
+> > > FAT32 label in filesystem images. The most common used are tools:
+> > > blkid (from util-linux project), fatlabel (previously known as
+> > > dosfslabel; from dosfstools project) and mlabel (from mtools project).
+> > > 
+> > > FAT32 is itself a big mess from Microsoft hell and even FAT32
+> > > implementation in Microsoft Windows systems is not compliant to the
+> > > released FAT32 documentation from Microsoft.
+> > > 
+> > > In past months I observed that Linux FAT32 tools has its own way how
+> > > they interpret FAT32 label (known as volume id) and because every GUI
+> > > application uses one of those low-level command line tool, it is a big
+> > > mess if one application say that FAT32 label is A and another that it is
+> > > B. And then Windows XP say, it is C.
+> > > 
+> > > I would like to open discussion if it would be possible to change
+> > > behavior how blkid (from util-linux project) and fatlabel (from
+> > > dosfstool project) handle FAT32 label. Ideally to report exactly same
+> > > output.
 
+The stuff in blkid is not "how we believe that FAT should be handled",
+but "what users expect" :-) There is nothing like FAT standard and
+unfortunately on may disks and USB devices is huge number FATS created
+by many 3rd-party tools. For me the LABEL is not so important, the most
+important is to keep libblkid ability to detect all the crazy FATs.
 
-On 10/24/2017 05:37 AM, Karel Zak wrote:
-> On Mon, Oct 23, 2017 at 03:54:19PM -0400, J William Piggott wrote:
->>> Would be possible to use ISO_8601_* to compose ISO_TIMESTAMP_*
->>> macros? Your hardcoded magic 0x constants make the header file
->>> less readable. I mean
->>>
->>>   ISO_TIMESTAMP = ISO_8601_DATE | ISO_8601_TIME | ISO_8601_TIMEZONE
->>
->> We could eliminate wrapping by dropping the unnecessary 8601. Using the
->> longest example:
->>
->> 	ISO_TIMESTAMP_COMMA_GT = ISO_TIMESTAMP_COMMA | ISO_GMTIME | ISO_T
->  
-> OK, although ISO_T seems pretty generic :-)
+> Based on results I would propose following unification:
 > 
->>> and it would be also nice to add somehow info about "usec" to the
->>> macro name (see ISO_TIMESTAMP vs. ISO_TIMESTAMP_COMMA).
->>
->> 8601 only uses comma or dot for the radix character; so 'COMMA/DOT'
->> imply the presence of a fractional part.
->>
->>> What about:
->>>
->>>     - use "U" prefix for usec times
->>>     - use "GM_" prefix for GMTIME
->>>
->>> for example:
->>>
->>>    ISO_TIMESTAMP           = ISO_8601_DATE | ISO_8601_TIME | ISO_8601_TIMEZONE,
->>>    ISO_UTIMESTAMP_DOT      = ISO_TIMESTAMP | ISO_8601_DOTUSEC,
->>>    ISO_UTIMESTAMP_COMMA    = ISO_TIMESTAMP | ISO_8601_ISO_8601_COMMAUSEC,
->>>    ISO_GM_UTIMESTAMP_COMMA = ISO_UTIMESTAMP_COMMA | ISO_8601_GMTIME
->>>
->>> and so on.
->>
->> IMO the macros are easier to remember, write, and read, if they all
->> begin the same and the optional parts are suffixes. All of the masks are
->> basic ISO Timestamps (date time timezone), the rest are minor variations.
+> 1. If there is entry for label in root directory, including erased entry
+>    which starts with 0xE5, then do *not* process boot entry.
 > 
-> I have a problem if I have to use more suffixes, the order of the
-> suffixes is not obvious. The idea behind ISO_8601_* with in code has
-> been to keep it readable:
-
->From a readability standpoint the order doesn't matter; the order is set
-by the standard. The reader only needs to know what the suffixes mean.
-There are only four: COMMA, DOT, T, and G. Their meanings seem clear to me.
-
-The current implementation puts the items out of order as well, for
-example uuidparse.c has: 
-ISO_8601_DATE |
-ISO_8601_TIME |
-ISO_8601_COMMAUSEC |
-ISO_8601_TIMEZONE |
-ISO_8601_SPACE,
-
-SPACE is out of order, but it doesn't matter. The standard defines
-where it goes. As long as the reader understands that SPACE defines the
-date and time delimiter all is good.
-
-Anyway, I'm not clear on what you want me to do. You didn't comment on
-my idea that naming the radix point implies usec. Why define a radix
-point if there is no fractional part, it makes no sense. If you agree
-with that, then your only remaining change request is moving the _G
-suffix to _GM prefix.  Is that the only change you want? If yes, then
-I'll make it so. IMO, it degrades readability, but you have the hammer.
-
-
+>    --> Reason: Setting label to empty on Windows XP just marks label in
+>        root directory as erased (set first byte to 0xE5) and it does not
+>        touch boot sector when label can be always old. Test case is in
+>        file fat32_mkdosfs_label1_xp_erase.
 > 
->     strtime_iso(ISO_8601_DATE | ISO_8601_TIME | ISO_8601_TIMEZONE)
+>        Same behavior can be seen in mlabel.
 > 
-> is so easy to read...
+> 2. Process 'NO NAME    ' label in root directory as 'NO NAME' name. Not
+>    as empty label.
 > 
->     Karel
+>    --> Reason: 'NO NAME    ' is regular entry in root directory and both
+>        Windows XP and mlabel handle it in this way.
 > 
+> 3. Process 'NO NAME    ' label in boot directory as empty label. Not as
+>    label with name 'NO NAME'.
+
+I prefer this solution. The label also means entry in udev DB, symlink
+somewhere in /dev, field in lsblk output, etc. I'd like to avoid "NO
+NAME" everywhere in the system (especially if you have more than one
+device with this "label"). The "NO NAME" dummy label provides zero
+value to end users.
+
+>    --> Reason: On Windows XP when formatting empty disk and label is not
+>        specified then 'NO NAME    ' is stored to boot directory.
+> 
+> 4. Prefer label from the root directory. If there is none entry (means
+>    there is also no erased entry), then read label from root sector.
+> 
+>    --> Reason: Windows XP and mlabel ignores what is written in boot
+>        sector. Windows XP even do not update boot sector, so label
+>        stored in boot sector is incorrect after any change done by
+>        Windows XP.
+> 
+>        But due to compatibility with older dosfslabel, which stores
+>        label only to boot sector, there is need for some fallback. Due
+>        to point 1. the best seems to be to process also erased label in
+>        root directory (marked with leading 0xE5) and fallback to boot
+>        sector only in case label in root directory is missing.
+> 
+> What do you think about it?
+
+The best for me is to keep blkid output backwardly compatible as much
+as possible :-)
+
+Note that the current version is v2.31-rc, you use pretty old v2.20 in
+your tests.
+
+    Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
