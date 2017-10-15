@@ -1,59 +1,54 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f179.google.com ([209.85.128.179]:48296 "EHLO
-        mail-wr0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752166AbdJ3P3K (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 30 Oct 2017 11:29:10 -0400
-Date: Mon, 30 Oct 2017 16:29:07 +0100
+Return-Path: linux-kernel-owner@vger.kernel.org
+Date: Mon, 16 Oct 2017 00:04:50 +0200
 From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: Andreas Bombe <aeb@debian.org>
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andreas Bombe <aeb@debian.org>, Karel Zak <kzak@redhat.com>,
+        util-linux@vger.kernel.org, linux-kernel@vger.kernel.org,
         Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
         Curtis Gedak <gedakc@gmail.com>
 Subject: Re: Linux & FAT32 label
-Message-ID: <20171030152907.ushsldq7kgvu4xzo@pali>
+Message-ID: <20171015220450.gsuwec2auekkqr52@pali>
 References: <20171004153332.GA6696@pali>
  <20171011212435.znmtdnsxcd5ectub@pali>
  <20171011214426.wa5endlb3kb4yhbv@pali>
- <20171012085658.iwrusvy4ay4s7hbb@ws.net.home>
- <20171012092113.2bsb3pzv6un4xahr@pali>
- <20171012101311.zfvg6edfvszlujom@ws.net.home>
- <20171012204931.tfd2bhmwu5b6rbpz@pali>
- <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
- <20171016072845.ksdtda5zdnb66mbe@pali>
+ <20171015065901.GD3916@xo-6d-61-c0.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20171016072845.ksdtda5zdnb66mbe@pali>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20171015065901.GD3916@xo-6d-61-c0.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 16 October 2017 09:28:45 Pali Rohár wrote:
-> On Monday 16 October 2017 03:12:43 Andreas Bombe wrote:
-> > The other thing is completely ignoring the boot sector label, which I
-> > could have as a mode enabled by command line switch or environmental
-> > variable, or just outright make it the default. I'm not decided yet.
+On Sunday 15 October 2017 08:59:01 Pavel Machek wrote:
+> Hi!
+> 
+> > Based on results I would propose following unification:
 > > 
-> > Another problem is whether to also ignore boot sector on setting label.
-> > Otherwise the sequence:
-> >   "set label on Linux" (both root and boot)
-> >   "change label on Windows" (root label is changed)
-> >   "remove label on Windows" (root label is deleted)
-> >   "view label on Linux" (no root label, use boot label)
-> > resurrects an old label.
+> ...
+> > 4. Prefer label from the root directory. If there is none entry (means
+> >    there is also no erased entry), then read label from root sector.
+> > 
+> >    --> Reason: Windows XP and mlabel ignores what is written in boot
+> >        sector. Windows XP even do not update boot sector, so label
+> >        stored in boot sector is incorrect after any change done by
+> >        Windows XP.
+> > 
+> >        But due to compatibility with older dosfslabel, which stores
+> >        label only to boot sector, there is need for some fallback. Due
+> >        to point 1. the best seems to be to process also erased label in
+> >        root directory (marked with leading 0xE5) and fallback to boot
+> >        sector only in case label in root directory is missing.
+> > 
+> > What do you think about it?
 > 
-> There is also mlabel tool which is heavily used (e.g. by gparted GUI
-> application) and when setting new label it stores it to both location.
-> 
-> And because gparted is used on Linux, such situation as described above
-> can still happen.
+> 4. seems dangerous. Assume we have "OLD" in boot sector and "0xe5-EW" in the directory
+> entry. The label will change from <none> to "OLD" when the directory entry is reused by
+> "FOO.TXT", right? That seems surprising / dangerous.
 
-Another option is to completely ignore label from the boot sector when
-reading label.
+Hm... that is a good question what happen (I do not know). I think that
+current situation when Windows XP show different label as Linux is also
+_surprising_.
 
-And maybe it can be a good idea to synchronize labels in boot sector and
-root directory in fsck.fat. When differs in interactive mode it can ask
-user if label from root directory should be copied to boot sector or
-from boot sector to root directory.
+Do you have a better idea what to do and how to handle this situation?
 
 -- 
 Pali Rohár
