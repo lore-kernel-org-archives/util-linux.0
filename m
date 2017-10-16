@@ -1,56 +1,62 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36182 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751198AbdIOLds (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 15 Sep 2017 07:33:48 -0400
-Date: Fri, 15 Sep 2017 13:33:44 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/4] uuidparse: fix stack-buffer-overflow [asan]
-Message-ID: <20170915113344.qht5ybljy5hfcqhp@ws.net.home>
-References: <20170911195717.817-1-kerolasa@iki.fi>
+Return-Path: linux-kernel-owner@vger.kernel.org
+Date: Mon, 16 Oct 2017 03:12:37 +0200
+From: Andreas Bombe <aeb@debian.org>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Karel Zak <kzak@redhat.com>,
+        util-linux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Andrius =?iso-8859-15?Q?=A6tikonas?= <andrius@stikonas.eu>,
+        Curtis Gedak <gedakc@gmail.com>
+Subject: Re: Linux & FAT32 label
+Message-ID: <20171016011237.ropo5l6cpewrymd6@amos.fritz.box>
+References: <20171004153332.GA6696@pali>
+ <20171011212435.znmtdnsxcd5ectub@pali>
+ <20171011214426.wa5endlb3kb4yhbv@pali>
+ <20171015065901.GD3916@xo-6d-61-c0.localdomain>
+ <20171015220450.gsuwec2auekkqr52@pali>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170911195717.817-1-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20171015220450.gsuwec2auekkqr52@pali>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Sep 11, 2017 at 08:57:14PM +0100, Sami Kerola wrote:
-> ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7ffee13b8f05 at
-> pc 0x55debcc9fda4 bp 0x7ffee13b8d70 sp 0x7ffee13b8520
-> WRITE of size 38 at 0x7ffee13b8f05 thread T0
->     #0 0x55debcc9fda3 in scanf_common(void*, int, bool, char const*, __va_list_tag*) (/home/src/util-linux/.libs/lt-uuidparse+0x63da3)
->     #1 0x55debcca077b in vscanf (/home/src/util-linux/.libs/lt-uuidparse+0x6477b)
->     #2 0x55debcca085f in scanf (/home/src/util-linux/.libs/lt-uuidparse+0x6485f)
->     #3 0x55debcd50fad in print_output /home/src/util-linux/misc-utils/uuidparse.c:284:10
->     #4 0x55debcd4fcc5 in main /home/src/util-linux/misc-utils/uuidparse.c:355:2
+On Mon, Oct 16, 2017 at 12:04:50AM +0200, Pali Rohár wrote:
+> On Sunday 15 October 2017 08:59:01 Pavel Machek wrote:
+> > Hi!
+> > 
+> > > Based on results I would propose following unification:
+> > > 
+> > ...
+> > > 4. Prefer label from the root directory. If there is none entry (means
+> > >    there is also no erased entry), then read label from root sector.
+> > > 
+> > >    --> Reason: Windows XP and mlabel ignores what is written in boot
+> > >        sector. Windows XP even do not update boot sector, so label
+> > >        stored in boot sector is incorrect after any change done by
+> > >        Windows XP.
+> > > 
+> > >        But due to compatibility with older dosfslabel, which stores
+> > >        label only to boot sector, there is need for some fallback. Due
+> > >        to point 1. the best seems to be to process also erased label in
+> > >        root directory (marked with leading 0xE5) and fallback to boot
+> > >        sector only in case label in root directory is missing.
+> > > 
+> > > What do you think about it?
+> > 
+> > 4. seems dangerous. Assume we have "OLD" in boot sector and "0xe5-EW" in the directory
+> > entry. The label will change from <none> to "OLD" when the directory entry is reused by
+> > "FOO.TXT", right? That seems surprising / dangerous.
 > 
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  misc-utils/uuidparse.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Hm... that is a good question what happen (I do not know). I think that
+> current situation when Windows XP show different label as Linux is also
+> _surprising_.
 > 
-> diff --git a/misc-utils/uuidparse.c b/misc-utils/uuidparse.c
-> index 5fa34b23d..3347dc0af 100644
-> --- a/misc-utils/uuidparse.c
-> +++ b/misc-utils/uuidparse.c
-> @@ -279,7 +279,7 @@ static void print_output(struct control const *const ctrl, int argc,
->  		fill_table_row(tb, argv[i]);
->  
->  	if (i == 0) {
-> -		char uuid[UUID_STR_LEN];
-> +		char uuid[UUID_STR_LEN + 1];
->  
->  		while (scanf(" %" stringify_value(UUID_STR_LEN)
+> Do you have a better idea what to do and how to handle this situation?
 
- It seems better to use "%36[" because the uuid size is really
- 36+\0.
+I have been saying this, a deleted directory entry has no valid contents
+and its existence should not be considered meaningful. A Windows
+formatted FAT filesystem without label will have no root directory label
+entry and if an existing label is deleted, that deleted entry can be
+overwritten at any time.
 
- Fixed, good catch.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+"Ignoring the presence of boot sector labels" is the only thing I see
+for practical Windows compatibility.
