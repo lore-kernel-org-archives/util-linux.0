@@ -1,64 +1,45 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:45616 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750957AbdJBNGe (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 2 Oct 2017 09:06:34 -0400
-Subject: Re: [PATCH] libmount: if ENOMEDIUM and tray is open, close tray and
- retry
-To: =?UTF-8?Q?Michal_Such=c3=a1nek?= <msuchanek@suse.de>
-Cc: "Yuriy M. Kaminskiy" <yumkam@gmail.com>, util-linux@vger.kernel.org
-References: <0e40cb41-a64a-93b1-0c06-620cca40a575@suse.cz>
- <f29ab5ef-753d-2ea8-e348-d53cdf4262cf@suse.cz>
- <db7a8eaa-3519-234c-72c9-428ca1b80ff0@suse.cz> <m3wp6u5k8z.fsf@gmail.com>
- <68bc995a-3b0c-5b2c-cb7a-5f0052d19bef@suse.cz>
- <45a7e1bc-62cb-cf96-07c7-c4801dcf23d4@suse.cz>
- <20171002150048.3a609f57@kitsune.suse.cz>
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <eb224df4-615b-18e2-a9ee-5d98db9db225@suse.cz>
-Date: Mon, 2 Oct 2017 15:06:33 +0200
+Return-Path: pali.rohar@gmail.com
+Date: Mon, 16 Oct 2017 09:28:45 +0200
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+To: Andreas Bombe <aeb@debian.org>
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
+	Curtis Gedak <gedakc@gmail.com>
+Subject: Re: Linux & FAT32 label
+Message-ID: <20171016072845.ksdtda5zdnb66mbe@pali>
+References: <20171004153332.GA6696@pali>
+ <20171011212435.znmtdnsxcd5ectub@pali>
+ <20171011214426.wa5endlb3kb4yhbv@pali>
+ <20171012085658.iwrusvy4ay4s7hbb@ws.net.home>
+ <20171012092113.2bsb3pzv6un4xahr@pali>
+ <20171012101311.zfvg6edfvszlujom@ws.net.home>
+ <20171012204931.tfd2bhmwu5b6rbpz@pali>
+ <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
 MIME-Version: 1.0
-In-Reply-To: <20171002150048.3a609f57@kitsune.suse.cz>
-Content-Type: text/plain; charset=iso-8859-2
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
 List-ID: <util-linux.vger.kernel.org>
 
-Michal Suchánek wrote:
-> it is completely reasonable to return ENOMEDIUM from kernel when the
-> tray is open and let userspace decide if it wants to attempt to close
-> the tray and how long it wants to wait for the tray to close (it may be
-> blocked/broken).
+On Monday 16 October 2017 03:12:43 Andreas Bombe wrote:
+> The other thing is completely ignoring the boot sector label, which I
+> could have as a mode enabled by command line switch or environmental
+> variable, or just outright make it the default. I'm not decided yet.
 > 
-But then, what is the purpose of /proc/sys/dev/cdrom/autoclose?
+> Another problem is whether to also ignore boot sector on setting label.
+> Otherwise the sequence:
+>   "set label on Linux" (both root and boot)
+>   "change label on Windows" (root label is changed)
+>   "remove label on Windows" (root label is deleted)
+>   "view label on Linux" (no root label, use boot label)
+> resurrects an old label.
 
-Just to start closing the tray?
+There is also mlabel tool which is heavily used (e.g. by gparted GUI
+application) and when setting new label it stores it to both location.
 
-If it is true, the logic should be:
-
-If (error is ENOMEDIUM
-    AND /proc/sys/dev/cdrom/autoclose is 1
-    AND tray can be closed)
-THEN
-    sleep few seconds and retry
-
-
-Alternatively, implement also:
-
-If (error is ENOMEDIUM
-    AND /proc/sys/dev/cdrom/autoclose is 0
-    AND tray can be closed)
-THEN
-    close tray
-    IF (close tray succeeded)
-    THEN sleep few seconds and retry
+And because gparted is used on Linux, such situation as described above
+can still happen.
 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+Pali RohÃ¡r
+pali.rohar@gmail.com
