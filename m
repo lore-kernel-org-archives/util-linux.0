@@ -1,159 +1,61 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f49.google.com ([74.125.82.49]:51543 "EHLO
-        mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750718AbdJKVYi (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 11 Oct 2017 17:24:38 -0400
-Date: Wed, 11 Oct 2017 23:24:35 +0200
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: Andreas Bombe <aeb@debian.org>, Karel Zak <kzak@redhat.com>,
-        util-linux@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
-        Curtis Gedak <gedakc@gmail.com>
-Subject: Re: Linux & FAT32 label
-Message-ID: <20171011212435.znmtdnsxcd5ectub@pali>
-References: <20171004153332.GA6696@pali>
+Received: from mx1.redhat.com ([209.132.183.28]:57804 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751722AbdJPI6h (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 16 Oct 2017 04:58:37 -0400
+Date: Mon, 16 Oct 2017 10:58:34 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] rfkill: expand all acronyms in type string descriptions
+Message-ID: <20171016085834.u5ywmcgadkjtxbdu@ws.net.home>
+References: <20171014213541.1666-1-kerolasa@iki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20171004153332.GA6696@pali>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171014213541.1666-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 04 October 2017 17:33:32 Pali Rohár wrote:
-> Hi! There is a big inconsistency in Linux tools which read or write
-> FAT32 label in filesystem images. The most common used are tools:
-> blkid (from util-linux project), fatlabel (previously known as
-> dosfslabel; from dosfstools project) and mlabel (from mtools project).
+On Sat, Oct 14, 2017 at 10:35:41PM +0100, Sami Kerola wrote:
+> Be as verbose as possible when user wants that.  This also fixes small typo
+> from 7d2a9960ad that made gps to look like a GUID Partition Table.
 > 
-> FAT32 is itself a big mess from Microsoft hell and even FAT32
-> implementation in Microsoft Windows systems is not compliant to the
-> released FAT32 documentation from Microsoft.
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  sys-utils/rfkill.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
 > 
-> In past months I observed that Linux FAT32 tools has its own way how
-> they interpret FAT32 label (known as volume id) and because every GUI
-> application uses one of those low-level command line tool, it is a big
-> mess if one application say that FAT32 label is A and another that it is
-> B. And then Windows XP say, it is C.
-> 
-> I would like to open discussion if it would be possible to change
-> behavior how blkid (from util-linux project) and fatlabel (from
-> dosfstool project) handle FAT32 label. Ideally to report exactly same
-> output.
-> 
-> Basic information about FAT32 label:
-> 
-> 1) It is stored in two locations: boot sector and root directory as
->    file name.
-> 
-> 2) In both location format is 11 bytes, padded with spaces (not nulls).
-> 
-> 3) Empty label in boot sector is stored as "NO NAME    " and not as
->    empty string.
-> 
-> 4) Empty label in root directory is stored either as name which starts
->    with byte 0xE5, or is not stored in root directory at all.
-> 
-> 5) If label contains leading byte 0xE5, then in root directory is stored
->    as byte 0x05.
-> 
-> 6) Label string is stored according to current DOS code page. Therefore
->    label string needs to be converted to bytes.
-> 
-> 7) Label string cannot contain control characters and characters from
->    the set   ? / \ | . , ; : + = [ ] < > "   plus lower case characters
->    are stored as their upper case variant (not only ASCII).
-> 
-> (Please correct me if I'm wrong in some of those points)
-> 
-> Plus Microsoft Windows systems fully ignores label stored in boot
-> sector. Seems they do not read it nor they do not update it on changes.
-> 
-> Looks like that mlabel (from mtools) applies all above rules and uses
-> DOS code page 850 by default (can be changed in config file).
-> 
-> blkid and fatlabel process special cases from 1) to 5) differently and
-> they operates on raw bytes, not strings (in DOS code page).
-> 
-> mlabel reads label from the root directory (missing entry is interpreted
-> as no label; there is no fallback to boot sector), but "set" operation
-> modify label in both location boot sector + root directory. Basically it
-> is near to Windows implementation. And reason why Gparted GUI
-> application uses mlabel and not fatlabel.
-> 
-> As Linux does not have "current DOS code page" and argv arguments are
-> not (Unicode) strings, but arbitrary bytes, I understand that for point
-> 6) it is easier to operates not on FAT strings (in current code page),
-> but rather on bytes. Which also would be same on all machines with any
-> configuration.
-> 
-> But would it be possible to decide and unify handling of point 2), 3),
-> 4), 5)? Ideally with combination how to handle situation when different
-> label is stored in boot sector and root directory.
-> 
-> As Windows does not use label in boot sector, it is very common
-> situation that label in boot sector differs from the root directory.
-> 
-> The best would be see in all cases same label from blkid, fatlabel and
-> mlabel. Ideally same as Windows machines -- but due to DOS code page,
-> this is possible only for ASCII subset of the 8bit encoding. IIRC most
-> (or all?) DOS code page has same characters in printable ASCII range.
-> 
-> It is really bad situation if I open disk in Gparted which show me label
-> via mlabel and then I open in KDE Partition Manager and I see different
-> label string (as it reads it from fatlabel).
-> 
-> Also note that older version of fatlabel (when it was named dosfslabel)
-> operated only the label stored in boot sector (and label stored in root
-> directory was not read or touched).
-> 
+> diff --git a/sys-utils/rfkill.c b/sys-utils/rfkill.c
+> index 195386c8f..2b667f7c7 100644
+> --- a/sys-utils/rfkill.c
+> +++ b/sys-utils/rfkill.c
+> @@ -57,16 +57,16 @@ struct rfkill_type_str {
+>  
+>  static const struct rfkill_type_str rfkill_type_strings[] = {
+>  	{ .type = RFKILL_TYPE_ALL,       .name = "all"           },
+> -	{ .type = RFKILL_TYPE_WLAN,      .name = "wlan",         .desc = "Wireless LAN" },
+> +	{ .type = RFKILL_TYPE_WLAN,      .name = "wlan",         .desc = "Wireless Local Area Network" },
+>  	{ .type = RFKILL_TYPE_WLAN,      .name = "wifi"          },				/* alias */
+>  	{ .type = RFKILL_TYPE_BLUETOOTH, .name = "bluetooth",    .desc = "Bluetooth" },
+>  	{ .type = RFKILL_TYPE_UWB,       .name = "uwb",          .desc = "Ultra-Wideband" },
+>  	{ .type = RFKILL_TYPE_UWB,       .name = "ultrawideband" }, /* alias */
+> -	{ .type = RFKILL_TYPE_WIMAX,     .name = "wimax",        .desc = "WiMAX" },
+> -	{ .type = RFKILL_TYPE_WWAN,      .name = "wwan",         .desc = "Wireless WAN" },
+> -	{ .type = RFKILL_TYPE_GPS,       .name = "gps",          .desc = "GPT" },
+> -	{ .type = RFKILL_TYPE_FM,        .name = "fm",           .desc = "FM" },
+> -	{ .type = RFKILL_TYPE_NFC,       .name = "nfc",          .desc = "NFC" },
+> +	{ .type = RFKILL_TYPE_WIMAX,     .name = "wimax",        .desc = "Worldwide Interoperability for Microwave Access" },
+> +	{ .type = RFKILL_TYPE_WWAN,      .name = "wwan",         .desc = "Wireless Wide Area Network" },
+> +	{ .type = RFKILL_TYPE_GPS,       .name = "gps",          .desc = "Global Positioning System" },
+> +	{ .type = RFKILL_TYPE_FM,        .name = "fm",           .desc = "Frequency Modulation radio" },
+> +	{ .type = RFKILL_TYPE_NFC,       .name = "nfc",          .desc = "Near-Field Communication" },
+>  	{ .type = NUM_RFKILL_TYPES,      .name = NULL            }
+>  };
 
-Hi! I did some testing of FAT32 label with different tools and here are
-results:
+So, the default "list" output will be *again* backwardly incompatible :-)
 
-                                                 dosfslabel 3.0.12   fatlabel 4.1       blkid 2.20.1   mlabel 4.0.12   label.exe Windows XP
-fat32_mkdosfs_label1                             'label1     '       'label1     '      'label1'       'label1     '   'label1'
-fat32_mkdosfs_label1_dosfslabel_empty            '           '       '           '      none           '           '   none
-fat32_mkdosfs_label1_dosfslabel_label2           'label2     '       'label2     '      'label2'       'label2     '   'label2'
-fat32_mkdosfs_label1_dosfslabel_NO_NAME          'NO NAME    '       'NO NAME    '      none           'NO NAME    '   'NO NAME'
-fat32_mkdosfs_label1_mlabel_erase                'NO NAME    '       'NO NAME    '      none           none            none
-fat32_mkdosfs_label1_mlabel_NO_NAME              'NO NAME    '       'NO NAME    '      none           'NO NAME    '   'NO NAME'
-fat32_mkdosfs_label1_xp_erase                    'label1'    '       0xE5'abel1     '   'label1'       none            none
-fat32_mkdosfs_label1_xp_label2                   'label1'    '       'LABEL2     '      'LABEL2'       'LABEL2     '   'LABEL2'
-fat32_mkdosfs_none                               '           '       '           '      none           none            none
-fat32_mkdosfs_none_dosfslabel_label1             'label1     '       'label1     '      'label1'       none            none
-fat32_mkdosfs_none_dosfslabel_label1_xp_label2   'label1'    '       'LABEL2     '      'LABEL2'       'LABEL2     '   'LABEL2'
-fat32_mkdosfs_none_dosfslabel_NO_NAME            'NO NAME    '       'NO NAME    '      none           none            none
-fat32_mkdosfs_none_xp_label1                     '           '       'LABEL1     '      'LABEL1'       'LABEL1     '   'LABEL1'
-fat32_mkdosfs_none_xp_label1_dosfslabel_label2   'label2     '       'label2     '      'label2'       'label2     '   'label2'
-fat32_xp_label1                                  'NO NAME    '       'LABEL1     '      'LABEL1'       'LABEL1     '   'LABEL1'
-fat32_xp_none                                    'NO NAME    '       'NO NAME    '      none           none            none
-fat32_xp_none_dosfslabel_label1                  'label1     '       'label1     '      'label1'       none            none
-fat32_xp_none_mlabel_label1                      'LABEL1     '       'LABEL1     '      'LABEL1'       'LABEL1     '   'LABEL1'
-
-In the first column is image name (all images are compressed and
-attached) which contains steps of operations, e.g. file name
-fat32_mkdosfs_none_dosfslabel_label1_xp_label2 means:
-
-1. create filesystem with mkdosfs without specifying label
-2. change label with dosfslabel (3.0.12) to 'label1'
-3. change label under Windows XP to 'label2'
-
->From testing it looks like that different tools and different version of
-them have different behavior how they read or write FAT32 label, see
-following table:
-
-                             read boot   write boot   read root   write root
-dosfslabel 3.0.0  - 3.0.6    YES         YES          NO          NO
-dosfslabel 3.0.7  - 3.0.15   YES         YES          NO          BUGGY (YES - if already exists; NO - otherwise)
-dosfslabel 3.0.16 - 4.1      YES         YES          YES         YES
-label.exe Windows XP         NO          NO           YES         YES
-blkid                        YES         NO           YES         NO
-mlabel                       NO          YES          YES         YES
-
-
-Attached images in compressed form has only 600 kB and I think they can
-be useful for testing either blkid or dosfstools project, so I'm sending
-them here.
+    Karel
 
 -- 
-Pali Rohár
-pali.rohar@gmail.com
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
