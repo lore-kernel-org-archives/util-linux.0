@@ -1,42 +1,89 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:48835 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755382AbdJPVhi (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 16 Oct 2017 17:37:38 -0400
-Received: by mail-wm0-f67.google.com with SMTP id i124so65099wmf.3
-        for <util-linux@vger.kernel.org>; Mon, 16 Oct 2017 14:37:37 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] libuuid: use explicit_bzero() in uuid_clear() when possible
-Date: Mon, 16 Oct 2017 22:37:34 +0100
-Message-Id: <20171016213734.23237-1-kerolasa@iki.fi>
+Received: from mout.gmx.net ([212.227.17.22]:51206 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932158AbdJWAiz (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 22 Oct 2017 20:38:55 -0400
+Subject: [PATCH 1/4] hwclock: add iso-8601 overflow check
+To: Karel Zak <kzak@redhat.com>
+References: <ac1afb00-aed1-4eed-aabe-89d26e29ca0d@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <1268ed75-3fa3-36e8-2472-23ee88cbfc70@gmx.com>
+Date: Sun, 22 Oct 2017 20:38:47 -0400
+MIME-Version: 1.0
+In-Reply-To: <ac1afb00-aed1-4eed-aabe-89d26e29ca0d@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This ensures value is blanked.  It is possible compiler optimization removed
-earlier uuid_clear() calls as unnecessary if value was not used after clear.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+hwclock wasn't testing for strtimeval_iso() truncation:
+
+/sbin/hwclock --utc --noadjfile --predict --date '7982 years'; echo $?
+9999-09-25 19:33:01.000000-0400
+0
+
+/sbin/hwclock --utc --noadjfile --predict --date '7983 years'; echo $?
+10000-09-25 19:33:10.000000-
+0
+
+Patched:
+./hwclock --utc --noadjfile --predict --date '7982 years'; echo $?
+9999-09-25 19:22:15.000000-0400
+0
+
+./hwclock --utc --noadjfile --predict --date '7983 years'; echo $?
+hwclock: iso-8601 format truncated
+1
+
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
- libuuid/src/clear.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sys-utils/hwclock.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/libuuid/src/clear.c b/libuuid/src/clear.c
-index 2d91fee93..5b1392464 100644
---- a/libuuid/src/clear.c
-+++ b/libuuid/src/clear.c
-@@ -38,6 +38,10 @@
- 
- void uuid_clear(uuid_t uu)
- {
-+#ifdef HAVE_EXPLICIT_BZERO
-+	explicit_bzero(uu, 16);
-+#else
- 	memset(uu, 0, 16);
-+#endif
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 36b6204b0..c2c20812c 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -551,15 +551,19 @@ set_hardware_clock_exact(const struct hwclock_control *ctl,
+ 	set_hardware_clock(ctl, newhwtime);
  }
  
--- 
-2.14.2
-
+-static void
++static int
+ display_time(struct timeval hwctime)
+ {
+ 	char buf[ISO_8601_BUFSIZ];
+ 
+-	strtimeval_iso(&hwctime, ISO_8601_DATE|ISO_8601_TIME|ISO_8601_DOTUSEC|
++	if (strtimeval_iso(&hwctime, ISO_8601_DATE|ISO_8601_TIME|ISO_8601_DOTUSEC|
+ 				 ISO_8601_TIMEZONE|ISO_8601_SPACE,
+-				 buf, sizeof(buf));
++				 buf, sizeof(buf))) {
++		warnx(_("iso-8601 format overflow"));
++		return EXIT_FAILURE;
++	}
+ 	printf("%s\n", buf);
++	return EXIT_SUCCESS;
+ }
+ 
+ /*
+@@ -931,8 +935,7 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 			printf(_ ("Target date:   %ld\n"), set_time);
+ 			printf(_ ("Predicted RTC: %ld\n"), hclocktime.tv_sec);
+ 		}
+-		display_time(hclocktime);
+-		return EXIT_SUCCESS;
++		return display_time(hclocktime);
+ 	}
+ 
+ 	if (ctl->systz)
+@@ -978,7 +981,7 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 		 time_inc(hclocktime, time_diff(startup_time, read_time));
+ 	}
+ 	if (ctl->show || ctl->get) {
+-		display_time(startup_hclocktime);
++		return display_time(startup_hclocktime);
+ 	} else if (ctl->set) {
+ 		set_hardware_clock_exact(ctl, set_time, startup_time);
+ 		if (!ctl->noadjfile)
