@@ -1,663 +1,247 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:55372 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:64059 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751354AbdJCQHa (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 3 Oct 2017 12:07:30 -0400
-Date: Tue, 3 Oct 2017 18:07:25 +0200
-From: Karel Zak <kzak@redhat.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: [ANNOUNCE] util-linux v2.31-rc2
-Message-ID: <20171003160725.2hg6ndwngvqkcraz@ws.net.home>
+        id S932158AbdJWAll (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 22 Oct 2017 20:41:41 -0400
+Subject: [PATCH 4/4] lib/timeutils: add common ISO timestamp masks
+To: Karel Zak <kzak@redhat.com>
+References: <ac1afb00-aed1-4eed-aabe-89d26e29ca0d@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <661c0a48-59bb-8263-9fd7-c1ef80b160f2@gmx.com>
+Date: Sun, 22 Oct 2017 20:41:33 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <ac1afb00-aed1-4eed-aabe-89d26e29ca0d@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
-The util-linux release v2.31-rc2 is available at
+* Start the ISO format flags at bit 0 instead of bit 1.
+
+* ISO timestamps have date-time-timzone in common, so move
+  the TIMEZONE flag to bit 2 causing all timestamp masks
+  to have the first three bits set and the last four bits
+  as timestamp 'options'.
+
+* Change the 'SPACE' flag to a 'T' flag, because it makes
+  the code and comments more concise.
+
+* Add common ISO timestamp masks.
+
+* Implement the ISO timestamp masks in all applicable code
+  using the strxxx_iso() functions.
+
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ include/timeutils.h    | 20 ++++++++++++++------
+ lib/timeutils.c        |  2 +-
+ login-utils/last.c     |  2 +-
+ login-utils/lslogins.c |  3 +--
+ login-utils/utmpdump.c |  4 +---
+ misc-utils/uuidparse.c | 10 ++--------
+ sys-utils/dmesg.c      |  4 +---
+ sys-utils/hwclock.c    |  4 +---
+ sys-utils/lsipc.c      |  2 +-
+ sys-utils/rfkill.c     |  8 ++------
+ term-utils/script.c    |  8 ++------
+ 11 files changed, 27 insertions(+), 40 deletions(-)
+
+diff --git a/include/timeutils.h b/include/timeutils.h
+index e8a261462..7d5b13b2d 100644
+--- a/include/timeutils.h
++++ b/include/timeutils.h
+@@ -55,15 +55,23 @@ typedef uint64_t nsec_t;
+ int parse_timestamp(const char *t, usec_t *usec);
+ int get_gmtoff(const struct tm *tp);
  
-  http://www.kernel.org/pub/linux/utils/util-linux/v2.31/
+-/* flags for strxxx_iso() functions */
++/* flags and masks for strxxx_iso() functions */
+ enum {
+-	ISO_8601_DATE		= (1 << 1),
+-	ISO_8601_TIME		= (1 << 2),
++	ISO_8601_DATE		= (1 << 0),
++	ISO_8601_TIME		= (1 << 1),
++	ISO_8601_TIMEZONE	= (1 << 2),
+ 	ISO_8601_DOTUSEC	= (1 << 3),
+ 	ISO_8601_COMMAUSEC	= (1 << 4),
+-	ISO_8601_TIMEZONE	= (1 << 5),
+-	ISO_8601_SPACE		= (1 << 6),
+-	ISO_8601_GMTIME		= (1 << 7)
++	ISO_8601_T		= (1 << 5),
++	ISO_8601_GMTIME		= (1 << 6),
++	ISO_TIMESTAMP		= 0x07,   /* 2017-10-13 17:27:04-04:00 */
++	ISO_TIMESTAMP_T		= 0x27,   /* 2017-10-13T17:27:04-04:00 */
++	ISO_TIMESTAMP_DOT	= 0x0F,   /* 2017-10-13 17:27:04.350452-04:00 */
++	ISO_TIMESTAMP_DOT_T	= 0x2F,   /* 2017-10-13T17:27:04.350452-04:00 */
++	ISO_TIMESTAMP_COMMA	= 0x17,   /* 2017-10-13 17:27:04,350452-04:00 */
++	ISO_TIMESTAMP_COMMA_T	= 0x37,   /* 2017-10-13T17:27:04,350452-04:00 */
++	ISO_TIMESTAMP_COMMA_G	= 0x57,   /* 2017-10-13 21:27:04,350452+00:00 */
++	ISO_TIMESTAMP_COMMA_GT  = 0x77    /* 2017-10-13T21:27:04,350452+00:00 */
+ };
  
-Feedback and bug reports, as always, are welcomed.
+ #define ISO_8601_BUFSIZ	42
+diff --git a/lib/timeutils.c b/lib/timeutils.c
+index adc255c33..21d384c58 100644
+--- a/lib/timeutils.c
++++ b/lib/timeutils.c
+@@ -417,7 +417,7 @@ static int format_iso_time(struct tm *tm, suseconds_t usec, int flags, char *buf
+ 	if ((flags & ISO_8601_DATE) && (flags & ISO_8601_TIME)) {
+ 		if (bufsz < 1)
+ 			return -1;
+-		*p++ = (flags & ISO_8601_SPACE) ? ' ' : 'T';
++		*p++ = (flags & ISO_8601_T) ? 'T' : ' ';
+ 		bufsz--;
+ 	}
  
-  Karel
-
-
-Util-linux 2.31 Release Notes
-=============================
-
-The package build-system follows GNU Coding Standards and uses --runstatedir
-instead of --localstatedir. The default is /run. Please, review your distribution
-build scripts (spec files etc.) to be sure that this change does not introduce
-any regression to your distribution.
-
-
-Release highlights
-------------------
-
-rfkill -- NEW COMMAND for enabling and disabling wireless devices. This new
-implementation is based upon, and backward compatible with, the original rfkill
-from Johannes Berg and Marcel Holtmann.
-
-The command su has been refactored and extended to create pseudo terminal for
-the session (new option --pty). This new EXPERIMENTAL feature provides better
-isolation between root's terminal and an unprivileged su session.
-
-uuidparse -- NEW COMMAND to provide variant and type details for input UUIDs.
-
-The library libuuid and command uuidgen support hash-based UUIDs v3 (md5) and
-v5 (sha1) as specified by RFC-4122. The library also provides UUID templates
-for dns, url, oid, or x500.
-
-The library libblkid has been extended to support DM-integrity, HPE (aka
-extended-XFS) and UBI superblock. The library also provides a new API to hide
-already detected signatures. This allows the gathering of all possible magic
-string permutations for a device. For example, the command wipefs will now print
-the complete list of all magic strings.
-
-The library libfdisk provides a new API to modify grain (a size used for
-partition calculations) and it is also possible to completely disable dialog
-driven partitioning.
-
-The library libsmartcols provides a new API to move columns. This new
-functionality is available by "column --table-order" on the command line.
-
-The command "column --table-header-repeat" allows repetition of table headers
-according to terminal size.
-
-The libfdisk has been extended to use BLKPG ioctls to inform the kernel about
-changes. This means that cfdisk and fdisk will not force the kernel to reread
-all of the partition table, but untouched partitions may remain mounted and used
-by the system. The typical use-case is resizing the last partition on the system
-disk.
-
-The command cfdisk provides a new dialog to resize a partition.
-
-The fdisk menu behavior on ^C and ^D has been improved to stop the current
-operation and return to main menu rather than immediately terminating the fdisk
-program.
-
-The 'look' command now follows the WORDLIST environment variable (if specified)
-to find the word list.
-
-Almost all of the --help and --version outputs have been improved (thanks to
-Ruediger Meier and others).
-
-The 'script' command has been improved to follow the usual semantics for
-stop/continue signals. It's possible to move a session to the background and
-later back to the foreground (e.g. shell command "fg", etc.).
-
-The setpriv command now supports ambient capabilities with the new command line
-option --ambient-caps (thanks Patrick Steinhardt) and the new command line
-option --init-groups allows initialization of supplementary groups (thanks to
-Sebastian Schrader).
-
-The hwclock command now significantly reduces system shutdown times by not
-reading the RTC before setting it (except when the --update-drift option is
-used). This also mitigates other potential shutdown and RTC setting problems
-caused by requiring an RTC read.
-
-The hwclock command now logs --systz when using libaudit. Also, for busybox
-compatibility -l is now aliased to --localtime.
-
-
-Security issues
----------------
-
-CVE-2016-2779 
-
- The new experimental "su --pty" feature has been implemented to fix this issue.
- The feature is not enabled by default and the new command line option --pty is
- necessary.
-
- The classic way is to use setsid() to disable the ioctl TIOCSTI. Unfortunately,
- setsid() has well-defined use cases in su(1) and runuser(1) and any changes 
- would introduce regressions. The setsid() also does not fix core of the problem 
- that is terminal file descriptors shared between privileged and unprivileged
- sessions.
-
-Stable maintenance releases between v2.30 and v2.31
----------------------------------------------------
-
-util-linux 2.30.1 [Jul 07 2017]
-
- * https://www.kernel.org/pub/linux/utils/util-linux/v2.30/v2.30.1-ReleaseNotes
-   https://www.kernel.org/pub/linux/utils/util-linux/v2.30/v2.30.1-ChangeLog
-
-util-linux 2.30.2 [Sep 21 2017]
-
- * https://www.kernel.org/pub/linux/utils/util-linux/v2.30/v2.30.2-ReleaseNotes
-   https://www.kernel.org/pub/linux/utils/util-linux/v2.30/v2.30.2-ChangeLog
-
-Changes between v2.30 and v2.31
--------------------------------
-Docs:
-   - add a comment for constants to boilerplate.c  [J William Piggott]
-   - add hwclock 'highlights' v2.31-ReleaseNotes  [J William Piggott]
-   - grammar fixes for v2.31-ReleaseNotes  [J William Piggott]
-   - move option naming to howto-contribute.txt  [J William Piggott]
-   - update howto-usage-function.txt  [J William Piggott]
-   - output rfkill type names from an array instead of a static string.  [Darren Salt]
-agetty:
-   - add --list-speeds option  [Sami Kerola]
-   - add compile time features to --version output  [Sami Kerola]
-   - fix --login-pause logic  [Karel Zak]
-   - fix invalid usage crash  [Sami Kerola]
-   - fix login name DEL/CTRL^U issue  [Karel Zak]
-   - keep returns in main()  [Karel Zak]
-   - print /etc/issue on --skip-login  [Karel Zak]
-   - remove dead DO_DEVFS_FIDDLING code segment  [Sami Kerola]
-bash-completion:
-   - look for look completions  [Sami Kerola]
-   - make completions to work when bash set -u is in use  [Sami Kerola]
-   - simplify pid listing  [Sami Kerola]
-   - update uuidgen, wipefs, tunelp, setpriv, and hwclock  [Sami Kerola]
-blkid:
-   - Add dm-integrity superblock signature  [Milan Broz]
-   - use errtryhelp instead of errtryh  [Ruediger Meier]
-blockdev:
-   - correct man page name in --help  [Ruediger Meier]
-   - document --setro more properly  [Karel Zak]
-   - improve --help and man page  [Ruediger Meier]
-build-sys:
-   - use --runstatedir instead of --localstatedir  [Andreas Henriksson]
-   - add --disable-rfkill  [Karel Zak]
-   - add libtinfow check  [Karel Zak]
-   - chown before chmod for SUIDs  [Karel Zak]
-   - define dependence between chsh and getusershell  [Karel Zak]
-   - don't use non-existing UUID_LIBS  [Ruediger Meier]
-   - fix chown mistake, add checkusage.sh to the dist  [Ruediger Meier]
-   - fix non-blkid compilation  [Karel Zak]
-   - make chown usage more robust  [Karel Zak]
-   - make rfkill optional (and enabled by default)  [Karel Zak]
-   - release++ (v2.31-rc1)  [Karel Zak]
-   - remove unused rfkill.py  [Karel Zak]
-   - support ncursesw without headers in ncursesw/ directory  [Karel Zak]
-   - update DISTCHECK_CONFIGURE_FLAGS  [Karel Zak]
-cfdisk:
-   - add missing 0x7F key mapping  [Karel Zak]
-   - add resize function  [Karel Zak]
-   - cleanup die-on-signal code  [Karel Zak]
-   - make resize code more readable  [Karel Zak]
-   - use fdisk_reread_changes()  [Karel Zak]
-chsh:
-   - cleanup global_shells usage  [Karel Zak]
-   - make readline completion to propose valid shells  [Sami Kerola]
-   - remove local /etc/shells parsing in favour of getusershell(3)  [Sami Kerola]
-   - split get_shell_list()  [Karel Zak]
-column:
-   - (-t) disable encoding for non-printable chars  [Karel Zak]
-   - add --table-header-repeat  [Karel Zak]
-   - fix compilation when libc lacks wide-character support  [Carlos Santos]
-dmesg:
-   - do not accept any non-option arguments  [Ruediger Meier]
-   - fix delimiter calculation  [Karel Zak]
-   - fragment concatenation  [Vinnie Magro]
-   - print only 2 hex digits for each hex-escaped byte  [Ivan Delalande]
-docs:
-   - add --enable-programs to TODO  [Karel Zak]
-   - add 2.30.2 to ReleaseNotes  [Karel Zak]
-   - add ASAN to TODO list  [Karel Zak]
-   - add Atari PT to the TODO list  [Karel Zak]
-   - add CAP_SYS_ADMIN to TODO  [Karel Zak]
-   - add UUID v3 an v5 to TODO  [Karel Zak]
-   - add exec() exit codes to TODO  [Karel Zak]
-   - add optional option back to struct option  [Sami Kerola]
-   - add program-desc to howto-usage-function.txt and boilerplate.c  [Karel Zak]
-   - correct line(1) deprecation comment  [Ruediger Meier]
-   - remove TODO item for fdisk  [Karel Zak]
-   - remove UUID v3 and v5 from TODO  [Karel Zak]
-   - remove repeated word from mount(8) man page  [Sami Kerola]
-   - remove some old history from manpages  [Ruediger Meier]
-   - update AUTHORS file  [Karel Zak]
-   - update TODO, remove auto,noauto  [Karel Zak]
-   - update boilerplate.c usage()  [J William Piggott]
-   - update v2.31 release notes  [Karel Zak]
-   - update v2.31-ReleaseNotes  [Karel Zak]
-fdformat:
-   - clear progress message before printing "done"  [Jakub Wilk]
-fdisk:
-   - add missing include  [Karel Zak]
-   - add wrap_fgets() for getting user input  [Vaclav Dolezal]
-   - fix copy from readline and whitespace stripping  [Vaclav Dolezal]
-   - fix readline interaction with signals  [Karel Zak]
-   - handle SIGINT in dialogs as cancel  [Vaclav Dolezal]
-   - minor fixes to make readline work  [Vaclav Dolezal]
-   - reset context after failed script  [Karel Zak]
-   - use fdisk_reread_changes()  [Karel Zak]
-   - use strutils to trim whitespace from input  [Vaclav Dolezal]
-flock, getopt:
-   - write --help to stdout and return 0  [Ruediger Meier]
-fsck:
-   - add --help and --version  [Ruediger Meier]
-fstab(5):
-   - mention how tabs are escaped  [Andreas Henriksson]
-fstrim:
-   - prefer earlier mounted filesystems  [Alex Ivanov]
-   - remove obsolete comment  [Karel Zak]
-hwclock:
-   - --epoch presence test fails  [J William Piggott]
-   - add --update-drift check  [J William Piggott]
-   - add -a that is short of --adjust to manual page and usage  [Sami Kerola]
-   - add audit for --systz  [J William Piggott]
-   - add usage() functions heading  [J William Piggott]
-   - allow -l as alias for --localtime  [Rasmus Villemoes]
-   - close hwaudit_fd unconditionally  [J William Piggott]
-   - correlate hclocktime instead of set_time.  [J William Piggott]
-   - don't always use hwclock_exit  [J William Piggott]
-   - don't ifdef printf arguments  [Ruediger Meier]
-   - exit bug fix and single test mode message  [J William Piggott]
-   - final usage() strings slice  [J William Piggott]
-   - fix RTC read logic  [J William Piggott]
-   - fix hclock_valid test and error messages  [J William Piggott]
-   - fix regression from c3ae785  [J William Piggott]
-   - fix unimplemented ioctl test  [J William Piggott]
-   - fix warning [-Winvalid-noreturn]  [Ruediger Meier]
-   - for debugging print startup system time  [J William Piggott]
-   - improve RTC epoch messages  [J William Piggott]
-   - make debug implicit for test mode.  [J William Piggott]
-   - move drift correction and --predict  [J William Piggott]
-   - move rtc permissions test  [J William Piggott]
-   - move systz above init clocks read  [J William Piggott]
-   - move systz into hctosys  [J William Piggott]
-   - refactor set_system_clock()  [J William Piggott]
-   - remove bool type definition  [Sami Kerola]
-   - remove busywait tristate return status  [J William Piggott]
-   - remove custom errno string  [J William Piggott]
-   - remove dead code in usage()  [J William Piggott]
-   - remove dead ioctl check  [J William Piggott]
-   - remove from usage() FILE *out = stdout  [J William Piggott]
-   - remove m68k and alpha cmos from manual  [J William Piggott]
-   - remove set_system_clock_timezone()  [J William Piggott]
-   - remove sysexits.h  [J William Piggott]
-   - remove unused epoch_option  [J William Piggott]
-   - remove unused optstring characters  [J William Piggott]
-   - remove unused stdarg.h  [J William Piggott]
-   - remove unwanted space before description  [Karel Zak]
-   - restore select() timeout warning  [J William Piggott]
-   - slice up the usage text  [J William Piggott]
-   - squash custom errno strings  [J William Piggott]
-   - sync one-liner descriptions  [J William Piggott]
-   - update --help content and grammar  [J William Piggott]
-   - update man page  [J William Piggott]
-   - update set_system_clock comments  [J William Piggott]
-   - update set_system_clock debugging  [J William Piggott]
-   - update usage()  [J William Piggott]
-   - update usage() FILE name  [J William Piggott]
-   - update usage() to util-linux style  [J William Piggott]
-   - usage() use program_invocation_short_name  [J William Piggott]
-   - use RTC in help output  [J William Piggott]
-include:
-   - move pamfail.h to auth.c  [Sami Kerola]
-   - update pathnames.h  [J William Piggott]
-include/c.h:
-   - add USAGE_COMMANDS and USAGE_COLUMNS  [J William Piggott]
-isosize:
-   - avoid reading more data than what is needed  [Sami Kerola]
-   - iterate over all arguments even when something fails  [Karel Zak]
-   - usage() and coding style cleanup  [Karel Zak]
-last:
-   - condition (secs == 0) - now handled correctly  [coastal-hiker]
-   - don't show negative time  [coastal-hiker]
-ldattach:
-   - simplify debugging function when vwarnx(3) is available  [Sami Kerola]
-lib:
-   - fix strutils.h, remove STRTOXX_EXIT_CODE  [Ruediger Meier]
-   - remove _RLD_ from forbid environment variable list  [Sami Kerola]
-   - simplify cpuset if clauses that return  [Sami Kerola]
-   - style cosmetics plymouth-ctrl.c  [Ruediger Meier]
-lib/blkdev:
-   - remove support for Linux < 2.6  [Ruediger Meier]
-lib/match:
-   - make match_fstype() case insensitive  [Karel Zak]
-lib/path:
-   - add error handling to path_vcreate()  [Ruediger Meier]
-   - fix crash, pathbuf overflow  [Ruediger Meier]
-lib/pwdutils:
-   - add xgetlogin()  [Karel Zak]
-lib/randutils:
-   - improve getrandom() usage  [Karel Zak]
-   - remove superfluous continue  [Karel Zak]
-   - reset lose counter  [Karel Zak]
-lib/randutils.c:
-   - Fall back gracefully when kernel doesn't support getrandom(2).  [Christopher James Halse Rogers]
-   - More paranoia in getrandom() call.  [Christopher James Halse Rogers]
-lib/ttyutils:
-   - return terminal lines too  [Karel Zak]
-libblkid:
-   - (vfat) add more debug messages  [Karel Zak]
-   - add HPE extended-XFS to known filesystems  [Mark Tinguely]
-   - add support for UBI superblock  [Rafał Miłecki]
-   - allow to hide already detected signatures  [Karel Zak]
-   - don't check for size on UBI (char dev)  [Karel Zak]
-   - don't use CDROM_GET_CAPABILITY ioctl for DM devices  [Karel Zak]
-   - fix compiler warning [-Wformat-truncation=]  [Karel Zak]
-   - fix gcc-7 warning -Wint-in-bool-context  [Ruediger Meier]
-   - mark UBI as RAID  [Karel Zak]
-   - remove dead code and blkid_probe_new_value()  [Karel Zak]
-   - udf  Add support for ID_FS_VERSION  [Pali Rohár]
-   - udf  De-duplicate code for dstring decoding  [Pali Rohár]
-   - udf  Define magic constants  [Pali Rohár]
-   - udf  Fix detection of UDF images with block size 1024 and 4096  [Pali Rohár]
-   - udf  Fix parsing of UDF dstring structures  [Pali Rohár]
-   - udf  Fix types  [Pali Rohár]
-libfdisk:
-   - (dos) accept start for log.partitions on template  [Karel Zak]
-   - (dos) be more verbose on partno -ERANGE error  [Karel Zak]
-   - (dos) cleanup template based partitioning  [Karel Zak]
-   - (dos) fix primary/logical logic when follow template  [Karel Zak]
-   - (dos) return EINVAL when delete unused partition  [Karel Zak]
-   - (dos) use size-=1 when alignment not used later  [Karel Zak]
-   - (gpt) fix size-1 error  [Karel Zak]
-   - add --grain to mkpart sample  [Karel Zak]
-   - add --nopartno to mkpart sample  [Karel Zak]
-   - add comment  [Karel Zak]
-   - add fdisk_device_is_used()  [Karel Zak]
-   - add fdisk_disable_dialogs()  [Karel Zak]
-   - add fdisk_reassign_device()  [Karel Zak]
-   - add fdisk_save_user_grain()  [Karel Zak]
-   - add more debug messages to get-last-possible resize space  [Karel Zak]
-   - add sample-fdisk-mkpart-fullspec  [Karel Zak]
-   - allow to resize container  [Karel Zak]
-   - allow to resize in unsorted partition table  [Karel Zak]
-   - cleanup sun label checksum usuage  [Ruediger Meier]
-   - don't hardcode label type in samples  [Karel Zak]
-   - fix fdisk_reset_partition() leaking *_chs strings.  [Vaclav Dolezal]
-   - fix guid usage of packed struct gpt_entry  [Ruediger Meier]
-   - fix two potential memory errors.  [Vaclav Dolezal]
-   - fix warning -Wunused-function  [Ruediger Meier]
-   - improve "add partition" debug message  [Karel Zak]
-   - improve alignment debug mesagges  [Karel Zak]
-   - improve table print debugs  [Karel Zak]
-   - make fdisk compliant to UEFI/GPT specification on PMBR  [Karel Zak]
-   - move fdisk_reread_partition_table() to another file  [Karel Zak]
-   - remove unnecessary fstat() call  [Karel Zak]
-   - remove whitespaces  [Karel Zak]
-   - support default partno in mkpart-fullspec sample  [Karel Zak]
-   - support logical partition resize  [Karel Zak]
-   - use BLKPG ioctls to inform kernel about changes  [Karel Zak]
-   - use BLKPG_* ioctls on linux only  [Karel Zak]
-   - use fdisk_sector_t consistently and fix printf format strings  [Ruediger Meier]
-libmount:
-   - (umount) use mount table filter on -c only  [Karel Zak]
-   - add human compatible message for EBADMSG errno  [Karel Zak]
-   - btrfs, remove unused setter functions  [Ruediger Meier]
-   - export locking errors as MNT_EX_FILEIO  [Karel Zak]
-   - fix Python get_propagation  [Giuseppe Scrivano]
-   - fix warning "set but not used"  [Ruediger Meier]
-   - ignore "bind" from fstab on command line "remount"  [Karel Zak]
-   - make mnt_context_is_fs_mounted work for /proc  [Ivan Delalande]
-   - use _exit() in <type> handlers  [Karel Zak]
-   - use mount table filter on --no-canonicalize  [Karel Zak]
-libsmartcols:
-   - (docs) add new functions  [Karel Zak]
-   - add header-repeat feature  [Karel Zak]
-   - add missing symbols  [Karel Zak]
-   - add scols_table_enable_noencoding()  [Karel Zak]
-   - add scols_table_{set,get}_termheight()  [Karel Zak]
-   - fix comment (to make gtk-docs happy)  [Karel Zak]
-   - fix heap-buffer-overflow when move columns  [Karel Zak]
-   - fix scols_line_move_cells() n+1 error [asan]  [Karel Zak]
-   - fix warning "unused parameter"  [Ruediger Meier]
-libuuid:
-   - add support for hash-based UUIDs  [Philip Prindeville]
-   - use access(2) when checking /dev/random availability  [Sami Kerola]
-logger:
-   - make stdin parsing more friendly to static analyzers  [Karel Zak]
-login:
-   - add --help and --version  [Ruediger Meier]
-   - add --help text  [Ruediger Meier]
-   - add xgetpwnam()  [Karel Zak]
-   - fix signal race  [Tobias Stoeckmann]
-   - use IPv4 on IPv4-mapping-to-IPv6  [Karel Zak]
-look:
-   - use WORDLIST environment variable to find word list  [Sami Kerola]
-losetup:
-   - Add support for logical block size  [Stanislav Brabec]
-   - add info about lazy detach to manpage  [Karel Zak]
-   - add missing initializer [clang]  [Sami Kerola]
-   - rename to --sector-size and LOG-SEC  [Karel Zak]
-lsblk:
-   - add option --tree  [Karel Zak]
-   - small man page change in return codes description  [Karel Zak]
-lscpu:
-   - cleanup DMI detection return codes  [Karel Zak]
-   - make clang analyzer happy  [Ruediger Meier]
-lslogins:
-   - be more explicit with -g in man page  [Karel Zak]
-   - ignore non-existing users  [Karel Zak]
-lsmem:
-   - fix, using freed memory  [Ruediger Meier]
-misc:
-   - POSIX usage dd, regarding unit suffixes  [Ruediger Meier]
-   - avoid some dead initialization warnings  [Ruediger Meier]
-   - cleanup UUID_STR_LEN definitions  [Karel Zak]
-   - cleanup and fix --unknownopt issues  [Ruediger Meier]
-   - consolidate all --help option descriptions  [Ruediger Meier]
-   - consolidate macro style USAGE_HELP_OPTIONS  [Ruediger Meier]
-   - consolidate usage() "Available columns"  [Karel Zak]
-   - cosmetics, remove argument from usage(FILE*)  [Ruediger Meier]
-   - cosmetics, remove argument from usage(int)  [Ruediger Meier]
-   - fix gcc-7 snprintf warnings -Wformat-truncation  [Ruediger Meier]
-   - fix gcc-7 sprintf warnings -Wformat-overflow  [Ruediger Meier]
-   - fix ggc-7 fallthrough warnings  [Sami Kerola]
-   - fix more strutils related exit codes  [Ruediger Meier]
-   - fix optutils.h related exit codes  [Ruediger Meier]
-   - fix reassigned values before old ones has been used [cppcheck]  [Sami Kerola]
-   - fix some broken exit codes  [Ruediger Meier]
-   - fix some printf format strings  [Ruediger Meier]
-   - fix xalloc.h related exit codes  [Ruediger Meier]
-   - introduce print_usage_help_options()  [Ruediger Meier]
-   - never use usage(ERROR)  [Ruediger Meier]
-   - never use usage(stderr)  [Ruediger Meier]
-   - no more errtryh()  [Ruediger Meier]
-   - remove stray semicolons  [Sami Kerola]
-   - remove superfluous null pointer checks for optarg  [Ruediger Meier]
-   - replace magic number 37 with UUID_STR_LEN  [Philip Prindeville]
-   - revert to the old USAGE_HELP strings  [Ruediger Meier]
-   - update --help content again  [Ruediger Meier]
-mkfs.cramfs:
-   - add --help and --version  [Ruediger Meier]
-more:
-   - add --help and --version  [Ruediger Meier]
-   - remove unused variable  [Ruediger Meier]
-mount:
-   - fix man page typo (--bind,ro)  [Karel Zak]
-   - remove extN from mount.8 man page  [Karel Zak]
-parse-date:
-   - fix printf format  [Ruediger Meier]
-   - refactor tm_diff()  [J William Piggott]
-   - remove unused EPOCH_YEAR  [J William Piggott]
-   - remove unused ordinal_day_seen  [J William Piggott]
-   - remove unused year_seen  [J William Piggott]
-   - replace ISDIGIT with c_isdigit  [J William Piggott]
-   - time_zone_hhmm() bug fixes  [J William Piggott]
-   - use int where appropriate  [J William Piggott]
-   - use intmax_t where appropriate  [J William Piggott]
-   - use to_uchar() instead of assignment.  [J William Piggott]
-   - use uintmax_t where appropriate  [J William Piggott]
-partx:
-   - move partx.h to include/  [Karel Zak]
-po:
-   - Fix a typo  [Masanari Iida]
-   - Fix translation in ja.po  [Masanari Iida]
-   - fix ipcrm translation error fr.po  [Karel Zak]
-   - merge changes  [Karel Zak]
-   - update cs.po (from translationproject.org)  [Petr Písař]
-   - update da.po (from translationproject.org)  [Joe Hansen]
-   - update es.po (from translationproject.org)  [Antonio Ceballos Roa]
-   - update fr.po (from translationproject.org)  [Stéphane Aulery]
-   - update pt_BR.po (from translationproject.org)  [Rafael Fontenelle]
-pylibmount:
-   - NULL terminate kwlist in Context_init  [Zac Medico]
-rename:
-   - add -o to the man page  [Karel Zak]
-   - notice when expression and replacement are the same string  [Sami Kerola]
-reset:
-   - remove script from the package  [Sami Kerola]
-rfkill:
-   - add NFC fallback for old headers  [Karel Zak]
-   - add Sami to authors  [Karel Zak]
-   - add bash-completion file  [Sami Kerola]
-   - add systemd-rfkill(8) see also segment  [Sami Kerola]
-   - allow use of multiple arguments  [Sami Kerola]
-   - check id number refers to a device that exists  [Sami Kerola]
-   - clarify 'all devices' handling  [Sami Kerola]
-   - cleanup returns  [Karel Zak]
-   - cleanup usage()  [Karel Zak]
-   - do not fsync(3) /dev/rfkill file descriptor  [Sami Kerola]
-   - do not ignore read error  [Sami Kerola]
-   - fix coding style and error messages  [Karel Zak]
-   - improve default output  [Karel Zak]
-   - inform in syslog when rfkill is invoked  [Sami Kerola]
-   - make command to build in util-linux project  [Sami Kerola]
-   - make programming style to match util-linux project  [Sami Kerola]
-   - move files to appropriate locations  [Sami Kerola]
-   - refactor actions  [Karel Zak]
-   - remove duplicate code  [Karel Zak]
-   - support old "list" output  [Karel Zak]
-   - update manual page  [Sami Kerola]
-   - use back and forward compatible test  [Sami Kerola]
-   - use human readable timestamps in event output  [Sami Kerola]
-   - use libsmartcols output  [Sami Kerola]
-   - refactor rfkill index/type lookup
-   - move it below rfkill_block.  [Darren Salt]
-runuser:
-   - fix linking  [Sami Kerola]
-script:
-   - ensure typescript and timing errors do not break terminal  [Sami Kerola]
-   - fix ambiguity about the optional argument of the -t option  [Antonio Ospite]
-   - rename fixtty() to enable_rawmode_tty()  [Karel Zak]
-   - simplify stdin usage in poll()  [Karel Zak]
-   - support sig{stop/cont}  [Karel Zak]
-setarch:
-   - use errtryhelp()  [Ruediger Meier]
-setpriv:
-   - Add --init-groups option  [Sebastian Schrader]
-   - add --ambient-caps to usage()  [Karel Zak]
-   - align --help  [Ruediger Meier]
-   - document accepted formats for naming caps  [Patrick Steinhardt]
-   - introduce indirection for `capng_type` enum  [Patrick Steinhardt]
-   - proxy function checking whether a capability is set  [Patrick Steinhardt]
-   - proxy function to update capabilities  [Patrick Steinhardt]
-   - silence compiler warning  [Ruediger Meier]
-   - support dumping ambient capabilities  [Patrick Steinhardt]
-   - support modifying the set of ambient capabilities  [Patrick Steinhardt]
-   - support setting unnamed capabilities  [Patrick Steinhardt]
-setproctitle:
-   - fix out of boundary access  [Tobias Stoeckmann]
-sfdisk:
-   - use fdisk_device_is_used()  [Karel Zak]
-su:
-   - (pty) fix child signal mask usage  [Karel Zak]
-   - (pty) fix slave terminal attributes initialization  [Karel Zak]
-   - (pty) improve SIGSTOP/SIGCONT semantic  [Karel Zak]
-   - (pty) save child status  [Karel Zak]
-   - (pty) simplify stdin usage in poll()  [Karel Zak]
-   - add --pty option  [Karel Zak]
-   - add PTY support  [Karel Zak]
-   - add child to control struct  [Karel Zak]
-   - add control struct  [Karel Zak]
-   - add debug.h stuff  [Karel Zak]
-   - add more informartion to man page  [Karel Zak]
-   - add wait_for_child()  [Karel Zak]
-   - clean up const usage  [Karel Zak]
-   - clean up signals usage  [Karel Zak]
-   - cleanup PAM stuff  [Karel Zak]
-   - cleanup pwd struct usage  [Karel Zak]
-   - cleanup setenv related code  [Karel Zak]
-   - cleanup setuid/gid related code  [Karel Zak]
-   - cleanup shell related code  [Karel Zak]
-   - cleanup usage()  [Karel Zak]
-   - cleanup usernames usage  [Karel Zak]
-   - consolidate tty name usage  [Karel Zak]
-   - cosmetic changes after indent  [Karel Zak]
-   - cosmetic code changes  [Karel Zak]
-   - enable TIOCSCTTY and minor changes  [Karel Zak]
-   - fix compiler warnings [-Wimplicit-fallthrough=]  [Karel Zak]
-   - fix debug message  [Karel Zak]
-   - fix indention  [Karel Zak]
-   - fix non-pty compilation  [Karel Zak]
-   - fix refactoring bug in child PID usage  [Karel Zak]
-   - improve some debug messages  [Karel Zak]
-   - keep old sigactions in control struct  [Karel Zak]
-   - make wait_for_child() usable in arbitrary situation  [Karel Zak]
-   - move PAM session initialization to separate function  [Karel Zak]
-   - move parent signals setup to separate function  [Karel Zak]
-   - properly clear child PID  [Karel Zak]
-   - rename evaluate_uid()  [Karel Zak]
-   - reorder functions  [Karel Zak]
-   - unblock signals is all initialized  [Karel Zak]
-   - use switch() to split after fork  [Karel Zak]
-swaplabel:
-   - fix --disable-libuuid compilation  [Karel Zak]
-test:
-   - update PMBR hex dumps  [Karel Zak]
-tests:
-   - Add UDF hdd image which label has length 30 characters  [Pali Rohár]
-   - Add UDF hdd images with blocksize 1024 and 4096 created by Linux mkudffs 1.3  [Pali Rohár]
-   - add MBR resize tests  [Karel Zak]
-   - add more tests for line(1)  [Ruediger Meier]
-   - check for missing programs in last(1) test  [Karel Zak]
-   - check sfdisk resize on unsorted offsets  [Karel Zak]
-   - don't use errno in output  [Karel Zak]
-   - explicitly define wipefs outpuit columns  [Karel Zak]
-   - fix and refactor partx  [Ruediger Meier]
-   - fix fincore, don't use variable COLUMNS  [Ruediger Meier]
-   - remove UUIDs with time overflow from uuidparse  [Karel Zak]
-   - split partx in root and non-root  [Ruediger Meier]
-   - update UDF test, add ID_FS_VERSION  [Pali Rohár]
-   - update build-sys tests  [Karel Zak]
-   - update sfdisk wipe test  [Karel Zak]
-   - update wipefs outputs  [Karel Zak]
-   - use sample-fdisk-mkpart  [Karel Zak]
-   - use sample-fdisk-mkpart-fullspec  [Karel Zak]
-tools:
-   - add checkusage.sh  [Ruediger Meier]
-   - add segfault detection for checkusage.sh  [Ruediger Meier]
-   - checkusage can dump all command output  [Ruediger Meier]
-   - ignore unsafe commands in checkusage.sh  [Ruediger Meier]
-travis:
-   - add make checkusage  [Ruediger Meier]
-   - fix another chown issue  [Karel Zak]
-   - minor cosmetics  [Ruediger Meier]
-   - use --disable-makeinstall-chown everywhere  [Karel Zak]
-tunelp:
-   - use linux header  [Sami Kerola]
-umount:
-   - add note about NFS and -c to umount.8  [Karel Zak]
-   - never 'stat' the path when "-c" is given.  [NeilBrown]
-uuidd:
-   - remove unused define  [Ruediger Meier]
-uuidgen:
-   - add more details to man page  [Karel Zak]
-   - add support for hash-based UUIDs  [Philip Prindeville]
-   - improve --help  [Karel Zak]
-   - slice up the usage text  [Sami Kerola]
-uuidparse:
-   - add bash-completion file  [Sami Kerola]
-   - add new command  [Sami Kerola]
-   - fix getopt crash  [Ruediger Meier]
-   - fix stack-buffer-overflow [asan]  [Karel Zak]
-   - nil uuid have all bits set to zero  [Sami Kerola]
-   - se JSON table name on -J  [Karel Zak]
-vipw:
-   - use explicit_bzero() to clear buffer after copy  [Sami Kerola]
-wall:
-   - don't use gid_t when allocate grounps array  [Karel Zak]
-   - fix OSX getgrouplist, gid_t* vs int*  [Karel Zak]
-wdctl:
-   - do not call fsync(2) when closing watchdog device  [Sami Kerola]
-whereis:
-   - add --help and --version  [Ruediger Meier]
-   - include native multiarch path in lib search paths  [Andreas Henriksson]
-wipefs:
-   - add control struct  [Karel Zak]
-   - cleanup offsets list usage, fix -t filter  [Karel Zak]
-   - don't do step-back if <type> does not match  [Karel Zak]
-   - exit on failed erase  [Karel Zak]
-   - improve --help  [Karel Zak]
-   - print all signature permutations  [Karel Zak]
-   - try another magic strings on -o and -t  [Karel Zak]
-   - use libsmartcols  [Karel Zak]
+diff --git a/login-utils/last.c b/login-utils/last.c
+index f989836ba..8d69ed54e 100644
+--- a/login-utils/last.c
++++ b/login-utils/last.c
+@@ -349,7 +349,7 @@ static int time_formatter(int fmt, char *dst, size_t dlen, time_t *when)
+ 		ret = rtrim_whitespace((unsigned char *) dst);
+ 		break;
+ 	case LAST_TIMEFTM_ISO8601:
+-		ret = strtime_iso(when, ISO_8601_DATE|ISO_8601_TIME|ISO_8601_TIMEZONE, dst, dlen);
++		ret = strtime_iso(when, ISO_TIMESTAMP_T, dst, dlen);
+ 		break;
+ 	default:
+ 		abort();
+diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
+index 1042b9b41..9a55df880 100644
+--- a/login-utils/lslogins.c
++++ b/login-utils/lslogins.c
+@@ -333,8 +333,7 @@ static char *make_time(int mode, time_t time)
+ 				buf, sizeof(buf));
+ 		break;
+ 	case TIME_ISO:
+-		rc = strtime_iso(&time, ISO_8601_DATE|ISO_8601_TIME|ISO_8601_TIMEZONE,
+-				   buf, sizeof(buf));
++		rc = strtime_iso(&time, ISO_TIMESTAMP_T, buf, sizeof(buf));
+ 		break;
+ 	case TIME_ISO_SHORT:
+ 		rc = strtime_iso(&time, ISO_8601_DATE, buf, sizeof(buf));
+diff --git a/login-utils/utmpdump.c b/login-utils/utmpdump.c
+index 00c44b8db..5cc87834a 100644
+--- a/login-utils/utmpdump.c
++++ b/login-utils/utmpdump.c
+@@ -102,9 +102,7 @@ static void print_utline(struct utmpx *ut, FILE *out)
+ 	tv.tv_sec = ut->ut_tv.tv_sec;
+ 	tv.tv_usec = ut->ut_tv.tv_usec;
+ 
+-	if (strtimeval_iso(&tv,
+-			   ISO_8601_DATE | ISO_8601_TIME | ISO_8601_COMMAUSEC |
+-			   ISO_8601_TIMEZONE | ISO_8601_GMTIME, time_string,
++	if (strtimeval_iso(&tv, ISO_TIMESTAMP_COMMA_GT, time_string,
+ 			   sizeof(time_string)) != 0)
+ 		return;
+ 	cleanse(ut->ut_id);
+diff --git a/misc-utils/uuidparse.c b/misc-utils/uuidparse.c
+index 08ba33415..5d2ea7810 100644
+--- a/misc-utils/uuidparse.c
++++ b/misc-utils/uuidparse.c
+@@ -227,14 +227,8 @@ static void fill_table_row(struct libscols_table *tb, char const *const uuid)
+ 				char date_buf[ISO_8601_BUFSIZ + 4];
+ 
+ 				uuid_time(buf, &tv);
+-				strtimeval_iso(&tv,
+-					       ISO_8601_DATE |
+-						 ISO_8601_TIME |
+-						 ISO_8601_COMMAUSEC |
+-						 ISO_8601_TIMEZONE |
+-						 ISO_8601_SPACE,
+-					       date_buf,
+-					       sizeof(date_buf));
++				strtimeval_iso(&tv, ISO_TIMESTAMP_COMMA,
++					       date_buf, sizeof(date_buf));
+ 				str = xstrdup(date_buf);
+ 			}
+ 			break;
+diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+index b626380f7..8a86c2ccb 100644
+--- a/sys-utils/dmesg.c
++++ b/sys-utils/dmesg.c
+@@ -844,9 +844,7 @@ static char *iso_8601_time(struct dmesg_control *ctl, struct dmesg_record *rec,
+ 		.tv_usec = rec->tv.tv_usec
+ 	};
+ 
+-	if (strtimeval_iso(&tv,	ISO_8601_DATE|ISO_8601_TIME|ISO_8601_COMMAUSEC|
+-				ISO_8601_TIMEZONE,
+-				buf, bufsz) != 0)
++	if (strtimeval_iso(&tv,	ISO_TIMESTAMP_COMMA_T, buf, bufsz) != 0)
+ 		return NULL;
+ 
+ 	return buf;
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 3ac43efee..c1eb8b939 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -556,9 +556,7 @@ display_time(struct timeval hwctime)
+ {
+ 	char buf[ISO_8601_BUFSIZ];
+ 
+-	if (strtimeval_iso(&hwctime, ISO_8601_DATE|ISO_8601_TIME|ISO_8601_DOTUSEC|
+-				 ISO_8601_TIMEZONE|ISO_8601_SPACE,
+-				 buf, sizeof(buf))) {
++	if (strtimeval_iso(&hwctime, ISO_TIMESTAMP_DOT, buf, sizeof(buf))) {
+ 		warnx(_("iso-8601 format overflow"));
+ 		return EXIT_FAILURE;
+ 	}
+diff --git a/sys-utils/lsipc.c b/sys-utils/lsipc.c
+index e99c861ab..4b3b0c92d 100644
+--- a/sys-utils/lsipc.c
++++ b/sys-utils/lsipc.c
+@@ -451,7 +451,7 @@ static char *make_time(int mode, time_t time)
+ 		strtime_short(&time, &now, 0, buf, sizeof(buf));
+ 		break;
+ 	case TIME_ISO:
+-		strtime_iso(&time, ISO_8601_DATE|ISO_8601_TIME|ISO_8601_TIMEZONE, buf, sizeof(buf));
++		strtime_iso(&time, ISO_TIMESTAMP_T, buf, sizeof(buf));
+ 		break;
+ 	default:
+ 		errx(EXIT_FAILURE, _("unsupported time type"));
+diff --git a/sys-utils/rfkill.c b/sys-utils/rfkill.c
+index c9559ef48..044624188 100644
+--- a/sys-utils/rfkill.c
++++ b/sys-utils/rfkill.c
+@@ -253,12 +253,8 @@ static int rfkill_event(void)
+ 			continue;
+ 
+ 		gettimeofday(&tv, NULL);
+-		strtimeval_iso(&tv,
+-			       ISO_8601_DATE |
+-			       ISO_8601_TIME |
+-			       ISO_8601_COMMAUSEC |
+-			       ISO_8601_TIMEZONE |
+-			       ISO_8601_SPACE, date_buf, sizeof(date_buf));
++		strtimeval_iso(&tv, ISO_TIMESTAMP_COMMA, date_buf,
++			       sizeof(date_buf));
+ 		printf("%s: idx %u type %u op %u soft %u hard %u\n",
+ 		       date_buf,
+ 		       event.idx, event.type, event.op, event.soft, event.hard);
+diff --git a/term-utils/script.c b/term-utils/script.c
+index cf63ab336..f991de14e 100644
+--- a/term-utils/script.c
++++ b/term-utils/script.c
+@@ -472,9 +472,7 @@ static void do_io(struct script_control *ctl)
+ 
+ 
+ 	if (ctl->typescriptfp) {
+-		strtime_iso(&tvec, ISO_8601_DATE | ISO_8601_TIME |
+-				ISO_8601_TIMEZONE | ISO_8601_SPACE,
+-				buf, sizeof(buf));
++		strtime_iso(&tvec, ISO_TIMESTAMP, buf, sizeof(buf));
+ 		fprintf(ctl->typescriptfp, _("Script started on %s\n"), buf);
+ 	}
+ 	gettime_monotonic(&ctl->oldtime);
+@@ -546,9 +544,7 @@ static void do_io(struct script_control *ctl)
+ 
+ 	if (ctl->typescriptfp) {
+ 		tvec = script_time((time_t *)NULL);
+-		strtime_iso(&tvec, ISO_8601_DATE | ISO_8601_TIME |
+-				ISO_8601_TIMEZONE | ISO_8601_SPACE,
+-				buf, sizeof(buf));
++		strtime_iso(&tvec, ISO_TIMESTAMP, buf, sizeof(buf));
+ 		fprintf(ctl->typescriptfp, _("\nScript done on %s\n"), buf);
+ 	}
+ 	done(ctl);
