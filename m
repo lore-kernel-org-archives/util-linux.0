@@ -1,44 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-oi0-f48.google.com ([209.85.218.48]:45953 "EHLO
-        mail-oi0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751649AbdJCQ5J (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 3 Oct 2017 12:57:09 -0400
-Received: by mail-oi0-f48.google.com with SMTP id f3so15390215oia.2
-        for <util-linux@vger.kernel.org>; Tue, 03 Oct 2017 09:57:08 -0700 (PDT)
-Received: from [192.168.0.76] (cpe-70-123-251-100.satx.res.rr.com. [70.123.251.100])
-        by smtp.gmail.com with ESMTPSA id j194sm6380690oih.22.2017.10.03.09.57.07
-        for <util-linux@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 03 Oct 2017 09:57:07 -0700 (PDT)
-To: Util-Linux <util-linux@vger.kernel.org>
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
-Subject: fdisk request for functionality (or info)
-Message-ID: <59D3C162.4050005@gmail.com>
-Date: Tue, 3 Oct 2017 11:57:06 -0500
+Received: from mout.gmx.net ([212.227.17.21]:53825 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932158AbdJWAjo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 22 Oct 2017 20:39:44 -0400
+Subject: [PATCH 2/4] lib/timeutils: ISO_8601_BUFSIZ too small
+To: Karel Zak <kzak@redhat.com>
+References: <ac1afb00-aed1-4eed-aabe-89d26e29ca0d@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <946b185d-2c3e-cb6d-f2ca-4a67274da256@gmx.com>
+Date: Sun, 22 Oct 2017 20:39:37 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <ac1afb00-aed1-4eed-aabe-89d26e29ca0d@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I have been having a problem with fdisk on old computers.
 
-What I am doing is installing Debian, but dropping to the command line and 
-creating a GPT manually because Debian seems to want to always create a 
-msdos partition table.
+Although iso-8601 specifies years as 4 digits, it allows
+them to be wider.
 
-After creating the GPT and partitioning, the install proceeds normally, 
-but upon reboot the old bios tells me "No bootable disk".
+The current POSIX year width is limited by 'int tm_year'
+at 10 digits plus a negative sign.
 
-I can fix this by going into rescue mode and setting the pmbr_boot flag 
-using parted.
+That, and the possibility of nanosecond time makes the
+widest POSIX iso-8601 time 41 characters. Plus the \0
+string terminator yields a buffer size of 42.
 
-My question is whether this can be done in fdisk.  If not, can it be added?
+Before truncated output:
+/sbin/hwclock --utc --noadjfile --predict --date '-2147483765 years'
+-2147481748-09-25 20:29:45.0000
 
-I did try going into expert mode and selecting "toggle the legacy BIOS 
-bootable flag", but does not seem to work.  I did not see any change to 
-the boot sector when using 'd: print the raw data of the first sector from 
-the device'.
+Patched:
+./hwclock --utc --noadjfile --predict --date '-2147483765 years'
+-2147481748-09-25 20:17:21.000000-0456
 
-Advice appreciated.
+./hwclock --utc --noadjfile --predict --date '-2147483766 years'
+hwclock: invalid date '-2147483766 years'
 
-   -- Bruce Dubbs
+Comparable to coreutils 'date' command:
+date -Ins --date '-2147483765 years'
+-2147481748-09-25T19:49:31,578899297-0456
+
+date -Ins --date '-2147483766 years'
+date: invalid date '-2147483766 years'
+
+The 'date' output illustrates the full 41 character POSIX iso-8601
+
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ include/timeutils.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/timeutils.h b/include/timeutils.h
+index 874f853b7..edd42f7fe 100644
+--- a/include/timeutils.h
++++ b/include/timeutils.h
+@@ -65,7 +65,7 @@ enum {
+ 	ISO_8601_GMTIME		= (1 << 7)
+ };
+ 
+-#define ISO_8601_BUFSIZ	32
++#define ISO_8601_BUFSIZ	42
+ 
+ int strtimeval_iso(struct timeval *tv, int flags, char *buf, size_t bufsz);
+ int strtm_iso(struct tm *tm, int flags, char *buf, size_t bufsz);
