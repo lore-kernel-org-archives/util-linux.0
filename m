@@ -1,40 +1,93 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37624 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750891AbdJBLMi (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 2 Oct 2017 07:12:38 -0400
-Date: Mon, 2 Oct 2017 13:12:31 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Cc: util-linux@vger.kernel.org, Michal Hocko <mhocko@kernel.org>,
-        linux-mm <linux-mm@kvack.org>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Andre Wild <wild@linux.vnet.ibm.com>
-Subject: Re: [PATCH 0/3] lsmem/chmem: add memory zone awareness
-Message-ID: <20171002111231.z4ibknsg2gmvx53y@ws.net.home>
-References: <20170927174446.20459-1-gerald.schaefer@de.ibm.com>
+Return-Path: jeff.sadowski@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170927174446.20459-1-gerald.schaefer@de.ibm.com>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <CAM9ceLiRqGy45GcpO6ai5dA7n8MmMt+ZB9FeAXrZf6sz-KvV2w@mail.gmail.com>
+References: <CAM9ceLjMPtUHNxj-G2YL=5w+dE+EoD+6rYKE1uDCDn5k19z8gw@mail.gmail.com>
+ <20171023105347.e6k3xwnwmhvgfzgw@ws.net.home> <CAM9ceLhURzEtMnpr21VwqUR1HG31J5hoRRWWbw0bZu1fQFLYmA@mail.gmail.com>
+ <CAM9ceLiRqGy45GcpO6ai5dA7n8MmMt+ZB9FeAXrZf6sz-KvV2w@mail.gmail.com>
+From: Jeff Sadowski <jeff.sadowski@gmail.com>
+Date: Tue, 24 Oct 2017 00:33:01 -0600
+Message-ID: <CAM9ceLi2hNZd2Ny2_40q_zeL-c+ZJmZ711FEL5UEG20e+gMhaQ@mail.gmail.com>
+Subject: Re: wall logging or run command each post?
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Sep 27, 2017 at 07:44:43PM +0200, Gerald Schaefer wrote:
-> These patches are against lsmem/chmem in util-linux, they add support
-> for listing and changing memory zone allocation.
-> 
-> Added Michal Hocko and linux-mm on cc, to raise general awareness for
-> the lsmem/chmem tools, and the new memory zone functionality in
-> particular. I think this can be quite useful for memory hotplug kernel
-> development, and if not, sorry for the noise.
+no good way to implement post upgrade scripts at least not in fedora.
+I'll post a thing on the fedoraforum and ask the developers but I
+can't get its /etc/yum/post-action/my_action working after reading the
+docs and all. Complicated as hell I hate having to create crontabs to
+make sure things are correct.
 
-Seems good.
-
-I'll merge it (probably with some minor changes:-) after v2.31
-release. Thanks!
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+On Mon, Oct 23, 2017 at 4:20 PM, Jeff Sadowski <jeff.sadowski@gmail.com> wrote:
+> On Mon, Oct 23, 2017 at 9:04 AM, Jeff Sadowski <jeff.sadowski@gmail.com> wrote:
+>> So my best bet is going to be to put
+>>
+>> alias wall=/script/wall.sh
+>>
+>> in my /etc/bash.bashrc
+>> and any other allowed shell rc's
+>> where my /script/wall.sh does the things I want.
+>> and change any scripts like my /etc/apcupsd/apccontrol
+>> and change its WALL=wall to WALL=/script/wall.sh
+>> as well.
+>>
+>> I'll just have to go searching through /etc/ for files containing wall
+>>
+>> This will get most things I care about but it might skip messages that
+>> some users may broadcast
+>> should adding the "#!/bin/bash" as the first line to shell scripts
+>> cause the script to use the alias?
+>>
+> This doesn't work so I'm stuck with having to find all scripts and
+> manually change them
+> and having to warn users about wall not having this capability
+>
+> My current wall script looks like so
+>
+> #!/bin/bash
+> # filename: /home/scripts/wall.sh
+> # purpose: to email myself wall messages and to log them
+> input="$@"
+> if [ "${input}" = "" ];then
+>  input=$(cat)
+> fi
+> logger -s "from ${BASH_SOURCE[0]} : $@" >/dev/null 2>&1
+> echo -e "${input}" | mutt -s "wall messages from $(hostname) at
+> $(date)" jeff.sadowski@gmail.com
+> echo -e "${input}" | /bin/wall
+>
+>
+> I'll work on getting it to other users's desktops as well but this all
+> seems like stuff that should be implemented in wall.
+> Another alternative is to wrap it and have a post upgrade script look
+> to see if wall is a symlink pointing to my script and if not move it
+> to /bin/real.wall and use /bin/real.wall in my scripts. I'm thinking
+> that would be the best.
+> Now to find the post upgrade scripts for centos, fedora and ubuntu.
+>
+>>
+>> On Mon, Oct 23, 2017 at 4:53 AM, Karel Zak <kzak@redhat.com> wrote:
+>>> On Wed, Oct 18, 2017 at 02:06:25PM -0600, Jeff Sadowski wrote:
+>>>> I would like to know if this feature is built into wall or is there a
+>>>> good work around?
+>>>
+>>> wall is usually used by superuser. I guess if you can all "wall" than
+>>> you can also call for example logger to write to the system logs. I
+>>> don't see reason to merge functionally of these tools together.
+>>>
+>>>> I would like to configure wall to run a script after anything is posted to wall.
+>>>
+>>> Why? Maybe there is better way go get your goal.
+>>>
+>>>> I would also like to log all wall messages. I could easily do that
+>>>> with a script.
+>>>
+>>> yes, script(1) is the right way
+>>>
+>>>     Karel
+>>>
+>>>
+>>> --
+>>>  Karel Zak  <kzak@redhat.com>
+>>>  http://karelzak.blogspot.com
