@@ -1,27 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:5732 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751198AbdJWOdx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 23 Oct 2017 10:33:53 -0400
-Date: Mon, 23 Oct 2017 16:33:50 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Milan Broz <gmazyland@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] blkid: Add support for LUKS2 and new LABEL attributes.
-Message-ID: <20171023143350.kssx22zb6hqucu74@ws.net.home>
-References: <20171023142651.15930-1-gmazyland@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171023142651.15930-1-gmazyland@gmail.com>
+Received: from mail-io0-f170.google.com ([209.85.223.170]:47384 "EHLO
+        mail-io0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932103AbdJ3VlO (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 30 Oct 2017 17:41:14 -0400
+Received: by mail-io0-f170.google.com with SMTP id h70so30545542ioi.4
+        for <util-linux@vger.kernel.org>; Mon, 30 Oct 2017 14:41:14 -0700 (PDT)
+Received: from ola-842mrw1.ad.garmin.com ([204.77.163.55])
+        by smtp.googlemail.com with ESMTPSA id p198sm110361itp.3.2017.10.30.14.41.13
+        for <util-linux@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 30 Oct 2017 14:41:13 -0700 (PDT)
+From: Joshua Watt <jpewhacker@gmail.com>
+Message-ID: <1509399672.6057.30.camel@gmail.com>
+Subject: History of Lazy and Force unmouting
+To: util-linux@vger.kernel.org
+Date: Mon, 30 Oct 2017 16:41:12 -0500
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Oct 23, 2017 at 04:26:51PM +0200, Milan Broz wrote:
->  libblkid/src/superblocks/luks.c | 42 +++++++++++++++++++++++++++++++++++++----
->  1 file changed, 38 insertions(+), 4 deletions(-)
+All,
 
-Applied, thanks.
+I was hoping to get some background on why the util-linux umount
+command doesn't allow lazy unmounting (the -l flag) to be combined with
+force unmounting (the -f flag). If both flags are specified, umount
+only passes MNT_DETACH to the kernel instead of MNT_DETACH | MNT_FORCE.
+ I looked through the kernel code, and it appears that the two flags
+are orthogonal, so you *should* be able to specify both? I tried
+looking back in the git history of util-linux, but it appears to have
+been that way since support for lazy unmounting was added in 2006.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Thanks,
+Joshua Watt
