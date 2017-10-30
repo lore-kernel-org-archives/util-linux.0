@@ -1,55 +1,82 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Date: Mon, 16 Oct 2017 00:04:50 +0200
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andreas Bombe <aeb@debian.org>, Karel Zak <kzak@redhat.com>,
-        util-linux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
-        Curtis Gedak <gedakc@gmail.com>
-Subject: Re: Linux & FAT32 label
-Message-ID: <20171015220450.gsuwec2auekkqr52@pali>
-References: <20171004153332.GA6696@pali>
- <20171011212435.znmtdnsxcd5ectub@pali>
- <20171011214426.wa5endlb3kb4yhbv@pali>
- <20171015065901.GD3916@xo-6d-61-c0.localdomain>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:48572 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752078AbdJ3KoB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 30 Oct 2017 06:44:01 -0400
+Date: Mon, 30 Oct 2017 11:43:57 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Tobias Stoeckmann <tobias@stoeckmann.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] fsck.cramfs: Fix bus error on broken file system.
+Message-ID: <20171030104357.lpl7a6vu5snvhznn@ws.net.home>
+References: <20171026200117.GA14920@localhost>
+ <20171027054743.GA1907@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20171015065901.GD3916@xo-6d-61-c0.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171027054743.GA1907@localhost>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sunday 15 October 2017 08:59:01 Pavel Machek wrote:
-> Hi!
+On Fri, Oct 27, 2017 at 07:47:43AM +0200, Tobias Stoeckmann wrote:
+> The utility fsck.cramfs is prone to a bus error on file systems for
+> big endian systems with non-standard header sizes. While calculating
+> the crc32 checksum, it does not properly handle a possible offset
+> for bootcodes, resulting in out of boundary access of mmap'ed area.
 > 
-> > Based on results I would propose following unification:
-> > 
-> ...
-> > 4. Prefer label from the root directory. If there is none entry (means
-> >    there is also no erased entry), then read label from root sector.
-> > 
-> >    --> Reason: Windows XP and mlabel ignores what is written in boot
-> >        sector. Windows XP even do not update boot sector, so label
-> >        stored in boot sector is incorrect after any change done by
-> >        Windows XP.
-> > 
-> >        But due to compatibility with older dosfslabel, which stores
-> >        label only to boot sector, there is need for some fallback. Due
-> >        to point 1. the best seems to be to process also erased label in
-> >        root directory (marked with leading 0xE5) and fallback to boot
-> >        sector only in case label in root directory is missing.
-> > 
-> > What do you think about it?
+> You can trigger the issue with the following commands:
 > 
-> 4. seems dangerous. Assume we have "OLD" in boot sector and "0xe5-EW" in the directory
-> entry. The label will change from <none> to "OLD" when the directory entry is reused by
-> "FOO.TXT", right? That seems surprising / dangerous.
+> $ mkdir -p cramfs-poc/root/subdir
+> $ cd cramfs-poc
+> $ mkfs.cramfs -p -N big root cramfs
+> $ echo -ne \\00\\x4c | dd of=cramfs bs=1 seek=518 count=2 conv=notrunc
+> $ fsck.cramfs cramfs
+> 
+> Signed-off-by: Tobias Stoeckmann <tobias@stoeckmann.org>
+> ---
+> This is the second and much cleaner version of the initial patch.
+> We can easily use the offset of mmap, which heavily reduces the
+> manual buf + start calculation.
+> ---
+>  disk-utils/fsck.cramfs.c | 7 +++----
+>  1 file changed, 3 insertions(+), 4 deletions(-)
+> 
+> diff --git a/disk-utils/fsck.cramfs.c b/disk-utils/fsck.cramfs.c
+> index 50c7d33b9..cafa659af 100644
+> --- a/disk-utils/fsck.cramfs.c
+> +++ b/disk-utils/fsck.cramfs.c
+> @@ -220,7 +220,7 @@ static void test_crc(int start)
+>  	crc = crc32(0L, NULL, 0);
+>  
+>  	buf =
+> -	    mmap(NULL, super.size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+> +	    mmap(NULL, super.size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, start);
 
-Hm... that is a good question what happen (I do not know). I think that
-current situation when Windows XP show different label as Linux is also
-_surprising_.
+mmap() offset should be aligned to PAGE_SIZE. The function test_super() 
+is able to set "start" to PAD_SIZE (=512). It does not seem correct.
 
-Do you have a better idea what to do and how to handle this situation?
+>  	if (buf == MAP_FAILED) {
+>  		buf =
+>  		    mmap(NULL, super.size, PROT_READ | PROT_WRITE,
+
+on failed mmap() it tries to use open+read to get "buf" and it reads
+it from the begin of the file. It seems incompatible with mmap() now.
+I guess we need seek(start) there too.
+
+> @@ -233,9 +233,8 @@ static void test_crc(int start)
+>  		}
+>  	}
+>  	if (buf != MAP_FAILED) {
+> -		((struct cramfs_super *)((unsigned char *) buf + start))->fsid.crc =
+> -		    crc32(0L, NULL, 0);
+> -		crc = crc32(crc, (unsigned char *) buf + start, super.size - start);
+> +		((struct cramfs_super *) buf)->fsid.crc = crc32(0L, NULL, 0);
+> +		crc = crc32(crc, buf, super.size);
+>  		munmap(buf, super.size);
+>  	} else {
+>  		int retval;
+
+    Karel
 
 -- 
-Pali Rohár
-pali.rohar@gmail.com
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
