@@ -1,55 +1,71 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:56914 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751104AbdJBOYw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 2 Oct 2017 10:24:52 -0400
-Date: Mon, 2 Oct 2017 16:24:50 +0200
-From: Michal =?UTF-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: "Yuriy M. Kaminskiy" <yumkam@gmail.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] libmount: if ENOMEDIUM and tray is open, close tray and
- retry
-Message-ID: <20171002162450.69980989@kitsune.suse.cz>
-In-Reply-To: <6685d3eb-09b9-3904-1565-2bcfdc83eac5@suse.cz>
-References: <0e40cb41-a64a-93b1-0c06-620cca40a575@suse.cz>
-        <f29ab5ef-753d-2ea8-e348-d53cdf4262cf@suse.cz>
-        <db7a8eaa-3519-234c-72c9-428ca1b80ff0@suse.cz>
-        <m3wp6u5k8z.fsf@gmail.com>
-        <68bc995a-3b0c-5b2c-cb7a-5f0052d19bef@suse.cz>
-        <45a7e1bc-62cb-cf96-07c7-c4801dcf23d4@suse.cz>
-        <20171002150048.3a609f57@kitsune.suse.cz>
-        <eb224df4-615b-18e2-a9ee-5d98db9db225@suse.cz>
-        <20171002155004.5878caee@kitsune.suse.cz>
-        <6685d3eb-09b9-3904-1565-2bcfdc83eac5@suse.cz>
+Return-Path: tobias@stoeckmann.org
+Date: Mon, 30 Oct 2017 13:47:00 +0100
+From: Tobias Stoeckmann <tobias@stoeckmann.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] fsck.cramfs: Fix bus error on broken file system.
+Message-ID: <20171030124700.GA1870@localhost>
+References: <20171026200117.GA14920@localhost>
+ <20171027054743.GA1907@localhost>
+ <20171030104357.lpl7a6vu5snvhznn@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171030104357.lpl7a6vu5snvhznn@ws.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 2 Oct 2017 16:11:04 +0200
-Stanislav Brabec <sbrabec@suse.cz> wrote:
+The utility fsck.cramfs is prone to a bus error on file systems for
+big endian systems with non-standard header sizes. While calculating
+the crc32 checksum, it does not properly handle a possible offset
+for bootcodes, resulting in out of boundary access of mmap'ed area.
 
-> Michal Suchánek wrote:
-> > On Mon, 2 Oct 2017 15:06:33 +0200
-> > Stanislav Brabec <sbrabec@suse.cz> wrote:
-> >   
-> >> Michal Suchánek wrote:  
-> >>> it is completely reasonable to return ENOMEDIUM from kernel when
-> >>> the tray is open and let userspace decide if it wants to attempt
-> >>> to close the tray and how long it wants to wait for the tray to
-> >>> close (it may be blocked/broken).
-> >>>     
-> >> But then, what is the purpose of /proc/sys/dev/cdrom/autoclose?  
-> > 
-> > It can be used as a hint in mount if closing the tray is desired or
-> > not.  
-> 
-> Such feature could be completely implemented in the user space, so
-> there is no reason to stay in the kernel in such a limited form.
+You can trigger the issue with the following commands:
 
-Then mount should probably get an option to attempt to close the tray
-or not. Closing the tray is not always desirable.
+$ mkdir -p cramfs-poc/root/subdir
+$ cd cramfs-poc
+$ mkfs.cramfs -p -N big root cramfs
+$ echo -ne \\00\\x4c | dd of=cramfs bs=1 seek=518 count=2 conv=notrunc
+$ fsck.cramfs cramfs
 
-Thanks
+Signed-off-by: Tobias Stoeckmann <tobias@stoeckmann.org>
+---
+This version avoids mmap offset again and properly sets lseek offset.
+---
+ disk-utils/fsck.cramfs.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Michal
+diff --git a/disk-utils/fsck.cramfs.c b/disk-utils/fsck.cramfs.c
+index 50c7d33b9..2da14d17a 100644
+--- a/disk-utils/fsck.cramfs.c
++++ b/disk-utils/fsck.cramfs.c
+@@ -220,23 +220,23 @@ static void test_crc(int start)
+ 	crc = crc32(0L, NULL, 0);
+ 
+ 	buf =
+-	    mmap(NULL, super.size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
++	    mmap(NULL, start + super.size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+ 	if (buf == MAP_FAILED) {
+ 		buf =
+-		    mmap(NULL, super.size, PROT_READ | PROT_WRITE,
++		    mmap(NULL, start + super.size, PROT_READ | PROT_WRITE,
+ 			 MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+ 		if (buf != MAP_FAILED) {
+-			if (lseek(fd, 0, SEEK_SET) == (off_t) -1)
++			if (lseek(fd, start, SEEK_SET) == (off_t) -1)
+ 				err(FSCK_EX_ERROR, _("seek on %s failed"), filename);
+-			if (read(fd, buf, super.size) != (ssize_t) super.size)
++			if (read(fd, buf + start, super.size) != (ssize_t) super.size)
+ 				err(FSCK_EX_ERROR, _("cannot read %s"), filename);
+ 		}
+ 	}
+ 	if (buf != MAP_FAILED) {
+ 		((struct cramfs_super *)((unsigned char *) buf + start))->fsid.crc =
+ 		    crc32(0L, NULL, 0);
+-		crc = crc32(crc, (unsigned char *) buf + start, super.size - start);
+-		munmap(buf, super.size);
++		crc = crc32(crc, (unsigned char *) buf + start, super.size);
++		munmap(buf, start + super.size);
+ 	} else {
+ 		int retval;
+ 		size_t length = 0;
+-- 
+2.14.3
