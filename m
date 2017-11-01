@@ -1,104 +1,137 @@
-Return-Path: pali.rohar@gmail.com
-Date: Sun, 5 Nov 2017 15:07:45 +0100
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Andreas Bombe <aeb@debian.org>, Karel Zak <kzak@redhat.com>,
-	util-linux@vger.kernel.org,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
-	Curtis Gedak <gedakc@gmail.com>, pavel@ucw.cz
-Subject: Re: Linux & FAT32 label
-Message-ID: <20171105140745.ze4ttkazeczrqsy7@pali>
-References: <20171011212435.znmtdnsxcd5ectub@pali>
- <20171011214426.wa5endlb3kb4yhbv@pali>
- <20171012085658.iwrusvy4ay4s7hbb@ws.net.home>
- <20171012092113.2bsb3pzv6un4xahr@pali>
- <20171012101311.zfvg6edfvszlujom@ws.net.home>
- <20171012204931.tfd2bhmwu5b6rbpz@pali>
- <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
- <CAHp75VdWXHtCHiRxnbAidr9inehVC=av6gp7-jtJqN6WPYh4fg@mail.gmail.com>
- <20171105133929.7cscboxymmpkw634@pali>
- <CAHp75VfwLh9eH992nB1TiOVYOpEV6OSTGkbLau=eQRPeczeFyA@mail.gmail.com>
+Return-Path: prarit@redhat.com
+Subject: Re: [PATCH] dmesg: Add force-prefix option
+To: Karel Zak <kzak@redhat.com>
+References: <20171031120131.5837-1-prarit@redhat.com>
+ <20171101144703.adnh6nnft2c3f5qv@ws.net.home>
+Cc: util-linux@vger.kernel.org, anderson@redhat.com
+From: Prarit Bhargava <prarit@redhat.com>
+Message-ID: <59dcdf01-43d1-517e-ac6b-d0b23147d6f5@redhat.com>
+Date: Wed, 1 Nov 2017 12:52:29 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <CAHp75VfwLh9eH992nB1TiOVYOpEV6OSTGkbLau=eQRPeczeFyA@mail.gmail.com>
+In-Reply-To: <20171101144703.adnh6nnft2c3f5qv@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Sunday 05 November 2017 15:56:53 Andy Shevchenko wrote:
-> On Sun, Nov 5, 2017 at 3:39 PM, Pali Rohár <pali.rohar@gmail.com> wrote:
-> > On Tuesday 31 October 2017 10:35:48 Andy Shevchenko wrote:
-> >> On Mon, Oct 16, 2017 at 4:12 AM, Andreas Bombe <aeb@debian.org> wrote:
-> >> > On Thu, Oct 12, 2017 at 10:49:31PM +0200, Pali Rohár wrote:
-> >> >> On Thursday 12 October 2017 12:13:11 Karel Zak wrote:
+
+
+On 11/01/2017 10:47 AM, Karel Zak wrote:
+> On Tue, Oct 31, 2017 at 08:01:31AM -0400, Prarit Bhargava wrote:
+>> The kernel outputs multi-line messages (kernel messages that contain
+>> the end-of-line character '\n').  These message are currently displayed by
+>> dmesg as
+>>
+>> [965199.028940] runnable tasks:
+>>                            task   PID         tree-key  switches  prio
+>> wait-time             sum-exec        sum-sleep
+>>                 ----------------------------------------------------------------------------------------------------------
+>>
+>> The kernel timestamps each of these lines with [965199.028940] and the
+>> dmesg utility should do the same.
+>>
+>> Add the 'force-prefix'/'-p' dmesg option to add decode & timestamp information
+>> to each line of a multi-line message.
+>>
+>> Notes: The new print_record() algorithm stores the decode & timestamp
+>> information in buffers.  If the force-prefix option is used, the message is
+>> split into separate lines and each line is prefixed with the stored decode &
+>> timestamp information.  The splitting of the message into separate lines is
+>> done using strtok() which requires write access to the message buffer (ie, the
+>> const message buffer is now copied into a writeable buffer).
+>>
+>> Successfully tested by me by looking at sysrq-t and sysrq-w output.
+>> All known good /tests passed with these changes.
 > 
-> >> > I was worried that there might be some scripts or programs that expect
-> >>
-> >> If we really care about such scripts another approach might be to
-> >> introduce a CLI switch to "spec compatible mode" to each tool and
-> >> suggest in documentation to use it.
-> >>
-> >> There are also variants:
-> >> - spec compatible
-> >> - WinXX compatible
-> >> - DOS compatible
-> >> - etc
-> >
-> > I did tests with MS-DOS and Windows versions (results in previous
-> > email), and they seems to be compatible how they read label.
-> >
-> > Based on results I would suggest to ignore label from the boot sector
-> > when reading label.
+> Merged with some changes:
 > 
-> So, for tools which are not doing that to add
+>      - use snprintf()
+>      - cleanup \n usage (don't count line break to the
+>        message text in the parsers  and always print \n after the text
+>      - add the option to the man page
+>      - use --force-prefix for kmsg only, old syslog(2) API splits messages itself
+>      - strdup() the message text only on force-prefix
 > 
->  --ignore-boot-sector-label (or alike) [recommended]
+> Please, test it again :-)
+>
+
+Done :) and IMO the tests pass.
+
+Note that there are 3 tests/ that that fail before and after my patch.
+
+I tested and old and new dmesg using alt-sysrq-w.
+
+The kernel console displays
+
+<snip>
+[101640.296136]   .rt_throttled                  : 0
+[101640.301374]   .rt_time                       : 0.000000
+[101640.307288]   .rt_runtime                    : 950.000000
+[101640.313396]
+[101640.313396] runnable tasks:
+[101640.313396]             task   PID         tree-key  switches  prio
+wait-time             sum-exec        sum-sleep
+[101640.313396]
+----------------------------------------------------------------------------------------------------------
+<snip>
+
+and old dmesg shows
+
+[101640.296136]   .rt_throttled                  : 0
+[101640.301374]   .rt_time                       : 0.000000
+[101640.307288]   .rt_runtime                    : 950.000000
+[101640.313396]
+runnable tasks:
+            task   PID         tree-key  switches  prio     wait-time
+ sum-exec        sum-sleep
+----------------------------------------------------------------------------------------------------------
+
+The new dmesg (no additional options) shows
+
+[101640.296136]   .rt_throttled                  : 0
+[101640.301374]   .rt_time                       : 0.000000
+[101640.307288]   .rt_runtime                    : 950.000000
+[101640.313396]
+                runnable tasks:
+                            task   PID         tree-key  switches  prio
+wait-time             sum-exec        sum-sleep
+
+----------------------------------------------------------------------------------------------------------
+
+which provides backwards compatibility with the old dmesg behavior
+
+The new dmesg with --force-prefix shows
+
+[101640.296136]   .rt_throttled                  : 0
+[101640.301374]   .rt_time                       : 0.000000
+[101640.307288]   .rt_runtime                    : 950.000000
+[101640.313396] runnable tasks:
+[101640.313396]             task   PID         tree-key  switches  prio
+wait-time             sum-exec        sum-sleep
+[101640.313396]
+----------------------------------------------------------------------------------------------------------
+
+The new dmesg with --force-prefix -e shows
+
+[  +0.005237]   .rt_throttled                  : 0
+[  +0.005238]   .rt_time                       : 0.000000
+[  +0.005914]   .rt_runtime                    : 950.000000
+[  +0.006108] runnable tasks:
+[  +0.000000]             task   PID         tree-key  switches  prio
+wait-time             sum-exec        sum-sleep
+[  +0.000000]
+----------------------------------------------------------------------------------------------------------
+
+The new dmesg with --force-prefix -x shows
+
+kern  :warn  : [101640.301374]   .rt_time                       : 0.000000
+kern  :warn  : [101640.307288]   .rt_runtime                    : 950.000000
+kern  :warn  : [101640.313396] runnable tasks:
+kern  :warn  : [101640.313396]             task   PID         tree-key  switches
+ prio     wait-time             sum-exec        sum-sleep
+kern  :warn  : [101640.313396]
+----------------------------------------------------------------------------------------------------------
+
+So I think it works! :)
+
+P.
+>     Karel
 > 
-> right?
-> 
-> We don't actually know how many users (scripts) are relying on current
-> behaviour.
-> If there are only few, we may introduce backward compatibility switch
-> 
-> --read-boot-sector-label
-
-Current behavior of the last blkid and fatlabel tools is: Try to read
-label from the root directory. If it does not exist, then fallback to
-label stored in boot sector. And when fatlabel is changing label it
-updates both locations.
-
-So tools which already uses fatlabel for get & set operations should not
-be affected as setting new label makes boot and root in sync.
-
-New proposed behavior is: Try to read label from the root directory. If
-not exist, then treat disk as without label.
-
-As in current behavior there is no way via fatlabel to read "just only
-label from boot sector", I think that problems for current scripts is
-minimal.
-
-What about making this new behavior in fatlabel as default with new
-switch --fallback-to-boot-sector (switch to current behavior) or
---read-only-boot-sector (ignores label in root directory) for people who
-are interested in label stored in boot sector?
-
-And what to do with blkid? That cannot have any switch :-( and can have
-only one behavior.
-
-> > This makes behavior consistent with older MS-DOS
-> > systems and also all Windows systems. This change would be a problem
-> > only for users who have label stored only in boot sector. After change
-> > they would not see label anymore -- exactly same what MS-DOS or Windows
-> > show them. Seems that mkdosfs stores label to both location, since
-> > support for label was introduced. So different label would be visible
-> > only for users who used dosfslabel prior to version 3.0.16.
-> >
-> > What do you think?
-> 
-> So, in summary it looks like a documentation needs update (to mark
-> your research).
-
-Which documentation do you mean?
-
--- 
-Pali Rohár
-pali.rohar@gmail.com
