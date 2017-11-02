@@ -1,42 +1,80 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-io0-f194.google.com ([209.85.223.194]:43049 "EHLO
-        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751622AbdKFWZk (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 6 Nov 2017 17:25:40 -0500
-Received: by mail-io0-f194.google.com with SMTP id 134so77513ioo.0
-        for <util-linux@vger.kernel.org>; Mon, 06 Nov 2017 14:25:39 -0800 (PST)
-From: Joshua Watt <jpewhacker@gmail.com>
-To: util-linux@vger.kernel.org
-Cc: Joshua Watt <JPEWhacker@gmail.com>
-Subject: [PATCH] libmount: Allow MNT_FORCE and MNT_DETACH at umount
-Date: Mon,  6 Nov 2017 16:25:36 -0600
-Message-Id: <20171106222536.9806-1-JPEWhacker@gmail.com>
+Received: from mx2.suse.de ([195.135.220.15]:37730 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933207AbdKBSUx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 2 Nov 2017 14:20:53 -0400
+Date: Thu, 2 Nov 2017 19:20:51 +0100
+From: Michal =?UTF-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: "Yuriy M. Kaminskiy" <yumkam@gmail.com>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] libmount: if ENOMEDIUM and tray is open, close tray and
+ retry
+Message-ID: <20171102192051.441215c6@kitsune.suse.cz>
+In-Reply-To: <6685d3eb-09b9-3904-1565-2bcfdc83eac5@suse.cz>
+References: <0e40cb41-a64a-93b1-0c06-620cca40a575@suse.cz>
+        <f29ab5ef-753d-2ea8-e348-d53cdf4262cf@suse.cz>
+        <db7a8eaa-3519-234c-72c9-428ca1b80ff0@suse.cz>
+        <m3wp6u5k8z.fsf@gmail.com>
+        <68bc995a-3b0c-5b2c-cb7a-5f0052d19bef@suse.cz>
+        <45a7e1bc-62cb-cf96-07c7-c4801dcf23d4@suse.cz>
+        <20171002150048.3a609f57@kitsune.suse.cz>
+        <eb224df4-615b-18e2-a9ee-5d98db9db225@suse.cz>
+        <20171002155004.5878caee@kitsune.suse.cz>
+        <6685d3eb-09b9-3904-1565-2bcfdc83eac5@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-MNT_FORCE and MNT_DETACH are orthogonal in the Linux kernel, so both may
-be specified without any problems. Even if there were a problem with
-this combination, it should be up to the kernel to take the correct
-action or report an error.
+On Mon, 2 Oct 2017 16:11:04 +0200
+Stanislav Brabec <sbrabec@suse.cz> wrote:
 
-Signed-off-by: Joshua Watt <JPEWhacker@gmail.com>
----
- libmount/src/context_umount.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Michal Suchánek wrote:
+> > On Mon, 2 Oct 2017 15:06:33 +0200
+> > Stanislav Brabec <sbrabec@suse.cz> wrote:
+> >   
+> >> Michal Suchánek wrote:  
+> >>> it is completely reasonable to return ENOMEDIUM from kernel when
+> >>> the tray is open and let userspace decide if it wants to attempt
+> >>> to close the tray and how long it wants to wait for the tray to
+> >>> close (it may be blocked/broken).
+> >>>     
+> >> But then, what is the purpose of /proc/sys/dev/cdrom/autoclose?  
+> > 
+> > It can be used as a hint in mount if closing the tray is desired or
+> > not.  
+> 
+> Such feature could be completely implemented in the user space, so
+> there is no reason to stay in the kernel in such a limited form.
+> 
+> 20 years ago, it was a completely working implementation inside the
+> kernel. User space just called mount(), and it succeeded.
 
-diff --git a/libmount/src/context_umount.c b/libmount/src/context_umount.c
-index f6b4ba737..45651b58e 100644
---- a/libmount/src/context_umount.c
-+++ b/libmount/src/context_umount.c
-@@ -704,7 +704,7 @@ static int do_umount(struct libmnt_context *cxt)
- 	if (mnt_context_is_lazy(cxt))
- 		flags |= MNT_DETACH;
- 
--	else if (mnt_context_is_force(cxt))
-+	if (mnt_context_is_force(cxt))
- 		flags |= MNT_FORCE;
- 
- 	DBG(CXT, ul_debugobj(cxt, "umount(2) [target='%s', flags=0x%08x]%s",
--- 
-2.13.6
+Ok, if you can point on a particular kernel version and driver that
+worked it might be interesting to see the implementation.
 
+> 
+> If that requires user space loop loop, then there is no reason to
+> implement sysfs entry just to perform tray close inside mount()
+> syscall and then fail anyway.
+> 
+
+As things are the kernel calls the tray_move function to close the
+tray. This function exits before the tray closes. The kernel proceeds
+to try to read the medium. There is a wait loop in ioctl calls (but not
+block calls) to check for ASC/ASCQ 04/01 (unit becoming ready).
+However, my cdrom reports 3A/02 (no medium, tray open) while the tray
+is closing. There is no code for 'tray closing'. Hence the open() call
+is not aware that the tray is supposed to close shortly and does not
+wait for it.
+
+Tracking the 'closing' state in the kernel does not look pretty. Best
+kernel-side option would be to wait for some arbitrary time in the
+tray_move function until the drive state changes from 'tray open'. I
+suspect waiting for arbitrary time or indefinitely until the tray
+closes may upset people. Then again, this is CD drive so it is anything
+but fast (unless emulated ;-)
+
+Thanks
+
+Michal
