@@ -1,50 +1,42 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from imap.thunk.org ([74.207.234.97]:47534 "EHLO imap.thunk.org"
+Received: from mx1.redhat.com ([209.132.183.28]:41236 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753519AbdKGR2t (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 7 Nov 2017 12:28:49 -0500
-Date: Tue, 7 Nov 2017 12:28:41 -0500
-From: Theodore Ts'o <tytso@mit.edu>
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Andreas Bombe <aeb@debian.org>, Karel Zak <kzak@redhat.com>,
-        util-linux@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
-        Curtis Gedak <gedakc@gmail.com>, pavel@ucw.cz
-Subject: Re: Linux & FAT32 label
-Message-ID: <20171107172841.twyu7ieekrs6b2da@thunk.org>
-References: <20171012092113.2bsb3pzv6un4xahr@pali>
- <20171012101311.zfvg6edfvszlujom@ws.net.home>
- <20171012204931.tfd2bhmwu5b6rbpz@pali>
- <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
- <CAHp75VdWXHtCHiRxnbAidr9inehVC=av6gp7-jtJqN6WPYh4fg@mail.gmail.com>
- <20171105133929.7cscboxymmpkw634@pali>
- <CAHp75VfwLh9eH992nB1TiOVYOpEV6OSTGkbLau=eQRPeczeFyA@mail.gmail.com>
- <20171105140745.ze4ttkazeczrqsy7@pali>
- <20171105203542.jgupce2usbtjhbg2@thunk.org>
- <20171105211249.xrg6m6ijjewrpqp2@pali>
+        id S932401AbdKBOAm (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 2 Nov 2017 10:00:42 -0400
+Date: Thu, 2 Nov 2017 15:00:38 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Na Nha <minhnhan0801@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Set_disksize_zram_LTP_testsuite
+Message-ID: <20171102140038.xl6m7bdb2nmllv2r@ws.net.home>
+References: <CAPiF6Th05_w6xE49Sym2XNLQrDPvrQ+74N1EcL2w9SESQ5ZpaA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20171105211249.xrg6m6ijjewrpqp2@pali>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAPiF6Th05_w6xE49Sym2XNLQrDPvrQ+74N1EcL2w9SESQ5ZpaA@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Nov 05, 2017 at 10:12:49PM +0100, Pali Rohár wrote:
-> Easy way how to achieve this situation:
+On Mon, Oct 23, 2017 at 11:48:25PM +0700, Na Nha wrote:
+> My name is Le Minh nhan, I am a Linux developer.
 > 
-> 1. use mkdosfs to format hard disk to FAT32 with label LABEL42
-> 
-> 2. boot Windows 10 (or XP) and set label of that FAT32 partition to
-> empty (via Explorer GUI)
-> 
-> 3. profit
-> 
-> You would have stored LABEL42 in boot sector and no label in root
-> directory. Windows handle this situation as there is no label.
+> When I had used LTP testsuite to test our kernel, I encountered an error.
+> Testcase "zram02" of LTP testsuite  sets 100G disksize to zram, the
+> kernel says "cannot allocate memory". But there is no problem if I use
+> other values: 10G,20G...90G to set disksize of zram.
 
-But why should we *care*?
+The command zramctl uses 64-bit numbers for sizes, so it's without any
+limitation, but don't forget that kernel uses RAM to allocate it...
+see
 
-Puzzled,
+ https://www.kernel.org/doc/Documentation/blockdev/zram.txt
 
-					- Ted
+where is more details about the limits, some of the limits is possible
+set by /sys.
+
+Note that zramctl --size modifies disksize attribute only.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
