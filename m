@@ -1,34 +1,48 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46086 "EHLO mx1.redhat.com"
+Received: from imap.cs.msu.ru ([188.44.42.39]:52625 "EHLO mail.cs.msu.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751826AbdKHLcN (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 8 Nov 2017 06:32:13 -0500
-Date: Wed, 8 Nov 2017 12:32:09 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Joshua Watt <jpewhacker@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] libmount: Allow MNT_FORCE and MNT_DETACH at umount
-Message-ID: <20171108113209.ri3smegy6ym5eus4@ws.net.home>
-References: <20171106222536.9806-1-JPEWhacker@gmail.com>
+        id S1752183AbdKBBtM (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 1 Nov 2017 21:49:12 -0400
+Received: from [10.4.30.50] (port=34356)
+        by mail.cs.msu.ru with esmtpsa (TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:128)
+        (Exim 4.89 (FreeBSD))
+        (envelope-from <m.vorobyov@cs.msu.ru>)
+        id 1eA3w2-000EZm-Q4
+        for util-linux@vger.kernel.org; Thu, 02 Nov 2017 04:04:43 +0300
+To: util-linux@vger.kernel.org
+From: Mikhail Vorobyov <m.vorobyov@cs.msu.ru>
+Message-ID: <48789bdc-3354-5282-dbe8-fd81281324eb@cs.msu.ru>
+Date: Thu, 2 Nov 2017 04:04:42 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171106222536.9806-1-JPEWhacker@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Subject: [PATCH] libfdisk: (sun) fix creation of whole disk partition
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 06, 2017 at 04:25:36PM -0600, Joshua Watt wrote:
-> MNT_FORCE and MNT_DETACH are orthogonal in the Linux kernel, so both may
-> be specified without any problems. Even if there were a problem with
-> this combination, it should be up to the kernel to take the correct
-> action or report an error.
-> 
-> Signed-off-by: Joshua Watt <JPEWhacker@gmail.com>
-> ---
->  libmount/src/context_umount.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+sun_add_partition() allowed the 1st sector to be 0 for the 3rd partition
+only if that sector was free or if other partitions covered the whole
+disk. Now it's always allowed for the 1st sector to be set to 0 for
+the 3rd partition.
 
-Applied, thanks.
+Signed-off-by: Mikhail Vorobyov <m.vorobyov@cs.msu.ru>
+---
+ libfdisk/src/sun.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+diff --git a/libfdisk/src/sun.c b/libfdisk/src/sun.c
+index 0526227ce..c058637f5 100644
+--- a/libfdisk/src/sun.c
++++ b/libfdisk/src/sun.c
+@@ -543,6 +543,10 @@ static int sun_add_partition(
+                                fdisk_ask_number_set_low(ask,     0);   /* minimal */
+                                fdisk_ask_number_set_default(ask, 0);   /* default */
+                                fdisk_ask_number_set_high(ask,    0);   /* maximal */
++                       } else if (n == 2) {
++                               fdisk_ask_number_set_low(ask,     0);   /* minimal */
++                               fdisk_ask_number_set_default(ask, fdisk_scround(cxt, start));   /* default */
++                               fdisk_ask_number_set_high(ask,    fdisk_scround(cxt, stop));    /* maximal */
+                        } else {
+                                fdisk_ask_number_set_low(ask,     fdisk_scround(cxt, start));   /* minimal */
+                                fdisk_ask_number_set_default(ask, fdisk_scround(cxt, start));   /* default */
+--
+2.13.6
