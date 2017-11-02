@@ -1,74 +1,140 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:62746 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751007AbdKLPWh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 12 Nov 2017 10:22:37 -0500
-Subject: [v2 PATCH 0/5] Pull Request and v2 changes
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42700 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S933371AbdKBQyQ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 2 Nov 2017 12:54:16 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.21/8.16.0.21) with SMTP id vA2GdrNd083616
+        for <util-linux@vger.kernel.org>; Thu, 2 Nov 2017 12:54:15 -0400
+Received: from e06smtp13.uk.ibm.com (e06smtp13.uk.ibm.com [195.75.94.109])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2e0568yuny-1
+        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
+        for <util-linux@vger.kernel.org>; Thu, 02 Nov 2017 12:54:15 -0400
+Received: from localhost
+        by e06smtp13.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <util-linux@vger.kernel.org> from <gerald.schaefer@de.ibm.com>;
+        Thu, 2 Nov 2017 16:54:13 -0000
+Date: Thu, 2 Nov 2017 17:54:08 +0100
+From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <1a28a73d-2e05-7071-479a-af5a18fade3b@gmx.com>
-Date: Sun, 12 Nov 2017 10:22:17 -0500
+Cc: util-linux@vger.kernel.org, Michal Hocko <mhocko@kernel.org>,
+        linux-mm <linux-mm@kvack.org>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Andre Wild <wild@linux.vnet.ibm.com>
+Subject: Re: [PATCH 0/3] lsmem/chmem: add memory zone awareness
+In-Reply-To: <20171018114009.7b4iax6536un5bnr@ws.net.home>
+References: <20170927174446.20459-1-gerald.schaefer@de.ibm.com>
+        <20171018114009.7b4iax6536un5bnr@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20171102175408.18d4eafc@thinkpad>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wed, 18 Oct 2017 13:40:09 +0200
+Karel Zak <kzak@redhat.com> wrote:
 
-v2 Changes:
- * Apply Karel's changes for ISO_TIMESTAMP initializations
- * Fix last.c breakage caused by adding ISO timezone colon
- * New PATCH 5/5 to fix various tests broken by ISO timezone colon
- * Fix ISO format flags in timeutils.c main()
+> On Wed, Sep 27, 2017 at 07:44:43PM +0200, Gerald Schaefer wrote:
+> >  bash-completion/chmem                  |   1 +
+> >  bash-completion/lsmem                  |   2 +-
+> >  sys-utils/chmem.8                      |  19 +++++
+> >  sys-utils/chmem.c                      | 136 +++++++++++++++++++++++++++++++--
+> >  sys-utils/lsmem.1                      |   4 +-
+> >  sys-utils/lsmem.c                      |  98 +++++++++++++++++++++++-
+> >  tests/expected/lsmem/lsmem-s390-zvm-6g |  21 +++++
+> >  tests/expected/lsmem/lsmem-x86_64-16g  |  39 ++++++++++
+> >  tests/ts/lsmem/lsmem                   |   1 +
+> >  9 files changed, 309 insertions(+), 12 deletions(-)  
+> 
+> Merged to my "next" branch (in master we have still feature-freeze).
+> 
+> I have also added a note about the way how lsmem merges blocks to
+> create the RANGE column. It seems important, because the number of
+> ranges is affected by ZONES (or REMOVABLE). See:
+> 
+>   https://github.com/karelzak/util-linux/commit/ffe5267c91018ca8cac8bedc14b695478c11a5dd
+> 
+> Maybe it's possible to explain it in a better way... (send patch;-)
+> 
+> The another possibility is to *always use* zones and removable
+> attributes to create the ranges (merge blocks) independently on the
+> output columns (e.g. -o ZONES). So, the result will be always the same
+> number of ranges with the same <start>-<end>. 
+> 
+> Now (see the first range):
+> 
+> $ lsmem 
+> RANGE                                  SIZE  STATE REMOVABLE  BLOCK
+> 0x0000000000000000-0x0000000047ffffff  1.1G online        no    0-8
+> 0x0000000048000000-0x0000000057ffffff  256M online       yes   9-10
+> 0x0000000058000000-0x000000005fffffff  128M online        no     11
+> 0x0000000060000000-0x0000000067ffffff  128M online       yes     12
+> 0x0000000068000000-0x0000000087ffffff  512M online        no  13-16
+> 0x0000000088000000-0x000000008fffffff  128M online       yes     17
+> 0x0000000090000000-0x00000000afffffff  512M online        no  18-21
+> 0x00000000b0000000-0x00000000bfffffff  256M online       yes  22-23
+> 0x0000000100000000-0x000000042fffffff 12.8G online        no 32-133
+> 0x0000000430000000-0x0000000437ffffff  128M online       yes    134
+> 0x0000000438000000-0x000000043fffffff  128M online        no    135
+> 
+> lsmem -o+ZONES
+> RANGE                                  SIZE  STATE REMOVABLE  BLOCK  ZONES
+> 0x0000000000000000-0x0000000007ffffff  128M online        no      0   None
+> 0x0000000008000000-0x0000000047ffffff    1G online        no    1-8  DMA32
+> 0x0000000048000000-0x0000000057ffffff  256M online       yes   9-10  DMA32
+> 0x0000000058000000-0x000000005fffffff  128M online        no     11  DMA32
+> 0x0000000060000000-0x0000000067ffffff  128M online       yes     12  DMA32
+> 0x0000000068000000-0x0000000087ffffff  512M online        no  13-16  DMA32
+> 0x0000000088000000-0x000000008fffffff  128M online       yes     17  DMA32
+> 0x0000000090000000-0x00000000afffffff  512M online        no  18-21  DMA32
+> 0x00000000b0000000-0x00000000bfffffff  256M online       yes  22-23  DMA32
+> 0x0000000100000000-0x000000042fffffff 12.8G online        no 32-133 Normal
+> 0x0000000430000000-0x0000000437ffffff  128M online       yes    134 Normal
+> 0x0000000438000000-0x000000043fffffff  128M online        no    135   None
+> 
+> lsmem -oRANGE,SIZE
+> RANGE                                 SIZE
+> 0x0000000000000000-0x00000000bfffffff   3G
+> 0x0000000100000000-0x000000043fffffff  13G
+> 
+> 
+> I didn't test it, but the question is how usable is 
+> 0x0000000000000000-<end> as option for chmem.
+> 
+> It's also seems difficult to use it in scripts if you want to output only
+> a RANGE, for example
+> 
+>     FOO=$(lsmem -oRANGE -n --summary=never | head -1)
+>     
+> but the range is affected by missing columns.
+> 
+> Comments?
 
-A little help please:
- * test lsipc and rfkill (changes to ISO timestamps), I couldn't test them.
- * check the new PATCH 5/5, as I'm not familiar with the tests system
-   Note: the tests passed with and without the change in tests/ts/utmp/subsec
+Sorry for the late answer. I'm not sure if I understand the problem, it
+"works as designed" that the range merging is done based on the output
+columns, but I see that it was not really described as such. So I do
+like the note that you added with the above mentioned commit.
 
-The following changes since commit 82524a1379c02bff0d061ffffae7398543218d33:
+However, regarding the --split option, I think it may be confusing at
+least for human users, if an "lsmem -oRANGE" will now print more than
+one range, even if this is now based on a "fixed" set of default columns
+that are used for merging (but "subject to change" according to the man
+page).
 
-  nsenter: revert changes committed by accident (2017-11-10 14:02:51 +0100)
+Now the user will not see the columns that are used for merging if he
+says "lsmem -oRANGE", as opposed to the previous behavior where only the
+visible output columns were used for merge decision (and for "lsmem
+-oRANGE" that would simply be one big range because there are no other
+columns that may differ).
 
-are available in the git repository at:
+I also do not really see the benefit for script usage, at least if we
+define it as "expected behavior" to have the ranges merged based on the
+output columns. Maybe I am missing something, but I think the --split
+option does not really solve any problem, but rather introduces
+potential for future confusion. I would rather only have the behavior
+documented in the man pages, as you did in the above mentioned commit
+(and which was then removed with the --split patch).
 
-  git@github.com:jwpi/util-linux.git 170925
+Regards,
+Gerald
 
-for you to fetch changes up to 948e8d4349a7f83be1b6b3e94932eb4b8d6946d0:
-
-  tests: adjust for ISO timezone colon use (2017-11-12 09:08:43 -0500)
-
-----------------------------------------------------------------
-J William Piggott (5):
-      hwclock: add iso-8601 overflow check
-      lib/timeutils: ISO_8601_BUFSIZ too small
-      lib/timeutils: add get_gmtoff()
-      lib/timeutils: add common ISO timestamp masks
-      tests: adjust for ISO timezone colon use
-
- include/timeutils.h                     | 27 ++++++---
- lib/timeutils.c                         | 98 +++++++++++++++++++++++++++------
- login-utils/last.c                      |  6 +-
- login-utils/lslogins.c                  |  5 +-
- login-utils/utmpdump.c                  |  4 +-
- misc-utils/uuidparse.c                  | 12 +---
- sys-utils/dmesg.c                       |  4 +-
- sys-utils/hwclock.c                     | 25 ++++-----
- sys-utils/lsipc.c                       |  2 +-
- sys-utils/rfkill.c                      | 10 +---
- term-utils/script.c                     |  8 +--
- tests/expected/dmesg/indentation        | 10 ++--
- tests/expected/script/options-append    |  8 +--
- tests/expected/script/options-force     |  8 +--
- tests/expected/script/options-quiet     |  8 +--
- tests/expected/script/options-return    | 16 +++---
- tests/expected/utmp/last-nodns          | 30 +++++-----
- tests/expected/utmp/utmpdump-subsecond  |  6 +-
- tests/expected/utmp/utmpdump-totxt      | 20 +++----
- tests/expected/utmp/utmpdump-totxt-ipv6 |  4 +-
- tests/expected/uuid/uuidparse           |  2 +-
- tests/ts/utmp/subsec                    |  6 +-
- tests/ts/utmp/txt-a                     | 38 ++++++-------
- tests/ts/utmp/txt-b                     | 20 +++----
- tests/ts/utmp/txt-ipv6                  |  4 +-
- 25 files changed, 214 insertions(+), 167 deletions(-)
