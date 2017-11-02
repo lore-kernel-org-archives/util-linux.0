@@ -1,64 +1,44 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:49706 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:59510 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752462AbdKXJ2J (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 24 Nov 2017 04:28:09 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id EF837A63E0
-        for <util-linux@vger.kernel.org>; Fri, 24 Nov 2017 09:28:08 +0000 (UTC)
-Date: Fri, 24 Nov 2017 10:28:05 +0100
+        id S1755647AbdKBN0G (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 2 Nov 2017 09:26:06 -0400
+Date: Thu, 2 Nov 2017 14:26:02 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Masatake YAMATO <yamato@redhat.com>
+To: Tobias Stoeckmann <tobias@stoeckmann.org>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] lsns: add netnsid column
-Message-ID: <20171124092805.4d7gfojeogjgxi7s@ws.net.home>
-References: <20171121111641.dt3vodjsuwwnna6g@ws.net.home>
- <20171121.203633.949035400852899096.yamato@redhat.com>
- <20171122090613.ltcuaehwbum7apes@ws.net.home>
- <20171124.020128.28825211426388397.yamato@redhat.com>
+Subject: Re: [PATCH] fsck.cramfs: Fix bus error on broken file system.
+Message-ID: <20171102132602.uv72emiy745ql6rb@ws.net.home>
+References: <20171026200117.GA14920@localhost>
+ <20171027054743.GA1907@localhost>
+ <20171030104357.lpl7a6vu5snvhznn@ws.net.home>
+ <20171030124953.GA2109@localhost>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171124.020128.28825211426388397.yamato@redhat.com>
+In-Reply-To: <20171030124953.GA2109@localhost>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Nov 24, 2017 at 02:01:28AM +0900, Masatake YAMATO wrote:
-> Hi,
+On Mon, Oct 30, 2017 at 01:49:53PM +0100, Tobias Stoeckmann wrote:
+> The utility fsck.cramfs is prone to a bus error on file systems for
+> big endian systems with non-standard header sizes. While calculating
+> the crc32 checksum, it does not properly handle a possible offset
+> for bootcodes, resulting in out of boundary access of mmap'ed area.
 > 
-> > I do not have any changes yet ;-) So, you can start, or if you're busy
-> > with something else I can do that.
+> You can trigger the issue with the following commands:
 > 
-> It works:
+> $ mkdir -p cramfs-poc/root/subdir
+> $ cd cramfs-poc
+> $ mkfs.cramfs -p -N big root cramfs
+> $ echo -ne \\00\\x4c | dd of=cramfs bs=1 seek=518 count=2 conv=notrunc
+> $ fsck.cramfs cramfs
 
-Cool!
+Added between tests.
 
-> # ./lsns --type=net
->         NS TYPE NPROCS   PID USER     NETNSID NSFS           COMMAND
-> 4026531993 net     405     1 root  unassigned                /usr/lib/systemd/systemd --switched-root --system --deserialize 25
-> 4026532433 net       1  1515 rtkit unassigned                /usr/libexec/rtkit-daemon
-> 4026532579 net       1 10432 root  unassigned /run/netns/QWE bash
->                                               /tmp/RTY
-> 
-> > This feature should be probably disabled for --raw, maybe add --nowrap
-> > and in this case use "," as separator and remove SCOLS_FL_WRAP for the
-> > column in init_scols_table().
-> 
-> It seems that nsfs is still not so popular.
-> So I think enabling the column only when --type net is given, as
-> you suggested about netnsid.
+>  disk-utils/fsck.cramfs.c | 13 +++++++------
+>  1 file changed, 7 insertions(+), 6 deletions(-)
 
-Yes.
-
-> I would like to make clarify what you meant.
-> 
-> If both --raw and -o NSFS are given, what I should do?
-> Hidden NSFS anyway? or Use ',' as separator instead of '\n'?
- 
-I prefer ',' as separator and add to the man page a note that NSFS
-uses multi-line cells (to DESCRIPTION where we already have soemthing
-about --output).
+Applied, thanks.
 
     Karel
 
