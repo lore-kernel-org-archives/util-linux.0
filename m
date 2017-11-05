@@ -1,51 +1,207 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47502 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752968AbdKCLAt (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 3 Nov 2017 07:00:49 -0400
-Date: Fri, 3 Nov 2017 12:00:45 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Joshua Watt <jpewhacker@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: History of Lazy and Force unmouting
-Message-ID: <20171103110045.ubmpbq2jjnmznjqg@ws.net.home>
-References: <1509399672.6057.30.camel@gmail.com>
+Received: from mail-wr0-f171.google.com ([209.85.128.171]:47904 "EHLO
+        mail-wr0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751615AbdKENGM (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 5 Nov 2017 08:06:12 -0500
+Date: Sun, 5 Nov 2017 14:06:08 +0100
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+To: Andreas Bombe <aeb@debian.org>, Karel Zak <kzak@redhat.com>,
+        util-linux@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
+        Curtis Gedak <gedakc@gmail.com>
+Subject: Re: Linux & FAT32 label
+Message-ID: <20171105130608.5oww3b2fnnrwe7ok@pali>
+References: <20171004153332.GA6696@pali>
+ <20171011212435.znmtdnsxcd5ectub@pali>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1509399672.6057.30.camel@gmail.com>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20171011212435.znmtdnsxcd5ectub@pali>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Oct 30, 2017 at 04:41:12PM -0500, Joshua Watt wrote:
-> I was hoping to get some background on why the util-linux umount
-> command doesn't allow lazy unmounting (the -l flag) to be combined with
-> force unmounting (the -f flag). If both flags are specified, umount
-> only passes MNT_DETACH to the kernel instead of MNT_DETACH | MNT_FORCE.
+On Wednesday 11 October 2017 23:24:35 Pali Rohár wrote:
+> On Wednesday 04 October 2017 17:33:32 Pali Rohár wrote:
+> > Hi! There is a big inconsistency in Linux tools which read or write
+> > FAT32 label in filesystem images. The most common used are tools:
+> > blkid (from util-linux project), fatlabel (previously known as
+> > dosfslabel; from dosfstools project) and mlabel (from mtools project).
+> > 
+> > FAT32 is itself a big mess from Microsoft hell and even FAT32
+> > implementation in Microsoft Windows systems is not compliant to the
+> > released FAT32 documentation from Microsoft.
+> > 
+> > In past months I observed that Linux FAT32 tools has its own way how
+> > they interpret FAT32 label (known as volume id) and because every GUI
+> > application uses one of those low-level command line tool, it is a big
+> > mess if one application say that FAT32 label is A and another that it is
+> > B. And then Windows XP say, it is C.
+> > 
+> > I would like to open discussion if it would be possible to change
+> > behavior how blkid (from util-linux project) and fatlabel (from
+> > dosfstool project) handle FAT32 label. Ideally to report exactly same
+> > output.
+> > 
+> > Basic information about FAT32 label:
+> > 
+> > 1) It is stored in two locations: boot sector and root directory as
+> >    file name.
+> > 
+> > 2) In both location format is 11 bytes, padded with spaces (not nulls).
+> > 
+> > 3) Empty label in boot sector is stored as "NO NAME    " and not as
+> >    empty string.
+> > 
+> > 4) Empty label in root directory is stored either as name which starts
+> >    with byte 0xE5, or is not stored in root directory at all.
+> > 
+> > 5) If label contains leading byte 0xE5, then in root directory is stored
+> >    as byte 0x05.
+> > 
+> > 6) Label string is stored according to current DOS code page. Therefore
+> >    label string needs to be converted to bytes.
+> > 
+> > 7) Label string cannot contain control characters and characters from
+> >    the set   ? / \ | . , ; : + = [ ] < > "   plus lower case characters
+> >    are stored as their upper case variant (not only ASCII).
+> > 
+> > (Please correct me if I'm wrong in some of those points)
+> > 
+> > Plus Microsoft Windows systems fully ignores label stored in boot
+> > sector. Seems they do not read it nor they do not update it on changes.
+> > 
+> > Looks like that mlabel (from mtools) applies all above rules and uses
+> > DOS code page 850 by default (can be changed in config file).
+> > 
+> > blkid and fatlabel process special cases from 1) to 5) differently and
+> > they operates on raw bytes, not strings (in DOS code page).
+> > 
+> > mlabel reads label from the root directory (missing entry is interpreted
+> > as no label; there is no fallback to boot sector), but "set" operation
+> > modify label in both location boot sector + root directory. Basically it
+> > is near to Windows implementation. And reason why Gparted GUI
+> > application uses mlabel and not fatlabel.
+> > 
+> > As Linux does not have "current DOS code page" and argv arguments are
+> > not (Unicode) strings, but arbitrary bytes, I understand that for point
+> > 6) it is easier to operates not on FAT strings (in current code page),
+> > but rather on bytes. Which also would be same on all machines with any
+> > configuration.
+> > 
+> > But would it be possible to decide and unify handling of point 2), 3),
+> > 4), 5)? Ideally with combination how to handle situation when different
+> > label is stored in boot sector and root directory.
+> > 
+> > As Windows does not use label in boot sector, it is very common
+> > situation that label in boot sector differs from the root directory.
+> > 
+> > The best would be see in all cases same label from blkid, fatlabel and
+> > mlabel. Ideally same as Windows machines -- but due to DOS code page,
+> > this is possible only for ASCII subset of the 8bit encoding. IIRC most
+> > (or all?) DOS code page has same characters in printable ASCII range.
+> > 
+> > It is really bad situation if I open disk in Gparted which show me label
+> > via mlabel and then I open in KDE Partition Manager and I see different
+> > label string (as it reads it from fatlabel).
+> > 
+> > Also note that older version of fatlabel (when it was named dosfslabel)
+> > operated only the label stored in boot sector (and label stored in root
+> > directory was not read or touched).
+> > 
+> 
+> Hi! I did some testing of FAT32 label with different tools and here are
+> results:
 
-The current libmount code follows the original mount(*) behavior. The
-flag MNT_DETACH is supported since util-linux 2.11m (year 2001).
+Hi! I did more tests with MS-DOS and Windows systems and I'm extending
+result tables below:
 
->  I looked through the kernel code, and it appears that the two flags
-> are orthogonal, so you *should* be able to specify both? I tried
-> looking back in the git history of util-linux, but it appears to have
-> been that way since support for lazy unmounting was added in 2006.
+>                                                  dosfslabel 3.0.12   fatlabel 4.1       blkid 2.20.1   mlabel 4.0.12   label.exe Windows XP
+> fat32_mkdosfs_label1                             'label1     '       'label1     '      'label1'       'label1     '   'label1'
+> fat32_mkdosfs_label1_dosfslabel_empty            '           '       '           '      none           '           '   none
+> fat32_mkdosfs_label1_dosfslabel_label2           'label2     '       'label2     '      'label2'       'label2     '   'label2'
+> fat32_mkdosfs_label1_dosfslabel_NO_NAME          'NO NAME    '       'NO NAME    '      none           'NO NAME    '   'NO NAME'
+> fat32_mkdosfs_label1_mlabel_erase                'NO NAME    '       'NO NAME    '      none           none            none
+> fat32_mkdosfs_label1_mlabel_NO_NAME              'NO NAME    '       'NO NAME    '      none           'NO NAME    '   'NO NAME'
+> fat32_mkdosfs_label1_xp_erase                    'label1'    '       0xE5'abel1     '   'label1'       none            none
+> fat32_mkdosfs_label1_xp_label2                   'label1'    '       'LABEL2     '      'LABEL2'       'LABEL2     '   'LABEL2'
+> fat32_mkdosfs_none                               '           '       '           '      none           none            none
+> fat32_mkdosfs_none_dosfslabel_label1             'label1     '       'label1     '      'label1'       none            none
+> fat32_mkdosfs_none_dosfslabel_label1_xp_label2   'label1'    '       'LABEL2     '      'LABEL2'       'LABEL2     '   'LABEL2'
+> fat32_mkdosfs_none_dosfslabel_NO_NAME            'NO NAME    '       'NO NAME    '      none           none            none
+> fat32_mkdosfs_none_xp_label1                     '           '       'LABEL1     '      'LABEL1'       'LABEL1     '   'LABEL1'
+> fat32_mkdosfs_none_xp_label1_dosfslabel_label2   'label2     '       'label2     '      'label2'       'label2     '   'label2'
+> fat32_xp_label1                                  'NO NAME    '       'LABEL1     '      'LABEL1'       'LABEL1     '   'LABEL1'
+> fat32_xp_none                                    'NO NAME    '       'NO NAME    '      none           none            none
+> fat32_xp_none_dosfslabel_label1                  'label1     '       'label1     '      'label1'       none            none
+> fat32_xp_none_mlabel_label1                      'LABEL1     '       'LABEL1     '      'LABEL1'       'LABEL1     '   'LABEL1'
 
-2006 is time when the code was imported to the git. The important
-tarball are older.
+                                                   label.exe MS-DOS 7.10   label.exe Windows 98   label.exe Windows 10
+fat32_mkdosfs_label1                               'label1'                'label1'               'label1'
+fat32_mkdosfs_label1_dosfslabel_empty              ''                      ''                     none
+fat32_mkdosfs_label1_dosfslabel_label2             'label2'                'label2'               'label2'
+fat32_mkdosfs_label1_dosfslabel_NO_NAME            'NO NAME'               'NO NAME'              'NO NAME'
+fat32_mkdosfs_label1_mlabel_erase                  none                    none                   none
+fat32_mkdosfs_label1_mlabel_NO_NAME                'NO NAME'               'NO NAME'              'NO NAME'
+fat32_mkdosfs_label1_xp_erase                      none                    none                   none
+fat32_mkdosfs_label1_xp_label2                     'LABEL2'                'LABEL2'               'LABEL2'
+fat32_mkdosfs_none                                 none                    none                   none
+fat32_mkdosfs_none_dosfslabel_label1               none                    none                   none
+fat32_mkdosfs_none_dosfslabel_label1_xp_label2     'LABEL2'                'LABEL2'               'LABEL2'
+fat32_mkdosfs_none_dosfslabel_NO_NAME              none                    none                   none
+fat32_mkdosfs_none_xp_label1                       'LABEL1'                'LABEL1'               'LABEL1'
+fat32_mkdosfs_none_xp_label1_dosfslabel_label2     'label2'                'label2'               'label2'
+fat32_xp_label1                                    'LABEL1'                'LABEL1'               'LABEL1'
+fat32_xp_none                                      none                    none                   none
+fat32_xp_none_dosfslabel_label1                    none                    none                   none
+fat32_xp_none_mlabel_label1                        'LABEL1'                'LABEL1'               'LABEL1'
 
-Anyway, does it make sense to use the both flags in the same time?
+Seems that behavior of reading label from FAT32 volume is consistent
+between MS-DOS and different Windows versions. The only exception is
+when in label in the root directory is stored as empty string (11
+spaces). MS-DOS and Windows 98 treat it as label with empty string, but
+Windows XP and Windows 10 as disk without label.
 
->From kernel code it seems that MNT_FORCE forces FS driver to kill all
-resources (by op->umount_begin()) before the umount, so what do you 
-expect from later MNT_DETACH?
+> In the first column is image name (all images are compressed and
+> attached) which contains steps of operations, e.g. file name
+> fat32_mkdosfs_none_dosfslabel_label1_xp_label2 means:
+> 
+> 1. create filesystem with mkdosfs without specifying label
+> 2. change label with dosfslabel (3.0.12) to 'label1'
+> 3. change label under Windows XP to 'label2'
+> 
+> From testing it looks like that different tools and different version of
+> them have different behavior how they read or write FAT32 label, see
+> following table:
+> 
+>                              read boot   write boot   read root   write root
+> dosfslabel 3.0.0  - 3.0.6    YES         YES          NO          NO
+> dosfslabel 3.0.7  - 3.0.15   YES         YES          NO          BUGGY (YES - if already exists; NO - otherwise)
+> dosfslabel 3.0.16 - 4.1      YES         YES          YES         YES
+> label.exe Windows XP         NO          NO           YES         YES
+> blkid                        YES         NO           YES         NO
+> mlabel                       NO          YES          YES         YES
 
-The problem is that libmount prefers MNT_DETACH, so if you specify
-both flags that MNT_FORCE is silently ignored. It would be better
-prefer MNT_FORCE or accept both flags and don't try to be more smart
-than kernel.
+label.exe MS-DOS 6.22          NO          YES          YES         YES
+label.exe MS-DOS 7.10          NO          YES          YES         YES
+label.exe Windows 98 SE        NO          YES          YES         YES
+label.exe Windows 10           NO          NO           YES         YES
 
-    Karel
+Older MS-DOS 6.22 does not support FAT32 disks, only FAT16. MS-DOS 7.10
+has support for FAT32 and also for LFN. But both tested MS-DOS versions
+and Windows 98 updates label in both locations: boot sector and root
+directory. Also in case when label is changed in Windows 98 via
+"My Computer" GUI.
+
+>From above tests it can be seen that both MS-DOS and all Windows
+versions ignores label which is stored in boot sector and show to user
+only label from root directory.
+
+Also it can be seen that both MS-DOS versions do not have problems when
+label contains lower case letters.
+
+> Attached images in compressed form has only 600 kB and I think they can
+> be useful for testing either blkid or dosfstools project, so I'm sending
+> them here.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Pali Rohár
+pali.rohar@gmail.com
