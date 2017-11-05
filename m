@@ -1,37 +1,48 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51472 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758784AbdKOQhc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 15 Nov 2017 11:37:32 -0500
-Date: Wed, 15 Nov 2017 17:37:29 +0100
-From: Karel Zak <kzak@redhat.com>
-To: kalle <kalle@projektwerkstatt.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: mount: how to identify filesystems to mount them
-Message-ID: <20171115163729.ihe4vnhmxbj2jprz@ws.net.home>
-References: <ff28d2dd-c527-3d5f-e804-1ce468518b83@projektwerkstatt.de>
+Return-Path: pali.rohar@gmail.com
+Date: Sun, 5 Nov 2017 15:56:03 +0100
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Andreas Bombe <aeb@debian.org>, Karel Zak <kzak@redhat.com>,
+	util-linux@vger.kernel.org,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
+	Curtis Gedak <gedakc@gmail.com>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: Linux & FAT32 label
+Message-ID: <20171105145603.xbvst6slxa4pz34e@pali>
+References: <20171012101311.zfvg6edfvszlujom@ws.net.home>
+ <20171012204931.tfd2bhmwu5b6rbpz@pali>
+ <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
+ <CAHp75VdWXHtCHiRxnbAidr9inehVC=av6gp7-jtJqN6WPYh4fg@mail.gmail.com>
+ <20171105133929.7cscboxymmpkw634@pali>
+ <CAHp75VfwLh9eH992nB1TiOVYOpEV6OSTGkbLau=eQRPeczeFyA@mail.gmail.com>
+ <20171105140745.ze4ttkazeczrqsy7@pali>
+ <CAHp75VfeNj16k_nMmLxVJTWLr=gwFUMXiga6FYmbLb3pvWJxaw@mail.gmail.com>
+ <20171105143411.aynz5tr3igobuh6e@pali>
+ <CAHp75VfZB4ceK-5KL8Zjz9=2kfkKEpZF+mBfGU3ane5ctHLAfw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <ff28d2dd-c527-3d5f-e804-1ce468518b83@projektwerkstatt.de>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <CAHp75VfZB4ceK-5KL8Zjz9=2kfkKEpZF+mBfGU3ane5ctHLAfw@mail.gmail.com>
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Nov 15, 2017 at 05:18:17PM +0100, kalle wrote:
-> hello,
-> -i think it would be good, if it would be explained shortly, what a file
-> system is
-> -what would be good would be an explanation, how to find out filesystem,
-> label, UUID or device name of a given device...
+On Sunday 05 November 2017 16:51:49 Andy Shevchenko wrote:
+> In comparison lsblk might output partition label and FS label.
+> 
+> Looking to blkid help
+> 
+>        -L, --label label
+>              Look  up  the device that uses this filesystem label;
+> this is equal to --list-one --output device
+>              --match-token LABEL=label.
+> 
+> So, it can be PARTLABEL as well?
+> 
+> What the difference of LABEL vs. PARTLABEL for FAT?
 
-man mount, section "Indicating the device" is not enough?
+LABEL - label of the filesystem
+PARTLABEL - label of the partition, supported e.g. by GPT scheme (not by MBR)
 
-OK, I think, we can add some short note about "what filesystem is" to the
-begin of the mount man page for people who accidentally booted Linux
-:-)
-
-    Karel
-
+So nothing which filesystems in libblkid can set or use.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Pali Rohár
+pali.rohar@gmail.com
