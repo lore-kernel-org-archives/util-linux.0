@@ -1,92 +1,134 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40734 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752278AbdKNKIO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 14 Nov 2017 05:08:14 -0500
-Date: Tue, 14 Nov 2017 11:08:10 +0100
-From: Karel Zak <kzak@redhat.com>
-To: L A Walsh <lkml@tlinx.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: what should blockdev getbpsz return 4k disks w/512e?
-Message-ID: <20171114100810.3mflont7wwtnq7xp@ws.net.home>
-References: <59FD83DF.805@tlinx.org>
- <20171106101938.a6l6t3r37qtqtuks@ws.net.home>
- <5A0A7311.8040007@tlinx.org>
+Return-Path: pali.rohar@gmail.com
+Date: Sun, 5 Nov 2017 15:34:11 +0100
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>,
+	Andreas Bombe <aeb@debian.org>, Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
+	Curtis Gedak <gedakc@gmail.com>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: Linux & FAT32 label
+Message-ID: <20171105143411.aynz5tr3igobuh6e@pali>
+References: <20171012085658.iwrusvy4ay4s7hbb@ws.net.home>
+ <20171012092113.2bsb3pzv6un4xahr@pali>
+ <20171012101311.zfvg6edfvszlujom@ws.net.home>
+ <20171012204931.tfd2bhmwu5b6rbpz@pali>
+ <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
+ <CAHp75VdWXHtCHiRxnbAidr9inehVC=av6gp7-jtJqN6WPYh4fg@mail.gmail.com>
+ <20171105133929.7cscboxymmpkw634@pali>
+ <CAHp75VfwLh9eH992nB1TiOVYOpEV6OSTGkbLau=eQRPeczeFyA@mail.gmail.com>
+ <20171105140745.ze4ttkazeczrqsy7@pali>
+ <CAHp75VfeNj16k_nMmLxVJTWLr=gwFUMXiga6FYmbLb3pvWJxaw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-In-Reply-To: <5A0A7311.8040007@tlinx.org>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <CAHp75VfeNj16k_nMmLxVJTWLr=gwFUMXiga6FYmbLb3pvWJxaw@mail.gmail.com>
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 13, 2017 at 08:37:37PM -0800, L A Walsh wrote:
-> Karel Zak wrote:
-> > On Sat, Nov 04, 2017 at 02:09:51AM -0700, L A Walsh wrote:
-> > > I just tried blockdev on a HW raid device (/dev/sdb) composed of
-> > > 4K disks that can (w/performance penalty) emulate 512 byte disk
-> > > (i.e. have the 512e feature).  It is returning 512.
-> > > 
-> > > Any idea where this info should be showing up?
-> > 
-> > Try
-> > 
-> >  --getiomin                get minimum I/O size
-> >  --getioopt                get optimal I/O size
-> ----
+On Sunday 05 November 2017 16:25:54 Andy Shevchenko wrote:
+> On Sun, Nov 5, 2017 at 4:07 PM, Pali Rohár <pali.rohar@gmail.com> wrote:
+> > On Sunday 05 November 2017 15:56:53 Andy Shevchenko wrote:
+> >> On Sun, Nov 5, 2017 at 3:39 PM, Pali Rohár <pali.rohar@gmail.com> wrote:
+> >> > On Tuesday 31 October 2017 10:35:48 Andy Shevchenko wrote:
+> >> >> On Mon, Oct 16, 2017 at 4:12 AM, Andreas Bombe <aeb@debian.org> wrote:
+> >> >> > On Thu, Oct 12, 2017 at 10:49:31PM +0200, Pali Rohár wrote:
+> >> >> >> On Thursday 12 October 2017 12:13:11 Karel Zak wrote:
+> >>
+> >> >> > I was worried that there might be some scripts or programs that expect
+> >> >>
+> >> >> If we really care about such scripts another approach might be to
+> >> >> introduce a CLI switch to "spec compatible mode" to each tool and
+> >> >> suggest in documentation to use it.
+> >> >>
+> >> >> There are also variants:
+> >> >> - spec compatible
+> >> >> - WinXX compatible
+> >> >> - DOS compatible
+> >> >> - etc
+> >> >
+> >> > I did tests with MS-DOS and Windows versions (results in previous
+> >> > email), and they seems to be compatible how they read label.
+> >> >
+> >> > Based on results I would suggest to ignore label from the boot sector
+> >> > when reading label.
+> >>
+> >> So, for tools which are not doing that to add
+> >>
+> >>  --ignore-boot-sector-label (or alike) [recommended]
+> >>
+> >> right?
+> >>
+> >> We don't actually know how many users (scripts) are relying on current
+> >> behaviour.
+> >> If there are only few, we may introduce backward compatibility switch
+> >>
+> >> --read-boot-sector-label
+> >
+> > Current behavior of the last blkid and fatlabel tools is: Try to read
+> > label from the root directory. If it does not exist, then fallback to
+> > label stored in boot sector. And when fatlabel is changing label it
+> > updates both locations.
+> >
+> > So tools which already uses fatlabel for get & set operations should not
+> > be affected as setting new label makes boot and root in sync.
+> >
+> > New proposed behavior is: Try to read label from the root directory. If
+> > not exist, then treat disk as without label.
+> >
+> > As in current behavior there is no way via fatlabel to read "just only
+> > label from boot sector", I think that problems for current scripts is
+> > minimal.
+> >
+> > What about making this new behavior in fatlabel as default with new
+> > switch --fallback-to-boot-sector (switch to current behavior) or
+> > --read-only-boot-sector (ignores label in root directory) for people who
+> > are interested in label stored in boot sector?
 > 
->  > sudo blockdev --getiomin /dev/sdb
->  512
->  > sudo blockdev --getioopt /dev/sdb
->  0
-> > or
-> > 
-> >   lsblk --topology
-> -----
-> (some lines deleted for brevity):
+> Dunno how others will react, but I think what you are proposing makes sense.
 > 
-> NAME                 ALIGN IO:MIN OPT  PHYSEC LOGSEC ROT SCHED RQSZ  RA
-> WSAME
-> sda                    0    512    0     512    512   1   bfq  256   512
-> 0B
-> └─sda1                 0    512    0     512    512   1   bfq  256   512
-> 0B
->  └─Backup-Media       0    512    0     512    512   1        128   128
-> 0B
-> sdb                    0    512    0     512    512   1   bfq  256   512
-> 0B
-> └─sdb1                 0    512    0     512    512   1   bfq  256   512
-> 0B
->  ├─Data-Home          0    512    0     512    512   1        128   128
-> 0B
->  └─Data-Edge          0    512    0     512    512   1        128   128
-> 0B
-> sdc                    0    512    0     512    512   1   bfq  256   512
-> 0B
-> ├─sdc1                 0    512    0     512    512   1   bfq  256   512
-> 0B
-> └─sdc10                0    512    0     512    512   1   bfq  256   512
-> 0B
+> > And what to do with blkid? That cannot have any switch :-( and can have
+> > only one behavior.
 > 
-> > It's possible that RAID (or another stacked device) uses 512
-> > addressing, but for partitioning or mkfs-like tools we care about
-> > minimal and optimal I/O.
-> ----
->    Nothing but the RAID controller seems to know about the 4096 physical
-> size.
->    (attached jpg from disk controller SW -- can see size under physical on
-> right).
-> 
->    If anything used a 512 byte offset anywhere, it would really impact
-> performance, thus my concern about how or where a util would be able to read
-> it...
+> Btw, I don't see such tool in Debian unstable. Do you mean libblkid ?
+> lsblk OTOH has switches.
 
-Unfortunately userspace tools cannot play any usable role in this
-story if your system (kernel) does not provide relevant information.
-For mkfs and partitioning tools it's 512-bytes based devices... 
+https://packages.debian.org/search?suite=sid&arch=any&mode=path&searchon=contents&keywords=blkid
 
-Let's ask kernel developers.
+In Debian unstable, that tool is in binary package util-linux.
 
-    Karel
+But you are right that implementation is in library libblkid and there
+is no interface between blkid binary and libblkid for passing such
+compatibility switches.
+
+Also more application would use directly libblkid library and not blkid
+binary...
+
+And I would say that Karel (as maintainer of the util-linux upstream
+project) does not want to see such switch in blkid just for FAT
+partitions.
+
+> >> > This makes behavior consistent with older MS-DOS
+> >> > systems and also all Windows systems. This change would be a problem
+> >> > only for users who have label stored only in boot sector. After change
+> >> > they would not see label anymore -- exactly same what MS-DOS or Windows
+> >> > show them. Seems that mkdosfs stores label to both location, since
+> >> > support for label was introduced. So different label would be visible
+> >> > only for users who used dosfslabel prior to version 3.0.16.
+> >> >
+> >> > What do you think?
+> >>
+> >> So, in summary it looks like a documentation needs update (to mark
+> >> your research).
+> >
+> > Which documentation do you mean?
+> 
+> At least dosfstools (to mark that versions prior 3.0.16 better to avoid).
+> 
+> And any where new switch would have been added and / or default
+> behaviour would have been changed.
+
+Ok, I can prepare some updates for fatlabel manpage to describe how was
+behavior changed in older versions. Andreas, do you agree?
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Pali Rohár
+pali.rohar@gmail.com
