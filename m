@@ -1,108 +1,72 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:4400 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753071AbdKXKbm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 24 Nov 2017 05:31:42 -0500
-From: Masatake YAMATO <yamato@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: yamato@redhat.com
-Subject: [PATCH v2 6/7] lsns: add a case for testing nsfs column
-Date: Fri, 24 Nov 2017 19:31:09 +0900
-Message-Id: <20171124103110.17077-8-yamato@redhat.com>
-In-Reply-To: <20171124103110.17077-1-yamato@redhat.com>
-References: <20171124103110.17077-1-yamato@redhat.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: andy.shevchenko@gmail.com
+MIME-Version: 1.0
+In-Reply-To: <20171105133929.7cscboxymmpkw634@pali>
+References: <20171004153332.GA6696@pali> <20171011212435.znmtdnsxcd5ectub@pali>
+ <20171011214426.wa5endlb3kb4yhbv@pali> <20171012085658.iwrusvy4ay4s7hbb@ws.net.home>
+ <20171012092113.2bsb3pzv6un4xahr@pali> <20171012101311.zfvg6edfvszlujom@ws.net.home>
+ <20171012204931.tfd2bhmwu5b6rbpz@pali> <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
+ <CAHp75VdWXHtCHiRxnbAidr9inehVC=av6gp7-jtJqN6WPYh4fg@mail.gmail.com> <20171105133929.7cscboxymmpkw634@pali>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Sun, 5 Nov 2017 15:56:53 +0200
+Message-ID: <CAHp75VfwLh9eH992nB1TiOVYOpEV6OSTGkbLau=eQRPeczeFyA@mail.gmail.com>
+Subject: Re: Linux & FAT32 label
+To: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>
+Cc: Andreas Bombe <aeb@debian.org>, Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, =?UTF-8?Q?Andrius_=C5=A0tikonas?= <andrius@stikonas.eu>,
+	Curtis Gedak <gedakc@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Masatake YAMATO <yamato@redhat.com>
----
- tests/expected/lsns/nsfs |  1 +
- tests/ts/lsns/nsfs       | 68 ++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 69 insertions(+)
- create mode 100644 tests/expected/lsns/nsfs
- create mode 100644 tests/ts/lsns/nsfs
+On Sun, Nov 5, 2017 at 3:39 PM, Pali Roh=C3=A1r <pali.rohar@gmail.com> wrot=
+e:
+> On Tuesday 31 October 2017 10:35:48 Andy Shevchenko wrote:
+>> On Mon, Oct 16, 2017 at 4:12 AM, Andreas Bombe <aeb@debian.org> wrote:
+>> > On Thu, Oct 12, 2017 at 10:49:31PM +0200, Pali Roh=C3=A1r wrote:
+>> >> On Thursday 12 October 2017 12:13:11 Karel Zak wrote:
 
-diff --git a/tests/expected/lsns/nsfs b/tests/expected/lsns/nsfs
-new file mode 100644
-index 000000000..573541ac9
---- /dev/null
-+++ b/tests/expected/lsns/nsfs
-@@ -0,0 +1 @@
-+0
-diff --git a/tests/ts/lsns/nsfs b/tests/ts/lsns/nsfs
-new file mode 100644
-index 000000000..7f2b46bbe
---- /dev/null
-+++ b/tests/ts/lsns/nsfs
-@@ -0,0 +1,68 @@
-+#!/bin/bash
-+#
-+# Copyright (C) 2017 Masatake YAMATO <yamato@redhat.com>
-+#
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+#
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="list NSFS for namespaces created by ip-netns-add"
-+
-+. $TS_TOPDIR/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_CMD_LSNS"
-+
-+ts_skip_nonroot
-+
-+ts_cd "$TS_OUTDIR"
-+
-+NAME1=ABC
-+NAME2=XYZ
-+PATH1=/run/netns/$NAME1
-+PATH2=$TS_OUTDIR/$NAME2
-+FIFO=$TS_OUTDIR/UTIL-LINUX-LSNS-TEST-FIFO
-+NULL=/dev/null
-+
-+ip netns delete $NAME1 2> /dev/null || :
-+umount $PATH2 2>/dev/null || :
-+rm -f $PATH2
-+
-+rm -f $FIFO
-+mkfifo $FIFO
-+
-+if ip netns add $NAME1 &&
-+	touch ${PATH2} &&
-+	mount -o bind ${PATH1} ${PATH2}; then
-+    ip netns exec $NAME1 dd if=$FIFO bs=1 count=2 of=$NULL 2> $NULL &
-+    PID=$!
-+fi
-+{
-+    dd if=/dev/zero bs=1 count=1 2> $NULL
-+    NSFS_NAMES_MLINES=$($TS_CMD_LSNS -n -o NSFS --type net --task $PID | { while read VAL; do echo $VAL; done; } )
-+    NSFS_NAMES_1LINE=$($TS_CMD_LSNS -n -o NSFS --nowrap --type net --task $PID | { while read VAL; do echo $VAL; done; } )
-+    dd if=/dev/zero bs=1 count=1 2> $NULL
-+} > $FIFO
-+
-+rm $FIFO
-+
-+umount $PATH2
-+rm -f $PATH2
-+ip netns delete $NAME1
-+
-+test "$NSFS_NAMES_MLINES" = "$PATH1
-+$PATH2" && test "$NSFS_NAMES_1LINE" = "$PATH1,$PATH2"
-+
-+echo $? >> $TS_OUTPUT
-+
-+ts_finalize
--- 
-2.13.6
+>> > I was worried that there might be some scripts or programs that expect
+>>
+>> If we really care about such scripts another approach might be to
+>> introduce a CLI switch to "spec compatible mode" to each tool and
+>> suggest in documentation to use it.
+>>
+>> There are also variants:
+>> - spec compatible
+>> - WinXX compatible
+>> - DOS compatible
+>> - etc
+>
+> I did tests with MS-DOS and Windows versions (results in previous
+> email), and they seems to be compatible how they read label.
+>
+> Based on results I would suggest to ignore label from the boot sector
+> when reading label.
 
+So, for tools which are not doing that to add
+
+ --ignore-boot-sector-label (or alike) [recommended]
+
+right?
+
+We don't actually know how many users (scripts) are relying on current
+behaviour.
+If there are only few, we may introduce backward compatibility switch
+
+--read-boot-sector-label
+
+> This makes behavior consistent with older MS-DOS
+> systems and also all Windows systems. This change would be a problem
+> only for users who have label stored only in boot sector. After change
+> they would not see label anymore -- exactly same what MS-DOS or Windows
+> show them. Seems that mkdosfs stores label to both location, since
+> support for label was introduced. So different label would be visible
+> only for users who used dosfslabel prior to version 3.0.16.
+>
+> What do you think?
+
+So, in summary it looks like a documentation needs update (to mark
+your research).
+
+--=20
+With Best Regards,
+Andy Shevchenko
