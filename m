@@ -1,99 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37634 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:34052 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753071AbdKXKbZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 24 Nov 2017 05:31:25 -0500
-From: Masatake YAMATO <yamato@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: yamato@redhat.com
-Subject: [PATCH v2 2/7] lsns: disable netnsid column by default
-Date: Fri, 24 Nov 2017 19:31:04 +0900
-Message-Id: <20171124103110.17077-3-yamato@redhat.com>
-In-Reply-To: <20171124103110.17077-1-yamato@redhat.com>
-References: <20171124103110.17077-1-yamato@redhat.com>
+        id S1750739AbdKFKTl (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 6 Nov 2017 05:19:41 -0500
+Date: Mon, 6 Nov 2017 11:19:38 +0100
+From: Karel Zak <kzak@redhat.com>
+To: L A Walsh <lkml@tlinx.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: what should blockdev getbpsz return 4k disks w/512e?
+Message-ID: <20171106101938.a6l6t3r37qtqtuks@ws.net.home>
+References: <59FD83DF.805@tlinx.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <59FD83DF.805@tlinx.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Enable only when
+On Sat, Nov 04, 2017 at 02:09:51AM -0700, L A Walsh wrote:
+> 
+> I just tried blockdev on a HW raid device (/dev/sdb) composed of
+> 4K disks that can (w/performance penalty) emulate 512 byte disk
+> (i.e. have the 512e feature).  It is returning 512.
+> 
+> If the disk is composed of 4K disks, shouldn't the raid show 4K
+> as well?  Otherwise, how do utils know what alignment to use or
+> not to use 512 due to penalty costs?  For my formatted disks, I
+> use 4K allocation units, so for those, I shouldn't see problems,
+> but some other disk subsystems or raw-disk using progs also need to
+> know to allocate on 4K boundaries.
+> 
+> Any idea where this info should be showing up?
 
-* --type=net is given, or
-* -o NETNSID is given.
+Try
 
-Suggested by Karel Zak.
+ --getiomin                get minimum I/O size
+ --getioopt                get optimal I/O size
 
-Signed-off-by: Masatake YAMATO <yamato@redhat.com>
----
- sys-utils/lsns.c | 25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
+or
 
-diff --git a/sys-utils/lsns.c b/sys-utils/lsns.c
-index 7ccc733a4..bb7d3956d 100644
---- a/sys-utils/lsns.c
-+++ b/sys-utils/lsns.c
-@@ -839,6 +839,7 @@ int main(int argc, char *argv[])
- 		{ 0 }
- 	};
- 	int excl_st[ARRAY_SIZE(excl)] = UL_EXCL_STATUS_INIT;
-+	bool enabling_netnsid = false;
- 
- 	setlocale(LC_ALL, "");
- 	bindtextdomain(PACKAGE, LOCALEDIR);
-@@ -891,6 +892,8 @@ int main(int argc, char *argv[])
- 				errx(EXIT_FAILURE, _("unknown namespace type: %s"), optarg);
- 			ls.fltr_types[type] = 1;
- 			ls.fltr_ntypes++;
-+			if (type == LSNS_ID_NET)
-+				enabling_netnsid = true;
- 			break;
- 		}
- 		default:
-@@ -900,6 +903,7 @@ int main(int argc, char *argv[])
- 
- 	if (!ls.fltr_ntypes) {
- 		size_t i;
-+
- 		for (i = 0; i < ARRAY_SIZE(ns_names); i++)
- 			ls.fltr_types[i] = 1;
- 	}
-@@ -924,14 +928,24 @@ int main(int argc, char *argv[])
- 		columns[ncolumns++] = COL_NPROCS;
- 		columns[ncolumns++] = COL_PID;
- 		columns[ncolumns++] = COL_USER;
--		columns[ncolumns++] = COL_NETNSID;
-+		if (enabling_netnsid)
-+			columns[ncolumns++] = COL_NETNSID;
- 		columns[ncolumns++] = COL_COMMAND;
- 	}
- 
--	if (outarg && string_add_to_idarray(outarg, columns, ARRAY_SIZE(columns),
--					 &ncolumns, column_name_to_id) < 0)
--		return EXIT_FAILURE;
-+	if (outarg) {
-+		size_t i;
- 
-+		if (string_add_to_idarray(outarg, columns, ARRAY_SIZE(columns),
-+					  &ncolumns, column_name_to_id) < 0)
-+			return EXIT_FAILURE;
-+		for (i = 0; i < ncolumns; i++) {
-+			if (columns[i] == COL_NETNSID) {
-+				enabling_netnsid = true;
-+				break;
-+			}
-+		}
-+	}
- 	scols_init_debug(0);
- 
- 	uid_cache = new_idcache();
-@@ -939,7 +953,8 @@ int main(int argc, char *argv[])
- 		err(EXIT_FAILURE, _("failed to allocate UID cache"));
- 
- #ifdef HAVE_LINUX_NET_NAMESPACE_H
--	netlink_fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
-+	if (enabling_netnsid)
-+		netlink_fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
- #endif
- 	r = read_processes(&ls);
- 	if (!r)
+  lsblk --topology
+
+It's possible that RAID (or another stacked device) uses 512
+addressing, but for partitioning or mkfs-like tools we care about
+minimal and optimal I/O.
+
+    Karel
+
 -- 
-2.13.6
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
