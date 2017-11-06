@@ -1,71 +1,92 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:47297 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754692AbdKIRdq (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 9 Nov 2017 12:33:46 -0500
-Date: Thu, 9 Nov 2017 18:33:43 +0100
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: Theodore Ts'o <tytso@mit.edu>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Andreas Bombe <aeb@debian.org>, Karel Zak <kzak@redhat.com>,
-        util-linux@vger.kernel.org,
+Return-Path: linux-kernel-owner@vger.kernel.org
+Date: Mon, 6 Nov 2017 11:14:44 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Andreas Bombe <aeb@debian.org>, util-linux@vger.kernel.org,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
-        Curtis Gedak <gedakc@gmail.com>, pavel@ucw.cz
+        Curtis Gedak <gedakc@gmail.com>, Pavel Machek <pavel@ucw.cz>
 Subject: Re: Linux & FAT32 label
-Message-ID: <20171109173343.yt54t5m5bb4kty4a@pali>
-References: <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
+Message-ID: <20171106101444.m5kxevutsdxx34kl@ws.net.home>
+References: <20171012092113.2bsb3pzv6un4xahr@pali>
+ <20171012101311.zfvg6edfvszlujom@ws.net.home>
+ <20171012204931.tfd2bhmwu5b6rbpz@pali>
+ <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
  <CAHp75VdWXHtCHiRxnbAidr9inehVC=av6gp7-jtJqN6WPYh4fg@mail.gmail.com>
  <20171105133929.7cscboxymmpkw634@pali>
  <CAHp75VfwLh9eH992nB1TiOVYOpEV6OSTGkbLau=eQRPeczeFyA@mail.gmail.com>
  <20171105140745.ze4ttkazeczrqsy7@pali>
- <20171105203542.jgupce2usbtjhbg2@thunk.org>
- <20171105211249.xrg6m6ijjewrpqp2@pali>
- <20171107172841.twyu7ieekrs6b2da@thunk.org>
- <20171109090145.lffuluwm3sxanfzu@pali>
- <20171109162125.ixpymbeiovpsj7mc@thunk.org>
+ <CAHp75VfeNj16k_nMmLxVJTWLr=gwFUMXiga6FYmbLb3pvWJxaw@mail.gmail.com>
+ <20171105143411.aynz5tr3igobuh6e@pali>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20171109162125.ixpymbeiovpsj7mc@thunk.org>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20171105143411.aynz5tr3igobuh6e@pali>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 09 November 2017 11:21:25 Theodore Ts'o wrote:
-> On Thu, Nov 09, 2017 at 10:01:45AM +0100, Pali Roh√°r wrote:
-> > > > You would have stored LABEL42 in boot sector and no label in root
-> > > > directory. Windows handle this situation as there is no label.
-> > > 
-> > > But why should we *care*?
-> > 
-> > FAT is Microsoft's filesystem and the only usage of it on Linux is due
-> > to interoperability with different non-Linux systems. So here we should
-> > implement FAT in the similar/same way as other systems. It does not make
-> > sense to implement it differently and specially in non-compatible way.
-> > Because it lost reason what is primary usage of the FAT on Linux.
-> 
-> The primary usage of FAT on Linux is for data interchange, primarily
-> with USB sticks.  I'm still failing to see how it might "spoil some
-> vast eternal plan"[1] if a USB stick which Windows would show as
-> having no label, blkid/udev showed as having the label "LABEL42"?
-> 
-> [1] to quote the song "If I were a rich man"
-> 
-> I'm just trying to understand why this specific detail of bit-for-bit
-> compatibility is so important.
+On Sun, Nov 05, 2017 at 03:34:11PM +0100, Pali Roh·r wrote:
+> On Sunday 05 November 2017 16:25:54 Andy Shevchenko wrote:
+> > On Sun, Nov 5, 2017 at 4:07 PM, Pali Roh·r <pali.rohar@gmail.com> wrote:
+> > > On Sunday 05 November 2017 15:56:53 Andy Shevchenko wrote:
+> > >> On Sun, Nov 5, 2017 at 3:39 PM, Pali Roh·r <pali.rohar@gmail.com> wrote:
+> > >> > On Tuesday 31 October 2017 10:35:48 Andy Shevchenko wrote:
+> > >> >> On Mon, Oct 16, 2017 at 4:12 AM, Andreas Bombe <aeb@debian.org> wrote:
+> > >> >> > On Thu, Oct 12, 2017 at 10:49:31PM +0200, Pali Roh·r wrote:
+> > >> >> >> On Thursday 12 October 2017 12:13:11 Karel Zak wrote:
+> > >>
+> > >> >> > I was worried that there might be some scripts or programs that expect
+> > >> >>
+> > >> >> If we really care about such scripts another approach might be to
+> > >> >> introduce a CLI switch to "spec compatible mode" to each tool and
+> > >> >> suggest in documentation to use it.
+> > >> >>
+> > >> >> There are also variants:
+> > >> >> - spec compatible
+> > >> >> - WinXX compatible
+> > >> >> - DOS compatible
+> > >> >> - etc
+> > >> >
+> > >> > I did tests with MS-DOS and Windows versions (results in previous
+> > >> > email), and they seems to be compatible how they read label.
+> > >> >
+> > >> > Based on results I would suggest to ignore label from the boot sector
+> > >> > when reading label.
+> > >>
+> > >> So, for tools which are not doing that to add
+> > >>
+> > >>  --ignore-boot-sector-label (or alike) [recommended]
+> > >>
+> > >> right?
+> > >>
+> > >> We don't actually know how many users (scripts) are relying on current
+> > >> behaviour.
+> > >> If there are only few, we may introduce backward compatibility switch
+> > >>
+> > >> --read-boot-sector-label
 
-Then you can ask question: Why we are serving LABEL information to
-users?
+The current recommended way how to get filesystem label is to read it
+from udev db. For example this is the way how lsblk reads labels by
+default.
 
-Some users really use LABEL as identifier for themself, what is either
-stored on filesystem (in this case USB stick). And if somebody for some
-reason want to remove label (just because it does not contain data which
-label describe anymore), then user probably really want to use this
-information.
+And udevd and some another tools are linked with libblkid. I don't
+see an elegant way how to support something like "read-boot-sector-label" 
+switch for the library to switch it on the fly.
 
-LABEL is human readable identifier of particular filesystem on disk. If
-one system show one label and another system show another different
-label for same disk, then such information is useless.
+Maybe it would be good enough to change the default behavior and add 
+#ifdef to the library to switch to the old behavior. This is elegant
+way how to move the decision to downstream maintainers. They have more
+clue about importance of the FAT32 usage. I can imagine that for example
+for some embedded systems it's more important than for example for
+Fedora desktop. I prefer this solution.
+
+The another way is to add an option to blkid.conf, but it will make
+filesystems probing more complex and slow (we don't read the file
+during superblocks probing now). I'm sure udev guys will hate me with
+this solution. I'd like to avoid something like this.
+
+    Karel
 
 -- 
-Pali Roh√°r
-pali.rohar@gmail.com
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
