@@ -1,49 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mailout.micron.com ([137.201.242.129]:21660 "EHLO
-        mailout.micron.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751887AbdKNAph (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 13 Nov 2017 19:45:37 -0500
-From: <jgroves@micron.com>
-To: Karel Zak <kzak@redhat.com>
-CC: <util-linux@vger.kernel.org>, <John@Groves.net>,
-        John Groves <jgroves@micron.com>
-Subject: [PATCH 0/2] libblkid: recognize Micron mpool formatted devices
-Date: Mon, 13 Nov 2017 18:45:11 -0600
-Message-ID: <1510620313-6045-1-git-send-email-jgroves@micron.com>
+Received: from mx1.redhat.com ([209.132.183.28]:46086 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751826AbdKHLcN (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 8 Nov 2017 06:32:13 -0500
+Date: Wed, 8 Nov 2017 12:32:09 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Joshua Watt <jpewhacker@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] libmount: Allow MNT_FORCE and MNT_DETACH at umount
+Message-ID: <20171108113209.ri3smegy6ym5eus4@ws.net.home>
+References: <20171106222536.9806-1-JPEWhacker@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171106222536.9806-1-JPEWhacker@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: John Groves <jgroves@micron.com>
+On Mon, Nov 06, 2017 at 04:25:36PM -0600, Joshua Watt wrote:
+> MNT_FORCE and MNT_DETACH are orthogonal in the Linux kernel, so both may
+> be specified without any problems. Even if there were a problem with
+> this combination, it should be up to the kernel to take the correct
+> action or report an error.
+> 
+> Signed-off-by: Joshua Watt <JPEWhacker@gmail.com>
+> ---
+>  libmount/src/context_umount.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-This patch adds libblkid recognition of Micron mpool formatted devices.
-It also adds a very simple crc32c() function, for use by probe_mpool().
-
-If there are objections to adding crc32c, I can re-submit without it, or
-make it static for probe_mpool(). I would prefer not to go without crc32c
-validation, because the only remaining check would be the magic number.
-
-Review comments and/or questions welcome.
-
-Thanks,
-
-John Groves (2):
-  Add simple crc32c() function
-  Add support for Micron mpool formatted drives
-
- include/crc32c.h                       |   9 +++
- lib/Makemodule.am                      |   1 +
- lib/crc32c.c                           | 102 +++++++++++++++++++++++++++++++++
- libblkid/src/Makemodule.am             |   1 +
- libblkid/src/superblocks/mpool.c       |  74 ++++++++++++++++++++++++
- libblkid/src/superblocks/superblocks.c |   3 +-
- libblkid/src/superblocks/superblocks.h |   1 +
- 7 files changed, 190 insertions(+), 1 deletion(-)
- create mode 100644 include/crc32c.h
- create mode 100644 lib/crc32c.c
- create mode 100644 libblkid/src/superblocks/mpool.c
+Applied, thanks.
 
 -- 
-2.9.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
