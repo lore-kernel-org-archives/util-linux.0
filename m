@@ -1,41 +1,71 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.netzguerilla.net ([217.11.57.120]:51889 "EHLO
-        mail.netzguerilla.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751290AbdKUWoU (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 21 Nov 2017 17:44:20 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by mail.netzguerilla.net (Postfix) with ESMTP id 27EF4100017
-        for <util-linux@vger.kernel.org>; Tue, 21 Nov 2017 23:44:19 +0100 (CET)
-Received: from mail.netzguerilla.net ([217.11.57.120])
-        by localhost (sal.netzguerilla.net [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id ilLai11-A8B1 for <util-linux@vger.kernel.org>;
-        Tue, 21 Nov 2017 23:44:18 +0100 (CET)
-Received: from [IPv6:2003:dd:ff18:5c01:f524:9d9f:8d3e:771a] (p200300DDFF185C01F5249D9F8D3E771A.dip0.t-ipconnect.de [IPv6:2003:dd:ff18:5c01:f524:9d9f:8d3e:771a])
-        by mail.netzguerilla.net (Postfix) with ESMTPSA id 072C0100012
-        for <util-linux@vger.kernel.org>; Tue, 21 Nov 2017 23:44:17 +0100 (CET)
+Received: from imap.cs.msu.ru ([188.44.42.39]:60575 "EHLO mail.cs.msu.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751705AbdKIDrS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 8 Nov 2017 22:47:18 -0500
+Received: from [10.4.30.50] (port=34820)
+        by mail.cs.msu.ru with esmtpsa (TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:128)
+        (Exim 4.89 (FreeBSD))
+        (envelope-from <m.vorobyov@cs.msu.ru>)
+        id 1eCdoC-000HQd-NZ
+        for util-linux@vger.kernel.org; Thu, 09 Nov 2017 06:47:16 +0300
 To: util-linux@vger.kernel.org
-From: kalle <kalle@projektwerkstatt.de>
-Subject: man lsblk
-Message-ID: <bc06a7b2-87f3-50af-4e51-f9f3166186d4@projektwerkstatt.de>
-Date: Tue, 21 Nov 2017 23:44:17 +0100
+From: Mikhail Vorobyov <m.vorobyov@cs.msu.ru>
+Message-ID: <a3e17905-347c-2561-d6e2-35dc8814b0a1@cs.msu.ru>
+Date: Thu, 9 Nov 2017 06:47:16 +0300
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
+Subject: [PATCH v2 2/2] libfdisk: (sun) enhance searching of free space
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-hello,
-here some critics:
--I had problems with reading the label through `lsblk', when not using
-privileges. And the related man-page doesn't mention privilege matters.
-For what is mentioned (in the `Notes'), that /sys/dev/block has to be
-readable, my systems seems to be ok (read and write rights granted for
-`others') -> I assume that it is a question of privileges, which should
-be better documented
--proposition: put the options of `lsblk(8)' explicitly in the man-file
-instead than only in `lsblk --help'
--`lsblk -m -o LABELs'shows only LABELs, but why? While `lsblk -o LABEL
--m' shows both. I think the options should be commutative...
--after unmounting a device `lsblk' doesn't list it anymore
+Potential partition start should be aligned to cylinders. So fdisk
+wouldn't consider partition's last cylinder remains as eligible space
+for new partition start.
+---
+ libfdisk/src/sun.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-greetings,
-kalle
+diff --git a/libfdisk/src/sun.c b/libfdisk/src/sun.c
+index 7ffd364f4..923b73e32 100644
+--- a/libfdisk/src/sun.c
++++ b/libfdisk/src/sun.c
+@@ -326,6 +326,7 @@ static void fetch_sun(struct fdisk_context *cxt,
+ 	struct sun_disklabel *sunlabel;
+ 	int continuous = 1;
+ 	size_t i;
++	int sectors_per_cylinder = cxt->geom.heads * cxt->geom.sectors;
+ 
+ 	assert(cxt);
+ 	assert(cxt);
+@@ -335,7 +336,7 @@ static void fetch_sun(struct fdisk_context *cxt,
+ 	sunlabel = self_disklabel(cxt);
+ 
+ 	*start = 0;
+-	*stop = cxt->geom.cylinders * cxt->geom.heads * cxt->geom.sectors;
++	*stop = cxt->geom.cylinders * sectors_per_cylinder;
+ 
+ 	for (i = 0; i < cxt->label->nparts_max; i++) {
+ 		struct sun_partition *part = &sunlabel->partitions[i];
+@@ -345,12 +346,16 @@ static void fetch_sun(struct fdisk_context *cxt,
+ 		    be16_to_cpu(info->id) != SUN_TAG_UNASSIGNED &&
+ 		    be16_to_cpu(info->id) != SUN_TAG_WHOLEDISK) {
+ 			starts[i] = be32_to_cpu(part->start_cylinder) *
+-				     cxt->geom.heads * cxt->geom.sectors;
++				     sectors_per_cylinder;
+ 			lens[i] = be32_to_cpu(part->num_sectors);
+ 			if (continuous) {
+-				if (starts[i] == *start)
++				if (starts[i] == *start) {
+ 					*start += lens[i];
+-				else if (starts[i] + lens[i] >= *stop)
++					int remained_sectors = *start % sectors_per_cylinder;
++					if (remained_sectors) {
++						*start += sectors_per_cylinder - remained_sectors;
++					}
++				} else if (starts[i] + lens[i] >= *stop)
+ 					*stop = starts[i];
+ 				else
+ 					continuous = 0;
+-- 
+2.13.6
