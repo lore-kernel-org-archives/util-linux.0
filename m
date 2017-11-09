@@ -1,150 +1,58 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mailout.micron.com ([137.201.242.129]:21674 "EHLO
-        mailout.micron.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752774AbdKNApi (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 13 Nov 2017 19:45:38 -0500
-From: <jgroves@micron.com>
-To: Karel Zak <kzak@redhat.com>
-CC: <util-linux@vger.kernel.org>, <John@Groves.net>,
-        John Groves <jgroves@micron.com>
-Subject: [PATCH 2/2] Add support for Micron mpool formatted drives
-Date: Mon, 13 Nov 2017 18:45:13 -0600
-Message-ID: <1510620313-6045-3-git-send-email-jgroves@micron.com>
-In-Reply-To: <1510620313-6045-1-git-send-email-jgroves@micron.com>
-References: <1510620313-6045-1-git-send-email-jgroves@micron.com>
+Received: from mx1.redhat.com ([209.132.183.28]:43842 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751765AbdKILDA (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 9 Nov 2017 06:03:00 -0500
+Date: Thu, 9 Nov 2017 12:02:54 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Andreas Bombe <aeb@debian.org>, util-linux@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
+        Curtis Gedak <gedakc@gmail.com>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: Linux & FAT32 label
+Message-ID: <20171109110254.to37iuydtbpqypjy@ws.net.home>
+References: <20171012204931.tfd2bhmwu5b6rbpz@pali>
+ <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
+ <CAHp75VdWXHtCHiRxnbAidr9inehVC=av6gp7-jtJqN6WPYh4fg@mail.gmail.com>
+ <20171105133929.7cscboxymmpkw634@pali>
+ <CAHp75VfwLh9eH992nB1TiOVYOpEV6OSTGkbLau=eQRPeczeFyA@mail.gmail.com>
+ <20171105140745.ze4ttkazeczrqsy7@pali>
+ <CAHp75VfeNj16k_nMmLxVJTWLr=gwFUMXiga6FYmbLb3pvWJxaw@mail.gmail.com>
+ <20171105143411.aynz5tr3igobuh6e@pali>
+ <20171106101444.m5kxevutsdxx34kl@ws.net.home>
+ <20171109085909.b6b5m35qeul3orrx@pali>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20171109085909.b6b5m35qeul3orrx@pali>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: John Groves <jgroves@micron.com>
+On Thu, Nov 09, 2017 at 09:59:09AM +0100, Pali Rohár wrote:
+> What about exporting e.g. BOOT_LABEL field from libblkid for vfat disks?
+> LABEL (which is shown to user, e.g. in GUI) would be that one from root
+> directory (same which is used by label on MS-DOS and Windows) and
+> BOOT_LABEL would be from boot sector. If somebody really needs to know
+> current label stored in boot sector he would be able to do it via blkid.
+> Also it would be possible then via blkid to read exact label stored in
+> root directory and also read what is stored in boot sector. Because
+> currently it is not possible to know from which location LABEL comes
+> from.
 
----
- libblkid/src/Makemodule.am             |  1 +
- libblkid/src/superblocks/mpool.c       | 74 ++++++++++++++++++++++++++++++++++
- libblkid/src/superblocks/superblocks.c |  3 +-
- libblkid/src/superblocks/superblocks.h |  1 +
- 4 files changed, 78 insertions(+), 1 deletion(-)
- create mode 100644 libblkid/src/superblocks/mpool.c
+This is good idea, there is no problem to export additional
+information about filesystems. We already use it for another
+filesystems too. Note, these details are visible for low-level
+probing (blkid -p) and udev only. The high-level API follows
+LABEL only.
 
-diff --git a/libblkid/src/Makemodule.am b/libblkid/src/Makemodule.am
-index 1fa00e9..ceece42 100644
---- a/libblkid/src/Makemodule.am
-+++ b/libblkid/src/Makemodule.am
-@@ -70,6 +70,7 @@ libblkid_la_SOURCES = \
- 	libblkid/src/superblocks/luks.c \
- 	libblkid/src/superblocks/lvm.c \
- 	libblkid/src/superblocks/minix.c \
-+	libblkid/src/superblocks/mpool.c \
- 	libblkid/src/superblocks/netware.c \
- 	libblkid/src/superblocks/nilfs.c \
- 	libblkid/src/superblocks/ntfs.c \
-diff --git a/libblkid/src/superblocks/mpool.c b/libblkid/src/superblocks/mpool.c
-new file mode 100644
-index 0000000..8688121
---- /dev/null
-+++ b/libblkid/src/superblocks/mpool.c
-@@ -0,0 +1,74 @@
-+/*
-+ * Copyright (C) 2016-2017 Micron Technology, Inc.
-+ *
-+ * This file may be redistributed under the terms of the
-+ * GNU Lesser General Public License.
-+ */
-+
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <string.h>
-+#include <stdint.h>
-+#include "crc32c.h"
-+#include "superblocks.h"
-+
-+#include <uuid.h>
-+
-+#define MAX_MPOOL_NAME_LEN 32
-+
-+struct omf_sb_descriptor {
-+	uint64_t        osb_magic;
-+	uint8_t         osb_name[MAX_MPOOL_NAME_LEN];
-+	uuid_t          osb_poolid; /* UUID of pool this drive belongs to */
-+	uint16_t        osb_vers;
-+	uint32_t        osb_gen;
-+	uint32_t        osb_cksum1; /* crc32c of the preceding fields */
-+} __attribute__((packed));
-+
-+const char *no  = "no";
-+const char *yes = "yes";
-+
-+static int probe_mpool(blkid_probe pr, const struct blkid_idmag *mag)
-+{
-+	struct omf_sb_descriptor *osd;
-+	uint32_t sb_crc;
-+
-+	osd = blkid_probe_get_sb(pr, mag, struct omf_sb_descriptor);
-+	if (!osd)
-+		return errno ? -errno : 1;
-+
-+	sb_crc = crc32c(~0L, (const void *)osd,
-+			offsetof(struct omf_sb_descriptor, osb_cksum1));
-+	sb_crc ^= ~0L;
-+
-+	if (!blkid_probe_verify_csum(pr, sb_crc, osd->osb_cksum1)) {
-+		blkid_probe_set_value(pr, "VALID",
-+			(unsigned char *)no, strlen(no) + 1);
-+		return -EINVAL;
-+	}
-+
-+	blkid_probe_set_value(pr, "VALID",
-+		(unsigned char *)yes, strlen(yes) + 1);
-+	blkid_probe_set_label(pr, osd->osb_name, sizeof(osd->osb_name));
-+	blkid_probe_set_uuid(pr, osd->osb_poolid);
-+
-+	return 0;
-+}
-+
-+/**
-+ * Superblock (sb) -- magic = ASCII "mpoolDev"
-+ */
-+#define MPOOL_SB_MAGIC "\x6D\x70\x6f\x6f\x6c\x44\x65\x76"
-+
-+const struct blkid_idinfo mpool_idinfo =
-+{
-+	.name		= "mpool",
-+	.usage		= BLKID_USAGE_FILESYSTEM,
-+	.probefunc	= probe_mpool,
-+	.magics		=
-+	{
-+		{ .magic = MPOOL_SB_MAGIC, .len = 8},
-+		{ NULL }
-+	}
-+};
-diff --git a/libblkid/src/superblocks/superblocks.c b/libblkid/src/superblocks/superblocks.c
-index 341cd8a..3123d53 100644
---- a/libblkid/src/superblocks/superblocks.c
-+++ b/libblkid/src/superblocks/superblocks.c
-@@ -156,7 +156,8 @@ static const struct blkid_idinfo *idinfos[] =
- 	&befs_idinfo,
- 	&nilfs2_idinfo,
- 	&exfat_idinfo,
--	&f2fs_idinfo
-+	&f2fs_idinfo,
-+	&mpool_idinfo
- };
- 
- /*
-diff --git a/libblkid/src/superblocks/superblocks.h b/libblkid/src/superblocks/superblocks.h
-index 79dba1a..5b5c6c2 100644
---- a/libblkid/src/superblocks/superblocks.h
-+++ b/libblkid/src/superblocks/superblocks.h
-@@ -75,6 +75,7 @@ extern const struct blkid_idinfo nilfs2_idinfo;
- extern const struct blkid_idinfo exfat_idinfo;
- extern const struct blkid_idinfo f2fs_idinfo;
- extern const struct blkid_idinfo bcache_idinfo;
-+extern const struct blkid_idinfo mpool_idinfo;
- 
- /*
-  * superblock functions
+Maybe it would be better to use LABEL_BOOT= or LABEL_FATBOOT= as name.
+
+The important thing is the default behavior of the LABEL, this is what
+use mount(8) and another tools.
+
+    Karel
+
 -- 
-2.9.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
