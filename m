@@ -1,44 +1,55 @@
-Return-Path: yamato@redhat.com
-Date: Fri, 24 Nov 2017 02:01:28 +0900 (JST)
-Message-Id: <20171124.020128.28825211426388397.yamato@redhat.com>
-To: kzak@redhat.com
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] lsns: add netnsid column
-From: Masatake YAMATO <yamato@redhat.com>
-In-Reply-To: <20171122090613.ltcuaehwbum7apes@ws.net.home>
-	<20171121111641.dt3vodjsuwwnna6g@ws.net.home>
-References: <20171121111641.dt3vodjsuwwnna6g@ws.net.home>
-	<20171121.203633.949035400852899096.yamato@redhat.com>
-	<20171122090613.ltcuaehwbum7apes@ws.net.home>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from imap.thunk.org ([74.207.234.97]:56980 "EHLO imap.thunk.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752827AbdKIQVe (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 9 Nov 2017 11:21:34 -0500
+Date: Thu, 9 Nov 2017 11:21:25 -0500
+From: Theodore Ts'o <tytso@mit.edu>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Andreas Bombe <aeb@debian.org>, Karel Zak <kzak@redhat.com>,
+        util-linux@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
+        Curtis Gedak <gedakc@gmail.com>, pavel@ucw.cz
+Subject: Re: Linux & FAT32 label
+Message-ID: <20171109162125.ixpymbeiovpsj7mc@thunk.org>
+References: <20171012204931.tfd2bhmwu5b6rbpz@pali>
+ <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
+ <CAHp75VdWXHtCHiRxnbAidr9inehVC=av6gp7-jtJqN6WPYh4fg@mail.gmail.com>
+ <20171105133929.7cscboxymmpkw634@pali>
+ <CAHp75VfwLh9eH992nB1TiOVYOpEV6OSTGkbLau=eQRPeczeFyA@mail.gmail.com>
+ <20171105140745.ze4ttkazeczrqsy7@pali>
+ <20171105203542.jgupce2usbtjhbg2@thunk.org>
+ <20171105211249.xrg6m6ijjewrpqp2@pali>
+ <20171107172841.twyu7ieekrs6b2da@thunk.org>
+ <20171109090145.lffuluwm3sxanfzu@pali>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20171109090145.lffuluwm3sxanfzu@pali>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi,
+On Thu, Nov 09, 2017 at 10:01:45AM +0100, Pali Rohár wrote:
+> > > You would have stored LABEL42 in boot sector and no label in root
+> > > directory. Windows handle this situation as there is no label.
+> > 
+> > But why should we *care*?
+> 
+> FAT is Microsoft's filesystem and the only usage of it on Linux is due
+> to interoperability with different non-Linux systems. So here we should
+> implement FAT in the similar/same way as other systems. It does not make
+> sense to implement it differently and specially in non-compatible way.
+> Because it lost reason what is primary usage of the FAT on Linux.
 
-> I do not have any changes yet ;-) So, you can start, or if you're busy
-> with something else I can do that.
+The primary usage of FAT on Linux is for data interchange, primarily
+with USB sticks.  I'm still failing to see how it might "spoil some
+vast eternal plan"[1] if a USB stick which Windows would show as
+having no label, blkid/udev showed as having the label "LABEL42"?
 
-It works:
+[1] to quote the song "If I were a rich man"
 
-# ./lsns --type=net
-        NS TYPE NPROCS   PID USER     NETNSID NSFS           COMMAND
-4026531993 net     405     1 root  unassigned                /usr/lib/systemd/systemd --switched-root --system --deserialize 25
-4026532433 net       1  1515 rtkit unassigned                /usr/libexec/rtkit-daemon
-4026532579 net       1 10432 root  unassigned /run/netns/QWE bash
-                                              /tmp/RTY
+I'm just trying to understand why this specific detail of bit-for-bit
+compatibility is so important.
 
-> This feature should be probably disabled for --raw, maybe add --nowrap
-> and in this case use "," as separator and remove SCOLS_FL_WRAP for the
-> column in init_scols_table().
-
-It seems that nsfs is still not so popular.
-So I think enabling the column only when --type net is given, as
-you suggested about netnsid.
-
-I would like to make clarify what you meant.
-
-If both --raw and -o NSFS are given, what I should do?
-Hidden NSFS anyway? or Use ',' as separator instead of '\n'?
-
-Masatake YAMATO
+						- Ted
