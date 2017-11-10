@@ -1,131 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:55918 "EHLO mx1.redhat.com"
+Received: from mail.headstrong.de ([81.7.4.112]:40824 "EHLO mail.headstrong.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753114AbdKOSYl (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 15 Nov 2017 13:24:41 -0500
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 3D3A210567
-        for <util-linux@vger.kernel.org>; Wed, 15 Nov 2017 18:24:41 +0000 (UTC)
-Date: Thu, 16 Nov 2017 03:24:39 +0900 (JST)
-Message-Id: <20171116.032439.1733506489064928691.yamato@redhat.com>
-To: kzak@redhat.com
+        id S1750987AbdKJOWS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 10 Nov 2017 09:22:18 -0500
+Subject: Re: Bug: for mount namespaces inside a chroot, unshare works but
+ nsenter doesn't
+To: Karel Zak <kzak@redhat.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] lsns: add netnsid column
-From: Masatake YAMATO <yamato@redhat.com>
-In-Reply-To: <20171115110922.c4vufqiglnipyayn@ws.net.home>
-References: <20171115025920.22394-1-yamato@redhat.com>
-        <20171115110922.c4vufqiglnipyayn@ws.net.home>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+References: <7b168fc6-957c-3c98-d7f2-673842ee550c@pwned.gg>
+ <20171103133348.p4coyse7eoibcpsn@ws.net.home> <877euzaws1.fsf@xmission.com>
+ <20171110131458.7xlnbf7ayvtk7r2r@ws.net.home>
+From: Ximin Luo <infinity0@pwned.gg>
+Message-ID: <a72a1d51-fd15-761b-95a3-a99bd6fca524@pwned.gg>
+Date: Fri, 10 Nov 2017 14:22:00 +0000
+MIME-Version: 1.0
+In-Reply-To: <20171110131458.7xlnbf7ayvtk7r2r@ws.net.home>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, 15 Nov 2017 12:09:22 +0100, Karel Zak <kzak@redhat.com> wrote:
-> On Wed, Nov 15, 2017 at 11:59:18AM +0900, Masatake YAMATO wrote:
->> Linux network subsystem assigns an unique integer to a network
->> namespace.
->> 
->>   term0# ip netns add UTIL-LINUX-LSNS-TEST-NS
->>   term0# ip netns list
->>   UTIL-LINUX-LSNS-TEST-NS
->>   term0# ip link add name lsns-vetha type veth peer name lsns-vethb
->>   term0 # ip link set lsns-vethb netns UTIL-LINUX-LSNS-TEST-NS
->>   term0# ip netns list
->>   UTIL-LINUX-LSNS-TEST-NS (id: 0)
->>   term0# ip link show dev lsns-vetha
->>   230: lsns-vetha@if229: <BROADCAST,MULTICAST> mtu 1500 qdisc noop ...
->>          link/ether 3e:27:68:ba:b3:95 brd ff:ff:ff:ff:ff:ff link-netnsid 0
->> In this example 0 is assigned to UTIL-LINUX-LSNS-TEST-NS net namespace.
->> The name, UTIL-LINUX-LSNS-TEST-NS, and it semantics is given and defined
->> by iproute2 in userland; and nothing to do with util-linux.
->> 
->> However, the id, 0, is managed in linux kernel. If lsns can show
->> the ids, it helps users understand the state of network namespaces.
+Karel Zak:
+> [..]
 > 
-> Where iproute2 stores the logical name of the namespace (e.g.
-> UTIL-LINUX-LSNS-TEST-NS)? Cannot we read it? :-)
-
-I found I don't understand the mechanism of namespace well
-enough to answer this question. So I made study.
-
-Before studying I thought logical name of the namespace is
-just iproute2 local hack. iproute2 stores the name to a
-file under /var/run/netns with using "bind mount".
-Though iproute2 is very popular software, I thought a low level
-program like lsns should rely on and utilize only kernel to get
-runtime information. I assumed making a mount point under
-/var/run/netns was just private rule of iproute2.
-
-After I studied I found it is not just iproute2 and
-net namespace private things.
-
-nsfs provides kernel level interface for logical name:
-
-    commit 0226f4923f6c9b40cfa1c1c1b19a6ac6b3924ead
-    Author: Al Viro <viro@zeniv.linux.org.uk>
-    Date:   Tue Dec 6 12:21:54 2011 -0500
-
-	vfs: take /proc/*/mounts and friends to fs/proc_namespace.c
-
-	rationale: that stuff is far tighter bound to fs/namespace.c than to
-	the guts of procfs proper.
-
-	Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-
-[yamato@master]~/var/util-linux% cat /proc/self/mountinfo  | grep nsfs
-247 240 0:3 net:[4026532562] /run/netns/UTIL-LINUX-LSNS-TEST-NS rw shared:190 - nsfs nsfs rw,seclabel
-270 26 0:3 net:[4026532562] /run/netns/UTIL-LINUX-LSNS-TEST-NS rw shared:190 - nsfs nsfs rw,seclabel
-
-By parsing this file (with libmount), we can say
-/run/netns/UTIL-LINUX-LSNS-TEST-NS is the logical name for
-net:[4026532562] either the mount point is created by ip command or
-not.
-
-"ip link show" still uses netnsid, so I think my patch still makes
-sense. However, as you wrote, making a column for logical name,
-is more useful. It is not limited to net namespace.
-
-A namespace can have more than one logical names.
-I wonder how to print them in a column.
-
->> +static int netnsid_xasputs(char **str, int netnsid)
->> +{
->> +	if (netnsid >= 0)
->> +		return xasprintf(&str, "%d", netnsid);
->> +#ifdef NETNSA_NSID_NOT_ASSIGNED
->> +	else if (netnsid == NETNSA_NSID_NOT_ASSIGNED)
->> +		return xasprintf(&str, "%s", "unassigned");
->> +#endif
->> +	else
->> +		return xasprintf(&str, "%s", "n/a");
+>> My personal recommendation is not to use chroot with persistent mount
+>> namespaces.  That just seems to keep unnecessary mounts around.  Those
+>> extra mounts will almost certainly be a problem later when you discover
+>> you want to unmount one of those mounted filesystems you don't care
+>> about but are chrooting over.
+>>
+>> I think it would be quite reasonable to have an additional option to
+>> open things in the new mount namespace, just before exec.  I just don't
+>> see how useful it would be.
 > 
->  We usually use blank space rather than n/a if data are not available.
->  In this case "return NULL;" is good enough.
+> It would be solution for this use-case, but it will increase
+> complexity and I'm not sure this use-case is important enough.
 > 
->> +#ifdef HAVE_LINUX_NET_NAMESPACE_H
->> +	netlink_fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
->> +#endif
->> +	if (netlink_fd < 0)
->> +		netlink_fd = -errno;
+> Especially if the all you need is to use chroot command before nsenter.
+> I don't think nsenter has to be all-in-one command. It's very basic
+> tool.
 > 
->  I guess this if() is unnecessary. The rest of the code check for
->  netlink_fd < 0.
->          
->  It would be also nice to call socket() only if NETNSID column is wanted.
-> 
->  What about to add NETNSID collumn to the default output only if "--type net"
->  specified on lsns command line?
 
-I think it is good idea.
+My nsenter code may be run inside or outside a chroot, I have no control over that in the general case - users decide whether they want to run it inside a chroot or not.
 
-Masatake YAMATO
+The issue with using the chroot(1) command, is that you must give it the path to the chroot *from outside the chroot*. I don't know of a clean way to figure this out from my code, that starts life running from inside the chroot, and just wants to unshare part of the tree that it sees there.
 
->  I'm ready to do all the changes (you don't have to resend the patch).
-> 
->     Karel
-> 
-> -- 
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
+An option to open root/wd in the new ns, sounds like it would allow me (and others) to write code that is chroot-independent. I'd very much appreciate that.
+
+X
+
+-- 
+GPG: ed25519/56034877E1F87C35
+GPG: rsa4096/1318EFAC5FBBDBCE
+https://github.com/infinity0/pubkeys.git
