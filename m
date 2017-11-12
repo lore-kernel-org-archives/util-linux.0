@@ -1,55 +1,62 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from imap.thunk.org ([74.207.234.97]:56980 "EHLO imap.thunk.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752827AbdKIQVe (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 9 Nov 2017 11:21:34 -0500
-Date: Thu, 9 Nov 2017 11:21:25 -0500
-From: Theodore Ts'o <tytso@mit.edu>
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Andreas Bombe <aeb@debian.org>, Karel Zak <kzak@redhat.com>,
-        util-linux@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
-        Curtis Gedak <gedakc@gmail.com>, pavel@ucw.cz
-Subject: Re: Linux & FAT32 label
-Message-ID: <20171109162125.ixpymbeiovpsj7mc@thunk.org>
-References: <20171012204931.tfd2bhmwu5b6rbpz@pali>
- <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
- <CAHp75VdWXHtCHiRxnbAidr9inehVC=av6gp7-jtJqN6WPYh4fg@mail.gmail.com>
- <20171105133929.7cscboxymmpkw634@pali>
- <CAHp75VfwLh9eH992nB1TiOVYOpEV6OSTGkbLau=eQRPeczeFyA@mail.gmail.com>
- <20171105140745.ze4ttkazeczrqsy7@pali>
- <20171105203542.jgupce2usbtjhbg2@thunk.org>
- <20171105211249.xrg6m6ijjewrpqp2@pali>
- <20171107172841.twyu7ieekrs6b2da@thunk.org>
- <20171109090145.lffuluwm3sxanfzu@pali>
+Return-Path: elseifthen@gmx.com
+Subject: [v2 PATCH 2/5] lib/timeutils: ISO_8601_BUFSIZ too small
+To: Karel Zak <kzak@redhat.com>
+References: <1a28a73d-2e05-7071-479a-af5a18fade3b@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <6fda58f1-77a4-b1fd-58e4-3aedbb88e22e@gmx.com>
+Date: Sun, 12 Nov 2017 10:24:28 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20171109090145.lffuluwm3sxanfzu@pali>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <1a28a73d-2e05-7071-479a-af5a18fade3b@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Nov 09, 2017 at 10:01:45AM +0100, Pali Rohár wrote:
-> > > You would have stored LABEL42 in boot sector and no label in root
-> > > directory. Windows handle this situation as there is no label.
-> > 
-> > But why should we *care*?
-> 
-> FAT is Microsoft's filesystem and the only usage of it on Linux is due
-> to interoperability with different non-Linux systems. So here we should
-> implement FAT in the similar/same way as other systems. It does not make
-> sense to implement it differently and specially in non-compatible way.
-> Because it lost reason what is primary usage of the FAT on Linux.
 
-The primary usage of FAT on Linux is for data interchange, primarily
-with USB sticks.  I'm still failing to see how it might "spoil some
-vast eternal plan"[1] if a USB stick which Windows would show as
-having no label, blkid/udev showed as having the label "LABEL42"?
+Although iso-8601 specifies years as 4 digits, it allows
+them to be wider.
 
-[1] to quote the song "If I were a rich man"
+The current POSIX year width is limited by 'int tm_year'
+at 10 digits plus a negative sign.
 
-I'm just trying to understand why this specific detail of bit-for-bit
-compatibility is so important.
+That, and the possibility of nanosecond time makes the
+widest POSIX iso-8601 time 41 characters. Plus the \0
+string terminator yields a buffer size of 42.
 
-						- Ted
+Before truncated output:
+/sbin/hwclock --utc --noadjfile --predict --date '-2147483765 years'
+-2147481748-09-25 20:29:45.0000
+
+Patched:
+./hwclock --utc --noadjfile --predict --date '-2147483765 years'
+-2147481748-09-25 20:17:21.000000-0456
+
+./hwclock --utc --noadjfile --predict --date '-2147483766 years'
+hwclock: invalid date '-2147483766 years'
+
+Comparable to coreutils 'date' command:
+date -Ins --date '-2147483765 years'
+-2147481748-09-25T19:49:31,578899297-0456
+
+date -Ins --date '-2147483766 years'
+date: invalid date '-2147483766 years'
+
+The 'date' output illustrates the full 41 character POSIX iso-8601
+
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ include/timeutils.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/timeutils.h b/include/timeutils.h
+index 874f853b7..edd42f7fe 100644
+--- a/include/timeutils.h
++++ b/include/timeutils.h
+@@ -65,7 +65,7 @@ enum {
+ 	ISO_8601_GMTIME		= (1 << 7)
+ };
+ 
+-#define ISO_8601_BUFSIZ	32
++#define ISO_8601_BUFSIZ	42
+ 
+ int strtimeval_iso(struct timeval *tv, int flags, char *buf, size_t bufsz);
+ int strtm_iso(struct tm *tm, int flags, char *buf, size_t bufsz);
