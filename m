@@ -1,125 +1,89 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40890 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.22]:62353 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753171AbdKXKeE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 24 Nov 2017 05:34:04 -0500
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 0D10AFC7A1
-        for <util-linux@vger.kernel.org>; Fri, 24 Nov 2017 10:34:04 +0000 (UTC)
-Date: Fri, 24 Nov 2017 19:34:02 +0900 (JST)
-Message-Id: <20171124.193402.919589752631294782.yamato@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: yamato@redhat.com
-Subject: Re: [PATCH 5/5] lsns: add a case for testing nsfs column
-From: Masatake YAMATO <yamato@redhat.com>
-In-Reply-To: <20171124103110.17077-6-yamato@redhat.com>
-References: <20171124103110.17077-1-yamato@redhat.com>
-        <20171124103110.17077-6-yamato@redhat.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+        id S1751007AbdKLPXk (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 12 Nov 2017 10:23:40 -0500
+Subject: [v2 PATCH 1/5] hwclock: add iso-8601 overflow check
+To: Karel Zak <kzak@redhat.com>
+References: <1a28a73d-2e05-7071-479a-af5a18fade3b@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <86f22fe1-3af8-e510-4d85-7791376f0922@gmx.com>
+Date: Sun, 12 Nov 2017 10:23:38 -0500
+MIME-Version: 1.0
+In-Reply-To: <1a28a73d-2e05-7071-479a-af5a18fade3b@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-I'm sorry.
-I took a mistake for sending a patch set.
-Please, ignore this
 
-	[PATCH 5/5] lsns: add a case for testing nsfs column
+hwclock wasn't testing for strtimeval_iso() truncation:
 
-one.
+/sbin/hwclock --utc --noadjfile --predict --date '7982 years'; echo $?
+9999-09-25 19:33:01.000000-0400
+0
 
-Masatake YAMATO
+/sbin/hwclock --utc --noadjfile --predict --date '7983 years'; echo $?
+10000-09-25 19:33:10.000000-
+0
 
-On Fri, 24 Nov 2017 19:31:07 +0900, Masatake YAMATO <yamato@redhat.com> wrote:
-> Signed-off-by: Masatake YAMATO <yamato@redhat.com>
-> ---
->  tests/expected/lsns/nsfs |  1 +
->  tests/ts/lsns/nsfs       | 66 ++++++++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 67 insertions(+)
->  create mode 100644 tests/expected/lsns/nsfs
->  create mode 100644 tests/ts/lsns/nsfs
-> 
-> diff --git a/tests/expected/lsns/nsfs b/tests/expected/lsns/nsfs
-> new file mode 100644
-> index 000000000..573541ac9
-> --- /dev/null
-> +++ b/tests/expected/lsns/nsfs
-> @@ -0,0 +1 @@
-> +0
-> diff --git a/tests/ts/lsns/nsfs b/tests/ts/lsns/nsfs
-> new file mode 100644
-> index 000000000..cfc88e06c
-> --- /dev/null
-> +++ b/tests/ts/lsns/nsfs
-> @@ -0,0 +1,66 @@
-> +#!/bin/bash
-> +#
-> +# Copyright (C) 2017 Masatake YAMATO <yamato@redhat.com>
-> +#
-> +# This file is part of util-linux.
-> +#
-> +# This file is free software; you can redistribute it and/or modify
-> +# it under the terms of the GNU General Public License as published by
-> +# the Free Software Foundation; either version 2 of the License, or
-> +# (at your option) any later version.
-> +#
-> +# This file is distributed in the hope that it will be useful,
-> +# but WITHOUT ANY WARRANTY; without even the implied warranty of
-> +# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> +# GNU General Public License for more details.
-> +#
-> +
-> +TS_TOPDIR="${0%/*}/../.."
-> +TS_DESC="list NSFS for namespaces created by ip-netns-add"
-> +
-> +. $TS_TOPDIR/functions.sh
-> +ts_init "$*"
-> +
-> +ts_check_test_command "$TS_CMD_LSNS"
-> +
-> +ts_skip_nonroot
-> +
-> +ts_cd "$TS_OUTDIR"
-> +
-> +NAME1=ABC
-> +NAME2=XYZ
-> +PATH1=/run/netns/$NAME1
-> +PATH2=$TS_OUTDIR/$NAME2
-> +FIFO=$TS_OUTDIR/UTIL-LINUX-LSNS-TEST-FIFO
-> +NULL=/dev/null
-> +
-> +ip netns delete $NAME1 2> /dev/null || :
-> +umount $PATH2 2>/dev/null || :
-> +rm -f $PATH2
-> +
-> +rm -f $FIFO
-> +mkfifo $FIFO
-> +
-> +if ip netns add $NAME1 &&
-> +	touch ${PATH2} &&
-> +	mount -o bind ${PATH1} ${PATH2}; then
-> +    ip netns exec $NAME1 dd if=$FIFO bs=1 count=2 of=$NULL 2> $NULL &
-> +    PID=$!
-> +fi
-> +{
-> +    dd if=/dev/zero bs=1 count=1 2> $NULL
-> +    NSFS_NAMES=$($TS_CMD_LSNS -n -o NSFS --type net --task $PID | { while read VAL; do echo $VAL; done; } )
-> +    dd if=/dev/zero bs=1 count=1 2> $NULL
-> +} > $FIFO
-> +
-> +rm $FIFO
-> +
-> +umount $PATH2
-> +rm -f $PATH2
-> +ip netns delete $NAME1
-> +
-> +test "$NSFS_NAMES" = "$PATH1
-> +$PATH2"
-> +echo $? >> $TS_OUTPUT
-> +
-> +ts_finalize
-> -- 
-> 2.13.6
-> 
+Patched:
+./hwclock --utc --noadjfile --predict --date '7982 years'; echo $?
+9999-09-25 19:22:15.000000-0400
+0
+
+./hwclock --utc --noadjfile --predict --date '7983 years'; echo $?
+hwclock: iso-8601 format truncated
+1
+
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 36b6204b0..c2c20812c 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -551,15 +551,19 @@ set_hardware_clock_exact(const struct hwclock_control *ctl,
+ 	set_hardware_clock(ctl, newhwtime);
+ }
+ 
+-static void
++static int
+ display_time(struct timeval hwctime)
+ {
+ 	char buf[ISO_8601_BUFSIZ];
+ 
+-	strtimeval_iso(&hwctime, ISO_8601_DATE|ISO_8601_TIME|ISO_8601_DOTUSEC|
++	if (strtimeval_iso(&hwctime, ISO_8601_DATE|ISO_8601_TIME|ISO_8601_DOTUSEC|
+ 				 ISO_8601_TIMEZONE|ISO_8601_SPACE,
+-				 buf, sizeof(buf));
++				 buf, sizeof(buf))) {
++		warnx(_("iso-8601 format overflow"));
++		return EXIT_FAILURE;
++	}
+ 	printf("%s\n", buf);
++	return EXIT_SUCCESS;
+ }
+ 
+ /*
+@@ -931,8 +935,7 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 			printf(_ ("Target date:   %ld\n"), set_time);
+ 			printf(_ ("Predicted RTC: %ld\n"), hclocktime.tv_sec);
+ 		}
+-		display_time(hclocktime);
+-		return EXIT_SUCCESS;
++		return display_time(hclocktime);
+ 	}
+ 
+ 	if (ctl->systz)
+@@ -978,7 +981,7 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
+ 		 time_inc(hclocktime, time_diff(startup_time, read_time));
+ 	}
+ 	if (ctl->show || ctl->get) {
+-		display_time(startup_hclocktime);
++		return display_time(startup_hclocktime);
+ 	} else if (ctl->set) {
+ 		set_hardware_clock_exact(ctl, set_time, startup_time);
+ 		if (!ctl->noadjfile)
