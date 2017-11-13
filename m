@@ -1,84 +1,29 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Date: Mon, 20 Nov 2017 12:12:56 +0100
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:60294 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753143AbdKMPvt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 13 Nov 2017 10:51:49 -0500
+Date: Mon, 13 Nov 2017 16:51:45 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Andreas Bombe <aeb@debian.org>, util-linux@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
-        Curtis Gedak <gedakc@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>
-Subject: Re: Linux & FAT32 label
-Message-ID: <20171120111256.zqvmpzdcf6ncyi5m@ws.net.home>
-References: <20171004153332.GA6696@pali>
- <20171011212435.znmtdnsxcd5ectub@pali>
- <20171105130608.5oww3b2fnnrwe7ok@pali>
- <20171109212131.uxraxzwpvrlyfyys@pali>
- <20171119124440.ffxx64zjmwedmtdp@pali>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [v2 PATCH 0/5] Pull Request and v2 changes
+Message-ID: <20171113155145.27xr4ys5jynpssdo@ws.net.home>
+References: <1a28a73d-2e05-7071-479a-af5a18fade3b@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20171119124440.ffxx64zjmwedmtdp@pali>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1a28a73d-2e05-7071-479a-af5a18fade3b@gmx.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Nov 19, 2017 at 01:44:40PM +0100, Pali Rohár wrote:
-> On Thursday 09 November 2017 22:21:31 Pali Rohár wrote:
-> > So from all tests and discussion I would propose new unification:
-> > 
-> > 1. Read label only from the root directory. If label in root directory
-> >    is missing then disk would be treated as without label. Label from
-> >    boot sector would not be read.
-> > 
-> >    --> Reason: Windows XP and mlabel ignores what is written in boot
-> >        sector. Windows XP even do not update boot sector, so label
-> >        stored in boot sector is incorrect after any change done by
-> >        Windows XP.
-> > 
-> >        This logic is used by all tested MS-DOS and Windows versions,
-> >        plus also by mtools on Linux.
-> > 
-> > 2. Write label to to both location, boot sector and root directory.
-> > 
-> >    --> Reason: MS-DOS 6.22, MS-DOS 7.10, Windows 98 and also mtools on
-> >        Linux do this. This is also what is written in FAT specification.
-> > 
-> >        It also provides backward compatibility with old dosfslabel
-> >        versions which read label only from boot sector.
-> > 
-> > 2. Process 'NO NAME    ' label in root directory as 'NO NAME' name. Not
-> >    as empty label.
-> > 
-> >    --> Reason: 'NO NAME    ' is regular entry in root directory and both
-> >        Windows XP and mlabel handle it in this way.
-> > 
-> > 3. Process 'NO NAME    ' label in boot directory as empty label. Not as
-> >    label with name 'NO NAME'.
-> > 
-> >    --> Reason: On Windows XP when formatting empty disk and label is not
-> >        specified then 'NO NAME    ' is stored to boot sector.
-> > 
-> >        Also in FAT specification is written that empty label is stored
-> >        as 'NO NAME    '.
-> > 
-> > With this change we would get compatibility with MS-DOS, Windows (both
-> > DOS-based and NT-based) and also with Linux mtools, modulo problems DOS
-> > code page.
-> > 
-> > There are just two negatives:
-> > 
-> > 1) Labels set by old dosfslabel versions (which stored them only to boot
-> >    sector) would not be visible. But they are already not visible on
-> >    MS-DOS or Windows machines, and also via mlabel (from mtools).
-> > 
-> > 2) Behavior of blkid and fatlabel would be changed as both tools have
-> >    different as proposed above, and based on tests they also differ each
-> >    from other.
-> > 
-> > Andreas, Karel, what do you think about it?
-> 
-> Also for other people, do any have comments on my proposed solution?
+On Sun, Nov 12, 2017 at 10:22:17AM -0500, J William Piggott wrote:
+>       hwclock: add iso-8601 overflow check
+>       lib/timeutils: ISO_8601_BUFSIZ too small
+>       lib/timeutils: add get_gmtoff()
+>       lib/timeutils: add common ISO timestamp masks
+>       tests: adjust for ISO timezone colon use
 
-Go ahead and send patch :-) (also with LABEL_FATBOOT=)
+Applied, thanks (for patience:-)
 
     Karel
 
