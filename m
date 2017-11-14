@@ -1,89 +1,92 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:62353 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:40734 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751007AbdKLPXk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 12 Nov 2017 10:23:40 -0500
-Subject: [v2 PATCH 1/5] hwclock: add iso-8601 overflow check
-To: Karel Zak <kzak@redhat.com>
-References: <1a28a73d-2e05-7071-479a-af5a18fade3b@gmx.com>
+        id S1752278AbdKNKIO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 14 Nov 2017 05:08:14 -0500
+Date: Tue, 14 Nov 2017 11:08:10 +0100
+From: Karel Zak <kzak@redhat.com>
+To: L A Walsh <lkml@tlinx.org>
 Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <86f22fe1-3af8-e510-4d85-7791376f0922@gmx.com>
-Date: Sun, 12 Nov 2017 10:23:38 -0500
+Subject: Re: what should blockdev getbpsz return 4k disks w/512e?
+Message-ID: <20171114100810.3mflont7wwtnq7xp@ws.net.home>
+References: <59FD83DF.805@tlinx.org>
+ <20171106101938.a6l6t3r37qtqtuks@ws.net.home>
+ <5A0A7311.8040007@tlinx.org>
 MIME-Version: 1.0
-In-Reply-To: <1a28a73d-2e05-7071-479a-af5a18fade3b@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <5A0A7311.8040007@tlinx.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Mon, Nov 13, 2017 at 08:37:37PM -0800, L A Walsh wrote:
+> Karel Zak wrote:
+> > On Sat, Nov 04, 2017 at 02:09:51AM -0700, L A Walsh wrote:
+> > > I just tried blockdev on a HW raid device (/dev/sdb) composed of
+> > > 4K disks that can (w/performance penalty) emulate 512 byte disk
+> > > (i.e. have the 512e feature).  It is returning 512.
+> > > 
+> > > Any idea where this info should be showing up?
+> > 
+> > Try
+> > 
+> >  --getiomin                get minimum I/O size
+> >  --getioopt                get optimal I/O size
+> ----
+> 
+>  > sudo blockdev --getiomin /dev/sdb
+>  512
+>  > sudo blockdev --getioopt /dev/sdb
+>  0
+> > or
+> > 
+> >   lsblk --topology
+> -----
+> (some lines deleted for brevity):
+> 
+> NAME                 ALIGN IO:MIN OPT  PHYSEC LOGSEC ROT SCHED RQSZ  RA
+> WSAME
+> sda                    0    512    0     512    512   1   bfq  256   512
+> 0B
+> └─sda1                 0    512    0     512    512   1   bfq  256   512
+> 0B
+>  └─Backup-Media       0    512    0     512    512   1        128   128
+> 0B
+> sdb                    0    512    0     512    512   1   bfq  256   512
+> 0B
+> └─sdb1                 0    512    0     512    512   1   bfq  256   512
+> 0B
+>  ├─Data-Home          0    512    0     512    512   1        128   128
+> 0B
+>  └─Data-Edge          0    512    0     512    512   1        128   128
+> 0B
+> sdc                    0    512    0     512    512   1   bfq  256   512
+> 0B
+> ├─sdc1                 0    512    0     512    512   1   bfq  256   512
+> 0B
+> └─sdc10                0    512    0     512    512   1   bfq  256   512
+> 0B
+> 
+> > It's possible that RAID (or another stacked device) uses 512
+> > addressing, but for partitioning or mkfs-like tools we care about
+> > minimal and optimal I/O.
+> ----
+>    Nothing but the RAID controller seems to know about the 4096 physical
+> size.
+>    (attached jpg from disk controller SW -- can see size under physical on
+> right).
+> 
+>    If anything used a 512 byte offset anywhere, it would really impact
+> performance, thus my concern about how or where a util would be able to read
+> it...
 
-hwclock wasn't testing for strtimeval_iso() truncation:
+Unfortunately userspace tools cannot play any usable role in this
+story if your system (kernel) does not provide relevant information.
+For mkfs and partitioning tools it's 512-bytes based devices... 
 
-/sbin/hwclock --utc --noadjfile --predict --date '7982 years'; echo $?
-9999-09-25 19:33:01.000000-0400
-0
+Let's ask kernel developers.
 
-/sbin/hwclock --utc --noadjfile --predict --date '7983 years'; echo $?
-10000-09-25 19:33:10.000000-
-0
+    Karel
 
-Patched:
-./hwclock --utc --noadjfile --predict --date '7982 years'; echo $?
-9999-09-25 19:22:15.000000-0400
-0
-
-./hwclock --utc --noadjfile --predict --date '7983 years'; echo $?
-hwclock: iso-8601 format truncated
-1
-
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
-
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 36b6204b0..c2c20812c 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -551,15 +551,19 @@ set_hardware_clock_exact(const struct hwclock_control *ctl,
- 	set_hardware_clock(ctl, newhwtime);
- }
- 
--static void
-+static int
- display_time(struct timeval hwctime)
- {
- 	char buf[ISO_8601_BUFSIZ];
- 
--	strtimeval_iso(&hwctime, ISO_8601_DATE|ISO_8601_TIME|ISO_8601_DOTUSEC|
-+	if (strtimeval_iso(&hwctime, ISO_8601_DATE|ISO_8601_TIME|ISO_8601_DOTUSEC|
- 				 ISO_8601_TIMEZONE|ISO_8601_SPACE,
--				 buf, sizeof(buf));
-+				 buf, sizeof(buf))) {
-+		warnx(_("iso-8601 format overflow"));
-+		return EXIT_FAILURE;
-+	}
- 	printf("%s\n", buf);
-+	return EXIT_SUCCESS;
- }
- 
- /*
-@@ -931,8 +935,7 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
- 			printf(_ ("Target date:   %ld\n"), set_time);
- 			printf(_ ("Predicted RTC: %ld\n"), hclocktime.tv_sec);
- 		}
--		display_time(hclocktime);
--		return EXIT_SUCCESS;
-+		return display_time(hclocktime);
- 	}
- 
- 	if (ctl->systz)
-@@ -978,7 +981,7 @@ manipulate_clock(const struct hwclock_control *ctl, const time_t set_time,
- 		 time_inc(hclocktime, time_diff(startup_time, read_time));
- 	}
- 	if (ctl->show || ctl->get) {
--		display_time(startup_hclocktime);
-+		return display_time(startup_hclocktime);
- 	} else if (ctl->set) {
- 		set_hardware_clock_exact(ctl, set_time, startup_time);
- 		if (!ctl->noadjfile)
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
