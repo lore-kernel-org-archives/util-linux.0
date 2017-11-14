@@ -1,38 +1,86 @@
-Return-Path: kalle@projektwerkstatt.de
-Subject: Re: mount: how to identify filesystems to mount them
-To: Karel Zak <kzak@redhat.com>
-References: <ff28d2dd-c527-3d5f-e804-1ce468518b83@projektwerkstatt.de>
- <20171115163729.ihe4vnhmxbj2jprz@ws.net.home>
-Cc: util-linux@vger.kernel.org
-From: kalle <kalle@projektwerkstatt.de>
-Message-ID: <cdc6aeb0-7263-e80a-1f3c-87521de7fca9@projektwerkstatt.de>
-Date: Wed, 15 Nov 2017 23:58:44 +0100
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:42506 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754658AbdKNKCV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 14 Nov 2017 05:02:21 -0500
+Date: Tue, 14 Nov 2017 11:02:16 +0100
+From: Karel Zak <kzak@redhat.com>
+To: jgroves@micron.com
+Cc: util-linux@vger.kernel.org, John@Groves.net
+Subject: Re: [PATCH 2/2] Add support for Micron mpool formatted drives
+Message-ID: <20171114100216.zcixhekcz5u6wocc@ws.net.home>
+References: <1510620313-6045-1-git-send-email-jgroves@micron.com>
+ <1510620313-6045-3-git-send-email-jgroves@micron.com>
 MIME-Version: 1.0
-In-Reply-To: <20171115163729.ihe4vnhmxbj2jprz@ws.net.home>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1510620313-6045-3-git-send-email-jgroves@micron.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 15.11.2017 17:37, Karel Zak wrote:
-> On Wed, Nov 15, 2017 at 05:18:17PM +0100, kalle wrote:
->> hello,
->> -i think it would be good, if it would be explained shortly, what a file
->> system is
->> -what would be good would be an explanation, how to find out filesystem,
->> label, UUID or device name of a given device...
-> man mount, section "Indicating the device" is not enough?
-No. given the case I have a usb-stick. If I would recognize the label, 
-the files on it or the size because they are written outside on the 
-hardware of the stick or because I recognize my files stored on the 
-stick. Now if I plug it in, how do I know which device to mount? "mount 
--L" doesn't help me further, since I don't know the label exactly by 
-heart, pressing the `TAB'-key produces file names and not labels.
-What I did in the past was looking at /dev/disk/by-... for the label/id 
-to recognize my stick, but this procedure is lengthy and not recommended 
-by you on the man-page.
-I simply don't have a nice answer to this problem.
-> OK, I think, we can add some short note about "what filesystem is" to the
-> begin of the mount man page for people who accidentally booted Linux
-> :-)
->      Karel
->
->
+On Mon, Nov 13, 2017 at 06:45:13PM -0600, jgroves@micron.com wrote:
+> +const char *no  = "no";
+> +const char *yes = "yes";
+> +
+> +static int probe_mpool(blkid_probe pr, const struct blkid_idmag *mag)
+> +{
+> +	struct omf_sb_descriptor *osd;
+> +	uint32_t sb_crc;
+> +
+> +	osd = blkid_probe_get_sb(pr, mag, struct omf_sb_descriptor);
+> +	if (!osd)
+> +		return errno ? -errno : 1;
+> +
+> +	sb_crc = crc32c(~0L, (const void *)osd,
+> +			offsetof(struct omf_sb_descriptor, osb_cksum1));
+> +	sb_crc ^= ~0L;
+> +
+> +	if (!blkid_probe_verify_csum(pr, sb_crc, osd->osb_cksum1)) {
+> +		blkid_probe_set_value(pr, "VALID",
+> +			(unsigned char *)no, strlen(no) + 1);
+> +		return -EINVAL;
+> +	}
+
+The function blkid_probe_verify_csum() defines SBBADCSUM variable if
+the checksum is invalid and the application cares about such things (used
+BLKID_SUBLKS_BADCSUM probing flag). The return code should be "1" rather
+than -EINVAL.
+
+Why we need "VALID"?
+
+See for example libblkid/src/superblocks/lvm.c.
+
+> +
+> +	blkid_probe_set_value(pr, "VALID",
+> +		(unsigned char *)yes, strlen(yes) + 1);
+> +	blkid_probe_set_label(pr, osd->osb_name, sizeof(osd->osb_name));
+> +	blkid_probe_set_uuid(pr, osd->osb_poolid);
+> +
+> +	return 0;
+> +}
+> +
+> +/**
+> + * Superblock (sb) -- magic = ASCII "mpoolDev"
+> + */
+> +#define MPOOL_SB_MAGIC "\x6D\x70\x6f\x6f\x6c\x44\x65\x76"
+> +
+> +const struct blkid_idinfo mpool_idinfo =
+> +{
+> +	.name		= "mpool",
+> +	.usage		= BLKID_USAGE_FILESYSTEM,
+> +	.probefunc	= probe_mpool,
+> +	.magics		=
+> +	{
+> +		{ .magic = MPOOL_SB_MAGIC, .len = 8},
+> +		{ NULL }
+> +	}
+> +};
+
+It would be nice to have some reference (e.g. URL to docs) about
+Micron mpool in code or in commit message ;-)
+
+    Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
