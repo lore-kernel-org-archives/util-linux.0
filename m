@@ -1,43 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:48578 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751588AbdKVJGQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 22 Nov 2017 04:06:16 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 9D59537E7A
-        for <util-linux@vger.kernel.org>; Wed, 22 Nov 2017 09:06:16 +0000 (UTC)
-Date: Wed, 22 Nov 2017 10:06:13 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Masatake YAMATO <yamato@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] lsns: add netnsid column
-Message-ID: <20171122090613.ltcuaehwbum7apes@ws.net.home>
-References: <20171115110922.c4vufqiglnipyayn@ws.net.home>
- <20171116.032439.1733506489064928691.yamato@redhat.com>
- <20171121111641.dt3vodjsuwwnna6g@ws.net.home>
- <20171121.203633.949035400852899096.yamato@redhat.com>
+Received: from mailout.micron.com ([137.201.242.129]:21660 "EHLO
+        mailout.micron.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751887AbdKNAph (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 13 Nov 2017 19:45:37 -0500
+From: <jgroves@micron.com>
+To: Karel Zak <kzak@redhat.com>
+CC: <util-linux@vger.kernel.org>, <John@Groves.net>,
+        John Groves <jgroves@micron.com>
+Subject: [PATCH 0/2] libblkid: recognize Micron mpool formatted devices
+Date: Mon, 13 Nov 2017 18:45:11 -0600
+Message-ID: <1510620313-6045-1-git-send-email-jgroves@micron.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171121.203633.949035400852899096.yamato@redhat.com>
+Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Nov 21, 2017 at 08:36:33PM +0900, Masatake YAMATO wrote:
-> So, my biggest question is "should I send an updated version of patch?" :-)
-> 
-> You wrote in https://marc.info/?l=util-linux-ng&m=151074416720085&w=2:
-> >  I'm ready to do all the changes (you don't have to resend the patch).
-> 
-> I think you may have improved version of code.
-> I would like to start from it for reflecting the new comments (if I should do).
+From: John Groves <jgroves@micron.com>
 
-I do not have any changes yet ;-) So, you can start, or if you're busy
-with something else I can do that.
+This patch adds libblkid recognition of Micron mpool formatted devices.
+It also adds a very simple crc32c() function, for use by probe_mpool().
 
-    Karel
+If there are objections to adding crc32c, I can re-submit without it, or
+make it static for probe_mpool(). I would prefer not to go without crc32c
+validation, because the only remaining check would be the magic number.
+
+Review comments and/or questions welcome.
+
+Thanks,
+
+John Groves (2):
+  Add simple crc32c() function
+  Add support for Micron mpool formatted drives
+
+ include/crc32c.h                       |   9 +++
+ lib/Makemodule.am                      |   1 +
+ lib/crc32c.c                           | 102 +++++++++++++++++++++++++++++++++
+ libblkid/src/Makemodule.am             |   1 +
+ libblkid/src/superblocks/mpool.c       |  74 ++++++++++++++++++++++++
+ libblkid/src/superblocks/superblocks.c |   3 +-
+ libblkid/src/superblocks/superblocks.h |   1 +
+ 7 files changed, 190 insertions(+), 1 deletion(-)
+ create mode 100644 include/crc32c.h
+ create mode 100644 lib/crc32c.c
+ create mode 100644 libblkid/src/superblocks/mpool.c
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.9.3
+
