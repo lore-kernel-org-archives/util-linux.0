@@ -1,57 +1,35 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60372 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933809AbdKPKu3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 16 Nov 2017 05:50:29 -0500
-Date: Thu, 16 Nov 2017 11:50:24 +0100
-From: Karel Zak <kzak@redhat.com>
-To: jgroves@micron.com
-Cc: util-linux@vger.kernel.org, John@Groves.net
-Subject: Re: [PATCH v3 0/2] libblkid: recognize Micron mpool formatted devices
-Message-ID: <20171116105024.34bafpqp2lobatrg@ws.net.home>
-References: <1510808499-7680-1-git-send-email-jgroves@micron.com>
+Received: from mail.netzguerilla.net ([217.11.57.120]:58115 "EHLO
+        mail.netzguerilla.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757708AbdKOQWy (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 15 Nov 2017 11:22:54 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by mail.netzguerilla.net (Postfix) with ESMTP id 1A9F4100013
+        for <util-linux@vger.kernel.org>; Wed, 15 Nov 2017 17:17:50 +0100 (CET)
+Received: from mail.netzguerilla.net ([217.11.57.120])
+        by localhost (sal.netzguerilla.net [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id B5Z6SRL76M_K for <util-linux@vger.kernel.org>;
+        Wed, 15 Nov 2017 17:17:49 +0100 (CET)
+Received: from [IPv6:2003:dd:ff22:fd01:c4bc:c0b2:8ea7:2398] (p200300DDFF22FD01C4BCC0B28EA72398.dip0.t-ipconnect.de [IPv6:2003:dd:ff22:fd01:c4bc:c0b2:8ea7:2398])
+        by mail.netzguerilla.net (Postfix) with ESMTPSA id EC1D4100012
+        for <util-linux@vger.kernel.org>; Wed, 15 Nov 2017 17:17:48 +0100 (CET)
+From: kalle <kalle@projektwerkstatt.de>
+Subject: mount: /etc/fstab
+To: util-linux@vger.kernel.org
+Message-ID: <96410831-0333-8fb6-c05f-4ae8856e43df@projektwerkstatt.de>
+Date: Wed, 15 Nov 2017 17:17:44 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1510808499-7680-1-git-send-email-jgroves@micron.com>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Nov 15, 2017 at 11:01:37PM -0600, jgroves@micron.com wrote:
-> From: John Groves <jgroves@micron.com>
-> 
-> This patch adds libblkid recognition of Micron mpool formatted devices.
-> It also adds a very simple crc32c() function, for use by probe_mpool().
-> 
-> If there are objections to adding crc32c, I can re-submit without it, or
-> make it static for probe_mpool(). I would prefer not to go without crc32c
-> validation, because the only remaining check would be the magic number.
-> 
-> Review comments and/or questions still welcome.
-> 
-> Chages since v2:
-> 
-> * Remove unused char * (yes,no) constants (overlooked in v2)
-> 
-> Changes since v1:
-> 
-> * probe_mpool() no longer calls blkid_probe_set_value to set
->   VALID="yes"|"no".  This was debug code that I had failed to excise
->   previously.
-> 
-> Thanks,
-> 
-> John Groves (2):
->   Add simple crc32c() function
->   Add support for Micron mpool formatted drives
+hello,
+In the sentence "then mount looks for a mountpoint and if not found then
+for a device in the /etc/fstab file" it should be made clear that the
+mountpoint refers to the /etc/fstab-file, e.g. "then mount looks in the
+/etc/fstab file firstly for a mountpoint and if not found then secondly
+for a device". I did not understand the sentence until now and wondered,
+what was meant by 'mountpoint'.
 
-Applied, thanks!
-
-John, it would be nice to have a regression test for mpool. It's
-enough to send me gziped begin of the mpool device where is a valid
-superblock (dd(1), 1000 bytes or so...).
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+greetings,
+kalle
