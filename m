@@ -1,58 +1,79 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:33324 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:33504 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754776AbdKOQbJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 15 Nov 2017 11:31:09 -0500
-Date: Wed, 15 Nov 2017 17:31:05 +0100
+        id S1753921AbdKOLJ0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 15 Nov 2017 06:09:26 -0500
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 6717C883A2
+        for <util-linux@vger.kernel.org>; Wed, 15 Nov 2017 11:09:26 +0000 (UTC)
+Date: Wed, 15 Nov 2017 12:09:22 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Douglas Jacobsen <dmjacobsen@lbl.gov>
+To: Masatake YAMATO <yamato@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: mnt_is_readonly() call to utimensat() has serious performance
- consequences
-Message-ID: <20171115163105.rcm3b7shublarmap@ws.net.home>
-References: <e1932cb6-9c28-5cfd-29d2-78d39ade41b2@lbl.gov>
+Subject: Re: [PATCH 1/2] lsns: add netnsid column
+Message-ID: <20171115110922.c4vufqiglnipyayn@ws.net.home>
+References: <20171115025920.22394-1-yamato@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <e1932cb6-9c28-5cfd-29d2-78d39ade41b2@lbl.gov>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171115025920.22394-1-yamato@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Nov 15, 2017 at 08:21:51AM -0700, Douglas Jacobsen wrote:
-> Some time ago we traced a large scale booting issue back to the utimensat()
-> call that mnt_is_readonly() makes when mounting a read-write, but
-> root-squashed parallel filesystem.
+On Wed, Nov 15, 2017 at 11:59:18AM +0900, Masatake YAMATO wrote:
+> Linux network subsystem assigns an unique integer to a network
+> namespace.
 > 
-> This is caused by many clients mounting nearly simultaneously, failing the
-> access() call earlier (because the FS is root-squashed) and then calling
-> utimensat() at about the same time.  Because it attempts to write to the
-> mount point, the remote filesystem manager serializes the passage through
-> utimensat().
+>   term0# ip netns add UTIL-LINUX-LSNS-TEST-NS
+>   term0# ip netns list
+>   UTIL-LINUX-LSNS-TEST-NS
+>   term0# ip link add name lsns-vetha type veth peer name lsns-vethb
+>   term0 # ip link set lsns-vethb netns UTIL-LINUX-LSNS-TEST-NS
+>   term0# ip netns list
+>   UTIL-LINUX-LSNS-TEST-NS (id: 0)
+>   term0# ip link show dev lsns-vetha
+>   230: lsns-vetha@if229: <BROADCAST,MULTICAST> mtu 1500 qdisc noop ...
+>          link/ether 3e:27:68:ba:b3:95 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+> In this example 0 is assigned to UTIL-LINUX-LSNS-TEST-NS net namespace.
+> The name, UTIL-LINUX-LSNS-TEST-NS, and it semantics is given and defined
+> by iproute2 in userland; and nothing to do with util-linux.
 > 
-> The filesystem is already mounted at this point and it appears that the
-> utimensat() call is really only used to append a "ro" to the apparent mount
-> flags for /etc/mtab, it seems that this is a high cost to make this
-> determination.
-> 
-> It seems this was discussed in this thread previously:
-> https://marc.info/?l=util-linux-ng&m=148405286532392&w=2
-> <https://marc.info/?l=util-linux-ng&m=148405286532392&w=2>
-> 
-> However, I think it would be preferable to not be required to have a
-> custom-build of util-linux to avoid this problem.
+> However, the id, 0, is managed in linux kernel. If lsns can show
+> the ids, it helps users understand the state of network namespaces.
 
-The custom build is not required, the mtab is disabled by default. You
-have to explicitly build with --enable-libmount-support-mtab to enable
-this expensive code.
+Where iproute2 stores the logical name of the namespace (e.g.
+UTIL-LINUX-LSNS-TEST-NS)? Cannot we read it? :-)
 
-> Is this secondary check
-> with utimensat() really necessary?  Perhaps an alternative to removing it
-> would be to have a check to see if /etc/mtab is writable before aggressively
-> collecting data that may not be able to be outputted to it, for example, in
-> the case that /etc/mtab is a symlink to /proc/mounts this logic could be
-> skipped.  Skimming through the libmount code, perhaps adding a check
-> against mnt_context_mtab_writable() here:
+> +static int netnsid_xasputs(char **str, int netnsid)
+> +{
+> +	if (netnsid >= 0)
+> +		return xasprintf(&str, "%d", netnsid);
+> +#ifdef NETNSA_NSID_NOT_ASSIGNED
+> +	else if (netnsid == NETNSA_NSID_NOT_ASSIGNED)
+> +		return xasprintf(&str, "%s", "unassigned");
+> +#endif
+> +	else
+> +		return xasprintf(&str, "%s", "n/a");
 
-Good point. I'll improve it tomorrow. Thanks.
+ We usually use blank space rather than n/a if data are not available.
+ In this case "return NULL;" is good enough.
+
+> +#ifdef HAVE_LINUX_NET_NAMESPACE_H
+> +	netlink_fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
+> +#endif
+> +	if (netlink_fd < 0)
+> +		netlink_fd = -errno;
+
+ I guess this if() is unnecessary. The rest of the code check for
+ netlink_fd < 0.
+         
+ It would be also nice to call socket() only if NETNSID column is wanted.
+
+ What about to add NETNSID collumn to the default output only if "--type net"
+ specified on lsns command line?
+
+ I'm ready to do all the changes (you don't have to resend the patch).
 
     Karel
 
