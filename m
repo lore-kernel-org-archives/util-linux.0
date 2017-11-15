@@ -1,40 +1,38 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:49012 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752796AbdK0Qqm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 27 Nov 2017 11:46:42 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 9507B4ACA0
-        for <util-linux@vger.kernel.org>; Mon, 27 Nov 2017 16:46:42 +0000 (UTC)
-Date: Mon, 27 Nov 2017 17:46:39 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Masatake YAMATO <yamato@redhat.com>
+Return-Path: kalle@projektwerkstatt.de
+Subject: Re: mount: how to identify filesystems to mount them
+To: Karel Zak <kzak@redhat.com>
+References: <ff28d2dd-c527-3d5f-e804-1ce468518b83@projektwerkstatt.de>
+ <20171115163729.ihe4vnhmxbj2jprz@ws.net.home>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH v2 0/7] Add netnsid and nsfs columns to lsns
-Message-ID: <20171127164639.3thyhe7c6fohoeyt@ws.net.home>
-References: <20171124103110.17077-1-yamato@redhat.com>
+From: kalle <kalle@projektwerkstatt.de>
+Message-ID: <cdc6aeb0-7263-e80a-1f3c-87521de7fca9@projektwerkstatt.de>
+Date: Wed, 15 Nov 2017 23:58:44 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171124103110.17077-1-yamato@redhat.com>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20171115163729.ihe4vnhmxbj2jprz@ws.net.home>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Nov 24, 2017 at 07:31:02PM +0900, Masatake YAMATO wrote:
->   lsns: add netnsid column
->   lsns: disable netnsid column by default
->   lsns: add a case for testing netnsid column
->   lsns: add nsfs column
->   lsns: add --nowrap(-W) option
->   lsns: add a case for testing nsfs column
->   man: write about using multi-line in NSFS cell of lsns
-
-Merged; I have merged also some additional changes to cleanup a little
-bit the code. Thanks!
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+On 15.11.2017 17:37, Karel Zak wrote:
+> On Wed, Nov 15, 2017 at 05:18:17PM +0100, kalle wrote:
+>> hello,
+>> -i think it would be good, if it would be explained shortly, what a file
+>> system is
+>> -what would be good would be an explanation, how to find out filesystem,
+>> label, UUID or device name of a given device...
+> man mount, section "Indicating the device" is not enough?
+No. given the case I have a usb-stick. If I would recognize the label, 
+the files on it or the size because they are written outside on the 
+hardware of the stick or because I recognize my files stored on the 
+stick. Now if I plug it in, how do I know which device to mount? "mount 
+-L" doesn't help me further, since I don't know the label exactly by 
+heart, pressing the `TAB'-key produces file names and not labels.
+What I did in the past was looking at /dev/disk/by-... for the label/id 
+to recognize my stick, but this procedure is lengthy and not recommended 
+by you on the man-page.
+I simply don't have a nice answer to this problem.
+> OK, I think, we can add some short note about "what filesystem is" to the
+> begin of the mount man page for people who accidentally booted Linux
+> :-)
+>      Karel
+>
+>
