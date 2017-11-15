@@ -1,43 +1,35 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Date: Mon, 27 Nov 2017 13:13:01 +0100
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:51472 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1758784AbdKOQhc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 15 Nov 2017 11:37:32 -0500
+Date: Wed, 15 Nov 2017 17:37:29 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Andreas Bombe <aeb@debian.org>, util-linux@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
-        Curtis Gedak <gedakc@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>
-Subject: Re: Linux & FAT32 label
-Message-ID: <20171127121301.b6obxoqr4azm3zvs@ws.net.home>
-References: <20171004153332.GA6696@pali>
- <20171011212435.znmtdnsxcd5ectub@pali>
- <20171105130608.5oww3b2fnnrwe7ok@pali>
- <20171109212131.uxraxzwpvrlyfyys@pali>
- <20171119124440.ffxx64zjmwedmtdp@pali>
- <20171120111256.zqvmpzdcf6ncyi5m@ws.net.home>
- <20171126191925.zowfpduhyic5w4n5@pali>
+To: kalle <kalle@projektwerkstatt.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: mount: how to identify filesystems to mount them
+Message-ID: <20171115163729.ihe4vnhmxbj2jprz@ws.net.home>
+References: <ff28d2dd-c527-3d5f-e804-1ce468518b83@projektwerkstatt.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20171126191925.zowfpduhyic5w4n5@pali>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <ff28d2dd-c527-3d5f-e804-1ce468518b83@projektwerkstatt.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Nov 26, 2017 at 08:19:25PM +0100, Pali Rohár wrote:
-> On Monday 20 November 2017 12:12:56 Karel Zak wrote:
-> > Go ahead and send patch :-) (also with LABEL_FATBOOT=)
-> 
-> Ok, I prepared patches for util-linux including LABEL_FATBOOT:
-> https://github.com/karelzak/util-linux/compare/master...pali:master
+On Wed, Nov 15, 2017 at 05:18:17PM +0100, kalle wrote:
+> hello,
+> -i think it would be good, if it would be explained shortly, what a file
+> system is
+> -what would be good would be an explanation, how to find out filesystem,
+> label, UUID or device name of a given device...
 
-Seems good. I'll wait for official pull request. Thanks!
+man mount, section "Indicating the device" is not enough?
 
-> I have not created official pull request on github yet as Andreas have
-> not decided yet about dosfstools/fatlabel...
+OK, I think, we can add some short note about "what filesystem is" to the
+begin of the mount man page for people who accidentally booted Linux
+:-)
 
-OK.
-
-  Karel
+    Karel
 
 
 -- 
