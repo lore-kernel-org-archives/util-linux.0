@@ -1,76 +1,140 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:50328 "EHLO
-        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751495AbdKIDcW (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 8 Nov 2017 22:32:22 -0500
-Received: by mail-lf0-f67.google.com with SMTP id a132so5550491lfa.7
-        for <util-linux@vger.kernel.org>; Wed, 08 Nov 2017 19:32:21 -0800 (PST)
-Received: from [10.4.30.50] (wifi.cs.msu.ru. [188.44.42.48])
-        by smtp.googlemail.com with ESMTPSA id z17sm960580lfi.82.2017.11.08.19.32.19
-        for <util-linux@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 08 Nov 2017 19:32:19 -0800 (PST)
-To: util-linux@vger.kernel.org
-From: Mikhail Vorobyov <vorobyov.mikhail@gmail.com>
-Subject: [PATCH 1/2] libfdisk: (sun) move aligning of the first sector before
- availability check
-Message-ID: <2cdd22e9-0767-372b-bd14-bb6084266cb0@gmail.com>
-Date: Thu, 9 Nov 2017 06:32:18 +0300
+Return-Path: jgroves@micron.com
+From: <jgroves@micron.com>
+To: Karel Zak <kzak@redhat.com>
+CC: <util-linux@vger.kernel.org>, <John@Groves.net>,
+        John Groves
+	<jgroves@micron.com>
+Subject: [PATCH v2 2/2] Add support for Micron mpool formatted drives
+Date: Wed, 15 Nov 2017 18:48:11 -0600
+Message-ID: <1510793291-4771-3-git-send-email-jgroves@micron.com>
+In-Reply-To: <1510793291-4771-1-git-send-email-jgroves@micron.com>
+References: <1510793291-4771-1-git-send-email-jgroves@micron.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain
 List-ID: <util-linux.vger.kernel.org>
 
-So it will check a sector which would be actualy used as the first sector
-of the partition.
----
- libfdisk/src/sun.c | 27 +++++++++++++--------------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+From: John Groves <jgroves@micron.com>
 
-diff --git a/libfdisk/src/sun.c b/libfdisk/src/sun.c
-index d10fea0d7..7ffd364f4 100644
---- a/libfdisk/src/sun.c
-+++ b/libfdisk/src/sun.c
-@@ -566,6 +566,19 @@ static int sun_add_partition(
- 			if (fdisk_use_cylinders(cxt))
- 				first *= fdisk_get_units_per_sector(cxt);
- 
-+			if (!fdisk_use_cylinders(cxt)) {
-+				/* Starting sector has to be properly aligned */
-+				int cs = cxt->geom.heads * cxt->geom.sectors;
-+				int x = first % cs;
+---
+ libblkid/src/Makemodule.am             |  1 +
+ libblkid/src/superblocks/mpool.c       | 69 ++++++++++++++++++++++++++++++++++
+ libblkid/src/superblocks/superblocks.c |  3 +-
+ libblkid/src/superblocks/superblocks.h |  1 +
+ 4 files changed, 73 insertions(+), 1 deletion(-)
+ create mode 100644 libblkid/src/superblocks/mpool.c
+
+diff --git a/libblkid/src/Makemodule.am b/libblkid/src/Makemodule.am
+index 1fa00e9..ceece42 100644
+--- a/libblkid/src/Makemodule.am
++++ b/libblkid/src/Makemodule.am
+@@ -70,6 +70,7 @@ libblkid_la_SOURCES = \
+ 	libblkid/src/superblocks/luks.c \
+ 	libblkid/src/superblocks/lvm.c \
+ 	libblkid/src/superblocks/minix.c \
++	libblkid/src/superblocks/mpool.c \
+ 	libblkid/src/superblocks/netware.c \
+ 	libblkid/src/superblocks/nilfs.c \
+ 	libblkid/src/superblocks/ntfs.c \
+diff --git a/libblkid/src/superblocks/mpool.c b/libblkid/src/superblocks/mpool.c
+new file mode 100644
+index 0000000..f1261a0
+--- /dev/null
++++ b/libblkid/src/superblocks/mpool.c
+@@ -0,0 +1,69 @@
++/*
++ * Copyright (C) 2016 Micron Technology, Inc.
++ *
++ * This file may be redistributed under the terms of the
++ * GNU Lesser General Public License.
++ */
 +
-+				if (x) {
-+					fdisk_info(cxt, _("Aligning the first sector from %u to %u "
-+							  "to be on cylinder boundary."),
-+							first, first + cs - x);
-+					first += cs - x;
-+				}
-+			}
++#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include <string.h>
++#include <stdint.h>
++#include "crc32c.h"
++#include "superblocks.h"
 +
- 			/* ewt asks to add: "don't start a partition at cyl 0"
- 			   However, edmundo@rano.demon.co.uk writes:
- 			   "In addition to having a Sun partition table, to be able to
-@@ -593,20 +606,6 @@ static int sun_add_partition(
- 		}
- 	}
++#include <uuid.h>
++
++#define MAX_MPOOL_NAME_LEN 32
++
++struct omf_sb_descriptor {
++	uint64_t        osb_magic;
++	uint8_t         osb_name[MAX_MPOOL_NAME_LEN];
++	uuid_t          osb_poolid; /* UUID of pool this drive belongs to */
++	uint16_t        osb_vers;
++	uint32_t        osb_gen;
++	uint32_t        osb_cksum1; /* crc32c of the preceding fields */
++} __attribute__((packed));
++
++const char *no  = "no";
++const char *yes = "yes";
++
++static int probe_mpool(blkid_probe pr, const struct blkid_idmag *mag)
++{
++	struct omf_sb_descriptor *osd;
++	uint32_t sb_crc;
++
++	osd = blkid_probe_get_sb(pr, mag, struct omf_sb_descriptor);
++	if (!osd)
++		return errno ? -errno : 1;
++
++	sb_crc = crc32c(~0L, (const void *)osd,
++			offsetof(struct omf_sb_descriptor, osb_cksum1));
++	sb_crc ^= ~0L;
++
++	if (!blkid_probe_verify_csum(pr, sb_crc, osd->osb_cksum1))
++		return 1;
++
++	blkid_probe_set_label(pr, osd->osb_name, sizeof(osd->osb_name));
++	blkid_probe_set_uuid(pr, osd->osb_poolid);
++
++	return 0;
++}
++
++/**
++ * Superblock (sb) -- magic = ASCII "mpoolDev"
++ */
++#define MPOOL_SB_MAGIC "\x6D\x70\x6f\x6f\x6c\x44\x65\x76"
++
++const struct blkid_idinfo mpool_idinfo =
++{
++	.name		= "mpool",
++	.usage		= BLKID_USAGE_FILESYSTEM,
++	.probefunc	= probe_mpool,
++	.magics		=
++	{
++		{ .magic = MPOOL_SB_MAGIC, .len = 8},
++		{ NULL }
++	}
++};
+diff --git a/libblkid/src/superblocks/superblocks.c b/libblkid/src/superblocks/superblocks.c
+index 341cd8a..3123d53 100644
+--- a/libblkid/src/superblocks/superblocks.c
++++ b/libblkid/src/superblocks/superblocks.c
+@@ -156,7 +156,8 @@ static const struct blkid_idinfo *idinfos[] =
+ 	&befs_idinfo,
+ 	&nilfs2_idinfo,
+ 	&exfat_idinfo,
+-	&f2fs_idinfo
++	&f2fs_idinfo,
++	&mpool_idinfo
+ };
  
--
--	if (!fdisk_use_cylinders(cxt)) {
--		/* Starting sector has to be properly aligned */
--		int cs = cxt->geom.heads * cxt->geom.sectors;
--		int x = first % cs;
--
--		if (x) {
--			fdisk_info(cxt, _("Aligning the first sector from %u to %u "
--					  "to be on cylinder boundary."),
--					first, first + cs - x);
--			first += cs - x;
--		}
--	}
--
- 	stop = cxt->geom.cylinders * cxt->geom.heads * cxt->geom.sectors;	/* ancient */
- 	stop2 = stop;
- 	for (i = 0; i < cxt->label->nparts_max; i++) {
+ /*
+diff --git a/libblkid/src/superblocks/superblocks.h b/libblkid/src/superblocks/superblocks.h
+index 79dba1a..5b5c6c2 100644
+--- a/libblkid/src/superblocks/superblocks.h
++++ b/libblkid/src/superblocks/superblocks.h
+@@ -75,6 +75,7 @@ extern const struct blkid_idinfo nilfs2_idinfo;
+ extern const struct blkid_idinfo exfat_idinfo;
+ extern const struct blkid_idinfo f2fs_idinfo;
+ extern const struct blkid_idinfo bcache_idinfo;
++extern const struct blkid_idinfo mpool_idinfo;
+ 
+ /*
+  * superblock functions
 -- 
-2.13.6
+2.9.3
