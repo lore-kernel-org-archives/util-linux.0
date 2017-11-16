@@ -1,95 +1,29 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Date: Thu, 30 Nov 2017 00:21:26 +0100
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: Andreas Bombe <aeb@debian.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: util-linux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
-        Curtis Gedak <gedakc@gmail.com>, Pavel Machek <pavel@ucw.cz>,
-        Karel Zak <kzak@redhat.com>
-Subject: Re: Linux & FAT32 label
-Message-ID: <20171129232126.3hymurdf7uedl6c2@pali>
-References: <20171004153332.GA6696@pali>
- <20171011212435.znmtdnsxcd5ectub@pali>
- <20171105130608.5oww3b2fnnrwe7ok@pali>
- <20171109212131.uxraxzwpvrlyfyys@pali>
- <20171119124440.ffxx64zjmwedmtdp@pali>
- <20171120111256.zqvmpzdcf6ncyi5m@ws.net.home>
+Return-Path: grovesaustin@gmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20171120111256.zqvmpzdcf6ncyi5m@ws.net.home>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: grovesaustin@gmail.com
+In-Reply-To: <20171116105024.34bafpqp2lobatrg@ws.net.home>
+References: <1510808499-7680-1-git-send-email-jgroves@micron.com> <20171116105024.34bafpqp2lobatrg@ws.net.home>
+From: John Groves <John@groves.net>
+Date: Thu, 16 Nov 2017 11:21:57 -0600
+Message-ID: <CALz7SpUkk15uLKT+RvoH0dU+RvS4V=5=FbeA8H_WXP32052DGw@mail.gmail.com>
+Subject: Re: [PATCH v3 0/2] libblkid: recognize Micron mpool formatted devices
+To: Karel Zak <kzak@redhat.com>
+Cc: "jgroves@micron.com" <jgroves@micron.com>, util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 20 November 2017 12:12:56 Karel Zak wrote:
-> On Sun, Nov 19, 2017 at 01:44:40PM +0100, Pali Rohár wrote:
-> > On Thursday 09 November 2017 22:21:31 Pali Rohár wrote:
-> > > So from all tests and discussion I would propose new unification:
-> > > 
-> > > 1. Read label only from the root directory. If label in root directory
-> > >    is missing then disk would be treated as without label. Label from
-> > >    boot sector would not be read.
-> > > 
-> > >    --> Reason: Windows XP and mlabel ignores what is written in boot
-> > >        sector. Windows XP even do not update boot sector, so label
-> > >        stored in boot sector is incorrect after any change done by
-> > >        Windows XP.
-> > > 
-> > >        This logic is used by all tested MS-DOS and Windows versions,
-> > >        plus also by mtools on Linux.
-> > > 
-> > > 2. Write label to to both location, boot sector and root directory.
-> > > 
-> > >    --> Reason: MS-DOS 6.22, MS-DOS 7.10, Windows 98 and also mtools on
-> > >        Linux do this. This is also what is written in FAT specification.
-> > > 
-> > >        It also provides backward compatibility with old dosfslabel
-> > >        versions which read label only from boot sector.
-> > > 
-> > > 2. Process 'NO NAME    ' label in root directory as 'NO NAME' name. Not
-> > >    as empty label.
-> > > 
-> > >    --> Reason: 'NO NAME    ' is regular entry in root directory and both
-> > >        Windows XP and mlabel handle it in this way.
-> > > 
-> > > 3. Process 'NO NAME    ' label in boot directory as empty label. Not as
-> > >    label with name 'NO NAME'.
-> > > 
-> > >    --> Reason: On Windows XP when formatting empty disk and label is not
-> > >        specified then 'NO NAME    ' is stored to boot sector.
-> > > 
-> > >        Also in FAT specification is written that empty label is stored
-> > >        as 'NO NAME    '.
-> > > 
-> > > With this change we would get compatibility with MS-DOS, Windows (both
-> > > DOS-based and NT-based) and also with Linux mtools, modulo problems DOS
-> > > code page.
-> > > 
-> > > There are just two negatives:
-> > > 
-> > > 1) Labels set by old dosfslabel versions (which stored them only to boot
-> > >    sector) would not be visible. But they are already not visible on
-> > >    MS-DOS or Windows machines, and also via mlabel (from mtools).
-> > > 
-> > > 2) Behavior of blkid and fatlabel would be changed as both tools have
-> > >    different as proposed above, and based on tests they also differ each
-> > >    from other.
-> > > 
-> > > Andreas, Karel, what do you think about it?
-> > 
-> > Also for other people, do any have comments on my proposed solution?
-> 
-> Go ahead and send patch :-) (also with LABEL_FATBOOT=)
+> On Thu, Nov 16, 2017 at 4:50 AM, Karel Zak <kzak@redhat.com> wrote:
+> On Wed, Nov 15, 2017 at 11:01:37PM -0600, jgroves@micron.com wrote:
+> > From: John Groves <jgroves@micron.com>
+> >
+> > <snip>
+> Applied, thanks!
+> John, it would be nice to have a regression test for mpool. It's
+> enough to send me gziped begin of the mpool device where is a valid
+> superblock (dd(1), 1000 bytes or so...).
+>
+>
 
-Now I implemented changes for dosfstools project, pull request is there:
-https://github.com/dosfstools/dosfstools/pull/73
+Will do, thanks!
 
-Just waiting for the Andreas response...
-
-Andy, you wanted some manpage update. I did it in this commit:
-https://github.com/dosfstools/dosfstools/pull/73/commits/3f4f122b7ec8eeb4a0ae0db8e94b8829f51d1163
-Can you check if changes in manpage are OK?
-
--- 
-Pali Rohár
-pali.rohar@gmail.com
+John
