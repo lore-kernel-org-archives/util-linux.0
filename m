@@ -1,79 +1,97 @@
-Return-Path: kalle@projektwerkstatt.de
-Subject: Re: mount: how to identify filesystems to mount them
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-References: <ff28d2dd-c527-3d5f-e804-1ce468518b83@projektwerkstatt.de>
- <20171115163729.ihe4vnhmxbj2jprz@ws.net.home>
- <cdc6aeb0-7263-e80a-1f3c-87521de7fca9@projektwerkstatt.de>
- <20171116104120.a4clmwg5uu4lbkps@ws.net.home>
-From: kalle <kalle@projektwerkstatt.de>
-Message-ID: <7c6384ce-3d74-de64-22ab-77339787067c@projektwerkstatt.de>
-Date: Tue, 21 Nov 2017 23:35:39 +0100
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from archy.org.uk ([80.82.115.118]:34234 "EHLO archy.org.uk"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1759431AbdKQRDv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 17 Nov 2017 12:03:51 -0500
+Date: Fri, 17 Nov 2017 08:44:33 -0800
+From: Steven Smith <sos22@archy.org.uk>
+To: util-linux@vger.kernel.org
+Cc: sos22@srcf.ucam.org
+Subject: [PATCH] Fix a use of uninitialised memory in an agetty error path.
+Message-ID: <20171117164433.xtsgma2vdppjpio4@adrian>
 MIME-Version: 1.0
-In-Reply-To: <20171116104120.a4clmwg5uu4lbkps@ws.net.home>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-hello,
-here I have some further points related to mount-manpage:
--it would be good to make a reference to lsblk(8)
--the mentioning that mounting often requires privileges should come at
-the beginning of the "Description"-section and not so late as in the
-section "non-superuser mounts". It would also make sense to explain how
-the mount commands requests privileges and maybe also why, since for the
-"how",often every user can execute it while the device can be accessed
-when the effective user-id is set to root through mount (with setuid)
-[this is how it behaves in my system].. In the latter section it says
-furthermore: "Normally,only the superuser can mount filesystems". Since
-in al lot of OSes with X, devices as USBs are mounted automatically when
-plugged in, this `normally' isn't on the ground of reality anymore.
-Maybe make some short notice on this. I in the beginning wondered why
-GNU/Linux makes mounting on the console so difficult and I still don't
-know it ( I speculate it's about  security reasons, which are dropped
-for X-users mostly.
--maybe some short explanation, why the filesystem should be specified
-via "-t" while mounting, since mounting itselfs seems also to work
-without this
--proposal: when writing about `proc', write `proc(5)'
--since it normally seems to be necessary that the same user can only
-unmount a device, who mounted it, it would make sense to mention how
-users can recognize the mounting user.
--sentence "so  the  use  symlinks": put an "of" before "symlinks"
-- "are documented […] in the kernel source tree": I don't know where or
-what this is..
-Now, after looking around a bit, I assume you mean
-/usr/src/linux-headers-SOMEVERSION/, but without finding the file
-`sharedsubtree.txt' in the file Documentation/filesystems.
+get_logname() assumes that when it calls read() it initializes c and
+errno, which isn't always true if we hit a whitelisted error or end of
+file. This occasionally shows up as agetty going into an infinite
+loop. Fix it by just delaying ten seconds and exiting when things go
+wrong, similarly to the behavior after a non-whitelisted error.
 
+Signed-off-by: Steven Smith <sos22@srcf.ucam.org>
+---
+ term-utils/agetty.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-Am 16.11.2017 um 11:41 schrieb Karel Zak:
-> On Wed, Nov 15, 2017 at 11:58:44PM +0100, kalle wrote:
->> On 15.11.2017 17:37, Karel Zak wrote:
->>> On Wed, Nov 15, 2017 at 05:18:17PM +0100, kalle wrote:
->>>> hello,
->>>> -i think it would be good, if it would be explained shortly, what a file
->>>> system is
->>>> -what would be good would be an explanation, how to find out filesystem,
->>>> label, UUID or device name of a given device...
->>> man mount, section "Indicating the device" is not enough?
->> No. given the case I have a usb-stick. If I would recognize the label, the
->> files on it or the size because they are written outside on the hardware of
->> the stick or because I recognize my files stored on the stick. Now if I plug
->> it in, how do I know which device to mount? "mount -L" doesn't help me
->> further, since I don't know the label exactly by heart, pressing the
->> `TAB'-key produces file names and not labels.
->> What I did in the past was looking at /dev/disk/by-... for the label/id to
->> recognize my stick, but this procedure is lengthy and not recommended by you
->> on the man-page.
->> I simply don't have a nice answer to this problem.
-> 
-> OK, I've updated the man page. The command "lsblk --fs" should be goot
-> enough to provide overview about available filesytems and its
-> LABEL/UUIDS.
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index 9763fcd30..bc848a25a 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -317,6 +317,7 @@ static void termio_final(struct options *op,
+ static int caps_lock(char *s);
+ static speed_t bcode(char *s);
+ static void usage(void) __attribute__((__noreturn__));
++static void exit_slowly(int code) __attribute__((__noreturn__));
+ static void log_err(const char *, ...) __attribute__((__noreturn__))
+ 			       __attribute__((__format__(printf, 1, 2)));
+ static void log_warn (const char *, ...)
+@@ -1983,9 +1984,11 @@ static char *get_logname(struct options *op, struct termios *tp, struct chardata
+ 		while (cp->eol == '\0') {
+ 
+ 			char key;
++			ssize_t readres;
+ 
+ 			debug("read from FD\n");
+-			if (read(STDIN_FILENO, &c, 1) < 1) {
++			readres = read(STDIN_FILENO, &c, 1);
++			if (readres < 0) {
+ 				debug("read failed\n");
+ 
+ 				/* The terminal could be open with O_NONBLOCK when
+@@ -2000,12 +2003,15 @@ static char *get_logname(struct options *op, struct termios *tp, struct chardata
+ 				case ESRCH:
+ 				case EINVAL:
+ 				case ENOENT:
+-					break;
++					exit_slowly(EXIT_SUCCESS);
+ 				default:
+ 					log_err(_("%s: read: %m"), op->tty);
+ 				}
+ 			}
+ 
++			if (readres == 0)
++				exit_slowly(EXIT_SUCCESS);
++
+ 			/* Do parity bit handling. */
+ 			if (eightbit)
+ 				ascval = c;
+@@ -2317,6 +2323,13 @@ static void dolog(int priority, const char *fmt, va_list ap)
+ #endif				/* USE_SYSLOG */
+ }
+ 
++static void exit_slowly(int code)
++{
++	/* Be kind to init(8). */
++	sleep(10);
++	exit(code);
++}
++
+ static void log_err(const char *fmt, ...)
+ {
+ 	va_list ap;
+@@ -2325,9 +2338,7 @@ static void log_err(const char *fmt, ...)
+ 	dolog(LOG_ERR, fmt, ap);
+ 	va_end(ap);
+ 
+-	/* Be kind to init(8). */
+-	sleep(10);
+-	exit(EXIT_FAILURE);
++	exit_slowly(EXIT_FAILURE);
+ }
+ 
+ static void log_warn(const char *fmt, ...)
+-- 
+2.11.0
 
-Where do I find the actual version?
-> 
->     Karel
-> 
-
-kalle
