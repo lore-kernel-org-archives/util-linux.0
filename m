@@ -1,36 +1,44 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:56877 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1763485AbdKRVTT (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sat, 18 Nov 2017 16:19:19 -0500
-Subject: [PATCH 0/2] Pull Request
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 2/2] hwclock: fix debug regression
 To: Karel Zak <kzak@redhat.com>
+References: <d91b971a-29f1-3403-342b-2b837c2abcb7@gmx.com>
 Cc: util-linux@vger.kernel.org
 From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <d91b971a-29f1-3403-342b-2b837c2abcb7@gmx.com>
-Date: Sat, 18 Nov 2017 16:19:15 -0500
+Message-ID: <975e1e00-fab6-e539-8b92-5388e33d7f16@gmx.com>
+Date: Sat, 18 Nov 2017 16:21:17 -0500
 MIME-Version: 1.0
+In-Reply-To: <d91b971a-29f1-3403-342b-2b837c2abcb7@gmx.com>
 Content-Type: text/plain; charset=windows-1252
-Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
-The following changes since commit 75f03badd7ed9f1dd951863d75e756883d3acc55:
+commit f0a0ce7 makes debug mode implicit for the --test option.
 
-  bash-completion: (umount) use findmnt, escape a space in paths (2017-11-16 16:27:32 +0100)
+Using the previous command syntax of --test and --debug
+together invokes the undocumented Level 2 debugging when
+setting the RTC. This can cause many thousands of lines of
+output like:
+1510967983.499968 < 1510967983.500000 (-0.000032)
 
-are available in the git repository at:
+Fix: bump Level 2 debugging to Level 9, just before the
+other undocumented Level 10. This makes it improbable for
+the development debug levels to be accessed unintentionally.
 
-  git@github.com:jwpi/util-linux.git 171017
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ sys-utils/hwclock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-for you to fetch changes up to af54dbd929266f6706a34050ed51e5114f520f59:
-
-  hwclock: fix debug regression (2017-11-17 20:25:40 -0500)
-
-----------------------------------------------------------------
-J William Piggott (2):
-      hwclock: use reentrant time conversion functions
-      hwclock: fix debug regression
-
- sys-utils/hwclock.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index 8ff33474e..e5f90a44e 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -494,7 +494,7 @@ set_hardware_clock_exact(const struct hwclock_control *ctl,
+ 			/* The retarget is handled at the end of the loop. */
+ 		} else if (deltavstarget < 0) {
+ 			/* deltavstarget < 0 if current time < target time */
+-			if (ctl->debug >= 2)
++			if (ctl->debug >= 9)
+ 				printf(_("%ld.%06ld < %ld.%06ld (%.6f)\n"),
+ 				       nowsystime.tv_sec,
+ 				       nowsystime.tv_usec,
