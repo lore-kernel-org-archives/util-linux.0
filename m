@@ -1,32 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.netzguerilla.net ([217.11.57.120]:52891 "EHLO
-        mail.netzguerilla.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933029AbdKOQ1y (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 15 Nov 2017 11:27:54 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by mail.netzguerilla.net (Postfix) with ESMTP id EFEC2100014
-        for <util-linux@vger.kernel.org>; Wed, 15 Nov 2017 17:18:18 +0100 (CET)
-Received: from mail.netzguerilla.net ([IPv6:2a00:1828:2000:612::25])
-        by localhost (sal.netzguerilla.net [IPv6:::1]) (amavisd-new, port 10024)
-        with ESMTP id nqecr6G4eFGt for <util-linux@vger.kernel.org>;
-        Wed, 15 Nov 2017 17:18:17 +0100 (CET)
-Received: from [IPv6:2003:dd:ff22:fd01:c4bc:c0b2:8ea7:2398] (p200300DDFF22FD01C4BCC0B28EA72398.dip0.t-ipconnect.de [IPv6:2003:dd:ff22:fd01:c4bc:c0b2:8ea7:2398])
-        by mail.netzguerilla.net (Postfix) with ESMTPSA id A0F84100012
-        for <util-linux@vger.kernel.org>; Wed, 15 Nov 2017 17:18:17 +0100 (CET)
-From: kalle <kalle@projektwerkstatt.de>
-Subject: mount: how to identify filesystems to mount them
-To: util-linux@vger.kernel.org
-Message-ID: <ff28d2dd-c527-3d5f-e804-1ce468518b83@projektwerkstatt.de>
-Date: Wed, 15 Nov 2017 17:18:17 +0100
+Received: from mail-it0-f65.google.com ([209.85.214.65]:37292 "EHLO
+        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750788AbdKSJvb (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 19 Nov 2017 04:51:31 -0500
+Received: by mail-it0-f65.google.com with SMTP id m191so8708711itg.2
+        for <util-linux@vger.kernel.org>; Sun, 19 Nov 2017 01:51:31 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <975e1e00-fab6-e539-8b92-5388e33d7f16@gmx.com>
+References: <d91b971a-29f1-3403-342b-2b837c2abcb7@gmx.com> <975e1e00-fab6-e539-8b92-5388e33d7f16@gmx.com>
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Sun, 19 Nov 2017 09:51:30 +0000
+Message-ID: <CAG27Bk2rXPKTyz=qEzns5zmJVUoWZUOa0KSHSTzD-1JWz9t70A@mail.gmail.com>
+Subject: Re: [PATCH 2/2] hwclock: fix debug regression
+To: J William Piggott <elseifthen@gmx.com>
+Cc: Karel Zak <kzak@redhat.com>,
+        util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-hello,
--i think it would be good, if it would be explained shortly, what a file
-system is
--what would be good would be an explanation, how to find out filesystem,
-label, UUID or device name of a given device...
-greetings,
-kalle
+On 18 November 2017 at 21:21, J William Piggott <elseifthen@gmx.com> wrote:
+>
+> commit f0a0ce7 makes debug mode implicit for the --test option.
+>
+> Using the previous command syntax of --test and --debug
+> together invokes the undocumented Level 2 debugging when
+> setting the RTC. This can cause many thousands of lines of
+> output like:
+> 1510967983.499968 < 1510967983.500000 (-0.000032)
+>
+> Fix: bump Level 2 debugging to Level 9, just before the
+> other undocumented Level 10. This makes it improbable for
+> the development debug levels to be accessed unintentionally.
+>
+> Signed-off-by: J William Piggott <elseifthen@gmx.com>
+> ---
+>  sys-utils/hwclock.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+> index 8ff33474e..e5f90a44e 100644
+> --- a/sys-utils/hwclock.c
+> +++ b/sys-utils/hwclock.c
+> @@ -494,7 +494,7 @@ set_hardware_clock_exact(const struct hwclock_control *ctl,
+>                         /* The retarget is handled at the end of the loop. */
+>                 } else if (deltavstarget < 0) {
+>                         /* deltavstarget < 0 if current time < target time */
+> -                       if (ctl->debug >= 2)
+> +                       if (ctl->debug >= 9)
+>                                 printf(_("%ld.%06ld < %ld.%06ld (%.6f)\n"),
+>                                        nowsystime.tv_sec,
+>                                        nowsystime.tv_usec,
+
+That is probably fine as intermediate issue fix. It would be nice to
+see in longer term move to use debug.h. Then ctl->debug could
+be made single bit switch that turns on messaging it does, and
+all internal developer debugging stuff would be done with
+HWCLOCK_DEBUG_ bits. Assuming done this way adding more
+debuging levels is appropriate.
+
+FYI login-utils/su-common.c is pretty good DBG example.
+
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
