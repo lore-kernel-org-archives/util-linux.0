@@ -1,118 +1,43 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:47844 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753071AbdKXKb3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 24 Nov 2017 05:31:29 -0500
-From: Masatake YAMATO <yamato@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: yamato@redhat.com
-Subject: [PATCH v2 3/7] lsns: add a case for testing netnsid column
-Date: Fri, 24 Nov 2017 19:31:05 +0900
-Message-Id: <20171124103110.17077-4-yamato@redhat.com>
-In-Reply-To: <20171124103110.17077-1-yamato@redhat.com>
-References: <20171124103110.17077-1-yamato@redhat.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: elseifthen@gmx.com
+Subject: Re: [PATCH 2/2] hwclock: fix debug regression
+To: kerolasa@gmail.com
+References: <d91b971a-29f1-3403-342b-2b837c2abcb7@gmx.com>
+ <975e1e00-fab6-e539-8b92-5388e33d7f16@gmx.com>
+ <CAG27Bk2rXPKTyz=qEzns5zmJVUoWZUOa0KSHSTzD-1JWz9t70A@mail.gmail.com>
+Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <2e56d19b-e8e8-576c-c071-92e181162512@gmx.com>
+Date: Sun, 19 Nov 2017 15:09:43 -0500
+MIME-Version: 1.0
+In-Reply-To: <CAG27Bk2rXPKTyz=qEzns5zmJVUoWZUOa0KSHSTzD-1JWz9t70A@mail.gmail.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Masatake YAMATO <yamato@redhat.com>
----
- tests/commands.sh           |  1 +
- tests/expected/lsns/netnsid |  1 +
- tests/ts/lsns/netnsid       | 65 +++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 67 insertions(+)
- create mode 100644 tests/expected/lsns/netnsid
- create mode 100644 tests/ts/lsns/netnsid
 
-diff --git a/tests/commands.sh b/tests/commands.sh
-index 655344102..502935ede 100644
---- a/tests/commands.sh
-+++ b/tests/commands.sh
-@@ -74,6 +74,7 @@ TS_CMD_LOSETUP=${TS_CMD_LOSETUP:-"$top_builddir/losetup"}
- TS_CMD_LSBLK=${TS_CMD_LSBLK-"$top_builddir/lsblk"}
- TS_CMD_LSCPU=${TS_CMD_LSCPU-"$top_builddir/lscpu"}
- TS_CMD_LSMEM=${TS_CMD_LSMEM-"$top_builddir/lsmem"}
-+TS_CMD_LSNS=${TS_CMD_LSNS-"$top_builddir/lsns"}
- TS_CMD_MCOOKIE=${TS_CMD_MCOOKIE-"$top_builddir/mcookie"}
- TS_CMD_MKCRAMFS=${TS_CMD_MKCRAMFS:-"$top_builddir/mkfs.cramfs"}
- TS_CMD_MKMINIX=${TS_CMD_MKMINIX:-"$top_builddir/mkfs.minix"}
-diff --git a/tests/expected/lsns/netnsid b/tests/expected/lsns/netnsid
-new file mode 100644
-index 000000000..573541ac9
---- /dev/null
-+++ b/tests/expected/lsns/netnsid
-@@ -0,0 +1 @@
-+0
-diff --git a/tests/ts/lsns/netnsid b/tests/ts/lsns/netnsid
-new file mode 100644
-index 000000000..ad93dd49c
---- /dev/null
-+++ b/tests/ts/lsns/netnsid
-@@ -0,0 +1,65 @@
-+#!/bin/bash
-+#
-+# Copyright (C) 2017 Masatake YAMATO <yamato@redhat.com>
-+#
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+#
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="compare NETNSID reported by lsns and that by ip-link"
-+
-+. $TS_TOPDIR/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_CMD_LSNS"
-+
-+ts_skip_nonroot
-+
-+ts_cd "$TS_OUTDIR"
-+
-+vetha=lsns-vetha
-+vethb=lsns-vethb
-+NS=UTIL-LINUX-LSNS-TEST-NS
-+FIFO=$TS_OUTDIR/UTIL-LINUX-LSNS-TEST-FIFO
-+NULL=/dev/null
-+
-+ip netns delete $NS 2> $NULL || :
-+ip link delete  $vetha 2> $NULL || :
-+
-+rm -f $FIFO
-+mkfifo $FIFO
-+
-+if ip netns add $NS &&
-+	ip link add name $vetha type veth peer name $vethb &&
-+	ip link set $vethb netns $NS; then
-+    ip netns exec $NS dd if=$FIFO bs=1 count=2 of=$NULL 2> $NULL &
-+    PID=$!
-+fi
-+{
-+    dd if=/dev/zero bs=1 count=1 2> $NULL
-+    {
-+	ip -o link show dev $vetha > $NULL
-+	IP_ID=$(ip -o link show dev $vetha | sed -ne 's/.* *link-netnsid *\([0-9]*\)/\1/p')
-+	LSNS_ID=$($TS_CMD_LSNS -n -o NETNSID --type net --task $PID | { read VAL; echo $VAL; } )
-+    }
-+    dd if=/dev/zero bs=1 count=1 2> $NULL
-+} > $FIFO
-+
-+rm $FIFO
-+ip link delete $vetha
-+ip netns delete $NS
-+
-+test "$IP_ID" = "$LSNS_ID"
-+echo $? >> $TS_OUTPUT
-+
-+ts_finalize
--- 
-2.13.6
 
+On 11/19/2017 04:51 AM, Sami Kerola wrote:
+> That is probably fine as intermediate issue fix. It would be nice to
+> see in longer term move to use debug.h. Then ctl->debug could
+> be made single bit switch that turns on messaging it does, and
+> all internal developer debugging stuff would be done with
+> HWCLOCK_DEBUG_ bits. Assuming done this way adding more
+> debuging levels is appropriate.
+> 
+> FYI login-utils/su-common.c is pretty good DBG example.
+>
+
+Hi Sami, I agree and so does Karel. He brought it up when I first
+started contributing to ul back in 2014.
+
+ https://marc.info/?l=util-linux-ng&m=141415311703313&w=2
+ Karel Zak wrote:
+>    Good point, then it would be better to [keep] --debug independent on
+>    HWCLOCK_DEBUG=. 
+>    
+>    But I still think that for so complex tool like hwclock we need a 
+>    real debug output for developers / bug reporters. The current --debug 
+>    is more like --verbose we have in another tools.
+
+It's on my radar and TODO list. I just do not know when I will get to
+it. I've been trying to reduce the current 'debug' output as I go.
+Hopefully that will make splitting verbose/debug and adding debug.h easier.
