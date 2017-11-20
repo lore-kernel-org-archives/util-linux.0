@@ -1,73 +1,79 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:29861 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:38334 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751125AbdK3OWI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 30 Nov 2017 09:22:08 -0500
-Date: Thu, 30 Nov 2017 15:22:03 +0100
+        id S1750969AbdKTLC2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 20 Nov 2017 06:02:28 -0500
+Date: Mon, 20 Nov 2017 12:02:23 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Alexey Gladkov <legion@altlinux.ru>
-Cc: util-linux@vger.kernel.org
-Subject: Re: mount(8) does not support cap_sys_admin
-Message-ID: <20171130142203.souwvryy3rt5pmho@ws.net.home>
-References: <20170822082047.eczufv3naqlvulsn@cs.unibo.it>
- <20170822084011.vzahylh7qxvcmj3b@cs.unibo.it>
- <20170822091538.f6q7ihuhskc7hw6u@ws.net.home>
- <20170822103158.GB2942@comp-core-i7-2640m-0182e6.fortress>
+To: Steven Smith <sos22@archy.org.uk>
+Cc: util-linux@vger.kernel.org, sos22@srcf.ucam.org
+Subject: Re: [PATCH] Fix a use of uninitialised memory in an agetty error
+ path.
+Message-ID: <20171120110223.3moy333zy7bedpby@ws.net.home>
+References: <20171117164433.xtsgma2vdppjpio4@adrian>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20170822103158.GB2942@comp-core-i7-2640m-0182e6.fortress>
+In-Reply-To: <20171117164433.xtsgma2vdppjpio4@adrian>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Aug 22, 2017 at 12:31:58PM +0200, Alexey Gladkov wrote:
-> On Tue, Aug 22, 2017 at 11:15:38AM +0200, Karel Zak wrote:
-> > On Tue, Aug 22, 2017 at 10:40:11AM +0200, Renzo Davoli wrote:
-> > > mount command does not seem to support the cap_sys_admin capability.
-> > > 
-> > > In fact the command fails when the mount system call would succeeds
-> > > for operation permitted to users (e.g. bind mounts in user-namespaces)
-> > > 
-> > > For example using userbindmount
-> > > https://github.com/rd235/userbindmount
-> > > 
-> > > $ userbindmount -s --
-> > > $ mount --bind /tmp/resolv.conf /etc/resolv.conf 
-> > > mount: only root can use "--bind" option
-> > > $ busybox mount --bind /tmp/resolv.conf /etc/resolv.conf 
-
-I try to play with this finally and I'm not sure if I follow you.
-
-You have user namespace, why do you NOT map your euid to root?
-
- $ echo "nameserver 9.9.9.9" > /tmp/resolv.conf
- $ unshare --mount --user --map-root-user
- # mount --bind /tmp/resolv.conf /etc/resolv.conf
- # cat /etc/resolv.conf
- nameserver 9.9.9.9
-
-your userbindmount map user to user, what is the advantage?
-
-> > Frankly, I have never tried it. Maybe it will not so big issue to try
-> > it, test it and describe possible limitation in the man page. I'll add
-> > this to our TODO list.
+On Fri, Nov 17, 2017 at 08:44:33AM -0800, Steven Smith wrote:
+> get_logname() assumes that when it calls read() it initializes c and
+> errno, which isn't always true if we hit a whitelisted error or end of
+> file. This occasionally shows up as agetty going into an infinite
+> loop. Fix it by just delaying ten seconds and exiting when things go
+> wrong, similarly to the behavior after a non-whitelisted error.
 > 
-> This issue makes it impossible to use this libmount when you create a new
-> container. I mean that once you create namespace you can't mount /proc,
-> /sys, etc. Therefore, the parsing of the flags and checks you have to do
-> manually, rather than use an existing library.
+> Signed-off-by: Steven Smith <sos22@srcf.ucam.org>
+> ---
+>  term-utils/agetty.c | 21 ++++++++++++++++-----
+>  1 file changed, 16 insertions(+), 5 deletions(-)
+> 
+> diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+> index 9763fcd30..bc848a25a 100644
+> --- a/term-utils/agetty.c
+> +++ b/term-utils/agetty.c
+> @@ -317,6 +317,7 @@ static void termio_final(struct options *op,
+>  static int caps_lock(char *s);
+>  static speed_t bcode(char *s);
+>  static void usage(void) __attribute__((__noreturn__));
+> +static void exit_slowly(int code) __attribute__((__noreturn__));
+>  static void log_err(const char *, ...) __attribute__((__noreturn__))
+>  			       __attribute__((__format__(printf, 1, 2)));
+>  static void log_warn (const char *, ...)
+> @@ -1983,9 +1984,11 @@ static char *get_logname(struct options *op, struct termios *tp, struct chardata
+>  		while (cp->eol == '\0') {
+>  
+>  			char key;
+> +			ssize_t readres;
+>  
+>  			debug("read from FD\n");
+> -			if (read(STDIN_FILENO, &c, 1) < 1) {
+> +			readres = read(STDIN_FILENO, &c, 1);
+> +			if (readres < 0) {
+>  				debug("read failed\n");
+>  
+>  				/* The terminal could be open with O_NONBLOCK when
+> @@ -2000,12 +2003,15 @@ static char *get_logname(struct options *op, struct termios *tp, struct chardata
+>  				case ESRCH:
+>  				case EINVAL:
+>  				case ENOENT:
+> -					break;
+> +					exit_slowly(EXIT_SUCCESS);
 
-You can do what you want to do if you're root in your user namespace.
+OK, makes sense.
 
-I'm not sure what is expected from mount/libmount in regard to
-CAP_SYS_ADMIN. The reason why euid=0 is required by mount(8) is that
-years ago some people have installed non-suid mount(8) with
-CAP_SYS_ADMIN. 
+>  				default:
+>  					log_err(_("%s: read: %m"), op->tty);
+>  				}
+>  			}
+>  
+> +			if (readres == 0)
+> +				exit_slowly(EXIT_SUCCESS);
 
-See http://github.com/karelzak/util-linux/commit/0959f8063bf9b4d576822fe742a2bc9f5d1d1dbc
-
-Unfortunately, this CAP is lightweight version of suid, so we really
-don't want to close eyes and follow user wishes... I guess we still
-need to verify things against fstab etc.
+I'm not sure about it. Maybe it would be better to assume that readres == 0
+and no error is the same as c = 0. In this case functions returns NULL
+and we try another speed setting (if defined) for the terminal.
 
     Karel
 
