@@ -1,66 +1,59 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f194.google.com ([209.85.128.194]:37026 "EHLO
-        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751045AbdKZR12 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 26 Nov 2017 12:27:28 -0500
-Received: by mail-wr0-f194.google.com with SMTP id k61so24284038wrc.4
-        for <util-linux@vger.kernel.org>; Sun, 26 Nov 2017 09:27:28 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 2/2] man: use long options in text and add example to uuidgen
-Date: Sun, 26 Nov 2017 17:27:21 +0000
-Message-Id: <20171126172721.9504-2-kerolasa@iki.fi>
-In-Reply-To: <20171126172721.9504-1-kerolasa@iki.fi>
-References: <20171126172721.9504-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:52187 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751121AbdKTLFs (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 20 Nov 2017 06:05:48 -0500
+Date: Mon, 20 Nov 2017 12:05:44 +0100
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 2/2] hwclock: fix debug regression
+Message-ID: <20171120110544.yogxssob5ofb7wpr@ws.net.home>
+References: <d91b971a-29f1-3403-342b-2b837c2abcb7@gmx.com>
+ <975e1e00-fab6-e539-8b92-5388e33d7f16@gmx.com>
+ <CAG27Bk2rXPKTyz=qEzns5zmJVUoWZUOa0KSHSTzD-1JWz9t70A@mail.gmail.com>
+ <2e56d19b-e8e8-576c-c071-92e181162512@gmx.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <2e56d19b-e8e8-576c-c071-92e181162512@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/uuidgen.1 | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+On Sun, Nov 19, 2017 at 03:09:43PM -0500, J William Piggott wrote:
+> 
+> 
+> On 11/19/2017 04:51 AM, Sami Kerola wrote:
+> > That is probably fine as intermediate issue fix. It would be nice to
+> > see in longer term move to use debug.h. Then ctl->debug could
+> > be made single bit switch that turns on messaging it does, and
+> > all internal developer debugging stuff would be done with
+> > HWCLOCK_DEBUG_ bits. Assuming done this way adding more
+> > debuging levels is appropriate.
+> > 
+> > FYI login-utils/su-common.c is pretty good DBG example.
+> >
+> 
+> Hi Sami, I agree and so does Karel. He brought it up when I first
+> started contributing to ul back in 2014.
+> 
+>  https://marc.info/?l=util-linux-ng&m=141415311703313&w=2
+>  Karel Zak wrote:
+> >    Good point, then it would be better to [keep] --debug independent on
+> >    HWCLOCK_DEBUG=. 
+> >    
+> >    But I still think that for so complex tool like hwclock we need a 
+> >    real debug output for developers / bug reporters. The current --debug 
+> >    is more like --verbose we have in another tools.
+> 
+> It's on my radar and TODO list. I just do not know when I will get to
+> it. I've been trying to reduce the current 'debug' output as I go.
+> Hopefully that will make splitting verbose/debug and adding debug.h easier.
 
-diff --git a/misc-utils/uuidgen.1 b/misc-utils/uuidgen.1
-index 4b0fcb60c..d5e1a5675 100644
---- a/misc-utils/uuidgen.1
-+++ b/misc-utils/uuidgen.1
-@@ -27,19 +27,19 @@ will generate a random-based UUID if a high-quality random number
- generator is present.  Otherwise, it will choose a time-based UUID.
- It is possible to force the generation of one of these first two
- UUID types by using the
--.B \-r
-+.B \-\-random
- or
--.B \-t
-+.B \-\-time
- options.
- .PP
- The third type of UUID is generated with the
--.B \-m
-+.B \-\-md5
- or
--.B \-s
--options (MD5 or SHA1, respectively), followed by
--.BR "\-n " \fInamespace
-+.B \-\-sha1
-+options, followed by
-+\fB\-\-namespace\fR \fInamespace\fR
- and
--.BR "\-N " \fIname\fR.
-+\fB\-\-name\fR \fIname\fR.
- The \fInamespace\fR may either be a well-known UUID, or else
- an alias to one of the well-known UUIDs defined in RFC 4122, that is
- .BR @dns ,
-@@ -89,6 +89,8 @@ Generate the hash of the \fIname\fR.
- Interpret name \fIname\fR as a hexidecimal string.
- .SH "CONFORMING TO"
- OSF DCE 1.1
-+.SH EXAMPLES
-+uuidgen \-\-sha1 \-\-namespace @dns \-\-name "www.example.com"
- .SH AUTHOR
- .B uuidgen
- was written by Andreas Dilger for libuuid.
+Yes, the --debug is just bad option name, it should be --verbose
+and use HWCLOCK_DEBUG= for the real debugs stuff.
+
+    Karel
+
 -- 
-2.15.0
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
