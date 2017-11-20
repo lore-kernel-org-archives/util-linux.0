@@ -1,54 +1,87 @@
-Return-Path: jgroves@micron.com
-From: <jgroves@micron.com>
-To: Karel Zak <kzak@redhat.com>
-CC: <util-linux@vger.kernel.org>, <John@Groves.net>,
-        John Groves
-	<jgroves@micron.com>
-Subject: [PATCH v3 0/2] libblkid: recognize Micron mpool formatted devices
-Date: Wed, 15 Nov 2017 23:01:37 -0600
-Message-ID: <1510808499-7680-1-git-send-email-jgroves@micron.com>
+Return-Path: linux-kernel-owner@vger.kernel.org
+Date: Mon, 20 Nov 2017 12:12:56 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Andreas Bombe <aeb@debian.org>, util-linux@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
+        Curtis Gedak <gedakc@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Pavel Machek <pavel@ucw.cz>
+Subject: Re: Linux & FAT32 label
+Message-ID: <20171120111256.zqvmpzdcf6ncyi5m@ws.net.home>
+References: <20171004153332.GA6696@pali>
+ <20171011212435.znmtdnsxcd5ectub@pali>
+ <20171105130608.5oww3b2fnnrwe7ok@pali>
+ <20171109212131.uxraxzwpvrlyfyys@pali>
+ <20171119124440.ffxx64zjmwedmtdp@pali>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20171119124440.ffxx64zjmwedmtdp@pali>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: John Groves <jgroves@micron.com>
+On Sun, Nov 19, 2017 at 01:44:40PM +0100, Pali Rohár wrote:
+> On Thursday 09 November 2017 22:21:31 Pali Rohár wrote:
+> > So from all tests and discussion I would propose new unification:
+> > 
+> > 1. Read label only from the root directory. If label in root directory
+> >    is missing then disk would be treated as without label. Label from
+> >    boot sector would not be read.
+> > 
+> >    --> Reason: Windows XP and mlabel ignores what is written in boot
+> >        sector. Windows XP even do not update boot sector, so label
+> >        stored in boot sector is incorrect after any change done by
+> >        Windows XP.
+> > 
+> >        This logic is used by all tested MS-DOS and Windows versions,
+> >        plus also by mtools on Linux.
+> > 
+> > 2. Write label to to both location, boot sector and root directory.
+> > 
+> >    --> Reason: MS-DOS 6.22, MS-DOS 7.10, Windows 98 and also mtools on
+> >        Linux do this. This is also what is written in FAT specification.
+> > 
+> >        It also provides backward compatibility with old dosfslabel
+> >        versions which read label only from boot sector.
+> > 
+> > 2. Process 'NO NAME    ' label in root directory as 'NO NAME' name. Not
+> >    as empty label.
+> > 
+> >    --> Reason: 'NO NAME    ' is regular entry in root directory and both
+> >        Windows XP and mlabel handle it in this way.
+> > 
+> > 3. Process 'NO NAME    ' label in boot directory as empty label. Not as
+> >    label with name 'NO NAME'.
+> > 
+> >    --> Reason: On Windows XP when formatting empty disk and label is not
+> >        specified then 'NO NAME    ' is stored to boot sector.
+> > 
+> >        Also in FAT specification is written that empty label is stored
+> >        as 'NO NAME    '.
+> > 
+> > With this change we would get compatibility with MS-DOS, Windows (both
+> > DOS-based and NT-based) and also with Linux mtools, modulo problems DOS
+> > code page.
+> > 
+> > There are just two negatives:
+> > 
+> > 1) Labels set by old dosfslabel versions (which stored them only to boot
+> >    sector) would not be visible. But they are already not visible on
+> >    MS-DOS or Windows machines, and also via mlabel (from mtools).
+> > 
+> > 2) Behavior of blkid and fatlabel would be changed as both tools have
+> >    different as proposed above, and based on tests they also differ each
+> >    from other.
+> > 
+> > Andreas, Karel, what do you think about it?
+> 
+> Also for other people, do any have comments on my proposed solution?
 
-This patch adds libblkid recognition of Micron mpool formatted devices.
-It also adds a very simple crc32c() function, for use by probe_mpool().
+Go ahead and send patch :-) (also with LABEL_FATBOOT=)
 
-If there are objections to adding crc32c, I can re-submit without it, or
-make it static for probe_mpool(). I would prefer not to go without crc32c
-validation, because the only remaining check would be the magic number.
-
-Review comments and/or questions still welcome.
-
-Chages since v2:
-
-* Remove unused char * (yes,no) constants (overlooked in v2)
-
-Changes since v1:
-
-* probe_mpool() no longer calls blkid_probe_set_value to set
-  VALID="yes"|"no".  This was debug code that I had failed to excise
-  previously.
-
-Thanks,
-
-John Groves (2):
-  Add simple crc32c() function
-  Add support for Micron mpool formatted drives
-
- include/crc32c.h                       |   9 +++
- lib/Makemodule.am                      |   1 +
- lib/crc32c.c                           | 102 +++++++++++++++++++++++++++++++++
- libblkid/src/Makemodule.am             |   1 +
- libblkid/src/superblocks/mpool.c       |  66 +++++++++++++++++++++
- libblkid/src/superblocks/superblocks.c |   3 +-
- libblkid/src/superblocks/superblocks.h |   1 +
- 7 files changed, 182 insertions(+), 1 deletion(-)
- create mode 100644 include/crc32c.h
- create mode 100644 lib/crc32c.c
- create mode 100644 libblkid/src/superblocks/mpool.c
+    Karel
 
 -- 
-2.9.3
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
