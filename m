@@ -1,48 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34052 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:35896 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750739AbdKFKTl (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 6 Nov 2017 05:19:41 -0500
-Date: Mon, 6 Nov 2017 11:19:38 +0100
+        id S1751802AbdKULQo (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 21 Nov 2017 06:16:44 -0500
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id BAD46356D4
+        for <util-linux@vger.kernel.org>; Tue, 21 Nov 2017 11:16:44 +0000 (UTC)
+Date: Tue, 21 Nov 2017 12:16:41 +0100
 From: Karel Zak <kzak@redhat.com>
-To: L A Walsh <lkml@tlinx.org>
+To: Masatake YAMATO <yamato@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: what should blockdev getbpsz return 4k disks w/512e?
-Message-ID: <20171106101938.a6l6t3r37qtqtuks@ws.net.home>
-References: <59FD83DF.805@tlinx.org>
+Subject: Re: [PATCH 1/2] lsns: add netnsid column
+Message-ID: <20171121111641.dt3vodjsuwwnna6g@ws.net.home>
+References: <20171115025920.22394-1-yamato@redhat.com>
+ <20171115110922.c4vufqiglnipyayn@ws.net.home>
+ <20171116.032439.1733506489064928691.yamato@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <59FD83DF.805@tlinx.org>
+In-Reply-To: <20171116.032439.1733506489064928691.yamato@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Nov 04, 2017 at 02:09:51AM -0700, L A Walsh wrote:
+On Thu, Nov 16, 2017 at 03:24:39AM +0900, Masatake YAMATO wrote:
+> By parsing this file (with libmount), we can say
+> /run/netns/UTIL-LINUX-LSNS-TEST-NS is the logical name for
+> net:[4026532562] either the mount point is created by ip command or
+> not.
+
+Nice. Yes, all you need is:
+
+   tab = mnt_new_table_from_file(_PATH_PROC_MOUNTINFO);
+
+.. see for example sys-utils/fstrim.c, and mnt_fs_get_fstype() and
+mnt_fs_get_source().
+
+> "ip link show" still uses netnsid, so I think my patch still makes
+> sense. However, as you wrote, making a column for logical name,
+> is more useful. It is not limited to net namespace.
 > 
-> I just tried blockdev on a HW raid device (/dev/sdb) composed of
-> 4K disks that can (w/performance penalty) emulate 512 byte disk
-> (i.e. have the 512e feature).  It is returning 512.
-> 
-> If the disk is composed of 4K disks, shouldn't the raid show 4K
-> as well?  Otherwise, how do utils know what alignment to use or
-> not to use 512 due to penalty costs?  For my formatted disks, I
-> use 4K allocation units, so for those, I shouldn't see problems,
-> but some other disk subsystems or raw-disk using progs also need to
-> know to allocate on 4K boundaries.
-> 
-> Any idea where this info should be showing up?
+> A namespace can have more than one logical names.
+> I wonder how to print them in a column.
 
-Try
+libsmart supports multi-line cells:
 
- --getiomin                get minimum I/O size
- --getioopt                get optimal I/O size
+ * use SCOLS_FL_WRAP for the column
 
-or
+ * set wrap function, for example in lsns.c: init_scols_table():
 
-  lsblk --topology
+      cl =  scols_table_new_column(tab, col->name, col->whint, flags)
+ 
+      if (flags & SCOLS_FL_WRAP) {
+                scols_column_set_wrapfunc(cl,
+                                scols_wrapnl_chunksize,
+                                scols_wrapnl_nextchunk,
+                                NULL);
+                scols_column_set_safechars(cl, "\n");
+      }
 
-It's possible that RAID (or another stacked device) uses 512
-addressing, but for partitioning or mkfs-like tools we care about
-minimal and optimal I/O.
+
+ * and in add_scols_line() where you compose output add to the table
+   string where namespace names are separated by '\n', e.g. "aaa\nbbb"
+
+
+This feature should be probably disabled for --raw, maybe add --nowrap
+and in this case use "," as separator and remove SCOLS_FL_WRAP for the
+column in init_scols_table().
 
     Karel
 
