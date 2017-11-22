@@ -1,118 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:48880 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:48578 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757211AbdKOC7Z (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 14 Nov 2017 21:59:25 -0500
-From: Masatake YAMATO <yamato@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: yamato@redhat.com
-Subject: [PATCH 2/2] lsns: add a case for testing netnsid column
-Date: Wed, 15 Nov 2017 11:59:19 +0900
-Message-Id: <20171115025920.22394-2-yamato@redhat.com>
-In-Reply-To: <20171115025920.22394-1-yamato@redhat.com>
-References: <20171115025920.22394-1-yamato@redhat.com>
+        id S1751588AbdKVJGQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 22 Nov 2017 04:06:16 -0500
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 9D59537E7A
+        for <util-linux@vger.kernel.org>; Wed, 22 Nov 2017 09:06:16 +0000 (UTC)
+Date: Wed, 22 Nov 2017 10:06:13 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Masatake YAMATO <yamato@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/2] lsns: add netnsid column
+Message-ID: <20171122090613.ltcuaehwbum7apes@ws.net.home>
+References: <20171115110922.c4vufqiglnipyayn@ws.net.home>
+ <20171116.032439.1733506489064928691.yamato@redhat.com>
+ <20171121111641.dt3vodjsuwwnna6g@ws.net.home>
+ <20171121.203633.949035400852899096.yamato@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171121.203633.949035400852899096.yamato@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Masatake YAMATO <yamato@redhat.com>
----
- tests/commands.sh           |  1 +
- tests/expected/lsns/netnsid |  1 +
- tests/ts/lsns/netnsid       | 65 +++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 67 insertions(+)
- create mode 100644 tests/expected/lsns/netnsid
- create mode 100644 tests/ts/lsns/netnsid
+On Tue, Nov 21, 2017 at 08:36:33PM +0900, Masatake YAMATO wrote:
+> So, my biggest question is "should I send an updated version of patch?" :-)
+> 
+> You wrote in https://marc.info/?l=util-linux-ng&m=151074416720085&w=2:
+> >  I'm ready to do all the changes (you don't have to resend the patch).
+> 
+> I think you may have improved version of code.
+> I would like to start from it for reflecting the new comments (if I should do).
 
-diff --git a/tests/commands.sh b/tests/commands.sh
-index 655344102..502935ede 100644
---- a/tests/commands.sh
-+++ b/tests/commands.sh
-@@ -74,6 +74,7 @@ TS_CMD_LOSETUP=${TS_CMD_LOSETUP:-"$top_builddir/losetup"}
- TS_CMD_LSBLK=${TS_CMD_LSBLK-"$top_builddir/lsblk"}
- TS_CMD_LSCPU=${TS_CMD_LSCPU-"$top_builddir/lscpu"}
- TS_CMD_LSMEM=${TS_CMD_LSMEM-"$top_builddir/lsmem"}
-+TS_CMD_LSNS=${TS_CMD_LSNS-"$top_builddir/lsns"}
- TS_CMD_MCOOKIE=${TS_CMD_MCOOKIE-"$top_builddir/mcookie"}
- TS_CMD_MKCRAMFS=${TS_CMD_MKCRAMFS:-"$top_builddir/mkfs.cramfs"}
- TS_CMD_MKMINIX=${TS_CMD_MKMINIX:-"$top_builddir/mkfs.minix"}
-diff --git a/tests/expected/lsns/netnsid b/tests/expected/lsns/netnsid
-new file mode 100644
-index 000000000..573541ac9
---- /dev/null
-+++ b/tests/expected/lsns/netnsid
-@@ -0,0 +1 @@
-+0
-diff --git a/tests/ts/lsns/netnsid b/tests/ts/lsns/netnsid
-new file mode 100644
-index 000000000..ad93dd49c
---- /dev/null
-+++ b/tests/ts/lsns/netnsid
-@@ -0,0 +1,65 @@
-+#!/bin/bash
-+#
-+# Copyright (C) 2017 Masatake YAMATO <yamato@redhat.com>
-+#
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+#
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="compare NETNSID reported by lsns and that by ip-link"
-+
-+. $TS_TOPDIR/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_CMD_LSNS"
-+
-+ts_skip_nonroot
-+
-+ts_cd "$TS_OUTDIR"
-+
-+vetha=lsns-vetha
-+vethb=lsns-vethb
-+NS=UTIL-LINUX-LSNS-TEST-NS
-+FIFO=$TS_OUTDIR/UTIL-LINUX-LSNS-TEST-FIFO
-+NULL=/dev/null
-+
-+ip netns delete $NS 2> $NULL || :
-+ip link delete  $vetha 2> $NULL || :
-+
-+rm -f $FIFO
-+mkfifo $FIFO
-+
-+if ip netns add $NS &&
-+	ip link add name $vetha type veth peer name $vethb &&
-+	ip link set $vethb netns $NS; then
-+    ip netns exec $NS dd if=$FIFO bs=1 count=2 of=$NULL 2> $NULL &
-+    PID=$!
-+fi
-+{
-+    dd if=/dev/zero bs=1 count=1 2> $NULL
-+    {
-+	ip -o link show dev $vetha > $NULL
-+	IP_ID=$(ip -o link show dev $vetha | sed -ne 's/.* *link-netnsid *\([0-9]*\)/\1/p')
-+	LSNS_ID=$($TS_CMD_LSNS -n -o NETNSID --type net --task $PID | { read VAL; echo $VAL; } )
-+    }
-+    dd if=/dev/zero bs=1 count=1 2> $NULL
-+} > $FIFO
-+
-+rm $FIFO
-+ip link delete $vetha
-+ip netns delete $NS
-+
-+test "$IP_ID" = "$LSNS_ID"
-+echo $? >> $TS_OUTPUT
-+
-+ts_finalize
+I do not have any changes yet ;-) So, you can start, or if you're busy
+with something else I can do that.
+
+    Karel
+
 -- 
-2.13.6
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
