@@ -1,55 +1,59 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36010 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751173AbdKTUJv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 20 Nov 2017 15:09:51 -0500
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 530C15F15C
-        for <util-linux@vger.kernel.org>; Mon, 20 Nov 2017 20:09:51 +0000 (UTC)
-From: Andy Grover <agrover@redhat.com>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] Mark char* params to blkid_dev_set_search as const
-Date: Mon, 20 Nov 2017 12:09:50 -0800
-Message-Id: <20171120200950.11377-1-agrover@redhat.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: sos22@archy.org.uk
+Date: Wed, 22 Nov 2017 08:15:38 -0800
+From: Steven Smith <sos22@archy.org.uk>
+To: Karel Zak <kzak@redhat.com>
+Cc: Steven Smith <sos22@archy.org.uk>, util-linux@vger.kernel.org,
+	sos22@srcf.ucam.org
+Subject: Re: [PATCH] Fix a use of uninitialised memory in an agetty error
+ path.
+Message-ID: <20171122161538.v2m74umknmbkggtz@adrian>
+References: <20171117164433.xtsgma2vdppjpio4@adrian>
+ <20171120110223.3moy333zy7bedpby@ws.net.home>
+ <20171120190623.GA26226@archy.org.uk>
+ <20171121102314.272hdgjuw7glu2ru@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171121102314.272hdgjuw7glu2ru@ws.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-They are not changed by the function.
+> > @@ -2000,12 +2003,15 @@ static char *get_logname(struct options *op, struct termios *tp, struct chardata
+> >                                 case ESRCH:
+> >                                 case EINVAL:
+> >                                 case ENOENT:
+> > -                                       break;
+> > +                                       exit_slowly(EXIT_SUCCESS);
+> >                                 default:
+> >                                         log_err(_("%s: read: %m"), op->tty);
+> >                                 }
+> >                         }
+> > 
+> > +                       if (readres == 0)
+> > +                               c = 0;
+> > +
+> >                         /* Do parity bit handling. */
+> >                         if (eightbit)
+> >                                 ascval = c;
+> > @@ -2030,6 +2036,8 @@ static char *get_logname(struct options *op, struct termios *tp, struct chardata
+> >                         switch (key) {
+> >                         case 0:
+> >                                 *bp = 0;
+> > +                               if (op->flags & F_VCONSOLE)
+> > +                                       exit_slowly(EXIT_SUCCESS);
+> >                                 if (op->numspeed > 1)
+> >                                         return NULL;
+> 
+> Yes, that's what I've though about. I have committed a little bit modified
+> version:
+> 
+> -                               if (op->numspeed > 1)
+> +                               if (op->numspeed > 1 && !(op->flags & F_VCONSOLE))
+>                                         return NULL;
+> +                               if (readres == 0)
+> +                                       exit_slowly(EXIT_SUCCESS);
+>                                 break;
+> 
+> the speed configuration should be accepted only for !F_VCONSOLE.
 
-Signed-off-by: Andy Grover <agrover@redhat.com>
----
- libblkid/src/blkid.h.in | 2 +-
- libblkid/src/dev.c      | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+That's great, thank you.
 
-diff --git a/libblkid/src/blkid.h.in b/libblkid/src/blkid.h.in
-index ffd791ad1..a35b71388 100644
---- a/libblkid/src/blkid.h.in
-+++ b/libblkid/src/blkid.h.in
-@@ -149,7 +149,7 @@ extern const char *blkid_dev_devname(blkid_dev dev)
- 
- extern blkid_dev_iterate blkid_dev_iterate_begin(blkid_cache cache);
- extern int blkid_dev_set_search(blkid_dev_iterate iter,
--				char *search_type, char *search_value);
-+				const char *search_type, const char *search_value);
- extern int blkid_dev_next(blkid_dev_iterate iterate, blkid_dev *dev);
- extern void blkid_dev_iterate_end(blkid_dev_iterate iterate);
- 
-diff --git a/libblkid/src/dev.c b/libblkid/src/dev.c
-index 046cdce1b..056df2b86 100644
---- a/libblkid/src/dev.c
-+++ b/libblkid/src/dev.c
-@@ -148,7 +148,7 @@ blkid_dev_iterate blkid_dev_iterate_begin(blkid_cache cache)
- }
- 
- int blkid_dev_set_search(blkid_dev_iterate iter,
--				 char *search_type, char *search_value)
-+				 const char *search_type, const char *search_value)
- {
- 	char *new_type, *new_value;
- 
--- 
-2.13.6
-
+Steven.
