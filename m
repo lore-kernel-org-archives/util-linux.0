@@ -1,41 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:60952 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:37868 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751514AbdJWKxv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 23 Oct 2017 06:53:51 -0400
-Date: Mon, 23 Oct 2017 12:53:47 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Jeff Sadowski <jeff.sadowski@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: wall logging or run command each post?
-Message-ID: <20171023105347.e6k3xwnwmhvgfzgw@ws.net.home>
-References: <CAM9ceLjMPtUHNxj-G2YL=5w+dE+EoD+6rYKE1uDCDn5k19z8gw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAM9ceLjMPtUHNxj-G2YL=5w+dE+EoD+6rYKE1uDCDn5k19z8gw@mail.gmail.com>
+        id S1753071AbdKXKbn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 24 Nov 2017 05:31:43 -0500
+From: Masatake YAMATO <yamato@redhat.com>
+To: util-linux@vger.kernel.org
+Cc: yamato@redhat.com
+Subject: [PATCH v2 7/7] man: write about using multi-line in NSFS cell of lsns
+Date: Fri, 24 Nov 2017 19:31:10 +0900
+Message-Id: <20171124103110.17077-9-yamato@redhat.com>
+In-Reply-To: <20171124103110.17077-1-yamato@redhat.com>
+References: <20171124103110.17077-1-yamato@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Oct 18, 2017 at 02:06:25PM -0600, Jeff Sadowski wrote:
-> I would like to know if this feature is built into wall or is there a
-> good work around?
+Signed-off-by: Masatake YAMATO <yamato@redhat.com>
+---
+ sys-utils/lsns.8 | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-wall is usually used by superuser. I guess if you can all "wall" than
-you can also call for example logger to write to the system logs. I
-don't see reason to merge functionally of these tools together.
-
-> I would like to configure wall to run a script after anything is posted to wall.
-
-Why? Maybe there is better way go get your goal.
-
-> I would also like to log all wall messages. I could easily do that
-> with a script.
-
-yes, script(1) is the right way
-
-    Karel
-
-
+diff --git a/sys-utils/lsns.8 b/sys-utils/lsns.8
+index ebdc1df04..4d108a48c 100644
+--- a/sys-utils/lsns.8
++++ b/sys-utils/lsns.8
+@@ -20,6 +20,11 @@ avoid using default outputs in your scripts.  Always explicitly define expected
+ columns by using the \fB\-\-output\fR option together with a columns list in
+ environments where a stable output is required.
+ 
++\fBNSFS\fP column, printed when \fBnet\fP is specified for
++\fB\-\-type\fR option, is specifal; it uses multi-line cells.
++\fB\-\-nowrap\fR is for switching to "," separated single-line
++representation.
++
+ Note that \fBlsns\fR reads information directly from the /proc filesystem and
+ for non-root users it may return incomplete information.  The current /proc
+ filesystem may be unshared and affected by a PID namespace
+@@ -60,6 +65,9 @@ Display the specified \fItype\fP of namespaces only.  The supported types are
+ .BR \-u , " \-\-notruncate"
+ Do not truncate text in columns.
+ .TP
++.BR \-W , " \-\-nowrap"
++Do not use multi-line text in columns.
++.TP
+ .BR \-V , " \-\-version"
+ Display version information and exit.
+ .TP
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.13.6
+
