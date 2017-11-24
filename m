@@ -1,35 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from ishtar.tlinx.org ([173.164.175.65]:59588 "EHLO
-        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756478AbdKDJQm (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 4 Nov 2017 05:16:42 -0400
-Received: from [192.168.3.12] (Athenae [192.168.3.12])
-        by Ishtar.sc.tlinx.org (8.14.7/8.14.4/SuSE Linux 0.8) with ESMTP id vA499pKX066100
-        for <util-linux@vger.kernel.org>; Sat, 4 Nov 2017 02:09:53 -0700
-Message-ID: <59FD83DF.805@tlinx.org>
-Date: Sat, 04 Nov 2017 02:09:51 -0700
-From: L A Walsh <lkml@tlinx.org>
-MIME-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:47702 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752955AbdKXKbT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 24 Nov 2017 05:31:19 -0500
+From: Masatake YAMATO <yamato@redhat.com>
 To: util-linux@vger.kernel.org
-Subject: what should blockdev getbpsz return 4k disks w/512e?
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Cc: yamato@redhat.com
+Subject: [PATCH v2 0/7] Add netnsid and nsfs columns to lsns
+Date: Fri, 24 Nov 2017 19:31:02 +0900
+Message-Id: <20171124103110.17077-1-yamato@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+This patch-set adds netnsid and nsfs columns to lsns command.
 
-I just tried blockdev on a HW raid device (/dev/sdb) composed of
-4K disks that can (w/performance penalty) emulate 512 byte disk
-(i.e. have the 512e feature).  It is returning 512. 
+The new columns are useful to understand namespaces information
+printed in the output of "ip link" and "ip netns".  The new columns
+are visible only when --type net is specified.
 
-If the disk is composed of 4K disks, shouldn't the raid show 4K
-as well?  Otherwise, how do utils know what alignment to use or
-not to use 512 due to penalty costs?  For my formatted disks, I
-use 4K allocation units, so for those, I shouldn't see problems,
-but some other disk subsystems or raw-disk using progs also need to
-know to allocate on 4K boundaries.
+Masatake YAMATO (7):
+  lsns: add netnsid column
+  lsns: disable netnsid column by default
+  lsns: add a case for testing netnsid column
+  lsns: add nsfs column
+  lsns: add --nowrap(-W) option
+  lsns: add a case for testing nsfs column
+  man: write about using multi-line in NSFS cell of lsns
 
-Any idea where this info should be showing up?
+ configure.ac                |   1 +
+ sys-utils/Makemodule.am     |   4 +-
+ sys-utils/lsns.8            |   8 ++
+ sys-utils/lsns.c            | 319 +++++++++++++++++++++++++++++++++++++++++++-
+ tests/commands.sh           |   1 +
+ tests/expected/lsns/netnsid |   1 +
+ tests/expected/lsns/nsfs    |   1 +
+ tests/ts/lsns/netnsid       |  65 +++++++++
+ tests/ts/lsns/nsfs          |  68 ++++++++++
+ 9 files changed, 459 insertions(+), 9 deletions(-)
+ create mode 100644 tests/expected/lsns/netnsid
+ create mode 100644 tests/expected/lsns/nsfs
+ create mode 100644 tests/ts/lsns/netnsid
+ create mode 100644 tests/ts/lsns/nsfs
 
-Thanks!
--linda
+-- 
+2.13.6
 
