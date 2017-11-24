@@ -1,79 +1,106 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.headstrong.de ([81.7.4.112]:60638 "EHLO mail.headstrong.de"
+Received: from mx1.redhat.com ([209.132.183.28]:44328 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750825AbdKXNKH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 24 Nov 2017 08:10:07 -0500
-Subject: Re: Bug: for mount namespaces inside a chroot, unshare works but
- nsenter doesn't
-From: Ximin Luo <infinity0@pwned.gg>
-To: Karel Zak <kzak@redhat.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: util-linux@vger.kernel.org
-References: <7b168fc6-957c-3c98-d7f2-673842ee550c@pwned.gg>
- <20171103133348.p4coyse7eoibcpsn@ws.net.home> <877euzaws1.fsf@xmission.com>
- <20171110131458.7xlnbf7ayvtk7r2r@ws.net.home>
- <a72a1d51-fd15-761b-95a3-a99bd6fca524@pwned.gg>
-Message-ID: <4770c632-0af8-332a-f7aa-d1cdec8e204d@pwned.gg>
-Date: Fri, 24 Nov 2017 13:09:00 +0000
-MIME-Version: 1.0
-In-Reply-To: <a72a1d51-fd15-761b-95a3-a99bd6fca524@pwned.gg>
-Content-Type: text/plain; charset=utf-8
+        id S1753071AbdKXKbc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 24 Nov 2017 05:31:32 -0500
+From: Masatake YAMATO <yamato@redhat.com>
+To: util-linux@vger.kernel.org
+Cc: yamato@redhat.com
+Subject: [PATCH 5/5] lsns: add a case for testing nsfs column
+Date: Fri, 24 Nov 2017 19:31:07 +0900
+Message-Id: <20171124103110.17077-6-yamato@redhat.com>
+In-Reply-To: <20171124103110.17077-1-yamato@redhat.com>
+References: <20171124103110.17077-1-yamato@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Ximin Luo:
-> Karel Zak:
->> [..]
->>
->>> My personal recommendation is not to use chroot with persistent mount
->>> namespaces.  That just seems to keep unnecessary mounts around.  Those
->>> extra mounts will almost certainly be a problem later when you discover
->>> you want to unmount one of those mounted filesystems you don't care
->>> about but are chrooting over.
->>>
->>> I think it would be quite reasonable to have an additional option to
->>> open things in the new mount namespace, just before exec.  I just don't
->>> see how useful it would be.
->>
->> It would be solution for this use-case, but it will increase
->> complexity and I'm not sure this use-case is important enough.
->>
->> Especially if the all you need is to use chroot command before nsenter.
->> I don't think nsenter has to be all-in-one command. It's very basic
->> tool.
->>
-> 
-> My nsenter code may be run inside or outside a chroot, I have no control over that in the general case - users decide whether they want to run it inside a chroot or not.
-> 
-> The issue with using the chroot(1) command, is that you must give it the path to the chroot *from outside the chroot*. I don't know of a clean way to figure this out from my code, that starts life running from inside the chroot, and just wants to unshare part of the tree that it sees there.
-> 
-> An option to open root/wd in the new ns, sounds like it would allow me (and others) to write code that is chroot-independent. I'd very much appreciate that.
-> 
+Signed-off-by: Masatake YAMATO <yamato@redhat.com>
+---
+ tests/expected/lsns/nsfs |  1 +
+ tests/ts/lsns/nsfs       | 66 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 67 insertions(+)
+ create mode 100644 tests/expected/lsns/nsfs
+ create mode 100644 tests/ts/lsns/nsfs
 
-I tried Karel's patch from earlier and it seems that it does not work as I need it to - with the patch, it is still required to pass the path-to-the-chroot, from the parent mount namespace's "real" root.
-
-I guess the problem stems from the fact that the unshare process's root, is a child-namespace-specific copy of the root from the parent namespace. When the process exists the handle to this root is lost, and nsenter does not have enough information to be able to pick it up again.
-
-And opening the parent namespace's root (inside the chroot), if I understood correctly, does not correspond to a valid file descriptor inside the child namespace, and that's why this bug exists.
-
-Perhaps the solution then, is to offer a way for unshare(1) to save a handle to the root inside the child-namespace, and then nsenter(1) can later be pointed to this root? i.e.
-
-# all commands run inside the chroot
-$ unshare --mount=ns-mnt --root=./root true
-#                        ^^^^^^^^^^^^^
-# this would effectively save (chroot)/proc/self/root to ./root so it's available after the process exits
-
-$ nsenter --mount=ns-mnt --root=./root true
-#                        ^^^^^^^^^^^^^
-# nsenter can then chroot to this as normal
-
-(The wd is less important to me but I suppose a similar thing could be done with that too.)
-
-I am not sure if the first step is possible in the current kernel however. But it seems to me that it *ought* to be possible, to make chroots and persistent-mount-namespaces play nicely together.
-
-X
-
+diff --git a/tests/expected/lsns/nsfs b/tests/expected/lsns/nsfs
+new file mode 100644
+index 000000000..573541ac9
+--- /dev/null
++++ b/tests/expected/lsns/nsfs
+@@ -0,0 +1 @@
++0
+diff --git a/tests/ts/lsns/nsfs b/tests/ts/lsns/nsfs
+new file mode 100644
+index 000000000..cfc88e06c
+--- /dev/null
++++ b/tests/ts/lsns/nsfs
+@@ -0,0 +1,66 @@
++#!/bin/bash
++#
++# Copyright (C) 2017 Masatake YAMATO <yamato@redhat.com>
++#
++# This file is part of util-linux.
++#
++# This file is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++#
++# This file is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++
++TS_TOPDIR="${0%/*}/../.."
++TS_DESC="list NSFS for namespaces created by ip-netns-add"
++
++. $TS_TOPDIR/functions.sh
++ts_init "$*"
++
++ts_check_test_command "$TS_CMD_LSNS"
++
++ts_skip_nonroot
++
++ts_cd "$TS_OUTDIR"
++
++NAME1=ABC
++NAME2=XYZ
++PATH1=/run/netns/$NAME1
++PATH2=$TS_OUTDIR/$NAME2
++FIFO=$TS_OUTDIR/UTIL-LINUX-LSNS-TEST-FIFO
++NULL=/dev/null
++
++ip netns delete $NAME1 2> /dev/null || :
++umount $PATH2 2>/dev/null || :
++rm -f $PATH2
++
++rm -f $FIFO
++mkfifo $FIFO
++
++if ip netns add $NAME1 &&
++	touch ${PATH2} &&
++	mount -o bind ${PATH1} ${PATH2}; then
++    ip netns exec $NAME1 dd if=$FIFO bs=1 count=2 of=$NULL 2> $NULL &
++    PID=$!
++fi
++{
++    dd if=/dev/zero bs=1 count=1 2> $NULL
++    NSFS_NAMES=$($TS_CMD_LSNS -n -o NSFS --type net --task $PID | { while read VAL; do echo $VAL; done; } )
++    dd if=/dev/zero bs=1 count=1 2> $NULL
++} > $FIFO
++
++rm $FIFO
++
++umount $PATH2
++rm -f $PATH2
++ip netns delete $NAME1
++
++test "$NSFS_NAMES" = "$PATH1
++$PATH2"
++echo $? >> $TS_OUTPUT
++
++ts_finalize
 -- 
-GPG: ed25519/56034877E1F87C35
-GPG: rsa4096/1318EFAC5FBBDBCE
-https://github.com/infinity0/pubkeys.git
+2.13.6
+
