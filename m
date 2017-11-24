@@ -1,69 +1,99 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:47677 "EHLO
-        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750817AbdKEVMw (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 5 Nov 2017 16:12:52 -0500
-Date: Sun, 5 Nov 2017 22:12:49 +0100
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: Theodore Ts'o <tytso@mit.edu>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Andreas Bombe <aeb@debian.org>, Karel Zak <kzak@redhat.com>,
-        util-linux@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
-        Curtis Gedak <gedakc@gmail.com>, pavel@ucw.cz
-Subject: Re: Linux & FAT32 label
-Message-ID: <20171105211249.xrg6m6ijjewrpqp2@pali>
-References: <20171012085658.iwrusvy4ay4s7hbb@ws.net.home>
- <20171012092113.2bsb3pzv6un4xahr@pali>
- <20171012101311.zfvg6edfvszlujom@ws.net.home>
- <20171012204931.tfd2bhmwu5b6rbpz@pali>
- <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
- <CAHp75VdWXHtCHiRxnbAidr9inehVC=av6gp7-jtJqN6WPYh4fg@mail.gmail.com>
- <20171105133929.7cscboxymmpkw634@pali>
- <CAHp75VfwLh9eH992nB1TiOVYOpEV6OSTGkbLau=eQRPeczeFyA@mail.gmail.com>
- <20171105140745.ze4ttkazeczrqsy7@pali>
- <20171105203542.jgupce2usbtjhbg2@thunk.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20171105203542.jgupce2usbtjhbg2@thunk.org>
+Received: from mx1.redhat.com ([209.132.183.28]:37634 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753071AbdKXKbZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 24 Nov 2017 05:31:25 -0500
+From: Masatake YAMATO <yamato@redhat.com>
+To: util-linux@vger.kernel.org
+Cc: yamato@redhat.com
+Subject: [PATCH v2 2/7] lsns: disable netnsid column by default
+Date: Fri, 24 Nov 2017 19:31:04 +0900
+Message-Id: <20171124103110.17077-3-yamato@redhat.com>
+In-Reply-To: <20171124103110.17077-1-yamato@redhat.com>
+References: <20171124103110.17077-1-yamato@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sunday 05 November 2017 15:35:42 Theodore Ts'o wrote:
-> On Sun, Nov 05, 2017 at 03:07:45PM +0100, Pali Rohár wrote:
-> > 
-> > Current behavior of the last blkid and fatlabel tools is: Try to read
-> > label from the root directory. If it does not exist, then fallback to
-> > label stored in boot sector. And when fatlabel is changing label it
-> > updates both locations.
-> > 
-> > So tools which already uses fatlabel for get & set operations should not
-> > be affected as setting new label makes boot and root in sync.
-> > 
-> > New proposed behavior is: Try to read label from the root directory. If
-> > not exist, then treat disk as without label.
-> 
-> Why is it important to ignore the label from the boot sector?  What is
-> the situation where if there is not a label in the root directory, and
-> there is a label in the boot sector, it is the Wrong Thing to return it?
-> 
-> For that matter, aside for a diskette from DOS 3.x (where using the
-> label from the boot sector *is* the right thing), why/when would we
-> ever have a label in the boot sector and not in the root director?
+Enable only when
 
-Easy way how to achieve this situation:
+* --type=net is given, or
+* -o NETNSID is given.
 
-1. use mkdosfs to format hard disk to FAT32 with label LABEL42
+Suggested by Karel Zak.
 
-2. boot Windows 10 (or XP) and set label of that FAT32 partition to
-empty (via Explorer GUI)
+Signed-off-by: Masatake YAMATO <yamato@redhat.com>
+---
+ sys-utils/lsns.c | 25 ++++++++++++++++++++-----
+ 1 file changed, 20 insertions(+), 5 deletions(-)
 
-3. profit
-
-You would have stored LABEL42 in boot sector and no label in root
-directory. Windows handle this situation as there is no label.
-
+diff --git a/sys-utils/lsns.c b/sys-utils/lsns.c
+index 7ccc733a4..bb7d3956d 100644
+--- a/sys-utils/lsns.c
++++ b/sys-utils/lsns.c
+@@ -839,6 +839,7 @@ int main(int argc, char *argv[])
+ 		{ 0 }
+ 	};
+ 	int excl_st[ARRAY_SIZE(excl)] = UL_EXCL_STATUS_INIT;
++	bool enabling_netnsid = false;
+ 
+ 	setlocale(LC_ALL, "");
+ 	bindtextdomain(PACKAGE, LOCALEDIR);
+@@ -891,6 +892,8 @@ int main(int argc, char *argv[])
+ 				errx(EXIT_FAILURE, _("unknown namespace type: %s"), optarg);
+ 			ls.fltr_types[type] = 1;
+ 			ls.fltr_ntypes++;
++			if (type == LSNS_ID_NET)
++				enabling_netnsid = true;
+ 			break;
+ 		}
+ 		default:
+@@ -900,6 +903,7 @@ int main(int argc, char *argv[])
+ 
+ 	if (!ls.fltr_ntypes) {
+ 		size_t i;
++
+ 		for (i = 0; i < ARRAY_SIZE(ns_names); i++)
+ 			ls.fltr_types[i] = 1;
+ 	}
+@@ -924,14 +928,24 @@ int main(int argc, char *argv[])
+ 		columns[ncolumns++] = COL_NPROCS;
+ 		columns[ncolumns++] = COL_PID;
+ 		columns[ncolumns++] = COL_USER;
+-		columns[ncolumns++] = COL_NETNSID;
++		if (enabling_netnsid)
++			columns[ncolumns++] = COL_NETNSID;
+ 		columns[ncolumns++] = COL_COMMAND;
+ 	}
+ 
+-	if (outarg && string_add_to_idarray(outarg, columns, ARRAY_SIZE(columns),
+-					 &ncolumns, column_name_to_id) < 0)
+-		return EXIT_FAILURE;
++	if (outarg) {
++		size_t i;
+ 
++		if (string_add_to_idarray(outarg, columns, ARRAY_SIZE(columns),
++					  &ncolumns, column_name_to_id) < 0)
++			return EXIT_FAILURE;
++		for (i = 0; i < ncolumns; i++) {
++			if (columns[i] == COL_NETNSID) {
++				enabling_netnsid = true;
++				break;
++			}
++		}
++	}
+ 	scols_init_debug(0);
+ 
+ 	uid_cache = new_idcache();
+@@ -939,7 +953,8 @@ int main(int argc, char *argv[])
+ 		err(EXIT_FAILURE, _("failed to allocate UID cache"));
+ 
+ #ifdef HAVE_LINUX_NET_NAMESPACE_H
+-	netlink_fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
++	if (enabling_netnsid)
++		netlink_fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
+ #endif
+ 	r = read_processes(&ls);
+ 	if (!r)
 -- 
-Pali Rohár
-pali.rohar@gmail.com
+2.13.6
+
