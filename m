@@ -1,92 +1,118 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51530 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:47844 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751528AbdKUKXR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 21 Nov 2017 05:23:17 -0500
-Date: Tue, 21 Nov 2017 11:23:14 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Steven Smith <sos22@archy.org.uk>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Fix a use of uninitialised memory in an agetty error
- path.
-Message-ID: <20171121102314.272hdgjuw7glu2ru@ws.net.home>
-References: <20171117164433.xtsgma2vdppjpio4@adrian>
- <20171120110223.3moy333zy7bedpby@ws.net.home>
- <20171120190623.GA26226@archy.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171120190623.GA26226@archy.org.uk>
+        id S1753071AbdKXKb3 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 24 Nov 2017 05:31:29 -0500
+From: Masatake YAMATO <yamato@redhat.com>
+To: util-linux@vger.kernel.org
+Cc: yamato@redhat.com
+Subject: [PATCH v2 3/7] lsns: add a case for testing netnsid column
+Date: Fri, 24 Nov 2017 19:31:05 +0900
+Message-Id: <20171124103110.17077-4-yamato@redhat.com>
+In-Reply-To: <20171124103110.17077-1-yamato@redhat.com>
+References: <20171124103110.17077-1-yamato@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Nov 20, 2017 at 02:06:23PM -0500, Steven Smith wrote:
-> > > +			if (readres == 0)
-> > > +				exit_slowly(EXIT_SUCCESS);
-> > 
-> > I'm not sure about it. Maybe it would be better to assume that readres == 0
-> > and no error is the same as c = 0. In this case functions returns NULL
-> > and we try another speed setting (if defined) for the terminal.
-> 
-> Hmm, maybe. The problem with that would be what happens if there isn't
-> another speed configured (which would match the system I was looking at when
-> I started looking at this). In that case, get_logname() will immediately retry
-> the read, without doing anything to clear the end of file condition, which
-> would be an infinite loop. Even if I configured multiple bauds, the test
-> environment which originally saw the issue is a VCONSOLE, so the loop in main()
-> which calls get_logname() would immediately retry without actually doing
-> anything with the configured speed, which I don't think would have helped
-> very much.
-> 
-> Perhaps changing the baud on a real serial port would have cleared the end of
-> file condition (or perhaps that's just showing my ignorance of how serial ports
-> work)? That might make something like this more reasonable:
-> 
-> @@ -2000,12 +2003,15 @@ static char *get_logname(struct options *op, struct termios *tp, struct chardata
->                                 case ESRCH:
->                                 case EINVAL:
->                                 case ENOENT:
-> -                                       break;
-> +                                       exit_slowly(EXIT_SUCCESS);
->                                 default:
->                                         log_err(_("%s: read: %m"), op->tty);
->                                 }
->                         }
-> 
-> +                       if (readres == 0)
-> +                               c = 0;
-> +
->                         /* Do parity bit handling. */
->                         if (eightbit)
->                                 ascval = c;
-> @@ -2030,6 +2036,8 @@ static char *get_logname(struct options *op, struct termios *tp, struct chardata
->                         switch (key) {
->                         case 0:
->                                 *bp = 0;
-> +                               if (op->flags & F_VCONSOLE)
-> +                                       exit_slowly(EXIT_SUCCESS);
->                                 if (op->numspeed > 1)
->                                         return NULL;
+Signed-off-by: Masatake YAMATO <yamato@redhat.com>
+---
+ tests/commands.sh           |  1 +
+ tests/expected/lsns/netnsid |  1 +
+ tests/ts/lsns/netnsid       | 65 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 67 insertions(+)
+ create mode 100644 tests/expected/lsns/netnsid
+ create mode 100644 tests/ts/lsns/netnsid
 
-Yes, that's what I've though about. I have committed a little bit modified
-version:
-
--                               if (op->numspeed > 1)
-+                               if (op->numspeed > 1 && !(op->flags & F_VCONSOLE))
-                                        return NULL;
-+                               if (readres == 0)
-+                                       exit_slowly(EXIT_SUCCESS);
-                                break;
-
-the speed configuration should be accepted only for !F_VCONSOLE. IMHO
-the current code is weak (independently on your read() issue:-)
-
-
-The another weak thing is that agetty don't care if all speeds has
-been already tested. The next_speed() increments baud_index again and
-again... maybe we need another exit_slow() here too.
-
-    Karel
-
+diff --git a/tests/commands.sh b/tests/commands.sh
+index 655344102..502935ede 100644
+--- a/tests/commands.sh
++++ b/tests/commands.sh
+@@ -74,6 +74,7 @@ TS_CMD_LOSETUP=${TS_CMD_LOSETUP:-"$top_builddir/losetup"}
+ TS_CMD_LSBLK=${TS_CMD_LSBLK-"$top_builddir/lsblk"}
+ TS_CMD_LSCPU=${TS_CMD_LSCPU-"$top_builddir/lscpu"}
+ TS_CMD_LSMEM=${TS_CMD_LSMEM-"$top_builddir/lsmem"}
++TS_CMD_LSNS=${TS_CMD_LSNS-"$top_builddir/lsns"}
+ TS_CMD_MCOOKIE=${TS_CMD_MCOOKIE-"$top_builddir/mcookie"}
+ TS_CMD_MKCRAMFS=${TS_CMD_MKCRAMFS:-"$top_builddir/mkfs.cramfs"}
+ TS_CMD_MKMINIX=${TS_CMD_MKMINIX:-"$top_builddir/mkfs.minix"}
+diff --git a/tests/expected/lsns/netnsid b/tests/expected/lsns/netnsid
+new file mode 100644
+index 000000000..573541ac9
+--- /dev/null
++++ b/tests/expected/lsns/netnsid
+@@ -0,0 +1 @@
++0
+diff --git a/tests/ts/lsns/netnsid b/tests/ts/lsns/netnsid
+new file mode 100644
+index 000000000..ad93dd49c
+--- /dev/null
++++ b/tests/ts/lsns/netnsid
+@@ -0,0 +1,65 @@
++#!/bin/bash
++#
++# Copyright (C) 2017 Masatake YAMATO <yamato@redhat.com>
++#
++# This file is part of util-linux.
++#
++# This file is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++#
++# This file is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++
++TS_TOPDIR="${0%/*}/../.."
++TS_DESC="compare NETNSID reported by lsns and that by ip-link"
++
++. $TS_TOPDIR/functions.sh
++ts_init "$*"
++
++ts_check_test_command "$TS_CMD_LSNS"
++
++ts_skip_nonroot
++
++ts_cd "$TS_OUTDIR"
++
++vetha=lsns-vetha
++vethb=lsns-vethb
++NS=UTIL-LINUX-LSNS-TEST-NS
++FIFO=$TS_OUTDIR/UTIL-LINUX-LSNS-TEST-FIFO
++NULL=/dev/null
++
++ip netns delete $NS 2> $NULL || :
++ip link delete  $vetha 2> $NULL || :
++
++rm -f $FIFO
++mkfifo $FIFO
++
++if ip netns add $NS &&
++	ip link add name $vetha type veth peer name $vethb &&
++	ip link set $vethb netns $NS; then
++    ip netns exec $NS dd if=$FIFO bs=1 count=2 of=$NULL 2> $NULL &
++    PID=$!
++fi
++{
++    dd if=/dev/zero bs=1 count=1 2> $NULL
++    {
++	ip -o link show dev $vetha > $NULL
++	IP_ID=$(ip -o link show dev $vetha | sed -ne 's/.* *link-netnsid *\([0-9]*\)/\1/p')
++	LSNS_ID=$($TS_CMD_LSNS -n -o NETNSID --type net --task $PID | { read VAL; echo $VAL; } )
++    }
++    dd if=/dev/zero bs=1 count=1 2> $NULL
++} > $FIFO
++
++rm $FIFO
++ip link delete $vetha
++ip netns delete $NS
++
++test "$IP_ID" = "$LSNS_ID"
++echo $? >> $TS_OUTPUT
++
++ts_finalize
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.13.6
+
