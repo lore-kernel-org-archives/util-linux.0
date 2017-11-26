@@ -1,50 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:37868 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753071AbdKXKbn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 24 Nov 2017 05:31:43 -0500
-From: Masatake YAMATO <yamato@redhat.com>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:44829 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751603AbdKZRr5 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 26 Nov 2017 12:47:57 -0500
+Received: by mail-wm0-f65.google.com with SMTP id r68so30208392wmr.3
+        for <util-linux@vger.kernel.org>; Sun, 26 Nov 2017 09:47:56 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Cc: yamato@redhat.com
-Subject: [PATCH v2 7/7] man: write about using multi-line in NSFS cell of lsns
-Date: Fri, 24 Nov 2017 19:31:10 +0900
-Message-Id: <20171124103110.17077-9-yamato@redhat.com>
-In-Reply-To: <20171124103110.17077-1-yamato@redhat.com>
-References: <20171124103110.17077-1-yamato@redhat.com>
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 2/3] logindefs: remove unused function
+Date: Sun, 26 Nov 2017 17:47:50 +0000
+Message-Id: <20171126174751.10500-2-kerolasa@iki.fi>
+In-Reply-To: <20171126174751.10500-1-kerolasa@iki.fi>
+References: <20171126174751.10500-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Masatake YAMATO <yamato@redhat.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- sys-utils/lsns.8 | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ login-utils/logindefs.c | 18 ------------------
+ login-utils/logindefs.h |  1 -
+ 2 files changed, 19 deletions(-)
 
-diff --git a/sys-utils/lsns.8 b/sys-utils/lsns.8
-index ebdc1df04..4d108a48c 100644
---- a/sys-utils/lsns.8
-+++ b/sys-utils/lsns.8
-@@ -20,6 +20,11 @@ avoid using default outputs in your scripts.  Always explicitly define expected
- columns by using the \fB\-\-output\fR option together with a columns list in
- environments where a stable output is required.
+diff --git a/login-utils/logindefs.c b/login-utils/logindefs.c
+index ebf1a9f3a..18a699d6b 100644
+--- a/login-utils/logindefs.c
++++ b/login-utils/logindefs.c
+@@ -51,24 +51,6 @@ static struct item *list = NULL;
+ static void (*logindefs_loader)(void *) = NULL;
+ static void *logindefs_loader_data = NULL;
  
-+\fBNSFS\fP column, printed when \fBnet\fP is specified for
-+\fB\-\-type\fR option, is specifal; it uses multi-line cells.
-+\fB\-\-nowrap\fR is for switching to "," separated single-line
-+representation.
-+
- Note that \fBlsns\fR reads information directly from the /proc filesystem and
- for non-root users it may return incomplete information.  The current /proc
- filesystem may be unshared and affected by a PID namespace
-@@ -60,6 +65,9 @@ Display the specified \fItype\fP of namespaces only.  The supported types are
- .BR \-u , " \-\-notruncate"
- Do not truncate text in columns.
- .TP
-+.BR \-W , " \-\-nowrap"
-+Do not use multi-line text in columns.
-+.TP
- .BR \-V , " \-\-version"
- Display version information and exit.
- .TP
+-void free_getlogindefs_data(void)
+-{
+-	struct item *ptr;
+-
+-	ptr = list;
+-	while (ptr) {
+-		struct item *tmp = ptr->next;
+-
+-		free(ptr->path);
+-		free(ptr->name);
+-		free(ptr->value);
+-		free(ptr);
+-		ptr = tmp;
+-	}
+-
+-	list = NULL;
+-}
+-
+ static void store(const char *name, const char *value, const char *path)
+ {
+ 	struct item *new = xmalloc(sizeof(struct item));
+diff --git a/login-utils/logindefs.h b/login-utils/logindefs.h
+index 064737c6c..0079cd23c 100644
+--- a/login-utils/logindefs.h
++++ b/login-utils/logindefs.h
+@@ -6,7 +6,6 @@ extern void logindefs_set_loader(void (*loader)(void *data), void *data);
+ extern int getlogindefs_bool(const char *name, int dflt);
+ extern unsigned long getlogindefs_num(const char *name, long dflt);
+ extern const char *getlogindefs_str(const char *name, const char *dflt);
+-extern void free_getlogindefs_data(void);
+ extern int logindefs_setenv(const char *name, const char *conf, const char *dflt);
+ extern int effective_access(const char *path, int mode);
+ extern int get_hushlogin_status(struct passwd *pwd, int force_check);
 -- 
-2.13.6
+2.15.0
 
