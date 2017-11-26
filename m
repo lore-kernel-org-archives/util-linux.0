@@ -1,63 +1,66 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59460 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755802AbdKCKLJ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 3 Nov 2017 06:11:09 -0400
-Date: Fri, 3 Nov 2017 11:11:04 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Cc: util-linux@vger.kernel.org, Michal Hocko <mhocko@kernel.org>,
-        linux-mm <linux-mm@kvack.org>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Andre Wild <wild@linux.vnet.ibm.com>
-Subject: Re: [PATCH 0/3] lsmem/chmem: add memory zone awareness
-Message-ID: <20171103101104.kw6xoxust3r7f7v3@ws.net.home>
-References: <20170927174446.20459-1-gerald.schaefer@de.ibm.com>
- <20171018114009.7b4iax6536un5bnr@ws.net.home>
- <20171102175408.18d4eafc@thinkpad>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171102175408.18d4eafc@thinkpad>
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:37026 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751045AbdKZR12 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 26 Nov 2017 12:27:28 -0500
+Received: by mail-wr0-f194.google.com with SMTP id k61so24284038wrc.4
+        for <util-linux@vger.kernel.org>; Sun, 26 Nov 2017 09:27:28 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 2/2] man: use long options in text and add example to uuidgen
+Date: Sun, 26 Nov 2017 17:27:21 +0000
+Message-Id: <20171126172721.9504-2-kerolasa@iki.fi>
+In-Reply-To: <20171126172721.9504-1-kerolasa@iki.fi>
+References: <20171126172721.9504-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Nov 02, 2017 at 05:54:08PM +0100, Gerald Schaefer wrote:
-> Sorry for the late answer. I'm not sure if I understand the problem, it
-> "works as designed" that the range merging is done based on the output
-> columns, but I see that it was not really described as such. So I do
-> like the note that you added with the above mentioned commit.
-> 
-> However, regarding the --split option, I think it may be confusing at
-> least for human users, if an "lsmem -oRANGE" will now print more than
-> one range, even if this is now based on a "fixed" set of default columns
-> that are used for merging (but "subject to change" according to the man
-> page).
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ misc-utils/uuidgen.1 | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-OK, I think we can support both concepts :-) I have modified lsmem to:
-
- - follow output columns for split policy by default (= your original implementation)
- - the --split is optional and may be used to override the default behavior
-
-it means for humans it's probably less concussing and advanced users may
-define by --split another way how to generate the ranges.
-
-I think it's good compromise and it's backwardly compatible with
-the previous version. OK?
-
-If yes, I need to backport this change to RHEL7.5 :-)
-
-> I also do not really see the benefit for script usage, at least if we
-> define it as "expected behavior" to have the ranges merged based on the
-
-We want to keep it user friendly. The "expected behavior" (now
-default) forces you to parse lsmem output to filter out unnecessary 
-columns (if you care about RANGE only). 
-
-And in all our utils the --output option really control the output, but 
-no another behavior.
-
-    Karel
-
+diff --git a/misc-utils/uuidgen.1 b/misc-utils/uuidgen.1
+index 4b0fcb60c..d5e1a5675 100644
+--- a/misc-utils/uuidgen.1
++++ b/misc-utils/uuidgen.1
+@@ -27,19 +27,19 @@ will generate a random-based UUID if a high-quality random number
+ generator is present.  Otherwise, it will choose a time-based UUID.
+ It is possible to force the generation of one of these first two
+ UUID types by using the
+-.B \-r
++.B \-\-random
+ or
+-.B \-t
++.B \-\-time
+ options.
+ .PP
+ The third type of UUID is generated with the
+-.B \-m
++.B \-\-md5
+ or
+-.B \-s
+-options (MD5 or SHA1, respectively), followed by
+-.BR "\-n " \fInamespace
++.B \-\-sha1
++options, followed by
++\fB\-\-namespace\fR \fInamespace\fR
+ and
+-.BR "\-N " \fIname\fR.
++\fB\-\-name\fR \fIname\fR.
+ The \fInamespace\fR may either be a well-known UUID, or else
+ an alias to one of the well-known UUIDs defined in RFC 4122, that is
+ .BR @dns ,
+@@ -89,6 +89,8 @@ Generate the hash of the \fIname\fR.
+ Interpret name \fIname\fR as a hexidecimal string.
+ .SH "CONFORMING TO"
+ OSF DCE 1.1
++.SH EXAMPLES
++uuidgen \-\-sha1 \-\-namespace @dns \-\-name "www.example.com"
+ .SH AUTHOR
+ .B uuidgen
+ was written by Andreas Dilger for libuuid.
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.15.0
+
