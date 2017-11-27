@@ -1,92 +1,45 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Date: Mon, 6 Nov 2017 11:14:44 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Andreas Bombe <aeb@debian.org>, util-linux@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
-        Curtis Gedak <gedakc@gmail.com>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: Linux & FAT32 label
-Message-ID: <20171106101444.m5kxevutsdxx34kl@ws.net.home>
-References: <20171012092113.2bsb3pzv6un4xahr@pali>
- <20171012101311.zfvg6edfvszlujom@ws.net.home>
- <20171012204931.tfd2bhmwu5b6rbpz@pali>
- <20171016011243.zurh5jhb2y6mczx7@amos.fritz.box>
- <CAHp75VdWXHtCHiRxnbAidr9inehVC=av6gp7-jtJqN6WPYh4fg@mail.gmail.com>
- <20171105133929.7cscboxymmpkw634@pali>
- <CAHp75VfwLh9eH992nB1TiOVYOpEV6OSTGkbLau=eQRPeczeFyA@mail.gmail.com>
- <20171105140745.ze4ttkazeczrqsy7@pali>
- <CAHp75VfeNj16k_nMmLxVJTWLr=gwFUMXiga6FYmbLb3pvWJxaw@mail.gmail.com>
- <20171105143411.aynz5tr3igobuh6e@pali>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20171105143411.aynz5tr3igobuh6e@pali>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:58214 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753024AbdK0RGD (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 27 Nov 2017 12:06:03 -0500
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 90A7AC057FA1
+        for <util-linux@vger.kernel.org>; Mon, 27 Nov 2017 17:06:03 +0000 (UTC)
+Date: Tue, 28 Nov 2017 02:06:02 +0900 (JST)
+Message-Id: <20171128.020602.551125105345859543.yamato@redhat.com>
+To: kzak@redhat.com
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH v2 0/7] Add netnsid and nsfs columns to lsns
+From: Masatake YAMATO <yamato@redhat.com>
+In-Reply-To: <20171127164639.3thyhe7c6fohoeyt@ws.net.home>
+References: <20171124103110.17077-1-yamato@redhat.com>
+        <20171127164639.3thyhe7c6fohoeyt@ws.net.home>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Nov 05, 2017 at 03:34:11PM +0100, Pali Rohár wrote:
-> On Sunday 05 November 2017 16:25:54 Andy Shevchenko wrote:
-> > On Sun, Nov 5, 2017 at 4:07 PM, Pali Rohár <pali.rohar@gmail.com> wrote:
-> > > On Sunday 05 November 2017 15:56:53 Andy Shevchenko wrote:
-> > >> On Sun, Nov 5, 2017 at 3:39 PM, Pali Rohár <pali.rohar@gmail.com> wrote:
-> > >> > On Tuesday 31 October 2017 10:35:48 Andy Shevchenko wrote:
-> > >> >> On Mon, Oct 16, 2017 at 4:12 AM, Andreas Bombe <aeb@debian.org> wrote:
-> > >> >> > On Thu, Oct 12, 2017 at 10:49:31PM +0200, Pali Rohár wrote:
-> > >> >> >> On Thursday 12 October 2017 12:13:11 Karel Zak wrote:
-> > >>
-> > >> >> > I was worried that there might be some scripts or programs that expect
-> > >> >>
-> > >> >> If we really care about such scripts another approach might be to
-> > >> >> introduce a CLI switch to "spec compatible mode" to each tool and
-> > >> >> suggest in documentation to use it.
-> > >> >>
-> > >> >> There are also variants:
-> > >> >> - spec compatible
-> > >> >> - WinXX compatible
-> > >> >> - DOS compatible
-> > >> >> - etc
-> > >> >
-> > >> > I did tests with MS-DOS and Windows versions (results in previous
-> > >> > email), and they seems to be compatible how they read label.
-> > >> >
-> > >> > Based on results I would suggest to ignore label from the boot sector
-> > >> > when reading label.
-> > >>
-> > >> So, for tools which are not doing that to add
-> > >>
-> > >>  --ignore-boot-sector-label (or alike) [recommended]
-> > >>
-> > >> right?
-> > >>
-> > >> We don't actually know how many users (scripts) are relying on current
-> > >> behaviour.
-> > >> If there are only few, we may introduce backward compatibility switch
-> > >>
-> > >> --read-boot-sector-label
+Thank you!
 
-The current recommended way how to get filesystem label is to read it
-from udev db. For example this is the way how lsblk reads labels by
-default.
+Masatake YAMATO
 
-And udevd and some another tools are linked with libblkid. I don't
-see an elegant way how to support something like "read-boot-sector-label" 
-switch for the library to switch it on the fly.
-
-Maybe it would be good enough to change the default behavior and add 
-#ifdef to the library to switch to the old behavior. This is elegant
-way how to move the decision to downstream maintainers. They have more
-clue about importance of the FAT32 usage. I can imagine that for example
-for some embedded systems it's more important than for example for
-Fedora desktop. I prefer this solution.
-
-The another way is to add an option to blkid.conf, but it will make
-filesystems probing more complex and slow (we don't read the file
-during superblocks probing now). I'm sure udev guys will hate me with
-this solution. I'd like to avoid something like this.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+> On Fri, Nov 24, 2017 at 07:31:02PM +0900, Masatake YAMATO wrote:
+>>   lsns: add netnsid column
+>>   lsns: disable netnsid column by default
+>>   lsns: add a case for testing netnsid column
+>>   lsns: add nsfs column
+>>   lsns: add --nowrap(-W) option
+>>   lsns: add a case for testing nsfs column
+>>   man: write about using multi-line in NSFS cell of lsns
+> 
+> Merged; I have merged also some additional changes to cleanup a little
+> bit the code. Thanks!
+> 
+>     Karel
+> 
+> -- 
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
