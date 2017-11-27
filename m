@@ -1,44 +1,45 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 2/2] hwclock: fix debug regression
-To: Karel Zak <kzak@redhat.com>
-References: <d91b971a-29f1-3403-342b-2b837c2abcb7@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <975e1e00-fab6-e539-8b92-5388e33d7f16@gmx.com>
-Date: Sat, 18 Nov 2017 16:21:17 -0500
+Return-Path: linux-kernel-owner@vger.kernel.org
+Date: Mon, 27 Nov 2017 13:13:01 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Andreas Bombe <aeb@debian.org>, util-linux@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
+        Curtis Gedak <gedakc@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Pavel Machek <pavel@ucw.cz>
+Subject: Re: Linux & FAT32 label
+Message-ID: <20171127121301.b6obxoqr4azm3zvs@ws.net.home>
+References: <20171004153332.GA6696@pali>
+ <20171011212435.znmtdnsxcd5ectub@pali>
+ <20171105130608.5oww3b2fnnrwe7ok@pali>
+ <20171109212131.uxraxzwpvrlyfyys@pali>
+ <20171119124440.ffxx64zjmwedmtdp@pali>
+ <20171120111256.zqvmpzdcf6ncyi5m@ws.net.home>
+ <20171126191925.zowfpduhyic5w4n5@pali>
 MIME-Version: 1.0
-In-Reply-To: <d91b971a-29f1-3403-342b-2b837c2abcb7@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20171126191925.zowfpduhyic5w4n5@pali>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sun, Nov 26, 2017 at 08:19:25PM +0100, Pali Rohár wrote:
+> On Monday 20 November 2017 12:12:56 Karel Zak wrote:
+> > Go ahead and send patch :-) (also with LABEL_FATBOOT=)
+> 
+> Ok, I prepared patches for util-linux including LABEL_FATBOOT:
+> https://github.com/karelzak/util-linux/compare/master...pali:master
 
-commit f0a0ce7 makes debug mode implicit for the --test option.
+Seems good. I'll wait for official pull request. Thanks!
 
-Using the previous command syntax of --test and --debug
-together invokes the undocumented Level 2 debugging when
-setting the RTC. This can cause many thousands of lines of
-output like:
-1510967983.499968 < 1510967983.500000 (-0.000032)
+> I have not created official pull request on github yet as Andreas have
+> not decided yet about dosfstools/fatlabel...
 
-Fix: bump Level 2 debugging to Level 9, just before the
-other undocumented Level 10. This makes it improbable for
-the development debug levels to be accessed unintentionally.
+OK.
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- sys-utils/hwclock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+  Karel
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 8ff33474e..e5f90a44e 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -494,7 +494,7 @@ set_hardware_clock_exact(const struct hwclock_control *ctl,
- 			/* The retarget is handled at the end of the loop. */
- 		} else if (deltavstarget < 0) {
- 			/* deltavstarget < 0 if current time < target time */
--			if (ctl->debug >= 2)
-+			if (ctl->debug >= 9)
- 				printf(_("%ld.%06ld < %ld.%06ld (%.6f)\n"),
- 				       nowsystime.tv_sec,
- 				       nowsystime.tv_usec,
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
