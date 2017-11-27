@@ -1,44 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59510 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:49012 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755647AbdKBN0G (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 2 Nov 2017 09:26:06 -0400
-Date: Thu, 2 Nov 2017 14:26:02 +0100
+        id S1752796AbdK0Qqm (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 27 Nov 2017 11:46:42 -0500
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 9507B4ACA0
+        for <util-linux@vger.kernel.org>; Mon, 27 Nov 2017 16:46:42 +0000 (UTC)
+Date: Mon, 27 Nov 2017 17:46:39 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Tobias Stoeckmann <tobias@stoeckmann.org>
+To: Masatake YAMATO <yamato@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] fsck.cramfs: Fix bus error on broken file system.
-Message-ID: <20171102132602.uv72emiy745ql6rb@ws.net.home>
-References: <20171026200117.GA14920@localhost>
- <20171027054743.GA1907@localhost>
- <20171030104357.lpl7a6vu5snvhznn@ws.net.home>
- <20171030124953.GA2109@localhost>
+Subject: Re: [PATCH v2 0/7] Add netnsid and nsfs columns to lsns
+Message-ID: <20171127164639.3thyhe7c6fohoeyt@ws.net.home>
+References: <20171124103110.17077-1-yamato@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171030124953.GA2109@localhost>
+In-Reply-To: <20171124103110.17077-1-yamato@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Oct 30, 2017 at 01:49:53PM +0100, Tobias Stoeckmann wrote:
-> The utility fsck.cramfs is prone to a bus error on file systems for
-> big endian systems with non-standard header sizes. While calculating
-> the crc32 checksum, it does not properly handle a possible offset
-> for bootcodes, resulting in out of boundary access of mmap'ed area.
-> 
-> You can trigger the issue with the following commands:
-> 
-> $ mkdir -p cramfs-poc/root/subdir
-> $ cd cramfs-poc
-> $ mkfs.cramfs -p -N big root cramfs
-> $ echo -ne \\00\\x4c | dd of=cramfs bs=1 seek=518 count=2 conv=notrunc
-> $ fsck.cramfs cramfs
+On Fri, Nov 24, 2017 at 07:31:02PM +0900, Masatake YAMATO wrote:
+>   lsns: add netnsid column
+>   lsns: disable netnsid column by default
+>   lsns: add a case for testing netnsid column
+>   lsns: add nsfs column
+>   lsns: add --nowrap(-W) option
+>   lsns: add a case for testing nsfs column
+>   man: write about using multi-line in NSFS cell of lsns
 
-Added between tests.
-
->  disk-utils/fsck.cramfs.c | 13 +++++++------
->  1 file changed, 7 insertions(+), 6 deletions(-)
-
-Applied, thanks.
+Merged; I have merged also some additional changes to cleanup a little
+bit the code. Thanks!
 
     Karel
 
