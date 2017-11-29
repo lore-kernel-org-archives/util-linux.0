@@ -1,89 +1,95 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:59432 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753071AbdKXKbk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 24 Nov 2017 05:31:40 -0500
-From: Masatake YAMATO <yamato@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: yamato@redhat.com
-Subject: [PATCH v2 5/7] lsns: add --nowrap(-W) option
-Date: Fri, 24 Nov 2017 19:31:08 +0900
-Message-Id: <20171124103110.17077-7-yamato@redhat.com>
-In-Reply-To: <20171124103110.17077-1-yamato@redhat.com>
-References: <20171124103110.17077-1-yamato@redhat.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: linux-kernel-owner@vger.kernel.org
+Date: Thu, 30 Nov 2017 00:21:26 +0100
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+To: Andreas Bombe <aeb@debian.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: util-linux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
+        Curtis Gedak <gedakc@gmail.com>, Pavel Machek <pavel@ucw.cz>,
+        Karel Zak <kzak@redhat.com>
+Subject: Re: Linux & FAT32 label
+Message-ID: <20171129232126.3hymurdf7uedl6c2@pali>
+References: <20171004153332.GA6696@pali>
+ <20171011212435.znmtdnsxcd5ectub@pali>
+ <20171105130608.5oww3b2fnnrwe7ok@pali>
+ <20171109212131.uxraxzwpvrlyfyys@pali>
+ <20171119124440.ffxx64zjmwedmtdp@pali>
+ <20171120111256.zqvmpzdcf6ncyi5m@ws.net.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20171120111256.zqvmpzdcf6ncyi5m@ws.net.home>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This option forces lsns command not use
-multi-line presentation when printing a cell.
+On Monday 20 November 2017 12:12:56 Karel Zak wrote:
+> On Sun, Nov 19, 2017 at 01:44:40PM +0100, Pali Rohár wrote:
+> > On Thursday 09 November 2017 22:21:31 Pali Rohár wrote:
+> > > So from all tests and discussion I would propose new unification:
+> > > 
+> > > 1. Read label only from the root directory. If label in root directory
+> > >    is missing then disk would be treated as without label. Label from
+> > >    boot sector would not be read.
+> > > 
+> > >    --> Reason: Windows XP and mlabel ignores what is written in boot
+> > >        sector. Windows XP even do not update boot sector, so label
+> > >        stored in boot sector is incorrect after any change done by
+> > >        Windows XP.
+> > > 
+> > >        This logic is used by all tested MS-DOS and Windows versions,
+> > >        plus also by mtools on Linux.
+> > > 
+> > > 2. Write label to to both location, boot sector and root directory.
+> > > 
+> > >    --> Reason: MS-DOS 6.22, MS-DOS 7.10, Windows 98 and also mtools on
+> > >        Linux do this. This is also what is written in FAT specification.
+> > > 
+> > >        It also provides backward compatibility with old dosfslabel
+> > >        versions which read label only from boot sector.
+> > > 
+> > > 2. Process 'NO NAME    ' label in root directory as 'NO NAME' name. Not
+> > >    as empty label.
+> > > 
+> > >    --> Reason: 'NO NAME    ' is regular entry in root directory and both
+> > >        Windows XP and mlabel handle it in this way.
+> > > 
+> > > 3. Process 'NO NAME    ' label in boot directory as empty label. Not as
+> > >    label with name 'NO NAME'.
+> > > 
+> > >    --> Reason: On Windows XP when formatting empty disk and label is not
+> > >        specified then 'NO NAME    ' is stored to boot sector.
+> > > 
+> > >        Also in FAT specification is written that empty label is stored
+> > >        as 'NO NAME    '.
+> > > 
+> > > With this change we would get compatibility with MS-DOS, Windows (both
+> > > DOS-based and NT-based) and also with Linux mtools, modulo problems DOS
+> > > code page.
+> > > 
+> > > There are just two negatives:
+> > > 
+> > > 1) Labels set by old dosfslabel versions (which stored them only to boot
+> > >    sector) would not be visible. But they are already not visible on
+> > >    MS-DOS or Windows machines, and also via mlabel (from mtools).
+> > > 
+> > > 2) Behavior of blkid and fatlabel would be changed as both tools have
+> > >    different as proposed above, and based on tests they also differ each
+> > >    from other.
+> > > 
+> > > Andreas, Karel, what do you think about it?
+> > 
+> > Also for other people, do any have comments on my proposed solution?
+> 
+> Go ahead and send patch :-) (also with LABEL_FATBOOT=)
 
-Currently, it affects only NSFS column.
+Now I implemented changes for dosfstools project, pull request is there:
+https://github.com/dosfstools/dosfstools/pull/73
 
-Implementing this option is suggested by Karl Zak.
+Just waiting for the Andreas response...
 
-Signed-off-by: Masatake YAMATO <yamato@redhat.com>
----
- sys-utils/lsns.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+Andy, you wanted some manpage update. I did it in this commit:
+https://github.com/dosfstools/dosfstools/pull/73/commits/3f4f122b7ec8eeb4a0ae0db8e94b8829f51d1163
+Can you check if changes in manpage are OK?
 
-diff --git a/sys-utils/lsns.c b/sys-utils/lsns.c
-index c4d806e24..8af363317 100644
---- a/sys-utils/lsns.c
-+++ b/sys-utils/lsns.c
-@@ -173,7 +173,8 @@ struct lsns {
- 		     tree	: 1,
- 		     list	: 1,
- 		     notrunc	: 1,
--		     no_headings: 1;
-+		     no_headings: 1,
-+		     no_wrap    : 1;
- 
- 	struct libmnt_table *tab;
- };
-@@ -746,7 +747,7 @@ static void add_scols_line(struct lsns *ls, struct libscols_table *table,
- 			break;
- 		case COL_NSFS:
- 			nsfs_xasputs(&str, ns, ls->tab,
--				     ls->raw ? ',' : '\n');
-+				     (ls->raw || ls->no_wrap) ? ',' : '\n');
- 			break;
- 		default:
- 			break;
-@@ -786,6 +787,8 @@ static struct libscols_table *init_scols_table(struct lsns *ls)
- 		       flags &= ~SCOLS_FL_TRUNC;
- 		if (ls->tree && get_column_id(i) == COL_COMMAND)
- 			flags |= SCOLS_FL_TREE;
-+		if (ls->no_wrap)
-+			flags &= ~SCOLS_FL_WRAP;
- 
- 		cl = scols_table_new_column(tab, col->name, col->whint, flags);
- 		if (cl == NULL) {
-@@ -891,6 +894,7 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(_(" -p, --task <pid>       print process namespaces\n"), out);
- 	fputs(_(" -r, --raw              use the raw output format\n"), out);
- 	fputs(_(" -u, --notruncate       don't truncate text in columns\n"), out);
-+	fputs(_(" -W, --nowrap           don't use multi-line representation\n"), out);
- 	fputs(_(" -t, --type <name>      namespace type (mnt, net, ipc, user, pid, uts, cgroup)\n"), out);
- 
- 	fputs(USAGE_SEPARATOR, out);
-@@ -920,6 +924,7 @@ int main(int argc, char *argv[])
- 		{ "notruncate", no_argument,       NULL, 'u' },
- 		{ "version",    no_argument,       NULL, 'V' },
- 		{ "noheadings", no_argument,       NULL, 'n' },
-+		{ "nowrap",     no_argument,       NULL, 'W' },
- 		{ "list",       no_argument,       NULL, 'l' },
- 		{ "raw",        no_argument,       NULL, 'r' },
- 		{ "type",       required_argument, NULL, 't' },
-@@ -988,6 +993,9 @@ int main(int argc, char *argv[])
- 				enabling_netnsid = true;
- 			break;
- 		}
-+		case 'W':
-+			ls.no_wrap = 1;
-+			break;
- 		default:
- 			errtryhelp(EXIT_FAILURE);
- 		}
 -- 
-2.13.6
-
+Pali Rohár
+pali.rohar@gmail.com
