@@ -1,142 +1,76 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mailout.micron.com ([137.201.242.129]:43085 "EHLO
-        mailout.micron.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750741AbdKPFCY (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 16 Nov 2017 00:02:24 -0500
-From: <jgroves@micron.com>
-To: Karel Zak <kzak@redhat.com>
-CC: <util-linux@vger.kernel.org>, <John@Groves.net>,
-        John Groves <jgroves@micron.com>
-Subject: [PATCH v3 2/2] Add support for Micron mpool formatted drives
-Date: Wed, 15 Nov 2017 23:01:39 -0600
-Message-ID: <1510808499-7680-3-git-send-email-jgroves@micron.com>
-In-Reply-To: <1510808499-7680-1-git-send-email-jgroves@micron.com>
-References: <1510808499-7680-1-git-send-email-jgroves@micron.com>
+Received: from mx1.redhat.com ([209.132.183.28]:29861 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751125AbdK3OWI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 30 Nov 2017 09:22:08 -0500
+Date: Thu, 30 Nov 2017 15:22:03 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Alexey Gladkov <legion@altlinux.ru>
+Cc: util-linux@vger.kernel.org
+Subject: Re: mount(8) does not support cap_sys_admin
+Message-ID: <20171130142203.souwvryy3rt5pmho@ws.net.home>
+References: <20170822082047.eczufv3naqlvulsn@cs.unibo.it>
+ <20170822084011.vzahylh7qxvcmj3b@cs.unibo.it>
+ <20170822091538.f6q7ihuhskc7hw6u@ws.net.home>
+ <20170822103158.GB2942@comp-core-i7-2640m-0182e6.fortress>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170822103158.GB2942@comp-core-i7-2640m-0182e6.fortress>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: John Groves <jgroves@micron.com>
+On Tue, Aug 22, 2017 at 12:31:58PM +0200, Alexey Gladkov wrote:
+> On Tue, Aug 22, 2017 at 11:15:38AM +0200, Karel Zak wrote:
+> > On Tue, Aug 22, 2017 at 10:40:11AM +0200, Renzo Davoli wrote:
+> > > mount command does not seem to support the cap_sys_admin capability.
+> > > 
+> > > In fact the command fails when the mount system call would succeeds
+> > > for operation permitted to users (e.g. bind mounts in user-namespaces)
+> > > 
+> > > For example using userbindmount
+> > > https://github.com/rd235/userbindmount
+> > > 
+> > > $ userbindmount -s --
+> > > $ mount --bind /tmp/resolv.conf /etc/resolv.conf 
+> > > mount: only root can use "--bind" option
+> > > $ busybox mount --bind /tmp/resolv.conf /etc/resolv.conf 
 
----
- libblkid/src/Makemodule.am             |  1 +
- libblkid/src/superblocks/mpool.c       | 66 ++++++++++++++++++++++++++++++++++
- libblkid/src/superblocks/superblocks.c |  3 +-
- libblkid/src/superblocks/superblocks.h |  1 +
- 4 files changed, 70 insertions(+), 1 deletion(-)
- create mode 100644 libblkid/src/superblocks/mpool.c
+I try to play with this finally and I'm not sure if I follow you.
 
-diff --git a/libblkid/src/Makemodule.am b/libblkid/src/Makemodule.am
-index 1fa00e9..ceece42 100644
---- a/libblkid/src/Makemodule.am
-+++ b/libblkid/src/Makemodule.am
-@@ -70,6 +70,7 @@ libblkid_la_SOURCES = \
- 	libblkid/src/superblocks/luks.c \
- 	libblkid/src/superblocks/lvm.c \
- 	libblkid/src/superblocks/minix.c \
-+	libblkid/src/superblocks/mpool.c \
- 	libblkid/src/superblocks/netware.c \
- 	libblkid/src/superblocks/nilfs.c \
- 	libblkid/src/superblocks/ntfs.c \
-diff --git a/libblkid/src/superblocks/mpool.c b/libblkid/src/superblocks/mpool.c
-new file mode 100644
-index 0000000..5f30fd4
---- /dev/null
-+++ b/libblkid/src/superblocks/mpool.c
-@@ -0,0 +1,66 @@
-+/*
-+ * Copyright (C) 2016 Micron Technology, Inc.
-+ *
-+ * This file may be redistributed under the terms of the
-+ * GNU Lesser General Public License.
-+ */
-+
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <string.h>
-+#include <stdint.h>
-+#include "crc32c.h"
-+#include "superblocks.h"
-+
-+#include <uuid.h>
-+
-+#define MAX_MPOOL_NAME_LEN 32
-+
-+struct omf_sb_descriptor {
-+	uint64_t        osb_magic;
-+	uint8_t         osb_name[MAX_MPOOL_NAME_LEN];
-+	uuid_t          osb_poolid; /* UUID of pool this drive belongs to */
-+	uint16_t        osb_vers;
-+	uint32_t        osb_gen;
-+	uint32_t        osb_cksum1; /* crc32c of the preceding fields */
-+} __attribute__((packed));
-+
-+static int probe_mpool(blkid_probe pr, const struct blkid_idmag *mag)
-+{
-+	struct omf_sb_descriptor *osd;
-+	uint32_t sb_crc;
-+
-+	osd = blkid_probe_get_sb(pr, mag, struct omf_sb_descriptor);
-+	if (!osd)
-+		return errno ? -errno : 1;
-+
-+	sb_crc = crc32c(~0L, (const void *)osd,
-+			offsetof(struct omf_sb_descriptor, osb_cksum1));
-+	sb_crc ^= ~0L;
-+
-+	if (!blkid_probe_verify_csum(pr, sb_crc, osd->osb_cksum1))
-+		return 1;
-+
-+	blkid_probe_set_label(pr, osd->osb_name, sizeof(osd->osb_name));
-+	blkid_probe_set_uuid(pr, osd->osb_poolid);
-+
-+	return 0;
-+}
-+
-+/**
-+ * Superblock (sb) -- magic = ASCII "mpoolDev"
-+ */
-+#define MPOOL_SB_MAGIC "\x6D\x70\x6f\x6f\x6c\x44\x65\x76"
-+
-+const struct blkid_idinfo mpool_idinfo =
-+{
-+	.name		= "mpool",
-+	.usage		= BLKID_USAGE_FILESYSTEM,
-+	.probefunc	= probe_mpool,
-+	.magics		=
-+	{
-+		{ .magic = MPOOL_SB_MAGIC, .len = 8},
-+		{ NULL }
-+	}
-+};
-diff --git a/libblkid/src/superblocks/superblocks.c b/libblkid/src/superblocks/superblocks.c
-index 341cd8a..3123d53 100644
---- a/libblkid/src/superblocks/superblocks.c
-+++ b/libblkid/src/superblocks/superblocks.c
-@@ -156,7 +156,8 @@ static const struct blkid_idinfo *idinfos[] =
- 	&befs_idinfo,
- 	&nilfs2_idinfo,
- 	&exfat_idinfo,
--	&f2fs_idinfo
-+	&f2fs_idinfo,
-+	&mpool_idinfo
- };
- 
- /*
-diff --git a/libblkid/src/superblocks/superblocks.h b/libblkid/src/superblocks/superblocks.h
-index 79dba1a..5b5c6c2 100644
---- a/libblkid/src/superblocks/superblocks.h
-+++ b/libblkid/src/superblocks/superblocks.h
-@@ -75,6 +75,7 @@ extern const struct blkid_idinfo nilfs2_idinfo;
- extern const struct blkid_idinfo exfat_idinfo;
- extern const struct blkid_idinfo f2fs_idinfo;
- extern const struct blkid_idinfo bcache_idinfo;
-+extern const struct blkid_idinfo mpool_idinfo;
- 
- /*
-  * superblock functions
+You have user namespace, why do you NOT map your euid to root?
+
+ $ echo "nameserver 9.9.9.9" > /tmp/resolv.conf
+ $ unshare --mount --user --map-root-user
+ # mount --bind /tmp/resolv.conf /etc/resolv.conf
+ # cat /etc/resolv.conf
+ nameserver 9.9.9.9
+
+your userbindmount map user to user, what is the advantage?
+
+> > Frankly, I have never tried it. Maybe it will not so big issue to try
+> > it, test it and describe possible limitation in the man page. I'll add
+> > this to our TODO list.
+> 
+> This issue makes it impossible to use this libmount when you create a new
+> container. I mean that once you create namespace you can't mount /proc,
+> /sys, etc. Therefore, the parsing of the flags and checks you have to do
+> manually, rather than use an existing library.
+
+You can do what you want to do if you're root in your user namespace.
+
+I'm not sure what is expected from mount/libmount in regard to
+CAP_SYS_ADMIN. The reason why euid=0 is required by mount(8) is that
+years ago some people have installed non-suid mount(8) with
+CAP_SYS_ADMIN. 
+
+See http://github.com/karelzak/util-linux/commit/0959f8063bf9b4d576822fe742a2bc9f5d1d1dbc
+
+Unfortunately, this CAP is lightweight version of suid, so we really
+don't want to close eyes and follow user wishes... I guess we still
+need to verify things against fstab etc.
+
+    Karel
+
 -- 
-2.9.3
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
