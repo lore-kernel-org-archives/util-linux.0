@@ -1,56 +1,46 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:60435 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754229AbdLRAru (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 17 Dec 2017 19:47:50 -0500
-Subject: Fixes for commit 3c49b23
-To: Karel Zak <kzak@redhat.com>,
-        util-linux <util-linux@vger.kernel.org>
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <72856395-656c-b67d-1b28-f121e3f05b11@gmx.com>
-Date: Sun, 17 Dec 2017 19:47:49 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Received: from mail-wr0-f195.google.com ([209.85.128.195]:41011 "EHLO
+        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751177AbdLCMvW (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 3 Dec 2017 07:51:22 -0500
+Received: by mail-wr0-f195.google.com with SMTP id z18so14464038wrb.8
+        for <util-linux@vger.kernel.org>; Sun, 03 Dec 2017 04:51:21 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 1/4] vipw: do not let editor to inherit open file descriptors
+Date: Sun,  3 Dec 2017 12:51:14 +0000
+Message-Id: <20171203125117.28159-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ login-utils/vipw.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-So, there are some issues with commit 3c49b23
-
-* it contains multi-byte characters (which is what drew me to reading it).
-* it truncates one very important piece of the formula: ". . . (mod 7)."
-* it explains the values for 'e', but there is no 'e' in the code.
-* it doesn't include a row resolving 'e' in the table, so it is not
-   obvious what it relates to in the code.
-* without citing it as an external reference, the comment language is confusing.
-
-Anyway, I took a shot at trying to write a comment:
-
-	 /*
-	 * The magic constants in the reform[] array are, in a simplified
-	 * sense, the remaining days after slicing into one week periods the total
-	 * days from the beginning of the year to the target month. That is,
-	 * weeks + reform[] days gets us to the target month. The exception is,
-	 * that for the months past February 'DOY - 1' must be used.
-	 *
-	 *   DoY (Day of Year): total days to the target month
-	 *
-	 *   Month            1  2  3  4   5   6   7   8   9  10  11  12
-	 *   DoY              0 31 59 90 120 151 181 212 243 273 304 334
-	 *   DoY % 7          0  3
-	 *   DoY - 1 % 7      - --  2  5   0   3   5   1   4   6   2   4
-	 *       reform[] = { 0, 3, 2, 5,  0,  3,  5,  1,  4,  6,  2,  4 };
-	 *
-	 *  Note: these calculations are for non leap years.
-	 */
-
-I cannot send this as a patch, because my system mangles the multi-byte
-characters so it won't apply cleanly.
-
-On a somewhat related note, multi-byte characters are also making it
-into the commit log; it's not a big deal I suppose, but it sure makes a
-mess for systems that don't support them.
-
-
-
+diff --git a/login-utils/vipw.c b/login-utils/vipw.c
+index b7650de8b..9b7696942 100644
+--- a/login-utils/vipw.c
++++ b/login-utils/vipw.c
+@@ -257,7 +257,7 @@ static void edit_file(int is_shadow)
+ 	if (lckpwdf() < 0)
+ 		err(EXIT_FAILURE, _("cannot get lock"));
+ 
+-	passwd_file = open(orig_file, O_RDONLY, 0);
++	passwd_file = open(orig_file, O_RDONLY | O_CLOEXEC, 0);
+ 	if (passwd_file < 0)
+ 		err(EXIT_FAILURE, _("cannot open %s"), orig_file);
+ 	tmp_fd = pw_tmpfile(passwd_file);
+@@ -275,7 +275,7 @@ static void edit_file(int is_shadow)
+ 	if (end.st_nlink == 0) {
+ 		if (close_stream(tmp_fd) != 0)
+ 			err(EXIT_FAILURE, _("write error"));
+-		tmp_fd = fopen(tmp_file, "r");
++		tmp_fd = fopen(tmp_file, "r" UL_CLOEXECSTR);
+ 		if (!tmp_fd)
+ 			err(EXIT_FAILURE, _("cannot open %s"), tmp_file);
+ 		if (fstat(fileno(tmp_fd), &end))
+-- 
+2.15.1
 
