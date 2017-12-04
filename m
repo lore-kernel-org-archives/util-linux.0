@@ -1,63 +1,81 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:52628 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751726AbdLJPsp (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 10 Dec 2017 10:48:45 -0500
-Subject: [PATCH 1/4] lib/timeutils.c: bug fix Segmentation fault
-To: Karel Zak <kzak@redhat.com>
-References: <9da0ec7b-f109-1162-6677-1bc6f8635583@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <b8641e86-01aa-f2ef-e20c-f7b3c583a12a@gmx.com>
-Date: Sun, 10 Dec 2017 10:48:46 -0500
+Return-Path: kerolasa@gmail.com
 MIME-Version: 1.0
-In-Reply-To: <9da0ec7b-f109-1162-6677-1bc6f8635583@gmx.com>
-Content-Type: text/plain; charset=windows-1252
-Sender: util-linux-owner@vger.kernel.org
+Reply-To: kerolasa@gmail.com
+Sender: kerolasa@gmail.com
+In-Reply-To: <20171204120404.aa4p6p2o3goupsq3@ws.net.home>
+References: <20171203125117.28159-1-kerolasa@iki.fi> <20171203125117.28159-3-kerolasa@iki.fi>
+ <20171204120404.aa4p6p2o3goupsq3@ws.net.home>
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Mon, 4 Dec 2017 13:20:01 +0000
+Message-ID: <CAG27Bk3ScbYMxT3xi8x6tmx6map3_gRbddbU1p9nN=k3NJQMuQ@mail.gmail.com>
+Subject: Re: [PATCH 3/4] docs: improve setarch(8) manual page
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <util-linux.vger.kernel.org>
 
+On 4 December 2017 at 12:04, Karel Zak <kzak@redhat.com> wrote:
+> On Sun, Dec 03, 2017 at 12:51:16PM +0000, Sami Kerola wrote:
+>>  \fB\-3\fR, \fB\-\-3gb\fR
+>> -Specifies that processes should use a maximum of 3GB of address space on systems where it is supported (ADDR_LIMIT_3GB).
+>> +Specifies
+>> +.I program
+>> +should use a maximum of 3GB of address space.  Supported on x86 (as of
+>> +2017-12-02).  Turns on ADDR_LIMIT_3GB.
+>
+> What is the magic day 2017-12-02 ?
+>
+> Frankly, I don't like dates in docs. It's better to use versions
+> "since util-linux v2.31" or "since Linux v4.32", etc.
 
-Use reentrant time functions to avoid sending a NULL pointer to
-format_iso_time() (and to be reentrant ;). Followup commits test for
-errors and tm_year wrapping (illustrated below).
+Fair enough. I will figure out how to make this better.
 
-hwclock --utc --noadjfile --predict --date '67768034678849400 seconds'
-Segmentation fault
+>>  \fB\-\-4gb\fR
+>> -Ignored (for backward compatibility only).
+>> +Ignored for backward compatibility only.
+>
+> Dmitry is right, the old version is better.
 
-Patched
-hwclock --utc --noadjfile --predict --date '67768034678849400 seconds'
--2147481748-01-00 00:10:46.000000-05:00
+How about text:
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- lib/timeutils.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+This option is no-op compatibility with an old Debian setarch
+implementation. Please do not use.
 
-diff --git a/lib/timeutils.c b/lib/timeutils.c
-index fdaa2d4a9..994073700 100644
---- a/lib/timeutils.c
-+++ b/lib/timeutils.c
-@@ -462,9 +462,9 @@ int strtimeval_iso(struct timeval *tv, int flags, char *buf, size_t bufsz)
- 	struct tm tm;
- 
- 	if (flags & ISO_GMTIME)
--		tm = *gmtime(&tv->tv_sec);
-+		gmtime_r(&tv->tv_sec, &tm);
- 	else
--		tm = *localtime(&tv->tv_sec);
-+		localtime_r(&tv->tv_sec, &tm);
- 	return format_iso_time(&tm, tv->tv_usec, flags, buf, bufsz);
- }
- 
-@@ -480,9 +480,9 @@ int strtime_iso(const time_t *t, int flags, char *buf, size_t bufsz)
- 	struct tm tm;
- 
- 	if (flags & ISO_GMTIME)
--		tm = *gmtime(t);
-+		gmtime_r(t, &tm);
- 	else
--		tm = *localtime(t);
-+		localtime_r(t, &tm);
- 	return format_iso_time(&tm, 0, flags, buf, bufsz);
- }
- 
+>> +This makes
+>> +.BR select (2),
+>> +.BR pselect (2),
+>> +and
+>> +.BR ppoll (2)
+>> +system calls preserve the timeout value instead of storing the unslept time
+>> +when interrupted by a signal handler.  Use when
+>> +.I program
+>> +depends on this behavior, and the source code is not available to be fixed.
+>
+> See Dmitry's note ;-)
+
+How about this:
+
+-- snip
+This makes
+.BR select (2),
+.BR pselect (2),
+and
+.BR ppoll (2)
+system calls preserve the timeout value instead of storing the unslept time
+when interrupted by a signal handler. Use when
+.I program
+depends on this behavior. For more details see the timeout description from
+.BR select (2)
+manual page. Turns on STICKY_TIMEOUTS.
+-- snip
+
+My remote git has the latest.
+
+https://github.com/kerolasa/lelux-utiliteetit/blob/2017wk48/sys-utils/setarch.8
+
+And that branch also has FIXME item near FDPIC_FUNCPTRS description.
+Proposal(s) welcome how to make that text understandable.
+
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
