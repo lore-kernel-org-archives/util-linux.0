@@ -1,39 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:58158 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.22]:63478 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752793AbdLRMII (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 18 Dec 2017 07:08:08 -0500
-Date: Mon, 18 Dec 2017 13:08:04 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+        id S1752009AbdLJPrF (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 10 Dec 2017 10:47:05 -0500
+Subject: [PATCH 0/4] Pull Request
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] libblkid: fix overflow in implicit constant conversion
-Message-ID: <20171218120804.nt3qggkudc3xjghc@ws.net.home>
-References: <20171217064550.7762-1-kerolasa@iki.fi>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <9da0ec7b-f109-1162-6677-1bc6f8635583@gmx.com>
+Date: Sun, 10 Dec 2017 10:47:04 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171217064550.7762-1-kerolasa@iki.fi>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Dec 17, 2017 at 06:45:50AM +0000, Sami Kerola wrote:
-> -static const char bcache_magic[] = {
-> +static const uint8_t bcache_magic[] = {
->  	0xc6, 0x85, 0x73, 0xf6, 0x4e, 0x1a, 0x45, 0xca,
->  	0x82, 0x65, 0xf5, 0x7f, 0x48, 0xba, 0x6d, 0x81
->  };
 
-Well, libblkid assumes magic number as a string, and it seems we do
-not need the variable bcache_magic[] in the code at all. So I have
-committed:
+The following changes since commit 44d753407d6b751f022ef234c85785ccd99c5590:
 
-    -#define BCACHE_SB_MAGIC     bcache_magic
-    +#define BCACHE_SB_MAGIC     "\xc6\x85\x73\xf6\x4e\x1a\x45\xca\x82\x65\xf5\x7f\x48\xba\x6d\x81"
+  tests: unlocks on failed ts_scsi_debug_init (2017-12-07 15:08:29 +0100)
 
-etc.
+are available in the git repository at:
 
-  Karel
+  git@github.com:jwpi/util-linux.git 171121
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+for you to fetch changes up to 6cdc7b9c02b251120eb014c4dbc2387d47e7fb46:
+
+  lib/timeutils.c: warn format_iso_time() overflow (2017-12-09 18:43:29 -0500)
+
+----------------------------------------------------------------
+J William Piggott (4):
+      lib/timeutils.c: bug fix Segmentation fault
+      lib/timeutils.c:strxxx_iso: test conversion errors
+      lib/timeutils.c:strxxx_iso: do not wrap tm_year
+      lib/timeutils.c: warn format_iso_time() overflow
+
+ lib/timeutils.c     | 46 +++++++++++++++++++++++++++++++---------------
+ sys-utils/hwclock.c |  5 ++---
+ 2 files changed, 33 insertions(+), 18 deletions(-)
