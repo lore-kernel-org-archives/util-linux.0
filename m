@@ -1,45 +1,103 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:35742 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750832AbdLQGpy (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 17 Dec 2017 01:45:54 -0500
-Received: by mail-wm0-f65.google.com with SMTP id f9so24214660wmh.0
-        for <util-linux@vger.kernel.org>; Sat, 16 Dec 2017 22:45:54 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] libblkid: fix overflow in implicit constant conversion
-Date: Sun, 17 Dec 2017 06:45:50 +0000
-Message-Id: <20171217064550.7762-1-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 4/4] lib/timeutils.c: warn format_iso_time() overflow
+To: Karel Zak <kzak@redhat.com>
+References: <9da0ec7b-f109-1162-6677-1bc6f8635583@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <c90b81c3-24b4-e2f8-23ea-55ce75085634@gmx.com>
+Date: Sun, 10 Dec 2017 10:56:41 -0500
+MIME-Version: 1.0
+In-Reply-To: <9da0ec7b-f109-1162-6677-1bc6f8635583@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+
+Print a message when the format_iso_time() buffer is exceeded, because
+there is more than one type of failure that returns -1.
+
+Also remove the corresponding message from hwclock.c.
+
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
- libblkid/src/superblocks/bcache.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ lib/timeutils.c     | 15 +++++++++------
+ sys-utils/hwclock.c |  5 ++---
+ 2 files changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/libblkid/src/superblocks/bcache.c b/libblkid/src/superblocks/bcache.c
-index 82c1a8008..f9273b97a 100644
---- a/libblkid/src/superblocks/bcache.c
-+++ b/libblkid/src/superblocks/bcache.c
-@@ -10,6 +10,7 @@
+diff --git a/lib/timeutils.c b/lib/timeutils.c
+index a7459d2b6..9c286aebc 100644
+--- a/lib/timeutils.c
++++ b/lib/timeutils.c
+@@ -410,14 +410,14 @@ static int format_iso_time(struct tm *tm, suseconds_t usec, int flags, char *buf
+ 			       tm->tm_year + (long) 1900,
+ 			       tm->tm_mon + 1, tm->tm_mday);
+ 		if (len < 0 || (size_t) len > bufsz)
+-			return -1;
++			goto err;
+ 		bufsz -= len;
+ 		p += len;
+ 	}
  
- #include <stddef.h>
- #include <stdio.h>
-+#include <stdint.h>
+ 	if ((flags & ISO_DATE) && (flags & ISO_TIME)) {
+ 		if (bufsz < 1)
+-			return -1;
++			goto err;
+ 		*p++ = (flags & ISO_T) ? 'T' : ' ';
+ 		bufsz--;
+ 	}
+@@ -426,7 +426,7 @@ static int format_iso_time(struct tm *tm, suseconds_t usec, int flags, char *buf
+ 		len = snprintf(p, bufsz, "%02d:%02d:%02d", tm->tm_hour,
+ 			       tm->tm_min, tm->tm_sec);
+ 		if (len < 0 || (size_t) len > bufsz)
+-			return -1;
++			goto err;
+ 		bufsz -= len;
+ 		p += len;
+ 	}
+@@ -434,14 +434,14 @@ static int format_iso_time(struct tm *tm, suseconds_t usec, int flags, char *buf
+ 	if (flags & ISO_DOTUSEC) {
+ 		len = snprintf(p, bufsz, ".%06ld", (long) usec);
+ 		if (len < 0 || (size_t) len > bufsz)
+-			return -1;
++			goto err;
+ 		bufsz -= len;
+ 		p += len;
  
- #include "superblocks.h"
+ 	} else if (flags & ISO_COMMAUSEC) {
+ 		len = snprintf(p, bufsz, ",%06ld", (long) usec);
+ 		if (len < 0 || (size_t) len > bufsz)
+-			return -1;
++			goto err;
+ 		bufsz -= len;
+ 		p += len;
+ 	}
+@@ -452,9 +452,12 @@ static int format_iso_time(struct tm *tm, suseconds_t usec, int flags, char *buf
+ 		int zmin  = abs(tmin % 60);
+ 		len = snprintf(p, bufsz, "%+03d:%02d", zhour,zmin);
+ 		if (len < 0 || (size_t) len > bufsz)
+-			return -1;
++			goto err;
+ 	}
+ 	return 0;
++ err:
++	warnx(_("format_iso_time: buffer overflow."));
++	return -1;
+ }
  
-@@ -19,7 +20,7 @@
- #define node(i, j)         ((i)->d + (j))
- #define end(i)             node(i, le16_to_cpu((i)->keys))
+ /* timeval to ISO 8601 */
+diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
+index e5f90a44e..71d2b17b7 100644
+--- a/sys-utils/hwclock.c
++++ b/sys-utils/hwclock.c
+@@ -556,10 +556,9 @@ display_time(struct timeval hwctime)
+ {
+ 	char buf[ISO_BUFSIZ];
  
--static const char bcache_magic[] = {
-+static const uint8_t bcache_magic[] = {
- 	0xc6, 0x85, 0x73, 0xf6, 0x4e, 0x1a, 0x45, 0xca,
- 	0x82, 0x65, 0xf5, 0x7f, 0x48, 0xba, 0x6d, 0x81
- };
--- 
-2.15.1
-
+-	if (strtimeval_iso(&hwctime, ISO_TIMESTAMP_DOT, buf, sizeof(buf))) {
+-		warnx(_("iso-8601 format overflow"));
++	if (strtimeval_iso(&hwctime, ISO_TIMESTAMP_DOT, buf, sizeof(buf)))
+ 		return EXIT_FAILURE;
+-	}
++
+ 	printf("%s\n", buf);
+ 	return EXIT_SUCCESS;
+ }
