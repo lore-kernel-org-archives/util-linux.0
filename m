@@ -1,127 +1,120 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:44624 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751619AbdLCMvZ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 3 Dec 2017 07:51:25 -0500
-Received: by mail-wm0-f66.google.com with SMTP id t8so1400711wmc.3
-        for <util-linux@vger.kernel.org>; Sun, 03 Dec 2017 04:51:24 -0800 (PST)
+Received: from mail-io0-f196.google.com ([209.85.223.196]:37065 "EHLO
+        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751452AbdLJKyN (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 10 Dec 2017 05:54:13 -0500
+Received: by mail-io0-f196.google.com with SMTP id d16so6721104iob.4
+        for <util-linux@vger.kernel.org>; Sun, 10 Dec 2017 02:54:13 -0800 (PST)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20171209012937.GA27446@altlinux.org>
+References: <20171203125117.28159-1-kerolasa@iki.fi> <20171203125117.28159-3-kerolasa@iki.fi>
+ <20171204120404.aa4p6p2o3goupsq3@ws.net.home> <CAG27Bk3ScbYMxT3xi8x6tmx6map3_gRbddbU1p9nN=k3NJQMuQ@mail.gmail.com>
+ <20171209012937.GA27446@altlinux.org>
 From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 3/4] docs: improve setarch(8) manual page
-Date: Sun,  3 Dec 2017 12:51:16 +0000
-Message-Id: <20171203125117.28159-3-kerolasa@iki.fi>
-In-Reply-To: <20171203125117.28159-1-kerolasa@iki.fi>
-References: <20171203125117.28159-1-kerolasa@iki.fi>
+Date: Sun, 10 Dec 2017 10:54:11 +0000
+Message-ID: <CAG27Bk18wEs=ryrt_dY34HqkV26YzHjEC13ykrLbtgn7Pmt3Zw@mail.gmail.com>
+Subject: Re: [PATCH 3/4] docs: improve setarch(8) manual page
+To: Sami Kerola <kerolasa@iki.fi>, Karel Zak <kzak@redhat.com>,
+        util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Add more information when and why one might want to use various options.
+On 9 December 2017 at 01:29, Dmitry V. Levin <ldv@altlinux.org> wrote:
+> On Mon, Dec 04, 2017 at 01:20:01PM +0000, Sami Kerola wrote:
+>> On 4 December 2017 at 12:04, Karel Zak wrote:
+>> > On Sun, Dec 03, 2017 at 12:51:16PM +0000, Sami Kerola wrote:
+> [...]
+>> >>  \fB\-\-4gb\fR
+>> >> -Ignored (for backward compatibility only).
+>> >> +Ignored for backward compatibility only.
+>> >
+>> > Dmitry is right, the old version is better.
+>>
+>> How about text:
+>>
+>> This option is no-op compatibility with an old Debian setarch
+>> implementation. Please do not use.
+>
+> Let's add a description that is informative but without giving advice.
+> For example,
+>
+> "This option has no effect.  It is retained for backward compatibility only,
+> and may be removed in future releases."
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/setarch.8 | 51 +++++++++++++++++++++++++++++++++++++++++----------
- 1 file changed, 41 insertions(+), 10 deletions(-)
+Hi Dmitry,
 
-diff --git a/sys-utils/setarch.8 b/sys-utils/setarch.8
-index 73874c8b6..ce7ba97ac 100644
---- a/sys-utils/setarch.8
-+++ b/sys-utils/setarch.8
-@@ -1,4 +1,4 @@
--.TH SETARCH 8 "December 2014" "util-linux" "System Administration"
-+.TH SETARCH 8 "December 2017" "util-linux" "System Administration"
- .SH NAME
- setarch \- change reported architecture in new program environment and set personality flags
- .SH SYNOPSIS
-@@ -30,41 +30,70 @@ can actually set each of these architectures depends on the running kernel.
- .TP
- .B \-\-uname\-2.6
- Causes the \fIprogram\fR to see a kernel version number beginning with 2.6.
-+Turns on UNAME26.
- .TP
- .BR \-v , " \-\-verbose"
- Be verbose.
- .TP
- \fB\-3\fR, \fB\-\-3gb\fR
--Specifies that processes should use a maximum of 3GB of address space on systems where it is supported (ADDR_LIMIT_3GB).
-+Specifies
-+.I program
-+should use a maximum of 3GB of address space.  Supported on x86 (as of
-+2017-12-02).  Turns on ADDR_LIMIT_3GB.
- .TP
- \fB\-\-4gb\fR
--Ignored (for backward compatibility only).
-+Ignored for backward compatibility only.
- .TP
- \fB\-B\fR, \fB\-\-32bit\fR
--Turns on ADDR_LIMIT_32BIT.
-+Limit the address space to 32 bits to emulate hardware.  Supported on ARM
-+and Alpha (as of 2017-12-02).  Turns on ADDR_LIMIT_32BIT.
- .TP
- \fB\-F\fR, \fB\-\-fdpic\-funcptrs\fR
--Userspace function pointers point to descriptors (turns on FDPIC_FUNCPTRS).
-+User-space function pointers to signal handlers point.  Use when kernel does
-+not have MMU.  Supported on ARM, Blackfin, Fujitsu FR-V, and SuperH (as of
-+2017-12-02).  Turns on FDPIC_FUNCPTRS.
- .TP
- \fB\-I\fR, \fB\-\-short\-inode\fR
--Turns on SHORT_INODE.
-+Obsolete bug emulation flag.  Turns on SHORT_INODE.
- .TP
- \fB\-L\fR, \fB\-\-addr\-compat\-layout\fR
--Changes the way virtual memory is allocated (turns on the ADDR_COMPAT_LAYOUT).
-+Provide legacy virtual address space layout.  Use when the
-+.I program
-+binary does not have PT_GNU_STACK ELF header.  Turns on
-+ADDR_COMPAT_LAYOUT.
- .TP
- \fB\-R\fR, \fB\-\-addr\-no\-randomize\fR
--Disables randomization of the virtual address space (turns on ADDR_NO_RANDOMIZE).
-+Disables randomization of the virtual address space.  Turns on
-+ADDR_NO_RANDOMIZE.
- .TP
- \fB\-S\fR, \fB\-\-whole\-seconds\fR
--Turns on WHOLE_SECONDS.
-+Obsolete bug emulation flag.  Turns on WHOLE_SECONDS.
- .TP
- \fB\-T\fR, \fB\-\-sticky\-timeouts\fR
-+This makes
-+.BR select (2),
-+.BR pselect (2),
-+and
-+.BR ppoll (2)
-+system calls preserve the timeout value instead of storing the unslept time
-+when interrupted by a signal handler.  Use when
-+.I program
-+depends on this behavior, and the source code is not available to be fixed.
- Turns on STICKY_TIMEOUTS.
- .TP
- \fB\-X\fR, \fB\-\-read\-implies\-exec\fR
--Turns on READ_IMPLIES_EXEC.
-+If this is set then
-+.BR mmap (3)
-+PROT_READ will also add the PROT_EXEC bit - as expected by legacy x86
-+binaries.  Notice that the ELF loader will automatically set this bit when
-+it encounters a legacy binary.  Turns on READ_IMPLIES_EXEC.
- .TP
- \fB\-Z\fR, \fB\-\-mmap\-page\-zero\fR
-+SVr4 bug emulation that will set
-+.BR mmap (3)
-+page zero as read-only.  Use when
-+.I program
-+depends on this behavior, and the source code is not available to be fixed.
- Turns on MMAP_PAGE_ZERO.
- .TP
- .BR \-V , " \-\-version"
-@@ -86,6 +115,8 @@ Elliot Lee
- .MT jnovy@redhat.com
- Jindrich Novy
- .ME
-+.SH "SEE ALSO"
-+.BR personality (2)
- .SH AVAILABILITY
- The setarch command is part of the util-linux package and is available from
- .UR https://\:www.kernel.org\:/pub\:/linux\:/utils\:/util-linux/
+Your text is better. Added to most recent version of this change:
+
+https://github.com/kerolasa/lelux-utiliteetit/commit/e9ebe4c52755edc736b2c440c8dc3b93678e69d1
+
+>> >> +This makes
+>> >> +.BR select (2),
+>> >> +.BR pselect (2),
+>> >> +and
+>> >> +.BR ppoll (2)
+>> >> +system calls preserve the timeout value instead of storing the unslept time
+>> >> +when interrupted by a signal handler.  Use when
+>> >> +.I program
+>> >> +depends on this behavior, and the source code is not available to be fixed.
+>> >
+>> > See Dmitry's note ;-)
+>>
+>> How about this:
+>>
+>> -- snip
+>> This makes
+>> .BR select (2),
+>> .BR pselect (2),
+>> and
+>> .BR ppoll (2)
+>> system calls preserve the timeout value instead of storing the unslept time
+>
+> I'm not sure about "unslept time" phrase.  Wouldn't a more formal
+> description be better, .e.g.
+>
+> This makes
+> ...
+> system calls preserve the timeout value instead of modifying it to reflect
+> the amount of time not slept when interrupted by a signal handler.
+> ...
+
+That is better. Used in the most recent update.
+
+>> when interrupted by a signal handler. Use when
+>> .I program
+>> depends on this behavior. For more details see the timeout description from
+>
+> s/from/in/
+
+Fixed.
+
+>> .BR select (2)
+>> manual page. Turns on STICKY_TIMEOUTS.
+>> -- snip
+>
+> On the whole, this looks much better.
+>
+>> My remote git has the latest.
+>>
+>> https://github.com/kerolasa/lelux-utiliteetit/blob/2017wk48/sys-utils/setarch.8
+>>
+>> And that branch also has FIXME item near FDPIC_FUNCPTRS description.
+>> Proposal(s) welcome how to make that text understandable.
+>
+> What about this text:
+>
+> "Treat user-space function pointers to signal handlers as pointers
+> to address descriptors.  This option has no effect on architectures
+> that do not support FDPIC ELF binaries.  Turns on FDPIC_FUNCPTRS."
+
+Used almost as-is. I included list of architectures that are expected to
+work with a recent kernel version.
+
+If no further objections. Karel could you have final review and merge
+from my remote branch 2017wk48.
+
 -- 
-2.15.1
-
+Sami Kerola
+http://www.iki.fi/kerolasa/
