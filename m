@@ -1,55 +1,85 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mailout.micron.com ([137.201.242.129]:26988 "EHLO
-        mailout.micron.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753923AbdKPAsY (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 15 Nov 2017 19:48:24 -0500
-From: <jgroves@micron.com>
+Received: from mout.gmx.net ([212.227.17.21]:50531 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751726AbdLJPyx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 10 Dec 2017 10:54:53 -0500
+Subject: [PATCH 2/4] lib/timeutils.c:strxxx_iso: test conversion errors
 To: Karel Zak <kzak@redhat.com>
-CC: <util-linux@vger.kernel.org>, <John@Groves.net>,
-        John Groves <jgroves@micron.com>
-Subject: [PATCH v2 0/2] libblkid: recognize Micron mpool formatted devices
-Date: Wed, 15 Nov 2017 18:48:09 -0600
-Message-ID: <1510793291-4771-1-git-send-email-jgroves@micron.com>
+References: <9da0ec7b-f109-1162-6677-1bc6f8635583@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <fd8f1ed4-b215-1fc5-0fe5-d1a94934acd8@gmx.com>
+Date: Sun, 10 Dec 2017 10:54:51 -0500
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <9da0ec7b-f109-1162-6677-1bc6f8635583@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: John Groves <jgroves@micron.com>
 
-This patch adds libblkid recognition of Micron mpool formatted devices.
-It also adds a very simple crc32c() function, for use by probe_mpool().
+Test for libc time conversion errors in ISO time format functions.
 
-If there are objections to adding crc32c, I can re-submit without it, or
-make it static for probe_mpool(). I would prefer not to go without crc32c
-validation, because the only remaining check would be the magic number.
+hwclock --utc --noadjfile --predict --date '67768034678846520 seconds'
+Segmentation fault
 
-Review comments and/or questions still welcome.
+Patched:
+hwclock --utc --noadjfile --predict --date '67768034678846520 seconds'
+hwclock: time 67768036191695381 is out of range.
 
-Changes since v1:
+Comparable to date(1):
+date --date '67768034678846520 seconds'
+date: time 67768036191695384 is out of range
 
-* probe_mpool() no longer calls blkid_probe_set_value to set
-  VALID="yes"|"no".  This was debug code that I had failed to excise
-  previously.
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ lib/timeutils.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
-Thanks,
-
-John Groves (2):
-  Add simple crc32c() function
-  Add support for Micron mpool formatted drives
-
- include/crc32c.h                       |   9 +++
- lib/Makemodule.am                      |   1 +
- lib/crc32c.c                           | 102 +++++++++++++++++++++++++++++++++
- libblkid/src/Makemodule.am             |   1 +
- libblkid/src/superblocks/mpool.c       |  69 ++++++++++++++++++++++
- libblkid/src/superblocks/superblocks.c |   3 +-
- libblkid/src/superblocks/superblocks.h |   1 +
- 7 files changed, 185 insertions(+), 1 deletion(-)
- create mode 100644 include/crc32c.h
- create mode 100644 lib/crc32c.c
- create mode 100644 libblkid/src/superblocks/mpool.c
-
--- 
-2.9.3
-
+diff --git a/lib/timeutils.c b/lib/timeutils.c
+index 994073700..dd763ecc3 100644
+--- a/lib/timeutils.c
++++ b/lib/timeutils.c
+@@ -460,12 +460,18 @@ static int format_iso_time(struct tm *tm, suseconds_t usec, int flags, char *buf
+ int strtimeval_iso(struct timeval *tv, int flags, char *buf, size_t bufsz)
+ {
+ 	struct tm tm;
++	struct tm *rc;
+ 
+ 	if (flags & ISO_GMTIME)
+-		gmtime_r(&tv->tv_sec, &tm);
++		rc = gmtime_r(&tv->tv_sec, &tm);
+ 	else
+-		localtime_r(&tv->tv_sec, &tm);
+-	return format_iso_time(&tm, tv->tv_usec, flags, buf, bufsz);
++		rc = localtime_r(&tv->tv_sec, &tm);
++
++	if (rc)
++		return format_iso_time(&tm, tv->tv_usec, flags, buf, bufsz);
++
++	warnx(_("time %ld is out of range."), tv->tv_sec);
++	return -1;
+ }
+ 
+ /* struct tm to ISO 8601 */
+@@ -478,12 +484,18 @@ int strtm_iso(struct tm *tm, int flags, char *buf, size_t bufsz)
+ int strtime_iso(const time_t *t, int flags, char *buf, size_t bufsz)
+ {
+ 	struct tm tm;
++	struct tm *rc;
+ 
+ 	if (flags & ISO_GMTIME)
+-		gmtime_r(t, &tm);
++		rc = gmtime_r(t, &tm);
+ 	else
+-		localtime_r(t, &tm);
+-	return format_iso_time(&tm, 0, flags, buf, bufsz);
++		rc = localtime_r(t, &tm);
++
++	if (rc)
++		return format_iso_time(&tm, 0, flags, buf, bufsz);
++
++	warnx(_("time %ld is out of range."), (long)t);
++	return -1;
+ }
+ 
+ /* relative time functions */
