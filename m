@@ -1,29 +1,28 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:39702 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:49136 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752586AbdLKPGF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 11 Dec 2017 10:06:05 -0500
-Date: Mon, 11 Dec 2017 16:06:02 +0100
+        id S1752041AbdLKOxu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 11 Dec 2017 09:53:50 -0500
+Date: Mon, 11 Dec 2017 15:53:47 +0100
 From: Karel Zak <kzak@redhat.com>
-To: kerolasa@gmail.com
-Cc: Sami Kerola <kerolasa@iki.fi>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 3/4] docs: improve setarch(8) manual page
-Message-ID: <20171211150602.bauryyv4dnfm53nl@ws.net.home>
-References: <20171203125117.28159-1-kerolasa@iki.fi>
- <20171203125117.28159-3-kerolasa@iki.fi>
- <20171204120404.aa4p6p2o3goupsq3@ws.net.home>
- <CAG27Bk3ScbYMxT3xi8x6tmx6map3_gRbddbU1p9nN=k3NJQMuQ@mail.gmail.com>
- <20171209012937.GA27446@altlinux.org>
- <CAG27Bk18wEs=ryrt_dY34HqkV26YzHjEC13ykrLbtgn7Pmt3Zw@mail.gmail.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 0/4] Pull Request
+Message-ID: <20171211145347.hitbj7kdpt7xw4kk@ws.net.home>
+References: <9da0ec7b-f109-1162-6677-1bc6f8635583@gmx.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAG27Bk18wEs=ryrt_dY34HqkV26YzHjEC13ykrLbtgn7Pmt3Zw@mail.gmail.com>
+In-Reply-To: <9da0ec7b-f109-1162-6677-1bc6f8635583@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-> If no further objections. Karel could you have final review and merge
-> from my remote branch 2017wk48.
+On Sun, Dec 10, 2017 at 10:47:04AM -0500, J William Piggott wrote:
+> J William Piggott (4):
+>       lib/timeutils.c: bug fix Segmentation fault
+>       lib/timeutils.c:strxxx_iso: test conversion errors
+>       lib/timeutils.c:strxxx_iso: do not wrap tm_year
+>       lib/timeutils.c: warn format_iso_time() overflow
+
 
 Merged, thanks!
 
