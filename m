@@ -1,71 +1,101 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 3/4] lib/timeutils.c:strxxx_iso: do not wrap tm_year
-To: Karel Zak <kzak@redhat.com>
-References: <9da0ec7b-f109-1162-6677-1bc6f8635583@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <6192bcb6-4c2b-3886-1a4f-926a48760505@gmx.com>
-Date: Sun, 10 Dec 2017 10:55:46 -0500
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:48100 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753114AbdLKNq6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 11 Dec 2017 08:46:58 -0500
+Date: Mon, 11 Dec 2017 14:46:53 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 3/4] docs: improve setarch(8) manual page
+Message-ID: <20171211134653.wthtrktw373udxdw@ws.net.home>
+References: <20171203125117.28159-1-kerolasa@iki.fi>
+ <20171203125117.28159-3-kerolasa@iki.fi>
+ <20171204120404.aa4p6p2o3goupsq3@ws.net.home>
+ <CAG27Bk3ScbYMxT3xi8x6tmx6map3_gRbddbU1p9nN=k3NJQMuQ@mail.gmail.com>
+ <20171209012937.GA27446@altlinux.org>
 MIME-Version: 1.0
-In-Reply-To: <9da0ec7b-f109-1162-6677-1bc6f8635583@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171209012937.GA27446@altlinux.org>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sat, Dec 09, 2017 at 04:29:37AM +0300, Dmitry V. Levin wrote:
+> On Mon, Dec 04, 2017 at 01:20:01PM +0000, Sami Kerola wrote:
+> > On 4 December 2017 at 12:04, Karel Zak wrote:
+> > > On Sun, Dec 03, 2017 at 12:51:16PM +0000, Sami Kerola wrote:
+> [...]
+> > >>  \fB\-\-4gb\fR
+> > >> -Ignored (for backward compatibility only).
+> > >> +Ignored for backward compatibility only.
+> > >
+> > > Dmitry is right, the old version is better.
+> > 
+> > How about text:
+> > 
+> > This option is no-op compatibility with an old Debian setarch
+> > implementation. Please do not use.
+> 
+> Let's add a description that is informative but without giving advice.
 
-Year can wrap when adding the tm struct epoch during iso formatting:
-hwclock --utc --noadjfile --predict --date '67768034678844900 seconds'
--2147481749-12-31 23:59:59.000000-05:00
+Yes, and without any distro name...
 
-Patched:
-hwclock --utc --noadjfile --predict --date '67768034678844900 seconds'
-2147485547-12-31 23:59:59.000000-05:00
+> For example,
+> 
+> "This option has no effect.  It is retained for backward compatibility only,
+> and may be removed in future releases."
 
-Comparable to date(1):
-date -Ins --date '67768034678844900 seconds'
-2147485547-12-31T23:59:59,547886165-0500
++1
 
-Note: the 'seconds' argument is relative to the current time, so
-      reaching this max year output is a moving target. The values shown
-      above were invalid one second later. They then overflow tm_year
-      upon conversion with localtime(3) and friends, which causes them
-      to return NULL indicating that an error occurred.
+> > How about this:
+> > 
+> > -- snip
+> > This makes
+> > .BR select (2),
+> > .BR pselect (2),
+> > and
+> > .BR ppoll (2)
+> > system calls preserve the timeout value instead of storing the unslept time
+> 
+> I'm not sure about "unslept time" phrase.  Wouldn't a more formal
+> description be better, .e.g.
+> 
+> This makes
+> ...
+> system calls preserve the timeout value instead of modifying it to reflect
+> the amount of time not slept when interrupted by a signal handler.
+> ...
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- lib/timeutils.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
++1
 
-diff --git a/lib/timeutils.c b/lib/timeutils.c
-index dd763ecc3..a7459d2b6 100644
---- a/lib/timeutils.c
-+++ b/lib/timeutils.c
-@@ -406,8 +406,9 @@ static int format_iso_time(struct tm *tm, suseconds_t usec, int flags, char *buf
- 	int len;
- 
- 	if (flags & ISO_DATE) {
--		len = snprintf(p, bufsz, "%4d-%.2d-%.2d", tm->tm_year + 1900,
--						tm->tm_mon + 1, tm->tm_mday);
-+		len = snprintf(p, bufsz, "%4ld-%.2d-%.2d",
-+			       tm->tm_year + (long) 1900,
-+			       tm->tm_mon + 1, tm->tm_mday);
- 		if (len < 0 || (size_t) len > bufsz)
- 			return -1;
- 		bufsz -= len;
-@@ -423,7 +424,7 @@ static int format_iso_time(struct tm *tm, suseconds_t usec, int flags, char *buf
- 
- 	if (flags & ISO_TIME) {
- 		len = snprintf(p, bufsz, "%02d:%02d:%02d", tm->tm_hour,
--						 tm->tm_min, tm->tm_sec);
-+			       tm->tm_min, tm->tm_sec);
- 		if (len < 0 || (size_t) len > bufsz)
- 			return -1;
- 		bufsz -= len;
-@@ -451,7 +452,7 @@ static int format_iso_time(struct tm *tm, suseconds_t usec, int flags, char *buf
- 		int zmin  = abs(tmin % 60);
- 		len = snprintf(p, bufsz, "%+03d:%02d", zhour,zmin);
- 		if (len < 0 || (size_t) len > bufsz)
--		return -1;
-+			return -1;
- 	}
- 	return 0;
- }
+> 
+> > when interrupted by a signal handler. Use when
+> > .I program
+> > depends on this behavior. For more details see the timeout description from
+> 
+> s/from/in/
+> 
+> > .BR select (2)
+> > manual page. Turns on STICKY_TIMEOUTS.
+> > -- snip
+> 
+> On the whole, this looks much better.
+> 
+> > My remote git has the latest.
+> > 
+> > https://github.com/kerolasa/lelux-utiliteetit/blob/2017wk48/sys-utils/setarch.8
+> > 
+> > And that branch also has FIXME item near FDPIC_FUNCPTRS description.
+> > Proposal(s) welcome how to make that text understandable.
+> 
+> What about this text:
+> 
+> "Treat user-space function pointers to signal handlers as pointers
+> to address descriptors.  This option has no effect on architectures
+> that do not support FDPIC ELF binaries.  Turns on FDPIC_FUNCPTRS."
+
+ Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
