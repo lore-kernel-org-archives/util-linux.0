@@ -1,36 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from ishtar.tlinx.org ([173.164.175.65]:56552 "EHLO
-        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934862AbdLRXCv (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 18 Dec 2017 18:02:51 -0500
-Message-ID: <5A384916.1020809@tlinx.org>
-Date: Mon, 18 Dec 2017 15:02:46 -0800
-From: L A Walsh <lkml@tlinx.org>
+Received: from mout.gmx.net ([212.227.17.22]:57915 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754389AbdLOMB2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 15 Dec 2017 07:01:28 -0500
+Subject: Re: v2.31.1 plan
+To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+References: <20171214150026.7lk3mtwng5jbfcnf@ws.net.home>
+From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
+Message-ID: <113c13c9-4bbe-28b2-ed4e-59c0b8f3f32c@gmx.de>
+Date: Fri, 15 Dec 2017 13:01:23 +0100
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: Build problem in 2.31
-References: <5A37371F.5070307@tlinx.org> <20171218123805.tkhhuyemgntv4gie@ws.net.home> <5A37BB4F.9080004@tlinx.org> <20171218132839.x5gvn5ucdepfawee@ws.net.home>
-In-Reply-To: <20171218132839.x5gvn5ucdepfawee@ws.net.home>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <20171214150026.7lk3mtwng5jbfcnf@ws.net.home>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> On Mon, Dec 18, 2017 at 04:57:51AM -0800, L A Walsh wrote:
->   
->> Running Config:
->>     
->>> ../config-231.sh#69> ./configure 'CFLAGS=-fpic -march=native -pipe -Og'
->>>       
->> 'LDFLAGS=-fpic -march=native -pipe -Og -Wl,--default-symver -Wl,--stats '
->>     
->                                          ^^^^^^^^^^^^^^^^^^^^
->  This is the evil. Try it without "-Wl,--default-symver"
->   
-----
-    Oh?  I didn't specify it explicitly -- not sure where it is turned
-on as of yet. 
+On 12/14/2017 04:00 PM, Karel Zak wrote:
+> 
+>   I'd like to release stable maintenance v2.31.1 tomorrow or on Monday.
+> 
+>   All is already in stable/v2.31 branch:
+>   https://github.com/karelzak/util-linux/tree/stable/v2.31
+> 
+>   See log below, comments & objections?
 
-    Weird.
-....
+I have one, probably minor issue which I was too lazy to investigate
+so far.
+
+Test mount/fslists-type-pattern fails if you have /sbin/mount.exfat installed.
+
+cu,
+Rudi
