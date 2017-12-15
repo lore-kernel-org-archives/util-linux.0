@@ -1,51 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34938 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:58424 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752857AbdLRN2n (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 18 Dec 2017 08:28:43 -0500
-Date: Mon, 18 Dec 2017 14:28:39 +0100
+        id S1755498AbdLOJfP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 15 Dec 2017 04:35:15 -0500
+Date: Fri, 15 Dec 2017 10:35:11 +0100
 From: Karel Zak <kzak@redhat.com>
-To: L A Walsh <lkml@tlinx.org>
+To: Frank Rowand <frowand.list@gmail.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: Build problem in 2.31
-Message-ID: <20171218132839.x5gvn5ucdepfawee@ws.net.home>
-References: <5A37371F.5070307@tlinx.org>
- <20171218123805.tkhhuyemgntv4gie@ws.net.home>
- <5A37BB4F.9080004@tlinx.org>
+Subject: Re: what is license policy
+Message-ID: <20171215093511.3ucb3up5kvziml2i@ws.net.home>
+References: <0e683b47-5a35-7633-bb03-992005040d07@gmail.com>
+ <895195ca-2a1a-1b4a-a7c1-16ecb671e553@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5A37BB4F.9080004@tlinx.org>
+In-Reply-To: <895195ca-2a1a-1b4a-a7c1-16ecb671e553@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Dec 18, 2017 at 04:57:51AM -0800, L A Walsh wrote:
-> Running Config:
-> > ../config-231.sh#69> ./configure 'CFLAGS=-fpic -march=native -pipe -Og'
-> 'LDFLAGS=-fpic -march=native -pipe -Og -Wl,--default-symver -Wl,--stats '
-                                         ^^^^^^^^^^^^^^^^^^^^
- This is the evil. Try it without "-Wl,--default-symver"
+On Thu, Dec 14, 2017 at 02:24:23PM -0800, Frank Rowand wrote:
+> On 12/05/17 17:01, Frank Rowand wrote:
 
-> --prefix=/ --exec-prefix=/ --bindir=/bin --sbindir=/sbin --datadir=/share
-> --includedir=/include --oldincludedir=/include --libdir=/lib64
-> --libexecdir=/lib64/util-linux --localstatedir=/var --sharedstatedir=/com
-> --sysconfdir=/etc --prefix=/ --bindir=/bin --sbindir=/sbin --datadir=/share
-> --includedir=/include --oldincludedir=/include --libdir=/lib64
-> --libexecdir=/lib64/util-linux --localstatedir=/var --sharedstatedir=/com
-> --sysconfdir=/etc --enable-chfn-chsh --enable-fs-paths-default --enable-last
-> --enable-libmount-support-mtab --enable-line --enable-newgrp --enable-pg
-                ^^^^^^^^^^^^^^
-                  really? :-)
+ Hmm... I don't see this mail in my mail storage. Sorry, for the
+ delay.
 
-> --enable-silent-rules --enable-sulogin-emergency-mount --enable-vipw
-> --enable-write --disable-assert --disable-nls --disable-plymouth_support
-> --disable-pylibmount --disable-symvers
-> --with-bashcompletiondir=/usr/share/bash-completion --with-gnu-ld
-> --with-ncursesw --with-readline --without-python --without-systemd
+> > I am trying to understand some things about the license policy for util-linux.
+> > 
+> > Can you please either confirm or correct what I think I have figured out from
+> > reading files in the repo and reading the mail list archive:
+> > 
+> >   - GPL v3 is discouraged
+> >   - but GPL v3 files will be accepted
+> >   - replacing a GPL v3 file with a GPLv2+, GPLv2, LGPLv2+, BSD with advertising,
+> >     or Public Domain license is a valid reason to replace an existing file
 
-I'm able to reproduce the problem with your ./configure options. I'll
-try to play with it more at evening.
+ Well, the current list of licenses is already large and I prefer to
+ not introduce anything else if possible. 
+ 
+ We did a change from GPLv3 to LGPLv2+ for one file in lib/ to keep it
+ more usable as a library and GPLv3 to GPLv2 for lscpu. The change has
+ been always accepted by code authors. 
+ 
+ The util-linux package is random collection of very different tools
+ with different licenses and we want to keep all the code usable
+ together... (this is also reason why licenses are not our favorite
+ topic ;-))
 
     Karel
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
