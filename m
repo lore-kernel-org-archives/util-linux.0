@@ -1,116 +1,75 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36610 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:48672 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750877AbdLSPZP (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 19 Dec 2017 10:25:15 -0500
-Date: Tue, 19 Dec 2017 16:25:11 +0100
+        id S1752415AbdLRLtY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 18 Dec 2017 06:49:24 -0500
+Date: Mon, 18 Dec 2017 12:49:20 +0100
 From: Karel Zak <kzak@redhat.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: [ANNOUNCE] util-linux stable v2.31.1
-Message-ID: <20171219152511.zro3odmlnvnwsfwg@ws.net.home>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: Fixes for commit 3c49b23
+Message-ID: <20171218114920.b23vqpbmvqawlv5y@ws.net.home>
+References: <72856395-656c-b67d-1b28-f121e3f05b11@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <72856395-656c-b67d-1b28-f121e3f05b11@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sun, Dec 17, 2017 at 07:47:49PM -0500, J William Piggott wrote:
+> 
+> So, there are some issues with commit 3c49b23
+> 
+> * it contains multi-byte characters (which is what drew me to reading it).
 
-The util-linux release v2.31.1 is available at
+Ah, it was copy & past from some white papers. Sorry.
 
-  http://www.kernel.org/pub/linux/utils/util-linux/v2.31/
+> * it truncates one very important piece of the formula: ". . . (mod 7)."
+> * it explains the values for 'e', but there is no 'e' in the code.
+> * it doesn't include a row resolving 'e' in the table, so it is not
+>    obvious what it relates to in the code.
+> * without citing it as an external reference, the comment language is confusing.
+> 
+> Anyway, I took a shot at trying to write a comment:
 
-Feedback and bug reports, as always, are welcomed.
+Thanks!
+
+> 
+> 	 /*
+> 	 * The magic constants in the reform[] array are, in a simplified
+> 	 * sense, the remaining days after slicing into one week periods the total
+> 	 * days from the beginning of the year to the target month. That is,
+> 	 * weeks + reform[] days gets us to the target month. The exception is,
+> 	 * that for the months past February 'DOY - 1' must be used.
+> 	 *
+> 	 *   DoY (Day of Year): total days to the target month
+> 	 *
+> 	 *   Month            1  2  3  4   5   6   7   8   9  10  11  12
+> 	 *   DoY              0 31 59 90 120 151 181 212 243 273 304 334
+> 	 *   DoY % 7          0  3
+> 	 *   DoY - 1 % 7      - --  2  5   0   3   5   1   4   6   2   4
+> 	 *       reform[] = { 0, 3, 2, 5,  0,  3,  5,  1,  4,  6,  2,  4 };
+> 	 *
+> 	 *  Note: these calculations are for non leap years.
+> 	 */
+> 
+> I cannot send this as a patch, because my system mangles the multi-byte
+> characters so it won't apply cleanly.
+> 
+> On a somewhat related note, multi-byte characters are also making it
+> into the commit log; it's not a big deal I suppose, but it sure makes a
+> mess for systems that don't support them.
+
+Well, it's too late, and I think commit messages is not so big issue :-)
+
+Applied, thanks!
 
     Karel
 
-
-util-linux 2.31.1 Release Notes
-===============================
-
-bash-completion:
-   - Exclude /dev/fd from fsck find  [Kevin Locke]
-blkid:
-   - Add support for LUKS2 and new LABEL attributes.  [Milan Broz]
-blockdev:
-   - be more explicit for BLKSSZ in blockdev.8  [Karel Zak]
-build-sys:
-   - move rfkill to /usr/sbin  [Karel Zak]
-column:
-   - use \x<hex> for invalid multibyte seq.  [Karel Zak]
-dmesg:
-   - add note about -F format to the man page  [Karel Zak]
-docs:
-   - improve setarch(8) manual page  [Sami Kerola]
-   - update AUTHORS file  [Karel Zak]
-fincore:
-   - fix a typo in fincore.1  [Masatake YAMATO]
-fsck.cramfs:
-   - Fix bus error on broken file system.  [Tobias Stoeckmann]
-hwclock:
-   - add iso-8601 overflow check  [J William Piggott]
-   - fix debug regression  [J William Piggott]
-   - revert ioctl test  [Karel Zak]
-lib/mbsalign:
-   - add mbs_invalid_encode()  [Karel Zak]
-lib/md5:
-   - use ul_/UL_ prefix  [Karel Zak]
-lib/sha1:
-   - use ul_/UL_prefix for symbols  [Karel Zak]
-lib/timeutils:
-   - ISO_8601_BUFSIZ too small  [J William Piggott]
-libblkid:
-   - vfat  Fix reading labels which starts with byte 0x05  [Pali Rohár]
-libfdisk:
-   - (sun) enhance searching of free space  [Mikhail Vorobyov]
-   - (sun) fix creation of whole disk partition  [Mikhail Vorobyov]
-   - (sun) move aligning of the first sector before availability check  [Mikhail Vorobyov]
-   - Fix uninitialized structure  [Roddy Shuler]
-libmount:
-   - Allow MNT_FORCE and MNT_DETACH at umount  [Joshua Watt]
-   - add nsfs between pseudo filesystems  [Karel Zak]
-libsmartcols:
-   - don't add blank padding after left aligned title  [Karel Zak]
-lsblk:
-   - add hint about perms to man page  [Karel Zak]
-lscpu:
-   - Treat read failure on Xen Hypervisor properties as non-fatal  [Dirk Mueller]
-lslocks:
-   - add note about OFDLCK  [Karel Zak]
-man:
-   - use long options in text and add example to uuidgen  [Sami Kerola]
-mcookie:
-   - properly initialize hash  [Karel Zak]
-md5:
-   - declare byteReverse as static  [Luca Ceresoli]
-misc:
-   - fix typos  [Sami Kerola]
-mount:
-   - add hint about -t and root perms to the man page  [Karel Zak]
-   - add more details about UUIDs and LABELs to the man page  [Karel Zak]
-nsenter:
-   - fix compiler warning [-Wuninitialized]  [Karel Zak]
-po:
-   - merge changes  [Karel Zak]
-   - update cs.po (from translationproject.org)  [Petr Písař]
-   - update ja.po (from translationproject.org)  [Takeshi Hamasaki]
-   - update pl.po (from translationproject.org)  [Jakub Bogusz]
-rtcwake:
-   - add note about HW and sleep to the man page  [Karel Zak]
-   - fix sys vs. rtc time delta usage  [Karel Zak]
-sample-scols-title:
-   - add left title without padding  [Karel Zak]
-sfdisk:
-   - create empty label on 'write' command  [Karel Zak]
-test_sha1:
-   - update helper  [Karel Zak]
-tests:
-   - add LUKS test images  [Milan Broz]
-   - add fsck.cramfs bad-header test  [Karel Zak]
-   - don't use mount.<type> helpers in mount-by-pattern tests  [Karel Zak]
-   - update columns test due to dda229c7b2b16a31fae8e99079ab4f4ae5bc8eac  [Karel Zak]
-   - update libsmartcols/title  [Karel Zak]
-vipw:
-   - do not let editor to inherit open file descriptors  [Sami Kerola]
+> 
+> 
+> 
+> 
 
 -- 
  Karel Zak  <kzak@redhat.com>
