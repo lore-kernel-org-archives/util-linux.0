@@ -1,65 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:44656 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:42334 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S967406AbdLSN3J (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 19 Dec 2017 08:29:09 -0500
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 802C87E427
-        for <util-linux@vger.kernel.org>; Tue, 19 Dec 2017 13:29:09 +0000 (UTC)
-Received: from ws.net.home (ovpn-117-230.ams2.redhat.com [10.36.117.230])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id DFA4160C8E
-        for <util-linux@vger.kernel.org>; Tue, 19 Dec 2017 13:29:08 +0000 (UTC)
-Date: Tue, 19 Dec 2017 14:29:06 +0100
+        id S1759263AbdLRMiK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 18 Dec 2017 07:38:10 -0500
+Date: Mon, 18 Dec 2017 13:38:05 +0100
 From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org
-Subject: v2.32 cal(1)
-Message-ID: <20171219132906.74xm7nm4r3trr4qq@ws.net.home>
+To: L A Walsh <lkml@tlinx.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Build problem in 2.31
+Message-ID: <20171218123805.tkhhuyemgntv4gie@ws.net.home>
+References: <5A37371F.5070307@tlinx.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5A37371F.5070307@tlinx.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Sun, Dec 17, 2017 at 07:33:51PM -0800, L A Walsh wrote:
+> In some of the utils in 2.31, I've had a problem where I build
+> and get an error like:
 
-I'd like to do some changes to the command cal(1). The current
-implementation provides extra care about year 1752 -- calendar
-reformation -- switch from Julian to Gregorian calendar.
+Tarball or git tree?
 
-The problem is that year 1752 is very specific to British Empire and
-for example Catholic Europe moved to the Gregorian calendar in year
-1582.
+> 
+> make AM_DEFAULT_VERBOSITY=1  swapon
+> /bin/sh ./libtool  --tag=CC   --mode=link /usr/bin/gcc -fsigned-char
+> -fno-common -Wall -Werror=sequence-point -Wextra -Wmissing-declarations
+> -Wmissing-parameter-type -Wmissing-prototypes
+> -Wno-missing-field-initializers -Wredundant-decls -Wsign-compare
+> -Wtype-limits -Wuninitialized -Wunused-but-set-parameter
+> -Wunused-but-set-variable -Wunused-parameter -Wunused-result
+> -Wunused-variable -Wnested-externs -Wpointer-arith -Wstrict-prototypes
+> -Wimplicit-function-declaration -I./libblkid/src -I./libmount/src
+> -I./libsmartcols/src -fpic -march=native -pipe -Og  -fpic -march=native
+> -pipe -Og -Wl,--default-symver -Wl,--stats  -o swapon
+> sys-utils/swapon-swapon.o sys-utils/swapon-swapon-common.o
+> lib/swapon-swapprober.o  libblkid.la libcommon.la libmount.la
+> libsmartcols.la
+> libtool: link: /usr/bin/gcc -fsigned-char -fno-common -Wall
+> -Werror=sequence-point -Wextra -Wmissing-declarations
+> -Wmissing-parameter-type -Wmissing-prototypes
+> -Wno-missing-field-initializers -Wredundant-decls -Wsign-compare
+> -Wtype-limits -Wuninitialized -Wunused-but-set-parameter
+> -Wunused-but-set-variable -Wunused-parameter -Wunused-result
+> -Wunused-variable -Wnested-externs -Wpointer-arith -Wstrict-prototypes
+> -Wimplicit-function-declaration -I./libblkid/src -I./libmount/src
+> -I./libsmartcols/src -fpic -march=native -pipe -Og -fpic -march=native -pipe
+> -Og -Wl,--default-symver -Wl,--stats -o .libs/swapon
+> sys-utils/swapon-swapon.o sys-utils/swapon-swapon-common.o
+> lib/swapon-swapprober.o  ./.libs/libblkid.so ./.libs/libcommon.a
+> ./.libs/libmount.so /home/tools/util-linux/util-linux-2.31/.libs/libblkid.so
+> /home/tools/util-linux/util-linux-2.31/.libs/libuuid.so -lrt
+> ./.libs/libsmartcols.so -Wl,-rpath -Wl,//lib64
+> /usr/lib64/gcc/x86_64-pc-linux-gnu/7/../../../../lib64/crt1.o:/home/abuild/rpmbuild/BUILD/glibc-2.19/csu/../sysdeps/x86_64/start.S:67:
+> multiple definition of `swapon'
+> collect2: error: ld returned 1 exit status
+> Makefile:6756: recipe for target 'swapon' failed
+> make: *** [swapon] Error 1
+> 
+> ----
+> Not all of the utils have these errors, but when the util may
+> also be the name of a system call, is my guess of when these
+> arise.
 
-And another countries in another years... for details see
-https://en.wikipedia.org/wiki/Gregorian_calendar.
+Do you have /usr/include/sys/swap.h? And if yes, what do you have in
+the file? (copy & past).
 
-cal(1) is not compatible with another tools (e.g. date(1)) for old 
-dates, and it's painful to use cal(1) for old dates as you have no
-control about the calculations.
+Please, see also config.h and "SWAPON_HAS_TWO_ARGS" there. 
 
-My suggestion:
+[Hmm... I think all this SWAPON_HAS_TWO_ARGS is pretty unnecessary,
+swapon() with two args has been introduced by kernel 1.3.2 :-)]
 
-* keep the current default "British Empire" behavior (Gregorian since
-  September 1752)
-
-* add option --gregorian to strictly use Gregorian calendar for all
-  dates with no exceptions (it means dates from year 0 to now, no
-  exceptions for 1582 or 1752, or so...)
-
-* for --gregorian also use ISO leap years calculation for all dates
-  Now we use for years < 1752 simple "year/4" calculation.
-
-* add to the man page section about Gregorian and Julian calendars and
-  explain where and when Gregorian calendar went into effect, years 1582,
-  1752 etc. (just to avoid discussions:-)
-
-* add option --1752-reform to enable the current "British Empire" behavior
-  (default now)
-
-* later (after warning in release notes) we can make --gregorian as
-  the default
-
-Comments? Volunteers?
+Maybe send all output from ./configure too.
+    
 
     Karel
 
