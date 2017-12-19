@@ -1,81 +1,97 @@
-Return-Path: kerolasa@gmail.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-ot0-f177.google.com ([74.125.82.177]:35925 "EHLO
+        mail-ot0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750859AbdLSV0B (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 19 Dec 2017 16:26:01 -0500
+Received: by mail-ot0-f177.google.com with SMTP id d5so17986067oti.3
+        for <util-linux@vger.kernel.org>; Tue, 19 Dec 2017 13:26:00 -0800 (PST)
+Subject: Re: Regression test failure
+To: Ruediger Meier <ruediger.meier@ga-group.nl>,
+        Util-Linux <util-linux@vger.kernel.org>
+References: <5A39782D.1030608@gmail.com>
+ <201712192211.32500.ruediger.meier@ga-group.nl>
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Message-ID: <5A3983E7.1000100@gmail.com>
+Date: Tue, 19 Dec 2017 15:25:59 -0600
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-Sender: kerolasa@gmail.com
-In-Reply-To: <20171204120404.aa4p6p2o3goupsq3@ws.net.home>
-References: <20171203125117.28159-1-kerolasa@iki.fi> <20171203125117.28159-3-kerolasa@iki.fi>
- <20171204120404.aa4p6p2o3goupsq3@ws.net.home>
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Mon, 4 Dec 2017 13:20:01 +0000
-Message-ID: <CAG27Bk3ScbYMxT3xi8x6tmx6map3_gRbddbU1p9nN=k3NJQMuQ@mail.gmail.com>
-Subject: Re: [PATCH 3/4] docs: improve setarch(8) manual page
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <201712192211.32500.ruediger.meier@ga-group.nl>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 4 December 2017 at 12:04, Karel Zak <kzak@redhat.com> wrote:
-> On Sun, Dec 03, 2017 at 12:51:16PM +0000, Sami Kerola wrote:
->>  \fB\-3\fR, \fB\-\-3gb\fR
->> -Specifies that processes should use a maximum of 3GB of address space on systems where it is supported (ADDR_LIMIT_3GB).
->> +Specifies
->> +.I program
->> +should use a maximum of 3GB of address space.  Supported on x86 (as of
->> +2017-12-02).  Turns on ADDR_LIMIT_3GB.
+The filesystem is ext4,  kernel 4.14.6,  x86_64.
+
+   -- Bruce
+
+
+Ruediger Meier wrote:
+> On Tuesday 19 December 2017 at 21:35, you wrote:
+>> In version 2.31.1, I had one failure:
+>>
+>> fincore: count file contents in core   ... FAILED (fincore/count)
 >
-> What is the magic day 2017-12-02 ?
+> Which filesystem are you using for the build directory? And which
+> kernel version, architecture?
 >
-> Frankly, I don't like dates in docs. It's better to use versions
-> "since util-linux v2.31" or "since Linux v4.32", etc.
-
-Fair enough. I will figure out how to make this better.
-
->>  \fB\-\-4gb\fR
->> -Ignored (for backward compatibility only).
->> +Ignored for backward compatibility only.
+> AFAIR this test is somehow fragile. Maybe we should whitelist this test
+> only for a set of known filesystems with default block sizes etc..
 >
-> Dmitry is right, the old version is better.
-
-How about text:
-
-This option is no-op compatibility with an old Debian setarch
-implementation. Please do not use.
-
->> +This makes
->> +.BR select (2),
->> +.BR pselect (2),
->> +and
->> +.BR ppoll (2)
->> +system calls preserve the timeout value instead of storing the unslept time
->> +when interrupted by a signal handler.  Use when
->> +.I program
->> +depends on this behavior, and the source code is not available to be fixed.
+> cu,
+> Rudi
 >
-> See Dmitry's note ;-)
+>>
+>>     1 tests of 200 FAILED
+>>
+>> $ cat ./tests/diff/fincore/count
+>> --- /sources/util-linux-2.31.1/tests/expected/fincore/count.4096
+>> 2017-09-18 09:48:03.676890826 +0000
+>> +++ /sources/util-linux-2.31.1/tests/output/fincore/count
+>> 2017-12-19 20:18:24.410460239 +0000
+>> @@ -13,7 +13,7 @@
+>>    return value: 0
+>>        0  8192 i_TWO_PAGES_directio_
+>>    return value: 0
+>> -    1  8192 i_TWO_PAGES_mixed_directio_incore_
+>> +    2  8192 i_TWO_PAGES_mixed_directio_incore_
+>>    return value: 0
+>>        1  8192 i_TWO_PAGES_mixed_incore_directio_
+>>    return value: 0
+>> @@ -42,7 +42,7 @@
+>>        0      4096 i_JUST_PAGESIZE_directio_
+>>        2      8192 i_TWO_PAGES_incore_
+>>        0      8192 i_TWO_PAGES_directio_
+>> -    1      8192 i_TWO_PAGES_mixed_directio_incore_
+>> +    2      8192 i_TWO_PAGES_mixed_directio_incore_
+>>        1      8192 i_TWO_PAGES_mixed_incore_directio_
+>>        2 134213632 i_WINDOW_SIZE_incore-sparse-incore_
+>>        0 134213632 i_WINDOW_SIZE_directio-sparse-directio_
+>>
+>> -----------------------
+>> The system is a fresh LFS build (systemd version):
+>>
+>> ./configure ADJTIME_PATH=/var/lib/hwclock/adjtime   \
+>>               --docdir=/usr/share/doc/util-linux-2.31 \
+>>               --disable-chfn-chsh  \
+>>               --disable-login      \
+>>               --disable-nologin    \
+>>               --disable-su         \
+>>               --disable-setpriv    \
+>>               --disable-runuser    \
+>>               --disable-pylibmount \
+>>               --disable-static     \
+>>               --without-python
+>>
+>> make
+>>
+>> chown -Rv nobody .
+>> su nobody -s /bin/bash -c "PATH=$PATH make -k check"
+>>
+>>     -- Bruce
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe util-linux"
+>> in the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+>
+>
 
-How about this:
-
--- snip
-This makes
-.BR select (2),
-.BR pselect (2),
-and
-.BR ppoll (2)
-system calls preserve the timeout value instead of storing the unslept time
-when interrupted by a signal handler. Use when
-.I program
-depends on this behavior. For more details see the timeout description from
-.BR select (2)
-manual page. Turns on STICKY_TIMEOUTS.
--- snip
-
-My remote git has the latest.
-
-https://github.com/kerolasa/lelux-utiliteetit/blob/2017wk48/sys-utils/setarch.8
-
-And that branch also has FIXME item near FDPIC_FUNCPTRS description.
-Proposal(s) welcome how to make that text understandable.
-
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
