@@ -1,65 +1,54 @@
-Return-Path: elseifthen@gmx.com
-Subject: Re: Fixes for commit 3c49b23
-To: Karel Zak <kzak@redhat.com>
-References: <72856395-656c-b67d-1b28-f121e3f05b11@gmx.com>
- <20171218114920.b23vqpbmvqawlv5y@ws.net.home>
-Cc: util-linux <util-linux@vger.kernel.org>
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <99c74bd8-e951-bf73-d422-9de2841913a9@gmx.com>
-Date: Mon, 18 Dec 2017 13:02:50 -0500
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:50566 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751508AbdLSKwT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 19 Dec 2017 05:52:19 -0500
+Date: Tue, 19 Dec 2017 11:52:14 +0100
+From: Karel Zak <kzak@redhat.com>
+To: =?iso-8859-1?Q?R=FCdiger?= Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: v2.31.1 plan
+Message-ID: <20171219105214.epp3rzheakptbf57@ws.net.home>
+References: <20171214150026.7lk3mtwng5jbfcnf@ws.net.home>
+ <113c13c9-4bbe-28b2-ed4e-59c0b8f3f32c@gmx.de>
 MIME-Version: 1.0
-In-Reply-To: <20171218114920.b23vqpbmvqawlv5y@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <113c13c9-4bbe-28b2-ed4e-59c0b8f3f32c@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-
-
-On 12/18/2017 06:49 AM, Karel Zak wrote:
-> On Sun, Dec 17, 2017 at 07:47:49PM -0500, J William Piggott wrote:
-
-
->>
->> On a somewhat related note, multi-byte characters are also making it
->> into the commit log; it's not a big deal I suppose, but it sure makes a
->> mess for systems that don't support them.
+On Fri, Dec 15, 2017 at 01:01:23PM +0100, Rüdiger Meier wrote:
+> On 12/14/2017 04:00 PM, Karel Zak wrote:
+> > 
+> >   I'd like to release stable maintenance v2.31.1 tomorrow or on Monday.
+> > 
+> >   All is already in stable/v2.31 branch:
+> >   https://github.com/karelzak/util-linux/tree/stable/v2.31
+> > 
+> >   See log below, comments & objections?
 > 
-> Well, it's too late, and I think commit messages is not so big issue :-)
-
-Ha, I wasn't suggesting amending the entire commit log ;). I was hoping perhaps
-it could be avoided in future commits. It appears to mostly be caused by
-copy/paste there also. For example:
-
- ---
-
-commit b9e4ee42c285e73b36879a96b9cde43edb0f90c6
-Author: Karel Zak <kzak@redhat.com>
-Date:   Tue Nov 28 10:53:35 2017 +0100
-
-    nsenter: fix compiler warning [-Wuninitialized]
-    
-    sys-utils/nsenter.c: In function â<80><98>is_same_namespaceâ<80><99>:
-    sys-utils/nsenter.c:170:2: warning: â<80><98>b_inoâ<80><99> may be used uninitialized in this function [-Wuninitialized]
-    sys-utils/nsenter.c:170:2: warning: â<80><98>a_inoâ<80><99> may be used uninitialized in this function [-Wuninitialized]
-    
-    Signed-off-by: Karel Zak <kzak@redhat.com>
-
- ---
-
-Looks like copy/paste from a terminal. Maybe there is no easy way to avoid
-that? Would setting LANG=C when running the command due it? Maybe even that is
-too much hassle.
-
-Anyway, as we've both said, it's not a big deal. It just looks ugly.
-
-
-
+> I have one, probably minor issue which I was too lazy to investigate
+> so far.
 > 
-> Applied, thanks!
-> 
->     Karel
-> 
->>
->>
->>
->>
-> 
+> Test mount/fslists-type-pattern fails if you have /sbin/mount.exfat installed.
+
+It sounds strange and I cannot reproduce this problem.
+
+# ls -la /sbin/mount.exfat
+lrwxrwxrwx 1 root root 16 Jun 21 16:27 /sbin/mount.exfat -> mount.exfat-fuse
+
+# ./tests/ts/mount/fslists
+        mount: fs lists                       ...
+                : one-type                    ... OK
+                : more-types                  ... OK
+                : more-types-fstab            ... OK
+                : type-pattern                ... OK
+                : type-pattern-neg            ... OK
+           ... OK (all 5 sub-tests PASSED)
+
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
