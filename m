@@ -1,96 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:50835 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755928AbdLUCnr (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 20 Dec 2017 21:43:47 -0500
-Subject: Re: v2.32 cal(1)
-To: Karel Zak <kzak@redhat.com>, Adam Sampson <ats@offog.org>
-References: <20171219132906.74xm7nm4r3trr4qq@ws.net.home>
- <y2amv2ds6q0.fsf@offog.org> <20171220174241.7n4szla6vxwv3fum@ws.net.home>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <a81f3f7c-77fc-fd98-c440-e326be8ea4db@gmx.com>
-Date: Wed, 20 Dec 2017 21:43:43 -0500
+Received: from mail-oi0-f52.google.com ([209.85.218.52]:35614 "EHLO
+        mail-oi0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751488AbdLSUf6 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 19 Dec 2017 15:35:58 -0500
+Received: by mail-oi0-f52.google.com with SMTP id 184so13273447oii.2
+        for <util-linux@vger.kernel.org>; Tue, 19 Dec 2017 12:35:58 -0800 (PST)
+Received: from [192.168.0.76] (cpe-70-123-251-100.satx.res.rr.com. [70.123.251.100])
+        by smtp.gmail.com with ESMTPSA id r22sm4953978ota.50.2017.12.19.12.35.57
+        for <util-linux@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 19 Dec 2017 12:35:57 -0800 (PST)
+To: Util-Linux <util-linux@vger.kernel.org>
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Subject: Regression test failure
+Message-ID: <5A39782D.1030608@gmail.com>
+Date: Tue, 19 Dec 2017 14:35:57 -0600
 MIME-Version: 1.0
-In-Reply-To: <20171220174241.7n4szla6vxwv3fum@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+In version 2.31.1, I had one failure:
 
+fincore: count file contents in core   ... FAILED (fincore/count)
 
-On 12/20/2017 12:42 PM, Karel Zak wrote:
-> On Wed, Dec 20, 2017 at 04:29:43PM +0000, Adam Sampson wrote:
->> Karel Zak <kzak@redhat.com> writes:
->>
->>> The problem is that year 1752 is very specific to British Empire and
->>> for example Catholic Europe moved to the Gregorian calendar in year
->>> 1582.
->> ...
->>> * later (after warning in release notes) we can make --gregorian as
->>>   the default
->>
->> The date of cal's switch is specified in POSIX as 1752, though:
->> http://pubs.opengroup.org/onlinepubs/9699919799/utilities/cal.html
->> (with a note that future versions may make this depend on the locale).
-> 
-> It sounds like too complicated semantic to depend on locale. Don't
-> also forget that switch from one calendar to another means extra
-> calculation (for example skip 11 days for British Empire way, etc).
-> 
->> So if the default is changed, it would be worth noting the deviation
->> from POSIX in the man page, and maybe even defaulting to the old
-> 
-> Good point.
-> 
->> behaviour if POSIXLY_CORRECT is defined, as, e.g., coreutils does for
->> other bits of dubious but mandated behaviour.
->>
->> I wonder if it might be more helpful just to report an error if cal is
->> run for a year prior to 1926 without explicitly specifying which
->> calendar to use?
-> 
-> I think we can follow the current default behavior for ever, and just
-> add --iso/--gregorian for people who care.
+   1 tests of 200 FAILED
 
-I think the standard is being misunderstood.
+$ cat ./tests/diff/fincore/count
+--- /sources/util-linux-2.31.1/tests/expected/fincore/count.4096 
+2017-09-18 09:48:03.676890826 +0000
++++ /sources/util-linux-2.31.1/tests/output/fincore/count       2017-12-19 
+20:18:24.410460239 +0000
+@@ -13,7 +13,7 @@
+  return value: 0
+      0  8192 i_TWO_PAGES_directio_
+  return value: 0
+-    1  8192 i_TWO_PAGES_mixed_directio_incore_
++    2  8192 i_TWO_PAGES_mixed_directio_incore_
+  return value: 0
+      1  8192 i_TWO_PAGES_mixed_incore_directio_
+  return value: 0
+@@ -42,7 +42,7 @@
+      0      4096 i_JUST_PAGESIZE_directio_
+      2      8192 i_TWO_PAGES_incore_
+      0      8192 i_TWO_PAGES_directio_
+-    1      8192 i_TWO_PAGES_mixed_directio_incore_
++    2      8192 i_TWO_PAGES_mixed_directio_incore_
+      1      8192 i_TWO_PAGES_mixed_incore_directio_
+      2 134213632 i_WINDOW_SIZE_incore-sparse-incore_
+      0 134213632 i_WINDOW_SIZE_directio-sparse-directio_
 
-Issue 2 required the Gregorian format:
-_____________________________
-http://pubs.opengroup.org/onlinepubs/007908799/xcu/cal.html
+-----------------------
+The system is a fresh LFS build (systemd version):
 
-DESCRIPTION
+./configure ADJTIME_PATH=/var/lib/hwclock/adjtime   \
+             --docdir=/usr/share/doc/util-linux-2.31 \
+             --disable-chfn-chsh  \
+             --disable-login      \
+             --disable-nologin    \
+             --disable-su         \
+             --disable-setpriv    \
+             --disable-runuser    \
+             --disable-pylibmount \
+             --disable-static     \
+             --without-python
 
-    The cal utility writes a Gregorian calendar to standard output. If the year
-    operand is specified, a calendar for that year is written. If no operands
-    are specified, a calendar for the current month is written.
-_____________________________
+make
 
+chown -Rv nobody .
+su nobody -s /bin/bash -c "PATH=$PATH make -k check"
 
-
-The reason for the change in issue 6 was to *allow* Julian:
-_____________________________
-http://pubs.opengroup.org/onlinepubs/9699919799/utilities/cal.html
-Issue 6
-
-The DESCRIPTION is updated to allow for traditional behavior for years before
-the adoption of the Gregorian calendar.
-
-_____________________________
-
-
-There is no default format specified, only what cal(1) shall be capable of.
-
-There is a similar requirement for Julian placed on date(1). Coreutils
-date command not only defaults to proleptic Gregorian, but doesn't have
-any Julian capability.
-
-So I think having cal(1) default to proleptic Gregorian is not only
-allowed by POSIX, but it should be expected to correlate with date(1).
-
-
-
-
-> 
->     Karel
-> 
+   -- Bruce
