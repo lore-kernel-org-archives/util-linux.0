@@ -1,97 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ot0-f177.google.com ([74.125.82.177]:35925 "EHLO
-        mail-ot0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750859AbdLSV0B (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 19 Dec 2017 16:26:01 -0500
-Received: by mail-ot0-f177.google.com with SMTP id d5so17986067oti.3
-        for <util-linux@vger.kernel.org>; Tue, 19 Dec 2017 13:26:00 -0800 (PST)
-Subject: Re: Regression test failure
-To: Ruediger Meier <ruediger.meier@ga-group.nl>,
-        Util-Linux <util-linux@vger.kernel.org>
-References: <5A39782D.1030608@gmail.com>
- <201712192211.32500.ruediger.meier@ga-group.nl>
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
-Message-ID: <5A3983E7.1000100@gmail.com>
-Date: Tue, 19 Dec 2017 15:25:59 -0600
+Received: from mx1.redhat.com ([209.132.183.28]:44656 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S967406AbdLSN3J (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 19 Dec 2017 08:29:09 -0500
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 802C87E427
+        for <util-linux@vger.kernel.org>; Tue, 19 Dec 2017 13:29:09 +0000 (UTC)
+Received: from ws.net.home (ovpn-117-230.ams2.redhat.com [10.36.117.230])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id DFA4160C8E
+        for <util-linux@vger.kernel.org>; Tue, 19 Dec 2017 13:29:08 +0000 (UTC)
+Date: Tue, 19 Dec 2017 14:29:06 +0100
+From: Karel Zak <kzak@redhat.com>
+To: util-linux@vger.kernel.org
+Subject: v2.32 cal(1)
+Message-ID: <20171219132906.74xm7nm4r3trr4qq@ws.net.home>
 MIME-Version: 1.0
-In-Reply-To: <201712192211.32500.ruediger.meier@ga-group.nl>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-The filesystem is ext4,  kernel 4.14.6,  x86_64.
 
-   -- Bruce
+I'd like to do some changes to the command cal(1). The current
+implementation provides extra care about year 1752 -- calendar
+reformation -- switch from Julian to Gregorian calendar.
 
+The problem is that year 1752 is very specific to British Empire and
+for example Catholic Europe moved to the Gregorian calendar in year
+1582.
 
-Ruediger Meier wrote:
-> On Tuesday 19 December 2017 at 21:35, you wrote:
->> In version 2.31.1, I had one failure:
->>
->> fincore: count file contents in core   ... FAILED (fincore/count)
->
-> Which filesystem are you using for the build directory? And which
-> kernel version, architecture?
->
-> AFAIR this test is somehow fragile. Maybe we should whitelist this test
-> only for a set of known filesystems with default block sizes etc..
->
-> cu,
-> Rudi
->
->>
->>     1 tests of 200 FAILED
->>
->> $ cat ./tests/diff/fincore/count
->> --- /sources/util-linux-2.31.1/tests/expected/fincore/count.4096
->> 2017-09-18 09:48:03.676890826 +0000
->> +++ /sources/util-linux-2.31.1/tests/output/fincore/count
->> 2017-12-19 20:18:24.410460239 +0000
->> @@ -13,7 +13,7 @@
->>    return value: 0
->>        0  8192 i_TWO_PAGES_directio_
->>    return value: 0
->> -    1  8192 i_TWO_PAGES_mixed_directio_incore_
->> +    2  8192 i_TWO_PAGES_mixed_directio_incore_
->>    return value: 0
->>        1  8192 i_TWO_PAGES_mixed_incore_directio_
->>    return value: 0
->> @@ -42,7 +42,7 @@
->>        0      4096 i_JUST_PAGESIZE_directio_
->>        2      8192 i_TWO_PAGES_incore_
->>        0      8192 i_TWO_PAGES_directio_
->> -    1      8192 i_TWO_PAGES_mixed_directio_incore_
->> +    2      8192 i_TWO_PAGES_mixed_directio_incore_
->>        1      8192 i_TWO_PAGES_mixed_incore_directio_
->>        2 134213632 i_WINDOW_SIZE_incore-sparse-incore_
->>        0 134213632 i_WINDOW_SIZE_directio-sparse-directio_
->>
->> -----------------------
->> The system is a fresh LFS build (systemd version):
->>
->> ./configure ADJTIME_PATH=/var/lib/hwclock/adjtime   \
->>               --docdir=/usr/share/doc/util-linux-2.31 \
->>               --disable-chfn-chsh  \
->>               --disable-login      \
->>               --disable-nologin    \
->>               --disable-su         \
->>               --disable-setpriv    \
->>               --disable-runuser    \
->>               --disable-pylibmount \
->>               --disable-static     \
->>               --without-python
->>
->> make
->>
->> chown -Rv nobody .
->> su nobody -s /bin/bash -c "PATH=$PATH make -k check"
->>
->>     -- Bruce
->> --
->> To unsubscribe from this list: send the line "unsubscribe util-linux"
->> in the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->
->
+And another countries in another years... for details see
+https://en.wikipedia.org/wiki/Gregorian_calendar.
 
+cal(1) is not compatible with another tools (e.g. date(1)) for old 
+dates, and it's painful to use cal(1) for old dates as you have no
+control about the calculations.
+
+My suggestion:
+
+* keep the current default "British Empire" behavior (Gregorian since
+  September 1752)
+
+* add option --gregorian to strictly use Gregorian calendar for all
+  dates with no exceptions (it means dates from year 0 to now, no
+  exceptions for 1582 or 1752, or so...)
+
+* for --gregorian also use ISO leap years calculation for all dates
+  Now we use for years < 1752 simple "year/4" calculation.
+
+* add to the man page section about Gregorian and Julian calendars and
+  explain where and when Gregorian calendar went into effect, years 1582,
+  1752 etc. (just to avoid discussions:-)
+
+* add option --1752-reform to enable the current "British Empire" behavior
+  (default now)
+
+* later (after warning in release notes) we can make --gregorian as
+  the default
+
+Comments? Volunteers?
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
