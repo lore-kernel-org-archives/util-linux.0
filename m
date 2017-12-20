@@ -1,118 +1,57 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:42717 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751856AbdLCMv0 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 3 Dec 2017 07:51:26 -0500
-Received: by mail-wr0-f196.google.com with SMTP id s66so14413011wrc.9
-        for <util-linux@vger.kernel.org>; Sun, 03 Dec 2017 04:51:26 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 4/4] setarch: minor code clean up
-Date: Sun,  3 Dec 2017 12:51:17 +0000
-Message-Id: <20171203125117.28159-4-kerolasa@iki.fi>
-In-Reply-To: <20171203125117.28159-1-kerolasa@iki.fi>
-References: <20171203125117.28159-1-kerolasa@iki.fi>
+Received: from mx1.redhat.com ([209.132.183.28]:58160 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755453AbdLTRmp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 20 Dec 2017 12:42:45 -0500
+Date: Wed, 20 Dec 2017 18:42:41 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Adam Sampson <ats@offog.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: v2.32 cal(1)
+Message-ID: <20171220174241.7n4szla6vxwv3fum@ws.net.home>
+References: <20171219132906.74xm7nm4r3trr4qq@ws.net.home>
+ <y2amv2ds6q0.fsf@offog.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <y2amv2ds6q0.fsf@offog.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Remove global variable, skip unnecessary comparison, and remove version
-printing function when a simple printf() can do the job.  In same go fix
-compiler warning.
+On Wed, Dec 20, 2017 at 04:29:43PM +0000, Adam Sampson wrote:
+> Karel Zak <kzak@redhat.com> writes:
+> 
+> > The problem is that year 1752 is very specific to British Empire and
+> > for example Catholic Europe moved to the Gregorian calendar in year
+> > 1582.
+> ...
+> > * later (after warning in release notes) we can make --gregorian as
+> >   the default
+> 
+> The date of cal's switch is specified in POSIX as 1752, though:
+> http://pubs.opengroup.org/onlinepubs/9699919799/utilities/cal.html
+> (with a note that future versions may make this depend on the locale).
 
-sys-utils/setarch.c:296:4: warning: null argument where non-null required
-(argument 2) [-Wnonnull]
-    execl("/bin/bash", NULL);
+It sounds like too complicated semantic to depend on locale. Don't
+also forget that switch from one calendar to another means extra
+calculation (for example skip 11 days for British Empire way, etc).
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/setarch.c | 38 +++++++++++++++-----------------------
- 1 file changed, 15 insertions(+), 23 deletions(-)
+> So if the default is changed, it would be worth noting the deviation
+> from POSIX in the man page, and maybe even defaulting to the old
 
-diff --git a/sys-utils/setarch.c b/sys-utils/setarch.c
-index 6673825c8..6f5c8d6b3 100644
---- a/sys-utils/setarch.c
-+++ b/sys-utils/setarch.c
-@@ -82,9 +82,8 @@
- # define ADDR_LIMIT_3GB          0x8000000
- #endif
- 
--static int archwrapper;
- 
--static void __attribute__((__noreturn__)) usage(void)
-+static void __attribute__((__noreturn__)) usage(int archwrapper)
- {
- 	fputs(USAGE_HEADER, stdout);
- 	if (!archwrapper)
-@@ -120,13 +119,6 @@ static void __attribute__((__noreturn__)) usage(void)
- 	exit(EXIT_SUCCESS);
- }
- 
--static void __attribute__((__noreturn__))
--    show_version(void)
--{
--	printf(UTIL_LINUX_VERSION);
--	exit(EXIT_SUCCESS);
--}
--
- static int set_arch(const char *pers, unsigned long options, int list)
- {
- 	struct utsname un;
-@@ -253,6 +245,7 @@ int main(int argc, char *argv[])
- 	const char *arch = NULL;
- 	unsigned long options = 0;
- 	int verbose = 0;
-+	int archwrapper;
- 	int c;
- 
- 	/* Options without equivalent short options */
-@@ -294,9 +287,17 @@ int main(int argc, char *argv[])
- 		errtryhelp(EXIT_FAILURE);
- 	}
- 	archwrapper = strcmp(program_invocation_short_name, "setarch") != 0;
--	if (archwrapper)
-+	if (archwrapper) {
- 		arch = program_invocation_short_name;	/* symlinks to setarch */
--	else {
-+#if defined(__sparc64__) || defined(__sparc__)
-+		if (strcmp(arch, "sparc32bash") == 0) {
-+			if (set_arch(arch, 0L, 0))
-+				err(EXIT_FAILURE, _("Failed to set personality to %s"), arch);
-+			execl("/bin/bash", "", NULL);
-+			err(EXIT_FAILURE, _("failed to execute %s"), "/bin/bash");
-+		}
-+#endif
-+	} else {
- 		if (1 < argc && *argv[1] != '-') {
- 			arch = argv[1];
- 			argv[1] = argv[0];	/* for getopt_long() to get the program name */
-@@ -305,23 +306,14 @@ int main(int argc, char *argv[])
- 		}
- 	}
- 
--#if defined(__sparc64__) || defined(__sparc__)
--	if (archwrapper && strcmp(arch, "sparc32bash") == 0) {
--		if (set_arch(arch, 0L, 0))
--			err(EXIT_FAILURE, _("Failed to set personality to %s"), arch);
--		execl("/bin/bash", NULL);
--		err(EXIT_FAILURE, _("failed to execute %s"), "/bin/bash");
--	}
--#endif
--
- 	while ((c = getopt_long(argc, argv, "+hVv3BFILRSTXZ", longopts, NULL)) != -1) {
- 		switch (c) {
- 		case 'h':
--			usage();
-+			usage(archwrapper);
- 			break;
- 		case 'V':
--			show_version();
--			break;
-+			printf(UTIL_LINUX_VERSION);
-+			return EXIT_SUCCESS;
- 		case 'v':
- 			verbose = 1;
- 			break;
+Good point.
+
+> behaviour if POSIXLY_CORRECT is defined, as, e.g., coreutils does for
+> other bits of dubious but mandated behaviour.
+> 
+> I wonder if it might be more helpful just to report an error if cal is
+> run for a year prior to 1926 without explicitly specifying which
+> calendar to use?
+
+I think we can follow the current default behavior for ever, and just
+add --iso/--gregorian for people who care.
+
+    Karel
+
 -- 
-2.15.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
