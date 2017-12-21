@@ -1,39 +1,68 @@
-Return-Path: pali.rohar@gmail.com
-Date: Wed, 27 Dec 2017 11:14:29 +0100
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org,
-	=?utf-8?Q?Vojt=C4=9Bch?= Vladyka <rain@vojtechvladyka.cz>
-Subject: fsck command line API
-Message-ID: <20171227101429.bisgfv5wumxcqiqp@pali>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:42242 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751734AbdLUONg (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 21 Dec 2017 09:13:36 -0500
+Date: Thu, 21 Dec 2017 15:13:32 +0100
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] cal: add --iso and --1782-reform format options
+Message-ID: <20171221141332.dk6i3oj3qr44k35l@ws.net.home>
+References: <20171219132906.74xm7nm4r3trr4qq@ws.net.home>
+ <9f5b10fe-1286-3aa7-a170-7a30b9e577a3@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <9f5b10fe-1286-3aa7-a170-7a30b9e577a3@gmx.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello!
+On Tue, Dec 19, 2017 at 09:32:49PM -0500, J William Piggott wrote:
+> -#define REFORMATION_YEAR	1752		/* Signed-off-by: Lord Chesterfield */
+> +/* Dec 19 2017 - After an appropriate mourning period change 1752 to -1 making
+> + * the default output format the proleptic Gregorian calendar
+> + */
+> +int reformation_year = 1752;
 
-Vojtěch Vladyka is working on a new fsck tool udffsck for UDF filesystem
-[1] and I would like to know if there is a some standardized command line
-API for fsck tools, so s new udffsck would be compatible.
+Wow, I have to appreciate this really nice hack, it's way how to keep
+the change as small as possible ;-)
 
-In util-linux repository there is some generic wrapper fsck which starts
-correct filesystem fsck tool... And probably systemd has own wrapper
-which do similar thing.
+... but I'm not sure this way is elegant from code consistence,
+extendability, and for readers. 
 
-Are there already defined some set of command line arguments which are
-expected for fsck tools? Or exit status values from those tools?
+We have control struct where is "julian" flag. It would be probably
+better to use the control struct for all the things around calendars.
 
-Also, lot of filesystems store information if last usage/mount was
-correctly synchronized and unmounted. E.g. FAT has dirty bit, ext4 has
-journal clean state, UDF has integrity field... and in most cases when
-fsck is started at boot time it make sense to skip fsck data check
-routine if filesystem state is clean (last time properly unmounted). Is
-there some command line API to tell fsck tool if it should do full disk
-check (including data) or do it conditionally if filesystem is in dirty
-state?
+ * add enum CAL_TYPE_{JULIAN,GREGORIAN,GB1752,...}
+ * use the enum in cal_control (and remove julian flag)
+ * set calendar type in getopt code block
 
-[1] - https://github.com/pali/udftools/pull/7
+ * use the same prefix (e.g. GB1752_*) for all the "British Empire"
+   specific reform macros (including NUMBER_MISSING_DAYS and YDAY_AFTER_MISSING)
+
+ * in code use switch(ctl->calendar) { case CAL_TYPE .... } to keep is
+   readable ;-)
+
+ * yes, it will require to use cal_control in small functions like
+   leap_year(), but IMHO it's better than hide all in magic reformation_year
+   global variable
+
+BTW, in theory it would be possible to support more reforms, for
+example Greece 1923 (16-Feb -> 1-Mar), etc. Maybe the region of the
+reform should be somehow within the command line option --reform-1752-GB
+--reform-1923-GR, etc.
+
+> @@ -279,6 +284,8 @@ int main(int argc, char **argv)
+>  		{"year", no_argument, NULL, 'y'},
+>  		{"week", optional_argument, NULL, 'w'},
+>  		{"color", optional_argument, NULL, OPT_COLOR},
+> +		{"iso", no_argument, NULL, OPT_ISO},
+
+--iso seems like good idea, but --gregorian alias would be also nice
+as we already have --julian.
+
+    Karel
 
 -- 
-Pali Rohár
-pali.rohar@gmail.com
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
