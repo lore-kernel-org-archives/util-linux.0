@@ -1,55 +1,39 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:42756 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753919AbdLDMEH (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 4 Dec 2017 07:04:07 -0500
-Date: Mon, 4 Dec 2017 13:04:04 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+Return-Path: elseifthen@gmx.com
+Subject: Re: [v2 PATCH 0/2] Pull Request
+To: Karel Zak <kzak@redhat.com>
+References: <e2d14b08-f310-cf33-feb4-6e07b8b0f59b@gmx.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/4] docs: improve setarch(8) manual page
-Message-ID: <20171204120404.aa4p6p2o3goupsq3@ws.net.home>
-References: <20171203125117.28159-1-kerolasa@iki.fi>
- <20171203125117.28159-3-kerolasa@iki.fi>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <ffb425a2-4be0-e72a-5b1e-35daa72edacb@gmx.com>
+Date: Sun, 24 Dec 2017 10:06:39 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171203125117.28159-3-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <e2d14b08-f310-cf33-feb4-6e07b8b0f59b@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Dec 03, 2017 at 12:51:16PM +0000, Sami Kerola wrote:
->  \fB\-3\fR, \fB\-\-3gb\fR
-> -Specifies that processes should use a maximum of 3GB of address space on systems where it is supported (ADDR_LIMIT_3GB).
-> +Specifies
-> +.I program
-> +should use a maximum of 3GB of address space.  Supported on x86 (as of
-> +2017-12-02).  Turns on ADDR_LIMIT_3GB.
 
-What is the magic day 2017-12-02 ?
+Karel,
 
-Frankly, I don't like dates in docs. It's better to use versions
-"since util-linux v2.31" or "since Linux v4.32", etc.
+If you'd like --gregorian and --julian to mean exclusively using their
+respective calendar system, then we could:
 
->  \fB\-\-4gb\fR
-> -Ignored (for backward compatibility only).
-> +Ignored for backward compatibility only.
+* change --iso to --gregorian and let the man page explain that it is proleptic.
 
-Dmitry is right, the old version is better.
+* depreciate --julian in favor of --ordinal (--doy or --day-of-year). IMO, this
+   should be done regardless.
 
-> +This makes
-> +.BR select (2),
-> +.BR pselect (2),
-> +and
-> +.BR ppoll (2)
-> +system calls preserve the timeout value instead of storing the unslept time
-> +when interrupted by a signal handler.  Use when
-> +.I program
-> +depends on this behavior, and the source code is not available to be fixed.
+* create a private --roma that is the complement to --gregorian; then after an
+   appropriate mourning period change it to --julian and make it public.
 
-See Dmitry's note ;-)
+RFC:
+Can/should the new cal(1) options have short versions?
 
-    Karel
+>From Documentation/howto-contribute.txt:
+"... it is not recommended to add short command line options [to POSIX utils]
+before they are part of the standard."
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+But most of cal(1)'s options already have short versions and the standard says
+there are no options for cal(1).
+
+If we use my above idea then --julian will have -j, so IMO --gregorian should
+have -g. It would also be nice for --ordinal to have -o.
