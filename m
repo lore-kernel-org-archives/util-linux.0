@@ -1,85 +1,99 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:50531 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:44850 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751726AbdLJPyx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 10 Dec 2017 10:54:53 -0500
-Subject: [PATCH 2/4] lib/timeutils.c:strxxx_iso: test conversion errors
-To: Karel Zak <kzak@redhat.com>
-References: <9da0ec7b-f109-1162-6677-1bc6f8635583@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <fd8f1ed4-b215-1fc5-0fe5-d1a94934acd8@gmx.com>
-Date: Sun, 10 Dec 2017 10:54:51 -0500
+        id S1754723AbdL2MCq (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 29 Dec 2017 07:02:46 -0500
+Date: Fri, 29 Dec 2017 13:02:42 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: util-linux@vger.kernel.org,
+        =?utf-8?Q?Vojt=C4=9Bch?= Vladyka <rain@vojtechvladyka.cz>
+Subject: Re: fsck command line API
+Message-ID: <20171229120242.lnp7dsp5wuyqrasr@ws.net.home>
+References: <20171227101429.bisgfv5wumxcqiqp@pali>
 MIME-Version: 1.0
-In-Reply-To: <9da0ec7b-f109-1162-6677-1bc6f8635583@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20171227101429.bisgfv5wumxcqiqp@pali>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wed, Dec 27, 2017 at 11:14:29AM +0100, Pali Rohár wrote:
+> Vojtěch Vladyka is working on a new fsck tool udffsck for UDF filesystem
+> [1] and I would like to know if there is a some standardized command line
+> API for fsck tools, so s new udffsck would be compatible.
+> 
+> In util-linux repository there is some generic wrapper fsck which starts
+> correct filesystem fsck tool... And probably systemd has own wrapper
+> which do similar thing.
 
-Test for libc time conversion errors in ISO time format functions.
+The systemd calls fsck wrapper from util-linux:
+https://github.com/systemd/systemd/blob/master/src/fsck/fsck.c#L446
 
-hwclock --utc --noadjfile --predict --date '67768034678846520 seconds'
-Segmentation fault
+> Are there already defined some set of command line arguments which are
+> expected for fsck tools? Or exit status values from those tools?
 
-Patched:
-hwclock --utc --noadjfile --predict --date '67768034678846520 seconds'
-hwclock: time 67768036191695381 is out of range.
+We have no API. The solution is to call fsck wrapper with proper
+command line.
 
-Comparable to date(1):
-date --date '67768034678846520 seconds'
-date: time 67768036191695384 is out of range
+    fsck [options] [--] [fs-specific-options]
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- lib/timeutils.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+The exit code returned when multiple filesystems are checked is the
+bit-wise OR of the exit codes for each filesystem that is checked. The
+man page contains some return codes. It's probably good idea to use
+the same codes in the fs specific fsck tools.
 
-diff --git a/lib/timeutils.c b/lib/timeutils.c
-index 994073700..dd763ecc3 100644
---- a/lib/timeutils.c
-+++ b/lib/timeutils.c
-@@ -460,12 +460,18 @@ static int format_iso_time(struct tm *tm, suseconds_t usec, int flags, char *buf
- int strtimeval_iso(struct timeval *tv, int flags, char *buf, size_t bufsz)
- {
- 	struct tm tm;
-+	struct tm *rc;
- 
- 	if (flags & ISO_GMTIME)
--		gmtime_r(&tv->tv_sec, &tm);
-+		rc = gmtime_r(&tv->tv_sec, &tm);
- 	else
--		localtime_r(&tv->tv_sec, &tm);
--	return format_iso_time(&tm, tv->tv_usec, flags, buf, bufsz);
-+		rc = localtime_r(&tv->tv_sec, &tm);
-+
-+	if (rc)
-+		return format_iso_time(&tm, tv->tv_usec, flags, buf, bufsz);
-+
-+	warnx(_("time %ld is out of range."), tv->tv_sec);
-+	return -1;
- }
- 
- /* struct tm to ISO 8601 */
-@@ -478,12 +484,18 @@ int strtm_iso(struct tm *tm, int flags, char *buf, size_t bufsz)
- int strtime_iso(const time_t *t, int flags, char *buf, size_t bufsz)
- {
- 	struct tm tm;
-+	struct tm *rc;
- 
- 	if (flags & ISO_GMTIME)
--		gmtime_r(t, &tm);
-+		rc = gmtime_r(t, &tm);
- 	else
--		localtime_r(t, &tm);
--	return format_iso_time(&tm, 0, flags, buf, bufsz);
-+		rc = localtime_r(t, &tm);
-+
-+	if (rc)
-+		return format_iso_time(&tm, 0, flags, buf, bufsz);
-+
-+	warnx(_("time %ld is out of range."), (long)t);
-+	return -1;
- }
- 
- /* relative time functions */
+See man fsck:
+
+    FILESYSTEM SPECIFIC OPTIONS
+
+       Options which are not understood by fsck are passed to the
+       filesystem-specific checker!
+
+       These options must not take arguments, as there is no way for
+       fsck to be able to properly guess which options take arguments
+       and which don't.
+
+       Options and arguments which follow the -- are treated as
+       filesystem-specific options to be passed to the
+       filesystem-specific checker.
+
+       Please  note  that  fsck  is not designed to pass arbitrarily
+       complicated options to filesystem-specific checkers.  If you're
+       doing something complicated, please just execute the
+       filesystem-specific checker directly.  If you pass fsck some
+       horribly complicated options and arguments, and it doesn't do
+       what you expect, don't bother reporting it  as  a  bug.  You're
+       almost certainly doing something that you shouldn't be doing
+       with fsck.  Options to different filesystem-specific fsck's are
+       not standardized.
+
+
+
+The fsck wrapper has been originally designed by Ted as well as
+fsck.extN tools. So, my suggestion is to follow fsck.extN to keep
+things compatible as much as possible :-)
+
+> Also, lot of filesystems store information if last usage/mount was
+> correctly synchronized and unmounted. E.g. FAT has dirty bit, ext4 has
+> journal clean state, UDF has integrity field... and in most cases when
+> fsck is started at boot time it make sense to skip fsck data check
+> routine if filesystem state is clean (last time properly unmounted). Is
+> there some command line API to tell fsck tool if it should do full disk
+> check (including data) or do it conditionally if filesystem is in dirty
+> state?
+
+The fsck wrapper does not care. It's fsck.<type> responsibility to do
+good things by default and if the default setting is not possible
+(safe, etc.) then ask for manual execution without the wrapper:
+
+    fsck.foo: failed to fix foo; use "fsck.foo --something"
+
+I think many fsck.<type> tools use options like -a (or -p), -y, -f and
+-C. The -f (force) and -C (progress bar) is supported by systemd too.
+
+    Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
