@@ -1,38 +1,76 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40466 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752869AbeAVJBN (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 22 Jan 2018 04:01:13 -0500
-Date: Mon, 22 Jan 2018 10:01:10 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] mount(8): drop redundant filesystem-specific sections
-Message-ID: <20180122090110.vu2vbfm4wvoloime@ws.net.home>
-References: <20180119184520.13067-1-vapier@gentoo.org>
+Received: from mail-wr0-f176.google.com ([209.85.128.176]:33026 "EHLO
+        mail-wr0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750897AbdL3Tsv (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 30 Dec 2017 14:48:51 -0500
+Received: by mail-wr0-f176.google.com with SMTP id v21so33292830wrc.0
+        for <util-linux@vger.kernel.org>; Sat, 30 Dec 2017 11:48:51 -0800 (PST)
+Date: Sat, 30 Dec 2017 20:48:48 +0100
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+To: Theodore Ts'o <tytso@mit.edu>
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
+        =?utf-8?Q?Vojt=C4=9Bch?= Vladyka <rain@vojtechvladyka.cz>
+Subject: Re: fsck command line API
+Message-ID: <20171230194848.7tmw6pu6af6yichy@pali>
+References: <20171227101429.bisgfv5wumxcqiqp@pali>
+ <20171229120242.lnp7dsp5wuyqrasr@ws.net.home>
+ <20171229183754.GC11757@thunk.org>
+ <20171230120352.s64unqtl4dwypxnl@pali>
+ <20171230132045.GA3366@thunk.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180119184520.13067-1-vapier@gentoo.org>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20171230132045.GA3366@thunk.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 19, 2018 at 01:45:20PM -0500, Mike Frysinger wrote:
-> -.SS "Mount options for tmpfs"
-> -.TP
-> -.BI size= nbytes
-> -Override default maximum size of the filesystem.
-> -The size is given in bytes, and rounded up to entire pages.
-> -The default is half of the memory.  The size parameter also accepts a suffix %
-> -to limit this tmpfs instance to that percentage of your physical RAM:
-> -the default, when neither size nor nr_blocks is specified, is size=50%
+On Saturday 30 December 2017 08:20:45 Theodore Ts'o wrote:
+> On Sat, Dec 30, 2017 at 01:03:52PM +0100, Pali Rohár wrote:
+> > 
+> > Hi! Thank you for detailed information. I have just one more question,
+> > what should filesystem specific fsck do if is started by -a or -p (or
+> > with -y) during boot and filesystem structures indicates that last time
+> > it was successfully (clean) unmounted? Should it scan whole disk and
+> > check all data (files/directories/structures) for consistency? Or should
+> > trust for "clean" state and stop? And if stop, how to tell that
+> > filesystem fsck to really scan whole disk? For example scanning 2TB disk
+> > is really time consuming, specially at boot time.
+> 
+> What e2fsck (fsck.extN) does is check to see if the file system has
+> the "errors/corruptions were detected by the kernel" bit set.  If so,
+> it will do a full check.  Otherwise, if time-based or mount-based
+> criteria is enabled, and exceeded, then e2fsck will do a full check.
+> Otherwise, it will stop.
+> 
+> The other thing e2fsck for ext4 file systems will do is to replay the
+> journal.  This is useful because fsck will run fsck in parallel, while
+> mount -a mounts file systems serially.  So running the journal in
+> parallel when you have multiple disk spindles can be a big win.  This
+> may be less of a big deal these days since systemd will run mounts in
+> parallel.
+> 
+> As far as time-based or mount-based full checks (see tune2fs for
+> discussion on this topic), we don't enable this by default any more in
+> e2fsprogs.  That's precisely because doing full check for 10 TB disk
+> takes and 60TB RAID arrays takes a long time.  The idea of doing mount
+> based checks goes back to the BSD days, because disks and memory are
+> really crappy, and so checking to find problems before they become
+> catastrophic data loss events made sense.  These days for big disks,
+> the cost/benefit ratio doesn't work out as well.
+> 
+> Also, if you have snapshot support in your file system, you can simply
+> create a snapshot, and run the fsck on the snapshot.  An example of
+> how to do this can be found here:
+> 
+> https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/tree/contrib/e2croncheck
+> 
+> Cheers,
+> 
+> 					- Ted
 
-The "man tmpfs" describes the option size= only. There is no
-nr_blocks=, mode=, uid=, gid= and mpol=. Is it expected? Maybe we a
-patch to man-pages too.
-
-    Karel
-
+Ok, thank you for explanation. In case for a new UDF fsck tool it would
+also make sense then to not do full check at boot time if filesystem is
+marked as clean.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Pali Rohár
+pali.rohar@gmail.com
