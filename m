@@ -1,123 +1,144 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f194.google.com ([209.85.128.194]:37545 "EHLO
-        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932238AbeAXVHe (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 24 Jan 2018 16:07:34 -0500
-Received: by mail-wr0-f194.google.com with SMTP id f11so5467023wre.4
-        for <util-linux@vger.kernel.org>; Wed, 24 Jan 2018 13:07:33 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] various: fix redeclared with different type warnings [smatch]
-Date: Wed, 24 Jan 2018 21:07:30 +0000
-Message-Id: <20180124210730.17034-1-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: elseifthen@gmx.com
+Subject: [v3 PATCH 08/11] cal: add short versions of new options
+To: Karel Zak <kzak@redhat.com>
+References: <4833b897-2192-86dc-f81b-e977d98b07b1@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <8e1ef094-5a6f-c4bb-5b72-dcad72c0bcbb@gmx.com>
+Date: Tue, 2 Jan 2018 10:00:41 -0500
+MIME-Version: 1.0
+In-Reply-To: <4833b897-2192-86dc-f81b-e977d98b07b1@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-These warnings look like this:
-lib/exec_shell.c:33:6: error: symbol 'exec_shell' redeclared with different
-type (originally declared at ./include/exec_shell.h:1) - different modifiers
 
-In same go move attributes in front of these functions, this is how they
-should be.  Related smatch message is: error: attributes should be specified
-before the declarator in a function definition.
+Also, the project uses 'L' for --color so that
+was added.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
- include/exec_shell.h |  2 +-
- lib/exec_shell.c     |  2 +-
- term-utils/agetty.c  | 14 ++++++++------
- text-utils/more.c    |  5 +++--
- 4 files changed, 13 insertions(+), 10 deletions(-)
+ misc-utils/cal.1 |  6 +++---
+ misc-utils/cal.c | 28 +++++++++++++---------------
+ 2 files changed, 16 insertions(+), 18 deletions(-)
 
-diff --git a/include/exec_shell.h b/include/exec_shell.h
-index a2aa757de..f155f380f 100644
---- a/include/exec_shell.h
-+++ b/include/exec_shell.h
-@@ -1 +1 @@
--extern void __attribute__((__noreturn__)) exec_shell(void);
-+__attribute__((__noreturn__)) extern void exec_shell(void);
-diff --git a/lib/exec_shell.c b/lib/exec_shell.c
-index a7374bd33..481184394 100644
---- a/lib/exec_shell.c
-+++ b/lib/exec_shell.c
-@@ -30,7 +30,7 @@
+diff --git a/misc-utils/cal.1 b/misc-utils/cal.1
+index 17439d2f9..718a38c98 100644
+--- a/misc-utils/cal.1
++++ b/misc-utils/cal.1
+@@ -86,7 +86,7 @@ Display single month output (default).
+ \fB\-3\fR, \fB\-\-three\fR
+ Display three months spanning the date.
+ .TP
+-.B \-\-1752-reform
++.BR \-r ,\  \-\-1752-reform
+ Display calendars based upon the Chesterfield's Act.
+ This means that dates previous to 3 Sept 1752 will be Julian calendar dates.
+ .RB See \ BUGS \ below.
+@@ -119,7 +119,7 @@ Display Monday as the first day of the week.
+ .RB The\  \%\-\-julian\  option
+ has been deprecated and may be repurposed or removed in a future release.
+ .TP
+-.B \-\-ordinal
++.BR \-o ,\  \-\-ordinal
+ Display day-of-year numbering for all calendar types.  Ordinal days range from
+ 1 to 366.
+ .TP
+@@ -140,7 +140,7 @@ will be highlighted only if its month is displayed.  For example, if the
+ option is used.
+ .RB See\  \-\-color.
+ .TP
+-\fB\-\-color\fR[=\fIwhen\fR]
++\fB\-L\fR, \fB\-\-color\fR[=\fIwhen\fR]
+ Control day/week highlighting.  The optional argument \fIwhen\fP can be
+ \fBauto\fR, \fBnever\fR or \fBalways\fR.  If the \fIwhen\fR argument is
+ omitted, it defaults to \fBauto\fR.  Auto means it is on if the output is to a
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index 00c00ebc0..6f7dadfac 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -273,10 +273,7 @@ int main(int argc, char **argv)
+ 	 * will be renamed -j, --julian and made public.
+ 	 */
+ 	enum {
+-		OPT_1752_REFORM = CHAR_MAX + 1,
+-		OPT_CAESAR,
+-		OPT_COLOR,
+-		OPT_ORDINAL
++		OPT_CAESAR = CHAR_MAX + 1
+ 	};
  
- #define DEFAULT_SHELL "/bin/sh"
+ 	static const struct option longopts[] = {
+@@ -289,10 +286,10 @@ int main(int argc, char **argv)
+ 		{"span", no_argument, NULL, 'S'},
+ 		{"year", no_argument, NULL, 'y'},
+ 		{"week", optional_argument, NULL, 'w'},
+-		{"color", optional_argument, NULL, OPT_COLOR},
+-		{"ordinal", no_argument, NULL, OPT_ORDINAL},
++		{"color", optional_argument, NULL, 'L'},
++		{"ordinal", no_argument, NULL, 'o'},
+ 		{"caesar", no_argument, NULL, OPT_CAESAR},
+-		{"1752-reform", no_argument, NULL, OPT_1752_REFORM},
++		{"1752-reform", no_argument, NULL, 'r'},
+ 		{"version", no_argument, NULL, 'V'},
+ 		{"twelve", no_argument, NULL, 'Y'},
+ 		{"help", no_argument, NULL, 'h'},
+@@ -302,7 +299,7 @@ int main(int argc, char **argv)
+ 	static const ul_excl_t excl[] = {       /* rows and cols in ASCII order */
+ 		{ '1', '3', 'Y', 'n', 'y' },
+ 		{ 'm', 's' },
+-		{ OPT_1752_REFORM, OPT_CAESAR },
++		{ 'r', OPT_CAESAR },
+ 		{ 0 }
+ 	};
+ 	int excl_st[ARRAY_SIZE(excl)] = UL_EXCL_STATUS_INIT;
+@@ -356,7 +353,8 @@ int main(int argc, char **argv)
+ 		ctl.weekstart = (wfd + *nl_langinfo(_NL_TIME_FIRST_WEEKDAY) - 1) % DAYS_IN_WEEK;
+ 	}
+ #endif
+-	while ((ch = getopt_long(argc, argv, "13mjn:sSyw::YVh", longopts, NULL)) != -1) {
++	while ((ch = getopt_long(argc, argv, "13jL::mn:orsSyw::YVh",
++				 longopts, NULL)) != -1) {
  
--void exec_shell(void)
-+__attribute__((__noreturn__)) void exec_shell(void)
- {
- 	const char *shell = getenv("SHELL");
- 	char *shellc = xstrdup(shell);
-diff --git a/term-utils/agetty.c b/term-utils/agetty.c
-index 844220401..c51ef5413 100644
---- a/term-utils/agetty.c
-+++ b/term-utils/agetty.c
-@@ -316,10 +316,10 @@ static void termio_final(struct options *op,
- 			 struct termios *tp, struct chardata *cp);
- static int caps_lock(char *s);
- static speed_t bcode(char *s);
--static void usage(void) __attribute__((__noreturn__));
--static void exit_slowly(int code) __attribute__((__noreturn__));
--static void log_err(const char *, ...) __attribute__((__noreturn__))
--			       __attribute__((__format__(printf, 1, 2)));
-+__attribute__((__noreturn__)) static void usage(void);
-+__attribute__((__noreturn__)) static void exit_slowly(int code);
-+__attribute__((__noreturn__)) __attribute__((__format__(printf, 1, 2)))
-+  static void log_err(const char *, ...);
- static void log_warn (const char *, ...)
- 				__attribute__((__format__(printf, 1, 2)));
- static ssize_t append(char *dest, size_t len, const char  *sep, const char *src);
-@@ -2218,7 +2218,7 @@ static speed_t bcode(char *s)
- 	return 0;
- }
+ 		err_exclusive_options(ch, longopts, excl, excl_st);
  
--static void __attribute__((__noreturn__)) usage(void)
-+__attribute__((__noreturn__)) static void usage(void)
- {
- 	FILE *out = stdout;
+@@ -379,7 +377,7 @@ int main(int argc, char **argv)
+ 			errx(EXIT_FAILURE,
+ 			    _("use --ordinal, --julian has been deprecated."));
+ 			break;
+-		case OPT_ORDINAL:
++		case 'o':
+ 			ctl.ordinal = 1;
+ 			ctl.day_width = DAY_LEN + 1;
+ 			break;
+@@ -405,13 +403,13 @@ int main(int argc, char **argv)
+ 			}
+ 			ctl.weektype = WEEK_NUM_US;	/* default per weekstart */
+ 			break;
+-		case OPT_COLOR:
++		case 'L':
+ 			ctl.colormode = UL_COLORMODE_AUTO;
+ 			if (optarg)
+ 				ctl.colormode = colormode_or_err(optarg,
+ 						_("unsupported color mode"));
+ 			break;
+-		case OPT_1752_REFORM:
++		case 'r':
+ 			ctl.reform_year = 1752;
+ 			break;
+ 		case OPT_CAESAR:
+@@ -1055,12 +1053,12 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_(" -S, --span            span the date when displaying multiple months\n"), out);
+ 	fputs(_(" -s, --sunday          Sunday as first day of week\n"), out);
+ 	fputs(_(" -m, --monday          Monday as first day of week\n"), out);
+-	fputs(_("     --ordinal         use day-of-year for all calendar types\n"), out);
++	fputs(_(" -o  --ordinal         use day-of-year for all calendar types\n"), out);
+ 	fputs(_(" -y, --year            show the whole year\n"), out);
+ 	fputs(_(" -Y, --twelve          show the next twelve months\n"), out);
+ 	fputs(_(" -w, --week[=<num>]    show US or ISO-8601 week numbers\n"), out);
+-	fputs(_("     --1752-reform     use Chesterfield's Act format\n"), out);
+-	fputs(_("     --color[=<when>]  date highlighting (auto, always or never)\n"), out);
++	fputs(_(" -r  --1752-reform     use Chesterfield's Act format\n"), out);
++	fputs(_(" -L  --color[=<when>]  date highlighting (auto, always or never)\n"), out);
+ 	fprintf(out,
+ 	        "                         %s\n", USAGE_COLORS_DEFAULT);
  
-@@ -2325,13 +2325,15 @@ static void dolog(int priority, const char *fmt, va_list ap)
- #endif				/* USE_SYSLOG */
- }
- 
--static void exit_slowly(int code)
-+__attribute__((__noreturn__)) static void exit_slowly(int code)
- {
- 	/* Be kind to init(8). */
- 	sleep(10);
- 	exit(code);
- }
- 
-+__attribute__((__noreturn__))
-+__attribute__((__format__(printf, 1, 2)))
- static void log_err(const char *fmt, ...)
- {
- 	va_list ap;
-diff --git a/text-utils/more.c b/text-utils/more.c
-index cbff39b11..68916b8b1 100644
---- a/text-utils/more.c
-+++ b/text-utils/more.c
-@@ -140,7 +140,8 @@ static struct termios otty, savetty0;
- static long file_pos, file_size;
- static int fnum, no_intty, no_tty;
- static int dum_opt, dlines;
--static void onquit(int), onsusp(int), chgwinsz(int), end_it(int);
-+static void onquit(int), onsusp(int), chgwinsz(int);
-+__attribute__((__noreturn__)) static void end_it(int dummy __attribute__((__unused__)));
- static int nscroll = SCROLL_LEN;	/* Number of lines scrolled by 'd' */
- static int fold_opt = 1;		/* Fold long lines */
- static int stop_opt = 1;		/* Stop after form feeds */
-@@ -692,7 +693,7 @@ static void chgwinsz(int dummy __attribute__((__unused__)))
- #endif				/* SIGWINCH */
- 
- /* Clean up terminal state and exit. Also come here if interrupt signal received */
--static void __attribute__((__noreturn__)) end_it(int dummy __attribute__((__unused__)))
-+__attribute__((__noreturn__)) static void end_it(int dummy __attribute__((__unused__)))
- {
- 	/* May be executed as a signal handler as well as by main process.
- 	 *
--- 
-2.16.1
-
