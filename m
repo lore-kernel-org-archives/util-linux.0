@@ -1,51 +1,77 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45678 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.20]:60049 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752444AbeAERPk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 5 Jan 2018 12:15:40 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id DB01F2D1C6
-        for <util-linux@vger.kernel.org>; Fri,  5 Jan 2018 17:15:40 +0000 (UTC)
-Received: from sulaco.redhat.com (ovpn-116-224.phx2.redhat.com [10.3.116.224])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 8D6805DC19
-        for <util-linux@vger.kernel.org>; Fri,  5 Jan 2018 17:15:40 +0000 (UTC)
-From: Tony Asleson <tasleson@redhat.com>
-To: util-linux@vger.kernel.org
-Subject: [PATCH RFC 0/1] libblkid: Initial support for Stratis
-Date: Fri,  5 Jan 2018 11:15:38 -0600
-Message-Id: <20180105171539.5948-1-tasleson@redhat.com>
+        id S1751706AbeABPCH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 2 Jan 2018 10:02:07 -0500
+Subject: [v3 PATCH 10/11] cal: fix first week calculation
+To: Karel Zak <kzak@redhat.com>
+References: <4833b897-2192-86dc-f81b-e977d98b07b1@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <8fdab0a8-e105-24a9-91bc-0f48e291d5bb@gmx.com>
+Date: Tue, 2 Jan 2018 10:02:05 -0500
+MIME-Version: 1.0
+In-Reply-To: <4833b897-2192-86dc-f81b-e977d98b07b1@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-My initial pass at adding support to libblkid for Stratis
-https://github.com/stratis-storage.
 
-Documentation including on disk format (needs a couple of updates):
-https://stratis-storage.github.io/StratisSoftwareDesign.pdf
+Commit efafeaf set 1 Jan as week 1, but the change
+was missed in week_to_day() and in the man page.
 
-I would like to add the appropriate sample super block img and associated 
-test(s) to this patch series as well.  However, at the moment I'm not exactly 
-sure how to do that.  Pointers to how that is accomplished would be greatly
-appreciated, otherwise I will splunk around in the code base until I figure it
-out.
+Before
+cal --week=40 1752
+      October 1752
+   Su Mo Tu We Th Fr Sa
+41  1  2  3  4  5  6  7
+42  8  9 10 11 12 13 14
+43 15 16 17 18 19 20 21
+44 22 23 24 25 26 27 28
+45 29 30 31
 
-Thanks!
+Patched
+cal --week=40 1752
+     September 1752
+   Su Mo Tu We Th Fr Sa
+36                 1  2
+37  3  4  5  6  7  8  9
+38 10 11 12 13 14 15 16
+39 17 18 19 20 21 22 23
+40 24 25 26 27 28 29 30
 
-Regards,
-Tony Asleson
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ misc-utils/cal.1 | 5 ++---
+ misc-utils/cal.c | 2 +-
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
-Tony Asleson (1):
-  libblkid: Add support for stratis
-
- libblkid/src/Makemodule.am             |   1 +
- libblkid/src/superblocks/stratis.c     | 104 +++++++++++++++++++++++++++++++++
- libblkid/src/superblocks/superblocks.c |   1 +
- libblkid/src/superblocks/superblocks.h |   1 +
- 4 files changed, 107 insertions(+)
- create mode 100644 libblkid/src/superblocks/stratis.c
-
--- 
-2.13.6
-
+diff --git a/misc-utils/cal.1 b/misc-utils/cal.1
+index 23e21c3a5..14125bafc 100644
+--- a/misc-utils/cal.1
++++ b/misc-utils/cal.1
+@@ -190,9 +190,8 @@ or defaults to Sunday.
+ .PP
+ The week numbering depends on the choice of the first day of the week.  If it
+ is Sunday (the default) then the customary North American numbering is used,
+-where the first Sunday of the year starts the first week.  If it is Monday then
+-the ISO 8601 standard week numbering is used, where the first Thursday of the
+-year is in week number 1.
++where 1 January is in week number 1.  If it is Monday then the ISO 8601
++standard week numbering is used, where the first Thursday is in week number 1.
+ .SH COLORS
+ Implicit coloring (highlighting) can be disabled as follows:
+ .RS
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index 0756f922f..2a24dad26 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -994,7 +994,7 @@ static int week_to_day(const struct cal_control *ctl)
+ 	if (ctl->weektype & WEEK_NUM_ISO)
+ 		yday -= (wday >= FRIDAY ? -2 : 5);
+ 	else
+-		yday -= (wday == SUNDAY ? 6 : -1);	/* WEEK_NUM_US */
++		yday -= 6;	/* WEEK_NUM_US */
+ 	if (yday <= 0)
+ 		return 1;
+ 
