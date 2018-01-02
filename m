@@ -1,266 +1,204 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:52638 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750937AbeAYKtg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 25 Jan 2018 05:49:36 -0500
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: J William Piggott <elseifthen@gmx.com>
-Subject: Re: [PATCH 3/4] cal: new top header to display the calendar system
-Date: Thu, 25 Jan 2018 11:49:27 +0100
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <7bdff2d4-ad0d-699e-d451-be087f637074@gmx.com> <6022019c-48a2-770c-c025-683025067976@gmx.com>
-In-Reply-To: <6022019c-48a2-770c-c025-683025067976@gmx.com>
+Return-Path: elseifthen@gmx.com
+Subject: [v3 PATCH 04/11] cal: rename --julian to --ordinal
+To: Karel Zak <kzak@redhat.com>
+References: <4833b897-2192-86dc-f81b-e977d98b07b1@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <0a376a82-325a-b095-8702-d563b7012c7d@gmx.com>
+Date: Tue, 2 Jan 2018 09:57:20 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1252"
-Message-Id: <201801251149.28065.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <4833b897-2192-86dc-f81b-e977d98b07b1@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 25 January 2018, J William Piggott wrote:
-> Output a top header showing what calendar system is being
-> displayed: Julian, Gregorian, or Mixed.
 
-Is it really necessary to print these extra lines always and by default? 
-I've never seen a calendar which reminds me on each page that we are 
-using Gregorian "nowadays".
+Using --julian for ordinal output was confusing.
+Also --julian is to be repurposed for Julian Calendar output.
 
-Also I think it would be nice to fix the tests at least at the end of 
-each pull request.
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ Documentation/deprecated.txt |  6 ++++++
+ misc-utils/cal.1             | 16 +++++++---------
+ misc-utils/cal.c             | 41 ++++++++++++++++++++++++-----------------
+ 3 files changed, 37 insertions(+), 26 deletions(-)
 
-cu,
-Rudi
-
-> Add months_in_row handling for 2 month columns; this enables
-> proper centering of the header in that case.
->
-> Also set the default gutter_width with to 3; using multiple
-> values complicates alignment of the top header; changing it to
-> 3 makes cal's output consistent.
->
-> cal 8 1752
->         Julian
->
->      August 1752
-> Su Mo Tu We Th Fr Sa
->                    1
->  2  3  4  5  6  7  8
->  9 10 11 12 13 14 15
-> 16 17 18 19 20 21 22
-> 23 24 25 26 27 28 29
-> 30 31
->
-> cal 9 1752
->          Mixed
->
->    September 1752
-> Su Mo Tu We Th Fr Sa
->        1  2 14 15 16
-> 17 18 19 20 21 22 23
-> 24 25 26 27 28 29 30
->
-> cal 10 1752
->        Gregorian
->
->     October 1752
-> Su Mo Tu We Th Fr Sa
->  1  2  3  4  5  6  7
->  8  9 10 11 12 13 14
-> 15 16 17 18 19 20 21
-> 22 23 24 25 26 27 28
-> 29 30 31
->
-> cal -3 9 1752
->                               Mixed
->
->      August 1752          September 1752          October 1752
-> Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa
->                    1          1  2 14 15 16    1  2  3  4  5  6  7
->  2  3  4  5  6  7  8   17 18 19 20 21 22 23    8  9 10 11 12 13 14
->  9 10 11 12 13 14 15   24 25 26 27 28 29 30   15 16 17 18 19 20 21
-> 16 17 18 19 20 21 22                          22 23 24 25 26 27 28
-> 23 24 25 26 27 28 29                          29 30 31
-> 30 31
->
-> cal --iso 9 1752
->        Gregorian
->
->    September 1752
-> Su Mo Tu We Th Fr Sa
->                 1  2
->  3  4  5  6  7  8  9
-> 10 11 12 13 14 15 16
-> 17 18 19 20 21 22 23
-> 24 25 26 27 28 29 30
->
-> cal --reform julian 1 2018
->         Julian
->
->     January 2018
-> Su Mo Tu We Th Fr Sa
->  1  2  3  4  5  6  7
->  8  9 10 11 12 13 14
-> 15 16 17 18 19 20 21
-> 22 23 24 25 26 27 28
-> 29 30 31
->
-> Signed-off-by: J William Piggott <elseifthen@gmx.com>
-> ---
->  misc-utils/cal.1 |  3 ++
->  misc-utils/cal.c | 86
-> ++++++++++++++++++++++++++++++++++++++++++++++++++++++-- 2 files
-> changed, 86 insertions(+), 3 deletions(-)
->
-> diff --git a/misc-utils/cal.1 b/misc-utils/cal.1
-> index 60eaa5c3b..95d1a255b 100644
-> --- a/misc-utils/cal.1
-> +++ b/misc-utils/cal.1
-> @@ -67,6 +67,9 @@ is followed by the 14th (the 3rd through the 13th
-> are absent). .sp
->  Optionally, either the proleptic Gregorian calendar or the Julian
-> calendar may be used exclusively.
-> +.sp
-> +The calendar system being output is displayed at the top.  The
-> values can be: +Gregorian, Julian, or Mixed.
->  .RB See\  \-\-reform\  below.
->  .SH OPTIONS
->  .TP
-> diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-> index d59afc03d..2551cd20d 100644
-> --- a/misc-utils/cal.c
-> +++ b/misc-utils/cal.c
-> @@ -244,6 +244,8 @@ static void cal_fill_month(struct cal_month
-> *month, const struct cal_control *ct static void
-> cal_output_header(struct cal_month *month, const struct cal_control
-> *ctl); static void cal_output_months(struct cal_month *month, const
-> struct cal_control *ctl); static void months(const struct cal_control
-> *ctl);
-> +static int is_mixed_output(const struct cal_control *ctl);
-> +static void top_header(const struct cal_control *ctl);
->  static int day_in_year(const struct cal_control *ctl, int day,
->  		       int month, int32_t year);
->  static int day_in_week(const struct cal_control *ctl, int day,
-> @@ -269,7 +271,7 @@ int main(int argc, char **argv)
->  		.colormode = UL_COLORMODE_UNDEF,
->  		.weektype = WEEK_NUM_DISABLED,
->  		.day_width = DAY_LEN,
-> -		.gutter_width = 2,
-> +		.gutter_width = 3,
->  		.req.day = 0,
->  		.req.month = 0
->  	};
-> @@ -531,7 +533,6 @@ int main(int argc, char **argv)
->  	}
->
->  	if (yflag || Yflag) {
-> -		ctl.gutter_width = 3;
->  		if (!ctl.num_months)
->  			ctl.num_months = MONTHS_IN_YEAR;
->  		if (yflag) {
-> @@ -539,7 +540,9 @@ int main(int argc, char **argv)
->  		}
->  	}
->
-> -	if (ctl.num_months > 1 && ctl.months_in_row == 0)
-> +	if (ctl.num_months == 2)
-> +		ctl.months_in_row = 2;
-> +	else if (ctl.num_months > 2 && !ctl.months_in_row)
->  		ctl.months_in_row = ctl.julian ? MONTHS_IN_YEAR_ROW - 1 :
->  						 MONTHS_IN_YEAR_ROW;
->  	else if (!ctl.months_in_row)
-> @@ -548,6 +551,7 @@ int main(int argc, char **argv)
->  	if (!ctl.num_months)
->  		ctl.num_months = 1;		/* display at least one month */
->
-> +	top_header(&ctl);
->  	months(&ctl);
->
->  	return EXIT_SUCCESS;
-> @@ -846,6 +850,82 @@ static void months(const struct cal_control
-> *ctl) }
->  }
->
-> +/*
-> + * Use the requested date, number of months to display, and the span
-> option to + * determin whether the Gregorian reform month will be
-> displayed; meaning mixed + * calendar systems will be used in the
-> output.
-> + */
-> +static int is_mixed_output(const struct cal_control *ctl)
-> +{
-> +	if (ctl->req.year > ctl->reform_year) {
-> +		if (ctl->span_months && ctl->num_months / 2
-> +		    > ((ctl->req.year - ctl->reform_year) * MONTHS_IN_YEAR)
-> +		    - ((REFORMATION_MONTH + 1) - ctl->req.month))
-> +			return 1;
-> +	} else if (ctl->req.year < ctl->reform_year) {
-> +		if (ctl->span_months) {
-> +			if (ctl->num_months / 2 + ctl->num_months % 2
-> +			    > ((ctl->reform_year - ctl->req.year)
-> +			       * MONTHS_IN_YEAR)
-> +			    + (REFORMATION_MONTH - ctl->req.month))
-> +				return 1;
-> +		} else {
-> +			if (ctl->num_months
-> +			    > ((ctl->reform_year - ctl->req.year)
-> +			       * MONTHS_IN_YEAR)
-> +			    + (REFORMATION_MONTH - ctl->req.month))
-> +				return 1;
-> +		}
-> +	} else {			/* req.year is reform year */
-> +		if (ctl->req.month > REFORMATION_MONTH) {
-> +			if (ctl->span_months && ctl->num_months / 2
-> +			    > (ctl->req.month - (REFORMATION_MONTH + 1)))
-> +				return 1;
-> +		} else {
-> +			if (ctl->span_months) {
-> +				if (ctl->num_months / 2 + ctl->num_months % 2
-> +				    > (REFORMATION_MONTH - ctl->req.month))
-> +					return 1;
-> +			} else {
-> +				if (ctl->num_months
-> +				    > (REFORMATION_MONTH - ctl->req.month))
-> +					return 1;
-> +			}
-> +		}
-> +	}
-> +	return 0;
-> +}
-> +
-> +/* Print first line - shows the calendar system being displayed */
-> +static void top_header(const struct cal_control *ctl)
-> +{
-> +	char out[FMT_ST_CHARS];
-> +	int cols = 0;
-> +
-> +	if (ctl->reform_year == GREGORIAN) {
-> +		sprintf(out, "%s", _("Gregorian"));
-> +	} else if (ctl->reform_year == JULIAN) {
-> +		sprintf(out, "%s", _("Julian"));
-> +	} else {			/* we have a reform year */
-> +		if (is_mixed_output(ctl))
-> +			sprintf(out, "%s", _("Mixed"));
-> +		else if (ctl->req.year > ctl->reform_year)
-> +			sprintf(out, "%s", _("Gregorian"));
-> +		else if (ctl->req.year < ctl->reform_year)
-> +			sprintf(out, "%s", _("Julian"));
-> +		else {			/* req.year is reform year */
-> +			if (ctl->req.month > REFORMATION_MONTH)
-> +				sprintf(out, "%s", _("Gregorian"));
-> +			else
-> +				sprintf(out, "%s", _("Julian"));
-> +		}
-> +	}
-> +
-> +	cols += (ctl->week_width * ctl->months_in_row) + 1;
-> +	center(out, cols, 0);
-> +	my_putstring("\n\n");
-> +}
-> +
->  /*
->   * day_in_year --
->   *	return the 1 based day number within the year
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/Documentation/deprecated.txt b/Documentation/deprecated.txt
+index 34ea698da..d79fd2c80 100644
+--- a/Documentation/deprecated.txt
++++ b/Documentation/deprecated.txt
+@@ -2,6 +2,12 @@ The following is a list of commands or features that are deprecated.  All
+ deprecated utils are in maintenance mode and we keep them in source tree for
+ backward compatibility only.
+ 
++what:  cal --julian
++why:   renamed to --ordinal
++since: v2.32
++
++--------------------------
++
+ what:  column --columns
+ why:   renamed to --output-width
+ since: v2.30
+diff --git a/misc-utils/cal.1 b/misc-utils/cal.1
+index 7e917886c..afd3bdc5f 100644
+--- a/misc-utils/cal.1
++++ b/misc-utils/cal.1
+@@ -104,15 +104,13 @@ Display Sunday as the first day of the week.
+ Display Monday as the first day of the week.
+ .TP
+ \fB\-j\fR, \fB\-\-julian\fR
+-Use day-of-year numbering for all calendar types.  These are also called ordinal
+-days.  Ordinal days range from 1 to 366.  This option does not switch from the
+-Gregorian to the Julian calendar system, that is controlled by the Gregorian
+-epoch option
+-.BR \%\-\-1752-reform .
+-Sometimes Gregorian calendars using ordinal dates are referred to as Julian
+-calendars.  This can be confusing because there are many date related
+-conventions that use Julian in their name: (ordinal) julian date, julian
+-(calendar) date, (astronomical) julian date, (modified) julian date, and more.
++.RB Use\  \-\-ordinal .
++.RB The\  \%\-\-julian\  option
++has been deprecated and may be repurposed or removed in a future release.
++.TP
++.B \-\-ordinal
++Display day-of-year numbering for all calendar types.  Ordinal days range from
++1 to 366.
+ .TP
+ \fB\-y\fR, \fB\-\-year\fR
+ Display a calendar for the whole year.
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index df0568c56..0990f5199 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -216,7 +216,7 @@ struct cal_control {
+ 	size_t week_width;		/* 7 * day_width + possible week num */
+ 	int gutter_width;		/* spaces in between horizontal month outputs */
+ 	struct cal_request req;		/* the times user is interested */
+-	unsigned int	julian:1,	/* julian output */
++	unsigned int	ordinal:1,	/* ordinal output */
+ 			header_year:1,	/* print year number */
+ 			header_hint:1;	/* does month name + year need two lines to fit */
+ };
+@@ -270,7 +270,8 @@ int main(int argc, char **argv)
+ 
+ 	enum {
+ 		OPT_1752_REFORM = CHAR_MAX + 1,
+-		OPT_COLOR
++		OPT_COLOR,
++		OPT_ORDINAL
+ 	};
+ 
+ 	static const struct option longopts[] = {
+@@ -284,6 +285,7 @@ int main(int argc, char **argv)
+ 		{"year", no_argument, NULL, 'y'},
+ 		{"week", optional_argument, NULL, 'w'},
+ 		{"color", optional_argument, NULL, OPT_COLOR},
++		{"ordinal", no_argument, NULL, OPT_ORDINAL},
+ 		{"1752-reform", no_argument, NULL, OPT_1752_REFORM},
+ 		{"version", no_argument, NULL, 'V'},
+ 		{"twelve", no_argument, NULL, 'Y'},
+@@ -366,7 +368,11 @@ int main(int argc, char **argv)
+ 			ctl.weekstart = MONDAY;
+ 			break;
+ 		case 'j':
+-			ctl.julian = 1;
++			errx(EXIT_FAILURE,
++			    _("use --ordinal, --julian has been deprecated."));
++			break;
++		case OPT_ORDINAL:
++			ctl.ordinal = 1;
+ 			ctl.day_width = DAY_LEN + 1;
+ 			break;
+ 		case 'y':
+@@ -530,7 +536,7 @@ int main(int argc, char **argv)
+ 	}
+ 
+ 	if (ctl.num_months > 1 && ctl.months_in_row == 0)
+-		ctl.months_in_row = ctl.julian ? MONTHS_IN_YEAR_ROW - 1 :
++		ctl.months_in_row = ctl.ordinal ? MONTHS_IN_YEAR_ROW - 1 :
+ 						 MONTHS_IN_YEAR_ROW;
+ 	else if (!ctl.months_in_row)
+ 		ctl.months_in_row = 1;
+@@ -634,7 +640,7 @@ static void cal_fill_month(struct cal_month *month, const struct cal_control *ct
+ 	int month_days;
+ 	int i, j, weeklines = 0;
+ 
+-	if (ctl->julian)
++	if (ctl->ordinal)
+ 		j = day_in_year(ctl, 1, month->month, month->year);
+ 	else
+ 		j = 1;
+@@ -710,7 +716,7 @@ static void cal_output_header(struct cal_month *month, const struct cal_control
+ 	my_putstring("\n");
+ 	for (i = month; i; i = i->next) {
+ 		if (ctl->weektype) {
+-			if (ctl->julian)
++			if (ctl->ordinal)
+ 				sprintf(out, "%*s%s", (int)ctl->day_width - 1, "", day_headings);
+ 			else
+ 				sprintf(out, "%*s%s", (int)ctl->day_width, "", day_headings);
+@@ -737,7 +743,7 @@ static void cal_output_months(struct cal_month *month, const struct cal_control
+ 			/* Determine the day that should be highlighted. */
+ 			reqday = 0;
+ 			if (i->month == ctl->req.month && i->year == ctl->req.year) {
+-				if (ctl->julian)
++				if (ctl->ordinal)
+ 					reqday = ctl->req.day;
+ 				else
+ 					reqday = ctl->req.day + 1 -
+@@ -766,9 +772,12 @@ static void cal_output_months(struct cal_month *month, const struct cal_control
+ 			     d < DAYS_IN_WEEK * week_line + DAYS_IN_WEEK; d++) {
+ 				if (0 < i->days[d]) {
+ 					if (reqday == i->days[d])
+-						sprintf(out, "%*s%s%*d%s", skip - (ctl->julian ? 3 : 2),
+-						       "", Senter, (ctl->julian ? 3 : 2),
+-						       i->days[d], Sexit);
++						sprintf(out, "%*s%s%*d%s", skip
++							- (ctl->ordinal
++							   ? 3 : 2),
++							"", Senter,
++							(ctl->ordinal ? 3 : 2),
++							i->days[d], Sexit);
+ 					else
+ 						sprintf(out, "%*d", skip, i->days[d]);
+ 				} else
+@@ -842,8 +851,8 @@ static void yearly(const struct cal_control *ctl)
+ 	char out[FMT_ST_CHARS];
+ 	int year_width = 0;
+ 
+-	year_width += (ctl->week_width + 1) * (ctl->julian ? 2 : 3);
+-	if (ctl->julian)
++	year_width += (ctl->week_width + 1) * (ctl->ordinal ? 2 : 3);
++	if (ctl->ordinal)
+ 		year_width--;
+ 
+ 	if (ctl->header_year) {
+@@ -927,7 +936,7 @@ static int day_in_week(const struct cal_control *ctl, int day,
+  * week_number
+  *      return the week number of a given date, 1..54.
+  *      Supports ISO-8601 and North American modes.
+- *      Day may be given as Julian day of the year mode, in which
++ *      Day may be given as ordinal day, in which
+  *      case the month is disregarded entirely.
+  */
+ static int week_number(int day, int month, int32_t year, const struct cal_control *ctl)
+@@ -943,9 +952,7 @@ static int week_number(int day, int month, int32_t year, const struct cal_contro
+ 		 * more than 52 weeks, */
+ 		fday = wday + 6;
+ 	}
+-	/* For julian dates the month can be set to 1, the global julian
+-	 * variable cannot be relied upon here, because we may recurse
+-	 * internally for 31.12. which would not work. */
++	/* For ordinal dates the month can be set to 1 */
+ 	if (day > DAYS_IN_MONTH)
+ 		month = JANUARY;
+ 
+@@ -1037,7 +1044,7 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_(" -S, --span            span the date when displaying multiple months\n"), out);
+ 	fputs(_(" -s, --sunday          Sunday as first day of week\n"), out);
+ 	fputs(_(" -m, --monday          Monday as first day of week\n"), out);
+-	fputs(_(" -j, --julian          use day-of-year for all calendar types\n"), out);
++	fputs(_("     --ordinal         use day-of-year for all calendar types\n"), out);
+ 	fputs(_(" -y, --year            show the whole year\n"), out);
+ 	fputs(_(" -Y, --twelve          show the next twelve months\n"), out);
+ 	fputs(_(" -w, --week[=<num>]    show US or ISO-8601 week numbers\n"), out);
