@@ -1,44 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:42502 "EHLO smtp.gentoo.org"
+Received: from mx1.redhat.com ([209.132.183.28]:41912 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752855AbeASCW7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 18 Jan 2018 21:22:59 -0500
-Received: from vapier.lan (localhost [127.0.0.1])
-        by smtp.gentoo.org (Postfix) with ESMTP id A1BC9335C0A
-        for <util-linux@vger.kernel.org>; Fri, 19 Jan 2018 02:22:58 +0000 (UTC)
-From: Mike Frysinger <vapier@gentoo.org>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] mount(8): point people to the proc(5) page for mount options
-Date: Thu, 18 Jan 2018 21:22:46 -0500
-Message-Id: <20180119022246.26617-1-vapier@gentoo.org>
+        id S1751354AbeACKE6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 3 Jan 2018 05:04:58 -0500
+Date: Wed, 3 Jan 2018 11:04:54 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] libfdisk: fsync(2) after writing partition data
+Message-ID: <20180103100454.lu3gqiqcy2ijymm2@ws.net.home>
+References: <20180102204504.1543-1-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180102204504.1543-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This page is out of date wrt proc mount options, so point it to the
-proc(5) page which is kept up to date.
+On Tue, Jan 02, 2018 at 08:45:04PM +0000, Sami Kerola wrote:
+> In reply to reference comment commit:
+> > It would be nice to have something more elegant than sleep, any idea?
+> 
+> Adding fsync(2) might be superficial when writing to device file, but
 
-Signed-off-by: Mike Frysinger <vapier@gentoo.org>
----
- sys-utils/mount.8 | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Well, we use fsync() before close(). I don't think we want to use
+fsync() after a separate write as we use more than one write pretty
+often.
 
-diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
-index c6089a7ad23a..954a4d3858b9 100644
---- a/sys-utils/mount.8
-+++ b/sys-utils/mount.8
-@@ -2067,9 +2067,9 @@ The upperdir is normally on a writable filesystem.
- The workdir needs to be an empty directory on the same filesystem as upperdir.
- 
- .SS "Mount options for proc"
--.TP
--\fBuid=\fP\,\fIvalue\fP and \fBgid=\fP\,\fIvalue\fP
--These options are recognized, but have no effect as far as I can see.
-+See the options section of the
-+.BR proc (5)
-+man page.
- 
- .SS "Mount options for ramfs"
- Ramfs is a memory based filesystem.  Mount it and you have it.  Unmount it
+    Karel
+
+
 -- 
-2.15.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
