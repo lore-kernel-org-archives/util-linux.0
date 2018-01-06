@@ -1,78 +1,105 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 1/2] cal: honor num_months when only a year argument
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.22]:65097 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753388AbeAFQLf (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sat, 6 Jan 2018 11:11:35 -0500
+Subject: Re: [PATCH 2/2] hwclock: add --ul-debug implementing debug.h
 To: Karel Zak <kzak@redhat.com>
+References: <27af199a-8ec2-634f-6e99-dd4047f9d5f4@gmx.com>
+ <c0ee83b1-2736-313d-802b-4937c6f71d85@gmx.com>
+ <20171229113824.72y6cgyqta42mt2y@ws.net.home>
 Cc: util-linux@vger.kernel.org
 From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <85ea05cd-c4d0-f7d6-14f4-7deb065089d1@gmx.com>
-Date: Mon, 22 Jan 2018 15:05:08 -0500
+Message-ID: <3b97fbb3-d191-1aa1-2d6e-ee8e17174cea@gmx.com>
+Date: Sat, 6 Jan 2018 11:11:31 -0500
 MIME-Version: 1.0
+In-Reply-To: <20171229113824.72y6cgyqta42mt2y@ws.net.home>
 Content-Type: text/plain; charset=windows-1252
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
-I don't know if this was an oversight or an overzealous
-interpretation of POSIX. Just in case, I'll address the
-POSIX possibility. POSIX description for cal(1) says:
 
-  If only the year operand is given, cal shall produce a
-  calendar for all twelve months in the given calendar year.
+On 12/29/2017 06:38 AM, Karel Zak wrote:
+> On Sun, Dec 24, 2017 at 03:38:58PM -0500, J William Piggott wrote:
+>>
+>> Undocumented at this time, because it is a skeleton
+>> implementation.  More debugging points are to be added after
+>> refactoring is complete, or ad hoc in the mean time.
+>>
+>> When fully implemented, enough time may have passed that the
+>> deprecated --debug could be used to replace --ul-debug.
+> 
+> We use everywhere env.variables (e.g. HWCLOCK_DEBUG=). The macro
+> __UL_INIT_DEBUG() already provides all necessary functionality for
+> this purpose. 
+> 
+> It also allows to use human readable names for the masks or hex
+> numbers. See for example  sys-utils/lsns.c or libsmartcols/src/init.c
+> for more complex usage. The human readable masks are optional and now
+> used by shared libs only, see for example "LIBSMARTCOLS_DEBUG=help
+> lsns".
+> 
+> I'd like to keep things consistent and with no exceptions...
+> 
+> IMHO "hwclock --verbose" is good idea for ordinary users and
+> "HWCLOCK_DEBUG=all hwclock" for developers.
+> 
+>     Karel
+>
 
-It also says that cal(1) has no options, so in that context
-if an option is given then it should be expected to override
-POSIX behavior.
+Karel,
 
-Before patched all of these command displayed a full year:
-cal -1 2020
-cal -3 2020
-cal -n6 2020
+Sami sent me a patch doing exactly that. So I made time to digest debug.h; then
+I replied that I had reversed my position; I don't like debug.h for hwclock.
 
-Patched the number of months options are honored.
+I slept on it, and thought perhaps using an option instead of an env might be
+an acceptable compromise. So I figured out how to make debug.h use an option.
 
-This patch also fixes the -1 option which was a no-op.
+Would it not be 'consistent' to say that commands use a debug option, and libs
+use a debug env?
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- misc-utils/cal.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+Consistent in this case isn't about the code, but the UI; correct? So doesn't
+consistent really translate to convenient for developers. That does not seem
+like a strong argument to me. A proportionate counter point could be that it is
+more convenient to enter 'hwclock -d all' then 'HWCLOCK_DEBUG=all hwclock'.
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index 5a6364a27..8a715d94c 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -267,7 +267,6 @@ int main(int argc, char **argv)
- 	static struct cal_control ctl = {
- 		.reform_year = DEFAULT_REFORM_YEAR,
- 		.weekstart = SUNDAY,
--		.num_months = 1,		/* default is "cal -1" */
- 		.span_months = 0,
- 		.colormode = UL_COLORMODE_UNDEF,
- 		.weektype = WEEK_NUM_DISABLED,
-@@ -363,7 +362,7 @@ int main(int argc, char **argv)
- 
- 		switch(ch) {
- 		case '1':
--			/* default */
-+			ctl.num_months = 1;
- 			break;
- 		case '3':
- 			ctl.num_months = 3;
-@@ -536,7 +535,8 @@ int main(int argc, char **argv)
- 
- 	if (yflag || Yflag) {
- 		ctl.gutter_width = 3;
--		ctl.num_months = MONTHS_IN_YEAR;
-+		if (!ctl.num_months)
-+			ctl.num_months = MONTHS_IN_YEAR;
- 		if (yflag) {
- 			ctl.req.start_month = 1;	/* start from Jan */
- 			ctl.header_year = 1;		/* print year number */
-@@ -549,6 +549,9 @@ int main(int argc, char **argv)
- 	else if (!ctl.months_in_row)
- 		ctl.months_in_row = 1;
- 
-+	if (!ctl.num_months)
-+		ctl.num_months = 1;		/* display at least one month */
-+
- 	if (yflag || Yflag)
- 		yearly(&ctl);
- 	else
+I'm more interested in asking: how does using an env over an option benefit the
+code? I think it does not. Commands already have the code to parse options;
+adding more code to parse an env which serves no benefit to the application,
+IMO, is code bloat (and possibly a security risk).
+
+What I dislike the most is that debugging is very seldom used, yet debugging is
+initialized unconditionally whether it is wanted or not. This is completely
+unnecessary; an option does the job just as well without the added overhead.
+For time sensitive commands like hwclock this is just one more place for
+preemption to slip in. The one thing left that I really want to fix on hwclock
+it its precision.  At least some of that problem is preemption. Using an option
+over an env eliminates that.
+
+My approach to debug.h adds a single line to hwclock.c. It eliminates the
+unconditional debugging initialization and the other unnecessary code.
+
+Regarding debug.h in general, is this an elegant solution?
+  disk-utils/cfdisk.c:2691
+	fdisk_init_debug(0);
+	scols_init_debug(0);
+	cfdisk_init_debug();
+
+CFDISK_DEBUG=all LIBFDISK_DEBUG=all LIBBLKID_DEBUG=all \
+LIBSMARTCOLS_DEBUG=all LIBSMARTCOLS_DEBUG_PADDING=on cfdisk
+
+Is anyone else (other than e2fsprogs) using this approach?
+
+I also wonder if the way debug.h is using the env argument is a potential security
+whole? I didn't note any input sanitizing being done?
+
+In the end I just do not like the debug.h solution. It's a solution in search
+of a problem; a problem that commands do not have. I understand the concept for
+libraries, but I'm not convinced that it is the best solution for them either.
+
+Anyway, Sami has a patch queued that uses the env, if that is what you want.
+Please remove my name from his commit messages, as I object to using debug.h in
+hwclock.
+
+
