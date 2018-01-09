@@ -1,49 +1,100 @@
-Return-Path: viro@ftp.linux.org.uk
-Date: Fri, 19 Jan 2018 02:27:18 +0000
-From: Al Viro <viro@ZenIV.linux.org.uk>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:28582 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750883AbeAIVNT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 9 Jan 2018 16:13:19 -0500
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 68C63356E1
+        for <util-linux@vger.kernel.org>; Tue,  9 Jan 2018 21:13:19 +0000 (UTC)
+Reply-To: tasleson@redhat.com
+Subject: Re: [PATCH RFC 1/1] libblkid: Add support for stratis
 To: Karel Zak <kzak@redhat.com>
-Cc: Miklos Szeredi <mszeredi@redhat.com>,
-	David Howells <dhowells@redhat.com>,
-	Jeff Layton <jlayton@redhat.com>,
-	"Eric W. Biederman" <ebiederm@redhat.com>,
-	linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-	Linux API <linux-api@vger.kernel.org>, util-linux@vger.kernel.org,
-	"Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Subject: Re: User-visible context-mount API
-Message-ID: <20180119022717.GF13338@ZenIV.linux.org.uk>
-References: <28167.1516032442@warthog.procyon.org.uk>
- <CAOssrKdgudK7kKbhQBAnV9EwzHBq=4+9M26JGfmhNDGrGXmnFg@mail.gmail.com>
- <1643.1516117204@warthog.procyon.org.uk>
- <CAOssrKdn-ZhOB9V28uL-JK9zgNGJzF4cFBeyoqLLj4pADqNFVQ@mail.gmail.com>
- <20180117041727.GS13338@ZenIV.linux.org.uk>
- <CAOssrKfN_ZT5yJC1mxkhUf6FG=_eMD4nzQtETfu_4X3vOf1kHw@mail.gmail.com>
- <20180117110633.zneqvnjzgxkv4yc2@ws.net.home>
+Cc: util-linux@vger.kernel.org
+References: <20180105171539.5948-1-tasleson@redhat.com>
+ <20180105171539.5948-2-tasleson@redhat.com>
+ <20180108111614.wd2eueagamfbcsil@ws.net.home>
+From: Tony Asleson <tasleson@redhat.com>
+Message-ID: <88adc164-c17d-a798-d9bc-23b8649dd5f4@redhat.com>
+Date: Tue, 9 Jan 2018 15:13:18 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180117110633.zneqvnjzgxkv4yc2@ws.net.home>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+In-Reply-To: <20180108111614.wd2eueagamfbcsil@ws.net.home>
+Content-Type: text/plain; charset=utf-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jan 17, 2018 at 12:06:33PM +0100, Karel Zak wrote:
+Thank you for the suggestions, v2 patch posted which incorporates them.
 
-> What about new flag (for the API) rather than try to be smart with the
-> current flags? But I have doubts that invest time to new mount(2)
-> features is a good idea.
+Regards,
+Tony
 
-Would be nice, if we had any spare bits left...  We could, in principle,
-turn
-#define MS_BIND         4096
-#define MS_MOVE         8192
-into
-#define MS_BIND         0x1000
-#define MS_MOVE         0x2000
-#define MS_SOMETHING    0x3000
-seeing that they should never be used together, but... mount(2)
-doesn't reject MS_BIND|MS_MOVE and treats it as MS_BIND instead.
-_Probably_ nothing would care, but it risks breaking userland.
+On 01/08/2018 05:16 AM, Karel Zak wrote:
+> On Fri, Jan 05, 2018 at 11:15:39AM -0600, Tony Asleson wrote:
+>> +static int stratis_valid_sb(blkid_probe pr, uint8_t *p)
+>> +{
+>> +	const struct stratis_sb *stratis = (const struct stratis_sb *)p;
+>> +	uint32_t crc = 0;
+>> +
+>> +	// generate CRC from byte position 4 for length 508 == 512 byte sector
+>> +	crc = crc32c(~0L, p + sizeof(stratis->crc32),
+>> +			BS - sizeof(stratis->crc32));
+>> +	crc ^= ~0L;
+>> +
+>> +	return blkid_probe_verify_csum(pr, crc, le32_to_cpu(stratis->crc32));
+> 
+> Not sure that blkid_probe_verify_csum() is a good idea for your
+> use-case. 
+> 
+> The function ignores (returns 1) bad checksums if BLKID_SUBLKS_BADCSUM
+> flag is enabled. I guess you want to use second (backup) superblock 
+> if the primary one is broken. It would be better to use
+> 
+>     return crc == le32_to_cpu(stratis->crc32);
+> 
+> and do not use blkid_probe_verify_csum() at all.
+> 
+>> +static int probe_stratis(blkid_probe pr,
+>> +		const struct blkid_idmag *mag __attribute__((__unused__)))
+>> +{
+>> +	const struct stratis_sb *stratis = NULL;
+>> +	uint8_t *buf = blkid_probe_get_buffer(pr, 0, SB_AREA_SIZE);
+>> +
+>> +	if (!buf)
+>> +		return errno ? -errno : 1;
+>> +
+>> +	if (stratis_valid_sb(pr, buf + FIRST_COPY_OFFSET)) {
+>> +		stratis = (const struct stratis_sb *)(buf + FIRST_COPY_OFFSET);
+>> +	} else {
+>> +		if (!stratis_valid_sb(pr, buf + SECOND_COPY_OFFSET))
+>> +			return 1;
+>> +
+>> +		stratis = (const struct stratis_sb *)
+>> +				(buf + SECOND_COPY_OFFSET);
+>> +	}
+>> +
+>> +	blkid_probe_strncpy_uuid(pr, (unsigned char *)stratis->dev_uuid,
+>> +					sizeof(stratis->dev_uuid));
+>> +	blkid_probe_set_value(pr, "POOL_UUID",
+>> +				(unsigned char *)stratis->pool_uuid,
+>> +				sizeof(stratis->pool_uuid));
+>> +
+>> +	blkid_probe_sprintf_value(pr, "SECTORS", "%" PRIu64, stratis->sectors);
+> 
+> Hmm... SECTORS sounds pretty generic. Don't forget it will be
+> stored in udevd db. Would be possible to use any prefix?
+> 
+> For example:
+> 
+>     POOL_SECTORS
+> 
+>> +	blkid_probe_sprintf_value(pr, "INITIALIZATION_TIME", "%" PRIu64,
+>> +					stratis->initialization_time);
+> 
+>     POOL_INITTIME
+> 
+> Karel
+> 
+> 
+> 
 
-We could use one of the internal-only bits for that instead, but
-they are also quietly ignored and not rejected, so that would
-have the same problem.
-
-mount(2) ABI sucks, film at 11...
