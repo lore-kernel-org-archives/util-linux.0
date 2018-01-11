@@ -1,111 +1,83 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:50278 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.17.21]:63398 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933669AbeAXMyW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 24 Jan 2018 07:54:22 -0500
-Date: Wed, 24 Jan 2018 13:54:18 +0100
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
+        id S1753729AbeAKCA2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 10 Jan 2018 21:00:28 -0500
+Subject: Re: [v3 PATCH 00/11] Pull Request - changelog
+To: Karel Zak <kzak@redhat.com>
+References: <4833b897-2192-86dc-f81b-e977d98b07b1@gmx.com>
+ <20180108102159.dyelg7kqp5tx3c3i@ws.net.home>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] cal: honor num_months when only a year argument
-Message-ID: <20180124125418.txntlrwtme7mjqor@ws.net.home>
-References: <85ea05cd-c4d0-f7d6-14f4-7deb065089d1@gmx.com>
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <6635776f-9787-f05c-704f-e326808daa1d@gmx.com>
+Date: Wed, 10 Jan 2018 21:00:23 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <85ea05cd-c4d0-f7d6-14f4-7deb065089d1@gmx.com>
+In-Reply-To: <20180108102159.dyelg7kqp5tx3c3i@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jan 22, 2018 at 03:05:08PM -0500, J William Piggott wrote:
-> It also says that cal(1) has no options, so in that context
-> if an option is given then it should be expected to override
-> POSIX behavior.
+
+
+On 01/08/2018 05:21 AM, Karel Zak wrote:
+> On Tue, Jan 02, 2018 at 09:53:18AM -0500, J William Piggott wrote:
 > 
-> Before patched all of these command displayed a full year:
-> cal -1 2020
-> cal -3 2020
-> cal -n6 2020
+> I have no clue how many users care and read our ReleaseNotes, but
+> important is that they have opportunity to do that and they have
+> always time to adopt to changes. This is how I promised that this 
+> project will be maintained. 
 
-It enables *year header*, and for one month is looks strange,
-especially if you don't asked for it.
+Your response here puzzled me, because I could not remember you ever
+making a pre-announcement of this nature before.  For example when
+hwclock's default output format was changed in v2.28 it didn't even make
+the release highlights, let alone require a pre-change announcement.  I
+did a quick grep and could not find a single instance of an advance
+notification for this type of change.
 
-$ ./cal -1 2018
-                               2018                               
+> Thanks. I'll work on cal(1) in next days and use us much as possible
+> from your patches.
 
-       January      
-Su Mo Tu We Th Fr Sa
-    1  2  3  4  5  6  
- 7  8  9 10 11 12 13  
-14 15 16 17 18 19 20  
-21 22 23 24 25 26 27  
-28 29 30 31           
+I originally started a branch implemented for an advance notification; I
+backported some of my later fixes from the v3 submission to it. The
+resulting branch may be more to your liking:
+  git@github.com:jwpi/util-linux.git 171225
 
+The current v3 submission's branch is:
+  git@github.com:jwpi/util-linux.git 171229
 
-The problem is that <year> command line argument enables yflag, but in
-this case it does not make sense. I guess solution is something like:
+Both branches have an updated commit message for renaming --julian to
+--ordinal, expanding on the rational for it:
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index 562ae2afb..82f3e4558 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -484,7 +484,8 @@ int main(int argc, char **argv)
-                }
-                if (!ctl.req.month && !ctl.req.week) {
-                        ctl.req.month = local_time->tm_mon + 1;
--                       yflag = 1;
-+                       if (!ctl.num_months)
-+                               yflag = 1;
-                }
-                break;
-        case 0:
+    cal(1) is unique in that it uses both Julian and Gregorian calendar
+    systems.  This causes a name collision with the --julian ordinal day
+    option.
 
+    Other commonly distributed code for POSIX-like systems do not share this
+    problem because they all use the proleptic Gregorian calendar system
+    exclusively; so they can get away with calling ordinal days 'julian' and
+    using things like %j for formatting ordinal days.
 
-It means that header for "-1|-3|-n <year>" is the same as without
-<year>.
+    For cal(1) this ambiguity is problematic for developers, users,
+    and for the implementation itself.
 
-Fixed version:
+    There are no alternate names for the Julian calendar (system);
+    alternates names for (ordinal) Julian calendar are: day-of-year,
+    and ordinal. Ordinal being the preferred name:
+     https://en.wikipedia.org/wiki/Julian_day#Terminology
+     https://en.wikipedia.org/wiki/Ordinal_date
 
-$ ./cal -1 2020
-    January 2020    
-Su Mo Tu We Th Fr Sa
-          1  2  3  4 
- 5  6  7  8  9 10 11 
-12 13 14 15 16 17 18 
-19 20 21 22 23 24 25 
-26 27 28 29 30 31                       
+    To implement an exclusive Julian Calendar output for cal(1) it will need
+    to use the name Julian, because there are no alternatives. Even for a
+    mixed calendar output the dates earlier than the reform epoch need to be
+    labeled and referred to as 'Julian'.
 
-$ ./cal -3 2020
-    December 2019         January 2020          February 2020   
-Su Mo Tu We Th Fr Sa  Su Mo Tu We Th Fr Sa  Su Mo Tu We Th Fr Sa
- 1  2  3  4  5  6  7            1  2  3  4                     1 
- 8  9 10 11 12 13 14   5  6  7  8  9 10 11   2  3  4  5  6  7  8 
-15 16 17 18 19 20 21  12 13 14 15 16 17 18   9 10 11 12 13 14 15 
-22 23 24 25 26 27 28  19 20 21 22 23 24 25  16 17 18 19 20 21 22 
-29 30 31              26 27 28 29 30 31     23 24 25 26 27 28 29 
-                                          
-You can force year header by explicit -y on command line:
-
-./cal -3y 2020
-                               2020
-
-      December                January               February
-Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa
- 1  2  3  4  5  6  7             1  2  3  4                      1
- 8  9 10 11 12 13 14    5  6  7  8  9 10 11    2  3  4  5  6  7  8
-15 16 17 18 19 20 21   12 13 14 15 16 17 18    9 10 11 12 13 14 15
-22 23 24 25 26 27 28   19 20 21 22 23 24 25   16 17 18 19 20 21 22
-29 30 31               26 27 28 29 30 31      23 24 25 26 27 28 29
+    Therefore, the current --julian option needs to be renamed to --ordinal.
 
 
-IMHO it's more consistent behavior. 
+While working on cal I discovered more things that are broken. I wanted
+to include the fixes in this patch set, but I thought it would be too
+much for this round. What I envision as the output to address these new
+issues will also need to use the term Julian to represent the calendar
+system.
 
-We need to add a note to the man page that -y forces cal(1) to use 
-year header in all contexts.
 
-Comments?
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
