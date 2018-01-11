@@ -1,103 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:52528 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:40176 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756368AbeATSG2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sat, 20 Jan 2018 13:06:28 -0500
-Received: from adsiz.fritz.box ([146.52.144.151]) by mail.gmx.com (mrgmx101
- [212.227.17.168]) with ESMTPSA (Nemesis) id 0Lwnem-1esLms30Ce-016Ool for
- <util-linux@vger.kernel.org>; Sat, 20 Jan 2018 19:06:26 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 5/5] build-sys: remove redundant EXTRA_DIST files
-Date: Sat, 20 Jan 2018 19:06:24 +0100
-Message-Id: <20180120180624.15213-6-sweet_f_a@gmx.de>
-In-Reply-To: <20180120180624.15213-1-sweet_f_a@gmx.de>
-References: <20180120180624.15213-1-sweet_f_a@gmx.de>
+        id S932565AbeAKJBa (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 11 Jan 2018 04:01:30 -0500
+Date: Thu, 11 Jan 2018 10:01:20 +0100
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [v3 PATCH 00/11] Pull Request - changelog
+Message-ID: <20180111090120.k6h5q2juw6gqemlc@ws.net.home>
+References: <4833b897-2192-86dc-f81b-e977d98b07b1@gmx.com>
+ <20180108102159.dyelg7kqp5tx3c3i@ws.net.home>
+ <6635776f-9787-f05c-704f-e326808daa1d@gmx.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <6635776f-9787-f05c-704f-e326808daa1d@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Wed, Jan 10, 2018 at 09:00:23PM -0500, J William Piggott wrote:
+> 
+> 
+> On 01/08/2018 05:21 AM, Karel Zak wrote:
+> > On Tue, Jan 02, 2018 at 09:53:18AM -0500, J William Piggott wrote:
+> > 
+> > I have no clue how many users care and read our ReleaseNotes, but
+> > important is that they have opportunity to do that and they have
+> > always time to adopt to changes. This is how I promised that this 
+> > project will be maintained. 
+> 
+> Your response here puzzled me, because I could not remember you ever
+> making a pre-announcement of this nature before.
 
-The sources of AC_CONFIG_FILES (*.in) are automatically
-distributed.
+2.14  The losetup(8) '-s' option (introduced by util-linux-ng-2.13) is deprecated
+2.21  The udev compatible output (-o udev) from blkid(8) is deprecated.
+2.25  The "swapon --summary" output format is deprecated ...
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- libblkid/Makemodule.am         | 2 +-
- libblkid/src/Makemodule.am     | 3 +--
- libfdisk/src/Makemodule.am     | 3 +--
- libmount/src/Makemodule.am     | 3 +--
- libsmartcols/src/Makemodule.am | 3 +--
- 5 files changed, 5 insertions(+), 9 deletions(-)
+... and many warnings about commands (mkfs, tailf, mount, last, ...) and
+features (cryptoloop).
 
-diff --git a/libblkid/Makemodule.am b/libblkid/Makemodule.am
-index b4f6f9c4e..f1d1e8d00 100644
---- a/libblkid/Makemodule.am
-+++ b/libblkid/Makemodule.am
-@@ -11,6 +11,6 @@ endif
- pkgconfig_DATA += libblkid/blkid.pc
- PATHFILES      += libblkid/blkid.pc
- dist_man_MANS  += libblkid/libblkid.3
--EXTRA_DIST     += libblkid/libblkid.3 libblkid/COPYING
-+EXTRA_DIST     += libblkid/COPYING
- 
- endif # BUILD_LIBBLKID
-diff --git a/libblkid/src/Makemodule.am b/libblkid/src/Makemodule.am
-index 807cc21ee..1046be100 100644
---- a/libblkid/src/Makemodule.am
-+++ b/libblkid/src/Makemodule.am
-@@ -134,8 +134,7 @@ endif
- libblkid_la_LDFLAGS += -version-info $(LIBBLKID_VERSION_INFO)
- 
- EXTRA_DIST += \
--	libblkid/src/libblkid.sym \
--	libblkid/src/blkid.h.in
-+	libblkid/src/libblkid.sym
- 
- if BUILD_LIBBLKID_TESTS
- check_PROGRAMS += \
-diff --git a/libfdisk/src/Makemodule.am b/libfdisk/src/Makemodule.am
-index 77eed0bfb..d273551a2 100644
---- a/libfdisk/src/Makemodule.am
-+++ b/libfdisk/src/Makemodule.am
-@@ -56,8 +56,7 @@ libfdisk_la_CFLAGS += -I$(ul_libblkid_incdir)
- endif
- 
- EXTRA_DIST += \
--	libfdisk/src/libfdisk.sym \
--	libfdisk/src/libfdisk.h.in
-+	libfdisk/src/libfdisk.sym
- 
- if BUILD_LIBFDISK_TESTS
- check_PROGRAMS += \
-diff --git a/libmount/src/Makemodule.am b/libmount/src/Makemodule.am
-index 8d7433255..a59b98b55 100644
---- a/libmount/src/Makemodule.am
-+++ b/libmount/src/Makemodule.am
-@@ -63,8 +63,7 @@ libmount_la_LDFLAGS += -version-info $(LIBMOUNT_VERSION_INFO)
- 
- 
- EXTRA_DIST += \
--	libmount/src/libmount.sym \
--	libmount/src/libmount.h.in
-+	libmount/src/libmount.sym
- 
- if BUILD_LIBMOUNT_TESTS
- check_PROGRAMS += \
-diff --git a/libsmartcols/src/Makemodule.am b/libsmartcols/src/Makemodule.am
-index 175f9f206..664aca30b 100644
---- a/libsmartcols/src/Makemodule.am
-+++ b/libsmartcols/src/Makemodule.am
-@@ -37,8 +37,7 @@ endif
- libsmartcols_la_LDFLAGS += -version-info $(LIBSMARTCOLS_VERSION_INFO)
- 
- EXTRA_DIST += \
--	libsmartcols/src/libsmartcols.sym \
--	libsmartcols/src/libsmartcols.h.in
-+	libsmartcols/src/libsmartcols.sym
- 
- # move lib from $(usrlib_execdir) to $(libdir) if needed
- install-exec-hook-libsmartcols:
+The command line options are our API, we don't do such changes often.
+
+I remember only one exception -- sfdisk, after rewrite some obscure
+DOS-era options have been removed.
+
+    Karel
+
 -- 
-2.13.6
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
