@@ -1,108 +1,151 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: J William Piggott <elseifthen@gmx.com>
-Subject: Re: [PATCH 1/2] cal: honor num_months when only a year argument
-Date: Wed, 24 Jan 2018 15:24:02 +0100
-Cc: Karel Zak <kzak@redhat.com>,
- util-linux@vger.kernel.org
-References: <85ea05cd-c4d0-f7d6-14f4-7deb065089d1@gmx.com>
-In-Reply-To: <85ea05cd-c4d0-f7d6-14f4-7deb065089d1@gmx.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.21]:64061 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752226AbeAPVrt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 16 Jan 2018 16:47:49 -0500
+Subject: [v5 PATCH 2/3] cal: add option to set Gregorian reform date
+To: Karel Zak <kzak@redhat.com>
+References: <1d114341-0c88-3d25-977a-0000320d1d98@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <b41c8151-35be-d880-40b6-42ab0cda40cd@gmx.com>
+Date: Tue, 16 Jan 2018 16:47:45 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1252"
-Message-Id: <201801241524.02617.sweet_f_a@gmx.de>
+In-Reply-To: <1d114341-0c88-3d25-977a-0000320d1d98@gmx.com>
+Content-Type: text/plain; charset=windows-1252
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 22 January 2018, J William Piggott wrote:
-> I don't know if this was an oversight or an overzealous
-> interpretation of POSIX. Just in case, I'll address the
-> POSIX possibility. POSIX description for cal(1) says:
->
->   If only the year operand is given, cal shall produce a
->   calendar for all twelve months in the given calendar year.
->
-> It also says that cal(1) has no options, so in that context
-> if an option is given then it should be expected to override
-> POSIX behavior.
 
-We still don't need to fight against POSIX.
+Create the new option: --reform <1752|gregorian|iso|julian>
 
-"cal -1" behaves like POSIX cal without options.
-"cal -3" behaves like POSIX except that it prints 3 months whereever  
-POSIX would print only 1.
+This adds the capability to display either the proleptic Gregorian or
+the Julian calendar systems exclusively.
 
-> Before patched all of these command displayed a full year:
-> cal -1 2020
-> cal -3 2020
-> cal -n6 2020
+Also create the option --iso as alias of --reform=gregorian.
 
-Seriously, I find the new behavior quiet useless and unwanted. In past 
-it seemed to work fine to have such alias in ~./profile
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ misc-utils/cal.c | 53 +++++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 49 insertions(+), 4 deletions(-)
 
-  alias cal="cal -3"
-
-
-But now "cal -3 2019" always shows Dec, Jan, Feb. Can't believe that any 
-user finds this useful. At least it should output of the "current" 
-months of the given year. But I wouldn't change this at all. It's just 
-an annoying incompatible change without any benefit.
-
-
-cu,
-Rudi
-
-
-> Patched the number of months options are honored.
->
-> This patch also fixes the -1 option which was a no-op.
->
-> Signed-off-by: J William Piggott <elseifthen@gmx.com>
-> ---
->  misc-utils/cal.c | 9 ++++++---
->  1 file changed, 6 insertions(+), 3 deletions(-)
->
-> diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-> index 5a6364a27..8a715d94c 100644
-> --- a/misc-utils/cal.c
-> +++ b/misc-utils/cal.c
-> @@ -267,7 +267,6 @@ int main(int argc, char **argv)
->  	static struct cal_control ctl = {
->  		.reform_year = DEFAULT_REFORM_YEAR,
->  		.weekstart = SUNDAY,
-> -		.num_months = 1,		/* default is "cal -1" */
->  		.span_months = 0,
->  		.colormode = UL_COLORMODE_UNDEF,
->  		.weektype = WEEK_NUM_DISABLED,
-> @@ -363,7 +362,7 @@ int main(int argc, char **argv)
->
->  		switch(ch) {
->  		case '1':
-> -			/* default */
-> +			ctl.num_months = 1;
->  			break;
->  		case '3':
->  			ctl.num_months = 3;
-> @@ -536,7 +535,8 @@ int main(int argc, char **argv)
->
->  	if (yflag || Yflag) {
->  		ctl.gutter_width = 3;
-> -		ctl.num_months = MONTHS_IN_YEAR;
-> +		if (!ctl.num_months)
-> +			ctl.num_months = MONTHS_IN_YEAR;
->  		if (yflag) {
->  			ctl.req.start_month = 1;	/* start from Jan */
->  			ctl.header_year = 1;		/* print year number */
-> @@ -549,6 +549,9 @@ int main(int argc, char **argv)
->  	else if (!ctl.months_in_row)
->  		ctl.months_in_row = 1;
->
-> +	if (!ctl.num_months)
-> +		ctl.num_months = 1;		/* display at least one month */
-> +
->  	if (yflag || Yflag)
->  		yearly(&ctl);
->  	else
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index ea582964c..543fbc6e1 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -133,6 +133,14 @@ static const char *my_tgetstr(char *ss
+ 
+ #include "widechar.h"
+ 
++enum {
++	GREGORIAN		= INT32_MIN,
++	ISO			= INT32_MIN,
++	GB1752			= 1752,
++	DEFAULT_REFORM_YEAR	= 1752,
++	JULIAN			= INT32_MAX
++};
++
+ enum {
+ 	SUNDAY = 0,
+ 	MONDAY,
+@@ -246,6 +254,7 @@ static int week_number(int day, int month, int32_t year, const struct cal_contro
+ static int week_to_day(const struct cal_control *ctl);
+ static int center_str(const char *src, char *dest, size_t dest_size, size_t width);
+ static void center(const char *str, size_t len, int separate);
++static int parse_reform_year(const char *reform_year);
+ static void __attribute__((__noreturn__)) usage(void);
+ 
+ int main(int argc, char **argv)
+@@ -256,7 +265,7 @@ int main(int argc, char **argv)
+ 	int ch = 0, yflag = 0, Yflag = 0;
+ 
+ 	static struct cal_control ctl = {
+-		.reform_year = 1752,
++		.reform_year = DEFAULT_REFORM_YEAR,
+ 		.weekstart = SUNDAY,
+ 		.num_months = 1,		/* default is "cal -1" */
+ 		.span_months = 0,
+@@ -269,7 +278,9 @@ int main(int argc, char **argv)
+ 	};
+ 
+ 	enum {
+-		OPT_COLOR = CHAR_MAX + 1
++		OPT_COLOR = CHAR_MAX + 1,
++		OPT_ISO,
++		OPT_REFORM
+ 	};
+ 
+ 	static const struct option longopts[] = {
+@@ -283,6 +294,8 @@ int main(int argc, char **argv)
+ 		{"year", no_argument, NULL, 'y'},
+ 		{"week", optional_argument, NULL, 'w'},
+ 		{"color", optional_argument, NULL, OPT_COLOR},
++		{"reform", required_argument, NULL, OPT_REFORM},
++		{"iso", no_argument, NULL, OPT_ISO},
+ 		{"version", no_argument, NULL, 'V'},
+ 		{"twelve", no_argument, NULL, 'Y'},
+ 		{"help", no_argument, NULL, 'h'},
+@@ -395,6 +408,12 @@ int main(int argc, char **argv)
+ 				ctl.colormode = colormode_or_err(optarg,
+ 						_("unsupported color mode"));
+ 			break;
++		case OPT_REFORM:
++			ctl.reform_year = parse_reform_year(optarg);
++			break;
++		case OPT_ISO:
++			ctl.reform_year = ISO;
++			break;
+ 		case 'V':
+ 			printf(UTIL_LINUX_VERSION);
+ 			return EXIT_SUCCESS;
+@@ -453,7 +472,7 @@ int main(int argc, char **argv)
+ 		ctl.req.year = strtos32_or_err(*argv++, _("illegal year value"));
+ 		if (ctl.req.year < SMALLEST_YEAR)
+ 			errx(EXIT_FAILURE, _("illegal year value: use positive integer"));
+-		if (ctl.req.year == INT32_MAX)
++		if (ctl.req.year == JULIAN)
+ 			errx(EXIT_FAILURE, _("illegal year value"));
+ 		if (ctl.req.day) {
+ 			int dm = days_in_month[leap_year(&ctl, ctl.req.year)]
+@@ -1012,6 +1031,30 @@ static void center(const char *str, size_t len, int separate)
+ 	}
+ }
+ 
++static int parse_reform_year(const char *reform_year)
++{
++	size_t i;
++
++	struct reform {
++		char *name;
++		int val;
++	};
++
++	struct reform years[] = {
++	{"gregorian",	GREGORIAN},
++	{"iso",		ISO},
++	{"1752",	GB1752},
++	{"julian",	JULIAN},
++	};
++
++	for (i = 0; i < ARRAY_SIZE(years); i++) {
++		if (strcasecmp(reform_year, years[i].name) == 0) {
++			return years[i].val;
++		}
++	}
++	errx(EXIT_FAILURE, "invalid --reform value: '%s'", reform_year);
++}
++
+ static void __attribute__((__noreturn__)) usage(void)
+ {
+ 	FILE *out = stdout;
+@@ -1030,7 +1073,9 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_(" -S, --span            span the date when displaying multiple months\n"), out);
+ 	fputs(_(" -s, --sunday          Sunday as first day of week\n"), out);
+ 	fputs(_(" -m, --monday          Monday as first day of week\n"), out);
+-	fputs(_(" -j, --julian          output Julian dates\n"), out);
++	fputs(_(" -j, --julian          use day-of-year for all calendars\n"), out);
++	fputs(_("     --reform <val>    Gregorian reform date (1752|gregorian|iso|julian)\n"), out);
++	fputs(_("     --iso             alias for --reform=iso\n"), out);
+ 	fputs(_(" -y, --year            show the whole year\n"), out);
+ 	fputs(_(" -Y, --twelve          show the next twelve months\n"), out);
+ 	fputs(_(" -w, --week[=<num>]    show US or ISO-8601 week numbers\n"), out);
