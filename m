@@ -1,106 +1,99 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46108 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:55226 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933590AbeAXNZP (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 24 Jan 2018 08:25:15 -0500
-Date: Wed, 24 Jan 2018 14:25:11 +0100
+        id S1750931AbeAQLGj (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 17 Jan 2018 06:06:39 -0500
+Date: Wed, 17 Jan 2018 12:06:33 +0100
 From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/2] cal: do not set months_in_row with -3 option
-Message-ID: <20180124132511.rhvvlvzblygpt242@ws.net.home>
-References: <85ea05cd-c4d0-f7d6-14f4-7deb065089d1@gmx.com>
- <009ab747-9e36-1283-f20d-0c3fea21045d@gmx.com>
+To: Miklos Szeredi <mszeredi@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>,
+        David Howells <dhowells@redhat.com>,
+        Jeff Layton <jlayton@redhat.com>,
+        "Eric W. Biederman" <ebiederm@redhat.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        util-linux@vger.kernel.org,
+        "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Subject: Re: User-visible context-mount API
+Message-ID: <20180117110633.zneqvnjzgxkv4yc2@ws.net.home>
+References: <28167.1516032442@warthog.procyon.org.uk>
+ <CAOssrKdgudK7kKbhQBAnV9EwzHBq=4+9M26JGfmhNDGrGXmnFg@mail.gmail.com>
+ <1643.1516117204@warthog.procyon.org.uk>
+ <CAOssrKdn-ZhOB9V28uL-JK9zgNGJzF4cFBeyoqLLj4pADqNFVQ@mail.gmail.com>
+ <20180117041727.GS13338@ZenIV.linux.org.uk>
+ <CAOssrKfN_ZT5yJC1mxkhUf6FG=_eMD4nzQtETfu_4X3vOf1kHw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <009ab747-9e36-1283-f20d-0c3fea21045d@gmx.com>
+In-Reply-To: <CAOssrKfN_ZT5yJC1mxkhUf6FG=_eMD4nzQtETfu_4X3vOf1kHw@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jan 22, 2018 at 03:07:15PM -0500, J William Piggott wrote:
+On Wed, Jan 17, 2018 at 10:53:36AM +0100, Miklos Szeredi wrote:
+> [Adding util-linux@vger and Michael Kerrisk]
 > 
-> Having the -3 option set months_in_row causes ordinal days
-> to wrap; it overrides the automatic handling of months_in_row
-> that falls back to 2 month columns for ordinal days.
-> 
-> Before:
-> cal -3j 2020
->                            2020
-> 
->             July                         August                      September
-> Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat
->     182 183 184 185 186 187                   213 214 215   244 245 246 247 248 249 250
-> 188 189 190 191 192 193 194   216 217 218 219 220 221 222   251 252 253 254 255 256 257
-> 195 196 197 198 199 200 201   223 224 225 226 227 228 229   258 259 260 261 262 263 264
-> 202 203 204 205 206 207 208   230 231 232 233 234 235 236   265 266 267 268 269 270 271
-> 209 210 211 212               237 238 239 240 241 242 243   272 273
-> 
-> Patched:
-> cal -3j 2020
->                            2020
-> 
->           December                      January
-> Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat
-> 335 336 337 338 339 340 341                 1   2   3   4
-> 342 343 344 345 346 347 348     5   6   7   8   9  10  11
-> 349 350 351 352 353 354 355    12  13  14  15  16  17  18
-> 356 357 358 359 360 361 362    19  20  21  22  23  24  25
-> 363 364 365                    26  27  28  29  30  31
-> 
->           February
-> Sun Mon Tue Wed Thu Fri Sat
->                          32
->  33  34  35  36  37  38  39
->  40  41  42  43  44  45  46
->  47  48  49  50  51  52  53
->  54  55  56  57  58  59  60
+> On Wed, Jan 17, 2018 at 5:17 AM, Al Viro <viro@zeniv.linux.org.uk> wrote:
+> > On Tue, Jan 16, 2018 at 05:41:46PM +0100, Miklos Szeredi wrote:
+> >
+> >> Right.
+> >>
+> >> Still, those two (propagation and flags) are properties of the mount.
+> >> No fundamental difference in how to handle them, that I see.  Okay, we
+> >> have MS_REC handling in the propagation and not in the flags, but
+> >> that's something that might make sense for flags as well.
+> >>
+> >> What's more interesting is how MS_PRIVATE + MS_REC semantics are
+> >> complete failure in the real world: the logical thing would be to mark
+> >> a mount private on the supplied mount AND propagate an umount event to
+> >> everywhere else.
+> >
+> > This is utter nonsense.  Most of the time it's "Fedora, in its infinite
+> > bogo^Wwisdom has made everything shared; I don't fucking need that
+> > idiocy, so please unshare this, this and that".  You really don't want
+> > (or have permissions for) unmounting e.g. /mnt in namespace of init
+> > when you do that.
+> >
+> > Sure, we get tons of bug reports.  Due to idiotic Fedora setup, with
+> > everything shared.  The same setup that would go up in flames on the
+> > semantics change you propose.
 
-Merged, but the patch breaks regression tests. It would be nice to fix
-it ASAP.
+I guess "all shared" is systemd requirement, so I guess it's not
+Fedora specific, right?
 
-It would be nice to be smart and use include/ttyutils.h:get_terminal_width()
-if stdout is terminal. For non-terminal output we can use always 3 columns.
+> I wouldn't propose to change existing --make-private, as this would
+> not be backward compatible. The new semantics would mean a new op,
+> obviously.
 
-See patch below. It's not perfect, because we have extra blank space
-behind last column, but good enough to show the idea. For really small
-terms it uses one month, etc.
+Definitely.
+
+> Documenting  --make-private thing properly would also help.  To me the
+> wording "make private" strongly implies "I want to make submounts
+> private to this instance".  See for example rhbz#1432211.
+
+All propagation stuff is poorly documented in mount.8. It would be
+nice to add section about it to the man page. Volunteer? (My skills to
+explain this topic to end-users is pretty limited...)
+ 
+> > If anything, "private bind on itself" would be a useful operation.
+> > Turning given location into a mountpoint, and having everything
+> > under it looking as it used to, but with no propagation at all.
+> > Without bothering anybody else, even if location currently happens
+> > to be on a shared/master mount.
+
+Good idea.
+
+> > I can slap that together for mount(2), but I'm not sure what a sane
+> > combination of flags for that would look like ;-)
+
+What about new flag (for the API) rather than try to be smart with the
+current flags? But I have doubts that invest time to new mount(2)
+features is a good idea.
+
+> For fsmount I think it would be very useful thing to have.
+
+Yes.
 
     Karel
 
-
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index 562ae2afb..688377189 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -75,6 +75,7 @@
- #include "strutils.h"
- #include "optutils.h"
- #include "timeutils.h"
-+#include "ttyutils.h"
- 
- static int has_term = 0;
- static const char *Senter = "", *Sexit = "";	/* enter and exit standout mode */
-@@ -542,10 +543,19 @@ int main(int argc, char **argv)
- 		}
- 	}
- 
--	if (ctl.num_months > 1 && ctl.months_in_row == 0)
--		ctl.months_in_row = ctl.julian ? MONTHS_IN_YEAR_ROW - 1 :
--						 MONTHS_IN_YEAR_ROW;
--	else if (!ctl.months_in_row)
-+#define DOY_MONTH_WIDTH	28	/* -j */
-+#define DOM_MONTH_WIDTH 23
-+
-+	if (ctl.num_months > 1 && ctl.months_in_row == 0) {
-+		if (isatty(STDOUT_FILENO)) {
-+			int w = get_terminal_width(STDOUT_FILENO);
-+			int mw = ctl.julian ? DOY_MONTH_WIDTH : DOM_MONTH_WIDTH;
-+
-+			ctl.months_in_row = w  / mw;
-+		} else
-+			ctl.months_in_row = MONTHS_IN_YEAR_ROW;
-+
-+	} else if (!ctl.months_in_row)
- 		ctl.months_in_row = 1;
- 
- 	if (!ctl.num_months)
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
