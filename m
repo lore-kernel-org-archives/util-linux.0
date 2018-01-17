@@ -1,116 +1,78 @@
-Return-Path: elseifthen@gmx.com
-Subject: [v2 PATCH 4/4] cal: new option toggles the calendar system header
-To: Karel Zak <kzak@redhat.com>
-References: <7bdff2d4-ad0d-699e-d451-be087f637074@gmx.com>
- <875bde54-8488-1a3d-5edc-f64f553ce228@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <a846dfd3-950c-1616-7cdf-03395aef5c0d@gmx.com>
-Date: Fri, 26 Jan 2018 19:26:40 -0500
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-qt0-f175.google.com ([209.85.216.175]:43312 "EHLO
+        mail-qt0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752068AbeAQJxh (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 17 Jan 2018 04:53:37 -0500
+Received: by mail-qt0-f175.google.com with SMTP id s3so21783809qtb.10
+        for <util-linux@vger.kernel.org>; Wed, 17 Jan 2018 01:53:37 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <875bde54-8488-1a3d-5edc-f64f553ce228@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <20180117041727.GS13338@ZenIV.linux.org.uk>
+References: <28167.1516032442@warthog.procyon.org.uk> <CAOssrKdgudK7kKbhQBAnV9EwzHBq=4+9M26JGfmhNDGrGXmnFg@mail.gmail.com>
+ <1643.1516117204@warthog.procyon.org.uk> <CAOssrKdn-ZhOB9V28uL-JK9zgNGJzF4cFBeyoqLLj4pADqNFVQ@mail.gmail.com>
+ <20180117041727.GS13338@ZenIV.linux.org.uk>
+From: Miklos Szeredi <mszeredi@redhat.com>
+Date: Wed, 17 Jan 2018 10:53:36 +0100
+Message-ID: <CAOssrKfN_ZT5yJC1mxkhUf6FG=_eMD4nzQtETfu_4X3vOf1kHw@mail.gmail.com>
+Subject: Re: User-visible context-mount API
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: David Howells <dhowells@redhat.com>,
+        Jeff Layton <jlayton@redhat.com>,
+        "Eric W. Biederman" <ebiederm@redhat.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        util-linux@vger.kernel.org,
+        "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+[Adding util-linux@vger and Michael Kerrisk]
 
-Add an option that toggles displaying of the new calendar
-system header.
+On Wed, Jan 17, 2018 at 5:17 AM, Al Viro <viro@zeniv.linux.org.uk> wrote:
+> On Tue, Jan 16, 2018 at 05:41:46PM +0100, Miklos Szeredi wrote:
+>
+>> Right.
+>>
+>> Still, those two (propagation and flags) are properties of the mount.
+>> No fundamental difference in how to handle them, that I see.  Okay, we
+>> have MS_REC handling in the propagation and not in the flags, but
+>> that's something that might make sense for flags as well.
+>>
+>> What's more interesting is how MS_PRIVATE + MS_REC semantics are
+>> complete failure in the real world: the logical thing would be to mark
+>> a mount private on the supplied mount AND propagate an umount event to
+>> everywhere else.
+>
+> This is utter nonsense.  Most of the time it's "Fedora, in its infinite
+> bogo^Wwisdom has made everything shared; I don't fucking need that
+> idiocy, so please unshare this, this and that".  You really don't want
+> (or have permissions for) unmounting e.g. /mnt in namespace of init
+> when you do that.
+>
+> Sure, we get tons of bug reports.  Due to idiotic Fedora setup, with
+> everything shared.  The same setup that would go up in flames on the
+> semantics change you propose.
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
+I wouldn't propose to change existing --make-private, as this would
+not be backward compatible. The new semantics would mean a new op,
+obviously.
 
-v2 changelog
- Changed the new option to a boolean. This allows overriding
- an alias configuration and makes it easy for Karel to choose
- what the default should be.
+Documenting  --make-private thing properly would also help.  To me the
+wording "make private" strongly implies "I want to make submounts
+private to this instance".  See for example rhbz#1432211.
 
- misc-utils/cal.1 |  5 +++++
- misc-utils/cal.c | 17 +++++++++++++++--
- 2 files changed, 20 insertions(+), 2 deletions(-)
+> If anything, "private bind on itself" would be a useful operation.
+> Turning given location into a mountpoint, and having everything
+> under it looking as it used to, but with no propagation at all.
+> Without bothering anybody else, even if location currently happens
+> to be on a shared/master mount.
+>
+> I can slap that together for mount(2), but I'm not sure what a sane
+> combination of flags for that would look like ;-)  For fsmount
+> I think it would be very useful thing to have.
 
-diff --git a/misc-utils/cal.1 b/misc-utils/cal.1
-index 95d1a255b..8e6c5e7e3 100644
---- a/misc-utils/cal.1
-+++ b/misc-utils/cal.1
-@@ -147,6 +147,11 @@ calendar output uses the Julian calendar system.
- .RB See\  \%DESCRIPTION\  above.
- .RE
- .TP
-+.BR \-\-top-header\ on | off
-+Toggle displaying of the calendar system header (default on).
-+.br
-+.RB See\  DESCRIPTION\  above.
-+.TP
- \fB\-y\fR, \fB\-\-year\fR
- Display a calendar for the whole year.
- .TP
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index 2551cd20d..acca40b0d 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -223,6 +223,7 @@ struct cal_control {
- 	size_t day_width;		/* day width in characters in printout */
- 	size_t week_width;		/* 7 * day_width + possible week num */
- 	int gutter_width;		/* spaces in between horizontal month outputs */
-+	int top_header;			/* display the calendar system header */
- 	struct cal_request req;		/* the times user is interested */
- 	unsigned int	julian:1,	/* julian output */
- 			header_hint:1;	/* does month name + year need two lines to fit */
-@@ -265,6 +266,7 @@ int main(int argc, char **argv)
- 	int ch = 0, yflag = 0, Yflag = 0;
- 
- 	static struct cal_control ctl = {
-+		.top_header = 1,
- 		.reform_year = DEFAULT_REFORM_YEAR,
- 		.weekstart = SUNDAY,
- 		.span_months = 0,
-@@ -279,7 +281,8 @@ int main(int argc, char **argv)
- 	enum {
- 		OPT_COLOR = CHAR_MAX + 1,
- 		OPT_ISO,
--		OPT_REFORM
-+		OPT_REFORM,
-+		OPT_TOP_HEADER
- 	};
- 
- 	static const struct option longopts[] = {
-@@ -295,6 +298,7 @@ int main(int argc, char **argv)
- 		{"color", optional_argument, NULL, OPT_COLOR},
- 		{"reform", required_argument, NULL, OPT_REFORM},
- 		{"iso", no_argument, NULL, OPT_ISO},
-+		{"top-header", required_argument, NULL, OPT_TOP_HEADER},
- 		{"version", no_argument, NULL, 'V'},
- 		{"twelve", no_argument, NULL, 'Y'},
- 		{"help", no_argument, NULL, 'h'},
-@@ -412,6 +416,12 @@ int main(int argc, char **argv)
- 		case OPT_ISO:
- 			ctl.reform_year = ISO;
- 			break;
-+		case OPT_TOP_HEADER:
-+			ctl.top_header =
-+				parse_switch(optarg,
-+					    _("invalid --top-header argument"),
-+					     "on", "off",  "1", "0", NULL);
-+			break;
- 		case 'V':
- 			printf(UTIL_LINUX_VERSION);
- 			return EXIT_SUCCESS;
-@@ -551,7 +561,8 @@ int main(int argc, char **argv)
- 	if (!ctl.num_months)
- 		ctl.num_months = 1;		/* display at least one month */
- 
--	top_header(&ctl);
-+	if (ctl.top_header)
-+		top_header(&ctl);
- 	months(&ctl);
- 
- 	return EXIT_SUCCESS;
-@@ -1135,6 +1146,8 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(_(" -j, --julian          use day-of-year for all calendars\n"), out);
- 	fputs(_("     --reform <val>    Gregorian reform date (1752|gregorian|iso|julian)\n"), out);
- 	fputs(_("     --iso             alias for --reform=iso\n"), out);
-+	fputs(_("     --top-header <on|off>\n"
-+		"                       toggle the calendar system header\n"), out);
- 	fputs(_(" -y, --year            show the whole year\n"), out);
- 	fputs(_(" -Y, --twelve          show the next twelve months\n"), out);
- 	fputs(_(" -w, --week[=<num>]    show US or ISO-8601 week numbers\n"), out);
+Yes, I think such an operation would be pretty useful.   Not sure if
+it's the whole story, though.
+
+Thanks,
+Miklos
