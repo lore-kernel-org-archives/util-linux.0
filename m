@@ -1,98 +1,76 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:34867 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751177AbdLCMvX (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 3 Dec 2017 07:51:23 -0500
-Received: by mail-wm0-f67.google.com with SMTP id f9so9993259wmh.0
-        for <util-linux@vger.kernel.org>; Sun, 03 Dec 2017 04:51:23 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 2/4] rename: use access(3) to check if a file exists
-Date: Sun,  3 Dec 2017 12:51:15 +0000
-Message-Id: <20171203125117.28159-2-kerolasa@iki.fi>
-In-Reply-To: <20171203125117.28159-1-kerolasa@iki.fi>
-References: <20171203125117.28159-1-kerolasa@iki.fi>
+Received: from smtp.gentoo.org ([140.211.166.183]:43826 "EHLO smtp.gentoo.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752855AbeASCrS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 18 Jan 2018 21:47:18 -0500
+Date: Thu, 18 Jan 2018 21:47:17 -0500
+From: Mike Frysinger <vapier@gentoo.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: Carlos Santos <casantos@datacom.ind.br>, util-linux@vger.kernel.org
+Subject: Re: Problem building util-linux without a separate ncursesw include
+ dir
+Message-ID: <20180119024717.GJ7217@vapier>
+References: <1971282138.2691482.1501546323018.JavaMail.zimbra@datacom.ind.br>
+ <1705151756.2691717.1501548399616.JavaMail.zimbra@datacom.ind.br>
+ <20170801072017.yl7mgv64pq7ccj5e@ws.net.home>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="Re2uCLPLNzqOLVJA"
+In-Reply-To: <20170801072017.yl7mgv64pq7ccj5e@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is more lightweight than calling stat(3).  In same go add a regression
-test to ensure changes like this will not break --no-overwrite option.
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- misc-utils/rename.c             |  3 +--
- tests/expected/rename/overwrite |  1 +
- tests/ts/rename/overwrite       | 31 +++++++++++++++++++++++++++++++
- 3 files changed, 33 insertions(+), 2 deletions(-)
- create mode 100644 tests/expected/rename/overwrite
- create mode 100755 tests/ts/rename/overwrite
+--Re2uCLPLNzqOLVJA
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/misc-utils/rename.c b/misc-utils/rename.c
-index 7c3cdf67d..cbda638e1 100644
---- a/misc-utils/rename.c
-+++ b/misc-utils/rename.c
-@@ -105,7 +105,6 @@ static int do_file(char *from, char *to, char *s, int verbose, int noact, int no
- {
- 	char *newname = NULL, *file=NULL;
- 	int ret = 1;
--	struct stat sb;
- 
- 	if (strchr(from, '/') == NULL && strchr(to, '/') == NULL)
- 		file = strrchr(s, '/');
-@@ -113,7 +112,7 @@ static int do_file(char *from, char *to, char *s, int verbose, int noact, int no
- 		file = s;
- 	if (string_replace(from, to, file, s, &newname))
- 		return 0;
--	if (nooverwrite && stat(newname, &sb) == 0) {
-+	if (nooverwrite && access(newname, F_OK) == 0) {
- 		printf(_("Skipping existing file: `%s'\n"), newname);
- 		ret = 0;
- 	}
-diff --git a/tests/expected/rename/overwrite b/tests/expected/rename/overwrite
-new file mode 100644
-index 000000000..b16f799c3
---- /dev/null
-+++ b/tests/expected/rename/overwrite
-@@ -0,0 +1 @@
-+Skipping existing file: `rename_to'
-diff --git a/tests/ts/rename/overwrite b/tests/ts/rename/overwrite
-new file mode 100755
-index 000000000..be5b24d03
---- /dev/null
-+++ b/tests/ts/rename/overwrite
-@@ -0,0 +1,31 @@
-+#!/bin/bash
-+
-+#
-+# Copyright (C) 2017 Sami Kerola <kerolasa@iki.fi>
-+#
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+#
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="overwrite"
-+
-+. $TS_TOPDIR/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_CMD_RENAME"
-+ts_cd "$TS_OUTDIR"
-+
-+touch rename_from rename_to
-+$TS_CMD_RENAME -v --no-overwrite from to rename_from > $TS_OUTPUT 2>&1
-+rm rename_from rename_to >> $TS_OUTPUT 2>&1
-+
-+ts_finalize
--- 
-2.15.1
+On 01 Aug 2017 09:20, Karel Zak wrote:
+> On Mon, Jul 31, 2017 at 09:46:39PM -0300, Carlos Santos wrote:
+> > > From: "Carlos Santos" <casantos@datacom.ind.br>
+> > > To: util-linux@vger.kernel.org
+> > > Sent: Monday, July 31, 2017 9:12:03 PM
+> > > Subject: Problem building util-linux without a separate ncursesw incl=
+ude dir
+> >=20
+> > > of util-linux. Would it be possible to make the location of ncursesw
+> > > headers configurable, instead?
+>=20
+> We test for alone ncurses.h and term.h in the for non-wide ncurses.
+> Can you send output from your configure from the current master
+> branch (or v2.30.1)?
+>=20
+> > I was thinking on something simple, like https://pastebin.com/VqM9G9yu
+>=20
+> Hmm, but you don't distinguish between wide and non-wide ncurses.
 
+why don't we just support ncurses's pkg-config files as the default ?
+$ pkg-config --cflags ncurses
+-D_GNU_SOURCE
+$ pkg-config --cflags ncursesw
+-D_GNU_SOURCE -I/usr/include/ncursesw
+-mike
+
+--Re2uCLPLNzqOLVJA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEuQK1JxMl+JKsJRrUQWM7n+g39YEFAlphXDQACgkQQWM7n+g3
+9YEa+A//Qo1NOi1kRxiVjYlucxcGgMpFbA5xQ5uumfl1ghkEOTYo7wdHdGsqJfj+
+9P6Zmo8qHW6zadPBMVek2VYycfPMgXY2pg/duLmPIvgsXjMyEr8aVpUmiBQ6osx0
+32KMQAFfTwPKULze8GrCqrBmIx9Z1rqKjRbAmnEcCFJu6rxTGu/mufMnh3ZZI/qi
+KCe6F4ge+yvHBG/WFxlaGCL59BRbpEuzy2LmJ5ptBNd2RM7+sZn9sxZ+kurwq0TN
+ids8HAjJCCaqFGrKspyTD5K50rDz1l6dJEyknc5OG5VR5otf4hw7s9JcrmCNs3Gm
+RYA4bPne/UwViDy4MNjO8kdRx5FA0C+GzhFxRwXdLVPWkBMPIANvKBkSnCiWoe4+
+ercocVehQ1itm/iGxUGoa8oABaKsbsJpkPHQrsHdSshf75Ta6/PtU3T4jOKcaejh
+0BN/oebpre8RFSGoC1/JZPMWwqOKg0IPVDCCKkhN3dPgWfhs1vlxiiK0qTswvJPV
+0KAtmZ3W+ou0CQ/IBIKaPgwf+bcg7ZTVTlsn8Cky3fb+E1r0FBOY8C9h8h/n7yJ8
+g6I9J/RJUG7WVN0dhYvj8n6dUKs5upPqY/pgrBDQD7upA6+SIFbQveJsneVWlQKb
+IlRq9rvkRaKlfn3++qiBE9YYeMHRcQiw8//zOzQbPjQdRb+gBYU=
+=PUrD
+-----END PGP SIGNATURE-----
+
+--Re2uCLPLNzqOLVJA--
