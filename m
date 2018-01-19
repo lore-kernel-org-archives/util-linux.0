@@ -1,151 +1,97 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:64061 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752226AbeAPVrt (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 16 Jan 2018 16:47:49 -0500
-Subject: [v5 PATCH 2/3] cal: add option to set Gregorian reform date
-To: Karel Zak <kzak@redhat.com>
-References: <1d114341-0c88-3d25-977a-0000320d1d98@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <b41c8151-35be-d880-40b6-42ab0cda40cd@gmx.com>
-Date: Tue, 16 Jan 2018 16:47:45 -0500
+Return-Path: linux-fsdevel-owner@vger.kernel.org
+Date: Fri, 19 Jan 2018 06:32:29 +0000
+From: Al Viro <viro@ZenIV.linux.org.uk>
+To: Miklos Szeredi <mszeredi@redhat.com>
+Cc: David Howells <dhowells@redhat.com>,
+        Jeff Layton <jlayton@redhat.com>,
+        "Eric W. Biederman" <ebiederm@redhat.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        util-linux@vger.kernel.org,
+        "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Subject: Re: User-visible context-mount API
+Message-ID: <20180119063229.GH13338@ZenIV.linux.org.uk>
+References: <28167.1516032442@warthog.procyon.org.uk>
+ <CAOssrKdgudK7kKbhQBAnV9EwzHBq=4+9M26JGfmhNDGrGXmnFg@mail.gmail.com>
+ <1643.1516117204@warthog.procyon.org.uk>
+ <CAOssrKdn-ZhOB9V28uL-JK9zgNGJzF4cFBeyoqLLj4pADqNFVQ@mail.gmail.com>
+ <20180117041727.GS13338@ZenIV.linux.org.uk>
+ <CAOssrKfN_ZT5yJC1mxkhUf6FG=_eMD4nzQtETfu_4X3vOf1kHw@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1d114341-0c88-3d25-977a-0000320d1d98@gmx.com>
-Content-Type: text/plain; charset=windows-1252
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAOssrKfN_ZT5yJC1mxkhUf6FG=_eMD4nzQtETfu_4X3vOf1kHw@mail.gmail.com>
+Sender: linux-fsdevel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Wed, Jan 17, 2018 at 10:53:36AM +0100, Miklos Szeredi wrote:
 
-Create the new option: --reform <1752|gregorian|iso|julian>
+> Documenting  --make-private thing properly would also help.  To me the
+> wording "make private" strongly implies "I want to make submounts
+> private to this instance".  See for example rhbz#1432211.
+> 
+> > If anything, "private bind on itself" would be a useful operation.
+> > Turning given location into a mountpoint, and having everything
+> > under it looking as it used to, but with no propagation at all.
+> > Without bothering anybody else, even if location currently happens
+> > to be on a shared/master mount.
+> >
+> > I can slap that together for mount(2), but I'm not sure what a sane
+> > combination of flags for that would look like ;-)  For fsmount
+> > I think it would be very useful thing to have.
+> 
+> Yes, I think such an operation would be pretty useful.   Not sure if
+> it's the whole story, though.
 
-This adds the capability to display either the proleptic Gregorian or
-the Julian calendar systems exclusively.
+FWIW, there's a fun variant of the API:
 
-Also create the option --iso as alias of --reform=gregorian.
+* fsopen(): string -> fsfd; takes fs type name, returns a file descriptor
+connected to fs driver.  Subsequent read/write on it is used to pass
+options, authenticate, etc. - all you need to talk the driver into
+creating an active instance.
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- misc-utils/cal.c | 53 +++++++++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 49 insertions(+), 4 deletions(-)
+* fspick(): location -> fsfd; fsfd connected to filesystem mounted at given
+place.  After that you can talk to the driver to get superblock-level
+remount.
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index ea582964c..543fbc6e1 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -133,6 +133,14 @@ static const char *my_tgetstr(char *ss
- 
- #include "widechar.h"
- 
-+enum {
-+	GREGORIAN		= INT32_MIN,
-+	ISO			= INT32_MIN,
-+	GB1752			= 1752,
-+	DEFAULT_REFORM_YEAR	= 1752,
-+	JULIAN			= INT32_MAX
-+};
-+
- enum {
- 	SUNDAY = 0,
- 	MONDAY,
-@@ -246,6 +254,7 @@ static int week_number(int day, int month, int32_t year, const struct cal_contro
- static int week_to_day(const struct cal_control *ctl);
- static int center_str(const char *src, char *dest, size_t dest_size, size_t width);
- static void center(const char *str, size_t len, int separate);
-+static int parse_reform_year(const char *reform_year);
- static void __attribute__((__noreturn__)) usage(void);
- 
- int main(int argc, char **argv)
-@@ -256,7 +265,7 @@ int main(int argc, char **argv)
- 	int ch = 0, yflag = 0, Yflag = 0;
- 
- 	static struct cal_control ctl = {
--		.reform_year = 1752,
-+		.reform_year = DEFAULT_REFORM_YEAR,
- 		.weekstart = SUNDAY,
- 		.num_months = 1,		/* default is "cal -1" */
- 		.span_months = 0,
-@@ -269,7 +278,9 @@ int main(int argc, char **argv)
- 	};
- 
- 	enum {
--		OPT_COLOR = CHAR_MAX + 1
-+		OPT_COLOR = CHAR_MAX + 1,
-+		OPT_ISO,
-+		OPT_REFORM
- 	};
- 
- 	static const struct option longopts[] = {
-@@ -283,6 +294,8 @@ int main(int argc, char **argv)
- 		{"year", no_argument, NULL, 'y'},
- 		{"week", optional_argument, NULL, 'w'},
- 		{"color", optional_argument, NULL, OPT_COLOR},
-+		{"reform", required_argument, NULL, OPT_REFORM},
-+		{"iso", no_argument, NULL, OPT_ISO},
- 		{"version", no_argument, NULL, 'V'},
- 		{"twelve", no_argument, NULL, 'Y'},
- 		{"help", no_argument, NULL, 'h'},
-@@ -395,6 +408,12 @@ int main(int argc, char **argv)
- 				ctl.colormode = colormode_or_err(optarg,
- 						_("unsupported color mode"));
- 			break;
-+		case OPT_REFORM:
-+			ctl.reform_year = parse_reform_year(optarg);
-+			break;
-+		case OPT_ISO:
-+			ctl.reform_year = ISO;
-+			break;
- 		case 'V':
- 			printf(UTIL_LINUX_VERSION);
- 			return EXIT_SUCCESS;
-@@ -453,7 +472,7 @@ int main(int argc, char **argv)
- 		ctl.req.year = strtos32_or_err(*argv++, _("illegal year value"));
- 		if (ctl.req.year < SMALLEST_YEAR)
- 			errx(EXIT_FAILURE, _("illegal year value: use positive integer"));
--		if (ctl.req.year == INT32_MAX)
-+		if (ctl.req.year == JULIAN)
- 			errx(EXIT_FAILURE, _("illegal year value"));
- 		if (ctl.req.day) {
- 			int dm = days_in_month[leap_year(&ctl, ctl.req.year)]
-@@ -1012,6 +1031,30 @@ static void center(const char *str, size_t len, int separate)
- 	}
- }
- 
-+static int parse_reform_year(const char *reform_year)
-+{
-+	size_t i;
-+
-+	struct reform {
-+		char *name;
-+		int val;
-+	};
-+
-+	struct reform years[] = {
-+	{"gregorian",	GREGORIAN},
-+	{"iso",		ISO},
-+	{"1752",	GB1752},
-+	{"julian",	JULIAN},
-+	};
-+
-+	for (i = 0; i < ARRAY_SIZE(years); i++) {
-+		if (strcasecmp(reform_year, years[i].name) == 0) {
-+			return years[i].val;
-+		}
-+	}
-+	errx(EXIT_FAILURE, "invalid --reform value: '%s'", reform_year);
-+}
-+
- static void __attribute__((__noreturn__)) usage(void)
- {
- 	FILE *out = stdout;
-@@ -1030,7 +1073,9 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(_(" -S, --span            span the date when displaying multiple months\n"), out);
- 	fputs(_(" -s, --sunday          Sunday as first day of week\n"), out);
- 	fputs(_(" -m, --monday          Monday as first day of week\n"), out);
--	fputs(_(" -j, --julian          output Julian dates\n"), out);
-+	fputs(_(" -j, --julian          use day-of-year for all calendars\n"), out);
-+	fputs(_("     --reform <val>    Gregorian reform date (1752|gregorian|iso|julian)\n"), out);
-+	fputs(_("     --iso             alias for --reform=iso\n"), out);
- 	fputs(_(" -y, --year            show the whole year\n"), out);
- 	fputs(_(" -Y, --twelve          show the next twelve months\n"), out);
- 	fputs(_(" -w, --week[=<num>]    show US or ISO-8601 week numbers\n"), out);
+* new_mount(): fsfd x string -> fd.  Creates a vfsmount and gives a file
+descriptor for given relative pathname.
+
+* clone_mount(): location x bool -> fd.  Copies a vfsmount or an entire
+subtree (depending upon the second parameter) and returns a file descriptor.
+Basically, bind or rbind sans attaching it anywhere.
+
+* change_flags(): fd x (propagation or vfsmount flags) x bool -> int
+fd should point to root of some vfsmount (O_PATH, or either of the previous
+two.  Flag is "do we want it to affect the entire subtree"; the tricky
+question is what to do with vfsmount flags - for those we might want
+things like "here's the full set" or "change those flags thus".
+Hell knows - there might be two primitives there; the second one
+would be fd x mask x new_flags x bool -> int, as in "set the bits
+present in mask to values as in new_flags".  Not sure.
+
+* move_mount(): fd x location x bool -> int.  fd - what to move, location -
+where to put it, bool - do we want to suppress propagation.  Potentially
+hacky part is that if fd is not attached to anything, we simply attach it;
+otherwise - move.
+
+Normal mount: fsopen, talk to driver, new_mount, move_mount, close descriptors
+mount --bind: fd = clone_mount(old, false); move_mount(fd, new, false); close
+mount --rbind: clone_mount(old, true); move_mount; close
+mount --make-shared et.al.: open(..., O_PATH); change_flags; close
+mount --move: open; mount_move; close
+vfsmount-level remount: open; change_flags (or change_mount_flags, if we keep
+it separate from topology ones); close
+sb-level remount: fspick; talk to driver; close
+make an arbitrary subtree really private (as discussed upthread):
+	fd = clone_mount(old, true); change_flags (or change_propagation_flags);
+	mount_move(fd, old, true); close(fd);
+
+The tricky part in terms of implementation is that we want a
+tree created by clone_mount() and never attached anywhere to be
+dissolved on the final close() of the result of clone_mount().
+It's not quite O_PATH - we want file_operations for that sucker
+that would have ->release() doing that.
+
+It would do namespace_lock(), check ->f_path.mnt for a flag and do
+umount_tree() if not set, then namespace_unlock().  move_mount()
+would set the flag.
