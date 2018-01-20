@@ -1,61 +1,65 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:35548 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754972AbeASKMs (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 19 Jan 2018 05:12:48 -0500
-Date: Fri, 19 Jan 2018 11:12:45 +0100
-From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org, linux-man@vger.kernel.org
-Subject: Re: moving filesystem mount options from util-linux to man-pages
-Message-ID: <20180119101245.5umnbe6koa22hneh@ws.net.home>
-References: <20180119023637.GI7217@vapier>
+Received: from mail-ot0-f172.google.com ([74.125.82.172]:44701 "EHLO
+        mail-ot0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756667AbeATVB1 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 20 Jan 2018 16:01:27 -0500
+Received: by mail-ot0-f172.google.com with SMTP id t20so4355240ote.11
+        for <util-linux@vger.kernel.org>; Sat, 20 Jan 2018 13:01:27 -0800 (PST)
+Subject: Re: Problem building util-linux without a separate ncursesw include
+ dir
+To: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>,
+        Karel Zak <kzak@redhat.com>,
+        Carlos Santos <casantos@datacom.ind.br>,
+        util-linux@vger.kernel.org
+References: <1971282138.2691482.1501546323018.JavaMail.zimbra@datacom.ind.br>
+ <1705151756.2691717.1501548399616.JavaMail.zimbra@datacom.ind.br>
+ <20170801072017.yl7mgv64pq7ccj5e@ws.net.home> <20180119024717.GJ7217@vapier>
+ <20180119094051.g3qztrrqf5guife5@ws.net.home> <20180119182123.GK28967@vapier>
+ <9f4f0155-fd38-e8d7-1340-b128b6ac447f@gmx.de>
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Message-ID: <a752e108-f9ce-58cb-eb1f-f176b20a1989@gmail.com>
+Date: Sat, 20 Jan 2018 15:01:25 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180119023637.GI7217@vapier>
+In-Reply-To: <9f4f0155-fd38-e8d7-1340-b128b6ac447f@gmx.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jan 18, 2018 at 09:36:37PM -0500, Mike Frysinger wrote:
-> the mount(8) man page covers not only the mount command, but also the
-> various file system options that come from the kernel.  it seems like
-> the communities have settled on the man-pages project for holding all
-> the userland-facing documentation, it has good practices for tracking
-> features across versions, and updating it is a lot easier/safer (than
-> util-linux) and up-to-date on the web (via man7.org).  while looking
-> up some proc/ramfs options, i noticed util-linux was out of date by
-> over 6 years :/.
+Rüdiger Meier wrote:
+> On 01/19/2018 07:21 PM, Mike Frysinger wrote:
+>> On 19 Jan 2018 10:40, Karel Zak wrote:
+>>> On Thu, Jan 18, 2018 at 09:47:17PM -0500, Mike Frysinger wrote:
+>>>> On 01 Aug 2017 09:20, Karel Zak wrote:
+>>>>> On Mon, Jul 31, 2017 at 09:46:39PM -0300, Carlos Santos wrote:
 
-Please, send patch if you see any obsolete stuff in mount.8.
-Unfortunately kernel guys (usually) don't care...
+[trim]
 
-> imo, it seems like we should move all kernel-specific documentation
-> out of the util-linux project and into man-pages.  obviously all the
-> mount command line options and such should remain.
-
-I've talked about it (including LKML) many times in last ten years.
-
-> specifically i'm looking at "FILESYSTEM-SPECIFIC MOUNT OPTIONS":
-> http://man7.org/linux/man-pages/man8/mount.8.html#FILESYSTEM-SPECIFIC_MOUNT_OPTIONS
+>>> The ncurses detection and variability in distros is horrible. We
+>>> already tried all possible combinations and always someone complains
+>>> about the way how we detect ncurses. See mailing list archive for more
+>>> information.
+>>
+>> that's the point of pkg-config.  if someone is having problems because
+>> they're doing something weird/non-standard, tell them to sort out their
+>> pkg-config installs.
 > 
-> we probably want to leave "FILESYSTEM-INDEPENDENT MOUNT OPTIONS"
-> in util-linux since those are all parsed by util-linux's mount
-> and turned into the MS_xxx bits.
-> 
-> thoughts ?  mount(2) doesn't seem like the best place, but these
-> are the fields that go in the "data" string to that syscall.
+> non-standard is to have ncurses.pc installed. Also cross-compiling is
+> certainly more "weird" than not cross-compiling. Regarding "tell them",
+> Have you tried yet to ask ncurses upstream about installing *.pc files
+> by default?
 
-Fortunately, this "move project" is already on the way. The target is 
-man section 5 and FS specific packages. We already successfully moved 
+In linuxfromscratch we build ncurses with the --enable-widec switch.  We 
+then add
 
- man nfs 
- man xfs
- man ext4 (ext2, ...)
+ln -sfv ncursesw.pc    /usr/lib/pkgconfig/ncurses.pc
+ln -sfv libncurses.so  /usr/lib/libcurses.so
 
-All depends on FS maintainers. I'm going to support arbitrary activity 
-in this area, but this does not depend on util-linux project.
+We have never had a problem with util-linux.  I'm not sure how other 
+distros do it, but the above may give some clues about the original problem.
 
-    Karel
+We do some other things too (we support a separate /usr partition) but the 
+ncurses build is at
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+http://www.linuxfromscratch.org/lfs/view/stable/chapter06/ncurses.html
+
+   -- Bruce
