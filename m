@@ -1,77 +1,124 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:50058 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.21]:54877 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933248AbeAKNfz (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 11 Jan 2018 08:35:55 -0500
-Subject: Re: [v3 PATCH 00/11] Pull Request - changelog
-To: Karel Zak <kzak@redhat.com>
-References: <4833b897-2192-86dc-f81b-e977d98b07b1@gmx.com>
- <20180108102159.dyelg7kqp5tx3c3i@ws.net.home>
- <6635776f-9787-f05c-704f-e326808daa1d@gmx.com>
- <20180111090120.k6h5q2juw6gqemlc@ws.net.home>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <95eb163b-218b-42ab-1b4b-4018cedd040e@gmx.com>
-Date: Thu, 11 Jan 2018 08:35:51 -0500
-MIME-Version: 1.0
-In-Reply-To: <20180111090120.k6h5q2juw6gqemlc@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+        id S1756341AbeATSG2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sat, 20 Jan 2018 13:06:28 -0500
+Received: from adsiz.fritz.box ([146.52.144.151]) by mail.gmx.com (mrgmx101
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0M7kwW-1eyuIs1eXw-00vMCh for
+ <util-linux@vger.kernel.org>; Sat, 20 Jan 2018 19:06:26 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 4/5] build-sys: avoid using prog_DEPENDENCIES
+Date: Sat, 20 Jan 2018 19:06:23 +0100
+Message-Id: <20180120180624.15213-5-sweet_f_a@gmx.de>
+In-Reply-To: <20180120180624.15213-1-sweet_f_a@gmx.de>
+References: <20180120180624.15213-1-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
+Use EXTRA_prog_DEPENDENCIES to have the benefit
+of automake's automatic prog_DEPENDENCIES.
 
-On 01/11/2018 04:01 AM, Karel Zak wrote:
-> On Wed, Jan 10, 2018 at 09:00:23PM -0500, J William Piggott wrote:
->>
->>
->> On 01/08/2018 05:21 AM, Karel Zak wrote:
->>> On Tue, Jan 02, 2018 at 09:53:18AM -0500, J William Piggott wrote:
->>>
->>> I have no clue how many users care and read our ReleaseNotes, but
->>> important is that they have opportunity to do that and they have
->>> always time to adopt to changes. This is how I promised that this 
->>> project will be maintained. 
->>
->> Your response here puzzled me, because I could not remember you ever
->> making a pre-announcement of this nature before.
-> 
-> 2.14  The losetup(8) '-s' option (introduced by util-linux-ng-2.13) is deprecated
-> 2.21  The udev compatible output (-o udev) from blkid(8) is deprecated.
-> 2.25  The "swapon --summary" output format is deprecated ...
-> 
-> ... and many warnings about commands (mkfs, tailf, mount, last, ...) and
-> features (cryptoloop).
-> 
-> The command line options are our API, we don't do such changes often.
-> 
-> I remember only one exception -- sfdisk, after rewrite some obscure
-> DOS-era options have been removed.
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ libblkid/src/Makemodule.am     | 4 +---
+ libfdisk/src/Makemodule.am     | 5 +----
+ libmount/src/Makemodule.am     | 4 +---
+ libsmartcols/src/Makemodule.am | 3 +--
+ libuuid/src/Makemodule.am      | 4 +++-
+ 5 files changed, 7 insertions(+), 13 deletions(-)
 
-We're not talking about deprecating anything, which is why I said "of
-this nature". We're not changing any API or removing any options. We're
-talking about changing the default output format. As was done to hwclock
-without any advanced warning and, so far, without any complaints. I
-could not find any past releases giving advanced warnings for changing a
-default configuration.
+diff --git a/libblkid/src/Makemodule.am b/libblkid/src/Makemodule.am
+index 2bd19959f..807cc21ee 100644
+--- a/libblkid/src/Makemodule.am
++++ b/libblkid/src/Makemodule.am
+@@ -113,8 +113,7 @@ endif
+ 
+ libblkid_la_LIBADD = libcommon.la
+ 
+-libblkid_la_DEPENDENCIES = \
+-	libcommon.la \
++EXTRA_libblkid_la_DEPENDENCIES = \
+ 	libblkid/src/libblkid.sym
+ 
+ libblkid_la_CFLAGS = \
+@@ -125,7 +124,6 @@ libblkid_la_CFLAGS = \
+ 
+ if BUILD_LIBUUID
+ libblkid_la_LIBADD += libuuid.la
+-libblkid_la_DEPENDENCIES += libuuid.la
+ libblkid_la_CFLAGS += -I$(ul_libuuid_incdir)
+ endif
+ 
+diff --git a/libfdisk/src/Makemodule.am b/libfdisk/src/Makemodule.am
+index 73bc89a95..77eed0bfb 100644
+--- a/libfdisk/src/Makemodule.am
++++ b/libfdisk/src/Makemodule.am
+@@ -40,9 +40,7 @@ libfdisk_la_CFLAGS = \
+ 	-I$(ul_libfdisk_incdir) \
+ 	-I$(top_srcdir)/libfdisk/src
+ 
+-libfdisk_la_DEPENDENCIES = \
+-	libcommon.la \
+-	libuuid.la \
++EXTRA_libfdisk_la_DEPENDENCIES = \
+ 	libfdisk/src/libfdisk.sym
+ 
+ libfdisk_la_LDFLAGS = $(SOLIB_LDFLAGS)
+@@ -54,7 +52,6 @@ libfdisk_la_LDFLAGS += -version-info $(LIBFDISK_VERSION_INFO)
+ 
+ if BUILD_LIBBLKID
+ libfdisk_la_LIBADD += libblkid.la
+-libfdisk_la_DEPENDENCIES += libblkid.la
+ libfdisk_la_CFLAGS += -I$(ul_libblkid_incdir)
+ endif
+ 
+diff --git a/libmount/src/Makemodule.am b/libmount/src/Makemodule.am
+index 1a6a8374a..8d7433255 100644
+--- a/libmount/src/Makemodule.am
++++ b/libmount/src/Makemodule.am
+@@ -52,9 +52,7 @@ libmount_la_CFLAGS = \
+ 	-I$(ul_libmount_incdir) \
+ 	-I$(top_srcdir)/libmount/src
+ 
+-libmount_la_DEPENDENCIES = \
+-	libcommon.la \
+-	libblkid.la \
++EXTRA_libmount_la_DEPENDENCIES = \
+ 	libmount/src/libmount.sym
+ 
+ libmount_la_LDFLAGS = $(SOLIB_LDFLAGS)
+diff --git a/libsmartcols/src/Makemodule.am b/libsmartcols/src/Makemodule.am
+index 6f5f6072c..175f9f206 100644
+--- a/libsmartcols/src/Makemodule.am
++++ b/libsmartcols/src/Makemodule.am
+@@ -27,8 +27,7 @@ libsmartcols_la_CFLAGS = \
+ 	-I$(ul_libsmartcols_incdir) \
+ 	-I$(top_srcdir)/libsmartcols/src
+ 
+-libsmartcols_la_DEPENDENCIES = \
+-	libcommon.la \
++EXTRA_libsmartcols_la_DEPENDENCIES = \
+ 	libsmartcols/src/libsmartcols.sym
+ 
+ libsmartcols_la_LDFLAGS = $(SOLIB_LDFLAGS)
+diff --git a/libuuid/src/Makemodule.am b/libuuid/src/Makemodule.am
+index a1c1e4ab3..5122622a5 100644
+--- a/libuuid/src/Makemodule.am
++++ b/libuuid/src/Makemodule.am
+@@ -28,7 +28,9 @@ libuuid_la_SOURCES = \
+ 	lib/md5.c \
+ 	lib/sha1.c
+ 
+-libuuid_la_DEPENDENCIES = libuuid/src/libuuid.sym
++EXTRA_libuuid_la_DEPENDENCIES = \
++	libuuid/src/libuuid.sym
++
+ libuuid_la_LIBADD       = $(SOCKET_LIBS)
+ 
+ libuuid_la_CFLAGS = \
+-- 
+2.13.6
 
-I really expected someone to complain that we broke their script with
-the hwclock change. I think it far more likely that hwclock's output be
-used programmatically then cal's. If I wanted calendar related data in a
-script I'd be more inclined to use date(1); it offers a lot more control
-over its output. Isn't the concern for an advance warning that the
-change would break the command's use programmatically? Cal's output isn't
-machine friendly, I don't think. Isn't cal's intended audience human?
-
-Anyway, it certainly doesn't hurt anything if you want to do this the
-slow painful way. The end result is the same, although a bit more work.
-I'm mostly trying to understand the rational, so that I know what to do
-in future instances.
-
-BTW, I also dropped 'PATCH 09/11 cal: remove the non-functional options'
-from the 171229 branch.
-
-
-> 
->     Karel
-> 
