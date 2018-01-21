@@ -1,78 +1,43 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:43612 "EHLO smtp.gentoo.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933218AbeAYEWB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 24 Jan 2018 23:22:01 -0500
-Received: from vapier (localhost [127.0.0.1])
-        by smtp.gentoo.org (Postfix) with SMTP id 6F3E5335C2C
-        for <util-linux@vger.kernel.org>; Thu, 25 Jan 2018 04:22:01 +0000 (UTC)
-Date: Wed, 24 Jan 2018 23:22:01 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: util-linux@vger.kernel.org
-Subject: Re: [PATCH] cal: drop trailing blank line
-Message-ID: <20180125042201.GC1718@vapier>
-References: <1464037332-21996-1-git-send-email-vapier@gentoo.org>
+Return-Path: elseifthen@gmx.com
+Subject: Re: [PATCH 2/2] hwclock: add --ul-debug implementing debug.h
+To: Karel Zak <kzak@redhat.com>
+References: <27af199a-8ec2-634f-6e99-dd4047f9d5f4@gmx.com>
+ <c0ee83b1-2736-313d-802b-4937c6f71d85@gmx.com>
+ <20171229113824.72y6cgyqta42mt2y@ws.net.home>
+ <3b97fbb3-d191-1aa1-2d6e-ee8e17174cea@gmx.com>
+ <20180108105527.kj62amdwlgoj3f7l@ws.net.home>
+From: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux@vger.kernel.org
+Message-ID: <40a664bf-1db7-5f26-ab6f-2c061ee40dbe@gmx.com>
+Date: Sun, 21 Jan 2018 14:38:25 -0500
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="5QAgd0e35j3NYeGe"
-In-Reply-To: <1464037332-21996-1-git-send-email-vapier@gentoo.org>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20180108105527.kj62amdwlgoj3f7l@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
 
---5QAgd0e35j3NYeGe
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 01/08/2018 05:55 AM, Karel Zak wrote:
+> On Sat, Jan 06, 2018 at 11:11:31AM -0500, J William Piggott wrote:
+ 
+>> What I dislike the most is that debugging is very seldom used, yet debugging is
+>> initialized unconditionally whether it is wanted or not. This is completely
+>> unnecessary; an option does the job just as well without the added overhead.
+> 
+> It's one getenv() call, nothing else. See libc for how many env.vars
+> it's sensitive.
 
-On 23 May 2016 17:02, Mike Frysinger wrote:
-> There's no history to be found behind this, and the comment in the
-> code indicates no one else knows, and it makes me angry :).
->=20
-> Signed-off-by: Mike Frysinger <vapier@gentoo.org>
-> ---
->  misc-utils/cal.c | 3 ---
->  1 file changed, 3 deletions(-)
->=20
-> diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-> index 3e20530..479c967 100644
-> --- a/misc-utils/cal.c
-> +++ b/misc-utils/cal.c
-> @@ -767,9 +767,6 @@ static void yearly(const struct cal_control *ctl)
->  		my_putstring("\n\n");
->  	}
->  	monthly(ctl);
-> -
-> -	/* Is empty line at the end year output really needed? */
-> -	my_putstring("\n");
->  }
-> =20
->  /*
-> --=20
-> 2.8.2
+For glibc it's mostly only to honor the POSIX environment as it is required to
+do. It also uses secure_getenv(); I see that you've since added something
+simular to debug.h. That is one type of security problem that I was talking
+about; I think there could be more. The glibc manual says:
 
-ping ...
--mike
+   The argv mechanism is typically used to pass command-line arguments specific
+   to the particular program being invoked.  The environment, on the other
+   hand, keeps track of information that is shared by many programs, changes
+   infrequently, and that is less frequently used.
 
---5QAgd0e35j3NYeGe
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+I wonder how a debug.h patch would be received on the libc-alpha list?
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEuQK1JxMl+JKsJRrUQWM7n+g39YEFAlppW2gACgkQQWM7n+g3
-9YH+MxAA3tn8eJ/It9pzvH0pHZyQL79+ef56vSxIXmrVY99x+g4+RfdfLEQt5CAu
-otVoY+WnwjybBvbEbR6qolUmZV92Z6w/NtIy5U70YvyqDVl+rYFfm2osfz/b92BF
-plbFF2z7dN+Sw0/UhcbmH+2nk8fgJ7tIo+9wvwl2jc6rEJVZ0BGI1Utj2PsSB4aH
-59iYGOMfr9rcRLZAqpiFPVYy44SZ24ZwFv0QjpamlqfY9LxgdZWhzBy7ZAKGKc3k
-n5C9Qn7C+watSN1N1apkrd83t2VlXQYLAudvSD3B1mdRtuuHh9gN8068fBGbRgjj
-h4TKp5qenKxMtDXwhyTpFw2gA+X1bMlEi2q7IBXJiJ6sPsry1wfZG8vc5wJ3XG4h
-77CRX7Ws+K1zWDaoymQ4pbFYPGY51lpLrpGoLypFNRgW7m04T0M7qhQE6Rak1tO6
-nkS0rrg6nHwgFhYzdvlFqkaaYp/m09wLcLWzMwGjprnEqDB0JVmz0QSl/FjjKHDM
-RJWSpgrfz6GAzgFtrpvCl+Fu1JYDzZWx2xQDTgN0lWTX3mpKl1kTL7FEvm/PDV13
-IHaLw1/U6Qwk7LwsaJI3yHY6SQbaWQPHFbsu3ulZowzt0H49sdcBDKjLiZE/epZZ
-6F8rruuB+zSVJOMw/hCL0TwdRpKGANzVg/kDa0s/P9UWytHWgz0=
-=J+vM
------END PGP SIGNATURE-----
-
---5QAgd0e35j3NYeGe--
+Anyway, I don't want to cause problems about this. You've made a compromise for
+hwclock and I appreciate that. My comments are only food-for-thought, or as you
+say brainstorming. I just think the general concept is not so good.
