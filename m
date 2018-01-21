@@ -1,80 +1,118 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:43740 "EHLO smtp.gentoo.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933218AbeAYEY1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 24 Jan 2018 23:24:27 -0500
-Date: Wed, 24 Jan 2018 23:24:26 -0500
+Return-Path: vapier@gentoo.org
+Date: Sat, 20 Jan 2018 21:49:12 -0500
 From: Mike Frysinger <vapier@gentoo.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] mount(8): drop redundant filesystem-specific sections
-Message-ID: <20180125042426.GE1718@vapier>
-References: <20180119184520.13067-1-vapier@gentoo.org>
- <20180122090923.io62zeuwnv25iw7p@ws.net.home>
+To: =?utf-8?Q?R=C3=BCdiger?= Meier <sweet_f_a@gmx.de>
+Cc: Karel Zak <kzak@redhat.com>, Carlos Santos <casantos@datacom.ind.br>,
+	util-linux@vger.kernel.org
+Subject: Re: Problem building util-linux without a separate ncursesw include
+ dir
+Message-ID: <20180121024912.GG15022@vapier>
+References: <1971282138.2691482.1501546323018.JavaMail.zimbra@datacom.ind.br>
+ <1705151756.2691717.1501548399616.JavaMail.zimbra@datacom.ind.br>
+ <20170801072017.yl7mgv64pq7ccj5e@ws.net.home>
+ <20180119024717.GJ7217@vapier>
+ <20180119094051.g3qztrrqf5guife5@ws.net.home>
+ <20180119182123.GK28967@vapier>
+ <9f4f0155-fd38-e8d7-1340-b128b6ac447f@gmx.de>
+ <20180120181405.GH14915@vapier>
+ <8f64924f-f89f-bc10-1be5-c8e64d2cdd12@gmx.de>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="HeFlAV5LIbMFYYuh"
-In-Reply-To: <20180122090923.io62zeuwnv25iw7p@ws.net.home>
-Sender: util-linux-owner@vger.kernel.org
+	protocol="application/pgp-signature"; boundary="raC6veAxrt5nqIoY"
+In-Reply-To: <8f64924f-f89f-bc10-1be5-c8e64d2cdd12@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
 
---HeFlAV5LIbMFYYuh
+--raC6veAxrt5nqIoY
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On 22 Jan 2018 10:09, Karel Zak wrote:
-> On Fri, Jan 19, 2018 at 01:45:20PM -0500, Mike Frysinger wrote:
-> > Add a new section to the top of the filesystem-specific chapter to point
-> > people generally to the filesystem-specific man pages.  This way we can
-> > delete all the redundant subsections that say the same thing.
+On 20 Jan 2018 20:31, R=C3=BCdiger Meier wrote:
+> On 01/20/2018 07:14 PM, Mike Frysinger wrote:
+> > On 20 Jan 2018 18:50, R=C3=BCdiger Meier wrote:
+> >> On 01/19/2018 07:21 PM, Mike Frysinger wrote:
+> >>> On 19 Jan 2018 10:40, Karel Zak wrote:
+> >>>> On Thu, Jan 18, 2018 at 09:47:17PM -0500, Mike Frysinger wrote:
+> >>>>> why don't we just support ncurses's pkg-config files as the default=
+ ?
+> >>>>> $ pkg-config --cflags ncurses
+> >>>>> -D_GNU_SOURCE
+> >>>>> $ pkg-config --cflags ncursesw
+> >>>>> -D_GNU_SOURCE -I/usr/include/ncursesw
+> >>>>
+> >>>> because pkg-config is not supported by ncurses upstream by default a=
+nd
+> >>>> it's not always the best solution.
+> >>>
+> >>> you mean upstream's configure script doesn't default it to on.  distr=
+os
+> >>> can (and many do) simply pass --enable-pc-files to get them.  but i d=
+on't
+> >>> see how that's relevant to preference when it comes to detection.
+> >>>
+> >>>> See commit 4c12a334dc4104d16dc06edf51904b08b08fcdfa.
+> >>>
+> >>> seems like that's trivial to resolve with a compile test rather than
+> >>> throwing it all out.  xxx-config scripts provide bad defaults when you
+> >>> cross-compile because now the user has to make sure the build's copy
+> >>> of ncurses-config don't get used.
+> >>>
+> >>>> The ncurses detection and variability in distros is horrible. We
+> >>>> already tried all possible combinations and always someone complains
+> >>>> about the way how we detect ncurses. See mailing list archive for mo=
+re
+> >>>> information.
+> >>>
+> >>> that's the point of pkg-config.  if someone is having problems because
+> >>> they're doing something weird/non-standard, tell them to sort out the=
+ir
+> >>> pkg-config installs.
+> >>
+> >> non-standard is to have ncurses.pc installed.
+> >=20
+> > that's a silly position to try to take.  you're claiming anything that =
+isn't
+> > turned on by default in `./configure` is non-standard ?
 >=20
-> Well, the subsections also provides the name of the package where is FS
-> specific man page :-)
->=20
-> > -.SS "Mount options for xfs"
-> > -See the options section of the
-> > -.BR xfs (5)
-> > -man page (the xfsprogs package must be installed).
->=20
-> It's probably not so important (and I have no strong opinion about
-> it), but I can imagine that for end-users it's useful. Maybe we can
-> add to the man page a small table with FS name, man page and package
-> name:
->=20
->       xfs   xfs(5)          xfsprogs
->       ext4  ext4(5)         e2fsprogs
->       cifs  mount.cifs(8)   cifs-utils
->       ...
->=20
-> or is it overkill?
+> No, as you could have read I'm talking only about --enable-pc-files being=
+ non
+> standard. Many distros and users are not using it
 
-the only reason i hesitated to try and do that was due to cross-distro
-package naming idiosyncrasies.  but i guess if we refer to the upstream
-project using the name they choose, the rest can be an exercise for the
-user ?
+most distros are enabling it.  Debian & Fedora & openSUSE & Gentoo & ArchLi=
+nux
+& OpenEmbedded OE and everything based on it are enabling them.  so it's the
+common case now, and if that's what it requires for you define something
+"standard", then it is standard now.
+
+> and you can't just call them all stupid.
+
+i didn't call anyone stupid.  don't put words in my mouth.
+
+> We have to support this case first.
+
+i didn't say to drop xxx-config usage.  i said it shouldn't come first.
 -mike
 
---HeFlAV5LIbMFYYuh
+--raC6veAxrt5nqIoY
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEuQK1JxMl+JKsJRrUQWM7n+g39YEFAlppW/oACgkQQWM7n+g3
-9YGeYRAAnS0rdlhoqwP+xjcWmds+pL6g7Dl42+RK23jDYDJ/OSdCugqQkipMDmMM
-OpSkIp2HUCOAnYSSkWv/y00CK5YclLS2QCb57sFG7at/6cHqa0bT0NZIiN7IML3f
-gw+Nkg8EqYosdH+VfoMvikOuYHlUhfDC5qdpO+G5EepX2xJo/C87BsGIA2pPmiS7
-sSbB2NaTT+EPYqxq4GLV4wihhPCCT9MHXGkSW12T0Gi0gMM6XPE6FdLMxiLwAzZQ
-GF3zPy7iM3nkVdUsuQ5BYsXEgu96KoK4RGiLaXVwr+16ls9e7UnRNsfSVlWiG7Ll
-Bv2aOM9rM9qQzECZyB4OTE53TrEm8Zz54NHu2B7nP43fvUVkUEgTi7hSK+a7EiHs
-4Jk+6sTlrtQwwZmCJvcqntTx4obctmJoZD21UUYJ2TPFbBVqR1C5NJCGf71KYPqD
-MEsAh00hS4xqRunCJQIEDPGJ25lcrmAVPP5WUm9bNtQ9OgMLqthO61WS2Xm0z6wm
-ha1JMf8aZp+w7mSLt/4tSFZ659KtjfgN2joQsnSyqCS2rUDUc7Ela7DbmWG/wYku
-5bioMKv9eok1WUpD9obhZLEHrwqdh4E05UX9cQ3t7kgR9AXgz/pl0ifJgJkthVIk
-1gLGf7W7MAHaNM6r9nRReMUY/t/zRkYbXtsXRLBwHqkA7k8Udyk=
-=SWcA
+iQIzBAEBCAAdFiEEuQK1JxMl+JKsJRrUQWM7n+g39YEFAlpj/6gACgkQQWM7n+g3
+9YF5iA/9G8gNstqpaR9c+Q/I3n4RWIkQOHVqxhLP4A0zBWGlye28sFVlBQgAKR44
+YDKPzSqNr/RMuaY9YLEObE9kDcnyCjkLltWvNESI55l9m4D7lXj01CiiFU11oYOU
+T0ncxwEuteBUQn90DcNb9Owobp32wHqouhhRVu0j2piZvXmTStZm3YUTsnAs3l+3
+uK89LzAhck/IRla4FNMP7ejM20mNoZvrb4PZITstMD6IxpRa/CBsaS1bGS9qBeXA
+MF8jqwsAAgtcbQwhYu+JwR0Alqd1YIcC5ZToz4T+qDDZF47LUSLxAS3gJdXjWp9Y
+8zNkRFs/ckZPNBL3+XncaMLsfhbuKOh03oL51/3cLDQrBfH3dpLADlQvOdDOEIQN
+x2jfBLOFRXQ3uYbMzZny+QcF0giVbP/6eIUFYHRnSm1Gmbm/YWqggapGunKbukM0
+ZlREtbiNTaY1ZwFLmfgEibw3PbWgGynMVd3IYk1tr2zxAtrFK7O+uCDZpX2SrF08
+ZjDJ5iCFnyScEwYnm7lH6HNAUKDukDf8MMlaKcki55tYqj2/Xz+v6vlTscgLd3T3
+ZxWLUNvp7JeX3dnHPXV/vJ9rLhG5evLkNSa85BeTcTsnKk/7xlTWPdhkXSs8NnRd
+76vybNK6dVSaslApJUI8dfKNbYQzJJAmeZKbEVtnzGj2WRu59/Y=
+=qaSE
 -----END PGP SIGNATURE-----
 
---HeFlAV5LIbMFYYuh--
+--raC6veAxrt5nqIoY--
