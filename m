@@ -1,140 +1,155 @@
-Return-Path: pali.rohar@gmail.com
-Date: Mon, 29 Jan 2018 17:49:17 +0100
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: Andreas Bombe <aeb@debian.org>,
-	Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: util-linux@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
-	Curtis Gedak <gedakc@gmail.com>, Pavel Machek <pavel@ucw.cz>,
-	Karel Zak <kzak@redhat.com>
-Subject: Re: Linux & FAT32 label
-Message-ID: <20180129164917.y4syrwrb634r4qj4@pali>
-References: <20171004153332.GA6696@pali>
- <20171011212435.znmtdnsxcd5ectub@pali>
- <20171105130608.5oww3b2fnnrwe7ok@pali>
- <20171109212131.uxraxzwpvrlyfyys@pali>
- <20171119124440.ffxx64zjmwedmtdp@pali>
- <20171120111256.zqvmpzdcf6ncyi5m@ws.net.home>
- <20171129232126.3hymurdf7uedl6c2@pali>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:47400 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751020AbeAVLrC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 22 Jan 2018 06:47:02 -0500
+Date: Mon, 22 Jan 2018 12:46:58 +0100
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [v3 PATCH 00/11] Pull Request - changelog
+Message-ID: <20180122114658.mjqrln5hcae4uehv@ws.net.home>
+References: <20180108102159.dyelg7kqp5tx3c3i@ws.net.home>
+ <6635776f-9787-f05c-704f-e326808daa1d@gmx.com>
+ <20180111090120.k6h5q2juw6gqemlc@ws.net.home>
+ <95eb163b-218b-42ab-1b4b-4018cedd040e@gmx.com>
+ <20180112105706.plx4c5puj6uxdofw@ws.net.home>
+ <6ad5a25b-6095-38f7-65b3-bd2711a05ba3@gmx.com>
+ <20180115133622.v4wbionunsjj7bmy@ws.net.home>
+ <a638c05f-19dc-513f-51b0-f37937193196@gmx.com>
+ <20180117120826.r2xcl25wgf47qex4@ws.net.home>
+ <c81d29da-4b9b-f924-0592-6e28813e302c@gmx.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ljhlxexkryxe7nax"
-In-Reply-To: <20171129232126.3hymurdf7uedl6c2@pali>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <c81d29da-4b9b-f924-0592-6e28813e302c@gmx.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Thu, Jan 18, 2018 at 11:32:14AM -0500, J William Piggott wrote:
+> > I'm not sure about the way how the current cal(1) code handles the
+> > reform. It's all based on "year", but it could be more complex if we
+> > want to make it extendable and support another reforms too.
+> 
+> I think this is an important question to answer before making design
+> choices. Do you want to add more reform dates?
 
---ljhlxexkryxe7nax
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It seems on many places Gregorian calendar have been adopted in
+previous century so I guess it could be interesting to get appropriate
+dates for actors, novelists, painters, researchers, etc... 
 
-On Thursday 30 November 2017 00:21:26 Pali Roh=C3=A1r wrote:
-> On Monday 20 November 2017 12:12:56 Karel Zak wrote:
-> > On Sun, Nov 19, 2017 at 01:44:40PM +0100, Pali Roh=C3=A1r wrote:
-> > > On Thursday 09 November 2017 22:21:31 Pali Roh=C3=A1r wrote:
-> > > > So from all tests and discussion I would propose new unification:
-> > > >=20
-> > > > 1. Read label only from the root directory. If label in root direct=
-ory
-> > > >    is missing then disk would be treated as without label. Label fr=
-om
-> > > >    boot sector would not be read.
-> > > >=20
-> > > >    --> Reason: Windows XP and mlabel ignores what is written in boot
-> > > >        sector. Windows XP even do not update boot sector, so label
-> > > >        stored in boot sector is incorrect after any change done by
-> > > >        Windows XP.
-> > > >=20
-> > > >        This logic is used by all tested MS-DOS and Windows versions,
-> > > >        plus also by mtools on Linux.
-> > > >=20
-> > > > 2. Write label to to both location, boot sector and root directory.
-> > > >=20
-> > > >    --> Reason: MS-DOS 6.22, MS-DOS 7.10, Windows 98 and also mtools=
- on
-> > > >        Linux do this. This is also what is written in FAT specifica=
-tion.
-> > > >=20
-> > > >        It also provides backward compatibility with old dosfslabel
-> > > >        versions which read label only from boot sector.
-> > > >=20
-> > > > 2. Process 'NO NAME    ' label in root directory as 'NO NAME' name.=
- Not
-> > > >    as empty label.
-> > > >=20
-> > > >    --> Reason: 'NO NAME    ' is regular entry in root directory and=
- both
-> > > >        Windows XP and mlabel handle it in this way.
-> > > >=20
-> > > > 3. Process 'NO NAME    ' label in boot directory as empty label. No=
-t as
-> > > >    label with name 'NO NAME'.
-> > > >=20
-> > > >    --> Reason: On Windows XP when formatting empty disk and label i=
-s not
-> > > >        specified then 'NO NAME    ' is stored to boot sector.
-> > > >=20
-> > > >        Also in FAT specification is written that empty label is sto=
-red
-> > > >        as 'NO NAME    '.
-> > > >=20
-> > > > With this change we would get compatibility with MS-DOS, Windows (b=
-oth
-> > > > DOS-based and NT-based) and also with Linux mtools, modulo problems=
- DOS
-> > > > code page.
-> > > >=20
-> > > > There are just two negatives:
-> > > >=20
-> > > > 1) Labels set by old dosfslabel versions (which stored them only to=
- boot
-> > > >    sector) would not be visible. But they are already not visible on
-> > > >    MS-DOS or Windows machines, and also via mlabel (from mtools).
-> > > >=20
-> > > > 2) Behavior of blkid and fatlabel would be changed as both tools ha=
-ve
-> > > >    different as proposed above, and based on tests they also differ=
- each
-> > > >    from other.
-> > > >=20
-> > > > Andreas, Karel, what do you think about it?
-> > >=20
-> > > Also for other people, do any have comments on my proposed solution?
-> >=20
-> > Go ahead and send patch :-) (also with LABEL_FATBOOT=3D)
->=20
-> Now I implemented changes for dosfstools project, pull request is there:
-> https://github.com/dosfstools/dosfstools/pull/73
->=20
-> Just waiting for the Andreas response...
+The feature seems unique and we already need to support it for GB.
 
-Seems... there is no activity since October in dosfstools github project.
+> Time keeping is very geopolitical. For example, the tz database
+> (zoneinfo) is plagued by complaints of political nature like: "you have
+> county x, y, and z; why do you exclude my country? Why are you treating
+> us like second class country?"
 
-Andreas, I have no response from you, are OK?
+Oh, all history of this project is proof that we're able to be distro,
+ethnic, language, etc. independent. I've spent many (Red Hat paid)
+weeks to make things usable for almost everyone.  If anyone will blame me
+for any political games I will very quickly redirect him to very dark
+places... ;-)
 
-Just I would like to know if you are interested in changes and if I
-should prepare another patches for dosfstools. I just do not want to go
-coding and implement something which will be rejected...
+>  b) add all reform dates?
+>      If yes, how would complex regions like Latvia, Netherlands, Sweden,
+>      and Russia be implemented? (very difficult I think)
 
-> Andy, you wanted some manpage update. I did it in this commit:
-> https://github.com/dosfstools/dosfstools/pull/73/commits/3f4f122b7ec8eeb4=
-a0ae0db8e94b8829f51d1163
-> Can you check if changes in manpage are OK?
+Well, we can add what we have information about the reform. We don't
+have to add "all" from the beginning. The another stuff could be added
+later. It's open source, "send patch" is valid reaction :-)
 
-Andy, can you check that manpage update?
+    --reform <year>-<region> | <alias>
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+where <region> is name of the area in time the reform has been
+implemented.
 
---ljhlxexkryxe7nax
-Content-Type: application/pgp-signature; name="signature.asc"
+    --reform 1600-prussia
+    --reform 1648-alsace
 
------BEGIN PGP SIGNATURE-----
+and we can add aliases
 
-iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWm9QiQAKCRCL8Mk9A+RD
-UjMtAKCj/bhJKn++tAK8xgWcHKeXYdlNBACZAXZKGOtUIXS2qIMxxARDGB4RiMg=
-=5pMI
------END PGP SIGNATURE-----
+    --reform 1600-germany
 
---ljhlxexkryxe7nax--
+btw, it's already controversial for GB too, it's "Great Britain and
+colonies", I guess that some people can feel uncomfortable that
+their region is "colonies" :-)
+
+> "The Chesterfield reform is a historical feature of cal(1) and part of
+> the POSIX standard, so it cannot be removed. We will not be adding any
+> new reform dates. Reform dates can be examined by having cal display the
+> date in both the Gregorian and Julian calendar systems."
+> 
+> This is one reason that I thought adding exclusive Julian calendar
+> output was a good feature; any reform date can be examined. It also
+> allows regions, other than the 'British Empire" to display their proper
+> dates. For example, Greece can now view dates prior to 1923-02-16 using
+> Julian calendars. Of course, this puts the onus of knowing the reform
+> date on the user.
+
+Yes, this is possible way. I think all the question is if we
+want to invert man power to this feature. We can also end this
+discussion with "it would be nice ... let's add to TODO" ;-)
+
+> > 	if (re->year < year
+> > 	    || (year == re->year && re->month < month)
+> > 	    || (year == re->year
+> > 		&& month == re->month && re->day + re->missing_days < day)) {
+> > 
+> >         ...
+> > 	}
+> 
+> This will break for regions like Prussia where the reform crosses a
+> month boundary.
+
+Well, it was example, no attempt to implement it ;-)
+
+> 	if (year != ctl->reform_year + 1)
+> 		year -= month < MARCH;
+> 	else
+> 		year -= (month < MARCH) + 14;
+> 
+> The first branch is easy; normally Jan and Feb day-of-week are based on
+> the previous year because of the potential jump on March 1st for leap
+> years.
+> 
+> The second branch is making a correction for the year following the reform
+> adoption, because in that case Jan 1 of the previous year would be a
+> Julian calendar date and won't work. What I'm not sure about is where the
+> constant '14' derives from. It may be the first day of the new Gregorian
+> calendar implementation 14 Sept 1752. If so, will simply substituting
+> other reform dates first_day work? This function is all about leap
+> years, this branch would impact that. 1752 happens to be a leap year for
+> both Gregorian and Julian systems. What will happen for regions like
+> Switzerland where the reform year is a leap year for Gregorian but not
+> for Julian?
+
+Well, all the reform is just jump in calendar, from one day to
+another, from one calculation method to another. The current code mix
+it together, but is it really necessary? I guess you can just jump in
+time and start use Gregorian calendar independently on the previous
+Julian stuff (independently on leap year, etc.).
+
+> I don't know to what extent, but my instinct is that cal's code is very
+> specific to 3 Sept 1752 and simply plugging other reform dates into it
+> will be brittle.
+
+Yes, I agree the current code is very 1752-centric (and it's not too
+elegant ;-)
+
+> > The remaining thing is magic constants for day-in-week calculations.
+> > It's fast/elegant for Gregorian (ISO) calendar, but I'm not sure about
+> > old calendars. 
+> 
+> So, the names for the reform[] and old[] arrays are not so good. They
+> should be gregorian and julian, or just greg and juli. They will work
+> for any date in there respective calendar systems. Since those are the
+> only two systems that cal uses, the constants should work as expected.
+
+I read again https://en.wikipedia.org/wiki/Determination_of_the_day_of_the_week#T.C3.B8ndering.27s_algorithm
+and it makes more sense for me now. So, this is no problem.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
