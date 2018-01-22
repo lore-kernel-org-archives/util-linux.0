@@ -1,94 +1,102 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:54386 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756139AbeAHLQS (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 8 Jan 2018 06:16:18 -0500
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id ED33E804E3
-        for <util-linux@vger.kernel.org>; Mon,  8 Jan 2018 11:16:17 +0000 (UTC)
-Date: Mon, 8 Jan 2018 12:16:14 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Tony Asleson <tasleson@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH RFC 1/1] libblkid: Add support for stratis
-Message-ID: <20180108111614.wd2eueagamfbcsil@ws.net.home>
-References: <20180105171539.5948-1-tasleson@redhat.com>
- <20180105171539.5948-2-tasleson@redhat.com>
+Received: from mail-wr0-f182.google.com ([209.85.128.182]:40469 "EHLO
+        mail-wr0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751140AbeAVUqN (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 22 Jan 2018 15:46:13 -0500
+Received: by mail-wr0-f182.google.com with SMTP id 100so10146006wrb.7
+        for <util-linux@vger.kernel.org>; Mon, 22 Jan 2018 12:46:13 -0800 (PST)
+From: Libor Bukata <lbukata@gmail.com>
+Subject: Patch to add support for lz4hc and deflate optimization algorithms in
+ zramctl.
+To: util-linux@vger.kernel.org
+Cc: Nefelim4ag@gmail.com, kzak@redhat.com
+Message-ID: <90fb3b4a-38b8-17fc-f1b6-03e8c23eb808@gmail.com>
+Date: Mon, 22 Jan 2018 21:45:54 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180105171539.5948-2-tasleson@redhat.com>
+Content-Type: multipart/mixed;
+ boundary="------------94CCBBA2680FFE7AC0805643"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Jan 05, 2018 at 11:15:39AM -0600, Tony Asleson wrote:
-> +static int stratis_valid_sb(blkid_probe pr, uint8_t *p)
-> +{
-> +	const struct stratis_sb *stratis = (const struct stratis_sb *)p;
-> +	uint32_t crc = 0;
-> +
-> +	// generate CRC from byte position 4 for length 508 == 512 byte sector
-> +	crc = crc32c(~0L, p + sizeof(stratis->crc32),
-> +			BS - sizeof(stratis->crc32));
-> +	crc ^= ~0L;
-> +
-> +	return blkid_probe_verify_csum(pr, crc, le32_to_cpu(stratis->crc32));
+This is a multi-part message in MIME format.
+--------------94CCBBA2680FFE7AC0805643
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 7bit
 
-Not sure that blkid_probe_verify_csum() is a good idea for your
-use-case. 
+Dear developers of Linux utils,
 
-The function ignores (returns 1) bad checksums if BLKID_SUBLKS_BADCSUM
-flag is enabled. I guess you want to use second (backup) superblock 
-if the primary one is broken. It would be better to use
+I extended the zramctl utility to handle also lz4hc and deflate formats.
+The patch is included in the attachment. Thank you in advance for your
+comments.
 
-    return crc == le32_to_cpu(stratis->crc32);
+Kind regards,
+Libor Bukata.
 
-and do not use blkid_probe_verify_csum() at all.
+--------------94CCBBA2680FFE7AC0805643
+Content-Type: text/x-patch;
+ name="new_comp_alg.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="new_comp_alg.patch"
 
-> +static int probe_stratis(blkid_probe pr,
-> +		const struct blkid_idmag *mag __attribute__((__unused__)))
-> +{
-> +	const struct stratis_sb *stratis = NULL;
-> +	uint8_t *buf = blkid_probe_get_buffer(pr, 0, SB_AREA_SIZE);
-> +
-> +	if (!buf)
-> +		return errno ? -errno : 1;
-> +
-> +	if (stratis_valid_sb(pr, buf + FIRST_COPY_OFFSET)) {
-> +		stratis = (const struct stratis_sb *)(buf + FIRST_COPY_OFFSET);
-> +	} else {
-> +		if (!stratis_valid_sb(pr, buf + SECOND_COPY_OFFSET))
-> +			return 1;
-> +
-> +		stratis = (const struct stratis_sb *)
-> +				(buf + SECOND_COPY_OFFSET);
-> +	}
-> +
-> +	blkid_probe_strncpy_uuid(pr, (unsigned char *)stratis->dev_uuid,
-> +					sizeof(stratis->dev_uuid));
-> +	blkid_probe_set_value(pr, "POOL_UUID",
-> +				(unsigned char *)stratis->pool_uuid,
-> +				sizeof(stratis->pool_uuid));
-> +
-> +	blkid_probe_sprintf_value(pr, "SECTORS", "%" PRIu64, stratis->sectors);
+diff --git a/sys-utils/zramctl.8 b/sys-utils/zramctl.8
+index 9ca2983b9..ef44435ed 100644
+--- a/sys-utils/zramctl.8
++++ b/sys-utils/zramctl.8
+@@ -44,7 +44,7 @@ query the status of used zram devices.
+ If no option is given, all non-zero size zram devices are shown.
+ .SH OPTIONS
+ .TP
+-.BR \-a , " \-\-algorithm lzo" | lz4
++.BR \-a , " \-\-algorithm lzo" | lz4 | lz4hc | deflate
+ Set the compression algorithm to be used for compressing data in the zram device.
+ .TP
+ .BR \-f , " \-\-find"
+diff --git a/sys-utils/zramctl.c b/sys-utils/zramctl.c
+index fb64150d6..9117ddce3 100644
+--- a/sys-utils/zramctl.c
++++ b/sys-utils/zramctl.c
+@@ -424,13 +424,16 @@ static void fill_table_row(struct libscols_table *tb, struct zram *z)
+ 			char *alg = sysfs_strdup(sysfs, "comp_algorithm");
+ 			if (!alg)
+ 				break;
+-			if (strstr(alg, "[lzo]") == NULL) {
+-				if (strstr(alg, "[lz4]") == NULL)
+-					;
+-				else
+-					str = xstrdup("lz4");
+-			} else
++
++			if (strstr(alg, "[lzo]") != NULL)
+ 				str = xstrdup("lzo");
++			else if (strstr(alg, "[lz4]") != NULL)
++				str = xstrdup("lz4");
++			else if (strstr(alg, "[lz4hc]") != NULL)
++				str = xstrdup("lz4hc");
++			else if (strstr(alg, "[deflate]") != NULL)
++				str = xstrdup("deflate");
++
+ 			free(alg);
+ 			break;
+ 		}
+@@ -539,7 +542,7 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_("Set up and control zram devices.\n"), out);
+ 
+ 	fputs(USAGE_OPTIONS, out);
+-	fputs(_(" -a, --algorithm lzo|lz4   compression algorithm to use\n"), out);
++	fputs(_(" -a, --algorithm lzo|lz4|lz4hc|deflate   compression algorithm to use\n"), out);
+ 	fputs(_(" -b, --bytes               print sizes in bytes rather than in human readable format\n"), out);
+ 	fputs(_(" -f, --find                find a free device\n"), out);
+ 	fputs(_(" -n, --noheadings          don't print headings\n"), out);
+@@ -611,7 +614,8 @@ int main(int argc, char **argv)
+ 
+ 		switch (c) {
+ 		case 'a':
+-			if (strcmp(optarg,"lzo") && strcmp(optarg,"lz4"))
++			if (strcmp(optarg,"lzo") && strcmp(optarg,"lz4")
++					&& strcmp(optarg,"lz4hc") && strcmp(optarg, "deflate"))
+ 				errx(EXIT_FAILURE, _("unsupported algorithm: %s"),
+ 					     optarg);
+ 			algorithm = optarg;
 
-Hmm... SECTORS sounds pretty generic. Don't forget it will be
-stored in udevd db. Would be possible to use any prefix?
-
-For example:
-
-    POOL_SECTORS
-
-> +	blkid_probe_sprintf_value(pr, "INITIALIZATION_TIME", "%" PRIu64,
-> +					stratis->initialization_time);
-
-    POOL_INITTIME
-
-Karel
-
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--------------94CCBBA2680FFE7AC0805643--
