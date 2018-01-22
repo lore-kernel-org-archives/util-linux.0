@@ -1,78 +1,67 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qt0-f175.google.com ([209.85.216.175]:43312 "EHLO
-        mail-qt0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752068AbeAQJxh (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 17 Jan 2018 04:53:37 -0500
-Received: by mail-qt0-f175.google.com with SMTP id s3so21783809qtb.10
-        for <util-linux@vger.kernel.org>; Wed, 17 Jan 2018 01:53:37 -0800 (PST)
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 2/2] cal: do not set months_in_row with -3 option
+To: Karel Zak <kzak@redhat.com>
+References: <85ea05cd-c4d0-f7d6-14f4-7deb065089d1@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <009ab747-9e36-1283-f20d-0c3fea21045d@gmx.com>
+Date: Mon, 22 Jan 2018 15:07:15 -0500
 MIME-Version: 1.0
-In-Reply-To: <20180117041727.GS13338@ZenIV.linux.org.uk>
-References: <28167.1516032442@warthog.procyon.org.uk> <CAOssrKdgudK7kKbhQBAnV9EwzHBq=4+9M26JGfmhNDGrGXmnFg@mail.gmail.com>
- <1643.1516117204@warthog.procyon.org.uk> <CAOssrKdn-ZhOB9V28uL-JK9zgNGJzF4cFBeyoqLLj4pADqNFVQ@mail.gmail.com>
- <20180117041727.GS13338@ZenIV.linux.org.uk>
-From: Miklos Szeredi <mszeredi@redhat.com>
-Date: Wed, 17 Jan 2018 10:53:36 +0100
-Message-ID: <CAOssrKfN_ZT5yJC1mxkhUf6FG=_eMD4nzQtETfu_4X3vOf1kHw@mail.gmail.com>
-Subject: Re: User-visible context-mount API
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: David Howells <dhowells@redhat.com>,
-        Jeff Layton <jlayton@redhat.com>,
-        "Eric W. Biederman" <ebiederm@redhat.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        util-linux@vger.kernel.org,
-        "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <85ea05cd-c4d0-f7d6-14f4-7deb065089d1@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-[Adding util-linux@vger and Michael Kerrisk]
 
-On Wed, Jan 17, 2018 at 5:17 AM, Al Viro <viro@zeniv.linux.org.uk> wrote:
-> On Tue, Jan 16, 2018 at 05:41:46PM +0100, Miklos Szeredi wrote:
->
->> Right.
->>
->> Still, those two (propagation and flags) are properties of the mount.
->> No fundamental difference in how to handle them, that I see.  Okay, we
->> have MS_REC handling in the propagation and not in the flags, but
->> that's something that might make sense for flags as well.
->>
->> What's more interesting is how MS_PRIVATE + MS_REC semantics are
->> complete failure in the real world: the logical thing would be to mark
->> a mount private on the supplied mount AND propagate an umount event to
->> everywhere else.
->
-> This is utter nonsense.  Most of the time it's "Fedora, in its infinite
-> bogo^Wwisdom has made everything shared; I don't fucking need that
-> idiocy, so please unshare this, this and that".  You really don't want
-> (or have permissions for) unmounting e.g. /mnt in namespace of init
-> when you do that.
->
-> Sure, we get tons of bug reports.  Due to idiotic Fedora setup, with
-> everything shared.  The same setup that would go up in flames on the
-> semantics change you propose.
+Having the -3 option set months_in_row causes ordinal days
+to wrap; it overrides the automatic handling of months_in_row
+that falls back to 2 month columns for ordinal days.
 
-I wouldn't propose to change existing --make-private, as this would
-not be backward compatible. The new semantics would mean a new op,
-obviously.
+Before:
+cal -3j 2020
+                           2020
 
-Documenting  --make-private thing properly would also help.  To me the
-wording "make private" strongly implies "I want to make submounts
-private to this instance".  See for example rhbz#1432211.
+            July                         August                      September
+Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat
+    182 183 184 185 186 187                   213 214 215   244 245 246 247 248 249 250
+188 189 190 191 192 193 194   216 217 218 219 220 221 222   251 252 253 254 255 256 257
+195 196 197 198 199 200 201   223 224 225 226 227 228 229   258 259 260 261 262 263 264
+202 203 204 205 206 207 208   230 231 232 233 234 235 236   265 266 267 268 269 270 271
+209 210 211 212               237 238 239 240 241 242 243   272 273
 
-> If anything, "private bind on itself" would be a useful operation.
-> Turning given location into a mountpoint, and having everything
-> under it looking as it used to, but with no propagation at all.
-> Without bothering anybody else, even if location currently happens
-> to be on a shared/master mount.
->
-> I can slap that together for mount(2), but I'm not sure what a sane
-> combination of flags for that would look like ;-)  For fsmount
-> I think it would be very useful thing to have.
+Patched:
+cal -3j 2020
+                           2020
 
-Yes, I think such an operation would be pretty useful.   Not sure if
-it's the whole story, though.
+          December                      January
+Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat
+335 336 337 338 339 340 341                 1   2   3   4
+342 343 344 345 346 347 348     5   6   7   8   9  10  11
+349 350 351 352 353 354 355    12  13  14  15  16  17  18
+356 357 358 359 360 361 362    19  20  21  22  23  24  25
+363 364 365                    26  27  28  29  30  31
 
-Thanks,
-Miklos
+          February
+Sun Mon Tue Wed Thu Fri Sat
+                         32
+ 33  34  35  36  37  38  39
+ 40  41  42  43  44  45  46
+ 47  48  49  50  51  52  53
+ 54  55  56  57  58  59  60
+
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ misc-utils/cal.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index 8a715d94c..a38ca3024 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -367,7 +367,6 @@ int main(int argc, char **argv)
+ 		case '3':
+ 			ctl.num_months = 3;
+ 			ctl.span_months = 1;
+-			ctl.months_in_row = 3;
+ 			break;
+ 		case 's':
+ 			ctl.weekstart = SUNDAY;		/* default */
