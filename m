@@ -1,351 +1,85 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.19]:57325 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.22]:54070 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751406AbeAWP7c (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 23 Jan 2018 10:59:32 -0500
-Received: from zappa.l.ga-group.nl ([87.128.112.108]) by mail.gmx.com
- (mrgmx001 [212.227.17.190]) with ESMTPSA (Nemesis) id
- 0M5uLh-1f1yn51Ihl-00xp9P for <util-linux@vger.kernel.org>; Tue, 23 Jan 2018
- 16:59:30 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 3/7] tests: rewrite fsck-bad-header
-Date: Tue, 23 Jan 2018 16:59:24 +0100
-Message-Id: <20180123155928.7629-4-sweet_f_a@gmx.de>
-In-Reply-To: <20180123155928.7629-1-sweet_f_a@gmx.de>
-References: <20180123155928.7629-1-sweet_f_a@gmx.de>
+        id S1751024AbeAVMDc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 22 Jan 2018 07:03:32 -0500
+Subject: [PATCH 2/2] cal: fix first week calculation
+To: Karel Zak <kzak@redhat.com>
+References: <a6d50a7c-6938-6f29-a983-039c5a422a7f@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <9013746a-ea76-e710-7795-114c3543683e@gmx.com>
+Date: Mon, 22 Jan 2018 07:03:27 -0500
+MIME-Version: 1.0
+In-Reply-To: <a6d50a7c-6938-6f29-a983-039c5a422a7f@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Fix test for systems with pagesize != 4096
-Loop over many combinations of sizes, endianness and blocksizes.
+Commit efafeaf set 1 Jan as week 1, but the change
+was missed in week_to_day() and in the man page.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+Before
+cal --week=40 --iso 1752
+      October 1752
+   Su Mo Tu We Th Fr Sa
+41  1  2  3  4  5  6  7
+42  8  9 10 11 12 13 14
+43 15 16 17 18 19 20 21
+44 22 23 24 25 26 27 28
+45 29 30 31
+
+Patched
+cal --week=40 --iso 1752
+     September 1752
+   Su Mo Tu We Th Fr Sa
+36                 1  2
+37  3  4  5  6  7  8  9
+38 10 11 12 13 14 15 16
+39 17 18 19 20 21 22 23
+40 24 25 26 27 28 29 30
+
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
- tests/expected/cramfs/fsck-bad-header             |  1 -
- tests/expected/cramfs/fsck-bad-header-nopad-4K-be | 29 +++++++++
- tests/expected/cramfs/fsck-bad-header-nopad-4K-le | 29 +++++++++
- tests/expected/cramfs/fsck-bad-header-pad-4K-be   | 29 +++++++++
- tests/expected/cramfs/fsck-bad-header-pad-4K-le   | 29 +++++++++
- tests/expected/cramfs/fsck-bad-header-pad-64K-be  | 29 +++++++++
- tests/expected/cramfs/fsck-bad-header-pad-64K-le  | 29 +++++++++
- tests/ts/cramfs/fsck-bad-header                   | 74 +++++++++++++++++++++--
- 8 files changed, 243 insertions(+), 6 deletions(-)
- delete mode 100644 tests/expected/cramfs/fsck-bad-header
- create mode 100644 tests/expected/cramfs/fsck-bad-header-nopad-4K-be
- create mode 100644 tests/expected/cramfs/fsck-bad-header-nopad-4K-le
- create mode 100644 tests/expected/cramfs/fsck-bad-header-pad-4K-be
- create mode 100644 tests/expected/cramfs/fsck-bad-header-pad-4K-le
- create mode 100644 tests/expected/cramfs/fsck-bad-header-pad-64K-be
- create mode 100644 tests/expected/cramfs/fsck-bad-header-pad-64K-le
+ misc-utils/cal.1 | 12 ++++++------
+ misc-utils/cal.c |  2 +-
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/tests/expected/cramfs/fsck-bad-header b/tests/expected/cramfs/fsck-bad-header
-deleted file mode 100644
-index 41c2c125e..000000000
---- a/tests/expected/cramfs/fsck-bad-header
-+++ /dev/null
-@@ -1 +0,0 @@
--fsck.cramfs: superblock size (76) too small
-diff --git a/tests/expected/cramfs/fsck-bad-header-nopad-4K-be b/tests/expected/cramfs/fsck-bad-header-nopad-4K-be
-new file mode 100644
-index 000000000..397d1ba29
---- /dev/null
-+++ b/tests/expected/cramfs/fsck-bad-header-nopad-4K-be
-@@ -0,0 +1,29 @@
-+## size: 0
-+fsck.cramfs: superblock size (0) too small
-+ret: 4
-+
-+## size: 75
-+fsck.cramfs: superblock size (75) too small
-+ret: 4
-+
-+## size: 76
-+fsck.cramfs: file extends past end of filesystem
-+fsck.cramfs: crc error
-+ret: 4
-+
-+## size: 4095
-+fsck.cramfs: file extends past end of filesystem
-+fsck.cramfs: crc error
-+ret: 4
-+
-+## size: 4096
-+ret: 0
-+
-+## size: 4097
-+fsck.cramfs: file length too short
-+ret: 4
-+
-+## size: 4294967295
-+fsck.cramfs: file length too short
-+ret: 4
-+
-diff --git a/tests/expected/cramfs/fsck-bad-header-nopad-4K-le b/tests/expected/cramfs/fsck-bad-header-nopad-4K-le
-new file mode 100644
-index 000000000..397d1ba29
---- /dev/null
-+++ b/tests/expected/cramfs/fsck-bad-header-nopad-4K-le
-@@ -0,0 +1,29 @@
-+## size: 0
-+fsck.cramfs: superblock size (0) too small
-+ret: 4
-+
-+## size: 75
-+fsck.cramfs: superblock size (75) too small
-+ret: 4
-+
-+## size: 76
-+fsck.cramfs: file extends past end of filesystem
-+fsck.cramfs: crc error
-+ret: 4
-+
-+## size: 4095
-+fsck.cramfs: file extends past end of filesystem
-+fsck.cramfs: crc error
-+ret: 4
-+
-+## size: 4096
-+ret: 0
-+
-+## size: 4097
-+fsck.cramfs: file length too short
-+ret: 4
-+
-+## size: 4294967295
-+fsck.cramfs: file length too short
-+ret: 4
-+
-diff --git a/tests/expected/cramfs/fsck-bad-header-pad-4K-be b/tests/expected/cramfs/fsck-bad-header-pad-4K-be
-new file mode 100644
-index 000000000..8e2316183
---- /dev/null
-+++ b/tests/expected/cramfs/fsck-bad-header-pad-4K-be
-@@ -0,0 +1,29 @@
-+## size: 76
-+fsck.cramfs: superblock size (76) too small
-+ret: 4
-+
-+## size: 587
-+fsck.cramfs: superblock size (587) too small
-+ret: 4
-+
-+## size: 588
-+fsck.cramfs: file extends past end of filesystem
-+fsck.cramfs: crc error
-+ret: 4
-+
-+## size: 4095
-+fsck.cramfs: file extends past end of filesystem
-+fsck.cramfs: crc error
-+ret: 4
-+
-+## size: 4096
-+ret: 0
-+
-+## size: 4097
-+fsck.cramfs: file length too short
-+ret: 4
-+
-+## size: 4294967295
-+fsck.cramfs: file length too short
-+ret: 4
-+
-diff --git a/tests/expected/cramfs/fsck-bad-header-pad-4K-le b/tests/expected/cramfs/fsck-bad-header-pad-4K-le
-new file mode 100644
-index 000000000..8e2316183
---- /dev/null
-+++ b/tests/expected/cramfs/fsck-bad-header-pad-4K-le
-@@ -0,0 +1,29 @@
-+## size: 76
-+fsck.cramfs: superblock size (76) too small
-+ret: 4
-+
-+## size: 587
-+fsck.cramfs: superblock size (587) too small
-+ret: 4
-+
-+## size: 588
-+fsck.cramfs: file extends past end of filesystem
-+fsck.cramfs: crc error
-+ret: 4
-+
-+## size: 4095
-+fsck.cramfs: file extends past end of filesystem
-+fsck.cramfs: crc error
-+ret: 4
-+
-+## size: 4096
-+ret: 0
-+
-+## size: 4097
-+fsck.cramfs: file length too short
-+ret: 4
-+
-+## size: 4294967295
-+fsck.cramfs: file length too short
-+ret: 4
-+
-diff --git a/tests/expected/cramfs/fsck-bad-header-pad-64K-be b/tests/expected/cramfs/fsck-bad-header-pad-64K-be
-new file mode 100644
-index 000000000..15d4ff190
---- /dev/null
-+++ b/tests/expected/cramfs/fsck-bad-header-pad-64K-be
-@@ -0,0 +1,29 @@
-+## size: 76
-+fsck.cramfs: superblock size (76) too small
-+ret: 4
-+
-+## size: 587
-+fsck.cramfs: superblock size (587) too small
-+ret: 4
-+
-+## size: 588
-+fsck.cramfs: file extends past end of filesystem
-+fsck.cramfs: crc error
-+ret: 4
-+
-+## size: 65535
-+fsck.cramfs: file extends past end of filesystem
-+fsck.cramfs: crc error
-+ret: 4
-+
-+## size: 65536
-+ret: 0
-+
-+## size: 65537
-+fsck.cramfs: file length too short
-+ret: 4
-+
-+## size: 4294967295
-+fsck.cramfs: file length too short
-+ret: 4
-+
-diff --git a/tests/expected/cramfs/fsck-bad-header-pad-64K-le b/tests/expected/cramfs/fsck-bad-header-pad-64K-le
-new file mode 100644
-index 000000000..15d4ff190
---- /dev/null
-+++ b/tests/expected/cramfs/fsck-bad-header-pad-64K-le
-@@ -0,0 +1,29 @@
-+## size: 76
-+fsck.cramfs: superblock size (76) too small
-+ret: 4
-+
-+## size: 587
-+fsck.cramfs: superblock size (587) too small
-+ret: 4
-+
-+## size: 588
-+fsck.cramfs: file extends past end of filesystem
-+fsck.cramfs: crc error
-+ret: 4
-+
-+## size: 65535
-+fsck.cramfs: file extends past end of filesystem
-+fsck.cramfs: crc error
-+ret: 4
-+
-+## size: 65536
-+ret: 0
-+
-+## size: 65537
-+fsck.cramfs: file length too short
-+ret: 4
-+
-+## size: 4294967295
-+fsck.cramfs: file length too short
-+ret: 4
-+
-diff --git a/tests/ts/cramfs/fsck-bad-header b/tests/ts/cramfs/fsck-bad-header
-index add388577..c71782bde 100755
---- a/tests/ts/cramfs/fsck-bad-header
-+++ b/tests/ts/cramfs/fsck-bad-header
-@@ -25,14 +25,78 @@ ts_check_test_command "$TS_CMD_MKCRAMFS"
- ts_check_test_command "$TS_CMD_FSCKCRAMFS"
- ts_check_prog "dd"
+diff --git a/misc-utils/cal.1 b/misc-utils/cal.1
+index f99c6b495..60eaa5c3b 100644
+--- a/misc-utils/cal.1
++++ b/misc-utils/cal.1
+@@ -195,13 +195,13 @@ highlighted if the calendar is displayed on a terminal.  If no parameters are
+ specified, the current month's calendar is displayed.
+ .SH NOTES
+ A year starts on January 1.  The first day of the week is determined by the
+-locale.
++locale or the
++.BR \-\-sunday \ and \ \-\-monday \ options.
+ .PP
+-The week numbering depends on the choice of the first day of the week.  If Sunday
+-(the default) is used for the first day of the week, then the customary North
+-American numbering will be used, i.e. the first Sunday of the year starts the
+-first week.  If Monday is selected, then the ISO-8601 standard week numbering
+-is used, where the first Thursday of the year is in week number 1.
++The week numbering depends on the choice of the first day of the week.  If it
++is Sunday then the customary North American numbering is used, where 1 January
++is in week number 1.  If it is Monday then the ISO 8601 standard week numbering
++is used, where the first Thursday is in week number 1.
+ .SH COLORS
+ Implicit coloring can be disabled as follows:
+ .RS
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index 1b03857f6..5a6364a27 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -1003,7 +1003,7 @@ static int week_to_day(const struct cal_control *ctl)
+ 	if (ctl->weektype & WEEK_NUM_ISO)
+ 		yday -= (wday >= FRIDAY ? -2 : 5);
+ 	else
+-		yday -= (wday == SUNDAY ? 6 : -1);	/* WEEK_NUM_US */
++		yday -= 6;	/* WEEK_NUM_US */
+ 	if (yday <= 0)
+ 		return 1;
  
--IMAGE_SOURCE="$TS_OUTDIR/${TS_TESTNAME}-data/root"
-+function num2binary()
-+{
-+	local num=$1
-+	local endian=$2
-+
-+	test "$num" -ge 0 -a "$num" -le 4294967295 || return 1
-+	test "$endian" = "be" -o "$endian" = "le" || return 1
-+
-+	# how to do that easier?
-+	if test "$endian" = "be"; then
-+		echo -en "$(printf "%08x" "$1" | sed 's/\(..\)/\\x\1/g')"
-+	else
-+		echo -en "$(printf "%08x" "$1" | sed 's/^\(..\)\(..\)\(..\)\(..\)$/\\x\4\\x\3\\x\2\\x\1/')"
-+	fi
-+}
-+
-+function fsck_loop_sizes()
-+{
-+	local endian=$1  # be, le
-+	local seek=$2    # 4 for nopad, 516 for pad
-+	shift 2          # the rest are sizes to loop over
-+
-+	for size in "$@"; do
-+		ts_log "## size: $size"
-+		cp -a "$IMAGE_FILE" "$IMAGE_FILE.tmp"
-+		num2binary "$size" $endian |
-+			dd of="$IMAGE_FILE.tmp" bs=1 seek="$seek" count=4 conv=notrunc &> /dev/null
-+		$TS_CMD_FSCKCRAMFS "$IMAGE_FILE.tmp" >> $TS_OUTPUT 2>&1
-+		ts_log "ret: $?
-+"
-+	done
-+	rm -f "$IMAGE_FILE"
-+}
-+
-+
-+IMAGE_SOURCE="$TS_OUTDIR/${TS_TESTNAME}-data"
- IMAGE_FILE="$TS_OUTDIR/${TS_TESTNAME}-cramfs.img"
- 
- mkdir -p "${IMAGE_SOURCE}/subdir" &> /dev/null
--$TS_CMD_MKCRAMFS -p -N big $IMAGE_SOURCE $IMAGE_FILE &> /dev/null
--echo -ne \\00\\x4c |
--	dd of=$IMAGE_FILE bs=1 seek=518 count=2 conv=notrunc &> /dev/null
--$TS_CMD_FSCKCRAMFS $IMAGE_FILE >> $TS_OUTPUT 2>&1
-+
-+ts_init_subtest "nopad-4K-be"
-+$TS_CMD_MKCRAMFS -N big -b 4096 $IMAGE_SOURCE $IMAGE_FILE &> /dev/null
-+fsck_loop_sizes be 4  0 75 76 4095 4096 4097 4294967295
-+rm -f "$IMAGE_FILE"
-+ts_finalize_subtest
-+
-+ts_init_subtest "nopad-4K-le"
-+$TS_CMD_MKCRAMFS -N little -b 4096 $IMAGE_SOURCE $IMAGE_FILE &> /dev/null
-+fsck_loop_sizes le 4  0 75 76 4095 4096 4097 4294967295
-+ts_finalize_subtest
-+
-+ts_init_subtest "pad-4K-be"
-+$TS_CMD_MKCRAMFS -p -N big -b 4096 $IMAGE_SOURCE $IMAGE_FILE &> /dev/null
-+fsck_loop_sizes be 516  76 587 588 4095 4096 4097 4294967295
-+ts_finalize_subtest
-+
-+ts_init_subtest "pad-4K-le"
-+$TS_CMD_MKCRAMFS -p -N little -b 4096 $IMAGE_SOURCE $IMAGE_FILE &> /dev/null
-+fsck_loop_sizes le 516  76 587 588 4095 4096 4097 4294967295
-+ts_finalize_subtest
-+
-+ts_init_subtest "pad-64K-be"
-+$TS_CMD_MKCRAMFS -p -N big -b 65536 $IMAGE_SOURCE $IMAGE_FILE &> /dev/null
-+fsck_loop_sizes be 516  76 587 588 65535 65536 65537 4294967295
-+ts_finalize_subtest
-+
-+ts_init_subtest "pad-64K-le"
-+$TS_CMD_MKCRAMFS -p -N little -b 65536 $IMAGE_SOURCE $IMAGE_FILE &> /dev/null
-+fsck_loop_sizes le 516  76 587 588 65535 65536 65537 4294967295
-+ts_finalize_subtest
-+
-+rm -rf "$IMAGE_SOURCE" "$IMAGE_FILE.tmp"
- 
- ts_finalize
- 
--- 
-2.13.6
-
