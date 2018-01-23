@@ -1,37 +1,35 @@
-Return-Path: mszeredi@redhat.com
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.kundenserver.de ([217.72.192.74]:49804 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751964AbeAWTlH (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 23 Jan 2018 14:41:07 -0500
+Subject: Re: [PATCH 2/7] fsck.cramfs: fix crash when superblock size is too
+ small
+To: Ruediger Meier <sweet_f_a@gmx.de>, util-linux@vger.kernel.org
+References: <20180123155928.7629-1-sweet_f_a@gmx.de>
+ <20180123155928.7629-3-sweet_f_a@gmx.de>
+From: =?UTF-8?Q?Tobias_St=c3=b6ckmann?= <tobias@stoeckmann.org>
+Message-ID: <30fb7d14-74fb-6021-169e-973dd8b3b37c@stoeckmann.org>
+Date: Tue, 23 Jan 2018 20:41:01 +0100
 MIME-Version: 1.0
-In-Reply-To: <20180117110633.zneqvnjzgxkv4yc2@ws.net.home>
-References: <28167.1516032442@warthog.procyon.org.uk> <CAOssrKdgudK7kKbhQBAnV9EwzHBq=4+9M26JGfmhNDGrGXmnFg@mail.gmail.com>
- <1643.1516117204@warthog.procyon.org.uk> <CAOssrKdn-ZhOB9V28uL-JK9zgNGJzF4cFBeyoqLLj4pADqNFVQ@mail.gmail.com>
- <20180117041727.GS13338@ZenIV.linux.org.uk> <CAOssrKfN_ZT5yJC1mxkhUf6FG=_eMD4nzQtETfu_4X3vOf1kHw@mail.gmail.com>
- <20180117110633.zneqvnjzgxkv4yc2@ws.net.home>
-From: Miklos Szeredi <mszeredi@redhat.com>
-Date: Thu, 18 Jan 2018 10:48:24 +0100
-Message-ID: <CAOssrKeRaA77NUctnwQ0=r6xMg_o1UVbqqTBJ60q-n4DP_LvDw@mail.gmail.com>
-Subject: Re: User-visible context-mount API
-To: Karel Zak <kzak@redhat.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>, David Howells <dhowells@redhat.com>,
-	Jeff Layton <jlayton@redhat.com>, "Eric W. Biederman" <ebiederm@redhat.com>,
-	linux-fsdevel <linux-fsdevel@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>,
-	util-linux@vger.kernel.org,
-	"Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20180123155928.7629-3-sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=utf-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jan 17, 2018 at 12:06 PM, Karel Zak <kzak@redhat.com> wrote:
+> This hopefully fixes the original problem addressed by the reverted
+> patch 7cb962c7.
 
->> Documenting  --make-private thing properly would also help.  To me the
->> wording "make private" strongly implies "I want to make submounts
->> private to this instance".  See for example rhbz#1432211.
->
-> All propagation stuff is poorly documented in mount.8. It would be
-> nice to add section about it to the man page. Volunteer? (My skills to
-> explain this topic to end-users is pretty limited...)
+It does.
 
-Propagation is common to mount(2) and there's some info in there
-already, but fine points like this are not explained.
+>  	/* What are valid superblock sizes? */
+> -	if (super.size < sizeof(struct cramfs_super))
+> +	if (super.size < *start + sizeof(struct cramfs_super))
 
-Maybe a new page in section 7?
+And this is a more elegant (and working) solution. I was not sure how
+much adjustment this if-statement can handle due to the comment.
 
-Thanks,
-Miklos
+
+Thanks and sorry for the regression,
+
+Tobias
