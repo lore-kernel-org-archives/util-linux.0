@@ -1,105 +1,69 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:65097 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.15.19]:62969 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753388AbeAFQLf (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sat, 6 Jan 2018 11:11:35 -0500
-Subject: Re: [PATCH 2/2] hwclock: add --ul-debug implementing debug.h
-To: Karel Zak <kzak@redhat.com>
-References: <27af199a-8ec2-634f-6e99-dd4047f9d5f4@gmx.com>
- <c0ee83b1-2736-313d-802b-4937c6f71d85@gmx.com>
- <20171229113824.72y6cgyqta42mt2y@ws.net.home>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <3b97fbb3-d191-1aa1-2d6e-ee8e17174cea@gmx.com>
-Date: Sat, 6 Jan 2018 11:11:31 -0500
-MIME-Version: 1.0
-In-Reply-To: <20171229113824.72y6cgyqta42mt2y@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+        id S1751412AbeAWP7c (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 23 Jan 2018 10:59:32 -0500
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Cc: Tobias Stoeckmann <tobias@stoeckmann.org>
+Subject: [PATCH 2/7] fsck.cramfs: fix crash when superblock size is too small
+Date: Tue, 23 Jan 2018 16:59:23 +0100
+Message-Id: <20180123155928.7629-3-sweet_f_a@gmx.de>
+In-Reply-To: <20180123155928.7629-1-sweet_f_a@gmx.de>
+References: <20180123155928.7629-1-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
+This hopefully fixes the original problem addressed by the reverted
+patch 7cb962c7.
 
-On 12/29/2017 06:38 AM, Karel Zak wrote:
-> On Sun, Dec 24, 2017 at 03:38:58PM -0500, J William Piggott wrote:
->>
->> Undocumented at this time, because it is a skeleton
->> implementation.  More debugging points are to be added after
->> refactoring is complete, or ad hoc in the mean time.
->>
->> When fully implemented, enough time may have passed that the
->> deprecated --debug could be used to replace --ul-debug.
-> 
-> We use everywhere env.variables (e.g. HWCLOCK_DEBUG=). The macro
-> __UL_INIT_DEBUG() already provides all necessary functionality for
-> this purpose. 
-> 
-> It also allows to use human readable names for the masks or hex
-> numbers. See for example  sys-utils/lsns.c or libsmartcols/src/init.c
-> for more complex usage. The human readable masks are optional and now
-> used by shared libs only, see for example "LIBSMARTCOLS_DEBUG=help
-> lsns".
-> 
-> I'd like to keep things consistent and with no exceptions...
-> 
-> IMHO "hwclock --verbose" is good idea for ordinary users and
-> "HWCLOCK_DEBUG=all hwclock" for developers.
-> 
->     Karel
->
+The bug was introduced by myself in
+    f991dbd3 "fsck.cramfs: allow smaller superblock sizes"
 
-Karel,
+CC: Tobias Stoeckmann <tobias@stoeckmann.org>
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ disk-utils/fsck.cramfs.c              | 2 +-
+ tests/expected/cramfs/fsck-bad-header | 3 +--
+ tests/ts/cramfs/fsck-bad-header       | 2 +-
+ 3 files changed, 3 insertions(+), 4 deletions(-)
 
-Sami sent me a patch doing exactly that. So I made time to digest debug.h; then
-I replied that I had reversed my position; I don't like debug.h for hwclock.
-
-I slept on it, and thought perhaps using an option instead of an env might be
-an acceptable compromise. So I figured out how to make debug.h use an option.
-
-Would it not be 'consistent' to say that commands use a debug option, and libs
-use a debug env?
-
-Consistent in this case isn't about the code, but the UI; correct? So doesn't
-consistent really translate to convenient for developers. That does not seem
-like a strong argument to me. A proportionate counter point could be that it is
-more convenient to enter 'hwclock -d all' then 'HWCLOCK_DEBUG=all hwclock'.
-
-I'm more interested in asking: how does using an env over an option benefit the
-code? I think it does not. Commands already have the code to parse options;
-adding more code to parse an env which serves no benefit to the application,
-IMO, is code bloat (and possibly a security risk).
-
-What I dislike the most is that debugging is very seldom used, yet debugging is
-initialized unconditionally whether it is wanted or not. This is completely
-unnecessary; an option does the job just as well without the added overhead.
-For time sensitive commands like hwclock this is just one more place for
-preemption to slip in. The one thing left that I really want to fix on hwclock
-it its precision.  At least some of that problem is preemption. Using an option
-over an env eliminates that.
-
-My approach to debug.h adds a single line to hwclock.c. It eliminates the
-unconditional debugging initialization and the other unnecessary code.
-
-Regarding debug.h in general, is this an elegant solution?
-  disk-utils/cfdisk.c:2691
-	fdisk_init_debug(0);
-	scols_init_debug(0);
-	cfdisk_init_debug();
-
-CFDISK_DEBUG=all LIBFDISK_DEBUG=all LIBBLKID_DEBUG=all \
-LIBSMARTCOLS_DEBUG=all LIBSMARTCOLS_DEBUG_PADDING=on cfdisk
-
-Is anyone else (other than e2fsprogs) using this approach?
-
-I also wonder if the way debug.h is using the env argument is a potential security
-whole? I didn't note any input sanitizing being done?
-
-In the end I just do not like the debug.h solution. It's a solution in search
-of a problem; a problem that commands do not have. I understand the concept for
-libraries, but I'm not convinced that it is the best solution for them either.
-
-Anyway, Sami has a patch queued that uses the env, if that is what you want.
-Please remove my name from his commit messages, as I object to using debug.h in
-hwclock.
-
+diff --git a/disk-utils/fsck.cramfs.c b/disk-utils/fsck.cramfs.c
+index 50c7d33b9..820816b14 100644
+--- a/disk-utils/fsck.cramfs.c
++++ b/disk-utils/fsck.cramfs.c
+@@ -192,7 +192,7 @@ static void test_super(int *start, size_t * length)
+ 		errx(FSCK_EX_ERROR, _("unsupported filesystem features"));
+ 
+ 	/* What are valid superblock sizes? */
+-	if (super.size < sizeof(struct cramfs_super))
++	if (super.size < *start + sizeof(struct cramfs_super))
+ 		errx(FSCK_EX_UNCORRECTED, _("superblock size (%d) too small"),
+ 		     super.size);
+ 
+diff --git a/tests/expected/cramfs/fsck-bad-header b/tests/expected/cramfs/fsck-bad-header
+index ade8a9c3a..41c2c125e 100644
+--- a/tests/expected/cramfs/fsck-bad-header
++++ b/tests/expected/cramfs/fsck-bad-header
+@@ -1,2 +1 @@
+-fsck.cramfs: file extends past end of filesystem
+-fsck.cramfs: crc error
++fsck.cramfs: superblock size (76) too small
+diff --git a/tests/ts/cramfs/fsck-bad-header b/tests/ts/cramfs/fsck-bad-header
+index 8d5309c35..add388577 100755
+--- a/tests/ts/cramfs/fsck-bad-header
++++ b/tests/ts/cramfs/fsck-bad-header
+@@ -16,7 +16,7 @@
+ # GNU General Public License for more details.
+ #
+ TS_TOPDIR="${0%/*}/../.."
+-TS_DESC="fsck endianness"
++TS_DESC="fsck bad header"
+ 
+ . $TS_TOPDIR/functions.sh
+ ts_init "$*"
+-- 
+2.13.6
 
