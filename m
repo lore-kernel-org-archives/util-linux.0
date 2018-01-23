@@ -1,153 +1,149 @@
-Return-Path: elseifthen@gmx.com
-Subject: Re: [v3 PATCH 00/11] Pull Request - changelog
-To: Karel Zak <kzak@redhat.com>
-References: <4833b897-2192-86dc-f81b-e977d98b07b1@gmx.com>
- <20180108102159.dyelg7kqp5tx3c3i@ws.net.home>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <204525f7-850d-f70e-0c6b-585cb8759963@gmx.com>
-Date: Mon, 8 Jan 2018 20:17:34 -0500
+Return-Path: lbukata@gmail.com
+Subject: Re: Patch to add support for lz4hc and deflate optimization
+ algorithms in zramctl.
+To: Timofey Titovets <nefelim4ag@gmail.com>
+Cc: util-linux <util-linux@vger.kernel.org>, Karel Zak <kzak@redhat.com>
+References: <90fb3b4a-38b8-17fc-f1b6-03e8c23eb808@gmail.com>
+ <CAGqmi75B7yzQp-EWBnbjXgSpbNZAsXah1WtQqPUOE6_NjZRwhA@mail.gmail.com>
+ <CAGqmi75=cWbRBxU-DkxyXffQSjy8f5jxA_Hx6oVqUrLU_sU9GA@mail.gmail.com>
+From: Libor Bukata <lbukata@gmail.com>
+Message-ID: <47fb6e30-50a8-29a2-810e-5c872f76813d@gmail.com>
+Date: Tue, 23 Jan 2018 18:57:06 +0100
 MIME-Version: 1.0
-In-Reply-To: <20180108102159.dyelg7kqp5tx3c3i@ws.net.home>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <CAGqmi75=cWbRBxU-DkxyXffQSjy8f5jxA_Hx6oVqUrLU_sU9GA@mail.gmail.com>
+Content-Type: multipart/mixed;
+ boundary="------------D9CB47BCD58FECC9D3F70B9F"
 List-ID: <util-linux.vger.kernel.org>
 
+This is a multi-part message in MIME format.
+--------------D9CB47BCD58FECC9D3F70B9F
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 
+Thank you for your comments. I added the support for 842 compression
+algorithm. The included patch is signed and tested on the latest
+versions of both Git repositories:
 
-On 01/08/2018 05:21 AM, Karel Zak wrote:
-> On Tue, Jan 02, 2018 at 09:53:18AM -0500, J William Piggott wrote:
->> Having not received any reply, I went ahead with the
->> implementation, with one change involving Karel's original
->> request for volunteers. Specifically, the first and last bullet
->> points; which where:
+git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git
+git://github.com/karelzak/util-linux.git
+
+I am not sure what you meant by: "Also, use
+https://github.com/karelzak/util-linux and PR, .."
+If it is important, please do not hesitate to provide me more
+information in order to fix it.
+
+Have a nice day,
+Libor.
+
+Dne 23.1.2018 v 14:21 Timofey Titovets napsal(a):
+> Also, use https://github.com/karelzak/util-linux and PR,
+> also add comment + Signed-off-by to patch.
+>
+> 2018-01-23 11:08 GMT+03:00 Timofey Titovets <nefelim4ag@gmail.com>:
+>> https://patchwork.kernel.org/patch/9144717/
 >>
->> * keep the current default "British Empire" behavior (Gregorian since
->>   September 1752)
+>> I think your patch miss support of 842 algo
 >>
->> * later (after warning in release notes) we can make --gregorian as
->>   the default
+>> 2018-01-22 23:45 GMT+03:00 Libor Bukata <lbukata@gmail.com>:
+>>> Dear developers of Linux utils,
+>>>
+>>> I extended the zramctl utility to handle also lz4hc and deflate formats.
+>>> The patch is included in the attachment. Thank you in advance for your
+>>> comments.
+>>>
+>>> Kind regards,
+>>> Libor Bukata.
 >>
->> During implementation I considered these issues:
 >>
->> * to do that we'd be creating two new options --iso, and an
->>   alias --gregorian; these would become non-functional once
->>   they were made the default. Just like the current situation
->>   with --one and --sunday.
-> 
-> It's not so unusual to have command line options for default behavior,
-> and it's good idea to use these options for example in scripts to be
-> independent on the current defaults.
-> 
-
-Having options for defaults is required if there is a way to change the
-defaults. In this case there is not. If you want to add ~/.calrc and/or
-/etc/calrc, then the options would have some meaning; as things stand
-they only add confusion, IMO. It might be a nice feature to have a
-config file for cal.  For example, I have cal aliased to cal -3.
-
->> * this change is unlikely to affect downstream maintainers
->>
->> * end users are the ones that may be caught out by it
->>
->> * a release note warning that some future version of cal(1)
->>   will change the default output is unlikely to reach the end
->>   users.
-> 
-> I have no clue how many users care and read our ReleaseNotes, but
-> important is that they have opportunity to do that and they have
-> always time to adopt to changes. This is how I promised that this 
-> project will be maintained. 
-
-A promise is a promise ;) I really just wanted to avoid adding options
-that would later become default and meaningless, but we'd be stuck with
-them forever. Seemed like a bad way to go ... to me.
-
-> 
->> Indirectly, the current tests are broken. I think this
->> supports some of the changes in this patch set:
->>
->> The tests author seemed to believe that the -1 and -s options
->> actually do something, despite the 'expected' output showing
->> otherwise. While testing this patch set I thought the same
->> thing; I tried to figure out what these two options do; which
->> is nothing. I think this is good evidence to support removing
->> them.
-> 
-> It's bug that -1/--one does nothing and this bug should be fixed. The
-> -s seems to set ctl->weekstart (and it would be probably more robust
-> to compare it with SUNDAY rather than with zero in code).
-
-Right, but since -s and -m; -1, -3, -y, and -Y should be mutually
-exclusive, -s and -1 do nothing (unless there exists a calrc).
-
-> 
->> The tests author also seems to believe that the -j option
->> switches from the Gregorian calendar system to the Julian
->> calendar system. Making comments to that affect and using it
->> in tests involving the year 1752; a year which uses both
->> calendar systems. I think this is good evidence to support
->> renaming --julian to --ordinal.
->>
->> If developers for the project are being confused by these
->> options, than what chance do end users have? So that's my case
->> for making these changes.
-> 
-> This is good point. I think the problem is that nowhere in the man
-> page has been described all the history and differences between
-> calendars.
-  
-That, and because someone decided to call Gregorian calendars with
-ordinal days, Julian calendars. What were they thinking! I understand
-the relationship between ordinal days and Astronomical Julian Days, but
-Julian Calendars already existed. Talk about namespace violations. I
-have the impression that this problem is beginning to be recognized and
-that CS is slowly migrating from julian in favor of ordinal.
-
->> Also while pounding on cal(1), to see if these patches broke
->> anything, I found a few other issues and fixed them as well.
->> The man page was quite sparse, for example having no explanation
->> for the -w argument, so rewrote much of it.
-> 
-> Thanks.
-> 
->> v2 to v3 changelog
->> * make proleptic Gregorian the default
->> * extensive man page updates
->> * rename --julian to --ordinal
-> 
-> Yes, this is mess...
+>> --
+>> Have a nice day,
+>> Timofey.
+>
 >
 
-A mess? Awe, it's not that bad ;) I understand you must keep your
-promise with regard to warning before changing the default behavior; but
-you think renaming --julian to --ordinal is not good?
 
->> * add private (for now) --caesar option for exclusive Julian calendar
-> 
->> * allow -w to accept its argument
->> * update mutually exclusive options
->> * add short versions for the new options
->> * remove non-functional options
->> * fix broken week calculations
-> 
-> Thanks!
-> 
->>
->> v1 to v2 changelog
->>  * fix typo in v1
->>  * move REFORMATION_YEAR to the control struct
->>  * add more about the --1752-reform option to man page
->>  * add a second patch with minor style and wording changes
-> 
-> Thanks. I'll work on cal(1) in next days and use us much as possible
-> from your patches. 
-> 
-> Thanks for patience, I understand that you want to be a little bit
-> more aggressive with the changes and do it in the "best way" now, but
-> I'd like to be a little bit more conservative :-)
+--------------D9CB47BCD58FECC9D3F70B9F
+Content-Type: text/x-patch;
+ name="0001-Added-the-support-for-lz4hc-deflate-and-842.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="0001-Added-the-support-for-lz4hc-deflate-and-842.patch"
 
-It sounds like you have no choice ;)
+>From 9b48fba08a630bd90c29078a621e2725fb0c940e Mon Sep 17 00:00:00 2001
+From: Libor Bukata <lbukata@gmail.com>
+Date: Tue, 23 Jan 2018 18:34:01 +0100
+Subject: [PATCH] Added the support for lz4hc, deflate, and 842 compression
+ algorithms in zramctl utility.
 
-> 
->     Karel
-> 
+Signed-off-by: Libor Bukata <lbukata@gmail.com>
+---
+ sys-utils/zramctl.8 |  2 +-
+ sys-utils/zramctl.c | 22 ++++++++++++++--------
+ 2 files changed, 15 insertions(+), 9 deletions(-)
+
+diff --git a/sys-utils/zramctl.8 b/sys-utils/zramctl.8
+index 9ca2983b9..679a8a175 100644
+--- a/sys-utils/zramctl.8
++++ b/sys-utils/zramctl.8
+@@ -44,7 +44,7 @@ query the status of used zram devices.
+ If no option is given, all non-zero size zram devices are shown.
+ .SH OPTIONS
+ .TP
+-.BR \-a , " \-\-algorithm lzo" | lz4
++.BR \-a , " \-\-algorithm lzo" | lz4 | lz4hc | deflate | 842
+ Set the compression algorithm to be used for compressing data in the zram device.
+ .TP
+ .BR \-f , " \-\-find"
+diff --git a/sys-utils/zramctl.c b/sys-utils/zramctl.c
+index fb64150d6..0331045c8 100644
+--- a/sys-utils/zramctl.c
++++ b/sys-utils/zramctl.c
+@@ -424,13 +424,18 @@ static void fill_table_row(struct libscols_table *tb, struct zram *z)
+ 			char *alg = sysfs_strdup(sysfs, "comp_algorithm");
+ 			if (!alg)
+ 				break;
+-			if (strstr(alg, "[lzo]") == NULL) {
+-				if (strstr(alg, "[lz4]") == NULL)
+-					;
+-				else
+-					str = xstrdup("lz4");
+-			} else
++
++			if (strstr(alg, "[lzo]") != NULL)
+ 				str = xstrdup("lzo");
++			else if (strstr(alg, "[lz4]") != NULL)
++				str = xstrdup("lz4");
++			else if (strstr(alg, "[lz4hc]") != NULL)
++				str = xstrdup("lz4hc");
++			else if (strstr(alg, "[deflate]") != NULL)
++				str = xstrdup("deflate");
++			else if (strstr(alg, "[842]") != NULL)
++				str = xstrdup("842");
++
+ 			free(alg);
+ 			break;
+ 		}
+@@ -539,7 +544,7 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_("Set up and control zram devices.\n"), out);
+ 
+ 	fputs(USAGE_OPTIONS, out);
+-	fputs(_(" -a, --algorithm lzo|lz4   compression algorithm to use\n"), out);
++	fputs(_(" -a, --algorithm lzo|lz4|lz4hc|deflate|842   compression algorithm to use\n"), out);
+ 	fputs(_(" -b, --bytes               print sizes in bytes rather than in human readable format\n"), out);
+ 	fputs(_(" -f, --find                find a free device\n"), out);
+ 	fputs(_(" -n, --noheadings          don't print headings\n"), out);
+@@ -611,7 +616,8 @@ int main(int argc, char **argv)
+ 
+ 		switch (c) {
+ 		case 'a':
+-			if (strcmp(optarg,"lzo") && strcmp(optarg,"lz4"))
++			if (strcmp(optarg,"lzo") && strcmp(optarg,"lz4") && strcmp(optarg,"lz4hc")
++					&& strcmp(optarg,"deflate") && strcmp(optarg,"842"))
+ 				errx(EXIT_FAILURE, _("unsupported algorithm: %s"),
+ 					     optarg);
+ 			algorithm = optarg;
+-- 
+2.13.6
+
+
+--------------D9CB47BCD58FECC9D3F70B9F--
