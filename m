@@ -1,27 +1,54 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:36316 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.19]:62286 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750828AbeAVKeC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 22 Jan 2018 05:34:02 -0500
-Date: Mon, 22 Jan 2018 11:33:58 +0100
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] cal: fix julian calendars for large years
-Message-ID: <20180122103358.pom7ov4xob6cim3v@ws.net.home>
-References: <189c9e72-ed8e-2970-12d1-7a268d980eb7@gmx.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <189c9e72-ed8e-2970-12d1-7a268d980eb7@gmx.com>
+        id S1752202AbeAWP7c (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 23 Jan 2018 10:59:32 -0500
+Received: from zappa.l.ga-group.nl ([87.128.112.108]) by mail.gmx.com
+ (mrgmx001 [212.227.17.190]) with ESMTPSA (Nemesis) id
+ 0M86Cn-1ezmvj3gTx-00vcDz for <util-linux@vger.kernel.org>; Tue, 23 Jan 2018
+ 16:59:30 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 6/7] tests: fix fincore/count KNOWN_FAIL
+Date: Tue, 23 Jan 2018 16:59:27 +0100
+Message-Id: <20180123155928.7629-7-sweet_f_a@gmx.de>
+In-Reply-To: <20180123155928.7629-1-sweet_f_a@gmx.de>
+References: <20180123155928.7629-1-sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jan 17, 2018 at 09:21:02PM -0500, J William Piggott wrote:
->  misc-utils/cal.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-Applied, thanks.
+It has to be set after calling ts_init.
 
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ tests/ts/fincore/count | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/tests/ts/fincore/count b/tests/ts/fincore/count
+index c2dff7e34..46700a32e 100755
+--- a/tests/ts/fincore/count
++++ b/tests/ts/fincore/count
+@@ -3,15 +3,14 @@
+ TS_TOPDIR="${0%/*}/../.."
+ TS_DESC="count file contents in core"
+ 
+-# Send patch if you know how to keep it portable and robust. Thanks.
+-TS_KNOWN_FAIL="yes"
+-
+-
+ . $TS_TOPDIR/functions.sh
+ ts_init "$*"
+ 
+ ts_check_test_command "$TS_HELPER_SYSINFO"
+ 
++# Send patch if you know how to keep it portable and robust. Thanks.
++TS_KNOWN_FAIL="yes"
++
+ function header
+ {
+     echo "[" "$1" "]"
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.13.6
+
