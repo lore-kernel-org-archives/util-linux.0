@@ -1,54 +1,123 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from smtp.gentoo.org ([140.211.166.183]:43854 "EHLO smtp.gentoo.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933369AbeAYE1I (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 24 Jan 2018 23:27:08 -0500
-Date: Wed, 24 Jan 2018 23:27:06 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-To: Libor Bukata <lbukata@gmail.com>
-Cc: util-linux@vger.kernel.org, Nefelim4ag@gmail.com, kzak@redhat.com
-Subject: Re: Patch to add support for lz4hc and deflate optimization
- algorithms in zramctl.
-Message-ID: <20180125042706.GF1718@vapier>
-References: <90fb3b4a-38b8-17fc-f1b6-03e8c23eb808@gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rWhLK7VZz0iBluhq"
-In-Reply-To: <90fb3b4a-38b8-17fc-f1b6-03e8c23eb808@gmail.com>
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:37545 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932238AbeAXVHe (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 24 Jan 2018 16:07:34 -0500
+Received: by mail-wr0-f194.google.com with SMTP id f11so5467023wre.4
+        for <util-linux@vger.kernel.org>; Wed, 24 Jan 2018 13:07:33 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH] various: fix redeclared with different type warnings [smatch]
+Date: Wed, 24 Jan 2018 21:07:30 +0000
+Message-Id: <20180124210730.17034-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+These warnings look like this:
+lib/exec_shell.c:33:6: error: symbol 'exec_shell' redeclared with different
+type (originally declared at ./include/exec_shell.h:1) - different modifiers
 
---rWhLK7VZz0iBluhq
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+In same go move attributes in front of these functions, this is how they
+should be.  Related smatch message is: error: attributes should be specified
+before the declarator in a function definition.
 
-On 22 Jan 2018 21:45, Libor Bukata wrote:
-> +			if (strcmp(optarg,"lzo") && strcmp(optarg,"lz4")
-> +					&& strcmp(optarg,"lz4hc") && strcmp(optarg, "deflate"))
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ include/exec_shell.h |  2 +-
+ lib/exec_shell.c     |  2 +-
+ term-utils/agetty.c  | 14 ++++++++------
+ text-utils/more.c    |  5 +++--
+ 4 files changed, 13 insertions(+), 10 deletions(-)
 
-not exactly a new issue, but there should be a space after each of those commas
--mike
+diff --git a/include/exec_shell.h b/include/exec_shell.h
+index a2aa757de..f155f380f 100644
+--- a/include/exec_shell.h
++++ b/include/exec_shell.h
+@@ -1 +1 @@
+-extern void __attribute__((__noreturn__)) exec_shell(void);
++__attribute__((__noreturn__)) extern void exec_shell(void);
+diff --git a/lib/exec_shell.c b/lib/exec_shell.c
+index a7374bd33..481184394 100644
+--- a/lib/exec_shell.c
++++ b/lib/exec_shell.c
+@@ -30,7 +30,7 @@
+ 
+ #define DEFAULT_SHELL "/bin/sh"
+ 
+-void exec_shell(void)
++__attribute__((__noreturn__)) void exec_shell(void)
+ {
+ 	const char *shell = getenv("SHELL");
+ 	char *shellc = xstrdup(shell);
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index 844220401..c51ef5413 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -316,10 +316,10 @@ static void termio_final(struct options *op,
+ 			 struct termios *tp, struct chardata *cp);
+ static int caps_lock(char *s);
+ static speed_t bcode(char *s);
+-static void usage(void) __attribute__((__noreturn__));
+-static void exit_slowly(int code) __attribute__((__noreturn__));
+-static void log_err(const char *, ...) __attribute__((__noreturn__))
+-			       __attribute__((__format__(printf, 1, 2)));
++__attribute__((__noreturn__)) static void usage(void);
++__attribute__((__noreturn__)) static void exit_slowly(int code);
++__attribute__((__noreturn__)) __attribute__((__format__(printf, 1, 2)))
++  static void log_err(const char *, ...);
+ static void log_warn (const char *, ...)
+ 				__attribute__((__format__(printf, 1, 2)));
+ static ssize_t append(char *dest, size_t len, const char  *sep, const char *src);
+@@ -2218,7 +2218,7 @@ static speed_t bcode(char *s)
+ 	return 0;
+ }
+ 
+-static void __attribute__((__noreturn__)) usage(void)
++__attribute__((__noreturn__)) static void usage(void)
+ {
+ 	FILE *out = stdout;
+ 
+@@ -2325,13 +2325,15 @@ static void dolog(int priority, const char *fmt, va_list ap)
+ #endif				/* USE_SYSLOG */
+ }
+ 
+-static void exit_slowly(int code)
++__attribute__((__noreturn__)) static void exit_slowly(int code)
+ {
+ 	/* Be kind to init(8). */
+ 	sleep(10);
+ 	exit(code);
+ }
+ 
++__attribute__((__noreturn__))
++__attribute__((__format__(printf, 1, 2)))
+ static void log_err(const char *fmt, ...)
+ {
+ 	va_list ap;
+diff --git a/text-utils/more.c b/text-utils/more.c
+index cbff39b11..68916b8b1 100644
+--- a/text-utils/more.c
++++ b/text-utils/more.c
+@@ -140,7 +140,8 @@ static struct termios otty, savetty0;
+ static long file_pos, file_size;
+ static int fnum, no_intty, no_tty;
+ static int dum_opt, dlines;
+-static void onquit(int), onsusp(int), chgwinsz(int), end_it(int);
++static void onquit(int), onsusp(int), chgwinsz(int);
++__attribute__((__noreturn__)) static void end_it(int dummy __attribute__((__unused__)));
+ static int nscroll = SCROLL_LEN;	/* Number of lines scrolled by 'd' */
+ static int fold_opt = 1;		/* Fold long lines */
+ static int stop_opt = 1;		/* Stop after form feeds */
+@@ -692,7 +693,7 @@ static void chgwinsz(int dummy __attribute__((__unused__)))
+ #endif				/* SIGWINCH */
+ 
+ /* Clean up terminal state and exit. Also come here if interrupt signal received */
+-static void __attribute__((__noreturn__)) end_it(int dummy __attribute__((__unused__)))
++__attribute__((__noreturn__)) static void end_it(int dummy __attribute__((__unused__)))
+ {
+ 	/* May be executed as a signal handler as well as by main process.
+ 	 *
+-- 
+2.16.1
 
---rWhLK7VZz0iBluhq
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEuQK1JxMl+JKsJRrUQWM7n+g39YEFAlppXJoACgkQQWM7n+g3
-9YFOPQ//WSvOxU+RYg3F7qQT7v1TqUqqaKeUcvBp8zfMnfLVnSloPAD6LKGt4RK/
-ss2mwy2l0cip6w2du+JrGi6b+OfDPwA55WYEfxhtsIVZJCLcAOkf3ABZ43btFSDg
-6MA2Xkh6cC5H1UK8ZZvD2nVpGo7CDIajQCCm2QaNQuZxXm7QYw3KgCx/djSaX2WA
-W7rXRaOgyB4WTvzw2OESD9QujrInmq2r2/bwJSsHMJoJyXbBXbUHq+60TaxdLmRU
-8cyp/L4mRtvM/Vgt4oFI5IPcGihVrsyXd7M/+N9fsYNRxOArnpYGCq6b80JOFbxT
-tZ86iXgfErd2xRCyhhSj6X1GAiN4akEzYrtXiFdnfEbYxdrbqD4bCJ198ltb2VwH
-S9EiyO7NfN34ylk+TqTRoH61cNlB4rDE4kcx8deqhzoKO/mWn/RPWVgd7L5v9nhI
-G0nVbUKmc8m2uvR6+kvNVzBg2JJQk69voM+qy6xJkJDFwhp7xvuBj2tuiCn3LoyN
-biQBV0EuCHr0xVZFdd2xDDJi+NBIlVRYzGjbVhXq+m4Y2nKgdf7wzVU7SdwvdK0/
-6Vx0aWkknMYnKRS7i0OR3R1TMkaRHxAiOeav+SJXB3Rs5EZZCHy1mewdg9g7RdhO
-AsWFOQCNdcPU8m/NfDfgNwFUYxdwjuBN1K6BOp+UhlLkbwi3TmE=
-=TIBi
------END PGP SIGNATURE-----
-
---rWhLK7VZz0iBluhq--
