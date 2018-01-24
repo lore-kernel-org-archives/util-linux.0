@@ -1,62 +1,48 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:32866 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753011AbeASJkz (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 19 Jan 2018 04:40:55 -0500
-Date: Fri, 19 Jan 2018 10:40:51 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Carlos Santos <casantos@datacom.ind.br>, util-linux@vger.kernel.org
-Subject: Re: Problem building util-linux without a separate ncursesw include
- dir
-Message-ID: <20180119094051.g3qztrrqf5guife5@ws.net.home>
-References: <1971282138.2691482.1501546323018.JavaMail.zimbra@datacom.ind.br>
- <1705151756.2691717.1501548399616.JavaMail.zimbra@datacom.ind.br>
- <20170801072017.yl7mgv64pq7ccj5e@ws.net.home>
- <20180119024717.GJ7217@vapier>
+Return-Path: elseifthen@gmx.com
+Subject: Re: [PATCH 1/2] cal: honor num_months when only a year argument
+To: Karel Zak <kzak@redhat.com>
+References: <85ea05cd-c4d0-f7d6-14f4-7deb065089d1@gmx.com>
+ <20180124125418.txntlrwtme7mjqor@ws.net.home>
+From: J William Piggott <elseifthen@gmx.com>
+Cc: util-linux@vger.kernel.org
+Message-ID: <a18dca0a-7e73-52a4-5c0d-ab5bdd9373b8@gmx.com>
+Date: Wed, 24 Jan 2018 10:22:08 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180119024717.GJ7217@vapier>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20180124125418.txntlrwtme7mjqor@ws.net.home>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Jan 18, 2018 at 09:47:17PM -0500, Mike Frysinger wrote:
-> On 01 Aug 2017 09:20, Karel Zak wrote:
-> > On Mon, Jul 31, 2017 at 09:46:39PM -0300, Carlos Santos wrote:
-> > > > From: "Carlos Santos" <casantos@datacom.ind.br>
-> > > > To: util-linux@vger.kernel.org
-> > > > Sent: Monday, July 31, 2017 9:12:03 PM
-> > > > Subject: Problem building util-linux without a separate ncursesw include dir
-> > > 
-> > > > of util-linux. Would it be possible to make the location of ncursesw
-> > > > headers configurable, instead?
-> > 
-> > We test for alone ncurses.h and term.h in the for non-wide ncurses.
-> > Can you send output from your configure from the current master
-> > branch (or v2.30.1)?
-> > 
-> > > I was thinking on something simple, like https://pastebin.com/VqM9G9yu
-> > 
-> > Hmm, but you don't distinguish between wide and non-wide ncurses.
+
+
+On 01/24/2018 07:54 AM, Karel Zak wrote:
+> On Mon, Jan 22, 2018 at 03:05:08PM -0500, J William Piggott wrote:
+
+8< ...
+
+> We need to add a note to the man page that -y forces cal(1) to use 
+> year header in all contexts.
 > 
-> why don't we just support ncurses's pkg-config files as the default ?
-> $ pkg-config --cflags ncurses
-> -D_GNU_SOURCE
-> $ pkg-config --cflags ncursesw
-> -D_GNU_SOURCE -I/usr/include/ncursesw
-> -mike
+> Comments?
 
-because pkg-config is not supported by ncurses upstream by default and
-it's not always the best solution. See commit
-4c12a334dc4104d16dc06edf51904b08b08fcdfa.
+Well, this is a case where I damned if I do and damned if I don't.
 
-The ncurses detection and variability in distros is horrible. We
-already tried all possible combinations and always someone complains
-about the way how we detect ncurses. See mailing list archive for more
-information.
+In my queue of patches I address this problem. If I submit them all at
+once it's a problem for reviewing. If I piecemeal the changes then they
+don't make sense. Sometimes I wish that I could present the final result
+before submitting any patches.
 
-    Karel
+The year header is currently broken in other contexts as well; it is
+better to keep it in the month header as it is for all other output.
+Then I repurpose the top header to display the calendar system:
+Gregorian, Julian, Mixed. I think this is needed now that we have
+multiple options that control which calendar system is being displayed.
+You want to add more reform dates in the future which will make showing
+which calendar system is displayed all the more relevant.
 
+I'll post my next set and hopefully you will see where I'm going.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Note: the next set is intended to apply on top of these two patches.
+
+> 
+>     Karel
+> 
