@@ -1,40 +1,52 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:64580 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.17.21]:63159 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755008AbeATSG1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sat, 20 Jan 2018 13:06:27 -0500
-Received: from adsiz.fritz.box ([146.52.144.151]) by mail.gmx.com (mrgmx101
- [212.227.17.168]) with ESMTPSA (Nemesis) id 0MbbWD-1eMFUq2de9-00IyaU for
- <util-linux@vger.kernel.org>; Sat, 20 Jan 2018 19:06:25 +0100
+        id S933688AbeAXOll (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 24 Jan 2018 09:41:41 -0500
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 0/5] some build-sys cosmetics
-Date: Sat, 20 Jan 2018 19:06:19 +0100
-Message-Id: <20180120180624.15213-1-sweet_f_a@gmx.de>
+To: Tobias Stc3b6ckmann <tobias@stoeckmann.org>
+Subject: Re: [PATCH 2/7] fsck.cramfs: fix crash when superblock size is too small
+Date: Wed, 24 Jan 2018 15:41:38 +0100
+Cc: util-linux@vger.kernel.org
+References: <20180123155928.7629-1-sweet_f_a@gmx.de> <20180123155928.7629-3-sweet_f_a@gmx.de> <30fb7d14-74fb-6021-169e-973dd8b3b37c@stoeckmann.org>
+In-Reply-To: <30fb7d14-74fb-6021-169e-973dd8b3b37c@stoeckmann.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201801241541.38366.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Tuesday 23 January 2018, Tobias Stc3b6ckmann wrote:
+> > This hopefully fixes the original problem addressed by the reverted
+> > patch 7cb962c7.
+>
+> It does.
+>
+> >  	/* What are valid superblock sizes? */
+> > -	if (super.size < sizeof(struct cramfs_super))
+> > +	if (super.size < *start + sizeof(struct cramfs_super))
+>
+> And this is a more elegant (and working) solution. I was not sure how
+> much adjustment this if-statement can handle due to the comment.
 
-All these patches are more less just cosmetics. The first one
-"remove generated headers from dist tar ball" is the only
-one which should have a visable effect at all.
+The comment is a bit stupid. Actually super.size should be a multiple of 
+PAGE_SIZE of the running kernel to be able to mount it on the current 
+system. I've relaxed this requirement to be able to fsck a cramfs from 
+other systems. This is IMO a nice feature because in real life cramfs 
+will be created often on cross-compiler hosts to be deployed to another 
+embedded system. Though maybe we should add a warning like "This image 
+is not mountable on the current system".
 
-Ruediger Meier (5):
-  build-sys: remove generated headers from dist tar ball
-  build-sys: automake is able to find headers in builddir ...
-  build-sys: remove unneeded dependencies on bla.h.in
-  build-sys: avoid using prog_DEPENDENCIES
-  build-sys: remove redundant EXTRA_DIST files
+>
+> Thanks and sorry for the regression,
 
- libblkid/Makemodule.am         |  2 +-
- libblkid/src/Makemodule.am     | 14 ++++----------
- libfdisk/src/Makemodule.am     | 19 +++++--------------
- libmount/src/Makemodule.am     | 18 ++++++------------
- libsmartcols/src/Makemodule.am | 16 +++++-----------
- libuuid/src/Makemodule.am      |  8 ++++----
- 6 files changed, 25 insertions(+), 52 deletions(-)
+All fine, you discovered a bug I made. :)
 
--- 
-2.13.6
+> Tobias
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
 
