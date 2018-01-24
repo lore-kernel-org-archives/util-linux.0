@@ -1,97 +1,168 @@
-Return-Path: linux-fsdevel-owner@vger.kernel.org
-Date: Fri, 19 Jan 2018 06:32:29 +0000
-From: Al Viro <viro@ZenIV.linux.org.uk>
-To: Miklos Szeredi <mszeredi@redhat.com>
-Cc: David Howells <dhowells@redhat.com>,
-        Jeff Layton <jlayton@redhat.com>,
-        "Eric W. Biederman" <ebiederm@redhat.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        util-linux@vger.kernel.org,
-        "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Subject: Re: User-visible context-mount API
-Message-ID: <20180119063229.GH13338@ZenIV.linux.org.uk>
-References: <28167.1516032442@warthog.procyon.org.uk>
- <CAOssrKdgudK7kKbhQBAnV9EwzHBq=4+9M26JGfmhNDGrGXmnFg@mail.gmail.com>
- <1643.1516117204@warthog.procyon.org.uk>
- <CAOssrKdn-ZhOB9V28uL-JK9zgNGJzF4cFBeyoqLLj4pADqNFVQ@mail.gmail.com>
- <20180117041727.GS13338@ZenIV.linux.org.uk>
- <CAOssrKfN_ZT5yJC1mxkhUf6FG=_eMD4nzQtETfu_4X3vOf1kHw@mail.gmail.com>
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: J William Piggott <elseifthen@gmx.com>
+Subject: Re: [v3 PATCH 00/11] Pull Request - changelog
+Date: Wed, 24 Jan 2018 19:13:26 +0100
+Cc: Karel Zak <kzak@redhat.com>,
+ util-linux@vger.kernel.org
+References: <4833b897-2192-86dc-f81b-e977d98b07b1@gmx.com> <20180108102159.dyelg7kqp5tx3c3i@ws.net.home> <204525f7-850d-f70e-0c6b-585cb8759963@gmx.com>
+In-Reply-To: <204525f7-850d-f70e-0c6b-585cb8759963@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAOssrKfN_ZT5yJC1mxkhUf6FG=_eMD4nzQtETfu_4X3vOf1kHw@mail.gmail.com>
-Sender: linux-fsdevel-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="windows-1252"
+Message-Id: <201801241913.27050.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jan 17, 2018 at 10:53:36AM +0100, Miklos Szeredi wrote:
-
-> Documenting  --make-private thing properly would also help.  To me the
-> wording "make private" strongly implies "I want to make submounts
-> private to this instance".  See for example rhbz#1432211.
-> 
-> > If anything, "private bind on itself" would be a useful operation.
-> > Turning given location into a mountpoint, and having everything
-> > under it looking as it used to, but with no propagation at all.
-> > Without bothering anybody else, even if location currently happens
-> > to be on a shared/master mount.
+On Tuesday 09 January 2018, J William Piggott wrote:
+> On 01/08/2018 05:21 AM, Karel Zak wrote:
+> > On Tue, Jan 02, 2018 at 09:53:18AM -0500, J William Piggott wrote:
+> >> Having not received any reply, I went ahead with the
+> >> implementation, with one change involving Karel's original
+> >> request for volunteers. Specifically, the first and last bullet
+> >> points; which where:
+> >>
+> >> * keep the current default "British Empire" behavior (Gregorian
+> >> since September 1752)
+> >>
+> >> * later (after warning in release notes) we can make --gregorian
+> >> as the default
+> >>
+> >> During implementation I considered these issues:
+> >>
+> >> * to do that we'd be creating two new options --iso, and an
+> >>   alias --gregorian; these would become non-functional once
+> >>   they were made the default. Just like the current situation
+> >>   with --one and --sunday.
 > >
-> > I can slap that together for mount(2), but I'm not sure what a sane
-> > combination of flags for that would look like ;-)  For fsmount
-> > I think it would be very useful thing to have.
-> 
-> Yes, I think such an operation would be pretty useful.   Not sure if
-> it's the whole story, though.
+> > It's not so unusual to have command line options for default
+> > behavior, and it's good idea to use these options for example in
+> > scripts to be independent on the current defaults.
+>
+> Having options for defaults is required if there is a way to change
+> the defaults. In this case there is not. If you want to add ~/.calrc
+> and/or /etc/calrc, then the options would have some meaning; as
+> things stand they only add confusion, IMO. It might be a nice feature
+> to have a config file for cal.  For example, I have cal aliased to
+> cal -3.
 
-FWIW, there's a fun variant of the API:
 
-* fsopen(): string -> fsfd; takes fs type name, returns a file descriptor
-connected to fs driver.  Subsequent read/write on it is used to pass
-options, authenticate, etc. - all you need to talk the driver into
-creating an active instance.
+> >> * this change is unlikely to affect downstream maintainers
+> >>
+> >> * end users are the ones that may be caught out by it
+> >>
+> >> * a release note warning that some future version of cal(1)
+> >>   will change the default output is unlikely to reach the end
+> >>   users.
+> >
+> > I have no clue how many users care and read our ReleaseNotes, but
+> > important is that they have opportunity to do that and they have
+> > always time to adopt to changes. This is how I promised that this
+> > project will be maintained.
+>
+> A promise is a promise ;) I really just wanted to avoid adding
+> options that would later become default and meaningless, but we'd be
+> stuck with them forever. Seemed like a bad way to go ... to me.
+>
+> >> Indirectly, the current tests are broken. I think this
+> >> supports some of the changes in this patch set:
+> >>
+> >> The tests author seemed to believe that the -1 and -s options
+> >> actually do something, despite the 'expected' output showing
+> >> otherwise. While testing this patch set I thought the same
+> >> thing; I tried to figure out what these two options do; which
+> >> is nothing. I think this is good evidence to support removing
+> >> them.
+> >
+> > It's bug that -1/--one does nothing and this bug should be fixed.
+> > The -s seems to set ctl->weekstart (and it would be probably more
+> > robust to compare it with SUNDAY rather than with zero in code).
+>
+> Right, but since -s and -m; -1, -3, -y, and -Y should be mutually
+> exclusive, -s and -1 do nothing (unless there exists a calrc).
 
-* fspick(): location -> fsfd; fsfd connected to filesystem mounted at given
-place.  After that you can talk to the driver to get superblock-level
-remount.
+Of course -1 does something. Last option wins. Real life use case below.
 
-* new_mount(): fsfd x string -> fd.  Creates a vfsmount and gives a file
-descriptor for given relative pathname.
+$ alias cal='cal -3'
+$ cal -1
+    January 2018
+Su Mo Tu We Th Fr Sa
+    1  2  3  4  5  6
+ 7  8  9 10 11 12 13
+14 15 16 17 18 19 20
+21 22 23 24 25 26 27
+28 29 30 31
 
-* clone_mount(): location x bool -> fd.  Copies a vfsmount or an entire
-subtree (depending upon the second parameter) and returns a file descriptor.
-Basically, bind or rbind sans attaching it anywhere.
 
-* change_flags(): fd x (propagation or vfsmount flags) x bool -> int
-fd should point to root of some vfsmount (O_PATH, or either of the previous
-two.  Flag is "do we want it to affect the entire subtree"; the tricky
-question is what to do with vfsmount flags - for those we might want
-things like "here's the full set" or "change those flags thus".
-Hell knows - there might be two primitives there; the second one
-would be fd x mask x new_flags x bool -> int, as in "set the bits
-present in mask to values as in new_flags".  Not sure.
-
-* move_mount(): fd x location x bool -> int.  fd - what to move, location -
-where to put it, bool - do we want to suppress propagation.  Potentially
-hacky part is that if fd is not attached to anything, we simply attach it;
-otherwise - move.
-
-Normal mount: fsopen, talk to driver, new_mount, move_mount, close descriptors
-mount --bind: fd = clone_mount(old, false); move_mount(fd, new, false); close
-mount --rbind: clone_mount(old, true); move_mount; close
-mount --make-shared et.al.: open(..., O_PATH); change_flags; close
-mount --move: open; mount_move; close
-vfsmount-level remount: open; change_flags (or change_mount_flags, if we keep
-it separate from topology ones); close
-sb-level remount: fspick; talk to driver; close
-make an arbitrary subtree really private (as discussed upthread):
-	fd = clone_mount(old, true); change_flags (or change_propagation_flags);
-	mount_move(fd, old, true); close(fd);
-
-The tricky part in terms of implementation is that we want a
-tree created by clone_mount() and never attached anywhere to be
-dissolved on the final close() of the result of clone_mount().
-It's not quite O_PATH - we want file_operations for that sucker
-that would have ->release() doing that.
-
-It would do namespace_lock(), check ->f_path.mnt for a flag and do
-umount_tree() if not set, then namespace_unlock().  move_mount()
-would set the flag.
+> >> The tests author also seems to believe that the -j option
+> >> switches from the Gregorian calendar system to the Julian
+> >> calendar system. Making comments to that affect and using it
+> >> in tests involving the year 1752; a year which uses both
+> >> calendar systems. I think this is good evidence to support
+> >> renaming --julian to --ordinal.
+> >>
+> >> If developers for the project are being confused by these
+> >> options, than what chance do end users have? So that's my case
+> >> for making these changes.
+> >
+> > This is good point. I think the problem is that nowhere in the man
+> > page has been described all the history and differences between
+> > calendars.
+>
+> That, and because someone decided to call Gregorian calendars with
+> ordinal days, Julian calendars. What were they thinking! I understand
+> the relationship between ordinal days and Astronomical Julian Days,
+> but Julian Calendars already existed. Talk about namespace
+> violations. I have the impression that this problem is beginning to
+> be recognized and that CS is slowly migrating from julian in favor of
+> ordinal.
+>
+> >> Also while pounding on cal(1), to see if these patches broke
+> >> anything, I found a few other issues and fixed them as well.
+> >> The man page was quite sparse, for example having no explanation
+> >> for the -w argument, so rewrote much of it.
+> >
+> > Thanks.
+> >
+> >> v2 to v3 changelog
+> >> * make proleptic Gregorian the default
+> >> * extensive man page updates
+> >> * rename --julian to --ordinal
+> >
+> > Yes, this is mess...
+>
+> A mess? Awe, it's not that bad ;) I understand you must keep your
+> promise with regard to warning before changing the default behavior;
+> but you think renaming --julian to --ordinal is not good?
+>
+> >> * add private (for now) --caesar option for exclusive Julian
+> >> calendar
+> >>
+> >> * allow -w to accept its argument
+> >> * update mutually exclusive options
+> >> * add short versions for the new options
+> >> * remove non-functional options
+> >> * fix broken week calculations
+> >
+> > Thanks!
+> >
+> >> v1 to v2 changelog
+> >>  * fix typo in v1
+> >>  * move REFORMATION_YEAR to the control struct
+> >>  * add more about the --1752-reform option to man page
+> >>  * add a second patch with minor style and wording changes
+> >
+> > Thanks. I'll work on cal(1) in next days and use us much as
+> > possible from your patches.
+> >
+> > Thanks for patience, I understand that you want to be a little bit
+> > more aggressive with the changes and do it in the "best way" now,
+> > but I'd like to be a little bit more conservative :-)
+>
+> It sounds like you have no choice ;)
+>
+> >     Karel
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
