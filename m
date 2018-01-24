@@ -1,102 +1,131 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f182.google.com ([209.85.128.182]:40469 "EHLO
-        mail-wr0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751140AbeAVUqN (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 22 Jan 2018 15:46:13 -0500
-Received: by mail-wr0-f182.google.com with SMTP id 100so10146006wrb.7
-        for <util-linux@vger.kernel.org>; Mon, 22 Jan 2018 12:46:13 -0800 (PST)
-From: Libor Bukata <lbukata@gmail.com>
-Subject: Patch to add support for lz4hc and deflate optimization algorithms in
- zramctl.
-To: util-linux@vger.kernel.org
-Cc: Nefelim4ag@gmail.com, kzak@redhat.com
-Message-ID: <90fb3b4a-38b8-17fc-f1b6-03e8c23eb808@gmail.com>
-Date: Mon, 22 Jan 2018 21:45:54 +0100
+Received: from hotei.ga-group.nl ([138.201.147.219]:58934 "EHLO
+        hotei.ga-group.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933953AbeAXPnJ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 24 Jan 2018 10:43:09 -0500
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
+To: J William Piggott <elseifthen@gmx.com>
+Subject: Re: [PATCH 1/2] cal: honor num_months when only a year argument
+Date: Wed, 24 Jan 2018 16:33:09 +0100
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
+        Deiz <silverwraithii@gmail.com>
+References: <85ea05cd-c4d0-f7d6-14f4-7deb065089d1@gmx.com> <201801241524.02617.sweet_f_a@gmx.de>
+In-Reply-To: <201801241524.02617.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------94CCBBA2680FFE7AC0805643"
+Content-Type: text/plain;
+  charset="windows-1252"
+Message-Id: <201801241633.09569.ruediger.meier@ga-group.nl>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------94CCBBA2680FFE7AC0805643
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+On Wednesday 24 January 2018, Ruediger Meier wrote:
+> On Monday 22 January 2018, J William Piggott wrote:
+> > I don't know if this was an oversight or an overzealous
+> > interpretation of POSIX. Just in case, I'll address the
+> > POSIX possibility. POSIX description for cal(1) says:
+> >
+> >   If only the year operand is given, cal shall produce a
+> >   calendar for all twelve months in the given calendar year.
+> >
+> > It also says that cal(1) has no options, so in that context
+> > if an option is given then it should be expected to override
+> > POSIX behavior.
+>
+> We still don't need to fight against POSIX.
+>
+> "cal -1" behaves like POSIX cal without options.
+> "cal -3" behaves like POSIX except that it prints 3 months whereever
+> POSIX would print only 1.
 
-Dear developers of Linux utils,
+Hm, actually I see cal -3 is broken since
+   v2.27-45-gccf3dd50c  "cal: Add --span option"
 
-I extended the zramctl utility to handle also lz4hc and deflate formats.
-The patch is included in the attachment. Thank you in advance for your
-comments.
 
-Kind regards,
-Libor Bukata.
+$ cal -3 2010
 
---------------94CCBBA2680FFE7AC0805643
-Content-Type: text/x-patch;
- name="new_comp_alg.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="new_comp_alg.patch"
+does the same like 
 
-diff --git a/sys-utils/zramctl.8 b/sys-utils/zramctl.8
-index 9ca2983b9..ef44435ed 100644
---- a/sys-utils/zramctl.8
-+++ b/sys-utils/zramctl.8
-@@ -44,7 +44,7 @@ query the status of used zram devices.
- If no option is given, all non-zero size zram devices are shown.
- .SH OPTIONS
- .TP
--.BR \-a , " \-\-algorithm lzo" | lz4
-+.BR \-a , " \-\-algorithm lzo" | lz4 | lz4hc | deflate
- Set the compression algorithm to be used for compressing data in the zram device.
- .TP
- .BR \-f , " \-\-find"
-diff --git a/sys-utils/zramctl.c b/sys-utils/zramctl.c
-index fb64150d6..9117ddce3 100644
---- a/sys-utils/zramctl.c
-+++ b/sys-utils/zramctl.c
-@@ -424,13 +424,16 @@ static void fill_table_row(struct libscols_table *tb, struct zram *z)
- 			char *alg = sysfs_strdup(sysfs, "comp_algorithm");
- 			if (!alg)
- 				break;
--			if (strstr(alg, "[lzo]") == NULL) {
--				if (strstr(alg, "[lz4]") == NULL)
--					;
--				else
--					str = xstrdup("lz4");
--			} else
-+
-+			if (strstr(alg, "[lzo]") != NULL)
- 				str = xstrdup("lzo");
-+			else if (strstr(alg, "[lz4]") != NULL)
-+				str = xstrdup("lz4");
-+			else if (strstr(alg, "[lz4hc]") != NULL)
-+				str = xstrdup("lz4hc");
-+			else if (strstr(alg, "[deflate]") != NULL)
-+				str = xstrdup("deflate");
-+
- 			free(alg);
- 			break;
- 		}
-@@ -539,7 +542,7 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(_("Set up and control zram devices.\n"), out);
- 
- 	fputs(USAGE_OPTIONS, out);
--	fputs(_(" -a, --algorithm lzo|lz4   compression algorithm to use\n"), out);
-+	fputs(_(" -a, --algorithm lzo|lz4|lz4hc|deflate   compression algorithm to use\n"), out);
- 	fputs(_(" -b, --bytes               print sizes in bytes rather than in human readable format\n"), out);
- 	fputs(_(" -f, --find                find a free device\n"), out);
- 	fputs(_(" -n, --noheadings          don't print headings\n"), out);
-@@ -611,7 +614,8 @@ int main(int argc, char **argv)
- 
- 		switch (c) {
- 		case 'a':
--			if (strcmp(optarg,"lzo") && strcmp(optarg,"lz4"))
-+			if (strcmp(optarg,"lzo") && strcmp(optarg,"lz4")
-+					&& strcmp(optarg,"lz4hc") && strcmp(optarg, "deflate"))
- 				errx(EXIT_FAILURE, _("unsupported algorithm: %s"),
- 					     optarg);
- 			algorithm = optarg;
+$ cal --span -3 2010
 
---------------94CCBBA2680FFE7AC0805643--
+
+> > Before patched all of these command displayed a full year:
+> > cal -1 2020
+> > cal -3 2020
+> > cal -n6 2020
+>
+> Seriously, I find the new behavior quiet useless and unwanted. In
+> past it seemed to work fine to have such alias in ~./profile
+>
+>   alias cal="cal -3"
+>
+>
+> But now "cal -3 2019" always shows Dec, Jan, Feb. Can't believe that
+> any user finds this useful. At least it should output of the
+> "current" months of the given year. But I wouldn't change this at
+> all. It's just an annoying incompatible change without any benefit.
+>
+>
+> cu,
+> Rudi
+>
+> > Patched the number of months options are honored.
+> >
+> > This patch also fixes the -1 option which was a no-op.
+> >
+> > Signed-off-by: J William Piggott <elseifthen@gmx.com>
+> > ---
+> >  misc-utils/cal.c | 9 ++++++---
+> >  1 file changed, 6 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+> > index 5a6364a27..8a715d94c 100644
+> > --- a/misc-utils/cal.c
+> > +++ b/misc-utils/cal.c
+> > @@ -267,7 +267,6 @@ int main(int argc, char **argv)
+> >  	static struct cal_control ctl = {
+> >  		.reform_year = DEFAULT_REFORM_YEAR,
+> >  		.weekstart = SUNDAY,
+> > -		.num_months = 1,		/* default is "cal -1" */
+> >  		.span_months = 0,
+> >  		.colormode = UL_COLORMODE_UNDEF,
+> >  		.weektype = WEEK_NUM_DISABLED,
+> > @@ -363,7 +362,7 @@ int main(int argc, char **argv)
+> >
+> >  		switch(ch) {
+> >  		case '1':
+> > -			/* default */
+> > +			ctl.num_months = 1;
+> >  			break;
+> >  		case '3':
+> >  			ctl.num_months = 3;
+> > @@ -536,7 +535,8 @@ int main(int argc, char **argv)
+> >
+> >  	if (yflag || Yflag) {
+> >  		ctl.gutter_width = 3;
+> > -		ctl.num_months = MONTHS_IN_YEAR;
+> > +		if (!ctl.num_months)
+> > +			ctl.num_months = MONTHS_IN_YEAR;
+> >  		if (yflag) {
+> >  			ctl.req.start_month = 1;	/* start from Jan */
+> >  			ctl.header_year = 1;		/* print year number */
+> > @@ -549,6 +549,9 @@ int main(int argc, char **argv)
+> >  	else if (!ctl.months_in_row)
+> >  		ctl.months_in_row = 1;
+> >
+> > +	if (!ctl.num_months)
+> > +		ctl.num_months = 1;		/* display at least one month */
+> > +
+> >  	if (yflag || Yflag)
+> >  		yearly(&ctl);
+> >  	else
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe
+> > util-linux" in the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe util-linux"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
