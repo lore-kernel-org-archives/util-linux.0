@@ -1,122 +1,106 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-it0-f66.google.com ([209.85.214.66]:34484 "EHLO
-        mail-it0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753548AbeAFQq0 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 6 Jan 2018 11:46:26 -0500
-Received: by mail-it0-f66.google.com with SMTP id m11so7355459iti.1
-        for <util-linux@vger.kernel.org>; Sat, 06 Jan 2018 08:46:25 -0800 (PST)
-MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <3b97fbb3-d191-1aa1-2d6e-ee8e17174cea@gmx.com>
-References: <27af199a-8ec2-634f-6e99-dd4047f9d5f4@gmx.com> <c0ee83b1-2736-313d-802b-4937c6f71d85@gmx.com>
- <20171229113824.72y6cgyqta42mt2y@ws.net.home> <3b97fbb3-d191-1aa1-2d6e-ee8e17174cea@gmx.com>
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Sat, 6 Jan 2018 16:46:25 +0000
-Message-ID: <CAG27Bk2g_whRsFO1X0Mies6sQp34sWDocQv3zyfgp4fUMt+4Vw@mail.gmail.com>
-Subject: Re: [PATCH 2/2] hwclock: add --ul-debug implementing debug.h
+Received: from mx1.redhat.com ([209.132.183.28]:46108 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933590AbeAXNZP (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 24 Jan 2018 08:25:15 -0500
+Date: Wed, 24 Jan 2018 14:25:11 +0100
+From: Karel Zak <kzak@redhat.com>
 To: J William Piggott <elseifthen@gmx.com>
-Cc: Karel Zak <kzak@redhat.com>,
-        util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/2] cal: do not set months_in_row with -3 option
+Message-ID: <20180124132511.rhvvlvzblygpt242@ws.net.home>
+References: <85ea05cd-c4d0-f7d6-14f4-7deb065089d1@gmx.com>
+ <009ab747-9e36-1283-f20d-0c3fea21045d@gmx.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <009ab747-9e36-1283-f20d-0c3fea21045d@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 6 January 2018 at 16:11, J William Piggott <elseifthen@gmx.com> wrote:
->
->
-> On 12/29/2017 06:38 AM, Karel Zak wrote:
->> On Sun, Dec 24, 2017 at 03:38:58PM -0500, J William Piggott wrote:
->>>
->>> Undocumented at this time, because it is a skeleton
->>> implementation.  More debugging points are to be added after
->>> refactoring is complete, or ad hoc in the mean time.
->>>
->>> When fully implemented, enough time may have passed that the
->>> deprecated --debug could be used to replace --ul-debug.
->>
->> We use everywhere env.variables (e.g. HWCLOCK_DEBUG=). The macro
->> __UL_INIT_DEBUG() already provides all necessary functionality for
->> this purpose.
->>
->> It also allows to use human readable names for the masks or hex
->> numbers. See for example  sys-utils/lsns.c or libsmartcols/src/init.c
->> for more complex usage. The human readable masks are optional and now
->> used by shared libs only, see for example "LIBSMARTCOLS_DEBUG=help
->> lsns".
->>
->> I'd like to keep things consistent and with no exceptions...
->>
->> IMHO "hwclock --verbose" is good idea for ordinary users and
->> "HWCLOCK_DEBUG=all hwclock" for developers.
->>
->>     Karel
->>
->
-> Karel,
->
-> Sami sent me a patch doing exactly that. So I made time to digest debug.h; then
-> I replied that I had reversed my position; I don't like debug.h for hwclock.
->
-> I slept on it, and thought perhaps using an option instead of an env might be
-> an acceptable compromise. So I figured out how to make debug.h use an option.
->
-> Would it not be 'consistent' to say that commands use a debug option, and libs
-> use a debug env?
->
-> Consistent in this case isn't about the code, but the UI; correct? So doesn't
-> consistent really translate to convenient for developers. That does not seem
-> like a strong argument to me. A proportionate counter point could be that it is
-> more convenient to enter 'hwclock -d all' then 'HWCLOCK_DEBUG=all hwclock'.
->
-> I'm more interested in asking: how does using an env over an option benefit the
-> code? I think it does not. Commands already have the code to parse options;
-> adding more code to parse an env which serves no benefit to the application,
-> IMO, is code bloat (and possibly a security risk).
->
-> What I dislike the most is that debugging is very seldom used, yet debugging is
-> initialized unconditionally whether it is wanted or not. This is completely
-> unnecessary; an option does the job just as well without the added overhead.
-> For time sensitive commands like hwclock this is just one more place for
-> preemption to slip in. The one thing left that I really want to fix on hwclock
-> it its precision.  At least some of that problem is preemption. Using an option
-> over an env eliminates that.
->
-> My approach to debug.h adds a single line to hwclock.c. It eliminates the
-> unconditional debugging initialization and the other unnecessary code.
->
-> Regarding debug.h in general, is this an elegant solution?
->   disk-utils/cfdisk.c:2691
->         fdisk_init_debug(0);
->         scols_init_debug(0);
->         cfdisk_init_debug();
->
-> CFDISK_DEBUG=all LIBFDISK_DEBUG=all LIBBLKID_DEBUG=all \
-> LIBSMARTCOLS_DEBUG=all LIBSMARTCOLS_DEBUG_PADDING=on cfdisk
->
-> Is anyone else (other than e2fsprogs) using this approach?
->
-> I also wonder if the way debug.h is using the env argument is a potential security
-> whole? I didn't note any input sanitizing being done?
->
-> In the end I just do not like the debug.h solution. It's a solution in search
-> of a problem; a problem that commands do not have. I understand the concept for
-> libraries, but I'm not convinced that it is the best solution for them either.
->
-> Anyway, Sami has a patch queued that uses the env, if that is what you want.
-> Please remove my name from his commit messages, as I object to using debug.h in
-> hwclock.
+On Mon, Jan 22, 2018 at 03:07:15PM -0500, J William Piggott wrote:
+> 
+> Having the -3 option set months_in_row causes ordinal days
+> to wrap; it overrides the automatic handling of months_in_row
+> that falls back to 2 month columns for ordinal days.
+> 
+> Before:
+> cal -3j 2020
+>                            2020
+> 
+>             July                         August                      September
+> Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat
+>     182 183 184 185 186 187                   213 214 215   244 245 246 247 248 249 250
+> 188 189 190 191 192 193 194   216 217 218 219 220 221 222   251 252 253 254 255 256 257
+> 195 196 197 198 199 200 201   223 224 225 226 227 228 229   258 259 260 261 262 263 264
+> 202 203 204 205 206 207 208   230 231 232 233 234 235 236   265 266 267 268 269 270 271
+> 209 210 211 212               237 238 239 240 241 242 243   272 273
+> 
+> Patched:
+> cal -3j 2020
+>                            2020
+> 
+>           December                      January
+> Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat
+> 335 336 337 338 339 340 341                 1   2   3   4
+> 342 343 344 345 346 347 348     5   6   7   8   9  10  11
+> 349 350 351 352 353 354 355    12  13  14  15  16  17  18
+> 356 357 358 359 360 361 362    19  20  21  22  23  24  25
+> 363 364 365                    26  27  28  29  30  31
+> 
+>           February
+> Sun Mon Tue Wed Thu Fri Sat
+>                          32
+>  33  34  35  36  37  38  39
+>  40  41  42  43  44  45  46
+>  47  48  49  50  51  52  53
+>  54  55  56  57  58  59  60
 
-Demonstrative debug.h work that is referred in previous message can ben found
-from here:
+Merged, but the patch breaks regression tests. It would be nice to fix
+it ASAP.
 
-git://github.com/kerolasa/lelux-utiliteetit.git hwclock-debug
+It would be nice to be smart and use include/ttyutils.h:get_terminal_width()
+if stdout is terminal. For non-terminal output we can use always 3 columns.
 
-The last commit 'hwclock: add cmos debug support' should not be merged. It is
-does too much messaging in sections where delays are not welcome. That commit
-was supposed to show how to get debug.h to work across source files. IMHO this
-branch is not quite good enough to be merged. What is needed is messaging at
-lines that make sense and is useful, and hwclock-rtc.c messaging.
+See patch below. It's not perfect, because we have extra blank space
+behind last column, but good enough to show the idea. For really small
+terms it uses one month, etc.
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+    Karel
+
+
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index 562ae2afb..688377189 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -75,6 +75,7 @@
+ #include "strutils.h"
+ #include "optutils.h"
+ #include "timeutils.h"
++#include "ttyutils.h"
+ 
+ static int has_term = 0;
+ static const char *Senter = "", *Sexit = "";	/* enter and exit standout mode */
+@@ -542,10 +543,19 @@ int main(int argc, char **argv)
+ 		}
+ 	}
+ 
+-	if (ctl.num_months > 1 && ctl.months_in_row == 0)
+-		ctl.months_in_row = ctl.julian ? MONTHS_IN_YEAR_ROW - 1 :
+-						 MONTHS_IN_YEAR_ROW;
+-	else if (!ctl.months_in_row)
++#define DOY_MONTH_WIDTH	28	/* -j */
++#define DOM_MONTH_WIDTH 23
++
++	if (ctl.num_months > 1 && ctl.months_in_row == 0) {
++		if (isatty(STDOUT_FILENO)) {
++			int w = get_terminal_width(STDOUT_FILENO);
++			int mw = ctl.julian ? DOY_MONTH_WIDTH : DOM_MONTH_WIDTH;
++
++			ctl.months_in_row = w  / mw;
++		} else
++			ctl.months_in_row = MONTHS_IN_YEAR_ROW;
++
++	} else if (!ctl.months_in_row)
+ 		ctl.months_in_row = 1;
+ 
+ 	if (!ctl.num_months)
