@@ -1,36 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34014 "EHLO mx1.redhat.com"
+Received: from smtp.gentoo.org ([140.211.166.183]:43612 "EHLO smtp.gentoo.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752760AbeAQMjb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 17 Jan 2018 07:39:31 -0500
-Date: Wed, 17 Jan 2018 13:39:27 +0100
-From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] hwclock: rename --debug option to --verbose
-Message-ID: <20180117123927.clx3dnapz3rjgsxd@ws.net.home>
-References: <27af199a-8ec2-634f-6e99-dd4047f9d5f4@gmx.com>
- <25e935d3-37ff-a02b-8e5e-30f41dd88ae0@gmx.com>
+        id S933218AbeAYEWB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 24 Jan 2018 23:22:01 -0500
+Received: from vapier (localhost [127.0.0.1])
+        by smtp.gentoo.org (Postfix) with SMTP id 6F3E5335C2C
+        for <util-linux@vger.kernel.org>; Thu, 25 Jan 2018 04:22:01 +0000 (UTC)
+Date: Wed, 24 Jan 2018 23:22:01 -0500
+From: Mike Frysinger <vapier@gentoo.org>
+To: util-linux@vger.kernel.org
+Subject: Re: [PATCH] cal: drop trailing blank line
+Message-ID: <20180125042201.GC1718@vapier>
+References: <1464037332-21996-1-git-send-email-vapier@gentoo.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <25e935d3-37ff-a02b-8e5e-30f41dd88ae0@gmx.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="5QAgd0e35j3NYeGe"
+In-Reply-To: <1464037332-21996-1-git-send-email-vapier@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Dec 24, 2017 at 03:37:36PM -0500, J William Piggott wrote:
-> 
-> Warn on --debug; do not fallthrough because
-> the message is lost in the verbose output.
 
-Merged. 
+--5QAgd0e35j3NYeGe
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It's change in options :-) but in this case the original option prints
-a warning (and nowhere is guaranty of number and format of the debug
-messages) and another functionality is not affected. So, I'm fine with
-this change.
+On 23 May 2016 17:02, Mike Frysinger wrote:
+> There's no history to be found behind this, and the comment in the
+> code indicates no one else knows, and it makes me angry :).
+>=20
+> Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+> ---
+>  misc-utils/cal.c | 3 ---
+>  1 file changed, 3 deletions(-)
+>=20
+> diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+> index 3e20530..479c967 100644
+> --- a/misc-utils/cal.c
+> +++ b/misc-utils/cal.c
+> @@ -767,9 +767,6 @@ static void yearly(const struct cal_control *ctl)
+>  		my_putstring("\n\n");
+>  	}
+>  	monthly(ctl);
+> -
+> -	/* Is empty line at the end year output really needed? */
+> -	my_putstring("\n");
+>  }
+> =20
+>  /*
+> --=20
+> 2.8.2
 
-    Karel
+ping ...
+-mike
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--5QAgd0e35j3NYeGe
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEuQK1JxMl+JKsJRrUQWM7n+g39YEFAlppW2gACgkQQWM7n+g3
+9YH+MxAA3tn8eJ/It9pzvH0pHZyQL79+ef56vSxIXmrVY99x+g4+RfdfLEQt5CAu
+otVoY+WnwjybBvbEbR6qolUmZV92Z6w/NtIy5U70YvyqDVl+rYFfm2osfz/b92BF
+plbFF2z7dN+Sw0/UhcbmH+2nk8fgJ7tIo+9wvwl2jc6rEJVZ0BGI1Utj2PsSB4aH
+59iYGOMfr9rcRLZAqpiFPVYy44SZ24ZwFv0QjpamlqfY9LxgdZWhzBy7ZAKGKc3k
+n5C9Qn7C+watSN1N1apkrd83t2VlXQYLAudvSD3B1mdRtuuHh9gN8068fBGbRgjj
+h4TKp5qenKxMtDXwhyTpFw2gA+X1bMlEi2q7IBXJiJ6sPsry1wfZG8vc5wJ3XG4h
+77CRX7Ws+K1zWDaoymQ4pbFYPGY51lpLrpGoLypFNRgW7m04T0M7qhQE6Rak1tO6
+nkS0rrg6nHwgFhYzdvlFqkaaYp/m09wLcLWzMwGjprnEqDB0JVmz0QSl/FjjKHDM
+RJWSpgrfz6GAzgFtrpvCl+Fu1JYDzZWx2xQDTgN0lWTX3mpKl1kTL7FEvm/PDV13
+IHaLw1/U6Qwk7LwsaJI3yHY6SQbaWQPHFbsu3ulZowzt0H49sdcBDKjLiZE/epZZ
+6F8rruuB+zSVJOMw/hCL0TwdRpKGANzVg/kDa0s/P9UWytHWgz0=
+=J+vM
+-----END PGP SIGNATURE-----
+
+--5QAgd0e35j3NYeGe--
