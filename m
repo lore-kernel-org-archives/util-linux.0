@@ -1,57 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.halfdog.net ([37.186.9.82]:49831 "EHLO mail.halfdog.net"
+Received: from mout.gmx.net ([212.227.17.20]:56489 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S965490AbeAKTXO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 11 Jan 2018 14:23:14 -0500
-Received: from [169.254.0.1] (helo=localhost)
-        by mail.halfdog.net with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.82)
-        (envelope-from <me@halfdog.net>)
-        id 1eZhxd-00019S-V3
-        for util-linux@vger.kernel.org; Thu, 11 Jan 2018 18:52:22 +0000
-From: halfdog <me@halfdog.net>
-To: util-linux@vger.kernel.org
-Subject: util-linux mount/unmount ASLR bypass via environment variable
+        id S932250AbeAYAvz (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 24 Jan 2018 19:51:55 -0500
+Subject: [PATCH 1/4] cal: always include the year in the month header
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <7bdff2d4-ad0d-699e-d451-be087f637074@gmx.com>
+Date: Wed, 24 Jan 2018 19:51:49 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Thu, 11 Jan 2018 18:51:59 +0000
-Message-ID: <820-1515696719.436169@jYEA.ctRK.4WZD>
+Content-Type: text/plain; charset=windows-1252
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello list,
 
-Cleaning up another issue, I noticed that I haven't reported this
-one yet. Debugging of libmount can be activated, also in SUID
-binaries, thus spilling out the heap addresses. Note that "CXT"
-structure contains function pointers to overwrite.
+Most of cal's output has the year in the month header. The
+exception is when a full year is output, which then has a top
+header containing the year.
 
-Test:
+There is a bug when using --span with --year, --Year, or with
+only a year for the date parameter; then months for multiple
+years are output and only one year is displayed at the top.
 
-LIBMOUNT_DEBUG=all /bin/umount /
+These are all broken:
+ cal -Sy 2020
+ cal -SY 2020
+ cal -S 2020
+ cal -3 2020 (this is broken in the current release because it
+	      too sets --span, but still displays 12 months)
 
-Output:
+The top header typically scrolls off the screen for a full
+year output anyway. So it is convenient to have the year
+included in each month.
 
-2401: libmount:      CXT: [0x562d3abb0760]: ----> allocate [RESTRICTED]
-2401: libmount:      CXT: [0x562d3abb0760]: umount: /
-2401: libmount:      CXT: [0x562d3abb0760]: umount: lookup FS for '/'
-2401: libmount:      CXT: [0x562d3abb0760]: checking for writable tab files
-2401: libmount:    UTILS: utab: /run/mount/utab
-2401: libmount:    CACHE: [0x562d3abb1950]: alloc
-2401: libmount:    CACHE: [0x562d3abb1950]: canonicalize path /
-2401: libmount:    CACHE: [0x562d3abb1950]: add entry [ 1] (path): /: /
-2401: libmount:      CXT: [0x562d3abb0760]: tabfilter ENABLED!
-2401: libmount:      TAB: [0x562d3abb35b0]: alloc
-...
+To fix these issues and to make cal's output consistent,
+always display the year in the month header.
 
-The output can easily be used by creating a local domain socket
-with only 4k buffer size, filling it up until writes are blocking
-and then start umount with that socket as stdout. This allows
-race-free reading of the address output before umount accesses
-other user-controlled resource. Thus any error during the downstream
-procedure creating some kind of write-where vulnerability will
-always find the correct target.
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
+---
+ misc-utils/cal.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-hd
-
-
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index 562ae2afb..8dea2c459 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -705,17 +705,16 @@ static void cal_output_header(struct cal_month *month, const struct cal_control
+ 	char out[FMT_ST_CHARS];
+ 	struct cal_month *i;
+ 
+-	if (ctl->header_hint || ctl->header_year) {
++	if (ctl->header_hint) {
+ 		for (i = month; i; i = i->next) {
+ 			sprintf(out, _("%s"), ctl->full_month[i->month - 1]);
+ 			center(out, ctl->week_width - 1, i->next == NULL ? 0 : ctl->gutter_width);
+ 		}
+-		if (!ctl->header_year) {
+-			my_putstring("\n");
+-			for (i = month; i; i = i->next) {
+-				sprintf(out, _("%04d"), i->year);
+-				center(out, ctl->week_width - 1, i->next == NULL ? 0 : ctl->gutter_width);
+-			}
++		my_putstring("\n");
++		for (i = month; i; i = i->next) {
++			sprintf(out, _("%04d"), i->year);
++			center(out, ctl->week_width - 1,
++			       i->next == NULL ? 0 : ctl->gutter_width);
+ 		}
+ 	} else {
+ 		for (i = month; i; i = i->next) {
