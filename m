@@ -1,45 +1,94 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:39302 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750745AbeABUpN (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 2 Jan 2018 15:45:13 -0500
-Received: by mail-wm0-f68.google.com with SMTP id i11so62711790wmf.4
-        for <util-linux@vger.kernel.org>; Tue, 02 Jan 2018 12:45:12 -0800 (PST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] libfdisk: fsync(2) after writing partition data
-Date: Tue,  2 Jan 2018 20:45:04 +0000
-Message-Id: <20180102204504.1543-1-kerolasa@iki.fi>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: elseifthen@gmx.com
+Subject: [PATCH 4/4] cal: new option to drop the calendar system header
+To: Karel Zak <kzak@redhat.com>
+References: <7bdff2d4-ad0d-699e-d451-be087f637074@gmx.com>
+Cc: util-linux@vger.kernel.org
+From: J William Piggott <elseifthen@gmx.com>
+Message-ID: <875bde54-8488-1a3d-5edc-f64f553ce228@gmx.com>
+Date: Wed, 24 Jan 2018 20:03:26 -0500
+MIME-Version: 1.0
+In-Reply-To: <7bdff2d4-ad0d-699e-d451-be087f637074@gmx.com>
+Content-Type: text/plain; charset=windows-1252
 List-ID: <util-linux.vger.kernel.org>
 
-In reply to reference comment commit:
-> It would be nice to have something more elegant than sleep, any idea?
 
-Adding fsync(2) might be superficial when writing to device file, but
-perhaps it helps ensuring what is meant to write is wrote.  In any case it
-is difficult to think this could make libfdisk worse.
+Add an option to not display the new calendar system header.
 
-Reference: a60d6b52179d851d1d1165a06afa778ac9868107
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: J William Piggott <elseifthen@gmx.com>
 ---
- libfdisk/src/gpt.c | 2 ++
- 1 file changed, 2 insertions(+)
+ misc-utils/cal.1 |  5 +++++
+ misc-utils/cal.c | 10 +++++++++-
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
-index 94b4d292e..49357c449 100644
---- a/libfdisk/src/gpt.c
-+++ b/libfdisk/src/gpt.c
-@@ -1978,6 +1978,8 @@ static int gpt_write_partitions(struct fdisk_context *cxt,
- 	ssz = write(cxt->dev_fd, ents, towrite);
- 	if (ssz < 0 || (ssize_t) towrite != ssz)
- 		return -errno;
-+	if (fsync(cxt->dev_fd) != 0)
-+		return -errno;
+diff --git a/misc-utils/cal.1 b/misc-utils/cal.1
+index 95d1a255b..d5562c691 100644
+--- a/misc-utils/cal.1
++++ b/misc-utils/cal.1
+@@ -80,6 +80,11 @@ Display single month output.
+ \fB\-3\fR, \fB\-\-three\fR
+ Display three months spanning the date.
+ .TP
++.B \-\-drop-header
++Do not display the calendar system header.
++.br
++.RB See\  \%DESCRIPTION\  above.
++.TP
+ \fB\-n , \-\-months\fR \fInumber\fR
+ Display \fInumber\fR of months, starting from the month containing the date.
+ .TP
+diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+index 2551cd20d..49e2968a8 100644
+--- a/misc-utils/cal.c
++++ b/misc-utils/cal.c
+@@ -223,6 +223,7 @@ struct cal_control {
+ 	size_t day_width;		/* day width in characters in printout */
+ 	size_t week_width;		/* 7 * day_width + possible week num */
+ 	int gutter_width;		/* spaces in between horizontal month outputs */
++	int drop_header;		/* don't display calendar system header */
+ 	struct cal_request req;		/* the times user is interested */
+ 	unsigned int	julian:1,	/* julian output */
+ 			header_hint:1;	/* does month name + year need two lines to fit */
+@@ -278,6 +279,7 @@ int main(int argc, char **argv)
  
- 	return 0;
- }
--- 
-2.15.1
-
+ 	enum {
+ 		OPT_COLOR = CHAR_MAX + 1,
++		OPT_DROP_HEADER,
+ 		OPT_ISO,
+ 		OPT_REFORM
+ 	};
+@@ -295,6 +297,7 @@ int main(int argc, char **argv)
+ 		{"color", optional_argument, NULL, OPT_COLOR},
+ 		{"reform", required_argument, NULL, OPT_REFORM},
+ 		{"iso", no_argument, NULL, OPT_ISO},
++		{"drop-header", no_argument, NULL, OPT_DROP_HEADER},
+ 		{"version", no_argument, NULL, 'V'},
+ 		{"twelve", no_argument, NULL, 'Y'},
+ 		{"help", no_argument, NULL, 'h'},
+@@ -412,6 +415,9 @@ int main(int argc, char **argv)
+ 		case OPT_ISO:
+ 			ctl.reform_year = ISO;
+ 			break;
++		case OPT_DROP_HEADER:
++			ctl.drop_header = 1;;
++			break;
+ 		case 'V':
+ 			printf(UTIL_LINUX_VERSION);
+ 			return EXIT_SUCCESS;
+@@ -551,7 +557,8 @@ int main(int argc, char **argv)
+ 	if (!ctl.num_months)
+ 		ctl.num_months = 1;		/* display at least one month */
+ 
+-	top_header(&ctl);
++	if (!ctl.drop_header)
++		top_header(&ctl);
+ 	months(&ctl);
+ 
+ 	return EXIT_SUCCESS;
+@@ -1135,6 +1142,7 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_(" -j, --julian          use day-of-year for all calendars\n"), out);
+ 	fputs(_("     --reform <val>    Gregorian reform date (1752|gregorian|iso|julian)\n"), out);
+ 	fputs(_("     --iso             alias for --reform=iso\n"), out);
++	fputs(_("     --drop-header     do not display the calendar system header\n"), out);
+ 	fputs(_(" -y, --year            show the whole year\n"), out);
+ 	fputs(_(" -Y, --twelve          show the next twelve months\n"), out);
+ 	fputs(_(" -w, --week[=<num>]    show US or ISO-8601 week numbers\n"), out);
