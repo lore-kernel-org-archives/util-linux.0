@@ -1,108 +1,80 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:50779 "EHLO mout.gmx.net"
+Received: from smtp.gentoo.org ([140.211.166.183]:43740 "EHLO smtp.gentoo.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756278AbeATRvG (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sat, 20 Jan 2018 12:51:06 -0500
-Subject: Re: Problem building util-linux without a separate ncursesw include
- dir
-To: Karel Zak <kzak@redhat.com>,
-        Carlos Santos <casantos@datacom.ind.br>,
-        util-linux@vger.kernel.org
-References: <1971282138.2691482.1501546323018.JavaMail.zimbra@datacom.ind.br>
- <1705151756.2691717.1501548399616.JavaMail.zimbra@datacom.ind.br>
- <20170801072017.yl7mgv64pq7ccj5e@ws.net.home> <20180119024717.GJ7217@vapier>
- <20180119094051.g3qztrrqf5guife5@ws.net.home> <20180119182123.GK28967@vapier>
-From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
-Message-ID: <9f4f0155-fd38-e8d7-1340-b128b6ac447f@gmx.de>
-Date: Sat, 20 Jan 2018 18:50:52 +0100
+        id S933218AbeAYEY1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 24 Jan 2018 23:24:27 -0500
+Date: Wed, 24 Jan 2018 23:24:26 -0500
+From: Mike Frysinger <vapier@gentoo.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] mount(8): drop redundant filesystem-specific sections
+Message-ID: <20180125042426.GE1718@vapier>
+References: <20180119184520.13067-1-vapier@gentoo.org>
+ <20180122090923.io62zeuwnv25iw7p@ws.net.home>
 MIME-Version: 1.0
-In-Reply-To: <20180119182123.GK28967@vapier>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="HeFlAV5LIbMFYYuh"
+In-Reply-To: <20180122090923.io62zeuwnv25iw7p@ws.net.home>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
+--HeFlAV5LIbMFYYuh
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 01/19/2018 07:21 PM, Mike Frysinger wrote:
-> On 19 Jan 2018 10:40, Karel Zak wrote:
->> On Thu, Jan 18, 2018 at 09:47:17PM -0500, Mike Frysinger wrote:
->>> On 01 Aug 2017 09:20, Karel Zak wrote:
->>>> On Mon, Jul 31, 2017 at 09:46:39PM -0300, Carlos Santos wrote:
->>>>>> From: "Carlos Santos" <casantos@datacom.ind.br>
->>>>>> To: util-linux@vger.kernel.org
->>>>>> Sent: Monday, July 31, 2017 9:12:03 PM
->>>>>> Subject: Problem building util-linux without a separate ncursesw include dir
->>>>>
->>>>>> of util-linux. Would it be possible to make the location of ncursesw4c12a334dc4104d16dc06edf51904b08b08fcdfa
->>>>>> headers configurable, instead?
->>>>
->>>> We test for alone ncurses.h and term.h in the for non-wide ncurses.
->>>> Can you send output from your configure from the current master
->>>> branch (or v2.30.1)?
->>>>
->>>>> I was thinking on something simple, like https://pastebin.com/VqM9G9yu
->>>>
->>>> Hmm, but you don't distinguish between wide and non-wide ncurses.
->>>
->>> why don't we just support ncurses's pkg-config files as the default ?
->>> $ pkg-config --cflags ncurses
->>> -D_GNU_SOURCE
->>> $ pkg-config --cflags ncursesw
->>> -D_GNU_SOURCE -I/usr/include/ncursesw
->>
->> because pkg-config is not supported by ncurses upstream by default and
->> it's not always the best solution.
-> 
-> you mean upstream's configure script doesn't default it to on.  distros
-> can (and many do) simply pass --enable-pc-files to get them.  but i don't
-> see how that's relevant to preference when it comes to detection.
-> 
->> See commit 4c12a334dc4104d16dc06edf51904b08b08fcdfa.
-> 
-> seems like that's trivial to resolve with a compile test rather than
-> throwing it all out.  xxx-config scripts provide bad defaults when you
-> cross-compile because now the user has to make sure the build's copy
-> of ncurses-config don't get used.
-> 
->> The ncurses detection and variability in distros is horrible. We
->> already tried all possible combinations and always someone complains
->> about the way how we detect ncurses. See mailing list archive for more
->> information.
-> 
-> that's the point of pkg-config.  if someone is having problems because
-> they're doing something weird/non-standard, tell them to sort out their
-> pkg-config installs.
+On 22 Jan 2018 10:09, Karel Zak wrote:
+> On Fri, Jan 19, 2018 at 01:45:20PM -0500, Mike Frysinger wrote:
+> > Add a new section to the top of the filesystem-specific chapter to point
+> > people generally to the filesystem-specific man pages.  This way we can
+> > delete all the redundant subsections that say the same thing.
+>=20
+> Well, the subsections also provides the name of the package where is FS
+> specific man page :-)
+>=20
+> > -.SS "Mount options for xfs"
+> > -See the options section of the
+> > -.BR xfs (5)
+> > -man page (the xfsprogs package must be installed).
+>=20
+> It's probably not so important (and I have no strong opinion about
+> it), but I can imagine that for end-users it's useful. Maybe we can
+> add to the man page a small table with FS name, man page and package
+> name:
+>=20
+>       xfs   xfs(5)          xfsprogs
+>       ext4  ext4(5)         e2fsprogs
+>       cifs  mount.cifs(8)   cifs-utils
+>       ...
+>=20
+> or is it overkill?
 
-non-standard is to have ncurses.pc installed. Also cross-compiling is
-certainly more "weird" than not cross-compiling. Regarding "tell them",
-Have you tried yet to ask ncurses upstream about installing *.pc files
-by default?
+the only reason i hesitated to try and do that was due to cross-distro
+package naming idiosyncrasies.  but i guess if we refer to the upstream
+project using the name they choose, the rest can be an exercise for the
+user ?
+-mike
 
-However I agree that pkg-config should be checked *before* ncurses-config
-otherwise it doesn't make much sense to support pc-files at all. The case
-that *.pc or ncurses-config files are installed without the headers is
-really a packaging bug made by distros. We don't need to handle this case.
+--HeFlAV5LIbMFYYuh
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-BTW we need to fix our usage of environment vars NCURSESW_CFLAGS,
-NCURSESW_LIBS, NCURSES_CFLAGS, NCURSES_LIBS. They don't seem to work as
-expected although documented in configure --help. These vars should skip
-pkg-config and ncurses-config too. Probably this would work automatically
-again when doing pkg-config before ncurses-config.
+-----BEGIN PGP SIGNATURE-----
 
-I still think we should evaluate autoconf_archive's ncurses detection. It's
-using pkg-config first and then fallback even without ncurses-config. Could
-be that even cross-compiling would work without *.pc files.
-https://www.gnu.org/software/autoconf-archive/ax_with_curses.html
-Though I'm too lazy for testing this ;)
+iQIzBAEBCAAdFiEEuQK1JxMl+JKsJRrUQWM7n+g39YEFAlppW/oACgkQQWM7n+g3
+9YGeYRAAnS0rdlhoqwP+xjcWmds+pL6g7Dl42+RK23jDYDJ/OSdCugqQkipMDmMM
+OpSkIp2HUCOAnYSSkWv/y00CK5YclLS2QCb57sFG7at/6cHqa0bT0NZIiN7IML3f
+gw+Nkg8EqYosdH+VfoMvikOuYHlUhfDC5qdpO+G5EepX2xJo/C87BsGIA2pPmiS7
+sSbB2NaTT+EPYqxq4GLV4wihhPCCT9MHXGkSW12T0Gi0gMM6XPE6FdLMxiLwAzZQ
+GF3zPy7iM3nkVdUsuQ5BYsXEgu96KoK4RGiLaXVwr+16ls9e7UnRNsfSVlWiG7Ll
+Bv2aOM9rM9qQzECZyB4OTE53TrEm8Zz54NHu2B7nP43fvUVkUEgTi7hSK+a7EiHs
+4Jk+6sTlrtQwwZmCJvcqntTx4obctmJoZD21UUYJ2TPFbBVqR1C5NJCGf71KYPqD
+MEsAh00hS4xqRunCJQIEDPGJ25lcrmAVPP5WUm9bNtQ9OgMLqthO61WS2Xm0z6wm
+ha1JMf8aZp+w7mSLt/4tSFZ659KtjfgN2joQsnSyqCS2rUDUc7Ela7DbmWG/wYku
+5bioMKv9eok1WUpD9obhZLEHrwqdh4E05UX9cQ3t7kgR9AXgz/pl0ifJgJkthVIk
+1gLGf7W7MAHaNM6r9nRReMUY/t/zRkYbXtsXRLBwHqkA7k8Udyk=
+=SWcA
+-----END PGP SIGNATURE-----
 
-> that's a lot easier than trying to cater to all
-> the stupid ways people try to set up their build environments.
-
-Installing ncurses via './configure && make install' is not the most
-stupid thing IMO ... Maybe just remove your ncurses-config system wide
-if you don't like it or use it correctly. Could be easier than telling
-all other people on the planet that they have to install ncurses in a way
-you like ...
-
-cu,
-Rudi
+--HeFlAV5LIbMFYYuh--
