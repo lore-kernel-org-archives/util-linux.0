@@ -1,33 +1,60 @@
-Return-Path: elseifthen@gmx.com
-Subject: [v5 PATCH 0/3] Pull Request
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.21]:63397 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751498AbeAYL0M (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 25 Jan 2018 06:26:12 -0500
+Received: from www.gmx.com ([68.34.44.156]) by mail.gmx.com (mrgmx103
+ [212.227.17.174]) with ESMTPSA (Nemesis) id 0MAhTr-1eTu2b1xLn-00Bufn for
+ <util-linux@vger.kernel.org>; Thu, 25 Jan 2018 12:26:10 +0100
+Subject: Re: [PATCH] cal: drop trailing blank line
+To: util-linux@vger.kernel.org
+References: <1464037332-21996-1-git-send-email-vapier@gentoo.org>
+ <20180125042201.GC1718@vapier>
 From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <1d114341-0c88-3d25-977a-0000320d1d98@gmx.com>
-Date: Tue, 16 Jan 2018 16:37:18 -0500
+Message-ID: <52acc078-8e28-5ee4-9084-e14100ae2f35@gmx.com>
+Date: Thu, 25 Jan 2018 06:26:06 -0500
 MIME-Version: 1.0
+In-Reply-To: <20180125042201.GC1718@vapier>
 Content-Type: text/plain; charset=windows-1252
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
-The following changes since commit 7bd0c1ae18b1c9864b55c0362b737383e70f80c3:
 
-  include/debug: improve debug message (2018-01-12 13:46:49 +0100)
+On 01/24/2018 11:22 PM, Mike Frysinger wrote:
+> On 23 May 2016 17:02, Mike Frysinger wrote:
+>> There's no history to be found behind this, and the comment in the
+>> code indicates no one else knows, and it makes me angry :).
+>>
+>> Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+>> ---
+>>  misc-utils/cal.c | 3 ---
+>>  1 file changed, 3 deletions(-)
+>>
+>> diff --git a/misc-utils/cal.c b/misc-utils/cal.c
+>> index 3e20530..479c967 100644
+>> --- a/misc-utils/cal.c
+>> +++ b/misc-utils/cal.c
+>> @@ -767,9 +767,6 @@ static void yearly(const struct cal_control *ctl)
 
-are available in the git repository at:
+Hi Mike,
 
-  git@github.com:jwpi/util-linux.git 180115
+If Karel accepts it, yearly() is removed completely in my last submission:
+  [PATCH 2/4] cal: remove year top header
 
-for you to fetch changes up to a4b55ad0080d1024808a7e27a740c63bbef3464f:
 
-  cal: update man page (2018-01-16 13:51:43 -0500)
-
-----------------------------------------------------------------
-J William Piggott (3):
-      cal: move REFORMATION_YEAR to control struct
-      cal: add option to set Gregorian reform date
-      cal: update man page
-
- misc-utils/cal.1 |  83 +++++++++++++++++++++++++++++----
- misc-utils/cal.c | 137 +++++++++++++++++++++++++++++++++++++++----------------
- 2 files changed, 171 insertions(+), 49 deletions(-)
+>>  		my_putstring("\n\n");
+>>  	}
+>>  	monthly(ctl);
+>> -
+>> -	/* Is empty line at the end year output really needed? */
+>> -	my_putstring("\n");
+>>  }
+>>  
+>>  /*
+>> -- 
+>> 2.8.2
+> 
+> ping ...
+> -mike
+> 
