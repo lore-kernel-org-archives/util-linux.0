@@ -1,52 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.21]:63159 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:56752 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933688AbeAXOll (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 24 Jan 2018 09:41:41 -0500
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Tobias Stc3b6ckmann <tobias@stoeckmann.org>
-Subject: Re: [PATCH 2/7] fsck.cramfs: fix crash when superblock size is too small
-Date: Wed, 24 Jan 2018 15:41:38 +0100
+        id S1751764AbeA3K6j (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 30 Jan 2018 05:58:39 -0500
+Date: Tue, 30 Jan 2018 11:58:35 +0100
+From: Karel Zak <kzak@redhat.com>
+To: J William Piggott <elseifthen@gmx.com>
 Cc: util-linux@vger.kernel.org
-References: <20180123155928.7629-1-sweet_f_a@gmx.de> <20180123155928.7629-3-sweet_f_a@gmx.de> <30fb7d14-74fb-6021-169e-973dd8b3b37c@stoeckmann.org>
-In-Reply-To: <30fb7d14-74fb-6021-169e-973dd8b3b37c@stoeckmann.org>
+Subject: Re: [PATCH 3/4] cal: new top header to display the calendar system
+Message-ID: <20180130105835.hq6rl6mdoaqxmfua@ws.net.home>
+References: <7bdff2d4-ad0d-699e-d451-be087f637074@gmx.com>
+ <6022019c-48a2-770c-c025-683025067976@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201801241541.38366.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <6022019c-48a2-770c-c025-683025067976@gmx.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 23 January 2018, Tobias Stc3b6ckmann wrote:
-> > This hopefully fixes the original problem addressed by the reverted
-> > patch 7cb962c7.
->
-> It does.
->
-> >  	/* What are valid superblock sizes? */
-> > -	if (super.size < sizeof(struct cramfs_super))
-> > +	if (super.size < *start + sizeof(struct cramfs_super))
->
-> And this is a more elegant (and working) solution. I was not sure how
-> much adjustment this if-statement can handle due to the comment.
+On Wed, Jan 24, 2018 at 08:02:10PM -0500, J William Piggott wrote:
+> 
+> Output a top header showing what calendar system is being
+> displayed: Julian, Gregorian, or Mixed.
 
-The comment is a bit stupid. Actually super.size should be a multiple of 
-PAGE_SIZE of the running kernel to be able to mount it on the current 
-system. I've relaxed this requirement to be able to fsck a cramfs from 
-other systems. This is IMO a nice feature because in real life cramfs 
-will be created often on cross-compiler hosts to be deployed to another 
-embedded system. Though maybe we should add a warning like "This image 
-is not mountable on the current system".
+This is overkill and strange thing, at least by default. I have no 
+problem to add a command line option for this feature, but don't
+enable it by default. Please.
 
->
-> Thanks and sorry for the regression,
+    Karel
 
-All fine, you discovered a bug I made. :)
-
-> Tobias
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
