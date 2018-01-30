@@ -1,48 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:40176 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:49350 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932565AbeAKJBa (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 11 Jan 2018 04:01:30 -0500
-Date: Thu, 11 Jan 2018 10:01:20 +0100
+        id S1751408AbeA3KfR (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 30 Jan 2018 05:35:17 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 4B9E45414C
+        for <util-linux@vger.kernel.org>; Tue, 30 Jan 2018 10:35:17 +0000 (UTC)
+Received: from ws.net.home (ovpn-117-78.ams2.redhat.com [10.36.117.78])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id B060470902
+        for <util-linux@vger.kernel.org>; Tue, 30 Jan 2018 10:35:16 +0000 (UTC)
+Date: Tue, 30 Jan 2018 11:35:14 +0100
 From: Karel Zak <kzak@redhat.com>
-To: J William Piggott <elseifthen@gmx.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [v3 PATCH 00/11] Pull Request - changelog
-Message-ID: <20180111090120.k6h5q2juw6gqemlc@ws.net.home>
-References: <4833b897-2192-86dc-f81b-e977d98b07b1@gmx.com>
- <20180108102159.dyelg7kqp5tx3c3i@ws.net.home>
- <6635776f-9787-f05c-704f-e326808daa1d@gmx.com>
+To: util-linux@vger.kernel.org
+Subject: Re: [PATCH] mount(8): drop redundant filesystem-specific sections
+Message-ID: <20180130103514.ldln4nauocjs3n23@ws.net.home>
+References: <20180119184520.13067-1-vapier@gentoo.org>
+ <20180122090923.io62zeuwnv25iw7p@ws.net.home>
+ <20180125042426.GE1718@vapier>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <6635776f-9787-f05c-704f-e326808daa1d@gmx.com>
+In-Reply-To: <20180125042426.GE1718@vapier>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jan 10, 2018 at 09:00:23PM -0500, J William Piggott wrote:
-> 
-> 
-> On 01/08/2018 05:21 AM, Karel Zak wrote:
-> > On Tue, Jan 02, 2018 at 09:53:18AM -0500, J William Piggott wrote:
+On Wed, Jan 24, 2018 at 11:24:26PM -0500, Mike Frysinger wrote:
+> On 22 Jan 2018 10:09, Karel Zak wrote:
+> > On Fri, Jan 19, 2018 at 01:45:20PM -0500, Mike Frysinger wrote:
+> > > Add a new section to the top of the filesystem-specific chapter to point
+> > > people generally to the filesystem-specific man pages.  This way we can
+> > > delete all the redundant subsections that say the same thing.
 > > 
-> > I have no clue how many users care and read our ReleaseNotes, but
-> > important is that they have opportunity to do that and they have
-> > always time to adopt to changes. This is how I promised that this 
-> > project will be maintained. 
+> > Well, the subsections also provides the name of the package where is FS
+> > specific man page :-)
+> > 
+> > > -.SS "Mount options for xfs"
+> > > -See the options section of the
+> > > -.BR xfs (5)
+> > > -man page (the xfsprogs package must be installed).
+> > 
+> > It's probably not so important (and I have no strong opinion about
+> > it), but I can imagine that for end-users it's useful. Maybe we can
+> > add to the man page a small table with FS name, man page and package
+> > name:
+> > 
+> >       xfs   xfs(5)          xfsprogs
+> >       ext4  ext4(5)         e2fsprogs
+> >       cifs  mount.cifs(8)   cifs-utils
+> >       ...
+> > 
+> > or is it overkill?
 > 
-> Your response here puzzled me, because I could not remember you ever
-> making a pre-announcement of this nature before.
+> the only reason i hesitated to try and do that was due to cross-distro
+> package naming idiosyncrasies.  but i guess if we refer to the upstream
 
-2.14  The losetup(8) '-s' option (introduced by util-linux-ng-2.13) is deprecated
-2.21  The udev compatible output (-o udev) from blkid(8) is deprecated.
-2.25  The "swapon --summary" output format is deprecated ...
+Good point.
 
-... and many warnings about commands (mkfs, tailf, mount, last, ...) and
-features (cryptoloop).
+> project using the name they choose, the rest can be an exercise for the
+> user ?
 
-The command line options are our API, we don't do such changes often.
-
-I remember only one exception -- sfdisk, after rewrite some obscure
-DOS-era options have been removed.
+Let's ignore this for now. I think the description at the begin of the
+section is good enough for now. We'll see :-)
 
     Karel
 
