@@ -1,67 +1,115 @@
-Return-Path: elseifthen@gmx.com
-Subject: [PATCH 2/2] cal: do not set months_in_row with -3 option
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: Karel Zak <kzak@redhat.com>
-References: <85ea05cd-c4d0-f7d6-14f4-7deb065089d1@gmx.com>
-Cc: util-linux@vger.kernel.org
-From: J William Piggott <elseifthen@gmx.com>
-Message-ID: <009ab747-9e36-1283-f20d-0c3fea21045d@gmx.com>
-Date: Mon, 22 Jan 2018 15:07:15 -0500
+Subject: Re: [PATCH 1/2] cal: honor num_months when only a year argument
+Date: Tue, 30 Jan 2018 13:05:50 +0100
+Cc: J William Piggott <elseifthen@gmx.com>,
+ util-linux@vger.kernel.org
+References: <85ea05cd-c4d0-f7d6-14f4-7deb065089d1@gmx.com> <201801241524.02617.sweet_f_a@gmx.de> <20180130104449.thsi7jf4sqf3zbn7@ws.net.home>
+In-Reply-To: <20180130104449.thsi7jf4sqf3zbn7@ws.net.home>
 MIME-Version: 1.0
-In-Reply-To: <85ea05cd-c4d0-f7d6-14f4-7deb065089d1@gmx.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201801301305.50560.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
+On Tuesday 30 January 2018, Karel Zak wrote:
+> On Wed, Jan 24, 2018 at 03:24:02PM +0100, Ruediger Meier wrote:
+> > On Monday 22 January 2018, J William Piggott wrote:
+> > > I don't know if this was an oversight or an overzealous
+> > > interpretation of POSIX. Just in case, I'll address the
+> > > POSIX possibility. POSIX description for cal(1) says:
+> > >
+> > >   If only the year operand is given, cal shall produce a
+> > >   calendar for all twelve months in the given calendar year.
+> > >
+> > > It also says that cal(1) has no options, so in that context
+> > > if an option is given then it should be expected to override
+> > > POSIX behavior.
+> >
+> > We still don't need to fight against POSIX.
+> >
+> > "cal -1" behaves like POSIX cal without options.
+> > "cal -3" behaves like POSIX except that it prints 3 months
+> > whereever POSIX would print only 1.
+> >
+> > > Before patched all of these command displayed a full year:
+> > > cal -1 2020
+> > > cal -3 2020
+> > > cal -n6 2020
+> >
+> > Seriously, I find the new behavior quiet useless and unwanted. In
+> > past
+>
+> Well, old behavior is pretty strange too.
 
-Having the -3 option set months_in_row causes ordinal days
-to wrap; it overrides the automatic handling of months_in_row
-that falls back to 2 month columns for ordinal days.
+This is a bug introduced in v2.27-45-gccf3dd50c.
 
-Before:
-cal -3j 2020
-                           2020
+> $ cal  -V
+> cal from util-linux 2.30.2
+>
+> $ cal --three  2012
+>                                2012
+>
+>         July                  August                September
+> Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa
+>                 1  2       1  2  3  4  5  6                1  2  3
+>  3  4  5  6  7  8  9    7  8  9 10 11 12 13    4  5  6  7  8  9 10
+> 10 11 12 13 14 15 16   14 15 16 17 18 19 20   11 12 13 14 15 16 17
+> 17 18 19 20 21 22 23   21 22 23 24 25 26 27   18 19 20 21 22 23 24
+> 24 25 26 27 28 29 30   28 29 30 31            25 26 27 28 29 30
+> 31
+>        October               November               December
+> Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa
+>                    1          1  2  3  4  5                1  2  3
+>  2  3  4  5  6  7  8    6  7  8  9 10 11 12    4  5  6  7  8  9 10
+>  9 10 11 12 13 14 15   13 14 15 16 17 18 19   11 12 13 14 15 16 17
+> 16 17 18 19 20 21 22   20 21 22 23 24 25 26   18 19 20 21 22 23 24
+> 23 24 25 26 27 28 29   27 28 29 30            25 26 27 28 29 30 31
+> 30 31
+>        January               February                 March
+> Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa
+>  1  2  3  4  5  6  7             1  2  3  4                1  2  3
+>  8  9 10 11 12 13 14    5  6  7  8  9 10 11    4  5  6  7  8  9 10
+> 15 16 17 18 19 20 21   12 13 14 15 16 17 18   11 12 13 14 15 16 17
+> 22 23 24 25 26 27 28   19 20 21 22 23 24 25   18 19 20 21 22 23 24
+> 29 30 31               26 27 28 29            25 26 27 28 29 30 31
+>
+>         April                   May                   June
+> Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa   Su Mo Tu We Th Fr Sa
+>  1  2  3  4  5  6  7          1  2  3  4  5                   1  2
+>  8  9 10 11 12 13 14    6  7  8  9 10 11 12    3  4  5  6  7  8  9
+> 15 16 17 18 19 20 21   13 14 15 16 17 18 19   10 11 12 13 14 15 16
+> 22 23 24 25 26 27 28   20 21 22 23 24 25 26   17 18 19 20 21 22 23
+> 29 30                  27 28 29 30 31         24 25 26 27 28 29 30
+>
+>
+> ... I don't understand why July etc.
 
-            July                         August                      September
-Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat
-    182 183 184 185 186 187                   213 214 215   244 245 246 247 248 249 250
-188 189 190 191 192 193 194   216 217 218 219 220 221 222   251 252 253 254 255 256 257
-195 196 197 198 199 200 201   223 224 225 226 227 228 229   258 259 260 261 262 263 264
-202 203 204 205 206 207 208   230 231 232 233 234 235 236   265 266 267 268 269 270 271
-209 210 211 212               237 238 239 240 241 242 243   272 273
+It's because it shows a whole year with "today" in the middle.
 
-Patched:
-cal -3j 2020
-                           2020
+$ cal -3  2012
 
-          December                      January
-Sun Mon Tue Wed Thu Fri Sat   Sun Mon Tue Wed Thu Fri Sat
-335 336 337 338 339 340 341                 1   2   3   4
-342 343 344 345 346 347 348     5   6   7   8   9  10  11
-349 350 351 352 353 354 355    12  13  14  15  16  17  18
-356 357 358 359 360 361 362    19  20  21  22  23  24  25
-363 364 365                    26  27  28  29  30  31
+does the same like
 
-          February
-Sun Mon Tue Wed Thu Fri Sat
-                         32
- 33  34  35  36  37  38  39
- 40  41  42  43  44  45  46
- 47  48  49  50  51  52  53
- 54  55  56  57  58  59  60
+$ cal -n 6 --span 01 2012
 
-Signed-off-by: J William Piggott <elseifthen@gmx.com>
----
- misc-utils/cal.c | 1 -
- 1 file changed, 1 deletion(-)
+That are 3 bugs in one :)
 
-diff --git a/misc-utils/cal.c b/misc-utils/cal.c
-index 8a715d94c..a38ca3024 100644
---- a/misc-utils/cal.c
-+++ b/misc-utils/cal.c
-@@ -367,7 +367,6 @@ int main(int argc, char **argv)
- 		case '3':
- 			ctl.num_months = 3;
- 			ctl.span_months = 1;
--			ctl.months_in_row = 3;
- 			break;
- 		case 's':
- 			ctl.weekstart = SUNDAY;		/* default */
+> > it seemed to work fine to have such alias in ~./profile
+> >
+> >   alias cal="cal -3"
+>
+> Nice.
+>
+> > But now "cal -3 2019" always shows Dec, Jan, Feb. Can't believe
+> > that any user finds this useful. At least it should output of the
+> > "current" months of the given year. But I wouldn't change this at
+> > all. It's just an annoying incompatible change without any benefit.
+>
+> This is good point. I think -1 and -3 should print the current month
+> if the month is no specified.
+>
+>
+>
+>     Karel
