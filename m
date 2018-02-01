@@ -1,48 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.free-electrons.com ([62.4.15.54]:57757 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752245AbeBSKHz (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 19 Feb 2018 05:07:55 -0500
-Date: Mon, 19 Feb 2018 11:07:54 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Igor Plyatov <plyatov@gmail.com>
-Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        rtc-linux@googlegroups.com, util-linux@vger.kernel.org
-Subject: Re: 500 ms delay in time saved into RTC
-Message-ID: <20180219100754.GL14177@piout.net>
-References: <30ae185f-28c9-54f1-2884-4ee7801b130e@gmail.com>
- <34f50661-85f5-eb46-3ff7-45f0c2bb5960@prevas.dk>
- <c91e0079-c31f-715d-bb2e-648af34565d7@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:53482 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751761AbeBALXO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 1 Feb 2018 06:23:14 -0500
+Date: Thu, 1 Feb 2018 12:23:09 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] various: fix redeclared with different type warnings
+ [smatch]
+Message-ID: <20180201112309.wwjvpkmaqjd3el7w@ws.net.home>
+References: <20180124210730.17034-1-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <c91e0079-c31f-715d-bb2e-648af34565d7@gmail.com>
+In-Reply-To: <20180124210730.17034-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 19/02/2018 at 12:16:04 +0300, Igor Plyatov wrote:
-> Dear Rasmus,
+On Wed, Jan 24, 2018 at 09:07:30PM +0000, Sami Kerola wrote:
+> These warnings look like this:
+> lib/exec_shell.c:33:6: error: symbol 'exec_shell' redeclared with different
+> type (originally declared at ./include/exec_shell.h:1) - different modifiers
 > 
-> thank you very much for explanation!
-> 
-> I have set "RTC_SET_DELAY_SECS = 0.0" in hwclock.c and got acceptable
-> result.
-> 
-> It wonder why such critical function does not implemented on kernel level in
-> RTC driver?
-> It is very strange to rely on specific HW in user space SW.
-> 
+> In same go move attributes in front of these functions, this is how they
+> should be. 
 
-Because of the way the API is designed, handling the MC146818A oddity is
-not possible in the driver (i.e. 50% of the time, it will be too late
-to handle it).
+ [citation needed]
 
-You can use busybox hwclock which has the x86 insanity commented out:
-https://git.busybox.net/busybox/tree/util-linux/hwclock.c
+We have only "noreturn" in front of declarations, everything else is
+behind. For header files it would be probably better to use all
+attributes behind. I don't see reason for a change.
 
+I'll cleanup exec_shell.h.
+
+> Related smatch message is: error: attributes should be specified
+> before the declarator in a function definition.
+
+Fix smatch.
+
+    Karel
 
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-http://bootlin.com
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
