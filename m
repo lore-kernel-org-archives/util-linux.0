@@ -1,78 +1,67 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:46898 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:38904 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754955AbeBAUWx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 1 Feb 2018 15:22:53 -0500
-Date: Thu, 1 Feb 2018 21:22:49 +0100
+        id S1751530AbeBAO6N (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 1 Feb 2018 09:58:13 -0500
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 44ED6C05FEF2
+        for <util-linux@vger.kernel.org>; Thu,  1 Feb 2018 14:58:13 +0000 (UTC)
+Received: from ws.net.home (ovpn-117-78.ams2.redhat.com [10.36.117.78])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 959A9620D8
+        for <util-linux@vger.kernel.org>; Thu,  1 Feb 2018 14:58:12 +0000 (UTC)
+Date: Thu, 1 Feb 2018 15:58:09 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: failed exec() exit codes
-Message-ID: <20180201202249.65v5yicgejiewwvu@ws.net.home>
-References: <20180201145809.jjtadzla22wlw7rv@ws.net.home>
- <201802011701.19780.sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: failed exec() exit codes
+Message-ID: <20180201145809.jjtadzla22wlw7rv@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201802011701.19780.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Feb 01, 2018 at 05:01:19PM +0100, Ruediger Meier wrote:
-> On Thursday 01 February 2018, Karel Zak wrote:
-> > Now we use on many places where commands executing another command:
-> >
-> >     execvp(argv[optind], argv + optind);
-> >     err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
-> >
-> > the problem is that EXIT_FAILURE is too generic and it does not
-> > provide any way how to detect failed exec()s.
-> 
-> I think you did a bit too much. I assume that these exec codes are only 
-> useful for the programs which get a "command" from the user's command 
-> line. So that the user can expect the original exit code of his 
-> wanted "command" if and only if it's not 126 or 127.
-> 
-> So for taskset(1) these exit codes are good but maybe not needed for 
-> swapon(1) or eject(1).
 
-I know, but it seems no problem and it's good way to consolidate the
-error message and use the came code pattern.
 
-> > I have added a new macro errexec() to replace err(EXIT_FAILURE, ...).
-> >
-> > The new macro is compatible with coreutils way:
-> >
-> >     #define EX_EXEC_FAILED          126     /* Program located, but
-> > not usable. */ #define EX_EXEC_ENOENT          127     /* Could not
-> > find program to exec.  */
-> 
-> 
-> coreutils has even 2 more in "src/system.h" and each of these kind of
-> exec programs are *only* using these ones.
+Now we use on many places where commands executing another command:
 
-I have copied from this file ;-)
+    execvp(argv[optind], argv + optind);
+    err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
 
-> 
-> /* Exit statuses for programs like 'env' that exec other programs.  */
-> enum
-> {
->   EXIT_TIMEDOUT = 124, /* Time expired before child completed.  */
->   EXIT_CANCELED = 125, /* Internal error prior to exec attempt.  */
->   EXIT_CANNOT_INVOKE = 126, /* Program located, but not usable.  */
->   EXIT_ENOENT = 127 /* Could not find program to exec.  */
-> };
-> 
-> like
-> $ chroot   --helpdassdf; echo $?
-> chroot: unrecognized option '--helpdassdf'
-> Try 'chroot --help' for more information.
-> 125
-> 
-> Other projects like bash only support 126 and 127, like we do now
+the problem is that EXIT_FAILURE is too generic and it does not
+provide any way how to detect failed exec()s.
 
-yes, I guess it's good enough.
+I have added a new macro errexec() to replace err(EXIT_FAILURE, ...).
+
+The new macro is compatible with coreutils way:
+
+    #define EX_EXEC_FAILED          126     /* Program located, but not usable. */
+    #define EX_EXEC_ENOENT          127     /* Could not find program to exec.  */
+
+    #define errexec(name)   err(errno == ENOENT ? EX_EXEC_ENOENT : EX_EXEC_FAILED, \ 
+                        _("failed to execute %s"), name)
+
+Example:
+
+        $ taskset -c 1 ./foo; echo $?
+        taskset: failed to execute ./foo: No such file or directory
+        127
+
+        $ touch foo
+
+        $ taskset -c 1 ./foo; echo $?
+        taskset: failed to execute ./foo: Permission denied
+        126
+
+
+We had discussion about it 2 years ago, but it has never been
+implemented and merged. Fixed now ;-)
+
+Objections? 
 
     Karel
+
+
 -- 
  Karel Zak  <kzak@redhat.com>
  http://karelzak.blogspot.com
