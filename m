@@ -1,80 +1,78 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mta04.eastlink.ca ([24.224.136.10]:45528 "EHLO
-        mta04.eastlink.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1030613AbeBPPzH (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 16 Feb 2018 10:55:07 -0500
-Received: from emgw02.eastlink.ca ([71.7.199.174])
- by mta04.eastlink.ca (Oracle Communications Messaging Server 7.0.5.37.0 64bit
- (built Jan 25 2016)) with ESMTP id <0P4800BL8WU8ZV41@mta04.eastlink.ca> for
- util-linux@vger.kernel.org; Fri, 16 Feb 2018 11:55:06 -0400 (AST)
-Date: Fri, 16 Feb 2018 11:55:05 -0400
-To: Theodore Ts'o <tytso@mit.edu>
-Cc: util-linux@vger.kernel.org, Hornseth_Brenan@bah.com
-Subject: Re: [PATCH] fsck: use xasprintf to avoid buffer overruns with an
-        insane fs type
-Message-id: <20180216155505.GL9479@cordes.ca>
-References: <20180215200508.1466-1-tytso@mit.edu>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-In-reply-to: <20180215200508.1466-1-tytso@mit.edu>
-From: Peter Cordes <peter@cordes.ca>
+Received: from mx1.redhat.com ([209.132.183.28]:46898 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754955AbeBAUWx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 1 Feb 2018 15:22:53 -0500
+Date: Thu, 1 Feb 2018 21:22:49 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: failed exec() exit codes
+Message-ID: <20180201202249.65v5yicgejiewwvu@ws.net.home>
+References: <20180201145809.jjtadzla22wlw7rv@ws.net.home>
+ <201802011701.19780.sweet_f_a@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201802011701.19780.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Feb 15, 2018 at 03:05:08PM -0500, Theodore Ts'o wrote:
-> This prevents a crash when running the command:
+On Thu, Feb 01, 2018 at 05:01:19PM +0100, Ruediger Meier wrote:
+> On Thursday 01 February 2018, Karel Zak wrote:
+> > Now we use on many places where commands executing another command:
+> >
+> >     execvp(argv[optind], argv + optind);
+> >     err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
+> >
+> > the problem is that EXIT_FAILURE is too generic and it does not
+> > provide any way how to detect failed exec()s.
 > 
-> fsck -t AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA /dev/sda
+> I think you did a bit too much. I assume that these exec codes are only 
+> useful for the programs which get a "command" from the user's command 
+> line. So that the user can expect the original exit code of his 
+> wanted "command" if and only if it's not 126 or 127.
 > 
-> Reported-by: Hornseth_Brenan@bah.com
-> Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-> ---
->  disk-utils/fsck.c | 15 +++++++++------
->  1 file changed, 9 insertions(+), 6 deletions(-)
+> So for taskset(1) these exit codes are good but maybe not needed for 
+> swapon(1) or eject(1).
+
+I know, but it seems no problem and it's good way to consolidate the
+error message and use the came code pattern.
+
+> > I have added a new macro errexec() to replace err(EXIT_FAILURE, ...).
+> >
+> > The new macro is compatible with coreutils way:
+> >
+> >     #define EX_EXEC_FAILED          126     /* Program located, but
+> > not usable. */ #define EX_EXEC_ENOENT          127     /* Could not
+> > find program to exec.  */
 > 
-> diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
-> index 58fd8ac59..8a07bc272 100644
-> --- a/disk-utils/fsck.c
-> +++ b/disk-utils/fsck.c
-> @@ -544,20 +544,20 @@ static char *find_fsck(const char *type)
->  {
->  	char *s;
->  	const char *tpl;
-> -	static char prog[256];
-> +	static char *prog = NULL;
+> 
+> coreutils has even 2 more in "src/system.h" and each of these kind of
+> exec programs are *only* using these ones.
 
- You're allocating / freeing every time it's used, so it shouldn't be
-static anymore.
+I have copied from this file ;-)
 
-It might be easier to just use snprintf to truncate long strings,
-instead of introducing dynamic allocation which requires explicit
-freeing.  OTOH xasprintf makes it re-entrant / thread-safe, at the
-cost of forcing the caller to care about memory management.  (And at
-the cost of efficiency: prog is allocated / freed inside the loop.)
+> 
+> /* Exit statuses for programs like 'env' that exec other programs.  */
+> enum
+> {
+>   EXIT_TIMEDOUT = 124, /* Time expired before child completed.  */
+>   EXIT_CANCELED = 125, /* Internal error prior to exec attempt.  */
+>   EXIT_CANNOT_INVOKE = 126, /* Program located, but not usable.  */
+>   EXIT_ENOENT = 127 /* Could not find program to exec.  */
+> };
+> 
+> like
+> $ chroot   --helpdassdf; echo $?
+> chroot: unrecognized option '--helpdassdf'
+> Try 'chroot --help' for more information.
+> 125
+> 
+> Other projects like bash only support 126 and 127, like we do now
 
->  	char *p = xstrdup(fsck_path);
->  
->  	/* Are we looking for a program or just a type? */
->  	tpl = (strncmp(type, "fsck.", 5) ? "%s/fsck.%s" : "%s/%s");
->  
->  	for(s = strtok(p, ":"); s; s = strtok(NULL, ":")) {
-> -		sprintf(prog, tpl, s, type);
-> +		xasprintf(&prog, tpl, s, type);
->  		if (access(prog, X_OK) == 0)
->  			break;
-> +		free(prog); prog = NULL;
->  	}
->  	free(p);
-> -
-> -	return(s ? prog : NULL);
-> +	return(prog);
->  }
+yes, I guess it's good enough.
 
-
+    Karel
 -- 
-#define X(x,y) x##y
-Peter Cordes ;  e-mail: X(peter@cor , des.ca)
-
-"The gods confound the man who first found out how to distinguish the hours!
- Confound him, too, who in this place set up a sundial, to cut and hack
- my day so wretchedly into small pieces!" -- Plautus, 200 BC
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
