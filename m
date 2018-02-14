@@ -1,105 +1,81 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.20]:54189 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751715AbeBAVcB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 1 Feb 2018 16:32:01 -0500
-Subject: Re: failed exec() exit codes
+Return-Path: linux-kernel-owner@vger.kernel.org
+Date: Wed, 14 Feb 2018 22:52:33 +0100
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-References: <20180201145809.jjtadzla22wlw7rv@ws.net.home>
- <201802011701.19780.sweet_f_a@gmx.de>
- <20180201202249.65v5yicgejiewwvu@ws.net.home>
-From: =?UTF-8?Q?R=c3=bcdiger_Meier?= <sweet_f_a@gmx.de>
-Message-ID: <3f789a8a-c1c3-a175-3c88-0e6d43758387@gmx.de>
-Date: Thu, 1 Feb 2018 22:31:55 +0100
+Cc: Andreas Bombe <aeb@debian.org>, util-linux@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
+        Curtis Gedak <gedakc@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Pavel Machek <pavel@ucw.cz>
+Subject: Re: Linux & FAT32 label
+Message-ID: <20180214215233.tbcoieywczdwvy37@pali>
+References: <20171004153332.GA6696@pali>
+ <20171011212435.znmtdnsxcd5ectub@pali>
+ <20171105130608.5oww3b2fnnrwe7ok@pali>
+ <20171109212131.uxraxzwpvrlyfyys@pali>
+ <20171119124440.ffxx64zjmwedmtdp@pali>
+ <20171120111256.zqvmpzdcf6ncyi5m@ws.net.home>
+ <20171126191925.zowfpduhyic5w4n5@pali>
+ <20171127121301.b6obxoqr4azm3zvs@ws.net.home>
 MIME-Version: 1.0
-In-Reply-To: <20180201202249.65v5yicgejiewwvu@ws.net.home>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="al5y6zy7cw5rjetk"
+In-Reply-To: <20171127121301.b6obxoqr4azm3zvs@ws.net.home>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
 
+--al5y6zy7cw5rjetk
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 02/01/18 21:22, Karel Zak wrote:
-> On Thu, Feb 01, 2018 at 05:01:19PM +0100, Ruediger Meier wrote:
->> On Thursday 01 February 2018, Karel Zak wrote:
->>> Now we use on many places where commands executing another command:
->>>
->>>      execvp(argv[optind], argv + optind);
->>>      err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
->>>
->>> the problem is that EXIT_FAILURE is too generic and it does not
->>> provide any way how to detect failed exec()s.
->>
->> I think you did a bit too much. I assume that these exec codes are only
->> useful for the programs which get a "command" from the user's command
->> line. So that the user can expect the original exit code of his
->> wanted "command" if and only if it's not 126 or 127.
->>
->> So for taskset(1) these exit codes are good but maybe not needed for
->> swapon(1) or eject(1).
-> 
-> I know, but it seems no problem and it's good way to consolidate the
-> error message and use the came code pattern.
+On Monday 27 November 2017 13:13:01 Karel Zak wrote:
+> On Sun, Nov 26, 2017 at 08:19:25PM +0100, Pali Roh=C3=A1r wrote:
+> > On Monday 20 November 2017 12:12:56 Karel Zak wrote:
+> > > Go ahead and send patch :-) (also with LABEL_FATBOOT=3D)
+> >=20
+> > Ok, I prepared patches for util-linux including LABEL_FATBOOT:
+> > https://github.com/karelzak/util-linux/compare/master...pali:master
+>=20
+> Seems good. I'll wait for official pull request. Thanks!
+>=20
+> > I have not created official pull request on github yet as Andreas have
+> > not decided yet about dosfstools/fatlabel...
+>=20
+> OK.
 
-But isn't it just an implementation detail that we exec umount(1)? If we
-would replace that later by a library call, should we change the exit code
-again?
+Looks like that Andreas is not responding to mailing list, nor to
+private emails, nor on github for 3-4 months ... I hope he is OK.
 
->>> I have added a new macro errexec() to replace err(EXIT_FAILURE, ...).
->>>
->>> The new macro is compatible with coreutils way:
->>>
->>>      #define EX_EXEC_FAILED          126     /* Program located, but
->>> not usable. */ #define EX_EXEC_ENOENT          127     /* Could not
->>> find program to exec.  */
->>
->>
->> coreutils has even 2 more in "src/system.h" and each of these kind of
->> exec programs are *only* using these ones.
-> 
-> I have copied from this file ;-)
-> 
->>
->> /* Exit statuses for programs like 'env' that exec other programs.  */
->> enum
->> {
->>    EXIT_TIMEDOUT = 124, /* Time expired before child completed.  */
->>    EXIT_CANCELED = 125, /* Internal error prior to exec attempt.  */
->>    EXIT_CANNOT_INVOKE = 126, /* Program located, but not usable.  */
->>    EXIT_ENOENT = 127 /* Could not find program to exec.  */
->> };
->>
->> like
->> $ chroot   --helpdassdf; echo $?
->> chroot: unrecognized option '--helpdassdf'
->> Try 'chroot --help' for more information.
->> 125
->>
->> Other projects like bash only support 126 and 127, like we do now
-> 
-> yes, I guess it's good enough.
+But I do not know what happened with dosfstools project now in this
+case, if it is going to be fixed or not.
 
-Probably you are right, but rock solid error handling would only be possible
-if we do it like coreutils' timeout for example. See "bad case 2" below. If
-"timeout inval" would return 1 then one might think that the pattern was not
-in the input. ;)
+I have prepared more patches for dosfstools project, but do not know if
+I should open new pull requests or wait (how long?) or do something
+else.
 
-# normal case
-$ echo "xyz" | timeout 10 grep -q "bla" ; echo $?
-1
+If it helps for somebody, I can create fork of dosfstools project and
+include there all changes which I have prepared.
 
-# bad case 1
-$ echo "bla" | timeout 10 xxxgrep -q "bla" ; echo $?
-timeout: failed to run command ‘xxxgrep’: No such file or directory
-127
+Any opinion? What other people think about this situation right now?
 
-# bad case 2
-$ echo "bla" | timeout inval  xxxgrep -q "bla" ; echo $?
-timeout: invalid time interval ‘inval’
-Try 'timeout --help' for more information.
-125
+Karel, do you want to create official pull request for above util-linux
+changes, even without fixes in dosfstools project?
 
-cu,
-Rudi
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
+--al5y6zy7cw5rjetk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWoSvngAKCRCL8Mk9A+RD
+UhwAAKC9+ps9lSDMUEnq/dR7ZfeNUIE83ACgvNwrECrMRrgLB0RYH7RYkSiR0GM=
+=Kl/L
+-----END PGP SIGNATURE-----
+
+--al5y6zy7cw5rjetk--
