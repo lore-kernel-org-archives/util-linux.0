@@ -1,35 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:34954 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751783AbeBZWuK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 26 Feb 2018 17:50:10 -0500
-Date: Mon, 26 Feb 2018 23:50:06 +0100
-From: Karel Zak <kzak@redhat.com>
-To: "John Groves (jgroves)" <jgroves@micron.com>
-Cc: Ruediger Meier <ruediger.meier@ga-group.nl>,
-        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: [EXT] Re: ready for v2.32 ?
-Message-ID: <20180226225006.rslgrlgsmphsyhqh@ws.net.home>
-References: <201802262216.01925.ruediger.meier@ga-group.nl>
- <20180226222021.tvjznf3w7qzsyafg@ws.net.home>
- <1519685049171.25700@micron.com>
+Received: from imap.thunk.org ([74.207.234.97]:51852 "EHLO imap.thunk.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1161066AbeBPRKp (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 16 Feb 2018 12:10:45 -0500
+Date: Fri, 16 Feb 2018 12:10:40 -0500
+From: Theodore Ts'o <tytso@mit.edu>
+To: Peter Cordes <peter@cordes.ca>
+Cc: util-linux@vger.kernel.org, Hornseth_Brenan@bah.com
+Subject: Re: [PATCH] fsck: use xasprintf to avoid buffer overruns with an
+ insane fs type
+Message-ID: <20180216171040.GD12890@thunk.org>
+References: <20180215200508.1466-1-tytso@mit.edu>
+ <20180216155505.GL9479@cordes.ca>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1519685049171.25700@micron.com>
+In-Reply-To: <20180216155505.GL9479@cordes.ca>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Feb 26, 2018 at 10:44:12PM +0000, John Groves (jgroves) wrote:
-> Doh! Mpool stores its metadata as little endian, and rigorously uses
-> le32_to_cpu and the like to move on-media structures to & from
-> memory.
+On Fri, Feb 16, 2018 at 11:55:05AM -0400, Peter Cordes wrote:
+> > -	static char prog[256];
+> > +	static char *prog = NULL;
 > 
-> le32_to_cpu(osd->osb_cksum1) would be the correct way to handle it.
+>  You're allocating / freeing every time it's used, so it shouldn't be
+> static anymore.
 
-Fixed. Thanks for quick reply!
+Good point.  Karels has already accepted the patch, but if he hasn't
+pushed it out, maybe he can ammend it.
 
-    Karel
+> It might be easier to just use snprintf to truncate long strings,
+> instead of introducing dynamic allocation which requires explicit
+> freeing.  OTOH xasprintf makes it re-entrant / thread-safe, at the
+> cost of forcing the caller to care about memory management.  (And at
+> the cost of efficiency: prog is allocated / freed inside the loop.)
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+That's certainly an alternative, and in fact that's how I fixed it in
+the old version of fsck still shipping in e2fsprogs (there are a few
+places that still use it).
+
+My main reason for using it there is that in e2fsprogs we don't assume
+the use of xasprintf and family (it's a GNU extension, and e2fsprogs
+tries to support legacy platforms such as MacOS and Windows :-).
+
+However, given that fsck does use xasprintf already (and so there is
+no portability advantag) and it's a lot easier to prove (or at least
+satisfy to oneself) that an attacker who is trying to play tricks
+can't do something unexpected when using xasprintf versus snprintf, I
+went with asprintf in my patch to util-linux.
+
+Cheers,
+
+					- Ted
