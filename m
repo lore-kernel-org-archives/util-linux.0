@@ -1,81 +1,107 @@
-Return-Path: linux-kernel-owner@vger.kernel.org
-Date: Wed, 14 Feb 2018 22:52:33 +0100
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: Andreas Bombe <aeb@debian.org>, util-linux@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
-        Curtis Gedak <gedakc@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>
-Subject: Re: Linux & FAT32 label
-Message-ID: <20180214215233.tbcoieywczdwvy37@pali>
-References: <20171004153332.GA6696@pali>
- <20171011212435.znmtdnsxcd5ectub@pali>
- <20171105130608.5oww3b2fnnrwe7ok@pali>
- <20171109212131.uxraxzwpvrlyfyys@pali>
- <20171119124440.ffxx64zjmwedmtdp@pali>
- <20171120111256.zqvmpzdcf6ncyi5m@ws.net.home>
- <20171126191925.zowfpduhyic5w4n5@pali>
- <20171127121301.b6obxoqr4azm3zvs@ws.net.home>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="al5y6zy7cw5rjetk"
-In-Reply-To: <20171127121301.b6obxoqr4azm3zvs@ws.net.home>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:42244 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750795AbeBTHTL (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 20 Feb 2018 02:19:11 -0500
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 55FC6402290A
+        for <util-linux@vger.kernel.org>; Tue, 20 Feb 2018 07:19:11 +0000 (UTC)
+Date: Tue, 20 Feb 2018 16:19:09 +0900 (JST)
+Message-Id: <20180220.161909.2152980892049665100.yamato@redhat.com>
+To: util-linux@vger.kernel.org
+Cc: yamato@redhat.com
+Subject: RFC: watchdog
+From: Masatake YAMATO <yamato@redhat.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Hi,
 
---al5y6zy7cw5rjetk
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+As far as I know, there is no enough popular tool to inspect the
+current status of /dev/watchdog. watchdog device provides ioctl
+commands to return timeout value and timeleft value. The tool
+I assume is reports the values for given device.
 
-On Monday 27 November 2017 13:13:01 Karel Zak wrote:
-> On Sun, Nov 26, 2017 at 08:19:25PM +0100, Pali Roh=C3=A1r wrote:
-> > On Monday 20 November 2017 12:12:56 Karel Zak wrote:
-> > > Go ahead and send patch :-) (also with LABEL_FATBOOT=3D)
-> >=20
-> > Ok, I prepared patches for util-linux including LABEL_FATBOOT:
-> > https://github.com/karelzak/util-linux/compare/master...pali:master
->=20
-> Seems good. I'll wait for official pull request. Thanks!
->=20
-> > I have not created official pull request on github yet as Andreas have
-> > not decided yet about dosfstools/fatlabel...
->=20
-> OK.
+/sys/class/watchdog is provided. However, whether it
+is available or not is up to kernel build-configuration.
 
-Looks like that Andreas is not responding to mailing list, nor to
-private emails, nor on github for 3-4 months ... I hope he is OK.
+How do you think about adding such tool to util-linux?
+Do you think such command should be in a separate project?
+If the answer is yes, what command name do you prefer to for
+the command? ("watchdog" is not good name).
 
-But I do not know what happened with dosfstools project now in this
-case, if it is going to be fixed or not.
+If the answer is no, could you tell me a project or person
+I should talk to about this command?
 
-I have prepared more patches for dosfstools project, but do not know if
-I should open new pull requests or wait (how long?) or do something
-else.
+I attached a prototype.
 
-If it helps for somebody, I can create fork of dosfstools project and
-include there all changes which I have prepared.
+Masatake YAMATO
 
-Any opinion? What other people think about this situation right now?
+/* catdog.c
+ * No copyright is claimed.  This code is in the public domain; do with
+ * it what you wish. */
 
-Karel, do you want to create official pull request for above util-linux
-changes, even without fixes in dosfstools project?
+#include <stdio.h>
+#include <stdlib.h>
+#include <error.h>
+#include <errno.h>
+#include <sys/ioctl.h>
+#include <linux/watchdog.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <string.h>
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+static void
+usage(char *program, int status, FILE *fp)
+{
+	fprintf(fp, "Usage: ");
+	fprintf(fp, "	%s DEVICE", program);
+	exit(status);
+}
 
---al5y6zy7cw5rjetk
-Content-Type: application/pgp-signature; name="signature.asc"
+int
+main(int argc, char **argv)
+{
+	if (argc < 2)
+		usage(argv[0], 1, stderr);
+	int fd;
 
------BEGIN PGP SIGNATURE-----
+	if (strcmp(argv[1], "-h") == 0
+	    || strcmp(argv[1], "-?") == 0
+	    || strcmp(argv[1], "--help") == 0)
+		usage(argv[0], 0, stdout);
 
-iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWoSvngAKCRCL8Mk9A+RD
-UhwAAKC9+ps9lSDMUEnq/dR7ZfeNUIE83ACgvNwrECrMRrgLB0RYH7RYkSiR0GM=
-=Kl/L
------END PGP SIGNATURE-----
+	/* TODO: Check the major number */
+	fd = open(argv[1], O_RDONLY);
+	if (fd < 0)
+		error(1, errno, "cannot open the watchdog device: %s", argv[1]);
 
---al5y6zy7cw5rjetk--
+	int p = 0;
+	unsigned int q;
+	if (ioctl(fd, WDIOC_GETSTATUS, &q) < 0)
+		perror ("Error in GETSTATUS");
+	else
+		printf("BOOTSTATUS: %u\n", q);
+
+	if (ioctl(fd, WDIOC_GETBOOTSTATUS, &p) < 0)
+		perror ("Error in GETBOOTSTATUS");
+	else
+		printf("BOOTSTATUS: %d\n", p);	
+
+	if (ioctl(fd, WDIOC_GETTIMEOUT, &p) < 0)
+		perror ("Error in GETTIMEOUT");
+	else
+		printf("TIMEOUT: %d\n", p);
+
+	if (ioctl(fd, WDIOC_GETTIMELEFT, &p) < 0)
+		perror ("Error in GETTIMELEFT");
+	else
+		printf("TIMELEFT: %d\n", p);
+
+	return 0;
+}
