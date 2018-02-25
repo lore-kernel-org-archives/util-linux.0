@@ -1,41 +1,74 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from hotei.ga-group.nl ([138.201.147.219]:38804 "EHLO
-        hotei.ga-group.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750826AbeBZVQF (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 26 Feb 2018 16:16:05 -0500
-Received: from mail.ga-group.nl (p5780706c.dip0.t-ipconnect.de [87.128.112.108])
-        by hotei.ga-group.nl (Postfix) with ESMTPS id 758F52B6E
-        for <util-linux@vger.kernel.org>; Mon, 26 Feb 2018 22:16:03 +0100 (CET)
-To: util-linux@vger.kernel.org
-Subject: Re: ready for v2.32 ?
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
-Date: Mon, 26 Feb 2018 22:16:01 +0100
+Return-Path: linux-kernel-owner@vger.kernel.org
+Date: Sun, 25 Feb 2018 01:34:58 +0100
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Karel Zak <kzak@redhat.com>
+Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Igor Plyatov <plyatov@gmail.com>, linux-kernel@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        rtc-linux@googlegroups.com, util-linux@vger.kernel.org,
+        J William Piggott <elseifthen@gmx.com>
+Subject: Re: 500 ms delay in time saved into RTC
+Message-ID: <20180225003458.GB19904@piout.net>
+References: <30ae185f-28c9-54f1-2884-4ee7801b130e@gmail.com>
+ <34f50661-85f5-eb46-3ff7-45f0c2bb5960@prevas.dk>
+ <20180219110328.n7yjorinjm3xxckr@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201802262216.01925.ruediger.meier@ga-group.nl>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20180219110328.n7yjorinjm3xxckr@ws.net.home>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-There is one test failure on big endian (ppc/ppc64)
+Hi,
 
-[...]
-  blkid: superblocks probing: [37] mpool               ... FAILED 
-(blkid/low-probe-mpool)
-[...]
----------------------------------------------------------------------
-  1 tests of 199 FAILED
----------------------------------------------------------------------
+On 19/02/2018 at 12:03:28 +0100, Karel Zak wrote:
+> On Mon, Feb 19, 2018 at 08:11:05AM +0100, Rasmus Villemoes wrote:
+> > It's because util-linux's hwclock still assumes the world is x86. See
+> > this comment in the util-linux source code:
+> > 
+> >         /*
+> >          * The Hardware Clock can only be set to any integer time plus one
+> >          * half second.  The integer time is required because there is no
+> >          * interface to set or get a fractional second.  The additional half
+> >          * second is because the Hardware Clock updates to the following
+> >          * second precisely 500 ms (not 1 second!) after you release the
+> >          * divider reset (after setting the new time) - see description of
+> >          * DV2, DV1, DV0 in Register A in the MC146818A data sheet (and note
+> > 
+> > So if hwclock is asked to --systohc at time 01:02:03.x, it waits until
+> > the time is 01:02:03.5 to set the rtc to 01:02:03, or if that has
+> > already passed, waits until  01:02:04.5 and sets it to 01:02:04.
+> > 
+> > On our ARM BSP we patch util-linux to have the "implicit fractional
+> > part" configurable, and trying to upstream something like that has been
+> > on my todo-list for quite a while. See
+> > 
+> > https://raw.githubusercontent.com/oe-lite/base/master/recipes/util-linux/util-linux-2.29/hwclock-tweak-delay.patch
+> > 
+> > for the patch we currently use (on top of that, we change the 0.5
+> > initializer to 0.0 to avoid having to always pass the --delay argument).
+> > Incidentally, it seems we're on the same util-linux version, so you
+> > should be able to try out that patch and see if it works for you.
+> 
+> Would be possible to somehow detect what is the right default setting for
+> --delay? I mean for example detect architecture / clock HW, etc.
+> 
+> I have no problem with --delay, but it's tuning for advanced users and
+> HW specific stuff. It would be nice to have something more portable.
+> 
 
---- /home/abuild/rpmbuild/BUILD/util-linux-2.32-rc1-31-79bd1/tests/expected/blkid/low-probe-mpool       
-2018-02-26 20:14:24.265703542 +0000
-+++ /home/abuild/rpmbuild/BUILD/util-linux-2.32-rc1-31-79bd1/tests/output/blkid/low-probe-mpool 
-2018-02-26 
-20:38:14.300022547 +0000
-@@ -1,6 +0,0 @@
--ID_FS_LABEL=mp1
--ID_FS_LABEL_ENC=mp1
--ID_FS_TYPE=mpool
--ID_FS_USAGE=filesystem
--ID_FS_UUID=2dfca1ea-651e-4694-976f-14654b0a8a83
--ID_FS_UUID_ENC=2dfca1ea-651e-4694-976f-14654b0a8a83
+This is what I'm using to synchronize the RTC to the system time:
+
+https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/rtc-tools.git/tree/rtc-sync.c
+
+With sane RTCs, it manages to do so with a good precision, 10µs on a
+pcf85363 connected to a sama5d4 xplained, 96µs on my PC.
+
+It can still be improved and doesn't handle RTCs in localtime.
+
+I'm planning to integrate that in hwclock at some point i(hopefully
+soon) but I didn't have the time to dive too much in the code yet.
+
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
