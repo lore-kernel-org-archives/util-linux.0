@@ -1,38 +1,60 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: ready for v2.32 ?
-Date: Mon, 26 Feb 2018 21:02:23 +0100
-Cc: util-linux@vger.kernel.org
-References: <20180207094731.cvuyp3txmcom3u3u@ws.net.home>
-In-Reply-To: <20180207094731.cvuyp3txmcom3u3u@ws.net.home>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.kundenserver.de ([217.72.192.73]:53247 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751728AbeBYT2C (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 25 Feb 2018 14:28:02 -0500
+Received: from localhost ([93.225.50.2]) by mrelayeu.kundenserver.de (mreue102
+ [212.227.15.145]) with ESMTPSA (Nemesis) id 0M8zUb-1f1sTd1ZJF-00CVRq for
+ <util-linux@vger.kernel.org>; Sun, 25 Feb 2018 20:28:00 +0100
+Date: Sun, 25 Feb 2018 20:27:59 +0100
+From: Tobias Stoeckmann <tobias@stoeckmann.org>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 2/2] fincore: Handle large files on 32 bit without LFS
+Message-ID: <20180225192758.GB5871@localhost>
 MIME-Version: 1.0
-Message-Id: <201802262102.23656.sweet_f_a@gmx.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 07 February 2018, Karel Zak wrote:
+If util-linux is installed on a system without large file support,
+an out of memory issue can occur while processing a file which is
+2 GB in size:
 
->  The regression tests improvements (for example faketime for cal(1))
->  we can merge during -rc1.
+$ ./configure --disable-largefile && make
 
-I think the faketime tests can wait. I will do this later one day when I 
-feel really boring. Could be that we have to check carefully for the 
-case that faketime(1) is available (and works) but ul is built against 
-an exotic libc which does not work with the installed faketime.
+$ dd if=/dev/zero of=2gb-file seek=2147483646 count=1 bs=1
+$ fincore 2gb-file
+(endless loop)
+fincore: failed to do mmap: 2gb-file: Cannot allocate memory
 
-BTW as we have talked about some months ago I still check the build 
-for -m32 and different compilers with -Werror on travis from time to 
-time. Still not automated because the repo dependencies are broken 
-sometimes. But if it runs it runs :)
+Even though iterating with "len" seems counter-intuitive, it fixes
+this issue. The variable len is only in the last iteration not a
+multiplication of pagesize -- which is the requirement for mmap.
 
-See here on top of v2.32-rc1-31-g79bd13842
+Signed-off-by: Tobias Stoeckmann <tobias@stoeckmann.org>
+---
+ misc-utils/fincore.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-# clang 3.9...5, gcc 4.8..7, xcode 6.4...9
-https://travis-ci.org/rudimeier/util-linux/builds/346431564
-# -m32 with clang and gcc
-https://travis-ci.org/rudimeier/util-linux/builds/346431659
+diff --git a/misc-utils/fincore.c b/misc-utils/fincore.c
+index ab11594cc..f9534e85b 100644
+--- a/misc-utils/fincore.c
++++ b/misc-utils/fincore.c
+@@ -194,12 +194,11 @@ static int fincore_fd (struct fincore_control *ctl,
+ 		       off_t *count_incore)
+ {
+ 	size_t window_size = N_PAGES_IN_WINDOW * ctl->pagesize;
+-	off_t file_offset;
++	off_t file_offset, len;
+ 	int rc = 0;
+ 	int warned_once = 0;
+ 
+-	for (file_offset = 0; file_offset < file_size; file_offset += window_size) {
+-		off_t len;
++	for (file_offset = 0; file_offset < file_size; file_offset += len) {
+ 		void  *window = NULL;
+ 
+ 		len = file_size - file_offset;
+-- 
+2.16.2
 
-cu,
-Rudi
