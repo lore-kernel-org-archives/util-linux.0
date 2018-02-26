@@ -1,40 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:54168 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752469AbeB1NIc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 28 Feb 2018 08:08:32 -0500
-Date: Wed, 28 Feb 2018 14:08:28 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Steve Kenton <skenton@ou.edu>, Jan Kara <jack@suse.cz>
-Cc: util-linux@vger.kernel.org,
-        Michael Kerrisk <mtk.manpages@gmail.com>
-Subject: Re: [PATCH 1/1] Update mount options for UDF
-Message-ID: <20180228130828.j3wbez6pzzzeknuc@ws.net.home>
-References: <20180227184407.5945-1-skenton@ou.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180227184407.5945-1-skenton@ou.edu>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:38491 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752353AbeBZMPj (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 26 Feb 2018 07:15:39 -0500
+Received: by mail-pf0-f193.google.com with SMTP id d26so6416444pfn.5
+        for <util-linux@vger.kernel.org>; Mon, 26 Feb 2018 04:15:39 -0800 (PST)
+From: Masanari Iida <standby24x7@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: Masanari Iida <standby24x7@gmail.com>
+Subject: [PATCH] blkzone: Fix a typo in blkzone.8
+Date: Mon, 26 Feb 2018 21:15:33 +0900
+Message-Id: <20180226121533.11379-1-standby24x7@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Feb 27, 2018 at 12:44:07PM -0600, Steve Kenton wrote:
-> Signed-off-by: Steve Kenton <skenton@ou.edu>
-> Acked-by: Jan Kara <jack@suse.cz>
-> ---
->  sys-utils/mount.8 | 89 +++++++++++++++++++++++++++++++++++++++++--------------
->  1 file changed, 67 insertions(+), 22 deletions(-)
+This patch fixes a spelling typo in blkzone.8
 
-Applied, thanks.
+Signed-off-by: Masanari Iida <standby24x7@gmail.com>
+---
+ sys-utils/blkzone.8 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Jan, what about to create udf(5) man page? We already have fs-specific
-man pages (e.g. ext4, tmpfs, nfs, btrfs, ...). It's usually maintained
-within fs-specific tools (e.g. ext4 -> e2fsprogs) or together with
-standard man-pages (CC: to Michael).
-
-    Karel
-
-
-
+diff --git a/sys-utils/blkzone.8 b/sys-utils/blkzone.8
+index 460950850936..5d99f9461ec2 100644
+--- a/sys-utils/blkzone.8
++++ b/sys-utils/blkzone.8
+@@ -83,7 +83,7 @@ used together with the option \fB\-\-count\fP.
+ .TP
+ .BR \-c , " \-\-count "\fIcount\fP
+ The maximum number of zones the command should operate on. The default value
+-is the nuber of zones starting from \fIoffset\fR. This option cannot be
++is the number of zones starting from \fIoffset\fR. This option cannot be
+ used together with the option \fB\-\-length\fP.
+ .TP
+ .BR \-v , " \-\-verbose"
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.16.2.246.ga4ee44448fe9
+
