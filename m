@@ -1,57 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:48088 "EHLO mx1.redhat.com"
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:34954 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751165AbeBZWUZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 26 Feb 2018 17:20:25 -0500
-Date: Mon, 26 Feb 2018 23:20:21 +0100
+        id S1751783AbeBZWuK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 26 Feb 2018 17:50:10 -0500
+Date: Mon, 26 Feb 2018 23:50:06 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <ruediger.meier@ga-group.nl>,
-        John Groves <jgroves@micron.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: ready for v2.32 ?
-Message-ID: <20180226222021.tvjznf3w7qzsyafg@ws.net.home>
+To: "John Groves (jgroves)" <jgroves@micron.com>
+Cc: Ruediger Meier <ruediger.meier@ga-group.nl>,
+        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: [EXT] Re: ready for v2.32 ?
+Message-ID: <20180226225006.rslgrlgsmphsyhqh@ws.net.home>
 References: <201802262216.01925.ruediger.meier@ga-group.nl>
+ <20180226222021.tvjznf3w7qzsyafg@ws.net.home>
+ <1519685049171.25700@micron.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201802262216.01925.ruediger.meier@ga-group.nl>
+In-Reply-To: <1519685049171.25700@micron.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Feb 26, 2018 at 10:16:01PM +0100, Ruediger Meier wrote:
-> There is one test failure on big endian (ppc/ppc64)
+On Mon, Feb 26, 2018 at 10:44:12PM +0000, John Groves (jgroves) wrote:
+> Doh! Mpool stores its metadata as little endian, and rigorously uses
+> le32_to_cpu and the like to move on-media structures to & from
+> memory.
 > 
-> [...]
->   blkid: superblocks probing: [37] mpool               ... FAILED 
-> (blkid/low-probe-mpool)
-> [...]
-> ---------------------------------------------------------------------
->   1 tests of 199 FAILED
-> ---------------------------------------------------------------------
+> le32_to_cpu(osd->osb_cksum1) would be the correct way to handle it.
 
-I guess we have to use le32_to_cpu() osd->osb_cksum1. 
-
-John, is mpool little endian, big endian, or both?
+Fixed. Thanks for quick reply!
 
     Karel
-
-> 
-> --- /home/abuild/rpmbuild/BUILD/util-linux-2.32-rc1-31-79bd1/tests/expected/blkid/low-probe-mpool       
-> 2018-02-26 20:14:24.265703542 +0000
-> +++ /home/abuild/rpmbuild/BUILD/util-linux-2.32-rc1-31-79bd1/tests/output/blkid/low-probe-mpool 
-> 2018-02-26 
-> 20:38:14.300022547 +0000
-> @@ -1,6 +0,0 @@
-> -ID_FS_LABEL=mp1
-> -ID_FS_LABEL_ENC=mp1
-> -ID_FS_TYPE=mpool
-> -ID_FS_USAGE=filesystem
-> -ID_FS_UUID=2dfca1ea-651e-4694-976f-14654b0a8a83
-> -ID_FS_UUID_ENC=2dfca1ea-651e-4694-976f-14654b0a8a83
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
 
 -- 
  Karel Zak  <kzak@redhat.com>
