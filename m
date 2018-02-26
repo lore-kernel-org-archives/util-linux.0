@@ -1,44 +1,29 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:39608 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752329AbeB1NcV (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 28 Feb 2018 08:32:21 -0500
-Date: Wed, 28 Feb 2018 14:32:20 +0100
-From: Jan Kara <jack@suse.cz>
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: Karel Zak <kzak@redhat.com>
-Cc: Steve Kenton <skenton@ou.edu>, Jan Kara <jack@suse.cz>,
-        util-linux@vger.kernel.org,
-        Michael Kerrisk <mtk.manpages@gmail.com>,
-        Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH 1/1] Update mount options for UDF
-Message-ID: <20180228133220.3rmkcqnk6giry4bk@quack2.suse.cz>
-References: <20180227184407.5945-1-skenton@ou.edu>
- <20180228130828.j3wbez6pzzzeknuc@ws.net.home>
+Subject: Re: [EXT] Re: ready for v2.32 ?
+Date: Tue, 27 Feb 2018 00:01:29 +0100
+Cc: "John Groves (jgroves)" <jgroves@micron.com>,
+ "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+References: <201802262216.01925.ruediger.meier@ga-group.nl> <1519685049171.25700@micron.com> <20180226225006.rslgrlgsmphsyhqh@ws.net.home>
+In-Reply-To: <20180226225006.rslgrlgsmphsyhqh@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180228130828.j3wbez6pzzzeknuc@ws.net.home>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201802270001.29545.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed 28-02-18 14:08:28, Karel Zak wrote:
-> On Tue, Feb 27, 2018 at 12:44:07PM -0600, Steve Kenton wrote:
-> > Signed-off-by: Steve Kenton <skenton@ou.edu>
-> > Acked-by: Jan Kara <jack@suse.cz>
-> > ---
-> >  sys-utils/mount.8 | 89 +++++++++++++++++++++++++++++++++++++++++--------------
-> >  1 file changed, 67 insertions(+), 22 deletions(-)
-> 
-> Applied, thanks.
-> 
-> Jan, what about to create udf(5) man page? We already have fs-specific
-> man pages (e.g. ext4, tmpfs, nfs, btrfs, ...). It's usually maintained
-> within fs-specific tools (e.g. ext4 -> e2fsprogs) or together with
-> standard man-pages (CC: to Michael).
+On Monday 26 February 2018, Karel Zak wrote:
+> On Mon, Feb 26, 2018 at 10:44:12PM +0000, John Groves (jgroves) wrote:
+> > Doh! Mpool stores its metadata as little endian, and rigorously
+> > uses le32_to_cpu and the like to move on-media structures to & from
+> > memory.
+> >
+> > le32_to_cpu(osd->osb_cksum1) would be the correct way to handle it.
+>
+> Fixed. Thanks for quick reply!
 
-I'm fine with that. Pali is actually the maintainer of udf-tools so if he
-is willing to take the manpage there, it's probably the best place.
+Always nice to see when it was worth to ask for adding a test case :)
 
-								Honza
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+cu,
+Rudi
