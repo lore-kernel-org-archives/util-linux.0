@@ -1,73 +1,38 @@
 Return-Path: sweet_f_a@gmx.de
 From: Ruediger Meier <sweet_f_a@gmx.de>
 To: Karel Zak <kzak@redhat.com>
-Subject: Re: failed exec() exit codes
-Date: Thu, 1 Feb 2018 17:01:19 +0100
+Subject: Re: ready for v2.32 ?
+Date: Mon, 26 Feb 2018 21:02:23 +0100
 Cc: util-linux@vger.kernel.org
-References: <20180201145809.jjtadzla22wlw7rv@ws.net.home>
-In-Reply-To: <20180201145809.jjtadzla22wlw7rv@ws.net.home>
+References: <20180207094731.cvuyp3txmcom3u3u@ws.net.home>
+In-Reply-To: <20180207094731.cvuyp3txmcom3u3u@ws.net.home>
 MIME-Version: 1.0
+Message-Id: <201802262102.23656.sweet_f_a@gmx.de>
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <201802011701.19780.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Thursday 01 February 2018, Karel Zak wrote:
-> Now we use on many places where commands executing another command:
->
->     execvp(argv[optind], argv + optind);
->     err(EXIT_FAILURE, _("failed to execute %s"), argv[optind]);
->
-> the problem is that EXIT_FAILURE is too generic and it does not
-> provide any way how to detect failed exec()s.
+On Wednesday 07 February 2018, Karel Zak wrote:
 
-I think you did a bit too much. I assume that these exec codes are only 
-useful for the programs which get a "command" from the user's command 
-line. So that the user can expect the original exit code of his 
-wanted "command" if and only if it's not 126 or 127.
+>  The regression tests improvements (for example faketime for cal(1))
+>  we can merge during -rc1.
 
-So for taskset(1) these exit codes are good but maybe not needed for 
-swapon(1) or eject(1).
+I think the faketime tests can wait. I will do this later one day when I 
+feel really boring. Could be that we have to check carefully for the 
+case that faketime(1) is available (and works) but ul is built against 
+an exotic libc which does not work with the installed faketime.
 
+BTW as we have talked about some months ago I still check the build 
+for -m32 and different compilers with -Werror on travis from time to 
+time. Still not automated because the repo dependencies are broken 
+sometimes. But if it runs it runs :)
 
-> I have added a new macro errexec() to replace err(EXIT_FAILURE, ...).
->
-> The new macro is compatible with coreutils way:
->
->     #define EX_EXEC_FAILED          126     /* Program located, but
-> not usable. */ #define EX_EXEC_ENOENT          127     /* Could not
-> find program to exec.  */
+See here on top of v2.32-rc1-31-g79bd13842
 
-
-coreutils has even 2 more in "src/system.h" and each of these kind of
-exec programs are *only* using these ones.
-
-/* Exit statuses for programs like 'env' that exec other programs.  */
-enum
-{
-  EXIT_TIMEDOUT = 124, /* Time expired before child completed.  */
-  EXIT_CANCELED = 125, /* Internal error prior to exec attempt.  */
-  EXIT_CANNOT_INVOKE = 126, /* Program located, but not usable.  */
-  EXIT_ENOENT = 127 /* Could not find program to exec.  */
-};
-
-like
-$ chroot   --helpdassdf; echo $?
-chroot: unrecognized option '--helpdassdf'
-Try 'chroot --help' for more information.
-125
-
-Other projects like bash only support 126 and 127, like we do now
-
-$ exec bla ; echo $?
-bash: exec: bla: not found
-127
-
-$ exec --bla ; echo $?
-bash: exec: --: invalid option
-exec: usage: exec [-cl] [-a name] [command [arguments ...]] 
-[redirection ...]
-2
+# clang 3.9...5, gcc 4.8..7, xcode 6.4...9
+https://travis-ci.org/rudimeier/util-linux/builds/346431564
+# -m32 with clang and gcc
+https://travis-ci.org/rudimeier/util-linux/builds/346431659
 
 cu,
 Rudi
