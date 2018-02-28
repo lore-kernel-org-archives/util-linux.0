@@ -1,29 +1,38 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:50396 "EHLO mx1.redhat.com"
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:54168 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S932979AbeBPJyf (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 16 Feb 2018 04:54:35 -0500
-Date: Fri, 16 Feb 2018 10:54:31 +0100
+        id S1752469AbeB1NIc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 28 Feb 2018 08:08:32 -0500
+Date: Wed, 28 Feb 2018 14:08:28 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Theodore Ts'o <tytso@mit.edu>
-Cc: util-linux@vger.kernel.org, Hornseth_Brenan@bah.com
-Subject: Re: [PATCH] fsck: use xasprintf to avoid buffer overruns with an
- insane fs type
-Message-ID: <20180216095431.wqihpps4yxavmfgf@ws.net.home>
-References: <20180215200508.1466-1-tytso@mit.edu>
+To: Steve Kenton <skenton@ou.edu>, Jan Kara <jack@suse.cz>
+Cc: util-linux@vger.kernel.org,
+        Michael Kerrisk <mtk.manpages@gmail.com>
+Subject: Re: [PATCH 1/1] Update mount options for UDF
+Message-ID: <20180228130828.j3wbez6pzzzeknuc@ws.net.home>
+References: <20180227184407.5945-1-skenton@ou.edu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180215200508.1466-1-tytso@mit.edu>
+In-Reply-To: <20180227184407.5945-1-skenton@ou.edu>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Feb 15, 2018 at 03:05:08PM -0500, Theodore Ts'o wrote:
->  disk-utils/fsck.c | 15 +++++++++------
->  1 file changed, 9 insertions(+), 6 deletions(-)
+On Tue, Feb 27, 2018 at 12:44:07PM -0600, Steve Kenton wrote:
+> Signed-off-by: Steve Kenton <skenton@ou.edu>
+> Acked-by: Jan Kara <jack@suse.cz>
+> ---
+>  sys-utils/mount.8 | 89 +++++++++++++++++++++++++++++++++++++++++--------------
+>  1 file changed, 67 insertions(+), 22 deletions(-)
 
-Applied, thanks!
+Applied, thanks.
+
+Jan, what about to create udf(5) man page? We already have fs-specific
+man pages (e.g. ext4, tmpfs, nfs, btrfs, ...). It's usually maintained
+within fs-specific tools (e.g. ext4 -> e2fsprogs) or together with
+standard man-pages (CC: to Michael).
 
     Karel
+
 
 
 -- 
