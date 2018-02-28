@@ -1,45 +1,44 @@
-Return-Path: plyatov@gmail.com
-Subject: Re: 500 ms delay in time saved into RTC
-To: Karel Zak <kzak@redhat.com>, Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- rtc-linux@googlegroups.com, util-linux@vger.kernel.org,
- J William Piggott <elseifthen@gmx.com>
-References: <30ae185f-28c9-54f1-2884-4ee7801b130e@gmail.com>
- <34f50661-85f5-eb46-3ff7-45f0c2bb5960@prevas.dk>
- <20180219110328.n7yjorinjm3xxckr@ws.net.home>
-From: Igor Plyatov <plyatov@gmail.com>
-Message-ID: <0ce68f3f-fec7-1f1c-e70b-331c0752f6d6@gmail.com>
-Date: Mon, 19 Feb 2018 14:31:23 +0300
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx2.suse.de ([195.135.220.15]:39608 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752329AbeB1NcV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 28 Feb 2018 08:32:21 -0500
+Date: Wed, 28 Feb 2018 14:32:20 +0100
+From: Jan Kara <jack@suse.cz>
+To: Karel Zak <kzak@redhat.com>
+Cc: Steve Kenton <skenton@ou.edu>, Jan Kara <jack@suse.cz>,
+        util-linux@vger.kernel.org,
+        Michael Kerrisk <mtk.manpages@gmail.com>,
+        Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH 1/1] Update mount options for UDF
+Message-ID: <20180228133220.3rmkcqnk6giry4bk@quack2.suse.cz>
+References: <20180227184407.5945-1-skenton@ou.edu>
+ <20180228130828.j3wbez6pzzzeknuc@ws.net.home>
 MIME-Version: 1.0
-In-Reply-To: <20180219110328.n7yjorinjm3xxckr@ws.net.home>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180228130828.j3wbez6pzzzeknuc@ws.net.home>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Dear Karel,
+On Wed 28-02-18 14:08:28, Karel Zak wrote:
+> On Tue, Feb 27, 2018 at 12:44:07PM -0600, Steve Kenton wrote:
+> > Signed-off-by: Steve Kenton <skenton@ou.edu>
+> > Acked-by: Jan Kara <jack@suse.cz>
+> > ---
+> >  sys-utils/mount.8 | 89 +++++++++++++++++++++++++++++++++++++++++--------------
+> >  1 file changed, 67 insertions(+), 22 deletions(-)
+> 
+> Applied, thanks.
+> 
+> Jan, what about to create udf(5) man page? We already have fs-specific
+> man pages (e.g. ext4, tmpfs, nfs, btrfs, ...). It's usually maintained
+> within fs-specific tools (e.g. ext4 -> e2fsprogs) or together with
+> standard man-pages (CC: to Michael).
 
+I'm fine with that. Pali is actually the maintainer of udf-tools so if he
+is willing to take the manpage there, it's probably the best place.
 
-> Would be possible to somehow detect what is the right default setting for
-> --delay? I mean for example detect architecture / clock HW, etc.
->
-> I have no problem with --delay, but it's tuning for advanced users and
-> HW specific stuff. It would be nice to have something more portable.
->
->      Karel
->
-
-As I understood, issue exists only at x86 platform, where 
-MC146818-compatible RTC used.
-
-But even if you will correctly detect platform, there is no guaranty to 
-get exactly MC146818 RTC. RTC can be other type. It even can be not 
-single in the system.
-
-What is more or less usable is "/sys/class/rtc/rtcX/name" file, which 
-contains driver name.
-For x86 and MC146818-compatible RTC its name is "rtc_cmos". And it can 
-be used to distinguish RTC type by hwclock utility.
-
-Best wishes.
---
-Igor Plyatov
+								Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
