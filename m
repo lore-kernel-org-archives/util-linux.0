@@ -1,43 +1,73 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:53658 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1753761AbeCFOd1 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 6 Mar 2018 09:33:27 -0500
-Date: Tue, 6 Mar 2018 15:33:23 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: Ludwig Nussel <ludwig.nussel@suse.de>, util-linux@vger.kernel.org
-Subject: Re: agetty /etc/issue handling
-Message-ID: <20180306143323.ssny4nslxnmsuoxu@ws.net.home>
-References: <2fb8c760-3be8-a77f-0ab1-ad67ebca63cb@suse.de>
- <20180306104110.k4tis2b23eqykqeh@ws.net.home>
- <5089360b-0a43-d754-ebd0-2d428af1c1af@suse.de>
- <201803061451.37202.sweet_f_a@gmx.de>
+Return-Path: pali.rohar@gmail.com
+Date: Wed, 28 Feb 2018 23:03:19 +0100
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+To: Jan Kara <jack@suse.cz>
+Cc: Karel Zak <kzak@redhat.com>, Steve Kenton <skenton@ou.edu>,
+	util-linux@vger.kernel.org,
+	Michael Kerrisk <mtk.manpages@gmail.com>
+Subject: Re: [PATCH 1/1] Update mount options for UDF
+Message-ID: <20180228220319.ccosidfzrdlowwqu@pali>
+References: <20180227184407.5945-1-skenton@ou.edu>
+ <20180228130828.j3wbez6pzzzeknuc@ws.net.home>
+ <20180228133220.3rmkcqnk6giry4bk@quack2.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201803061451.37202.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cjbf437rn2tnu7xb"
+In-Reply-To: <20180228133220.3rmkcqnk6giry4bk@quack2.suse.cz>
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Mar 06, 2018 at 02:51:36PM +0100, Ruediger Meier wrote:
-> To be honest, I don't really like that emergency-critical things like 
-> agetty will need to read dozens of files from many different file 
-> systems ... just for cosmetical reasons. IMO a 3rd party 
-> issue-generator is the better way.
 
-All the stuff should be optional.
+--cjbf437rn2tnu7xb
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The reason is that growing number of use-cases where specific
-subsystem or software want to print any information by the issue file.
-(I mean containers, virtualization, serial line redirections/switches,
-etc.)
+On Wednesday 28 February 2018 14:32:20 Jan Kara wrote:
+> On Wed 28-02-18 14:08:28, Karel Zak wrote:
+> > On Tue, Feb 27, 2018 at 12:44:07PM -0600, Steve Kenton wrote:
+> > > Signed-off-by: Steve Kenton <skenton@ou.edu>
+> > > Acked-by: Jan Kara <jack@suse.cz>
+> > > ---
+> > >  sys-utils/mount.8 | 89 +++++++++++++++++++++++++++++++++++++++++----=
+----------
+> > >  1 file changed, 67 insertions(+), 22 deletions(-)
+> >=20
+> > Applied, thanks.
+> >=20
+> > Jan, what about to create udf(5) man page? We already have fs-specific
+> > man pages (e.g. ext4, tmpfs, nfs, btrfs, ...). It's usually maintained
+> > within fs-specific tools (e.g. ext4 -> e2fsprogs) or together with
+> > standard man-pages (CC: to Michael).
+>=20
+> I'm fine with that. Pali is actually the maintainer of udf-tools so if he
+> is willing to take the manpage there, it's probably the best place.
 
-We don't want to store generated things in /etc (read-only, state-less
-machines, ...), so at least /run (usually tmpfs) seems like good choice.
+Is udftools the best place for kernel udf mount options? Because
+userspace udftools are not needed for kernel udf driver, nor for
+mounting existing udf filesystem.
 
-    Karel
+For me it looks like that kernel drivers should have its documentation
+in kernel itself...
 
+Anyway, I have not know yet that there is e.g. ext4 manpage which
+describe mount options. I was always looking into mount.8 manpage for
+filesystem mount parameters.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+The only missing filesystem in mount.8 is nfs, but that is probably
+because mount uses mount.nfs helper.
+
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--cjbf437rn2tnu7xb
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWpcnJAAKCRCL8Mk9A+RD
+UgqSAKDHVQtGA7lg0gQrNVpKJPZa7oA1swCgxgEg/7FRSYbS57cnXELk+JJwMH0=
+=UlRG
+-----END PGP SIGNATURE-----
+
+--cjbf437rn2tnu7xb--
