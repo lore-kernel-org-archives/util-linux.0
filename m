@@ -1,69 +1,39 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:36550 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751142AbeCGKm4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 7 Mar 2018 05:42:56 -0500
-Date: Wed, 7 Mar 2018 11:42:52 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] tests: don't lock fd 1 (stdout)
-Message-ID: <20180307104252.zwdcehv27fp3ny6k@ws.net.home>
-References: <20180306233807.10756-1-sweet_f_a@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180306233807.10756-1-sweet_f_a@gmx.de>
+Received: from mx1.redhat.com ([209.132.183.28]:42222 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751490AbeCES4L (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 5 Mar 2018 13:56:11 -0500
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id CBDFC85376
+        for <util-linux@vger.kernel.org>; Mon,  5 Mar 2018 18:56:11 +0000 (UTC)
+Received: from sulaco.redhat.com (ovpn-116-54.phx2.redhat.com [10.3.116.54])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 85EBC5D9CA
+        for <util-linux@vger.kernel.org>; Mon,  5 Mar 2018 18:56:11 +0000 (UTC)
+From: Tony Asleson <tasleson@redhat.com>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 0/1] Hide private Stratis device mapper devices
+Date: Mon,  5 Mar 2018 12:56:10 -0600
+Message-Id: <20180305185611.16667-1-tasleson@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Mar 07, 2018 at 12:38:07AM +0100, Ruediger Meier wrote:
-> This is how this patch changes the test output:
-> 
-> --- /tmp/a      2018-03-06 22:31:15.000000000 +0000
-> +++ /tmp/b      2018-03-06 22:30:34.000000000 +0000
+Stratis like lvm is utilizing device mapper thin provisioning feature.  Thus
+internal devices which should not be manipulated by end users show up with
+blkid when they should not contain any relevant data.  See commit:
+20e1c3dc03399d6988ef35dedc1364cfc12e9263 for more background.
 
-git-am had really difficult time to accept to your patch with patch in the patch
-comment :-)
+Tony Asleson (1):
+  libblkid: ignore private Stratis devices
 
-> index d1c97e0b6..8cc148fb8 100644
-> --- a/tests/functions.sh
-> +++ b/tests/functions.sh
-> @@ -226,6 +226,8 @@ function ts_init_env {
->  	local mydir=$(ts_abspath ${0%/*})
->  	local tmp
->  
-> +	shopt -s nullglob
-> +
-
-1) It seems it breaks ts/ipcs/limits:ipcs_limits_check(), the sed
-   arguments in the line
-
-    "echo \$(cat /proc/sys/kernel/shmall) / 1024 \* $PAGE_SIZE | bc -l | sed 's/\..*//'"
-
-are ignored, so with eval it calls
-
-    eval echo '$(cat' '/proc/sys/kernel/shmall)' / 1024 '\*' 4096 '|' bc -l '|' sed
-
-I have added
-
-    shopt -u nullglob 
-
-to the function to fix the problem. It seems it works.
-
-
-2) I see
-
-            mount: btrfs (fstab)                  ...
-                : btrfs                       ... OK
-                : auto                        ... SKIPPED (failed to lock fstab)
-
-
- and with ./run.sh --parallel I see another "failed to lock" messages :-(
-
-
-Maybe we can use --nolocks for debian-kfreebsd (TS_NOLOCKS in
-tests/functions.sh).
+ disk-utils/fdisk-list.c |  2 +-
+ include/sysfs.h         |  2 +-
+ lib/sysfs.c             | 39 +++++++++++++++++++++++++++++----------
+ libblkid/src/probe.c    |  4 ++--
+ libblkid/src/verify.c   |  2 +-
+ 5 files changed, 34 insertions(+), 15 deletions(-)
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.13.6
+
