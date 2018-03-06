@@ -1,167 +1,112 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.15]:52371 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751599AbeCVJrU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 22 Mar 2018 05:47:20 -0400
+Return-Path: sweet_f_a@gmx.de
 From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: [ANNOUNCE] util-linux v2.32
-Date: Thu, 22 Mar 2018 10:47:13 +0100
-Cc: util-linux@vger.kernel.org
-References: <20180321145323.l6ulgds4zfycfttp@ws.net.home>
-In-Reply-To: <20180321145323.l6ulgds4zfycfttp@ws.net.home>
+To: Ludwig Nussel <ludwig.nussel@suse.de>
+Subject: Re: agetty /etc/issue handling
+Date: Tue, 6 Mar 2018 14:51:36 +0100
+Cc: Karel Zak <kzak@redhat.com>,
+ util-linux@vger.kernel.org
+References: <2fb8c760-3be8-a77f-0ab1-ad67ebca63cb@suse.de> <20180306104110.k4tis2b23eqykqeh@ws.net.home> <5089360b-0a43-d754-ebd0-2d428af1c1af@suse.de>
+In-Reply-To: <5089360b-0a43-d754-ebd0-2d428af1c1af@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
-Message-Id: <201803221047.14002.sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Message-Id: <201803061451.37202.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 21 March 2018, Karel Zak wrote:
-> The util-linux release v2.32 is available at
+On Tuesday 06 March 2018, Ludwig Nussel wrote:
+> Karel Zak wrote:
+> > On Tue, Mar 06, 2018 at 10:40:14AM +0100, Ludwig Nussel wrote:
+> >> I just noticed that agetty gained support for /etc/issue.d. Very
+> >> cool!
+> >
+> > Thanks, according this feedback
+> > https://github.com/karelzak/util-linux/commit/1fc82a1360305f696dc1b
+> >e6105c9c56a9ea03f52#commitcomment-27947668
+> >
+> > it seems that /etc/issue.d may conflict with already existing
+> > solutions in OpenSUSE. Is it true?
+>
+> There is a package called issue-generator
+> (https://github.com/thkukuk/issue-generator) that generates
+> /etc/issue based on content from /{usr/lib,run,etc}/issue.d. There is
+> no real conflict, just some partial overlap in features. IMO
+> issue-generator would be mostly obsolete as soon as agetty reads
+> those directories itself.
+>
+> > I'll probably add --disable-agetty-issued to make it fully
+> > backwardly compatible.
+>
+> TBH I don't think that's necessary.
+>
+> >> Are there any plans to extend the way it reads those files to a
+> >> systemd style layering ie with read only parts in /usr,
+> >> potentially generated ones in /run etc?
+> >
+> > Good idea.
 
-Thanks!
+> >> Especially the read only part would be interesting. That way
+> >> distros wouldn't need to ship /etc/isse at all and packages would
+> >> put their extension in /usr. Ie no interference with admin space.
+> >
+> > What is expected semantic (order)?
+> >
+> > Note that agetty requires the /etc/issue file, the directory is an
+> > extension to the file. The file may be empty or symlink. This is
+> > because "rm /etc/issue" is a way how some admins disable agetty
+> > output at all.
+>
+> Alternative semantics would be to only use issue.d if /etc/issue
+> does NOT exist. That would assume that if /etc/issue exists, the
+> admin created it and doesn't want anything else to be displayed. To
+> display nothing the file could be created with zero size by the
+> admin.
+> Packages would then ship their static issue snippets in /usr and
+> generate dynamic ones in /run.
+> The admin would then have the option to either
+> * create custom content in /etc/issue.d that would be interwoven
+>    with what packages provide - or
+> * create /etc/issue to only have that one displayed
 
-> Util-linux 2.32 Release Notes
-> ==============
-> [...]
+Yes this would be nice.
 
-FYI regarding "Release Notes". I guess it's always a pain to write
-that and to remember all relevant new features and options. ;)
-Just to remind you, we have have a nice tool on board which may be
-helpful.
+There should be a simple way for the *admin* to disable all these issues 
+directories to only show his well-maintained and tested /etc/issue, 
+regardless what other packages are installed now or in the future.
 
-$ CU_DUMP=1 make checkusage
-$ mv /tmp/checkusage--help /tmp/checkusage--help-2.32
+To be honest, I don't really like that emergency-critical things like 
+agetty will need to read dozens of files from many different file 
+systems ... just for cosmetical reasons. IMO a 3rd party 
+issue-generator is the better way.
 
-## ... and diff all changed --help output too see what may be
-## worth to mention, for example:
-$ diff -uw  /tmp/checkusage--help-2.31.2 /tmp/checkusage--help-2.32
---- /tmp/checkusage--2.31.2     2018-03-22 10:17:10.059537442 +0100
-+++ /tmp/checkusage--2.32     2018-03-22 10:15:29.025304770 +0100
-@@ -178,7 +178,9 @@
-  -S, --span            span the date when displaying multiple months
-  -s, --sunday          Sunday as first day of week
-  -m, --monday          Monday as first day of week
-- -j, --julian          output Julian dates
-+ -j, --julian          use day-of-year for all calendars
-+     --reform <val>    Gregorian reform date (1752|gregorian|iso|julian)
-+     --iso             alias for --reform=iso
-  -y, --year            show the whole year
-  -Y, --twelve          show the next twelve months
-  -w, --week[=<num>]    show US or ISO-8601 week numbers
-@@ -255,11 +257,19 @@
-  -e, --enable   enable memory
-  -d, --disable  disable memory
-  -b, --blocks   use memory blocks
-+ -z, --zone <name>  select memory zone (see below)
-  -v, --verbose  verbose output
--
-  -h, --help     display this help
-  -V, --version  display version
+cu,
+Rudi
 
-+Supported zones:
-+ DMA
-+ DMA32
-+ Normal
-+ Highmem
-+ Movable
-+ Device
-+
- For more details see chmem(8).
- ##########################################################
- #### chrt
-@@ -379,6 +389,7 @@
-  -O, --table-order <columns>      specify order of output columns
-  -N, --table-columns <names>      comma separated columns names
-  -E, --table-noextreme <columns>  don't count long text from the columns to column width
-+ -d, --table-noheadings           don't print header
-  -e, --table-header-repeat        repeat header for each page
-  -H, --table-hide <columns>       don't print the columns
-  -R, --table-right <columns>      right align text in these columns
-@@ -447,6 +458,7 @@
-  -l, --level <list>          restrict output to defined levels
-  -n, --console-level <level> set level of messages printed to console
-  -P, --nopager               do not pipe output into a pager
-+ -p, --force-prefix          force timestamp output on each line of multi-line messages
-  -r, --raw                   print the raw message buffer
-  -S, --syslog                force to use syslog(2) rather than /dev/kmsg
-  -s, --buffer-size <size>    buffer size to query the kernel ring buffer
-@@ -933,8 +945,8 @@
-      --update-drift   update the RTC drift factor
-      --noadjfile      do not use /etc/adjtime
-      --adjfile <file> use an alternate file to /etc/adjtime
--     --test           dry run; implies --debug
-- -D, --debug          display more details
-+     --test           dry run; implies --verbose
-+ -v, --verbose        display more details
-
-  -h, --help           display this help
-  -V, --version        display version
-@@ -1589,6 +1601,7 @@
-  -n, --noheadings     don't print headings
-  -o, --output <list>  output columns
-  -r, --raw            use raw output format
-+ -S, --split <list>   split ranges by specified columns
-  -s, --sysroot <dir>  use the specified directory as system root
-      --summary[=when] print summary information (never,always or only)
-
-@@ -1602,6 +1615,7 @@
-   REMOVABLE  memory is removable
-       BLOCK  memory block number or blocks range
-        NODE  numa node of memory
-+      ZONES  valid zones for the memory range
-
- For more details see lsmem(1).
- ##########################################################
-@@ -1620,6 +1634,7 @@
-  -p, --task <pid>       print process namespaces
-  -r, --raw              use the raw output format
-  -u, --notruncate       don't truncate text in columns
-+ -W, --nowrap           don't use multi-line representation
-  -t, --type <name>      namespace type (mnt, net, ipc, user, pid, uts, cgroup)
-
-  -h, --help             display this help
-@@ -1635,6 +1650,8 @@
-      COMMAND  command line of the PID
-          UID  UID of the PID
-         USER  username of the PID
-+     NETNSID  namespace ID as used by network subsystem
-+        NSFS  nsfs mountpoint (usually used network subsystem)
-
- For more details see lsns(8).
- ##########################################################
-@@ -2363,6 +2380,7 @@
-
- Options:
-  -c, --ctty     set the controlling terminal to the current one
-+ -f, --fork     always fork
-  -w, --wait     wait program to exit, and use the same return
-  -h, --help     display this help
-  -V, --version  display version
-@@ -2427,7 +2445,7 @@
- Display or manipulate a disk partition table.
-
- Commands:
-- -A, --activate <dev> [<part> ...] list or set bootable MBR partitions
-+ -A, --activate <dev> [<part> ...] list or set bootable (P)MBR partitions
-  -d, --dump <dev>                  dump partition table (usable for later input)
-  -J, --json <dev>                  dump partition table in JSON format
-  -g, --show-geometry [<dev> ...]   list geometry of all or specified devices
-@@ -2744,6 +2762,7 @@
-  -U, --user[=<file>]       unshare user namespace
-  -C, --cgroup[=<file>]     unshare cgroup namespace
-  -f, --fork                fork before launching <program>
-+     --kill-child[=<signame>]  when dying, kill the forked child (implies --fork); defaults to SIGKILL
-      --mount-proc[=<dir>]  mount proc filesystem first (implies --mount)
-  -r, --map-root-user       map current user to root (implies --user)
-      --propagation slave|shared|private|unchanged
-@@ -2981,7 +3000,7 @@
- Set up and control zram devices.
-
- Options:
-- -a, --algorithm lzo|lz4   compression algorithm to use
-+ -a, --algorithm lzo|lz4|lz4hc|deflate|842   compression algorithm to use
-  -b, --bytes               print sizes in bytes rather than in human readable format
-  -f, --find                find a free device
-  -n, --noheadings          don't print headings
+> Distributions would then have to stop shipping /etc/issue in order
+> to allow the modular approach to take effect.
+>
+> > with layering:
+> >
+> >   - verify /etc/issue (access F_OK -- required)
+> >   - read /etc/issue.d/*.issue
+> >   - read /run/agetty/issue.d/*.issue
+> >   - read /usr/lib/agetty/issue.d/*.issue
+>
+> Is issue.d considered agetty specific or are other gettys expected
+> to follow suit? If the latter I'd omit the agetty subdirectory.
+> Alternatively for consistency you'd need to use /etc/agetty/issue.d
+> I guess :-)
+> The ordering of layer is right. In systemd semantics files take
+> preference in order, ie if the same file name exists in /etc and
+> /usr, only the one in /etc would be displayed.
+>
+> > use-case:
+> >      - /etc = system specific files
+>
+> ... created by the admin.
+>
+> >      - /run = generated files
+> >      - /usr = installed 3rd party files
+>
+> Not just third party, that is where packages put static files, ie the
+> distribution. So I'd move what we currently have in /etc/issue to
+> e.g. /usr/lib(/agetty)/issue.d/10-opensuse.issue
