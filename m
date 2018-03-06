@@ -1,46 +1,69 @@
-Return-Path: pali.rohar@gmail.com
-Date: Wed, 7 Mar 2018 09:28:29 +0100
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.21]:44189 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750838AbeCFPhS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 6 Mar 2018 10:37:18 -0500
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: Karel Zak <kzak@redhat.com>
-Cc: Andreas Bombe <aeb@debian.org>, util-linux@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
-	Curtis Gedak <gedakc@gmail.com>,
-	Andy Shevchenko <andy.shevchenko@gmail.com>,
-	Pavel Machek <pavel@ucw.cz>
-Subject: Re: Linux & FAT32 label
-Message-ID: <20180307082829.jh7t2mn7cvegb4ry@pali>
-References: <20171004153332.GA6696@pali>
- <20171011212435.znmtdnsxcd5ectub@pali>
- <20171105130608.5oww3b2fnnrwe7ok@pali>
- <20171109212131.uxraxzwpvrlyfyys@pali>
- <20171119124440.ffxx64zjmwedmtdp@pali>
- <20171120111256.zqvmpzdcf6ncyi5m@ws.net.home>
- <20171126191925.zowfpduhyic5w4n5@pali>
- <20171127121301.b6obxoqr4azm3zvs@ws.net.home>
+Subject: Re: agetty /etc/issue handling
+Date: Tue, 6 Mar 2018 16:37:08 +0100
+Cc: Ludwig Nussel <ludwig.nussel@suse.de>, util-linux@vger.kernel.org
+References: <2fb8c760-3be8-a77f-0ab1-ad67ebca63cb@suse.de> <201803061451.37202.sweet_f_a@gmx.de> <20180306143323.ssny4nslxnmsuoxu@ws.net.home>
+In-Reply-To: <20180306143323.ssny4nslxnmsuoxu@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20171127121301.b6obxoqr4azm3zvs@ws.net.home>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201803061637.09015.sweet_f_a@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Monday 27 November 2017 13:13:01 Karel Zak wrote:
-> On Sun, Nov 26, 2017 at 08:19:25PM +0100, Pali Rohár wrote:
-> > On Monday 20 November 2017 12:12:56 Karel Zak wrote:
-> > > Go ahead and send patch :-) (also with LABEL_FATBOOT=)
-> > 
-> > Ok, I prepared patches for util-linux including LABEL_FATBOOT:
-> > https://github.com/karelzak/util-linux/compare/master...pali:master
-> 
-> Seems good. I'll wait for official pull request. Thanks!
-> 
-> > I have not created official pull request on github yet as Andreas have
-> > not decided yet about dosfstools/fatlabel...
-> 
-> OK.
+On Tuesday 06 March 2018, Karel Zak wrote:
+> On Tue, Mar 06, 2018 at 02:51:36PM +0100, Ruediger Meier wrote:
+> > To be honest, I don't really like that emergency-critical things
+> > like agetty will need to read dozens of files from many different
+> > file systems ... just for cosmetical reasons. IMO a 3rd party
+> > issue-generator is the better way.
+>
+> All the stuff should be optional.
+>
+> The reason is that growing number of use-cases where specific
+> subsystem or software want to print any information by the issue
+> file. (I mean containers, virtualization, serial line
+> redirections/switches, etc.)
+>
+> We don't want to store generated things in /etc (read-only,
+> state-less machines, ...), so at least /run (usually tmpfs) seems
+> like good choice.
 
-Andreas now accepted this change into dosfstools project so I created
-official pull request: https://github.com/karelzak/util-linux/pull/586
+I see the use case but I don't see that we need new functionality inside 
+agetty because distros could either use
 
--- 
-Pali Rohár
-pali.rohar@gmail.com
+  agetty --issue-file /run/generated-issues
+
+or
+
+  ln -sf /run/generated-issues /etc/issues
+
+Speaking as an admin I really hate that distros nowadays introduce more 
+and more techniques to let 3rd parties change global setup within /usr 
+(where I don't see it) instead of using /etc which I track and review 
+using git.
+
+I fully understand that this makes it much easier for the distro 
+developers. But the resulting systems are more difficult and complex to 
+understand and to debug for the admins.
+
+BTW looking over /etc we could actually use the "agetty argument" to 
+introduce the "/usr-/run/-/etc merge technique" also for any other 
+programs too. Why not moving the distro's default
+/etc/hosts, /etc/services, /etc/ntp.conf, /etc/cron.d, *everything* 
+to /usr? No more noise in /etc on upgrade/install...
+
+Will admins be more happy when all installations and distros finally 
+have the same empty /etc by default but still being completely 
+differently configured *somewere* in /run and /usr?
+
+cu,
+Rudi
+
+
