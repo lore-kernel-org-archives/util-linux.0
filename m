@@ -1,40 +1,75 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:38236 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751190AbeCIMhU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 9 Mar 2018 07:37:20 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 5F9DA76FBA
-        for <util-linux@vger.kernel.org>; Fri,  9 Mar 2018 12:37:19 +0000 (UTC)
-Date: Fri, 9 Mar 2018 13:37:16 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Tony Asleson <tasleson@redhat.com>
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH] tests: don't lock fd 1 (stdout)
+Date: Wed, 7 Mar 2018 15:31:19 +0100
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH v2] libblkid: ignore private Stratis devices
-Message-ID: <20180309123716.knvvh2dea42hcx66@ws.net.home>
-References: <20180308214126.29589-1-tasleson@redhat.com>
+References: <20180306233807.10756-1-sweet_f_a@gmx.de> <20180307104252.zwdcehv27fp3ny6k@ws.net.home>
+In-Reply-To: <20180307104252.zwdcehv27fp3ny6k@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180308214126.29589-1-tasleson@redhat.com>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201803071531.19865.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Mar 08, 2018 at 03:41:26PM -0600, Tony Asleson wrote:
->  disk-utils/fdisk-list.c |  2 +-
->  include/sysfs.h         |  2 +-
->  lib/sysfs.c             | 24 ++++++++++++++++--------
->  libblkid/src/probe.c    |  4 ++--
->  libblkid/src/verify.c   |  2 +-
->  5 files changed, 21 insertions(+), 13 deletions(-)
- 
- Applied, thanks.
+On Wednesday 07 March 2018, Karel Zak wrote:
+> On Wed, Mar 07, 2018 at 12:38:07AM +0100, Ruediger Meier wrote:
+> > This is how this patch changes the test output:
+> >
+> > --- /tmp/a      2018-03-06 22:31:15.000000000 +0000
+> > +++ /tmp/b      2018-03-06 22:30:34.000000000 +0000
+>
+> git-am had really difficult time to accept to your patch with patch
+> in the patch comment :-)
+>
+> > index d1c97e0b6..8cc148fb8 100644
+> > --- a/tests/functions.sh
+> > +++ b/tests/functions.sh
+> > @@ -226,6 +226,8 @@ function ts_init_env {
+> >  	local mydir=$(ts_abspath ${0%/*})
+> >  	local tmp
+> >
+> > +	shopt -s nullglob
+> > +
+>
+> 1) It seems it breaks ts/ipcs/limits:ipcs_limits_check(), the sed
+>    arguments in the line
+>
+>     "echo \$(cat /proc/sys/kernel/shmall) / 1024 \* $PAGE_SIZE | bc
+> -l | sed 's/\..*//'"
+>
+> are ignored, so with eval it calls
+>
+>     eval echo '$(cat' '/proc/sys/kernel/shmall)' / 1024 '\*' 4096 '|'
+> bc -l '|' sed
+>
+> I have added
+>
+>     shopt -u nullglob
+>
+> to the function to fix the problem. It seems it works.
+>
+>
+> 2) I see
+>
+>             mount: btrfs (fstab)                  ...
+>
+>                 : btrfs                       ... OK
+>                 : auto                        ... SKIPPED (failed to
+>                 : lock fstab)
+>
+>  and with ./run.sh --parallel I see another "failed to lock" messages
+> :-(
 
- (We're before release, but it's one strncmp(), so not problem...)
+This seems independent of my patch. The test-suite does not survive when 
+flock timeouts after 30s because then ts_cleanup_on_exit() may use 
+resources (e.g. rmmod scsi_debug) while not having the lock. You will 
+see it even better when using
 
-    Karel
+  flock --exclusive --timeout 1
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+I'm going to fix that and send patches.
+
+>
+> Maybe we can use --nolocks for debian-kfreebsd (TS_NOLOCKS in
+> tests/functions.sh).
