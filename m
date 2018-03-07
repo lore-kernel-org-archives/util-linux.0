@@ -1,83 +1,99 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:47378 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1755194AbeCSN3n (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 19 Mar 2018 09:29:43 -0400
-Date: Mon, 19 Mar 2018 14:29:39 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Carlo Caione <carlo@caione.org>
-Cc: util-linux@vger.kernel.org, linux@endlessm.com,
-        Carlo Caione <carlo@endlessm.com>
-Subject: Re: [PATCH] lib/randutils: Do not block on getrandom()
-Message-ID: <20180319132939.vaeojajdqmumxk4n@ws.net.home>
-References: <20180319103107.14517-1-carlo@caione.org>
+Received: from mout.gmx.net ([212.227.17.22]:52097 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751197AbeCGLsv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 7 Mar 2018 06:48:51 -0500
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH] tests: don't lock fd 1 (stdout)
+Date: Wed, 7 Mar 2018 12:48:44 +0100
+Cc: util-linux@vger.kernel.org
+References: <20180306233807.10756-1-sweet_f_a@gmx.de> <20180307104252.zwdcehv27fp3ny6k@ws.net.home>
+In-Reply-To: <20180307104252.zwdcehv27fp3ny6k@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180319103107.14517-1-carlo@caione.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201803071248.45196.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Mar 19, 2018 at 10:31:07AM +0000, Carlo Caione wrote:
-> We fix this passing GRND_NONBLOCK to getrandom(). 'sfdisk' will use the
-> best entropy it has available and fallback only as necessary.
-> 
-> Signed-off-by: Carlo Caione <carlo@endlessm.com>
-> ---
->  lib/randutils.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
-> 
-> diff --git a/lib/randutils.c b/lib/randutils.c
-> index e1c4059e1..02c3d9eb0 100644
-> --- a/lib/randutils.c
-> +++ b/lib/randutils.c
-> @@ -36,6 +36,8 @@
->  
->  #if !defined(HAVE_GETRANDOM) && defined(SYS_getrandom)
->  /* libc without function, but we have syscal */
-> +#define GRND_NONBLOCK 0x01
-> +#define GRND_RANDOM 0x02
->  static int getrandom(void *buf, size_t buflen, unsigned int flags)
->  {
->  	return (syscall(SYS_getrandom, buf, buflen, flags));
-> @@ -104,13 +106,15 @@ void random_get_bytes(void *buf, size_t nbytes)
->  		int x;
->  
->  		errno = 0;
-> -		x = getrandom(cp, n, 0);
-> +		x = getrandom(cp, n, GRND_NONBLOCK);
->  		if (x > 0) {			/* success */
->  		       n -= x;
->  		       cp += x;
->  		       lose_counter = 0;
->  		} else if (errno == ENOSYS)	/* kernel without getrandom() */
->  			break;
-> +		else if (errno == EAGAIN)
-> +			break;
+On Wednesday 07 March 2018, Karel Zak wrote:
+> On Wed, Mar 07, 2018 at 12:38:07AM +0100, Ruediger Meier wrote:
+> > This is how this patch changes the test output:
+> >
+> > --- /tmp/a      2018-03-06 22:31:15.000000000 +0000
+> > +++ /tmp/b      2018-03-06 22:30:34.000000000 +0000
+>
+> git-am had really difficult time to accept to your patch with patch
+> in the patch comment :-)
 
-Applied, but not sure if I like the if-EAGAIN-break there. It will
-break in all situations and completely bypass the lose_counter idea.
-Maybe it would be better to accept that we will call getrandom() 16x
-on systems with uninitialized entropy. (And maybe add xusleep() to the
-loop...)
+Oops.
 
-    Karel
+> > index d1c97e0b6..8cc148fb8 100644
+> > --- a/tests/functions.sh
+> > +++ b/tests/functions.sh
+> > @@ -226,6 +226,8 @@ function ts_init_env {
+> >  	local mydir=$(ts_abspath ${0%/*})
+> >  	local tmp
+> >
+> > +	shopt -s nullglob
+> > +
+>
+> 1) It seems it breaks ts/ipcs/limits:ipcs_limits_check(), the sed
+>    arguments in the line
 
->  		else if (lose_counter++ > 16)	/* entropy problem? */
->  			break;
->  	}
+Ah sorry, I've checked the tests only on that bsd box. I will review 
+again and do it without "shopt -s nullglob". It's confusing anyways for 
+test writers if the bash uses non-default options.
 
+>     "echo \$(cat /proc/sys/kernel/shmall) / 1024 \* $PAGE_SIZE | bc
+> -l | sed 's/\..*//'"
+>
+> are ignored, so with eval it calls
+>
+>     eval echo '$(cat' '/proc/sys/kernel/shmall)' / 1024 '\*' 4096 '|'
+> bc -l '|' sed
+>
+> I have added
+>
+>     shopt -u nullglob
+>
+> to the function to fix the problem. It seems it works.
+>
+>
+> 2) I see
+>
+>             mount: btrfs (fstab)                  ...
+>
+>                 : btrfs                       ... OK
+>                 : auto                        ... SKIPPED (failed to
+>                 : lock fstab)
+>
+>  and with ./run.sh --parallel I see another "failed to lock" messages
+> :-(
 
+Hm, I had never really tried --parallel root checks yet because the 
+non-deterministic behavior regarding udevadm and my NFS /home is 
+already complicated enough for my taste ;)
 
+Are the files unlocked automatically if we exit the test without calling 
+ts_unlock?
 
-> -- 
-> 2.14.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe util-linux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+BTW could it be better to use our own ./flock instead of the global one? 
+And maybe it's possible to print separate messages for "failed to lock" 
+and "timeout lock".
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+>
+> Maybe we can use --nolocks for debian-kfreebsd (TS_NOLOCKS in
+> tests/functions.sh).
+
+Well, I had already tried to check whether /proc/*/fd is behaving like 
+we expect. But seems difficult to find out. Maybe just the stupid way, 
+like:
+
+  if root && ! Linux; then parallel=1 
+  if ! Linux; then TS_NOLOCKS=yes
+
+cu,
+Rudi
+
