@@ -1,75 +1,46 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Return-Path: pali.rohar@gmail.com
+Date: Wed, 7 Mar 2018 09:28:29 +0100
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
 To: Karel Zak <kzak@redhat.com>
-Subject: Re: [PATCH] tests: don't lock fd 1 (stdout)
-Date: Wed, 7 Mar 2018 15:31:19 +0100
-Cc: util-linux@vger.kernel.org
-References: <20180306233807.10756-1-sweet_f_a@gmx.de> <20180307104252.zwdcehv27fp3ny6k@ws.net.home>
-In-Reply-To: <20180307104252.zwdcehv27fp3ny6k@ws.net.home>
+Cc: Andreas Bombe <aeb@debian.org>, util-linux@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Andrius =?utf-8?B?xaB0aWtvbmFz?= <andrius@stikonas.eu>,
+	Curtis Gedak <gedakc@gmail.com>,
+	Andy Shevchenko <andy.shevchenko@gmail.com>,
+	Pavel Machek <pavel@ucw.cz>
+Subject: Re: Linux & FAT32 label
+Message-ID: <20180307082829.jh7t2mn7cvegb4ry@pali>
+References: <20171004153332.GA6696@pali>
+ <20171011212435.znmtdnsxcd5ectub@pali>
+ <20171105130608.5oww3b2fnnrwe7ok@pali>
+ <20171109212131.uxraxzwpvrlyfyys@pali>
+ <20171119124440.ffxx64zjmwedmtdp@pali>
+ <20171120111256.zqvmpzdcf6ncyi5m@ws.net.home>
+ <20171126191925.zowfpduhyic5w4n5@pali>
+ <20171127121301.b6obxoqr4azm3zvs@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201803071531.19865.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20171127121301.b6obxoqr4azm3zvs@ws.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Wednesday 07 March 2018, Karel Zak wrote:
-> On Wed, Mar 07, 2018 at 12:38:07AM +0100, Ruediger Meier wrote:
-> > This is how this patch changes the test output:
-> >
-> > --- /tmp/a      2018-03-06 22:31:15.000000000 +0000
-> > +++ /tmp/b      2018-03-06 22:30:34.000000000 +0000
->
-> git-am had really difficult time to accept to your patch with patch
-> in the patch comment :-)
->
-> > index d1c97e0b6..8cc148fb8 100644
-> > --- a/tests/functions.sh
-> > +++ b/tests/functions.sh
-> > @@ -226,6 +226,8 @@ function ts_init_env {
-> >  	local mydir=$(ts_abspath ${0%/*})
-> >  	local tmp
-> >
-> > +	shopt -s nullglob
-> > +
->
-> 1) It seems it breaks ts/ipcs/limits:ipcs_limits_check(), the sed
->    arguments in the line
->
->     "echo \$(cat /proc/sys/kernel/shmall) / 1024 \* $PAGE_SIZE | bc
-> -l | sed 's/\..*//'"
->
-> are ignored, so with eval it calls
->
->     eval echo '$(cat' '/proc/sys/kernel/shmall)' / 1024 '\*' 4096 '|'
-> bc -l '|' sed
->
-> I have added
->
->     shopt -u nullglob
->
-> to the function to fix the problem. It seems it works.
->
->
-> 2) I see
->
->             mount: btrfs (fstab)                  ...
->
->                 : btrfs                       ... OK
->                 : auto                        ... SKIPPED (failed to
->                 : lock fstab)
->
->  and with ./run.sh --parallel I see another "failed to lock" messages
-> :-(
+On Monday 27 November 2017 13:13:01 Karel Zak wrote:
+> On Sun, Nov 26, 2017 at 08:19:25PM +0100, Pali Rohár wrote:
+> > On Monday 20 November 2017 12:12:56 Karel Zak wrote:
+> > > Go ahead and send patch :-) (also with LABEL_FATBOOT=)
+> > 
+> > Ok, I prepared patches for util-linux including LABEL_FATBOOT:
+> > https://github.com/karelzak/util-linux/compare/master...pali:master
+> 
+> Seems good. I'll wait for official pull request. Thanks!
+> 
+> > I have not created official pull request on github yet as Andreas have
+> > not decided yet about dosfstools/fatlabel...
+> 
+> OK.
 
-This seems independent of my patch. The test-suite does not survive when 
-flock timeouts after 30s because then ts_cleanup_on_exit() may use 
-resources (e.g. rmmod scsi_debug) while not having the lock. You will 
-see it even better when using
+Andreas now accepted this change into dosfstools project so I created
+official pull request: https://github.com/karelzak/util-linux/pull/586
 
-  flock --exclusive --timeout 1
-
-I'm going to fix that and send patches.
-
->
-> Maybe we can use --nolocks for debian-kfreebsd (TS_NOLOCKS in
-> tests/functions.sh).
+-- 
+Pali Rohár
+pali.rohar@gmail.com
