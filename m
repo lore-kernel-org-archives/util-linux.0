@@ -1,112 +1,69 @@
-Return-Path: sweet_f_a@gmx.de
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Ludwig Nussel <ludwig.nussel@suse.de>
-Subject: Re: agetty /etc/issue handling
-Date: Tue, 6 Mar 2018 14:51:36 +0100
-Cc: Karel Zak <kzak@redhat.com>,
- util-linux@vger.kernel.org
-References: <2fb8c760-3be8-a77f-0ab1-ad67ebca63cb@suse.de> <20180306104110.k4tis2b23eqykqeh@ws.net.home> <5089360b-0a43-d754-ebd0-2d428af1c1af@suse.de>
-In-Reply-To: <5089360b-0a43-d754-ebd0-2d428af1c1af@suse.de>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:36550 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751142AbeCGKm4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 7 Mar 2018 05:42:56 -0500
+Date: Wed, 7 Mar 2018 11:42:52 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] tests: don't lock fd 1 (stdout)
+Message-ID: <20180307104252.zwdcehv27fp3ny6k@ws.net.home>
+References: <20180306233807.10756-1-sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <201803061451.37202.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180306233807.10756-1-sweet_f_a@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tuesday 06 March 2018, Ludwig Nussel wrote:
-> Karel Zak wrote:
-> > On Tue, Mar 06, 2018 at 10:40:14AM +0100, Ludwig Nussel wrote:
-> >> I just noticed that agetty gained support for /etc/issue.d. Very
-> >> cool!
-> >
-> > Thanks, according this feedback
-> > https://github.com/karelzak/util-linux/commit/1fc82a1360305f696dc1b
-> >e6105c9c56a9ea03f52#commitcomment-27947668
-> >
-> > it seems that /etc/issue.d may conflict with already existing
-> > solutions in OpenSUSE. Is it true?
->
-> There is a package called issue-generator
-> (https://github.com/thkukuk/issue-generator) that generates
-> /etc/issue based on content from /{usr/lib,run,etc}/issue.d. There is
-> no real conflict, just some partial overlap in features. IMO
-> issue-generator would be mostly obsolete as soon as agetty reads
-> those directories itself.
->
-> > I'll probably add --disable-agetty-issued to make it fully
-> > backwardly compatible.
->
-> TBH I don't think that's necessary.
->
-> >> Are there any plans to extend the way it reads those files to a
-> >> systemd style layering ie with read only parts in /usr,
-> >> potentially generated ones in /run etc?
-> >
-> > Good idea.
+On Wed, Mar 07, 2018 at 12:38:07AM +0100, Ruediger Meier wrote:
+> This is how this patch changes the test output:
+> 
+> --- /tmp/a      2018-03-06 22:31:15.000000000 +0000
+> +++ /tmp/b      2018-03-06 22:30:34.000000000 +0000
 
-> >> Especially the read only part would be interesting. That way
-> >> distros wouldn't need to ship /etc/isse at all and packages would
-> >> put their extension in /usr. Ie no interference with admin space.
-> >
-> > What is expected semantic (order)?
-> >
-> > Note that agetty requires the /etc/issue file, the directory is an
-> > extension to the file. The file may be empty or symlink. This is
-> > because "rm /etc/issue" is a way how some admins disable agetty
-> > output at all.
->
-> Alternative semantics would be to only use issue.d if /etc/issue
-> does NOT exist. That would assume that if /etc/issue exists, the
-> admin created it and doesn't want anything else to be displayed. To
-> display nothing the file could be created with zero size by the
-> admin.
-> Packages would then ship their static issue snippets in /usr and
-> generate dynamic ones in /run.
-> The admin would then have the option to either
-> * create custom content in /etc/issue.d that would be interwoven
->    with what packages provide - or
-> * create /etc/issue to only have that one displayed
+git-am had really difficult time to accept to your patch with patch in the patch
+comment :-)
 
-Yes this would be nice.
+> index d1c97e0b6..8cc148fb8 100644
+> --- a/tests/functions.sh
+> +++ b/tests/functions.sh
+> @@ -226,6 +226,8 @@ function ts_init_env {
+>  	local mydir=$(ts_abspath ${0%/*})
+>  	local tmp
+>  
+> +	shopt -s nullglob
+> +
 
-There should be a simple way for the *admin* to disable all these issues 
-directories to only show his well-maintained and tested /etc/issue, 
-regardless what other packages are installed now or in the future.
+1) It seems it breaks ts/ipcs/limits:ipcs_limits_check(), the sed
+   arguments in the line
 
-To be honest, I don't really like that emergency-critical things like 
-agetty will need to read dozens of files from many different file 
-systems ... just for cosmetical reasons. IMO a 3rd party 
-issue-generator is the better way.
+    "echo \$(cat /proc/sys/kernel/shmall) / 1024 \* $PAGE_SIZE | bc -l | sed 's/\..*//'"
 
-cu,
-Rudi
+are ignored, so with eval it calls
 
-> Distributions would then have to stop shipping /etc/issue in order
-> to allow the modular approach to take effect.
->
-> > with layering:
-> >
-> >   - verify /etc/issue (access F_OK -- required)
-> >   - read /etc/issue.d/*.issue
-> >   - read /run/agetty/issue.d/*.issue
-> >   - read /usr/lib/agetty/issue.d/*.issue
->
-> Is issue.d considered agetty specific or are other gettys expected
-> to follow suit? If the latter I'd omit the agetty subdirectory.
-> Alternatively for consistency you'd need to use /etc/agetty/issue.d
-> I guess :-)
-> The ordering of layer is right. In systemd semantics files take
-> preference in order, ie if the same file name exists in /etc and
-> /usr, only the one in /etc would be displayed.
->
-> > use-case:
-> >      - /etc = system specific files
->
-> ... created by the admin.
->
-> >      - /run = generated files
-> >      - /usr = installed 3rd party files
->
-> Not just third party, that is where packages put static files, ie the
-> distribution. So I'd move what we currently have in /etc/issue to
-> e.g. /usr/lib(/agetty)/issue.d/10-opensuse.issue
+    eval echo '$(cat' '/proc/sys/kernel/shmall)' / 1024 '\*' 4096 '|' bc -l '|' sed
+
+I have added
+
+    shopt -u nullglob 
+
+to the function to fix the problem. It seems it works.
+
+
+2) I see
+
+            mount: btrfs (fstab)                  ...
+                : btrfs                       ... OK
+                : auto                        ... SKIPPED (failed to lock fstab)
+
+
+ and with ./run.sh --parallel I see another "failed to lock" messages :-(
+
+
+Maybe we can use --nolocks for debian-kfreebsd (TS_NOLOCKS in
+tests/functions.sh).
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
