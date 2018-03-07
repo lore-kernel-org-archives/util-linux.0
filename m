@@ -1,92 +1,89 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:59840 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751186AbeCTQSy (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Tue, 20 Mar 2018 12:18:54 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w2KGI7i7007798
-        for <util-linux@vger.kernel.org>; Tue, 20 Mar 2018 12:18:53 -0400
-Received: from e06smtp12.uk.ibm.com (e06smtp12.uk.ibm.com [195.75.94.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2gu46pd69e-1
-        (version=TLSv1.2 cipher=AES256-SHA256 bits=256 verify=NOT)
-        for <util-linux@vger.kernel.org>; Tue, 20 Mar 2018 12:18:53 -0400
-Received: from localhost
-        by e06smtp12.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <util-linux@vger.kernel.org> from <gerald.schaefer@de.ibm.com>;
-        Tue, 20 Mar 2018 16:18:49 -0000
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Received: from mout.gmx.net ([212.227.17.22]:59577 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754178AbeCGJkZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 7 Mar 2018 04:40:25 -0500
+Received: from tenfore.ga-group.nl ([92.195.17.205]) by mail.gmx.com (mrgmx101
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0MfAog-1f4122045K-00OpNI for
+ <util-linux@vger.kernel.org>; Wed, 07 Mar 2018 10:40:24 +0100
+From: Ruediger Meier <sweet_f_a@gmx.de>
 To: util-linux@vger.kernel.org
-Cc: wild@linux.vnet.ibm.com, gerald.schaefer@de.ibm.com
-Subject: [PATCH] lsmem: fix total online/offline memory calculation
-Date: Tue, 20 Mar 2018 17:17:38 +0100
-Message-Id: <20180320161738.49439-1-gerald.schaefer@de.ibm.com>
+Subject: [PATCH] uuidd: don't truncate long socket paths
+Date: Wed,  7 Mar 2018 10:40:23 +0100
+Message-Id: <20180307094023.21198-1-sweet_f_a@gmx.de>
+In-Reply-To: <a1b8906b-0077-79c9-db5a-2d91756c2ebb@gentoo.org>
+References: <a1b8906b-0077-79c9-db5a-2d91756c2ebb@gentoo.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-lsmem currently calculates the total online/offline memory by iterating
-over all lsmem->blocks. Depending on the lsmem options, there may be
-only one lsmem->block, because all sysfs memory blocks could be merged
-into one. In this case, the calculation is wrong, because the individual
-online/offline state of the sysfs memory blocks is not preserved, but
-rather lsmem->blocks[0].state is set to the state of the first sysfs
-memory block, typically MEMORY_STATE_ONLINE (at least on s390).
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-This means that "Total offline memory" will always be calculated as 0
-in such cases, e.g. when using "lsmem --summary", or any options that
-would merge the table output to one line, like "lsmem -o RANGE":
+This was the error
+  uuidd: couldn't bind unix socket /var/tmp/portage/sys-apps/util-linux-2.31.1/work/util-linux-2.31.1-abi_x86_64.amd64/tests/output/uuid/uuiddkOcTUuoZ7kaP3: Address already in use
 
-~# lsmem --summary
-Memory block size:         1G
-Total online memory:      20G
-Total offline memory:      0B
+because the socket path was truncated to 108 chars which was luckily
+an existing directory.
 
-Adding the "-a" option shows the real summary, since there is no block
-merging going on, and the calculation is therefore correct:
+Now we abort early with "uuidd: socket name too long: ... "
 
-~# lsmem -a --summary
-Memory block size:         1G
-Total online memory:      16G
-Total offline memory:      4G
-
-Fix this by moving the online/offline calculation into the loop that
-is iterating over all sysfs memory blocks, instead of iterating over
-potentially merged lsmem->blocks.
-
-Reported-by: Andre Wild <wild@linux.vnet.ibm.com>
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Reported-by: Thomas Deutschmann <whissi@gentoo.org>
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
 ---
- sys-utils/lsmem.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ misc-utils/uuidd.c  | 12 ++++++++----
+ tests/ts/uuid/uuidd |  3 ++-
+ 2 files changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/sys-utils/lsmem.c b/sys-utils/lsmem.c
-index 3e06e43be74e..517207431c83 100644
---- a/sys-utils/lsmem.c
-+++ b/sys-utils/lsmem.c
-@@ -443,6 +443,10 @@ static void read_info(struct lsmem *lsmem)
- 
- 	for (i = 0; i < lsmem->ndirs; i++) {
- 		memory_block_read_attrs(lsmem, lsmem->dirs[i]->d_name, &blk);
-+		if (blk.state == MEMORY_STATE_ONLINE)
-+			lsmem->mem_online += lsmem->block_size;
-+		else
-+			lsmem->mem_offline += lsmem->block_size;
- 		if (is_mergeable(lsmem, &blk)) {
- 			lsmem->blocks[lsmem->nblocks - 1].count++;
- 			continue;
-@@ -451,12 +455,6 @@ static void read_info(struct lsmem *lsmem)
- 		lsmem->blocks = xrealloc(lsmem->blocks, lsmem->nblocks * sizeof(blk));
- 		*&lsmem->blocks[lsmem->nblocks - 1] = blk;
+diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
+index e7c25cfa1..ca2ae8cf7 100644
+--- a/misc-utils/uuidd.c
++++ b/misc-utils/uuidd.c
+@@ -118,8 +118,8 @@ static int call_daemon(const char *socket_path, int op, char *buf,
  	}
--	for (i = 0; i < lsmem->nblocks; i++) {
--		if (lsmem->blocks[i].state == MEMORY_STATE_ONLINE)
--			lsmem->mem_online += lsmem->block_size * lsmem->blocks[i].count;
--		else
--			lsmem->mem_offline += lsmem->block_size * lsmem->blocks[i].count;
--	}
- }
  
- static int memory_block_filter(const struct dirent *de)
+ 	srv_addr.sun_family = AF_UNIX;
+-	strncpy(srv_addr.sun_path, socket_path, sizeof(srv_addr.sun_path));
+-	srv_addr.sun_path[sizeof(srv_addr.sun_path) - 1] = '\0';
++	assert(strlen(socket_path) < sizeof(srv_addr.sun_path));
++	xstrncpy(srv_addr.sun_path, socket_path, sizeof(srv_addr.sun_path));
+ 
+ 	if (connect(s, (const struct sockaddr *) &srv_addr,
+ 		    sizeof(struct sockaddr_un)) < 0) {
+@@ -252,8 +252,8 @@ static int create_socket(struct uuidd_cxt_t *uuidd_cxt,
+ 	 * Create the address we will be binding to.
+ 	 */
+ 	my_addr.sun_family = AF_UNIX;
+-	strncpy(my_addr.sun_path, socket_path, sizeof(my_addr.sun_path));
+-	my_addr.sun_path[sizeof(my_addr.sun_path) - 1] = '\0';
++	assert(strlen(socket_path) < sizeof(my_addr.sun_path));
++	xstrncpy(my_addr.sun_path, socket_path, sizeof(my_addr.sun_path));
+ 	unlink(socket_path);
+ 	save_umask = umask(0);
+ 	if (bind(s, (const struct sockaddr *) &my_addr,
+@@ -636,6 +636,10 @@ int main(int argc, char **argv)
+ 		}
+ 	}
+ 
++	if (strlen(socket_path) >= sizeof(((struct sockaddr_un *)0)->sun_path)) {
++		errx(EXIT_FAILURE, _("socket name too long: %s"), socket_path);
++	}
++
+ 	if (!no_pid && !pidfile_path)
+ 		pidfile_path = UUIDD_PIDFILE_PATH;
+ 
+diff --git a/tests/ts/uuid/uuidd b/tests/ts/uuid/uuidd
+index 17cf29d06..16dc45e3f 100755
+--- a/tests/ts/uuid/uuidd
++++ b/tests/ts/uuid/uuidd
+@@ -23,7 +23,8 @@ ts_check_test_command "$TS_CMD_UUIDD"
+ 
+ OUTPUT_FILE="$(mktemp "${TS_OUTDIR}/uuiddXXXXXXXXXXXXX")"
+ UUIDD_PID="$(mktemp -u "${TS_OUTDIR}/uuiddXXXXXXXXXXXXX")"
+-UUIDD_SOCKET="$(mktemp -u "${TS_OUTDIR}/uuiddXXXXXXXXXXXXX")"
++# socket path must be short (SIZEOF_SOCKADDR_UN_SUN_PATH 108)
++UUIDD_SOCKET=$(mktemp "/tmp/ultest-$TS_COMPONENT-$TS_TESTNAME-socketXXXXXX")
+ 
+ $TS_CMD_UUIDD -p "$UUIDD_PID" -s "$UUIDD_SOCKET"
+ if [ $? -ne 0 ]; then
 -- 
-2.13.5
+2.13.6
 
