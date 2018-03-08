@@ -1,160 +1,87 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:34306 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751779AbeCES4M (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 5 Mar 2018 13:56:12 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 3B6FC72760
-        for <util-linux@vger.kernel.org>; Mon,  5 Mar 2018 18:56:12 +0000 (UTC)
-Received: from sulaco.redhat.com (ovpn-116-54.phx2.redhat.com [10.3.116.54])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id EB1C45D9CA
-        for <util-linux@vger.kernel.org>; Mon,  5 Mar 2018 18:56:11 +0000 (UTC)
-From: Tony Asleson <tasleson@redhat.com>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/1] libblkid: ignore private Stratis devices
-Date: Mon,  5 Mar 2018 12:56:11 -0600
-Message-Id: <20180305185611.16667-2-tasleson@redhat.com>
-In-Reply-To: <20180305185611.16667-1-tasleson@redhat.com>
-References: <20180305185611.16667-1-tasleson@redhat.com>
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:45864 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751616AbeCHKXz (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 8 Mar 2018 05:23:55 -0500
+Date: Thu, 8 Mar 2018 11:23:51 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Ludwig Nussel <ludwig.nussel@suse.de>, util-linux@vger.kernel.org
+Subject: Re: agetty /etc/issue handling
+Message-ID: <20180308102351.l72qmcjhswd5acnx@ws.net.home>
+References: <2fb8c760-3be8-a77f-0ab1-ad67ebca63cb@suse.de>
+ <201803061451.37202.sweet_f_a@gmx.de>
+ <20180306143323.ssny4nslxnmsuoxu@ws.net.home>
+ <201803061637.09015.sweet_f_a@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201803061637.09015.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Ref. 20e1c3dc03399d6988ef35dedc1364cfc12e9263
+On Tue, Mar 06, 2018 at 04:37:08PM +0100, Ruediger Meier wrote:
+> On Tuesday 06 March 2018, Karel Zak wrote:
+> > On Tue, Mar 06, 2018 at 02:51:36PM +0100, Ruediger Meier wrote:
+> > > To be honest, I don't really like that emergency-critical things
+> > > like agetty will need to read dozens of files from many different
+> > > file systems ... just for cosmetical reasons. IMO a 3rd party
+> > > issue-generator is the better way.
+> >
+> > All the stuff should be optional.
+> >
+> > The reason is that growing number of use-cases where specific
+> > subsystem or software want to print any information by the issue
+> > file. (I mean containers, virtualization, serial line
+> > redirections/switches, etc.)
+> >
+> > We don't want to store generated things in /etc (read-only,
+> > state-less machines, ...), so at least /run (usually tmpfs) seems
+> > like good choice.
+> 
+> I see the use case but I don't see that we need new functionality inside 
+> agetty because distros could either use
+> 
+>   agetty --issue-file /run/generated-issues
+> 
+> or
+> 
+>   ln -sf /run/generated-issues /etc/issues
+> 
+> Speaking as an admin I really hate that distros nowadays introduce more 
+> and more techniques to let 3rd parties change global setup within /usr 
+> (where I don't see it) instead of using /etc which I track and review 
+> using git.
+> 
+> I fully understand that this makes it much easier for the distro 
+> developers. But the resulting systems are more difficult and complex to 
+> understand and to debug for the admins.
 
-Signed-off-by: Tony Asleson <tasleson@redhat.com>
----
- disk-utils/fdisk-list.c |  2 +-
- include/sysfs.h         |  2 +-
- lib/sysfs.c             | 39 +++++++++++++++++++++++++++++----------
- libblkid/src/probe.c    |  4 ++--
- libblkid/src/verify.c   |  2 +-
- 5 files changed, 34 insertions(+), 15 deletions(-)
+That's all about different update cycles for different setting. The
+/etc is place for manually created setup, /run for generated and /usr
+for static distro stuff (from packages). You don't want to maintain 
+all on the same place.
 
-diff --git a/disk-utils/fdisk-list.c b/disk-utils/fdisk-list.c
-index a46883d18..dd498a37f 100644
---- a/disk-utils/fdisk-list.c
-+++ b/disk-utils/fdisk-list.c
-@@ -334,7 +334,7 @@ char *next_proc_partition(FILE **f)
- 		if (devno <= 0)
- 			continue;
- 
--		if (sysfs_devno_is_lvm_private(devno, NULL) ||
-+		if (sysfs_devno_is_dm_private(devno, NULL) ||
- 		    sysfs_devno_is_wholedisk(devno) <= 0)
- 			continue;
- 
-diff --git a/include/sysfs.h b/include/sysfs.h
-index 7e715ee85..9a72a2009 100644
---- a/include/sysfs.h
-+++ b/include/sysfs.h
-@@ -81,7 +81,7 @@ extern int sysfs_is_partition_dirent(DIR *dir, struct dirent *d,
- extern int sysfs_devno_to_wholedisk(dev_t dev, char *diskname,
-             size_t len, dev_t *diskdevno);
- 
--extern int sysfs_devno_is_lvm_private(dev_t devno, char **uuid);
-+extern int sysfs_devno_is_dm_private(dev_t devno, char **uuid);
- extern int sysfs_devno_is_wholedisk(dev_t devno);
- 
- extern int sysfs_scsi_get_hctl(struct sysfs_cxt *cxt, int *h,
-diff --git a/lib/sysfs.c b/lib/sysfs.c
-index b1b67c59f..099507881 100644
---- a/lib/sysfs.c
-+++ b/lib/sysfs.c
-@@ -9,6 +9,7 @@
- #include <fcntl.h>
- #include <sys/stat.h>
- #include <unistd.h>
-+#include <regex.h>
- 
- #include "c.h"
- #include "pathnames.h"
-@@ -844,28 +845,46 @@ err:
- }
- 
- /*
-- * Returns 1 if the device is private LVM device. The @uuid (if not NULL)
-+ * Returns 1 if the device is private device mapper device. The @uuid
-+ * (if not NULL)
-  * returns DM device UUID, use free() to deallocate.
-  */
--int sysfs_devno_is_lvm_private(dev_t devno, char **uuid)
-+int sysfs_devno_is_dm_private(dev_t devno, char **uuid)
- {
- 	struct sysfs_cxt cxt = UL_SYSFSCXT_EMPTY;
- 	char *id = NULL;
- 	int rc = 0;
-+	regex_t re;
- 
- 	if (sysfs_init(&cxt, devno, NULL) != 0)
- 		return 0;
- 
- 	id = sysfs_strdup(&cxt, "dm/uuid");
- 
--	/* Private LVM devices use "LVM-<uuid>-<name>" uuid format (important
--	 * is the "LVM" prefix and "-<name>" postfix).
--	 */
--	if (id && strncmp(id, "LVM-", 4) == 0) {
--		char *p = strrchr(id + 4, '-');
--
--		if (p && *(p + 1))
--			rc = 1;
-+	if (id) {
-+		/* Private LVM devices use "LVM-<uuid>-<name>" uuid format (important
-+		 * is the "LVM" prefix and "-<name>" postfix).
-+		 */
-+		if (strncmp(id, "LVM-", 4) == 0) {
-+			char *p = strrchr(id + 4, '-');
-+
-+			if (p && *(p + 1))
-+				rc = 1;
-+
-+		} else if (strncmp(id, "stratis-", 8) == 0) {
-+			/* Private Stratis devices will be those that start with "stratis-"
-+			 * and that do not match the expected pattern for a thinly
-+			 * provisioned device.
-+			 */
-+			if (!regcomp(&re,
-+						"^stratis-1-[0-9a-f]{32}-thin-fs-[0-9a-f]{32}$",
-+						REG_EXTENDED)) {
-+				if (REG_NOMATCH == regexec(&re, id, 0, NULL, 0))
-+					rc = 1;
-+
-+				regfree(&re);
-+			}
-+		}
- 	}
- 
- 	sysfs_deinit(&cxt);
-diff --git a/libblkid/src/probe.c b/libblkid/src/probe.c
-index 74eaffd2b..647ae416a 100644
---- a/libblkid/src/probe.c
-+++ b/libblkid/src/probe.c
-@@ -923,8 +923,8 @@ int blkid_probe_set_device(blkid_probe pr, int fd,
- 		pr->flags |= BLKID_FL_TINY_DEV;
- 
- 	if (S_ISBLK(sb.st_mode) &&
--	    sysfs_devno_is_lvm_private(sb.st_rdev, &dm_uuid)) {
--		DBG(LOWPROBE, ul_debug("ignore private LVM device"));
-+	    sysfs_devno_is_dm_private(sb.st_rdev, &dm_uuid)) {
-+		DBG(LOWPROBE, ul_debug("ignore private device mapper device"));
- 		pr->flags |= BLKID_FL_NOSCAN_DEV;
- 	}
- 
-diff --git a/libblkid/src/verify.c b/libblkid/src/verify.c
-index d84894b10..7f44f5497 100644
---- a/libblkid/src/verify.c
-+++ b/libblkid/src/verify.c
-@@ -114,7 +114,7 @@ blkid_dev blkid_verify(blkid_cache cache, blkid_dev dev)
- 		   (unsigned long)diff));
- #endif
- 
--	if (sysfs_devno_is_lvm_private(st.st_rdev, NULL)) {
-+	if (sysfs_devno_is_dm_private(st.st_rdev, NULL)) {
- 		blkid_free_dev(dev);
- 		return NULL;
- 	}
+There is also dramatically growing number of systems where is no admin
+at all and all is generated on the fly, root is read-only and after
+installation it's expected that system (container) just works with
+minimal extra tuning by post-install scripts. We have to reflect these
+use-cases too.
+
+Anyway, it's backwardly compatible. You can use /etc/issue as 20 years
+ago. This is the most important thing for me. Nobody forces anyone to 
+use the new features and it's distro decision if they want to use 
+/usr/lib, etc. We're ready for both use-cases.
+
+> BTW looking over /etc we could actually use the "agetty argument" to 
+> introduce the "/usr-/run/-/etc merge technique" also for any other 
+> programs too. Why not moving the distro's default
+> /etc/hosts, /etc/services, /etc/ntp.conf, /etc/cron.d, *everything* 
+> to /usr? No more noise in /etc on upgrade/install...
+
+Maybe one day... :-)
+
+    Karel
+
 -- 
-2.13.6
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
