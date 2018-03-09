@@ -1,73 +1,71 @@
-Return-Path: pali.rohar@gmail.com
-Date: Wed, 28 Feb 2018 23:03:19 +0100
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: Jan Kara <jack@suse.cz>
-Cc: Karel Zak <kzak@redhat.com>, Steve Kenton <skenton@ou.edu>,
-	util-linux@vger.kernel.org,
-	Michael Kerrisk <mtk.manpages@gmail.com>
-Subject: Re: [PATCH 1/1] Update mount options for UDF
-Message-ID: <20180228220319.ccosidfzrdlowwqu@pali>
-References: <20180227184407.5945-1-skenton@ou.edu>
- <20180228130828.j3wbez6pzzzeknuc@ws.net.home>
- <20180228133220.3rmkcqnk6giry4bk@quack2.suse.cz>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.gmx.net ([212.227.17.22]:58961 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932108AbeCIWQb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 9 Mar 2018 17:16:31 -0500
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: debug parallel root checks
+Date: Fri, 9 Mar 2018 23:16:24 +0100
+Cc: util-linux@vger.kernel.org
+References: <201803091547.40271.sweet_f_a@gmx.de> <201803091606.08473.sweet_f_a@gmx.de> <20180309214622.fys7a24fkiiyvrxa@ws.net.home>
+In-Reply-To: <20180309214622.fys7a24fkiiyvrxa@ws.net.home>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cjbf437rn2tnu7xb"
-In-Reply-To: <20180228133220.3rmkcqnk6giry4bk@quack2.suse.cz>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201803092316.24853.sweet_f_a@gmx.de>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Friday 09 March 2018, Karel Zak wrote:
+> On Fri, Mar 09, 2018 at 04:06:08PM +0100, Ruediger Meier wrote:
+> > On Friday 09 March 2018, Ruediger Meier wrote:
+> > > Hi,
+> > >
+> > > Our parallel root checks look already nice on the first view.
+> > > On the second view they fail the stress test, at least on my
+> > > system.
+> >
+> > Just an arbitrary example. Sometimes I get this failure
+> >
+> > $ cat  tests/diff/mount/uuid
+> > --- /tmp/ul2/tests/expected/mount/uuid  2018-03-09
+> > 11:04:54.992654305 +0100 +++ /tmp/ul2/tests/output/mount/uuid   
+> > 2018-03-09 15:55:00.168028810 +0100 @@ -1 +1,2 @@
+> > -Success
+> > +mount: /tmp/ul2/tests/output/mount/uuid-mnt: can't find
+> > UUID="f102445a-f6f3-4657-bc58-81ff164fc0d9". +A) Cannot find
+> > /dev/loop10 in /proc/mounts
+> >
+> >
+> > So mount can't find that UUID although it was found before by
+> > ts_uuid_by_devname, i.e. by blkid(1).
+> >
+> > What could be the problem:
+> >    - another test thread removed the UUID
+> >    - invalid blkid cache
+> >    - a bug?
+>
+> We do not use blkid cache, it should be based on udev symmlinks. The
+> symlinks are not ready yet. I guess sleep() or so fixed the problem.
 
---cjbf437rn2tnu7xb
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I've found now a really stpuid bug which fixes already a lot.
 
-On Wednesday 28 February 2018 14:32:20 Jan Kara wrote:
-> On Wed 28-02-18 14:08:28, Karel Zak wrote:
-> > On Tue, Feb 27, 2018 at 12:44:07PM -0600, Steve Kenton wrote:
-> > > Signed-off-by: Steve Kenton <skenton@ou.edu>
-> > > Acked-by: Jan Kara <jack@suse.cz>
-> > > ---
-> > >  sys-utils/mount.8 | 89 +++++++++++++++++++++++++++++++++++++++++----=
-----------
-> > >  1 file changed, 67 insertions(+), 22 deletions(-)
-> >=20
-> > Applied, thanks.
-> >=20
-> > Jan, what about to create udf(5) man page? We already have fs-specific
-> > man pages (e.g. ext4, tmpfs, nfs, btrfs, ...). It's usually maintained
-> > within fs-specific tools (e.g. ext4 -> e2fsprogs) or together with
-> > standard man-pages (CC: to Michael).
->=20
-> I'm fine with that. Pali is actually the maintainer of udf-tools so if he
-> is willing to take the manpage there, it's probably the best place.
+-----------
+ tests: fix grep expressions for devices
 
-Is udftools the best place for kernel udf mount options? Because
-userspace udftools are not needed for kernel udf driver, nor for
-mounting existing udf filesystem.
+ts_is_mounted "/dev/loop1" returned true if /dev/loop17 was
+mounted. A very annoying source of sporadic failures since
+many years. This issue became more visible since running the
+checks in parallel, which increases the probability to get
+bigger loop device numbers.
 
-For me it looks like that kernel drivers should have its documentation
-in kernel itself...
+https://github.com/karelzak/util-linux/pull/594/commits/5a33a0cdb069b3e86c044eb4f80d0c2104c558b2
+-----------
 
-Anyway, I have not know yet that there is e.g. ext4 manpage which
-describe mount options. I was always looking into mount.8 manpage for
-filesystem mount parameters.
+Can't believe that I haven't noticed this bug a few years
+earlier ... Now I'm able to run that test loop endless and
+collect all tests which still have instabilities.
 
-The only missing filesystem in mount.8 is nfs, but that is probably
-because mount uses mount.nfs helper.
-
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---cjbf437rn2tnu7xb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWpcnJAAKCRCL8Mk9A+RD
-UgqSAKDHVQtGA7lg0gQrNVpKJPZa7oA1swCgxgEg/7FRSYbS57cnXELk+JJwMH0=
-=UlRG
------END PGP SIGNATURE-----
-
---cjbf437rn2tnu7xb--
+cu,
+Rudi
