@@ -1,51 +1,40 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:38315 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751122AbeCIPGK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 9 Mar 2018 10:06:10 -0500
-Received: from zappa.l.ga-group.nl ([87.128.112.108]) by mail.gmx.com
- (mrgmx101 [212.227.17.168]) with ESMTPSA (Nemesis) id
- 0Lip2P-1eOZHY1Foz-00cwWe for <util-linux@vger.kernel.org>; Fri, 09 Mar 2018
- 16:06:09 +0100
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: Re: debug parallel root checks
-Date: Fri, 9 Mar 2018 16:06:08 +0100
-References: <201803091547.40271.sweet_f_a@gmx.de>
-In-Reply-To: <201803091547.40271.sweet_f_a@gmx.de>
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:38236 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751190AbeCIMhU (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 9 Mar 2018 07:37:20 -0500
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 5F9DA76FBA
+        for <util-linux@vger.kernel.org>; Fri,  9 Mar 2018 12:37:19 +0000 (UTC)
+Date: Fri, 9 Mar 2018 13:37:16 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Tony Asleson <tasleson@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH v2] libblkid: ignore private Stratis devices
+Message-ID: <20180309123716.knvvh2dea42hcx66@ws.net.home>
+References: <20180308214126.29589-1-tasleson@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201803091606.08473.sweet_f_a@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180308214126.29589-1-tasleson@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Friday 09 March 2018, Ruediger Meier wrote:
-> Hi,
->
-> Our parallel root checks look already nice on the first view.
-> On the second view they fail the stress test, at least on my
-> system.
+On Thu, Mar 08, 2018 at 03:41:26PM -0600, Tony Asleson wrote:
+>  disk-utils/fdisk-list.c |  2 +-
+>  include/sysfs.h         |  2 +-
+>  lib/sysfs.c             | 24 ++++++++++++++++--------
+>  libblkid/src/probe.c    |  4 ++--
+>  libblkid/src/verify.c   |  2 +-
+>  5 files changed, 21 insertions(+), 13 deletions(-)
+ 
+ Applied, thanks.
 
-Just an arbitrary example. Sometimes I get this failure
+ (We're before release, but it's one strncmp(), so not problem...)
 
-$ cat  tests/diff/mount/uuid
---- /tmp/ul2/tests/expected/mount/uuid  2018-03-09 11:04:54.992654305 +0100
-+++ /tmp/ul2/tests/output/mount/uuid    2018-03-09 15:55:00.168028810 +0100
-@@ -1 +1,2 @@
--Success
-+mount: /tmp/ul2/tests/output/mount/uuid-mnt: can't find UUID="f102445a-f6f3-4657-bc58-81ff164fc0d9".
-+A) Cannot find /dev/loop10 in /proc/mounts
+    Karel
 
-
-So mount can't find that UUID although it was found before by
-ts_uuid_by_devname, i.e. by blkid(1).
-
-What could be the problem:
-   - another test thread removed the UUID
-   - invalid blkid cache
-   - a bug?
-
-
-cu,
-Rudi
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
