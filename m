@@ -1,64 +1,62 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:38510 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752603AbeCSKbf (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 19 Mar 2018 06:31:35 -0400
-Received: by mail-wr0-f193.google.com with SMTP id l8so18006150wrg.5
-        for <util-linux@vger.kernel.org>; Mon, 19 Mar 2018 03:31:35 -0700 (PDT)
-From: Carlo Caione <carlo@caione.org>
-To: util-linux@vger.kernel.org, linux@endlessm.com
-Cc: Carlo Caione <carlo@endlessm.com>
-Subject: [PATCH] lib/randutils: Do not block on getrandom()
-Date: Mon, 19 Mar 2018 10:31:07 +0000
-Message-Id: <20180319103107.14517-1-carlo@caione.org>
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:33440 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750732AbeCJVU2 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 10 Mar 2018 16:20:28 -0500
+Received: by mail-wr0-f194.google.com with SMTP id v18so12102196wrv.0
+        for <util-linux@vger.kernel.org>; Sat, 10 Mar 2018 13:20:28 -0800 (PST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH] closestream: remove dummy function __fpending()
+Date: Sat, 10 Mar 2018 21:20:24 +0000
+Message-Id: <20180310212024.5126-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Carlo Caione <carlo@endlessm.com>
+Exclude __fpending() from build when function is not available.  This is
+more obvious than adding a dummy function and expecting compiler to
+eliminate it as dead code.
 
-In Endless we have hit a problem when using 'sfdisk' on the really first
-boot to automatically expand the rootfs partition. On this platform
-'sfdisk' is blocking on getrandom() because not enough random bytes are
-available. This is an ARM platform without a hwrng.
-
-We fix this passing GRND_NONBLOCK to getrandom(). 'sfdisk' will use the
-best entropy it has available and fallback only as necessary.
-
-Signed-off-by: Carlo Caione <carlo@endlessm.com>
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- lib/randutils.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ include/closestream.h | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/lib/randutils.c b/lib/randutils.c
-index e1c4059e1..02c3d9eb0 100644
---- a/lib/randutils.c
-+++ b/lib/randutils.c
-@@ -36,6 +36,8 @@
+diff --git a/include/closestream.h b/include/closestream.h
+index 2dfe11360..b3b257c94 100644
+--- a/include/closestream.h
++++ b/include/closestream.h
+@@ -14,22 +14,20 @@
+ # define CLOSE_EXIT_CODE EXIT_FAILURE
+ #endif
  
- #if !defined(HAVE_GETRANDOM) && defined(SYS_getrandom)
- /* libc without function, but we have syscal */
-+#define GRND_NONBLOCK 0x01
-+#define GRND_RANDOM 0x02
- static int getrandom(void *buf, size_t buflen, unsigned int flags)
+-#ifndef HAVE___FPENDING
+-static inline int
+-__fpending(FILE *stream __attribute__((__unused__)))
+-{
+-	return 0;
+-}
+-#endif
+-
+ static inline int
+ close_stream(FILE * stream)
  {
- 	return (syscall(SYS_getrandom, buf, buflen, flags));
-@@ -104,13 +106,15 @@ void random_get_bytes(void *buf, size_t nbytes)
- 		int x;
++#ifdef HAVE___FPENDING
+ 	const int some_pending = (__fpending(stream) != 0);
++#endif
+ 	const int prev_fail = (ferror(stream) != 0);
+ 	const int fclose_fail = (fclose(stream) != 0);
  
- 		errno = 0;
--		x = getrandom(cp, n, 0);
-+		x = getrandom(cp, n, GRND_NONBLOCK);
- 		if (x > 0) {			/* success */
- 		       n -= x;
- 		       cp += x;
- 		       lose_counter = 0;
- 		} else if (errno == ENOSYS)	/* kernel without getrandom() */
- 			break;
-+		else if (errno == EAGAIN)
-+			break;
- 		else if (lose_counter++ > 16)	/* entropy problem? */
- 			break;
- 	}
+-	if (prev_fail || (fclose_fail && (some_pending || errno != EBADF))) {
++	if (prev_fail || (fclose_fail && (
++#ifdef HAVE___FPENDING
++					  some_pending ||
++#endif
++					  errno != EBADF))) {
+ 		if (!fclose_fail && !(errno == EPIPE))
+ 			errno = 0;
+ 		return EOF;
 -- 
-2.14.1
+2.16.2
 
