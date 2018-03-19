@@ -1,71 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:58961 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932108AbeCIWQb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 9 Mar 2018 17:16:31 -0500
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: Karel Zak <kzak@redhat.com>
-Subject: Re: debug parallel root checks
-Date: Fri, 9 Mar 2018 23:16:24 +0100
-Cc: util-linux@vger.kernel.org
-References: <201803091547.40271.sweet_f_a@gmx.de> <201803091606.08473.sweet_f_a@gmx.de> <20180309214622.fys7a24fkiiyvrxa@ws.net.home>
-In-Reply-To: <20180309214622.fys7a24fkiiyvrxa@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <201803092316.24853.sweet_f_a@gmx.de>
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:38510 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752603AbeCSKbf (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 19 Mar 2018 06:31:35 -0400
+Received: by mail-wr0-f193.google.com with SMTP id l8so18006150wrg.5
+        for <util-linux@vger.kernel.org>; Mon, 19 Mar 2018 03:31:35 -0700 (PDT)
+From: Carlo Caione <carlo@caione.org>
+To: util-linux@vger.kernel.org, linux@endlessm.com
+Cc: Carlo Caione <carlo@endlessm.com>
+Subject: [PATCH] lib/randutils: Do not block on getrandom()
+Date: Mon, 19 Mar 2018 10:31:07 +0000
+Message-Id: <20180319103107.14517-1-carlo@caione.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Friday 09 March 2018, Karel Zak wrote:
-> On Fri, Mar 09, 2018 at 04:06:08PM +0100, Ruediger Meier wrote:
-> > On Friday 09 March 2018, Ruediger Meier wrote:
-> > > Hi,
-> > >
-> > > Our parallel root checks look already nice on the first view.
-> > > On the second view they fail the stress test, at least on my
-> > > system.
-> >
-> > Just an arbitrary example. Sometimes I get this failure
-> >
-> > $ cat  tests/diff/mount/uuid
-> > --- /tmp/ul2/tests/expected/mount/uuid  2018-03-09
-> > 11:04:54.992654305 +0100 +++ /tmp/ul2/tests/output/mount/uuid   
-> > 2018-03-09 15:55:00.168028810 +0100 @@ -1 +1,2 @@
-> > -Success
-> > +mount: /tmp/ul2/tests/output/mount/uuid-mnt: can't find
-> > UUID="f102445a-f6f3-4657-bc58-81ff164fc0d9". +A) Cannot find
-> > /dev/loop10 in /proc/mounts
-> >
-> >
-> > So mount can't find that UUID although it was found before by
-> > ts_uuid_by_devname, i.e. by blkid(1).
-> >
-> > What could be the problem:
-> >    - another test thread removed the UUID
-> >    - invalid blkid cache
-> >    - a bug?
->
-> We do not use blkid cache, it should be based on udev symmlinks. The
-> symlinks are not ready yet. I guess sleep() or so fixed the problem.
+From: Carlo Caione <carlo@endlessm.com>
 
-I've found now a really stpuid bug which fixes already a lot.
+In Endless we have hit a problem when using 'sfdisk' on the really first
+boot to automatically expand the rootfs partition. On this platform
+'sfdisk' is blocking on getrandom() because not enough random bytes are
+available. This is an ARM platform without a hwrng.
 
------------
- tests: fix grep expressions for devices
+We fix this passing GRND_NONBLOCK to getrandom(). 'sfdisk' will use the
+best entropy it has available and fallback only as necessary.
 
-ts_is_mounted "/dev/loop1" returned true if /dev/loop17 was
-mounted. A very annoying source of sporadic failures since
-many years. This issue became more visible since running the
-checks in parallel, which increases the probability to get
-bigger loop device numbers.
+Signed-off-by: Carlo Caione <carlo@endlessm.com>
+---
+ lib/randutils.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-https://github.com/karelzak/util-linux/pull/594/commits/5a33a0cdb069b3e86c044eb4f80d0c2104c558b2
------------
+diff --git a/lib/randutils.c b/lib/randutils.c
+index e1c4059e1..02c3d9eb0 100644
+--- a/lib/randutils.c
++++ b/lib/randutils.c
+@@ -36,6 +36,8 @@
+ 
+ #if !defined(HAVE_GETRANDOM) && defined(SYS_getrandom)
+ /* libc without function, but we have syscal */
++#define GRND_NONBLOCK 0x01
++#define GRND_RANDOM 0x02
+ static int getrandom(void *buf, size_t buflen, unsigned int flags)
+ {
+ 	return (syscall(SYS_getrandom, buf, buflen, flags));
+@@ -104,13 +106,15 @@ void random_get_bytes(void *buf, size_t nbytes)
+ 		int x;
+ 
+ 		errno = 0;
+-		x = getrandom(cp, n, 0);
++		x = getrandom(cp, n, GRND_NONBLOCK);
+ 		if (x > 0) {			/* success */
+ 		       n -= x;
+ 		       cp += x;
+ 		       lose_counter = 0;
+ 		} else if (errno == ENOSYS)	/* kernel without getrandom() */
+ 			break;
++		else if (errno == EAGAIN)
++			break;
+ 		else if (lose_counter++ > 16)	/* entropy problem? */
+ 			break;
+ 	}
+-- 
+2.14.1
 
-Can't believe that I haven't noticed this bug a few years
-earlier ... Now I'm able to run that test loop endless and
-collect all tests which still have instabilities.
-
-cu,
-Rudi
