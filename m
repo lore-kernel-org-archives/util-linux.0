@@ -1,108 +1,381 @@
-Return-Path: pali.rohar@gmail.com
-Date: Thu, 19 Apr 2018 17:25:42 +0200
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: Karel Zak <kzak@redhat.com>
-Cc: Jan Kara <jack@suse.cz>, Steve Kenton <skenton@ou.edu>,
-	util-linux@vger.kernel.org,
-	Michael Kerrisk <mtk.manpages@gmail.com>
-Subject: Re: [PATCH 1/1] Update mount options for UDF
-Message-ID: <20180419152542.neoemd7i2wsjutdj@pali>
-References: <20180227184407.5945-1-skenton@ou.edu>
- <20180228130828.j3wbez6pzzzeknuc@ws.net.home>
- <20180228133220.3rmkcqnk6giry4bk@quack2.suse.cz>
- <20180228220319.ccosidfzrdlowwqu@pali>
- <20180301110851.tc7erpwy3duhvzxw@ws.net.home>
- <20180301172408.wsggwvmb33oogmex@pali>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx2.hi.is ([130.208.165.104]:40698 "EHLO mx2.hi.is"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751766AbeCaWu4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sat, 31 Mar 2018 18:50:56 -0400
+Received: from hekla.rhi.hi.is (hekla.rhi.hi.is [IPv6:2a00:c88:4000:1650::165:2])
+        by mx2.hi.is (8.14.7/8.14.7) with ESMTP id w2VMonPE001947
+        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
+        for <util-linux@vger.kernel.org>; Sat, 31 Mar 2018 22:50:51 GMT
+Received: from hekla.rhi.hi.is (localhost [127.0.0.1])
+        by hekla.rhi.hi.is (8.14.4/8.14.4) with ESMTP id w2VMon6B032422
+        for <util-linux@vger.kernel.org>; Sat, 31 Mar 2018 22:50:49 GMT
+Received: (from bjarniig@localhost)
+        by hekla.rhi.hi.is (8.14.4/8.14.4/Submit) id w2VMonp1032421
+        for util-linux@vger.kernel.org; Sat, 31 Mar 2018 22:50:49 GMT
+Date: Sat, 31 Mar 2018 22:50:49 +0000
+From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] sys-utils/fallocate.1: Some tidying of the manual
+Message-ID: <20180331225048.GA32373@rhi.hi.is>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="hwsgbjq2oksilfbo"
-In-Reply-To: <20180301172408.wsggwvmb33oogmex@pali>
+Content-Type: text/plain; charset=us-ascii
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Test nr. 2:
 
---hwsgbjq2oksilfbo
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Enable and fix warnings from 'test-groff'.
 
-On Thursday 01 March 2018 18:24:08 Pali Roh=C3=A1r wrote:
-> On Thursday 01 March 2018 12:08:51 Karel Zak wrote:
-> > On Wed, Feb 28, 2018 at 11:03:19PM +0100, Pali Roh=C3=A1r wrote:
-> > > On Wednesday 28 February 2018 14:32:20 Jan Kara wrote:
-> > > > On Wed 28-02-18 14:08:28, Karel Zak wrote:
-> > > > > On Tue, Feb 27, 2018 at 12:44:07PM -0600, Steve Kenton wrote:
-> > > > > > Signed-off-by: Steve Kenton <skenton@ou.edu>
-> > > > > > Acked-by: Jan Kara <jack@suse.cz>
-> > > > > > ---
-> > > > > >  sys-utils/mount.8 | 89 +++++++++++++++++++++++++++++++++++++++=
-++--------------
-> > > > > >  1 file changed, 67 insertions(+), 22 deletions(-)
-> > > > >=20
-> > > > > Applied, thanks.
-> > > > >=20
-> > > > > Jan, what about to create udf(5) man page? We already have fs-spe=
-cific
-> > > > > man pages (e.g. ext4, tmpfs, nfs, btrfs, ...). It's usually maint=
-ained
-> > > > > within fs-specific tools (e.g. ext4 -> e2fsprogs) or together with
-> > > > > standard man-pages (CC: to Michael).
-> > > >=20
-> > > > I'm fine with that. Pali is actually the maintainer of udf-tools so=
- if he
-> > > > is willing to take the manpage there, it's probably the best place.
-> > >=20
-> > > Is udftools the best place for kernel udf mount options? Because
-> > > userspace udftools are not needed for kernel udf driver, nor for
-> > > mounting existing udf filesystem.
-> >=20
-> > This is reason why Michael is in CC: :-)
->=20
-> Ok :-)
->=20
-> > > For me it looks like that kernel drivers should have its documentation
-> > > in kernel itself...
-> > >=20
-> > > Anyway, I have not know yet that there is e.g. ext4 manpage which
-> > > describe mount options. I was always looking into mount.8 manpage for
-> > > filesystem mount parameters.
-> >=20
-> > There is no extN stuff anymore in mount.8.
->=20
-> Ah, ok. I have Debian stable on servers which has older mount.8 with
-> ext* options.
->=20
-> > > The only missing filesystem in mount.8 is nfs, but that is probably
-> > > because mount uses mount.nfs helper.
-> >=20
-> > Unfortunately, it's nothing unusual that mount.8 is ignored by FS
-> > devels and not up to date... so the idea is keep FS docs near to=20
-> > the FS developers to improve things ;-)=20
-> >=20
-> > For example NFS developers have decided to maintain it in nfs-utils,
-> > extN in e2fsprogs, tmpfs and procfs in Michaels' man-pages, etc.
-> >=20
-> > Anyway, I have no problem to maintain UDF (or another) mount options=20
-> > in mount.8. It's your choice. Your patches for mount.8 are welcomed.
->=20
-> So wait for Michael answer...
+Input file is /tmp/fallocate.1
 
-So do you have any answer?
+<fallocate.1>:10 (macro IR): only 1 argument, but more are expected
+<fallocate.1>:24 (macro RB): only 1 argument, but more are expected
+<fallocate.1>:25 (macro IR): only 1 argument, but more are expected
 
-In the meanwhile I created a small update, check if it is OK:
-https://github.com/karelzak/util-linux/pull/622
+chk_manuals: Output is from: test-groff -b -e -mandoc -T utf8 -rF0 -t -w w -z
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+  and
 
---hwsgbjq2oksilfbo
-Content-Type: application/pgp-signature; name="signature.asc"
+Test nr. 15:
 
------BEGIN PGP SIGNATURE-----
+Change the name of a macro for two fonts (e.g., BR and IR) to one letter,
+if there is only one argument.
+Add the second argument if needed.  It is sometimes part of the first one.
 
-iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWti09AAKCRCL8Mk9A+RD
-UnMYAJ9Y973/Ko7IYS55zVdF744If+X9lgCfXxTa9cnFJtDYk8FygB2JHiU00JE=
-=YJuQ
------END PGP SIGNATURE-----
+10:.IR length
+24:.RB \-l
+25:.IR length
 
---hwsgbjq2oksilfbo--
+#####
+
+Test nr. 12:
+
+Change -- in x--y to \(em (em-dash), or, if an
+option, to \-\-
+
+65:You can think of this option as doing a "\fBcp --sparse\fP" and then renaming
+
+#####
+
+Test nr. 20:
+
+Use a macro to change to the italic font, instead of \fI [1], if
+possible.
+The macros have the italic corrections, but "\c" removes them.
+[1] man-pages(7)
+
+39:The \fIlength\fR and \fIoffset\fR
+50:to be collapsed starts at \fIoffset\fP and continues
+51:for \fIlength\fR bytes.  At the completion of the operation, the contents of
+52:the file starting at the location \fIoffset\fR+\fIlength\fR will be appended at the
+53:location \fIoffset\fR, and the file will be \fIlength\fR bytes smaller.  The option
+71:Insert a hole of \fIlength\fR bytes from \fIoffset\fR, shifting existing data.
+85:\fIoffset\fP and continuing for \fIlength\fR bytes.  Within the
+103:Zeroes space in the byte range starting at \fIoffset\fP and
+104:continuing for \fIlength\fR bytes.  Within the specified range, blocks are
+
+#####
+
+Test nr. 27:
+
+Split lines longer than 80 characters into two or more lines.
+Apropriate break points are the end of a sentence and a subordinate
+clause.
+
+fallocate.1: line 45	length 86
+fallocate.1: line 52	length 83
+fallocate.1: line 53	length 83
+fallocate.1: line 100	length 95
+
+#####
+
+Test nr. 28:
+
+Wrong distance between sentences or protect the indicator.
+
+1) Separate the sentences and subordinate clauses; each begins on a new
+line.  See man-pages(7) and "info groff".
+
+Or
+
+2) Adjust space between sentences (two spaces),
+
+3) or protect the indicator by adding "\&" after it.
+
+The "indicator" is an "end-of-sentence character" (.!?).
+
+99:Enable POSIX operation mode. In that mode allocation operation always completes,
+
+#####
+
+Test nr. 37:
+
+Have a space after a comma in an argument to an alternating fonts macro.
+The space belongs to the comma, so ', '.
+
+48:.BR \-c , " \-\-collapse\-range"
+58:.BR \-d , " \-\-dig\-holes"
+70:.BR \-i , " \-\-insert\-range"
+73:.BR \-l , " \-\-length " \fIlength
+76:.BR \-n , " \-\-keep\-size"
+80:.BR \-o , " \-\-offset " \fIoffset
+83:.BR \-p , " \-\-punch\-hole"
+95:.BR \-v , " \-\-verbose"
+98:.BR \-x , " \-\-posix"
+102:.BR \-z , " \-\-zero\-range"
+119:.BR \-V , " \-\-version"
+122:.BR \-h , " \-\-help"
+
+#####
+
+Test nr. 38:
+
+Email addresses use the macro ".MT" and end with ".ME".
+
+125:.UR sandeen@redhat.com
+129:.UR kzak@redhat.com
+
+#####
+
+Test nr. 40:
+
+Add a comma before "and", "or", or "nor" if a series contains three or
+more words
+
+41:MiB (=1024*1024), and so on for GiB, TiB, PiB, EiB, ZiB and YiB (the "iB" is
+43:KB (=1000), MB (=1000*1000), and so on for GB, TB, PB, EB, ZB and YB.
+45:The options \fB\-\-collapse\-range\fP, \fB\-\-dig\-holes\fP, \fB\-\-punch\-hole\fP and
+
+#####
+
+Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+---
+ sys-utils/fallocate.1 | 151 ++++++++++++++++++++++++++++++++------------------
+ 1 file changed, 98 insertions(+), 53 deletions(-)
+
+diff --git a/sys-utils/fallocate.1 b/sys-utils/fallocate.1
+index 0cbb5c994..d4821dcd1 100644
+--- a/sys-utils/fallocate.1
++++ b/sys-utils/fallocate.1
+@@ -7,7 +7,7 @@ fallocate \- preallocate or deallocate space to a file
+ .RB [ \-o
+ .IR offset ]
+ .B \-l
+-.IR length
++.I length
+ .RB [ \-n ]
+ .I filename
+ .PP
+@@ -21,89 +21,134 @@ fallocate \- preallocate or deallocate space to a file
+ .B fallocate \-x
+ .RB [ \-o
+ .IR offset ]
+-.RB \-l
+-.IR length
++.B \-l
++.I length
+ .I filename
+ .SH DESCRIPTION
+ .B fallocate
+-is used to manipulate the allocated disk space for a file, either to deallocate
+-or preallocate it.  For filesystems which support the fallocate system call,
++is used to manipulate the allocated disk space for a file,
++either to deallocate or preallocate it.
++For filesystems which support the fallocate system call,
+ preallocation is done quickly by allocating blocks and marking them as
+-uninitialized, requiring no IO to the data blocks.  This is much faster than
+-creating a file by filling it with zeroes.
++uninitialized, requiring no IO to the data blocks.
++This is much faster than creating a file by filling it with zeroes.
+ .PP
+ The exit code returned by
+ .B fallocate
+ is 0 on success and 1 on failure.
+ .SH OPTIONS
+-The \fIlength\fR and \fIoffset\fR
++The
++.I length
++and
++.I offset
+ arguments may be followed by the multiplicative suffixes KiB (=1024),
+-MiB (=1024*1024), and so on for GiB, TiB, PiB, EiB, ZiB and YiB (the "iB" is
++MiB (=1024*1024), and so on for GiB, TiB, PiB, EiB, ZiB, and YiB (the "iB" is
+ optional, e.g., "K" has the same meaning as "KiB") or the suffixes
+-KB (=1000), MB (=1000*1000), and so on for GB, TB, PB, EB, ZB and YB.
++KB (=1000), MB (=1000*1000), and so on for GB, TB, PB, EB, ZB, and YB.
+ .PP
+-The options \fB\-\-collapse\-range\fP, \fB\-\-dig\-holes\fP, \fB\-\-punch\-hole\fP and
+-\fB\-\-zero\-range\fP are mutually exclusive.
++The options
++.BR \-\-collapse\-range ", " \-\-dig\-holes ", " \-\-punch\-hole ,
++and
++.B \-\-zero\-range
++are mutually exclusive.
+ .TP
+-.BR \-c , " \-\-collapse\-range"
+-Removes a byte range from a file, without leaving a hole.  The byte range
+-to be collapsed starts at \fIoffset\fP and continues
+-for \fIlength\fR bytes.  At the completion of the operation, the contents of
+-the file starting at the location \fIoffset\fR+\fIlength\fR will be appended at the
+-location \fIoffset\fR, and the file will be \fIlength\fR bytes smaller.  The option
+-\fB\-\-keep\-size\fR may not be specified for the collapse-range operation.
++.BR \-c ", " \-\-collapse\-range
++Removes a byte range from a file, without leaving a hole.
++The byte range to be collapsed starts at
++.I offset
++and continues for
++.I length
++bytes.
++At the completion of the operation,
++the contents of the file starting at the location
++.IR offset + length
++will be appended at the location
++.IR offset ,
++and the file will be
++.I length
++bytes smaller.
++The option
++.B \-\-keep\-size
++may not be specified for the collapse-range operation.
+ .sp
+ Available since Linux 3.15 for ext4 (only for extent-based files) and XFS.
+ .TP
+-.BR \-d , " \-\-dig\-holes"
+-Detect and dig holes.  This makes the file sparse in-place, without using extra
+-disk space.  The minimum size of the hole depends on filesystem I/O block size
+-(usually 4096 bytes).  Also, when using this option, \fB\-\-keep\-size\fP is
+-implied.  If no range is specified by \fB\-\-offset\fP and \fB\-\-length\fP,
++.BR \-d ", " \-\-dig\-holes
++Detect and dig holes.
++This makes the file sparse in-place, without using extra disk space.
++The minimum size of the hole depends on filesystem I/O block size
++(usually 4096 bytes).
++Also, when using this option,
++.B \-\-keep\-size
++is implied.  If no range is specified by
++.B \-\-offset
++and
++.BR \-\-length ,
+ then the entire file is analyzed for holes.
+ .sp
+-You can think of this option as doing a "\fBcp --sparse\fP" and then renaming
+-the destination file to the original, without the need for extra disk space.
++You can think of this option as doing a
++.RB """" "cp \-\-sparse" """"
++and then renaming the destination file to the original,
++without the need for extra disk space.
+ .sp
+ See \fB\-\-punch\-hole\fP for a list of supported filesystems.
+ .TP
+-.BR \-i , " \-\-insert\-range"
+-Insert a hole of \fIlength\fR bytes from \fIoffset\fR, shifting existing data.
++.BR \-i ", " \-\-insert\-range
++Insert a hole of
++.I length
++bytes from
++.IR offset ,
++shifting existing data.
+ .TP
+-.BR \-l , " \-\-length " \fIlength
++.BR \-l ", " "\-\-length " \fIlength
+ Specifies the length of the range, in bytes.
+ .TP
+-.BR \-n , " \-\-keep\-size"
++.BR \-n ", " \-\-keep\-size
+ Do not modify the apparent length of the file.  This may effectively allocate
+ blocks past EOF, which can be removed with a truncate.
+ .TP
+-.BR \-o , " \-\-offset " \fIoffset
++.BR \-o ", " "\-\-offset " \fIoffset
+ Specifies the beginning offset of the range, in bytes.
+ .TP
+-.BR \-p , " \-\-punch\-hole"
++.BR \-p ", " \-\-punch\-hole
+ Deallocates space (i.e., creates a hole) in the byte range starting at
+-\fIoffset\fP and continuing for \fIlength\fR bytes.  Within the
+-specified range, partial filesystem blocks are zeroed, and whole
+-filesystem blocks are removed from the file.  After a successful
+-call, subsequent reads from this range will return zeroes.  This option
+-may not be specified at the same time as  the \fB\-\-zero\-range\fP option.
+-Also, when using this option, \fB\-\-keep\-size\fP is implied.
++.I offset
++and continuing for
++.I length
++bytes.
++Within the specified range, partial filesystem blocks are zeroed,
++and whole filesystem blocks are removed from the file.
++After a successful call,
++subsequent reads from this range will return zeroes.
++This option may not be specified at the same time as the
++.B \-\-zero\-range
++option.
++Also, when using this option,
++.B \-\-keep\-size
++is implied.
+ .sp
+ Supported for XFS (since Linux 2.6.38), ext4 (since Linux 3.0),
+ Btrfs (since Linux 3.7) and tmpfs (since Linux 3.5).
+ .TP
+-.BR \-v , " \-\-verbose"
++.BR \-v ", " \-\-verbose
+ Enable verbose mode.
+ .TP
+-.BR \-x , " \-\-posix"
+-Enable POSIX operation mode. In that mode allocation operation always completes,
+-but it may take longer time when fast allocation is not supported by the underlying filesystem.
++.BR \-x ", " \-\-posix
++Enable POSIX operation mode.
++In that mode allocation operation always completes,
++but it may take longer time when fast allocation is not supported by
++the underlying filesystem.
+ .TP
+-.BR \-z , " \-\-zero\-range"
+-Zeroes space in the byte range starting at \fIoffset\fP and
+-continuing for \fIlength\fR bytes.  Within the specified range, blocks are
+-preallocated for the regions that span the holes in the file.  After
+-a successful call, subsequent reads from this range will return zeroes.
++.BR \-z ", " \-\-zero\-range
++Zeroes space in the byte range starting at
++.I offset
++and continuing for
++.I length
++bytes.
++Within the specified range, blocks are preallocated for the regions
++that span the holes in the file.
++After a successful call,
++subsequent reads from this range will return zeroes.
+ .sp
+ Zeroing is done within the filesystem preferably by converting the
+ range into unwritten extents.  This approach means that the specified
+@@ -116,19 +161,19 @@ modification.
+ .sp
+ Available since Linux 3.14 for ext4 (only for extent-based files) and XFS.
+ .TP
+-.BR \-V , " \-\-version"
++.BR \-V ", " \-\-version
+ Display version information and exit.
+ .TP
+-.BR \-h , " \-\-help"
++.BR \-h ", " \-\-help
+ Display help text and exit.
+ .SH AUTHORS
+-.UR sandeen@redhat.com
++.MT sandeen@redhat.com
+ Eric Sandeen
+-.UE
++.ME
+ .br
+-.UR kzak@redhat.com
++.MT kzak@redhat.com
+ Karel Zak
+-.UE
++.ME
+ .SH SEE ALSO
+ .BR truncate (1),
+ .BR fallocate (2),
+-- 
+2.16.2
+
+-- 
+Bjarni I. Gislason
