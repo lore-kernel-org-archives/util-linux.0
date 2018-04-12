@@ -1,27 +1,23 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:42674 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751898AbeDKLGq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 11 Apr 2018 07:06:46 -0400
-Date: Wed, 11 Apr 2018 13:06:41 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Patrick Steinhardt <ps@pks.im>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/2] cfdisk: fix missing prototype for `get_wch`
-Message-ID: <20180411110641.cazwosnr6kaidj3l@ws.net.home>
-References: <b96441d34412526f7d55da793c6bb2dd05f152c2.1523363782.git.ps@pks.im>
+Received: from mout.gmx.net ([212.227.17.21]:45539 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752490AbeDLRQH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 12 Apr 2018 13:16:07 -0400
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: kernel bugzilla entries for util-linux
+Date: Thu, 12 Apr 2018 19:15:40 +0200
+Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+References: <fb5b024f-575b-cbf2-4170-b7c7239946d3@infradead.org>
+In-Reply-To: <fb5b024f-575b-cbf2-4170-b7c7239946d3@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <b96441d34412526f7d55da793c6bb2dd05f152c2.1523363782.git.ps@pks.im>
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <201804121915.41262.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Apr 10, 2018 at 01:36:31PM +0100, Patrick Steinhardt wrote:
->  disk-utils/cfdisk.c | 4 ++++
->  1 file changed, 4 insertions(+)
+On Tuesday 10 April 2018, Randy Dunlap wrote:
+> Bug 100021 - [util-linux] v2.24 ... v2.26.2: bug in regression test script for partx
 
-Applied, thanks.
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+This was fixed in 2.30, commit 3a951379a
