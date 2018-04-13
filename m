@@ -1,38 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:49456 "EHLO mx1.redhat.com"
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:47688 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1753966AbeDTI16 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 20 Apr 2018 04:27:58 -0400
-Date: Fri, 20 Apr 2018 10:27:55 +0200
+        id S1752223AbeDMIgG (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 13 Apr 2018 04:36:06 -0400
+Date: Fri, 13 Apr 2018 10:36:03 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Jan Kara <jack@suse.cz>, Steve Kenton <skenton@ou.edu>,
-        util-linux@vger.kernel.org,
-        Michael Kerrisk <mtk.manpages@gmail.com>
-Subject: Re: [PATCH 1/1] Update mount options for UDF
-Message-ID: <20180420082755.bbgirzq2e32mhpyu@ws.net.home>
-References: <20180227184407.5945-1-skenton@ou.edu>
- <20180228130828.j3wbez6pzzzeknuc@ws.net.home>
- <20180228133220.3rmkcqnk6giry4bk@quack2.suse.cz>
- <20180228220319.ccosidfzrdlowwqu@pali>
- <20180301110851.tc7erpwy3duhvzxw@ws.net.home>
- <20180301172408.wsggwvmb33oogmex@pali>
- <20180419152542.neoemd7i2wsjutdj@pali>
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: kernel bugzilla entries for util-linux
+Message-ID: <20180413083603.mlyzcwcxb33mommw@ws.net.home>
+References: <fb5b024f-575b-cbf2-4170-b7c7239946d3@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20180419152542.neoemd7i2wsjutdj@pali>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <fb5b024f-575b-cbf2-4170-b7c7239946d3@infradead.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, Apr 19, 2018 at 05:25:42PM +0200, Pali Rohár wrote:
-> > So wait for Michael answer...
+On Tue, Apr 10, 2018 at 10:11:39AM -0700, Randy Dunlap wrote:
+> There are a number of util-linux related bug entries at https://bugzilla.kernel.org/,
+> mostly in the Tools/Other category.
 > 
-> So do you have any answer?
-> 
-> In the meanwhile I created a small update, check if it is OK:
-> https://github.com/karelzak/util-linux/pull/622
+> Can I do anything with these?
 
-Merged :-)
+Redirect people to github or ML for next time :-)
+
+> E.g., I could add a comment in each one of them to report the bug/request to
+> the util-linux mailing list.
+> 
+> Or I could forward each one individually to the util-linux mailing list.
+> 
+> Or I could ignore them. :)
+> 
+> If any of these have already been fixed, I can also mark them closed/fixed,
+> although it would be better to have a commit ID or release version info for
+> the fix.
+
+I think we can review and close/fix/ignore the bugs. We will see.
+
+Thanks!
 
     Karel
 
