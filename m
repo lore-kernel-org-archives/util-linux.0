@@ -1,30 +1,37 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from bombadil.infradead.org ([198.137.202.133]:57122 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753176AbeDLWTk (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 12 Apr 2018 18:19:40 -0400
-Subject: Re: kernel bugzilla entries for util-linux
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <fb5b024f-575b-cbf2-4170-b7c7239946d3@infradead.org>
- <201804121915.41262.sweet_f_a@gmx.de>
-From: Randy Dunlap <rdunlap@infradead.org>
-Message-ID: <dd2d93d1-2fe6-f39f-4f69-691ec459a1ef@infradead.org>
-Date: Thu, 12 Apr 2018 15:19:38 -0700
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:38514 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752927AbeDRIWX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 18 Apr 2018 04:22:23 -0400
+Date: Wed, 18 Apr 2018 10:22:19 +0200
+From: Karel Zak <kzak@redhat.com>
+To: NeilBrown <neilb@suse.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] libmount: fix mnt_table_is_fs_mounted() for NFS bind
+ mounts.
+Message-ID: <20180418082219.yfq2pwq7qlztgn3x@ws.net.home>
+References: <87po2xqjfp.fsf@notabene.neil.brown.name>
 MIME-Version: 1.0
-In-Reply-To: <201804121915.41262.sweet_f_a@gmx.de>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <87po2xqjfp.fsf@notabene.neil.brown.name>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 04/12/2018 10:15 AM, Ruediger Meier wrote:
-> On Tuesday 10 April 2018, Randy Dunlap wrote:
->> Bug 100021 - [util-linux] v2.24 ... v2.26.2: bug in regression test script for partx
-> 
-> This was fixed in 2.30, commit 3a951379a
-> 
+On Wed, Apr 18, 2018 at 01:31:38PM +1000, NeilBrown wrote:
+> For nfs mounts, the fourth field is always "/", and the subdirectory
+> part is appended to the "special" (aka "device") field.  This is
+> consistent with historical NFS usage which always includes a path in
+> the fs_spec field.
 
-Thanks. I closed that one.
+Interesting.
+
+>  libmount/src/tab.c | 14 +++++++++++++-
+>  1 file changed, 13 insertions(+), 1 deletion(-)
+
+Applied with a minor change, thanks!
+
+    Karel
 
 -- 
-~Randy
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
