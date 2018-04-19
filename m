@@ -1,96 +1,108 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:38311 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751201AbeDXViR (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 24 Apr 2018 17:38:17 -0400
-Received: by mail-wr0-f196.google.com with SMTP id h3-v6so51380518wrh.5
-        for <util-linux@vger.kernel.org>; Tue, 24 Apr 2018 14:38:17 -0700 (PDT)
-Date: Tue, 24 Apr 2018 22:38:02 +0100 (BST)
-From: Sami Kerola <kerolasa@iki.fi>
+Return-Path: pali.rohar@gmail.com
+Date: Thu, 19 Apr 2018 17:25:42 +0200
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
 To: Karel Zak <kzak@redhat.com>
-cc: Dan Mick <dmick@redhat.com>,
-        util-linux <util-linux@vger.kernel.org>
-Subject: Re: lsblk '--allcols'
-In-Reply-To: <20180423094628.4x3qhf7ah5gazz7z@ws.net.home>
-Message-ID: <alpine.LNX.2.20.1804242230510.12936@imuri>
-References: <cf949a43-9027-de52-87e2-33c95605d58b@redhat.com> <CAG27Bk3m7PYCMtMMV0pVAZpmMJGsGWUk0KFfpT=KD80U4QQ5ug@mail.gmail.com> <20180423094628.4x3qhf7ah5gazz7z@ws.net.home>
+Cc: Jan Kara <jack@suse.cz>, Steve Kenton <skenton@ou.edu>,
+	util-linux@vger.kernel.org,
+	Michael Kerrisk <mtk.manpages@gmail.com>
+Subject: Re: [PATCH 1/1] Update mount options for UDF
+Message-ID: <20180419152542.neoemd7i2wsjutdj@pali>
+References: <20180227184407.5945-1-skenton@ou.edu>
+ <20180228130828.j3wbez6pzzzeknuc@ws.net.home>
+ <20180228133220.3rmkcqnk6giry4bk@quack2.suse.cz>
+ <20180228220319.ccosidfzrdlowwqu@pali>
+ <20180301110851.tc7erpwy3duhvzxw@ws.net.home>
+ <20180301172408.wsggwvmb33oogmex@pali>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="hwsgbjq2oksilfbo"
+In-Reply-To: <20180301172408.wsggwvmb33oogmex@pali>
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, 23 Apr 2018, Karel Zak wrote:
-> On Sat, Apr 21, 2018 at 09:14:03AM +0100, Sami Kerola wrote:
-> > If I see right the --output-all could be added to these utilities: fdisk,
-> > fincore, findmnt, losetup, lscpu, lsipc, lslocks, lslogins, lsmem, lsns,
-> > partx, prlimit, rfkill, sfdisk, swapon, uuidparse, wdctl, wipefs, and
-> > zramctl.
-> 
-> Good idea. (Your) patches are welcomed :-)
 
-Here's some.  I skipped couple commands, they either already listing all 
-columns or are unlikely to be used for info listing (fdisk, wipefs, ...)
+--hwsgbjq2oksilfbo
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Due the tiring repetativeness in these changes I won't send send these to 
-maillist. Please fetch from my remote to review & merge.
+On Thursday 01 March 2018 18:24:08 Pali Roh=C3=A1r wrote:
+> On Thursday 01 March 2018 12:08:51 Karel Zak wrote:
+> > On Wed, Feb 28, 2018 at 11:03:19PM +0100, Pali Roh=C3=A1r wrote:
+> > > On Wednesday 28 February 2018 14:32:20 Jan Kara wrote:
+> > > > On Wed 28-02-18 14:08:28, Karel Zak wrote:
+> > > > > On Tue, Feb 27, 2018 at 12:44:07PM -0600, Steve Kenton wrote:
+> > > > > > Signed-off-by: Steve Kenton <skenton@ou.edu>
+> > > > > > Acked-by: Jan Kara <jack@suse.cz>
+> > > > > > ---
+> > > > > >  sys-utils/mount.8 | 89 +++++++++++++++++++++++++++++++++++++++=
+++--------------
+> > > > > >  1 file changed, 67 insertions(+), 22 deletions(-)
+> > > > >=20
+> > > > > Applied, thanks.
+> > > > >=20
+> > > > > Jan, what about to create udf(5) man page? We already have fs-spe=
+cific
+> > > > > man pages (e.g. ext4, tmpfs, nfs, btrfs, ...). It's usually maint=
+ained
+> > > > > within fs-specific tools (e.g. ext4 -> e2fsprogs) or together with
+> > > > > standard man-pages (CC: to Michael).
+> > > >=20
+> > > > I'm fine with that. Pali is actually the maintainer of udf-tools so=
+ if he
+> > > > is willing to take the manpage there, it's probably the best place.
+> > >=20
+> > > Is udftools the best place for kernel udf mount options? Because
+> > > userspace udftools are not needed for kernel udf driver, nor for
+> > > mounting existing udf filesystem.
+> >=20
+> > This is reason why Michael is in CC: :-)
+>=20
+> Ok :-)
+>=20
+> > > For me it looks like that kernel drivers should have its documentation
+> > > in kernel itself...
+> > >=20
+> > > Anyway, I have not know yet that there is e.g. ext4 manpage which
+> > > describe mount options. I was always looking into mount.8 manpage for
+> > > filesystem mount parameters.
+> >=20
+> > There is no extN stuff anymore in mount.8.
+>=20
+> Ah, ok. I have Debian stable on servers which has older mount.8 with
+> ext* options.
+>=20
+> > > The only missing filesystem in mount.8 is nfs, but that is probably
+> > > because mount uses mount.nfs helper.
+> >=20
+> > Unfortunately, it's nothing unusual that mount.8 is ignored by FS
+> > devels and not up to date... so the idea is keep FS docs near to=20
+> > the FS developers to improve things ;-)=20
+> >=20
+> > For example NFS developers have decided to maintain it in nfs-utils,
+> > extN in e2fsprogs, tmpfs and procfs in Michaels' man-pages, etc.
+> >=20
+> > Anyway, I have no problem to maintain UDF (or another) mount options=20
+> > in mount.8. It's your choice. Your patches for mount.8 are welcomed.
+>=20
+> So wait for Michael answer...
 
-----------------------------------------------------------------
-The following changes since commit 136f89ce5ed8cd159a1c56b5a775dada2363ecd3:
-  libblkid: add BitLocker detection (2018-04-24 11:47:55 +0200)
-are available in the Git repository at:
-  git://github.com/kerolasa/lelux-utiliteetit.git output-all
-for you to fetch changes up to 9c1bbbf41bc82aa94e93703af19d459092a728ed:
-  zramctl: add --output-all option (2018-04-24 22:28:41 +0100)
-----------------------------------------------------------------
+So do you have any answer?
 
-Sami Kerola (11):
-      findmnt: add --output-all option
-      losetup: add --output-all option
-      lscpu: add --output-all option
-      lslocks: add --output-all option
-      lslogins: add --output-all option
-      lsmem: add --output-all option
-      lsns: add --output-all option
-      partx: add --output-all option
-      rfkill: add --output-all option
-      swapon: add --output-all option
-      zramctl: add --output-all option
+In the meanwhile I created a small update, check if it is OK:
+https://github.com/karelzak/util-linux/pull/622
 
- bash-completion/findmnt  |  1 +
- bash-completion/losetup  |  1 +
- bash-completion/lscpu    |  1 +
- bash-completion/lslocks  |  1 +
- bash-completion/lslogins |  1 +
- bash-completion/lsmem    |  1 +
- bash-completion/lsns     |  1 +
- bash-completion/partx    |  1 +
- bash-completion/rfkill   |  1 +
- bash-completion/swapon   |  1 +
- bash-completion/zramctl  |  1 +
- disk-utils/partx.8       |  3 +++
- disk-utils/partx.c       |  9 ++++++++-
- login-utils/lslogins.1   |  3 +++
- login-utils/lslogins.c   |  7 +++++++
- misc-utils/findmnt.8     |  5 +++++
- misc-utils/findmnt.c     | 12 +++++++++++-
- misc-utils/lslocks.8     |  3 +++
- misc-utils/lslocks.c     |  9 +++++++++
- sys-utils/losetup.8      |  3 +++
- sys-utils/losetup.c      |  9 ++++++++-
- sys-utils/lscpu.1        |  4 ++++
- sys-utils/lscpu.c        | 11 +++++++++++
- sys-utils/lsmem.1        |  3 +++
- sys-utils/lsmem.c        |  9 ++++++++-
- sys-utils/lsns.8         |  3 +++
- sys-utils/lsns.c         |  9 +++++++++
- sys-utils/rfkill.8       |  3 +++
- sys-utils/rfkill.c       | 12 +++++++++++-
- sys-utils/swapon.8       |  3 +++
- sys-utils/swapon.c       |  8 +++++++-
- sys-utils/zramctl.8      |  3 +++
- sys-utils/zramctl.c      | 11 ++++++++++-
- 33 files changed, 146 insertions(+), 7 deletions(-)
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+--hwsgbjq2oksilfbo
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWti09AAKCRCL8Mk9A+RD
+UnMYAJ9Y973/Ko7IYS55zVdF744If+X9lgCfXxTa9cnFJtDYk8FygB2JHiU00JE=
+=YJuQ
+-----END PGP SIGNATURE-----
+
+--hwsgbjq2oksilfbo--
