@@ -1,56 +1,41 @@
-Return-Path: neilb@suse.com
-From: NeilBrown <neilb@suse.com>
-To: Karel Zak <kzak@redhat.com>
-Date: Thu, 19 Apr 2018 09:37:59 +1000
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] libmount: fix mnt_table_is_fs_mounted() for NFS bind mounts.
-In-Reply-To: <20180418082219.yfq2pwq7qlztgn3x@ws.net.home>
-References: <87po2xqjfp.fsf@notabene.neil.brown.name> <20180418082219.yfq2pwq7qlztgn3x@ws.net.home>
-Message-ID: <87604oqe5k.fsf@notabene.neil.brown.name>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:49456 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1753966AbeDTI16 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 20 Apr 2018 04:27:58 -0400
+Date: Fri, 20 Apr 2018 10:27:55 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Jan Kara <jack@suse.cz>, Steve Kenton <skenton@ou.edu>,
+        util-linux@vger.kernel.org,
+        Michael Kerrisk <mtk.manpages@gmail.com>
+Subject: Re: [PATCH 1/1] Update mount options for UDF
+Message-ID: <20180420082755.bbgirzq2e32mhpyu@ws.net.home>
+References: <20180227184407.5945-1-skenton@ou.edu>
+ <20180228130828.j3wbez6pzzzeknuc@ws.net.home>
+ <20180228133220.3rmkcqnk6giry4bk@quack2.suse.cz>
+ <20180228220319.ccosidfzrdlowwqu@pali>
+ <20180301110851.tc7erpwy3duhvzxw@ws.net.home>
+ <20180301172408.wsggwvmb33oogmex@pali>
+ <20180419152542.neoemd7i2wsjutdj@pali>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha256; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20180419152542.neoemd7i2wsjutdj@pali>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
---=-=-=
-Content-Type: text/plain
+On Thu, Apr 19, 2018 at 05:25:42PM +0200, Pali Rohár wrote:
+> > So wait for Michael answer...
+> 
+> So do you have any answer?
+> 
+> In the meanwhile I created a small update, check if it is OK:
+> https://github.com/karelzak/util-linux/pull/622
 
-On Wed, Apr 18 2018, Karel Zak wrote:
+Merged :-)
 
-> On Wed, Apr 18, 2018 at 01:31:38PM +1000, NeilBrown wrote:
->> For nfs mounts, the fourth field is always "/", and the subdirectory
->> part is appended to the "special" (aka "device") field.  This is
->> consistent with historical NFS usage which always includes a path in
->> the fs_spec field.
->
-> Interesting.
->
->>  libmount/src/tab.c | 14 +++++++++++++-
->>  1 file changed, 13 insertions(+), 1 deletion(-)
->
-> Applied with a minor change, thanks!
+    Karel
 
-Thanks.  I like the minor change!
-
-NeilBrown
-
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEG8Yp69OQ2HB7X0l6Oeye3VZigbkFAlrX1tcACgkQOeye3VZi
-gblsSQ/+PwduyFSq+gUdd4mtABjz1cfEYg0CcTFO6n2pUGhgd7Pq3Zo5uaU7IaGA
-Fx2kVIozgNNPu4035jitZ5TSgyGXanUT2a8J3WRWYzytZOaxrgPtIgc6LVNLXbtz
-/uyb286fKkSZR0t2SAxKdtg25GfXw8wjpWsIDAK1AMwv4/8szSK+mBeK1dU1uVNO
-5WpmEJXpx79azNQTtzK1+WLpLAGL1ThJ19xZ0K6UrdXmP4hbRlLkgb98fHlncw7g
-iELngRKmbu207z6OhNtvxc275omYz7L0w5GBdLxyzi3rlmNHHWbczVNkVwdd1Owf
-6KScmXBrTpHOxMsnEufdpMcvWBZUYVaBFr+6aqpVZ20nbWnRxXXizHVeBSyS8Zag
-a1gLECzCMbhZZkNIiORNH2dIj8AUDEbTpYq2x2WcAcS2YtgA0+ejqPPikkpW6rAI
-gqdUY/lqlFwjvOukSE62xASNqsq3fYKqKP+vze6MtgVxqk4KkJcUvNH+H7J3xp2Q
-lZgfahKyWkduJyzsX0hH6OQ4qQgZ6PQxGH20HYMQpdytlbMUZJ16aZbnFLc0xExH
-4Vh0QVQYA5IuhjFJd5l4FA6uQxSRkxK6CPIR/ruqHrnDzkA5wEAVuLnolS2z6S2S
-5z2nzcZ4ytYonqlE+e8k/rhv8mzDosm4oaYO4Hf4KZfJwmTa3Ic=
-=Fmzf
------END PGP SIGNATURE-----
---=-=-=--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
