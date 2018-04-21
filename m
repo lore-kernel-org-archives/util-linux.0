@@ -1,39 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:42829 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752914AbeDET5G (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 5 Apr 2018 15:57:06 -0400
-Received: by mail-wr0-f193.google.com with SMTP id s18so30319013wrg.9
-        for <util-linux@vger.kernel.org>; Thu, 05 Apr 2018 12:57:05 -0700 (PDT)
+Received: from mail-it0-f49.google.com ([209.85.214.49]:33170 "EHLO
+        mail-it0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751052AbeDUIOE (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 21 Apr 2018 04:14:04 -0400
+Received: by mail-it0-f49.google.com with SMTP id x144-v6so4924815itc.0
+        for <util-linux@vger.kernel.org>; Sat, 21 Apr 2018 01:14:04 -0700 (PDT)
+MIME-Version: 1.0
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <cf949a43-9027-de52-87e2-33c95605d58b@redhat.com>
+References: <cf949a43-9027-de52-87e2-33c95605d58b@redhat.com>
 From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 4/4] bash-completion: fix typo in blockdev file
-Date: Thu,  5 Apr 2018 20:56:56 +0100
-Message-Id: <20180405195656.4946-5-kerolasa@iki.fi>
-In-Reply-To: <20180405195656.4946-1-kerolasa@iki.fi>
-References: <20180405195656.4946-1-kerolasa@iki.fi>
+Date: Sat, 21 Apr 2018 09:14:03 +0100
+Message-ID: <CAG27Bk3m7PYCMtMMV0pVAZpmMJGsGWUk0KFfpT=KD80U4QQ5ug@mail.gmail.com>
+Subject: Re: lsblk '--allcols'
+To: Dan Mick <dmick@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- bash-completion/blockdev | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 20 April 2018 at 22:42, Dan Mick <dmick@redhat.com> wrote:
+> Beyond simple "show me a quick overview", I often want to see everything
+> the system knows about a blockdev, and it's a drag to have to construct
+> the option list from the output of help.  I've made a simple
+> "-A/--allcols" patch.  Is that something that would meet the
+> expectations of the team, and if so, is email to this list the best way
+> to submit it?
 
-diff --git a/bash-completion/blockdev b/bash-completion/blockdev
-index 8050c0f83..e7aca26de 100644
---- a/bash-completion/blockdev
-+++ b/bash-completion/blockdev
-@@ -33,7 +33,7 @@ _blockdev_module()
- 			COMPREPLY=( $(compgen -W "bytes" -- $cur) )
- 			return 0
- 			;;
--		'--setbsz'|'--setfra')
-+		'--setra'|'--setfra')
- 			COMPREPLY=( $(compgen -W "sectors" -- $cur) )
- 			return 0
- 			;;
+Pardon if I sound confused. Subject line says lsblk that already has
+display all columns option:
+
+ -O, --output-all     output all columns
+
+In message body you are talking about blockdev, that has it's place
+but lsblk is better reporting tool. Assuming lsblk does not list something
+blockdev can then I recommend adding that to lsblk.
+
+That said --allcols proposal has a point. Right now various tools
+that use smartcols has the options listed below. Perhaps --output-all
+should be part of these.
+
+ -J, --json             use JSON output format
+ -n, --noheadings       don't print headings
+ -o, --output <list>    COLUMNS to display (see below)
+ -r, --raw              use the raw output format
+
+If I see right the --output-all could be added to these utilities: fdisk,
+fincore, findmnt, losetup, lscpu, lsipc, lslocks, lslogins, lsmem, lsns,
+partx, prlimit, rfkill, sfdisk, swapon, uuidparse, wdctl, wipefs, and
+zramctl.
+
 -- 
-2.17.0
-
+Sami Kerola
+http://www.iki.fi/kerolasa/
