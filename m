@@ -1,28 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:50056 "EHLO mx1.redhat.com"
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:34512 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752788AbeDJL4J (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 10 Apr 2018 07:56:09 -0400
-Date: Tue, 10 Apr 2018 13:56:05 +0200
+        id S1754513AbeDWJqb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 23 Apr 2018 05:46:31 -0400
+Date: Mon, 23 Apr 2018 11:46:28 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Patrick Steinhardt <ps@pks.im>
-Cc: util-linux@vger.kernel.org, mail@nh2.me
-Subject: Re: [PATCH v2] setpriv: implement option to set parent death signal
-Message-ID: <20180410115605.7t2fozayc6lk7jio@ws.net.home>
-References: <20180410100023.yego5fwd552id2u6@ws.net.home>
- <ee7de238f29ee5ebc68733183ffc71239252cb3a.1523358390.git.ps@pks.im>
+To: kerolasa@gmail.com
+Cc: Dan Mick <dmick@redhat.com>,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: lsblk '--allcols'
+Message-ID: <20180423094628.4x3qhf7ah5gazz7z@ws.net.home>
+References: <cf949a43-9027-de52-87e2-33c95605d58b@redhat.com>
+ <CAG27Bk3m7PYCMtMMV0pVAZpmMJGsGWUk0KFfpT=KD80U4QQ5ug@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <ee7de238f29ee5ebc68733183ffc71239252cb3a.1523358390.git.ps@pks.im>
+In-Reply-To: <CAG27Bk3m7PYCMtMMV0pVAZpmMJGsGWUk0KFfpT=KD80U4QQ5ug@mail.gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Apr 10, 2018 at 12:08:21PM +0100, Patrick Steinhardt wrote:
->  sys-utils/setpriv.1 |  6 ++++++
->  sys-utils/setpriv.c | 48 +++++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 54 insertions(+)
+On Sat, Apr 21, 2018 at 09:14:03AM +0100, Sami Kerola wrote:
+> If I see right the --output-all could be added to these utilities: fdisk,
+> fincore, findmnt, losetup, lscpu, lsipc, lslocks, lslogins, lsmem, lsns,
+> partx, prlimit, rfkill, sfdisk, swapon, uuidparse, wdctl, wipefs, and
+> zramctl.
 
-Thanks! Merged.
+Good idea. (Your) patches are welcomed :-)
 
     Karel
 
