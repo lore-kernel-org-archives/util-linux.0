@@ -1,193 +1,177 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:38109 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753492AbeDSVqj (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 19 Apr 2018 17:46:39 -0400
-Received: by mail-wr0-f196.google.com with SMTP id h3-v6so17788421wrh.5
-        for <util-linux@vger.kernel.org>; Thu, 19 Apr 2018 14:46:38 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
-To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 2/2] more: reorder global declarations
-Date: Thu, 19 Apr 2018 22:46:27 +0100
-Message-Id: <20180419214627.6313-2-kerolasa@iki.fi>
-In-Reply-To: <20180419214627.6313-1-kerolasa@iki.fi>
-References: <20180419214627.6313-1-kerolasa@iki.fi>
+Received: from shell.v3.sk ([92.60.52.57]:39232 "EHLO shell.v3.sk"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750882AbeDYH1B (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 25 Apr 2018 03:27:01 -0400
+Message-ID: <1524641212.713764.130.camel@v3.sk>
+Subject: Re: terminal-colors.d(5) clarifications needed
+From: Lubomir Rintel <lkundrak@v3.sk>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Date: Wed, 25 Apr 2018 09:26:52 +0200
+In-Reply-To: <20180424075949.uzti4kt4mvfreuzo@ws.net.home>
+References: <1524492459.713764.57.camel@v3.sk>
+         <20180424075949.uzti4kt4mvfreuzo@ws.net.home>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Group include, defines and such together, and move items inbetween functions
-on top of the source file so that everything can be seen easily.
+On Tue, 2018-04-24 at 09:59 +0200, Karel Zak wrote:
+> On Mon, Apr 23, 2018 at 04:07:39PM +0200, Lubomir Rintel wrote:
+> > 1.) It is unclear whether multiple .schem files should override
+> > each
+> >     other or be merged. We use the overriding behavior -- take the
+> >     highest priority one and ignore the rest.
+> 
+> From the man page:
+> 
+> If there are more files that match for a utility, then the file with
+> the more specific  filename  wins.   For  example,  the  filename
+> "@xterm.scheme"  has  less  priority  than "dmesg@xterm.scheme".  The
+> lowest priority are those files without a utility name and terminal
+> identifier (e.g. "disable").
+> 
+> https://github.com/karelzak/util-linux/blob/master/lib/colors.c#L77
+> 
+>  * The terminal-colors.d/ evaluation is based on "scores":
+>  *
+>  *  filename                    score
+>  *  ---------------------------------------
+>  *  type                        1
+>  *  @termname.type              10 + 1
+>  *  utilname.type               20 + 1
+>  *  utilname@termname.type      20 + 10 + 1
+>  *
+>  * the match with higher score wins. The score is per type.
+> 
+> The "type" is "disable", "enable" or "scheme".
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- text-utils/more.c | 96 +++++++++++++++++++++++------------------------
- 1 file changed, 48 insertions(+), 48 deletions(-)
+Some misunderstanding here. Perhaps I was not too clear -- I'll try to
+rephrase. Suppose I have both "utilname.type" and
+"utilname@termname.type":
 
-diff --git a/text-utils/more.c b/text-utils/more.c
-index 7df04de7b..d3317cf9c 100644
---- a/text-utils/more.c
-+++ b/text-utils/more.c
-@@ -59,6 +59,15 @@
- #include <sys/stat.h>
- #include <sys/file.h>
- #include <sys/wait.h>
-+#include <regex.h>
-+
-+#if defined(HAVE_NCURSESW_TERM_H)
-+# include <ncursesw/term.h>
-+#elif defined(HAVE_NCURSES_TERM_H)
-+# include <ncurses/term.h>
-+#elif defined(HAVE_TERM_H)
-+# include <term.h>
-+#endif
- 
- #include "strutils.h"
- #include "nls.h"
-@@ -66,8 +75,6 @@
- #include "widechar.h"
- #include "closestream.h"
- 
--#include <regex.h>
--
- #ifdef TEST_PROGRAM
- # define NON_INTERACTIVE_MORE 1
- #endif
-@@ -89,6 +96,14 @@
- 
- #define stty(fd,argp)  tcsetattr(fd,TCSANOW,argp)
- 
-+#define ERASEONECOLUMN(x) \
-+		do { \
-+		    if (x) \
-+			putserr(BSB); \
-+		    else \
-+			putserr(BS); \
-+		} while(0)
-+
- #define TBUFSIZ		1024
- #define LINSIZ		256	/* minimal Line buffer size */
- #define ctrl(letter)	(letter & 077)
-@@ -103,6 +118,29 @@
- #define SHELL_LINE	1000
- #define COMMAND_BUF	200
- #define REGERR_BUF	NUM_COLUMNS
-+#define STOP		-10
-+
-+#define TERM_AUTO_RIGHT_MARGIN    "am"
-+#define TERM_CEOL                 "xhp"
-+#define TERM_CLEAR                "clear"
-+#define TERM_CLEAR_TO_LINE_END    "el"
-+#define TERM_CLEAR_TO_SCREEN_END  "ed"
-+#define TERM_COLS                 "cols"
-+#define TERM_CURSOR_ADDRESS       "cup"
-+#define TERM_EAT_NEW_LINE         "xenl"
-+#define TERM_ENTER_UNDERLINE      "smul"
-+#define TERM_EXIT_STANDARD_MODE   "rmso"
-+#define TERM_EXIT_UNDERLINE       "rmul"
-+#define TERM_HARD_COPY            "hc"
-+#define TERM_HOME                 "home"
-+#define TERM_LINE_DOWN            "cud1"
-+#define TERM_LINES                "lines"
-+#define TERM_OVER_STRIKE          "os"
-+#define TERM_PAD_CHAR             "pad"
-+#define TERM_STANDARD_MODE        "smso"
-+#define TERM_STD_MODE_GLITCH      "xmc"
-+#define TERM_UNDERLINE_CHAR       "uc"
-+#define TERM_UNDERLINE            "ul"
- 
- static struct termios otty, savetty0;
- static long file_pos, file_size;
-@@ -158,35 +196,15 @@ static struct {
- } context, screen_start;
- extern char PC;			/* pad character */
- 
--#if defined(HAVE_NCURSESW_TERM_H)
--# include <ncursesw/term.h>
--#elif defined(HAVE_NCURSES_TERM_H)
--# include <ncurses/term.h>
--#elif defined(HAVE_TERM_H)
--# include <term.h>
--#endif
-+static char *BS = "\b";
-+static char *BSB = "\b \b";
-+static char *CARAT = "^";
-+
-+static char ch;
-+static int lastcmd, lastarg, lastp;
-+static int lastcolon;
-+static char shell_line[SHELL_LINE];
- 
--#define TERM_AUTO_RIGHT_MARGIN    "am"
--#define TERM_CEOL                 "xhp"
--#define TERM_CLEAR                "clear"
--#define TERM_CLEAR_TO_LINE_END    "el"
--#define TERM_CLEAR_TO_SCREEN_END  "ed"
--#define TERM_COLS                 "cols"
--#define TERM_CURSOR_ADDRESS       "cup"
--#define TERM_EAT_NEW_LINE         "xenl"
--#define TERM_ENTER_UNDERLINE      "smul"
--#define TERM_EXIT_STANDARD_MODE   "rmso"
--#define TERM_EXIT_UNDERLINE       "rmul"
--#define TERM_HARD_COPY            "hc"
--#define TERM_HOME                 "home"
--#define TERM_LINE_DOWN            "cud1"
--#define TERM_LINES                "lines"
--#define TERM_OVER_STRIKE          "os"
--#define TERM_PAD_CHAR             "pad"
--#define TERM_STANDARD_MODE        "smso"
--#define TERM_STD_MODE_GLITCH      "xmc"
--#define TERM_UNDERLINE_CHAR       "uc"
--#define TERM_UNDERLINE            "ul"
- 
- static void putstring(char *s)
- {
-@@ -733,8 +751,6 @@ static int readch(void)
- 	return (c);
- }
- 
--static char ch;
--
- /* Read a decimal number from the terminal.  Set cmd to the non-digit
-  * which terminates the number. */
- static int number(char *cmd)
-@@ -785,17 +801,6 @@ static void skipf(register int nskip)
- 	--fnum;
- }
- 
--static char *BS = "\b";
--static char *BSB = "\b \b";
--static char *CARAT = "^";
--#define ERASEONECOLUMN(x) \
--		do { \
--		    if (x) \
--			putserr(BSB); \
--		    else \
--			putserr(BS); \
--		} while(0)
--
- static void show(char c)
- {
- 	if ((c < ' ' && c != '\n' && c != ESC) || c == RUBOUT) {
-@@ -952,10 +957,6 @@ static void ttyin(char buf[], register int nmax, char pchar)
- 		more_error(_("Line too long"));
- }
- 
--static int lastcmd, lastarg, lastp;
--static int lastcolon;
--static char shell_line[SHELL_LINE];
--
- /* return: 0 - unchanged, 1 - changed, -1 - overflow (unchanged) */
- static int expand(char **outbuf, char *inbuf)
- {
-@@ -1615,7 +1616,6 @@ static int command(char *filename, register FILE *f)
- }
- 
- /* Print out the contents of the file f, one screenful at a time. */
--#define STOP -10
- static void screen(register FILE *f, register int num_lines)
- {
- 	register int c;
--- 
-2.17.0
+utilname.type:
 
+error 1;1
+warning 2;2
+
+utilname@termname.type:
+
+warning 3;3
+
+What is the effective result?
+
+Is it (overriding behavior):
+
+warning 3;3
+
+Or (merging behavior):
+
+error 1;1
+warning 3;3
+
+We assume "overriding", but the documentation is not clear enough to
+me.
+
+> > 3.) What is the "Color names" paragraph for? How was the set
+> > chosen?
+> >     (Why is "white" not present?) Can it be used in place of
+> >     an ansi-sequence and translated somehow? We just ignore it.
+> 
+> It's list of human readable aliases for colors. Not sure why we do
+> not
+> have "white" :-)
+> 
+> https://github.com/karelzak/util-linux/blob/master/include/color-
+> names.h
+
+Now, what's special about brown? :)
+
+> https://github.com/karelzak/util-linux/blob/master/lib/color-
+> names.c#L23
+> 
+>
+> > 4.) Of what use would "Escape sequences" in ansi-sequence be? We
+> > don't
+> >     accept that.
+> 
+> This is extension based on coreutils. IMHO it's not important.
+
+I it correct to say that only ANSI terminals are actually supported?
+Are there even terminals that use coloring in a way that's incompatible
+with ANSI escape sequences?
+
+I'm asking because the fact that colors are represented as color codes
+without the leading escape suggests that either the application somehow
+figures out the correct escape (does termcap/terminfo know that?) or
+just slaps in ESC [ assuming an ANSI terminal.
+
+You also seem to just translate the "Color names" to ANSI escapes.
+
+If it's indeed true, then I guess you could just drop the "Escape
+sequences" paragraph, because it doesn't make any sense on ANSI
+terminals. Or does it?
+
+> > 5.) We don't implement TERMINAL_COLORS_DEBUG because it's unclear
+> > what
+> >     should it do.
+> 
+> Yes, this is unnecessary.
+> 
+> > Perhaps you could help me getting things done right, comment on the
+> > points above, and maybe figure out how can the manual be improved
+> > for
+> > future implementers?
+> 
+> I'll improve the man page. Thanks for your feedback.
+
+Feel free to Cc me with the patch, I'd be happy to provide my pair of
+eyes to see if things make sense to me.
+
+> Maybe we can convert our util-linux terminal-colors.d implementation
+> to simple shared library. Would be something like this acceptable for
+> NetworkManager? 
+> 
+> The interface is pretty simple (for example fdisk):
+> 
+>   colors_init(colormode, "fdisk");
+> 
+>   ...
+>   color_scheme_enable("welcome", UL_COLOR_GREEN);
+>   fdisk_info(cxt, _("Welcome to fdisk (%s)."), PACKAGE_STRING);
+>   color_disable();
+> 
+> 
+> where "colormode" is NEVER, ALWAYS, AUTO. The UL_COLOR_GREEN is
+> the default color.
+> 
+> It would be pretty simple to convert it to stared library; just use
+> less generic prefix (than color_), add control struct to avoid global
+> variables.
+
+Well, perhaps not. We tend to be super careful about adding
+dependencies. I suspect we'd need to provide a way to disable the
+functionality because some users just slap in busybox in place of util-
+linux. Given how minimal our terminal-colors.d implementation it it's
+probably not worth doing.
+
+If you care about terminal-colors.d being more ubiquitous while also
+sharing the implementation as much as possible then an effort would be
+best spent making Glib use it. We, and everyone else, would inherit the
+functionality and since recently Glib uses coloring in its logging
+machinery.
+
+> Note that the most important feature of terminal-colors.d is to
+> provide a way how to disable/enable colors for all system or specific
+> terminal. We need a way how to keep terminal usable for people who
+> cannot use colors. The "scheme" stuff is the next level :-)
+
+Yes, that's precisely why we're doing this too :)
+
+> 
+>     Karel
+
+Thanks for the clarifications. It's much appreciated.
+
+Lubo
