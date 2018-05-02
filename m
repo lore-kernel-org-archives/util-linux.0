@@ -1,94 +1,109 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:43647 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750983AbeEFLPc (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 6 May 2018 07:15:32 -0400
-Received: by mail-wr0-f193.google.com with SMTP id v15-v6so25123631wrm.10
-        for <util-linux@vger.kernel.org>; Sun, 06 May 2018 04:15:31 -0700 (PDT)
-Date: Sun, 6 May 2018 13:15:27 +0200
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: "Michael Kerrisk (man-opages)" <mtk.manpages@gmail.com>
-Cc: Jan Kara <jack@suse.cz>, Karel Zak <kzak@redhat.com>,
-        Steve Kenton <skenton@ou.edu>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/1] Update mount options for UDF
-Message-ID: <20180506111527.xfzvxf2d4chajgyt@pali>
-References: <20180227184407.5945-1-skenton@ou.edu>
- <20180228130828.j3wbez6pzzzeknuc@ws.net.home>
- <20180228133220.3rmkcqnk6giry4bk@quack2.suse.cz>
- <20180228220319.ccosidfzrdlowwqu@pali>
- <b550e4cc-4a5e-72c3-a4db-85913769e97f@gmail.com>
+Received: from ishtar.tlinx.org ([173.164.175.65]:39796 "EHLO
+        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750800AbeEBE13 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 2 May 2018 00:27:29 -0400
+Received: from [192.168.3.12] (Athenae [192.168.3.12])
+        by Ishtar.sc.tlinx.org (8.14.7/8.14.4/SuSE Linux 0.8) with ESMTP id w424RQph010322
+        for <util-linux@vger.kernel.org>; Tue, 1 May 2018 21:27:29 -0700
+Message-ID: <5AE93E2E.9040506@tlinx.org>
+Date: Tue, 01 May 2018 21:27:26 -0700
+From: L A Walsh <lkml@tlinx.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="tozzqvsyey2fvco3"
-In-Reply-To: <b550e4cc-4a5e-72c3-a4db-85913769e97f@gmail.com>
+To: util-linux@vger.kernel.org
+Subject: FYI...build "ok", thought some warnings, annoyances in 2.32...
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+Everything seemed to build, though with warnings and some
+annoyances.
 
---tozzqvsyey2fvco3
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It _seems_ most of the warnings are of low importance.
 
-On Sunday 06 May 2018 12:35:02 Michael Kerrisk (man-opages) wrote:
-> On 02/28/2018 11:03 PM, Pali Roh=C3=A1r wrote:
-> > On Wednesday 28 February 2018 14:32:20 Jan Kara wrote:
-> > > On Wed 28-02-18 14:08:28, Karel Zak wrote:
-> > > > On Tue, Feb 27, 2018 at 12:44:07PM -0600, Steve Kenton wrote:
-> > > > > Signed-off-by: Steve Kenton <skenton@ou.edu>
-> > > > > Acked-by: Jan Kara <jack@suse.cz>
-> > > > > ---
-> > > > >   sys-utils/mount.8 | 89 ++++++++++++++++++++++++++++++++++++++++=
-+--------------
-> > > > >   1 file changed, 67 insertions(+), 22 deletions(-)
-> > > >=20
-> > > > Applied, thanks.
-> > > >=20
-> > > > Jan, what about to create udf(5) man page? We already have fs-speci=
-fic
-> > > > man pages (e.g. ext4, tmpfs, nfs, btrfs, ...). It's usually maintai=
-ned
-> > > > within fs-specific tools (e.g. ext4 -> e2fsprogs) or together with
-> > > > standard man-pages (CC: to Michael).
-> > >=20
-> > > I'm fine with that. Pali is actually the maintainer of udf-tools so i=
-f he
-> > > is willing to take the manpage there, it's probably the best place.
-> >=20
-> > Is udftools the best place for kernel udf mount options? Because
-> > userspace udftools are not needed for kernel udf driver, nor for
-> > mounting existing udf filesystem.
-> >=20
-> > For me it looks like that kernel drivers should have its documentation
-> > in kernel itself...
->=20
-> [way late to the party...]
->=20
-> Or, better, in a man page that describes the kernel interface :-).
-> Many other filesystems have by now Section 5 pages in the man-pages packa=
-ge
-> that I maintain. A udf(5) page that describes the mount options that the
-> kernel supports for UDF would be best, and I think best lives inside
-> "man-pages" because it is kernel interface stuff.
+At the annoyance level: of the 8 utils I tried to build statically,
+0 worked: "complete static linking is impossible in this configuration".
+I wonder if this is a 'SUSE-ism'?
 
-Ok, that sounds good.
+(The problem of static building isn't unique to utils-linux, FWIW...)
 
-> Or, did such a page already land in udf-tools?
+Thanks!
+-linda
 
-No, there is no such manpage.
+output during make of warnings follows:
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
 
---tozzqvsyey2fvco3
-Content-Type: application/pgp-signature; name="signature.asc"
+libblkid/src/superblocks/zfs.c: In function ‘probe_zfs’:
+libblkid/src/superblocks/zfs.c:254:14: warning: ‘offset’ may be used 
+uninitialized in this function [-Wmaybe-uninitialized]
+--
+libmount/src/monitor.c: In function ‘userspace_monitor_close_fd’:
+libmount/src/monitor.c:202:62: warning: unused parameter ‘mn’ 
+[-Wunused-parameter]
+--
+libmount/src/monitor.c: In function ‘kernel_monitor_close_fd’:
+libmount/src/monitor.c:433:59: warning: unused parameter ‘mn’ 
+[-Wunused-parameter]
+--
+libfdisk/src/sun.c: In function ‘fdisk_new_sun_label’:
+libfdisk/src/sun.c:1152:63: warning: unused parameter ‘cxt’ 
+[-Wunused-parameter]
+--
+libfdisk/src/sgi.c: In function ‘fdisk_new_sgi_label’:
+libfdisk/src/sgi.c:1181:63: warning: unused parameter ‘cxt’ 
+[-Wunused-parameter]
+--
+libfdisk/src/dos.c: In function ‘fdisk_new_dos_label’:
+libfdisk/src/dos.c:2467:63: warning: unused parameter ‘cxt’ 
+[-Wunused-parameter]
+--
+libfdisk/src/bsd.c: In function ‘fdisk_new_bsd_label’:
+libfdisk/src/bsd.c:1031:63: warning: unused parameter ‘cxt’ 
+[-Wunused-parameter]
+--
+libfdisk/src/gpt.c: In function ‘fdisk_new_gpt_label’:
+libfdisk/src/gpt.c:3143:63: warning: unused parameter ‘cxt’ 
+[-Wunused-parameter]
+--
+  CCLD     losetup.static
+libtool: warning: complete static linking is impossible in this 
+configuration
+--
+  CCLD     mount.static
+libtool: warning: complete static linking is impossible in this 
+configuration
+--
+  CCLD     umount.static
+libtool: warning: complete static linking is impossible in this 
+configuration
+--
+  CCLD     blkid.static
+libtool: warning: complete static linking is impossible in this 
+configuration
+--
+disk-utils/fdisk.c: In function ‘ask_number’:
+disk-utils/fdisk.c:294:11: warning: ‘num’ may be used uninitialized in 
+this function [-Wmaybe-uninitialized]
+--
+disk-utils/fdisk.c: In function ‘ask_number’:
+disk-utils/fdisk.c:294:11: warning: ‘num’ may be used uninitialized in 
+this function [-Wmaybe-uninitialized]
+--
+  CCLD     fdisk.static
+libtool: warning: complete static linking is impossible in this 
+configuration
+--
+  CCLD     sfdisk.static
+libtool: warning: complete static linking is impossible in this 
+configuration
+--
+  CCLD     unshare.static
+libtool: warning: complete static linking is impossible in this 
+configuration
+--
+  CCLD     nsenter.static
+libtool: warning: complete static linking is impossible in this 
+configuration
 
------BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWu7jywAKCRCL8Mk9A+RD
-UnadAKCjEoEaU/boEghSk4BfRLXIHrQasACfbhXMK0KWpFBABsq/a5zbPyvFVgQ=
-=RfOX
------END PGP SIGNATURE-----
 
---tozzqvsyey2fvco3--
