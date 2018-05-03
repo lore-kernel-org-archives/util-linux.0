@@ -1,49 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-it0-f47.google.com ([209.85.214.47]:36246 "EHLO
-        mail-it0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756774AbeEJJAs (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 10 May 2018 05:00:48 -0400
-Received: by mail-it0-f47.google.com with SMTP id e20-v6so2274233itc.1
-        for <util-linux@vger.kernel.org>; Thu, 10 May 2018 02:00:48 -0700 (PDT)
-MIME-Version: 1.0
-From: Nikhil <nik2087@gmail.com>
-Date: Thu, 10 May 2018 09:00:36 +0000
-Message-ID: <CALY=dt+aJC0aXm6j4wg-T-RbOKAv-+q7NuzMaH_fwPO3Hdss2A@mail.gmail.com>
-Subject: blkid -> attempt to access beyond end of device if start sector is > 128
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:53129 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751196AbeECV6E (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 3 May 2018 17:58:04 -0400
+Received: by mail-wm0-f65.google.com with SMTP id w194so1230752wmf.2
+        for <util-linux@vger.kernel.org>; Thu, 03 May 2018 14:58:04 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
 To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 2/3] zramctl: fix truncation warning
+Date: Thu,  3 May 2018 22:57:58 +0100
+Message-Id: <20180503215759.3720-2-kerolasa@iki.fi>
+In-Reply-To: <20180503215759.3720-1-kerolasa@iki.fi>
+References: <20180503215759.3720-1-kerolasa@iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi
+sys-utils/zramctl.c: In function ‘zram_get_sysfs’:
+sys-utils/zramctl.c:220:52: warning: ‘%s’ directive output may be truncated
+writing up to 4095 bytes into a region of size 27 [-Wformat-truncation=]
+     snprintf(z->devname, sizeof(z->devname), "/dev/%s", name);
 
-We have i.Mx35 based embedded system running Linux 4.14.  The distribution
-is built using yocto (rocko branch).  Before we moved on to Linux 4.14 we
-used Linux 2.6, distribution was again built using yocto(danny branch).
-After upgrade to rocko and linux 4.14, we see some error messages on the
-console on executing blkid.  These messages appear for the SD card.  Error
-messages appear only if SD Card is mounted and if the start sector for sd
-card is 129 or more,  doesnt appear is start sector is 128 or less.
+As an additional good thing zramctl will no longer allocate 4096 bytes from
+stack when just 23 bytes is enough.
 
-Error Message:
-root@ebboard:~# blkid
-[ 8707.475004] attempt to access beyond end of device
-[ 8707.479894] unknown-block(179,0): rw=0, want=1953793, limit=1953792
-[ 8707.488054] Buffer I/O error on dev mmcblk0p1, logical block 244207,
-async page read
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ sys-utils/zramctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-fdisk output:
-root@ebboard:~# fdisk -ul
+diff --git a/sys-utils/zramctl.c b/sys-utils/zramctl.c
+index 8da7b2ddb..0dc0947e4 100644
+--- a/sys-utils/zramctl.c
++++ b/sys-utils/zramctl.c
+@@ -215,7 +215,7 @@ static struct sysfs_cxt *zram_get_sysfs(struct zram *z)
+ 			return NULL;
+ 		if (*z->devname != '/') {
+ 			/* canonicalize the device name according to /sys */
+-			char name[PATH_MAX];
++			char name[sizeof(z->devname) - sizeof("/dev/")];
+ 			if (sysfs_get_devname(&z->sysfs, name, sizeof(name)))
+ 				snprintf(z->devname, sizeof(z->devname), "/dev/%s", name);
+ 		}
+-- 
+2.17.0
 
-Disk /dev/mmcblk0: 1000 MB, 1000341504 bytes
-4 heads, 16 sectors/track, 30528 cylinders, total 1953792 sectors
-Units = sectors of 1 * 512 = 512 bytes
-
-         Device Boot      Start         End      Blocks  Id System
-/dev/mmcblk0p1             129     1953791      976831+  6 FAT16
-
-If anyone has any idea as to why these warnings are printed depending on
-whether the start sector is > 128  would be very much helpful.  Thanks.
-
-Regards
-Nikhil
