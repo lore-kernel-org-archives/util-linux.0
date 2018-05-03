@@ -1,49 +1,50 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.suse.de ([195.135.220.15]:47335 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S965533AbeEIQ0S (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 9 May 2018 12:26:18 -0400
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 9AD36ACDB
-        for <util-linux@vger.kernel.org>; Wed,  9 May 2018 16:26:16 +0000 (UTC)
-Subject: Re: [PATCH] Avoid use of the old CPU macros
-To: Michael Matz <matz@suse.de>
-Cc: util-linux@vger.kernel.org
-References: <2985b3d2-facd-13f1-10f7-bc265edfed6d@suse.cz>
- <alpine.LSU.2.21.1805091812050.12477@wotan.suse.de>
-From: Stanislav Brabec <sbrabec@suse.cz>
-Message-ID: <e77e06a7-12a5-2e53-42ff-78e337bb6d14@suse.cz>
-Date: Wed, 9 May 2018 18:26:16 +0200
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:32944 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751220AbeECV6F (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 3 May 2018 17:58:05 -0400
+Received: by mail-wr0-f193.google.com with SMTP id o4-v6so19078973wrm.0
+        for <util-linux@vger.kernel.org>; Thu, 03 May 2018 14:58:05 -0700 (PDT)
+From: Sami Kerola <kerolasa@iki.fi>
+To: util-linux@vger.kernel.org
+Cc: Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 3/3] last: fix false positive compiler warning
+Date: Thu,  3 May 2018 22:57:59 +0100
+Message-Id: <20180503215759.3720-3-kerolasa@iki.fi>
+In-Reply-To: <20180503215759.3720-1-kerolasa@iki.fi>
+References: <20180503215759.3720-1-kerolasa@iki.fi>
 MIME-Version: 1.0
-In-Reply-To: <alpine.LSU.2.21.1805091812050.12477@wotan.suse.de>
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Michael Matz wrote:
-> On Wed, 9 May 2018, Stanislav Brabec wrote:
->>  	for (cpu = 0; cpu < setsize; cpu++) {
->> -		if (!CPU_ISSET(cpu, cpu_set))
->> +		if (!CPU_ISSET_S(cpu, setsize, cpu_set))
-> 
-> Careful, the _S macros count the size in _bytes_, the above loop iterates 
-> in nr-of-cpus (i.e. bits), or alternatively if the caller really gives a 
-> byte size then the loop iterations don't catch all CPUs.  More instances 
-> follow.
+login-utils/last.c: In function â€˜listâ€™:
+login-utils/last.c:398:36: warning: argument to â€˜sizeofâ€™ in â€˜strncatâ€™ call
+is the same expression as the source; did you mean to use the size of the
+destination?  [-Wsizeof-pointer-memaccess]
+  strncat(utline, p->ut_line, sizeof(p->ut_line));
 
-setsize passed to the function is CPU_ALLOC_SIZE(maxcpus).
+The sizeof(utline) is defined as sizeof(p->ut_line) + 1, so the compiler got
+that wrong.  Lets truncate strncat() otherway around to keep gcc 8.1 happy.
 
-Do I understand correctly that the new !CPU_ISSET_S is correct, but the
-loop limit should be maxcpus?
+Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+---
+ login-utils/last.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/login-utils/last.c b/login-utils/last.c
+index 80d77d20b..59dfdb2f5 100644
+--- a/login-utils/last.c
++++ b/login-utils/last.c
+@@ -395,7 +395,7 @@ static int list(const struct last_control *ctl, struct utmpx *p, time_t logout_t
+ 	 *	uucp and ftp have special-type entries
+ 	 */
+ 	utline[0] = 0;
+-	strncat(utline, p->ut_line, sizeof(p->ut_line));
++	strncat(utline, p->ut_line, sizeof(utline) - 1);
+ 	if (strncmp(utline, "ftp", 3) == 0 && isdigit(utline[3]))
+ 		utline[3] = 0;
+ 	if (strncmp(utline, "uucp", 4) == 0 && isdigit(utline[4]))
 -- 
-Best Regards / S pozdravem,
+2.17.0
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
