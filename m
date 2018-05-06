@@ -1,65 +1,94 @@
-Return-Path: kerolasa@gmail.com
-Sender: Sami Kerola <kerolasa@gmail.com>
-Date: Sat, 26 May 2018 10:32:54 +0100 (BST)
-From: Sami Kerola <kerolasa@iki.fi>
-To: Karel Zak <kzak@redhat.com>
-cc: util-linux <util-linux@vger.kernel.org>
-Subject: Re: [PATCH 2/2] more: remove global variables, add struct
- more_control
-In-Reply-To: <CAG27Bk2S4iLOSc0bADWfQKzEVTh+-mYAxbWSO+Y2bgswZKty5Q@mail.gmail.com>
-Message-ID: <alpine.LNX.2.20.1805261026360.8191@imuri>
-References: <20180523222436.28823-1-kerolasa@iki.fi> <20180523222436.28823-2-kerolasa@iki.fi> <20180524071058.dgy5csrr6ucebwlo@ws.net.home> <CAG27Bk2S4iLOSc0bADWfQKzEVTh+-mYAxbWSO+Y2bgswZKty5Q@mail.gmail.com>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:43647 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750983AbeEFLPc (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 6 May 2018 07:15:32 -0400
+Received: by mail-wr0-f193.google.com with SMTP id v15-v6so25123631wrm.10
+        for <util-linux@vger.kernel.org>; Sun, 06 May 2018 04:15:31 -0700 (PDT)
+Date: Sun, 6 May 2018 13:15:27 +0200
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+To: "Michael Kerrisk (man-opages)" <mtk.manpages@gmail.com>
+Cc: Jan Kara <jack@suse.cz>, Karel Zak <kzak@redhat.com>,
+        Steve Kenton <skenton@ou.edu>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/1] Update mount options for UDF
+Message-ID: <20180506111527.xfzvxf2d4chajgyt@pali>
+References: <20180227184407.5945-1-skenton@ou.edu>
+ <20180228130828.j3wbez6pzzzeknuc@ws.net.home>
+ <20180228133220.3rmkcqnk6giry4bk@quack2.suse.cz>
+ <20180228220319.ccosidfzrdlowwqu@pali>
+ <b550e4cc-4a5e-72c3-a4db-85913769e97f@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="tozzqvsyey2fvco3"
+In-Reply-To: <b550e4cc-4a5e-72c3-a4db-85913769e97f@gmail.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Thu, 24 May 2018, Sami Kerola wrote:
 
-> On 24 May 2018 at 08:10, Karel Zak <kzak@redhat.com> wrote:
-> > On Wed, May 23, 2018 at 11:24:36PM +0100, Sami Kerola wrote:
-> >> -#define Fopen(s,m)   (Currline = 0,file_pos=0,fopen(s,m))
-> >> -#define Ftell(f)     file_pos
-> >> -#define Fseek(f,off) (file_pos=off,fseek(f,off,0))
-> >> -#define Getc(f)              (++file_pos, getc(f))
-> >> -#define Ungetc(c,f)  (--file_pos, ungetc(c,f))
-> >> +#define Fopen(s,m)   (ctl->Currline = 0, ctl->file_pos=0, fopen(s,m))
-> >> +#define Ftell(f)     ctl->file_pos
-> >> +#define Fseek(f,off) (ctl->file_pos=off, fseek(f, off, 0))
-> >> +#define Getc(f)              (++ctl->file_pos, getc(f))
-> >> +#define Ungetc(c,f)  (--ctl->file_pos, ungetc(c,f))
-> >
-> > These macros are horrible. It would be nice to remove it by another
-> > patch and use standard code rather than any macros -- for example
-> > Fopen() is used only once.
-> >
-> > For often used stuff like Getc() it would be better to use inline functions.
-> >
-> > Anyway, modify 'ctl' (or any global variable) and don't use it as
-> > argument for the macro is horrible.
-> 
-> My intention is to get rid of these macros completely. Precarious macros
-> with pointer arguments will relatively soon. As it sounds you probably
-> want that change to be added to this series. I'll do that during weekend.
+--tozzqvsyey2fvco3
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Done in commit 7844bd1 that is available from my repo.
+On Sunday 06 May 2018 12:35:02 Michael Kerrisk (man-opages) wrote:
+> On 02/28/2018 11:03 PM, Pali Roh=C3=A1r wrote:
+> > On Wednesday 28 February 2018 14:32:20 Jan Kara wrote:
+> > > On Wed 28-02-18 14:08:28, Karel Zak wrote:
+> > > > On Tue, Feb 27, 2018 at 12:44:07PM -0600, Steve Kenton wrote:
+> > > > > Signed-off-by: Steve Kenton <skenton@ou.edu>
+> > > > > Acked-by: Jan Kara <jack@suse.cz>
+> > > > > ---
+> > > > >   sys-utils/mount.8 | 89 ++++++++++++++++++++++++++++++++++++++++=
++--------------
+> > > > >   1 file changed, 67 insertions(+), 22 deletions(-)
+> > > >=20
+> > > > Applied, thanks.
+> > > >=20
+> > > > Jan, what about to create udf(5) man page? We already have fs-speci=
+fic
+> > > > man pages (e.g. ext4, tmpfs, nfs, btrfs, ...). It's usually maintai=
+ned
+> > > > within fs-specific tools (e.g. ext4 -> e2fsprogs) or together with
+> > > > standard man-pages (CC: to Michael).
+> > >=20
+> > > I'm fine with that. Pali is actually the maintainer of udf-tools so i=
+f he
+> > > is willing to take the manpage there, it's probably the best place.
+> >=20
+> > Is udftools the best place for kernel udf mount options? Because
+> > userspace udftools are not needed for kernel udf driver, nor for
+> > mounting existing udf filesystem.
+> >=20
+> > For me it looks like that kernel drivers should have its documentation
+> > in kernel itself...
+>=20
+> [way late to the party...]
+>=20
+> Or, better, in a man page that describes the kernel interface :-).
+> Many other filesystems have by now Section 5 pages in the man-pages packa=
+ge
+> that I maintain. A udf(5) page that describes the mount options that the
+> kernel supports for UDF would be best, and I think best lives inside
+> "man-pages" because it is kernel interface stuff.
 
-The 'more' branch also fixes BSB, BS, and CARAT definitions, and control 
-structure uint32_t to unsigned int, see commit c02140b.
+Ok, that sounds good.
 
-https://github.com/kerolasa/util-linux/commits/more
+> Or, did such a page already land in udf-tools?
 
-----------------------------------------------------------------
-The following changes since commit 3abbd0814cf479f709a2da5822a215db69c5a6d0:
-  libblkid: (ntfs) fix cluster size check (2018-05-25 21:02:23 +0200)
-are available in the Git repository at:
-  git://github.com/kerolasa/util-linux.git more 
-for you to fetch changes up to 7844bd13df52dcf7afd44f43b1daa8ae506ddb11:
-  more: remove function like preprocessor defines (2018-05-26 10:21:00 +0100)
-----------------------------------------------------------------
-Sami Kerola (3):
-      more: move couple functions
-      more: remove global variables, add struct more_control
-      more: remove function like preprocessor defines
+No, there is no such manpage.
 
- text-utils/more.c | 1674 ++++++++++++++++++++++++++++++++++++++++-------------------------------------
- 1 file changed, 868 insertions(+), 806 deletions(-)
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--tozzqvsyey2fvco3
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWu7jywAKCRCL8Mk9A+RD
+UnadAKCjEoEaU/boEghSk4BfRLXIHrQasACfbhXMK0KWpFBABsq/a5zbPyvFVgQ=
+=RfOX
+-----END PGP SIGNATURE-----
+
+--tozzqvsyey2fvco3--
