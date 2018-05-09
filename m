@@ -1,35 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-ot0-f178.google.com ([74.125.82.178]:45669 "EHLO
-        mail-ot0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750785AbeEBCxt (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 1 May 2018 22:53:49 -0400
-Received: by mail-ot0-f178.google.com with SMTP id 15-v6so109750otn.12
-        for <util-linux@vger.kernel.org>; Tue, 01 May 2018 19:53:49 -0700 (PDT)
-Subject: Re: configure output seems confusing in util-linux-2.32
-To: L A Walsh <lkml@tlinx.org>, util-linux@vger.kernel.org
-References: <5AE908A7.2010900@tlinx.org>
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
-Message-ID: <0a977638-61e0-2ffc-8b3e-e4c9dcbaea2a@gmail.com>
-Date: Tue, 1 May 2018 21:53:47 -0500
+Received: from mx2.suse.de ([195.135.220.15]:47335 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S965533AbeEIQ0S (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 9 May 2018 12:26:18 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 9AD36ACDB
+        for <util-linux@vger.kernel.org>; Wed,  9 May 2018 16:26:16 +0000 (UTC)
+Subject: Re: [PATCH] Avoid use of the old CPU macros
+To: Michael Matz <matz@suse.de>
+Cc: util-linux@vger.kernel.org
+References: <2985b3d2-facd-13f1-10f7-bc265edfed6d@suse.cz>
+ <alpine.LSU.2.21.1805091812050.12477@wotan.suse.de>
+From: Stanislav Brabec <sbrabec@suse.cz>
+Message-ID: <e77e06a7-12a5-2e53-42ff-78e337bb6d14@suse.cz>
+Date: Wed, 9 May 2018 18:26:16 +0200
 MIME-Version: 1.0
-In-Reply-To: <5AE908A7.2010900@tlinx.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <alpine.LSU.2.21.1805091812050.12477@wotan.suse.de>
+Content-Type: text/plain; charset=iso-8859-2
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 05/01/2018 07:39 PM, L A Walsh wrote:
-> Looked at configure help, saw:
+Michael Matz wrote:
+> On Wed, 9 May 2018, Stanislav Brabec wrote:
+>>  	for (cpu = 0; cpu < setsize; cpu++) {
+>> -		if (!CPU_ISSET(cpu, cpu_set))
+>> +		if (!CPU_ISSET_S(cpu, setsize, cpu_set))
 > 
-> Optional packages:
-> ...
->   --with-systemd          build with support for systemd
-> 
-> to me, this means systemd is optional and may be
-> included using a 'with'.
-> 
-> Conversely, one could use:
->   --without-systemd
+> Careful, the _S macros count the size in _bytes_, the above loop iterates 
+> in nr-of-cpus (i.e. bits), or alternatively if the caller really gives a 
+> byte size then the loop iterations don't catch all CPUs.  More instances 
+> follow.
 
-Works for me,  but you also need to use --without-systemdsystemunitdir
+setsize passed to the function is CPU_ALLOC_SIZE(maxcpus).
 
-   -- Bruce
+Do I understand correctly that the new !CPU_ISSET_S is correct, but the
+loop limit should be maxcpus?
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+K�i��kova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karl�n                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
