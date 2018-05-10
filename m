@@ -1,28 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:52612 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1754323AbeEWIp6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 23 May 2018 04:45:58 -0400
-Date: Wed, 23 May 2018 10:45:55 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] man: choom.1: Use the correct macro for the font change
- of one argument
-Message-ID: <20180523084555.cbfnjaujkzvlfqsp@ws.net.home>
-References: <20180519000850.GA32178@rhi.hi.is>
+Received: from mail-it0-f47.google.com ([209.85.214.47]:36246 "EHLO
+        mail-it0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756774AbeEJJAs (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 10 May 2018 05:00:48 -0400
+Received: by mail-it0-f47.google.com with SMTP id e20-v6so2274233itc.1
+        for <util-linux@vger.kernel.org>; Thu, 10 May 2018 02:00:48 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180519000850.GA32178@rhi.hi.is>
+From: Nikhil <nik2087@gmail.com>
+Date: Thu, 10 May 2018 09:00:36 +0000
+Message-ID: <CALY=dt+aJC0aXm6j4wg-T-RbOKAv-+q7NuzMaH_fwPO3Hdss2A@mail.gmail.com>
+Subject: blkid -> attempt to access beyond end of device if start sector is > 128
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, May 19, 2018 at 12:08:50AM +0000, Bjarni Ingi Gislason wrote:
->  sys-utils/choom.1 | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+Hi
 
-Applied, thanks.
+We have i.Mx35 based embedded system running Linux 4.14.  The distribution
+is built using yocto (rocko branch).  Before we moved on to Linux 4.14 we
+used Linux 2.6, distribution was again built using yocto(danny branch).
+After upgrade to rocko and linux 4.14, we see some error messages on the
+console on executing blkid.  These messages appear for the SD card.  Error
+messages appear only if SD Card is mounted and if the start sector for sd
+card is 129 or more,  doesnt appear is start sector is 128 or less.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Error Message:
+root@ebboard:~# blkid
+[ 8707.475004] attempt to access beyond end of device
+[ 8707.479894] unknown-block(179,0): rw=0, want=1953793, limit=1953792
+[ 8707.488054] Buffer I/O error on dev mmcblk0p1, logical block 244207,
+async page read
+
+fdisk output:
+root@ebboard:~# fdisk -ul
+
+Disk /dev/mmcblk0: 1000 MB, 1000341504 bytes
+4 heads, 16 sectors/track, 30528 cylinders, total 1953792 sectors
+Units = sectors of 1 * 512 = 512 bytes
+
+         Device Boot      Start         End      Blocks  Id System
+/dev/mmcblk0p1             129     1953791      976831+  6 FAT16
+
+If anyone has any idea as to why these warnings are printed depending on
+whether the start sector is > 128  would be very much helpful.  Thanks.
+
+Regards
+Nikhil
