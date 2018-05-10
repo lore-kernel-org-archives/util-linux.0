@@ -1,109 +1,123 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from ishtar.tlinx.org ([173.164.175.65]:39796 "EHLO
-        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750800AbeEBE13 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 2 May 2018 00:27:29 -0400
-Received: from [192.168.3.12] (Athenae [192.168.3.12])
-        by Ishtar.sc.tlinx.org (8.14.7/8.14.4/SuSE Linux 0.8) with ESMTP id w424RQph010322
-        for <util-linux@vger.kernel.org>; Tue, 1 May 2018 21:27:29 -0700
-Message-ID: <5AE93E2E.9040506@tlinx.org>
-Date: Tue, 01 May 2018 21:27:26 -0700
-From: L A Walsh <lkml@tlinx.org>
+Return-Path: nik2087@gmail.com
 MIME-Version: 1.0
-To: util-linux@vger.kernel.org
-Subject: FYI...build "ok", thought some warnings, annoyances in 2.32...
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Sender: util-linux-owner@vger.kernel.org
+References: <CALY=dt+aJC0aXm6j4wg-T-RbOKAv-+q7NuzMaH_fwPO3Hdss2A@mail.gmail.com>
+ <20180510095215.fpxoerxvan7hx3ac@ws.net.home>
+In-Reply-To: <20180510095215.fpxoerxvan7hx3ac@ws.net.home>
+From: Nikhil <nik2087@gmail.com>
+Date: Thu, 10 May 2018 10:13:01 +0000
+Message-ID: <CALY=dt+6zebO8jAmW-3R36U5tJEyopzZjJSyTjLDDOutZCLjPg@mail.gmail.com>
+Subject: Re: blkid -> attempt to access beyond end of device if start sector
+ is > 128
+To: kzak@redhat.com
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <util-linux.vger.kernel.org>
 
-Everything seemed to build, though with warnings and some
-annoyances.
+Thanks a lot for reply.  Here's the output:
 
-It _seems_ most of the warnings are of low importance.
+root@ebboard:~# blkid -v
+blkid from util-linux 2.30  (libblkid 2.30.0, 02-Jun-2017)
 
-At the annoyance level: of the 8 utils I tried to build statically,
-0 worked: "complete static linking is impossible in this configuration".
-I wonder if this is a 'SUSE-ism'?
+root@ebboard:~#  LIBBLKID_DEBUG=all blkid -p -o udev /dev/mmcblk0p1
+491: libblkid:     INIT: library debug mask: 0xffff
+491: libblkid:     INIT: library ver[  129.635888] attempt to access beyond
+end of device
+sion: 2.30.0 [02-Jun-2017]
+Avai[  129.641600] unknown-block(179,0): rw=0, want=1953793, limit=1953792
+lable "LIBBLKID_DEBUG=<name>[,..[  129.650266] Buffer I/O error on dev
+mmcblk0p1, logical block 244207, async page read
+.]|<mask>" debug masks:
+    all      [0xffff] : info about all subsystems
+    cache    [0x0004] : blkid tags cache
+    config   [0x0008] : config file utils
+    dev      [0x0010] : device utils
+    devname  [0x0020] : /proc/partitions evaluation
+    devno    [0x0040] : conversions to device name
+    evaluate [0x0080] : tags resolving
+    help     [0x0001] : this help
+    lowprobe [0x0100] : superblock/raids/partitions probing
+    buffer   [0x2000] : low-probing buffers
+    probe    [0x0200] : devices verification
+    read     [0x0400] : cache parsing
+    save     [0x0800] : cache writing
+    tag      [0x1000] : tags utils
+491: libblkid: LOWPROBE: allocate a new probe 0x1d731a0
+491: libblkid: LOWPROBE: zeroize wiper
+491: libblkid: LOWPROBE: ready for low-probing, offset=0, size=1000275456
+491: libblkid: LOWPROBE: whole-disk: NO, regfile: NO
+491: libblkid: LOWPROBE: 0x1d731a0: start probe
+491: libblkid: LOWPROBE: zeroize wiper
+491: libblkid: LOWPROBE: chain safeprobe superblocks ENABLED
+491: libblkid: LOWPROBE: --> starting probing loop [SUBLKS idx=-1]
+491: libblkid: LOWPROBE: [0] linux_raid_member:
+491: libblkid: LOWPROBE:        call probefunc()
+491: libblkid: LOWPROBE:        read 0x1d73410: off=1000144896 len=64
+491: libblkid: LOWPROBE:        read 0x1d73478: off=1000263680 len=256
+491: libblkid: LOWPROBE:        read 0x1d735a0: off=0 len=256
+491: libblkid: LOWPROBE:        read 0x1d736c8: off=4096 len=256
+491: libblkid: LOWPROBE: [1] ddf_raid_member:
+491: libblkid: LOWPROBE:        call probefunc()
+491: libblkid: LOWPROBE:        read 0x1d737f0: off=1000274944 len=512
+491: libblkid: LOWPROBE:        read failed: Input/output error
+491: libblkid: LOWPROBE: <-- leaving probing loop (failed=-5) [SUBLKS idx=1]
+491: libblkid: LOWPROBE: freeing values list
+491: libblkid: LOWPROBE: 0x1d731a0: end probe
+491: libblkid: LOWPROBE: zeroize wiper
+491: libblkid:   BUFFER: Resetting probing buffers pr=0x1d731a0
+491: libblkid:   BUFFER:  remove buffer: 0x1d73410 [off=1000144896, len=64]
+491: libblkid:   BUFFER:  remove buffer: 0x1d73478 [off=1000263680, len=256]
+491: libblkid:   BUFFER:  remove buffer: 0x1d735a0 [off=0, len=256]
+491: libblkid:   BUFFER:  remove buffer: 0x1d736c8 [off=4096, len=256]
+491: libblkid: LOWPROBE:  buffers summary: 832 bytes by 4 read() calls
+491: libblkid: LOWPROBE: free probe 0x1d731a0
+On Thu, May 10, 2018 at 3:22 PM Karel Zak <kzak@redhat.com> wrote:
 
-(The problem of static building isn't unique to utils-linux, FWIW...)
+> On Thu, May 10, 2018 at 09:00:36AM +0000, Nikhil wrote:
+> > We have i.Mx35 based embedded system running Linux 4.14.  The
+distribution
+> > is built using yocto (rocko branch).  Before we moved on to Linux 4.14
+we
+> > used Linux 2.6, distribution was again built using yocto(danny branch).
+> > After upgrade to rocko and linux 4.14, we see some error messages on the
+> > console on executing blkid.  These messages appear for the SD card.
+Error
+> > messages appear only if SD Card is mounted and if the start sector for
+sd
+> > card is 129 or more,  doesnt appear is start sector is 128 or less.
+> >
+> > Error Message:
+> > root@ebboard:~# blkid
+> > [ 8707.475004] attempt to access beyond end of device
+> > [ 8707.479894] unknown-block(179,0): rw=0, want=1953793, limit=1953792
+> > [ 8707.488054] Buffer I/O error on dev mmcblk0p1, logical block 244207,
+> > async page read
+> >
+> > fdisk output:
+> > root@ebboard:~# fdisk -ul
+> >
+> > Disk /dev/mmcblk0: 1000 MB, 1000341504 bytes
+> > 4 heads, 16 sectors/track, 30528 cylinders, total 1953792 sectors
+> > Units = sectors of 1 * 512 = 512 bytes
+> >
+> >          Device Boot      Start         End      Blocks  Id System
+> > /dev/mmcblk0p1             129     1953791      976831+  6 FAT16
+> >
+> > If anyone has any idea as to why these warnings are printed depending on
+> > whether the start sector is > 128  would be very much helpful.  Thanks.
 
-Thanks!
--linda
+> Maybe kernel returns incorrect size for the device, or it's blkid bug.
 
-output during make of warnings follows:
+> Can you try
 
+>      LIBBLKID_DEBUG=all blkid -p -o udev /dev/mmcblk0p1
 
-libblkid/src/superblocks/zfs.c: In function ‘probe_zfs’:
-libblkid/src/superblocks/zfs.c:254:14: warning: ‘offset’ may be used 
-uninitialized in this function [-Wmaybe-uninitialized]
---
-libmount/src/monitor.c: In function ‘userspace_monitor_close_fd’:
-libmount/src/monitor.c:202:62: warning: unused parameter ‘mn’ 
-[-Wunused-parameter]
---
-libmount/src/monitor.c: In function ‘kernel_monitor_close_fd’:
-libmount/src/monitor.c:433:59: warning: unused parameter ‘mn’ 
-[-Wunused-parameter]
---
-libfdisk/src/sun.c: In function ‘fdisk_new_sun_label’:
-libfdisk/src/sun.c:1152:63: warning: unused parameter ‘cxt’ 
-[-Wunused-parameter]
---
-libfdisk/src/sgi.c: In function ‘fdisk_new_sgi_label’:
-libfdisk/src/sgi.c:1181:63: warning: unused parameter ‘cxt’ 
-[-Wunused-parameter]
---
-libfdisk/src/dos.c: In function ‘fdisk_new_dos_label’:
-libfdisk/src/dos.c:2467:63: warning: unused parameter ‘cxt’ 
-[-Wunused-parameter]
---
-libfdisk/src/bsd.c: In function ‘fdisk_new_bsd_label’:
-libfdisk/src/bsd.c:1031:63: warning: unused parameter ‘cxt’ 
-[-Wunused-parameter]
---
-libfdisk/src/gpt.c: In function ‘fdisk_new_gpt_label’:
-libfdisk/src/gpt.c:3143:63: warning: unused parameter ‘cxt’ 
-[-Wunused-parameter]
---
-  CCLD     losetup.static
-libtool: warning: complete static linking is impossible in this 
-configuration
---
-  CCLD     mount.static
-libtool: warning: complete static linking is impossible in this 
-configuration
---
-  CCLD     umount.static
-libtool: warning: complete static linking is impossible in this 
-configuration
---
-  CCLD     blkid.static
-libtool: warning: complete static linking is impossible in this 
-configuration
---
-disk-utils/fdisk.c: In function ‘ask_number’:
-disk-utils/fdisk.c:294:11: warning: ‘num’ may be used uninitialized in 
-this function [-Wmaybe-uninitialized]
---
-disk-utils/fdisk.c: In function ‘ask_number’:
-disk-utils/fdisk.c:294:11: warning: ‘num’ may be used uninitialized in 
-this function [-Wmaybe-uninitialized]
---
-  CCLD     fdisk.static
-libtool: warning: complete static linking is impossible in this 
-configuration
---
-  CCLD     sfdisk.static
-libtool: warning: complete static linking is impossible in this 
-configuration
---
-  CCLD     unshare.static
-libtool: warning: complete static linking is impossible in this 
-configuration
---
-  CCLD     nsenter.static
-libtool: warning: complete static linking is impossible in this 
-configuration
+> or for /dev/mmcblk0 (not sure if kernel reports it for whole-disk
+> probing or for the partition).
 
+> util-linux version ? (blkid -V).
 
+>      Karel
 
+> --
+>   Karel Zak  <kzak@redhat.com>
+>   http://karelzak.blogspot.com
