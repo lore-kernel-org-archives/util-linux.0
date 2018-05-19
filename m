@@ -1,67 +1,97 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:34305 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751108AbeECV6D (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 3 May 2018 17:58:03 -0400
-Received: by mail-wm0-f68.google.com with SMTP id a137-v6so4608682wme.1
-        for <util-linux@vger.kernel.org>; Thu, 03 May 2018 14:58:02 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mx2.hi.is ([130.208.165.104]:38982 "EHLO mx2.hi.is"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751418AbeESAKB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 18 May 2018 20:10:01 -0400
+Received: from hekla.rhi.hi.is (hekla.rhi.hi.is [IPv6:2a00:c88:4000:1650::165:2])
+        by mx2.hi.is (8.14.7/8.14.7) with ESMTP id w4J09uuw013837
+        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
+        for <util-linux@vger.kernel.org>; Sat, 19 May 2018 00:09:58 GMT
+Received: from hekla.rhi.hi.is (localhost [127.0.0.1])
+        by hekla.rhi.hi.is (8.14.4/8.14.4) with ESMTP id w4J09unF032236
+        for <util-linux@vger.kernel.org>; Sat, 19 May 2018 00:09:56 GMT
+Received: (from bjarniig@localhost)
+        by hekla.rhi.hi.is (8.14.4/8.14.4/Submit) id w4J09uxL032235
+        for util-linux@vger.kernel.org; Sat, 19 May 2018 00:09:56 GMT
+Date: Sat, 19 May 2018 00:09:56 +0000
+From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 1/3] lib/canonicalize: fix truncation warning
-Date: Thu,  3 May 2018 22:57:57 +0100
-Message-Id: <20180503215759.3720-1-kerolasa@iki.fi>
+Subject: [PATCH] man: Change the only argument to two for the two-fonts macros
+Message-ID: <20180519000956.GA32228@rhi.hi.is>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-lib/canonicalize.c: In function ‘canonicalize_dm_name’:
-lib/canonicalize.c:42:45: warning: ‘%s’ directive output may be truncated
-writing up to 255 bytes into a region of size 244 [-Wformat-truncation=]
-   snprintf(path, sizeof(path), "/dev/mapper/%s", name);
+  Punctuation marks have been left in the only argument of two-fonts
+macros, instead of being separated from it to make the second one.
 
-Notice that this warnign fix does not improve code enormously.  The earlier
-snprintf() truncation will not happen a bit earlier when fgets() is called.
-In that sense this change merely makes one easy to silence warning to
-disappear, and therefore improve change of noticing useful messaging as such
-crops up.
-
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
 ---
- lib/canonicalize.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ login-utils/chfn.1   | 4 ++--
+ login-utils/chsh.1   | 2 +-
+ misc-utils/mcookie.1 | 2 +-
+ term-utils/setterm.1 | 2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/lib/canonicalize.c b/lib/canonicalize.c
-index b600248c7..6cfcf4bca 100644
---- a/lib/canonicalize.c
-+++ b/lib/canonicalize.c
-@@ -16,6 +16,7 @@
- #include <sys/stat.h>
- 
- #include "canonicalize.h"
-+#define mapper "/dev/mapper/"
- 
- /*
-  * Converts private "dm-N" names to "/dev/mapper/<name>"
-@@ -27,7 +28,7 @@ char *canonicalize_dm_name(const char *ptname)
- {
- 	FILE	*f;
- 	size_t	sz;
--	char	path[256], name[256], *res = NULL;
-+	char	path[256], name[sizeof(path) - sizeof(mapper)], *res = NULL;
- 
- 	if (!ptname || !*ptname)
- 		return NULL;
-@@ -39,7 +40,7 @@ char *canonicalize_dm_name(const char *ptname)
- 	/* read "<name>\n" from sysfs */
- 	if (fgets(name, sizeof(name), f) && (sz = strlen(name)) > 1) {
- 		name[sz - 1] = '\0';
--		snprintf(path, sizeof(path), "/dev/mapper/%s", name);
-+		snprintf(path, sizeof(path), mapper "%s", name);
- 
- 		if (access(path, F_OK) == 0)
- 			res = strdup(path);
+diff --git a/login-utils/chfn.1 b/login-utils/chfn.1
+index 58262d4b9..c7130c47e 100644
+--- a/login-utils/chfn.1
++++ b/login-utils/chfn.1
+@@ -97,9 +97,9 @@ This is the default.
+ .SH "EXIT STATUS"
+ Returns 0 if operation was successful, 1 if operation failed or command syntax was not valid.
+ .SH "SEE ALSO"
+-.BR chsh(1),
++.BR chsh (1),
+ .BR finger (1),
+-.BR login.defs(5),
++.BR login.defs (5),
+ .BR passwd (5)
+ .SH AUTHOR
+ Salvatore Valente <svalente@mit.edu>
+diff --git a/login-utils/chsh.1 b/login-utils/chsh.1
+index c03ef65e5..c955b05d8 100644
+--- a/login-utils/chsh.1
++++ b/login-utils/chsh.1
+@@ -55,7 +55,7 @@ only accept shells listed in this file, unless you are root.
+ Returns 0 if operation was successful, 1 if operation failed or command syntax was not valid.
+ .SH "SEE ALSO"
+ .BR login (1),
+-.BR login.defs(5),
++.BR login.defs (5),
+ .BR passwd (5),
+ .BR shells (5)
+ .SH AUTHOR
+diff --git a/misc-utils/mcookie.1 b/misc-utils/mcookie.1
+index 254157902..1ac50ef13 100644
+--- a/misc-utils/mcookie.1
++++ b/misc-utils/mcookie.1
+@@ -17,7 +17,7 @@ system.  Typical usage:
+ .PP
+ The "random" number generated is actually the MD5 message
+ digest of random information coming from one of the sources
+-.IR "getrandom() "
++.IR getrandom ()
+ system call,
+ .IR /dev/urandom ,
+ .IR /dev/random ,
+diff --git a/term-utils/setterm.1 b/term-utils/setterm.1
+index 07495c5e7..88e118934 100644
+--- a/term-utils/setterm.1
++++ b/term-utils/setterm.1
+@@ -179,7 +179,7 @@ Makes the terminal continue on a new line when a line is full.
+ .TP
+ .BR \-\-msg " [" on | off "]  (virtual consoles only)"
+ Enables or disables the sending of kernel
+-.BR printk()
++.BR printk ()
+ messages to the console.
+ .TP
+ \fB\-\-msglevel\fP \fB0-8\fP  (virtual consoles only)
 -- 
 2.17.0
 
+
+-- 
+Bjarni I. Gislason
