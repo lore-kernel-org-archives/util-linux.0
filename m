@@ -1,46 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:48562 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1756741AbeEJJip (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 10 May 2018 05:38:45 -0400
-Date: Thu, 10 May 2018 11:38:42 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: Michael Matz <matz@suse.de>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] Avoid use of the old CPU macros
-Message-ID: <20180510093842.zahlwrsxdmjpmmp2@ws.net.home>
-References: <2985b3d2-facd-13f1-10f7-bc265edfed6d@suse.cz>
- <alpine.LSU.2.21.1805091812050.12477@wotan.suse.de>
- <e77e06a7-12a5-2e53-42ff-78e337bb6d14@suse.cz>
+Received: from mx2.hi.is ([130.208.165.104]:38838 "EHLO mx2.hi.is"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751722AbeESAIz (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 18 May 2018 20:08:55 -0400
+Received: from hekla.rhi.hi.is (hekla.rhi.hi.is [IPv6:2a00:c88:4000:1650::165:2])
+        by mx2.hi.is (8.14.7/8.14.7) with ESMTP id w4J08plA013689
+        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
+        for <util-linux@vger.kernel.org>; Sat, 19 May 2018 00:08:53 GMT
+Received: from hekla.rhi.hi.is (localhost [127.0.0.1])
+        by hekla.rhi.hi.is (8.14.4/8.14.4) with ESMTP id w4J08pi2032188
+        for <util-linux@vger.kernel.org>; Sat, 19 May 2018 00:08:51 GMT
+Received: (from bjarniig@localhost)
+        by hekla.rhi.hi.is (8.14.4/8.14.4/Submit) id w4J08oiO032187
+        for util-linux@vger.kernel.org; Sat, 19 May 2018 00:08:50 GMT
+Date: Sat, 19 May 2018 00:08:50 +0000
+From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] man: choom.1: Use the correct macro for the font change of
+ one argument
+Message-ID: <20180519000850.GA32178@rhi.hi.is>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <e77e06a7-12a5-2e53-42ff-78e337bb6d14@suse.cz>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, May 09, 2018 at 06:26:16PM +0200, Stanislav Brabec wrote:
-> Michael Matz wrote:
-> > On Wed, 9 May 2018, Stanislav Brabec wrote:
-> >>  	for (cpu = 0; cpu < setsize; cpu++) {
-> >> -		if (!CPU_ISSET(cpu, cpu_set))
-> >> +		if (!CPU_ISSET_S(cpu, setsize, cpu_set))
-> > 
-> > Careful, the _S macros count the size in _bytes_, the above loop iterates 
-> > in nr-of-cpus (i.e. bits), or alternatively if the caller really gives a 
-> > byte size then the loop iterations don't catch all CPUs.  More instances 
-> > follow.
-> 
-> setsize passed to the function is CPU_ALLOC_SIZE(maxcpus).
-> 
-> Do I understand correctly that the new !CPU_ISSET_S is correct, but the
-> loop limit should be maxcpus?
+  Use the correct macro "I" for one argument, instead of the
+two-fonts macro "IR".
 
-I think so, setsize is aligned (in bytes) to handle maxsize (bits).
-The loop is incorrect, should be maxcpus. I'll fix.
+Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+---
+ sys-utils/choom.1 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-    Karel
+diff --git a/sys-utils/choom.1 b/sys-utils/choom.1
+index 9cac198d0..13e4fc247 100644
+--- a/sys-utils/choom.1
++++ b/sys-utils/choom.1
+@@ -4,7 +4,7 @@ choom \- display and adjust OOM-killer score.
+ .SH SYNOPSIS
+ .B choom
+ .B \-p
+-.IR pid
++.I pid
+ .sp
+ .B choom
+ .B \-p
+-- 
+2.17.0
 
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Bjarni I. Gislason
