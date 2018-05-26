@@ -1,97 +1,65 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx2.hi.is ([130.208.165.104]:38982 "EHLO mx2.hi.is"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751418AbeESAKB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 18 May 2018 20:10:01 -0400
-Received: from hekla.rhi.hi.is (hekla.rhi.hi.is [IPv6:2a00:c88:4000:1650::165:2])
-        by mx2.hi.is (8.14.7/8.14.7) with ESMTP id w4J09uuw013837
-        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
-        for <util-linux@vger.kernel.org>; Sat, 19 May 2018 00:09:58 GMT
-Received: from hekla.rhi.hi.is (localhost [127.0.0.1])
-        by hekla.rhi.hi.is (8.14.4/8.14.4) with ESMTP id w4J09unF032236
-        for <util-linux@vger.kernel.org>; Sat, 19 May 2018 00:09:56 GMT
-Received: (from bjarniig@localhost)
-        by hekla.rhi.hi.is (8.14.4/8.14.4/Submit) id w4J09uxL032235
-        for util-linux@vger.kernel.org; Sat, 19 May 2018 00:09:56 GMT
-Date: Sat, 19 May 2018 00:09:56 +0000
-From: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] man: Change the only argument to two for the two-fonts macros
-Message-ID: <20180519000956.GA32228@rhi.hi.is>
+Return-Path: kerolasa@gmail.com
+Sender: Sami Kerola <kerolasa@gmail.com>
+Date: Sat, 26 May 2018 10:32:54 +0100 (BST)
+From: Sami Kerola <kerolasa@iki.fi>
+To: Karel Zak <kzak@redhat.com>
+cc: util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH 2/2] more: remove global variables, add struct
+ more_control
+In-Reply-To: <CAG27Bk2S4iLOSc0bADWfQKzEVTh+-mYAxbWSO+Y2bgswZKty5Q@mail.gmail.com>
+Message-ID: <alpine.LNX.2.20.1805261026360.8191@imuri>
+References: <20180523222436.28823-1-kerolasa@iki.fi> <20180523222436.28823-2-kerolasa@iki.fi> <20180524071058.dgy5csrr6ucebwlo@ws.net.home> <CAG27Bk2S4iLOSc0bADWfQKzEVTh+-mYAxbWSO+Y2bgswZKty5Q@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
 List-ID: <util-linux.vger.kernel.org>
 
-  Punctuation marks have been left in the only argument of two-fonts
-macros, instead of being separated from it to make the second one.
+On Thu, 24 May 2018, Sami Kerola wrote:
 
-Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
----
- login-utils/chfn.1   | 4 ++--
- login-utils/chsh.1   | 2 +-
- misc-utils/mcookie.1 | 2 +-
- term-utils/setterm.1 | 2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+> On 24 May 2018 at 08:10, Karel Zak <kzak@redhat.com> wrote:
+> > On Wed, May 23, 2018 at 11:24:36PM +0100, Sami Kerola wrote:
+> >> -#define Fopen(s,m)   (Currline = 0,file_pos=0,fopen(s,m))
+> >> -#define Ftell(f)     file_pos
+> >> -#define Fseek(f,off) (file_pos=off,fseek(f,off,0))
+> >> -#define Getc(f)              (++file_pos, getc(f))
+> >> -#define Ungetc(c,f)  (--file_pos, ungetc(c,f))
+> >> +#define Fopen(s,m)   (ctl->Currline = 0, ctl->file_pos=0, fopen(s,m))
+> >> +#define Ftell(f)     ctl->file_pos
+> >> +#define Fseek(f,off) (ctl->file_pos=off, fseek(f, off, 0))
+> >> +#define Getc(f)              (++ctl->file_pos, getc(f))
+> >> +#define Ungetc(c,f)  (--ctl->file_pos, ungetc(c,f))
+> >
+> > These macros are horrible. It would be nice to remove it by another
+> > patch and use standard code rather than any macros -- for example
+> > Fopen() is used only once.
+> >
+> > For often used stuff like Getc() it would be better to use inline functions.
+> >
+> > Anyway, modify 'ctl' (or any global variable) and don't use it as
+> > argument for the macro is horrible.
+> 
+> My intention is to get rid of these macros completely. Precarious macros
+> with pointer arguments will relatively soon. As it sounds you probably
+> want that change to be added to this series. I'll do that during weekend.
 
-diff --git a/login-utils/chfn.1 b/login-utils/chfn.1
-index 58262d4b9..c7130c47e 100644
---- a/login-utils/chfn.1
-+++ b/login-utils/chfn.1
-@@ -97,9 +97,9 @@ This is the default.
- .SH "EXIT STATUS"
- Returns 0 if operation was successful, 1 if operation failed or command syntax was not valid.
- .SH "SEE ALSO"
--.BR chsh(1),
-+.BR chsh (1),
- .BR finger (1),
--.BR login.defs(5),
-+.BR login.defs (5),
- .BR passwd (5)
- .SH AUTHOR
- Salvatore Valente <svalente@mit.edu>
-diff --git a/login-utils/chsh.1 b/login-utils/chsh.1
-index c03ef65e5..c955b05d8 100644
---- a/login-utils/chsh.1
-+++ b/login-utils/chsh.1
-@@ -55,7 +55,7 @@ only accept shells listed in this file, unless you are root.
- Returns 0 if operation was successful, 1 if operation failed or command syntax was not valid.
- .SH "SEE ALSO"
- .BR login (1),
--.BR login.defs(5),
-+.BR login.defs (5),
- .BR passwd (5),
- .BR shells (5)
- .SH AUTHOR
-diff --git a/misc-utils/mcookie.1 b/misc-utils/mcookie.1
-index 254157902..1ac50ef13 100644
---- a/misc-utils/mcookie.1
-+++ b/misc-utils/mcookie.1
-@@ -17,7 +17,7 @@ system.  Typical usage:
- .PP
- The "random" number generated is actually the MD5 message
- digest of random information coming from one of the sources
--.IR "getrandom() "
-+.IR getrandom ()
- system call,
- .IR /dev/urandom ,
- .IR /dev/random ,
-diff --git a/term-utils/setterm.1 b/term-utils/setterm.1
-index 07495c5e7..88e118934 100644
---- a/term-utils/setterm.1
-+++ b/term-utils/setterm.1
-@@ -179,7 +179,7 @@ Makes the terminal continue on a new line when a line is full.
- .TP
- .BR \-\-msg " [" on | off "]  (virtual consoles only)"
- Enables or disables the sending of kernel
--.BR printk()
-+.BR printk ()
- messages to the console.
- .TP
- \fB\-\-msglevel\fP \fB0-8\fP  (virtual consoles only)
--- 
-2.17.0
+Done in commit 7844bd1 that is available from my repo.
 
+The 'more' branch also fixes BSB, BS, and CARAT definitions, and control 
+structure uint32_t to unsigned int, see commit c02140b.
 
--- 
-Bjarni I. Gislason
+https://github.com/kerolasa/util-linux/commits/more
+
+----------------------------------------------------------------
+The following changes since commit 3abbd0814cf479f709a2da5822a215db69c5a6d0:
+  libblkid: (ntfs) fix cluster size check (2018-05-25 21:02:23 +0200)
+are available in the Git repository at:
+  git://github.com/kerolasa/util-linux.git more 
+for you to fetch changes up to 7844bd13df52dcf7afd44f43b1daa8ae506ddb11:
+  more: remove function like preprocessor defines (2018-05-26 10:21:00 +0100)
+----------------------------------------------------------------
+Sami Kerola (3):
+      more: move couple functions
+      more: remove global variables, add struct more_control
+      more: remove function like preprocessor defines
+
+ text-utils/more.c | 1674 ++++++++++++++++++++++++++++++++++++++++-------------------------------------
+ 1 file changed, 868 insertions(+), 806 deletions(-)
