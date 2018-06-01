@@ -1,52 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-io0-f182.google.com ([209.85.223.182]:33644 "EHLO
-        mail-io0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752568AbeFGJfx (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 7 Jun 2018 05:35:53 -0400
-Received: by mail-io0-f182.google.com with SMTP id d185-v6so11069722ioe.0
-        for <util-linux@vger.kernel.org>; Thu, 07 Jun 2018 02:35:53 -0700 (PDT)
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:51550 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751350AbeFALiL (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 1 Jun 2018 07:38:11 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id B7ACCC12A1
+        for <util-linux@vger.kernel.org>; Fri,  1 Jun 2018 11:38:10 +0000 (UTC)
+Received: from ws.net.home (unknown [10.36.118.68])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4A7551C668
+        for <util-linux@vger.kernel.org>; Fri,  1 Jun 2018 11:38:10 +0000 (UTC)
+Date: Fri, 1 Jun 2018 13:38:07 +0200
+From: Karel Zak <kzak@redhat.com>
+To: util-linux <util-linux@vger.kernel.org>
+Subject: hardlink util -- files de-duplication
+Message-ID: <20180601113807.ghf6dtcd5xa6qptu@ws.net.home>
 MIME-Version: 1.0
-Reply-To: kerolasa@gmail.com
-In-Reply-To: <9d6d94f3-cb99-45e6-4170-2bb744f5878b@suse.de>
-References: <9d6d94f3-cb99-45e6-4170-2bb744f5878b@suse.de>
-From: Sami Kerola <kerolasa@iki.fi>
-Date: Thu, 7 Jun 2018 10:35:52 +0100
-Message-ID: <CAG27Bk3dTjXhcsoBpWTORRsdJk8A7ZiO=jF0B8BkdJd-YwAWag@mail.gmail.com>
-Subject: Re: Bug: "blkid -o list" output formating is broken
-To: Dominik Heidler <dheidler@suse.de>
-Cc: util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 6 June 2018 at 15:50, Dominik Heidler <dheidler@suse.de> wrote:
-> when I run "blkid -o list" on a terminal with width >= 178 chars
-> the output will be broken:
-> https://paste.opensuse.org/view/raw/84899108
->
-> It will shift the table output and create longer lines than the
-> terminal width generating linebreaks and breaking the readability of
-> the table.
->
-> I was able to reproduce this issue with util-linux-2.32.
 
-Hi Dominik,
+For last 17 years in Red Hat based distros is available hardlink(1)
+util, man hardlink:
 
->From bklid(8) manual page:
+   hardlink traverses one or more directories searching for duplicate
+   files.  When it finds duplicate files, it uses one of them as the
+   master.  It then removes all other duplicates and places a hardlink
+   for each one pointing to the master file.  This allows for
+   conservation of disk space where multiple directories on a single
+   filesystem contain many  dupli‐ cate files.
 
-  It is recommended to use lsblk(8) command to get information about block
-  devices, or lsblk --fs to get an overview of filesystems, or findmnt(8) to
-  search in already mounted filesystems.
+   ...
 
-  lsblk(8) provides more information, better control on output formatting,
-  easy to use in scripts and it does not require root permissions to get
-  actual information. <and so on>
+the util is little bit orphaned, what about to add this util to
+util-linux to make it available for another distros and keep it
+maintained in serious way? ;-)
 
-Notice that the manual page also has marked --output=list deprecated
-in favour of the lsblk(8) command. So it is _very_ unlikely changes to
-that output format are accepted by Karel who maintains the project.
-That basically means bugs in that format are now features.
+   https://src.fedoraproject.org/cgit/rpms/hardlink.git/
+
+It's one .c file.
+
+Comments & objections?
+
+    Karel
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
