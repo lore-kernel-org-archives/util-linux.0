@@ -1,50 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:51550 "EHLO mx1.redhat.com"
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:51996 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751350AbeFALiL (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 1 Jun 2018 07:38:11 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id B7ACCC12A1
-        for <util-linux@vger.kernel.org>; Fri,  1 Jun 2018 11:38:10 +0000 (UTC)
-Received: from ws.net.home (unknown [10.36.118.68])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4A7551C668
-        for <util-linux@vger.kernel.org>; Fri,  1 Jun 2018 11:38:10 +0000 (UTC)
-Date: Fri, 1 Jun 2018 13:38:07 +0200
+        id S1754019AbeFLMMs (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 12 Jun 2018 08:12:48 -0400
+Date: Tue, 12 Jun 2018 14:12:44 +0200
 From: Karel Zak <kzak@redhat.com>
-To: util-linux <util-linux@vger.kernel.org>
-Subject: hardlink util -- files de-duplication
-Message-ID: <20180601113807.ghf6dtcd5xa6qptu@ws.net.home>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: Alexey Gladkov <legion@altlinux.org>,
+        util-linux <util-linux@vger.kernel.org>
+Subject: Re: hardlink util -- files de-duplication
+Message-ID: <20180612121244.ou2xusihgw4f6vlz@ws.net.home>
+References: <20180601113807.ghf6dtcd5xa6qptu@ws.net.home>
+ <20180601132930.GA5803@altlinux.org>
+ <20180612105522.byg6agpta355f73x@ws.net.home>
+ <201806121322.46190.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201806121322.46190.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Tue, Jun 12, 2018 at 01:22:45PM +0200, Ruediger Meier wrote:
+> On Tuesday 12 June 2018, Karel Zak wrote:
+> > I won't have enough time in next two weeks to work on this task (fix
+> > indention, reuse some lib/ stuff, etc.), so any volunteer(s)? ;-)
+> 
+> I would do this, maybe next week or so. Should it go to sys-utils or  
+> misc-utils?
 
-For last 17 years in Red Hat based distros is available hardlink(1)
-util, man hardlink:
+Thanks! I think misc-utils is better in this case. 
 
-   hardlink traverses one or more directories searching for duplicate
-   files.  When it finds duplicate files, it uses one of them as the
-   master.  It then removes all other duplicates and places a hardlink
-   for each one pointing to the master file.  This allows for
-   conservation of disk space where multiple directories on a single
-   filesystem contain many  dupli‐ cate files.
+The sys-utils directory should be used for kernel API wrappers (ioctl,
+syscalls, sysfs, etc) -- hmm... why we have kill.c in misc-utils? :-)
 
-   ...
+(But it's "color of the bikeshed" topic, so better not start this
+discussion :-)
 
-the util is little bit orphaned, what about to add this util to
-util-linux to make it available for another distros and keep it
-maintained in serious way? ;-)
-
-   https://src.fedoraproject.org/cgit/rpms/hardlink.git/
-
-It's one .c file.
-
-Comments & objections?
+Note that the best way is to use "indent --linux" for the first patch.
+And another changes to the code do by additional patches. So, we will
+able to keep track about our local changes.
 
     Karel
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
