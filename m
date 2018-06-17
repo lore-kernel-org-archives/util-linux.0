@@ -1,38 +1,55 @@
-Return-Path: casantos@datacom.com.br
-Date: Wed, 6 Jun 2018 09:02:27 -0300 (BRT)
-From: Carlos Santos <casantos@datacom.com.br>
-To: =?utf-8?Q?Aur=C3=A9lien?= Aptel <aaptel@suse.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux <util-linux@vger.kernel.org>
-Message-ID: <781894140.1411342.1528286547497.JavaMail.zimbra@datacom.com.br>
-In-Reply-To: <87lgby1vvn.fsf@suse.com>
-References: <20180601113807.ghf6dtcd5xa6qptu@ws.net.home> <87lgby1vvn.fsf@suse.com>
-Subject: Re: hardlink util -- files de-duplication
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from 82-209-166-85.cust.bredband2.com ([82.209.166.85]:51466 "EHLO
+        pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933241AbeFQMtb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 17 Jun 2018 08:49:31 -0400
+From: Andreas Henriksson <andreas@fatal.se>
+To: util-linux@vger.kernel.org
+Cc: cespedes@debian.org, 898426@bugs.debian.org,
+        Andreas Henriksson <andreas@fatal.se>
+Subject: [PATCH] partx: exit with error code when partition read failed
+Date: Sun, 17 Jun 2018 14:49:15 +0200
+Message-Id: <20180617124916.2124-1-andreas@fatal.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-> From: "Aur=C3=A9lien Aptel" <aaptel@suse.com>
-> To: "Karel Zak" <kzak@redhat.com>, "util-linux" <util-linux@vger.kernel.o=
-rg>
-> Sent: Friday, June 1, 2018 10:25:48 AM
-> Subject: Re: hardlink util -- files de-duplication
+Make sure partx exits with a non-0 return code when
+it runs into either code-path where getting the partition
+table failed (or wasn't even attempted because of previous
+error condition).
 
-> Karel Zak <kzak@redhat.com> writes:
->> Comments & objections?
->=20
-> Not objecting but I feel like I should mention there are multiple
-> well-established alternatives:
->=20
-> https://github.com/tobiasschulz/fdupes
-> http://freedup.org/
-> https://rdfind.pauldreik.se/
-> https://github.com/markfasheh/duperemove
+Change was tested using:
+touch /tmp/foobar
+partx -s - /tmp/foobar
 
-Compared to hardlink, fdupes has a richer feature set (e.g. dedupsoft
-links). FreeDup has its own life and does not seem to be adoptable.
-Dupremove is a complex software which requires glib2 and sqlite3.
+Previously that was only printing an error/warning message
+and then exiting with 0, but after this change it exits
+with 1.
 
---=20
-Carlos Santos (Casantos) - DATACOM, P&D
-=E2=80=9CMarched towards the enemy, spear upright, armed with the certainty
-that only the ignorant can have.=E2=80=9D =E2=80=94 Epitaph of a volunteer
+Signed-off-by: Andreas Henriksson <andreas@fatal.se>
+Reported-by: Juan Céspedes <cespedes@debian.org>
+Addresses: https://bugs.debian.org/898426
+---
+ disk-utils/partx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/disk-utils/partx.c b/disk-utils/partx.c
+index 3ccd1afad..f895b9be3 100644
+--- a/disk-utils/partx.c
++++ b/disk-utils/partx.c
+@@ -1054,7 +1054,9 @@ int main(int argc, char **argv)
+ 			default:
+ 				abort();
+ 			}
+-		}
++		} else
++			rc = 1;
++
+ 		blkid_free_probe(pr);
+ 	}
+ 
+-- 
+2.17.1
+
