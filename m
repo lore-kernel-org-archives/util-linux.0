@@ -1,107 +1,111 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:33348 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S937339AbeFSKd3 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 19 Jun 2018 06:33:29 -0400
-Received: by mail-wm0-f68.google.com with SMTP id z6-v6so18359323wma.0
-        for <util-linux@vger.kernel.org>; Tue, 19 Jun 2018 03:33:29 -0700 (PDT)
-From: Milan Broz <gmazyland@gmail.com>
-To: util-linux@vger.kernel.org
-Cc: Milan Broz <gmazyland@gmail.com>
-Subject: [PATCH] lsblk: add partition table UUID and type fields.
-Date: Tue, 19 Jun 2018 12:33:20 +0200
-Message-Id: <20180619103320.13203-1-gmazyland@gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: hjmallon@gmail.com
+From: Harry Mallon <hjmallon@gmail.com>
+To: Karel Zak <kzak@redhat.com>
+CC: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: libblkid: Implementing basic Apple APFS support
+Date: Tue, 19 Jun 2018 18:18:45 +0000
+Message-ID:
+ <CWLP265MB0915258BC995B3764C9E4EF3F2700@CWLP265MB0915.GBRP265.PROD.OUTLOOK.COM>
+References: 
+	<CWLP265MB0915B2DAD26E41D917520FC4F2710@CWLP265MB0915.GBRP265.PROD.OUTLOOK.COM>
+ <20180619152306.4spilxh2ihcxtt3o@ws.net.home>
+In-Reply-To: <20180619152306.4spilxh2ihcxtt3o@ws.net.home>
+Content-Type: multipart/mixed;
+	boundary="_002_CWLP265MB0915258BC995B3764C9E4EF3F2700CWLP265MB0915GBRP_"
+MIME-Version: 1.0
 List-ID: <util-linux.vger.kernel.org>
+Message-ID: <20180619181845.V41JyNYPHkr_-GqC1y2cglcm1hvkybC-Y5uCMd8JR2I@z>
 
-This patch adds PTUUID and PTTYPE fields to lsblk, that are corresponding
-fields to ID_PART_TABLE_UUID and ID_PART_TABLE_TYPE in udev database.
+--_002_CWLP265MB0915258BC995B3764C9E4EF3F2700CWLP265MB0915GBRP_
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 
-Signed-off-by: Milan Broz <gmazyland@gmail.com>
----
- misc-utils/lsblk.c | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+SGkgS2FyZWwsDQoNCkhlcmUgaXMgbXkgYmFzaWMgJ3JlY29nbml0aW9uIG9ubHknIHBhdGNoLiBJ
+IHRoaW5rIHlvdSBhcmUgcmlnaHQgdGhhdCBhbnl0aGluZyBlbHNlIHdvdWxkIGJlIHRvbyBjb21w
+bGljYXRlZC9saWFibGUgZm9yIEFwcGxlIHRvIGNoYW5nZSBzb21ldGhpbmcgYW5kIGJyZWFrIGl0
+Lg0KDQpCZXN0LA0KSGFycnkNCg0K77u/T24gMTkvMDYvMjAxOCwgMTY6MjMsICJLYXJlbCBaYWsi
+IDxremFrQHJlZGhhdC5jb20+IHdyb3RlOg0KDQogICAgT24gTW9uLCBKdW4gMTgsIDIwMTggYXQg
+MDk6NTI6NDNQTSArMDAwMCwgSGFycnkgTWFsbG9uIHdyb3RlOg0KICAgID4gSG93ZXZlciwgQVBG
+UyBpcyBub3QgcmVhbGx5IGEgZmlsZXN5c3RlbSB0eXBlLCBidXQgaW5jbHVkZXMgYSB2b2x1bWUN
+CiAgICA+IG1hbmFnZXIgdG9vLiBQZXJoYXBzIHJlY29nbml0aW9uIG9mIHRoZSBwYXJ0aXRpb24g
+dHlwZSBpcyBub3QNCiAgICA+IGNvbXBsZXRlIGVub3VnaCBmb3IgdXBzdHJlYW0/DQogICAgDQog
+ICAgQXJiaXRyYXJ5IEFwcGxlIEFQRlMgZGV0ZWN0aW9uIHdpbGwgYmUgaW1wcm92ZW1lbnQuIFNv
+LCBkZXRlY3QgbWFnaWMNCiAgICBzdHJpbmcgYW5kIG5vdGhpbmcgZWxzZSBpcyBnb29kIHN0YXJ0
+Lg0KICAgIA0KICAgID4gSSBhbSBsb29raW5nIGF0IG1ha2luZyBhbg0KICAgID4gaW1wbGVtZW50
+YXRpb24gaW4gdGhlIHBhcnRpdGlvbnMgZm9sZGVyIHJhdGhlciB0aGFuIHRoZSBzdXBlcmJsb2Nr
+cw0KICAgID4gZm9sZGVyIChpbnNwaXJlZCBieSBjb2RlIGluIHRoZSByZXZlcnNlIGVuZ2luZWVy
+ZWQgYXBmcy1mdXNlIGRyaXZlcikNCiAgICA+IHRvIGVudW1lcmF0ZSBhbmQgZmlsbCBpbiB0aGUg
+dm9sdW1lcyBsaXN0ZWQgYnV0IHRoaXMgaXMgYW4gb3JkZXIgb2YNCiAgICA+IG1hZ25pdHVkZSBt
+b3JlIGNvZGUgdG8gd29yayB3aXRoLg0KICAgIA0KICAgIEkgcHJlZmVyIGxpYmJsa2lkL3NyYy9z
+dXBlcmJsb2NrcyBmb2xkZXIgaWYgd2UncmUgbm90IGFibGUgdG8gcmVhZA0KICAgICJzbGljZXMi
+IChwYXJ0aXRpb25zLCByb290LCBldGMpIGZyb20gdGhlIGRldmljZS4gVGhlIHNhbWUgc2l0dWF0
+aW9uDQogICAgaXMgZm9yIGV4YW1wbGUgWkZTIG9yIEJUUkZTLg0KICAgIA0KICAgID4gV291bGQg
+YSBwdXJlIHJlY29nbml0aW9uLW9ubHkgYXBmcyBtb2R1bGUgYmUgb2YgaW50ZXJlc3Q/DQogICAg
+DQogICAgU3VyZS4NCiAgICANCiAgICA+IERvZXMgYW55b25lIGhhdmUgYW55IHRpcHMgb24gd3Jp
+dGluZyBhIHBhcnRpdGlvbiB0YWJsZSByZWFkZXIgdmVyc2lvbj8NCiAgICANCiAgICBJIGhhdmUg
+ZG91YnRzIGFib3V0IGl0IGFzIG5vdGhpbmcgYWJvdXQgdGhlIGludGVybmFsIGxvZ2ljIGlzIHB1
+YmxpYw0KICAgIGFuZCBpdCdzIGNyYXp5IHRvIHByb3ZpZGUgd3JpdGUgYWNjZXNzIG9yIG1hcCBp
+bnRlcm5hbCBBUEZTIHN0dWZmIHRvIA0KICAgIHJlYWwgTGludXggYmxvY2sgZGV2aWNlcyBpZiB3
+ZSdyZSBub3Qgc3VyZSBob3cuLi4gc291bmRzIHRvIGRhbmdlcm91cy4NCiAgICANCiAgICA+IElz
+IGxpYmJsa2lkIHRoZSByaWdodCBwbGFjZSBmb3IgdGhpcyBjb2RlIG9yIGlzIHRoZXJlIHNvbWUg
+b3RoZXIgbGF5ZXIgSSBzaG91bGQgYmUgbG9va2luZyBhdD8NCiAgICANCiAgICBsaWJibGtpZCBp
+cyB0aGUgcmlnaHQgcGxhY2UgZm9yIGRldGVjdGlvbg0KICAgIA0KICAgICAgICBLYXJlbA0KICAg
+IA0KICAgIC0tIA0KICAgICBLYXJlbCBaYWsgIDxremFrQHJlZGhhdC5jb20+DQogICAgIGh0dHA6
+Ly9rYXJlbHphay5ibG9nc3BvdC5jb20NCiAgICANCg==
 
-diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
-index fadef65c4..8586ea35c 100644
---- a/misc-utils/lsblk.c
-+++ b/misc-utils/lsblk.c
-@@ -92,6 +92,8 @@ enum {
- 	COL_TARGET,
- 	COL_LABEL,
- 	COL_UUID,
-+	COL_PTUUID,
-+	COL_PTTYPE,
- 	COL_PARTTYPE,
- 	COL_PARTLABEL,
- 	COL_PARTUUID,
-@@ -172,6 +174,9 @@ static struct colinfo infos[] = {
- 	[COL_LABEL]  = { "LABEL",   0.1, 0, N_("filesystem LABEL") },
- 	[COL_UUID]   = { "UUID",    36,  0, N_("filesystem UUID") },
- 
-+	[COL_PTUUID] = { "PTUUID",  36,  0, N_("partition table UUID") },
-+	[COL_PTTYPE] = { "PTTYPE",  0.1, 0, N_("partition table type") },
-+
- 	[COL_PARTTYPE]  = { "PARTTYPE",  36,  0, N_("partition type UUID") },
- 	[COL_PARTLABEL] = { "PARTLABEL", 0.1, 0, N_("partition LABEL") },
- 	[COL_PARTUUID]  = { "PARTUUID",  36,  0, N_("partition UUID") },
-@@ -285,6 +290,8 @@ struct blkdev_cxt {
- 	int probed;		/* already probed */
- 	char *fstype;		/* detected fs, NULL or "?" if cannot detect */
- 	char *uuid;		/* filesystem UUID (or stack uuid) */
-+	char *ptuuid;		/* partition table UUID */
-+	char *pttype;		/* partition table type */
- 	char *label;		/* filesystem label */
- 	char *parttype;		/* partition type UUID */
- 	char *partuuid;		/* partition UUID */
-@@ -394,6 +401,8 @@ static void reset_blkdev_cxt(struct blkdev_cxt *cxt)
- 	free(cxt->filename);
- 	free(cxt->fstype);
- 	free(cxt->uuid);
-+	free(cxt->ptuuid);
-+	free(cxt->pttype);
- 	free(cxt->label);
- 	free(cxt->parttype);
- 	free(cxt->partuuid);
-@@ -552,6 +561,10 @@ static int get_udev_properties(struct blkdev_cxt *cxt)
- 			cxt->uuid = xstrdup(data);
- 			unhexmangle_string(cxt->uuid);
- 		}
-+		if ((data = udev_device_get_property_value(dev, "ID_PART_TABLE_UUID")))
-+			cxt->ptuuid = xstrdup(data);
-+		if ((data = udev_device_get_property_value(dev, "ID_PART_TABLE_TYPE")))
-+			cxt->pttype = xstrdup(data);
- 		if ((data = udev_device_get_property_value(dev, "ID_PART_ENTRY_NAME"))) {
- 			cxt->partlabel = xstrdup(data);
- 			unhexmangle_string(cxt->partlabel);
-@@ -621,6 +634,10 @@ static void probe_device(struct blkdev_cxt *cxt)
- 			cxt->fstype = xstrdup(data);
- 		if (!blkid_probe_lookup_value(pr, "UUID", &data, NULL))
- 			cxt->uuid = xstrdup(data);
-+		if (!blkid_probe_lookup_value(pr, "PTUUID", &data, NULL))
-+			cxt->ptuuid = xstrdup(data);
-+		if (!blkid_probe_lookup_value(pr, "PTTYPE", &data, NULL))
-+			cxt->pttype = xstrdup(data);
- 		if (!blkid_probe_lookup_value(pr, "LABEL", &data, NULL))
- 			cxt->label = xstrdup(data);
- 		if (!blkid_probe_lookup_value(pr, "PART_ENTRY_TYPE", &data, NULL))
-@@ -964,6 +981,16 @@ static void set_scols_data(struct blkdev_cxt *cxt, int col, int id, struct libsc
- 		if (cxt->uuid)
- 			str = xstrdup(cxt->uuid);
- 		break;
-+	case COL_PTUUID:
-+		probe_device(cxt);
-+		if (cxt->ptuuid)
-+			str = xstrdup(cxt->ptuuid);
-+		break;
-+	case COL_PTTYPE:
-+		probe_device(cxt);
-+		if (cxt->pttype)
-+			str = xstrdup(cxt->pttype);
-+		break;
- 	case COL_PARTTYPE:
- 		probe_device(cxt);
- 		if (cxt->parttype)
--- 
-2.17.1
+--_002_CWLP265MB0915258BC995B3764C9E4EF3F2700CWLP265MB0915GBRP_
+Content-Type: application/octet-stream;
+	name="0001-libblkid-add-basic-Apple-APFS-recognition.patch"
+Content-Description: 0001-libblkid-add-basic-Apple-APFS-recognition.patch
+Content-Disposition: attachment;
+	filename="0001-libblkid-add-basic-Apple-APFS-recognition.patch"; size=2836;
+	creation-date="Tue, 19 Jun 2018 18:18:45 GMT";
+	modification-date="Tue, 19 Jun 2018 18:18:45 GMT"
+Content-Transfer-Encoding: base64
 
+RnJvbSA0OTRmMjI3ZTI5MTY1ODk4N2UwNDYzM2EyNmFiNGI1NTU5ZTZlYmU3IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBIYXJyeSBNYWxsb24gPGhqbWFsbG9uQGdtYWlsLmNvbT4KRGF0
+ZTogU3VuLCAxNyBKdW4gMjAxOCAxMjowMzoyMiArMDEwMApTdWJqZWN0OiBbUEFUQ0hdIGxpYmJs
+a2lkOiBhZGQgYmFzaWMgQXBwbGUgQVBGUyByZWNvZ25pdGlvbgoKLS0tCiBsaWJibGtpZC9zcmMv
+TWFrZW1vZHVsZS5hbSAgICAgICAgICAgICB8ICAxICsKIGxpYmJsa2lkL3NyYy9zdXBlcmJsb2Nr
+cy9hcGZzLmMgICAgICAgIHwgMjEgKysrKysrKysrKysrKysrKysrKysrCiBsaWJibGtpZC9zcmMv
+c3VwZXJibG9ja3Mvc3VwZXJibG9ja3MuYyB8ICAzICsrLQogbGliYmxraWQvc3JjL3N1cGVyYmxv
+Y2tzL3N1cGVyYmxvY2tzLmggfCAgMSArCiA0IGZpbGVzIGNoYW5nZWQsIDI1IGluc2VydGlvbnMo
+KyksIDEgZGVsZXRpb24oLSkKIGNyZWF0ZSBtb2RlIDEwMDY0NCBsaWJibGtpZC9zcmMvc3VwZXJi
+bG9ja3MvYXBmcy5jCgpkaWZmIC0tZ2l0IGEvbGliYmxraWQvc3JjL01ha2Vtb2R1bGUuYW0gYi9s
+aWJibGtpZC9zcmMvTWFrZW1vZHVsZS5hbQppbmRleCBlYTAyMzA3MDIuLjQxMDk1NjFjNCAxMDA2
+NDQKLS0tIGEvbGliYmxraWQvc3JjL01ha2Vtb2R1bGUuYW0KKysrIGIvbGliYmxraWQvc3JjL01h
+a2Vtb2R1bGUuYW0KQEAgLTQ0LDYgKzQ0LDcgQEAgbGliYmxraWRfbGFfU09VUkNFUyA9IFwKIAls
+aWJibGtpZC9zcmMvcGFydGl0aW9ucy91bml4d2FyZS5jIFwKIAlcCiAJbGliYmxraWQvc3JjL3N1
+cGVyYmxvY2tzL2FkYXB0ZWNfcmFpZC5jIFwKKwlsaWJibGtpZC9zcmMvc3VwZXJibG9ja3MvYXBm
+cy5jIFwKIAlsaWJibGtpZC9zcmMvc3VwZXJibG9ja3MvYmNhY2hlLmMgXAogCWxpYmJsa2lkL3Ny
+Yy9zdXBlcmJsb2Nrcy9iZWZzLmMgXAogCWxpYmJsa2lkL3NyYy9zdXBlcmJsb2Nrcy9iZnMuYyBc
+CmRpZmYgLS1naXQgYS9saWJibGtpZC9zcmMvc3VwZXJibG9ja3MvYXBmcy5jIGIvbGliYmxraWQv
+c3JjL3N1cGVyYmxvY2tzL2FwZnMuYwpuZXcgZmlsZSBtb2RlIDEwMDY0NAppbmRleCAwMDAwMDAw
+MDAuLjVlOGRlYjBhMQotLS0gL2Rldi9udWxsCisrKyBiL2xpYmJsa2lkL3NyYy9zdXBlcmJsb2Nr
+cy9hcGZzLmMKQEAgLTAsMCArMSwyMSBAQAorLyoKKyAqIENvcHlyaWdodCAoQykgMjAxOCBIYXJy
+eSBNYWxsb24gPGhqbWFsbG9uQGdtYWlsLmNvbT4KKyAqCisgKiBUaGlzIGZpbGUgbWF5IGJlIHJl
+ZGlzdHJpYnV0ZWQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZQorICogR05VIExlc3NlciBHZW5lcmFs
+IFB1YmxpYyBMaWNlbnNlLgorICovCisKKyNpbmNsdWRlICJzdXBlcmJsb2Nrcy5oIgorCisKK2Nv
+bnN0IHN0cnVjdCBibGtpZF9pZGluZm8gYXBmc19pZGluZm8gPQoreworCS5uYW1lCQk9ICJhcGZz
+IiwKKwkudXNhZ2UJCT0gQkxLSURfVVNBR0VfRklMRVNZU1RFTSwKKwkubWFnaWNzCQk9CisJewor
+CQl7IC5tYWdpYyA9ICJOWFNCIiwgLmxlbiA9IDQsIC5zYm9mZiA9IDMyIH0sCisJCXsgTlVMTCB9
+CisJfQorfTsKKwpkaWZmIC0tZ2l0IGEvbGliYmxraWQvc3JjL3N1cGVyYmxvY2tzL3N1cGVyYmxv
+Y2tzLmMgYi9saWJibGtpZC9zcmMvc3VwZXJibG9ja3Mvc3VwZXJibG9ja3MuYwppbmRleCA2ZGZk
+MmJlNjQuLmU5NWMxZTYyNiAxMDA2NDQKLS0tIGEvbGliYmxraWQvc3JjL3N1cGVyYmxvY2tzL3N1
+cGVyYmxvY2tzLmMKKysrIGIvbGliYmxraWQvc3JjL3N1cGVyYmxvY2tzL3N1cGVyYmxvY2tzLmMK
+QEAgLTE2Myw3ICsxNjMsOCBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IGJsa2lkX2lkaW5mbyAqaWRp
+bmZvc1tdID0KIAkmbmlsZnMyX2lkaW5mbywKIAkmZXhmYXRfaWRpbmZvLAogCSZmMmZzX2lkaW5m
+bywKLQkmbXBvb2xfaWRpbmZvCisJJm1wb29sX2lkaW5mbywKKwkmYXBmc19pZGluZm8KIH07CiAK
+IC8qCmRpZmYgLS1naXQgYS9saWJibGtpZC9zcmMvc3VwZXJibG9ja3Mvc3VwZXJibG9ja3MuaCBi
+L2xpYmJsa2lkL3NyYy9zdXBlcmJsb2Nrcy9zdXBlcmJsb2Nrcy5oCmluZGV4IGQ2NzdmODViYy4u
+ODU4NThiOWZjIDEwMDY0NAotLS0gYS9saWJibGtpZC9zcmMvc3VwZXJibG9ja3Mvc3VwZXJibG9j
+a3MuaAorKysgYi9saWJibGtpZC9zcmMvc3VwZXJibG9ja3Mvc3VwZXJibG9ja3MuaApAQCAtODIs
+NiArODIsNyBAQCBleHRlcm4gY29uc3Qgc3RydWN0IGJsa2lkX2lkaW5mbyBtcG9vbF9pZGluZm87
+CiBleHRlcm4gY29uc3Qgc3RydWN0IGJsa2lkX2lkaW5mbyB2ZG9faWRpbmZvOwogZXh0ZXJuIGNv
+bnN0IHN0cnVjdCBibGtpZF9pZGluZm8gc3RyYXRpc19pZGluZm87CiBleHRlcm4gY29uc3Qgc3Ry
+dWN0IGJsa2lkX2lkaW5mbyBiaXRsb2NrZXJfaWRpbmZvOworZXh0ZXJuIGNvbnN0IHN0cnVjdCBi
+bGtpZF9pZGluZm8gYXBmc19pZGluZm87CiAKIC8qCiAgKiBzdXBlcmJsb2NrIGZ1bmN0aW9ucwot
+LSAKMi4xNy4xCgo=
+
+--_002_CWLP265MB0915258BC995B3764C9E4EF3F2700CWLP265MB0915GBRP_--
