@@ -1,55 +1,115 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:43718 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S965599AbeFSPXK (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 19 Jun 2018 11:23:10 -0400
-Date: Tue, 19 Jun 2018 17:23:06 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Harry Mallon <hjmallon@gmail.com>
-Cc: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:32791 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S966078AbeFSSSu (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 19 Jun 2018 14:18:50 -0400
+Received: by mail-pf0-f193.google.com with SMTP id b17-v6so271359pfi.0
+        for <util-linux@vger.kernel.org>; Tue, 19 Jun 2018 11:18:50 -0700 (PDT)
+From: Harry Mallon <hjmallon@gmail.com>
+To: Karel Zak <kzak@redhat.com>
+CC: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
 Subject: Re: libblkid: Implementing basic Apple APFS support
-Message-ID: <20180619152306.4spilxh2ihcxtt3o@ws.net.home>
+Date: Tue, 19 Jun 2018 18:18:45 +0000
+Message-ID: <CWLP265MB0915258BC995B3764C9E4EF3F2700@CWLP265MB0915.GBRP265.PROD.OUTLOOK.COM>
 References: <CWLP265MB0915B2DAD26E41D917520FC4F2710@CWLP265MB0915.GBRP265.PROD.OUTLOOK.COM>
+ <20180619152306.4spilxh2ihcxtt3o@ws.net.home>
+In-Reply-To: <20180619152306.4spilxh2ihcxtt3o@ws.net.home>
+Content-Type: multipart/mixed;
+        boundary="_002_CWLP265MB0915258BC995B3764C9E4EF3F2700CWLP265MB0915GBRP_"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CWLP265MB0915B2DAD26E41D917520FC4F2710@CWLP265MB0915.GBRP265.PROD.OUTLOOK.COM>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 18, 2018 at 09:52:43PM +0000, Harry Mallon wrote:
-> However, APFS is not really a filesystem type, but includes a volume
-> manager too. Perhaps recognition of the partition type is not
-> complete enough for upstream?
+--_002_CWLP265MB0915258BC995B3764C9E4EF3F2700CWLP265MB0915GBRP_
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 
-Arbitrary Apple APFS detection will be improvement. So, detect magic
-string and nothing else is good start.
+SGkgS2FyZWwsDQoNCkhlcmUgaXMgbXkgYmFzaWMgJ3JlY29nbml0aW9uIG9ubHknIHBhdGNoLiBJ
+IHRoaW5rIHlvdSBhcmUgcmlnaHQgdGhhdCBhbnl0aGluZyBlbHNlIHdvdWxkIGJlIHRvbyBjb21w
+bGljYXRlZC9saWFibGUgZm9yIEFwcGxlIHRvIGNoYW5nZSBzb21ldGhpbmcgYW5kIGJyZWFrIGl0
+Lg0KDQpCZXN0LA0KSGFycnkNCg0K77u/T24gMTkvMDYvMjAxOCwgMTY6MjMsICJLYXJlbCBaYWsi
+IDxremFrQHJlZGhhdC5jb20+IHdyb3RlOg0KDQogICAgT24gTW9uLCBKdW4gMTgsIDIwMTggYXQg
+MDk6NTI6NDNQTSArMDAwMCwgSGFycnkgTWFsbG9uIHdyb3RlOg0KICAgID4gSG93ZXZlciwgQVBG
+UyBpcyBub3QgcmVhbGx5IGEgZmlsZXN5c3RlbSB0eXBlLCBidXQgaW5jbHVkZXMgYSB2b2x1bWUN
+CiAgICA+IG1hbmFnZXIgdG9vLiBQZXJoYXBzIHJlY29nbml0aW9uIG9mIHRoZSBwYXJ0aXRpb24g
+dHlwZSBpcyBub3QNCiAgICA+IGNvbXBsZXRlIGVub3VnaCBmb3IgdXBzdHJlYW0/DQogICAgDQog
+ICAgQXJiaXRyYXJ5IEFwcGxlIEFQRlMgZGV0ZWN0aW9uIHdpbGwgYmUgaW1wcm92ZW1lbnQuIFNv
+LCBkZXRlY3QgbWFnaWMNCiAgICBzdHJpbmcgYW5kIG5vdGhpbmcgZWxzZSBpcyBnb29kIHN0YXJ0
+Lg0KICAgIA0KICAgID4gSSBhbSBsb29raW5nIGF0IG1ha2luZyBhbg0KICAgID4gaW1wbGVtZW50
+YXRpb24gaW4gdGhlIHBhcnRpdGlvbnMgZm9sZGVyIHJhdGhlciB0aGFuIHRoZSBzdXBlcmJsb2Nr
+cw0KICAgID4gZm9sZGVyIChpbnNwaXJlZCBieSBjb2RlIGluIHRoZSByZXZlcnNlIGVuZ2luZWVy
+ZWQgYXBmcy1mdXNlIGRyaXZlcikNCiAgICA+IHRvIGVudW1lcmF0ZSBhbmQgZmlsbCBpbiB0aGUg
+dm9sdW1lcyBsaXN0ZWQgYnV0IHRoaXMgaXMgYW4gb3JkZXIgb2YNCiAgICA+IG1hZ25pdHVkZSBt
+b3JlIGNvZGUgdG8gd29yayB3aXRoLg0KICAgIA0KICAgIEkgcHJlZmVyIGxpYmJsa2lkL3NyYy9z
+dXBlcmJsb2NrcyBmb2xkZXIgaWYgd2UncmUgbm90IGFibGUgdG8gcmVhZA0KICAgICJzbGljZXMi
+IChwYXJ0aXRpb25zLCByb290LCBldGMpIGZyb20gdGhlIGRldmljZS4gVGhlIHNhbWUgc2l0dWF0
+aW9uDQogICAgaXMgZm9yIGV4YW1wbGUgWkZTIG9yIEJUUkZTLg0KICAgIA0KICAgID4gV291bGQg
+YSBwdXJlIHJlY29nbml0aW9uLW9ubHkgYXBmcyBtb2R1bGUgYmUgb2YgaW50ZXJlc3Q/DQogICAg
+DQogICAgU3VyZS4NCiAgICANCiAgICA+IERvZXMgYW55b25lIGhhdmUgYW55IHRpcHMgb24gd3Jp
+dGluZyBhIHBhcnRpdGlvbiB0YWJsZSByZWFkZXIgdmVyc2lvbj8NCiAgICANCiAgICBJIGhhdmUg
+ZG91YnRzIGFib3V0IGl0IGFzIG5vdGhpbmcgYWJvdXQgdGhlIGludGVybmFsIGxvZ2ljIGlzIHB1
+YmxpYw0KICAgIGFuZCBpdCdzIGNyYXp5IHRvIHByb3ZpZGUgd3JpdGUgYWNjZXNzIG9yIG1hcCBp
+bnRlcm5hbCBBUEZTIHN0dWZmIHRvIA0KICAgIHJlYWwgTGludXggYmxvY2sgZGV2aWNlcyBpZiB3
+ZSdyZSBub3Qgc3VyZSBob3cuLi4gc291bmRzIHRvIGRhbmdlcm91cy4NCiAgICANCiAgICA+IElz
+IGxpYmJsa2lkIHRoZSByaWdodCBwbGFjZSBmb3IgdGhpcyBjb2RlIG9yIGlzIHRoZXJlIHNvbWUg
+b3RoZXIgbGF5ZXIgSSBzaG91bGQgYmUgbG9va2luZyBhdD8NCiAgICANCiAgICBsaWJibGtpZCBp
+cyB0aGUgcmlnaHQgcGxhY2UgZm9yIGRldGVjdGlvbg0KICAgIA0KICAgICAgICBLYXJlbA0KICAg
+IA0KICAgIC0tIA0KICAgICBLYXJlbCBaYWsgIDxremFrQHJlZGhhdC5jb20+DQogICAgIGh0dHA6
+Ly9rYXJlbHphay5ibG9nc3BvdC5jb20NCiAgICANCg==
 
-> I am looking at making an
-> implementation in the partitions folder rather than the superblocks
-> folder (inspired by code in the reverse engineered apfs-fuse driver)
-> to enumerate and fill in the volumes listed but this is an order of
-> magnitude more code to work with.
+--_002_CWLP265MB0915258BC995B3764C9E4EF3F2700CWLP265MB0915GBRP_
+Content-Type: application/octet-stream;
+	name="0001-libblkid-add-basic-Apple-APFS-recognition.patch"
+Content-Description: 0001-libblkid-add-basic-Apple-APFS-recognition.patch
+Content-Disposition: attachment;
+	filename="0001-libblkid-add-basic-Apple-APFS-recognition.patch"; size=2836;
+	creation-date="Tue, 19 Jun 2018 18:18:45 GMT";
+	modification-date="Tue, 19 Jun 2018 18:18:45 GMT"
+Content-Transfer-Encoding: base64
 
-I prefer libblkid/src/superblocks folder if we're not able to read
-"slices" (partitions, root, etc) from the device. The same situation
-is for example ZFS or BTRFS.
+RnJvbSA0OTRmMjI3ZTI5MTY1ODk4N2UwNDYzM2EyNmFiNGI1NTU5ZTZlYmU3IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBIYXJyeSBNYWxsb24gPGhqbWFsbG9uQGdtYWlsLmNvbT4KRGF0
+ZTogU3VuLCAxNyBKdW4gMjAxOCAxMjowMzoyMiArMDEwMApTdWJqZWN0OiBbUEFUQ0hdIGxpYmJs
+a2lkOiBhZGQgYmFzaWMgQXBwbGUgQVBGUyByZWNvZ25pdGlvbgoKLS0tCiBsaWJibGtpZC9zcmMv
+TWFrZW1vZHVsZS5hbSAgICAgICAgICAgICB8ICAxICsKIGxpYmJsa2lkL3NyYy9zdXBlcmJsb2Nr
+cy9hcGZzLmMgICAgICAgIHwgMjEgKysrKysrKysrKysrKysrKysrKysrCiBsaWJibGtpZC9zcmMv
+c3VwZXJibG9ja3Mvc3VwZXJibG9ja3MuYyB8ICAzICsrLQogbGliYmxraWQvc3JjL3N1cGVyYmxv
+Y2tzL3N1cGVyYmxvY2tzLmggfCAgMSArCiA0IGZpbGVzIGNoYW5nZWQsIDI1IGluc2VydGlvbnMo
+KyksIDEgZGVsZXRpb24oLSkKIGNyZWF0ZSBtb2RlIDEwMDY0NCBsaWJibGtpZC9zcmMvc3VwZXJi
+bG9ja3MvYXBmcy5jCgpkaWZmIC0tZ2l0IGEvbGliYmxraWQvc3JjL01ha2Vtb2R1bGUuYW0gYi9s
+aWJibGtpZC9zcmMvTWFrZW1vZHVsZS5hbQppbmRleCBlYTAyMzA3MDIuLjQxMDk1NjFjNCAxMDA2
+NDQKLS0tIGEvbGliYmxraWQvc3JjL01ha2Vtb2R1bGUuYW0KKysrIGIvbGliYmxraWQvc3JjL01h
+a2Vtb2R1bGUuYW0KQEAgLTQ0LDYgKzQ0LDcgQEAgbGliYmxraWRfbGFfU09VUkNFUyA9IFwKIAls
+aWJibGtpZC9zcmMvcGFydGl0aW9ucy91bml4d2FyZS5jIFwKIAlcCiAJbGliYmxraWQvc3JjL3N1
+cGVyYmxvY2tzL2FkYXB0ZWNfcmFpZC5jIFwKKwlsaWJibGtpZC9zcmMvc3VwZXJibG9ja3MvYXBm
+cy5jIFwKIAlsaWJibGtpZC9zcmMvc3VwZXJibG9ja3MvYmNhY2hlLmMgXAogCWxpYmJsa2lkL3Ny
+Yy9zdXBlcmJsb2Nrcy9iZWZzLmMgXAogCWxpYmJsa2lkL3NyYy9zdXBlcmJsb2Nrcy9iZnMuYyBc
+CmRpZmYgLS1naXQgYS9saWJibGtpZC9zcmMvc3VwZXJibG9ja3MvYXBmcy5jIGIvbGliYmxraWQv
+c3JjL3N1cGVyYmxvY2tzL2FwZnMuYwpuZXcgZmlsZSBtb2RlIDEwMDY0NAppbmRleCAwMDAwMDAw
+MDAuLjVlOGRlYjBhMQotLS0gL2Rldi9udWxsCisrKyBiL2xpYmJsa2lkL3NyYy9zdXBlcmJsb2Nr
+cy9hcGZzLmMKQEAgLTAsMCArMSwyMSBAQAorLyoKKyAqIENvcHlyaWdodCAoQykgMjAxOCBIYXJy
+eSBNYWxsb24gPGhqbWFsbG9uQGdtYWlsLmNvbT4KKyAqCisgKiBUaGlzIGZpbGUgbWF5IGJlIHJl
+ZGlzdHJpYnV0ZWQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZQorICogR05VIExlc3NlciBHZW5lcmFs
+IFB1YmxpYyBMaWNlbnNlLgorICovCisKKyNpbmNsdWRlICJzdXBlcmJsb2Nrcy5oIgorCisKK2Nv
+bnN0IHN0cnVjdCBibGtpZF9pZGluZm8gYXBmc19pZGluZm8gPQoreworCS5uYW1lCQk9ICJhcGZz
+IiwKKwkudXNhZ2UJCT0gQkxLSURfVVNBR0VfRklMRVNZU1RFTSwKKwkubWFnaWNzCQk9CisJewor
+CQl7IC5tYWdpYyA9ICJOWFNCIiwgLmxlbiA9IDQsIC5zYm9mZiA9IDMyIH0sCisJCXsgTlVMTCB9
+CisJfQorfTsKKwpkaWZmIC0tZ2l0IGEvbGliYmxraWQvc3JjL3N1cGVyYmxvY2tzL3N1cGVyYmxv
+Y2tzLmMgYi9saWJibGtpZC9zcmMvc3VwZXJibG9ja3Mvc3VwZXJibG9ja3MuYwppbmRleCA2ZGZk
+MmJlNjQuLmU5NWMxZTYyNiAxMDA2NDQKLS0tIGEvbGliYmxraWQvc3JjL3N1cGVyYmxvY2tzL3N1
+cGVyYmxvY2tzLmMKKysrIGIvbGliYmxraWQvc3JjL3N1cGVyYmxvY2tzL3N1cGVyYmxvY2tzLmMK
+QEAgLTE2Myw3ICsxNjMsOCBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IGJsa2lkX2lkaW5mbyAqaWRp
+bmZvc1tdID0KIAkmbmlsZnMyX2lkaW5mbywKIAkmZXhmYXRfaWRpbmZvLAogCSZmMmZzX2lkaW5m
+bywKLQkmbXBvb2xfaWRpbmZvCisJJm1wb29sX2lkaW5mbywKKwkmYXBmc19pZGluZm8KIH07CiAK
+IC8qCmRpZmYgLS1naXQgYS9saWJibGtpZC9zcmMvc3VwZXJibG9ja3Mvc3VwZXJibG9ja3MuaCBi
+L2xpYmJsa2lkL3NyYy9zdXBlcmJsb2Nrcy9zdXBlcmJsb2Nrcy5oCmluZGV4IGQ2NzdmODViYy4u
+ODU4NThiOWZjIDEwMDY0NAotLS0gYS9saWJibGtpZC9zcmMvc3VwZXJibG9ja3Mvc3VwZXJibG9j
+a3MuaAorKysgYi9saWJibGtpZC9zcmMvc3VwZXJibG9ja3Mvc3VwZXJibG9ja3MuaApAQCAtODIs
+NiArODIsNyBAQCBleHRlcm4gY29uc3Qgc3RydWN0IGJsa2lkX2lkaW5mbyBtcG9vbF9pZGluZm87
+CiBleHRlcm4gY29uc3Qgc3RydWN0IGJsa2lkX2lkaW5mbyB2ZG9faWRpbmZvOwogZXh0ZXJuIGNv
+bnN0IHN0cnVjdCBibGtpZF9pZGluZm8gc3RyYXRpc19pZGluZm87CiBleHRlcm4gY29uc3Qgc3Ry
+dWN0IGJsa2lkX2lkaW5mbyBiaXRsb2NrZXJfaWRpbmZvOworZXh0ZXJuIGNvbnN0IHN0cnVjdCBi
+bGtpZF9pZGluZm8gYXBmc19pZGluZm87CiAKIC8qCiAgKiBzdXBlcmJsb2NrIGZ1bmN0aW9ucwot
+LSAKMi4xNy4xCgo=
 
-> Would a pure recognition-only apfs module be of interest?
-
-Sure.
-
-> Does anyone have any tips on writing a partition table reader version?
-
-I have doubts about it as nothing about the internal logic is public
-and it's crazy to provide write access or map internal APFS stuff to 
-real Linux block devices if we're not sure how... sounds to dangerous.
-
-> Is libblkid the right place for this code or is there some other layer I should be looking at?
-
-libblkid is the right place for detection
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--_002_CWLP265MB0915258BC995B3764C9E4EF3F2700CWLP265MB0915GBRP_--
