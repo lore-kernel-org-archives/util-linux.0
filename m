@@ -1,100 +1,83 @@
-Return-Path: kevin@scrye.com
-Subject: Re: hardlink util -- files de-duplication
-To: Ruediger Meier <sweet_f_a@gmx.de>, Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>, tsao@fedoraproject.org
-References: <20180601113807.ghf6dtcd5xa6qptu@ws.net.home>
- <201806011508.38470.sweet_f_a@gmx.de>
-From: Kevin Fenzi <kevin@scrye.com>
-Message-ID: <8f042d0b-ad2a-59aa-ac5d-69e6c197da02@scrye.com>
-Date: Fri, 1 Jun 2018 13:20:29 -0700
-MIME-Version: 1.0
-In-Reply-To: <201806011508.38470.sweet_f_a@gmx.de>
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature";
- boundary="4Tg3OySJrTVo2nunUWVCuEJTLq7I8MLAP"
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37824 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S932858AbeFUQHl (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Thu, 21 Jun 2018 12:07:41 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w5LG4YIb052823
+        for <util-linux@vger.kernel.org>; Thu, 21 Jun 2018 12:07:40 -0400
+Received: from e33.co.us.ibm.com (e33.co.us.ibm.com [32.97.110.151])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2jrd2fxp3r-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <util-linux@vger.kernel.org>; Thu, 21 Jun 2018 12:07:40 -0400
+Received: from localhost
+        by e33.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <util-linux@vger.kernel.org> from <kmahlkuc@linux.vnet.ibm.com>;
+        Thu, 21 Jun 2018 10:07:39 -0600
+From: kmahlkuc@linux.vnet.ibm.com
+To: util-linux@vger.kernel.org
+Cc: KyleMahlkuch <Kyle.Mahlkuch@ibm.com>
+Subject: [PATCH] libfdisk: Fix multipath partition seperators for user-friendly names
+Date: Thu, 21 Jun 2018 11:07:34 -0500
+Message-Id: <1529597254-1342-1-git-send-email-kmahlkuc@linux.vnet.ibm.com>
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---4Tg3OySJrTVo2nunUWVCuEJTLq7I8MLAP
-Content-Type: multipart/mixed; boundary="oWUuRiBgwa4Btyy6tlOA96dqir8DcJtC7";
- protected-headers="v1"
-From: Kevin Fenzi <kevin@scrye.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>, Karel Zak <kzak@redhat.com>
-Cc: util-linux <util-linux@vger.kernel.org>, tsao@fedoraproject.org
-Message-ID: <8f042d0b-ad2a-59aa-ac5d-69e6c197da02@scrye.com>
-Subject: Re: hardlink util -- files de-duplication
-References: <20180601113807.ghf6dtcd5xa6qptu@ws.net.home>
- <201806011508.38470.sweet_f_a@gmx.de>
-In-Reply-To: <201806011508.38470.sweet_f_a@gmx.de>
+From: KyleMahlkuch <Kyle.Mahlkuch@ibm.com>
 
---oWUuRiBgwa4Btyy6tlOA96dqir8DcJtC7
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+The current code assumes "-part" is the only partition sepereator
+but this is not true for some distros.
 
-On 06/01/2018 06:08 AM, Ruediger Meier wrote:
-> On Friday 01 June 2018, Karel Zak wrote:
->> For last 17 years in Red Hat based distros is available hardlink(1)
->> util, man hardlink:
->>
->>    hardlink traverses one or more directories searching for duplicate
->>    files.  When it finds duplicate files, it uses one of them as the
->>    master.  It then removes all other duplicates and places a
->> hardlink for each one pointing to the master file.  This allows for
->> conservation of disk space where multiple directories on a single
->> filesystem contain many  dupli cate files.
->>
->>    ...
->>
->> the util is little bit orphaned, what about to add this util to
->> util-linux to make it available for another distros and keep it
->> maintained in serious way? ;-)
->=20
-> +1
->=20
->>
->>    https://src.fedoraproject.org/cgit/rpms/hardlink.git/
->=20
-> The original and almost identical repo is this:
->   https://pagure.io/hardlink.git
->=20
-> I've CC'ed the project admin Kevin Fenzi.
+For example in Ubuntu 18.04 fdisk does not print the correct names for
+mpatha:
 
+~# ls -l /dev/mapper/mpatha*
+lrwxrwxrwx 1 root root 7 Feb  1 04:39 /dev/mapper/mpatha -> ../dm-0
+lrwxrwxrwx 1 root root 7 Feb  1 04:38 /dev/mapper/mpatha1 -> ../dm-4
+lrwxrwxrwx 1 root root 7 Feb  1 04:38 /dev/mapper/mpatha2 -> ../dm-5
+lrwxrwxrwx 1 root root 7 Feb  1 04:38 /dev/mapper/mpatha3 -> ../dm-6
 
-I've also added my co-maintainer (tsao@fedoraproject.org).
-He's done most of the recent work on it, I haven't had time to do much
-with it at all.
+~# fdisk -l /dev/mapper/mpatha
+Device                   Boot     Start        End   Sectors  Size Id Type
+/dev/mapper/mpatha-part1           2048  419432447 419430400  200G 83 Linux
+/dev/mapper/mpatha-part2      419432448  838862847 419430400  200G 83 Linux
+/dev/mapper/mpatha-part3      838862848 1258291199 419428352  200G 83 Linux
 
-I'd personally be in favor of it moving into util-linux. Hopefully it
-would get more time and attention there and more widespread use.
+Instead of assuming a partition seperator of "-part" this patch uses
+access to check the file system for a partition seperator of "p" or
+the absense of a partition seperator. If neither of these work the patch
+defaults to "-part" like we had before this patch.
 
-If tsao agrees, lets make it happen.
+Signed-off-by: Kyle Mahlkuch <Kyle.Mahlkuch@ibm.com>
+---
+ libfdisk/src/utils.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-kevin
+diff --git a/libfdisk/src/utils.c b/libfdisk/src/utils.c
+index 5ba9e04..031c783 100644
+--- a/libfdisk/src/utils.c
++++ b/libfdisk/src/utils.c
+@@ -153,7 +153,18 @@ char *fdisk_partname(const char *dev, size_t partno)
+ 	if ((strncmp(dev, _PATH_DEV_BYID, sizeof(_PATH_DEV_BYID) - 1) == 0) ||
+ 	     strncmp(dev, _PATH_DEV_BYPATH, sizeof(_PATH_DEV_BYPATH) - 1) == 0 ||
+ 	     strncmp(dev, "/dev/mapper", sizeof("/dev/mapper") - 1) == 0) {
+-	       p = "-part";
++		asprintf(&res, "%.*s%zu", w, dev, partno);
++		if (access(res, F_OK) == 0){
++			p = "";
++		} else {
++			/* check for partition seperator "p" */
++			p = "p";
++			asprintf(&res, "%.*s%s%zu", w, dev, p, partno);
++			if (access(res, F_OK) != 0){
++				/* otherwise, default to "-path" */
++				p = "-part";
++			}
++		}
+ 	}
+ 
+ 	if (asprintf(&res, "%.*s%s%zu", w, dev, p, partno) <= 0)
+-- 
+1.8.3.1
 
-
---oWUuRiBgwa4Btyy6tlOA96dqir8DcJtC7--
-
---4Tg3OySJrTVo2nunUWVCuEJTLq7I8MLAP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEESz7rprBJHpbnMnrQSzew2A/7u14FAlsRqo0ACgkQSzew2A/7
-u1430BAA0c4nulX6qoUgoOjfxR7n5zuqAPIbAby7maZTNFV/MSZW4iNZJefTXREr
-1njiimO3CjFDo4dDHdc9KtXRg004ol+G4lSQdwOHCrM+xp+FKqsqlmbX2myV0ut7
-+nRjUQJywnVv0OMvdW0d5xFVRVr6tGdncmtRDsRCVTliLY5wdmw8EbUs8epwqNYx
-hqEtuW86HJxfdL/KGKxU/mrzcAJTg+jSQbrPvhX89cdqvLv9yjTf5jQooEzgj+Ac
-JnK3uZG5B2cexQnZMUchXryofx9mEc4g+yRzerX0ACqn3ao38jQajhcfIAFGdfb6
-et/Xlr1lnqYrAIO5PrNeqTSeUiOcRa71pWWwJRCnjH9DvS0LHn53lkDqK10D3pDs
-weO7dSvcTkW+3m+4GOSMz2BD43zt0Ll4Xq0uW1NsgNjQddu8uyjcims5SCOOxEQ+
-Mko6/HoP7l31tDihgGYcu3zzG88IfTOtipq99UmYHPRBh8OhkjQBMV+lUieWK2cc
-FqTVmPq4JXiJ5xXHsZp9hA68006HBDph2kpDHueATH4oyKHfiYJu3f53yHjp18ND
-S21F2zxQNLkUkVUE2Jmh7E7INtyZy4px5n2phgX00nuVHwyNvWl/CjfSTpLjfGiR
-+gpRVbLBKF5jNeOaEdTBU6bhR82D70+PR1zHEZRtTv9kfclBLyI=
-=ANLH
------END PGP SIGNATURE-----
-
---4Tg3OySJrTVo2nunUWVCuEJTLq7I8MLAP--
