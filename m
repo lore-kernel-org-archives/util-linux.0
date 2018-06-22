@@ -1,57 +1,104 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-qt0-f196.google.com ([209.85.216.196]:43878 "EHLO
-        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755395AbeFRVws (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 18 Jun 2018 17:52:48 -0400
-Received: by mail-qt0-f196.google.com with SMTP id y89-v6so16605817qtd.10
-        for <util-linux@vger.kernel.org>; Mon, 18 Jun 2018 14:52:48 -0700 (PDT)
-Received: from CWLP265MB0915.GBRP265.PROD.OUTLOOK.COM ([52.97.130.29])
-        by smtp.gmail.com with ESMTPSA id o25-v6sm9707848qtp.72.2018.06.18.14.52.46
-        for <util-linux@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 18 Jun 2018 14:52:46 -0700 (PDT)
-From: Harry Mallon <hjmallon@gmail.com>
-To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: libblkid: Implementing basic Apple APFS support
-Date: Mon, 18 Jun 2018 21:52:43 +0000
-Message-ID: <CWLP265MB0915B2DAD26E41D917520FC4F2710@CWLP265MB0915.GBRP265.PROD.OUTLOOK.COM>
-Content-Type: text/plain; charset="us-ascii"
+Return-Path: linux-fsdevel-owner@vger.kernel.org
+Date: Fri, 22 Jun 2018 16:43:12 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Alban Crequy <alban.crequy@gmail.com>
+Cc: util-linux@vger.kernel.org, Alban Crequy <alban@kinvolk.io>,
+        linux-fsdevel@vger.kernel.org, dongsu@kinvolk.io,
+        Yecheng Fu <cofyc.jackson@gmail.com>
+Subject: Re: [PATCH] mountinfo: parse empty strings in source
+Message-ID: <20180622144312.rjyfxgvy3krlqx6i@ws.net.home>
+References: <20180622115425.26183-1-alban@kinvolk.io>
 MIME-Version: 1.0
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180622115425.26183-1-alban@kinvolk.io>
+Sender: linux-fsdevel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello all,
+On Fri, Jun 22, 2018 at 01:54:25PM +0200, Alban Crequy wrote:
+> From: Alban Crequy <alban@kinvolk.io>
+> 
+> The source of a mount in /proc/self/mountinfo can unfortunately be an
+> empty string. Before this patch, 'mount' and 'mountpoint' fail as
+> following:
+> 
+>   $ sudo mount -t tmpfs "" /tmp/bb
+>   $ mount
+>   mount: /proc/self/mountinfo: parse error at line 64 -- ignored
+>   $ mountpoint /tmp/bb
+>   /tmp/bb is not a mountpoint
+> 
+> This patch fixes the parsing. It is unfortunately more complex because
+> sscanf() does not handle fields with empty strings easily.
+> 
+> Other projects have their own parser for mountinfo and have similar
+> issues. I know of runc and runtime-tools (I'll send a patch for those
+> two) but there are probably others.
 
-I am sort of floating around recently, messing with Fedora on a MacBook Pro=
- and trying to improve issues I find. Apple APFS has been the default on Ma=
-cs for a couple of years now. I think it would be useful for users to be ab=
-le to see/recognise their MacBook system partition in the various disk mana=
-gement tools that depend on libblkid.
+The right place is to fix kernel rather than all places where we parse
+the file in userspace. 
 
-My initial patch was just adding enough to recognise partitions and mark th=
-em as such. Support for recognition is in the upstream file utility so the =
-magic values are known.
+There is already a pending trivial kernel patch:
+https://patchwork.kernel.org/patch/10349095/ ... but not sure about
+the current status of the patch :-(
 
-https://github.com/file/file/blob/a642587a9c9e2dd7feacdf513c3643ce26ad3c22/=
-magic/Magdir/apple#L435
+    Karel
 
-However, APFS is not really a filesystem type, but includes a volume manage=
-r too. Perhaps recognition of the partition type is not complete enough for=
- upstream? I am looking at making an implementation in the partitions folde=
-r rather than the superblocks folder (inspired by code in the reverse engin=
-eered apfs-fuse driver) to enumerate and fill in the volumes listed but thi=
-s is an order of magnitude more code to work with.
+> 
+> Signed-off-by: Alban Crequy <alban@kinvolk.io>
+> ---
+>  libmount/src/tab_parse.c | 33 ++++++++++++++++++++++++++++-----
+>  1 file changed, 28 insertions(+), 5 deletions(-)
+> 
+> diff --git a/libmount/src/tab_parse.c b/libmount/src/tab_parse.c
+> index 3ed84ebc2..4944d5f8c 100644
+> --- a/libmount/src/tab_parse.c
+> +++ b/libmount/src/tab_parse.c
+> @@ -173,13 +173,36 @@ static int mnt_parse_mountinfo_line(struct libmnt_fs *fs, char *s)
+>  		fs->opt_fields = strndup(s + 1, p - s - 1);
+>  	s = p + 3;
+>  
+> -	rc += sscanf(s,	UL_SCNsA" "	/* (8) FS type */
+> -			UL_SCNsA" "	/* (9) source */
+> -			UL_SCNsA,	/* (10) fs options (fs specific) */
+> +	end = 0;
+> +	rc += sscanf(s,	UL_SCNsA"%n",	/* (8) FS type */
+>  
+>  			&fstype,
+> -			&src,
+> -			&fs->fs_optstr);
+> +			&end);
+> +
+> +	if (rc >= 8 && end > 0)
+> +		s += end;
+> +	if (s[0] == ' ')
+> +		s++;
+> +
+> +	/* (9) source can unfortunately be an empty string "" and scanf does
+> +	 * not work well with empty string. Test with:
+> +	 *     $ sudo mount -t tmpfs "" /tmp/bb
+> +	 *     $ mountpoint /tmp/bb
+> +	 * */
+> +	if (s[0] == ' ') {
+> +		src = strdup("");
+> +		s++;
+> +		rc++;
+> +		rc += sscanf(s,	UL_SCNsA,	/* (10) fs options (fs specific) */
+> +
+> +				&fs->fs_optstr);
+> +	} else {
+> +		rc += sscanf(s,	UL_SCNsA" "	/* (9) source */
+> +				UL_SCNsA,	/* (10) fs options (fs specific) */
+> +
+> +				&src,
+> +				&fs->fs_optstr);
+> +	}
+>  
+>  	if (rc >= 10) {
+>  		size_t sz;
+> -- 
+> 2.14.3
+> 
 
-https://github.com/sgan81/apfs-fuse
-
-Would a pure recognition-only apfs module be of interest?
-Does anyone have any tips on writing a partition table reader version?
-Would upstream be interested in this change at all given open source readin=
-g/writing to the file system is likely a long way off (apfs-fuse exists, as=
- does a closed source Paragon implementation, both read only)?
-Is libblkid the right place for this code or is there some other layer I sh=
-ould be looking at?
-
-Best,
-Harry
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
