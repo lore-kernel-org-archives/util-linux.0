@@ -1,39 +1,88 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:36144 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1756712AbeFSPJm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 19 Jun 2018 11:09:42 -0400
-Date: Tue, 19 Jun 2018 17:09:39 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Milan Broz <gmazyland@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] lsblk: add partition table UUID and type fields.
-Message-ID: <20180619150939.pljhsypukf6lg6b7@ws.net.home>
-References: <20180619103320.13203-1-gmazyland@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180619103320.13203-1-gmazyland@gmail.com>
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:39284 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751005AbeFVLze (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 22 Jun 2018 07:55:34 -0400
+From: Alban Crequy <alban.crequy@gmail.com>
+To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
+        Alban Crequy <alban@kinvolk.io>
+Cc: linux-fsdevel@vger.kernel.org, dongsu@kinvolk.io
+Subject: [PATCH] mountinfo: parse empty strings in source
+Date: Fri, 22 Jun 2018 13:54:25 +0200
+Message-Id: <20180622115425.26183-1-alban@kinvolk.io>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Tue, Jun 19, 2018 at 12:33:20PM +0200, Milan Broz wrote:
-> This patch adds PTUUID and PTTYPE fields to lsblk, that are corresponding
-> fields to ID_PART_TABLE_UUID and ID_PART_TABLE_TYPE in udev database.
+From: Alban Crequy <alban@kinvolk.io>
 
-Applied, thanks!
+The source of a mount in /proc/self/mountinfo can unfortunately be an
+empty string. Before this patch, 'mount' and 'mountpoint' fail as
+following:
 
-> +	[COL_PTUUID] = { "PTUUID",  36,  0, N_("partition table UUID") },
+  $ sudo mount -t tmpfs "" /tmp/bb
+  $ mount
+  mount: /proc/self/mountinfo: parse error at line 64 -- ignored
+  $ mountpoint /tmp/bb
+  /tmp/bb is not a mountpoint
 
-description change to "partition table identifier (usually UUID)"
-because for MBR it is not regular UUID
+This patch fixes the parsing. It is unfortunately more complex because
+sscanf() does not handle fields with empty strings easily.
 
- # lsblk -s -o +PTTYPE,PTUUID /dev/sdb
- NAME MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT PTTYPE PTUUID
- sdb    8:16   0 74.5G  0 disk            dos    83e7bd0f
+Other projects have their own parser for mountinfo and have similar
+issues. I know of runc and runtime-tools (I'll send a patch for those
+two) but there are probably others.
 
- Karel
+Signed-off-by: Alban Crequy <alban@kinvolk.io>
+---
+ libmount/src/tab_parse.c | 33 ++++++++++++++++++++++++++++-----
+ 1 file changed, 28 insertions(+), 5 deletions(-)
 
-
+diff --git a/libmount/src/tab_parse.c b/libmount/src/tab_parse.c
+index 3ed84ebc2..4944d5f8c 100644
+--- a/libmount/src/tab_parse.c
++++ b/libmount/src/tab_parse.c
+@@ -173,13 +173,36 @@ static int mnt_parse_mountinfo_line(struct libmnt_fs *fs, char *s)
+ 		fs->opt_fields = strndup(s + 1, p - s - 1);
+ 	s = p + 3;
+ 
+-	rc += sscanf(s,	UL_SCNsA" "	/* (8) FS type */
+-			UL_SCNsA" "	/* (9) source */
+-			UL_SCNsA,	/* (10) fs options (fs specific) */
++	end = 0;
++	rc += sscanf(s,	UL_SCNsA"%n",	/* (8) FS type */
+ 
+ 			&fstype,
+-			&src,
+-			&fs->fs_optstr);
++			&end);
++
++	if (rc >= 8 && end > 0)
++		s += end;
++	if (s[0] == ' ')
++		s++;
++
++	/* (9) source can unfortunately be an empty string "" and scanf does
++	 * not work well with empty string. Test with:
++	 *     $ sudo mount -t tmpfs "" /tmp/bb
++	 *     $ mountpoint /tmp/bb
++	 * */
++	if (s[0] == ' ') {
++		src = strdup("");
++		s++;
++		rc++;
++		rc += sscanf(s,	UL_SCNsA,	/* (10) fs options (fs specific) */
++
++				&fs->fs_optstr);
++	} else {
++		rc += sscanf(s,	UL_SCNsA" "	/* (9) source */
++				UL_SCNsA,	/* (10) fs options (fs specific) */
++
++				&src,
++				&fs->fs_optstr);
++	}
+ 
+ 	if (rc >= 10) {
+ 		size_t sz;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.14.3
+
