@@ -1,36 +1,115 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:46400 "EHLO mx1.redhat.com"
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:60700 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752381AbeGDNUm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 4 Jul 2018 09:20:42 -0400
-Date: Wed, 4 Jul 2018 15:20:38 +0200
+        id S1729910AbeGPMF5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 16 Jul 2018 08:05:57 -0400
+Date: Mon, 16 Jul 2018 13:38:50 +0200
 From: Karel Zak <kzak@redhat.com>
-To: kmahlkuc@linux.vnet.ibm.com
-Cc: util-linux@vger.kernel.org, KyleMahlkuch <Kyle.Mahlkuch@ibm.com>
-Subject: Re: [PATCH v2] libfdisk: Fix multipath partition seperators for
- user-friendly names
-Message-ID: <20180704132038.sxpxirjbgxq26joh@ws.net.home>
-References: <20180622095252.ik5n2oki4ekcsnbg@ws.net.home>
- <1529956321-18722-1-git-send-email-kmahlkuc@linux.vnet.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.32.1
+Message-ID: <20180716113850.g6t7l2fvuml3eh6k@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1529956321-18722-1-git-send-email-kmahlkuc@linux.vnet.ibm.com>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Jun 25, 2018 at 02:52:01PM -0500, kmahlkuc@linux.vnet.ibm.com wrote:
->  libfdisk/src/utils.c | 15 ++++++++++++++-
->  1 file changed, 14 insertions(+), 1 deletion(-)
+The util-linux stable release v2.32.1 is available at
 
-Applied, thanks!
+  http://www.kernel.org/pub/linux/utils/util-linux/v2.32
+
+Feedback and bug reports, as always, are welcomed.
+
+  Karel
 
 
-I have a little clean upped the code by next patch to reduce number
-of asprintf() calls and to check for asprintf() return value. 
+util-linux 2.32.1 Release Notes
+===============================
 
-Please, re-test if it still works for your use case :-)
-
-    Karel
+agetty:
+   - keep c_iflags unmodified on --autologin  [Karel Zak]
+blkid:
+   - (man) add note about udev encoding  [Karel Zak]
+blkzone:
+   - fix whole device detection  [Karel Zak]
+build-sys:
+   - extend "Could not locate the pkg-config" error message  [Karel Zak]
+   - improve bison version detection  [Karel Zak]
+cfdisk:
+   - fix compiler warnings, follow-up 7085f1e4 (#636)  [Ruediger Meier]
+   - fix missing prototype for `get_wch`  [Patrick Steinhardt]
+   - use uint64_t to avoid compiler warnings  [Karel Zak]
+chcpu:
+   - Fix maximal number of CPUs  [Stanislav Brabec]
+column:
+   - fix leading space characters bug  [Karel Zak]
+dmesg:
+   - fix raw output  [Karel Zak]
+   - link together with syslog(2) manual page  [Sami Kerola]
+docs:
+   - update AUTHORS file  [Karel Zak]
+exec_shell:
+   - prevent ".  applet not found" error when SHELL env is not set.  [osexp2000]
+fdisk:
+   - fix compiler warning [-Wmaybe-uninitialized]  [Karel Zak]
+fstrim:
+   - Return EXIT_FAILURE when FTRIM ioctl fails  [Karel Zak]
+   - cleanup includes  [Karel Zak]
+lib/strutils:
+   - fix strnlen() fallback  [Karel Zak]
+libblkid:
+   - (hfs) check allocation size  [Karel Zak]
+   - (ntfs) enlarge cluster limit to 2MB  [Karel Zak, Jean-Pierre André]
+   - (ntfs) fix cluster size check  [Karel Zak]
+   - (zfs) fix compiler warning [-Wmaybe-uninitialized]  [Karel Zak]
+   - udf  Fix reporting UDF 2.60 revision  [Pali Rohár]
+libfdisk:
+   - (docs) fix section name  [Karel Zak]
+   - fix compiler warning [-Wunused-parameter]  [Karel Zak]
+   - fix list_del after partition reset  [Vaclav Dolezal]
+   - use \x<hex> to read/write partition name  [Karel Zak]
+libmount:
+   - fix compiler warning [-Wunused-parameter]  [Karel Zak]
+   - fix mnt_table_is_fs_mounted() for NFS bind mounts.  [NeilBrown]
+   - improve docs about mnt_context_mount() return codes  [Karel Zak]
+   - include sys/mount.h on Linux only  [Karel Zak]
+   - include sys/mount.h only if necessary  [Karel Zak]
+   - fix possible segfault during umount -a  [Richard Fuchs]
+libsmartcols:
+   - don't print empty column  [Karel Zak]
+logger:
+   - Define SD_JOURNAL_SUPPRESS_LOCATION.  [YmrDtnJu]
+lsblk:
+   - don't exclude RAM disks on --all  [Karel Zak]
+   - fix notes about RAM disks  [Karel Zak]
+lscpu, chcpu:
+   - Avoid use of the old CPU macros  [Stanislav Brabec]
+lslocks:
+   - add info about OFD  [Karel Zak]
+   - fix memory leak  [Karel Zak]
+lslogins:
+   - fix password verification  [Karel Zak]
+partx:
+   - exit with error code when partition read failed  [Andreas Henriksson]
+po:
+   - fix lsblk translation  [Karel Zak]
+   - merge changes  [Karel Zak]
+   - pt_BR  fix fallocate '-l' help msg  [Luiz Angelo Daros de Luca]
+   - update ja.po (from translationproject.org)  [Takeshi Hamasaki]
+   - update pt_BR.po (from translationproject.org)  [Rafael Fontenelle]
+rename:
+   - consolidate printing the symlink in addition to its target  [G.raud Meyer]
+   - fix/reverse the semantics of --no-overwrite in --symlink mode  [G.raud Meyer]
+rfkill:
+   - include <poll.h> instead of <sys/poll.h>  [Patrick Steinhardt]
+setarch:
+   - add another PER_LINUX32 aliases for ppcle  [Karel Zak]
+tests:
+   - update column(1) space-separator test  [Karel Zak]
+umount:
+   - add note about --lazy  [Karel Zak]
+zramctl:
+   - (man) explain that --find is necessary  [Karel Zak]
 
 -- 
  Karel Zak  <kzak@redhat.com>
