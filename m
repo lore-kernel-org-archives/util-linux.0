@@ -1,78 +1,72 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.15.19]:53857 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933391AbeFYMSd (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 25 Jun 2018 08:18:33 -0400
-Received: from zappa.l.ga-group.nl ([87.128.112.108]) by mail.gmx.com
- (mrgmx001 [212.227.17.190]) with ESMTPSA (Nemesis) id
- 0MVeCF-1fft3f065n-00YzQp for <util-linux@vger.kernel.org>; Mon, 25 Jun 2018
- 14:18:32 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] ipcs,chmem: fix access() usage
-Date: Mon, 25 Jun 2018 14:18:31 +0200
-Message-Id: <20180625121831.14610-1-sweet_f_a@gmx.de>
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:47936 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726666AbeGRMtn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 18 Jul 2018 08:49:43 -0400
+Date: Wed, 18 Jul 2018 14:12:01 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Igor Plyatov <plyatov@gmail.com>
+Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        rtc-linux@googlegroups.com, util-linux@vger.kernel.org,
+        J William Piggott <elseifthen@gmx.com>
+Subject: Re: 500 ms delay in time saved into RTC
+Message-ID: <20180718121201.62gux3eualwz2j3a@ws.net.home>
+References: <30ae185f-28c9-54f1-2884-4ee7801b130e@gmail.com>
+ <34f50661-85f5-eb46-3ff7-45f0c2bb5960@prevas.dk>
+ <20180219110328.n7yjorinjm3xxckr@ws.net.home>
+ <0ce68f3f-fec7-1f1c-e70b-331c0752f6d6@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <0ce68f3f-fec7-1f1c-e70b-331c0752f6d6@gmail.com>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+On Mon, Feb 19, 2018 at 02:31:23PM +0300, Igor Plyatov wrote:
+> Dear Karel,
+> 
+> 
+> > Would be possible to somehow detect what is the right default setting for
+> > --delay? I mean for example detect architecture / clock HW, etc.
+> > 
+> > I have no problem with --delay, but it's tuning for advanced users and
+> > HW specific stuff. It would be nice to have something more portable.
+> > 
+> >      Karel
+> > 
+> 
+> As I understood, issue exists only at x86 platform, where
+> MC146818-compatible RTC used.
+> 
+> But even if you will correctly detect platform, there is no guaranty to get
+> exactly MC146818 RTC. RTC can be other type. It even can be not single in
+> the system.
+> 
+> What is more or less usable is "/sys/class/rtc/rtcX/name" file, which
+> contains driver name.
+> For x86 and MC146818-compatible RTC its name is "rtc_cmos". And it can be
+> used to distinguish RTC type by hwclock utility.
 
-Some mistakes happened lately when switching from path_exist()
-to ul_path_access(). See f09a98de and 8ca31279.
+Implemented. From commit message:
 
-This caused ipcs tests failures when running i386 binaries on x86_64
-hosts, because the syscall fallback was always used. That's why I
-reviewed all similar changes and found another one in chmem.
+    * add command line option --delay <seconds>
+    
+    * read RTC type from /sys/class/rtc/rtc<N>/name
+    
+    * default to 0.5 (500ms) for rtc_cmos or when RTC type is impossible
+      determine; otherwise default is 0.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
----
- sys-utils/chmem.c    |  2 +-
- sys-utils/ipcutils.c | 12 ++++++------
- 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/sys-utils/chmem.c b/sys-utils/chmem.c
-index e5eab096a..4a4439a22 100644
---- a/sys-utils/chmem.c
-+++ b/sys-utils/chmem.c
-@@ -428,7 +428,7 @@ int main(int argc, char **argv)
- 
- 
- 	/* The valid_zones sysfs attribute was introduced with kernel 3.18 */
--	if (ul_path_access(desc->sysmem, F_OK, "memory0/valid_zones"))
-+	if (ul_path_access(desc->sysmem, F_OK, "memory0/valid_zones") == 0)
- 		desc->have_zones = 1;
- 	else if (zone)
- 		warnx(_("zone ignored, no valid_zones sysfs attribute present"));
-diff --git a/sys-utils/ipcutils.c b/sys-utils/ipcutils.c
-index e6dd0c561..5fe297fd4 100644
---- a/sys-utils/ipcutils.c
-+++ b/sys-utils/ipcutils.c
-@@ -18,9 +18,9 @@
- 
- int ipc_msg_get_limits(struct ipc_limits *lim)
- {
--	if (access(_PATH_PROC_IPC_MSGMNI, F_OK) &&
--	    access(_PATH_PROC_IPC_MSGMNB, F_OK) &&
--	    access(_PATH_PROC_IPC_MSGMAX, F_OK)) {
-+	if (access(_PATH_PROC_IPC_MSGMNI, F_OK) == 0 &&
-+	    access(_PATH_PROC_IPC_MSGMNB, F_OK) == 0 &&
-+	    access(_PATH_PROC_IPC_MSGMAX, F_OK) == 0) {
- 
- 		ul_path_read_s32(NULL, &lim->msgmni, _PATH_PROC_IPC_MSGMNI);
- 		ul_path_read_s32(NULL, &lim->msgmnb, _PATH_PROC_IPC_MSGMNB);
-@@ -71,9 +71,9 @@ int ipc_shm_get_limits(struct ipc_limits *lim)
- {
- 	lim->shmmin = SHMMIN;
- 
--	if (access(_PATH_PROC_IPC_SHMALL, F_OK) &&
--	    access(_PATH_PROC_IPC_SHMMAX, F_OK) &&
--	    access(_PATH_PROC_IPC_SHMMNI, F_OK)) {
-+	if (access(_PATH_PROC_IPC_SHMALL, F_OK) == 0 &&
-+	    access(_PATH_PROC_IPC_SHMMAX, F_OK) == 0 &&
-+	    access(_PATH_PROC_IPC_SHMMNI, F_OK) == 0) {
- 
- 		ul_path_read_u64(NULL, &lim->shmall, _PATH_PROC_IPC_SHMALL);
- 		ul_path_read_u64(NULL, &lim->shmmax, _PATH_PROC_IPC_SHMMAX);
+The change should be backwardly compatible in case hwclock is executed
+in time /sys is not mounted. The option --delay overwrites everything.
+
+The RTC type and the delay are visible by --verbose.
+
+Maybe you can try it with your HW to test the patch :-)
+
+    Karel
+
 -- 
-2.13.7
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
