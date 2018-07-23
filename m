@@ -1,37 +1,30 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from outpost1.zedat.fu-berlin.de ([130.133.4.66]:33165 "EHLO
-        outpost1.zedat.fu-berlin.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728583AbeG1Mc0 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Sat, 28 Jul 2018 08:32:26 -0400
-Subject: Re: Debian has not dropped alpha - was: Re: [PATCH] hwclock: stop
- supporting alpha cpu architecture
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-To: Sami Kerola <kerolasa@iki.fi>
-Cc: Bernhard Voelker <mail@bernhard-voelker.de>,
-        Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
-        Michael Cree <mcree@orcon.net.nz>
-References: <7ad8126b-cc76-c341-d1c5-d9461f9c1f5f@physik.fu-berlin.de>
-Message-ID: <459c3900-4045-f41b-f6d2-d1860f1169e8@physik.fu-berlin.de>
-Date: Sat, 28 Jul 2018 13:06:13 +0200
+Received: from mailrelay4.webfaction.com ([185.20.51.6]:40916 "EHLO
+        mailrelay4.webfaction.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388317AbeGWNoe (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 23 Jul 2018 09:44:34 -0400
+Received: from mailrelay3.webfaction.com (mailrelay3.webfaction.com [207.38.93.110])
+        by mailrelay4.webfaction.com (Postfix) with ESMTPS id 3C480120683
+        for <util-linux@vger.kernel.org>; Mon, 23 Jul 2018 12:34:00 +0000 (UTC)
+Received: from mailrelay2.webfaction.com (mailrelay2.webfaction.com [185.20.50.247])
+        by mailrelay3.webfaction.com (Postfix) with ESMTPS id A0885282DB5
+        for <util-linux@vger.kernel.org>; Mon, 23 Jul 2018 12:33:58 +0000 (UTC)
+Received: from smtp.webfaction.com (mail6.webfaction.com [31.170.123.134])
+        by mailrelay2.webfaction.com (Postfix) with ESMTPS id D22BD418C5
+        for <util-linux@vger.kernel.org>; Mon, 23 Jul 2018 12:33:56 +0000 (UTC)
+Received: from [192.168.1.11] (75-131-195-24.dhcp.gwnt.ga.charter.com [75.131.195.24])
+        by smtp.webfaction.com (Postfix) with ESMTPSA id 7CB1862D178FE
+        for <util-linux@vger.kernel.org>; Mon, 23 Jul 2018 12:33:53 +0000 (UTC)
+To: util-linux@vger.kernel.org
+From: Edward Diener <eldlistmailingz@tropicsoft.com>
+Subject: Documentation for libraries
+Message-ID: <c1ad48a2-46b9-c694-7610-c463ba453f4d@tropicsoft.com>
+Date: Mon, 23 Jul 2018 08:33:52 -0400
 MIME-Version: 1.0
-In-Reply-To: <7ad8126b-cc76-c341-d1c5-d9461f9c1f5f@physik.fu-berlin.de>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 07/28/2018 01:01 PM, John Paul Adrian Glaubitz wrote:
-> All architectures build the vast majority of packages without problems
-> and alpha is actually one of the healhiest ports with over 90% of
-> all packages being built:
+Where is there documentation for using libblkid and libfdisk, either 
+online or part of the util-linux package ?
 
-As a follow-up: If anyone needs access to a porterbox (i.e. a machine for
-a given target architecture), we can help with that, too.
-
-Adrian
-
--- 
- .''`.  John Paul Adrian Glaubitz
-: :' :  Debian Developer - glaubitz@debian.org
-`. `'   Freie Universitaet Berlin - glaubitz@physik.fu-berlin.de
-  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
