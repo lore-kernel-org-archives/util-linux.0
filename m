@@ -1,37 +1,44 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([217.72.192.73]:51259 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750962AbeF0F70 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 27 Jun 2018 01:59:26 -0400
-Subject: Re: [PATCH] hwclock: stop supporting alpha cpu architecture
-To: Sami Kerola <kerolasa@iki.fi>, util-linux@vger.kernel.org
-References: <20180626211343.4675-1-kerolasa@iki.fi>
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Message-ID: <09cf76ad-032f-2e6c-0d67-e4c8ff5bb3f2@bernhard-voelker.de>
-Date: Wed, 27 Jun 2018 07:58:45 +0200
+Return-Path: glaubitz@physik.fu-berlin.de
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: Bernhard Voelker <mail@bernhard-voelker.de>, Karel Zak <kzak@redhat.com>,
+ util-linux@vger.kernel.org, Michael Cree <mcree@orcon.net.nz>
+From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Subject: Debian has not dropped alpha - was: Re: [PATCH] hwclock: stop
+ supporting alpha cpu architecture
+Message-ID: <7ad8126b-cc76-c341-d1c5-d9461f9c1f5f@physik.fu-berlin.de>
+Date: Sat, 28 Jul 2018 13:01:45 +0200
 MIME-Version: 1.0
-In-Reply-To: <20180626211343.4675-1-kerolasa@iki.fi>
 Content-Type: text/plain; charset=utf-8
-Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 06/26/2018 11:13 PM, Sami Kerola wrote:
-> @@ -255,16 +249,7 @@ static int synchronize_to_clock_tick_rtc(const struct hwclock_control *ctl)
->  	} else {
->  		int rc;		/* Return code from ioctl */
->  		/* Turn on update interrupts (one per second) */
-> -#if defined(__alpha__) || defined(__sparc__)
-> -		/*
-> -		 * Not all alpha kernels reject RTC_UIE_ON, but probably
-> -		 * they should.
-> -		 */
-> -		rc = -1;
-> -		errno = EINVAL;
-> -#else
->  		rc = ioctl(rtc_fd, RTC_UIE_ON, 0);
-> -#endif
+Hello!
 
-Are you sure you want to change the code path for SPARC?
+I was just pointed towards this mail and wanted to give a quick
+heads up! The original claim in the first mail is not accurate.
 
-Have a nice day,
-Berny
+While Debian has stopped supporting alpha **officially**, we are
+still supporting alpha in Debian Ports. In fact, Debian has more
+stable and working ports than Gentoo with many of them team-maintained
+by the Debian Ports team.
+
+For an overview of the currently supported targets, see:
+
+> https://buildd.debian.org/status/package.php?p=base-files&suite=sid
+
+All architectures build the vast majority of packages without problems
+and alpha is actually one of the healhiest ports with over 90% of
+all packages being built:
+
+> https://buildd.debian.org/stats/graph-ports-big.png
+
+Please do not drop support for alpha in util-linux.
+
+To get in touch with us, we're hanging around in #debian-ports on OFTC.
+
+Adrian
+
+-- 
+ .''`.  John Paul Adrian Glaubitz
+: :' :  Debian Developer - glaubitz@debian.org
+`. `'   Freie Universitaet Berlin - glaubitz@physik.fu-berlin.de
+  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
