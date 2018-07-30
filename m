@@ -1,29 +1,51 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:48968 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1732631AbeGKMhq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 11 Jul 2018 08:37:46 -0400
-Date: Wed, 11 Jul 2018 14:33:35 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Milan Broz <gmazyland@gmail.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] blkid: Check for a secondary LUKS2 header.
-Message-ID: <20180711123335.khwgkbkhyhpgveig@ws.net.home>
-References: <20180711103439.10443-1-gmazyland@gmail.com>
+Return-Path: BATV+396ebc2d5722fb16c925+5454+infradead.org+hch@bombadil.srs.infradead.org
+Date: Mon, 30 Jul 2018 00:29:06 -0700
+From: Christoph Hellwig <hch@infradead.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: kerolasa@gmail.com, Bernhard Voelker <mail@bernhard-voelker.de>,
+	util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] hwclock: stop supporting alpha cpu architecture
+Message-ID: <20180730072905.GA32653@infradead.org>
+References: <20180626211343.4675-1-kerolasa@iki.fi>
+ <09cf76ad-032f-2e6c-0d67-e4c8ff5bb3f2@bernhard-voelker.de>
+ <CAG27Bk3Z7zCQpZv_0Ubd+pfo3f1G6NnKyxr4mRJYT-kyK9+p=A@mail.gmail.com>
+ <20180724123052.szmsn3yguneebree@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180711103439.10443-1-gmazyland@gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+In-Reply-To: <20180724123052.szmsn3yguneebree@ws.net.home>
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Jul 11, 2018 at 12:34:39PM +0200, Milan Broz wrote:
->  libblkid/src/superblocks/luks.c | 60 ++++++++++++++++++++++++++-------
->  1 file changed, 47 insertions(+), 13 deletions(-)
+On Tue, Jul 24, 2018 at 02:30:52PM +0200, Karel Zak wrote:
+> > >> -#if defined(__alpha__) || defined(__sparc__)
+> > >> -             /*
+> > >> -              * Not all alpha kernels reject RTC_UIE_ON, but probably
+> > >> -              * they should.
+> > >> -              */
+> > >> -             rc = -1;
+> > >> -             errno = EINVAL;
+> > >> -#else
+> > >>               rc = ioctl(rtc_fd, RTC_UIE_ON, 0);
+> > >> -#endif
+> > >
+> > > Are you sure you want to change the code path for SPARC?
+> > 
+> > Hi Berny,
+> > 
+> > After reading linux kernel code, and trying to find references where sparc
+> > condition might be originating I could not find good reason why sparc should
+> > hard code RTC_UIE_ON not to be supported.  There is message from 2005 about
+> > chrony having issue with sparc RTC_UIE_ON, but later in that thread Dave
+> > Miller tells there is no problem with rtc and sparc.  I am fairly confident
+> > ioctl(rtc_fd, RTC_UIE_ON, 0) will either do the right thing or return -1.
+> > 
+> > Reference: https://lists.debian.org/debian-sparc/2005/04/msg00115.html
+> 
+> Maybe the best would be to postpone this to v2.34 and in v2.33 just
+> inform about this plan. Frankly, I'm not sure where and what is
+> supported for alpha...
 
-Applied, thanks.
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Note that for modern kernel RTC support uses a lot more common code
+so some of the old quirks should be dead.  It might be a better idea
+to approach this as dropping support for long obsolete kernels on
+not common architectures, although that might require a bit more
+research and testing.
