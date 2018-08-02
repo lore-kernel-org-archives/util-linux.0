@@ -1,68 +1,73 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:45532 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725948AbeHTMBh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 20 Aug 2018 08:01:37 -0400
-Date: Mon, 20 Aug 2018 10:46:50 +0200
-From: Karel Zak <kzak@redhat.com>
-To: =?iso-8859-1?Q?Asbj=F8rn_Sloth_T=F8nnesen?= <asbjorn@asbjorn.st>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/2] script: add input log feature
-Message-ID: <20180820084650.xpit6acizkqt56qs@ws.net.home>
-References: <20180819171658.20285-1-asbjorn@asbjorn.st>
- <20180819171658.20285-2-asbjorn@asbjorn.st>
+Received: from mail-io0-f195.google.com ([209.85.223.195]:38145 "EHLO
+        mail-io0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727355AbeHBUa3 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 2 Aug 2018 16:30:29 -0400
+Received: by mail-io0-f195.google.com with SMTP id v26-v6so2885511iog.5
+        for <util-linux@vger.kernel.org>; Thu, 02 Aug 2018 11:38:09 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <20180819171658.20285-2-asbjorn@asbjorn.st>
+Reply-To: kerolasa@gmail.com
+In-Reply-To: <20180802085117.vwbtc7kwkcphhelv@ws.net.home>
+References: <20180801212644.1652-1-kerolasa@iki.fi> <20180802085117.vwbtc7kwkcphhelv@ws.net.home>
+From: Sami Kerola <kerolasa@iki.fi>
+Date: Thu, 2 Aug 2018 19:38:08 +0100
+Message-ID: <CAG27Bk0qkNb=0K+X0aMmQBL96OWhOLL1ZZov1SSm8PUa_Mjrtw@mail.gmail.com>
+Subject: Re: [PATCH] mesg: do not print 'ttyname failed' message unless
+ --verbose requested
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Aug 19, 2018 at 05:16:58PM +0000, Asbjørn Sloth Tønnesen wrote:
-> When script is used to log usage of shell accounts, accessible by
-> random users (some of whom might be malicious).
-> 
-> This patch adds a new --input-log option, which makes script save
-> the input data to a file, in an extended timing format also containing
-> the data, thereby allowing the input to be reconstructed.
+On 2 August 2018 at 09:51, Karel Zak <kzak@redhat.com> wrote:
+> On Wed, Aug 01, 2018 at 10:26:44PM +0100, Sami Kerola wrote:
+>> Lots of people are confused why mesg(1) is priting this message.  Usual
+>> cause seems to be an uninteractive shell trying to turn running 'mesg n'
+>> from a /root/.profile where command invocation is by default on debian based
+>> systems.  This might be rare case when failing silently is better.
+>>
+>> Reference: https://www.google.com/search?q=mesg+ttyname+failed
+>> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+>> ---
+>>  term-utils/mesg.c | 7 +++++--
+>>  1 file changed, 5 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/term-utils/mesg.c b/term-utils/mesg.c
+>> index 8714ad1aa..7c4e390bb 100644
+>> --- a/term-utils/mesg.c
+>> +++ b/term-utils/mesg.c
+>> @@ -121,8 +121,11 @@ int main(int argc, char *argv[])
+>>       argc -= optind;
+>>       argv += optind;
+>>
+>> -     if ((tty = ttyname(STDERR_FILENO)) == NULL)
+>> -             err(MESG_EXIT_FAILURE, _("ttyname failed"));
+>> +     if ((tty = ttyname(STDERR_FILENO)) == NULL) {
+>> +             if (verbose == TRUE)
+>> +                     err(MESG_EXIT_FAILURE, _("ttyname failed"));
+>> +             exit(MESG_EXIT_FAILURE);
+>> +     }
+>
+> What about:
+>
+> if (isatty(STDERR_FILENO)) {
+>     if (verbose)
+>         warnx(_("no tty"));
+>     exit(MESG_EXIT_FAILURE);
+> }
+>
+> tty = ttyname(STDERR_FILENO);
+> if (!tty)
+>    ... the current code ...
 
-I like the feature, but not sure if we really need to introduce a new
-log format specific to the input stream.
+Hi Karel
 
-For long time I think about a new timing file format. Maybe we can add
-support for new timing file format where will be possible log
-information about more streams (stdin and stdout) and events (for
-example signals). In this case we can for stdin use the same concept
-like for stdout -- it means raw file with data. The final result will
-be three files:
+That's probably better. I pushed that version to my remote branch
+'mesg' and made pull request:
 
- - stdout (raw, without formatting)
- - stdin  (raw, without formatting)
- - timing (<type> <timestampts> [<offset> , misc...])
-
-where 
-  type         = S, I or O  (signal, input or output)
-  timestampts  = timing info
- 
-  type specific information:
-     offset = offset in bytes to the log (stream) file (O or I  type)
-     signal = signal name for S type
-     ..etc.
-
-It would be also nice to have info about version, format in the
-timing file header.
-
-And new options like:
-
-   --timing-format <classic,new>
-   --recording <stdin,stdout,signals,...>
-   --stdout-log <filename>
-   --stdin-log <filename>
-
-The default should be backwardly compatible (old format, stdout-only, etc.)
-
- Karel
-
+https://github.com/karelzak/util-linux/pull/675
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Sami Kerola
+http://www.iki.fi/kerolasa/
