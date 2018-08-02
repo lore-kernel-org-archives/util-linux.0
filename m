@@ -1,49 +1,64 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:47918 "EHLO mx1.redhat.com"
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:43214 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727238AbeH3MrE (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 30 Aug 2018 08:47:04 -0400
-Date: Thu, 30 Aug 2018 10:45:56 +0200
+        id S1726224AbeHBKld (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 2 Aug 2018 06:41:33 -0400
+Date: Thu, 2 Aug 2018 10:51:17 +0200
 From: Karel Zak <kzak@redhat.com>
-To: L A Walsh <lkml@tlinx.org>
+To: Sami Kerola <kerolasa@iki.fi>
 Cc: util-linux@vger.kernel.org
-Subject: Re: RFD: --enable-bindir-path ?
-Message-ID: <20180830084556.ubvu5e5qhzih5fng@ws.net.home>
-References: <5B82E969.6090409@tlinx.org>
+Subject: Re: [PATCH] mesg: do not print 'ttyname failed' message unless
+ --verbose requested
+Message-ID: <20180802085117.vwbtc7kwkcphhelv@ws.net.home>
+References: <20180801212644.1652-1-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5B82E969.6090409@tlinx.org>
+In-Reply-To: <20180801212644.1652-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Aug 26, 2018 at 10:54:49AM -0700, L A Walsh wrote:
-> Was wondering about the addition of an "enable-bindir-path" which would only
-> use
-> paths with /bin instead of /usr/bin for setups where /usr/bin -> /bin (like
-> cygwin who mounts /bin and /lib on /usr/bin and /usr/lib -- using mounts
-> instead of symlinks).  The've had that since the beginning with nothing
-> being
-> installed in /usr/bin or /usr/lib.
+On Wed, Aug 01, 2018 at 10:26:44PM +0100, Sami Kerola wrote:
+> Lots of people are confused why mesg(1) is priting this message.  Usual
+> cause seems to be an uninteractive shell trying to turn running 'mesg n'
+> from a /root/.profile where command invocation is by default on debian based
+> systems.  This might be rare case when failing silently is better.
+> 
+> Reference: https://www.google.com/search?q=mesg+ttyname+failed
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
+> ---
+>  term-utils/mesg.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+> 
+> diff --git a/term-utils/mesg.c b/term-utils/mesg.c
+> index 8714ad1aa..7c4e390bb 100644
+> --- a/term-utils/mesg.c
+> +++ b/term-utils/mesg.c
+> @@ -121,8 +121,11 @@ int main(int argc, char *argv[])
+>  	argc -= optind;
+>  	argv += optind;
+>  
+> -	if ((tty = ttyname(STDERR_FILENO)) == NULL)
+> -		err(MESG_EXIT_FAILURE, _("ttyname failed"));
+> +	if ((tty = ttyname(STDERR_FILENO)) == NULL) {
+> +		if (verbose == TRUE)
+> +			err(MESG_EXIT_FAILURE, _("ttyname failed"));
+> +		exit(MESG_EXIT_FAILURE);
+> +	}
 
-So for this use-case /usr should be ignored at all, right? What about PATH
-setting? Is it also without /usr? What about man pages, docs?
+What about:
 
-I have nothing against this feature, but question is if it's important
-enough to implement and support it ;-)
+if (isatty(STDERR_FILENO)) {
+    if (verbose)
+        warnx(_("no tty"));
+    exit(MESG_EXIT_FAILURE);
+}
 
-> Was also wondering why that wasn't chosen as a default for merging, since
-> /bin and /lib are almost always on the root file system so they are always
-> there, versus /usr/{bin,lib{,64}} which may need to be mounted before it can
-> be used...if it can't be mounted, having things in /bin & /lib pointed
-> to /usr won't work so well.
+tty = ttyname(STDERR_FILENO);
+if (!tty)
+   ... the current code ...
 
-I think originally /usr was also on the same FS as /{bin,lib,...}.
 
-Anyway, now this no issue as we use initram images where is all
-stuff that is necessary to assemble usable hierarchy of filesystems
-(including RAIDs, NFS moutpoints, etc.)
-
-    Karel
+   Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
