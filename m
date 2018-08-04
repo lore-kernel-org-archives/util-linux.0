@@ -1,44 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:34896 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727551AbeHFQw4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 6 Aug 2018 12:52:56 -0400
-Date: Mon, 6 Aug 2018 16:43:28 +0200
-From: Karel Zak <kzak@redhat.com>
-To: "Theodore Y. Ts'o" <tytso@mit.edu>
-Cc: Martin Steigerwald <martin@lichtvoll.de>,
-        util-linux@vger.kernel.org
-Subject: Re: =?iso-8859-1?Q?Debian=B4?= =?iso-8859-1?Q?s?= change of "su" to
- the one in util-linux
-Message-ID: <20180806144328.npyl2jq2yho3mdxj@ws.net.home>
-References: <1734536.DseMWcvaqb@merkaba>
- <20180805150557.GC26138@thunk.org>
- <1642971.4ZBaquOb5i@merkaba>
- <20180806132123.GA6184@thunk.org>
+Received: from imap.thunk.org ([74.207.234.97]:37776 "EHLO imap.thunk.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728309AbeHDVsn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sat, 4 Aug 2018 17:48:43 -0400
+Date: Sat, 4 Aug 2018 15:46:55 -0400
+From: "Theodore Y. Ts'o" <tytso@mit.edu>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] libuuid: use kernel crypto api
+Message-ID: <20180804194655.GD4461@thunk.org>
+References: <20180804191706.10641-1-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180806132123.GA6184@thunk.org>
+In-Reply-To: <20180804191706.10641-1-kerolasa@iki.fi>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 06, 2018 at 09:21:23AM -0400, Theodore Y. Ts'o wrote:
-> On Mon, Aug 06, 2018 at 10:24:43AM +0200, Martin Steigerwald wrote:
-> > 
-> > Thank you, Ted. This is the best explanation I saw so far. I accept it 
-> > for default.
-> >
+On Sat, Aug 04, 2018 at 08:17:06PM +0100, Sami Kerola wrote:
+> Try to speed up md5 checksums by using hardware accelerators when they are
+> present with use of kernel crypto api.
 > 
-> An interesting question to consider is where would be the best place
-> to put this kind of information.  I learned it very on in my career,
-> and what is "obvious" to one person can be "obscure lore" to another.
-> 
-> It's probably too much tutorial information for the su man page, but
+> Reference: http://www.chronox.de/libkcapi/html/ch01s02.html
+> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 
-I don't see problem to add "SAFE ENVIRONMENT" to su(1), it's probably
-place where the topic will be more visible than in some tutorial.
+I'm not sure I see the point of this change.  Is there a use case you
+have in mind where people would be using crypto hash based UUID's
+where performance is a concern?  In in that case where someone was
+trying to create a huge number of crypto hash based UUID's, how much
+overhead is there in going through the kernel API if there is *not* a
+hardware accelerator present?
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+						- Ted
