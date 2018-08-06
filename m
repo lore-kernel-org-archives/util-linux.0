@@ -1,65 +1,43 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:43214 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726224AbeHBKld (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 2 Aug 2018 06:41:33 -0400
-Date: Thu, 2 Aug 2018 10:51:17 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Sami Kerola <kerolasa@iki.fi>
+Received: from imap.thunk.org ([74.207.234.97]:41568 "EHLO imap.thunk.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726901AbeHFPad (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 6 Aug 2018 11:30:33 -0400
+Date: Mon, 6 Aug 2018 09:21:23 -0400
+From: "Theodore Y. Ts'o" <tytso@mit.edu>
+To: Martin Steigerwald <martin@lichtvoll.de>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] mesg: do not print 'ttyname failed' message unless
- --verbose requested
-Message-ID: <20180802085117.vwbtc7kwkcphhelv@ws.net.home>
-References: <20180801212644.1652-1-kerolasa@iki.fi>
+Subject: Re: =?iso-8859-1?Q?Debian=B4?= =?iso-8859-1?Q?s?= change of "su" to
+ the one in util-linux
+Message-ID: <20180806132123.GA6184@thunk.org>
+References: <1734536.DseMWcvaqb@merkaba>
+ <20180805150557.GC26138@thunk.org>
+ <1642971.4ZBaquOb5i@merkaba>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180801212644.1652-1-kerolasa@iki.fi>
+In-Reply-To: <1642971.4ZBaquOb5i@merkaba>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Aug 01, 2018 at 10:26:44PM +0100, Sami Kerola wrote:
-> Lots of people are confused why mesg(1) is priting this message.  Usual
-> cause seems to be an uninteractive shell trying to turn running 'mesg n'
-> from a /root/.profile where command invocation is by default on debian based
-> systems.  This might be rare case when failing silently is better.
+On Mon, Aug 06, 2018 at 10:24:43AM +0200, Martin Steigerwald wrote:
 > 
-> Reference: https://www.google.com/search?q=mesg+ttyname+failed
-> Signed-off-by: Sami Kerola <kerolasa@iki.fi>
-> ---
->  term-utils/mesg.c | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
-> 
-> diff --git a/term-utils/mesg.c b/term-utils/mesg.c
-> index 8714ad1aa..7c4e390bb 100644
-> --- a/term-utils/mesg.c
-> +++ b/term-utils/mesg.c
-> @@ -121,8 +121,11 @@ int main(int argc, char *argv[])
->  	argc -= optind;
->  	argv += optind;
->  
-> -	if ((tty = ttyname(STDERR_FILENO)) == NULL)
-> -		err(MESG_EXIT_FAILURE, _("ttyname failed"));
-> +	if ((tty = ttyname(STDERR_FILENO)) == NULL) {
-> +		if (verbose == TRUE)
-> +			err(MESG_EXIT_FAILURE, _("ttyname failed"));
-> +		exit(MESG_EXIT_FAILURE);
-> +	}
+> Thank you, Ted. This is the best explanation I saw so far. I accept it 
+> for default.
+>
 
-What about:
+An interesting question to consider is where would be the best place
+to put this kind of information.  I learned it very on in my career,
+and what is "obvious" to one person can be "obscure lore" to another.
 
-if (isatty(STDERR_FILENO)) {
-    if (verbose)
-        warnx(_("no tty"));
-    exit(MESG_EXIT_FAILURE);
-}
+It's probably too much tutorial information for the su man page, but
+some kind of "system administrators tutorial/guide/handbook" might be
+a great place for this kind of "so you want to create system
+administration scripts as root --- what are best practices for
+security/robustness/etc.".  For Debian systems, maybe contributing
+something to The Debian Administrator's Handbook, at
+https://debian-handbook.info?
 
-tty = ttyname(STDERR_FILENO);
-if (!tty)
-   ... the current code ...
+I'm not sure what's the best place for Fedora/RedHat/Ubuntu system
+administrators.
 
-
-   Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+					- Ted
