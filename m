@@ -1,48 +1,45 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-oi0-f47.google.com ([209.85.218.47]:39795 "EHLO
-        mail-oi0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727140AbeHJXhs (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 10 Aug 2018 19:37:48 -0400
-Received: by mail-oi0-f47.google.com with SMTP id d189-v6so18105718oib.6
-        for <util-linux@vger.kernel.org>; Fri, 10 Aug 2018 14:06:16 -0700 (PDT)
-Subject: Re: su(1) --whitelist-environment
-To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <20180810092401.inc32ady3eidzyjo@ws.net.home>
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
-Message-ID: <a745a526-dbc9-ce04-ec4b-8e46d07b8774@gmail.com>
-Date: Fri, 10 Aug 2018 16:06:15 -0500
+Received: from mout.kundenserver.de ([212.227.17.24]:45541 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732396AbeHFSGN (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 6 Aug 2018 14:06:13 -0400
+Subject: =?UTF-8?Q?Re:_Debian=c2=b4s_change_of_=22su=22_to_the_one_in_util-l?=
+ =?UTF-8?Q?inux?=
+To: Martin Steigerwald <martin@lichtvoll.de>,
+        "Theodore Y. Ts'o" <tytso@mit.edu>
+Cc: util-linux@vger.kernel.org
+References: <1734536.DseMWcvaqb@merkaba> <20180805150557.GC26138@thunk.org>
+ <1642971.4ZBaquOb5i@merkaba>
+From: Bernhard Voelker <mail@bernhard-voelker.de>
+Message-ID: <d29b0332-8cdd-2110-1cd5-67c5bc08c729@bernhard-voelker.de>
+Date: Mon, 6 Aug 2018 17:56:04 +0200
 MIME-Version: 1.0
-In-Reply-To: <20180810092401.inc32ady3eidzyjo@ws.net.home>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <1642971.4ZBaquOb5i@merkaba>
+Content-Type: text/plain; charset=utf-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 08/10/2018 04:24 AM, Karel Zak wrote:
+On 08/06/2018 10:24 AM, Martin Steigerwald wrote:
+> Theodore Y. Ts'o - 05.08.18, 17:05:
+>> * The PATH might include the current directory, and so a script
+> […]
+>> So for that reason, it makes sense that a "sudo" or "su" command
+>> should default to something safe.
 > 
->   Hi all,
+> Thank you, Ted. This is the best explanation I saw so far. I accept it 
+> for default.
 > 
-> I'd like to add a new feature to su(1). Look forward to see your
-> objections and comments.
-> 
-> Example:
-> 
->           # export FOO="this is foo"
-> 
->           # su - kzak
->           $ echo $FOO
-> 
->           # su ---whitelist-environment FOO - kzak
->           $ echo $FOO
->           this is foo
-> 
-> Note that the currently supported --preserve-environment may be
-> overkill or dangerous in some use-cases as it does not reset
-> environment at all. The whitelist provides better control (for
-> example for scripts) over environment in the new session.
+> In my specific case I still do not see any big issue with that cause the 
+> backup script runs on my laptop, the user I "su" from and "root" are 
+> both users only I have access to.
 
-I think it is unnecessary.  su itself does not need the environment 
-variable.  If a user needs a specific setting, then set it in a script:
+If you have sanitized your PATH (and other variables) already outside, then
+nothing prevents you from passing them into su or sudo.  E.g. the GNU coreutils
+pass PATH and another variable for running the "root-only" testsuite:
 
-su --command myscript
+  sudo env PATH="$PATH" NON_ROOT_USERNAME=$USER make -k check-root
 
-   -- Bruce Dubbs, LFS
+Can't you do something like that?
+
+Have a nice day,
+Berny
