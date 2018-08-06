@@ -1,47 +1,33 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.126.135]:47981 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729536AbeHNPhU (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Aug 2018 11:37:20 -0400
-Subject: Re: su(1) --whitelist-environment
-To: Karel Zak <kzak@redhat.com>
-Cc: Bruce Dubbs <bruce.dubbs@gmail.com>, util-linux@vger.kernel.org
-References: <20180810092401.inc32ady3eidzyjo@ws.net.home>
- <a745a526-dbc9-ce04-ec4b-8e46d07b8774@gmail.com>
- <745f75b6-d849-a519-7855-9de62d999e06@bernhard-voelker.de>
- <20180814093257.nglcor4c3jagjyxv@ws.net.home>
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-Message-ID: <74770378-d739-c0d8-4cfe-3e898bf45f95@bernhard-voelker.de>
-Date: Tue, 14 Aug 2018 14:50:12 +0200
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:35640 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725985AbeHFJED (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 6 Aug 2018 05:04:03 -0400
+Date: Mon, 6 Aug 2018 08:56:21 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Sami Kerola <kerolasa@iki.fi>
+Cc: "Theodore Y. Ts'o" <tytso@mit.edu>,
+        "Dmitry V. Levin" <ldv@altlinux.org>, util-linux@vger.kernel.org
+Subject: Re: [PATCH] libuuid: use kernel crypto api
+Message-ID: <20180806065621.ju4e3ifodzcc7kjk@ws.net.home>
+References: <20180804191706.10641-1-kerolasa@iki.fi>
+ <20180804194655.GD4461@thunk.org>
+ <alpine.LNX.2.21.99.1808051124370.868@imuri>
 MIME-Version: 1.0
-In-Reply-To: <20180814093257.nglcor4c3jagjyxv@ws.net.home>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <alpine.LNX.2.21.99.1808051124370.868@imuri>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On 08/14/2018 11:32 AM, Karel Zak wrote:
-> On Mon, Aug 13, 2018 at 10:57:01PM +0200, Bernhard Voelker wrote:
->> Well, this might become slightly trickier with real shell or environment
->> variables wrt/ correct shell quoting:
->>
->>   $ VAR='some value'
->>   $ su -c 'env VAR="'"$VAR"'" myscript' user
-> 
-> Well, probably usable way for scripts, but ugly for users on command line.
-> 
-> All the idea behind the patch is make things more user-friendly
-> 
->     su -w GREP_COLOR,COLORFGBG - kzak
-> 
-> seems better than assume -c 'env VAR ..."
+On Sun, Aug 05, 2018 at 11:42:09AM +0100, Sami Kerola wrote:
+> I should have told in that commit message part of the motivation was to 
+> deprecate util-linux local md5 implementation.
 
-+1 your point. ;-)
+Hmm... it will be difficult if we want to support non-Linux systems
+(GNU Hurd, OSX, BSD) for some of our tools ;-)
 
-A difference is that  -c 'env VAR ..." works also with shell variables
-while -w filters exported variables only.  I think this not a big deal.
+    Karel
 
-Regarding your implementation: I suggest to warn when -w is used together
-with -m, -p, --preserve-environment.  WDYT?
-
-Have a nice day,
-Berny
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
