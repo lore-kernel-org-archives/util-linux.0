@@ -1,94 +1,98 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mondschein.lichtvoll.de ([194.150.191.11]:36721 "EHLO
+Received: from mondschein.lichtvoll.de ([194.150.191.11]:53153 "EHLO
         mail.lichtvoll.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726085AbeHEKjZ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 5 Aug 2018 06:39:25 -0400
-Received: from 127.0.0.1 (localhost [127.0.0.1])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mail.lichtvoll.de (Postfix) with ESMTPSA id 69A08382149
-        for <util-linux@vger.kernel.org>; Sun,  5 Aug 2018 10:35:35 +0200 (CEST)
+        with ESMTP id S1725951AbeHFKcl (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 6 Aug 2018 06:32:41 -0400
 From: Martin Steigerwald <martin@lichtvoll.de>
-To: util-linux@vger.kernel.org
-Subject: =?UTF-8?B?RGViaWFuwrRz?= change of "su" to the one in util-linux
-Date: Sun, 05 Aug 2018 10:35:34 +0200
-Message-ID: <1734536.DseMWcvaqb@merkaba>
+To: "Theodore Y. Ts'o" <tytso@mit.edu>
+Cc: util-linux@vger.kernel.org
+Subject: Re: =?UTF-8?B?RGViaWFuwrRz?= change of "su" to the one in util-linux
+Date: Mon, 06 Aug 2018 10:24:43 +0200
+Message-ID: <1642971.4ZBaquOb5i@merkaba>
+In-Reply-To: <20180805150557.GC26138@thunk.org>
+References: <1734536.DseMWcvaqb@merkaba> <20180805150557.GC26138@thunk.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hello.
+Theodore Y. Ts'o - 05.08.18, 17:05:
+> On Sun, Aug 05, 2018 at 10:35:34AM +0200, Martin Steigerwald wrote:
+> > Now people say, including Debian maintainer of util-linux, in above
+> > NEWS file entry: Using "su" without initializing new environment is
+> > a bad idea and should never be done. For many reasons. However,
+> > nowhere I saw these reasons actually mentioned. That is not enough
+> > for an informed decision about it. I already opened a bug report
+> > for util-linux package about no concrete reasons provided:
+> > 
+> > util-linux: su from util-linux: no reason why su without setting new
+> > environment is bad idea
+> > https://bugs.debian.org/905478
+> 
+> The reason why preserving the environment across a su or a sudo can be
+> dangerous is that environments that are meant for use by an
+> unprivileged process might not be appropriate at all when running as
+> root.  There are lots of potential reasons why.  Here are some:
+> 
+> * The PATH might include the current directory, and so a script
+[…]
+> So for that reason, it makes sense that a "sudo" or "su" command
+> should default to something safe.
 
-A new version of the util-linux package for Debian switched the "su" 
-implementation from the one from the "shadow" package to the one in the 
-"util-linux" package.
+Thank you, Ted. This is the best explanation I saw so far. I accept it 
+for default.
 
-Now "su" from "util-linux" preserves PATH and IFS unless you use "su -" 
-login shell mode. An item in the NEWS.Debian file explains that change:
+In my specific case I still do not see any big issue with that cause the 
+backup script runs on my laptop, the user I "su" from and "root" are 
+both users only I have access to. So the risk in my case may mostly be 
+that the script would pick an an inappropriate command. Due to me 
+installing it. Someone who would get access to an regular user account 
+could set up a bogus path as the user and install a malicious command 
+there in order to gain "root" access or so. In my understanding of 
+security it would be already too late if someone gained access to an 
+user account on my laptop without my permission.
 
-https://sources.debian.org/src/util-linux/2.32-0.4/debian/util-linux.NEWS/
+However I just tested on Debian by logging in as "root" on "tty1" and it 
+still gives me "~/bin" and the "local" binary directories. Its "~/bin" 
+which would be "/root/bin", not writable to by a regular user.
 
-This difference broke an existing work-flow for me: I have a backup 
-script that backups my laptop and my remote servers. It needs root 
-access for creating BTRFS snapshots and for storing the actual data with 
-ownership preserved. However, for accessing the remote servers it needs
-access to the SSH agent running in the user session. The backup scripts 
-uses commands that are in "sbin" related directories.
+Interestingly enough it also prints the following error after entering 
+the user name:
 
-As the explanation was in the NEWS file was not there initially the 
-first thing I did was to hard code the path in the backup script. Then 
-even with the explanation I am not all that satisfied with the change in 
-behavior and for now just set "ALWAYS_SET_PATH yes" in "login.defs".
+"configuration error – unknown item 'ALWAYS_SET_PATH' (notify 
+administrator)"
 
-Now people say, including Debian maintainer of util-linux, in above NEWS 
-file entry: Using "su" without initializing new environment is a bad 
-idea and should never be done. For many reasons. However, nowhere I saw 
-these reasons actually mentioned. That is not enough for an informed 
-decision about it. I already opened a bug report for util-linux package 
-about no concrete reasons provided:
+The "login" command which is in the "login" package in Debian, which is 
+part of the "shadow" source package, does not understand the option.
 
-util-linux: su from util-linux: no reason why su without setting new 
-environment is bad idea
-https://bugs.debian.org/905478
+It appears to me that sharing a configuration file like this is not such 
+a good idea. However, it continues and I can still login.
 
-And then: How to implement a backup script that needs root access for 
-most operations, but also requires access to SSH agent from a user 
-setup? Dig out the environment variables of the SSH agent myself? Let 
-the script run as a user and use "setprivs" that is mentioned as 
-recommend in the "su" manpage, yet is in a different package altogether 
-and not part of "util-linux".
+> > And then: How to implement a backup script that needs root access
+> > for
+> > most operations, but also requires access to SSH agent from a user
+> > setup? Dig out the environment variables of the SSH agent myself?
+> > Let
+> > the script run as a user and use "setprivs" that is mentioned as
+> > recommend in the "su" manpage, yet is in a different package
+> > altogether and not part of "util-linux".
+> 
+> You might want to look at the man page for sudo, and its configuration
+> files, especially sudoers.  It has a *huge* amount of fine-grained
+> controls over which environment variables should be reset, and which
+> ones which should be preserved, and whether or not a particular user
+> should be trusted to override environment variable processing on the
+> command line.
 
-Also… login.defs manpage from shadow project does not mention 
-"ALWAYS_SET_PATH", but manpage of su from util-linux does mention it. 
-And there does not appear to be a manpage about "login.defs" in "util-
-linux" package at all. (I found before that there appears to be a huge, 
-big mess about some things in "util-linux", some in "shadow" and some in 
-both).
+I knew it has a *huge* amount of fine-grained controls, but I did not 
+know off hand whether I can also specify what environment variables to 
+take over, thank you for telling me. I think I will go that route. I 
+intend to make sudo -i / sudo -s just always give SSH agent environment 
+variables to the "root" shell on my laptop.
 
-http://man7.org/linux/man-pages/man5/login.defs.5.html
-
-http://man7.org/linux/man-pages/man1/su.1.html
-
-And it does not say why it would be a bad idea to just use it. Also the 
-manpage does not say anything bad about using "su" without login shell 
-mode.
-
-So what is up here from upstream point of view?
-
-Why would "su" without initializing environment be a "bad" idea? And how 
-else to implement a backup script with access to SSH agent in the 
-"proper" way?
-
-Now all the fuss might be difficult for you to understand since other 
-distributions use su from util-linux for a long time already. But for me 
-there are currently really quite some question marks about what to use, 
-what not to use and most importantly *why* to do so. There is quite some 
-confusion. Debian used "su" from "shadow" package since… ages.
-
-I may share some of your insights with the Debian bug report I 
-mentioned, to help the maintainer to improve the wording that explains 
-the change.
+However I likely do that when I feel like it. Its holiday time for me 
+currently. And I do feel comfortable enough with using the 
+"ALWAYS_SET_PATH" option on my laptop for now.
 
 Thanks,
 -- 
