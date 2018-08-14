@@ -1,35 +1,32 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:44120 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727748AbeHLPei (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 12 Aug 2018 11:34:38 -0400
-Received: by mail-wr1-f67.google.com with SMTP id r16-v6so11954832wrt.11
-        for <util-linux@vger.kernel.org>; Sun, 12 Aug 2018 05:56:38 -0700 (PDT)
-From: Sami Kerola <kerolasa@iki.fi>
+Received: from mailrelay4.webfaction.com ([185.20.51.6]:56942 "EHLO
+        mailrelay4.webfaction.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729955AbeHNQFk (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Aug 2018 12:05:40 -0400
+Received: from mailrelay3.webfaction.com (mailrelay3.webfaction.com [207.38.93.110])
+        by mailrelay4.webfaction.com (Postfix) with ESMTPS id 721981204B4
+        for <util-linux@vger.kernel.org>; Tue, 14 Aug 2018 13:18:31 +0000 (UTC)
+Received: from mailrelay1.webfaction.com (mailrelay1.webfaction.com [207.38.86.46])
+        by mailrelay3.webfaction.com (Postfix) with ESMTPS id 012642836CB
+        for <util-linux@vger.kernel.org>; Tue, 14 Aug 2018 13:18:30 +0000 (UTC)
+Received: from smtp.webfaction.com (mail6.webfaction.com [31.170.123.134])
+        by mailrelay1.webfaction.com (Postfix) with ESMTPS id 358F01A0B9D
+        for <util-linux@vger.kernel.org>; Tue, 14 Aug 2018 13:18:29 +0000 (UTC)
+Received: from [192.168.1.11] (75-131-195-24.dhcp.gwnt.ga.charter.com [75.131.195.24])
+        by smtp.webfaction.com (Postfix) with ESMTPSA id 28B286118C495
+        for <util-linux@vger.kernel.org>; Tue, 14 Aug 2018 13:18:24 +0000 (UTC)
 To: util-linux@vger.kernel.org
-Cc: Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] fstrim: use long options in systemd service file
-Date: Sun, 12 Aug 2018 13:56:33 +0100
-Message-Id: <20180812125633.885-1-kerolasa@iki.fi>
+From: Edward Diener <eldlistmailingz@tropicsoft.com>
+Subject: Using libmount to track mount/umount
+Message-ID: <62d391f1-3fd7-1acc-b57e-103a4bbd5244@tropicsoft.com>
+Date: Tue, 14 Aug 2018 09:18:26 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Long options are more user friendly.
+I would like to use the libmount library to track end-user mount/umount 
+commands. My first question regards the use of the monitor. What is the 
+difference between userspace monitoring and kernel VFS monitoring ?
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/fstrim.service.in | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/sys-utils/fstrim.service.in b/sys-utils/fstrim.service.in
-index d70367eea..04b1b460b 100644
---- a/sys-utils/fstrim.service.in
-+++ b/sys-utils/fstrim.service.in
-@@ -3,4 +3,4 @@ Description=Discard unused blocks on filesystems from /etc/fstab
- 
- [Service]
- Type=oneshot
--ExecStart=@sbindir@/fstrim -Av
-+ExecStart=@sbindir@/fstrim --fstab --verbose
--- 
-2.18.0
+Edward Diener
