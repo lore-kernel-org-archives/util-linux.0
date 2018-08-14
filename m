@@ -1,52 +1,55 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:40552 "EHLO mx1.redhat.com"
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:44054 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1732251AbeHCMmX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 3 Aug 2018 08:42:23 -0400
-Date: Fri, 3 Aug 2018 12:46:34 +0200
+        id S1728272AbeHNMTX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 14 Aug 2018 08:19:23 -0400
+Date: Tue, 14 Aug 2018 11:32:57 +0200
 From: Karel Zak <kzak@redhat.com>
-To: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: Sami Kerola <kerolasa@iki.fi>,
-        Bernhard Voelker <mail@bernhard-voelker.de>,
-        util-linux@vger.kernel.org, Michael Cree <mcree@orcon.net.nz>
-Subject: Re: Debian has not dropped alpha - was: Re: [PATCH] hwclock: stop
- supporting alpha cpu architecture
-Message-ID: <20180803104634.xweogydpjklaece7@ws.net.home>
-References: <7ad8126b-cc76-c341-d1c5-d9461f9c1f5f@physik.fu-berlin.de>
+To: Bernhard Voelker <mail@bernhard-voelker.de>
+Cc: Bruce Dubbs <bruce.dubbs@gmail.com>, util-linux@vger.kernel.org
+Subject: Re: su(1) --whitelist-environment
+Message-ID: <20180814093257.nglcor4c3jagjyxv@ws.net.home>
+References: <20180810092401.inc32ady3eidzyjo@ws.net.home>
+ <a745a526-dbc9-ce04-ec4b-8e46d07b8774@gmail.com>
+ <745f75b6-d849-a519-7855-9de62d999e06@bernhard-voelker.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <7ad8126b-cc76-c341-d1c5-d9461f9c1f5f@physik.fu-berlin.de>
+In-Reply-To: <745f75b6-d849-a519-7855-9de62d999e06@bernhard-voelker.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sat, Jul 28, 2018 at 01:01:45PM +0200, John Paul Adrian Glaubitz wrote:
-> Hello!
-> 
-> I was just pointed towards this mail and wanted to give a quick
-> heads up! The original claim in the first mail is not accurate.
-> 
-> While Debian has stopped supporting alpha **officially**, we are
-> still supporting alpha in Debian Ports. In fact, Debian has more
-> stable and working ports than Gentoo with many of them team-maintained
-> by the Debian Ports team.
-> 
-> For an overview of the currently supported targets, see:
-> 
-> > https://buildd.debian.org/status/package.php?p=base-files&suite=sid
-> 
-> All architectures build the vast majority of packages without problems
-> and alpha is actually one of the healhiest ports with over 90% of
-> all packages being built:
-> 
-> > https://buildd.debian.org/stats/graph-ports-big.png
-> 
-> Please do not drop support for alpha in util-linux.
+On Mon, Aug 13, 2018 at 10:57:01PM +0200, Bernhard Voelker wrote:
+> On 08/10/2018 11:06 PM, Bruce Dubbs wrote:
+> > I think it is unnecessary.  su itself does not need the environment 
+> > variable.  If a user needs a specific setting, then set it in a script:
+> > 
+> > su --command myscript
 
-This is misunderstanding. It's mostly about Alpha specific RTC stuff
-like RTC_EPOCH_* ioctls rather than about Alpha as architecture.
+The important is to say that reset environment is good, expected and
+wanted thing. You want to have full control on environment in many
+cases.
 
-I have reviewed the patch and it seems Sami is wrong. The current
-kernel still supports these ioctls. So, NACK from my point of view.
+> I'm 50:50.  The point was to pass in variables values per environment
+> to a process inside 'su' (or 'sudo'), and one can achieve that with e.g.
+
+BTW, sudo has env_check, env_delete, or env_keep to control environment
+in the sudoers.
+
+>   $ su -c 'env VAR="val" myscript' user
+> 
+> Well, this might become slightly trickier with real shell or environment
+> variables wrt/ correct shell quoting:
+> 
+>   $ VAR='some value'
+>   $ su -c 'env VAR="'"$VAR"'" myscript' user
+
+Well, probably usable way for scripts, but ugly for users on command line.
+
+All the idea behind the patch is make things more user-friendly
+
+    su -w GREP_COLOR,COLORFGBG - kzak
+
+seems better than assume -c 'env VAR ..."
 
     Karel
 
