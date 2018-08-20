@@ -1,74 +1,68 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:39121 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726971AbeHHQMr (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 8 Aug 2018 12:12:47 -0400
-Received: by mail-wm0-f67.google.com with SMTP id q8-v6so2859185wmq.4
-        for <util-linux@vger.kernel.org>; Wed, 08 Aug 2018 06:53:00 -0700 (PDT)
-Date: Wed, 8 Aug 2018 15:52:58 +0200
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: "Michael Kerrisk (man-opages)" <mtk.manpages@gmail.com>
-Cc: Jan Kara <jack@suse.cz>, Karel Zak <kzak@redhat.com>,
-        Steve Kenton <skenton@ou.edu>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/1] Update mount options for UDF
-Message-ID: <20180808135258.ttcw5bmesiwuihvr@pali>
-References: <20180227184407.5945-1-skenton@ou.edu>
- <20180228130828.j3wbez6pzzzeknuc@ws.net.home>
- <20180228133220.3rmkcqnk6giry4bk@quack2.suse.cz>
- <20180228220319.ccosidfzrdlowwqu@pali>
- <b550e4cc-4a5e-72c3-a4db-85913769e97f@gmail.com>
- <20180506111527.xfzvxf2d4chajgyt@pali>
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:45532 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725948AbeHTMBh (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 20 Aug 2018 08:01:37 -0400
+Date: Mon, 20 Aug 2018 10:46:50 +0200
+From: Karel Zak <kzak@redhat.com>
+To: =?iso-8859-1?Q?Asbj=F8rn_Sloth_T=F8nnesen?= <asbjorn@asbjorn.st>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/2] script: add input log feature
+Message-ID: <20180820084650.xpit6acizkqt56qs@ws.net.home>
+References: <20180819171658.20285-1-asbjorn@asbjorn.st>
+ <20180819171658.20285-2-asbjorn@asbjorn.st>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <20180506111527.xfzvxf2d4chajgyt@pali>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20180819171658.20285-2-asbjorn@asbjorn.st>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sunday 06 May 2018 13:15:27 Pali Roh√°r wrote:
-> On Sunday 06 May 2018 12:35:02 Michael Kerrisk (man-opages) wrote:
-> > On 02/28/2018 11:03 PM, Pali Roh√°r wrote:
-> > > On Wednesday 28 February 2018 14:32:20 Jan Kara wrote:
-> > > > On Wed 28-02-18 14:08:28, Karel Zak wrote:
-> > > > > On Tue, Feb 27, 2018 at 12:44:07PM -0600, Steve Kenton wrote:
-> > > > > > Signed-off-by: Steve Kenton <skenton@ou.edu>
-> > > > > > Acked-by: Jan Kara <jack@suse.cz>
-> > > > > > ---
-> > > > > >   sys-utils/mount.8 | 89 +++++++++++++++++++++++++++++++++++++++++--------------
-> > > > > >   1 file changed, 67 insertions(+), 22 deletions(-)
-> > > > > 
-> > > > > Applied, thanks.
-> > > > > 
-> > > > > Jan, what about to create udf(5) man page? We already have fs-specific
-> > > > > man pages (e.g. ext4, tmpfs, nfs, btrfs, ...). It's usually maintained
-> > > > > within fs-specific tools (e.g. ext4 -> e2fsprogs) or together with
-> > > > > standard man-pages (CC: to Michael).
-> > > > 
-> > > > I'm fine with that. Pali is actually the maintainer of udf-tools so if he
-> > > > is willing to take the manpage there, it's probably the best place.
-> > > 
-> > > Is udftools the best place for kernel udf mount options? Because
-> > > userspace udftools are not needed for kernel udf driver, nor for
-> > > mounting existing udf filesystem.
-> > > 
-> > > For me it looks like that kernel drivers should have its documentation
-> > > in kernel itself...
-> > 
-> > [way late to the party...]
-> > 
-> > Or, better, in a man page that describes the kernel interface :-).
-> > Many other filesystems have by now Section 5 pages in the man-pages package
-> > that I maintain. A udf(5) page that describes the mount options that the
-> > kernel supports for UDF would be best, and I think best lives inside
-> > "man-pages" because it is kernel interface stuff.
+On Sun, Aug 19, 2018 at 05:16:58PM +0000, Asbj¯rn Sloth T¯nnesen wrote:
+> When script is used to log usage of shell accounts, accessible by
+> random users (some of whom might be malicious).
 > 
-> Ok, that sounds good.
-> 
-> > Or, did such a page already land in udf-tools?
-> 
-> No, there is no such manpage.
+> This patch adds a new --input-log option, which makes script save
+> the input data to a file, in an extended timing format also containing
+> the data, thereby allowing the input to be reconstructed.
 
-Karel, Michael, has something happened here?
+I like the feature, but not sure if we really need to introduce a new
+log format specific to the input stream.
+
+For long time I think about a new timing file format. Maybe we can add
+support for new timing file format where will be possible log
+information about more streams (stdin and stdout) and events (for
+example signals). In this case we can for stdin use the same concept
+like for stdout -- it means raw file with data. The final result will
+be three files:
+
+ - stdout (raw, without formatting)
+ - stdin  (raw, without formatting)
+ - timing (<type> <timestampts> [<offset> , misc...])
+
+where 
+  type         = S, I or O  (signal, input or output)
+  timestampts  = timing info
+ 
+  type specific information:
+     offset = offset in bytes to the log (stream) file (O or I  type)
+     signal = signal name for S type
+     ..etc.
+
+It would be also nice to have info about version, format in the
+timing file header.
+
+And new options like:
+
+   --timing-format <classic,new>
+   --recording <stdin,stdout,signals,...>
+   --stdout-log <filename>
+   --stdin-log <filename>
+
+The default should be backwardly compatible (old format, stdout-only, etc.)
+
+ Karel
+
 
 -- 
-Pali Roh√°r
-pali.rohar@gmail.com
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
