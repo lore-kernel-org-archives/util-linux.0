@@ -1,43 +1,34 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from imap.thunk.org ([74.207.234.97]:41568 "EHLO imap.thunk.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726901AbeHFPad (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 6 Aug 2018 11:30:33 -0400
-Date: Mon, 6 Aug 2018 09:21:23 -0400
-From: "Theodore Y. Ts'o" <tytso@mit.edu>
-To: Martin Steigerwald <martin@lichtvoll.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: =?iso-8859-1?Q?Debian=B4?= =?iso-8859-1?Q?s?= change of "su" to
- the one in util-linux
-Message-ID: <20180806132123.GA6184@thunk.org>
-References: <1734536.DseMWcvaqb@merkaba>
- <20180805150557.GC26138@thunk.org>
- <1642971.4ZBaquOb5i@merkaba>
+Received: from ishtar.tlinx.org ([173.164.175.65]:32824 "EHLO
+        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726809AbeH0JMP (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 27 Aug 2018 05:12:15 -0400
+Received: from [192.168.3.12] (Athenae [192.168.3.12])
+        by Ishtar.sc.tlinx.org (8.14.7/8.14.4/SuSE Linux 0.8) with ESMTP id w7R5R9vF099201
+        for <util-linux@vger.kernel.org>; Sun, 26 Aug 2018 22:27:11 -0700
+Message-ID: <5B838BAE.1010706@tlinx.org>
+Date: Sun, 26 Aug 2018 22:27:10 -0700
+From: L A Walsh <lkml@tlinx.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1642971.4ZBaquOb5i@merkaba>
+To: util-linux@vger.kernel.org
+Subject: why do I get this:/bin/findmnt.suse: /lib64/libsmartcols.so.1: version
+ `SMARTCOLS_2.25' not found (required by /bin/findmnt.suse)
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Aug 06, 2018 at 10:24:43AM +0200, Martin Steigerwald wrote:
-> 
-> Thank you, Ted. This is the best explanation I saw so far. I accept it 
-> for default.
->
+when smartcols.sym has a whole section with 2.25 syms in it.
 
-An interesting question to consider is where would be the best place
-to put this kind of information.  I learned it very on in my career,
-and what is "obvious" to one person can be "obscure lore" to another.
+What is the point of embedding mixing symbols with versions if they 
+don't work?
+I.e. the 2.25 version of the symbols is in the lib, but findmnt linked 
+against 2.25 doesn't work cuz it can't access that specific label. 
+(sources from
+2.32.1).  
 
-It's probably too much tutorial information for the su man page, but
-some kind of "system administrators tutorial/guide/handbook" might be
-a great place for this kind of "so you want to create system
-administration scripts as root --- what are best practices for
-security/robustness/etc.".  For Debian systems, maybe contributing
-something to The Debian Administrator's Handbook, at
-https://debian-handbook.info?
+I don't understand why the symbols are versioned in a library that 
+doesn't appear to have anything other than a normal symbol table.
 
-I'm not sure what's the best place for Fedora/RedHat/Ubuntu system
-administrators.
-
-					- Ted
+So why are these symbols versioned if they don't work?  They seem to 
+prevent earlier versions of programs from working with later libs even 
+though they are compatible.
