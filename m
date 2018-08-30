@@ -1,79 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:48682 "EHLO mx1.redhat.com"
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:47918 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727089AbeH3NVc (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 30 Aug 2018 09:21:32 -0400
-Date: Thu, 30 Aug 2018 11:20:17 +0200
+        id S1727238AbeH3MrE (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 30 Aug 2018 08:47:04 -0400
+Date: Thu, 30 Aug 2018 10:45:56 +0200
 From: Karel Zak <kzak@redhat.com>
 To: L A Walsh <lkml@tlinx.org>
 Cc: util-linux@vger.kernel.org
-Subject: Re: why do I get this:/bin/findmnt.suse: /lib64/libsmartcols.so.1:
- version `SMARTCOLS_2.25' not found (required by /bin/findmnt.suse)
-Message-ID: <20180830092017.lohro7xazv4fmie5@ws.net.home>
-References: <5B838BAE.1010706@tlinx.org>
+Subject: Re: RFD: --enable-bindir-path ?
+Message-ID: <20180830084556.ubvu5e5qhzih5fng@ws.net.home>
+References: <5B82E969.6090409@tlinx.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5B838BAE.1010706@tlinx.org>
+In-Reply-To: <5B82E969.6090409@tlinx.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Sun, Aug 26, 2018 at 10:27:10PM -0700, L A Walsh wrote:
-> when smartcols.sym has a whole section with 2.25 syms in it.
-> 
-> What is the point of embedding mixing symbols with versions if they don't
-> work?
+On Sun, Aug 26, 2018 at 10:54:49AM -0700, L A Walsh wrote:
+> Was wondering about the addition of an "enable-bindir-path" which would only
+> use
+> paths with /bin instead of /usr/bin for setups where /usr/bin -> /bin (like
+> cygwin who mounts /bin and /lib on /usr/bin and /usr/lib -- using mounts
+> instead of symlinks).  The've had that since the beginning with nothing
+> being
+> installed in /usr/bin or /usr/lib.
 
-?
+So for this use-case /usr should be ignored at all, right? What about PATH
+setting? Is it also without /usr? What about man pages, docs?
 
-> I.e. the 2.25 version of the symbols is in the lib, but findmnt linked
-> against 2.25 doesn't work cuz it can't access that specific label. (sources
-> from
-> 2.32.1).
+I have nothing against this feature, but question is if it's important
+enough to implement and support it ;-)
 
-Not sure if I understand. findmnt with symbols from 2.25 will work
-with library from 2.32 as the library provides all previous versions
-too.
+> Was also wondering why that wasn't chosen as a default for merging, since
+> /bin and /lib are almost always on the root file system so they are always
+> there, versus /usr/{bin,lib{,64}} which may need to be mounted before it can
+> be used...if it can't be mounted, having things in /bin & /lib pointed
+> to /usr won't work so well.
 
-For example:
+I think originally /usr was also on the same FS as /{bin,lib,...}.
 
- LD_LIBRARY_PATH=/home/projects/util-linux/util-linux/.libs/ /usr/bin/findmnt
+Anyway, now this no issue as we use initram images where is all
+stuff that is necessary to assemble usable hierarchy of filesystems
+(including RAIDs, NFS moutpoints, etc.)
 
-allows me to run old findmnt 2.30.2 (fedora 27) against library from
-current git tree (v2.33).
-
-
-> I don't understand why the symbols are versioned in a library that doesn't
-> appear to have anything other than a normal symbol table.
-
-* list of symbols defines the library API. It's better to have
-  explicit list in the .sym file than depend on static/extern keywords
-  in the code.
-
-* symbols versioning is fine grained solution. The library does not need to 
-  change library soname version; symbols versioning provides the same 
-  functionality on symbols level.
-
-* library is ready for future incompatible changes
-
-* versioned symbols allow to create explicit dependence between binary
-  and library. This is used for example by distribution packaging
-  systems (e.g. rpm) where package with binary requires specific
-  symbols and package with library provides the symbols. It's better
-  than dependence on library soname.
-
-* binary with new symbols will not executed against library with old
-  symbols only.
-
-> So why are these symbols versioned if they don't work?  They seem to prevent
-> earlier versions of programs from working with later libs even though they
-> are compatible.
-
-It's not true if the library provides old versions too.
-
-See excellent Ulrich's shared library howto for more details (chapter 3.3):
-https://software.intel.com/sites/default/files/m/a/1/e/dsohowto.pdf
-
-   Karel
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
