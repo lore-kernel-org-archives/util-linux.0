@@ -1,66 +1,80 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.bitmessage.ch ([146.228.112.252]:56947 "EHLO
-        mail.bitmessage.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726326AbeHSABI (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 18 Aug 2018 20:01:08 -0400
-Date: Sat, 18 Aug 2018 21:21:40 +0100
-From: =?utf-8?B?Sm/Do28=?= Miguel <jmcf125@bitmessage.ch>
-To: util-linux@vger.kernel.org
-Subject: Suggestion for new multi-mount option
-Message-ID: <20180818202140.GE4715@jmcf125-Acer-GNU-Linux.home>
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:48682 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727089AbeH3NVc (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 30 Aug 2018 09:21:32 -0400
+Date: Thu, 30 Aug 2018 11:20:17 +0200
+From: Karel Zak <kzak@redhat.com>
+To: L A Walsh <lkml@tlinx.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: why do I get this:/bin/findmnt.suse: /lib64/libsmartcols.so.1:
+ version `SMARTCOLS_2.25' not found (required by /bin/findmnt.suse)
+Message-ID: <20180830092017.lohro7xazv4fmie5@ws.net.home>
+References: <5B838BAE.1010706@tlinx.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5B838BAE.1010706@tlinx.org>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi there,
+On Sun, Aug 26, 2018 at 10:27:10PM -0700, L A Walsh wrote:
+> when smartcols.sym has a whole section with 2.25 syms in it.
+> 
+> What is the point of embedding mixing symbols with versions if they don't
+> work?
 
-First, some background: recently I've setup a few (too many) hard-drive
-backups and new systems with LVM, lots of partitions and weird options
-I'd put in the respective /etc/fstab. I don't want to write all that
-shit every time I want to mount a system in /mnt/something, I wanted
-«mount» to read my fstab, but although it has the «--fstab» option, it
-doesn't allow me to mount anywhere but in /.
+?
 
-So I'm not sure if this is welcome here, but I don't really know C to
-make the suggestion a patch, although it seems simple enough. Here's a
-script, let's call it mount-relative:
+> I.e. the 2.25 version of the symbols is in the lib, but findmnt linked
+> against 2.25 doesn't work cuz it can't access that specific label. (sources
+> from
+> 2.32.1).
 
-#!/bin/bash
-_dev="$1"
-_mnt="$2"
-_tmp="$(mktemp /tmp/fstab-XXXXX)"
-mount -v "$1" "$2"
-grep -Ev '(^#|swap|^$)' "$_mnt/etc/fstab" \
-   | sed -E -e 's#\s+([^\s]+)# '"$_mnt"'\1#' \
-            -e 's/(noauto,|,noauto|noauto)//g' \
-   | cat >"$_tmp"
-mount -av --fstab "$_tmp"
-rm -vi "$_tmp"
+Not sure if I understand. findmnt with symbols from 2.25 will work
+with library from 2.32 as the library provides all previous versions
+too.
 
-(Note: I'm filtering «noauto» in a dumb way because I'm lazy and it's a
-simple script)
+For example:
 
-As I've been using:
+ LD_LIBRARY_PATH=/home/projects/util-linux/util-linux/.libs/ /usr/bin/findmnt
 
-   mount-relative /dev/something /mnt/somewhere
-
-I think it would be useful for it to be doable with «mount» as:
-
-   mount --relative-root /dev/something /mnt/somewhere
-
-Or at least:
-
-   mount /dev/something /mnt/somewhere
-   mount -a --fstab /mnt/somewhere/etc/fstab --relative /mnt/somewhere
+allows me to run old findmnt 2.30.2 (fedora 27) against library from
+current git tree (v2.33).
 
 
-Maybe also a «--ignore-noauto», as using «-o auto» in the script doesn't
-seem to work (probably because «-o» is not made for usage with «--fstab»
-and «-a»).
+> I don't understand why the symbols are versioned in a library that doesn't
+> appear to have anything other than a normal symbol table.
 
-In case you don't consider this a good option for mount, well, have the
-script, it has been very useful to me.
+* list of symbols defines the library API. It's better to have
+  explicit list in the .sym file than depend on static/extern keywords
+  in the code.
 
-Best regards,
-João Miguel
+* symbols versioning is fine grained solution. The library does not need to 
+  change library soname version; symbols versioning provides the same 
+  functionality on symbols level.
+
+* library is ready for future incompatible changes
+
+* versioned symbols allow to create explicit dependence between binary
+  and library. This is used for example by distribution packaging
+  systems (e.g. rpm) where package with binary requires specific
+  symbols and package with library provides the symbols. It's better
+  than dependence on library soname.
+
+* binary with new symbols will not executed against library with old
+  symbols only.
+
+> So why are these symbols versioned if they don't work?  They seem to prevent
+> earlier versions of programs from working with later libs even though they
+> are compatible.
+
+It's not true if the library provides old versions too.
+
+See excellent Ulrich's shared library howto for more details (chapter 3.3):
+https://software.intel.com/sites/default/files/m/a/1/e/dsohowto.pdf
+
+   Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
