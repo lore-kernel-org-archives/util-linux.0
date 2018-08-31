@@ -1,61 +1,95 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:51315 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725806AbeIZErQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 26 Sep 2018 00:47:16 -0400
-Received: from adsiz.fritz.box ([95.90.40.253]) by mail.gmx.com (mrgmx102
- [212.227.17.168]) with ESMTPSA (Nemesis) id 0LoKHN-1fY33D0gC9-00gF0Q for
- <util-linux@vger.kernel.org>; Wed, 26 Sep 2018 00:37:30 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/2] libfdisk: fix OSX compiler warning
-Date: Wed, 26 Sep 2018 00:37:28 +0200
-Message-Id: <20180925223729.28934-2-sweet_f_a@gmx.de>
-In-Reply-To: <20180925223729.28934-1-sweet_f_a@gmx.de>
-References: <20180925223729.28934-1-sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Return-Path: lkml@tlinx.org
+Message-ID: <5B89C74D.8030701@tlinx.org>
+Date: Fri, 31 Aug 2018 15:55:09 -0700
+From: L A Walsh <lkml@tlinx.org>
+MIME-Version: 1.0
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: RFD: --enable-bindir-path ?
+References: <5B82E969.6090409@tlinx.org> <20180830084556.ubvu5e5qhzih5fng@ws.net.home>
+In-Reply-To: <20180830084556.ubvu5e5qhzih5fng@ws.net.home>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+Karel Zak wrote:
+> On Sun, Aug 26, 2018 at 10:54:49AM -0700, L A Walsh wrote:
+>   
+>> Was wondering about the addition of an "enable-bindir-path" which would only
+>> use
+>> paths with /bin instead of /usr/bin for setups where /usr/bin -> /bin (like
+>> cygwin who mounts /bin and /lib on /usr/bin and /usr/lib -- using mounts
+>> instead of symlinks).  The've had that since the beginning with nothing
+>> being
+>> installed in /usr/bin or /usr/lib.
+>>     
+>
+> So for this use-case /usr should be ignored at all, right? What about PATH
+> setting? Is it also without /usr? What about man pages, docs?
+>   
+----
+    The use case for enable-usrdir-path is for cases where /bin->/usr/bin
+/lib->/usr/lib, /lib64->/usr/lib, sbin->/usr/sbin,
 
-libfdisk/src/context.c:1354:54: error: unused parameter 'cxt' [-Werror,-Wunused-parameter]
-const char *fdisk_get_devmodel(struct fdisk_context *cxt)
+conversely, the opposite would be where bin are in /bin and /usr/bin is
+a symlink to /bin, and same for the libdirs and sbin.
 
-Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+    There is nothing in switch description about /doc, or /man being mounted
+on /usr/<equiv>, so why would one move those around? 
+> I have nothing against this feature, but question is if it's important
+> enough to implement and support it ;-)
+>   
 ---
- libfdisk/src/context.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+    Well the sbin dirs are separate in cygwin, but /usr/bin is copy /bin
+same for the lib dir.  It's really not that much to implement.  Only thing
+it means is that if /usr is a separate partition, then during boot,
+all your files in /bin, lib, lib64/ sbin...will be on the root, while and
+boot can continue.  While if all the libs+binaries are /usr, it's hard to
+mount.  So the use case is ensuring the system will boot?
+>   
+>> Was also wondering why that wasn't chosen as a default for merging, since
+>> /bin and /lib are almost always on the root file system so they are always
+>> there, versus /usr/{bin,lib{,64}} which may need to be mounted before it can
+>> be used...if it can't be mounted, having things in /bin & /lib pointed
+>> to /usr won't work so well.
+>>     
+>
+> I think originally /usr was also on the same FS as /{bin,lib,...}.
+>   
+----
+    Depends on what you mean by "originally", but back before linux,
+originally there was no /usr, it came later for /usr files and home
+dirs.  On it were application binaries for users, but binaries that were
+not required for boot.
 
-diff --git a/libfdisk/src/context.c b/libfdisk/src/context.c
-index ad5f99de4..18ebeba18 100644
---- a/libfdisk/src/context.c
-+++ b/libfdisk/src/context.c
-@@ -1351,9 +1351,9 @@ dev_t fdisk_get_devno(struct fdisk_context *cxt)
-  *
-  * Returns: device model string or NULL.
-  */
-+#ifdef __linux__
- const char *fdisk_get_devmodel(struct fdisk_context *cxt)
- {
--#ifdef __linux__
- 	assert(cxt);
- 
- 	if (cxt->dev_model_probed)
-@@ -1369,11 +1369,13 @@ const char *fdisk_get_devmodel(struct fdisk_context *cxt)
- 	}
- 	cxt->dev_model_probed = 1;
- 	return cxt->dev_model;
-+}
- #else
-+const char *fdisk_get_devmodel(struct fdisk_context *cxt __attribute__((__unused__)))
-+{
- 	return NULL;
--#endif
--
- }
-+#endif
- 
- /**
-  * fdisk_get_devfd:
--- 
-2.13.7
+
+> Anyway, now this no issue as we use initram images where is all
+> stuff that is necessary to assemble usable hierarchy of filesystems
+> (including RAIDs, NFS moutpoints, etc.)
+>
+>     Karel
+>   
+----
+    Who is this 'we' kimosami? ;^)
+
+    Not me, nor anyone following the systemd recommendations for boot
+speed.  My kernel is on a disk partition named 'boot' and it transfers
+control to the 'root' partition that brings up HW, disks and network.
+After that the rest of the system is brought up.
+
+    Everything worked well until libs needed for 'mount' started appearing
+on /usr.  If you had everything on a ram disk that was needed for boot,
+but then the libs for some of the programs were out on the hard disk,
+the ram disk would have a hard time proceeding as well. 
+
+I don't have a different or separate /usr/{{s,}bin,lib{,64}} on a ram 
+disk as
+exists on my my hard disk, and /usr is usually too large for a
+ram disk image.  So now how would one know when another part
+of some boot program had been split off and put out on the disk /usr/lib?
+Hopefully not by waiting until  it fails because at that point
+it's a bit too late.
+
+Does that answer your questions?
+
+Cheers!
+-Linda
