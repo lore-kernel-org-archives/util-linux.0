@@ -1,80 +1,70 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:39784 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727610AbeI2PIS (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 29 Sep 2018 11:08:18 -0400
-Date: Sat, 29 Sep 2018 10:40:38 +0200
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Karel Zak <kzak@redhat.com>, Andreas Bombe <aeb@debian.org>,
-        Andreas Bombe <andreas.bombe@gmail.com>
-Subject: Future of dosfstools project (FAT)
-Message-ID: <20180929084038.an6pfhnsd6tblejl@pali>
+Received: from ishtar.tlinx.org ([173.164.175.65]:34420 "EHLO
+        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727078AbeITTI2 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 20 Sep 2018 15:08:28 -0400
+Received: from [192.168.3.12] (Athenae [192.168.3.12])
+        by Ishtar.sc.tlinx.org (8.14.7/8.14.4/SuSE Linux 0.8) with ESMTP id w8KDOtLA075403
+        for <util-linux@vger.kernel.org>; Thu, 20 Sep 2018 06:24:57 -0700
+Message-ID: <5BA39FA7.3070504@tlinx.org>
+Date: Thu, 20 Sep 2018 06:24:55 -0700
+From: L A Walsh <lkml@tlinx.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="bhtqwubaqu7r5vc7"
+To: util-linux@vger.kernel.org
+Subject: question about lsns.
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+I came across lsns and decided to see what ns's it might list on my
+system.
 
---bhtqwubaqu7r5vc7
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+as my self,
+>  lsns
+        NS TYPE   NPROCS   PID USER COMMAND
+4026531835 cgroup     21 22959 law  gvim prelink_dependencies
+4026531836 pid        21 22959 law  gvim prelink_dependencies
+4026531837 user       21 22959 law  gvim prelink_dependencies
+4026531838 uts        21 22959 law  gvim prelink_dependencies
+4026531839 ipc        21 22959 law  gvim prelink_dependencies
+4026531840 mnt        21 22959 law  gvim prelink_dependencies
+4026531992 net        21 22959 law  gvim prelink_dependencies
 
-Hi!
+and as root:
 
-Last year I did some research how Windows and Linux tools handle FAT
-labels (boot sector vs root directory) and proposed some unification.
-More in thread: https://www.spinics.net/lists/kernel/msg2640891.html
+# lsns
+        NS TYPE   NPROCS PID USER COMMAND
+4026531835 cgroup    429   1 root init [3]        
+4026531836 pid       429   1 root init [3]        
+4026531837 user      429   1 root init [3]        
+4026531838 uts       429   1 root init [3]        
+4026531839 ipc       429   1 root init [3]        
+4026531840 mnt       428   1 root init [3]        
+4026531860 mnt         1  82 root kdevtmpfs
+4026531992 net       429   1 root init [3]
 
-My proposed change for manipulating with FAT labels is now implemented
-in util-linux v2.33, prepared new mtools version, and also in dosfstools
-git (unreleased) https://www.spinics.net/lists/kernel/msg2645732.html
+-----------------
 
-Project dosfstools contains de-facto standard Linux userspace tools for
-FAT filesystems (mkfs.fat, fsck.fat, fatlabel) and so it is quite
-important because of high usage of FAT.
+To me this seems a bit odd as I don't recall doing and nsenter or creation
+commands, though there may be some tucked away in some script or another.
 
-But there was no new release of dosfstools since Jan 2017 and for more
-then month I'm unsuccessfully try to contact maintainer of dosfstools
-project (Andreas) about future of project itself.
+But why these?
 
-I do not know what happened, if either Andreas do not have time or
-something else...
+a gvim editor session (I hve several files up, but don't know if they are
+all in the same ns.  It doesn't seem the lsns has a way to list what the
+other procs are in the name space (might be useful rather than going
+and looking at the hierarchy).
 
-So does somebody know what is state of dosfstools project?
+And for root....an init cmd that seems to have a nproc value rough equal
+to the number of procs running.
 
-Also there are lot of proposed changes (with patches) for this project
-https://github.com/dosfstools/dosfstools/pulls and also more reported
-bugs https://github.com/dosfstools/dosfstools/issues
+Not sure what NPROCS means...a ps -ef|grep law shows 81 procs, but weeding
+out the ones that appear to be threads, I get 35, so not sure where
+nprocs gets 21.
 
-If Andreas does not have time, can somebody else at least look at pull
-requests and do some code review?
+Is this a result of auto-grouping by the the scheduler?
+Seems odd it points at an edit session as the command that is
+in the ns and not a bash or ssh login...
 
-I have some other unpublished/unfinished changes for dosfstools, but I
-do not know now if it make sense to invest more time in this project
-when maintainer does not respond... if this project is active or going
-to be dead...
-
-If dosfstools is going to be inactive/dead, there is still mtools
-project with provides FAT tools too and maintainer of it is now
-preparing new bugfix version. So at least some alternative exists.
-
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---bhtqwubaqu7r5vc7
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCW686gAAKCRCL8Mk9A+RD
-UvXVAKCr6iGBqFh8fo/05TIjyc5wayLyFACeNWmBCWH1icwfZ6yK20IaPZpNI+k=
-=c8Sj
------END PGP SIGNATURE-----
-
---bhtqwubaqu7r5vc7--
+Thanks!
+-l
