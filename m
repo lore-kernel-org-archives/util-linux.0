@@ -1,51 +1,47 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail.asbjorn.biz ([185.38.24.25]:44596 "EHLO mail.asbjorn.biz"
+Received: from mout.gmx.net ([212.227.17.20]:33617 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726173AbeIZDCx (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 25 Sep 2018 23:02:53 -0400
-Subject: Re: [PATCH 2/2] script: add input log feature
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-References: <20180819171658.20285-1-asbjorn@asbjorn.st>
- <20180819171658.20285-2-asbjorn@asbjorn.st>
- <20180820084650.xpit6acizkqt56qs@ws.net.home>
-From: =?UTF-8?Q?Asbj=c3=b8rn_Sloth_T=c3=b8nnesen?= <asbjorn@asbjorn.st>
-Message-ID: <2502ef5d-dc46-d2d3-5449-070df0e58a37@asbjorn.st>
-Date: Tue, 25 Sep 2018 20:44:47 +0000
+        id S1726010AbeIZErR (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 26 Sep 2018 00:47:17 -0400
+Received: from adsiz.fritz.box ([95.90.40.253]) by mail.gmx.com (mrgmx102
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0LiWzQ-1fUUg21qW4-00ce6l for
+ <util-linux@vger.kernel.org>; Wed, 26 Sep 2018 00:37:30 +0200
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 2/2] libfdisk: fix printf format modifier
+Date: Wed, 26 Sep 2018 00:37:29 +0200
+Message-Id: <20180925223729.28934-3-sweet_f_a@gmx.de>
+In-Reply-To: <20180925223729.28934-1-sweet_f_a@gmx.de>
+References: <20180925223729.28934-1-sweet_f_a@gmx.de>
 MIME-Version: 1.0
-In-Reply-To: <20180820084650.xpit6acizkqt56qs@ws.net.home>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Hi Karel,
+From: Ruediger Meier <ruediger.meier@ga-group.nl>
 
-On 08/20/2018 08:46 AM, Karel Zak wrote:
-> On Sun, Aug 19, 2018 at 05:16:58PM +0000, Asbjørn Sloth Tønnesen wrote:
->> When script is used to log usage of shell accounts, accessible by
->> random users (some of whom might be malicious).
->>
->> This patch adds a new --input-log option, which makes script save
->> the input data to a file, in an extended timing format also containing
->> the data, thereby allowing the input to be reconstructed.
-> 
-> I like the feature, but not sure if we really need to introduce a new
-> log format specific to the input stream.
-> 
-> For long time I think about a new timing file format. Maybe we can add
-> support for new timing file format where will be possible log
-> information about more streams (stdin and stdout) and events (for
-> example signals).
+libfdisk/src/script.c: In function ‘fdisk_script_read_context’:
+libfdisk/src/script.c:452:33: error: format ‘%zu’ expects argument of type ‘size_t’, but argument 4 has type ‘long unsigned int’ [-Werror=format=]
+   snprintf(buf, sizeof(buf), "%zu", fdisk_get_grain_size(cxt));
+                                 ^
 
-I am working on implementing this, expect patches soon.
+Signed-off-by: Ruediger Meier <ruediger.meier@ga-group.nl>
+---
+ libfdisk/src/script.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I am implementing 2 new formats, so we will have:
-- classic - like now, with 1-2 output files
-- new - like you described, with 2-3 output files
-- combined - with a single output file
-
-I am also adding support for both new formats to scriptreplay.
-
+diff --git a/libfdisk/src/script.c b/libfdisk/src/script.c
+index 24c40f8ce..e7cf1254e 100644
+--- a/libfdisk/src/script.c
++++ b/libfdisk/src/script.c
+@@ -449,7 +449,7 @@ int fdisk_script_read_context(struct fdisk_script *dp, struct fdisk_context *cxt
+ 	if (!rc && fdisk_get_grain_size(cxt) != 2048 * 512) {
+ 		char buf[64];
+ 
+-		snprintf(buf, sizeof(buf), "%zu", fdisk_get_grain_size(cxt));
++		snprintf(buf, sizeof(buf), "%lu", fdisk_get_grain_size(cxt));
+ 		rc = fdisk_script_set_header(dp, "grain", buf);
+ 	}
+ 
 -- 
-Best regards
-Asbjørn Sloth Tønnesen
+2.13.7
