@@ -1,95 +1,596 @@
-Return-Path: lkml@tlinx.org
-Message-ID: <5B89C74D.8030701@tlinx.org>
-Date: Fri, 31 Aug 2018 15:55:09 -0700
-From: L A Walsh <lkml@tlinx.org>
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mx1.redhat.com ([209.132.183.28]:13579 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726660AbeIYQyB (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 25 Sep 2018 12:54:01 -0400
+Date: Tue, 25 Sep 2018 12:47:01 +0200
+From: Karel Zak <kzak@redhat.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.33-rc1
+Message-ID: <20180925104701.y2gwtwe2bquynap2@ws.net.home>
 MIME-Version: 1.0
-To: Karel Zak <kzak@redhat.com>
-CC: util-linux@vger.kernel.org
-Subject: Re: RFD: --enable-bindir-path ?
-References: <5B82E969.6090409@tlinx.org> <20180830084556.ubvu5e5qhzih5fng@ws.net.home>
-In-Reply-To: <20180830084556.ubvu5e5qhzih5fng@ws.net.home>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-Karel Zak wrote:
-> On Sun, Aug 26, 2018 at 10:54:49AM -0700, L A Walsh wrote:
->   
->> Was wondering about the addition of an "enable-bindir-path" which would only
->> use
->> paths with /bin instead of /usr/bin for setups where /usr/bin -> /bin (like
->> cygwin who mounts /bin and /lib on /usr/bin and /usr/lib -- using mounts
->> instead of symlinks).  The've had that since the beginning with nothing
->> being
->> installed in /usr/bin or /usr/lib.
->>     
->
-> So for this use-case /usr should be ignored at all, right? What about PATH
-> setting? Is it also without /usr? What about man pages, docs?
->   
-----
-    The use case for enable-usrdir-path is for cases where /bin->/usr/bin
-/lib->/usr/lib, /lib64->/usr/lib, sbin->/usr/sbin,
 
-conversely, the opposite would be where bin are in /bin and /usr/bin is
-a symlink to /bin, and same for the libdirs and sbin.
+The util-linux release v2.33-rc1 is available at
 
-    There is nothing in switch description about /doc, or /man being mounted
-on /usr/<equiv>, so why would one move those around? 
-> I have nothing against this feature, but question is if it's important
-> enough to implement and support it ;-)
->   
----
-    Well the sbin dirs are separate in cygwin, but /usr/bin is copy /bin
-same for the lib dir.  It's really not that much to implement.  Only thing
-it means is that if /usr is a separate partition, then during boot,
-all your files in /bin, lib, lib64/ sbin...will be on the root, while and
-boot can continue.  While if all the libs+binaries are /usr, it's hard to
-mount.  So the use case is ensuring the system will boot?
->   
->> Was also wondering why that wasn't chosen as a default for merging, since
->> /bin and /lib are almost always on the root file system so they are always
->> there, versus /usr/{bin,lib{,64}} which may need to be mounted before it can
->> be used...if it can't be mounted, having things in /bin & /lib pointed
->> to /usr won't work so well.
->>     
->
-> I think originally /usr was also on the same FS as /{bin,lib,...}.
->   
-----
-    Depends on what you mean by "originally", but back before linux,
-originally there was no /usr, it came later for /usr files and home
-dirs.  On it were application binaries for users, but binaries that were
-not required for boot.
+  http://www.kernel.org/pub/linux/utils/util-linux/v2.33/
+
+Feedback and bug reports, as always, are welcomed.
+
+  Karel
 
 
-> Anyway, now this no issue as we use initram images where is all
-> stuff that is necessary to assemble usable hierarchy of filesystems
-> (including RAIDs, NFS moutpoints, etc.)
->
->     Karel
->   
-----
-    Who is this 'we' kimosami? ;^)
 
-    Not me, nor anyone following the systemd recommendations for boot
-speed.  My kernel is on a disk partition named 'boot' and it transfers
-control to the 'root' partition that brings up HW, disks and network.
-After that the rest of the system is brought up.
+Util-linux 2.33 Release Notes
+=============================
+ 
+Release highlights
+------------------
 
-    Everything worked well until libs needed for 'mount' started appearing
-on /usr.  If you had everything on a ram disk that was needed for boot,
-but then the libs for some of the programs were out on the hard disk,
-the ram disk would have a hard time proceeding as well. 
+choom -- NEW COMMAND to adjust and display the current OOM-killer score.
 
-I don't have a different or separate /usr/{{s,}bin,lib{,64}} on a ram 
-disk as
-exists on my my hard disk, and /usr is usually too large for a
-ram disk image.  So now how would one know when another part
-of some boot program had been split off and put out on the disk /usr/lib?
-Hopefully not by waiting until  it fails because at that point
-it's a bit too late.
+The library libsmartcols has been improved to differentiate between numbers,
+booleans and strings in JSON output. The old versions uses strings everywhere.
+It's recommended to re-test your applications if you parse JSON outputs from
+util-linux tools.
 
-Does that answer your questions?
+The command fstrim(8) has been extended to trim all mounted filesystems from
+/etc/fstab (-A|--fstab). This semantic is the default for systemd
+fstrim.service now.  The original default for the service was to trim all
+(-a|--all) mounted filesystems (including for example removable media). Now it
+is also possible to test fstrim behavior by new command line option --dry-run.
 
-Cheers!
--Linda
+The command hwclock(8) provides a new command line option --delay to overwrite
+internally used delay when set clock time. The default is 0.5 (500ms) for
+rtc_cmos, for another RTC types the delay is 0. If RTC type is impossible to
+determine (from sysfs) then it defaults also to 0.5 to be backwardly
+compatible. The 500ms default is based on commonly used MC146818A-compatible
+(x86) hardware clock.
+
+The commands mount and umount, and libmount allow to mount and umount
+filesystem in another namespace. The namespace may be specified by --namespace
+<pid|path> command line option. The commands switch to the namespace when it
+reads /etc/fstab, writes /etc/mtab (or writes to /run/mount) and calls [u]mount
+system calls, otherwise it runs in the original namespace. It means that the
+target namespace does not have to contain any libraries or another requirements
+necessary to execute mount(8) or umount(8) commands.
+
+The command rename(1) provides a new command line option --interactive to ask
+before overwriting.
+
+The command setarch(8) does not require architecture when modify personality like
+ADDR_NO_RANDOMIZE. The architecture argument is optional now.
+
+The command su(1) provides a new command line option --whitelist-environment to
+protect specified variables when su(1) starts a new session.
+
+The command setpriv(1) provides a new command line option --reset-env to reset
+all environment. The another new command line option --pdeathsig allows to
+keep, clear or or set the parent death signal. Note that some LSMs, most notably
+SELinux and AppArmor, clear the signal when the process' credentials change.
+
+The commands fdisk(8) and sfdisk(8) print disk model name to simplify device
+identification.
+
+The command "column --table-empty-lines" allows to use empty lines in formatted 
+output.
+
+The command wipefs has been improved to postpone BLKRRPART (re-read partition
+table) ioctl until all magic strings are wiped. This semantic allows to avoid
+conflicts between on partition magic strings and partition tables.
+
+The command script(1) has been extended to store more information about
+terminal size and type to the typescript header. The size of the output may be
+also restricted by a new command line option --output-limit.
+
+The libblkid provides BitLocker and basic APFS detection now.
+
+The command lsblk is possible to execute against /sys and /proc dumps if command
+line option --sysroot is specified. This allows to prepare regression tests for
+lsblk.  So, if you have a complicated or unusual setup (RAIDs, pools, etc) than
+you can use
+  https://raw.githubusercontent.com/karelzak/util-linux/master/tests/ts/lsblk/mk-input.sh
+to generate the dump and send the tarball to upstream developers. (Thanks!)
+
+
+The script ./configure has been improved and --with/without command line
+options should be more consistent now. It's recommended to re-test your build
+scripts.
+
+
+Stable maintenance releases between v2.32 and v2.33
+---------------------------------------------------
+ 
+util-linux 2.32.1 [Jul 16 2018]
+ 
+ * https://www.kernel.org/pub/linux/utils/util-linux/v2.32/v2.32.1-ReleaseNotes
+   https://www.kernel.org/pub/linux/utils/util-linux/v2.32/v2.32.1-ChangeLog
+ 
+ 
+Changes between v2.32 and v2.33
+-------------------------------
+
+agetty:
+   - agetty.8 Avoid a warning about an unbreakable line  [Bjarni Ingi Gislason]
+   - keep c_iflags unmodified on --autologin  [Karel Zak]
+bash-completion:
+   - add findmnt --real --pseudo  [Karel Zak]
+   - add swapon specifiers to completion  [Sami Kerola]
+   - do not print eject --cdspeed error messages  [Sami Kerola]
+   - fix few bash set -u issues  [Sami Kerola]
+   - fix typo in blockdev file  [Sami Kerola]
+   - setpriv --securebits argument can be comma separated list  [Sami Kerola]
+   - update column  [Karel Zak]
+blkid:
+   - (man) add note about udev encoding  [Karel Zak]
+   - Encode any field which starts with LABEL in same way as LABEL field  [Pali Rohár]
+   - fix compiler warnings [-Wcast-qual]  [Karel Zak]
+blkzone:
+   - fix whole device detection  [Karel Zak]
+   - use new ul_path_* API  [Karel Zak]
+blockdev:
+   - use new ul_path_* API  [Karel Zak]
+bugfix:
+   - fix possible segfault during umount -a  [Richard Fuchs]
+build:
+   - Add missing -lintl linkage to lib{smartcols,uuid}  [Karel Zak]
+build-sys:
+   - --without-systemd disables --with-systemdsystemunitdir  [Karel Zak]
+   - add -Wdiscarded-qualifiers  [Karel Zak]
+   - add -Wno-cast-function-type for python  [Karel Zak]
+   - cleanup --with/--without help strings  [Karel Zak]
+   - default to /lib64 for ${exec_prefix}/lib64  [Karel Zak]
+   - extend "Could not locate the pkg-config" error message  [Karel Zak]
+   - fix typo in man install  [Karel Zak]
+   - improve bison version detection  [Karel Zak]
+cal:
+   - fix --span for large numbers of months  [Karel Zak]
+   - use snprintf everywhere  [Karel Zak]
+cfdisk:
+   - fix compiler warnings [-Wcast-qual]  [Karel Zak]
+   - fix compiler warnings, follow-up 7085f1e4 (#636)  [Ruediger Meier]
+   - fix missing prototype for `get_wch`  [Patrick Steinhardt]
+   - use uint64_t to avoid compiler warnings  [Karel Zak]
+chcpu:
+   - Fix maximal number of CPUs  [Stanislav Brabec]
+   - use new ul_path_* API  [Karel Zak]
+chmem:
+   - use new ul_path_* API  [Karel Zak]
+choom:
+   - fix build, remove unnecessary include  [Karel Zak]
+   - new command to adjust OOM-killer score value  [Karel Zak]
+   - set oom_score_adj before exec  [Vaclav Dolezal]
+   - use new ul_path_* API  [Karel Zak]
+closestream:
+   - remove dummy function __fpending()  [Sami Kerola]
+column:
+   - add --table-empty-lines  [Karel Zak]
+   - fix leading space characters bug  [Karel Zak]
+ctrlaltdel:
+   - use new ul_path_* API  [Karel Zak]
+dmesg:
+   - fix raw output  [Karel Zak]
+   - link together with syslog(2) manual page  [Sami Kerola]
+docs:
+   - add adjtime_config(5) man page  [Karel Zak]
+   - add cal(1) TODO items  [Karel Zak]
+   - add choom to TODO  [Karel Zak]
+   - add fdisk to TODO  [Karel Zak]
+   - add hint about script  [Karel Zak]
+   - add hwclock to TODO  [Karel Zak]
+   - add note about --disable-all-programs  [Karel Zak]
+   - add note about lsblk to TODO  [Karel Zak]
+   - add note about lsblk usage/free cols  [Karel Zak]
+   - add to column(1) TODO  [Karel Zak]
+   - cleanup TODO  [Karel Zak]
+   - remove obsolete entry from TODO  [Karel Zak]
+   - update AUTHORS file  [Karel Zak]
+   - update TODO  [Karel Zak]
+   - update TODO (libblkid)  [Karel Zak]
+   - update TODO (lsblk)  [Karel Zak]
+   - use SPDX license names  [Karel Zak]
+exec_shell:
+   - prevent ".  applet not found" error when SHELL env is not set.  [osexp2000]
+fallocate:
+   - add man page note about --collapse-range granularity  [Karel Zak]
+   - add missing semicolon  [Matti Niemenmaa]
+   - remove unwanted debug message  [Karel Zak]
+fdisk:
+   - add "Disk model " to the print output  [Karel Zak]
+   - fix compiler warning [-Wmaybe-uninitialized]  [Karel Zak]
+   - fix error message on 'd' command  [Karel Zak]
+   - fix typo in debug string  [Vaclav Dolezal]
+fincore:
+   - fincore.1 add missing space  [Jakub Wilk]
+   - use scols_column_set_json_type()  [Karel Zak]
+findmnt:
+   - add --output-all option  [Sami Kerola]
+   - use scols_column_set_json_type()  [Karel Zak]
+fstrim:
+   - Return EXIT_FAILURE when FTRIM ioctl fails  [Karel Zak]
+   - add --dry-run  [Karel Zak]
+   - add -A|--fstab to trim according to /etc/fstab  [Karel Zak]
+   - add control struct  [Karel Zak]
+   - cleanup includes  [Karel Zak]
+   - update .service to follow /etc/fstab  [Karel Zak]
+   - use -n shortcut for --dry-run  [Karel Zak]
+   - use new ul_path_* API  [Karel Zak]
+   - use new ul_path_* API, improve sysfs context usage  [Karel Zak]
+hwclock:
+   - add --delay <seconds>  [Karel Zak]
+   - fix warning  [Karel Zak]
+   - rely on kernel for RTC_UIE_ON on Aplha and Sparc  [Karel Zak]
+   - remove ntpd from man page  [Karel Zak]
+include/all-io:
+   - const cleanup  [Karel Zak]
+include/list, include/c:
+   - update and container_of()  [Karel Zak]
+include/path:
+   - make sure PATH_MAX is defined  [Karel Zak]
+include/pt-mbr.h:
+   - fix integer overflow  [Sami Kerola]
+include/strutils:
+   - remove unnecessary cast  [Karel Zak]
+ipcs:
+   - use new ul_path_* API  [Karel Zak]
+ipcs,chmem:
+   - fix access() usage  [Ruediger Meier]
+iscript:
+   - s/COLS/COLUMNS/ in start message  [Karel Zak]
+last:
+   - fix false positive compiler warning  [Sami Kerola]
+lib/canonicalize:
+   - fix truncation warning  [Sami Kerola]
+lib/color-names:
+   - const cleanup  [Karel Zak]
+lib/colors:
+   - fix compiler warnings [-Wcast-qual]  [Karel Zak]
+lib/loopdev:
+   - fix compiler warning [-Wcast-qual]  [Karel Zak]
+   - remove obsolete macro  [Karel Zak]
+   - use new ul_path_* API  [Karel Zak]
+lib/mangle:
+   - const quialifier cleanup  [Karel Zak]
+lib/pager:
+   - fix compiler warning [-Wrestrict]  [Karel Zak]
+lib/path:
+   - add more debug messages  [Karel Zak]
+   - add ul_path_get_abspath()  [Karel Zak]
+   - add ul_path_read_buffer()  [Karel Zak]
+   - add ul_prefix_fopen(), improve cpuset funcs  [Karel Zak]
+   - allow dir-path formatting  [Karel Zak]
+   - don't use extra '/'  [Karel Zak]
+   - fix read string to be backwardly compatible  [Karel Zak]
+   - improve debug message on redirect  [Karel Zak]
+   - make ul_path_read_ usable with NULL handler  [Karel Zak]
+   - new implementation  [Karel Zak]
+   - remove unused expression  [Ruediger Meier]
+   - simplify debug message  [Karel Zak]
+lib/path lib/sysfs:
+   - add debug  [Karel Zak]
+lib/strutils:
+   - fix strnlen() fallback  [Karel Zak]
+   - follow const in parse_size()  [Karel Zak]
+   - remove redundant condition  [Karel Zak]
+   - return from xstrmode()  [Karel Zak]
+lib/sysfs:
+   - add sysfs_blkdev_get_parent()  [Karel Zak]
+   - add ul_new_sysfs_path() shortcut  [Karel Zak]
+   - cleanup function names  [Karel Zak]
+   - fix sysfs_blkdev_get_wholedisk()  [Karel Zak]
+   - fix ul_path_read_string() usage  [Karel Zak]
+   - make possible to call sysfs_blkdev_deinit_path() in loop  [Karel Zak]
+   - new implementation  [Karel Zak]
+libblkid:
+   - (hfs) check allocation size  [Karel Zak]
+   - (ntfs) enlarge cluster limit to 2MB  [Karel Zak, Jean-Pierre André]
+   - (ntfs) fix cluster size check  [Karel Zak]
+   - (zfs) fix compiler warning [-Wmaybe-uninitialized]  [Karel Zak]
+   - Add more APFS checking to avoid false positives  [Harry Mallon]
+   - Add very basic APFS recognition  [Harry Mallon]
+   - Check for a secondary LUKS2 header.  [Milan Broz]
+   - add BitLocker detection  [Karel Zak]
+   - const qualifier cleanup  [Karel Zak]
+   - udf  Fix reporting UDF 2.60 revision  [Pali Rohár]
+   - use new ul_path_* API  [Karel Zak]
+   - use xstrncpy() for PT id [coverity scan]  [Karel Zak]
+   - vfat  Change parsing label in special cases  [Pali Rohár]
+libfdisk:
+   - (docs) add missing function  [Karel Zak]
+   - (docs) fix section name  [Karel Zak]
+   - Accept negative numbers for last sector input  [Awal Garg]
+   - Fix multipath partition seperators for user-friendly names  [KyleMahlkuch]
+   - accept grain script header  [Karel Zak]
+   - add fdisk_get_devmodel() and fdisk_get_devno()  [Karel Zak]
+   - count gaps to possible size when resize  [Karel Zak]
+   - fix compiler warning [-Wmaybe-uninitialized]  [Karel Zak]
+   - fix compiler warning [-Wunused-parameter]  [Karel Zak]
+   - fix compiler warnings [-Wcast-qual]  [Karel Zak]
+   - fix list_del after partition reset  [Vaclav Dolezal]
+   - improve JSON output  [Karel Zak]
+   - reduce number of asprintf() calls, check return value  [Karel Zak]
+   - use \x<hex> to read/write partition name  [Karel Zak]
+   - use new ul_path_* API  [Karel Zak]
+libmount:
+   - (mountinfo) parse empty strings in source  [Alban Crequy]
+   - (utils) fix compiler warnings [-Wcast-qual]  [Karel Zak]
+   - accept another flags on MS_REMOUNT|MS_BIND  [Karel Zak]
+   - add missing const  [Karel Zak]
+   - add since tag for new functions  [Karel Zak]
+   - add support for switching namespaces  [Vaclav Dolezal]
+   - added error MNT_ERR_NAMESPACE  [Vaclav Dolezal]
+   - cleanup const in umount code  [Karel Zak]
+   - cleanup licenses sections in the files  [Karel Zak]
+   - don't use MS_MGC_VAL magic in mount(2) syscall  [Karel Zak]
+   - fix compiler warning [-Wcast-qual]  [Karel Zak]
+   - fix compiler warning [-Wunused-parameter]  [Karel Zak]
+   - fix mnt_table_is_fs_mounted() for NFS bind mounts.  [NeilBrown]
+   - improve MS_REC usage  [Karel Zak]
+   - improve docs about mnt_context_mount() return codes  [Karel Zak]
+   - include sys/mount.h on Linux only  [Karel Zak]
+   - include sys/mount.h only if necessary  [Karel Zak]
+   - make errno usable after mnt_context_set_target_ns()  [Karel Zak]
+   - note namespaces in mnt_reset_context() docs  [Vaclav Dolezal]
+   - report context paths on debug  [Karel Zak]
+   - support for namespaces for helpers  [Vaclav Dolezal]
+   - switch namespace when appropriate  [Vaclav Dolezal]
+   - use const char in fstab parser  [Karel Zak]
+   - use const char in mountinfo parser  [Karel Zak]
+   - use const char in swaps parser  [Karel Zak]
+libsmartcols:
+   - allow to add line to table without columns  [Karel Zak]
+   - don't mark as extreme where average is zero  [Karel Zak]
+   - don't print empty column  [Karel Zak]
+   - improve JSON support (add types)  [Karel Zak]
+   - make sure boolean is true/false only  [Karel Zak]
+libuuid:
+   - add note about RFC4122 UUID layout  [Karel Zak]
+   - fix name-based UUIDs  [Karel Zak]
+logger:
+   - Define SD_JOURNAL_SUPPRESS_LOCATION.  [YmrDtnJu]
+   - add -S to the man page  [Karel Zak]
+login:
+   - use const qualifier for username from PAM or struct passwd [-Wcast-qual]  [Karel Zak]
+losetup:
+   - add --output-all option  [Sami Kerola]
+   - add reference to suffixes for --{sizelimit,offset}  [Karel Zak]
+   - fix mem leak, improve code [coverity scan]  [Karel Zak]
+   - keep -f and <devname> mutually exclusive  [Karel Zak]
+   - use scols_column_set_json_type()  [Karel Zak]
+lsblk:
+   - add --sysroot  [Karel Zak]
+   - add PATH column  [Karel Zak]
+   - add columns FSAVAIL,FSSIZE,FSUSED,FSUSE%  [Karel Zak]
+   - add lsblk.h  [Karel Zak]
+   - add note about --list -I <maj,...>  [Karel Zak]
+   - add partition table UUID and type fields.  [Milan Broz]
+   - cleanup udev/blkid properties code  [Karel Zak]
+   - consolidate column types for JSON and qsort()  [Karel Zak]
+   - differentiate between swap and mount  [Karel Zak]
+   - document --sysroot  [Karel Zak]
+   - don't ask udev when --sysroot specified  [Karel Zak]
+   - don't exclude RAM disks on --all  [Karel Zak]
+   - encapsulate stat() usage  [Karel Zak]
+   - fix COL_SCHED  [Karel Zak]
+   - fix notes about RAM disks  [Karel Zak]
+   - fix sysfs_devno_to_devname() usage  [Karel Zak]
+   - fix ul_path_read_string() usage  [Karel Zak]
+   - follow --sysroot when read mountpoints  [Karel Zak]
+   - init/deinit libmount stuff  [Karel Zak]
+   - move mount stuff to lsblk-mnt.c  [Karel Zak]
+   - move udev and blkid stuff to lsblk-properties.c  [Karel Zak]
+   - prefer MODEL from udev DB  [Karel Zak]
+   - use lsblk_ prefix mountpoint getter  [Karel Zak]
+   - use new ul_path_* API  [Karel Zak]
+   - use prefix for DM name  [Karel Zak]
+lscpu:
+   - Cortex-A12 merged into Cortex-A17  [Karel Zak]
+   - add 'Address sizes'  [Karel Zak]
+   - add --output-all option  [Sami Kerola]
+   - fix resource leak [coverity scan]  [Karel Zak]
+   - fixed part ID for ARM Cortex-M7  [Mark Sheppard]
+   - make xasprintf call more robust  [Karel Zak]
+   - use new ul_path_* API  [Karel Zak]
+   - use the first VM from /proc/sysinfo  [Karel Zak]
+lscpu, chcpu:
+   - Avoid use of the old CPU macros  [Stanislav Brabec]
+lsipc:
+   - cleanup columns[] usage  [Karel Zak]
+lslocks:
+   - add --bytes cleanup SIZE usage  [Karel Zak]
+   - add --output-all option  [Sami Kerola]
+   - add info about OFD  [Karel Zak]
+   - fix memory leak  [Karel Zak]
+   - use scols_column_set_json_type()  [Karel Zak]
+lslogins:
+   - add --output-all option  [Sami Kerola]
+   - add -o+<COLNAME> support  [Karel Zak]
+   - add PWD-METHOD column  [Karel Zak]
+   - add info about single-user output mode  [Karel Zak]
+   - fix password verification  [Karel Zak]
+   - remove redundant condition  [Karel Zak]
+   - return 1 on "lslogins nonexisting"  [Karel Zak]
+lsmem:
+   - add --output-all option  [Sami Kerola]
+   - improve JSON output  [Karel Zak]
+   - make output more compatible with another utils  [Karel Zak]
+   - remove unused variable  [Karel Zak]
+   - use new ul_path_* API  [Karel Zak]
+lsns:
+   - add --output-all option  [Sami Kerola]
+   - remove unnecessary include  [Karel Zak]
+   - use scols_column_set_json_type()  [Karel Zak]
+man:
+   - Change the only argument to two for the two-fonts macros  [Bjarni Ingi Gislason]
+   - Use the correct macro for a font change of one argument  [Bjarni Ingi Gislason]
+   - choom.1  Use the correct macro for the font change of one argument  [Bjarni Ingi Gislason]
+man pages:
+   - Fix misuse of two-fonts-macros (BR, IR)  [Bjarni Ingi Gislason]
+   - Remove "left" (or change to "l") in the column formats of tables  [Bjarni Ingi Gislason]
+   - fix formatting of long lines in tables  [Bjarni Ingi Gislason]
+mesg:
+   - do not print 'ttyname failed' message unless --verbose requested  [Sami Kerola]
+misc-tools/findmnt:
+   - a few whitespace fixes  [sluidfoe]
+   - add --pseudo, --real filters  [sluidfoe]
+misc-utils/findmnt:
+   - misc-utils/findmnt.8 add --pseudo and --real options  [sluidfoe]
+misc-utils/getopt:
+   - misc-utils/getopt.1 minor corrections to the manual  [Bjarni Ingi Gislason]
+mkfs.cramfs:
+   - remove redundant condition  [Karel Zak]
+mkswap:
+   - fix compiler warnings [-Wcast-qual]  [Karel Zak]
+more:
+   - do not call fileno() for std{in,out,err} streams  [Sami Kerola]
+   - move couple functions  [Sami Kerola]
+   - remove 'register' keywords  [Sami Kerola]
+   - remove dead code and useless comments  [Sami Kerola]
+   - remove function like preprocessor defines  [Sami Kerola]
+   - remove function prototypes  [Sami Kerola]
+   - remove global variables, add struct more_control  [Sami Kerola]
+   - remove pointless functions  [Sami Kerola]
+   - remove unnecessary ifdef preprosessor directives  [Sami Kerola]
+   - rename functions  [Sami Kerola]
+   - rename variable names  [Sami Kerola]
+   - reorder global declarations  [Sami Kerola]
+   - return is statement not a function  [Sami Kerola]
+mount:
+   - add -N to man page helpers section  [Karel Zak]
+   - add details about mtab and --namespace to mount.8  [Karel Zak]
+   - add ext4 to some places to the man page  [Karel Zak]
+   - add support for namespaces  [Vaclav Dolezal]
+   - added options exposing libmount's optsmode  [Vaclav Dolezal]
+   - allow PID as --namespace argument  [Vaclav Dolezal]
+   - document --namespace in man/help  [Vaclav Dolezal]
+   - document --options-* in man/help  [Vaclav Dolezal]
+   - keep MS_MOVE as flag  [Karel Zak]
+   - more notes about --options-* to man page  [Karel Zak]
+   - use internally string to set move/bind operations  [Karel Zak]
+   - use string_to_bitmask()  [Vaclav Dolezal]
+mount(8):
+   - clarify behavior of --options-mode  [Vaclav Dolezal]
+mountpoint:
+   - simplify test condition [cppcheck]  [Sami Kerola]
+namei:
+   - provide more usable error message on lstat() error  [Karel Zak]
+nls:
+   - remove translation strings  [Sami Kerola]
+partx:
+   - add --output-all option  [Sami Kerola]
+   - exit with error code when partition read failed  [Andreas Henriksson]
+   - use new ul_path_* API  [Karel Zak]
+po:
+   - fix lsblk translation  [Karel Zak]
+   - merge changes  [Karel Zak]
+   - pt_BR  fix fallocate '-l' help msg  [Luiz Angelo Daros de Luca]
+   - update ja.po (from translationproject.org)  [Takeshi Hamasaki]
+   - update pt_BR.po (from translationproject.org)  [Rafael Fontenelle]
+   - update sv.po (from translationproject.org)  [Sebastian Rasmussen]
+rename:
+   - add option --interactive to ask before overwriting  [G.raud Meyer]
+   - ask()  call __fpurge() to cater for multi-byte characters  [G.raud Meyer]
+   - ask()  print n when EOF on input  [G.raud Meyer]
+   - check source file access early  [G.raud Meyer]
+   - consolidate printing the symlink in addition to its target  [G.raud Meyer]
+   - detect tty in cbreak mode to make ask() read a single byte  [G.raud Meyer]
+   - fix/reverse the semantics of --no-overwrite in --symlink mode  [G.raud Meyer]
+   - fixup & style (no functional changes)  [G.raud Meyer]
+   - prevent --no-act from setting --no-overwrite  [G.raud Meyer]
+   - rename.1 describe interactive mode  [G.raud Meyer]
+   - rename.1 fix warning section  [G.raud Meyer]
+   - skip faccessat() failure if AT_SYMLINK_NOFOLLOW is not a valid flag  [G.raud Meyer]
+   - test availability of __fpurge() and fpurge()  [G.raud Meyer]
+   - when --no-overwrite skip verbosily only when --verbose  [G.raud Meyer]
+resizepart:
+   - use new ul_path_* API  [Karel Zak]
+rev:
+   - move a global variable to local scope  [Sami Kerola]
+rfkill:
+   - add --output-all option  [Sami Kerola]
+   - don't use lib/path  [Karel Zak]
+   - include <poll.h> instead of <sys/poll.h>  [Patrick Steinhardt]
+   - use scols_column_set_json_type()  [Karel Zak]
+script:
+   - add more info to script header  [Karel Zak]
+   - add the -o/--output-limit option. Fix race test.  [Fred Mora]
+   - be sensitive to another SIGCHLD ssi_codes  [Karel Zak]
+   - cleanup done timestamp message  [Karel Zak]
+   - fix printf format specifiers  [Ruediger Meier]
+   - record exit code  [Karel Zak]
+   - use uint64_t for file sizes  [Karel Zak]
+setarch:
+   - add another PER_LINUX32 aliases for ppcle  [Karel Zak]
+   - make <arch> optional  [Karel Zak]
+   - split set_arch() function to small functions  [Karel Zak]
+setpriv:
+   - add --reset-env  [Karel Zak]
+   - add user/group names to usage()  [Karel Zak]
+   - allow to use group name for --groups  [Karel Zak]
+   - implement option to set parent death signal  [Patrick Steinhardt]
+setterm:
+   - fix compiler warnings [-Wcast-qual]  [Karel Zak]
+sfdisk:
+   - document script GPT headers  [Karel Zak]
+su:
+   - add --whitelist-environment  [Karel Zak]
+   - add note about SIGKILL to the man page  [Karel Zak]
+   - add note about merged /usr  [Karel Zak]
+sulogin:
+   - do not use plain 0 as NULL  [Karel Zak]
+   - restore signals after failed exec() only  [Karel Zak]
+swapon:
+   - add --output-all option  [Sami Kerola]
+   - fix compiler warnings [-Wcast-qual]  [Karel Zak]
+sys-utils/fallocate:
+   - sys-utils/fallocate.1 Some tidying of the manual  [Bjarni Ingi Gislason]
+test:
+   - update UUID v5 tests  [Karel Zak]
+tests:
+   - Add tests for FAT32 labels  [Pali Rohár]
+   - add cal --span tests  [Karel Zak]
+   - add column --table-empty-lines test  [Karel Zak]
+   - add empty column test  [Karel Zak]
+   - add lsblk test script  [Karel Zak]
+   - add mountinfo with empty source  [Karel Zak]
+   - add simple & stupid script to generate lsblk /sys and /proc dump  [Karel Zak]
+   - add simple ATA and NVME lsblk dump  [Karel Zak]
+   - add simple LVM lsblk dump  [Karel Zak]
+   - check for test_cal  [Karel Zak]
+   - move stderr redirection out from test expression  [Sami Kerola]
+   - remove debug stuff from ts/script/options  [Karel Zak]
+   - remove namei(1) failed lstat test  [Karel Zak]
+   - update JSON outputs  [Karel Zak]
+   - update column(1) space-separator test  [Karel Zak]
+   - update fdisk dialogs  [Karel Zak]
+   - update fdisk output  [Karel Zak]
+   - update lscpu tests  [Karel Zak]
+   - update script done messages  [Karel Zak]
+   - update script headers  [Karel Zak]
+   - update sfdisk JSON output  [Karel Zak]
+   - update sfdisk resize  [Karel Zak]
+umount:
+   - add --quiet option  [Karel Zak]
+   - add note about --lazy  [Karel Zak]
+   - add support for namespaces  [Vaclav Dolezal]
+   - allow PID as --namespace argument  [Vaclav Dolezal]
+   - fix behaviour of -A and -R with --namespace  [Vaclav Dolezal]
+unshare:
+   - remove -s from --help output  [Karel Zak]
+wipefs:
+   - add missing ifdef  [Ruediger Meier]
+   - postpone BLKRRPART until all is done  [Karel Zak]
+   - use scols_column_set_json_type()  [Karel Zak]
+zramctl:
+   - (man) explain that --find is necessary  [Karel Zak]
+   - add --output-all option  [Sami Kerola]
+   - fix truncation warning  [Sami Kerola]
+   - use new ul_path_* API  [Karel Zak]
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
