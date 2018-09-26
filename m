@@ -1,33 +1,41 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.gmx.net ([212.227.17.22]:40251 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725733AbeIZErQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 26 Sep 2018 00:47:16 -0400
-Received: from adsiz.fritz.box ([95.90.40.253]) by mail.gmx.com (mrgmx102
- [212.227.17.168]) with ESMTPSA (Nemesis) id 0MW9TR-1gGDZY4Bh3-00XPMs for
- <util-linux@vger.kernel.org>; Wed, 26 Sep 2018 00:37:30 +0200
-From: Ruediger Meier <sweet_f_a@gmx.de>
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:52281 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726470AbeIZMec (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Wed, 26 Sep 2018 08:34:32 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 07D8721E1C
+        for <util-linux@vger.kernel.org>; Wed, 26 Sep 2018 02:23:14 -0400 (EDT)
+Received: from apu2 (x4db4907c.dyn.telefonica.de [77.180.144.124])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1F48DE47C0
+        for <util-linux@vger.kernel.org>; Wed, 26 Sep 2018 02:23:13 -0400 (EDT)
+From: Patrick Steinhardt <ps@pks.im>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 0/2] minor fixes for v2.33
-Date: Wed, 26 Sep 2018 00:37:27 +0200
-Message-Id: <20180925223729.28934-1-sweet_f_a@gmx.de>
+Cc: Patrick Steinhardt <ps@pks.im>
+Subject: [PATCH 0/2] Fixes for v2.33 on musl-based systems
+Date: Wed, 26 Sep 2018 08:23:07 +0200
+Message-Id: <cover.1537942755.git.ps@pks.im>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-From: Ruediger Meier <ruediger.meier@ga-group.nl>
+Hi,
 
-Fix some minor issues seen on my travis -Werror build
-on i386 and OSX.
+there are two small issues I discovered in v2.33-rc1 on
+musl-based systems. The first patch fixes a compile error, the
+second patch fixes a warning.
 
-Ruediger Meier (2):
-  libfdisk: fix OSX compiler warning
-  libfdisk: fix printf format modifier
+Regards
+Patrick
 
- libfdisk/src/context.c | 8 +++++---
- libfdisk/src/script.c  | 2 +-
- 2 files changed, 6 insertions(+), 4 deletions(-)
+Patrick Steinhardt (2):
+  lsblk: fix unknown type `stat` caused by missing header
+  rename: avoid undefined function prototype for `fpurge`
+
+ misc-utils/lsblk.h  | 1 +
+ misc-utils/rename.c | 4 +++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
 -- 
-2.13.7
+2.19.0
