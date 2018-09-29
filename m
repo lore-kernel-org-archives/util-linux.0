@@ -1,154 +1,80 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.126.134]:46551 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729071AbeI1TJK (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 28 Sep 2018 15:09:10 -0400
-From: Laurent Vivier <laurent@vivier.eu>
-To: util-linux@vger.kernel.org
-Cc: Laurent Vivier <laurent@vivier.eu>
-Subject: [PATCH 2/2] unshare: allows to set user ID and group ID
-Date: Fri, 28 Sep 2018 14:45:12 +0200
-Message-Id: <20180928124512.13979-3-laurent@vivier.eu>
-In-Reply-To: <20180928124512.13979-1-laurent@vivier.eu>
-References: <20180928124512.13979-1-laurent@vivier.eu>
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:39784 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727610AbeI2PIS (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 29 Sep 2018 11:08:18 -0400
+Date: Sat, 29 Sep 2018 10:40:38 +0200
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+To: linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Karel Zak <kzak@redhat.com>, Andreas Bombe <aeb@debian.org>,
+        Andreas Bombe <andreas.bombe@gmail.com>
+Subject: Future of dosfstools project (FAT)
+Message-ID: <20180929084038.an6pfhnsd6tblejl@pali>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="bhtqwubaqu7r5vc7"
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This patch introduces two new parameters to set the
-user ID and the group ID of the program to be executed.
-Setting group ID also drops supplementary groups.
 
-The option names used are the same as for nsenter,
--S, --setuid and -G, --setgid.
+--bhtqwubaqu7r5vc7
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Laurent Vivier <laurent@vivier.eu>
----
- bash-completion/unshare |  4 +++-
- sys-utils/unshare.1     |  7 +++++++
- sys-utils/unshare.c     | 30 +++++++++++++++++++++++++++---
- 3 files changed, 37 insertions(+), 4 deletions(-)
+Hi!
 
-diff --git a/bash-completion/unshare b/bash-completion/unshare
-index 64aea6784..10afffe19 100644
---- a/bash-completion/unshare
-+++ b/bash-completion/unshare
-@@ -35,7 +35,9 @@ _unshare_module()
- 				--help
- 				--version
- 				--root
--				--wd"
-+				--wd
-+				--setuid
-+				--setgid"
- 			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
- 			return 0
- 			;;
-diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
-index 40cbedbd1..d2ba6c3a5 100644
---- a/sys-utils/unshare.1
-+++ b/sys-utils/unshare.1
-@@ -192,6 +192,13 @@ run the command with root directory set to \fIdir\fP.
- .BR \-w, "\-\-wd=\fIdir"
- change working directory to \fIdir\fP.
- .TP
-+.BR \-S, "\-\-setuid \fIuid"
-+Set the user ID which will be used in the entered namespace.
-+.TP
-+.BR \-G, "\-\-setgid \fIgid"
-+Set the group ID which will be used in the entered namespace and drop
-+supplementary groups.
-+.TP
- .BR \-V , " \-\-version"
- Display version information and exit.
- .TP
-diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
-index be2950a36..09a2b10de 100644
---- a/sys-utils/unshare.c
-+++ b/sys-utils/unshare.c
-@@ -29,6 +29,7 @@
- #include <sys/types.h>
- #include <sys/stat.h>
- #include <sys/prctl.h>
-+#include <grp.h>
- 
- /* we only need some defines missing in sys/mount.h, no libmount linkage */
- #include <libmount.h>
-@@ -42,6 +43,7 @@
- #include "pathnames.h"
- #include "all-io.h"
- #include "signames.h"
-+#include "strutils.h"
- 
- /* synchronize parent and child by pipe */
- #define PIPE_SYNC_BYTE	0x06
-@@ -272,6 +274,8 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(_(" -R, --root=<dir>	    run the command with root directory set to <dir>\n"), out);
- 	fputs(_(" -w, --wd=<dir>	    change working directory to <dir>\n"), out);
-+        fputs(_(" -S, --setuid <uid>	    set uid in entered namespace\n"), out);
-+        fputs(_(" -G, --setgid <gid>	    set gid in entered namespace\n"), out);
- 
- 	fputs(USAGE_SEPARATOR, out);
- 	printf(USAGE_HELP_OPTIONS(27));
-@@ -306,6 +310,8 @@ int main(int argc, char *argv[])
- 		{ "map-root-user", no_argument,       NULL, 'r'             },
- 		{ "propagation",   required_argument, NULL, OPT_PROPAGATION },
- 		{ "setgroups",     required_argument, NULL, OPT_SETGROUPS   },
-+		{ "setuid",        required_argument, NULL, 'S'             },
-+		{ "setgid",        required_argument, NULL, 'G'             },
- 		{ "root",          required_argument, NULL, 'R'             },
- 		{ "wd",            required_argument, NULL, 'w'             },
- 		{ NULL, 0, NULL, 0 }
-@@ -322,15 +328,16 @@ int main(int argc, char *argv[])
- 	int fds[2];
- 	int status;
- 	unsigned long propagation = UNSHARE_PROPAGATION_DEFAULT;
--	uid_t real_euid = geteuid();
--	gid_t real_egid = getegid();
-+	int force_uid = 0, force_gid = 0;
-+	uid_t uid = 0, real_euid = geteuid();
-+	gid_t gid = 0, real_egid = getegid();
- 
- 	setlocale(LC_ALL, "");
- 	bindtextdomain(PACKAGE, LOCALEDIR);
- 	textdomain(PACKAGE);
- 	atexit(close_stdout);
- 
--	while ((c = getopt_long(argc, argv, "+fhVmuinpCUrR:w:", longopts, NULL)) != -1) {
-+	while ((c = getopt_long(argc, argv, "+fhVmuinpCUrR:w:S:G:", longopts, NULL)) != -1) {
- 		switch (c) {
- 		case 'f':
- 			forkit = 1;
-@@ -399,6 +406,14 @@ int main(int argc, char *argv[])
- 				kill_child_signo = SIGKILL;
- 			}
- 			break;
-+		case 'S':
-+			uid = strtoul_or_err(optarg, _("failed to parse uid"));
-+			force_uid = 1;
-+			break;
-+		case 'G':
-+			gid = strtoul_or_err(optarg, _("failed to parse gid"));
-+			force_gid = 1;
-+			break;
- 		case 'R':
- 			newroot = optarg;
- 			break;
-@@ -497,6 +512,15 @@ int main(int argc, char *argv[])
- 	     mount("proc", procmnt, "proc", MS_NOSUID|MS_NOEXEC|MS_NODEV, NULL) != 0))
- 			err(EXIT_FAILURE, _("mount %s failed"), procmnt);
- 
-+	if (force_gid) {
-+		if (setgroups(0, NULL) != 0)	/* drop supplementary groups */
-+			err(EXIT_FAILURE, _("setgroups failed"));
-+		if (setgid(gid) < 0)		/* change GID */
-+			err(EXIT_FAILURE, _("setgid failed"));
-+	}
-+	if (force_uid && setuid(uid) < 0)	/* change UID */
-+			err(EXIT_FAILURE, _("setuid failed"));
-+
- 	if (optind < argc) {
- 		execvp(argv[optind], argv + optind);
- 		errexec(argv[optind]);
--- 
-2.17.1
+Last year I did some research how Windows and Linux tools handle FAT
+labels (boot sector vs root directory) and proposed some unification.
+More in thread: https://www.spinics.net/lists/kernel/msg2640891.html
+
+My proposed change for manipulating with FAT labels is now implemented
+in util-linux v2.33, prepared new mtools version, and also in dosfstools
+git (unreleased) https://www.spinics.net/lists/kernel/msg2645732.html
+
+Project dosfstools contains de-facto standard Linux userspace tools for
+FAT filesystems (mkfs.fat, fsck.fat, fatlabel) and so it is quite
+important because of high usage of FAT.
+
+But there was no new release of dosfstools since Jan 2017 and for more
+then month I'm unsuccessfully try to contact maintainer of dosfstools
+project (Andreas) about future of project itself.
+
+I do not know what happened, if either Andreas do not have time or
+something else...
+
+So does somebody know what is state of dosfstools project?
+
+Also there are lot of proposed changes (with patches) for this project
+https://github.com/dosfstools/dosfstools/pulls and also more reported
+bugs https://github.com/dosfstools/dosfstools/issues
+
+If Andreas does not have time, can somebody else at least look at pull
+requests and do some code review?
+
+I have some other unpublished/unfinished changes for dosfstools, but I
+do not know now if it make sense to invest more time in this project
+when maintainer does not respond... if this project is active or going
+to be dead...
+
+If dosfstools is going to be inactive/dead, there is still mtools
+project with provides FAT tools too and maintainer of it is now
+preparing new bugfix version. So at least some alternative exists.
+
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--bhtqwubaqu7r5vc7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCW686gAAKCRCL8Mk9A+RD
+UvXVAKCr6iGBqFh8fo/05TIjyc5wayLyFACeNWmBCWH1icwfZ6yK20IaPZpNI+k=
+=c8Sj
+-----END PGP SIGNATURE-----
+
+--bhtqwubaqu7r5vc7--
