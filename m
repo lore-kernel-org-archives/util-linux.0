@@ -1,49 +1,51 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:51974 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727179AbeJEQfZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 5 Oct 2018 12:35:25 -0400
-Date: Fri, 5 Oct 2018 11:37:27 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.33-rc1
-Message-ID: <20181005093727.hiw27c7p6mksd4iu@ws.net.home>
-References: <20180925104701.y2gwtwe2bquynap2@ws.net.home>
- <201810050011.14673.sweet_f_a@gmx.de>
+Received: from ishtar.tlinx.org ([173.164.175.65]:38696 "EHLO
+        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726452AbeJAGIQ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 1 Oct 2018 02:08:16 -0400
+Message-ID: <5BB15D3A.8040507@tlinx.org>
+Date: Sun, 30 Sep 2018 16:33:14 -0700
+From: L A Walsh <lkml@tlinx.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <201810050011.14673.sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+CC: util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.33-rc1
+References: <20180925104701.y2gwtwe2bquynap2@ws.net.home>
+In-Reply-To: <20180925104701.y2gwtwe2bquynap2@ws.net.home>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Fri, Oct 05, 2018 at 12:11:14AM +0200, Ruediger Meier wrote:
-> On Tuesday 25 September 2018, Karel Zak wrote:
-> > The util-linux release v2.33-rc1 is available at
-> >
-> >   http://www.kernel.org/pub/linux/utils/util-linux/v2.33/
-> >
-> > Feedback and bug reports, as always, are welcomed.
-> >
-> >   Karel
-> 
-> There is one build issue with setns() usage in libmount/src/context.c in case
-> we don't have it neither in libc nor the syscall 
-> 
-> [...]
-> checking for syscall setns... no
-> configure: WARNING: Unable to detect syscall setns.
-> configure: WARNING: setns syscall not found; not building nsenter
-> checking for setns... no
-> [...]
-> ./.libs/libmount.so: undefined reference to `setns'
+On 9/25/2018 3:47 AM, Karel Zak wrote:
+> The commands mount and umount
+---
+   I note that umount has a static option umount.static, but I don't see
+the same for mount (i.e. mount.static). 
 
-Oh, ... fixed now. 
+  It seems the main benefit of static is to ensure the command will run
+if there is a problem with runtime-linking or if libraries are missing. 
 
-Thanks for your report and all the tests!
+  Examples might be a root FS that may have significantly reduced
+content but enough to do FS restore operations, emergency repairs and
+load kernel modules that will allow one to bring up rest of the system.
 
-    Karel
+  Basic functionality would include ability to mount file systems and
+ideally format, manage partitions, and restore file systems from
+backups.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+  Some utilites necessary to do such tasks are outside the scope of
+util-linux, but at least the ability to mount/umount a file system,
+fdisk and partition management. Could it be ensured that one can 'mount'
+disks under adverse conditions, at the very least, so that umount.static
+would make sense? 
+
+
+
+> The command rename(1) provides a new command line option --interactive to ask
+> before overwriting.
+>   
+---
+  How does rename compare with 'mmv'?  I note that in the manpage "SEE 
+ALSO" section,  'mv' is listed, (not quite sure why?), but not a more 
+related tool
+like 'mmv'.
