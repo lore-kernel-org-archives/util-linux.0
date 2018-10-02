@@ -1,50 +1,93 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:45516 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726781AbeJBQSn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 2 Oct 2018 12:18:43 -0400
-Date: Tue, 2 Oct 2018 11:36:19 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Richard Weinberger <richard.weinberger@gmail.com>
-Cc: adilger@dilger.ca,
-        Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        util-linux@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        andy.shevchenko@gmail.com, aeb@debian.org, andreas.bombe@gmail.com
+Return-Path: linux-fsdevel-owner@vger.kernel.org
+Date: Tue, 2 Oct 2018 04:44:10 -0400 (EDT)
+From: Jaroslav Skarvada <jskarvad@redhat.com>
+To: Pali =?utf-8?Q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Cc: linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, mpluskal@suse.com,
+        base-system@gentoo.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Karel Zak <kzak@redhat.com>, Andreas Bombe <aeb@debian.org>,
+        Andreas Bombe <andreas.bombe@gmail.com>,
+        Andreas Dilger <adilger@dilger.ca>,
+        Richard Weinberger <richard.weinberger@gmail.com>
+Message-ID: <510499199.34825028.1538469850257.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20181002081654.jxesr3kj62snzez5@pali>
+References: <20180929084038.an6pfhnsd6tblejl@pali> <20181002081654.jxesr3kj62snzez5@pali>
 Subject: Re: Future of dosfstools project (FAT)
-Message-ID: <20181002093619.nrmibtzouwraoyob@ws.net.home>
-References: <20180929084038.an6pfhnsd6tblejl@pali>
- <404F3F76-402D-4E29-9957-429CB7D7ECFC@dilger.ca>
- <CAFLxGvxfegQFh0kvk81VLhLh0AkgvpT=hWMDCJz5FmgoTUNRqA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAFLxGvxfegQFh0kvk81VLhLh0AkgvpT=hWMDCJz5FmgoTUNRqA@mail.gmail.com>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Sender: linux-fsdevel-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Oct 01, 2018 at 10:13:41PM +0200, Richard Weinberger wrote:
-> On Mon, Oct 1, 2018 at 10:01 PM Andreas Dilger <adilger@dilger.ca> wrote:
-> > If the current dosfstools maintainer is non-responsive, you could always
-> > fork the project in GitHub, land the critical patches into your branch,
-> >  and make a release on your own.  If the maintainer surfaces again, then
-> > they can pull in your patches.  If not, then you are the new maintainer.
+----- Original Message -----
+> On Monday 01 October 2018 22:13:41 Richard Weinberger wrote:
+> > On Mon, Oct 1, 2018 at 10:01 PM Andreas Dilger <adilger@dilger.ca> wrote:
+> > > If the current dosfstools maintainer is non-responsive, you could always
+> > > fork the project in GitHub, land the critical patches into your branch,
+> > >  and make a release on your own.  If the maintainer surfaces again, then
+> > > they can pull in your patches.  If not, then you are the new maintainer.
+> >-
+> > I also recommend talking to package maintainers of major distros.
+> > Maybe one of them forked the project already and did what you plan to do.
+> >-
+> > In any case, let's try to avoid a drama like util-linux-ng was.
 > 
-> I also recommend talking to package maintainers of major distros.
-> Maybe one of them forked the project already and did what you plan to do.
+> Based on Richard's comment, I'm forwarding my original email (below) to
+> the Fedora, Suse and Gentoo maintainers.
 > 
-> In any case, let's try to avoid a drama like util-linux-ng was.
+> On Saturday 29 September 2018 10:40:38 Pali Rohár wrote:
+> > Hi!
+> > 
+> > Last year I did some research how Windows and Linux tools handle FAT
+> > labels (boot sector vs root directory) and proposed some unification.
+> > More in thread: https://www.spinics.net/lists/kernel/msg2640891.html
+> > 
+> > My proposed change for manipulating with FAT labels is now implemented
+> > in util-linux v2.33, prepared new mtools version, and also in dosfstools
+> > git (unreleased) https://www.spinics.net/lists/kernel/msg2645732.html
+> > 
+> > Project dosfstools contains de-facto standard Linux userspace tools for
+> > FAT filesystems (mkfs.fat, fsck.fat, fatlabel) and so it is quite
+> > important because of high usage of FAT.
+> > 
+> > But there was no new release of dosfstools since Jan 2017 and for more
+> > then month I'm unsuccessfully try to contact maintainer of dosfstools
+> > project (Andreas) about future of project itself.
+> > 
+> > I do not know what happened, if either Andreas do not have time or
+> > something else...
+> > 
+> > So does somebody know what is state of dosfstools project?
+> > 
+> > Also there are lot of proposed changes (with patches) for this project
+> > https://github.com/dosfstools/dosfstools/pulls and also more reported
+> > bugs https://github.com/dosfstools/dosfstools/issues
+> > 
+> > If Andreas does not have time, can somebody else at least look at pull
+> > requests and do some code review?
+> > 
+> > I have some other unpublished/unfinished changes for dosfstools, but I
+> > do not know now if it make sense to invest more time in this project
+> > when maintainer does not respond... if this project is active or going
+> > to be dead...
+> > 
+> > If dosfstools is going to be inactive/dead, there is still mtools
+> > project with provides FAT tools too and maintainer of it is now
+> > preparing new bugfix version. So at least some alternative exists.
+> 
+> --
+> Pali Rohár
+> pali.rohar@gmail.com
+> 
 
-Drama? :-) We had confirmed support from all mainstream distros before
-the fork and rename. It was really not ad hoc solution. The project
-has been renamed back to util-linux after confirmation from the
-original maintainer.
+Hi,
 
-Sometimes fork open source project is a good thing. The another
-example is mutt -> mutt-kz -> neomutt ;-)
+I am downstream maintainer of dosfstools in Fedora/RHEL. My personal opinion
+with such kind of projects is that one or two years without activity doesn't
+mean the project is dead. I don't know what happened with Andreas, but
+in case of no response my +1 for the GitHub fork. I think it's non offensive
+solution which can be easily reverted if needed. Please let me know if you do it
 
-    Karel
+thanks & regards
 
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Jaroslav
