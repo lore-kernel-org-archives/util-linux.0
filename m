@@ -1,30 +1,37 @@
-Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx1.redhat.com ([209.132.183.28]:54626 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727046AbeJDQvF (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 4 Oct 2018 12:51:05 -0400
-Date: Thu, 4 Oct 2018 11:58:32 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Ruediger Meier <sweet_f_a@gmx.de>
+Return-Path: sweet_f_a@gmx.de
+From: Ruediger Meier <sweet_f_a@gmx.de>
+To: Karel Zak <kzak@redhat.com>
+Subject: Re: [ANNOUNCE] util-linux v2.33-rc1
+Date: Fri, 5 Oct 2018 00:11:14 +0200
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/2] minor fixes for v2.33
-Message-ID: <20181004095832.fnlyfd2hqcrjfuu6@ws.net.home>
-References: <20180925223729.28934-1-sweet_f_a@gmx.de>
+References: <20180925104701.y2gwtwe2bquynap2@ws.net.home>
+In-Reply-To: <20180925104701.y2gwtwe2bquynap2@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180925223729.28934-1-sweet_f_a@gmx.de>
-Sender: util-linux-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <201810050011.14673.sweet_f_a@gmx.de>
 List-ID: <util-linux.vger.kernel.org>
 
-On Wed, Sep 26, 2018 at 12:37:27AM +0200, Ruediger Meier wrote:
-> Ruediger Meier (2):
->   libfdisk: fix OSX compiler warning
->   libfdisk: fix printf format modifier
+On Tuesday 25 September 2018, Karel Zak wrote:
+> The util-linux release v2.33-rc1 is available at
+>
+>   http://www.kernel.org/pub/linux/utils/util-linux/v2.33/
+>
+> Feedback and bug reports, as always, are welcomed.
+>
+>   Karel
 
-Applied, thanks!
+There is one build issue with setns() usage in libmount/src/context.c in case
+we don't have it neither in libc nor the syscall 
 
-    Karel
+[...]
+checking for syscall setns... no
+configure: WARNING: Unable to detect syscall setns.
+configure: WARNING: setns syscall not found; not building nsenter
+checking for setns... no
+[...]
+./.libs/libmount.so: undefined reference to `setns'
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+
+cu,
+Rudi
