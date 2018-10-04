@@ -1,51 +1,53 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:47262 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726203AbeIDOGU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 4 Sep 2018 10:06:20 -0400
-Date: Tue, 4 Sep 2018 11:41:58 +0200
+Received: from mx1.redhat.com ([209.132.183.28]:41336 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727369AbeJDRDs (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 4 Oct 2018 13:03:48 -0400
+Date: Thu, 4 Oct 2018 12:11:12 +0200
 From: Karel Zak <kzak@redhat.com>
-To: L A Walsh <lkml@tlinx.org>
+To: Laurent Vivier <laurent@vivier.eu>
 Cc: util-linux@vger.kernel.org
-Subject: Re: RFD: --enable-bindir-path ?
-Message-ID: <20180904094158.6m2wxi22ulrlga4h@ws.net.home>
-References: <5B82E969.6090409@tlinx.org>
- <20180830084556.ubvu5e5qhzih5fng@ws.net.home>
- <5B89C74D.8030701@tlinx.org>
- <20180903101725.ngjabihabq2n6oeg@ws.net.home>
+Subject: Re: [PATCH 1/2] unshare: allow to set a new root
+Message-ID: <20181004101112.2542qy4di4sykelp@ws.net.home>
+References: <20180928124512.13979-1-laurent@vivier.eu>
+ <20180928124512.13979-2-laurent@vivier.eu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180903101725.ngjabihabq2n6oeg@ws.net.home>
+In-Reply-To: <20180928124512.13979-2-laurent@vivier.eu>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-On Mon, Sep 03, 2018 at 12:17:25PM +0200, Karel Zak wrote:
->  $ ./configure --disable-makeinstall-chown --disable-makeinstall-setuid --libdir=/lib
+On Fri, Sep 28, 2018 at 02:45:11PM +0200, Laurent Vivier wrote:
+> +	if (newroot) {
+> +		if (chroot(newroot) != 0)
+> +			err(EXIT_FAILURE,
+> +			    _("cannot change root directory to '%s'"), newroot);
+> +		if (chdir(newdir))
+> +			err(EXIT_FAILURE, _("cannot chdir to '%s'"), newdir);
+> +	}
 
-I did a small improvement for systems where the default is /lib64, so
-now --libdir=/lib should be unnecessary to install to /bin and /lib if
-you follow the default settings.
+It means that --wd is usable only when --root is specified. Is it
+expected? Would be better to use
 
-Note that if you set --prefix or change any default setting than is
-probably better to explicitly specify all the directories. For example
-on Fedora we use
+ char *newdir = NULL;
 
-  ./configure --build=x86_64-redhat-linux-gnu --host=x86_64-redhat-linux-gnu \
-              --program-prefix= --disable-dependency-tracking --prefix=/usr \
-              --exec-prefix=/usr --bindir=/usr/bin --sbindir=/usr/sbin \
-              --sysconfdir=/etc --datadir=/usr/share --includedir=/usr/include \
-              --libdir=/usr/lib64 --libexecdir=/usr/libexec --localstatedir=/var \
-              --sharedstatedir=/var/lib --mandir=/usr/share/man \
-              --infodir=/usr/share/info --disable-assert \
-              --with-systemdsystemunitdir=/usr/lib/systemd/system \
-              --disable-silent-rules --disable-bfs --disable-pg --enable-chfn-chsh \
-              --enable-usrdir-path --enable-write --enable-raw --with-python=3 \
-              --with-systemd --with-udev --with-selinux --with-audit --with-utempter \
-              --disable-makeinstall-chown
+ while ((c = getopt_long(....))) {
+    ...
+    case 'w':
+        newdir = optarg;
+        break;
+ }
+ ...
 
-to get full control.
+ if (newroot) {
+    if (chroot(newroot))
+        ... error ...
+    if (chdir(newdir ? newdir : "/"))
+        ... error ...
 
-The option --enable-usrdir-path has been introduced to get proper $PATH.
+ } else if (newdir && chdir(newdir))
+    ... error ...
+
 
     Karel
 
