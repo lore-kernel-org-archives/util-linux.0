@@ -1,93 +1,62 @@
-Return-Path: linux-fsdevel-owner@vger.kernel.org
-Date: Tue, 2 Oct 2018 04:44:10 -0400 (EDT)
-From: Jaroslav Skarvada <jskarvad@redhat.com>
-To: Pali =?utf-8?Q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Cc: linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, mpluskal@suse.com,
-        base-system@gentoo.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Karel Zak <kzak@redhat.com>, Andreas Bombe <aeb@debian.org>,
-        Andreas Bombe <andreas.bombe@gmail.com>,
-        Andreas Dilger <adilger@dilger.ca>,
-        Richard Weinberger <richard.weinberger@gmail.com>
-Message-ID: <510499199.34825028.1538469850257.JavaMail.zimbra@redhat.com>
-In-Reply-To: <20181002081654.jxesr3kj62snzez5@pali>
-References: <20180929084038.an6pfhnsd6tblejl@pali> <20181002081654.jxesr3kj62snzez5@pali>
-Subject: Re: Future of dosfstools project (FAT)
+Return-Path: util-linux-owner@vger.kernel.org
+Received: from mout.kundenserver.de ([212.227.126.131]:45133 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727109AbeJDRH4 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 4 Oct 2018 13:07:56 -0400
+Subject: Re: [PATCH 1/2] unshare: allow to set a new root
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+References: <20180928124512.13979-1-laurent@vivier.eu>
+ <20180928124512.13979-2-laurent@vivier.eu>
+ <20181004101112.2542qy4di4sykelp@ws.net.home>
+From: Laurent Vivier <laurent@vivier.eu>
+Message-ID: <fd5c5d6d-8e65-ddfd-f07f-832c9baab53f@vivier.eu>
+Date: Thu, 4 Oct 2018 12:15:15 +0200
 MIME-Version: 1.0
+In-Reply-To: <20181004101112.2542qy4di4sykelp@ws.net.home>
 Content-Type: text/plain; charset=utf-8
-Sender: linux-fsdevel-owner@vger.kernel.org
+Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
------ Original Message -----
-> On Monday 01 October 2018 22:13:41 Richard Weinberger wrote:
-> > On Mon, Oct 1, 2018 at 10:01 PM Andreas Dilger <adilger@dilger.ca> wrote:
-> > > If the current dosfstools maintainer is non-responsive, you could always
-> > > fork the project in GitHub, land the critical patches into your branch,
-> > >  and make a release on your own.  If the maintainer surfaces again, then
-> > > they can pull in your patches.  If not, then you are the new maintainer.
-> >-
-> > I also recommend talking to package maintainers of major distros.
-> > Maybe one of them forked the project already and did what you plan to do.
-> >-
-> > In any case, let's try to avoid a drama like util-linux-ng was.
+Le 04/10/2018 à 12:11, Karel Zak a écrit :
+> On Fri, Sep 28, 2018 at 02:45:11PM +0200, Laurent Vivier wrote:
+>> +	if (newroot) {
+>> +		if (chroot(newroot) != 0)
+>> +			err(EXIT_FAILURE,
+>> +			    _("cannot change root directory to '%s'"), newroot);
+>> +		if (chdir(newdir))
+>> +			err(EXIT_FAILURE, _("cannot chdir to '%s'"), newdir);
+>> +	}
 > 
-> Based on Richard's comment, I'm forwarding my original email (below) to
-> the Fedora, Suse and Gentoo maintainers.
+> It means that --wd is usable only when --root is specified. Is it
+> expected? Would be better to use
+
+Yes, the idea was to switch to a working directory in the chroot case.
+
+But if you think it can be useful to switch to another directory on the
+non-chroot case, I can upgrade the patch as you say.
+
+Thanks,
+Laurent
+>  char *newdir = NULL;
 > 
-> On Saturday 29 September 2018 10:40:38 Pali Rohár wrote:
-> > Hi!
-> > 
-> > Last year I did some research how Windows and Linux tools handle FAT
-> > labels (boot sector vs root directory) and proposed some unification.
-> > More in thread: https://www.spinics.net/lists/kernel/msg2640891.html
-> > 
-> > My proposed change for manipulating with FAT labels is now implemented
-> > in util-linux v2.33, prepared new mtools version, and also in dosfstools
-> > git (unreleased) https://www.spinics.net/lists/kernel/msg2645732.html
-> > 
-> > Project dosfstools contains de-facto standard Linux userspace tools for
-> > FAT filesystems (mkfs.fat, fsck.fat, fatlabel) and so it is quite
-> > important because of high usage of FAT.
-> > 
-> > But there was no new release of dosfstools since Jan 2017 and for more
-> > then month I'm unsuccessfully try to contact maintainer of dosfstools
-> > project (Andreas) about future of project itself.
-> > 
-> > I do not know what happened, if either Andreas do not have time or
-> > something else...
-> > 
-> > So does somebody know what is state of dosfstools project?
-> > 
-> > Also there are lot of proposed changes (with patches) for this project
-> > https://github.com/dosfstools/dosfstools/pulls and also more reported
-> > bugs https://github.com/dosfstools/dosfstools/issues
-> > 
-> > If Andreas does not have time, can somebody else at least look at pull
-> > requests and do some code review?
-> > 
-> > I have some other unpublished/unfinished changes for dosfstools, but I
-> > do not know now if it make sense to invest more time in this project
-> > when maintainer does not respond... if this project is active or going
-> > to be dead...
-> > 
-> > If dosfstools is going to be inactive/dead, there is still mtools
-> > project with provides FAT tools too and maintainer of it is now
-> > preparing new bugfix version. So at least some alternative exists.
+>  while ((c = getopt_long(....))) {
+>     ...
+>     case 'w':
+>         newdir = optarg;
+>         break;
+>  }
+>  ...
 > 
-> --
-> Pali Rohár
-> pali.rohar@gmail.com
+>  if (newroot) {
+>     if (chroot(newroot))
+>         ... error ...
+>     if (chdir(newdir ? newdir : "/"))
+>         ... error ...
 > 
-
-Hi,
-
-I am downstream maintainer of dosfstools in Fedora/RHEL. My personal opinion
-with such kind of projects is that one or two years without activity doesn't
-mean the project is dead. I don't know what happened with Andreas, but
-in case of no response my +1 for the GitHub fork. I think it's non offensive
-solution which can be easily reverted if needed. Please let me know if you do it
-
-thanks & regards
-
-Jaroslav
+>  } else if (newdir && chdir(newdir))
+>     ... error ...
+> 
+> 
+>     Karel
+> 
