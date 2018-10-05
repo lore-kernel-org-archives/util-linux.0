@@ -1,51 +1,49 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:34261 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726027AbeJBCx6 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 1 Oct 2018 22:53:58 -0400
-Date: Mon, 1 Oct 2018 22:14:26 +0200
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To: Andreas Dilger <adilger@dilger.ca>
-Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        util-linux@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Karel Zak <kzak@redhat.com>, Andreas Bombe <aeb@debian.org>,
-        Andreas Bombe <andreas.bombe@gmail.com>
-Subject: Re: Future of dosfstools project (FAT)
-Message-ID: <20181001201426.onlfasqcre6lgb5l@pali>
-References: <20180929084038.an6pfhnsd6tblejl@pali>
- <404F3F76-402D-4E29-9957-429CB7D7ECFC@dilger.ca>
+Received: from mx1.redhat.com ([209.132.183.28]:51974 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727179AbeJEQfZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 5 Oct 2018 12:35:25 -0400
+Date: Fri, 5 Oct 2018 11:37:27 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Ruediger Meier <sweet_f_a@gmx.de>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.33-rc1
+Message-ID: <20181005093727.hiw27c7p6mksd4iu@ws.net.home>
+References: <20180925104701.y2gwtwe2bquynap2@ws.net.home>
+ <201810050011.14673.sweet_f_a@gmx.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="5ogtvwa62vz75m5u"
-In-Reply-To: <404F3F76-402D-4E29-9957-429CB7D7ECFC@dilger.ca>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <201810050011.14673.sweet_f_a@gmx.de>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
+On Fri, Oct 05, 2018 at 12:11:14AM +0200, Ruediger Meier wrote:
+> On Tuesday 25 September 2018, Karel Zak wrote:
+> > The util-linux release v2.33-rc1 is available at
+> >
+> >   http://www.kernel.org/pub/linux/utils/util-linux/v2.33/
+> >
+> > Feedback and bug reports, as always, are welcomed.
+> >
+> >   Karel
+> 
+> There is one build issue with setns() usage in libmount/src/context.c in case
+> we don't have it neither in libc nor the syscall 
+> 
+> [...]
+> checking for syscall setns... no
+> configure: WARNING: Unable to detect syscall setns.
+> configure: WARNING: setns syscall not found; not building nsenter
+> checking for setns... no
+> [...]
+> ./.libs/libmount.so: undefined reference to `setns'
 
---5ogtvwa62vz75m5u
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Oh, ... fixed now. 
 
-On Monday 01 October 2018 14:00:28 Andreas Dilger wrote:
-> If not, then you are the new maintainer.
+Thanks for your report and all the tests!
 
-Hi! I really do not want to have another project.
+    Karel
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---5ogtvwa62vz75m5u
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCW7KAIAAKCRCL8Mk9A+RD
-UqMlAKCEtpDKfMcVgHBVI4SOy6OKTh1eIwCdExvUHcjU1K9ghwyzrI4EgqWbGPE=
-=Yfx4
------END PGP SIGNATURE-----
-
---5ogtvwa62vz75m5u--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
