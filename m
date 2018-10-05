@@ -1,158 +1,163 @@
 Return-Path: util-linux-owner@vger.kernel.org
-Received: from mout.kundenserver.de ([212.227.126.135]:58423 "EHLO
+Received: from mout.kundenserver.de ([212.227.126.187]:51487 "EHLO
         mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728081AbeJESHy (ORCPT
+        with ESMTP id S1728061AbeJESHy (ORCPT
         <rfc822;util-linux@vger.kernel.org>); Fri, 5 Oct 2018 14:07:54 -0400
 From: Laurent Vivier <laurent@vivier.eu>
 To: util-linux@vger.kernel.org
 Cc: Laurent Vivier <laurent@vivier.eu>
-Subject: [PATCH v2 2/2] unshare: allow to set user ID and group ID
-Date: Fri,  5 Oct 2018 13:09:30 +0200
-Message-Id: <20181005110930.14615-3-laurent@vivier.eu>
+Subject: [PATCH v2 1/2] unshare: allow to set a new root
+Date: Fri,  5 Oct 2018 13:09:29 +0200
+Message-Id: <20181005110930.14615-2-laurent@vivier.eu>
 In-Reply-To: <20181005110930.14615-1-laurent@vivier.eu>
 References: <20181005110930.14615-1-laurent@vivier.eu>
 Sender: util-linux-owner@vger.kernel.org
 List-ID: <util-linux.vger.kernel.org>
 
-This patch introduces two new parameters to set the
-user ID and the group ID of the program to be executed.
-Setting group ID also drops supplementary groups.
+This patch instroduces two new parameters to set the new
+root and the new working directory in this new root.
 
-The option names used are the same as for nsenter,
--S, --setuid and -G, --setgid.
+This allows to combine "unshare chroot" in one command,
+and doing like this the /proc filesystem is correctly
+mounted in the new root with "--mount-proc".
+
+The new parameters are -R, --root and -w, --wd. The names
+are the same as for nsenter, except for "-r" that is already
+used by "--map-root-user" and replaced by "-R".
 
 Signed-off-by: Laurent Vivier <laurent@vivier.eu>
 ---
 
 Notes:
-    v2: fix tabulation
+    v2: allow to use --wd without --root
+        fix a bug when we use --mount-proc with --root
+        -> don't remount /proc to none
+        fix tabulation
 
  bash-completion/unshare |  4 +++-
- sys-utils/unshare.1     |  7 +++++++
- sys-utils/unshare.c     | 30 +++++++++++++++++++++++++++---
- 3 files changed, 37 insertions(+), 4 deletions(-)
+ sys-utils/unshare.1     |  6 ++++++
+ sys-utils/unshare.c     | 34 +++++++++++++++++++++++++++++-----
+ 3 files changed, 38 insertions(+), 6 deletions(-)
 
 diff --git a/bash-completion/unshare b/bash-completion/unshare
-index 64aea6784..10afffe19 100644
+index 3fda4a194..64aea6784 100644
 --- a/bash-completion/unshare
 +++ b/bash-completion/unshare
-@@ -35,7 +35,9 @@ _unshare_module()
+@@ -33,7 +33,9 @@ _unshare_module()
+ 				--propagation
+ 				--setgroups
  				--help
- 				--version
- 				--root
--				--wd"
-+				--wd
-+				--setuid
-+				--setgid"
+-				--version"
++				--version
++				--root
++				--wd"
  			COMPREPLY=( $(compgen -W "${OPTS[*]}" -- $cur) )
  			return 0
  			;;
 diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
-index 40cbedbd1..d2ba6c3a5 100644
+index 746c41152..40cbedbd1 100644
 --- a/sys-utils/unshare.1
 +++ b/sys-utils/unshare.1
-@@ -192,6 +192,13 @@ run the command with root directory set to \fIdir\fP.
- .BR \-w, "\-\-wd=\fIdir"
- change working directory to \fIdir\fP.
+@@ -186,6 +186,12 @@ the GID map becomes writable by unprivileged processes when
+ .BR \%setgroups (2)
+ is permanently disabled (with \fBdeny\fR).
  .TP
-+.BR \-S, "\-\-setuid \fIuid"
-+Set the user ID which will be used in the entered namespace.
++.BR \-R, "\-\-root=\fIdir"
++run the command with root directory set to \fIdir\fP.
 +.TP
-+.BR \-G, "\-\-setgid \fIgid"
-+Set the group ID which will be used in the entered namespace and drop
-+supplementary groups.
++.BR \-w, "\-\-wd=\fIdir"
++change working directory to \fIdir\fP.
 +.TP
  .BR \-V , " \-\-version"
  Display version information and exit.
  .TP
 diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
-index 12ef044f8..e9ddb09de 100644
+index 661665aeb..12ef044f8 100644
 --- a/sys-utils/unshare.c
 +++ b/sys-utils/unshare.c
-@@ -29,6 +29,7 @@
- #include <sys/types.h>
- #include <sys/stat.h>
- #include <sys/prctl.h>
-+#include <grp.h>
- 
- /* we only need some defines missing in sys/mount.h, no libmount linkage */
- #include <libmount.h>
-@@ -42,6 +43,7 @@
- #include "pathnames.h"
- #include "all-io.h"
- #include "signames.h"
-+#include "strutils.h"
- 
- /* synchronize parent and child by pipe */
- #define PIPE_SYNC_BYTE	0x06
-@@ -272,6 +274,8 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(_(" -R, --root=<dir>	    run the command with root directory set to <dir>\n"), out);
- 	fputs(_(" -w, --wd=<dir>	    change working directory to <dir>\n"), out);
-+	fputs(_(" -S, --setuid <uid>	    set uid in entered namespace\n"), out);
-+	fputs(_(" -G, --setgid <gid>	    set gid in entered namespace\n"), out);
+@@ -269,6 +269,9 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_(" --propagation slave|shared|private|unchanged\n"
+ 	        "                           modify mount propagation in mount namespace\n"), out);
+ 	fputs(_(" --setgroups allow|deny    control the setgroups syscall in user namespaces\n"), out);
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_(" -R, --root=<dir>	    run the command with root directory set to <dir>\n"), out);
++	fputs(_(" -w, --wd=<dir>	    change working directory to <dir>\n"), out);
  
  	fputs(USAGE_SEPARATOR, out);
  	printf(USAGE_HELP_OPTIONS(27));
-@@ -306,6 +310,8 @@ int main(int argc, char *argv[])
+@@ -283,7 +286,7 @@ int main(int argc, char *argv[])
+ 		OPT_MOUNTPROC = CHAR_MAX + 1,
+ 		OPT_PROPAGATION,
+ 		OPT_SETGROUPS,
+-		OPT_KILLCHILD
++		OPT_KILLCHILD,
+ 	};
+ 	static const struct option longopts[] = {
+ 		{ "help",          no_argument,       NULL, 'h'             },
+@@ -303,6 +306,8 @@ int main(int argc, char *argv[])
  		{ "map-root-user", no_argument,       NULL, 'r'             },
  		{ "propagation",   required_argument, NULL, OPT_PROPAGATION },
  		{ "setgroups",     required_argument, NULL, OPT_SETGROUPS   },
-+		{ "setuid",	   required_argument, NULL, 'S'		    },
-+		{ "setgid",	   required_argument, NULL, 'G'		    },
- 		{ "root",	   required_argument, NULL, 'R'		    },
- 		{ "wd",		   required_argument, NULL, 'w'		    },
++		{ "root",	   required_argument, NULL, 'R'		    },
++		{ "wd",		   required_argument, NULL, 'w'		    },
  		{ NULL, 0, NULL, 0 }
-@@ -322,15 +328,16 @@ int main(int argc, char *argv[])
+ 	};
+ 
+@@ -311,6 +316,8 @@ int main(int argc, char *argv[])
+ 	int c, forkit = 0, maproot = 0;
+ 	int kill_child_signo = 0; /* 0 means --kill-child was not used */
+ 	const char *procmnt = NULL;
++	const char *newroot = NULL;
++	const char *newdir = NULL;
+ 	pid_t pid = 0;
  	int fds[2];
  	int status;
- 	unsigned long propagation = UNSHARE_PROPAGATION_DEFAULT;
--	uid_t real_euid = geteuid();
--	gid_t real_egid = getegid();
-+	int force_uid = 0, force_gid = 0;
-+	uid_t uid = 0, real_euid = geteuid();
-+	gid_t gid = 0, real_egid = getegid();
- 
- 	setlocale(LC_ALL, "");
- 	bindtextdomain(PACKAGE, LOCALEDIR);
+@@ -323,7 +330,7 @@ int main(int argc, char *argv[])
  	textdomain(PACKAGE);
  	atexit(close_stdout);
  
--	while ((c = getopt_long(argc, argv, "+fhVmuinpCUrR:w:", longopts, NULL)) != -1) {
-+	while ((c = getopt_long(argc, argv, "+fhVmuinpCUrR:w:S:G:", longopts, NULL)) != -1) {
+-	while ((c = getopt_long(argc, argv, "+fhVmuinpCUr", longopts, NULL)) != -1) {
++	while ((c = getopt_long(argc, argv, "+fhVmuinpCUrR:w:", longopts, NULL)) != -1) {
  		switch (c) {
  		case 'f':
  			forkit = 1;
-@@ -399,6 +406,14 @@ int main(int argc, char *argv[])
+@@ -392,6 +399,12 @@ int main(int argc, char *argv[])
  				kill_child_signo = SIGKILL;
  			}
  			break;
-+		case 'S':
-+			uid = strtoul_or_err(optarg, _("failed to parse uid"));
-+			force_uid = 1;
++		case 'R':
++			newroot = optarg;
 +			break;
-+		case 'G':
-+			gid = strtoul_or_err(optarg, _("failed to parse gid"));
-+			force_gid = 1;
++		case 'w':
++			newdir = optarg;
 +			break;
- 		case 'R':
- 			newroot = optarg;
- 			break;
-@@ -500,6 +515,15 @@ int main(int argc, char *argv[])
- 			err(EXIT_FAILURE, _("mount %s failed"), procmnt);
- 	}
+ 		default:
+ 			errtryhelp(EXIT_FAILURE);
+ 		}
+@@ -471,10 +484,21 @@ int main(int argc, char *argv[])
+ 	if ((unshare_flags & CLONE_NEWNS) && propagation)
+ 		set_propagation(propagation);
  
-+	if (force_gid) {
-+		if (setgroups(0, NULL) != 0)	/* drop supplementary groups */
-+			err(EXIT_FAILURE, _("setgroups failed"));
-+		if (setgid(gid) < 0)		/* change GID */
-+			err(EXIT_FAILURE, _("setgid failed"));
+-	if (procmnt &&
+-	    (mount("none", procmnt, NULL, MS_PRIVATE|MS_REC, NULL) != 0 ||
+-	     mount("proc", procmnt, "proc", MS_NOSUID|MS_NOEXEC|MS_NODEV, NULL) != 0))
++	if (newroot) {
++		if (chroot(newroot) != 0)
++			err(EXIT_FAILURE,
++			    _("cannot change root directory to '%s'"), newroot);
++		newdir = newdir ?: "/";
 +	}
-+	if (force_uid && setuid(uid) < 0)	/* change UID */
-+		err(EXIT_FAILURE, _("setuid failed"));
++	if (newdir && chdir(newdir))
++		err(EXIT_FAILURE, _("cannot chdir to '%s'"), newdir);
 +
++	if (procmnt) {
++		if (!newroot && mount("none", procmnt, NULL, MS_PRIVATE|MS_REC, NULL) != 0)
++			err(EXIT_FAILURE, _("umount %s failed"), procmnt);
++		if (mount("proc", procmnt, "proc", MS_NOSUID|MS_NOEXEC|MS_NODEV, NULL) != 0)
+ 			err(EXIT_FAILURE, _("mount %s failed"), procmnt);
++	}
+ 
  	if (optind < argc) {
  		execvp(argv[optind], argv + optind);
- 		errexec(argv[optind]);
 -- 
 2.17.1
