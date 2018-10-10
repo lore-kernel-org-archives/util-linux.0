@@ -6,28 +6,28 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77414C43441
-	for <util-linux@archiver.kernel.org>; Wed, 10 Oct 2018 17:26:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A63BC43441
+	for <util-linux@archiver.kernel.org>; Wed, 10 Oct 2018 17:26:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4A5AA2085B
-	for <util-linux@archiver.kernel.org>; Wed, 10 Oct 2018 17:26:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4A5AA2085B
+	by mail.kernel.org (Postfix) with ESMTP id D9E5B2085B
+	for <util-linux@archiver.kernel.org>; Wed, 10 Oct 2018 17:26:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D9E5B2085B
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=util-linux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727279AbeJKAtb (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 10 Oct 2018 20:49:31 -0400
-Received: from mx2.suse.de ([195.135.220.15]:42832 "EHLO mx1.suse.de"
+        id S1727298AbeJKAtj (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 10 Oct 2018 20:49:39 -0400
+Received: from mx2.suse.de ([195.135.220.15]:42846 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726902AbeJKAtb (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 10 Oct 2018 20:49:31 -0400
+        id S1726886AbeJKAth (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 10 Oct 2018 20:49:37 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id D0BD6B035
-        for <util-linux@vger.kernel.org>; Wed, 10 Oct 2018 17:26:21 +0000 (UTC)
+        by mx1.suse.de (Postfix) with ESMTP id 75C71B035
+        for <util-linux@vger.kernel.org>; Wed, 10 Oct 2018 17:26:27 +0000 (UTC)
 To:     util-linux@vger.kernel.org
 From:   Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH 1/3] agetty: rename variable changed to triggered
+Subject: [PATCH 2/3] agetty: Watch only protocol requested by issue escapes
 Openpgp: preference=signencrypt
 Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
  xsDiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
@@ -49,8 +49,8 @@ Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
  AAoJEHF8IJ+gT812L60An3nw69B52AbSCxEbXBf8cpeZFnR3AJ9STQXip4/l0KIRMgeHeDE0
  izHxhA==
 Organization: SUSE Linux, s. r. o.
-Message-ID: <b5c097e3-84ad-d681-38c9-50c9a0a33b23@suse.cz>
-Date:   Wed, 10 Oct 2018 19:26:21 +0200
+Message-ID: <f1ced4a3-ea0b-1e88-44a7-24647d7f7571@suse.cz>
+Date:   Wed, 10 Oct 2018 19:26:27 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.0
 MIME-Version: 1.0
@@ -62,50 +62,79 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-changed variable name is not correct. It does not say that network
-interface changed its address. It just says that the netlink message
-processing was triggered.
+To decrease number of reloads, watch only protocol requested by \4 and \6
+escapes in issue file.
 
 Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
 ---
- term-utils/agetty.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ term-utils/agetty.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
 diff --git a/term-utils/agetty.c b/term-utils/agetty.c
-index 844220401..2f27d7f71 100644
+index 2f27d7f71..27e97091b 100644
 --- a/term-utils/agetty.c
 +++ b/term-utils/agetty.c
-@@ -1554,7 +1554,7 @@ static void open_netlink(void)
- 	}
+@@ -153,6 +153,7 @@
+ # define AGETTY_RELOAD_FDNONE	-2			/* uninitialized fd */
+ static int inotify_fd = AGETTY_RELOAD_FDNONE;
+ static int netlink_fd = AGETTY_RELOAD_FDNONE;
++static __u32 netlink_groups;
+ #endif
+ 
+ /*
+@@ -1546,7 +1547,7 @@ static void open_netlink(void)
+ 	if (sock >= 0) {
+ 		addr.nl_family = AF_NETLINK;
+ 		addr.nl_pid = getpid();
+-		addr.nl_groups = RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR;
++		addr.nl_groups = netlink_groups;
+ 		if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+ 			close(sock);
+ 		else
+@@ -1729,6 +1730,9 @@ static void print_issue_file(struct options *op, struct termios *tp)
+ #ifdef ISSUEDIR_SUPPORT
+ 	int dd = -1, nfiles = 0, i;
+ 	struct dirent **namelist = NULL;
++#endif
++#ifdef AGETTY_RELOAD
++	netlink_groups = 0;
+ #endif
+ 	if ((op->flags & F_NONL) == 0) {
+ 		/* Issue not in use, start with a new line. */
+@@ -1820,6 +1824,10 @@ static void print_issue_file(struct options *op, struct termios *tp)
+ 	if (dd >= 0)
+ 		close(dd);
+ #endif
++#ifdef AGETTY_RELOAD
++	if (netlink_groups != 0)
++		open_netlink();
++#endif
  }
+ #endif /* ISSUE_SUPPORT */
  
--static int process_netlink_msg(int *changed)
-+static int process_netlink_msg(int *triggered)
- {
- 	char buf[4096];
- 	struct sockaddr_nl snl;
-@@ -1594,7 +1594,7 @@ static int process_netlink_msg(int *changed)
- 			return 0;
- 		}
+@@ -2624,10 +2632,6 @@ static void output_special_char(unsigned char c, struct options *op,
+ 		struct ifaddrs *addrs = NULL;
+ 		char iface[128];
  
--		*changed = 1;
-+		*triggered = 1;
+-#ifdef AGETTY_RELOAD
+-		open_netlink();
+-#endif
+-
+ 		if (getifaddrs(&addrs))
+ 			break;
+ 
+@@ -2637,6 +2641,11 @@ static void output_special_char(unsigned char c, struct options *op,
+ 			output_iface_ip(addrs, NULL, family);
+ 
+ 		freeifaddrs(addrs);
++
++		if (c == '4')
++			netlink_groups |= RTMGRP_IPV4_IFADDR;
++		else
++			netlink_groups |= RTMGRP_IPV6_IFADDR;
  		break;
  	}
- 
-@@ -1603,9 +1603,9 @@ static int process_netlink_msg(int *changed)
- 
- static int process_netlink(void)
- {
--	int changed = 0;
--	while (process_netlink_msg(&changed));
--	return changed;
-+	int triggered = 0;
-+	while (process_netlink_msg(&triggered));
-+	return triggered;
- }
- 
- static int wait_for_term_input(int fd)
+ 	default:
 -- 
 2.19.0
 
