@@ -1,76 +1,122 @@
-Return-Path: <SRS0=w2q8=MV=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=AFk+=MW=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30AB1C67879
-	for <util-linux@archiver.kernel.org>; Tue,  9 Oct 2018 01:47:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77414C43441
+	for <util-linux@archiver.kernel.org>; Wed, 10 Oct 2018 17:26:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D9E4B20835
-	for <util-linux@archiver.kernel.org>; Tue,  9 Oct 2018 01:47:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D9E4B20835
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=acm.org
+	by mail.kernel.org (Postfix) with ESMTP id 4A5AA2085B
+	for <util-linux@archiver.kernel.org>; Wed, 10 Oct 2018 17:26:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4A5AA2085B
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=util-linux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726476AbeJIJBu (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 9 Oct 2018 05:01:50 -0400
-Received: from mail-pg1-f169.google.com ([209.85.215.169]:43268 "EHLO
-        mail-pg1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726441AbeJIJBu (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 9 Oct 2018 05:01:50 -0400
-Received: by mail-pg1-f169.google.com with SMTP id 80-v6so8623585pgh.10
-        for <util-linux@vger.kernel.org>; Mon, 08 Oct 2018 18:47:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=UzWiHVBT1+GJ2Ppha6wq+q7E7QzJ6HsexgYelodywSQ=;
-        b=CBUtzg3n1Ppnad/P/gl/AqVf1ppyAH0/C041cwa4XW2RKGK71eKIGCzyJPXWXEO7xG
-         TVyuUACyun9rc9RckcaFWkXgkeuP1cexUvceS9LkV+Hxl2l6Bxbs+mo7HKq0O5FTjGKp
-         baPBqGvaukb1sz5o2lGurig6n8bUNTKSiirktoJ3Jk/o9CdEH2FyshYM40XflJbKZuHZ
-         St+GwydLq1sPcklY7aROXYjI63teN5VyHKRV1ZwJbI5Wkjn9vROtk3e0t6eshBF/7yS3
-         yUbmE2bPxU35sGvJURlzI8eyQ3revM0UgUKBOdWwWHCAkqyULTE37BDfcv6dNNbbT+tu
-         cqOg==
-X-Gm-Message-State: ABuFfoiiPsyPTHrZOqaFucQTt83CaxZ9wmGSOOH1aiaNb7XnNMwctRxf
-        WnAD6XMCcXXnBMyP8LdimU5HHgoL1BQ=
-X-Google-Smtp-Source: ACcGV61ConMpKWN6XV9TUo1Ybi3kaZQBvGgEOQ/3QUreOhT38c6CBS62h4GK5RqdpFZracB+fdZJng==
-X-Received: by 2002:a63:6d83:: with SMTP id i125-v6mr22851408pgc.215.1539049639019;
-        Mon, 08 Oct 2018 18:47:19 -0700 (PDT)
-Received: from asus.site ([2601:647:4601:42b4:3842:3e31:3bb6:cf62])
-        by smtp.gmail.com with ESMTPSA id r1-v6sm31678183pff.145.2018.10.08.18.47.18
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 08 Oct 2018 18:47:18 -0700 (PDT)
-Subject: Re: List archives on lore.kernel.org
-To:     Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <20181008092424.jgaxi4s3pizopphg@ws.net.home>
-From:   Bart Van Assche <bvanassche@acm.org>
-Message-ID: <ee7b4842-38ff-28a2-2687-1b307fad47d8@acm.org>
-Date:   Mon, 8 Oct 2018 18:47:17 -0700
+        id S1727279AbeJKAtb (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 10 Oct 2018 20:49:31 -0400
+Received: from mx2.suse.de ([195.135.220.15]:42832 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726902AbeJKAtb (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 10 Oct 2018 20:49:31 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id D0BD6B035
+        for <util-linux@vger.kernel.org>; Wed, 10 Oct 2018 17:26:21 +0000 (UTC)
+To:     util-linux@vger.kernel.org
+From:   Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH 1/3] agetty: rename variable changed to triggered
+Openpgp: preference=signencrypt
+Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
+ xsDiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
+ zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
+ 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
+ AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
+ 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
+ NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
+ SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
+ ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSM0tU3RhbmlzbGF2
+ IEJyYWJlYyA8c3RhbmlzbGF2LmJyYWJlY0BnbWFpbC5jb20+wmwEExECACwCGwMHCwkIBwMC
+ AQYVCAIJCgsEFgIDAQIeAQIXgAUJIT9ywAUCUdMF/QIZAQAKCRBxfCCfoE/NdgreAKCEwh0S
+ bgGDPUFG9HaToZUp+lkzNACbBSazK57hL2hGrJ5K3PVlEpWVAwHOwE0EPq/ZghAEAK3rY7aV
+ eV7YI/HDYul1PnntG+tR2hgnUB4sCfWIPLrusOwa6bEnFbbnjH0IpWxTfrT08bnyAMpJDsK8
+ fMSu053P3Gwkt8ILFuTouw6EF0JaBizsdXbFgKRS8pJVAZk33myR+/VpKw7p1fNchJd6fgqp
+ jkCcVr6lcMCowlMYvCkbAAMGBACRnb/PP30vbbiw1wWAz7pO4YhDnt82EonFgbYdsGqHegGK
+ Jkj3bbh0os0K//ZqhXyp31BQwpAI7uRAqRIfv5OLUqcLJoOLdKh4VyxXhn31dvVs3YQFLULi
+ qiE1Rui5OxgQbmqxk965EMp6QVOKKVFFXKJdYO37NjZo00yScoEAJ8JGBBgRAgAGBQI+r9mC
+ AAoJEHF8IJ+gT812L60An3nw69B52AbSCxEbXBf8cpeZFnR3AJ9STQXip4/l0KIRMgeHeDE0
+ izHxhA==
+Organization: SUSE Linux, s. r. o.
+Message-ID: <b5c097e3-84ad-d681-38c9-50c9a0a33b23@suse.cz>
+Date:   Wed, 10 Oct 2018 19:26:21 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.0
 MIME-Version: 1.0
-In-Reply-To: <20181008092424.jgaxi4s3pizopphg@ws.net.home>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-2
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On 10/8/18 2:24 AM, Karel Zak wrote:
->   small announce. This mailing list has archives on
->   now, see:
->   
->      https://lore.kernel.org/util-linux/
-> 
->   For more details about Lore see
-> 
->      https://www.kernel.org/lore.html
+changed variable name is not correct. It does not say that network
+interface changed its address. It just says that the netlink message
+processing was triggered.
 
-That's good to know. Thanks for the update :-)
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ term-utils/agetty.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-Bart.
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index 844220401..2f27d7f71 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -1554,7 +1554,7 @@ static void open_netlink(void)
+ 	}
+ }
+ 
+-static int process_netlink_msg(int *changed)
++static int process_netlink_msg(int *triggered)
+ {
+ 	char buf[4096];
+ 	struct sockaddr_nl snl;
+@@ -1594,7 +1594,7 @@ static int process_netlink_msg(int *changed)
+ 			return 0;
+ 		}
+ 
+-		*changed = 1;
++		*triggered = 1;
+ 		break;
+ 	}
+ 
+@@ -1603,9 +1603,9 @@ static int process_netlink_msg(int *changed)
+ 
+ static int process_netlink(void)
+ {
+-	int changed = 0;
+-	while (process_netlink_msg(&changed));
+-	return changed;
++	int triggered = 0;
++	while (process_netlink_msg(&triggered));
++	return triggered;
+ }
+ 
+ static int wait_for_term_input(int fd)
+-- 
+2.19.0
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
