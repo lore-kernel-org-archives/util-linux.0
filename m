@@ -6,43 +6,43 @@ X-Spam-Status: No, score=-8.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_NEOMUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44D95ECDE46
-	for <util-linux@archiver.kernel.org>; Thu,  1 Nov 2018 10:06:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21795C0044C
+	for <util-linux@archiver.kernel.org>; Thu,  1 Nov 2018 10:09:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 178E2205F4
-	for <util-linux@archiver.kernel.org>; Thu,  1 Nov 2018 10:06:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 178E2205F4
+	by mail.kernel.org (Postfix) with ESMTP id E2DCF2081B
+	for <util-linux@archiver.kernel.org>; Thu,  1 Nov 2018 10:09:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E2DCF2081B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=util-linux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727710AbeKATJM (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 1 Nov 2018 15:09:12 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:14880 "EHLO mx1.redhat.com"
+        id S1727753AbeKATLy (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 1 Nov 2018 15:11:54 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:47022 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727644AbeKATJM (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 1 Nov 2018 15:09:12 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        id S1727736AbeKATLy (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 1 Nov 2018 15:11:54 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id F33BD3082DD4;
-        Thu,  1 Nov 2018 10:06:53 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id E90B3307EA87;
+        Thu,  1 Nov 2018 10:09:35 +0000 (UTC)
 Received: from ws.net.home (ovpn-116-43.ams2.redhat.com [10.36.116.43])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id E4D6E261C3;
-        Thu,  1 Nov 2018 10:06:52 +0000 (UTC)
-Date:   Thu, 1 Nov 2018 11:06:50 +0100
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 067A960FE6;
+        Thu,  1 Nov 2018 10:09:34 +0000 (UTC)
+Date:   Thu, 1 Nov 2018 11:09:32 +0100
 From:   Karel Zak <kzak@redhat.com>
 To:     justinpopo6@gmail.com
 Cc:     util-linux@vger.kernel.org, f.fainelli@gmail.com
 Subject: Re: [PATCH] rtcwake: use poweroff if shutdown is not found
-Message-ID: <20181101100650.4lqhxt3olycp5gop@ws.net.home>
+Message-ID: <20181101100932.zdcp5rrbuab52rtt@ws.net.home>
 References: <1541013948-15403-1-git-send-email-justinpopo6@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <1541013948-15403-1-git-send-email-justinpopo6@gmail.com>
 User-Agent: NeoMutt/20180716-521-8fffcf
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Thu, 01 Nov 2018 10:06:54 +0000 (UTC)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Thu, 01 Nov 2018 10:09:35 +0000 (UTC)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
@@ -104,12 +104,6 @@ On Wed, Oct 31, 2018 at 12:25:48PM -0700, justinpopo6@gmail.com wrote:
 > -			execv(arg[0], arg);
 > -			warn(_("failed to execute %s"), _PATH_SHUTDOWN);
 > +		if (!stat(_PATH_SHUTDOWN, &buf)) {
-
- what about   if (access(_PATH_SHUTDOWN, X_OK) == 0) to avoid copy
- unnecessary struct stat from kernel to userspace? ;-)
-
-    Karel
-
 > +			arg[i++] = _PATH_SHUTDOWN;
 > +			arg[i++] = "-h";
 > +			arg[i++] = "-P";
@@ -135,6 +129,15 @@ On Wed, Oct 31, 2018 at 12:25:48PM -0700, justinpopo6@gmail.com wrote:
 > +			/* Failed to find shutdown command */
 > +			warn(_("failed to find shutdown command"));
 >  			rc = EXIT_FAILURE;
+
+maybe we can also change  exit code to:
+
+            rc = EX_EXEC_ENOENT
+
+to be compatible with another utils.
+
+    Karel
+
 >  		}
 >  		break;
 > -- 
