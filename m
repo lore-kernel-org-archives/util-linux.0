@@ -6,54 +6,58 @@ X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C7B0C04EBA
-	for <util-linux@archiver.kernel.org>; Mon, 19 Nov 2018 16:24:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E163C43441
+	for <util-linux@archiver.kernel.org>; Mon, 19 Nov 2018 17:40:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BE88520831
-	for <util-linux@archiver.kernel.org>; Mon, 19 Nov 2018 16:24:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3E3452145D
+	for <util-linux@archiver.kernel.org>; Mon, 19 Nov 2018 17:40:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="s1oaTB7i"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BE88520831
+	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="d+U+KcSc"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3E3452145D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=nxp.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=util-linux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730051AbeKTCsh (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 19 Nov 2018 21:48:37 -0500
-Received: from mail-eopbgr10069.outbound.protection.outlook.com ([40.107.1.69]:11527
-        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
+        id S2389944AbeKTEFD (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 19 Nov 2018 23:05:03 -0500
+Received: from mail-eopbgr80053.outbound.protection.outlook.com ([40.107.8.53]:48093
+        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729912AbeKTCsh (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 19 Nov 2018 21:48:37 -0500
+        id S2388650AbeKTDNa (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 19 Nov 2018 22:13:30 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=h3cGLXHxVV19EuYBK7jWVBLtLNp9muxjkOU+JsVd9ck=;
- b=s1oaTB7iHOa5qYN+0ofMM/WfGBRWQgZzmWa7R6b/xycVief15t5Vh9q8WNFL8LSE7AhbNhuhn4jTGw2TSAlntHh6FKR+HkQ6E348RyH+UWQnBbk0FCn22TvyJ15EygTl99xuHYabjK3yuDXlqYTwtTz5adbAHHVGNV/ZBlW1hNY=
+ bh=fsRkgtxcrlxaLCLxt4m0xE7EJgk2SS2dlcUzQwXmCb0=;
+ b=d+U+KcScayFBThjH/9kVLwKgOHfs3jRdxQaKJBj0VUbnp0wflsoqpvM+J9w6odtDPxaQS8lTl1De49mITxh04rEXUhz+xkK+doOkewrhb2tHO4+IQlE2Qg+LrCi39NFMduyHulgL6N8H7S1viIZy3dPWZVw3ATaDjCYHtbZ0fJg=
 Received: from AM0PR04MB3971.eurprd04.prod.outlook.com (52.134.90.16) by
- AM0PR04MB4260.eurprd04.prod.outlook.com (52.134.126.139) with Microsoft SMTP
+ AM0PR04MB3985.eurprd04.prod.outlook.com (52.134.90.18) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1339.23; Mon, 19 Nov 2018 16:24:28 +0000
+ 15.20.1294.30; Mon, 19 Nov 2018 16:48:34 +0000
 Received: from AM0PR04MB3971.eurprd04.prod.outlook.com
  ([fe80::c5be:84db:a7ee:810]) by AM0PR04MB3971.eurprd04.prod.outlook.com
  ([fe80::c5be:84db:a7ee:810%5]) with mapi id 15.20.1294.048; Mon, 19 Nov 2018
- 16:24:28 +0000
+ 16:48:34 +0000
 From:   York Sun <york.sun@nxp.com>
-To:     Tracy Smith <tlsmith3777@gmail.com>, "bp@alien8.de" <bp@alien8.de>
-CC:     "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
+To:     Tracy Smith <tlsmith3777@gmail.com>,
+        "steve@theinkpens.com" <steve@theinkpens.com>
+CC:     "bp@alien8.de" <bp@alien8.de>,
+        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
         "backports@vger.kernel.org" <backports@vger.kernel.org>,
         "linux-newbie@vger.kernel.org" <linux-newbie@vger.kernel.org>,
         "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
         "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>
-Subject: Re: FW: edac driver initialization, interrupt, & debug
-Thread-Topic: FW: edac driver initialization, interrupt, & debug
-Thread-Index: AQHUfn6VaCPcy6NdWkCW/eURxj7L2Q==
-Date:   Mon, 19 Nov 2018 16:24:28 +0000
-Message-ID: <AM0PR04MB397127BBA9AB44D0453B90E79AD80@AM0PR04MB3971.eurprd04.prod.outlook.com>
+Subject: Re: edac driver initialization, interrupt, & debug
+Thread-Topic: edac driver initialization, interrupt, & debug
+Thread-Index: AQHUftrJh0wfhXfffECLCCglLVqjYA==
+Date:   Mon, 19 Nov 2018 16:48:34 +0000
+Message-ID: <AM0PR04MB3971FBCF6CB23BE778D39EED9AD80@AM0PR04MB3971.eurprd04.prod.outlook.com>
 References: <BYAPR02MB431115EC4735AE5B7E29F2CEF6DC0@BYAPR02MB4311.namprd02.prod.outlook.com>
  <BYAPR02MB43110062F32BFDEA712AB371F6DC0@BYAPR02MB4311.namprd02.prod.outlook.com>
  <CAChUvXMp6S6MBY_LmrfgdPcctQw70FoyxbiHeFqK+5fQx5omCw@mail.gmail.com>
  <CAChUvXP6eu76xqEZNspooUMb+311mmDH8=St=awCL77hJPus9Q@mail.gmail.com>
  <20181117140513.GA4944@zn.tnic>
  <CAChUvXNO_8Frw1igaEAHSxmdtTy7MJVm8W1NpUqZ6tFD0hXwhA@mail.gmail.com>
+ <0BF2A47F-7F33-4E4D-A566-23AF2F4CCD52@theinkpens.com>
+ <CAChUvXMVHxhawLFPFzz_0+iFxjQ+dRwpTsCGo95oc8Y+7a-2DQ@mail.gmail.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
@@ -62,110 +66,81 @@ authentication-results: spf=none (sender IP is )
  smtp.mailfrom=york.sun@nxp.com; 
 x-originating-ip: [64.157.242.222]
 x-ms-publictraffictype: Email
-x-microsoft-exchange-diagnostics: 1;AM0PR04MB4260;6:U9ZyVpo7u2tp/4ANKdWj4TypzKT6ZOfhsJTCwWZXxoR6kCX6zSLPtbu6BCXVnK6d7bUDDfIxrKKOOo6GcfIoKLKPYFG4OkZYpYFsrQ8gGVKXITk3Tgn2f+v5MYwr0T/TgmN2ZVdxFORPx5emmxYYnC5OeigsCnBMpvjacOEiRN9uF5DMYBpIfeCzBsJQpJVQfr0LJJGHjoCH67L6wnWySfZL9rrY+VGUgTGRWzWqEIohFsCeSGNU6fdOeA83tCh9nISeioqkDCkaYNxINBe2/itSoeEpzCo0Qv/7/CmADukke9Ta3SdpwDy9MCXFfkSo6dx03WMEFBm7+4a4p6UDYJl0PZHpZk98SzlY2OPeEDG67ebgwUPhXn/q/86bIRsW3Op9jXUQ+h2kR1hskiHFXoahlxXMoED1CWa5tySVAac05X7PPxdZM00axYPNbPOaq9sPwIlwf4PGmK0OO9d2dQ==;5:XqZDMdRPI5BhHrnjMVeDUn95sg8FeI2rv5EW1htc0bacf9MVRgft1pKdD6L8GV36jDQ6fpcVUdwrqddO6HgVTTBgQSLDzD7T9v/s2MdGdhi+nfog0etA2LbAf4epfAU8ftLWtrcsaCweqbdFQjOi2UxvDLG2Li0jd4CrtvHIGgs=;7:IbVuJw4ml6dTKdIJStUIyiOyb5MH++Qn9E2OFcz7Ym00EHZi9ZJD+2Y2gAnleCXgt9dQ10yzT7AQ4dORZZkDcQVaIIHCAkU3Kn+knNvp985EWCfSJjYAX5yj23LX/DRiFQ8fkBNxdWu00EUGe9L8Tw==
+x-microsoft-exchange-diagnostics: 1;AM0PR04MB3985;6:V6ZmwugsKZtUmnUn/YL+Wi3QeQzo7H3cU1I2Wsq0BhnmTunjI1T6dTVktlFLkpg50Z5KkAuKzASwq7tKG6Mdc7s+/n8GjZ4WtAOD/uKfJHj+VIe3Cm/vMcXNWdwUtIwindzZAm6q6Qq7lMVlG56XZPkKuPGXOfOezYG2scMsu9/+sEOQ3rDYpOB5EL7SzP9DhME3xDontsSuj6JT0ryoTr8rC1hAVx962Ccm5NmO+G2vXng+2HQvDalstOxLeTaFJiPq2yK+L8kvMDuPLxAWqz72cjspojR2pB0VXXXb/06RGNYMgqHMqsLqA4j1oGFyxdkWNM/VRqutP+oGBS/Wb7O33FPH0FTecDCdeVdxC5+Bu/Na41qn983XkscdkUE3MdByuJp/IQjobuNtDUkoYTswxtzMBePhqkFqj6yM3vmTGhtYVhgFCyCey6BmUs9QochZiwxXa/HvqIIZhyfpVg==;5:DuwN/JeDGej4nlU1kLuI1wdwMW98M+4ZCis5SSVC1FvjG51zVcB1f+hpJikioKnpdfcSjN2JGSMzOW23bCRcKJefMYVASh/+NN+C0SEmkaYgEkdBQRimHxGehBkWbpqpPTnvXqEU/EKP3eQ0u8QEq7Od1CORnWaue9VVVzzp5xY=;7:yO9wuhqEZj+y9SMW8bNZOR8L6BK0M3PhYnNlxmc8fW9sBq4H3cf2uMfvsMuHu3sO945I/BKgRlJ7Hu3bKDEs84EwkSzj7xoRb0YA8G84riKk9jVJO7iCA8+uXJT2LZAc/4Jf+EUXYDMJm0vC7K6f2Q==
 x-ms-exchange-antispam-srfa-diagnostics: SOS;
-x-ms-office365-filtering-correlation-id: f0750e66-467e-469b-421c-08d64e3b7a99
+x-ms-office365-filtering-correlation-id: 99206161-1453-4cb6-ad2a-08d64e3ed8a4
 x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390098)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600074)(711020)(4618075)(2017052603328)(7153060)(7193020);SRVR:AM0PR04MB4260;
-x-ms-traffictypediagnostic: AM0PR04MB4260:
-x-microsoft-antispam-prvs: <AM0PR04MB426046CAAAC85D8D709FF5849AD80@AM0PR04MB4260.eurprd04.prod.outlook.com>
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390098)(7020095)(4652040)(8989299)(5600074)(711020)(4618075)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(2017052603328)(7153060)(7193020);SRVR:AM0PR04MB3985;
+x-ms-traffictypediagnostic: AM0PR04MB3985:
+x-microsoft-antispam-prvs: <AM0PR04MB3985AE470788175A960EE70E9AD80@AM0PR04MB3985.eurprd04.prod.outlook.com>
+x-exchange-antispam-report-test: UriScan:;
 x-ms-exchange-senderadcheck: 1
-x-exchange-antispam-report-cfa-test: BCL:0;PCL:0;RULEID:(8211001083)(6040522)(2401047)(5005006)(8121501046)(3002001)(10201501046)(93006095)(93001095)(3231415)(944501410)(52105112)(6055026)(148016)(149066)(150057)(6041310)(20161123564045)(20161123562045)(20161123560045)(20161123558120)(201703131423095)(201702281528075)(20161123555045)(201703061421075)(201703061406153)(201708071742011)(7699051)(76991095);SRVR:AM0PR04MB4260;BCL:0;PCL:0;RULEID:;SRVR:AM0PR04MB4260;
+x-exchange-antispam-report-cfa-test: BCL:0;PCL:0;RULEID:(8211001083)(6040522)(2401047)(5005006)(8121501046)(93006095)(93001095)(3231415)(944501410)(52105112)(10201501046)(3002001)(6055026)(148016)(149066)(150057)(6041310)(20161123558120)(20161123562045)(20161123564045)(20161123560045)(201703131423095)(201702281528075)(20161123555045)(201703061421075)(201703061406153)(201708071742011)(7699051)(76991095);SRVR:AM0PR04MB3985;BCL:0;PCL:0;RULEID:;SRVR:AM0PR04MB3985;
 x-forefront-prvs: 08617F610C
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(376002)(136003)(396003)(346002)(39860400002)(366004)(199004)(189003)(2501003)(6506007)(53546011)(76176011)(105586002)(7696005)(2900100001)(66066001)(6116002)(102836004)(54906003)(3846002)(26005)(186003)(39060400002)(6246003)(110136005)(74316002)(7736002)(229853002)(6436002)(305945005)(5660300001)(68736007)(106356001)(316002)(97736004)(33656002)(478600001)(4326008)(2906002)(446003)(14454004)(25786009)(55016002)(81166006)(8676002)(81156014)(486006)(476003)(44832011)(71190400001)(86362001)(8936002)(9686003)(256004)(53936002)(99286004)(71200400001)(93886005);DIR:OUT;SFP:1101;SCL:1;SRVR:AM0PR04MB4260;H:AM0PR04MB3971.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(346002)(39860400002)(396003)(366004)(136003)(376002)(199004)(189003)(81156014)(8676002)(8936002)(99286004)(68736007)(6246003)(102836004)(33656002)(55016002)(54906003)(2900100001)(6436002)(2501003)(305945005)(53936002)(7736002)(6506007)(9686003)(7696005)(93886005)(53546011)(76176011)(110136005)(316002)(66066001)(86362001)(81166006)(229853002)(5660300001)(26005)(4326008)(14454004)(39060400002)(71200400001)(105586002)(44832011)(25786009)(486006)(71190400001)(6116002)(446003)(256004)(3846002)(476003)(478600001)(106356001)(186003)(97736004)(74316002)(2906002);DIR:OUT;SFP:1101;SCL:1;SRVR:AM0PR04MB3985;H:AM0PR04MB3971.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
 received-spf: None (protection.outlook.com: nxp.com does not designate
  permitted sender hosts)
-x-microsoft-antispam-message-info: n56eBYM2gKjAbUvL462xqAMAwJ0doB/NSrX0VJemKQAfzgYF9GJDXpiWQ8uDLNmxam9nilMO1F8rFJIsBem6MpAm//0haT5AsGQwWRjx7GgwwojyspDvRMSxl0doKJNlvqRlTbTZsQ3Il8lhveVRgRNr6jgQL1EsAD6L9sPwae4+s97HsuabMz0Ud0Iypat0NJzvWC1hK10fAvAfkL8nWHnNcHt7esB6MfzRSPa129d0KPttsV3ZUzfo/5+sbbEp5uihOBP2gt2V31R4FajKrDSEKqE2jdwX/B+TNNoFEwfntRVh24tyl2yA5DHTFlKH2HAoOyugkhiTAnSzEPIoiu0kveaDgQoUWRNn03J0IOc=
+x-microsoft-antispam-message-info: 7q4/biBJEJNlWGZuk2RGsWxOtpsWLlPohpZiRuNdTJsxfmpa/kRDwdC4OqdtyGPvCwk41z9YdcrldYbsJl5ihJLGwTjJLTM776Biu/J110ZEEbNy5gDxOx8/zEhbmCpm3sfbsiWsYqXODC97793sdO5bhqd59v8HHEchKVWCtYnO8Vun8FLro3lmqZvpkCXSu7CrcQDzDnxx+odedrOXKthZ8E2SIqf4s/uAHI3kS3spTwbbd1e++fGyNiWa8MPpgZXzkw6l/N7UeXBLaeHtDy2tkj867vxzyvj3JrGfjE9gffc+su164TRJuJ4CMzeVyZkVGXJ9Knefhct9MFVMMA87QGBRhyFBHizv5ij4TF4=
 spamdiagnosticoutput: 1:99
 spamdiagnosticmetadata: NSPM
-Content-Type: text/plain; charset="Windows-1252"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f0750e66-467e-469b-421c-08d64e3b7a99
-X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Nov 2018 16:24:28.5311
+X-MS-Exchange-CrossTenant-Network-Message-Id: 99206161-1453-4cb6-ad2a-08d64e3ed8a4
+X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Nov 2018 16:48:34.8801
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR04MB4260
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR04MB3985
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On 11/17/18 3:22 PM, Tracy Smith wrote:=0A=
-> Thank you Boris for the information.  It is helpful.=0A=
+On 11/19/18 8:38 AM, Tracy Smith wrote:=0A=
+> Steve, you were correct, there wasn't a device tree entry for the=0A=
+> qoriq memory controller in=0A=
+> arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi.  I added it making it=0A=
+> identical to the fsl-ls1046s.dtsi, which should have the same memory=0A=
+> controller and entry as the ls1043a.  I added this but it didn't make=0A=
+> a difference as far as being able to call the probe function. I'm now=0A=
+> checking the mpc85xx_edac.c dtsi entry for comparison since York used=0A=
+> the mpc85xx as the basis for the layerscape, but there is something=0A=
+> else missing preventing the probe function from being called.=0A=
 > =0A=
->>> 2. The default EDAC_OPSTATE_INT in fsl_ddr_mc_init() and the=0A=
->>> platform_driver_register() is successful. But I don=92t see any printk(=
-)=0A=
->>> messages in fsl_mc_err_probe() within fsl_ddr_edac.c. No errors appear=
+> @York=0A=
+> What is your entry for=0A=
+> /proc/device-tree/soc/ifc@1530000/board-control@1,0/compatible=0A=
 =0A=
->>> in any /var/log/*.=0A=
-> =0A=
->> Yeah, see if it even gets called at all:=0A=
-> =0A=
-> I did a grep on /var/log/* and don't see any printk's from=0A=
-> fsl_mc_err_probe(). So, it's not being called.=0A=
-> =0A=
-> 1) What would cause the probe function not to be called?=0A=
-> =0A=
-> 2) Were changes made in how .probe functions were called between=0A=
-> different kernel releases of the edac?=0A=
-> =0A=
-> 3) How should I go about root causing the reason for the .probe to=0A=
-> fail since I may have to backport any changes made?=0A=
-> =0A=
-> 4) Possibly a patch exists for .probe changes after 4.1.35-rt41?=0A=
-> =0A=
-> static struct platform_driver fsl_ddr_mc_err_driver =3D {=0A=
-> =0A=
-> .probe =3D fsl_mc_err_probe,=0A=
-> .remove =3D fsl_mc_err_remove,=0A=
-> .driver =3D {=0A=
->               .name =3D "fsl_ddr_mc_err",=0A=
->               .of_match_table =3D fsl_ddr_mc_err_of_match,=0A=
->     },=0A=
-> }l;=0A=
-> =0A=
-> int fsl_mc_err_probe(struct platform_device *op)=0A=
-> =0A=
-> {=0A=
->  struct mem_ctl_info *mci;=0A=
->  struct edac_mc_layer layers[2];=0A=
->  struct fsl_mc_pdata *pdata;=0A=
->  struct resource r;=0A=
->  u32 sdram_ctl;=0A=
->  int res;=0A=
-> =0A=
-> pr_err("%s: entry\n", __func__);=0A=
-> printk("entered fsl_mc_err_probe!\n");=0A=
-> =0A=
-> Any assistance greatly appreciated.=0A=
-> =0A=
-> =0A=
-> On Sat, Nov 17, 2018 at 8:05 AM Borislav Petkov <bp@alien8.de> wrote:=0A=
->>=0A=
->> + York.=0A=
->>=0A=
->> On Fri, Nov 16, 2018 at 11:07:50AM -0600, Tracy Smith wrote:=0A=
->>> I=92m attempting to insmod/modprobe the layerscape_edac_mod.ko driver.=
+EDAC driver doesn't check IFC. Are you debugging EDAC for memory controller=
+?=0A=
 =0A=
->>> It seems the driver enters layerscape_edac.c fsl_ddr_mc_init() and=0A=
->>> completes successfully. But there is no EDAC boot messages and no=0A=
->>> /proc/interrupts entry for the EDAC. I=92m backporting the EDAC from th=
-e=0A=
->>> LSDK to the SDK 2.0.=0A=
+> =0A=
+> @York=0A=
+> cat /proc/device-tree/compatible entry is this, is this correct?=0A=
+> fsl,ls1043a-rdbfsl,ls1043a=0A=
 =0A=
-Tracy,=0A=
+Once again, you are using your modified code on your own board. So it is=0A=
+not ls1043ardb. This compatible has nothing to do with EDAC driver.=0A=
 =0A=
-You said you were backporting to an older release. Please double check=0A=
-your device tree _after_ Linux reaches prompt. You can find it at=0A=
-/proc/device-tree. You can also check the device tree in U-Boot using=0A=
-bootm command step-by-step, after the fixup.=0A=
+I cannot help you with ls1043ardb because the real ls1043ardb board=0A=
+doesn't support ECC. The closest board I have is ls1046ardb.=0A=
 =0A=
-As long as you have correct "compatible", the probe function should be=0A=
-called. It may quit if ECC is not detected, or not register interrupt if=0A=
-not found in device tree.=0A=
+> =0A=
+>                 ddr: memory-controller@1080000 {=0A=
+>                          compatible =3D "fsl,qoriq-memory-controller";=0A=
+>                          reg =3D <0x0 0x1080000 0x0 0x1000>;=0A=
+>                          interrupts =3D <0 144 0x4>;=0A=
+>                          big-endian;=0A=
+>                  };=0A=
+=0A=
+This is your source code, not your final device tree. Please learn to=0A=
+use "fdt" command under U-Boot to dump your device tree before booting=0A=
+Linux, or check after Linux is up. For your reference, on my ls1046ardb,=0A=
+I have=0A=
+=0A=
+# cat /proc/device-tree/soc/memory-controller@1080000/compatible=0A=
+fsl,qoriq-memory-controller=0A=
 =0A=
 York=0A=
