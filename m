@@ -2,145 +2,391 @@ Return-Path: <SRS0=5EDY=N6=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E163C43441
-	for <util-linux@archiver.kernel.org>; Mon, 19 Nov 2018 17:40:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF173C43441
+	for <util-linux@archiver.kernel.org>; Mon, 19 Nov 2018 17:57:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3E3452145D
-	for <util-linux@archiver.kernel.org>; Mon, 19 Nov 2018 17:40:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7C07020831
+	for <util-linux@archiver.kernel.org>; Mon, 19 Nov 2018 17:57:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="d+U+KcSc"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3E3452145D
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=nxp.com
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CoalCIn1"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7C07020831
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=util-linux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389944AbeKTEFD (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 19 Nov 2018 23:05:03 -0500
-Received: from mail-eopbgr80053.outbound.protection.outlook.com ([40.107.8.53]:48093
-        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2388650AbeKTDNa (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 19 Nov 2018 22:13:30 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fsRkgtxcrlxaLCLxt4m0xE7EJgk2SS2dlcUzQwXmCb0=;
- b=d+U+KcScayFBThjH/9kVLwKgOHfs3jRdxQaKJBj0VUbnp0wflsoqpvM+J9w6odtDPxaQS8lTl1De49mITxh04rEXUhz+xkK+doOkewrhb2tHO4+IQlE2Qg+LrCi39NFMduyHulgL6N8H7S1viIZy3dPWZVw3ATaDjCYHtbZ0fJg=
-Received: from AM0PR04MB3971.eurprd04.prod.outlook.com (52.134.90.16) by
- AM0PR04MB3985.eurprd04.prod.outlook.com (52.134.90.18) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1294.30; Mon, 19 Nov 2018 16:48:34 +0000
-Received: from AM0PR04MB3971.eurprd04.prod.outlook.com
- ([fe80::c5be:84db:a7ee:810]) by AM0PR04MB3971.eurprd04.prod.outlook.com
- ([fe80::c5be:84db:a7ee:810%5]) with mapi id 15.20.1294.048; Mon, 19 Nov 2018
- 16:48:34 +0000
-From:   York Sun <york.sun@nxp.com>
-To:     Tracy Smith <tlsmith3777@gmail.com>,
-        "steve@theinkpens.com" <steve@theinkpens.com>
-CC:     "bp@alien8.de" <bp@alien8.de>,
-        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
-        "backports@vger.kernel.org" <backports@vger.kernel.org>,
-        "linux-newbie@vger.kernel.org" <linux-newbie@vger.kernel.org>,
-        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
-        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>
-Subject: Re: edac driver initialization, interrupt, & debug
-Thread-Topic: edac driver initialization, interrupt, & debug
-Thread-Index: AQHUftrJh0wfhXfffECLCCglLVqjYA==
-Date:   Mon, 19 Nov 2018 16:48:34 +0000
-Message-ID: <AM0PR04MB3971FBCF6CB23BE778D39EED9AD80@AM0PR04MB3971.eurprd04.prod.outlook.com>
+        id S1733081AbeKTEW1 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 19 Nov 2018 23:22:27 -0500
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:41519 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731454AbeKTDCR (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 19 Nov 2018 22:02:17 -0500
+Received: by mail-lf1-f68.google.com with SMTP id c16so21791539lfj.8;
+        Mon, 19 Nov 2018 08:38:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=lZ8l+WwOS3+Uxro0QNBAanAwdRleFaUV9KMYErdP950=;
+        b=CoalCIn1SKdtzBB3c5a/0FTfqbN00wb3wrTkKhRmmBAEYSGwGtOplfK6jnv4TJr/KR
+         5F4A5F+SoeKs3cK2wlsQTCbbrzuYWIsB4JH4PoVZGLoEx7jatw5/W4b15Q24/SQ3Benv
+         zajTWcNWWxeNRVGn6adzFuZNq1tCM2OryLPM1k00S1CuD7jYDH9b5cSa4AyeEFAq/0rg
+         U4HkwjIMqlD0qtep9l8OaTY6Who37Ie/f39yPCbRbjiTBuf+DAdZmVoBmibjxRQdNru3
+         1+P6Zhnx6LhaKF71Fod7PdT3BUd4iXhpq5Ntss4Y/fZ6xnk+8yzeP0xSqF2RTu+kL4zi
+         nKHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=lZ8l+WwOS3+Uxro0QNBAanAwdRleFaUV9KMYErdP950=;
+        b=CUGDy269r2AUo+vOsTlA2tOKcAnGv8nFSq4wPnxnavdAkPoY3nNHXBKmyFredOX56k
+         W+3pdZqh56XMzD2iaiGXddTg+8LXRmknAGgrCReIPcBHK5V1fl5YoCsG3q8W3sIMNaS6
+         6ebc+7o+DpZvA/VU18i7vSPDRAnF8BcYjsV4wbvSE/Zf+LVSXt4tpQrhByRDIEdRc8ya
+         O4zFRds7a4cqsH2OcpZO51qNSQYsfwzLNt1MMj1lknJ2mVlN0Lu7UB1Zxnx2VDagqQYj
+         9IK+yDLLftzWKVXJ4vUi1iQ2If5oti0QqiaR6n5MnFyvRpAtYpXkZIRPtHGHWFOiYRhJ
+         6bvg==
+X-Gm-Message-State: AGRZ1gImqzJCvdpL7ouAeGruWlvPCuWfV+4f8ioQzNqEGuK1ZUKHp2nw
+        EJtu1PQvb6PVTn4WACpiDWEC4GwtmBQjENX54AA=
+X-Google-Smtp-Source: AJdET5fxw9oeDZb/AAuN0tDmT3/+X8gWIGptMpCs42ZcE2ihCZWdgshVie6yCLzKqSKbHgYSizu+6+kd6XaWECH/YO4=
+X-Received: by 2002:a19:7d42:: with SMTP id y63mr10541801lfc.47.1542645485912;
+ Mon, 19 Nov 2018 08:38:05 -0800 (PST)
+MIME-Version: 1.0
 References: <BYAPR02MB431115EC4735AE5B7E29F2CEF6DC0@BYAPR02MB4311.namprd02.prod.outlook.com>
  <BYAPR02MB43110062F32BFDEA712AB371F6DC0@BYAPR02MB4311.namprd02.prod.outlook.com>
  <CAChUvXMp6S6MBY_LmrfgdPcctQw70FoyxbiHeFqK+5fQx5omCw@mail.gmail.com>
  <CAChUvXP6eu76xqEZNspooUMb+311mmDH8=St=awCL77hJPus9Q@mail.gmail.com>
- <20181117140513.GA4944@zn.tnic>
- <CAChUvXNO_8Frw1igaEAHSxmdtTy7MJVm8W1NpUqZ6tFD0hXwhA@mail.gmail.com>
+ <20181117140513.GA4944@zn.tnic> <CAChUvXNO_8Frw1igaEAHSxmdtTy7MJVm8W1NpUqZ6tFD0hXwhA@mail.gmail.com>
  <0BF2A47F-7F33-4E4D-A566-23AF2F4CCD52@theinkpens.com>
- <CAChUvXMVHxhawLFPFzz_0+iFxjQ+dRwpTsCGo95oc8Y+7a-2DQ@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=york.sun@nxp.com; 
-x-originating-ip: [64.157.242.222]
-x-ms-publictraffictype: Email
-x-microsoft-exchange-diagnostics: 1;AM0PR04MB3985;6:V6ZmwugsKZtUmnUn/YL+Wi3QeQzo7H3cU1I2Wsq0BhnmTunjI1T6dTVktlFLkpg50Z5KkAuKzASwq7tKG6Mdc7s+/n8GjZ4WtAOD/uKfJHj+VIe3Cm/vMcXNWdwUtIwindzZAm6q6Qq7lMVlG56XZPkKuPGXOfOezYG2scMsu9/+sEOQ3rDYpOB5EL7SzP9DhME3xDontsSuj6JT0ryoTr8rC1hAVx962Ccm5NmO+G2vXng+2HQvDalstOxLeTaFJiPq2yK+L8kvMDuPLxAWqz72cjspojR2pB0VXXXb/06RGNYMgqHMqsLqA4j1oGFyxdkWNM/VRqutP+oGBS/Wb7O33FPH0FTecDCdeVdxC5+Bu/Na41qn983XkscdkUE3MdByuJp/IQjobuNtDUkoYTswxtzMBePhqkFqj6yM3vmTGhtYVhgFCyCey6BmUs9QochZiwxXa/HvqIIZhyfpVg==;5:DuwN/JeDGej4nlU1kLuI1wdwMW98M+4ZCis5SSVC1FvjG51zVcB1f+hpJikioKnpdfcSjN2JGSMzOW23bCRcKJefMYVASh/+NN+C0SEmkaYgEkdBQRimHxGehBkWbpqpPTnvXqEU/EKP3eQ0u8QEq7Od1CORnWaue9VVVzzp5xY=;7:yO9wuhqEZj+y9SMW8bNZOR8L6BK0M3PhYnNlxmc8fW9sBq4H3cf2uMfvsMuHu3sO945I/BKgRlJ7Hu3bKDEs84EwkSzj7xoRb0YA8G84riKk9jVJO7iCA8+uXJT2LZAc/4Jf+EUXYDMJm0vC7K6f2Q==
-x-ms-exchange-antispam-srfa-diagnostics: SOS;
-x-ms-office365-filtering-correlation-id: 99206161-1453-4cb6-ad2a-08d64e3ed8a4
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390098)(7020095)(4652040)(8989299)(5600074)(711020)(4618075)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(2017052603328)(7153060)(7193020);SRVR:AM0PR04MB3985;
-x-ms-traffictypediagnostic: AM0PR04MB3985:
-x-microsoft-antispam-prvs: <AM0PR04MB3985AE470788175A960EE70E9AD80@AM0PR04MB3985.eurprd04.prod.outlook.com>
-x-exchange-antispam-report-test: UriScan:;
-x-ms-exchange-senderadcheck: 1
-x-exchange-antispam-report-cfa-test: BCL:0;PCL:0;RULEID:(8211001083)(6040522)(2401047)(5005006)(8121501046)(93006095)(93001095)(3231415)(944501410)(52105112)(10201501046)(3002001)(6055026)(148016)(149066)(150057)(6041310)(20161123558120)(20161123562045)(20161123564045)(20161123560045)(201703131423095)(201702281528075)(20161123555045)(201703061421075)(201703061406153)(201708071742011)(7699051)(76991095);SRVR:AM0PR04MB3985;BCL:0;PCL:0;RULEID:;SRVR:AM0PR04MB3985;
-x-forefront-prvs: 08617F610C
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(346002)(39860400002)(396003)(366004)(136003)(376002)(199004)(189003)(81156014)(8676002)(8936002)(99286004)(68736007)(6246003)(102836004)(33656002)(55016002)(54906003)(2900100001)(6436002)(2501003)(305945005)(53936002)(7736002)(6506007)(9686003)(7696005)(93886005)(53546011)(76176011)(110136005)(316002)(66066001)(86362001)(81166006)(229853002)(5660300001)(26005)(4326008)(14454004)(39060400002)(71200400001)(105586002)(44832011)(25786009)(486006)(71190400001)(6116002)(446003)(256004)(3846002)(476003)(478600001)(106356001)(186003)(97736004)(74316002)(2906002);DIR:OUT;SFP:1101;SCL:1;SRVR:AM0PR04MB3985;H:AM0PR04MB3971.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: nxp.com does not designate
- permitted sender hosts)
-x-microsoft-antispam-message-info: 7q4/biBJEJNlWGZuk2RGsWxOtpsWLlPohpZiRuNdTJsxfmpa/kRDwdC4OqdtyGPvCwk41z9YdcrldYbsJl5ihJLGwTjJLTM776Biu/J110ZEEbNy5gDxOx8/zEhbmCpm3sfbsiWsYqXODC97793sdO5bhqd59v8HHEchKVWCtYnO8Vun8FLro3lmqZvpkCXSu7CrcQDzDnxx+odedrOXKthZ8E2SIqf4s/uAHI3kS3spTwbbd1e++fGyNiWa8MPpgZXzkw6l/N7UeXBLaeHtDy2tkj867vxzyvj3JrGfjE9gffc+su164TRJuJ4CMzeVyZkVGXJ9Knefhct9MFVMMA87QGBRhyFBHizv5ij4TF4=
-spamdiagnosticoutput: 1:99
-spamdiagnosticmetadata: NSPM
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <0BF2A47F-7F33-4E4D-A566-23AF2F4CCD52@theinkpens.com>
+From:   Tracy Smith <tlsmith3777@gmail.com>
+Date:   Mon, 19 Nov 2018 10:37:51 -0600
+Message-ID: <CAChUvXMVHxhawLFPFzz_0+iFxjQ+dRwpTsCGo95oc8Y+7a-2DQ@mail.gmail.com>
+Subject: Re: edac driver initialization, interrupt, & debug
+To:     steve@theinkpens.com
+Cc:     bp@alien8.de, york.sun@nxp.com, linux-edac@vger.kernel.org,
+        backports@vger.kernel.org, linux-newbie@vger.kernel.org,
+        util-linux@vger.kernel.org, linux-mmc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 99206161-1453-4cb6-ad2a-08d64e3ed8a4
-X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Nov 2018 16:48:34.8801
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR04MB3985
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On 11/19/18 8:38 AM, Tracy Smith wrote:=0A=
-> Steve, you were correct, there wasn't a device tree entry for the=0A=
-> qoriq memory controller in=0A=
-> arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi.  I added it making it=0A=
-> identical to the fsl-ls1046s.dtsi, which should have the same memory=0A=
-> controller and entry as the ls1043a.  I added this but it didn't make=0A=
-> a difference as far as being able to call the probe function. I'm now=0A=
-> checking the mpc85xx_edac.c dtsi entry for comparison since York used=0A=
-> the mpc85xx as the basis for the layerscape, but there is something=0A=
-> else missing preventing the probe function from being called.=0A=
-> =0A=
-> @York=0A=
-> What is your entry for=0A=
-> /proc/device-tree/soc/ifc@1530000/board-control@1,0/compatible=0A=
-=0A=
-EDAC driver doesn't check IFC. Are you debugging EDAC for memory controller=
-?=0A=
-=0A=
-> =0A=
-> @York=0A=
-> cat /proc/device-tree/compatible entry is this, is this correct?=0A=
-> fsl,ls1043a-rdbfsl,ls1043a=0A=
-=0A=
-Once again, you are using your modified code on your own board. So it is=0A=
-not ls1043ardb. This compatible has nothing to do with EDAC driver.=0A=
-=0A=
-I cannot help you with ls1043ardb because the real ls1043ardb board=0A=
-doesn't support ECC. The closest board I have is ls1046ardb.=0A=
-=0A=
-> =0A=
->                 ddr: memory-controller@1080000 {=0A=
->                          compatible =3D "fsl,qoriq-memory-controller";=0A=
->                          reg =3D <0x0 0x1080000 0x0 0x1000>;=0A=
->                          interrupts =3D <0 144 0x4>;=0A=
->                          big-endian;=0A=
->                  };=0A=
-=0A=
-This is your source code, not your final device tree. Please learn to=0A=
-use "fdt" command under U-Boot to dump your device tree before booting=0A=
-Linux, or check after Linux is up. For your reference, on my ls1046ardb,=0A=
-I have=0A=
-=0A=
-# cat /proc/device-tree/soc/memory-controller@1080000/compatible=0A=
-fsl,qoriq-memory-controller=0A=
-=0A=
-York=0A=
+Steve, you were correct, there wasn't a device tree entry for the
+qoriq memory controller in
+arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi.  I added it making it
+identical to the fsl-ls1046s.dtsi, which should have the same memory
+controller and entry as the ls1043a.  I added this but it didn't make
+a difference as far as being able to call the probe function. I'm now
+checking the mpc85xx_edac.c dtsi entry for comparison since York used
+the mpc85xx as the basis for the layerscape, but there is something
+else missing preventing the probe function from being called.
+
+@York
+What is your entry for
+/proc/device-tree/soc/ifc@1530000/board-control@1,0/compatible
+
+@York
+cat /proc/device-tree/compatible entry is this, is this correct?
+fsl,ls1043a-rdbfsl,ls1043a
+
+                ddr: memory-controller@1080000 {
+                         compatible =3D "fsl,qoriq-memory-controller";
+                         reg =3D <0x0 0x1080000 0x0 0x1000>;
+                         interrupts =3D <0 144 0x4>;
+                         big-endian;
+                 };
+
+                 ifc: ifc@1530000 {
+                         compatible =3D "fsl,ifc", "simple-bus";
+                         reg =3D <0x0 0x1530000 0x0 0x10000>;
+                         interrupts =3D <0 43 0x4>;
+                 };
+
+I haven't had to change the edac code to compile it, so it is what is
+in drivers/edac. The ECC is enabled in uboot and supported by the
+memory controller DDR4. I have attached the layerscape_edac_mod.mod.c
+file after compiling at the end.
+
+I see the fsl_ddr_mc_err_of_match[] for the memory controller and it
+is associated with the .of_match_table =3D fsl_ddr_mc_err_of_match
+
+ static const struct of_device_id fsl_ddr_mc_err_of_match[] =3D {
+         { .compatible =3D "fsl,qoriq-memory-controller", },
+         {},
+ };
+ MODULE_DEVICE_TABLE(of, fsl_ddr_mc_err_of_match);
+
+ static struct platform_driver fsl_ddr_mc_err_driver =3D {
+         .probe =3D fsl_mc_err_probe,
+         .remove =3D fsl_mc_err_remove,
+         .driver =3D {
+                 .name =3D "fsl_ddr_mc_err",
+                 .of_match_table =3D fsl_ddr_mc_err_of_match,
+         },
+ };
+
+Beyond this, I only see a "of_match_device" in the altera_edac.c
+driver and the highbanks below, but not in any other drivers.
+
+cd drivers/edac
+grep of_match_device * | more
+altera_edac.c:  id =3D of_match_device(altr_sdram_ctrl_of_match, &pdev->dev=
+);
+highbank_l2_edac.c:     id =3D of_match_device(hb_l2_err_of_match, &pdev->d=
+ev);
+highbank_mc_edac.c:     id =3D of_match_device(hb_ddr_ctrl_of_match, &pdev-=
+>dev);
+
+The .of_match_table entry appears correct for the layerscape_edac.c.
+York took this entry from the mpc85xx_edac.c.
+
+ layerscape_edac.c:              .of_match_table =3D fsl_ddr_mc_err_of_matc=
+h,
+ mpc85xx_edac.c:         .of_match_table =3D mpc85xx_l2_err_of_match,
+ mpc85xx_edac.c:         .of_match_table =3D mpc85xx_mc_err_of_match,
+ ppc4xx_edac.c:          .of_match_table =3D ppc4xx_edac_match,
+ synopsys_edac.c:                   .of_match_table =3D synps_edac_match,
+ xgene_edac.c:           .of_match_table =3D xgene_edac_of_match,
+
+--=20
+ layerscape_edac_mod.mod.c
+ #include <linux/vermagic.h>
+ #include <linux/compiler.h>
+
+MODULE_INFO(vermagic, VERMAGIC_STRING);
+
+__visible struct module __this_module
+ __attribute__((section(".gnu.linkonce.this_module"))) =3D {
+         .name =3D KBUILD_MODNAME,
+         .init =3D init_module,
+
+ #ifdef CONFIG_MODULE_UNLOAD
+         .exit =3D cleanup_module,
+ #endif
+
+        .arch =3D MODULE_ARCH_INIT,
+ };
+
+ MODULE_INFO(intree, "Y");
+
+ static const struct modversion_info ____versions[]
+ __used
+ __attribute__((section("__versions"))) =3D {
+         { 0xf41fc8a9, __VMLINUX_SYMBOL_STR(module_layout) },
+         { 0x8294e3fc, __VMLINUX_SYMBOL_STR(edac_mc_add_mc_with_groups) },
+         { 0x1fdc7df2, __VMLINUX_SYMBOL_STR(_mcount) },
+         { 0x51eafc8e, __VMLINUX_SYMBOL_STR(param_ops_int) },
+         { 0x69a358a6, __VMLINUX_SYMBOL_STR(iomem_resource) },
+         { 0x91715312, __VMLINUX_SYMBOL_STR(sprintf) },
+         { 0x26d622f, __VMLINUX_SYMBOL_STR(__platform_driver_register) },
+         { 0x60ea2d6, __VMLINUX_SYMBOL_STR(kstrtoull) },
+         { 0x11089ac7, __VMLINUX_SYMBOL_STR(_ctype) },
+         { 0xb51fbd64, __VMLINUX_SYMBOL_STR(edac_op_state) },
+         { 0x27e1a049, __VMLINUX_SYMBOL_STR(printk) },
+         { 0x1e614c08, __VMLINUX_SYMBOL_STR(of_find_property) },
+         { 0x1215bb3b, __VMLINUX_SYMBOL_STR(devres_open_group) },
+         { 0x91f27fc0, __VMLINUX_SYMBOL_STR(edac_mc_handle_error) },
+         { 0x643ce492, __VMLINUX_SYMBOL_STR(edac_mc_free) },
+         { 0x9b69ee39, __VMLINUX_SYMBOL_STR(edac_debug_level) },
+         { 0x9c26e7ff, __VMLINUX_SYMBOL_STR(edac_mc_alloc) },
+         { 0x3c5bfeaa, __VMLINUX_SYMBOL_STR(__devm_request_region) },
+         { 0x8229211c, __VMLINUX_SYMBOL_STR(devm_ioremap) },
+         { 0x159dd96a, __VMLINUX_SYMBOL_STR(edac_mc_del_mc) },
+         { 0xb3d3cbde, __VMLINUX_SYMBOL_STR(devres_remove_group) },
+         { 0x48fb5a26, __VMLINUX_SYMBOL_STR(of_address_to_resource) },
+         { 0xb2904f0, __VMLINUX_SYMBOL_STR(platform_get_irq) },
+         { 0xfb3ca8db, __VMLINUX_SYMBOL_STR(platform_driver_unregister) },
+         { 0x69e0f942, __VMLINUX_SYMBOL_STR(devm_request_threaded_irq) },
+         { 0xec4e8f9b, __VMLINUX_SYMBOL_STR(devres_release_group) },
+ };
+
+ static const char __module_depends[]
+ __used
+ __attribute__((section(".modinfo"))) =3D
+ "depends=3D";
+
+Question: is this MODULE_ALIAS "of:N*T*Cfsl" correct?
+
+MODULE_ALIAS("of:N*T*Cfsl,qoriq-memory-controller*");
+ - layerscape_edac_mod.mod.c 55/55 100%
+
+thx,
+Tracy
+
+
+On Sat, Nov 17, 2018 at 7:05 PM Steve Inkpen <steve@theinkpens.com> wrote:
+>
+> Are you using a device tree? If yes, make sure there is an entry for this=
+ device.
+>
+> From your snippet of code, there appears to be a match entry in of_match_=
+table?
+>
+> Steve
+>
+> > On Nov 17, 2018, at 6:22 PM, Tracy Smith <tlsmith3777@gmail.com> wrote:
+> >
+> > Thank you Boris for the information.  It is helpful.
+> >
+> >>> 2. The default EDAC_OPSTATE_INT in fsl_ddr_mc_init() and the
+> >>> platform_driver_register() is successful. But I don=E2=80=99t see any=
+ printk()
+> >>> messages in fsl_mc_err_probe() within fsl_ddr_edac.c. No errors appea=
+r
+> >>> in any /var/log/*.
+> >
+> >> Yeah, see if it even gets called at all:
+> >
+> > I did a grep on /var/log/* and don't see any printk's from
+> > fsl_mc_err_probe(). So, it's not being called.
+> >
+> > 1) What would cause the probe function not to be called?
+> >
+> > 2) Were changes made in how .probe functions were called between
+> > different kernel releases of the edac?
+> >
+> > 3) How should I go about root causing the reason for the .probe to
+> > fail since I may have to backport any changes made?
+> >
+> > 4) Possibly a patch exists for .probe changes after 4.1.35-rt41?
+> >
+> > static struct platform_driver fsl_ddr_mc_err_driver =3D {
+> >
+> > .probe =3D fsl_mc_err_probe,
+> > .remove =3D fsl_mc_err_remove,
+> > .driver =3D {
+> >              .name =3D "fsl_ddr_mc_err",
+> >              .of_match_table =3D fsl_ddr_mc_err_of_match,
+> >    },
+> > }l;
+> >
+> > int fsl_mc_err_probe(struct platform_device *op)
+> >
+> > {
+> > struct mem_ctl_info *mci;
+> > struct edac_mc_layer layers[2];
+> > struct fsl_mc_pdata *pdata;
+> > struct resource r;
+> > u32 sdram_ctl;
+> > int res;
+> >
+> > pr_err("%s: entry\n", __func__);
+> > printk("entered fsl_mc_err_probe!\n");
+> >
+> > Any assistance greatly appreciated.
+> >
+> >
+> >> On Sat, Nov 17, 2018 at 8:05 AM Borislav Petkov <bp@alien8.de> wrote:
+> >>
+> >> + York.
+> >>
+> >>> On Fri, Nov 16, 2018 at 11:07:50AM -0600, Tracy Smith wrote:
+> >>> I=E2=80=99m attempting to insmod/modprobe the layerscape_edac_mod.ko =
+driver.
+> >>> It seems the driver enters layerscape_edac.c fsl_ddr_mc_init() and
+> >>> completes successfully. But there is no EDAC boot messages and no
+> >>> /proc/interrupts entry for the EDAC. I=E2=80=99m backporting the EDAC=
+ from the
+> >>> LSDK to the SDK 2.0.
+> >>>
+> >>> I have set CONFIG_EDAC_DEBUG and set edac_debug_level to 4, but I
+> >>> don=E2=80=99t see any debug messages other than printk()s that I add =
+to
+> >>> fsl_ddr_mc_init() in layerscape_edac.c. No debug messages appear in
+> >>> any logs from fsl_ddr_edac.c.
+> >>>
+> >>> 1. How can I enable debug information? Is debugfs required to print
+> >>> the debug messages for the edac_debug_level and CONFIG_EDAC_DEBUG in
+> >>> the 4.1.35-rt41 kernel for drivers/edac?
+> >>
+> >> No, just slap printks before every return statement, like:
+> >>
+> >>        if (!devres_open_group(&op->dev, fsl_mc_err_probe, GFP_KERNEL))=
+ {
+> >>                pr_err("%s: Error devres_open_group()\n", __func__);
+> >>                return -ENOMEM;
+> >>        }
+> >>
+> >> so that you can get closer to the place where it fails.
+> >>
+> >>> 2. The default EDAC_OPSTATE_INT in fsl_ddr_mc_init() and the
+> >>> platform_driver_register() is successful. But I don=E2=80=99t see any=
+ printk()
+> >>> messages in fsl_mc_err_probe() within fsl_ddr_edac.c. No errors appea=
+r
+> >>> in any /var/log/*.
+> >>
+> >> Yeah, see if it even gets called at all:
+> >>
+> >> int fsl_mc_err_probe(struct platform_device *op)
+> >> {
+> >>        struct mem_ctl_info *mci;
+> >>        struct edac_mc_layer layers[2];
+> >>        struct fsl_mc_pdata *pdata;
+> >>        struct resource r;
+> >>        u32 sdram_ctl;
+> >>        int res;
+> >>
+> >>        pr_err("%s: entry\n", __func__);
+> >>
+> >>
+> >>> 3. I don=E2=80=99t see any interrupts, so why would there not be an e=
+dac
+> >>> interrupt in /proc/inturrupts?
+> >>
+> >> Probably because it doesn't reach the point where it registers an IRQ
+> >> handler...
+> >>
+> >>> Do I need to inject an error before seeing an edac interrupt in
+> >>> /proc/interrupts?
+> >>
+> >> You should, AFAICT, if it loads and registers stuff properly.
+> >>
+> >>> lsmod
+> >>> module: layerscape_edac_mod    12594  0
+> >>>
+> >>> 4. To inject an error I can use the fsl_mc_inject =E2=80=A6. routines=
+ in
+> >>> fsl_ddr_edac.c and write to the registers. But is there a utility tha=
+t
+> >>> already uses these routines that can be used to inject an error
+> >>> (FSL_MC_ECC_ERR_INJECT, FSL_MC_DATA_ERR_INJECT_LO,
+> >>
+> >> You should be able to simply write to *sysfs*. Somewhere under
+> >> /sys/devices/system/edac/...
+> >>
+> >> fsl_mc_inject_data_{lo,hi}_store simply writes the low and high inject
+> >> register.
+> >>
+> >> Btw, looking at it, York, this whole injection functionality needs to
+> >> be behind CONFIG_EDAC_DEBUG because a production driver shouldn't have
+> >> injection capability.
+> >>
+> >> Hmmm.
+> >>
+> >> --
+> >> Regards/Gruss,
+> >>    Boris.
+> >>
+> >> Good mailing practices for 400: avoid top-posting and trim the reply.
+> >
+> >
+> >
+> > --
+> > Confidentiality notice: This e-mail message, including any
+> > attachments, may contain legally privileged and/or confidential
+> > information. If you are not the intended recipient(s), please
+> > immediately notify the sender and delete this e-mail message.
+
+
+
+--=20
+Confidentiality notice: This e-mail message, including any
+attachments, may contain legally privileged and/or confidential
+information. If you are not the intended recipient(s), please
+immediately notify the sender and delete this e-mail message.
