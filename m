@@ -3,68 +3,53 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT autolearn=ham
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_NEOMUTT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F5A6C43441
-	for <util-linux@archiver.kernel.org>; Thu, 22 Nov 2018 10:39:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A85BC43441
+	for <util-linux@archiver.kernel.org>; Thu, 22 Nov 2018 11:43:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1173320865
-	for <util-linux@archiver.kernel.org>; Thu, 22 Nov 2018 10:39:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1173320865
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTP id 3547F20672
+	for <util-linux@archiver.kernel.org>; Thu, 22 Nov 2018 11:43:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3547F20672
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=fatal.se
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=util-linux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730669AbeKVVSB (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 22 Nov 2018 16:18:01 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:45204 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729929AbeKVVSB (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 22 Nov 2018 16:18:01 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 49AA081DF0;
-        Thu, 22 Nov 2018 10:39:11 +0000 (UTC)
-Received: from ws.net.home (ovpn-116-43.ams2.redhat.com [10.36.116.43])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 54C665DD86;
-        Thu, 22 Nov 2018 10:39:10 +0000 (UTC)
-Date:   Thu, 22 Nov 2018 11:39:07 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     Stanislav Brabec <sbrabec@suse.cz>
+        id S1730678AbeKVWWS (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 22 Nov 2018 17:22:18 -0500
+Received: from 82-209-166-85.cust.bredband2.com ([82.209.166.85]:56206 "EHLO
+        pi.fatal.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726671AbeKVWWR (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 22 Nov 2018 17:22:17 -0500
+Received: by pi.fatal.se (Postfix, from userid 1000)
+        id 1A436247A5; Thu, 22 Nov 2018 12:43:13 +0100 (CET)
+Date:   Thu, 22 Nov 2018 12:43:13 +0100
+From:   Andreas Henriksson <andreas@fatal.se>
+To:     Karel Zak <kzak@redhat.com>
 Cc:     util-linux@vger.kernel.org
-Subject: Re: [PATCH] rfkill: Add systemd integration
-Message-ID: <20181122103907.vwjf6uprlxzthd7e@ws.net.home>
-References: <0ad9b6ea-0d46-5ec5-1bfc-0e48be52dae8@suse.cz>
+Subject: Re: [RFC/PATCH] Add hardening settings to uuidd.service
+Message-ID: <20181122114313.2n37c6zkl3zjsxty@fatal.se>
+References: <20181112211031.21996-1-andreas@fatal.se>
+ <20181122103219.atqj725ahcqg2n7p@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <0ad9b6ea-0d46-5ec5-1bfc-0e48be52dae8@suse.cz>
-User-Agent: NeoMutt/20180716-521-8fffcf
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.25]); Thu, 22 Nov 2018 10:39:11 +0000 (UTC)
+In-Reply-To: <20181122103219.atqj725ahcqg2n7p@ws.net.home>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, Nov 21, 2018 at 09:04:37PM +0100, Stanislav Brabec wrote:
-> Add rfkill-block@.service and rfkill-unblock@.service templates.
-> These make rfkill integration to systemd easier.
-> 
-> Files come from openSUSE rfkill package.
-> 
-> Example:
-> Use `systemctl {start,stop} rfkill-block@bluetooth` to block or unblock
-> (disable or enable) the bluetooth device.
+On Thu, Nov 22, 2018 at 11:32:19AM +0100, Karel Zak wrote:
+> Not sure, maybe I have miss some another your patch or you forgot to
+> send any patch, [...]
 
-OK, but why? ;-)
+Yeah, I already noticed my screwup here .... Don't have the git tree
+available right now but will send a v2 (with the submitted
+fixup squashed into previous change) ASAP.
 
-Does anything within systemd depend on rfkill? I guess for humans is
-more friendly to call "rfkill unblock bluetooth" than use systemctl.
+Sorry for not looking properly on what I actually submitted.
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Regards,
+Andreas Henriksson
