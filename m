@@ -2,96 +2,99 @@ Return-Path: <SRS0=iT9e=OB=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CCAFC43441
-	for <util-linux@archiver.kernel.org>; Thu, 22 Nov 2018 15:06:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 168C1C43441
+	for <util-linux@archiver.kernel.org>; Thu, 22 Nov 2018 16:09:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8E8F820685
-	for <util-linux@archiver.kernel.org>; Thu, 22 Nov 2018 15:05:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8E8F820685
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=datacom.com.br
+	by mail.kernel.org (Postfix) with ESMTP id C39DF20672
+	for <util-linux@archiver.kernel.org>; Thu, 22 Nov 2018 16:09:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C39DF20672
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=util-linux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730962AbeKWBpn (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 22 Nov 2018 20:45:43 -0500
-Received: from mx.datacom.ind.br ([177.66.5.10]:47188 "EHLO
-        mail.datacom.com.br" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729854AbeKWBpn (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 22 Nov 2018 20:45:43 -0500
-Received: from mail.datacom.com.br (localhost [127.0.0.1])
-        by mail.datacom.com.br (Postfix) with ESMTPS id 974241BA45EC
-        for <util-linux@vger.kernel.org>; Thu, 22 Nov 2018 13:06:35 -0200 (-02)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.datacom.com.br (Postfix) with ESMTP id 8792E1BA45F0
-        for <util-linux@vger.kernel.org>; Thu, 22 Nov 2018 13:06:35 -0200 (-02)
-Received: from mail.datacom.com.br ([127.0.0.1])
-        by localhost (mail.datacom.com.br [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 4Ap-QvcP5X3c for <util-linux@vger.kernel.org>;
-        Thu, 22 Nov 2018 13:06:35 -0200 (-02)
-Received: from pedeld202344.datacom.net (pedeld202344.datacom.net [10.0.120.87])
-        by mail.datacom.com.br (Postfix) with ESMTPSA id 5E2D81BA45EC
-        for <util-linux@vger.kernel.org>; Thu, 22 Nov 2018 13:06:35 -0200 (-02)
-From:   Carlos Santos <casantos@datacom.com.br>
-To:     util-linux@vger.kernel.org
-Subject: [PATCH] build-sys: make fdisk, sfdisk, cfdisk optional (enabled by default)
-Date:   Thu, 22 Nov 2018 13:05:49 -0200
-Message-Id: <20181122150549.32675-1-casantos@datacom.com.br>
-X-Mailer: git-send-email 2.14.5
+        id S2391891AbeKWCt2 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 22 Nov 2018 21:49:28 -0500
+Received: from mx2.suse.de ([195.135.220.15]:56718 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2388435AbeKWCt2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 22 Nov 2018 21:49:28 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 37628AF3A;
+        Thu, 22 Nov 2018 16:09:27 +0000 (UTC)
+Subject: Re: [PATCH] rfkill: Add systemd integration
+To:     Karel Zak <kzak@redhat.com>
+Cc:     util-linux@vger.kernel.org
+References: <0ad9b6ea-0d46-5ec5-1bfc-0e48be52dae8@suse.cz>
+ <20181122103907.vwjf6uprlxzthd7e@ws.net.home>
+From:   Stanislav Brabec <sbrabec@suse.cz>
+Openpgp: preference=signencrypt
+Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
+ xsDiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
+ zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
+ 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
+ AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
+ 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
+ NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
+ SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
+ ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSM0tU3RhbmlzbGF2
+ IEJyYWJlYyA8c3RhbmlzbGF2LmJyYWJlY0BnbWFpbC5jb20+wmwEExECACwCGwMHCwkIBwMC
+ AQYVCAIJCgsEFgIDAQIeAQIXgAUJIT9ywAUCUdMF/QIZAQAKCRBxfCCfoE/NdgreAKCEwh0S
+ bgGDPUFG9HaToZUp+lkzNACbBSazK57hL2hGrJ5K3PVlEpWVAwHOwE0EPq/ZghAEAK3rY7aV
+ eV7YI/HDYul1PnntG+tR2hgnUB4sCfWIPLrusOwa6bEnFbbnjH0IpWxTfrT08bnyAMpJDsK8
+ fMSu053P3Gwkt8ILFuTouw6EF0JaBizsdXbFgKRS8pJVAZk33myR+/VpKw7p1fNchJd6fgqp
+ jkCcVr6lcMCowlMYvCkbAAMGBACRnb/PP30vbbiw1wWAz7pO4YhDnt82EonFgbYdsGqHegGK
+ Jkj3bbh0os0K//ZqhXyp31BQwpAI7uRAqRIfv5OLUqcLJoOLdKh4VyxXhn31dvVs3YQFLULi
+ qiE1Rui5OxgQbmqxk965EMp6QVOKKVFFXKJdYO37NjZo00yScoEAJ8JGBBgRAgAGBQI+r9mC
+ AAoJEHF8IJ+gT812L60An3nw69B52AbSCxEbXBf8cpeZFnR3AJ9STQXip4/l0KIRMgeHeDE0
+ izHxhA==
+Organization: SUSE Linux, s. r. o.
+Message-ID: <81e98f5c-7c5f-1c75-cd48-45b30b516eed@suse.cz>
+Date:   Thu, 22 Nov 2018 17:09:26 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.0
+MIME-Version: 1.0
+In-Reply-To: <20181122103907.vwjf6uprlxzthd7e@ws.net.home>
+Content-Type: text/plain; charset=iso-8859-2
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Useful for embedded systems, on which only few utilities are required.
+Karel Zak wrote:
+> On Wed, Nov 21, 2018 at 09:04:37PM +0100, Stanislav Brabec wrote:
+>> Add rfkill-block@.service and rfkill-unblock@.service templates.
+>> These make rfkill integration to systemd easier.
+>>
+>> Files come from openSUSE rfkill package.
+>>
+>> Example:
+>> Use `systemctl {start,stop} rfkill-block@bluetooth` to block or unblock
+>> (disable or enable) the bluetooth device.
+> 
+> OK, but why? ;-)
+> 
+> Does anything within systemd depend on rfkill? I guess for humans is
+> more friendly to call "rfkill unblock bluetooth" than use systemctl.
 
-Signed-off-by: Carlos Santos <casantos@datacom.com.br>
----
- configure.ac | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+I am not sure about use case of the original author, but I guess
+that it can be useful for suspend target and automatic unblocking when
+using on demand services (e. g. bluetooth service called after
+rfkill-unblock@bluetooth).
 
-diff --git a/configure.ac b/configure.ac
-index e32cfc7e4..7e9fcc5f3 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -1152,26 +1152,30 @@ AC_SUBST([LIBFDISK_VERSION_INFO])
- AC_DEFINE_UNQUOTED([LIBFDISK_VERSION], ["$LIBFDISK_VERSION"], [libfdisk version string])
- 
- 
--UL_BUILD_INIT([fdisk], [check])
-+AC_ARG_ENABLE([fdisk],
-+  AS_HELP_STRING([--disable-fdisk], [do not build fdisk(8), sfdisk(8) and cfdisk(8)]),
-+  [], [UL_DEFAULT_ENABLE([fdisk], [check])]
-+)
-+UL_BUILD_INIT([fdisk])
- UL_REQUIRES_HAVE([fdisk], [openat], [openat functions])
- UL_REQUIRES_BUILD([fdisk], [libfdisk])
- UL_REQUIRES_BUILD([fdisk], [libsmartcols])
- AM_CONDITIONAL([BUILD_FDISK], [test "x$build_fdisk" = xyes])
- 
- 
--UL_BUILD_INIT([sfdisk], [check])
-+UL_BUILD_INIT([sfdisk])
- UL_REQUIRES_HAVE([sfdisk], [openat], [openat functions])
- UL_REQUIRES_BUILD([sfdisk], [libfdisk])
- UL_REQUIRES_BUILD([sfdisk], [libsmartcols])
--AM_CONDITIONAL([BUILD_SFDISK], [test "x$build_sfdisk" = xyes])
-+AM_CONDITIONAL([BUILD_SFDISK], [test "x$build_fdisk" = xyes])
- 
- 
--UL_BUILD_INIT([cfdisk], [check])
-+UL_BUILD_INIT([cfdisk])
- UL_REQUIRES_BUILD([cfdisk], [libfdisk])
- UL_REQUIRES_BUILD([cfdisk], [libsmartcols])
- UL_REQUIRES_HAVE([cfdisk], [open_memstream], [open_memstream function])
- UL_REQUIRES_HAVE([cfdisk], [ncursesw,slang,ncurses], [ncursesw, ncurses or slang library])
--AM_CONDITIONAL([BUILD_CFDISK], [test "x$build_cfdisk" = xyes])
-+AM_CONDITIONAL([BUILD_CFDISK], [test "x$build_fdisk" = xyes])
- 
- 
- AC_ARG_ENABLE([mount],
 -- 
-2.14.5
+Best Regards / S pozdravem,
 
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
