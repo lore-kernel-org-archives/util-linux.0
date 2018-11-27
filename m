@@ -1,91 +1,79 @@
-Return-Path: <SRS0=BbzG=OD=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=X3tB=OG=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_NEOMUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DAB4CC43441
-	for <util-linux@archiver.kernel.org>; Sat, 24 Nov 2018 08:15:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60610C43441
+	for <util-linux@archiver.kernel.org>; Tue, 27 Nov 2018 16:32:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 884AE2086B
-	for <util-linux@archiver.kernel.org>; Sat, 24 Nov 2018 08:15:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 884AE2086B
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=iki.fi
+	by mail.kernel.org (Postfix) with ESMTP id 12F412086B
+	for <util-linux@archiver.kernel.org>; Tue, 27 Nov 2018 16:32:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 12F412086B
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=squeezehead.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=util-linux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728141AbeKXTC7 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sat, 24 Nov 2018 14:02:59 -0500
-Received: from mail-it1-f195.google.com ([209.85.166.195]:56305 "EHLO
-        mail-it1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727804AbeKXTC6 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 24 Nov 2018 14:02:58 -0500
-Received: by mail-it1-f195.google.com with SMTP id o19so21304337itg.5
-        for <util-linux@vger.kernel.org>; Sat, 24 Nov 2018 00:15:18 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc;
-        bh=bb4GvzJzqLI1eo67vhU2iWDBtV/t+4fiyDSHmWmyLzc=;
-        b=MtXlZK+M3V++9fFL6xpjLaaI4YB8AF94r+GMAkwjZxk9CVIqg/IfDQ6On36GwrT7oV
-         sKenoygrs0wlmNJjkG8Ax/2edShb9YbtcUGBwoHb1tD6c1toBhw9ozcxouyjr9MX3O1G
-         nTTdNtqbcDtTev1CUBZbEnwJlEMfD64Tn4OWxMkbOjtFw+R70HXIJAuisXMDUtF9ffeG
-         ZlPFTOqAomuNYFVyYHFki33YC7oYrQEOUVg9cFs0iFd3jjHWhNqBqn7no4t4TMS5iAmJ
-         VzarCZSyX/kHytZTo0Ue8iyq8+wOOdlSdzjlW2g+XYiVMxaVbDgfXCAmjZ+xsnFIR01M
-         XoVw==
-X-Gm-Message-State: AA+aEWYcg24xrMhird4YFCeZaw8W4/QvCQ3mTAiUnheKMQHiUBtsnpf/
-        /GXY4pOAbBmyoNAG1m2YjTzvcpaI3sRNBkNav9g=
-X-Google-Smtp-Source: AFSGD/UzpH2oBjtTL1car5FIWSxttBT8MA82t7MO+TBqBeGUs7r8HqHHHAAEwAdsrc/6S5lzD9/XFZq4SyOTsKuZT9s=
-X-Received: by 2002:a05:660c:10:: with SMTP id q16mr14589191itj.51.1543047318074;
- Sat, 24 Nov 2018 00:15:18 -0800 (PST)
+        id S1731101AbeK1Day (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 27 Nov 2018 22:30:54 -0500
+Received: from bellows.squeezehead.com ([173.228.98.227]:34370 "EHLO
+        bellows.squeezehead.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731035AbeK1Day (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 27 Nov 2018 22:30:54 -0500
+X-Greylist: delayed 1060 seconds by postgrey-1.27 at vger.kernel.org; Tue, 27 Nov 2018 22:30:54 EST
+Received: from localhost (c-73-92-49-5.hsd1.ca.comcast.net [73.92.49.5])
+        (using TLSv1 with cipher AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by bellows.squeezehead.com (Postfix) with ESMTP id DD20410C24;
+        Tue, 27 Nov 2018 08:14:50 -0800 (PST)
+Date:   Tue, 27 Nov 2018 08:14:49 -0800
+From:   Noel Cragg <noel@squeezehead.com>
+To:     util-linux@vger.kernel.org
+Subject: patch: page size warning message
+Message-ID: <20181127161449.azz7fwn4elhh6wao@localhost>
+Reply-To: noel@squeezehead.com
 MIME-Version: 1.0
-References: <0ad9b6ea-0d46-5ec5-1bfc-0e48be52dae8@suse.cz> <20181122103907.vwjf6uprlxzthd7e@ws.net.home>
- <81e98f5c-7c5f-1c75-cd48-45b30b516eed@suse.cz>
-In-Reply-To: <81e98f5c-7c5f-1c75-cd48-45b30b516eed@suse.cz>
-Reply-To: kerolasa@gmail.com
-From:   Sami Kerola <kerolasa@iki.fi>
-Date:   Sat, 24 Nov 2018 08:15:06 +0000
-Message-ID: <CAG27Bk2-r3E1Ae2g4VMqNAEDUWrksLrTDx-jcoYvpZtCZNM_Ww@mail.gmail.com>
-Subject: Re: [PATCH] rfkill: Add systemd integration
-To:     Stanislav Brabec <sbrabec@suse.cz>
-Cc:     Karel Zak <kzak@redhat.com>,
-        util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/mixed; boundary="mvc57bwwfb5arkdf"
+Content-Disposition: inline
+User-Agent: NeoMutt/20170113 (1.7.2)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Sat, 24 Nov 2018 at 02:25, Stanislav Brabec <sbrabec@suse.cz> wrote:
-> Karel Zak wrote:
-> > On Wed, Nov 21, 2018 at 09:04:37PM +0100, Stanislav Brabec wrote:
-> >> Add rfkill-block@.service and rfkill-unblock@.service templates.
-> >> These make rfkill integration to systemd easier.
-> >>
-> >> Files come from openSUSE rfkill package.
-> >>
-> >> Example:
-> >> Use `systemctl {start,stop} rfkill-block@bluetooth` to block or unblock
-> >> (disable or enable) the bluetooth device.
-> >
-> > OK, but why? ;-)
-> >
-> > Does anything within systemd depend on rfkill? I guess for humans is
-> > more friendly to call "rfkill unblock bluetooth" than use systemctl.
->
-> I am not sure about use case of the original author, but I guess
-> that it can be useful for suspend target and automatic unblocking when
-> using on demand services (e. g. bluetooth service called after
-> rfkill-unblock@bluetooth).
 
-systemd has service[1] to maintain RF kill switch state as requested across
-reboots.  I think these rfkill-{block,unblock}@{target} files are
-convenience services to change RF kill states with systemctl.  That said,
-getting a clarification from Jochen would nice because otherwise we are
-simply guessing.
+--mvc57bwwfb5arkdf
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
-[1] https://www.freedesktop.org/software/systemd/man/systemd-rfkill.service.html
+I ran into this while experimenting with alternate page sizes:
 
--- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+  # mkswap -f --label swap -p 2048 swapfile 65536
+  mkswap: Using user-specified page size 0, instead of the system value 4096
+  mkswap: swapfile: warning: wiping old swap signature.
+  Setting up swapspace version 1, size = 64 MiB (67106816 bytes)
+  LABEL=swap, UUID=d0521a3a-8594-4d4b-a79b-5259aeac8d45
+
+Note "user-specified page size 0" in the above output.  I've attached
+a trival patch to fix that warning message.
+
+--mvc57bwwfb5arkdf
+Content-Type: text/x-diff; charset=utf-8
+Content-Disposition: attachment; filename="pagesize-warning.diff"
+
+diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
+index cbb99dccb..28a139d45 100644
+--- a/disk-utils/mkswap.c
++++ b/disk-utils/mkswap.c
+@@ -82,7 +82,7 @@ static void init_signature_page(struct mkswap_control *ctl)
+ 		if (ctl->user_pagesize != kernel_pagesize)
+ 			warnx(_("Using user-specified page size %d, "
+ 				"instead of the system value %d"),
+-				ctl->pagesize, kernel_pagesize);
++				ctl->user_pagesize, kernel_pagesize);
+ 		ctl->pagesize = ctl->user_pagesize;
+ 	} else
+ 		ctl->pagesize = kernel_pagesize;
+
+--mvc57bwwfb5arkdf--
