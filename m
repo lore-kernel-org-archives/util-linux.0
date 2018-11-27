@@ -2,78 +2,91 @@ Return-Path: <SRS0=X3tB=OG=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_NEOMUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60610C43441
-	for <util-linux@archiver.kernel.org>; Tue, 27 Nov 2018 16:32:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED3FCC43441
+	for <util-linux@archiver.kernel.org>; Tue, 27 Nov 2018 18:16:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 12F412086B
-	for <util-linux@archiver.kernel.org>; Tue, 27 Nov 2018 16:32:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 12F412086B
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=squeezehead.com
+	by mail.kernel.org (Postfix) with ESMTP id BFEFB2086B
+	for <util-linux@archiver.kernel.org>; Tue, 27 Nov 2018 18:16:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BFEFB2086B
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=util-linux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731101AbeK1Day (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 27 Nov 2018 22:30:54 -0500
-Received: from bellows.squeezehead.com ([173.228.98.227]:34370 "EHLO
-        bellows.squeezehead.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731035AbeK1Day (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 27 Nov 2018 22:30:54 -0500
-X-Greylist: delayed 1060 seconds by postgrey-1.27 at vger.kernel.org; Tue, 27 Nov 2018 22:30:54 EST
-Received: from localhost (c-73-92-49-5.hsd1.ca.comcast.net [73.92.49.5])
-        (using TLSv1 with cipher AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by bellows.squeezehead.com (Postfix) with ESMTP id DD20410C24;
-        Tue, 27 Nov 2018 08:14:50 -0800 (PST)
-Date:   Tue, 27 Nov 2018 08:14:49 -0800
-From:   Noel Cragg <noel@squeezehead.com>
-To:     util-linux@vger.kernel.org
-Subject: patch: page size warning message
-Message-ID: <20181127161449.azz7fwn4elhh6wao@localhost>
-Reply-To: noel@squeezehead.com
+        id S1725872AbeK1FOu (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 28 Nov 2018 00:14:50 -0500
+Received: from mx2.suse.de ([195.135.220.15]:49140 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725740AbeK1FOu (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 28 Nov 2018 00:14:50 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay1.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 47A61AFF6;
+        Tue, 27 Nov 2018 18:16:05 +0000 (UTC)
+Subject: Re: [PATCH] rfkill: Add systemd integration
+To:     kerolasa@gmail.com
+Cc:     Karel Zak <kzak@redhat.com>,
+        util-linux <util-linux@vger.kernel.org>
+References: <0ad9b6ea-0d46-5ec5-1bfc-0e48be52dae8@suse.cz>
+ <20181122103907.vwjf6uprlxzthd7e@ws.net.home>
+ <81e98f5c-7c5f-1c75-cd48-45b30b516eed@suse.cz>
+ <CAG27Bk2-r3E1Ae2g4VMqNAEDUWrksLrTDx-jcoYvpZtCZNM_Ww@mail.gmail.com>
+From:   Stanislav Brabec <sbrabec@suse.cz>
+Openpgp: preference=signencrypt
+Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
+ xsDiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
+ zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
+ 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
+ AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
+ 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
+ NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
+ SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
+ ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSM0tU3RhbmlzbGF2
+ IEJyYWJlYyA8c3RhbmlzbGF2LmJyYWJlY0BnbWFpbC5jb20+wmwEExECACwCGwMHCwkIBwMC
+ AQYVCAIJCgsEFgIDAQIeAQIXgAUJIT9ywAUCUdMF/QIZAQAKCRBxfCCfoE/NdgreAKCEwh0S
+ bgGDPUFG9HaToZUp+lkzNACbBSazK57hL2hGrJ5K3PVlEpWVAwHOwE0EPq/ZghAEAK3rY7aV
+ eV7YI/HDYul1PnntG+tR2hgnUB4sCfWIPLrusOwa6bEnFbbnjH0IpWxTfrT08bnyAMpJDsK8
+ fMSu053P3Gwkt8ILFuTouw6EF0JaBizsdXbFgKRS8pJVAZk33myR+/VpKw7p1fNchJd6fgqp
+ jkCcVr6lcMCowlMYvCkbAAMGBACRnb/PP30vbbiw1wWAz7pO4YhDnt82EonFgbYdsGqHegGK
+ Jkj3bbh0os0K//ZqhXyp31BQwpAI7uRAqRIfv5OLUqcLJoOLdKh4VyxXhn31dvVs3YQFLULi
+ qiE1Rui5OxgQbmqxk965EMp6QVOKKVFFXKJdYO37NjZo00yScoEAJ8JGBBgRAgAGBQI+r9mC
+ AAoJEHF8IJ+gT812L60An3nw69B52AbSCxEbXBf8cpeZFnR3AJ9STQXip4/l0KIRMgeHeDE0
+ izHxhA==
+Organization: SUSE Linux, s. r. o.
+Message-ID: <0ce3309a-009a-7c00-3a2c-e4917b894f8c@suse.cz>
+Date:   Tue, 27 Nov 2018 19:16:04 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.0
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="mvc57bwwfb5arkdf"
-Content-Disposition: inline
-User-Agent: NeoMutt/20170113 (1.7.2)
+In-Reply-To: <CAG27Bk2-r3E1Ae2g4VMqNAEDUWrksLrTDx-jcoYvpZtCZNM_Ww@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+Sami Kerola wrote:
+That said,
+> getting a clarification from Jochen would nice because otherwise we are
+> simply guessing.
 
---mvc57bwwfb5arkdf
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Jochen Keil already left SUSE and I have no contact e-mail to him.
 
-I ran into this while experimenting with alternate page sizes:
+But I got complain that it is missing after migration of rfkill to util-linux:
+https://bugzilla.opensuse.org/show_bug.cgi?id=1092820
 
-  # mkswap -f --label swap -p 2048 swapfile 65536
-  mkswap: Using user-specified page size 0, instead of the system value 4096
-  mkswap: swapfile: warning: wiping old swap signature.
-  Setting up swapspace version 1, size = 64 MiB (67106816 bytes)
-  LABEL=swap, UUID=d0521a3a-8594-4d4b-a79b-5259aeac8d45
+-- 
+Best Regards / S pozdravem,
 
-Note "user-specified page size 0" in the above output.  I've attached
-a trival patch to fix that warning message.
-
---mvc57bwwfb5arkdf
-Content-Type: text/x-diff; charset=utf-8
-Content-Disposition: attachment; filename="pagesize-warning.diff"
-
-diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
-index cbb99dccb..28a139d45 100644
---- a/disk-utils/mkswap.c
-+++ b/disk-utils/mkswap.c
-@@ -82,7 +82,7 @@ static void init_signature_page(struct mkswap_control *ctl)
- 		if (ctl->user_pagesize != kernel_pagesize)
- 			warnx(_("Using user-specified page size %d, "
- 				"instead of the system value %d"),
--				ctl->pagesize, kernel_pagesize);
-+				ctl->user_pagesize, kernel_pagesize);
- 		ctl->pagesize = ctl->user_pagesize;
- 	} else
- 		ctl->pagesize = kernel_pagesize;
-
---mvc57bwwfb5arkdf--
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Křižíkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
