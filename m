@@ -3,31 +3,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-0.9 required=3.0 tests=FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E299DC04EB9
-	for <util-linux@archiver.kernel.org>; Mon,  3 Dec 2018 18:36:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5568BC04EB9
+	for <util-linux@archiver.kernel.org>; Mon,  3 Dec 2018 21:37:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B3D7C20848
-	for <util-linux@archiver.kernel.org>; Mon,  3 Dec 2018 18:36:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B3D7C20848
+	by mail.kernel.org (Postfix) with ESMTP id 1F71B20851
+	for <util-linux@archiver.kernel.org>; Mon,  3 Dec 2018 21:37:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1F71B20851
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=gmx.de
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=util-linux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726545AbeLCSgu (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 3 Dec 2018 13:36:50 -0500
-Received: from mout.gmx.net ([212.227.15.18]:60581 "EHLO mout.gmx.net"
+        id S1725913AbeLCVhL (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 3 Dec 2018 16:37:11 -0500
+Received: from mout.gmx.net ([212.227.15.19]:45203 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726365AbeLCSgu (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 3 Dec 2018 13:36:50 -0500
-Received: from adsiz.fritz.box ([95.90.40.253]) by mail.gmx.com (mrgmx001
- [212.227.17.190]) with ESMTPSA (Nemesis) id 0MWkep-1h12sU3uVn-00XsPQ; Mon, 03
- Dec 2018 19:36:42 +0100
+        id S1725903AbeLCVhL (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 3 Dec 2018 16:37:11 -0500
+Received: from adsiz.fritz.box ([95.90.40.253]) by mail.gmx.com (mrgmx003
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 0LjZhg-1h5Cav2nFo-00bae4; Mon, 03
+ Dec 2018 22:37:05 +0100
 From:   Ruediger Meier <sweet_f_a@gmx.de>
 To:     Karel Zak <kzak@redhat.com>
 Subject: Re: [PATCH] include/c: re-add type checking in container_of()
-Date:   Mon, 3 Dec 2018 19:36:41 +0100
+Date:   Mon, 3 Dec 2018 22:37:05 +0100
 User-Agent: KMail/1.9.10
 Cc:     util-linux@vger.kernel.org
 References: <20181202182345.3508-1-sweet_f_a@gmx.de> <20181203102304.xjslwg5e7rndfx7i@ws.net.home>
@@ -37,25 +37,25 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <201812031936.41163.sweet_f_a@gmx.de>
-X-Provags-ID: V03:K1:YEOBfJtkL1liP4NDQuzvT4XVfOGMZWyKoCF6Q30+0gMbCRgAekY
- VONM9b7lBmMhl7Y9YtcTjs3zZjFKU35Qm0kc4+opEybyaV1hBjs/jFTb3uqoO5k5l++xJif
- mjG3tcKPFaNLHY3aw9HrUAIWnz/cHS1K+UOd0gZgT7WhdRTAgj4G/Wb1d3YxEpO4DcYXbeP
- G3ogQU2lb2b21vQ5i/WQQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:3Hi7l6sVh7M=:3w/G9DIjh+5z4RsfAYbFxm
- hD5LqTCs+BN4MDF7yD6WEhYKhDjbAVm01bf/Xaa4K8ed3yDS1kkjP1dpGSxyLW+6BLIomXUUT
- KgqMQqoLmBJncw1pE41CgnZgkcX9Z0tz30CZ3ohTWwO1ogaTl305zivxMVnAqJ3rS+7t1LBb2
- GxO73ouNu2TOupc0UOgDMwttA0t6JubDSEjqSM0+7r1PPei4LELDBCqaOEEU4F58BBkQ5eWNW
- Gh8Jk7ycsDFyKeqttIPwBBvV3fKL6unH6sj0RSQInltPi1N6cIHH+HAP7f9gP4Rbma/a9DKPs
- /wkySg2y9bxf9QioKaeohw91xUXXL8d5M12bRadI1DHj0Y2H9C+fFfkTAw8oQm5SD5Ulnx6O0
- l212qJDK2WwQ1uXuqDEMM+0TYyvNsBAmYxs9JCfy7KXzIMSzLFpajnd4mj4NWlj/PdbAV9eHz
- //QmEMf/a/rwM2UO/UdlKuRpo/GBpA5k4PNVvMS97dGEiyK6LkzyYnMLPTYvS0M8SKIUtx0dO
- 7G9XiglfHnaVZ8PTK3IOlpwFMC67LFAkl2L6TqtHJYroMC5TyG6UxrLzA73lkmp+JIHcHakF6
- zrR3FB9D2DIk7jfQz6K3mdmq2tZwaaPza11dmn0/SsI94N/LiVAnX/2Xpmv3Sux7JzytOsVMz
- AYjQr2ixk7Oc9fcWpXoqOfqIW54WauZZGlu4vfO2YxE6Ilu/k3ArpPf0Feu+nmj6sY+lnpWhj
- UCf/HDljpxUPyS5s1QiQMfwq/GMgSGAg3Kr2XZGCtsFW2FiffxzhuVC6o0pTwzNHD1rtIOJjD
- WlrAesfQ7rneQ5Kc5n+PH7Xo4vjm7OfSHhw4l/AruQNfBxPAcJT30HKf4MrsppXefomJd7HH6
- R84WNzO377y80+RJPAv91DjBq8wtBn8wDKhskCZ12oWyn3f/gK36NKcc6JgxnX
+Message-Id: <201812032237.05106.sweet_f_a@gmx.de>
+X-Provags-ID: V03:K1:TfU+GNAdUIW8F1VpWC9C8GL5dZMd9iqIJBEkjsCZgD8gxWERxim
+ 7macoe5o2cvOKxv8TrRaeVwKNvHO5OaH4YmRrQ3B2PSgFMDoyVuXlZ81ROOMQlzzPIO4/BR
+ jPYNvbhk9SugCI4/FgLUSq3hG//kGwhvWCFzHvXWf9xaBEiL75yBLe39BSTqEE+nacouK05
+ ozG5K+s44v6kT3eqGuvTw==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:LUKgJuLrD/Q=:VlsGJ54hGWL9DiwTwnTO2t
+ jEedvYT8OHE51fRrdo2vJYcF444HWaVSkevxTrz9pgUysmBnWG/UMV13N3wzQl07YPpCE1Zs3
+ r/OXLPl/up8e+2bYzK2ISWXUXmPMuBb78Cen/NP9OGaLWamlAehubGaGAn0mzgAsd97pXTKuw
+ JcYlPJcmb4TrKJkLAcJda9agOYq+rbOSNUw57g/HvxWUB9l28vthv3xbPMbiK7fU9Mq0+khO5
+ e7esCaNQsSfPieodrHroV3zaT+zve1Mcw3G0VeHk/CQ1TuDruL3XGEQ3FNTcjSPQc7l0XAzmS
+ fFyfKWq3BcwVHC3TSv00JaZhFNXHQKdN4aKDU2DDQuHaCx3JQ6vc9dOfdIHWFs1dIa5dJB0eQ
+ NRD71oF09KIahd/+9oSl9ZQ9c1tugkbCd3Iy2+B0B0bZIvZ54vGxYmNgoe6XsmRR+QKOueej8
+ YDSG/YB79ijb2fB87p1uAxaKRe6BH9xEUkuumuvwCcMTlXs0rbKohAs/EjcarzT8ChHJJn1Vp
+ oZxiyOm/VDvb72MQZxm9h98lx4hOrov0GU7INoC4FBdJs9qkF1evR3JZ8fJloKKXPLEalAgik
+ V7zOjODr5Wobip95/x09ok9wVySvk0AVGToXC/+kTLj1gcgQeAAkaCK+gcWV4Qrdw8u8Lfqsy
+ /2T/kg+vYPchbqskRrwxwhkaB95d/MQbTXjyUAloUrQ7LFJLpxeMzf0Yw1lKmr/Lu4XWuNdGN
+ 9IB1MGmr1BYqGN5w7CXHzP0iIwgRaIi0svKRPpEsjGlpsWad947wbSMYJe2uENrVIGMPZwAk+
+ 9Yk2mvMlh+Tn5/rYXwOrhURZdojqYpHkgvJe8WccP8BZggwtCtLfVd7DMyyeAHzjLH+zQeL6X
+ qXgGCEgm9+VveKRertZqv8Yh+gq4/cOMyfJ8MIdetAZELLa1twgN/OqK3DRdZz
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
@@ -92,16 +92,10 @@ On Monday 03 December 2018, Karel Zak wrote:
 >
 > Interesting, I do not see any issue with list_entry(() now ;-)
 
-Well, actually the macro would perfectly work as simple as this:
 
-    #define container_of(ptr, type, member) ( \
-       (type *)((char *)ptr - offsetof(type,member)) )
+BTW this is a nice webtool where you can see the issues quickly:
 
-
-All additional stuff is only to get some warnings if programmers are 
-using the macro wrongly. Unfortunately also some false positive 
-warnings. That was and is still the only problem here ... 
-overengineering ;)
+https://godbolt.org/z/Z2XvPc
 
 cu,
 Rudi
