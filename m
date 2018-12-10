@@ -2,129 +2,77 @@ Return-Path: <SRS0=pu0z=OT=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.9 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 709CEC04EB8
-	for <util-linux@archiver.kernel.org>; Mon, 10 Dec 2018 12:47:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0EE6C04EB8
+	for <util-linux@archiver.kernel.org>; Mon, 10 Dec 2018 12:53:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1C56420821
-	for <util-linux@archiver.kernel.org>; Mon, 10 Dec 2018 12:47:53 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=openfortress.nl header.i=rick@openfortress.nl header.b="FweWfblE"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1C56420821
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=openfortress.nl
+	by mail.kernel.org (Postfix) with ESMTP id A20AB20855
+	for <util-linux@archiver.kernel.org>; Mon, 10 Dec 2018 12:53:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A20AB20855
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=util-linux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727034AbeLJMrw (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 10 Dec 2018 07:47:52 -0500
-Received: from lb1-smtp-cloud9.xs4all.net ([194.109.24.22]:44167 "EHLO
-        lb1-smtp-cloud9.xs4all.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726664AbeLJMrw (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Mon, 10 Dec 2018 07:47:52 -0500
-Received: from popmini.vanrein.org ([83.161.146.46])
-        by smtp-cloud9.xs4all.net with ESMTP
-        id WKyOg1LyaMlDTWKyPg5Gcy; Mon, 10 Dec 2018 13:47:45 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=openfortress.nl; 
- i=rick@openfortress.nl; q=dns/txt; s=fame; t=1544446055; 
- h=message-id : date : from : mime-version : to : cc : 
- subject : references : in-reply-to : content-type : 
- content-transfer-encoding : date : from : subject; 
- bh=e8SFJ+uV5LzBbOyY1Is9/wxmMNmlNalB+g4ExyQ4Vio=; 
- b=FweWfblE1Pv/MvbTG8AB6fHOgPkT1ADQFdzn7xy21EHYN9WbOUHnZD85
- A7tqKB2jlrEMmPARtF3vUXih5tGUnoa5DfjTAYxUake0Sib1kehwEDk1hz
- Ohyq7OakCwp864nQho+wFsDN6wbZKjotk/V4NgEl6vyhE+2a70LYWmr4U=
-Received: by fame.vanrein.org (Postfix, from userid 1006)
-        id 9D7A7278FC; Mon, 10 Dec 2018 12:47:28 +0000 (UTC)
-Received: from airhead.local (phantom.vanrein.org [83.161.146.46])
-        by fame.vanrein.org (Postfix) with ESMTPA id 218792759F;
-        Mon, 10 Dec 2018 12:47:24 +0000 (UTC)
-Message-ID: <5C0E6057.5010309@openfortress.nl>
-Date:   Mon, 10 Dec 2018 13:47:19 +0100
-From:   Rick van Rein <rick@openfortress.nl>
-User-Agent: Postbox 3.0.11 (Macintosh/20140602)
+        id S1726837AbeLJMx3 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 10 Dec 2018 07:53:29 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:49940 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726802AbeLJMx2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 10 Dec 2018 07:53:28 -0500
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id B6FA3308FBAC;
+        Mon, 10 Dec 2018 12:53:28 +0000 (UTC)
+Received: from ws.net.home (ovpn-116-43.ams2.redhat.com [10.36.116.43])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id CD0B760C5C;
+        Mon, 10 Dec 2018 12:53:27 +0000 (UTC)
+Date:   Mon, 10 Dec 2018 13:53:25 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     Stanislav Brabec <sbrabec@suse.cz>
+Cc:     util-linux <util-linux@vger.kernel.org>,
+        systemd-devel@lists.freedesktop.org
+Subject: Re: [PATCH] rfkill: Add systemd integration
+Message-ID: <20181210125325.hwngj6l646cfwt2f@ws.net.home>
+References: <0ad9b6ea-0d46-5ec5-1bfc-0e48be52dae8@suse.cz>
+ <20181122103907.vwjf6uprlxzthd7e@ws.net.home>
+ <81e98f5c-7c5f-1c75-cd48-45b30b516eed@suse.cz>
+ <CAG27Bk2-r3E1Ae2g4VMqNAEDUWrksLrTDx-jcoYvpZtCZNM_Ww@mail.gmail.com>
+ <0ce3309a-009a-7c00-3a2c-e4917b894f8c@suse.cz>
 MIME-Version: 1.0
-To:     Karel Zak <kzak@redhat.com>
-CC:     util-linux@vger.kernel.org
-Subject: Re: PATCH: script: Introduced a streaming output command
-References: <5C090B46.5090200@openfortress.nl> <20181210114634.ee5jamwllimdmrdc@ws.net.home>
-In-Reply-To: <20181210114634.ee5jamwllimdmrdc@ws.net.home>
-X-Enigmail-Version: 1.2.3
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Bogosity: Unsure, tests=bogofilter, spamicity=0.520000, version=1.2.4
-X-CMAE-Envelope: MS4wfFJGVKv1ZV/pxc5AQlMl51AuKf63UCcU/KG6dCTuL4L8sV6eP1QW+2Xzv4Yn5SFPoBHRbS97U0PBVz2hTOJpA6gtVtFOG8RdBP4k5EIStnPwN+ZuySwk
- x5WP/8UYrwkd1W0lu7AHACB8bHH9VxjrSeSCQeS97mlCyT6s2GVejQAcZz3ScvY3ZVVJn2aGssJyEA==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0ce3309a-009a-7c00-3a2c-e4917b894f8c@suse.cz>
+User-Agent: NeoMutt/20180716-521-8fffcf
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.43]); Mon, 10 Dec 2018 12:53:28 +0000 (UTC)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hello Karel,
-
-Thanks for the evaluation.  I will follow your hints on all points, some
-are subjective but these are your prerogative.  New patch will come in a
-few days.
-
-> Nice idea ;-)
-
-Thanks.  I didn't want to mention a specific online service in the
-"real" documentation, but the idea was inspired by "nc seashells.io 1337".
-
-> Do we really need the default command? ;-) 
-
-No, it's merely a luxoury.  One might say that something _around_ script
-is another way of doing this.  I will remove it.
-
-> I think the example with nc(1) in the man page is good enough. We do
-> not need hardcode any path/name in the code.
-
-OK.  This a matter of taste, I will follow your directions.
-
-> It would be better to use one bit for this boolean,
+On Tue, Nov 27, 2018 at 07:16:04PM +0100, Stanislav Brabec wrote:
+> Sami Kerola wrote:
+> That said,
+> > getting a clarification from Jochen would nice because otherwise we are
+> > simply guessing.
 > 
->   unsigned int
->     stream :1
-
-Yes I agree.  I hadn't noticed that :1 was used on other flags (they're
-concentrated below, I see now).  Will change move it into that habit.
-
->     if (ctl->stream)
->         wait_for_stream_cmd(ctl, 0);
+> Jochen Keil already left SUSE and I have no contact e-mail to him.
 > 
-> I guess it would be more robust, than call wait_for_stream_cmd()
-> in all situations.
+> But I got complain that it is missing after migration of rfkill to util-linux:
+> https://bugzilla.opensuse.org/show_bug.cgi?id=1092820
 
+ It seems the best would be to ask upstream systemd guys. Maybe it's
+ really Suse specific and maybe it's something we can support for more
+ distros. I don't know.
 
-OK, will do.
+ All thread:
+ https://lore.kernel.org/util-linux/0ce3309a-009a-7c00-3a2c-e4917b894f8c@suse.cz/T/#m221ad50b88792236c10c507f9163b57761c254a7
 
->> +	int cmdio[2];
-> 
-> It's detail, but stream_pipe[] wold be more readable :-)
+    Karel
 
-Sure, will do.
-
->> +			fprintf(stderr,_("streaming command failed: %s\r\n"),strerror(errno));
->> +			exit(1);
-> 
->     err(1, _("streaming command failed"));
-> 
-> err() seems better than fprintf() + strerror() + exit();
-
-I missed that option.  Will do.
-
-> Frankly, all the command-line semantic seems complicated and a little
-> bit like over-engineering.
-
-I am trying to make it simple to use, with a minimum of entry (and
-manpage reading).  It's a matter of taste, and falls in the same line as
-moving the default script from inner command to wrapper around script.
-So I'm not going to debate this, and follow your taste.  It's your
-software, after all :)
-
-
-I will post a new patch in a while (and this time I'll be more accurate
-about the subject and line breaks while logically occurred in the email
-body).
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
