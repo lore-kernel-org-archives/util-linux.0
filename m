@@ -2,144 +2,96 @@ Return-Path: <SRS0=1kTP=O2=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,FROM_EXCESS_BASE64,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_PASS,USER_AGENT_NEOMUTT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB53CC43387
-	for <util-linux@archiver.kernel.org>; Mon, 17 Dec 2018 09:50:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E46EC43387
+	for <util-linux@archiver.kernel.org>; Mon, 17 Dec 2018 12:50:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BA9C22086C
-	for <util-linux@archiver.kernel.org>; Mon, 17 Dec 2018 09:50:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3DB052133F
+	for <util-linux@archiver.kernel.org>; Mon, 17 Dec 2018 12:50:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pPbD3A1Z"
+	dkim=pass (1024-bit key) header.d=eworm.de header.i=@eworm.de header.b="RipXjqdP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732114AbeLQJuK (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 17 Dec 2018 04:50:10 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:38947 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732057AbeLQJuK (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 17 Dec 2018 04:50:10 -0500
-Received: by mail-wr1-f66.google.com with SMTP id t27so11552800wra.6;
-        Mon, 17 Dec 2018 01:50:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=bx9Et6w1SjqEYzEub4nYhtUsrAopCcmsc6kn8bgGJAw=;
-        b=pPbD3A1ZlHJL4EUblstD9CysdrB9FsoVJXYJASw/ObhC0HTpmNS1eciC1ag4f8RygJ
-         x3jlCvPysx7USRt3DggNm6jIfV0HjppREZiFG8QWJhlUJLI5ss4AjeGgHvv/9OrhywFI
-         mBJ2/+5YVccAxIMUayceeo4+Pi0yUHQJAoK81A1MppV+ZbMIybSV1/ixTVqjipl168Q0
-         ov15WUqmxKNY3oZeSWfE4z1eE6KVJNeVFz81uMgKYhcySdIRuKBh0PXR0TVWmGQlmimX
-         2hBIiYpOm1SD7hSoFh1+YyiMMFhBdVqRaGnshPxzMLLeCKLUNqm7mUJmJX9o9xdakbMu
-         CMkQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=bx9Et6w1SjqEYzEub4nYhtUsrAopCcmsc6kn8bgGJAw=;
-        b=IMbs7WRMhlUPujhqhl307LO3Io/IU/Qh4iN5snxElEfMROhigF/dOzw7k7qgw2+PBW
-         0Wm2aw2uXJeSVpvAPztiIFvvj8EmHbQkRS/7AA45SaR12VLP/FfcOlXXimAtwN2/YO6J
-         6mamsiL4IoFpvfCKYug7846yURDZEblqkR1SOkATDqCqZVUnB56yIYPfl0do3X1HB/CY
-         AoiAKBeGXPiiU2gEUQB5JjSFyV9uva8jXueERpt5ibd8FP7mx5OpgJQSNsnDvnUPbBMc
-         mH87AJx40mcM2BZ+MC6+jR7GbsW7bkzpUMz8tT/hA5sLqj0lWRNJcYdVtxcKI7T1IY5j
-         DgiQ==
-X-Gm-Message-State: AA+aEWbkx4LlkuLGfqPpg8Lcv4u0s9GbZcgzgnfClMzGWRTn9l+k9g5l
-        cKHpeeh3dBoUrQvrElk2Li8=
-X-Google-Smtp-Source: AFSGD/VJgzIqv3XUllIhkHhlvp+X2YqTbgS/sNeAmzAMwjqfKwXQK6UfT1VGqoUSMO15ntCpF4JtRA==
-X-Received: by 2002:a5d:4286:: with SMTP id k6mr9839277wrq.225.1545040208092;
-        Mon, 17 Dec 2018 01:50:08 -0800 (PST)
-Received: from pali ([2a02:2b88:2:1::5cc6:2f])
-        by smtp.gmail.com with ESMTPSA id y34sm34297562wrd.68.2018.12.17.01.50.05
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 17 Dec 2018 01:50:06 -0800 (PST)
-Date:   Mon, 17 Dec 2018 10:50:04 +0100
-From:   Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To:     Andreas Bombe <andreas.bombe@gmail.com>
-Cc:     Andreas Henriksson <andreas@fatal.se>,
-        Jaroslav Skarvada <jskarvad@redhat.com>,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, mpluskal@suse.com,
-        base-system@gentoo.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Karel Zak <kzak@redhat.com>, Andreas Bombe <aeb@debian.org>,
-        Andreas Dilger <adilger@dilger.ca>,
-        Richard Weinberger <richard.weinberger@gmail.com>
-Subject: Re: Future of dosfstools project (FAT)
-Message-ID: <20181217095004.c6c6itvyfp7cf3ta@pali>
-References: <20180929084038.an6pfhnsd6tblejl@pali>
- <20181002081654.jxesr3kj62snzez5@pali>
- <510499199.34825028.1538469850257.JavaMail.zimbra@redhat.com>
- <20181012091941.o22srnhse4kzqjhf@fatal.se>
- <20181114113341.yx2wlzqku5yh3k4h@pali>
- <CAPXf_qN66-Mi+o+9ENGqCDe-_2tHaf9uM3moRcCGNvmxwH3ExQ@mail.gmail.com>
- <20181206083828.4bp3oypkto2ngobu@pali>
- <20181212135736.xtb57r2eatqsgenb@pali>
+        id S1731945AbeLQMuk (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 17 Dec 2018 07:50:40 -0500
+Received: from mx.mylinuxtime.de ([195.201.174.144]:38808 "EHLO
+        mx.mylinuxtime.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731909AbeLQMuk (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 17 Dec 2018 07:50:40 -0500
+X-Greylist: delayed 320 seconds by postgrey-1.27 at vger.kernel.org; Mon, 17 Dec 2018 07:50:39 EST
+Received: from leda.eworm.de (unknown [87.190.244.126])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mx.mylinuxtime.de (Postfix) with ESMTPSA id 069A0131514;
+        Mon, 17 Dec 2018 13:45:18 +0100 (CET)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mx.mylinuxtime.de 069A0131514
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=eworm.de; s=mail;
+        t=1545050718; bh=2jSqWOu643sVaaIQkd0O04FR2qPDOwwZUBtkQbE4Jjc=;
+        h=From:To:Cc:Subject:Date;
+        b=RipXjqdPTHIyAli6SvFr1sbfgVnEflthPu9Jn/ZdnwIswcAxMFPKQYrKNCiRidyIq
+         VZ2j/NTDK+aYwHRlB/tywhHKaK6yKwPcgFgLFpQE2TV5DFFRCJdm4fmvSY27D9loi4
+         vnF/DwR9Pxrqrjy1dl6EWF+S4EiKZGsrnNhJ7TL0=
+Received: by leda.eworm.de (Postfix, from userid 1000)
+        id 814AD123685; Mon, 17 Dec 2018 13:44:47 +0100 (CET)
+From:   Christian Hesse <mail@eworm.de>
+To:     util-linux@vger.kernel.org
+Cc:     Christian Hesse <mail@eworm.de>
+Subject: [PATCH 1/1] fstrim: add random delay to systemd timer
+Date:   Mon, 17 Dec 2018 13:44:22 +0100
+Message-Id: <20181217124422.13334-1-mail@eworm.de>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="x3uqxugdvepbex5v"
-Content-Disposition: inline
-In-Reply-To: <20181212135736.xtb57r2eatqsgenb@pali>
-User-Agent: NeoMutt/20170113 (1.7.2)
+Content-Transfer-Encoding: 8bit
+X-Spamd-Bar: +++++
+Authentication-Results: mx.mylinuxtime.de;
+        auth=pass smtp.auth=smtp-only@eworm.de smtp.mailfrom=eworm@leda.eworm.de
+X-Rspamd-Server: mx
+X-Stat-Signature: bek565aau3nigowwnuztnoy8uzaks9qr
+X-Rspamd-Queue-Id: 069A0131514
+X-Spamd-Result: default: False [5.77 / 15.00];
+         ARC_NA(0.00)[];
+         RCVD_VIA_SMTP_AUTH(0.00)[];
+         FROM_HAS_DN(0.00)[];
+         TO_DN_SOME(0.00)[];
+         TO_MATCH_ENVRCPT_ALL(0.00)[];
+         R_MISSING_CHARSET(2.50)[];
+         MIME_GOOD(-0.10)[text/plain];
+         NEURAL_SPAM(1.20)[0.400,0];
+         BROKEN_CONTENT_TYPE(1.50)[];
+         RCPT_COUNT_TWO(0.00)[2];
+         MID_CONTAINS_FROM(1.00)[];
+         FORGED_SENDER(0.30)[mail@eworm.de,eworm@leda.eworm.de];
+         RCVD_TLS_LAST(0.00)[];
+         ASN(0.00)[asn:3320, ipnet:87.128.0.0/10, country:DE];
+         FROM_NEQ_ENVFROM(0.00)[mail@eworm.de,eworm@leda.eworm.de];
+         BAYES_HAM(-0.63)[82.35%];
+         RCVD_COUNT_TWO(0.00)[2]
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+The fstrim timer tends to fire simultaneously with other timers like
+updatedb. As fstrim is not time criticaly let's add a random delay of
+up to an hour.
 
---x3uqxugdvepbex5v
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Christian Hesse <mail@eworm.de>
+---
+ sys-utils/fstrim.timer | 1 +
+ 1 file changed, 1 insertion(+)
 
-On Wednesday 12 December 2018 14:57:36 Pali Roh=C3=A1r wrote:
-> On Thursday 06 December 2018 09:38:28 Pali Roh=C3=A1r wrote:
-> > On Thursday 06 December 2018 01:53:02 Andreas Bombe wrote:
-> > > Pali Roh=C3=A1r <pali.rohar@gmail.com> schrieb am Mi., 14. Nov. 2018 =
-um
-> > > 12:33 Uhr:
-> > >=20
-> > > > And... has somebody else time to look at those pending patches and =
-do
-> > > > some initial review? I would really appreciate if somebody look and
-> > > > comment them.
-> > > >
-> > > > There are 14 open pull requests:
-> > > > https://github.com/dosfstools/dosfstools/pulls
-> > >=20
-> > >=20
-> > > I'll spend time on this again. It would help if you could make a list=
- of
-> > > higher priority PRs you would like see being looked at first.
-> >=20
-> > So.. here is some list:
-> >=20
-> > https://github.com/dosfstools/dosfstools/pull/92
-> > https://github.com/dosfstools/dosfstools/pull/93
-> > https://github.com/dosfstools/dosfstools/pull/94
-> > https://github.com/dosfstools/dosfstools/pull/101
-> > https://github.com/dosfstools/dosfstools/pull/104
-> > https://github.com/dosfstools/dosfstools/pull/84
->=20
-> Maybe you can start with Year 2038 problem in PR 94:
-> https://github.com/dosfstools/dosfstools/pull/94
-
-Thanks for review of #94! As next you can take #92 from list.
-
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---x3uqxugdvepbex5v
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCXBdxSgAKCRCL8Mk9A+RD
-Uu/TAKC3lxIwK06YX7LUd8E8Eidc8HFxtgCcDbigpf+TOKTL8s1SoUscPEYBep0=
-=79uQ
------END PGP SIGNATURE-----
-
---x3uqxugdvepbex5v--
+diff --git a/sys-utils/fstrim.timer b/sys-utils/fstrim.timer
+index 3a3762d5c..dd3328e2a 100644
+--- a/sys-utils/fstrim.timer
++++ b/sys-utils/fstrim.timer
+@@ -5,6 +5,7 @@ Documentation=man:fstrim
+ [Timer]
+ OnCalendar=weekly
+ AccuracySec=1h
++RandomizedDelaySec=1h
+ Persistent=true
+ 
+ [Install]
