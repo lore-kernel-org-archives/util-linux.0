@@ -6,108 +6,88 @@ X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02FECC43387
-	for <util-linux@archiver.kernel.org>; Mon, 17 Dec 2018 09:14:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EC3CC43387
+	for <util-linux@archiver.kernel.org>; Mon, 17 Dec 2018 09:43:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CDE2B2084D
-	for <util-linux@archiver.kernel.org>; Mon, 17 Dec 2018 09:14:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D7A4520675
+	for <util-linux@archiver.kernel.org>; Mon, 17 Dec 2018 09:43:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726692AbeLQJOZ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 17 Dec 2018 04:14:25 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:42590 "EHLO mx1.redhat.com"
+        id S1726789AbeLQJnH (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 17 Dec 2018 04:43:07 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:49218 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726323AbeLQJOZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 17 Dec 2018 04:14:25 -0500
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        id S1726653AbeLQJnH (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 17 Dec 2018 04:43:07 -0500
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 05F314902D;
-        Mon, 17 Dec 2018 09:14:25 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 17C907AE81;
+        Mon, 17 Dec 2018 09:43:07 +0000 (UTC)
 Received: from ws.net.home (unknown [10.36.118.28])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 45E09648A6;
-        Mon, 17 Dec 2018 09:14:24 +0000 (UTC)
-Date:   Mon, 17 Dec 2018 10:14:21 +0100
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 58A3B6012D;
+        Mon, 17 Dec 2018 09:43:05 +0000 (UTC)
+Date:   Mon, 17 Dec 2018 10:43:03 +0100
 From:   Karel Zak <kzak@redhat.com>
-To:     Hank Barta <hbarta@gmail.com>
+To:     Rick van Rein <rick@openfortress.nl>
 Cc:     util-linux@vger.kernel.org
-Subject: Re: Partitioning or blkid issue?
-Message-ID: <20181217091421.zcj3f3bfe3ps6mpu@ws.net.home>
-References: <CABTDG89z-g=LmHobptPBmYVzTucz_ZWrPo4yo_Gh7O9ZEQAqfQ@mail.gmail.com>
+Subject: Re: PATCH: script: Introduced a streaming output command
+Message-ID: <20181217094303.2il4cwbok2u5luld@ws.net.home>
+References: <5C090B46.5090200@openfortress.nl>
+ <20181210114634.ee5jamwllimdmrdc@ws.net.home>
+ <5C0E7C8D.2030307@openfortress.nl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CABTDG89z-g=LmHobptPBmYVzTucz_ZWrPo4yo_Gh7O9ZEQAqfQ@mail.gmail.com>
+In-Reply-To: <5C0E7C8D.2030307@openfortress.nl>
 User-Agent: NeoMutt/20180716-521-8fffcf
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.38]); Mon, 17 Dec 2018 09:14:25 +0000 (UTC)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.25]); Mon, 17 Dec 2018 09:43:07 +0000 (UTC)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Fri, Dec 14, 2018 at 11:53:52AM -0600, Hank Barta wrote:
-> I have an issue where `gparted` seems to display incorrect information
-> on my system drive (and `parted` seems to report correct information.)
-> I filed a bug on Launchpad (since this manifests on Ubuntu 18.10)
-> https://bugs.launchpad.net/ubuntu/+source/gparted/+bug/1808421 and was
-> directed to https://gitlab.gnome.org/GNOME/gparted/issues/14 which
-> does appear to be the same issue. Near the end of the first link is
-> information I collected when running Ubuntu 18.04 (from `blkid` and
-> `wipefs`)
+On Mon, Dec 10, 2018 at 03:47:41PM +0100, Rick van Rein wrote:
+> Hi Karel,
 > 
-> I have found that when this system is running Debian Stretch from USB
-> that `gparted` appears to produce the correct output. Below is the
-> same information collected when running Debian Stretch.
+> >>  #define DEFAULT_TYPESCRIPT_FILENAME "typescript"
+> >> +#define DEFAULT_TYPESCRIPT_COMMAND  "scriptstream"
+> > 
+> > Do we really need the default command? ;-) 
 > 
-> root@debian:/home/user# apt policy util-linux
-> util-linux:
->   Installed: 2.29.2-1+deb9u1
->   Candidate: 2.29.2-1+deb9u1
->   Version table:
->  *** 2.29.2-1+deb9u1 500
->         500 http://deb.debian.org/debian stretch/main amd64 Packages
->         100 /var/lib/dpkg/status
-> root@debian:/home/user# blkid /dev/sda
-> /dev/sda: LABEL="rpool" UUID="4510611204828545482"
-> UUID_SUB="9816084798696086204" TYPE="zfs_member"
-> PTUUID="eba09d2e-0f70-4d11-8e37-c1c170cfd9dd" PTTYPE="gpt"
-> root@debian:/home/user# wipefs --no-act /dev/sda
-> offset               type
-> ----------------------------------------------------------------
-> 0x200                gpt   [partition table]
+> Trying without, but then users end up typing things like
 > 
-> 0xe8e0d3f000         zfs_member   [filesystem]
->                      LABEL: rpool
->                      UUID:  4510611204828545482
+> script -s -- nc -q0 seashells.io 1337 | sed 's/$/\\r/'
 > 
-> root@debian:/home/user#
-> 
-> I would like to know if this identifies a problem in the partition
-> table or an issue with `blkid`. (Or something else?)
-> I don't think I installed a ZFS pool on the entire disk but I could be
-> wrong about that. It is also possible that one of my operations did
-> cause a problem with the partition table.
+> There's a lot that can go wrong, and I would complain about that kind of
 
-It seems like disk originally formatted as ZFS has been later
-partitioned by GPT.
+I think explain the basic concept and possible limits in man page is
+good enough. The user has to understand what role the terminal plays 
+in the session, how things are isolated and where it prints output.
 
-In this case it does not seem like false positive ZFS detection. You
-need ZFS magic string and guid= (aka UUID_SUB), pool_guid= (aka UUID)
-and name= (aka LABEL) variable names and data on the right offsets.
+We probably need to improve the man page and merge NOTES into
+DESCRIPTION and be more verbose about all the details.
 
-> This is a test system and relatively new install so it would not be a
-> huge problem to 'nuke and repave' if that is necessary to fix this or
-> to try anything that can further identify the problem.
+> interactive experimentation and required shell trickery.  That's why I
+> proposed to capture these problems in a default command and issue
 > 
-> Suggestions on what I should do next are most welcome!
+> script -s
 
-The ideal is to use partitioning tools that wipe the disk before it
-writes partition table. Or use "wipefs -a" to cleanup all from the
-disk before you use it (this is recommended step during system
-installation).
+but in your patch the default command has been only hardcoded path to
+non-existing binary. I don't think it resolves anything. I think we
+can do the same in the man page ;-)
 
-For now you can use "wipefs -o 0xe8e0d3f000" to remove only the
-unwanted ZFS stuff.
+> Alternatively, we can expect users to wrap such complexity around script
+> and invent their own little tools.  What --stream adds over piping is
+> then limited, still better but to me it feels incomplete.  I haven't
+> tested if it works at all, isatty() inside scripts and such.
+
+Not sure if I fully understand here, but inside interactive script session 
+isatty() works as expected as it's standard terminal.
+
+> Your choice?
+
+KISS - keep it simple and stupid :-)
 
     Karel
 
