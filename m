@@ -1,169 +1,133 @@
-Return-Path: <SRS0=8g6v=O6=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=G3Ax=PE=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FROM,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,FROM_EXCESS_BASE64,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_PASS,USER_AGENT_NEOMUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF73AC43387
-	for <util-linux@archiver.kernel.org>; Fri, 21 Dec 2018 06:30:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B7C2C43387
+	for <util-linux@archiver.kernel.org>; Thu, 27 Dec 2018 22:18:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A8EC7218FD
-	for <util-linux@archiver.kernel.org>; Fri, 21 Dec 2018 06:30:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4550A20866
+	for <util-linux@archiver.kernel.org>; Thu, 27 Dec 2018 22:18:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RLU3TCYf"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KS+oDPUd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731100AbeLUGay (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 21 Dec 2018 01:30:54 -0500
-Received: from mail-it1-f170.google.com ([209.85.166.170]:40250 "EHLO
-        mail-it1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731064AbeLUGax (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 21 Dec 2018 01:30:53 -0500
-Received: by mail-it1-f170.google.com with SMTP id h193so5173977ita.5
-        for <util-linux@vger.kernel.org>; Thu, 20 Dec 2018 22:30:53 -0800 (PST)
+        id S1733152AbeL0WSC (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 27 Dec 2018 17:18:02 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:36675 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1733136AbeL0WSC (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 27 Dec 2018 17:18:02 -0500
+Received: by mail-wm1-f66.google.com with SMTP id p6so18482074wmc.1;
+        Thu, 27 Dec 2018 14:18:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ZTQgSp3DaO3ZRigYNir1inZp0jbe6Xp37wHcO0vzFkM=;
-        b=RLU3TCYfolVvHAcia9u60iQqslJXRd/qsTQrrhBaeUJVLzumbywEKFkEzr88Ke65iS
-         WI6ZnpHn51a/jzv1QuQneNWXwlgTIXz+JD3TIhScppzDXYeFRXlzfJgNoYp3rsPsDMyO
-         0hY05325JBfKw4MWO4lZhbWS9bEn66j/bhUe2CXlsjZkM1y5H923FEKVWd+oDPl8mRdl
-         Ub+bqxYgYjhiBDvC1jJ/7WLL82u727PPvgGwzMvSTK3/ceFlnHwYT6bRDBJ7eHAvoHz1
-         66t3WxugkcDbus+AChNlPhxTVtS3gi9qxEeH1DtywGhnCThEO4a3Tr7NG5ap2PI0DvjY
-         KnvQ==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=oGNNGvY06rqC10oMV7fuETey3BupeXG8K/FvVNM0iaU=;
+        b=KS+oDPUdLOWGYpfmAsSmGbPSPaBr0dzm7mMgi7I8/BMaKVIjI2iV+LBq1yqPb6FHaX
+         ZTwnMoQnkvgdbYXcJpAAbrmWxiglKMbppMDuLWEPS+2SfjdsGpU1CdMH+8F7pdOQWW1X
+         jQ+E7Sw+RXf4EUwsD2HILqsLwAgylKOq99gSMIqiVyLsRsGreW46rIKPFfFh96zp0IuV
+         vF9E4tbj8/lYBwBl6B4F+0NSRD5K7OQaNQJdKSmF3wKLI/lV86YgZA1GtQsLx9lWWRPo
+         tcEpxbT+96eaeVI0Smkb9kj3hdJXCtbwIcejPDZHqCVxD2Rf8FLPuBauKNFR0LUekuZU
+         i2EA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ZTQgSp3DaO3ZRigYNir1inZp0jbe6Xp37wHcO0vzFkM=;
-        b=pJ+3gkf8jXMzvjaZ2QFUNJYLUDDD74XBpHAbC4DNzKTbCqvjE3wVEOFPJ8K2cM2/Hl
-         GeKrO9T/wJvY+bNBhKvxZx47yKwbWh0gBiyl64Cl38Xx+o4MuGW7dZpg2rQ0RF4KxyKN
-         AaQ/1XBc8Tg6UiWCx07nuiCGfnhmqiBANT0owKv0QK7STRVQJsuoDSUyqsQx/kMXEf+G
-         iRpg185q9gzgDL+wQ6W+wdmahEh+TP5eYSUKBSKCTlxsqKEZ4SylpZxpN76Ezg+G/Kuu
-         3zHbjt7qd5vDeMnwaqZF7b0S/5aYqVyVXgw8RLh9aFB558lO0P8tHDZxd5pIvCjXwx/4
-         OXbA==
-X-Gm-Message-State: AA+aEWbfD1q20skdie4yOTSnXxYcAZcbYD4VAfIAHYsxf9Fy8y02o7N8
-        ZF5l8pPbaVnljexANqisxWycYgn5AKd1ZrwDKD0=
-X-Google-Smtp-Source: AFSGD/VQGWejL7/jKVUc5yOxnkfCsNNeXwzjA1kFyyjRqp8MScoKGSOegaUioBi4O5tGK7snJOPNK94qjwTk/KP48m8=
-X-Received: by 2002:a24:1495:: with SMTP id 143mr1120413itg.13.1545373852920;
- Thu, 20 Dec 2018 22:30:52 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=oGNNGvY06rqC10oMV7fuETey3BupeXG8K/FvVNM0iaU=;
+        b=F1kxumExgF5h65xvxp1idYEdfjqfhYkOfpS7LSGFVcGjFCpkfWyt6k+144oK8rkPnP
+         6nMCpovf4Lxl76qJYne6yUznFlcVLxSLr6ahZmknZGMmOi+VnHdxNpqoGoRFiy/soOux
+         dxItUJCSuT1T5i9ZH1FpMxPSt2TeiRCpFMz3msiBY44Sq1sDy8YuhgIEv6IYzc8ohjId
+         i6K04+eUbED3vYLecdAR2ZoDl++uTGp93ZM1JPZLmvyIe/A9L61I02oWhboX/CdNa2Lv
+         VQqz1Vcyo2+WkAf2nyVXUEWoD15NelJMN/YIzdH0nJ3K06xKFqzwg6OBew3BcFWTcFrP
+         Pr1Q==
+X-Gm-Message-State: AA+aEWb772hRjlrmKoWQUepx+V/0ojm3K2lNB/tvMORxTWG8f2UihpeB
+        LbaOZfraZTCVRNiM/gUVQCA=
+X-Google-Smtp-Source: AFSGD/URH75KiQQuhKr4u9DKFGgJzoVaAm/jQfogPI1xvP8PXaIMHFeKk0zD/7XVNm2uJALFbBhYfg==
+X-Received: by 2002:a7b:c5d1:: with SMTP id n17mr22486139wmk.152.1545949080352;
+        Thu, 27 Dec 2018 14:18:00 -0800 (PST)
+Received: from pali ([2a02:2b88:2:1::5cc6:2f])
+        by smtp.gmail.com with ESMTPSA id v133sm27149420wmf.19.2018.12.27.14.17.58
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 27 Dec 2018 14:17:58 -0800 (PST)
+Date:   Thu, 27 Dec 2018 23:17:48 +0100
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+To:     Andreas Bombe <andreas.bombe@gmail.com>
+Cc:     Andreas Henriksson <andreas@fatal.se>,
+        Jaroslav Skarvada <jskarvad@redhat.com>,
+        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, mpluskal@suse.com,
+        base-system@gentoo.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Karel Zak <kzak@redhat.com>, Andreas Bombe <aeb@debian.org>,
+        Andreas Dilger <adilger@dilger.ca>,
+        Richard Weinberger <richard.weinberger@gmail.com>
+Subject: Re: Future of dosfstools project (FAT)
+Message-ID: <20181227221748.zsz6bwqqia7ybfwj@pali>
+References: <20180929084038.an6pfhnsd6tblejl@pali>
+ <20181002081654.jxesr3kj62snzez5@pali>
+ <510499199.34825028.1538469850257.JavaMail.zimbra@redhat.com>
+ <20181012091941.o22srnhse4kzqjhf@fatal.se>
+ <20181114113341.yx2wlzqku5yh3k4h@pali>
+ <CAPXf_qN66-Mi+o+9ENGqCDe-_2tHaf9uM3moRcCGNvmxwH3ExQ@mail.gmail.com>
+ <20181206083828.4bp3oypkto2ngobu@pali>
+ <20181212135736.xtb57r2eatqsgenb@pali>
+ <20181217095004.c6c6itvyfp7cf3ta@pali>
 MIME-Version: 1.0
-References: <CABTDG89z-g=LmHobptPBmYVzTucz_ZWrPo4yo_Gh7O9ZEQAqfQ@mail.gmail.com>
- <20181217091421.zcj3f3bfe3ps6mpu@ws.net.home> <CABTDG889Zmk-TOnj9YzGn0ffiU3Nu3FB0gC=yYcYVyB4pMORjw@mail.gmail.com>
-In-Reply-To: <CABTDG889Zmk-TOnj9YzGn0ffiU3Nu3FB0gC=yYcYVyB4pMORjw@mail.gmail.com>
-From:   Hank Barta <hbarta@gmail.com>
-Date:   Fri, 21 Dec 2018 00:30:41 -0600
-Message-ID: <CABTDG8_4JEMn8O4QGseVMNaf8-JcOgU1Yx=ONxrGKnHJJFdS1Q@mail.gmail.com>
-Subject: Re: Partitioning or blkid issue?
-To:     Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20181217095004.c6c6itvyfp7cf3ta@pali>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Never mind - mistake on my part.
+On Monday 17 December 2018 10:50:04 Pali Roh=C3=A1r wrote:
+> On Wednesday 12 December 2018 14:57:36 Pali Roh=C3=A1r wrote:
+> > On Thursday 06 December 2018 09:38:28 Pali Roh=C3=A1r wrote:
+> > > On Thursday 06 December 2018 01:53:02 Andreas Bombe wrote:
+> > > > Pali Roh=C3=A1r <pali.rohar@gmail.com> schrieb am Mi., 14. Nov. 201=
+8 um
+> > > > 12:33 Uhr:
+> > > >=20
+> > > > > And... has somebody else time to look at those pending patches an=
+d do
+> > > > > some initial review? I would really appreciate if somebody look a=
+nd
+> > > > > comment them.
+> > > > >
+> > > > > There are 14 open pull requests:
+> > > > > https://github.com/dosfstools/dosfstools/pulls
+> > > >=20
+> > > >=20
+> > > > I'll spend time on this again. It would help if you could make a li=
+st of
+> > > > higher priority PRs you would like see being looked at first.
+> > >=20
+> > > So.. here is some list:
+> > >=20
+> > > https://github.com/dosfstools/dosfstools/pull/92
+> > > https://github.com/dosfstools/dosfstools/pull/93
+> > > https://github.com/dosfstools/dosfstools/pull/94
+> > > https://github.com/dosfstools/dosfstools/pull/101
+> > > https://github.com/dosfstools/dosfstools/pull/104
+> > > https://github.com/dosfstools/dosfstools/pull/84
+> >=20
+> > Maybe you can start with Year 2038 problem in PR 94:
+> > https://github.com/dosfstools/dosfstools/pull/94
+>=20
+> Thanks for review of #94! As next you can take #92 from list.
 
-On Thu, Dec 20, 2018 at 10:26 PM Hank Barta <hbarta@gmail.com> wrote:
->
-> Hi Karel,
-> Thanks for the suggestion. I tried that fix and it didn't seem to
-> help. I went ahead and wiped the disk partitioning information (using
-> `wipefs`) and conforming that it was wiped. I reinstalled Windows and
-> followed with Debian Linux and find the same situation.
-> I'm not sure where this went wrong.
->
-> On Mon, Dec 17, 2018 at 3:14 AM Karel Zak <kzak@redhat.com> wrote:
-> >
-> > On Fri, Dec 14, 2018 at 11:53:52AM -0600, Hank Barta wrote:
-> > > I have an issue where `gparted` seems to display incorrect information
-> > > on my system drive (and `parted` seems to report correct information.)
-> > > I filed a bug on Launchpad (since this manifests on Ubuntu 18.10)
-> > > https://bugs.launchpad.net/ubuntu/+source/gparted/+bug/1808421 and was
-> > > directed to https://gitlab.gnome.org/GNOME/gparted/issues/14 which
-> > > does appear to be the same issue. Near the end of the first link is
-> > > information I collected when running Ubuntu 18.04 (from `blkid` and
-> > > `wipefs`)
-> > >
-> > > I have found that when this system is running Debian Stretch from USB
-> > > that `gparted` appears to produce the correct output. Below is the
-> > > same information collected when running Debian Stretch.
-> > >
-> > > root@debian:/home/user# apt policy util-linux
-> > > util-linux:
-> > >   Installed: 2.29.2-1+deb9u1
-> > >   Candidate: 2.29.2-1+deb9u1
-> > >   Version table:
-> > >  *** 2.29.2-1+deb9u1 500
-> > >         500 http://deb.debian.org/debian stretch/main amd64 Packages
-> > >         100 /var/lib/dpkg/status
-> > > root@debian:/home/user# blkid /dev/sda
-> > > /dev/sda: LABEL="rpool" UUID="4510611204828545482"
-> > > UUID_SUB="9816084798696086204" TYPE="zfs_member"
-> > > PTUUID="eba09d2e-0f70-4d11-8e37-c1c170cfd9dd" PTTYPE="gpt"
-> > > root@debian:/home/user# wipefs --no-act /dev/sda
-> > > offset               type
-> > > ----------------------------------------------------------------
-> > > 0x200                gpt   [partition table]
-> > >
-> > > 0xe8e0d3f000         zfs_member   [filesystem]
-> > >                      LABEL: rpool
-> > >                      UUID:  4510611204828545482
-> > >
-> > > root@debian:/home/user#
-> > >
-> > > I would like to know if this identifies a problem in the partition
-> > > table or an issue with `blkid`. (Or something else?)
-> > > I don't think I installed a ZFS pool on the entire disk but I could be
-> > > wrong about that. It is also possible that one of my operations did
-> > > cause a problem with the partition table.
-> >
-> > It seems like disk originally formatted as ZFS has been later
-> > partitioned by GPT.
-> >
-> > In this case it does not seem like false positive ZFS detection. You
-> > need ZFS magic string and guid= (aka UUID_SUB), pool_guid= (aka UUID)
-> > and name= (aka LABEL) variable names and data on the right offsets.
-> >
-> > > This is a test system and relatively new install so it would not be a
-> > > huge problem to 'nuke and repave' if that is necessary to fix this or
-> > > to try anything that can further identify the problem.
-> > >
-> > > Suggestions on what I should do next are most welcome!
-> >
-> > The ideal is to use partitioning tools that wipe the disk before it
-> > writes partition table. Or use "wipefs -a" to cleanup all from the
-> > disk before you use it (this is recommended step during system
-> > installation).
-> >
-> > For now you can use "wipefs -o 0xe8e0d3f000" to remove only the
-> > unwanted ZFS stuff.
-> >
-> >     Karel
-> >
-> > --
-> >  Karel Zak  <kzak@redhat.com>
-> >  http://karelzak.blogspot.com
->
->
->
-> --
-> '03 BMW F650CS - hers
-> '98 Dakar K12RS - "BABY K" grew up.
-> '93 R100R w/ Velorex 700 (MBD starts...)
-> '95 Miata - "OUR LC"
-> polish visor: apply squashed bugs, rinse, repeat
-> Beautiful Sunny Winfield, Illinois
+Andreas, can you look at next pull requests?
 
-
-
--- 
-'03 BMW F650CS - hers
-'98 Dakar K12RS - "BABY K" grew up.
-'93 R100R w/ Velorex 700 (MBD starts...)
-'95 Miata - "OUR LC"
-polish visor: apply squashed bugs, rinse, repeat
-Beautiful Sunny Winfield, Illinois
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
