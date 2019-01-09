@@ -2,109 +2,133 @@ Return-Path: <SRS0=cduA=PR=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58133C43387
-	for <util-linux@archiver.kernel.org>; Wed,  9 Jan 2019 10:48:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 188CBC43444
+	for <util-linux@archiver.kernel.org>; Wed,  9 Jan 2019 18:01:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2D94220883
-	for <util-linux@archiver.kernel.org>; Wed,  9 Jan 2019 10:48:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D3A9F20685
+	for <util-linux@archiver.kernel.org>; Wed,  9 Jan 2019 18:01:22 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=jguk-org.20150623.gappssmtp.com header.i=@jguk-org.20150623.gappssmtp.com header.b="O9cQF+mD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729713AbfAIKsI (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 9 Jan 2019 05:48:08 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:36992 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726915AbfAIKsI (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 9 Jan 2019 05:48:08 -0500
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id EC9A789ADB;
-        Wed,  9 Jan 2019 10:48:07 +0000 (UTC)
-Received: from ws.net.home (ovpn-116-60.ams2.redhat.com [10.36.116.60])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 04117600C3;
-        Wed,  9 Jan 2019 10:48:06 +0000 (UTC)
-Date:   Wed, 9 Jan 2019 11:48:04 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: [ANNOUNCE] util-linux v2.33.1
-Message-ID: <20190109104804.qeryw2xyp7j42mhc@ws.net.home>
+        id S1727007AbfAISBW (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 9 Jan 2019 13:01:22 -0500
+Received: from mail-wm1-f51.google.com ([209.85.128.51]:51521 "EHLO
+        mail-wm1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727127AbfAISBW (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 9 Jan 2019 13:01:22 -0500
+Received: by mail-wm1-f51.google.com with SMTP id b11so8638257wmj.1
+        for <util-linux@vger.kernel.org>; Wed, 09 Jan 2019 10:01:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=jguk-org.20150623.gappssmtp.com; s=20150623;
+        h=to:cc:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=Qe1mapmprBMNMefheIrrX3cgiwYSTUdDZtQ1jjxmOMM=;
+        b=O9cQF+mDylqsVcNvo1zLu+M0CnnShw7Mw4yer2kmVHCxNxaT2+P9Yi2MM8JNkNLaDB
+         kPwdnoFFN2aOmio9SLgkjF9Y/sZKBN61AmM9hN/3iq3Ri6+oKi5Zp3/MGMTacvYlKSqv
+         15q83VX9SUNnxwnNwjP8iC84K8Oj0+6qSDx75zI6RpH5RtSnvep7/3GRZ+JalJAgpokL
+         IYJfK8tbMwJptOVKiK5hMcNzx0mkQhfUyEItSC78tIB73QzeXjnGiFB/l3nXJPQ6N57s
+         fGL//2KNW4UkH9fIxzbycl//bd4BEDXEhAxF15To21buSM4IzX8UGvJWgE9VAHMoCYv8
+         cujg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:cc:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=Qe1mapmprBMNMefheIrrX3cgiwYSTUdDZtQ1jjxmOMM=;
+        b=KP4hHbjdVnv4GjWm2QU8hzL41woTAqzyJVoFrUkOJPRP3QeepPkBU7Qh4lqcVKae0b
+         2Fd+eVk3XdjgANMn1Aw3MIo5hZmnuoMISVvbKsRQZUPVq7DRfY3CAq2Hhnuvv4tnRYx7
+         mkBOTFxnVznEOXaJU2dvWWt/ZnmtSjVUjVOLpEjYM+HE2Mo7c7F/A3BY+b3I0WKohjnI
+         WL5QZj2M9aGMxeS2Fl2TJgfRu1YlNpTRgA4wO4uUtQCflKwZk2ya6IOrC03KuPVgUgcb
+         XvP868C3Q2D+IhRg3V8hQV73jj5IRBFtuRqpwBDl6zznJQX6yNE1Jgl/70HCw00/CKTF
+         GYww==
+X-Gm-Message-State: AJcUukd+dm8SCrVJ1dcQ88mxEQt5UpS913wwNZz6bevM5gBooFOXKu0B
+        4NEF1osmtdqOqDyDLDQIIshCpA==
+X-Google-Smtp-Source: ALg8bN51MXYMiI5i9UvbJk+m1UUxBYVKu0/ttvSU+TYuunPZhzZ2akoSvkaXsI32Cnsyfd35siGp9A==
+X-Received: by 2002:a1c:e287:: with SMTP id z129mr6533632wmg.71.1547056879603;
+        Wed, 09 Jan 2019 10:01:19 -0800 (PST)
+Received: from [192.168.1.64] (147.98.189.80.dyn.plus.net. [80.189.98.147])
+        by smtp.gmail.com with ESMTPSA id g198sm20482162wmd.23.2019.01.09.10.01.18
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 09 Jan 2019 10:01:18 -0800 (PST)
+To:     util-linux@vger.kernel.org
+Cc:     Karel Zak <kzak@redhat.com>
+From:   Jonny Grant <jg@jguk.org>
+Subject: fdisk Ctrl+C
+Message-ID: <9bf2cc25-1b6a-88ae-c293-7a613b1255d8@jguk.org>
+Date:   Wed, 9 Jan 2019 18:01:18 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.2.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: NeoMutt/20180716-1022-6b9065-dirty
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Wed, 09 Jan 2019 10:48:08 +0000 (UTC)
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+Hello!
 
-The util-linux stable release v2.33.1 is available at
-                                        
-  http://www.kernel.org/pub/linux/utils/util-linux/v2.33/
-                                        
-Feedback and bug reports, as always, are welcomed.
-                                        
-  Karel        
+A few questions, ideas
+
+1. Could Ctrl+C be added to get out of changing a partition type?
+
+2 Could the partition code check that it is hex. At the moment if I type 
+'q' I get partition type 0.
+
+3.
+For partition type 0, which is called "Empty" probably this message 
+should say "Empty" and not 'unknown' ?
+
+=======
+Changed type of partition 'W95 FAT32 (LBA)' to 'unknown'.
+=======
+
+Would a patch be accepted for this?
 
 
-util-linux 2.33.1 Release Notes
-===============================
+NB. See log below for more info.
 
-agetty:
-   - Return old behavior with empty logname  [Stanislav Brabec]
-   - fix output of escaped characters  [Christian Hesse]
-   - fix portability issues  [Samuel Thibault]
-build-sys:
-   - do not require crypt()  [Karel Zak]
-   - do not require dirfd()  [Karel Zak]
-   - make fdisk, sfdisk, cfdisk optional (enabled by default)  [Carlos Santos]
-chmem:
-   - add initilizer [clang]  [Sami Kerola]
-choom:
-   - fix negative adjust score usage  [Karel Zak]
-dmesg:
-   - correct "-n, --console-level level" example in manual page  [Jean-Philippe ROMAIN]
-docs:
-   - add link to mail list archive  [Sami Kerola]
-   - update AUTHORS file  [Karel Zak]
-fstrim:
-   - Add Documentation key to fstrim.service  [Andreas Henriksson]
-   - fix usage()  [Karel Zak]
-include/c:
-   - re-add type checking in container_of()  [Ruediger Meier]
-libblkid:
-   - (ntfs) fix compiler warning [-Wpedantic]  [Karel Zak]
-   - fix detection of dm-integrity superblock  [Milan Broz]
-   - stratis  correct byte order  [Tony Asleson]
-libmount:
-   - (umount) make mnt_stat_mountpoin() usable for relative paths  [Karel Zak]
-libuuid:
-   - fix man page typos  [Seth Girvan]
-mkswap:
-   - fix page size warning message  [Noel Cragg]
-   - use dd(1) in example rather than fallocate(1)  [Karel Zak]
-po:
-   - merge changes  [Karel Zak]
-   - update es.po (from translationproject.org)  [Antonio Ceballos Roa]
-   - update sv.po (from translationproject.org)  [Sebastian Rasmussen]
-setarch:
-   - fix obscure sparc32bash use-case  [Karel Zak]
-tests:
-   - check for tar and {b,g}zip  [Karel Zak]
-   - enlarge backing file for fstab-btrfs  [Karel Zak]
-   - make lsns-netnsid portable  [Karel Zak]
-   - run oids test only when uuidgen tool was built  [Thomas Deutschmann]
-umount:
-   - fix --quiet  [Karel Zak]
-uuidd:
-   - Add Documentation key to uuidd.service  [Andreas Henriksson]
+Regards, Jonny
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+
+
+
+$ fdisk --version
+fdisk from util-linux 2.31.1
+
+
+# fdisk /dev/sdb
+
+Welcome to fdisk (util-linux 2.31.1).
+Changes will remain in memory only, until you decide to write them.
+Be careful before using the write command.
+
+
+Command (m for help): p
+Disk /dev/sdb: 114.6 GiB, 123010547712 bytes, 240254976 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x00000000
+
+Device     Boot Start       End   Sectors   Size Id Type
+/dev/sdb1          32 240254975 240254944 114.6G  c W95 FAT32 (LBA)
+
+Command (m for help): t
+Selected partition 1
+Hex code (type L to list all codes): ^CHex code (type L to list all codes):
+
+
+Hex code (type L to list all codes): q
+Type 0 means free space to many systems. Having partitions of type 0 is 
+probably unwise.
+
+Changed type of partition 'W95 FAT32 (LBA)' to 'unknown'.
+
+Command (m for help):
+
