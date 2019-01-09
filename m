@@ -1,80 +1,110 @@
-Return-Path: <SRS0=1Am0=PQ=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=cduA=PR=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0899C43387
-	for <util-linux@archiver.kernel.org>; Tue,  8 Jan 2019 15:39:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58133C43387
+	for <util-linux@archiver.kernel.org>; Wed,  9 Jan 2019 10:48:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BA57B20883
-	for <util-linux@archiver.kernel.org>; Tue,  8 Jan 2019 15:39:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2D94220883
+	for <util-linux@archiver.kernel.org>; Wed,  9 Jan 2019 10:48:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728794AbfAHPjJ convert rfc822-to-8bit (ORCPT
-        <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 8 Jan 2019 10:39:09 -0500
-Received: from lithops.sigma-star.at ([195.201.40.130]:51558 "EHLO
-        lithops.sigma-star.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727906AbfAHPjI (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 8 Jan 2019 10:39:08 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 7A804608A387;
-        Tue,  8 Jan 2019 16:39:06 +0100 (CET)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id 2rCypIHhzuQr; Tue,  8 Jan 2019 16:39:06 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 2C436608A386;
-        Tue,  8 Jan 2019 16:39:06 +0100 (CET)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id qzqZMvpGr69y; Tue,  8 Jan 2019 16:39:06 +0100 (CET)
-Received: from blindfold.localnet (213-47-184-186.cable.dynamic.surfer.at [213.47.184.186])
-        by lithops.sigma-star.at (Postfix) with ESMTPSA id 5BCEF6088978;
-        Tue,  8 Jan 2019 16:39:05 +0100 (CET)
-From:   Richard Weinberger <richard@nod.at>
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Pali =?ISO-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>,
-        Andreas Bombe <andreas.bombe@gmail.com>,
-        Andreas Henriksson <andreas@fatal.se>,
-        Jaroslav Skarvada <jskarvad@redhat.com>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        util-linux@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        mpluskal@suse.com, base-system@gentoo.org,
-        Karel Zak <kzak@redhat.com>, Andreas Bombe <aeb@debian.org>,
-        Andreas Dilger <adilger@dilger.ca>
-Subject: Re: Future of dosfstools project (FAT)
-Date:   Tue, 08 Jan 2019 16:39:04 +0100
-Message-ID: <2431182.t5fd7Oadsi@blindfold>
-In-Reply-To: <CAHp75VfJpy572t8swsEsz0kPKfpOE-v0SZVxM2aakX0hkjX4=Q@mail.gmail.com>
-References: <20180929084038.an6pfhnsd6tblejl@pali> <20181227221748.zsz6bwqqia7ybfwj@pali> <CAHp75VfJpy572t8swsEsz0kPKfpOE-v0SZVxM2aakX0hkjX4=Q@mail.gmail.com>
+        id S1729713AbfAIKsI (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 9 Jan 2019 05:48:08 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:36992 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726915AbfAIKsI (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 9 Jan 2019 05:48:08 -0500
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id EC9A789ADB;
+        Wed,  9 Jan 2019 10:48:07 +0000 (UTC)
+Received: from ws.net.home (ovpn-116-60.ams2.redhat.com [10.36.116.60])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 04117600C3;
+        Wed,  9 Jan 2019 10:48:06 +0000 (UTC)
+Date:   Wed, 9 Jan 2019 11:48:04 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.33.1
+Message-ID: <20190109104804.qeryw2xyp7j42mhc@ws.net.home>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: NeoMutt/20180716-1022-6b9065-dirty
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Wed, 09 Jan 2019 10:48:08 +0000 (UTC)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Am Dienstag, 8. Januar 2019, 16:32:55 CET schrieb Andy Shevchenko:
-> On Fri, Dec 28, 2018 at 12:18 AM Pali Rohár <pali.rohar@gmail.com> wrote:
-> > On Monday 17 December 2018 10:50:04 Pali Rohár wrote:
-> > > On Wednesday 12 December 2018 14:57:36 Pali Rohár wrote:
-> 
-> > > Thanks for review of #94! As next you can take #92 from list.
-> >
-> > Andreas, can you look at next pull requests?
-> 
-> Looking from a side how slow this is being processed I think the best
-> option to fork and abandon the old project if author / maintainer by
-> some reason wouldn't like to give a push rights.
 
-+1
-
-Thanks,
-//richard
+The util-linux stable release v2.33.1 is available at
+                                        
+  http://www.kernel.org/pub/linux/utils/util-linux/v2.33/
+                                        
+Feedback and bug reports, as always, are welcomed.
+                                        
+  Karel        
 
 
+util-linux 2.33.1 Release Notes
+===============================
+
+agetty:
+   - Return old behavior with empty logname  [Stanislav Brabec]
+   - fix output of escaped characters  [Christian Hesse]
+   - fix portability issues  [Samuel Thibault]
+build-sys:
+   - do not require crypt()  [Karel Zak]
+   - do not require dirfd()  [Karel Zak]
+   - make fdisk, sfdisk, cfdisk optional (enabled by default)  [Carlos Santos]
+chmem:
+   - add initilizer [clang]  [Sami Kerola]
+choom:
+   - fix negative adjust score usage  [Karel Zak]
+dmesg:
+   - correct "-n, --console-level level" example in manual page  [Jean-Philippe ROMAIN]
+docs:
+   - add link to mail list archive  [Sami Kerola]
+   - update AUTHORS file  [Karel Zak]
+fstrim:
+   - Add Documentation key to fstrim.service  [Andreas Henriksson]
+   - fix usage()  [Karel Zak]
+include/c:
+   - re-add type checking in container_of()  [Ruediger Meier]
+libblkid:
+   - (ntfs) fix compiler warning [-Wpedantic]  [Karel Zak]
+   - fix detection of dm-integrity superblock  [Milan Broz]
+   - stratis  correct byte order  [Tony Asleson]
+libmount:
+   - (umount) make mnt_stat_mountpoin() usable for relative paths  [Karel Zak]
+libuuid:
+   - fix man page typos  [Seth Girvan]
+mkswap:
+   - fix page size warning message  [Noel Cragg]
+   - use dd(1) in example rather than fallocate(1)  [Karel Zak]
+po:
+   - merge changes  [Karel Zak]
+   - update es.po (from translationproject.org)  [Antonio Ceballos Roa]
+   - update sv.po (from translationproject.org)  [Sebastian Rasmussen]
+setarch:
+   - fix obscure sparc32bash use-case  [Karel Zak]
+tests:
+   - check for tar and {b,g}zip  [Karel Zak]
+   - enlarge backing file for fstab-btrfs  [Karel Zak]
+   - make lsns-netnsid portable  [Karel Zak]
+   - run oids test only when uuidgen tool was built  [Thomas Deutschmann]
+umount:
+   - fix --quiet  [Karel Zak]
+uuidd:
+   - Add Documentation key to uuidd.service  [Andreas Henriksson]
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
