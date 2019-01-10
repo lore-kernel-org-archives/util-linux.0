@@ -2,58 +2,101 @@ Return-Path: <SRS0=LbFG=PS=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0500DC43387
-	for <util-linux@archiver.kernel.org>; Thu, 10 Jan 2019 11:28:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62947C43387
+	for <util-linux@archiver.kernel.org>; Thu, 10 Jan 2019 12:22:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BF72D206B6
-	for <util-linux@archiver.kernel.org>; Thu, 10 Jan 2019 11:28:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1EC7420651
+	for <util-linux@archiver.kernel.org>; Thu, 10 Jan 2019 12:22:49 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=jguk-org.20150623.gappssmtp.com header.i=@jguk-org.20150623.gappssmtp.com header.b="nLRWHqWA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727959AbfAJL2e (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 10 Jan 2019 06:28:34 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:4590 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727455AbfAJL2e (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 10 Jan 2019 06:28:34 -0500
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 2A421C0C49EB;
-        Thu, 10 Jan 2019 11:28:34 +0000 (UTC)
-Received: from ws.net.home (ovpn-116-60.ams2.redhat.com [10.36.116.60])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 69B9B1813B;
-        Thu, 10 Jan 2019 11:28:33 +0000 (UTC)
-Date:   Thu, 10 Jan 2019 12:28:30 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     Stanislav Brabec <sbrabec@suse.cz>
+        id S1727000AbfAJMWs (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 10 Jan 2019 07:22:48 -0500
+Received: from mail-wr1-f51.google.com ([209.85.221.51]:42012 "EHLO
+        mail-wr1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726974AbfAJMWs (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 10 Jan 2019 07:22:48 -0500
+Received: by mail-wr1-f51.google.com with SMTP id q18so11116356wrx.9
+        for <util-linux@vger.kernel.org>; Thu, 10 Jan 2019 04:22:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=jguk-org.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=i5FoxBlz7stzTCvJ72eZorFbCi2i8Qwa+y3fw69I/i8=;
+        b=nLRWHqWAp7+keULrxy3Xv6YVW0OOD95H7Tb4UEhLVyj35QYx34d8BtMoHH2nSK2DF+
+         lUdmqAF9O7T1uBtQ2alhYKtLJZsnUdih2+KwlhBz8vLDg6Zsuc3cl9mvFYGwpmpsOjs2
+         wuvDH7RJPW8NpmIr3kqoMBnefLtArF51gYhYqh+JZjHRs9eMWQ31v4JzXUFJCQIrGvbB
+         cGebL1sZtNlOT64Is9qhr5fc8cQGDIfEPwmlCY6Wh3DmnNSfr9yE6lQMR5iZjc9x7y81
+         I3pVbHKzdgsrGFChJexhwB8Vjjje833Ee3u7s3TSEjTCK8qE4I/Q6rUQwNONbD9RfxVU
+         47eg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=i5FoxBlz7stzTCvJ72eZorFbCi2i8Qwa+y3fw69I/i8=;
+        b=rJHyCR10GpS19KMYLDyQqN3orwF4CuCRZXbDAyitIKB00UhL8S9DbhFxN9R/vNHQRF
+         vFB5ohq6XNRVats4gUwAKaq7zjM2/oFU8eBGzb6909HfjDhF71jkA5b8HezAlolrHH0p
+         xSbChFH0vB7ZN58CChbCnRH7zjKYQ/da5RmUWU+Z4Eg3HewVPD4VhoG+dGqf+VpEVdY6
+         QbBhESwc6RgZL8dTGSWKp0qpC1FlouqUKK53ecWSj9O1xjYQEGrlRM0JEZJnlo4p66am
+         D24uWzSn+77PwHC8k019u/5s/RfjcavYS6d4tNcLfP+AdyK9eJGLRmAlNQd5Yv2i7wsk
+         BiqA==
+X-Gm-Message-State: AJcUukeZcca8COCWvySS8e0WN+qbaYLhxOF1YfxCMMcqgsaYsolAV1xh
+        Ih3FGHi3DwMxSVjZAYStdCy08vKgmPM=
+X-Google-Smtp-Source: ALg8bN5DxrcX1zX5YmLZalvYtJEbQVwXDvX24Ajva7oHxO7jSdrYH/fCCXtpoesmSVWe8WYYXLuEZQ==
+X-Received: by 2002:adf:e983:: with SMTP id h3mr8634281wrm.232.1547122965163;
+        Thu, 10 Jan 2019 04:22:45 -0800 (PST)
+Received: from [192.168.1.64] (147.98.189.80.dyn.plus.net. [80.189.98.147])
+        by smtp.gmail.com with ESMTPSA id c202sm17345605wmd.40.2019.01.10.04.22.43
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 10 Jan 2019 04:22:44 -0800 (PST)
+Subject: Re: fdisk Ctrl+C
+To:     Karel Zak <kzak@redhat.com>
 Cc:     util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/2] su-common.c: prefer ENV_SUPATH over ENV_ROOTPATH
-Message-ID: <20190110112830.i4b6kpgcwbqquuqk@ws.net.home>
-References: <6de7ab5f-7056-50fc-0b47-864efa82ee8b@suse.cz>
+References: <9bf2cc25-1b6a-88ae-c293-7a613b1255d8@jguk.org>
+ <20190110112249.hem6qvd7jqzzvhxg@ws.net.home>
+From:   Jonny Grant <jg@jguk.org>
+Message-ID: <b8a1d828-db9d-2f56-697c-b14d838c44d3@jguk.org>
+Date:   Thu, 10 Jan 2019 12:22:43 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.2.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6de7ab5f-7056-50fc-0b47-864efa82ee8b@suse.cz>
-User-Agent: NeoMutt/20180716-1022-6b9065-dirty
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Thu, 10 Jan 2019 11:28:34 +0000 (UTC)
+In-Reply-To: <20190110112249.hem6qvd7jqzzvhxg@ws.net.home>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Thu, Jan 10, 2019 at 01:28:54AM +0100, Stanislav Brabec wrote:
->  login-utils/login.1     | 2 +-
->  login-utils/runuser.1   | 2 +-
->  login-utils/su-common.c | 4 ++--
->  login-utils/su.1        | 2 +-
->  4 files changed, 5 insertions(+), 5 deletions(-)
 
-Applied, thanks.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+On 10/01/2019 11:22, Karel Zak wrote:
+> On Wed, Jan 09, 2019 at 06:01:18PM +0000, Jonny Grant wrote:
+>> 1. Could Ctrl+C be added to get out of changing a partition type?
+> 
+> Implemented.
+> 
+>> 2 Could the partition code check that it is hex. At the moment if I type 'q'
+>> I get partition type 0.
+> 
+> Fixed.
+> 
+>> 3.
+>> For partition type 0, which is called "Empty" probably this message should
+>> say "Empty" and not 'unknown' ?
+> 
+> Works for me now.
+> 
+> Thanks for your report.
+> 
+>      Karel
+
+Great work!
+Looking forward to my next dist-upgrade
+Jonny
