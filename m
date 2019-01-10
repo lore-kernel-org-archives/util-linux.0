@@ -6,25 +6,25 @@ X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55C04C43387
-	for <util-linux@archiver.kernel.org>; Thu, 10 Jan 2019 00:28:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BB13C43387
+	for <util-linux@archiver.kernel.org>; Thu, 10 Jan 2019 00:28:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2D989214C6
-	for <util-linux@archiver.kernel.org>; Thu, 10 Jan 2019 00:28:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 53FBF214C6
+	for <util-linux@archiver.kernel.org>; Thu, 10 Jan 2019 00:28:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726776AbfAJA2y (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 9 Jan 2019 19:28:54 -0500
-Received: from mx2.suse.de ([195.135.220.15]:46940 "EHLO mx1.suse.de"
+        id S1726813AbfAJA25 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 9 Jan 2019 19:28:57 -0500
+Received: from mx2.suse.de ([195.135.220.15]:46946 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726590AbfAJA2y (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 9 Jan 2019 19:28:54 -0500
+        id S1726590AbfAJA24 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 9 Jan 2019 19:28:56 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 4C00AAB9D
-        for <util-linux@vger.kernel.org>; Thu, 10 Jan 2019 00:28:53 +0000 (UTC)
+Received: from relay1.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id F004FAB9D
+        for <util-linux@vger.kernel.org>; Thu, 10 Jan 2019 00:28:54 +0000 (UTC)
 To:     util-linux@vger.kernel.org
 From:   Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH 1/2] su-common.c: prefer /etc/default/su over login.defs
+Subject: [PATCH 2/2] su-common.c: prefer ENV_SUPATH over ENV_ROOTPATH
 Openpgp: preference=signencrypt
 Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
  mQGiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
@@ -45,8 +45,8 @@ Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
  uRDKekFTiilRRVyiXWDt+zY2aNNMknKBACeIRgQYEQIABgUCPq/ZggAKCRBxfCCfoE/Ndi+t
  AJ958OvQedgG0gsRG1wX/HKXmRZ0dwCfUk0F4qeP5dCiETIHh3gxNIsx8YQ=
 Organization: SUSE Linux, s. r. o.
-Message-ID: <4163e3c3-9814-232e-2d73-b7751f38d360@suse.cz>
-Date:   Thu, 10 Jan 2019 01:28:53 +0100
+Message-ID: <6de7ab5f-7056-50fc-0b47-864efa82ee8b@suse.cz>
+Date:   Thu, 10 Jan 2019 01:28:54 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.3.3
 MIME-Version: 1.0
@@ -58,39 +58,75 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-su(1) documentation says:
-       /etc/default/su  command specific logindef config file
-       /etc/login.defs  global logindef config file
-
-It indirectly indicates that /etc/default/su should take precedence
-over /etc/login.defs.
-
-But the reverse is true. It is not possible to define ENV_PATH in
-/etc/login.defs and then make su specific customization in
-/etc/default/su. We need to change read order to match the documented
-behavior.
+ENV_SUPATH and ENV_ROOTPATH are equivalent and ENV_ROOTPATH takes
+precedence in both login and su. It makes no sense. More logical would be
+precedence of ENV_SUPATH in su and ENV_ROOTPATH in login.
 
 Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
 ---
- login-utils/su-common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ login-utils/login.1     | 2 +-
+ login-utils/runuser.1   | 2 +-
+ login-utils/su-common.c | 4 ++--
+ login-utils/su.1        | 2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
+diff --git a/login-utils/login.1 b/login-utils/login.1
+index cb8addec3..b73eae147 100644
+--- a/login-utils/login.1
++++ b/login-utils/login.1
+@@ -282,7 +282,7 @@ a regular user logs in.  The default value is
+ (string)
+ .RS 4
+ If set, it will be used to define the PATH environment variable when
+-the superuser logs in.  The default value is
++the superuser logs in.  ENV_ROOTPATH takes precedence.  The default value is
+ .I /usr\:/local\:/sbin:\:/usr\:/local\:/bin:\:/sbin:\:/bin:\:/usr\:/sbin:\:/usr\:/bin
+ .RE
+ .SH FILES
+diff --git a/login-utils/runuser.1 b/login-utils/runuser.1
+index bf0d02471..221672200 100644
+--- a/login-utils/runuser.1
++++ b/login-utils/runuser.1
+@@ -183,7 +183,7 @@ default value is
+ .B ENV_SUPATH
+ (string)
+ .RS 4
+-Defines the PATH environment variable for root. The default value is
++Defines the PATH environment variable for root.  ENV_SUPATH takes precedence.  The default value is
+ .IR /usr/local/sbin:\:/usr/local/bin:\:/sbin:\:/bin:\:/usr/sbin:\:/usr/bin .
+ .RE
+ .PP
 diff --git a/login-utils/su-common.c b/login-utils/su-common.c
-index e0604e246..19074247c 100644
+index 19074247c..0e44eb87c 100644
 --- a/login-utils/su-common.c
 +++ b/login-utils/su-common.c
-@@ -1229,8 +1229,8 @@ static void load_config(void *data)
- 	struct su_context *su = (struct su_context *) data;
+@@ -989,8 +989,8 @@ static void setenv_path(const struct passwd *pw)
+ 	if (pw->pw_uid)
+ 		rc = logindefs_setenv("PATH", "ENV_PATH", _PATH_DEFPATH);
  
- 	DBG(MISC, ul_debug("loading logindefs"));
--	logindefs_load_file(su->runuser ? _PATH_LOGINDEFS_RUNUSER : _PATH_LOGINDEFS_SU);
- 	logindefs_load_file(_PATH_LOGINDEFS);
-+	logindefs_load_file(su->runuser ? _PATH_LOGINDEFS_RUNUSER : _PATH_LOGINDEFS_SU);
- }
+-	else if ((rc = logindefs_setenv("PATH", "ENV_ROOTPATH", NULL)) != 0)
+-		rc = logindefs_setenv("PATH", "ENV_SUPATH", _PATH_DEFPATH_ROOT);
++	else if ((rc = logindefs_setenv("PATH", "ENV_SUPATH", NULL)) != 0)
++		rc = logindefs_setenv("PATH", "ENV_ROOTPATH", _PATH_DEFPATH_ROOT);
  
- /*
+ 	if (rc)
+ 		err(EXIT_FAILURE, _("failed to set the PATH environment variable"));
+diff --git a/login-utils/su.1 b/login-utils/su.1
+index d6a064fd2..5ae6d6b2d 100644
+--- a/login-utils/su.1
++++ b/login-utils/su.1
+@@ -209,7 +209,7 @@ default value is
+ .B ENV_SUPATH
+ (string)
+ .RS 4
+-Defines the PATH environment variable for root.  The default value is
++Defines the PATH environment variable for root.  ENV_SUPATH takes precedence.  The default value is
+ .IR /usr/local/sbin:\:/usr/local/bin:\:/sbin:\:/bin:\:/usr/sbin:\:/usr/bin .
+ .RE
+ .PP
 -- 
 2.20.1
+
 
 -- 
 Best Regards / S pozdravem,
