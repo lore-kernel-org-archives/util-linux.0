@@ -1,134 +1,105 @@
-Return-Path: <SRS0=cduA=PR=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=LbFG=PS=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 188CBC43444
-	for <util-linux@archiver.kernel.org>; Wed,  9 Jan 2019 18:01:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55C04C43387
+	for <util-linux@archiver.kernel.org>; Thu, 10 Jan 2019 00:28:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D3A9F20685
-	for <util-linux@archiver.kernel.org>; Wed,  9 Jan 2019 18:01:22 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=jguk-org.20150623.gappssmtp.com header.i=@jguk-org.20150623.gappssmtp.com header.b="O9cQF+mD"
+	by mail.kernel.org (Postfix) with ESMTP id 2D989214C6
+	for <util-linux@archiver.kernel.org>; Thu, 10 Jan 2019 00:28:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727007AbfAISBW (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 9 Jan 2019 13:01:22 -0500
-Received: from mail-wm1-f51.google.com ([209.85.128.51]:51521 "EHLO
-        mail-wm1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727127AbfAISBW (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 9 Jan 2019 13:01:22 -0500
-Received: by mail-wm1-f51.google.com with SMTP id b11so8638257wmj.1
-        for <util-linux@vger.kernel.org>; Wed, 09 Jan 2019 10:01:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=jguk-org.20150623.gappssmtp.com; s=20150623;
-        h=to:cc:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=Qe1mapmprBMNMefheIrrX3cgiwYSTUdDZtQ1jjxmOMM=;
-        b=O9cQF+mDylqsVcNvo1zLu+M0CnnShw7Mw4yer2kmVHCxNxaT2+P9Yi2MM8JNkNLaDB
-         kPwdnoFFN2aOmio9SLgkjF9Y/sZKBN61AmM9hN/3iq3Ri6+oKi5Zp3/MGMTacvYlKSqv
-         15q83VX9SUNnxwnNwjP8iC84K8Oj0+6qSDx75zI6RpH5RtSnvep7/3GRZ+JalJAgpokL
-         IYJfK8tbMwJptOVKiK5hMcNzx0mkQhfUyEItSC78tIB73QzeXjnGiFB/l3nXJPQ6N57s
-         fGL//2KNW4UkH9fIxzbycl//bd4BEDXEhAxF15To21buSM4IzX8UGvJWgE9VAHMoCYv8
-         cujg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=Qe1mapmprBMNMefheIrrX3cgiwYSTUdDZtQ1jjxmOMM=;
-        b=KP4hHbjdVnv4GjWm2QU8hzL41woTAqzyJVoFrUkOJPRP3QeepPkBU7Qh4lqcVKae0b
-         2Fd+eVk3XdjgANMn1Aw3MIo5hZmnuoMISVvbKsRQZUPVq7DRfY3CAq2Hhnuvv4tnRYx7
-         mkBOTFxnVznEOXaJU2dvWWt/ZnmtSjVUjVOLpEjYM+HE2Mo7c7F/A3BY+b3I0WKohjnI
-         WL5QZj2M9aGMxeS2Fl2TJgfRu1YlNpTRgA4wO4uUtQCflKwZk2ya6IOrC03KuPVgUgcb
-         XvP868C3Q2D+IhRg3V8hQV73jj5IRBFtuRqpwBDl6zznJQX6yNE1Jgl/70HCw00/CKTF
-         GYww==
-X-Gm-Message-State: AJcUukd+dm8SCrVJ1dcQ88mxEQt5UpS913wwNZz6bevM5gBooFOXKu0B
-        4NEF1osmtdqOqDyDLDQIIshCpA==
-X-Google-Smtp-Source: ALg8bN51MXYMiI5i9UvbJk+m1UUxBYVKu0/ttvSU+TYuunPZhzZ2akoSvkaXsI32Cnsyfd35siGp9A==
-X-Received: by 2002:a1c:e287:: with SMTP id z129mr6533632wmg.71.1547056879603;
-        Wed, 09 Jan 2019 10:01:19 -0800 (PST)
-Received: from [192.168.1.64] (147.98.189.80.dyn.plus.net. [80.189.98.147])
-        by smtp.gmail.com with ESMTPSA id g198sm20482162wmd.23.2019.01.09.10.01.18
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 09 Jan 2019 10:01:18 -0800 (PST)
+        id S1726776AbfAJA2y (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 9 Jan 2019 19:28:54 -0500
+Received: from mx2.suse.de ([195.135.220.15]:46940 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726590AbfAJA2y (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 9 Jan 2019 19:28:54 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 4C00AAB9D
+        for <util-linux@vger.kernel.org>; Thu, 10 Jan 2019 00:28:53 +0000 (UTC)
 To:     util-linux@vger.kernel.org
-Cc:     Karel Zak <kzak@redhat.com>
-From:   Jonny Grant <jg@jguk.org>
-Subject: fdisk Ctrl+C
-Message-ID: <9bf2cc25-1b6a-88ae-c293-7a613b1255d8@jguk.org>
-Date:   Wed, 9 Jan 2019 18:01:18 +0000
+From:   Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH 1/2] su-common.c: prefer /etc/default/su over login.defs
+Openpgp: preference=signencrypt
+Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
+ mQGiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
+ zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
+ 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
+ AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
+ 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
+ NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
+ SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
+ ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSLQsU3RhbmlzbGF2
+ IEJyYWJlYyAoU3VTRSBDUikgPHNicmFiZWNAc3VzZS5jej6IXwQTEQIAHwQLBwMCAxUCAwMW
+ AgECHgECF4AFAlHS/kkFCSE/csAACgkQcXwgn6BPzXZY/gCghbxE4uexFHVP7qho9TDNxGGR
+ xxgAoKCipPrJQrnXKhFG4RDeRcVE0PoBuQENBD6v2YIQBACt62O2lXle2CPxw2LpdT557Rvr
+ UdoYJ1AeLAn1iDy67rDsGumxJxW254x9CKVsU3609PG58gDKSQ7CvHzErtOdz9xsJLfCCxbk
+ 6LsOhBdCWgYs7HV2xYCkUvKSVQGZN95skfv1aSsO6dXzXISXen4KqY5AnFa+pXDAqMJTGLwp
+ GwADBgQAkZ2/zz99L224sNcFgM+6TuGIQ57fNhKJxYG2HbBqh3oBiiZI9224dKLNCv/2aoV8
+ qd9QUMKQCO7kQKkSH7+Ti1KnCyaDi3SoeFcsV4Z99Xb1bN2EBS1C4qohNUbouTsYEG5qsZPe
+ uRDKekFTiilRRVyiXWDt+zY2aNNMknKBACeIRgQYEQIABgUCPq/ZggAKCRBxfCCfoE/Ndi+t
+ AJ958OvQedgG0gsRG1wX/HKXmRZ0dwCfUk0F4qeP5dCiETIHh3gxNIsx8YQ=
+Organization: SUSE Linux, s. r. o.
+Message-ID: <4163e3c3-9814-232e-2d73-b7751f38d360@suse.cz>
+Date:   Thu, 10 Jan 2019 01:28:53 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.2.1
+ Thunderbird/60.3.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hello!
+su(1) documentation says:
+       /etc/default/su  command specific logindef config file
+       /etc/login.defs  global logindef config file
 
-A few questions, ideas
+It indirectly indicates that /etc/default/su should take precedence
+over /etc/login.defs.
 
-1. Could Ctrl+C be added to get out of changing a partition type?
+But the reverse is true. It is not possible to define ENV_PATH in
+/etc/login.defs and then make su specific customization in
+/etc/default/su. We need to change read order to match the documented
+behavior.
 
-2 Could the partition code check that it is hex. At the moment if I type 
-'q' I get partition type 0.
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ login-utils/su-common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-3.
-For partition type 0, which is called "Empty" probably this message 
-should say "Empty" and not 'unknown' ?
+diff --git a/login-utils/su-common.c b/login-utils/su-common.c
+index e0604e246..19074247c 100644
+--- a/login-utils/su-common.c
++++ b/login-utils/su-common.c
+@@ -1229,8 +1229,8 @@ static void load_config(void *data)
+ 	struct su_context *su = (struct su_context *) data;
+ 
+ 	DBG(MISC, ul_debug("loading logindefs"));
+-	logindefs_load_file(su->runuser ? _PATH_LOGINDEFS_RUNUSER : _PATH_LOGINDEFS_SU);
+ 	logindefs_load_file(_PATH_LOGINDEFS);
++	logindefs_load_file(su->runuser ? _PATH_LOGINDEFS_RUNUSER : _PATH_LOGINDEFS_SU);
+ }
+ 
+ /*
+-- 
+2.20.1
 
-=======
-Changed type of partition 'W95 FAT32 (LBA)' to 'unknown'.
-=======
+-- 
+Best Regards / S pozdravem,
 
-Would a patch be accepted for this?
-
-
-NB. See log below for more info.
-
-Regards, Jonny
-
-
-
-
-$ fdisk --version
-fdisk from util-linux 2.31.1
-
-
-# fdisk /dev/sdb
-
-Welcome to fdisk (util-linux 2.31.1).
-Changes will remain in memory only, until you decide to write them.
-Be careful before using the write command.
-
-
-Command (m for help): p
-Disk /dev/sdb: 114.6 GiB, 123010547712 bytes, 240254976 sectors
-Units: sectors of 1 * 512 = 512 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 512 bytes
-Disklabel type: dos
-Disk identifier: 0x00000000
-
-Device     Boot Start       End   Sectors   Size Id Type
-/dev/sdb1          32 240254975 240254944 114.6G  c W95 FAT32 (LBA)
-
-Command (m for help): t
-Selected partition 1
-Hex code (type L to list all codes): ^CHex code (type L to list all codes):
-
-
-Hex code (type L to list all codes): q
-Type 0 means free space to many systems. Having partitions of type 0 is 
-probably unwise.
-
-Changed type of partition 'W95 FAT32 (LBA)' to 'unknown'.
-
-Command (m for help):
-
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                  tel: +49 911 7405384547
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
