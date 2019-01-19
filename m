@@ -1,97 +1,86 @@
-Return-Path: <SRS0=IhrT=PW=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=WtKw=P3=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECD36C43387
-	for <util-linux@archiver.kernel.org>; Mon, 14 Jan 2019 15:19:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 768B1C61CE4
+	for <util-linux@archiver.kernel.org>; Sat, 19 Jan 2019 22:18:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C14832086D
-	for <util-linux@archiver.kernel.org>; Mon, 14 Jan 2019 15:19:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4A2302086A
+	for <util-linux@archiver.kernel.org>; Sat, 19 Jan 2019 22:18:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726609AbfANPTT convert rfc822-to-8bit (ORCPT
-        <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 14 Jan 2019 10:19:19 -0500
-Received: from lithops.sigma-star.at ([195.201.40.130]:39288 "EHLO
-        lithops.sigma-star.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726616AbfANPTT (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 14 Jan 2019 10:19:19 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 73239608A38F;
-        Mon, 14 Jan 2019 16:19:16 +0100 (CET)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id nwyq1vHO0V8U; Mon, 14 Jan 2019 16:19:16 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id F084B608A3A9;
-        Mon, 14 Jan 2019 16:19:15 +0100 (CET)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id ChKxoGPlh8IF; Mon, 14 Jan 2019 16:19:15 +0100 (CET)
-Received: from blindfold.localnet (213-225-15-181.nat.highway.a1.net [213.225.15.181])
-        by lithops.sigma-star.at (Postfix) with ESMTPSA id 43A12608A38F;
-        Mon, 14 Jan 2019 16:19:14 +0100 (CET)
-From:   Richard Weinberger <richard@nod.at>
-To:     Pali =?ISO-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc:     Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Andreas Bombe <andreas.bombe@gmail.com>,
-        Andreas Henriksson <andreas@fatal.se>,
-        Jaroslav Skarvada <jskarvad@redhat.com>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        util-linux@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        mpluskal@suse.com, base-system@gentoo.org,
-        Karel Zak <kzak@redhat.com>, Andreas Bombe <aeb@debian.org>,
-        Andreas Dilger <adilger@dilger.ca>
-Subject: Re: Future of dosfstools project (FAT)
-Date:   Mon, 14 Jan 2019 16:19:12 +0100
-Message-ID: <7446280.uGaFHXOlFU@blindfold>
-In-Reply-To: <20190114151709.xemy2h4gtgtsos3d@pali>
-References: <20180929084038.an6pfhnsd6tblejl@pali> <2431182.t5fd7Oadsi@blindfold> <20190114151709.xemy2h4gtgtsos3d@pali>
+        id S1729599AbfASWSU (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sat, 19 Jan 2019 17:18:20 -0500
+Received: from mail-out.m-online.net ([212.18.0.10]:46551 "EHLO
+        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729056AbfASWSU (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 19 Jan 2019 17:18:20 -0500
+Received: from frontend01.mail.m-online.net (unknown [192.168.8.182])
+        by mail-out.m-online.net (Postfix) with ESMTP id 43hsdk1dHrz1rYjr
+        for <util-linux@vger.kernel.org>; Sat, 19 Jan 2019 23:18:18 +0100 (CET)
+Received: from localhost (dynscan1.mnet-online.de [192.168.6.70])
+        by mail.m-online.net (Postfix) with ESMTP id 43hsdk1W98z1qr5n
+        for <util-linux@vger.kernel.org>; Sat, 19 Jan 2019 23:18:18 +0100 (CET)
+X-Virus-Scanned: amavisd-new at mnet-online.de
+Received: from mail.mnet-online.de ([192.168.8.182])
+        by localhost (dynscan1.mail.m-online.net [192.168.6.70]) (amavisd-new, port 10024)
+        with ESMTP id v-EwiVvTH2_M for <util-linux@vger.kernel.org>;
+        Sat, 19 Jan 2019 23:18:17 +0100 (CET)
+X-Auth-Info: kQxovIH9UhXKgYMVlaH7891cjJnOoxeIjjk10yCInZTMH8oOm09PCzSmfF8s+vq6
+Received: from igel.home (ppp-188-174-144-29.dynamic.mnet-online.de [188.174.144.29])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.mnet-online.de (Postfix) with ESMTPSA
+        for <util-linux@vger.kernel.org>; Sat, 19 Jan 2019 23:18:17 +0100 (CET)
+Received: by igel.home (Postfix, from userid 1000)
+        id A739E2C1397; Sat, 19 Jan 2019 23:18:16 +0100 (CET)
+From:   Andreas Schwab <schwab@linux-m68k.org>
+To:     util-linux@vger.kernel.org
+Subject: [PATCH] setarch: don't return address of automatic variable
+X-Yow:  ..I'll make you an ASHTRAY!!
+Date:   Sat, 19 Jan 2019 23:18:16 +0100
+Message-ID: <87imyk9tqv.fsf@igel.home>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1.91 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Am Montag, 14. Januar 2019, 16:17:09 CET schrieb Pali Rohár:
-> On Tuesday 08 January 2019 16:39:04 Richard Weinberger wrote:
-> > Am Dienstag, 8. Januar 2019, 16:32:55 CET schrieb Andy Shevchenko:
-> > > On Fri, Dec 28, 2018 at 12:18 AM Pali Rohár <pali.rohar@gmail.com> wrote:
-> > > > On Monday 17 December 2018 10:50:04 Pali Rohár wrote:
-> > > > > On Wednesday 12 December 2018 14:57:36 Pali Rohár wrote:
-> > > 
-> > > > > Thanks for review of #94! As next you can take #92 from list.
-> > > >
-> > > > Andreas, can you look at next pull requests?
-> > > 
-> > > Looking from a side how slow this is being processed I think the best
-> > > option to fork and abandon the old project if author / maintainer by
-> > > some reason wouldn't like to give a push rights.
-> > 
-> > +1
-> 
-> I really do not want to create fork or become new "maintainer" of this
-> project.
-> 
-> If somebody else want to take project or create fork, I can prepare
-> patches and send them to new place. But still I would like to see code
-> review of patches from other people. dosfstools is a project which is
-> used by lot of people and is de-facto standard for FAT32 Linux support.
-> So breaking something should be prevented as much as possible.
-> 
-> Richard or Andy, if Andreas really do not have time for dosfstools, what
-> about you to take maintenance of dosfstools?
+On architectures without special personalities setarch uses the contents
+of a local variable with automatic storage duration after return from
+the function, causing it to report a spurious error.
 
-The golden rule is: touch it, own it.
-You touched it, sorry. ;-)
+$ setarch m68k
+setarch: Kernel cannot set architecture to m68k
 
-Thanks,
-//richard
+Signed-off-by: Andreas Schwab <schwab@linux-m68k.org>
+---
+ sys-utils/setarch.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sys-utils/setarch.c b/sys-utils/setarch.c
+index 7c0a63fbb262..703c36d864e1 100644
+--- a/sys-utils/setarch.c
++++ b/sys-utils/setarch.c
+@@ -131,7 +131,7 @@ static void __attribute__((__noreturn__)) usage(int archwrapper)
+  */
+ static struct arch_domain *init_arch_domains(void)
+ {
+-	struct utsname un;
++	static struct utsname un;
+ 	size_t i;
+ 
+ 	static struct arch_domain transitions[] =
+-- 
+2.20.1
 
 
-
+-- 
+Andreas Schwab, schwab@linux-m68k.org
+GPG Key fingerprint = 7578 EB47 D4E5 4D69 2510  2552 DF73 E780 A9DA AEC1
+"And now for something completely different."
