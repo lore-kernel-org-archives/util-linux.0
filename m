@@ -1,164 +1,67 @@
-Return-Path: <SRS0=DJtv=P5=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=jsub=P6=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02642C282DE
-	for <util-linux@archiver.kernel.org>; Mon, 21 Jan 2019 07:47:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42A9DC282C3
+	for <util-linux@archiver.kernel.org>; Tue, 22 Jan 2019 10:57:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CF6AB2084A
-	for <util-linux@archiver.kernel.org>; Mon, 21 Jan 2019 07:47:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1C04720870
+	for <util-linux@archiver.kernel.org>; Tue, 22 Jan 2019 10:57:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728315AbfAUHrD (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 21 Jan 2019 02:47:03 -0500
-Received: from mslow2.mail.gandi.net ([217.70.178.242]:53612 "EHLO
-        mslow2.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726240AbfAUHrD (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 21 Jan 2019 02:47:03 -0500
-Received: from relay8-d.mail.gandi.net (unknown [217.70.183.201])
-        by mslow2.mail.gandi.net (Postfix) with ESMTP id 0ABC43A1B67
-        for <util-linux@vger.kernel.org>; Mon, 21 Jan 2019 03:45:21 +0100 (CET)
-X-Originating-IP: 71.238.64.75
-Received: from localhost (c-71-238-64-75.hsd1.or.comcast.net [71.238.64.75])
-        (Authenticated sender: josh@joshtriplett.org)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 2DCB81BF20A;
-        Mon, 21 Jan 2019 02:45:19 +0000 (UTC)
-Date:   Sun, 20 Jan 2019 18:45:16 -0800
-From:   Josh Triplett <josh@joshtriplett.org>
-To:     util-linux@vger.kernel.org
-Cc:     Arjan van de Ven <arjan@linux.intel.com>
-Subject: [PATCH] libuuid: Make the uuid_unparse functions inline
-Message-ID: <20190121024510.GA22370@localhost>
+        id S1727332AbfAVK5s (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 22 Jan 2019 05:57:48 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:59958 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726095AbfAVK5s (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 22 Jan 2019 05:57:48 -0500
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 8FCE18B104;
+        Tue, 22 Jan 2019 10:57:48 +0000 (UTC)
+Received: from ws.net.home (ovpn-117-196.ams2.redhat.com [10.36.117.196])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id CB0435C20D;
+        Tue, 22 Jan 2019 10:57:47 +0000 (UTC)
+Date:   Tue, 22 Jan 2019 11:57:45 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     Jeffrey Ferreira <jeffpferreira@gmail.com>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: [PATCH] losetup: set blocksize before partition scan
+Message-ID: <20190122105745.sooe63gdchnp5uwd@ws.net.home>
+References: <20190110215515.GA28589@jeffrey-Ubuntu-iMac>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190110215515.GA28589@jeffrey-Ubuntu-iMac>
+User-Agent: NeoMutt/20180716-1023-ca4e12
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Tue, 22 Jan 2019 10:57:48 +0000 (UTC)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Various libraries, including libblkid, depend on libuuid solely to call
-uuid_unparse, which just prints a UUID. Move the uuid_unparse functions
-to uuid.h and make them static inline, so that applications depending
-solely on the uuid_unparse functions don't need to pull in libuuid. Keep
-the out-of-line symbols for compatibility with existing applications.
+On Thu, Jan 10, 2019 at 01:55:19PM -0800, Jeffrey Ferreira wrote:
+> When creating a loop device the user may use the --partscan option to
+> request that the kernel scan for partitions. To correctly scan for
+> partitions the kernel must first have the correct blocksize.
 
-Signed-off-by: Josh Triplett <josh@joshtriplett.org>
----
- libuuid/src/unparse.c | 40 +---------------------------------------
- libuuid/src/uuid.h    | 39 ++++++++++++++++++++++++++++++++++++---
- 2 files changed, 37 insertions(+), 42 deletions(-)
+Really good catch. Thanks!
 
-diff --git a/libuuid/src/unparse.c b/libuuid/src/unparse.c
-index a95bbb042..808c41869 100644
---- a/libuuid/src/unparse.c
-+++ b/libuuid/src/unparse.c
-@@ -34,43 +34,5 @@
- 
- #include <stdio.h>
- 
-+#define UUID_DEFINE_UNPARSE_SYMBOLS
- #include "uuidP.h"
--
--static const char *fmt_lower =
--	"%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x";
--
--static const char *fmt_upper =
--	"%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X";
--
--#ifdef UUID_UNPARSE_DEFAULT_UPPER
--#define FMT_DEFAULT fmt_upper
--#else
--#define FMT_DEFAULT fmt_lower
--#endif
--
--static void uuid_unparse_x(const uuid_t uu, char *out, const char *fmt)
--{
--	struct uuid uuid;
--
--	uuid_unpack(uu, &uuid);
--	sprintf(out, fmt,
--		uuid.time_low, uuid.time_mid, uuid.time_hi_and_version,
--		uuid.clock_seq >> 8, uuid.clock_seq & 0xFF,
--		uuid.node[0], uuid.node[1], uuid.node[2],
--		uuid.node[3], uuid.node[4], uuid.node[5]);
--}
--
--void uuid_unparse_lower(const uuid_t uu, char *out)
--{
--	uuid_unparse_x(uu, out,	fmt_lower);
--}
--
--void uuid_unparse_upper(const uuid_t uu, char *out)
--{
--	uuid_unparse_x(uu, out,	fmt_upper);
--}
--
--void uuid_unparse(const uuid_t uu, char *out)
--{
--	uuid_unparse_x(uu, out, FMT_DEFAULT);
--}
-diff --git a/libuuid/src/uuid.h b/libuuid/src/uuid.h
-index 03c232caa..0c207f5b9 100644
---- a/libuuid/src/uuid.h
-+++ b/libuuid/src/uuid.h
-@@ -35,6 +35,7 @@
- #ifndef _UUID_UUID_H
- #define _UUID_UUID_H
- 
-+#include <stdio.h>
- #include <sys/types.h>
- #ifndef _WIN32
- #include <sys/time.h>
-@@ -102,9 +103,41 @@ extern int uuid_is_null(const uuid_t uu);
- extern int uuid_parse(const char *in, uuid_t uu);
- 
- /* unparse.c */
--extern void uuid_unparse(const uuid_t uu, char *out);
--extern void uuid_unparse_lower(const uuid_t uu, char *out);
--extern void uuid_unparse_upper(const uuid_t uu, char *out);
-+#ifdef UUID_DEFINE_UNPARSE_SYMBOLS
-+#define UNPARSE_FUNC
-+void uuid_unparse_lower(const uuid_t uu, char *out);
-+void uuid_unparse_upper(const uuid_t uu, char *out);
-+void uuid_unparse(const uuid_t uu, char *out);
-+#else
-+#define UNPARSE_FUNC static inline
-+#endif
-+UNPARSE_FUNC void uuid_unparse_lower(const uuid_t uu, char *out)
-+{
-+	sprintf(out,
-+		"%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-+		uu[0], uu[1], uu[2], uu[3],
-+		uu[4], uu[5],
-+		uu[6], uu[7],
-+		uu[8], uu[9],
-+		uu[10], uu[11], uu[12], uu[13], uu[14],uu[15]);
-+}
-+
-+UNPARSE_FUNC void uuid_unparse_upper(const uuid_t uu, char *out)
-+{
-+	sprintf(out,
-+		"%02X%02X%02X%02X-%02X%02X-%02X%02X-%02X%02X-%02X%02X%02X%02X%02X%02X",
-+		uu[0], uu[1], uu[2], uu[3],
-+		uu[4], uu[5],
-+		uu[6], uu[7],
-+		uu[8], uu[9],
-+		uu[10], uu[11], uu[12], uu[13], uu[14],uu[15]);
-+}
-+
-+UNPARSE_FUNC void uuid_unparse(const uuid_t uu, char *out)
-+{
-+	uuid_unparse_lower(uu, out);
-+}
-+#undef UNPARSE_FUNC
- 
- /* uuid_time.c */
- extern time_t uuid_time(const uuid_t uu, struct timeval *ret_tv);
+I have implemented it in a little different way to follow internal API
+from lib/loopdev.c.
+
+> Also, update an error message to add --partscan to the list of options
+> only allowed during loop device setup.
+
+Merged this part.
+
+    Karel
+
 -- 
-2.20.1
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
