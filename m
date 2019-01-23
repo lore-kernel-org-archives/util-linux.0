@@ -2,32 +2,31 @@ Return-Path: <SRS0=H3Yc=P7=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=0.1 required=3.0 tests=DATE_IN_PAST_06_12,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 750DCC282C0
-	for <util-linux@archiver.kernel.org>; Wed, 23 Jan 2019 17:30:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53EA6C282C0
+	for <util-linux@archiver.kernel.org>; Wed, 23 Jan 2019 17:35:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4F72A21872
-	for <util-linux@archiver.kernel.org>; Wed, 23 Jan 2019 17:30:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 30DC320870
+	for <util-linux@archiver.kernel.org>; Wed, 23 Jan 2019 17:35:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725945AbfAWRaE (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 23 Jan 2019 12:30:04 -0500
-Received: from [195.159.176.226] ([195.159.176.226]:60940 "EHLO
+        id S1725896AbfAWRfH (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 23 Jan 2019 12:35:07 -0500
+Received: from [195.159.176.226] ([195.159.176.226]:50412 "EHLO
         blaine.gmane.org" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-        with ESMTP id S1725896AbfAWRaE (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 23 Jan 2019 12:30:04 -0500
+        with ESMTP id S1725945AbfAWRfH (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 23 Jan 2019 12:35:07 -0500
 Received: from list by blaine.gmane.org with local (Exim 4.89)
         (envelope-from <gcuu-util-linux-ng-2@m.gmane.org>)
-        id 1gmMLi-000BzK-Gy
-        for util-linux@vger.kernel.org; Wed, 23 Jan 2019 18:30:02 +0100
+        id 1gmMQX-000IYY-Ud
+        for util-linux@vger.kernel.org; Wed, 23 Jan 2019 18:35:01 +0100
 X-Injected-Via-Gmane: http://gmane.org/
 To:     util-linux@vger.kernel.org
 From:   "Nuno Silva" <nunojsilva@ist.utl.pt>
 Subject: cal: lack of color support disables "standout mode"
-Date:   Wed, 23 Jan 2019 09:05:41 +0000
-Message-ID: <q29ap5$86n0$1@ciao.gmane.org>
+Date:   Wed, 23 Jan 2019 17:26:04 +0000
+Message-ID: <q2a83d$fch$1@blaine.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain
 User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/24.5 (gnu/linux)
