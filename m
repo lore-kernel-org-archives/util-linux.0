@@ -1,52 +1,65 @@
-Return-Path: <SRS0=H3Yc=P7=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=Ur/j=QA=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53EA6C282C0
-	for <util-linux@archiver.kernel.org>; Wed, 23 Jan 2019 17:35:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCBD3C282C3
+	for <util-linux@archiver.kernel.org>; Thu, 24 Jan 2019 10:33:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 30DC320870
-	for <util-linux@archiver.kernel.org>; Wed, 23 Jan 2019 17:35:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 95BBB217D4
+	for <util-linux@archiver.kernel.org>; Thu, 24 Jan 2019 10:33:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725896AbfAWRfH (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 23 Jan 2019 12:35:07 -0500
-Received: from [195.159.176.226] ([195.159.176.226]:50412 "EHLO
-        blaine.gmane.org" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-        with ESMTP id S1725945AbfAWRfH (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 23 Jan 2019 12:35:07 -0500
-Received: from list by blaine.gmane.org with local (Exim 4.89)
-        (envelope-from <gcuu-util-linux-ng-2@m.gmane.org>)
-        id 1gmMQX-000IYY-Ud
-        for util-linux@vger.kernel.org; Wed, 23 Jan 2019 18:35:01 +0100
-X-Injected-Via-Gmane: http://gmane.org/
+        id S1726986AbfAXKdt (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 24 Jan 2019 05:33:49 -0500
+Received: from hermes.aosc.io ([199.195.250.187]:44507 "EHLO hermes.aosc.io"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725986AbfAXKdt (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 24 Jan 2019 05:33:49 -0500
+Received: from localhost (localhost [127.0.0.1]) (Authenticated sender: icenowy@aosc.io)
+        by hermes.aosc.io (Postfix) with ESMTPSA id 5F20A120300;
+        Thu, 24 Jan 2019 10:33:45 +0000 (UTC)
+From:   Icenowy Zheng <icenowy@aosc.io>
 To:     util-linux@vger.kernel.org
-From:   "Nuno Silva" <nunojsilva@ist.utl.pt>
-Subject: cal: lack of color support disables "standout mode"
-Date:   Wed, 23 Jan 2019 17:26:04 +0000
-Message-ID: <q2a83d$fch$1@blaine.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/24.5 (gnu/linux)
+Cc:     Icenowy Zheng <icenowy@aosc.io>
+Subject: [PATCH] libfdisk: (gpt) add HiFive Unleashed bootloader partition UUIDs
+Date:   Thu, 24 Jan 2019 18:33:34 +0800
+Message-Id: <20190124103334.51808-1-icenowy@aosc.io>
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hello,
+The HiFive Unleashed SBC's bootloader seeks for GPT partitions with
+specific UUID for loading the next stage bootloader (ZSBL loads FSBL,
+and FSBL loads BBL).
 
-The cal utility seems to check for color support in the current $TERM in
-order to turn standout mode on or off. This means that, in a monochrome
-terminal, the current/requested day is not highlighted, even if the
-terminal has standout mode defined.
+Add these partition type UUIDs.
 
-While I can force this with --color=always, I'd say it's slightly
-confusing that the highlighting is controlled by --color=. If this
-behaviour is kept, perhaps the man page could say something about this?
+Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+---
+ libfdisk/src/gpt.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
+diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
+index d1d0c434d..b12a9cb60 100644
+--- a/libfdisk/src/gpt.c
++++ b/libfdisk/src/gpt.c
+@@ -284,7 +284,11 @@ static struct fdisk_parttype gpt_parttypes[] =
+ 	DEF_GUID("CEF5A9AD-73BC-4601-89F3-CDEEEEE321A1", N_("QNX6 file system")),
+ 
+ 	/* Plan 9 */
+-	DEF_GUID("C91818F9-8025-47AF-89D2-F030D7000C2C", N_("Plan 9 partition"))
++	DEF_GUID("C91818F9-8025-47AF-89D2-F030D7000C2C", N_("Plan 9 partition")),
++
++	/* HiFive Unleased bootloaders */
++	DEF_GUID("5B193300-FC78-40CD-8002-E86C45580B47", N_("HiFive Unleashed FSBL")),
++	DEF_GUID("2E54B353-1271-4842-806F-E436D6AF6985", N_("HiFive Unleashed BBL")),
+ };
+ 
+ #define alignment_required(_x)  ((_x)->grain != (_x)->sector_size)
 -- 
-Best regards,
-Nuno Silva
+2.18.1
 
