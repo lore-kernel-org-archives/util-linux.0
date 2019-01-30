@@ -2,79 +2,117 @@ Return-Path: <SRS0=oVtr=QG=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A709C282D9
-	for <util-linux@archiver.kernel.org>; Wed, 30 Jan 2019 12:07:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B029C282D7
+	for <util-linux@archiver.kernel.org>; Wed, 30 Jan 2019 12:49:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5906120869
-	for <util-linux@archiver.kernel.org>; Wed, 30 Jan 2019 12:07:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7820A20882
+	for <util-linux@archiver.kernel.org>; Wed, 30 Jan 2019 12:49:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730716AbfA3MHA (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 30 Jan 2019 07:07:00 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:48594 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727878AbfA3MHA (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 30 Jan 2019 07:07:00 -0500
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 02EB5C0601ED;
-        Wed, 30 Jan 2019 12:07:00 +0000 (UTC)
-Received: from ws.net.home (ovpn-117-196.ams2.redhat.com [10.36.117.196])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 3F7D0377B;
-        Wed, 30 Jan 2019 12:06:57 +0000 (UTC)
-Date:   Wed, 30 Jan 2019 13:06:54 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
+        id S1731088AbfA3Mtm (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 30 Jan 2019 07:49:42 -0500
+Received: from out01.mta.xmission.com ([166.70.13.231]:54233 "EHLO
+        out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730967AbfA3MrW (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 30 Jan 2019 07:47:22 -0500
+Received: from in02.mta.xmission.com ([166.70.13.52])
+        by out01.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1gopGy-0006AC-21; Wed, 30 Jan 2019 05:47:20 -0700
+Received: from ip68-227-174-240.om.om.cox.net ([68.227.174.240] helo=x220.xmission.com)
+        by in02.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1gopGx-0001gZ-7c; Wed, 30 Jan 2019 05:47:19 -0700
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     Casey Schaufler <casey@schaufler-ca.com>
 Cc:     linux-api@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>,
         David Howells <dhowells@redhat.com>,
         Miklos Szeredi <miklos@szeredi.hu>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        util-linux@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [RFD] A mount api that notices previous mounts
-Message-ID: <20190130120654.q5zqcexquca7u337@ws.net.home>
+        Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
+        Andy Lutomirski <luto@amacapital.net>,
+        LSM <linux-security-module@vger.kernel.org>
 References: <87va2716mh.fsf@xmission.com>
+        <03e0993b-21db-1cc4-7a33-0236de7be20d@schaufler-ca.com>
+        <87r2cvx7wz.fsf@xmission.com> <87ef8vx7jz.fsf@xmission.com>
+Date:   Wed, 30 Jan 2019 06:47:09 -0600
+In-Reply-To: <87ef8vx7jz.fsf@xmission.com> (Eric W. Biederman's message of
+        "Tue, 29 Jan 2019 19:23:12 -0600")
+Message-ID: <8736pawbw2.fsf@xmission.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/25.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87va2716mh.fsf@xmission.com>
-User-Agent: NeoMutt/20180716-1023-ca4e12
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Wed, 30 Jan 2019 12:07:00 +0000 (UTC)
+Content-Type: text/plain
+X-XM-SPF: eid=1gopGx-0001gZ-7c;;;mid=<8736pawbw2.fsf@xmission.com>;;;hst=in02.mta.xmission.com;;;ip=68.227.174.240;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX18a+etU5hIAZJSftdtZ1VtryMrnkJhAie4=
+X-SA-Exim-Connect-IP: 68.227.174.240
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [RFD] A mount api that notices previous mounts
+X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Tue, Jan 29, 2019 at 03:44:22PM -0600, Eric W. Biederman wrote:
-> so I am proposing we change this in the new mount api.
+ebiederm@xmission.com (Eric W. Biederman) writes:
 
-Well, this forces me to ask what the new API is? :-)
+> ebiederm@xmission.com (Eric W. Biederman) writes:
+>
+>> Casey Schaufler <casey@schaufler-ca.com> writes:
+>>> Are you taking the LSM specific mount options into account?
+>>
+>> In the design yes, and I allow setting them.  It appears in the code
+>> to retrieve the mount options I forgot to call security_sb_show_options.
+>>
+>> For finding the super block that you are going to mount the LSM mount
+>> options are not relevant.  Even nfs will not want to set those early as
+>> they do not help determine the nfs super block.  So the only place where
+>> there is anything interesting in my api is in reading back the security
+>> options so they can be compared to the options the mounter is setting.
+>>
+>> I will add the missing call to security_sb_show_options which is enough
+>> to fix selinux.  Unfortunately smack does not currently implement
+>> .sb_show_options.  Not implementing smack_sb_show_options means
+>> /proc/mounts fails to match /etc/mtab which is a bug and it is likely
+>> a real workd bug for the people who use smack and don't want to depend
+>> on /etc/mtab, or are transitioning away from it.
+>>
+>> Casey do you want to implement smack_sb_show_options or should I put it
+>> on my todo list?
+>
+> Oh.  I should add that I am always parsing the LSM mount options out so
+> that there is not a chance of the individual filesystems implementing
+> comflicting options even when there are no LSMs active.  Without that I
+> am afraid we run the risk of having LSM mount otions in conflict with
+> ordinary filesystems options at some point and by the time we discover
+> it it would start introducing filesystem regressions.
+>
+> That does help with stack though as there is no fundamental reason only
+> one LSM could process mount options.
 
-It seems that David uses fsconfig() and fsinfo() to set and get
-mount options, and your patch introduces fsset() and fsoptions().
+Sigh.  I just realized that there is a smack variant of the bug I am
+working to fix.
 
-IMHO differentiate between FS driver and FS instance is a good idea it
-makes things more extendable. The sequence number in the instance is a
-good example.
+smack on remount does not fail if you change the smack mount options.
+It just silently ignores the smack mount options.  Which is exactly the
+same poor interaction with userspace that has surprised user space
+and caused CVEs.
 
-But for me David's fsinfo() seems better that fsoptions() and
-fsspecifier(). I'm not sure about "all mount options as one string"
-From your example is pretty obvious how much energy is necessary to 
-split and join the strings.
+How much do you think the smack users will care if you start verifying
+that if smack options are present in remount that they are unchanged
+from mount?
 
-It seems more elegant is to ask for Nth option as expected by fsinfo().
-It also seems that fsinfo() is able to replace fsname() and fstype().
+I suspect the smack userbase is small enough, and the corner case is
+crazy enough we can fix this poor communication by smack.  Otherwise it
+looks like there needs to be a new security hook so old and new remounts
+can be distinguished by the LSMs, and smack can be fixed in the new
+version.
 
-It would be better to extend David's fsinfo() to work with FS instance
-and to return specifiers. And use fsconfig() rather than fsset().
+Eric
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
