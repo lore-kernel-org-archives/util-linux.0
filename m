@@ -5,47 +5,47 @@ X-Spam-Level:
 X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D44AC282D7
-	for <util-linux@archiver.kernel.org>; Wed, 30 Jan 2019 13:24:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6787C282D7
+	for <util-linux@archiver.kernel.org>; Wed, 30 Jan 2019 13:35:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 67D52218A3
-	for <util-linux@archiver.kernel.org>; Wed, 30 Jan 2019 13:24:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8F48C20989
+	for <util-linux@archiver.kernel.org>; Wed, 30 Jan 2019 13:35:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727740AbfA3NYM (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 30 Jan 2019 08:24:12 -0500
-Received: from out01.mta.xmission.com ([166.70.13.231]:60119 "EHLO
-        out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726332AbfA3NYL (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 30 Jan 2019 08:24:11 -0500
+        id S1727162AbfA3Nf6 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 30 Jan 2019 08:35:58 -0500
+Received: from out02.mta.xmission.com ([166.70.13.232]:49831 "EHLO
+        out02.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725851AbfA3Nf5 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 30 Jan 2019 08:35:57 -0500
 Received: from in01.mta.xmission.com ([166.70.13.51])
-        by out01.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        by out02.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
         (Exim 4.87)
         (envelope-from <ebiederm@xmission.com>)
-        id 1gopqc-000290-Hr; Wed, 30 Jan 2019 06:24:10 -0700
+        id 1goq1s-0006Pg-J5; Wed, 30 Jan 2019 06:35:50 -0700
 Received: from ip68-227-174-240.om.om.cox.net ([68.227.174.240] helo=x220.xmission.com)
         by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
         (Exim 4.87)
         (envelope-from <ebiederm@xmission.com>)
-        id 1gopqb-00015D-MN; Wed, 30 Jan 2019 06:24:10 -0700
+        id 1goq1r-0002aq-QB; Wed, 30 Jan 2019 06:35:48 -0700
 From:   ebiederm@xmission.com (Eric W. Biederman)
 To:     David Howells <dhowells@redhat.com>
-Cc:     linux-api@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>,
+Cc:     Karel Zak <kzak@redhat.com>, linux-api@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Al Viro <viro@ZenIV.linux.org.uk>,
         Miklos Szeredi <miklos@szeredi.hu>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
-        Andy Lutomirski <luto@amacapital.net>
-References: <87va2716mh.fsf@xmission.com>
-        <9151.1548852654@warthog.procyon.org.uk>
-Date:   Wed, 30 Jan 2019 07:24:00 -0600
-In-Reply-To: <9151.1548852654@warthog.procyon.org.uk> (David Howells's message
-        of "Wed, 30 Jan 2019 12:50:54 +0000")
-Message-ID: <877eemth1r.fsf@xmission.com>
+        util-linux@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>
+References: <20190130120654.q5zqcexquca7u337@ws.net.home>
+        <87va2716mh.fsf@xmission.com> <9871.1548853314@warthog.procyon.org.uk>
+Date:   Wed, 30 Jan 2019 07:35:39 -0600
+In-Reply-To: <9871.1548853314@warthog.procyon.org.uk> (David Howells's message
+        of "Wed, 30 Jan 2019 13:01:54 +0000")
+Message-ID: <87h8dqs1xw.fsf@xmission.com>
 User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/25.1 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain
-X-XM-SPF: eid=1gopqb-00015D-MN;;;mid=<877eemth1r.fsf@xmission.com>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.240;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX18y+i5H2fsJ1Ns5Q9Z57XL3Wyf2dIr9w7I=
+X-XM-SPF: eid=1goq1r-0002aq-QB;;;mid=<87h8dqs1xw.fsf@xmission.com>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.240;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX1+ZJOQetI7Lkgvv6GnlYVYn14lB/eHgqEQ=
 X-SA-Exim-Connect-IP: 68.227.174.240
 X-SA-Exim-Mail-From: ebiederm@xmission.com
 Subject: Re: [RFD] A mount api that notices previous mounts
@@ -58,19 +58,40 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 David Howells <dhowells@redhat.com> writes:
 
-> You need to rebase on linus/master.  A bunch of your patches are obsoleted by
-> Al's security changes there.
+> Karel Zak <kzak@redhat.com> wrote:
+>
+>> It seems more elegant is to ask for Nth option as expected by fsinfo().
+>
+> More elegant yes, but there's an issue with atomiticity[*].  I'm in the
+> process of switching to something that returns you a single buffer with all
+> the options in, but each key and each value is preceded by a length count.
+>
+> The reasons for not using separator characters are:
+>
+>  (1) There's no separator char that cannot validly occur within an option[**].
 
-Before anything is merged definitely.
+*Blink*  I had missed the cifs issue.  So yes we certainly need
+a better way to encode things in the buffer.  I just used a single
+string as an easy way to place everything in a buffer.
 
-Al dealt with mount options from the LSMs in a slightly different way
-than I did.  At a practical level Als version of the changes to the LSMs
-and mine are you say po-tae-toe I say po-tah-toe differences so I don't
-see that influencing semantics up at the api level.
+>  (2) Makes it possible to return binary values if we need to.
 
-For purposes of disucssing an API (not of merging one) I chose to start
-with code I had a reasonable amount of testing against, so that other
-people could play with it without expecting trouble.
+I don't totally disagree with this.  But I will point out that
+except for coda passing a file descriptor there are no filesystems
+that currently take or need binary options.
 
-Eric
+I suspect that as long as userspace supports /etc/fstab and we in turn
+support /proc/mounts there is going to be a lot of pressure to keep
+the majority of options so they  can be encoded in a string separated by
+commas.
 
+> David
+>
+> [*] Atomic with respect to remount calls, that is.
+
+There are also mount options that depend on each other and whose order
+matters with respect to other mount options extN's ("sb=<NNNN>") for
+example.
+
+> [**] Oh, and look at cifs where you can *change* the separator char during
+>      option parsing ("sep=<char>").
