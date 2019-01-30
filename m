@@ -3,73 +3,74 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECE4AC282D8
-	for <util-linux@archiver.kernel.org>; Wed, 30 Jan 2019 13:02:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D44AC282D7
+	for <util-linux@archiver.kernel.org>; Wed, 30 Jan 2019 13:24:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BC22A2175B
-	for <util-linux@archiver.kernel.org>; Wed, 30 Jan 2019 13:02:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 67D52218A3
+	for <util-linux@archiver.kernel.org>; Wed, 30 Jan 2019 13:24:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731070AbfA3NB6 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 30 Jan 2019 08:01:58 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:46100 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731060AbfA3NB5 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 30 Jan 2019 08:01:57 -0500
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id E8759A04A0;
-        Wed, 30 Jan 2019 13:01:56 +0000 (UTC)
-Received: from warthog.procyon.org.uk (ovpn-120-128.rdu2.redhat.com [10.10.120.128])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0851D5C2EE;
-        Wed, 30 Jan 2019 13:01:54 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-        Kingdom.
-        Registered in England and Wales under Company Registration No. 3798903
-From:   David Howells <dhowells@redhat.com>
-In-Reply-To: <20190130120654.q5zqcexquca7u337@ws.net.home>
-References: <20190130120654.q5zqcexquca7u337@ws.net.home> <87va2716mh.fsf@xmission.com>
-To:     Karel Zak <kzak@redhat.com>
-Cc:     dhowells@redhat.com, "Eric W. Biederman" <ebiederm@xmission.com>,
-        linux-api@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        id S1727740AbfA3NYM (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 30 Jan 2019 08:24:12 -0500
+Received: from out01.mta.xmission.com ([166.70.13.231]:60119 "EHLO
+        out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726332AbfA3NYL (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 30 Jan 2019 08:24:11 -0500
+Received: from in01.mta.xmission.com ([166.70.13.51])
+        by out01.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1gopqc-000290-Hr; Wed, 30 Jan 2019 06:24:10 -0700
+Received: from ip68-227-174-240.om.om.cox.net ([68.227.174.240] helo=x220.xmission.com)
+        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1gopqb-00015D-MN; Wed, 30 Jan 2019 06:24:10 -0700
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     David Howells <dhowells@redhat.com>
+Cc:     linux-api@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>,
         Miklos Szeredi <miklos@szeredi.hu>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        util-linux@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [RFD] A mount api that notices previous mounts
+        Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org,
+        Andy Lutomirski <luto@amacapital.net>
+References: <87va2716mh.fsf@xmission.com>
+        <9151.1548852654@warthog.procyon.org.uk>
+Date:   Wed, 30 Jan 2019 07:24:00 -0600
+In-Reply-To: <9151.1548852654@warthog.procyon.org.uk> (David Howells's message
+        of "Wed, 30 Jan 2019 12:50:54 +0000")
+Message-ID: <877eemth1r.fsf@xmission.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/25.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <9870.1548853314.1@warthog.procyon.org.uk>
-Date:   Wed, 30 Jan 2019 13:01:54 +0000
-Message-ID: <9871.1548853314@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Wed, 30 Jan 2019 13:01:57 +0000 (UTC)
+Content-Type: text/plain
+X-XM-SPF: eid=1gopqb-00015D-MN;;;mid=<877eemth1r.fsf@xmission.com>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.240;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX18y+i5H2fsJ1Ns5Q9Z57XL3Wyf2dIr9w7I=
+X-SA-Exim-Connect-IP: 68.227.174.240
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [RFD] A mount api that notices previous mounts
+X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Karel Zak <kzak@redhat.com> wrote:
+David Howells <dhowells@redhat.com> writes:
 
-> It seems more elegant is to ask for Nth option as expected by fsinfo().
+> You need to rebase on linus/master.  A bunch of your patches are obsoleted by
+> Al's security changes there.
 
-More elegant yes, but there's an issue with atomiticity[*].  I'm in the
-process of switching to something that returns you a single buffer with all
-the options in, but each key and each value is preceded by a length count.
+Before anything is merged definitely.
 
-The reasons for not using separator characters are:
+Al dealt with mount options from the LSMs in a slightly different way
+than I did.  At a practical level Als version of the changes to the LSMs
+and mine are you say po-tae-toe I say po-tah-toe differences so I don't
+see that influencing semantics up at the api level.
 
- (1) There's no separator char that cannot validly occur within an option[**].
+For purposes of disucssing an API (not of merging one) I chose to start
+with code I had a reasonable amount of testing against, so that other
+people could play with it without expecting trouble.
 
- (2) Makes it possible to return binary values if we need to.
+Eric
 
-David
-
-[*] Atomic with respect to remount calls, that is.
-
-[**] Oh, and look at cifs where you can *change* the separator char during
-     option parsing ("sep=<char>").
