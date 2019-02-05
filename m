@@ -3,28 +3,29 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11226C282CB
-	for <util-linux@archiver.kernel.org>; Tue,  5 Feb 2019 22:57:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F33AC282CB
+	for <util-linux@archiver.kernel.org>; Tue,  5 Feb 2019 23:07:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D8B1420844
-	for <util-linux@archiver.kernel.org>; Tue,  5 Feb 2019 22:57:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1626220844
+	for <util-linux@archiver.kernel.org>; Tue,  5 Feb 2019 23:07:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728307AbfBEW5L (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 5 Feb 2019 17:57:11 -0500
-Received: from mx2.suse.de ([195.135.220.15]:53912 "EHLO mx1.suse.de"
+        id S1728573AbfBEXH4 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 5 Feb 2019 18:07:56 -0500
+Received: from mx2.suse.de ([195.135.220.15]:55414 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727501AbfBEW5L (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 5 Feb 2019 17:57:11 -0500
+        id S1726927AbfBEXH4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 5 Feb 2019 18:07:56 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 3D2A5AE10
-        for <util-linux@vger.kernel.org>; Tue,  5 Feb 2019 22:57:10 +0000 (UTC)
-To:     util-linux@vger.kernel.org
-From:   Stanislav Brabec <sbrabec@suse.cz>
+        by mx1.suse.de (Postfix) with ESMTP id 4356AAE5E
+        for <util-linux@vger.kernel.org>; Tue,  5 Feb 2019 23:07:55 +0000 (UTC)
 Subject: [PATCH] mount: Do not call mnt_pretty_path() on net file systems.
+From:   Stanislav Brabec <sbrabec@suse.cz>
+To:     util-linux@vger.kernel.org
+References: <8a0a088e-2ed7-9233-438a-6fb04f08046f@suse.cz>
 Openpgp: preference=signencrypt
 Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
  mQGiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
@@ -45,11 +46,12 @@ Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
  uRDKekFTiilRRVyiXWDt+zY2aNNMknKBACeIRgQYEQIABgUCPq/ZggAKCRBxfCCfoE/Ndi+t
  AJ958OvQedgG0gsRG1wX/HKXmRZ0dwCfUk0F4qeP5dCiETIHh3gxNIsx8YQ=
 Organization: SUSE Linux, s. r. o.
-Message-ID: <8a0a088e-2ed7-9233-438a-6fb04f08046f@suse.cz>
-Date:   Tue, 5 Feb 2019 23:57:10 +0100
+Message-ID: <eddb321e-eb27-f08a-2b8b-4856eedfdc03@suse.cz>
+Date:   Wed, 6 Feb 2019 00:07:54 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.3.3
 MIME-Version: 1.0
+In-Reply-To: <8a0a088e-2ed7-9233-438a-6fb04f08046f@suse.cz>
 Content-Type: text/plain; charset=iso-8859-2
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -60,8 +62,10 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Calling mnt_pretty_path() on network file systems can cause mangling of
 the output:
-
+root# mount | grep nfs
 nfs.example.com:/home on /home type nfs4 ...
+root# mkdir -p nfs.example.com:/home
+root# mount | grep nfs
 /root/nfs.example.com:/home on /home type nfs4 ...
 
 Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
