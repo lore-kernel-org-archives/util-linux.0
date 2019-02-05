@@ -6,29 +6,27 @@ X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88220C282CB
-	for <util-linux@archiver.kernel.org>; Tue,  5 Feb 2019 17:09:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DBFCCC282CB
+	for <util-linux@archiver.kernel.org>; Tue,  5 Feb 2019 22:19:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5E802217F9
-	for <util-linux@archiver.kernel.org>; Tue,  5 Feb 2019 17:09:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B0260217F9
+	for <util-linux@archiver.kernel.org>; Tue,  5 Feb 2019 22:19:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726717AbfBERJl (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 5 Feb 2019 12:09:41 -0500
-Received: from mx2.suse.de ([195.135.220.15]:52428 "EHLO mx1.suse.de"
+        id S1727266AbfBEWTU (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 5 Feb 2019 17:19:20 -0500
+Received: from mx2.suse.de ([195.135.220.15]:45614 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726610AbfBERJk (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 5 Feb 2019 12:09:40 -0500
+        id S1726742AbfBEWTT (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 5 Feb 2019 17:19:19 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id B2D24B6A3;
-        Tue,  5 Feb 2019 17:09:39 +0000 (UTC)
+        by mx1.suse.de (Postfix) with ESMTP id D1F3CAF9A;
+        Tue,  5 Feb 2019 22:19:18 +0000 (UTC)
 Subject: Re: [RFC] refactor mnt_fstype_is_pseudofs()?
 To:     Karel Zak <kzak@redhat.com>
 Cc:     util-linux@vger.kernel.org
 References: <dff8fba8-3a22-dd4a-1b75-6e636d15b2c9@suse.cz>
  <20190204140301.6oqezi7p26y2rewe@ws.net.home>
- <fefe499e-cef4-58f0-3620-59a7f5ee7324@suse.cz>
- <20190205090031.llcsfd6b7wp43nu5@ws.net.home>
 From:   Stanislav Brabec <sbrabec@suse.cz>
 Openpgp: preference=signencrypt
 Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
@@ -50,12 +48,12 @@ Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
  uRDKekFTiilRRVyiXWDt+zY2aNNMknKBACeIRgQYEQIABgUCPq/ZggAKCRBxfCCfoE/Ndi+t
  AJ958OvQedgG0gsRG1wX/HKXmRZ0dwCfUk0F4qeP5dCiETIHh3gxNIsx8YQ=
 Organization: SUSE Linux, s. r. o.
-Message-ID: <e2c18b39-80d8-a44f-4bac-22925395d228@suse.cz>
-Date:   Tue, 5 Feb 2019 18:09:39 +0100
+Message-ID: <a554dead-2f2a-e1a1-b271-09e328028e41@suse.cz>
+Date:   Tue, 5 Feb 2019 23:19:18 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.3.3
 MIME-Version: 1.0
-In-Reply-To: <20190205090031.llcsfd6b7wp43nu5@ws.net.home>
+In-Reply-To: <20190204140301.6oqezi7p26y2rewe@ws.net.home>
 Content-Type: text/plain; charset=iso-8859-2
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -64,23 +62,30 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Dne 05. 02. 19 v 10:00 Karel Zak napsal(a):
-> On Mon, Feb 04, 2019 at 05:38:56PM +0100, Stanislav Brabec wrote:
->>> If we will keep the fstype lists in the code than we can use it as
->>> the first attempt, if the name is not in the list than use your
->>> heuristic.
+Dne 04. 02. 19 v 15:03 Karel Zak napsal(a):
+> On Fri, Feb 01, 2019 at 12:07:12AM +0100, Stanislav Brabec wrote:
+>> The same problem affects other pseudo file systems not listed in mnt_fstype_is_pseudofs():
+>> # mount | grep encfs
+>> encfs on /Encrypted type fuse.encfs (rw,nosuid,nodev,relatime,user_id=10027,group_id=100,default_permissions)
+>> # mkdir encfs
+>> # mount | grep encfs
+>> /root/encfs on /Encrypted type fuse.encfs (rw,nosuid,nodev,relatime,user_id=10027,group_id=100,default_permissions)
+>> ^^^^^^^^^^^
 >>
->> It makes sense.
+>> Debugging shows two reasons why it happens:
+>> 1) encfs is not listed in mnt_fstype_is_pseudofs()
+>> 2) mnt_resolve_path() calls canonicalize_path_and_cache() on the kernel output, which makes only a little sense
 > 
-> Note that source path may be a relative path without any '/'. It's
-> very unusual, but possible.
+> Where? It should be easy to check by mnt_fs_is_kernel().
 
-I am aware of the fact that the driver can provide anything. Do we have any examples, where kernel or FUSE driver provides relative source path?
+I just found that the check is incomplete and the same problem also affects ALL network file systems, listed or not listed in mnt_fstype_is_netfs():
 
-I am just working on a list of all pseudo file systems available in the basic openSUSE repositories. Currently I have ~20 FUSE file systems to inspect.
-
-We also may have two lists: One list of pseudo file systems, second list of obscure pseudo file systems (that don't use relative paths). If the source does not start with "/" and file system is not in one of these lists, mount will return error. I can imagine that we can move this list from code to /etc/libmount/pseudofs.d/.
-
+# mount nfs.example.com:/home /home-nfs
+# mount | grep nfs
+nfs.example.com:/home on /home-nfs type nfs4 ...
+# mkdir -p nfs.example.com:/home
+# mount | grep nfs
+/root/nfs.example.com:/home on /home-nfs type nfs4 ...
 
 -- 
 Best Regards / S pozdravem,
