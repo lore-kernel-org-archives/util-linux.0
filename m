@@ -1,107 +1,91 @@
-Return-Path: <SRS0=BVTJ=QW=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=Xb09=QY=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D3A7C43381
-	for <util-linux@archiver.kernel.org>; Fri, 15 Feb 2019 20:04:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8735FC43381
+	for <util-linux@archiver.kernel.org>; Sun, 17 Feb 2019 21:55:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 467DE21B18
-	for <util-linux@archiver.kernel.org>; Fri, 15 Feb 2019 20:04:36 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P1MMCNnR"
+	by mail.kernel.org (Postfix) with ESMTP id 5DD3C2146E
+	for <util-linux@archiver.kernel.org>; Sun, 17 Feb 2019 21:55:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730401AbfBOUEf (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 15 Feb 2019 15:04:35 -0500
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:37677 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726317AbfBOUEf (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 15 Feb 2019 15:04:35 -0500
-Received: by mail-pf1-f193.google.com with SMTP id s22so5335039pfh.4;
-        Fri, 15 Feb 2019 12:04:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=fOZGFRQl45f1Ym24WEhg7VeKHjMFtcXeLiFEtULushQ=;
-        b=P1MMCNnRfb1B0VKf20P2J2zaygosW/d26D5nxb3/eWQT4B56+NDfaS7lIs0x/WzuER
-         vEe29iCuNBkBibDXiFR+O1K+cejOPCG9eUHb4QvD5m1p8DVA7pJq9e6uezDmEDz36HA1
-         SsbBGoLWH6l6JwWRh3vpwbiLrzKz5GNCPg3JdQ8WLx6lJu9+GaBDRL6XR6VR6CEm8ZVt
-         gvvgh5KJ1L6pSbaxNreWMxqO79BZ/0NAu1Kh0J/Nm9NmGbI6soNyV0TsCSZFGPZNPum3
-         fhnlp6yFi2k+GwkqJRxGa9kT8+vrWGuhWVec/W5T+Jp4zR5Id4ycfVAZtnmocx4O7c/b
-         x/pQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=fOZGFRQl45f1Ym24WEhg7VeKHjMFtcXeLiFEtULushQ=;
-        b=oBD5XCy+lAvQV06gBcbiaHr7QKNH89Dgec3x5OyLQJKl6m/7C3vp/A07VjbNnXIZR1
-         02PJJUi0RAfymQlly3xWPLJbBhRvU/EF6nJXS1c1puK3AAUFm51ZJRAhDZMgCHcnWbWk
-         qsUlfsomZ1zePIXe/uicftqj3l+9TdJrBlGXRMeOtYJC4AFIb0RvDBxWfVePgHh2QN8n
-         FqhBl7BGqAzT5j6rhepKzQS2XeNxTRyY+IUiko1gX/3+dd10liM7M/SVHo61cidYoXMt
-         PShKlYiZNs3I/tn6A3kekukwFaD/S0UP+k65bgC5WMWppFcKs6n3fGAeP1BHtTrakfZh
-         iSaw==
-X-Gm-Message-State: AHQUAuZbGqJ0cA8+SobTBjSNsLamZz7UGOiNHYmJDthqHlccApmTqJp9
-        3UW5Bl8d/Be1br/BKYeIcs8OCPYLeDJL1WJPQZw=
-X-Google-Smtp-Source: AHgI3Ia7BvN5XS70DHtxGE9DmVGRtRpWj5u+PDGdv90Yn/wKvR3LqEwbqLxLR3s3exZcQsg+OUlFJgvzK0eBIgyxnvQ=
-X-Received: by 2002:a63:20e:: with SMTP id 14mr6990000pgc.161.1550261074326;
- Fri, 15 Feb 2019 12:04:34 -0800 (PST)
+        id S1726283AbfBQVzl (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 17 Feb 2019 16:55:41 -0500
+Received: from mout.kundenserver.de ([217.72.192.75]:46289 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726124AbfBQVzl (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 17 Feb 2019 16:55:41 -0500
+Received: from pepper.home.stoeckmann.org ([217.87.204.172]) by
+ mrelayeu.kundenserver.de (mreue109 [212.227.15.183]) with ESMTPSA (Nemesis)
+ id 1MQMmF-1ghvjR0LWz-00MILH for <util-linux@vger.kernel.org>; Sun, 17 Feb
+ 2019 22:55:40 +0100
+Received: from localhost (192.168.2.125 [192.168.2.125])
+        by pepper.home.stoeckmann.org (OpenSMTPD) with ESMTPSA id 0095316f (TLSv1.2:ECDHE-RSA-CHACHA20-POLY1305:256:NO)
+        for <util-linux@vger.kernel.org>;
+        Sun, 17 Feb 2019 22:55:39 +0100 (CET)
+Date:   Sun, 17 Feb 2019 22:55:29 +0100
+From:   Tobias Stoeckmann <tobias@stoeckmann.org>
+To:     util-linux@vger.kernel.org
+Subject: [PATCH 1/1] sfdisk: Avoid out of boundary read with readline
+Message-ID: <20190217215529.zh3rn57hqu7rruze@localhost>
 MIME-Version: 1.0
-References: <20181002081654.jxesr3kj62snzez5@pali> <510499199.34825028.1538469850257.JavaMail.zimbra@redhat.com>
- <20181012091941.o22srnhse4kzqjhf@fatal.se> <20181114113341.yx2wlzqku5yh3k4h@pali>
- <CAPXf_qN66-Mi+o+9ENGqCDe-_2tHaf9uM3moRcCGNvmxwH3ExQ@mail.gmail.com>
- <20181206083828.4bp3oypkto2ngobu@pali> <20181212135736.xtb57r2eatqsgenb@pali>
- <20181217095004.c6c6itvyfp7cf3ta@pali> <20181227221748.zsz6bwqqia7ybfwj@pali>
- <CAHp75VfJpy572t8swsEsz0kPKfpOE-v0SZVxM2aakX0hkjX4=Q@mail.gmail.com> <20190209154004.fwsfajwg75dadfbd@pali>
-In-Reply-To: <20190209154004.fwsfajwg75dadfbd@pali>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Fri, 15 Feb 2019 22:04:23 +0200
-Message-ID: <CAHp75VdD9pZLTXwJ9WcHcNCqu6nAk8VGaBL74e+Sy8bXnV5xrQ@mail.gmail.com>
-Subject: Re: Future of dosfstools project (FAT)
-To:     =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>
-Cc:     Andreas Bombe <andreas.bombe@gmail.com>,
-        Andreas Henriksson <andreas@fatal.se>,
-        Jaroslav Skarvada <jskarvad@redhat.com>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        util-linux@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        mpluskal@suse.com, base-system@gentoo.org,
-        Karel Zak <kzak@redhat.com>, Andreas Bombe <aeb@debian.org>,
-        Andreas Dilger <adilger@dilger.ca>,
-        Richard Weinberger <richard.weinberger@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Provags-ID: V03:K1:O9tI2oh5KbalFpgT6fbyTSOLDWzseQmkYKn6vu5+d4mAgJ+SUtI
+ NodCE30ZCYs4AhQA7MH+BgdE/eQcZOkljHTQgxbYIv6lnNQidps4RH7gr+zpCWv49IQTZKX
+ BA4lhjT+AwH+kJxqEarTeMIUf3zGqh4juVmwkiAKsEAEMsKS5iDJv44vHcO2foSxLpe7AjK
+ y2J7YjNJkRtU3E9B7Y+GQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:rJVbRlhYzZc=:QDz0Dvb+H7cb8zKyXXRslv
+ I59Fip1jpe8q19Yh6VBD79XfTviIS7B9dJiRYsR+OQN+ulDOVUZuNx+Qes0rUu/ZXh5OjYfmZ
+ qHDlxxzWqV0XXltR6S0nKBuTOEqyVc8K08qCqm7qyyhHkX2nAqukO8W3oOnSYTCODvyQrOcIw
+ 8jjMOgZHWIA23YWkmuFZ9ITqQ19mjQcSyiVHkkPFq5lFLbQbqv7hINH0I82XHcAajGch0Q6/6
+ YrHgXTr2uPcvx/AGxvLRKqok+2DnzPpFx/ANMpVoVGhlnmvVy4Kf0+96/PBfr/FPQs2bMyf0D
+ s9w0m2wElcnOIP3aQTU0M5UkDfTTumVnO/Mbj+GWbIl51s+OjPp03mTKhFhKEFCKPmaKmWpv5
+ /wP9K3qYL1z2f10Aourzz1WFlGW95TGUhbOyWJiaF66ZauQVQ6ZGGz7FWDXARWKvsqgIVbePd
+ bCeTM75ah87GQKtlYfZpioeXj6buE/94B/pXV1FYHANUljkMCZM7spMYcvAnXfBGBuira4uBq
+ 8dMzVjmOYAr6PprMz5fSmibFB1HZ7D3tnRGGwpNIAIPk8QdoxYua39k4eQJGKuSFjB7O5O8gS
+ 9/LQ53r9MOcepehVcFqrZa9vIePCV74oYzT3aBITGa6mbkWajbB2wrE9gonjtJEkQ5foslphz
+ xV3nK3qOyy4shm64v+chBcsApyejOBhn8DdoaE1SshngKml/1VxCPsCAT6tGhDdrFb2Guy/K2
+ VrzBEsyTWdVjsJ3nBLDksDuXLbkogMwsZpPw9g==
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Sat, Feb 9, 2019 at 5:40 PM Pali Roh=C3=A1r <pali.rohar@gmail.com> wrote=
-:
->
-> On Tuesday 08 January 2019 17:32:55 Andy Shevchenko wrote:
-> > On Fri, Dec 28, 2018 at 12:18 AM Pali Roh=C3=A1r <pali.rohar@gmail.com>=
- wrote:
-> > > On Monday 17 December 2018 10:50:04 Pali Roh=C3=A1r wrote:
-> > > > On Wednesday 12 December 2018 14:57:36 Pali Roh=C3=A1r wrote:
-> >
-> > > > Thanks for review of #94! As next you can take #92 from list.
-> > >
-> > > Andreas, can you look at next pull requests?
-> >
-> > Looking from a side how slow this is being processed I think the best
-> > option to fork and abandon the old project if author / maintainer by
-> > some reason wouldn't like to give a push rights.
->
-> Just quick update: I got github permission for merging pull requests.
-> I already merge some small changes. Others needs and waiting for review.
+It is not guaranteed that the returned string of readline() actually
+contains as many bytes as buf can contain.
 
-Good news for the project, thanks, Pali!
+If bufsz is larger than the allocated memory by readline, an out of
+boundary read occurs and leads to undefined behaviour. Most likely
+that will be a crash.
 
---=20
-With Best Regards,
-Andy Shevchenko
+This can be reproduced when readline-support is compiled in and when
+you directly enter "quit" and "n" (to not write changes back to disk)
+when sfdisk was called with any given device.
+
+Signed-off-by: Tobias Stoeckmann <tobias@stoeckmann.org>
+---
+ disk-utils/sfdisk.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
+index 3911dda85..52ccc5251 100644
+--- a/disk-utils/sfdisk.c
++++ b/disk-utils/sfdisk.c
+@@ -133,7 +133,9 @@ static int get_user_reply(const char *prompt, char *buf, size_t bufsz)
+ 		p = readline(prompt);
+ 		if (!p)
+ 			return 1;
+-		memcpy(buf, p, bufsz);
++		strncpy(buf, p, bufsz);
++		if (bufsz != 0)
++			buf[bufsz - 1] = '\0';
+ 		free(p);
+ 	} else
+ #endif
+-- 
+2.20.1
+
