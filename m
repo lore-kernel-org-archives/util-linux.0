@@ -1,166 +1,102 @@
-Return-Path: <SRS0=4JBC=Q5=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=mKqM=Q6=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Level: **
+X-Spam-Status: No, score=2.7 required=3.0 tests=CHARSET_FARAWAY_HEADER,
+	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	FROM_EXCESS_BASE64,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D63BC43381
-	for <util-linux@archiver.kernel.org>; Fri, 22 Feb 2019 18:39:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32531C43381
+	for <util-linux@archiver.kernel.org>; Sat, 23 Feb 2019 04:10:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 34770206B6
-	for <util-linux@archiver.kernel.org>; Fri, 22 Feb 2019 18:39:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C41F4206A3
+	for <util-linux@archiver.kernel.org>; Sat, 23 Feb 2019 04:10:55 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=126.com header.i=@126.com header.b="f/3QVYZ7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726684AbfBVSj6 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 22 Feb 2019 13:39:58 -0500
-Received: from mx2.suse.de ([195.135.220.15]:52780 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726497AbfBVSj6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 22 Feb 2019 13:39:58 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 7311BAF0F;
-        Fri, 22 Feb 2019 18:39:56 +0000 (UTC)
-Subject: Re: [PATCH] mount: Do not call mnt_pretty_path() on net file systems.
-To:     Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org
-References: <8a0a088e-2ed7-9233-438a-6fb04f08046f@suse.cz>
- <eddb321e-eb27-f08a-2b8b-4856eedfdc03@suse.cz>
- <20190206105847.gumbcel24gvc5zmn@ws.net.home>
- <05bb1dd3-016d-9166-3e73-29bbc307907c@suse.cz>
- <20190222102607.y6hfrxjacbpxtru3@ws.net.home>
-From:   Stanislav Brabec <sbrabec@suse.cz>
-Openpgp: preference=signencrypt
-Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
- mQGiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
- zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
- 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
- AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
- 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
- NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
- SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
- ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSLQsU3RhbmlzbGF2
- IEJyYWJlYyAoU3VTRSBDUikgPHNicmFiZWNAc3VzZS5jej6IXwQTEQIAHwQLBwMCAxUCAwMW
- AgECHgECF4AFAlHS/kkFCSE/csAACgkQcXwgn6BPzXZY/gCghbxE4uexFHVP7qho9TDNxGGR
- xxgAoKCipPrJQrnXKhFG4RDeRcVE0PoBuQENBD6v2YIQBACt62O2lXle2CPxw2LpdT557Rvr
- UdoYJ1AeLAn1iDy67rDsGumxJxW254x9CKVsU3609PG58gDKSQ7CvHzErtOdz9xsJLfCCxbk
- 6LsOhBdCWgYs7HV2xYCkUvKSVQGZN95skfv1aSsO6dXzXISXen4KqY5AnFa+pXDAqMJTGLwp
- GwADBgQAkZ2/zz99L224sNcFgM+6TuGIQ57fNhKJxYG2HbBqh3oBiiZI9224dKLNCv/2aoV8
- qd9QUMKQCO7kQKkSH7+Ti1KnCyaDi3SoeFcsV4Z99Xb1bN2EBS1C4qohNUbouTsYEG5qsZPe
- uRDKekFTiilRRVyiXWDt+zY2aNNMknKBACeIRgQYEQIABgUCPq/ZggAKCRBxfCCfoE/Ndi+t
- AJ958OvQedgG0gsRG1wX/HKXmRZ0dwCfUk0F4qeP5dCiETIHh3gxNIsx8YQ=
-Organization: SUSE Linux, s. r. o.
-Message-ID: <aab6e184-54c8-e7b0-a7c3-8b85184032e3@suse.cz>
-Date:   Fri, 22 Feb 2019 19:39:56 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.3.3
+        id S1725859AbfBWEKz (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 22 Feb 2019 23:10:55 -0500
+Received: from m15-10.126.com ([220.181.15.10]:4458 "EHLO m15-10.126.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725821AbfBWEKy (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 22 Feb 2019 23:10:54 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=126.com;
+        s=s110527; h=Date:From:Subject:MIME-Version:Message-ID; bh=SLuoW
+        x9BjVMMkLqHjlB1vgeOpDKY/AYZoMlKNk/W7q8=; b=f/3QVYZ7DTj4qxdNnQXMt
+        UJo1u4ycEbBIb99ki+lG7YzKnGku/2SlRm94slJlSwTLTV8uoTcN9Zcc+veBeDWO
+        qE1mMPP65TZVTX/KfEhAFfgcNkmrFsen7ARCjnvkXTIUPSDnyut/GW8tvFxtawis
+        4R/ogH1XajlbfKNcE+2Qlg=
+Received: from ziming_cool$126.com ( [101.20.227.86] ) by
+ ajax-webmail-wmsvr10 (Coremail) ; Sat, 23 Feb 2019 12:09:54 +0800 (CST)
+X-Originating-IP: [101.20.227.86]
+Date:   Sat, 23 Feb 2019 12:09:54 +0800 (CST)
+From:   =?GBK?B?sfm/wg==?= <ziming_cool@126.com>
+To:     util-linux@vger.kernel.org
+Subject: Bug report for libfdisk
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version SP_ntes V3.5 build
+ 20180927(cd7136b6) Copyright (c) 2002-2019 www.mailtech.cn 126com
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=GBK
 MIME-Version: 1.0
-In-Reply-To: <20190222102607.y6hfrxjacbpxtru3@ws.net.home>
-Content-Type: text/plain; charset=iso-8859-2
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Message-ID: <2a76c584.126b.169188b95a6.Coremail.ziming_cool@126.com>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID: CsqowAAHD+OTx3BcYG0VAA--.25747W
+X-CM-SenderInfo: p2lpx05jbf00bo6rjloofrz/1tbiEwtkklpD4r85hgABsU
+X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Dne 22. 02. 19 v 11:26 Karel Zak napsal(a):
-> On Tue, Feb 19, 2019 at 04:50:26PM +0100, Stanislav Brabec wrote:
->> Dne 06. 02. 19 v 11:58 Karel Zak napsal(a):
->>> On Wed, Feb 06, 2019 at 12:07:54AM +0100, Stanislav Brabec wrote:
->>>>  sys-utils/mount.c | 2 +-
->>>>  1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> Applied, thanks!
->>>
->>> Please, send also updates for the mnt_fstype_is_pseudofs().
->>>
->>
->> I started to inspect file systems available in SUSE, and I found
->> that there is an another category of file systems: File systems that
->> have a source (so they are not pseudo file systems), but information
->> provided by the kernel is not sufficient to check whether a
->> particular source is already mounted.
->>
->> Some of them are completely undetectable (both source and FS type
->> provide generic information only), some are detectable by source,
->> but not by FS type, some are detectable by FS type, but source match
->> cannot be used.
->>
->> For these file systems, mount(8) cannot guarantee that the correct
->> volume is mounted. Only some guesses are possible.
-> 
-> The question is how critical is it for us... maybe all we need is to
-> document mount(8) limitations for these cases.
-
-I identified four problems of mount caused by incorrect implementations of FUSE drivers:
-
-
-1. If a file system that does not provide its source is not listed as virtualfs or netfs, then is affected by the canonicalization problem (output of mount can be affected by contents of the working directory).
-
-
-2. Inconsistency between mount output and mount input. It's hard to guess what needs to be added to fstab.
-
-For example, in case of lower mentioned curlftpfs, it is possible to mount it from the fstab. But the arguments are different than the mount output:
-ftp.suse.com /home/sbrabec/T fuse.curlftpfs defaults 0 0
-(Note that file system has to be be "fuse.curlftpfs", not plain "fuse").
-
-
-3. We enter into a problem with "mount -a":
-
-# mount -a
-# mount -a
-fuse: mountpoint is not empty
-fuse: if you are sure this is safe, use the 'nonempty' mount option
-
-The inconsistency causes inability to detect that it is the same file system.
-
-
-4. Inconsistency between provided source and accepted source:
-
-If we try fstab:
-curlftpfs#ftp://ftp.suse.com/ /home/sbrabec/T fuse.curlftpfs defaults 0 0
-we will get:
-
-# mount -a
-Error connecting to ftp: Could not resolve host: curlftpfs
-
-It is a fault of the curlftpfs itself. mount properly passes argument to mount.fuse and it to curlftpfs binary. But it does not understand it. (Note that it cannot be fixed by adding "fuse.curlftpfs" to mnt_fstype_is_netfs() or mnt_fstype_is_pseudofs().)
-
-
-So I would consider such fuse implementations as semi-broken, and we should at least issue a warning when a file system provides dumb strings.
-
-
->> Maybe it should warn about it, or it should refuse such file systems in the fstab.
->>
->>
->> Examples of undetectable FUSE file systems:
->>
->> xdg-document-portal is completely undetectable; it can be ran once per UID
->> /dev/fuse on /run/user/10027/doc type fuse (rw,nosuid,nodev,relatime,user_id=10027,group_id=100)
->> 376 536 0:65 / /run/user/10027/doc rw,nosuid,nodev,relatime - fuse /dev/fuse rw,user_id=10027,group_id=100
-> 
-> No subtype ? How FUSE driver redirects it to the right code?
-
-No subtype. I am not sure, how FUSE works internally, but these file systems are handled by a separate user space task. So probably no redirect is needed.
-
->>
->> curlftpfs undetectable by type, detectable by source
->> curlftpfs#ftp://ftp.suse.com/ on /home/sbrabec/T type fuse (rw,nosuid,nodev,relatime,user_id=10027,group_id=100)
->> 544 510 0:47 / /sys/fs/fuse/connections rw,relatime master:282 - fusectl fusectl rw
-> 
->  "subtype#" is deprecated; I guess fuse.curlftpfs has to work ;-)
-
-curlftpfs# is not a subtype. It is a source. Type is "fuse", subtype is not set.
-
--- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                    tel: +420 284 084 060
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+RGVhciBkZXZlbG9wZXIgb3IgbWFpbnRhaW5lciBvZiB1dGlsLWxpbnV4OgogICAgSGkhIEFuZCB0
+aGFua3MgZm9yIHlvdXIgYXR0ZW50aW9uIHRvIHRoaXMgZW1haWwuCiAgICBJJ20gd3JpdGluZyB0
+aGlzIHRvIHJlcG9ydCBhIGJ1ZyBhYm91dCBsaWJmZGlzay4gSSBoYXBwZW5lZCBub3RpY2UgdGhh
+dCBmZGlzayBnYXZlIG1lIGFuIGluY29ycmVjdCB2YWx1ZSB3aGVuIHByb21wdCBmb3IgZmlyc3Qg
+c2VjdG9yIG9uIGNyZWF0aW5nIGEgcHJpbWFyeSBkb3MgcGFydGl0aW9uLgogICAgSSBmb3VuZCB0
+aGlzIGJ1ZyBvbiB1dGlsLWxpbnV4LTIuMzEuMSwgdGhlbiBJIGRvd25sb2FkZWQgdGhlIG5ld2Vy
+IHZlcnNpb24gb2YgMi4zMy4xLCBhbmQgbm90aWNlZCB0aGF0IHRoZSBidWcgaXMgc3RpbGwgbm90
+IGZpeGVkLgogICAgVGhlIHNvdXJjZSBjb2RlIG9mIGB1dGlsLWxpbnV4LTIuMzEuMS9saWJmZGlz
+ay9zcmMvZG9zLmNgIGRlZmluZXMgYSBmdW5jdGlvbiBgZ2V0X3Bvc3NpYmxlX2xhc3RgLCBpdCdz
+IHBhcnRpYWwgY29udGVudCBpcyBzaG93biBiZWxvdzoKCgl9IGVsc2UgewoJCS8qIHByaW1hcnkg
+cGFydGl0aW9ucyAqLwoJCWlmIChmZGlza191c2VfY3lsaW5kZXJzKGN4dCkgfHwgIWN4dC0+dG90
+YWxfc2VjdG9ycykKCQkJbGltaXQgPSBjeHQtPmdlb20uaGVhZHMgKiBjeHQtPmdlb20uc2VjdG9y
+cyAqIGN4dC0+Z2VvbS5jeWxpbmRlcnMgLSAxOwoJCWVsc2UKCQkJbGltaXQgPSBjeHQtPnRvdGFs
+X3NlY3RvcnMgLSAxOyAgICAgIC8qIEhFUkUgKi8KCgkJaWYgKGxpbWl0ID4gVUlOVF9NQVgpCgkJ
+CWxpbWl0ID0gVUlOVF9NQVg7Cgl9CgogICAgV2hlbiBjcmVhdGluZyBhIHByaW1hcnkgcGFydGl0
+aW9uIGFuZCB0aGUgbWVhc3VyZSB1bml0IGlzIGBzZWN0b3JgLCBpdCBzaW1wbHkgcmV0dXJucyB0
+aGUgdmFsdWUgYGN4dC0+dG90YWxfc2VjdG9ycyAtIDFgLgogICAgSG93IHRoZSBidWcgJ3dvcmtl
+ZCcgKEkgc3RyaXBwZWQgc29tZSB1c2VsZXNzIG91dHB1dHMpOgogICAgICAkIHFlbXUtaW1nIGNy
+ZWF0ZSB0ZXN0LmltZyA0RwogICAgICBGb3JtYXR0aW5nICd0ZXN0LmltZycsIGZtdD1yYXcgc2l6
+ZT00Mjk0OTY3Mjk2CiAgICAgICQgZmRpc2sgdGVzdC5pbWcKICAgICAgRGV2aWNlIGRvZXMgbm90
+IGNvbnRhaW4gYSByZWNvZ25pemVkIHBhcnRpdGlvbiB0YWJsZS4KICAgICAgQ3JlYXRlZCBhIG5l
+dyBET1MgZGlza2xhYmVsIHdpdGggZGlzayBpZGVudGlmaWVyIDB4ODczZmQ2ZjQuCiAgICAgIENv
+bW1hbmQgKG0gZm9yIGhlbHApOiBuCiAgICAgIFBhcnRpdGlvbiB0eXBlCiAgICAgICAgIHAgICBw
+cmltYXJ5ICgwIHByaW1hcnksIDAgZXh0ZW5kZWQsIDQgZnJlZSkKICAgICAgICAgZSAgIGV4dGVu
+ZGVkIChjb250YWluZXIgZm9yIGxvZ2ljYWwgcGFydGl0aW9ucykKICAgICAgU2VsZWN0IChkZWZh
+dWx0IHApOiAKICAgICAgVXNpbmcgZGVmYXVsdCByZXNwb25zZSBwLgogICAgICBQYXJ0aXRpb24g
+bnVtYmVyICgxLTQsIGRlZmF1bHQgMSk6IDIKICAgICAgRmlyc3Qgc2VjdG9yICgyMDQ4LTgzODg2
+MDcsIGRlZmF1bHQgMjA0OCk6IDQwMDAwMDAKICAgICAgTGFzdCBzZWN0b3IsICtzZWN0b3JzIG9y
+ICtzaXple0ssTSxHLFQsUH0gKDQwMDAwMDAtODM4ODYwNywgZGVmYXVsdCA4Mzg4NjA3KTogCiAg
+ICAgIENyZWF0ZWQgYSBuZXcgcGFydGl0aW9uIDIgb2YgdHlwZSAnTGludXgnIGFuZCBvZiBzaXpl
+IDIuMSBHaUIuCgogICAgVGlsbCBub3csIEkndmUgY3JlYXRlZCBhIHBhcnRpdGlvbiBhdCB0aGUg
+ZW5kIG9mIHRoZSBkaXNrLiBUaGVuIEknbGwgY3JlYXRlIGFub3RoZXIgb25lOgoKICAgICAgQ29t
+bWFuZCAobSBmb3IgaGVscCk6IG4KICAgICAgUGFydGl0aW9uIHR5cGUKICAgICAgICAgcCAgIHBy
+aW1hcnkgKDEgcHJpbWFyeSwgMCBleHRlbmRlZCwgMyBmcmVlKQogICAgICAgICBlICAgZXh0ZW5k
+ZWQgKGNvbnRhaW5lciBmb3IgbG9naWNhbCBwYXJ0aXRpb25zKQogICAgICBTZWxlY3QgKGRlZmF1
+bHQgcCk6IAogICAgICBVc2luZyBkZWZhdWx0IHJlc3BvbnNlIHAuCiAgICAgIFBhcnRpdGlvbiBu
+dW1iZXIgKDEsMyw0LCBkZWZhdWx0IDEpOiAKICAgICAgRmlyc3Qgc2VjdG9yICgyMDQ4LTgzODg2
+MDcsIGRlZmF1bHQgMjA0OCk6CgogICAgWW91IGNhbiBzZWUgaXQgc3RpbGwgcHJvbXB0cyBmb3Ig
+YEZpcnN0IHNlY3RvcmAgd2l0aCB0aGUgc2FtZSByYW5nZSAyMDQ4LTgzODg2MDcsIHdoaWxlIGl0
+IHNob3VsZCBiZSAyMDQ4LTM5OTk5OTkuIFRoaXMgaXMgcHJvYmFibHkgY2F1c2VkIGJ5IHRoZSBj
+b2RlIEkndmUgbGlzdGVkIGFscmVhZHkuCiAgICBJJ3ZlIGFsc28gdHJpZWQgdXNpbmcgY3lsaW5k
+ZXJzIGFzIG1lYXN1cmUgdW5pdCwgYW5kIHRoZSBwcm9ibGVtIHJlcGVhdGVkLiBIb3dldmVyLCBp
+dCB3b3JrcyBwcm9wZXJseSB3aGVuIGNyZWF0aW5nIGEgR1BUIHBhcnRpdGlvbi4KICAgIEkgZG9u
+J3QgdGhpbmsgdGhpcyBpcyBjb3JyZWN0LCB0aG91Z2ggaXQncyBub3QgdmVyeSBpbXBvcnRhbnQu
+IFNvLCBob3BlIHRoaXMgYnVnIHdpbGwgYmUgZml4ZWQgc29vbi4KICAgIEFuZCBsYXN0LCB0aGFu
+a3MgYWdhaW4gZm9yIHJlYWRpbmcgbXkgZW50aXJlIGVtYWlsLCBhbmQgc29ycnkgZm9yIG15IHBv
+b3IgRW5nbGlzaCBza2lsbC4uLgogICAgSGl2ZSBhIG5pY2UgZGF5IQogICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFlvdXJzIHNpbmNlcmVs
+eSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgSWN5Lg==
