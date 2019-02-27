@@ -1,71 +1,106 @@
-Return-Path: <SRS0=Hpyb=RA=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=OvTT=RC=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_NEOMUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C3E1C43381
-	for <util-linux@archiver.kernel.org>; Mon, 25 Feb 2019 13:11:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9574C43381
+	for <util-linux@archiver.kernel.org>; Wed, 27 Feb 2019 22:22:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 73E9D20842
-	for <util-linux@archiver.kernel.org>; Mon, 25 Feb 2019 13:11:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 771AE2133D
+	for <util-linux@archiver.kernel.org>; Wed, 27 Feb 2019 22:22:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726955AbfBYNLX (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 25 Feb 2019 08:11:23 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:47982 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726921AbfBYNLW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 25 Feb 2019 08:11:22 -0500
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id CFE65307DAA3;
-        Mon, 25 Feb 2019 13:11:22 +0000 (UTC)
-Received: from ws.net.home (ovpn-204-99.brq.redhat.com [10.40.204.99])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 08DAB5D71A;
-        Mon, 25 Feb 2019 13:11:21 +0000 (UTC)
-Date:   Mon, 25 Feb 2019 14:11:17 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     =?utf-8?B?5Yaw5p+v?= <ziming_cool@126.com>
-Cc:     util-linux@vger.kernel.org
-Subject: Re: Bug report for libfdisk
-Message-ID: <20190225131117.4wthqysvjhek7tqy@ws.net.home>
-References: <2a76c584.126b.169188b95a6.Coremail.ziming_cool@126.com>
+        id S1729412AbfB0WWV (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 27 Feb 2019 17:22:21 -0500
+Received: from mx2.suse.de ([195.135.220.15]:52426 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728397AbfB0WWV (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 27 Feb 2019 17:22:21 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 881CFAE52;
+        Wed, 27 Feb 2019 22:22:20 +0000 (UTC)
+To:     util-linux@vger.kernel.org
+Cc:     Lubomir Rintel <lkundrak@v3.sk>
+From:   Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH 1/2] agetty: Fix input of non-ASCII characters in
+ get_logname()
+Openpgp: preference=signencrypt
+Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
+ mQGiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
+ zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
+ 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
+ AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
+ 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
+ NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
+ SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
+ ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSLQsU3RhbmlzbGF2
+ IEJyYWJlYyAoU3VTRSBDUikgPHNicmFiZWNAc3VzZS5jej6IXwQTEQIAHwQLBwMCAxUCAwMW
+ AgECHgECF4AFAlHS/kkFCSE/csAACgkQcXwgn6BPzXZY/gCghbxE4uexFHVP7qho9TDNxGGR
+ xxgAoKCipPrJQrnXKhFG4RDeRcVE0PoBuQENBD6v2YIQBACt62O2lXle2CPxw2LpdT557Rvr
+ UdoYJ1AeLAn1iDy67rDsGumxJxW254x9CKVsU3609PG58gDKSQ7CvHzErtOdz9xsJLfCCxbk
+ 6LsOhBdCWgYs7HV2xYCkUvKSVQGZN95skfv1aSsO6dXzXISXen4KqY5AnFa+pXDAqMJTGLwp
+ GwADBgQAkZ2/zz99L224sNcFgM+6TuGIQ57fNhKJxYG2HbBqh3oBiiZI9224dKLNCv/2aoV8
+ qd9QUMKQCO7kQKkSH7+Ti1KnCyaDi3SoeFcsV4Z99Xb1bN2EBS1C4qohNUbouTsYEG5qsZPe
+ uRDKekFTiilRRVyiXWDt+zY2aNNMknKBACeIRgQYEQIABgUCPq/ZggAKCRBxfCCfoE/Ndi+t
+ AJ958OvQedgG0gsRG1wX/HKXmRZ0dwCfUk0F4qeP5dCiETIHh3gxNIsx8YQ=
+Organization: SUSE Linux, s. r. o.
+Message-ID: <76fefdb8-0c24-338e-c0ef-9a5b707d1e0a@suse.cz>
+Date:   Wed, 27 Feb 2019 23:22:19 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.3.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=iso-8859-2
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <2a76c584.126b.169188b95a6.Coremail.ziming_cool@126.com>
-User-Agent: NeoMutt/20180716-1108-40af05
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.42]); Mon, 25 Feb 2019 13:11:22 +0000 (UTC)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Sat, Feb 23, 2019 at 12:09:54PM +0800, å†°æŸ¯ wrote:
-> 	} else {
-> 		/* primary partitions */
-> 		if (fdisk_use_cylinders(cxt) || !cxt->total_sectors)
-> 			limit = cxt->geom.heads * cxt->geom.sectors * cxt->geom.cylinders - 1;
-> 		else
-> 			limit = cxt->total_sectors - 1;      /* HERE */
-> 
-> 		if (limit > UINT_MAX)
-> 			limit = UINT_MAX;
-> 	}
+As login supports non-ASCII characters in the logname, agetty should be
+consistent.
 
-Fixed. Now the code follows situation on the device rather than total
-sectors and first LBA.
+8b58ffdd re-activated old and ASCII-only get_logname(), which restricted
+the input to ASCII only. As the code does not read whole characters,
+isascii(ascval) and isprint(ascval) returns nonsenses after entering a
+non-ASCII character.
 
-Thanks for your report!
+As keyboard maps don't contain unprintable non-control characters, it
+seems to be relatively safe to remove both checks.
 
-    Karel
-                                                                           Icy.
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+Cc: Lubomir Rintel <lkundrak@v3.sk>
+---
+ term-utils/agetty.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index 1a3ebc308..0ef8ba36d 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -2175,8 +2175,6 @@ static char *get_logname(struct issue *ie, struct options *op, struct termios *t
+ 			case CTL('D'):
+ 				exit(EXIT_SUCCESS);
+ 			default:
+-				if (!isascii(ascval) || !isprint(ascval))
+-					break;
+ 				if ((size_t)(bp - logname) >= sizeof(logname) - 1)
+ 					log_err(_("%s: input overrun"), op->tty);
+ 				if ((tp->c_lflag & ECHO) == 0)
+-- 
+2.20.1
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                    tel: +420 284 084 060
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
