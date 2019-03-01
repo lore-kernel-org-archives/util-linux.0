@@ -1,113 +1,96 @@
-Return-Path: <SRS0=k+tB=RD=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=2Kk3=RE=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43D27C43381
-	for <util-linux@archiver.kernel.org>; Thu, 28 Feb 2019 22:09:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F40AC43381
+	for <util-linux@archiver.kernel.org>; Fri,  1 Mar 2019 08:04:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 15A812084D
-	for <util-linux@archiver.kernel.org>; Thu, 28 Feb 2019 22:09:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D59AE2087E
+	for <util-linux@archiver.kernel.org>; Fri,  1 Mar 2019 08:04:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727942AbfB1WJm (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 28 Feb 2019 17:09:42 -0500
-Received: from mx2.suse.de ([195.135.220.15]:49698 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725918AbfB1WJm (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 28 Feb 2019 17:09:42 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 78D50B136
-        for <util-linux@vger.kernel.org>; Thu, 28 Feb 2019 22:09:41 +0000 (UTC)
-To:     util-linux@vger.kernel.org
-From:   Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH] libmount: Recognize more fuse filesystems as pseudofs and
- netfs
-Openpgp: preference=signencrypt
-Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
- mQGiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
- zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
- 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
- AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
- 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
- NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
- SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
- ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSLQsU3RhbmlzbGF2
- IEJyYWJlYyAoU3VTRSBDUikgPHNicmFiZWNAc3VzZS5jej6IXwQTEQIAHwQLBwMCAxUCAwMW
- AgECHgECF4AFAlHS/kkFCSE/csAACgkQcXwgn6BPzXZY/gCghbxE4uexFHVP7qho9TDNxGGR
- xxgAoKCipPrJQrnXKhFG4RDeRcVE0PoBuQENBD6v2YIQBACt62O2lXle2CPxw2LpdT557Rvr
- UdoYJ1AeLAn1iDy67rDsGumxJxW254x9CKVsU3609PG58gDKSQ7CvHzErtOdz9xsJLfCCxbk
- 6LsOhBdCWgYs7HV2xYCkUvKSVQGZN95skfv1aSsO6dXzXISXen4KqY5AnFa+pXDAqMJTGLwp
- GwADBgQAkZ2/zz99L224sNcFgM+6TuGIQ57fNhKJxYG2HbBqh3oBiiZI9224dKLNCv/2aoV8
- qd9QUMKQCO7kQKkSH7+Ti1KnCyaDi3SoeFcsV4Z99Xb1bN2EBS1C4qohNUbouTsYEG5qsZPe
- uRDKekFTiilRRVyiXWDt+zY2aNNMknKBACeIRgQYEQIABgUCPq/ZggAKCRBxfCCfoE/Ndi+t
- AJ958OvQedgG0gsRG1wX/HKXmRZ0dwCfUk0F4qeP5dCiETIHh3gxNIsx8YQ=
-Organization: SUSE Linux, s. r. o.
-Message-ID: <34af16dc-6012-bb04-9136-5fbaecdbb369@suse.cz>
-Date:   Thu, 28 Feb 2019 23:09:40 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.3.3
+        id S1726649AbfCAIEZ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 1 Mar 2019 03:04:25 -0500
+Received: from shell.v3.sk ([90.176.6.54]:41601 "EHLO shell.v3.sk"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726226AbfCAIEZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 1 Mar 2019 03:04:25 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by zimbra.v3.sk (Postfix) with ESMTP id C2545102784;
+        Fri,  1 Mar 2019 09:04:21 +0100 (CET)
+Received: from shell.v3.sk ([127.0.0.1])
+        by localhost (zimbra.v3.sk [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id rEXMf2n_6J0R; Fri,  1 Mar 2019 09:04:18 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by zimbra.v3.sk (Postfix) with ESMTP id 297B4102785;
+        Fri,  1 Mar 2019 09:04:18 +0100 (CET)
+X-Virus-Scanned: amavisd-new at zimbra.v3.sk
+Received: from shell.v3.sk ([127.0.0.1])
+        by localhost (zimbra.v3.sk [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id EE0-FqsOkH2q; Fri,  1 Mar 2019 09:04:17 +0100 (CET)
+Received: from nedofet.lan (ip-89-102-31-34.net.upcbroadband.cz [89.102.31.34])
+        by zimbra.v3.sk (Postfix) with ESMTPSA id 00BEA102784;
+        Fri,  1 Mar 2019 09:04:16 +0100 (CET)
+Message-ID: <1c61f1ecc2c5c8738de298063c5278e9573e2709.camel@v3.sk>
+Subject: Re: [PATCH 1/2] agetty: Fix input of non-ASCII characters in
+ get_logname()
+From:   Lubomir Rintel <lkundrak@v3.sk>
+To:     Stanislav Brabec <sbrabec@suse.cz>, util-linux@vger.kernel.org
+Date:   Fri, 01 Mar 2019 09:04:15 +0100
+In-Reply-To: <76fefdb8-0c24-338e-c0ef-9a5b707d1e0a@suse.cz>
+References: <76fefdb8-0c24-338e-c0ef-9a5b707d1e0a@suse.cz>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.30.5 (3.30.5-1.fc29) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Add some fuse filesystems to the list of pseudofs and netfs.
+On Wed, 2019-02-27 at 23:22 +0100, Stanislav Brabec wrote:
+> As login supports non-ASCII characters in the logname, agetty should be
+> consistent.
+> 
+> 8b58ffdd re-activated old and ASCII-only get_logname(), which restricted
 
-There are still tens of filesystems that should be evaluated and added.
+A nit: please use this form to refer to other commits in commit
+messages:
 
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
----
- libmount/src/utils.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+commit 8b58ffdd ('agetty: don't put the VC into canonical mode')
 
-diff --git a/libmount/src/utils.c b/libmount/src/utils.c
-index 6d8871717..7f6cc1405 100644
---- a/libmount/src/utils.c
-+++ b/libmount/src/utils.c
-@@ -283,7 +283,14 @@ int mnt_fstype_is_pseudofs(const char *type)
- 		"devtmpfs",
- 		"dlmfs",
- 		"efivarfs",
--		"fuse.gvfs-fuse-daemon",
-+		"fuse", /* Fallback name of fuse used by many poorly written drivers. */
-+		"fuse.archivemount", /* Not a true pseudofs (has source), but source is not reported. */
-+		"fuse.dumpfs", /* In fact, it is a netfs, but source is not reported. */
-+		"fuse.encfs", /* Not a true pseudofs (has source), but source is not reported. */
-+		"fuse.gvfs-fuse-daemon", /* Old name, not used by gvfs any more. */
-+		"fuse.gvfsd-fuse",
-+		"fuse.rofiles-fuse",
-+		"fuse.xwmfs",
- 		"fusectl",
- 		"hugetlbfs",
- 		"mqueue",
-@@ -323,6 +330,8 @@ int mnt_fstype_is_netfs(const char *type)
- 	    strncmp(type,"nfs", 3) == 0 ||
- 	    strcmp(type, "afs")    == 0 ||
- 	    strcmp(type, "ncpfs")  == 0 ||
-+	    strcmp(type, "fuse.curlftpfs") == 0 ||
-+	    strcmp(type, "fuse.sshfs") == 0 ||
- 	    strncmp(type,"9p", 2)  == 0)
- 		return 1;
- 	return 0;
--- 
-2.20.1
+It improves readability.
 
--- 
-Best Regards / S pozdravem,
+> the input to ASCII only. As the code does not read whole characters,
+> isascii(ascval) and isprint(ascval) returns nonsenses after entering a
+> non-ASCII character.
+> 
+> As keyboard maps don't contain unprintable non-control characters, it
+> seems to be relatively safe to remove both checks.
+> 
+> Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+> Cc: Lubomir Rintel <lkundrak@v3.sk>
+> ---
+>  term-utils/agetty.c | 2 --
+>  1 file changed, 2 deletions(-)
+> 
+> diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+> index 1a3ebc308..0ef8ba36d 100644
+> --- a/term-utils/agetty.c
+> +++ b/term-utils/agetty.c
+> @@ -2175,8 +2175,6 @@ static char *get_logname(struct issue *ie, struct options *op, struct termios *t
+>  			case CTL('D'):
+>  				exit(EXIT_SUCCESS);
+>  			default:
+> -				if (!isascii(ascval) || !isprint(ascval))
+> -					break;
+>  				if ((size_t)(bp - logname) >= sizeof(logname) - 1)
+>  					log_err(_("%s: input overrun"), op->tty);
+>  				if ((tp->c_lflag & ECHO) == 0)
+> -- 
+> 2.20.1
+> 
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                    tel: +420 284 084 060
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
