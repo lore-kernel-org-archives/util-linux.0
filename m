@@ -1,133 +1,86 @@
-Return-Path: <SRS0=rvHk=RP=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=KEke=RS=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,T_HK_NAME_DR,
-	USER_AGENT_NEOMUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01587C43381
-	for <util-linux@archiver.kernel.org>; Tue, 12 Mar 2019 18:11:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D80CAC43381
+	for <util-linux@archiver.kernel.org>; Fri, 15 Mar 2019 14:06:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9EFE8213A2
-	for <util-linux@archiver.kernel.org>; Tue, 12 Mar 2019 18:11:53 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b="edqItxPm"
+	by mail.kernel.org (Postfix) with ESMTP id B0157217F5
+	for <util-linux@archiver.kernel.org>; Fri, 15 Mar 2019 14:06:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726860AbfCLSLu (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 12 Mar 2019 14:11:50 -0400
-Received: from mx.treblig.org ([46.43.15.161]:60984 "EHLO mx.treblig.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727030AbfCLSLq (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 12 Mar 2019 14:11:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=treblig.org
-        ; s=bytemarkmx; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID
-        :Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID
-        :Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:
-        Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe
-        :List-Post:List-Owner:List-Archive;
-        bh=dN52BX2Tp87gvxCY+wJkuicmuZBjoV3bNgQ/CyXHdDU=; b=edqItxPmABZBAwBCNJcaiatCez
-        Yos6sgqc2/H2fs9j1EZVC1cljQsOIDgQholquBF4mmdWnOSK/ge0wGRHpe2AomM1+HBr03bsWmETx
-        sPHgdBYcjCDnQQiQ0hP9H7DEJxYu+dQ/f2pwwb4aIbsWYYGawFCSifc8kfovg5tb9J/T8DDoptTZT
-        v1CIlt3fg3shqjBhbBZtLT0v4K/oaOBZLJV+I9Ttk/cNyWtS360gb89cEqz80/NftLS9qz4iHrUk4
-        029O9rovqpGFxRRvNJ9SR8b8m6WzFK7XWHnA9gv6U7eekpd1Zi0czHfVF+VHoaKXQIejCKM4vI51D
-        OyYdzRSA==;
-Received: from dg by mx.treblig.org with local (Exim 4.89)
-        (envelope-from <dg@treblig.org>)
-        id 1h3lsL-0008Fq-Ba; Tue, 12 Mar 2019 18:11:41 +0000
-Date:   Tue, 12 Mar 2019 18:11:41 +0000
-From:   "Dr. David Alan Gilbert" <dave@treblig.org>
-To:     L A Walsh <lkml@tlinx.org>
-Cc:     Karel Zak <kzak@redhat.com>,
-        "Dr. David Alan Gilbert" <dave@treblig.org>,
-        util-linux@vger.kernel.org
-Subject: Re: does util-linux have a 'report sector size' util?
-Message-ID: <20190312181141.l3hj2gf5l4dxiniy@gallifrey>
-References: <5C86CBA1.40802@tlinx.org>
- <20190311212104.edekhgctqto37tn7@gallifrey>
- <5C86D476.6060807@tlinx.org>
- <20190312082159.jojrjq7ox3d457ke@ws.net.home>
- <5C87CA04.1010308@tlinx.org>
+        id S1729212AbfCOOGF (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 15 Mar 2019 10:06:05 -0400
+Received: from ishtar.tlinx.org ([173.164.175.65]:54210 "EHLO
+        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729209AbfCOOGF (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 15 Mar 2019 10:06:05 -0400
+Received: from [192.168.3.12] (Athenae [192.168.3.12])
+        by Ishtar.sc.tlinx.org (8.14.7/8.14.4/SuSE Linux 0.8) with ESMTP id x2FE5teO036931;
+        Fri, 15 Mar 2019 07:05:58 -0700
+Message-ID: <5C8BB144.1060305@tlinx.org>
+Date:   Fri, 15 Mar 2019 07:05:56 -0700
+From:   L A Walsh <lkml@tlinx.org>
+User-Agent: Thunderbird
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5C87CA04.1010308@tlinx.org>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/4.9.0-6-amd64 (x86_64)
-X-Uptime: 18:05:46 up 217 days, 23:04,  1 user,  load average: 0.23, 0.17,
- 0.10
-User-Agent: NeoMutt/20170113 (1.7.2)
+To:     "Dr. David Alan Gilbert" <dave@treblig.org>
+CC:     Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Subject: Re:why would 4k size for phys sector size read in kernel, go away?
+References: <5C86CBA1.40802@tlinx.org> <20190311212104.edekhgctqto37tn7@gallifrey> <5C86D476.6060807@tlinx.org> <20190312082159.jojrjq7ox3d457ke@ws.net.home> <5C87CA04.1010308@tlinx.org> <20190312181141.l3hj2gf5l4dxiniy@gallifrey>
+In-Reply-To: <20190312181141.l3hj2gf5l4dxiniy@gallifrey>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-* L A Walsh (lkml@tlinx.org) wrote:
-> On 3/12/2019 1:21 AM, Karel Zak wrote:
-> > On Mon, Mar 11, 2019 at 02:34:46PM -0700, L A Walsh wrote:
-> >   
-> >> On 3/11/2019 2:21 PM, Dr. David Alan Gilbert wrote:
-> >>     
-> >>> * L A Walsh (lkml@tlinx.org) wrote:
-> >>>       
-> >>>> Trying to track down why my 4K drives no longer display 4K
-> >>>> in sysfs (/sys) and don't seem to show individual disk
-> >>>> drive information.  When I first got the drives, linux displayed
-> >>>> the correct physical disk size, but when I look now, I only
-> >>>> see 512.
-> >>>>         
-> >>> Is this one of the PHY-SEC or LOG-SEC fields that lsblk can print?
-> >>>
-> >>> [dg@major ~]$ lsblk -o "NAME,PHY-SEC,LOG-SEC"
-> >>> NAME                                            PHY-SEC LOG-SEC
-> >>> sda                                                 512     512
-> >>>       
-> >> ---
-> >>     It would be, if it was correct.  Megacli displays:
-> >>
-> >>    Sector Size:  512
-> >>    Logical Sector Size:  512
-> >>    Physical Sector Size:  4096
-> >>
-> >> But lsblk displays 512 for everything.  The disk says it uses a 512e format
-> >> with the 'e' meaning it emulates 512 even if not 512.
-> >>     
-> >
-> > lsblk, fdisk, blockdev, ... but all of the utils read the information
-> > from kernel. So, it depends how the device reports topology to the
-> > kernel.
-> >   
-> Well, that's what I would think but I can't see why the device driver
-> would have been purposely changed to hide the actual physical size or
-> the temperature.  That said, megacli has to be reading those values
-> from somewhere -- and I'd tend to think it was accessing the driver as
-> well, but that begs the question -- where is it getting the temperature
-> and physical size from>?
-> 
-> It can even read the serial numbers off the disks.
+On 3/12/2019 11:11 AM, Dr. David Alan Gilbert wrote:
+>
+>
+> megacli is a special for LSI RAID controllers isn't it?
+> If so, then perhaps the RAID controller is hiding some info depending
+> on how it's configured and using a special to get the info from the controller.
+>
+> How about trying one of the SCSI utils, like sginfo -a ?
+>   
+It didn't show anything about blocksize logical or physical.
 
-I think that's an easy one :-)
+The only thing I see Megacli doing s searching through
+/sys/, it seems to find the name of the controller,
 
-> I'm not sure if it is opensource or not.
-> *sigh*
+then opening (FD3)
+"/dev/megaraid_sas_ioctl_node
 
-megacli is a special for LSI RAID controllers isn't it?
-If so, then perhaps the RAID controller is hiding some info depending
-on how it's configured and using a special to get the info from the controller.
+then issuing a bunch of
 
-How about trying one of the SCSI utils, like sginfo -a ?
+ioctl(3, MCE_GET_RECORD_LEN or MEMGETINFO or MTRRIOC_SET_ENTRY, 0x7cb9e0)
 
-Dave
+calls after which it dumps all the info about the disks in the RAIDS.
+Of note.. these are disks in external enclosures that are
+connected via the LSI controller.
+
+Also of note, I am certain that the physical size of the blocks
+for the 4K blocks used to show 4096 bytes as I had written
+scripts to pull this information.
+
+I also am fairly sure I remember seeing the temperatures listed
+somewhere, but I didn't write a supporting script to display
+that info.
+
+While megacli does seem to use an ioctl of the device,
+(haven't looked at source of driver yet) that doesn't negate that
+sysfs USED to display the correct blocksize.  My minor concern is that
+if the kernel doesn't know the real size of the blocks, no way
+disk utils will know and have concerns about something eventually
+getting it off by 1 or such.  Depending on what disk it is, I might
+not notice it until it was a large pain to reformat it correctly.
+
+FWIW, I've been unable to find a source for megacli...
 
 
 
-> 
-> >     Karel
-> >
-> >   
-> 
--- 
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    |       Running GNU/Linux       | Happy  \ 
-\        dave @ treblig.org |                               | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+
+
