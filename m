@@ -1,86 +1,151 @@
-Return-Path: <SRS0=KEke=RS=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=Nyt8=RV=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D80CAC43381
-	for <util-linux@archiver.kernel.org>; Fri, 15 Mar 2019 14:06:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5A0EC43381
+	for <util-linux@archiver.kernel.org>; Mon, 18 Mar 2019 12:53:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B0157217F5
-	for <util-linux@archiver.kernel.org>; Fri, 15 Mar 2019 14:06:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 788E220857
+	for <util-linux@archiver.kernel.org>; Mon, 18 Mar 2019 12:53:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729212AbfCOOGF (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 15 Mar 2019 10:06:05 -0400
-Received: from ishtar.tlinx.org ([173.164.175.65]:54210 "EHLO
-        Ishtar.sc.tlinx.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729209AbfCOOGF (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 15 Mar 2019 10:06:05 -0400
-Received: from [192.168.3.12] (Athenae [192.168.3.12])
-        by Ishtar.sc.tlinx.org (8.14.7/8.14.4/SuSE Linux 0.8) with ESMTP id x2FE5teO036931;
-        Fri, 15 Mar 2019 07:05:58 -0700
-Message-ID: <5C8BB144.1060305@tlinx.org>
-Date:   Fri, 15 Mar 2019 07:05:56 -0700
-From:   L A Walsh <lkml@tlinx.org>
-User-Agent: Thunderbird
+        id S1726643AbfCRMx1 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 18 Mar 2019 08:53:27 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:56982 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726449AbfCRMx0 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 18 Mar 2019 08:53:26 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 5D957307D861;
+        Mon, 18 Mar 2019 12:53:26 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.205.162])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id EFDA05D707;
+        Mon, 18 Mar 2019 12:53:24 +0000 (UTC)
+Date:   Mon, 18 Mar 2019 13:53:22 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     util-linux@vger.kernel.org
+Cc:     Rick van Rein <rick@openfortress.nl>,
+        =?utf-8?Q?Asbj=C3=B8rn_Sloth_T=C3=B8nnesen?= <asbjorn@asbjorn.st>
+Subject: script(1) plans
+Message-ID: <20190318125322.4obb27vwtxfuwuie@ws.net.home>
 MIME-Version: 1.0
-To:     "Dr. David Alan Gilbert" <dave@treblig.org>
-CC:     Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Subject: Re:why would 4k size for phys sector size read in kernel, go away?
-References: <5C86CBA1.40802@tlinx.org> <20190311212104.edekhgctqto37tn7@gallifrey> <5C86D476.6060807@tlinx.org> <20190312082159.jojrjq7ox3d457ke@ws.net.home> <5C87CA04.1010308@tlinx.org> <20190312181141.l3hj2gf5l4dxiniy@gallifrey>
-In-Reply-To: <20190312181141.l3hj2gf5l4dxiniy@gallifrey>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: NeoMutt/20180716-1108-40af05
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.48]); Mon, 18 Mar 2019 12:53:26 +0000 (UTC)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On 3/12/2019 11:11 AM, Dr. David Alan Gilbert wrote:
->
->
-> megacli is a special for LSI RAID controllers isn't it?
-> If so, then perhaps the RAID controller is hiding some info depending
-> on how it's configured and using a special to get the info from the controller.
->
-> How about trying one of the SCSI utils, like sginfo -a ?
->   
-It didn't show anything about blocksize logical or physical.
 
-The only thing I see Megacli doing s searching through
-/sys/, it seems to find the name of the controller,
+Hi all,
 
-then opening (FD3)
-"/dev/megaraid_sas_ioctl_node
+I'd like to improve script(1) to be more flexible and support more
+streams. The current version allow to log only output, but I'd like to
+add possibility to log input, signals and more details about the
+session.
 
-then issuing a bunch of
+The idea is to introduce a new timing file format; and use it in case
+a new features are requested by user on script(1) command line. The
+new format will be still based on text and easy to convert to the old
+version.
 
-ioctl(3, MCE_GET_RECORD_LEN or MEMGETINFO or MTRRIOC_SET_ENTRY, 0x7cb9e0)
+* New options:
 
-calls after which it dumps all the info about the disks in the RAIDS.
-Of note.. these are disks in external enclosures that are
-connected via the LSI controller.
+ --log-out <file>	    log output to <file>
+ --log-in <file>        log input to <file>
+ --log-io <file>        log both input and output to <file>
+ --log-timing <file>    timing file (alias to --timing[=<file>])
+ --no-signal            don't log signals
 
-Also of note, I am certain that the physical size of the blocks
-for the 4K blocks used to show 4096 bytes as I had written
-scripts to pull this information.
+The all --log-* options enables the new format, otherwise old format is used.
 
-I also am fairly sure I remember seeing the temperatures listed
-somewhere, but I didn't write a supporting script to display
-that info.
+ script --timing[=<file>] <file>              := old timing file format
 
-While megacli does seem to use an ioctl of the device,
-(haven't looked at source of driver yet) that doesn't negate that
-sysfs USED to display the correct blocksize.  My minor concern is that
-if the kernel doesn't know the real size of the blocks, no way
-disk utils will know and have concerns about something eventually
-getting it off by 1 or such.  Depending on what disk it is, I might
-not notice it until it was a large pain to reformat it correctly.
+ script --log-timing <file> --log-out <file>  := new format
 
-FWIW, I've been unable to find a source for megacli...
+Note that the current --timing uses optional argument and the default
+is log timing information to the stderr. This crazy feature will be
+deprecated and unsupported for the new --log-timing <file>.
 
 
+* Another new feature is --json (mutually exclusive to --log-timing), in this
+case log data and timing information will be merged together:
+
+ {
+    "version":"2.33.1",
+    "term":"xterm",
+	
+    "log": [
+      { "type":"in",  "delta":1.930626, "data":"ls" },
+      { "type":"out", "delta":0.123356, "data":"some crazy data" },
+      { "type":"sig", "delta":0.500000, "name":"SIGWINCH", "columns":50, "lines":20 },
+      ...
+    ]
+ }
 
 
+* logs redirection (pipe) to another commands:
 
+ --log-out-cmd <cmd>
+ --log-in-cmd <cmd>
+ --log-io-cmd <cmd>
+
+The redirection will be possible to use with --json too.
+
+
+* The new (multi-stream) timing file format:
+
+    <type> <timestamp> [<offset> | <signal> ...]
+
+     # comment
+     H NAME=<value>
+     H ...
+     O 0.001296 256
+     S 0.001297 SIGWINCH: columns=50, lines=20
+     I 0.000010 10
+
+ H : header (VERSION=, TERM=, STARTTIME=, EXITCODE=, COLUMNS=, LINES=, COMMAND= ...)
+ O : output
+ I : input
+ S : signal
+
+ Conversion to the old version:
+
+	awk '/^O / { print $2" "$3 }'
+
+		
+* scriptreplay(1) will be extended to autodetect and support the new format and
+  print summary about the session, new options:
+
+  --summary       print details from headers (like TERM=, ...)
+  --play-input    print input only
+  --play-output   (default)
+  
+
+* new command scriptlive(1)
+
+ - create a new session (slave/master pty) with shell/command to repeat previously
+   recorded session on a real shell/command.
+
+ - for example you can record session (with --log-in) on one machine, repeat 
+   later on another machine(s)
+
+
+The target release will be probably v2.35 and I'm going to start work
+on it ASAP (probably this or next week).
+
+Comments & objections?
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
