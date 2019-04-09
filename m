@@ -1,4 +1,4 @@
-Return-Path: <SRS0=BORA=SE=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=ioIj=SL=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
@@ -6,103 +6,113 @@ X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_NEOMUTT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37C34C4360F
-	for <util-linux@archiver.kernel.org>; Tue,  2 Apr 2019 11:33:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7846C282CE
+	for <util-linux@archiver.kernel.org>; Tue,  9 Apr 2019 14:04:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EF2F6208E4
-	for <util-linux@archiver.kernel.org>; Tue,  2 Apr 2019 11:33:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 85473206B6
+	for <util-linux@archiver.kernel.org>; Tue,  9 Apr 2019 14:04:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730556AbfDBLdr (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 2 Apr 2019 07:33:47 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:36028 "EHLO mx1.redhat.com"
+        id S1726625AbfDIOEC (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 9 Apr 2019 10:04:02 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:34880 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726930AbfDBLdr (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 2 Apr 2019 07:33:47 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        id S1726438AbfDIOEC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 9 Apr 2019 10:04:02 -0400
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 3614730FE5D1
-        for <util-linux@vger.kernel.org>; Tue,  2 Apr 2019 11:33:47 +0000 (UTC)
-Received: from ws.net.home (ovpn-204-222.brq.redhat.com [10.40.204.222])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id A24B75D9C4
-        for <util-linux@vger.kernel.org>; Tue,  2 Apr 2019 11:33:46 +0000 (UTC)
-Date:   Tue, 2 Apr 2019 13:33:44 +0200
+        by mx1.redhat.com (Postfix) with ESMTPS id E1157307EA8D;
+        Tue,  9 Apr 2019 14:04:01 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.205.130])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id D36391001E69;
+        Tue,  9 Apr 2019 14:04:00 +0000 (UTC)
+Date:   Tue, 9 Apr 2019 16:03:58 +0200
 From:   Karel Zak <kzak@redhat.com>
-To:     util-linux@vger.kernel.org
-Subject: plan for v2.33.2
-Message-ID: <20190402113344.jl46ousxqquk6lfl@ws.net.home>
+To:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.33.2
+Message-ID: <20190409140358.b3hssvd5bgqmbdtb@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 User-Agent: NeoMutt/20180716-1108-40af05
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Tue, 02 Apr 2019 11:33:47 +0000 (UTC)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Tue, 09 Apr 2019 14:04:01 +0000 (UTC)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+The util-linux stable release v2.33.2 is available at
 
-I'd like to release v2.33.2 on Friday, see below the current
-stable/v2.33. Comments & objections?
+  http://www.kernel.org/pub/linux/utils/util-linux/v2.33/
 
-    Karel
+Feedback and bug reports, as always, are welcomed.
+
+  Karel
 
 
-Andreas Schwab (1):
-      setarch: don't return address of automatic variable
+util-linux 2.33.2 Release Notes
+===============================
 
-Fabian.Kirsch@dlr.de (1):
-      libfdisk: sanity check, to prevent overlapping partitions from being partly reported as free
-
-Icenowy Zheng (1):
-      libfdisk: (gpt) add HiFive Unleashed bootloader partition UUIDs
-
-Johannes Nixdorf (1):
-      build-sys: fix crypt() detection without -lcrypt
-
-Juerg Haefliger (1):
-      libfdisk: (dos) Use strtoul to parse the label-id
-
-Karel Zak (9):
-      whereis: search in /(s)bin before /usr/lib
-      losetup: use offset in warn_size() calculation
-      logger: (man) make more obvious that --server/socket is required
-      sfdisk: fix logical partition resize when start specified
-      wall: remove unnecessary warning
-      lscpu: document --hex output regression (since v2.30)
-      su: be sensitive to another SIGCHLD ssi_codes
-      blkid: (man) cleanup return code section
-      su: change error message
-
-Marcos Paulo de Souza (1):
-      fstrim: Remove commnet about vfat not supporting fstrim
-
-Patrick Steinhardt (1):
-      last: do not use non-standard __UT_NAMESIZE
-
-Peter Wu (1):
-      mount.8: clarify (no)suid behavior on file capabilities
-
-Sami Kerola (5):
-      bash-completion: umount support relative path and ~ as home shorthands
-      last: fix wtmp user name buffer overflow [asan]
-      readprofile: check input file is not empty [asan]
-      include: add no return function attribute
-      include/path.h: remove duplicate header inclusion
-
-Stanislav Brabec (4):
-      mount: Do not call mnt_pretty_path() on net file systems.
-      agetty: Fix input of non-ASCII characters in get_logname()
-      agetty: Switch to 8-bit processing in get_logname() for UTF-8 terminals
-      libmount: Recognize more fuse filesystems as pseudofs and netfs
-
-dana (1):
-      column: Address fill-order confusion in documentation
-
-edupont (1):
-      Typo in configuration help
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+agetty:
+   - Fix input of non-ASCII characters in get_logname()  [Stanislav Brabec]
+   - Switch to 8-bit processing in get_logname() for UTF-8 terminals  [Stanislav Brabec]
+bash-completion:
+   - umount support relative path and ~ as home shorthands  [Sami Kerola]
+blkid:
+   - (man) cleanup return code section  [Karel Zak]
+build-sys:
+   - fix crypt() detection without -lcrypt  [Johannes Nixdorf]
+column:
+   - Address fill-order confusion in documentation  [dana]
+docs:
+   - update AUTHORS file  [Karel Zak]
+fstrim:
+   - Remove commnet about vfat not supporting fstrim  [Marcos Paulo de Souza]
+include:
+   - add no return function attribute  [Sami Kerola]
+include/path.h:
+   - remove duplicate header inclusion  [Sami Kerola]
+last:
+   - do not use non-standard __UT_NAMESIZE  [Patrick Steinhardt]
+   - fix wtmp user name buffer overflow [asan]  [Sami Kerola]
+libfdisk:
+   - (dos) Use strtoul to parse the label-id  [Juerg Haefliger]
+   - (gpt) add HiFive Unleashed bootloader partition UUIDs  [Icenowy Zheng]
+   - sanity check, to prevent overlapping partitions from being partly reported as free  [Fabian.Kirsch@dlr.de]
+libmount:
+   - Recognize more fuse filesystems as pseudofs and netfs  [Stanislav Brabec]
+   - don't use sscanf() for fstab parsing  [Karel Zak]
+   - don't use sscanf() for mountinfo parsing  [Karel Zak]
+   - don't use sscanf() for swaps parsing  [Karel Zak]
+logger:
+   - (man) make more obvious that --server/socket is required  [Karel Zak]
+losetup:
+   - use offset in warn_size() calculation  [Karel Zak]
+lscpu:
+   - document --hex output regression (since v2.30)  [Karel Zak]
+mount:
+   - Do not call mnt_pretty_path() on net file systems.  [Stanislav Brabec]
+   - mount.8 clarify (no)suid behavior on file capabilities  [Peter Wu]
+po:
+   - merge changes  [Karel Zak]
+   - update de.po (from translationproject.org)  [Mario Blättermann]
+   - update fr.po (from translationproject.org)  [Frédéric Marchal]
+   - update hr.po (from translationproject.org)  [Božidar Putanec]
+readprofile:
+   - check input file is not empty [asan]  [Sami Kerola]
+setarch:
+   - don't return address of automatic variable  [Andreas Schwab]
+sfdisk:
+   - fix logical partition resize when start specified  [Karel Zak]
+su:
+   - be sensitive to another SIGCHLD ssi_codes  [Karel Zak]
+   - change error message  [Karel Zak]
+tests:
+   - add /mnt/test/foo^Mbar to mountinfo tests  [Karel Zak]
+wall:
+   - remove unnecessary warning  [Karel Zak]
+whereis:
+   - search in /(s)bin before /usr/lib  [Karel Zak]
