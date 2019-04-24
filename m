@@ -1,125 +1,132 @@
-Return-Path: <SRS0=B5TI=SZ=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=0AAi=S2=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D79D4C10F03
-	for <util-linux@archiver.kernel.org>; Tue, 23 Apr 2019 19:28:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20C4DC10F11
+	for <util-linux@archiver.kernel.org>; Wed, 24 Apr 2019 04:03:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A862221738
-	for <util-linux@archiver.kernel.org>; Tue, 23 Apr 2019 19:28:07 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="Md/o7DO0"
+	by mail.kernel.org (Postfix) with ESMTP id E2FA8218D3
+	for <util-linux@archiver.kernel.org>; Wed, 24 Apr 2019 04:03:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726043AbfDWT2H (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 23 Apr 2019 15:28:07 -0400
-Received: from aserp2130.oracle.com ([141.146.126.79]:43766 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725945AbfDWT2G (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 23 Apr 2019 15:28:06 -0400
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x3NJJGoO182786;
-        Tue, 23 Apr 2019 19:28:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2018-07-02;
- bh=/kqphIvHH2NlFDk+hg8iPJrVo66ec6YSz9zT6KgtkUM=;
- b=Md/o7DO0uK6d6yKlWAXJ+FdF4FqUXCFr7h79AkFfLTEKmz1J9/rI/9mPgxRWtl9XsZZF
- iBEorZlb1O5iXoNwJCJrcHDeG7k8xIfqNbVM26EPKaH6PczT6MzBh0FBSj05+XRDTabU
- lTaDqG+61nTcF0gAszgLCp3CNyy70rwAyVn+sPr9K6DobXoYJpZbDebrP1/+E4oOTdVz
- en9YwCwoYs4hrfLlXDIeZnI3PqAZds23Y3ct6LdaSOJAfkxDYg3pdYKQC5/VPagBzWOM
- 5yAtKDEmzevU8rZi3viQDcERLLKeY7RV1stAn8M8Vca1xMfKcpFxLmwLP9F0hIcGJJaC VQ== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by aserp2130.oracle.com with ESMTP id 2ryrxcxg73-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 23 Apr 2019 19:28:02 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x3NJQjVw118589;
-        Tue, 23 Apr 2019 19:28:01 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by userp3020.oracle.com with ESMTP id 2s0dweenpw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 23 Apr 2019 19:28:01 +0000
-Received: from abhmp0006.oracle.com (abhmp0006.oracle.com [141.146.116.12])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x3NJS0mZ020122;
-        Tue, 23 Apr 2019 19:28:00 GMT
-Received: from localhost (/10.145.179.89)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 23 Apr 2019 12:28:00 -0700
-Date:   Tue, 23 Apr 2019 12:27:58 -0700
-From:   "Darrick J. Wong" <darrick.wong@oracle.com>
-To:     Wang Shilong <wangshilong1991@gmail.com>
-Cc:     util-linux@vger.kernel.org, Wang Shilong <wshilong@ddn.com>
-Subject: Re: [PATCH v2] fstrim: document kernel return minlen explicitly
-Message-ID: <20190423192758.GA182714@magnolia>
-References: <1556031508-18850-1-git-send-email-wshilong1991@gmail.com>
+        id S1725913AbfDXEDY (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 24 Apr 2019 00:03:24 -0400
+Received: from mx2.suse.de ([195.135.220.15]:53324 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725862AbfDXEDY (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 24 Apr 2019 00:03:24 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 2552CAE33
+        for <util-linux@vger.kernel.org>; Wed, 24 Apr 2019 04:03:22 +0000 (UTC)
+To:     util-linux@vger.kernel.org
+From:   Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH] lslogins: Fix discrepancies of SYS_UID_MIN
+Openpgp: preference=signencrypt
+Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
+ mQGiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
+ zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
+ 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
+ AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
+ 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
+ NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
+ SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
+ ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSLQsU3RhbmlzbGF2
+ IEJyYWJlYyAoU3VTRSBDUikgPHNicmFiZWNAc3VzZS5jej6IXwQTEQIAHwQLBwMCAxUCAwMW
+ AgECHgECF4AFAlHS/kkFCSE/csAACgkQcXwgn6BPzXZY/gCghbxE4uexFHVP7qho9TDNxGGR
+ xxgAoKCipPrJQrnXKhFG4RDeRcVE0PoBuQENBD6v2YIQBACt62O2lXle2CPxw2LpdT557Rvr
+ UdoYJ1AeLAn1iDy67rDsGumxJxW254x9CKVsU3609PG58gDKSQ7CvHzErtOdz9xsJLfCCxbk
+ 6LsOhBdCWgYs7HV2xYCkUvKSVQGZN95skfv1aSsO6dXzXISXen4KqY5AnFa+pXDAqMJTGLwp
+ GwADBgQAkZ2/zz99L224sNcFgM+6TuGIQ57fNhKJxYG2HbBqh3oBiiZI9224dKLNCv/2aoV8
+ qd9QUMKQCO7kQKkSH7+Ti1KnCyaDi3SoeFcsV4Z99Xb1bN2EBS1C4qohNUbouTsYEG5qsZPe
+ uRDKekFTiilRRVyiXWDt+zY2aNNMknKBACeIRgQYEQIABgUCPq/ZggAKCRBxfCCfoE/Ndi+t
+ AKCrirgQ963gLN3DlBRlvFPIOZ01WACglN5nhY7wyyhIjQP3k4eVfBY+WV4=
+Organization: SUSE Linux, s. r. o.
+Message-ID: <65c908ef-6c16-0b24-c169-0448b3bd3aaa@suse.cz>
+Date:   Wed, 24 Apr 2019 06:03:21 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1556031508-18850-1-git-send-email-wshilong1991@gmail.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9236 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=2 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1810050000 definitions=main-1904230136
-X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9236 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=2 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
- definitions=main-1904230136
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Tue, Apr 23, 2019 at 11:58:28PM +0900, Wang Shilong wrote:
-> From: Wang Shilong <wshilong@ddn.com>
-> 
-> Filesystem will modify @minlen according to its
-> block size etc, and will return actual unit
-> to userspace, document it into manpage.
-> 
-> Cc: Darrick J. Wong <darrick.wong@oracle.com>
-> Signed-off-by: Wang Shilong <wshilong@ddn.com>
+util-linux does not contain useradd. Its most popular implementation
+comes from shadow. SYS_UID_MIN is one of common parameters. Its hardcoded
+fallback value is equal to 101 in shadow useradd (see
+shadow-4.6/libmisc/find_new_uid.c: get_ranges()), but 201 in
+login-utils/lslogins.c.
 
-Looks ok to me,
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Let lslogins use the same fallback as useradd from shadow.
 
---D
+Hopefully most distros define its custom value of SYS_UID_MIN in
+/etc/login.defs, so this problem is not visible.
 
-> ---
-> v1->v2:
-> better explain as darrick suggestion..
-> ---
->  sys-utils/fstrim.8 | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
-> 
-> diff --git a/sys-utils/fstrim.8 b/sys-utils/fstrim.8
-> index f7e7aa9ef..c6ecca706 100644
-> --- a/sys-utils/fstrim.8
-> +++ b/sys-utils/fstrim.8
-> @@ -76,10 +76,11 @@ the end of the filesystem.
->  .IP "\fB\-m, \-\-minimum\fP \fIminimum-size\fP"
->  Minimum contiguous free range to discard, in bytes. (This value is internally
->  rounded up to a multiple of the filesystem block size.)  Free ranges smaller
-> -than this will be ignored.  By increasing this value, the fstrim operation
-> -will complete more quickly for filesystems with badly fragmented freespace,
-> -although not all blocks will be discarded.  The default value is zero,
-> -discarding every free block.
-> +than this will be ignored and fstrim will adjust the minimum if it's smaller than
-> +the device's minimum, and report that (fstrim_range.minlen) back to userspace.
-> +By increasing this value, the fstrim operation will complete more quickly for
-> +filesystems with badly fragmented freespace, although not all blocks will be
-> +discarded.  The default value is zero, discarding every free block.
->  .IP "\fB\-v, \-\-verbose\fP"
->  Verbose execution.  With this option
->  .B fstrim
-> -- 
-> 2.21.0
-> 
+login-utils/lslogins.1 does not mention its default at all. Add a
+reference and improve text of lslogins(1) to prevent off-by-one
+interpretation.
+
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ login-utils/lslogins.1 | 6 +++---
+ login-utils/lslogins.c | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/login-utils/lslogins.1 b/login-utils/lslogins.1
+index 5aa14c706..857d2dffd 100644
+--- a/login-utils/lslogins.1
++++ b/login-utils/lslogins.1
+@@ -92,9 +92,9 @@ Display information related to login by password (see
+also \fB\-afL).
+ Raw output (no columnation).
+ .TP
+ \fB\-s\fR, \fB\-\-system\-accs\fR
+-Show system accounts.  These are by default all accounts with a UID
+below 1000
+-(non-inclusive), with the exception of either nobody or nfsnobody (UID
+65534).
+-This hardcoded default maybe overwritten by parameters SYS_UID_MIN and
+SYS_UID_MAX in
++Show system accounts.  These are by default all accounts with a UID
+between 101 and 999
++(inclusive), with the exception of either nobody or nfsnobody (UID 65534).
++This hardcoded default may be overwritten by parameters SYS_UID_MIN and
+SYS_UID_MAX in
+ the file /etc/login.defs.
+ .TP
+ \fB\-\-time\-format\fR \fItype\fP
+diff --git a/login-utils/lslogins.c b/login-utils/lslogins.c
+index c913cf2d8..0c558f24f 100644
+--- a/login-utils/lslogins.c
++++ b/login-utils/lslogins.c
+@@ -74,7 +74,7 @@ static int lslogins_flag;
+ 
+ #define UL_UID_MIN 1000
+ #define UL_UID_MAX 60000
+-#define UL_SYS_UID_MIN 201
++#define UL_SYS_UID_MIN 101
+ #define UL_SYS_UID_MAX 999
+ 
+ /* we use the value of outmode to determine
+-- 
+2.21.0
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                    tel: +420 284 084 060
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+
