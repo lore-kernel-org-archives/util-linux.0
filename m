@@ -1,61 +1,107 @@
-Return-Path: <SRS0=0AAi=S2=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=oRo1=S3=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25731C10F11
-	for <util-linux@archiver.kernel.org>; Wed, 24 Apr 2019 09:36:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 555ACC43218
+	for <util-linux@archiver.kernel.org>; Thu, 25 Apr 2019 14:04:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F2CD620878
-	for <util-linux@archiver.kernel.org>; Wed, 24 Apr 2019 09:36:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3E202206BA
+	for <util-linux@archiver.kernel.org>; Thu, 25 Apr 2019 14:04:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726598AbfDXJgX (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 24 Apr 2019 05:36:23 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:51348 "EHLO mx1.redhat.com"
+        id S1727350AbfDYOEX (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 25 Apr 2019 10:04:23 -0400
+Received: from fieldses.org ([173.255.197.46]:50856 "EHLO fieldses.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726262AbfDXJgX (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 24 Apr 2019 05:36:23 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 07587C057F3D;
-        Wed, 24 Apr 2019 09:36:23 +0000 (UTC)
-Received: from ws.net.home (unknown [10.40.205.130])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 412E160851;
-        Wed, 24 Apr 2019 09:36:22 +0000 (UTC)
-Date:   Wed, 24 Apr 2019 11:36:19 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     Stanislav Brabec <sbrabec@suse.cz>
-Cc:     util-linux@vger.kernel.org
-Subject: Re: [PATCH] lslogins: Fix discrepancies of SYS_UID_MIN
-Message-ID: <20190424093619.vap25vwc5ycr6blr@ws.net.home>
-References: <65c908ef-6c16-0b24-c169-0448b3bd3aaa@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <65c908ef-6c16-0b24-c169-0448b3bd3aaa@suse.cz>
-User-Agent: NeoMutt/20180716-1108-40af05
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Wed, 24 Apr 2019 09:36:23 +0000 (UTC)
+        id S1727212AbfDYOEX (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 25 Apr 2019 10:04:23 -0400
+Received: by fieldses.org (Postfix, from userid 2815)
+        id AB575BD7; Thu, 25 Apr 2019 10:04:22 -0400 (EDT)
+From:   "J. Bruce Fields" <bfields@redhat.com>
+To:     linux-nfs@vger.kernel.org
+Cc:     linux-fsdevel@vger.kernel.org, abe@purdue.edu,
+        lsof-l@lists.purdue.edu, util-linux@vger.kernel.org,
+        jlayton@redhat.com, "J. Bruce Fields" <bfields@redhat.com>
+Subject: [PATCH 01/10] nfsd: persist nfsd filesystem across mounts
+Date:   Thu, 25 Apr 2019 10:04:11 -0400
+Message-Id: <1556201060-7947-2-git-send-email-bfields@redhat.com>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1556201060-7947-1-git-send-email-bfields@redhat.com>
+References: <1556201060-7947-1-git-send-email-bfields@redhat.com>
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, Apr 24, 2019 at 06:03:21AM +0200, Stanislav Brabec wrote:
->  login-utils/lslogins.1 | 6 +++---
->  login-utils/lslogins.c | 2 +-
->  2 files changed, 4 insertions(+), 4 deletions(-)
+From: "J. Bruce Fields" <bfields@redhat.com>
 
-Applied (manually, patch has been malformed by your email client),
-thanks!
+Keep around one internal mount of the nfsd filesystem so that we can
+e.g. add stuff to it when clients come and go, regardless of whether
+anyone has it mounted.
 
-    Karel
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+---
+ fs/nfsd/netns.h  |  3 +++
+ fs/nfsd/nfsctl.c | 13 +++++++++++++
+ 2 files changed, 16 insertions(+)
 
+diff --git a/fs/nfsd/netns.h b/fs/nfsd/netns.h
+index 32cb8c027483..cce335e1ec98 100644
+--- a/fs/nfsd/netns.h
++++ b/fs/nfsd/netns.h
+@@ -55,6 +55,9 @@ struct nfsd_net {
+ 	bool grace_ended;
+ 	time_t boot_time;
+ 
++	/* internal mount of the "nfsd" pseudofilesystem: */
++	struct vfsmount *nfsd_mnt;
++
+ 	/*
+ 	 * reclaim_str_hashtbl[] holds known client info from previous reset/reboot
+ 	 * used in reboot/reset lease grace period processing
+diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
+index f2feb2d11bae..8d2062428569 100644
+--- a/fs/nfsd/nfsctl.c
++++ b/fs/nfsd/nfsctl.c
+@@ -1231,6 +1231,7 @@ unsigned int nfsd_net_id;
+ static __net_init int nfsd_init_net(struct net *net)
+ {
+ 	int retval;
++	struct vfsmount *mnt;
+ 	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
+ 
+ 	retval = nfsd_export_init(net);
+@@ -1248,8 +1249,17 @@ static __net_init int nfsd_init_net(struct net *net)
+ 
+ 	atomic_set(&nn->ntf_refcnt, 0);
+ 	init_waitqueue_head(&nn->ntf_wq);
++
++	mnt =  vfs_kern_mount(&nfsd_fs_type, SB_KERNMOUNT, "nfsd", NULL);
++	if (IS_ERR(mnt)) {
++		retval = PTR_ERR(mnt);
++		goto out_mount_err;
++	}
++	nn->nfsd_mnt = mnt;
+ 	return 0;
+ 
++out_mount_err:
++	nfsd_idmap_shutdown(net);
+ out_idmap_error:
+ 	nfsd_export_shutdown(net);
+ out_export_error:
+@@ -1258,6 +1268,9 @@ static __net_init int nfsd_init_net(struct net *net)
+ 
+ static __net_exit void nfsd_exit_net(struct net *net)
+ {
++	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
++
++	mntput(nn->nfsd_mnt);
+ 	nfsd_idmap_shutdown(net);
+ 	nfsd_export_shutdown(net);
+ }
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.20.1
+
