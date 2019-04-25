@@ -2,32 +2,32 @@ Return-Path: <SRS0=oRo1=S3=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19113C4321D
-	for <util-linux@archiver.kernel.org>; Thu, 25 Apr 2019 14:04:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D00FC43218
+	for <util-linux@archiver.kernel.org>; Thu, 25 Apr 2019 14:04:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0EEDA20717
-	for <util-linux@archiver.kernel.org>; Thu, 25 Apr 2019 14:04:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4066E206BA
+	for <util-linux@archiver.kernel.org>; Thu, 25 Apr 2019 14:04:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728449AbfDYOEY (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 25 Apr 2019 10:04:24 -0400
-Received: from fieldses.org ([173.255.197.46]:50864 "EHLO fieldses.org"
+        id S1727212AbfDYOE0 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 25 Apr 2019 10:04:26 -0400
+Received: from fieldses.org ([173.255.197.46]:50954 "EHLO fieldses.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726731AbfDYOEY (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 25 Apr 2019 10:04:24 -0400
+        id S1728053AbfDYOEZ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 25 Apr 2019 10:04:25 -0400
 Received: by fieldses.org (Postfix, from userid 2815)
-        id BA57B1E28; Thu, 25 Apr 2019 10:04:22 -0400 (EDT)
+        id F10442499; Thu, 25 Apr 2019 10:04:22 -0400 (EDT)
 From:   "J. Bruce Fields" <bfields@redhat.com>
 To:     linux-nfs@vger.kernel.org
 Cc:     linux-fsdevel@vger.kernel.org, abe@purdue.edu,
         lsof-l@lists.purdue.edu, util-linux@vger.kernel.org,
         jlayton@redhat.com, "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 02/10] nfsd: rename cl_refcount
-Date:   Thu, 25 Apr 2019 10:04:12 -0400
-Message-Id: <1556201060-7947-3-git-send-email-bfields@redhat.com>
+Subject: [PATCH 09/10] nfsd: expose some more information about NFSv4 opens
+Date:   Thu, 25 Apr 2019 10:04:19 -0400
+Message-Id: <1556201060-7947-10-git-send-email-bfields@redhat.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1556201060-7947-1-git-send-email-bfields@redhat.com>
 References: <1556201060-7947-1-git-send-email-bfields@redhat.com>
@@ -38,150 +38,172 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 From: "J. Bruce Fields" <bfields@redhat.com>
 
-Rename this to a more descriptive name.
+Add open modes, device numbers, inode numbers, and open owners to each
+line of nfsd/clients/#/opens.
 
-Also, I'm going to want a second refcount with a slightly different use.
-
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Open owners are totally opaque but seem to sometimes have some useful
+ascii strings included, so passing through printable ascii characters
+and escaping the rest seems useful while still being machine-readable.
 ---
- fs/nfsd/nfs4state.c | 26 +++++++++++++-------------
- fs/nfsd/state.h     |  2 +-
- 2 files changed, 14 insertions(+), 14 deletions(-)
+ fs/nfsd/nfs4state.c            | 40 ++++++++++++++++++++++++++++------
+ fs/nfsd/state.h                |  2 +-
+ fs/seq_file.c                  | 17 +++++++++++++++
+ include/linux/seq_file.h       |  2 ++
+ include/linux/string_helpers.h |  1 +
+ lib/string_helpers.c           |  5 +++--
+ 6 files changed, 57 insertions(+), 10 deletions(-)
 
 diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 6a45fb00c5fc..9dab61bbd256 100644
+index 829d1e5440d3..f53621a65e60 100644
 --- a/fs/nfsd/nfs4state.c
 +++ b/fs/nfsd/nfs4state.c
-@@ -137,7 +137,7 @@ static __be32 get_client_locked(struct nfs4_client *clp)
+@@ -42,6 +42,7 @@
+ #include <linux/sunrpc/svcauth_gss.h>
+ #include <linux/sunrpc/addr.h>
+ #include <linux/jhash.h>
++#include <linux/string_helpers.h>
+ #include "xdr4.h"
+ #include "xdr4cb.h"
+ #include "vfs.h"
+@@ -2261,16 +2262,41 @@ static void opens_stop(struct seq_file *s, void *v)
+ static int opens_show(struct seq_file *s, void *v)
+ {
+ 	struct nfs4_stid *st = v;
+-	struct nfs4_ol_stateid *os;
+-	u64 stateid;
++	struct nfs4_ol_stateid *ols;
++	struct nfs4_file *nf;
++	struct file *file;
++	struct inode *inode;
++	struct nfs4_stateowner *oo;
++	unsigned int access, deny;
  
- 	if (is_client_expired(clp))
- 		return nfserr_expired;
--	atomic_inc(&clp->cl_refcount);
-+	atomic_inc(&clp->cl_rpc_users);
- 	return nfs_ok;
+ 	if (st->sc_type != NFS4_OPEN_STID)
+ 		return 0; /* XXX: or SEQ_SKIP? */
+-	os = openlockstateid(st);
+-	/* XXX: get info about file, etc., here */
++	ols = openlockstateid(st);
++	oo = ols->st_stateowner;
++	nf = st->sc_file;
++	file = find_any_file(nf);
++	inode = d_inode(file->f_path.dentry);
++
++	seq_printf(s, STATEID_FMT, STATEID_VAL(&st->sc_stateid));
++
++	access = bmap_to_share_mode(ols->st_access_bmap);
++	deny   = bmap_to_share_mode(ols->st_deny_bmap);
++
++	seq_printf(s, "\t\%s\%s",
++		access & NFS4_SHARE_ACCESS_READ ? "r" : "-",
++		access & NFS4_SHARE_ACCESS_WRITE ? "w" : "-");
++	seq_printf(s, "\t\%s\%s",
++		deny & NFS4_SHARE_ACCESS_READ ? "R" : "-",
++		deny & NFS4_SHARE_ACCESS_WRITE ? "W" : "-");
++
++	seq_printf(s, "\t%02x:%02x:%ld\t", MAJOR(inode->i_sb->s_dev),
++					 MINOR(inode->i_sb->s_dev),
++					 inode->i_ino);
++	seq_printf(s, "'");
++	seq_escape_mem(s, oo->so_owner.data, oo->so_owner.len,
++			ESCAPE_NP|ESCAPE_HEX|ESCAPE_NOHIGH, NULL);
++	seq_printf(s, "'\n");
+ 
+-	memcpy(&stateid, &st->sc_stateid, sizeof(stateid));
+-	seq_printf(s, "stateid: %llx\n", stateid);
+ 	return 0;
  }
  
-@@ -169,7 +169,7 @@ static void put_client_renew_locked(struct nfs4_client *clp)
+@@ -2320,7 +2346,7 @@ static const struct file_operations client_opens_fops = {
  
- 	lockdep_assert_held(&nn->client_lock);
+ static const struct tree_descr client_files[] = {
+ 	[0] = {"info", &client_info_fops, S_IRUSR},
+-	[1] = {"open", &client_opens_fops, S_IRUSR},
++	[1] = {"opens", &client_opens_fops, S_IRUSR},
+ 	[2] = {""},
+ };
  
--	if (!atomic_dec_and_test(&clp->cl_refcount))
-+	if (!atomic_dec_and_test(&clp->cl_rpc_users))
- 		return;
- 	if (!is_client_expired(clp))
- 		renew_client_locked(clp);
-@@ -179,7 +179,7 @@ static void put_client_renew(struct nfs4_client *clp)
- {
- 	struct nfsd_net *nn = net_generic(clp->net, nfsd_net_id);
- 
--	if (!atomic_dec_and_lock(&clp->cl_refcount, &nn->client_lock))
-+	if (!atomic_dec_and_lock(&clp->cl_rpc_users, &nn->client_lock))
- 		return;
- 	if (!is_client_expired(clp))
- 		renew_client_locked(clp);
-@@ -1847,7 +1847,7 @@ static struct nfs4_client *alloc_client(struct xdr_netobj name)
- 	clp->cl_name.len = name.len;
- 	INIT_LIST_HEAD(&clp->cl_sessions);
- 	idr_init(&clp->cl_stateids);
--	atomic_set(&clp->cl_refcount, 0);
-+	atomic_set(&clp->cl_rpc_users, 0);
- 	clp->cl_cb_state = NFSD4_CB_UNKNOWN;
- 	INIT_LIST_HEAD(&clp->cl_idhash);
- 	INIT_LIST_HEAD(&clp->cl_openowners);
-@@ -1926,7 +1926,7 @@ unhash_client(struct nfs4_client *clp)
- 
- static __be32 mark_client_expired_locked(struct nfs4_client *clp)
- {
--	if (atomic_read(&clp->cl_refcount))
-+	if (atomic_read(&clp->cl_rpc_users))
- 		return nfserr_jukebox;
- 	unhash_client_locked(clp);
- 	return nfs_ok;
-@@ -4066,7 +4066,7 @@ static __be32 lookup_clientid(clientid_t *clid,
- 		spin_unlock(&nn->client_lock);
- 		return nfserr_expired;
- 	}
--	atomic_inc(&found->cl_refcount);
-+	atomic_inc(&found->cl_rpc_users);
- 	spin_unlock(&nn->client_lock);
- 
- 	/* Cache the nfs4_client in cstate! */
-@@ -6550,7 +6550,7 @@ nfs4_check_open_reclaim(clientid_t *clid,
- static inline void
- put_client(struct nfs4_client *clp)
- {
--	atomic_dec(&clp->cl_refcount);
-+	atomic_dec(&clp->cl_rpc_users);
- }
- 
- static struct nfs4_client *
-@@ -6668,7 +6668,7 @@ nfsd_inject_add_lock_to_list(struct nfs4_ol_stateid *lst,
- 		return;
- 
- 	lockdep_assert_held(&nn->client_lock);
--	atomic_inc(&clp->cl_refcount);
-+	atomic_inc(&clp->cl_rpc_users);
- 	list_add(&lst->st_locks, collect);
- }
- 
-@@ -6697,7 +6697,7 @@ static u64 nfsd_foreach_client_lock(struct nfs4_client *clp, u64 max,
- 				 * Despite the fact that these functions deal
- 				 * with 64-bit integers for "count", we must
- 				 * ensure that it doesn't blow up the
--				 * clp->cl_refcount. Throw a warning if we
-+				 * clp->cl_rpc_users. Throw a warning if we
- 				 * start to approach INT_MAX here.
- 				 */
- 				WARN_ON_ONCE(count == (INT_MAX / 2));
-@@ -6821,7 +6821,7 @@ nfsd_foreach_client_openowner(struct nfs4_client *clp, u64 max,
- 		if (func) {
- 			func(oop);
- 			if (collect) {
--				atomic_inc(&clp->cl_refcount);
-+				atomic_inc(&clp->cl_rpc_users);
- 				list_add(&oop->oo_perclient, collect);
- 			}
- 		}
-@@ -6829,7 +6829,7 @@ nfsd_foreach_client_openowner(struct nfs4_client *clp, u64 max,
- 		/*
- 		 * Despite the fact that these functions deal with
- 		 * 64-bit integers for "count", we must ensure that
--		 * it doesn't blow up the clp->cl_refcount. Throw a
-+		 * it doesn't blow up the clp->cl_rpc_users. Throw a
- 		 * warning if we start to approach INT_MAX here.
- 		 */
- 		WARN_ON_ONCE(count == (INT_MAX / 2));
-@@ -6959,7 +6959,7 @@ static u64 nfsd_find_all_delegations(struct nfs4_client *clp, u64 max,
- 			if (dp->dl_time != 0)
- 				continue;
- 
--			atomic_inc(&clp->cl_refcount);
-+			atomic_inc(&clp->cl_rpc_users);
- 			WARN_ON(!unhash_delegation_locked(dp));
- 			list_add(&dp->dl_recall_lru, victims);
- 		}
-@@ -6967,7 +6967,7 @@ static u64 nfsd_find_all_delegations(struct nfs4_client *clp, u64 max,
- 		/*
- 		 * Despite the fact that these functions deal with
- 		 * 64-bit integers for "count", we must ensure that
--		 * it doesn't blow up the clp->cl_refcount. Throw a
-+		 * it doesn't blow up the clp->cl_rpc_users. Throw a
- 		 * warning if we start to approach INT_MAX here.
- 		 */
- 		WARN_ON_ONCE(count == (INT_MAX / 2));
 diff --git a/fs/nfsd/state.h b/fs/nfsd/state.h
-index 396c76755b03..aa9f1676e88a 100644
+index 5a999e4b766e..4db22433be82 100644
 --- a/fs/nfsd/state.h
 +++ b/fs/nfsd/state.h
-@@ -346,7 +346,7 @@ struct nfs4_client {
- 	struct nfsd4_clid_slot	cl_cs_slot;	/* create_session slot */
- 	u32			cl_exchange_flags;
- 	/* number of rpc's in progress over an associated session: */
--	atomic_t		cl_refcount;
-+	atomic_t		cl_rpc_users;
- 	struct nfs4_op_map      cl_spo_must_allow;
+@@ -56,7 +56,7 @@ typedef struct {
+ 	stateid_opaque_t        si_opaque;
+ } stateid_t;
  
- 	/* for nfs41 callbacks */
+-#define STATEID_FMT	"(%08x/%08x/%08x/%08x)"
++#define STATEID_FMT	"%08x/%08x/%08x/%08x"
+ #define STATEID_VAL(s) \
+ 	(s)->si_opaque.so_clid.cl_boot, \
+ 	(s)->si_opaque.so_clid.cl_id, \
+diff --git a/fs/seq_file.c b/fs/seq_file.c
+index 1dea7a8a5255..bb646e0c5b9c 100644
+--- a/fs/seq_file.c
++++ b/fs/seq_file.c
+@@ -383,6 +383,23 @@ void seq_escape(struct seq_file *m, const char *s, const char *esc)
+ }
+ EXPORT_SYMBOL(seq_escape);
+ 
++/**
++ * seq_escape_mem - copy data to buffer, escaping some characters
++ *
++ * See string_escape_mem for explanations of the arguments.
++ */
++void seq_escape_mem(struct seq_file *m, const char *src, size_t isz,
++		    unsigned int flags, const char *only)
++{
++	char *buf;
++	size_t size = seq_get_buf(m, &buf);
++	int ret;
++
++	ret = string_escape_mem(src, isz, buf, size, flags, only);
++	seq_commit(m, ret < size ? ret : -1);
++}
++EXPORT_SYMBOL(seq_escape_mem);
++
+ void seq_vprintf(struct seq_file *m, const char *f, va_list args)
+ {
+ 	int len;
+diff --git a/include/linux/seq_file.h b/include/linux/seq_file.h
+index a121982af0f5..de6ace9e5e6b 100644
+--- a/include/linux/seq_file.h
++++ b/include/linux/seq_file.h
+@@ -127,6 +127,8 @@ void seq_put_hex_ll(struct seq_file *m, const char *delimiter,
+ 		    unsigned long long v, unsigned int width);
+ 
+ void seq_escape(struct seq_file *m, const char *s, const char *esc);
++void seq_escape_mem(struct seq_file *m, const char *src, size_t isz,
++		    unsigned int flags, const char *only);
+ 
+ void seq_hex_dump(struct seq_file *m, const char *prefix_str, int prefix_type,
+ 		  int rowsize, int groupsize, const void *buf, size_t len,
+diff --git a/include/linux/string_helpers.h b/include/linux/string_helpers.h
+index d23c5030901a..54034526aa46 100644
+--- a/include/linux/string_helpers.h
++++ b/include/linux/string_helpers.h
+@@ -50,6 +50,7 @@ static inline int string_unescape_any_inplace(char *buf)
+ #define ESCAPE_NP		0x10
+ #define ESCAPE_ANY_NP		(ESCAPE_ANY | ESCAPE_NP)
+ #define ESCAPE_HEX		0x20
++#define ESCAPE_NOHIGH		0x40
+ 
+ int string_escape_mem(const char *src, size_t isz, char *dst, size_t osz,
+ 		unsigned int flags, const char *only);
+diff --git a/lib/string_helpers.c b/lib/string_helpers.c
+index 29c490e5d478..2c3e7b93775e 100644
+--- a/lib/string_helpers.c
++++ b/lib/string_helpers.c
+@@ -511,8 +511,9 @@ int string_escape_mem(const char *src, size_t isz, char *dst, size_t osz,
+ 		 * In these cases we just pass through a character to the
+ 		 * output buffer.
+ 		 */
+-		if ((flags & ESCAPE_NP && isprint(c)) ||
+-		    (is_dict && !strchr(only, c))) {
++		if ((  (flags & ESCAPE_NP && isprint(c)) ||
++		       (is_dict && !strchr(only, c))) &&
++		    !(flags & ESCAPE_NOHIGH && (unsigned char)c > 127)) {
+ 			/* do nothing */
+ 		} else {
+ 			if (flags & ESCAPE_SPACE && escape_space(c, &p, end))
 -- 
 2.20.1
 
