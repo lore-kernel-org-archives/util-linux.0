@@ -2,122 +2,98 @@ Return-Path: <SRS0=IkIy=TH=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.4 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=ham
+X-Spam-Status: No, score=-2.9 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_NEOMUTT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 451A0C04A6B
-	for <util-linux@archiver.kernel.org>; Tue,  7 May 2019 01:02:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D298C004C9
+	for <util-linux@archiver.kernel.org>; Tue,  7 May 2019 10:31:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 12CFB206BF
-	for <util-linux@archiver.kernel.org>; Tue,  7 May 2019 01:02:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CF6BA206A3
+	for <util-linux@archiver.kernel.org>; Tue,  7 May 2019 10:30:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726282AbfEGBCn (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 6 May 2019 21:02:43 -0400
-Received: from fieldses.org ([173.255.197.46]:58610 "EHLO fieldses.org"
+        id S1726520AbfEGKa7 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 7 May 2019 06:30:59 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:46572 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726073AbfEGBCn (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 6 May 2019 21:02:43 -0400
-Received: by fieldses.org (Postfix, from userid 2815)
-        id A6D24C57; Mon,  6 May 2019 21:02:42 -0400 (EDT)
-Date:   Mon, 6 May 2019 21:02:42 -0400
-To:     Andrew W Elble <aweits@rit.edu>
-Cc:     Benjamin Coddington <bcodding@redhat.com>,
-        "J. Bruce Fields" <bfields@redhat.com>, linux-nfs@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, abe@purdue.edu,
-        lsof-l@lists.purdue.edu, util-linux@vger.kernel.org,
-        jlayton@redhat.com
-Subject: Re: [PATCH 09/10] nfsd: expose some more information about NFSv4
- opens
-Message-ID: <20190507010242.GB4835@fieldses.org>
-References: <1556201060-7947-1-git-send-email-bfields@redhat.com>
- <1556201060-7947-10-git-send-email-bfields@redhat.com>
- <786E0C83-A22D-461A-A9D1-AF7B42018CE9@redhat.com>
- <m2k1f8hmr5.fsf@discipline.rit.edu>
+        id S1726496AbfEGKa7 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 7 May 2019 06:30:59 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 36514C02490F;
+        Tue,  7 May 2019 10:30:59 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.205.130])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 758661FC;
+        Tue,  7 May 2019 10:30:58 +0000 (UTC)
+Date:   Tue, 7 May 2019 12:30:55 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     "Carlos A. M. dos Santos" <unixmania@gmail.com>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: Building util-linux libraries and utilities as separated
+ operations
+Message-ID: <20190507103055.lqamhi3qbbp4er7l@ws.net.home>
+References: <CAJ4jsae=RUFEX2+2+8YG_tspTzqghMgupMfT_adYnG9b_xUVxg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m2k1f8hmr5.fsf@discipline.rit.edu>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-From:   bfields@fieldses.org (J. Bruce Fields)
+In-Reply-To: <CAJ4jsae=RUFEX2+2+8YG_tspTzqghMgupMfT_adYnG9b_xUVxg@mail.gmail.com>
+User-Agent: NeoMutt/20180716-1584-710bcd
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Tue, 07 May 2019 10:30:59 +0000 (UTC)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Thu, May 02, 2019 at 11:58:06AM -0400, Andrew W Elble wrote:
-> Benjamin Coddington <bcodding@redhat.com> writes:
+On Mon, May 06, 2019 at 10:22:51AM -0300, Carlos A. M. dos Santos wrote:
+> Would it be possible to build/install the libraries first and the
+> utilities later, using the previously installed libraries? That would
+> help to solve a chicken-egg problem between lsblk, and libudev, as
+> described in
 > 
-> > On 25 Apr 2019, at 10:04, J. Bruce Fields wrote:
-> >
-> >> From: "J. Bruce Fields" <bfields@redhat.com>
-> >>
-> >> Add open modes, device numbers, inode numbers, and open owners to each
-> >> line of nfsd/clients/#/opens.
-> >>
-> >> Open owners are totally opaque but seem to sometimes have some useful
-> >> ascii strings included, so passing through printable ascii characters
-> >> and escaping the rest seems useful while still being machine-readable.
-> >> ---
-> >>  fs/nfsd/nfs4state.c            | 40
-> >> ++++++++++++++++++++++++++++------
-> >>  fs/nfsd/state.h                |  2 +-
-> >>  fs/seq_file.c                  | 17 +++++++++++++++
-> >>  include/linux/seq_file.h       |  2 ++
-> >>  include/linux/string_helpers.h |  1 +
-> >>  lib/string_helpers.c           |  5 +++--
-> >>  6 files changed, 57 insertions(+), 10 deletions(-)
-> >>
-> >> diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-> >> index 829d1e5440d3..f53621a65e60 100644
-> >> --- a/fs/nfsd/nfs4state.c
-> >> +++ b/fs/nfsd/nfs4state.c
-> >> @@ -42,6 +42,7 @@
-> >>  #include <linux/sunrpc/svcauth_gss.h>
-> >>  #include <linux/sunrpc/addr.h>
-> >>  #include <linux/jhash.h>
-> >> +#include <linux/string_helpers.h>
-> >>  #include "xdr4.h"
-> >>  #include "xdr4cb.h"
-> >>  #include "vfs.h"
-> >> @@ -2261,16 +2262,41 @@ static void opens_stop(struct seq_file *s,
-> >> void *v)
-> >>  static int opens_show(struct seq_file *s, void *v)
-> >>  {
-> >>  	struct nfs4_stid *st = v;
-> >> -	struct nfs4_ol_stateid *os;
-> >> -	u64 stateid;
-> >> +	struct nfs4_ol_stateid *ols;
-> >> +	struct nfs4_file *nf;
-> >> +	struct file *file;
-> >> +	struct inode *inode;
-> >> +	struct nfs4_stateowner *oo;
-> >> +	unsigned int access, deny;
-> >>
-> >>  	if (st->sc_type != NFS4_OPEN_STID)
-> >>  		return 0; /* XXX: or SEQ_SKIP? */
-> >> -	os = openlockstateid(st);
-> >> -	/* XXX: get info about file, etc., here */
-> >> +	ols = openlockstateid(st);
-> >> +	oo = ols->st_stateowner;
-> >> +	nf = st->sc_file;
-> >> +	file = find_any_file(nf);
-> 
-> Is there a matching fput() missing somewhere, or did I just not see it...?
+>     https://bugs.busybox.net/show_bug.cgi?id=11811
 
-Oops, fixed.
+ It always uses in-tree libs to compile in-tree utilities. 
 
-> >> +	inode = d_inode(file->f_path.dentry);
-> >> +
-> >> +	seq_printf(s, STATEID_FMT, STATEID_VAL(&st->sc_stateid));
-> >
-> > Should we match the byte order printed with what wireshark/tshark sees?
-> 
-> ^^ +1
+ Anyway, all external dependencies are optional. For example you can
+ compile lsblk without udev. It's also possible to specify wanted stuff, 
+ for example:
 
-Yeah, I agree, I'm changing that to just be a "%16phN", which should
-give us what wireshark does.
+     ./configure --disable-all-programs --enable-libmount \
+                 --enable-libblkid --enable-libuuid
 
-Thanks for the review!
+ to compile only libs.
 
---b.
+ The best way is probably do it in two steps, in the first step
+ without dependencies, and in the second step rebuild all with
+ dependencies. For example:
+
+ stage 1:
+    ./configure  --without-ncurses --without-tinfo \
+                 --without-python --without-systemd \
+                 --without-udev
+
+    make install
+
+    ... compile udev, install libudev ... 
+
+ stage 2:
+    ./configure
+    make install
+
+
+ If I good remember distro bootstrap with util-linux is nothing unique
+ and it's used by Fedora, Suse, linuxfromscratch.org, ...
+
+
+ IMHO distro bootstrap is very special situation. For regular updates
+ is probably better to build util-linux in build root where are
+ already installed all dependencies (e.g. libudev) from previous
+ versions.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
