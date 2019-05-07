@@ -1,73 +1,123 @@
-Return-Path: <SRS0=4c2G=TG=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=IkIy=TH=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS autolearn=ham
+X-Spam-Status: No, score=-5.4 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F1D1C04A6B
-	for <util-linux@archiver.kernel.org>; Mon,  6 May 2019 13:23:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 451A0C04A6B
+	for <util-linux@archiver.kernel.org>; Tue,  7 May 2019 01:02:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5294B206A3
-	for <util-linux@archiver.kernel.org>; Mon,  6 May 2019 13:23:05 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YOV73052"
+	by mail.kernel.org (Postfix) with ESMTP id 12CFB206BF
+	for <util-linux@archiver.kernel.org>; Tue,  7 May 2019 01:02:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726303AbfEFNXE (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 6 May 2019 09:23:04 -0400
-Received: from mail-wm1-f54.google.com ([209.85.128.54]:54093 "EHLO
-        mail-wm1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725994AbfEFNXD (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 6 May 2019 09:23:03 -0400
-Received: by mail-wm1-f54.google.com with SMTP id q15so15740374wmf.3
-        for <util-linux@vger.kernel.org>; Mon, 06 May 2019 06:23:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=tDFA64rtx/3t8cfV1trpEBrIIW00rrfmMSvVl+UlW2E=;
-        b=YOV730524GO1Vz6nF8aRdwJ8fA7lPqoo8/gS1WH8f/2tPyc4LlGQ7WRnzrInpBYD6J
-         PJbFieOsSZNegSWuEtG/48K9jTKo4WXsVAm9/Ihwo+YkBVZBXnUTz5FYkwGpc7eLvKLi
-         0uyVW5qqevV8znwFCBFsbIMVuOs4JtYsFpknW4p6SA+AqN4Y/rAb39Ph8JAO4v2QlDLL
-         OqvbedIfeBjNccBcGYdikVs0pwXcZoiccrmg9r60MJoGqEkOz+zW26AoIO82VNp4rJib
-         3R21yfcG+wdQE9YaZ3LMVAJN0C41P+5PNxbRD9aff23HgqjWnfptDr0jvnX+3HfYjbwh
-         DUrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=tDFA64rtx/3t8cfV1trpEBrIIW00rrfmMSvVl+UlW2E=;
-        b=ddJJqbvX7piLC1n/RH/TKtVtaMJ425Ud5DO1CNWCG2LenvrgrVFahTOGDEta5SBEsO
-         j7BnDk02yC3KKqGJKq5I2N9sE0UsqTUY0FC3GZ2llINm3dueGuZRp9OgEs8MpES5Q7NA
-         W9sBc77X20UlO7as8KFSIj8l8vj6wKpi75D/q5xJ8I4JVB3kw+R/pDYwzTxRUEMPgKK8
-         4yW6rVe69JuiPQ87OMspd8z19geQjL+7wF5EPpa5+R2hYt2Ca657YDMrO0iJba6s7cMO
-         5YdJwjxGh4KVmBRdwKmBj/AtSCWFJ7QBnrrNYZQS78qZ5zEyve1TCQoH4I92Z1YR9FpX
-         Y8fA==
-X-Gm-Message-State: APjAAAUELt6PDfa8vbmC2UsiEmAstOAaKwbcEEEiiVqht5KjgA2UA2kk
-        8phplcwzSfT5JXAAtc3IVjhzLlblYquVSYEEJvO3sg75Wks=
-X-Google-Smtp-Source: APXvYqwfVTkBH5F3Yt3DOW/lEY4GDt2Z36Vnve/ad45JGIXhlIQ0pTVzWBGNkZ+CGeH1n0oDpf3cDBcaVGQ6PEV8K/c=
-X-Received: by 2002:a1c:6342:: with SMTP id x63mr16756136wmb.58.1557148981935;
- Mon, 06 May 2019 06:23:01 -0700 (PDT)
+        id S1726282AbfEGBCn (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 6 May 2019 21:02:43 -0400
+Received: from fieldses.org ([173.255.197.46]:58610 "EHLO fieldses.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726073AbfEGBCn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 6 May 2019 21:02:43 -0400
+Received: by fieldses.org (Postfix, from userid 2815)
+        id A6D24C57; Mon,  6 May 2019 21:02:42 -0400 (EDT)
+Date:   Mon, 6 May 2019 21:02:42 -0400
+To:     Andrew W Elble <aweits@rit.edu>
+Cc:     Benjamin Coddington <bcodding@redhat.com>,
+        "J. Bruce Fields" <bfields@redhat.com>, linux-nfs@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, abe@purdue.edu,
+        lsof-l@lists.purdue.edu, util-linux@vger.kernel.org,
+        jlayton@redhat.com
+Subject: Re: [PATCH 09/10] nfsd: expose some more information about NFSv4
+ opens
+Message-ID: <20190507010242.GB4835@fieldses.org>
+References: <1556201060-7947-1-git-send-email-bfields@redhat.com>
+ <1556201060-7947-10-git-send-email-bfields@redhat.com>
+ <786E0C83-A22D-461A-A9D1-AF7B42018CE9@redhat.com>
+ <m2k1f8hmr5.fsf@discipline.rit.edu>
 MIME-Version: 1.0
-From:   "Carlos A. M. dos Santos" <unixmania@gmail.com>
-Date:   Mon, 6 May 2019 10:22:51 -0300
-Message-ID: <CAJ4jsae=RUFEX2+2+8YG_tspTzqghMgupMfT_adYnG9b_xUVxg@mail.gmail.com>
-Subject: Building util-linux libraries and utilities as separated operations
-To:     util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m2k1f8hmr5.fsf@discipline.rit.edu>
+User-Agent: Mutt/1.5.21 (2010-09-15)
+From:   bfields@fieldses.org (J. Bruce Fields)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hello,
+On Thu, May 02, 2019 at 11:58:06AM -0400, Andrew W Elble wrote:
+> Benjamin Coddington <bcodding@redhat.com> writes:
+> 
+> > On 25 Apr 2019, at 10:04, J. Bruce Fields wrote:
+> >
+> >> From: "J. Bruce Fields" <bfields@redhat.com>
+> >>
+> >> Add open modes, device numbers, inode numbers, and open owners to each
+> >> line of nfsd/clients/#/opens.
+> >>
+> >> Open owners are totally opaque but seem to sometimes have some useful
+> >> ascii strings included, so passing through printable ascii characters
+> >> and escaping the rest seems useful while still being machine-readable.
+> >> ---
+> >>  fs/nfsd/nfs4state.c            | 40
+> >> ++++++++++++++++++++++++++++------
+> >>  fs/nfsd/state.h                |  2 +-
+> >>  fs/seq_file.c                  | 17 +++++++++++++++
+> >>  include/linux/seq_file.h       |  2 ++
+> >>  include/linux/string_helpers.h |  1 +
+> >>  lib/string_helpers.c           |  5 +++--
+> >>  6 files changed, 57 insertions(+), 10 deletions(-)
+> >>
+> >> diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+> >> index 829d1e5440d3..f53621a65e60 100644
+> >> --- a/fs/nfsd/nfs4state.c
+> >> +++ b/fs/nfsd/nfs4state.c
+> >> @@ -42,6 +42,7 @@
+> >>  #include <linux/sunrpc/svcauth_gss.h>
+> >>  #include <linux/sunrpc/addr.h>
+> >>  #include <linux/jhash.h>
+> >> +#include <linux/string_helpers.h>
+> >>  #include "xdr4.h"
+> >>  #include "xdr4cb.h"
+> >>  #include "vfs.h"
+> >> @@ -2261,16 +2262,41 @@ static void opens_stop(struct seq_file *s,
+> >> void *v)
+> >>  static int opens_show(struct seq_file *s, void *v)
+> >>  {
+> >>  	struct nfs4_stid *st = v;
+> >> -	struct nfs4_ol_stateid *os;
+> >> -	u64 stateid;
+> >> +	struct nfs4_ol_stateid *ols;
+> >> +	struct nfs4_file *nf;
+> >> +	struct file *file;
+> >> +	struct inode *inode;
+> >> +	struct nfs4_stateowner *oo;
+> >> +	unsigned int access, deny;
+> >>
+> >>  	if (st->sc_type != NFS4_OPEN_STID)
+> >>  		return 0; /* XXX: or SEQ_SKIP? */
+> >> -	os = openlockstateid(st);
+> >> -	/* XXX: get info about file, etc., here */
+> >> +	ols = openlockstateid(st);
+> >> +	oo = ols->st_stateowner;
+> >> +	nf = st->sc_file;
+> >> +	file = find_any_file(nf);
+> 
+> Is there a matching fput() missing somewhere, or did I just not see it...?
 
-Would it be possible to build/install the libraries first and the
-utilities later, using the previously installed libraries? That would
-help to solve a chicken-egg problem between lsblk, and libudev, as
-described in
+Oops, fixed.
 
-    https://bugs.busybox.net/show_bug.cgi?id=11811
+> >> +	inode = d_inode(file->f_path.dentry);
+> >> +
+> >> +	seq_printf(s, STATEID_FMT, STATEID_VAL(&st->sc_stateid));
+> >
+> > Should we match the byte order printed with what wireshark/tshark sees?
+> 
+> ^^ +1
 
----
-Carlos Santos <unixmania@gmail.com>
+Yeah, I agree, I'm changing that to just be a "%16phN", which should
+give us what wireshark does.
+
+Thanks for the review!
+
+--b.
