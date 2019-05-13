@@ -1,128 +1,115 @@
-Return-Path: <SRS0=IkIy=TH=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=wrJr=TN=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73EA2C004C9
-	for <util-linux@archiver.kernel.org>; Tue,  7 May 2019 12:55:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF9D4C04AB1
+	for <util-linux@archiver.kernel.org>; Mon, 13 May 2019 05:33:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 41B9420578
-	for <util-linux@archiver.kernel.org>; Tue,  7 May 2019 12:55:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AEE71208C3
+	for <util-linux@archiver.kernel.org>; Mon, 13 May 2019 05:33:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rmhe/K8d"
+	dkim=pass (2048-bit key) header.d=themaw.net header.i=@themaw.net header.b="oeh+7yAY";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="XJE78amm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726159AbfEGMzz (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 7 May 2019 08:55:55 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:33537 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726000AbfEGMzz (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 7 May 2019 08:55:55 -0400
-Received: by mail-wr1-f65.google.com with SMTP id e11so9156402wrs.0
-        for <util-linux@vger.kernel.org>; Tue, 07 May 2019 05:55:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=HVffNenMJj6n+ZPRKnuofP1ln7UkLaiMwpx1dUSC4Qc=;
-        b=rmhe/K8dX5A0Xys1HTlgRL0DZh1SoFfkm6S5e6rSQ5QA1YvkTSaWh+wJGBTefnmx4a
-         TIGei782xMPIdE+YqbK+Tb5l67LqrH2Z2VpW99N5vzTtfFShsL0AiLVVyih3X2Sf736A
-         ajHXGYNKKTmdEiE+Qs99sVpVf8QcbUtsGw7u9bYJwUz+mvR/pIAANNPVhZKN6G6J6E2U
-         yGJWVmieIRRqzXKR8tEk3JpkQg6qtio2VEiyfXxUKaLKqhp4653NqEhjzlEJlyKcHnht
-         4EY9F9xdmNFmelzoeOyTBwHqvAI8vvQHbsWXjpWN+sJeApEQLyszhh+gZNa1aBBy0IXU
-         j0Sw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=HVffNenMJj6n+ZPRKnuofP1ln7UkLaiMwpx1dUSC4Qc=;
-        b=jMlbQe6hJxZYNKEww6byD9pSgaZCo/Uk2983/X8nAr8wH8wltbNpbbdojy7R81x3YH
-         mJrnl574uQ8GrfMr0+qFRWytLpuYEe4pTq4UiySYGzRNexUQUX1K2obOJCVsSACgz8aV
-         BTo53aNqS7tXfyd7/li3vGcLYN0V2X+slbGuKuAOTY1KXeuVcTf3FiUL5wrNyOMTJ0vg
-         aNnrkk1t8ZwmtjZkHjm5zSc2LfEwbHtxuHJJTGZPdCofz8UkKVywzVIJpXPStbpZh5bz
-         8wkV4nGqA157+jsJiBmrehUs+2HmuSD2Zv5ZP+1L7wjjzq1jT+6e3ZCHITdO+d6EyMSR
-         0t0g==
-X-Gm-Message-State: APjAAAVEWiRKFrvIa2lDyEj6S/8aZax8N25d0iq1WpmkxcrjHWbunk3m
-        JxtYGDMKMVakLwQxR6SdeibPsUATpkm0RzK4ths=
-X-Google-Smtp-Source: APXvYqxJbVPv+hwQJd0r5QaI8VitQQesAdYc3GKBwHSTlw5ZXFObkoa5Ay5omDRBzJSaeM7hd22Yo9xJ3Roo1SyUFN4=
-X-Received: by 2002:a5d:4d51:: with SMTP id a17mr4203494wru.260.1557233753701;
- Tue, 07 May 2019 05:55:53 -0700 (PDT)
-MIME-Version: 1.0
-References: <CAJ4jsae=RUFEX2+2+8YG_tspTzqghMgupMfT_adYnG9b_xUVxg@mail.gmail.com>
- <20190507103055.lqamhi3qbbp4er7l@ws.net.home>
-In-Reply-To: <20190507103055.lqamhi3qbbp4er7l@ws.net.home>
-From:   "Carlos A. M. dos Santos" <unixmania@gmail.com>
-Date:   Tue, 7 May 2019 09:55:42 -0300
-Message-ID: <CAJ4jsacmP4e4EpnXSPL_C0Zd7GuwJvyrTqmPeirukDAYW7L5ow@mail.gmail.com>
-Subject: Re: Building util-linux libraries and utilities as separated operations
-To:     Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org
+        id S1727499AbfEMFd2 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 13 May 2019 01:33:28 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:41775 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725866AbfEMFd2 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Mon, 13 May 2019 01:33:28 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 04F8321385
+        for <util-linux@vger.kernel.org>; Mon, 13 May 2019 01:33:27 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 13 May 2019 01:33:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=themaw.net; h=
+        message-id:subject:from:to:date:content-type:mime-version
+        :content-transfer-encoding; s=fm3; bh=OG8ffOVAtRaq4du8nL045kraU1
+        hWt9T/GS2gp1qiVSI=; b=oeh+7yAYO0uj6Kj1OjBbjZeo+4l8M4fOOUbuJum3Mr
+        mMisl3F8yeZ/mTjmAX2ufrEfI4stcJG0lbVqJJE7OyieOtWeKyguTNHxFhzr+Kd3
+        b4wGikGlY3WR4ZTPx2/bB/wqMS4hLHA0tigBln/dvJoF1bYh75qfoswIUsZ1ObaR
+        0vLQj19zZZKLwQpCzmn781hbcQRIwU4HX8Ij1Z1iUvVUi+dJAZ4JrsZNWf51zQZt
+        eLP2K5apdPVZ78utlCQlqSKN5pRoQv5nTHTBH2pXD1NZTiLHbcR377t1xV6LsueL
+        iXeZ8DqwYryLPnVS7HEa2IwrRcbckLBqKllvuEuTGRZg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=OG8ffO
+        VAtRaq4du8nL045kraU1hWt9T/GS2gp1qiVSI=; b=XJE78ammmFRop5FnoZf5o9
+        1XXyGsBj8JAvL28CR1vyE8XXiNbc8znyINViYrfPAi1HdsbNCOaYBVXvkrIWOz2N
+        FGJ7L/qBEMhgIOVZOfoI3nMpMYdq9jPTDLjA7KY6LY+gd86ocVpwjpMRKkGmkjUw
+        06RDa44Mf7l0rTdkmfnhXubT1/gghSEQTjx6xiUPuC7rHr4lMvger0hn66Nkg80J
+        IxxtoBbKpZzyzxPJtJQdViBapebSDLLJ1wTwBtb3zYMX+LTc8KY2Is3nd0Qi8ZwF
+        Iv2yYKRWlHQ/6bS7qteau53BHuMgl7AqhJOXjjGimMubrC4RLAgf3k0Tnf66W+Yw
+        ==
+X-ME-Sender: <xms:pgHZXDOvFgnHyAfxUgMDxBWfMWiQi4fpjdrD5KkymM9-EdljtK5fWQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrleefgdelgecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepkffuhffvffgtofgggfesthejredtre
+    dtjeenucfhrhhomhepkfgrnhcumfgvnhhtuceorhgrvhgvnhesthhhvghmrgifrdhnvght
+    qeenucfkphepuddukedrvddtkedrheeirdduuddvnecurfgrrhgrmhepmhgrihhlfhhroh
+    hmpehrrghvvghnsehthhgvmhgrfidrnhgvthenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:pgHZXDN0Ewxt9T9Z6MCOobroea7FuS4sOMmVmGyn7vqNapj6n_VrrQ>
+    <xmx:pgHZXD_rRdBzxTtJ07dUTg2x2nalomVp8L7UzkubwmRMjOcX-_yayg>
+    <xmx:pgHZXP65fDPgdvaTCasM1hUsymTyqwHZ0CDAc6S4Zs7KPI_J6_8TNw>
+    <xmx:pgHZXM0ORvCsRJE1D0OK4LpTC6b4GO-YcM8xBPra8oC7s7h8rgUjiQ>
+Received: from pluto.themaw.net (unknown [118.208.56.112])
+        by mail.messagingengine.com (Postfix) with ESMTPA id CB7B610323
+        for <util-linux@vger.kernel.org>; Mon, 13 May 2019 01:33:25 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])
+        by pluto.themaw.net (Postfix) with ESMTP id 584731C0038
+        for <util-linux@vger.kernel.org>; Mon, 13 May 2019 13:33:22 +0800 (AWST)
+Message-ID: <6f811f1739162f229e25ed0755e2eb45a76f4c41.camel@themaw.net>
+Subject: Using the upcoming fsinfo()
+From:   Ian Kent <raven@themaw.net>
+To:     util-linux@vger.kernel.org
+Date:   Mon, 13 May 2019 13:33:22 +0800
 Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-2.fc28) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Tue, May 7, 2019 at 7:31 AM Karel Zak <kzak@redhat.com> wrote:
->
-> On Mon, May 06, 2019 at 10:22:51AM -0300, Carlos A. M. dos Santos wrote:
-> > Would it be possible to build/install the libraries first and the
-> > utilities later, using the previously installed libraries? That would
-> > help to solve a chicken-egg problem between lsblk, and libudev, as
-> > described in
-> >
-> >     https://bugs.busybox.net/show_bug.cgi?id=11811
->
->  It always uses in-tree libs to compile in-tree utilities.
->
->  Anyway, all external dependencies are optional. For example you can
->  compile lsblk without udev. It's also possible to specify wanted stuff,
->  for example:
->
->      ./configure --disable-all-programs --enable-libmount \
->                  --enable-libblkid --enable-libuuid
->
->  to compile only libs.
->
->  The best way is probably do it in two steps, in the first step
->  without dependencies, and in the second step rebuild all with
->  dependencies. For example:
->
->  stage 1:
->     ./configure  --without-ncurses --without-tinfo \
->                  --without-python --without-systemd \
->                  --without-udev
->
->     make install
->
->     ... compile udev, install libudev ...
->
->  stage 2:
->     ./configure
->     make install
+Hi all,
 
-This works but the libraries are build and installed twice, which is
-undesirable. Is there a way to skip the library installation in the
-second step?
+Some of you may know that David Howells is working on getting
+a new system call fsinfo() merged into the Linux kernel.
 
->
->  If I good remember distro bootstrap with util-linux is nothing unique
->  and it's used by Fedora, Suse, linuxfromscratch.org, ...
->
->
->  IMHO distro bootstrap is very special situation. For regular updates
->  is probably better to build util-linux in build root where are
->  already installed all dependencies (e.g. libudev) from previous
->  versions.
->
->     Karel
->
-> --
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
+This system call will provide access to information about mounted
+mounts without having to read and parse file based mount tables
+such as /proc/self/mountinfo, etc.
 
--- 
-Carlos Santos <unixmania@gmail.com>
+Essentially all mounts have an id and one can get the id of a
+mount by it's path and then use that to obtain a large range
+of information about it.
+
+The information can include a list of mounts within the mount
+which can be used to traverse a tree of mounts or the id used
+to lookup information on an individual mount without the need
+to traverse a file based mount table.
+
+I'd like to update libmount to use the fsinfo() system call
+because I believe using file based methods to get mount
+information introduces significant overhead that can be
+avoided. 
+
+Because the fsinfo() system call provides a very different way
+to get information
+about mounts, and having looked at the current
+code, I'm wondering what will be
+the best way to go about it.
+
+Any suggestions about the way this could best be done, given
+that the existing methods must still work, will be very much
+appreciated.
+
+Ian
+
