@@ -2,71 +2,144 @@ Return-Path: <SRS0=wrJr=TN=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_NEOMUTT autolearn=ham
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D464C04AA7
-	for <util-linux@archiver.kernel.org>; Mon, 13 May 2019 15:34:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48C64C04AA7
+	for <util-linux@archiver.kernel.org>; Mon, 13 May 2019 16:04:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 397722084F
-	for <util-linux@archiver.kernel.org>; Mon, 13 May 2019 15:34:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 15EBD2084E
+	for <util-linux@archiver.kernel.org>; Mon, 13 May 2019 16:04:54 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iVI3QuOv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731381AbfEMPei (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 13 May 2019 11:34:38 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:42862 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731380AbfEMPei (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 13 May 2019 11:34:38 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 669F5D217F;
-        Mon, 13 May 2019 15:34:38 +0000 (UTC)
-Received: from ws.net.home (unknown [10.40.205.130])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9A50C60856;
-        Mon, 13 May 2019 15:34:36 +0000 (UTC)
-Date:   Mon, 13 May 2019 17:34:33 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     Nikolay Borisov <nborisov@suse.com>
+        id S1730430AbfEMQEx (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 13 May 2019 12:04:53 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:44964 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729629AbfEMQEx (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 13 May 2019 12:04:53 -0400
+Received: by mail-ot1-f65.google.com with SMTP id g18so12023565otj.11
+        for <util-linux@vger.kernel.org>; Mon, 13 May 2019 09:04:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=f7tXtr5+q2lkwFNW9YXOJ3pGMtAU1IthzbY20cD0NWg=;
+        b=iVI3QuOvN+4WK+P8dbCq+ocGpYifTPafL+3g64rzHZK0hw5tjp4LuA9hn2JFzvyJFl
+         JMiEpiPLcQpPgUjg6/JB0azzpsbgqJNKsHTClr7gg0BqfU1aWmI0HAOo2jroBm7sxz1N
+         RbUj5cRuKWXkeYtHOtftmR4CbSi8JWoa0Jidhm6yosGBmYbyjrd64TgY2/ZWVm+Fsph4
+         tt3tgrt/fMzyDD8COKAPSNmwEGGfy2eG/veP1+ssbGaQ+US94eR0ilCHhwbJ+Kz/FFGE
+         MyROVxfYjB/SiCXBC/Mw+QIIBARjLOppBv+G8NWKiaueb7FSuljf+DBLcTC54VVddZP5
+         CMmA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=f7tXtr5+q2lkwFNW9YXOJ3pGMtAU1IthzbY20cD0NWg=;
+        b=fbqfrwFjK4Qja5TjZxWOrJNHsr/hIwL3YFHeeqJ+RPluliwSWAhdiSWOF+bJg2QhTq
+         GKmRApdb8F3vjJCTr6/f2U5YDLej3p0CyZrsyPB9Y6nk4n9D9UF7EhjJw4LCfogOmxhw
+         5EPkv0BAqGSoIK5bkbvUnslybZavTVhKYx7skWz9LpkqoenqQ1zicetARGisNmp/c13S
+         uusu+KF1qKR/EqsoaJyktXpypJ70/JT0pja+wTZ4XiZn7py5dp0mvSvA7VHvSa1wLUoN
+         0vd50tQL4FGlCFLy2ZSocMLYYNKenwwK/SuKIa3F4lNeAZ4kpQsZskowLYxgpAbEV1UT
+         qh3w==
+X-Gm-Message-State: APjAAAXo+9bt2WuItzgkkcxqq1Dzea+ob00NtPSF3aVi2aH8uUWkAlPF
+        1gL5SGS0i+7fDREtNT8LB/x4PEh+
+X-Google-Smtp-Source: APXvYqzpsClqhecAJ6ga5el4g4Fh/HC6jt6z/PaQO5kuofIlwRdj/Utt7+OFHY1u0gawkJoAQynyuA==
+X-Received: by 2002:a9d:3f05:: with SMTP id m5mr17859712otc.59.1557763492394;
+        Mon, 13 May 2019 09:04:52 -0700 (PDT)
+Received: from [192.168.0.84] (cpe-70-123-227-116.satx.res.rr.com. [70.123.227.116])
+        by smtp.gmail.com with ESMTPSA id q9sm3802912otf.1.2019.05.13.09.04.51
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Mon, 13 May 2019 09:04:51 -0700 (PDT)
+Subject: Re: Using the upcoming fsinfo()
+To:     Karel Zak <kzak@redhat.com>, Ian Kent <raven@themaw.net>
 Cc:     util-linux@vger.kernel.org
-Subject: Re: [PATCH V2 2/2] libblkid: Set BLKID_BID_FL_VERIFIED in case
- revalidation is not needed
-Message-ID: <20190513153433.ozpywsud2f2qtasj@ws.net.home>
-References: <20190513124418.24157-1-nborisov@suse.com>
- <20190513124418.24157-2-nborisov@suse.com>
- <7901c2a7-f8c8-9e39-efb1-62ecd7fe74e2@suse.com>
+References: <6f811f1739162f229e25ed0755e2eb45a76f4c41.camel@themaw.net>
+ <20190513090823.2qys6sv4tspbr3b2@ws.net.home>
+From:   Bruce Dubbs <bruce.dubbs@gmail.com>
+Message-ID: <75f27b68-52ff-7f6b-b031-0637ba04df2f@gmail.com>
+Date:   Mon, 13 May 2019 11:04:50 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.5.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7901c2a7-f8c8-9e39-efb1-62ecd7fe74e2@suse.com>
-User-Agent: NeoMutt/20180716-1584-710bcd
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.38]); Mon, 13 May 2019 15:34:38 +0000 (UTC)
+In-Reply-To: <20190513090823.2qys6sv4tspbr3b2@ws.net.home>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Mon, May 13, 2019 at 05:21:33PM +0300, Nikolay Borisov wrote:
-> >  	    (diff < BLKID_PROBE_MIN ||
-> > -		dev->bid_flags & BLKID_BID_FL_VERIFIED))
-> > +		dev->bid_flags & BLKID_BID_FL_VERIFIED)) {
-> > +		dev->bid_flags |= BLKID_BID_FL_VERIFIED;
+On 5/13/19 4:08 AM, Karel Zak wrote:
+> On Mon, May 13, 2019 at 01:33:22PM +0800, Ian Kent wrote:
+>> Some of you may know that David Howells is working on getting
+>> a new system call fsinfo() merged into the Linux kernel.
+>>
+>> This system call will provide access to information about mounted
+>> mounts without having to read and parse file based mount tables
+>> such as /proc/self/mountinfo, etc.
+>>
+>> Essentially all mounts have an id and one can get the id of a
+>> mount by it's path and then use that to obtain a large range
+>> of information about it.
+>>
+>> The information can include a list of mounts within the mount
+>> which can be used to traverse a tree of mounts or the id used
+>> to lookup information on an individual mount without the need
+>> to traverse a file based mount table.
+>>
+>> I'd like to update libmount to use the fsinfo() system call
+>> because I believe using file based methods to get mount
+>> information introduces significant overhead that can be
+>> avoided.
+>>
+>> Because the fsinfo() system call provides a very different way
+>> to get information
+>> about mounts, and having looked at the current
+>> code, I'm wondering what will be
+>> the best way to go about it.
+>>
+>> Any suggestions about the way this could best be done, given
+>> that the existing methods must still work, will be very much
+>> appreciated.
 > 
-> Actually I think this patch is wrong because the check for
-> dev->bid_flags & BLKID_BID_FL_VERIFIED should also be removed. E.g.
-> BID_FL_VERIFIED should be set but check should be only diff <
-> BLKID_PROBE_MIN. Otherwise if once this flag is set either due to proper
-> revalidation or because not enough time has elapsed then it will never
-> be reset, because the device will never be freed.
+> It would be nice to start with some low-level things to read info
+> about a target (mountpoint) into libmnt_fs, something like:
+> 
+>      int mnt_fsinfo_fill_fs(chat char *tgt, struct libmnt_fs *fs)
+> 
+> and fill create a complete mount table by fsinfo():
+> 
+>      int mnt_fsinfo_fill_table(struct libmnt_table *tab)
+> 
+> ... probably add fsinfo.c to code to keep it all together.
+> 
+> So, after then we can use these functions in our code.
+> 
+> The nice place where is ugly overhead with the current mountinfo is
+> context_umount.c code, see lookup_umount_fs() and
+> mnt_context_find_umount_fs(). In this code we have mountpoint and we
+> need more information about it (due to redirection to umount.<type>
+> helpers, userspace mount options, etc.). It sounds like ideal to use
+> mnt_fsinfo_fill_fs() if possible.
+> 
+> The most visible change will be to use mnt_fsinfo_fill_table() with in
+> mnt_table_parse_file() if the file name is "/proc/self/mountinfo".
+> This will be huge improvement as we use this function in systemd on
+> each mount table change...
+> 
+> The question is how easily will be to replace mountinfo with fsinfo().
 
-Yes, we have only one time limit there (after your first patch) than
-we don't need to differentiate between in-memory and from-cache. It
-should be enough to check for the time and set the flag.
+I may be stating the obvious, but this proposal does not appear to 
+simplify anything because it is kernel version dependent.  From what I 
+understand, the new and old methods will both need to be supported for 
+quite some time.
 
-    Karel
+I'm not suggesting that the changes not be made, but I suggest going slow.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+   -- Bruce
