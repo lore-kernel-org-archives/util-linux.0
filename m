@@ -2,210 +2,91 @@ Return-Path: <SRS0=XXA/=TQ=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 887B7C04E53
-	for <util-linux@archiver.kernel.org>; Thu, 16 May 2019 01:46:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B105C04E87
+	for <util-linux@archiver.kernel.org>; Thu, 16 May 2019 01:48:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3216120843
-	for <util-linux@archiver.kernel.org>; Thu, 16 May 2019 01:46:33 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=themaw.net header.i=@themaw.net header.b="AZJln6WO";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="ElhLFFMh"
+	by mail.kernel.org (Postfix) with ESMTP id DD6F82087E
+	for <util-linux@archiver.kernel.org>; Thu, 16 May 2019 01:48:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726982AbfEPBqc (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S1726591AbfEPBqc (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Wed, 15 May 2019 21:46:32 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:45915 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726591AbfEPANi (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Wed, 15 May 2019 20:13:38 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 3070E24583;
-        Wed, 15 May 2019 20:13:37 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 15 May 2019 20:13:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=themaw.net; h=
-        message-id:subject:from:to:cc:date:in-reply-to:references
-        :content-type:mime-version:content-transfer-encoding; s=fm3; bh=
-        CVBFKsiQjRokhVbV6TYhX7XuLQuywPcf3zEepqX/ME4=; b=AZJln6WOdDqYq8gs
-        +kiFewbi0xAqVKtKDATEV9CRoRh0pFjajiVb2Ur9N7yMQEGnXJX4qGylUqj2fX/D
-        mBDONB1yIYrrBzQ3P/5eKOFlUqPicT5jj/+8Dk5xVfujHNRZSZyIgnCAj8k/Z4AO
-        170E5C1hszunnc+j3ti3mhl/Oz9p/7tIrBt2tduqzHcV0TH8KqI8Uzf1onqmbXwg
-        ehWdMoCmwfYfrGgT0KDnPM/i6qApJyFoCR+/kYyUTuBeseujCf2qzO/IrZwgGsjW
-        hxxDA14q3eKMAM6BkIFIXuHYV7+R92MRQtln3kipVI2u3m/mxElOsTLg/ItH+ckJ
-        mOyh0Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; bh=CVBFKsiQjRokhVbV6TYhX7XuLQuywPcf3zEepqX/M
-        E4=; b=ElhLFFMhSyqnPTFLU4IbfT9la40Nrx2hlYILW9xwy82d5wEtgeAMlihaZ
-        k5QSoqlAMb9AmM08u414MFmc+6eX8spfkFf3yiGqN7IxU9fquy7OMG93nydEfzAi
-        TJYcxecp3r/nYSuzWwZz2LdMN0F6JEew858RdP0DrmQzB3bUK6gtWmXfnuh7Esjr
-        MIiK44c2Lz2hIb6dMchVpkmR1pFdDjm7ECtgqUmD70UPEW+YECws8vUTGhjnBXam
-        KJUahJ5eG8mRDm+Kq4OtQ3Y3/PHJpIoG9wiEoTUPN098m0wclPyE5XKv5k/CXTHU
-        UeTWUHXt3RTT3oCjW/lG6TugpqgnA==
-X-ME-Sender: <xms:MKvcXC8IvPohgHvSSETGuyrueEM7ET2nPnBXX4DrJqKHM4p1f0xj5g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrleelgdeftdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefkuffhvfffjghftgfoggfgsehtjeertdertdejnecuhfhrohhmpefkrghnucfm
-    vghnthcuoehrrghvvghnsehthhgvmhgrfidrnhgvtheqnecukfhppeduudekrddvtdekrd
-    ehiedrudduvdenucfrrghrrghmpehmrghilhhfrhhomheprhgrvhgvnhesthhhvghmrgif
-    rdhnvghtnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:MKvcXBLHLlFa-qtYorGF1ncIX4euRSGLzniMDRuIEcgm-8fOX4rB5g>
-    <xmx:MKvcXPJ1ybd6Q7T4pTWjs3UymdhkYW-27Uc59KgQG-cyXdfCnngHjQ>
-    <xmx:MKvcXOBYEYp_8HsfUrmjBe6ey2YdAUem6cXfuX4BDSxH7skblekUAw>
-    <xmx:MavcXCf0orD-i5zQsM_vtQP5eU-IZZDHCI7RxE24Zm4qRhYGzG-mBA>
-Received: from pluto.themaw.net (unknown [118.208.56.112])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2F3F380059;
-        Wed, 15 May 2019 20:13:36 -0400 (EDT)
-Received: from localhost (localhost [127.0.0.1])
-        by pluto.themaw.net (Postfix) with ESMTP id 9290B1C012F;
-        Thu, 16 May 2019 08:13:32 +0800 (AWST)
-Message-ID: <c6baaf226834e7238807fa469335c79eeadb4f34.camel@themaw.net>
-Subject: Re: Using the upcoming fsinfo()
-From:   Ian Kent <raven@themaw.net>
-To:     Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org
-Date:   Thu, 16 May 2019 08:13:32 +0800
-In-Reply-To: <20190515114538.bgtfh6rudcyvrmn2@ws.net.home>
-References: <6f811f1739162f229e25ed0755e2eb45a76f4c41.camel@themaw.net>
-         <20190513090823.2qys6sv4tspbr3b2@ws.net.home>
-         <466a727a4f4a51c3ad953d2151c9ef19a2259d69.camel@themaw.net>
-         <20190515114538.bgtfh6rudcyvrmn2@ws.net.home>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-2.fc28) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Received: from fieldses.org ([173.255.197.46]:33026 "EHLO fieldses.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726422AbfEPAke (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 15 May 2019 20:40:34 -0400
+Received: by fieldses.org (Postfix, from userid 2815)
+        id CC88DBCE; Wed, 15 May 2019 20:40:32 -0400 (EDT)
+Date:   Wed, 15 May 2019 20:40:32 -0400
+From:   "J. Bruce Fields" <bfields@fieldses.org>
+To:     Andreas Dilger <adilger@dilger.ca>
+Cc:     Jeff Layton <jlayton@redhat.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        linux-nfs <linux-nfs@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org, abe@purdue.edu,
+        lsof-l@lists.purdue.edu, util-linux@vger.kernel.org
+Subject: Re: [PATCH 08/10] nfsd4: add file to display list of client's opens
+Message-ID: <20190516004032.GA16284@fieldses.org>
+References: <1556201060-7947-1-git-send-email-bfields@redhat.com>
+ <1556201060-7947-9-git-send-email-bfields@redhat.com>
+ <d26e7611f4e610bff81a16abbb88ca1c5ed70c91.camel@redhat.com>
+ <20190425201413.GB9889@fieldses.org>
+ <7F460FEA-BD69-4559-926C-5C1B0CF90E3C@dilger.ca>
+ <20190426011804.GA12457@fieldses.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190426011804.GA12457@fieldses.org>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, 2019-05-15 at 13:45 +0200, Karel Zak wrote:
-> On Tue, May 14, 2019 at 08:23:02AM +0800, Ian Kent wrote:
-> > On Mon, 2019-05-13 at 11:08 +0200, Karel Zak wrote:
-> > > The nice place where is ugly overhead with the current mountinfo is
-> > > context_umount.c code, see lookup_umount_fs() and
-> > > mnt_context_find_umount_fs(). In this code we have mountpoint and we
-> > > need more information about it (due to redirection to umount.<type>
-> > > helpers, userspace mount options, etc.). It sounds like ideal to use
-> > > mnt_fsinfo_fill_fs() if possible.
-> > 
-> > That sounds like an ideal opportunity for improvement by using
-> > fsinfo(). I'll look there too.
-> 
-> Yes.
-> 
-> > > The most visible change will be to use mnt_fsinfo_fill_table() with in
-> > > mnt_table_parse_file() if the file name is "/proc/self/mountinfo".
-> > > This will be huge improvement as we use this function in systemd on
-> > > each mount table change...
+On Thu, Apr 25, 2019 at 09:18:04PM -0400, J. Bruce Fields wrote:
+> On Thu, Apr 25, 2019 at 11:14:23PM +0200, Andreas Dilger wrote:
+> > On Apr 25, 2019, at 10:14 PM, J. Bruce Fields <bfields@fieldses.org> wrote:
 > > > 
-> > > The question is how easily will be to replace mountinfo with fsinfo().
-> 
-> Now when I think about it I'm not sure if create complete mount table
-> by fsinfo() is the right way. Maybe many fsinfo() calls will be more
-> slow than generate mountinfo file in kernel and read() in userspace.
-> Not sure.
-
-I'm not sure about the comparison in overhead of this either.
-
-But it's something that needs to be done to get familiar with how
-to use fsinfo() and to work out what else needs to be done.
-
-As you know this has already shown that getting file system specific
-options isn't working yet for most file systems and I'll need to
-implement the missing ->fsinfo() super block operation for (at least
-some, probably many) file systems just to continue the work.
-
-There is a slightly less obvious difference using fsinfo() over
-the proc file system to get the whole mount table.
-
-When you open a proc file system mount table the kernel takes locks
-that will prevent (at least) mount, umount and remount actions until
-the proc file is closed.
-
-With fsinfo() the locks need to be taken but at a much finer
-granularity so mount actions can continue in parallel.
-
-There's a price for that locking improvement though, if your trying
-to get a whole consistent mount table you need to check it hasn't
-changed while you read it and if it has you need to start over.
-
-So getting the whole table with fsinfo() will definitely need to be
-evaluated against using the proc file system.
-
-But there's quite a lot of processing that happens when the kernel
-issues proc mount records, the path calculations are quite expensive
-for example, so the difference isn't clear cut.
-
-> 
-> > I've been looking at libmount but I'm not sure I was focusing on
-> > libmnt_fs so I'm not sure yet.
+> > > On Thu, Apr 25, 2019 at 02:04:59PM -0400, Jeff Layton wrote:
+> > >> More bikeshedding: should we have a "states" file instead of an "opens"
+> > >> file and print a different set of output for each stateid type?
+> > > 
+> > > Sure.  The format of the file could be something like
+> > > 
+> > > 	<stateid> open rw -- <openowner>...
+> > > 	<stateid> lock r 0-EOF <lockowner>...
+> > > 	<stateid> deleg r
+> > > 
+> > > I wonder if we could put owners on separate lines and do some
+> > > heirarchical thing to show owner-stateid relationships?  Hm.  That's
+> > > kind of appealing but more work.
 > > 
-> > A large part of doing this early is to find out what's missing
-> > and see if it's possible to update fsinfo().
+> > My suggestion here would be to use YAML-formatted output rather than
+> > space/tab separated positional fields.  That can still be made human
+> > readable, but also machine parseable and extensible if formatted properly.
 > 
-> Yes, it would be really nice if we can get all info from fsinfo(). It
-> opens a new possibilities for us to make things like umount, remount,
-> and systemd more effective.
-
-I think we will be able to but probably not for a while, there's
-quite a bit still to do for fsinfo() by the look of it.
-
-Excessive resource usage of systemd is one of the main motivations
-for me doing this so improving that is at the top of the priority
-list for me.
-
+> Well, anything we do will be machine-parseable.  But I can believe YAML
+> would make future extension easier.  It doesn't look like it would be
+> more complicated to generate.  It uses C-style escaping (like \x32) so
+> there'd be no change to how we format binary blobs.
 > 
-> > For example, the devanme in mountinfo which can be different to
-> > the devname returned by fsinfo(), David has said it's not straight
-> > forward to change but at least he's aware of it and thinking about
-> > it.
-> 
-> Do you mean "source" field (9th column in mountinfo)? The device is
-> defined by maj:min (3rd column) in the file (well, whatever the devno
-> means for things like btrfs;-).
+> The field names make it a tad more verbose but I guess it's not too bad.
 
-I do.
+OK, I tried changing "opens" to "states" and using YAML.  Example output:
 
-> 
-> The "source" should be unmodified string as specified in userspace for
-> mount(2) syscall, otherwise things like "mount -a" can not compare the
-> kernel mount table with fstab.
+- 0x020000006a5fdc5c4ad09d9e01000000: { type: open, access: rw, deny: --, superblock: "fd:10:13649", owner: "open id:\x00\x00\x00&\x00\x00\x00\x00\x00\x0046��QH " }
+- 0x010000006a5fdc5c4ad09d9e03000000: { type: open, access: r-, deny: --, superblock: "fd:10:13650", owner: "open id:\x00\x00\x00&\x00\x00\x00\x00\x00\x0046��QH" }
+- 0x010000006a5fdc5c4ad09d9e04000000: { type: deleg, access: r, superblock: "fd:10:13650" }
+- 0x010000006a5fdc5c4ad09d9e06000000: { type: lock, superblock: "fd:10:13649", owner: "lock id:\x00\x00\x00&\x00\x00\x00\x00\x00\x00\x00\x00" }
 
-This string isn't always a string value that comes from the mount
-kernel structure, the the proc file system needs to call upon the
-file system to get it in some cases.
+The parser Andreas suggested (https://yaml-online-parser.appspot.com/)
+accepts these.  It also thinks strings are always in a unicode encoding
+of some kind, which they aren't.  The owners are arbitrary series of
+bytes but I'd like at least any ascii parts to be human readable, and
+I'm a little stuck on how to do that.
 
-For example when you see an NFS <server>:<path> in the proc file system
-output.
-
-To get this string the proc file system checks if the file system provides
-a super block operation ->show_devname() and calls it to get the name
-otherwise it copies the string from the mount structure.
-
-As David says, to deal with this it isn't as simple as adding an fsinfo()
-request because there are cases where it can have multiple values.
-
-A similar thing is done for field 4 where, if the file system defines
-a super block operation ->show_path() it will be called to get the
-path, otherwise it's calculated using mount's root. Interestingly NFS
-appears to always return "/" for this from its ->show_path() function.
-
-And, as I mentioned above, there's the needed ->fsinfo() super operation
-to cover the use of the existing ->show_options() operation (provided
-by pretty much all file systems) to get the file system specific options.
-
-So there's quite a bit of detail to be worked out for fsinfo() to be
-able to correctly provide all mount information.
-
-But, hey, that was the point of doing this now.
-
-Ian
-
+--b.
