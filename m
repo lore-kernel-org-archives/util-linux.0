@@ -1,187 +1,213 @@
-Return-Path: <SRS0=E45D=TX=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=zfJU=T5=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07078C282CE
-	for <util-linux@archiver.kernel.org>; Thu, 23 May 2019 01:28:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00BF9C28CC0
+	for <util-linux@archiver.kernel.org>; Wed, 29 May 2019 22:30:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9AF5020B1F
-	for <util-linux@archiver.kernel.org>; Thu, 23 May 2019 01:28:01 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=themaw.net header.i=@themaw.net header.b="HSDUEmm4";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="zy2oojh3"
+	by mail.kernel.org (Postfix) with ESMTP id D00832429E
+	for <util-linux@archiver.kernel.org>; Wed, 29 May 2019 22:30:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728600AbfEWB2B (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 22 May 2019 21:28:01 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:56565 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727305AbfEWB2A (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Wed, 22 May 2019 21:28:00 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 76C0020E15;
-        Wed, 22 May 2019 21:27:59 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 22 May 2019 21:27:59 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=themaw.net; h=
-        message-id:subject:from:to:cc:date:in-reply-to:references
-        :content-type:mime-version:content-transfer-encoding; s=fm3; bh=
-        nhPU2A1ONnILsRGHFBF/CnooJaV7DJUsYsqOJvT2POQ=; b=HSDUEmm4drojrKHT
-        dTb3n9STWg7n3ZY3MkN7IsRs1H0Ax8Ed4UcHadC9s5MdxyNs5FjK3w63y1b913y9
-        q/V4YLgGzjnAepgZBRbR4LK2pVG0DF117Hli2P+YdP29++4d9F0P0ICjm2StRWZw
-        izqpEo4nx7+fsatSu1wohY094DbE+Y7jHcu1SnfP/BRqr8yR3/VtAYXVz+kn+szf
-        sy3zZ8W3wHWPfHmFRV7BdCQZ9K0W8qfKKMzSVhRmvl1k3oUA+vu5swrQQECn20Af
-        lfUxNdFmh3TB2gkvONcOvc1IyX0vIEJRAsbQqCjgNACGhbEQqI2iXyNmNTGdEKqq
-        +YJFXg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; bh=nhPU2A1ONnILsRGHFBF/CnooJaV7DJUsYsqOJvT2P
-        OQ=; b=zy2oojh3X7X4hUnFMfYuiPDqPf67CmaB67/nOkLl8SF0bsOPkUz3SyREh
-        GRRPfeyfIMw/N5ZqemSDzFTsPl9rycvq5sn6o1ejVA0+d+5pIqdq9DFLhxrMxnu7
-        DTDB+9PplIeL6DtqY96W3L/CWXy4N/hVregQkPyRQ/r54MPoJF26I/FhK+sNNHb4
-        Iu1JEFImWKDeDzHuVA5NvhKrvsj5gxNJ7bl1oubqUomEVYnBKQ4/nFHp4SBRFxf/
-        tE4324FNf3lnVTD3wBEofNuqqLHlHrzbSTM3UNrt5ma4QXZJT85nyY1QX3CTVDSZ
-        cNwDbY0lsXGlZDeaBL6WWjc99Y2hA==
-X-ME-Sender: <xms:H_flXG335CCvkcXI0Iv-A6fNjoZagP-FLk0P8tiz2i2R8a6ql3hAfg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddufedggeeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepkffuhffvffgjfhgtofgggfesthekredtredtjeenucfhrhhomhepkfgrnhcu
-    mfgvnhhtuceorhgrvhgvnhesthhhvghmrgifrdhnvghtqeenucfkphepuddukedrvddtle
-    drudejkedrfeehnecurfgrrhgrmhepmhgrihhlfhhrohhmpehrrghvvghnsehthhgvmhgr
-    fidrnhgvthenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:H_flXNCObyRt9BzqJ9s2H2wQQUf3waYVImRSc3IwPL6hXheyejOScw>
-    <xmx:H_flXHbuSw5J3IUKyBP6zlkyv02h1ttvJdy5aURGHp-5wTGrS3pfgg>
-    <xmx:H_flXBadNumtJl7ihh3h8cCO_V7vS8fYXsfwPFkVFFlXHlr4ivKmWg>
-    <xmx:H_flXFNVpEd6gMVg4Ph96gkk4KN26kH_BQFDLKtuJAxhcGMRhnduTg>
-Received: from pluto.themaw.net (unknown [118.209.178.35])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8E1FD380084;
-        Wed, 22 May 2019 21:27:58 -0400 (EDT)
-Received: from localhost (localhost [127.0.0.1])
-        by pluto.themaw.net (Postfix) with ESMTP id E51E31C0050;
-        Thu, 23 May 2019 09:27:54 +0800 (AWST)
-Message-ID: <0fd03768de7481948f435b9a5cd3a8c1e9ec8edb.camel@themaw.net>
-Subject: Re: Using the upcoming fsinfo()
-From:   Ian Kent <raven@themaw.net>
-To:     Karel Zak <kzak@redhat.com>
-Cc:     L A Walsh <lkml@tlinx.org>, util-linux@vger.kernel.org
-Date:   Thu, 23 May 2019 09:27:54 +0800
-In-Reply-To: <20190522135510.cpd2abfddfgmqzhb@ws.net.home>
-References: <6f811f1739162f229e25ed0755e2eb45a76f4c41.camel@themaw.net>
-         <20190513090823.2qys6sv4tspbr3b2@ws.net.home>
-         <466a727a4f4a51c3ad953d2151c9ef19a2259d69.camel@themaw.net>
-         <20190515114538.bgtfh6rudcyvrmn2@ws.net.home>
-         <c6baaf226834e7238807fa469335c79eeadb4f34.camel@themaw.net>
-         <5CE44FA5.9000700@tlinx.org>
-         <17de51282f3c3fafd3e99bff5aeb49d17e70b603.camel@themaw.net>
-         <5CE4CFEF.5020100@tlinx.org>
-         <562668febcf41e61ab2477235ee7ce4610bc1e8d.camel@themaw.net>
-         <20190522135510.cpd2abfddfgmqzhb@ws.net.home>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-3.fc28) 
-Mime-Version: 1.0
+        id S1726240AbfE2WaS (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 29 May 2019 18:30:18 -0400
+Received: from mx2.suse.de ([195.135.220.15]:35162 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726018AbfE2WaS (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 29 May 2019 18:30:18 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 609A7AF86
+        for <util-linux@vger.kernel.org>; Wed, 29 May 2019 22:30:16 +0000 (UTC)
+To:     util-linux@vger.kernel.org
+Cc:     Frederic Crozat <fcrozat@suse.com>
+From:   Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH] raw: Add raw.service
+Openpgp: preference=signencrypt
+Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
+ mQGiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
+ zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
+ 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
+ AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
+ 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
+ NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
+ SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
+ ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSLQsU3RhbmlzbGF2
+ IEJyYWJlYyAoU3VTRSBDUikgPHNicmFiZWNAc3VzZS5jej6IXwQTEQIAHwQLBwMCAxUCAwMW
+ AgECHgECF4AFAlHS/kkFCSE/csAACgkQcXwgn6BPzXZY/gCghbxE4uexFHVP7qho9TDNxGGR
+ xxgAoKCipPrJQrnXKhFG4RDeRcVE0PoBuQENBD6v2YIQBACt62O2lXle2CPxw2LpdT557Rvr
+ UdoYJ1AeLAn1iDy67rDsGumxJxW254x9CKVsU3609PG58gDKSQ7CvHzErtOdz9xsJLfCCxbk
+ 6LsOhBdCWgYs7HV2xYCkUvKSVQGZN95skfv1aSsO6dXzXISXen4KqY5AnFa+pXDAqMJTGLwp
+ GwADBgQAkZ2/zz99L224sNcFgM+6TuGIQ57fNhKJxYG2HbBqh3oBiiZI9224dKLNCv/2aoV8
+ qd9QUMKQCO7kQKkSH7+Ti1KnCyaDi3SoeFcsV4Z99Xb1bN2EBS1C4qohNUbouTsYEG5qsZPe
+ uRDKekFTiilRRVyiXWDt+zY2aNNMknKBACeIRgQYEQIABgUCPq/ZggAKCRBxfCCfoE/Ndi+t
+ AJ958OvQedgG0gsRG1wX/HKXmRZ0dwCfUk0F4qeP5dCiETIHh3gxNIsx8YQ=
+Organization: SUSE Linux, s. r. o.
+Message-ID: <f4c8feb9-2bdc-8a40-7bc1-d24fcd94d0a7@suse.cz>
+Date:   Thu, 30 May 2019 00:30:16 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, 2019-05-22 at 15:55 +0200, Karel Zak wrote:
-> On Wed, May 22, 2019 at 09:14:37PM +0800, Ian Kent wrote:
-> > On Tue, 2019-05-21 at 21:28 -0700, L A Walsh wrote:
-> > > On 2019/05/21 19:59, Ian Kent wrote:
-> > > > I hadn't planned on producing a utility but I do have code that I've
-> > > > been using to learn how to use the call.
-> > > > 
-> > > > I could turn that into a utility for use from scripts at some point.
-> > > >   
-> > > 
-> > > ---
-> > >      not required, but thought it might allow for more types of
-> > > tests/usages.
-> > > If it is really of limited or no benefit, I'm not gonna lose sleep.
-> > > > Avoiding having to parse string output (from the proc file system
-> > > > mount tables) is one of the key reasons to use a system call for
-> > > > this.
-> > > > 
-> > > > So this isn't the point of doing it.
-> > > >   
-> > > 
-> > > I get that....this wasn't intended as an 'endpoint' just a way for those
-> > > not
-> > > implementing and using the calls to get a feel for the call.Ã‚  It may
-> > > not serve
-> > > a useful purpose in this case, but some system calls have direct
-> > > user-utils that
-> > > are very useful.Ã‚  The lack of a system util to manipulate the pty calls
-> > > forced
-> > > me to write a few-line 'C' prog just to make 1 call to approve
-> > > something.Ã‚  Eventually switched to a more robust interface in perl.
-> > 
-> > We will see, I will end up with something that's more or less example
-> > usage anyway.
-> 
-> I'd like to write something like "mountsh" one day. The idea is to
-> have very low-level tool that is able to provide command line
-> interface to the all fragments of the new mount API in the same
-> granularity as provided by kernel (mount(8) is too high-level in this
-> case).
+Add raw.service that allows to initialize raw devices on boot.
 
-There's fairly simple example usage of several of the mount-api
-calls in samples/vfs/test-fsmount.c.
+Author: Frederic Crozat <fcrozat@suse.com>
+Author: Stanislav Brabec <sbrabec@suse.cz>
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ configure.ac                 |  9 +++++++++
+ disk-utils/.gitignore        |  3 +++
+ disk-utils/Makemodule.am     |  9 ++++++++-
+ disk-utils/raw.service.8.in  | 27 +++++++++++++++++++++++++++
+ disk-utils/raw.service.in.in | 19 +++++++++++++++++++
+ 5 files changed, 66 insertions(+), 1 deletion(-)
+ create mode 100644 disk-utils/.gitignore
+ create mode 100644 disk-utils/raw.service.8.in
+ create mode 100644 disk-utils/raw.service.in.in
 
-There's the in kernel mount-api documentation at
-Documentation/filesystems/mount_api.txt although that's more
-oriented to usage within the kerenl.
+diff --git a/configure.ac b/configure.ac
+index 4b6cacf88..fc7094cd9 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2209,6 +2209,14 @@ AS_IF([test "x$with_systemdsystemunitdir" != "xno"], [
+   AC_SUBST([systemdsystemunitdir], [$with_systemdsystemunitdir])
+ ])
+ 
++# Binaries needed by raw.service
++ac_save_PATH="$PATH"
++PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:$PATH"
++AC_PATH_PROG([MODPROBE], [modprobe], [/sbin/modprobe])
++AC_PATH_PROG([UDEVADM], [udevadm], [/sbin/udevadm])
++AC_SUBST([AT], [@])
++PATH="$ac_save_PATH"
++
+ 
+ AC_ARG_WITH([smack],
+   AS_HELP_STRING([--with-smack], [build with SMACK support]),
+@@ -2428,6 +2436,7 @@ libmount/src/libmount.h
+ libsmartcols/docs/Makefile
+ libsmartcols/docs/version.xml
+ libsmartcols/src/libsmartcols.h
++disk-utils/raw.service.in
+ po/Makefile.in
+ ])
+ 
+diff --git a/disk-utils/.gitignore b/disk-utils/.gitignore
+new file mode 100644
+index 000000000..352d191f9
+--- /dev/null
++++ b/disk-utils/.gitignore
+@@ -0,0 +1,3 @@
++raw.service
++raw.service.8
++raw.service.in
+diff --git a/disk-utils/Makemodule.am b/disk-utils/Makemodule.am
+index bea0ed6a6..7121f3fd5 100644
+--- a/disk-utils/Makemodule.am
++++ b/disk-utils/Makemodule.am
+@@ -82,7 +82,7 @@ if BUILD_LIBUUID
+ swaplabel_LDADD += libuuid.la
+ swaplabel_CFLAGS += -I$(ul_libuuid_incdir)
+ endif
+-endif #BUILD_SWAPLABEL
++endif # BUILD_SWAPLABEL
+ 
+ 
+ if BUILD_FSCK
+@@ -98,7 +98,14 @@ if BUILD_RAW
+ sbin_PROGRAMS += raw
+ dist_man_MANS += disk-utils/raw.8
+ raw_SOURCES = disk-utils/raw.c
++if HAVE_SYSTEMD
++systemdsystemunit_DATA += \
++		disk-utils/raw.service
++dist_man_MANS += disk-utils/raw.service.8
+ endif
++endif # BUILD_RAW
++
++PATHFILES += disk-utils/raw.service disk-utils/raw.service.8
+ 
+ 
+ if BUILD_CRAMFS
+diff --git a/disk-utils/raw.service.8.in b/disk-utils/raw.service.8.in
+new file mode 100644
+index 000000000..56a4df702
+--- /dev/null
++++ b/disk-utils/raw.service.8.in
+@@ -0,0 +1,27 @@
++.TH RAW.SERVICE "util-linux" "System Administration"
++.SH NAME
++raw.service \- bind Linux raw character devices on boot
++.SH SYNOPSIS
++.B raw.service
++.SH DESCRIPTION
++.B raw.service
++is used to bind Linux raw character devices to a block devices on boot.
++.SH FILES
++.TP
++.I @sysconfdir@/raw
++List of raw devices to be initialized. Format of lines:
++.sp
++\fIraw_device\fR:\fIbind_device\fR
++.sp
++Devices are specified without leading \fI /dev/raw/\fR resp. \fI/dev/\fR.
++Lines starting with \fI#\fR are interpreted as comments.
++.SH SEE ALSO
++.BR raw (8)
++.SH AUTHORS
++.nf
++Frederic Crozat <fcrozat@suse.com>
++Stanislav Brabec <sbrabec@suse.cz>
++.fi
++.SH AVAILABILITY
++The raw command is part of the util-linux package and is available from
++https://www.kernel.org/pub/linux/utils/util-linux/.
+diff --git a/disk-utils/raw.service.in.in b/disk-utils/raw.service.in.in
+new file mode 100644
+index 000000000..7f2ce865c
+--- /dev/null
++++ b/disk-utils/raw.service.in.in
+@@ -0,0 +1,19 @@
++[Unit]
++Description=Initialize raw devices
++After=local-fs.target remote-fs.target
++Documentation=man:raw.service(8)
++
++[Service]
++Type=oneshot
++RemainAfterExit=yes
++ExecStart=/bin/sh -c "\
++	@MODPROBE@ raw;\
++	@UDEVADM@ settle;\
++	for i in `grep -v ^# @AT@sysconfdir@AT@/raw`; do\
++		rawdev=`echo $i | cut -f1 -d:`;\
++		rawbind=`echo $i | cut -f2- -d:`;\
++		@AT@sbindir@AT@/raw /dev/raw/$rawdev /dev/$rawbind;\
++	done"
++
++[Install]
++WantedBy=multi-user.target
+-- 
+2.21.0
 
-I was wondering if kernel file systems that have not been converted
-to use the new api (but use the legacy mount-api kernel code) will
-work properly with the new mount-api? I think they would have to
-for the mount-api to be viable but I'm not sure.
+-- 
+Best Regards / S pozdravem,
 
-LOL, I remember, all those years ago, when you set out to write
-libmount and I wanted to convert autofs to use it.
-
-Sadly I got swamped with other work and ended up more concerned
-about eliminating proc mount table usage wherever possible in
-autofs but with the fsinfo() and mpount-api changes I should be
-able to change autofs to use libmount.
-
-After all these years I'll finally be able to get meaningful
-error codes that I simply can't get from mount(8) or mount.nfs(8).
-
-The autofs kernel module has been capable of passing these back to
-user space for years now and there shouldn't be too many autofs
-user space changes needed.
-
-But there's a lot of work to be done on libmount and we absolutely
-must keep libmount stable all the way so it's a big challenge.
-
-> 
-> Anyway, the primary goal is to use the new syscalls on standard
-> places (e.g. libmount) where it improves performance.
-> 
-> > > I.e. why not subdirs for 'by-mountpoint', or by-device, or
-> > > whole-dev-vs.partition, or by UUID....like some things are listed
-> > > in /dev.  That would allow you to narrow in on the mount you want for
-> > > doing whatever.
-> > 
-> > TBH, I can't see that amount of code being added to the VFS
-> > for this.
-> > 
-> > Simple annoyances like some mounts won't have a UUID, or won't
-> > have partition devices associated with them will also cause
-> > inconsistent views of the mounts.
-> 
-> or more filesystems mounted on the same mountpoint, mountpoint is
-> deleted, etc...
-> 
->     Karel
-> 
-
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                    tel: +420 284 084 060
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
