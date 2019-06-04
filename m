@@ -1,141 +1,96 @@
-Return-Path: <SRS0=6zyj=UA=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=2g+Q=UD=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90633C28CC1
-	for <util-linux@archiver.kernel.org>; Sat,  1 Jun 2019 14:27:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8A22C282CE
+	for <util-linux@archiver.kernel.org>; Tue,  4 Jun 2019 10:17:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 65ECF27709
-	for <util-linux@archiver.kernel.org>; Sat,  1 Jun 2019 14:27:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7FD64216F4
+	for <util-linux@archiver.kernel.org>; Tue,  4 Jun 2019 10:17:10 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TWGZd2sT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726332AbfFAO1H (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sat, 1 Jun 2019 10:27:07 -0400
-Received: from vie01a-dmta-pe08-2.mx.upcmail.net ([84.116.36.21]:42869 "EHLO
-        vie01a-dmta-pe08-2.mx.upcmail.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726135AbfFAO1H (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 1 Jun 2019 10:27:07 -0400
-Received: from [172.31.216.234] (helo=vie01a-pemc-psmtp-pe11.mail.upcmail.net)
-        by vie01a-dmta-pe08.mx.upcmail.net with esmtp (Exim 4.91)
-        (envelope-from <petr.pisar@atlas.cz>)
-        id 1hX4yN-000AZ4-Ho
-        for util-linux@vger.kernel.org; Sat, 01 Jun 2019 16:27:03 +0200
-Received: from router.bayer.uni.cx ([89.103.167.90])
-        by vie01a-pemc-psmtp-pe11.mail.upcmail.net with ESMTP
-        id X4yNhPc3EEZz0X4yNhTweA; Sat, 01 Jun 2019 16:27:03 +0200
-X-Env-Mailfrom: petr.pisar@atlas.cz
-X-Env-Rcptto: util-linux@vger.kernel.org
-X-SourceIP: 89.103.167.90
-X-CNFS-Analysis: v=2.3 cv=E8KzWpVl c=1 sm=1 tr=0
- a=PynCJzRKXLGVNAqAubg0rQ==:117 a=PynCJzRKXLGVNAqAubg0rQ==:17
- a=xqWC_Br6kY4A:10 a=dq6fvYVFJ5YA:10 a=P2OqLuV84VS9NIzTtQwA:9
- a=QEXdDO2ut3YA:10 a=qNqKIOR8NvSVwejOrK8A:9 a=FfaGCDsud1wA:10
-Received: from album.bayer.uni.cx (album.bayer.uni.cx [IPv6:2002:5967:a75a:1:5246:5dff:fe8e:a186])
-        by router.bayer.uni.cx (Postfix) with SMTP id 278DAA00C1;
-        Sat,  1 Jun 2019 16:27:02 +0200 (CEST)
-Received: by album.bayer.uni.cx (sSMTP sendmail emulation); Sat, 01 Jun 2019 16:27:02 +0200
-Date:   Sat, 1 Jun 2019 16:27:02 +0200
-From:   Petr Pisar <petr.pisar@atlas.cz>
+        id S1727189AbfFDKRK (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 4 Jun 2019 06:17:10 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:34375 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727061AbfFDKRJ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 4 Jun 2019 06:17:09 -0400
+Received: by mail-wm1-f68.google.com with SMTP id w9so1925552wmd.1
+        for <util-linux@vger.kernel.org>; Tue, 04 Jun 2019 03:17:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=PvgzrTz8wrv9LBTGIGXlBEuvXleUHpW/8w2HSaPCRA0=;
+        b=TWGZd2sTl7SeoCY0hRwgfIqG6pXIicDlgXSmqbO0Ig6uqLmfGGU4lvlN806LtB9ZYr
+         HtOCAhp2UfYj290tR0cbIcN3r5tDFZuR/b3XD77znobEpkCK1m5zXMQpcngh0VtDjak3
+         LYuwYsksnPv2L7TBLrMhEKjL5+WqoUPkUB3WkWw7Yyd1Ase2Acmh9zQdd/I8S1D/YT9c
+         vvoPsm5h2l5JXdb8JZz/TPXROqLQRKQ8mGlG8Bfn9sALeKVzauGEE8V/F/V0lZYsx94w
+         X9FSoh5cTCbppI858zUZRxEpZIJFECu3RvkImgLX85CyYKHu3yrJO3jarTsLTnb4bVqg
+         iNcw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=PvgzrTz8wrv9LBTGIGXlBEuvXleUHpW/8w2HSaPCRA0=;
+        b=RpQhcbG+M/af9yfWEQRTYEs5sF9/97wC8mJSJrV0SVtDcpfo3Jil/yy3Q/gQabS3HM
+         YIP4rrMxcovmdrKiMcF+GvK7GjkfmxMJx/pSgBhaoi+AgDhbbMqZIpcrQaxy98vPudF4
+         cnLB1GSIqddsNXG+G23wccX6C3MyCF/BJ731wk1hQxTKV4vtLlg51CpA4ImMZIoRblvl
+         AhA3BN3M26ajQADuZImhbmHVa2iDR5l11ll1fiAcqPNfKM/JkRHW01L6gKg8/ruhXzPK
+         ivFLzk445v8ev3R96bwFu4h9E+RXdTHmmQZTMINlQb/JMLTIWcgcDikGcVpcC8HSFnjS
+         rBlg==
+X-Gm-Message-State: APjAAAW8+aVmlJ8Qig0d2X/IbNj96qt6M9whKB/8jZRvq7rF8j5+R67S
+        FGZZVL/ta5pvyXaQBaQbunvO+Vvv5C4=
+X-Google-Smtp-Source: APXvYqyP6HMmacIojFPXsQ0DofeXBG1Yb0kJKo0WOa6EqtfqwRk6xv3Fh0BecykMa8OAFl0/bXkvPA==
+X-Received: by 2002:a7b:ce95:: with SMTP id q21mr10872274wmj.65.1559643427403;
+        Tue, 04 Jun 2019 03:17:07 -0700 (PDT)
+Received: from merlot.mazyland.net (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.googlemail.com with ESMTPSA id x129sm13594847wmg.44.2019.06.04.03.17.06
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Tue, 04 Jun 2019 03:17:06 -0700 (PDT)
+From:   Milan Broz <gmazyland@gmail.com>
 To:     util-linux@vger.kernel.org
-Cc:     Petr Pisar <petr.pisar@atlas.cz>
-Subject: Mistakes in message strings
-Message-ID: <20190601142701.GL3522@album.bayer.uni.cx>
+Cc:     Milan Broz <gmazyland@gmail.com>
+Subject: [PATCH] libblkid: fix detection of dm-integrity superblock version
+Date:   Tue,  4 Jun 2019 12:16:57 +0200
+Message-Id: <20190604101657.7268-1-gmazyland@gmail.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="kunpHVz1op/+13PW"
-Content-Disposition: inline
-User-Agent: Mutt/1.11.4 (2019-03-13)
-X-CMAE-Envelope: MS4wfOr4nZ4X3XrzxW8ATy1FDPa8k4o8kBQQ97a5d22RijAaxaEdKHKcXpR3Yh3OSvhibOcfSjj0sDrz3uVccxfPLNimAlaUZVzJwLylw9+ww6mcmfyrN1+z
- elXAat0PWgGsw+2iJS1KiueVxzLEcF4nJ+TJsBMGfa9vjuDs2ZT7PU9Zl7mEH39C+aup9n0GAgtlPViL9FaPfUaS23gEEOZt/lIL5oM9kpnH1i27zfdOKaqa
+Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+Kernel 5.2 can use superblock version 3 for dm-integrity.
+Let's remove the explicit version check to be compatible
+with future extensions.
 
---kunpHVz1op/+13PW
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Milan Broz <gmazyland@gmail.com>
+---
+ libblkid/src/superblocks/lvm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Hello,
+diff --git a/libblkid/src/superblocks/lvm.c b/libblkid/src/superblocks/lvm.c
+index c7e456fa9..b078aba3f 100644
+--- a/libblkid/src/superblocks/lvm.c
++++ b/libblkid/src/superblocks/lvm.c
+@@ -193,7 +193,7 @@ static int probe_integrity(blkid_probe pr, const struct blkid_idmag *mag)
+ 	if (sb == NULL)
+ 		return errno ? -errno : 1;
+ 
+-	if (sb->version !=1 && sb->version != 2)
++	if (!sb->version)
+ 		return 1;
+ 
+ 	blkid_probe_sprintf_version(pr, "%u", sb->version);
+-- 
+2.20.1
 
-while updating Czech translation for util-linux-2.34-rc2 I spotted these
-issues in the message strings:
-
-# FIXME: Remove a trailing period
-#: login-utils/lslogins.c:1345
-msgid ""
-" -p, --pwd                display information related to login by password=
-=2E\n"
-
-# FIXME=E2=80=AF"user" should read "group"
-#: sys-utils/setpriv.c:139
-msgid " --rgid <gid|user>           set real gid\n"
-
-# FIXME: Missing a comma between options
-#: term-utils/agetty.c:2352
-msgid " -J  --noclear              do not clear the screen before prompt\n"
-
-# FIXME: Missing a comma between options
-#: term-utils/agetty.c:2357
-msgid " -N  --nonewline            do not print a newline before issue\n"
-
-# FIXME: typo in "is possible", should be "if possible"
-#: misc-utils/findmnt.c:1246
-msgid "     --tree             enable tree format output is possible\n"
-
-
-Moreover, I have difficulies in translating this message:
-
-#: misc-utils/hardlink.c:363 text-utils/pg.c:1263
-msgid "saved"
-
-because each of the location requires a different translation in Czech
-language ("stored" versus "spared"). Please either add a gettext context or,
-better, duplicate the messages:
-
-# First argument is "Would link" or "Linked".
-#: misc-utils/hardlink.c:354
-#, c-format
-msgid " %s %s to %s\n"
-
-into:
-
-msgid " Would link %s to %s\n"
-msgid " Linked %s to %s\n"
-
-and duplicate this:
-
-# First argument is "Would link" or "Linked".
-# Second and third ones are file names.
-# Fourth one is "would save" or "saved".
-#: misc-utils/hardlink.c:360
-#, c-format
-msgid " %s %s to %s, %s %jd\n"
-
-into:
-
-msgid " Would link %s to %s, would save %jd\n"
-msgid " Linked %s to %s, saved %jd\n"
-
-I believe it will make the messages more undestandible and easier to
-translate also in other languages.
-
--- Petr
-
---kunpHVz1op/+13PW
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABEIAB0WIQRLUoOT5qOw37LvOmQSycXHZ8b6ogUCXPKLLwAKCRASycXHZ8b6
-oicXAQCMqYliwTqvXpCWEPKYDIvSTHpsvGMiBR0si8+5bA9YjAD/c90w14nu71sm
-fSGCOU+fhLkpZ0sJkP91f2l6zxYHits=
-=kXn9
------END PGP SIGNATURE-----
-
---kunpHVz1op/+13PW--
