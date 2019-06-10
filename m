@@ -6,25 +6,25 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5841C4321A
-	for <util-linux@archiver.kernel.org>; Mon, 10 Jun 2019 19:59:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 382BAC43218
+	for <util-linux@archiver.kernel.org>; Mon, 10 Jun 2019 19:59:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 86772206E0
-	for <util-linux@archiver.kernel.org>; Mon, 10 Jun 2019 19:59:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 10F76206E0
+	for <util-linux@archiver.kernel.org>; Mon, 10 Jun 2019 19:59:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389193AbfFJT7U (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 10 Jun 2019 15:59:20 -0400
-Received: from mx2.suse.de ([195.135.220.15]:54930 "EHLO mx1.suse.de"
+        id S2389201AbfFJT7W (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 10 Jun 2019 15:59:22 -0400
+Received: from mx2.suse.de ([195.135.220.15]:54940 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2389170AbfFJT7T (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 10 Jun 2019 15:59:19 -0400
+        id S2389170AbfFJT7W (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 10 Jun 2019 15:59:22 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id DB807AF9C
-        for <util-linux@vger.kernel.org>; Mon, 10 Jun 2019 19:59:17 +0000 (UTC)
+        by mx1.suse.de (Postfix) with ESMTP id 94C8AAF9C
+        for <util-linux@vger.kernel.org>; Mon, 10 Jun 2019 19:59:21 +0000 (UTC)
 To:     util-linux@vger.kernel.org
 From:   Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH 2/3] fstrim: properly de-duplicate fstrim -A
+Subject: [PATCH 1/3] fstrim: Fix fstrim_all() comment
 Openpgp: preference=signencrypt
 Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
  mQGiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
@@ -45,8 +45,8 @@ Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
  uRDKekFTiilRRVyiXWDt+zY2aNNMknKBACeIRgQYEQIABgUCPq/ZggAKCRBxfCCfoE/Ndi+t
  AJ958OvQedgG0gsRG1wX/HKXmRZ0dwCfUk0F4qeP5dCiETIHh3gxNIsx8YQ=
 Organization: SUSE Linux, s. r. o.
-Message-ID: <c5a32bc2-f819-0245-c2d1-bf473cbff489@suse.cz>
-Date:   Mon, 10 Jun 2019 21:59:17 +0200
+Message-ID: <787f49bd-0f57-5616-ca10-2173c3801809@suse.cz>
+Date:   Mon, 10 Jun 2019 21:59:21 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.7.0
 MIME-Version: 1.0
@@ -58,110 +58,29 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-fstab can contain tag based mounts. De-duplication by source has to be
-done after resolving the full source path.
-
-Perform the table iteration twice. First time, prepare for
-de-duplication, second time perform the TRIM itself.
+"convert LABEL=" does not happens in mnt_fs_get_source(), but later in
+mnt_resolve_spec(). To make this more clean, move the comment before this
+chunk of code.
 
 Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
 ---
- sys-utils/fstrim.c | 43 ++++++++++++++++++++++++++++++-------------
- 1 file changed, 30 insertions(+), 13 deletions(-)
+ sys-utils/fstrim.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/sys-utils/fstrim.c b/sys-utils/fstrim.c
-index ff029015e..0491e2b54 100644
+index cae38cdff..ff029015e 100644
 --- a/sys-utils/fstrim.c
 +++ b/sys-utils/fstrim.c
-@@ -241,10 +241,6 @@ static int fstrim_all(struct fstrim_control *ctl)
- 	mnt_init_debug(0);
- 	ul_path_init_debug();
- 
--	itr = mnt_new_iter(MNT_ITER_BACKWARD);
--	if (!itr)
--		err(MNT_EX_FAIL, _("failed to initialize libmount iterator"));
--
- 	if (ctl->fstab)
- 		filename = mnt_get_fstab_path();
- 
-@@ -255,9 +251,6 @@ static int fstrim_all(struct fstrim_control *ctl)
- 	/* de-duplicate by mountpoints */
- 	mnt_table_uniq_fs(tab, 0, uniq_fs_target_cmp);
- 
--	/* de-duplicate by source */
--	mnt_table_uniq_fs(tab, MNT_UNIQ_FORWARD, uniq_fs_source_cmp);
--
- 	if (ctl->fstab) {
- 		char *rootdev = NULL;
- 
-@@ -281,26 +274,50 @@ static int fstrim_all(struct fstrim_control *ctl)
- 		}
- 	}
- 
-+	itr = mnt_new_iter(MNT_ITER_BACKWARD);
-+	if (!itr)
-+		err(MNT_EX_FAIL, _("failed to initialize libmount iterator"));
-+
- 	while (mnt_table_next_fs(tab, itr, &fs) == 0) {
- 		const char *src = mnt_fs_get_srcpath(fs),
- 			   *tgt = mnt_fs_get_target(fs);
--		char *path;
--		int rc = 1;
- 
--		if (!tgt || mnt_fs_is_pseudofs(fs) || mnt_fs_is_netfs(fs))
-+		if (!tgt || mnt_fs_is_pseudofs(fs) || mnt_fs_is_netfs(fs)) {
-+			mnt_table_remove_fs(tab, fs);
+@@ -290,8 +290,8 @@ static int fstrim_all(struct fstrim_control *ctl)
+ 		if (!tgt || mnt_fs_is_pseudofs(fs) || mnt_fs_is_netfs(fs))
  			continue;
-+		}
  
- 		/* convert LABEL= (etc.) from fstab to paths */
++		/* convert LABEL= (etc.) from fstab to paths */
  		if (!src && cache) {
+-			/* convert LABEL= (etc.) from fstab to paths */
  			const char *spec = mnt_fs_get_source(fs);
  
--			if (!spec)
-+			if (!spec) {
-+				mnt_table_remove_fs(tab, fs);
- 				continue;
-+			}
- 			src = mnt_resolve_spec(spec, cache);
-+			mnt_fs_set_source(fs, src);
- 		}
- 
--		if (!src || *src != '/')
-+		if (!src || *src != '/') {
-+			mnt_table_remove_fs(tab, fs);
- 			continue;
-+		}
-+	}
-+	mnt_free_iter(itr);
-+
-+	/* de-duplicate by source */
-+	mnt_table_uniq_fs(tab, MNT_UNIQ_FORWARD, uniq_fs_source_cmp);
-+
-+	itr = mnt_new_iter(MNT_ITER_BACKWARD);
-+	if (!itr)
-+		err(MNT_EX_FAIL, _("failed to initialize libmount iterator"));
-+
-+	while (mnt_table_next_fs(tab, itr, &fs) == 0) {
-+		const char *src = mnt_fs_get_srcpath(fs),
-+			   *tgt = mnt_fs_get_target(fs);
-+		char *path;
-+		int rc = 1;
- 
- 		/* Is it really accessible mountpoint? Not all mountpoints are
- 		 * accessible (maybe over mounted by another filesystem) */
-@@ -329,10 +346,10 @@ static int fstrim_all(struct fstrim_control *ctl)
- 		else if (rc == 1 && !ctl->quiet)
- 			warnx(_("%s: the discard operation is not supported"), tgt);
- 	}
-+	mnt_free_iter(itr);
- 
- 	ul_unref_path(wholedisk);
- 	mnt_unref_table(tab);
--	mnt_free_iter(itr);
- 	mnt_unref_cache(cache);
- 
- 	if (cnt && cnt == cnt_err)
+ 			if (!spec)
 -- 
 2.21.0
 
