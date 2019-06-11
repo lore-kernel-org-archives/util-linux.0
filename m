@@ -2,96 +2,88 @@ Return-Path: <SRS0=jsgS=UK=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_NEOMUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C50EC43218
-	for <util-linux@archiver.kernel.org>; Tue, 11 Jun 2019 06:30:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F006CC4321A
+	for <util-linux@archiver.kernel.org>; Tue, 11 Jun 2019 08:15:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 29FB62086D
-	for <util-linux@archiver.kernel.org>; Tue, 11 Jun 2019 06:30:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C0CCD20652
+	for <util-linux@archiver.kernel.org>; Tue, 11 Jun 2019 08:15:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726431AbfFKGaw convert rfc822-to-8bit (ORCPT
-        <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 11 Jun 2019 02:30:52 -0400
-Received: from mga14.intel.com ([192.55.52.115]:17174 "EHLO mga14.intel.com"
+        id S2404620AbfFKIPR (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 11 Jun 2019 04:15:17 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:34422 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725766AbfFKGaw (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 11 Jun 2019 02:30:52 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jun 2019 23:30:52 -0700
-X-ExtLoop1: 1
-Received: from fmsmsx105.amr.corp.intel.com ([10.18.124.203])
-  by orsmga004.jf.intel.com with ESMTP; 10 Jun 2019 23:30:52 -0700
-Received: from fmsmsx126.amr.corp.intel.com (10.18.125.43) by
- FMSMSX105.amr.corp.intel.com (10.18.124.203) with Microsoft SMTP Server (TLS)
- id 14.3.408.0; Mon, 10 Jun 2019 23:30:51 -0700
-Received: from fmsmsx119.amr.corp.intel.com ([169.254.14.107]) by
- FMSMSX126.amr.corp.intel.com ([169.254.1.74]) with mapi id 14.03.0415.000;
- Mon, 10 Jun 2019 23:30:51 -0700
-From:   "Jakowski, Andrzej" <andrzej.jakowski@intel.com>
-To:     "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: [RFC] utility for SED management
-Thread-Topic: [RFC] utility for SED management
-Thread-Index: AdUgHzTZHbWrG9gFS1SXimdOtclYpQ==
-Date:   Tue, 11 Jun 2019 06:30:51 +0000
-Message-ID: <548EA37F71F6AC4BB746F459732504FF7F1810E3@FMSMSX119.amr.corp.intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-version: 11.0.600.7
-dlp-reaction: no-action
-x-ctpclassification: CTP_NT
-x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiZWUyYmJiNDItNzljNS00MzM4LWJmYWEtMGYwMDY2MzU4M2IwIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoiTGh4dkNPQjcwQWZPamhqVENKZkoxaUtCeFBEUURXbVIyVE1WSE9vRTh4amlEalZwdythUmF0M0V2Z2piazlBVyJ9
-x-originating-ip: [10.1.200.108]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        id S2403996AbfFKIPQ (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 11 Jun 2019 04:15:16 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id BECD23082B15;
+        Tue, 11 Jun 2019 08:15:16 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.205.47])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id F23B65C22E;
+        Tue, 11 Jun 2019 08:15:15 +0000 (UTC)
+Date:   Tue, 11 Jun 2019 10:15:13 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Stanislav Brabec <sbrabec@suse.cz>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: [PATCH 3/3] fstrim -a/-A: Skip read-only volumes
+Message-ID: <20190611081513.gvwpgg74qup2yg6w@ws.net.home>
+References: <a46df663-bdfd-6f53-45e9-c4547e4ee108@suse.cz>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a46df663-bdfd-6f53-45e9-c4547e4ee108@suse.cz>
+User-Agent: NeoMutt/20180716-1584-710bcd
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.45]); Tue, 11 Jun 2019 08:15:16 +0000 (UTC)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hi,
+On Mon, Jun 10, 2019 at 09:59:45PM +0200, Stanislav Brabec wrote:
+> Calling TRIM on some read-only volumes can fail with:
+> fstrim: /win: FITRIM ioctl failed: Bad file descriptor
 
-As far as I know there is no good utility in open source allowing to manage
-Self-Encrypting Drives (SED) for data center scale usages and client usages.
+Did you try it with the current version from git? ... because we
+interpret EBADF as "the discard operation is not supported" warning
+rather than an error.
 
-Let me first introduce example use cases for both scenarios: 
- * Data center usages (automatic): when disk is initially provisioned for
-   security disk key could be created automatically on key manager and supplied
-   to disk. On subsequent reboot of server, when disk is locked, corresponding
-   disk key could be retrieved from key manager and used to unlock that disk. 
-   Initial provisioning and unlock are example flows which could be automated 
-   in the SW.
- * Client usages: manual disk provisioning for security, managing users and
-   locking ranges, crypto erase, drive repurposing, etc.
+> Skipping all read-only mounts seems to be safe and logical strategy.
+> 
+> Fixes opensuse#1106214.
+> 
+> Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+> ---
+>  sys-utils/fstrim.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/sys-utils/fstrim.c b/sys-utils/fstrim.c
+> index 0491e2b54..e0e9e57a9 100644
+> --- a/sys-utils/fstrim.c
+> +++ b/sys-utils/fstrim.c
+> @@ -328,6 +328,14 @@ static int fstrim_all(struct fstrim_control *ctl)
+>  		if (rc)
+>  			continue;	/* overlaying mount */
+>  
+> +		/* FSTRIM on read-only filesystem can fail, and it can fail */
+> +		if (access(path, W_OK) != 0) {
+> +			if (errno == EROFS)
+> +				continue;
+> +			if (errno == EACCES)
+> +				continue;
+> +		}
+> +
 
-We have built prototype code covering these functionalities and now we would
-like to productize it. We are looking for the right place to publish our SW,
-considering util-linux project as one of the options. The SW will likely
-consist of:
- * Libsed - shared object exposing programmatic interface for security
-   management (Opal) of disk
- * Sedcli - command line utility covering both client and data center flows.
-   Sedcli will use libsed for interaction with the drive, libkmip for
-   interaction with OASIS KMIP based key manager and tpm2-tss to interact with
-   TPM2 key manager
- * Udev rules - will be used to invoke sedcli to auto-provision or auto-unlock
-   when new device is added to the OS (e.g. hot insert)
- * System.d  scripts - will be used to invoke sedcli when key needs to be 
-   retrieved from network attached key manager
- * Config file - will define policies for example on which disk should be 
-   security managed or not
+Anyway, for fstrim_all() it's probably good idea to call access().
 
-We would like to contribute that SW into util-linux project. What do you think
-about adding this SW into util-linux?
+    Karel
 
-Thx,
-Andrzej
 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
