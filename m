@@ -1,105 +1,97 @@
-Return-Path: <SRS0=Vuqk=UJ=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=jsgS=UK=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14669C4321A
-	for <util-linux@archiver.kernel.org>; Mon, 10 Jun 2019 19:59:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C50EC43218
+	for <util-linux@archiver.kernel.org>; Tue, 11 Jun 2019 06:30:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E7B032085A
-	for <util-linux@archiver.kernel.org>; Mon, 10 Jun 2019 19:59:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 29FB62086D
+	for <util-linux@archiver.kernel.org>; Tue, 11 Jun 2019 06:30:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389331AbfFJT7q (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 10 Jun 2019 15:59:46 -0400
-Received: from mx2.suse.de ([195.135.220.15]:54974 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2389170AbfFJT7q (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 10 Jun 2019 15:59:46 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 7358DAF9C
-        for <util-linux@vger.kernel.org>; Mon, 10 Jun 2019 19:59:45 +0000 (UTC)
-To:     util-linux@vger.kernel.org
-From:   Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH 3/3] fstrim -a/-A: Skip read-only volumes
-Openpgp: preference=signencrypt
-Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
- mQGiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
- zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
- 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
- AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
- 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
- NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
- SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
- ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSLQsU3RhbmlzbGF2
- IEJyYWJlYyAoU3VTRSBDUikgPHNicmFiZWNAc3VzZS5jej6IXwQTEQIAHwQLBwMCAxUCAwMW
- AgECHgECF4AFAlHS/kkFCSE/csAACgkQcXwgn6BPzXZY/gCghbxE4uexFHVP7qho9TDNxGGR
- xxgAoKCipPrJQrnXKhFG4RDeRcVE0PoBuQENBD6v2YIQBACt62O2lXle2CPxw2LpdT557Rvr
- UdoYJ1AeLAn1iDy67rDsGumxJxW254x9CKVsU3609PG58gDKSQ7CvHzErtOdz9xsJLfCCxbk
- 6LsOhBdCWgYs7HV2xYCkUvKSVQGZN95skfv1aSsO6dXzXISXen4KqY5AnFa+pXDAqMJTGLwp
- GwADBgQAkZ2/zz99L224sNcFgM+6TuGIQ57fNhKJxYG2HbBqh3oBiiZI9224dKLNCv/2aoV8
- qd9QUMKQCO7kQKkSH7+Ti1KnCyaDi3SoeFcsV4Z99Xb1bN2EBS1C4qohNUbouTsYEG5qsZPe
- uRDKekFTiilRRVyiXWDt+zY2aNNMknKBACeIRgQYEQIABgUCPq/ZggAKCRBxfCCfoE/Ndi+t
- AJ958OvQedgG0gsRG1wX/HKXmRZ0dwCfUk0F4qeP5dCiETIHh3gxNIsx8YQ=
-Organization: SUSE Linux, s. r. o.
-Message-ID: <a46df663-bdfd-6f53-45e9-c4547e4ee108@suse.cz>
-Date:   Mon, 10 Jun 2019 21:59:45 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+        id S1726431AbfFKGaw convert rfc822-to-8bit (ORCPT
+        <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 11 Jun 2019 02:30:52 -0400
+Received: from mga14.intel.com ([192.55.52.115]:17174 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725766AbfFKGaw (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 11 Jun 2019 02:30:52 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jun 2019 23:30:52 -0700
+X-ExtLoop1: 1
+Received: from fmsmsx105.amr.corp.intel.com ([10.18.124.203])
+  by orsmga004.jf.intel.com with ESMTP; 10 Jun 2019 23:30:52 -0700
+Received: from fmsmsx126.amr.corp.intel.com (10.18.125.43) by
+ FMSMSX105.amr.corp.intel.com (10.18.124.203) with Microsoft SMTP Server (TLS)
+ id 14.3.408.0; Mon, 10 Jun 2019 23:30:51 -0700
+Received: from fmsmsx119.amr.corp.intel.com ([169.254.14.107]) by
+ FMSMSX126.amr.corp.intel.com ([169.254.1.74]) with mapi id 14.03.0415.000;
+ Mon, 10 Jun 2019 23:30:51 -0700
+From:   "Jakowski, Andrzej" <andrzej.jakowski@intel.com>
+To:     "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: [RFC] utility for SED management
+Thread-Topic: [RFC] utility for SED management
+Thread-Index: AdUgHzTZHbWrG9gFS1SXimdOtclYpQ==
+Date:   Tue, 11 Jun 2019 06:30:51 +0000
+Message-ID: <548EA37F71F6AC4BB746F459732504FF7F1810E3@FMSMSX119.amr.corp.intel.com>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.0.600.7
+dlp-reaction: no-action
+x-ctpclassification: CTP_NT
+x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiZWUyYmJiNDItNzljNS00MzM4LWJmYWEtMGYwMDY2MzU4M2IwIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoiTGh4dkNPQjcwQWZPamhqVENKZkoxaUtCeFBEUURXbVIyVE1WSE9vRTh4amlEalZwdythUmF0M0V2Z2piazlBVyJ9
+x-originating-ip: [10.1.200.108]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Calling TRIM on some read-only volumes can fail with:
-fstrim: /win: FITRIM ioctl failed: Bad file descriptor
+Hi,
 
-Skipping all read-only mounts seems to be safe and logical strategy.
+As far as I know there is no good utility in open source allowing to manage
+Self-Encrypting Drives (SED) for data center scale usages and client usages.
 
-Fixes opensuse#1106214.
+Let me first introduce example use cases for both scenarios: 
+ * Data center usages (automatic): when disk is initially provisioned for
+   security disk key could be created automatically on key manager and supplied
+   to disk. On subsequent reboot of server, when disk is locked, corresponding
+   disk key could be retrieved from key manager and used to unlock that disk. 
+   Initial provisioning and unlock are example flows which could be automated 
+   in the SW.
+ * Client usages: manual disk provisioning for security, managing users and
+   locking ranges, crypto erase, drive repurposing, etc.
 
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
----
- sys-utils/fstrim.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+We have built prototype code covering these functionalities and now we would
+like to productize it. We are looking for the right place to publish our SW,
+considering util-linux project as one of the options. The SW will likely
+consist of:
+ * Libsed - shared object exposing programmatic interface for security
+   management (Opal) of disk
+ * Sedcli - command line utility covering both client and data center flows.
+   Sedcli will use libsed for interaction with the drive, libkmip for
+   interaction with OASIS KMIP based key manager and tpm2-tss to interact with
+   TPM2 key manager
+ * Udev rules - will be used to invoke sedcli to auto-provision or auto-unlock
+   when new device is added to the OS (e.g. hot insert)
+ * System.d  scripts - will be used to invoke sedcli when key needs to be 
+   retrieved from network attached key manager
+ * Config file - will define policies for example on which disk should be 
+   security managed or not
 
-diff --git a/sys-utils/fstrim.c b/sys-utils/fstrim.c
-index 0491e2b54..e0e9e57a9 100644
---- a/sys-utils/fstrim.c
-+++ b/sys-utils/fstrim.c
-@@ -328,6 +328,14 @@ static int fstrim_all(struct fstrim_control *ctl)
- 		if (rc)
- 			continue;	/* overlaying mount */
- 
-+		/* FSTRIM on read-only filesystem can fail, and it can fail */
-+		if (access(path, W_OK) != 0) {
-+			if (errno == EROFS)
-+				continue;
-+			if (errno == EACCES)
-+				continue;
-+		}
-+
- 		if (!has_discard(src, &wholedisk))
- 			continue;
- 		cnt++;
--- 
-2.21.0
+We would like to contribute that SW into util-linux project. What do you think
+about adding this SW into util-linux?
 
--- 
-Best Regards / S pozdravem,
+Thx,
+Andrzej
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                    tel: +420 284 084 060
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
