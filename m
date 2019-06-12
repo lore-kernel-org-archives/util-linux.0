@@ -1,99 +1,77 @@
-Return-Path: <SRS0=jsgS=UK=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=WFtY=UL=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_NEOMUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68583C43218
-	for <util-linux@archiver.kernel.org>; Tue, 11 Jun 2019 13:23:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6883C31E46
+	for <util-linux@archiver.kernel.org>; Wed, 12 Jun 2019 13:40:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4150C2089E
-	for <util-linux@archiver.kernel.org>; Tue, 11 Jun 2019 13:23:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7A5D1208CA
+	for <util-linux@archiver.kernel.org>; Wed, 12 Jun 2019 13:40:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387764AbfFKNX2 convert rfc822-to-8bit (ORCPT
-        <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 11 Jun 2019 09:23:28 -0400
-Received: from mx2.suse.de ([195.135.220.15]:60886 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2387578AbfFKNX2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 11 Jun 2019 09:23:28 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id A4D6DAE36;
-        Tue, 11 Jun 2019 13:23:27 +0000 (UTC)
-Subject: Re: [PATCH 3/3] fstrim -a/-A: Skip read-only volumes
-To:     Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org
-References: <a46df663-bdfd-6f53-45e9-c4547e4ee108@suse.cz>
- <20190611081513.gvwpgg74qup2yg6w@ws.net.home>
-From:   Stanislav Brabec <sbrabec@suse.cz>
-Openpgp: preference=signencrypt
-Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
- mQGiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
- zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
- 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
- AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
- 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
- NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
- SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
- ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSLQsU3RhbmlzbGF2
- IEJyYWJlYyAoU3VTRSBDUikgPHNicmFiZWNAc3VzZS5jej6IXwQTEQIAHwQLBwMCAxUCAwMW
- AgECHgECF4AFAlHS/kkFCSE/csAACgkQcXwgn6BPzXZY/gCghbxE4uexFHVP7qho9TDNxGGR
- xxgAoKCipPrJQrnXKhFG4RDeRcVE0PoBuQENBD6v2YIQBACt62O2lXle2CPxw2LpdT557Rvr
- UdoYJ1AeLAn1iDy67rDsGumxJxW254x9CKVsU3609PG58gDKSQ7CvHzErtOdz9xsJLfCCxbk
- 6LsOhBdCWgYs7HV2xYCkUvKSVQGZN95skfv1aSsO6dXzXISXen4KqY5AnFa+pXDAqMJTGLwp
- GwADBgQAkZ2/zz99L224sNcFgM+6TuGIQ57fNhKJxYG2HbBqh3oBiiZI9224dKLNCv/2aoV8
- qd9QUMKQCO7kQKkSH7+Ti1KnCyaDi3SoeFcsV4Z99Xb1bN2EBS1C4qohNUbouTsYEG5qsZPe
- uRDKekFTiilRRVyiXWDt+zY2aNNMknKBACeIRgQYEQIABgUCPq/ZggAKCRBxfCCfoE/Ndi+t
- AKCrirgQ963gLN3DlBRlvFPIOZ01WACglN5nhY7wyyhIjQP3k4eVfBY+WV4=
-Organization: SUSE Linux, s. r. o.
-Message-ID: <af664c12-6f98-104d-75b1-45d24553c499@suse.cz>
-Date:   Tue, 11 Jun 2019 15:23:26 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S2408443AbfFLNkK (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 12 Jun 2019 09:40:10 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:9954 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2407111AbfFLNkK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Wed, 12 Jun 2019 09:40:10 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id B5A358667E;
+        Wed, 12 Jun 2019 13:40:09 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.205.47])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id F12B039B9;
+        Wed, 12 Jun 2019 13:40:08 +0000 (UTC)
+Date:   Wed, 12 Jun 2019 15:40:05 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     "Jakowski, Andrzej" <andrzej.jakowski@intel.com>
+Cc:     "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: [RFC] utility for SED management
+Message-ID: <20190612134005.cb7m2qhgf2aolrf6@ws.net.home>
+References: <548EA37F71F6AC4BB746F459732504FF7F1810E3@FMSMSX119.amr.corp.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <20190611081513.gvwpgg74qup2yg6w@ws.net.home>
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <548EA37F71F6AC4BB746F459732504FF7F1810E3@FMSMSX119.amr.corp.intel.com>
+User-Agent: NeoMutt/20180716-1584-710bcd
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Wed, 12 Jun 2019 13:40:09 +0000 (UTC)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Dne 11. 06. 19 v 10:15 Karel Zak napsal(a):
-> On Mon, Jun 10, 2019 at 09:59:45PM +0200, Stanislav Brabec wrote:
->> Calling TRIM on some read-only volumes can fail with:
->> fstrim: /win: FITRIM ioctl failed: Bad file descriptor
-> Did you try it with the current version from git? ... because we
-> interpret EBADF as "the discard operation is not supported" warning
-> rather than an error.
+On Tue, Jun 11, 2019 at 06:30:51AM +0000, Jakowski, Andrzej wrote:
+> We have built prototype code covering these functionalities and now we would
+> like to productize it. We are looking for the right place to publish our SW,
+> considering util-linux project as one of the options. The SW will likely
+> consist of:
+>  * Libsed - shared object exposing programmatic interface for security
+>    management (Opal) of disk
+>  * Sedcli - command line utility covering both client and data center flows.
+>    Sedcli will use libsed for interaction with the drive, libkmip for
+>    interaction with OASIS KMIP based key manager and tpm2-tss to interact with
+>    TPM2 key manager
+>  * Udev rules - will be used to invoke sedcli to auto-provision or auto-unlock
+>    when new device is added to the OS (e.g. hot insert)
+>  * System.d  scripts - will be used to invoke sedcli when key needs to be 
+>    retrieved from network attached key manager
+>  * Config file - will define policies for example on which disk should be 
+>    security managed or not
+> 
+> We would like to contribute that SW into util-linux project. What do you think
+> about adding this SW into util-linux?
 
-No. The bug was reported by one of users on a read-only /windows, and I
-was not able to reproduce it. The patch was done as my best guess.
+From my point of view (and maybe I'm wrong ;-)) it seems complex
+enough to keep it as an independent stand-alone project ("sed-utils").
+Not sure if it makes sense to push it to generic util-linux package.
 
-https://bugzilla.opensuse.org/show_bug.cgi?id=1106214
-
-Reported for openSUSE Leap 15.0, i. e. util-linux-2.31.1.
-
-I tried the same, but I found a possible bug in the ntfs:
-
-mount -r /dev/nvme0n1p3 /windows
-fuse: mount failed: Device or resource busy
-
+    Karel
 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                    tel: +420 284 084 060
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
-
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
