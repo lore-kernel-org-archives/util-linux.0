@@ -2,91 +2,55 @@ Return-Path: <SRS0=Z60+=UN=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.5 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,FROM_EXCESS_BASE64,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_NEOMUTT autolearn=unavailable
+X-Spam-Status: No, score=-5.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E454C31E44
-	for <util-linux@archiver.kernel.org>; Fri, 14 Jun 2019 10:25:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40658C31E44
+	for <util-linux@archiver.kernel.org>; Fri, 14 Jun 2019 10:35:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ED44520851
-	for <util-linux@archiver.kernel.org>; Fri, 14 Jun 2019 10:25:21 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kUWroVei"
+	by mail.kernel.org (Postfix) with ESMTP id 1AC1220851
+	for <util-linux@archiver.kernel.org>; Fri, 14 Jun 2019 10:35:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727181AbfFNKZR (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 14 Jun 2019 06:25:17 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:35917 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726884AbfFNKZR (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 14 Jun 2019 06:25:17 -0400
-Received: by mail-wr1-f66.google.com with SMTP id n4so1965938wrs.3;
-        Fri, 14 Jun 2019 03:25:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:subject:message-id:mime-version:content-disposition
-         :content-transfer-encoding:user-agent;
-        bh=ks/1jmSJKxs1ncmSkAMP0ItIlKw6T3TzRE1qoFw+E5A=;
-        b=kUWroVeijDm9bzhzpUxRfZ9hMYQNn9eQmH0tUmSV0w4DdYwIQO4aRCNkpCV+BNvsjM
-         UGZwOZPI7w6O/djb/LQhKUA7ytP1rQh4txH4CXHfYlC26ORkZ7mI1FVnll/V1XqlGRYN
-         RYYzFWy+6okKYFEPEaNo4lh4kRhcZ87DHVzhCpKBOULqKUHvEKWwkFPPk75OFDpNduJw
-         WNm0EsFzGjGtsfC927hae9qNzFF8JWLse13MaqY4dUaDSBZqn5Q7yQzf6imoPTIbL+S8
-         RPUVppPqn9xKPIqkSfueducS1qAkhNzfNrcXoKOjn+JRJbUZii+fjGcTpe7vhyhmuXQo
-         qb5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:subject:message-id:mime-version
-         :content-disposition:content-transfer-encoding:user-agent;
-        bh=ks/1jmSJKxs1ncmSkAMP0ItIlKw6T3TzRE1qoFw+E5A=;
-        b=XUyosOT5Z01i9rr6NDjjzEAl9GviI+WABOySidDUIS5ueW52DfBgJRU9ztgj13lQRu
-         6h0h6ylQnH7avXls4SuWXTn6wvblXG5dqcN7xtntld+poX9yNkhgseoj/IklppSHbado
-         n3gNFaVUfjY4J7a/s4ktEhR+Cd1PZ6g42ArwQ5kb3/fClH/h6hXceUdJDHP7eBOa6ZMw
-         xoFwYIPS2w8KZvT8oxDB4eEPQufVf9gwHA9k1KIZSfY6IefJsJVtEF3RCYAwQL1EGKh4
-         YN0Dtm3oVmdQbcXG0RAikWS1gZVBKo1Z7bpS5GHlUbV/L03QEsroUR5Xk0EbcQo6WpX3
-         yqvw==
-X-Gm-Message-State: APjAAAU3Ia81eO1QaXGeEkeMdHAuwNIT9a/Cc0fqtAp3hnAe7uT2CVOF
-        aaciU75gnNbz5PhVhgoswA5/V7vSLgU=
-X-Google-Smtp-Source: APXvYqw9EmKo3dJlol+Y0ztB7t3zpQOt4EXb0zFFriuCw5GQUPRN4U272roZb63DjFCDr5xtonwoIw==
-X-Received: by 2002:adf:ba8e:: with SMTP id p14mr20904700wrg.39.1560507915517;
-        Fri, 14 Jun 2019 03:25:15 -0700 (PDT)
-Received: from pali ([2a02:2b88:2:1::5cc6:2f])
-        by smtp.gmail.com with ESMTPSA id u23sm1766697wmj.33.2019.06.14.03.25.14
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 14 Jun 2019 03:25:14 -0700 (PDT)
-Date:   Fri, 14 Jun 2019 12:25:13 +0200
-From:   Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To:     util-linux@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Help with reviewing dosfstools patches
-Message-ID: <20190614102513.4uwsu2wkigg3pimq@pali>
+        id S1726693AbfFNKfi (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 14 Jun 2019 06:35:38 -0400
+Received: from mga03.intel.com ([134.134.136.65]:26634 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726545AbfFNKfi (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 14 Jun 2019 06:35:38 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 14 Jun 2019 03:35:37 -0700
+X-ExtLoop1: 1
+Received: from ajakowsk-mobl1.amr.corp.intel.com (HELO localhost.localdomain) ([10.252.15.131])
+  by fmsmga006.fm.intel.com with ESMTP; 14 Jun 2019 03:35:36 -0700
+Subject: Re: [RFC] utility for SED management
+To:     Karel Zak <kzak@redhat.com>
+Cc:     "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+References: <548EA37F71F6AC4BB746F459732504FF7F1810E3@FMSMSX119.amr.corp.intel.com>
+ <20190612134005.cb7m2qhgf2aolrf6@ws.net.home>
+ <548EA37F71F6AC4BB746F459732504FF7F184907@FMSMSX119.amr.corp.intel.com>
+ <20190614074828.iqgomebc6gilprkn@ws.net.home>
+ <608c1dad-09a0-8bb9-bc55-d01e136bc0b5@intel.com>
+ <20190614100446.2fw2b6ve7ixbsodu@ws.net.home>
+From:   Andrzej Jakowski <andrzej.jakowski@intel.com>
+Message-ID: <cea33553-7f43-818a-8c68-a7b5cf2ac4d3@intel.com>
+Date:   Fri, 14 Jun 2019 12:35:36 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: NeoMutt/20170113 (1.7.2)
+In-Reply-To: <20190614100446.2fw2b6ve7ixbsodu@ws.net.home>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hello!
+On 6/14/19 12:04 PM, Karel Zak wrote:
+> BTW, I foundhttps://github.com/Drive-Trust-Alliance/sedutil, this is
+> probably obsolete, right? (Oh, ... C++;-).
 
-Can somebody help with reviewing existing patches / pull requests for
-dosfstools project? https://github.com/dosfstools/dosfstools/pulls
-
-Dosfstools contains linux userspace utilities for FAT file filesystems,
-including mkfs and fsck. They are de-facto standard tools available in
-any linux distribution supporting FAT file systems.
-
-There are more patches for these utilities and due to lack of more
-active developers, these patches are just waiting for review.
-
-More end users are asking for releasing a new version of dosfstools
-including of those waiting patches. So can somebody help with reviewing
-them?
-
--- 
-Pali Rohár
-pali.rohar@gmail.com
+Yes, it looks abandoned.
