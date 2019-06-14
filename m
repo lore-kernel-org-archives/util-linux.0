@@ -2,97 +2,66 @@ Return-Path: <SRS0=Z60+=UN=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.5 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,FROM_EXCESS_BASE64,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_NEOMUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88894C31E4B
-	for <util-linux@archiver.kernel.org>; Fri, 14 Jun 2019 14:25:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5522AC31E4B
+	for <util-linux@archiver.kernel.org>; Fri, 14 Jun 2019 14:30:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5BB1D20866
-	for <util-linux@archiver.kernel.org>; Fri, 14 Jun 2019 14:25:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 16AD720866
+	for <util-linux@archiver.kernel.org>; Fri, 14 Jun 2019 14:30:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HTTzFtfp"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="cM786c65"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728319AbfFNOZj (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 14 Jun 2019 10:25:39 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:46489 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728050AbfFNOZi (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 14 Jun 2019 10:25:38 -0400
-Received: by mail-wr1-f65.google.com with SMTP id n4so2719665wrw.13;
-        Fri, 14 Jun 2019 07:25:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=1Xht2wc6GWx7rzL95f/p5mApKK3FegYBNbBLdEdfnr8=;
-        b=HTTzFtfpAF7+upWVnlS6HBVNxdNCAADrxhNr4kucftYM4HXyFdAvdhyZxI+VeHwMml
-         tpCWY6gmJD8HUgbBkc+253BCWQZ+EKwBarLVFbmzugu1hsPor4xw7UaSuB3fX50ahyeF
-         98A/bSytV5+rUoSWDjrvwqlHAyARUmOvVB1TopUb9S1Oe3HfKH+eCnuiCLhkLzp4aT2Y
-         f3SJIwUVEaHqrNeDpwUTycBzlA2luKc9RKu+ct38kupUocELFqB8akHFXXMH0TyT0S1R
-         DHre7T8ydHY4mLa3ZSteGpRlTAyWh9QS9ibS3245dY+bIiC8yk16FwhWl8lq9BDkeRYh
-         /MCA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=1Xht2wc6GWx7rzL95f/p5mApKK3FegYBNbBLdEdfnr8=;
-        b=P0LsrmlvEtCY+2LPOikfguIHNDfeM9nZOelgwefKTWTk7NInK9MOVS7FqF2a6F94Hh
-         1q2MT2V/jS+NUn9EietTKRSx9Jzgb4Sfc+eezv0VU9S00maAZDgs2YdoC+QZktX25Vl6
-         q2XZxwoecaMWy/SMys/eTymUYgEeddvj1Dm4fHzET2IB1GmiBl1mAsFS2fDvwwgFRSiH
-         2L3P3lA7v5B8w+2cQ0aXy5z7wYIbH3hJuXWuU3UflmGADyIWKrcms7QD30ySndociFm6
-         cpvFzTf1xIjFpBZ0wglcmk3smGqmJmx0KFy3QXEH6psDhkHdB/d5X25eQxwIvk6lWtQJ
-         +gVQ==
-X-Gm-Message-State: APjAAAVNXfNMtN4o8Vo6pb62HSrnpyrr1c4V+ygO+7u0qNzvwFgqEduo
-        80W3XQmDvoMYiU/QR2h1PyrkEwqEw/Q=
-X-Google-Smtp-Source: APXvYqzwEPtYyUzAXb5zFSOaN+f0YKpZ4EqTXQYjc8hxuUV7sIsNkAI1Sk65ytkZJVM7eEj1ESqcLA==
-X-Received: by 2002:adf:ebc6:: with SMTP id v6mr3408593wrn.222.1560522336433;
-        Fri, 14 Jun 2019 07:25:36 -0700 (PDT)
-Received: from pali ([2a02:2b88:2:1::5cc6:2f])
-        by smtp.gmail.com with ESMTPSA id z14sm7966501wre.96.2019.06.14.07.25.35
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 14 Jun 2019 07:25:35 -0700 (PDT)
-Date:   Fri, 14 Jun 2019 16:25:34 +0200
-From:   Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To:     "Enrico Weigelt, metux IT consult" <lkml@metux.net>
-Cc:     util-linux@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        id S1728293AbfFNOaz (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 14 Jun 2019 10:30:55 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:55502 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728121AbfFNOaz (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 14 Jun 2019 10:30:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Transfer-Encoding
+        :Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
+        Sender:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=g+j545IMwIJikYLXl8ImiYVIWrJ6ceFqhokOAsJBX7s=; b=cM786c65V4kkuIngazZnMLV984
+        naip0mPWhZac9mKV9KODwN08xWW4C000ncgC8+c0HPnIlOHcIATtO/rCFwxw70GeCrODf9MynGlvh
+        6m38ZTtpfwldKgVCKRdbotYqvsYbdCsBJnRgnSqK+drvHDChY7ql/bSEhL4ZbIMeobeyLLPzerQfm
+        xHBc8WISsqWEavTN7ZZcOZlG+o1BpXrSOq2ChfgU6BBy2DXHlMEGTjTRAphi9hJ9a2jp9wt9SPoOi
+        XIeND7qTYR8tnCPWjaBkFDVBUprrR5Xu8E2nTkHEPpQJnI0FucO52NlI13y8iXV70oLxZQeK0sIn8
+        jmilIPbQ==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
+        id 1hbnEC-0000KR-UG; Fri, 14 Jun 2019 14:30:52 +0000
+Date:   Fri, 14 Jun 2019 07:30:52 -0700
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc:     "Enrico Weigelt, metux IT consult" <lkml@metux.net>,
+        util-linux@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-kernel@vger.kernel.org
 Subject: Re: Help with reviewing dosfstools patches
-Message-ID: <20190614142534.4obcytnq4v3ejdni@pali>
+Message-ID: <20190614143052.GA21822@infradead.org>
 References: <20190614102513.4uwsu2wkigg3pimq@pali>
  <ae5097ee-12af-2807-d48c-4274b4fc856d@metux.net>
+ <20190614142534.4obcytnq4v3ejdni@pali>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <ae5097ee-12af-2807-d48c-4274b4fc856d@metux.net>
-User-Agent: NeoMutt/20170113 (1.7.2)
+In-Reply-To: <20190614142534.4obcytnq4v3ejdni@pali>
+User-Agent: Mutt/1.11.4 (2019-03-13)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Friday 14 June 2019 16:20:08 Enrico Weigelt, metux IT consult wrote:
-> On 14.06.19 12:25, Pali Rohár wrote:
-> > Hello!
-> > 
-> > Can somebody help with reviewing existing patches / pull requests for
-> > dosfstools project? https://github.com/dosfstools/dosfstools/pulls
+On Fri, Jun 14, 2019 at 04:25:34PM +0200, Pali Roh�r wrote:
+> > Does the project already have a maillist ?
 > 
-> I'll have a look at it. Could you perhaps prepare a (rebased) patch
-> queue ?
-> 
-> Does the project already have a maillist ?
+> No, there is no mailing list. Basically whole development is on github
+> via github pull requests where are also put review comments and where is
+> also whole discussion, including bug reports.
 
-No, there is no mailing list. Basically whole development is on github
-via github pull requests where are also put review comments and where is
-also whole discussion, including bug reports.
-
--- 
-Pali Rohár
-pali.rohar@gmail.com
+That could explain why it is lacking qualified reviewers..
