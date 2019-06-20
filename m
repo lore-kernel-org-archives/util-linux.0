@@ -1,117 +1,102 @@
-Return-Path: <SRS0=Z60+=UN=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=OduY=UT=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,FROM_EXCESS_BASE64,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_NEOMUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BFB1C31E4B
-	for <util-linux@archiver.kernel.org>; Fri, 14 Jun 2019 19:10:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7973C43613
+	for <util-linux@archiver.kernel.org>; Thu, 20 Jun 2019 20:16:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0E44A21773
-	for <util-linux@archiver.kernel.org>; Fri, 14 Jun 2019 19:10:58 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rayG/z2H"
+	by mail.kernel.org (Postfix) with ESMTP id 9787620652
+	for <util-linux@archiver.kernel.org>; Thu, 20 Jun 2019 20:16:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726298AbfFNTK5 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 14 Jun 2019 15:10:57 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:35225 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725812AbfFNTK5 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 14 Jun 2019 15:10:57 -0400
-Received: by mail-wr1-f66.google.com with SMTP id m3so3648697wrv.2;
-        Fri, 14 Jun 2019 12:10:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=qrggckRqwzqE+687AEU2OojJ8a7zrArb+JSl8o0Vjw4=;
-        b=rayG/z2HRetFZn2HaODu/GrCa4jqHCks19ez5NpHbbndaksHa3GoQiqB06ds312oLG
-         Kj2t6SHd4oV7NoDNG3bPwz7at/o2+xze2B9NiPzxiyd+9P5b+N3sGqdIwHVZfTPdv52A
-         vspLz4ZxvGgNTtKIsm/rgAM8jCmu/Q+FQowFWQa5NqwcTl+VlV512kfiuY6QMsw8kzgn
-         Hm9tdv2O9Og7Loox/ZNmHKfDe+obyLmJ/bfMUY4JRCFchdVzG/fza9fCYjmMVo9jr2Kf
-         Rg8a6lSkcUM+1+hvQ8Zzq2SruIObPwTP6YbKL1FG9j/GkFl2UfSpisI/yekUGX85TKIO
-         2uOQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=qrggckRqwzqE+687AEU2OojJ8a7zrArb+JSl8o0Vjw4=;
-        b=B1hVwOp/kKrsAehm7z1cyjesTzqpTA2WcbQiC5UgrtQfXoWdczBY0eXp0xWRnkYRs3
-         TxzDBE2RJWOshJo6lr/do+HvMX0Olr8mSkbDvgNxOdm9wFyelNn198XOFl7yLiP+jqv+
-         GwN+OM7oBcWr0sRxFhQZluBjAzkpF/THxIrQlGs8GqESq4hi5H+eHrOMxtZIxO6Ed6yi
-         CDXyCM72anw4zZxS1dPKEGpGwkyADaMAa8fa7pQZp3+xTqcQJMp1iUs/StP1d0sgDfpC
-         cy8ILXVzh0MZQ4lTxDzLVkVsgfnGqbPLtIc6ehx7XnrENHx32X1SSiHxUM6fPrY9SB+u
-         N1cg==
-X-Gm-Message-State: APjAAAWppYY7K7zMxpFsqWB01qNg+l7qc5CEHUhUlqpE1R32n8BJowAU
-        8Xhfuj2aU+alOsiTQdydN98+zQDUjbQ=
-X-Google-Smtp-Source: APXvYqw3BF4lCoCWCq+ma92ACJPhMyodhOncoLwNRZkplMdgZ50n3/jnqZcxn0EKz3JLitAF4Q3llQ==
-X-Received: by 2002:adf:f683:: with SMTP id v3mr5420052wrp.258.1560539455205;
-        Fri, 14 Jun 2019 12:10:55 -0700 (PDT)
-Received: from pali ([2a02:2b88:2:1::5cc6:2f])
-        by smtp.gmail.com with ESMTPSA id g2sm4825176wmh.0.2019.06.14.12.10.54
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 14 Jun 2019 12:10:54 -0700 (PDT)
-Date:   Fri, 14 Jun 2019 21:10:53 +0200
-From:   Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-To:     "Enrico Weigelt, metux IT consult" <lkml@metux.net>
-Cc:     util-linux@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Help with reviewing dosfstools patches
-Message-ID: <20190614191053.22whtrb5f5uqis64@pali>
-References: <20190614102513.4uwsu2wkigg3pimq@pali>
- <ae5097ee-12af-2807-d48c-4274b4fc856d@metux.net>
- <9e81aa56-358a-71e1-edc1-50781062f3a4@metux.net>
+        id S1726533AbfFTUQn (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 20 Jun 2019 16:16:43 -0400
+Received: from mx2.suse.de ([195.135.220.15]:42762 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725907AbfFTUQn (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Thu, 20 Jun 2019 16:16:43 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 9624AAC4C
+        for <util-linux@vger.kernel.org>; Thu, 20 Jun 2019 20:16:42 +0000 (UTC)
+To:     util-linux@vger.kernel.org
+From:   Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH] agetty: Remove superfluous fflush()
+Openpgp: preference=signencrypt
+Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
+ mQGiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
+ zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
+ 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
+ AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
+ 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
+ NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
+ SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
+ ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSLQsU3RhbmlzbGF2
+ IEJyYWJlYyAoU3VTRSBDUikgPHNicmFiZWNAc3VzZS5jej6IXwQTEQIAHwQLBwMCAxUCAwMW
+ AgECHgECF4AFAlHS/kkFCSE/csAACgkQcXwgn6BPzXZY/gCghbxE4uexFHVP7qho9TDNxGGR
+ xxgAoKCipPrJQrnXKhFG4RDeRcVE0PoBuQENBD6v2YIQBACt62O2lXle2CPxw2LpdT557Rvr
+ UdoYJ1AeLAn1iDy67rDsGumxJxW254x9CKVsU3609PG58gDKSQ7CvHzErtOdz9xsJLfCCxbk
+ 6LsOhBdCWgYs7HV2xYCkUvKSVQGZN95skfv1aSsO6dXzXISXen4KqY5AnFa+pXDAqMJTGLwp
+ GwADBgQAkZ2/zz99L224sNcFgM+6TuGIQ57fNhKJxYG2HbBqh3oBiiZI9224dKLNCv/2aoV8
+ qd9QUMKQCO7kQKkSH7+Ti1KnCyaDi3SoeFcsV4Z99Xb1bN2EBS1C4qohNUbouTsYEG5qsZPe
+ uRDKekFTiilRRVyiXWDt+zY2aNNMknKBACeIRgQYEQIABgUCPq/ZggAKCRBxfCCfoE/Ndi+t
+ AJ958OvQedgG0gsRG1wX/HKXmRZ0dwCfUk0F4qeP5dCiETIHh3gxNIsx8YQ=
+Organization: SUSE Linux, s. r. o.
+Message-ID: <fe467a7d-eba6-bc0a-baeb-b049e1a473af@suse.cz>
+Date:   Thu, 20 Jun 2019 22:16:42 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="in23yynysfbxdhp3"
-Content-Disposition: inline
-In-Reply-To: <9e81aa56-358a-71e1-edc1-50781062f3a4@metux.net>
-User-Agent: NeoMutt/20170113 (1.7.2)
+Content-Type: text/plain; charset=iso-8859-2
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+eval_issue_file() contains fflush(stdout). It comes from an old code that
+used fputs() to write to the console.
 
---in23yynysfbxdhp3
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In the new code, we write to a temporary memstream, and
+fclose(ie->output) fully replaces possible fflush(ie->output) in this
+implementation.
 
-On Friday 14 June 2019 17:45:20 Enrico Weigelt, metux IT consult wrote:
-> On 14.06.19 16:20, Enrico Weigelt, metux IT consult wrote:
->=20
-> <snip>
->=20
-> Currently working through your branches. Smells like they really deserve
-> a rebase and signed-off lines.
+The new print_issue_file() does not need it as well, as it uses
+unbuffered write_all().
 
-Every patch/pull request is mean to be based on current upstream
-"master" branch.
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ term-utils/agetty.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-As some of pull requests were opened long time ago, they are out-of-sync
-=66rom upstream "master" branch.
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index 43dbd6dea..96bf41b36 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -1903,8 +1903,6 @@ static void eval_issue_file(struct issue *ie,
+ 			f = NULL;
+ 		} while (dirname);
+ 
+-		fflush(stdout);
+-
+ 		if ((op->flags & F_VCONSOLE) == 0)
+ 			ie->do_tcrestore = 1;
+ 	}
+-- 
+2.21.0
 
-Currently I rebased and force-pushed those changes which had merge
-conflict with upstream master branch.
+-- 
+Best Regards / S pozdravem,
 
-And now on each pull request passed compilation and 'make check'.
-
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---in23yynysfbxdhp3
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCXQPxPAAKCRCL8Mk9A+RD
-UuX5AJ46vqpIet8egkxbo/F0OHqmHeH7kwCgnQQzBB6Nr3uUcwShqXuXpsUIzo8=
-=SZLS
------END PGP SIGNATURE-----
-
---in23yynysfbxdhp3--
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                    tel: +420 284 084 060
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
