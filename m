@@ -1,227 +1,116 @@
-Return-Path: <SRS0=OduY=UT=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=/wRe=UW=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	T_TVD_FUZZY_SECTOR,URIBL_BLOCKED autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6B09C43613
-	for <util-linux@archiver.kernel.org>; Thu, 20 Jun 2019 21:42:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56323C43613
+	for <util-linux@archiver.kernel.org>; Sun, 23 Jun 2019 17:28:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A98FE206BA
-	for <util-linux@archiver.kernel.org>; Thu, 20 Jun 2019 21:42:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2801F2073F
+	for <util-linux@archiver.kernel.org>; Sun, 23 Jun 2019 17:28:20 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Iukt8afX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725921AbfFTVmo (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 20 Jun 2019 17:42:44 -0400
-Received: from mx2.suse.de ([195.135.220.15]:55734 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725911AbfFTVmo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 20 Jun 2019 17:42:44 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 321CDAE67
-        for <util-linux@vger.kernel.org>; Thu, 20 Jun 2019 21:42:41 +0000 (UTC)
+        id S1726546AbfFWR2T (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 23 Jun 2019 13:28:19 -0400
+Received: from mail-qt1-f194.google.com ([209.85.160.194]:36983 "EHLO
+        mail-qt1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726466AbfFWR2T (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 23 Jun 2019 13:28:19 -0400
+Received: by mail-qt1-f194.google.com with SMTP id y57so12178974qtk.4
+        for <util-linux@vger.kernel.org>; Sun, 23 Jun 2019 10:28:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=V+RoGbUExfZ2FviaF1hG1zjb8UniiEZm8f5UVXXvYS4=;
+        b=Iukt8afXwUE0kSHx9WAFa3TPYjxjS3A57NNPbhsikanOWXRgK9dB5uCTXOSyU2z8gL
+         QfkmZ0tfFZdu7/SFoXXFm7ZQao8ptQ8EcJfOmdAa80Du1ZL0qlm0FutXZzp0bYsUHSOP
+         TdehKDQsTUg3B+akptHaEjqbonN03gLbWH1OBNlbsnBdVeA2Uk2sdmJ0iKwJ+g+mARqn
+         qz9ZzHur7eBqvHmd1Hu8wLqRjdONKaC/eInAjx3JUJBB8PeuSj0yRQ/byaQ0PO+hzSRa
+         ZqQKPMZa0SeXakDopEsQNtI8tju4BxQD27/vgJqNPoSCAonQerJIgVTZ0r3ub32x8cOL
+         bizQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=V+RoGbUExfZ2FviaF1hG1zjb8UniiEZm8f5UVXXvYS4=;
+        b=ZPDp5YHrQ6MZ+Jsj8fw2S1gNy4YxffQawpxbIpiK+NwqIQpHvVwyOAQEYemX0xX9Iv
+         CyP4q9MwbRanzeF+J3D2AazHIFpaJfhkL7S0uQREDtn1kIqOHX3/TduMxTNsojcG0BMZ
+         ITOynSboZ7/wlssy7cg9fSiQv2EVF7BoP4737OSq4pHDzwqUpt297s0lPMBmIafAcV9R
+         7iUQ+qXnEZUkp/kuvlUltN1cVEJ/fdDBWuZx3sKkA6yjCSEIh5B+HEXZ8fWXiBveWGDm
+         WMqnz7XZoONAogGPiTrYijqfq8fY+ZGsd0UW1aYy1vVlXhmCQJa0y02bPMKWLtd8jHcu
+         9q4g==
+X-Gm-Message-State: APjAAAUOFdWThuHoB46gMw1rdaKu1KT01bnnDsN0MdfZzd+K0riZhk7O
+        KTqyKW78ob6O31xJiiLOq3jiTck+z5o=
+X-Google-Smtp-Source: APXvYqxJbGLZCiDCWGZjMNhBmGCLGF7lnAEz+QKOIA0Nf6o4c6L9Ue+UfQz4IbOZ6XXjjGeYXm+92Q==
+X-Received: by 2002:ad4:5426:: with SMTP id g6mr18066957qvt.132.1561310898033;
+        Sun, 23 Jun 2019 10:28:18 -0700 (PDT)
+Received: from casantos.remote.csb (189-71-198-232.user.veloxzone.com.br. [189.71.198.232])
+        by smtp.gmail.com with ESMTPSA id s130sm4212322qke.104.2019.06.23.10.28.15
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Sun, 23 Jun 2019 10:28:17 -0700 (PDT)
+From:   unixmania@gmail.com
 To:     util-linux@vger.kernel.org
-From:   Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH 2/2] Fix translations for losetup typo fix
-Openpgp: preference=signencrypt
-Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
- mQGiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
- zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
- 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
- AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
- 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
- NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
- SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
- ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSLQsU3RhbmlzbGF2
- IEJyYWJlYyAoU3VTRSBDUikgPHNicmFiZWNAc3VzZS5jej6IXwQTEQIAHwQLBwMCAxUCAwMW
- AgECHgECF4AFAlHS/kkFCSE/csAACgkQcXwgn6BPzXZY/gCghbxE4uexFHVP7qho9TDNxGGR
- xxgAoKCipPrJQrnXKhFG4RDeRcVE0PoBuQENBD6v2YIQBACt62O2lXle2CPxw2LpdT557Rvr
- UdoYJ1AeLAn1iDy67rDsGumxJxW254x9CKVsU3609PG58gDKSQ7CvHzErtOdz9xsJLfCCxbk
- 6LsOhBdCWgYs7HV2xYCkUvKSVQGZN95skfv1aSsO6dXzXISXen4KqY5AnFa+pXDAqMJTGLwp
- GwADBgQAkZ2/zz99L224sNcFgM+6TuGIQ57fNhKJxYG2HbBqh3oBiiZI9224dKLNCv/2aoV8
- qd9QUMKQCO7kQKkSH7+Ti1KnCyaDi3SoeFcsV4Z99Xb1bN2EBS1C4qohNUbouTsYEG5qsZPe
- uRDKekFTiilRRVyiXWDt+zY2aNNMknKBACeIRgQYEQIABgUCPq/ZggAKCRBxfCCfoE/Ndi+t
- AJ958OvQedgG0gsRG1wX/HKXmRZ0dwCfUk0F4qeP5dCiETIHh3gxNIsx8YQ=
-Organization: SUSE Linux, s. r. o.
-Message-ID: <8984d835-fd6b-108b-c52e-23a496e2f184@suse.cz>
-Date:   Thu, 20 Jun 2019 23:42:40 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Cc:     Carlos Santos <unixmania@gmail.com>
+Subject: [PATCH] hwclock: define cmos_interface only if necessary
+Date:   Sun, 23 Jun 2019 14:28:00 -0300
+Message-Id: <20190623172800.23445-1-unixmania@gmail.com>
+X-Mailer: git-send-email 2.18.1
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+From: Carlos Santos <unixmania@gmail.com>
+
+Move the static declaration to the probe_for_cmos_clock() function and
+make it conditional to i386/x86_64, preventing a "defined but not used"
+compiler warning.
+
+Signed-off-by: Carlos Santos <unixmania@gmail.com>
 ---
- po/cs.po    | 2 +-
- po/da.po    | 2 +-
- po/de.po    | 4 ++--
- po/es.po    | 2 +-
- po/fr.po    | 2 +-
- po/hr.po    | 4 ++--
- po/pl.po    | 2 +-
- po/pt_BR.po | 4 ++--
- po/sv.po    | 2 +-
- po/uk.po    | 4 ++--
- 10 files changed, 14 insertions(+), 14 deletions(-)
+ sys-utils/hwclock-cmos.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/po/cs.po b/po/cs.po
-index 35f6f97c9..9c5f0059c 100644
---- a/po/cs.po
-+++ b/po/cs.po
-@@ -14802,7 +14802,7 @@ msgid "     --sizelimit <num>         device is limited to <num> bytes of the fi
- msgstr "     --sizelimit <počet>       omezí zařízení na <počet> bajtů souboru\n"
+diff --git a/sys-utils/hwclock-cmos.c b/sys-utils/hwclock-cmos.c
+index a11f676b8..ada4a9c43 100644
+--- a/sys-utils/hwclock-cmos.c
++++ b/sys-utils/hwclock-cmos.c
+@@ -398,21 +398,21 @@ static const char *get_device_path(void)
+ 	return NULL;
+ }
  
- #: sys-utils/losetup.c:422
--msgid " -b  --sector-size <num>       set the logical sector size to <num>\n"
-+msgid " -b, --sector-size <num>       set the logical sector size to <num>\n"
- msgstr " -b, --sector-size <číslo>     nastaví velikost logického sektoru na <číslo>\n"
- 
- #: sys-utils/losetup.c:423
-diff --git a/po/da.po b/po/da.po
-index baf6b4577..24c6ec5ed 100644
---- a/po/da.po
-+++ b/po/da.po
-@@ -14702,7 +14702,7 @@ msgid "     --sizelimit <num>         device is limited to <num> bytes of the fi
- msgstr "     --sizelimit <num>         enhed er begrænset til <num> byte af filen\n"
- 
- #: sys-utils/losetup.c:422
--msgid " -b  --sector-size <num>       set the logical sector size to <num>\n"
-+msgid " -b, --sector-size <num>       set the logical sector size to <num>\n"
- msgstr " -b, --sector-size <num>       angiv den logiske sektorstørrelse til <num>\n"
- 
- #: sys-utils/losetup.c:423
-diff --git a/po/de.po b/po/de.po
-index c135ce828..ef24a1da4 100644
---- a/po/de.po
-+++ b/po/de.po
-@@ -14835,8 +14835,8 @@ msgid "     --sizelimit <num>         device is limited to <num> bytes of the fi
- msgstr "     --sizelimit <Zahl>       das Gerät ist auf <Zahl> Bytes der Datei beschränkt\n"
- 
- #: sys-utils/losetup.c:422
--msgid " -b  --sector-size <num>       set the logical sector size to <num>\n"
--msgstr " -b  --sector-size <Zahl>      die logische Sekttorgröße auf <Zahl> setzen\n"
-+msgid " -b, --sector-size <num>       set the logical sector size to <num>\n"
-+msgstr " -b, --sector-size <Zahl>      die logische Sekttorgröße auf <Zahl> setzen\n"
- 
- #: sys-utils/losetup.c:423
- msgid " -P, --partscan                create a partitioned loop device\n"
-diff --git a/po/es.po b/po/es.po
-index 05e565bbb..7f1e115c0 100644
---- a/po/es.po
-+++ b/po/es.po
-@@ -14577,7 +14577,7 @@ msgid "     --sizelimit <num>         device is limited to <num> bytes of the fi
- msgstr "     --sizelimit <núm>         el dispositivo está limitado a <núm> bytes del fichero\n"
- 
- #: sys-utils/losetup.c:422
--msgid " -b  --sector-size <num>       set the logical sector size to <num>\n"
-+msgid " -b, --sector-size <num>       set the logical sector size to <num>\n"
- msgstr " -b, --sector-size <núm>       establece el tamaño de sector lógico en <núm>\n"
- 
- #: sys-utils/losetup.c:423
-diff --git a/po/fr.po b/po/fr.po
-index b9fc060b8..f6b696d87 100644
---- a/po/fr.po
-+++ b/po/fr.po
-@@ -14630,7 +14630,7 @@ msgid "     --sizelimit <num>         device is limited to <num> bytes of the fi
- msgstr "     --sizelimit <nombre>      périphérique limité à <nombre> octets du fichier\n"
- 
- #: sys-utils/losetup.c:422
--msgid " -b  --sector-size <num>       set the logical sector size to <num>\n"
-+msgid " -b, --sector-size <num>       set the logical sector size to <num>\n"
- msgstr " -b, --sector-size <taille>    définir la taille de secteur logique à <taille>\n"
- 
- #: sys-utils/losetup.c:423
-diff --git a/po/hr.po b/po/hr.po
-index 74ad956be..3e1db42b6 100644
---- a/po/hr.po
-+++ b/po/hr.po
-@@ -14752,8 +14752,8 @@ msgid "     --sizelimit <num>         device is limited to <num> bytes of the fi
- msgstr "     --sizelimit <broj>        koristi samo taj broj bajtova datoteke\n"
- 
- #: sys-utils/losetup.c:422
--msgid " -b  --sector-size <num>       set the logical sector size to <num>\n"
--msgstr " -b  --sector-size <broj>      veličinu logičkog sektora postavi na taj broj\n"
-+msgid " -b, --sector-size <num>       set the logical sector size to <num>\n"
-+msgstr " -b, --sector-size <broj>      veličinu logičkog sektora postavi na taj broj\n"
- 
- #: sys-utils/losetup.c:423
- msgid " -P, --partscan                create a partitioned loop device\n"
-diff --git a/po/pl.po b/po/pl.po
-index 11c53922b..2b8f631b5 100644
---- a/po/pl.po
-+++ b/po/pl.po
-@@ -14576,7 +14576,7 @@ msgid "     --sizelimit <num>         device is limited to <num> bytes of the fi
- msgstr "     --sizelimit <ile>         ograniczenie do podanej liczby bajtów pliku\n"
- 
- #: sys-utils/losetup.c:422
--msgid " -b  --sector-size <num>       set the logical sector size to <num>\n"
-+msgid " -b, --sector-size <num>       set the logical sector size to <num>\n"
- msgstr " -b, --sector-size <ile>       ustawienie rozmiaru sektora logicznego\n"
- 
- #: sys-utils/losetup.c:423
-diff --git a/po/pt_BR.po b/po/pt_BR.po
-index 17120cbc3..503cd8c2a 100644
---- a/po/pt_BR.po
-+++ b/po/pt_BR.po
-@@ -14721,8 +14721,8 @@ msgid "     --sizelimit <num>         device is limited to <num> bytes of the fi
- msgstr "     --sizelimit <núm>         dispositivo limitado a <núm> bytes do arquivo\n"
- 
- #: sys-utils/losetup.c:422
--msgid " -b  --sector-size <num>       set the logical sector size to <num>\n"
--msgstr " -b  --sector-size <núm>       define o tamanho de setor lógico para <núm>\n"
-+msgid " -b, --sector-size <num>       set the logical sector size to <num>\n"
-+msgstr " -b, --sector-size <núm>       define o tamanho de setor lógico para <núm>\n"
- 
- #: sys-utils/losetup.c:423
- msgid " -P, --partscan                create a partitioned loop device\n"
-diff --git a/po/sv.po b/po/sv.po
-index b7de28cdc..31c8c06cc 100644
---- a/po/sv.po
-+++ b/po/sv.po
-@@ -14550,7 +14550,7 @@ msgid "     --sizelimit <num>         device is limited to <num> bytes of the fi
- msgstr "     --sizelimit <num>         enhet är begränsad till <num> byte i filen\n"
- 
- #: sys-utils/losetup.c:422
--msgid " -b  --sector-size <num>       set the logical sector size to <num>\n"
-+msgid " -b, --sector-size <num>       set the logical sector size to <num>\n"
- msgstr " -b, --sector-size <storlek>   ställ in logisk sektorstorlek\n"
- 
- #: sys-utils/losetup.c:423
-diff --git a/po/uk.po b/po/uk.po
-index b13910ba9..c814a5f44 100644
---- a/po/uk.po
-+++ b/po/uk.po
-@@ -14591,8 +14591,8 @@ msgid "     --sizelimit <num>         device is limited to <num> bytes of the fi
- msgstr "     --sizelimit <n>           пристрій обмежено <n> байтами файла\n"
- 
- #: sys-utils/losetup.c:422
--msgid " -b  --sector-size <num>       set the logical sector size to <num>\n"
--msgstr " -b  --sector-size <число>     встановити для логічного сектора розмір <число>\n"
-+msgid " -b, --sector-size <num>       set the logical sector size to <num>\n"
-+msgstr " -b, --sector-size <число>     встановити для логічного сектора розмір <число>\n"
- 
- #: sys-utils/losetup.c:423
- msgid " -P, --partscan                create a partitioned loop device\n"
+-static struct clock_ops cmos_interface = {
+-	N_("Using direct ISA access to the clock"),
+-	get_permissions_cmos,
+-	read_hardware_clock_cmos,
+-	set_hardware_clock_cmos,
+-	synchronize_to_clock_tick_cmos,
+-	get_device_path,
+-};
+-
+ /*
+  * return &cmos if cmos clock present, NULL otherwise.
+  */
+ struct clock_ops *probe_for_cmos_clock(void)
+ {
+ #if defined(__i386__) || defined(__x86_64__)
++	static struct clock_ops cmos_interface = {
++		N_("Using direct ISA access to the clock"),
++		get_permissions_cmos,
++		read_hardware_clock_cmos,
++		set_hardware_clock_cmos,
++		synchronize_to_clock_tick_cmos,
++		get_device_path,
++	};
++
+ 	return &cmos_interface;
+ #else
+ 	return NULL;
 -- 
-2.21.0
+2.18.1
 
--- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Křižíkova 148/34 (Corso IIa)                    tel: +420 284 084 060
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
