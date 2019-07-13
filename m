@@ -1,163 +1,167 @@
-Return-Path: <SRS0=CFid=VB=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=VWBs=VK=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E454CC0650E
-	for <util-linux@archiver.kernel.org>; Thu,  4 Jul 2019 21:55:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2505EC742D7
+	for <util-linux@archiver.kernel.org>; Sat, 13 Jul 2019 05:30:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B382E21850
-	for <util-linux@archiver.kernel.org>; Thu,  4 Jul 2019 21:55:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E31A220989
+	for <util-linux@archiver.kernel.org>; Sat, 13 Jul 2019 05:30:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="mnTic1Fs"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P3BQCLA9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727423AbfGDVz3 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 4 Jul 2019 17:55:29 -0400
-Received: from mail-yw1-f47.google.com ([209.85.161.47]:36899 "EHLO
-        mail-yw1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727338AbfGDVz2 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 4 Jul 2019 17:55:28 -0400
-Received: by mail-yw1-f47.google.com with SMTP id u141so1799584ywe.4
-        for <util-linux@vger.kernel.org>; Thu, 04 Jul 2019 14:55:28 -0700 (PDT)
+        id S1726334AbfGMFal (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sat, 13 Jul 2019 01:30:41 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:41508 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726009AbfGMFal (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 13 Jul 2019 01:30:41 -0400
+Received: by mail-lj1-f196.google.com with SMTP id d24so11263240ljg.8
+        for <util-linux@vger.kernel.org>; Fri, 12 Jul 2019 22:30:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=Z52z456iztbGPT/DbMU6ZDucf698k5nARHUFsDMebmo=;
-        b=mnTic1FsbLyt4Hd+t7fenT32xeZaAnLmd2fjeaS1ES+WKJD3ceFoA25QykeQ3PMLNa
-         7c0lPuDo2P89pkblZOshRIjJ6IfoSfAEH6yh3qdwqldv1H1UgJVnj0UWfeY7jh1hXDBr
-         0LFvIflxNLRNB0LlZXRsmEso3I3d/D7MTetMOcotyI5+fOABMY82r0PXOmvDi032m7GF
-         1o/Is+u6O7ubk5JoWnKneWJqArtOGkRMwxeGD6stuY8xQF19t3lnZHIFpaqPS6/WO19q
-         pDpP9/7cET77h2zeQu3ShEbDlhxV5NA/f9psQIzefDm4pf2CbBG5B69cDeAk2SGLmCpR
-         GL1A==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=IWoA/1D02KANLGNOuJX/9j1s7Dkr/I3NAX2icEbz4uo=;
+        b=P3BQCLA9or+NnacqbzP4/7QBw623gSKmxAYlESx/6jVYgutCryWeEII7/+SsvHeQO7
+         GNlz2BaOfhW+asfhsWVkEBJLOsawhqQp69L5PVobLWHtJRi5CJ6UGm/x8isaTk313Db8
+         Ccb0IwNiXf4tT+Hr5ukCIKXTCFtrSt7OK0eXcQHBfDxepjWlN6vwHtm46sd4zgbo4hzK
+         Oux7NXtbPWJclI4VJsfjcwOBal9ISUvQ3t331nCeWhnz5/HwvUb+DgRuv2x45bEJ9kTV
+         0mMkV67rgI1byhA07N+1LXvZBbUH0FLf8OfVxHRy/b9o8c5tcO2gxdXvoEjxw4E+l8P1
+         rrtw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=Z52z456iztbGPT/DbMU6ZDucf698k5nARHUFsDMebmo=;
-        b=T49je9hpHqqGN7CNE4jW+9Hu+hTF/SCZLIhTRHiLdayy+V1UZG+Z34Gg8z5aqNjnf/
-         K9VuD6Zc8s6QUf/PVnw+gvkD4XOO+c0WlHz8gNKrQFxqW4jGpk5lrqGGLCBIAR63Kmcj
-         P3jdJiJyyDCS1Ks5T9m+LCrlfVSgXjImgLxmEGOcsAUCD5xqlmsPc2GkOgF4kwpdTqLi
-         JqPnQDlACPll+GWdZXnfD+G9Pl4j4ZDsSJ7YKRyV3nCHrTBDk5fnlgag2qLh3xTW8WRN
-         DOh0gGCc4AjO6p9Uu6ZDUXcFzZJlZlhy8ZmoLODP1Sijshj3s9ClMrfN5GlKbxf1ifPc
-         XGMw==
-X-Gm-Message-State: APjAAAWRjG6zO+T8hT94u9OwaoM2yJjoNkBRHy2/kakVBnFQqyi49FQ5
-        FrR3vXnZdrdpx2T31h9Dr2fPblJ+YiuF6DRkbjYc6AHO
-X-Google-Smtp-Source: APXvYqxPqe66ndy/k+x8lzgbxy03nR0/CtG5iJJhkuqTPpD7h4hU8A30vH4an7AGdb53WToPF4mOibHRJn0SfvG7FkU=
-X-Received: by 2002:a81:58c5:: with SMTP id m188mr174002ywb.208.1562277327947;
- Thu, 04 Jul 2019 14:55:27 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=IWoA/1D02KANLGNOuJX/9j1s7Dkr/I3NAX2icEbz4uo=;
+        b=imJrKa8POsLHj0vHhutUhnKmvVK4Q7nwTAMfxrtjMCiTY0diACEw2+spgb/xMp17mV
+         tAzEJKwFDPoWfCkievfUHeC/LfPPTzfWXyBmUlgFDOum1Vc3Gj7u0iEinrPD62/K0URY
+         kvifq6C2WCEZnpE8eoJZgpTVioOkw9mQchm1R5DiGgH5tn4MZNORw3YWIjibzuAxr6k/
+         mICJHmiwdPsjGUWIGFVFcaP1FTOTZgsGxBsb8eeaTGtiTniNZx3mUQK+Fg8f93FY/kfY
+         h+mdxtZMkFMoL1mpO6uq1/E19FC/UEpIKOv48/YYz0oKxngWUPWhsHMy8BLjhEvWbCrD
+         Lf6Q==
+X-Gm-Message-State: APjAAAVIfo7+c2OV/cXsu/fAm/rVqbvTvmL5SvFYOxsp2iuOxwvrxt9L
+        bZcBdu5wjBUFKI2OsUNtRw/Zi73VzRhwNApRk7I=
+X-Google-Smtp-Source: APXvYqyjjs48iWbGLKPEWMsHwmFIuNtcqYaXlRXhJbgx8K1bryamxFI42EMf/Az7BDKNB9kKQIvVfgDEJG8jmka4znQ=
+X-Received: by 2002:a2e:9b83:: with SMTP id z3mr7608418lji.84.1562995838944;
+ Fri, 12 Jul 2019 22:30:38 -0700 (PDT)
 MIME-Version: 1.0
-From:   Mike Fleetwood <mike.fleetwood@googlemail.com>
-Date:   Thu, 4 Jul 2019 22:55:16 +0100
-Message-ID: <CAMU1PDj4Vtvzw_=o_a5_S=j22Ro7_JqTwwh7k2dBDGk56Ns5LQ@mail.gmail.com>
-Subject: fdisk not wiping sector 0 before writing new MBR
-To:     util-linux@vger.kernel.org
+References: <20190627092235.36888-1-zhouyousong@yunionyun.com>
+In-Reply-To: <20190627092235.36888-1-zhouyousong@yunionyun.com>
+From:   Yousong Zhou <yszhou4tech@gmail.com>
+Date:   Sat, 13 Jul 2019 13:30:27 +0800
+Message-ID: <CAECwjAhM1FmCoxZnxUxJcE+vCN5=uBd_SuMZEQ6qj8OKfCf3oA@mail.gmail.com>
+Subject: Re: [PATCH] column: fix outputing empty column at the end of line
+To:     kzak@redhat.com
+Cc:     util-linux@vger.kernel.org,
+        Yousong Zhou <zhouyousong@yunionyun.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hi,
+On Thu, 27 Jun 2019 at 17:22, Yousong Zhou <yszhou4tech@gmail.com> wrote:
+>
+> The following commands manifests the problem.  In old versions before
+> commit 4762ae9d60 ("column: use libsmartcols for --table"), both of them
+> should output with 2 "|"
+>
+>         echo '||'  | column -o '|' -s '|' -t
+>         echo '|| ' | column -o '|' -s '|' -t
+>
+> Fixes: 4762ae9d60 ("column: use libsmartcols for --table")
+> Signed-off-by: Yousong Zhou <zhouyousong@yunionyun.com>
+> ---
 
-This is a bit more of a speculative than my other recent one, but I saw
-this quote in aix.c:
-    "All fdisk-like programs has to properly wipe the first sector.
-    Everything other is a bug."
+Hi, do you think this is a real bug and the fix a proper one?  should
+I post a pull request through the github project page?
 
-Using fdisk to create an MBR over the top of a whole disk FAT32 (and
-probably FAT16) file system doesn't clear any of the FAT32 boot record
-(aka super block).  Blkid and wipefs report this as just an MBR, but
-because the boot record is intact, GNU parted reports this still as a
-whole disk FAT32 file system.
+Regards,
+                yousong
 
-This is from a GParted issue report where a user had an SD card that
-must have originally come with a whole disk FAT32 file system and then
-the user partitioned it over the top with fdisk.
-   GitLab GParted issue 64 - Add support for Nobbs-partitioned SD cards
-    https://gitlab.gnome.org/GNOME/gparted/issues/64
-
-Test case:
-
-Create a whole disk FAT32 file system.
-    # dd if=/dev/zero bs=1M of=/dev/sdb
-    # mkfs.fat -F32 -I /dev/sdb
-    # ./blkid /dev/sdb
-    /dev/sdb: UUID="1EF0-1723" TYPE="vfat"
-    # ./wipefs /dev/sdb
-    DEVICE OFFSET TYPE UUID      LABEL
-    sdb    0x52   vfat 1EF0-1723
-    sdb    0x0    vfat 1EF0-1723
-    sdb    0x1fe  vfat 1EF0-1723
-
-Create a single primary partition covering the whole disk.
-    # ./fdisk --version
-    lt-fdisk from util-linux 2.34.24-e3bb9
-    # ./fdisk /dev/sdb
-      n
-      p
-      [Return]   (defaults to 1)
-      [Return]   (defaults to 2048)
-      [Return]   (defaults to 16777215)
-      w
-    # ./fdisk -l /dev/sdb
-    Disk /dev/sdb: 8 GiB, 8589934592 bytes, 16777216 sectors
-    Disk model: VBOX HARDDISK
-    Units: sectors of 1 * 512 = 512 bytes
-    Sector size (logical/physical): 512 bytes / 512 bytes
-    I/O size (minimum/optimal): 512 bytes / 512 bytes
-    Disklabel type: dos
-    Disk identifier: 0x00000000
-
-    Device     Boot Start      End  Sectors Size Id Type
-    /dev/sdb1        2048 16777215 16775168   8G 83 Linux
-
-util-linux tools now report this as only containing an MBR.
-    # ./blkid /dev/sdb
-    /dev/sdb: PTTYPE="dos"
-    # ./wipefs /dev/sdb
-    DEVICE OFFSET TYPE UUID LABEL
-    sdb    0x1fe  dos
-
-But GNU parted still sees this as a whole disk FAT32 file system.
-    # parted --version
-    parted (GNU parted) 3.2
-    ...
-    # parted /dev/sdb unit s print
-    Model: ATA VBOX HARDDISK (scsi)
-    Disk /dev/sdb: 16777216s
-    Sector size (logical/physical): 512B/512B
-    Partition Table: loop
-    Disk Flags:
-
-    Number  Start  End
-     1      0s
-
-I used hexdump -C to look at sector 0 after writing the FAT32 and after
-writing the MBR.  The only bytes which changed were those 16 bytes
-storing partition 1 in the MBR.  None of the other bytes in sector 0
-changed, hence why parted was able to misidentify this as a FAT32 file
-system.
-
-Then just remove that partition and blkid and wipefs again detect it as
-a whole disk FAT32 file system.
-    # ./fdisk /dev/sdb
-      d
-      w
-    # ./blkid /dev/sdb
-    /dev/sdb: UUID="1EF0-1723" TYPE="vfat"
-    # ./wipefs /dev/sdb
-    DEVICE OFFSET TYPE UUID      LABEL
-    sdb    0x52   vfat 1EF0-1723
-    sdb    0x0    vfat 1EF0-1723
-    sdb    0x1fe  vfat 1EF0-1723
-
-I don't think a user can have any expectation that if a whole disk FAT32
-file system "superfloppy" was bootable, that after using fdisk to write
-an MBR over the top, that it can still be bootable, without writing new
-boot code to the disk.
-
-Thank you for your consideration,
-Mike
+>  tests/expected/column/table-empty-column-at-eol  |  1 +
+>  tests/expected/column/table-empty-column-at-eol2 |  1 +
+>  tests/ts/column/table                            |  8 ++++++++
+>  text-utils/column.c                              | 15 ++++++++++-----
+>  4 files changed, 20 insertions(+), 5 deletions(-)
+>  create mode 100644 tests/expected/column/table-empty-column-at-eol
+>  create mode 100644 tests/expected/column/table-empty-column-at-eol2
+>
+> diff --git a/tests/expected/column/table-empty-column-at-eol b/tests/expected/column/table-empty-column-at-eol
+> new file mode 100644
+> index 000000000..948cf947f
+> --- /dev/null
+> +++ b/tests/expected/column/table-empty-column-at-eol
+> @@ -0,0 +1 @@
+> +|
+> diff --git a/tests/expected/column/table-empty-column-at-eol2 b/tests/expected/column/table-empty-column-at-eol2
+> new file mode 100644
+> index 000000000..7c4378506
+> --- /dev/null
+> +++ b/tests/expected/column/table-empty-column-at-eol2
+> @@ -0,0 +1 @@
+> +||
+> diff --git a/tests/ts/column/table b/tests/ts/column/table
+> index bd1f16f3f..e64dee746 100755
+> --- a/tests/ts/column/table
+> +++ b/tests/ts/column/table
+> @@ -116,4 +116,12 @@ ts_init_subtest "empty-column"
+>  printf ':a:b\n' | $TS_CMD_COLUMN --table --separator ':' --output-separator  ':' >> $TS_OUTPUT 2>&1
+>  ts_finalize_subtest
+>
+> +ts_init_subtest "empty-column-at-eol"
+> +printf '|' | $TS_CMD_COLUMN --separator '|' --output-separator '|' --table >> $TS_OUTPUT 2>&1
+> +ts_finalize_subtest
+> +
+> +ts_init_subtest "empty-column-at-eol2"
+> +printf '||' | $TS_CMD_COLUMN --separator '|' --output-separator '|' --table >> $TS_OUTPUT 2>&1
+> +ts_finalize_subtest
+> +
+>  ts_finalize
+> diff --git a/text-utils/column.c b/text-utils/column.c
+> index 13b39537e..64f1cf7e9 100644
+> --- a/text-utils/column.c
+> +++ b/text-utils/column.c
+> @@ -169,8 +169,9 @@ static wchar_t *local_wcstok(wchar_t *p, const wchar_t *separator, int greedy, w
+>                 return strtok_r(p, separator, state);
+>  #endif
+>         if (!p) {
+> -               if (!*state || !**state)
+> +               if (!*state) {
+>                         return NULL;
+> +               }
+>                 p = *state;
+>         }
+>         result = p;
+> @@ -435,7 +436,7 @@ static int add_line_to_table(struct column_control *ctl, wchar_t *wcs)
+>         if (!ctl->tab)
+>                 init_table(ctl);
+>
+> -       while ((wcdata = local_wcstok(wcs, ctl->input_separator, ctl->greedy, &sv))) {
+> +       while ((wcdata = local_wcstok(wcs, ctl->input_separator, ctl->greedy, &sv)) || sv) {
+>                 char *data;
+>
+>                 if (scols_table_get_ncols(ctl->tab) < n + 1) {
+> @@ -452,9 +453,13 @@ static int add_line_to_table(struct column_control *ctl, wchar_t *wcs)
+>                                 err(EXIT_FAILURE, _("failed to allocate output line"));
+>                 }
+>
+> -               data = wcs_to_mbs(wcdata);
+> -               if (!data)
+> -                       err(EXIT_FAILURE, _("failed to allocate output data"));
+> +               if (wcdata) {
+> +                       data = wcs_to_mbs(wcdata);
+> +                       if (!data)
+> +                               err(EXIT_FAILURE, _("failed to allocate output data"));
+> +               } else {
+> +                       data = NULL;
+> +               }
+>                 if (scols_line_refer_data(ln, n, data))
+>                         err(EXIT_FAILURE, _("failed to add output data"));
+>                 n++;
