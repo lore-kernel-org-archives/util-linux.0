@@ -2,93 +2,118 @@ Return-Path: <SRS0=TRZh=VN=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CCD57C76188
-	for <util-linux@archiver.kernel.org>; Tue, 16 Jul 2019 13:19:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B158BC7618F
+	for <util-linux@archiver.kernel.org>; Tue, 16 Jul 2019 14:34:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9242D2173C
-	for <util-linux@archiver.kernel.org>; Tue, 16 Jul 2019 13:19:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 85B952173B
+	for <util-linux@archiver.kernel.org>; Tue, 16 Jul 2019 14:34:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=gmail.hu header.i=@gmail.hu header.b="K9rvK04h"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="yh3OjUKc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733034AbfGPNTl (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 16 Jul 2019 09:19:41 -0400
-Received: from mail.gmail.hu ([94.199.52.210]:41840 "EHLO mail.gmail.hu"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728290AbfGPNTl (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 16 Jul 2019 09:19:41 -0400
-X-Greylist: delayed 519 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jul 2019 09:19:41 EDT
-Received: from filter.gmail.hu (g2.gmail.hu [192.168.79.12])
-        by mail.gmail.hu (Postfix) with ESMTP id C6618945BBD87
-        for <util-linux@vger.kernel.org>; Tue, 16 Jul 2019 15:10:27 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmail.hu; h=
-        user-agent:message-id:subject:subject:from:from:date:date
-        :content-transfer-encoding:content-type:content-type
-        :mime-version:received; s=default; t=1563282660; x=1565097061;
-         bh=fMR3TrEJT+rqkaU88iN82XZs4XLe7WM/GE46n3Y9d/0=; b=K9rvK04hi4Ss
-        TNYezPN3I2CZ8hkA+RaAY8UFrSZYTLFmqS2ttbULJlAEKRiMWegjQym+vJNsB0Pb
-        cZnodfOVP9HktBEiI194CYZNWy2JazIn6SEaggXkTiuV4/T1dUnw07tdsOX2B9oZ
-        29sny5Bwe1V+BP6g7b0URqYLPM++PaY=
-Received: from mail.gmail.hu (storage1.gmail.hu [192.168.0.121])
-        by mail.gmail.hu (Postfix) with ESMTPA id C6B95945BBAD2
-        for <util-linux@vger.kernel.org>; Tue, 16 Jul 2019 15:10:26 +0200 (CEST)
+        id S1728390AbfGPOeG (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 16 Jul 2019 10:34:06 -0400
+Received: from userp2120.oracle.com ([156.151.31.85]:58888 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728387AbfGPOeG (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 16 Jul 2019 10:34:06 -0400
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x6GEXWCp118682;
+        Tue, 16 Jul 2019 14:34:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
+ from : references : date : in-reply-to : message-id : mime-version :
+ content-type; s=corp-2018-07-02;
+ bh=bw/qognzU2yOtQ60sXnIKuFMefxpvShDKTWGL2pQ/pI=;
+ b=yh3OjUKcL5279xlessO6OX+KK80XOEpITJMep+YNsBTZXmnTatmtr1x7SyqXwHhNvGMT
+ ozBTvyMlmsnyP55shWU8pnaM3Vm9iitJDy8btIkzNUEvYwgL+6wpT3c2NZwCt4kI+/Pj
+ GHQuBROC74FszV8/0vcd3fJMQgRKxmpCxB5asuHYo2h4rT1SIK3Z8CX3OjGCcxR2vRFf
+ aZncrFn5fJalp712nWaP+K/eyZG8lN6HR8vdZF3R6gG6DZ517yE5ADtD8+kkMSpTnI/O
+ OHs7txLA/KS/VYSCqqTBBLD8TBSf5iypTYOiUhcqt5mWQehJNA4hHHDfu+gU5+fBqLwy PQ== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by userp2120.oracle.com with ESMTP id 2tq7xqvuy8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 16 Jul 2019 14:34:02 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x6GEXIuQ002161;
+        Tue, 16 Jul 2019 14:34:02 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by aserp3030.oracle.com with ESMTP id 2tq5bcex95-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 16 Jul 2019 14:34:01 +0000
+Received: from abhmp0008.oracle.com (abhmp0008.oracle.com [141.146.116.14])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x6GEY05H013672;
+        Tue, 16 Jul 2019 14:34:01 GMT
+Received: from ca-mkp.ca.oracle.com (/10.159.214.123)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 16 Jul 2019 14:34:00 +0000
+To:     Istvan Gabor <suseuser04@gmail.hu>
+Cc:     Util linux <util-linux@vger.kernel.org>
+Subject: Re: fdisk does not allow overwrite default/suggested value
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+Organization: Oracle
+References: <55e1e62f0a4c14c93245292c2a62d789@gmail.hu>
+Date:   Tue, 16 Jul 2019 10:33:58 -0400
+In-Reply-To: <55e1e62f0a4c14c93245292c2a62d789@gmail.hu> (Istvan Gabor's
+        message of "Tue, 16 Jul 2019 15:10:26 +0200")
+Message-ID: <yq1k1ci1221.fsf@mkp.net>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1.92 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: quoted-printable
-Date:   Tue, 16 Jul 2019 15:10:26 +0200
-From:   Istvan Gabor <suseuser04@gmail.hu>
-To:     Util linux <util-linux@vger.kernel.org>
-Subject: fdisk does not allow overwrite default/suggested value
-Message-ID: <55e1e62f0a4c14c93245292c2a62d789@gmail.hu>
-X-Sender: suseuser04@gmail.hu
-User-Agent: G-Mail Webmail
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9320 signatures=668688
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=860
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1810050000 definitions=main-1907160179
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9320 signatures=668688
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=967 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
+ definitions=main-1907160179
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Dear util-linux developers:
 
-I'v been using cfdisk and fdisk for a long time.
-Currently I have util-linux 2.31.1 in openSUSE Leap 42.3.
+Istvan,
 
-Recently I've run into this issue:
+> https://linux-blog.anracom.com/2018/12/03/linux-ssd-partition-alignment-problems-with-external-usb-to-sata-controllers-i/
 
-I use USB hard drive docker and the system gets
-false optimal_io_size values for hard drives.
+First of all, the ATA protocol can only express logical and physical
+block sizes. So the optimal I/O size is always 0 when a disk is
+connected via a "native" ATA controller.
 
-For a detailed description of the problem, see:
+USB storage, however, is a SCSI protocol. In that configuration it is up
+to the USB bridge device to translate properties reported by the
+attached ATA device to the relevant fields in the SCSI protocol. And
+this is where several devices get it wrong (despite a fairly
+comprehensive document describing how each field should be translated).
 
-Linux SSD partition alignment =E2=80=93 problems with external USB-to-SATA=
-=20
-controllers =E2=80=93 I
+The SCSI block storage protocol permits reporting an optimal I/O
+size. Since there is no corresponding ATA parameter, it means that the
+value in your case inevitably comes from the USB bridge firmware. There
+is nothing to base this value on from the ATA device itself, so the
+bridge firmware authors either made it up or forgot to zero the field.
 
-https://linux-blog.anracom.com/2018/12/03/linux-ssd-partition-alignment-pro=
-blems-with-external-usb-to-sata-controllers-i/
+As a result of reports similar to the one above, I added an additional
+heuristic to the SCSI disk driver code a while ago. The kernel will now
+reject a device-reported optimal transfer size if it is not a multiple
+of the physical block size. So in the buggy USB-SATA bridge case above
+the optimal transfer size should be reported to user space as 0 and
+therefore fdisk should align on a 4096-byte (physical block size)
+boundary.
 
-I wanted to use fdisk for partitioning a 1 TB disk.
-fdisk wanted to start the first partition at sector
-65535 (based on the wrong optimal_io_size value, I
-guess). I tried to overwrite the suggested value with
-2048 but got "value out of range" error.
+Note that this is somewhat orthogonal to your request about being able
+to override the reported values in fdisk. I just thought some of the
+text in the links you posted warranted clarification.
 
-My point is that fdisk insist to use its suggested
-value and don't let the user set other value.
+The question is why your kernel does not have the patch adding this
+additional heuristic?
 
-In my opinion it is a bad policy, the program
-should allow to overwrite the suggested value
-and use it. If it is dangerous, then there should
-be a specific option to enable the behavior or
-double check if the user really wants to use the
-value entered. But it should be possible to use
-other values than the offered ones, especially if the
-offered value is wrong.
-
-Best regards,
-
-Istvan
-
+-- 
+Martin K. Petersen	Oracle Linux Engineering
