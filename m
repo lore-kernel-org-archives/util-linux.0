@@ -6,32 +6,33 @@ X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0E05C7618F
-	for <util-linux@archiver.kernel.org>; Sun, 28 Jul 2019 19:59:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 954E7C433FF
+	for <util-linux@archiver.kernel.org>; Sun, 28 Jul 2019 20:01:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 800EB206A2
-	for <util-linux@archiver.kernel.org>; Sun, 28 Jul 2019 19:59:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 76DE1206A2
+	for <util-linux@archiver.kernel.org>; Sun, 28 Jul 2019 20:01:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726151AbfG1T7Q (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sun, 28 Jul 2019 15:59:16 -0400
-Received: from outpost1.zedat.fu-berlin.de ([130.133.4.66]:59647 "EHLO
+        id S1726281AbfG1UBy (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 28 Jul 2019 16:01:54 -0400
+Received: from outpost1.zedat.fu-berlin.de ([130.133.4.66]:36663 "EHLO
         outpost1.zedat.fu-berlin.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726129AbfG1T7Q (ORCPT
+        by vger.kernel.org with ESMTP id S1726129AbfG1UBy (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Sun, 28 Jul 2019 15:59:16 -0400
+        Sun, 28 Jul 2019 16:01:54 -0400
 Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
           by outpost.zedat.fu-berlin.de (Exim 4.85)
           for util-linux@vger.kernel.org with esmtps (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256)
           (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id <1hrpK5-002YVC-Rh>; Sun, 28 Jul 2019 21:59:13 +0200
+          id <1hrpMe-002YwV-Rl>; Sun, 28 Jul 2019 22:01:52 +0200
 Received: from p5b13a83d.dip0.t-ipconnect.de ([91.19.168.61] helo=[192.168.178.40])
           by inpost2.zedat.fu-berlin.de (Exim 4.85)
           for util-linux@vger.kernel.org with esmtpsa (TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:128)
           (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id <1hrpK5-002YVD-J2>; Sun, 28 Jul 2019 21:59:13 +0200
-To:     util-linux <util-linux@vger.kernel.org>
+          id <1hrpMe-002Z10-GA>; Sun, 28 Jul 2019 22:01:52 +0200
+Subject: Re: Testsuite failures on Linux/sparc64
 From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Subject: Testsuite failures on Linux/sparc64
+To:     util-linux <util-linux@vger.kernel.org>
+References: <59067dd2-e0c5-c320-041c-07b0d7090e34@physik.fu-berlin.de>
 Openpgp: preference=signencrypt
 Autocrypt: addr=glaubitz@physik.fu-berlin.de; keydata=
  mQINBE3JE9wBEADMrYGNfz3oz6XLw9XcWvuIxIlPWoTyw9BxTicfGAv0d87wngs9U+d52t/R
@@ -77,11 +78,12 @@ Autocrypt: addr=glaubitz@physik.fu-berlin.de; keydata=
  jEF9ImTPcYZpw5vhdyPwBdXW2lSjV3EAqknWujRgcsm84nycuJnImwJptR481EWmtuH6ysj5
  YhRVGbQPfdsjVUQfZdRdkEv4CZ90pdscBi1nRqcqANtzC+WQFwekDzk2lGqNRDg56s+q0KtY
  scOkTAZQGVpD/8AaLH4v1w==
-Message-ID: <59067dd2-e0c5-c320-041c-07b0d7090e34@physik.fu-berlin.de>
-Date:   Sun, 28 Jul 2019 21:59:11 +0200
+Message-ID: <b32d25f6-ac5a-94e4-11fd-49ad71dd8a13@physik.fu-berlin.de>
+Date:   Sun, 28 Jul 2019 22:01:51 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
+In-Reply-To: <59067dd2-e0c5-c320-041c-07b0d7090e34@physik.fu-berlin.de>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -91,29 +93,25 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hello!
+On 7/28/19 9:59 PM, John Paul Adrian Glaubitz wrote:
+> The util-linux testsuite from git currently fails on Linux/sparc64 with:
+> 
+>         fdisk: MBR - non-dos mode: [11] 1nd-primary-delete   ... FAILED (fdisk/mbr-nondos-mode-1nd-primary-delete)
+>         blkid: superblocks probing: [31] fat32_mkdosfs_none_dosfslabel_label1_xp_label2 ... OK
+>         minix: mkfs fsck                                     ... OK
+>         fdisk: MBR - dos mode                                ... OK
+>         blkid: superblocks probing: [32] fat32_mkdosfs_none_xp_label1 ... OK
+>         blkid: superblocks probing: [33] fat32_mkdosfs_none_xp_label1_dosfslabel_label2 ... OK
+>         fdisk: MBR - non-dos mode: [12] extended-delete      ... FAILED (fdisk/mbr-nondos-mode-extended-delete)
+>         blkid: superblocks probing: [34] fat32_xp_label1     ... OK
+> Value out of range.
+>         fdisk: MBR - non-dos mode: [13] first-sector-at-end  ... FAILED (fdisk/mbr-nondos-mode-first-sector-at-end)
 
-The util-linux testsuite from git currently fails on Linux/sparc64 with:
+Full build log available in [1].
 
-        fdisk: MBR - non-dos mode: [11] 1nd-primary-delete   ... FAILED (fdisk/mbr-nondos-mode-1nd-primary-delete)
-        blkid: superblocks probing: [31] fat32_mkdosfs_none_dosfslabel_label1_xp_label2 ... OK
-        minix: mkfs fsck                                     ... OK
-        fdisk: MBR - dos mode                                ... OK
-        blkid: superblocks probing: [32] fat32_mkdosfs_none_xp_label1 ... OK
-        blkid: superblocks probing: [33] fat32_mkdosfs_none_xp_label1_dosfslabel_label2 ... OK
-        fdisk: MBR - non-dos mode: [12] extended-delete      ... FAILED (fdisk/mbr-nondos-mode-extended-delete)
-        blkid: superblocks probing: [34] fat32_xp_label1     ... OK
-Value out of range.
-        fdisk: MBR - non-dos mode: [13] first-sector-at-end  ... FAILED (fdisk/mbr-nondos-mode-first-sector-at-end)
-
-To reproduce this problem, the easiest way is to request an account for the
-gcc compile farm [1] and try to reproduce the issue on the machine gcc202
-which is a fast SPARC T5 running Debian unstable.
-
-Thanks,
 Adrian
 
-> [1] https://gcc.gnu.org/wiki/CompileFarm
+> [1] https://buildd.debian.org/status/fetch.php?pkg=util-linux&arch=sparc64&ver=2.34-0.1&stamp=1564331209&raw=0
 
 -- 
  .''`.  John Paul Adrian Glaubitz
