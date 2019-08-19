@@ -2,82 +2,79 @@ Return-Path: <SRS0=DPLT=WP=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E842C3A59B
-	for <util-linux@archiver.kernel.org>; Mon, 19 Aug 2019 08:33:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4190C3A5A0
+	for <util-linux@archiver.kernel.org>; Mon, 19 Aug 2019 12:32:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2FC602082C
-	for <util-linux@archiver.kernel.org>; Mon, 19 Aug 2019 08:33:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9478E20843
+	for <util-linux@archiver.kernel.org>; Mon, 19 Aug 2019 12:32:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726477AbfHSIdQ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 19 Aug 2019 04:33:16 -0400
-Received: from mail.windriver.com ([147.11.1.11]:49657 "EHLO
-        mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725768AbfHSIdQ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 19 Aug 2019 04:33:16 -0400
-Received: from ALA-HCA.corp.ad.wrs.com ([147.11.189.40])
-        by mail.windriver.com (8.15.2/8.15.1) with ESMTPS id x7J8XBpl016305
-        (version=TLSv1 cipher=AES128-SHA bits=128 verify=FAIL)
-        for <util-linux@vger.kernel.org>; Mon, 19 Aug 2019 01:33:11 -0700 (PDT)
-Received: from pek-lpggp6.wrs.com (128.224.153.40) by ALA-HCA.corp.ad.wrs.com
- (147.11.189.50) with Microsoft SMTP Server id 14.3.468.0; Mon, 19 Aug 2019
- 01:33:10 -0700
-From:   Kevin Hao <kexin.hao@windriver.com>
-To:     <util-linux@vger.kernel.org>
-Subject: [PATCH] libmount: Keep the mnt_tab info for the existent dest in mnt_copy_fs()
-Date:   Mon, 19 Aug 2019 16:30:22 +0800
-Message-ID: <20190819083022.12289-1-kexin.hao@windriver.com>
-X-Mailer: git-send-email 2.14.4
+        id S1726755AbfHSMc6 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 19 Aug 2019 08:32:58 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:55930 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726594AbfHSMc6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 19 Aug 2019 08:32:58 -0400
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 8CA4D1057944;
+        Mon, 19 Aug 2019 12:32:57 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.205.174])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 74E2F18944;
+        Mon, 19 Aug 2019 12:32:56 +0000 (UTC)
+Date:   Mon, 19 Aug 2019 14:32:53 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Anatoly Pugachev <matorola@gmail.com>
+Cc:     util-linux <util-linux@vger.kernel.org>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Subject: Re: Testsuite failures on Linux/sparc64
+Message-ID: <20190819123253.ruuazfyr7sgwqjkl@ws.net.home>
+References: <59067dd2-e0c5-c320-041c-07b0d7090e34@physik.fu-berlin.de>
+ <b32d25f6-ac5a-94e4-11fd-49ad71dd8a13@physik.fu-berlin.de>
+ <CADxRZqyga7QKSD16NcGaSx9oGGor0SRORuE7fMStOhcD4Ck5EQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CADxRZqyga7QKSD16NcGaSx9oGGor0SRORuE7fMStOhcD4Ck5EQ@mail.gmail.com>
+User-Agent: NeoMutt/20180716-1584-710bcd
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.64]); Mon, 19 Aug 2019 12:32:57 +0000 (UTC)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-The "umount -f -a -r" get stuck in a endless loop when run with a
-mountinfo like below:
-  15 0 179:2 / / ro,relatime - ext4 /dev/root ro
-  16 15 0:6 / /dev rw,relatime - devtmpfs devtmpfs rw,size=242896k,nr_inodes=60724,mode=755
-  17 15 0:4 / /proc rw,relatime - proc proc rw
-  18 15 0:15 / /mnt/.psplash rw,relatime - tmpfs tmpfs rw,size=40k
-  19 15 0:16 / /sys rw,relatime - sysfs sysfs rw
-  20 19 0:7 / /sys/kernel/debug rw,relatime - debugfs debugfs rw
-  21 15 0:17 / /run rw,nosuid,nodev - tmpfs tmpfs rw,mode=755
-  22 15 0:18 / /var/volatile rw,relatime - tmpfs tmpfs rw
-  23 15 179:1 / /boot rw,relatime - vfat /dev/mmcblk0p1 rw,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,errors=remount-ro
-  24 16 0:19 / /dev/pts rw,relatime - devpts devpts rw,gid=5,mode=620,ptmxmode=000
-  25 18 0:20 / /mnt/.psplash rw,relatime - tmpfs tmpfs rw,size=40k
+On Sun, Aug 18, 2019 at 03:17:31PM +0300, Anatoly Pugachev wrote:
+> On Sun, Jul 28, 2019 at 11:02 PM John Paul Adrian Glaubitz
+> <glaubitz@physik.fu-berlin.de> wrote:
+> > On 7/28/19 9:59 PM, John Paul Adrian Glaubitz wrote:
+> > > The util-linux testsuite from git currently fails on Linux/sparc64 with:
+> > >
+> > >         fdisk: MBR - non-dos mode: [11] 1nd-primary-delete   ... FAILED (fdisk/mbr-nondos-mode-1nd-primary-delete)
+> > >         blkid: superblocks probing: [31] fat32_mkdosfs_none_dosfslabel_label1_xp_label2 ... OK
+> > >         minix: mkfs fsck                                     ... OK
+> > >         fdisk: MBR - dos mode                                ... OK
+> > >         blkid: superblocks probing: [32] fat32_mkdosfs_none_xp_label1 ... OK
+> > >         blkid: superblocks probing: [33] fat32_mkdosfs_none_xp_label1_dosfslabel_label2 ... OK
+> > >         fdisk: MBR - non-dos mode: [12] extended-delete      ... FAILED (fdisk/mbr-nondos-mode-extended-delete)
+> > >         blkid: superblocks probing: [34] fat32_xp_label1     ... OK
+> > > Value out of range.
+> > >         fdisk: MBR - non-dos mode: [13] first-sector-at-end  ... FAILED (fdisk/mbr-nondos-mode-first-sector-at-end)
+> 
+> fdisk non-dos mode tests are not suited (written) for sparc, since
+> default fdisk partition table/mode on sparc is 'sun'.
+> So disable this test on sparc. Patch attached. Tested locally and on gcc202.
 
-The reason is that the two same mnt entry "/mnt/.psplash" will cause
-the dst->tab set to NULL when umount this mnt entry the second time.
-This will trigger an endless loop in mnt_reset_table() because that
-mnt entry is linked on the libmnt_table but its .tab is set to NULL.
+I have applied a little bit different version. It seems we can remove
+all the non-MBR stuff from the test. Thanks!
 
-Signed-off-by: Kevin Hao <kexin.hao@windriver.com>
----
- libmount/src/fs.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+    Karel
 
-diff --git a/libmount/src/fs.c b/libmount/src/fs.c
-index eb89bb8a39be..4126ee9dce85 100644
---- a/libmount/src/fs.c
-+++ b/libmount/src/fs.c
-@@ -188,9 +188,10 @@ struct libmnt_fs *mnt_copy_fs(struct libmnt_fs *dest,
- 		dest = mnt_new_fs();
- 		if (!dest)
- 			return NULL;
-+
-+		dest->tab	 = NULL;
- 	}
- 
--	dest->tab	 = NULL;
- 	dest->id         = src->id;
- 	dest->parent     = src->parent;
- 	dest->devno      = src->devno;
+
 -- 
-2.14.4
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
