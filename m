@@ -2,103 +2,151 @@ Return-Path: <SRS0=LZ/s=WQ=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B76C9C3A589
-	for <util-linux@archiver.kernel.org>; Tue, 20 Aug 2019 15:11:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 786CBC3A589
+	for <util-linux@archiver.kernel.org>; Tue, 20 Aug 2019 15:42:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 934EC20C01
-	for <util-linux@archiver.kernel.org>; Tue, 20 Aug 2019 15:11:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 52A3F22CE3
+	for <util-linux@archiver.kernel.org>; Tue, 20 Aug 2019 15:42:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728682AbfHTPL6 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 20 Aug 2019 11:11:58 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:38316 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727988AbfHTPL6 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 20 Aug 2019 11:11:58 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 05D468980FD;
-        Tue, 20 Aug 2019 15:11:58 +0000 (UTC)
-Received: from oldenburg2.str.redhat.com (dhcp-192-200.str.redhat.com [10.33.192.200])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 3E7FC7E53;
-        Tue, 20 Aug 2019 15:11:57 +0000 (UTC)
-From:   Florian Weimer <fweimer@redhat.com>
-To:     Karel Zak <kzak@redhat.com>
-Cc:     Patrick Steinhardt <ps@pks.im>, util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/4] Fix closing of standard text streams for non-glibc system
-References: <cover.1565800625.git.ps@pks.im>
-        <20190819133619.dtn5ch2sdbme5zir@ws.net.home>
-        <20190820131742.GB50493@ncase>
-        <20190820150435.mbubnjyqbgdev45q@10.255.255.10>
-Date:   Tue, 20 Aug 2019 17:11:55 +0200
-In-Reply-To: <20190820150435.mbubnjyqbgdev45q@10.255.255.10> (Karel Zak's
-        message of "Tue, 20 Aug 2019 17:04:35 +0200")
-Message-ID: <87tvabna6c.fsf@oldenburg2.str.redhat.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.2 (gnu/linux)
+        id S1726879AbfHTPmM (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 20 Aug 2019 11:42:12 -0400
+Received: from out01.mta.xmission.com ([166.70.13.231]:59872 "EHLO
+        out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726717AbfHTPmL (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 20 Aug 2019 11:42:11 -0400
+Received: from in01.mta.xmission.com ([166.70.13.51])
+        by out01.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1i06Gw-00041O-Pt; Tue, 20 Aug 2019 09:42:10 -0600
+Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
+        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1i06Gv-0002KY-I9; Tue, 20 Aug 2019 09:42:10 -0600
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     Patrick Steinhardt <ps@pks.im>
+Cc:     Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+References: <3fcfc033d9d115649fee5f9ae05296c29033a7de.1565866421.git.ps@pks.im>
+        <20190820125132.iq3w234ump62mnmb@10.255.255.10>
+        <20190820130930.GA50493@ncase>
+Date:   Tue, 20 Aug 2019 10:41:59 -0500
+In-Reply-To: <20190820130930.GA50493@ncase> (Patrick Steinhardt's message of
+        "Tue, 20 Aug 2019 15:09:30 +0200")
+Message-ID: <87ef1fj12w.fsf@xmission.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/25.1 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.67]); Tue, 20 Aug 2019 15:11:58 +0000 (UTC)
+X-XM-SPF: eid=1i06Gv-0002KY-I9;;;mid=<87ef1fj12w.fsf@xmission.com>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX18hWYkj0+GFmDQgyES5znFiwAbhl5uX+RQ=
+X-SA-Exim-Connect-IP: 68.227.160.95
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH] unshare: allow setting up filesystems in the mount namespace
+X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-* Karel Zak:
+Patrick Steinhardt <ps@pks.im> writes:
 
-> On Tue, Aug 20, 2019 at 03:17:42PM +0200, Patrick Steinhardt wrote:
->> On Mon, Aug 19, 2019 at 03:36:19PM +0200, Karel Zak wrote:
->> > On Wed, Aug 14, 2019 at 06:45:03PM +0200, Patrick Steinhardt wrote:
->> > > since commit 52aa1a661 (include/closestream: avoid close more
->> > > than once, 2019-06-13), util-linux fails to build on musl libc
->> > > based systems. The culprit here is that it introduced assignments
->> > > to stderr and stdout, while the C89 standard explicitly notes
->> > > that treating stderr and stdout as valid lvalues is not a
->> > > requirement for any conforming C implementation. musl libc
->> > > implemented these streams as `extern FILE *const`, and as a
->> > > result assigning to these variables causes compiler errors.
+> On Tue, Aug 20, 2019 at 02:51:32PM +0200, Karel Zak wrote:
+>> On Thu, Aug 15, 2019 at 12:54:45PM +0200, Patrick Steinhardt wrote:
+>> > In order to execute commands with the least-possible privileges, it may
+>> > be desirable to provide them with a trimmed down filesystem view.
+>> > unshare naturally provides the ability to create mount namespaces, but
+>> > it doesn't yet offer much in preparing these. For now, a combination of
+>> > unshare and nsenter is required to prepare culled filesystems views,
+>> > which is kind of unwieldy.
 >> > 
->> > The question is if close() for stdout and stderr is the right way to
->> > go. 
->> > 
->> > In an ideal world it would be enough to use ferror()+fflush(),
->> > unfortunately for example NFS has never reached an ideal world and it
->> > requires fclose()... See
->> > 
->> >  https://lists.gnu.org/r/bug-gnulib/2019-04/msg00061.html
->> > 
->> > Florian (added to CC), also suggested to use dup3() for the
->> > descriptors and then fclose() for the new handle. It sounds like a
->> > pretty elegant solution how to avoid all the issues with NULL and it's
->> > also robust enough if you accidentally call close_stream() more than
->> > once.
->> > 
->> > See
->> > 
->> >  https://bugzilla.redhat.com/show_bug.cgi?id=1732450#c4
->> > 
->> > Maybe we can improve include/closestream.h to use dup3(), than it would
->> > be possible keep all in the header file as inline functions. 
->> > 
->> > Comments?
+>> > To remedy that, this implements a new option "--mount-fs". As
+>> > parameters, one may specify a source filesystem, the destination where
+>> > this filesystem shall be mounted, the type of filesystem as well as a
+>> > set of options. unshare will then mount it using libmount right before
+>> > performing `chroot`, `chdir` and the subsequent `execve`, which allows
+>> > for preparing the `chroot` environment without using nsenter at all.
+>> >
+>> > The above is useful in several different cases, for example when one
+>> > wants to execute the process in a read-only environment or execute it
+>> > with a reduced view of the filesystem.
 >> 
->> I honestly don't get why we'd need to use dup3(2), though.
->> Couldn't the same be achieved by using dup2(3P) followed by
->> close(3P), instead? Especially considering that the former one
->> isn't specified by POSIX, either, but the latter one is.
+>> I understand your point of view, but it's a way how unshare(1) will
+>> slowly grow from simple one-purpose tool to complex container/namespace
+>> setup tool ;-) I do not have any strong opinion about it. Maybe your 
+>> --mount-fs is still so basic that we can merge it into unshare(1)
+>> 
+>> Sounds like we need a discussion about it to gather more opinions :-)
+>> (CC to Eric).
 >
-> Well, I guess Florian has used dup3() as example and I don't think we
-> have to care about the flags (O_CLOEXEC)  as we close the descriptor
-> in the same function. The important thing is to have descriptor which we
-> can close to force filesystems to sync stuff :-)
+> Sounds fair to me. The main motivation I have is that I want to
+> use unshare(1) as part of runit(8) to spawn supervised processes
+> in their own namespaces. And using multiple steps to set up
+> namespaces and spawn the executable makes things a lot more error
+> prone.
 
-Even in that case, dup3 would still be relevant to multi-threaded
-programs.  I don't know about the context, it may not be relevant to
-util-linux.
+My vision of unshare is a simple command line debugging tool.  It let's
+you get at the raw functionality.  It might be useful in scripts but it
+doesn't provide a nice environment.  The secondary purpose I see for
+unshare is as a small example that shows how easy it is to use all
+of the functionality.
 
-Thanks,
-Florian
+At least for me unshare is what I turn to do all of the steps manually,
+and keeping it simple and focused is a major benefit to that cause.
+
+>> Note that the latest mount(8) has --namespace option, so you can mount
+>> filesystems in the another namespace although the namespace does not
+>> contain mount command and necessary libs.
+>
+> That would require me to set up persistent namespaces first,
+> though, while unshare(1) allows me to use transient ones that
+> disappear as soon as the executable exits.
+>
+>> And note that for systemd based distros there is systemd-nspawn which
+>> provides many many features (include IPC, hostname, TZ, private users,
+>> ...).
+>
+> Yeah, I know of that one, but as I'm using runit(8) as PID1
+> systemd-nspawn(1) is not a viable route, at least as far as I
+> know. I'm definitely inspired by that tool, though, and would
+> love to have something similar that is completely agnostic of
+> what init system is running.
+>
+>> > +.B # unshare
+>> > +.B    --mount-fs=none:/tmp:tmpfs
+>> > +.B    --mount-fs=/bin:/tmp/bin:none:bind,ro,X-mount.mkdir
+>> > +.B    --mount-fs=/lib:/tmp/lib:none:bind,ro,X-mount.mkdir
+>> > +.B    --mount-fs=/usr/lib:/tmp/usr/lib:none:bind,ro,X-mount.mkdir
+>> > +.B    --root=/tmp /bin/ls /
+>> 
+>> The libmount also allows to mount all filesystem according to mount
+>> table stored in a file, so I can imagine --fstab option ;-)
+>
+> I thought about exposing parsing of fstab-style lines from
+> libmount. But I'd definitely be happy to implement an "--fstab"
+> option instead, that would work perfectly fine for my own usecase
+> and probably simplify code by quite a bit.
+
+The tricky part of all of this appears to be permission management.  As
+soon as you change your uids and/or exec you are in trouble.  As that
+will cause you to loose CAP_SYS_ADMIN (unless you are running a service
+as root).
+
+My sense is that it would be easiest to write a little tool that does
+what you need to run services.  Possibly as a PAM plugin.  I know
+originally that is how the unshare system call was expected to be used,
+and unshare fits in well with that model.  The example of a PAM plugin
+is that potentially runit and sshd could be convinced to setup the
+environment for you when you start them.
+
+In fact I think there might already be a PAM plugin for a private /tmp.
+
+Now maybe util-linux is the place for that tool to live.  But I don't
+think the unshare command itself is where we want to put the
+functionality.
+
+Eric
