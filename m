@@ -1,4 +1,4 @@
-Return-Path: <SRS0=DPLT=WP=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=LZ/s=WQ=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
@@ -6,95 +6,93 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14FB6C3A5A0
-	for <util-linux@archiver.kernel.org>; Mon, 19 Aug 2019 13:36:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E95CC3A589
+	for <util-linux@archiver.kernel.org>; Tue, 20 Aug 2019 12:51:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E55E32085A
-	for <util-linux@archiver.kernel.org>; Mon, 19 Aug 2019 13:36:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DD19422CF7
+	for <util-linux@archiver.kernel.org>; Tue, 20 Aug 2019 12:51:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727354AbfHSNgX (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 19 Aug 2019 09:36:23 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:37248 "EHLO mx1.redhat.com"
+        id S1729409AbfHTMvh (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 20 Aug 2019 08:51:37 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:34650 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727332AbfHSNgW (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 19 Aug 2019 09:36:22 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        id S1729203AbfHTMvh (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 20 Aug 2019 08:51:37 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id CAC7A81F1B;
-        Mon, 19 Aug 2019 13:36:22 +0000 (UTC)
-Received: from ws.net.home (unknown [10.40.205.174])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id E0E37831B3;
-        Mon, 19 Aug 2019 13:36:21 +0000 (UTC)
-Date:   Mon, 19 Aug 2019 15:36:19 +0200
+        by mx1.redhat.com (Postfix) with ESMTPS id 99A2A3090FCB;
+        Tue, 20 Aug 2019 12:51:36 +0000 (UTC)
+Received: from 10.255.255.10 (ovpn-204-40.brq.redhat.com [10.40.204.40])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9D69160605;
+        Tue, 20 Aug 2019 12:51:35 +0000 (UTC)
+Date:   Tue, 20 Aug 2019 14:51:32 +0200
 From:   Karel Zak <kzak@redhat.com>
 To:     Patrick Steinhardt <ps@pks.im>
-Cc:     util-linux@vger.kernel.org, Florian Weimer <fweimer@redhat.com>
-Subject: Re: [PATCH 0/4] Fix closing of standard text streams for non-glibc
- system
-Message-ID: <20190819133619.dtn5ch2sdbme5zir@ws.net.home>
-References: <cover.1565800625.git.ps@pks.im>
+Cc:     util-linux@vger.kernel.org,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH] unshare: allow setting up filesystems in the mount
+ namespace
+Message-ID: <20190820125132.iq3w234ump62mnmb@10.255.255.10>
+References: <3fcfc033d9d115649fee5f9ae05296c29033a7de.1565866421.git.ps@pks.im>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cover.1565800625.git.ps@pks.im>
+In-Reply-To: <3fcfc033d9d115649fee5f9ae05296c29033a7de.1565866421.git.ps@pks.im>
 User-Agent: NeoMutt/20180716-1584-710bcd
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.27]); Mon, 19 Aug 2019 13:36:22 +0000 (UTC)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.43]); Tue, 20 Aug 2019 12:51:36 +0000 (UTC)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, Aug 14, 2019 at 06:45:03PM +0200, Patrick Steinhardt wrote:
-> since commit 52aa1a661 (include/closestream: avoid close more
-> than once, 2019-06-13), util-linux fails to build on musl libc
-> based systems. The culprit here is that it introduced assignments
-> to stderr and stdout, while the C89 standard explicitly notes
-> that treating stderr and stdout as valid lvalues is not a
-> requirement for any conforming C implementation. musl libc
-> implemented these streams as `extern FILE *const`, and as a
-> result assigning to these variables causes compiler errors.
+On Thu, Aug 15, 2019 at 12:54:45PM +0200, Patrick Steinhardt wrote:
+> In order to execute commands with the least-possible privileges, it may
+> be desirable to provide them with a trimmed down filesystem view.
+> unshare naturally provides the ability to create mount namespaces, but
+> it doesn't yet offer much in preparing these. For now, a combination of
+> unshare and nsenter is required to prepare culled filesystems views,
+> which is kind of unwieldy.
+> 
+> To remedy that, this implements a new option "--mount-fs". As
+> parameters, one may specify a source filesystem, the destination where
+> this filesystem shall be mounted, the type of filesystem as well as a
+> set of options. unshare will then mount it using libmount right before
+> performing `chroot`, `chdir` and the subsequent `execve`, which allows
+> for preparing the `chroot` environment without using nsenter at all.
+>
+> The above is useful in several different cases, for example when one
+> wants to execute the process in a read-only environment or execute it
+> with a reduced view of the filesystem.
 
-The question is if close() for stdout and stderr is the right way to
-go. 
+I understand your point of view, but it's a way how unshare(1) will
+slowly grow from simple one-purpose tool to complex container/namespace
+setup tool ;-) I do not have any strong opinion about it. Maybe your 
+--mount-fs is still so basic that we can merge it into unshare(1)
 
-In an ideal world it would be enough to use ferror()+fflush(),
-unfortunately for example NFS has never reached an ideal world and it
-requires fclose()... See
+Sounds like we need a discussion about it to gather more opinions :-)
+(CC to Eric).
 
- https://lists.gnu.org/r/bug-gnulib/2019-04/msg00061.html
+Note that the latest mount(8) has --namespace option, so you can mount
+filesystems in the another namespace although the namespace does not
+contain mount command and necessary libs.
 
-Florian (added to CC), also suggested to use dup3() for the
-descriptors and then fclose() for the new handle. It sounds like a
-pretty elegant solution how to avoid all the issues with NULL and it's
-also robust enough if you accidentally call close_stream() more than
-once.
+And note that for systemd based distros there is systemd-nspawn which
+provides many many features (include IPC, hostname, TZ, private users,
+...).
 
-See
+> +.B # unshare
+> +.B    --mount-fs=none:/tmp:tmpfs
+> +.B    --mount-fs=/bin:/tmp/bin:none:bind,ro,X-mount.mkdir
+> +.B    --mount-fs=/lib:/tmp/lib:none:bind,ro,X-mount.mkdir
+> +.B    --mount-fs=/usr/lib:/tmp/usr/lib:none:bind,ro,X-mount.mkdir
+> +.B    --root=/tmp /bin/ls /
 
- https://bugzilla.redhat.com/show_bug.cgi?id=1732450#c4
+The libmount also allows to mount all filesystem according to mount
+table stored in a file, so I can imagine --fstab option ;-)
 
-Maybe we can improve include/closestream.h to use dup3(), than it would
-be possible keep all in the header file as inline functions. 
-
-Comments?
-
-> Attached is a fix for this. Instead of assigning `NULL` to the
-> streams, util-linux now uses a static variable `streams_closed`.
-
-I don't think we need to check if we already performed this operation
-as it's always called only once by atexit() and with dup3() it will be
-robust enough.
-
-> Unfortunately, this fix necessitated some shifting around as
-> closestream was previously implemented as header, only, and
-> implementing static variables inside of a header is not going to
-> work due to them being static to the single compilation unit,
-> only. Thus I converted the code to move the implementation into
-> "lib/closestream.c".
-
- Karel
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
