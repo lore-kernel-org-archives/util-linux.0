@@ -1,82 +1,77 @@
-Return-Path: <SRS0=P1gn=WS=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=YMMD=WT=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41A03C3A59D
-	for <util-linux@archiver.kernel.org>; Thu, 22 Aug 2019 09:40:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DBC6CC3A5A2
+	for <util-linux@archiver.kernel.org>; Fri, 23 Aug 2019 10:17:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D661F206DD
-	for <util-linux@archiver.kernel.org>; Thu, 22 Aug 2019 09:40:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 754B321726
+	for <util-linux@archiver.kernel.org>; Fri, 23 Aug 2019 10:17:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=pks.im header.i=@pks.im header.b="DYIeYzSh";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="P4A2sxFd"
+	dkim=pass (2048-bit key) header.d=pks.im header.i=@pks.im header.b="Xf+3qfkj";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="dqql02uc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729455AbfHVJkZ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 22 Aug 2019 05:40:25 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:41585 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727484AbfHVJkZ (ORCPT
+        id S2388935AbfHWKRJ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 23 Aug 2019 06:17:09 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:43161 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725893AbfHWKRJ (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 22 Aug 2019 05:40:25 -0400
+        Fri, 23 Aug 2019 06:17:09 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 61A592102F;
-        Thu, 22 Aug 2019 05:40:23 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Thu, 22 Aug 2019 05:40:23 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 02E89457
+        for <util-linux@vger.kernel.org>; Fri, 23 Aug 2019 06:17:07 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Fri, 23 Aug 2019 06:17:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pks.im; h=from
-        :to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-type:content-transfer-encoding; s=fm1; bh=
-        MT7nRMTqciKmioiI7+85H7yv2Vzahkpkx1y3TrUVOzY=; b=DYIeYzShad451Yk1
-        vFYxGW6vpKk6lXSSzdeAqcETw3xHyAZOkkNxAUx6B/f0Iy1v/U5g1aCXvW1K7t0p
-        qXMCdFnNEh3nc7rfKkbtkxql9dssI5vK1sTVx9ggJwiM5UB+VMqg5sONbezMfiNk
-        BlA5UZoVMkR5diKx/6gyVqek1rqEGuzyHDug+U6PNwxDbZe2Tveae3VTW5prx80r
-        x4QZu1Xy/mneV+Fyv+HBljHaSmuJ60a2owatH2LaRGrdxK5TlUxzL7rvWuNSWYyI
-        t66XvorzZYPVon4r9VdwEJV6AZ+FYd57eaf509lgtIauhy/H5WGVuaXmHqdhhxeG
-        NtV6wQ==
+        :to:cc:subject:date:message-id:mime-version:content-type
+        :content-transfer-encoding; s=fm1; bh=rx5QiZ7LLmSOQjBfbtEYO/QQmy
+        8vEv8SCz5D+LddN4c=; b=Xf+3qfkjtEvShPRUSM3Vbt/I4udecZePRivkVnfPeb
+        N/Qbo0ilkpM3PY7EaN5Uv++yZmXk9VmsHdcUyF6QnyAYnEm8LcFgITpWGFwi2fq1
+        qb8CX9NkiOdzmM9Qk/0XJ7vlmdf697+8T7Yov4wuZp7bgaduXoGSB5tQ/0tWAMfH
+        cGYFMTEoPGhYRMckIS3oMkcH1iYQdBFWlkJdxFnyOvXwH/JHn5yDP6095Zl8hSw3
+        HFRlV0n3SELDbMHW6mgV1AUJN+EBe32oPj2VoldQq3d0L8ia54f4r6zrfpiLayy0
+        eEAY50LJhcA1uEOFgZ5mzr9VViTb5WP0qIMPbh5rlaiw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=MT7nRMTqciKmioiI7+85H7yv2Vzahkpkx1y3TrUVO
-        zY=; b=P4A2sxFd12gZfvU95D9pQPCC9VbrYz70TBkYck/zyFu8sc0h0pxt+Y9LB
-        FMqMGpbTYqc3JiUNYoMLBRD8as2qDm4ngctCCf9U7E7LfyoIbRKs0GHbErJcyyuz
-        Pct6Zr09uumivZCwcN1j/u04LItREPvVonZWkAUQs3U459dqbQzhBzB+aFQ7QEtg
-        RAflGVIgGlMScJZbBq2RdIfnLHETOk/d2GmM6XRHdtPYp0wSOq/YCuiPz8UkB1FA
-        yQiAi1gUsAvdrRRqoyAKm/gNeZr9TV9VjjPN0wH/Yr0ZBslDSUmBEuCpTkNjcazK
-        nT/MC17ejlIdxnQI+zz61IEsV90Lg==
-X-ME-Sender: <xms:BmNeXQpokgvY9VxLFyVNuVRSsbg-G6ws6RIVUwiDg0eNcQWZFPxiRw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudeghedgudekucetufdoteggodetrfdotf
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=rx5QiZ
+        7LLmSOQjBfbtEYO/QQmy8vEv8SCz5D+LddN4c=; b=dqql02ucEHJlNXDqn6Ki+M
+        DAK4tSLVjR7r1DvS47pLPWOMC7VfTd3wLhASufLWBg2e2EXzu3kO3+jJ5y7ijK5e
+        CJoobQqcj0bFFbmIYL9bWpp8tVD+CT8rgE9GPa5gGXb1UmehYf8dblInYqy9dWz/
+        o9gfq+7ML7w09LpVUUYMuLXOagU1ZLF77JvrbaFYUoMad1AkvvIitdcvbB/5lrRt
+        vJFS5o6HDYf+PJ13E+uPJn+WiW+xYWCAqtwGY7kGt9gw4RjiHYUIj8/UXGYw63Fe
+        8VyxgMA0otIQ2sfdCgnQCIxUQRTjEyqKE8nxXRtfWLz9yiUSlnlg7VObdQvWiDoA
+        ==
+X-ME-Sender: <xms:I71fXVKMUGyY0iz3K5eRKfjbNC6c0Y_6GlKosBI4bfJrnE1abuYVfQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudegkedgvdefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhephffvufffkffojghfgggtgfesthekredtredtjeenucfhrhhomheprfgrthhr
-    ihgtkhcuufhtvghinhhhrghrughtuceophhssehpkhhsrdhimheqnecukfhppeejkedrhe
-    egrddvheegrdduhedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehpshesphhkshdrihhm
-    necuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:BmNeXfGAdxQ2vzeHtNf6rlz9QHdzvxTDxqgiYVZ4U8eXnbPnBcx2PA>
-    <xmx:BmNeXTxGOk0RmYWtsvr48zyHAzYFNJoLPcPBTNdj4JBJEgIwA4s3ow>
-    <xmx:BmNeXWqPAr9TmatAM0QC9z6Z3h9OQbqldBGMgHcXxXc_dTPKQj3LMQ>
-    <xmx:B2NeXVRoIyPdJL6H0xQkPpU1-Dl6Rc8oLm5HvUDpPkTRGTLLNwqNOA>
-Received: from NSJAIL (x4e36fe96.dyn.telefonica.de [78.54.254.150])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EEBE980061;
-        Thu, 22 Aug 2019 05:40:21 -0400 (EDT)
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertd
+    ertdejnecuhfhrohhmpefrrghtrhhitghkucfuthgvihhnhhgrrhguthcuoehpshesphhk
+    shdrihhmqeenucfkphepjeejrdduledurddvudefrddvtddtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehpshesphhkshdrihhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:I71fXdNzOh8Qgn97vMqfcw6I5rSHWIGKsJy6PCwaFDkFX4dlZFuzxg>
+    <xmx:I71fXTqdFScwe-sduW3htdCAxzDRBc6ByjYFajlejMLraSF3EjDxXQ>
+    <xmx:I71fXXUbQEMcpFOWxv170EmysXYEeTwHnxtq1JFETXS6AQSJNLjG4w>
+    <xmx:I71fXc_CXx2oZVeZnfix4_L6e5eFNGa5XGsbRD2iIghiHyrPxrJYnQ>
+Received: from NSJAIL (x4dbfd5c8.dyn.telefonica.de [77.191.213.200])
+        by mail.messagingengine.com (Postfix) with ESMTPA id CB973D6005D
+        for <util-linux@vger.kernel.org>; Fri, 23 Aug 2019 06:17:06 -0400 (EDT)
 Received: from localhost (10.192.0.11 [10.192.0.11])
-        by NSJAIL (OpenSMTPD) with ESMTPSA id 009774c7 (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO);
-        Thu, 22 Aug 2019 09:40:16 +0000 (UTC)
+        by NSJAIL (OpenSMTPD) with ESMTPSA id 74a7ec9e (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO);
+        Fri, 23 Aug 2019 10:17:04 +0000 (UTC)
 From:   Patrick Steinhardt <ps@pks.im>
 To:     util-linux@vger.kernel.org
-Cc:     Patrick Steinhardt <ps@pks.im>, Karel Zak <kzak@redhat.com>,
-        Florian Weimer <fweimer@redhat.com>
-Subject: [PATCH v2] include/closestream: fix assignment to read-only standard streams
-Date:   Thu, 22 Aug 2019 11:40:15 +0200
-Message-Id: <3e5f8ff67edc6ae34ff67124c956a71dcf49ea98.1566466780.git.ps@pks.im>
+Cc:     Patrick Steinhardt <ps@pks.im>
+Subject: [PATCH 0/6] Test suite fixes for musl libc
+Date:   Fri, 23 Aug 2019 12:16:57 +0200
+Message-Id: <cover.1566555078.git.ps@pks.im>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <cover.1565800625.git.ps@pks.im>
-References: <cover.1565800625.git.ps@pks.im>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -85,98 +80,73 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-In order to avoid closing standard streams multiple times, commit
-52aa1a661 (include/closestream: avoid close more than once, 2019-06-13)
-introduced code to set the standard output and error streams to `NULL`.
-As musl libc defines standard streams as constant pointers, the change
-causes compiler errors on systems with that libc. According to ISO C89,
-being able to assign to the standard text streams is not a requirement
-for any C implementation, see footnote 238 in chapter §7.19.5.6:
+Hi,
 
-    The primary use of the freopen function is to change the file
-    associated with a standard text stream (stderr, stdin, or stdout),
-    as those identifiers need not be modifiable lvalues to which the
-    value returned by the fopen function may be assigned.
+on latest master of util-linux, there's currently 20 test- and
+subtest failures on musl based systems. There's three different
+categories of failures:
 
-This commit implements a new function `flush_standard_stream` that tries
-to reliably flush standard streams without actually closing them. By not
-calling fclose(3P), we can neatly avoid the issue of accessing standard
-streams in an unspecified state and thus remove the infringing `NULL`
-assignments.
+    - Reliance on buffering properties of stdout/stderr.
 
-Properly flushing standard streams without fclose(3P) proves to be more
-intricate than one may expect, though, as some filesystems like NFS may
-defer flushing until they see a close(3P) of the underlying descriptor.
-One may call fsync(3P) to remedy that, but this may incur a heavy
-performance penalty in some scenarios. To work around the issue and
-still get proper errors, we duplicate the stream's file descriptor and
-close that one instead, which is sufficient to cause a flush.
+    - Expectance of non-standard error messages returned by
+      strerror(3P).
 
-Note that both `close_stdout` and `close_stdout_atexit` are misnamed
-after this change, as we do not actually close the streams now. In order
-to avoid unnecessary code churn, we still retain their current names.
+    - Expectance of EILSEQ with POSIX locale.
 
-Signed-off-by: Patrick Steinhardt <ps@pks.im>
----
- include/closestream.h | 33 ++++++++++++++++++++++++++++-----
- 1 file changed, 28 insertions(+), 5 deletions(-)
+This patch set fixes all of the above, bringing down the number
+of failures from 20 to a single test failure. The remaining
+failure is in getopt(1), which documents and implicitly relies on
+the POSIXLY_CORRECT environment variable when calling getopt_long
+from glibc. Adhering to this variable isn't implemented by musl
+libc, so to get this working correctly one would have to modify
+getopt(1) itself, e.g. by automatically prepending a '+' to the
+optstr if the envvar is set. But I'll leave that to another patch
+series.
 
-diff --git a/include/closestream.h b/include/closestream.h
-index 83df1ee7d..41afbe208 100644
---- a/include/closestream.h
-+++ b/include/closestream.h
-@@ -35,11 +35,37 @@ close_stream(FILE * stream)
- 	return 0;
- }
- 
-+static inline int
-+flush_standard_stream(FILE *stream)
-+{
-+	int fd;
-+
-+	errno = 0;
-+
-+	if (ferror(stream) != 0 || fflush(stream) != 0)
-+		goto error;
-+
-+	/*
-+	 * Calling fflush is not sufficient on some filesystems
-+	 * like e.g. NFS, which may defer the actual flush until
-+	 * close. Calling fsync would help solve this, but would
-+	 * probably result in a performance hit. Thus, we work
-+	 * around this issue by calling close on a dup'd file
-+	 * descriptor from the stream.
-+	 */
-+	if ((fd = fileno(stream)) < 0 || (fd = dup(fd)) < 0 || close(fd) != 0)
-+		goto error;
-+
-+	return 0;
-+error:
-+	return (errno == EBADF) ? 0 : EOF;
-+}
-+
- /* Meant to be used atexit(close_stdout); */
- static inline void
- close_stdout(void)
- {
--	if (stdout && close_stream(stdout) != 0 && !(errno == EPIPE)) {
-+	if (flush_standard_stream(stdout) != 0 && !(errno == EPIPE)) {
- 		if (errno)
- 			warn(_("write error"));
- 		else
-@@ -47,11 +73,8 @@ close_stdout(void)
- 		_exit(CLOSE_EXIT_CODE);
- 	}
- 
--	if (stderr && close_stream(stderr) != 0)
-+	if (flush_standard_stream(stderr) != 0)
- 		_exit(CLOSE_EXIT_CODE);
--
--	stdout = NULL;
--	stderr = NULL;
- }
- 
- static inline void
+Regards
+Patrick
+
+Patrick Steinhardt (6):
+  tests: remove reliance on buffer behaviour of stderr/stdout streams
+  tests: colcrt: fix reliance on EILSEQ in POSIX locale
+  tests: column: use actually invalid multibytes to test encoding
+  tests: col: avoid hardcoding of errno string
+  tests: fdisk: avoid hardcoding of errno string
+  tests: libfdisk: remove reliance on buffer behaviour of standard
+    streams
+
+ tests/commands.sh                             |  1 +
+ tests/expected/col/multibyte                  |  2 +-
+ tests/expected/column/invalid-multibyte       |  2 +-
+ tests/expected/fdisk/oddinput                 |  4 +-
+ tests/expected/libfdisk/mkpart-full-gpt       | 14 +++---
+ .../libfdisk/mkpart-full-gpt-err-overlap      |  8 ++--
+ .../libfdisk/mkpart-full-gpt-nopartno         | 14 +++---
+ .../libfdisk/mkpart-full-gpt-partno-gap       | 14 +++---
+ .../libfdisk/mkpart-full-gpt-space-gap        | 10 ++---
+ .../libfdisk/mkpart-full-mbr-err-logical      | 14 +++---
+ .../libfdisk/mkpart-full-mbr-err-nospace      |  6 +--
+ .../libfdisk/mkpart-full-mbr-err-primary      |  6 +--
+ .../expected/libfdisk/mkpart-full-mbr-logical | 14 +++---
+ .../libfdisk/mkpart-full-mbr-nopartno         | 14 +++---
+ .../expected/libfdisk/mkpart-full-mbr-primary |  8 ++--
+ .../libfdisk/mkpart-full-mbr-primary-nopartno |  8 ++--
+ .../libfdisk/mkpart-full-mbr-space-gap        |  6 +--
+ tests/expected/misc/swaplabel                 |  2 +-
+ tests/expected/rename/exit_codes              |  2 +-
+ tests/functions.sh                            |  7 +++
+ tests/helpers/Makemodule.am                   |  3 ++
+ tests/helpers/test_strerror.c                 | 44 +++++++++++++++++++
+ tests/ts/col/multibyte                        |  5 ++-
+ tests/ts/colcrt/regressions                   |  2 +-
+ tests/ts/column/invalid-multibyte             |  2 +-
+ tests/ts/fdisk/oddinput                       |  6 ++-
+ tests/ts/libfdisk/mkpart-full                 | 26 +++++------
+ tests/ts/misc/swaplabel                       |  4 +-
+ tests/ts/rename/exit_codes                    |  2 +-
+ 29 files changed, 154 insertions(+), 96 deletions(-)
+ create mode 100644 tests/helpers/test_strerror.c
+
 -- 
 2.23.0
 
