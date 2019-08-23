@@ -7,234 +7,119 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AC1BC3A5A4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 772D3C41514
 	for <util-linux@archiver.kernel.org>; Fri, 23 Aug 2019 13:33:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CA9642173E
-	for <util-linux@archiver.kernel.org>; Fri, 23 Aug 2019 13:33:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 41E212173E
+	for <util-linux@archiver.kernel.org>; Fri, 23 Aug 2019 13:33:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=pks.im header.i=@pks.im header.b="fkskCfMS";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="BfPJFcmf"
+	dkim=pass (2048-bit key) header.d=pks.im header.i=@pks.im header.b="SvZYb9Ru";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="o5be9pqp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730419AbfHWNdL (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S2389597AbfHWNdL (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Fri, 23 Aug 2019 09:33:11 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:33835 "EHLO
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:52859 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388040AbfHWNdK (ORCPT
+        by vger.kernel.org with ESMTP id S2389780AbfHWNdL (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Fri, 23 Aug 2019 09:33:10 -0400
+        Fri, 23 Aug 2019 09:33:11 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 5BA6B3BF;
-        Fri, 23 Aug 2019 09:33:09 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Fri, 23 Aug 2019 09:33:09 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 5A1D03C7;
+        Fri, 23 Aug 2019 09:33:10 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Fri, 23 Aug 2019 09:33:10 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pks.im; h=from
         :to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm1; bh=thyYpzA7djeUh
-        hXftId3Gk7yNP3naEoA0eoyJ6f6Em8=; b=fkskCfMSfvSBrZsFhQDlSV7dMBl4G
-        gSkvkLs4YqMcbgK4BManGwTXmTJ+WYZBzR8ZoZ7YHQd5kQlVRz9icBY70i6nbw3o
-        7I0vi8mVY4XZZMnL+AfQPSn7Z1skL82CJfm2wL4xc4aujgMDNupLmPbIEKUm9Yvb
-        A9IvWAeK4EL3V1Kxj1w/XzBKAfxR4gJQcC54r/+0AfuTP110eXZklAsFFg5E1A0C
-        EL872ZASDzmnAr3EG0mrHrEY4mVd27PKXatN7amQtPsWsbijDYS6qIehU9fA6keg
-        tTDayCRAtYLpvvqlia++K8VXnFJ50VLoc/wvNv2ZntEOGo4dWkuoRDvQg==
+        :mime-version:content-type:content-transfer-encoding; s=fm1; bh=
+        /bI2aA8CnldxozWAKI50oVhTrPJtqFVJKOtTnQxDmkY=; b=SvZYb9RuWqQc9xf0
+        907kPsd/5aL45F06i9yhuqUR6WqTv1oizFAQ99Py9owY5qWSz9C/zry7cPSIAZHe
+        0sTNh69Pp0c81WEEVImjEo9pEHMKqB68MTYGsB5JLn2eWwUV/e2gtaVKE9K+mzIo
+        neSdzka/4WBbBCuXOPAf5pG+/iwSCANIFSI8qt2Q9XJ6bOAaMqZmeUOvLaXXrCXv
+        l5WX0BG6WsZsBNDzVb2BeKd8kzsHGnEeQ4OR80iI+cvcs2cSdhu5zUdtesSwY7id
+        0cWs9ap7R3KqRd/7o9ZqrnxqcTA1kDIVgUcENwYv33t/JCgATp2P9tp65kezxeR7
+        YxSQRQ==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :in-reply-to:message-id:mime-version:references:subject:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; bh=thyYpzA7djeUhhXftId3Gk7yNP3naEoA0eoyJ6f6Em8=; b=BfPJFcmf
-        rENNy2O8rUhr4XLZ66e8NN9WCuY9h2V1EBcLqtyRLmBq0PtPqIcucgoY3YcLb65Z
-        7cVe0O6uzfNBAQV9eMBnlGWgtRQtJRl61ekx4LpGusq+FM9sGtDcu8p6pmLmBU2h
-        sqfq89Nm/anO6lhr9rsfXAmdMZd7Tm9RMBsMSGZHCZsyy8cXtwfXboMR/JMZ+a9a
-        9/go84p/zn/ObihuqAHC5JPdJrK4QyyiwxOGl0qgAeFbXPG+DS1KoUhrQ8RrdV3y
-        LPJE/inF5lSR09MCF5va36/+AQC/2cFjV+y7JXe8MnAgaFwqYSa8/u4QDRwvHrPA
-        sJUF59DAQhw7xQ==
-X-ME-Sender: <xms:FOtfXTzJkrvrFyIOCFHoZty2uGIxEKJmIfKBvTzJ0GITRIcwwiWWZA>
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; bh=/bI2aA8CnldxozWAKI50oVhTrPJtqFVJKOtTnQxDm
+        kY=; b=o5be9pqp0D82S4RgwAPQISw3Y/ADqNZk1L6hOFxTaLZ0QhXozGykFPlPb
+        7IVe5VDLU9vd/NHAPhbvdMFIShTrDDWJ1fBPX4r690iTWycvhzC3ewCRL1G2u/ZJ
+        zIMaBJ8Y0LiKDQLZ7OXxlA8g+rABjeojihsmwS02s+m3UVqMFkMeObdwj9KzH/Ba
+        lHLbY7TiCEncLwgF9KVCGCg9eSj8SyYnzF5arpsmzr1pMrnd6ly5kL3nEyEsQSBU
+        8ZZgCorEjNEOm4pqnMOtBduD2hUAEo/hDJU1NHm1MMcAowY5Hope4VMglHY+o78u
+        MYZkXaC4jEA4UwXliWcgRxIXuIWeg==
+X-ME-Sender: <xms:FetfXWm4EU4dCc-P6Zp1NvPsMl1uGMHL0e_1Lg3mnCrnjIwuOipBoQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudegkedgieefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpefrrghtrhhi
-    tghkucfuthgvihhnhhgrrhguthcuoehpshesphhkshdrihhmqeenucfkphepjeejrddule
-    durddvudefrddvtddtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehpshesphhkshdrihhm
-    necuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:FOtfXfs6kZF3JI62nQhaXSgk8674W3GcZ2LmadnqC3UQNb7MXKcStQ>
-    <xmx:FOtfXaHWGUUuBYiXUuGct88PFbOo16zZQ6XxNqRs_vOVSscUoGc_3Q>
-    <xmx:FOtfXffbBK13SexnTUM_WGgplwThuTVCyRJhpgRmbWrOwiA34MFqyQ>
-    <xmx:FOtfXYf6S6owTOQJHMn3jDxhWRJrQsWNM1_SHlILfIdJYYuqJIxieQ>
+    cujfgurhephffvufffkffojghfgggtgfesthekredtredtjeenucfhrhhomheprfgrthhr
+    ihgtkhcuufhtvghinhhhrghrughtuceophhssehpkhhsrdhimheqnecuffhomhgrihhnpe
+    huthhfqdekrdgrshenucfkphepjeejrdduledurddvudefrddvtddtnecurfgrrhgrmhep
+    mhgrihhlfhhrohhmpehpshesphhkshdrihhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:FetfXZXh3Y4NSd441wY48vzcoSE2PMbQA4k_7aQBMtXUYlAoR2menA>
+    <xmx:FetfXaqhMUD0l4SmmiYsbXCJPBWN3uONJppcnJ4jihLE4I0QGtbNLA>
+    <xmx:FetfXYVmoJf3rfNNQR0X1iIALIXuz_jQoexRcd_jinnxN3ziDp9tuw>
+    <xmx:FetfXTKLHgdhG3jny6C-wC0PHm9bgJoES8th-hmvkJAecPJ8gMuxYA>
 Received: from NSJAIL (x4dbfd5c8.dyn.telefonica.de [77.191.213.200])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3EF03D60062;
-        Fri, 23 Aug 2019 09:33:08 -0400 (EDT)
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2BD6A8006A;
+        Fri, 23 Aug 2019 09:33:09 -0400 (EDT)
 Received: from localhost (10.192.0.11 [10.192.0.11])
-        by NSJAIL (OpenSMTPD) with ESMTPSA id 58646930 (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO);
-        Fri, 23 Aug 2019 13:33:04 +0000 (UTC)
+        by NSJAIL (OpenSMTPD) with ESMTPSA id d45810b8 (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO);
+        Fri, 23 Aug 2019 13:33:05 +0000 (UTC)
 From:   Patrick Steinhardt <ps@pks.im>
 To:     util-linux@vger.kernel.org
 Cc:     Patrick Steinhardt <ps@pks.im>, Karel Zak <kzak@redhat.com>
-Subject: [PATCH v2 1/6] tests: remove reliance on buffer behaviour of stderr/stdout streams
-Date:   Fri, 23 Aug 2019 15:32:53 +0200
-Message-Id: <d503b30d13c847040a8343f0e7299ae1bf7cb120.1566566906.git.ps@pks.im>
+Subject: [PATCH v2 4/6] tests: column: use actually invalid multibytes to test encoding
+Date:   Fri, 23 Aug 2019 15:32:56 +0200
+Message-Id: <35764c2dbbd03831b710a8ad2b36276cb0a479fc.1566566906.git.ps@pks.im>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <cover.1566566906.git.ps@pks.im>
 References: <cover.1566555078.git.ps@pks.im> <cover.1566566906.git.ps@pks.im>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-In the test cases "rename::exit_codes" and "rename::exit_codes", we rely
-on the flushing behaviour of stderr and stdout streams relative to each
-other. Streams in glibc will not flush on newlines if stdout is pointing
-to a non-TTY file descriptor, but relying on this is fragile and may
-break on systems with a different behaviour like musl libc.
+If reading an invalid multibyte sequence, column(1) will encode the byte
+as "\x<hex>" instead. The tests try to verify that by piping "£" into
+column(1). As the tests run with LC_ALL=POSIX by default, though, libc
+implementations strictly adhering to the POSIX standard will treat all
+characters as valid multibyte characters. As a consequence, no EILSEQ is
+raised by mbtowc(3P) and the character is not encoded as hex, breaking
+the test.
 
-Fix this by introducing a new parameter "--unbuffered" to `ts_run`. If
-this parameter is passed and stdbuf(1) from coreutils is available, then
-it will use it to disable buffering of standard output completely. Like
-this, we can selectively run tests with this if ordering of messages
-from stdout and stderr is being checked.
+Fix this by setting LC_ALL=C.UTF-8. As "£" is a valid UTF-8 character,
+we also change the test to use a proper illegal multibyte sequence.
 
 Signed-off-by: Patrick Steinhardt <ps@pks.im>
-
-x
 ---
- tests/expected/misc/swaplabel    |  2 +-
- tests/expected/rename/exit_codes |  2 +-
- tests/functions.sh               | 47 +++++++++++++++++++++++---------
- tests/ts/misc/swaplabel          |  4 +--
- tests/ts/rename/exit_codes       |  2 +-
- 5 files changed, 39 insertions(+), 18 deletions(-)
+ tests/expected/column/invalid-multibyte | 2 +-
+ tests/ts/column/invalid-multibyte       | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tests/expected/misc/swaplabel b/tests/expected/misc/swaplabel
-index 172f876af..790a28c6c 100644
---- a/tests/expected/misc/swaplabel
-+++ b/tests/expected/misc/swaplabel
-@@ -1,7 +1,7 @@
- mkswap: error: swap area needs to be at least 10 pages
- mkswap: <swapfile>: insecure permissions <perm>, 0600 suggested.
--mkswap: Label was truncated.
- Setting up swapspace version 1, size = 9 pages (9xPGSZ bytes)
-+mkswap: Label was truncated.
- LABEL=1234567890abcde, UUID=12345678-abcd-abcd-abcd-1234567890ab
- LABEL: 1234567890abcde
- UUID:  12345678-abcd-abcd-abcd-1234567890ab
-diff --git a/tests/expected/rename/exit_codes b/tests/expected/rename/exit_codes
-index c57781788..3d53010b2 100644
---- a/tests/expected/rename/exit_codes
-+++ b/tests/expected/rename/exit_codes
-@@ -2,6 +2,6 @@ RENAME_EXIT_NOTHING: 4
- `rename_exit_codes.1' -> `rename_exit_values.1'
- `rename_exit_codes.2' -> `rename_exit_values.2'
- EXIT_SUCCESS: 0
--rename: rename_exit_values.2: rename to rename_exit_codes.2 failed: Is a directory
- `rename_exit_values.1' -> `rename_exit_codes.1'
-+rename: rename_exit_values.2: rename to rename_exit_codes.2 failed: Is a directory
- RENAME_EXIT_SOMEOK: 2
-diff --git a/tests/functions.sh b/tests/functions.sh
-index 0605a1320..3d7bb89bc 100644
---- a/tests/functions.sh
-+++ b/tests/functions.sh
-@@ -420,26 +420,48 @@ function ts_init_py {
- }
+diff --git a/tests/expected/column/invalid-multibyte b/tests/expected/column/invalid-multibyte
+index ea40a34e9..5b0c74503 100644
+--- a/tests/expected/column/invalid-multibyte
++++ b/tests/expected/column/invalid-multibyte
+@@ -1 +1 @@
+-\xa3
++\x94~
+diff --git a/tests/ts/column/invalid-multibyte b/tests/ts/column/invalid-multibyte
+index a9e371003..4fcf44eb3 100755
+--- a/tests/ts/column/invalid-multibyte
++++ b/tests/ts/column/invalid-multibyte
+@@ -25,6 +25,6 @@ ts_check_test_command "$TS_CMD_COLUMN"
  
- function ts_run {
-+	local UNBUFFERED=
-+
-+	while true; do
-+		case "$1" in
-+			--unbuffered)
-+				UNBUFFERED=1
-+				shift;;
-+			--)
-+				shift
-+				break;;
-+			*)
-+				break;;
-+		esac
-+	done
-+
-+	declare -a args
-+
- 	#
--	# valgrind mode
-+	# ASAN mode
- 	#
--	if [ -n "$TS_VALGRIND_CMD" ]; then
--		libtool --mode=execute \
--		$TS_VALGRIND_CMD --tool=memcheck --leak-check=full \
--				 --leak-resolution=high --num-callers=20 \
--				 --log-file="$TS_VGDUMP" "$@"
-+	if [ "$TS_ENABLE_ASAN" == "yes" ]; then
-+		args+=(ASAN_OPTIONS='detect_leaks=1')
-+	fi
-+
- 	#
--	# ASAN mode
-+	# Disable buffering of stdout
- 	#
--	elif [ "$TS_ENABLE_ASAN" == "yes" ]; then
--		ASAN_OPTIONS='detect_leaks=1' "$@"
-+	if [ -n "$UNBUFFERED" ]; then
-+		if type stdbuf >/dev/null 2>&1; then
-+			args+=(stdbuf --output=0)
-+		fi
-+	fi
+ ts_cd "$TS_OUTDIR"
  
- 	#
--	# Default mode
-+	# valgrind mode
- 	#
--	else
--		"$@"
-+	if [ -n "$TS_VALGRIND_CMD" ]; then
-+		args+=(libtool --mode=execute "$TS_VALGRIND_CMD" --tool=memcheck --leak-check=full)
-+		args+=(--leak-resolution=high --num-callers=20 --log-file="$TS_VGDUMP")
- 	fi
-+
-+	"${args[@]}" "$@"
- }
+-printf "�\n" | LC_ALL=C $TS_CMD_COLUMN >> $TS_OUTPUT 2>&1
++printf "\x94\x7e\n" | LC_ALL=C.UTF-8 $TS_CMD_COLUMN >> $TS_OUTPUT 2>&1
  
- function ts_gen_diff {
-@@ -977,4 +999,3 @@ function ts_has_ncurses_support {
- 		echo "no"
- 	fi
- }
--
-diff --git a/tests/ts/misc/swaplabel b/tests/ts/misc/swaplabel
-index 22858b0ac..106cb7d21 100755
---- a/tests/ts/misc/swaplabel
-+++ b/tests/ts/misc/swaplabel
-@@ -39,7 +39,7 @@ MIN_SWAP_SIZE_KB=$(( MIN_SWAP_SIZE / 1024 ))
- 
- rm -f $IMAGE
- fallocate_or_skip $(( $MIN_SWAP_SIZE - 1 )) $IMAGE
--$TS_CMD_MKSWAP \
-+ts_run --unbuffered $TS_CMD_MKSWAP \
- 	--label 1234567890abcdef \
- 	--uuid 12345678-abcd-abcd-abcd-1234567890ab \
- 	$IMAGE 2>&1 |\
-@@ -50,7 +50,7 @@ $TS_CMD_MKSWAP \
- 
- rm -f $IMAGE
- fallocate_or_skip $MIN_SWAP_SIZE $IMAGE
--$TS_CMD_MKSWAP \
-+ts_run --unbuffered $TS_CMD_MKSWAP \
- 	--label 1234567890abcdef \
- 	--uuid 12345678-abcd-abcd-abcd-1234567890ab \
- 	$IMAGE 2>&1 |\
-diff --git a/tests/ts/rename/exit_codes b/tests/ts/rename/exit_codes
-index 37028162b..d3012ae59 100755
---- a/tests/ts/rename/exit_codes
-+++ b/tests/ts/rename/exit_codes
-@@ -32,7 +32,7 @@ $TS_CMD_RENAME -v codes values rename_exit_codes.? >> $TS_OUTPUT 2>&1
- echo "EXIT_SUCCESS: $?" >> $TS_OUTPUT
- 
- mkdir rename_exit_codes.2
--$TS_CMD_RENAME -v values codes rename_exit_values.? >> $TS_OUTPUT 2>&1
-+ts_run --unbuffered $TS_CMD_RENAME -v values codes rename_exit_values.? >> $TS_OUTPUT 2>&1
- echo "RENAME_EXIT_SOMEOK: $?" >> $TS_OUTPUT
- 
- rmdir rename_exit_codes.2
+ ts_finalize
 -- 
 2.23.0
 
