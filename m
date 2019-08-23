@@ -7,70 +7,70 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FEFBC3A5A4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 453D9C3A5A3
 	for <util-linux@archiver.kernel.org>; Fri, 23 Aug 2019 10:17:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DA192233A0
-	for <util-linux@archiver.kernel.org>; Fri, 23 Aug 2019 10:17:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1194321726
+	for <util-linux@archiver.kernel.org>; Fri, 23 Aug 2019 10:17:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=pks.im header.i=@pks.im header.b="z7lBwylH";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="MOQPSwhI"
+	dkim=pass (2048-bit key) header.d=pks.im header.i=@pks.im header.b="SprJfdwW";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Q+S0kusg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725893AbfHWKRK (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S2389020AbfHWKRK (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Fri, 23 Aug 2019 06:17:10 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:46233 "EHLO
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:43965 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731077AbfHWKRJ (ORCPT
+        by vger.kernel.org with ESMTP id S2387517AbfHWKRK (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Fri, 23 Aug 2019 06:17:09 -0400
+        Fri, 23 Aug 2019 06:17:10 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 7D993466
-        for <util-linux@vger.kernel.org>; Fri, 23 Aug 2019 06:17:08 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 1C8C044B
+        for <util-linux@vger.kernel.org>; Fri, 23 Aug 2019 06:17:09 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Fri, 23 Aug 2019 06:17:08 -0400
+  by compute1.internal (MEProxy); Fri, 23 Aug 2019 06:17:09 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pks.im; h=from
         :to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm1; bh=OpLOvYOGFzwID
-        YO9MxSZEuMBgl0VVWeXzfl/YXzf0y8=; b=z7lBwylH4M6X0Va3irqjkZ2iWSxsp
-        LOmf3mkUVa6wt7xx7TOq21FeKG0Yi3oluIUxLgpE7aq20zkZs7RFGb+D5GYVBZR8
-        aIoaFT8FETpH0uK8L7a0KQwnPMga+xfU5mo6ZW9+yqYA2Ssh9zqEvaRDRD4k0sjU
-        8HErOKqT7O+VMgTWWIqWIS+ieFPsOcY6GlenLPUJmEfb0ob3O5c1QKV7qQKGgjtc
-        TQM1pTu5Uf+1z5dzCdzb+lHO25ywHlbBFaQ/xOqKU3hL8kocHDe8BdzdHgD4i/TP
-        k2neuDjkopl42+5yWB1ZsGlf60Eu6HCsS95bqTivXTRdxYGA1187bY0+g==
+        :mime-version:content-transfer-encoding; s=fm1; bh=28Kr+xhcoxGfw
+        Ru4MRZxI9law17Z2FRiCriuhvu2Oos=; b=SprJfdwWW0jLcN7huJNKWA8C9Qanx
+        m9bYsgKNZ1XOR9XcrOryd7zypS5L10/pYZypR6W/JdhahKvhw3gBl8Kj4vkLkuPv
+        +SGqniLWJFd4KL2OYE5uDex4jKIEB/NqDdwlZkmKdqtAFqU28MYt3fW9bzvRbcbn
+        0Ui8giuR2NOUMepZau3pukQpmEioho13HZpGFL+rKFtvggimiKPsTC+eF5r/WyOj
+        cl6bGZsAoAUWe2sYjk3cyLfBFbR3tjw1aslwTj3RnLF9pkWBleTPa8DSapxb/a+e
+        RXlYECO6IVQYiJoGDZxAdsn7d5pV9JF3w5vquF16O+b1GX+vvt9rEhyEQ==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:date:from
         :in-reply-to:message-id:mime-version:references:subject:to
         :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; bh=OpLOvYOGFzwIDYO9MxSZEuMBgl0VVWeXzfl/YXzf0y8=; b=MOQPSwhI
-        qeBigz63BgbA4rUOSzsjzVCiuKASuPQ63nP8P6I1PLrRwaPd47/E1b1V9P3ZgILA
-        jvEcz0HT4yX2v41mwmg0K1LQvvT4tp7Ul5IQnHdTnvwTGS5Re3ntytTx+UEXD7nS
-        cr3j/S0CtQThhBLBc/W71oESfM83SjCXnNvcge+sUoAuXnw+GgcGR6j+OAIahRCt
-        WIy2naKtU3QrdaM5XZL1nKdfxn6vAGdzeqRgZlubS+NRHxGRQA0tePld4zpC082e
-        fvkRc0Uv9mahiK+FYlVylcuwR10XZ97frNC5RfstxGoAoP5iL1juOOIZE67W1AaX
-        jgq4tOK6W7tc5w==
-X-ME-Sender: <xms:I71fXQfV_YtvZQic0rwrhqNmSI9hv87UFwUzqSVeBOJpJoGYW8ceeg>
+        fm3; bh=28Kr+xhcoxGfwRu4MRZxI9law17Z2FRiCriuhvu2Oos=; b=Q+S0kusg
+        A4LnGf58IXXlO3y8HmZFZk+eiG46y9Cs1C9H2vu8x7scX6ljml+Epix3rQr90vPM
+        r7I0VsbB2FtuOyAl2R5LSokJuD+y+DxNZ5z1qe3Ph0KAj64UPu3IFZzsbk6jJOcl
+        yhyOl5IUeMxymLEW+VkySD0fyoK4/b7Uh4kyNqfNxrfRgwGLEgIQ+c0N+6fpN4F6
+        xcAUNa5NV8qVYQ8L1y8wnA5CknbNk4fV51Uig25th+S0U7Yq/MMFHoDeQjkGK3HW
+        ajWQfsa8Z+Vedr2EFqZxkq3OEAcvE2UQxrz31Bs/P3ZBuCS+xwtjzCq/1LAerDtQ
+        aHSsp4mihuO1mg==
+X-ME-Sender: <xms:JL1fXR-LiLzMAH1r6cPwU0xqDjFoo0-12WpXT3v-j62Uv35DRiQNyQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudegkedgvdefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgjfhgggfestdekre
     dtredttdenucfhrhhomheprfgrthhrihgtkhcuufhtvghinhhhrghrughtuceophhssehp
     khhsrdhimheqnecukfhppeejjedrudeluddrvddufedrvddttdenucfrrghrrghmpehmrg
     hilhhfrhhomhepphhssehpkhhsrdhimhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:I71fXeUWW4C1ebR7hVFFF65EM21NS-iwvuMm2nsxthery1xbzBB6ag>
-    <xmx:I71fXW9civ8uj8D-pQhhHvrdtuYgbEeDN_OHkSSi7RZLjZdWHwZrcQ>
-    <xmx:I71fXVMCM9VIbOd7z2bcqeZcqv1TvcJSeLApvcWOU64Rt5XCYZ-XQA>
-    <xmx:JL1fXRfsWseZNlySefhuR9JpIYX9DNNCprO23Fy0PTxdwRD6ylaFBw>
+X-ME-Proxy: <xmx:JL1fXY89YELClEp4MhjHC3XkK34jXBj6TtOAfcwA2Ey8iEQ5VpkQ6g>
+    <xmx:JL1fXTEcrIWoeRkzzdFjtFXPktGQxz7eO4FKNL-VNMy06efPWOPDzQ>
+    <xmx:JL1fXfdBU89ahlbR5F6Xvo0fMy7YARNrmpzchxwwX8Jh7rvlpXl6tQ>
+    <xmx:JL1fXegzRcijYFGFlX39ayqerpDqmaAee3otH6hqgoNm0Dewmr_wow>
 Received: from NSJAIL (x4dbfd5c8.dyn.telefonica.de [77.191.213.200])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 72A7DD60062
+        by mail.messagingengine.com (Postfix) with ESMTPA id 195FDD60057
         for <util-linux@vger.kernel.org>; Fri, 23 Aug 2019 06:17:07 -0400 (EDT)
 Received: from localhost (10.192.0.11 [10.192.0.11])
-        by NSJAIL (OpenSMTPD) with ESMTPSA id 0c663b15 (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO);
-        Fri, 23 Aug 2019 10:17:04 +0000 (UTC)
+        by NSJAIL (OpenSMTPD) with ESMTPSA id 45b45bb3 (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO);
+        Fri, 23 Aug 2019 10:17:05 +0000 (UTC)
 From:   Patrick Steinhardt <ps@pks.im>
 To:     util-linux@vger.kernel.org
 Cc:     Patrick Steinhardt <ps@pks.im>
-Subject: [PATCH 1/6] tests: remove reliance on buffer behaviour of stderr/stdout streams
-Date:   Fri, 23 Aug 2019 12:16:58 +0200
-Message-Id: <c41c946772ccad75661dfcd14e7c03c05fd35e83.1566555078.git.ps@pks.im>
+Subject: [PATCH 2/6] tests: colcrt: fix reliance on EILSEQ in POSIX locale
+Date:   Fri, 23 Aug 2019 12:16:59 +0200
+Message-Id: <692daa9573f879346b1df398170271bd35188d59.1566555078.git.ps@pks.im>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <cover.1566555078.git.ps@pks.im>
 References: <cover.1566555078.git.ps@pks.im>
@@ -81,102 +81,42 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-In the test cases "rename::exit_codes" and "rename::exit_codes", we rely
-on the flushing behaviour of stderr and stdout streams relative to each
-other. Streams in glibc will not flush on newlines if stdout is pointing
-to a non-TTY file descriptor, but relying on this is fragile and may
-break on systems with a different behaviour like musl libc.
+The input file "crash1" in the colcrt/regressions test contains the
+illegal byte sequence "\x94\x7e". While "\x7e" is '~', "\x94" is not a
+valid character. Thus, the test assumes that getwc(3P) will return
+`WEOF` and set `errno=EILSEQ`, causing colcrt(1) to abort reading the
+stream and thus not print the trailing '~'.
 
-Fix this by introducing a new function `ts_unbuffered`. If available on
-the local system, then it will execute stdbuf(1) from coreutils to
-disable buffering of standard output completely. Like this, we can
-selectively run tests with this if ordering of messages from stdout and
-stderr is being checked.
+This assumption holds just fine for glibc as it will dutifully report
+EILSEQ, but musl libc will happily read the complete stream without
+complaining about the illegal character. But in fact, as tests run with
+LC_ALL=POSIX by default, glibc's behaviour is wrong while musl is right.
+Quoting mbrtowc(3P) from POSIX.1-2017:
+
+    [EILSEQ] An invalid character sequence is detected. In the POSIX locale an
+             [EILSEQ] error cannot occur since all byte values are valid
+             characters.
+
+Fix the issue by running the colcrt tests with C.UTF8 locale.
 
 Signed-off-by: Patrick Steinhardt <ps@pks.im>
 ---
- tests/expected/misc/swaplabel    | 2 +-
- tests/expected/rename/exit_codes | 2 +-
- tests/functions.sh               | 7 +++++++
- tests/ts/misc/swaplabel          | 4 ++--
- tests/ts/rename/exit_codes       | 2 +-
- 5 files changed, 12 insertions(+), 5 deletions(-)
+ tests/ts/colcrt/regressions | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tests/expected/misc/swaplabel b/tests/expected/misc/swaplabel
-index 172f876af..790a28c6c 100644
---- a/tests/expected/misc/swaplabel
-+++ b/tests/expected/misc/swaplabel
-@@ -1,7 +1,7 @@
- mkswap: error: swap area needs to be at least 10 pages
- mkswap: <swapfile>: insecure permissions <perm>, 0600 suggested.
--mkswap: Label was truncated.
- Setting up swapspace version 1, size = 9 pages (9xPGSZ bytes)
-+mkswap: Label was truncated.
- LABEL=1234567890abcde, UUID=12345678-abcd-abcd-abcd-1234567890ab
- LABEL: 1234567890abcde
- UUID:  12345678-abcd-abcd-abcd-1234567890ab
-diff --git a/tests/expected/rename/exit_codes b/tests/expected/rename/exit_codes
-index c57781788..3d53010b2 100644
---- a/tests/expected/rename/exit_codes
-+++ b/tests/expected/rename/exit_codes
-@@ -2,6 +2,6 @@ RENAME_EXIT_NOTHING: 4
- `rename_exit_codes.1' -> `rename_exit_values.1'
- `rename_exit_codes.2' -> `rename_exit_values.2'
- EXIT_SUCCESS: 0
--rename: rename_exit_values.2: rename to rename_exit_codes.2 failed: Is a directory
- `rename_exit_values.1' -> `rename_exit_codes.1'
-+rename: rename_exit_values.2: rename to rename_exit_codes.2 failed: Is a directory
- RENAME_EXIT_SOMEOK: 2
-diff --git a/tests/functions.sh b/tests/functions.sh
-index 0605a1320..95d37bd5f 100644
---- a/tests/functions.sh
-+++ b/tests/functions.sh
-@@ -978,3 +978,10 @@ function ts_has_ncurses_support {
- 	fi
+diff --git a/tests/ts/colcrt/regressions b/tests/ts/colcrt/regressions
+index 394c4e823..2adeea3f3 100755
+--- a/tests/ts/colcrt/regressions
++++ b/tests/ts/colcrt/regressions
+@@ -24,7 +24,7 @@ ts_check_prog "timeout"
+ 
+ check_input_file() {
+ 	ts_init_subtest ${1##*/}
+-	timeout 2 $TS_CMD_COLCRT < $1 > $TS_OUTPUT 2>&1
++	LC_ALL=C.UTF-8 timeout 2 $TS_CMD_COLCRT < $1 > $TS_OUTPUT 2>&1
+ 	echo "return value: $?" >> $TS_OUTPUT
+ 	ts_finalize_subtest
  }
- 
-+function ts_unbuffered() {
-+    if type stdbuf >/dev/null 2>&1; then
-+        stdbuf -o0 "$@"
-+    else
-+        "$@"
-+    fi
-+}
-diff --git a/tests/ts/misc/swaplabel b/tests/ts/misc/swaplabel
-index 22858b0ac..681b39a64 100755
---- a/tests/ts/misc/swaplabel
-+++ b/tests/ts/misc/swaplabel
-@@ -39,7 +39,7 @@ MIN_SWAP_SIZE_KB=$(( MIN_SWAP_SIZE / 1024 ))
- 
- rm -f $IMAGE
- fallocate_or_skip $(( $MIN_SWAP_SIZE - 1 )) $IMAGE
--$TS_CMD_MKSWAP \
-+ts_unbuffered $TS_CMD_MKSWAP \
- 	--label 1234567890abcdef \
- 	--uuid 12345678-abcd-abcd-abcd-1234567890ab \
- 	$IMAGE 2>&1 |\
-@@ -50,7 +50,7 @@ $TS_CMD_MKSWAP \
- 
- rm -f $IMAGE
- fallocate_or_skip $MIN_SWAP_SIZE $IMAGE
--$TS_CMD_MKSWAP \
-+ts_unbuffered $TS_CMD_MKSWAP \
- 	--label 1234567890abcdef \
- 	--uuid 12345678-abcd-abcd-abcd-1234567890ab \
- 	$IMAGE 2>&1 |\
-diff --git a/tests/ts/rename/exit_codes b/tests/ts/rename/exit_codes
-index 37028162b..739a8738c 100755
---- a/tests/ts/rename/exit_codes
-+++ b/tests/ts/rename/exit_codes
-@@ -32,7 +32,7 @@ $TS_CMD_RENAME -v codes values rename_exit_codes.? >> $TS_OUTPUT 2>&1
- echo "EXIT_SUCCESS: $?" >> $TS_OUTPUT
- 
- mkdir rename_exit_codes.2
--$TS_CMD_RENAME -v values codes rename_exit_values.? >> $TS_OUTPUT 2>&1
-+ts_unbuffered $TS_CMD_RENAME -v values codes rename_exit_values.? >> $TS_OUTPUT 2>&1
- echo "RENAME_EXIT_SOMEOK: $?" >> $TS_OUTPUT
- 
- rmdir rename_exit_codes.2
 -- 
 2.23.0
 
