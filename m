@@ -2,87 +2,92 @@ Return-Path: <SRS0=RNVe=XE=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12D6CC4740A
-	for <util-linux@archiver.kernel.org>; Mon,  9 Sep 2019 19:08:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFF1BC4740A
+	for <util-linux@archiver.kernel.org>; Mon,  9 Sep 2019 20:59:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DB59C21924
-	for <util-linux@archiver.kernel.org>; Mon,  9 Sep 2019 19:07:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A8FFF218AF
+	for <util-linux@archiver.kernel.org>; Mon,  9 Sep 2019 20:59:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qTaE4BbP"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mLB8vr3c"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728999AbfIITH6 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 9 Sep 2019 15:07:58 -0400
-Received: from mail-qk1-f181.google.com ([209.85.222.181]:33984 "EHLO
-        mail-qk1-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728836AbfIITH6 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 9 Sep 2019 15:07:58 -0400
-Received: by mail-qk1-f181.google.com with SMTP id q203so14230575qke.1
-        for <util-linux@vger.kernel.org>; Mon, 09 Sep 2019 12:07:57 -0700 (PDT)
+        id S1726841AbfIIU7O (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 9 Sep 2019 16:59:14 -0400
+Received: from mail-qt1-f195.google.com ([209.85.160.195]:40742 "EHLO
+        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726806AbfIIU7N (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 9 Sep 2019 16:59:13 -0400
+Received: by mail-qt1-f195.google.com with SMTP id g4so18019654qtq.7
+        for <util-linux@vger.kernel.org>; Mon, 09 Sep 2019 13:59:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=m0FuZ6xIKGTOzOLcyHLs6NqkdmpV4heXC6VVSMkPytE=;
-        b=qTaE4BbPqaBY/vo6b2dE+wOHF9XT8Lul4Y565UoyMNkPdpAbJUQuVJKyAQWNETakrl
-         2W/uYqHVDoebIyLyloelyL/QpyP7G13WVGXAqFDyxxAfbA1HQfkfAQsWGEqvcuDalHsT
-         QLhyrY6DKjtDbrYajK3sCyocTs3KCFrXQUsGBa+KCeOUsCTbFOHTa+9al/eZQKnfT1NV
-         l4WqfutYSlfV1MWgIn5b3F3IOL8qDuRuONcdRyAgSCYCRMKvn+GrP/7UmPX/PgZsuB4q
-         5VZq1oIfN4EBT2QoJRZb6VlUaU0tgEEbpDVyiMuRtu4NkJWtMBKqpPWH+BEB2EoxeKa/
-         xb0g==
+        h=date:from:to:subject:message-id:mime-version:content-disposition
+         :content-transfer-encoding;
+        bh=b31zn4Dv2+oCv9oq+PZeTMot6T1m1NywxxygrMYTs30=;
+        b=mLB8vr3cIIg+bVaDeuCLpnlz6A7SVbdfT1D3iVP8nlur9odt5RO/ooNa1gS8JT0ocF
+         oGU5adKPbREA363uy+VyJr6Mi5URqI0MEUHYIJZlE9w6MGC+c7wY8OvzmJug6fw3tZu4
+         rVQWIt1yzQrcdSHMan1NbdcuZSbcqI+D2dvnS1UuZpaNuSuL2NX6k+TYZi24rs/iTTwD
+         x+3Ejun9hnxqk4nqry8M4rTXaD2vytPRCrUpyn9umCYWH5kXFn3mmwdn2iXtwaYgGgV4
+         NMWqrZuHU113XHktbdIB3XIFL2zzvnbAQ4VTw9Ed2M2hvme6Ha3fKNgqTFtjlqxJ32Y9
+         L2Hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=m0FuZ6xIKGTOzOLcyHLs6NqkdmpV4heXC6VVSMkPytE=;
-        b=Lj5nP73rG5w+En5DBwPCGlxi7RPi9y50T6eMZqw6tLBzyDjYshfMebNKuu0tUZYF/o
-         76X2iXAOszmzeVWW1BynXfyxDZWsFi4nKK+UeVPOy/GnxAazC5QNCuqa0dgCRy5pMe20
-         gVoRm1ZjjfLJiM22H7oY1XaeO4eVAOCXFaiwh8wPHpGHyvn6uLd4rDY3yfR1MScySeJ/
-         2e5uiqVRaDfq6StUGP+EDhzHve0o4ONX+hUR9JGyDwkc8miTTW9IC3oyPntqfMOVkDRb
-         aHZhyKUqn1HA16pqve7FS+wVLB/3v40h2iUnggXXP2/WUUnx0JMtgPNo1kcm0weCQrQI
-         /aGg==
-X-Gm-Message-State: APjAAAUDEeOtIv5dRjU0v/WF7dlSdG6ICZ93MLlZ2VFOGFkY8lTowf3Z
-        +4huddExqGgQYHW2DkrpBfoWugX8+UcD+LyQH3wFTQoo
-X-Google-Smtp-Source: APXvYqxYtu/THJucV1qXRmiRolcqg2wc6zmsK8HnRiotS7BiYRw5ijcQf+P0Sj/VIo6mMgI2uTnoHLLX1lnx7jSgy7Y=
-X-Received: by 2002:a05:620a:126f:: with SMTP id b15mr24895551qkl.483.1568056076600;
- Mon, 09 Sep 2019 12:07:56 -0700 (PDT)
-MIME-Version: 1.0
-From:   Paul Thomas <pthomas8589@gmail.com>
-Date:   Mon, 9 Sep 2019 15:07:44 -0400
-Message-ID: <CAD56B7foOQ8UYuMYPBqaYUa4DQw_qc4QUJRRkgdeV1g1x0NfoA@mail.gmail.com>
-Subject: last reboot
+        h=x-gm-message-state:date:from:to:subject:message-id:mime-version
+         :content-disposition:content-transfer-encoding;
+        bh=b31zn4Dv2+oCv9oq+PZeTMot6T1m1NywxxygrMYTs30=;
+        b=MxMjsSCrDNwCa9kszyTYOPZ+Hb1ZuGXOq8xgRarm3feRiNsF56L9VyVKfzlWOmgZ8j
+         lVOOD525UkvZaoHZaWEVQWhro4Whu81ef+SQkVsOrrWA5J2EUpX8tHJFdjTAVlJ3R7GW
+         cObVMgIWipstUdndgB3lx0t3/k+rbRrZvkgpzxeWqs8ePn87zhPgKWuXuNcZvWNJjGsp
+         uqqHaEK4B5mF8aW4xUhsGVyvnckm1EKRN1P+2z8w+U+YdLXLvMp31QdkHqk9WJGb/lR2
+         n3on834NO0+/qgNhIL6Z6DddzhGoBqBfG6tcOK+uyZCu0QnE6jI4wTvZep5qboWnxp3Y
+         e7ww==
+X-Gm-Message-State: APjAAAVa9b6Xz22+neTQySwDwiaaOoQM0izimxUJz0AmzB6Vl5VnaDR/
+        ZegJdNnyTk6oK7keCJqzqRud0Kx0
+X-Google-Smtp-Source: APXvYqwAaK1FaUodVyHrKD1tKJ0UfIUh3dqg6OTMinXHWd/kD+tuptR9JuCvo8rAnX+XdyTH48oRpg==
+X-Received: by 2002:ac8:6b50:: with SMTP id x16mr24092811qts.61.1568062752742;
+        Mon, 09 Sep 2019 13:59:12 -0700 (PDT)
+Received: from eaf ([181.47.179.0])
+        by smtp.gmail.com with ESMTPSA id l48sm4686790qtb.50.2019.09.09.13.59.10
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 09 Sep 2019 13:59:12 -0700 (PDT)
+Date:   Mon, 9 Sep 2019 17:59:07 -0300
+From:   Ernesto =?utf-8?Q?A=2E_Fern=C3=A1ndez?= 
+        <ernesto.mnd.fernandez@gmail.com>
 To:     util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: [PATCH] libfdisk: (gpt) add GUID for APFS containers
+Message-ID: <20190909205907.alytemtibvk4kv37@eaf>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hello, 'last' is a handy tool, and using it for
-'last reboot' provides a nice log.
+Add the partition type GUID for the Apple File System to gpt_parttypes.
 
-I was wondering if there are currently any platforms where more
-information about the reboot type is supported? For instance on the
-Zynq UltraScale+ devices there are a variety of reboot reasons:
-https://www.xilinx.com/html_docs/registers/ug1087/crl_apb___reset_reason.html#
+Signed-off-by: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
+---
+ libfdisk/src/gpt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-So on each startup the reason could be read and logged before
-resting the register[1].
+diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
+index 1658782a8..279f22978 100644
+--- a/libfdisk/src/gpt.c
++++ b/libfdisk/src/gpt.c
+@@ -217,6 +217,7 @@ static struct fdisk_parttype gpt_parttypes[] =
+ 
+ 	/* Apple OSX */
+ 	DEF_GUID("48465300-0000-11AA-AA11-00306543ECAC", N_("Apple HFS/HFS+")),
++	DEF_GUID("7C3457EF-0000-11AA-AA11-00306543ECAC", N_("Apple APFS")),
+ 	DEF_GUID("55465300-0000-11AA-AA11-00306543ECAC", N_("Apple UFS")),
+ 	DEF_GUID("52414944-0000-11AA-AA11-00306543ECAC", N_("Apple RAID")),
+ 	DEF_GUID("52414944-5F4F-11AA-AA11-00306543ECAC", N_("Apple RAID offline")),
+-- 
+2.11.0
 
-I guess one tricky issue would be the kernel interface,
-for a test I was just using memtool like this:
-# memtool md 0xFF5E0220+1
-ff5e0220: 00000001
-
-Where 00000001 indicates an 'External POR', but this probably
-isn't how we'd want to do it.
-
-I'm not subscribed to the mailing-list so please cc me any response.
-
-thanks,
-Paul
-
-[1] If the register is not reset then multiple bits can accumulate
-so you wouldn't now which is correct for the current boot
