@@ -1,107 +1,133 @@
-Return-Path: <SRS0=QJpf=XF=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=yHlE=XJ=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.5 required=3.0 tests=DKIM_ADSP_CUSTOM_MED,
+	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F8C1C49ED8
-	for <util-linux@archiver.kernel.org>; Tue, 10 Sep 2019 14:05:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E54DC4CEC9
+	for <util-linux@archiver.kernel.org>; Sat, 14 Sep 2019 14:00:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 077972081B
-	for <util-linux@archiver.kernel.org>; Tue, 10 Sep 2019 14:05:06 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lS679CuW"
+	by mail.kernel.org (Postfix) with ESMTP id ECB2E206A4
+	for <util-linux@archiver.kernel.org>; Sat, 14 Sep 2019 14:00:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732008AbfIJOFF (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 10 Sep 2019 10:05:05 -0400
-Received: from mail-qt1-f193.google.com ([209.85.160.193]:32769 "EHLO
-        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725957AbfIJOFF (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 10 Sep 2019 10:05:05 -0400
-Received: by mail-qt1-f193.google.com with SMTP id r5so20879924qtd.0
-        for <util-linux@vger.kernel.org>; Tue, 10 Sep 2019 07:05:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=3qOgJ4rIhYi1mM57xl+4xXnW2GmON+CjHlSv4oBzfGk=;
-        b=lS679CuW+KOQf6qXDvu1KYqyR+O4YB58ww0yLfAuF9E/+IDe72iCQqKpi0FzBVh46Y
-         rIXe6LnV5iqUVu6dawr1G64Kstq6eCOWyt9G5J19pOTknQvODiVwMxBKBxhJZQ0FNMQz
-         j4gGjUQZipnmvO7adTAYOM8BdblPhud9WKPyduQQigjArL46S62+E71Fw6615rtFySNY
-         KFI3FwN66GW42ocCSDvxdB6TGx1pTV/XNS4Yas2dgTi5Maz+U1v0p1qMHSn7BjffXXfN
-         o6URiY7RMMqhCctLiFj7Br8Pd0LJ4FuwywlHuRnQe8RWWlLuiE8bHaXgh4/LeGlyJmDY
-         82qg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3qOgJ4rIhYi1mM57xl+4xXnW2GmON+CjHlSv4oBzfGk=;
-        b=kzPC0GtUH3T285C+E324MGITMZyYouAt1qYHaHAzqRrIp9sGIjYnEJwCSal5RZQP5D
-         AmpqRRINc5Qi0Co4ZJLRMNbe4UZkYhwE/zAINN0oe5G7AyXphrko4oZQUMSJdu8Oqr6x
-         Y0BaHk/PnEp6mg2ISlzcWq7DkezmIry3QenJ2Yhk0gt8CGFqGcNQHS5zRnBlvr4hCpVG
-         kN4DQgfVYPxLdezl7Fl24X8JFr6yw8wEbn+tSJl706WA2xAd5cFC/7Rt7vjzN1rOVQmM
-         uGN93YzTDwTzW+3PZkGEO1tUwTJRJ8K02RIfZbddB5S64g31iyAJ7Hrob+ZOSpVYKqMt
-         EWng==
-X-Gm-Message-State: APjAAAUA88G174n5GMCDViyZ5jI9QMNCYIu/g2CuPYThFzouSYDN2FIE
-        7GNUBTUDZh3igHj/wkN9JBHacvrjnta/axuBak8GXPPT
-X-Google-Smtp-Source: APXvYqwjA6SYLT8RiZnCwNif6ljL5teKCtzZvo9a4sj8GW7DcPjpbL52qcsrmgjpQ5jiI/SdIy0uSW6oS/17PsiGbQg=
-X-Received: by 2002:a0c:fec9:: with SMTP id z9mr11944374qvs.113.1568124304227;
- Tue, 10 Sep 2019 07:05:04 -0700 (PDT)
-MIME-Version: 1.0
-References: <CAD56B7foOQ8UYuMYPBqaYUa4DQw_qc4QUJRRkgdeV1g1x0NfoA@mail.gmail.com>
- <CAG27Bk2efpSwz97CHom4Mr0N+LSmFh1qT4rDeb9jF=2VVqfc0g@mail.gmail.com>
-In-Reply-To: <CAG27Bk2efpSwz97CHom4Mr0N+LSmFh1qT4rDeb9jF=2VVqfc0g@mail.gmail.com>
-From:   Paul Thomas <pthomas8589@gmail.com>
-Date:   Tue, 10 Sep 2019 10:04:52 -0400
-Message-ID: <CAD56B7c38z364xNk32cOuAaWKRiq+RwPOLUx3WwMuqT7bSsvDQ@mail.gmail.com>
-Subject: Re: last reboot
-To:     kerolasa@gmail.com
-Cc:     util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S2388942AbfINOAF (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sat, 14 Sep 2019 10:00:05 -0400
+Received: from 195-159-176-226.customer.powertech.no ([195.159.176.226]:38500
+        "EHLO blaine.gmane.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388939AbfINOAF (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 14 Sep 2019 10:00:05 -0400
+Received: from list by blaine.gmane.org with local (Exim 4.89)
+        (envelope-from <gcuu-util-linux-ng-3@m.gmane.org>)
+        id 1i98an-000xHc-My
+        for util-linux@vger.kernel.org; Sat, 14 Sep 2019 16:00:01 +0200
+X-Injected-Via-Gmane: http://gmane.org/
+To:     util-linux@vger.kernel.org
+From:   Stephane Chazelas <stephane.chazelas@gmail.com>
+Subject: [bug] renice not POSIX compliant
+Date:   Sat, 14 Sep 2019 14:55:37 +0100
+Message-ID: <20190914135537.yps2umfx2nsynyii@chaz.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+User-Agent: NeoMutt/20171215
+Content-Disposition: inline
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hi Sami,
+Hi, there are a few POSIX compliance issues with the "renice"
+command from util-linux.
 
->
-> The last(1) is pretty simple tool.  It can and will display information
-> tracked in utmp(5) data.
->
-> http://man7.org/linux/man-pages/man5/utmp.5.html
-Thanks for the information.
+First and more importantly, per POSIX, like for "nice", "-n"
+is meant to take an "increment"/"adjustment", not an absolute
+value.
 
->
-> The utmp data is stored over many many reboots, that might stay around for
-> years.  Notice that changing utmp(5) is probably not the easiest thing to
-Yes, staying around for years with an entry for each boot would be desirable.
+As in
 
-> achieve.  That format is part of POSIX.  Assuming standards are changed then
-> update to various libc implementations is needed as well.
->
-> Alternatively some sort of extented-utmp format could be created to avoid
-> standardization work, but getting that to adopted might be hard.  While utmp
-> has it's flaws it is not exactly broken.  In short while I'm not strictly
-> against better reboot reason tracking I am a somewhat doubtful how feasible
-> this work is.
-OK, this makes sense. I might do something simple for our use case.
+renice -n 5 "$pid"
 
->
-> That said what is that memtool?  I have never noticed it before.  By glance
-> it looks a little like abandonware.  Maybe it could be get a home in
-> util-linux if a tool like that is found to be useful, and old maintainer
-> does not mind.
-I'm not sure what the current state is, but it's included in the latest debian:
-https://packages.debian.org/buster/memtool
+is meant to increase the nice value by 5. While the traditional,
+BSD-style:
 
-It's a very simple (if not dangerous) tool to r/w /dev/mem. But it's very handy
-for spying on memory mapped I/O registers like in this case.
+renice 5 "$pid"
 
-I guess adding an interface isn't any worse than /dev/mem directly, but it
-still might not be desirable to have it on every system?
+sets its absolute value to 5.
 
--Paul
+util-linux added "-n" in 2009 for POSIX compliance (see
+https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/commit/?id=7cfbafda9c484a8cadefc47ee115086e803d9391),
+but the "-n" is just ignored. Since 2010, the --help message
+does say that -n/--priority takes an "increment"
+(https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/commit/?id=296351b0f112c821bffbe8ce7aa35d716251051d)
+but that's not what happens in practice (it still sets the
+niceness to the value specified).
+
+$ nice -n 1 sh -c 'renice -n 2 "$$"; ps -o nice,comm -p "$$"; exit'
+29606 (process ID) old priority 1, new priority 2
+ NI COMMAND
+  2 sh
+
+
+Also, a POSIX renice utility is meant to parse the options the
+usual (getopt(3)) way. In particular,
+
+renice -gn 1 -- 123
+
+Is meant to increase the niceness of pgid 123 by 1, but fails in
+util-linux renice.
+
+$ renice -gn 1 -- "$$"
+renice: invalid priorty '-gn'
+Try 'renice --help' for more information.
+
+-p, -g, -u are meant to specify how *all* operands are to be
+interpreted, they are not options that take arguments.
+
+renice +1 123
+renice +1 123 -u me
+
+are unspecified by POSIX, so it's fine for util-linux to handle
+the BSD way, but
+
+renice -n 1 -u me -p 123
+
+Is meant to increase the niceness of users "me", "-p" and "123".
+
+Also, calling it "--priority" is quite misleading as the
+niceness is rather the opposite of priority. GNU "nice" uses
+"--adjustment" as the long-option equivalent of "-n" (note that
+FreeBSD also calls it "priority" though)..
+
+IMO, the best way to handle it would be to do a BSD-style
+parsing when the first argument matches the [-+]?\d+ RE, and do
+a POSIX getopt_long parsing otherwise with:
+
+Change the (POSIX style) options to:
+
+  -n/--adjustment <num>: niceness increment
+  -v/--value (deprecated: --priority) <num>: exact niceness value
+  -g/--pgrp (no arg): interpret operands as gids.
+  -u/--user (no arg): interpret operands as user names/ids
+  -p/-pid (no arg): interpret operands as pids.
+  --help/--version...
+
+And keep the
+
+renice niceness [[-p/--pid] pid ...] [[-g/--pgrp] pgid ...] [[-u/--user] user ...]
+
+usage for backward compatibility and BSD compatibility.
+
+Note that there's currently a bug in the latest version of the
+POSIX specification in that it says that positive increments
+should *decrease* the niceness
+(http://austingroupbugs.net/view.php?id=1286).
+
+See
+https://unix.stackexchange.com/questions/541673/how-do-i-start-a-shell-the-way-all-the-processes-ran-from-within-it-and-processe/541691#541691
+for more details.
+
+-- 
+Stephane
+
