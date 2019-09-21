@@ -7,52 +7,52 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9FC4C4740C
-	for <util-linux@archiver.kernel.org>; Sat, 21 Sep 2019 18:57:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 750F5C49ED7
+	for <util-linux@archiver.kernel.org>; Sat, 21 Sep 2019 18:57:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A8EE921882
-	for <util-linux@archiver.kernel.org>; Sat, 21 Sep 2019 18:57:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 430252184C
+	for <util-linux@archiver.kernel.org>; Sat, 21 Sep 2019 18:57:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=fifth.space header.i=@fifth.space header.b="dLpYHN5k"
+	dkim=pass (2048-bit key) header.d=fifth.space header.i=@fifth.space header.b="Qgxluo14"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727287AbfIUS5G (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S1727955AbfIUS5G (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Sat, 21 Sep 2019 14:57:06 -0400
 Received: from fifth.space ([45.32.148.28]:47532 "EHLO fifth.space"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725838AbfIUS5F (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sat, 21 Sep 2019 14:57:05 -0400
+        id S1727926AbfIUS5G (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sat, 21 Sep 2019 14:57:06 -0400
 X-Greylist: delayed 400 seconds by postgrey-1.27 at vger.kernel.org; Sat, 21 Sep 2019 14:57:04 EDT
 Received: from fifth.space (localhost [127.0.0.1])
-        by fifth.space (OpenSMTPD) with ESMTP id 34849153
+        by fifth.space (OpenSMTPD) with ESMTP id 2b0b7b02
         for <util-linux@vger.kernel.org>;
-        Sat, 21 Sep 2019 20:50:23 +0200 (CEST)
+        Sat, 21 Sep 2019 20:50:24 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=fifth.space; h=from:to:cc
         :subject:date:message-id:in-reply-to:references:mime-version
-        :content-transfer-encoding; s=dkim; bh=IcL1DinkLukBm5ab7HYDsQOko
-        IM=; b=dLpYHN5k3v731q6mxjToveE0xF2+XBZ8KbXD5zmD+f9GczUB0Z2cYXEJP
-        Kh6AVFLYJ800BmlCujIhLmfEMK6/y0CVwNg6zmawNctj8K371eeMt51ymarrfzal
-        3J/x+N065ug+85ApayEexVtx3QOoWwfc9wQBw5EWPhvuSS9ZLY6gxxo45BTYbTBh
-        a0Oyf3mFP6wMO1bc9LnLXa9632JI7B0KhJM9hECD67HBz04jusYgaTIsrOOLtmTK
-        0cdGhqh91ZWlytcP613aCDCQ+USZw31avTws2bOpdWLQR3KlHH4k8k1jBaGN2svu
-        R/Hg7hdqwuttuFHx8rQx4xqXHBTHQ==
+        :content-transfer-encoding; s=dkim; bh=Gl3Kio8YgN9w8jmuFItDqjASz
+        i0=; b=Qgxluo14wMHqtQPdFDo/0tSYslO/wayfu6kgR5juISRR84M5R85kI/0Rz
+        aNOIDAj/nHSzMpsD1PAXBNKM+vSAgazJdV/PcFzuofPV8n25R73vVS7qU7SxGJNw
+        edEQsOhjwPyij0DSk4G+dluCOiKNOUs7b/Kfbkz7W0E4mKuIvQMl75eLSVCFJMg2
+        XkG2eyP8PpF0mgBq1R9lCcwbe2r6TqcxUwbqwaJkqZH9cw9/LVV7EFdmYuMgd/EJ
+        bE7nIHBZkUdDP4tInaLnet3S4NftDcrsMYiYzqNt+KNx2faiAr0gBBUFlPA6g+QG
+        8JSYJmFwdVlbgoc0WOtwz096EPEkg==
 DomainKey-Signature: a=rsa-sha1; c=nofws; d=fifth.space; h=from:to:cc
         :subject:date:message-id:in-reply-to:references:mime-version
-        :content-transfer-encoding; q=dns; s=dkim; b=OsX30nY6i/9Jkcv+PSj
-        SUMCD2Pe7zyJjoELC5e1uUqusaXetSrP9sTbg1noxl1lOZLO+hDCeYwj+Paa7/PS
-        IORLGIv1oyoau/mLrGeRBwDQSZcyJXskXkLA5IH00YwT4bh5JdFNn14RCWTW+JFY
-        7EYd6gCvbn40NTooOrwf57Iou5O7zQjW3oHyJWrVsEu86LOoBG2Xq6fBRNz+euoT
-        by8TfRDlaNrFUYu3145GBwWlxjoBRyFIMqdL2FiIXiPusUu0Ql5kCe1aWuX1VHd+
-        KNdpyqvW0Go7g1JRMXNrN9wk64wZlPdtay0c2VhWSwaaNIHZCqCdkroxw43cM7uG
-        QwA==
+        :content-transfer-encoding; q=dns; s=dkim; b=GH1jeZnoa9AhBKQ1Wua
+        IhJXK0YsjJ8PYtiWAK5EWhc2ChyCH8HpWSJd3kdcbPuMiOzrjKVoi1vKsP2jVWWK
+        aWMb/riTLtbAuGRzAy6UToiYsmysKpjufHMn0Hr4hNQeysLpdUsLQ8mhDiAfSkMJ
+        a4E1zqxbXOlXbwg53ZukLbdKSmQxjouLS0VZND0nE23oAul3nloyaMglOEapPiV0
+        IOyVcZgLj4sM5dB19t7xmnAsuJaiSPqodugGD0p4E9RJ9W89ibzv3UvZgy2mwfh+
+        uybwaNAvJIdSgMpK8eDEjUBdxjY2hbjM/1s/nB7DzJq3+BqbBLZ9sU0jiGyjRdjC
+        1Qg==
 Received: from localhost (fifth.space [local])
-        by fifth.space (OpenSMTPD) with ESMTPA id 8cf92071;
+        by fifth.space (OpenSMTPD) with ESMTPA id 959ad8a2;
         Sat, 21 Sep 2019 20:50:23 +0200 (CEST)
 From:   Quentin Rameau <quinq@fifth.space>
 To:     util-linux@vger.kernel.org
 Cc:     Quentin Rameau <quinq@fifth.space>
-Subject: [PATCH 1/2] lib/pwdutils: add xgetpwuid
-Date:   Sat, 21 Sep 2019 20:50:20 +0200
-Message-Id: <20190921185021.10568-2-quinq@fifth.space>
+Subject: [PATCH 2/2] chsh: replace getpw unsafe functions with xgetpw
+Date:   Sat, 21 Sep 2019 20:50:21 +0200
+Message-Id: <20190921185021.10568-3-quinq@fifth.space>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190921185021.10568-1-quinq@fifth.space>
 References: <20190921185021.10568-1-quinq@fifth.space>
@@ -64,61 +64,45 @@ List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
 ---
- include/pwdutils.h |  1 +
- lib/pwdutils.c     | 28 ++++++++++++++++++++++++++++
- 2 files changed, 29 insertions(+)
+ login-utils/chsh.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/include/pwdutils.h b/include/pwdutils.h
-index a69dd6b45..bea46e57e 100644
---- a/include/pwdutils.h
-+++ b/include/pwdutils.h
-@@ -5,6 +5,7 @@
- #include <pwd.h>
+diff --git a/login-utils/chsh.c b/login-utils/chsh.c
+index 9b2761157..a9ebec86f 100644
+--- a/login-utils/chsh.c
++++ b/login-utils/chsh.c
+@@ -38,6 +38,7 @@
+ #include "islocal.h"
+ #include "nls.h"
+ #include "pathnames.h"
++#include "pwdutils.h"
+ #include "setpwnam.h"
+ #include "strutils.h"
+ #include "xalloc.h"
+@@ -253,7 +254,7 @@ static void check_shell(const char *shell)
  
- extern struct passwd *xgetpwnam(const char *username, char **pwdbuf);
-+extern struct passwd *xgetpwuid(uid_t uid, char **pwdbuf);
- extern char *xgetlogin(void);
- 
- #endif /* UTIL_LINUX_PWDUTILS_H */
-diff --git a/lib/pwdutils.c b/lib/pwdutils.c
-index 25b4daed0..d54458d65 100644
---- a/lib/pwdutils.c
-+++ b/lib/pwdutils.c
-@@ -36,6 +36,34 @@ failed:
- 	return NULL;
- }
- 
-+struct passwd *xgetpwuid(uid_t uid, char **pwdbuf)
-+{
-+	struct passwd *pwd = NULL, *res = NULL;
-+	int rc;
-+
-+	if (!pwdbuf)
-+		return NULL;
-+
-+	*pwdbuf = xmalloc(UL_GETPW_BUFSIZ);
-+	pwd = xcalloc(1, sizeof(struct passwd));
-+
-+	errno = 0;
-+	rc = getpwuid_r(uid, pwd, *pwdbuf, UL_GETPW_BUFSIZ, &res);
-+	if (rc != 0) {
-+		errno = rc;
-+		goto failed;
-+	}
-+	if (!res) {
-+		errno = EINVAL;
-+		goto failed;
-+	}
-+	return pwd;
-+failed:
-+	free(pwd);
-+	free(*pwdbuf);
-+	return NULL;
-+}
-+
- char *xgetlogin(void)
+ int main(int argc, char **argv)
  {
- 	struct passwd *pw = NULL;
+-	char *oldshell;
++	char *oldshell, *pwbuf;
+ 	int nullshell = 0;
+ 	const uid_t uid = getuid();
+ 	struct sinfo info = { NULL };
+@@ -267,12 +268,12 @@ int main(int argc, char **argv)
+ 
+ 	parse_argv(argc, argv, &info);
+ 	if (!info.username) {
+-		pw = getpwuid(uid);
++		pw = xgetpwuid(uid, &pwbuf);
+ 		if (!pw)
+ 			errx(EXIT_FAILURE, _("you (user %d) don't exist."),
+ 			     uid);
+ 	} else {
+-		pw = getpwnam(info.username);
++		pw = xgetpwnam(info.username, &pwbuf);
+ 		if (!pw)
+ 			errx(EXIT_FAILURE, _("user \"%s\" does not exist."),
+ 			     info.username);
 -- 
 2.21.0
 
