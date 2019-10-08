@@ -1,72 +1,114 @@
-Return-Path: <SRS0=uN1w=XV=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=y1GS=YB=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F63AC4360C
-	for <util-linux@archiver.kernel.org>; Thu, 26 Sep 2019 21:35:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98B15C10F14
+	for <util-linux@archiver.kernel.org>; Tue,  8 Oct 2019 12:44:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D72B9222C2
-	for <util-linux@archiver.kernel.org>; Thu, 26 Sep 2019 21:35:02 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=fifth.space header.i=@fifth.space header.b="wVhIizZh"
+	by mail.kernel.org (Postfix) with ESMTP id 6DF06206B6
+	for <util-linux@archiver.kernel.org>; Tue,  8 Oct 2019 12:44:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725812AbfIZVfC (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 26 Sep 2019 17:35:02 -0400
-Received: from fifth.space ([45.32.148.28]:22523 "EHLO fifth.space"
+        id S1730889AbfJHMow (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 8 Oct 2019 08:44:52 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:55520 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725280AbfIZVfC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 26 Sep 2019 17:35:02 -0400
-Received: from fifth.space (localhost [127.0.0.1])
-        by fifth.space (OpenSMTPD) with ESMTP id aee381d9
-        for <util-linux@vger.kernel.org>;
-        Thu, 26 Sep 2019 23:35:00 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=fifth.space; h=date:from
-        :to:subject:message-id:in-reply-to:references:mime-version
-        :content-type:content-transfer-encoding; s=dkim; bh=2HdZPoXr4g+8
-        IJYesV8AHvz237M=; b=wVhIizZhcFfhcPCf9Z+M4EI0td3BMdsh2s9v7cdb4fl0
-        txa6n5P2/bkpPFKbhffZBRjiMjMTANCtDRqP0ZsEB4+fjpPacsauNmn2dWyOXgcq
-        lxbAM9LcukPIRQOpbIMQR3vohcnt/c2v2LaLWlfZgUscLMIoX4F0o7day6ZiZO/l
-        AEON+SS4a8lhYWJe0Ysnc55Svd7XTVkKNei72PPG/CikV4fiFzTgUSzwp5U4qc7i
-        UFqqru73331A8Hp9BkR9T/oyNvAIWxgoQU97y29VlvvkssUwnN5jlBuOmAY2qlcx
-        5iUtIiFk6uP4CiT+KFsu2bKo33buBLFSvyLnYbk2rw==
-DomainKey-Signature: a=rsa-sha1; c=nofws; d=fifth.space; h=date:from:to
-        :subject:message-id:in-reply-to:references:mime-version
-        :content-type:content-transfer-encoding; q=dns; s=dkim; b=XohbF1
-        IBQA5d3LcfZK84pCCpRb9pih68/uClqYtKJEZv/Z24ByrwzA10Gzntm8fAEuIc1q
-        w9G+EV/QpvQUdo/p/VkMQ8XTeA3yp4pnIwHWYKpXLOqH9vP/dwZJlo06q7Eq+uRn
-        B7vKMTj5HZcZ4rijNknDiwE9IRJZcAIfjTYoMsSGaipOZefz/itf70js2PFF8Vd+
-        u3TJStfF1jBCzyr3U0meD2oYdPsWoGdc6AS3yR+lmHtng6E+p8mPbeL3O1Gs1ieQ
-        khrofdyVRMYsYZEvXDc6/3cDaAXFKMkosaYV3Jd4QBfagzRae+pr41F4N3vAhLXk
-        6gtSTtKeG1BsPeuw==
-Received: from localhost.localdomain (<unknown> [IPv6:2a01:e34:ecae:2d51:21f0:3e05:65bc:2808])
-        by fifth.space (OpenSMTPD) with ESMTPSA id ea676906 (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO)
-        for <util-linux@vger.kernel.org>;
-        Thu, 26 Sep 2019 23:34:59 +0200 (CEST)
-Date:   Thu, 26 Sep 2019 23:34:55 +0200
-From:   Quentin Rameau <quinq@fifth.space>
+        id S1730888AbfJHMow (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 8 Oct 2019 08:44:52 -0400
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id ECBE0300D20F
+        for <util-linux@vger.kernel.org>; Tue,  8 Oct 2019 12:44:51 +0000 (UTC)
+Received: from 10.255.255.10 (unknown [10.40.205.32])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5B38D19C69
+        for <util-linux@vger.kernel.org>; Tue,  8 Oct 2019 12:44:51 +0000 (UTC)
+Date:   Tue, 8 Oct 2019 14:44:48 +0200
+From:   Karel Zak <kzak@redhat.com>
 To:     util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/2] Fix chsh when called as root
-Message-ID: <20190926233455.7e17ea54@fifth.space>
-In-Reply-To: <20190926135759.g243df5agf7zdcd4@10.255.255.10>
-References: <20190921185021.10568-1-quinq@fifth.space>
-        <20190926135759.g243df5agf7zdcd4@10.255.255.10>
+Subject: script(1), scriptreplay(1) and scriptlive(1)
+Message-ID: <20191008124448.4ncaccjshxx4vjov@10.255.255.10>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Tue, 08 Oct 2019 12:44:51 +0000 (UTC)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-> > Because chsh was using getpwuid/getpwnam, there was an issue with
-> > subsequent call to readline with tilde expansion which would also call
-> > the same function and overwrite the getpwuid/getpwnam internal storage
-> > struct passwd, replacing passed username results.
-> 
-> Applied, thanks.
 
-Thank you!
+ Hi all,
+
+ (as promised months ago) we have a new implementation of the script
+ stuff now. Details:
+
+ * script(1) is able to record stdout, stdin or both streams
+
+ * new "advanced" timing file format is supported; the file contains
+   also information about signals and additional information about the
+   session.
+ 
+ * scriptreplay(1) supports all the streams and --summary to print
+   overview about the session
+
+ * scriptlive(1) -- new command to re-execute stdin log by shell in
+   pseudo-terminal
+
+ * all the tools supports new options --log-in, --log-out, --log-io
+   and --log-timing. The original options works too.
+
+ * all changes are backwardly compatible and the new timing file
+   format is not enabled by default (you need implicit --logging-format or
+   --log-in).
+
+ * yes, script --log-in records all input, including passwords,
+   control chars, etc and scriptlive(1) can use it. For example ssh to
+   another machine etc.
+
+ Example (see difference between scriptreplay and scriptlive):
+
+ $ script --log-io oi --log-timing tm
+ Script started, output log file is 'oi', input log file is 'oi', timing file is 'tm'.
+ $ date +'%s'
+ 1570537455
+ $ exit
+ Script done.
+
+ $ scriptreplay --summary tm
+ START_TIME:  2019-10-08 14:39:49+02:00
+       TERM:  xterm-256color
+        TTY:  /dev/pts/2
+    COLUMNS:  190
+      LINES:  50
+      SHELL:  /bin/bash
+ TIMING_LOG:  tm
+ OUTPUT_LOG:  oi
+  INPUT_LOG:  oi
+   DURATION:  9.229837
+  EXIT_CODE:  0
+
+ $ scriptreplay --log-io oi --log-timing tm
+ $ date +'%s'
+ 1570537455
+ $ exit
+
+
+ $ scriptlive --log-io oi --log-timing tm
+ >>> scriptlive: Starting your typescript execution by /bin/bash.
+ $ date +'%s'
+ 1570537492
+ $ exit 
+ >>> scriptlive: done.
+
+
+    Karel 
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
