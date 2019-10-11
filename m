@@ -2,76 +2,97 @@ Return-Path: <SRS0=VVbZ=YE=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6662FC47404
-	for <util-linux@archiver.kernel.org>; Fri, 11 Oct 2019 06:58:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1ABB0C47404
+	for <util-linux@archiver.kernel.org>; Fri, 11 Oct 2019 07:15:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3C53D214E0
-	for <util-linux@archiver.kernel.org>; Fri, 11 Oct 2019 06:58:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D8DDF2196E
+	for <util-linux@archiver.kernel.org>; Fri, 11 Oct 2019 07:15:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1570778140;
+	bh=omEhQmgLDKQMRGZwWae+73MYYHlWEjmpLxZExgv93/s=;
+	h=From:To:Cc:Subject:Date:List-ID:From;
+	b=XiczqTeD/+34BxS+6QXfeq3ZmbUHF6g6O9pXGyhtFRiY3XM80PBDJPD13PKpYG0q7
+	 kgpQ0kU3cbYJVvGK9oblOiR4WL0rHXH5bOh3KulqFowK5iWiVLK0Edpqa9f5Cov2oO
+	 o8EWHfAUcbThLxBWq5rVVQ/DG/HUuhuLFE8T+4lc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726865AbfJKG6q (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 11 Oct 2019 02:58:46 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:48396 "EHLO mx1.redhat.com"
+        id S1727091AbfJKHPj (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 11 Oct 2019 03:15:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726481AbfJKG6q (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 11 Oct 2019 02:58:46 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726679AbfJKHPj (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 11 Oct 2019 03:15:39 -0400
+Received: from localhost.localdomain (NE2965lan1.rev.em-net.ne.jp [210.141.244.193])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id F1978A26698;
-        Fri, 11 Oct 2019 06:58:45 +0000 (UTC)
-Received: from 10.255.255.10 (unknown [10.40.205.32])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 3D1FD196B2;
-        Fri, 11 Oct 2019 06:58:45 +0000 (UTC)
-Date:   Fri, 11 Oct 2019 08:58:42 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     Alexey Gladkov <gladkov.alexey@gmail.com>
-Cc:     util-linux@vger.kernel.org
-Subject: Re: [PATCH v1 0/4] Add modules.builtin.modinfo support
-Message-ID: <20191011065842.f5tm6ynkbltiqcyq@10.255.255.10>
-References: <20191010120928.3817287-1-gladkov.alexey@gmail.com>
+        by mail.kernel.org (Postfix) with ESMTPSA id F13F42084C;
+        Fri, 11 Oct 2019 07:15:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570778138;
+        bh=omEhQmgLDKQMRGZwWae+73MYYHlWEjmpLxZExgv93/s=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Gq0eeHDEU763lLCmxbRM4hNYXftJXcRGyj4Hin4VQTNIqM8Sw/EmEnDa/kEd2+ToZ
+         NM95rfC6BPhw8TAbHNib8vgniHpTwA1h9OLG5D0grrinduIgQg4La6K55bKcjwfJn6
+         c3PuhuWJ5F6X/XCBzyczLfLSGM24Y1s2ppOZOIVg=
+From:   Masami Hiramatsu <mhiramat@kernel.org>
+To:     util-linux@vger.kernel.org
+Cc:     mhiramat@kernel.org, Karel Zak <kzak@redhat.com>
+Subject: [BUGFIX PATCH] libmount: Add libselinux dependency to pkgconfig file
+Date:   Fri, 11 Oct 2019 16:15:35 +0900
+Message-Id: <157077813529.32660.383807974560795120.stgit@devnote2>
+X-Mailer: git-send-email 2.20.1
+User-Agent: StGit/0.17.1-dirty
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191010120928.3817287-1-gladkov.alexey@gmail.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.68]); Fri, 11 Oct 2019 06:58:46 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+Add libselinux dependency to libmount if it is compiled
+with selinux support.
 
- Alexey, it seems you need another mailing list for libkmod, see:
- https://git.kernel.org/pub/scm/utils/kernel/kmod/kmod.git/about/
+Without this fix, 'pkg-config --libs --static mount' doesn't
+show libselinux related options.
 
- Thanks,
-   Karel
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+---
+ Makefile.am          |    6 ++++++
+ libmount/mount.pc.in |    2 +-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-> Alexey Gladkov (4):
->   libkmod: Add parser for modules.builtin.modinfo
->   libkmod: Add function to get list of built-in modules
->   Lookup aliases in the modules.builtin.modinfo
->   modinfo: Show information about built-in modules
-> 
->  Makefile.am                |   1 +
->  libkmod/libkmod-builtin.c  | 231 +++++++++++++++++++++++++++++++++++++
->  libkmod/libkmod-internal.h |  10 ++
->  libkmod/libkmod-module.c   |  76 ++++++++++--
->  libkmod/libkmod.c          |  25 ++++
->  libkmod/libkmod.h          |   1 +
->  tools/depmod.c             |  63 ++++++++++
->  tools/modinfo.c            |  39 ++++---
->  8 files changed, 419 insertions(+), 27 deletions(-)
->  create mode 100644 libkmod/libkmod-builtin.c
-> 
-> -- 
-> 2.21.0
-> 
+diff --git a/Makefile.am b/Makefile.am
+index 51c649909..9ef752f3c 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -136,6 +136,12 @@ edit_cmd = sed \
+ 	 -e 's|@LIBFDISK_PATCH_VERSION[@]|$(LIBFDISK_PATCH_VERSION)|g' \
+ 	 -e 's|@LIBBLKID_VERSION[@]|$(LIBBLKID_VERSION)|g'
+ 
++if HAVE_SELINUX
++edit_cmd += -e 's|@LIBSELINUX[@]|libselinux|g'
++else
++edit_cmd += -e 's|@LIBSELINUX[@]||g'
++endif
++
+ CLEANFILES += $(PATHFILES)
+ EXTRA_DIST += $(PATHFILES:=.in)
+ 
+diff --git a/libmount/mount.pc.in b/libmount/mount.pc.in
+index 7371b23c1..d5f0d4b55 100644
+--- a/libmount/mount.pc.in
++++ b/libmount/mount.pc.in
+@@ -17,6 +17,6 @@ includedir=@includedir@
+ Name: mount
+ Description: mount library
+ Version: @LIBMOUNT_VERSION@
+-Requires.private: blkid
++Requires.private: blkid @LIBSELINUX@
+ Cflags: -I${includedir}/libmount
+ Libs: -L${libdir} -lmount
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
