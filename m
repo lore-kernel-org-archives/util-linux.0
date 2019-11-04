@@ -1,81 +1,83 @@
-Return-Path: <SRS0=hTuh=YY=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=kGen=Y4=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41438CA9ECB
-	for <util-linux@archiver.kernel.org>; Thu, 31 Oct 2019 16:51:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 869EACA9EB5
+	for <util-linux@archiver.kernel.org>; Mon,  4 Nov 2019 20:23:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 182F420873
-	for <util-linux@archiver.kernel.org>; Thu, 31 Oct 2019 16:51:53 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CTSjVatg"
+	by mail.kernel.org (Postfix) with ESMTP id 5981F20848
+	for <util-linux@archiver.kernel.org>; Mon,  4 Nov 2019 20:23:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728611AbfJaQvw (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 31 Oct 2019 12:51:52 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:21479 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727715AbfJaQvv (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 31 Oct 2019 12:51:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572540711;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=/4m0eWbXFhGE2ZsLsrPeOxnOWBrFxeo/0wFiaBh9jIc=;
-        b=CTSjVatg1gxvmyyq3jNxNkknOVfR0vECFTA/yrYVqp1lqtC4n6AkKzLtIffP1JfqDigKnv
-        bx1w4p2qo4zi6hm3px+V2ZfQ6TucZFbgpVP3EJFe1X6eh7I9TcuqnSzmEdoB25oFBhOmns
-        sHkSZm9BTqHHRnkN0bgLNzhxDtt2Oio=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-140-ma5fXHEGPiO8eyNWNqkRWw-1; Thu, 31 Oct 2019 12:51:49 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2B1145EA
-        for <util-linux@vger.kernel.org>; Thu, 31 Oct 2019 16:51:48 +0000 (UTC)
-Received: from cicero.redhat.com (unknown [10.33.36.109])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5C2E31001B09
-        for <util-linux@vger.kernel.org>; Thu, 31 Oct 2019 16:51:46 +0000 (UTC)
-From:   Andrew Price <anprice@redhat.com>
+        id S1728322AbfKDUXU (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 4 Nov 2019 15:23:20 -0500
+Received: from mx2.suse.de ([195.135.220.15]:53718 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726417AbfKDUXU (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 4 Nov 2019 15:23:20 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id E4C84B391
+        for <util-linux@vger.kernel.org>; Mon,  4 Nov 2019 20:23:18 +0000 (UTC)
+From:   Michal Suchanek <msuchanek@suse.de>
 To:     util-linux@vger.kernel.org
-Subject: [PATCH] fallocate.1: List gfs2 as supporting punch-hole
-Date:   Thu, 31 Oct 2019 16:51:44 +0000
-Message-Id: <20191031165144.1877-1-anprice@redhat.com>
+Cc:     Michal Suchanek <msuchanek@suse.de>
+Subject: [PATCH] blkid: open device in nonblock mode.
+Date:   Mon,  4 Nov 2019 21:23:15 +0100
+Message-Id: <20191104202315.4879-1-msuchanek@suse.de>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-MC-Unique: ma5fXHEGPiO8eyNWNqkRWw-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Signed-off-by: Andrew Price <anprice@redhat.com>
----
- sys-utils/fallocate.1 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+When autoclose is set (kernel default but many distributions reverse the
+setting) opening a CD-rom device causes the tray to close.
 
-diff --git a/sys-utils/fallocate.1 b/sys-utils/fallocate.1
-index fe5072ae8..0fc2ec97b 100644
---- a/sys-utils/fallocate.1
-+++ b/sys-utils/fallocate.1
-@@ -134,7 +134,7 @@ Also, when using this option,
- is implied.
- .sp
- Supported for XFS (since Linux 2.6.38), ext4 (since Linux 3.0),
--Btrfs (since Linux 3.7) and tmpfs (since Linux 3.5).
-+Btrfs (since Linux 3.7), tmpfs (since Linux 3.5) and gfs2 (since Linux 4.1=
-6).
- .TP
- .BR \-v ", " \-\-verbose
- Enable verbose mode.
---=20
-2.21.0
+The function of blkid is to report the current state of the device and
+not to change it. Hence it should use O_NONBLOCK when opening the
+device to avoid closing a CD-rom tray.
+
+blkid is used liberally in scripts so it can potentially interfere with
+the user operating the CD-rom hardware.
+
+Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+---
+ libblkid/src/verify.c | 2 +-
+ misc-utils/blkid.c    | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/libblkid/src/verify.c b/libblkid/src/verify.c
+index a78c9f8f2aa4..4bda3fd40cee 100644
+--- a/libblkid/src/verify.c
++++ b/libblkid/src/verify.c
+@@ -126,7 +126,7 @@ blkid_dev blkid_verify(blkid_cache cache, blkid_dev dev)
+ 		}
+ 	}
+ 
+-	fd = open(dev->bid_name, O_RDONLY|O_CLOEXEC);
++	fd = open(dev->bid_name, O_RDONLY|O_CLOEXEC|O_NONBLOCK);
+ 	if (fd < 0) {
+ 		DBG(PROBE, ul_debug("blkid_verify: error %m (%d) while "
+ 					"opening %s", errno,
+diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
+index f2583d2b883f..0df9f6b6f29e 100644
+--- a/misc-utils/blkid.c
++++ b/misc-utils/blkid.c
+@@ -499,7 +499,7 @@ static int lowprobe_device(blkid_probe pr, const char *devname,
+ 	int rc = 0;
+ 	static int first = 1;
+ 
+-	fd = open(devname, O_RDONLY|O_CLOEXEC);
++	fd = open(devname, O_RDONLY|O_CLOEXEC|O_NONBLOCK);
+ 	if (fd < 0) {
+ 		warn(_("error: %s"), devname);
+ 		return BLKID_EXIT_NOTFOUND;
+-- 
+2.23.0
 
