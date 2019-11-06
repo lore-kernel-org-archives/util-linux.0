@@ -2,141 +2,97 @@ Return-Path: <SRS0=Vf/c=Y6=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70468C5DF62
-	for <util-linux@archiver.kernel.org>; Wed,  6 Nov 2019 08:03:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CE0BC5DF62
+	for <util-linux@archiver.kernel.org>; Wed,  6 Nov 2019 08:48:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3CBA2206A3
-	for <util-linux@archiver.kernel.org>; Wed,  6 Nov 2019 08:03:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5CABA206A3
+	for <util-linux@archiver.kernel.org>; Wed,  6 Nov 2019 08:48:42 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TXVow2VY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729878AbfKFIDR (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 6 Nov 2019 03:03:17 -0500
-Received: from mx2.suse.de ([195.135.220.15]:39992 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729734AbfKFIDR (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 6 Nov 2019 03:03:17 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id D2A22B31A;
-        Wed,  6 Nov 2019 08:03:14 +0000 (UTC)
-Date:   Wed, 6 Nov 2019 09:02:56 +0100
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     Karel Zak <kzak@redhat.com>
+        id S1731558AbfKFIsl (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 6 Nov 2019 03:48:41 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:56017 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1730178AbfKFIsl (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 6 Nov 2019 03:48:41 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1573030120;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=AxW9xoMiyfUVN3zQflyIFe2Fsq0ARDGmes6nV9PkxCE=;
+        b=TXVow2VY9R8N6xy1ILWApprWB9D2t66Tu3qSxMUT0VnJ3RvBb5/vSUHQQ8+mmxa4lj2+7r
+        gtR7rUNV7AzrNC1ODFD+tYYuiHyAKXhUk9Zgzy6tqV2CxfkyIaDuxj6jDSzlC55/8ZJbSc
+        Er2OpKYKZxe63xamRGFDSKGmgx7z/PQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-381-9yxJqgtXME6Od8SsX1xfqg-1; Wed, 06 Nov 2019 03:48:37 -0500
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4FA158017E0;
+        Wed,  6 Nov 2019 08:48:36 +0000 (UTC)
+Received: from 10.255.255.10 (unknown [10.40.205.89])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 912275D9CD;
+        Wed,  6 Nov 2019 08:48:35 +0000 (UTC)
+Date:   Wed, 6 Nov 2019 09:48:33 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     Michal =?utf-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>
 Cc:     util-linux@vger.kernel.org
 Subject: Re: [PATCH] blkid: open device in nonblock mode.
-Message-ID: <20191106080256.GA19254@kitsune.suse.cz>
+Message-ID: <20191106084833.nx3agnj36brw7i42@10.255.255.10>
 References: <20191104202315.4879-1-msuchanek@suse.de>
  <20191105114122.o3cjzfnoy3hp2rbm@10.255.255.10>
  <20191105171357.GV1384@kitsune.suse.cz>
+ <20191106080256.GA19254@kitsune.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20191106080256.GA19254@kitsune.suse.cz>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-MC-Unique: 9yxJqgtXME6Od8SsX1xfqg-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191105171357.GV1384@kitsune.suse.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Tue, Nov 05, 2019 at 06:13:57PM +0100, Michal Suchánek wrote:
-> On Tue, Nov 05, 2019 at 12:41:22PM +0100, Karel Zak wrote:
-> > On Mon, Nov 04, 2019 at 09:23:15PM +0100, Michal Suchanek wrote:
-> > > When autoclose is set (kernel default but many distributions reverse the
-> > > setting) opening a CD-rom device causes the tray to close.
-> > > 
-> > > The function of blkid is to report the current state of the device and
-> > > not to change it. Hence it should use O_NONBLOCK when opening the
-> > > device to avoid closing a CD-rom tray.
-> > 
-> > I can imagine this as optional solution (command line option), but I
-> 
-> That defeats the purpose of this change. You cannot use the option with
-> old blkid, so using the option is broken and not using it is also broken.
-> 
-> > have doubts to use O_NONBLOCK by default for all block devices. I have
-> > no example, but it sounds like a way how to introduce regressions in
-> > libblkid behavior. (Any kernel guy around?) Is it really only cdrom
-> > driver(s) where O_NONBLOCK has any impact? What about USB, some random
-Yes, it affect floppies as well:
+On Wed, Nov 06, 2019 at 09:02:56AM +0100, Michal Such=E1nek wrote:
+> > If some random program using libblkid closes the tray I don't care that
+> > much. However, many system scripts use blkid, probably to find a device
 
-drivers/block/ataflop.c:        if (mode & FMODE_NDELAY)
-drivers/block/floppy.c: if (!(mode & FMODE_NDELAY)) {
-drivers/block/pktcdvd.c:        ret = blkdev_get(bdev, FMODE_READ |
-FMODE_NDELAY, NULL);
-drivers/block/pktcdvd.c:                blkdev_put(bdev, FMODE_READ |
-FMODE_NDELAY);
-drivers/block/pktcdvd.c:        blkdev_put(bdev, FMODE_READ |
-FMODE_NDELAY);
-drivers/block/pktcdvd.c:        blkdev_put(pd->bdev, FMODE_READ |
-FMODE_NDELAY);
-drivers/block/swim.c:   if (mode & FMODE_NDELAY)
-drivers/block/swim3.c:  if (err == 0 && (mode & FMODE_NDELAY) == 0
-drivers/cdrom/cdrom.c:  if ((mode & FMODE_NDELAY) && (cdi->options &
-CDO_USE_FFLAGS)) {
-drivers/cdrom/cdrom.c:          !(mode & FMODE_NDELAY);
-drivers/ide/ide-gd.c:           if (ret && (mode & FMODE_NDELAY) == 0) {
-drivers/scsi/sd.c:      if (sdev->removable && !sdkp->media_present &&
-!(mode & FMODE_NDELAY))
-drivers/scsi/sd.c:                      (mode & FMODE_NDELAY) != 0);
-drivers/scsi/sd.c:                      (mode & FMODE_NDELAY) != 0);
-drivers/scsi/sr.c:      return __sr_block_open(bdev, mode |
-FMODE_NDELAY);
-drivers/scsi/sr.c:      if ((ret == -ENOMEDIUM) && !(mode &
-FMODE_NDELAY))
-drivers/scsi/sr.c:                      (mode & FMODE_NDELAY) != 0);
+One of the random programs is udev:
 
+   src/udev/udev-builtin-blkid.c:
 
-> > SCSI, ... I don't know.
-> > 
-> > The another problem is that the library does not have to open the device,
-> > you can use already open file descriptor (blkid_probe_set_device()). 
-> > So, in many cases the patch will have no effect.
-> 
-> If some random program using libblkid closes the tray I don't care that
-> much. However, many system scripts use blkid, probably to find a device
-> with particular ID:
-> 
-> /usr/bin/dracut:            dev=$(blkid -l -t UUID=${dev#UUID=} -o
-> device)
-> /usr/bin/dracut:            dev=$(blkid -l -t LABEL=${dev#LABEL=} -o
-> device)
-> /usr/bin/dracut:            dev=$(blkid -l -t PARTUUID=${dev#PARTUUID=}
-> -o device)
-> /usr/bin/dracut:            dev=$(blkid -l -t
-> PARTLABEL=${dev#PARTLABEL=} -o device)
-> 
-> /usr/bin/linux-boot-prober:	partition=$(blkid | grep "$UUID" | cut
-> -d ':' -f 1 | tr '\n' ' ' | cut -d ' ' -f 1)
-> /usr/bin/os-prober:	blkid | grep btrfs | cut -d ':' -f 1
-> /usr/bin/os-prober:	type=$(blkid -o value -s TYPE $mapped || true)
-> /usr/bin/os-prober:		uuid=$(blkid -o value -s UUID $mapped)
-> 
-> > 
-> > > blkid is used liberally in scripts so it can potentially interfere with
-> > > the user operating the CD-rom hardware.
-> > 
-> > It's better to use lsblk in script, it reads info from udev -- call
-> > blindly blkid(8) is usually overkill.
-which uses the udev identifiers which already use O_NONBLOCK:
-src/udev/ata_id/ata_id.c:        fd = open(node,
-O_RDONLY|O_NONBLOCK|O_CLOEXEC);
-src/udev/cdrom_id/cdrom_id.c:                fd = open(node,
-O_RDONLY|O_NONBLOCK|O_CLOEXEC);
-src/udev/scsi_id/scsi_serial.c:        fd = open(devname, O_RDONLY |
-O_NONBLOCK | O_CLOEXEC);
-src/udev/scsi_id/scsi_serial.c:                fd = open(devname,
-O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+       fd =3D open(devnode, O_RDONLY|O_CLOEXEC);
+       if (fd < 0)
+               return log_device_debug_errno(dev, errno, "Failed to open bl=
+ock device %s: %m", devnode);
 
-> 
-> First off you need to explain it to all authors of all random scripts
-> out there.
-> 
-> Secondly udev is not guaranteed to exist/run on every system.
-> 
-> Thanks
-> 
-> Michal
+       errno =3D 0;
+       r =3D blkid_probe_set_device(pr, fd, offset, 0);
+
+> > First off you need to explain it to all authors of all random scripts
+> > out there.
+
+That's what I'm doing for years :)
+
+Anyway, I'm going to apply the patch, thanks for your investigation.
+
+Let's hope it will not introduce any change on something else than
+on cdroms and floppies.
+
+    Karel
+
+--=20
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
