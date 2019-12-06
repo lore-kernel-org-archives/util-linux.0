@@ -1,101 +1,92 @@
-Return-Path: <SRS0=5SnE=Z2=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=MRkD=Z4=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,PDS_BTC_ID,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 799C0C43603
-	for <util-linux@archiver.kernel.org>; Wed,  4 Dec 2019 14:46:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D26CC43603
+	for <util-linux@archiver.kernel.org>; Fri,  6 Dec 2019 10:06:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4BBE3207DD
-	for <util-linux@archiver.kernel.org>; Wed,  4 Dec 2019 14:46:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12FC720707
+	for <util-linux@archiver.kernel.org>; Fri,  6 Dec 2019 10:06:12 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O5VJzR9S"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727880AbfLDOqf (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 4 Dec 2019 09:46:35 -0500
-Received: from smtp2.cict.fr ([195.220.59.17]:43284 "EHLO smtp2.cict.fr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727850AbfLDOqf (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 4 Dec 2019 09:46:35 -0500
-X-Greylist: delayed 567 seconds by postgrey-1.27 at vger.kernel.org; Wed, 04 Dec 2019 09:46:34 EST
-Received: from smtp2.cict.fr (localhost.localdomain [127.0.0.1])
-        by smtp2.cict.fr (8.14.5/8.14.4) with ESMTP id xB4Eb60L026589
-        for <util-linux@vger.kernel.org>; Wed, 4 Dec 2019 15:37:06 +0100
-Received: from irsamc.ups-tlse.fr (irsamc.ups-tlse.fr [130.120.228.23])
-        by smtp2.cict.fr (8.14.5/8.14.5) with ESMTP id xB4Eb6gJ026586
-        for <util-linux@vger.kernel.org>; Wed, 4 Dec 2019 15:37:06 +0100
-Received: from webmail.irsamc.ups-tlse.fr (irssv1.ups-tlse.fr [130.120.228.21])
-        by irsamc.ups-tlse.fr (Postfix) with ESMTPSA id A22CF361EDF
-        for <util-linux@vger.kernel.org>; Wed,  4 Dec 2019 15:37:06 +0100 (CET)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Wed, 04 Dec 2019 15:37:06 +0100
-From:   pierre@irsamc.ups-tlse.fr
+        id S1726127AbfLFKGL (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 6 Dec 2019 05:06:11 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:46172 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726102AbfLFKGL (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 6 Dec 2019 05:06:11 -0500
+Received: by mail-wr1-f68.google.com with SMTP id z7so7013831wrl.13
+        for <util-linux@vger.kernel.org>; Fri, 06 Dec 2019 02:06:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:subject:message-id:mime-version:content-disposition;
+        bh=7CVud5yfCa/AjwLMzQXZ8g100XdJoqgTz14dCII4BaQ=;
+        b=O5VJzR9SuT1L2eHbTjtijV6RFMIa4IYnuhRhesvOmFMEcoQzVeYxbehYKIl7m85CHy
+         9Fs0lWMS9aYchcOcrKQFT5jX7fpRwbaMv8exj9ljuOjBuxO9S51G6HYEhsDtcfftby1t
+         +K03XhAJu5I+59gkLwQIA6EquLhIhR4wEF/wvafDUAG9oKGQ7bbtjDHvUx9QvTbW667W
+         M5D0OO+xr8tb6Ad7kDhTFVQyT4dVn3sTwE9t4DrsAktjGeJ/UY8yE3fgjIw2/cvuT6uz
+         22Qdm8W5cwcqEVtVI4xX47d6V9nXNm9UbFDDQLucIhp49+ka5C3KPst8T9MuANbdihoJ
+         spEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:subject:message-id:mime-version
+         :content-disposition;
+        bh=7CVud5yfCa/AjwLMzQXZ8g100XdJoqgTz14dCII4BaQ=;
+        b=EoIxo/XChxDJwvVTFnoTump5TSyfagxnYJAPbIxXuGUWmN3oC9teqiKXsvS10zWmcG
+         GnwhTdhADu4eSAnKFmTCQfXUtXuMsYHd4Ayj/6rGvE1zzpQehyqpq2P/DFlL4v5IyBw4
+         H8MeNoJqvwaXwNeAIflN1O7F0QPk21SuC4SY8fQkWvEvJs4YmwcrVN6vkC9WTEt51JXt
+         iHm32PSF3AYxlnc2CBbT9665godMS0xpsHHY8X4FbZ50pJIxYQ0lLUphm75VAIy9wGsS
+         FW0olhtup/2NF13/MNMHCKtCsVMh1xjiTBPXmIga+T9dJsXNnkJd2SqnpG3BLFtE2rrJ
+         rufg==
+X-Gm-Message-State: APjAAAXdpGCbDPDSgVSoNuVSJK+VrcciYEuDx35AMWFiXy/rGDgpLD+1
+        LnI3rWPCe0SPCh03+avPdSb7uGKLtxc=
+X-Google-Smtp-Source: APXvYqzxQhpVhR+qAaqV71n0+bTfIca6QFjBQjO91fFkTMb2hhhczlijBgLyoU7S3JJz/ztp90MxSg==
+X-Received: by 2002:a5d:6305:: with SMTP id i5mr15182185wru.119.1575626768705;
+        Fri, 06 Dec 2019 02:06:08 -0800 (PST)
+Received: from Mindship-03 (81-234-21-31.ftth.glasoperator.nl. [31.21.234.81])
+        by smtp.gmail.com with ESMTPSA id l3sm15618369wrt.29.2019.12.06.02.06.08
+        for <util-linux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Dec 2019 02:06:08 -0800 (PST)
+Date:   Fri, 6 Dec 2019 11:06:03 +0100
+From:   Jouke Witteveen <j.witteveen@gmail.com>
 To:     util-linux@vger.kernel.org
-Subject: Subject: [PATCH] Fix adjtime documentation
-User-Agent: Roundcube Webmail/1.4.0
-Message-ID: <8c9af50033cf8d287a8df373d4cade93@irsamc.ups-tlse.fr>
-X-Sender: pierre@irsamc.ups-tlse.fr
-X-Virus-Scanned: clamav-milter 0.97.3 at smtp2.cict.fr
-X-Virus-Status: Clean
+Subject: [PATCH] su: silence a useless warning
+Message-ID: <20191206100603.GA948@Mindship-03>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-The first line of the adjtime file is made of three numbers (see 
-hwclock.c)
-- a drift factor as a decimal float
-- the time of last adjust as a decimal integer
-- a zero (for compatibility) as a decimal float.
-but both man pages (hwclock.8 and adj_time.5) tell that the third number
-is a decimal integer.
-Of course this is harmless if somebody edits the adjtime file with "0" 
-as
-the third number: it will be correctly read by hwclock anyway.
-But if for some reason, a program reads the adjtime file and expects an
-integer, it will fail, because hwclock writes O.OOOO0O as the third 
-number.
+When the requested shell matches the restricted shell, there is no reason
+to issue a warning, since we will be doing precisely as requested.
 
-Signed-off-by: Pierre Labastie <pierre.labastie@neuf.fr>
+Signed-off-by: Jouke Witteveen <j.witteveen@gmail.com>
 ---
-  sys-utils/adjtime_config.5 | 2 +-
-  sys-utils/hwclock.8.in     | 2 +-
-  2 files changed, 2 insertions(+), 2 deletions(-)
+ login-utils/su-common.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sys-utils/adjtime_config.5 b/sys-utils/adjtime_config.5
-index 049d4c585..fcdc7bf6c 100644
---- a/sys-utils/adjtime_config.5
-+++ b/sys-utils/adjtime_config.5
-@@ -36,7 +36,7 @@ the systematic drift rate in seconds per day (floating 
-point d
-ecimal)
-  the resulting number of seconds since  1969  UTC  of  most recent 
-adjustment or calibration (decimal integer)
-  .TP
-  .B "adjustment status"
--zero (for compatibility with clock(8)) as a decimal integer.
-+zero (for compatibility with clock(8)) as a floating point decimal.
-
-  .SS Second line
-  .TP
-diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
-index 6c3a2e6ac..e62b4ad09 100644
---- a/sys-utils/hwclock.8.in
-+++ b/sys-utils/hwclock.8.in
-@@ -652,7 +652,7 @@ in seconds per day, floating point decimal; 2) the 
-resulting number of
-  seconds since 1969 UTC of most recent adjustment or calibration,
-  decimal integer; 3) zero (for compatibility with
-  .BR \%clock (8))
--as a decimal integer.
-+as a floating point decimal.
-  .PP
-  Line 2: One number: the resulting number of seconds since 1969 UTC of 
-most
-  recent calibration.  Zero if there has been no calibration yet or it
+diff --git a/login-utils/su-common.c b/login-utils/su-common.c
+index 9bf0971b2..e671d822b 100644
+--- a/login-utils/su-common.c
++++ b/login-utils/su-common.c
+@@ -1149,6 +1149,7 @@ int su_main(int argc, char **argv, int mode)
+ 			shell = getenv("SHELL");
+ 
+ 		if (shell
++		    && strcmp(shell, su->pwd->pw_shell)
+ 		    && getuid() != 0
+ 		    && is_restricted_shell(su->pwd->pw_shell)) {
+ 			/* The user being su'd to has a nonstandard shell, and
 -- 
 2.24.0
+
