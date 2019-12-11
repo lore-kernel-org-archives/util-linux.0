@@ -2,86 +2,110 @@ Return-Path: <SRS0=hwxx=2B=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83695C43603
-	for <util-linux@archiver.kernel.org>; Wed, 11 Dec 2019 12:27:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94ADAC43603
+	for <util-linux@archiver.kernel.org>; Wed, 11 Dec 2019 13:44:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4C33720836
-	for <util-linux@archiver.kernel.org>; Wed, 11 Dec 2019 12:27:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 63D8520836
+	for <util-linux@archiver.kernel.org>; Wed, 11 Dec 2019 13:44:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Yig8ngKA"
+	dkim=pass (2048-bit key) header.d=pks.im header.i=@pks.im header.b="0YaXrt3y";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="BivqsxCO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728912AbfLKM1M (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 11 Dec 2019 07:27:12 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:29420 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728446AbfLKM1L (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 11 Dec 2019 07:27:11 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1576067230;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=qphCaT19Vzj81da3s8ECxIWlvMcMtyIZpj7ikWtub5A=;
-        b=Yig8ngKAprBzU/5l2c57gLZgvEtlDVSqDdLMKilF7FQ0tw93lH8baM8GySKlk3or7Cr+XY
-        oKEHHRoS2MRVrBgnSkEPVtMsXHS6ci9PFAaSqpVVxrp0fDvdEG/zZIyknDniw7br85ZXEH
-        P6EiolvyEBtyPPIi1BCrFxH9mylTS4o=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-313-u-4-0P3kNgCwFzT2pAs1KA-1; Wed, 11 Dec 2019 07:27:07 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B1209800053;
-        Wed, 11 Dec 2019 12:27:06 +0000 (UTC)
-Received: from 10.255.255.10 (ovpn-205-135.brq.redhat.com [10.40.205.135])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id E57435DA76;
-        Wed, 11 Dec 2019 12:27:05 +0000 (UTC)
-Date:   Wed, 11 Dec 2019 13:27:03 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     Samuel Thibault <samuel.thibault@ens-lyon.org>,
-        util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.35-rc1
-Message-ID: <20191211122703.ihusmtsaw3fkejh2@10.255.255.10>
-References: <20191211101831.ei3qksv6c2qk4aii@10.255.255.10>
- <20191211121702.337bssjynpupiimz@function>
+        id S1728128AbfLKNoX (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 11 Dec 2019 08:44:23 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:51605 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727554AbfLKNoW (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Wed, 11 Dec 2019 08:44:22 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id BF81FAF0;
+        Wed, 11 Dec 2019 08:44:21 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 11 Dec 2019 08:44:21 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pks.im; h=from
+        :to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=fm2; bh=5JRx8abO5A3+fUk790PeNKQb09
+        7vi4OqMT7Nh6vj8Bg=; b=0YaXrt3yc04G6XfPT8CGZjKMk8SmUvo2Bi03E97RI6
+        aJz+OYVxrmByhWvOfSVIwzO1KJplQpnpRIAgSmzSOEF0dkMGy5zD0y/F/inmn/DG
+        Rcic/zl54BqKO3ccq+pPxlQNgHTJboYEymmabcuei7DkUdXdHOCcelyybL7P4zhE
+        U2b7zTo5b+tDDGovcqL2RQvSQGfngrP41r/8xQqzj67SfYMoHJ88B9Ra74VuKV/B
+        JrArzBx0LKJi7IKo+frQrOeyvib+teb+uIMk6an0U/PoVfwdDBxaPajX4shZAHHr
+        ojC6jqM9XZRpE3EAxQxnaH9zMmI+oruIEqNccZWvwyAg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=5JRx8abO5A3+fUk79
+        0PeNKQb097vi4OqMT7Nh6vj8Bg=; b=BivqsxCOUDqqJR7GSNnofYLeCTCirVS71
+        eUVojwkCohkmYoLf6ykH5bveGkQD1E1gmomRp9ooO8mkK2eOUrKp0jQl+q/cpZA4
+        /3KEJDikFzC2MBlDFP2TIE1SnLlENrPMT8Q61iTWnRQHTc5z6Vrlp/Akz+SXh1KY
+        Zqwcy5RIP5Tqt4wO58dHYVMwt90j9brRwnVynTsjIGDz5GQPw6T5Vq6D9XN/QpyV
+        dnM0+g89NntLkPqSf6//ZVXbCXmKY6Lh74PIRiowptmK6n7FGuQJTZDwxeqQ+Tgy
+        I8dSE0AogAOPbo8Og2Ietn6+vF9pNNNCunHCMaxz4Veok0Hmj4WbQ==
+X-ME-Sender: <xms:tPLwXXcLPQjf7i6YhMBjX3mGA4gX68lb4RQXqFLFsa--0aQ_XfR7eA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudelhedgheduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpefrrghtrhhitghk
+    ucfuthgvihhnhhgrrhguthcuoehpshesphhkshdrihhmqeenucfkphepjeejrddukeefrd
+    dujeejrdduudeinecurfgrrhgrmhepmhgrihhlfhhrohhmpehpshesphhkshdrihhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:tPLwXWNlD4uktpFhFqmkcqrnp1h4OyCEmbRA5N1rB6-CaC4DJl-VSQ>
+    <xmx:tPLwXdZVWWT8nZigH9hwAGN1ECB_6_KzzCMhZhTyp4_8oHHhzGAg9A>
+    <xmx:tPLwXb2pww7TxalwFPrdWB48_ZEg47SND7cYtsyWdqw5o4JyjeNkCw>
+    <xmx:tfLwXekE5scvCEolfNBvtDJ7keccXnv09dE7cIbfHh1BbH_7PyQ7Wg>
+Received: from vm-mail (x4db7b174.dyn.telefonica.de [77.183.177.116])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 201618005B;
+        Wed, 11 Dec 2019 08:44:20 -0500 (EST)
+Received: from localhost (<unknown> [10.192.0.11])
+        by vm-mail (OpenSMTPD) with ESMTPSA id a2515b24 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+        Wed, 11 Dec 2019 13:44:17 +0000 (UTC)
+From:   Patrick Steinhardt <ps@pks.im>
+To:     util-linux@vger.kernel.org
+Cc:     Patrick Steinhardt <ps@pks.im>, Karel Zak <kzak@redhat.com>
+Subject: [PATCH] agetty: return proper value if compiled without ISSUEDIR support
+Date:   Wed, 11 Dec 2019 14:44:22 +0100
+Message-Id: <bc1cb34e4f685a1e3eddcfbde6d1f4a0fc30453d.1576071846.git.ps@pks.im>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-In-Reply-To: <20191211121702.337bssjynpupiimz@function>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-MC-Unique: u-4-0P3kNgCwFzT2pAs1KA-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, Dec 11, 2019 at 01:17:02PM +0100, Samuel Thibault wrote:
-> diff --git a/configure.ac b/configure.ac
-> index 40352a0fb..c187927e1 100644
-> --- a/configure.ac
-> +++ b/configure.ac
-> @@ -1845,7 +1845,7 @@ AM_CONDITIONAL([BUILD_SCRIPT], [test "x$build_scrip=
-t" =3D xyes])
->  UL_BUILD_INIT([scriptreplay], [yes])
->  AM_CONDITIONAL([BUILD_SCRIPTREPLAY], [test "x$build_scriptreplay" =3D xy=
-es])
-> =20
-> -UL_BUILD_INIT([scriptlive], [yes])
-> +UL_BUILD_INIT([scriptlive], [check])
+If agetty is compiled without support for ISSUEDIR, then it implements
+a stub for `issuedir_read` that simply does nothing. In fact it does
+too little, as it doesn't have a proper return statement even though the
+function returns an integer.
 
-Good point. Applied, thanks!
+Fix the issue by always returning `1` from `issuedir_read`. This
+is the same error code that the real implementation of that function
+returns in case it cannot open the directory and is thus a sensible
+default to pretend that the directory doesn't exist.
 
-    Karel
+Signed-off-by: Patrick Steinhardt <ps@pks.im>
+---
+ term-utils/agetty.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---=20
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index a0d0876c3..3c20acc98 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -1783,6 +1783,7 @@ static int issuedir_read(struct issue *ie __attribute__((__unused__)),
+ 			struct options *op __attribute__((__unused__)),
+ 			struct termios *tp __attribute__((__unused__)))
+ {
++	return 1;
+ }
+ #endif /* ISSUEDIR_SUPPORT */
+ 
+-- 
+2.24.1
 
