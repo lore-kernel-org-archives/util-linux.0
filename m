@@ -1,180 +1,77 @@
-Return-Path: <SRS0=+e2a=2G=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=qYTN=2H=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31B4AC43603
-	for <util-linux@archiver.kernel.org>; Mon, 16 Dec 2019 22:20:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4394C43603
+	for <util-linux@archiver.kernel.org>; Tue, 17 Dec 2019 12:06:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 081672176D
-	for <util-linux@archiver.kernel.org>; Mon, 16 Dec 2019 22:20:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AEBFE2082E
+	for <util-linux@archiver.kernel.org>; Tue, 17 Dec 2019 12:06:18 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HDlE4eTu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726587AbfLPWUg (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 16 Dec 2019 17:20:36 -0500
-Received: from inpost.hi.is ([130.208.165.62]:60474 "EHLO inpost.hi.is"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725836AbfLPWUg (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 16 Dec 2019 17:20:36 -0500
-Received: from hekla.rhi.hi.is (hekla.rhi.hi.is [IPv6:2a00:c88:4000:1650::165:2])
-        by inpost.hi.is (8.14.7/8.14.7) with ESMTP id xBGMKWrq012004
-        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
-        for <util-linux@vger.kernel.org>; Mon, 16 Dec 2019 22:20:32 GMT
-DKIM-Filter: OpenDKIM Filter v2.11.0 inpost.hi.is xBGMKWrq012004
-Received: from hekla.rhi.hi.is (localhost [127.0.0.1])
-        by hekla.rhi.hi.is (8.14.4/8.14.4) with ESMTP id xBGMKWPT025468
-        for <util-linux@vger.kernel.org>; Mon, 16 Dec 2019 22:20:32 GMT
-Received: (from bjarniig@localhost)
-        by hekla.rhi.hi.is (8.14.4/8.14.4/Submit) id xBGMKWhV025467
-        for util-linux@vger.kernel.org; Mon, 16 Dec 2019 22:20:32 GMT
-Date:   Mon, 16 Dec 2019 22:20:32 +0000
-From:   Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
-To:     util-linux@vger.kernel.org
-Subject: [PATCH] doc: howto-man-page.txt: Use font macros instead of font
- escapes
-Message-ID: <20191216222032.GA25430@rhi.hi.is>
+        id S1726709AbfLQMGR (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 17 Dec 2019 07:06:17 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:38657 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726141AbfLQMGR (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 17 Dec 2019 07:06:17 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1576584377;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=T+UdbR69bJVkjKvOivMK2M3BlSRM13pgQQrTZaCCbNU=;
+        b=HDlE4eTuTPY54cuylL/vyH5ONLuE/2gL8CACTfnjDpVlz7D0D2DqmPjFCsRtMlIj6+dALH
+        oSyN+bhj/J8SjndB4HNghXY3lSVBjC/MguSUqkiLvlLFX1kCA1y5tQJn6LAlkv6dNLHb7Z
+        FMmjL8Ji71dcO7/QsJeFdOUlhO+LHyI=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-349-BAFbRTMgOPGWYvx8iERxew-1; Tue, 17 Dec 2019 07:06:15 -0500
+X-MC-Unique: BAFbRTMgOPGWYvx8iERxew-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9251E1800D63;
+        Tue, 17 Dec 2019 12:06:13 +0000 (UTC)
+Received: from 10.255.255.10 (ovpn-205-38.brq.redhat.com [10.40.205.38])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id CDB5768877;
+        Tue, 17 Dec 2019 12:06:12 +0000 (UTC)
+Date:   Tue, 17 Dec 2019 13:06:09 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: [PATCH] man pages: Make the number of .RS/.RE equal
+Message-ID: <20191217120609.by6rab2fbqnrn65y@10.255.255.10>
+References: <20191214001230.GA30935@rhi.hi.is>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.20 (2009-12-10)
+In-Reply-To: <20191214001230.GA30935@rhi.hi.is>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-  Use font macros instead of font escapes (\f[BIPR]).
+On Sat, Dec 14, 2019 at 12:12:30AM +0000, Bjarni Ingi Gislason wrote:
+>  sys-utils/mount.8    | 1 -
+>  text-utils/hexdump.1 | 1 +
+>  text-utils/more.1    | 1 +
+>  3 files changed, 2 insertions(+), 1 deletion(-)
 
-  The escape '\c' ("connect to next input text")
-is used to join the output of two macros without a space character.
-This is similar to the '\' escape at the end of a line.
+All 5 your man page patches have been applied. 
 
-  Font escapes make the text more difficult to read.
+Thanks for all the work!
 
-###
-  Changes based on:
+    Karel
 
-  Use a macro to change to the italic font,
-instead of \fI [1], if possible.
-  The macros have the italic corrections,
-but "\c" removes the "\/" part.
 
-  Or
-
-add the italic corrections.
-[1] man-pages(7) [Debian package "manpages"]
-
-###
-
-Change a HYPHEN-MINUS (code 0x55, 2D) to a minus (\-), if in front of a
-
-1) name for an option
-
-2) negative number to be printed.
-
-###
-
-Wrong distance between sentences or protect the indicator.
-
-a) Separate the sentences and subordinate clauses;
-each begins on a new line.
-See man-pages(7) [package "manpages"] and "info groff".
-
-Or
-
-b) Adjust space between sentences (two spaces),
-
-c) or protect the indicator by adding "\&" after it.
-
-The "indicator" is an "end-of-sentence character" (.!?).
-
-  The amount of space between sentences in the output can then be
-controlled with the ".ss" request.
-
-Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
----
- Documentation/howto-man-page.txt | 28 ++++++++++++++++++----------
- 1 file changed, 18 insertions(+), 10 deletions(-)
-
-diff --git a/Documentation/howto-man-page.txt b/Documentation/howto-man-page.txt
-index 55734af91..f2b352dac 100644
---- a/Documentation/howto-man-page.txt
-+++ b/Documentation/howto-man-page.txt
-@@ -30,10 +30,13 @@ Each manual page needs some sort of description of the command.
- Write such here.
- .SH OPTIONS
- .TP
--\fB\-n\fR, \fB\-\-no\-argument\fR
-+.BR \-n ,\  \-\-no\-argument
-+.\" \fB\-n\fR, \fB\-\-no\-argument\fR
- This option does not use an argument.
- .TP
--\fB\-\-optional\fR[\fI=argument\fR]
-+.BR \-\-optional [ =\c
-+.IR argument ]
-+.\" \fB\-\-optional\fR[\fI=argument\fR]
- Tell in this description that the
- .I argument
- is optional, and what happens when it is or is not given.  Notice that the word
-@@ -59,18 +62,22 @@ to be the same, but in fact the former is two separate options while the
- later will use
- .B n
- as option argument of
--.BR -o .
-+.BR \-o .
- So it is best to avoid short forms of optional options altogether.
- .TP
--\fB\-r\fR, \fB\-\-required\fR \fIargument\fR
-+.BR \-r ,\  \-\-required\ \c
-+.I argument
-+.\"\fB\-r\fR, \fB\-\-required\fR \fIargument\fR
- Tell in this description that the
- .I argument
- is required.
- .TP
--\fB\-V\fR, \fB\-\-version\fR
-+.BR \-V ", " \-\-version
-+.\"\fB\-V\fR, \fB\-\-version\fR
- Display version information and exit.
- .TP
--\fB\-h\fR, \fB\-\-help\fR
-+.BR \-h ,\  \-\-help
-+.\"\fB\-h\fR, \fB\-\-help\fR
- Display help text and exit.
- .SH NOTES
- Tell details that users might need to know.  For example, kernel feature or
-@@ -105,7 +112,8 @@ one.
- .\"
- .PP
- When in the source a new sentence begins somewhere midline, it should use a
--double space before its initial letter.  This is done because \fBgroff\fR
-+double space before its initial letter.  This is done because
-+.B groff
- uses a double space after a sentence when this sentence ends at the end of
- an input line and the next sentence begins on the next line.
- Unless a double space is used before other sentence starts as well, the
-@@ -139,10 +147,10 @@ Another file.
- Write typical and/or clever use examples here.  The below examples are stupid,
- and you should never write them in a real man page.
- .TP
--.B example -h
-+.B example \-h
- Output help screen.
- .TP
--.B example -V
-+.B example \-V
- Output version information.
- .SH "EXIT STATUS"
- This section can be left out if the command has only two return values,
-@@ -171,7 +179,7 @@ etc
- .RE
- .SH AUTHORS
- .MT rjh@\:example.org
--Random J. Hacker
-+Random J.\& Hacker
- .ME
- .br
- .MT fred@\:example.com
 -- 
-2.24.0
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
