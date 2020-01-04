@@ -2,107 +2,75 @@ Return-Path: <SRS0=JGtg=2Z=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A72ABC32770
-	for <util-linux@archiver.kernel.org>; Sat,  4 Jan 2020 08:25:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2E42C2D0C2
+	for <util-linux@archiver.kernel.org>; Sat,  4 Jan 2020 10:21:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7E8B024649
-	for <util-linux@archiver.kernel.org>; Sat,  4 Jan 2020 08:25:36 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nawC8F4d"
+	by mail.kernel.org (Postfix) with ESMTP id 6FC72215A4
+	for <util-linux@archiver.kernel.org>; Sat,  4 Jan 2020 10:21:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726036AbgADIZf (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sat, 4 Jan 2020 03:25:35 -0500
-Received: from mail-io1-f44.google.com ([209.85.166.44]:37051 "EHLO
-        mail-io1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725970AbgADIZf (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 4 Jan 2020 03:25:35 -0500
-Received: by mail-io1-f44.google.com with SMTP id k24so13330430ioc.4;
-        Sat, 04 Jan 2020 00:25:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=IITNyuhRvFPFRzEQHBam4oqBhV4UL3sQSXHfLhzuc28=;
-        b=nawC8F4dkiL5w80TVV1YCRPySNjoCpsSggwJn3o6IQCNx5XzNk9Hpx/HVkJMEfo9pR
-         wQgDX1ye9j/J9KWmupq0RLHu1F+vjNswaELjonmCMqjRRkjOaQzI2JdNj+nqDFY5cBpY
-         nyoXMDX+yeGRSXp7yyMnIWH8iSYJSQ8g6Pi1LG/q5oS4vCWAPIudVcrnt1TWCQZGCfKg
-         iog1j4o8Lqtw2bGQBU+8oRPn+qfy1lmWAhvJIzhjpC4eemXEqzAMrspLSS5QvvoLiNKj
-         Avmk8S1K0/KngxOspnu0z6GbmiGZdrALd0y/S8o7HaddtmQWqtvp64JUOyljUKwp7OsA
-         St4A==
+        id S1726275AbgADKVK (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sat, 4 Jan 2020 05:21:10 -0500
+Received: from mail-io1-f43.google.com ([209.85.166.43]:35484 "EHLO
+        mail-io1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726077AbgADKVK (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 4 Jan 2020 05:21:10 -0500
+Received: by mail-io1-f43.google.com with SMTP id v18so43845700iol.2
+        for <util-linux@vger.kernel.org>; Sat, 04 Jan 2020 02:21:09 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=IITNyuhRvFPFRzEQHBam4oqBhV4UL3sQSXHfLhzuc28=;
-        b=kpYxsU7wlQw2Ht97O7DW5pITs852ozNaABcofcEZBcyoa64Olh5MY+xdPzinmXB3zr
-         uWS7ix7jmmF4tYtPo3i/NThRchv4L7MYv/XWvmV76b4tWmwAfBav4zxwZWm1uYIOBKJd
-         p17Vmto5Gzk4Mq4XOh+495aQOh9V9e5ZXiN8Jn4lyWrrPBiUTLitE87IKPVIZsj8sOA+
-         PQU6tsRT+oYlO98eIxpoACV7diS9ZcYFhDGgvWfjiDW7BGgJ/sC+DHSVn+pvIbBUJ4B9
-         IqVoNsyEIRGvTCXMGxkE2DWabrStrBIcsVB6svteyPYTIf9zT3fsgDgSMXe/xJnykrX4
-         JKyg==
-X-Gm-Message-State: APjAAAWmyNnzVwMaOfSIqF9PlNw3nvn2wQfxbzzzjGR/72RCJn+4HAch
-        UI8yJZK+cQiMcNA2Irl2hWVMGoPzVKGjNQV4W6g=
-X-Google-Smtp-Source: APXvYqyZhRcybOoIECFq8vx6FikF6Uav7qGPvLsgyLwzmeRicOnTtBZ+gjA/YUWXbUpG63B8a5eqq/nhfNs2s0Ffnbg=
-X-Received: by 2002:a6b:8e51:: with SMTP id q78mr58267435iod.179.1578126334398;
- Sat, 04 Jan 2020 00:25:34 -0800 (PST)
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=y+Z/+aet+AXSZ+xFHiGv3INHI7rSFtF4jdSJFRedjyA=;
+        b=A8MXhWxQzV5+Wt3gm7ak8hdKK+G308W0NYZRPAHftfYHLxtaeKqFDQoq1LKYR29kmf
+         OdX0MPvlfWBXTEq7pfTA5/Un28ZE6OlrY19zphHs3rPk9pGHdONjg9yqMqAk5ixHf0Ay
+         lgj8KNfJ8MCT9CwJ7fTzuSR3/uBQ6QpZXjV3/CNV/yqjc8fp3YpogK9LFSijzglFKgDM
+         UBLaGXYw1Zg/mwcNbDM/HD3c7fazrEA1ImOUftOIKpJWVAuwKdo+vMgDDJ5x2g23Rn9N
+         SAx1rk8lG2AmOnuzY7YlFYDzps7S6I5Iy7J6Cwb+gqMI2BYacu3Q+1iEA9W9B5nIHapI
+         jEfg==
+X-Gm-Message-State: APjAAAXWT03K1hcCgbKQQ/oaoUAVRVqMnZQk0kksHc3xmnTjQoEwKWTW
+        SyZLWhmghEuK2xEUlBPpqOKI4gTsImL3vi4jzh+ksr9T
+X-Google-Smtp-Source: APXvYqwABc21S17O+I3SmGGt2z64gby3kmMR9kFbEAGAKb7zkr57sAP4fL+4P3HMACQLFNMInLWAoxucZnVwjsXDFII=
+X-Received: by 2002:a5d:9f05:: with SMTP id q5mr58388985iot.199.1578133269339;
+ Sat, 04 Jan 2020 02:21:09 -0800 (PST)
 MIME-Version: 1.0
-References: <CABXGCsOv26W6aqB5WPMe-mEynmwy55DTfTeL5Dg9vRq6+Y6WvA@mail.gmail.com>
- <CABXGCsNkzPrjqMRaWpssorxzhMLWBvLeSw9BpKYr_DW4LJQECQ@mail.gmail.com>
- <20200102110817.ahqaqidw3ztw3kax@10.255.255.10> <CABXGCsNkm3VuzO60WBCi4VJmDnO=DmprQ1P=dd0FcW2-+dGc0w@mail.gmail.com>
- <20200102131434.tky2hquki23laqqo@10.255.255.10> <CABXGCsMV1GRiqrXCQGHqvpBiendU3mG36h0YoG=4nw6spZHq=w@mail.gmail.com>
- <nycvar.YAK.7.76.2001021153220.1385@zhn.tzk.pbz> <CABXGCsMLfarquWnzV=e3Ta_HPac+DALfKEOaD3rp5n9MPqgyFw@mail.gmail.com>
- <20200103100232.GH3040@piout.net> <CABXGCsNv7G94TxaaKX8KXL5DEJiFgNcSu4+WShE_kQjVSa7zZA@mail.gmail.com>
- <20200103101935.GI3040@piout.net> <CABXGCsMLob0DC25JS8wwAYydnDoHBSoMh2_YLPfqm3TTvDE-Zw@mail.gmail.com>
- <7c015680-01b7-9c3e-c4c7-5d0b6e964781@hygon.cn>
-In-Reply-To: <7c015680-01b7-9c3e-c4c7-5d0b6e964781@hygon.cn>
-From:   Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Date:   Sat, 4 Jan 2020 13:25:23 +0500
-Message-ID: <CABXGCsNpS+nCMZ9C89UQVEu_u+hJVtdxCvdnj2QNqQf-j7+DrA@mail.gmail.com>
-Subject: Re: [bugreport] "hwclock -w" reset time instead of setting the right time
-To:     Jinke Fan <fanjinke@hygon.cn>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        J William Piggott <elseifthen@gmx.com>,
-        Karel Zak <kzak@redhat.com>,
-        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
-        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+Reply-To: kerolasa@gmail.com
+From:   Sami Kerola <kerolasa@iki.fi>
+Date:   Sat, 4 Jan 2020 10:20:58 +0000
+Message-ID: <CAG27Bk0x4LZJSb-0PXKR8VLTmoPiZdKBPtfB4N2HPnPjxbrSKQ@mail.gmail.com>
+Subject: irqtop todo note
+To:     util-linux <util-linux@vger.kernel.org>,
+        zhenwei pi <pizhenwei@bytedance.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Sat, 4 Jan 2020 at 10:46, Jinke Fan <fanjinke@hygon.cn> wrote:
->
-> Hi Mike,
-> The root cause of the bug you encountered is unclear.
->
+Hello,
 
-=3D=3D=3D cutted =3D=3D=3D
+I notice irqtop to todo file, so I decided to look into that. Changes
+in my branch are nowhere near ready to be considered to upstream
+ready, so no pull request yet maybe sometime later January or early
+February. Meanwhile if someone else is working with the same I'm sure
+efforts can be combined.
 
->
-> There is no date reset found in the bios after reboot.
-> The first time during OS startup get date from rtc_cmos is:
-> [    1.589157] rtc_cmos 00:03: setting system clock to
-> 2020-01-04T04:07:01 UTC (1578110821)
+https://github.com/kerolasa/util-linux/commits/irqtop
 
-> I watched the video on youtube. The date is reseted when startup into
-> bios at Mike's platform.
-> As we know that the bios will check the validity of rtc time, if not,
-> bios will reset the rtc time. RTC time reset may be done by the BIOS.
+Things to fix with my work.
 
-Did you disable automatic time synchronization?
-By default Fedora GNOME doing automatic time synchronization.
-For this reason, it=E2=80=99s more correct to immediately go into the BIOS
-after a reboot and there check the time value or turn off automatic
-time synchronization
+* Save git history from https://github.com/pacepi/irqtop
+* Write proper commit messages
+* Use smartcolums
+* Change output header to include hostname and iso timestamp
+* Use signalfd to catch signals
+* Use timerfd  for periodic execution
+* Make main() shorter / simpler by moving bits and bobs to functions
+* And the things I don't know yet, but without doubt there will be some
 
---
-Best Regards,
-Mike Gavrilov.
+-- 
+Sami Kerola
+http://www.iki.fi/kerolasa/
