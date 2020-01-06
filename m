@@ -1,124 +1,97 @@
-Return-Path: <SRS0=JGtg=2Z=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=Xth9=23=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA4F9C3F68F
-	for <util-linux@archiver.kernel.org>; Sat,  4 Jan 2020 12:23:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8531EC32771
+	for <util-linux@archiver.kernel.org>; Mon,  6 Jan 2020 10:53:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B0BEA24649
-	for <util-linux@archiver.kernel.org>; Sat,  4 Jan 2020 12:23:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4B4582072C
+	for <util-linux@archiver.kernel.org>; Mon,  6 Jan 2020 10:53:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="vAB0O4s6"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K5A6A+ye"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725827AbgADMXV (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sat, 4 Jan 2020 07:23:21 -0500
-Received: from mail-il1-f177.google.com ([209.85.166.177]:44442 "EHLO
-        mail-il1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725802AbgADMXU (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 4 Jan 2020 07:23:20 -0500
-Received: by mail-il1-f177.google.com with SMTP id z12so2292751iln.11;
-        Sat, 04 Jan 2020 04:23:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=LKQLDuUQyKEp3PqqNw3i4af+LyZvLM7Wyx7d36N1/7g=;
-        b=vAB0O4s6yBazbpmIEiJWWx9AHn68/D7fHgaqYwW8qVN6GEYn3Jd5FTODWftDaqvoWb
-         o0aR4RUJuL8WgEYjmE59nhe1op+jIQ0w3FEU8F2Bi0d9e604m0gXTi4CX4zqkFy5ESIE
-         a2/qY0xyBIhm3xiuremTqrk83EOHEEEnchWuG7ptss2XGcjOjGay+2Sv+5wQLTbIx8yS
-         R2G7Z3Iwgsi2X50VkDj0E/nti4kMIRlzm1pGnx63us7gEwBE21oQhbjm0TqZ0z+erHs5
-         GLPxLYuLwVAzytAc5/aPAGggMgctbiurMUgkkfO2ZZmympTiR4XIrAf0sYhiPEX9gH79
-         usLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=LKQLDuUQyKEp3PqqNw3i4af+LyZvLM7Wyx7d36N1/7g=;
-        b=B240iv7WmWACD5yryV5Zfdep0qAXt7CEZrqq/hN8zAIr2UD9YoKMwlnilsOilS2GDX
-         c2eByEyrIBuHZDVXDF2xtTIWPGTHT1rrsKalZKOfhKH4XCrUJmnbWLraDztComNXLrbu
-         uKX8CZONYj7PoQ5TMxJvJLnpiD33aLsiTWQyVCDPDiQz5IkNxPP28dt+P5sfUXjDj7Ho
-         anabQkZlLtiL7j4jcIZptaeaqWAm5nI9DPjk6Ar1AmgbthxaQjV6bVEfgq+8i97uwGcd
-         ukP0gj2eU8xjzNkjnK+VMZmkh7xtHbdSVs/D92Wg/WTih4YlsMyeAxj32jkiaNPHGVsh
-         pALA==
-X-Gm-Message-State: APjAAAV57W51veMPDzYYaISUebeXMP+QtJ2tayzUM8TaK618bGftDqHI
-        cElf1++QeGuWfHm3KMqX0NGsdbdXuLrhwdmbLzRVLH0/5g8aRP0w
-X-Google-Smtp-Source: APXvYqxRGib/GBLbSGJvISDQygameAmB0qxfxm7Vznd0dHfFks8EvS8cx3KiThhlephAoOkZaLJzrXSeJ044Qstyhy0=
-X-Received: by 2002:a92:cc42:: with SMTP id t2mr79004310ilq.111.1578140599825;
- Sat, 04 Jan 2020 04:23:19 -0800 (PST)
+        id S1725821AbgAFKxD (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 6 Jan 2020 05:53:03 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:53096 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725787AbgAFKxD (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 6 Jan 2020 05:53:03 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1578307982;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=nutLL9cl16bOhXVOP8fyYAoEnFe2ZaFJVYE1+depOWM=;
+        b=K5A6A+yeFXNPiWCGQdPl9pARGHmDcSM9D3FyjYRcjjznqw+W8e1JzHeg5XaBXNMbJLfTfl
+        ST6tPLJ9CLMkvxVTYoxliJQNDAA4IxmdlWxs0CdXOm4o8tauZEzzTuJFjNy3h4/cvTSJL8
+        12/MKXwRYSOvAH0TnyqToGYwcQKZUkc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-382-b6wKHrooN-ODkcd49US0iw-1; Mon, 06 Jan 2020 05:53:01 -0500
+X-MC-Unique: b6wKHrooN-ODkcd49US0iw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E393210054E3;
+        Mon,  6 Jan 2020 10:52:59 +0000 (UTC)
+Received: from 10.255.255.10 (ovpn-204-196.brq.redhat.com [10.40.204.196])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 037EC5D9E5;
+        Mon,  6 Jan 2020 10:52:58 +0000 (UTC)
+Date:   Mon, 6 Jan 2020 11:52:56 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     zhenwei pi <pizhenwei@bytedance.com>
+Cc:     kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [Phishing Risk] [External] irqtop todo note
+Message-ID: <20200106105256.3phh5bdgs4qgqzpp@10.255.255.10>
+References: <CAG27Bk0x4LZJSb-0PXKR8VLTmoPiZdKBPtfB4N2HPnPjxbrSKQ@mail.gmail.com>
+ <3e1bf9df-b530-738b-fc7f-00e4cf144420@bytedance.com>
 MIME-Version: 1.0
-References: <CABXGCsOv26W6aqB5WPMe-mEynmwy55DTfTeL5Dg9vRq6+Y6WvA@mail.gmail.com>
- <CABXGCsNkzPrjqMRaWpssorxzhMLWBvLeSw9BpKYr_DW4LJQECQ@mail.gmail.com>
- <20200102110817.ahqaqidw3ztw3kax@10.255.255.10> <CABXGCsNkm3VuzO60WBCi4VJmDnO=DmprQ1P=dd0FcW2-+dGc0w@mail.gmail.com>
- <20200102131434.tky2hquki23laqqo@10.255.255.10> <CABXGCsMV1GRiqrXCQGHqvpBiendU3mG36h0YoG=4nw6spZHq=w@mail.gmail.com>
- <nycvar.YAK.7.76.2001021153220.1385@zhn.tzk.pbz> <CABXGCsMLfarquWnzV=e3Ta_HPac+DALfKEOaD3rp5n9MPqgyFw@mail.gmail.com>
- <20200103100232.GH3040@piout.net> <CABXGCsNv7G94TxaaKX8KXL5DEJiFgNcSu4+WShE_kQjVSa7zZA@mail.gmail.com>
- <20200103101935.GI3040@piout.net> <CABXGCsMLob0DC25JS8wwAYydnDoHBSoMh2_YLPfqm3TTvDE-Zw@mail.gmail.com>
- <7c015680-01b7-9c3e-c4c7-5d0b6e964781@hygon.cn> <CABXGCsNpS+nCMZ9C89UQVEu_u+hJVtdxCvdnj2QNqQf-j7+DrA@mail.gmail.com>
- <6ac1d65c-33ac-e3a4-799f-24279b677f90@hygon.cn>
-In-Reply-To: <6ac1d65c-33ac-e3a4-799f-24279b677f90@hygon.cn>
-From:   Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Date:   Sat, 4 Jan 2020 17:23:09 +0500
-Message-ID: <CABXGCsO25iq2tZMis3E-DF2ADz2Je45YfL11cgjFhmr+bz-6jg@mail.gmail.com>
-Subject: Re: [bugreport] "hwclock -w" reset time instead of setting the right time
-To:     Jinke Fan <fanjinke@hygon.cn>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        J William Piggott <elseifthen@gmx.com>,
-        Karel Zak <kzak@redhat.com>,
-        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
-        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3e1bf9df-b530-738b-fc7f-00e4cf144420@bytedance.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Sat, 4 Jan 2020 at 16:37, Jinke Fan <fanjinke@hygon.cn> wrote:
->
-> Hi Mike:
-> Yes, We do check the time in BIOS Menu after first reboot.
->
-> We do some further tests in our X570 platform:
-> * "AMD Ryzen 7 3700X" with mainboard "ASUS ROG STRIX X570-E GAMING".
-> * OS is Fedora rawhide, with default Kernel version which is shown as
-> follows:
-> $uname -a
-> Linux bogon 5.5.0-0.rc4.git0.1.fc32.x86_64 #1 SMP Mon Dec 30 06:32:36
-> UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
->
-> And we upgrade/downgrade BIOS version from 1005/1201/1404/1405, and we
-> found out that :
-> * OLD BIOS version 1005/1201 does not reset the rtc time and keep the
-> setup rtc time after reboot.
-> * NEW BIOS version 1404/1405 DO reset the rtc time to 2019/01/01 after
-> reboot.
->
-> Detailed pictures of the BIOS time after reboot is shown in [2],
->
-> We suspect the BIOS 1201->1404 upgrade might cause this issue.
->  From x570 BIOS changelog, we found that the big difference between
-> 1201/1404 is the AMD AM4 PI upgrade from AGESA 1.0.0.3ABBA to AM4 combo
-> PI 1.0.0.4 patch B,
+On Sun, Jan 05, 2020 at 11:36:26AM +0800, zhenwei pi wrote:
+> On 1/4/20 6:20 PM, Sami Kerola wrote:
+> 
+> > Hello,
+> > 
+> > I notice irqtop to todo file, so I decided to look into that. Changes
+> > in my branch are nowhere near ready to be considered to upstream
+> > ready, so no pull request yet maybe sometime later January or early
+> > February. Meanwhile if someone else is working with the same I'm sure
+> > efforts can be combined.
+> > 
+> > https://github.com/kerolasa/util-linux/commits/irqtop
+> > 
+> > Things to fix with my work.
+> > 
+> > * Save git history from https://github.com/pacepi/irqtop
+> > * Write proper commit messages
+> > * Use smartcolums
+> > * Change output header to include hostname and iso timestamp
+> > * Use signalfd to catch signals
+> > * Use timerfd  for periodic execution
+> > * Make main() shorter / simpler by moving bits and bobs to functions
+> > * And the things I don't know yet, but without doubt there will be some
+> > 
+> Thanks for these works. Maybe it's ready to be merged into upstream.
+> Hey, Karel, how do you think about this?
 
-The changelog for my BIOS are the same [1]. Unfortunately, I will not
-able downgrade to BIOS of 0404 ver for checking assumption because
-changelog description of ver 1404 contains warning "* You will not be
-able to downgrade your BIOS after updating to this BIOS version"
+Later, for v2.35 is too late ;-)
 
-> If possible, please tell us about the BIOS version and your hardware
-> platform, which can be get from BIOS UI or using "dmidecode"
-> in Linux env.
+    Karel
 
-The version of my BIOS is the latest. It is 1405 for my motherboard.
-Here is "dmidecode" paste: https://pastebin.com/akBPAvZJ
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
-[1] https://www.asus.com/Motherboards/ROG-Strix-X570-I-Gaming/HelpDesk_BIOS/
-
---
-Best Regards,
-Mike Gavrilov.
