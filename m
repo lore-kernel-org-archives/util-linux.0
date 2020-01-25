@@ -1,106 +1,89 @@
-Return-Path: <SRS0=7xEu=3N=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=6iEs=3O=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46909C2D0DB
-	for <util-linux@archiver.kernel.org>; Fri, 24 Jan 2020 19:17:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 960D6C2D0DB
+	for <util-linux@archiver.kernel.org>; Sat, 25 Jan 2020 10:51:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1346E2075D
-	for <util-linux@archiver.kernel.org>; Fri, 24 Jan 2020 19:17:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B70E2071E
+	for <util-linux@archiver.kernel.org>; Sat, 25 Jan 2020 10:51:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gl9/rgps"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BgYthqv7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387556AbgAXTRB (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 24 Jan 2020 14:17:01 -0500
-Received: from mail-wm1-f46.google.com ([209.85.128.46]:50874 "EHLO
-        mail-wm1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387683AbgAXTRB (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 24 Jan 2020 14:17:01 -0500
-Received: by mail-wm1-f46.google.com with SMTP id a5so541059wmb.0;
-        Fri, 24 Jan 2020 11:16:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=NVgy0lYIavDAsk5TdKFdtxlyaFip4mNRyTLE6SI9Fts=;
-        b=gl9/rgpsy8UyFX7QflBl7HRfvvG9waAhSa2dwgafLLG1xX7317546Kqz0ashea/4jw
-         B4aF8fiAt98Oh2ju1g7cN76Xad3pmYy3g34krm2TI6gzO2JExn8pNAOdqJ0D9QGnDJtV
-         r1a558CBRM66lgx6RREyHqdmfRGFPUBCCwZae0b70nFJBENHMwJqK6PlccDyuDqKRZLG
-         BRtB+2y+KsI710VbZSQhr6f4H8VIz2Sk8y9ispGobD0lmpavjfi0324f9yhClerOeqJL
-         LeX4+KFGlRyrJL552GrWfZ6i4am40XjH/eitVKJ3qVabXSXGNimWkIykuVsSWl8kwLu/
-         lyIA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=NVgy0lYIavDAsk5TdKFdtxlyaFip4mNRyTLE6SI9Fts=;
-        b=PkcCp1zh/WNPbmcXH4b18ioFjbk6R4yPq/kqPbeuAJVUntIawaA2nH9KBZmZfmAgZP
-         FCrCa8BOqiaJNFkHu36bx1ibRh0zS91bKoTu0MxFxAtOY/kdmn34J21EAkPppaDVFNeF
-         SZoOPINUtkjQbaZwMis/xqz/WHCwm10nAYnKospdA1Boga5sqZHY7EG3bre6F9wV6bta
-         BZYibSz4agwA5F7gTYm7rwnhLS72r7h75IV07pS9WFbptbp5lc+5Id1YY5jIOUDiEyXS
-         Qwdkni2GBG5PDPMBYc7aF98wfwYOT5lsJTw8i4skS3e5Bew4wjzTaMm5rdFp4b+fQlYU
-         SDEw==
-X-Gm-Message-State: APjAAAUzqYYTDm16ioCCrOKiAVNn15wNsCzMNT57jeN9R3V6/4cA8sj5
-        WYPMPHRx68t0Z1B13R+3ndkZmFRSGDVmxqXcelg=
-X-Google-Smtp-Source: APXvYqwIaMBIgp9u4RBMFgNgjHfrbGRQFCndgTcnJptndGTaMsCl9tAyrSKd5hD8JMWls3/97IqKPZvNHLXBGL18K1Q=
-X-Received: by 2002:a1c:7205:: with SMTP id n5mr622251wmc.9.1579893419173;
- Fri, 24 Jan 2020 11:16:59 -0800 (PST)
-MIME-Version: 1.0
-References: <20200121105711.zzeeolydlivqnik7@ws.net.home>
-In-Reply-To: <20200121105711.zzeeolydlivqnik7@ws.net.home>
-From:   Carlos Santos <unixmania@gmail.com>
-Date:   Fri, 24 Jan 2020 16:16:47 -0300
-Message-ID: <CAJ4jsadjw3xXbrqjsB9cwv_iwodfHWJ4CnhD4oXW_Lvwh0W8XQ@mail.gmail.com>
+        id S1726194AbgAYKvh (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sat, 25 Jan 2020 05:51:37 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:33885 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725710AbgAYKvh (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 25 Jan 2020 05:51:37 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1579949495;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=uqFEuTpxU2pWPGTF545UEtB80eyGUAxWgMAokEVX9wE=;
+        b=BgYthqv7Vgvdw2+hS6pjQEvTLj5PcZ7QOCXc8sB84aTuZo20M4LGg8YVb6mbNRfdR9N1yE
+        nn1SfzlUogXi4XxjZffhf/tmIIcPNEONovSIvBBEkO7GPWrb8O6NBmmAcoP36zqJQfy/5y
+        7q/dvaW3gFNtySbfD6sl5yFZodpOxTY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-425-H-uiSdKiNR2hLbqmCuz42Q-1; Sat, 25 Jan 2020 05:51:31 -0500
+X-MC-Unique: H-uiSdKiNR2hLbqmCuz42Q-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 21341107ACC4;
+        Sat, 25 Jan 2020 10:51:30 +0000 (UTC)
+Received: from x2.net.home (ovpn-204-101.brq.redhat.com [10.40.204.101])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 6968D8DC35;
+        Sat, 25 Jan 2020 10:51:29 +0000 (UTC)
+Date:   Sat, 25 Jan 2020 11:51:26 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     Carlos Santos <unixmania@gmail.com>
+Cc:     util-linux@vger.kernel.org
 Subject: Re: [ANNOUNCE] util-linux v2.35
-To:     Karel Zak <kzak@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <20200125105126.xaopgydc7dlrpztt@x2.net.home>
+References: <20200121105711.zzeeolydlivqnik7@ws.net.home>
+ <CAJ4jsadjw3xXbrqjsB9cwv_iwodfHWJ4CnhD4oXW_Lvwh0W8XQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJ4jsadjw3xXbrqjsB9cwv_iwodfHWJ4CnhD4oXW_Lvwh0W8XQ@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hi Karel,
+On Fri, Jan 24, 2020 at 04:16:47PM -0300, Carlos Santos wrote:
 
-On Tue, Jan 21, 2020 at 7:59 AM Karel Zak <kzak@redhat.com> wrote:
->
->
-> The util-linux release v2.35 is available at
->
->   http://www.kernel.org/pub/linux/utils/util-linux/v2.35/
->
-> Feedback and bug reports, as always, are welcomed.
->
->   Karel
->
+> That's a problem. It makes hwclock hard to include in embedded systems
+> due to the GPLv3 restrictions.
+> 
+> I noticed that it comes due to sys-utils/hwclock-parse-date.y, which
+> was taken from gnulib. Would it be possible to take the file from an
+> previous version of gnulib that was still under GPLv2?
+> 
+> An alternative approach would be porting a similar code using a more
+> liberal license, e.g. BSD.
+> 
+> What do you think?
 
-That's great. Thanks!
+ I have tried to export it from gnulib with v2, but it was impossible
+ by official gnulib tools.  Maybe do it manually from some old
+ tarball. I'll accept a patch for this if you have time do it.
 
---8<--
-> Changes between v2.34 and v2.35
-> -------------------------------
---8<--
-> docs:
->    - Fix adjtime documentation  [Pierre Labastie]
->    - add GPLv3 text  [Karel Zak]
+ I'll like to release 2.35.1 ASAP (due to bug in sfdisk --move-data),
+ so we can add this license change too.
 
-That's a problem. It makes hwclock hard to include in embedded systems
-due to the GPLv3 restrictions.
-
-I noticed that it comes due to sys-utils/hwclock-parse-date.y, which
-was taken from gnulib. Would it be possible to take the file from an
-previous version of gnulib that was still under GPLv2?
-
-An alternative approach would be porting a similar code using a more
-liberal license, e.g. BSD.
-
-What do you think?
+    Karel
 
 -- 
-Carlos Santos <unixmania@gmail.com>
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
