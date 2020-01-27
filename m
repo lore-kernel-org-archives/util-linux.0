@@ -7,115 +7,94 @@ X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 716ADC2D0DB
-	for <util-linux@archiver.kernel.org>; Mon, 27 Jan 2020 20:19:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88F9AC2D0DB
+	for <util-linux@archiver.kernel.org>; Mon, 27 Jan 2020 20:22:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 416C32467B
-	for <util-linux@archiver.kernel.org>; Mon, 27 Jan 2020 20:19:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 55C5824679
+	for <util-linux@archiver.kernel.org>; Mon, 27 Jan 2020 20:22:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="d4AefD20"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ACn1msyQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726101AbgA0UTB (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 27 Jan 2020 15:19:01 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:32955 "EHLO
+        id S1726164AbgA0UWG (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 27 Jan 2020 15:22:06 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:55332 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726083AbgA0UTB (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 27 Jan 2020 15:19:01 -0500
+        with ESMTP id S1726101AbgA0UWF (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 27 Jan 2020 15:22:05 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1580156339;
+        s=mimecast20190719; t=1580156524;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=QhqYikxaWqMjf4Ol84V62QXdzSF8u7uvxUxm8QArvTE=;
-        b=d4AefD20WKzS2xb4hYEutvCL+/QxFsLgJfW78i9b7+QhUUeB1TDuOTkQ9xuQ6apiOBRXpd
-        xqv66Zh4CDHxNcM8Vqr/2/B/oBukGaHJ2A+iyz8fkApjqdVkeAgEkNSJ1gfLfGbJ810FoV
-        RFpw3/quHLAvaDI6aITglgNd3b8XzAw=
+        bh=zD2PiFmUmv3yMzyy3kDtF0etdxCj78+HX3R2UocR6K8=;
+        b=ACn1msyQb4uJQiZbZdoaFVK/nh7Dk+zmr6xe4EqUwO0heAD14rLOOg+cAZ1fHNIeodOhkp
+        OpZOddJXspk2tth/IyYQd4mFUDVBxhIbtot6AzoQMP8gguKidWLIcf1gFBnvB4XcimMObo
+        DrR3xNoULl4sNFOTdQb8en+8VBpCKRI=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-36-yfbGGtphN76HxMJmIgblOg-1; Mon, 27 Jan 2020 15:18:53 -0500
-X-MC-Unique: yfbGGtphN76HxMJmIgblOg-1
+ us-mta-413-JmiMYlWTNGqn9cpr5tUYdw-1; Mon, 27 Jan 2020 15:21:56 -0500
+X-MC-Unique: JmiMYlWTNGqn9cpr5tUYdw-1
 Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9D73F189F762;
-        Mon, 27 Jan 2020 20:18:52 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8D45F800EBB;
+        Mon, 27 Jan 2020 20:21:55 +0000 (UTC)
 Received: from ws.net.home (ovpn-204-202.brq.redhat.com [10.40.204.202])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id A783C3DA3;
-        Mon, 27 Jan 2020 20:18:51 +0000 (UTC)
-Date:   Mon, 27 Jan 2020 21:18:49 +0100
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id CE8D1381;
+        Mon, 27 Jan 2020 20:21:54 +0000 (UTC)
+Date:   Mon, 27 Jan 2020 21:21:52 +0100
 From:   Karel Zak <kzak@redhat.com>
 To:     Carlos Santos <unixmania@gmail.com>
-Cc:     J William Piggott <elseifthen@gmx.com>, util-linux@vger.kernel.org
+Cc:     util-linux@vger.kernel.org
 Subject: Re: [ANNOUNCE] util-linux v2.35
-Message-ID: <20200127201849.l4la3kcdzy7j7wa5@ws.net.home>
+Message-ID: <20200127202152.4jh2w4chch37wgee@ws.net.home>
 References: <20200121105711.zzeeolydlivqnik7@ws.net.home>
  <CAJ4jsadjw3xXbrqjsB9cwv_iwodfHWJ4CnhD4oXW_Lvwh0W8XQ@mail.gmail.com>
- <20200125105126.xaopgydc7dlrpztt@x2.net.home>
- <nycvar.YAK.7.76.2001261131130.3053@zhn.tzk.pbz>
- <20200127161317.wwyupvqbighx3rqx@ws.net.home>
- <CAJ4jsaf+s71UB9YOS_jeAn79t=2vSsY+7b-UvGPUEne87+ohPQ@mail.gmail.com>
+ <20200127133435.tcnhf23yhi3laphp@ws.net.home>
+ <20200127134005.qymawlxsf34p4oma@ws.net.home>
+ <CAJ4jsafKGLntP-uKj-+kVY=xGk9FTPuw98ntsAEEpMFR8Ub6zQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAJ4jsaf+s71UB9YOS_jeAn79t=2vSsY+7b-UvGPUEne87+ohPQ@mail.gmail.com>
+In-Reply-To: <CAJ4jsafKGLntP-uKj-+kVY=xGk9FTPuw98ntsAEEpMFR8Ub6zQ@mail.gmail.com>
 X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Mon, Jan 27, 2020 at 01:38:37PM -0300, Carlos Santos wrote:
-> On Mon, Jan 27, 2020 at 1:13 PM Karel Zak <kzak@redhat.com> wrote:
+On Mon, Jan 27, 2020 at 01:29:47PM -0300, Carlos Santos wrote:
+> On Mon, Jan 27, 2020 at 10:40 AM Karel Zak <kzak@redhat.com> wrote:
 > >
-> > On Sun, Jan 26, 2020 at 11:59:59AM -0500, J William Piggott wrote:
-> > > You do realize that I had to heavily modify that file to remove its
-> > > gnulib dependencies (because you said no to gnulib). If I recall
-> >
-> > I know, this is why we keep it in the tree (and thanks for all the
-> > work!).
-> >
-> > > correctly I had newer and older versions to chose from and picked that
-> > > one due to it having the most bugs fixed while still being practical to
-> > > strip its gnulib dependence.
+> > On Mon, Jan 27, 2020 at 02:34:38PM +0100, Karel Zak wrote:
+> > > On Fri, Jan 24, 2020 at 04:16:47PM -0300, Carlos Santos wrote:
+> > > > I noticed that it comes due to sys-utils/hwclock-parse-date.y, which
+> > > > was taken from gnulib. Would it be possible to take the file from an
+> > > > previous version of gnulib that was still under GPLv2?
 > > >
-> > > The reasons for making the change were:
-> > >  * remove hwclock's dependence on date(1)
-> > >  * remove an insecure call to date(1)
-> > >  * I thought there would be to many complaints if the accepted input
-> > >    date formats were changed
+> > > I have checked it again and all history of the file in git is with v3,
+> > > and import old version also means import many bugs....
 > > >
-> > > As to the last bullet point; personally I think having the --date option
-> > > accept every date syntax know to history is nonsense.
+> > > Maybe the best would be to use our lib/timeutils.c:parse_timestamp().
+> > > It does not provide support for so many date-time formats, but the
+> > > basic format like "2012-09-22 16:34:22" (and subsets) is supported.
+> > >
+> > > IMHO it's better to introduce a small backward compatibility issue than
+> > > rely on hwclock-parse-date.y or execute date(1) like old versions.
 > >
-> > Yes, I agree it's probably overkill.
-> >
-> > > Or you could just use the existing utillinux date parser.
-> >
-> > This is what I have implemented for --disable-hwclock-gplv3 to have
-> > anything ASAP for the next 2.35.1 update... Maybe we can make it the
-> > default for the next release v2.36 and later remove the gnulib code at
-> > all.
-> >
-> > > The question is, do you want to deal with any pushback for
-> > > changing the long established accepted --date formats?
-> >
-> > IMHO the existing utillinux date parser is good enough, but I have no
-> > clue how people use --date.
+> > or we can use #ifdef to keep it backwardly compatible for normal
+> > distros where v3 is not problem and lib/timeutils.c:parse_timestamp()
+> > with v2 for the rest ... at least for v2.35.1.
 > 
-> This is a bit disturbing. People should know in advance what date/time
-> formats hwclock supports. They should be described in the man page, at
+> Does parse_timestamp support localization, like getdate(3) does?
 
-man hwclock: "This option is capable of understanding many time and
-date formats." :-) 
+No, it's really simple digits based date-time like "2012-09-22 16:34:22".
 
-It was for decade exec(date), so it supports almost whatever and it's 
-reason why we have ported the code from gnulib to uti-linux. 
-
-The question is if we really need to support it. Maybe it's time to
-make it more restricted and rely only on simple format like
-'2525-08-14 07:11:05'.
+getdate(3) is maybe another choice for future versions, for 2.35.1 is
+parse_timestamp() good enough to avoid GPLv3.
 
     Karel
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
