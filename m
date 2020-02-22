@@ -1,135 +1,72 @@
-Return-Path: <SRS0=NKAx=4I=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=LDMA=4K=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.5 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.5 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA6D4C11D0C
-	for <util-linux@archiver.kernel.org>; Thu, 20 Feb 2020 19:48:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BB29C35641
+	for <util-linux@archiver.kernel.org>; Sat, 22 Feb 2020 01:04:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 98184206F4
-	for <util-linux@archiver.kernel.org>; Thu, 20 Feb 2020 19:48:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0C0BE206EF
+	for <util-linux@archiver.kernel.org>; Sat, 22 Feb 2020 01:04:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="DzDnid7q"
+	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="ktp5sB21"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728556AbgBTTso (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 20 Feb 2020 14:48:44 -0500
-Received: from mout.gmx.net ([212.227.17.22]:47143 "EHLO mout.gmx.net"
+        id S1727686AbgBVBEj (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 21 Feb 2020 20:04:39 -0500
+Received: from mout.gmx.net ([212.227.17.21]:59023 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728448AbgBTTso (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 20 Feb 2020 14:48:44 -0500
+        id S1726777AbgBVBEi (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 21 Feb 2020 20:04:38 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1582228119;
-        bh=6J214Dflz5PScQkmvErl425xAINLRsdstE3EYQ4awns=;
+        s=badeba3b8450; t=1582333473;
+        bh=4rkoHoUgn7OYpFZiaRvIijUlYh4mKbdJKVvZs1rAYfw=;
         h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
-        b=DzDnid7qvBmkAVMr0pb3y90ojBKqNdVMbNDMjCG5BKl4fDqdAXzM8sUfcuASX/QVq
-         G5ygJTRYYGE/Tu3XBEv9Hle7Umhau5f9JCPKN89SyPGIfUA3n86UzRfKQ8zLC7naWp
-         4eujRiiDnfFokMBunOeSaTAp72iRfLFilSR0E2Pk=
+        b=ktp5sB213yN42VclODBmm4u62PCe55f/UcDgWQNf87w5eAwDIkUEr8/wSfng0flFR
+         QNv5w42QbnpXXdjeA2hbU6ZyIQc2PTqtszA6VWQ4Qszw0Z2SEFVKw+wzwRzTuQiFlL
+         ZcmqZ+UQIBMnIy5BCsuCkfHaPgCqM60P9vRAh0yc=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
 Received: from localhost ([68.56.186.98]) by mail.gmx.com (mrgmx104
- [212.227.17.174]) with ESMTPSA (Nemesis) id 1MtfNf-1jIhEe1T9r-00v4JI; Thu, 20
- Feb 2020 20:48:39 +0100
+ [212.227.17.174]) with ESMTPSA (Nemesis) id 1MZCfJ-1isGXY0RfN-00V8Bs; Sat, 22
+ Feb 2020 02:04:33 +0100
 From:   J William Piggott <elseifthen@gmx.com>
 To:     Karel Zak <kzak@redhat.com>
 Cc:     util-linux@vger.kernel.org
-Subject: [PATCH] hwclock: make glibc 2.31 compatible
-Date:   Thu, 20 Feb 2020 14:47:54 -0500
-Message-Id: <20200220194754.16849-1-elseifthen@gmx.com>
+Subject: [v2 PATCH] hwclock: make glibc 2.31 compatible
+Date:   Fri, 21 Feb 2020 20:03:47 -0500
+Message-Id: <20200222010347.2743-1-elseifthen@gmx.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:dzUsL1NlMqg/CR5CrREryG/N4Gy+iC6gWr9aQ2SLAzqNlnLqhI9
- sw58qyAYpFRXUNuFOn71n75u4tmW+KmjXf/LkTAeL5mLBslDWPhCETiIxQpWvHWJkPa1P1h
- 1jOiSswTgZCFLPFivJ7famqKSvgmQdqTFC2JDVvpwx1vaSVJS/qqYKzHgX0mFPKqIuML0Mx
- jQ1tHSZewnxzC3c8YA3+Q==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:HNYtI4cWsDI=:1v0w1QmXgaB5nZwDXZINyS
- +5DJsRN1hVrAmVFgLZl0el06lvEb1/GgpFTAJe2rOjFCSlYWLmztZ6eL6Sec0UUQvZHxQTaRf
- 4NSfXkC1/4KSzq3t4SRzUpXljqa3tiP4UguC1ROWIR1Ryswpky/KYCnLTR1vw/bZ59M4vtDy2
- M0Vfg6Gcs2mhd2ehloj//YDbgMmGkQe993EVFvDFJ1WeOkM302BxuqvGL0y0EyyniefnwXKKl
- w7+0hEF6vcYZ7jAAm1hAXC1Q83AS8yVrMMfEAuFlyXemh90pwAe1SCaO8F0dtCX2eUTtiEQ9r
- 7E01NEQCUah9Oq8lwqor9jWFuZS0NzAAL3k297IpvgfOL4/KEZcecHkZxfxRb0aN5TO35UpVZ
- ar+hfyXnfr9rLWEw4czn3Sf1EaZd8BOd0ked3OiOKfMKXvfVB5Nuy7TgjywdGfMsmHE6G7B6D
- TnOqlMH5hw/+71+oBfSEWkZUl8ex6BYTx0zXekWP3g6ATUwtornfk+pfFOPkiEwuE0Ip4Bydu
- AHhMjBr2amSyoJ0pS3cq1bDLvB7iax5gVrkmUdtaxoPKJy5Z0BJKYJulPT3cOjAJONofGM235
- xJilO58wWXTslnLEU3rnkkPDnZjUKdfSroiGuRYPEKTtwmVyVgQPh1KZ7gBN/qI8eHer5ns+Q
- 9VcvG/ik5LGM4L7z4yaMXIylDObkfrUmQexJ2gcqUpVNyQKLEr9Mvlt0HYSHOj04s8+38GFwW
- oGEgZxxp7rW7KzjNprh9OWI3n9UqE4w+gAfZ5x/nEUKfj4VKHvJcEIdd5xhT0OWs/Cbs9vj5P
- /0g9tiKIWPAdQ85HsMDnHXux08zz8WqFRRfMsu6zOJBChW+/K9KgdmE/Ntj19Rv+6p3jP/Vbx
- RyFlUUs/P9UGKxWkPecxMgjHmWZtVNBqfs349h0O9KWQUPMlcoEr7IWj4Xx4QTAUbOU/QjIEq
- JhlkzhCBQCiheOMX32bEvh50gzuHWlk9CuZhoH8qY1Mttsy+ndZoeBU/lhcNedDWypP1meckh
- Yzeuve2UOc/oG3J/iuUJ8wnhDCxndPUDUJH5+NEpV7f0Gz6Xn/hfvBWP6dlp7Jty73/mRdCOg
- ByYj520MN+O41CX+XjjWSSINdU1EdabbaF6c3MQK1bovbyBoCusQ1pDagrTbcXo6uTPAaF1EU
- 1+nhIbaDcLx6omFuIesRsJ88Gu42v3r6R3tkS11qbk99Fz/9TD/BzpgCEADsOYAdwjwQKmIsy
- XpDaWKHBiYbeqncES
+X-Provags-ID: V03:K1:1dGOs3zDP8emAGWelNLKRaXNL5LcEuPEfUX2nWC9mFdHQdUASLG
+ hEpeAEt63C9OWdjR++PJZ9FDXW+NTvrR1ImXyuu+eXQZUrZ17skbVy92p9uoSXW4qK1meH5
+ pUURIko7JLPZ7gr8lHr1+c/5fz5KhFfJgUZDa3wIJmf/hzL080ga9en22AP0Ka62YNUEFcz
+ acpv37758f3cl8RjHxS8A==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:Y8p7PFN+ZOY=:TsVAr0vFB2jV/SATwCf+Fb
+ 6mcxXgSW+v/umk/qkfAbGh1eVDM60+8S6hzkj2LGEeLfOFf9JBwn11PglgDAqOGgZbjYbMe5X
+ dmfnFO6FsTmXTwpUGHe+SzJKzoy/L4A2Wk6pg9x/y69pWztR1bmnqlx7C5PencAbqW+l1tn9g
+ SL9Gqub2/EE2tQHPz92ljcGoUr4/owQEZJaTC2s1FXJmERPsofnz5zSSdZXOZY4c3+nxLHZcF
+ IV9P3+9TC9HEGuehHXtPK+jeCDG9/DNHC5ZBM4wO5iRGkCmMj7wPuLpqb4ILq6NwfN2FD4hl3
+ O7XTdmbUuT/W53SGV5bvisU96gM9SkFNY3wOWXV/hLQCE0rWIOJVbKgWwih66ZPlatr4wSKRG
+ qlvWZQL/EGnbzpF9yEPY7SK04Gz9N/+YB+qIpINrLahNaqFBlkofgCsfIknhCtZWTSrXanZVO
+ gmrcSreZohWJJVfhFlhrtifMdgjcdEImaA+Hh+CRR1EerBtiovqiWus8sHxaVKNANoJfdaVvs
+ 3XbgrWsuFmGXhczuRa34J0Lr/HII5ZJ1YS5tJHbf8mnczr6wDk00VM/aOfou6gRoiaswSb6RB
+ XLKNlQelvSQLJk4kFOhMwp5lUvIV89gu+YSR7uzXnGRC38g/jbvqvheVxgJ7P09YiH+VBYIDr
+ mbeguJIRrB8E3HHVBT6nNT8j1+a/qJM4iXXMxJusuXw8EHO7gNlX4brQhzl1yeD5+WraHJuP5
+ RnoaTDDf/To7yUcoKOAFmX0NCLUvqYKztlN4jM2BSJFbO7bvf4q0XS7WgWx+q7oEBanYODcNV
+ Vm/IsQWWCKht5x7T+9Rk57lbpNXod1vZJvvsuJ1UqCyzthu/2Rn9wq+fzvIOVgbmpYV1d2v8b
+ I0OzdRYW6zTBaeJp7FCufkWYtw0kyiUBkO930u5avjIM1ev3NN/9kL8F/m+4y5057nYaEcpam
+ I0+VRyAVdGTDyjYOeU4YbdWDQ9wWRQ4OYju91aZEqjKts3VAK9VlxJVsd1s+KHOyjtv54Kxdc
+ r6wJjkLHuMTe3hrnnGvYJ83HvKB085WBxBGUTjN7UUJV0j7tOJ/KV+8t981+ZwJw9M5Q76SQA
+ YQbIgbKSaGscXAx6NVZwC3IpsAGnPNBR1R50aQGPQJLiHiDtv4J73xBBcNgjPR8QIWcrXpcwf
+ 0KzZE5leRFWqCk6zNAYUhJC+NxD+aQyibmwg/ZrcE1Va4Ikn2jhxw9SaBG8c5xaEaku9+sER7
+ jkMuSEylPYTx2C+TY
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
-
-On Wed, 19 Feb 2020 at 15:50, Karel Zak <kzak@redhat.com> wrote:
-> Hi William,
->
->please, please, review the patch below.
->
->Let's make the review more user-friendly, all the logic is:
->
->	if (!ctl->testing) {
->		const struct timezone tz_utc =3D { 0 };
->		const struct timezone tz =3D { minuteswest };
->
->		/* warp-clock */
->		if (ctl->universal)
->			rc =3D settimeofday(NULL, &tz_utc); /* lock to UTC */
->		else
->			rc =3D settimeofday(NULL, &tz);     /* set PCIL and TZ */
->
->		/* set timezone */
->		if (!rc && ctl->universal && minuteswest)
->			rc =3D settimeofday(NULL, &tz);
-
-The same call is made with universal and !universal; it cannot be tested
-for minuteswest as it will fail, for example with:
-
-cp/usr/share/zoneinfo/Atlantic/Reykjavik /etc/localtime
-hwclock --localtime systohc
-
-That means: !universal && minuteswest =3D=3D 0
-
-So, drop the 'else' branch and call it unconditionally.
-
-Nice job of simplifying the logic, by the way!
-
- 8< ---
-
->
->Maybe we should also ignore rc and errno=3D=3DENOSYS for
-
-ENOSYS yes, rc no, I think.
-
-I'm also including ideas for comment and message changes.
-
-So, for the amount of changes I'm suggesting I think it will be easier
-for everyone if I just submit a new patch to you.
-
-Status: builds; mostly untested.
-
-The patch below applies on top of:
-
-commit aa506f7cc51f9025e62ab2a58f8d5c101e56a062 (upstream/master, master)
-
-    Merge branch 'master' of https://github.com/pali/util-linux
-
-
-
-
->From 17838aa96b3568e7295e62e717e5cba0672c1386 Mon Sep 17 00:00:00 2001
-From: J William Piggott <elseifthen@gmx.com>
-Date: Thu, 20 Feb 2020 14:00:19 -0500
-Subject: [PATCH] hwclock: make glibc 2.31 compatible
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
 
 ______________________________________________________
 GNU C Library NEWS -- history of user-visible changes.
@@ -177,11 +114,57 @@ for the set_system_clock() function was simplified.
 Co-authored-by: Karel Zak <kzak@redhat.com>
 Signed-off-by: J William Piggott <elseifthen@gmx.com>
 =2D--
- sys-utils/hwclock.c | 67 ++++++++++++++++++++++-----------------------
- 1 file changed, 33 insertions(+), 34 deletions(-)
+
+Changes from v1:
+ Only make one settimeofday(2) call when: rtc_is_utc and tz_is_utc
+
+Karel, your patch implemented the the above mentioned v1 change, so
+I put that back. With the glibc change there is no way to avoid a double
+call when: rtc_is_utc and tz_is_!zero. See the two tables below. These
+compare just the time zone and warp_clock calls, not the clock setting.
+
+
+Comparison of calls for [v1 PATCH]:
+_____________________________________________________
+ Number of settimeofday(2) calls to set timezone/warp
+
+           RTC      RTC
+Sys TZ  |  UTC  | Localtime |
+=2D--------------------------------------------
+UTC0    |   1   |    2
+=2D-------|-------|------- Karel's   More code  7 calls
+EST5    |   2   |    2
+=2D-------|-------|----------------------------
+UTC0    |   2   |    1     v1
+=2D-------|-------|------- Willie's  Less code  6 calls
+EST5    |   2   |    1
+=2D--------------------------------------------
+
+
+Comparison of calls for [v2 PATCH]:
+_____________________________________________________
+
+ Number of settimeofday(2) calls to set timezone/warp
+
+           RTC      RTC
+Sys TZ  |  UTC  | Localtime |
+=2D--------------------------------------------
+UTC0    |   1   |    2
+=2D-------|-------|------- Karel's   More code  7 calls
+EST5    |   2   |    2
+=2D-------|-------|----------------------------
+UTC0    |   1   |    1     v2
+=2D-------|-------|------- Willie's  Less code  5 calls
+EST5    |   2   |    1
+=2D--------------------------------------------
+
+Status: builds, but mostly untested.
+
+ sys-utils/hwclock.c | 71 +++++++++++++++++++++++----------------------
+ 1 file changed, 37 insertions(+), 34 deletions(-)
 
 diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index e736da717..8edb0b01e 100644
+index e736da717..1191a8571 100644
 =2D-- a/sys-utils/hwclock.c
 +++ b/sys-utils/hwclock.c
 @@ -643,28 +643,28 @@ display_time(struct timeval hwctime)
@@ -247,7 +230,7 @@ el tz |
 ------+
   *                         * only on first call after boot
   */
-@@ -675,42 +675,41 @@ set_system_clock(const struct hwclock_control *ctl,
+@@ -675,42 +675,45 @@ set_system_clock(const struct hwclock_control *ctl,
  	struct tm broken;
  	int minuteswest;
  	int rc =3D 0;
@@ -265,11 +248,14 @@ el tz |
  			puts(_("Calling settimeofday(NULL, 0) "
 -				"to lock the warp function."));
 +			       "to lock the warp_clock function."));
-+			printf(_("Calling settimeofday(NULL, %d) to set "
-+				 "the kernel timezone.\n"), minuteswest);
++			if (!( ctl->universal && !minuteswest ))
++				printf(_("Calling settimeofday(NULL, %d) "
++					 "to set the kernel timezone.\n"),
++				       minuteswest);
 +		} else
-+			printf(_("Calling settimeofday(NULL, %d) to warp_clock, "
-+				 "set PCIL and the kernel tz.\n"), minuteswest);
++			printf(_("Calling settimeofday(NULL, %d) to warp "
++				 "System time, set PCIL and the kernel tz.\n"),
++			       minuteswest);
 +
  		if (ctl->hctosys)
 -			printf(_("Calling settimeofday(%ld.%06ld, %d)\n"),
@@ -281,8 +267,9 @@ el tz |
 -			else
 -				 puts(_("to warp System time."));
 -		}
-+			printf(_("Calling settimeofday(%ld.%06ld, 0) to set "
-+				 "the kernel time.\n"), newtime.tv_sec, newtime.tv_usec);
++			printf(_("Calling settimeofday(%ld.%06ld, NULL) "
++				 "to set the System time.\n"),
++			       newtime.tv_sec, newtime.tv_usec);
  	}
 
  	if (!ctl->testing) {
@@ -300,7 +287,7 @@ el tz |
 -		else if (!rc)
 +
 +		/* Set kernel tz; if localtime RTC: warp_clock and set PCIL */
-+		if (!rc)
++		if (!rc && !( ctl->universal && !minuteswest ))
  			rc =3D settimeofday(NULL, &tz);
 
 +		/* Set the System Clock */
