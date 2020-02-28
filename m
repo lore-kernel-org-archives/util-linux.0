@@ -6,65 +6,64 @@ X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A4A0C3F2D2
-	for <util-linux@archiver.kernel.org>; Fri, 28 Feb 2020 15:40:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D17AC3F2D3
+	for <util-linux@archiver.kernel.org>; Fri, 28 Feb 2020 16:24:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DADC82469D
-	for <util-linux@archiver.kernel.org>; Fri, 28 Feb 2020 15:40:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 34B582468E
+	for <util-linux@archiver.kernel.org>; Fri, 28 Feb 2020 16:24:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="J8Yk12NM"
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="inr1/qyO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727237AbgB1PkV (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 28 Feb 2020 10:40:21 -0500
-Received: from mail-io1-f65.google.com ([209.85.166.65]:46556 "EHLO
-        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727131AbgB1PkV (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 28 Feb 2020 10:40:21 -0500
-Received: by mail-io1-f65.google.com with SMTP id e7so3794505ioe.13
-        for <util-linux@vger.kernel.org>; Fri, 28 Feb 2020 07:40:21 -0800 (PST)
+        id S1726627AbgB1QYf (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 28 Feb 2020 11:24:35 -0500
+Received: from mail-io1-f67.google.com ([209.85.166.67]:36755 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726642AbgB1QYf (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 28 Feb 2020 11:24:35 -0500
+Received: by mail-io1-f67.google.com with SMTP id d15so4029743iog.3
+        for <util-linux@vger.kernel.org>; Fri, 28 Feb 2020 08:24:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=szeredi.hu; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=9LqrzC6b4MYZRRh7fElw2sFSCD8yqepAp1R1qGOOE9o=;
-        b=J8Yk12NMM3aPoUGzMtUEGaWQFyt3fGjSMbPBBqAHvUe0SiUviOzH6VRNTh7x/BJ7Nk
-         fo5M6inLsbXFrgRv1vvzEFHoaLLfvF0hcPU0nGmaPzvQ0XYHYF3wvsXRgaRhkpjx0NjV
-         kUMeGbbANhNsXkeTJ9LhowDRAkP/N2ybtUnaA=
+        bh=bB98tLoF0u0YAiQkQFd8a6MwFlRbdwFA2a9rJyqMwcU=;
+        b=inr1/qyOInYmFN6D425GzWVmy0IT7QRJk3SjPLoFYSH/pO1voh/EdW+SfD8OofD6Bn
+         wvNaWCaLKbDpnb6pOCFOt0X9wayPiilDqg7EASARHhnxnaUyVoJrs35dzHFojcJnpWDF
+         dEnNQkAT4yoK8tzeRd9BPUclNV9H8sVGfsSfM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=9LqrzC6b4MYZRRh7fElw2sFSCD8yqepAp1R1qGOOE9o=;
-        b=UOkGlfNL/50abUQ6LRM/FpG0j9+IAfRjQ9cNsNwtjj0NTsndnDh9SY20ngFH8psGZz
-         iY1NSOMjNRaFCnInM5arBc9YUrQev+mmO2piF6p3Q7pILCwoIdn5Tvro8QkpscjBtu05
-         Wx8susVX9gkZeLf09BgNLfHWG5i2jsM0OH1GTJPPZIV0w+J2yZaapEOIST0hll0bA9n+
-         GTlP6DH5ncDR7BHGmk8U8SnnLDfio9kYY2zTmBvqejvM+ZkNbhtZO10l5ZlIdknbl4Ds
-         noMWoCIp1goE6SmO0gQWVr5CsuuddiLkfQal+v1gBdgxb5Jy4OzDqgyzj4n4Nh6Q+d/5
-         SlAQ==
-X-Gm-Message-State: APjAAAWNh3LYut+NDAQ0sPCmiL0y8d0rCrRhHSlL3qw5D/wqIyFOCNY8
-        r1Oih8axUsSlHLVL9+xl4eXRAeJEBFBwdN4jKn63zA==
-X-Google-Smtp-Source: APXvYqxWaKGs/GMkcpGpUL7E+8RUggAdz5iFOr+Psoqlg5UOSbDYmueoqkK9GE5rgDFb+W9horX9kqWoe/ME2cmp0yI=
-X-Received: by 2002:a02:6a10:: with SMTP id l16mr3820784jac.77.1582904420636;
- Fri, 28 Feb 2020 07:40:20 -0800 (PST)
+        bh=bB98tLoF0u0YAiQkQFd8a6MwFlRbdwFA2a9rJyqMwcU=;
+        b=FGsbnNKxssRQd2FMBzNsr0ZLgSDQC9LBRfU4T8780/D9fa3A4nwetfFYRW0unnRfcu
+         a/ADNaVjMJhqLv88R3IcH/oSSviIdRwpRUZsNN1Q26vIdjpsnd8sziOp0g02EazMIWYz
+         BFow89RKIWGEGHn7zy4rN+rp53Nm+wRWqyHgOZfMaTIIhwg4E9RODgeWIafIucKtzfkb
+         NnQcAy0TavuLU098XvP8K7eqPo6LuIITp8/4+Vc7ZjcUNEUN3jwellaIVrdGlTAJqahm
+         UEiGi7ir13iyoWmCSLyZQaA2s43NfY2X4pVz2lOfAGAyx0laRO4c8hk40OvF3+lpDu2e
+         4IHA==
+X-Gm-Message-State: APjAAAWQFpHJdpoxGp3xuzwMNo5BIw3WXhqaIY6dDEzsRM0EgQfvK1Wk
+        TGskCH0+QmH6v4V5tYgqPIOfQZQsoXIarcy6cIHfCQ==
+X-Google-Smtp-Source: APXvYqzW4AhONnArihOqANfWi8suDYP+nTtZwmEhAQutobth5sBaSR8sSuEmoVmIoU8B7DsyWsdjOGmol0a5XteeUNc=
+X-Received: by 2002:a02:9988:: with SMTP id a8mr4117936jal.33.1582907074679;
+ Fri, 28 Feb 2020 08:24:34 -0800 (PST)
 MIME-Version: 1.0
-References: <CAOssrKehjnTwbc6A1VagM5hG_32hy3mXZenx_PdGgcUGxYOaLQ@mail.gmail.com>
- <1582556135.3384.4.camel@HansenPartnership.com> <CAJfpegsk6BsVhUgHNwJgZrqcNP66wS0fhCXo_2sLt__goYGPWg@mail.gmail.com>
- <a657a80e-8913-d1f3-0ffe-d582f5cb9aa2@redhat.com> <1582644535.3361.8.camel@HansenPartnership.com>
- <CAOssrKfaxnHswrKejedFzmYTbYivJ++cPes4c91+BJDfgH4xJA@mail.gmail.com>
+References: <a657a80e-8913-d1f3-0ffe-d582f5cb9aa2@redhat.com>
+ <1582644535.3361.8.camel@HansenPartnership.com> <CAOssrKfaxnHswrKejedFzmYTbYivJ++cPes4c91+BJDfgH4xJA@mail.gmail.com>
  <1c8db4e2b707f958316941d8edd2073ee7e7b22c.camel@themaw.net>
  <CAJfpegtRoXnPm5_sMYPL2L6FCZU52Tn8wk7NcW-dm4_2x=dD3Q@mail.gmail.com>
  <3e656465c427487e4ea14151b77d391d52cd6bad.camel@themaw.net>
  <CAJfpegu5xLcR=QbAOnUrL49QTem6X6ok7nPU+kLFnNHdPXSh1A@mail.gmail.com>
  <20200227151421.3u74ijhqt6ekbiss@ws.net.home> <ba2b44cc1382c62be3ac896a5476c8e1dc7c0230.camel@themaw.net>
- <CAJfpeguXPmw+PfZJFOscGLm0oe7dUQY4CYXazx9=x020Fbe86A@mail.gmail.com> <1582902521.3338.20.camel@HansenPartnership.com>
-In-Reply-To: <1582902521.3338.20.camel@HansenPartnership.com>
+ <CAJfpeguXPmw+PfZJFOscGLm0oe7dUQY4CYXazx9=x020Fbe86A@mail.gmail.com> <20200228122712.GA3013026@kroah.com>
+In-Reply-To: <20200228122712.GA3013026@kroah.com>
 From:   Miklos Szeredi <miklos@szeredi.hu>
-Date:   Fri, 28 Feb 2020 16:40:09 +0100
-Message-ID: <CAJfpegtZ0EYhQYeUmqYNd+Y+K88g4P6BKahhtf7VkuXZoe_UYQ@mail.gmail.com>
+Date:   Fri, 28 Feb 2020 17:24:23 +0100
+Message-ID: <CAJfpegsGgjnyZiB+ionfnnk+_e+5oaC-5nmGq+mLxWs1RcwsPw@mail.gmail.com>
 Subject: Re: [PATCH 00/17] VFS: Filesystem information and notifications [ver #17]
-To:     James Bottomley <James.Bottomley@hansenpartnership.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Ian Kent <raven@themaw.net>, Karel Zak <kzak@redhat.com>,
         Miklos Szeredi <mszeredi@redhat.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
         Steven Whitehouse <swhiteho@redhat.com>,
         David Howells <dhowells@redhat.com>,
         viro <viro@zeniv.linux.org.uk>,
@@ -76,7 +75,6 @@ Cc:     Ian Kent <raven@themaw.net>, Karel Zak <kzak@redhat.com>,
         lkml <linux-kernel@vger.kernel.org>,
         Lennart Poettering <lennart@poettering.net>,
         =?UTF-8?Q?Zbigniew_J=C4=99drzejewski=2DSzmek?= <zbyszek@in.waw.pl>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         util-linux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: util-linux-owner@vger.kernel.org
@@ -84,30 +82,32 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Fri, Feb 28, 2020 at 4:09 PM James Bottomley
-<James.Bottomley@hansenpartnership.com> wrote:
+On Fri, Feb 28, 2020 at 1:27 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 
-> Containers are file based entities, so file descriptors are their most
-> natural thing and they have full ACL protection within the container
-> (can't open the file, can't then get the fd).  The other reason
-> container people like file descriptors (all the Xat system calls that
-> have been introduced) is that if we do actually need to break the
-> boundaries or privileges of the container, we can do so by getting the
-> orchestration system to pass in a fd the interior of the container
-> wouldn't have access to.
+> > Superblocks and mounts could get enumerated by a unique identifier.
+> > mnt_id seems to be good for mounts, s_dev may or may not be good for
+> > superblock, but  s_id (as introduced in this patchset) could be used
+> > instead.
+>
+> So what would the sysfs tree look like with this?
 
-Yeah, agreed about the simplicity of fd based access.   Then again a
-filesystem access would allow immediate access to all scripts,
-languages, etc.  That, I think is a huge bonus compared to the
-ioctl-like mess that the current proposal is, which would require
-library, utility, language binding updates on all changes.  Ugh.
+For a start something like this:
 
-One way to resolve that is to have the mount information
-magic-symlinked from /proc/PID/fdmount/FD directly to the mountinfo
-dir, which would then have a link into the sbinfo dir.  With other
-access denied to all except sysadmin.
+mounts/$MOUNT_ID/
+  parent -> ../$PARENT_ID
+  super -> ../../supers/$SUPER_ID
+  root: path from mount root to fs root (could be optional as usually
+they are the same)
+  mountpoint -> $MOUNTPOINT
+  flags: mount flags
+  propagation: mount propagation
+  children/$CHILD_ID -> ../../$CHILD_ID
 
-Would that work?
+ supers/$SUPER_ID/
+   type: fstype
+   source: mount source (devname)
+   options: csv of mount options
 
 Thanks,
 Miklos
