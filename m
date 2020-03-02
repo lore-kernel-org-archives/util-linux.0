@@ -2,72 +2,55 @@ Return-Path: <SRS0=4AVn=4T=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CD7FC3F2D2
-	for <util-linux@archiver.kernel.org>; Mon,  2 Mar 2020 08:43:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F84BC3F2D7
+	for <util-linux@archiver.kernel.org>; Mon,  2 Mar 2020 10:34:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 73BE0246B9
-	for <util-linux@archiver.kernel.org>; Mon,  2 Mar 2020 08:43:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5746421739
+	for <util-linux@archiver.kernel.org>; Mon,  2 Mar 2020 10:34:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="akz1HiDk"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NsjoU95o"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727532AbgCBIn4 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 2 Mar 2020 03:43:56 -0500
-Received: from mail-io1-f66.google.com ([209.85.166.66]:35718 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727364AbgCBIn4 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 2 Mar 2020 03:43:56 -0500
-Received: by mail-io1-f66.google.com with SMTP id h8so10619767iob.2
-        for <util-linux@vger.kernel.org>; Mon, 02 Mar 2020 00:43:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=szeredi.hu; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ka6ngPWkB4uI/pE1Q1K94PHmSULgTaZNjlFBTfefkw4=;
-        b=akz1HiDkzR/7aKhVBglfubu1x0knfiykucl/aRzUbwrNlqM8z3WDiA3Iil6Z9OI56T
-         ChR/IQN1e7+3dN+PzJK9dYmO7ShfXhI/evyAyzUN1+AqipbTrdEURd4rjQfSGax9hS5M
-         TdtlzKpbJ9nHP2YuSvOD/07ec4ijpwDRMIsNI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ka6ngPWkB4uI/pE1Q1K94PHmSULgTaZNjlFBTfefkw4=;
-        b=tOiny0k2vUpgaP4pIBmJpgzZqVuZdPdIXF0btVBU/OVo/zweUNqd2T0q7YI827AbzC
-         qEqyZL283RVqJ5rR3vyi1cNssA9rZ3XMhrzoGban3NxJzOMHOl/b6MLsE+BK8QM3B7vQ
-         7+rS4Ri3I/9r0maPboSmUXQuID3T5lx2EKU4prTt0V2wPvV0eGZaWtZCAhgxPqGUtzKI
-         Yw8SK9KytXpztDOMzsCxbXkDq/teLjjbKAeRG3af0xerLumlHgv9QI5QEKWKEnFB20bx
-         yE8Dk96ZlSyupLtnIVdxlP+bq5e24Lyr/aUf1PvKwYYKic9P6z6mlzLhzcmruZDSWmYc
-         FOxA==
-X-Gm-Message-State: APjAAAXrbJmOn6whA/yWqvmsail7RnWgbZHMMkthLHA4G1fE91C7GtOI
-        cj1GVDqxVFrz2gdoEmZ4ExfhiwPAMi2C7wFaU0fu8Q==
-X-Google-Smtp-Source: APXvYqw1ZD3GqI+wwXF1yHR/xgqidz3T6IX49RJ/ZKk0JVp+iUAGPsw+BghGio8C/Q5imdQEykUPaa6oLyfcghCbfaU=
-X-Received: by 2002:a02:5b8a:: with SMTP id g132mr12738776jab.78.1583138634949;
- Mon, 02 Mar 2020 00:43:54 -0800 (PST)
-MIME-Version: 1.0
-References: <CAOssrKfaxnHswrKejedFzmYTbYivJ++cPes4c91+BJDfgH4xJA@mail.gmail.com>
- <1c8db4e2b707f958316941d8edd2073ee7e7b22c.camel@themaw.net>
- <CAJfpegtRoXnPm5_sMYPL2L6FCZU52Tn8wk7NcW-dm4_2x=dD3Q@mail.gmail.com>
- <3e656465c427487e4ea14151b77d391d52cd6bad.camel@themaw.net>
- <CAJfpegu5xLcR=QbAOnUrL49QTem6X6ok7nPU+kLFnNHdPXSh1A@mail.gmail.com>
- <20200227151421.3u74ijhqt6ekbiss@ws.net.home> <ba2b44cc1382c62be3ac896a5476c8e1dc7c0230.camel@themaw.net>
- <CAJfpeguXPmw+PfZJFOscGLm0oe7dUQY4CYXazx9=x020Fbe86A@mail.gmail.com>
- <20200228122712.GA3013026@kroah.com> <CAJfpegsGgjnyZiB+ionfnnk+_e+5oaC-5nmGq+mLxWs1RcwsPw@mail.gmail.com>
- <20200228171504.GK23230@ZenIV.linux.org.uk>
-In-Reply-To: <20200228171504.GK23230@ZenIV.linux.org.uk>
-From:   Miklos Szeredi <miklos@szeredi.hu>
-Date:   Mon, 2 Mar 2020 09:43:43 +0100
-Message-ID: <CAJfpegviKdx9LWRQ_nLc7q67CvYxbpAFct6ukt6QHyiNY0faYw@mail.gmail.com>
-Subject: Re: [PATCH 00/17] VFS: Filesystem information and notifications [ver #17]
-To:     Al Viro <viro@zeniv.linux.org.uk>
+        id S1727450AbgCBKeP (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 2 Mar 2020 05:34:15 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:55388 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727198AbgCBKeO (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 2 Mar 2020 05:34:14 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1583145254;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=TnovkU9TRaPZCsU6BNaYIoozjytGGGEjCSLnwzS1uVA=;
+        b=NsjoU95o9fnVJW/Vdm9ZpAZWjpmX8yKiDmKP5MG8qHxOeL4Jx0/MYE0dMyVm2T3fa8LIeS
+        iaUhghid6qV7YH/iwKiUvp3qmjkGJMf1KOiyJGG0/rFgnE/Lx6TcZIRfdhhJf6vhsWYf7c
+        xRxIj3eczxSD+x/fwz9oDkkTiWmLCq0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-65-tECFLaW-PiulY-HJ6apnyg-1; Mon, 02 Mar 2020 05:34:10 -0500
+X-MC-Unique: tECFLaW-PiulY-HJ6apnyg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 81C8410824EE;
+        Mon,  2 Mar 2020 10:34:07 +0000 (UTC)
+Received: from ws.net.home (ovpn-204-202.brq.redhat.com [10.40.204.202])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 97F465DA2C;
+        Mon,  2 Mar 2020 10:34:03 +0000 (UTC)
+Date:   Mon, 2 Mar 2020 11:34:00 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     Miklos Szeredi <miklos@szeredi.hu>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ian Kent <raven@themaw.net>, Karel Zak <kzak@redhat.com>,
+        Ian Kent <raven@themaw.net>,
         Miklos Szeredi <mszeredi@redhat.com>,
         James Bottomley <James.Bottomley@hansenpartnership.com>,
         Steven Whitehouse <swhiteho@redhat.com>,
         David Howells <dhowells@redhat.com>,
+        viro <viro@zeniv.linux.org.uk>,
         Christian Brauner <christian@brauner.io>,
         Jann Horn <jannh@google.com>,
         "Darrick J. Wong" <darrick.wong@oracle.com>,
@@ -75,62 +58,68 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-fsdevel <linux-fsdevel@vger.kernel.org>,
         lkml <linux-kernel@vger.kernel.org>,
         Lennart Poettering <lennart@poettering.net>,
-        =?UTF-8?Q?Zbigniew_J=C4=99drzejewski=2DSzmek?= <zbyszek@in.waw.pl>,
+        Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>,
         util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 00/17] VFS: Filesystem information and notifications [ver
+ #17]
+Message-ID: <20200302103400.vk3cki7agfq2zhpv@ws.net.home>
+References: <CAOssrKfaxnHswrKejedFzmYTbYivJ++cPes4c91+BJDfgH4xJA@mail.gmail.com>
+ <1c8db4e2b707f958316941d8edd2073ee7e7b22c.camel@themaw.net>
+ <CAJfpegtRoXnPm5_sMYPL2L6FCZU52Tn8wk7NcW-dm4_2x=dD3Q@mail.gmail.com>
+ <3e656465c427487e4ea14151b77d391d52cd6bad.camel@themaw.net>
+ <CAJfpegu5xLcR=QbAOnUrL49QTem6X6ok7nPU+kLFnNHdPXSh1A@mail.gmail.com>
+ <20200227151421.3u74ijhqt6ekbiss@ws.net.home>
+ <ba2b44cc1382c62be3ac896a5476c8e1dc7c0230.camel@themaw.net>
+ <CAJfpeguXPmw+PfZJFOscGLm0oe7dUQY4CYXazx9=x020Fbe86A@mail.gmail.com>
+ <20200228122712.GA3013026@kroah.com>
+ <CAJfpegsGgjnyZiB+ionfnnk+_e+5oaC-5nmGq+mLxWs1RcwsPw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJfpegsGgjnyZiB+ionfnnk+_e+5oaC-5nmGq+mLxWs1RcwsPw@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Fri, Feb 28, 2020 at 6:15 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
->
-> On Fri, Feb 28, 2020 at 05:24:23PM +0100, Miklos Szeredi wrote:
-> > On Fri, Feb 28, 2020 at 1:27 PM Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
+On Fri, Feb 28, 2020 at 05:24:23PM +0100, Miklos Szeredi wrote:
+> ned-By: MIMEDefang 2.78 on 10.11.54.4
+> 
+> On Fri, Feb 28, 2020 at 1:27 PM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> 
+> > > Superblocks and mounts could get enumerated by a unique identifier.
+> > > mnt_id seems to be good for mounts, s_dev may or may not be good for
+> > > superblock, but  s_id (as introduced in this patchset) could be used
+> > > instead.
 > >
-> > > > Superblocks and mounts could get enumerated by a unique identifier.
-> > > > mnt_id seems to be good for mounts, s_dev may or may not be good for
-> > > > superblock, but  s_id (as introduced in this patchset) could be used
-> > > > instead.
-> > >
-> > > So what would the sysfs tree look like with this?
-> >
-> > For a start something like this:
-> >
-> > mounts/$MOUNT_ID/
-> >   parent -> ../$PARENT_ID
-> >   super -> ../../supers/$SUPER_ID
-> >   root: path from mount root to fs root (could be optional as usually
-> > they are the same)
-> >   mountpoint -> $MOUNTPOINT
-> >   flags: mount flags
-> >   propagation: mount propagation
-> >   children/$CHILD_ID -> ../../$CHILD_ID
-> >
-> >  supers/$SUPER_ID/
-> >    type: fstype
-> >    source: mount source (devname)
-> >    options: csv of mount options
->
-> Oh, wonderful.  So let me see if I got it right - any namespace operation
-> can create/destroy/move around an arbitrary amount of sysfs objects.
+> > So what would the sysfs tree look like with this?
+> 
+> For a start something like this:
+> 
+> mounts/$MOUNT_ID/
+>   parent -> ../$PARENT_ID
+>   super -> ../../supers/$SUPER_ID
+>   root: path from mount root to fs root (could be optional as usually
+> they are the same)
+>   mountpoint -> $MOUNTPOINT
+>   flags: mount flags
+>   propagation: mount propagation
+>   children/$CHILD_ID -> ../../$CHILD_ID
+> 
+>  supers/$SUPER_ID/
+>    type: fstype
+>    source: mount source (devname)
+>    options:
 
-Parent/children symlinks may be excessive...
+What about use-cases where I have no ID, but I have mountpoint path
+(e.g. "umount /foo")?  In this case I have to go to open() + fsinfo()
+and then sysfs does not make sense for me, right?
 
-> Better yet, we suddenly have to express the lifetime rules for struct mount
-> and struct superblock in terms of struct device garbage.
+    Karel
 
-How so?   struct mount and struct superblock would hold a ref on
-struct device, not the other way round.
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
-In any case, I'm not insistent on the use of sysfs device classes for
-this; struct device (488B) does seem too heavy for struct mount
-(328B).
-
-What I'm pretty sure about is that a read(2) based interface would be
-way more useful than the syscall multiplexer that the current proposal
-is.
-
-Thanks,
-Miklos
