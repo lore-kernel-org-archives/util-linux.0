@@ -1,125 +1,222 @@
-Return-Path: <SRS0=4AVn=4T=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=5wa5=5F=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F84BC3F2D7
-	for <util-linux@archiver.kernel.org>; Mon,  2 Mar 2020 10:34:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D9DBC4332B
+	for <util-linux@archiver.kernel.org>; Fri, 20 Mar 2020 04:55:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5746421739
-	for <util-linux@archiver.kernel.org>; Mon,  2 Mar 2020 10:34:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 49A072072D
+	for <util-linux@archiver.kernel.org>; Fri, 20 Mar 2020 04:55:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NsjoU95o"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="kiuYRIqB"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727450AbgCBKeP (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 2 Mar 2020 05:34:15 -0500
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:55388 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727198AbgCBKeO (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 2 Mar 2020 05:34:14 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1583145254;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=TnovkU9TRaPZCsU6BNaYIoozjytGGGEjCSLnwzS1uVA=;
-        b=NsjoU95o9fnVJW/Vdm9ZpAZWjpmX8yKiDmKP5MG8qHxOeL4Jx0/MYE0dMyVm2T3fa8LIeS
-        iaUhghid6qV7YH/iwKiUvp3qmjkGJMf1KOiyJGG0/rFgnE/Lx6TcZIRfdhhJf6vhsWYf7c
-        xRxIj3eczxSD+x/fwz9oDkkTiWmLCq0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-65-tECFLaW-PiulY-HJ6apnyg-1; Mon, 02 Mar 2020 05:34:10 -0500
-X-MC-Unique: tECFLaW-PiulY-HJ6apnyg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 81C8410824EE;
-        Mon,  2 Mar 2020 10:34:07 +0000 (UTC)
-Received: from ws.net.home (ovpn-204-202.brq.redhat.com [10.40.204.202])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 97F465DA2C;
-        Mon,  2 Mar 2020 10:34:03 +0000 (UTC)
-Date:   Mon, 2 Mar 2020 11:34:00 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     Miklos Szeredi <miklos@szeredi.hu>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ian Kent <raven@themaw.net>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Steven Whitehouse <swhiteho@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <christian@brauner.io>,
-        Jann Horn <jannh@google.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Linux API <linux-api@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Lennart Poettering <lennart@poettering.net>,
-        Zbigniew =?utf-8?Q?J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>,
-        util-linux@vger.kernel.org
-Subject: Re: [PATCH 00/17] VFS: Filesystem information and notifications [ver
- #17]
-Message-ID: <20200302103400.vk3cki7agfq2zhpv@ws.net.home>
-References: <CAOssrKfaxnHswrKejedFzmYTbYivJ++cPes4c91+BJDfgH4xJA@mail.gmail.com>
- <1c8db4e2b707f958316941d8edd2073ee7e7b22c.camel@themaw.net>
- <CAJfpegtRoXnPm5_sMYPL2L6FCZU52Tn8wk7NcW-dm4_2x=dD3Q@mail.gmail.com>
- <3e656465c427487e4ea14151b77d391d52cd6bad.camel@themaw.net>
- <CAJfpegu5xLcR=QbAOnUrL49QTem6X6ok7nPU+kLFnNHdPXSh1A@mail.gmail.com>
- <20200227151421.3u74ijhqt6ekbiss@ws.net.home>
- <ba2b44cc1382c62be3ac896a5476c8e1dc7c0230.camel@themaw.net>
- <CAJfpeguXPmw+PfZJFOscGLm0oe7dUQY4CYXazx9=x020Fbe86A@mail.gmail.com>
- <20200228122712.GA3013026@kroah.com>
- <CAJfpegsGgjnyZiB+ionfnnk+_e+5oaC-5nmGq+mLxWs1RcwsPw@mail.gmail.com>
+        id S1725883AbgCTEzp (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 20 Mar 2020 00:55:45 -0400
+Received: from esa6.hgst.iphmx.com ([216.71.154.45]:56475 "EHLO
+        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725446AbgCTEzp (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 20 Mar 2020 00:55:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1584680145; x=1616216145;
+  h=from:to:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=jL52R3J3J3wJKEMiiFSaUfJ5IxrBaXEZyk4JKd+eWKU=;
+  b=kiuYRIqBlNPixb/utM1Cns3jneGAFl+u7jCqj9iPh77szm0DV5Gp0Cvz
+   6DmxcjMa82yXyIzRI5EFQ18oTpowWGBaF4LNDc+R/ZwJY7SzUbQ1zLCPv
+   Vr+KM+PqNgGk97R7JrOhnVcs21cw6kiHjy4Nbu2T2sNNKzmDueuQ4/oga
+   zejRRg8SMiWvrHoe3GvpgY0fWd9Zip8tb/gPoklXjiz5j+M/+7Ar5K9sn
+   IZg9yCDKsVWn2HtxaC0m2D9qExNjn5GL6HiSkahJYnnIfgga9RrBB6ETC
+   mFCLGSj0XO5lLFyOj214etYRYqmWEOaJ0xj4Mh74tAHRwvz7+OPr+Wx3G
+   Q==;
+IronPort-SDR: Jy3UIHFuXco3RcDB8XiM+QdR25PUEOvtYovAFZYYJ6MyigxM+PcrAnoJeUQUVhWT0daGh/BMvQ
+ tOscpVKmyc7v9LuYKaMj6RORch+a/buFdE4LR2/oGzu0tNoU31G91nhJ3mZoMiq0mK7zl+DZL6
+ r5Yqr314RP5r2yINi6/jlmirSquXl7P4bC5TIHugH8ka4KCeWAq5PiErQWOd9x9GziG+2Jwb6K
+ YUDS24ByEExVz+Ro+4R828nKeNPoKJKQFovRnnoG9uZrSEXBxDGF10G6WObkC2wsnb3/LeRTts
+ BY8=
+X-IronPort-AV: E=Sophos;i="5.72,283,1580745600"; 
+   d="scan'208";a="134483993"
+Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 20 Mar 2020 12:55:45 +0800
+IronPort-SDR: ENFY6iudY213TyRWg5HkjagHfdX+d0EfmvEDZJfmYsRlSUUYZiQQRU84gFaS7644d3AY9XFj5/
+ 4uXzKZhamk9gUZToiiftPqp3BPYVeXJiDItWI0gpwh4UBXbxxKZUtHzYbnfZD4bQgqIJax7my1
+ 0kLOpIyI5my7snadVL969Pk/ronElc1MCrhiLpKNzBMy6U7OmmX3V+rABg6Qnll3BzeZeIJ/Rv
+ qq/0omz27M1g0oBnQc9rN6QuoGBbpWlgLqfvaIz3KAb4xlBH0FAeweBOGX9QEJYa2fO6Z9io2e
+ wU6uV9E32d5mBBEfkiXGC/Qw
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Mar 2020 21:47:32 -0700
+IronPort-SDR: v8dMTIYHMA3NCYczDD9QDR4sEBtA6Dm8mR0FSrdGmGu6INJHuw66eug/xH/Mx8DxNXyCXP9cdS
+ OOMIb3P7eh//pmz89ZWu9L5LXtoCJdoTs2UTnUap3+WeQ8l04Xr2W0oq+iWFMFafvq1VfgH7gm
+ buP45jlj9+xJ5Qbju5vuEZz/U7YgPp9RhqpwE/H0ri5Gz+aISRlKCn28bHYXZIVmWg9O3FGaDh
+ +CzJ5RLEx3gbb0goF4vzhq5bq6oU8/S6iZqS4evSwRRk34Ur5WwaOYydm2rCTUxSo6ONasNooC
+ qXU=
+WDCIronportException: Internal
+Received: from washi.fujisawa.hgst.com ([10.149.53.254])
+  by uls-op-cesaip02.wdc.com with ESMTP; 19 Mar 2020 21:55:44 -0700
+From:   Damien Le Moal <damien.lemoal@wdc.com>
+To:     util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>,
+        Benno Schulenberg <bensberg@justemail.net>
+Subject: [PATCH] libblkid: Add support for zonefs
+Date:   Fri, 20 Mar 2020 13:55:43 +0900
+Message-Id: <20200320045543.2053382-1-damien.lemoal@wdc.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJfpegsGgjnyZiB+ionfnnk+_e+5oaC-5nmGq+mLxWs1RcwsPw@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Fri, Feb 28, 2020 at 05:24:23PM +0100, Miklos Szeredi wrote:
-> ned-By: MIMEDefang 2.78 on 10.11.54.4
-> 
-> On Fri, Feb 28, 2020 at 1:27 PM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> 
-> > > Superblocks and mounts could get enumerated by a unique identifier.
-> > > mnt_id seems to be good for mounts, s_dev may or may not be good for
-> > > superblock, but  s_id (as introduced in this patchset) could be used
-> > > instead.
-> >
-> > So what would the sysfs tree look like with this?
-> 
-> For a start something like this:
-> 
-> mounts/$MOUNT_ID/
->   parent -> ../$PARENT_ID
->   super -> ../../supers/$SUPER_ID
->   root: path from mount root to fs root (could be optional as usually
-> they are the same)
->   mountpoint -> $MOUNTPOINT
->   flags: mount flags
->   propagation: mount propagation
->   children/$CHILD_ID -> ../../$CHILD_ID
-> 
->  supers/$SUPER_ID/
->    type: fstype
->    source: mount source (devname)
->    options:
+The zonefs filesystem was added to upstream linux kernel 5.6. This
+patch add support for probing zonefs formatted zoned block devices so
+that other file system formatting tool can detect its presence on a
+device.
 
-What about use-cases where I have no ID, but I have mountpoint path
-(e.g. "umount /foo")?  In this case I have to go to open() + fsinfo()
-and then sysfs does not make sense for me, right?
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+---
+ libblkid/src/Makemodule.am             |  1 +
+ libblkid/src/superblocks/superblocks.c |  3 +-
+ libblkid/src/superblocks/superblocks.h |  1 +
+ libblkid/src/superblocks/zonefs.c      | 87 ++++++++++++++++++++++++++
+ 4 files changed, 91 insertions(+), 1 deletion(-)
+ create mode 100644 libblkid/src/superblocks/zonefs.c
 
-    Karel
-
+diff --git a/libblkid/src/Makemodule.am b/libblkid/src/Makemodule.am
+index c5d9426b1..394c2ed43 100644
+--- a/libblkid/src/Makemodule.am
++++ b/libblkid/src/Makemodule.am
+@@ -101,6 +101,7 @@ libblkid_la_SOURCES = \
+ 	libblkid/src/superblocks/vxfs.c \
+ 	libblkid/src/superblocks/xfs.c \
+ 	libblkid/src/superblocks/zfs.c \
++	libblkid/src/superblocks/zonefs.c \
+ 	\
+ 	libblkid/src/topology/topology.c \
+ 	libblkid/src/topology/topology.h
+diff --git a/libblkid/src/superblocks/superblocks.c b/libblkid/src/superblocks/superblocks.c
+index baf35e51b..67172d0a0 100644
+--- a/libblkid/src/superblocks/superblocks.c
++++ b/libblkid/src/superblocks/superblocks.c
+@@ -167,7 +167,8 @@ static const struct blkid_idinfo *idinfos[] =
+ 	&exfat_idinfo,
+ 	&f2fs_idinfo,
+ 	&mpool_idinfo,
+-	&apfs_idinfo
++	&apfs_idinfo,
++	&zonefs_idinfo
+ };
+ 
+ /*
+diff --git a/libblkid/src/superblocks/superblocks.h b/libblkid/src/superblocks/superblocks.h
+index 0cd0caccf..5ebe6bc43 100644
+--- a/libblkid/src/superblocks/superblocks.h
++++ b/libblkid/src/superblocks/superblocks.h
+@@ -84,6 +84,7 @@ extern const struct blkid_idinfo vdo_idinfo;
+ extern const struct blkid_idinfo stratis_idinfo;
+ extern const struct blkid_idinfo bitlocker_idinfo;
+ extern const struct blkid_idinfo apfs_idinfo;
++extern const struct blkid_idinfo zonefs_idinfo;
+ 
+ /*
+  * superblock functions
+diff --git a/libblkid/src/superblocks/zonefs.c b/libblkid/src/superblocks/zonefs.c
+new file mode 100644
+index 000000000..aa5d2e1bd
+--- /dev/null
++++ b/libblkid/src/superblocks/zonefs.c
+@@ -0,0 +1,87 @@
++/*
++ * Copyright (C) 2020 Western Digital Corporation or its affiliates.
++ *
++ * This file may be redistributed under the terms of the
++ * GNU Lesser General Public License
++ */
++#include <stddef.h>
++#include <string.h>
++#include <uuid/uuid.h>
++
++#include "superblocks.h"
++
++#define ZONEFS_MAGIC		"SFOZ" /* 0x5a4f4653 'Z' 'O' 'F' 'S' */
++#define ZONEFS_MAGIC_SIZE	4
++#define ZONEFS_MAGIC_OFST	0
++#define ZONEFS_UUID_SIZE	16
++#define ZONEFS_LABEL_SIZE	32
++#define ZONEFS_SB_OFST		0
++
++#define ZONEFS_BLOCK_SIZE	4096U
++
++struct zonefs_super {
++
++	/* Magic number */
++	__le32		s_magic;
++
++	/* Checksum */
++	__le32		s_crc;
++
++	/* Volume label */
++	char		s_label[ZONEFS_LABEL_SIZE];
++
++	/* 128-bit uuid */
++	__u8		s_uuid[ZONEFS_UUID_SIZE];
++
++	/* Features */
++	__le64		s_features;
++
++	/* UID/GID to use for files */
++	__le32		s_uid;
++	__le32		s_gid;
++
++	/* File permissions */
++	__le32		s_perm;
++
++	/* Padding to 4096 bytes */
++	/* __u8		s_reserved[4020]; */
++
++} __attribute__ ((packed));
++
++static int probe_zonefs(blkid_probe pr,
++		const struct blkid_idmag *mag  __attribute__((__unused__)))
++{
++	struct zonefs_super *sb;
++
++	sb = (struct zonefs_super *)
++		blkid_probe_get_buffer(pr, ZONEFS_SB_OFST,
++				       sizeof(struct zonefs_super));
++	if (!sb)
++		return errno ? -errno : 1;
++
++	if (sb->s_label[0])
++		blkid_probe_set_label(pr, (unsigned char *) sb->s_label,
++				      sizeof(sb->s_label));
++
++	blkid_probe_set_uuid(pr, sb->s_uuid);
++	blkid_probe_set_block_size(pr, ZONEFS_BLOCK_SIZE);
++
++	return 0;
++}
++
++const struct blkid_idinfo zonefs_idinfo =
++{
++	.name           = "zonefs",
++	.usage          = BLKID_USAGE_FILESYSTEM,
++	.probefunc      = probe_zonefs,
++	.magics         =
++        {
++		{
++			.magic = (char *)ZONEFS_MAGIC,
++			.len = ZONEFS_MAGIC_SIZE,
++			.kboff = ZONEFS_SB_OFST,
++			.sboff = ZONEFS_MAGIC_OFST,
++		},
++		{ NULL }
++	}
++};
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.25.1
 
