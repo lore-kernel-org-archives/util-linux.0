@@ -1,156 +1,265 @@
-Return-Path: <SRS0=nY5j=5I=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=M7Df=5J=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF42EC4332B
-	for <util-linux@archiver.kernel.org>; Mon, 23 Mar 2020 10:38:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE484C10DCE
+	for <util-linux@archiver.kernel.org>; Tue, 24 Mar 2020 05:30:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7525120722
-	for <util-linux@archiver.kernel.org>; Mon, 23 Mar 2020 10:38:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 754A820663
+	for <util-linux@archiver.kernel.org>; Tue, 24 Mar 2020 05:30:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="nQ4lelT5";
-	dkim=pass (1024-bit key) header.d=sharedspace.onmicrosoft.com header.i=@sharedspace.onmicrosoft.com header.b="DxR6A2ND"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="HX/Vi2vL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727894AbgCWKih (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 23 Mar 2020 06:38:37 -0400
-Received: from esa5.hgst.iphmx.com ([216.71.153.144]:3901 "EHLO
-        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727810AbgCWKig (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 23 Mar 2020 06:38:36 -0400
+        id S1726090AbgCXFaV (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 24 Mar 2020 01:30:21 -0400
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:7598 "EHLO
+        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726083AbgCXFaV (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 24 Mar 2020 01:30:21 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1584959917; x=1616495917;
-  h=from:to:cc:subject:date:message-id:references:
-   content-transfer-encoding:mime-version;
-  bh=Jv0pc273+fs9uBDDRLgjsN7D0ZDAEo7l90kC1b9mduo=;
-  b=nQ4lelT5GuzD1LqBSDIv0fouzEaBTm2c6AX45Mt0A6FsUVJWGkcCpUDM
-   avCEwW+KxbKNoepIg1FUv0BDRPnBbqiSSBXUYbkcDZugWW3lW3xCU0yBG
-   zTpFrMaL8ZCuUbcxAwAEBimqsAaERn+e3Gj5LsDoSCGgvqRWHFTusyCvu
-   1+cNbMyFg2DWtWz+pnccrJshBeA3NUJQcUxnSJRMzRQUrLhRn8YIRaqSf
-   VdN0mNoXldDjvvd15WZLkjHQK4RP9hPMdzNZmVLxKq36uRLolRhC4acTK
-   M/kilWkppqia2HfYjvoDI8q885TLJCEJBMuSJGjBBBY6avln4smcImbBC
-   Q==;
-IronPort-SDR: nYxwD2J60hKJ1W8xJLirJCPoNZgf7iynZab0zv53eTocLE8mSQnhxV9jkexksXEupX/0whImyC
- 6S6SwTPkZsjYnC/SVx3BH2jF22iY49BlmeFnnBzqVWslf8TG/2Kxybk1biju5Dp38mvKGiLoFK
- i+go/V2C3VPXOJrvWm1LUFANcGqkOYbgR3cj+jCFQDaR8rKuCylQBbekiqy3a+QUCYwMF8xjB8
- xI+fZN8fe2NW9lXRu/wjdNpsR3szqgEE4Q/hkkYH2Vv8Xamr7y1lX8Xl0ASjkjMSIsdRW8NFqH
- WzU=
-X-IronPort-AV: E=Sophos;i="5.72,296,1580745600"; 
-   d="scan'208";a="133684305"
-Received: from mail-co1nam11lp2171.outbound.protection.outlook.com (HELO NAM11-CO1-obe.outbound.protection.outlook.com) ([104.47.56.171])
-  by ob1.hgst.iphmx.com with ESMTP; 23 Mar 2020 18:38:37 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=IasJ2ZZbObrx48vyIvfAp8jYnustqs5V94zyLX4QlHpVxdzO6sglYJ6jLPHI9uxVzInU22IgJiRwS2+uApcMoL79tKYxT1in+DKr/iI39P+1KmreMJdQuTloq0LgQRVUxwzvA7c3Pul5UuZqVRwHtmcTWPHqTsAxFNMzMghfLA9/KDObenob/4f8Frqx/rJMrL+TRiPujDdz03YT1ByaVF0H0BYhz0yVg7crV0ialnNeNbNCIA1qLaBJaMfiiZ8ls93AOg6cG2h534+OKvBlaySeT/se2M0JDP9qINFnTOEleMwLeAeRiChehNwP7o6WqMtn8OCmlE9ftenCc7zvGg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Ib/axd3WscQteUkqRdCNKAZWzMfzNj0sr3Qegh0amRc=;
- b=ad79haNMXCyjIsqP8lc1YBHGjapa/XhAI0m5XSVwzF/aRXUf6FkHlNcwTTeZPpPTyd/uG0M3mrAKYR3WM0mblCx2QQWAZ5WwvvsMYPO3vihlatjDDxcCc3vYjI3HXPyufOkqsNgtY2UXUCdlhSjdsuNeJnl3uLNXFltNnpvUAycZdSmQfEfB9MmavoUGEfgT0c3m8Gk9PLpqt5OQI6PEaNCq50OP62DPhxPRFtTTV3JgMen2vtZ53RrtX+MFKXZizScNEip+8MejWTdhfV8pVHOvNCpvoZ84wlBx73rj5PII4kcfkyFDfGkciBPEFDt8xf3ImTP/6Yz9PJcgs9k92g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Ib/axd3WscQteUkqRdCNKAZWzMfzNj0sr3Qegh0amRc=;
- b=DxR6A2NDWVSHetFNA3uZ9J5KfT2PtbCBwvNOWXLJejvpLnxu6b83xSfy/Vv7N9T1jHm19GXooiPUKuYCN+AF9J6iwmG+tKg1KRIAdag/gGaf6w5JUsV21LD8h3kX3ncbhiF5UFwhtndjq7fP5WxoTykLCQngLHGc+Fh6svGgKLI=
-Received: from CO2PR04MB2343.namprd04.prod.outlook.com (10.166.200.137) by
- CO2PR04MB2135.namprd04.prod.outlook.com (10.166.93.6) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2835.22; Mon, 23 Mar 2020 10:38:35 +0000
-Received: from CO2PR04MB2343.namprd04.prod.outlook.com
- ([fe80::c1a:6c0f:8207:580b]) by CO2PR04MB2343.namprd04.prod.outlook.com
- ([fe80::c1a:6c0f:8207:580b%7]) with mapi id 15.20.2835.021; Mon, 23 Mar 2020
- 10:38:35 +0000
-From:   Damien Le Moal <Damien.LeMoal@wdc.com>
-To:     Karel Zak <kzak@redhat.com>
-CC:     "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
+  t=1585027820; x=1616563820;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=R8IebJsYa3P0wy9vXxX7OOn1roRDTk48DnQs6E8RoCQ=;
+  b=HX/Vi2vL+KF35Q/cBl0+5KWVypwcU6Sj1SaPBd0X4jWxcN87pG9a3XU4
+   mNiId252qK0fZrxlIRg/k8MYSS3Fv49UbHeMrIneFgfcVXxyXZY9hyJ9x
+   Be5pN4kp7FJQh9gWEKmo4ZFxC7zWrJIBvsQC9T4RvGuaMh8DaR39cqt+k
+   p8yBCzQp4BwE8kcKy7g1kHb82xkA5IoQ+rsKgaG51UCta+q0vyzpupsnr
+   tDYg3v57Rcdhd+IyoQQlmRzBKP7I/p4ggiB/3lejhiksdQvV0rrXBXy3k
+   n16auJJLmdspVZARn+U13IpFr1VJQ1MzfaXlF9mGp2a4ugyyUzGtHZA40
+   A==;
+IronPort-SDR: PYb+RxI8qUXfA0P1/bm+Lzb2vpne46uPiX/pfTIHBgnveLt08szb0MvYfQv+cx8WV+eLW4QCKD
+ caeO2hdbldlgk5T9vZhTChsh6MRPXqDoJ1lLaEAfMjSwVdAIzpGYSVBKvqKR5jlcIpTa2uT8Vy
+ J0j+ZyCHqrOEKPeQqIYOE6aZRF3dc2oas4qtdZJjb3/h6qcb/06NLPNUN61LOHuQGKaRb6VMDa
+ 4KAzFqZMiNC6ArINjuFCzSSKVwZJtdVvnFzhyhNGGOoUTFvPMV56YNGt0tYl36gmpNnbLgz5sl
+ GRs=
+X-IronPort-AV: E=Sophos;i="5.72,299,1580745600"; 
+   d="scan'208";a="241797166"
+Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 24 Mar 2020 13:30:20 +0800
+IronPort-SDR: NiH1agOJW3Olt10ZOkiJLLAZgEMgCFD2SeLgqXIUixYVzSy9Q8yItbkYsP5wq6QRTxl59UYcpr
+ +HopwjZrXsz82GVElBUcuoo3AxPjOYEPlB0NJ/vdchbNTCTXwjcjpqoThkOXojCBRBKmQtawLY
+ jimd63x3ziPYB2n+2G9jZN23F0reZfmph3K3G2tUihSm5t5iPNpLU99sWcfF8BkBqqK8hcAGlT
+ 2j1FLGI0xxYMmOSoalwQtZsBSCrEpet8M33vr74zZQ3zrye6R1jdLZ+8vIqWgIad4WOek5IfSy
+ ke0Ro2cpAxTc6j2LdysoTz/Q
+Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Mar 2020 22:22:00 -0700
+IronPort-SDR: /+/o9tgx1XnMS3Yr6pRRPGsKKIZ+vQj7Q52c2bkDIiIYyCdmSeez/w4pctUE4SjCAdfm5OzEQj
+ fcnOQevBEHBH39KVx5FkaJKLEGPejOLlGbsOrGYcLCYlblHqWvISGysEq8g8gOB79hIVjjpiyq
+ Ep14cZwQjfHNjW3ZBj/weJZxbHdzyQNdg7tXOev+WAbPIK3Jg2H+TQT76bskquRD9hYnWCmfjY
+ uWvYdIggJ1aO5QTl9cf1ph4EfP3K3G1+hsWrxGl4H9aL1ZDO4hl55fBXQyZ8YmyZ+v4P44BCMc
+ wVI=
+WDCIronportException: Internal
+Received: from washi.fujisawa.hgst.com ([10.149.53.254])
+  by uls-op-cesaip01.wdc.com with ESMTP; 23 Mar 2020 22:30:20 -0700
+From:   Damien Le Moal <damien.lemoal@wdc.com>
+To:     util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>,
         Benno Schulenberg <bensberg@justemail.net>
-Subject: Re: [PATCH] libblkid: Add support for zonefs
-Thread-Topic: [PATCH] libblkid: Add support for zonefs
-Thread-Index: AQHWAP57V5VNJpfXsU65PGkMPbpAKQ==
-Date:   Mon, 23 Mar 2020 10:38:35 +0000
-Message-ID: <CO2PR04MB2343DF5C09B336B18AAF5F43E7F00@CO2PR04MB2343.namprd04.prod.outlook.com>
-References: <20200320045543.2053382-1-damien.lemoal@wdc.com>
- <20200323103305.uhlc3d7i4famwq5p@ws.net.home>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=Damien.LeMoal@wdc.com; 
-x-originating-ip: [129.253.182.57]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 4d18c043-18b1-4157-68b4-08d7cf1656fc
-x-ms-traffictypediagnostic: CO2PR04MB2135:
-x-microsoft-antispam-prvs: <CO2PR04MB2135F29BE932E76EE7056192E7F00@CO2PR04MB2135.namprd04.prod.outlook.com>
-wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:8882;
-x-forefront-prvs: 0351D213B3
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(346002)(39860400002)(376002)(136003)(366004)(396003)(199004)(9686003)(5660300002)(33656002)(52536014)(66446008)(64756008)(66556008)(66476007)(66946007)(76116006)(91956017)(7696005)(2906002)(6916009)(81166006)(81156014)(8676002)(8936002)(26005)(186003)(55016002)(4326008)(316002)(86362001)(54906003)(478600001)(6506007)(53546011)(71200400001);DIR:OUT;SFP:1102;SCL:1;SRVR:CO2PR04MB2135;H:CO2PR04MB2343.namprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: aE5vmzj/Ll/Wknp3mlYvthlvUKEQltyXc+d1FI4xujrjA400VKeWRtr4RPBH8J1Tu1yW2hZ73kWrKYsJiNsJGWykg1uyXPgaclh5WunpTQ1nOvAS2Hqp2xaBU5NV+nHWe4Y946INzfifbMnDZW9qTi+X8RkMyBT48mVrw280SPaGXpgIdFwJo9LMjX6lsyvkNIIt1ZhKDBNfF6Kp3UFNgQx0gQUF27xzIhg2MD2OJEkhgrA+mnHTMS8jzxHooQYQJYX9yuoua1BvPmLmxTuyjZWdoyJrDCANBNkKNpHMS0AsxNozxF7k1c140UxPI7fSPTA1KKejbAxO3/EYxvidN3K72c4wHJmjFnS9197tZ3RmgKNFCqLMEeCWNl5KXq5HQ7rLRYizl/1BTybpgEFzN7EHSVL2z5LoEVCRbiV/5XKg7VKl4pXdovYMKrwBPkUl
-x-ms-exchange-antispam-messagedata: azdG24EArYVdVAxkYOSHPVcgbV41t8b/biFBNbI/VlN1NmkkrtjEz4RNUuYtxWo4LtFe8ELdrVWZf8WartQTqDcl6nthvVT00yo068ylod6fmger6spRR1k6k0EGwLcX8Csohwn6RfIJOeysW09RRg==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Cc:     Aravind Ramesh <Aravind.Ramesh@wdc.com>,
+        Hans Holmnerg <Hans.Holmberg@wdc.com>
+Subject: [PATCH] blkzone: add open/close/finish commands
+Date:   Tue, 24 Mar 2020 14:30:18 +0900
+Message-Id: <20200324053018.18878-1-damien.lemoal@wdc.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4d18c043-18b1-4157-68b4-08d7cf1656fc
-X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Mar 2020 10:38:35.0477
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 4F+Yu9FtUE19a75uh/RBYtuoM4OaS7TMhIxfPggcoxYsAqCzvlzKaCJAxHzi4uOE37kmoQyridoTah98HOqLAQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO2PR04MB2135
+Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On 2020/03/23 19:33, Karel Zak wrote:=0A=
-> On Fri, Mar 20, 2020 at 01:55:43PM +0900, Damien Le Moal wrote:=0A=
->>  libblkid/src/Makemodule.am             |  1 +=0A=
->>  libblkid/src/superblocks/superblocks.c |  3 +-=0A=
->>  libblkid/src/superblocks/superblocks.h |  1 +=0A=
->>  libblkid/src/superblocks/zonefs.c      | 87 ++++++++++++++++++++++++++=
-=0A=
->>  4 files changed, 91 insertions(+), 1 deletion(-)=0A=
->>  create mode 100644 libblkid/src/superblocks/zonefs.c=0A=
-> =0A=
-> Applied (with a small change), thanks.=0A=
-> =0A=
->> +struct zonefs_super {=0A=
->> +=0A=
->> +	/* Magic number */=0A=
->> +	__le32		s_magic;=0A=
-> =0A=
-> We use standard integer types rather than this kernel-ism ;-) Fixed.=0A=
-> =0A=
-> It would be nice to have a test image for zonefs, something small what=0A=
-> we can add to tests/ts/blkid/images-fs/ ;-)=0A=
-=0A=
-Overlooked that. With null-blk with zoned=3D1 option set, it is easy to cre=
-ate a=0A=
-test device without any hardware. Because with an image file, we are not go=
-ing=0A=
-to get a zoned block device with loopback, which may cause some problems as=
- that=0A=
-would not be normal at all to see zonefs on a regular block device.=0A=
-=0A=
-> =0A=
-> =0A=
->     Karel=0A=
-> =0A=
-=0A=
-=0A=
--- =0A=
-Damien Le Moal=0A=
-Western Digital Research=0A=
+From: Aravind Ramesh <Aravind.Ramesh@wdc.com>
+
+Introduce blkzone open, close and finish commands, issuing BLKOPENZONE,
+BLKCLOSEZONE and BLKFINISHZONE ioctl commands to open, close or finish
+a range of zones of a zoned block device.
+
+Since these three commands are similar to the existing zone reset
+command, the existing zone reset command implementation is changed into
+the generic blkzone_action() internal handler function for processing
+all zone actions.
+
+The BLKOPENZONE, BLKCLOSEZONE and BLKFINISHZONE ioctl commands codes are
+defined in linux/blkzoned.h starting with kernel version 5.5. To ensure
+that the blkzone utility compiles even with older blkzoned.h kernel
+header versions, these ioctl commands are internally defined if the
+blkzoned.h header definition is not present. Execution of these commands
+on kernels older than 5.5 will result in a -ENOTTY error (missing
+ioctl).
+
+Signed-off-by: Aravind Ramesh <Aravind.Ramesh@wdc.com>
+Tested-by: Hans Holmnerg <Hans.Holmberg@wdc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+---
+ sys-utils/blkzone.8 | 27 +++++++++++++++--
+ sys-utils/blkzone.c | 74 ++++++++++++++++++++++++++++++++++++++++-----
+ 2 files changed, 91 insertions(+), 10 deletions(-)
+
+diff --git a/sys-utils/blkzone.8 b/sys-utils/blkzone.8
+index 83d3dd7ce..f50e3f5df 100644
+--- a/sys-utils/blkzone.8
++++ b/sys-utils/blkzone.8
+@@ -55,10 +55,31 @@ x?:Reserved conditions (should not be reported)
+ The command \fBblkzone reset\fP is used to reset one or more zones. Unlike
+ .BR sg_reset_wp (8),
+ this command operates from the block layer and can reset a range of zones.
++
++.SS open
++The command \fBblkzone open\fP is used to explicitly open one or more zones.
++Unlike
++.BR sg_zone (8),
++open action, this command operates from the block layer and can open a range
++of zones.
++
++.SS close
++The command \fBblkzone close\fP is used to close one or more zones. Unlike
++.BR sg_zone (8),
++close action, this command operates from the block layer and can close a range
++of zones.
++
++.SS finish
++The command \fBblkzone finish\fP is used to finish (transition to full condition)
++one or more zones. Unlike
++.BR sg_zone (8),
++finish action, this command operates from the block layer and can finish a range
++of zones.
++
+ .PP
+-By default, the command will operate from the zone at device
+-sector 0 and reset all zones. Options may be used to modify this behavior
+-as well as specify the operation to be performed on the zone, as explained below.
++By default, the reset, open, close and finish commands will operate from the zone
++at device sector 0 and operate on all zones. Options may be used to modify this
++behavior as explained below.
+ 
+ .SH OPTIONS
+ The
+diff --git a/sys-utils/blkzone.c b/sys-utils/blkzone.c
+index 715f03fef..b862aa67d 100644
+--- a/sys-utils/blkzone.c
++++ b/sys-utils/blkzone.c
+@@ -44,10 +44,23 @@
+ #include "sysfs.h"
+ #include "optutils.h"
+ 
++/*
++ * These ioctls are defined in linux/blkzoned.h starting with kernel 5.5.
++ */
++#ifndef BLKOPENZONE
++#define BLKOPENZONE	_IOW(0x12, 134, struct blk_zone_range)
++#endif
++#ifndef BLKCLOSEZONE
++#define BLKCLOSEZONE	_IOW(0x12, 135, struct blk_zone_range)
++#endif
++#ifndef BLKFINISHZONE
++#define BLKFINISHZONE	_IOW(0x12, 136, struct blk_zone_range)
++#endif
++
+ struct blkzone_control;
+ 
+ static int blkzone_report(struct blkzone_control *ctl);
+-static int blkzone_reset(struct blkzone_control *ctl);
++static int blkzone_action(struct blkzone_control *ctl);
+ 
+ struct blkzone_command {
+ 	const char *name;
+@@ -71,9 +84,28 @@ struct blkzone_control {
+ 
+ static const struct blkzone_command commands[] = {
+ 	{ "report",	blkzone_report, N_("Report zone information about the given device") },
+-	{ "reset",	blkzone_reset,  N_("Reset a range of zones.") }
++	{ "reset",	blkzone_action, N_("Reset a range of zones.") },
++	{ "open",	blkzone_action, N_("Open a range of zones.") },
++	{ "close",	blkzone_action, N_("Close a range of zones.") },
++	{ "finish",	blkzone_action, N_("Set a range of zones to Full.") }
++};
++
++/*
++ * The action values must match the command index in the command array.
++ */
++enum blkzone_action {
++	BLK_ZONE_NO_ACTION = 0,
++	BLK_ZONE_RESET,
++	BLK_ZONE_OPEN,
++	BLK_ZONE_CLOSE,
++	BLK_ZONE_FINISH,
+ };
+ 
++static enum blkzone_action command_action(const struct blkzone_command *command)
++{
++	return command - &commands[0];
++}
++
+ static const struct blkzone_command *name_to_command(const char *name)
+ {
+ 	size_t i;
+@@ -246,15 +278,41 @@ static int blkzone_report(struct blkzone_control *ctl)
+ }
+ 
+ /*
+- * blkzone reset
++ * blkzone reset, open, close, and finish.
+  */
+-static int blkzone_reset(struct blkzone_control *ctl)
++
++static int blkzone_action(struct blkzone_control *ctl)
+ {
+ 	struct blk_zone_range za = { .sector = 0 };
+ 	unsigned long zonesize;
++	unsigned long ioctl_cmd;
++	const char *ioctl_name;
+ 	uint64_t zlen;
+ 	int fd;
+ 
++	switch (command_action(ctl->command)) {
++	case BLK_ZONE_RESET:
++		ioctl_cmd = BLKRESETZONE;
++		ioctl_name = "BLKRESETZONE";
++		break;
++	case BLK_ZONE_OPEN:
++		ioctl_cmd = BLKOPENZONE;
++		ioctl_name = "BLKOPENZONE";
++		break;
++	case BLK_ZONE_CLOSE:
++		ioctl_cmd = BLKCLOSEZONE;
++		ioctl_name = "BLKCLOSEZONE";
++		break;
++	case BLK_ZONE_FINISH:
++		ioctl_cmd = BLKFINISHZONE;
++		ioctl_name = "BLKFINISHZONE";
++		break;
++	case BLK_ZONE_NO_ACTION:
++		/* fallthrough */
++	default:
++		errx(EXIT_FAILURE, _("Invalid zone action"));
++	}
++
+ 	zonesize = blkdev_chunk_sectors(ctl->devname);
+ 	if (!zonesize)
+ 		errx(EXIT_FAILURE, _("%s: unable to determine zone size"), ctl->devname);
+@@ -288,11 +346,13 @@ static int blkzone_reset(struct blkzone_control *ctl)
+ 	za.sector = ctl->offset;
+ 	za.nr_sectors = zlen;
+ 
+-	if (ioctl(fd, BLKRESETZONE, &za) == -1)
+-		err(EXIT_FAILURE, _("%s: BLKRESETZONE ioctl failed"), ctl->devname);
++	if (ioctl(fd, ioctl_cmd, &za) == -1)
++		err(EXIT_FAILURE, _("%s: %s ioctl failed"),
++		    ctl->devname, ioctl_name);
+ 	else if (ctl->verbose)
+-		printf(_("%s: successfully reset in range from %" PRIu64 ", to %" PRIu64),
++		printf(_("%s: successfully %s zones in range from %" PRIu64 ", to %" PRIu64),
+ 			ctl->devname,
++			ctl->command->name,
+ 			ctl->offset,
+ 			ctl->offset + zlen);
+ 	close(fd);
+-- 
+2.25.1
+
