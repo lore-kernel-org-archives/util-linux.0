@@ -1,80 +1,105 @@
-Return-Path: <SRS0=LCHA=5K=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=Ofmp=5L=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A19AC1975A
-	for <util-linux@archiver.kernel.org>; Wed, 25 Mar 2020 16:57:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92B4AC43331
+	for <util-linux@archiver.kernel.org>; Thu, 26 Mar 2020 01:00:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E735420772
-	for <util-linux@archiver.kernel.org>; Wed, 25 Mar 2020 16:57:07 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="I+uypo2z"
+	by mail.kernel.org (Postfix) with ESMTP id 6AF8220714
+	for <util-linux@archiver.kernel.org>; Thu, 26 Mar 2020 01:00:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727006AbgCYQ5H (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 25 Mar 2020 12:57:07 -0400
-Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:48919 "EHLO
-        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726102AbgCYQ5H (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Wed, 25 Mar 2020 12:57:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1585155426;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=1oelcMwp3UqmIiPeFzaBrjn8n5bS9g9btsH1xBLmuoE=;
-        b=I+uypo2zN8+Z/4m/Z2VzDtwEi2KXHuYprhxfsrxeh6dO3cPcqzw25l6FT8R4TX8vCvJkE/
-        NsE7CviuHX5aEesjSOrL5/wg4TGhxXCxN1iGysFTqEWtxt6wnVlYusf0xljQctDKu4LrmZ
-        lHzhcRZWCyEgKJwwFrnFgD17yKI4NLU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-132-a-BAdYGDPGyRFGVrWQpeHw-1; Wed, 25 Mar 2020 12:57:02 -0400
-X-MC-Unique: a-BAdYGDPGyRFGVrWQpeHw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1727556AbgCZBAX (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 25 Mar 2020 21:00:23 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:35899 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727537AbgCZBAX (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 25 Mar 2020 21:00:23 -0400
+X-Greylist: delayed 312 seconds by postgrey-1.27 at vger.kernel.org; Wed, 25 Mar 2020 21:00:22 EDT
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E27D2801E53;
-        Wed, 25 Mar 2020 16:57:00 +0000 (UTC)
-Received: from ws.net.home (unknown [10.40.194.51])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 79F05196AE;
-        Wed, 25 Mar 2020 16:56:59 +0000 (UTC)
-Date:   Wed, 25 Mar 2020 17:56:56 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     Damien Le Moal <Damien.LeMoal@wdc.com>
-Cc:     "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
-        Benno Schulenberg <bensberg@justemail.net>,
-        Aravind Ramesh <Aravind.Ramesh@wdc.com>,
-        Hans Holmberg <Hans.Holmberg@wdc.com>
-Subject: Re: [PATCH v2] blkzone: add open/close/finish commands
-Message-ID: <20200325165656.ohypo52rj5zlgiqx@ws.net.home>
-References: <20200324100217.47549-1-damien.lemoal@wdc.com>
- <20200325113604.j7qlb7zdzm2azxjm@ws.net.home>
- <CO2PR04MB2343A0A15DAB638F4989CA22E7CE0@CO2PR04MB2343.namprd04.prod.outlook.com>
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id D381B5612D2
+        for <util-linux@vger.kernel.org>; Thu, 26 Mar 2020 01:55:06 +0100 (CET)
+Received: by mail-pg1-f182.google.com with SMTP id b22so2018756pgb.6
+        for <util-linux@vger.kernel.org>; Wed, 25 Mar 2020 17:55:06 -0700 (PDT)
+X-Gm-Message-State: ANhLgQ3DzxWgpampvuQnrOWI9Di9L3BHpUhY6ky5h60lgdoqK54ZA3Ij
+        8dHmxU2nj76DyByDhyX3xTxY1Gg3OrhDG8fXyVg=
+X-Google-Smtp-Source: ADFU+vtJtCX/ZsgRcKKcMNjiHJW/u6wdCI8Bk0+0+yX++SQIk0zNcQ2pLmGNAHgYx3nUbWVCyNk4sn8fbU6jEjiBW/0=
+X-Received: by 2002:a62:18cf:: with SMTP id 198mr6370579pfy.277.1585184105025;
+ Wed, 25 Mar 2020 17:55:05 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CO2PR04MB2343A0A15DAB638F4989CA22E7CE0@CO2PR04MB2343.namprd04.prod.outlook.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+References: <20200324212625.6934-1-orel@melix.net> <20200325111049.jypz2csy2hqxoegr@ws.net.home>
+In-Reply-To: <20200325111049.jypz2csy2hqxoegr@ws.net.home>
+From:   =?UTF-8?Q?Aur=C3=A9lien_Lajoie?= <orel@melix.net>
+Date:   Thu, 26 Mar 2020 01:54:53 +0100
+X-Gmail-Original-Message-ID: <CAA0A08Vj3Kdfa2ny9hiknosSZ-Auzz7zeCCcchiH5_EHRLNN-Q@mail.gmail.com>
+Message-ID: <CAA0A08Vj3Kdfa2ny9hiknosSZ-Auzz7zeCCcchiH5_EHRLNN-Q@mail.gmail.com>
+Subject: Re: [PATCH] libuuid: improve uuid_unparse() performance
+To:     util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Thu Mar 26 01:55:07 2020 +0100 (CET))
+X-Org-Mail: aurelien.lajoie.2000@polytechnique.org
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, Mar 25, 2020 at 03:12:04PM +0000, Damien Le Moal wrote:
-> I just sent a V3 of the full patch with this cleanup.
-> Did you prefer an incremental change ?
-> (I did not see that you said you applied v2 above... Thanks !)
+On Wed, Mar 25, 2020 at 12:11 PM Karel Zak <kzak@redhat.com> wrote:
+>
+> On Tue, Mar 24, 2020 at 10:26:25PM +0100, Aurelien LAJOIE wrote:
+> > There is 2 improvements:
+> >
+> >  * remove useless uuid_unpack,
+> >  * directly print the hexa format from memory without using printf
+> >    we can do this as the bytes order is the network byte order
+>
+> I'm not sure, but are you sure that whole UUID is in big-endian order?
+> I think that last part (aka "node", 6 bytes) is not subject to swapping.
+> It seems uuid_unpack() does nothing with the last part of the UUID.
+>
+> But your patch works on LE as well as on BE, so I probably miss
+> something :-)
+The RFC is quite clear on this "with each field encoded with the Most
+Significant Byte first"
+https://tools.ietf.org/html/rfc4122#section-4.1.2
 
-No problem, I'll generate the diff locally. Thanks.
+I agree this is not clear for the node part
+>From the RFC node should be an unsigned 48 bit integer
 
-    Karel
+The parsing is done byte per byte
+        for (i=0; i < 6; i++) {
+                buf[0] = *cp++;
+                buf[1] = *cp++;
+                uuid.node[i] = strtoul(buf, NULL, 16);
+        }
+Then the sprintf is also done byte per byte.
+So Big Endian and the swapping are hidden by the manipulation byte per byte
+I cannot find any usage of the node field to set specific value only random.
+As long the node is handled byte per byte it will work.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+>
+> > before took 382623 us
+> > after  took  36740 us
+> >
+> > Big Endian OpenBSD:
+> > before took 3138172 us
+> > after  took  180116 us
+>
+> I guess all this is about sprintf(), another way would be to use
+> uuid_unpack() but avoid sprintf().
+
+Using uuid_unpack to fill a struct uuid, will trigger to handle the
+endianness to print it
+whereas uuid_t is matching the order needed to print it.
+>
+>     Karel
+>
+> --
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
+>
 
