@@ -2,78 +2,133 @@ Return-Path: <SRS0=Ofmp=5L=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CB21C2D0E8
-	for <util-linux@archiver.kernel.org>; Thu, 26 Mar 2020 10:35:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D514C43331
+	for <util-linux@archiver.kernel.org>; Thu, 26 Mar 2020 14:39:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4C6D320787
-	for <util-linux@archiver.kernel.org>; Thu, 26 Mar 2020 10:35:29 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OPXrGPEX"
+	by mail.kernel.org (Postfix) with ESMTP id EC039206F8
+	for <util-linux@archiver.kernel.org>; Thu, 26 Mar 2020 14:38:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727560AbgCZKf3 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 26 Mar 2020 06:35:29 -0400
-Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:41061 "EHLO
-        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727721AbgCZKf2 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Thu, 26 Mar 2020 06:35:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1585218928;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=SlsV3xH6oDiFRLCR2S4lDrX/c0mF4ELLGN8dv63Kl6U=;
-        b=OPXrGPEXTcZhsV5Uyt3BgclI8r9OC4J35dRUDp/hpoEZhIRehK//UlleAbuDG8gYPMPrFM
-        VwSDeXtlL4/axZWkZiUgI9FaO+WXp8ZnNO/P/7tI9LYJgDm5KVa1ERuntt4VWiGdq1L2J0
-        PNfMdq6aZinmUhkyRu/vtPXeMbH0pus=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-434-iriIhn6zNmuOy9bOc1B2lA-1; Thu, 26 Mar 2020 06:35:23 -0400
-X-MC-Unique: iriIhn6zNmuOy9bOc1B2lA-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1727815AbgCZOi7 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 26 Mar 2020 10:38:59 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:49698 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726270AbgCZOi7 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 26 Mar 2020 10:38:59 -0400
+Received: from localhost.localdomain (i19-les04-th2-31-36-16-7.sfr.lns.abo.bbox.fr [31.36.16.7])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 665BC107ACC4;
-        Thu, 26 Mar 2020 10:35:22 +0000 (UTC)
-Received: from ws.net.home (unknown [10.40.194.51])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id D805419925;
-        Thu, 26 Mar 2020 10:35:20 +0000 (UTC)
-Date:   Thu, 26 Mar 2020 11:35:18 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     Damien Le Moal <damien.lemoal@wdc.com>
-Cc:     util-linux@vger.kernel.org,
-        Benno Schulenberg <bensberg@justemail.net>,
-        Aravind Ramesh <Aravind.Ramesh@wdc.com>,
-        Hans Holmnerg <Hans.Holmberg@wdc.com>
-Subject: Re: [PATCH v3] blkzone: add open/close/finish commands
-Message-ID: <20200326103518.w2wi3f5uetlk5amx@ws.net.home>
-References: <20200325150952.326707-1-damien.lemoal@wdc.com>
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 2CD5C5648AD;
+        Thu, 26 Mar 2020 15:38:52 +0100 (CET)
+From:   Aurelien LAJOIE <orel@melix.net>
+To:     util-linux@vger.kernel.org
+Cc:     Aurelien LAJOIE <orel@melix.net>
+Subject: [PATCH v2] libuuid: improve uuid_unparse() performance
+Date:   Thu, 26 Mar 2020 15:38:27 +0100
+Message-Id: <20200326143827.25879-1-orel@melix.net>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200325150952.326707-1-damien.lemoal@wdc.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Transfer-Encoding: 8bit
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Thu Mar 26 15:38:52 2020 +0100 (CET))
+X-Org-Mail: aurelien.lajoie.2000@polytechnique.org
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Thu, Mar 26, 2020 at 12:09:52AM +0900, Damien Le Moal wrote:
->  sys-utils/blkzone.8 | 27 +++++++++++++++++---
->  sys-utils/blkzone.c | 61 +++++++++++++++++++++++++++++++++++++++------
->  2 files changed, 77 insertions(+), 11 deletions(-)
+There is 2 improvements:
 
-Applied as a diff, thanks.
-https://github.com/karelzak/util-linux/commit/46cf662532ef4e924a3478f2e474b619caf141df
+ * remove useless uuid_unpack,
+ * directly print the hexa format from memory without using printf
+   we can do this as the bytes order is the network byte order
+   https://tools.ietf.org/html/rfc4122#section-4.1.2
+   even the spatially unique node identifier(the last 6 bytes)
 
-    Karel
+The improvement is important, some results for 1000000 uuid_unparse calls:
 
+Little Endian Ubuntu:
+before took 382623 us
+after  took  36740 us
+
+Big Endian OpenBSD:
+before took 3138172 us
+after  took  180116 us
+
+Signed-off-by: Aurelien LAJOIE <orel@melix.net>
+---
+ libuuid/src/unparse.c | 45 ++++++++++++++++++++-----------------------
+ 1 file changed, 21 insertions(+), 24 deletions(-)
+
+diff --git a/libuuid/src/unparse.c b/libuuid/src/unparse.c
+index a95bbb042..0e7e8eae4 100644
+--- a/libuuid/src/unparse.c
++++ b/libuuid/src/unparse.c
+@@ -36,41 +36,38 @@
+ 
+ #include "uuidP.h"
+ 
+-static const char *fmt_lower =
+-	"%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x";
++static char const hexdigits_lower[16] = "0123456789abcdef";
++static char const hexdigits_upper[16] = "0123456789ABCDEF";
+ 
+-static const char *fmt_upper =
+-	"%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X";
+-
+-#ifdef UUID_UNPARSE_DEFAULT_UPPER
+-#define FMT_DEFAULT fmt_upper
+-#else
+-#define FMT_DEFAULT fmt_lower
+-#endif
+-
+-static void uuid_unparse_x(const uuid_t uu, char *out, const char *fmt)
++static void uuid_fmt(const uuid_t uuid, char *buf, char const fmt[restrict])
+ {
+-	struct uuid uuid;
++	char *p = buf;
+ 
+-	uuid_unpack(uu, &uuid);
+-	sprintf(out, fmt,
+-		uuid.time_low, uuid.time_mid, uuid.time_hi_and_version,
+-		uuid.clock_seq >> 8, uuid.clock_seq & 0xFF,
+-		uuid.node[0], uuid.node[1], uuid.node[2],
+-		uuid.node[3], uuid.node[4], uuid.node[5]);
++	for (int i = 0; i < 16; i++) {
++		if (i == 4 || i == 6 || i == 8 || i == 10) {
++			*p++ = '-';
++		}
++		size_t tmp = uuid[i];
++		*p++ = fmt[tmp >> 4];
++		*p++ = fmt[tmp & 15];
++	}
++	*p = '\0';
+ }
+ 
+ void uuid_unparse_lower(const uuid_t uu, char *out)
+ {
+-	uuid_unparse_x(uu, out,	fmt_lower);
++	uuid_fmt(uu, out, hexdigits_lower);
+ }
+ 
+ void uuid_unparse_upper(const uuid_t uu, char *out)
+ {
+-	uuid_unparse_x(uu, out,	fmt_upper);
++	uuid_fmt(uu, out, hexdigits_upper);
+ }
+ 
++#ifdef UUID_UNPARSE_DEFAULT_UPPER
+ void uuid_unparse(const uuid_t uu, char *out)
+-{
+-	uuid_unparse_x(uu, out, FMT_DEFAULT);
+-}
++	__attribute__((alias("uuid_unparse_upper")));
++#else
++void uuid_unparse(const uuid_t uu, char *out)
++	__attribute__((alias("uuid_unparse_lower")));
++#endif
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.20.1
 
