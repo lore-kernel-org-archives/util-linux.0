@@ -2,87 +2,78 @@ Return-Path: <SRS0=Ofmp=5L=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1E0BC43331
-	for <util-linux@archiver.kernel.org>; Thu, 26 Mar 2020 02:13:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CB21C2D0E8
+	for <util-linux@archiver.kernel.org>; Thu, 26 Mar 2020 10:35:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C60E020737
-	for <util-linux@archiver.kernel.org>; Thu, 26 Mar 2020 02:13:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4C6D320787
+	for <util-linux@archiver.kernel.org>; Thu, 26 Mar 2020 10:35:29 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OPXrGPEX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727665AbgCZCNu convert rfc822-to-8bit (ORCPT
-        <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 25 Mar 2020 22:13:50 -0400
-Received: from mail-vk1-f194.google.com ([209.85.221.194]:44996 "EHLO
-        mail-vk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727575AbgCZCNu (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 25 Mar 2020 22:13:50 -0400
-Received: by mail-vk1-f194.google.com with SMTP id s194so1282909vkb.11
-        for <util-linux@vger.kernel.org>; Wed, 25 Mar 2020 19:13:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=3RVUK3NsKW4dplRgnoB3R2BWTklFBH1U/NnOmUhYgiM=;
-        b=D9SgbCLaiLCujax++tDMbAKxy5nE6W/Yrrq0gCY3D4p0HCPn1cJ5LyGJH2cbhRc2M1
-         Ze81fNHMu00FaxZrI7Wg5YGbe0/mIIvTNpwVHoehM+bqWNm0ztU9yf5mReZ2lwAmJfaL
-         RXZqsrs28Hr0m4J6lmPmRSP8MCRUd2hS2hqwreiMTzNGD3pI2HFR8C77Rm6bq/6WS0uF
-         8IKQoVo7hrC+AFLTZm9/jpV3Unlrnukz4he5XvgvrKPcz5X+gNHWSmun7S2SeyTCKxPz
-         JETObROhxsVqiB6kcJ9FMX8atCF1W8JLxsbodYqA8y19zTtV8e9lwPseZCvhT09PvEmF
-         5O9A==
-X-Gm-Message-State: ANhLgQ1r228yBXEAs2uGWicTNxQRi/8wvxlGCWiE206OWilpjfnufx8n
-        Ty5LBCwnvrqLM7AXXiNUQjnbYE1HyNvSu6aiTExhwx5d
-X-Google-Smtp-Source: ADFU+vsgXBx99g+/rQSwoQ+ojSLAOl7QUJzyU8oPlMe3qhv+kQRk2yVKjbhrFr8+rq3sh/eUKDrnp6THH3gPuaodayk=
-X-Received: by 2002:a05:6122:2d0:: with SMTP id k16mr4732169vki.54.1585188829200;
- Wed, 25 Mar 2020 19:13:49 -0700 (PDT)
+        id S1727560AbgCZKf3 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 26 Mar 2020 06:35:29 -0400
+Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:41061 "EHLO
+        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727721AbgCZKf2 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Thu, 26 Mar 2020 06:35:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1585218928;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=SlsV3xH6oDiFRLCR2S4lDrX/c0mF4ELLGN8dv63Kl6U=;
+        b=OPXrGPEXTcZhsV5Uyt3BgclI8r9OC4J35dRUDp/hpoEZhIRehK//UlleAbuDG8gYPMPrFM
+        VwSDeXtlL4/axZWkZiUgI9FaO+WXp8ZnNO/P/7tI9LYJgDm5KVa1ERuntt4VWiGdq1L2J0
+        PNfMdq6aZinmUhkyRu/vtPXeMbH0pus=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-434-iriIhn6zNmuOy9bOc1B2lA-1; Thu, 26 Mar 2020 06:35:23 -0400
+X-MC-Unique: iriIhn6zNmuOy9bOc1B2lA-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 665BC107ACC4;
+        Thu, 26 Mar 2020 10:35:22 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.194.51])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id D805419925;
+        Thu, 26 Mar 2020 10:35:20 +0000 (UTC)
+Date:   Thu, 26 Mar 2020 11:35:18 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     Damien Le Moal <damien.lemoal@wdc.com>
+Cc:     util-linux@vger.kernel.org,
+        Benno Schulenberg <bensberg@justemail.net>,
+        Aravind Ramesh <Aravind.Ramesh@wdc.com>,
+        Hans Holmnerg <Hans.Holmberg@wdc.com>
+Subject: Re: [PATCH v3] blkzone: add open/close/finish commands
+Message-ID: <20200326103518.w2wi3f5uetlk5amx@ws.net.home>
+References: <20200325150952.326707-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
-References: <20200324212625.6934-1-orel@melix.net> <CA+bjHUQtPfk5vDNbxSbxPzashLNG+MdLzy8HtZLbsOJ0C_fnzQ@mail.gmail.com>
- <CAA0A08WYct_BhybReWMkK_LXBS2L0DmmyNh2W8cp=kys9Q0R7g@mail.gmail.com>
-In-Reply-To: <CAA0A08WYct_BhybReWMkK_LXBS2L0DmmyNh2W8cp=kys9Q0R7g@mail.gmail.com>
-From:   Peter Cordes <peter@cordes.ca>
-Date:   Wed, 25 Mar 2020 23:13:38 -0300
-Message-ID: <CA+bjHURiQDMEp2UzxUX4ceop+o3Ebzr1z4zfSZWJDcaYTyN6Dg@mail.gmail.com>
-Subject: Re: [PATCH] libuuid: improve uuid_unparse() performance
-To:     =?UTF-8?Q?Aur=C3=A9lien_Lajoie?= <orel@melix.net>
-Cc:     util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200325150952.326707-1-damien.lemoal@wdc.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, Mar 25, 2020 at 10:07 PM Aurélien Lajoie <orel@melix.net> wrote:
->
-> On Wed, Mar 25, 2020 at 3:16 PM Peter Cordes <peter@cordes.ca> wrote:
-> > If you really are bottlenecking on UUID throughput, see my SIMD answer
-> > on https://stackoverflow.com/questions/53823756/how-to-convert-a-binary-integer-number-to-a-hex-string
-> > with x86 SSE2 (baseline for x86-64), SSSE3, AVX2 variable-shift, and
-> > AVX512VBMI integer -> hex manual vectorization
->
-> I will take a look at it, but in a second time, I get your idea.
-> I am not familiar with this, nice way to jumb on SIMD operations.
+On Thu, Mar 26, 2020 at 12:09:52AM +0900, Damien Le Moal wrote:
+>  sys-utils/blkzone.8 | 27 +++++++++++++++++---
+>  sys-utils/blkzone.c | 61 +++++++++++++++++++++++++++++++++++++++------
+>  2 files changed, 77 insertions(+), 11 deletions(-)
 
-I can write that code with _mm_cmpgt_epi8 intrinsics from immintrin.h
-if libuuid actually wants a patch add an #ifdef __SSE2__ version that
-x86-64 can use all the time instead of the scalar version.  I'm very
-familiar with x86 SIMD intrinsics so it would be easy for me to write
-the code I'm already imagining in my head.  But it might not be worth
-the trouble if it won't get merged because nobody wants to maintain
-it.
+Applied as a diff, thanks.
+https://github.com/karelzak/util-linux/commit/46cf662532ef4e924a3478f2e474b619caf141df
 
- Also __SSSE3__,  __AVX2__, and __AVX512VBMI__ versions if we want
-them, but those would only get enabled for people compiling libuuid
-with  -march=native on their machines, or stuff like that.
+    Karel
 
-Or we could even to runtime CPU detection to set a function pointer to
-the version that's best for the current CPU.  SSSE3 helps a lot (byte
-shuffle as a hexdigit LUT, and to line up data for the '-' gaps).  And
-AVX512VBMI is fantastic for this on IceLake client/server.  It's only
-called internally so we don't need to use the dynamic-link-time CPU
-detection that glibc uses to resolve memset to for example
-__memset_avx2_unaligned_erms, using a custom symbol resolver function.
-We can see how much speedup we get from using more than SSE2 and
-decide if it's worth the trouble.
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
