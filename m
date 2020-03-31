@@ -2,95 +2,77 @@ Return-Path: <SRS0=mypX=5Q=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 422AAC2D0F1
-	for <util-linux@archiver.kernel.org>; Tue, 31 Mar 2020 16:44:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C543C43331
+	for <util-linux@archiver.kernel.org>; Tue, 31 Mar 2020 16:55:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 170AE206CC
-	for <util-linux@archiver.kernel.org>; Tue, 31 Mar 2020 16:44:32 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b3MmZjG3"
+	by mail.kernel.org (Postfix) with ESMTP id EA405206CC
+	for <util-linux@archiver.kernel.org>; Tue, 31 Mar 2020 16:55:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731189AbgCaQob (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 31 Mar 2020 12:44:31 -0400
-Received: from mail-oi1-f196.google.com ([209.85.167.196]:35999 "EHLO
-        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730442AbgCaQob (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 31 Mar 2020 12:44:31 -0400
-Received: by mail-oi1-f196.google.com with SMTP id k18so19515015oib.3
-        for <util-linux@vger.kernel.org>; Tue, 31 Mar 2020 09:44:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=6gZujJ+mehG1CjGdI8pnbUp0KNPiJxyJwKXtxpX+pjs=;
-        b=b3MmZjG3bQRk31Rk+f3RoohLTWwcocLjU44GCy60FiQm3AdHOwFoqHfxS/CqZiYJwD
-         wYOUbPh0/3rjZyzC/HNVjhq4OCVe30xZOXLHWKc1diXxWTLkcO3U4wsOcWfVrePT9vrR
-         iVkhW10eHcWnYu2hdTI8ozYmzLLQR1GgUG/7n8NtKejGRWh0DGUJ2AAe6K/2vaCdPf3q
-         +hfJgzEkOxtNii5IdM8L1oUuczY9eT5EVyF2dhZD3yYGzrCZquHPHYwqjlWtedq9Wj1C
-         CFxGBCOeFd81xzw52Xuo+UPTR4q3HW/No0Z97wM+x20HFehmgUWQq2T/jGLEUSs2lk36
-         TBnw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=6gZujJ+mehG1CjGdI8pnbUp0KNPiJxyJwKXtxpX+pjs=;
-        b=FzdMX62Dd7CuU3At1j449lLyR17izP9mg5VTzkt6lTgUOhtYNXQzSeA26rCo5sb/nN
-         lpCXV5QhYIeceJan2N1L96ntBO90sauLLle6jzxR95QhYt4rYjUtmP0uJsUAfvaRqYsS
-         0W0rNYWMA7dHsDB/gJAOUkbB5O0aJ80BiPJhEtwWR0atrDj+kcr1RVUgRlGeqJQSUpJl
-         qdYBEokwre7thRa97QaAZX57RyVZ53gqYXndGDJJbAMIs6PMJbftwAfECZ26l7Ui2SYX
-         xwqWwBweslDIKXoAK7jEbw6pWIpnKIBA7wPfOs34Moimsg/4hBMhQ8B+8jfDv0mxMC2s
-         qmWQ==
-X-Gm-Message-State: ANhLgQ1i4RW/ttY7XitAE5cdTYzdTSZTwSSf963z+B25ALUyoyGakDg/
-        Q4VahrUxV47qXTXXb+p8szCfkkWa
-X-Google-Smtp-Source: ADFU+vvdrTpHfvhxW5W6NPZYYCYKU8NQMu2Ya0tbT3+buEAsujOwnthWmZ/q3mC8n8khUYsD/vJrMg==
-X-Received: by 2002:aca:310a:: with SMTP id x10mr2584191oix.151.1585673070622;
-        Tue, 31 Mar 2020 09:44:30 -0700 (PDT)
-Received: from [192.168.0.91] (cpe-70-123-227-116.satx.res.rr.com. [70.123.227.116])
-        by smtp.gmail.com with ESMTPSA id k11sm5349313otj.25.2020.03.31.09.44.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 31 Mar 2020 09:44:29 -0700 (PDT)
-Subject: Re: [PATCH 2/3] cal: Correctly center the year
-To:     Karel Zak <kzak@redhat.com>, J William Piggott <elseifthen@gmx.com>
-Cc:     Aurelien LAJOIE <orel@melix.net>, util-linux@vger.kernel.org
-References: <20200328223341.11463-1-orel@melix.net>
- <20200328223341.11463-2-orel@melix.net>
- <nycvar.YAK.7.77.849.2003291015150.1315@zhn.tzk.pbz>
- <20200331134154.ok6zuym6w5p5sa2o@ws.net.home>
-From:   Bruce Dubbs <bruce.dubbs@gmail.com>
-Message-ID: <5ede644d-b128-d0b3-aacf-663a7036b346@gmail.com>
-Date:   Tue, 31 Mar 2020 11:44:28 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        id S1730442AbgCaQz0 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 31 Mar 2020 12:55:26 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:58066 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730099AbgCaQz0 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 31 Mar 2020 12:55:26 -0400
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 92ACF560787
+        for <util-linux@vger.kernel.org>; Tue, 31 Mar 2020 18:55:22 +0200 (CEST)
+Received: by mail-pl1-f171.google.com with SMTP id w3so8331199plz.5
+        for <util-linux@vger.kernel.org>; Tue, 31 Mar 2020 09:55:22 -0700 (PDT)
+X-Gm-Message-State: AGi0PuZOboqFfH+oZf+HVABEDfoi8mDSj2ZUTAJf61T5CoIkwdxTp/Kt
+        WcVNmXJNm0GdiJnKwkWel4PTpQUzB9NM0XWAcD0=
+X-Google-Smtp-Source: APiQypKtsNPhwzsKj+a16hokWs0jRVbaYcUSvgT+pQXOOcfQvAnwbZDU+rRX/d7aHdd+6+37XQaiHK4xLuzk64XeMSI=
+X-Received: by 2002:a17:90a:1b22:: with SMTP id q31mr5227630pjq.109.1585673720806;
+ Tue, 31 Mar 2020 09:55:20 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200331134154.ok6zuym6w5p5sa2o@ws.net.home>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200328223341.11463-1-orel@melix.net> <20200328223341.11463-2-orel@melix.net>
+ <nycvar.YAK.7.77.849.2003291015150.1315@zhn.tzk.pbz> <20200331134154.ok6zuym6w5p5sa2o@ws.net.home>
+ <nycvar.YAK.7.77.849.2003311031020.1544@zhn.tzk.pbz>
+In-Reply-To: <nycvar.YAK.7.77.849.2003311031020.1544@zhn.tzk.pbz>
+From:   =?UTF-8?Q?Aur=C3=A9lien_Lajoie?= <orel@melix.net>
+Date:   Tue, 31 Mar 2020 18:55:09 +0200
+X-Gmail-Original-Message-ID: <CAA0A08WGSa1CxbtHt_qZHPStKcgoW37+KaYrZ9mqUUqKv4Bk7A@mail.gmail.com>
+Message-ID: <CAA0A08WGSa1CxbtHt_qZHPStKcgoW37+KaYrZ9mqUUqKv4Bk7A@mail.gmail.com>
+Subject: Re: [PATCH 2/3] cal: Correctly center the year
+To:     util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Mar 31 18:55:23 2020 +0200 (CEST))
+X-Org-Mail: aurelien.lajoie.2000@polytechnique.org
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On 3/31/20 8:41 AM, Karel Zak wrote:
-> On Sun, Mar 29, 2020 at 10:39:51AM -0400, J William Piggott wrote:
->> I still believe the year header is nonsense. IIRC, when I brought this
->> up last time nobody replied with any justification for it.
-> 
-> Backward compatibility? I personally have no problem with the year
-> number in "cal -y" output.
-> 
-> I don't think we can create output which will be esthetic enough
-> for everyone, but we can introduce --noyear-header if it will make
-> cal(1) more useful for you.
+On Tue, Mar 31, 2020 at 5:07 PM J William Piggott <elseifthen@gmx.com> wrote:
+>
+> It seems like this trend stems from Apple. Jobs was fanatical about
+> form; but what seems have been lost, is that he was equally fanatical
+> about function. He required that both be satisfied. I cannot find any
+> function in cal's year header. Can anyone offer any?
 
-Why?  A user can pipe the output through something like 'sed -e 1d' 
-instead of changing the code for everyone.
+I was not thinking triggering such discussion about cal.
 
-   -- Bruce
+I don't know if my argument is a good one, reading the code I have found that
+ for some locale the room available is not enough to put the month and
+the year on a single line.
+
+If someone can give me example of one or two locales with this issue
+to do some test, I will appreciate it.
+
+So I think for such locale it is better to have the year only at the top.
+
+And this behavior is closed to the physical calendar and classic year
+calendar as you can see on google image "year calendar" search.
+
+So I think we can keep it as it and add an option to change the
+behavior (--noyear-header as Karel has proposed)
+
+What do you think about adding options -A and -B as in ncal ?
+[-A months] [-B months]
 
