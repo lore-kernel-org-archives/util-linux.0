@@ -2,85 +2,83 @@ Return-Path: <SRS0=zPEu=5R=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A1DAC43331
-	for <util-linux@archiver.kernel.org>; Wed,  1 Apr 2020 10:06:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC54BC43331
+	for <util-linux@archiver.kernel.org>; Wed,  1 Apr 2020 11:10:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D1CB62078B
-	for <util-linux@archiver.kernel.org>; Wed,  1 Apr 2020 10:06:18 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Y+F5CaSD"
+	by mail.kernel.org (Postfix) with ESMTP id 85E4020776
+	for <util-linux@archiver.kernel.org>; Wed,  1 Apr 2020 11:10:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727386AbgDAKGS (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 1 Apr 2020 06:06:18 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:30815 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726445AbgDAKGS (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 1 Apr 2020 06:06:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1585735577;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=DBhkViIk8PhvccrW+/qS1nkKMlcdH/F0VDsrUQUgZWM=;
-        b=Y+F5CaSDrEhJh7EB5PBAC1cV2dHoTr/XaeL94LAEBbvzImR+vf/EiuzZM4Juxi5/WoraEo
-        OmzySI86crGTmVSDqnvYeXIlhn6S+hPhmL6inzoY0wNuLOq0V/Fn9FHAJe7w8wdVitupil
-        Ql+hkLRWX7ogxC1fzkfVFD5ESk0vDvA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-74-77x4C72oOGejSjpeBEYfqQ-1; Wed, 01 Apr 2020 06:06:15 -0400
-X-MC-Unique: 77x4C72oOGejSjpeBEYfqQ-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C71EB805749;
-        Wed,  1 Apr 2020 10:05:59 +0000 (UTC)
-Received: from ws.net.home (unknown [10.40.194.51])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id C860DDA10D;
-        Wed,  1 Apr 2020 10:05:58 +0000 (UTC)
-Date:   Wed, 1 Apr 2020 12:05:56 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     Peter Cordes <peter@cordes.ca>
-Cc:     Aurelien LAJOIE <orel@melix.net>, util-linux@vger.kernel.org
-Subject: Re: [PATCH v2] libuuid: improve uuid_unparse() performance
-Message-ID: <20200401100556.ccc2p5mmtn7zqmxw@ws.net.home>
-References: <20200326143827.25879-1-orel@melix.net>
- <20200401083103.ipberscb6yzvpu4r@ws.net.home>
- <CA+bjHUSbRp7G=4C-_m9WR+OCLFZAyN0p85UH4R5m13w5YXWYgg@mail.gmail.com>
- <20200401100005.tuamlrlrujfzr7yd@ws.net.home>
+        id S1732006AbgDALKD (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 1 Apr 2020 07:10:03 -0400
+Received: from mail-vs1-f67.google.com ([209.85.217.67]:45064 "EHLO
+        mail-vs1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731343AbgDALKD (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 1 Apr 2020 07:10:03 -0400
+Received: by mail-vs1-f67.google.com with SMTP id x82so15516772vsc.12
+        for <util-linux@vger.kernel.org>; Wed, 01 Apr 2020 04:10:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=H2vxuNIwW4+MlX8ZhO7JmZoibYZVx33lTxlPNmbPw0A=;
+        b=VaQG1C9n8YzfMbVMaRBLyi/SvD6dnexBF3CP3G9UOBhFwzAh5UbyIFr1sNp+XA3cvQ
+         k6bHYIdfYVfHy+WtxtLaxDqs8rGwqJ/LzxEG8dWTstSPys3RQUomQJV4igP6ye7njZhW
+         n39yJRxLF5S84ghofgjVPDEz8WUOzW7IRlgcy1KEKbKroH95nB1h/0I4CATvbu9eGXu6
+         9lbvWjWemtGophdys1HuC2eVmS/9SkFheT8p7i/7rJndvJG7hSohvZnGAEZG6FUR5R92
+         lzQVsYNImT9Otmhy2NMyjItnUviLJ/b7u9eNRp8IR9SCQFYZe3NBBc7RLlIfvKdDQzcV
+         LRfw==
+X-Gm-Message-State: AGi0PuZA7qcwaFsrrCRKqSesZKS/no1M5rBZoNnwAE71cRboKZzsrPEy
+        UlICuG03NdR4MsjNVjo03POYUXmIuuOtQcx2M/Q=
+X-Google-Smtp-Source: APiQypLVWOXNb3j+ef/jnhTZC6Rdb4vJejSDrAmvKTtZFScCYglAJLv6TrhNBjG5tfEpVrpCCLshiIWscRihvHs37J4=
+X-Received: by 2002:a67:b01:: with SMTP id 1mr3814457vsl.181.1585739402210;
+ Wed, 01 Apr 2020 04:10:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200401100005.tuamlrlrujfzr7yd@ws.net.home>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+References: <20200326143827.25879-1-orel@melix.net> <20200401083103.ipberscb6yzvpu4r@ws.net.home>
+ <CA+bjHUSbRp7G=4C-_m9WR+OCLFZAyN0p85UH4R5m13w5YXWYgg@mail.gmail.com>
+ <20200401100005.tuamlrlrujfzr7yd@ws.net.home> <20200401100556.ccc2p5mmtn7zqmxw@ws.net.home>
+In-Reply-To: <20200401100556.ccc2p5mmtn7zqmxw@ws.net.home>
+From:   Peter Cordes <peter@cordes.ca>
+Date:   Wed, 1 Apr 2020 08:09:51 -0300
+Message-ID: <CA+bjHUR6gNZDJ-HOZYiRAK_qsGYfAYWSeC9ZPwZ=uX8xO6Xwpw@mail.gmail.com>
+Subject: Re: [PATCH v2] libuuid: improve uuid_unparse() performance
+To:     Karel Zak <kzak@redhat.com>
+Cc:     Aurelien LAJOIE <orel@melix.net>, util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, Apr 01, 2020 at 12:00:09PM +0200, Karel Zak wrote:
-> On Wed, Apr 01, 2020 at 06:34:06AM -0300, Peter Cordes wrote:
-> > Or can we put the wrapper function in a .h so it can inline away?
-> > That would bake the choice into applications that use libuuid, so you
-> > couldn't change it just by rebuilding libuuid.  That's perhaps not
-> > desirable; if applications wanted to have that choice baked in they
-> > could have called the explicit upper or lower versions.
->  
->  Frankly, what we're trying to fix by the alias? It sounds like
->  premature optimization. The current solution works, maybe foo(bar())
->  is also optimized by compiler. I have doubts that use inline function 
->  in header or so makes a real sense.
+> Frankly, what we're trying to fix by the alias? It sounds like
+ premature optimization.
 
-BTW, would be better to make uuid_fmt() as inline function as we use
-it in uuid_unparse_lower(), uuid_unparse_upper() and uuid_unparse()?
+Reducing static code size / file size of the library by ~190 bytes or
+something like that IIRC for x86-64 for the current version, by
+avoiding a 3rd duplicate of the code (if the compiler inlines
+uuid_fmt()).  Or reducing the cost of forcing it to inline for cases
+where the compiler chooses not to.
 
-    Karel
+On Wed, Apr 1, 2020 at 7:06 AM Karel Zak <kzak@redhat.com> wrote:
+> BTW, would be better to make uuid_fmt() as inline function as we use
+> it in uuid_unparse_lower(), uuid_unparse_upper() and uuid_unparse()?
+>
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+It's already  static.  The compiler is completely free to inline it
+into both (or all 3) callsites, depending on tuning heuristics.  If we
+expect that only one of the 3 will normally be "hot" at the same time,
+then yeah forcing the issue with __attribute__((always_inline)) to
+make sure we don't get a jmp tailcall is nice.
 
+In practice for x86-64, gcc9 -O2 chooses not to inline because it's
+fairly large.  So that would be good for programs that only ever call
+uuid_unparse(), not a mix of upper/lower.
+
+static inline would make zero difference, unless that keyword also
+affects GCC's / clang's inlining heuristics as well as telling it that
+a definition will be visible for any other compilation unit, so the
+compiler doesn't need to emit a stand-alone definition if it inlines
+it into all callers. (And nothing takes its address, etc.)
