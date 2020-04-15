@@ -1,138 +1,93 @@
-Return-Path: <SRS0=eIzx=56=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=c7ae=57=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 048EEC352BE
-	for <util-linux@archiver.kernel.org>; Tue, 14 Apr 2020 20:18:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58A83C3815B
+	for <util-linux@archiver.kernel.org>; Wed, 15 Apr 2020 07:08:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E03EB206E9
-	for <util-linux@archiver.kernel.org>; Tue, 14 Apr 2020 20:18:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 39A5520768
+	for <util-linux@archiver.kernel.org>; Wed, 15 Apr 2020 07:08:22 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="COYgSvhW"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2632987AbgDNUSd convert rfc822-to-8bit (ORCPT
-        <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 14 Apr 2020 16:18:33 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:50541 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2632993AbgDNUS2 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Apr 2020 16:18:28 -0400
-Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S2404457AbgDOHIV (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 15 Apr 2020 03:08:21 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:45826 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2404415AbgDOHIS (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 15 Apr 2020 03:08:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1586934497;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=4uNc9ZPD5yV6zDgguZ1dFlb25HnGYyR+qhlhiJC+qTE=;
+        b=COYgSvhW5/5iyOe2qN2uJrljZxIfKbr19kQ8ZgTPPf20P0K1IPq02caSmT/Us2LOfaZTYA
+        orqofN1Sk1A2mqvr4cHwAJ2sLLrdzvukBv6qufKDEX3p+oRC697oKe8rQ//Eb7WVyAXjKF
+        ghsBYNxNzbUIisPPFCtzEX+eJDRcNEU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-153-WoNvOwUvO-mWTT4oKea7Lg-1; Wed, 15 Apr 2020 03:08:15 -0400
+X-MC-Unique: WoNvOwUvO-mWTT4oKea7Lg-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 57AAB5612C0
-        for <util-linux@vger.kernel.org>; Tue, 14 Apr 2020 22:18:24 +0200 (CEST)
-Received: by mail-pf1-f180.google.com with SMTP id x3so449713pfp.7
-        for <util-linux@vger.kernel.org>; Tue, 14 Apr 2020 13:18:24 -0700 (PDT)
-X-Gm-Message-State: AGi0Pubrr01eE9SjB81Z6DsPMZZjZH60YM7uizwIhSSKf/u9iLp/SOA9
-        VS1GuYo2tyrztyjYpfdf08ffZllvMDPFbepVE48=
-X-Google-Smtp-Source: APiQypLzQCBhH/xj4oP9GRxvykCpyjhaazXfBWoCtuF7sKL6/ho4/pryeucIPtxnLa+6Qg1FjNOTTOhYK6snJbONyVo=
-X-Received: by 2002:a62:87c7:: with SMTP id i190mr10305605pfe.326.1586895502490;
- Tue, 14 Apr 2020 13:18:22 -0700 (PDT)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D9A21800D53;
+        Wed, 15 Apr 2020 07:08:14 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.40.192.62])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 233A59F9B0;
+        Wed, 15 Apr 2020 07:08:13 +0000 (UTC)
+From:   Lukas Czerner <lczerner@redhat.com>
+To:     util-linux@vger.kernel.org
+Cc:     Patrick Oppenlander <patrick.oppenlander@gmail.com>
+Subject: [PATCH] blkdiscard: (man) offset and length must be sector aligned
+Date:   Wed, 15 Apr 2020 09:08:12 +0200
+Message-Id: <20200415070812.25574-1-lczerner@redhat.com>
 MIME-Version: 1.0
-References: <CAA0A08U=eWWB5eyxg4vrD_yBdVohqVT0NQfm+DG+wjbZ8HmiZg@mail.gmail.com>
- <20200414113827.xp2etrdev2oom4qc@ws.net.home>
-In-Reply-To: <20200414113827.xp2etrdev2oom4qc@ws.net.home>
-From:   =?UTF-8?Q?Aur=C3=A9lien_Lajoie?= <orel@melix.net>
-Date:   Tue, 14 Apr 2020 22:18:11 +0200
-X-Gmail-Original-Message-ID: <CAA0A08W8JjTYx-ymnsBvbRHBW+WxucobBWVfyt4XdXh7Of8wMA@mail.gmail.com>
-Message-ID: <CAA0A08W8JjTYx-ymnsBvbRHBW+WxucobBWVfyt4XdXh7Of8wMA@mail.gmail.com>
-Subject: Re: cal: column mode
-To:     Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Apr 14 22:18:24 2020 +0200 (CEST))
-X-Org-Mail: aurelien.lajoie.2000@polytechnique.org
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Content-Transfer-Encoding: quoted-printable
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Tue, Apr 14, 2020 at 1:38 PM Karel Zak <kzak@redhat.com> wrote:
->
-> On Mon, Apr 13, 2020 at 10:41:34PM +0200, Aurélien Lajoie wrote:
-> > As I have announced few days ago, I have started to work on ncal like for cal.
-> > I have push a first working version on my github:
-> > https://github.com/utix/util-linux/commits/cal_column
->
-> Is the option --column the best name? We use "column" pretty often to
-> address output in columns or number of columns, etc.
->
-> What about --vertical?
+Update blkdiscard manual page. Length and offset values must be aligned
+to the device sector size.
 
-sure, no preference for me, ( -v is not used )
-How or who decides this kind of stuff (sorry I am a newbie)
+Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+Reported-by: Patrick Oppenlander <patrick.oppenlander@gmail.com>
+---
+ sys-utils/blkdiscard.8 | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> > Does anyone know which locale can have some width issue ?
->
->  LC_ALL=ja_JP.utf8 cal
->
-> or another with multibyte letters.
-ja_JP seems very compact, I think mongolian locale is a good one with month like
-Арванхоёрдугаар сар
-
-ja_JP is:
-                               2020
-
-         1月                    2月                    3月
-日 月 火 水 木 金 土   日 月 火 水 木 金 土   日 月 火 水 木 金 土
-          1  2  3  4                      1    1  2  3  4  5  6  7
- 5  6  7  8  9 10 11    2  3  4  5  6  7  8    8  9 10 11 12 13 14
-12 13 14 15 16 17 18    9 10 11 12 13 14 15   15 16 17 18 19 20 21
-19 20 21 22 23 24 25   16 17 18 19 20 21 22   22 23 24 25 26 27 28
-26 27 28 29 30 31      23 24 25 26 27 28 29   29 30 31
-
-         4月                    5月                    6月
-日 月 火 水 木 金 土   日 月 火 水 木 金 土   日 月 火 水 木 金 土
-          1  2  3  4                   1  2       1  2  3  4  5  6
- 5  6  7  8  9 10 11    3  4  5  6  7  8  9    7  8  9 10 11 12 13
-12 13 14 15 16 17 18   10 11 12 13 14 15 16   14 15 16 17 18 19 20
-19 20 21 22 23 24 25   17 18 19 20 21 22 23   21 22 23 24 25 26 27
-26 27 28 29 30         24 25 26 27 28 29 30   28 29 30
-                       31
-         7月                    8月                    9月
-日 月 火 水 木 金 土   日 月 火 水 木 金 土   日 月 火 水 木 金 土
-          1  2  3  4                      1          1  2  3  4  5
- 5  6  7  8  9 10 11    2  3  4  5  6  7  8    6  7  8  9 10 11 12
-12 13 14 15 16 17 18    9 10 11 12 13 14 15   13 14 15 16 17 18 19
-19 20 21 22 23 24 25   16 17 18 19 20 21 22   20 21 22 23 24 25 26
-26 27 28 29 30 31      23 24 25 26 27 28 29   27 28 29 30
-                       30 31
-        10月                   11月                   12月
-日 月 火 水 木 金 土   日 月 火 水 木 金 土   日 月 火 水 木 金 土
-             1  2  3    1  2  3  4  5  6  7          1  2  3  4  5
- 4  5  6  7  8  9 10    8  9 10 11 12 13 14    6  7  8  9 10 11 12
-11 12 13 14 15 16 17   15 16 17 18 19 20 21   13 14 15 16 17 18 19
-18 19 20 21 22 23 24   22 23 24 25 26 27 28   20 21 22 23 24 25 26
-25 26 27 28 29 30 31   29 30                  27 28 29 30 31
-
->
-> > I have tried to keep the same structure of the code between the column
-> > mode and the row mode.
-> > It is impossible to keep line width lower than 80.
->
-> Do you mean source code line? ... 80 is not a strict rule, keep it
-> readable.
-Yeap speaking about code line, with tab width set to 8, 80 is quickly reached.
-
->
-> > I can try to split the big function `cal_output_months` this will make
-> > it more readable, but will introduce a lot of change for no feature.
-> > Any advice on this ?
->
-> Your cal_col_output_months() does not look like any huge monster.
->
-> I have added one comment to your commits/cal_column at github.
-Thanks I will do the modification
->
->     Karel
->
->
-> --
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
->
+diff --git a/sys-utils/blkdiscard.8 b/sys-utils/blkdiscard.8
+index 98c6f36a9..bd3950b1f 100644
+--- a/sys-utils/blkdiscard.8
++++ b/sys-utils/blkdiscard.8
+@@ -43,11 +43,11 @@ The force option disables the exclusive access mode.
+ .TP
+ .BR \-o , " \-\-offset \fIoffset"
+ Byte offset into the device from which to start discarding.  The provide=
+d value
+-will be aligned to the device sector size.  The default value is zero.
++must be aligned to the device sector size.  The default value is zero.
+ .TP
+ .BR \-l , " \-\-length \fIlength"
+ The number of bytes to discard (counting from the starting point).  The =
+provided value
+-will be aligned to the device sector size.  If the specified value exten=
+ds past
++must be aligned to the device sector size.  If the specified value exten=
+ds past
+ the end of the device,
+ .B blkdiscard
+ will stop at the device size boundary.  The default value extends to the=
+ end
+--=20
+2.21.1
 
