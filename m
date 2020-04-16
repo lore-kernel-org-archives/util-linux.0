@@ -1,178 +1,198 @@
-Return-Path: <SRS0=c7ae=57=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=C4d5=6A=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25AD5C2BA19
-	for <util-linux@archiver.kernel.org>; Wed, 15 Apr 2020 22:05:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83B14C2BB85
+	for <util-linux@archiver.kernel.org>; Thu, 16 Apr 2020 08:54:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F19C620784
-	for <util-linux@archiver.kernel.org>; Wed, 15 Apr 2020 22:05:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5A2DA20784
+	for <util-linux@archiver.kernel.org>; Thu, 16 Apr 2020 08:54:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JyUqQMoP"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XwzulByo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729399AbgDOWFC (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 15 Apr 2020 18:05:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53256 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727919AbgDOWFB (ORCPT
+        id S2502785AbgDPIxw (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 16 Apr 2020 04:53:52 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:22547 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2502964AbgDPIxL (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Wed, 15 Apr 2020 18:05:01 -0400
-Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 164B8C061A0C
-        for <util-linux@vger.kernel.org>; Wed, 15 Apr 2020 15:05:01 -0700 (PDT)
-Received: by mail-ot1-x333.google.com with SMTP id m18so1383753otq.9
-        for <util-linux@vger.kernel.org>; Wed, 15 Apr 2020 15:05:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=YdfRaJDHj138EUIQmD9gtS7YrzpATfu6OV9/jURyUdg=;
-        b=JyUqQMoPgWKh3a9o41JTcwHqKQmY63zcKkYUlbuVMsvU6uPhfvXCNzVQ9g5UO6TlE4
-         b3RGhsPeXDXk0gmOkJhVHojOCDFwI9lsMzYwTDWFx4QvHlgEPVj6e+GIPPGbGZmuy0c2
-         pzbPoSZk8C+51DSmvyVKaGYzms6DyLbIcXArqKE1YN944uTtpqIgfJpkw1tOEp3/+h2h
-         90zQNTNrAkFCz1cr+kZz+frnGeRWp+gqa5r/dhN/BiZi72ajwU1/B74j3nxotrt/Eoa8
-         n7xU/sYpNS1FLhAU7igAlKnHygjEN6iqL5Rux8z8GXLFsLucouKennalz+vZgIA+EK6V
-         M3PQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=YdfRaJDHj138EUIQmD9gtS7YrzpATfu6OV9/jURyUdg=;
-        b=saZQB7bS7liXc3cQMcBrfC45HeIlr7OXNsl+gNkAJZQvMbufuvUgzvjnS31fUrcIX3
-         57eEdcKMjKaztLvPpGh+th2HtiD9rxdSs05jzBhZjaR5gXPvc3qZ5P2q+9Fwl0gQP9c1
-         CDvBTm19O+ofIv48LfAOcFrK32u+egqggpIgqR7mdyRBZF0fYfPcSQnXn0c7aZT/LW5Z
-         +6BwJDTMZMQox1fwu2sP1PyXer94LjEQwDhrPAtA4OZPx5pukB+ail9i6FY4fIaAWL90
-         gp+TFYuC58MsU1YG1NvRlhD/1l6z7uziYwuqxhV/kKuWOXmvFutiXR/0ACIcCczGFl47
-         waWw==
-X-Gm-Message-State: AGi0PuZiPhHFrFrND7DB7wRdugWY6rxYNm+JUSJCCQUGgE0MopJCS5Iv
-        5SmI09LtJq11XbPf/rGOIsSDGXM/
-X-Google-Smtp-Source: APiQypLL/ueU2d43t4YLqlGZDeTojN4mNcDjFHaBXERHa4NzzPFjc8WNH93scMyLpkROEijiqaABpg==
-X-Received: by 2002:a9d:6303:: with SMTP id q3mr25012890otk.296.1586988299382;
-        Wed, 15 Apr 2020 15:04:59 -0700 (PDT)
-Received: from [192.168.0.91] (cpe-70-123-227-116.satx.res.rr.com. [70.123.227.116])
-        by smtp.gmail.com with ESMTPSA id r65sm6716916oig.0.2020.04.15.15.04.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Apr 2020 15:04:58 -0700 (PDT)
-Subject: Re: cal: column mode
-To:     =?UTF-8?Q?Aur=c3=a9lien_Lajoie?= <orel@melix.net>,
-        Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org
-References: <CAA0A08U=eWWB5eyxg4vrD_yBdVohqVT0NQfm+DG+wjbZ8HmiZg@mail.gmail.com>
- <20200414113827.xp2etrdev2oom4qc@ws.net.home>
- <CAA0A08W8JjTYx-ymnsBvbRHBW+WxucobBWVfyt4XdXh7Of8wMA@mail.gmail.com>
-From:   Bruce Dubbs <bruce.dubbs@gmail.com>
-Message-ID: <00b92978-b2a8-1ebb-8ede-a7745046d460@gmail.com>
-Date:   Wed, 15 Apr 2020 17:04:57 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        Thu, 16 Apr 2020 04:53:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1587027139;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=e9B2YrrXcb0GtiupZUx77R09vvSKAmzRIrB0mzccBaQ=;
+        b=XwzulByo23gMoRe/h+TosZN9akevx8gDqq46UY0etTQI5Hzn9jpMbI3v7cW4xUCSRjwymt
+        3LScTWX2dd8huz02qOUFwwJe0vXMpePWep1VDESX7f6YWGA93ldMmc+ESzFS2NPv7E0PvM
+        C26NHYYAe9b8CjrYZBSB++wska+Dy1o=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-425-ogr8xKYaO-yhKD38abjSMA-1; Thu, 16 Apr 2020 04:52:14 -0400
+X-MC-Unique: ogr8xKYaO-yhKD38abjSMA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1F747800D5C;
+        Thu, 16 Apr 2020 08:52:12 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.194.51])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 1737C10027B6;
+        Thu, 16 Apr 2020 08:52:10 +0000 (UTC)
+Date:   Thu, 16 Apr 2020 10:52:07 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     michael-dev@fami-braun.de
+Cc:     util-linux@vger.kernel.org,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH] Fix PID namespace persistence
+Message-ID: <20200416085207.t653byxtup4ehlsp@ws.net.home>
+References: <20200415211653.5455-1-michael-dev@fami-braun.de>
 MIME-Version: 1.0
-In-Reply-To: <CAA0A08W8JjTYx-ymnsBvbRHBW+WxucobBWVfyt4XdXh7Of8wMA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200415211653.5455-1-michael-dev@fami-braun.de>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On 4/14/20 3:18 PM, Aurélien Lajoie wrote:
-> On Tue, Apr 14, 2020 at 1:38 PM Karel Zak <kzak@redhat.com> wrote:
->>
->> On Mon, Apr 13, 2020 at 10:41:34PM +0200, Aurélien Lajoie wrote:
->>> As I have announced few days ago, I have started to work on ncal like for cal.
->>> I have push a first working version on my github:
->>> https://github.com/utix/util-linux/commits/cal_column
->>
->> Is the option --column the best name? We use "column" pretty often to
->> address output in columns or number of columns, etc.
->>
->> What about --vertical?
-> 
-> sure, no preference for me, ( -v is not used )
-> How or who decides this kind of stuff (sorry I am a newbie)
-> 
->>> Does anyone know which locale can have some width issue ?
->>
->>   LC_ALL=ja_JP.utf8 cal
->>
->> or another with multibyte letters.
-> ja_JP seems very compact, I think mongolian locale is a good one with month like
-> Арванхоёрдугаар сар
-> 
-> ja_JP is:
->                                 2020
-> 
->           1月                    2月                    3月
-> 日 月 火 水 木 金 土   日 月 火 水 木 金 土   日 月 火 水 木 金 土
->            1  2  3  4                      1    1  2  3  4  5  6  7
->   5  6  7  8  9 10 11    2  3  4  5  6  7  8    8  9 10 11 12 13 14
-> 12 13 14 15 16 17 18    9 10 11 12 13 14 15   15 16 17 18 19 20 21
-> 19 20 21 22 23 24 25   16 17 18 19 20 21 22   22 23 24 25 26 27 28
-> 26 27 28 29 30 31      23 24 25 26 27 28 29   29 30 31
-> 
->           4月                    5月                    6月
-> 日 月 火 水 木 金 土   日 月 火 水 木 金 土   日 月 火 水 木 金 土
->            1  2  3  4                   1  2       1  2  3  4  5  6
->   5  6  7  8  9 10 11    3  4  5  6  7  8  9    7  8  9 10 11 12 13
-> 12 13 14 15 16 17 18   10 11 12 13 14 15 16   14 15 16 17 18 19 20
-> 19 20 21 22 23 24 25   17 18 19 20 21 22 23   21 22 23 24 25 26 27
-> 26 27 28 29 30         24 25 26 27 28 29 30   28 29 30
->                         31
->           7月                    8月                    9月
-> 日 月 火 水 木 金 土   日 月 火 水 木 金 土   日 月 火 水 木 金 土
->            1  2  3  4                      1          1  2  3  4  5
->   5  6  7  8  9 10 11    2  3  4  5  6  7  8    6  7  8  9 10 11 12
-> 12 13 14 15 16 17 18    9 10 11 12 13 14 15   13 14 15 16 17 18 19
-> 19 20 21 22 23 24 25   16 17 18 19 20 21 22   20 21 22 23 24 25 26
-> 26 27 28 29 30 31      23 24 25 26 27 28 29   27 28 29 30
->                         30 31
->          10月                   11月                   12月
-> 日 月 火 水 木 金 土   日 月 火 水 木 金 土   日 月 火 水 木 金 土
->               1  2  3    1  2  3  4  5  6  7          1  2  3  4  5
->   4  5  6  7  8  9 10    8  9 10 11 12 13 14    6  7  8  9 10 11 12
-> 11 12 13 14 15 16 17   15 16 17 18 19 20 21   13 14 15 16 17 18 19
-> 18 19 20 21 22 23 24   22 23 24 25 26 27 28   20 21 22 23 24 25 26
-> 25 26 27 28 29 30 31   29 30                  27 28 29 30 31
-> 
->>
->>> I have tried to keep the same structure of the code between the column
->>> mode and the row mode.
->>> It is impossible to keep line width lower than 80.
->>
->> Do you mean source code line? ... 80 is not a strict rule, keep it
->> readable.
-> Yes speaking about code line, with tab width set to 8, 80 is quickly reached.
 
-Don't use a tab width of 8.  Research has shown that the most readable 
-level of code indentation is between 2 and 4 characters.  Personally I 
-use 3.
+ Eric, can you review this unshare(8) patch? Please.
 
-   -- Bruce
+    Karel
 
-
->>
->>> I can try to split the big function `cal_output_months` this will make
->>> it more readable, but will introduce a lot of change for no feature.
->>> Any advice on this ?
->>
->> Your cal_col_output_months() does not look like any huge monster.
->>
->> I have added one comment to your commits/cal_column at github.
-> Thanks I will do the modification
->>
->>      Karel
->>
->>
->> --
->>   Karel Zak  <kzak@redhat.com>
->>   http://karelzak.blogspot.com
->>
+On Wed, Apr 15, 2020 at 11:16:53PM +0200, michael-dev@fami-braun.de wrote:
+> From: michael-dev <michael-dev@fami-braun.de>
 > 
+> After unshare(...) is called, /proc/self/ns/pid does not change.
+> Instead, only /proc/self/ns/pid_for_children is affected. So bind-mounting /proc/self/ns/pid results in the original namespace getting bind-mounted.
+> 
+> Fix this by instead bind-mounting ns/pid_for_children.
+> 
+> Signed-off-by: Michael Braun <michael-dev@fami-braun.de>
+> ---
+>  sys-utils/unshare.c | 66 ++++++++++++++++++++++++++-------------------
+>  1 file changed, 38 insertions(+), 28 deletions(-)
+> 
+> diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
+> index 8652ebdaf..c3ba18e32 100644
+> --- a/sys-utils/unshare.c
+> +++ b/sys-utils/unshare.c
+> @@ -63,7 +63,7 @@ static struct namespace_file {
+>  	{ .type = CLONE_NEWIPC,   .name = "ns/ipc"  },
+>  	{ .type = CLONE_NEWUTS,   .name = "ns/uts"  },
+>  	{ .type = CLONE_NEWNET,   .name = "ns/net"  },
+> -	{ .type = CLONE_NEWPID,   .name = "ns/pid"  },
+> +	{ .type = CLONE_NEWPID,   .name = "ns/pid_for_children"  },
+>  	{ .type = CLONE_NEWNS,    .name = "ns/mnt"  },
+>  	{ .type = CLONE_NEWTIME,  .name = "ns/time"  },
+>  	{ .name = NULL }
+> @@ -361,6 +361,7 @@ int main(int argc, char *argv[])
+>  	const char *procmnt = NULL;
+>  	const char *newroot = NULL;
+>  	const char *newdir = NULL;
+> +	pid_t pid_bind = 0;
+>  	pid_t pid = 0;
+>  	int fds[2];
+>  	int status;
+> @@ -501,13 +502,37 @@ int main(int argc, char *argv[])
+>  			"unsharing of a time namespace (-t)"));
+>  
+>  	if (npersists && (unshare_flags & CLONE_NEWNS))
+> -		bind_ns_files_from_child(&pid, fds);
+> +		bind_ns_files_from_child(&pid_bind, fds);
+>  
+>  	if (-1 == unshare(unshare_flags))
+>  		err(EXIT_FAILURE, _("unshare failed"));
+>  
+> -	if (npersists) {
+> -		if (pid && (unshare_flags & CLONE_NEWNS)) {
+> +	if (force_boottime)
+> +		settime(boottime, CLOCK_BOOTTIME);
+> +
+> +	if (force_monotonic)
+> +		settime(monotonic, CLOCK_MONOTONIC);
+> +
+> +	if (forkit) {
+> +		// force child forking before mountspace binding
+> +		// so pid_for_children is populated
+> +		pid = fork();
+> +
+> +		switch(pid) {
+> +		case -1:
+> +			err(EXIT_FAILURE, _("fork failed"));
+> +		case 0:	/* child */
+> +			if (pid_bind && (unshare_flags & CLONE_NEWNS))
+> +				close(fds[1]);
+> +			break;
+> +		default: /* parent */
+> +      break;
+> +		}
+> +	}
+> +
+> +	if (npersists && (pid || !forkit)) {
+> +		// run in parent
+> +		if (pid_bind && (unshare_flags & CLONE_NEWNS)) {
+>  			int rc;
+>  			char ch = PIPE_SYNC_BYTE;
+>  
+> @@ -518,7 +543,7 @@ int main(int argc, char *argv[])
+>  
+>  			/* wait for bind_ns_files_from_child() */
+>  			do {
+> -				rc = waitpid(pid, &status, 0);
+> +				rc = waitpid(pid_bind, &status, 0);
+>  				if (rc < 0) {
+>  					if (errno == EINTR)
+>  						continue;
+> @@ -533,29 +558,14 @@ int main(int argc, char *argv[])
+>  			bind_ns_files(getpid());
+>  	}
+>  
+> -	if (force_boottime)
+> -		settime(boottime, CLOCK_BOOTTIME);
+> -
+> -	if (force_monotonic)
+> -		settime(monotonic, CLOCK_MONOTONIC);
+> -
+> -	if (forkit) {
+> -		pid = fork();
+> -
+> -		switch(pid) {
+> -		case -1:
+> -			err(EXIT_FAILURE, _("fork failed"));
+> -		case 0:	/* child */
+> -			break;
+> -		default: /* parent */
+> -			if (waitpid(pid, &status, 0) == -1)
+> -				err(EXIT_FAILURE, _("waitpid failed"));
+> -			if (WIFEXITED(status))
+> -				return WEXITSTATUS(status);
+> -			else if (WIFSIGNALED(status))
+> -				kill(getpid(), WTERMSIG(status));
+> -			err(EXIT_FAILURE, _("child exit failed"));
+> -		}
+> +	if (pid) {
+> +		if (waitpid(pid, &status, 0) == -1)
+> +			err(EXIT_FAILURE, _("waitpid failed"));
+> +		if (WIFEXITED(status))
+> +			return WEXITSTATUS(status);
+> +		else if (WIFSIGNALED(status))
+> +			kill(getpid(), WTERMSIG(status));
+> +		err(EXIT_FAILURE, _("child exit failed"));
+>  	}
+>  
+>  	if (kill_child_signo != 0 && prctl(PR_SET_PDEATHSIG, kill_child_signo) < 0)
+> -- 
+> 2.17.1
+> 
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
