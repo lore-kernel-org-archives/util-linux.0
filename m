@@ -1,105 +1,73 @@
-Return-Path: <SRS0=00Jr=6I=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=WmqB=6L=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D854EC5519A
-	for <util-linux@archiver.kernel.org>; Fri, 24 Apr 2020 09:21:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E83EC54FD0
+	for <util-linux@archiver.kernel.org>; Mon, 27 Apr 2020 09:32:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B706820724
-	for <util-linux@archiver.kernel.org>; Fri, 24 Apr 2020 09:21:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 07994206A4
+	for <util-linux@archiver.kernel.org>; Mon, 27 Apr 2020 09:32:54 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Qdnk/arj"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Y90HFKCd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726298AbgDXJVc (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 24 Apr 2020 05:21:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50760 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726806AbgDXJV2 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 24 Apr 2020 05:21:28 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37081C09B045
-        for <util-linux@vger.kernel.org>; Fri, 24 Apr 2020 02:21:28 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id i3so9607500ioo.13
-        for <util-linux@vger.kernel.org>; Fri, 24 Apr 2020 02:21:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=MnWaVOr+uqRM7kwkNptAGbLBJ53R4DBTN5zhXn+NOuI=;
-        b=Qdnk/arjgKFKOusLu6ouFLvhxLXldXFp+KGL18WHGAVqzGf5bOD+ZiL+lH/kRDLUez
-         EjhG2NqAzTusS9fbkCqjn2Nf6r+XhGwQOqmArJduXmhxtY89FZeMu+Yie0/3re+BcHdt
-         UEL2FRkqv6QwACJxSaq0vTl0f8Dv+5Tz3M5zJb3osl/7rbUQRlrJh7NEkcvRx9jduzLm
-         Vqz1igpFmIHDULl1yhRjd9R53WxI29MqfZZT9sRz2aW3sgalFoGHGPd9T/k8iAfhHOvD
-         tn9QPgJh4ExGTYZt566hlhZyFnSn3qzt9Zl3vh1iJKsOTltqKi5IDOfh9L4LnM3Ye0cV
-         yDzQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=MnWaVOr+uqRM7kwkNptAGbLBJ53R4DBTN5zhXn+NOuI=;
-        b=JeSVBUjLuKU8daq+e35kY186ibephRhpgLRyWLlu0U58MHtfWlBn02h1dQyS5AtIaW
-         RwaGacKl052fDDR6tZVp2WfZHL/PyW3LJjNMlqeYa8OIjj842oVp7oNoH8FxNmMbh+Q7
-         wU93mIuoLP8/5NthrwHJbKZKolXjg8z8b/wHE5h525Ozo8WPZ+LVp689+U3CzF/lGBL+
-         jMM6sv/fKuzbIIdk9lKQcSWSJaTLL5aQaAyK76PiXnYSE7oWWG9KxASVLNK9E1iv1Jso
-         D2Sk4Qbp0l2IGnqyMPn2m/u/J3qc0yZoo8b8o3zfclguJnHXyNpar+rz+uweNWMHiThN
-         sjDA==
-X-Gm-Message-State: AGi0PubQlt3RrEB0jH6fMdqTYcburB5TpVI2O7ULe1tdV7gLnqhMEyNk
-        lkCXmUxI18xaRFS/nItkGJGe6tiKHma3dq9PPKE=
-X-Google-Smtp-Source: APiQypJWxSrSH+B25O7ZliyYvGjSekNkdm+E1rjZooZz+lBGukiQQWUfs8QWC3qH/v9Fev4PH94PLnmDtCeI0bMkN0Q=
-X-Received: by 2002:a5d:9685:: with SMTP id m5mr7990913ion.36.1587720087556;
- Fri, 24 Apr 2020 02:21:27 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200415211653.5455-1-michael-dev@fami-braun.de>
- <87o8rrdulx.fsf@x220.int.ebiederm.org> <9379f1f3b13b33e3a80b7cb4a58de8b8@fami-braun.de>
-In-Reply-To: <9379f1f3b13b33e3a80b7cb4a58de8b8@fami-braun.de>
-From:   Michael Kerrisk <mtk.manpages@gmail.com>
-Date:   Fri, 24 Apr 2020 11:21:15 +0200
-Message-ID: <CAHO5Pa0OkdnTYRkzEsCV0=kAJZXDaSnVriEUAq3Zt-6csP3wFQ@mail.gmail.com>
-Subject: Re: [PATCH] Fix PID namespace persistence
-To:     michael-dev <michael-dev@fami-braun.de>
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        util-linux@vger.kernel.org,
+        id S1726003AbgD0Jcx (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 27 Apr 2020 05:32:53 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:21167 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726349AbgD0Jcx (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 27 Apr 2020 05:32:53 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1587979972;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=kX1i68DXyo98fYgAi/IX5E+V49lmQPLrN1gjrBe1wa4=;
+        b=Y90HFKCdke1j0kMZZBTVXGH5364tesZFgONVUowtGf9DLKppjgOTJbsdh1Q/I829fBuxxx
+        ECAwRm/k1Zkzpyzj+9LyWIpiXFKiJcj9CmEcI0Kt6r+gSDSkv9m4eQDOIgdtoKnOGTv0M4
+        +2KHTXn3fDcYAgnFt3wmqxbNXM/vMGw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-481-Gg05fTijPy2v9a-EBnBF1w-1; Mon, 27 Apr 2020 05:32:48 -0400
+X-MC-Unique: Gg05fTijPy2v9a-EBnBF1w-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0678F107ACF3;
+        Mon, 27 Apr 2020 09:32:47 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.194.51])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 0411860612;
+        Mon, 27 Apr 2020 09:32:45 +0000 (UTC)
+Date:   Mon, 27 Apr 2020 11:32:43 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Stephen Kitt <steve@sk2.org>
+Cc:     util-linux@vger.kernel.org,
         Michael Kerrisk <mtk.manpages@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] docs: nsenter(1): fix further details in PID namespace
+ section
+Message-ID: <20200427093243.f5ot3lxtuevmjxpo@ws.net.home>
+References: <20200423083702.14466-1-steve@sk2.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200423083702.14466-1-steve@sk2.org>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Sun, Apr 19, 2020 at 1:06 AM michael-dev <michael-dev@fami-braun.de> wrote:
->
-> Am 16.04.2020 22:49, schrieb ebiederm@xmission.com:
-> > Why all of the extra code motion and change?
-> >
-> > Your description sounds like only the first hunk is necessary.  Did
-> > something else get mixed into this change?  Or are all of the hunks
-> > necessary?
->
-> Because after unsharing, pid_for_children is a dangling symlink.
-> So if (forkit) needs to be before /* wait for bind_ns_files_from_child()
-> */.
-> Moving this results in an overlapping use of the pid variable, so that
-> gets renamed.
-> Additionally, we cannot wait for the forkit child (bash) to exit before
-> triggering and waiting for the bind-mounting child to bind-mount the
-> persistent namespace. So forking and waiting for the forkit child (bash)
-> needs to become splitted.
+On Thu, Apr 23, 2020 at 10:37:02AM +0200, Stephen Kitt wrote:
+>  sys-utils/nsenter.1 | 11 ++++++-----
+>  1 file changed, 6 insertions(+), 5 deletions(-)
 
-@Michael: I confim theproblem, and thanks for this fix.
-
-@Zak: an analogous fix is required for time namespaces.
-
-Cheers,
-
-Michael
+Applied, thanks.
 
 
 -- 
-Michael Kerrisk Linux man-pages maintainer;
-http://www.kernel.org/doc/man-pages/
-Author of "The Linux Programming Interface", http://blog.man7.org/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
