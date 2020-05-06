@@ -6,73 +6,63 @@ X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
 	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DED6C28CBC
-	for <util-linux@archiver.kernel.org>; Wed,  6 May 2020 13:08:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4478BC28CBC
+	for <util-linux@archiver.kernel.org>; Wed,  6 May 2020 13:15:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 40E4F2073A
-	for <util-linux@archiver.kernel.org>; Wed,  6 May 2020 13:08:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F12B206D5
+	for <util-linux@archiver.kernel.org>; Wed,  6 May 2020 13:15:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fH/fJZAL"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Drv9YWFB"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728447AbgEFNI6 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 6 May 2020 09:08:58 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:23034 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728299AbgEFNI5 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 6 May 2020 09:08:57 -0400
+        id S1728053AbgEFNPg (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 6 May 2020 09:15:36 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:38422 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727969AbgEFNPg (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 6 May 2020 09:15:36 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588770536;
+        s=mimecast20190719; t=1588770935;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=ONQXmHLvjvcEnZAQ80gVNnBY4nFtyU3fyHMcOEYAQg8=;
-        b=fH/fJZALMEh870Do8IzngbxPOToNYKQ8YxH8D7TzCetpTypAFnArBLLKJ4m7oLzL0FwVj7
-        uukRqjjm2VK4LQgFgWq69GOsBqg0p9OowJql6SUSrVAhKjCWlrSlNo0FyHjHBQAmdNvOCp
-        MDibNA6HW43BFbzV/F7qURIMyNGEmC0=
+        bh=Wh0z3f2TM4z6PUJXQM1QKaHr8JbQvjSzyatHRI3+X74=;
+        b=Drv9YWFBRdf1Xu7smE5tctNeD93e4e9xfCMHt3ka83WJzf0S/GVlpepehrCMd2LGbAKMFA
+        56WeiLEPppDwjccvMzmAsxM3h7bhXTff4TAC7U6hG9h503Uo0+fXOr+34/QPVGvI8+6urV
+        sD90lCYY63P4COobgLCZbGvB/eiAGvM=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-269-6ZhTdXD5NRCQh8ujZoZZFQ-1; Wed, 06 May 2020 09:08:52 -0400
-X-MC-Unique: 6ZhTdXD5NRCQh8ujZoZZFQ-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+ us-mta-249-nuK4DTijNgivn1Ubfr2ZZg-1; Wed, 06 May 2020 09:15:32 -0400
+X-MC-Unique: nuK4DTijNgivn1Ubfr2ZZg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 60FEF107ACCA;
-        Wed,  6 May 2020 13:08:51 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 57222460;
+        Wed,  6 May 2020 13:15:31 +0000 (UTC)
 Received: from ws.net.home (unknown [10.40.193.21])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9363A26337;
-        Wed,  6 May 2020 13:08:50 +0000 (UTC)
-Date:   Wed, 6 May 2020 15:08:47 +0200
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 90A6D5C1D4;
+        Wed,  6 May 2020 13:15:30 +0000 (UTC)
+Date:   Wed, 6 May 2020 15:15:27 +0200
 From:   Karel Zak <kzak@redhat.com>
 To:     Anthony Iliopoulos <ailiop@suse.com>
 Cc:     util-linux@vger.kernel.org
-Subject: Re: [PATCH] libblkid: add dax capability detection in topology
- probing
-Message-ID: <20200506130847.d2u66a2lsrp4pfah@ws.net.home>
-References: <20200505143145.9852-2-ailiop@suse.com>
+Subject: Re: [PATCH] lsblk: add dax (direct access) capability column
+Message-ID: <20200506131527.kduvb442qatqjhjq@ws.net.home>
+References: <20200505143145.9852-1-ailiop@suse.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200505143145.9852-2-ailiop@suse.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+In-Reply-To: <20200505143145.9852-1-ailiop@suse.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Tue, May 05, 2020 at 04:31:45PM +0200, Anthony Iliopoulos wrote:
-> The dax (direct access) blockdev capability is exposed via sysfs, add it
-> to the list of topology values to be obtained while probing.
-> 
-> Expose blkid_topology_get_dax() symbol that programs can link against
-> for querying the capability.
+On Tue, May 05, 2020 at 04:31:44PM +0200, Anthony Iliopoulos wrote:
+>  misc-utils/lsblk.c | 5 +++++
+>  1 file changed, 5 insertions(+)
 
-Do we have any use-case for this change? 
-
-We maintain blkid_topology_* mostly for mkfs-like programs portability 
-(years ago we had only ioctls, etc..). You can see that libblkid export
-only small subset topology stuff, so why we need DAX there? ;-)
-
-    Karel
+Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
