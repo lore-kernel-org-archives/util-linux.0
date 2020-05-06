@@ -2,68 +2,68 @@ Return-Path: <SRS0=2oxY=6U=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-14.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92AD8C38A24
-	for <util-linux@archiver.kernel.org>; Wed,  6 May 2020 19:19:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72229C28CBC
+	for <util-linux@archiver.kernel.org>; Wed,  6 May 2020 19:19:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 710912075A
-	for <util-linux@archiver.kernel.org>; Wed,  6 May 2020 19:19:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4A12B2075A
+	for <util-linux@archiver.kernel.org>; Wed,  6 May 2020 19:19:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YdRahLL5"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oRBiH5fb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727934AbgEFTTc (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 6 May 2020 15:19:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39248 "EHLO
+        id S1728051AbgEFTTe (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 6 May 2020 15:19:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727110AbgEFTTb (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 6 May 2020 15:19:31 -0400
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81E0EC061A0F
-        for <util-linux@vger.kernel.org>; Wed,  6 May 2020 12:19:31 -0700 (PDT)
-Received: by mail-wm1-x342.google.com with SMTP id z6so4035866wml.2
-        for <util-linux@vger.kernel.org>; Wed, 06 May 2020 12:19:31 -0700 (PDT)
+        with ESMTP id S1727110AbgEFTTd (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 6 May 2020 15:19:33 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CB9EC061A0F
+        for <util-linux@vger.kernel.org>; Wed,  6 May 2020 12:19:33 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id i15so3099121wrx.10
+        for <util-linux@vger.kernel.org>; Wed, 06 May 2020 12:19:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:organization:content-transfer-encoding;
-        bh=CCXAOeViMZOQ94+bKAMPFJTXVj00T2pEcJs9VFeu4K0=;
-        b=YdRahLL56YktgdgD1q9VTMDNnzFs7/7P9U1i9axhzHXe+2b4z1fD2WPVgCT/pQ4U33
-         grnWTuyYs7FXBoGMqp1JLbDCGvY/IF6bcQIzgNtpORRMea6xkeNX8nPvm41z3uPeZ3l+
-         ufYyNk01O81ufzdYDG++e9cZi5b18aC7m2z3szW1ssOKXp4rZJi+4jyaxitCFCMuMG94
-         AltaxhQyIWT/eogCGA/xMItvs1i32+yh18CjF+PlNINxW9adckIPPrXX32ULyY5ne/85
-         lp4Y129ID0EFd47vPH0jSq9upXPmB3L6YtJD9k3E5nTdGvzttnvor/ifrGCb7CX7xxyx
-         656Q==
+        bh=vAQJ2eIGRSpTR6+NghqZlreCH/5VRLAmCmzGS2xqCKU=;
+        b=oRBiH5fbDBxKfkD7+USagqHAUkCoyirBWBPJuYEqK/P0nsA1R6woyi4l8UUN2d0Qo1
+         iBRFZRQ7ZHBI2TKkfkFRHKi2LCppkiSYwIUFeORzmru/WfH/r4BJzIzGQ/jsp1fKlTi0
+         MnLNY5b2h+oSnoXFML4v2pCX75TMnVZ32+wH5xXCfXhHf/bBWFH9MkvN7yvBlu3wPJFO
+         uKA4MxXjnpl/potzkhDEu6kYkFRmJVqX9Md8nn3sra2ALqXieghC46pei0+MuRF+6EZc
+         uTANxkST1aqk/SkZcVztDfJ4bVgam96Pkysg7wLsY/DQnxCL0wGiZjWJsPCghSm/NPVz
+         8kYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references:mime-version:organization
          :content-transfer-encoding;
-        bh=CCXAOeViMZOQ94+bKAMPFJTXVj00T2pEcJs9VFeu4K0=;
-        b=KGAx15d0WWXDCIo41izJbLkrdn5KK+m5uBly70ihQx/DnIhQQlwQUoP7q5kuqNDsGU
-         xO64HNNeggz88+wX6qEbdsj/w1sloe5R+IwTrpSsyCTeWphHwcA/C+cBI85DC6M9ep5N
-         9HIaOrJeN+07UY8OINYkmTInNxgZ9wyfS70EIxJwFKuyLysrtpCR+ySDLXhrmAS6DaqA
-         IpMC3ls1Ehn7IsRoqRHPaUorb5hWkgsqgcIBl59hTl9aSoAnIzDQ+o0/z99S/Gqvu/du
-         7BF1MpBQlnfMbpiQ7WCwiARq1dMIoFgUpgt49wz3oK8gERXYnj1q2vdbw886YmOa/x+F
-         6wmA==
-X-Gm-Message-State: AGi0PuaOkEVBpeZDoNAOT5M4q5H4V8bPpz8fO1f7KknjeqgTcoZEL+tf
-        /K+LNt2eWms7SzjRtdgO73iKJMPe
-X-Google-Smtp-Source: APiQypJF4Iu+S1eI7mfO8SsLIXbRBfI9wS5JkfqtCVoCiIYSl+5hOrqJ1ID1oWLnhXLMbFi55HFFCg==
-X-Received: by 2002:a1c:ded4:: with SMTP id v203mr6149432wmg.106.1588792769771;
-        Wed, 06 May 2020 12:19:29 -0700 (PDT)
+        bh=vAQJ2eIGRSpTR6+NghqZlreCH/5VRLAmCmzGS2xqCKU=;
+        b=DY7Y4SI0jVhvCK01qapdtfsAy0GHI2xZeP18sKn00iUR+IrubVfAvqQWVbCW8OL6Uc
+         jWYnCiiNhjoVutt80KDoeVoYgRgW0UAVUjd6OTPoUKfS2zeQyRoNF6yAdw43yVivK4rw
+         iYqlc4GbgCAJY2zuV6O6lYKxRxlAS70aH/xPPBrHPR4/Gfvw59MBtDUC0S4Rw4LC7kBy
+         ehdt956r1jJuwQzUXSSZAE/dKBJzJomr3ScM/wk5g7M3VQ0VQRWR1IkNKyirfFeY9SeD
+         q2PI1O5SadqzldB26KPQZdWdFCljkjVkkUDWU8JWyIkfKFbhWSe57FYqV2JxoHmOqk4J
+         OKcQ==
+X-Gm-Message-State: AGi0Pubfb6xNjKhryDJwI6/taDBDCDKRhXsndg8Fb0zd8k5mE2LMWvqN
+        mvNDfrr32ko4sD1kZC7vs5noBCn2
+X-Google-Smtp-Source: APiQypLpAo8XUX96h5GmSupiBSxNGJsL9hUtzJveMcwy+QcxAI5er+4aK1bwXA+FM7ub6l3RTrxiKg==
+X-Received: by 2002:adf:a151:: with SMTP id r17mr10725814wrr.161.1588792771126;
+        Wed, 06 May 2020 12:19:31 -0700 (PDT)
 Received: from localhost ([2a02:8010:659f:0:8b7c:8150:5102:21e9])
-        by smtp.gmail.com with ESMTPSA id g186sm4542545wme.7.2020.05.06.12.19.28
+        by smtp.gmail.com with ESMTPSA id q187sm4439186wma.41.2020.05.06.12.19.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 May 2020 12:19:29 -0700 (PDT)
+        Wed, 06 May 2020 12:19:30 -0700 (PDT)
 From:   Sami Kerola <kerolasa@iki.fi>
 To:     util-linux@vger.kernel.org
 Cc:     Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH 1/2] more: use libmagic to identify binary files
-Date:   Wed,  6 May 2020 20:19:22 +0100
-Message-Id: <20200506191923.5272-2-kerolasa@iki.fi>
+Subject: [PATCH 2/2] more: make page and arrow up/down to update view
+Date:   Wed,  6 May 2020 20:19:23 +0100
+Message-Id: <20200506191923.5272-3-kerolasa@iki.fi>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200506191923.5272-1-kerolasa@iki.fi>
 References: <20200506191923.5272-1-kerolasa@iki.fi>
@@ -75,178 +75,558 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-As the old commend said: 'This code would best be shared with the file(1)
-program or, perhaps, more should not try to be so smart'.  Now at configure
-time one can choose whether more(1) is sharing code with file(1), or not.
+Aim was to introduce page and arrow up/down keys to more(1), but that
+also required merging colon_command() and more_key_command() functions.
 
-Addresses: http://bugs.debian.org/139205
+The more_key_commands enum is pointless from computers point of view.
+The command identification performed in read_command() inline with
+more_key_command() execution -- but that would be hard for humans, and
+source code ought to serve both parties.
+
+Reference: https://github.com/karelzak/util-linux/pull/1003
 Signed-off-by: Sami Kerola <kerolasa@iki.fi>
 ---
- configure.ac             | 12 ++++++++++
- text-utils/Makemodule.am |  2 +-
- text-utils/more.c        | 52 +++++++++++++++++++++++++---------------
- 3 files changed, 46 insertions(+), 20 deletions(-)
+ text-utils/more.c | 379 +++++++++++++++++++++++++++++-----------------
+ 1 file changed, 238 insertions(+), 141 deletions(-)
 
-diff --git a/configure.ac b/configure.ac
-index 1428dc893..8f50e8102 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -1501,6 +1501,18 @@ AS_IF([test "x$with_libz" = xno], [have_z=no], [
-   AC_CHECK_LIB([z], [crc32], [have_z=yes], [have_z=no])
- ])
- 
-+AC_ARG_WITH([libmagic],
-+  AS_HELP_STRING([--without-libmagic], [compile without libmagic]),
-+  [], [with_libmagic=auto]
-+)
-+AS_IF([test "x$with_libmagic" = xno], [have_magic=no], [
-+  AC_CHECK_LIB([magic], [magic_open], [
-+    AC_DEFINE([HAVE_MAGIC], [1], [Define to 1 if you have the libmagic present.])
-+    MAGIC_LIBS="-lmagic"
-+  ])
-+])
-+AC_SUBST([MAGIC_LIBS])
-+
- 
- AC_ARG_ENABLE([cramfs],
-   AS_HELP_STRING([--disable-cramfs], [do not build fsck.cramfs, mkfs.cramfs]),
-diff --git a/text-utils/Makemodule.am b/text-utils/Makemodule.am
-index 3f10934e9..6c4b52082 100644
---- a/text-utils/Makemodule.am
-+++ b/text-utils/Makemodule.am
-@@ -80,7 +80,7 @@ bin_PROGRAMS += more
- dist_man_MANS += text-utils/more.1
- more_SOURCES = text-utils/more.c
- more_CFLAGS = $(AM_CFLAGS) $(BSD_WARN_CFLAGS)
--more_LDADD = $(LDADD) libcommon.la
-+more_LDADD = $(LDADD) $(MAGIC_LIBS) libcommon.la
- if HAVE_TINFO
- more_LDADD += $(TINFO_LIBS)
- more_LDADD += $(TINFO_CFLAGS)
 diff --git a/text-utils/more.c b/text-utils/more.c
-index 69a0b89f6..014b40a6c 100644
+index 014b40a6c..b69fa5c5b 100644
 --- a/text-utils/more.c
 +++ b/text-utils/more.c
-@@ -74,13 +74,17 @@
- # include <term.h>
- #endif
+@@ -93,6 +93,11 @@
+ #define BACKSPACE	"\b"
+ #define CARAT		"^"
  
--#include "env.h"
-+#ifdef HAVE_MAGIC
-+# include <magic.h>
-+#endif
++#define ARROW_UP	"\x1b\x5b\x41"
++#define ARROW_DOWN	"\x1b\x5b\x42"
++#define PAGE_UP		"\x1b\x5b\x35\x7e"
++#define PAGE_DOWN	"\x1b\x5b\x36\x7e"
 +
- #include "strutils.h"
- #include "nls.h"
- #include "xalloc.h"
- #include "widechar.h"
- #include "closestream.h"
- #include "rpmatch.h"
-+#include "env.h"
+ #define MIN_LINE_SZ	256	/* minimal line_buf buffer size */
+ #define ESC		'\033'
+ #define SCROLL_LEN	11
+@@ -121,6 +126,35 @@
+ #define TERM_STANDARD_MODE        "smso"
+ #define TERM_STD_MODE_GLITCH      "xmc"
  
- #ifdef TEST_PROGRAM
- # define NON_INTERACTIVE_MORE 1
-@@ -157,6 +161,9 @@ struct more_control {
- 	int last_key_arg;		/* previous key command argument */
- 	int last_colon_command;		/* is a colon-prefixed key command */
++/* Used in read_command() */
++typedef enum {
++	more_kc_unknown_command,
++	more_kc_colon,
++	more_kc_repeat_previous,
++	more_kc_backwards,
++	more_kc_jump_lines_per_screen,
++	more_kc_set_lines_per_screen,
++	more_kc_set_scroll_len,
++	more_kc_quit,
++	more_kc_skip_forward,
++	more_kc_next_line,
++	more_kc_clear_screen,
++	more_kc_previous_search_match,
++	more_kc_display_line,
++	more_kc_display_file_and_line,
++	more_kc_repeat_search,
++	more_kc_search,
++	more_kc_run_shell,
++	more_kc_help,
++	more_kc_next_file,
++	more_kc_previous_file,
++	more_kc_run_editor
++} more_key_commands;
++struct number_command {
++	unsigned int number;
++	more_key_commands key;
++};
++
+ struct more_control {
+ 	struct termios output_tty;	/* output terminal */
+ 	struct termios original_tty;	/* original terminal settings */
+@@ -157,9 +191,8 @@ struct more_control {
+ 		long line_num;		/* line number */
+ 	} context,
+ 	  screen_start;
+-	cc_t last_key_command;		/* previous more key command */
+-	int last_key_arg;		/* previous key command argument */
+-	int last_colon_command;		/* is a colon-prefixed key command */
++	unsigned int leading_number;	/* number in front of key command */
++	struct number_command previous_command;	/* previous key command */
  	char *shell_line;		/* line to execute in subshell */
-+#ifdef HAVE_MAGIC
-+	magic_t magic;			/* libmagic database entries */
-+#endif
- 	unsigned int
- 		bad_stdout:1,		/* true if overwriting does not turn off standout */
- 		catch_suspend:1,	/* we should catch the SIGTSTP signal */
-@@ -350,19 +357,24 @@ static void print_separator(const int c, int n)
- 	putchar('\n');
+ #ifdef HAVE_MAGIC
+ 	magic_t magic;			/* libmagic database entries */
+@@ -177,14 +210,15 @@ struct more_control {
+ 		fold_long_lines:1,	/* fold long lines */
+ 		hard_tabs:1,		/* print spaces instead of '\t' */
+ 		hard_tty:1,		/* is this hard copy terminal (a printer or such) */
++		leading_colon:1,	/* key command has leading ':' character */
+ 		is_paused:1,		/* is output paused */
+ 		no_quit_dialog:1,	/* suppress quit dialog */
+ 		no_scroll:1,		/* do not scroll, clear the screen and then display text */
+ 		no_tty_in:1,		/* is input in interactive mode */
+ 		no_tty_out:1,		/* is output in interactive mode */
+ 		print_banner:1,		/* print file name banner */
++		reading_num:1,		/* are we reading leading_number */
+ 		report_errors:1,	/* is an error reported */
+-		run_previous_command:1,	/* run previous key command */
+ 		search_at_start:1,	/* search pattern defined at start up */
+ 		search_called:1,	/* previous more command was a search */
+ 		squeeze_spaces:1,	/* suppress white space */
+@@ -736,6 +770,12 @@ static cc_t read_user_input(struct more_control *ctl)
+ 	cc_t c;
+ 
+ 	errno = 0;
++	/*
++	 * Key commands can be read() from either stderr or stdin.  If they
++	 * are read from stdin such as 'cat file.txt | more' then the pipe
++	 * input is understood as series key commands - and that is not
++	 * wanted.  Keep the read() reading from stderr.
++	 */
+ 	if (read(STDERR_FILENO, &c, 1) <= 0) {
+ 		if (errno != EINTR)
+ 			more_exit(ctl);
+@@ -745,27 +785,124 @@ static cc_t read_user_input(struct more_control *ctl)
+ 	return c;
  }
  
--/* magic --
-- *	check for file magic numbers.  This code would best be shared
-- *	with the file(1) program or, perhaps, more should not try to be
-- *	so smart. */
--static int check_magic(FILE *f, char *fs)
-+/* check_magic -- check for file magic numbers. */
-+static int check_magic(struct more_control *ctl, char *fs)
+-/* Read a decimal number from the terminal.  Set cmd to the non-digit
++/* Read a number and command from the terminal.  Set cmd to the non-digit
+  * which terminates the number. */
+-static int read_number(struct more_control *ctl, cc_t *cmd)
++static struct number_command read_command(struct more_control *ctl)
  {
-+#ifdef HAVE_MAGIC
-+	const char *mime_encoding = magic_descriptor(ctl->magic, fileno(ctl->current_file));
+-	int i;
+-	cc_t ch;
+-
+-	i = 0;
+-	ch = ctl->output_tty.c_cc[VKILL];
+-	for (;;) {
+-		ch = read_user_input(ctl);
+-		if (isdigit(ch))
+-			i = i * 10 + ch - '0';
+-		else if (ch == ctl->output_tty.c_cc[VKILL])
+-			i = 0;
+-		else {
+-			*cmd = ch;
++	cc_t input[8] = { 0 };
++	ssize_t i, ilen;
++	struct number_command cmd = { .key = more_kc_unknown_command };
 +
-+	if (!mime_encoding || !(strcmp("binary", mime_encoding))) {
-+		printf(_("\n******** %s: Not a text file ********\n\n"), fs);
-+		return 1;
++	/* See stderr note in read_user_input() */
++	if ((ilen = read(STDERR_FILENO, &input, sizeof(input))) <= 0)
++		return cmd;
++	if (2 < ilen) {
++		if (!memcmp(input, ARROW_UP, sizeof(ARROW_UP))) {
++			cmd.key = more_kc_backwards;
++			return cmd;
++		} else if (!memcmp(input, ARROW_DOWN, sizeof(ARROW_DOWN))) {
++			cmd.key = more_kc_skip_forward;
++			return cmd;
++		} else if (!memcmp(input, PAGE_UP, sizeof(PAGE_UP))) {
++			cmd.key = more_kc_backwards;
++			return cmd;
++		} else if (!memcmp(input, PAGE_DOWN, sizeof(PAGE_DOWN))) {
++			cmd.key = more_kc_skip_forward;
++			return cmd;
++		}
 +	}
-+#else
- 	signed char twobytes[2];
- 
- 	/* don't try to look ahead if the input is unseekable */
--	if (fseek(f, 0L, SEEK_SET))
-+	if (fseek(ctl->current_file, 0L, SEEK_SET))
- 		return 0;
- 
--	if (fread(twobytes, 2, 1, f) == 1) {
-+	if (fread(twobytes, 2, 1, ctl->current_file) == 1) {
- 		switch (twobytes[0] + (twobytes[1] << 8)) {
- 		case 0407:	/* a.out obj */
- 		case 0410:	/* a.out exec */
-@@ -376,7 +388,8 @@ static int check_magic(FILE *f, char *fs)
- 			return 1;
++	for (i = 0; i < ilen; i++) {
++		if (isdigit(input[i])) {
++			if (0 < ctl->reading_num) {
++				ctl->leading_number *= 10;
++				ctl->leading_number += input[i] - '0';
++			} else
++				ctl->leading_number = input[i] - '0';
++			ctl->reading_num = 1;
++			continue;
++		}
++		cmd.number = ctl->leading_number;
++		ctl->reading_num = 0;
++		ctl->leading_number = 0;
++		if (ctl->leading_colon) {
++			ctl->leading_colon = 0;
++			switch (input[i]) {
++			case 'f':
++				cmd.key = more_kc_display_file_and_line;
++				return cmd;
++			case 'n':
++				cmd.key = more_kc_next_file;
++				return cmd;
++			case 'p':
++				cmd.key = more_kc_previous_file;
++				return cmd;
++			default:
++				cmd.key = more_kc_unknown_command;
++				return cmd;
++			}
++		}
++		/* command is a single char */
++		switch (input[i]) {
++		case '.':
++			cmd.key = more_kc_repeat_previous;
++			break;
++		case ':':
++			ctl->leading_colon = 1;
++			break;
++		case 'b':
++		case CTRL('B'):
++			cmd.key = more_kc_backwards;
++			break;
++		case ' ':
++			cmd.key = more_kc_jump_lines_per_screen;
++			break;
++		case 'z':
++			cmd.key = more_kc_set_lines_per_screen;
++			break;
++		case 'd':
++		case CTRL('D'):
++			cmd.key = more_kc_set_scroll_len;
++			break;
++		case 'q':
++		case 'Q':
++			cmd.key = more_kc_quit;
++			break;
++		case 'f':
++		case 's':
++		case CTRL('F'):
++			cmd.key = more_kc_skip_forward;
++			break;
++		case '\n':
++			cmd.key = more_kc_next_line;
++			break;
++		case '\f':
++			cmd.key = more_kc_clear_screen;
++			break;
++		case '\'':
++			cmd.key = more_kc_previous_search_match;
++			break;
++		case '=':
++			cmd.key = more_kc_display_line;
++			break;
++		case 'n':
++			cmd.key = more_kc_repeat_search;
++			break;
++		case '/':
++			cmd.key = more_kc_search;
++			break;
++		case '!':
++			cmd.key = more_kc_run_shell;
++			break;
++		case '?':
++		case 'h':
++			cmd.key = more_kc_help;
++			break;
++		case 'v':
++			cmd.key = more_kc_run_editor;
+ 			break;
  		}
  	}
--	fseek(f, 0L, SEEK_SET);	/* rewind() not necessary */
-+	fseek(ctl->current_file, 0L, SEEK_SET);	/* rewind() not necessary */
-+#endif
- 	return 0;
+-	return i;
++	return cmd;
  }
  
-@@ -394,23 +407,17 @@ static void checkf(struct more_control *ctl, char *fs)
- 	    (fstat(fileno(ctl->current_file), &st) != 0)) {
- 		if (ctl->clear_line_ends)
- 			putp(ctl->erase_line);
--		warn(_("stat of %s failed"), fs);
--		ctl->current_file = NULL;
-+		warn(_("cannot open %s"), fs);
- 		return;
- 	}
-+#ifndef HAVE_MAGIC
- 	if ((st.st_mode & S_IFMT) == S_IFDIR) {
- 		printf(_("\n*** %s: directory ***\n\n"), fs);
- 		ctl->current_file = NULL;
- 		return;
- 	}
--	ctl->current_line = 0;
--	ctl->file_position = 0;
--	if ((ctl->current_file = fopen(fs, "r")) == NULL) {
--		fflush(stdout);
--		warn(_("cannot open %s"), fs);
--		return;
+ /* Change displayed file from command line list to next nskip, where nskip
+@@ -1128,7 +1265,7 @@ static void run_shell(struct more_control *ctl, char *filename)
+ 	erase_to_col(ctl, 0);
+ 	putchar('!');
+ 	fflush(NULL);
+-	if (ctl->run_previous_command && ctl->shell_line)
++	if (ctl->previous_command.key == more_kc_run_shell && ctl->shell_line)
+ 		fputs(ctl->shell_line, stdout);
+ 	else {
+ 		ttyin(ctl, cmdbuf, sizeof(cmdbuf) - 2, '!');
+@@ -1145,60 +1282,6 @@ static void run_shell(struct more_control *ctl, char *filename)
+ 	execute(ctl, filename, ctl->shell, ctl->shell, "-c", ctl->shell_line, 0);
+ }
+ 
+-/* Execute a colon-prefixed command.  Returns <0 if not a command that
+- * should cause more of the file to be printed. */
+-static int colon_command(struct more_control *ctl, char *filename, int cmd, int nlines)
+-{
+-	char ch;
+-
+-	if (cmd == 0)
+-		ch = read_user_input(ctl);
+-	else
+-		ch = cmd;
+-	ctl->last_colon_command = ch;
+-	switch (ch) {
+-	case 'f':
+-		erase_to_col(ctl, 0);
+-		if (!ctl->no_tty_in)
+-			ctl->prompt_len =
+-			    printf(_("\"%s\" line %d"), ctl->file_names[ctl->argv_position], ctl->current_line);
+-		else
+-			ctl->prompt_len = printf(_("[Not a file] line %d"), ctl->current_line);
+-		fflush(NULL);
+-		return -1;
+-	case 'n':
+-		if (nlines == 0) {
+-			if (ctl->argv_position >= ctl->num_files - 1)
+-				more_exit(ctl);
+-			nlines++;
+-		}
+-		putchar('\r');
+-		erase_to_col(ctl, 0);
+-		change_file(ctl, nlines);
+-		return 0;
+-	case 'p':
+-		if (ctl->no_tty_in) {
+-			fprintf(stderr, "\a");
+-			return -1;
+-		}
+-		putchar('\r');
+-		erase_to_col(ctl, 0);
+-		if (nlines == 0)
+-			nlines++;
+-		change_file(ctl, -nlines);
+-		return 0;
+-	case '!':
+-		run_shell(ctl, filename);
+-		return -1;
+-	case 'q':
+-	case 'Q':
+-		more_exit(ctl);
+-	default:
+-		fprintf(stderr, "\a");
+-		return -1;
 -	}
--	if (check_magic(ctl->current_file, fs)) {
-+#endif
-+	if (check_magic(ctl, fs)) {
- 		fclose(ctl->current_file);
- 		ctl->current_file = NULL;
- 		return;
-@@ -704,6 +711,9 @@ static void reset_tty(struct more_control *ctl)
- /* Clean up terminal state and exit. Also come here if interrupt signal received */
- static void __attribute__((__noreturn__)) more_exit(struct more_control *ctl)
+-}
+-
+ /* Skip n lines in the file f */
+ static void skip_lines(struct more_control *ctl)
  {
-+#ifdef HAVE_MAGIC
-+	magic_close(ctl->magic);
-+#endif
- 	reset_tty(ctl);
- 	if (ctl->clear_line_ends) {
- 		putchar('\r');
-@@ -1906,6 +1916,10 @@ int main(int argc, char **argv)
- 
- 	initterm(&ctl);
- 
-+#ifdef HAVE_MAGIC
-+	ctl.magic = magic_open(MAGIC_MIME_ENCODING | MAGIC_SYMLINK);
-+	magic_load(ctl.magic, NULL);
-+#endif
- 	prepare_line_buffer(&ctl);
- 
- 	ctl.d_scroll_len = ctl.lines_per_page / 2 - 1;
+@@ -1503,12 +1586,11 @@ static int skip_forwards(struct more_control *ctl, int nlines, cc_t comchar)
+  * display in the current file, zero is returned. */
+ static int more_key_command(struct more_control *ctl, char *filename)
+ {
+-	int nlines;
+ 	int retval = 0;
+-	cc_t colonch;
+-	int done = 0;
+-	cc_t comchar;
++	int done = 0, search_again = 0;
+ 	char cmdbuf[INIT_BUF];
++	struct number_command cmd;
++
+ 	if (!ctl->report_errors)
+ 		output_prompt(ctl, filename);
+ 	else
+@@ -1517,72 +1599,51 @@ static int more_key_command(struct more_control *ctl, char *filename)
+ 	for (;;) {
+ 		if (more_poll(ctl, -1) != 0)
+ 			continue;
+-		nlines = read_number(ctl, &comchar);
+-		ctl->run_previous_command = colonch = 0;
+-		if (comchar == '.') {	/* Repeat last command */
+-			ctl->run_previous_command++;
+-			comchar = ctl->last_key_command;
+-			nlines = ctl->last_key_arg;
+-			if (ctl->last_key_command == ':')
+-				colonch = ctl->last_colon_command;
+-		}
+-		ctl->last_key_command = comchar;
+-		ctl->last_key_arg = nlines;
+-		if (comchar == ctl->output_tty.c_cc[VERASE]) {
+-			erase_to_col(ctl, 0);
+-			output_prompt(ctl, filename);
++		cmd = read_command(ctl);
++		if (cmd.key == more_kc_unknown_command)
+ 			continue;
+-		}
+-		switch (comchar) {
+-		case ':':
+-			retval = colon_command(ctl, filename, colonch, nlines);
+-			if (retval >= 0)
+-				done++;
+-			break;
+-		case 'b':
+-		case CTRL('B'):
++		if (cmd.key == more_kc_repeat_previous)
++			cmd = ctl->previous_command;
++		switch (cmd.key) {
++		case more_kc_backwards:
+ 			if (ctl->no_tty_in) {
+ 				fprintf(stderr, "\a");
+ 				return -1;
+ 			}
+-			retval = skip_backwards(ctl, nlines);
++			retval = skip_backwards(ctl, cmd.number);
+ 			done = 1;
+ 			break;
+-		case ' ':
+-		case 'z':
+-			if (nlines == 0)
+-				nlines = ctl->lines_per_screen;
+-			else if (comchar == 'z')
+-				ctl->lines_per_screen = nlines;
+-			retval = nlines;
++		case more_kc_jump_lines_per_screen:
++		case more_kc_set_lines_per_screen:
++			if (cmd.number == 0)
++				cmd.number = ctl->lines_per_screen;
++			else if (cmd.key == more_kc_set_lines_per_screen)
++				ctl->lines_per_screen = cmd.number;
++			retval = cmd.number;
+ 			done = 1;
+ 			break;
+-		case 'd':
+-		case CTRL('D'):
+-			if (nlines != 0)
+-				ctl->d_scroll_len = nlines;
++		case more_kc_set_scroll_len:
++			if (cmd.number != 0)
++				ctl->d_scroll_len = cmd.number;
+ 			retval = ctl->d_scroll_len;
+ 			done = 1;
+ 			break;
+-		case 'q':
+-		case 'Q':
++		case more_kc_quit:
+ 			more_exit(ctl);
+-		case 's':
+-		case 'f':
+-		case CTRL('F'):
+-			if (skip_forwards(ctl, nlines, comchar))
++		case more_kc_skip_forward:
++			if (skip_forwards(ctl, cmd.number, cmd.number))
+ 				retval = ctl->lines_per_screen;
+ 			done = 1;
+ 			break;
+-		case '\n':
+-			if (nlines != 0)
+-				ctl->lines_per_screen = nlines;
++		case more_kc_next_line:
++			if (cmd.number != 0)
++				ctl->lines_per_screen = cmd.number;
+ 			else
+-				nlines = 1;
+-			retval = nlines;
++				cmd.number = 1;
++			retval = cmd.number;
+ 			done = 1;
+ 			break;
+-		case '\f':
++		case more_kc_clear_screen:
+ 			if (!ctl->no_tty_in) {
+ 				more_clear_screen(ctl);
+ 				more_fseek(ctl, ctl->screen_start.row_num);
+@@ -1594,7 +1655,7 @@ static int more_key_command(struct more_control *ctl, char *filename)
+ 				fprintf(stderr, "\a");
+ 				break;
+ 			}
+-		case '\'':
++		case more_kc_previous_search_match:
+ 			if (!ctl->no_tty_in) {
+ 				erase_to_col(ctl, 0);
+ 				fputs(_("\n***Back***\n\n"), stdout);
+@@ -1607,49 +1668,82 @@ static int more_key_command(struct more_control *ctl, char *filename)
+ 				fprintf(stderr, "\a");
+ 				break;
+ 			}
+-		case '=':
++		case more_kc_display_line:
+ 			erase_to_col(ctl, 0);
+ 			ctl->prompt_len = printf("%d", ctl->current_line);
+ 			fflush(NULL);
+ 			break;
+-		case 'n':
++		case more_kc_display_file_and_line:
++			erase_to_col(ctl, 0);
++			if (!ctl->no_tty_in)
++				ctl->prompt_len =
++				    printf(_("\"%s\" line %d"),
++				           ctl->file_names[ctl->argv_position], ctl->current_line);
++			else
++				ctl->prompt_len = printf(_("[Not a file] line %d"),
++							 ctl->current_line);
++			fflush(NULL);
++			break;
++		case more_kc_repeat_search:
+ 			if (!ctl->previous_search) {
+ 				more_error(ctl, _("No previous regular expression"));
+ 				break;
+ 			}
+-			ctl->run_previous_command = 1;
++			search_again = 1;
+ 			/* fallthrough */
+-		case '/':
+-			if (nlines == 0)
+-				nlines++;
++		case more_kc_search:
++			if (cmd.number == 0)
++				cmd.number++;
+ 			erase_to_col(ctl, 0);
+ 			putchar('/');
+ 			ctl->prompt_len = 1;
+ 			fflush(NULL);
+-			if (ctl->run_previous_command) {
++			if (search_again) {
+ 				fputc('\r', stderr);
+-				search(ctl, ctl->previous_search, nlines);
++				search(ctl, ctl->previous_search, cmd.number);
++				search_again = 0;
+ 			} else {
+ 				ttyin(ctl, cmdbuf, sizeof(cmdbuf) - 2, '/');
+ 				fputc('\r', stderr);
+ 				ctl->next_search = xstrdup(cmdbuf);
+-				search(ctl, ctl->next_search, nlines);
++				search(ctl, ctl->next_search, cmd.number);
+ 			}
+ 			retval = ctl->lines_per_screen - 1;
+ 			done = 1;
+ 			break;
+-		case '!':
++		case more_kc_run_shell:
+ 			run_shell(ctl, filename);
+ 			break;
+-		case '?':
+-		case 'h':
++		case more_kc_help:
+ 			if (ctl->no_scroll)
+ 				more_clear_screen(ctl);
+ 			erase_to_col(ctl, 0);
+ 			runtime_usage();
+ 			output_prompt(ctl, filename);
+ 			break;
+-		case 'v':	/* This case should go right before default */
++		case more_kc_next_file:
++			putchar('\r');
++			erase_to_col(ctl, 0);
++			if (cmd.number == 0)
++				cmd.number = 1;
++			if (ctl->argv_position + cmd.number >= (unsigned int)ctl->num_files)
++				more_exit(ctl);
++			change_file(ctl, cmd.number);
++			done = 1;
++			break;
++		case more_kc_previous_file:
++			if (ctl->no_tty_in) {
++				fprintf(stderr, "\a");
++				break;
++			}
++			putchar('\r');
++			erase_to_col(ctl, 0);
++			if (cmd.number == 0)
++				cmd.number = 1;
++			change_file(ctl, -cmd.number);
++			done = 1;
++			break;
++		case more_kc_run_editor:	/* This case should go right before default */
+ 			if (!ctl->no_tty_in) {
+ 				execute_editor(ctl, cmdbuf, filename);
+ 				break;
+@@ -1670,8 +1764,11 @@ static int more_key_command(struct more_control *ctl, char *filename)
+ 			fflush(NULL);
+ 			break;
+ 		}
+-		if (done)
++		ctl->previous_command = cmd;
++		if (done) {
++			cmd.key = more_kc_unknown_command;
+ 			break;
++		}
+ 	}
+ 	putchar('\r');
+ 	ctl->no_quit_dialog = 1;
 -- 
 2.26.2
 
