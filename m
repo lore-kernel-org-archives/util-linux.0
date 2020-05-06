@@ -7,61 +7,62 @@ X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E6E3C28CBC
-	for <util-linux@archiver.kernel.org>; Wed,  6 May 2020 13:16:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 871C4C28CBC
+	for <util-linux@archiver.kernel.org>; Wed,  6 May 2020 13:16:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6A487206D5
-	for <util-linux@archiver.kernel.org>; Wed,  6 May 2020 13:16:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 60970206D5
+	for <util-linux@archiver.kernel.org>; Wed,  6 May 2020 13:16:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GvF8kX6q"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EQuyNlMm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728058AbgEFNQO (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 6 May 2020 09:16:14 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:37056 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727969AbgEFNQN (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 6 May 2020 09:16:13 -0400
+        id S1728224AbgEFNQv (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 6 May 2020 09:16:51 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:42157 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728081AbgEFNQu (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 6 May 2020 09:16:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588770973;
+        s=mimecast20190719; t=1588771010;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=kc33gD+Bh697Zxe+kQK0G0SJ3vyj0qT3ml3hy6xUBlM=;
-        b=GvF8kX6qrGXpgOZ+h7N321OXoBXCCvcgF3+e49pqJV66lLkoXhUx3sNI3nzXcW91AgH1Gn
-        s1yLgkMWvCQTu93thR6YsRII51EgY8bBfeLdYa5JPgIFNhthflSsrGr69TGANuQjWCYLGt
-        Jiu6/5OWrwR9hLDQ/Gv7QLFA2Q7HiXw=
+        bh=zw4NMdVd36o7slCtodbrrIZp6nknO9jyBeZQSbdU7uY=;
+        b=EQuyNlMm8RF/pjdhTMAkjpeKVPOvJVBRSXFhNfO9imSvwKDXBiK+cEhyALx/WE8m0AD5UD
+        0K51oDmTJEkuM6TeBjRKlAvEg81eaQiGBqlVJrUkBhlnanAZ0Pndxs3FBJ3Z0UxyLyLCYC
+        SIYpo/jn6/0/PKiuhiAaZNpZ9QYfpFc=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-198-YHaY8L5lMsGFNzjYiDBkKA-1; Wed, 06 May 2020 09:16:11 -0400
-X-MC-Unique: YHaY8L5lMsGFNzjYiDBkKA-1
+ us-mta-404-BdF-hy1uNauM0IwLbhBaNA-1; Wed, 06 May 2020 09:16:46 -0400
+X-MC-Unique: BdF-hy1uNauM0IwLbhBaNA-1
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D6E231083E81;
-        Wed,  6 May 2020 13:16:09 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 82451468;
+        Wed,  6 May 2020 13:16:42 +0000 (UTC)
 Received: from ws.net.home (unknown [10.40.193.21])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id D187E60BEC;
-        Wed,  6 May 2020 13:16:08 +0000 (UTC)
-Date:   Wed, 6 May 2020 15:16:06 +0200
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id BF84F60F8A;
+        Wed,  6 May 2020 13:16:41 +0000 (UTC)
+Date:   Wed, 6 May 2020 15:16:39 +0200
 From:   Karel Zak <kzak@redhat.com>
-To:     Chris Hofstaedtler <zeha@debian.org>
-Cc:     util-linux@vger.kernel.org, Mark Hindley <mark@hindley.org.uk>
-Subject: Re: [PATCH] Fix for misc/fallocate test build failure.
-Message-ID: <20200506131606.gaj6v4jguhrxdyib@ws.net.home>
-References: <20200505192854.2194308-1-zeha@debian.org>
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: [PATCH] fdisk: specify in '--help' that we can have multiple
+ devices with '-l'
+Message-ID: <20200506131639.c5gbv3gv3ypucplw@ws.net.home>
+References: <20200506103750.2587-1-wsa@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200505192854.2194308-1-zeha@debian.org>
+In-Reply-To: <20200506103750.2587-1-wsa@kernel.org>
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Tue, May 05, 2020 at 09:28:55PM +0200, Chris Hofstaedtler wrote:
->  tests/ts/misc/fallocate | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On Wed, May 06, 2020 at 12:37:50PM +0200, Wolfram Sang wrote:
+>  disk-utils/fdisk.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
 Applied, thanks.
 
