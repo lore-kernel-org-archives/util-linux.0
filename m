@@ -2,65 +2,89 @@ Return-Path: <SRS0=2oxY=6U=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 506C2C28CBC
-	for <util-linux@archiver.kernel.org>; Wed,  6 May 2020 13:21:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 701F6C28CBC
+	for <util-linux@archiver.kernel.org>; Wed,  6 May 2020 13:29:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3607C206DB
-	for <util-linux@archiver.kernel.org>; Wed,  6 May 2020 13:21:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2FBD620575
+	for <util-linux@archiver.kernel.org>; Wed,  6 May 2020 13:29:40 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="N3S11o7q"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728286AbgEFNVp (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 6 May 2020 09:21:45 -0400
-Received: from mx2.suse.de ([195.135.220.15]:41866 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728090AbgEFNVo (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Wed, 6 May 2020 09:21:44 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id AAAD8AF6F;
-        Wed,  6 May 2020 13:21:45 +0000 (UTC)
-Date:   Wed, 6 May 2020 15:21:41 +0200
-From:   Anthony Iliopoulos <ailiop@suse.com>
-To:     Karel Zak <kzak@redhat.com>
+        id S1728090AbgEFN3j (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 6 May 2020 09:29:39 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:27853 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728081AbgEFN3j (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 6 May 2020 09:29:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1588771778;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=PEyY60MOIcBSDzMzbfL4VdjCr384hrSWqdoxFGe6Uew=;
+        b=N3S11o7qle5KdXuP8FeRr8QgSFomEkbr5DArkRIRccnmxtbTPLSMtfxsIQtBCEjKWisP1n
+        fVTz68QTboRcvMmuSIeoOq6Ctq5Y5k9anSbVSSMVTPp0Smx0gDykp6HEJxRfeD5VNZdpEa
+        QneNjxqIzy+H3nQmtDpVgrJFTUf11+w=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-424-vr6jzbxLNUuDMp61aj6z9Q-1; Wed, 06 May 2020 09:29:36 -0400
+X-MC-Unique: vr6jzbxLNUuDMp61aj6z9Q-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E1AB08015CF;
+        Wed,  6 May 2020 13:29:35 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.193.21])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 293BD605F7;
+        Wed,  6 May 2020 13:29:34 +0000 (UTC)
+Date:   Wed, 6 May 2020 15:29:32 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Anthony Iliopoulos <ailiop@suse.com>
 Cc:     util-linux@vger.kernel.org
 Subject: Re: [PATCH] libblkid: add dax capability detection in topology
  probing
-Message-ID: <20200506132141.GZ1329@technoir>
+Message-ID: <20200506132932.xpyk3z6jqho6gysk@ws.net.home>
 References: <20200505143145.9852-2-ailiop@suse.com>
  <20200506130847.d2u66a2lsrp4pfah@ws.net.home>
+ <20200506132141.GZ1329@technoir>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200506130847.d2u66a2lsrp4pfah@ws.net.home>
+In-Reply-To: <20200506132141.GZ1329@technoir>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, May 06, 2020 at 03:08:47PM +0200, Karel Zak wrote:
-> On Tue, May 05, 2020 at 04:31:45PM +0200, Anthony Iliopoulos wrote:
-> > The dax (direct access) blockdev capability is exposed via sysfs, add it
-> > to the list of topology values to be obtained while probing.
+On Wed, May 06, 2020 at 03:21:41PM +0200, Anthony Iliopoulos wrote:
+> On Wed, May 06, 2020 at 03:08:47PM +0200, Karel Zak wrote:
+> > On Tue, May 05, 2020 at 04:31:45PM +0200, Anthony Iliopoulos wrote:
+> > > The dax (direct access) blockdev capability is exposed via sysfs, add it
+> > > to the list of topology values to be obtained while probing.
+> > > 
+> > > Expose blkid_topology_get_dax() symbol that programs can link against
+> > > for querying the capability.
 > > 
-> > Expose blkid_topology_get_dax() symbol that programs can link against
-> > for querying the capability.
+> > Do we have any use-case for this change? 
+> > 
+> > We maintain blkid_topology_* mostly for mkfs-like programs portability 
+> > (years ago we had only ioctls, etc..). You can see that libblkid export
+> > only small subset topology stuff, so why we need DAX there? ;-)
 > 
-> Do we have any use-case for this change? 
-> 
-> We maintain blkid_topology_* mostly for mkfs-like programs portability 
-> (years ago we had only ioctls, etc..). You can see that libblkid export
-> only small subset topology stuff, so why we need DAX there? ;-)
+> The use-case is indeed mkfs. I am planning to submit a patch to xfsprogs
 
-The use-case is indeed mkfs. I am planning to submit a patch to xfsprogs
-that warns if the blockdev is dax-capable but the default or specified
-fs blocksize isn't matching the platform page size (in which case the fs
-cannot be used/mounted with dax). This comes up with archs like ppc64
-where the page size is larger than the default (usually 4K) fs blocksize.
+Yes, hch is the reason why we have topology API in libblkid :-)
 
-I wanted to avoid parsing sysfs from xfsprogs, especially given that
-libblkid is already leveraged there to obtain the topology, and I assume
-it may be handy for e2fsprogs too, as ext4 (and any other fs that may
-support dax in the future) is bound to the same restriction.
+Applied, thanks.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
