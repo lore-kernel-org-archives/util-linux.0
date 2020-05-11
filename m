@@ -2,152 +2,138 @@ Return-Path: <SRS0=QCn3=6Z=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.0 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7269C47255
-	for <util-linux@archiver.kernel.org>; Mon, 11 May 2020 12:20:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ADCBEC47255
+	for <util-linux@archiver.kernel.org>; Mon, 11 May 2020 16:11:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AE0E8207FF
-	for <util-linux@archiver.kernel.org>; Mon, 11 May 2020 12:20:04 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EJua4/68"
+	by mail.kernel.org (Postfix) with ESMTP id 7D9432070B
+	for <util-linux@archiver.kernel.org>; Mon, 11 May 2020 16:11:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1589213460;
+	bh=1qegPZQFKctDKFaIleOtLuBPLA3mX5qpy+h1qMIWgw4=;
+	h=From:To:Cc:Subject:Date:List-ID:From;
+	b=0iUrtmMGt0FMreUiee1R2wXsSHcX+fc9000Vpu+3GeQgJTui2MK3f6xgdgd5TGhkj
+	 naBn3VOhnCAbgYUN9GypRWQv8UDUP9l6OQ3GbLFoFEQfbJTbycLmASyqxd219oKFXz
+	 pZkOsS2O1hfoOS936LQT1VbKGXAbSbsod8APJCbY=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726934AbgEKMUE (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 11 May 2020 08:20:04 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:44425 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725913AbgEKMUD (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 11 May 2020 08:20:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589199601;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type;
-        bh=1Vfe56YDToK/lT/8w6/KKc6r3uvD8Ffb68LAyy31Dew=;
-        b=EJua4/68MGn5yT6e87rEDdeys313PzJJnexWbKeH34aTgV2j2R9/t6GcQ+M8XH0uFpaoY9
-        u3ifMqZ4okymrBsx5JU14NzurkXeDIuwRp7tX9JhYbXTi7yA6/I4UhJxQ+aTbqC9xZew1w
-        eLSmpKi6Wq++TLTMUdswmQbkv0pD4e0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-304-5bCU3HHQOEaB0KmzPGOkEw-1; Mon, 11 May 2020 08:19:59 -0400
-X-MC-Unique: 5bCU3HHQOEaB0KmzPGOkEw-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6515C107ACF9;
-        Mon, 11 May 2020 12:19:58 +0000 (UTC)
-Received: from ws.net.home (unknown [10.40.193.21])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 95ED06299C;
-        Mon, 11 May 2020 12:19:57 +0000 (UTC)
-Date:   Mon, 11 May 2020 14:19:54 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     J William Piggott <elseifthen@gmx.com>, util-linux@vger.kernel.org
-Subject: settimeofday() portability in hwclock 
-Message-ID: <20200511121954.pi5wpbwxqtli7gha@ws.net.home>
+        id S1729956AbgEKQLA (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 11 May 2020 12:11:00 -0400
+Received: from sauhun.de ([88.99.104.3]:48632 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729877AbgEKQLA (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 11 May 2020 12:11:00 -0400
+Received: from localhost (p54B33735.dip0.t-ipconnect.de [84.179.55.53])
+        by pokefinder.org (Postfix) with ESMTPSA id B3FBB2C1F6D;
+        Mon, 11 May 2020 18:10:57 +0200 (CEST)
+From:   Wolfram Sang <wsa@kernel.org>
+To:     util-linux@vger.kernel.org
+Cc:     Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH] sfdisk: avoid unneeded empty lines with '--list-free'
+Date:   Mon, 11 May 2020 18:10:48 +0200
+Message-Id: <20200511161048.12347-1-wsa@kernel.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+Similar to commit 4a52959d1 ("(s)fdisk: avoid unneeded empty lines with
+'--list'"), there were also two superfluous empty lines when /dev/sr0
+didn't contain a medium. Refactor the '--list-free' code the same way as
+in the mentioned commit.
 
- Hi William,
-
- please, review this patch. It seems we need to somehow hide libc
- maintainers' creativity as settimeofday() have different behavior on
- different libcs ;-) For example musl-C completely ignores TZ.
-
- I'd like to keep the current structure of our code (IMHO it's pretty
- readable now), so I have  introduced  __set_time() and __set_timezone()
- to hide the portability issues.
-
-    Karel
-
-From 8a1e6fe5c37e2122264c501d5452a5b55ae33b66 Mon Sep 17 00:00:00 2001
-From: Karel Zak <kzak@redhat.com>
-Date: Mon, 11 May 2020 13:35:21 +0200
-Subject: [PATCH] hwclock: improve use of settimeofday() portability
-
-The different libc implements TZ deprecation in settimeofday() library
-function in the different way. Let's hide these portability issues and
-use directly Linux syscall to set timezone.
-
-Addresses: https://github.com/karelzak/util-linux/issues/995
-Signed-off-by: Karel Zak <kzak@redhat.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 ---
- sys-utils/hwclock.c | 26 ++++++++++++++++++++++----
- 1 file changed, 22 insertions(+), 4 deletions(-)
+ disk-utils/fdisk-list.c | 14 ++++++++------
+ disk-utils/fdisk-list.h |  2 +-
+ disk-utils/sfdisk.c     | 10 +++-------
+ 3 files changed, 12 insertions(+), 14 deletions(-)
 
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 37abab42d..ac4f9c753 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -71,6 +71,7 @@
- #include <string.h>
- #include <sys/stat.h>
- #include <sys/time.h>
-+#include <sys/syscall.h>
- #include <time.h>
- #include <unistd.h>
+diff --git a/disk-utils/fdisk-list.c b/disk-utils/fdisk-list.c
+index 78e17a97f..8cc116281 100644
+--- a/disk-utils/fdisk-list.c
++++ b/disk-utils/fdisk-list.c
+@@ -383,7 +383,8 @@ int print_device_pt(struct fdisk_context *cxt, char *device, int warnme,
+ 	return 0;
+ }
  
-@@ -655,7 +656,6 @@ display_time(struct timeval hwctime)
-  * ptr2utc: tz.tz_minuteswest is zero (UTC).
-  * PCIL: persistent_clock_is_local, sets the "11 minute mode" timescale.
-  * firsttime: locks the warp_clock function (initialized to 1 at boot).
-- * Since glibc v2.31 settimeofday() will fail if both args are non NULL
-  *
-  * +---------------------------------------------------------------------------+
-  * |  op     | RTC scale | settimeofday calls                                  |
-@@ -666,7 +666,25 @@ display_time(struct timeval hwctime)
-  * | hctosys |   UTC     | 1st) locks warp* 2nd) sets tz 3rd) sets system time |
-  * +---------------------------------------------------------------------------+
-  *                         * only on first call after boot
-+ *
-+ * POSIX 2008 marked TZ in settimeofday() as deprecated. Unfortunately,
-+ * different C libraries react to this deprecation in a different way. Since
-+ * glibc v2.31 settimeofday() will fail if both args are not NULL, Musl-C
-+ * ignores TZ at all, etc. We use __set_time() and __set_timezone() to hide
-+ * these portability issues and to keep code readable.
-  */
-+#define __set_time(_tv)		settimeofday(_tv, NULL)
+-int print_device_freespace(struct fdisk_context *cxt, char *device, int warnme)
++int print_device_freespace(struct fdisk_context *cxt, char *device, int warnme,
++			   int seperator)
+ {
+ 	if (fdisk_assign_device(cxt, device, 1) != 0) {	/* read-only */
+ 		if (warnme || errno == EACCES)
+@@ -391,6 +392,9 @@ int print_device_freespace(struct fdisk_context *cxt, char *device, int warnme)
+ 		return -1;
+ 	}
+ 
++	if (seperator)
++		fputs("\n\n", stdout);
 +
-+static inline int __set_timezone(const struct timezone *tz)
-+{
-+#ifdef SYS_settimeofday
-+	errno = 0;
-+	return syscall(SYS_settimeofday, NULL, tz);
-+#else
-+	return settimeofday(NULL, tz);
-+#endif
-+}
-+
- static int
- set_system_clock(const struct hwclock_control *ctl,
- 		 const struct timeval newtime)
-@@ -703,15 +721,15 @@ set_system_clock(const struct hwclock_control *ctl,
+ 	list_freespace(cxt);
+ 	fdisk_deassign_device(cxt, 1);
+ 	return 0;
+@@ -412,15 +416,13 @@ void print_all_devices_pt(struct fdisk_context *cxt, int verify)
+ void print_all_devices_freespace(struct fdisk_context *cxt)
+ {
+ 	FILE *f = NULL;
+-	int ct = 0;
++	int sep = 0;
+ 	char *dev;
  
- 		/* If UTC RTC: lock warp_clock and PCIL */
- 		if (ctl->universal)
--			rc = settimeofday(NULL, &tz_utc);
-+			rc = __set_timezone(&tz_utc);
+ 	while ((dev = next_proc_partition(&f))) {
+-		if (ct)
+-			fputs("\n\n", stdout);
+-		if (print_device_freespace(cxt, dev, 0) == 0)
+-			ct++;
++		print_device_freespace(cxt, dev, 0, sep);
+ 		free(dev);
++		sep = 1;
+ 	}
+ }
  
- 		/* Set kernel tz; if localtime RTC: warp_clock and set PCIL */
- 		if (!rc && !( ctl->universal && !minuteswest ))
--			rc = settimeofday(NULL, &tz);
-+			rc = __set_timezone(&tz);
+diff --git a/disk-utils/fdisk-list.h b/disk-utils/fdisk-list.h
+index 47518c498..a31ab0a7e 100644
+--- a/disk-utils/fdisk-list.h
++++ b/disk-utils/fdisk-list.h
+@@ -8,7 +8,7 @@ extern void list_freespace(struct fdisk_context *cxt);
  
- 		/* Set the System Clock */
- 		if ((!rc || errno == ENOSYS) && ctl->hctosys)
--			rc = settimeofday(&newtime, NULL);
-+			rc = __set_time(&newtime);
+ extern char *next_proc_partition(FILE **f);
+ extern int print_device_pt(struct fdisk_context *cxt, char *device, int warnme, int verify, int seperator);
+-extern int print_device_freespace(struct fdisk_context *cxt, char *device, int warnme);
++extern int print_device_freespace(struct fdisk_context *cxt, char *device, int warnme, int seperator);
  
- 		if (rc) {
- 			warn(_("settimeofday() failed"));
+ extern void print_all_devices_pt(struct fdisk_context *cxt, int verify);
+ extern void print_all_devices_freespace(struct fdisk_context *cxt);
+diff --git a/disk-utils/sfdisk.c b/disk-utils/sfdisk.c
+index 6299cb49c..e0c25fde7 100644
+--- a/disk-utils/sfdisk.c
++++ b/disk-utils/sfdisk.c
+@@ -673,15 +673,11 @@ static int command_list_freespace(struct sfdisk *sf, int argc, char **argv)
+ 	fdisk_enable_listonly(sf->cxt, 1);
+ 
+ 	if (argc) {
+-		int i, ct = 0;
++		int i;
+ 
+-		for (i = 0; i < argc; i++) {
+-			if (ct)
+-				fputs("\n\n", stdout);
+-			if (print_device_freespace(sf->cxt, argv[i], 1) != 0)
++		for (i = 0; i < argc; i++)
++			if (print_device_freespace(sf->cxt, argv[i], 1, i) != 0)
+ 				fail++;
+-			ct++;
+-		}
+ 	} else
+ 		print_all_devices_freespace(sf->cxt);
+ 
 -- 
-2.25.4
+2.26.2
 
