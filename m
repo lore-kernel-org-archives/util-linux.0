@@ -7,65 +7,82 @@ X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1BB6C54E4B
-	for <util-linux@archiver.kernel.org>; Tue, 12 May 2020 08:15:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BA9EC54E4B
+	for <util-linux@archiver.kernel.org>; Tue, 12 May 2020 08:54:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B6E9F20714
-	for <util-linux@archiver.kernel.org>; Tue, 12 May 2020 08:15:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7313220714
+	for <util-linux@archiver.kernel.org>; Tue, 12 May 2020 08:54:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WoSrm+qx"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bVoqnh0R"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725987AbgELIPM (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 12 May 2020 04:15:12 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:27258 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725813AbgELIPM (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 12 May 2020 04:15:12 -0400
+        id S1729282AbgELIyJ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 12 May 2020 04:54:09 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:41152 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726067AbgELIyI (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Tue, 12 May 2020 04:54:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589271311;
+        s=mimecast20190719; t=1589273647;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=EJ9QAC0J5DYwj84rmU6w15yF0Fc5XABtF6qBDagfFzc=;
-        b=WoSrm+qx/w9lXTg7bdDt3ycqNcYlsWjPUiClgKnWqoYd4PYsw0rUwoYCSWtvLJD/dR1s0o
-        Q371HIU4z9MFjqU3H0+OedJKbvZD3RgJvgVjxHFN5GJMuQ7tFU4HW9gf+NpwrHPmOqBA9J
-        kuGWVK3o+xI7+lVQrSF7S/WLE3HDqqs=
+        bh=DeKKZhesIOZE4JGl1CsS0Av7Bod6YNsn3CSHM/g6/ts=;
+        b=bVoqnh0Rcumh8X50qmUZMB4aAjanLVFj5BQ5cWUlsaY9YVuXJ6tK+J5ZbzYAHj77WAVSO/
+        WeRUxqtLhj0jJv79WPbBBkUC5Uds/SA72WzHlXxK+J1CYCDwRpKPyrc+YSA9xReJ6IttST
+        mhx1QqlZNNLCnYnzUnAJ/7Z4r3ty8Ow=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-466-80kWNhDgPvypSzb7i4wLUA-1; Tue, 12 May 2020 04:11:08 -0400
-X-MC-Unique: 80kWNhDgPvypSzb7i4wLUA-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+ us-mta-157-WyuTGEcWMmCJ12dUt0bHKw-1; Tue, 12 May 2020 04:54:03 -0400
+X-MC-Unique: WyuTGEcWMmCJ12dUt0bHKw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 873E1475;
-        Tue, 12 May 2020 08:11:07 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0CD99835B44;
+        Tue, 12 May 2020 08:54:02 +0000 (UTC)
 Received: from ws.net.home (unknown [10.40.193.21])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id C76D25C1BB;
-        Tue, 12 May 2020 08:11:06 +0000 (UTC)
-Date:   Tue, 12 May 2020 10:11:04 +0200
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 48F252E16B;
+        Tue, 12 May 2020 08:54:01 +0000 (UTC)
+Date:   Tue, 12 May 2020 10:53:58 +0200
 From:   Karel Zak <kzak@redhat.com>
-To:     Wolfram Sang <wsa@kernel.org>
+To:     Sami Kerola <kerolasa@iki.fi>
 Cc:     util-linux@vger.kernel.org
-Subject: Re: [PATCH] sfdisk: avoid unneeded empty lines with '--list-free'
-Message-ID: <20200512081104.uxib26ibilpfuxjd@ws.net.home>
-References: <20200511161048.12347-1-wsa@kernel.org>
+Subject: Re: [PATCH 0/2] more(1) use libmagic and make page up/down and arrow
+ keys work
+Message-ID: <20200512085358.yjfl7ryg4bq3tpx4@ws.net.home>
+References: <20200506191923.5272-1-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200511161048.12347-1-wsa@kernel.org>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+In-Reply-To: <20200506191923.5272-1-kerolasa@iki.fi>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Mon, May 11, 2020 at 06:10:48PM +0200, Wolfram Sang wrote:
->  disk-utils/fdisk-list.c | 14 ++++++++------
->  disk-utils/fdisk-list.h |  2 +-
->  disk-utils/sfdisk.c     | 10 +++-------
->  3 files changed, 12 insertions(+), 14 deletions(-)
+On Wed, May 06, 2020 at 08:19:21PM +0100, Sami Kerola wrote:
+> Here are two changes to more(1) that where requested in earlier github
+> pull[1] request to get review in maillist, so here we go.
 
 Applied, thanks.
+
+> First one of the changes will link more(1) with libmagic so that various
+> binary formats can be detected with effect the pager will not mess up
+> termial.
+
+It seems we do not have devel package for libmagic in Fedora.
+
+> Second change is perhaps a little bit more exciting.  It will add page-up,
+> page-down, arrow-up, and arrow-down movements to more(1).  This pager has
+> known now to scroll back and forth since long time ago, but most of the
+> people do not seem to know key bindings so lets help users by assigning the
+> most obvious buttons the way one might expect them to work. 
+
+This is nice feature, maybe also add arrow keys to move one line
+up/down.
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
