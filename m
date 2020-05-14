@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 173CDC433EB
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E321C433E4
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E51952065F
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 719E52065F
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727839AbgENSvf (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:35 -0400
-Received: from luckmann.name ([213.239.213.133]:49935 "EHLO
+        id S1727829AbgENSva (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:51:30 -0400
+Received: from luckmann.name ([213.239.213.133]:41493 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727845AbgENSvf (ORCPT
+        by vger.kernel.org with ESMTP id S1727810AbgENSva (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:35 -0400
+        Thu, 14 May 2020 14:51:30 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56154.000000005EBD9332.000067A9; Thu, 14 May 2020 20:51:30 +0200
-Date:   Thu, 14 May 2020 20:51:30 +0200
+  id 0000000000E56154.000000005EBD932E.000066C1; Thu, 14 May 2020 20:51:26 +0200
+Date:   Thu, 14 May 2020 20:51:26 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: hwclock.8: Spacing
-Message-ID: <20200514185130.GA26522@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: hexdump.1: Missing bracket
+Message-ID: <20200514185126.GA26289@Debian-50-lenny-64-minimal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -77,17 +77,12 @@ use another channel, please let me know.
 
 **
 
-Man page: hwclock.8
-Issue: Spaces in and around the final B<>
+Man page: hexdump.1
+Issue: Missing closing bracket (for fprintf)
 
-"Some Linux distributions attempt to automatically calculate the System Clock "
-"drift with B<\\%adjtimex>'s compare operation.  Trying to correct one "
-"drifting clock by using another drifting clock as a reference is akin to a "
-"dog trying to catch its own tail.  Success may happen eventually, but great "
-"effort and frustration will likely precede it.  This automation may yield an "
-"improvement over no configuration, but expecting optimum results would be in "
-"error.  A better choice for manual configuration would be B<\\%adjtimex>'sB< "
-"--log >options."
+"The format is required and must be surrounded by double quote (\" \") "
+"marks.  It is interpreted as a fprintf-style format string (see "
+"B<fprintf>(3), with the following exceptions:"
 
 Greetings
 
