@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFC4DC433EA
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FF68C433EB
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 975262065F
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2951F2065F
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727111AbgENSv1 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S1727815AbgENSv1 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Thu, 14 May 2020 14:51:27 -0400
-Received: from luckmann.name ([213.239.213.133]:41493 "EHLO
+Received: from luckmann.name ([213.239.213.133]:49935 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727815AbgENSv0 (ORCPT
+        by vger.kernel.org with ESMTP id S1727810AbgENSv1 (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:26 -0400
+        Thu, 14 May 2020 14:51:27 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56157.000000005EBD932B.000065ED; Thu, 14 May 2020 20:51:23 +0200
-Date:   Thu, 14 May 2020 20:51:23 +0200
+  id 0000000000E56160.000000005EBD932C.0000661E; Thu, 14 May 2020 20:51:24 +0200
+Date:   Thu, 14 May 2020 20:51:24 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
 Subject: Errors in util-linux man pages, here: fdisk.8: Missing markup
-Message-ID: <20200514185123.GA26078@Debian-50-lenny-64-minimal>
+Message-ID: <20200514185123.GA26127@Debian-50-lenny-64-minimal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -78,13 +78,14 @@ use another channel, please let me know.
 **
 
 Man page: fdisk.8
-Issue: Missing markup of file (names)
+Issue: Missing markup of fdisk
 
-"The I<device> is usually /dev/sda, /dev/sdb or so.  A device name refers to "
-"the entire disk.  Old systems without libata (a library used inside the "
-"Linux kernel to support ATA host controllers and devices) make a difference "
-"between IDE and SCSI disks.  In such cases the device name will be /dev/hd* "
-"(IDE) or /dev/sd* (SCSI)."
+"Usually all goes well by default, and there are no problems if Linux is the "
+"only system on the disk.  However, if the disk has to be shared with other "
+"operating systems, it is often a good idea to let an fdisk from another "
+"operating system make at least one partition.  When Linux boots it looks at "
+"the partition table, and tries to deduce what (fake) geometry is required "
+"for good cooperation with other systems."
 
 Greetings
 
