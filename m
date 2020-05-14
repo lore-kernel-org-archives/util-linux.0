@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8A62C433E0
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31EF1C433E4
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:52:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8769120675
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0DF872065F
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:52:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727944AbgENSvw (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:52 -0400
+        id S1728004AbgENSwA (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:52:00 -0400
 Received: from luckmann.name ([213.239.213.133]:59621 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727912AbgENSvw (ORCPT
+        by vger.kernel.org with ESMTP id S1727124AbgENSv4 (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:52 -0400
+        Thu, 14 May 2020 14:51:56 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56151.000000005EBD9342.00006AFB; Thu, 14 May 2020 20:51:46 +0200
-Date:   Thu, 14 May 2020 20:51:46 +0200
+  id 0000000000E56148.000000005EBD9347.00006BD5; Thu, 14 May 2020 20:51:51 +0200
+Date:   Thu, 14 May 2020 20:51:51 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: rfkill.8: Markup
-Message-ID: <20200514185146.GA27372@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: scriptlive.1: Markup/Groff
+Message-ID: <20200514185151.GA27590@Debian-50-lenny-64-minimal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -77,12 +77,15 @@ use another channel, please let me know.
 
 **
 
-Man page: rfkill.8
-Issue: B<block id|type> → B<block >I<id|type>
+Man page: scriptlive.1
+Issue 1: B<script (1)> → B<script>(1)
+Issue 2: split the groff code correctly
 
-msgid "B<block id>|B<type> [...]"
-
-msgid "B<unblock id>|B<type> [...]"
+"aliast to B<-t>, maintained for compatibility with B<script (1)> command "
+"line options.  B<-d>,B< --divisor >I<number> Speed up the replay displaying "
+"this I<number> of times.  The argument is a floating point number.  It's "
+"called divisor because it divides the timings by this factor.  This option "
+"overrides old-style arguments."
 
 Greetings
 
