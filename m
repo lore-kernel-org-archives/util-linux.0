@@ -3,32 +3,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04AEEC433DF
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:13:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9EA3C433E0
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:13:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C7AE7206D8
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:13:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B7C42206D8
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:13:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727969AbgENSvx (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:53 -0400
-Received: from luckmann.name ([213.239.213.133]:41493 "EHLO
+        id S1727940AbgENTND (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 15:13:03 -0400
+Received: from luckmann.name ([213.239.213.133]:43279 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727861AbgENSvx (ORCPT
+        by vger.kernel.org with ESMTP id S1727939AbgENSvw (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:53 -0400
+        Thu, 14 May 2020 14:51:52 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56153.000000005EBD9343.00006B31; Thu, 14 May 2020 20:51:47 +0200
-Date:   Thu, 14 May 2020 20:51:47 +0200
+  id 0000000000E5615C.000000005EBD9342.00006B19; Thu, 14 May 2020 20:51:46 +0200
+Date:   Thu, 14 May 2020 20:51:46 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: runuser.1: Markup/Wording
-Message-ID: <20200514185147.GA27426@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: rtcwake.8: Wording
+Message-ID: <20200514185146.GA27395@Debian-50-lenny-64-minimal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -77,16 +77,14 @@ use another channel, please let me know.
 
 **
 
-Man page: runuser.1
-Issue: Markup missing and copy → sync?
- 
-"Create pseudo-terminal for the session. The independent terminal provides "
-"better security as user does not share terminal with the original session.  "
-"This allow to avoid TIOCSTI ioctl terminal injection and another security "
-"attacks against terminal file descriptors. The all session is also possible "
-"to move to background (e.g., \"runuser --pty -u username -- command &\").  "
-"If the pseudo-terminal is enabled then runuser command works as a proxy "
-"between the sessions (copy stdin and stdout)."
+Man page: rtcwake.8
+Issue: to terminal → the terminal
+
+"The suspend setup may be interrupted by active hardware; for example "
+"wireless USB input devices that continue to send events for some fraction of "
+"a second after the return key is pressed.  B<rtcwake> tries to avoid this "
+"problem and it waits to terminal to settle down before entering a system "
+"sleep."
 
 Greetings
 
