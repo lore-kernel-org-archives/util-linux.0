@@ -6,33 +6,33 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D8F9C433DF
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:11:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0968C433E0
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:11:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 501AF206DC
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:11:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AA6C3206A5
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:11:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729328AbgENTLm (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 15:11:42 -0400
-Received: from luckmann.name ([213.239.213.133]:49935 "EHLO
+        id S1728612AbgENTLr (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 15:11:47 -0400
+Received: from luckmann.name ([213.239.213.133]:43279 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728183AbgENSwP (ORCPT
+        by vger.kernel.org with ESMTP id S1728188AbgENSwM (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:52:15 -0400
+        Thu, 14 May 2020 14:52:12 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56156.000000005EBD9355.00006E10; Thu, 14 May 2020 20:52:05 +0200
-Date:   Thu, 14 May 2020 20:52:05 +0200
+  id 0000000000E56151.000000005EBD9353.00006DB4; Thu, 14 May 2020 20:52:03 +0200
+Date:   Thu, 14 May 2020 20:52:03 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: wdctl.8: Missing markup
-Message-ID: <20200514185204.GA28161@Debian-50-lenny-64-minimal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Errors in util-linux man pages, here: umount.8: Markup
+Message-ID: <20200514185202.GA28069@Debian-50-lenny-64-minimal>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
 X-homepage: http://www.helgefjell.de/debian
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -77,11 +77,14 @@ use another channel, please let me know.
 
 **
 
-Man page: wdctl.8
-Issue: Missing markup for command name
+Man page: umount.8
+Issue: libmount → B<libmount>
 
-"The write command is part of the util-linux package and is available from "
-"https://www.kernel.org/pub/linux/utils/util-linux/."
+"Since version 2.35 B<umount> command does not exit when user permissions are "
+"inadequate by internal libmount security rules.  It drops suid permissions "
+"and continue as regular non-root user. It allows to support use-cases where "
+"root permissions are not necessary (e.g., fuse filesystems, user namespaces, "
+"etc)."
 
 Greetings
 
