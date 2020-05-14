@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 961C9C433EA
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FBD2C433E7
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6D62F2065F
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0A46F20675
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727840AbgENSve (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:34 -0400
+        id S1727845AbgENSvi (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:51:38 -0400
 Received: from luckmann.name ([213.239.213.133]:59621 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727882AbgENSvd (ORCPT
+        by vger.kernel.org with ESMTP id S1727854AbgENSvh (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:33 -0400
+        Thu, 14 May 2020 14:51:37 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56153.000000005EBD9332.0000677B; Thu, 14 May 2020 20:51:30 +0200
-Date:   Thu, 14 May 2020 20:51:30 +0200
+  id 0000000000E56164.000000005EBD9335.0000684E; Thu, 14 May 2020 20:51:33 +0200
+Date:   Thu, 14 May 2020 20:51:33 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: hwclock.8: Punctuation
-Message-ID: <20200514185130.GA26476@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: logger.1: Missing markup
+Message-ID: <20200514185133.GA26687@Debian-50-lenny-64-minimal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -77,11 +77,14 @@ use another channel, please let me know.
 
 **
 
-Man page: hwclock.8
-Issue: Replace comma by full stop
+Man page: logger.1
+Issue: Missing markup of parameters
 
-"Update the Hardware Clock's drift factor in I</etc/adjtime>.  It can only be "
-"used with B<--set> or B<\\%--systohc>,"
+"B<logger> currently generates the B<timeQuality> standardized element only.  "
+"RFC 5424 also describes the elements B<origin> (with parameters ip, "
+"enterpriseId, software and swVersion) and B<meta> (with parameters "
+"sequenceId, sysUpTime and language).  These element IDs may be specified "
+"without the B<@>I<digits> suffix."
 
 Greetings
 
