@@ -6,33 +6,33 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EF21C433E3
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0366AC433E2
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DB97420675
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D7DF72065F
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727873AbgENSvc (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:32 -0400
-Received: from luckmann.name ([213.239.213.133]:59621 "EHLO
+        id S1727810AbgENSvi (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:51:38 -0400
+Received: from luckmann.name ([213.239.213.133]:43279 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727861AbgENSvc (ORCPT
+        by vger.kernel.org with ESMTP id S1727869AbgENSvi (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:32 -0400
+        Thu, 14 May 2020 14:51:38 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56152.000000005EBD9330.00006735; Thu, 14 May 2020 20:51:28 +0200
-Date:   Thu, 14 May 2020 20:51:28 +0200
+  id 0000000000E56148.000000005EBD9336.0000687C; Thu, 14 May 2020 20:51:34 +0200
+Date:   Thu, 14 May 2020 20:51:34 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: hwclock.8: Markup?
-Message-ID: <20200514185128.GA26406@Debian-50-lenny-64-minimal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Errors in util-linux man pages, here: logger.1: Wrong markup
+Message-ID: <20200514185133.GA26733@Debian-50-lenny-64-minimal>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
 X-homepage: http://www.helgefjell.de/debian
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -77,11 +77,10 @@ use another channel, please let me know.
 
 **
 
-Man page: hwclock.8
-Issue: Markup up correct? (around option)
+Man page: logger.1
+Issue: The »to« marks a range inside a list. Shouldn't be bold.
 
-"Use\\ B<--verbose>.  The\\ B<\\%--debug\\ >option has been deprecated and "
-"may be repurposed or removed in a future release."
+msgid "B<  to>"
 
 Greetings
 
