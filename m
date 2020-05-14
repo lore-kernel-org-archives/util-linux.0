@@ -6,33 +6,33 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76F9EC433F7
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90AE3C433E5
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 599EB20675
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6518B20675
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727858AbgENSvb (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:31 -0400
-Received: from luckmann.name ([213.239.213.133]:59621 "EHLO
+        id S1727847AbgENSvd (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:51:33 -0400
+Received: from luckmann.name ([213.239.213.133]:41493 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727853AbgENSva (ORCPT
+        by vger.kernel.org with ESMTP id S1727885AbgENSvd (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:30 -0400
+        Thu, 14 May 2020 14:51:33 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56158.000000005EBD932F.000066EF; Thu, 14 May 2020 20:51:27 +0200
-Date:   Thu, 14 May 2020 20:51:27 +0200
+  id 0000000000E5615B.000000005EBD9332.00006792; Thu, 14 May 2020 20:51:30 +0200
+Date:   Thu, 14 May 2020 20:51:30 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: hexdump.1: Missing markup
-Message-ID: <20200514185127.GA26336@Debian-50-lenny-64-minimal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Errors in util-linux man pages, here: hwclock.8: Spelling?
+Message-ID: <20200514185130.GA26499@Debian-50-lenny-64-minimal>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
 X-homepage: http://www.helgefjell.de/debian
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -77,16 +77,10 @@ use another channel, please let me know.
 
 **
 
-Man page: hexdump.1
-Issue: Missing mark up for "hexdump"
+Man page: hwclock.8
+Issue: date-time → date time??
 
-"When put at the end of a format specifier, hexdump highlights the respective "
-"string with the color specified.  Conditions, if present, are evaluated "
-"prior to highlighting."
-
-"The hexdump command is part of the util-linux package and is available from "
-"E<.UR https://\\:www.kernel.org\\:/pub\\:/linux\\:/utils\\:/util-linux/> "
-"Linux Kernel Archive E<.UE .>"
+msgid "There are two types of date-time clocks:"
 
 Greetings
 
