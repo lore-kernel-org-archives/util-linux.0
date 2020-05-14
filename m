@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DAD5FC433E6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE678C433E4
 	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:12:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B6BC9206F1
+	by mail.kernel.org (Postfix) with ESMTP id 990FC206D8
 	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:12:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728045AbgENTMi (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 15:12:38 -0400
-Received: from luckmann.name ([213.239.213.133]:49935 "EHLO
+        id S1728078AbgENTMh (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 15:12:37 -0400
+Received: from luckmann.name ([213.239.213.133]:43279 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728043AbgENSwC (ORCPT
+        by vger.kernel.org with ESMTP id S1728045AbgENSwC (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
         Thu, 14 May 2020 14:52:02 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56153.000000005EBD934A.00006C39; Thu, 14 May 2020 20:51:54 +0200
-Date:   Thu, 14 May 2020 20:51:54 +0200
+  id 0000000000E5615E.000000005EBD934B.00006C51; Thu, 14 May 2020 20:51:55 +0200
+Date:   Thu, 14 May 2020 20:51:55 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
 Subject: Errors in util-linux man pages, here: scriptreplay.1: Markup
-Message-ID: <20200514185154.GA27688@Debian-50-lenny-64-minimal>
+Message-ID: <20200514185155.GA27713@Debian-50-lenny-64-minimal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -78,12 +78,11 @@ use another channel, please let me know.
 **
 
 Man page: scriptreplay.1
-Issue: scriptreplay → B<scriptreplay>
+Issue: B<script>(1)) → B<script>(1)
 
-"Specifies how to use CR (0x0D, carriage return) character from log files.  "
-"The default mode is I<auto>, in this case CR is replaced with line break for "
-"stdin log, because otherwise scriptreplay will overwrite the same line.  The "
-"another modes are I<never> and I<always>."
+"Display details about session recorded in the specified timing file and "
+"exit.  The session has to be recorded by I<advanced> format (see "
+"B<script>(1))  option B<--logging-format> for more details)."
 
 Greetings
 
