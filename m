@@ -3,32 +3,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 811E5C433DF
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:11:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E773C433E1
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:11:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 679CF206A5
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:11:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1DA06206DC
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:11:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728244AbgENSwQ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:52:16 -0400
-Received: from luckmann.name ([213.239.213.133]:59621 "EHLO
+        id S1729341AbgENTLf (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 15:11:35 -0400
+Received: from luckmann.name ([213.239.213.133]:41493 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728213AbgENSwO (ORCPT
+        by vger.kernel.org with ESMTP id S1728216AbgENSwP (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:52:14 -0400
+        Thu, 14 May 2020 14:52:15 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56161.000000005EBD9354.00006DF9; Thu, 14 May 2020 20:52:04 +0200
-Date:   Thu, 14 May 2020 20:52:04 +0200
+  id 0000000000E56158.000000005EBD9355.00006E27; Thu, 14 May 2020 20:52:05 +0200
+Date:   Thu, 14 May 2020 20:52:05 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: wdctl.8: Typo
-Message-ID: <20200514185204.GA28138@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: mount.8: Typo
+Message-ID: <20200514185205.GA28184@Debian-50-lenny-64-minimal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -77,12 +77,15 @@ use another channel, please let me know.
 
 **
 
-Man page: wdctl.8
-Issue: than → then
+Man page: mount.8
+Issue: not exit yet → not exist yet
 
-"If the device is already used or user has no permissions to read from the "
-"device than B<wdctl> reads data from sysfs.  In this case information about "
-"supported features (flags) might be missing."
+"Allow to make a target directory (mountpoint) if it does not exit yet.  The "
+"optional argument I<mode> specifies the filesystem access mode used for "
+"B<mkdir>(2)  in octal notation.  The default mode is 0755.  This "
+"functionality is supported only for root users or when mount executed "
+"without suid permissions.  The option is also supported as x-mount.mkdir, "
+"this notation is deprecated since v2.30."
 
 Greetings
 
