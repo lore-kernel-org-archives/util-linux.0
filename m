@@ -6,33 +6,33 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FBD2C433E7
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CEA4EC433E0
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0A46F20675
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AF53C2065F
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727845AbgENSvi (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:38 -0400
-Received: from luckmann.name ([213.239.213.133]:59621 "EHLO
-        static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727854AbgENSvh (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
+        id S1727885AbgENSvh (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Thu, 14 May 2020 14:51:37 -0400
+Received: from luckmann.name ([213.239.213.133]:49935 "EHLO
+        static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727869AbgENSvg (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Thu, 14 May 2020 14:51:36 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56164.000000005EBD9335.0000684E; Thu, 14 May 2020 20:51:33 +0200
-Date:   Thu, 14 May 2020 20:51:33 +0200
+  id 0000000000E56160.000000005EBD9334.00006837; Thu, 14 May 2020 20:51:32 +0200
+Date:   Thu, 14 May 2020 20:51:32 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: logger.1: Missing markup
-Message-ID: <20200514185133.GA26687@Debian-50-lenny-64-minimal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Errors in util-linux man pages, here: logger.1: Wording
+Message-ID: <20200514185132.GA26664@Debian-50-lenny-64-minimal>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
 X-homepage: http://www.helgefjell.de/debian
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -78,13 +78,11 @@ use another channel, please let me know.
 **
 
 Man page: logger.1
-Issue: Missing markup of parameters
+Issue: or the journal → to the journal?
 
-"B<logger> currently generates the B<timeQuality> standardized element only.  "
-"RFC 5424 also describes the elements B<origin> (with parameters ip, "
-"enterpriseId, software and swVersion) and B<meta> (with parameters "
-"sequenceId, sysUpTime and language).  These element IDs may be specified "
-"without the B<@>I<digits> suffix."
+"Causes everything to be done except for writing the log message to the "
+"system log, and removing the connection or the journal.  This option can be "
+"used together with B<--stderr> for testing purposes."
 
 Greetings
 
