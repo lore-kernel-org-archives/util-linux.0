@@ -6,33 +6,33 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0A57C433E3
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2ED6C433E5
 	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A4992206F1
+	by mail.kernel.org (Postfix) with ESMTP id BF3A420722
 	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727890AbgENSvz (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:55 -0400
-Received: from luckmann.name ([213.239.213.133]:59621 "EHLO
+        id S1728018AbgENSv4 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:51:56 -0400
+Received: from luckmann.name ([213.239.213.133]:49935 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727912AbgENSvy (ORCPT
+        by vger.kernel.org with ESMTP id S1727989AbgENSvz (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:54 -0400
+        Thu, 14 May 2020 14:51:55 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E5615F.000000005EBD9344.00006B61; Thu, 14 May 2020 20:51:48 +0200
-Date:   Thu, 14 May 2020 20:51:48 +0200
+  id 0000000000E56169.000000005EBD9345.00006B8F; Thu, 14 May 2020 20:51:49 +0200
+Date:   Thu, 14 May 2020 20:51:49 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: script.1: Wording
-Message-ID: <20200514185148.GA27474@Debian-50-lenny-64-minimal>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Subject: Errors in util-linux man pages, here: script.1: Punctuation
+Message-ID: <20200514185149.GA27520@Debian-50-lenny-64-minimal>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
 X-homepage: http://www.helgefjell.de/debian
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -78,13 +78,10 @@ use another channel, please let me know.
 **
 
 Man page: script.1
-Issue 1: or all the on → or all in the one
-Issue 2: supports new timing → supports a new timing
+Issue: Superfluous comma at the end
 
-"Since version 2.35 B<script> supports multiple streams and allows to log "
-"input and output to separate files or all the one file.  This version also "
-"supports new timing file which records additional information.  The command "
-"B<scriptreplay --summary> then provides all the information."
+"B<csh>(1)  (for the I<history> mechanism), B<scriptreplay>(1), "
+"B<scriptlive>(1),"
 
 Greetings
 
