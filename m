@@ -6,33 +6,33 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCBB4C433DF
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D91DC433F8
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8B4DD2065F
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 19A972065F
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727830AbgENSva (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:30 -0400
-Received: from luckmann.name ([213.239.213.133]:59621 "EHLO
+        id S1727876AbgENSvc (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:51:32 -0400
+Received: from luckmann.name ([213.239.213.133]:41493 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727844AbgENSv3 (ORCPT
+        by vger.kernel.org with ESMTP id S1727857AbgENSvc (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:29 -0400
+        Thu, 14 May 2020 14:51:32 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56153.000000005EBD932D.00006692; Thu, 14 May 2020 20:51:25 +0200
-Date:   Thu, 14 May 2020 20:51:25 +0200
+  id 0000000000E56160.000000005EBD9330.0000671E; Thu, 14 May 2020 20:51:28 +0200
+Date:   Thu, 14 May 2020 20:51:28 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: hardlink.1: Missing markup
-Message-ID: <20200514185125.GA26243@Debian-50-lenny-64-minimal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Errors in util-linux man pages, here: hexdump.1: Missing markup
+Message-ID: <20200514185128.GA26383@Debian-50-lenny-64-minimal>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
 X-homepage: http://www.helgefjell.de/debian
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -77,19 +77,13 @@ use another channel, please let me know.
 
 **
 
-Man page: hardlink.1
-Issue: Markup up of "hardlink" missing
+Man page: hexdump.1
+Issue: ``|'' → B<|>
 
-"B<hardlink> assumes that the trees it operates on do not change during "
-"operation. If a tree does change, the result is undefined and potentially "
-"dangerous. For example, if a regular file is replaced by a device, hardlink "
-"may start reading from the device. If a component of a path is replaced by a "
-"symbolic link or file permissions change, security may be compromised. Do "
-"not run hardlink on a changing tree or on a tree controlled by another user."
-
-"The program hardlink and this manpage have been written by Julian Andres "
-"Klode, and are licensed under the MIT license. See the code of hardlink for "
-"further information."
+"E<.Em Canonical hex+ASCII display>.  Display the input offset in "
+"hexadecimal, followed by sixteen space-separated, two column, hexadecimal "
+"bytes, followed by the same sixteen bytes in %_p format enclosed in ``|'' "
+"characters."
 
 Greetings
 
