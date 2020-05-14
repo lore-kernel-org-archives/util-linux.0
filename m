@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CDB34C433DF
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28808C433E9
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B6D682065F
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 085992065F
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727853AbgENSvk (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S1727898AbgENSvk (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Thu, 14 May 2020 14:51:40 -0400
-Received: from luckmann.name ([213.239.213.133]:59621 "EHLO
+Received: from luckmann.name ([213.239.213.133]:43279 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727857AbgENSvj (ORCPT
+        by vger.kernel.org with ESMTP id S1727860AbgENSvk (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:39 -0400
+        Thu, 14 May 2020 14:51:40 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56153.000000005EBD9336.000068AA; Thu, 14 May 2020 20:51:34 +0200
-Date:   Thu, 14 May 2020 20:51:34 +0200
+  id 0000000000E5615C.000000005EBD9337.000068C2; Thu, 14 May 2020 20:51:35 +0200
+Date:   Thu, 14 May 2020 20:51:35 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: login.1: Punctuation
-Message-ID: <20200514185134.GA26779@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: login.1: Missing markup
+Message-ID: <20200514185135.GA26803@Debian-50-lenny-64-minimal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -78,14 +78,13 @@ use another channel, please let me know.
 **
 
 Man page: login.1
-Issue: Missing full stop
+Issue: Missing markup for lastlog
 
-"The default is to check I</etc\\:/hushlogins> and if it does not exist then "
-"I<~/.hushlogin>"
-
-"If set, it will be used to define the PATH environment variable when a "
-"regular user logs in.  The default value is I</usr\\:/local\\:/bin:\\:/bin:"
-"\\:/usr\\:/bin>"
+"Highest user ID number for which the lastlog entries should be updated.  As "
+"higher user IDs are usually tracked by remote user identity and "
+"authentication services there is no need to create a huge sparse lastlog "
+"file for them.  No LASTLOG_UID_MAX option present in the configuration means "
+"that there is no user ID limit for writing lastlog entries."
 
 Greetings
 
