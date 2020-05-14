@@ -6,33 +6,33 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BAF89C433E0
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E10FC433DF
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9B4E32065F
+	by mail.kernel.org (Postfix) with ESMTP id EBBA52065F
 	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726948AbgENSvS (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S1727033AbgENSvS (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Thu, 14 May 2020 14:51:18 -0400
-Received: from luckmann.name ([213.239.213.133]:59621 "EHLO
+Received: from luckmann.name ([213.239.213.133]:41493 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727033AbgENSvS (ORCPT
+        by vger.kernel.org with ESMTP id S1726073AbgENSvS (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
         Thu, 14 May 2020 14:51:18 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56144.000000005EBD9324.0000643F; Thu, 14 May 2020 20:51:16 +0200
+  id 0000000000E56050.000000005EBD9324.0000640B; Thu, 14 May 2020 20:51:16 +0200
 Date:   Thu, 14 May 2020 20:51:16 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: agetty.8: Markup
-Message-ID: <20200514185116.GA25646@Debian-50-lenny-64-minimal>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Subject: Errors in util-linux man pages, here: adjtime_config.5: Wording
+Message-ID: <20200514185116.GA25596@Debian-50-lenny-64-minimal>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
 X-homepage: http://www.helgefjell.de/debian
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -77,13 +77,10 @@ use another channel, please let me know.
 
 **
 
-Man page: agetty.8
-Issue: agetty → B<agetty>
+Man page: adjtime_config.5
+Issue: Superfluous comma after "is"
 
-"Display the current issue file (or other) on the current terminal and exit.  "
-"Use this option to review the current setting, it is not designed for any "
-"other purpose.  Note that output may use some default or incomplete "
-"information as proper output depends on terminal and agetty command line."
+"The format of the adjtime file is, in ASCII."
 
 Greetings
 
