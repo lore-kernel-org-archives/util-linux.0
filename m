@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68164C433E1
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 512AAC433EB
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 515DE2065F
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2AC1C2065F
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727836AbgENSvh (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:37 -0400
-Received: from luckmann.name ([213.239.213.133]:43279 "EHLO
+        id S1727854AbgENSvi (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:51:38 -0400
+Received: from luckmann.name ([213.239.213.133]:49935 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727838AbgENSvg (ORCPT
+        by vger.kernel.org with ESMTP id S1727860AbgENSvi (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:36 -0400
+        Thu, 14 May 2020 14:51:38 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56157.000000005EBD9334.00006807; Thu, 14 May 2020 20:51:32 +0200
-Date:   Thu, 14 May 2020 20:51:32 +0200
+  id 0000000000E5616A.000000005EBD9335.00006865; Thu, 14 May 2020 20:51:33 +0200
+Date:   Thu, 14 May 2020 20:51:33 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: logger.1: Spacing
-Message-ID: <20200514185132.GA26616@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: logger.1: Missing markup etc.
+Message-ID: <20200514185133.GA26710@Debian-50-lenny-64-minimal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -78,10 +78,15 @@ use another channel, please let me know.
 **
 
 Man page: logger.1
-Issue: Superfluous space before full stop
+Issue: Missing markup file names, command names etc.
 
-"Use datagrams (UDP) only.  By default the connection is tried to the syslog "
-"port defined in /etc/services, which is often 514 ."
+"Print errors about Unix socket connections.  The I<mode> can be a value of "
+"B<off>, B<on>, or B<auto>.  When the mode is auto logger will detect if the "
+"init process is systemd, and if so assumption is made /dev/log can be used "
+"early at boot.  Other init systems lack of /dev/log will not cause errors "
+"that is identical with messaging using B<openlog>(3)  system call.  The "
+"B<logger>(1)  before version 2.26 used openlog, and hence was unable to "
+"detected loss of messages sent to Unix sockets."
 
 Greetings
 
