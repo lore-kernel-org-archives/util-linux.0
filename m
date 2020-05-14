@@ -2,33 +2,33 @@ Return-Path: <SRS0=ViFG=64=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28346C433E2
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66B9FC433E0
 	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 08FFD2065F
+	by mail.kernel.org (Postfix) with ESMTP id 518A82065F
 	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727929AbgENSvt (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S1727930AbgENSvt (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Thu, 14 May 2020 14:51:49 -0400
-Received: from luckmann.name ([213.239.213.133]:41493 "EHLO
+Received: from luckmann.name ([213.239.213.133]:49935 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727884AbgENSvt (ORCPT
+        by vger.kernel.org with ESMTP id S1727890AbgENSvt (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
         Thu, 14 May 2020 14:51:49 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56159.000000005EBD933F.00006A6A; Thu, 14 May 2020 20:51:43 +0200
+  id 0000000000E56152.000000005EBD933F.00006A85; Thu, 14 May 2020 20:51:43 +0200
 Date:   Thu, 14 May 2020 20:51:43 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: mount.8: Broken URL
-Message-ID: <20200514185143.GA27227@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: mount.8: Broken reference
+Message-ID: <20200514185143.GA27254@Debian-50-lenny-64-minimal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -78,18 +78,9 @@ use another channel, please let me know.
 **
 
 Man page: mount.8
-Issue: URL does not allow login (2019-01-29)
+Issue: man page is no longer available from the attr project: http://git.savannah.nongnu.org/cgit/attr.git/tree/man
 
-"A remount option which permits online expansion of reiserfs partitions.  "
-"Instructs reiserfs to assume that the device has I<number> blocks.  This "
-"option is designed for use with devices which are under logical volume "
-"management (LVM).  There is a special I<resizer> utility which can be "
-"obtained from I<ftp://ftp.namesys.com/pub/reiserfsprogs>."
-
-Suggested change:
-> The following address is reachable (and is used as the source for the 
-> archlinux package):
-> https://mirrors.edge.kernel.org/pub/linux/kernel/people/jeffm/reiserfsprogs/
+"Enable Extended User Attributes.  See the B<attr>(1)  manual page."
 
 Greetings
 
