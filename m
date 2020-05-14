@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 040B4C433E1
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E548C433E3
 	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E2BAC20675
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 46E1E20675
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727935AbgENSvu (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S1727893AbgENSvu (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Thu, 14 May 2020 14:51:50 -0400
-Received: from luckmann.name ([213.239.213.133]:43279 "EHLO
+Received: from luckmann.name ([213.239.213.133]:59621 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727928AbgENSvt (ORCPT
+        by vger.kernel.org with ESMTP id S1727912AbgENSvt (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
         Thu, 14 May 2020 14:51:49 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56148.000000005EBD9340.00006AB4; Thu, 14 May 2020 20:51:44 +0200
+  id 0000000000E56157.000000005EBD9340.00006A9D; Thu, 14 May 2020 20:51:44 +0200
 Date:   Thu, 14 May 2020 20:51:44 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: nologin.8: Missing markup
-Message-ID: <20200514185144.GA27301@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: mount.8: Spelling update
+Message-ID: <20200514185144.GA27277@Debian-50-lenny-64-minimal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -77,15 +77,11 @@ use another channel, please let me know.
 
 **
 
-Man page: nologin.8
-Issue: Missing markup for command name
+Man page: mount.8
+Issue: Nowadays it is only called macOS
 
-"If the file /etc/nologin.txt exists, nologin displays its contents to the "
-"user instead of the default message."
-
-"The nologin command is part of the util-linux package and is available from "
-"E<.UR https://\\:www.kernel.org\\:/pub\\:/linux\\:/utils\\:/util-linux/> "
-"Linux Kernel Archive E<.UE .>"
+"For filesystems created by OpenStep (currently read only).  The same "
+"filesystem type is also used by Mac OS X."
 
 Greetings
 
