@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6153C433E1
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C6E2C433F2
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BADE92065F
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E68EF2065F
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727850AbgENSvb (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:31 -0400
+        id S1727844AbgENSva (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:51:30 -0400
 Received: from luckmann.name ([213.239.213.133]:43279 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727854AbgENSvb (ORCPT
+        by vger.kernel.org with ESMTP id S1727827AbgENSv3 (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:31 -0400
+        Thu, 14 May 2020 14:51:29 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56159.000000005EBD932F.00006707; Thu, 14 May 2020 20:51:27 +0200
-Date:   Thu, 14 May 2020 20:51:27 +0200
+  id 0000000000E56165.000000005EBD932E.000066A9; Thu, 14 May 2020 20:51:26 +0200
+Date:   Thu, 14 May 2020 20:51:26 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: hexdump.1: Markup/Quoting
-Message-ID: <20200514185127.GA26360@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: hexdump.1: Quoting
+Message-ID: <20200514185126.GA26266@Debian-50-lenny-64-minimal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -78,14 +78,14 @@ use another channel, please let me know.
 **
 
 Man page: hexdump.1
-Issue: Mixed markup (B<>) and quoting for conversion characters
+Issue: When markup is used (B<>), no extra quoting is necessary
 
-"Further output by such format strings is replaced by an equivalent number of "
-"spaces.  An equivalent number of spaces is defined as the number of spaces "
-"output by an B<s> conversion character with the same field width and "
-"precision as the original conversion character or conversion string but with "
-"any 'B<\\&+>', \\' \\', 'B<\\&#>' conversion flag characters removed, and "
-"referencing a NULL string."
+"I<Canonical hex+ASCII display>.  Display the input offset in hexadecimal, "
+"followed by sixteen space-separated, two-column, hexadecimal bytes, followed "
+"by the same sixteen bytes in B<%_p> format enclosed in 'B<|>' characters."
+
+"Output characters in the default character set.  Non-printing characters are "
+"displayed as a single 'B<\\&.>'."
 
 Greetings
 
