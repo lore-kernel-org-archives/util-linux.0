@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25444C433DF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE6DAC433E1
 	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 11CD22065F
+	by mail.kernel.org (Postfix) with ESMTP id CD67A2065F
 	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727915AbgENSvo (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:44 -0400
-Received: from luckmann.name ([213.239.213.133]:43279 "EHLO
+        id S1727924AbgENSvp (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:51:45 -0400
+Received: from luckmann.name ([213.239.213.133]:41493 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727928AbgENSvo (ORCPT
+        by vger.kernel.org with ESMTP id S1727857AbgENSvo (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
         Thu, 14 May 2020 14:51:44 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56148.000000005EBD933B.00006987; Thu, 14 May 2020 20:51:39 +0200
+  id 0000000000E56151.000000005EBD933B.000069A1; Thu, 14 May 2020 20:51:39 +0200
 Date:   Thu, 14 May 2020 20:51:39 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: lsmem.1: Comprehension?
-Message-ID: <20200514185138.GA26998@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: lsns.8: Comprehension?
+Message-ID: <20200514185139.GA27025@Debian-50-lenny-64-minimal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -77,16 +77,12 @@ use another channel, please let me know.
 
 **
 
-Man page: lsmem.1
-Issue: First sentence: Broken?
+Man page: lsns.8
+Issue: 2nd sentence broken wording
 
-"The B<lsmem> command lists a new memory range always when the current memory "
-"block distinguish from the previous block by some output column.  This "
-"default behavior is possible to override by the B<--split> option (e.g., "
-"B<lsmem --split=ZONES>).  The special word \"none\" may be used to ignore "
-"all differences between memory blocks and to create as large as possible "
-"continuous ranges.  The opposite semantic is B<--all> to list individual "
-"memory blocks."
+"B<NSFS> column, printed when B<net> is specified for B<--type> option, is "
+"special; it uses multi-line cells.  Use the option B<--nowrap> is for "
+"switching to \",\" separated single-line representation."
 
 Greetings
 
