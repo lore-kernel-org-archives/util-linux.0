@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EE06C433E1
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8026FC433E2
 	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3CFB32065F
+	by mail.kernel.org (Postfix) with ESMTP id 6209220675
 	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727779AbgENSvS (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:18 -0400
-Received: from luckmann.name ([213.239.213.133]:49935 "EHLO
+        id S1726797AbgENSvT (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:51:19 -0400
+Received: from luckmann.name ([213.239.213.133]:43279 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726797AbgENSvS (ORCPT
+        by vger.kernel.org with ESMTP id S1727095AbgENSvS (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
         Thu, 14 May 2020 14:51:18 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56141.000000005EBD9324.00006426; Thu, 14 May 2020 20:51:16 +0200
-Date:   Thu, 14 May 2020 20:51:16 +0200
+  id 0000000000E56147.000000005EBD9325.0000645A; Thu, 14 May 2020 20:51:17 +0200
+Date:   Thu, 14 May 2020 20:51:17 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: adjtime_config.5: Typo
-Message-ID: <20200514185116.GA25619@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: agetty.8: Incorrrect markup
+Message-ID: <20200514185117.GA25673@Debian-50-lenny-64-minimal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -77,15 +77,12 @@ use another channel, please let me know.
 
 **
 
-Man page: adjtime_config.5
-Issue: hwckock → hwclock
+Man page: agetty.8
+Issue: I<inittab(5)> → B<inittab>(5)
 
-"The Hardware Clock is usually not very accurate.  However, much of its "
-"inaccuracy is completely predictable - it gains or loses the same amount of "
-"time every day.  This is called systematic drift.  The util hwclock keeps "
-"the file /etc/adjtime, that keeps some historical information.  For more "
-"details see \"B<The Adjust Function>\" and \"B<The Adjtime File>\" sections "
-"from B<hwckock>(8)  man page."
+"This section shows examples for the process field of an entry in the I</etc/"
+"inittab> file.  You'll have to prepend appropriate values for the other "
+"fields.  See I<inittab(5)> for more details."
 
 Greetings
 
