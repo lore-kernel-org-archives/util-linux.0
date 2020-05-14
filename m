@@ -3,36 +3,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02B77C433E3
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:12:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAE48C433E3
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:12:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D74B120675
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:12:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C6558206A5
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:12:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728191AbgENTL5 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 15:11:57 -0400
-Received: from luckmann.name ([213.239.213.133]:49935 "EHLO
+        id S1728114AbgENTMS (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 15:12:18 -0400
+Received: from luckmann.name ([213.239.213.133]:41493 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728060AbgENSwJ (ORCPT
+        by vger.kernel.org with ESMTP id S1728111AbgENSwG (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:52:09 -0400
+        Thu, 14 May 2020 14:52:06 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56148.000000005EBD9350.00006D56; Thu, 14 May 2020 20:52:00 +0200
-Date:   Thu, 14 May 2020 20:52:00 +0200
+  id 0000000000E5616E.000000005EBD934E.00006CE0; Thu, 14 May 2020 20:51:58 +0200
+Date:   Thu, 14 May 2020 20:51:58 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: su.1: Missing markup
-Message-ID: <20200514185200.GA27975@Debian-50-lenny-64-minimal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Errors in util-linux man pages, here: sfdisk.8: Typo/Markup
+Message-ID: <20200514185158.GA27855@Debian-50-lenny-64-minimal>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
 X-homepage: http://www.helgefjell.de/debian
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -77,12 +77,12 @@ use another channel, please let me know.
 
 **
 
-Man page: su.1
-Issue: Missing markup for command name
+Man page: sfdisk.8
+Issue 1: fsync → B<fsync>(2)
+Issue 2: dara → data
 
-"The su command is part of the util-linux package and is available from E<.UR "
-"https://\\:www.kernel.org\\:/pub\\:/linux\\:/utils\\:/util-linux/> Linux "
-"Kernel Archive E<.UE .>"
+"Use fsync system call after each write when move dara to a new location by "
+"B<--move-data>."
 
 Greetings
 
