@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2684C433DF
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:12:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04AEEC433DF
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:13:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D45EA206D8
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:12:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C7AE7206D8
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:13:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727973AbgENSvx (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S1727969AbgENSvx (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Thu, 14 May 2020 14:51:53 -0400
-Received: from luckmann.name ([213.239.213.133]:49935 "EHLO
+Received: from luckmann.name ([213.239.213.133]:41493 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727933AbgENSvx (ORCPT
+        by vger.kernel.org with ESMTP id S1727861AbgENSvx (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
         Thu, 14 May 2020 14:51:53 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56154.000000005EBD9344.00006B49; Thu, 14 May 2020 20:51:48 +0200
-Date:   Thu, 14 May 2020 20:51:48 +0200
+  id 0000000000E56153.000000005EBD9343.00006B31; Thu, 14 May 2020 20:51:47 +0200
+Date:   Thu, 14 May 2020 20:51:47 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: script.1: Markup
-Message-ID: <20200514185147.GA27450@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: runuser.1: Markup/Wording
+Message-ID: <20200514185147.GA27426@Debian-50-lenny-64-minimal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -77,14 +77,16 @@ use another channel, please let me know.
 
 **
 
-Man page: script.1
-Issue: B<scriptreplay (1)> → B<scriptreplay>(1)
-
-"B<script> makes a typescript of everything on your terminal session.  The "
-"terminal data are stored in raw form to the log file and information about "
-"timing to another (optional) structured log file.  The timing log file is "
-"necessary to replay the session later by B<scriptreplay (1)> and to store "
-"additional information about the session."
+Man page: runuser.1
+Issue: Markup missing and copy → sync?
+ 
+"Create pseudo-terminal for the session. The independent terminal provides "
+"better security as user does not share terminal with the original session.  "
+"This allow to avoid TIOCSTI ioctl terminal injection and another security "
+"attacks against terminal file descriptors. The all session is also possible "
+"to move to background (e.g., \"runuser --pty -u username -- command &\").  "
+"If the pseudo-terminal is enabled then runuser command works as a proxy "
+"between the sessions (copy stdin and stdout)."
 
 Greetings
 
