@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 622BAC433E8
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F261C433F2
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 402D02065F
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1F32E2065F
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727851AbgENSvf (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:35 -0400
+        id S1727889AbgENSvh (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:51:37 -0400
 Received: from luckmann.name ([213.239.213.133]:41493 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727857AbgENSvf (ORCPT
+        by vger.kernel.org with ESMTP id S1727853AbgENSvh (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:35 -0400
+        Thu, 14 May 2020 14:51:37 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56158.000000005EBD9333.000067C0; Thu, 14 May 2020 20:51:31 +0200
-Date:   Thu, 14 May 2020 20:51:31 +0200
+  id 0000000000E56152.000000005EBD9334.00006820; Thu, 14 May 2020 20:51:32 +0200
+Date:   Thu, 14 May 2020 20:51:32 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: hwclock.8: Missing space
-Message-ID: <20200514185131.GA26545@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: logger.1: Missing markup
+Message-ID: <20200514185132.GA26640@Debian-50-lenny-64-minimal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -77,10 +77,26 @@ use another channel, please let me know.
 
 **
 
-Man page: hwclock.8
-Issue: Missing Space at beginning of line
+Man page: logger.1
+Issue: Missing markup of command name
 
-msgid "TheI< System Clock >time must be correct at shutdown!"
+"Log the PID of the logger process with each line.  When the optional "
+"argument I<id> is specified, then it is used instead of the logger command's "
+"PID.  The use of B<--id=$$> (PPID) is recommended in scripts that send "
+"several messages."
+
+"Write a systemd journal entry.  The entry is read from the given I<file>, "
+"when specified, otherwise from standard input.  Each line must begin with a "
+"field that is accepted by journald; see B<systemd.journal-fields>(7)  for "
+"details.  The use of a MESSAGE_ID field is generally a good idea, as it "
+"makes finding entries easy.  Examples:"
+
+"Use the specified I<port>.  When this option is not specified, the port "
+"defaults to syslog for udp and to syslog-conn for tcp connections."
+
+"Most receivers accept messages larger than 1KiB over any type of syslog "
+"protocol.  As such, the B<--size> option affects logger in all cases (not "
+"only when B<--rfc5424> was used)."
 
 Greetings
 
