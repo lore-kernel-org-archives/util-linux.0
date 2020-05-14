@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08D60C433DF
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:12:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42195C433E0
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:12:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E2276206D8
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:12:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1FD7F20675
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 19:12:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728037AbgENTMl (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 15:12:41 -0400
-Received: from luckmann.name ([213.239.213.133]:49935 "EHLO
+        id S1727999AbgENTMw (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 15:12:52 -0400
+Received: from luckmann.name ([213.239.213.133]:41493 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727978AbgENSv5 (ORCPT
+        by vger.kernel.org with ESMTP id S1727981AbgENSvz (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:57 -0400
+        Thu, 14 May 2020 14:51:55 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56162.000000005EBD9348.00006BEE; Thu, 14 May 2020 20:51:52 +0200
-Date:   Thu, 14 May 2020 20:51:52 +0200
+  id 0000000000E56156.000000005EBD9345.00006B78; Thu, 14 May 2020 20:51:49 +0200
+Date:   Thu, 14 May 2020 20:51:49 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: scriptlive.1: Markup
-Message-ID: <20200514185152.GA27614@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: script.1: Wording
+Message-ID: <20200514185149.GA27497@Debian-50-lenny-64-minimal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -77,12 +77,13 @@ use another channel, please let me know.
 
 **
 
-Man page: scriptlive.1
-Issue: scriptlive → B<scriptlive>
+Man page: script.1
+Issue 1: itentifier → identifier
+Issue 2: socond → second
 
-"The scriptlive command is part of the util-linux package and is available "
-"from E<.UR https://\\:www.kernel.org\\:/pub\\:/linux\\:/utils\\:/util-linux/"
-"> Linux Kernel Archive E<.UE .>"
+"The first field is entry type itentifier ('I'nput, 'O'utput, 'H'eader, "
+"'S'ignal).  The socond field is how much time elapsed since the previous "
+"entry, and rest of the entry is type specific data."
 
 Greetings
 
