@@ -6,33 +6,33 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 17FB5C433E2
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8565C433ED
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EC6CB2065F
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AD4992065F
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727811AbgENSvY (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:24 -0400
+        id S1727849AbgENSv3 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:51:29 -0400
 Received: from luckmann.name ([213.239.213.133]:49935 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727810AbgENSvX (ORCPT
+        by vger.kernel.org with ESMTP id S1727810AbgENSv3 (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:23 -0400
+        Thu, 14 May 2020 14:51:29 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56150.000000005EBD9329.0000655D; Thu, 14 May 2020 20:51:21 +0200
-Date:   Thu, 14 May 2020 20:51:21 +0200
+  id 0000000000E56148.000000005EBD932D.0000667B; Thu, 14 May 2020 20:51:25 +0200
+Date:   Thu, 14 May 2020 20:51:25 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: colcrt.1: Double markup
-Message-ID: <20200514185120.GA25934@Debian-50-lenny-64-minimal>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Subject: Errors in util-linux man pages, here: hardlink.1: Missing markup
+Message-ID: <20200514185125.GA26220@Debian-50-lenny-64-minimal>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
 X-homepage: http://www.helgefjell.de/debian
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -77,11 +77,21 @@ use another channel, please let me know.
 
 **
 
-Man page: colcrt.1
-Issue: B<'-'> → B<->
+Man page: hardlink.1
+Issue: Markup up of command options missing
 
-"Should fold underlines onto blanks even with the B<'-'> option so that a "
-"true underline character would show."
+"Among equal files, keep the oldest file (least recent modification time). By "
+"default, the newest file is kept. If --maximize or --minimize is specified, "
+"the link count has a higher precedence than the time of modification."
+
+"A regular expression to include files. If the option --exclude has been "
+"given, this option re-includes files which would otherwise be excluded. If "
+"the option is used without --exclude, only files matched by the pattern are "
+"included."
+
+"B<hardlink> , as of version 0.3 RC1, improperly calculates the amount of "
+"space saved if the option --respect-name is specified. In previous versions, "
+"the amount was wrong in almost all other cases as well."
 
 Greetings
 
