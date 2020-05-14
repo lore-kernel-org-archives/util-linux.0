@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04808C433FB
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E141BC433ED
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CF4962065F
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8CF412065F
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727856AbgENSvd (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:33 -0400
-Received: from luckmann.name ([213.239.213.133]:43279 "EHLO
+        id S1727882AbgENSvg (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:51:36 -0400
+Received: from luckmann.name ([213.239.213.133]:59621 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727854AbgENSvd (ORCPT
+        by vger.kernel.org with ESMTP id S1727854AbgENSvf (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:33 -0400
+        Thu, 14 May 2020 14:51:35 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56148.000000005EBD9331.00006763; Thu, 14 May 2020 20:51:29 +0200
-Date:   Thu, 14 May 2020 20:51:29 +0200
+  id 0000000000E56156.000000005EBD9334.000067F0; Thu, 14 May 2020 20:51:32 +0200
+Date:   Thu, 14 May 2020 20:51:32 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: hwclock.8: Comprehension
-Message-ID: <20200514185129.GA26452@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: libblkid.3: Missing markup
+Message-ID: <20200514185131.GA26593@Debian-50-lenny-64-minimal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -77,11 +77,11 @@ use another channel, please let me know.
 
 **
 
-Man page: hwclock.8
-Issue: Paragraph hard to read
+Man page: libblkid.3
+Issue: Missing markup for command name
 
-"Significantly increased system shutdown times (as of v2.31 when not using B<"
-"\\%--update-drift> the RTC is not read)."
+"libblkid is part of the util-linux package since version 2.15 and is "
+"available from https://www.kernel.org/pub/linux/utils/util-linux/."
 
 Greetings
 
