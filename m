@@ -3,36 +3,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FB60C433E6
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1C1BC433E1
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7C26E2065F
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BE10B2065F
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727825AbgENSvZ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:25 -0400
-Received: from luckmann.name ([213.239.213.133]:59621 "EHLO
+        id S1726073AbgENSvX (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:51:23 -0400
+Received: from luckmann.name ([213.239.213.133]:41493 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727111AbgENSvY (ORCPT
+        by vger.kernel.org with ESMTP id S1727111AbgENSvX (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:24 -0400
+        Thu, 14 May 2020 14:51:23 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56148.000000005EBD9329.0000658C; Thu, 14 May 2020 20:51:21 +0200
-Date:   Thu, 14 May 2020 20:51:21 +0200
+  id 0000000000E56159.000000005EBD9328.00006546; Thu, 14 May 2020 20:51:20 +0200
+Date:   Thu, 14 May 2020 20:51:20 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: column.1: Missing markup
-Message-ID: <20200514185121.GA25980@Debian-50-lenny-64-minimal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Errors in util-linux man pages, here: colcrt.1: Wording
+Message-ID: <20200514185120.GA25911@Debian-50-lenny-64-minimal>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
 X-homepage: http://www.helgefjell.de/debian
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -77,11 +77,15 @@ use another channel, please let me know.
 
 **
 
-Man page: column.1
-Issue: Missing markup for command name
+Man page: colcrt.1
+Issue: invisible → partially invisible
 
-"The column command is part of the util-linux package and is available from "
-"https://www.kernel.org/pub/linux/utils/util-linux/."
+"Causes all half-lines to be printed, effectively double spacing the output.  "
+"Normally, a minimal space output format is used which will suppress empty "
+"lines.  The program never suppresses two consecutive empty lines, however.  "
+"The B<-2> option is useful for sending output to the line printer when the "
+"output contains superscripts and subscripts which would otherwise be "
+"invisible."
 
 Greetings
 
