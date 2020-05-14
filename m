@@ -3,36 +3,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2ED6C433E5
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6360C433E2
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:52:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BF3A420722
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C7E2B20727
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:52:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728018AbgENSv4 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:56 -0400
-Received: from luckmann.name ([213.239.213.133]:49935 "EHLO
+        id S1728108AbgENSwE (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:52:04 -0400
+Received: from luckmann.name ([213.239.213.133]:59621 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727989AbgENSvz (ORCPT
+        by vger.kernel.org with ESMTP id S1728056AbgENSwD (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:55 -0400
+        Thu, 14 May 2020 14:52:03 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56169.000000005EBD9345.00006B8F; Thu, 14 May 2020 20:51:49 +0200
-Date:   Thu, 14 May 2020 20:51:49 +0200
+  id 0000000000E56161.000000005EBD934B.00006C68; Thu, 14 May 2020 20:51:55 +0200
+Date:   Thu, 14 May 2020 20:51:55 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: script.1: Punctuation
-Message-ID: <20200514185149.GA27520@Debian-50-lenny-64-minimal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Errors in util-linux man pages, here: scriptreplay.1: Markup
+Message-ID: <20200514185155.GA27737@Debian-50-lenny-64-minimal>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
 X-homepage: http://www.helgefjell.de/debian
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -77,11 +77,13 @@ use another channel, please let me know.
 
 **
 
-Man page: script.1
-Issue: Superfluous comma at the end
+Man page: scriptreplay.1
+Issue 1: scriptreplay → B<scriptreplay>
+Issue 2: --log-io → B<--log-io>
 
-"B<csh>(1)  (for the I<history> mechanism), B<scriptreplay>(1), "
-"B<scriptlive>(1),"
+"Forces scriptreplay to print only specified stream.  The supported stream "
+"types are I<in>, I<out>, I<signal>, or I<info>.  This option is recommended "
+"for multi-stream logs (e.g., --log-io)  to print only specified data."
 
 Greetings
 
