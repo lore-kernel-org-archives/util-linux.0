@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FF68C433EB
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E8A5C433E8
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2951F2065F
-	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1AD5920675
+	for <util-linux@archiver.kernel.org>; Thu, 14 May 2020 18:51:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727815AbgENSv1 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 14 May 2020 14:51:27 -0400
+        id S1727833AbgENSv0 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:51:26 -0400
 Received: from luckmann.name ([213.239.213.133]:49935 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727810AbgENSv1 (ORCPT
+        by vger.kernel.org with ESMTP id S1727810AbgENSvZ (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 14 May 2020 14:51:27 -0400
+        Thu, 14 May 2020 14:51:25 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000E56160.000000005EBD932C.0000661E; Thu, 14 May 2020 20:51:24 +0200
-Date:   Thu, 14 May 2020 20:51:24 +0200
+  id 0000000000E5615F.000000005EBD932A.000065BD; Thu, 14 May 2020 20:51:22 +0200
+Date:   Thu, 14 May 2020 20:51:22 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Errors in util-linux man pages, here: fdisk.8: Missing markup
-Message-ID: <20200514185123.GA26127@Debian-50-lenny-64-minimal>
+Subject: Errors in util-linux man pages, here: fdisk.8: Strange markup
+Message-ID: <20200514185122.GA26029@Debian-50-lenny-64-minimal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -78,15 +78,13 @@ use another channel, please let me know.
 **
 
 Man page: fdisk.8
-Issue: Missing markup of fdisk
+Issue: Why is the full stop at the end in bold?
 
-"Usually all goes well by default, and there are no problems if Linux is the "
-"only system on the disk.  However, if the disk has to be shared with other "
-"operating systems, it is often a good idea to let an fdisk from another "
-"operating system make at least one partition.  When Linux boots it looks at "
-"the partition table, and tries to deduce what (fake) geometry is required "
-"for good cooperation with other systems."
-
+"Specify the sector size of the disk.  Valid values are 512, 1024, 2048, and "
+"4096.  (Recent kernels know the sector size.  Use this option only on old "
+"kernels or to override the kernel's ideas.)  Since util-linux-2.17, B<fdisk> "
+"differentiates between logical and physical sector size.  This option "
+"changes both sector sizes to I<sectorsize>B<.>"
 Greetings
 
            Helge
