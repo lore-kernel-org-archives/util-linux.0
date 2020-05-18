@@ -7,66 +7,67 @@ X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 769DBC433E0
-	for <util-linux@archiver.kernel.org>; Mon, 18 May 2020 11:39:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E099C433DF
+	for <util-linux@archiver.kernel.org>; Mon, 18 May 2020 11:40:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 442C520709
-	for <util-linux@archiver.kernel.org>; Mon, 18 May 2020 11:39:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6E87E20709
+	for <util-linux@archiver.kernel.org>; Mon, 18 May 2020 11:40:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FuUDkY6Z"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iFtKIruX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726682AbgERLj6 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 18 May 2020 07:39:58 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:25690 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726362AbgERLj6 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 18 May 2020 07:39:58 -0400
+        id S1727796AbgERLki (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 18 May 2020 07:40:38 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:37480 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726362AbgERLkh (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Mon, 18 May 2020 07:40:37 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589801997;
+        s=mimecast20190719; t=1589802036;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=TKlZKY04ccrHGfM4eZc3MJDLwSGrdRB3IDe9XjYKKQI=;
-        b=FuUDkY6ZKI/CjkefRoVxjfdP8z7GsR89QwxuGw+WKCSMIbxkBgHNB9f6kSD75aUgW/NPXa
-        Ed6EizeGrzwe6f4lr+fkZa7ZBzDnRZ5rCqoV22ZVAEu+fvIWq3NR1BcxkJuB4f0iyttJwn
-        kLHGsLcwfI6cloc41Hu0XUgkoBrH4EQ=
+        bh=bJWwPW8A8+N4uPYaJZufeC9yWCsyOvJWCTe0L3NgQPw=;
+        b=iFtKIruXoeVfVk5laRCu+yTnWpXVJzecfp3FgIzp5lPSnDGilSErdhNz/u70iDmxAWofqr
+        vp/+Bugh+pzb3GvpIUF7eSCYs6AKIk57Th6C/uG+bRM/zTIqS1NdaAZKjyXchgL9fDCNOU
+        2YqXXnni1G7nUUiMQsQnL1POhBTw0qI=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-470-pGxBNFW8P4mwxgI14OumHQ-1; Mon, 18 May 2020 07:39:53 -0400
-X-MC-Unique: pGxBNFW8P4mwxgI14OumHQ-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+ us-mta-202-RXr-00q0NXSgX43tGsIFMg-1; Mon, 18 May 2020 07:40:34 -0400
+X-MC-Unique: RXr-00q0NXSgX43tGsIFMg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4DE3E1054F8F;
-        Mon, 18 May 2020 11:39:52 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6D5CE18FE86A;
+        Mon, 18 May 2020 11:40:33 +0000 (UTC)
 Received: from ws.net.home (unknown [10.40.193.102])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 8E99C5D9DC;
-        Mon, 18 May 2020 11:39:51 +0000 (UTC)
-Date:   Mon, 18 May 2020 13:39:48 +0200
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id AC15279587;
+        Mon, 18 May 2020 11:40:30 +0000 (UTC)
+Date:   Mon, 18 May 2020 13:40:27 +0200
 From:   Karel Zak <kzak@redhat.com>
-To:     Yannick Le Pennec <yannick.lepennec@live.fr>
+To:     Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
 Cc:     util-linux@vger.kernel.org
-Subject: Re: [PATCH] Fix dead references to kernel documentation
-Message-ID: <20200518113948.f57czituiszkxpzs@ws.net.home>
-References: <DBBPR08MB55480F8E7F62EFE9323E29FA9BBB0@DBBPR08MB5548.eurprd08.prod.outlook.com>
+Subject: Re: [PATCH] util-linux: Some minor fixes in some manuals
+Message-ID: <20200518114027.cn4kqdb66kukfq4s@ws.net.home>
+References: <20200514235129.GA8403@rhi.hi.is>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <DBBPR08MB55480F8E7F62EFE9323E29FA9BBB0@DBBPR08MB5548.eurprd08.prod.outlook.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+In-Reply-To: <20200514235129.GA8403@rhi.hi.is>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Sun, May 17, 2020 at 11:13:22PM +0800, Yannick Le Pennec wrote:
->  disk-utils/fdisk.8  | 2 +-
->  sys-utils/eject.c   | 2 +-
->  sys-utils/mount.8   | 2 +-
->  sys-utils/rfkill.8  | 2 +-
->  sys-utils/tunelp.8  | 2 +-
->  sys-utils/zramctl.8 | 2 +-
->  6 files changed, 6 insertions(+), 6 deletions(-)
+On Thu, May 14, 2020 at 11:51:29PM +0000, Bjarni Ingi Gislason wrote:
+>  misc-utils/kill.1   | 2 +-
+>  misc-utils/lsblk.8  | 2 +-
+>  sys-utils/mount.8   | 1 -
+>  sys-utils/unshare.1 | 8 ++++----
+>  term-utils/agetty.8 | 2 +-
+>  text-utils/more.1   | 4 ++--
+>  6 files changed, 9 insertions(+), 10 deletions(-)
 
 Applied, thanks.
 
