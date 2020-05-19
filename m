@@ -5,65 +5,65 @@ X-Spam-Level:
 X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7CC2C433E1
-	for <util-linux@archiver.kernel.org>; Tue, 19 May 2020 12:51:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08BF9C433DF
+	for <util-linux@archiver.kernel.org>; Tue, 19 May 2020 12:51:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B77392081A
-	for <util-linux@archiver.kernel.org>; Tue, 19 May 2020 12:51:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB74F2081A
+	for <util-linux@archiver.kernel.org>; Tue, 19 May 2020 12:51:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lcRMKQ/5"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KlQZApum"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728878AbgESMvf (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 19 May 2020 08:51:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41314 "EHLO
+        id S1728884AbgESMvw (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 19 May 2020 08:51:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726991AbgESMvc (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 19 May 2020 08:51:32 -0400
-Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E45EC08C5C0
-        for <util-linux@vger.kernel.org>; Tue, 19 May 2020 05:51:32 -0700 (PDT)
-Received: by mail-wr1-x442.google.com with SMTP id h17so15744490wrc.8
-        for <util-linux@vger.kernel.org>; Tue, 19 May 2020 05:51:32 -0700 (PDT)
+        with ESMTP id S1726991AbgESMvw (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 19 May 2020 08:51:52 -0400
+Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD76EC08C5C0
+        for <util-linux@vger.kernel.org>; Tue, 19 May 2020 05:51:51 -0700 (PDT)
+Received: by mail-wm1-x330.google.com with SMTP id z72so3428100wmc.2
+        for <util-linux@vger.kernel.org>; Tue, 19 May 2020 05:51:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=cc:to:from:subject:message-id:date:user-agent:mime-version
          :content-language:content-transfer-encoding;
-        bh=perIxy9eNUNwp7iq/Msz5mVNdoPDXuJfnjmFBHs/2SA=;
-        b=lcRMKQ/5LXP0196RC9YV1i8DV0Il+FbvH/uZ8faTfNbuIMLrXtjVx91j/N+yj4Eobs
-         gq1srSkaDZ8n1r0CysMPRz/nYeTh101cj9g7cBhWljhUq0VQN8ZWIt6j/lTftJuz7n9w
-         3B6AFZVVBlGbFqET7iuSl9xO8U+0UCtx1cES0ILlEO6ErHQauajgVaRo2pbaZxvUUJeG
-         avIEKWU9+zEGsj0UamZIPug201GrB1+MU/9KKQ4Z0gHmkui4IKPXQRksuP4waJdn48AP
-         02E66+cA6epOnYwflg+TgJ76T2aEDaYG81L4yn7fzqDii3rJUj3dsTlE88TwnAtw7t3+
-         pddw==
+        bh=Nn/9FXKjb6NzHggMqN42QCzVh6GEOHg0trQAkK5oQ7s=;
+        b=KlQZApumxRyWfIIysJRVy9wF8dI+PRPGBerBIpzcJkRjCQAj+o/YPtVVsl/YVj241B
+         0dRhObjhXhMfoxu1k4JG4In/JNZvlBkJX8Lt83lfrPUBw5SoUYG0L19xgRJyneY2y1LQ
+         SEn6o+EVnY9DxG/3bpHNDePw4f8brNahKDIJlQPjFyu+LQMbi13opmoYVzMa4eloF8V3
+         pzR+iZGAP8TxbUxRwFCPdmpgWyDNF+x2tH0iaShCdsH7ZXIEyOiEyamEqnqrWWs3gkWx
+         fAPAy1PczDFaOxJ9d2R+9ANIxAGBL6hZfOYoC/zsXvdAk51mG6trnaC2wP7vY5FuS9X1
+         zgDQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:cc:to:from:subject:message-id:date:user-agent
          :mime-version:content-language:content-transfer-encoding;
-        bh=perIxy9eNUNwp7iq/Msz5mVNdoPDXuJfnjmFBHs/2SA=;
-        b=Tqq6Lz15jwtFyC59n8mrzhqP+azR7sSOI/tm+jVuiFnwjnnJisySPykUIaL7o77sK5
-         smR0EXXqvpj9q0tC9z+N2PNxd9OBMNAAVg2WeuMa8Cm9pBIj826uUTF0HFTUNR9gutC+
-         BZo6TTIwU+qTKWNUS2WD0RK5zc9zsMIiuJhLLx+cOlGkv7V8XFrjY73BC2UIbQWPP1of
-         nZ1MBLWB4Tyv8GP9Xch8EUCFGDkV8EyII1dBRbSZlTtRQZn5WODhGI+U2dcJfr1H8RvS
-         StAi7DkO+9MKNYenqi/jRzJXnmPWRvAnw8uCCpNuzKMozPlL7VOz1zAgXMZCSqIqz/Q3
-         BgeA==
-X-Gm-Message-State: AOAM532sgXJTSrAiATOpvWSqxRv7xXXJxvisBDJH3ukdBkbfblG5cH9D
-        GNPuBn8kLQlqegRQY9eYdjNH8BHoN6s=
-X-Google-Smtp-Source: ABdhPJwNWl8LGcsdZb0IbQJMlTL7oHdcr5Se0iPS1wtemlEkyi8FQx8mvd1wn+R7EORGib/HdNkhxA==
-X-Received: by 2002:a5d:4b4d:: with SMTP id w13mr27293989wrs.178.1589892689829;
-        Tue, 19 May 2020 05:51:29 -0700 (PDT)
+        bh=Nn/9FXKjb6NzHggMqN42QCzVh6GEOHg0trQAkK5oQ7s=;
+        b=oKUPFKM02KaxHpJq99GF20gmqAOYmG2AzcGnF13RNxMW62yHAkSo7ojVHXWgGoj9IO
+         S/QbxQpZRx9PBjxf3Zp4KDetwVFNr5EX++0kBeLZG6KQGQ1GbEwvIaGkt5PQlXBzQjnr
+         DFjnRqosCcVvDhTp97I2VQrN5z8HlWVgdJbtG8HbcAsqhRcR1d8/Q8ZnOjkjq8Ffrcbz
+         O9sKvhtVHJIhknLV/MnWOAOD9jK8JGrUg5KuWmFtzKX3mVXQazpB6PeYTF2kszUK4jyp
+         1B5/HRo/njNnxgu0S8D1KDc5U23LnSiA6TtTzh2SpFcuI/KPTYTEMPZQI5D9tTN9V9eV
+         AZkQ==
+X-Gm-Message-State: AOAM532NJDxubl0zYTeeUUxUhHOwmeLlY9XCdu9AHMRQm9Y3uyXKmzNo
+        +QhhbcK0lMOqNZ7UMHQLChxpG2CS3ZM=
+X-Google-Smtp-Source: ABdhPJyKCTfdCPybs8bXDbzI5JO5wxGQEGvgEPrV/6B9Ed62xd5QaQ6OfaRatd+Vq3fFQ03BD5MYZg==
+X-Received: by 2002:a7b:ce08:: with SMTP id m8mr5086096wmc.97.1589892709585;
+        Tue, 19 May 2020 05:51:49 -0700 (PDT)
 Received: from ?IPv6:2001:a61:2482:101:a081:4793:30bf:f3d5? ([2001:a61:2482:101:a081:4793:30bf:f3d5])
-        by smtp.gmail.com with ESMTPSA id 5sm3906260wmz.16.2020.05.19.05.51.28
+        by smtp.gmail.com with ESMTPSA id f123sm3798532wmf.44.2020.05.19.05.51.48
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 May 2020 05:51:28 -0700 (PDT)
+        Tue, 19 May 2020 05:51:49 -0700 (PDT)
 Cc:     mtk.manpages@gmail.com, util-linux@vger.kernel.org
 To:     Karel Zak <kzak@redhat.com>
 From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Subject: [PATCH 1/7] Manual pages: Standardize on AUTHORS as section title
-Message-ID: <4bfbe76e-4bde-289c-2a8f-b29e1d3aaae1@gmail.com>
-Date:   Tue, 19 May 2020 14:51:28 +0200
+Subject: [PATCH 2/7] Manual pages: Standardize on EXAMPLE as section title
+Message-ID: <c8f0f358-64e9-0ae3-1fdb-e3822dbfd0fa@gmail.com>
+Date:   Tue, 19 May 2020 14:51:48 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.7.0
 MIME-Version: 1.0
@@ -80,676 +80,331 @@ expectations) if consistent names are used for the sections
 within manual pages. This patch is one of a series to bring
 about this consistency.
 
-In the Linux man-pages project, I long ago did away with the
-AUTHOR(S) section, but I realize some projects like to keep this.
+Currently we have EXAMPLE (10) or EXAMPLES (23).
+Let's standardize on the EXAMPLE (which is also what is
+suggested in man-pages(7)) and used consistently across
+a large number of pages in the Linux man-pages project.
 
-But, let's make sure that the section is consistently titled
-across pages. Currently we have AUTHOR (47) or AUTHORS (41).
-Let's standardize on the latter (which is also what is
-suggested in man-pages(7)).
+(I realize the choice to go EXAMPLE, rather than EXAMPLES,
+may be debatable. If necessary, I'd write a patch that instead
+goes the other way, but I'd prefer to follow man-pages(7).)
 
 Signed-off-by: Michael Kerrisk <mtk.manpages@gmail.com>
 ---
- disk-utils/blockdev.8       | 2 +-
- disk-utils/cfdisk.8         | 2 +-
- disk-utils/fdformat.8       | 2 +-
- disk-utils/raw.8            | 2 +-
- disk-utils/sfdisk.8         | 2 +-
- disk-utils/swaplabel.8      | 2 +-
- libblkid/libblkid.3         | 2 +-
- libuuid/man/uuid.3          | 2 +-
- libuuid/man/uuid_clear.3    | 2 +-
- libuuid/man/uuid_compare.3  | 2 +-
- libuuid/man/uuid_copy.3     | 2 +-
- libuuid/man/uuid_generate.3 | 2 +-
- libuuid/man/uuid_is_null.3  | 2 +-
- libuuid/man/uuid_parse.3    | 2 +-
- libuuid/man/uuid_time.3     | 2 +-
- libuuid/man/uuid_unparse.3  | 2 +-
- login-utils/chfn.1          | 2 +-
- login-utils/chsh.1          | 2 +-
- login-utils/last.1          | 2 +-
- login-utils/login.1         | 2 +-
- login-utils/newgrp.1        | 2 +-
- login-utils/sulogin.8       | 2 +-
- login-utils/utmpdump.1      | 2 +-
- misc-utils/blkid.8          | 2 +-
- misc-utils/findfs.8         | 2 +-
- misc-utils/hardlink.1       | 2 +-
- misc-utils/namei.1          | 2 +-
- misc-utils/uuidgen.1        | 2 +-
- misc-utils/wipefs.8         | 2 +-
- schedutils/taskset.1        | 2 +-
- sys-utils/blkdiscard.8      | 2 +-
- sys-utils/chcpu.8           | 2 +-
- sys-utils/ctrlaltdel.8      | 2 +-
- sys-utils/flock.1           | 2 +-
- sys-utils/fsfreeze.8        | 2 +-
- sys-utils/fstrim.8          | 2 +-
- sys-utils/ipcmk.1           | 2 +-
- sys-utils/ipcs.1            | 2 +-
- sys-utils/ldattach.8        | 2 +-
- sys-utils/lscpu.1           | 2 +-
- sys-utils/lsmem.1           | 2 +-
- sys-utils/mountpoint.1      | 2 +-
- sys-utils/setarch.8         | 2 +-
- sys-utils/setpriv.1         | 2 +-
- sys-utils/setsid.1          | 2 +-
- term-utils/scriptlive.1     | 2 +-
- term-utils/scriptreplay.1   | 2 +-
- 47 files changed, 47 insertions(+), 47 deletions(-)
+ disk-utils/partx.8      | 2 +-
+ lib/terminal-colors.d.5 | 2 +-
+ misc-utils/findmnt.8    | 2 +-
+ misc-utils/logger.1     | 2 +-
+ misc-utils/rename.1     | 2 +-
+ misc-utils/uuidgen.1    | 2 +-
+ misc-utils/wipefs.8     | 4 ++--
+ schedutils/ionice.1     | 2 +-
+ sys-utils/chmem.8       | 2 +-
+ sys-utils/flock.1       | 2 +-
+ sys-utils/pivot_root.8  | 2 +-
+ sys-utils/prlimit.1     | 2 +-
+ sys-utils/readprofile.8 | 2 +-
+ sys-utils/renice.1      | 2 +-
+ sys-utils/rfkill.8      | 2 +-
+ sys-utils/setarch.8     | 2 +-
+ sys-utils/unshare.1     | 4 ++--
+ term-utils/agetty.8     | 2 +-
+ text-utils/colcrt.1     | 2 +-
+ text-utils/column.1     | 2 +-
+ text-utils/hexdump.1    | 2 +-
+ 21 files changed, 23 insertions(+), 23 deletions(-)
 
-diff --git a/disk-utils/blockdev.8 b/disk-utils/blockdev.8
-index 5d85c01b7..361e6aad7 100644
---- a/disk-utils/blockdev.8
-+++ b/disk-utils/blockdev.8
-@@ -86,7 +86,7 @@ Set read-only. The currently active access to the device may not be affected by
- filesystem already mounted in read-write mode will not be affected. The change applies after remount.
- .IP "\fB\-\-setrw\fP"
- Set read-write.
--.SH AUTHOR
-+.SH AUTHORS
- blockdev was written by Andries E.\& Brouwer and rewritten by Karel Zak.
- .SH AVAILABILITY
- The blockdev command is part of the util-linux package and is available from
-diff --git a/disk-utils/cfdisk.8 b/disk-utils/cfdisk.8
-index ae874fb89..231a877c6 100644
---- a/disk-utils/cfdisk.8
-+++ b/disk-utils/cfdisk.8
-@@ -193,7 +193,7 @@ use visible padding characters. Requires enabled LIBSMARTCOLS_DEBUG.
- .BR partprobe (8),
- .BR partx (8),
- .BR sfdisk (8)
--.SH AUTHOR
-+.SH AUTHORS
- Karel Zak <kzak@redhat.com>
- .PP
- The current cfdisk implementation is based on the original cfdisk
-diff --git a/disk-utils/fdformat.8 b/disk-utils/fdformat.8
-index ecff66280..97c67a01a 100644
---- a/disk-utils/fdformat.8
-+++ b/disk-utils/fdformat.8
-@@ -67,7 +67,7 @@ Display help text and exit.
- .BR emkfs (8),
- .BR mkfs (8),
- .BR setfdprm (8)
--.SH AUTHOR
-+.SH AUTHORS
- Werner Almesberger (almesber@nessie.cs.id.ethz.ch)
- .SH AVAILABILITY
- The fdformat command is part of the util-linux package and is available from
-diff --git a/disk-utils/raw.8 b/disk-utils/raw.8
-index 5a3b96e3c..fcf996c5b 100644
---- a/disk-utils/raw.8
-+++ b/disk-utils/raw.8
-@@ -92,7 +92,7 @@ but is regarded either a bug or a feature depending on who you ask!
- Rather than using raw devices applications should prefer
- .BR open (2)
- devices, such as /dev/sda1, with the O_DIRECT flag.
--.SH AUTHOR
-+.SH AUTHORS
- Stephen Tweedie (sct@redhat.com)
- .SH AVAILABILITY
- The raw command is part of the util-linux package and is available from
-diff --git a/disk-utils/sfdisk.8 b/disk-utils/sfdisk.8
-index ead807b8d..ff2a42aaf 100644
---- a/disk-utils/sfdisk.8
-+++ b/disk-utils/sfdisk.8
-@@ -627,7 +627,7 @@ enables libsmartcols debug output.
- .BR partprobe (8),
- .BR partx (8)
- 
--.SH AUTHOR
-+.SH AUTHORS
- Karel Zak <kzak@redhat.com>
- .PP
- The current sfdisk implementation is based on the original sfdisk
-diff --git a/disk-utils/swaplabel.8 b/disk-utils/swaplabel.8
-index d96d507af..cea8fc356 100644
---- a/disk-utils/swaplabel.8
-+++ b/disk-utils/swaplabel.8
-@@ -55,7 +55,7 @@ The \fI UUID\fR
- must be in the standard 8-4-4-4-12 character format, such as is output by
- .BR uuidgen (1).
- .PP
--.SH AUTHOR
-+.SH AUTHORS
- .B swaplabel
- was written by Jason Borden <jborden@bluehost.com> and Karel Zak <kzak@redhat.com>.
- .SH ENVIRONMENT
-diff --git a/libblkid/libblkid.3 b/libblkid/libblkid.3
-index 4b9e74bba..a3795ab79 100644
---- a/libblkid/libblkid.3
-+++ b/libblkid/libblkid.3
-@@ -61,7 +61,7 @@ config file can be overridden by the environment variable BLKID_CONF.  For more
- details about the config file see
- .BR blkid (8)
- man page.
--.SH AUTHOR
-+.SH AUTHORS
- .B libblkid
- was written by Andreas Dilger for the ext2 filesystem utilities, with input
- from Ted Ts'o.  The library was subsequently heavily modified by Ted Ts'o.
-diff --git a/libuuid/man/uuid.3 b/libuuid/man/uuid.3
-index a596e42e7..be2a63adb 100644
---- a/libuuid/man/uuid.3
-+++ b/libuuid/man/uuid.3
-@@ -49,7 +49,7 @@ of a name clash.
- .SH CONFORMING TO
- This library generates UUIDs compatible with OSF DCE 1.1, and hash based UUIDs
- V3 and V5 compatible with RFC-4122.
--.SH AUTHOR
-+.SH AUTHORS
- Theodore Y.\& Ts'o
- .SH AVAILABILITY
- .B libuuid
-diff --git a/libuuid/man/uuid_clear.3 b/libuuid/man/uuid_clear.3
-index 9cc9b5db1..84c88838a 100644
---- a/libuuid/man/uuid_clear.3
-+++ b/libuuid/man/uuid_clear.3
-@@ -44,7 +44,7 @@ The
- function sets the value of the supplied uuid variable
- .I uu
- to the NULL value.
--.SH AUTHOR
-+.SH AUTHORS
- Theodore Y.\& Ts'o
- .SH AVAILABILITY
- .B libuuid
-diff --git a/libuuid/man/uuid_compare.3 b/libuuid/man/uuid_compare.3
-index 46759e282..ddac24849 100644
---- a/libuuid/man/uuid_compare.3
-+++ b/libuuid/man/uuid_compare.3
-@@ -50,7 +50,7 @@ Returns an integer less than, equal to, or greater than zero if
- is found,  respectively, to be lexicographically less than, equal, or
- greater than
- .IR uu2 .
--.SH AUTHOR
-+.SH AUTHORS
- Theodore Y.\& Ts'o
- .SH AVAILABILITY
- .B libuuid
-diff --git a/libuuid/man/uuid_copy.3 b/libuuid/man/uuid_copy.3
-index 09fb30cfe..fc03e00eb 100644
---- a/libuuid/man/uuid_copy.3
-+++ b/libuuid/man/uuid_copy.3
-@@ -46,7 +46,7 @@ function copies the UUID variable
- .SH RETURN VALUE
- The copied UUID is returned in the location pointed to by
- .IR dst .
--.SH AUTHOR
-+.SH AUTHORS
- Theodore Y.\& Ts'o
- .SH AVAILABILITY
- .B libuuid
-diff --git a/libuuid/man/uuid_generate.3 b/libuuid/man/uuid_generate.3
-index 544a96e67..78206d9c0 100644
---- a/libuuid/man/uuid_generate.3
-+++ b/libuuid/man/uuid_generate.3
-@@ -118,7 +118,7 @@ returns zero if the UUID has been generated in a safe manner, \-1 otherwise.
- .SH CONFORMING TO
- This library generates UUIDs compatible with OSF DCE 1.1, and hash based UUIDs
- V3 and V5 compatible with RFC-4122.
--.SH AUTHOR
-+.SH AUTHORS
- Theodore Y.\& Ts'o
- .SH AVAILABILITY
- .B libuuid
-diff --git a/libuuid/man/uuid_is_null.3 b/libuuid/man/uuid_is_null.3
-index fea469e46..2842174da 100644
---- a/libuuid/man/uuid_is_null.3
-+++ b/libuuid/man/uuid_is_null.3
-@@ -45,7 +45,7 @@ function compares the value of the supplied UUID variable
- .I uu
- to the NULL value.  If the value is equal to the NULL UUID, 1 is returned,
- otherwise 0 is returned.
--.SH AUTHOR
-+.SH AUTHORS
- Theodore Y.\& Ts'o
- .SH AVAILABILITY
- .B libuuid
-diff --git a/libuuid/man/uuid_parse.3 b/libuuid/man/uuid_parse.3
-index c3a5f8801..1cab7b8d8 100644
---- a/libuuid/man/uuid_parse.3
-+++ b/libuuid/man/uuid_parse.3
-@@ -67,7 +67,7 @@ otherwise \-1 is returned.
- .SH CONFORMING TO
- This library parses UUIDs compatible with OSF DCE 1.1, and hash based UUIDs V3
- and V5 compatible with RFC-4122.
--.SH AUTHOR
-+.SH AUTHORS
- Theodore Y.\& Ts'o
- .SH AVAILABILITY
- .B libuuid
-diff --git a/libuuid/man/uuid_time.3 b/libuuid/man/uuid_time.3
-index 91e29e8bb..9c1fdea4e 100644
---- a/libuuid/man/uuid_time.3
-+++ b/libuuid/man/uuid_time.3
-@@ -59,7 +59,7 @@ the epoch, is also stored in the location pointed to by
- .I ret_tv
- (see
- .BR gettimeofday "(2))."
--.SH AUTHOR
-+.SH AUTHORS
- Theodore Y.\& Ts'o
- .SH AVAILABILITY
- .B libuuid
-diff --git a/libuuid/man/uuid_unparse.3 b/libuuid/man/uuid_unparse.3
-index 4a7096e92..5f4ed5e00 100644
---- a/libuuid/man/uuid_unparse.3
-+++ b/libuuid/man/uuid_unparse.3
-@@ -62,7 +62,7 @@ and
- may be used.
- .SH CONFORMING TO
- This library unparses UUIDs compatible with OSF DCE 1.1.
--.SH AUTHOR
-+.SH AUTHORS
- Theodore Y.\& Ts'o
- .SH AVAILABILITY
- .B libuuid
-diff --git a/login-utils/chfn.1 b/login-utils/chfn.1
-index 592ca8ff7..8ac9c2c22 100644
---- a/login-utils/chfn.1
-+++ b/login-utils/chfn.1
-@@ -101,7 +101,7 @@ Returns 0 if operation was successful, 1 if operation failed or command syntax w
- .BR finger (1),
- .BR login.defs (5),
- .BR passwd (5)
--.SH AUTHOR
-+.SH AUTHORS
- Salvatore Valente <svalente@mit.edu>
- .SH AVAILABILITY
- The chfn command is part of the util-linux package and is available from
-diff --git a/login-utils/chsh.1 b/login-utils/chsh.1
-index eefcdb958..e6642084a 100644
---- a/login-utils/chsh.1
-+++ b/login-utils/chsh.1
-@@ -60,7 +60,7 @@ Returns 0 if operation was successful, 1 if operation failed or command syntax w
- .BR login.defs (5),
- .BR passwd (5),
- .BR shells (5)
--.SH AUTHOR
-+.SH AUTHORS
- Salvatore Valente <svalente@mit.edu>
- .SH AVAILABILITY
- The chsh command is part of the util-linux package and is available from
-diff --git a/login-utils/last.1 b/login-utils/last.1
-index 2fca5a159..852d82aa6 100644
---- a/login-utils/last.1
-+++ b/login-utils/last.1
-@@ -182,7 +182,7 @@ command (for example,
- /var/log/wtmp
- .br
- /var/log/btmp
--.SH AUTHOR
-+.SH AUTHORS
- .MT miquels@cistron.nl
- Miquel van Smoorenburg
- .ME
-diff --git a/login-utils/login.1 b/login-utils/login.1
-index 43175f6a6..ef893f602 100644
---- a/login-utils/login.1
-+++ b/login-utils/login.1
-@@ -363,7 +363,7 @@ then the surrounding shell gets killed by vhangup() because it's no
- longer the true owner of the tty.  This can be avoided by using
- .B exec login
- in a top-level shell or xterm.
--.SH AUTHOR
-+.SH AUTHORS
- Derived from BSD login 5.40 (5/9/89) by
- .MT glad@\:daimi.\:dk
- Michael Glad
-diff --git a/login-utils/newgrp.1 b/login-utils/newgrp.1
-index c29461010..b4b308d1f 100644
---- a/login-utils/newgrp.1
-+++ b/login-utils/newgrp.1
-@@ -25,7 +25,7 @@ If no group is specified, the GID is changed to the login GID.
- .BR login (1),
- .BR group (5)
- 
--.SH AUTHOR
-+.SH AUTHORS
- Originally by Michael Haardt. Currently maintained by
- Peter Orbaek (poe@daimi.aau.dk).
- 
-diff --git a/login-utils/sulogin.8 b/login-utils/sulogin.8
-index 7998b4aca..d5b24383d 100644
---- a/login-utils/sulogin.8
-+++ b/login-utils/sulogin.8
-@@ -84,7 +84,7 @@ will try to execute root's shell from
- If that fails, it
- will fall back to
- .IR /bin/sh .
--.SH AUTHOR
-+.SH AUTHORS
- .B sulogin
- was written by Miquel van Smoorenburg for sysvinit and later ported
- to util-linux by Dave Reisner and Karel Zak.
-diff --git a/login-utils/utmpdump.1 b/login-utils/utmpdump.1
-index 19835de31..4085f1760 100644
---- a/login-utils/utmpdump.1
-+++ b/login-utils/utmpdump.1
-@@ -78,7 +78,7 @@ option, as the format for the utmp/wtmp files strongly depends on the input
- format.  This tool was
- .B not
- written for normal use, but for debugging only.
--.SH AUTHOR
-+.SH AUTHORS
- Michael Krapp
- .SH SEE ALSO
- .BR last (1),
-diff --git a/misc-utils/blkid.8 b/misc-utils/blkid.8
-index e95e75038..6ef73f33c 100644
---- a/misc-utils/blkid.8
-+++ b/misc-utils/blkid.8
-@@ -327,7 +327,7 @@ a comma-separated list.  Default is "udev,scan".  The "udev" method uses udev
- symlinks and the "scan" method scans all block devices from the
- .I /proc/partitions
- file.
--.SH AUTHOR
-+.SH AUTHORS
- .B blkid
- was written by Andreas Dilger for libblkid and improved by Theodore Ts'o
- and Karel Zak.
-diff --git a/misc-utils/findfs.8 b/misc-utils/findfs.8
-index 1d15d4939..22c7c3ddc 100644
---- a/misc-utils/findfs.8
-+++ b/misc-utils/findfs.8
-@@ -60,7 +60,7 @@ label or uuid cannot be found
- usage error, wrong number of arguments or unknown option
- .PD
- .RE
--.SH AUTHOR
-+.SH AUTHORS
- .B findfs
- was originally written by
- .MT tytso@mit.edu
-diff --git a/misc-utils/hardlink.1 b/misc-utils/hardlink.1
-index 58e48c7df..26db12d9b 100644
---- a/misc-utils/hardlink.1
-+++ b/misc-utils/hardlink.1
-@@ -48,7 +48,7 @@ Display help text and exit.
- .TP
- .BR \-V , " \-\-version"
- Display version information and exit.
--.SH AUTHOR
-+.SH AUTHORS
- .PP
- \fBhardlink\fR was written by Jakub Jelinek <jakub@redhat.com> and later modified by
- Ruediger Meier <ruediger.meier@ga-group.nl> and Karel Zak <kzak@redhat.com> for util-linux.
-diff --git a/misc-utils/namei.1 b/misc-utils/namei.1
-index f8ac8cc2d..f44f80476 100644
---- a/misc-utils/namei.1
-+++ b/misc-utils/namei.1
-@@ -63,7 +63,7 @@ Display version information and exit.
+diff --git a/disk-utils/partx.8 b/disk-utils/partx.8
+index d6ff52f08..e07787b10 100644
+--- a/disk-utils/partx.8
++++ b/disk-utils/partx.8
+@@ -144,7 +144,7 @@ Display version information and exit.
  .TP
  .BR \-h , " \-\-help"
  Display help text and exit.
--.SH AUTHOR
-+.SH AUTHORS
- The original
- .B namei
- program was written by Roger Southwick <rogers@amadeus.wr.tek.com>.
+-.SH EXAMPLES
++.SH EXAMPLE
+ .TP
+ partx \-\-show /dev/sdb3
+ .TQ
+diff --git a/lib/terminal-colors.d.5 b/lib/terminal-colors.d.5
+index 4747ca268..73dff6a47 100644
+--- a/lib/terminal-colors.d.5
++++ b/lib/terminal-colors.d.5
+@@ -50,7 +50,7 @@ or
+ .I $HOME/.config/terminal-colors.d
+ overrides the global setting.
+ 
+-.SH EXAMPLES
++.SH EXAMPLE
+ Disable colors for all compatible utilities:
+ .RS
+ .br
+diff --git a/misc-utils/findmnt.8 b/misc-utils/findmnt.8
+index 6fe35ab86..3e49c5be1 100644
+--- a/misc-utils/findmnt.8
++++ b/misc-utils/findmnt.8
+@@ -260,7 +260,7 @@ It's possible to specify source (device) or target (mountpoint) to filter mount
+ .TP
+ .B \-\-verbose
+ Force findmnt to print more information (\fB\-\-verify\fP only for now).
+-.SH EXAMPLES
++.SH EXAMPLE
+ .IP "\fBfindmnt \-\-fstab \-t nfs\fP"
+ Prints all NFS filesystems defined in
+ .IR /etc/fstab .
+diff --git a/misc-utils/logger.1 b/misc-utils/logger.1
+index e4a52228e..731695aed 100644
+--- a/misc-utils/logger.1
++++ b/misc-utils/logger.1
+@@ -345,7 +345,7 @@ l l.
+ .PP
+ For the priority order and intended purposes of these facilities and levels, see
+ .BR syslog (3).
+-.SH EXAMPLES
++.SH EXAMPLE
+ .B logger System rebooted
+ .br
+ .B logger \-p local0.notice \-t HOSTIDM \-f /dev/idmc
+diff --git a/misc-utils/rename.1 b/misc-utils/rename.1
+index 7963a79b7..8067017f2 100644
+--- a/misc-utils/rename.1
++++ b/misc-utils/rename.1
+@@ -40,7 +40,7 @@ Display version information and exit.
+ .TP
+ .BR \-h , " \-\-help"
+ Display help text and exit.
+-.SH EXAMPLES
++.SH EXAMPLE
+ Given the files
+ .IR foo1 ", ..., " foo9 ", " foo10 ", ..., " foo278 ,
+ the commands
 diff --git a/misc-utils/uuidgen.1 b/misc-utils/uuidgen.1
-index b9c265901..0189587a3 100644
+index 0189587a3..07d646104 100644
 --- a/misc-utils/uuidgen.1
 +++ b/misc-utils/uuidgen.1
-@@ -91,7 +91,7 @@ Interpret name \fIname\fR as a hexadecimal string.
+@@ -89,7 +89,7 @@ Generate the hash of the \fIname\fR.
+ Interpret name \fIname\fR as a hexadecimal string.
+ .SH CONFORMING TO
  OSF DCE 1.1
- .SH EXAMPLES
+-.SH EXAMPLES
++.SH EXAMPLE
  uuidgen \-\-sha1 \-\-namespace @dns \-\-name "www.example.com"
--.SH AUTHOR
-+.SH AUTHORS
+ .SH AUTHORS
  .B uuidgen
- was written by Andreas Dilger for libuuid.
- .SH SEE ALSO
 diff --git a/misc-utils/wipefs.8 b/misc-utils/wipefs.8
-index b755df903..8882ed84a 100644
+index 8882ed84a..39e9c9f96 100644
 --- a/misc-utils/wipefs.8
 +++ b/misc-utils/wipefs.8
-@@ -123,7 +123,7 @@ file ~/wipefs-sdb-<offset>.bak for each signature.
+@@ -65,7 +65,7 @@ restricted with the \fB\-t\fR option.
  .TP
- .B dd if=~/wipefs-sdb-0x00000438.bak of=/dev/sdb seek=$((0x00000438)) bs=1 conv=notrunc
- Restores an ext2 signature from the backup file  ~/wipefs-sdb-0x00000438.bak.
--.SH AUTHOR
-+.SH AUTHORS
- Karel Zak <kzak@redhat.com>
- .SH ENVIRONMENT
- .IP LIBBLKID_DEBUG=all
-diff --git a/schedutils/taskset.1 b/schedutils/taskset.1
-index dc3d25666..e73000bf3 100644
---- a/schedutils/taskset.1
-+++ b/schedutils/taskset.1
-@@ -129,7 +129,7 @@ A user can retrieve the affinity mask of any process.
- See
- .BR sched (7)
- for a description of the Linux scheduling scheme.
--.SH AUTHOR
-+.SH AUTHORS
- Written by Robert M. Love.
- .SH COPYRIGHT
- Copyright \(co 2004 Robert M. Love.
-diff --git a/sys-utils/blkdiscard.8 b/sys-utils/blkdiscard.8
-index bd3950b1f..d39e85522 100644
---- a/sys-utils/blkdiscard.8
-+++ b/sys-utils/blkdiscard.8
+ .BR \-b , " \-\-backup"
+ Create a signature backup to the file $HOME/wipefs-<devname>-<offset>.bak.
+-For more details see the \fBEXAMPLES\fR section.
++For more details see the \fBEXAMPLE\fR section.
+ .TP
+ .BR \-f , " \-\-force"
+ Force erasure, even if the filesystem is mounted.  This is required in
+@@ -112,7 +112,7 @@ taken.  For more details see mount(8).
+ .TP
+ .BR \-V , " \-\-version"
+ Display version information and exit.
+-.SH EXAMPLES
++.SH EXAMPLE
+ .TP
+ .B wipefs /dev/sda*
+ Prints information about sda and all partitions on sda.
+diff --git a/schedutils/ionice.1 b/schedutils/ionice.1
+index fa5c1ad19..0b2daba6c 100644
+--- a/schedutils/ionice.1
++++ b/schedutils/ionice.1
+@@ -113,7 +113,7 @@ scheduling parameters.
+ .TP
+ .BR \-V , " \-\-version"
+ Display version information and exit.
+-.SH EXAMPLES
++.SH EXAMPLE
+ .LP
+ .TP 7
+ # \fBionice\fP \-c 3 \-p 89
+diff --git a/sys-utils/chmem.8 b/sys-utils/chmem.8
+index c0941ea70..c11514007 100644
+--- a/sys-utils/chmem.8
++++ b/sys-utils/chmem.8
+@@ -91,7 +91,7 @@ failure
+ .TP
+ .B 64
+ partial success
+-.SH EXAMPLES
++.SH EXAMPLE
+ .TP
+ .B chmem \-\-enable 1024
+ This command requests 1024 MiB of memory to be set online.
+diff --git a/sys-utils/flock.1 b/sys-utils/flock.1
+index fba4ec8c0..abcbc73ee 100644
+--- a/sys-utils/flock.1
++++ b/sys-utils/flock.1
+@@ -124,7 +124,7 @@ Display version information and exit.
+ .TP
+ .BR \-h , " \-\-help"
+ Display help text and exit.
+-.SH EXAMPLES
++.SH EXAMPLE
+ Note that "shell> " in examples is a command line prompt.
+ .TP
+ shell1> flock /tmp \-c cat
+diff --git a/sys-utils/pivot_root.8 b/sys-utils/pivot_root.8
+index b1395e04f..ea98f3b3d 100644
+--- a/sys-utils/pivot_root.8
++++ b/sys-utils/pivot_root.8
+@@ -39,7 +39,7 @@ Display version information and exit.
+ .TP
+ \fB\-h\fR, \fB\-\-help\fR
+ Display help text and exit.
+-.SH EXAMPLES
++.SH EXAMPLE
+ Change the root file system to /dev/hda1 from an interactive shell:
+ .sp
+ .nf
+diff --git a/sys-utils/prlimit.1 b/sys-utils/prlimit.1
+index 71dd7faa3..fb784377b 100644
+--- a/sys-utils/prlimit.1
++++ b/sys-utils/prlimit.1
+@@ -89,7 +89,7 @@ Maximum number of file locks held.
+ .IP "\fB\-y, \-\-rttime\fP[=\fIlimits\fR]"
+ Timeout for real-time tasks.
+ 
+-.SH EXAMPLES
++.SH EXAMPLE
+ .IP "\fBprlimit \-\-pid 13134\fP"
+ Display limit values for all current resources.
+ .IP "\fBprlimit \-\-pid 13134 \-\-rss \-\-nofile=1024:4095\fP"
+diff --git a/sys-utils/readprofile.8 b/sys-utils/readprofile.8
+index 9aef1bfba..7b7b2ab41 100644
+--- a/sys-utils/readprofile.8
++++ b/sys-utils/readprofile.8
+@@ -90,7 +90,7 @@ Display version information and exit.
+ .TP
+ \fB\-h\fR, \fB\-\-help\fR
+ Display help text and exit.
+-.SH EXAMPLES
++.SH EXAMPLE
+ Browse the profiling buffer ordering by clock ticks:
+ .nf
+    readprofile | sort \-nr | less
+diff --git a/sys-utils/renice.1 b/sys-utils/renice.1
+index 3ef3512f4..12a0f608d 100644
+--- a/sys-utils/renice.1
++++ b/sys-utils/renice.1
 @@ -77,7 +77,7 @@ Display version information and exit.
  .TP
  .BR \-h , " \-\-help"
  Display help text and exit.
--.SH AUTHOR
-+.SH AUTHORS
- .MT lczerner@redhat.com
- Lukas Czerner
- .ME
-diff --git a/sys-utils/chcpu.8 b/sys-utils/chcpu.8
-index 3626fc910..23191e2b9 100644
---- a/sys-utils/chcpu.8
-+++ b/sys-utils/chcpu.8
-@@ -89,7 +89,7 @@ failure
+-.SH EXAMPLES
++.SH EXAMPLE
+ The following command would change the priority of the processes with
+ PIDs 987 and 32, plus all processes owned by the users daemon and root:
  .TP
- .B 64
- partial success
--.SH AUTHOR
-+.SH AUTHORS
- .MT heiko.carstens@de.ibm.com
- Heiko Carstens
- .ME
-diff --git a/sys-utils/ctrlaltdel.8 b/sys-utils/ctrlaltdel.8
-index 9310af974..7cd340d09 100644
---- a/sys-utils/ctrlaltdel.8
-+++ b/sys-utils/ctrlaltdel.8
-@@ -47,7 +47,7 @@ Display help text and exit.
- .SH SEE ALSO
- .BR init (8),
- .BR systemd (1)
--.SH AUTHOR
-+.SH AUTHORS
- .UR poe@daimi.aau.dk
- Peter Orbaek
- .UE
-diff --git a/sys-utils/flock.1 b/sys-utils/flock.1
-index d0e17fe01..fba4ec8c0 100644
---- a/sys-utils/flock.1
-+++ b/sys-utils/flock.1
-@@ -188,7 +188,7 @@ option, or 1 by default.
- .PP
- When using the \fIcommand\fR variant, and executing the child worked, then
- the exit status is that of the child command.
--.SH AUTHOR
-+.SH AUTHORS
- .UR hpa@zytor.com
- H. Peter Anvin
- .UE
-diff --git a/sys-utils/fsfreeze.8 b/sys-utils/fsfreeze.8
-index 3cd67382e..2ca445aeb 100644
---- a/sys-utils/fsfreeze.8
-+++ b/sys-utils/fsfreeze.8
-@@ -75,7 +75,7 @@ and
- Previous list may be incomplete, as more filesystems get support.  If in
- doubt easiest way to know if a filesystem has support is create a small
- loopback mount and test freezing it.
--.SH AUTHOR
-+.SH AUTHORS
- .PP
- Written by Hajime Taira.
- .SH NOTES
-diff --git a/sys-utils/fstrim.8 b/sys-utils/fstrim.8
-index ef6772a96..e3857f9d0 100644
---- a/sys-utils/fstrim.8
-+++ b/sys-utils/fstrim.8
-@@ -129,7 +129,7 @@ The command
- .B fstrim \-\-all
- returns 0 (all succeeded), 32 (all failed) or 64 (some failed, some succeeded).
- 
--.SH AUTHOR
-+.SH AUTHORS
- .nf
- Lukas Czerner <lczerner@redhat.com>
- Karel Zak <kzak@redhat.com>
-diff --git a/sys-utils/ipcmk.1 b/sys-utils/ipcmk.1
-index b71054e69..c1e8fe47c 100644
---- a/sys-utils/ipcmk.1
-+++ b/sys-utils/ipcmk.1
-@@ -43,7 +43,7 @@ Display help text and exit.
- .SH SEE ALSO
- .BR ipcrm (1),
- .BR ipcs (1)
--.SH AUTHOR
-+.SH AUTHORS
- .MT hayden.james@gmail.com
- Hayden A. James
- .ME
-diff --git a/sys-utils/ipcs.1 b/sys-utils/ipcs.1
-index 4b3baaaa5..745d33832 100644
---- a/sys-utils/ipcs.1
-+++ b/sys-utils/ipcs.1
-@@ -123,7 +123,7 @@ options not defined by POSIX.  A portable application shall not use the
- and
- .B \-u
- options.
--.SH AUTHOR
-+.SH AUTHORS
- .UR balasub@cis.ohio-state.edu
- Krishna Balasubramanian
- .UE
-diff --git a/sys-utils/ldattach.8 b/sys-utils/ldattach.8
-index 03ef8fd93..ee3d54998 100644
---- a/sys-utils/ldattach.8
-+++ b/sys-utils/ldattach.8
-@@ -145,7 +145,7 @@ Display help text and exit.
- .SH SEE ALSO
- .BR inputattach (1),
- .BR ttys (4)
--.SH AUTHOR
-+.SH AUTHORS
- .nf
- Tilman Schmidt (tilman@imap.cc)
- .fi
-diff --git a/sys-utils/lscpu.1 b/sys-utils/lscpu.1
-index 989b1f831..1ef6ce021 100644
---- a/sys-utils/lscpu.1
-+++ b/sys-utils/lscpu.1
-@@ -191,7 +191,7 @@ CPU only.
- Sometimes in Xen Dom0 the kernel reports wrong data.
- 
- On virtual hardware the number of cores per socket, etc. can be wrong.
--.SH AUTHOR
-+.SH AUTHORS
- .nf
- Cai Qian <qcai@redhat.com>
- Karel Zak <kzak@redhat.com>
-diff --git a/sys-utils/lsmem.1 b/sys-utils/lsmem.1
-index 0e563daf5..9d0b07398 100644
---- a/sys-utils/lsmem.1
-+++ b/sys-utils/lsmem.1
-@@ -86,7 +86,7 @@ This option controls summary lines output.  The optional argument \fIwhen\fP can
- \fBnever\fR, \fBalways\fR or \fBonly\fR.  If the \fIwhen\fR argument is
- omitted, it defaults to \fB"only"\fR. The summary output is suppressed for
- \fB\-\-raw\fR, \fB\-\-pairs\fR and \fB\-\-json\fR.
--.SH AUTHOR
-+.SH AUTHORS
- .B lsmem
- was originally written by Gerald Schaefer for s390-tools in Perl. The C version
- for util-linux was written by Clemens von Mann, Heiko Carstens and Karel Zak.
-diff --git a/sys-utils/mountpoint.1 b/sys-utils/mountpoint.1
-index 23e4536fc..cfb5916fe 100644
---- a/sys-utils/mountpoint.1
-+++ b/sys-utils/mountpoint.1
-@@ -43,7 +43,7 @@ Display version information and exit.
- Display help text and exit.
- .SH EXIT STATUS
- Zero if the directory or file is a mountpoint, non-zero if not.
--.SH AUTHOR
-+.SH AUTHORS
- .PP
- Karel Zak <kzak@redhat.com>
- .SH ENVIRONMENT
+diff --git a/sys-utils/rfkill.8 b/sys-utils/rfkill.8
+index 0d37523bb..373af79ac 100644
+--- a/sys-utils/rfkill.8
++++ b/sys-utils/rfkill.8
+@@ -74,7 +74,7 @@ Disable the corresponding device.
+ Enable the corresponding device.  If the device is hard\-blocked, for example
+ via a hardware switch, it will remain unavailable though it is now
+ soft\-unblocked.
+-.SH EXAMPLES
++.SH EXAMPLE
+ rfkill --output ID,TYPE
+ .br
+ rfkill block all
 diff --git a/sys-utils/setarch.8 b/sys-utils/setarch.8
-index f0978d6ad..a5e8b1f79 100644
+index a5e8b1f79..7040ac003 100644
 --- a/sys-utils/setarch.8
 +++ b/sys-utils/setarch.8
-@@ -121,7 +121,7 @@ setarch ppc32 rpmbuild \-\-target=ppc \-\-rebuild foo.src.rpm
- setarch ppc32 \-v \-vL3 rpmbuild \-\-target=ppc \-\-rebuild bar.src.rpm
- .br
- setarch ppc32 \-\-32bit rpmbuild \-\-target=ppc \-\-rebuild foo.src.rpm
--.SH AUTHOR
-+.SH AUTHORS
- .MT sopwith@redhat.com
- Elliot Lee
- .ME
-diff --git a/sys-utils/setpriv.1 b/sys-utils/setpriv.1
-index 7b7110381..ae68d3a55 100644
---- a/sys-utils/setpriv.1
-+++ b/sys-utils/setpriv.1
-@@ -209,7 +209,7 @@ try:
- .BR su (1),
- .BR prctl (2),
- .BR capabilities (7)
--.SH AUTHOR
-+.SH AUTHORS
- .MT luto@amacapital.net
- Andy Lutomirski
- .ME
-diff --git a/sys-utils/setsid.1 b/sys-utils/setsid.1
-index 01590279d..e4a915454 100644
---- a/sys-utils/setsid.1
-+++ b/sys-utils/setsid.1
-@@ -35,7 +35,7 @@ Display version information and exit.
+@@ -113,7 +113,7 @@ Display version information and exit.
+ .TP
+ .BR \-h , " \-\-help"
  Display help text and exit.
- .SH SEE ALSO
- .BR setsid (2)
--.SH AUTHOR
-+.SH AUTHORS
- Rick Sladkey <jrs@world.std.com>
- .SH AVAILABILITY
- The setsid command is part of the util-linux package and is available from
-diff --git a/term-utils/scriptlive.1 b/term-utils/scriptlive.1
-index 6fc8ebdbb..190724eef 100644
---- a/term-utils/scriptlive.1
-+++ b/term-utils/scriptlive.1
-@@ -86,7 +86,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.
+-.SH EXAMPLES
++.SH EXAMPLE
+ setarch \-\-addr-no-randomize mytestprog
+ .br
+ setarch ppc32 rpmbuild \-\-target=ppc \-\-rebuild foo.src.rpm
+diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
+index 86506ffa3..b22329d9e 100644
+--- a/sys-utils/unshare.1
++++ b/sys-utils/unshare.1
+@@ -18,7 +18,7 @@ even after the \fIprogram\fR terminates (except PID namespaces where
+ permanently running init process is required).
+ Once a persistent \%namespace is no longer needed, it can be unpersisted with
+ .BR umount (8).
+-See the \fBEXAMPLES\fR section for more details.
++See the \fBEXAMPLE\fR section for more details.
  .PP
- Released under the GNU General Public License version 2 or later.
--.SH AUTHOR
-+.SH AUTHORS
- .MT kzak@\:redhat.com
- Karel Zak
- .ME .
-diff --git a/term-utils/scriptreplay.1 b/term-utils/scriptreplay.1
-index 9f0b57afa..e02e2cb14 100644
---- a/term-utils/scriptreplay.1
-+++ b/term-utils/scriptreplay.1
-@@ -133,7 +133,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE.
+ .B unshare
+ since util-linux version 2.36 uses /\fIproc/[pid]/ns/pid_for_children\fP and \fI/proc/[pid]/ns/time_for_children\fP
+@@ -259,7 +259,7 @@ The proc and sysfs filesystems mounting as root in a user namespace have to be
+ restricted so that a less privileged user can not get more access to sensitive
+ files that a more privileged user made unavailable. In short the rule for proc
+ and sysfs is as close to a bind mount as possible.
+-.SH EXAMPLES
++.SH EXAMPLE
+ .TP
+ .B # unshare \-\-fork \-\-pid \-\-mount-proc readlink /proc/self
+ .TQ
+diff --git a/term-utils/agetty.8 b/term-utils/agetty.8
+index 1ad1cddff..c8d9796c5 100644
+--- a/term-utils/agetty.8
++++ b/term-utils/agetty.8
+@@ -305,7 +305,7 @@ Display version information and exit.
+ \-\-help
+ Display help text and exit.
  .PP
- Released under the GNU General Public License version 2 or later.
--.SH AUTHOR
-+.SH AUTHORS
- The original
- .B scriptreplay
- program was written by
+-.SH EXAMPLES
++.SH EXAMPLE
+ This section shows examples for the process field of an entry in the
+ \fI/etc/inittab\fP file.  You'll have to prepend appropriate values
+ for the other fields.  See \fIinittab(5)\fP for more details.
+diff --git a/text-utils/colcrt.1 b/text-utils/colcrt.1
+index dbfffb41d..341d34c83 100644
+--- a/text-utils/colcrt.1
++++ b/text-utils/colcrt.1
+@@ -66,7 +66,7 @@ Display version information and exit.
+ .TP
+ \fB\-h\fR, \fB\-\-help\fR
+ Display help text and exit.
+-.SH EXAMPLES
++.SH EXAMPLE
+ A typical use of
+ .B colcrt
+ would be:
+diff --git a/text-utils/column.1 b/text-utils/column.1
+index e880f08b2..7ca8a8b31 100644
+--- a/text-utils/column.1
++++ b/text-utils/column.1
+@@ -126,7 +126,7 @@ Display help text and exit.
+ .SH ENVIRONMENT
+ The environment variable \fBCOLUMNS\fR is used to determine the size of
+ the screen if no other information is available.
+-.SH EXAMPLES
++.SH EXAMPLE
+ Print fstab with header line and align number to the right:
+ .EX
+ \fBsed 's/#.*//' /etc/fstab | column \-\-table \-\-table-columns SOURCE,TARGET,TYPE,OPTIONS,PASS,FREQ \-\-table-right PASS,FREQ\fR
+diff --git a/text-utils/hexdump.1 b/text-utils/hexdump.1
+index 8e0b278a9..66ff157f7 100644
+--- a/text-utils/hexdump.1
++++ b/text-utils/hexdump.1
+@@ -343,7 +343,7 @@ used between format units than in the default output).
+ .SH EXIT STATUS
+ .B hexdump
+ exits 0 on success and >0 if an error occurred.
+-.SH EXAMPLES
++.SH EXAMPLE
+ Display the input in perusal format:
+ .nf
+    "%06.6_ao "  12/1 "%3_u "
 -- 
 2.26.2
 
