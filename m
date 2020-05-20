@@ -2,94 +2,156 @@ Return-Path: <SRS0=xh3B=7C=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D38FC433DF
-	for <util-linux@archiver.kernel.org>; Wed, 20 May 2020 12:49:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9966DC433E1
+	for <util-linux@archiver.kernel.org>; Wed, 20 May 2020 14:33:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5E64120758
-	for <util-linux@archiver.kernel.org>; Wed, 20 May 2020 12:49:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 77F75205CB
+	for <util-linux@archiver.kernel.org>; Wed, 20 May 2020 14:33:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="halv4JhF"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ErFyOTw5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726486AbgETMtk (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 20 May 2020 08:49:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40616 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726443AbgETMtj (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 20 May 2020 08:49:39 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30F64C061A0E
-        for <util-linux@vger.kernel.org>; Wed, 20 May 2020 05:49:39 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id e2so3572283eje.13
-        for <util-linux@vger.kernel.org>; Wed, 20 May 2020 05:49:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
-         :subject:to:cc;
-        bh=lIJFlXTFUKWVTIAD07jYxjXQm7bB71JvKQxX1S5aphM=;
-        b=halv4JhFysZOMmGfENfo7SyviYUrw6H4qo49l+PWAF3l303mfXePvvpSYiau+okhWZ
-         Qa5/cpp4ZYbksejoX8weuusIhkBcqgTwsYhDOk++eyrU20mdCyBz55gbLa5Pqixlob8Q
-         XcSWA2CjnVJkQYKPlI+Kms1qfpNel8As5k8DYQvWEXCtnzxZNUV12mWNYYWs5uiawYHq
-         hmnwpWUlyWNJcUDdyQtma1ddleV/Lkkz5U+eDpZSwgoNLphvMz3b3YAr/Ih+Zq3ryNzL
-         UAwofEZ7Pb0BTEAMclYeli07jMvr8DSC13DKQr3VgErSaZRBIEPivMFbMzAZxia+zttk
-         M+eQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc;
-        bh=lIJFlXTFUKWVTIAD07jYxjXQm7bB71JvKQxX1S5aphM=;
-        b=pxbtlB4Tek/7Npq6ztdtuvurBwXm5eyT3QtoQ4JiEyL2xeox1PCMkC8tqektqPprYe
-         AQ1liRggTMiDtM9qiI6q9egrLcQ0oYPxYkltn+nYSN4NUSvvjMT4luPrKKx26tmvNYab
-         zsL5GBFhKqOn5OrXcKEze+oNlCNtXoMmgUx5MWowQplJGMZQ/Ft7b/hJshHyccooe1xL
-         q4YJOFGqcbbi7phcG/N4BBN9r3XUU1iA5kYLotmLaNCjUmX2FtcnSvpZEDDrJhbw8bD/
-         RXv4AiRCgP2nXzk0stc54ZwD9NjBoC66Qs9eQw0E8HJ354UXjQF37MvQXV1PkrCRo5mZ
-         6M4Q==
-X-Gm-Message-State: AOAM532xlCHfvqTbVR/3GaINv/p9ByN8bxe+2b9NWdyK6kbqpx8+MsDz
-        ySg9IdKTUNTtO+RyrYuuobsVC4Diga7KLGiKG3TR5agO
-X-Google-Smtp-Source: ABdhPJxlxh/tFNgbKvDKqC2064i3nUGFDEukKbzbH1HwS3H6/u42mJ+XtcU4fG9DMYZmC0v8JJgiGD1sMLOx5SuMMpo=
-X-Received: by 2002:a17:906:1d4c:: with SMTP id o12mr3436882ejh.357.1589978977885;
- Wed, 20 May 2020 05:49:37 -0700 (PDT)
+        id S1726938AbgETOdS (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 20 May 2020 10:33:18 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:42621 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726691AbgETOdR (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 20 May 2020 10:33:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1589985196;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=iZRAuwcPJ6bPQYLnUJ9mjxQKZxaF5A67YUR0o6fULPg=;
+        b=ErFyOTw5nP6SMOWHEZ3nM+qd+aaBwWCJSdZkJbrQ+GLPehOqumtaZFWDWYhqClhCmkbCCo
+        RYeL408E05p0zpuutSCJxj9lX2OdVWRD7JK6pnUAqIysR27CkqBvP/eIiZdOkl22Aja/eE
+        uFnrGdDNPRI9ogIWKPNYYucUH2ZVNvE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-386-Jab3UwLJO9-n46HvmuAwxg-1; Wed, 20 May 2020 10:33:11 -0400
+X-MC-Unique: Jab3UwLJO9-n46HvmuAwxg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 83DB01B18BC3;
+        Wed, 20 May 2020 14:33:10 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.193.102])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 984F75D9E4;
+        Wed, 20 May 2020 14:33:09 +0000 (UTC)
+Date:   Wed, 20 May 2020 16:33:07 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.35.2
+Message-ID: <20200520143307.m46d5u3vdmtrkhd6@ws.net.home>
 MIME-Version: 1.0
-References: <4bfbe76e-4bde-289c-2a8f-b29e1d3aaae1@gmail.com> <20200520105942.b4f7kf7e32jva7nu@ws.net.home>
-In-Reply-To: <20200520105942.b4f7kf7e32jva7nu@ws.net.home>
-Reply-To: mtk.manpages@gmail.com
-From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Date:   Wed, 20 May 2020 14:49:26 +0200
-Message-ID: <CAKgNAkjgcRGh29zfdswPqn85bzOOaMjj0hZYGJd1Qs_9aWyKYA@mail.gmail.com>
-Subject: Re: [PATCH 1/7] Manual pages: Standardize on AUTHORS as section title
-To:     Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hello Karel,
 
-On Wed, 20 May 2020 at 12:59, Karel Zak <kzak@redhat.com> wrote:
->
-> On Tue, May 19, 2020 at 02:51:28PM +0200, Michael Kerrisk (man-pages) wrote:
-> >  47 files changed, 47 insertions(+), 47 deletions(-)
->
-> All 7 patches applied. Thanks!
+The util-linux stable release v2.35.2 is available at
+                   
+  http://www.kernel.org/pub/linux/utils/util-linux/v2.35/
+                   
+Feedback and bug reports, as always, are welcomed.
+                   
+  Karel            
 
-Thanks!
 
-> Please, use the same prefix for all patches subject line -- for example
-> "Manual pages:" is nice. We use the prefix to generate release notes.
+util-linux 2.35.2 Release Notes
+===============================
 
-Got it. (I do something similar for my changelog/release notes.)
-
-Cheers,
-
-Michael
+bash-completion:
+   - umount explicitly needs gawk  [Wolfram Sang]
+blkdiscard:
+   - (man) offset and length must be sector aligned  [Lukas Czerner]
+blkzone:
+   - deny destructive ioctls on busy blockdev  [Johannes Thumshirn]
+chsh:
+   - (man) fix default behavior description  [Karel Zak]
+ctrlaltdel:
+   - display error message indicated by errno  [Sami Kerola]
+docs:
+   - Correct ChangeLog URL to history log.  [Anatoly Pugachev]
+   - Fix dead references to kernel documentation  [Yannick Le Pennec]
+   - add swap to 1st fstab field  [Karel Zak]
+   - kill.1 add note about shell-internal kill implementations  [Sami Kerola]
+   - update AUTHORS file  [Karel Zak]
+eject:
+   - fix compiler warning [-Wformat-overflow]  [Karel Zak]
+exfat:
+   - Fix parsing exfat label  [Pali Rohár]
+fstrim:
+   - do not use Protect setting in systemd service  [Karel Zak]
+hwclock:
+   - fix audit exit status  [Karel Zak]
+   - make glibc 2.31 compatible  [J William Piggott, Karel Zak]
+ipcs:
+   - ipcs.1 ipcs no longer needs read permission on IPC resources  [Michael Kerrisk]
+kill:
+   - include sys/types.h before checking SYS_pidfd_send_signal  [Sami Kerola]
+lib/mangle:
+   - check for the NULL string argument  [Gaël PORTAY]
+lib/strutils:
+   - remove redundant include  [Karel Zak]
+libblkid:
+   - Fix UTF-16 support in function blkid_encode_to_utf8()  [Pali Rohár]
+   - fix compiler warning [-Wsign-compare]  [Karel Zak]
+   - fix fstatat() use in blkid__scan_dir()  [Karel Zak]
+libfdisk:
+   - (script) accept sector-size, ignore unknown headers  [Karel Zak]
+   - (script) fix memory leak  [Karel Zak]
+   - (script) fix partno_from_devname()  [Karel Zak]
+   - (script) fix segmentation fault  [Gaël PORTAY]
+   - fix partition calculation for BLKPG_* ioctls  [Karel Zak]
+   - remove unwanted assert()  [Karel Zak]
+libmount:
+   - do not unnecessarily chmod utab.lock  [Tycho Andersen]
+   - fix mount -a EBUSY for cifs  [Roberto Bergantinos Corpas]
+   - improve smb{2,3} support  [Karel Zak]
+   - smb2 is unsupported alias  [Karel Zak]
+lsblk:
+   - Fall back to ID_SERIAL  [Sven Wiltink]
+   - Ignore hidden devices  [Ritika Srivastava]
+   - fix -P regression from v2.34  [Karel Zak]
+lscpu:
+   - Adapt MIPS cpuinfo  [Jiaxun Yang]
+   - fix SIGSEGV on archs without drawers & books  [Karel Zak]
+   - use official name for HiSilicon tsv110  [Karel Zak]
+po:
+   - merge changes  [Karel Zak]
+   - update hr.po (from translationproject.org)  [Božidar Putanec]
+   - update zh_CN.po (from translationproject.org)  [Boyuan Yang]
+pylibmount:
+   - cleanup and sync UL_RaiseExc  [Karel Zak]
+scriptlive:
+   - fix man page formatting  [Jakub Wilk]
+   - fix typo  [Jakub Wilk]
+sfdisk:
+   - (man) fix typo  [Gaël PORTAY]
+   - fix ref-counting for the script  [Karel Zak]
+   - only report I/O errors on --move-data  [Karel Zak]
+su, runuser:
+   - (man) add more info about PATH and PAM  [Karel Zak]
+tests:
+   - Fix for misc/fallocate test build failure.  [Mark Hindley]
+umount:
+   - don't try it as non-suid if not found mountinfo entry  [Karel Zak]
+wipefs:
+   - fix man page --no-headings short option  [Karel Zak]
+write:
+   - fix potential string overflow  [Sami Kerola]
 
 -- 
-Michael Kerrisk
-Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
-Linux/UNIX System Programming Training: http://man7.org/training/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
