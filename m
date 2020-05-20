@@ -2,140 +2,75 @@ Return-Path: <SRS0=xh3B=7C=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 344CDC433DF
-	for <util-linux@archiver.kernel.org>; Wed, 20 May 2020 06:31:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8359CC433E0
+	for <util-linux@archiver.kernel.org>; Wed, 20 May 2020 10:59:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 09D71207FB
-	for <util-linux@archiver.kernel.org>; Wed, 20 May 2020 06:31:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4DF8D207D3
+	for <util-linux@archiver.kernel.org>; Wed, 20 May 2020 10:59:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UTfSiLN/"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PrGFx0sP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726369AbgETGbI (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 20 May 2020 02:31:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37770 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725998AbgETGbI (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 20 May 2020 02:31:08 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E862EC061A0E
-        for <util-linux@vger.kernel.org>; Tue, 19 May 2020 23:31:07 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id h21so1995048ejq.5
-        for <util-linux@vger.kernel.org>; Tue, 19 May 2020 23:31:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to:cc;
-        bh=Hak0KnM4xilba29xhZSYBUMyUukoZTUbi+PsmWRAE3w=;
-        b=UTfSiLN/GtjKv5Y+epPiq0iXkVQ8TCOMV7uw1NHm4Fks7eWLAlywRc9rhkGy9bC/eX
-         MM/Owsr5x0Nr82uUavNxhRFUyBoasPtd7BZXN65rPviDqglXTykMP6QXOuXaTXb3MTVG
-         yKryErBxYHE1ns3dVPBJVt7d52kHHZgkxyZ2BT96UMQ+er/UkVu3x7vYk6wSJLzqwgCb
-         NInFmCuDbYkaGwmlEnVC4QZ8HPcbO2omtewP5BGI+7/FbefOJ+hRKETA/3s3kAuLG8ra
-         uI4Je2pnwN6ahmCo6Y/ThplRLTlBsIVXhwSpd7EGSAmjPEcwAP04H8O387nZWCM81fnN
-         Hchw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:cc;
-        bh=Hak0KnM4xilba29xhZSYBUMyUukoZTUbi+PsmWRAE3w=;
-        b=adVfV6fMz9TOJdFEanv7SvzXubt6tiQRFD/fYrNSQ7zwkXe2yFiTV7nR5O7CJvjEjU
-         oXGF+y5P1cA3drJuhY8GZKyvkSkfho/nrUO5Rodu3uXhNuXsB36VVi4CQ/lA0GySDQLv
-         XigXp9HII2cqfocwsrpNZ9l1gdgtWJ5X6l2izSk3vbOYI/3RkRqdmX1BsW4+2NtGeUaZ
-         S7A3CJOHROk+1dtf0cmjikPlddDj+qU7ezxNYa1Ub4fDqzA8ovZdYf0Yfl065xgbFve6
-         5oxxD8K7lgcGZsbyl68Bnp7vF9uR7oMoD5m5pnjzju13a2cSHHEbKtzHkUrsydxhvIrk
-         BD+Q==
-X-Gm-Message-State: AOAM533yXijmTxA6Jz+XPEzyQXTqDCyNtxmMccEC2lg/zBvEWK5ZpKBv
-        bcvA5q626gPQEJGkkUfDBDynyXGTicOhhtHqZX0=
-X-Google-Smtp-Source: ABdhPJwGxvZlaws+dCrTexTailtQ09d6DnOxTuizY4m6G2oiE9cC31d+rVGrrzivlHRrgC6rBmCEaQXG/w+ymJyjW9Y=
-X-Received: by 2002:a17:906:c29a:: with SMTP id r26mr2444343ejz.286.1589956266454;
- Tue, 19 May 2020 23:31:06 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: mtk.manpages@gmail.com
-From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Date:   Wed, 20 May 2020 08:30:55 +0200
-Message-ID: <CAKgNAkjU+HdQ2PQLtrPbVU2cyUYecOZZV3i6CSeDvWJM_OR3qQ@mail.gmail.com>
-Subject: Section ordering in util-linux manual pages
-To:     Karel Zak <kzak@redhat.com>
+        id S1726435AbgETK7w (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 20 May 2020 06:59:52 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:36069 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726403AbgETK7v (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Wed, 20 May 2020 06:59:51 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1589972390;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=l7Uc60rIj72ltYFFVnCsB3qj751GXiOFKUIrBB+RDMM=;
+        b=PrGFx0sPuuiPIt3b8VpGTIbfOv/pBtnugM4Ra87J0gOT/HtWezLzAvljBHqfE52cenGYyf
+        p01uJuKmUgREti8nuwbbBJFkOj3VgFIOTkIlAlbQUY4pFKvL76ncxOugNcGWXuWLn7LtGq
+        ugFb2NoWKXVhEoYAL726H/rPMBl7GS4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-231-phIifatFNxuDCCv4Og5NnA-1; Wed, 20 May 2020 06:59:46 -0400
+X-MC-Unique: phIifatFNxuDCCv4Og5NnA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 07A17800053;
+        Wed, 20 May 2020 10:59:46 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.193.102])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 42ACD70873;
+        Wed, 20 May 2020 10:59:45 +0000 (UTC)
+Date:   Wed, 20 May 2020 12:59:42 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
 Cc:     util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 1/7] Manual pages: Standardize on AUTHORS as section title
+Message-ID: <20200520105942.b4f7kf7e32jva7nu@ws.net.home>
+References: <4bfbe76e-4bde-289c-2a8f-b29e1d3aaae1@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4bfbe76e-4bde-289c-2a8f-b29e1d3aaae1@gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hello Karel,
+On Tue, May 19, 2020 at 02:51:28PM +0200, Michael Kerrisk (man-pages) wrote:
+>  47 files changed, 47 insertions(+), 47 deletions(-)
 
-Across the util-linux manual pages, and assuming you accept my patch
-series from yesterday, the most common SH sections are:
+All 7 patches applied. Thanks!
 
-    129 .SH AVAILABILITY
-    129 .SH DESCRIPTION
-    129 .SH NAME
-    129 .SH SYNOPSIS
-    113 .SH SEE ALSO
-    106 .SH OPTIONS
-     87 .SH AUTHORS
-     34 .SH NOTES
-     33 .SH EXIT STATUS
-     30 .SH EXAMPLE
-     29 .SH ENVIRONMENT
-     24 .SH FILES
-     24 .SH HISTORY
-     18 .SH BUGS
-      9 .SH CONFORMING TO
-      7 .SH COMMANDS
-      6 .SH COLORS
-      6 .SH COPYRIGHT
-      4 .SH ARGUMENTS
-      4 .SH RETURN VALUE
+Please, use the same prefix for all patches subject line -- for example
+"Manual pages:" is nice. We use the prefix to generate release notes.
+Thanks ;-)
 
-However, there's quite a wild variability in the order of some of
-these sections in individual pages, which can make it a little
-difficult to find a section. I suggest that the order of sections
-should be consistently something like:
-
-NAME
-SYNOPSIS
-CONFIGURATION
-DESCRIPTION
-OPTIONS
-EXIT STATUS
-RETURN VALUE
-ERRORS
-ENVIRONMENT
-FILES
-VERSIONS
-HISTORY
-ATTRIBUTES
-CONFORMING TO
-NOTES
-BUGS
-EXAMPLE
-AUTHORS
-COPYRIGHT
-SEE ALSO
-AVAILABILITY
-
-(Note that this list does not include all the sections listed above,
-but I'll ignore those for the moment.)
-
-Does that order sound reasonable to you. (It's an expanded version of
-the suggested order in man-pages(7), with some additions to allow for
-headings that are commonly used in util-linux manual pages.)
-
-I'd like to send some patches to fix that ordering. I would not do
-this all at once, but rather, one or section headers at a time,
-probably starting with SEE ALSO/AVAILABILITY. Does this sound okay to
-you?
-
-Thanks,
-
-Michael
+    Karel
 
 -- 
-Michael Kerrisk
-Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
-Linux/UNIX System Programming Training: http://man7.org/training/
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
