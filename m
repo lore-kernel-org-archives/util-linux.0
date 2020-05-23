@@ -8,62 +8,62 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86C78C433E0
-	for <util-linux@archiver.kernel.org>; Sat, 23 May 2020 06:43:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A948C433DF
+	for <util-linux@archiver.kernel.org>; Sat, 23 May 2020 06:43:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4F85C206DD
-	for <util-linux@archiver.kernel.org>; Sat, 23 May 2020 06:43:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 11456206DD
+	for <util-linux@archiver.kernel.org>; Sat, 23 May 2020 06:43:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XCgTKMV7"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KYoFCum8"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387610AbgEWGnf (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sat, 23 May 2020 02:43:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35372 "EHLO
+        id S2387615AbgEWGng (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sat, 23 May 2020 02:43:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387605AbgEWGnf (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 23 May 2020 02:43:35 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23C78C061A0E
+        with ESMTP id S2387605AbgEWGng (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 23 May 2020 02:43:36 -0400
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F2D0C05BD43
         for <util-linux@vger.kernel.org>; Fri, 22 May 2020 23:43:35 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id x20so15399484ejb.11
+Received: by mail-ej1-x629.google.com with SMTP id l21so15449258eji.4
         for <util-linux@vger.kernel.org>; Fri, 22 May 2020 23:43:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=4XKRhE6yvKjEf6R2TAkhrxkOO4PbyC1HO2XqQugol+4=;
-        b=XCgTKMV7Q7Xa8Fd2uX3ZaZQGbf1JfMvMOzkZzm4ZbAY+k5LZN7mry0qHWdU1cBgVbu
-         8gQO13xsYRbc9iSprMlYn3Z2yHUrPepP67e9b/j5dkePdLjqLN1VCs4AqLG4Mo/JXQh+
-         T7BcPe3idx6gIW2tw0I9GkGZQtjnI2P/U5unRNscawjZWwkTXzuyQ1ooNkHNiUffk18r
-         c0ButX5IjyFiUXTf+0oOp64XAx5VdPThJK3AHRUpA3flWha8pJIHjUujgP7FFNa75SXz
-         p/YYW3d4NxImLQKHCZIEItYH+TnjLPr4L4Kita6+GWOTLFmnHGCe1AoWYHvir+7P+amT
-         1pTg==
+        bh=X7XJ2VapPiWGAuIXDxTDNjq6ZjKbzLSW/dFbin5wJYo=;
+        b=KYoFCum8PoKNvjH4muESwS7Z7SESI/Cuavgb5EtzJYQKbJ/zR1VL6iDZqo8YJM1DDN
+         oAgSt2ibsLhitQ/sJg02l766p7XWHosGB7wegNjlucHRqItUcc4lkWGWZ7CMlk/F9xjZ
+         fSgYoYMSxPt1+TqUf+8R6sSbe7FUXT/9fHdQl8EBdVvHx2lG1A3VZO6GmHZSbjB6Zxja
+         vBb/SkXqyh0MNPTjN+oK2xZ8vIEDOcYtu+9lpS9l/vcEr3aY+W8yATWZ0UpQ7lcYp0Gj
+         iqZjumpS9ItCWRfhWBkIcmNlmKmnZgBvGVmHQdvEIh1E1AeyprODglsnhlCHU0MJqPSH
+         +zWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=4XKRhE6yvKjEf6R2TAkhrxkOO4PbyC1HO2XqQugol+4=;
-        b=N6MJkIXO0z4dfXQIOGtgrszrt9AqXnat7EnWZt2qwz/rFSriHj03Zv1tnhEp9zGuN5
-         0hyBtjChIzjgeMkVhQxOXFxCNhC3hQObthnuWKsdI9jWCb345oJeDZtHC9EmpG9YmpYz
-         6t/MzMBiiZ2+zERDAqGHeBk8MsXmeKFT5UdSQZo1XhJ/uDO5Goi+R9NxFSBR53e7O7Ys
-         99p/3ArLa+Nf267XEJCFr1wXphhv1aWBC9yLkpRMQ53RQku2ITbl1PgJEumvnKUhGIIk
-         8D6DHqLZla3dlIFeH5mXU2YHWbFcWbuGqm35GWwiuus8Fp0G1Nqt2dWfoBJ7EL9e/C2Y
-         JV2w==
-X-Gm-Message-State: AOAM532at2fPqd+dgu/M9vVI8K+u7rQvKsQp59HcCdcZ2lEn4THE3tJ3
-        IgydPQH0PCO2t0HPwIky93A=
-X-Google-Smtp-Source: ABdhPJy92i2JoWEedsVUu/Kqld5Y9N9mRDLPSn6b0XzJMQU8XxnkINWpkSuU04+H54z8faCHtHTVWw==
-X-Received: by 2002:a17:906:f891:: with SMTP id lg17mr10682964ejb.443.1590216213788;
-        Fri, 22 May 2020 23:43:33 -0700 (PDT)
+        bh=X7XJ2VapPiWGAuIXDxTDNjq6ZjKbzLSW/dFbin5wJYo=;
+        b=cV8lyz3UXFgS454CFim0GLN5KVc3dxD0XpKRVIfruq+0mqQQBGBoiCxt4goElpW72c
+         iQgEao0v5qlifqKT2KcTNvi3UQYl4KARLGYHjC/VNlnL4WKm7EJOSSzP0llOVVp/3akK
+         iUp9mFreoKh64uVKAuWxdPyLa2j14b2z+iTobvkJzuUF8eTH3HzyN4uRxPQ8qD5/n2Be
+         reTqQT3WfyaUlw4tMEjYHOKVmjRxL7B36qgRimflGQwlRTyEqshn49gkgEjvCCtpVK7z
+         TiCCYufTIhW0xgd+8nIDybC+DtS0nFhaJWtTgkVFimhaet+CqIbvuEEE+IIt5s/Apo82
+         g+Jg==
+X-Gm-Message-State: AOAM5305uJG3qIgiUTcUcMUHETVLTVtLMk5b7D0FJWLE16b7tePOsYRk
+        QtTjYtZsP9D1xWMczFW/xuA=
+X-Google-Smtp-Source: ABdhPJzPLF/AJCs+0nKurHVE1I2XW8aYL5fvnj0mLplM2TrTnb4N7P4ljjOag5q4cMH1P3+xG1rZSw==
+X-Received: by 2002:a17:906:90d4:: with SMTP id v20mr11649316ejw.485.1590216209380;
+        Fri, 22 May 2020 23:43:29 -0700 (PDT)
 Received: from bienne.fritz.box ([2001:a61:2482:101:a081:4793:30bf:f3d5])
-        by smtp.gmail.com with ESMTPSA id q22sm3240523edg.97.2020.05.22.23.43.33
+        by smtp.gmail.com with ESMTPSA id q22sm3240523edg.97.2020.05.22.23.43.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 May 2020 23:43:33 -0700 (PDT)
+        Fri, 22 May 2020 23:43:28 -0700 (PDT)
 From:   Michael Kerrisk <mtk.manpages@gmail.com>
 To:     mtk.manpages@gmail.com, Karel Zak <kzak@redhat.com>
 Cc:     util-linux@vger.kernel.org
-Subject: [PATCH 4/9] Manual pages: unshare.1: improve intro paragraphs
-Date:   Sat, 23 May 2020 08:43:20 +0200
-Message-Id: <20200523064325.78491-4-mtk.manpages@gmail.com>
+Subject: [PATCH 3/9] Manual pages: nsenter.1, unshare.1: remove repeated references to clone(2)
+Date:   Sat, 23 May 2020 08:43:19 +0200
+Message-Id: <20200523064325.78491-3-mtk.manpages@gmail.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200523064325.78491-1-mtk.manpages@gmail.com>
 References: <20200523064325.78491-1-mtk.manpages@gmail.com>
@@ -74,73 +74,195 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-The intro paragraphs of this page are rather hard for a newcomer to
-grok. The name of the underlying system call (and consequently the
-name of the command) are "strange", but let's help the reader by
-naming more clearly what unshare(1) does: creating new namespaces. In
-addition, clarify and expand the details on making a namespace
-persistent using bind mounts.
+Back in commits f85b9777c2965671cd and 894efece9eb894, in the
+description of each namespace type, I added repeated cross references
+to clone(2). Drop these references. The Section 7 namespaces pages,
+which are already noted in the nsenter(1) and unshare(1) manual pages,
+provide much more relevant information. Furthermore, pointing the
+reader at clone(2) is perhaps a little misleading, since the system
+call underlying nsenter(1) is setns(2) and the system call underlying
+unshare(1) is unshare(2).
 
 Signed-off-by: Michael Kerrisk <mtk.manpages@gmail.com>
 ---
- sys-utils/unshare.1 | 29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ sys-utils/nsenter.1 | 39 ++++++---------------------------------
+ sys-utils/unshare.1 | 45 ++++++++-------------------------------------
+ 2 files changed, 14 insertions(+), 70 deletions(-)
 
+diff --git a/sys-utils/nsenter.1 b/sys-utils/nsenter.1
+index 299107609..ea924f909 100644
+--- a/sys-utils/nsenter.1
++++ b/sys-utils/nsenter.1
+@@ -27,22 +27,14 @@ flag in
+ .B UTS namespace
+ Setting hostname or domainname will not affect the rest of the system.
+ For further details, see
+-.BR uts_namespaces (7)
+-and the discussion of the
+-.B CLONE_NEWUTS
+-flag in
+-.BR clone (2).
++.BR uts_namespaces (7).
+ .TP
+ .B IPC namespace
+ The process will have an independent namespace for POSIX message queues
+ as well as System V message queues,
+ semaphore sets and shared memory segments.
+ For further details, see
+-.BR ipc_namespaces (7)
+-and the discussion of the
+-.B CLONE_NEWIPC
+-flag in
+-.BR clone (2).
++.BR ipc_namespaces (7).
+ .TP
+ .B network namespace
+ The process will have independent IPv4 and IPv6 stacks, IP routing tables,
+@@ -52,11 +44,7 @@ and
+ .I /sys\:/class\:/net
+ directory trees, sockets, etc.
+ For further details, see
+-.BR network_namespaces (7)
+-and the discussion of the
+-.B CLONE_NEWNET
+-flag in
+-.BR clone (2).
++.BR network_namespaces (7).
+ .TP
+ .B PID namespace
+ Children will have a set of PID to process mappings separate from the
+@@ -67,31 +55,18 @@ will fork by default if changing the PID namespace, so that the new program
+ and its children share the same PID namespace and are visible to each other.
+ If \fB\-\-no\-fork\fP is used, the new program will be exec'ed without forking.
+ For further details, see
+-.BR pid_namespaces (7)
+-and
+-the discussion of the
+-.B CLONE_NEWPID
+-flag in
+-.BR clone (2).
++.BR pid_namespaces (7).
+ .TP
+ .B user namespace
+ The process will have a distinct set of UIDs, GIDs and capabilities.
+ For further details, see
+-.BR user_namespaces (7)
+-and the discussion of the
+-.B CLONE_NEWUSER
+-flag in
+-.BR clone (2).
++.BR user_namespaces (7).
+ .TP
+ .B cgroup namespace
+ The process will have a virtualized view of \fI/proc\:/self\:/cgroup\fP, and new
+ cgroup mounts will be rooted at the namespace cgroup root.
+ For further details, see
+-.BR cgroup_namespaces (7)
+-and the discussion of the
+-.B CLONE_NEWCGROUP
+-flag in
+-.BR clone (2).
++.BR cgroup_namespaces (7).
+ .TP
+ .B time namespace
+ The process can have a distinct view of
+@@ -101,8 +76,6 @@ and/or
+ which can be changed using \fI/proc/self/timens_offsets\fP.
+ For further details, see
+ .BR time_namespaces (7).
+-.TP
+-See \fBclone\fP(2) for the exact semantics of the flags.
+ .SH OPTIONS
+ Various of the options below that relate to namespaces take an optional
+ .I file
 diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
-index fb769d607..14b107d37 100644
+index db67b0d4c..fb769d607 100644
 --- a/sys-utils/unshare.1
 +++ b/sys-utils/unshare.1
-@@ -1,30 +1,41 @@
- .TH UNSHARE 1 "February 2016" "util-linux" "User Commands"
- .SH NAME
--unshare \- run program with some namespaces unshared from parent
-+unshare \- run program in new namespaces
- .SH SYNOPSIS
+@@ -32,12 +32,8 @@ except for filesystems which are explicitly marked as
+ shared (with \fBmount \-\-make-shared\fP; see \fI/proc/self/mountinfo\fP or
+ \fBfindmnt \-o+PROPAGATION\fP for the \fBshared\fP flags).
+ For further details, see
+-.BR mount_namespaces (7)
+-and the discussion of the
+-.B CLONE_NEWNS
+-flag in
+-.BR clone (2).
+-.sp
++.BR mount_namespaces (7).
++.IP
  .B unshare
- [options]
- .RI [ program
- .RI [ arguments ]]
- .SH DESCRIPTION
--Unshares the indicated namespaces from the parent process and then executes
--the specified \fIprogram\fR. If \fIprogram\fR is not given, then ``${SHELL}'' is
-+The
-+.B unshare
-+command creates new namespaces
-+(as specified by the command-line options described below)
-+and then executes the specified \fIprogram\fR.
-+If \fIprogram\fR is not given, then ``${SHELL}'' is
- run (default: /bin/sh).
- .PP
--The namespaces can optionally be made persistent by bind mounting
--/proc/\fIpid\fR/ns/\fItype\fR files to a filesystem path and entered with
-+By default, a new namespace persists only as long as it has member processes.
-+A new namespace can be made persistent even when it has no member processes
-+by bind mounting
-+/proc/\fIpid\fR/ns/\fItype\fR files to a filesystem path.
-+A namespace that has been made persistent in this was can subsequently
-+be entered with
- .BR \%nsenter (1)
- even after the \fIprogram\fR terminates (except PID namespaces where
--permanently running init process is required).
--Once a persistent \%namespace is no longer needed, it can be unpersisted with
--.BR umount (8).
-+a permanently running init process is required).
-+Once a persistent \%namespace is no longer needed,
-+it can be unpersisted by using
-+.BR umount (8)
-+to remove the bind mount.
- See the \fBEXAMPLE\fR section for more details.
- .PP
- .B unshare
- since util-linux version 2.36 uses /\fIproc/[pid]/ns/pid_for_children\fP and \fI/proc/[pid]/ns/time_for_children\fP
- files for persistent PID and TIME namespaces. This change requires Linux kernel 4.17 or newer.
- .PP
--The namespaces to be unshared are indicated via options.  Unshareable namespaces are:
-+The following types of namespaces can be created with
-+.BR unshare :
+ since util-linux version 2.27 automatically sets propagation to \fBprivate\fP
+ in a new mount namespace to make sure that the new namespace is really
+@@ -48,62 +44,37 @@ Note that \fBprivate\fP is the kernel default.
+ .B UTS namespace
+ Setting hostname or domainname will not affect the rest of the system.
+ For further details, see
+-.BR uts_namespaces (7)
+-and the discussion of the
+-.B CLONE_NEWUTS
+-flag in
+-.BR clone (2).
++.BR uts_namespaces (7).
  .TP
- .B mount namespace
- Mounting and unmounting filesystems will not affect the rest of the system,
+ .B IPC namespace
+ The process will have an independent namespace for POSIX message queues
+ as well as System V \%message queues,
+ semaphore sets and shared memory segments.
+ For further details, see
+-.BR ipc_namespaces (7)
+-and the discussion of the
+-.B CLONE_NEWIPC
+-flag in
+-.BR clone (2).
++.BR ipc_namespaces (7).
+ .TP
+ .B network namespace
+ The process will have independent IPv4 and IPv6 stacks, IP routing tables,
+ firewall rules, the \fI/proc/net\fP and \fI/sys/class/net\fP directory trees,
+ sockets, etc.
+ For further details, see
+-.BR network_namespaces (7)
+-and the discussion of the
+-.B CLONE_NEWNET
+-flag in
+-.BR clone (2).
++.BR network_namespaces (7).
+ .TP
+ .B PID namespace
+ Children will have a distinct set of PID-to-process mappings from their parent.
+ For further details, see
+-.BR pid_namespaces (7)
+-and
+-the discussion of the
+-.B CLONE_NEWPID
+-flag in
+-.BR clone (2).
++.BR pid_namespaces (7).
+ .TP
+ .B cgroup namespace
+ The process will have a virtualized view of \fI/proc\:/self\:/cgroup\fP, and new
+ cgroup mounts will be rooted at the namespace cgroup root.
+ For further details, see
+-.BR cgroup_namespaces (7)
+-and the discussion of the
+-.B CLONE_NEWCGROUP
+-flag in
+-.BR clone (2).
++.BR cgroup_namespaces (7).
+ .TP
+ .B user namespace
+ The process will have a distinct set of UIDs, GIDs and capabilities.
+ For further details, see
+-.BR user_namespaces (7)
+-and the discussion of the
+-.B CLONE_NEWUSER
+-flag in
+-.BR clone (2).
++.BR user_namespaces (7).
+ .TP
+ .B time namespace
+ The process can have a distinct view of
 -- 
 2.26.2
 
