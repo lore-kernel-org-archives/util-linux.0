@@ -8,62 +8,62 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AB72C433DF
-	for <util-linux@archiver.kernel.org>; Sat, 23 May 2020 06:43:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0422DC433E1
+	for <util-linux@archiver.kernel.org>; Sat, 23 May 2020 06:43:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 508B52072C
+	by mail.kernel.org (Postfix) with ESMTP id D823F206DD
 	for <util-linux@archiver.kernel.org>; Sat, 23 May 2020 06:43:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JZHiPKpm"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kGkUiFVn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387629AbgEWGni (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sat, 23 May 2020 02:43:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35380 "EHLO
+        id S2387637AbgEWGnj (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sat, 23 May 2020 02:43:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387622AbgEWGni (ORCPT
+        with ESMTP id S2387612AbgEWGni (ORCPT
         <rfc822;util-linux@vger.kernel.org>); Sat, 23 May 2020 02:43:38 -0400
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3C25C061A0E
-        for <util-linux@vger.kernel.org>; Fri, 22 May 2020 23:43:36 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id b91so10970556edf.3
-        for <util-linux@vger.kernel.org>; Fri, 22 May 2020 23:43:36 -0700 (PDT)
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FCFEC05BD43
+        for <util-linux@vger.kernel.org>; Fri, 22 May 2020 23:43:38 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id a2so15408095ejb.10
+        for <util-linux@vger.kernel.org>; Fri, 22 May 2020 23:43:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=ksmBWzGSBLI9S+ryY4LsL+6OvSiCsT4MrwndbLNcssI=;
-        b=JZHiPKpmFIOmQvdkROLI2kQvu7VJzdwO+wGHjmRydzXnMM8x6sa3G08xr1KvOfUS13
-         iJvE5dusydS3bdOTRRHP1VtXsYMVz+9yl5/v6A1N8G9spYq+LEXp3qfSNLBpIHga9aMe
-         +nJ8R5TOFxt1/W45bb7rVRlKHPVcEFeUHHzDGCT4RBzOOez7MOg0iSuSHG68Puc0cY5Z
-         x64tCNJqOY7tuhpjPJry7xf0qjew3ayTnqG9uK+gwN6vxocRq98G4idmLmBeg9GGhYKZ
-         X19JNlWAIEJNAHz6yWMyt+1tiemNYJPo5R8117bsNKYaUR0+QzFchlvkxXkeke7I0RT/
-         wHuA==
+        bh=FmzDd1k+msdb7L4URpp5egFGYQcwUtHWbHfTo+IyiQg=;
+        b=kGkUiFVnRLDY4NvhFMpEG8FllFfjnAqHYN+o9hfKtT/Hcn+oVCPXP6gH2EAzh3E1u2
+         E2kq8liXjjdJNjfyVYnu0H1HEjeOAD33qq/rGfQkL3xxfP/47JJvsLIbtEEHDuI0XgP8
+         Qz9DJa65LNcZ6Ad2YeHFWRGe0EHIYFqLSFhFqfA9qW/ko8VE8YBdUBNlaiP4+vNj2hXw
+         abuUn8kt+6xq/LRxq55F3v7EXqmdH11aQsgI/IWeG8xCGJ/uwem9NPkSZONfPvvcrpX/
+         EoYJ6wW7pHfsXqZPUDqPQtwWWXuxs9si0hePVlNPE3Yx6TedurHhvO+FeVa+EHHoD8Q/
+         krLQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=ksmBWzGSBLI9S+ryY4LsL+6OvSiCsT4MrwndbLNcssI=;
-        b=QuPhheZrcWkjDUmDek6w0Gji6LcTql1hmyqpC60OB+aMQ5RSybAqro1cM3M1ffTp9r
-         TyxRG2pqX9KD+9g6DX5J1FW75O+HLxwihvld1Jl4TGS1DRvVyNHGYQb+zj2Z0oKDkJKB
-         jkMcWC3B70YylEXIe00UOhlWDo+p9Esfx4JzChhx2Da/OHWN3ZPWPp9XZ05lhYecRvPI
-         03trBkfz3a2Z7u5MUdznx2/357cfToDGzebYMg472d/CzNsKVOUNeAZGFVMShSkvFBTe
-         cL7I3g8b4XDx9j5NfIksW4dj6DpQYDSrq7/VBgjt+Bt6ED9bbCqauxEaFDoxdL/YDcb0
-         Bi+Q==
-X-Gm-Message-State: AOAM533fJlBk6FLwD4nvyqczL9GKBTerk9bG4y/WAZnDwWMXHcxx9dLL
-        i2AM/CjeoJMfbJwuB3q0zHDC7ZPOk5Y=
-X-Google-Smtp-Source: ABdhPJw6Abooe6r5xME+sLD+M/dTXwsnoxqe4gA0dUs/k8N95tsHCkS+CsucAIaInyROqYZwlo3t7Q==
-X-Received: by 2002:a50:f017:: with SMTP id r23mr5798777edl.290.1590216215447;
-        Fri, 22 May 2020 23:43:35 -0700 (PDT)
+        bh=FmzDd1k+msdb7L4URpp5egFGYQcwUtHWbHfTo+IyiQg=;
+        b=ZTGOCK4oo9t0jzAW5pyb8NscK8ppJO7h1pEhSCxekZ6e3Zr8RtJSXaDW0rcJCyz6r9
+         DDKWoFIjucw9TDEQBkLklXNHCkBkDnihkfBGrInFfjlOYGUjAkacvjqjtss2TNRaAz8J
+         p4c7Pcz/H97abbmZRJffWbmaD2iWUNYDnv1hX0sy6gTlO0HvmeN2F4lOvT4ATi1H9OcU
+         Jwl65iIMLlcrOwGCzqxudghDzVFh24UssNsSfMiwZkF3fg+3AT9DV/PdQR67exlwf6XJ
+         6StjCbdYG61NzgHee/NmRyk1UEdE3GF6WIi46XRFRA8ZP5jJZOby0ISsEQKGLi4D/p3D
+         pdoA==
+X-Gm-Message-State: AOAM533W5d0VyI0gCEum2f1hSTXoakq+F0iJZn5SaiqVI1llVb/Y2cUE
+        PRqPyLenkCU/d8MrhuxJ9Qw=
+X-Google-Smtp-Source: ABdhPJzUJirBykvPHFc1Qv2oEVKMFFn4PelPet7C0r/j5outkqJ7eJASBK55WnKA11U6KN+1Pa3FTg==
+X-Received: by 2002:a17:906:407:: with SMTP id d7mr10903944eja.46.1590216217029;
+        Fri, 22 May 2020 23:43:37 -0700 (PDT)
 Received: from bienne.fritz.box ([2001:a61:2482:101:a081:4793:30bf:f3d5])
-        by smtp.gmail.com with ESMTPSA id q22sm3240523edg.97.2020.05.22.23.43.34
+        by smtp.gmail.com with ESMTPSA id q22sm3240523edg.97.2020.05.22.23.43.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 May 2020 23:43:34 -0700 (PDT)
+        Fri, 22 May 2020 23:43:36 -0700 (PDT)
 From:   Michael Kerrisk <mtk.manpages@gmail.com>
 To:     mtk.manpages@gmail.com, Karel Zak <kzak@redhat.com>
 Cc:     util-linux@vger.kernel.org
-Subject: [PATCH 6/9] Manual pages: nsenter.1: note that 'file' can be a bind mount
-Date:   Sat, 23 May 2020 08:43:22 +0200
-Message-Id: <20200523064325.78491-6-mtk.manpages@gmail.com>
+Subject: [PATCH 8/9] Manual pages: unshare.1: fix examples, part 2
+Date:   Sat, 23 May 2020 08:43:24 +0200
+Message-Id: <20200523064325.78491-8-mtk.manpages@gmail.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200523064325.78491-1-mtk.manpages@gmail.com>
 References: <20200523064325.78491-1-mtk.manpages@gmail.com>
@@ -74,25 +74,93 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+The explanation of the --kill-child example was quite confused and
+also the example shell demo was broken because of quoting issues.
+
+It is not the case that the *children* of 'program' would adopted by
+init, but rather that 'program' itself (which would be running as PID
+1 inside the namespace and is a child of 'unshare') would be adopted
+by init.
+
+Rework the --kill-child example. Add a lot more explanation, and
+expand the example shell session to give the reader a much better
+picture of what is going on.
+
 Signed-off-by: Michael Kerrisk <mtk.manpages@gmail.com>
 ---
- sys-utils/nsenter.1 | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sys-utils/unshare.1 | 56 +++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 49 insertions(+), 7 deletions(-)
 
-diff --git a/sys-utils/nsenter.1 b/sys-utils/nsenter.1
-index 147137bd8..5674f8d61 100644
---- a/sys-utils/nsenter.1
-+++ b/sys-utils/nsenter.1
-@@ -88,7 +88,8 @@ argument.
- This should be one of the
- .I /proc/[pid]/ns/*
- files described in
--.BR namespaces (7).
-+.BR namespaces (7),
-+or the pathname of a bind mount that was created on one of those files.
- .TP
- \fB\-a\fR, \fB\-\-all\fR
- Enter all namespaces of the target process by the default
+diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
+index b8ef371a0..38f7a62cf 100644
+--- a/sys-utils/unshare.1
++++ b/sys-utils/unshare.1
+@@ -317,16 +317,58 @@ makes sure that the bind mount is created on a shared filesystem.
+ .EE
+ .in
+ .PP
+-Reliable killing of subprocesses of the \fIprogram\fR.
+-When \fBunshare\fR gets killed, everything below it gets killed as well.
+-Without it, the children of \fIprogram\fR would have orphaned and
+-been re-parented to PID 1.
++The following commands demonstrate the use of the
++.B \-\-kill-child
++option when creating a PID namespace, in order to ensure that when
++.B unshare
++is killed, all of the processes within the PID namespace are killed.
++.PP
++.in +4n
++.EX
++.BR "# set +m                " "# Don't print job status messages"
++.B # unshare \-\-pid \-\-fork \-\-mount\-proc \-\-kill\-child \-\- \e
++.B "       bash \-\-norc \-c \(aq(sleep 555 &) && (ps a &) && sleep 999\(aq &"
++[1] 53456
++#     PID TTY      STAT   TIME COMMAND
++      1 pts/3    S+     0:00 sleep 999
++      3 pts/3    S+     0:00 sleep 555
++      5 pts/3    R+     0:00 ps a
++
++.BR "# ps h \-o 'comm' $!     " "# Show that background job is unshare(1)"
++unshare
++.BR "# kill $!               " "# Kill unshare(1)
++.B # pidof sleep
++.EE
++.in
++.PP
++The
++.B pidof
++command prints no output, because the
++.B sleep
++processes have been killed.
++More precisely, when the
++.B sleep
++process that has PID 1 in the namespace (i.e., the namespace's init process)
++was killed, this caused all other processes in the namespace to be killed.
++By contrast, a similar series of commands where the
++.B \-\-kill\-child
++option is not used shows that when
++.B unshare
++terminates, the processes in the PID namespace are not killed:
+ .PP
+ .in +4n
+ .EX
+-.B # unshare \-pf \-\-kill-child \-\- bash \-c "(sleep 999 &) && sleep 1000" &
+-.B # pid=$!
+-.B # kill $pid
++.B # unshare \-\-pid \-\-fork \-\-mount\-proc \-\- \e
++.B "       bash \-\-norc \-c \(aq(sleep 555 &) && (ps a &) && sleep 999\(aq &"
++[1] 53479
++#     PID TTY      STAT   TIME COMMAND
++      1 pts/3    S+     0:00 sleep 999
++      3 pts/3    S+     0:00 sleep 555
++      5 pts/3    R+     0:00 ps a
++
++.B # kill $!
++.B # pidof sleep
++53482 53480
+ .EE
+ .in
+ .PP
 -- 
 2.26.2
 
