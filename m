@@ -8,63 +8,65 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49361C433E0
-	for <util-linux@archiver.kernel.org>; Mon, 25 May 2020 12:59:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29884C433E1
+	for <util-linux@archiver.kernel.org>; Mon, 25 May 2020 12:59:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 214FC2073B
-	for <util-linux@archiver.kernel.org>; Mon, 25 May 2020 12:59:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0AF262073B
+	for <util-linux@archiver.kernel.org>; Mon, 25 May 2020 12:59:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Gl9CThEg"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Xqz532Ia"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388757AbgEYM7Z (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 25 May 2020 08:59:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60472 "EHLO
+        id S2388763AbgEYM70 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 25 May 2020 08:59:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388738AbgEYM7Z (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 25 May 2020 08:59:25 -0400
-Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29309C061A0E
+        with ESMTP id S2388738AbgEYM70 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 25 May 2020 08:59:26 -0400
+Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFC56C061A0E
         for <util-linux@vger.kernel.org>; Mon, 25 May 2020 05:59:25 -0700 (PDT)
-Received: by mail-ed1-x543.google.com with SMTP id i16so14957125edv.1
+Received: by mail-ed1-x542.google.com with SMTP id f13so14327723edr.13
         for <util-linux@vger.kernel.org>; Mon, 25 May 2020 05:59:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=hMFb7A3DhKCNF3EFuT/V0IbYe1PqcnhweLcl9Nd7S9Q=;
-        b=Gl9CThEg2bhRUTFIajcx5gBnkkGgpeUhvmVhm9Vp7C5LIJIWAappkCSyCaikzmhbJ0
-         ln3cbWyumtaXfeUySVlh352n1QH7DylH5ZGfa1nxcOnRFchcE7eaIVRA9bj4LDx5SvG7
-         qk2pfKSR9YbCI0tiDOA7vW+S2J9hA0AXrz6UxDRmzE4duawsLYfa8LyRxy/SvtynVmd4
-         xetRo3sYVkls6SIxfihoSw1Ud8e/CKiI74J3P2uwRLL7keR8gp2dA89MPCUNZLne2TW4
-         +I3EYiBIpZq5CXw7V68Euu0vUu3+ns6ujYFZgHnL5ddYiRJy6FOi4HaHVChlVGOVtHTG
-         KWjg==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=MK6kWqyjKNHWCBax0HUvxrCUzDq+TqVouoiVhjBzS4o=;
+        b=Xqz532Iaw03/Gaqj4W4GehaIYsS5VFENJV2xXP0q5vFFyuXJlhiKAdw14Ou1QQzzwf
+         UwvKplG22Oa3Kw2WUoEhrBqO3uwaLN1MTZyYhIfr127Od6HUgS+rF4qULwVc7AZkaxWj
+         aJuT0NXKYv+zKJV6AuxIjzzIeWytT79WTJRTmC1RaW4kPeJQvK/WIF/o82vrlD+xknVK
+         Ksmlkl/JyK+8heTvCOvflQ8Tpx5qUyAqtEwwMRBUY8cHbtpVdRsQ3hHkOHkqpJLDJitd
+         Ctfd4O0RYwF1b29NL3BLsZ4mEX56CxDMackVQAhchsgT5sjj/MqjSgaHXywqw5AzUurC
+         L2Rw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=hMFb7A3DhKCNF3EFuT/V0IbYe1PqcnhweLcl9Nd7S9Q=;
-        b=AaPYBz9LeHoz74DYJ9lvsB2hFXQebimYqmPpHiZ4jBa9n8cxsXCcVC1kakni1W6bnd
-         ek2/YDaaXckvFL4DL1kYCYovhAW29IEFy7UjjPB2oIdC1ohzLWr2F5bb8kQl+S6A60qA
-         7sytDKCZ7eWqa2xRWuMoJJ0ej/fQMkHO8LyGtKQrnSnO9sOIjttgIB1OghaS6SFCZ1EO
-         i3+CqkQ8OSgUVE9aVWRum2KS5EgUuD7ByZUFLdzRYMktMG/SlHvAGY0Eudy6uWW6fUbo
-         1XCwdguxiRvTbCeKEckambrnPe6lb/OFbI6qpcP5Kisnsf3Wxq43cthpYNVwYXuTMPeo
-         cKSg==
-X-Gm-Message-State: AOAM530j7cpkq5s+mf4OedmRcTyn908UQiIGb/fOj4qRhl+ic+2PTf+t
-        v085xYEny688Z9iT3y6c1FwHRwESz3M=
-X-Google-Smtp-Source: ABdhPJyToEATqZmDPRHwdgSgswNvBg001fT75eoW4whEru/dzPumstZGuMiwY2yxPrPqGZOYRXhbeA==
-X-Received: by 2002:aa7:c9c9:: with SMTP id i9mr14720729edt.166.1590411563813;
-        Mon, 25 May 2020 05:59:23 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=MK6kWqyjKNHWCBax0HUvxrCUzDq+TqVouoiVhjBzS4o=;
+        b=DYLU3Vtuz/MoBokPsyPzz7hbYttVXt400GA4j1Nx0d7MDnuajVS8t+srzUyRrVXfEK
+         ux/sr3CWZxP09/upRRaiAzAtBRpTTZTydSRl/hnjQknHfbDoepXPpO+bMb4Nj2yU0fA/
+         OeH3NUNDF5mNJNnj27itaeOx0/XqtXhkyYW4Pr0SR8/L0UpPWbgQUpYfsHRs0QKf5AFo
+         qJaCYyL6lW+WcyOms/X+dPS6DTvx7IOrCxyZl1AKa5jtc2OoflCuEYm56WhlRW+0vSnc
+         D4i8R5cExG9iHXgyVzOI5/E9oILnpAShYIYkt5bXIfFPVyMgXzWYRZt0N2nnfq41Ikdh
+         HnRg==
+X-Gm-Message-State: AOAM530X3aoI6vDKbvE+4V54mHQLYHg38IzrDoX56CAlV+ztI+MOBIL4
+        nbZhmUP9fg64Aqm6PFrZq8F9puybV0Y=
+X-Google-Smtp-Source: ABdhPJwSeofIhy5YU2t48ZQVMJL4cz7qBjVI+vbDqbrGkW/2Efmi2vvhQkPQo1sQb/GRtGSKgq6Oog==
+X-Received: by 2002:a05:6402:1d2d:: with SMTP id dh13mr14463643edb.169.1590411564656;
+        Mon, 25 May 2020 05:59:24 -0700 (PDT)
 Received: from bienne.fritz.box ([2001:a61:2482:101:a081:4793:30bf:f3d5])
-        by smtp.gmail.com with ESMTPSA id b14sm15709719edx.93.2020.05.25.05.59.22
+        by smtp.gmail.com with ESMTPSA id b14sm15709719edx.93.2020.05.25.05.59.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 May 2020 05:59:23 -0700 (PDT)
+        Mon, 25 May 2020 05:59:24 -0700 (PDT)
 From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
 To:     mtk.manpages@gmail.com, Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org
-Subject: [PATCH 1/5] Manual pages: kill.1: various language, spelling, and formatting fixes
-Date:   Mon, 25 May 2020 14:59:08 +0200
-Message-Id: <20200525125912.43748-1-mtk.manpages@gmail.com>
+Cc:     util-linux@vger.kernel.org, Sami Kerola <kerolasa@iki.fi>
+Subject: [PATCH 2/5] Manual pages: kill.1: improve the description of the --timout option
+Date:   Mon, 25 May 2020 14:59:09 +0200
+Message-Id: <20200525125912.43748-2-mtk.manpages@gmail.com>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200525125912.43748-1-mtk.manpages@gmail.com>
+References: <20200525125912.43748-1-mtk.manpages@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
@@ -72,89 +74,83 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-These seem all "obviously correct", so I'm rolling them up into
-one patch.
+The text describing this option is a little hard to understand.
+Improve it.
 
+Cc: Sami Kerola <kerolasa@iki.fi>
 Signed-off-by: Michael Kerrisk (man-pages) <mtk.manpages@gmail.com>
 ---
- misc-utils/kill.1 | 25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+ misc-utils/kill.1 | 48 ++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 33 insertions(+), 15 deletions(-)
 
 diff --git a/misc-utils/kill.1 b/misc-utils/kill.1
-index 6fd50036d..1c12f8a14 100644
+index 1c12f8a14..6ca318a6a 100644
 --- a/misc-utils/kill.1
 +++ b/misc-utils/kill.1
-@@ -34,7 +34,9 @@ then the KILL signal may be used; be aware that the latter signal
- cannot be caught, and so does not give the target process the opportunity
- to perform any clean-up before terminating.
- .PP
--Most modern shells have a builtin kill command, with a usage rather similar to
-+Most modern shells have a builtin
-+.B kill
-+command, with a usage rather similar to
- that of the command described here.  The
- .BR \-\-all ,
- .BR \-\-pid ", and"
-@@ -49,7 +51,7 @@ The list of processes to be signaled can be a mixture of names and PIDs.
- .I pid
- Each
- .I pid
--can be one of four things:
-+can be expressed in one of the following ways:
- .RS
+@@ -127,30 +127,48 @@ field of the
+ structure.
  .TP
- .I n
-@@ -87,7 +89,7 @@ The signal to send.  It may be given as a name or a number.
- \fB\-l\fR, \fB\-\-list\fR [\fInumber\fR]
- Print a list of signal names, or convert the given signal number to a name.
- The signals can be found in
--.I /usr/\:include/\:linux/\:signal.h
-+.IR /usr/\:include/\:linux/\:signal.h .
- .TP
- \fB\-L\fR, \fB\-\-table\fR
- Similar to \fB\-l\fR, but it will print signal names and their corresponding
-@@ -102,10 +104,12 @@ Only print the process ID (PID) of the named processes, do not send any
- signals.
- .TP
- \fB\-\-verbose\fR
--Print PID(s) that will be signaled with kill along with the signal.
-+Print PID(s) that will be signaled with
-+.B kill
-+along with the signal.
- .TP
- \fB\-q\fR, \fB\-\-queue\fR \fIvalue\fR
--Use
-+Send the signal using
- .BR sigqueue (3)
- rather than
- .BR kill (2).
-@@ -132,7 +136,7 @@ to wait for a period defined in
- before sending follow-up
+ \fB\-\-timeout\fR \fImilliseconds signal\fR
+-Send a signal defined the usual way to a process.
++Send a signal defined in the usual way to a process,
++followed by an additional signal after a specified delay.
++The
+ .B \-\-timeout
+-will make
++option causes
+ .B kill
+ to wait for a period defined in
+ .I milliseconds
+-before sending follow-up
++before sending a follow-up
  .I signal
- to process.
--This feature is implemented by PID file-descriptor and guaranties that
-+This feature is implemented by PID file-descriptor and guarantees that
- follow-up signals are sent to the same process or not sent if the process no
- more exist.  Note that the operating system may re-use PIDs and implement the
- same feature in a shell by kill and sleep commands sequence may introduce a
-@@ -182,11 +186,14 @@ and the description of
- in
- .BR clone (2).
- .P
--Various shells have provide an internal kill implementation that is
-+Various shells provide a builtin
+-to process.
+-This feature is implemented by PID file-descriptor and guarantees that
+-follow-up signals are sent to the same process or not sent if the process no
+-more exist.  Note that the operating system may re-use PIDs and implement the
+-same feature in a shell by kill and sleep commands sequence may introduce a
+-race.  This option can be specified more than once than signals are sent
+-sequentially in defined timeouts.  The
++to the process.
++This feature is implemented using the Linux kernel
++PID file descriptor feature in order to guarantee that the follow-up signal
++is sent to the same process or not sent if the process no longer exists.
++.IP
++Note that the operating system may re-use PIDs and implementing an
++equivalent feature in a shell using
 +.B kill
-+command that is
- preferred in relation to the
- .BR kill (1)
--executable described by this manual.  Easiest way to ensure one is executing
--the executable is to use full path when calling the command, for example:
-+executable described by this manual.
-+The easiest way to ensure one is executing the command described in this page
-+is to use the full path when calling the command, for example:
- .B "/bin/kill \-\-version"
- .SH AUTHORS
- .MT svalente@mit.edu
++and
++.B sleep
++would be subject to races whereby the follow-up signal might be sent
++to a different process that used a recycled PID.
++.IP
++The
++.B \-\-timeout
++option can be specified multiple times: the signals are sent
++sequentially with the specified timeouts.  The
+ .B \-\-timeout
+-option can be combined with
++option can be combined with the
+ .B \-\-queue
+ option.
+ .IP
+-Example.  Send signals QUIT, TERM and KILL in sequence and wait for 1000
+-milliseconds between the signals
+-.br
+-kill \-\-verbose \-\-timeout 1000 TERM \-\-timeout 1000 KILL \-\-signal QUIT 12345
++As an example, the following command sends
++the signals QUIT, TERM and KILL in sequence and waits for 1000
++milliseconds between sending the signals:
++.IP
++.in +4n
++.EE
++kill \-\-verbose \-\-timeout 1000 TERM \-\-timeout 1000 KILL \e
++        \-\-signal QUIT 12345
++.EE
++.in
+ .SH EXIT STATUS
+ .B kill
+ has the following exit status values:
 -- 
 2.26.2
 
