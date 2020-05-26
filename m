@@ -2,97 +2,106 @@ Return-Path: <SRS0=W0VW=7I=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83900C433DF
-	for <util-linux@archiver.kernel.org>; Tue, 26 May 2020 08:51:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7831CC433DF
+	for <util-linux@archiver.kernel.org>; Tue, 26 May 2020 22:34:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4E1BA2073B
-	for <util-linux@archiver.kernel.org>; Tue, 26 May 2020 08:51:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4987320899
+	for <util-linux@archiver.kernel.org>; Tue, 26 May 2020 22:34:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UtBeV01b"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iMtdleh3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728521AbgEZIu7 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 26 May 2020 04:50:59 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:54665 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725771AbgEZIu7 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Tue, 26 May 2020 04:50:59 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1590483057;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=BT5SK86viIVsr/ZkKwRHjGHZVnHdVL9Rm6NER+dw5HE=;
-        b=UtBeV01bCIN5fsLd03y1XfmP7CQDchBdj3EZb7fzx55aJdEuZtHhxbD6/c6nFlNVFsPMJ3
-        2oE8BYZAaJ1z+2VP9RBxPAEdfV8IDZgYxOTv/j/vWohMIIl4jhNipZFBEDgJDx4vvFr0Rs
-        heybUiyLg2J5jRG6M3phv+lDrJXX8LE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-34-kzd4dqfuMIKNIx9Ua8ZcVA-1; Tue, 26 May 2020 04:50:53 -0400
-X-MC-Unique: kzd4dqfuMIKNIx9Ua8ZcVA-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6285F800688;
-        Tue, 26 May 2020 08:50:52 +0000 (UTC)
-Received: from ws.net.home (unknown [10.40.193.102])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9E9741968F;
-        Tue, 26 May 2020 08:50:51 +0000 (UTC)
-Date:   Tue, 26 May 2020 10:50:48 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Cc:     util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/9] Manual pages: nsenter.1, unshare.1: update
- references to *_namespaces(7) pages
-Message-ID: <20200526085048.23ue2dcz7cvc5wx7@ws.net.home>
-References: <20200523064325.78491-1-mtk.manpages@gmail.com>
- <20200525121745.rmdn47zlchtf76fh@ws.net.home>
- <4d4bb487-4a9c-1fcb-71a6-059379597d15@gmail.com>
+        id S2390254AbgEZWeR (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 26 May 2020 18:34:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37962 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389755AbgEZWeQ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 26 May 2020 18:34:16 -0400
+Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC0EFC061A0F
+        for <util-linux@vger.kernel.org>; Tue, 26 May 2020 15:34:15 -0700 (PDT)
+Received: by mail-oi1-x235.google.com with SMTP id d191so20064142oib.12
+        for <util-linux@vger.kernel.org>; Tue, 26 May 2020 15:34:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=/FO8YT8LUXLC0MoU2dkskYq/rLf5NUiYtUTSWr4q/A8=;
+        b=iMtdleh39OwbKPXyfpesms8BEvLsqsWglnNOXjTd3lGILBloUZLUvRgzsBdnb26qOh
+         MLvBc9I67r98WpGWDK5sDUE+BZay6pjLDXS+xr7QWjETqaq8oaoPQ7p+Uh0e56yv3xr9
+         +gyTe+V11v3MHBwcG0rXigNTkdVopFVt5eDZf6tDysjSx5eGgPhIJrsqrWKrb19ca/AW
+         fGBpZMt/Gh40k4MWWLdtW2tqEwS4xp2BjC4FjV7gFOXaR3Zl0AB3544ZCEJNVPrNW7vw
+         OgujoHEvvGoJw9IVR9EGvXrCF+mJcfLE7lYMqDH5VeeBliRtcRwQNS2BzvFGhQL8JAuN
+         xHAA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=/FO8YT8LUXLC0MoU2dkskYq/rLf5NUiYtUTSWr4q/A8=;
+        b=ESAQoRIkdCroZYU6v8lgV6qNbA5gSMOEokl5wDJ65dTPKjX3+/7hPvRQtNQ7vx3ah1
+         qeHIiAZpsbFX3859IQyk1dprgvyKW1pZOVEB47jP/mp5F6FrWSFQtBF8mGfwzSip4fAW
+         lOJAzLcDtjBDBtXBynS5Y1rJN37WnK0vzlAavhQSl4/poU77hc6rkiVGxmrrWr/NIvqa
+         PR3N/0tMNXXzFdXeaNFXpEFJTfl2CfQyo4ujC4JYVOavEwr/3wFUXbJbvVUg2KG/g/+b
+         viuiwZ3pIg0nFn6j5u2iwR6jytAQcCPtynRlJniAQahBODrtBqJXMx5XpzN9UlGnuTuv
+         nVIw==
+X-Gm-Message-State: AOAM530dq+cieE6OGCB0MYctWELJ5eSSdutwlFloX3ctNgOJ5/++JAni
+        6Vjo098iXgxRnEvNLw0VPeZLLWYY
+X-Google-Smtp-Source: ABdhPJxQQkHb4mQw2pbpnPgmTForkYK9OUeidW7nAGYsm/bHFLliyhc//SmalqWky30dcGfnob8/aw==
+X-Received: by 2002:aca:eb56:: with SMTP id j83mr823071oih.110.1590532455103;
+        Tue, 26 May 2020 15:34:15 -0700 (PDT)
+Received: from [192.168.0.91] (cpe-70-123-227-116.satx.res.rr.com. [70.123.227.116])
+        by smtp.gmail.com with ESMTPSA id x79sm322933oia.24.2020.05.26.15.34.14
+        for <util-linux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 26 May 2020 15:34:14 -0700 (PDT)
+To:     Util-Linux <util-linux@vger.kernel.org>
+From:   Bruce Dubbs <bruce.dubbs@gmail.com>
+Subject: util-linux-2.35.2 test failures
+Message-ID: <6b88784c-b130-27d4-2ec5-0d25320dd6fb@gmail.com>
+Date:   Tue, 26 May 2020 17:34:13 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4d4bb487-4a9c-1fcb-71a6-059379597d15@gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Mon, May 25, 2020 at 03:13:18PM +0200, Michael Kerrisk (man-pages) wrote:
-> A follow-up question. There was one piece of the unshare(1) examples
-> that I did not try to rework, because I simply don't understand it:
-> v
->        Establish  a  persistent  mount  namespace  referenced by the bind
->        mount /root/namespaces/mnt.  This example shows a  portable  solu‐
->        tion,  because  it  makes sure that the bind mount is created on a
->        shared filesystem.
-> 
->            # mount --bind /root/namespaces /root/namespaces
->            # mount --make-private /root/namespaces
->            # touch /root/namespaces/mnt
->            # unshare --mount=/root/namespaces/mnt
-> 
-> I think you wrote this example. What does the sentence "This example shows
-> a portable solution, because it makes sure that the bind mount is created
-> on a shared filesystem" mean? I think this needs clarification, and I'd try
-> to do so, but it's not clear to me what the sentence is trying to say.
+I'm getting three test failures and hope I can get someone to help.
 
-Hmm... it should be "the /root/namespaces/mnt is on a private
-filesystem". The important thing is --make-private in this case,
-because for example on Fedora we use "shared" propagation flag for
-root FS and without bind + make-private you will be unsuccessful. The
-example makes it portable between distros.
+The test failures are  ipcs/mk-rm-msg, ipcs/mk-rm-sem, and ipcs/mk-rm-shm.
 
-    Karel
+Concentrating on mk-rm-msg, I found on the system:
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+./tests/output/ipcs/mk-rm-msg
+./tests/ts/ipcs/mk-rm-msg
+./tests/expected/ipcs/mk-rm-msg
 
+The contents of the output and the expected files are identical:
+
+Message queue id: <was_number>
+1
+Message queue id: <was_number>
+
+I am running the tests as a non-privileged user.
+
+If I run the commands:
+
+$ ipcmk -Q  (returns 24)
+$ ipcs -q -i 24
+$ ipcrm -q 24
+$ echo $?
+0
+
+Everything looks OK.  Does anyone have an idea why this test (these 
+tests) are failing?
+
+   -- Bruce Dubbs
+      LFS
