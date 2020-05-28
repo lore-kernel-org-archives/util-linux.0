@@ -1,94 +1,72 @@
-Return-Path: <SRS0=vWqr=7J=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=us4l=7K=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16695C433DF
-	for <util-linux@archiver.kernel.org>; Wed, 27 May 2020 23:21:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0318C433E0
+	for <util-linux@archiver.kernel.org>; Thu, 28 May 2020 12:53:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E7C082078C
-	for <util-linux@archiver.kernel.org>; Wed, 27 May 2020 23:21:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A65AB206F1
+	for <util-linux@archiver.kernel.org>; Thu, 28 May 2020 12:53:20 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OwIrqum6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725446AbgE0XVB (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 27 May 2020 19:21:01 -0400
-Received: from vn01.namespace.at ([213.208.148.228]:56252 "EHLO
-        nlay-fle-service01.in.namespace.at" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725267AbgE0XVB (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Wed, 27 May 2020 19:21:01 -0400
-Received: from [10.100.0.62] (helo=debbuild.in.namespace.at)
-        by nlay-fle-service01.in.namespace.at with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <zeha@debian.org>)
-        id 1je5M2-00FTMi-Jy; Thu, 28 May 2020 01:20:58 +0200
-Received: from ch by debbuild.in.namespace.at with local (Exim 4.93)
-        (envelope-from <zeha@debian.org>)
-        id 1je5M2-0025yH-8t; Wed, 27 May 2020 23:20:58 +0000
-From:   Chris Hofstaedtler <zeha@debian.org>
-To:     util-linux@vger.kernel.org
-Cc:     Helge Deller <deller@gmx.de>
-Subject: [PATCH] setarch: fix stderr handling in uname26 tests
-Date:   Wed, 27 May 2020 23:20:58 +0000
-Message-Id: <20200527232058.499568-1-zeha@debian.org>
-X-Mailer: git-send-email 2.27.0.rc2
+        id S2389883AbgE1MxT (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 28 May 2020 08:53:19 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:33356 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2389828AbgE1MxT (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 28 May 2020 08:53:19 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1590670398;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=+qiYYDEcAbKhEXE6/PBwRNatjBd/VGyY+vq6uPSGIGw=;
+        b=OwIrqum6lU6Xs+mSJhrJifkJ2I91ztdjmdVrWQpAqgeexx7IW5+RqHkN0wvL0SlP7bhd+1
+        lAaZGaZPJwKYNP3OD33YulubiR3i/GNk9tafIezFDdxnleyyLoXoxumwxjTBWthfFICwB2
+        HzFF5yRALEJNMLG4SjLptJ2YeUtpwmw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-229-84POPLTDPvaTGjxUhfbjMw-1; Thu, 28 May 2020 08:53:15 -0400
+X-MC-Unique: 84POPLTDPvaTGjxUhfbjMw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6A017800D24;
+        Thu, 28 May 2020 12:53:14 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.194.133])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id A6F952B6E0;
+        Thu, 28 May 2020 12:53:13 +0000 (UTC)
+Date:   Thu, 28 May 2020 14:53:11 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/5] Manual pages: kill.1: various language, spelling,
+ and formatting fixes
+Message-ID: <20200528125311.u3ehflp55x4jejfr@ws.net.home>
+References: <20200525125912.43748-1-mtk.manpages@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200525125912.43748-1-mtk.manpages@gmail.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+On Mon, May 25, 2020 at 02:59:08PM +0200, Michael Kerrisk (man-pages) wrote:
+>  misc-utils/kill.1 | 25 ++++++++++++++++---------
+>  1 file changed, 16 insertions(+), 9 deletions(-)
 
-A while ago stdout and stderr have been split in these testcases, but
-"FATAL: kernel too old" is actually treated as an "okay" output. However
-this FATAL ends up on stderr, so when it happens, it is not seen in
-the captured stdout.
+All 5 patches applied.
 
-Fix this by merging stdout/stderr in these cases once again.
-
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Chris Hofstaedtler <zeha@debian.org>
-Bug: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=961639
-Fixes: cbf858aa085e25aa5afd1d06decaea6e14a8963f
----
- tests/ts/misc/setarch | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/tests/ts/misc/setarch b/tests/ts/misc/setarch
-index 7c99ccad2..6c872bf70 100755
---- a/tests/ts/misc/setarch
-+++ b/tests/ts/misc/setarch
-@@ -45,22 +45,22 @@ ts_init_subtest uname26
- finmsg="" # for debugging 2.6 issues
- 
- echo "###### --uname-2.6 echo" >>$TS_OUTPUT
--$TS_CMD_SETARCH $ARCH -v --uname-2.6 echo "2.6 worked" >> $TS_OUTPUT 2>> $TS_ERRLOG
-+$TS_CMD_SETARCH $ARCH -v --uname-2.6 echo "2.6 worked" >> $TS_OUTPUT 2>&1
- if [ $? -eq 0 ]; then
- 	expected='^2.6 worked$'
- else
--	# this may happen after execvp
-+	# this may happen after execvp - gets written to stderr
- 	expected="^FATAL: kernel too old$"
- 	finmsg+=" echo"
- fi
- sed -i "$ s/$expected/2.6 works or kernel too old/" $TS_OUTPUT
- 
- echo "###### --uname-2.6 true, non-verbose" >>$TS_OUTPUT
--$TS_CMD_SETARCH $ARCH --uname-2.6 true >> $TS_OUTPUT 2>> $TS_ERRLOG
-+$TS_CMD_SETARCH $ARCH --uname-2.6 true >> $TS_OUTPUT 2>&1
- if [ $? -eq 0 ]; then
- 	echo "2.6 works or kernel too old" >> $TS_OUTPUT
- else
--	# this may happen after execvp
-+	# this may happen after execvp - gets written to stderr
- 	expected="^FATAL: kernel too old$"
- 	sed -i "$ s/$expected/2.6 works or kernel too old/" $TS_OUTPUT
- 	finmsg+=" true"
 -- 
-2.27.0.rc2
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
