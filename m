@@ -7,64 +7,64 @@ X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0318C433E0
-	for <util-linux@archiver.kernel.org>; Thu, 28 May 2020 12:53:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37718C433E0
+	for <util-linux@archiver.kernel.org>; Thu, 28 May 2020 14:02:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A65AB206F1
-	for <util-linux@archiver.kernel.org>; Thu, 28 May 2020 12:53:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 103772084C
+	for <util-linux@archiver.kernel.org>; Thu, 28 May 2020 14:02:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OwIrqum6"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VK6F0Vkf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389883AbgE1MxT (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 28 May 2020 08:53:19 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:33356 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2389828AbgE1MxT (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 28 May 2020 08:53:19 -0400
+        id S2390569AbgE1OCT (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 28 May 2020 10:02:19 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:32432 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2390540AbgE1OCS (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Thu, 28 May 2020 10:02:18 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1590670398;
+        s=mimecast20190719; t=1590674537;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=+qiYYDEcAbKhEXE6/PBwRNatjBd/VGyY+vq6uPSGIGw=;
-        b=OwIrqum6lU6Xs+mSJhrJifkJ2I91ztdjmdVrWQpAqgeexx7IW5+RqHkN0wvL0SlP7bhd+1
-        lAaZGaZPJwKYNP3OD33YulubiR3i/GNk9tafIezFDdxnleyyLoXoxumwxjTBWthfFICwB2
-        HzFF5yRALEJNMLG4SjLptJ2YeUtpwmw=
+        bh=MFwQdeY+ezfXs/eNpVh0kOU60cBMvHVY8+GiTp8JhtM=;
+        b=VK6F0VkfragML8tpITN8Cxqr5PMKEY7eRAsQv6VJtEUpL81xTgmR3vZ1Xi64auZd0p4V/M
+        XzrMgbmoJqFXKS2/rdaT+sUBzUWd35XUXkrKfbkK5LxggpJCq1FTXo+m1030+jPoASPF8D
+        X92KW/jz7JZNv/rkfUcz+ZPkP6OeWJY=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-229-84POPLTDPvaTGjxUhfbjMw-1; Thu, 28 May 2020 08:53:15 -0400
-X-MC-Unique: 84POPLTDPvaTGjxUhfbjMw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+ us-mta-150-MqCoZHmXNWWaG0x5Q2eJ1w-1; Thu, 28 May 2020 10:02:01 -0400
+X-MC-Unique: MqCoZHmXNWWaG0x5Q2eJ1w-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6A017800D24;
-        Thu, 28 May 2020 12:53:14 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8B863461;
+        Thu, 28 May 2020 14:01:59 +0000 (UTC)
 Received: from ws.net.home (unknown [10.40.194.133])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id A6F952B6E0;
-        Thu, 28 May 2020 12:53:13 +0000 (UTC)
-Date:   Thu, 28 May 2020 14:53:11 +0200
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9CA0D9CB9;
+        Thu, 28 May 2020 14:01:58 +0000 (UTC)
+Date:   Thu, 28 May 2020 16:01:55 +0200
 From:   Karel Zak <kzak@redhat.com>
-To:     "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Cc:     util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/5] Manual pages: kill.1: various language, spelling,
- and formatting fixes
-Message-ID: <20200528125311.u3ehflp55x4jejfr@ws.net.home>
-References: <20200525125912.43748-1-mtk.manpages@gmail.com>
+To:     Chris Hofstaedtler <zeha@debian.org>
+Cc:     util-linux@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: Re: [PATCH] setarch: fix stderr handling in uname26 tests
+Message-ID: <20200528140155.2733jcqaukmpoiwo@ws.net.home>
+References: <20200527232058.499568-1-zeha@debian.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200525125912.43748-1-mtk.manpages@gmail.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+In-Reply-To: <20200527232058.499568-1-zeha@debian.org>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Mon, May 25, 2020 at 02:59:08PM +0200, Michael Kerrisk (man-pages) wrote:
->  misc-utils/kill.1 | 25 ++++++++++++++++---------
->  1 file changed, 16 insertions(+), 9 deletions(-)
+On Wed, May 27, 2020 at 11:20:58PM +0000, Chris Hofstaedtler wrote:
+>  tests/ts/misc/setarch | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 
-All 5 patches applied.
+Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
