@@ -2,84 +2,86 @@ Return-Path: <SRS0=/i5r=7L=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC11EC433E0
-	for <util-linux@archiver.kernel.org>; Fri, 29 May 2020 12:43:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 968CAC433DF
+	for <util-linux@archiver.kernel.org>; Fri, 29 May 2020 13:22:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7651120721
-	for <util-linux@archiver.kernel.org>; Fri, 29 May 2020 12:43:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 62B0A20721
+	for <util-linux@archiver.kernel.org>; Fri, 29 May 2020 13:22:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Q9rYYL1B"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LwkMgDVU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726467AbgE2Mn3 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 29 May 2020 08:43:29 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:49510 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726282AbgE2Mn2 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Fri, 29 May 2020 08:43:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1590756208;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=cAVAp6VE/4Fj2OyGRr3DTom+YHKAB5SJqr45Qgvb+6I=;
-        b=Q9rYYL1B50I7CRnsk4EppJDx+ckI2AhnvnWgT8ZyBiYb7iZ4j5Nq2X3Z2RYs+yucak1x08
-        vOP2mhkdegUocFVPQEL0DnxKEbCD33Ew5mEn2ol0jmG/OapcH/Ji5xetNymr4Gx+eftK69
-        DoiqFmkU34X4EwEfATKlxsRyiGxrVeY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-66-c1V4V9moMDKWaZ0D9f5NdA-1; Fri, 29 May 2020 08:43:26 -0400
-X-MC-Unique: c1V4V9moMDKWaZ0D9f5NdA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1FF2E107ACF2;
-        Fri, 29 May 2020 12:43:25 +0000 (UTC)
-Received: from ws.net.home (unknown [10.40.194.133])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 372D22BFF9;
-        Fri, 29 May 2020 12:43:23 +0000 (UTC)
-Date:   Fri, 29 May 2020 14:43:21 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc:     "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>,
-        util-linux@vger.kernel.org
+        id S1726767AbgE2NWg (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 29 May 2020 09:22:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58260 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726687AbgE2NWg (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 29 May 2020 09:22:36 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE40EC03E969
+        for <util-linux@vger.kernel.org>; Fri, 29 May 2020 06:22:35 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id k11so2044513ejr.9
+        for <util-linux@vger.kernel.org>; Fri, 29 May 2020 06:22:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=sRm1HDrbEltfTPN1ULzdtEiBjm/S+2QCF6oF7O1t1mo=;
+        b=LwkMgDVUi9vPLhg16WtdHGNXN4pZX8Mnd18BrziYRXvkJhqzWEJI81SSxU3vWZ0lV2
+         7k2NNDsDuS+ubTVjK3FhwmTL7GBnxzd7dFmXiUcpSBX5DyCom7bL316zUH1TqvranK71
+         bAyagL/ADFiopU7c3fzQEmxJnM9hJN8YrcK7zZIw2KffFdnrNsDJuEmxIHBjU5r0e1ou
+         z3IdGeygxrbQtuaYc0AnkcSqYNA3xLdvEXLO6mR/aGxp3VtPomW0/YCh6DaDJZAJoCxJ
+         IMi3T8SehjkQGhaWkU46+cg4Ypnd/unNSd8yZC4NFcp63LpQbq8OdgWZ3d8WAz81ZDmr
+         bWJw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=sRm1HDrbEltfTPN1ULzdtEiBjm/S+2QCF6oF7O1t1mo=;
+        b=sq8b74ufxS2HIFFYasTiiZRJ3/+AICbTrE+bu+OVrbXdaGWLHBHS5xQvSpuxyvJwzc
+         nS7PFz0s2K7hFrQ5XfevOuoRBQAgDh0q3yGjcZThvp8RyvOD8QRQSUEE/p0VhSFRJSl7
+         ct6vz+GmG0vdZ9R0DBq9Rwe3wg6eDetdruUwXf+EQ7SrvxHUFEev25aokpLuD7EN60U4
+         iJHsl6vTACEXv77fRr1STHeTbQejxnLttR4ViuLNTANJfYtR0ErNTOMptnc9C0f9EMPh
+         moXCy0Ka+txbZH/CLIH5OgDM86A0Ga7hRXi/N63ub9C62He7kQYyUdmcr5ViZleAN4dJ
+         qgHQ==
+X-Gm-Message-State: AOAM530Lms+wHsYXxsush/tHcTaGGsucfXXXnsf8EYWC9RXYJSqI2C2l
+        9JF3LiTSzZ5mwtQWSCQ2xiVTL84CCjFVSPltqY4=
+X-Google-Smtp-Source: ABdhPJzG6FnCuCyQMTtgRcAu13yRvnX6SkYqDyhrkJuwiFcTdonpxlQWzrYfITU2RYeOaTtbQHiB7XbxwAS/h/hP08k=
+X-Received: by 2002:a17:906:a88:: with SMTP id y8mr6838581ejf.68.1590758554657;
+ Fri, 29 May 2020 06:22:34 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200528145823.978508-1-mtk.manpages@gmail.com> <20200529074611.kjzmhxyvee6jxe7g@ws.net.home>
+In-Reply-To: <20200529074611.kjzmhxyvee6jxe7g@ws.net.home>
+From:   Michael Kerrisk <mtk.manpages@gmail.com>
+Date:   Fri, 29 May 2020 15:22:23 +0200
+Message-ID: <CALxWeYrnibs7XfoyDWyX9wjAf-n8JUqSpXerQLaDAA7Df=0PVg@mail.gmail.com>
 Subject: Re: [PATCH 01/10] Manual pages: unshare.1: EXAMPLES: improve
  persistent mount namespace example
-Message-ID: <20200529124321.5lgp3ojlqti7xqtf@ws.net.home>
-References: <20200528145823.978508-1-mtk.manpages@gmail.com>
- <20200529074611.kjzmhxyvee6jxe7g@ws.net.home>
- <c5aba53a-2da8-934d-5ab2-330931af0b23@physik.fu-berlin.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c5aba53a-2da8-934d-5ab2-330931af0b23@physik.fu-berlin.de>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+To:     Karel Zak <kzak@redhat.com>
+Cc:     util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Fri, May 29, 2020 at 10:54:03AM +0200, John Paul Adrian Glaubitz wrote:
-> > All 10 patches applied. Thanks!
-> I just wanted to say Thank You to you for being such a busy maintainer! It's really
+Thanks, Karel!
 
-Thanks to Red Hat -- it's my fulltime job (together maintenance for RHEL/Fedora).
-
-> refreshing to see how fast new patches are reviewed and applied for util-linux
-> knowing that in other projects, reviews can take days or even weeks!
-
-Well, on github we have some pending issues/PR ...
-
-Thanks for your feedback :-)
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
-
+On Fri, May 29, 2020 at 9:47 AM Karel Zak <kzak@redhat.com> wrote:
+>
+> On Thu, May 28, 2020 at 04:58:15PM +0200, Michael Kerrisk (man-pages) wrote:
+> >  sys-utils/unshare.1 | 13 ++++++++++---
+> >  1 file changed, 10 insertions(+), 3 deletions(-)
+>
+> All 10 patches applied. Thanks!
+>
+>     Karel
+>
+> --
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
+>
