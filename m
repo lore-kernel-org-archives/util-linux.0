@@ -1,87 +1,151 @@
-Return-Path: <SRS0=/i5r=7L=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=dIn1=7M=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 968CAC433DF
-	for <util-linux@archiver.kernel.org>; Fri, 29 May 2020 13:22:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A33DC433E0
+	for <util-linux@archiver.kernel.org>; Sat, 30 May 2020 14:08:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 62B0A20721
-	for <util-linux@archiver.kernel.org>; Fri, 29 May 2020 13:22:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A604920723
+	for <util-linux@archiver.kernel.org>; Sat, 30 May 2020 14:07:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LwkMgDVU"
+	dkim=pass (1024-bit key) header.d=yandex-team.ru header.i=@yandex-team.ru header.b="POfTNdKr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726767AbgE2NWg (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 29 May 2020 09:22:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58260 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726687AbgE2NWg (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 29 May 2020 09:22:36 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE40EC03E969
-        for <util-linux@vger.kernel.org>; Fri, 29 May 2020 06:22:35 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id k11so2044513ejr.9
-        for <util-linux@vger.kernel.org>; Fri, 29 May 2020 06:22:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=sRm1HDrbEltfTPN1ULzdtEiBjm/S+2QCF6oF7O1t1mo=;
-        b=LwkMgDVUi9vPLhg16WtdHGNXN4pZX8Mnd18BrziYRXvkJhqzWEJI81SSxU3vWZ0lV2
-         7k2NNDsDuS+ubTVjK3FhwmTL7GBnxzd7dFmXiUcpSBX5DyCom7bL316zUH1TqvranK71
-         bAyagL/ADFiopU7c3fzQEmxJnM9hJN8YrcK7zZIw2KffFdnrNsDJuEmxIHBjU5r0e1ou
-         z3IdGeygxrbQtuaYc0AnkcSqYNA3xLdvEXLO6mR/aGxp3VtPomW0/YCh6DaDJZAJoCxJ
-         IMi3T8SehjkQGhaWkU46+cg4Ypnd/unNSd8yZC4NFcp63LpQbq8OdgWZ3d8WAz81ZDmr
-         bWJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=sRm1HDrbEltfTPN1ULzdtEiBjm/S+2QCF6oF7O1t1mo=;
-        b=sq8b74ufxS2HIFFYasTiiZRJ3/+AICbTrE+bu+OVrbXdaGWLHBHS5xQvSpuxyvJwzc
-         nS7PFz0s2K7hFrQ5XfevOuoRBQAgDh0q3yGjcZThvp8RyvOD8QRQSUEE/p0VhSFRJSl7
-         ct6vz+GmG0vdZ9R0DBq9Rwe3wg6eDetdruUwXf+EQ7SrvxHUFEev25aokpLuD7EN60U4
-         iJHsl6vTACEXv77fRr1STHeTbQejxnLttR4ViuLNTANJfYtR0ErNTOMptnc9C0f9EMPh
-         moXCy0Ka+txbZH/CLIH5OgDM86A0Ga7hRXi/N63ub9C62He7kQYyUdmcr5ViZleAN4dJ
-         qgHQ==
-X-Gm-Message-State: AOAM530Lms+wHsYXxsush/tHcTaGGsucfXXXnsf8EYWC9RXYJSqI2C2l
-        9JF3LiTSzZ5mwtQWSCQ2xiVTL84CCjFVSPltqY4=
-X-Google-Smtp-Source: ABdhPJzG6FnCuCyQMTtgRcAu13yRvnX6SkYqDyhrkJuwiFcTdonpxlQWzrYfITU2RYeOaTtbQHiB7XbxwAS/h/hP08k=
-X-Received: by 2002:a17:906:a88:: with SMTP id y8mr6838581ejf.68.1590758554657;
- Fri, 29 May 2020 06:22:34 -0700 (PDT)
+        id S1728769AbgE3OH6 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sat, 30 May 2020 10:07:58 -0400
+Received: from forwardcorp1o.mail.yandex.net ([95.108.205.193]:44594 "EHLO
+        forwardcorp1o.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727851AbgE3OH6 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Sat, 30 May 2020 10:07:58 -0400
+Received: from mxbackcorp1g.mail.yandex.net (mxbackcorp1g.mail.yandex.net [IPv6:2a02:6b8:0:1402::301])
+        by forwardcorp1o.mail.yandex.net (Yandex) with ESMTP id 9E4DA2E14D8
+        for <util-linux@vger.kernel.org>; Sat, 30 May 2020 17:07:54 +0300 (MSK)
+Received: from iva4-7c3d9abce76c.qloud-c.yandex.net (iva4-7c3d9abce76c.qloud-c.yandex.net [2a02:6b8:c0c:4e8e:0:640:7c3d:9abc])
+        by mxbackcorp1g.mail.yandex.net (mxbackcorp/Yandex) with ESMTP id lORyuSzDWl-7rIarxN6;
+        Sat, 30 May 2020 17:07:54 +0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.ru; s=default;
+        t=1590847674; bh=URzsery+zgQSv9aYgg6vpSImVJFHOcBzwpVc4VMkoys=;
+        h=Message-ID:Date:To:From:Subject;
+        b=POfTNdKrpt6G7SgFc5VTrXyPVyktQp6yc/S4ynNmLaSCAwyYuWDc3ctusS2cPHjO6
+         VqqsgWk+03Qsg0MaBJUFJpxM37xu2uTh1Om43V6zF4nJC2uZAZdX+gyo4pDlTBEgRo
+         jtrvQN+x7MgPD0WkAtzVAA1CvfMzOUq+5+KKvETc=
+Authentication-Results: mxbackcorp1g.mail.yandex.net; dkim=pass header.i=@yandex-team.ru
+Received: from dynamic-vpn.dhcp.yndx.net (dynamic-vpn.dhcp.yndx.net [2a02:6b8:b080:8218::1:0])
+        by iva4-7c3d9abce76c.qloud-c.yandex.net (smtpcorp/Yandex) with ESMTPSA id 4oHasFvvT0-7rW0k7dq;
+        Sat, 30 May 2020 17:07:53 +0300
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (Client certificate not present)
+Subject: [PATCH] dmesg: add --follow-new
+From:   Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+To:     util-linux@vger.kernel.org
+Date:   Sat, 30 May 2020 17:07:53 +0300
+Message-ID: <159084767331.127122.9117317049390963928.stgit@buzz>
+User-Agent: StGit/0.22-39-gd257
 MIME-Version: 1.0
-References: <20200528145823.978508-1-mtk.manpages@gmail.com> <20200529074611.kjzmhxyvee6jxe7g@ws.net.home>
-In-Reply-To: <20200529074611.kjzmhxyvee6jxe7g@ws.net.home>
-From:   Michael Kerrisk <mtk.manpages@gmail.com>
-Date:   Fri, 29 May 2020 15:22:23 +0200
-Message-ID: <CALxWeYrnibs7XfoyDWyX9wjAf-n8JUqSpXerQLaDAA7Df=0PVg@mail.gmail.com>
-Subject: Re: [PATCH 01/10] Manual pages: unshare.1: EXAMPLES: improve
- persistent mount namespace example
-To:     Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Thanks, Karel!
+Option --follow-new (-W) works the same as --follow (-w) but initially
+seeks to the end of kernel ring buffer, so it prints only new messages.
+Useful for capturing kernel messages during actions without past log.
 
-On Fri, May 29, 2020 at 9:47 AM Karel Zak <kzak@redhat.com> wrote:
->
-> On Thu, May 28, 2020 at 04:58:15PM +0200, Michael Kerrisk (man-pages) wrote:
-> >  sys-utils/unshare.1 | 13 ++++++++++---
-> >  1 file changed, 10 insertions(+), 3 deletions(-)
->
-> All 10 patches applied. Thanks!
->
->     Karel
->
-> --
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
->
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+---
+ bash-completion/dmesg |    1 +
+ sys-utils/dmesg.1     |    3 +++
+ sys-utils/dmesg.c     |   11 +++++++++--
+ 3 files changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/bash-completion/dmesg b/bash-completion/dmesg
+index 319605f8ee39..02f2fc7a62d4 100644
+--- a/bash-completion/dmesg
++++ b/bash-completion/dmesg
+@@ -55,6 +55,7 @@ _dmesg_module()
+ 		--time-format
+ 		--userspace
+ 		--follow
++		--follow-new
+ 		--decode
+ 		--help
+ 		--version"
+diff --git a/sys-utils/dmesg.1 b/sys-utils/dmesg.1
+index 31bfb56f3f5e..61a6ce89465d 100644
+--- a/sys-utils/dmesg.1
++++ b/sys-utils/dmesg.1
+@@ -193,6 +193,9 @@ Print userspace messages.
+ Wait for new messages.  This feature is supported only on systems with
+ a readable /dev/kmsg (since kernel 3.5.0).
+ .TP
++.BR \-W , " \-\-follow-new"
++Wait and print only new messages.
++.TP
+ .BR \-x , " \-\-decode"
+ Decode facility and level (priority) numbers to human-readable prefixes.
+ .TP
+diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+index 1eb7cde3c1b2..ae1ebc74a2d9 100644
+--- a/sys-utils/dmesg.c
++++ b/sys-utils/dmesg.c
+@@ -190,6 +190,7 @@ struct dmesg_control {
+ 	unsigned int	time_fmt;	/* time format */
+ 
+ 	unsigned int	follow:1,	/* wait for new messages */
++			end:1,		/* seek to the of buffer */
+ 			raw:1,		/* raw mode */
+ 			noesc:1,	/* no escape */
+ 			fltr_lev:1,	/* filter out by levels[] */
+@@ -292,6 +293,7 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_(" -s, --buffer-size <size>    buffer size to query the kernel ring buffer\n"), out);
+ 	fputs(_(" -u, --userspace             display userspace messages\n"), out);
+ 	fputs(_(" -w, --follow                wait for new messages\n"), out);
++	fputs(_(" -W, --follow-new            wait and print only new messages\n"), out);
+ 	fputs(_(" -x, --decode                decode facility and level to readable string\n"), out);
+ 	fputs(_(" -d, --show-delta            show time delta between printed messages\n"), out);
+ 	fputs(_(" -e, --reltime               show local time and time delta in readable format\n"), out);
+@@ -1127,7 +1129,7 @@ static int init_kmsg(struct dmesg_control *ctl)
+ 	 *
+ 	 * ... otherwise SYSLOG_ACTION_CLEAR will have no effect for kmsg.
+ 	 */
+-	lseek(ctl->kmsg, 0, SEEK_DATA);
++	lseek(ctl->kmsg, 0, ctl->end ? SEEK_END : SEEK_DATA);
+ 
+ 	/*
+ 	 * Old kernels (<3.5) allow to successfully open /dev/kmsg for
+@@ -1336,6 +1338,7 @@ int main(int argc, char *argv[])
+ 		{ "file",          required_argument, NULL, 'F' },
+ 		{ "facility",      required_argument, NULL, 'f' },
+ 		{ "follow",        no_argument,       NULL, 'w' },
++		{ "follow-new",    no_argument,       NULL, 'W' },
+ 		{ "human",         no_argument,       NULL, 'H' },
+ 		{ "help",          no_argument,	      NULL, 'h' },
+ 		{ "kernel",        no_argument,       NULL, 'k' },
+@@ -1375,7 +1378,7 @@ int main(int argc, char *argv[])
+ 	textdomain(PACKAGE);
+ 	close_stdout_atexit();
+ 
+-	while ((c = getopt_long(argc, argv, "CcDdEeF:f:HhkL::l:n:iPprSs:TtuVwx",
++	while ((c = getopt_long(argc, argv, "CcDdEeF:f:HhkL::l:n:iPprSs:TtuVWwx",
+ 				longopts, NULL)) != -1) {
+ 
+ 		err_exclusive_options(c, longopts, excl, excl_st);
+@@ -1466,6 +1469,10 @@ int main(int argc, char *argv[])
+ 		case 'w':
+ 			ctl.follow = 1;
+ 			break;
++		case 'W':
++			ctl.follow = 1;
++			ctl.end = 1;
++			break;
+ 		case 'x':
+ 			ctl.decode = 1;
+ 			break;
+
