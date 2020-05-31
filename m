@@ -2,87 +2,132 @@ Return-Path: <SRS0=REj1=7N=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50908C433DF
-	for <util-linux@archiver.kernel.org>; Sun, 31 May 2020 12:18:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC002C433DF
+	for <util-linux@archiver.kernel.org>; Sun, 31 May 2020 23:35:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DBC06206F1
-	for <util-linux@archiver.kernel.org>; Sun, 31 May 2020 12:18:51 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=yandex-team.ru header.i=@yandex-team.ru header.b="Db8rk1Ni"
+	by mail.kernel.org (Postfix) with ESMTP id BB786206DA
+	for <util-linux@archiver.kernel.org>; Sun, 31 May 2020 23:35:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727119AbgEaMSv (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sun, 31 May 2020 08:18:51 -0400
-Received: from forwardcorp1j.mail.yandex.net ([5.45.199.163]:39752 "EHLO
-        forwardcorp1j.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726020AbgEaMSv (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Sun, 31 May 2020 08:18:51 -0400
-Received: from mxbackcorp1o.mail.yandex.net (mxbackcorp1o.mail.yandex.net [IPv6:2a02:6b8:0:1a2d::301])
-        by forwardcorp1j.mail.yandex.net (Yandex) with ESMTP id 1A06B2E0E0F;
-        Sun, 31 May 2020 15:18:48 +0300 (MSK)
-Received: from iva4-7c3d9abce76c.qloud-c.yandex.net (iva4-7c3d9abce76c.qloud-c.yandex.net [2a02:6b8:c0c:4e8e:0:640:7c3d:9abc])
-        by mxbackcorp1o.mail.yandex.net (mxbackcorp/Yandex) with ESMTP id Tx82xIwJbu-Ilx0WVq1;
-        Sun, 31 May 2020 15:18:48 +0300
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.ru; s=default;
-        t=1590927528; bh=A+VX9f0FsYxRqTzGH2Ht6PLpnOJYqCgT8MWggeXXjHE=;
-        h=In-Reply-To:Message-ID:From:Date:References:To:Subject:Cc;
-        b=Db8rk1NiZTas5lnyq1ooEVnOMYL1yqzvW+CembDe5UY39E+ar2/Jawi5vaq7f3Set
-         A3WZPPob9qKEL09d2Xnwg+FljcyyZhRQa76Qs4AByMtb//3O05cLfGIxavq+t7RBeg
-         uc8hdT3D9BcOfH8Di7zMMwTAC+SKpgUnX+rN3x1g=
-Authentication-Results: mxbackcorp1o.mail.yandex.net; dkim=pass header.i=@yandex-team.ru
-Received: from dynamic-vpn.dhcp.yndx.net (dynamic-vpn.dhcp.yndx.net [2a02:6b8:b081:1217::1:0])
-        by iva4-7c3d9abce76c.qloud-c.yandex.net (smtpcorp/Yandex) with ESMTPSA id exj4y8ukkC-IlWaG3MB;
-        Sun, 31 May 2020 15:18:47 +0300
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (Client certificate not present)
-Subject: Re: [PATCH] dmesg: add --follow-new
-To:     kerolasa@gmail.com
-Cc:     util-linux <util-linux@vger.kernel.org>
-References: <159084767331.127122.9117317049390963928.stgit@buzz>
- <CAG27Bk3Tvybn0ToQdBNu9O-=Ap70+APKqLCCT-4cTxx-vFiFqw@mail.gmail.com>
-From:   Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Message-ID: <1d1e123b-d107-78c2-e76c-c5be3dcdf89e@yandex-team.ru>
-Date:   Sun, 31 May 2020 15:18:47 +0300
+        id S1728382AbgEaXfr convert rfc822-to-8bit (ORCPT
+        <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 31 May 2020 19:35:47 -0400
+Received: from mx2.suse.de ([195.135.220.15]:37996 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725860AbgEaXfr (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 31 May 2020 19:35:47 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 0A6BBB188;
+        Sun, 31 May 2020 23:35:47 +0000 (UTC)
+To:     util-linux@vger.kernel.org
+Cc:     Martin Wilck <martin.wilck@suse.com>
+From:   Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH] blockdev: Don't fail on missing start sector
+Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
+ xsDiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
+ zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
+ 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
+ AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
+ 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
+ NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
+ SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
+ ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSM0tU3RhbmlzbGF2
+ IEJyYWJlYyA8c3RhbmlzbGF2LmJyYWJlY0BnbWFpbC5jb20+wmwEExECACwCGwMHCwkIBwMC
+ AQYVCAIJCgsEFgIDAQIeAQIXgAUJIT9ywAUCUdMF/QIZAQAKCRBxfCCfoE/NdgreAKCEwh0S
+ bgGDPUFG9HaToZUp+lkzNACbBSazK57hL2hGrJ5K3PVlEpWVAwHOwE0EPq/ZghAEAK3rY7aV
+ eV7YI/HDYul1PnntG+tR2hgnUB4sCfWIPLrusOwa6bEnFbbnjH0IpWxTfrT08bnyAMpJDsK8
+ fMSu053P3Gwkt8ILFuTouw6EF0JaBizsdXbFgKRS8pJVAZk33myR+/VpKw7p1fNchJd6fgqp
+ jkCcVr6lcMCowlMYvCkbAAMGBACRnb/PP30vbbiw1wWAz7pO4YhDnt82EonFgbYdsGqHegGK
+ Jkj3bbh0os0K//ZqhXyp31BQwpAI7uRAqRIfv5OLUqcLJoOLdKh4VyxXhn31dvVs3YQFLULi
+ qiE1Rui5OxgQbmqxk965EMp6QVOKKVFFXKJdYO37NjZo00yScoEAJ8JGBBgRAgAGBQI+r9mC
+ AAoJEHF8IJ+gT812L60AoKuKuBD3reAs3cOUFGW8U8g5nTVYAKCU3meFjvDLKEiNA/eTh5V8
+ Fj5ZXg==
+Organization: SUSE Linux, s. r. o.
+Message-ID: <a7a4f974-8a32-efb3-0ba3-a25e77145946@suse.cz>
+Date:   Mon, 1 Jun 2020 01:35:44 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.8.0
 MIME-Version: 1.0
-In-Reply-To: <CAG27Bk3Tvybn0ToQdBNu9O-=Ap70+APKqLCCT-4cTxx-vFiFqw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-CA
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
+Content-Language: en-US
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On 31/05/2020 14.49, Sami Kerola wrote:
-> On Sat, 30 May 2020 at 15:08, Konstantin Khlebnikov
-> <khlebnikov@yandex-team.ru> wrote:
->> Option --follow-new (-W) works the same as --follow (-w) but initially
->> seeks to the end of kernel ring buffer, so it prints only new messages.
->> Useful for capturing kernel messages during actions without past log.
-> 
-> Hello Konstantin,
-> 
-> I wonder if it would be more useful to add '-n, --lines=[+]NUM' that
-> would be similar
-> to tail(1) option and argument. The --follow-new with an option that
-> lists NUM last
-> messages would be --lines=0
-> 
-> That said should --since and --until options similar to journalctl(1)
-> be considered
-> as well?
-> 
+Device mapper devices don't provide start sector.
 
-I don't see how this could be useful. If anybody interested in past
-messages then showing whole buffer isn't a big deal - it's only few kb.
-Anyway, without --follow this is simply 'dmesg | tail -n NUM'.
+It causes "blockdev --report" error:
+blockdev: /dev/dm-9: failed to read partition start from sysfs: No such
+file or directory
 
-Implementation is also non-trivial - currently dmesg reads and prints
-messages from /dev/kmsg in a loop. It doesn't know how many lines left.
-/dev/kmsg doesn't support lseek with non-zero offset, only SET/DATA/END.
+There is no reliable way to detect a geometry in this case.
+Report N/A instead.
+
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+Cc: Martin Wilck <martin.wilck@suse.com>
+---
+ disk-utils/blockdev.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/disk-utils/blockdev.c b/disk-utils/blockdev.c
+index f1067c815..ab18cfa66 100644
+--- a/disk-utils/blockdev.c
++++ b/disk-utils/blockdev.c
+@@ -455,6 +455,7 @@ static void report_device(char *device, int quiet)
+     long ra;
+     unsigned long long bytes;
+     uint64_t start = 0;
++    char start_str[11] = "";
+     struct stat st;
+ 
+     fd = open(device, O_RDONLY | O_NONBLOCK);
+@@ -476,19 +477,21 @@ static void report_device(char *device, int quiet)
+             disk != st.st_rdev) {
+ 
+             if (ul_path_read_u64(pc, &start, "start") != 0)
+-                err(EXIT_FAILURE,
+-                    _("%s: failed to read partition start from sysfs"),
+-                    device);
++                /* TRANSLATORS: Start sector not available. Max. 10
+letters. */
++                sprintf(start_str, "%10s", _("N/A"));
+         }
+         ul_unref_path(pc);
+     }
++    if (start_str[0] == 0)
++        sprintf(start_str, "%10ju", start);
++
+     if (ioctl(fd, BLKROGET, &ro) == 0 &&
+         ioctl(fd, BLKRAGET, &ra) == 0 &&
+         ioctl(fd, BLKSSZGET, &ssz) == 0 &&
+         ioctl(fd, BLKBSZGET, &bsz) == 0 &&
+         blkdev_get_size(fd, &bytes) == 0) {
+-        printf("%s %5ld %5d %5d %10ju %15lld   %s\n",
+-               ro ? "ro" : "rw", ra, ssz, bsz, start, bytes, device);
++        printf("%s %5ld %5d %5d %s %15lld   %s\n",
++               ro ? "ro" : "rw", ra, ssz, bsz, start_str, bytes, device);
+     } else {
+         if (!quiet)
+             warnx(_("ioctl error on %s"), device);
+-- 
+2.25.1
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                    tel: +420 284 084 060
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+
+
