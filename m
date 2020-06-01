@@ -1,133 +1,101 @@
-Return-Path: <SRS0=REj1=7N=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=/ORA=7O=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC002C433DF
-	for <util-linux@archiver.kernel.org>; Sun, 31 May 2020 23:35:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93B2BC433DF
+	for <util-linux@archiver.kernel.org>; Mon,  1 Jun 2020 07:53:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB786206DA
-	for <util-linux@archiver.kernel.org>; Sun, 31 May 2020 23:35:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6399620734
+	for <util-linux@archiver.kernel.org>; Mon,  1 Jun 2020 07:53:35 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LJxTn8X2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728382AbgEaXfr convert rfc822-to-8bit (ORCPT
-        <rfc822;util-linux@archiver.kernel.org>);
-        Sun, 31 May 2020 19:35:47 -0400
-Received: from mx2.suse.de ([195.135.220.15]:37996 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725860AbgEaXfr (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 31 May 2020 19:35:47 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 0A6BBB188;
-        Sun, 31 May 2020 23:35:47 +0000 (UTC)
-To:     util-linux@vger.kernel.org
-Cc:     Martin Wilck <martin.wilck@suse.com>
-From:   Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH] blockdev: Don't fail on missing start sector
-Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
- xsDiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
- zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
- 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
- AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
- 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
- NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
- SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
- ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSM0tU3RhbmlzbGF2
- IEJyYWJlYyA8c3RhbmlzbGF2LmJyYWJlY0BnbWFpbC5jb20+wmwEExECACwCGwMHCwkIBwMC
- AQYVCAIJCgsEFgIDAQIeAQIXgAUJIT9ywAUCUdMF/QIZAQAKCRBxfCCfoE/NdgreAKCEwh0S
- bgGDPUFG9HaToZUp+lkzNACbBSazK57hL2hGrJ5K3PVlEpWVAwHOwE0EPq/ZghAEAK3rY7aV
- eV7YI/HDYul1PnntG+tR2hgnUB4sCfWIPLrusOwa6bEnFbbnjH0IpWxTfrT08bnyAMpJDsK8
- fMSu053P3Gwkt8ILFuTouw6EF0JaBizsdXbFgKRS8pJVAZk33myR+/VpKw7p1fNchJd6fgqp
- jkCcVr6lcMCowlMYvCkbAAMGBACRnb/PP30vbbiw1wWAz7pO4YhDnt82EonFgbYdsGqHegGK
- Jkj3bbh0os0K//ZqhXyp31BQwpAI7uRAqRIfv5OLUqcLJoOLdKh4VyxXhn31dvVs3YQFLULi
- qiE1Rui5OxgQbmqxk965EMp6QVOKKVFFXKJdYO37NjZo00yScoEAJ8JGBBgRAgAGBQI+r9mC
- AAoJEHF8IJ+gT812L60AoKuKuBD3reAs3cOUFGW8U8g5nTVYAKCU3meFjvDLKEiNA/eTh5V8
- Fj5ZXg==
-Organization: SUSE Linux, s. r. o.
-Message-ID: <a7a4f974-8a32-efb3-0ba3-a25e77145946@suse.cz>
-Date:   Mon, 1 Jun 2020 01:35:44 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1726265AbgFAHxf (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 1 Jun 2020 03:53:35 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:25319 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725999AbgFAHxe (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 1 Jun 2020 03:53:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1590998014;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=wPXNLpJ0sZZ7Z/P4nG8c8VAID1vS3tYXPAuC4j7yojI=;
+        b=LJxTn8X2wgYa+AceLSYYD7tyzkg3hT+kBSnWpjKIR5Kv69Gp3yRGvyKONUAwpIj9TnOWJJ
+        QFzqHdTSj0jMGZoNW7YX1ecWctX6riSEkodopFjfsjtILnCYYWpH6iuEsPDwRcb3Ttt6nZ
+        6wRwdykyQ4zsvbk6HAGkIgfvYhQIm7c=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-102-G-ivek-EOLyEryK5zmkRqw-1; Mon, 01 Jun 2020 03:53:30 -0400
+X-MC-Unique: G-ivek-EOLyEryK5zmkRqw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 238CF107ACCA;
+        Mon,  1 Jun 2020 07:53:29 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.194.133])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 259DDD01E1;
+        Mon,  1 Jun 2020 07:53:27 +0000 (UTC)
+Date:   Mon, 1 Jun 2020 09:53:25 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Cc:     kerolasa@gmail.com, util-linux <util-linux@vger.kernel.org>
+Subject: Re: [PATCH] dmesg: add --follow-new
+Message-ID: <20200601075325.ufmficzg5u57ocek@ws.net.home>
+References: <159084767331.127122.9117317049390963928.stgit@buzz>
+ <CAG27Bk3Tvybn0ToQdBNu9O-=Ap70+APKqLCCT-4cTxx-vFiFqw@mail.gmail.com>
+ <1d1e123b-d107-78c2-e76c-c5be3dcdf89e@yandex-team.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1d1e123b-d107-78c2-e76c-c5be3dcdf89e@yandex-team.ru>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Device mapper devices don't provide start sector.
+On Sun, May 31, 2020 at 03:18:47PM +0300, Konstantin Khlebnikov wrote:
+> On 31/05/2020 14.49, Sami Kerola wrote:
+> > On Sat, 30 May 2020 at 15:08, Konstantin Khlebnikov
+> > <khlebnikov@yandex-team.ru> wrote:
+> > > Option --follow-new (-W) works the same as --follow (-w) but initially
+> > > seeks to the end of kernel ring buffer, so it prints only new messages.
+> > > Useful for capturing kernel messages during actions without past log.
 
-It causes "blockdev --report" error:
-blockdev: /dev/dm-9: failed to read partition start from sysfs: No such
-file or directory
+IMHO good idea.
 
-There is no reliable way to detect a geometry in this case.
-Report N/A instead.
+> > I wonder if it would be more useful to add '-n, --lines=[+]NUM' that
+> > would be similar
+> > to tail(1) option and argument. The --follow-new with an option that
+> > lists NUM last
+> > messages would be --lines=0
 
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
-Cc: Martin Wilck <martin.wilck@suse.com>
----
- disk-utils/blockdev.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+It does not seem use-friendly ;-) I guess type "-W" is pretty 
+straightforward.
+	
+> > That said should --since and --until options similar to journalctl(1)
+> > be considered
+> > as well?
 
-diff --git a/disk-utils/blockdev.c b/disk-utils/blockdev.c
-index f1067c815..ab18cfa66 100644
---- a/disk-utils/blockdev.c
-+++ b/disk-utils/blockdev.c
-@@ -455,6 +455,7 @@ static void report_device(char *device, int quiet)
-     long ra;
-     unsigned long long bytes;
-     uint64_t start = 0;
-+    char start_str[11] = "";
-     struct stat st;
- 
-     fd = open(device, O_RDONLY | O_NONBLOCK);
-@@ -476,19 +477,21 @@ static void report_device(char *device, int quiet)
-             disk != st.st_rdev) {
- 
-             if (ul_path_read_u64(pc, &start, "start") != 0)
--                err(EXIT_FAILURE,
--                    _("%s: failed to read partition start from sysfs"),
--                    device);
-+                /* TRANSLATORS: Start sector not available. Max. 10
-letters. */
-+                sprintf(start_str, "%10s", _("N/A"));
-         }
-         ul_unref_path(pc);
-     }
-+    if (start_str[0] == 0)
-+        sprintf(start_str, "%10ju", start);
-+
-     if (ioctl(fd, BLKROGET, &ro) == 0 &&
-         ioctl(fd, BLKRAGET, &ra) == 0 &&
-         ioctl(fd, BLKSSZGET, &ssz) == 0 &&
-         ioctl(fd, BLKBSZGET, &bsz) == 0 &&
-         blkdev_get_size(fd, &bytes) == 0) {
--        printf("%s %5ld %5d %5d %10ju %15lld   %s\n",
--               ro ? "ro" : "rw", ra, ssz, bsz, start, bytes, device);
-+        printf("%s %5ld %5d %5d %s %15lld   %s\n",
-+               ro ? "ro" : "rw", ra, ssz, bsz, start_str, bytes, device);
-     } else {
-         if (!quiet)
-             warnx(_("ioctl error on %s"), device);
--- 
-2.25.1
+ --since '1 hour ago' would be nice, but I have doubts it's will so
+ easy to implement due to crazy timestamps in the log.
+
+> Implementation is also non-trivial - currently dmesg reads and prints
+> messages from /dev/kmsg in a loop. It doesn't know how many lines left.
+> /dev/kmsg doesn't support lseek with non-zero offset, only SET/DATA/END.
+
+ Yes.
+
+    Karel
+
 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                    tel: +420 284 084 060
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
-
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
