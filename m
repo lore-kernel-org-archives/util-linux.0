@@ -1,186 +1,124 @@
-Return-Path: <SRS0=/ORA=7O=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=nu2J=7P=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD673C433DF
-	for <util-linux@archiver.kernel.org>; Mon,  1 Jun 2020 19:21:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44E1DC433DF
+	for <util-linux@archiver.kernel.org>; Tue,  2 Jun 2020 01:52:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8810120734
-	for <util-linux@archiver.kernel.org>; Mon,  1 Jun 2020 19:21:41 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=yandex-team.ru header.i=@yandex-team.ru header.b="KAUiQpEY"
+	by mail.kernel.org (Postfix) with ESMTP id 2983B206C3
+	for <util-linux@archiver.kernel.org>; Tue,  2 Jun 2020 01:52:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728080AbgFATVl (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 1 Jun 2020 15:21:41 -0400
-Received: from forwardcorp1o.mail.yandex.net ([95.108.205.193]:58616 "EHLO
-        forwardcorp1o.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726751AbgFATVl (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 1 Jun 2020 15:21:41 -0400
-Received: from mxbackcorp2j.mail.yandex.net (mxbackcorp2j.mail.yandex.net [IPv6:2a02:6b8:0:1619::119])
-        by forwardcorp1o.mail.yandex.net (Yandex) with ESMTP id 5A5792E157C;
-        Mon,  1 Jun 2020 22:21:37 +0300 (MSK)
-Received: from myt5-70c90f7d6d7d.qloud-c.yandex.net (myt5-70c90f7d6d7d.qloud-c.yandex.net [2a02:6b8:c12:3e2c:0:640:70c9:f7d])
-        by mxbackcorp2j.mail.yandex.net (mxbackcorp/Yandex) with ESMTP id Iz970RYwJe-LafmlK9f;
-        Mon, 01 Jun 2020 22:21:37 +0300
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.ru; s=default;
-        t=1591039297; bh=9qIipJ1NHMYN+PK3lJcRt0JyyNTfeEEpJCKeCYNYrEw=;
-        h=Message-ID:Date:To:From:Subject:Cc;
-        b=KAUiQpEYqvpp+dMvJQOaqsPFGXX18uZIFDUyDlMRl6vFRJVJCoYFxvBW4USj+wIKB
-         dEe5FJhrScjJxlLybS/r6t4k2CCUjfMwAZ77lrgoE7Vxn5UIjVKQafieFHTDDppnaG
-         sGhldjGhzZZoYEJwxrlljFnZUtq/GCxRFU1M0pdY=
-Authentication-Results: mxbackcorp2j.mail.yandex.net; dkim=pass header.i=@yandex-team.ru
-Received: from dynamic-vpn.dhcp.yndx.net (dynamic-vpn.dhcp.yndx.net [2a02:6b8:b081:623::1:1])
-        by myt5-70c90f7d6d7d.qloud-c.yandex.net (smtpcorp/Yandex) with ESMTPSA id YVOhHoRaIy-LaW45fjp;
-        Mon, 01 Jun 2020 22:21:36 +0300
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (Client certificate not present)
-Subject: [PATCH util-linux] dmesg: adjust timestamps according to suspended
- time
-From:   Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-To:     util-linux@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org
-Date:   Mon, 01 Jun 2020 22:21:34 +0300
-Message-ID: <159103929487.199093.15757669576783156290.stgit@buzz>
-User-Agent: StGit/0.22-39-gd257
+        id S1726337AbgFBBwO convert rfc822-to-8bit (ORCPT
+        <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 1 Jun 2020 21:52:14 -0400
+Received: from mx2.suse.de ([195.135.220.15]:41636 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725793AbgFBBwO (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 1 Jun 2020 21:52:14 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 1B9B1AC50;
+        Tue,  2 Jun 2020 01:52:15 +0000 (UTC)
+Subject: Re: [PATCH] blockdev: Don't fail on missing start sector
+To:     Karel Zak <kzak@redhat.com>
+Cc:     util-linux@vger.kernel.org, Martin Wilck <martin.wilck@suse.com>
+References: <a7a4f974-8a32-efb3-0ba3-a25e77145946@suse.cz>
+ <20200601081349.uirtbn2u2bfztnq4@ws.net.home>
+From:   Stanislav Brabec <sbrabec@suse.cz>
+Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
+ xsDiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
+ zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
+ 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
+ AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
+ 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
+ NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
+ SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
+ ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSM0tU3RhbmlzbGF2
+ IEJyYWJlYyA8c3RhbmlzbGF2LmJyYWJlY0BnbWFpbC5jb20+wmwEExECACwCGwMHCwkIBwMC
+ AQYVCAIJCgsEFgIDAQIeAQIXgAUJIT9ywAUCUdMF/QIZAQAKCRBxfCCfoE/NdgreAKCEwh0S
+ bgGDPUFG9HaToZUp+lkzNACbBSazK57hL2hGrJ5K3PVlEpWVAwHOwE0EPq/ZghAEAK3rY7aV
+ eV7YI/HDYul1PnntG+tR2hgnUB4sCfWIPLrusOwa6bEnFbbnjH0IpWxTfrT08bnyAMpJDsK8
+ fMSu053P3Gwkt8ILFuTouw6EF0JaBizsdXbFgKRS8pJVAZk33myR+/VpKw7p1fNchJd6fgqp
+ jkCcVr6lcMCowlMYvCkbAAMGBACRnb/PP30vbbiw1wWAz7pO4YhDnt82EonFgbYdsGqHegGK
+ Jkj3bbh0os0K//ZqhXyp31BQwpAI7uRAqRIfv5OLUqcLJoOLdKh4VyxXhn31dvVs3YQFLULi
+ qiE1Rui5OxgQbmqxk965EMp6QVOKKVFFXKJdYO37NjZo00yScoEAJ8JGBBgRAgAGBQI+r9mC
+ AAoJEHF8IJ+gT812L60AoKuKuBD3reAs3cOUFGW8U8g5nTVYAKCU3meFjvDLKEiNA/eTh5V8
+ Fj5ZXg==
+Organization: SUSE Linux, s. r. o.
+Message-ID: <8803c12f-98b5-8d63-5408-09b61d736b2a@suse.cz>
+Date:   Tue, 2 Jun 2020 03:52:11 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20200601081349.uirtbn2u2bfztnq4@ws.net.home>
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
+Content-Language: en-US
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Timestamps in kernel log comes from monotonic clocksource which does not
-tick when system suspended. Suspended time easily sums into hours and days
-rendering human readable timestamps in dmesg useless.
+Karel Zak wrote:
+> On Mon, Jun 01, 2020 at 01:35:44AM +0200, Stanislav Brabec wrote:
+>> Device mapper devices don't provide start sector.
+> for which type of the device/mapping? I'd like to reproduce this
+> issue.
+kpartx-style partition on multipath.
+>> It causes "blockdev --report" error:
+>> blockdev: /dev/dm-9: failed to read partition start from sysfs: No such
+>> file or directory
+>>
+>> There is no reliable way to detect a geometry in this case.
+>> Report N/A instead.
+> I guess the "start" file missing in the sysfs/ in this case, right?
+Yes.
 
-Adjusting timestamps accouring to current delta between boottime and
-monotonic clocksources produces accurate timestamps for messages printed
-since last resume. Which are supposed to be most interesting.
+Actually, debugging shows:
 
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
----
- include/monotonic.h |    2 ++
- lib/monotonic.c     |   12 ++++++++++++
- sys-utils/dmesg.1   |    2 ++
- sys-utils/dmesg.c   |   22 +++++++++++++++++-----
- 4 files changed, 33 insertions(+), 5 deletions(-)
+sysfs_blkdev_get_wholedisk(): This function has a special code for
+device mapper: If /sys/dev/block/{major}:{minor}/partition does not
+exist, check for /sys/dev/block/{major}:{minor}/dm/uuid, parse the
+result and attempt to check the structure. (Split by "-", check, whether
+string starts by "part".) It starts with "part1" => Device mapper is
+detected. => Partition is detected.
 
-diff --git a/include/monotonic.h b/include/monotonic.h
-index 7a69d9e4b51e..380e59c3791e 100644
---- a/include/monotonic.h
-+++ b/include/monotonic.h
-@@ -15,6 +15,8 @@
- 
- extern int get_boot_time(struct timeval *boot_time);
- 
-+extern time_t get_suspended_time(void);
-+
- extern int gettime_monotonic(struct timeval *tv);
- 
- #endif /* UTIL_LINUX_MONOTONIC_H */
-diff --git a/lib/monotonic.c b/lib/monotonic.c
-index b684d8dd650a..f0aeba6828e7 100644
---- a/lib/monotonic.c
-+++ b/lib/monotonic.c
-@@ -48,6 +48,18 @@ int get_boot_time(struct timeval *boot_time)
- #endif
- }
- 
-+time_t get_suspended_time(void)
-+{
-+#if defined(CLOCK_BOOTTIME) && defined(CLOCK_MONOTONIC)
-+	struct timespec boot, mono;
-+
-+	if (clock_gettime(CLOCK_BOOTTIME, &boot) == 0 &&
-+	    clock_gettime(CLOCK_MONOTONIC, &mono) == 0)
-+		return boot.tv_sec - mono.tv_sec;
-+#endif
-+	return 0;
-+}
-+
- int gettime_monotonic(struct timeval *tv)
- {
- #ifdef CLOCK_MONOTONIC
-diff --git a/sys-utils/dmesg.1 b/sys-utils/dmesg.1
-index 61a6ce89465d..6c5773a6b211 100644
---- a/sys-utils/dmesg.1
-+++ b/sys-utils/dmesg.1
-@@ -161,6 +161,8 @@ source used for the logs is
- .B not updated after
- system
- .BR SUSPEND / RESUME .
-+Timestamps are adjusted according to current delta between boottime and monotonic
-+clocks, this works only for messages printed after last resume.
- .IP "\fB\-t\fR, \fB\-\-notime\fR"
- Do not print kernel's timestamps.
- .IP "\fB\-\-time\-format\fR \fIformat\fR"
-diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-index ae1ebc74a2d9..c78f01ca8755 100644
---- a/sys-utils/dmesg.c
-+++ b/sys-utils/dmesg.c
-@@ -169,6 +169,7 @@ struct dmesg_control {
- 	struct timeval	lasttime;	/* last printed timestamp */
- 	struct tm	lasttm;		/* last localtime */
- 	struct timeval	boot_time;	/* system boot time */
-+	time_t		suspended_time;	/* time spent in suspeneded state */
- 
- 	int		action;		/* SYSLOG_ACTION_* */
- 	int		method;		/* DMESG_METHOD_* */
-@@ -824,7 +825,7 @@ static struct tm *record_localtime(struct dmesg_control *ctl,
- 				   struct dmesg_record *rec,
- 				   struct tm *tm)
- {
--	time_t t = ctl->boot_time.tv_sec + rec->tv.tv_sec;
-+	time_t t = ctl->boot_time.tv_sec + ctl->suspended_time + rec->tv.tv_sec;
- 	return localtime_r(&t, tm);
- }
- 
-@@ -852,7 +853,7 @@ static char *iso_8601_time(struct dmesg_control *ctl, struct dmesg_record *rec,
- 			   char *buf, size_t bufsz)
- {
- 	struct timeval tv = {
--		.tv_sec = ctl->boot_time.tv_sec + rec->tv.tv_sec,
-+		.tv_sec = ctl->boot_time.tv_sec + ctl->suspended_time + rec->tv.tv_sec,
- 		.tv_usec = rec->tv.tv_usec
- 	};
- 
-@@ -1301,8 +1302,16 @@ static inline int dmesg_get_boot_time(struct timeval *tv)
- 
- 	return get_boot_time(tv);
- }
-+
-+static inline time_t dmesg_get_suspended_time(void)
-+{
-+	if (getenv("DMESG_TEST_BOOTIME"))
-+		return 0;
-+	return get_suspended_time();
-+}
- #else
- # define dmesg_get_boot_time	get_boot_time
-+# define dmesg_get_suspended_time	get_suspended_time
- #endif
- 
- int main(int argc, char *argv[])
-@@ -1499,9 +1508,12 @@ int main(int argc, char *argv[])
- 
- 	if ((is_timefmt(&ctl, RELTIME) ||
- 	     is_timefmt(&ctl, CTIME)   ||
--	     is_timefmt(&ctl, ISO8601))
--	    && dmesg_get_boot_time(&ctl.boot_time) != 0)
--		ctl.time_fmt = DMESG_TIMEFTM_NONE;
-+	     is_timefmt(&ctl, ISO8601))) {
-+		if (dmesg_get_boot_time(&ctl.boot_time) != 0)
-+			ctl.time_fmt = DMESG_TIMEFTM_NONE;
-+		else
-+			ctl.suspended_time = dmesg_get_suspended_time();
-+	}
- 
- 	if (delta)
- 		switch (ctl.time_fmt) {
+The code returns to report_device(), and because partition is detected,
+it unconditionally attempts to read "start" file from
+"/sys/dev/block/254:9". This fails.
+
+>>              if (ul_path_read_u64(pc, &start, "start") != 0)
+>> -                err(EXIT_FAILURE,
+>> -                    _("%s: failed to read partition start from sysfs"),
+>> -                    device);
+>> +                /* TRANSLATORS: Start sector not available. Max. 10
+>> letters. */
+>> +                sprintf(start_str, "%10s", _("N/A"));
+>>          }
+>>          ul_unref_path(pc);
+>>      }
+>> +    if (start_str[0] == 0)
+>> +        sprintf(start_str, "%10ju", start);
+>
+> Maybe we ca use ul_path_read_buffer() rather than ul_path_read_u64() to keep 
+> it as string and to avoid sprintf().
+This was in the original code, but your proposal makes a perfect sense.
+%10ju is just a space padded original string.
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                    tel: +420 284 084 060
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+
 
