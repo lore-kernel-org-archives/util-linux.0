@@ -1,124 +1,128 @@
-Return-Path: <SRS0=nu2J=7P=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=KLef=7Q=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44E1DC433DF
-	for <util-linux@archiver.kernel.org>; Tue,  2 Jun 2020 01:52:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A24BC433E1
+	for <util-linux@archiver.kernel.org>; Wed,  3 Jun 2020 07:41:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2983B206C3
-	for <util-linux@archiver.kernel.org>; Tue,  2 Jun 2020 01:52:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5D16E2077D
+	for <util-linux@archiver.kernel.org>; Wed,  3 Jun 2020 07:41:05 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GzdBtSSt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726337AbgFBBwO convert rfc822-to-8bit (ORCPT
-        <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 1 Jun 2020 21:52:14 -0400
-Received: from mx2.suse.de ([195.135.220.15]:41636 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725793AbgFBBwO (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Mon, 1 Jun 2020 21:52:14 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 1B9B1AC50;
-        Tue,  2 Jun 2020 01:52:15 +0000 (UTC)
-Subject: Re: [PATCH] blockdev: Don't fail on missing start sector
-To:     Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org, Martin Wilck <martin.wilck@suse.com>
-References: <a7a4f974-8a32-efb3-0ba3-a25e77145946@suse.cz>
- <20200601081349.uirtbn2u2bfztnq4@ws.net.home>
-From:   Stanislav Brabec <sbrabec@suse.cz>
-Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
- xsDiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
- zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
- 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
- AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
- 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
- NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
- SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
- ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSM0tU3RhbmlzbGF2
- IEJyYWJlYyA8c3RhbmlzbGF2LmJyYWJlY0BnbWFpbC5jb20+wmwEExECACwCGwMHCwkIBwMC
- AQYVCAIJCgsEFgIDAQIeAQIXgAUJIT9ywAUCUdMF/QIZAQAKCRBxfCCfoE/NdgreAKCEwh0S
- bgGDPUFG9HaToZUp+lkzNACbBSazK57hL2hGrJ5K3PVlEpWVAwHOwE0EPq/ZghAEAK3rY7aV
- eV7YI/HDYul1PnntG+tR2hgnUB4sCfWIPLrusOwa6bEnFbbnjH0IpWxTfrT08bnyAMpJDsK8
- fMSu053P3Gwkt8ILFuTouw6EF0JaBizsdXbFgKRS8pJVAZk33myR+/VpKw7p1fNchJd6fgqp
- jkCcVr6lcMCowlMYvCkbAAMGBACRnb/PP30vbbiw1wWAz7pO4YhDnt82EonFgbYdsGqHegGK
- Jkj3bbh0os0K//ZqhXyp31BQwpAI7uRAqRIfv5OLUqcLJoOLdKh4VyxXhn31dvVs3YQFLULi
- qiE1Rui5OxgQbmqxk965EMp6QVOKKVFFXKJdYO37NjZo00yScoEAJ8JGBBgRAgAGBQI+r9mC
- AAoJEHF8IJ+gT812L60AoKuKuBD3reAs3cOUFGW8U8g5nTVYAKCU3meFjvDLKEiNA/eTh5V8
- Fj5ZXg==
-Organization: SUSE Linux, s. r. o.
-Message-ID: <8803c12f-98b5-8d63-5408-09b61d736b2a@suse.cz>
-Date:   Tue, 2 Jun 2020 03:52:11 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1726013AbgFCHlE (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 3 Jun 2020 03:41:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49236 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725275AbgFCHlD (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 3 Jun 2020 03:41:03 -0400
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 906EBC05BD43
+        for <util-linux@vger.kernel.org>; Wed,  3 Jun 2020 00:41:02 -0700 (PDT)
+Received: by mail-ej1-x62c.google.com with SMTP id f7so1095532ejq.6
+        for <util-linux@vger.kernel.org>; Wed, 03 Jun 2020 00:41:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=kjNkFfoQHEty4FiDo+zq3PbwZn6oaTmFdHxRmFeJY5o=;
+        b=GzdBtSSt/HEbZ/Omog+l5K6suON8lsLaVsREAcSTJ6nX6nBpoNNprFjdlFhU+US55Q
+         P0tkqMP4Mjzs/0GtbKrFZ0r7BLbXuL60ogCF3keGgzG1ItDEuyvyR0viJLSrn/cx8LQs
+         WzJDjf7iOs/xlbDGTFqwGjIvXMdFFI1RoVzsRTfgCzcI+S7wAxNF9fcBzoOisHzrj3Pk
+         kFegED6C28qkSIa/HycwNaRN6Yan3nnKxMs0qawfq6FR8GBAKoazxB1V5X6dG23Veq+L
+         cgsbbDSO88kc8NZ4/2V/EdY1T+aeNg45rYChjDuF7WQmU3GljT2vjDc1wPRhVhXY1/Ln
+         6QZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=kjNkFfoQHEty4FiDo+zq3PbwZn6oaTmFdHxRmFeJY5o=;
+        b=kOLGVV1zwltgeRQKWpq2OwngInOxZOFyA0O5Fpjp0LknG8QqPwBsY0k6NaP+lZtwoK
+         wYKK+zqeWJuxKcSaS3DAG0udRxFS6Xnz1rTbfu0MDZYW0wJWcNVIZg3U4HU6RB9/m/Ki
+         V3PUr9fyH5Ea5F5BLfqeLOt0SCVvXjvv+31xP6gHr22d7qqC52e6lmPZ4bFL5/XT1WR3
+         VnYGgPjwPYuMyPwso2gNME1KUjjiGVGuL6Iq2NLAHgWsr3gRkpuFmdakL66l3dAj34Gh
+         zrJNkVZs3CWp52rCtjK7cYNk48Bw2nwW/5Q1HMpDXoK1VmcCMcfeOS/bTNxnaTNT4orp
+         H1Sg==
+X-Gm-Message-State: AOAM530etjW/VhH2295oeGkoN5yAp/1z12ifLlD1YTzGIwd2UT+9DxDY
+        E3mbT08eAWxVa8SdNO71zvae0vAZRlM=
+X-Google-Smtp-Source: ABdhPJx6zABfdZ4PTl3HFeI6PLTFZLmsVvRVhxI5sq9/r1JQ+NCntVQme5WFEhYevBHrP5LRwjCXAQ==
+X-Received: by 2002:a17:906:86c5:: with SMTP id j5mr26671557ejy.88.1591170061195;
+        Wed, 03 Jun 2020 00:41:01 -0700 (PDT)
+Received: from bienne.fritz.box ([2001:a61:2516:6501:a84b:ccd6:785a:2f0f])
+        by smtp.gmail.com with ESMTPSA id 38sm747983edq.6.2020.06.03.00.41.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 03 Jun 2020 00:41:00 -0700 (PDT)
+From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+To:     mtk.manpages@gmail.com, Karel Zak <kzak@redhat.com>
+Cc:     util-linux@vger.kernel.org
+Subject: [PATCH 1/2] Manual pages: unshare.1: clarify description and example for --mount=<path>
+Date:   Wed,  3 Jun 2020 09:40:56 +0200
+Message-Id: <20200603074057.540157-1-mtk.manpages@gmail.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-In-Reply-To: <20200601081349.uirtbn2u2bfztnq4@ws.net.home>
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
-Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Karel Zak wrote:
-> On Mon, Jun 01, 2020 at 01:35:44AM +0200, Stanislav Brabec wrote:
->> Device mapper devices don't provide start sector.
-> for which type of the device/mapping? I'd like to reproduce this
-> issue.
-kpartx-style partition on multipath.
->> It causes "blockdev --report" error:
->> blockdev: /dev/dm-9: failed to read partition start from sysfs: No such
->> file or directory
->>
->> There is no reliable way to detect a geometry in this case.
->> Report N/A instead.
-> I guess the "start" file missing in the sysfs/ in this case, right?
-Yes.
+The existing text is not quite accurate, and I recently injected an
+error into the EXAMPLES. This patch fixes both issues.
 
-Actually, debugging shows:
+The text in DESCRIPTION incorrectly states that the propagation type of
+the parent mount must be "private". This is not accurate.  Rather, the
+propagation type must be something *other than "shared"* (i.e.,
+"private", "slave", or "unbindable").
 
-sysfs_blkdev_get_wholedisk(): This function has a special code for
-device mapper: If /sys/dev/block/{major}:{minor}/partition does not
-exist, check for /sys/dev/block/{major}:{minor}/dm/uuid, parse the
-result and attempt to check the structure. (Split by "-", check, whether
-string starts by "part".) It starts with "part1" => Device mapper is
-detected. => Partition is detected.
+In the EXAMPLES section, I added text that implies that if the
+propagation type of the parent mount is "shared", then the child mount
+created by --mount=<path> might propagate to another namespace.
+Rather, in this situation, an error would result. Clarify that.
 
-The code returns to report_device(), and because partition is detected,
-it unconditionally attempts to read "start" file from
-"/sys/dev/block/254:9". This fails.
+Signed-off-by: Michael Kerrisk (man-pages) <mtk.manpages@gmail.com>
+---
+ sys-utils/unshare.1 | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
->>              if (ul_path_read_u64(pc, &start, "start") != 0)
->> -                err(EXIT_FAILURE,
->> -                    _("%s: failed to read partition start from sysfs"),
->> -                    device);
->> +                /* TRANSLATORS: Start sector not available. Max. 10
->> letters. */
->> +                sprintf(start_str, "%10s", _("N/A"));
->>          }
->>          ul_unref_path(pc);
->>      }
->> +    if (start_str[0] == 0)
->> +        sprintf(start_str, "%10ju", start);
->
-> Maybe we ca use ul_path_read_buffer() rather than ul_path_read_u64() to keep 
-> it as string and to avoid sprintf().
-This was in the original code, but your proposal makes a perfect sense.
-%10ju is just a space padded original string.
-
+diff --git a/sys-utils/unshare.1 b/sys-utils/unshare.1
+index a260d02e3..443aac658 100644
+--- a/sys-utils/unshare.1
++++ b/sys-utils/unshare.1
+@@ -104,8 +104,9 @@ namespace is created by a bind mount.
+ .BR \-m , " \-\-mount" [ =\fIfile ]
+ Unshare the mount namespace.  If \fIfile\fP is specified, then a persistent
+ namespace is created by a bind mount.
+-Note that \fIfile\fP has to be located on a filesystem with the propagation
+-flag set to \fBprivate\fP.  Use the command \fBfindmnt \-o+PROPAGATION\fP
++Note that \fIfile\fP must be located on a mount whose propagation type
++is not \fBshared\fP (or an error results).
++Use the command \fBfindmnt \-o+PROPAGATION\fP
+ when not sure about the current setting.  See also the examples below.
+ .TP
+ .BR \-n , " \-\-net" [ =\fIfile ]
+@@ -307,13 +308,11 @@ FOO
+ The following commands
+ establish a persistent mount namespace referenced by the bind mount
+ .IR /root/namespaces/mnt .
+-In order to ensure that this bind mount does not get propagated
+-to other mount namespaces,
++In order to ensure that the creation of that bind mount succeeds,
+ the parent directory
+ .RI ( /root/namespaces )
+-is first made a bind mount with
+-.I private
+-propagation.
++is made a bind mount whose propagation type is not
++.BR shared .
+ .PP
+ .in +4n
+ .EX
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                    tel: +420 284 084 060
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
-
+2.26.2
 
