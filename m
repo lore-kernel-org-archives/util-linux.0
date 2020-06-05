@@ -1,96 +1,186 @@
-Return-Path: <SRS0=aW19=7R=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=WsHy=7S=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80E1DC433DF
-	for <util-linux@archiver.kernel.org>; Thu,  4 Jun 2020 10:21:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98886C433DF
+	for <util-linux@archiver.kernel.org>; Fri,  5 Jun 2020 05:06:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4F0F6206C3
-	for <util-linux@archiver.kernel.org>; Thu,  4 Jun 2020 10:21:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5FB21207D5
+	for <util-linux@archiver.kernel.org>; Fri,  5 Jun 2020 05:06:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NNO9WfoC"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="F4xmJebf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727768AbgFDKVZ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 4 Jun 2020 06:21:25 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:23777 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726147AbgFDKVV (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 4 Jun 2020 06:21:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1591266080;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=gSUt/M2frPtSsqZnHp0XYXCk18yFWUkSIdMBdFgZ1wg=;
-        b=NNO9WfoCFvLPZfQd46Q+iR0TpeJvuTQaARghA0NNondMMSvOPZHd+H2TkibrRu1lOyWC5T
-        LXScGpVmgqVKM7VMp1hZMt18Ys4Wpew7w0+dxyzht83phyN4o/MIl6ZGvER1HHFDEd/jec
-        OnVOPWB4v0oVqvEB/uyoZbZEQirEQqs=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-211-YLGD09sgMU-beIe59zbfHg-1; Thu, 04 Jun 2020 06:21:16 -0400
-X-MC-Unique: YLGD09sgMU-beIe59zbfHg-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 07FAF800C78;
-        Thu,  4 Jun 2020 10:21:15 +0000 (UTC)
-Received: from ws.net.home (unknown [10.40.194.133])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 075E02DE71;
-        Thu,  4 Jun 2020 10:21:13 +0000 (UTC)
-Date:   Thu, 4 Jun 2020 12:21:11 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Cc:     util-linux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH util-linux] dmesg: adjust timestamps according to
- suspended time
-Message-ID: <20200604102111.vst3goseqfxz5fa4@ws.net.home>
-References: <159103929487.199093.15757669576783156290.stgit@buzz>
- <20200604093043.55a4zzo2hewhcwru@ws.net.home>
- <c1ec31ea-494b-5d3e-3c0c-c3d8bb1a6c9c@yandex-team.ru>
+        id S1725954AbgFEFGV (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 5 Jun 2020 01:06:21 -0400
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:58517 "EHLO
+        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725280AbgFEFGU (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 5 Jun 2020 01:06:20 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1591333580; x=1622869580;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=2bZQ148WLR6aiFzQviyHqT2uu8S98MVOwSV0G4fpRw0=;
+  b=F4xmJebfmEuOmJMWDzYkJr4xR21kJomN0XvjxAvxCzpaZeRJSO+aQkP7
+   PVEuMROc+swrJMqVhFU3OinfPUO0e8BdErIFqSWvIt9ip38DB1/JnmKkN
+   uKYXJmkC0uag+Rpudz1orKELKBUwF+2wueOjfCUQZdASoYJi+eaFqXt7g
+   MThOx8Uz2igR7mutXVGog8c5cm8nSzc8GUZ/F6Nc9ajpaRFUL6uMWH6p/
+   zsduz2C5J43OCMHYn1gEKBiYQpUK5A1h0ff/n74+Fliy5p6pW9uYqPlZd
+   +x8x9osY0c4/8n4SMtjNKvxcDpkqxCtqk9B85+FiHfDPYmYmlViFwpElq
+   g==;
+IronPort-SDR: NfvZ5CxCNQsxPJeRQpYhTmo2gSoBrrSjAjcZuywBBiF9hnXUyDFSjf/eUjyws4gYtAxu4mU5w2
+ ptd+XSB7IBXJvaTDo1nHdBo48VaZUP/96+w6wEMdJlqw+WcyU++07misjzX29l5R7L2Odvn1QH
+ 7Hqp6p4pQJ5eNSyfoYxy3+9noQRCm9z61lzi1/U5AYCRe5nFxtp0UX9TcYbAjVKPZSyn3lD1rg
+ 6XcwhktwXOXf1oruq7ShuHevsTByVT7uy8bZyZ2gJpN0mpSuVE3mOUZNUsXKOYaJQedmKJGfjR
+ yCQ=
+X-IronPort-AV: E=Sophos;i="5.73,475,1583164800"; 
+   d="scan'208";a="248368939"
+Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 05 Jun 2020 13:06:19 +0800
+IronPort-SDR: g7IVQo9LE0JTAgK3LueIyLNtp7qkw6TwOfA06J9+bJ3VkBWC+7LiJ7DaRQuORiKoYo+ysEM4MR
+ GWK4nnu0sXLYc6P4UalzxEu+OCqRCLhdU=
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jun 2020 21:55:55 -0700
+IronPort-SDR: 75LdCxh9ryhQAvAY7ZaH6RckvETrzSBsuO+C8GNofA9U0RUdeTNlohIqHIz5wll5uZE4oZFjxi
+ MHfaql66qO6A==
+WDCIronportException: Internal
+Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.53.87])
+  by uls-op-cesaip02.wdc.com with ESMTP; 04 Jun 2020 22:06:19 -0700
+From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To:     Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Cc:     Damien Le Moal <Damien.LeMoal@wdc.com>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH] blkzone: Add --force option
+Date:   Fri,  5 Jun 2020 14:06:18 +0900
+Message-Id: <20200605050618.591153-1-shinichiro.kawasaki@wdc.com>
+X-Mailer: git-send-email 2.25.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c1ec31ea-494b-5d3e-3c0c-c3d8bb1a6c9c@yandex-team.ru>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Thu, Jun 04, 2020 at 12:43:52PM +0300, Konstantin Khlebnikov wrote:
-> On 04/06/2020 12.30, Karel Zak wrote:
-> > On Mon, Jun 01, 2020 at 10:21:34PM +0300, Konstantin Khlebnikov wrote:
-> > > Timestamps in kernel log comes from monotonic clocksource which does not
-> > > tick when system suspended. Suspended time easily sums into hours and days
-> > > rendering human readable timestamps in dmesg useless.
-> > > 
-> > > Adjusting timestamps accouring to current delta between boottime and
-> > > monotonic clocksources produces accurate timestamps for messages printed
-> > > since last resume. Which are supposed to be most interesting.
-> > 
-> > It's definitely better than the current broken timestamps, but the real
-> > and final solution is to have exact information about system suspends.
-> > 
-> > It would be enough to maintain in kernel memory a simple log with
-> >     <bootime> <monotonic> <state_change>
-> > and export this info by /proc/suspendlog, after that we can all
-> > re-count /dev/kmsg timestamps to something useful.
-> 
-> Boottime or real time could be simply printed into kernel log at
-> suspend and resume. So demsg could detect current offset while reading.
+Commit 7a2602f629fe ("blkzone: deny destructive ioctls on busy blockdev")
+introduced exclusive mode to open block devices to submit zone management
+ioctls. This avoids unintended status change of block devices used by the
+system. However, it makes blkzone less usable for testing. For example,
+the test case zbd/007 of blktests utilizes blkzone to reset zones of
+block devices mapped to dm-linear devices. After the commit, the test
+case fails with EBUSY error at blkzone reset, since the system uses the
+reset target block device to map to the dm-linear device.
 
- Yes, but not sure if this is the most robust way (dmesg --clear will
- remove this info) and I guess the suspendlog can be useful
- independently on kmsg.
+To allow blkzone to change status of zoned block devices used by the
+system with intention, introduce --force option. With this option, block
+devices are opened without exclusive mode.
 
-    Karel
+Also fix missing initialization and too many periods in man page of
+--verbose option.
 
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ sys-utils/blkzone.8 |  5 ++++-
+ sys-utils/blkzone.c | 17 ++++++++++++++---
+ 2 files changed, 18 insertions(+), 4 deletions(-)
+
+diff --git a/sys-utils/blkzone.8 b/sys-utils/blkzone.8
+index f50e3f5df..64ad23bb3 100644
+--- a/sys-utils/blkzone.8
++++ b/sys-utils/blkzone.8
+@@ -107,9 +107,12 @@ The maximum number of zones the command should operate on. The default value
+ is the number of zones starting from \fIoffset\fR. This option cannot be
+ used together with the option \fB\-\-length\fP.
+ .TP
++.BR \-f , " \-\-force"
++Enforce commands to change zone status on block devices used by the system.
++.TP
+ .BR \-v , " \-\-verbose"
+ Display the number of zones returned in the report or the range of sectors
+-reset..
++reset.
+ .TP
+ .BR \-V , " \-\-version"
+ Display version information and exit.
+diff --git a/sys-utils/blkzone.c b/sys-utils/blkzone.c
+index 62430e634..5c170127b 100644
+--- a/sys-utils/blkzone.c
++++ b/sys-utils/blkzone.c
+@@ -81,6 +81,7 @@ struct blkzone_control {
+ 	uint64_t length;
+ 	uint32_t count;
+ 
++	unsigned int force : 1;
+ 	unsigned int verbose : 1;
+ };
+ 
+@@ -295,13 +296,16 @@ static int blkzone_action(struct blkzone_control *ctl)
+ 	struct blk_zone_range za = { .sector = 0 };
+ 	unsigned long zonesize;
+ 	uint64_t zlen;
+-	int fd;
++	int fd, mode;
+ 
+ 	zonesize = blkdev_chunk_sectors(ctl->devname);
+ 	if (!zonesize)
+ 		errx(EXIT_FAILURE, _("%s: unable to determine zone size"), ctl->devname);
+ 
+-	fd = init_device(ctl, O_WRONLY | O_EXCL);
++	mode = O_WRONLY;
++	if (!ctl->force)
++		mode |= O_EXCL;
++	fd = init_device(ctl, mode);
+ 
+ 	if (ctl->offset & (zonesize - 1))
+ 		errx(EXIT_FAILURE, _("%s: offset %" PRIu64 " is not aligned "
+@@ -362,6 +366,7 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_(" -o, --offset <sector>  start sector of zone to act (in 512-byte sectors)\n"), out);
+ 	fputs(_(" -l, --length <sectors> maximum sectors to act (in 512-byte sectors)\n"), out);
+ 	fputs(_(" -c, --count <number>   maximum number of zones\n"), out);
++	fputs(_(" -f, --force            enforce on block devices used by the system\n"), out);
+ 	fputs(_(" -v, --verbose          display more details\n"), out);
+ 	fputs(USAGE_SEPARATOR, out);
+ 	printf(USAGE_HELP_OPTIONS(24));
+@@ -382,12 +387,15 @@ int main(int argc, char **argv)
+ 		.count = 0,
+ 		.length = 0
+ 	};
++	ctl.force = 0;
++	ctl.verbose = 0;
+ 
+ 	static const struct option longopts[] = {
+ 	    { "help",    no_argument,       NULL, 'h' },
+ 	    { "count",   required_argument, NULL, 'c' }, /* max #of zones to operate on */
+ 	    { "length",  required_argument, NULL, 'l' }, /* max of sectors to operate on */
+ 	    { "offset",  required_argument, NULL, 'o' }, /* starting LBA */
++	    { "force", no_argument,         NULL, 'f' },
+ 	    { "verbose", no_argument,       NULL, 'v' },
+ 	    { "version", no_argument,       NULL, 'V' },
+ 	    { NULL, 0, NULL, 0 }
+@@ -412,7 +420,7 @@ int main(int argc, char **argv)
+ 		argc--;
+ 	}
+ 
+-	while ((c = getopt_long(argc, argv, "hc:l:o:vV", longopts, NULL)) != -1) {
++	while ((c = getopt_long(argc, argv, "hc:l:o:fvV", longopts, NULL)) != -1) {
+ 
+ 		err_exclusive_options(c, longopts, excl, excl_st);
+ 
+@@ -429,6 +437,9 @@ int main(int argc, char **argv)
+ 			ctl.offset = strtosize_or_err(optarg,
+ 					_("failed to parse zone offset"));
+ 			break;
++		case 'f':
++			ctl.force = 1;
++			break;
+ 		case 'v':
+ 			ctl.verbose = 1;
+ 			break;
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.25.4
 
