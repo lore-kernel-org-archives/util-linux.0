@@ -1,77 +1,76 @@
-Return-Path: <SRS0=jjIi=AA=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=ljW/=AC=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FCB3C433E0
-	for <util-linux@archiver.kernel.org>; Fri, 19 Jun 2020 08:10:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 699C1C433E0
+	for <util-linux@archiver.kernel.org>; Sun, 21 Jun 2020 22:58:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 31DC9207FC
-	for <util-linux@archiver.kernel.org>; Fri, 19 Jun 2020 08:10:06 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KPrqTWZl"
+	by mail.kernel.org (Postfix) with ESMTP id 4B81C252ED
+	for <util-linux@archiver.kernel.org>; Sun, 21 Jun 2020 22:58:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730849AbgFSIJw (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 19 Jun 2020 04:09:52 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:39084 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1731014AbgFSIJZ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 19 Jun 2020 04:09:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1592554164;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=8fJPOjjQ7u6epwlEbGw2V91zOQPQ5wE7KmszjFD8IQk=;
-        b=KPrqTWZlmDSZKYDGQ18jzc9FSbTMgqRf5yAX0Ta+gTBxXK71miqiWmUjS4W+4c/s25cIHA
-        nedqNZooQd+VejL+dZzKwk3re8Fv5K65PZR3f9UVSI3lvYwWVpJQGc/oOYjaSsK+iOWV14
-        lD1kbeJ1j+8KhMBLTwqh6aS/1eYHF0o=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-106-ZKtFIxAtMcqYb-oeWFD5Rw-1; Fri, 19 Jun 2020 04:09:22 -0400
-X-MC-Unique: ZKtFIxAtMcqYb-oeWFD5Rw-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BEBEB107ACF4
-        for <util-linux@vger.kernel.org>; Fri, 19 Jun 2020 08:09:21 +0000 (UTC)
-Received: from ws.net.home (unknown [10.40.194.133])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 09DFB709D7;
-        Fri, 19 Jun 2020 08:09:20 +0000 (UTC)
-Date:   Fri, 19 Jun 2020 10:09:18 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     Lukas Czerner <lczerner@redhat.com>
-Cc:     util-linux@vger.kernel.org
-Subject: Re: [PATCH v2] blkdiscard: Refuse to proceed if signatures are found
-Message-ID: <20200619080918.v524hmhdhaxogc62@ws.net.home>
-References: <20200618105034.13498-1-lczerner@redhat.com>
+        id S1730906AbgFUW6a (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 21 Jun 2020 18:58:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54738 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726064AbgFUW6a (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 21 Jun 2020 18:58:30 -0400
+Received: from inpost.hi.is (inpost.hi.is [IPv6:2a00:c88:4000:1650::165:62])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E345DC061794
+        for <util-linux@vger.kernel.org>; Sun, 21 Jun 2020 15:58:29 -0700 (PDT)
+Received: from hekla.rhi.hi.is (hekla.rhi.hi.is [IPv6:2a00:c88:4000:1650::165:2])
+        by inpost.hi.is (8.14.7/8.14.7) with ESMTP id 05LMwRGU031959
+        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
+        for <util-linux@vger.kernel.org>; Sun, 21 Jun 2020 22:58:28 GMT
+DKIM-Filter: OpenDKIM Filter v2.11.0 inpost.hi.is 05LMwRGU031959
+Received: from hekla.rhi.hi.is (localhost [127.0.0.1])
+        by hekla.rhi.hi.is (8.14.4/8.14.4) with ESMTP id 05LMwR6e003646
+        for <util-linux@vger.kernel.org>; Sun, 21 Jun 2020 22:58:27 GMT
+Received: (from bjarniig@localhost)
+        by hekla.rhi.hi.is (8.14.4/8.14.4/Submit) id 05LMwRLe003645
+        for util-linux@vger.kernel.org; Sun, 21 Jun 2020 22:58:27 GMT
+Date:   Sun, 21 Jun 2020 22:58:27 +0000
+From:   Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+To:     util-linux@vger.kernel.org
+Subject: [PATCH] sys-utils: mount.8: split a long line into two
+Message-ID: <20200621225827.GA3587@rhi.hi.is>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200618105034.13498-1-lczerner@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+User-Agent: Mutt/1.5.20 (2009-12-10)
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Thu, Jun 18, 2020 at 12:50:34PM +0200, Lukas Czerner wrote:
-> v2: Rename function to probe_device, use switch and free probe if no
->     signature was found
-> 
->  sys-utils/Makemodule.am |  2 +-
->  sys-utils/blkdiscard.c  | 59 ++++++++++++++++++++++++++++++++++++++++-
->  2 files changed, 59 insertions(+), 2 deletions(-)
+  Split two long lines, adding '\e' at the end of the first part,
+as otherwise the last part of them disappears at the right margin in
+the printed output (pdf).
 
-Applied, thanks!
+Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+---
+ sys-utils/mount.8 | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-    Karel
-
+diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
+index e7215226c..4315fd6e5 100644
+--- a/sys-utils/mount.8
++++ b/sys-utils/mount.8
+@@ -2604,8 +2604,10 @@ For example commands:
+ .B mksquashfs /etc /tmp/etc.squashfs
+ .B dd if=/dev/zero of=/tmp/etc.hash bs=1M count=10
+ .B veritysetup format /tmp/etc.squashfs /tmp/etc.hash
+-.B openssl smime \-sign \-in <hash> \-nocerts \-inkey private.key \-signer private.crt \-noattr \-binary \-outform der \-out /tmp/etc.p7
+-.B mount \-o verity.hashdevice=/tmp/etc.hash,verity.roothash=<hash>,verity.roothashsig=/tmp/etc.p7 /tmp/etc.squashfs /mnt
++.B openssl smime \-sign \-in <hash> \-nocerts \-inkey private.key \e
++.B \-signer private.crt \-noattr \-binary \-outform der \-out /tmp/etc.p7
++.B mount \-o verity.hashdevice=/tmp/etc.hash,verity.roothash=<hash>,\e
++.B verity.roothashsig=/tmp/etc.p7 /tmp/etc.squashfs /mnt
+ .fi
+ .RE
+ .sp
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
-
+2.27.0
