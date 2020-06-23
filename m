@@ -1,39 +1,40 @@
-Return-Path: <SRS0=SdG/=AD=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=LABb=AE=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.0 required=3.0
 	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43632C433E0
-	for <util-linux@archiver.kernel.org>; Mon, 22 Jun 2020 23:52:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05278C433DF
+	for <util-linux@archiver.kernel.org>; Tue, 23 Jun 2020 00:14:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1ECBE20732
-	for <util-linux@archiver.kernel.org>; Mon, 22 Jun 2020 23:52:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D2AC62082F
+	for <util-linux@archiver.kernel.org>; Tue, 23 Jun 2020 00:14:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728702AbgFVXwN (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 22 Jun 2020 19:52:13 -0400
-Received: from vn01.namespace.at ([213.208.148.228]:34170 "EHLO
+        id S1731285AbgFWAOc (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 22 Jun 2020 20:14:32 -0400
+Received: from vn01.namespace.at ([213.208.148.228]:34176 "EHLO
         nlay-fle-service01.in.namespace.at" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728636AbgFVXwN (ORCPT
+        by vger.kernel.org with ESMTP id S1731000AbgFWAOc (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Mon, 22 Jun 2020 19:52:13 -0400
+        Mon, 22 Jun 2020 20:14:32 -0400
 Received: from [10.100.0.62] (helo=debbuild.in.namespace.at)
         by nlay-fle-service01.in.namespace.at with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <zeha@debian.org>)
-        id 1jnWET-009gqi-LG; Tue, 23 Jun 2020 01:52:09 +0200
+        id 1jnWa6-009hFY-MF
+        for util-linux@vger.kernel.org; Tue, 23 Jun 2020 02:14:30 +0200
 Received: from ch by debbuild.in.namespace.at with local (Exim 4.94)
         (envelope-from <zeha@debian.org>)
-        id 1jnWET-003QVe-CD; Mon, 22 Jun 2020 23:52:09 +0000
+        id 1jnWa6-003jl1-DM
+        for util-linux@vger.kernel.org; Tue, 23 Jun 2020 00:14:30 +0000
 From:   Chris Hofstaedtler <zeha@debian.org>
 To:     util-linux@vger.kernel.org
-Cc:     Mark Hindley <mark@hindley.org.uk>
-Subject: [PATCH] Fix mountpoint test failure in build chroots.
-Date:   Mon, 22 Jun 2020 23:52:09 +0000
-Message-Id: <20200622235209.816843-1-zeha@debian.org>
+Subject: [PATCH] hexdump: automatically use -C when called as hd
+Date:   Tue, 23 Jun 2020 00:14:30 +0000
+Message-Id: <20200623001430.890832-1-zeha@debian.org>
 X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -42,74 +43,51 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-From: Mark Hindley <mark@hindley.org.uk>
+When invoking hexdump as hd enable the "Canonical" format to by
+default, implying the -C option.
 
-The test assumed that / was a mountpoint. This is not always the case, for
-example in pbuilder/cowbuilder chroots. So use / if findmnt verifies it is a
-mountpoint, otherwise use the first mountpoint found. Skip the test if no
-mountpoints are found.
+This is historic behaviour on Debian and apparently also on FreeBSD.
+Some Debian users have asked for this to be restored, after Debian
+switched to util-linux' hexdump and hd.
 
-Signed-off-by: Mark Hindley <mark@hindley.org.uk>
+Signed-off-by: Chris Hofstaedtler <zeha@debian.org>
 ---
- tests/expected/misc/mountpoint-default  |  2 +-
- tests/expected/misc/mountpoint-nofollow |  2 +-
- tests/ts/misc/mountpoint                | 15 +++++++++++----
- 3 files changed, 13 insertions(+), 6 deletions(-)
+ text-utils/hexdump.1 | 3 +++
+ text-utils/hexdump.c | 7 +++++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/tests/expected/misc/mountpoint-default b/tests/expected/misc/mountpoint-default
-index 9a7ac6ab3..ca7505538 100644
---- a/tests/expected/misc/mountpoint-default
-+++ b/tests/expected/misc/mountpoint-default
-@@ -1,2 +1,2 @@
--./symlink-to-root is a mountpoint
-+./symlink-to-mountpoint is a mountpoint
- 0
-diff --git a/tests/expected/misc/mountpoint-nofollow b/tests/expected/misc/mountpoint-nofollow
-index 1ba174959..03d2b5da8 100644
---- a/tests/expected/misc/mountpoint-nofollow
-+++ b/tests/expected/misc/mountpoint-nofollow
-@@ -1,2 +1,2 @@
--./symlink-to-root is not a mountpoint
-+./symlink-to-mountpoint is not a mountpoint
- 1
-diff --git a/tests/ts/misc/mountpoint b/tests/ts/misc/mountpoint
-index 1b391c3bf..e52ccb28f 100755
---- a/tests/ts/misc/mountpoint
-+++ b/tests/ts/misc/mountpoint
-@@ -7,16 +7,23 @@ TS_DESC="mountpoint"
- ts_init "$*"
+diff --git a/text-utils/hexdump.1 b/text-utils/hexdump.1
+index eb508f6d4..80a7c0f0d 100644
+--- a/text-utils/hexdump.1
++++ b/text-utils/hexdump.1
+@@ -67,6 +67,9 @@ by the same sixteen bytes in
+ format enclosed in
+ .RB ' | '
+ characters.
++Invoking the program as
++.B hd
++implies this option.
+ .TP
+ \fB\-d\fR, \fB\-\-two\-bytes\-decimal\fR
+ \fITwo-byte decimal display\fR.  Display the input offset in hexadecimal,
+diff --git a/text-utils/hexdump.c b/text-utils/hexdump.c
+index cbd593e5f..ce83c9d83 100644
+--- a/text-utils/hexdump.c
++++ b/text-utils/hexdump.c
+@@ -82,6 +82,13 @@ parse_args(int argc, char **argv, struct hexdump *hex)
+ 		{NULL, no_argument, NULL, 0}
+ 	};
  
- ts_check_test_command "$TS_CMD_MOUNTPOINT"
-+ts_check_test_command "$TS_CMD_FINDMNT"
- 
--ln -s / ./symlink-to-root
-+# / is not always a mountpoint (chroots etc.), so check if it is and otherwise
-+# fallback to the first available mountpoint.
-+FIRST_MOUNTPOINT=$($TS_CMD_FINDMNT -no TARGET / || $TS_CMD_FINDMNT -fno TARGET)
++	if (!strcmp(program_invocation_short_name, "hd")) {
++		/* Canonical format */
++		add_fmt("\"%08.8_Ax\n\"", hex);
++		add_fmt("\"%08.8_ax  \" 8/1 \"%02x \" \"  \" 8/1 \"%02x \" ", hex);
++		add_fmt("\"  |\" 16/1 \"%_p\" \"|\\n\"", hex);
++	}
 +
-+[ -z "$FIRST_MOUNTPOINT" ] && ts_skip "no mountpoint found for symlink tests"
-+
-+ln -s $FIRST_MOUNTPOINT ./symlink-to-mountpoint
- 
- ts_init_subtest "default"
--$TS_CMD_MOUNTPOINT ./symlink-to-root >> $TS_OUTPUT 2>> $TS_ERRLOG
-+$TS_CMD_MOUNTPOINT ./symlink-to-mountpoint >> $TS_OUTPUT 2>> $TS_ERRLOG
- echo $? >> $TS_OUTPUT 2>> $TS_ERRLOG
- ts_finalize_subtest
- 
- ts_init_subtest "nofollow"
--$TS_CMD_MOUNTPOINT --nofollow ./symlink-to-root >> $TS_OUTPUT 2>> $TS_ERRLOG
-+$TS_CMD_MOUNTPOINT --nofollow ./symlink-to-mountpoint >> $TS_OUTPUT 2>> $TS_ERRLOG
- echo $? >> $TS_OUTPUT 2>> $TS_ERRLOG
- ts_finalize_subtest
- 
-@@ -25,5 +32,5 @@ $TS_CMD_MOUNTPOINT --devno --nofollow / >> $TS_OUTPUT 2>> $TS_ERRLOG
- echo $? >> $TS_OUTPUT 2>> $TS_ERRLOG
- ts_finalize_subtest
- 
--rm -f ./symlink-to-root
-+rm -f ./symlink-to-mountpoint
- ts_finalize
+ 	while ((ch = getopt_long(argc, argv, "bcCde:f:L::n:os:vxhV", longopts, NULL)) != -1) {
+ 		switch (ch) {
+ 		case 'b':
 -- 
 2.27.0
 
