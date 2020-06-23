@@ -2,69 +2,64 @@ Return-Path: <SRS0=LABb=AE=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIM_ADSP_CUSTOM_MED,
+	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1EA3C433DF
-	for <util-linux@archiver.kernel.org>; Tue, 23 Jun 2020 11:17:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18C22C433DF
+	for <util-linux@archiver.kernel.org>; Tue, 23 Jun 2020 14:56:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C67AC20791
-	for <util-linux@archiver.kernel.org>; Tue, 23 Jun 2020 11:17:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0235F20723
+	for <util-linux@archiver.kernel.org>; Tue, 23 Jun 2020 14:56:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732393AbgFWLRl (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 23 Jun 2020 07:17:41 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:41912 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732392AbgFWLRk (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 23 Jun 2020 07:17:40 -0400
-Received: by mail-lf1-f66.google.com with SMTP id c11so11427741lfh.8
-        for <util-linux@vger.kernel.org>; Tue, 23 Jun 2020 04:17:39 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc;
-        bh=25EMRb5A1F+ECW8o1gnkgnupqZGXJNjHy4bKedZLSl8=;
-        b=d6fv0n86g086Y+YMzVlsD/wMEDydNADMqguRtbejV/nrg46COG6hzF+yWjlUwfQZIa
-         aoKqaA6RXgYSdlUOqJCutkNW+aoPLeamxc5H6oYwdJpqCIZXs4SPPxnxndehye1O424i
-         PNZl99fctFvCuHpxMNX0+wLbDW3GJwx3JfAAV0qU6wuzX4OEzQai7BYz/XfiSODhQ7+Q
-         Ot4VupD+93qBMYgv4hz+5ZvcPtbIZe06pqNiDJYCisAGXF4VMQuHudAuuBWffK/c9zEO
-         oK28zoDChtSZlhs6UkxOoGcx/3TWhRlokyhNESOj2ZHN+E+PmeiyoBkwSmsB3eeUUU/L
-         o8jw==
-X-Gm-Message-State: AOAM533ibaSDbu6g54bELovWQ+bp8DJ4l+IR4sIDYu/k6lQIkzoLRMHv
-        ALyiaAQwOmUzNDvffmpVK/MMjsCxjRbHLVlGCyYNSQ==
-X-Google-Smtp-Source: ABdhPJwBS0qHGYSs3e6iX7J+W0TH5koJ9vZZYrkbL2YI2uDXutBHw1M96oBw6BNwFTGqJytk90aq7I2xayrTSNj+YnY=
-X-Received: by 2002:ac2:5296:: with SMTP id q22mr584709lfm.106.1592911058367;
- Tue, 23 Jun 2020 04:17:38 -0700 (PDT)
+        id S1732738AbgFWO4l convert rfc822-to-8bit (ORCPT
+        <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 23 Jun 2020 10:56:41 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:31650 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1732981AbgFWO4k (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 23 Jun 2020 10:56:40 -0400
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-202-1Tcx-OGiMOmrOBxgl3ygmw-1; Tue, 23 Jun 2020 10:56:36 -0400
+X-MC-Unique: 1Tcx-OGiMOmrOBxgl3ygmw-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 011CB804008;
+        Tue, 23 Jun 2020 14:56:35 +0000 (UTC)
+Received: from comp-core-i7-2640m-0182e6.redhat.com (unknown [10.36.110.14])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B7DD35BAE5;
+        Tue, 23 Jun 2020 14:56:33 +0000 (UTC)
+From:   Alexey Gladkov <gladkov.alexey@gmail.com>
+To:     util-linux@vger.kernel.org
+Cc:     Karel Zak <kzak@redhat.com>, "Dmitry V. Levin" <ldv@altlinux.org>,
+        Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
+Subject: [PATCH 0/2] setarch: add arm and aarch64 architectures to transition
+Date:   Tue, 23 Jun 2020 16:56:18 +0200
+Message-Id: <20200623145620.2669920-1-gladkov.alexey@gmail.com>
 MIME-Version: 1.0
-References: <20200623001430.890832-1-zeha@debian.org>
-In-Reply-To: <20200623001430.890832-1-zeha@debian.org>
-Reply-To: kerolasa@gmail.com
-From:   Sami Kerola <kerolasa@iki.fi>
-Date:   Tue, 23 Jun 2020 12:17:27 +0100
-Message-ID: <CAG27Bk1DNLjV0uVqLVX=0BN=50xxxkX0szStyatwAytNmOcA8A@mail.gmail.com>
-Subject: Re: [PATCH] hexdump: automatically use -C when called as hd
-To:     Chris Hofstaedtler <zeha@debian.org>
-Cc:     util-linux <util-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: gmail.com
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: 8BIT
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Tue, 23 Jun 2020 at 01:15, Chris Hofstaedtler <zeha@debian.org> wrote:
->
-> When invoking hexdump as hd enable the "Canonical" format to by
-> default, implying the -C option.
->
-> This is historic behaviour on Debian and apparently also on FreeBSD.
-> Some Debian users have asked for this to be restored, after Debian
-> switched to util-linux' hexdump and hd.
+Since aarch64 kernel can be configured with compat 32-bit support
+enabled, extend translation rules in a way similar to x86/x86_64.
 
-Wouldn't it make more sense to add an alias to a global profile?
+Alexey Gladkov (2):
+  setarch: make verify_arch_domain extendable
+  setarch: add arm and aarch64 architectures to transition rules
 
-alias hd='hexdump -C'
+ sys-utils/setarch.c | 43 ++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 32 insertions(+), 11 deletions(-)
 
---
-Sami Kerola
-http://www.iki.fi/kerolasa/
+-- 
+2.25.4
+
