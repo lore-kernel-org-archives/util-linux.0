@@ -2,92 +2,69 @@ Return-Path: <SRS0=LABb=AE=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.0 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05278C433DF
-	for <util-linux@archiver.kernel.org>; Tue, 23 Jun 2020 00:14:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1EA3C433DF
+	for <util-linux@archiver.kernel.org>; Tue, 23 Jun 2020 11:17:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D2AC62082F
-	for <util-linux@archiver.kernel.org>; Tue, 23 Jun 2020 00:14:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C67AC20791
+	for <util-linux@archiver.kernel.org>; Tue, 23 Jun 2020 11:17:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731285AbgFWAOc (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 22 Jun 2020 20:14:32 -0400
-Received: from vn01.namespace.at ([213.208.148.228]:34176 "EHLO
-        nlay-fle-service01.in.namespace.at" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1731000AbgFWAOc (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Mon, 22 Jun 2020 20:14:32 -0400
-Received: from [10.100.0.62] (helo=debbuild.in.namespace.at)
-        by nlay-fle-service01.in.namespace.at with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <zeha@debian.org>)
-        id 1jnWa6-009hFY-MF
-        for util-linux@vger.kernel.org; Tue, 23 Jun 2020 02:14:30 +0200
-Received: from ch by debbuild.in.namespace.at with local (Exim 4.94)
-        (envelope-from <zeha@debian.org>)
-        id 1jnWa6-003jl1-DM
-        for util-linux@vger.kernel.org; Tue, 23 Jun 2020 00:14:30 +0000
-From:   Chris Hofstaedtler <zeha@debian.org>
-To:     util-linux@vger.kernel.org
-Subject: [PATCH] hexdump: automatically use -C when called as hd
-Date:   Tue, 23 Jun 2020 00:14:30 +0000
-Message-Id: <20200623001430.890832-1-zeha@debian.org>
-X-Mailer: git-send-email 2.27.0
+        id S1732393AbgFWLRl (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 23 Jun 2020 07:17:41 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:41912 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732392AbgFWLRk (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 23 Jun 2020 07:17:40 -0400
+Received: by mail-lf1-f66.google.com with SMTP id c11so11427741lfh.8
+        for <util-linux@vger.kernel.org>; Tue, 23 Jun 2020 04:17:39 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
+         :from:date:message-id:subject:to:cc;
+        bh=25EMRb5A1F+ECW8o1gnkgnupqZGXJNjHy4bKedZLSl8=;
+        b=d6fv0n86g086Y+YMzVlsD/wMEDydNADMqguRtbejV/nrg46COG6hzF+yWjlUwfQZIa
+         aoKqaA6RXgYSdlUOqJCutkNW+aoPLeamxc5H6oYwdJpqCIZXs4SPPxnxndehye1O424i
+         PNZl99fctFvCuHpxMNX0+wLbDW3GJwx3JfAAV0qU6wuzX4OEzQai7BYz/XfiSODhQ7+Q
+         Ot4VupD+93qBMYgv4hz+5ZvcPtbIZe06pqNiDJYCisAGXF4VMQuHudAuuBWffK/c9zEO
+         oK28zoDChtSZlhs6UkxOoGcx/3TWhRlokyhNESOj2ZHN+E+PmeiyoBkwSmsB3eeUUU/L
+         o8jw==
+X-Gm-Message-State: AOAM533ibaSDbu6g54bELovWQ+bp8DJ4l+IR4sIDYu/k6lQIkzoLRMHv
+        ALyiaAQwOmUzNDvffmpVK/MMjsCxjRbHLVlGCyYNSQ==
+X-Google-Smtp-Source: ABdhPJwBS0qHGYSs3e6iX7J+W0TH5koJ9vZZYrkbL2YI2uDXutBHw1M96oBw6BNwFTGqJytk90aq7I2xayrTSNj+YnY=
+X-Received: by 2002:ac2:5296:: with SMTP id q22mr584709lfm.106.1592911058367;
+ Tue, 23 Jun 2020 04:17:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200623001430.890832-1-zeha@debian.org>
+In-Reply-To: <20200623001430.890832-1-zeha@debian.org>
+Reply-To: kerolasa@gmail.com
+From:   Sami Kerola <kerolasa@iki.fi>
+Date:   Tue, 23 Jun 2020 12:17:27 +0100
+Message-ID: <CAG27Bk1DNLjV0uVqLVX=0BN=50xxxkX0szStyatwAytNmOcA8A@mail.gmail.com>
+Subject: Re: [PATCH] hexdump: automatically use -C when called as hd
+To:     Chris Hofstaedtler <zeha@debian.org>
+Cc:     util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-When invoking hexdump as hd enable the "Canonical" format to by
-default, implying the -C option.
+On Tue, 23 Jun 2020 at 01:15, Chris Hofstaedtler <zeha@debian.org> wrote:
+>
+> When invoking hexdump as hd enable the "Canonical" format to by
+> default, implying the -C option.
+>
+> This is historic behaviour on Debian and apparently also on FreeBSD.
+> Some Debian users have asked for this to be restored, after Debian
+> switched to util-linux' hexdump and hd.
 
-This is historic behaviour on Debian and apparently also on FreeBSD.
-Some Debian users have asked for this to be restored, after Debian
-switched to util-linux' hexdump and hd.
+Wouldn't it make more sense to add an alias to a global profile?
 
-Signed-off-by: Chris Hofstaedtler <zeha@debian.org>
----
- text-utils/hexdump.1 | 3 +++
- text-utils/hexdump.c | 7 +++++++
- 2 files changed, 10 insertions(+)
+alias hd='hexdump -C'
 
-diff --git a/text-utils/hexdump.1 b/text-utils/hexdump.1
-index eb508f6d4..80a7c0f0d 100644
---- a/text-utils/hexdump.1
-+++ b/text-utils/hexdump.1
-@@ -67,6 +67,9 @@ by the same sixteen bytes in
- format enclosed in
- .RB ' | '
- characters.
-+Invoking the program as
-+.B hd
-+implies this option.
- .TP
- \fB\-d\fR, \fB\-\-two\-bytes\-decimal\fR
- \fITwo-byte decimal display\fR.  Display the input offset in hexadecimal,
-diff --git a/text-utils/hexdump.c b/text-utils/hexdump.c
-index cbd593e5f..ce83c9d83 100644
---- a/text-utils/hexdump.c
-+++ b/text-utils/hexdump.c
-@@ -82,6 +82,13 @@ parse_args(int argc, char **argv, struct hexdump *hex)
- 		{NULL, no_argument, NULL, 0}
- 	};
- 
-+	if (!strcmp(program_invocation_short_name, "hd")) {
-+		/* Canonical format */
-+		add_fmt("\"%08.8_Ax\n\"", hex);
-+		add_fmt("\"%08.8_ax  \" 8/1 \"%02x \" \"  \" 8/1 \"%02x \" ", hex);
-+		add_fmt("\"  |\" 16/1 \"%_p\" \"|\\n\"", hex);
-+	}
-+
- 	while ((ch = getopt_long(argc, argv, "bcCde:f:L::n:os:vxhV", longopts, NULL)) != -1) {
- 		switch (ch) {
- 		case 'b':
--- 
-2.27.0
-
+--
+Sami Kerola
+http://www.iki.fi/kerolasa/
