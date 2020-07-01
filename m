@@ -2,162 +2,87 @@ Return-Path: <SRS0=4DiG=AM=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D309CC433DF
-	for <util-linux@archiver.kernel.org>; Wed,  1 Jul 2020 11:33:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0ABC5C433E0
+	for <util-linux@archiver.kernel.org>; Wed,  1 Jul 2020 11:59:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AE1CA20760
-	for <util-linux@archiver.kernel.org>; Wed,  1 Jul 2020 11:33:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D9EC12067D
+	for <util-linux@archiver.kernel.org>; Wed,  1 Jul 2020 11:59:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="DNx86Ysq"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iART+Hqj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730245AbgGALd3 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 1 Jul 2020 07:33:29 -0400
-Received: from esa5.hgst.iphmx.com ([216.71.153.144]:52134 "EHLO
-        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730196AbgGALd3 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 1 Jul 2020 07:33:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1593603210; x=1625139210;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=w3ed1Y+K+DO6dmEgNTmxvSbcQOrEbJNzkuT0U257YRM=;
-  b=DNx86YsqbQNfa+EyHkjX2029NTyU7iXeMZ7Z4lDFxEJ3d3K4nMeqPkxH
-   BXuuffvj0eK35wx41H3Hc4woTw7V3ynRFYFJH+pPxv5Byx+F5qRQ+zT8/
-   v/vX2KKqpM2XJrwF3dGupw8aFtnixIwFBhhfhhvx4YwmYLXt68BmsqEf8
-   GwRDYHpZT2WDPvVrav3K56khufAecUP2yEUmk+g83rVuIfaxDLtva7U3J
-   sQhbUPTnKFLsEOZcjFoNjAuV4M2G45BGt+IfLztZzLw3obx9v3qf6XgDC
-   dTfmf1piE11KE4Ji2G5TWnhEsh43LHEaGMcONkPf+90/IMYvhvACQgt1K
-   w==;
-IronPort-SDR: AuyYZQa9ZTo0ZBZCRItByG2E51agEuzmJ5H6gvjJXdZ+SX/c9IoJ8bqXDEw6xDYOshIE1sSHeN
- Z6F/3E23UriAQLSuZ+EM14NUK2y6HtTiNC6795ZwrWAQUFiQ/lWvkP+M4uIdTY0H3KqKidNl3T
- BOqjWnVbOxuSBpisP6y2AQGBM9ji8w0pgCMl4+ezJ7X8dqcwZSJzraqz4Mco/TUdxNBSYh+sWs
- BHqCQcMXxrCuGY+csmwMzuxDAuiSC9ay3HlRNwByJD2drSVgJ7QMIc27+Zht9U2+GnQ4xowoqX
- tvc=
-X-IronPort-AV: E=Sophos;i="5.75,300,1589212800"; 
-   d="scan'208";a="141576118"
-Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 01 Jul 2020 19:33:29 +0800
-IronPort-SDR: AR5iZf5Zzjx3ojCi+IfJAZ1oL9Qp9JpZ0PJ4X68uBDxJbB4ZZV32RkirLCsMLeC8GTSjwlUGzk
- vo1t8Vcud7P2WUuvoYyuMtF4FVKXWRQrc=
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jul 2020 04:22:18 -0700
-IronPort-SDR: fYsvEdZ4xBbFPaYDHFUlauugzbAjHgtNc3ao/1wZ/cjdFbjwLopxiZwVyPS2LcqWVDJqJ8IZ+n
- gWoqRtRGHvRA==
-WDCIronportException: Internal
-Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.53.87])
-  by uls-op-cesaip02.wdc.com with ESMTP; 01 Jul 2020 04:33:27 -0700
-From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To:     Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Cc:     Hans Holmberg <hans.holmberg@wdc.com>,
-        Damien Le Moal <Damien.LeMoal@wdc.com>,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH] blkzone: add capacity field to zone report
-Date:   Wed,  1 Jul 2020 20:33:26 +0900
-Message-Id: <20200701113326.153550-1-shinichiro.kawasaki@wdc.com>
-X-Mailer: git-send-email 2.26.2
+        id S1730199AbgGAL7M (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 1 Jul 2020 07:59:12 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:42157 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1730133AbgGAL7L (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 1 Jul 2020 07:59:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1593604751;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=jPLT0zs6QOmEgucO/jgseGQ3RglqDAxI9zK/y10tYkY=;
+        b=iART+HqjkO/g9O70t/AMhDjeKBxF0ZRtgvcspdw4y0UTFj2RDtW8yAN+lxz7TeKYILIo+8
+        sJjxCsVzepqzP/VETOOotM4chQYux7oVoRNd5goeq3VD8886QXo7pVu9fbLhUtTlOYI0yf
+        CFloJpAs9DN/bJL8RF6garepFzQPYKk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-88-jwqyC-tkMA6G53TvEz4EQA-1; Wed, 01 Jul 2020 07:58:57 -0400
+X-MC-Unique: jwqyC-tkMA6G53TvEz4EQA-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5AA0C879511;
+        Wed,  1 Jul 2020 11:58:56 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.194.133])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 409EB5F730;
+        Wed,  1 Jul 2020 11:58:55 +0000 (UTC)
+Date:   Wed, 1 Jul 2020 13:58:52 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc:     "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
+        Hans Holmberg <Hans.Holmberg@wdc.com>,
+        Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH RFC] blkzone: add capacity field to zone report
+Message-ID: <20200701115852.sfetl45viqqvtyii@ws.net.home>
+References: <20200626121225.428611-1-shinichiro.kawasaki@wdc.com>
+ <20200629111159.rrpml3hnpmldczap@ws.net.home>
+ <20200701113244.ye7vl3hzph6xc6ey@shindev.dhcp.fujisawa.hgst.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200701113244.ye7vl3hzph6xc6ey@shindev.dhcp.fujisawa.hgst.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-NVMe ZNS specification defines zone capacity. The report zone interface
-of Linux kernel supports it. Expose it in report zone by blkzone command.
+On Wed, Jul 01, 2020 at 11:32:45AM +0000, Shinichiro Kawasaki wrote:
+> On Jun 29, 2020 / 13:11, Karel Zak wrote:
+> > On Fri, Jun 26, 2020 at 09:12:25PM +0900, Shin'ichiro Kawasaki wrote:
+> > >  configure.ac        |  4 ++++
+> > >  sys-utils/blkzone.8 |  1 +
+> > >  sys-utils/blkzone.c | 20 ++++++++++++++++++--
+> > >  3 files changed, 23 insertions(+), 2 deletions(-)
+> > 
+> >  Applied to the "next" branch (for v2.36 is too late). Thanks!
+> 
+> Hi Karel, thank you for picking it up.
+> 
+> The kernel side patch was applied to nvme-5.9. With this status, the commit
+> message of the blkzone RFC patch is rather weird. I will revise the commit
+> message and resend. Could you replace the patch in the next branch?
 
-Signed-off-by: Hans Holmberg <hans.holmberg@wdc.com>
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- configure.ac        |  4 ++++
- sys-utils/blkzone.8 |  1 +
- sys-utils/blkzone.c | 20 ++++++++++++++++++--
- 3 files changed, 23 insertions(+), 2 deletions(-)
+Sure, no problem to replace it.
 
-diff --git a/configure.ac b/configure.ac
-index e31dc3767..f3e9f5d0d 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -322,6 +322,10 @@ AC_CHECK_HEADERS([security/pam_misc.h],
- 
- AC_CHECK_HEADERS([linux/blkzoned.h])
- 
-+AC_CHECK_DECLS([BLK_ZONE_REP_CAPACITY], [], [], [
-+	#include <linux/blkzoned.h>
-+])
-+
- AC_CHECK_HEADERS([security/openpam.h], [], [], [
- #ifdef HAVE_SECURITY_PAM_APPL_H
- #include <security/pam_appl.h>
-diff --git a/sys-utils/blkzone.8 b/sys-utils/blkzone.8
-index 64ad23bb3..043bc96e2 100644
---- a/sys-utils/blkzone.8
-+++ b/sys-utils/blkzone.8
-@@ -29,6 +29,7 @@ tab(:);
- l l.
- start:Zone start sector
- len:Zone length in number of sectors
-+cap:Zone capacity in number of sectors
- wptr:Zone write pointer position
- reset:Reset write pointer recommended
- non-seq:Non-sequential write resources active
-diff --git a/sys-utils/blkzone.c b/sys-utils/blkzone.c
-index 11e90fb0e..0f62ca395 100644
---- a/sys-utils/blkzone.c
-+++ b/sys-utils/blkzone.c
-@@ -24,6 +24,7 @@
- #include <stdlib.h>
- #include <stdio.h>
- #include <stdint.h>
-+#include <stdbool.h>
- #include <fcntl.h>
- #include <limits.h>
- #include <getopt.h>
-@@ -189,6 +190,14 @@ done:
- 	return rc == 0 ? sz : 0;
- }
- 
-+#if HAVE_DECL_BLK_ZONE_REP_CAPACITY
-+#define has_zone_capacity(zi)	((zi)->flags & BLK_ZONE_REP_CAPACITY)
-+#define zone_capacity(z)	(z)->capacity
-+#else
-+#define has_zone_capacity(zi)	(false)
-+#define zone_capacity(z)	(z)->len
-+#endif
-+
- /*
-  * blkzone report
-  */
-@@ -262,15 +271,22 @@ static int blkzone_report(struct blkzone_control *ctl)
- 			uint64_t wp = entry->wp;
- 			uint8_t cond = entry->cond;
- 			uint64_t len = entry->len;
-+			uint64_t cap;
- 
- 			if (!len) {
- 				nr_zones = 0;
- 				break;
- 			}
- 
--			printf(_("  start: 0x%09"PRIx64", len 0x%06"PRIx64", wptr 0x%06"PRIx64
-+			if (has_zone_capacity(zi))
-+				cap = zone_capacity(entry);
-+			else
-+				cap = entry->len;
-+
-+			printf(_("  start: 0x%09"PRIx64", len 0x%06"PRIx64
-+				", cap 0x%06"PRIx64", wptr 0x%06"PRIx64
- 				" reset:%u non-seq:%u, zcond:%2u(%s) [type: %u(%s)]\n"),
--				start, len, (type == 0x1) ? 0 : wp - start,
-+				start, len, cap, (type == 0x1) ? 0 : wp - start,
- 				entry->reset, entry->non_seq,
- 				cond, condition_str[cond & (ARRAY_SIZE(condition_str) - 1)],
- 				type, type_text[type]);
+    Karel
+
 -- 
-2.26.2
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
