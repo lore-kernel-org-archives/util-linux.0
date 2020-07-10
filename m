@@ -2,138 +2,151 @@ Return-Path: <SRS0=rKDH=AV=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A35F0C433DF
-	for <util-linux@archiver.kernel.org>; Fri, 10 Jul 2020 03:05:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A924EC433E8
+	for <util-linux@archiver.kernel.org>; Fri, 10 Jul 2020 12:15:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7DBC920708
-	for <util-linux@archiver.kernel.org>; Fri, 10 Jul 2020 03:05:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 87D0320720
+	for <util-linux@archiver.kernel.org>; Fri, 10 Jul 2020 12:15:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="rGGcrPzj"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MChGhT6I"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726496AbgGJDFx (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 9 Jul 2020 23:05:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51368 "EHLO
+        id S1726920AbgGJMP3 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 10 Jul 2020 08:15:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726495AbgGJDFw (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 9 Jul 2020 23:05:52 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C696C08C5CE
-        for <util-linux@vger.kernel.org>; Thu,  9 Jul 2020 20:05:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:Content-Type:
-        In-Reply-To:MIME-Version:Date:Message-ID:From:References:To:Subject:Sender:
-        Reply-To:Cc:Content-ID:Content-Description;
-        bh=6Zo8FiCHj6A1VRqONU66icahTicT7SuJ/vp+7ddtbV8=; b=rGGcrPzjdybk7IZeDRihJ7bP/F
-        554ozmL9mwBpoMLIxLAXIl6FmxXo41kzTIROrop6rRwHkmXys5ZGc5VYkpqQwa1ClF27K63kaXGLl
-        TrzRLWFHc2xmze+ANJaW2UcjpIXIVR8bGr1cCGiN7zyELfMdw96v3XR5/N0jYvQ9WWOGniK2s7mlW
-        BrPGiL0gQBPbPdZbhHY4RzPwpTL5P625utedccg7PNcGieLIGf8xKVkiVzUms4/qdFuNIGnMjU41f
-        6baVhn43ISxISUKscK9W0xht1IkLQ2/q0VHvr5iBX0+DrkgOXv0KPVet/VVT4SF6JHxqwAvzqqf/R
-        PLuVs3pw==;
-Received: from [2601:1c0:6280:3f0:897c:6038:c71d:ecac]
-        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jtjME-0000Pp-6Y; Fri, 10 Jul 2020 03:05:50 +0000
-Subject: Re: [PATCH] Subject: docs: disk-utils: change "allows to <verb>" to
- "allows <verb>ing"
-To:     Bjarni Ingi Gislason <bjarniig@rhi.hi.is>,
-        util-linux@vger.kernel.org
-References: <20200710013909.GA2922@rhi.hi.is>
-From:   Randy Dunlap <rdunlap@infradead.org>
-Message-ID: <326fa9c2-81d1-61af-bf1a-87725342fae8@infradead.org>
-Date:   Thu, 9 Jul 2020 20:05:47 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.9.0
+        with ESMTP id S1726908AbgGJMP2 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 10 Jul 2020 08:15:28 -0400
+Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52A83C08C5CE
+        for <util-linux@vger.kernel.org>; Fri, 10 Jul 2020 05:15:28 -0700 (PDT)
+Received: by mail-lf1-x143.google.com with SMTP id g139so3063059lfd.10
+        for <util-linux@vger.kernel.org>; Fri, 10 Jul 2020 05:15:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=fg9gtudSwmdYzAnZovNppI2fgUbWQC/CkaXpb/WGNYM=;
+        b=MChGhT6I2NMczHp9SriQY0pW5mDA8BJ/HjTfYdBjXijSJF72t57y4FWm/JhQUzxSeB
+         chtDTpLVgzIWNxYEIphCvPKkKbeL9VnM4bEprLLjnu4/tjWpfPMqO2h0lR8IScPl3B1g
+         fFse6L9y9zv8rvGe8+Gm3a+hWasb+LunyNjFPHhR9hQF8aNBsIvlHJIkYSwct9/bz5TE
+         Qeno2tMLOehomv8ZF8fBMlgvZgTdk57sV5kiI0sQAAyE02EXmZUtzpKuYSjZeOGWUHAC
+         /09FpixbPZM5wzCGZfX9FFvzzqicoHfc3hVoQhCfG+SznjPtG6QC1Qo8QJKdgRhdtKht
+         t7Mg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=fg9gtudSwmdYzAnZovNppI2fgUbWQC/CkaXpb/WGNYM=;
+        b=tZH60ipooT2LG8cZNvuyplhPbnn43HTBI2aVGpvVqpG6R1nW37TBjs4EDiTcSixLiE
+         hOYXKPeS54/H+Dt9znC8r38XlCUNrnUQt/31QaTfLS9fSEUGrxMTbImQ3N2d38n4F14W
+         kfLxfNhKKeQwN88f+dHF1uLPcNT0vRlCz9WjchC6RIQL8LvrHQ1y0I0HxAIinoatoUpK
+         lrNoeEX1CwqNhfey+1toXe6aJMc4NEpOAfOaZINot9/MDn84wVMt/JO60pDo064n9NQS
+         iqjkrx3kZ4ax3wnwbN7OYadaNnD3Qg7itneb8hJnZgpyK7MNJidUy/ktxc47gyLifuQd
+         6gMQ==
+X-Gm-Message-State: AOAM531GqWSidP1Qgt8hkoKrx4smmb35KqwcgpVajIBnlel5rriwM2lg
+        Tj9EEXiOt9DyuKBpw8TDBZskNRFy0/Y4+yEUyZUOHnO2
+X-Google-Smtp-Source: ABdhPJwBRmnAO/ssC8TOdhCqowAOhptJZQGb9oHoajJUqHMcYaq9vAoC7cIwQJN1q8OSvu+jU/QWoOq1PXcy4NVE1L4=
+X-Received: by 2002:a19:ca48:: with SMTP id h8mr43255393lfj.161.1594383326629;
+ Fri, 10 Jul 2020 05:15:26 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200710013909.GA2922@rhi.hi.is>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Received: by 2002:a2e:7c04:0:0:0:0:0 with HTTP; Fri, 10 Jul 2020 05:15:25
+ -0700 (PDT)
+From:   Soumendra Ganguly <soumendraganguly@gmail.com>
+Date:   Fri, 10 Jul 2020 07:15:25 -0500
+Message-ID: <CAOW54GXn9KWBEquqCyuBOnADk-MLXA0LpBqUj=kp138Z2KFLEA@mail.gmail.com>
+Subject: [PATCH] term-utils: Make scriptreplay set terminal to raw mode
+To:     util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On 7/9/20 6:39 PM, Bjarni Ingi Gislason wrote:
->   The web site "lintian.debian.org" shows some examples of "allows to",
-> which are changed to "allows one to".
-> 
->   I chose here to use gerund.
-> 
-> Signed-off-by: Bjarni Ingi Gislason <bjarniig@rhi.hi.is>
+scriptreplay produces garbled output while replaying certain curses
+sessions. script(1) from util-linux is able to record the sessions
+correctly.
 
-LGTM.  Thanks.
+The following programs can be used to demonstrate this.
 
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
+1. A curses-based game called "greed"; a Debian 10 package named
+"greed" is available.
 
-> ---
->  disk-utils/fdisk.8     | 2 +-
->  disk-utils/sfdisk.8    | 6 +++---
->  disk-utils/swaplabel.8 | 2 +-
->  3 files changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/disk-utils/fdisk.8 b/disk-utils/fdisk.8
-> index f683bcaaa..8780a7419 100644
-> --- a/disk-utils/fdisk.8
-> +++ b/disk-utils/fdisk.8
-> @@ -200,7 +200,7 @@ are deprecated.
->  
->  .SH SCRIPT FILES
->  .B fdisk
-> -allows to read (by 'I' command) sfdisk compatible script files. The script is
-> +allows reading (by 'I' command) sfdisk compatible script files. The script is
->  applied to in-memory partition table, and then it is possible to modify the
->  partition table before you write it to the device.
->  .PP
-> diff --git a/disk-utils/sfdisk.8 b/disk-utils/sfdisk.8
-> index 6c278afb6..38a674853 100644
-> --- a/disk-utils/sfdisk.8
-> +++ b/disk-utils/sfdisk.8
-> @@ -295,7 +295,7 @@ disk label (see the \fBEMPTY DISK LABEL\fR section below).
->  .TP
->  .BR \-Y , " \-\-label\-nested " \fItype
->  Force editing of a nested disk label.  The primary disk label has to exist already.
-> -This option allows to edit for example a hybrid/protective MBR on devices with GPT.
-> +This option allows editing for example a hybrid/protective MBR on devices with GPT.
->  
->  .TP
->  .BR \-w , " \-\-wipe "\fIwhen
-> @@ -469,7 +469,7 @@ loaders and for other operating systems.
->  
->  .B Named-fields format
->  .RS
-> -This format is more readable, robust, extensible and allows to specify additional
-> +This format is more readable, robust, extensible and allows specifying additional
->  information (e.g., a UUID).  It is recommended to use this format to keep your scripts
->  more readable.
->  .RS
-> @@ -480,7 +480,7 @@ more readable.
->  The
->  .I device
->  field is optional.  \fBsfdisk\fR extracts the partition number from the
-> -device name.  It allows to specify the partitions in random order.
-> +device name.  It allows specifying the partitions in random order.
->  This functionality is mostly used by \fB\-\-dump\fR.
->  Don't use it if you are not sure.
->  
-> diff --git a/disk-utils/swaplabel.8 b/disk-utils/swaplabel.8
-> index b623a5020..c92de00a5 100644
-> --- a/disk-utils/swaplabel.8
-> +++ b/disk-utils/swaplabel.8
-> @@ -35,7 +35,7 @@ These values can also be set during swap creation using
->  .BR mkswap (8).
->  The
->  .B swaplabel
-> -utility allows to change the label or UUID on an actively used swap device.
-> +utility allows changing the label or UUID on an actively used swap device.
->  .SH OPTIONS
->  .TP
->  .BR \-h , " \-\-help"
-> 
+2. A Python implementation of Conway's game of life by GitHub user
+iiSeymour. The repository is named game-of-life.
 
+Expected output is obtained by making scriptreplay call cfmakeraw.
 
+Signed-off-by: Soumendra Ganguly <soumendraganguly@gmail.com>
+---
+ term-utils/scriptreplay.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
+
+diff --git a/term-utils/scriptreplay.c b/term-utils/scriptreplay.c
+index bca1d21b4..19a7d568b 100644
+--- a/term-utils/scriptreplay.c
++++ b/term-utils/scriptreplay.c
+@@ -28,6 +28,7 @@
+ #include <unistd.h>
+ #include <getopt.h>
+ #include <sys/time.h>
++#include <termios.h>
+
+ #include "c.h"
+ #include "xalloc.h"
+@@ -120,12 +121,30 @@ static void appendchr(char *buf, size_t bufsz, int c)
+ 		buf[sz] = c;
+ }
+
++static int termraw(struct termios *backup)
++{
++	struct termios tattr;
++
++	if (tcgetattr(STDOUT_FILENO, backup) != 0)
++		return -1;
++
++	tattr = *backup;
++	cfmakeraw(&tattr);
++	if (tcsetattr(STDOUT_FILENO, TCSANOW, &tattr) != 0)
++		return -1;
++
++	return 0;
++}
++
+ int
+ main(int argc, char *argv[])
+ {
+ 	static const struct timeval mindelay = { .tv_sec = 0, .tv_usec = 100 };
+ 	struct timeval maxdelay;
+
++	char isterm;
++	struct termios saved;
++
+ 	struct replay_setup *setup = NULL;
+ 	struct replay_step *step = NULL;
+ 	char streams[6] = {0};		/* IOSI - in, out, signal,info */
+@@ -286,6 +305,10 @@ main(int argc, char *argv[])
+ 		replay_set_delay_max(setup, &maxdelay);
+ 	replay_set_delay_min(setup, &mindelay);
+
++	isterm = isatty(STDOUT_FILENO);
++	if (isterm && termraw(&saved) != 0)
++		err(EXIT_FAILURE, _("failed to set terminal to raw mode"));
++
+ 	do {
+ 		rc = replay_get_next_step(setup, streams, &step);
+ 		if (rc)
+@@ -300,6 +323,9 @@ main(int argc, char *argv[])
+ 		rc = replay_emit_step_data(setup, step, STDOUT_FILENO);
+ 	} while (rc == 0);
+
++	if (isterm)
++		tcsetattr(STDOUT_FILENO, TCSADRAIN, &saved);
++
+ 	if (step && rc < 0)
+ 		err(EXIT_FAILURE, _("%s: log file error"), replay_step_get_filename(step));
+ 	else if (rc < 0)
 -- 
-~Randy
+2.20.1
