@@ -8,62 +8,62 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2CA1C433F8
-	for <util-linux@archiver.kernel.org>; Tue, 14 Jul 2020 09:58:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8ED5C433FB
+	for <util-linux@archiver.kernel.org>; Tue, 14 Jul 2020 09:58:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A2EAB221FD
-	for <util-linux@archiver.kernel.org>; Tue, 14 Jul 2020 09:58:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B4DB5221FD
+	for <util-linux@archiver.kernel.org>; Tue, 14 Jul 2020 09:58:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jTEjV4uU"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="uwQmHhwh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727058AbgGNJ6D (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 14 Jul 2020 05:58:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40056 "EHLO
+        id S1726603AbgGNJ6C (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 14 Jul 2020 05:58:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725884AbgGNJ6C (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Jul 2020 05:58:02 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47322C061755
-        for <util-linux@vger.kernel.org>; Tue, 14 Jul 2020 02:58:02 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id dr13so20883319ejc.3
-        for <util-linux@vger.kernel.org>; Tue, 14 Jul 2020 02:58:02 -0700 (PDT)
+        with ESMTP id S1725884AbgGNJ6B (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Jul 2020 05:58:01 -0400
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46A47C061755
+        for <util-linux@vger.kernel.org>; Tue, 14 Jul 2020 02:58:01 -0700 (PDT)
+Received: by mail-ed1-x544.google.com with SMTP id dm19so16376872edb.13
+        for <util-linux@vger.kernel.org>; Tue, 14 Jul 2020 02:58:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=vyc2uYARP+7ME8wqB1yvYEPBSr5/ojilSP12ZI465Tg=;
-        b=jTEjV4uUbsLDac5BaXcrEXziu7Llcv6nEo4qp7BsSmwfQyLjpk+W4bqfVk3kXi5t5J
-         WOUHqdI2iiSgpE1LiR+hc6P9+Vb1DyiPlTJ6samVPY5RkRAXw7QL18nwnuLB6ZOp6Or7
-         xEuVQzCrPAivkAklb6OeLMIgNqqbZCtq8R2gEMtrQTnsp0xI2nXRBVgcK1Usl8OLokfO
-         jrKAYHTp5Wfu/3Pwh52z7ktIBhxkuUN1WdqJdSIw9BJW4buxBZDGu1TEmiFn0EutAxif
-         h2MPoul81mTQXCrgMyms8DkAGsYBEHgRUCHVTWKqicTeH1oljtc+WhPN/OhW1I0yZoRV
-         wPpw==
+        bh=Bkkec5ru/L9qT+uVOjJumDKjeJzUODApcUQqrlGfrzQ=;
+        b=uwQmHhwhwf7fBJzWqIXhnvwRptOtVvmeJzi2+xNtC00YGDQ/PGc/imkyNOw+qko9C3
+         zI1g/XkH0MwaB3hBEt41EMjc4sj6/LTUQUl1zWLMVtoL48bwtnEug2hzctGGTcMqVdbf
+         /WNdBYRVjDKtfh7qI1i8rLFePJ4mBYJoHVt6x9cjGdiiXfd5AScDAaTOsB+StzdDq+4q
+         +JWtmWcEc74slkJQB8ZgkuA1xJ2XGJA5MCdV/Ny5NOswJs6lrbpQWy5boy9gZ4AWl6mf
+         dd69hHGO45DEgQ6Bo2gmfIANUR5cy+7uwUUNt/Y2TJzoTfJY97sKdLZjmTc231YnBdFh
+         2WmQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=vyc2uYARP+7ME8wqB1yvYEPBSr5/ojilSP12ZI465Tg=;
-        b=THRpp3UBOrJD5f1w1q7pYMyA8Ua/s7OzDfjTcvPE/CZtn+Yl53EweCZs4Xt3/fWA7d
-         dSSQYGIDrC3F1NW3VcrcG88wjDCFsvtXT3J6i+sIiJa9acV5lndgOFM3y1EFc+sDTIE+
-         I2xjH1DpzRucDr/tVyp65dftqo8gD8WQbTuZMJslyeimgSu8VjfjhxzjB29RGcYB0jVu
-         hZiRhAavKjLBsUka5W/CpJl/lYGvVlCSRTPFrfJTpvKp1ectGfN/wfZXXIYi3c2TSoaT
-         cucrwMZjknr/lYwYu+4oZQxLifmgBWC8jzaQqcq/YaYfvzh+4salabRwkBJ5pDfi4wwS
-         ZSaA==
-X-Gm-Message-State: AOAM532aVnL8Q4PJhNvVaGadYLWqm026PfqxtTX5YbuWjVzdJ0d9bXrN
-        d7l4gi0qE4QdhC58XGo4dTk=
-X-Google-Smtp-Source: ABdhPJz9Lbjin04iYbXyCcug1lVZfzBT/4M7x+eZ6/VVv5txpcUsUFWRYeZyA+sw5VK1CYZsp/Z2BA==
-X-Received: by 2002:a17:906:3a04:: with SMTP id z4mr3603420eje.441.1594720681034;
-        Tue, 14 Jul 2020 02:58:01 -0700 (PDT)
-Received: from bienne.fritz.box ([2001:a61:3adb:8201:9649:88f:51f8:6a21])
-        by smtp.gmail.com with ESMTPSA id c9sm14119803edv.8.2020.07.14.02.58.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        bh=Bkkec5ru/L9qT+uVOjJumDKjeJzUODApcUQqrlGfrzQ=;
+        b=hawMBzNMSGJ/2Q3V7wGbS/PMErjcsOgvYSH+6VfjS2JqJMJT7aHP43ig9xLhUXFY9l
+         YMu8kp1boA5AbwnCKU4m7WSNS+w1/UrJugCqr08Avb6IXGOWgsh9x6ZW4PTaGFgqTx8r
+         TaSiMz4oxdqrqvvyB7OKwVcyjeuS/f2j4icmt/fFgShrYi3YfMn9qOHE1j1ACtWFPHHs
+         FGxAev/xXCP68HQIDLYhXh0LG/8dmv20WfTVq12yvK+JjszAerhqNEpnoJOytg6vuL0A
+         n0aF9Z6KpdMUZkKoEhVVYuE8l61Lj5+g9TzfTOHTplXwu82X+FplQh0+zPDD/3bmjS5+
+         KLdw==
+X-Gm-Message-State: AOAM532B6J6GlQQbtH5cEugf1gBaZOqCRa1rYjI5mxz7+XgYH/iRRPKC
+        SWfO974pgHJ7WojGpncZAbM=
+X-Google-Smtp-Source: ABdhPJwXalv0dh9BUEttmvbLALUwbShd0LtIXTuNxWmMA5qY+Zf4KXHG+mqKrKj4SthLnJf75yirYw==
+X-Received: by 2002:a50:c307:: with SMTP id a7mr3510198edb.279.1594720680001;
         Tue, 14 Jul 2020 02:58:00 -0700 (PDT)
+Received: from bienne.fritz.box ([2001:a61:3adb:8201:9649:88f:51f8:6a21])
+        by smtp.gmail.com with ESMTPSA id c9sm14119803edv.8.2020.07.14.02.57.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Jul 2020 02:57:59 -0700 (PDT)
 From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
 To:     mtk.manpages@gmail.com, Karel Zak <kzak@redhat.com>
 Cc:     util-linux@vger.kernel.org
-Subject: [PATCH 4/5] Manual pages: login.1: various minor wording fixes
-Date:   Tue, 14 Jul 2020 11:57:40 +0200
-Message-Id: <20200714095741.45292-4-mtk.manpages@gmail.com>
+Subject: [PATCH 3/5] Manual pages: login.1: formatting fixes
+Date:   Tue, 14 Jul 2020 11:57:39 +0200
+Message-Id: <20200714095741.45292-3-mtk.manpages@gmail.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200714095741.45292-1-mtk.manpages@gmail.com>
 References: <20200714095741.45292-1-mtk.manpages@gmail.com>
@@ -74,80 +74,123 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+Bold for command names; italic for pathnames, etc.
+
 Signed-off-by: Michael Kerrisk (man-pages) <mtk.manpages@gmail.com>
 ---
- login-utils/login.1 | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ login-utils/login.1 | 48 +++++++++++++++++++++++++++++++++------------
+ 1 file changed, 35 insertions(+), 13 deletions(-)
 
 diff --git a/login-utils/login.1 b/login-utils/login.1
-index f3938b571..73c59462a 100644
+index 3c72480c5..f3938b571 100644
 --- a/login-utils/login.1
 +++ b/login-utils/login.1
-@@ -97,7 +97,7 @@ not to destroy the environment.
+@@ -131,7 +131,9 @@ Used by other servers (i.e.,
+ to tell
+ .B login
+ that printing the hostname should be suppressed in the login: prompt.
+-See also LOGIN_PLAIN_PROMPT below if your server does not allow to configure
++See also
++.B LOGIN_PLAIN_PROMPT
++below if your server does not allow to configure
+ .B login
+ command line.
  .TP
- .B \-f
- Used to skip a login authentication.  This option is usually
--used by
-+used by the
- .BR getty (8)
- autologin feature.
- .TP
-@@ -111,14 +111,14 @@ use this option.
- .IP
- Note that the
- .B \-h
--option has impact on the
-+option has an impact on the
- .B PAM service
- .BR name .
- The standard service name is
- .IR login ,
--with the
-+but with the
- .B \-h
--option the name is
-+option, the name is
- .IR remote .
- It is necessary to create proper PAM config files (e.g.,
- .I /etc\:/pam.d\:/login
-@@ -164,7 +164,7 @@ If the
- .B MOTD_FILE
- item is empty or a quiet login is enabled, then the message of the day
- is not displayed.  Note that the same functionality is also provided
--by
-+by the
- .BR pam_motd (8)
- PAM module.
+@@ -147,7 +149,7 @@ reads the
+ configuration file.  Note that the configuration file could be
+ distributed with another package (e.g., shadow-utils).  The following
+ configuration items are relevant for
+-.BR login (1):
++.BR login :
  .PP
-@@ -191,7 +191,8 @@ Forces
- .B login
- to stop display content specified by
  .B MOTD_FILE
--after first accessible item in the list.  Note that a directory is one item in this case.
-+after the first accessible item in the list.
-+Note that a directory is one item in this case.
- This option allows to configure
+ (string)
+@@ -173,12 +175,17 @@ are supported since version 2.36.
+ Note that
  .B login
- semantic to be more compatible with pam_motd.
-@@ -203,7 +204,8 @@ semantic to be more compatible with pam_motd.
- Tell
+ does not implement any filenames overriding behavior like pam_motd
+-(see also MOTD_FIRSTONLY), but all content from all files is displayed.  It is
+-recommended to keep extra logic in content generators and use /run/motd.d rather
++(see also
++.BR MOTD_FIRSTONLY ),
++but all content from all files is displayed.  It is
++recommended to keep extra logic in content generators and use
++.I /run/motd.d
++rather
+ than rely on overriding behavior hardcoded in system tools.
+ .RE
+ .PP
+-.B MOTD_FIRSTONLY (boolean)
++.B MOTD_FIRSTONLY
++(boolean)
+ .RS 4
+ Forces
  .B login
- that printing the hostname should be suppressed in the login:
--prompt.  This is alternative to the \fB\-H\fR command line option.  The default
-+prompt.
-+This is an alternative to the \fB\-H\fR command line option.  The default
+@@ -193,7 +200,9 @@ semantic to be more compatible with pam_motd.
+ .B LOGIN_PLAIN_PROMPT
+ (boolean)
+ .RS 4
+-Tell login that printing the hostname should be suppressed in the login:
++Tell
++.B login
++that printing the hostname should be suppressed in the login:
+ prompt.  This is alternative to the \fB\-H\fR command line option.  The default
  value is
  .IR no .
- .RE
-@@ -211,7 +213,7 @@ value is
- .B LOGIN_TIMEOUT
- (number)
+@@ -286,12 +295,18 @@ to change directory to her home.  The default value is
+ .B LASTLOG_UID_MAX
+ (unsigned number)
  .RS 4
--Max time in seconds for login.  The default value is
-+Maximum time in seconds for login.  The default value is
- .IR 60 .
+-Highest user ID number for which the lastlog entries should be
++Highest user ID number for which the
++.I lastlog
++entries should be
+ updated.  As higher user IDs are usually tracked by remote user
+ identity and authentication services there is no need to create
+-a huge sparse lastlog file for them.  No LASTLOG_UID_MAX option
++a huge sparse
++.I lastlog
++file for them.  No LASTLOG_UID_MAX option
+ present in the configuration means that there is no user ID limit
+-for writing lastlog entries.
++for writing
++.I lastlog
++entries.
  .RE
  .PP
+ .B LOG_UNKFAIL_ENAB
+@@ -308,7 +323,9 @@ user enters her password instead of her login name.
+ .B ENV_PATH
+ (string)
+ .RS 4
+-If set, it will be used to define the PATH environment variable when
++If set, it will be used to define the
++.B PATH
++environment variable when
+ a regular user logs in.  The default value is
+ .I /usr\:/local\:/bin:\:/bin:\:/usr\:/bin
+ .RE
+@@ -347,12 +364,17 @@ programs.
+ A recursive login, as used to be possible in the good old days, no
+ longer works; for most purposes
+ .BR su (1)
+-is a satisfactory substitute.  Indeed, for security reasons, login
+-does a vhangup() system call to remove any possible listening
++is a satisfactory substitute.  Indeed, for security reasons,
++.B login
++does a
++.BR vhangup (2)
++system call to remove any possible listening
+ processes on the tty.  This is to avoid password sniffing.  If one
+ uses the command
+ .BR login ,
+-then the surrounding shell gets killed by vhangup() because it's no
++then the surrounding shell gets killed by
++.BR vhangup (2)
++because it's no
+ longer the true owner of the tty.  This can be avoided by using
+ .B exec login
+ in a top-level shell or xterm.
 -- 
 2.26.2
 
