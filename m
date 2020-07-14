@@ -2,96 +2,75 @@ Return-Path: <SRS0=vFYQ=AZ=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11386C433E3
-	for <util-linux@archiver.kernel.org>; Tue, 14 Jul 2020 12:36:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF4DAC433DF
+	for <util-linux@archiver.kernel.org>; Tue, 14 Jul 2020 12:38:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D78DD2242C
-	for <util-linux@archiver.kernel.org>; Tue, 14 Jul 2020 12:36:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A05D522472
+	for <util-linux@archiver.kernel.org>; Tue, 14 Jul 2020 12:38:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sCaay9R+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aUGgaWoe"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728160AbgGNMg4 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 14 Jul 2020 08:36:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36674 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726354AbgGNMg4 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Jul 2020 08:36:56 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEC94C061755
-        for <util-linux@vger.kernel.org>; Tue, 14 Jul 2020 05:36:55 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id p20so21526669ejd.13
-        for <util-linux@vger.kernel.org>; Tue, 14 Jul 2020 05:36:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=us7BFYDk7jVdrj22GsxjfJtj7kAb503fJNVWNl37Mrk=;
-        b=sCaay9R+jr200ian6qWaQhO1OUs2HarME6X+XqRreJfxYbyTbA7uWawDlrnZ55R3or
-         VfTgQ3wb4ZpbA47ktgUtv2HUjQ0xw6lXsjxRIH6rA5ONPuGJ5S4IyCgivA9AfGJjLjOe
-         +LWnFLBXTwYIudy2UF6KO8EQFsXhWmMAeYbMR64fZvrdXiDukwzthBispMMGB6lu1Hxx
-         trdRK2dITACp3hu7m6uFzqFvu5SGPdthLY1/OSL/0lsQKogLFInw/nCvVOVYOli6caLr
-         Tm85lToDTXEWacSCbG3fUSDNJpTDz03M3Bw9fAYtaPQibMCF7D0B8CDjqrDMHDR+XaV5
-         mYIQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=us7BFYDk7jVdrj22GsxjfJtj7kAb503fJNVWNl37Mrk=;
-        b=LuO8Rgcn7rvoqBw1xueHxYpRtAaUfWQRt0dH5NWjYdg0rEtTHUu83RbelkWdfneQzS
-         NPLBn+dARhioi+ELFlaqkbg5TRamhScCna7XeoNRlsA17/E5goWST9uZyoV3yNOSY/MC
-         6oHmn++xd78UeFlklt/ZI/WDhrXTwigyc+9aaCYH/IEAbWBP25Zlp0ORQeFcE3cKZq6f
-         KpPdZaCz+O7KkWJb/DMHBcOgUNN8oWPH6qhBjSGzyCOmJP2uGEkLort0PX5jDXLp7DhJ
-         fCqcXkWNlMwunxhlrrNpl1ilMwY9mMz9xR677EyX8UtOzdnaAhL3D/ErP+Do80GZbozt
-         xTVw==
-X-Gm-Message-State: AOAM532Zl6w8/NgQdQKMS2Zlrm7X5yrzmzsKO7QQ1m0KoXtu2oXDAhS1
-        2SbXw6NRhaV26dT4iNWCQGs=
-X-Google-Smtp-Source: ABdhPJwP0r465ThLNQwCC8AreWdHL0q9Hjd0zhJoGC6AG1FhKwCk9m4gDSiNSpUqXmOKZAjdwhmCEw==
-X-Received: by 2002:a17:906:60c6:: with SMTP id f6mr4031130ejk.265.1594730214484;
-        Tue, 14 Jul 2020 05:36:54 -0700 (PDT)
-Received: from bienne.fritz.box ([2001:a61:3adb:8201:9649:88f:51f8:6a21])
-        by smtp.gmail.com with ESMTPSA id z1sm12405384eji.92.2020.07.14.05.36.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jul 2020 05:36:53 -0700 (PDT)
-From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-To:     mtk.manpages@gmail.com, Karel Zak <kzak@redhat.com>
+        id S1728075AbgGNMis (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 14 Jul 2020 08:38:48 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:28541 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728047AbgGNMis (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Jul 2020 08:38:48 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1594730327;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=3m/lvBm0Wl1EVyfwx3ndQaJ2PHCAaFWJVZX18gWmTOA=;
+        b=aUGgaWoeH8ScMszkNDTn/gHsjVSBwRaSknxoxzTdSbuijjmPMkXDPuDYG3cOdfksaXrBxN
+        6tPsnNAWgb/b8Nhd319LqHent+MIYIadRsWtMtDlQt65OPZF7fX3rBemIV2LfDC4HyUCSe
+        2BdkAQo1D0NV4p8BTlmfgdmQ9A+yczI=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-148-sKrlUeVNNG-n26yzvaK4Xg-1; Tue, 14 Jul 2020 08:38:43 -0400
+X-MC-Unique: sKrlUeVNNG-n26yzvaK4Xg-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B5F3B94ABE;
+        Tue, 14 Jul 2020 12:38:33 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.194.98])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id F13BA79CE3;
+        Tue, 14 Jul 2020 12:38:32 +0000 (UTC)
+Date:   Tue, 14 Jul 2020 14:38:30 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
 Cc:     util-linux@vger.kernel.org
-Subject: [PATCH] Manual pages: su.1: wording fix
-Date:   Tue, 14 Jul 2020 14:36:50 +0200
-Message-Id: <20200714123650.53000-1-mtk.manpages@gmail.com>
-X-Mailer: git-send-email 2.26.2
+Subject: Re: [PATCH 5/5] Manual pages: various: reword "allow(s) to"
+Message-ID: <20200714123830.2tn46t3iv5yyd4r7@ws.net.home>
+References: <20200714095741.45292-1-mtk.manpages@gmail.com>
+ <20200714095741.45292-5-mtk.manpages@gmail.com>
+ <CAKgNAkhWAe-VDRQwkXC=crfZ117EfRd0Vw3keU2WYdrXkOSsTw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKgNAkhWAe-VDRQwkXC=crfZ117EfRd0Vw3keU2WYdrXkOSsTw@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Fix a wording error introduced by a patch I sent earlier today.
+On Tue, Jul 14, 2020 at 02:13:01PM +0200, Michael Kerrisk (man-pages) wrote:
+> +allows commands to be run with a substitute user and group ID.
+> 
+> Shall I resend the patch, or will you edit?
 
-Signed-off-by: Michael Kerrisk (man-pages) <mtk.manpages@gmail.com>
----
- login-utils/su.1 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Fixed.
 
-diff --git a/login-utils/su.1 b/login-utils/su.1
-index 80949dae1..9a10e7172 100644
---- a/login-utils/su.1
-+++ b/login-utils/su.1
-@@ -6,7 +6,7 @@ su \- run a command with substitute user and group ID
- .RI [ user " [" argument ...]]
- .SH DESCRIPTION
- .B su
--allows commands to be with a substitute user and group ID.
-+allows commands to be run with a substitute user and group ID.
- .PP
- When called with no
- .I user
+    Karel
+
 -- 
-2.26.2
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
