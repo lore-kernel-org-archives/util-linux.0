@@ -2,97 +2,96 @@ Return-Path: <SRS0=vFYQ=AZ=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6BFCC433E5
-	for <util-linux@archiver.kernel.org>; Tue, 14 Jul 2020 12:33:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11386C433E3
+	for <util-linux@archiver.kernel.org>; Tue, 14 Jul 2020 12:36:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A814621D79
-	for <util-linux@archiver.kernel.org>; Tue, 14 Jul 2020 12:33:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D78DD2242C
+	for <util-linux@archiver.kernel.org>; Tue, 14 Jul 2020 12:36:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rWSzYGxL"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sCaay9R+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728006AbgGNMd0 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 14 Jul 2020 08:33:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36130 "EHLO
+        id S1728160AbgGNMg4 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 14 Jul 2020 08:36:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726041AbgGNMdZ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Jul 2020 08:33:25 -0400
-Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36ECAC061755
-        for <util-linux@vger.kernel.org>; Tue, 14 Jul 2020 05:33:25 -0700 (PDT)
-Received: by mail-oi1-x243.google.com with SMTP id 12so13777518oir.4
-        for <util-linux@vger.kernel.org>; Tue, 14 Jul 2020 05:33:25 -0700 (PDT)
+        with ESMTP id S1726354AbgGNMg4 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Jul 2020 08:36:56 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEC94C061755
+        for <util-linux@vger.kernel.org>; Tue, 14 Jul 2020 05:36:55 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id p20so21526669ejd.13
+        for <util-linux@vger.kernel.org>; Tue, 14 Jul 2020 05:36:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
-         :subject:to:cc;
-        bh=ExhFgX0roa7wmBLzZDlXPuMAyNG9BQ0pQvXPz8+krJ8=;
-        b=rWSzYGxLbXhvik9/YEnN6n9/uazMN7oMcUAshhslIV6Szq6osk2b8+njIOtB2Ahw8C
-         KBijMGeYq2vdLYgdxJTNnyPFDUgZkU5JQy12mXqCZEF1MhhzCmdOdGasEpeCDcACSpBF
-         3inShZcUh/C2ODu1LEvwdIAQF8ym7mP5gltqsC1nf7C/AU+F02/EzsO7kks1m0aVYrik
-         /Xthj2ka/jFP0SOxckfoXMlqISStU6aVRu3UzE2ORU4kZNF9HRQMf4uHiKSHUlXUTn4H
-         CngX41P7EPSacf5LEI7U/9EHlQgdMfCOW7Gb5mFCBFGg8qHi37XI83ePTZjRMhJS+pUj
-         TGQw==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=us7BFYDk7jVdrj22GsxjfJtj7kAb503fJNVWNl37Mrk=;
+        b=sCaay9R+jr200ian6qWaQhO1OUs2HarME6X+XqRreJfxYbyTbA7uWawDlrnZ55R3or
+         VfTgQ3wb4ZpbA47ktgUtv2HUjQ0xw6lXsjxRIH6rA5ONPuGJ5S4IyCgivA9AfGJjLjOe
+         +LWnFLBXTwYIudy2UF6KO8EQFsXhWmMAeYbMR64fZvrdXiDukwzthBispMMGB6lu1Hxx
+         trdRK2dITACp3hu7m6uFzqFvu5SGPdthLY1/OSL/0lsQKogLFInw/nCvVOVYOli6caLr
+         Tm85lToDTXEWacSCbG3fUSDNJpTDz03M3Bw9fAYtaPQibMCF7D0B8CDjqrDMHDR+XaV5
+         mYIQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc;
-        bh=ExhFgX0roa7wmBLzZDlXPuMAyNG9BQ0pQvXPz8+krJ8=;
-        b=GvEU3tDvfBUaNIoj2mMwyif5MvRBWz1wMDon68JEEYsmlbjVq0/gtlJZ6/P1Ezml29
-         mHL9xQGMvlGiDLGAfDUy83V83LH6LMIaVqH5XsmwVQSghSdv+efr9ERh448Q6IqbjK9l
-         khcHsKmV2NB8k7tLX/C1FMjxV7lQrEysE+XFjdWJwUYZ4lncJHeAOnMTrTB4dlSK8BTh
-         I9Ukj0NYbZ/lOAdC7su5T8ML1Nv+kOQMwCiCt628WXrcmVJ38OlA9YUPi1qtg+E232jD
-         13M3X05888/qOcpKHKotHJrVS49FNoJEY06erf2BMQQS5G2vDq11tJ8DmbgDyHe6dtXs
-         9Sgg==
-X-Gm-Message-State: AOAM530MKOKyZPwIMIj/pKY54e3Ix6Tyua6MBCVrkTdb17RNIKWjRRYw
-        kIx4hzJ3i/XZN9MOyGI4X0ssHfMUWHd4jDqK4rU=
-X-Google-Smtp-Source: ABdhPJwnlR3SE34NlUt/ARpSVschnRBGv4ZX5x1oKfyuPm0AVeeVV1Lq/rlLoWy2ZLgLsxcJt1LITOZSEpexdTupmYI=
-X-Received: by 2002:aca:5683:: with SMTP id k125mr3474581oib.159.1594730004651;
- Tue, 14 Jul 2020 05:33:24 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200714095741.45292-1-mtk.manpages@gmail.com>
- <20200714095741.45292-5-mtk.manpages@gmail.com> <20200714121420.fvmuuasgkq5hrtcz@ws.net.home>
-In-Reply-To: <20200714121420.fvmuuasgkq5hrtcz@ws.net.home>
-Reply-To: mtk.manpages@gmail.com
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=us7BFYDk7jVdrj22GsxjfJtj7kAb503fJNVWNl37Mrk=;
+        b=LuO8Rgcn7rvoqBw1xueHxYpRtAaUfWQRt0dH5NWjYdg0rEtTHUu83RbelkWdfneQzS
+         NPLBn+dARhioi+ELFlaqkbg5TRamhScCna7XeoNRlsA17/E5goWST9uZyoV3yNOSY/MC
+         6oHmn++xd78UeFlklt/ZI/WDhrXTwigyc+9aaCYH/IEAbWBP25Zlp0ORQeFcE3cKZq6f
+         KpPdZaCz+O7KkWJb/DMHBcOgUNN8oWPH6qhBjSGzyCOmJP2uGEkLort0PX5jDXLp7DhJ
+         fCqcXkWNlMwunxhlrrNpl1ilMwY9mMz9xR677EyX8UtOzdnaAhL3D/ErP+Do80GZbozt
+         xTVw==
+X-Gm-Message-State: AOAM532Zl6w8/NgQdQKMS2Zlrm7X5yrzmzsKO7QQ1m0KoXtu2oXDAhS1
+        2SbXw6NRhaV26dT4iNWCQGs=
+X-Google-Smtp-Source: ABdhPJwP0r465ThLNQwCC8AreWdHL0q9Hjd0zhJoGC6AG1FhKwCk9m4gDSiNSpUqXmOKZAjdwhmCEw==
+X-Received: by 2002:a17:906:60c6:: with SMTP id f6mr4031130ejk.265.1594730214484;
+        Tue, 14 Jul 2020 05:36:54 -0700 (PDT)
+Received: from bienne.fritz.box ([2001:a61:3adb:8201:9649:88f:51f8:6a21])
+        by smtp.gmail.com with ESMTPSA id z1sm12405384eji.92.2020.07.14.05.36.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Jul 2020 05:36:53 -0700 (PDT)
 From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Date:   Tue, 14 Jul 2020 14:33:13 +0200
-Message-ID: <CAKgNAkgA38ycbAJix6_b6xJXf3h7VY9AVop5QZVbKTc8kbZAiQ@mail.gmail.com>
-Subject: Re: [PATCH 5/5] Manual pages: various: reword "allow(s) to"
-To:     Karel Zak <kzak@redhat.com>
+To:     mtk.manpages@gmail.com, Karel Zak <kzak@redhat.com>
 Cc:     util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: [PATCH] Manual pages: su.1: wording fix
+Date:   Tue, 14 Jul 2020 14:36:50 +0200
+Message-Id: <20200714123650.53000-1-mtk.manpages@gmail.com>
+X-Mailer: git-send-email 2.26.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hi Karel,
+Fix a wording error introduced by a patch I sent earlier today.
 
-On Tue, 14 Jul 2020 at 14:14, Karel Zak <kzak@redhat.com> wrote:
->
-> On Tue, Jul 14, 2020 at 11:57:41AM +0200, Michael Kerrisk (man-pages) wrote:
-> > The wording "allow(s) to" is not grammatical English. Reword various
-> > pages to use a more correct form such "can be use to" or "allows
-> > the [noun] of".
-> >
-> > Aklong the way, fix a few nearby wording errors in some pages.
->
-> Some of the "allow to" has been already fixed by Bjarni Ingi Gislason
-> (well, his fix is "allows <verb>ing" -- not sure what is better ;-).
+Signed-off-by: Michael Kerrisk (man-pages) <mtk.manpages@gmail.com>
+---
+ login-utils/su.1 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I see. Those changes also work, of course. Thanks for fixing that conflict.
-
-> The rest has been merged without change.
-
-Thanks.
-
-Michael
-
+diff --git a/login-utils/su.1 b/login-utils/su.1
+index 80949dae1..9a10e7172 100644
+--- a/login-utils/su.1
++++ b/login-utils/su.1
+@@ -6,7 +6,7 @@ su \- run a command with substitute user and group ID
+ .RI [ user " [" argument ...]]
+ .SH DESCRIPTION
+ .B su
+-allows commands to be with a substitute user and group ID.
++allows commands to be run with a substitute user and group ID.
+ .PP
+ When called with no
+ .I user
 -- 
-Michael Kerrisk
-Linux man-pages maintainer; http://www.kernel.org/doc/man-pages/
-Linux/UNIX System Programming Training: http://man7.org/training/
+2.26.2
+
