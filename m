@@ -8,62 +8,62 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2307C433E4
-	for <util-linux@archiver.kernel.org>; Wed, 15 Jul 2020 08:15:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AE6EC433E5
+	for <util-linux@archiver.kernel.org>; Wed, 15 Jul 2020 08:16:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BC2C22067D
-	for <util-linux@archiver.kernel.org>; Wed, 15 Jul 2020 08:15:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 618E32067D
+	for <util-linux@archiver.kernel.org>; Wed, 15 Jul 2020 08:16:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="agpYtvRL"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LCfttLgc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729697AbgGOIP6 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 15 Jul 2020 04:15:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50144 "EHLO
+        id S1729704AbgGOIQD (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 15 Jul 2020 04:16:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729643AbgGOIP6 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 15 Jul 2020 04:15:58 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEF6BC061755
-        for <util-linux@vger.kernel.org>; Wed, 15 Jul 2020 01:15:57 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id q15so4472871wmj.2
-        for <util-linux@vger.kernel.org>; Wed, 15 Jul 2020 01:15:57 -0700 (PDT)
+        with ESMTP id S1729643AbgGOIQC (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 15 Jul 2020 04:16:02 -0400
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42228C061755
+        for <util-linux@vger.kernel.org>; Wed, 15 Jul 2020 01:16:02 -0700 (PDT)
+Received: by mail-wm1-x342.google.com with SMTP id o8so4445226wmh.4
+        for <util-linux@vger.kernel.org>; Wed, 15 Jul 2020 01:16:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=Au/oLtZdtspQb52rzMIfQ75b/zXlTZloOpJbaQmL7Do=;
-        b=agpYtvRLiXQh1mPhjHIc0cyQYFoQNy/i0FwE5LiSsMK5TqBEaNb+Wrvv2QJlDJLH+E
-         jRxzWRuW1iEAgpGcG0A2COWJwwfc7TnmrwTBVAzvKcm4P0H8/hvc/tAPsH0Ey4D7v+XQ
-         jXENFLee85PN55UHG82N0raFYw8LsINKozIgyScfBOZv0PprQJIVddnQCa0o+xWAn/KS
-         fePe8OyYS0GM3luY9Am4uOO8AY2ccaUjoNdrOm7PehZGkDxpOTGvxmIghyZa5wOwxKOH
-         1+ylnjVkf5yUIoZ2ztYLhh9ihIPhgD+Oq4H1xDxmQU4EEHeLcJnfPASqsScdLJ3yqqQs
-         NvzA==
+        bh=o+gBrPoU3oSYb3HQStke4RnhAjWyBzWOLqiV+38Nbz4=;
+        b=LCfttLgc+/H8Bh1guOxsJhEHjzMsjtInYN2ExQgzQFKQk9LnSEMtFAhnLWaJnJhL9o
+         ghWs7grovIeHInQS8a6N46rgVqdWbLQno6xfiRNB9RqrAdB2EWszVZOp6jk99hTgwQPz
+         tjKA8nHWCFL6hKJtCf9Xjx72T5XhN3NxY3NlX/5GvEkZ8KWOfP5sPhMdwBufJSrwdzTt
+         KYpakIEVmAnk3p383XTVhXBnHBFtNq9N0DoFlp1DWcCljiUQtevKQux1puAwXvEl6bKm
+         lmNiHEUmdxmgttsssc15VqOvXkpxcCaXu6+54PE38f9aQLr1uY7ZHz2Y/CV0MSr+mln1
+         7NBQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Au/oLtZdtspQb52rzMIfQ75b/zXlTZloOpJbaQmL7Do=;
-        b=pePtT+FIzvpDB4cegKHH1CMua4yqAmcA3TAyz5/xnRa+2WNIeABFkdvMnDmXan+Jx6
-         MMvQ/myXeY8AO4mv4Osai+ztNNhnNIy7oeGy14837IijJoZU5IEKCSJSbGaNb3NhUKsg
-         SAZ5ui0gSEOXwBD2f1NkZELzyCYurLtC1PGyDRctEHdJY8ZtwlSFpU7Az7bnthCLfF3E
-         way8vi2vYHq9VwKLUNp8HJatKrbaV/AEATDxcxSFvHnrIW1iHGmWWnAisuqFjj6s39lj
-         7Sw60rvSW2eMS5I1Vc34E8FfZyLRc+9Hxe3TzDCHW3z8wefVqzsvhL3iYVSViqliBrGG
-         R78A==
-X-Gm-Message-State: AOAM530NF+VBv5OipFTSDwY5MDVYF6FKYw32MsLqKRMhBmgHhxSWLnM1
-        JlEQ43yrNU/Vpm+AMpzviRo=
-X-Google-Smtp-Source: ABdhPJyZndi0VNi8/YapDF9wtPCnlEZCXpK6tjO7uFCjXpTVjmr8ohYL9IT/JJWN2aXond99kOflAA==
-X-Received: by 2002:a1c:c242:: with SMTP id s63mr7482260wmf.146.1594800956650;
-        Wed, 15 Jul 2020 01:15:56 -0700 (PDT)
+        bh=o+gBrPoU3oSYb3HQStke4RnhAjWyBzWOLqiV+38Nbz4=;
+        b=Fu04zii/eAr5wmi55+pzmNtrhxSEL7Gl6sfL+8pEoyFqPV3fA6LVcD3A6wloHp4JEA
+         wntzyQlyIpv8t2WNXaCayf4fj/gBKCjX09sE8tSpQ+Gt4k6fCtk5ndlUHOd8+S+7h+XH
+         ciM6DBe5UGPS1No5hThNhFd1ReARA8fzLadyscioLks+sCRMc/YmZ4IXm1FVdn+i7r11
+         hGMGoZEbKoQDxF71JfTmPOBedJIZFGzWYitBNLH3CDnnhY5hDfzYU+W314zvw22944E0
+         Nrs15lLk5k6ea8C2kFZh8rNIZdDVtapwx3e8fWHiKnqITGdfuXAFqNKHFrHs5sp0+SSs
+         gx/w==
+X-Gm-Message-State: AOAM530dimGPZFzXcMj8+JC2k21c1hqlQcwjTE0rPLqGxXJBE/qdJnws
+        A6T5bYzuAFKxDZRux2+Df6s=
+X-Google-Smtp-Source: ABdhPJx6jcfaAhFm1MTTyH4khAHnTITaKDBHULmqrtznDNAyQoADaRPN0itf4cnJBs4H1N7I9F756w==
+X-Received: by 2002:a1c:309:: with SMTP id 9mr7227622wmd.164.1594800960935;
+        Wed, 15 Jul 2020 01:16:00 -0700 (PDT)
 Received: from bienne.fritz.box ([2001:a61:3adb:8201:9649:88f:51f8:6a21])
-        by smtp.gmail.com with ESMTPSA id o29sm2562756wra.5.2020.07.15.01.15.55
+        by smtp.gmail.com with ESMTPSA id q1sm2315783wro.82.2020.07.15.01.16.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jul 2020 01:15:56 -0700 (PDT)
+        Wed, 15 Jul 2020 01:16:00 -0700 (PDT)
 From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
 To:     mtk.manpages@gmail.com, Karel Zak <kzak@redhat.com>
 Cc:     util-linux@vger.kernel.org
-Subject: [PATCH 2/3] Manual pages: scriptlive.1: Miscellaneous wording, grammar, and formatting fixes
-Date:   Wed, 15 Jul 2020 10:15:45 +0200
-Message-Id: <20200715081546.112933-2-mtk.manpages@gmail.com>
+Subject: [PATCH 3/3] Manual pages: scriptreplay.1: Miscellaneous wording, grammar, and formatting fixes
+Date:   Wed, 15 Jul 2020 10:15:46 +0200
+Message-Id: <20200715081546.112933-3-mtk.manpages@gmail.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200715081546.112933-1-mtk.manpages@gmail.com>
 References: <20200715081546.112933-1-mtk.manpages@gmail.com>
@@ -79,47 +79,50 @@ of the edits into one patch.
 
 Signed-off-by: Michael Kerrisk (man-pages) <mtk.manpages@gmail.com>
 ---
- term-utils/scriptlive.1 | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ term-utils/scriptreplay.1 | 30 +++++++++++++++++-------------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
 
-diff --git a/term-utils/scriptlive.1 b/term-utils/scriptlive.1
-index 236868b8f..fd553ad01 100644
---- a/term-utils/scriptlive.1
-+++ b/term-utils/scriptlive.1
-@@ -9,17 +9,23 @@ scriptlive \- re-run session typescripts, using timing information
- .RB [ \-I|\-B ]
- .I typescript
- .SH DESCRIPTION
--This program re-run a typescript, using stdin typescript and timing information to ensure that
-+This program re-runs a typescript,
-+using stdin typescript and timing information to ensure that
- input happens in the same rhythm as it originally appeared when the script
- was recorded.
+diff --git a/term-utils/scriptreplay.1 b/term-utils/scriptreplay.1
+index 99bf9c3d2..18aadd5f4 100644
+--- a/term-utils/scriptreplay.1
++++ b/term-utils/scriptreplay.1
+@@ -30,7 +30,7 @@ outputs to file specified by
+ .BR \-\-log-timing .
  .PP
--The \fBsession is executed\fR in newly created pseudo terminal with user's $SHELL
-+The \fBsession is executed\fR in a newly created pseudoterminal with
-+the user's $SHELL
- (or defaults to /bin/bash).
+ By default, the typescript to display is assumed to be named
+-.BR typescript ,
++.IR typescript ,
+ but other filenames may be specified, as the second parameter or with option
+ .BR \-\-log\-out .
  .PP
- .B Be careful!
- Do not forget that the typescript may contains arbitrary commands.
- It is recommended to use \fB"scriptreplay \-\-stream in \-\-log\-in typescript"\fR
--(or with --log-io instead of --log-in) to verify the typescript before it is executed by
-+(or with
-+.B \-\-log\-io
-+instead of
-+.BR \-\-log\-in\)
-+to verify the typescript before it is executed by
- .BR scriptlive (1).
- .PP
- The timing information is what
-@@ -47,17 +53,18 @@ File containing \fBscript\fR's timing output.  This option overrides old-style a
+@@ -56,20 +56,21 @@ File containing \fBscript\fR's terminal output and input.
+ File containing \fBscript\fR's timing output.  This option overrides old-style arguments.
+ .TP
  .BR \-T , " \-\-log\-timing " \fIfile\fR
- Aliased to \fB\-t\fR, maintained for compatibility with
- .BR script (1)
+-aliast to \fB\-t\fR, maintained for compatibility with
+-.B script (1)
 -command line options.
++This is an alias for \fB\-t\fR, maintained for compatibility with
++.BR script (1)
 +command-line options.
-+.TP
+ .TP
+ .BR \-s , " \-\-typescript " \fIfile\fR
+ File containing \fBscript\fR's terminal output.  Deprecated alias to \fB\-\-log-out\fR.
+ This option overrides old-style arguments.
+ .TP
+ .BR \-c , " \-\-cr\-mode " \fImode\fR
+-Specifies how to use CR (0x0D, carriage return) character from log files.
++Specifies how to use the CR (0x0D, carriage return) character from log files.
+ The default mode is
+ .IR auto ,
+ in this case CR is replaced with line break for stdin log, because otherwise
+-scriptreplay will overwrite the same line.  The other modes are
++.B scriptreplay
++would overwrite the same line.  The other modes are
+ .I never
+ and
+ .IR always .
+@@ -77,33 +78,36 @@ and
  .BR \-d , " \-\-divisor " \fInumber\fR
  Speed up the replay displaying this
  .I number
@@ -134,7 +137,35 @@ index 236868b8f..fd553ad01 100644
 +of seconds.  The argument is a floating-point number.  This can be used to
  avoid long pauses in the typescript replay.
  .TP
+ .B \-\-summary
+-Display details about session recorded in the specified timing file and exit.  The session has
+-to be recorded by
++Display details about the session recorded in the specified timing file
++and exit.  The session has to be recorded using
+ .I advanced
+ format (see
+ .BR script (1))
+ option \fB\-\-logging\-format\fR for more details).
+ .TP
+ .BR \-x , " \-\-stream " \fItype\fR
+-Forces scriptreplay to print only specified stream.  The supported stream types
++Forces
++.B scriptreplay
++to print only the specified stream.  The supported stream types
+ are
+ .IR in ,
+ .IR out ,
+ .IR signal ,
+ or
+ .IR info .
+-This option is recommended for multi-stream logs (e.g., \-\-log-io)
+-to print only specified data.
++This option is recommended for multi-stream logs (e.g.,
++.BR \-\-log-io )
++in order to print only specified data.
+ .TP
  .BR \-V , " \-\-version"
+ Display version information and exit.
 -- 
 2.26.2
 
