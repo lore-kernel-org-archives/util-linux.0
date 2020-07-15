@@ -8,63 +8,65 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA222C433E2
-	for <util-linux@archiver.kernel.org>; Wed, 15 Jul 2020 08:15:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2307C433E4
+	for <util-linux@archiver.kernel.org>; Wed, 15 Jul 2020 08:15:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A36642067D
-	for <util-linux@archiver.kernel.org>; Wed, 15 Jul 2020 08:15:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BC2C22067D
+	for <util-linux@archiver.kernel.org>; Wed, 15 Jul 2020 08:15:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Xm1p53Xz"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="agpYtvRL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729696AbgGOIPz (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 15 Jul 2020 04:15:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50136 "EHLO
+        id S1729697AbgGOIP6 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 15 Jul 2020 04:15:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729643AbgGOIPy (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 15 Jul 2020 04:15:54 -0400
+        with ESMTP id S1729643AbgGOIP6 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 15 Jul 2020 04:15:58 -0400
 Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EF2EC061755
-        for <util-linux@vger.kernel.org>; Wed, 15 Jul 2020 01:15:54 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id o2so4674451wmh.2
-        for <util-linux@vger.kernel.org>; Wed, 15 Jul 2020 01:15:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEF6BC061755
+        for <util-linux@vger.kernel.org>; Wed, 15 Jul 2020 01:15:57 -0700 (PDT)
+Received: by mail-wm1-x343.google.com with SMTP id q15so4472871wmj.2
+        for <util-linux@vger.kernel.org>; Wed, 15 Jul 2020 01:15:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=l4ybm8+PosGJmH98J38/iHRYyFLla1UXcu0ICNVg4kc=;
-        b=Xm1p53Xz69NElZWTGgTdi2H88pMYC8GTDivFbY/2tpjR6k1mAvX9oZGyxOkEEtKXUb
-         G1biZd3d17uSTAJKuysfsiYsucbsH8In9OLZG9EFQwBI5yFIDXSp6q5qPb+oox6b7HXC
-         TjJiB/0pCcid3BfeVQcSjg4+sWBpRpX7nXz/jjVeBSuuFoAn3/WfW5xdvco8elT/GeOe
-         Tb4n0w+2T7kGoxl16og7GEfcVnMk1P7WEzU2vG9TFRJNQ/94C55qs5UKfS/QTWXgCiLN
-         VQArg0VCsCBY+X2lxEM2E+G3/Xknf1VxLBFsSelejn2iD7BLVk9jAT/rTNhVytKNbk2e
-         YxRw==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=Au/oLtZdtspQb52rzMIfQ75b/zXlTZloOpJbaQmL7Do=;
+        b=agpYtvRLiXQh1mPhjHIc0cyQYFoQNy/i0FwE5LiSsMK5TqBEaNb+Wrvv2QJlDJLH+E
+         jRxzWRuW1iEAgpGcG0A2COWJwwfc7TnmrwTBVAzvKcm4P0H8/hvc/tAPsH0Ey4D7v+XQ
+         jXENFLee85PN55UHG82N0raFYw8LsINKozIgyScfBOZv0PprQJIVddnQCa0o+xWAn/KS
+         fePe8OyYS0GM3luY9Am4uOO8AY2ccaUjoNdrOm7PehZGkDxpOTGvxmIghyZa5wOwxKOH
+         1+ylnjVkf5yUIoZ2ztYLhh9ihIPhgD+Oq4H1xDxmQU4EEHeLcJnfPASqsScdLJ3yqqQs
+         NvzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=l4ybm8+PosGJmH98J38/iHRYyFLla1UXcu0ICNVg4kc=;
-        b=PHgVVb1E5WTzd2AyqekJX/iGfit8UacMsjiotKiY4QjLy2innRGSbxhPz5Zs+cXqPG
-         XDqRRa+R2qFDMNGJmDhr53AGQb0WLWfh5QZ15bKUg3XQtl62j+RkqedrqDM80sbtUsTj
-         dqWkGVZYVqEI4Osvs49y8VvPB8iQT6sqqQdBPA3XnB0tGEBuUKr5ULWQeaoW7wtDv8Oq
-         pv0r7IEBK8M132RNfsbe9ZkvutkBgnZykKiiTrnMwlA7kV7bRsl9MEU71E0hzwzlWw1K
-         F2KPvdu044Lfax0HrcaY+oT3mUk/ifjGjCaxY2Rt2mP7R4TUE9OZwmjKwcxiTLvNFsnk
-         WMsQ==
-X-Gm-Message-State: AOAM5312aaVxc+zPuO8AcDh+IrdndUcXvGYl3Iy2QhI/zIUw/NwZ9mN4
-        mWyA4WsPo9o/cQXSZBjIZkQ=
-X-Google-Smtp-Source: ABdhPJybEnQ3hjnO9VbpPk0UJvtBOd2SNoWdyjopGePwYwubb5qbVn4THq5fCTQVm7vJNg9xGkKGVw==
-X-Received: by 2002:a05:600c:258:: with SMTP id 24mr7697209wmj.126.1594800951886;
-        Wed, 15 Jul 2020 01:15:51 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Au/oLtZdtspQb52rzMIfQ75b/zXlTZloOpJbaQmL7Do=;
+        b=pePtT+FIzvpDB4cegKHH1CMua4yqAmcA3TAyz5/xnRa+2WNIeABFkdvMnDmXan+Jx6
+         MMvQ/myXeY8AO4mv4Osai+ztNNhnNIy7oeGy14837IijJoZU5IEKCSJSbGaNb3NhUKsg
+         SAZ5ui0gSEOXwBD2f1NkZELzyCYurLtC1PGyDRctEHdJY8ZtwlSFpU7Az7bnthCLfF3E
+         way8vi2vYHq9VwKLUNp8HJatKrbaV/AEATDxcxSFvHnrIW1iHGmWWnAisuqFjj6s39lj
+         7Sw60rvSW2eMS5I1Vc34E8FfZyLRc+9Hxe3TzDCHW3z8wefVqzsvhL3iYVSViqliBrGG
+         R78A==
+X-Gm-Message-State: AOAM530NF+VBv5OipFTSDwY5MDVYF6FKYw32MsLqKRMhBmgHhxSWLnM1
+        JlEQ43yrNU/Vpm+AMpzviRo=
+X-Google-Smtp-Source: ABdhPJyZndi0VNi8/YapDF9wtPCnlEZCXpK6tjO7uFCjXpTVjmr8ohYL9IT/JJWN2aXond99kOflAA==
+X-Received: by 2002:a1c:c242:: with SMTP id s63mr7482260wmf.146.1594800956650;
+        Wed, 15 Jul 2020 01:15:56 -0700 (PDT)
 Received: from bienne.fritz.box ([2001:a61:3adb:8201:9649:88f:51f8:6a21])
-        by smtp.gmail.com with ESMTPSA id z63sm2487511wmb.2.2020.07.15.01.15.50
+        by smtp.gmail.com with ESMTPSA id o29sm2562756wra.5.2020.07.15.01.15.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jul 2020 01:15:51 -0700 (PDT)
+        Wed, 15 Jul 2020 01:15:56 -0700 (PDT)
 From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
 To:     mtk.manpages@gmail.com, Karel Zak <kzak@redhat.com>
 Cc:     util-linux@vger.kernel.org
-Subject: [PATCH 1/3] Manual pages: script.1: Miscellaneous wording, grammar, and formatting fixes
-Date:   Wed, 15 Jul 2020 10:15:44 +0200
-Message-Id: <20200715081546.112933-1-mtk.manpages@gmail.com>
+Subject: [PATCH 2/3] Manual pages: scriptlive.1: Miscellaneous wording, grammar, and formatting fixes
+Date:   Wed, 15 Jul 2020 10:15:45 +0200
+Message-Id: <20200715081546.112933-2-mtk.manpages@gmail.com>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200715081546.112933-1-mtk.manpages@gmail.com>
+References: <20200715081546.112933-1-mtk.manpages@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
@@ -77,147 +79,62 @@ of the edits into one patch.
 
 Signed-off-by: Michael Kerrisk (man-pages) <mtk.manpages@gmail.com>
 ---
- term-utils/script.1 | 51 ++++++++++++++++++++++++++-------------------
- 1 file changed, 30 insertions(+), 21 deletions(-)
+ term-utils/scriptlive.1 | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/term-utils/script.1 b/term-utils/script.1
-index 8eda4a58b..49ba58224 100644
---- a/term-utils/script.1
-+++ b/term-utils/script.1
-@@ -44,10 +44,10 @@ makes a typescript of everything on your terminal session.  The terminal
- data are stored in raw form to the log file and information about timing
- to another (optional) structured log file.  The timing log file is necessary to replay
- the session later by
--.B scriptreplay (1)
-+.BR scriptreplay (1)
- and to store additional information about the session.
+diff --git a/term-utils/scriptlive.1 b/term-utils/scriptlive.1
+index 236868b8f..fd553ad01 100644
+--- a/term-utils/scriptlive.1
++++ b/term-utils/scriptlive.1
+@@ -9,17 +9,23 @@ scriptlive \- re-run session typescripts, using timing information
+ .RB [ \-I|\-B ]
+ .I typescript
+ .SH DESCRIPTION
+-This program re-run a typescript, using stdin typescript and timing information to ensure that
++This program re-runs a typescript,
++using stdin typescript and timing information to ensure that
+ input happens in the same rhythm as it originally appeared when the script
+ was recorded.
  .PP
--Since version 2.35
-+Since version 2.35,
- .B script
- supports multiple streams and allows the logging of input and output to separate
- files or all the one file.  This version also supports new timing file
-@@ -63,11 +63,13 @@ or option \fB\-\-log\-out\fR \fIfile\fR is given,
- saves the dialogue in this
- .IR file .
- If no filename is given, the dialogue is saved in the file
--.BR typescript .
-+.IR typescript .
+-The \fBsession is executed\fR in newly created pseudo terminal with user's $SHELL
++The \fBsession is executed\fR in a newly created pseudoterminal with
++the user's $SHELL
+ (or defaults to /bin/bash).
  .PP
--Note that log input by \fB\-\-log\-in\fR or \fB\-\-log\-io\fR may be security
--sensitive operation as the log file contains all terminal session input (it
--means also passwords) independently on the terminal echo flag setting.
-+Note that logging input using \fB\-\-log\-in\fR or \fB\-\-log\-io\fR
-+may record security-sensitive information
-+as the log file contains all terminal session input
-+(e.g., passwords)
-+independently of the terminal echo flag setting.
- .SH OPTIONS
- Below, the \fIsize\fR argument may be followed by the multiplicative
- suffixes KiB (=1024), MiB (=1024*1024), and so on for GiB, TiB, PiB, EiB, ZiB and YiB
-@@ -78,7 +80,7 @@ KB (=1000), MB (=1000*1000), and so on for GB, TB, PB, EB, ZB and YB.
- Append the output to
- .I file
- or to
--.BR typescript ,
-+.IR typescript ,
- retaining the prior contents.
- .TP
- \fB\-c\fR, \fB\-\-command\fR \fIcommand\fR
-@@ -89,8 +91,8 @@ the output of a program that behaves differently when its stdout is not a
- tty.
- .TP
- \fB\-E\fR, \fB\-\-echo\fR \fIwhen\fR
--This option controls the ECHO flag for pseudoterminal within the session.  The
--supported modes are
-+This option controls the ECHO flag for the pseudoterminal within the session.
-+The supported modes are
- .IR always ,
- .IR never ,
- or
-@@ -98,25 +100,28 @@ or
- The default is
- .I auto
- -- in this case, ECHO is disabled if the current standard input is a
--terminal to avoid double-echo, and enabled if standard input is not terminal
-+terminal iin order to avoid double-echo,
-+and enabled if standard input is not a terminal
- (for example pipe:
- .BR "echo date | script" )
- to avoid missing input in the session log.
- .TP
- \fB\-e\fR, \fB\-\-return\fR
- Return the exit status of the child process.  Uses the same format as bash
--termination on signal termination exit status is 128+n.  The exit status of
--the child process is always stored in type script file too.
-+termination on signal termination
-+(i.e., exit status is 128 + the signal number).  The exit status of
-+the child process is always stored in the type script file too.
- .TP
- \fB\-f\fR, \fB\-\-flush\fR
- Flush output after each write.  This is nice for telecooperation: one person
--does `mkfifo foo; script \-f foo', and another can supervise real-time what is
--being done using `cat foo'.  Note that flush has an impact on performance, it's
-+does `mkfifo foo; script \-f foo',
-+and another can supervise in real-time what is
-+being done using `cat foo'.  Note that flush has an impact on performance; it's
- possible to use SIGUSR1 to flush logs on demand.
- .TP
- \fB\-\-force\fR
- Allow the default output file
--.B typescript
-+.I typescript
- to be a hard or symbolic link.  The command will follow a symbolic link.
- .TP
- \fB\-B\fR, \fB\-\-log\-io\fR \fIfile\fR
-@@ -130,12 +135,12 @@ Log input to the \fIfile\fR.  The log output is disabled if only \fB\-\-log\-in\
- specified.
- .sp
- Use this logging functionality carefully as it logs all input, including input
--when terminal has disabled echo flag (for example password inputs).
-+when terminal has disabled echo flag (for example, password inputs).
- .TP
- \fB\-O\fR, \fB\-\-log\-out\fR \fIfile\fR
- Log output to the \fIfile\fR.  The default is to log output to the file with
- name
--.B typescript
-+.I typescript
- if the option \fB\-\-log\-out\fR or \fB\-\-log\-in\fR is not given.  The log
- output is disabled if only \fB\-\-log\-in\fR specified.
- .TP
-@@ -147,7 +152,7 @@ is enabled.  The multi-stream format is used on \fB\-\-log\-io\fR or when
- See also \fB\-\-logging\-format\fR.
- .TP
- \fB\-m\fR, \fB\-\-logging\-format\fR \fIformat\fR
--Force use
-+Force use of
- .I advanced
- or
- .I classic
-@@ -163,8 +168,10 @@ field indicates how many characters were output this time.
- .sp
- .B Advanced (multi-stream) format
+ .B Be careful!
+ Do not forget that the typescript may contains arbitrary commands.
+ It is recommended to use \fB"scriptreplay \-\-stream in \-\-log\-in typescript"\fR
+-(or with --log-io instead of --log-in) to verify the typescript before it is executed by
++(or with
++.B \-\-log\-io
++instead of
++.BR \-\-log\-in\)
++to verify the typescript before it is executed by
+ .BR scriptlive (1).
  .PP
--The first field is entry type itentifier ('I'nput, 'O'utput, 'H'eader, 'S'ignal).
--The socond field is how much time elapsed since the previous entry, and rest of the entry is type specific data.
-+The first field is an entry type identifier
-+('I'nput, 'O'utput, 'H'eader, 'S'ignal).
-+The socond field is how much time elapsed since the previous entry,
-+and the rest of the entry is type-specific data.
- .RE
+ The timing information is what
+@@ -47,17 +53,18 @@ File containing \fBscript\fR's timing output.  This option overrides old-style a
+ .BR \-T , " \-\-log\-timing " \fIfile\fR
+ Aliased to \fB\-t\fR, maintained for compatibility with
+ .BR script (1)
+-command line options.
++command-line options.
++.TP
+ .BR \-d , " \-\-divisor " \fInumber\fR
+ Speed up the replay displaying this
+ .I number
+-of times.  The argument is a floating point number.  It's called divisor
++of times.  The argument is a floating-point number.  It's called divisor
+ because it divides the timings by this factor.  This option overrides old-style arguments.
  .TP
- \fB\-o\fR, \fB\-\-output-limit\fR \fIsize\fR
-@@ -252,7 +259,9 @@ fi
- .RE
- .ad
- .PP
--You should also avoid use of script in command pipes, as
-+You should also avoid use of
-+.B script
-+in command pipes, as
- .B script
- can read more input than you would expect.
- .SH HISTORY
+ .BR \-m , " \-\-maxdelay " \fInumber\fR
+ Set the maximum delay between updates to
+ .I number
+-of seconds.  The argument is a floating point number.  This can be used to
++of seconds.  The argument is a floating-point number.  This can be used to
+ avoid long pauses in the typescript replay.
+ .TP
+ .BR \-V , " \-\-version"
 -- 
 2.26.2
 
