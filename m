@@ -8,63 +8,65 @@ X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E599CC433E1
-	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:06:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FB49C433E5
+	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:06:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BE70E2065C
-	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:06:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1D1F22065C
+	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:06:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AqrxTi8U"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TZ4C4+UM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726618AbgGXKG2 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 24 Jul 2020 06:06:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34130 "EHLO
+        id S1726800AbgGXKGl (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 24 Jul 2020 06:06:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726114AbgGXKG2 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 24 Jul 2020 06:06:28 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8BB7C0619D3
-        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:06:26 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id n22so9405712ejy.3
-        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:06:26 -0700 (PDT)
+        with ESMTP id S1726783AbgGXKGl (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 24 Jul 2020 06:06:41 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 399FFC0619D3
+        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:06:41 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id w9so9382581ejc.8
+        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:06:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=85ZduUNEctsWQjxcTp7NgRbhTN+O50BuJtufgMGzBQ8=;
-        b=AqrxTi8UxGPcaP22PlRTp55NQ2Ot5Yj329X7EtSc6TI+NAJDCJAEL+yNJWQavl3UKe
-         wIxf9goztPLVKXT+iyzxyZerw/EdfoEcI7dS5Uhla0HFRDng1mrH1XCFxXEtSEY2RgJO
-         kVGHJ/tEI1uHIgCnja9iJEtV9PHJo30ue/Wv3QytzHWn/9aw5PxtJnwJ/PulJGlRj5kI
-         TJGF/KpHIxwhdA2Fd95Ay719xzC074jFraRDrTHVnfON0K8ElmgdPYOK4w3SmtX47+It
-         8sqSmifsemtxfN09+sznO0aAv6rKWvu/4PDD1f4FJe5SVm+4TLcrMmyCKjBc/zrFl//H
-         RG3A==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=SZqvbXXTLEGzIwLE6Q7Pvmy0sL8qITV27V5UAUpWm9E=;
+        b=TZ4C4+UMENlfChAHQRP/Zazi4cayrFHDg5LJEXQbkhwrg7R8aSbfNX2EJrgc/hiDCj
+         5zv1tNGn0xFp/4hpc8Oim/kMXdIMv8zZ/Am+phxEaakBUz/WrSGCjz9Ow7LhLAofVo9t
+         Ce8GDnZOYaFIknMBKml4bp6FOzNukrB8Ncqc1HX8jtze/e8rZ+UHa+i78WObwjf9aFVT
+         riQjbfPnH5H4rTxczbw3VD0yl1rDU2rReej7VrHO+iXPzmCr1ZBVH1UuQtx9PgP0v98D
+         qdukLzBWomB2kwqJXsvYMw5E4xixsevZVqZLo02of/OKEgsup6ZYwN90Lx544L2Y4I5K
+         zAlw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=85ZduUNEctsWQjxcTp7NgRbhTN+O50BuJtufgMGzBQ8=;
-        b=h1YPJUDhalEQlRY3Fucgr+M4bnqJCKqD2HMl3BIFbOoi4dDJrQ1yJ2gcTM0LW02Cs9
-         N00UTU/fkuna++a9HOjw2r2GyBblg+k1P7FsTlPL+d3U8l86ZOwUO1+KIfCf9cGvdB8b
-         9vHPKCN+B0jPp6QvCsSoWBUMgT9iVES/vqF7+CjyBqqv9IzoVR3qakaYH4QjoHTavPcc
-         KssO+01Pa3WnNgG/A/23xaLg2urVcZZfnGUcYJRRggyVEDjz8aoEJyVdSSumNhGKbEUn
-         7CnWXSHbM678KK5/gj/cbkj18+TMqmtpguquu69nXuypu+Rg6Sl6buvE1HLoLZyeDBdA
-         SUuA==
-X-Gm-Message-State: AOAM533Y9iSG+Gu40VBjXx5jDd2OyDNZohziUQBWhWKdiH5yiGgVf2Du
-        dtQOutfkzzCIzWusl1qhj7s=
-X-Google-Smtp-Source: ABdhPJxpei3XPp2wYoNf9kKxdo4dRbrp0Q1qpq2NIDt3ImvvqreXfXuwsg06QIILh43vFU67qX4M8Q==
-X-Received: by 2002:a17:907:11dd:: with SMTP id va29mr6980735ejb.470.1595585185470;
-        Fri, 24 Jul 2020 03:06:25 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=SZqvbXXTLEGzIwLE6Q7Pvmy0sL8qITV27V5UAUpWm9E=;
+        b=p/yej/zq+zrcLAwDKDBKGpzgCw39UMzxLQOmbjFrFFicLe9pQShgyEIIpx3bm682Uc
+         SMDnVGFzALy7DWinEI9yQc2uXClZpzVzcktSII1jjoSQtISaRkM2eSCc7lCmCs1ktYIj
+         Wv2LHPDc2joytq4y1HgL7BzMgAxbYaKfStVoQv6sW4ogxmw71yiFYZdfktv0H15Wmuh+
+         e7evy8ZVqWW3FbizMKBUjSOwgbUVVKWEfyJP1pSi8ajqzl8VV80hUFfivv3ETUPGBV3D
+         6zcqseY91UJ05qh4i4qaAifaxmdYj9iweUwhZbLFHzyahwYlDlUizChvE8bsUaDB055D
+         RkPA==
+X-Gm-Message-State: AOAM533Yqsn3j6dXJANCEueRVsRvJYB0hCALIY3bep6l4MbyG8UQugj5
+        jHXVR2YkQRGbJHBVQ5iphsPGpbyf
+X-Google-Smtp-Source: ABdhPJweUV1iApFULSpMdDgt0w4vXYCz4ePOp6oMRs+dMFjEMFCynxvGmwbNGAqldwo+d5zORhOHdg==
+X-Received: by 2002:a17:907:4420:: with SMTP id om24mr8220068ejb.10.1595585199946;
+        Fri, 24 Jul 2020 03:06:39 -0700 (PDT)
 Received: from bienne.fritz.box ([2001:a61:3adb:8201:9649:88f:51f8:6a21])
-        by smtp.gmail.com with ESMTPSA id b24sm449098edn.33.2020.07.24.03.06.24
+        by smtp.gmail.com with ESMTPSA id i5sm339998ejc.114.2020.07.24.03.06.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jul 2020 03:06:24 -0700 (PDT)
+        Fri, 24 Jul 2020 03:06:39 -0700 (PDT)
 From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
 To:     mtk.manpages@gmail.com, Karel Zak <kzak@redhat.com>
 Cc:     util-linux@vger.kernel.org
-Subject: [PATCH 01/12] Manual pages: blockdev.8: Minor wording and formatting fixes
-Date:   Fri, 24 Jul 2020 12:06:07 +0200
-Message-Id: <20200724100618.584918-1-mtk.manpages@gmail.com>
+Subject: [PATCH 04/12] Manual pages: sfdisk.8: Minor wording and formatting fixes
+Date:   Fri, 24 Jul 2020 12:06:10 +0200
+Message-Id: <20200724100618.584918-4-mtk.manpages@gmail.com>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200724100618.584918-1-mtk.manpages@gmail.com>
+References: <20200724100618.584918-1-mtk.manpages@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
@@ -74,73 +76,113 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Signed-off-by: Michael Kerrisk (man-pages) <mtk.manpages@gmail.com>
 ---
- disk-utils/blockdev.8 | 28 ++++++++++++++++++++--------
- 1 file changed, 20 insertions(+), 8 deletions(-)
+ disk-utils/sfdisk.8 | 38 +++++++++++++++++++++++++++-----------
+ 1 file changed, 27 insertions(+), 11 deletions(-)
 
-diff --git a/disk-utils/blockdev.8 b/disk-utils/blockdev.8
-index 361e6aad7..44ed9e1e9 100644
---- a/disk-utils/blockdev.8
-+++ b/disk-utils/blockdev.8
-@@ -31,7 +31,9 @@ Be quiet.
- Be verbose.
- .IP "\fB\-\-report\fP"
- Print a report for the specified device. It is possible to give multiple
--devices. If none is given, all devices which appear in /proc/partitions are
-+devices. If none is given, all devices which appear in
-+.I /proc/partitions
-+are
- shown. Note that the partition StartSec is in 512-byte sectors.
- .IP "\fB\-h\fR, \fB\-\-help\fR"
- Display help text and exit.
-@@ -44,8 +46,9 @@ Flush buffers.
- .IP "\fB\-\-getalignoff\fP"
- Get alignment offset.
- .IP "\fB\-\-getbsz\fP"
--Print blocksize in bytes.  This size does not describe device topology.  It's
--size used internally by kernel and it maybe modified (for example) by
-+Print the blocksize in bytes.
-+This size does not describe device topology.  It's
-+the size used internally by ithe kernel and it may be modified (for example) by
- filesystem driver on mount.
- .IP "\fB\-\-getdiscardzeroes\fP"
- Get discard zeroes support status.
-@@ -66,7 +69,9 @@ Get read-only. Print 1 if the device is read-only, 0 otherwise.
- .IP "\fB\-\-getsize64\fP"
- Print device size in bytes.
- .IP "\fB\-\-getsize\fP"
--Print device size (32-bit!) in sectors. Deprecated in favor of the \-\-getsz option.
-+Print device size (32-bit!) in sectors. Deprecated in favor of the
-+.B \-\-getsz
-+option.
- .IP "\fB\-\-getss\fP"
- Print logical sector size in bytes \(en usually 512.
- .IP "\fB\-\-getsz\fP"
-@@ -76,14 +81,21 @@ Reread partition table
- .IP "\fB\-\-setbsz\fP \fIbytes\fP"
- Set blocksize. Note that the block size is specific to the current file
- descriptor opening the block device, so the change of block size only persists
--for as long as blockdev has the device open, and is lost once blockdev exits.
-+for as long as
-+.B blockdev
-+has the device open, and is lost once
-+.B blockdev
-+exits.
- .IP "\fB\-\-setfra\fP \fIsectors\fP"
--Set filesystem readahead (same like \-\-setra on 2.6 kernels).
-+Set filesystem readahead (same as
-+.B \-\-setra
-+on 2.6 kernels).
- .IP "\fB\-\-setra\fP \fIsectors\fP"
- Set readahead (in 512-byte sectors).
- .IP "\fB\-\-setro\fP"
--Set read-only. The currently active access to the device may not be affected by the change. For example
--filesystem already mounted in read-write mode will not be affected. The change applies after remount.
-+Set read-only. The currently active access to the device may not be affected by the change. For example,
-+a filesystem already mounted in read-write mode will not be affected.
-+The change applies after remount.
- .IP "\fB\-\-setrw\fP"
- Set read-write.
- .SH AUTHORS
+diff --git a/disk-utils/sfdisk.8 b/disk-utils/sfdisk.8
+index 6c3f62edd..6c54a1699 100644
+--- a/disk-utils/sfdisk.8
++++ b/disk-utils/sfdisk.8
+@@ -26,7 +26,7 @@ sfdisk \- display or manipulate a disk partition table
+ .SH DESCRIPTION
+ .B sfdisk
+ is a script-oriented tool for partitioning any block device.  It
+-runs in interactive mode if executed on terminal (stdin refers to a terminal).
++runs in interactive mode if executed on a terminal (stdin refers to a terminal).
+ 
+ Since version 2.26
+ .B sfdisk
+@@ -45,11 +45,15 @@ to alignment if the start offset is specified exactly in sectors and partition
+ size relative or by multiplicative suffixes.
+ 
+ The recommended way is not to specify start offsets at all and specify
+-partition size in MiB, GiB (or so).  In this case sfdisk align all partitions
++partition size in MiB, GiB (or so).  In this case
++.B sfdisk
++aligns all partitions
+ to block-device I/O limits (or when I/O limits are too small then to megabyte
+ boundary to keep disk layout portable).  If this default behaviour is unwanted
+ (usually for very small partitions) then specify offsets and sizes in
+-sectors.  In this case sfdisk entirely follows specified numbers without any
++sectors.  In this case
++.B sfdisk
++entirely follows specified numbers without any
+ optimization.
+ .sp
+ .B sfdisk
+@@ -62,11 +66,15 @@ partitions.
+ .B sfdisk
+ uses BLKRRPART (reread partition table) ioctl to make sure that the device is
+ not used by system or other tools (see also \-\-no-reread).  It's possible that
+-this feature or another sfdisk activity races with \fBudevd\fR.  The recommended way
++this feature or another
++.B sfdisk
++activity races with \fBudevd\fR.  The recommended way
+ how to avoid possible collisions is to use \fB\-\-lock\fR option.
+ The exclusive lock will cause udevd to skip the event handling on the device.
+ .PP
+-The sfdisk prompt is only a hint for users and a displayed partition number does
++The
++.B sfdisk
++prompt is only a hint for users and a displayed partition number does
+ not mean that the same partition table entry will be created (if -N not
+ specified), especially for tables with gaps.
+ 
+@@ -96,8 +104,10 @@ bootable flag on all unspecified partitions. The special placeholder '\-'
+ may be used instead of the partition numbers to switch off the bootable flag
+ on all partitions.
+ 
+-The activation command is supported for MBR and PMBR only.  If GPT label is detected
+-than sfdisk prints warning and automatically enter PMBR.
++The activation command is supported for MBR and PMBR only.
++If a GPT label is detected, then
++.B sfdisk
++prints warning and automatically enters PMBR.
+ 
+ If no \fIpartition-number\fR is specified, then list the partitions with an
+ enabled flag.
+@@ -267,7 +277,9 @@ and the last command reorders partitions to match disk order
+ 
+ .TP
+ .B \-\-move\-use\-fsync
+-Use fsync system call after each write when move data to a new location by
++Use the
++.BR fsync (2)
++system call after each write when moving data to a new location by
+ \fB\-\-move\-data\fR.
+ .TP
+ .BR \-o , " \-\-output " \fIlist
+@@ -305,7 +317,7 @@ to avoid possible collisions.  The argument \fIwhen\fR can be \fBauto\fR,
+ except the old partition-table signatures which are always wiped before create
+ a new partition-table if the argument \fIwhen\fR is not \fBnever\fR. In all
+ cases detected signatures are reported by warning messages before a new
+-partition table is created.  See also
++partition table is created.  See also the
+ .BR wipefs (8)
+ command.
+ 
+@@ -418,7 +430,9 @@ The partition
+ is given in hex for MBR (DOS) where 0x prefix is optional; a GUID string for
+ GPT; a shortcut or an alias. It's recommended to use two letters for MBR hex codes to
+ avoid collision between deprecated shortcut 'E' and '0E' MBR hex code. For backward
+-compatibility sfdisk tries to interpret
++compatibility
++.B sfdisk
++tries to interpret
+ .I type
+ as a shortcut as a first possibility in partitioning scripts although on other places (e.g.
+ \fB\-\-part-type command)\fR it tries shortcuts as the last possibility.
+@@ -601,7 +615,9 @@ The welcome message.
+ 
+ .SH ENVIRONMENT
+ .IP SFDISK_DEBUG=all
+-enables sfdisk debug output.
++enablescw
++.B sfdisk
++debug output.
+ .IP LIBFDISK_DEBUG=all
+ enables libfdisk debug output.
+ .IP LIBBLKID_DEBUG=all
 -- 
 2.26.2
 
