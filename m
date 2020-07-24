@@ -2,120 +2,74 @@ Return-Path: <SRS0=zMQF=BD=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA4F1C433E5
-	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:07:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE411C433E4
+	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 12:43:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8EABA206E3
-	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:07:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BA5E22074B
+	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 12:43:54 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Gkcz4zQd"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DG6Yi4Ok"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727877AbgGXKHT (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 24 Jul 2020 06:07:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34286 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726114AbgGXKHT (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 24 Jul 2020 06:07:19 -0400
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC0A5C0619D3
-        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:07:18 -0700 (PDT)
-Received: by mail-ej1-x644.google.com with SMTP id g7so1136194ejw.12
-        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:07:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=Fr0ao1JuhZ6VMu9o89pCVyVA0j+qzz7VhGolFe3l7G4=;
-        b=Gkcz4zQd6sor0Kj96y5qH8hjYhtVpc0dSAfZ+eedE3pSLsAwqZ8rk8xcCfn7lu+7vT
-         NIBILHivZU30i98I5QRBfEUBol+WqdP7+gxDCW3dNdMjhO4mERSVJeUME/uhfvViHT+G
-         1wnwrNH5YO/rsFnVb4d8AM7ldXBvndhSnIv11rqV5y0m4zwh8IF62sG6YYXtogDJenFK
-         MW8KFhFJjx5Yz8TWT60261lcnd4W/ZvgWQ4lw7UP53ArKDehGoYByP99bg8VGetX2lsC
-         MreHeloGQqqpMbLzamcdmCtQb9sGAz/jqXJgvfmzB5vlmymyIkEwrNktUeu9PWIPKUZv
-         lQrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Fr0ao1JuhZ6VMu9o89pCVyVA0j+qzz7VhGolFe3l7G4=;
-        b=tU805JgXiTt3k3wWRGAoONckFIYoniH6KPlmZrV95V8R1AyYSuajSzDdpk78u/hOML
-         DhpYiXNh+mdkWzx9XLOigK0jqBVdBo3K9fS8YH4TsQVYxv91mctsK9ELwTPPVb42EBuQ
-         c1u5pad2YXkx/eZwlRu7E5YiHkODPcoj1NtgdzAUZkAbCr4x+oW2seBeIycsy/ONZDQw
-         AOwsrCG7OjoYg2SJXC0czAsB6zc6h1Cyl6d7DKoTKpobiQsZsqekLQBwTWYRWxkHFrrZ
-         1e+Xn5YScMVh1MlZsYNhqgBwqotMNJHsGmIO/aLcqKjYSZHD2SyU4P5iaHmht1FfeyhA
-         KRRw==
-X-Gm-Message-State: AOAM532cU1KixjcZRQ3rJ6LN4C8V+CtbQBGXZ/GKu9Kub6ZaqOwV9eft
-        jVk2vYcI7zK/JlAFy9NeEteqWcYC
-X-Google-Smtp-Source: ABdhPJyiIrl1d54cegcmKFjcM8fEIueCnvSli5WG9hHwRka/JlWMNSaQ+lA6UB7sMtvvc7lnqDUn7g==
-X-Received: by 2002:a17:906:a219:: with SMTP id r25mr951236ejy.201.1595585237424;
-        Fri, 24 Jul 2020 03:07:17 -0700 (PDT)
-Received: from bienne.fritz.box ([2001:a61:3adb:8201:9649:88f:51f8:6a21])
-        by smtp.gmail.com with ESMTPSA id a1sm344273ejk.125.2020.07.24.03.07.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jul 2020 03:07:17 -0700 (PDT)
-From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-To:     mtk.manpages@gmail.com, Karel Zak <kzak@redhat.com>
+        id S1726366AbgGXMny (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 24 Jul 2020 08:43:54 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:33739 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726326AbgGXMny (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Fri, 24 Jul 2020 08:43:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1595594633;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=0y0uDBHdP6tBKdSuIr0SPVdqV3fiJLkJV9/MHUfcVQQ=;
+        b=DG6Yi4OkzPG9zzfVDHXTr1qZIrDWgo3+K3OCn9v/gFBug3x1NSOAWXZik1AFv2L3dH6jWo
+        sWOyFgNNzJrntQvMxI6MuEuXjYcVGghI+d3XDsygrB7Eku1Nn2Nvhq5eB+4Ln9j6MX22nw
+        E0M58iZqwo9zofTGwKFoDOHEbMVmgSU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-493-1UYE3COMOumPbY9dk80DBQ-1; Fri, 24 Jul 2020 08:43:49 -0400
+X-MC-Unique: 1UYE3COMOumPbY9dk80DBQ-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BF73A58;
+        Fri, 24 Jul 2020 12:43:48 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.194.188])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 0852B78465;
+        Fri, 24 Jul 2020 12:43:47 +0000 (UTC)
+Date:   Fri, 24 Jul 2020 14:43:45 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
 Cc:     util-linux@vger.kernel.org
-Subject: [PATCH 12/12] Manual pages: wipefs.8: Formatting fixes
-Date:   Fri, 24 Jul 2020 12:06:18 +0200
-Message-Id: <20200724100618.584918-12-mtk.manpages@gmail.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200724100618.584918-1-mtk.manpages@gmail.com>
+Subject: Re: [PATCH 01/12] Manual pages: blockdev.8: Minor wording and
+ formatting fixes
+Message-ID: <20200724124345.vln5lj3pbhb2jool@ws.net.home>
 References: <20200724100618.584918-1-mtk.manpages@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200724100618.584918-1-mtk.manpages@gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Signed-off-by: Michael Kerrisk (man-pages) <mtk.manpages@gmail.com>
----
- misc-utils/wipefs.8 | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+On Fri, Jul 24, 2020 at 12:06:07PM +0200, Michael Kerrisk (man-pages) wrote:
+>  disk-utils/blockdev.8 | 28 ++++++++++++++++++++--------
+>  1 file changed, 20 insertions(+), 8 deletions(-)
 
-diff --git a/misc-utils/wipefs.8 b/misc-utils/wipefs.8
-index cdc6b2811..0ffe1f183 100644
---- a/misc-utils/wipefs.8
-+++ b/misc-utils/wipefs.8
-@@ -28,7 +28,9 @@ to make the signatures invisible for libblkid.
- .B wipefs
- does not erase the filesystem itself nor any other data from the device.
- 
--When used without any options, wipefs lists all visible filesystems and the
-+When used without any options,
-+.B wipefs
-+lists all visible filesystems and the
- offsets of their basic signatures.  The default output is subject to change.
- So whenever possible, you should avoid using default outputs in your scripts.
- Always explicitly define expected columns by using
-@@ -89,8 +91,9 @@ tools.
- Do not print a header line.
- .TP
- .BR \-O , " \-\-output " \fIlist\fP
--Specify which output columns to print.  Use \-\-help to
--get a list of all supported columns.
-+Specify which output columns to print.  Use
-+.B \-\-help
-+to get a list of all supported columns.
- .TP
- .BR \-n , " \-\-no\-act"
- Causes everything to be done except for the write() call.
-@@ -116,7 +119,8 @@ Suppress any messages after a successful signature wipe.
- Limit the set of printed or erased signatures.  More than one type may
- be specified in a comma-separated list.  The list or individual types
- can be prefixed with 'no' to specify the types on which no action should be
--taken.  For more details see mount(8).
-+taken.  For more details see
-+.BR mount (8).
- .TP
- .BR \-V , " \-\-version"
- Display version information and exit.
+ All patches merged. Thanks!
+
+    Karel
+
 -- 
-2.26.2
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
