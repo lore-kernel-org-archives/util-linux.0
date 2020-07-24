@@ -8,150 +8,167 @@ X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BF03C433EA
-	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:06:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42A68C433E8
+	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:06:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7BD2A206E3
-	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:06:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1DA682065C
+	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:06:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bsl34RGM"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eUPlP80n"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726807AbgGXKGv (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 24 Jul 2020 06:06:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34198 "EHLO
+        id S1726783AbgGXKGq (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 24 Jul 2020 06:06:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726114AbgGXKGu (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 24 Jul 2020 06:06:50 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A894C0619D3
-        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:06:50 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id v18so1061985ejb.0
-        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:06:50 -0700 (PDT)
+        with ESMTP id S1726114AbgGXKGq (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 24 Jul 2020 06:06:46 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FB17C0619D3
+        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:06:46 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id bm28so6656234edb.2
+        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:06:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=nyl36cZgKXqlSeaxNzq053XNkJd+3I+QViesE4wU3mc=;
-        b=bsl34RGMXfJhCftK/riDHRWT7RVIXCO/fCCv2A4c/sAzRXlcszFlEIC7DsEj7dipJJ
-         HJ9owE9kdoI+abQkpNpva/mksq8+oC/z7jKCYYiu06TVHRTjzKFS60q6FWbAaaWyQ2mX
-         mFtxE1q99kxTvRQN4VIk7mIL250l3Ax5d7KDeoahksFkNBPNuwKZrDf7S7Y9QsJH+1mi
-         rKfEK8PXJ781P3BUeNzOlusCTZSWNnZfyWSdNXOKtCJIm6JbDJoPjbhBWmqQwWudOrGl
-         v2yoOj6XqdZJcKfo2HZr142vOA+qq53+qVo69swh4PxsDCo7Brju85ffese97h5IFDUy
-         RJmg==
+        bh=86AVUxRONR48EL+5ky2xKafvx828oTtZwDXptzE1HnI=;
+        b=eUPlP80nDTd54KNb1ciTPquhRou9slGu9zi0wDu1aaX7Jdeea4sCm84va88oEKCj56
+         9OPgd4fK/YF5YqGkkqXurVQeEvsrRnov267qwqRX/HSAhhZVyTkRCGRgXQ01kP+tOnfN
+         dTd1mFrQhvXDP2z2fN9ZHhROAxIm1NM181aSvSFCy9eEuiQz1P350LQZ57PK/cETHIIC
+         rNQ3qF01DuJ/JK4r8YuPqVWQXoxH13bpoy1CWbYkRNSZq6qOJv3TmC40mo3wIcSFuQj1
+         6oUEJkmsJKMHy3OZpfMtSabhySm7EfF2UJxqEZpZFLvI1URDr8VIqMVyu8Y5alRO+9mn
+         Oi3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=nyl36cZgKXqlSeaxNzq053XNkJd+3I+QViesE4wU3mc=;
-        b=V7kx4uGbBckpP4AlPf5gaLQoJtWsj8j/P2hpCISt1IQqjOH13y5duQ/DIvi6UxGDl2
-         h8F4EpnOEncjZY6n7ueSd2lDrqKi9642NJcHGcJJwjRyKN5oxJk29iEghHdnQB4gVWeT
-         7KPtPCTR8QVpQxQUQDgNWkR5OoWppvHT4nUkoegEIlMLcuuALw4COlvcAPUhv9H3ndu3
-         A4KUB+9FlrR2xAubgmAlq6pl8IQFfnxHbFye3IEKMnVAmfDMtco775AdZenZCm/tBcBi
-         BGIEuG+G76aKqrlbKLD0WVhvL2pRY4H18yETLMSmZOS9gW0+dVUrKUvER1siUOF2LRA5
-         bYSA==
-X-Gm-Message-State: AOAM5319F25MJ7HK1gwQ3NtQ7L/9s1URmQ1TWgLgGM05qrAGGfUZssxx
-        JJphNk4pl50mgznX9FZj4M8=
-X-Google-Smtp-Source: ABdhPJyQuuM1ZU79uWcSjxrcLSrVVdbpTvqJi0WiTk2KNKwoBQGONMBANPuybPudL25vMGNdjeDeSw==
-X-Received: by 2002:a17:907:42a0:: with SMTP id ny24mr1276006ejb.328.1595585209298;
-        Fri, 24 Jul 2020 03:06:49 -0700 (PDT)
+        bh=86AVUxRONR48EL+5ky2xKafvx828oTtZwDXptzE1HnI=;
+        b=BF05GQubwGZJEEBWx8DJ6YcOP9NRJryWpKCoKRQ/vWhKPabExq+i20qNH5MWQ+ayWs
+         2DJs3wD5Y4IeDbOdbK8qrNjHWrKxkeBvbWUR1Qpc6QLL4qoeqq6aJKI3ycMX4uDsJbYN
+         AR4/lWHbTuMrGp2aKE02pysmjlQWHbbLkRzoP9jgNsvnFoOipP01UWIg9lsW+C8rjSkR
+         El9ltwqzhHLgk2vR58ZY6q5iUGzb+mfsqsR5oqtRFe0MV9V0I7KpdjDKc6wpwWZNyCTw
+         9ERYQf8d9lHDeaWsLjcLEoArlNvKO4w2xjB8v07xuPoLW/MiTD0helj5aMN9GSEc7z51
+         DTlA==
+X-Gm-Message-State: AOAM533MAUu7teJOPJF/0CwSNqwAknTjn6Q0d2UBgCwVXwDTU0POgmTE
+        ZIAGBOPsvRrDQZJzpYPzzoc=
+X-Google-Smtp-Source: ABdhPJxjc8yjDyiA7qtfQXKCcMRl/560Y9NgG4OWiRg16DMkeD1G/ZSyqY6i2TvM75ht+Ma6o+iv/g==
+X-Received: by 2002:a50:aca6:: with SMTP id x35mr7950138edc.328.1595585204741;
+        Fri, 24 Jul 2020 03:06:44 -0700 (PDT)
 Received: from bienne.fritz.box ([2001:a61:3adb:8201:9649:88f:51f8:6a21])
-        by smtp.gmail.com with ESMTPSA id p20sm351444ejy.107.2020.07.24.03.06.48
+        by smtp.gmail.com with ESMTPSA id p14sm399874edr.23.2020.07.24.03.06.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jul 2020 03:06:48 -0700 (PDT)
+        Fri, 24 Jul 2020 03:06:44 -0700 (PDT)
 From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
 To:     mtk.manpages@gmail.com, Karel Zak <kzak@redhat.com>
 Cc:     util-linux@vger.kernel.org
-Subject: [PATCH 06/12] Manual pages: lslogins.1: Minor wording and formatting fixres
-Date:   Fri, 24 Jul 2020 12:06:12 +0200
-Message-Id: <20200724100618.584918-6-mtk.manpages@gmail.com>
+Subject: [PATCH 05/12] Manual pages: sfdisk.8: Use less aggressive indenting
+Date:   Fri, 24 Jul 2020 12:06:11 +0200
+Message-Id: <20200724100618.584918-5-mtk.manpages@gmail.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200724100618.584918-1-mtk.manpages@gmail.com>
 References: <20200724100618.584918-1-mtk.manpages@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+The page currently uses rather aggressive indenting, which doesn't
+really improve readability, but does have cause ugly line filling.
+
 Signed-off-by: Michael Kerrisk (man-pages) <mtk.manpages@gmail.com>
 ---
- login-utils/lslogins.1 | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ disk-utils/sfdisk.8 | 25 +++++--------------------
+ 1 file changed, 5 insertions(+), 20 deletions(-)
 
-diff --git a/login-utils/lslogins.1 b/login-utils/lslogins.1
-index 6824001d4..0c9ea6dce 100644
---- a/login-utils/lslogins.1
-+++ b/login-utils/lslogins.1
-@@ -11,7 +11,10 @@ lslogins \- display information about known users in the system
- .RB [ \-l " \fIlogins\fR]"
- .RI [ username ]
- .SH DESCRIPTION
--Examine the wtmp and btmp logs, /etc/shadow (if necessary) and /etc/passwd
-+Examine the wtmp and btmp logs,
-+.I /etc/shadow
-+(if necessary) and
-+.I /passwd
- and output the desired data.
+diff --git a/disk-utils/sfdisk.8 b/disk-utils/sfdisk.8
+index 6c54a1699..6415b0f1b 100644
+--- a/disk-utils/sfdisk.8
++++ b/disk-utils/sfdisk.8
+@@ -344,17 +344,14 @@ Display help text and exit.
+ .B sfdisk
+ supports two input formats and generic header lines.
  
- The optional argument \fIusername\fR forces
-@@ -46,12 +49,14 @@ Show information about supplementary groups.
+-.B Header lines
+-.RS
++.SS Header lines
+ The optional header lines specify generic information that apply to the partition
+ table.  The header-line format is:
+-.RS
+ .sp
+ .B "<name>: <value>"
+ .sp
+ .RE
+ The currently recognized headers are:
+-.RS
  .TP
- \fB\-g\fR, \fB\-\-groups\fR=\fIgroups\fR
- Only show data of users belonging to \fIgroups\fR.  More than one group
--may be specified; the list has to be comma-separated.  The unknown group
-+may be specified; the list has to be comma-separated.  Unknown group
- names are ignored.
+ .B unit
+ Specify the partitioning unit.  The only supported unit is \fBsectors\fR.
+@@ -384,14 +381,11 @@ modify this variable if you're not sure.
+ Specify sector size. This header is informative only and it is not used when
+ sfdisk creates a new partition table, in this case the real device specific
+ value is always used and sector size from the dump is ignored.
+-.RE
+-.sp
++.PP
+ Note that it is only possible to use header lines before the first partition
+ is specified in the input.
+-.RE
+-
+-.B Unnamed-fields format
+-.RS
++.SS Unnamed-fields format
++\&
+ .RS
+ .sp
+ .I start size type bootable
+@@ -441,7 +435,6 @@ Since v2.36 libfdisk supports partition type aliases as extension to shortcuts.
+ simple human readable word (e.g. "linux").
  
- Note that relation between user and group may be invisible for primary group if
- the user is not explicitly specify as group member (e.g., in /etc/group). If the
--command lslogins scans for groups than it uses groups database only, and user
-+command
-+.B lslogins
-+scans for groups than it uses groups database only, and user
- database with primary GID is not used at all.
+ Supported shortcuts and aliases:
+-.RS
  .TP
- \fB\-h\fR, \fB\-\-help\fR
-@@ -63,7 +68,7 @@ Display data containing information about the users' last login sessions.
- \fB\-l\fR, \fB\-\-logins\fR=\fIlogins\fR
- Only show data of users with a login specified in \fIlogins\fR (user names or user
- IDS).  More than one login may be specified; the list has to be comma-separated.
--The unknown login names are ignored.
-+Unknown login names are ignored.
+ .B L - alias 'linux'
+ Linux; means 83 for MBR and 0FC63DAF-8483-4772-8E79-3D69D8477DE4 for GPT.
+@@ -464,7 +457,6 @@ Linux RAID; means FD for MBR and A19D880F-05FC-4D3B-A006-743F0F84911E for GPT
  .TP
- \fB\-n\fR, \fB\-\-newline\fR
- Display each piece of information on a separate line.
-@@ -94,7 +99,8 @@ Raw output (no columnation).
- Show system accounts.  These are by default all accounts with a UID between 101 and 999
- (inclusive), with the exception of either nobody or nfsnobody (UID 65534).
- This hardcoded default may be overwritten by parameters SYS_UID_MIN and SYS_UID_MAX in
--the file /etc/login.defs.
-+the file
-+.IR /etc/login.defs .
+ .B V - alias 'lvm'
+ LVM; means 8E for MBR and E6D6D379-F507-44C2-A23C-238F2A3DF928 for GPT
+-.RE
+ .PP
+ The default
+ .I type
+@@ -478,10 +470,7 @@ is specified as [\fB*\fR|\fB-\fR], with as default not-bootable.  The
+ value of this field is irrelevant for Linux - when Linux runs it has
+ been booted already - but it might play a role for certain boot
+ loaders and for other operating systems.
+-.RE
+-
+-.B Named-fields format
+-.RS
++.SS Named-fields format
+ This format is more readable, robust, extensible and allows specifying additional
+ information (e.g., a UUID).  It is recommended to use this format to keep your scripts
+ more readable.
+@@ -501,7 +490,6 @@ The
+ .I value
+ can be between quotation marks (e.g., name="This is partition name").
+ The currently supported fields are:
+-.RS
  .TP
- \fB\-\-time\-format\fR \fItype\fP
- Display dates in short, full or iso format.  The default is short, this time
-@@ -104,7 +110,8 @@ format is designed to be space efficient and human readable.
- Show user accounts.  These are by default all accounts with UID above 1000
- (inclusive), with the exception of either nobody or nfsnobody (UID 65534).
- This hardcoded default maybe overwritten by parameters UID_MIN and UID_MAX in
--the file /etc/login.defs.
-+the file
-+.IR /etc/login.defs .
- .TP
- \fB\-V\fR, \fB\-\-version\fR
- Display version information and exit.
-@@ -132,7 +139,8 @@ if incorrect arguments specified,
- 2
- if a serious error occurs (e.g., a corrupt log).
- .SH NOTES
--The default UID thresholds are read from /etc/login.defs.
-+The default UID thresholds are read from
-+.IR /etc/login.defs .
- 
- .SH HISTORY
- The \fBlslogins\fP utility is inspired by the \fBlogins\fP utility, which first appeared in FreeBSD 4.10.
+ .BI start= number
+ The first non-assigned sector aligned according to device I/O limits.  The default
+@@ -531,9 +519,6 @@ GPT partition name.
+ A hexadecimal number (without 0x) for an MBR partition, a GUID for a GPT partition,
+ or a shortcut as for unnamed-fields format.
+ For backward compatibility the \fBId=\fR field has the same meaning.
+-.RE
+-.RE
+-
+ .SH EMPTY DISK LABEL
+ .B sfdisk
+ does not create partition table without partitions by default. The lines with
 -- 
 2.26.2
 
