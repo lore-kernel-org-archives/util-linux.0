@@ -8,66 +8,67 @@ X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB911C433DF
-	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:06:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BF03C433EA
+	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:06:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B44272065C
-	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:06:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7BD2A206E3
+	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:06:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y4WUb8vN"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bsl34RGM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726768AbgGXKGg (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 24 Jul 2020 06:06:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34154 "EHLO
+        id S1726807AbgGXKGv (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 24 Jul 2020 06:06:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726114AbgGXKGg (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 24 Jul 2020 06:06:36 -0400
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFBF8C0619D3
-        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:06:35 -0700 (PDT)
-Received: by mail-ed1-x52d.google.com with SMTP id h28so6638939edz.0
-        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:06:35 -0700 (PDT)
+        with ESMTP id S1726114AbgGXKGu (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 24 Jul 2020 06:06:50 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A894C0619D3
+        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:06:50 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id v18so1061985ejb.0
+        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:06:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=XIQhiAiUu9YL4hn9J9QlCGJZi+AGx9GkU4/RDw3UxaY=;
-        b=Y4WUb8vNXzHEco/bgrlZPvGpjTpmbUpMszFRXoLPCM0CMlipNMDSDbL/8MEqL4CdB9
-         THYnzvpU3EVYKn7/hmrenT8JDdtAfc7gKqY17THxpSqgt6KbZI5Feq7ZW1yZrm9avJ/W
-         Ux+p9SBlb7vXDZXpED+Vysvqohyk5vcYXMt4witV+/VrW0rB1bhc4o7dRVOoh5YartPP
-         FXoNKGVWPyiKO9Tdu2aPBJC9uZlhWHdhHidq0G12PJxFztqepulqaHsiVCnNKw2yhyc/
-         dLiKIw51g29wu5TrD9sf5m0iitKC0+Q/8z1rXfI+WhW7lRNVy3GZmZjuSP8St8QCO83y
-         cjcA==
+        bh=nyl36cZgKXqlSeaxNzq053XNkJd+3I+QViesE4wU3mc=;
+        b=bsl34RGMXfJhCftK/riDHRWT7RVIXCO/fCCv2A4c/sAzRXlcszFlEIC7DsEj7dipJJ
+         HJ9owE9kdoI+abQkpNpva/mksq8+oC/z7jKCYYiu06TVHRTjzKFS60q6FWbAaaWyQ2mX
+         mFtxE1q99kxTvRQN4VIk7mIL250l3Ax5d7KDeoahksFkNBPNuwKZrDf7S7Y9QsJH+1mi
+         rKfEK8PXJ781P3BUeNzOlusCTZSWNnZfyWSdNXOKtCJIm6JbDJoPjbhBWmqQwWudOrGl
+         v2yoOj6XqdZJcKfo2HZr142vOA+qq53+qVo69swh4PxsDCo7Brju85ffese97h5IFDUy
+         RJmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=XIQhiAiUu9YL4hn9J9QlCGJZi+AGx9GkU4/RDw3UxaY=;
-        b=gidB/iC6I0p+7YF4UX/1iVivvdrTQ/4ANHb5ezKLYFQzjjhJ+gI6EdOJewQocSqQdu
-         sL/FzKDYnzwj/ntoxVC3fhObJYIUpf0VBO9T5jXY/Nma6K/YKCzvySwIujmqvVy5P5Xa
-         /B0m9beeNhTcqLh64f9UbPIXj6O/tkAovxfXq2IyiZEdvvPR4FDDLllxpZ5HyIKEL3l2
-         rK+DOmwfaAJIKCTHKmLHvQb9LxULjvuAJYFA3II6WrKFYh8hJfP9RWfDLFp9KSsYvpi0
-         fHfsAyZcg0SSS63G4l5CvPH1YgXmzXB+RDKt0j3sEuMWebZay3Hj7SvcC7P6ySSfN2BO
-         r5sw==
-X-Gm-Message-State: AOAM533GfuPz0I7RUqAXuefekZTeu7nvPWfi+cFEXdz1axirkhHoMqq3
-        1nAbVelPwMGlirEvubGr/eE=
-X-Google-Smtp-Source: ABdhPJyAGAVD9cRfuE1GQprPHK9/uQ/vmBW3L0Qd+0NG6pgVKKj+LFtHK1UUkDSxt4GQhfi2McKf9A==
-X-Received: by 2002:aa7:cd18:: with SMTP id b24mr8571328edw.3.1595585194523;
-        Fri, 24 Jul 2020 03:06:34 -0700 (PDT)
+        bh=nyl36cZgKXqlSeaxNzq053XNkJd+3I+QViesE4wU3mc=;
+        b=V7kx4uGbBckpP4AlPf5gaLQoJtWsj8j/P2hpCISt1IQqjOH13y5duQ/DIvi6UxGDl2
+         h8F4EpnOEncjZY6n7ueSd2lDrqKi9642NJcHGcJJwjRyKN5oxJk29iEghHdnQB4gVWeT
+         7KPtPCTR8QVpQxQUQDgNWkR5OoWppvHT4nUkoegEIlMLcuuALw4COlvcAPUhv9H3ndu3
+         A4KUB+9FlrR2xAubgmAlq6pl8IQFfnxHbFye3IEKMnVAmfDMtco775AdZenZCm/tBcBi
+         BGIEuG+G76aKqrlbKLD0WVhvL2pRY4H18yETLMSmZOS9gW0+dVUrKUvER1siUOF2LRA5
+         bYSA==
+X-Gm-Message-State: AOAM5319F25MJ7HK1gwQ3NtQ7L/9s1URmQ1TWgLgGM05qrAGGfUZssxx
+        JJphNk4pl50mgznX9FZj4M8=
+X-Google-Smtp-Source: ABdhPJyQuuM1ZU79uWcSjxrcLSrVVdbpTvqJi0WiTk2KNKwoBQGONMBANPuybPudL25vMGNdjeDeSw==
+X-Received: by 2002:a17:907:42a0:: with SMTP id ny24mr1276006ejb.328.1595585209298;
+        Fri, 24 Jul 2020 03:06:49 -0700 (PDT)
 Received: from bienne.fritz.box ([2001:a61:3adb:8201:9649:88f:51f8:6a21])
-        by smtp.gmail.com with ESMTPSA id b3sm424708edm.53.2020.07.24.03.06.33
+        by smtp.gmail.com with ESMTPSA id p20sm351444ejy.107.2020.07.24.03.06.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jul 2020 03:06:34 -0700 (PDT)
+        Fri, 24 Jul 2020 03:06:48 -0700 (PDT)
 From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
 To:     mtk.manpages@gmail.com, Karel Zak <kzak@redhat.com>
 Cc:     util-linux@vger.kernel.org
-Subject: [PATCH 03/12] Manual pages: raw.8: Minor formatting and wording fixes
-Date:   Fri, 24 Jul 2020 12:06:09 +0200
-Message-Id: <20200724100618.584918-3-mtk.manpages@gmail.com>
+Subject: [PATCH 06/12] Manual pages: lslogins.1: Minor wording and formatting fixres
+Date:   Fri, 24 Jul 2020 12:06:12 +0200
+Message-Id: <20200724100618.584918-6-mtk.manpages@gmail.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200724100618.584918-1-mtk.manpages@gmail.com>
 References: <20200724100618.584918-1-mtk.manpages@gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
@@ -76,64 +77,81 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Signed-off-by: Michael Kerrisk (man-pages) <mtk.manpages@gmail.com>
 ---
- disk-utils/raw.8 | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ login-utils/lslogins.1 | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
-diff --git a/disk-utils/raw.8 b/disk-utils/raw.8
-index ba9fd256a..d569507b8 100644
---- a/disk-utils/raw.8
-+++ b/disk-utils/raw.8
-@@ -34,10 +34,10 @@ device numbers, or as a path name
- to an existing block device file.
- .PP
- The bindings already in existence can be queried with the
--.I \-q
-+.B \-q
- option, which is used either with a raw device filename to query that one
- device, or with the
--.I \-a
-+.B \-a
- option to query all bound raw devices.
- .PP
- Unbinding can be done by specifying major and minor 0.
-@@ -66,8 +66,8 @@ will query an existing binding instead of setting a new one.
+diff --git a/login-utils/lslogins.1 b/login-utils/lslogins.1
+index 6824001d4..0c9ea6dce 100644
+--- a/login-utils/lslogins.1
++++ b/login-utils/lslogins.1
+@@ -11,7 +11,10 @@ lslogins \- display information about known users in the system
+ .RB [ \-l " \fIlogins\fR]"
+ .RI [ username ]
+ .SH DESCRIPTION
+-Examine the wtmp and btmp logs, /etc/shadow (if necessary) and /etc/passwd
++Examine the wtmp and btmp logs,
++.I /etc/shadow
++(if necessary) and
++.I /passwd
+ and output the desired data.
+ 
+ The optional argument \fIusername\fR forces
+@@ -46,12 +49,14 @@ Show information about supplementary groups.
  .TP
- \fB\-a\fR, \fB\-\-all\fR
- With
--.B \-q
--, specify that all bound raw devices should be queried.
-+.BR \-q ,
-+specify that all bound raw devices should be queried.
+ \fB\-g\fR, \fB\-\-groups\fR=\fIgroups\fR
+ Only show data of users belonging to \fIgroups\fR.  More than one group
+-may be specified; the list has to be comma-separated.  The unknown group
++may be specified; the list has to be comma-separated.  Unknown group
+ names are ignored.
+ 
+ Note that relation between user and group may be invisible for primary group if
+ the user is not explicitly specify as group member (e.g., in /etc/group). If the
+-command lslogins scans for groups than it uses groups database only, and user
++command
++.B lslogins
++scans for groups than it uses groups database only, and user
+ database with primary GID is not used at all.
  .TP
  \fB\-h\fR, \fB\-\-help\fR
- Display help text and exit.
-@@ -78,20 +78,23 @@ Display version information and exit.
+@@ -63,7 +68,7 @@ Display data containing information about the users' last login sessions.
+ \fB\-l\fR, \fB\-\-logins\fR=\fIlogins\fR
+ Only show data of users with a login specified in \fIlogins\fR (user names or user
+ IDS).  More than one login may be specified; the list has to be comma-separated.
+-The unknown login names are ignored.
++Unknown login names are ignored.
+ .TP
+ \fB\-n\fR, \fB\-\-newline\fR
+ Display each piece of information on a separate line.
+@@ -94,7 +99,8 @@ Raw output (no columnation).
+ Show system accounts.  These are by default all accounts with a UID between 101 and 999
+ (inclusive), with the exception of either nobody or nfsnobody (UID 65534).
+ This hardcoded default may be overwritten by parameters SYS_UID_MIN and SYS_UID_MAX in
+-the file /etc/login.defs.
++the file
++.IR /etc/login.defs .
+ .TP
+ \fB\-\-time\-format\fR \fItype\fP
+ Display dates in short, full or iso format.  The default is short, this time
+@@ -104,7 +110,8 @@ format is designed to be space efficient and human readable.
+ Show user accounts.  These are by default all accounts with UID above 1000
+ (inclusive), with the exception of either nobody or nfsnobody (UID 65534).
+ This hardcoded default maybe overwritten by parameters UID_MIN and UID_MAX in
+-the file /etc/login.defs.
++the file
++.IR /etc/login.defs .
+ .TP
+ \fB\-V\fR, \fB\-\-version\fR
+ Display version information and exit.
+@@ -132,7 +139,8 @@ if incorrect arguments specified,
+ 2
+ if a serious error occurs (e.g., a corrupt log).
  .SH NOTES
- Rather than using raw devices applications should prefer
- .BR open (2)
--devices, such as /dev/sda1, with the O_DIRECT flag.
-+devices, such as
-+.IR /dev/sda1 ,
-+with the
-+.B O_DIRECT
-+flag.
- .SH BUGS
- The Linux
- .BR dd (1)
- command should be used without the \fBbs=\fR option, or the blocksize
- needs to be a multiple of the sector size of the device (512 bytes usually),
- otherwise it will fail with "Invalid Argument" messages (EINVAL).
--
- .PP
- Raw I/O devices do not maintain cache coherency with the Linux block
- device buffer cache.  If you use raw I/O to overwrite data already in
- the buffer cache, the buffer cache will no longer correspond to the
- contents of the actual storage device underneath.  This is deliberate,
--but is regarded either a bug or a feature depending on who you ask!
-+but is regarded as either a bug or a feature, depending on who you ask!
- .SH AUTHORS
- Stephen Tweedie (sct@redhat.com)
- .SH AVAILABILITY
+-The default UID thresholds are read from /etc/login.defs.
++The default UID thresholds are read from
++.IR /etc/login.defs .
+ 
+ .SH HISTORY
+ The \fBlslogins\fP utility is inspired by the \fBlogins\fP utility, which first appeared in FreeBSD 4.10.
 -- 
 2.26.2
 
