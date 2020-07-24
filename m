@@ -8,62 +8,62 @@ X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22922C433F1
-	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:06:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 459A8C433E1
+	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:07:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0149C206E3
-	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:06:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1FE23206E3
+	for <util-linux@archiver.kernel.org>; Fri, 24 Jul 2020 10:07:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XwwY1Uof"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qCOgI0E0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727862AbgGXKG4 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 24 Jul 2020 06:06:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34218 "EHLO
+        id S1727869AbgGXKHC (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 24 Jul 2020 06:07:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726114AbgGXKGz (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 24 Jul 2020 06:06:55 -0400
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33643C0619D3
-        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:06:55 -0700 (PDT)
-Received: by mail-ed1-x541.google.com with SMTP id bm28so6656526edb.2
-        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:06:55 -0700 (PDT)
+        with ESMTP id S1726114AbgGXKHC (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 24 Jul 2020 06:07:02 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D91D6C0619D3
+        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:07:00 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id ga4so9374143ejb.11
+        for <util-linux@vger.kernel.org>; Fri, 24 Jul 2020 03:07:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=/n+OLrOghOAuBT+BZbwWDLMxuS+Vw0EvmyCgJmA40go=;
-        b=XwwY1Uofy9lctfyPc/8IIMzCoQOiLRtE8znHiDnc/Is1mG3Gc7wRpkvc4x+vZMkxI1
-         Z1gRRsdeNCgSme5VG0OQaXPCjklegqrfs20rwTCA07tf7cHheyAi5jtXNv6ByHZGiUvm
-         2OGfxkmmC8js761/3jgIdoL09DQ1Z0lcx3ZHs40595AV9HOcDDNYoL5NGssFKrKGZqRh
-         teGYIg/d2jztrKkrnGUFFaugHKnmZO8v7kuuaMfzndiT3kVKgzidlRqkF9/uxGpPMtQE
-         8p/QISU5gUMHuKLhuMyua2npq4nSbAjmV4c4uQs4bwtzv7Xum/brXy0lpoa6vwa9GcKZ
-         kJkA==
+        bh=jdv7OExKPGnJxpH7NmzOqW0aYV63dpPPHjY2KdTb7xs=;
+        b=qCOgI0E0STgTuqxSeYDKRsXuk1XcG3sSYdORndx8mN97MEpS3pJk2w5psxrgBvzpN8
+         8CEYvZ2raNH2cgLBG/oV4V1F7acsk0WEWAOaSSRzLX4ACDDeJpJkfWDDiAa75EXcnj23
+         zp0fbNoH5jux/3uIbXYiWLJftpnnPGvxQYsfJEy3ZHGra89piJccTwSGhZ4S+5GEg6yE
+         K7/DMgpd1iAyR0VjNFW5mfbut3DqfpUGzIInxMTUY9APeuSZRzeMmlAQKJux1O7L2nXs
+         +hBtP/z3DeHJcWX50dio6MeuuIypsPL9HkKubiqVSNpHKHZJDZ7ZTRgWQxCMJA8SVQHE
+         1Fig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=/n+OLrOghOAuBT+BZbwWDLMxuS+Vw0EvmyCgJmA40go=;
-        b=GtKTVRemEn5ppYpigrrrIDApXJgfrYc1alurV4/4WRc67wi0uwrD1AtgqWP0uaDagt
-         DzEh6qjIaH6li2sllwE0EwWMBE9rzvQQ+FhSO2MY6T4NASlDUrrcfTzHa4VmYuJSF41S
-         n2CeVt6rLkVHc5X6rS3dNhICna75KbnP9NsWMs2ctD0zIj+/lZQlbPI9PvI/PJwkygg6
-         JScijLkOoq+7qqxZsG3pClPUCqkFPYxzoplw8siMy4HNZH7pxKAn195FjUzMiuUNjeo8
-         /6Ht1Q0jFOmHEGUyfgQtJC/7BgUKp4H6RVUPlyyx/OHCmqG6rxqWr8IOXSYOv0qYIhn8
-         qGOw==
-X-Gm-Message-State: AOAM532+nAXh0jqADfiSBVkmmyo4s0qHhBPr8/uVvZ5BjV/hsjg7if/V
-        5G89ENUCdYMqjHUfw+9hiWc=
-X-Google-Smtp-Source: ABdhPJz0hS1JupADFjG/udeOkVzsE0Qryl68CyBtJ4prAudyy3YJZrxqUB+BFSDtph2RAdsYxFQdNQ==
-X-Received: by 2002:a50:dacf:: with SMTP id s15mr8587734edj.136.1595585213965;
-        Fri, 24 Jul 2020 03:06:53 -0700 (PDT)
+        bh=jdv7OExKPGnJxpH7NmzOqW0aYV63dpPPHjY2KdTb7xs=;
+        b=DQfX2ttJ0A4HgtREUnyzMxqNH0zFso21LPYx7Tax+dO/1e1CqFWcq5krYPmHRYQgn7
+         ct7sFlUG8prsJQx0bkjl9O8krDhw5WHyhIxGbA0SjIoXiU2s9oiUKmoZL3ZZFILpuZEE
+         P68lFFBr8HV3ZE250EPY2h7acwiR2XlAzuDqv/vb9gdyK6ZeCOCmuNLgju8p94jHbrRE
+         F4t/fT75WT5p8a6wfgEdYn0jvinp5fp+Mk1xyPNKcHBx+cKYiUw/3oINZnrZ/DlPQBWD
+         JzQmtpjRG+KmlpS4a/Ky8y9Ql2H6cPhaWaah+qljedi/EBrfdPx8L3qe+gK9hHakhuBh
+         vuyg==
+X-Gm-Message-State: AOAM530ZidMW+oEi5WHPycGqYgFSQfidtDxwZJgvpzXWZJC9Wl1VW1t1
+        LrGqMwKgjjf336NEk+5ips+YDcnq
+X-Google-Smtp-Source: ABdhPJyTSFI6HKCof0TKph3NNIcJd+rUhP+CHu7G+iK2BNNvH9YzHs63XVrJz8RHjcNsFnog0oD+dg==
+X-Received: by 2002:a17:906:2641:: with SMTP id i1mr8816973ejc.380.1595585219559;
+        Fri, 24 Jul 2020 03:06:59 -0700 (PDT)
 Received: from bienne.fritz.box ([2001:a61:3adb:8201:9649:88f:51f8:6a21])
-        by smtp.gmail.com with ESMTPSA id kt1sm356478ejb.78.2020.07.24.03.06.53
+        by smtp.gmail.com with ESMTPSA id y24sm342964ejj.97.2020.07.24.03.06.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jul 2020 03:06:53 -0700 (PDT)
+        Fri, 24 Jul 2020 03:06:59 -0700 (PDT)
 From:   "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
 To:     mtk.manpages@gmail.com, Karel Zak <kzak@redhat.com>
 Cc:     util-linux@vger.kernel.org
-Subject: [PATCH 07/12] Manual pages: nologin.8: formatting fixes
-Date:   Fri, 24 Jul 2020 12:06:13 +0200
-Message-Id: <20200724100618.584918-7-mtk.manpages@gmail.com>
+Subject: [PATCH 08/12] Manual pages: logger.1: minor formatting and typo fixes
+Date:   Fri, 24 Jul 2020 12:06:14 +0200
+Message-Id: <20200724100618.584918-8-mtk.manpages@gmail.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200724100618.584918-1-mtk.manpages@gmail.com>
 References: <20200724100618.584918-1-mtk.manpages@gmail.com>
@@ -76,47 +76,37 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Signed-off-by: Michael Kerrisk (man-pages) <mtk.manpages@gmail.com>
 ---
- login-utils/nologin.8 | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ misc-utils/logger.1 | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/login-utils/nologin.8 b/login-utils/nologin.8
-index a95ff2ba1..1f06544b5 100644
---- a/login-utils/nologin.8
-+++ b/login-utils/nologin.8
-@@ -10,7 +10,10 @@ nologin \- politely refuse a login
- displays a message that an account is not available and exits non-zero.  It is
- intended as a replacement shell field to deny login access to an account.
- .PP
--If the file /etc/nologin.txt exists, nologin displays its contents to the
-+If the file
-+.IR /etc/nologin.txt exists ,
-+.B nologin
-+displays its contents to the
- user instead of the default message.
- .PP
- The exit status returned by
-@@ -48,13 +51,19 @@ Display version information and exit.
- .B nologin
- is a per-account way to disable login (usually used for system accounts like http or ftp).
- .BR nologin (8)
--uses /etc/nologin.txt as an optional source for a non-default message, the login
-+uses
-+.I /etc/nologin.txt
-+as an optional source for a non-default message, the login
- access is always refused independently of the file.
- .PP
- .BR pam_nologin (8)
- PAM module usually prevents all non-root users from logging into the system.
- .BR pam_nologin (8)
--functionality is controlled by /var/run/nologin or the /etc/nologin file.
-+functionality is controlled by
-+.I /var/run/nologin
-+or the
-+.I /etc/nologin
-+file.
- .SH HISTORY
- The
- .B nologin
+diff --git a/misc-utils/logger.1 b/misc-utils/logger.1
+index 448311d03..f9c2b6b9e 100644
+--- a/misc-utils/logger.1
++++ b/misc-utils/logger.1
+@@ -49,8 +49,10 @@ given either, then standard input is logged.
+ .TP
+ .BR \-d , " \-\-udp"
+ Use datagrams (UDP) only.  By default the connection is tried to the
+-syslog port defined in /etc/services, which is often 514 .
+-.sp
++syslog port defined in
++.IR /etc/services ,
++which is often 514.
++.IP
+ See also \fB\-\-server\fR and \fB\-\-socket\fR to specify where to connect.
+ .TP
+ .BR \-e , " \-\-skip-empty"
+@@ -75,7 +77,9 @@ command's PID.  The use of \fB\-\-id=$$\fR
+ (PPID) is recommended in scripts that send several messages.
+ 
+ Note that the system logging infrastructure (for example \fBsystemd\fR when
+-listening on /dev/log) may follow local socket credentials to overwrite the
++listening on
++.IR /dev/log )
++may follow local socket credentials to overwrite the
+ PID specified in the message.
+ .BR logger (1)
+ is able to set those socket credentials to the given \fIid\fR, but only if you
 -- 
 2.26.2
 
