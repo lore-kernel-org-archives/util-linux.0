@@ -2,76 +2,62 @@ Return-Path: <SRS0=B7Lt=CL=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8994AC433E2
-	for <util-linux@archiver.kernel.org>; Wed,  2 Sep 2020 10:08:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2599CC433E7
+	for <util-linux@archiver.kernel.org>; Wed,  2 Sep 2020 14:18:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 61A8220658
-	for <util-linux@archiver.kernel.org>; Wed,  2 Sep 2020 10:08:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D222520773
+	for <util-linux@archiver.kernel.org>; Wed,  2 Sep 2020 14:18:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J/u6gpE7"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Xuz5W0Kn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726167AbgIBKIS (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 2 Sep 2020 06:08:18 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:56559 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726140AbgIBKIS (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 2 Sep 2020 06:08:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1599041297;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=PmDyVFeJYekA2wFQ/02EzviT1reVhO01vAYcMBXOLcE=;
-        b=J/u6gpE7PLGc4SfdVLeqAKvKEZG+EZI5J87O2IhD0rwbFm9LsMWfdx28daLYwydBdBhEuE
-        xOD+c8bymViQ0fLyMBoCYzKnaUmEpL+gwl7fKct2HYCKVEnQt8fMo6cdl8vIH9opXIe062
-        K6jdYmNwv2R6EpPcqrwaf65wgb706VI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-336-kpKfKxW7N_6_4GjNnJtYuA-1; Wed, 02 Sep 2020 06:08:13 -0400
-X-MC-Unique: kpKfKxW7N_6_4GjNnJtYuA-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C485D1019626;
-        Wed,  2 Sep 2020 10:08:11 +0000 (UTC)
-Received: from ws.net.home (unknown [10.40.193.69])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 113805D9CC;
-        Wed,  2 Sep 2020 10:08:10 +0000 (UTC)
-Date:   Wed, 2 Sep 2020 12:08:08 +0200
-From:   Karel Zak <kzak@redhat.com>
+        id S1727853AbgIBOSJ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 2 Sep 2020 10:18:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38846 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726567AbgIBORm (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 2 Sep 2020 10:17:42 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A59A4C061244
+        for <util-linux@vger.kernel.org>; Wed,  2 Sep 2020 07:17:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=M++JcRVTKMcs++KRHnktmMfV9gnxcKKd3ikwLr9Qmao=; b=Xuz5W0KnhV9K0XeaNGHUcPjwLS
+        nTQwD2FlrTv6DPVtwgXfWwQt0oTz2fFWuAyIXbXt3bhgrA5bxn1yOuG1B6LbYfnMIptq5aHtBViWU
+        prSKqZ6lo5a4TZc6LVjTL1r5iVhzpkQuIDJjEYB307wNixyNfuUYrS6CqVZH6QmYJzcej3R8LGVRl
+        L8a6nRcOcioGYmx0pkyYjNEvrt1sb8waGW9D8nmSFzA5BjAUOugzgeaek8c2FS0XwldLEMeHXGzqR
+        E5kV4Z/PU4gsNQl1p2FhE0xmyMHUibtYaTcgoO6rXta2pmumPjmZpaNp7U22BRQZlK+PgVJspTb4G
+        zJrZzbyw==;
+Received: from hch by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kDTZx-0005zx-H2; Wed, 02 Sep 2020 14:17:37 +0000
+Date:   Wed, 2 Sep 2020 15:17:37 +0100
+From:   Christoph Hellwig <hch@infradead.org>
 To:     Sami Kerola <kerolasa@iki.fi>
-Cc:     util-linux@vger.kernel.org
-Subject: Re: [PATCH] libmount: do not use pointer as an integer value
-Message-ID: <20200902100808.qmz3fs5pjbuynmou@ws.net.home>
-References: <20200828195957.24195-1-kerolasa@iki.fi>
+Cc:     util-linux@vger.kernel.org, Sami Kerola <kerolasa@cloudflare.com>
+Subject: Re: [PATCH] nologin: use sendfile() to submit message to user
+Message-ID: <20200902141737.GA22251@infradead.org>
+References: <20200901190131.4153-1-kerolasa@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200828195957.24195-1-kerolasa@iki.fi>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+In-Reply-To: <20200901190131.4153-1-kerolasa@iki.fi>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Fri, Aug 28, 2020 at 08:59:57PM +0100, Sami Kerola wrote:
->  libmount/python/fs.c  | 2 +-
->  libmount/python/tab.c | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
+On Tue, Sep 01, 2020 at 08:01:31PM +0100, Sami Kerola wrote:
+> A read() write() pair can be replaced with sendfile(), and it should be more
+> efficient than suffling bytes back and forth user and kernel space.
 
-Applied, thanks.   
-
-... the python binding needs a lot of our love,
-unfortunately, I have no time for this stuff.
-
-  Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
-
+What kinds of fds are this?  If this involves things like a tty
+sendfile will probably stop working in Linux 5.10, as the kernel
+fallback is pretty horrible and not exactly more efficient.  Sendfile
+also hasn't always been supported on all kinds of files, so you'll still
+always need a fallback.
