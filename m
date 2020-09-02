@@ -1,116 +1,75 @@
-Return-Path: <SRS0=RAhs=CK=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=B7Lt=CL=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1419C433E6
-	for <util-linux@archiver.kernel.org>; Tue,  1 Sep 2020 19:01:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB2EBC433E7
+	for <util-linux@archiver.kernel.org>; Wed,  2 Sep 2020 09:21:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CA66B2071B
-	for <util-linux@archiver.kernel.org>; Tue,  1 Sep 2020 19:01:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 99B0A20773
+	for <util-linux@archiver.kernel.org>; Wed,  2 Sep 2020 09:21:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NGWdSmuC"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SaNvNCxM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728396AbgIATBi (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 1 Sep 2020 15:01:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58778 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726107AbgIATBh (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 1 Sep 2020 15:01:37 -0400
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5EC9C061244
-        for <util-linux@vger.kernel.org>; Tue,  1 Sep 2020 12:01:35 -0700 (PDT)
-Received: by mail-wr1-x441.google.com with SMTP id c18so2694477wrm.9
-        for <util-linux@vger.kernel.org>; Tue, 01 Sep 2020 12:01:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:mime-version:organization
-         :content-transfer-encoding;
-        bh=u3OTs0bhA4N62onQ45fKGYA4svariCpDMK8EsK0GBQ4=;
-        b=NGWdSmuCMvJMoqSDOiAFsOgiZO8J0X7jiLyubiy3ABPG3uhILQtTw3As91Luw/Vdl4
-         vNBWq+VS+J11SByWNFsE+4Qq+6UpseR81o5mzsghEu265AhZ7DINjyxKGNiFB/QwdhK3
-         ZVe1nZd8t2lOJI3lDxlu9kfF70+lDllvs4NR4/OhPJ5IQ1qeHR6VG+yAVYQvKSHMg/ji
-         z5Z17apZKA4Bi8g64wCJiAM2uimBBeUg2xJCW1AsVeZDkLMwmtCRdfhNArpjwTLM1NN0
-         FVKuF/+Qobd5kcXtLbhlK6Z6Xjpp1YmO5HECiuDmdCtWz+eMSrGopNaThMX96cAZ0fsM
-         Hk7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :mime-version:organization:content-transfer-encoding;
-        bh=u3OTs0bhA4N62onQ45fKGYA4svariCpDMK8EsK0GBQ4=;
-        b=ACWJMWQ6AwFAfBWWcLArHuDRum8W1lLUYmXts7Z7uXua0iyQ5FY8Efn0r0AT52YkDz
-         7piW3gist811jheIfuJAf871zfsPH1pQ6P3wf3EZwzIpKt2q9WnUZ9CIBuUuE8cXRaPU
-         v45CcXd+p/TJWccRBrbZ+LHdkfeUxiAzbX6gzpIC7v8L92mmJ3+uMQVrwWT8uwMmACBn
-         vm/WNcJgWZBKAzg53h2GEheIfA91ww1lspwuxgJXUsmpupEbs+U1L/eAY2u4ivJU71M8
-         XCmbS/r63U9L4Qo6Xiq6Ku8YBllUDwh9UCd+2F1OIHFUQwaE60bKAeON0tOn4RlFIa2w
-         ySqg==
-X-Gm-Message-State: AOAM532rQwa+Yr26buKDbjmtf9kyeY3wkKGjwKxizsLxq44OD9Wu+ym6
-        z11CJGVcrIYcAFfNshe3YmbCDT17u6M=
-X-Google-Smtp-Source: ABdhPJyW2u5HhyQ4hmWxjO0J/CebHSODnjM1v46xnxPvkGZG8LwLQeXK9HD7bhEpIVokt6T/XAy6PA==
-X-Received: by 2002:a5d:6646:: with SMTP id f6mr3344899wrw.155.1598986894013;
-        Tue, 01 Sep 2020 12:01:34 -0700 (PDT)
-Received: from localhost ([2a02:8010:659f:0:a8d8:38f:5807:ac47])
-        by smtp.gmail.com with ESMTPSA id q6sm2832856wmq.19.2020.09.01.12.01.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Sep 2020 12:01:33 -0700 (PDT)
-From:   Sami Kerola <kerolasa@iki.fi>
-To:     util-linux@vger.kernel.org
-Cc:     Sami Kerola <kerolasa@iki.fi>,
-        Sami Kerola <kerolasa@cloudflare.com>
-Subject: [PATCH] nologin: use sendfile() to submit message to user
-Date:   Tue,  1 Sep 2020 20:01:31 +0100
-Message-Id: <20200901190131.4153-1-kerolasa@iki.fi>
-X-Mailer: git-send-email 2.28.0
+        id S1726177AbgIBJVf (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 2 Sep 2020 05:21:35 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58511 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726167AbgIBJVf (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 2 Sep 2020 05:21:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1599038493;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=u7ZOD7/phGsJgeYJsZQ66733zRf2pvAZtvP/9fFIx44=;
+        b=SaNvNCxM9eMXKqweKU6AqlYuVV6Y41tw97gmSkC+7DXLxsBjQT53IRIx3tgJQVtQ2WxtuM
+        TGDp2tOjEtxpvZTP2qmEDOXVDWj7XWc85H9cehXUWMy9CvjMGq1PENNGsjeOM3CdXI2btE
+        tKAbB3dm7+wUREcbdIT/qlolJFWYwOE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-403-0AuNtDbvPCiCJ1F1cSCZGA-1; Wed, 02 Sep 2020 05:21:29 -0400
+X-MC-Unique: 0AuNtDbvPCiCJ1F1cSCZGA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2598A100746C;
+        Wed,  2 Sep 2020 09:21:28 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.193.69])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 3AE337DA59;
+        Wed,  2 Sep 2020 09:21:27 +0000 (UTC)
+Date:   Wed, 2 Sep 2020 11:21:24 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Sami Kerola <kerolasa@iki.fi>
+Cc:     util-linux@vger.kernel.org, Sami Kerola <kerolasa@cloudflare.com>
+Subject: Re: [PATCH] nologin: use sendfile() to submit message to user
+Message-ID: <20200902092124.fukwxm3iabg7uy2x@ws.net.home>
+References: <20200901190131.4153-1-kerolasa@iki.fi>
 MIME-Version: 1.0
-Organization: Cloudflare
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200901190131.4153-1-kerolasa@iki.fi>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-A read() write() pair can be replaced with sendfile(), and it should be more
-efficient than suffling bytes back and forth user and kernel space.
+On Tue, Sep 01, 2020 at 08:01:31PM +0100, Sami Kerola wrote:
+> A read() write() pair can be replaced with sendfile(), and it should be more
+> efficient than suffling bytes back and forth user and kernel space.
 
-Signed-off-by: Sami Kerola <kerolasa@cloudflare.com>
----
- login-utils/nologin.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+Good idea, but not sure how portable is it to another OS. Maybe add
+a fallback to include/fileutils.h or mark nologin by "if LINUX" in the
+Makefile.
 
-diff --git a/login-utils/nologin.c b/login-utils/nologin.c
-index f38a3aab0..ca4ca4e84 100644
---- a/login-utils/nologin.c
-+++ b/login-utils/nologin.c
-@@ -3,6 +3,7 @@
-  */
- 
- #include <stdio.h>
-+#include <sys/sendfile.h>
- #include <sys/stat.h>
- #include <sys/types.h>
- #include <fcntl.h>
-@@ -97,12 +98,12 @@ int main(int argc, char *argv[])
- 	if (c < 0 || !S_ISREG(st.st_mode))
- 		goto dflt;
- 	else {
--		char buf[BUFSIZ];
--		ssize_t rd;
--
--		while ((rd = read(fd, buf, sizeof(buf))) > 0)
--			ignore_result( write(STDOUT_FILENO, buf, rd) );
-+		int stdout_fd;
- 
-+		stdout_fd = fileno(stdout);
-+		if (stdout_fd < 0)
-+			goto dflt;
-+		ignore_result( sendfile(stdout_fd, fd, NULL, st.st_size) );
- 		close(fd);
- 		return EXIT_FAILURE;
- 	}
+    Karel
+
 -- 
-2.28.0
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
