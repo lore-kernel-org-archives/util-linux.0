@@ -1,74 +1,148 @@
-Return-Path: <SRS0=B7Lt=CL=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=0wgv=CT=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73068C433E2
-	for <util-linux@archiver.kernel.org>; Wed,  2 Sep 2020 15:27:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9828DC433E2
+	for <util-linux@archiver.kernel.org>; Thu, 10 Sep 2020 20:53:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4EE2120767
-	for <util-linux@archiver.kernel.org>; Wed,  2 Sep 2020 15:27:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5116020829
+	for <util-linux@archiver.kernel.org>; Thu, 10 Sep 2020 20:53:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727999AbgIBP11 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 2 Sep 2020 11:27:27 -0400
-Received: from mail-pj1-f68.google.com ([209.85.216.68]:50472 "EHLO
-        mail-pj1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727954AbgIBP06 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 2 Sep 2020 11:26:58 -0400
-Received: by mail-pj1-f68.google.com with SMTP id b16so2316515pjp.0
-        for <util-linux@vger.kernel.org>; Wed, 02 Sep 2020 08:26:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc;
-        bh=7QGtXnAaoRTKdEaZFcgVqVm84EeqQ03YejsdgMLob2E=;
-        b=kFBREdZ6Q1s8zTTEeF2eB2G7e2m30SD+aIuISKu0/MH+C9yp4cmQqxH+bz6vsozNb9
-         RBi9w9fo4SDgT2R1HBRQVZShHrey7G75pJLsdSPifOS3iT4BXyc6TrwpIdlqQ8o88m/W
-         /mADhC0vPcPgAmPQ21t2DffYcjw3yXC18aUEJcPigLtCRQYnxfK6FuR1CyYsbqio8IZb
-         wY//3y5IjsTZEnhh5ewicQEtzm0QHP6m7CQOKJJvv2M92N8ajiLzcubPZ6tEYBxe9Jmh
-         6YoyxnguoPvGe2/AZIpw0WOXzF7JmcHFf7lef6j5dlLSq0kgzNPBm6Hw83KcN+sSlOJD
-         OVIg==
-X-Gm-Message-State: AOAM530Jraq043987SUyA8EpthdY7Zo6mfjeydxkMQgmW37+4V0AQnRF
-        4M8JlvayA2DzzTO1m3CuzlHLvUGG7nV4PL4IzVR45uTqrVo=
-X-Google-Smtp-Source: ABdhPJxfjAuORoyIlfLN6EG2uGa49VcZ4+9f15wAkAMqCMZXudVjbHhd/6f2IGakPbt3oWAZQ5CNW1z+evrpxhlnmbM=
-X-Received: by 2002:a17:90a:d195:: with SMTP id fu21mr2653278pjb.14.1599060411385;
- Wed, 02 Sep 2020 08:26:51 -0700 (PDT)
+        id S1727771AbgIJUxJ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 10 Sep 2020 16:53:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59604 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726741AbgIJUwg (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 10 Sep 2020 16:52:36 -0400
+X-Greylist: delayed 2169 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 10 Sep 2020 13:52:23 PDT
+Received: from faun.innocircle.com (faun.innocircle.com [IPv6:2a01:4f8:121:5248::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA3D0C061573
+        for <util-linux@vger.kernel.org>; Thu, 10 Sep 2020 13:52:23 -0700 (PDT)
+Received: from local by faun.innocircle.com (envelope-from <gero@70t.de>)
+        id 1kGSzJ-000669-93
+        for util-linux@vger.kernel.org; Thu, 10 Sep 2020 22:16:09 +0200
+Date:   Thu, 10 Sep 2020 22:16:09 +0200
+From:   Gero Treuner <gero@70t.de>
+To:     util-linux@vger.kernel.org
+Subject: fallocate: fix for --dig-holes at end of files
+Message-ID: <X1qJiQa2MHpJ55IG@innocircle.com>
 MIME-Version: 1.0
-References: <20200901190131.4153-1-kerolasa@iki.fi> <20200902141737.GA22251@infradead.org>
-In-Reply-To: <20200902141737.GA22251@infradead.org>
-Reply-To: kerolasa@gmail.com
-From:   Sami Kerola <kerolasa@iki.fi>
-Date:   Wed, 2 Sep 2020 16:26:40 +0100
-Message-ID: <CAG27Bk2DwD5-gD6qTue_o-h5Be-ZcqkqrbNqb25TeyiD+mcJ8Q@mail.gmail.com>
-Subject: Re: [PATCH] nologin: use sendfile() to submit message to user
-To:     Christoph Hellwig <hch@infradead.org>
-Cc:     util-linux <util-linux@vger.kernel.org>,
-        Sami Kerola <kerolasa@cloudflare.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/mixed; boundary="m51xatjYGsM+13rf"
+Content-Disposition: inline
+User-Agent: Mutt/1.14.5+79 (e53ae9e) ()
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, 2 Sep 2020 at 15:17, Christoph Hellwig <hch@infradead.org> wrote:
-> On Tue, Sep 01, 2020 at 08:01:31PM +0100, Sami Kerola wrote:
-> > A read() write() pair can be replaced with sendfile(), and it should be more
-> > efficient than suffling bytes back and forth user and kernel space.
->
-> What kinds of fds are this?  If this involves things like a tty
-> sendfile will probably stop working in Linux 5.10, as the kernel
-> fallback is pretty horrible and not exactly more efficient.  Sendfile
-> also hasn't always been supported on all kinds of files, so you'll still
-> always need a fallback.
 
-Thank you for a review Christoph. Considering fallback to read() && write()
-is  always required I do not think there is any advantage to call sendfile().
-Karel, please consider this change falling short in simplifying or improving
-anything and therefore rejected.
+--m51xatjYGsM+13rf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+Hi all,
+
+I discovered that making a file sparse with "fallocate -d filename"
+fails on the last block of a file, because - usually being partial - the
+system call only zeroes that part instead of deallocating the block. See
+man fallocate(2) - section "Deallocating file space".
+
+The expected call is punching the whole block beyond eof, which doesn't
+change the file length because of flag FALLOC_FL_KEEP_SIZE.
+
+
+The following commands illustrate this (all on Debian buster with a real
+existing file).
+
+
+Behaviour with fallocate from system: file gets fragmented
+
+user:~/dev/util-linux$ cp /usr/lib/locale/C.UTF-8/LC_CTYPE .
+user:~/dev/util-linux$ /usr/sbin/filefrag -e ./LC_CTYPE
+Filesystem type is: 9123683e
+File size of ./LC_CTYPE is 200752 (50 blocks of 4096 bytes)
+ ext:     logical_offset:        physical_offset: length:   expected:
+flags:
+   0:        0..      49:   22403653..  22403702:     50:
+last,eof
+./LC_CTYPE: 1 extent found
+user:~/dev/util-linux$ fallocate -v -d ./LC_CTYPE 
+./LC_CTYPE: 48 B (48 bytes) converted to sparse holes.
+user:~/dev/util-linux$ /usr/sbin/filefrag -e ./LC_CTYPE
+Filesystem type is: 9123683e
+File size of ./LC_CTYPE is 200752 (50 blocks of 4096 bytes)
+ ext:     logical_offset:        physical_offset: length:   expected:
+flags:
+   0:        0..      48:   22403653..  22403701:     49:            
+   1:       49..      49:   22385666..  22385666:      1:   22403702:
+last,eof
+./LC_CTYPE: 2 extents found
+user:~/dev/util-linux$ du -s ./LC_CTYPE 
+200     ./LC_CTYPE
+
+
+Behaviour with fixed fallocate: file becomes sparse
+
+user:~/dev/util-linux$ cp /usr/lib/locale/C.UTF-8/LC_CTYPE .
+user:~/dev/util-linux$ ./fallocate -v -d ./LC_CTYPE 
+./LC_CTYPE: 48 B (48 bytes) converted to sparse holes.
+user:~/dev/util-linux$ /usr/sbin/filefrag -e ./LC_CTYPE
+Filesystem type is: 9123683e
+File size of ./LC_CTYPE is 200752 (50 blocks of 4096 bytes)
+ ext:     logical_offset:        physical_offset: length:   expected:
+flags:
+   0:        0..      48:   22346286..  22346334:     49:
+last
+./LC_CTYPE: 1 extent found
+user:~/dev/util-linux$ du -s ./LC_CTYPE 
+196     ./LC_CTYPE
+
+
+Please consider the attached patch. I also tested with other files
+containing real holes (instead of a notch) that function is preserved.
+
+
+Kind regards,
+   Gero
+
+--m51xatjYGsM+13rf
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment;
+	filename="0001-fallocate-fix-dig-holes-at-end-of-files.patch"
+
+From 7b3e0a3921ca7c84fa3913b2bb916be938dfe04a Mon Sep 17 00:00:00 2001
+From: Gero Treuner <gero@70t.de>
+Date: Thu, 10 Sep 2020 21:43:03 +0200
+Subject: [PATCH] fallocate: fix --dig-holes at end of files
+
+---
+ sys-utils/fallocate.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/sys-utils/fallocate.c b/sys-utils/fallocate.c
+index 014b94624..ba97092fc 100644
+--- a/sys-utils/fallocate.c
++++ b/sys-utils/fallocate.c
+@@ -264,8 +264,11 @@ static void dig_holes(int fd, off_t file_off, off_t len)
+ 			off += rsz;
+ 		}
+ 		if (hole_sz) {
++			off_t alloc_sz = hole_sz;
++			if (off >= end)
++				alloc_sz += st.st_blksize;		/* meet block boundary */
+ 			xfallocate(fd, FALLOC_FL_PUNCH_HOLE|FALLOC_FL_KEEP_SIZE,
+-					hole_start, hole_sz);
++					hole_start, alloc_sz);
+ 			ct += hole_sz;
+ 		}
+ 		file_off = off;
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+2.20.1
+
+
+--m51xatjYGsM+13rf--
