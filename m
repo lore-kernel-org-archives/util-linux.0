@@ -2,131 +2,118 @@ Return-Path: <SRS0=Tf+r=CU=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CC57C433E2
-	for <util-linux@archiver.kernel.org>; Fri, 11 Sep 2020 16:01:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EDCA3C433E2
+	for <util-linux@archiver.kernel.org>; Fri, 11 Sep 2020 16:11:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F344521D47
-	for <util-linux@archiver.kernel.org>; Fri, 11 Sep 2020 16:01:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BAC70221ED
+	for <util-linux@archiver.kernel.org>; Fri, 11 Sep 2020 16:11:46 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="USi+3VUq"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726513AbgIKQBP (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 11 Sep 2020 12:01:15 -0400
-Received: from relay8-d.mail.gandi.net ([217.70.183.201]:46661 "EHLO
-        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726214AbgIKQAm (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 11 Sep 2020 12:00:42 -0400
-X-Originating-IP: 80.110.88.233
-Received: from [192.168.0.2] (80-110-88-233.cgn.dynamic.surfer.at [80.110.88.233])
-        (Authenticated sender: emmanuel@libera.cc)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 001701BF203
-        for <util-linux@vger.kernel.org>; Fri, 11 Sep 2020 16:00:26 +0000 (UTC)
+        id S1726457AbgIKQLe (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 11 Sep 2020 12:11:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35464 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726436AbgIKPhk (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 11 Sep 2020 11:37:40 -0400
+Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80F36C0617AA
+        for <util-linux@vger.kernel.org>; Fri, 11 Sep 2020 06:53:56 -0700 (PDT)
+Received: by mail-qt1-x841.google.com with SMTP id c18so7883170qtw.5
+        for <util-linux@vger.kernel.org>; Fri, 11 Sep 2020 06:53:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=rVj7ku69dyuIzn+1DtD9Yn0HeL/5hpkP461+8nAz/Xg=;
+        b=USi+3VUqrlOnXp+xGIvl703cpjKOWVFLMuJFq0BQ1E3JpWKORPchKWBdTZ0eSjqYYj
+         iCCPXfviN4R3ggVTOWnCogO8+OI59sAMJ91s4ejZeuPiuOnkZWyO5wqo0SlNClUjE6yi
+         6TbjZbJNjEK9qvNz8TXuRYarRhvavjK+tzD9HHHB1erSe2VauKTwx/a9QRDEE+fnlocK
+         Zdsekh2vJyJocsenAAhOls6DTxSwdBRWDUDRkHg2bY9g91q/L/eUfLsaFI30QbMkaRu1
+         tKNPY8S0Bx/5UTmFCPJlUE9OB5gq0NvyYW/BY3RvvYeDu0MAuXgbg2/cU8icDYgYSHVY
+         sSjw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=rVj7ku69dyuIzn+1DtD9Yn0HeL/5hpkP461+8nAz/Xg=;
+        b=muIjoLdaWGFuPJBFQm17ZALSvlM/3mwJ2FWqDS4TFgstGlhE23wbR2OLJUzdvdi6rh
+         irSWK7TEquWOEtwDZoNBVD5ymnv6UOhjHx8pPpCaKOx+4fUMCXOvrCmEGvDifYWS2bQ/
+         AJq1cKcXVJfUXtFZTsSFTneZr2nwcP7s8LZKQvZlwuMT4ppjYjy4kOQ9mtuFk4TO1ggC
+         TEnDvdZIsRC3n5M+tZp9wjpyzPloDZon5Av27i849qknVPavOUIz7cJnfJnTO9iAOdGn
+         3hQ/P16Qs0xilSUxpzOUfpqug29wPH5uLnYl0ZBXzHtoaq2G3e0aDJAUk1nlEzSj/VSI
+         /M8A==
+X-Gm-Message-State: AOAM530rkyV/NQ51PLjZp5n2VQXgBQQB+b3+V+1P9IivlBeY6tb1AKsj
+        w9Hep9YzUTJwdddMosqVyyu4OKDpxw==
+X-Google-Smtp-Source: ABdhPJxbSYzi6u8+1aZPJkMenjpFbiJ+5G0fUZVhjsLgR7xEFAJzRGctxfJUE2WpQnB2psRIVS7nTQ==
+X-Received: by 2002:aed:2308:: with SMTP id h8mr1963196qtc.65.1599832435590;
+        Fri, 11 Sep 2020 06:53:55 -0700 (PDT)
+Received: from localhost (209-6-122-159.s2973.c3-0.arl-cbr1.sbo-arl.ma.cable.rcncustomer.com. [209.6.122.159])
+        by smtp.gmail.com with ESMTPSA id u66sm3223893qka.136.2020.09.11.06.53.54
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 11 Sep 2020 06:53:55 -0700 (PDT)
+From:   Masayoshi Mizuma <msys.mizuma@gmail.com>
 To:     util-linux@vger.kernel.org
-From:   Emmanuel Kasper <manu@debian.org>
-Autocrypt: addr=manu@debian.org; prefer-encrypt=mutual; keydata=
- mQINBE3EUW8BEADGsC9oCCInY5eaSV2pMngxJirfQ308VqgD4nr4Z0qe6a1qTJytq3INb4SH
- SwLXuWQOcNK0VL9oVbGy1ZMjfDwjG7vbK5cMgqyamqBCo8gW9NBTmtoDAKqd5ZT+ghksxq7b
- jVJLsIK9XatJ8KJrmB4Eb7C7yC1mTRu2M0wMHyirUhese99DLXgXghrkorHA6ETVrAGw9afz
- PTPxexy5SFyUWgpxpu/2osWXLfz/j9/Em1lsWk5r1l1fobnmsTi4qruaVe9/oQIHqR9rmpew
- ztAI3Ml7AfJcbuaPxN2OEKQgWPIDij8gmtA/zhN3Grw+1EROOgDQPm38GGi2kfScKZGBXTUq
- jWl1WRPjDciPFBA1fcOK8873ydUMM5u100zzAvFKhR1kkbeDkyRPz+bf2rYSmnalwDr9oob5
- OMPM1+OJ/KSkaIZJTx4uTBZIPlwz/VygdPvtgwd9hLm042Gdj8ntCBG50tlcaaVRsfYyVWgs
- idLOBlMuubyMlOdAD6sgkzrICWiDqctwSg4QpawFs2lByp9xyHUTZ+gKEOW6Pnyxa+AOjH0e
- jCCYXPrdOsUfiRSq4XDSrv72pv+Hce39MgSXmz7Kzj5iu8di4dPt2yYtzI3O0747zfKm5H2d
- JSOt+KJ5Fr08GAJS4q2kcH/bNSQxa4kBlrKfqiI/8//jpm6OwwARAQABtCxFbW1hbnVlbCAi
- S2FzcGVyIiBLYXNwcnp5ayA8bWFudUBkZWJpYW4ub3JnPokCNwQTAQgAIQUCWDRC7AIbAwUL
- CQgHAwUVCgkICwUWAgMBAAIeAQIXgAAKCRAGRW3XkelXkRqyD/9PsoAzeat0TIkZDlFEVCXf
- mr2hkTCuyr+U0jAWj/K9hS182QEFEs7F8JFCy2dZDlniynHdUDzo4wYuOzb/51UUGHYxiMpf
- SkL/oU2ixrmT3ukZXM/HAskPPhLv+EDMcsfGQFi5z9dei2KjlBpazp4DEJm1Epv9bYwbx2OA
- QpVn12uUmyZM/xuFPoVqpq5vTPXFZwxw0AXzOsPXzuWrfU7udepyMtB3JzZkYH2GuJuNf4N5
- 6em5El19EYqqyGZK8rQmC971rvMfu4s+D6yah1GF4GEE2qnfrTH+9hFJmKY4tRh5ITx0Z9Et
- +Wei1IewCO/+voQWJ2nyipYIgjrQ/uYdIpQLbw9ba0d5kZUgjFU8Tb0/J4oP8DGpBPg5ivNM
- a+ML15nvUDC7f/c3MCCLNAhcOXV2yXjISJH17CKU7O8JsZv79tH25gAF6NIrwDI+26cC9gqC
- 2GM54n4782ENqsAKnCAmgvtoKmCO3J6S7ah5ycUvIohNOQYcwFoYJPtCXUm9wiVSg0PFEZ2m
- 2Lvmn/y9lrzZgYFFfHXYDSrSKFkjTi6JdgzcUz1TsF0oCm22BDQwDviPT6NfbmdTxwDD45dq
- pg1gJLgjGe/6TnzLlGaK5OcIO8vlpbyDAXo4obTuWfSPqaB2+jrum2k8v+U24tMJl2R7FZWv
- gJEJjbvOdmYmorkCDQRNxFFvARAAqqt+vIyv/HGTE0KwXH2V0xTuaP8l7K5+1OBjWpaz2ajS
- NsR6dIoz0Kup0uXS0OyX1zsmsA5KJwqD4BTnnSIYoSYthYNGwJH9MJ0SfInlwlcXDXW9ysZY
- Eo+B2LyFbGPQuN7ly8+CPUXlvR3C/jjFfKHEhp2Smmg4pSMbXeJyaB+sHXSMjnQITCeOK3pO
- xRxnpN+Kcrwp0yBBdzX3SAls8guHqvN0062GY0lCq9dBIeQnhUH2x7D6GLi2lco7PdBz+F5y
- AQWkw+lP7u32M+zwyeyC4T0ElaJy+OhHfny9Gc+Jt1GvTnwHNf5FDUVfBVv7FyCA9dvvIPmC
- Ylb529xtg++FiSMk6rXc0z8h2RrkZgWBFNxgO4s6Fib2gO+sBrCc007rHPU/XFB9anRa6zEn
- yauOXVg0MyvPL01Qgrihda7USi/BgRx3/1LeMRPTqzbvAOF1RXz96JeYcYTdq0VO0Zk+b8zU
- LgBD2dKGqMU7ds7XEJWFHfJessBck3qSB9ICMDZw4bFRA6IcMXfhqHmFxE9GD2xSv0GbxOYD
- dPijgblIoZ4cee9EJv7gQ8XZt8s37Rqx18DD6zHBngfaKIxwIWp+ofCYoxkH+ZmOb2Zzrejp
- 9cj66HeG28mqCu392IFsucjbASZCQop8B3iXRmwWnuQQpAkJ5pc92WfRD1l7hCkAEQEAAYkC
- HwQYAQgACQIbDAUCV4UvXAAKCRAGRW3XkelXkW9bD/49CXZlC8TlRFnlRuTAyBg9FaPrCicg
- F6XTz7nG/N+9Wvp4nCSZUcqsz0a48Ftv9EEwPHApmG7/8k2Lp8tKk02Sc93ZiVox8Y+fRHX/
- UaGS5pVO3auVQ4LjQ33b05UDJjCgT6Sf/IO/L8moYRbTEItIK7qguly/0VUPE0zb1txFEc49
- IgSEznGgfe8AD0Awk6IYyjTCcAyuMd1HVFd34dFbcN0D59zya96vAO7fazzQxR6PDiFSykF4
- uAEzF/Ym1yu460Sumfnf4E2CcpHn/s9wIA5wgQm0WTstVWzSSXtvz3D9z8/rPPFIapZYy2lY
- CTUXwTUBfdG2moYJTfh4K0nPvpTf3OKAil9HqnZVxoYw53+QLopiJJHLDXp4wUPXLVdWBQfZ
- foJmTD1u6URzC2RcSwLmKfBjPH5Cxl6p+1hQlvEExz2rehXz6iUN8o6B6J8oKTo20hC4SoBW
- PYciSolqQh3LSLh9j5HU+nd5g4efIftBku3UKtmI9BozdSon6j8E4LjP54sJyGra3v60PWu1
- nwjE3aSDYOwKzvgCQB+wY4QfD8sxJCf4rjDXN8k3mAO/F+oEZzzdntz0NDJXLRiSDVj0gvhU
- xcQpgTrJYT9Z+LLHIfXjf56o+WL9mk4O3VYZ+UrZF2lt5JdbDftvVNx7dftCLuDONUTUC1rH
- hytJdg==
-Subject: libblk / blkid not recognizing Atari FAT16 variation
-Message-ID: <c8bd78fd-85c8-4851-b2a6-e836d0d2a389@debian.org>
-Date:   Fri, 11 Sep 2020 18:00:25 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: fr
-Content-Transfer-Encoding: 7bit
+Cc:     Masayoshi Mizuma <msys.mizuma@gmail.com>
+Subject: [PATCH 0/4] lscpu: Fix socket information on aarch64 machine
+Date:   Fri, 11 Sep 2020 09:53:24 -0400
+Message-Id: <20200911135328.1465-1-msys.mizuma@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: util-linux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hi List
+lscpu may show the wrong number of physical sockets on aarch64 machine
+as 'Socket(s)'.
 
-As said in $subject,
+That is because lscpu uses a sysfs entry (cpu/cpuX/topology/core_siblings) to
+get the number of sockets. For aarch64, the sysfs entry is set from MPIDR_EL1
+register if the machine doesn't have ACPI PPTT. According to ARM Architecture
+Reference Manual, the register shows the topology as the affinity, but doesn't
+show the physical socket information.
 
-  truncate --size 64M fs.img
-  mkfs.fat -A fs.img # -A for Atari variant
-  blkid fs.img # nothing
+There're such aarch64 machines because ARM SBBR v1.0 and v1.1 don't require 
+ACPI PPTT. SBBR v1.2 requires ACPI PPTT.
 
-(a real disk image with partitions can also be downloaded here
-https://subsole.org/st_mint )
+For the aarch64 machine, probably 'Cluster(s)' is good instead of 'Socket(s)'
+according to linux/arch/arm64/kernel/topology.c:store_cpu_topology().
 
-However fsck, and kernel can check and mount this partition.
-The kernel detects properly the fat when mounting a block device,
-without having to force the filesystem on the command line.
+To get the number of sockets on the machine, SMBIOS Processor information (Type04)
+is useful for lscpu because the SMBIOS information is a mandatory
+feature for the aarch64 machine which is based on ARM SBBR v1.0 and newer.
 
-From this doc about the Atari fat format,
-info-coach.fr/atari/documents/_mydoc/Atari_HD_File_Sytem_Reference_Guide.pdf
+With these patches, lscpu shows as following on the machine:
 
-I see on page 9
-that the main differences between MS DOS and Atari FAT, is about the fat
-logical sector size,
-which can goes over 512 bytes in the Atari FAT, whereas in MSDOS FAT it
-is always 512 bytes.
+  For unprivileged user:
+    $ lscpu 
+    Architecture:                    aarch64
+    ...
+    Socket(s):                       -
+    Cluster(s):                      4
+    ...
 
-fsck.vfat -v fs.img
-fsck.fat 4.1 (2017-01-24)
-Checking we can access the last sector of the filesystem
-Boot sector contents:
-System ID "kdosf"
-Media byte 0xf8 (hard disk)
-      2048 bytes per logical sector <---- more than 512 bytes
+  For root:
+    # lscpu
+    Architecture:                    aarch64
+    ...
+    Socket(s):                       1
+    Cluster(s):                      4
 
+Masayoshi Mizuma (4):
+  lscpu: use cluster on aarch64 machine which doesn't have ACPI PPTT
+  lscpu-dmi: split to parse dmi table
+  lscpu: add helper to get physical sockets
+  lscpu: show physical socket on aarch64 without ACPI PPTT
 
-However after a quick glance on the code in fat_valid_superblock()
-at
-https://github.com/karelzak/util-linux/blob/master/libblkid/src/superblocks/vfat.c#L218
-
-it seems to me that libblk should would work with sectors up to 4096
-bytes, so I am bit puzzled.
-Any pointers on what could be missing here ?
-
-Manu
-
+ sys-utils/lscpu-dmi.c | 90 +++++++++++++++++++++++++++++++++----------
+ sys-utils/lscpu.1     |  3 ++
+ sys-utils/lscpu.c     | 75 ++++++++++++++++++++++++++++++++----
+ sys-utils/lscpu.h     |  1 +
+ 4 files changed, 142 insertions(+), 27 deletions(-)
 
 -- 
-You know an upstream is nice when they even accept m68k patches.
-  - John Paul Adrian Glaubitz, Debian OpenJDK maintainer
+2.27.0
