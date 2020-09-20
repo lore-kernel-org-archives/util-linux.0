@@ -8,154 +8,130 @@ X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0263CC43463
-	for <util-linux@archiver.kernel.org>; Sun, 20 Sep 2020 13:15:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60597C43463
+	for <util-linux@archiver.kernel.org>; Sun, 20 Sep 2020 13:16:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 89A7821789
-	for <util-linux@archiver.kernel.org>; Sun, 20 Sep 2020 13:15:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EF97220EDD
+	for <util-linux@archiver.kernel.org>; Sun, 20 Sep 2020 13:16:53 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=web.de header.i=@web.de header.b="DyI+hJay"
+	dkim=pass (1024-bit key) header.d=web.de header.i=@web.de header.b="QwwRdM6e"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726333AbgITNPV (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sun, 20 Sep 2020 09:15:21 -0400
-Received: from mout.web.de ([212.227.17.12]:53697 "EHLO mout.web.de"
+        id S1726306AbgITNQw (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 20 Sep 2020 09:16:52 -0400
+Received: from mout.web.de ([212.227.17.12]:51101 "EHLO mout.web.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726321AbgITNPU (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 20 Sep 2020 09:15:20 -0400
-X-Greylist: delayed 385 seconds by postgrey-1.27 at vger.kernel.org; Sun, 20 Sep 2020 09:15:20 EDT
+        id S1726305AbgITNQv (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 20 Sep 2020 09:16:51 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
-        s=dbaedf251592; t=1600607719;
-        bh=CEjOTPm+ry4w+B30GSNqWT1qjrVeJQlTTWp1vHfbix8=;
+        s=dbaedf251592; t=1600607810;
+        bh=EwLSluInDPXXzquUp9uhZUOHtbZacFOaIzOhkFAfdQU=;
         h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=DyI+hJayeZZgiFjLaR4YH3Yfhl840rHQIQeO+Bi1hwNGbO/UKT7ckUhB6Z0nFuxau
-         lGVmVqhbCig6KJplOoiPhX+W8bVxdgkX1I3uZaG87zOWD38TqzduycnRe8SSvRifNk
-         3K9IZ12eYgvw8IKfWIEnfajtvfJ0cZP4oO/zfG30=
+        b=QwwRdM6ejUqhn3FmsjiYHkWWQ526kCU0dt7mpDznj1G5DN0FI5ydlaRI9cmYhfLvq
+         F/Fad8jS1g/gAz+asCW34An+F1pDaI9OhOqsM44Nf/CF4Dx+BS2jnVgEPrN6sZ+aGS
+         MxYOPUs4o0ig6EKpuITkPdwMMauO6/5FQzE6nNKE=
 X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
 Received: from archbook.fritz.box ([92.252.29.128]) by smtp.web.de (mrweb103
- [213.165.67.124]) with ESMTPSA (Nemesis) id 0Lp760-1kwb6r1xJM-00eyAb; Sun, 20
- Sep 2020 15:10:17 +0200
+ [213.165.67.124]) with ESMTPSA (Nemesis) id 0MgOCo-1k532Y1gZy-00NiEd; Sun, 20
+ Sep 2020 15:11:48 +0200
 From:   Lennard Hofmann <lennard.hofmann@web.de>
 To:     util-linux@vger.kernel.org
 Cc:     Lennard Hofmann <lennard.hofmann@web.de>
-Subject: [PATCH 3/4] column: Deprecate --table-empty-lines in favor of --keep-empty-lines
-Date:   Sun, 20 Sep 2020 15:08:18 +0200
-Message-Id: <20200920130818.29756-2-lennard.hofmann@web.de>
+Subject: [PATCH 4/4] tests: column --keep-empty-lines in cols mode
+Date:   Sun, 20 Sep 2020 15:08:20 +0200
+Message-Id: <20200920130818.29756-3-lennard.hofmann@web.de>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200920130818.29756-1-lennard.hofmann@web.de>
 References: <20200920130818.29756-1-lennard.hofmann@web.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:BabPIBECU4nkjSAkUJhP0wS7XMpfRP5N/W3+NzUbEil1yuTKGIl
- wVt1NwQqws62iG/EiiQ2IV3aj/rapnOX41XoNGpku7a5w6e+NsEmf5kD1sxelLE8M7wt/r9
- FSF36PDUz8igRopU4dCs8pG1T/VjMUYZhPeWaAyL2V8iJxVNnOJSBP/eTUTQLd3XPF6KXQq
- B0ALHI4MHeIW0vWbNt/oQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:e0wWP/UT0ro=:vuf1aociKO1scK5lXbYm/w
- hrXDEjveio50kH37WSV5JylJtwrt3SpCfheONXZD2wwzf++5lWHJ2Cm0lTsb8Y+Y9wK8rnlZ/
- R2UVYBRRWP5C8a1LypaOa5YZhWjQOWGBDlQWIOFVLgEXcomr+7uXuusgG96gugySQh/hl0RRF
- EQatx0Zo8qzfbPWbBfuuPwTMwqWtjtqYX7Eb7KqOv8LRiEZSdNMTmBzHOvWVYJLtrqspSLUBb
- TWCaUG+sFn3RZGRnZCy1v+cAjRqdxLgSLQGlAW/TdbaJ2CH/3vWyAJIoYF2Y50Zpn/efNaVR5
- 9OnJj5H664snLnP6fV18ASHp/LeD00cHLeIga325JjcGBi9GdFbliyQOx/1sCkHDlK/9BmhGp
- u1wJLuIqAnl1/piUkaN391CCBqeiWD8uI1IyF7QskQKlbioR1xtCQsV5B3/mMMOPSYP0bZPq4
- bFLXC6mw5kx59kzmaqsE0uBRGWpYGq3Cdc0qokujiTP20VX3XDBoVaV2sYR99t+Qbiw1sPYNQ
- 4+92JI3919m6u2X8OUI2gjBAOv5hunp+LEzrA80QIxvYc/o1kVXjeYyUkWiE92xyqcEytcegE
- vvnKCKBYRZpBu8IPb5U4693Re436rFJCWD4wnTkzNqhnekB13CDhN8mOrzm7LD/tcvDDWEoij
- S4nwYOTNVREu9dkBo14Qnpn57Eqyu2IqQonzKUWkKYioT0ApNzgTRtJh1nUYITbRxb+dQV1a6
- bei3V7cYyIeID1L1TDDuMIFuYo/S3eFtqF3Xb3tT+xKdqDrQE7CyL8KlStmyLRiZUPxIK56NQ
- OQsuZzR1o3/XURjLfX4vi4yYWWYOVHDs4EdkNZmM/Oy+PnnIUoHTVMbK6Oux4F8s8Fooc3EUq
- hXs+1BIvZP3QNePnCutAYoeHvz18a+a2NgeoEcKQQBiPIoKUg7M62+K0HNjiOgX8EUwQiQYCa
- kTLkp65DcEOe4hXE7qkcoV3RfZiwGwmCtbZhyMZbMeCebmcBUVhw/V9j1IeEvEdDoMgydnWLC
- rwpExIrWdIWuX2fgE9MbiOnbuYjQnKPnsJJQ7OVOXmqHv7zJidShx8m0GFZ+6UKdjh8yIL/ah
- CDZwVck8HgrDwvyGTVEFV/uPU+l/U57lNlrB+PeNdmokdGQAXVpNSxLxfhOsJGwUjrG6gv9Oa
- z8KyRSIhU0ls3tQlwqJ4DPZLXXEfIWREmszgyA0leixZHOfIzmmaq90Qplde4NDn8gL8/4Mrp
- 3Fqiyh169TTtSnNcLCiaBpSRXfLUDodXDSavpsw==
+X-Provags-ID: V03:K1:bwf1ykXtdthjYno6Y2P+xOHr4Ta9NMQqciGrvnk7LiVQWYSfAzo
+ AbZNhdfSaq/CEaiuCk/DrGeBR06/cYeX6kTOzhxWMRI3bu0FzrNHRf+2RyFksdjacBCEqt8
+ Jo0ASy4ZRN2NQrI2K0t9rs1JZD2mxfGrD2nlBAiEQUrtss1arz0L26bbK0N0IuedFgpDxmZ
+ LieSzaAhG30t0Zbbi03aA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:jkmObHVQVj4=:nLSABpq2/Q8Ls8vpuwfxAh
+ Tft7P4c75txUO49WRpNjoX8H5DH71Ay3TrR3+zxoGWY/t6zGHtSCyyaSTCds9uhVx+J1u18AT
+ ELfFVsy67jU7ClXWxqQcR1/aBsI1LKP9sovm6hhl8f0YlXHzqNaR1ikCrCxG+UqHMl4z9ecSu
+ 9tiL5fqYt0DqQql57UW2sXM9ydPg4SvJRC/K00qVgrzc9AOJiVhV/QZ073d1hY34l7w17d9T3
+ zZdPZraFN/pLdYvOxkVasBwh2w5Ce62I8mZFrneH3xYUkScRjb13bat6V1hO23QKhh66DuB6L
+ EY0jycNcZQ2/Y5iZCGW5OJia5B8ue8/Ur096WdgQbb5L2d8+V3BNquypWsN1Efxilvj5BRZFd
+ ahNM8PcD4LYBOFEXPO2ihSxVgyDCtQuIohcKcMAUJQ5O5xIXmOPWd9KI36xwhYcSowmbWYIqd
+ P4jeaGFiqQIfWgV3e4Q34BCsYsZqO7OwsEb22wVfEccB91IMDq7rTSDOAbssDb0gd8Evt8cF4
+ wLM8NeQuPalGcMCT3t7qqw7+fVvwOuoqPtf5nSzeaymRGSD0VxZLn45DkPUiBNC8kv8pvs/xD
+ sbo3K3+aSX13H0cqKHemmtcJ4ekPObG7R0JszVw48tDEoE625QJHveyEsJC5RbIjXwDeIdSLR
+ EKfi3EQpvDDqgmmdxULno7IIBWC0EgVN/DeIhO3msMpERWnhPtHhh6DVJeOLzgVF2vHgR2UBY
+ aaPj8IlWimi67y+JnSOjQKAVGEZl8kLGbhjmPG0UUx0vNzv43L8IavVf8pAB03pMcyqKIKnMM
+ ZO+qtTNXXVPDEypsokX+ubVvhx0oT7wiwi6PcTyvYStSilCUG5AWIXJhmS2kZNyiFWbqE3nYz
+ JD4qM0PjsqLBSlUfLYp/+8XsEtACI/eXEvEWzmGbfTii8xytqBxEMLW/e8t2OT0E96wru92pP
+ 4MeDC9LsAHoTPVilYWMTvEd73vfB9wtHCN8WyY0/iOMx6wWJD4MrJZmrc5Is1p9UYDC5q+O2M
+ 90q6d+o8yFnmbjeCnoeCcjPOmIe3p8PIvYlgquSXNLq0aO9k3druiUkAkq58G7CFv64Qk86by
+ Sk53YSITVlz5XMWSfzc4UnjncGuzlTQPWuBEIC1OeVaylJho0SCqT4XLyLgLrzz+TKA7YLh1J
+ rohs4f1BIcchxz5UMo34xCqRhfNmUlFq0BzGY/23+MnuCgZRYEKLZ2/kihjJWsr6qliK9Q2c5
+ fzBl6Kg57nr6RPF/kuro22tBZY0gI8ZbMkCWwnw==
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-`--table-empty-lines` gives the false impression that the option
-only applies to table mode.
+Add intentional whitespace to the test file `onecolumn` to test that
+`column` ignores it. Add empty lines to the same test file to test that
+`column--keep-empty-lines` preserves them.
 
 Signed-off-by: Lennard Hofmann <lennard.hofmann@web.de>
 =2D--
- text-utils/column.1 | 8 +++++---
- text-utils/column.c | 9 +++++----
- 2 files changed, 10 insertions(+), 7 deletions(-)
+ tests/expected/column/columnate-fill-cols-keep-empty | 7 +++++++
+ tests/ts/column/columnate                            | 4 ++++
+ tests/ts/column/files/onecolumn                      | 5 +++++
+ 3 files changed, 16 insertions(+)
+ create mode 100644 tests/expected/column/columnate-fill-cols-keep-empty
 
-diff --git a/text-utils/column.1 b/text-utils/column.1
-index 86886f3bf..d10fc7efb 100644
-=2D-- a/text-utils/column.1
-+++ b/text-utils/column.1
-@@ -110,9 +110,11 @@ hide all unnamed columns (see \-\-table-columns).
- Specify columns order on output.
- .IP "\fB\-n, \-\-table-name\fP \fIname\fP"
- Specify the table name used for JSON output. The default is "table".
--.IP "\fB\-L, \-\-table\-empty\-lines\fP"
--Insert empty line to the table for each empty line on input. The default
--is ignore empty lines at all.
-+.IP "\fB\-L, \-\-keep\-empty\-lines\fP"
-+Preserve whitespace-only lines in the input. The default is ignore empty =
-lines
-+at all. This option=E2=80=99s original name was \-\-table-empty-lines but=
- is now
-+deprecated because it gives the false impression that the option only app=
-lies
-+to table mode.
- .IP "\fB\-r, \-\-tree\fP \fIcolumn\fP"
- Specify column to use tree-like output. Note that the circular dependenci=
-es and
- other anomalies in child and parent relation are silently ignored.
-diff --git a/text-utils/column.c b/text-utils/column.c
-index d83d8d6d7..bc0c1fd11 100644
-=2D-- a/text-utils/column.c
-+++ b/text-utils/column.c
-@@ -96,7 +96,7 @@ struct column_control {
- 	unsigned int greedy :1,
- 		     json :1,
- 		     header_repeat :1,
--		     tab_empty_lines :1,	/* --table-empty-lines */
-+		     keep_empty_lines :1,	/* --keep-empty-lines */
- 		     tab_noheadings :1;
- };
+diff --git a/tests/expected/column/columnate-fill-cols-keep-empty b/tests/=
+expected/column/columnate-fill-cols-keep-empty
+new file mode 100644
+index 000000000..8cc1fdf1f
+=2D-- /dev/null
++++ b/tests/expected/column/columnate-fill-cols-keep-empty
+@@ -0,0 +1,7 @@
++			FFFFFFFFFFFFFFFFFFF
++AAAAAAAAAAAAAAAAAAAA
++BBBBBBBBBBBBBBBBBBBBB
++CCCCCCCCCCCCCCCC	XXXXXXX
++			YYYYYYYYYYY
++DDDDDDDDDDDDDDDDD	ZZZZZZZZZZZ
++EEEEEEEEEEEEE
+diff --git a/tests/ts/column/columnate b/tests/ts/column/columnate
+index ebeb0c44f..e80f3b00d 100755
+=2D-- a/tests/ts/column/columnate
++++ b/tests/ts/column/columnate
+@@ -49,4 +49,8 @@ ts_init_subtest "fill-rows-250"
+ $TS_CMD_COLUMN --fillrows -c 250 $TS_SELF/files/onecolumn >> $TS_OUTPUT 2=
+>> $TS_ERRLOG
+ ts_finalize_subtest
 
-@@ -531,7 +531,7 @@ static int read_input(struct column_control *ctl, FILE=
- *fp)
- 				*p =3D '\0';
- 		}
- 		if (!str || !*str) {
--			if (ctl->tab_empty_lines) {
-+			if (ctl->keep_empty_lines) {
- 				if (ctl->mode =3D=3D COLUMN_MODE_TABLE)
- 					add_emptyline_to_table(ctl);
- 				else
-@@ -709,6 +709,7 @@ int main(int argc, char **argv)
- 		{ "fillrows",            no_argument,       NULL, 'x' },
- 		{ "help",                no_argument,       NULL, 'h' },
- 		{ "json",                no_argument,       NULL, 'J' },
-+		{ "keep-empty-lines",    no_argument,       NULL, 'L' },
- 		{ "output-separator",    required_argument, NULL, 'o' },
- 		{ "output-width",        required_argument, NULL, 'c' },
- 		{ "separator",           required_argument, NULL, 's' },
-@@ -723,7 +724,7 @@ int main(int argc, char **argv)
- 		{ "table-right",         required_argument, NULL, 'R' },
- 		{ "table-truncate",      required_argument, NULL, 'T' },
- 		{ "table-wrap",          required_argument, NULL, 'W' },
--		{ "table-empty-lines",   no_argument,       NULL, 'L' },
-+		{ "table-empty-lines",   no_argument,       NULL, 'L' }, /* deprecated =
-*/
- 		{ "table-header-repeat", no_argument,       NULL, 'e' },
- 		{ "tree",                required_argument, NULL, 'r' },
- 		{ "tree-id",             required_argument, NULL, 'i' },
-@@ -774,7 +775,7 @@ int main(int argc, char **argv)
- 			ctl.mode =3D COLUMN_MODE_TABLE;
- 			break;
- 		case 'L':
--			ctl.tab_empty_lines =3D 1;
-+			ctl.keep_empty_lines =3D 1;
- 			break;
- 		case 'l':
- 			ctl.maxncols =3D strtou32_or_err(optarg, _("invalid columns limit argu=
-ment"));
++ts_init_subtest "fill-cols-keep-empty"
++$TS_CMD_COLUMN --keep-empty-lines -c 60 $TS_SELF/files/onecolumn >> $TS_O=
+UTPUT 2>> $TS_ERRLOG
++ts_finalize_subtest
++
+ ts_finalize
+diff --git a/tests/ts/column/files/onecolumn b/tests/ts/column/files/oneco=
+lumn
+index 69ec82f5d..3e579e1d4 100644
+=2D-- a/tests/ts/column/files/onecolumn
++++ b/tests/ts/column/files/onecolumn
+@@ -1,9 +1,14 @@
++
+ AAAAAAAAAAAAAAAAAAAA
+ BBBBBBBBBBBBBBBBBBBBB
+ CCCCCCCCCCCCCCCC
++
+ DDDDDDDDDDDDDDDDD
+ EEEEEEEEEEEEE
+ FFFFFFFFFFFFFFFFFFF
++
++
+ XXXXXXX
+ YYYYYYYYYYY
+ ZZZZZZZZZZZ
++
 =2D-
 2.28.0
 
