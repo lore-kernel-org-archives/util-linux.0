@@ -8,130 +8,110 @@ X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60597C43463
-	for <util-linux@archiver.kernel.org>; Sun, 20 Sep 2020 13:16:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20B91C43465
+	for <util-linux@archiver.kernel.org>; Sun, 20 Sep 2020 13:21:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EF97220EDD
-	for <util-linux@archiver.kernel.org>; Sun, 20 Sep 2020 13:16:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BFE0720796
+	for <util-linux@archiver.kernel.org>; Sun, 20 Sep 2020 13:21:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=web.de header.i=@web.de header.b="QwwRdM6e"
+	dkim=pass (1024-bit key) header.d=web.de header.i=@web.de header.b="bgGrznnR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726306AbgITNQw (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sun, 20 Sep 2020 09:16:52 -0400
-Received: from mout.web.de ([212.227.17.12]:51101 "EHLO mout.web.de"
+        id S1726315AbgITNV2 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 20 Sep 2020 09:21:28 -0400
+Received: from mout.web.de ([212.227.17.12]:55763 "EHLO mout.web.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726305AbgITNQv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 20 Sep 2020 09:16:51 -0400
+        id S1726306AbgITNV2 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 20 Sep 2020 09:21:28 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
-        s=dbaedf251592; t=1600607810;
-        bh=EwLSluInDPXXzquUp9uhZUOHtbZacFOaIzOhkFAfdQU=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=QwwRdM6ejUqhn3FmsjiYHkWWQ526kCU0dt7mpDznj1G5DN0FI5ydlaRI9cmYhfLvq
-         F/Fad8jS1g/gAz+asCW34An+F1pDaI9OhOqsM44Nf/CF4Dx+BS2jnVgEPrN6sZ+aGS
-         MxYOPUs4o0ig6EKpuITkPdwMMauO6/5FQzE6nNKE=
+        s=dbaedf251592; t=1600608087;
+        bh=Em6y7dB7PTS89H4CyGkXYUCmk2fsNdxvh5QMyt/JfYg=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=bgGrznnRlL8Zjkz4nDt5cBeoixFfiGIlt+Vtk3yz0SYNVQ1F46SEBKY6fiFShJY8l
+         IIjsgY6kzuudP1F/2ztgEawO7aL9rpiZt5nhhSFEVbV58hCXJdreRAabccyWg4GnoC
+         85xuEMTI671NwBQJ+c+YdMxYmS7R1B72PE0iY3w8=
 X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
 Received: from archbook.fritz.box ([92.252.29.128]) by smtp.web.de (mrweb103
- [213.165.67.124]) with ESMTPSA (Nemesis) id 0MgOCo-1k532Y1gZy-00NiEd; Sun, 20
- Sep 2020 15:11:48 +0200
+ [213.165.67.124]) with ESMTPSA (Nemesis) id 0LrK0u-1kTzVy0GJI-0132Tp; Sun, 20
+ Sep 2020 15:08:54 +0200
 From:   Lennard Hofmann <lennard.hofmann@web.de>
 To:     util-linux@vger.kernel.org
 Cc:     Lennard Hofmann <lennard.hofmann@web.de>
-Subject: [PATCH 4/4] tests: column --keep-empty-lines in cols mode
-Date:   Sun, 20 Sep 2020 15:08:20 +0200
-Message-Id: <20200920130818.29756-3-lennard.hofmann@web.de>
+Subject: [PATCH 2/4] column: Call mbs_to_wcs("") only once
+Date:   Sun, 20 Sep 2020 15:08:16 +0200
+Message-Id: <20200920130818.29756-1-lennard.hofmann@web.de>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200920130818.29756-1-lennard.hofmann@web.de>
-References: <20200920130818.29756-1-lennard.hofmann@web.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:bwf1ykXtdthjYno6Y2P+xOHr4Ta9NMQqciGrvnk7LiVQWYSfAzo
- AbZNhdfSaq/CEaiuCk/DrGeBR06/cYeX6kTOzhxWMRI3bu0FzrNHRf+2RyFksdjacBCEqt8
- Jo0ASy4ZRN2NQrI2K0t9rs1JZD2mxfGrD2nlBAiEQUrtss1arz0L26bbK0N0IuedFgpDxmZ
- LieSzaAhG30t0Zbbi03aA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:jkmObHVQVj4=:nLSABpq2/Q8Ls8vpuwfxAh
- Tft7P4c75txUO49WRpNjoX8H5DH71Ay3TrR3+zxoGWY/t6zGHtSCyyaSTCds9uhVx+J1u18AT
- ELfFVsy67jU7ClXWxqQcR1/aBsI1LKP9sovm6hhl8f0YlXHzqNaR1ikCrCxG+UqHMl4z9ecSu
- 9tiL5fqYt0DqQql57UW2sXM9ydPg4SvJRC/K00qVgrzc9AOJiVhV/QZ073d1hY34l7w17d9T3
- zZdPZraFN/pLdYvOxkVasBwh2w5Ce62I8mZFrneH3xYUkScRjb13bat6V1hO23QKhh66DuB6L
- EY0jycNcZQ2/Y5iZCGW5OJia5B8ue8/Ur096WdgQbb5L2d8+V3BNquypWsN1Efxilvj5BRZFd
- ahNM8PcD4LYBOFEXPO2ihSxVgyDCtQuIohcKcMAUJQ5O5xIXmOPWd9KI36xwhYcSowmbWYIqd
- P4jeaGFiqQIfWgV3e4Q34BCsYsZqO7OwsEb22wVfEccB91IMDq7rTSDOAbssDb0gd8Evt8cF4
- wLM8NeQuPalGcMCT3t7qqw7+fVvwOuoqPtf5nSzeaymRGSD0VxZLn45DkPUiBNC8kv8pvs/xD
- sbo3K3+aSX13H0cqKHemmtcJ4ekPObG7R0JszVw48tDEoE625QJHveyEsJC5RbIjXwDeIdSLR
- EKfi3EQpvDDqgmmdxULno7IIBWC0EgVN/DeIhO3msMpERWnhPtHhh6DVJeOLzgVF2vHgR2UBY
- aaPj8IlWimi67y+JnSOjQKAVGEZl8kLGbhjmPG0UUx0vNzv43L8IavVf8pAB03pMcyqKIKnMM
- ZO+qtTNXXVPDEypsokX+ubVvhx0oT7wiwi6PcTyvYStSilCUG5AWIXJhmS2kZNyiFWbqE3nYz
- JD4qM0PjsqLBSlUfLYp/+8XsEtACI/eXEvEWzmGbfTii8xytqBxEMLW/e8t2OT0E96wru92pP
- 4MeDC9LsAHoTPVilYWMTvEd73vfB9wtHCN8WyY0/iOMx6wWJD4MrJZmrc5Is1p9UYDC5q+O2M
- 90q6d+o8yFnmbjeCnoeCcjPOmIe3p8PIvYlgquSXNLq0aO9k3druiUkAkq58G7CFv64Qk86by
- Sk53YSITVlz5XMWSfzc4UnjncGuzlTQPWuBEIC1OeVaylJho0SCqT4XLyLgLrzz+TKA7YLh1J
- rohs4f1BIcchxz5UMo34xCqRhfNmUlFq0BzGY/23+MnuCgZRYEKLZ2/kihjJWsr6qliK9Q2c5
- fzBl6Kg57nr6RPF/kuro22tBZY0gI8ZbMkCWwnw==
+X-Provags-ID: V03:K1:83bVot9JGThsBRp5cYyxfeA59+5vpA7mrBrb2ouEF8VRIwFYmcn
+ syCrLzeIHaNvdPNTJzpEycPl4eunVoYK31XzzuP7TwJl0vMV0ERSluxux+Ozb5d38l5nut1
+ pwaLf53FlprSeLk1HDpqHwfaxvomSsYtrckVUzVhiv0+3pAZixYiMJCgnrTVcmmHBM6uCjt
+ Qwew7ZQuMdyziKHD4EgIg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:dxQgnFKjCXM=:i8YhNKYbp4n+o5OKETY6Gg
+ EAt9K65wqGJ5ybhPqYo9/4rc9PPK8p2WOTh+KBQnTs7HLN56WXcVAj0HdEMSCjSDgYnXjStbs
+ Ddiuw0pGyPCy+mhGoW9W9yH+PIf6/1nQIG3B6gKmFwBwR9luy0iyIa1j7DJRffFJtvg76PMRB
+ obBt4F1jcQLPeBJLipXSeBxtJ+QPlpE2yG0RMeR7LDG6sE1aVbW0XY8TfKGzQAKBpIcdGu2ff
+ P5wAWLZaELGDZtlvRzBcuZpM2q2lMcRsxmyJFktDYKZe3pzeH/bpoCkh47z4Io3Wc0pf1NfBR
+ 43HP+WNY+WCSf89i+/YTdORgtTdUqkJNCSkhFt7UsF3qPDNF1sN3Ch0giYqftxpvQR0YWgoxo
+ aOOUxinfEFoAkJtra6NV7VxbOD6hIN3ovbUnd1Rp8ceEG2bivXEjRykHtczG3lQxQ3BIa/lmd
+ HvHx+iXx9ma7/8sKGNdYHfAtPoXHd1vxAoKpfNyWxqGqMyvX4a/0yrxZ72js+XUwdtGqwESZ4
+ Lqsjnx7SjONgnZADCkZasdAR7lG0Ho7ZM1+FrP8bMwYjAo8GvOn38qJzEuG8fmP3+v/8pf9Lk
+ hIxMKCPepK0ECDP+5dWpTUcPRbnaIbnUNfG/TfEzZCOh4G5/aquF473Wo/KzaZPxkRJKxrE9V
+ Ftb5JvO4xB0Mj6yD9c1F9NruRMD86241EYGqb8xWV2BqcnhGc2IvlonrAaQ9IfQwVb2Bx0dot
+ I1OE4CEJ5SBGrar7q+TjYThsPV/w9oi8Qbix3tQ/MhQ1FqcOxTPC9qABZtOyqVoS/un9jMokv
+ FXNIggNvHQh6HkSAQkwVZq1111coawS+ouakLhzY2CBA1FZgTeVR5syJz4rdtUftxP6i0VbP0
+ OnIL8doBbz/2enDYe7IF3NWn/31TwP9ks4tm3GjtoF/OhPs6xCk7UZq9HmWyOamfBAVuIQeBc
+ OhOfpxRJgwNonggnUvLWset+bLStlZ87k/u8etSTGy8SwdtFwqLo6kbXUuTwCcX3GSnQV/WPy
+ ro1fRgApKy65aOHiG24te2Gj8siela8uvIFCcS6Sm0Zi/hlfTlcNhWrQThNZ1AF/8Fn47qUrH
+ yeIeXfg/IWsDZ+PIF4OQw2VpMB11KtIO9JVpEBgLKrZG7kEr3uaJKPdwyb04nVFdbtEowGCDP
+ 9R1RXWdqrTXgyTYj9JV6C2pvSEQNViQMl2JsNna8mpHnu526Ynxd7ceGIaRfArUS340FKo4Wb
+ Hsi0MRFGkbrb6XruSa9d4EJIykWE/c/RfBHzpHw==
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Add intentional whitespace to the test file `onecolumn` to test that
-`column` ignores it. Add empty lines to the same test file to test that
-`column--keep-empty-lines` preserves them.
-
 Signed-off-by: Lennard Hofmann <lennard.hofmann@web.de>
 =2D--
- tests/expected/column/columnate-fill-cols-keep-empty | 7 +++++++
- tests/ts/column/columnate                            | 4 ++++
- tests/ts/column/files/onecolumn                      | 5 +++++
- 3 files changed, 16 insertions(+)
- create mode 100644 tests/expected/column/columnate-fill-cols-keep-empty
+This is an optional patch to improve performance slightly while only
+adding three lines of code.
+ text-utils/column.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/tests/expected/column/columnate-fill-cols-keep-empty b/tests/=
-expected/column/columnate-fill-cols-keep-empty
-new file mode 100644
-index 000000000..8cc1fdf1f
-=2D-- /dev/null
-+++ b/tests/expected/column/columnate-fill-cols-keep-empty
-@@ -0,0 +1,7 @@
-+			FFFFFFFFFFFFFFFFFFF
-+AAAAAAAAAAAAAAAAAAAA
-+BBBBBBBBBBBBBBBBBBBBB
-+CCCCCCCCCCCCCCCC	XXXXXXX
-+			YYYYYYYYYYY
-+DDDDDDDDDDDDDDDDD	ZZZZZZZZZZZ
-+EEEEEEEEEEEEE
-diff --git a/tests/ts/column/columnate b/tests/ts/column/columnate
-index ebeb0c44f..e80f3b00d 100755
-=2D-- a/tests/ts/column/columnate
-+++ b/tests/ts/column/columnate
-@@ -49,4 +49,8 @@ ts_init_subtest "fill-rows-250"
- $TS_CMD_COLUMN --fillrows -c 250 $TS_SELF/files/onecolumn >> $TS_OUTPUT 2=
->> $TS_ERRLOG
- ts_finalize_subtest
+diff --git a/text-utils/column.c b/text-utils/column.c
+index bc7851472..d83d8d6d7 100644
+=2D-- a/text-utils/column.c
++++ b/text-utils/column.c
+@@ -496,14 +496,18 @@ static void add_entry(struct column_control *ctl, si=
+ze_t *maxents, wchar_t *wcs)
+ 	ctl->ents[ctl->nents] =3D wcs;
+ }
 
-+ts_init_subtest "fill-cols-keep-empty"
-+$TS_CMD_COLUMN --keep-empty-lines -c 60 $TS_SELF/files/onecolumn >> $TS_O=
-UTPUT 2>> $TS_ERRLOG
-+ts_finalize_subtest
-+
- ts_finalize
-diff --git a/tests/ts/column/files/onecolumn b/tests/ts/column/files/oneco=
-lumn
-index 69ec82f5d..3e579e1d4 100644
-=2D-- a/tests/ts/column/files/onecolumn
-+++ b/tests/ts/column/files/onecolumn
-@@ -1,9 +1,14 @@
-+
- AAAAAAAAAAAAAAAAAAAA
- BBBBBBBBBBBBBBBBBBBBB
- CCCCCCCCCCCCCCCC
-+
- DDDDDDDDDDDDDDDDD
- EEEEEEEEEEEEE
- FFFFFFFFFFFFFFFFFFF
-+
-+
- XXXXXXX
- YYYYYYYYYYY
- ZZZZZZZZZZZ
-+
+-static void add_empty_entry(struct column_control *ctl, size_t *maxents)
++static void add_empty_entry(struct column_control *ctl, size_t *maxents,
++                            wchar_t *empty)
+ {
+-	add_entry(ctl, maxents, mbs_to_wcs(""));
++	if (empty =3D=3D NULL)
++		empty =3D mbs_to_wcs("");
++	add_entry(ctl, maxents, empty);
+ 	ctl->nents++;
+ }
+
+ static int read_input(struct column_control *ctl, FILE *fp)
+ {
++	wchar_t *empty =3D NULL;
+ 	char *buf =3D NULL;
+ 	size_t bufsz =3D 0;
+ 	size_t maxents =3D 0;
+@@ -531,7 +535,7 @@ static int read_input(struct column_control *ctl, FILE=
+ *fp)
+ 				if (ctl->mode =3D=3D COLUMN_MODE_TABLE)
+ 					add_emptyline_to_table(ctl);
+ 				else
+-					add_empty_entry(ctl, &maxents);
++					add_empty_entry(ctl, &maxents, empty);
+ 			}
+ 			continue;
+ 		}
 =2D-
 2.28.0
 
