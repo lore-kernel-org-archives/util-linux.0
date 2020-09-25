@@ -1,216 +1,95 @@
-Return-Path: <SRS0=+DDw=DB=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=xqSC=DC=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.1 required=3.0 tests=BAYES_50,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E357EC4363D
-	for <util-linux@archiver.kernel.org>; Thu, 24 Sep 2020 21:56:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37772C4363D
+	for <util-linux@archiver.kernel.org>; Fri, 25 Sep 2020 11:23:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A2EC6239EC
-	for <util-linux@archiver.kernel.org>; Thu, 24 Sep 2020 21:56:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C377820936
+	for <util-linux@archiver.kernel.org>; Fri, 25 Sep 2020 11:23:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RPjzV23j"
+	dkim=pass (1024-bit key) header.d=imperialcapgroup.com header.i=@imperialcapgroup.com header.b="E/e0CgIC";
+	dkim=pass (1024-bit key) header.d=imperialcapgroup.com header.i=@imperialcapgroup.com header.b="E/e0CgIC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726397AbgIXV4Z (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 24 Sep 2020 17:56:25 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:56883 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726316AbgIXV4Z (ORCPT
+        id S1727838AbgIYLXG (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 25 Sep 2020 07:23:06 -0400
+Received: from [46.166.185.98] ([46.166.185.98]:42366 "EHLO
+        host.imperialcapgroup.com" rhost-flags-FAIL-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726255AbgIYLXG (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 24 Sep 2020 17:56:25 -0400
-Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1600984583;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type;
-        bh=/E2TLdmV44pAqgcu9eBtSea69ctXo8sb8ylQwIuJ3Y8=;
-        b=RPjzV23jtI5OazDnwKIMNZTIc2IZObBhDI3OWgp4zW7eqStkwPzqPl7y9rybtzB786UkUQ
-        +J7fvH/wocJvtmnK3+Q2xkKoMoA2KIefG/bR/IOOFH4xdeucva9JFO56TVLq82Z+dHC8IC
-        hMAdfAuM7UjqE1cbtvBkFoZP6iZQ1fw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-168-9Amw2eozP36AXPMPSHEeHg-1; Thu, 24 Sep 2020 17:56:21 -0400
-X-MC-Unique: 9Amw2eozP36AXPMPSHEeHg-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9E395801AC8
-        for <util-linux@vger.kernel.org>; Thu, 24 Sep 2020 21:56:20 +0000 (UTC)
-Received: from tarantula.users.ipa.redhat.com (unknown [10.10.115.250])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 41C9573692
-        for <util-linux@vger.kernel.org>; Thu, 24 Sep 2020 21:56:20 +0000 (UTC)
-Date:   Thu, 24 Sep 2020 16:56:17 -0500
-From:   Jeffrey Bastian <jbastian@redhat.com>
+        Fri, 25 Sep 2020 07:23:06 -0400
+X-Greylist: delayed 6489 seconds by postgrey-1.27 at vger.kernel.org; Fri, 25 Sep 2020 07:23:05 EDT
+Received: from imperialcapgroup.com (unknown [185.236.203.204])
+        by host.imperialcapgroup.com (Postfix) with ESMTPA id BED431A7FC
+        for <util-linux@vger.kernel.org>; Fri, 25 Sep 2020 07:17:18 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 host.imperialcapgroup.com BED431A7FC
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=imperialcapgroup.com; s=default; t=1601011039;
+        bh=6CXuz3tZVwV0sLbV3HksYvK1Xzbh6nLYCrrWqAmLkHM=;
+        h=Reply-To:From:To:Subject:Date:From;
+        b=E/e0CgICgf7nh5V1KNJF+YeVQzxfz86OYrnQriRWX2EkRY5osid0gthi8Sd0YJbUU
+         o1KfyrnWZ2gFw7A93LNH1DiUsSDELNQS4naAb8vS41H8p4H9lODzTxAdk6fr/gt3/Z
+         oSnBDSPT+swZkTi0FKXE3VX8wpjbmXy77kj722gc=
+DKIM-Filter: OpenDKIM Filter v2.11.0 host.imperialcapgroup.com BED431A7FC
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=imperialcapgroup.com; s=default; t=1601011039;
+        bh=6CXuz3tZVwV0sLbV3HksYvK1Xzbh6nLYCrrWqAmLkHM=;
+        h=Reply-To:From:To:Subject:Date:From;
+        b=E/e0CgICgf7nh5V1KNJF+YeVQzxfz86OYrnQriRWX2EkRY5osid0gthi8Sd0YJbUU
+         o1KfyrnWZ2gFw7A93LNH1DiUsSDELNQS4naAb8vS41H8p4H9lODzTxAdk6fr/gt3/Z
+         oSnBDSPT+swZkTi0FKXE3VX8wpjbmXy77kj722gc=
+Reply-To: laghoulli22@secsuremail.com
+From:   L A <laghoulli299@imperialcapgroup.com>
 To:     util-linux@vger.kernel.org
-Subject: [PATCH] use SMBIOS tables on ARM for lscpu
-Message-ID: <20200924215617.c3oqc5tkuhjs5fyp@tarantula.users.ipa.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Subject: Co-Operation Required
+Date:   24 Sep 2020 22:17:20 -0700
+Message-ID: <20200924221719.E6F2EB618AF4596D@imperialcapgroup.com>
+Mime-Version: 1.0
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-ARM SBBR (Sever Base Boot Requirements) require SMBIOS tables, and
-SMBIOS Type 4 describes the CPU manufacturer and model name (among other
-details).  If SMBIOS Type 4 is present, use it to extract these strings.
+Hello there,
 
-Example output (before and after the patch) on an HP m400, Lenovo HR330A,
-and HPE Apollo 70:
+I am Laghouili Abdellatif. I am contacting you because I have a=20
+proposal that I think may be interested in. I represent the=20
+interest of my brother in-law who was a minister in the Syrian=20
+Government. As you probably know, there is a lot of crisis going=20
+on currently in Syria and my brother in-law has fallen out with=20
+the ruling Junta and the president because of his foreign=20
+policies and the senseless war and killings that has been going=20
+on for a while. Everybody in Syria is fed up and want a change=20
+but the president is too powerfull and he simply kills anyone=20
+that tries to oppose him. My brother in-law belives that he is at=20
+risk and he is now very scared for the safety of his family=20
+especially his kids. In order to ensure that his family is taken=20
+care of and protected incase anything happens to him, he has=20
+asked me to help him find a foreign investor who can help him=20
+accommodate and invest 100 MUSD privately that he has secured in=20
+Europe. He wants these funds safely invested so that the future=20
+and safety of his family can be secured.
 
-[root@hp-m400 ~]# /usr/bin/lscpu | grep -i -e vendor -e model -e stepping
-Vendor ID:           APM
-Model:               1
-Model name:          X-Gene
-Stepping:            0x0
-[root@hp-m400 ~]# ./lscpu | grep -i -e vendor -e model -e stepping
-Vendor ID:                       AppliedMicro
-Model:                           1
-Model name:                      X-Gene
-Stepping:                        0x0
+I am contacting you with the hope that you will be interested in=20
+helping us. We need your help to accommodate the funds in the=20
+banking system in your country and also invest it in lucrative=20
+projects that will yeild good profits. We will handle all the=20
+logistics involved in the movement of the funds to you. The funds=20
+is already in Europe so you have nothing to worry about because=20
+this transaction will be executed in a legal way. My brother in-=20
+law has also promised to compensate you for your help. He wants=20
+this to be done discretely so I will be acting as his eyes and=20
+ears during the course of this transaction.
 
-[root@lenovo-hr330a ~]# /usr/bin/lscpu | grep -i -e vendor -e model -e stepping
-Vendor ID:           APM
-Model:               2
-Model name:          X-Gene
-Stepping:            0x3
-[root@lenovo-hr330a ~]# ./lscpu | grep -i -e vendor -e model -e stepping
-Vendor ID:                       Ampere(TM)
-Model:                           2
-Model name:                      eMAG
-Stepping:                        0x3
+If this proposal interests you, please kindly respond so that I=20
+can give you more details.
 
-[root@hpe-apollo-70 ~]# /usr/bin/lscpu | grep -i -e vendor -e model -e stepping
-Vendor ID:           Cavium
-Model:               1
-Model name:          ThunderX2 99xx
-Stepping:            0x1
-[root@hpe-apollo-70 ~]# ./lscpu | grep -i -e vendor -e model -e stepping
-Vendor ID:                       Cavium Inc.
-Model:                           1
-Model name:                      Cavium ThunderX2(R) CPU CN9980 v2.1 @ 2.20GHz
-Stepping:                        0x1
+Regards,
 
-Signed-off-by: Jeffrey Bastian <jbastian@redhat.com>
----
-  sys-utils/lscpu-arm.c | 88 ++++++++++++++++++++++++++++++++++++++++++-
-  1 file changed, 87 insertions(+), 1 deletion(-)
-
-diff --git a/sys-utils/lscpu-arm.c b/sys-utils/lscpu-arm.c
-index 270866191875..82cc23ca830c 100644
---- a/sys-utils/lscpu-arm.c
-+++ b/sys-utils/lscpu-arm.c
-@@ -22,7 +22,15 @@
-   *  - Linux kernel: arch/armX/include/asm/cputype.h
-   *  - GCC sources: config/arch/arch-cores.def
-   *  - Ancient wisdom
-+ *  - SMBIOS tables (if applicable)
-   */
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <string.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <fcntl.h>
-+
-  #include "lscpu.h"
-  
-  struct id_part {
-@@ -202,7 +210,7 @@ static const struct hw_impl hw_implementer[] = {
-      { -1,   unknown_part, "unknown" },
-  };
-  
--void arm_cpu_decode(struct lscpu_desc *desc)
-+static void _arm_cpu_decode(struct lscpu_desc *desc)
-  {
-  	int j, impl, part;
-  	const struct id_part *parts = NULL;
-@@ -260,3 +268,81 @@ void arm_cpu_decode(struct lscpu_desc *desc)
-  		desc->stepping = xstrdup(buf);
-  	}
-  }
-+
-+/* TODO: struct dmi_header, to_dmi_header() and dmi_string() are copied
-+ * from lscpu-dmi.c.  Move them to a library?
-+ */
-+struct dmi_header
-+{
-+	uint8_t type;
-+	uint8_t length;
-+	uint16_t handle;
-+	uint8_t *data;
-+};
-+
-+static void to_dmi_header(struct dmi_header *h, uint8_t *data)
-+{
-+	h->type = data[0];
-+	h->length = data[1];
-+	memcpy(&h->handle, data + 2, sizeof(h->handle));
-+	h->data = data;
-+}
-+
-+static char *dmi_string(const struct dmi_header *dm, uint8_t s)
-+{
-+	char *bp = (char *)dm->data;
-+
-+	if (s == 0)
-+		return NULL;
-+
-+	bp += dm->length;
-+	while (s > 1 && *bp)
-+	{
-+		bp += strlen(bp);
-+		bp++;
-+		s--;
-+	}
-+
-+	if (!*bp)
-+		return NULL;
-+
-+	return bp;
-+}
-+
-+#define _PATH_SYS_DMI_TYPE4	"/sys/firmware/dmi/entries/4-0/raw"
-+#define PROC_MFR_OFFSET		0x07
-+#define PROC_VERSION_OFFSET	0x10
-+
-+static void _arm_cpu_smbios(struct lscpu_desc *desc)
-+{
-+	uint8_t data[8192];
-+	char buf[128];
-+	struct dmi_header h;
-+	int raw_fd = -1;
-+
-+	raw_fd = open(_PATH_SYS_DMI_TYPE4, O_RDONLY);
-+	if (raw_fd == -1) {
-+		return;
-+	}
-+	read(raw_fd, data, 8192);
-+	close(raw_fd);
-+
-+	to_dmi_header(&h, data);
-+
-+	strncpy(buf, dmi_string(&h, data[PROC_MFR_OFFSET]), 127);
-+	desc->vendor = xstrdup(buf);
-+
-+	strncpy(buf, dmi_string(&h, data[PROC_VERSION_OFFSET]), 127);
-+	desc->modelname = xstrdup(buf);
-+}
-+
-+void arm_cpu_decode(struct lscpu_desc *desc)
-+{
-+	/* use SMBIOS Type 4 data if available,
-+	 * else fall back to manual decoding using the tables above */
-+	if (access(_PATH_SYS_DMI_TYPE4, R_OK) != -1) {
-+		_arm_cpu_smbios(desc);
-+	} else {
-+		_arm_cpu_decode(desc);
-+	}
-+}
--- 
-2.26.2
-
+Laghouili.
