@@ -1,95 +1,80 @@
-Return-Path: <SRS0=xqSC=DC=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=XcgZ=DF=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.1 required=3.0 tests=BAYES_50,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37772C4363D
-	for <util-linux@archiver.kernel.org>; Fri, 25 Sep 2020 11:23:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E03E5C4727F
+	for <util-linux@archiver.kernel.org>; Mon, 28 Sep 2020 09:59:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C377820936
-	for <util-linux@archiver.kernel.org>; Fri, 25 Sep 2020 11:23:06 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=imperialcapgroup.com header.i=@imperialcapgroup.com header.b="E/e0CgIC";
-	dkim=pass (1024-bit key) header.d=imperialcapgroup.com header.i=@imperialcapgroup.com header.b="E/e0CgIC"
+	by mail.kernel.org (Postfix) with ESMTP id 9C56320757
+	for <util-linux@archiver.kernel.org>; Mon, 28 Sep 2020 09:59:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727838AbgIYLXG (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 25 Sep 2020 07:23:06 -0400
-Received: from [46.166.185.98] ([46.166.185.98]:42366 "EHLO
-        host.imperialcapgroup.com" rhost-flags-FAIL-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726255AbgIYLXG (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Fri, 25 Sep 2020 07:23:06 -0400
-X-Greylist: delayed 6489 seconds by postgrey-1.27 at vger.kernel.org; Fri, 25 Sep 2020 07:23:05 EDT
-Received: from imperialcapgroup.com (unknown [185.236.203.204])
-        by host.imperialcapgroup.com (Postfix) with ESMTPA id BED431A7FC
-        for <util-linux@vger.kernel.org>; Fri, 25 Sep 2020 07:17:18 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 host.imperialcapgroup.com BED431A7FC
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=imperialcapgroup.com; s=default; t=1601011039;
-        bh=6CXuz3tZVwV0sLbV3HksYvK1Xzbh6nLYCrrWqAmLkHM=;
-        h=Reply-To:From:To:Subject:Date:From;
-        b=E/e0CgICgf7nh5V1KNJF+YeVQzxfz86OYrnQriRWX2EkRY5osid0gthi8Sd0YJbUU
-         o1KfyrnWZ2gFw7A93LNH1DiUsSDELNQS4naAb8vS41H8p4H9lODzTxAdk6fr/gt3/Z
-         oSnBDSPT+swZkTi0FKXE3VX8wpjbmXy77kj722gc=
-DKIM-Filter: OpenDKIM Filter v2.11.0 host.imperialcapgroup.com BED431A7FC
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=imperialcapgroup.com; s=default; t=1601011039;
-        bh=6CXuz3tZVwV0sLbV3HksYvK1Xzbh6nLYCrrWqAmLkHM=;
-        h=Reply-To:From:To:Subject:Date:From;
-        b=E/e0CgICgf7nh5V1KNJF+YeVQzxfz86OYrnQriRWX2EkRY5osid0gthi8Sd0YJbUU
-         o1KfyrnWZ2gFw7A93LNH1DiUsSDELNQS4naAb8vS41H8p4H9lODzTxAdk6fr/gt3/Z
-         oSnBDSPT+swZkTi0FKXE3VX8wpjbmXy77kj722gc=
-Reply-To: laghoulli22@secsuremail.com
-From:   L A <laghoulli299@imperialcapgroup.com>
+        id S1726497AbgI1J7C (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 28 Sep 2020 05:59:02 -0400
+Received: from mgwkm03.jp.fujitsu.com ([202.219.69.170]:12657 "EHLO
+        mgwkm03.jp.fujitsu.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726477AbgI1J7C (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 28 Sep 2020 05:59:02 -0400
+X-Greylist: delayed 665 seconds by postgrey-1.27 at vger.kernel.org; Mon, 28 Sep 2020 05:59:01 EDT
+Received: from kw-mxauth.gw.nic.fujitsu.com (unknown [192.168.231.132]) by mgwkm03.jp.fujitsu.com with smtp
+         id 206f_4b57_f756d6dd_9053_41aa_a13a_44b509e6b9cd;
+        Mon, 28 Sep 2020 18:47:49 +0900
+Received: from pumpkin.openstacklocal (pumpkin.fct.css.fujitsu.com [10.130.70.189])
+        by kw-mxauth.gw.nic.fujitsu.com (Postfix) with ESMTP id CAE23AC00AC
+        for <util-linux@vger.kernel.org>; Mon, 28 Sep 2020 18:47:48 +0900 (JST)
+Received: by pumpkin.openstacklocal (Postfix, from userid 1012)
+        id DAAD7900C; Mon, 28 Sep 2020 18:46:39 +0900 (JST)
+From:   Shunsuke Nakamura <nakamura.shun@jp.fujitsu.com>
 To:     util-linux@vger.kernel.org
-Subject: Co-Operation Required
-Date:   24 Sep 2020 22:17:20 -0700
-Message-ID: <20200924221719.E6F2EB618AF4596D@imperialcapgroup.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Cc:     Shunsuke Nakamura <nakamura.shun@jp.fujitsu.com>,
+        Shunsuke Nakamura <nakamura.shun@fujitsu.com>
+Subject: [PATCH] lscpu: Add FUJITSU aarch64 A64FX cpupart
+Date:   Mon, 28 Sep 2020 18:46:14 +0900
+Message-Id: <20200928094614.3648619-1-nakamura.shun@jp.fujitsu.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hello there,
+Add an entry for FUJITSU aarch64 part A64FX.
+I tested it on the FX1000.
 
-I am Laghouili Abdellatif. I am contacting you because I have a=20
-proposal that I think may be interested in. I represent the=20
-interest of my brother in-law who was a minister in the Syrian=20
-Government. As you probably know, there is a lot of crisis going=20
-on currently in Syria and my brother in-law has fallen out with=20
-the ruling Junta and the president because of his foreign=20
-policies and the senseless war and killings that has been going=20
-on for a while. Everybody in Syria is fed up and want a change=20
-but the president is too powerfull and he simply kills anyone=20
-that tries to oppose him. My brother in-law belives that he is at=20
-risk and he is now very scared for the safety of his family=20
-especially his kids. In order to ensure that his family is taken=20
-care of and protected incase anything happens to him, he has=20
-asked me to help him find a foreign investor who can help him=20
-accommodate and invest 100 MUSD privately that he has secured in=20
-Europe. He wants these funds safely invested so that the future=20
-and safety of his family can be secured.
+Signed-off-by: Shunsuke Nakamura <nakamura.shun@fujitsu.com>
+---
+ sys-utils/lscpu-arm.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-I am contacting you with the hope that you will be interested in=20
-helping us. We need your help to accommodate the funds in the=20
-banking system in your country and also invest it in lucrative=20
-projects that will yeild good profits. We will handle all the=20
-logistics involved in the movement of the funds to you. The funds=20
-is already in Europe so you have nothing to worry about because=20
-this transaction will be executed in a legal way. My brother in-=20
-law has also promised to compensate you for your help. He wants=20
-this to be done discretely so I will be acting as his eyes and=20
-ears during the course of this transaction.
+diff --git a/sys-utils/lscpu-arm.c b/sys-utils/lscpu-arm.c
+index 270866191..c9997d062 100644
+--- a/sys-utils/lscpu-arm.c
++++ b/sys-utils/lscpu-arm.c
+@@ -171,6 +171,11 @@ static const struct id_part intel_part[] = {
+     { -1, "unknown" },
+ };
+ 
++static const struct id_part fujitsu_part[] = {
++    { 0x001, "A64FX" },
++    { -1, "unknown" },
++};
++
+ static const struct id_part hisi_part[] = {
+     { 0xd01, "Kunpeng-920" },	/* aka tsv110 */
+     { -1, "unknown" },
+@@ -191,6 +196,7 @@ static const struct hw_impl hw_implementer[] = {
+     { 0x42, brcm_part,    "Broadcom" },
+     { 0x43, cavium_part,  "Cavium" },
+     { 0x44, dec_part,     "DEC" },
++    { 0x46, fujitsu_part, "FUJITSU" },
+     { 0x48, hisi_part,    "HiSilicon" },
+     { 0x4e, nvidia_part,  "Nvidia" },
+     { 0x50, apm_part,     "APM" },
+-- 
+2.25.1
 
-If this proposal interests you, please kindly respond so that I=20
-can give you more details.
-
-Regards,
-
-Laghouili.
