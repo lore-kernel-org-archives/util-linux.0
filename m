@@ -2,94 +2,74 @@ Return-Path: <SRS0=zmxI=DP=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62108C433E7
-	for <util-linux@archiver.kernel.org>; Thu,  8 Oct 2020 06:50:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D79A6C46466
+	for <util-linux@archiver.kernel.org>; Thu,  8 Oct 2020 07:54:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1838A2087D
-	for <util-linux@archiver.kernel.org>; Thu,  8 Oct 2020 06:50:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7943B206F4
+	for <util-linux@archiver.kernel.org>; Thu,  8 Oct 2020 07:54:11 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fnOTYRsY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728289AbgJHGul (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 8 Oct 2020 02:50:41 -0400
-Received: from mx2.suse.de ([195.135.220.15]:42692 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726013AbgJHGul (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Thu, 8 Oct 2020 02:50:41 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id F077EAC5F;
-        Thu,  8 Oct 2020 06:50:39 +0000 (UTC)
-To:     Util-Linux <util-linux@vger.kernel.org>
-Cc:     jun wang <junguo.wang@suse.com>
-From:   Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH] bash-completion: Fix su
-Autocrypt: addr=sbrabec@suse.cz; prefer-encrypt=mutual; keydata=
- mQGiBD6v2X0RBAD3rKn9S5s4iKX9KwKPIE1GCEG0qE1UomcIxYhey5oKEVoQoHtJkKvZpOVH
- zXNoPIMdwegZI++89UqY1jz6gI1pyBYRs4qmdnltXToO7NXdCr+LC5XNCStewoCE46gJIsb+
- 8DpgK+wPoK/k1bF4HbnImTmkWaRLZKjaFsU4dR3+zwCgxqZXdZMiAYA+1mIjiGRZubOctQUE
- AIZ51+tT+FPkpR8ld+qjHNh1F42y0nCj4dL1oHjWpcq2tzuK+BHzpePsM4rM9ZeYqDSsZIFC
- 5ol61NYmKaKDMRjwY5KK+tABm/ha+OCl4twcxtHCoLOcK1N/8/kqZ75x3/NLJwL/BRwaoE0Y
- NsD+BxCW0Rjbiztg2KwkdDWFcCVmBADc/Ka7mKdimHzY6XJ3gIHgFS9fa2rcxKaleajH+dXh
- SPRW8Qil2n/FaAdUIBWL/woF78BAgDfaOGt7Ize+pRVia0e6KD9aUBjRz3ZXmvG17xv83UmW
- ZRP0fpVqA28ou+NvjRNKJtd144OUeMLyEhy82YlkGPwn7r6WhaWo6UIpSLQsU3RhbmlzbGF2
- IEJyYWJlYyAoU3VTRSBDUikgPHNicmFiZWNAc3VzZS5jej6IXwQTEQIAHwQLBwMCAxUCAwMW
- AgECHgECF4AFAlHS/kkFCSE/csAACgkQcXwgn6BPzXZY/gCghbxE4uexFHVP7qho9TDNxGGR
- xxgAoKCipPrJQrnXKhFG4RDeRcVE0PoBuQENBD6v2YIQBACt62O2lXle2CPxw2LpdT557Rvr
- UdoYJ1AeLAn1iDy67rDsGumxJxW254x9CKVsU3609PG58gDKSQ7CvHzErtOdz9xsJLfCCxbk
- 6LsOhBdCWgYs7HV2xYCkUvKSVQGZN95skfv1aSsO6dXzXISXen4KqY5AnFa+pXDAqMJTGLwp
- GwADBgQAkZ2/zz99L224sNcFgM+6TuGIQ57fNhKJxYG2HbBqh3oBiiZI9224dKLNCv/2aoV8
- qd9QUMKQCO7kQKkSH7+Ti1KnCyaDi3SoeFcsV4Z99Xb1bN2EBS1C4qohNUbouTsYEG5qsZPe
- uRDKekFTiilRRVyiXWDt+zY2aNNMknKBACeIRgQYEQIABgUCPq/ZggAKCRBxfCCfoE/Ndi+t
- AJ958OvQedgG0gsRG1wX/HKXmRZ0dwCfUk0F4qeP5dCiETIHh3gxNIsx8YQ=
-Organization: SUSE Linux, s. r. o.
-Message-ID: <423799ab-a6d8-987c-711e-cdda6ee72c3e@suse.cz>
-Date:   Thu, 8 Oct 2020 08:50:39 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+        id S1728696AbgJHHyK (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 8 Oct 2020 03:54:10 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:30781 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728591AbgJHHyB (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 8 Oct 2020 03:54:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1602143640;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=UztAX6uWpGMc6KAGANBIx2LWK7F4mC8/ynY2W3z3KF0=;
+        b=fnOTYRsYL/L/eR3Kjo5tz517jeyYhVBcGqIbZkq8Lo6bPFrTbgmLeGwl8tg4IvGQZLPlSW
+        /nRnNTg5GCyKYVlP/ToqQfHNcDEFPEZZDYsD3aHiWF9+sWg4/rDvH5M2jjazeuiGZzpELv
+        uJF1ZR7cRW3oLn7X0s5B8bUgZThbvnU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-327-SMFin12YOP-QqTkNJd8kGg-1; Thu, 08 Oct 2020 03:53:56 -0400
+X-MC-Unique: SMFin12YOP-QqTkNJd8kGg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3EDB61015EA2;
+        Thu,  8 Oct 2020 07:53:55 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.194.172])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 536FE5C1BD;
+        Thu,  8 Oct 2020 07:53:54 +0000 (UTC)
+Date:   Thu, 8 Oct 2020 09:53:51 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Stanislav Brabec <sbrabec@suse.cz>
+Cc:     Util-Linux <util-linux@vger.kernel.org>,
+        jun wang <junguo.wang@suse.com>
+Subject: Re: [PATCH] bash-completion: Fix su
+Message-ID: <20201008075351.ucusodaf3dqh5k4v@ws.net.home>
+References: <423799ab-a6d8-987c-711e-cdda6ee72c3e@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <423799ab-a6d8-987c-711e-cdda6ee72c3e@suse.cz>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Fix su -s <tab> that reports invalid chsh -l.
+On Thu, Oct 08, 2020 at 08:50:39AM +0200, Stanislav Brabec wrote:
+> Fix su -s <tab> that reports invalid chsh -l.
+ 
+"cat /etc/shells" and "chsh -l" get the same output on my system, why
+"chsh -l" is invalid? 
 
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
-Reported-by: jun wang <junguo.wang@suse.com>
----
- bash-completion/su | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+chsh -l uses getusershell() glibc function.
 
-diff --git a/bash-completion/su b/bash-completion/su
-index 309505085..9049b4888 100644
---- a/bash-completion/su
-+++ b/bash-completion/su
-@@ -14,7 +14,7 @@ _su_module()
- 			return 0
- 			;;
- 		'-s'|'--shell')
--			COMPREPLY=( $(compgen -W "$(chsh -l)" -- $cur) )
-+			COMPREPLY=( $(compgen -W "$(</etc/shells)" -- $cur) )
- 			return 0
- 			;;
- 		'-h'|'--help'|'-V'|'--version')
--- 
-2.28.0
+    Karel
 
 -- 
-Best Regards / S pozdravem,
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Køi¾íkova 148/34 (Corso IIa)                    tel: +420 284 084 060
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
