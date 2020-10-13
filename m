@@ -1,89 +1,72 @@
-Return-Path: <SRS0=zmxI=DP=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=vP3s=DU=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03232C433E7
-	for <util-linux@archiver.kernel.org>; Thu,  8 Oct 2020 21:50:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 644F1C433E7
+	for <util-linux@archiver.kernel.org>; Tue, 13 Oct 2020 15:15:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A561822241
-	for <util-linux@archiver.kernel.org>; Thu,  8 Oct 2020 21:50:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3033822280
+	for <util-linux@archiver.kernel.org>; Tue, 13 Oct 2020 15:15:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728271AbgJHVuh (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 8 Oct 2020 17:50:37 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:45514 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725852AbgJHVuh (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 8 Oct 2020 17:50:37 -0400
-Received: by mail-pg1-f194.google.com with SMTP id y14so5429645pgf.12
-        for <util-linux@vger.kernel.org>; Thu, 08 Oct 2020 14:50:36 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc;
-        bh=C01yRMr/hxxUpHgoMk5BC6qRawmuK72sMSXs7qWr7Hs=;
-        b=FivRq90aTi8cCV2OHPD/VhCemCaZYdWHXQn818fMEr2rc6MO9nSNV3zjoA63rYks6O
-         nX/iOr0Q+wK+/AVMMkLBsibO7Y4dyq1/eq936sAsSvT1Jmi0mq1uAu4c3b4ntkwuSDwL
-         e+g399cIsHJNI+lZw+607roLJKeWH9U31/nNrvyI+Gg62FVWjjH1Txa9MjanbZtJtlPU
-         9n9QPExsJ+WILndiKW73GvvRISsEY2p0pJmNi32BaNHmg/9UHVquXk6mZJYVWu4kuCjC
-         G9vbZYZM3adlJzXNzCP02uNah+vbAgv1GhI06kILYrcm8IR+8IKL6f4lLV/7MiHPF/xm
-         +EVA==
-X-Gm-Message-State: AOAM532w62nSDHNSn4clIjOr5pGatMWzVvFi1EeZP0ID2WoBLZbmGtcq
-        8FImj8NQVDGeV8J3Y3YsXzsI5gz0UIlC7I1V1eZHU48zpUA=
-X-Google-Smtp-Source: ABdhPJwUPTh7gwbEPYeAYg9ZMzxHhajBoPKi/qn3I1ZIIUku8SQsB4+qoHBbnchzCJq2QRu7To6yUOV+T/dYk0ZuHi0=
-X-Received: by 2002:a17:90b:3884:: with SMTP id mu4mr965491pjb.29.1602193836597;
- Thu, 08 Oct 2020 14:50:36 -0700 (PDT)
-MIME-Version: 1.0
-References: <423799ab-a6d8-987c-711e-cdda6ee72c3e@suse.cz> <20201008075351.ucusodaf3dqh5k4v@ws.net.home>
-In-Reply-To: <20201008075351.ucusodaf3dqh5k4v@ws.net.home>
-Reply-To: kerolasa@gmail.com
-From:   Sami Kerola <kerolasa@iki.fi>
-Date:   Thu, 8 Oct 2020 22:50:25 +0100
-Message-ID: <CAG27Bk3Uq+Ni5iYwDoVqp3FOHpe8N4-diwVdem9+Wu6Abzp6OA@mail.gmail.com>
+        id S2388325AbgJMPPr (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 13 Oct 2020 11:15:47 -0400
+Received: from mx2.suse.de ([195.135.220.15]:55540 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387958AbgJMPPr (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 13 Oct 2020 11:15:47 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 1673CADE1;
+        Tue, 13 Oct 2020 15:15:46 +0000 (UTC)
 Subject: Re: [PATCH] bash-completion: Fix su
 To:     Karel Zak <kzak@redhat.com>
-Cc:     Stanislav Brabec <sbrabec@suse.cz>,
-        Util-Linux <util-linux@vger.kernel.org>,
+Cc:     Util-Linux <util-linux@vger.kernel.org>,
         jun wang <junguo.wang@suse.com>
-Content-Type: text/plain; charset="UTF-8"
+References: <423799ab-a6d8-987c-711e-cdda6ee72c3e@suse.cz>
+ <20201008075351.ucusodaf3dqh5k4v@ws.net.home>
+From:   Stanislav Brabec <sbrabec@suse.cz>
+Organization: SUSE Linux, s. r. o.
+Message-ID: <8440a218-e1ac-22fc-7a4d-4de5f606d24d@suse.cz>
+Date:   Tue, 13 Oct 2020 17:15:45 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.3.1
+MIME-Version: 1.0
+In-Reply-To: <20201008075351.ucusodaf3dqh5k4v@ws.net.home>
+Content-Type: text/plain; charset=iso-8859-2
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Thu, 8 Oct 2020 at 08:55, Karel Zak <kzak@redhat.com> wrote:
+Karel Zak wrote:
 > On Thu, Oct 08, 2020 at 08:50:39AM +0200, Stanislav Brabec wrote:
-> > Fix su -s <tab> that reports invalid chsh -l.
->
+>> Fix su -s <tab> that reports invalid chsh -l.
+>  
 > "cat /etc/shells" and "chsh -l" get the same output on my system, why
-> "chsh -l" is invalid?
->
+> "chsh -l" is invalid? 
+> 
 > chsh -l uses getusershell() glibc function.
+> 
+>     Karel
+> 
+Oops. SUSE uses chsh from shadow package, which is not fully compatible with util-linux one.
 
-I guess "$(</etc/shells)" was done to avoid exec, but it is not the
-same as "$(chsh -l)"
-because the chsh will not list comment lines. What I get is:
-
-$ x=$(</etc/shells);  echo $x
-# Pathnames of valid login shells. # See shells(5) for details.
-/bin/sh /bin/bash /usr/bin/git-shell /bin/dash /bin/zsh /usr/bin/zsh
-
-Compared to:
-
-$ chsh --list-shells
-/bin/sh
-/bin/bash
-/usr/bin/git-shell
-/bin/dash
-/bin/zsh
-/usr/bin/zsh
-
-I hope it is obvious why cat(1) or bash memory mapping that $(<file)
-is isn't the best way to read /etc/shells when using output as
-completion options.
+So the patch is unappropriate for the upstream util-linux.
 
 -- 
-Sami Kerola
-http://www.iki.fi/kerolasa/
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Køi¾íkova 148/34 (Corso IIa)                    tel: +420 284 084 060
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
