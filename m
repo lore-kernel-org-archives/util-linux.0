@@ -1,111 +1,94 @@
-Return-Path: <SRS0=26vR=D6=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=Doaa=EH=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B88F1C388F9
-	for <util-linux@archiver.kernel.org>; Fri, 23 Oct 2020 20:08:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 208A9C2D0A3
+	for <util-linux@archiver.kernel.org>; Sun,  1 Nov 2020 14:16:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 41C1222261
-	for <util-linux@archiver.kernel.org>; Fri, 23 Oct 2020 20:08:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C3DBC2158C
+	for <util-linux@archiver.kernel.org>; Sun,  1 Nov 2020 14:16:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aUh/GKyv"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hPQTy9jm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S464789AbgJWUIF (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 23 Oct 2020 16:08:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54200 "EHLO
+        id S1726458AbgKAOQM (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 1 Nov 2020 09:16:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S373801AbgJWUIF (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 23 Oct 2020 16:08:05 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77F25C0613CE
-        for <util-linux@vger.kernel.org>; Fri, 23 Oct 2020 13:08:05 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id w23so1913698wmi.4
-        for <util-linux@vger.kernel.org>; Fri, 23 Oct 2020 13:08:05 -0700 (PDT)
+        with ESMTP id S1726370AbgKAOQM (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 1 Nov 2020 09:16:12 -0500
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD85CC0617A6
+        for <util-linux@vger.kernel.org>; Sun,  1 Nov 2020 06:16:11 -0800 (PST)
+Received: by mail-wr1-x42f.google.com with SMTP id w1so11584876wrm.4
+        for <util-linux@vger.kernel.org>; Sun, 01 Nov 2020 06:16:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:mime-version:organization
+        h=date:from:to:subject:message-id:mime-version
          :content-transfer-encoding;
-        bh=MBzWIglXzC4HR/lgMsVmYnoBVxuwPEd2g4HlOphNV0o=;
-        b=aUh/GKyvDVhYbN80zD4a1vQg5AcU7bd/hb3mk1g5ZVeIXoL/hm4xC4wOFyL2D9uepT
-         byyl7s1XLd2sDm+avY5hd12L0Eu0QitdCFYa8mh5aXsnzDyCYJSLJWs+t/bYtRS+bzT0
-         NL/MmjYuffQqq/HiomhFEwDfNLRGz4JRc3e7X3mIa6SHgShAzVWFiN1tfT3oN7kBZM3S
-         URW61qnoTVWKSFUSQnJY5ZSkoxrCTYgJqSqr8izEMBsVJfQ6C/dYwFKxlA9iJ/rwyY3Z
-         0VxXTrDtWm/1hMuV2NmI+V2GmFeaTD+7T+1ZvkNGwHiyLBNCBqT8CTIYe7JgdXDyAdkt
-         LOew==
+        bh=lnpj2oVjg1wyK3/p88LvP52mIL2AwMRd5asaqtK1Wp4=;
+        b=hPQTy9jmWwvXlzUS/JYJXyrNL+6Q1PU+GCYHrPixP8cklK0+N8kywg9jo0I06uIjaM
+         QI9wEarrsBNkz4pcQh2RAbVyzLmA0OuP0wqptnXGCeO5KUBB6XgfbwpuxmuPNLo6JKIA
+         FkLqdKzfQJHqbgSB2dk3gAolYBJX6nTrpeXm5E7b7Yb0OyeH85zq0mT+nu941B1yXSi+
+         XtVqYfwMlhPiXCoNzGoVax6fyHUbJml6D9urVJOu1Y/+JugIUv0hcGs5WbZI56WHnF1B
+         bt8+sQog9rlMS0CQy08fy+O7jC1zC4U78LRMzMwB79ra55QLLYYzvmj8vwlLELXDyipN
+         drYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :mime-version:organization:content-transfer-encoding;
-        bh=MBzWIglXzC4HR/lgMsVmYnoBVxuwPEd2g4HlOphNV0o=;
-        b=UtFeteoIoRLwpc2XqacnPLiYAKPEtfKaYCMYg3Zbqa2T6ACE5oY5BYtJw9opbrsytB
-         rLwa9DG24JgLvADl917CAoMyGgUEqYjzGQAd6BvaIAEWEnaQDD31PS2b7IwkdAAj4xUT
-         c0xK4E+kRzFKEtnUYGah35gCNWTjEn/HLhAHdoIgQdvYbSFNVSwOMlOE1z029n08QUDc
-         IWMHT4TsfAm4JI0uufyvF5aVlR3WBWu0cQimHc4hjzEwZlGBYZwyBOd2iWmOES5EYaX8
-         JsGQCThp7GX+CpcyP/nE8qqupMhfbE3vWfwamjth40gIlZFHFw/XyMeCwAcBhTq1rg6U
-         ZlYw==
-X-Gm-Message-State: AOAM533ScLg6omwPs7itwgx0rWeEcYyRq4BzowIVi9XUeQpsskkcJZhS
-        VDZySQCFpJhWubkHhmWhyeqWw+y4nxk=
-X-Google-Smtp-Source: ABdhPJx5kKMztc8bbjkiOTvZ7Gx3IMhdOA+ApMDR+4B0sEKWCmEknEOqf8z5QVWerGlirLdWB/WJHw==
-X-Received: by 2002:a1c:c90b:: with SMTP id f11mr3931396wmb.54.1603483683880;
-        Fri, 23 Oct 2020 13:08:03 -0700 (PDT)
-Received: from localhost ([2a02:8010:659f:0:a8d8:38f:5807:ac47])
-        by smtp.gmail.com with ESMTPSA id v123sm4690691wme.7.2020.10.23.13.08.02
+        h=x-gm-message-state:date:from:to:subject:message-id:mime-version
+         :content-transfer-encoding;
+        bh=lnpj2oVjg1wyK3/p88LvP52mIL2AwMRd5asaqtK1Wp4=;
+        b=jXvM4mkF4w3MQ0tBOHG6wcNuwkZdsO7+net5cNYjzX+woJoJ+dDbXr7QHKJjGmO95M
+         Q/PbP6eCWFk6OnKDNoSHXR/NhTOPfLYxnz3VLXItk6p8EFtpKCAglkn8+DLSZirRr854
+         Ue/xwF0H534TTZk727HlfBZieqC3fIS5G8S7S0epuzxLbMjtLBmccwGtBcobAcb+YYyo
+         1H/xwXJ+aSqYYQtXRwLy5S2hoClr5IINAZiFAYTbyEO/enkwGXvqgZtXJYs1xFgyQN4f
+         mNOFQ76uwh7ZzNKLHsBvfliScVZkgC71R7uXkIM1qghiLPqDWFfcQIwgWbUmgJ/T9QvG
+         0hsg==
+X-Gm-Message-State: AOAM532+ZwCr92xYV5FlW9QlFwM6C8VHXss4CTClX0whfQBCTml6ho39
+        k5Yk7MrjWBvRVYf4TnNjDL9RTyYrPZ39Zw==
+X-Google-Smtp-Source: ABdhPJyJpaWdge84uYLemx+okqfxiuYwsB4Op3pz3kRfKRdLsaQK/Xa++H2MG0oBaeG4cQv23TkHrg==
+X-Received: by 2002:adf:a551:: with SMTP id j17mr15616734wrb.217.1604240170074;
+        Sun, 01 Nov 2020 06:16:10 -0800 (PST)
+Received: from z600.home.lan ([213.31.227.225])
+        by smtp.gmail.com with ESMTPSA id b4sm10471758wro.57.2020.11.01.06.16.09
+        for <util-linux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Oct 2020 13:08:02 -0700 (PDT)
-Sender: Sami Kerola <kerolasa@gmail.com>
-From:   Sami Kerola <kerolasa@iki.fi>
+        Sun, 01 Nov 2020 06:16:09 -0800 (PST)
+Date:   Sun, 1 Nov 2020 14:16:08 +0000
+From:   Sad Clouds <cryintothebluesky@gmail.com>
 To:     util-linux@vger.kernel.org
-Cc:     Sami Kerola <kerolasa@iki.fi>
-Subject: [PATCH] rfkill: stop execution when rfkill device cannot be opened
-Date:   Fri, 23 Oct 2020 21:08:00 +0100
-Message-Id: <20201023200800.7980-1-kerolasa@iki.fi>
-X-Mailer: git-send-email 2.29.0
-MIME-Version: 1.0
-Organization: Cloudflare
-Content-Transfer-Encoding: 8bit
+Subject: Bug report - Solaris 11.3 conflicting types for 'random_get_bytes'
+Message-Id: <20201101141608.ba365cf67d92ee3973226de9@gmail.com>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Without this two error messages are printed when rfkill device
-cannot be opened.
+mcookie fails to build on Solaris 11.3 since it already has
+random_get_bytes() function with a different signature. Please rename
+it to something different.
 
-    $ rfkill
-    rfkill: cannot open /dev/rfkill: No such file or directory
-    rfkill: cannot read /dev/rfkill: Bad file descriptor
+===> Building for mcookie-2.32.1
+/opt/pkg/bin/bmake  all-recursive
+Making all in po
+  CC       lib/libcommon_la-randutils.lo
+In file included from lib/randutils.c:29:
+/usr/include/sys/random.h:71:12: error: conflicting types for 'random_get_bytes'
+   71 | extern int random_get_bytes(uint8_t *dbuf, size_t dlen);
+      |            ^~~~~~~~~~~~~~~~
+In file included from lib/randutils.c:19:
+./include/randutils.h:14:13: note: previous declaration of 'random_get_bytes' was here
+   14 | extern void random_get_bytes(void *buf, size_t nbytes);
+      |             ^~~~~~~~~~~~~~~~
+*** [lib/libcommon_la-randutils.lo] Error code 1
 
-Signed-off-by: Sami Kerola <kerolasa@iki.fi>
----
- sys-utils/rfkill.c | 4 ++++
- 1 file changed, 4 insertions(+)
+bmake[2]: stopped in /opt/pkgbuild/objects/x11/mcookie/work/util-linux-2.32.1
 
-diff --git a/sys-utils/rfkill.c b/sys-utils/rfkill.c
-index b00bf753e..73fb4bab4 100644
---- a/sys-utils/rfkill.c
-+++ b/sys-utils/rfkill.c
-@@ -420,6 +420,8 @@ static int rfkill_list_old(const char *param)
- 	}
- 
- 	fd = rfkill_ro_open(1);
-+	if (fd < 0)
-+		return -errno;
- 
- 	while (1) {
- 		rc = rfkill_read_event(fd, &event);
-@@ -492,6 +494,8 @@ static int rfkill_list_fill(struct control const *ctrl, const char *param)
- 	}
- 
- 	fd = rfkill_ro_open(1);
-+	if (fd < 0)
-+		return -errno;
- 
- 	while (1) {
- 		rc = rfkill_read_event(fd, &event);
--- 
-2.29.0
 
