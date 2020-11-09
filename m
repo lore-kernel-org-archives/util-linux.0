@@ -1,76 +1,156 @@
-Return-Path: <SRS0=zhuq=EJ=vger.kernel.org=util-linux-owner@kernel.org>
+Return-Path: <SRS0=8RqP=EP=vger.kernel.org=util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C67BEC2D0A3
-	for <util-linux@archiver.kernel.org>; Tue,  3 Nov 2020 11:39:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14371C388F9
+	for <util-linux@archiver.kernel.org>; Mon,  9 Nov 2020 02:58:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5F31B206B5
-	for <util-linux@archiver.kernel.org>; Tue,  3 Nov 2020 11:39:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C0531206B6
+	for <util-linux@archiver.kernel.org>; Mon,  9 Nov 2020 02:58:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="b5aqwPHA"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gCHvQiDG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728502AbgKCLj0 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 3 Nov 2020 06:39:26 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:33917 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728458AbgKCLjY (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 3 Nov 2020 06:39:24 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604403563;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=4txHnYPpJiRPTd3WeI/vfNU8FRzKemuFZAefw4fckWs=;
-        b=b5aqwPHAzkWTbF0QfqTFmTYHgtyeHWUT04kc6y/AiURvRryoO/VNym9nLRixR1TIFfrUPU
-        DQ6ozMu/gdz6alJOTpNpZQXDhAMTWl7V35VBfIgr8cPDgAWXt5+1us/ASKXROZRp4Sroba
-        ReAGKOhGlssfieD2Qtya/EcwDfFkJcU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-367-33-m2RG0NiKg2itQ0qo4JA-1; Tue, 03 Nov 2020 06:39:19 -0500
-X-MC-Unique: 33-m2RG0NiKg2itQ0qo4JA-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 86385107465D;
-        Tue,  3 Nov 2020 11:39:18 +0000 (UTC)
-Received: from ws.net.home (unknown [10.40.193.56])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 8E94775124;
-        Tue,  3 Nov 2020 11:39:17 +0000 (UTC)
-Date:   Tue, 3 Nov 2020 12:39:14 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     Sami Kerola <kerolasa@iki.fi>
-Cc:     cryintothebluesky@gmail.com, util-linux@vger.kernel.org
-Subject: Re: [PATCH] lib/randutils: rename random_get_bytes()
-Message-ID: <20201103113914.ifjrmgmo6gf3or5q@ws.net.home>
-References: <20201101141608.ba365cf67d92ee3973226de9@gmail.com>
- <20201102222618.40770-1-kerolasa@iki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201102222618.40770-1-kerolasa@iki.fi>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+        id S1728104AbgKIC6R (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 8 Nov 2020 21:58:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40192 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728038AbgKIC6R (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 8 Nov 2020 21:58:17 -0500
+Received: from mail-qt1-x842.google.com (mail-qt1-x842.google.com [IPv6:2607:f8b0:4864:20::842])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22558C0613CF
+        for <util-linux@vger.kernel.org>; Sun,  8 Nov 2020 18:58:17 -0800 (PST)
+Received: by mail-qt1-x842.google.com with SMTP id g15so1410151qtq.13
+        for <util-linux@vger.kernel.org>; Sun, 08 Nov 2020 18:58:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=wnvNgM5RFmMMU5jrfAWXvwOodDrxkUkvAz4SFWNE6iQ=;
+        b=gCHvQiDGssAws1NdnUJJIlYJcBtDeUoZGaEefVeIxgELJQxCVS0u8dlB7VcXiqkPiu
+         gOVaprD+RNeZxSl5/MDZF3ovRxXwU8StT42sgodjNIlLWwsGoiTcQt+gB0BIHPMaqsv5
+         gos/M58vaYIs6pJv2Mc7dIcPHxcm264D6rLREMgXV+cgGMtMo9TqK7iUTU3NeTR7O0+3
+         f1MNgAYYJR2HWwUSQ+oCw75K/GeogDAh5CE+EZTsJON6GoNoo7vn/n9z07IJcHFt7+2w
+         XGoGLWNy40PswJghgL2xQ46pnXGcbfraomDxDDgNeDC6s2eDI3q9JprimobgCuuD7m1g
+         11Aw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=wnvNgM5RFmMMU5jrfAWXvwOodDrxkUkvAz4SFWNE6iQ=;
+        b=h1poGgFSO1S9eJK/V09L0E06Anng0Mp285YViY99svmAdwASGUAhQsR43kSiqk7dph
+         mEZwe6Lt9X7954BfwO6EyedkzSM33l/qtNUrvCt+jQT6PAJSh00/i7NZk9BbnaVxotkQ
+         rnQgWlMyCcCTKiDSV32dx4X1KPU7psz+ar/zbj8kqmAOE08Fk1HuclnsvG1bUbst3M9g
+         XSF4WCFYzlMM89HeVZqDyuA3MRw+xj6uBx6Ocs4zPedMy9FE+mHB+CqtdE35rfpJOsyi
+         gdarw0sv8/nWKCFxkgqOExN4GCTdnS9qoxss1fvLT9yEm65cFRzWr5iYqWhba+OFj8zz
+         636w==
+X-Gm-Message-State: AOAM532gANizOaa6iQtHRHArjKbWSx5pyhmFNo+2KXNdrIiPiPLate2E
+        g1bztKoZQD4+vQ+BAZ5dsW6SEDdv8A==
+X-Google-Smtp-Source: ABdhPJz1hxo3g/CsSlpoo2hduWZ46XJrxy2iAAONerZH+viuaXMSIyScuU02wBT7GRJ+XK1PtnaPdw==
+X-Received: by 2002:ac8:7316:: with SMTP id x22mr11637884qto.386.1604890696224;
+        Sun, 08 Nov 2020 18:58:16 -0800 (PST)
+Received: from localhost (209-6-122-159.s2973.c3-0.arl-cbr1.sbo-arl.ma.cable.rcncustomer.com. [209.6.122.159])
+        by smtp.gmail.com with ESMTPSA id v14sm5296085qkb.15.2020.11.08.18.58.15
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 08 Nov 2020 18:58:15 -0800 (PST)
+From:   Masayoshi Mizuma <msys.mizuma@gmail.com>
+To:     util-linux@vger.kernel.org, jbastian@redhat.com
+Cc:     Masayoshi Mizuma <msys.mizuma@gmail.com>,
+        Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
+Subject: [PATCH v3 1/2] lscpu-arm: Set the order to search the model name
+Date:   Sun,  8 Nov 2020 21:58:05 -0500
+Message-Id: <20201109025806.26567-1-msys.mizuma@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Mon, Nov 02, 2020 at 10:26:18PM +0000, Sami Kerola wrote:
->  include/randutils.h    | 2 +-
->  lib/randutils.c        | 6 +++---
->  libfdisk/src/dos.c     | 2 +-
->  libuuid/src/gen_uuid.c | 6 +++---
->  misc-utils/mcookie.c   | 2 +-
->  sys-utils/ipcmk.c      | 6 +++---
->  6 files changed, 12 insertions(+), 12 deletions(-)
+From: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
 
-Applied, thanks.
+After commit: 367c85c47 ("lscpu: use SMBIOS tables on ARM for lscpu"),
+Model name for A64FX shows like as:
 
+   Model name:       461F0010
+
+That's because 367c85c47 changes to get the modelname from Processor
+Version of SMBIOS.
+
+The SMBIOS info would be great if the system is based on SBBR v1.2E and
+BBR v1.0 because the specs require the Processor Version of SMBIOS
+as "This field must provide a human readable description of the processor
+part number".
+
+However, it's not good for the systems aren't based on the specs,
+like A64FX. Such systems need to have the model name to the hard
+corded table.
+
+Let's set the order; first, search the hard corded table, then SMBIOS.
+---
+ sys-utils/lscpu-arm.c | 29 ++++++++++++++++-------------
+ 1 file changed, 16 insertions(+), 13 deletions(-)
+
+diff --git a/sys-utils/lscpu-arm.c b/sys-utils/lscpu-arm.c
+index 20c7291e5..3f258a710 100644
+--- a/sys-utils/lscpu-arm.c
++++ b/sys-utils/lscpu-arm.c
+@@ -288,6 +288,7 @@ static int __arm_cpu_smbios(struct lscpu_desc *desc)
+ 	struct lscpu_dmi_header h;
+ 	int fd;
+ 	ssize_t rs;
++	int use_smbios = 0;
+ 
+ 	fd = open(_PATH_SYS_DMI_TYPE4, O_RDONLY);
+ 	if (fd < 0)
+@@ -301,16 +302,21 @@ static int __arm_cpu_smbios(struct lscpu_desc *desc)
+ 
+ 	to_dmi_header(&h, data);
+ 
+-	str = dmi_string(&h, data[PROC_MFR_OFFSET]);
+-	if (str) {
+-		xstrncpy(buf, str, 127);
+-		desc->vendor = xstrdup(buf);
++	if (!desc->modelname) {
++		str = dmi_string(&h, data[PROC_VERSION_OFFSET]);
++		if (str) {
++			xstrncpy(buf, str, 127);
++			desc->modelname = xstrdup(buf);
++			use_smbios = 1;
++		}
+ 	}
+ 
+-	str = dmi_string(&h, data[PROC_VERSION_OFFSET]);
+-	if (str) {
+-		xstrncpy(buf, str, 127);
+-		desc->modelname = xstrdup(buf);
++	if ((startswith(desc->vendor, "0x")) || use_smbios) {
++		str = dmi_string(&h, data[PROC_MFR_OFFSET]);
++		if (str) {
++			xstrncpy(buf, str, 127);
++			desc->vendor = xstrdup(buf);
++		}
+ 	}
+ 
+ 	return 0;
+@@ -318,14 +324,11 @@ static int __arm_cpu_smbios(struct lscpu_desc *desc)
+ 
+ void arm_cpu_decode(struct lscpu_desc *desc, struct lscpu_modifier *mod)
+ {
+-	int rc = -1;
++	__arm_cpu_decode(desc);
+ 
+ 	/* use SMBIOS Type 4 data if available,
+ 	 * else fall back to manual decoding using the tables above */
+ 	if (mod->system == SYSTEM_LIVE &&
+ 	    access(_PATH_SYS_DMI_TYPE4, R_OK) == 0)
+-		rc = __arm_cpu_smbios(desc);
+-
+-	if (rc)
+-		__arm_cpu_decode(desc);
++		__arm_cpu_smbios(desc);
+ }
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.27.0
 
