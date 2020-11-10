@@ -2,108 +2,79 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2303EC2D0A3
-	for <util-linux@archiver.kernel.org>; Mon,  9 Nov 2020 18:51:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C74DC388F7
+	for <util-linux@archiver.kernel.org>; Tue, 10 Nov 2020 05:19:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C05842064C
-	for <util-linux@archiver.kernel.org>; Mon,  9 Nov 2020 18:51:31 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KSj9MhSM"
+	by mail.kernel.org (Postfix) with ESMTP id 1776720795
+	for <util-linux@archiver.kernel.org>; Tue, 10 Nov 2020 05:19:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729810AbgKISvb (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 9 Nov 2020 13:51:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47466 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729292AbgKISvb (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 9 Nov 2020 13:51:31 -0500
-Received: from mail-qt1-x842.google.com (mail-qt1-x842.google.com [IPv6:2607:f8b0:4864:20::842])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF948C0613CF
-        for <util-linux@vger.kernel.org>; Mon,  9 Nov 2020 10:51:30 -0800 (PST)
-Received: by mail-qt1-x842.google.com with SMTP id g17so6761329qts.5
-        for <util-linux@vger.kernel.org>; Mon, 09 Nov 2020 10:51:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=MgOecWcksXzCXgMzcVJDeYtqUlKdg1CtC51oS5mMjRc=;
-        b=KSj9MhSM6zzomq6NxeYs3cnmY/K+4Su0YSaGGZrei16COILg6ph/1BViDhn/M8X0P6
-         zhTZWKzjIRECq9QMVbG+fuZ6ZfjpsBPEUKcoYrKyHc8yVXraHq8VRbjzkwcEG7jNAEeR
-         uLA6fr5mfUqpOHqCnqCRwuxvBdN3d1Mh1LzQEzXI0/9wYvwyGoiQ633rNNqYV2xLRY41
-         /mKZtgr6uFehD0g127hyRPq1BY9vuaaME9qmdp0CVsa9agdcIrcsm+ZQRqIIcdzhLe61
-         tONi54JYHjnWXgouk1cF9IjcMgF5ztyM9FwKuVv3KccVlRRqxM1yF8hCrfZ2nIyVzZTT
-         rY9g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=MgOecWcksXzCXgMzcVJDeYtqUlKdg1CtC51oS5mMjRc=;
-        b=f+r7FBquWOKa7WO8xKgj5svNcEy4qWkKx7SRD2odAH5UISbsEoI0ZYtGw6o6pKp/ET
-         r+vdgr5S5tWtCrCd7JR12m3UlPQwLXqikQiphDXgGn9gQyOTN4aCfj12KEa66RACpOue
-         F1Pm7EZSaSaiH4onlFM69rstoKctRLdbXsWwFzwE6mkVpCqoYj/p1tDwT/qz0p8oQqBE
-         UsuvSTsUNR2RSNqDdycf2yW+syhxEuy79LAxtnhctGGW/1GD97dTTDJFly8fXV6ipm3z
-         9hF23e1lGPXZ9Ibph9lWO0Lo3LUt9oGnuavJBu3gxGUesRrqpAn9EC0bTJDck1HQzZ3Y
-         IkWw==
-X-Gm-Message-State: AOAM530uzInabnlT5dF+MCy5TLkJiw6mH+AMB/Mob89zqLcASVIKwAsV
-        8aNLJZADrlM2rErlbGBilw==
-X-Google-Smtp-Source: ABdhPJzFt3r2x/zbbxrZrFdUoXidAvMsb+kCJTW+/Nrm4vIsDj5ADa3Q6wniVrMjrtlW+Io7Ugkp6Q==
-X-Received: by 2002:a05:622a:d4:: with SMTP id p20mr14392872qtw.172.1604947890249;
-        Mon, 09 Nov 2020 10:51:30 -0800 (PST)
-Received: from gabell (209-6-122-159.s2973.c3-0.arl-cbr1.sbo-arl.ma.cable.rcncustomer.com. [209.6.122.159])
-        by smtp.gmail.com with ESMTPSA id a20sm5635566qta.6.2020.11.09.10.51.29
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 09 Nov 2020 10:51:29 -0800 (PST)
-Date:   Mon, 9 Nov 2020 13:51:27 -0500
-From:   Masayoshi Mizuma <msys.mizuma@gmail.com>
-To:     Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org, jbastian@redhat.com,
-        Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
-Subject: Re: [PATCH v4 2/2] lscpu-arm: Remove hard corded model name of
- Cortex family and X-Gene
-Message-ID: <20201109185127.imanchj6texi6lyn@gabell>
-References: <20201109030403.26821-1-msys.mizuma@gmail.com>
- <20201109030403.26821-2-msys.mizuma@gmail.com>
- <20201109162331.blv7jd3gtui7es4o@ws.net.home>
+        id S1731035AbgKJFTK (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 10 Nov 2020 00:19:10 -0500
+Received: from foss.arm.com ([217.140.110.172]:50760 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730581AbgKJFTK (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 10 Nov 2020 00:19:10 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 7A79031B;
+        Mon,  9 Nov 2020 21:19:09 -0800 (PST)
+Received: from [192.168.122.166] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4E8103F719;
+        Mon,  9 Nov 2020 21:19:09 -0800 (PST)
+To:     util-linux@vger.kernel.org
+Cc:     Jeffrey Bastian <jbastian@redhat.com>, msys.mizuma@gmail.com,
+        m.mizuma@jp.fujitsu.com
+From:   Jeremy Linton <jeremy.linton@arm.com>
+Subject: [PATCH v4 2/2] lscpu-arm: Remove hard corded model name of Cortex
+ family and X-Gene
+Message-ID: <201fdf4b-5238-6e39-8883-f1ba0dbca4a5@arm.com>
+Date:   Mon, 9 Nov 2020 23:19:08 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.3.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201109162331.blv7jd3gtui7es4o@ws.net.home>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Mon, Nov 09, 2020 at 05:23:31PM +0100, Karel Zak wrote:
-> On Sun, Nov 08, 2020 at 10:04:03PM -0500, Masayoshi Mizuma wrote:
-> > From: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
-> > 
-> > Remove hard corded model name of Cortex family and X-Gene so that
-> > lscpu can show the model name using Processor Version of SMBIOS Type4.
-> 
-> Now I see on my system (Fedora) that:
-> 
->  $ll /sys/firmware/dmi/entries/4-0/raw
->  -r-------- 1 root root 0 Nov  9 17:19 /sys/firmware/dmi/entries/4-0/raw
-> 
-> it means it's not readable for non-root users. So, I guess the
-> hardcoded table can be still usable as a fallback solution if we want
-> to provide readable information for non-root.
+Hi,
 
-Thanks, it's a really good point...
-lscpu changes the Vendoer ID and Model name depends on the user privilege.
-I think it may confuse users.
+(sorry about the threading problem, I wasn't a linux-util subscriber)
 
-Why don't we remove Vendor ID and Model name when non-root runs lscpu?
-Or add a message to get Vendor ID and Model name like as follows?
+It appears you are removing much of the hard coded cpu part number lists.
 
-    $ lscpu
-    ...
-    Vendor ID:                       (Need to run as root to show)
-    Model name:                      (Need to run as root to show)
-    ...
+I don't agree with this, I think the hard coded table should be the 
+first authority on the manufacture/part number lists. That is because 
+SMBIOS isn't available on a fairly large number of arm systems, and on 
+systems where it does exist, it suffers from the same kinds of problems 
+that exist on many !arm machines. Its not particularly a reliable source 
+of information.
 
-Thanks,
-Masa
+So, maybe if you have a situation where the SMBIOS information is more 
+correct than the hardcoded tables, maybe its a good idea to create a new 
+line?
+
+
+Aka:
+
+Vendor Id: ARM
+Model Name: Cortex-A57
+BIOS Name: JoeSmithsCore
+
+
+In the vast majority of cases I imagine the strings should match. The 
+problematic cases are LTS os's running on newer hardware. For that i'm 
+somewhat of the opinion the Model Name should remain "unknown" rather 
+than being silently updated. That is to avoid cases where the output 
+from newer lscpu's changes during an upgrade.
+
+PS, Having this hardcoded table isn't optimal, but for now I think we 
+are stuck with it. Hopefully at some point we can work out a reliable 
+way to source the info. In the meantime, it looks like I need to submit 
+some table updates, since there are some newer arm models...
+
