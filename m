@@ -2,177 +2,110 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F33ACC388F7
-	for <util-linux@archiver.kernel.org>; Fri, 13 Nov 2020 14:48:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4340C388F7
+	for <util-linux@archiver.kernel.org>; Fri, 13 Nov 2020 16:47:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B3AA321D79
-	for <util-linux@archiver.kernel.org>; Fri, 13 Nov 2020 14:48:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 515BE217A0
+	for <util-linux@archiver.kernel.org>; Fri, 13 Nov 2020 16:47:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fc9kebEN"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RylTuKV0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726536AbgKMOsA (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 13 Nov 2020 09:48:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33496 "EHLO
+        id S1726563AbgKMQrO (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 13 Nov 2020 11:47:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726324AbgKMOsA (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 13 Nov 2020 09:48:00 -0500
-Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com [IPv6:2607:f8b0:4864:20::833])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80939C0613D1
-        for <util-linux@vger.kernel.org>; Fri, 13 Nov 2020 06:48:00 -0800 (PST)
-Received: by mail-qt1-x833.google.com with SMTP id p12so6798425qtp.7
-        for <util-linux@vger.kernel.org>; Fri, 13 Nov 2020 06:48:00 -0800 (PST)
+        with ESMTP id S1726248AbgKMQrO (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 13 Nov 2020 11:47:14 -0500
+Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59E12C0613D1
+        for <util-linux@vger.kernel.org>; Fri, 13 Nov 2020 08:47:14 -0800 (PST)
+Received: by mail-qt1-x844.google.com with SMTP id t5so7112377qtp.2
+        for <util-linux@vger.kernel.org>; Fri, 13 Nov 2020 08:47:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=T2+5LTtbGC5TQr50rk8FZSPRyDL87HS1qcLE/pBreno=;
-        b=fc9kebENVctfl4RHdXytdxgsFFcpAkJPD/V8e2ciHelvV3lxSaBjC6i2q8KOQt8VH4
-         B/Ohuzsj99ZtK3aDFlfC8X53YiXWgvzAtDfgbevMc9YsMshWvkUWp4rPXrbI+2+eDVbr
-         jc3gZfxL6KRt8hAWuRc+wMRosZZk78tMz2/zA1SEK6DiQBIK4Tin4bZDjheo5Ql/Bym0
-         byHZTwt6K/PBbdS6wRWWfoPJkdMMXN1s1yk719Y4cM5V51ynF9toTCS6XcSdL02ClFMs
-         XWsLHZyk07ip/vFrvWOAr1OGEJdgVYUVM2QuzVgQ2hqiZCobdTKaz+CDB4VlzUZdt5+H
-         7SVQ==
+        bh=dJrhw9k5uQoQey/c+ApSR9NVSjCLkrfPa/hM9/DjyO0=;
+        b=RylTuKV0rt7ZxIIns9c+pKRt/tXp/d1XiiBAvn23A4DlHHlZCoZ3HQEuI2MCjeyyta
+         Gp+Qxwryd0ytDA7VzZTsq9toc4YhEf2A4jnUsU8y1yZpkvp9iNYtTg78nkIhZkMEiI63
+         +Ad8M6w1qQQM97wDnx2RAVUxqIbsGX0VhZid1AJA7264/mmgBawFrfjEPzvOjMkFGE8t
+         P7f6g2++7QftTgPgnR2rWBzHQjlexKwN12ChBLHVqDxBNrm3dn+kG8ZAH/STfNmnEaQR
+         w8sQlR0Go3zU5FEZg4FZWsOZEO8rth0DR6Lq3er1EmP9E3cbGWBdx8pxb5WX1BdT3TZc
+         ByIA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=T2+5LTtbGC5TQr50rk8FZSPRyDL87HS1qcLE/pBreno=;
-        b=K806gF8H/+qgCE+CqtATaiglLkF0MWjezQAsSGEaEgJGddiBb4hE34RXbljMGn+k4f
-         vPzt1jzs0ZOiyEh3TxMQ72E2FpS/IpDKIfbrIJjR9DpG9CUvmGv9dNLrCR+dIl/Rbd07
-         XolcoBMD+Qc4lwzBIK2b22G90X7Q2wdRTovRm84B+7h0r51cdxEm3rmA/b+xhxA/392Q
-         Nm4eXus5FdTD0NOcwsP5BvtGeJnYAKlzcI5sQ+cXcnG9OjaFkoVc6KJUcSVXeiY3HUNK
-         Y5UvRaGk6em4Zauq7aPQg5zduMmjHXaXc/jYtxgpPfOw6s8XbWlfKblKKI4EIoA3ZYGL
-         G3uA==
-X-Gm-Message-State: AOAM532Eg/81IBt+W41MjVluWNtxvqf5dtdw/pElE5OwADLGOuW5ZodP
-        4dLJfl26BwMSLsu76YF3hw==
-X-Google-Smtp-Source: ABdhPJxwINnIyjeRa1YbuOTJNEOFIXO7hK6E81WUGOB4K0YtbW8O3oEJIINPslAY5DQjIw9/jJ7flA==
-X-Received: by 2002:ac8:3417:: with SMTP id u23mr2231677qtb.80.1605278879795;
-        Fri, 13 Nov 2020 06:47:59 -0800 (PST)
+        bh=dJrhw9k5uQoQey/c+ApSR9NVSjCLkrfPa/hM9/DjyO0=;
+        b=rYPUnPDSEcxO++GKl7Ymz3orGWeEyqRrLGzJX/RyY/mCMYozYHzP/XbiPVeLCKpdHL
+         KHUGRzteRaZsKXYpYwaszIYo9v/p9QqQA7ttJ/IBGTj5rUcclZ+2BZaMKi39InI+y3YJ
+         ay7el4jM7mSVvw7w4iWFt7K5Vo1lkXv4IJW4HSb3LRHTYL9D5eou3Ngz7lEDm8LpaKJ4
+         RC0xdPCuWSi0burvEowXN334sEEDLkebwgPMED3t3Dnb6T2sCusmbsmXg2YqvSNhAJFZ
+         jnqOuNOP9W+FdO/GxjdCMrSieoWM9eC8cOYi5jvArEJpJTbF1wafiOy8cWygcmJblGhq
+         gqdQ==
+X-Gm-Message-State: AOAM530lSkSgJMiZsJATImF7VqNgNEk4nGDwqxtaxivLaVO5xWnW4HzO
+        1y4rcP4ol2dPhpw9Qb1SUw==
+X-Google-Smtp-Source: ABdhPJxhehVc3wPlZsHBkBq8uNI2m0Mv+r7kb8LuOJMSzShnkGMAlfUHH1I/yYazH7topr/zBzDyjA==
+X-Received: by 2002:ac8:4e84:: with SMTP id 4mr2735217qtp.296.1605286028669;
+        Fri, 13 Nov 2020 08:47:08 -0800 (PST)
 Received: from gabell (209-6-122-159.s2973.c3-0.arl-cbr1.sbo-arl.ma.cable.rcncustomer.com. [209.6.122.159])
-        by smtp.gmail.com with ESMTPSA id 9sm6292594qty.30.2020.11.13.06.47.58
+        by smtp.gmail.com with ESMTPSA id j63sm7087761qke.67.2020.11.13.08.47.07
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 13 Nov 2020 06:47:59 -0800 (PST)
-Date:   Fri, 13 Nov 2020 09:47:57 -0500
+        Fri, 13 Nov 2020 08:47:07 -0800 (PST)
+Date:   Fri, 13 Nov 2020 11:47:05 -0500
 From:   Masayoshi Mizuma <msys.mizuma@gmail.com>
 To:     Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Cai Qian <qcai@redhat.com>
-Subject: Re: new lscpu
-Message-ID: <20201113144757.pkheoz77djpz3usy@gabell>
-References: <20201113095352.5abeznymfp3lnvoo@ws.net.home>
+Cc:     util-linux@vger.kernel.org, jbastian@redhat.com,
+        jeremy.linton@arm.com, Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
+Subject: Re: [PATCH v5] lscpu-arm: Add "BIOS Vendor ID" and "BIOS Model name"
+ to show the SMBIOS information.
+Message-ID: <20201113164705.oyzgzeczxle3vwc5@gabell>
+References: <20201111012400.23995-1-msys.mizuma@gmail.com>
+ <20201113095906.tjd5iee4xb6cd72d@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201113095352.5abeznymfp3lnvoo@ws.net.home>
+In-Reply-To: <20201113095906.tjd5iee4xb6cd72d@ws.net.home>
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Excellent job, thanks a lot!
+On Fri, Nov 13, 2020 at 10:59:06AM +0100, Karel Zak wrote:
+> On Tue, Nov 10, 2020 at 08:24:00PM -0500, Masayoshi Mizuma wrote:
+> >  sys-utils/lscpu-arm.c | 22 ++++++++--------------
+> >  sys-utils/lscpu.c     |  4 ++++
+> >  sys-utils/lscpu.h     |  2 ++
+> >  3 files changed, 14 insertions(+), 14 deletions(-)
+> 
+> Ported to the new lscpu and merged. Thanks (and extra thanks for
+> your patience :-).
 
-Could you apply the following patch? That's because the build
-on aarch64 machine fails.
+Thank you so much!
 
-  $ make lscpu
-    CC       sys-utils/lscpu-lscpu-virt.o
-  sys-utils/lscpu-virt.c: In function 'lscpu_read_virtualization':
-  sys-utils/lscpu-virt.c:571:16: error: void value not ignored as it ought to be
-     virt->vendor = read_hypervisor_cpuid();
-                  ^
-  make: *** [Makefile:11444: sys-utils/lscpu-lscpu-virt.o] Error 1
-  $
+> 
+> I see one issue with the stuff from BIOS. It seems it reads the
+> information always from the same place. How does it work if I have two
+> different CPUs? I guess it always return the same model name, but what
+> if I have Cortex-A53 and Cortex-A72 on the same board?
 
----
- sys-utils/lscpu-virt.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+The first entry, /sys/firmware/dmi/entries/4-0/raw, is only used,
+so lscpu will show the same information of the SMBIOS type4 from
+the entry even if the system has two diffrent cpu models, like
+Cortex-A53 and Cortex-A72.
+I'm not familiar with the heterogenous SoC, probably each
+CPU model has own SMBIOS type4, right? for example, /sys/firmware/dmi/entries/4-0/raw
+is for Cortex-A53 and /sys/firmware/dmi/entries/4-1/raw is for Cortex-A72.
 
-diff --git a/sys-utils/lscpu-virt.c b/sys-utils/lscpu-virt.c
-index 5dabe031c..527f7caa4 100644
---- a/sys-utils/lscpu-virt.c
-+++ b/sys-utils/lscpu-virt.c
-@@ -377,8 +377,9 @@ none:
- }
- 
- #else /* ! (__x86_64__ || __i386__) */
--static void read_hypervisor_cpuid(void)
-+static int read_hypervisor_cpuid(void)
- {
-+	return VIRT_VENDOR_NONE;
- }
- #endif
- 
--- 
-2.27.0
+> 
+> Maybe we should disable reading from BIOS on systems with more than
+> one CPU type.
+
+I agree with you.
 
 Thanks,
 Masa
-
-On Fri, Nov 13, 2020 at 10:53:52AM +0100, Karel Zak wrote:
-> 
-> Hi guys,
-> 
-> I have merged new lscpu(1) to our master branch. Changes:
->                                       
-> * code is more readable and better structured (I hope)
-> 
-> * data about CPU and CPU-type are maintained in separate structs
-> 
-> * supports multiple CPU-types (model and topology) on one system
->   (the old version reads topology only from CPU0 only)
-> 
->   Example from system with A53 and A72 with different number of cores:
->                                      
->         Vendor ID:              ARM   
->           Model name:           Cortex-A53                                     
->             Model:              4     
->             Thread(s) per core: 1     
->             Core(s) per socket: 4     
->             Socket(s):          1     
->             Stepping:           r0p4  
->             CPU max MHz:        1416.0000                                      
->             CPU min MHz:        408.0000                                       
->             BogoMIPS:           48.00 
->             Flags:              fp asimd evtstrm aes pmull sha1 sha2 crc32 cpuid
->           Model name:           Cortex-A72                                     
->             Model:              2     
->             Thread(s) per core: 1     
->             Core(s) per socket: 2     
->             Socket(s):          1     
->             Stepping:           r0p2  
->             CPU max MHz:        1800.0000                                      
->             CPU min MHz:        408.0000
->             BogoMIPS:           48.00 
->             Flags:              fp asimd evtstrm aes pmull sha1 sha2 crc32 cpuid
->                                       
->                                       
-> * the default output on the terminal is organized in sections to make
->   it more readable for humans, non-terminal output (>file, |grep, etc) is
->   still "flat".
->                                       
-> * the output for --extended and --parse provides more columns now 
->                                       
-> * it uses cache IDs as exported by new kernels; it's possible that 
->   --extended and --parse cache identifiers will not start from zero. 
->   It's an expected change.
->                                       
-> * all recent ARM related changes has been merged into the new code too
->                                       
-> I have /sys and /proc dumps from many systems, but it's still possible
-> that the new lscpu will print non-senses in some cases. Please, test
-> it on your machines, exotic or unusual systems, etc. You know ... ;-)
-> Thanks!
-> 
->  Karel
-> 
-> -- 
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
-> 
