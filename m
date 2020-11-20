@@ -2,137 +2,129 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50614C5519F
-	for <util-linux@archiver.kernel.org>; Fri, 20 Nov 2020 03:25:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94425C5519F
+	for <util-linux@archiver.kernel.org>; Fri, 20 Nov 2020 05:06:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CC46122249
-	for <util-linux@archiver.kernel.org>; Fri, 20 Nov 2020 03:25:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2B49A2236F
+	for <util-linux@archiver.kernel.org>; Fri, 20 Nov 2020 05:06:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Am3RXacm"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TxhdrnwC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726463AbgKTDZY (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 19 Nov 2020 22:25:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42456 "EHLO
+        id S1725809AbgKTFGX (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 20 Nov 2020 00:06:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726417AbgKTDZY (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 19 Nov 2020 22:25:24 -0500
-Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B148DC0613CF
-        for <util-linux@vger.kernel.org>; Thu, 19 Nov 2020 19:25:22 -0800 (PST)
-Received: by mail-qk1-x744.google.com with SMTP id n132so7798257qke.1
-        for <util-linux@vger.kernel.org>; Thu, 19 Nov 2020 19:25:22 -0800 (PST)
+        with ESMTP id S1725777AbgKTFGX (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 20 Nov 2020 00:06:23 -0500
+Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFDF2C0613CF
+        for <util-linux@vger.kernel.org>; Thu, 19 Nov 2020 21:06:21 -0800 (PST)
+Received: by mail-il1-x142.google.com with SMTP id f5so6579715ilj.9
+        for <util-linux@vger.kernel.org>; Thu, 19 Nov 2020 21:06:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Uk+YxBN0/Y/XWS8zwCOtB/NKcuszw0poXNHTI7OuNA0=;
-        b=Am3RXacmoaGqsed9kWVB8a75rQ+rKRj8UBnOM2j3oAUsAAx8svt+BIpSU8K0Sv2CDi
-         AzbyqBON+FrfIslwCOkMbtjR7C/2N+S07SNJuf0kbl122W0rUCuKJukcnFGy73escQf/
-         YJGZC0CDGzX3NqLZbo959GDJ6keRt/PAZrloSi8D/eBd7RFViVBZJFKYaGxwdUqbiFat
-         NriLZGWTECnX3hrsa9QS2YBXuKPVE1+P9QdiX5QBjTxOF0RwfhXVSeyyMowrtlTpf4zj
-         Wot2PEBWmtXGo8yDoOPiH21CR7h9O6rI6scWQCYauBvD8wt5ofXiCn2bLxkcQjzJXCuc
-         /Hmg==
+        h=from:to:cc:subject:date:message-id;
+        bh=SmsDv2B9QWZsWQuKVJW0DIF+b0gLhcDUf/MmFxstbIE=;
+        b=TxhdrnwCVhEw54potTjtMCzAYgY+r3dRP3/7LZ7CVw6Ex62sySOsespSvkbsLkdRwy
+         9y+XUBi/aGfq4pgQUUj4ChoGbA2hM2IdurO2TqL8gA55eCbLXW/i39ljm3PyUDh3rvqi
+         57d1aCuTj94QFwOFJEEnz0SN68qqgqkINpVIr7HAKRdM/B8bL15X9UUZ5vVX9/UhqGU+
+         rmeXYq3sfltOy5pC02q6z9C8XgRAn4o9+Y5NXcpP5mKMKtiEPj4zcfzsgrBOWWUCoj5g
+         D1iIWqXTeTMWBRcqFXuDGGCQCN1MbfnDN8Bd/zHmURA8nIdxmHjQ8HiFs5+wAMQvmAoP
+         2G8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Uk+YxBN0/Y/XWS8zwCOtB/NKcuszw0poXNHTI7OuNA0=;
-        b=izq6EgCmzQ/JXnZTrmh0hOdqbr16ObamVKMjqLwz3HpmSvKeQoarwPwTpN8RiZ8SdO
-         fLPpgoXicA2YzcQ1KUGpEdSrQwVr/+PK7K0p1SIbL8i4XsN3N8LSp3f1/IrKyMGeAn5z
-         EQVH01Cfq2XyApN0X19cnvl+O26lj4ufjhoncGCYRYvDe5/Zhwl0yjVC/q5Kwum9FmHx
-         8mA9p6rclMbIb9lj8/XkdkDf6S7kTgA5eYblnSZJPUX5bca5/BG4qfHN5BRubRDPN/J1
-         oX0eIZpCfgCYCa/WY2Tr1d5ldoxbbr38hpKzQUeGt07EFEPnqMYKFeGkhVOAWQFSznY6
-         n0Ew==
-X-Gm-Message-State: AOAM533Di9USOhy7a+DnmDiS+PDFGqPOOC36JalyeEdq6iT/5OsS2cjT
-        AguOVYtIZP4K7uqLhVCZZA==
-X-Google-Smtp-Source: ABdhPJypn2OEbNzxzQYUQP8WNtlP832r/SjJdQaKqgCDpgVfXgRS5pSnPqe72+K8V6hS6g8yvuf76g==
-X-Received: by 2002:a37:9b0b:: with SMTP id d11mr4366964qke.129.1605842721601;
-        Thu, 19 Nov 2020 19:25:21 -0800 (PST)
-Received: from gabell (209-6-122-159.s2973.c3-0.arl-cbr1.sbo-arl.ma.cable.rcncustomer.com. [209.6.122.159])
-        by smtp.gmail.com with ESMTPSA id b25sm1281360qto.17.2020.11.19.19.25.20
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 19 Nov 2020 19:25:20 -0800 (PST)
-Date:   Thu, 19 Nov 2020 22:25:18 -0500
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=SmsDv2B9QWZsWQuKVJW0DIF+b0gLhcDUf/MmFxstbIE=;
+        b=gxE5BHdtbnG3fBsajl4pQwig/XeQXxDvhsuKmtzngdTb7gMitb86BsYNqTlrq+lQU7
+         zyS/TKYmAthqoIldEwPc3bMCY4j+c5gaAYKI3RPVKemD2xzpHmjpAbsFPszRXlBwAYil
+         4k0SdquzSukALskK0xJ4S2wsevFALXbnwHBTdvy5hFJl1DMW/A5GrG+X94CR8JAAmWKX
+         7D8O6Uwu7dLZG5j4iVrU2QRUyB7wk0t8HxQNW9YIt8Y95Lf9AsWiKDTOeS5DusgSixBK
+         /NAzl21MGxNz3wLdAqrPXo0fxGHlySeTFuONlj9M+FcMn9dIOKU1OvtmHAiIHRqUEeBC
+         y8oA==
+X-Gm-Message-State: AOAM532t5GgmvpWfDNl4IEU8/UaHGIJj6DMZWQbGTdKsIpvQh3PodVwt
+        sE+6WuYQ0s66E4Fu9Kv97kDBBEJT3A==
+X-Google-Smtp-Source: ABdhPJwzX31ULFYMrDy06yY7twtP5ktGdIQJIirhyv5DaarVqpKOvh6jJ88y37qnz4zOg0pNjgyNhg==
+X-Received: by 2002:a05:6e02:ea5:: with SMTP id u5mr8397099ilj.188.1605848781088;
+        Thu, 19 Nov 2020 21:06:21 -0800 (PST)
+Received: from localhost (209-6-122-159.s2973.c3-0.arl-cbr1.sbo-arl.ma.cable.rcncustomer.com. [209.6.122.159])
+        by smtp.gmail.com with ESMTPSA id k18sm776985iow.4.2020.11.19.21.06.19
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 19 Nov 2020 21:06:20 -0800 (PST)
 From:   Masayoshi Mizuma <msys.mizuma@gmail.com>
-To:     Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org,
-        Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
-Subject: Re: [PATCH v2 1/5] lscpu: use cluster on aarch64 machine which
- doesn't have ACPI PPTT
-Message-ID: <20201120032518.6sncjeunsu3n444d@gabell>
-References: <20201114041229.26417-1-msys.mizuma@gmail.com>
- <20201114041229.26417-2-msys.mizuma@gmail.com>
- <20201119083820.q2sso5agv5v56bja@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201119083820.q2sso5agv5v56bja@ws.net.home>
+To:     util-linux@vger.kernel.org
+Cc:     Masayoshi Mizuma <msys.mizuma@gmail.com>
+Subject: [PATCH v3 0/5] lscpu: Fix socket information on aarch64 machine
+Date:   Fri, 20 Nov 2020 00:06:04 -0500
+Message-Id: <20201120050609.17409-1-msys.mizuma@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Thu, Nov 19, 2020 at 09:38:20AM +0100, Karel Zak wrote:
-> On Fri, Nov 13, 2020 at 11:12:25PM -0500, Masayoshi Mizuma wrote:
-> >  cpu_column_name_to_id(const char *name, size_t namesz)
-> >  {
-> >  	size_t i;
-> > +	int is_cluster = lscpu_is_cluster_arm(NULL);
-> >  
-> >  	for (i = 0; i < ARRAY_SIZE(coldescs_cpu); i++) {
-> >  		const char *cn = coldescs_cpu[i].name;
-> >  
-> > -		if (!strncasecmp(name, cn, namesz) && !*(cn + namesz))
-> > +		if (!strncasecmp(name, cn, namesz) && !*(cn + namesz)) {
-> > +			if ((!strncasecmp(cn, "cluster", namesz)) && (!is_cluster)) {
-> > +				warnx(_("%s doesn't work on this machine. Use socket."), name);
-> > +				return -1;
-> > +			} else if ((!strncasecmp(cn, "socket", namesz)) && (is_cluster)) {
-> > +				warnx(_("%s doesn't work on this machine. Use cluster."), name);
-> > +				return -1;
-> > +			}
-> 
-> This is very unusual for your utils and it makes scripts with lscpu
-> non-portable. It would be better to remove this change.
-> 
-> We usually follow the columns as specified by user and if we can't
-> fill any data then we return nothing (or "-"). For example you can use
-> "-o DRAWER" on system where this stuff is not supported.
+lscpu may show the wrong number of physical sockets on aarch64 machine
+as 'Socket(s)'.
 
-Thanks, got it. I'll remove this change.
+That is because lscpu uses a sysfs entry (cpu/cpuX/topology/core_siblings) to
+get the number of sockets. For aarch64, the sysfs entry is set from MPIDR_EL1
+register if the machine doesn't have ACPI PPTT. According to ARM Architecture
+Reference Manual, the register shows the topology as the affinity, but doesn't
+show the physical socket information.
 
-> 
-> >  			return i;
-> > +		}
-> >  	}
-> >  	warnx(_("unknown column: %s"), name);
-> >  	return -1;
-> > @@ -337,6 +348,7 @@ static char *get_cell_data(
-> >  		fill_id(cxt, cpu, core, buf, bufsz);
-> >  		break;
-> >  	case COL_CPU_SOCKET:
-> > +	case COL_CPU_CLUSTER:
-> >  		fill_id(cxt, cpu, socket, buf, bufsz);
-> >  		break;
-> 
->   What about:
-> 
->   case COL_CPU_SOCKET:
->     fill_id(cxt, cpu, socket, buf, bufsz); 
->     break;
->   case COL_CPU_CLUSTER:
->     if (cxt->is_cluster)
->         fill_id(cxt, cpu, socket, buf, bufsz);
->     break;
-> 
->  It means "SOCKET" works everywhere, "CLUSTER" returns data only on
->  ARMs with cluster(s).
+There are such aarch64 machines because ARM SBBR v1.0 and v1.1 don't require 
+ACPI PPTT. SBBR v1.2 requires ACPI PPTT.
 
-Great idea! I'll fix it as that.
+For the aarch64 machine, probably 'Cluster(s)' is good instead of 'Socket(s)'
+according to linux/arch/arm64/kernel/topology.c:store_cpu_topology().
 
-Thanks!
-Masa
+To get the number of sockets on the machine, SMBIOS Processor information (Type04)
+is useful for lscpu because the SMBIOS information is a mandatory
+feature for the aarch64 machine which is based on ARM SBBR v1.0 and newer.
+
+With these patches, lscpu shows as following on the machine:
+
+  For unprivileged user:
+    $ lscpu 
+    Architecture:            aarch64
+    ...
+        Socket(s):           -
+        Cluster(s):          4
+
+  For root:
+    # lscpu 
+    Architecture:            aarch64
+    ...
+        Socket(s):           1
+        Cluster(s):          4
+
+Changelog:
+        v3: Remove cluster/socket column checking. Make lscpu_is_cluster_arm()
+            static (0001 patch)
+	v2: Rebased to the latest lscpu
+
+Masayoshi Mizuma (5):
+  lscpu: use cluster on aarch64 machine which doesn't have ACPI PPTT
+  lscpu-virt: split hypervisor_from_dmi_table()
+  lscpu-dmi: Move some functions related to DMI to lscpu-dmi
+  lscpu: add helper to get physical sockets
+  lscpu: show the number of physical socket on aarch64 machine without
+    ACPI PPTT
+
+ sys-utils/Makemodule.am |   1 +
+ sys-utils/lscpu-arm.c   |  15 ++++++
+ sys-utils/lscpu-dmi.c   | 108 ++++++++++++++++++++++++++++++++++++++++
+ sys-utils/lscpu-virt.c  |  62 ++++++-----------------
+ sys-utils/lscpu.1       |   3 ++
+ sys-utils/lscpu.c       |  39 ++++++++++++---
+ sys-utils/lscpu.h       |  38 ++++++--------
+ 7 files changed, 190 insertions(+), 76 deletions(-)
+ create mode 100644 sys-utils/lscpu-dmi.c
+
+-- 
+2.27.0
+
