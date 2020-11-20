@@ -8,62 +8,62 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72680C5519F
-	for <util-linux@archiver.kernel.org>; Fri, 20 Nov 2020 05:06:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DB12C5519F
+	for <util-linux@archiver.kernel.org>; Fri, 20 Nov 2020 05:06:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0D3142236F
-	for <util-linux@archiver.kernel.org>; Fri, 20 Nov 2020 05:06:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB9F62236F
+	for <util-linux@archiver.kernel.org>; Fri, 20 Nov 2020 05:06:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BZ6ZwVLe"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FmcHd9yZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725932AbgKTFG3 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 20 Nov 2020 00:06:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57904 "EHLO
+        id S1725936AbgKTFGc (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 20 Nov 2020 00:06:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725807AbgKTFG3 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 20 Nov 2020 00:06:29 -0500
+        with ESMTP id S1725935AbgKTFGc (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 20 Nov 2020 00:06:32 -0500
 Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BAF1C0613CF
-        for <util-linux@vger.kernel.org>; Thu, 19 Nov 2020 21:06:29 -0800 (PST)
-Received: by mail-il1-x141.google.com with SMTP id x18so7514262ilq.4
-        for <util-linux@vger.kernel.org>; Thu, 19 Nov 2020 21:06:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B11BEC0613CF
+        for <util-linux@vger.kernel.org>; Thu, 19 Nov 2020 21:06:30 -0800 (PST)
+Received: by mail-il1-x141.google.com with SMTP id x18so7514308ilq.4
+        for <util-linux@vger.kernel.org>; Thu, 19 Nov 2020 21:06:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=iKB63idP+MhibJvG130OHebKXAAM/ZQdonPjJw1OMfM=;
-        b=BZ6ZwVLe/51mBK9cs7QPTFbmybN9a/IWCmmkFad4eEZ2S05ggngF+nND+dwXnZjfJE
-         yUOgWeBMQ/8cmHsrLJaR4pu5dJg8MXX7GfkMtwnm2ebnd4d0BZxNof2FMjeKTcCIx3R3
-         QEAsPTiH6Vav1AxvMLSM0hCeBCTAnz2H97MrclTCPk2E1qTbI5EdrTmteY6hJfeDZgxy
-         XObn86j46JwrwiPmTUCuTXm9HGyWattJr5+Xv1+WVZlMfIsaeVdsnCT8TipxAZpagsNP
-         V9E4XXTusmxf/UG0Ulh4GTiXZ91y6ilx/boEHU4gQD/t4ssHD4s/Y0TSr1HqdclRz1TL
-         tBnA==
+        bh=0D3lvSQCifRKYyos9GODnI8aeHLvbCsRXnlRXoSbPI4=;
+        b=FmcHd9yZlYjjzTzc+Z3fgwT6yBBqpE2UfgZQFqTWn56hDffjs6cH5sFoyoAM1eCBrI
+         jIdCKqXnfG3H8uuDmdGTZnfV9/rDxexSJeGvz/iMrk9EJCdXyM1uMLxe1M1BjbkY1am+
+         3uwzggGqlXB0FB35XlwvNtJDMWEBu6St4olxAgmyD4PvwAtMYSmQPpOxHGRsUA4oddTK
+         NoGRRI6cDsiUAH6Gy+k+8HuLw+lYW7E4UoLLZlbVtIKfD4w+7tz5YfgwsU67Su2LujiN
+         DyhEmnMCdSb0VUq8Zng6AN2U4xM/IG8RQfdryOxw+0bxs8wQZeAe7auQeujsEfU4CKy8
+         MbRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=iKB63idP+MhibJvG130OHebKXAAM/ZQdonPjJw1OMfM=;
-        b=c+DBT2Ga7gUAKGXWKIh66rLMfWtQHm0/O8l6iRPdQrpd4BqJly8lfACnNTT3FNHtCD
-         tp52cIQvHFmgzuh9KJTvbWUwaltwi1qItrH3g1DqfFk7gayYx/EknwS18jPwSOdvZyb0
-         I3UguiI170tlc4aQUABUfIuiRWGT/TBIy0r/VtUfLYdrlZ6Mhk2aHICkYWMgRJlR2cs1
-         4mAlV8xwLlwXAfgOmG0+ZQK1GNmpwpz6G/QURFYy5e1XKd4L+XgYj/U22E0mzFKXejrb
-         OAUwMx8ZZtAvLhlv7Jcb3BeiP5IQEH/4l/iFrW6CRf8IdIRak1obxCeHMs8nxigBxrzc
-         BE1w==
-X-Gm-Message-State: AOAM5332XG7cciD96loIxAe14+PKq+Lbycy61ZfZhKipoqBuCHC8kV2M
-        54/SGgzvDnryOfg/SjCLa13WA1U9IQ==
-X-Google-Smtp-Source: ABdhPJyn/v0eudXQntASOj4Nqeg52ZdYIuPIwBsUg3nMJQ+MdxFxDHXd1AHu4yhw+4VBiumUDSad9Q==
-X-Received: by 2002:a92:d03:: with SMTP id 3mr9056079iln.197.1605848788303;
-        Thu, 19 Nov 2020 21:06:28 -0800 (PST)
+        bh=0D3lvSQCifRKYyos9GODnI8aeHLvbCsRXnlRXoSbPI4=;
+        b=hBRZH5/2MbxXBuxIDL1DIAdZDoO/e1CTwU+i6Di8AjTQS9kti+OSDH98KH+l9zBS2A
+         pVEcbWJB+jkNJhcefLzggAOy5/U3HbAw+uWqOHIdwxxIsrIK6Whqhoc6qdQNeCLHdea/
+         v5DTFrDu5NHPsRCdkVho5kpP5PutAc1Zqx22WL29XdGoyton7sONnwaOW4MwM2xRqUEU
+         zp4IMRvsziP0wGfAPoMZCoOFgyfvn03nW6FNTG3Az9mtoEq5vqgqMfl8nw0c2SWj8Exs
+         nHZ+irotMj9eqvSNtOHcIXdU+u/Gd0oBDtbLRcEd/UXgW1lLDUiXo3xNWjYEz85v4we3
+         bFAw==
+X-Gm-Message-State: AOAM532mhhBtxqtTjXp5xscuWs+L3N+igchwUTQDRU3vBWd0Wx8xTDN0
+        pUreEtfbemWKBiVeDB57pnw8zdAnDQ==
+X-Google-Smtp-Source: ABdhPJyFDn4KpcSrXxeyY3JuijwrXpkl/3KxKDgejw0VWqt5xw74dlw1cTMUMXR9gW71dWPefWtSEg==
+X-Received: by 2002:a05:6e02:be9:: with SMTP id d9mr1869251ilu.134.1605848789971;
+        Thu, 19 Nov 2020 21:06:29 -0800 (PST)
 Received: from localhost (209-6-122-159.s2973.c3-0.arl-cbr1.sbo-arl.ma.cable.rcncustomer.com. [209.6.122.159])
-        by smtp.gmail.com with ESMTPSA id u12sm1020129ilg.10.2020.11.19.21.06.27
+        by smtp.gmail.com with ESMTPSA id o3sm1039050ilk.27.2020.11.19.21.06.29
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 19 Nov 2020 21:06:27 -0800 (PST)
+        Thu, 19 Nov 2020 21:06:29 -0800 (PST)
 From:   Masayoshi Mizuma <msys.mizuma@gmail.com>
 To:     util-linux@vger.kernel.org
 Cc:     Masayoshi Mizuma <msys.mizuma@gmail.com>,
         Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
-Subject: [PATCH v3 4/5] lscpu: add helper to get physical sockets
-Date:   Fri, 20 Nov 2020 00:06:08 -0500
-Message-Id: <20201120050609.17409-5-msys.mizuma@gmail.com>
+Subject: [PATCH v3 5/5] lscpu: show the number of physical socket on aarch64 machine without ACPI PPTT
+Date:   Fri, 20 Nov 2020 00:06:09 -0500
+Message-Id: <20201120050609.17409-6-msys.mizuma@gmail.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20201120050609.17409-1-msys.mizuma@gmail.com>
 References: <20201120050609.17409-1-msys.mizuma@gmail.com>
@@ -73,81 +73,68 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 From: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
 
-Add a helper function, get_number_of_physical_sockets_from_dmi(),
-to get physical sockets from DMI table in case of the sysfs for
-cpu topology doesn't have the physical socket information.
+Show the number of the number of physical socket even if the sysfs doesn't
+have the physical socket information.
 
-get_number_of_physical_sockets_from_dmi() parse the DMI table
-and counts the number of SMBIOS Processor Information (Type04)
-structure.
+Note, lscpu shows the number of physical socket as 'Socket(s):' only if
+root user runs it because accessing the DMI table requires root
+privilege.
 
 Signed-off-by: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
 ---
- sys-utils/lscpu-dmi.c | 29 +++++++++++++++++++++++++++++
- sys-utils/lscpu.h     |  2 ++
- 2 files changed, 31 insertions(+)
+ sys-utils/lscpu-arm.c | 2 ++
+ sys-utils/lscpu.c     | 9 +++++++--
+ sys-utils/lscpu.h     | 2 ++
+ 3 files changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/sys-utils/lscpu-dmi.c b/sys-utils/lscpu-dmi.c
-index 00d4439f8..e7ffa88d3 100644
---- a/sys-utils/lscpu-dmi.c
-+++ b/sys-utils/lscpu-dmi.c
-@@ -66,6 +66,9 @@ int parse_dmi_table(uint16_t len, uint16_t num,
- 			di->manufacturer = dmi_string(&h, data[0x04]);
- 			di->product = dmi_string(&h, data[0x05]);
- 			break;
-+		case 4:
-+			di->sockets++;
-+			break;
- 		default:
- 			break;
- 		}
-@@ -77,3 +80,29 @@ int parse_dmi_table(uint16_t len, uint16_t num,
- done:
- 	return rc;
+diff --git a/sys-utils/lscpu-arm.c b/sys-utils/lscpu-arm.c
+index 9391cca54..9e259673c 100644
+--- a/sys-utils/lscpu-arm.c
++++ b/sys-utils/lscpu-arm.c
+@@ -360,6 +360,8 @@ static void arm_decode(struct lscpu_cxt *cxt, struct lscpu_cputype *ct)
+ 
+ 	arm_ids_decode(ct);
+ 	arm_rXpY_decode(ct);
++	if (cxt->is_cluster)
++		ct->nr_socket_on_cluster = get_number_of_physical_sockets_from_dmi();
  }
+ 
+ static int lscpu_is_cluster_arm(struct lscpu_cxt *cxt)
+diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+index b9b8940a8..85d1d0acb 100644
+--- a/sys-utils/lscpu.c
++++ b/sys-utils/lscpu.c
+@@ -862,10 +862,15 @@ print_summary_cputype(struct lscpu_cxt *cxt,
+ 		} else
+ 			add_summary_n(tb, sec, _("Book(s):"), ct->nbooks_per_drawer ?: ct->nbooks);
+ 	} else {
+-		if (cxt->is_cluster)
++		if (cxt->is_cluster) {
++			if (ct->nr_socket_on_cluster > 0)
++				add_summary_n(tb, sec, _("Socket(s):"), ct->nr_socket_on_cluster);
++			else
++				add_summary_s(tb, sec, _("Socket(s):"), "-");
 +
-+size_t get_number_of_physical_sockets_from_dmi(void)
-+{
-+	static char const sys_fw_dmi_tables[] = _PATH_SYS_DMI;
-+	struct dmi_info di;
-+	struct stat st;
-+	uint8_t *data;
-+	int rc = 0;
-+
-+	if (stat(sys_fw_dmi_tables, &st))
-+		return rc;
-+
-+	data = get_mem_chunk(0, st.st_size, sys_fw_dmi_tables);
-+	if (!data)
-+		return rc;
-+
-+	memset(&di, 0, sizeof(struct dmi_info));
-+	rc = parse_dmi_table(st.st_size, st.st_size/4, data, &di);
-+
-+	free(data);
-+
-+	if ((rc < 0) || !di.sockets)
-+		return 0;
-+	else
-+		return di.sockets;
-+}
+ 			add_summary_n(tb, sec, _("Cluster(s):"),
+ 					ct->nsockets_per_book ?: ct->nsockets);
+-		else
++		} else
+ 			add_summary_n(tb, sec, _("Socket(s):"),
+ 					ct->nsockets_per_book ?: ct->nsockets);
+ 	}
 diff --git a/sys-utils/lscpu.h b/sys-utils/lscpu.h
-index 9ec3fca17..74c647e3a 100644
+index 74c647e3a..623c07998 100644
 --- a/sys-utils/lscpu.h
 +++ b/sys-utils/lscpu.h
-@@ -311,10 +311,12 @@ struct dmi_info {
- 	char *vendor;
- 	char *product;
- 	char *manufacturer;
-+	int sockets;
+@@ -101,6 +101,8 @@ struct lscpu_cputype {
+ 			has_configured : 1,
+ 			has_polarization : 1,
+ 			has_addresses : 1;
++
++	size_t nr_socket_on_cluster; /* the number of sockets if the is_cluster is 1 */
  };
  
- 
- void to_dmi_header(struct lscpu_dmi_header *h, uint8_t *data);
- char *dmi_string(const struct lscpu_dmi_header *dm, uint8_t s);
- int parse_dmi_table(uint16_t len, uint16_t num, uint8_t *data, struct dmi_info *di);
-+size_t get_number_of_physical_sockets_from_dmi(void);
- #endif /* LSCPU_H */
+ /* dispatching modes */
 -- 
 2.27.0
 
