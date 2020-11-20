@@ -8,62 +8,62 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53F8CC56201
-	for <util-linux@archiver.kernel.org>; Fri, 20 Nov 2020 05:06:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72680C5519F
+	for <util-linux@archiver.kernel.org>; Fri, 20 Nov 2020 05:06:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 072002236F
-	for <util-linux@archiver.kernel.org>; Fri, 20 Nov 2020 05:06:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0D3142236F
+	for <util-linux@archiver.kernel.org>; Fri, 20 Nov 2020 05:06:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aa/ofTPP"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BZ6ZwVLe"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725927AbgKTFG1 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 20 Nov 2020 00:06:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57898 "EHLO
+        id S1725932AbgKTFG3 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 20 Nov 2020 00:06:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725807AbgKTFG1 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 20 Nov 2020 00:06:27 -0500
+        with ESMTP id S1725807AbgKTFG3 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 20 Nov 2020 00:06:29 -0500
 Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 528C7C0613CF
-        for <util-linux@vger.kernel.org>; Thu, 19 Nov 2020 21:06:27 -0800 (PST)
-Received: by mail-il1-x141.google.com with SMTP id q1so7497009ilt.6
-        for <util-linux@vger.kernel.org>; Thu, 19 Nov 2020 21:06:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BAF1C0613CF
+        for <util-linux@vger.kernel.org>; Thu, 19 Nov 2020 21:06:29 -0800 (PST)
+Received: by mail-il1-x141.google.com with SMTP id x18so7514262ilq.4
+        for <util-linux@vger.kernel.org>; Thu, 19 Nov 2020 21:06:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=G9reMvEahHJXoNdo3awA2pElRUv18ILqcLjGryHH0ow=;
-        b=aa/ofTPPLQ58V03v0TZXkF81TgltbkMtEE8vnY7QxOFgLTSgsS3fumUQmn4SRQ81AT
-         jC9iL2jzQsaV8S2IBtlEs5xJ4O4xY2e/VvQbOxRD+uB+6Nxwa202M1VqbgIR/R0zmwE0
-         vcnH40eQuEJngysRqY883uRWX9vhCqhcTTzXHOOtKK5Kp00wIJAhP//3Ut7j/XlabObc
-         pMye/ladQdOXb67cKy7Y8sEyLo5fPBfsL93uukNDH3ssEuqsuMoRttiElOiHsEHthP6j
-         4aLmivyR6O8m/TQdTV8HzSiJNioLAXzno+ah1tWKGqNAJlEZEGZHJh60t7gnvPyywBMF
-         /Fyg==
+        bh=iKB63idP+MhibJvG130OHebKXAAM/ZQdonPjJw1OMfM=;
+        b=BZ6ZwVLe/51mBK9cs7QPTFbmybN9a/IWCmmkFad4eEZ2S05ggngF+nND+dwXnZjfJE
+         yUOgWeBMQ/8cmHsrLJaR4pu5dJg8MXX7GfkMtwnm2ebnd4d0BZxNof2FMjeKTcCIx3R3
+         QEAsPTiH6Vav1AxvMLSM0hCeBCTAnz2H97MrclTCPk2E1qTbI5EdrTmteY6hJfeDZgxy
+         XObn86j46JwrwiPmTUCuTXm9HGyWattJr5+Xv1+WVZlMfIsaeVdsnCT8TipxAZpagsNP
+         V9E4XXTusmxf/UG0Ulh4GTiXZ91y6ilx/boEHU4gQD/t4ssHD4s/Y0TSr1HqdclRz1TL
+         tBnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=G9reMvEahHJXoNdo3awA2pElRUv18ILqcLjGryHH0ow=;
-        b=PAuqvTDiQ+8kE8+MArHMtxRcbGWiOl/WlJTSxrjkIKW6MzwsjNCiEDtDEfcunSpHTb
-         QR+xbnMCiCZXznQ/ZQqkVX7+aNuSiGqhBF9OamrrFMnaAI2Ni9jJ8BD5y4UD4xPBUopt
-         JlVt/pKu0fEi86WmDJuT/0JGkMbsx+2OtXiG2VlVPHxcpdi12VM5CNg9GpdAbD3z53mW
-         ot/GO1WTJvfLz1nycTajph7sHgRhq7V8Df/QnSo0f1troo6o2jHB7+vGbhyHfNUYnnD7
-         UzkTkMNyibOO33OupoKwlLbmtbO7N1vn0YnRhBf95nqSQnjaop8a4aROK/+3fp8x2TKM
-         GgkA==
-X-Gm-Message-State: AOAM5319HXEK29ZyyrpXR4SPbPResF8BIIBwYRI/SYkvOai0KtzSt7Uz
-        u/RmWHYV/5AOUPTZSLgKgC3tB0J2TA==
-X-Google-Smtp-Source: ABdhPJzu3JGKRleJrhwRJKbo+Clq+L4EioO1VoZtVYxJ7Q7h4e25lkCAGg6YVMvMYh+JApdhug7gDg==
-X-Received: by 2002:a92:5b8c:: with SMTP id c12mr25708082ilg.293.1605848786518;
-        Thu, 19 Nov 2020 21:06:26 -0800 (PST)
+        bh=iKB63idP+MhibJvG130OHebKXAAM/ZQdonPjJw1OMfM=;
+        b=c+DBT2Ga7gUAKGXWKIh66rLMfWtQHm0/O8l6iRPdQrpd4BqJly8lfACnNTT3FNHtCD
+         tp52cIQvHFmgzuh9KJTvbWUwaltwi1qItrH3g1DqfFk7gayYx/EknwS18jPwSOdvZyb0
+         I3UguiI170tlc4aQUABUfIuiRWGT/TBIy0r/VtUfLYdrlZ6Mhk2aHICkYWMgRJlR2cs1
+         4mAlV8xwLlwXAfgOmG0+ZQK1GNmpwpz6G/QURFYy5e1XKd4L+XgYj/U22E0mzFKXejrb
+         OAUwMx8ZZtAvLhlv7Jcb3BeiP5IQEH/4l/iFrW6CRf8IdIRak1obxCeHMs8nxigBxrzc
+         BE1w==
+X-Gm-Message-State: AOAM5332XG7cciD96loIxAe14+PKq+Lbycy61ZfZhKipoqBuCHC8kV2M
+        54/SGgzvDnryOfg/SjCLa13WA1U9IQ==
+X-Google-Smtp-Source: ABdhPJyn/v0eudXQntASOj4Nqeg52ZdYIuPIwBsUg3nMJQ+MdxFxDHXd1AHu4yhw+4VBiumUDSad9Q==
+X-Received: by 2002:a92:d03:: with SMTP id 3mr9056079iln.197.1605848788303;
+        Thu, 19 Nov 2020 21:06:28 -0800 (PST)
 Received: from localhost (209-6-122-159.s2973.c3-0.arl-cbr1.sbo-arl.ma.cable.rcncustomer.com. [209.6.122.159])
-        by smtp.gmail.com with ESMTPSA id d23sm1101272ill.56.2020.11.19.21.06.25
+        by smtp.gmail.com with ESMTPSA id u12sm1020129ilg.10.2020.11.19.21.06.27
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 19 Nov 2020 21:06:25 -0800 (PST)
+        Thu, 19 Nov 2020 21:06:27 -0800 (PST)
 From:   Masayoshi Mizuma <msys.mizuma@gmail.com>
 To:     util-linux@vger.kernel.org
 Cc:     Masayoshi Mizuma <msys.mizuma@gmail.com>,
         Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
-Subject: [PATCH v3 3/5] lscpu-dmi: Move some functions related to DMI to lscpu-dmi
-Date:   Fri, 20 Nov 2020 00:06:07 -0500
-Message-Id: <20201120050609.17409-4-msys.mizuma@gmail.com>
+Subject: [PATCH v3 4/5] lscpu: add helper to get physical sockets
+Date:   Fri, 20 Nov 2020 00:06:08 -0500
+Message-Id: <20201120050609.17409-5-msys.mizuma@gmail.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20201120050609.17409-1-msys.mizuma@gmail.com>
 References: <20201120050609.17409-1-msys.mizuma@gmail.com>
@@ -73,226 +73,80 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 From: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
 
-Move some functions related to DMI to lscpu-dmi.
+Add a helper function, get_number_of_physical_sockets_from_dmi(),
+to get physical sockets from DMI table in case of the sysfs for
+cpu topology doesn't have the physical socket information.
+
+get_number_of_physical_sockets_from_dmi() parse the DMI table
+and counts the number of SMBIOS Processor Information (Type04)
+structure.
 
 Signed-off-by: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
 ---
- sys-utils/Makemodule.am |  1 +
- sys-utils/lscpu-dmi.c   | 79 +++++++++++++++++++++++++++++++++++++++++
- sys-utils/lscpu-virt.c  | 50 +-------------------------
- sys-utils/lscpu.h       | 28 +++------------
- 4 files changed, 86 insertions(+), 72 deletions(-)
- create mode 100644 sys-utils/lscpu-dmi.c
+ sys-utils/lscpu-dmi.c | 29 +++++++++++++++++++++++++++++
+ sys-utils/lscpu.h     |  2 ++
+ 2 files changed, 31 insertions(+)
 
-diff --git a/sys-utils/Makemodule.am b/sys-utils/Makemodule.am
-index 5459a3a2e..df8fd403a 100644
---- a/sys-utils/Makemodule.am
-+++ b/sys-utils/Makemodule.am
-@@ -396,6 +396,7 @@ lscpu_SOURCES = sys-utils/lscpu.c \
- 		sys-utils/lscpu-topology.c \
- 		sys-utils/lscpu-virt.c \
- 		sys-utils/lscpu-arm.c \
-+		sys-utils/lscpu-dmi.c \
- 		sys-utils/lscpu.h
- lscpu_LDADD = $(LDADD) libcommon.la libsmartcols.la $(RTAS_LIBS)
- lscpu_CFLAGS = $(AM_CFLAGS) -I$(ul_libsmartcols_incdir)
 diff --git a/sys-utils/lscpu-dmi.c b/sys-utils/lscpu-dmi.c
-new file mode 100644
-index 000000000..00d4439f8
---- /dev/null
+index 00d4439f8..e7ffa88d3 100644
+--- a/sys-utils/lscpu-dmi.c
 +++ b/sys-utils/lscpu-dmi.c
-@@ -0,0 +1,79 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright (C) 2020 FUJITSU LIMITED.  All rights reserved.
-+ */
-+
-+#include "lscpu.h"
-+
-+void to_dmi_header(struct lscpu_dmi_header *h, uint8_t *data)
-+{
-+	h->type = data[0];
-+	h->length = data[1];
-+	memcpy(&h->handle, data + 2, sizeof(h->handle));
-+	h->data = data;
-+}
-+
-+char *dmi_string(const struct lscpu_dmi_header *dm, uint8_t s)
-+{
-+	char *bp = (char *)dm->data;
-+
-+	if (!s || !bp)
-+		return NULL;
-+
-+	bp += dm->length;
-+	while (s > 1 && *bp) {
-+		bp += strlen(bp);
-+		bp++;
-+		s--;
-+	}
-+
-+	return !*bp ? NULL : bp;
-+}
-+
-+int parse_dmi_table(uint16_t len, uint16_t num,
-+				uint8_t *data,
-+				struct dmi_info *di)
-+{
-+	uint8_t *buf = data;
-+	int rc = -1;
-+	int i = 0;
-+
-+	 /* 4 is the length of an SMBIOS structure header */
-+	while (i < num && data + 4 <= buf + len) {
-+		uint8_t *next;
-+		struct lscpu_dmi_header h;
-+
-+		to_dmi_header(&h, data);
-+
-+		/*
-+		 * If a short entry is found (less than 4 bytes), not only it
-+		 * is invalid, but we cannot reliably locate the next entry.
-+		 * Better stop at this point.
-+		 */
-+		if (h.length < 4)
-+			goto done;
-+
-+		/* look for the next handle */
-+		next = data + h.length;
-+		while (next - buf + 1 < len && (next[0] != 0 || next[1] != 0))
-+			next++;
-+		next += 2;
-+		switch (h.type) {
-+		case 0:
-+			di->vendor = dmi_string(&h, data[0x04]);
+@@ -66,6 +66,9 @@ int parse_dmi_table(uint16_t len, uint16_t num,
+ 			di->manufacturer = dmi_string(&h, data[0x04]);
+ 			di->product = dmi_string(&h, data[0x05]);
+ 			break;
++		case 4:
++			di->sockets++;
 +			break;
-+		case 1:
-+			di->manufacturer = dmi_string(&h, data[0x04]);
-+			di->product = dmi_string(&h, data[0x05]);
-+			break;
-+		default:
-+			break;
-+		}
-+
-+		data = next;
-+		i++;
-+	}
-+	rc = 0;
-+done:
-+	return rc;
-+}
-diff --git a/sys-utils/lscpu-virt.c b/sys-utils/lscpu-virt.c
-index c86dae8c9..9b61eb6f8 100644
---- a/sys-utils/lscpu-virt.c
-+++ b/sys-utils/lscpu-virt.c
-@@ -52,7 +52,7 @@ static const int hv_graphics_pci[] = {
- #define WORD(x) (uint16_t)(*(const uint16_t *)(x))
- #define DWORD(x) (uint32_t)(*(const uint32_t *)(x))
- 
--static void *get_mem_chunk(size_t base, size_t len, const char *devmem)
-+void *get_mem_chunk(size_t base, size_t len, const char *devmem)
- {
- 	void *p = NULL;
- 	int fd;
-@@ -76,54 +76,6 @@ nothing:
- 	return NULL;
+ 		default:
+ 			break;
+ 		}
+@@ -77,3 +80,29 @@ int parse_dmi_table(uint16_t len, uint16_t num,
+ done:
+ 	return rc;
  }
- 
--static int parse_dmi_table(uint16_t len, uint16_t num,
--				uint8_t *data,
--				struct dmi_info *di)
--{
--	uint8_t *buf = data;
--	int rc = -1;
--	int i = 0;
--
--	 /* 4 is the length of an SMBIOS structure header */
--	while (i < num && data + 4 <= buf + len) {
--		uint8_t *next;
--		struct lscpu_dmi_header h;
--
--		to_dmi_header(&h, data);
--
--		/*
--		 * If a short entry is found (less than 4 bytes), not only it
--		 * is invalid, but we cannot reliably locate the next entry.
--		 * Better stop at this point.
--		 */
--		if (h.length < 4)
--			goto done;
--
--		/* look for the next handle */
--		next = data + h.length;
--		while (next - buf + 1 < len && (next[0] != 0 || next[1] != 0))
--			next++;
--		next += 2;
--		switch (h.type) {
--			case 0:
--				di->vendor = dmi_string(&h, data[0x04]);
--				break;
--			case 1:
--				di->manufacturer = dmi_string(&h, data[0x04]);
--				di->product = dmi_string(&h, data[0x05]);
--				break;
--			default:
--				break;
--		}
--
--		data = next;
--		i++;
--	}
--	rc = 0;
--done:
--	return rc;
--}
--
- static int hypervisor_from_dmi_table(uint32_t base, uint16_t len,
- 				uint16_t num, const char *devmem)
- {
++
++size_t get_number_of_physical_sockets_from_dmi(void)
++{
++	static char const sys_fw_dmi_tables[] = _PATH_SYS_DMI;
++	struct dmi_info di;
++	struct stat st;
++	uint8_t *data;
++	int rc = 0;
++
++	if (stat(sys_fw_dmi_tables, &st))
++		return rc;
++
++	data = get_mem_chunk(0, st.st_size, sys_fw_dmi_tables);
++	if (!data)
++		return rc;
++
++	memset(&di, 0, sizeof(struct dmi_info));
++	rc = parse_dmi_table(st.st_size, st.st_size/4, data, &di);
++
++	free(data);
++
++	if ((rc < 0) || !di.sockets)
++		return 0;
++	else
++		return di.sockets;
++}
 diff --git a/sys-utils/lscpu.h b/sys-utils/lscpu.h
-index 11b27fb14..9ec3fca17 100644
+index 9ec3fca17..74c647e3a 100644
 --- a/sys-utils/lscpu.h
 +++ b/sys-utils/lscpu.h
-@@ -297,6 +297,8 @@ void lscpu_decode_arm(struct lscpu_cxt *cxt);
- 
- int lookup(char *line, char *pattern, char **value);
- 
-+void *get_mem_chunk(size_t base, size_t len, const char *devmem);
-+
- struct lscpu_dmi_header
- {
- 	uint8_t type;
-@@ -311,28 +313,8 @@ struct dmi_info {
+@@ -311,10 +311,12 @@ struct dmi_info {
+ 	char *vendor;
+ 	char *product;
  	char *manufacturer;
++	int sockets;
  };
  
--static inline void to_dmi_header(struct lscpu_dmi_header *h, uint8_t *data)
--{
--	h->type = data[0];
--	h->length = data[1];
--	memcpy(&h->handle, data + 2, sizeof(h->handle));
--	h->data = data;
--}
--
--static inline char *dmi_string(const struct lscpu_dmi_header *dm, uint8_t s)
--{
--	char *bp = (char *)dm->data;
--
--	if (!s || !bp)
--		return NULL;
--
--	bp += dm->length;
--	while (s > 1 && *bp) {
--		bp += strlen(bp);
--		bp++;
--		s--;
--	}
  
--	return !*bp ? NULL : bp;
--}
-+void to_dmi_header(struct lscpu_dmi_header *h, uint8_t *data);
-+char *dmi_string(const struct lscpu_dmi_header *dm, uint8_t s);
-+int parse_dmi_table(uint16_t len, uint16_t num, uint8_t *data, struct dmi_info *di);
+ void to_dmi_header(struct lscpu_dmi_header *h, uint8_t *data);
+ char *dmi_string(const struct lscpu_dmi_header *dm, uint8_t s);
+ int parse_dmi_table(uint16_t len, uint16_t num, uint8_t *data, struct dmi_info *di);
++size_t get_number_of_physical_sockets_from_dmi(void);
  #endif /* LSCPU_H */
 -- 
 2.27.0
