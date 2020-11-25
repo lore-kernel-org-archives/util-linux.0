@@ -2,125 +2,119 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03794C5519F
-	for <util-linux@archiver.kernel.org>; Wed, 25 Nov 2020 09:45:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 876E5C56202
+	for <util-linux@archiver.kernel.org>; Wed, 25 Nov 2020 11:22:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8199D206F9
-	for <util-linux@archiver.kernel.org>; Wed, 25 Nov 2020 09:45:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 22F492075A
+	for <util-linux@archiver.kernel.org>; Wed, 25 Nov 2020 11:22:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L7X+mKVW"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CKEuOmJJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728834AbgKYJpY (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 25 Nov 2020 04:45:24 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:29090 "EHLO
+        id S1726316AbgKYLVz (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 25 Nov 2020 06:21:55 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:45621 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728831AbgKYJpX (ORCPT
+        by vger.kernel.org with ESMTP id S1726162AbgKYLVz (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Wed, 25 Nov 2020 04:45:23 -0500
+        Wed, 25 Nov 2020 06:21:55 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1606297522;
+        s=mimecast20190719; t=1606303314;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=G7gdVb1ZCNOSDe2dWXtYqEU/K7iYvavTZ6brjgE58uI=;
-        b=L7X+mKVW/1CSR1+E06fhSeV3NdeLHflpgWkCnD37niljOHDaaWN4tA9Mug0+rTY57wcb2b
-        EnX75SO64O8QyyFCaBR1x2H4mF1xFOrCtnp0TT+skb3zeXX6iXYRD+SRRP+4h5MkcRc+CT
-        GG+zoztAxSho+fgnZVtNU85xXiY6Pko=
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=7iZ2o3VT4d3Id7XJLcXhQYCWHNXc4/J92TLZXfZY9Jc=;
+        b=CKEuOmJJM50OLR5EDdXbcNFMp7R5iXPSBeuHiDbhyxqaKy/zedqjks4ZVcsK5UNZ1jEA5/
+        363+ogC/1ahJOLEUo18nXKaDNPWOoQJLU+qoA9GMmEciamgcSLB2kSsvN5IHf15RNkM11K
+        9j/DcJCImUPBHC/vx3aREIseSpJneNg=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-33-zUVPjcA_OsCQIkUGUxJbKw-1; Wed, 25 Nov 2020 04:45:20 -0500
-X-MC-Unique: zUVPjcA_OsCQIkUGUxJbKw-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+ us-mta-556-fmr7WhokNhChPXBeJs-uHA-1; Wed, 25 Nov 2020 06:21:49 -0500
+X-MC-Unique: fmr7WhokNhChPXBeJs-uHA-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C37F6106F8F7
-        for <util-linux@vger.kernel.org>; Wed, 25 Nov 2020 09:45:13 +0000 (UTC)
-Received: from idlethread.redhat.com (unknown [10.40.193.159])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id A5FD05D9C2
-        for <util-linux@vger.kernel.org>; Wed, 25 Nov 2020 09:45:12 +0000 (UTC)
-From:   Roberto Bergantinos Corpas <rbergant@redhat.com>
-To:     util-linux@vger.kernel.org
-Subject: [PATCH] findmnt: add option to list all statvfs f_flags
-Date:   Wed, 25 Nov 2020 10:45:11 +0100
-Message-Id: <20201125094511.11225-1-rbergant@redhat.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5CD521E7C1
+        for <util-linux@vger.kernel.org>; Wed, 25 Nov 2020 11:21:48 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.194.248])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9423B19D6C;
+        Wed, 25 Nov 2020 11:21:47 +0000 (UTC)
+Date:   Wed, 25 Nov 2020 12:21:44 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     Roberto Bergantinos Corpas <rbergant@redhat.com>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: [PATCH] findmnt: add option to list all statvfs f_flags
+Message-ID: <20201125112144.esfpgrfrqbjqr4j3@ws.net.home>
+References: <20201125094511.11225-1-rbergant@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201125094511.11225-1-rbergant@redhat.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-It might be useful for security auditing purposes list all possible
-mount flags/options including default set which are normally not listed.
+On Wed, Nov 25, 2020 at 10:45:11AM +0100, Roberto Bergantinos Corpas wrote:
+> It might be useful for security auditing purposes list all possible
+> mount flags/options including default set which are normally not listed.
+> 
+> Given that we already call statvfs to retrieve i.e. filesystem size,
+> add an extra column to list all possible f_flags, default or not.
 
-Given that we already call statvfs to retrieve i.e. filesystem size,
-add an extra column to list all possible f_flags, default or not.
+(Sorry Roberto I forgot reply to our private email.)
 
-Signed-off-by: Roberto Bergantinos Corpas <rbergant@redhat.com>
----
- misc-utils/findmnt.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+I understand the goal, but I'm not sure with implementation ;-)
 
-diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
-index 43b4dc7d6..da9f42020 100644
---- a/misc-utils/findmnt.c
-+++ b/misc-utils/findmnt.c
-@@ -56,6 +56,7 @@ enum {
- 	COL_FSTYPE,
- 	COL_OPTIONS,
- 	COL_VFS_OPTIONS,
-+	COL_MNT_OPTIONS,
- 	COL_FS_OPTIONS,
- 	COL_LABEL,
- 	COL_UUID,
-@@ -101,6 +102,7 @@ static struct colinfo infos[] = {
- 	[COL_FSTYPE]       = { "FSTYPE",       0.10, SCOLS_FL_TRUNC, N_("filesystem type") },
- 	[COL_OPTIONS]      = { "OPTIONS",      0.10, SCOLS_FL_TRUNC, N_("all mount options") },
- 	[COL_VFS_OPTIONS]  = { "VFS-OPTIONS",  0.20, SCOLS_FL_TRUNC, N_("VFS specific mount options") },
-+	[COL_MNT_OPTIONS]  = { "MNT-OPTIONS",  0.20, SCOLS_FL_TRUNC, N_("All statvfs f_flags from mount") },
- 	[COL_FS_OPTIONS]   = { "FS-OPTIONS",   0.10, SCOLS_FL_TRUNC, N_("FS specific mount options") },
- 	[COL_LABEL]        = { "LABEL",        0.10, 0, N_("filesystem label") },
- 	[COL_UUID]         = { "UUID",           36, 0, N_("filesystem UUID") },
-@@ -490,6 +492,26 @@ static char *get_vfs_attr(struct libmnt_fs *fs, int sizetype)
- 				(double)(buf.f_blocks - buf.f_bfree) /
- 				buf.f_blocks * 100);
- 		return sizestr;
-+	case COL_MNT_OPTIONS:
-+		if (mnt_fs_get_vfs_options(fs)) {
-+			sizestr = xstrdup(mnt_fs_get_vfs_options(fs));
-+			if (!(buf.f_flag & MS_NOEXEC))
-+				mnt_optstr_append_option(&sizestr, "exec", NULL);
-+			if (!(buf.f_flag & MS_NOSUID))
-+				mnt_optstr_append_option(&sizestr, "suid", NULL);
-+			if (!(buf.f_flag & MS_NODEV))
-+				mnt_optstr_append_option(&sizestr, "dev", NULL);
-+			if (!(buf.f_flag & MS_SYNCHRONOUS))
-+				mnt_optstr_append_option(&sizestr, "async", NULL);
-+			if (!(buf.f_flag & MS_MANDLOCK))
-+				mnt_optstr_append_option(&sizestr, "nomand", NULL);
-+			if (!(buf.f_flag & MS_NOATIME))
-+				mnt_optstr_append_option(&sizestr, "atime", NULL);
-+			if (!(buf.f_flag & MS_NODIRATIME))
-+				mnt_optstr_append_option(&sizestr, "diratime", NULL);
-+			return sizestr;
-+		} else
-+			return NULL;
- 	}
- 
- 	if (!vfs_attr)
-@@ -585,6 +607,7 @@ static char *get_data(struct libmnt_fs *fs, int num)
- 	case COL_AVAIL:
- 	case COL_USED:
- 	case COL_USEPERC:
-+	case COL_MNT_OPTIONS:
- 		str = get_vfs_attr(fs, col_id);
- 		break;
- 	case COL_FSROOT:
+* statvfs() requires access to the mount point, it's better to avoid
+  it if possible due to issue with permissions for non-root users and
+  due to inaccessible NFS, etc.
+
+  The mount options are already accessible for everyone in /proc/self/mountinfo. 
+  It's possible to use mnt_optstr_get_flags() to convert the string
+  from mnt_fs_get_vfs_options() to flags.
+
+* your implementation hardcodeds the flags to findmnt.c. This is
+  fragile in terms of future development. And for example right now
+  your list does not include dirsync, sub, silent, strictatime,
+  lazytime, relatime and symfollow options.
+
+  It would be better to use libmount options map where we maintain the
+  option flags and strings, something like
+
+     const struct libmnt_optmap *ent;
+     const struct libmnt_optmap *map;
+
+     map = mnt_get_builtin_optmap(MNT_LINUX_MAP);
+
+     for (ent = map; ent && ent->name; ent++) {
+        if (flags & ent->id)
+            ...
+     }
+
+ Maybe we can add a function to return all (including default) options
+ to libmount to make it easy to use for all applications (something
+ like mnt_fs_get_vfs_alloptions()).
+
+> +	[COL_MNT_OPTIONS]  = { "MNT-OPTIONS",  0.20, SCOLS_FL_TRUNC, N_("All statvfs f_flags from mount") },
+
+ Not sure, but do we really need a new column for this purpose?
+
+ It's still about VFS-OPTIONS, the difference is that you need default
+ build-in options too. What about to add --vfs-show-default (or so)
+ command line options to modify VFS-OPTIONS output?
+
+
+ I can implement it next week (if you don't want play with
+ libmount, etc.).
+
+    Karel
+
 -- 
-2.21.0
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
