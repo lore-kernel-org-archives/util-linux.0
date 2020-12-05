@@ -2,144 +2,203 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BFB7C56202
-	for <util-linux@archiver.kernel.org>; Wed, 25 Nov 2020 11:29:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 240DAC4361A
+	for <util-linux@archiver.kernel.org>; Sat,  5 Dec 2020 07:46:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3663920679
-	for <util-linux@archiver.kernel.org>; Wed, 25 Nov 2020 11:29:53 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UtEkPGF1"
+	by mail.kernel.org (Postfix) with ESMTP id E1CF022D58
+	for <util-linux@archiver.kernel.org>; Sat,  5 Dec 2020 07:46:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727661AbgKYL3w (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 25 Nov 2020 06:29:52 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24770 "EHLO
+        id S1726090AbgLEHqL (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sat, 5 Dec 2020 02:46:11 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:57617 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726908AbgKYL3w (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Wed, 25 Nov 2020 06:29:52 -0500
+        by vger.kernel.org with ESMTP id S1726031AbgLEHqK (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 5 Dec 2020 02:46:10 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1606303790;
+        s=mimecast20190719; t=1607154283;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=k3tJjl1en+Tw/oXWXTlRLdYVjSpu1yBJAlDJkXPhAJ4=;
-        b=UtEkPGF18jr1nYvOvm3k/G6x0kLpW6S85aQXx2yBrRgwvT2Dt9LULKXS0zUn72KkLs6B7W
-        mckdBNp92r5VdvK/m+avmSRQ+7U0qLzQTvLDCkGJWpI9aoHJzImg9OPSEgCkCcSm0pOg89
-        fPlGlOGUP65G1zits0WKG4HmG+0Chwk=
-Received: from mail-il1-f199.google.com (mail-il1-f199.google.com
- [209.85.166.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-215-LvrexsCeNwCm0m9-i66HRw-1; Wed, 25 Nov 2020 06:29:47 -0500
-X-MC-Unique: LvrexsCeNwCm0m9-i66HRw-1
-Received: by mail-il1-f199.google.com with SMTP id g125so1465650ilh.6
-        for <util-linux@vger.kernel.org>; Wed, 25 Nov 2020 03:29:47 -0800 (PST)
+         to:to:cc:cc; bh=vCpcneTVpXPotDtJ4uB3+sBesXOArYmfRm3zlH/r+Ag=;
+        b=DlqUnPlYQMJB7ehh2LfJpfnW1ZhNklUTTyuysJx5VbuRf5Ex2EqLZPbhGRvmYAYjE+Qin9
+        SNS5XVPdypnrgA7p/p0i+GjfW6c4zH4vPaUx8nn6PcX2bDoH7408pgV766bjX5DYm4l9BV
+        jaSZGxOzRxX7nPXDfRDzZpwx4cP4zys=
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
+ [209.85.215.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-244-hkoW2zfBPPC12ohIDrJ0Cw-1; Sat, 05 Dec 2020 02:44:38 -0500
+X-MC-Unique: hkoW2zfBPPC12ohIDrJ0Cw-1
+Received: by mail-pg1-f198.google.com with SMTP id m15so4958010pgs.7
+        for <util-linux@vger.kernel.org>; Fri, 04 Dec 2020 23:44:38 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=k3tJjl1en+Tw/oXWXTlRLdYVjSpu1yBJAlDJkXPhAJ4=;
-        b=iD12ZqLZrz1rNhW1IrusCRz2RlVaE5DuyrZT0dtZRmBeJyzbevciwK7hfgrB4oS2eY
-         AtjibQUuHhUr3/dcZiUO/I++AyvLo2gmkSDX13QJ0jlAM4+UFdt/IUyHB3gARNhWXkjY
-         1/w+exuar7ocKcAO9iGXV/LNRpsG7IVF/MwZWVG7EE0gOHT0urJQOd6r8190R6hGtYhE
-         JLTl3Q2RrelrsuDg81WiJ5+ei/NKkw/VIXgW65lsuBNU1LY+3u0MGkgfXz92nYhBxlRc
-         jn0nOInBTnjahA+kfg90KAhKNEfrHjkwZy3wK3TMJad/ozq3Db5IEqbfJ/Qo9sKZ8QII
-         vq4w==
-X-Gm-Message-State: AOAM532T7iH73/JaT582/ImS5xwQNVZTCpZbu/SJgM/DBMkgxDEiCiCV
-        bj/JKKr2uqzvgPnx1s2kbc30JZWR2QxThncLuSLn6lpdjtYa8pNMb9PeLiLypq4+XQkEg5Nt//8
-        Z1CxH8DcqLPp/dr2KGS5rnfK5KQZSDg9mK66r/Q==
-X-Received: by 2002:a92:8707:: with SMTP id m7mr2352715ild.217.1606303787083;
-        Wed, 25 Nov 2020 03:29:47 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJznA3g8Eli2J7xQzSAxu66mtmOnGBSg57WiHIjpiIWSLCIsJyhxA8EDhtf3MbHZTaMXZGIQGPAoRwPGLRvVXCw=
-X-Received: by 2002:a92:8707:: with SMTP id m7mr2352700ild.217.1606303786794;
- Wed, 25 Nov 2020 03:29:46 -0800 (PST)
-MIME-Version: 1.0
-References: <20201125094511.11225-1-rbergant@redhat.com> <20201125112144.esfpgrfrqbjqr4j3@ws.net.home>
-In-Reply-To: <20201125112144.esfpgrfrqbjqr4j3@ws.net.home>
-From:   Roberto Bergantinos Corpas <rbergant@redhat.com>
-Date:   Wed, 25 Nov 2020 12:29:33 +0100
-Message-ID: <CACWnjLxT74u=zgYKY3=bQLssOjPC+ZxmV82O=sNwWJ6CePyuig@mail.gmail.com>
-Subject: Re: [PATCH] findmnt: add option to list all statvfs f_flags
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=vCpcneTVpXPotDtJ4uB3+sBesXOArYmfRm3zlH/r+Ag=;
+        b=FqZa2p0JNRYtYift2qZlGfnQICO/gNoGvbUiMV4fXQKv9npXDtNyLjtSjFafakaCTv
+         mlZtaLTogN+lLe0S3EBnObPZ9XoGNzOMKOZ4vmpOa6DUUAj/20he2ztsH8vak2AU0tF0
+         Ho/3+S85ZmMC0wlM3qIAlMDH+nsCRlUket75krq+Lrpobr52opGwzRVV4yx4vYtWgxSA
+         V5as6q151BFpHTD1y07lhu2FveJNE5Qx8R0IKKrNHg8+U4aOrNCgvEIHuw92ul3Q7cHe
+         21LfyckJpzIy66Flp2xzYYMMttPYfh5mOxRtwT7UbOIxA8Dwr9LBYMxXkNTCFyogXFFN
+         9mHQ==
+X-Gm-Message-State: AOAM530y1uOi38moXFJSEHdWpHHZ/AM9yF9QQvC+Dp63HG9w+6witdVE
+        JAI8mKjSt9XVi6G5gVH3XFoBEn3oMGmAzy63ULReeHldQ5vm6oBimcZUbjXJvORFtvwhKANpn2N
+        IZ0WgG469XGJhDp6kWQfITQ==
+X-Received: by 2002:a17:90a:6d62:: with SMTP id z89mr7896922pjj.71.1607154277487;
+        Fri, 04 Dec 2020 23:44:37 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJz01uHn2Kx0go77D/u8ElMAZDxWNuITKhIf1D/VWyUenqJ4+CFBeGdR+ONxxUJOacUOyEESNA==
+X-Received: by 2002:a17:90a:6d62:: with SMTP id z89mr7896910pjj.71.1607154277285;
+        Fri, 04 Dec 2020 23:44:37 -0800 (PST)
+Received: from xiangao.com ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id a12sm4033257pjm.44.2020.12.04.23.44.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Dec 2020 23:44:36 -0800 (PST)
+From:   Gao Xiang <hsiangkao@redhat.com>
 To:     Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Cc:     util-linux@vger.kernel.org, Gao Xiang <hsiangkao@redhat.com>
+Subject: [PATCH] libblkid: add erofs filesystem support
+Date:   Sat,  5 Dec 2020 15:44:10 +0800
+Message-Id: <20201205074410.2317033-1-hsiangkao@redhat.com>
+X-Mailer: git-send-email 2.18.4
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hi Karel!
+Enhanced Read-Only File System (EROFS) has been included in Linux
+kernel, many Linux distributions, buildroot and Android AOSP for
+a while. Plus, nowadays, it's known that EROFS has been commercially
+used by several Android vendors for their system partitions.
+util-linux in busybox can also detect it recently.
 
-thanks for inputs, appreciate it.
+This patch adds support for detecting EROFS filesystem to libblkid.
 
-Yes i agree with your objections, in fact first i thought about
-extending VFS-OPTIONS via some flag,
-and check agains options map, thought i guess i took easy path at some point ;-)
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+---
+ libblkid/src/Makemodule.am             |  1 +
+ libblkid/src/superblocks/erofs.c       | 73 ++++++++++++++++++++++++++
+ libblkid/src/superblocks/superblocks.c |  3 +-
+ libblkid/src/superblocks/superblocks.h |  1 +
+ 4 files changed, 77 insertions(+), 1 deletion(-)
+ create mode 100644 libblkid/src/superblocks/erofs.c
 
-I'll try to see if i can make some work based on your suggestions
-before next week.
-
-On Wed, Nov 25, 2020 at 12:21 PM Karel Zak <kzak@redhat.com> wrote:
->
-> On Wed, Nov 25, 2020 at 10:45:11AM +0100, Roberto Bergantinos Corpas wrote:
-> > It might be useful for security auditing purposes list all possible
-> > mount flags/options including default set which are normally not listed.
-> >
-> > Given that we already call statvfs to retrieve i.e. filesystem size,
-> > add an extra column to list all possible f_flags, default or not.
->
-> (Sorry Roberto I forgot reply to our private email.)
->
-> I understand the goal, but I'm not sure with implementation ;-)
->
-> * statvfs() requires access to the mount point, it's better to avoid
->   it if possible due to issue with permissions for non-root users and
->   due to inaccessible NFS, etc.
->
->   The mount options are already accessible for everyone in /proc/self/mountinfo.
->   It's possible to use mnt_optstr_get_flags() to convert the string
->   from mnt_fs_get_vfs_options() to flags.
->
-> * your implementation hardcodeds the flags to findmnt.c. This is
->   fragile in terms of future development. And for example right now
->   your list does not include dirsync, sub, silent, strictatime,
->   lazytime, relatime and symfollow options.
->
->   It would be better to use libmount options map where we maintain the
->   option flags and strings, something like
->
->      const struct libmnt_optmap *ent;
->      const struct libmnt_optmap *map;
->
->      map = mnt_get_builtin_optmap(MNT_LINUX_MAP);
->
->      for (ent = map; ent && ent->name; ent++) {
->         if (flags & ent->id)
->             ...
->      }
->
->  Maybe we can add a function to return all (including default) options
->  to libmount to make it easy to use for all applications (something
->  like mnt_fs_get_vfs_alloptions()).
->
-> > +     [COL_MNT_OPTIONS]  = { "MNT-OPTIONS",  0.20, SCOLS_FL_TRUNC, N_("All statvfs f_flags from mount") },
->
->  Not sure, but do we really need a new column for this purpose?
->
->  It's still about VFS-OPTIONS, the difference is that you need default
->  build-in options too. What about to add --vfs-show-default (or so)
->  command line options to modify VFS-OPTIONS output?
->
->
->  I can implement it next week (if you don't want play with
->  libmount, etc.).
->
->     Karel
->
-> --
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
->
+diff --git a/libblkid/src/Makemodule.am b/libblkid/src/Makemodule.am
+index 1aa6dfcef..16a0a2826 100644
+--- a/libblkid/src/Makemodule.am
++++ b/libblkid/src/Makemodule.am
+@@ -101,6 +101,7 @@ libblkid_la_SOURCES = \
+ 	libblkid/src/superblocks/xfs.c \
+ 	libblkid/src/superblocks/zfs.c \
+ 	libblkid/src/superblocks/zonefs.c \
++	libblkid/src/superblocks/erofs.c \
+ 	\
+ 	libblkid/src/topology/topology.c \
+ 	libblkid/src/topology/topology.h
+diff --git a/libblkid/src/superblocks/erofs.c b/libblkid/src/superblocks/erofs.c
+new file mode 100644
+index 000000000..0e7b4223d
+--- /dev/null
++++ b/libblkid/src/superblocks/erofs.c
+@@ -0,0 +1,73 @@
++/*
++ * Copyright (C) 2020 Gao Xiang
++ *
++ * This file may be redistributed under the terms of the
++ * GNU Lesser General Public License
++ */
++#include <stddef.h>
++#include <string.h>
++
++#include "superblocks.h"
++
++#define EROFS_SUPER_OFFSET      1024
++#define EROFS_SB_KBOFF		(EROFS_SUPER_OFFSET >> 10)
++
++#define EROFS_SUPER_MAGIC_V1	"\xe2\xe1\xf5\xe0"
++#define EROFS_MAGIC_OFF		0
++
++/* All in little-endian */
++struct erofs_super_block {
++	uint32_t	magic;
++	uint32_t	checksum;
++	uint32_t	feature_compat;
++	uint8_t		blkszbits;
++	uint8_t		reserved;
++
++	uint16_t	root_nid;
++	uint64_t	inos;
++
++	uint64_t	build_time;
++	uint32_t	build_time_nsec;
++	uint32_t	blocks;
++	uint32_t	meta_blkaddr;
++	uint32_t	xattr_blkaddr;
++	uint8_t		uuid[16];
++	uint8_t		volume_name[16];
++	uint32_t	feature_incompat;
++	uint8_t		reserved2[44];
++};
++
++static int probe_erofs(blkid_probe pr, const struct blkid_idmag *mag)
++{
++	struct erofs_super_block *sb;
++
++	sb = blkid_probe_get_sb(pr, mag, struct erofs_super_block);
++	if (!sb)
++		return errno ? -errno : BLKID_PROBE_NONE;
++
++	if (sb->volume_name[0])
++		blkid_probe_set_label(pr, (unsigned char *)sb->volume_name,
++				      sizeof(sb->volume_name));
++
++	blkid_probe_set_uuid(pr, sb->uuid);
++
++	if (sb->blkszbits < 32)
++		blkid_probe_set_block_size(pr, 1U << sb->blkszbits);
++	return BLKID_PROBE_OK;
++}
++
++const struct blkid_idinfo erofs_idinfo =
++{
++	.name           = "erofs",
++	.usage          = BLKID_USAGE_FILESYSTEM,
++	.probefunc      = probe_erofs,
++	.magics         =
++        {
++		{
++			.magic = EROFS_SUPER_MAGIC_V1,
++			.len = 4,
++			.kboff = EROFS_SB_KBOFF,
++			.sboff = EROFS_MAGIC_OFF,
++		}, { NULL }
++	}
++};
+diff --git a/libblkid/src/superblocks/superblocks.c b/libblkid/src/superblocks/superblocks.c
+index 7b0f5eed0..f21365538 100644
+--- a/libblkid/src/superblocks/superblocks.c
++++ b/libblkid/src/superblocks/superblocks.c
+@@ -168,7 +168,8 @@ static const struct blkid_idinfo *idinfos[] =
+ 	&f2fs_idinfo,
+ 	&mpool_idinfo,
+ 	&apfs_idinfo,
+-	&zonefs_idinfo
++	&zonefs_idinfo,
++	&erofs_idinfo
+ };
+ 
+ /*
+diff --git a/libblkid/src/superblocks/superblocks.h b/libblkid/src/superblocks/superblocks.h
+index 5ebe6bc43..9c489c438 100644
+--- a/libblkid/src/superblocks/superblocks.h
++++ b/libblkid/src/superblocks/superblocks.h
+@@ -85,6 +85,7 @@ extern const struct blkid_idinfo stratis_idinfo;
+ extern const struct blkid_idinfo bitlocker_idinfo;
+ extern const struct blkid_idinfo apfs_idinfo;
+ extern const struct blkid_idinfo zonefs_idinfo;
++extern const struct blkid_idinfo erofs_idinfo;
+ 
+ /*
+  * superblock functions
+-- 
+2.18.4
 
