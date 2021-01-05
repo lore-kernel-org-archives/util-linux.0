@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7A2EC433E0
-	for <util-linux@archiver.kernel.org>; Tue,  5 Jan 2021 13:30:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FF91C433DB
+	for <util-linux@archiver.kernel.org>; Tue,  5 Jan 2021 13:31:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B26DC225AC
-	for <util-linux@archiver.kernel.org>; Tue,  5 Jan 2021 13:30:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 08E1522AAE
+	for <util-linux@archiver.kernel.org>; Tue,  5 Jan 2021 13:31:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726543AbhAENaw (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 5 Jan 2021 08:30:52 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58428 "EHLO
+        id S1729478AbhAENbT (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 5 Jan 2021 08:31:19 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:34439 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726059AbhAENaw (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 5 Jan 2021 08:30:52 -0500
+        by vger.kernel.org with ESMTP id S1726059AbhAENbT (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 5 Jan 2021 08:31:19 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1609853366;
+        s=mimecast20190719; t=1609853393;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=j1FijiReNYy5rHx/OGsOjaVVNxxKWSrZ0tZTwznpMJo=;
-        b=Vk9jmjE22LnJRiMp3zOajCtQSeU9cP3ebrp7mXfqbzR0fhjQ4XvASOV0NefYDjB9f82/uL
-        Jo4JBBmjdfeq1BwCbD+bfQYFkIvvFWqKTFEI5whN/60XiYV6TyvQ428iUjAaVpR6xaWWMT
-        ViN4kZ5j62TV6Sf8v3/+2y3OJgmhR14=
+        bh=3eWW2jcOHjY1w4HVq454t/O06+etMnsGtpzdXymouOY=;
+        b=SKoS+7+NFrziLURpJrb7rxQxqEUM6Vj1Q2yrS19nO+13EWRC89beSYMZgJP3W/ko8mlcsW
+        SNReDZtJ7ZHT7efNYdNZU1R25WHlPZLeBXi27E1dEjzzRxwNQQA16VygOax1EaSx2DuAHB
+        j2YYxFC5p0bkj4cV9yRp0GEZvk/lTMc=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-453-tdD_4ofjPBGex5YNqeaCIg-1; Tue, 05 Jan 2021 08:29:23 -0500
-X-MC-Unique: tdD_4ofjPBGex5YNqeaCIg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+ us-mta-490-YPgR0tXbM5-BI0birj29hQ-1; Tue, 05 Jan 2021 08:29:49 -0500
+X-MC-Unique: YPgR0tXbM5-BI0birj29hQ-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B14F3107ACF5;
-        Tue,  5 Jan 2021 13:29:22 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6588310054FF;
+        Tue,  5 Jan 2021 13:29:48 +0000 (UTC)
 Received: from ws.net.home (ovpn-117-0.ams2.redhat.com [10.36.117.0])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id F3E9F6F957;
-        Tue,  5 Jan 2021 13:29:21 +0000 (UTC)
-Date:   Tue, 5 Jan 2021 14:29:19 +0100
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id AE3095D9CC;
+        Tue,  5 Jan 2021 13:29:47 +0000 (UTC)
+Date:   Tue, 5 Jan 2021 14:29:45 +0100
 From:   Karel Zak <kzak@redhat.com>
-To:     Heinrich Schuchardt <xypron.glpk@gmx.de>
+To:     Eric Biggers <ebiggers@kernel.org>
 Cc:     util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/1] fstab.5: NTFS and FAT volume IDs use upper case
-Message-ID: <20210105132919.6bs5i25bhnh5alll@ws.net.home>
-References: <20201231003254.56902-1-xypron.glpk@gmx.de>
+Subject: Re: [PATCH] sys-utils: mount.8: fix a typo
+Message-ID: <20210105132945.6ssrjun4ijrnpku6@ws.net.home>
+References: <20201231040557.324825-1-ebiggers@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201231003254.56902-1-xypron.glpk@gmx.de>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+In-Reply-To: <20201231040557.324825-1-ebiggers@kernel.org>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Thu, Dec 31, 2020 at 01:32:54AM +0100, Heinrich Schuchardt wrote:
->  sys-utils/fstab.5 | 2 ++
->  1 file changed, 2 insertions(+)
+On Wed, Dec 30, 2020 at 08:05:57PM -0800, Eric Biggers wrote:
+>  sys-utils/mount.8 | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Good point. Applied, thanks.
+Applied, thanks.
 
 -- 
  Karel Zak  <kzak@redhat.com>
