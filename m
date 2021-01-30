@@ -7,24 +7,24 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD7CCC433DB
-	for <util-linux@archiver.kernel.org>; Sat, 30 Jan 2021 20:51:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1AC2C433E9
+	for <util-linux@archiver.kernel.org>; Sat, 30 Jan 2021 20:51:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8416F64E0E
-	for <util-linux@archiver.kernel.org>; Sat, 30 Jan 2021 20:51:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8C32264E17
+	for <util-linux@archiver.kernel.org>; Sat, 30 Jan 2021 20:51:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231617AbhA3Uv6 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sat, 30 Jan 2021 15:51:58 -0500
-Received: from foss.arm.com ([217.140.110.172]:40784 "EHLO foss.arm.com"
+        id S231394AbhA3Uvx (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sat, 30 Jan 2021 15:51:53 -0500
+Received: from foss.arm.com ([217.140.110.172]:40770 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230095AbhA3Uv4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sat, 30 Jan 2021 15:51:56 -0500
+        id S230095AbhA3Uvx (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sat, 30 Jan 2021 15:51:53 -0500
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 59750143B;
-        Sat, 30 Jan 2021 12:51:10 -0800 (PST)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A4ED7139F;
+        Sat, 30 Jan 2021 12:51:07 -0800 (PST)
 Received: from e107158-lin.cambridge.arm.com (unknown [10.1.194.78])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E09AC3F73D;
-        Sat, 30 Jan 2021 12:51:08 -0800 (PST)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 5505D3F73D;
+        Sat, 30 Jan 2021 12:51:06 -0800 (PST)
 From:   Qais Yousef <qais.yousef@arm.com>
 To:     util-linux@vger.kernel.org
 Cc:     Karel Zak <kzak@redhat.com>,
@@ -35,9 +35,9 @@ Cc:     Karel Zak <kzak@redhat.com>,
         Patrick Bellasi <patrick.bellasi@matbug.net>,
         Vincent Donnefort <vincent.donnefort@arm.com>,
         Qais Yousef <qais.yousef@arm.com>
-Subject: [PATCH v2 2/5] Add uclampset schedutil
-Date:   Sat, 30 Jan 2021 20:50:36 +0000
-Message-Id: <20210130205039.581764-3-qais.yousef@arm.com>
+Subject: [PATCH v2 1/5] Move sched_attr struct and syscall definitions into header file
+Date:   Sat, 30 Jan 2021 20:50:35 +0000
+Message-Id: <20210130205039.581764-2-qais.yousef@arm.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210130205039.581764-1-qais.yousef@arm.com>
 References: <20210130205039.581764-1-qais.yousef@arm.com>
@@ -47,112 +47,111 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Utilization clamping is a new kernel feature that got merged in 5.3. It
-allows controlling the performance of a process by manipulating the
-utilization such that the task appears bigger or smaller than what it
-really is.
-
-There's a system-wide control to to restrict what maximum values the
-process are allowed to use.
-
-Man page added in a later patch attempts to explain the usage in more
-detail.
+So that we can re-use them in other files.
 
 Signed-off-by: Qais Yousef <qais.yousef@arm.com>
 ---
- .gitignore              |   1 +
- include/pathnames.h     |   4 +
- schedutils/sched_attr.h |  30 ++++
- schedutils/uclampset.c  | 337 ++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 372 insertions(+)
- create mode 100644 schedutils/uclampset.c
+ schedutils/chrt.c       | 77 +-------------------------------
+ schedutils/sched_attr.h | 97 +++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 98 insertions(+), 76 deletions(-)
+ create mode 100644 schedutils/sched_attr.h
 
-diff --git a/.gitignore b/.gitignore
-index a6f379146..c01d2f644 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -180,3 +180,4 @@ ylwrap
- /wipefs
- /write
- /zramctl
-+/uclampset
-diff --git a/include/pathnames.h b/include/pathnames.h
-index 8f6233749..69a0b5524 100644
---- a/include/pathnames.h
-+++ b/include/pathnames.h
-@@ -207,4 +207,8 @@
- #define _PATH_DEV_RFKILL	"/dev/rfkill"
- #define _PATH_SYS_RFKILL	"/sys/class/rfkill"
+diff --git a/schedutils/chrt.c b/schedutils/chrt.c
+index 3a1608013..052ad7a1b 100644
+--- a/schedutils/chrt.c
++++ b/schedutils/chrt.c
+@@ -34,83 +34,8 @@
+ #include "closestream.h"
+ #include "strutils.h"
+ #include "procutils.h"
++#include "sched_attr.h"
  
-+#define _PATH_PROC_KERNEL(file)	"/proc/sys/kernel" #file
-+#define _PATH_PROC_UCLAMP_MIN	_PATH_PROC_KERNEL(/sched_util_clamp_min)
-+#define _PATH_PROC_UCLAMP_MAX	_PATH_PROC_KERNEL(/sched_util_clamp_max)
-+
- #endif /* PATHNAMES_H */
+-/* the SCHED_BATCH is supported since Linux 2.6.16
+- *  -- temporary workaround for people with old glibc headers
+- */
+-#if defined (__linux__) && !defined(SCHED_BATCH)
+-# define SCHED_BATCH 3
+-#endif
+-
+-/* the SCHED_IDLE is supported since Linux 2.6.23
+- * commit id 0e6aca43e08a62a48d6770e9a159dbec167bf4c6
+- * -- temporary workaround for people with old glibc headers
+- */
+-#if defined (__linux__) && !defined(SCHED_IDLE)
+-# define SCHED_IDLE 5
+-#endif
+-
+-/* flag by sched_getscheduler() */
+-#if defined(__linux__) && !defined(SCHED_RESET_ON_FORK)
+-# define SCHED_RESET_ON_FORK 0x40000000
+-#endif
+-
+-/* flag by sched_getattr() */
+-#if defined(__linux__) && !defined(SCHED_FLAG_RESET_ON_FORK)
+-# define SCHED_FLAG_RESET_ON_FORK 0x01
+-#endif
+-
+-#if defined (__linux__)
+-# include <sys/syscall.h>
+-#endif
+-
+-/* usable kernel-headers, but old glibc-headers */
+-#if defined (__linux__) && !defined(SYS_sched_setattr) && defined(__NR_sched_setattr)
+-# define SYS_sched_setattr __NR_sched_setattr
+-#endif
+-
+-#if defined (__linux__) && !defined(SYS_sched_getattr) && defined(__NR_sched_getattr)
+-# define SYS_sched_getattr __NR_sched_getattr
+-#endif
+-
+-#if defined (__linux__) && !defined(HAVE_SCHED_SETATTR) && defined(SYS_sched_setattr)
+-# define HAVE_SCHED_SETATTR
+-
+-struct sched_attr {
+-	uint32_t size;
+-	uint32_t sched_policy;
+-	uint64_t sched_flags;
+-
+-	/* SCHED_NORMAL, SCHED_BATCH */
+-	int32_t sched_nice;
+-
+-	/* SCHED_FIFO, SCHED_RR */
+-	uint32_t sched_priority;
+-
+-	/* SCHED_DEADLINE (nsec) */
+-	uint64_t sched_runtime;
+-	uint64_t sched_deadline;
+-	uint64_t sched_period;
+-};
+-
+-static int sched_setattr(pid_t pid, const struct sched_attr *attr, unsigned int flags)
+-{
+-	return syscall(SYS_sched_setattr, pid, attr, flags);
+-}
+-
+-static int sched_getattr(pid_t pid, struct sched_attr *attr, unsigned int size, unsigned int flags)
+-{
+-	return syscall(SYS_sched_getattr, pid, attr, size, flags);
+-}
+-#endif
+-
+-/* the SCHED_DEADLINE is supported since Linux 3.14
+- * commit id aab03e05e8f7e26f51dee792beddcb5cca9215a5
+- * -- sched_setattr() is required for this policy!
+- */
+-#if defined (__linux__) && !defined(SCHED_DEADLINE) && defined(HAVE_SCHED_SETATTR)
+-# define SCHED_DEADLINE 6
+-#endif
+ 
+ /* control struct */
+ struct chrt_ctl {
 diff --git a/schedutils/sched_attr.h b/schedutils/sched_attr.h
-index b39d37b5d..39d8532a3 100644
---- a/schedutils/sched_attr.h
-+++ b/schedutils/sched_attr.h
-@@ -13,6 +13,8 @@
-  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  *
-  * Copyright (C) 2004 Robert Love
-+ * Copyright (C) 2020-2021 Qais Yousef
-+ * Copyright (C) 2020-2021 Arm Ltd
-  */
- #ifndef UTIL_LINUX_SCHED_ATTR_H
- #define UTIL_LINUX_SCHED_ATTR_H
-@@ -42,6 +44,30 @@
- # define SCHED_FLAG_RESET_ON_FORK 0x01
- #endif
- 
-+#if defined(__linux__) && !defined(SCHED_FLAG_RECLAIM)
-+# define SCHED_FLAG_RECLAIM 0x02
-+#endif
-+
-+#if defined(__linux__) && !defined(SCHED_FLAG_DL_OVERRUN)
-+# define SCHED_FLAG_DL_OVERRUN 0x04
-+#endif
-+
-+#if defined(__linux__) && !defined(SCHED_FLAG_KEEP_POLICY)
-+# define SCHED_FLAG_KEEP_POLICY 0x08
-+#endif
-+
-+#if defined(__linux__) && !defined(SCHED_FLAG_KEEP_PARAMS)
-+# define SCHED_FLAG_KEEP_PARAMS 0x10
-+#endif
-+
-+#if defined(__linux__) && !defined(SCHED_FLAG_UTIL_CLAMP_MIN)
-+# define SCHED_FLAG_UTIL_CLAMP_MIN 0x20
-+#endif
-+
-+#if defined(__linux__) && !defined(SCHED_FLAG_UTIL_CLAMP_MAX)
-+# define SCHED_FLAG_UTIL_CLAMP_MAX 0x40
-+#endif
-+
- #if defined (__linux__)
- # include <sys/syscall.h>
- #endif
-@@ -73,6 +99,10 @@ struct sched_attr {
- 	uint64_t sched_runtime;
- 	uint64_t sched_deadline;
- 	uint64_t sched_period;
-+
-+	/* UTILIZATION CLAMPING */
-+	uint32_t sched_util_min;
-+	uint32_t sched_util_max;
- };
- 
- static int sched_setattr(pid_t pid, const struct sched_attr *attr, unsigned int flags)
-diff --git a/schedutils/uclampset.c b/schedutils/uclampset.c
 new file mode 100644
-index 000000000..b9a02aae1
+index 000000000..b39d37b5d
 --- /dev/null
-+++ b/schedutils/uclampset.c
-@@ -0,0 +1,337 @@
++++ b/schedutils/sched_attr.h
+@@ -0,0 +1,97 @@
 +/*
-+ * uclampset.c - change utilization clamping attributes of a task or the system
-+ *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License, version 2, as
 + * published by the Free Software Foundation
@@ -166,327 +165,89 @@ index 000000000..b9a02aae1
 + * with this program; if not, write to the Free Software Foundation, Inc.,
 + * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 + *
-+ * Copyright (C) 2020-2021 Qais Yousef
-+ * Copyright (C) 2020-2021 Arm Ltd
++ * Copyright (C) 2004 Robert Love
 + */
++#ifndef UTIL_LINUX_SCHED_ATTR_H
++#define UTIL_LINUX_SCHED_ATTR_H
 +
-+#include <errno.h>
-+#include <getopt.h>
-+#include <sched.h>
-+#include <stdio.h>
-+#include <stdlib.h>
++/* the SCHED_BATCH is supported since Linux 2.6.16
++ *  -- temporary workaround for people with old glibc headers
++ */
++#if defined (__linux__) && !defined(SCHED_BATCH)
++# define SCHED_BATCH 3
++#endif
 +
-+#include "closestream.h"
-+#include "path.h"
-+#include "pathnames.h"
-+#include "procutils.h"
-+#include "sched_attr.h"
-+#include "strutils.h"
++/* the SCHED_IDLE is supported since Linux 2.6.23
++ * commit id 0e6aca43e08a62a48d6770e9a159dbec167bf4c6
++ * -- temporary workaround for people with old glibc headers
++ */
++#if defined (__linux__) && !defined(SCHED_IDLE)
++# define SCHED_IDLE 5
++#endif
 +
-+#define NOT_SET		-2U
++/* flag by sched_getscheduler() */
++#if defined(__linux__) && !defined(SCHED_RESET_ON_FORK)
++# define SCHED_RESET_ON_FORK 0x40000000
++#endif
 +
-+struct uclampset {
-+	unsigned int util_min;
-+	unsigned int util_max;
++/* flag by sched_getattr() */
++#if defined(__linux__) && !defined(SCHED_FLAG_RESET_ON_FORK)
++# define SCHED_FLAG_RESET_ON_FORK 0x01
++#endif
 +
-+	pid_t pid;
-+	unsigned int	all_tasks:1,		/* all threads of the PID */
-+			system:1,
-+			util_min_set:1,		/* indicates -m option was passed */
-+			util_max_set:1,		/* indicates -M option was passed */
-+			reset_on_fork:1,
-+			verbose:1;
-+	char *cmd;
++#if defined (__linux__)
++# include <sys/syscall.h>
++#endif
++
++/* usable kernel-headers, but old glibc-headers */
++#if defined (__linux__) && !defined(SYS_sched_setattr) && defined(__NR_sched_setattr)
++# define SYS_sched_setattr __NR_sched_setattr
++#endif
++
++#if defined (__linux__) && !defined(SYS_sched_getattr) && defined(__NR_sched_getattr)
++# define SYS_sched_getattr __NR_sched_getattr
++#endif
++
++#if defined (__linux__) && !defined(HAVE_SCHED_SETATTR) && defined(SYS_sched_setattr)
++# define HAVE_SCHED_SETATTR
++
++struct sched_attr {
++	uint32_t size;
++	uint32_t sched_policy;
++	uint64_t sched_flags;
++
++	/* SCHED_NORMAL, SCHED_BATCH */
++	int32_t sched_nice;
++
++	/* SCHED_FIFO, SCHED_RR */
++	uint32_t sched_priority;
++
++	/* SCHED_DEADLINE (nsec) */
++	uint64_t sched_runtime;
++	uint64_t sched_deadline;
++	uint64_t sched_period;
 +};
 +
-+static void __attribute__((__noreturn__)) usage(void)
++static int sched_setattr(pid_t pid, const struct sched_attr *attr, unsigned int flags)
 +{
-+	FILE *out = stdout;
-+
-+	fprintf(out,
-+		_(" %1$s [options]\n"
-+		  " %1$s [options] --pid <pid> | --system | <command> <arg>...\n"),
-+		program_invocation_short_name);
-+
-+	fputs(USAGE_SEPARATOR, out);
-+	fputs(_("Show or change the utilization clamping attributes of a process or the system.\n"), out);
-+	fputs(_("Utilization range: [0:1024]\n"), out);
-+	fputs(_("Use special -1 value to reset to system's default\n"), out);
-+
-+	fputs(USAGE_OPTIONS, out);
-+	fputs(_(" -m                   util_min value to set\n"), out);
-+	fputs(_(" -M                   util_max value to set\n"), out);
-+	fputs(_(" -a, --all-tasks      operate on all the tasks (threads) for a given pid\n"), out);
-+	fputs(_(" -p, --pid            operate on existing given pid\n"), out);
-+	fputs(_(" -s, --system         operate on system\n"), out);
-+	fputs(_(" -R, --reset-on-fork  set reset-on-fork flag\n"), out);
-+	fputs(_(" -v, --verbose        display status information\n"), out);
-+
-+	fputs(USAGE_SEPARATOR, out);
-+	printf(USAGE_HELP_OPTIONS(22));
-+
-+	printf(USAGE_MAN_TAIL("uclampset(1)"));
-+	exit(EXIT_SUCCESS);
++	return syscall(SYS_sched_setattr, pid, attr, flags);
 +}
 +
-+static void show_uclamp_pid_info(pid_t pid, char *cmd)
++static int sched_getattr(pid_t pid, struct sched_attr *attr, unsigned int size, unsigned int flags)
 +{
-+	struct sched_attr sa;
-+	char *comm;
-+
-+	/* don't display "pid 0" as that is confusing */
-+	if (!pid)
-+		pid = getpid();
-+
-+	if (sched_getattr(pid, &sa, sizeof(sa), 0) != 0)
-+		err(EXIT_FAILURE, _("failed to get pid %d's uclamp values"), pid);
-+
-+	if (cmd)
-+		comm = cmd;
-+	else
-+		comm = proc_get_command_name(pid);
-+
-+	printf(_("%s (%d) util_clamp: min: %d max: %d\n"),
-+	       comm ? : "uknown", pid, sa.sched_util_min, sa.sched_util_max);
-+
-+	if (!cmd)
-+		free(comm);
++	return syscall(SYS_sched_getattr, pid, attr, size, flags);
 +}
++#endif
 +
-+static unsigned int read_uclamp_sysfs(char *filename)
-+{
-+	unsigned int val;
++/* the SCHED_DEADLINE is supported since Linux 3.14
++ * commit id aab03e05e8f7e26f51dee792beddcb5cca9215a5
++ * -- sched_setattr() is required for this policy!
++ */
++#if defined (__linux__) && !defined(SCHED_DEADLINE) && defined(HAVE_SCHED_SETATTR)
++# define SCHED_DEADLINE 6
++#endif
 +
-+	if (ul_path_read_u32(NULL, &val, filename) != 0)
-+		err(EXIT_FAILURE, _("cannot read %s"), filename);
-+
-+	return val;
-+}
-+
-+static void write_uclamp_sysfs(char *filename, unsigned int val)
-+{
-+	if (ul_path_write_u64(NULL, val, filename) != 0)
-+		err(EXIT_FAILURE, _("cannot write %s"), filename);
-+}
-+
-+static void show_uclamp_system_info(void)
-+{
-+	unsigned int min, max;
-+
-+	min = read_uclamp_sysfs(_PATH_PROC_UCLAMP_MIN);
-+	max = read_uclamp_sysfs(_PATH_PROC_UCLAMP_MAX);
-+
-+	printf(_("System util_clamp: min: %u max: %u\n"), min, max);
-+}
-+
-+static void show_uclamp_info(struct uclampset *ctl)
-+{
-+	if (ctl->system) {
-+		show_uclamp_system_info();
-+	} else if (ctl->all_tasks) {
-+		pid_t tid;
-+		struct proc_tasks *ts = proc_open_tasks(ctl->pid);
-+
-+		if (!ts)
-+			err(EXIT_FAILURE, _("cannot obtain the list of tasks"));
-+
-+		while (!proc_next_tid(ts, &tid))
-+			show_uclamp_pid_info(tid, NULL);
-+
-+		proc_close_tasks(ts);
-+	} else {
-+		show_uclamp_pid_info(ctl->pid, ctl->cmd);
-+	}
-+}
-+
-+static int set_uclamp_one(struct uclampset *ctl, pid_t pid)
-+{
-+	struct sched_attr sa;
-+
-+	if (sched_getattr(pid, &sa, sizeof(sa), 0) != 0)
-+		err(EXIT_FAILURE, _("failed to get pid %d's uclamp values"), pid);
-+
-+	if (ctl->util_min_set)
-+		sa.sched_util_min = ctl->util_min;
-+	if (ctl->util_max_set)
-+		sa.sched_util_max = ctl->util_max;
-+
-+	sa.sched_flags = SCHED_FLAG_KEEP_POLICY |
-+			 SCHED_FLAG_KEEP_PARAMS |
-+			 SCHED_FLAG_UTIL_CLAMP_MIN |
-+			 SCHED_FLAG_UTIL_CLAMP_MAX;
-+
-+	if (ctl->reset_on_fork)
-+		sa.sched_flags |= SCHED_FLAG_RESET_ON_FORK;
-+
-+	return sched_setattr(pid, &sa, 0);
-+}
-+
-+static void set_uclamp_pid(struct uclampset *ctl)
-+{
-+	if (ctl->all_tasks) {
-+		pid_t tid;
-+		struct proc_tasks *ts = proc_open_tasks(ctl->pid);
-+
-+		if (!ts)
-+			err(EXIT_FAILURE, _("cannot obtain the list of tasks"));
-+
-+		while (!proc_next_tid(ts, &tid))
-+			if (set_uclamp_one(ctl, tid) == -1)
-+				err(EXIT_FAILURE, _("failed to set tid %d's uclamp values"), tid);
-+
-+		proc_close_tasks(ts);
-+
-+	} else if (set_uclamp_one(ctl, ctl->pid) == -1) {
-+		err(EXIT_FAILURE, _("failed to set pid %d's uclamp values"), ctl->pid);
-+	}
-+}
-+
-+static void set_uclamp_system(struct uclampset *ctl)
-+{
-+	if (!ctl->util_min_set)
-+		ctl->util_min = read_uclamp_sysfs(_PATH_PROC_UCLAMP_MIN);
-+
-+	if (!ctl->util_max_set)
-+		ctl->util_max = read_uclamp_sysfs(_PATH_PROC_UCLAMP_MAX);
-+
-+	if (ctl->util_min > ctl->util_max) {
-+		errno = EINVAL;
-+		err(EXIT_FAILURE, _("util_min must be <= util_max"));
-+	}
-+
-+	write_uclamp_sysfs(_PATH_PROC_UCLAMP_MIN, ctl->util_min);
-+	write_uclamp_sysfs(_PATH_PROC_UCLAMP_MAX, ctl->util_max);
-+}
-+
-+static void validate_util(int val)
-+{
-+	if (val > 1024 || val < -1) {
-+		errno = EINVAL;
-+		err(EXIT_FAILURE, _("%d out of range"), val);
-+	}
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	struct uclampset _ctl = {
-+		.pid = -1,
-+		.util_min = NOT_SET,
-+		.util_max = NOT_SET,
-+		.cmd = NULL
-+	};
-+	struct uclampset *ctl = &_ctl;
-+	int c;
-+
-+	static const struct option longopts[] = {
-+		{ "all-tasks",		no_argument, NULL, 'a' },
-+		{ "pid",		no_argument, NULL, 'p' },
-+		{ "system",		no_argument, NULL, 's' },
-+		{ "reset-on-fork",	no_argument, NULL, 'R' },
-+		{ "help",		no_argument, NULL, 'h' },
-+		{ "verbose",		no_argument, NULL, 'v' },
-+		{ "version",		no_argument, NULL, 'V' },
-+		{ NULL,			no_argument, NULL, 0 }
-+	};
-+
-+	setlocale(LC_ALL, "");
-+	bindtextdomain(PACKAGE, LOCALEDIR);
-+	textdomain(PACKAGE);
-+	close_stdout_atexit();
-+
-+	while((c = getopt_long(argc, argv, "+asRphmMvV", longopts, NULL)) != -1)
-+	{
-+		switch (c) {
-+		case 'a':
-+			ctl->all_tasks = 1;
-+			break;
-+		case 'p':
-+			errno = 0;
-+			ctl->pid = strtos32_or_err(argv[optind], _("invalid PID argument"));
-+			optind++;
-+			break;
-+		case 's':
-+			ctl->system = 1;
-+			break;
-+		case 'R':
-+			ctl->reset_on_fork = 1;
-+			break;
-+		case 'v':
-+			ctl->verbose = 1;
-+			break;
-+		case 'm':
-+			ctl->util_min = strtos32_or_err(argv[optind], _("invalid util_min argument"));
-+			ctl->util_min_set = 1;
-+			validate_util(ctl->util_min);
-+			optind++;
-+			break;
-+		case 'M':
-+			ctl->util_max = strtos32_or_err(argv[optind], _("invalid util_max argument"));
-+			ctl->util_max_set = 1;
-+			validate_util(ctl->util_max);
-+			optind++;
-+			break;
-+		case 'V':
-+			print_version(EXIT_SUCCESS);
-+			/* fallthrough */
-+		case 'h':
-+			usage();
-+		default:
-+			errtryhelp(EXIT_FAILURE);
-+		}
-+	}
-+
-+	if (argc == 1) {
-+		usage();
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	/* all_tasks implies --pid */
-+	if (ctl->all_tasks && ctl->pid == -1) {
-+		errno = EINVAL;
-+		err(EXIT_FAILURE, _("missing -p option"));
-+	}
-+
-+	if (!ctl->util_min_set && !ctl->util_max_set) {
-+		/* -p or -s must be passed */
-+		if (!ctl->system && ctl->pid == -1) {
-+			usage();
-+			exit(EXIT_FAILURE);
-+		}
-+
-+		show_uclamp_info(ctl);
-+		return EXIT_SUCCESS;
-+	}
-+
-+	/* ensure there's a command to execute if no -s or -p */
-+	if (!ctl->system && ctl->pid == -1) {
-+		if (argc <= optind) {
-+			errno = EINVAL;
-+			err(EXIT_FAILURE, _("no cmd to execute"));
-+		}
-+
-+		argv += optind;
-+		ctl->cmd = argv[0];
-+	}
-+
-+	if (ctl->pid == -1)
-+		ctl->pid = 0;
-+
-+	if (ctl->system)
-+		set_uclamp_system(ctl);
-+	else
-+		set_uclamp_pid(ctl);
-+
-+	if (ctl->verbose)
-+		show_uclamp_info(ctl);
-+
-+	if (ctl->cmd) {
-+		execvp(ctl->cmd, argv);
-+		errexec(ctl->cmd);
-+	}
-+
-+	return EXIT_SUCCESS;
-+}
++#endif /* UTIL_LINUX_SCHED_ATTR_H */
 -- 
 2.25.1
 
