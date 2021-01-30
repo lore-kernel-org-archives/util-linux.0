@@ -3,28 +3,28 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73C4AC433E0
-	for <util-linux@archiver.kernel.org>; Sat, 30 Jan 2021 20:51:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAEFCC433E6
+	for <util-linux@archiver.kernel.org>; Sat, 30 Jan 2021 20:52:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F9A364E0E
-	for <util-linux@archiver.kernel.org>; Sat, 30 Jan 2021 20:51:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ABD1D64E13
+	for <util-linux@archiver.kernel.org>; Sat, 30 Jan 2021 20:52:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230517AbhA3Uvv (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sat, 30 Jan 2021 15:51:51 -0500
-Received: from foss.arm.com ([217.140.110.172]:40762 "EHLO foss.arm.com"
+        id S231569AbhA3UwC (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sat, 30 Jan 2021 15:52:02 -0500
+Received: from foss.arm.com ([217.140.110.172]:40814 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230095AbhA3Uvv (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sat, 30 Jan 2021 15:51:51 -0500
+        id S231565AbhA3UwC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sat, 30 Jan 2021 15:52:02 -0500
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 03E56106F;
-        Sat, 30 Jan 2021 12:51:05 -0800 (PST)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id ED5281509;
+        Sat, 30 Jan 2021 12:51:16 -0800 (PST)
 Received: from e107158-lin.cambridge.arm.com (unknown [10.1.194.78])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A61663F73D;
-        Sat, 30 Jan 2021 12:51:03 -0800 (PST)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9D5FE3F73D;
+        Sat, 30 Jan 2021 12:51:15 -0800 (PST)
 From:   Qais Yousef <qais.yousef@arm.com>
 To:     util-linux@vger.kernel.org
 Cc:     Karel Zak <kzak@redhat.com>,
@@ -35,82 +35,59 @@ Cc:     Karel Zak <kzak@redhat.com>,
         Patrick Bellasi <patrick.bellasi@matbug.net>,
         Vincent Donnefort <vincent.donnefort@arm.com>,
         Qais Yousef <qais.yousef@arm.com>
-Subject: [PATCH v2 0/5] Add a new uclampset utility
-Date:   Sat, 30 Jan 2021 20:50:34 +0000
-Message-Id: <20210130205039.581764-1-qais.yousef@arm.com>
+Subject: [PATCH v2 4/5] uclampset: Plump into the build system
+Date:   Sat, 30 Jan 2021 20:50:38 +0000
+Message-Id: <20210130205039.581764-5-qais.yousef@arm.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210130205039.581764-1-qais.yousef@arm.com>
+References: <20210130205039.581764-1-qais.yousef@arm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Changes in v2 (thanks for all reviewers!):
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+---
+ configure.ac             | 9 +++++++++
+ schedutils/Makemodule.am | 7 +++++++
+ 2 files changed, 16 insertions(+)
 
-	* Better error handling of invalid options.
-	* Expose the special -1 value to reset to system default.
-	* Add new --reset-on-fork option.
-	* Move sched_attr.h out of include directory to avoid licensing issues.
-	* Use pathnames.h for new procfs defines.
-	* Use common functions to get command name and handle procfs
-	  read/write.
-	* Remove --max option and document in help message.
-	* Improve help message formatting.
-	* Minor manpage tweaks.
-
-A branch of the changes is available at
-
-	git clone https://github.com/qais-yousef/util-linux -b uclampset-v2
-
-Karel, I compiled this v2 on an old Ubuntu 18.04 machine running v4.15 kernel
-and didn't see any compilation errors. chrt worked fine and uclampset returns
-EINVAL errors as expected. I don't think we need to do anything to deal with
-compiling against old kernel headers.
-
-
-Orignal cover letter
-====================
-
-Since kernel v5.3 we have a new feature called utilization clamping that allows
-influencing the utilization signals of a task, ultimately influencing the
-performance of these tasks.
-
-The series adds a new utility called uclampset that allows the user to
-manipulate util clamp (or uclamp for short) for existing running processes or
-when running a new command; in a similar spirit to how taskset and chrt
-currently work.
-
-Peter/Dietmar/Vincent/Patrick; reviewing the manpage (patch 3) to make sure it
-explains this feature right would be much appreciated.
-
-Thanks
-
---
-Qais Yousef
-
-Qais Yousef (5):
-  Move sched_attr struct and syscall definitions into header file
-  Add uclampset schedutil
-  uclampset: Add man page
-  uclampset: Plump into the build system
-  uclampset: Plumb in bash-completion
-
- .gitignore                    |   1 +
- bash-completion/Makemodule.am |   3 +
- bash-completion/uclampset     |  39 ++++
- configure.ac                  |   9 +
- include/pathnames.h           |   4 +
- schedutils/Makemodule.am      |   7 +
- schedutils/chrt.c             |  77 +-------
- schedutils/sched_attr.h       | 127 +++++++++++++
- schedutils/uclampset.1        | 174 ++++++++++++++++++
- schedutils/uclampset.c        | 337 ++++++++++++++++++++++++++++++++++
- 10 files changed, 702 insertions(+), 76 deletions(-)
- create mode 100644 bash-completion/uclampset
- create mode 100644 schedutils/sched_attr.h
- create mode 100644 schedutils/uclampset.1
- create mode 100644 schedutils/uclampset.c
-
+diff --git a/configure.ac b/configure.ac
+index 20b6c3178..8f66d5ec4 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2194,6 +2194,15 @@ AS_IF([test "x$build_chrt" = xyes], [
+ 	UL_CHECK_SYSCALL([sched_setattr])
+ ])
+ 
++UL_ENABLE_ALIAS([uclampset], [schedutils])
++UL_BUILD_INIT([uclampset])
++UL_REQUIRES_HAVE([uclampset], [schedsetter], [sched_set functions])
++AM_CONDITIONAL([BUILD_UCLAMPSET], [test "x$build_uclampset" = xyes])
++
++AS_IF([test "x$build_uclampset" = xyes], [
++	UL_CHECK_SYSCALL([sched_setattr])
++])
++
+ 
+ AC_ARG_ENABLE([wall],
+   AS_HELP_STRING([--disable-wall], [do not build wall]),
+diff --git a/schedutils/Makemodule.am b/schedutils/Makemodule.am
+index f32d2b307..c781ede63 100644
+--- a/schedutils/Makemodule.am
++++ b/schedutils/Makemodule.am
+@@ -18,3 +18,10 @@ dist_man_MANS += schedutils/taskset.1
+ taskset_SOURCES = schedutils/taskset.c
+ taskset_LDADD = $(LDADD) libcommon.la
+ endif
++
++if BUILD_UCLAMPSET
++usrbin_exec_PROGRAMS += uclampset
++dist_man_MANS += schedutils/uclampset.1
++uclampset_SOURCES = schedutils/uclampset.c
++uclampset_LDADD = $(LDADD) libcommon.la
++endif
 -- 
 2.25.1
 
