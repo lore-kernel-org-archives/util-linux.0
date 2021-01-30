@@ -2,87 +2,491 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E23EBC433E0
-	for <util-linux@archiver.kernel.org>; Tue, 26 Jan 2021 15:26:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD7CCC433DB
+	for <util-linux@archiver.kernel.org>; Sat, 30 Jan 2021 20:51:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AB84D23101
-	for <util-linux@archiver.kernel.org>; Tue, 26 Jan 2021 15:26:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8416F64E0E
+	for <util-linux@archiver.kernel.org>; Sat, 30 Jan 2021 20:51:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406232AbhAZP0l (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 26 Jan 2021 10:26:41 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:32514 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2405997AbhAZP0e (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Tue, 26 Jan 2021 10:26:34 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1611674708;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type;
-        bh=8C+tPO54xzPrKUGz9lfrTTCLbntRLg6cxzu/NsvgweU=;
-        b=QzfBE+3B+/fxBw1IFjVK5KufD4XFyk+D9Wbvw/LA2sfsluXqkKtQbG2prrWpqm2Cupg0fD
-        wWEjvxsHqiAMyBQYaD0GSg+xdOHiXgbTuCXVZ9npHOHKxyd9/DeIYtjLgt+JgLKX31ob0m
-        +t2gnGVVoY/qG+ANc4ngLPa1obouCLc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-331-rCRulNojOYyb7OI0Ad4xYw-1; Tue, 26 Jan 2021 10:25:05 -0500
-X-MC-Unique: rCRulNojOYyb7OI0Ad4xYw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DB1F719251A0
-        for <util-linux@vger.kernel.org>; Tue, 26 Jan 2021 15:25:04 +0000 (UTC)
-Received: from ws.net.home (ovpn-117-0.ams2.redhat.com [10.36.117.0])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5EA8D60C5F
-        for <util-linux@vger.kernel.org>; Tue, 26 Jan 2021 15:25:04 +0000 (UTC)
-Date:   Tue, 26 Jan 2021 16:25:01 +0100
-From:   Karel Zak <kzak@redhat.com>
+        id S231617AbhA3Uv6 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sat, 30 Jan 2021 15:51:58 -0500
+Received: from foss.arm.com ([217.140.110.172]:40784 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230095AbhA3Uv4 (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sat, 30 Jan 2021 15:51:56 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 59750143B;
+        Sat, 30 Jan 2021 12:51:10 -0800 (PST)
+Received: from e107158-lin.cambridge.arm.com (unknown [10.1.194.78])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E09AC3F73D;
+        Sat, 30 Jan 2021 12:51:08 -0800 (PST)
+From:   Qais Yousef <qais.yousef@arm.com>
 To:     util-linux@vger.kernel.org
-Subject: GitHub Actions as Travis-CI replacement
-Message-ID: <20210126152501.ur64ifbesuppw7b2@ws.net.home>
+Cc:     Karel Zak <kzak@redhat.com>,
+        Bernhard Voelker <mail@bernhard-voelker.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Patrick Bellasi <patrick.bellasi@matbug.net>,
+        Vincent Donnefort <vincent.donnefort@arm.com>,
+        Qais Yousef <qais.yousef@arm.com>
+Subject: [PATCH v2 2/5] Add uclampset schedutil
+Date:   Sat, 30 Jan 2021 20:50:36 +0000
+Message-Id: <20210130205039.581764-3-qais.yousef@arm.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210130205039.581764-1-qais.yousef@arm.com>
+References: <20210130205039.581764-1-qais.yousef@arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+Utilization clamping is a new kernel feature that got merged in 5.3. It
+allows controlling the performance of a process by manipulating the
+utilization such that the task appears bigger or smaller than what it
+really is.
 
+There's a system-wide control to to restrict what maximum values the
+process are allowed to use.
 
- Hi all,
+Man page added in a later patch attempts to explain the usage in more
+detail.
 
-GitHub Actions seem very usable, readable, and user-friendly, and it
-will be probably our replacement to Travis-CI as it seems Travis is
-going to be more focused on paying customers, and migration from
-travis-ci.org to travis-ci.com is required. etc.
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+---
+ .gitignore              |   1 +
+ include/pathnames.h     |   4 +
+ schedutils/sched_attr.h |  30 ++++
+ schedutils/uclampset.c  | 337 ++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 372 insertions(+)
+ create mode 100644 schedutils/uclampset.c
 
-Unfortunately, nothing is perfect, so for now GitHub Actions does not
-support scsi_debug kernel module which we heavily use in our
-regression tests. I have reported this issue, let's hope it will be
-resolved.
-
-TODO:
-    - try enable build on MacOS
-
-    - add GitHub Action to enable Coverity scan (it seems it works for
-      example for systemd repo)
-
-    - add extra "make distcheck" step to .github/workflows/cibuild.yml
-      (already implemented in .github/workflows/cibuild.sh), but execute
-      it for example once per week only
-
-    - volunteers? ;-)
-
-
- Karel
-
+diff --git a/.gitignore b/.gitignore
+index a6f379146..c01d2f644 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -180,3 +180,4 @@ ylwrap
+ /wipefs
+ /write
+ /zramctl
++/uclampset
+diff --git a/include/pathnames.h b/include/pathnames.h
+index 8f6233749..69a0b5524 100644
+--- a/include/pathnames.h
++++ b/include/pathnames.h
+@@ -207,4 +207,8 @@
+ #define _PATH_DEV_RFKILL	"/dev/rfkill"
+ #define _PATH_SYS_RFKILL	"/sys/class/rfkill"
+ 
++#define _PATH_PROC_KERNEL(file)	"/proc/sys/kernel" #file
++#define _PATH_PROC_UCLAMP_MIN	_PATH_PROC_KERNEL(/sched_util_clamp_min)
++#define _PATH_PROC_UCLAMP_MAX	_PATH_PROC_KERNEL(/sched_util_clamp_max)
++
+ #endif /* PATHNAMES_H */
+diff --git a/schedutils/sched_attr.h b/schedutils/sched_attr.h
+index b39d37b5d..39d8532a3 100644
+--- a/schedutils/sched_attr.h
++++ b/schedutils/sched_attr.h
+@@ -13,6 +13,8 @@
+  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  *
+  * Copyright (C) 2004 Robert Love
++ * Copyright (C) 2020-2021 Qais Yousef
++ * Copyright (C) 2020-2021 Arm Ltd
+  */
+ #ifndef UTIL_LINUX_SCHED_ATTR_H
+ #define UTIL_LINUX_SCHED_ATTR_H
+@@ -42,6 +44,30 @@
+ # define SCHED_FLAG_RESET_ON_FORK 0x01
+ #endif
+ 
++#if defined(__linux__) && !defined(SCHED_FLAG_RECLAIM)
++# define SCHED_FLAG_RECLAIM 0x02
++#endif
++
++#if defined(__linux__) && !defined(SCHED_FLAG_DL_OVERRUN)
++# define SCHED_FLAG_DL_OVERRUN 0x04
++#endif
++
++#if defined(__linux__) && !defined(SCHED_FLAG_KEEP_POLICY)
++# define SCHED_FLAG_KEEP_POLICY 0x08
++#endif
++
++#if defined(__linux__) && !defined(SCHED_FLAG_KEEP_PARAMS)
++# define SCHED_FLAG_KEEP_PARAMS 0x10
++#endif
++
++#if defined(__linux__) && !defined(SCHED_FLAG_UTIL_CLAMP_MIN)
++# define SCHED_FLAG_UTIL_CLAMP_MIN 0x20
++#endif
++
++#if defined(__linux__) && !defined(SCHED_FLAG_UTIL_CLAMP_MAX)
++# define SCHED_FLAG_UTIL_CLAMP_MAX 0x40
++#endif
++
+ #if defined (__linux__)
+ # include <sys/syscall.h>
+ #endif
+@@ -73,6 +99,10 @@ struct sched_attr {
+ 	uint64_t sched_runtime;
+ 	uint64_t sched_deadline;
+ 	uint64_t sched_period;
++
++	/* UTILIZATION CLAMPING */
++	uint32_t sched_util_min;
++	uint32_t sched_util_max;
+ };
+ 
+ static int sched_setattr(pid_t pid, const struct sched_attr *attr, unsigned int flags)
+diff --git a/schedutils/uclampset.c b/schedutils/uclampset.c
+new file mode 100644
+index 000000000..b9a02aae1
+--- /dev/null
++++ b/schedutils/uclampset.c
+@@ -0,0 +1,337 @@
++/*
++ * uclampset.c - change utilization clamping attributes of a task or the system
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License, version 2, as
++ * published by the Free Software Foundation
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
++ *
++ * Copyright (C) 2020-2021 Qais Yousef
++ * Copyright (C) 2020-2021 Arm Ltd
++ */
++
++#include <errno.h>
++#include <getopt.h>
++#include <sched.h>
++#include <stdio.h>
++#include <stdlib.h>
++
++#include "closestream.h"
++#include "path.h"
++#include "pathnames.h"
++#include "procutils.h"
++#include "sched_attr.h"
++#include "strutils.h"
++
++#define NOT_SET		-2U
++
++struct uclampset {
++	unsigned int util_min;
++	unsigned int util_max;
++
++	pid_t pid;
++	unsigned int	all_tasks:1,		/* all threads of the PID */
++			system:1,
++			util_min_set:1,		/* indicates -m option was passed */
++			util_max_set:1,		/* indicates -M option was passed */
++			reset_on_fork:1,
++			verbose:1;
++	char *cmd;
++};
++
++static void __attribute__((__noreturn__)) usage(void)
++{
++	FILE *out = stdout;
++
++	fprintf(out,
++		_(" %1$s [options]\n"
++		  " %1$s [options] --pid <pid> | --system | <command> <arg>...\n"),
++		program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Show or change the utilization clamping attributes of a process or the system.\n"), out);
++	fputs(_("Utilization range: [0:1024]\n"), out);
++	fputs(_("Use special -1 value to reset to system's default\n"), out);
++
++	fputs(USAGE_OPTIONS, out);
++	fputs(_(" -m                   util_min value to set\n"), out);
++	fputs(_(" -M                   util_max value to set\n"), out);
++	fputs(_(" -a, --all-tasks      operate on all the tasks (threads) for a given pid\n"), out);
++	fputs(_(" -p, --pid            operate on existing given pid\n"), out);
++	fputs(_(" -s, --system         operate on system\n"), out);
++	fputs(_(" -R, --reset-on-fork  set reset-on-fork flag\n"), out);
++	fputs(_(" -v, --verbose        display status information\n"), out);
++
++	fputs(USAGE_SEPARATOR, out);
++	printf(USAGE_HELP_OPTIONS(22));
++
++	printf(USAGE_MAN_TAIL("uclampset(1)"));
++	exit(EXIT_SUCCESS);
++}
++
++static void show_uclamp_pid_info(pid_t pid, char *cmd)
++{
++	struct sched_attr sa;
++	char *comm;
++
++	/* don't display "pid 0" as that is confusing */
++	if (!pid)
++		pid = getpid();
++
++	if (sched_getattr(pid, &sa, sizeof(sa), 0) != 0)
++		err(EXIT_FAILURE, _("failed to get pid %d's uclamp values"), pid);
++
++	if (cmd)
++		comm = cmd;
++	else
++		comm = proc_get_command_name(pid);
++
++	printf(_("%s (%d) util_clamp: min: %d max: %d\n"),
++	       comm ? : "uknown", pid, sa.sched_util_min, sa.sched_util_max);
++
++	if (!cmd)
++		free(comm);
++}
++
++static unsigned int read_uclamp_sysfs(char *filename)
++{
++	unsigned int val;
++
++	if (ul_path_read_u32(NULL, &val, filename) != 0)
++		err(EXIT_FAILURE, _("cannot read %s"), filename);
++
++	return val;
++}
++
++static void write_uclamp_sysfs(char *filename, unsigned int val)
++{
++	if (ul_path_write_u64(NULL, val, filename) != 0)
++		err(EXIT_FAILURE, _("cannot write %s"), filename);
++}
++
++static void show_uclamp_system_info(void)
++{
++	unsigned int min, max;
++
++	min = read_uclamp_sysfs(_PATH_PROC_UCLAMP_MIN);
++	max = read_uclamp_sysfs(_PATH_PROC_UCLAMP_MAX);
++
++	printf(_("System util_clamp: min: %u max: %u\n"), min, max);
++}
++
++static void show_uclamp_info(struct uclampset *ctl)
++{
++	if (ctl->system) {
++		show_uclamp_system_info();
++	} else if (ctl->all_tasks) {
++		pid_t tid;
++		struct proc_tasks *ts = proc_open_tasks(ctl->pid);
++
++		if (!ts)
++			err(EXIT_FAILURE, _("cannot obtain the list of tasks"));
++
++		while (!proc_next_tid(ts, &tid))
++			show_uclamp_pid_info(tid, NULL);
++
++		proc_close_tasks(ts);
++	} else {
++		show_uclamp_pid_info(ctl->pid, ctl->cmd);
++	}
++}
++
++static int set_uclamp_one(struct uclampset *ctl, pid_t pid)
++{
++	struct sched_attr sa;
++
++	if (sched_getattr(pid, &sa, sizeof(sa), 0) != 0)
++		err(EXIT_FAILURE, _("failed to get pid %d's uclamp values"), pid);
++
++	if (ctl->util_min_set)
++		sa.sched_util_min = ctl->util_min;
++	if (ctl->util_max_set)
++		sa.sched_util_max = ctl->util_max;
++
++	sa.sched_flags = SCHED_FLAG_KEEP_POLICY |
++			 SCHED_FLAG_KEEP_PARAMS |
++			 SCHED_FLAG_UTIL_CLAMP_MIN |
++			 SCHED_FLAG_UTIL_CLAMP_MAX;
++
++	if (ctl->reset_on_fork)
++		sa.sched_flags |= SCHED_FLAG_RESET_ON_FORK;
++
++	return sched_setattr(pid, &sa, 0);
++}
++
++static void set_uclamp_pid(struct uclampset *ctl)
++{
++	if (ctl->all_tasks) {
++		pid_t tid;
++		struct proc_tasks *ts = proc_open_tasks(ctl->pid);
++
++		if (!ts)
++			err(EXIT_FAILURE, _("cannot obtain the list of tasks"));
++
++		while (!proc_next_tid(ts, &tid))
++			if (set_uclamp_one(ctl, tid) == -1)
++				err(EXIT_FAILURE, _("failed to set tid %d's uclamp values"), tid);
++
++		proc_close_tasks(ts);
++
++	} else if (set_uclamp_one(ctl, ctl->pid) == -1) {
++		err(EXIT_FAILURE, _("failed to set pid %d's uclamp values"), ctl->pid);
++	}
++}
++
++static void set_uclamp_system(struct uclampset *ctl)
++{
++	if (!ctl->util_min_set)
++		ctl->util_min = read_uclamp_sysfs(_PATH_PROC_UCLAMP_MIN);
++
++	if (!ctl->util_max_set)
++		ctl->util_max = read_uclamp_sysfs(_PATH_PROC_UCLAMP_MAX);
++
++	if (ctl->util_min > ctl->util_max) {
++		errno = EINVAL;
++		err(EXIT_FAILURE, _("util_min must be <= util_max"));
++	}
++
++	write_uclamp_sysfs(_PATH_PROC_UCLAMP_MIN, ctl->util_min);
++	write_uclamp_sysfs(_PATH_PROC_UCLAMP_MAX, ctl->util_max);
++}
++
++static void validate_util(int val)
++{
++	if (val > 1024 || val < -1) {
++		errno = EINVAL;
++		err(EXIT_FAILURE, _("%d out of range"), val);
++	}
++}
++
++int main(int argc, char **argv)
++{
++	struct uclampset _ctl = {
++		.pid = -1,
++		.util_min = NOT_SET,
++		.util_max = NOT_SET,
++		.cmd = NULL
++	};
++	struct uclampset *ctl = &_ctl;
++	int c;
++
++	static const struct option longopts[] = {
++		{ "all-tasks",		no_argument, NULL, 'a' },
++		{ "pid",		no_argument, NULL, 'p' },
++		{ "system",		no_argument, NULL, 's' },
++		{ "reset-on-fork",	no_argument, NULL, 'R' },
++		{ "help",		no_argument, NULL, 'h' },
++		{ "verbose",		no_argument, NULL, 'v' },
++		{ "version",		no_argument, NULL, 'V' },
++		{ NULL,			no_argument, NULL, 0 }
++	};
++
++	setlocale(LC_ALL, "");
++	bindtextdomain(PACKAGE, LOCALEDIR);
++	textdomain(PACKAGE);
++	close_stdout_atexit();
++
++	while((c = getopt_long(argc, argv, "+asRphmMvV", longopts, NULL)) != -1)
++	{
++		switch (c) {
++		case 'a':
++			ctl->all_tasks = 1;
++			break;
++		case 'p':
++			errno = 0;
++			ctl->pid = strtos32_or_err(argv[optind], _("invalid PID argument"));
++			optind++;
++			break;
++		case 's':
++			ctl->system = 1;
++			break;
++		case 'R':
++			ctl->reset_on_fork = 1;
++			break;
++		case 'v':
++			ctl->verbose = 1;
++			break;
++		case 'm':
++			ctl->util_min = strtos32_or_err(argv[optind], _("invalid util_min argument"));
++			ctl->util_min_set = 1;
++			validate_util(ctl->util_min);
++			optind++;
++			break;
++		case 'M':
++			ctl->util_max = strtos32_or_err(argv[optind], _("invalid util_max argument"));
++			ctl->util_max_set = 1;
++			validate_util(ctl->util_max);
++			optind++;
++			break;
++		case 'V':
++			print_version(EXIT_SUCCESS);
++			/* fallthrough */
++		case 'h':
++			usage();
++		default:
++			errtryhelp(EXIT_FAILURE);
++		}
++	}
++
++	if (argc == 1) {
++		usage();
++		exit(EXIT_FAILURE);
++	}
++
++	/* all_tasks implies --pid */
++	if (ctl->all_tasks && ctl->pid == -1) {
++		errno = EINVAL;
++		err(EXIT_FAILURE, _("missing -p option"));
++	}
++
++	if (!ctl->util_min_set && !ctl->util_max_set) {
++		/* -p or -s must be passed */
++		if (!ctl->system && ctl->pid == -1) {
++			usage();
++			exit(EXIT_FAILURE);
++		}
++
++		show_uclamp_info(ctl);
++		return EXIT_SUCCESS;
++	}
++
++	/* ensure there's a command to execute if no -s or -p */
++	if (!ctl->system && ctl->pid == -1) {
++		if (argc <= optind) {
++			errno = EINVAL;
++			err(EXIT_FAILURE, _("no cmd to execute"));
++		}
++
++		argv += optind;
++		ctl->cmd = argv[0];
++	}
++
++	if (ctl->pid == -1)
++		ctl->pid = 0;
++
++	if (ctl->system)
++		set_uclamp_system(ctl);
++	else
++		set_uclamp_pid(ctl);
++
++	if (ctl->verbose)
++		show_uclamp_info(ctl);
++
++	if (ctl->cmd) {
++		execvp(ctl->cmd, argv);
++		errexec(ctl->cmd);
++	}
++
++	return EXIT_SUCCESS;
++}
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.25.1
 
