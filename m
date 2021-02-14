@@ -2,101 +2,89 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC0B3C433E0
-	for <util-linux@archiver.kernel.org>; Fri, 12 Feb 2021 17:06:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2957EC433E0
+	for <util-linux@archiver.kernel.org>; Sun, 14 Feb 2021 15:49:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7662364E05
-	for <util-linux@archiver.kernel.org>; Fri, 12 Feb 2021 17:06:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E9C6F64DA1
+	for <util-linux@archiver.kernel.org>; Sun, 14 Feb 2021 15:49:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231256AbhBLRFt (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 12 Feb 2021 12:05:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43160 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231148AbhBLRFo (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 12 Feb 2021 12:05:44 -0500
-Received: from mail-oo1-xc33.google.com (mail-oo1-xc33.google.com [IPv6:2607:f8b0:4864:20::c33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56A65C061574
-        for <util-linux@vger.kernel.org>; Fri, 12 Feb 2021 09:05:04 -0800 (PST)
-Received: by mail-oo1-xc33.google.com with SMTP id x19so2226249ooj.10
-        for <util-linux@vger.kernel.org>; Fri, 12 Feb 2021 09:05:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=/53TJfg2D+UvF2K2eDoe8snj7E/ycC0lSPTpvVFvBrg=;
-        b=CG9FuK5EX7ojNopy3KZtd+62SURvsD/el00JGVOe4fvxtFKWVCIty4PQhMXOOhl1TO
-         nSTUEogdP/8iMivu5M2famfK7ohykThIQttnOH8pqkIZreP399F6JI7CCJoEynG8TBQO
-         dtL4pgewlgqV2BTc2wS5UwXp/IK8Gl9kojwf+DJd6f60Gbh+XBmfSRqbWfY5DYB3o/J+
-         P4OCYJXhNnmH/ZP49JMZOqNkunjvrwqPK3AxMsJeffJXUeezuhN2tua7jvoRSuXMvrnL
-         wV9Yq+C6387rEQLFrFX5A/XPLoahGUeDPaH41xUOkM6Yze4TtBzQvvuDCx6EJsCn5UEJ
-         PoKQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=/53TJfg2D+UvF2K2eDoe8snj7E/ycC0lSPTpvVFvBrg=;
-        b=D2jU/Vh0vHhWkKR+odSEYNjOuUuC4Sm/hNg10sQR2J9vrLVnu/vz8IP5fCnJqSSlzK
-         5j6t9VrTXEkk77PJNErckcsanrGMTWMqSScQmr4yvyhyJKWX1dlhyA5ml8bskGq4I3ar
-         bZLZcyvpUclUZMONgx4YPdzq341fgvB54Kkxlf9WvZEDfCoFpnNYOvXxtdGrFY7UXaB4
-         omdO7hyKg66VCtrXdT70ICedzkitXMfZV5oPfvrwgbEQWJhig8IQlGckRE1kaGFnzjO+
-         qgWJeL8Kg8Izzb/dLTmQUwgosYH0kM1pK09UOFempqdZx58nF4PRa9IfLRupH9msdG/I
-         tTWA==
-X-Gm-Message-State: AOAM532ygjMa4zzyhpArtEl0gYZwekPZsM4nZUwtvW5awSTuyVdqZCNj
-        DhAH6ni5a9Xetwsgn7ybXBdZrq+QILo=
-X-Google-Smtp-Source: ABdhPJzkmoz9iBM9I4kR56uciLfiQHzaEj/qVAAXsJBDk2gbjaB5Z3hA1phq0TvaihI8ghjz+fYquw==
-X-Received: by 2002:a4a:b103:: with SMTP id a3mr2542269ooo.30.1613149502859;
-        Fri, 12 Feb 2021 09:05:02 -0800 (PST)
-Received: from [192.168.0.91] (cpe-70-123-227-116.satx.res.rr.com. [70.123.227.116])
-        by smtp.gmail.com with ESMTPSA id w196sm1905112oif.12.2021.02.12.09.05.01
-        for <util-linux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 12 Feb 2021 09:05:02 -0800 (PST)
-To:     Util-Linux <util-linux@vger.kernel.org>
-From:   Bruce Dubbs <bruce.dubbs@gmail.com>
-Subject: Suggested changes to util-linux for FHS compliance.
-Message-ID: <cc08c08e-81d9-f3c7-ce8b-43a27bfe1c72@gmail.com>
-Date:   Fri, 12 Feb 2021 11:04:59 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        id S229637AbhBNPtD (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 14 Feb 2021 10:49:03 -0500
+Received: from mout.gmx.net ([212.227.17.20]:46567 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229576AbhBNPtC (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Sun, 14 Feb 2021 10:49:02 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1613317650;
+        bh=9VO40/4A0DBj6ohiXsIciS8lCYxMMfGmMZUSZUup+kE=;
+        h=X-UI-Sender-Class:Date:From:To:Subject;
+        b=FiJOGQWdjT5BA3/tasTYOoM4xyHlxVH5CaxxiKYuEBJ+jxQF1QqFmFujRWbIds/X0
+         VQnukvONt9//p6NFImLG0Q8aC/3G4ZhXT3WphGqhWeqw3hjE6DKI2N9LBGUFso0JP8
+         b0Z8t5t2aFeintDXLBXnYkHXWYlDNY/cvdJ9CMKg=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from localhost ([62.216.208.88]) by mail.gmx.net (mrgmx104
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MYNJq-1lP2t12lW6-00VMn8; Sun, 14
+ Feb 2021 16:47:29 +0100
+Date:   Sun, 14 Feb 2021 16:47:28 +0100
+From:   Peter Seiderer <ps.report@gmx.net>
+To:     util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
+Subject: Typo in commit build-sys: release++ (v2.36.2)?
+Message-ID: <20210214164728.7f461991@gmx.net>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-suse-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:pMwnk5hW/7aKa/gDkVsczyaXItB5SuaIcjIEv7OAWzrAz0FT/p3
+ /x7eqOhyDxtSgZlZ38yuKMgjf0WijWC91iuHUQucsNNXfhAC1EzOzE3lUWLySlG5UE5i1IR
+ VzP+iuGVAoTgFTNKtVlMM9U+k6gUdAxl8dpr34Vifg9A3CSrzRR+8nyHPm0FssdTzJnnIuP
+ OiTk5NRxtx6hZVVeArvxg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:89FHw6sS+NM=:o38SaIhTttibhfYo/q26FT
+ N8J0K2nCrDhn2Y4PMKcN2M49fQJfcbTPARSeX1JeSvBpLP6uYblwcn+edVOKnGz+qaOoGhd6z
+ VZ3+cWdzgu14wlCm01Lf/lAFdXITuW+lHL/RkFUJ9ncps9iBIyy7sMg+FzpSQKxLuHiyO80xd
+ 6bCRbT1r7FMDU+3AZVleyzj2lZqbpo9K+UwAlQRAuxkj8iUQpFsF5hSZGsL9D6Nkc3p1ZFFEW
+ a0NmrBFuxzCaAFRXU0rumSh8mYOlLvS4lqQzlOzgRdLkCStkKGaRYgo+U9QconOLgWH9C+RjD
+ mGbODEn3NlNQcxqdM5+vCCzTRZwWZNdCsE9XluuynxxjOOP644oktdJBBEYtBcvSrUx5O8Txc
+ HxMWRsu9p4oNtwBTWkbuXm97uJf1r4dZn0qgqJayC71rksAiGnuYRRZyktaYZcp+aAxY4qBJi
+ iX0gNGkxceFxWqGvCn+kDuiQ4fdW0vnPGgvSjwUOx4uw0iu2PQ1YsZadKlwgQ0pwAIuOvIhXp
+ PI8EsbOuSZnvhPK4dZiarcK7uAWseJANJYVpKsXBC5CgKsULFy00g4CWydrCVkFOe31Fzdj+Q
+ d0pstAoQ0yWoCxH3g2mUaQ6HyD78VbIEhhJEXFTE8q1Yk7I2BXag6cukwlQYKm2K8riBx+Kww
+ fD09i1k3nZNyGW2liOUzqmHIrgt51tq/quXetNe1odPxZay4vr1o/+5o7FKUQWf2yQHIThM+K
+ fjLTC+bXTB/v66nM+WawZBghtip7X+z3Bz2KoEJoe/YgGWfD8/HBuKis82gVghZUGLWSGw0wP
+ J6xbTh/obg7Vv7fta8dxrgbGI8XHL65DxwenQAiKlnWgdPKQd6R1xcrKAtQj4FgBfxnT7Mglh
+ a25nUjsF4MnTD69jAqoA==
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-I don't recall if this has come up before, but I suggest a couple of 
-changes to the default util-linux build configuuration:
+Hello,
 
-1. Change the default ADJTIME_PATH to be /var/lib/hwclock/adjtime
+the commit for release v2.36.2 ([1]) 'build-sys: release++ (v2.36.2)'
+contains a typo setting LIBBLKID_DATE to '12-Feb-2020'
+instead of '12-Feb-2021'?
 
-This would be a one line change to include/pathnames.h:
-   # define _PATH_ADJTIME              "/etc/adjtime"
+=2D-- a/configure.ac
++++ b/configure.ac
+@@ -29,7 +29,7 @@ PACKAGE_VERSION_RELEASE=3D$(echo $PACKAGE_VERSION | awk =
+-F. '{
 
-For a reference, see the FHS paragraph 5.8.6:
+ dnl libblkid version
+ LIBBLKID_VERSION=3D"$PACKAGE_VERSION_MAJOR.$PACKAGE_VERSION_MINOR.$PACKAG=
+E_VERSION_RELEASE"
+-LIBBLKID_DATE=3D"16-Nov-2020"
++LIBBLKID_DATE=3D"12-Feb-2020"
+ LIBBLKID_LT_MAJOR=3D1
+ LIBBLKID_LT_MINOR=3D1
+ LIBBLKID_LT_MICRO=3D0
 
-https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch05s08.html#varlibhwclockStateDirectoryForHwclo
+Regards,
+Peter
 
-Currently this behavior can be done by exporting the environment 
-variable ADJTIME_PATH=/var/lib/hwclock/adjtime before running configure, 
-but is undocumented except in the 2.25 release notes.
-
-2. Change the references to /var/run to just /run or at least add a 
-configure option --runstatedir=<path>.
-
-Most systems today create /run as a tmpfs.  See:
-
-https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch03s15.html and
-https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch05s13.html
-
-Currently this change can be manually made by setting an environment 
-variable, runstatedir=/run when running configure, but is undocumented.
-
-   -- Bruce Dubbs
-      linuxfromscratch.org
+[1] https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/commit/=
+configure.ac?h=3Dstable/v2.36&id=3Db897734b57ea06643fa916f15270f21ea2f1443=
+1
