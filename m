@@ -2,89 +2,128 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2957EC433E0
-	for <util-linux@archiver.kernel.org>; Sun, 14 Feb 2021 15:49:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E362C433E6
+	for <util-linux@archiver.kernel.org>; Mon, 15 Feb 2021 09:18:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E9C6F64DA1
-	for <util-linux@archiver.kernel.org>; Sun, 14 Feb 2021 15:49:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C68CE64E07
+	for <util-linux@archiver.kernel.org>; Mon, 15 Feb 2021 09:18:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229637AbhBNPtD (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sun, 14 Feb 2021 10:49:03 -0500
-Received: from mout.gmx.net ([212.227.17.20]:46567 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229576AbhBNPtC (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Sun, 14 Feb 2021 10:49:02 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1613317650;
-        bh=9VO40/4A0DBj6ohiXsIciS8lCYxMMfGmMZUSZUup+kE=;
-        h=X-UI-Sender-Class:Date:From:To:Subject;
-        b=FiJOGQWdjT5BA3/tasTYOoM4xyHlxVH5CaxxiKYuEBJ+jxQF1QqFmFujRWbIds/X0
-         VQnukvONt9//p6NFImLG0Q8aC/3G4ZhXT3WphGqhWeqw3hjE6DKI2N9LBGUFso0JP8
-         b0Z8t5t2aFeintDXLBXnYkHXWYlDNY/cvdJ9CMKg=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from localhost ([62.216.208.88]) by mail.gmx.net (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MYNJq-1lP2t12lW6-00VMn8; Sun, 14
- Feb 2021 16:47:29 +0100
-Date:   Sun, 14 Feb 2021 16:47:28 +0100
-From:   Peter Seiderer <ps.report@gmx.net>
-To:     util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
-Subject: Typo in commit build-sys: release++ (v2.36.2)?
-Message-ID: <20210214164728.7f461991@gmx.net>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-suse-linux-gnu)
+        id S230159AbhBOJSG (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 15 Feb 2021 04:18:06 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24937 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230158AbhBOJSE (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Mon, 15 Feb 2021 04:18:04 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1613380597;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=oPzlSnlc/Yl9CnAVmDndmmGkx/G1fkQ0OuLq8VBd204=;
+        b=jLNyvu2CL+CoRyY4411rFQ9CYOvqo/b8vsuW4K6BLHGjnDgxLgaEWlDB3e633rdQR/xBDk
+        MekaZRnNae4uorcQlu64hbjP37Io9x+/XLgUI27dvbcwr+fyln2sznTx/OHBjozi0A0vUG
+        IOONn01mnYKyyfkncmoeYfdD+0QhNKA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-83-C-hh21A4NUyMUyQIjNfsog-1; Mon, 15 Feb 2021 04:16:32 -0500
+X-MC-Unique: C-hh21A4NUyMUyQIjNfsog-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8023A192CC40;
+        Mon, 15 Feb 2021 09:16:30 +0000 (UTC)
+Received: from ws.net.home (ovpn-117-0.ams2.redhat.com [10.36.117.0])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id CB1645447F;
+        Mon, 15 Feb 2021 09:16:29 +0000 (UTC)
+Date:   Mon, 15 Feb 2021 10:16:25 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     Bruce Dubbs <bruce.dubbs@gmail.com>
+Cc:     Util-Linux <util-linux@vger.kernel.org>
+Subject: Re: Suggested changes to util-linux for FHS compliance.
+Message-ID: <20210215091625.jzaf6ephntdwmi5w@ws.net.home>
+References: <cc08c08e-81d9-f3c7-ce8b-43a27bfe1c72@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:pMwnk5hW/7aKa/gDkVsczyaXItB5SuaIcjIEv7OAWzrAz0FT/p3
- /x7eqOhyDxtSgZlZ38yuKMgjf0WijWC91iuHUQucsNNXfhAC1EzOzE3lUWLySlG5UE5i1IR
- VzP+iuGVAoTgFTNKtVlMM9U+k6gUdAxl8dpr34Vifg9A3CSrzRR+8nyHPm0FssdTzJnnIuP
- OiTk5NRxtx6hZVVeArvxg==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:89FHw6sS+NM=:o38SaIhTttibhfYo/q26FT
- N8J0K2nCrDhn2Y4PMKcN2M49fQJfcbTPARSeX1JeSvBpLP6uYblwcn+edVOKnGz+qaOoGhd6z
- VZ3+cWdzgu14wlCm01Lf/lAFdXITuW+lHL/RkFUJ9ncps9iBIyy7sMg+FzpSQKxLuHiyO80xd
- 6bCRbT1r7FMDU+3AZVleyzj2lZqbpo9K+UwAlQRAuxkj8iUQpFsF5hSZGsL9D6Nkc3p1ZFFEW
- a0NmrBFuxzCaAFRXU0rumSh8mYOlLvS4lqQzlOzgRdLkCStkKGaRYgo+U9QconOLgWH9C+RjD
- mGbODEn3NlNQcxqdM5+vCCzTRZwWZNdCsE9XluuynxxjOOP644oktdJBBEYtBcvSrUx5O8Txc
- HxMWRsu9p4oNtwBTWkbuXm97uJf1r4dZn0qgqJayC71rksAiGnuYRRZyktaYZcp+aAxY4qBJi
- iX0gNGkxceFxWqGvCn+kDuiQ4fdW0vnPGgvSjwUOx4uw0iu2PQ1YsZadKlwgQ0pwAIuOvIhXp
- PI8EsbOuSZnvhPK4dZiarcK7uAWseJANJYVpKsXBC5CgKsULFy00g4CWydrCVkFOe31Fzdj+Q
- d0pstAoQ0yWoCxH3g2mUaQ6HyD78VbIEhhJEXFTE8q1Yk7I2BXag6cukwlQYKm2K8riBx+Kww
- fD09i1k3nZNyGW2liOUzqmHIrgt51tq/quXetNe1odPxZay4vr1o/+5o7FKUQWf2yQHIThM+K
- fjLTC+bXTB/v66nM+WawZBghtip7X+z3Bz2KoEJoe/YgGWfD8/HBuKis82gVghZUGLWSGw0wP
- J6xbTh/obg7Vv7fta8dxrgbGI8XHL65DxwenQAiKlnWgdPKQd6R1xcrKAtQj4FgBfxnT7Mglh
- a25nUjsF4MnTD69jAqoA==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cc08c08e-81d9-f3c7-ce8b-43a27bfe1c72@gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hello,
+On Fri, Feb 12, 2021 at 11:04:59AM -0600, Bruce Dubbs wrote:
+> I don't recall if this has come up before, but I suggest a couple of changes
+> to the default util-linux build configuuration:
+> 
+> 1. Change the default ADJTIME_PATH to be /var/lib/hwclock/adjtime
 
-the commit for release v2.36.2 ([1]) 'build-sys: release++ (v2.36.2)'
-contains a typo setting LIBBLKID_DATE to '12-Feb-2020'
-instead of '12-Feb-2021'?
+Good idea. I'll do that.
 
-=2D-- a/configure.ac
-+++ b/configure.ac
-@@ -29,7 +29,7 @@ PACKAGE_VERSION_RELEASE=3D$(echo $PACKAGE_VERSION | awk =
--F. '{
+> 2. Change the references to /var/run to just /run or at least add a
+> configure option --runstatedir=<path>.
 
- dnl libblkid version
- LIBBLKID_VERSION=3D"$PACKAGE_VERSION_MAJOR.$PACKAGE_VERSION_MINOR.$PACKAG=
-E_VERSION_RELEASE"
--LIBBLKID_DATE=3D"16-Nov-2020"
-+LIBBLKID_DATE=3D"12-Feb-2020"
- LIBBLKID_LT_MAJOR=3D1
- LIBBLKID_LT_MINOR=3D1
- LIBBLKID_LT_MICRO=3D0
+The current default is /run if --localstatedir is NONE or /var, see
+configure.ac:
 
-Regards,
-Peter
+ # default for old versions without $runstatedir
+ AS_IF([test x"$runstatedir" = x], [runstatedir='${localstatedir}/run'])
+ 
+ # our default if $localstatedir unchanged
+ AS_CASE([$localstatedir:$runstatedir],
+  [NONE:'${localstatedir}/run' | /var:'${localstatedir}/run' | NONE:'/run' ],
+    [runstatedir=/run; AC_MSG_NOTICE([  --runstatedir defaults to /run])]
+ )
+ 
+ AC_SUBST([runstatedir])
 
-[1] https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/commit/=
-configure.ac?h=3Dstable/v2.36&id=3Db897734b57ea06643fa916f15270f21ea2f1443=
-1
+
+Try it without an option:
+
+        $ ./configure
+        ...
+        configure: Default --exec-prefix detected.
+        configure:   --bindir defaults to /bin
+        configure:   --sbindir defaults to /sbin
+        configure:   --libdir defaults to /lib64
+        configure:   --runstatedir defaults to /run
+
+the @runstatedir@ should be available since autoconf 2.70
+https://www.gnu.org/prep/standards/html_node/Directory-Variables.html
+but not sure about the option.
+
+For example for Fedora we use:
+
+        ./configure --build=x86_64-redhat-linux-gnu \
+        --host=x86_64-redhat-linux-gnu --program-prefix= \
+        --disable-dependency-tracking --prefix=/usr --exec-prefix=/usr \
+        --bindir=/usr/bin --sbindir=/usr/sbin --sysconfdir=/etc \
+        --datadir=/usr/share --includedir=/usr/include --libdir=/usr/lib64 \
+        --libexecdir=/usr/libexec --localstatedir=/var \
+        --sharedstatedir=/var/lib --mandir=/usr/share/man \
+        --infodir=/usr/share/info \
+        --with-systemdsystemunitdir=/usr/lib/systemd/system \
+        --disable-silent-rules --disable-bfs --disable-pg --enable-chfn-chsh  \
+        --enable-usrdir-path --enable-write --enable-raw --enable-hardlink \
+        --with-python=3 --with-systemd --with-udev --with-selinux --with-audit \
+        --with-utempter --disable-makeinstall-chown
+
+
+and it also defaults to /run because of --localstatedir=/var
+
+> Currently this change can be manually made by setting an environment
+> variable, runstatedir=/run when running configure, but is undocumented.
+
+The current default should be already good enough for usual use-cases :-)
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
