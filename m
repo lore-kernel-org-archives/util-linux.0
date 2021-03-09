@@ -7,120 +7,87 @@ X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF42EC433E0
-	for <util-linux@archiver.kernel.org>; Tue,  9 Mar 2021 08:49:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 894DCC433DB
+	for <util-linux@archiver.kernel.org>; Tue,  9 Mar 2021 09:19:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AAEAE64F6B
-	for <util-linux@archiver.kernel.org>; Tue,  9 Mar 2021 08:49:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 49C1C65147
+	for <util-linux@archiver.kernel.org>; Tue,  9 Mar 2021 09:19:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229689AbhCIItT (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 9 Mar 2021 03:49:19 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:27951 "EHLO
+        id S229520AbhCIJSy (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 9 Mar 2021 04:18:54 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:25651 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229904AbhCIItR (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 9 Mar 2021 03:49:17 -0500
+        by vger.kernel.org with ESMTP id S229875AbhCIJSf (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 9 Mar 2021 04:18:35 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1615279756;
+        s=mimecast20190719; t=1615281515;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=nPB9+GQFDuN9VirK1mN9Vy+8Ny/2oBo4EUpJeAw9+Cg=;
-        b=FLggRaqtdNIN2ZRQTRHXSNAxG2fMMyWl+Y76QvDf1m94g5XNKiqUJq0iKfmmNohNVIrduz
-        Peeu9Us0StN9f034gPQtaHzi1ycDrK0rjjaGeolTko23VFY6+J26udRBWCiRRJacAoWIQ/
-        rCmsWOPYIMMfVA94MP/IVUozFzezC9Q=
+        bh=Axt50I4cNQmTBmiJWht0yiB5Rjkxk/z2/ZoJbTEZN3Y=;
+        b=Vv+u+o6L4/1/uYBfh7PfI/Lt0Yy5HzKnllPUhzYtFksqy42FX0SgURRS9UABLs232EszvH
+        t+nFMeUBKmHa4hfczqwT3/NwZuHjlGYdpXr9jTkTN0Uvk6EbVaCDHX4I7ypMQMQ1wgDaCk
+        NHjn7KTCSFuSMbEUKyHcVF/PpQp783Y=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-312-KwP5I9Q4OFK0lQc85fDDeg-1; Tue, 09 Mar 2021 03:49:12 -0500
-X-MC-Unique: KwP5I9Q4OFK0lQc85fDDeg-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+ us-mta-32-1nR_h7DoMuaIwwshFZSm-w-1; Tue, 09 Mar 2021 04:18:31 -0500
+X-MC-Unique: 1nR_h7DoMuaIwwshFZSm-w-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 05501814313;
-        Tue,  9 Mar 2021 08:49:12 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E75C587A83F;
+        Tue,  9 Mar 2021 09:18:30 +0000 (UTC)
 Received: from ws.net.home (ovpn-113-171.ams2.redhat.com [10.36.113.171])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 569B962665;
-        Tue,  9 Mar 2021 08:49:11 +0000 (UTC)
-Date:   Tue, 9 Mar 2021 09:49:08 +0100
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 370D3679FA;
+        Tue,  9 Mar 2021 09:18:30 +0000 (UTC)
+Date:   Tue, 9 Mar 2021 10:18:27 +0100
 From:   Karel Zak <kzak@redhat.com>
-To:     Mario =?utf-8?Q?Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
-Cc:     util-linux@vger.kernel.org
-Subject: Re: Help needed with man page conversions to asciidoc?
-Message-ID: <20210309084908.izmuxsrqujiml6ph@ws.net.home>
-References: <karelzak/util-linux/issues/1257@github.com>
- <karelzak/util-linux/issues/1257/792670506@github.com>
- <CAHi0vA-d7EQostbdDMZGmKeNfLYvjUWkuvF01nw-CM9wOkWMow@mail.gmail.com>
+To:     Howard Lum <hlum@synamedia.com>
+Cc:     "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Subject: Re: lscpu and Intel Turbo Boost
+Message-ID: <20210309091827.hogycuynnyplc7q4@ws.net.home>
+References: <CWXP265MB17024AF7959F3132E333F6DAC8BC0@CWXP265MB1702.GBRP265.PROD.OUTLOOK.COM>
+ <CWXP265MB17020C63B570E7B6BA256F6EC8B69@CWXP265MB1702.GBRP265.PROD.OUTLOOK.COM>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHi0vA-d7EQostbdDMZGmKeNfLYvjUWkuvF01nw-CM9wOkWMow@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+In-Reply-To: <CWXP265MB17020C63B570E7B6BA256F6EC8B69@CWXP265MB1702.GBRP265.PROD.OUTLOOK.COM>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Mon, Mar 08, 2021 at 09:10:34PM +0100, Mario Blättermann wrote:
-> >
-> > I like the idea with translated man pages maintained in the
-> > upstream tree, keep it all in one place is the only way how to
-> > keep it up to date. If I good understand then the result will be
-> > another template on translationproject.org to maintain man pages
-> > strings in po, right? What about in-tree .po files? I guess it
-> > should be separate from normal po files, po-docs/ directory?
-> >
-> Yes, it needs a separate .po file. It's not OK to mix UI and doc
-> translations. Well, it's theoretically possible to merge both .pot
-> files in one to force translators to work on both UI and man pages.
-> But I think the UI .pot file with more than 4000 gettext messages is
-> big enough, especially for newbies. So don't let's blow it up to more
-> than 10000.
+On Mon, Feb 01, 2021 at 02:16:41PM +0000, Howard Lum wrote:
+> I have a server with a Power Regulator control. When this is set for
+> "OS Control Mode", the lscpu output reports CPU max MHz and CPU min
+> MHz info. When the control is set to "Static High Performance", the
+> lscpu output only reports "CPU MHz" and the value is the same as the
+> CPU base frequency. Does this mean that the CPU is operating at the
+> base frequency and is not using Intel Turbo Boost?
 
- I agree.
+"CPU MHz" is value from /proc/cpuinfo usually from the first CPU and
+it's actual frequency of the processor. 
 
-> I propose the following structure:
-> 
-> The asciidoc man pages will be stored where the *roff man pages reside
-> for ages: in their respective subdirectories (sys-utils, schedutils,
-> whatever). For the special asciidoc files footer.adoc,
-> translation.adoc and asciidoc.conf we need an extra directory, let's
-> name it "man-common".
+The next lscpu version will not show this value as it's useless to 
+show frequency for the first CPU if you have more CPUs ...
 
- OK.
+And the min and max are read from
 
-> For the man page translations, we can also use man-common. It's a good
-> place for files like po4a.conf or the TP sync script (if desired), and
-> the subdirectory "po".
+  /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_max_freq
+  /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_min_freq
 
- OK. For scripts, see also tools/ directory where we have some
- checkers, simple script to commit po/ changes to git (git-tp-sync)
- etc.
+and describe frequency range.
 
-...
-> > Is there any possibility to use some "style" template for
-> > conversion to the man pages (for example the same header/footer
-> > for all pages, generic sections like AVAILABILITY, etc.)?
-> >
-> Yes, see the attached tarball for an example footer.adoc. I could
-> extend it with a "Reporting bugs" section.
+Use grep "cpu MHz" /proc/cpuinfo to get the current frequencies, or in
+the next lscpu version it will be possible use use "lscpu -eCPU,MHZ"
+to get the same.
 
- I see, it looks pretty cool and readable.
+I have no clue about "Intel Turbo Boost" and how Linux report/use it,
+but I guess that "cpu MHz" from /proc/cpuinfo is what kernel thinks
+about the speed.
 
-> > Don't worry about Autotools, I'll do this task. All I need is some
-> > command-line examples of how to do the conversion.
-> 
-> Oh, very nice... Although I also use Autotools in manpages-l10n (but
-> haven't written all the Makefile* and related stuff), my knowledge is
-> poor, and I'm happy after each release without problems;)
->
-> Karel, I've already forked the util-linux project at Github; maybe it
-> is useful to create a branch for the Asciidoc stuff in your main repo,
-> which I can check out into the forked repo? This would be probably the
-> most painless way for a merge request.
+    Karel
 
- OK, I have created a new branch "topic/asciidoc" on github.
-
-   Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
