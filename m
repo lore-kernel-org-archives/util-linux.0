@@ -2,65 +2,65 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECC0CC433DB
-	for <util-linux@archiver.kernel.org>; Tue, 23 Mar 2021 20:08:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44A31C433C1
+	for <util-linux@archiver.kernel.org>; Wed, 24 Mar 2021 19:38:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A16F7619CE
-	for <util-linux@archiver.kernel.org>; Tue, 23 Mar 2021 20:08:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1495B619B6
+	for <util-linux@archiver.kernel.org>; Wed, 24 Mar 2021 19:38:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230327AbhCWUHi (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 23 Mar 2021 16:07:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37896 "EHLO
+        id S237780AbhCXTiH (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 24 Mar 2021 15:38:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230247AbhCWUH1 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 23 Mar 2021 16:07:27 -0400
-Received: from mail-qt1-x82f.google.com (mail-qt1-x82f.google.com [IPv6:2607:f8b0:4864:20::82f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05CF3C061574
-        for <util-linux@vger.kernel.org>; Tue, 23 Mar 2021 13:07:27 -0700 (PDT)
-Received: by mail-qt1-x82f.google.com with SMTP id f12so15941181qtq.4
-        for <util-linux@vger.kernel.org>; Tue, 23 Mar 2021 13:07:26 -0700 (PDT)
+        with ESMTP id S237917AbhCXThr (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 24 Mar 2021 15:37:47 -0400
+Received: from mail-ua1-x92f.google.com (mail-ua1-x92f.google.com [IPv6:2607:f8b0:4864:20::92f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BADE3C061763
+        for <util-linux@vger.kernel.org>; Wed, 24 Mar 2021 12:37:46 -0700 (PDT)
+Received: by mail-ua1-x92f.google.com with SMTP id x8so8225833ual.6
+        for <util-linux@vger.kernel.org>; Wed, 24 Mar 2021 12:37:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :content-transfer-encoding;
-        bh=ykYuyDBSWDyuU0SbIgPE3ka9aCFEW22q3LO8siUKOw8=;
-        b=aMDoaZ/DIjhgpLUYjK4j9HUckCIoZTeDh4MHyPcqEjOW8cqo0GC3slp3YPG09Add76
-         yocrJNjEr8L1kwHTfdJgJsPsVtVZkbnSsX/wzTHFYPSqs3RQAZTn+Hnkews3qkYARdVu
-         8QMzOVPjCoK8DR1Ul79ypeY/PxAYIHiZK2N79mS46lMLKS/su0N4fH0g0Lg4iepzQFk4
-         YgWp2DgFJuftgVHaQPmms8IL+dT6QhAaydWWtkg5vmiYJ6BjtZSjtsmGcgeXDnBC9UFv
-         uSndX0HAiD65ZH82sKx0YWDUeMETyoMwKckHZZc5o7VTj7kmXe3LVV9/3wiqjZcRiJAA
-         BZxg==
+        bh=a+TuaT2IQyIb2iL1GEHo+vo5YINZgdTN+fw3jhgpZA8=;
+        b=Caw+ip4bTSSxrXI5TohZHOd8ynzmhAiGpVNgJ9DaWutzdSEw7aSKvGbwoJtFcs59Ra
+         g53qhpNJAdfdOkEMmgBQh0Z3lVIMl2fpuWXLBQi88W+3sqG76r9VT08ZqLI+4h/FYQc2
+         JlNpx47tR8ib9No2NJ9AMJnfuB0hf4Cfn6n0JZ7oQypjKjkCXtS+wcKVeV5/+Ml5XBdO
+         LFpyHe5EteR0BgUo/3PD49DTB1ZcK3aifrxgngxThsdTjvU5knPFZMejQ5/F24hEUdxm
+         VKDohfmX0HRDu5Ut4o/jiOPq4AwJAbT+AJuj4lDVMQLUvZnOxU++MqEnA/uktLgQNvZF
+         IX0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:content-transfer-encoding;
-        bh=ykYuyDBSWDyuU0SbIgPE3ka9aCFEW22q3LO8siUKOw8=;
-        b=jkMsybKuJN2fRpaK+ti7m5/mCAB2+euZtpYqxabKLqH/ntevBq4Q7AtGWvYiJRHhBm
-         opky4QLjncYgcnUTThWK3Q/hnRHDLHcnEjYVWh2EoxYsROHyIdnu9N83E7P8fCbDxRd7
-         9bolf7H/VyT/a8mmKDSp3xl4rSJuH/GAdU6F1D/o0pL6u49urwz1lkQOsJTVFRjz7IZL
-         tEL7yURHmjP+441B63AxkfPdQ+F+Pf1Cy1HqUjgAu+SYSya9up8hzTDnyVRxiq84T9A7
-         YAPGaxQTOPtT0b3gaZA6bAXP5kzsjq7/oa4zn5IIsAUMtgivRFIoC3/9W+BkXJURoILg
-         z/9g==
-X-Gm-Message-State: AOAM530qUyzmY+gVhmorid1t+1gccgzYd7bLyWq31rAWLw7dAu1pHkbE
-        rAneVnuJPVvdwMBq75prlS2lF2gwdFAfHGoYjt95p8cLKx4esw==
-X-Google-Smtp-Source: ABdhPJwrn1BJAhDmmSkY2DvxvYtj+4MxokUCjrISW6z8fFN0Q8LOEERnZicnjaQ4BMbw4nsfynnw5/Ce054IeDpsyUE=
-X-Received: by 2002:ac8:6888:: with SMTP id m8mr23729qtq.71.1616530046170;
- Tue, 23 Mar 2021 13:07:26 -0700 (PDT)
+        bh=a+TuaT2IQyIb2iL1GEHo+vo5YINZgdTN+fw3jhgpZA8=;
+        b=lZGQew+N6ZERPP2+B2/cMEcXsA5Qh/77kNndPoZL3RYbVEM1MWXkYLKl7zpaDsTC6O
+         Ip6T368UOUQ2VsXLl1SOC7Ifoy/gxR9PtiRlDO0vzro/Pd6ybJrCf8JNvdullnnCNjTM
+         rZx7Zxka0H8JxyCXVb8/87bselGm9o9i1MExWZiRt8+QSk7dqqcnKtMaoBsDHrEPYZvz
+         m1yRbKK/PdxGWbXIQ5TyOkLGob33KhgM8uJZ1qB6Z+wax3IDCgDl9nWOMTxEvTvCChxM
+         HXiUZ+BvIN5zUbUB0ER1gaLNmC8EyP5yuRt3ob/XG3hnPB36oQIfEzpZ7oL7ie4fms+p
+         1Uvw==
+X-Gm-Message-State: AOAM530Q7cbyI7IALmWwDbGYU3VLxQ9ZMFwGMVt2c1dDxpVM0BWtSomh
+        kEXWYc+VNi3K1Jr2UGv4VKu32DL9Ohc6cmjZXiz774sV/2c1ZA==
+X-Google-Smtp-Source: ABdhPJwP3gtjrf8GsubqpMrIZ1KaeE1GxCESlII6tZ/vMWA6w4WA6hdq8yNwylofBN0WCQ7AgcU6AJWUHXn7UzRZXks=
+X-Received: by 2002:ab0:6f0e:: with SMTP id r14mr2876958uah.15.1616614665954;
+ Wed, 24 Mar 2021 12:37:45 -0700 (PDT)
 MIME-Version: 1.0
 References: <karelzak/util-linux/issues/1257@github.com> <karelzak/util-linux/issues/1257/792670506@github.com>
  <CAHi0vA-d7EQostbdDMZGmKeNfLYvjUWkuvF01nw-CM9wOkWMow@mail.gmail.com>
  <20210309084908.izmuxsrqujiml6ph@ws.net.home> <CAHi0vA-SAQYJraWb6ZH5bTWcoGdXMKnHj7fVARRzJN_LpPGc9A@mail.gmail.com>
- <CAHi0vA_Nk4GqS=gYCzwqqRoNPQLH2n9BtLozWgwaQ78MsBvVNg@mail.gmail.com> <20210323092705.uaa2oas3ux5s3er7@ws.net.home>
-In-Reply-To: <20210323092705.uaa2oas3ux5s3er7@ws.net.home>
+ <CAHi0vA_Nk4GqS=gYCzwqqRoNPQLH2n9BtLozWgwaQ78MsBvVNg@mail.gmail.com>
+ <20210323092705.uaa2oas3ux5s3er7@ws.net.home> <CAHi0vA_FL744Lap_GqkrhPPf_wK0BW2Ed_R2FVwQ+L_A4AJdHg@mail.gmail.com>
+In-Reply-To: <CAHi0vA_FL744Lap_GqkrhPPf_wK0BW2Ed_R2FVwQ+L_A4AJdHg@mail.gmail.com>
 From:   =?UTF-8?Q?Mario_Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
-Date:   Tue, 23 Mar 2021 21:07:15 +0100
-Message-ID: <CAHi0vA_FL744Lap_GqkrhPPf_wK0BW2Ed_R2FVwQ+L_A4AJdHg@mail.gmail.com>
+Date:   Wed, 24 Mar 2021 20:37:35 +0100
+Message-ID: <CAHi0vA-OcifUioLiUXSg9UmaMNUzfLhwg+tfm0hFnXYipOq0DQ@mail.gmail.com>
 Subject: Re: Help needed with man page conversions to asciidoc?
 To:     util-linux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -71,72 +71,41 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Hello Karel,
 
-Am Di., 23. M=C3=A4rz 2021 um 10:27 Uhr schrieb Karel Zak <kzak@redhat.com>=
-:
+Am Di., 23. M=C3=A4rz 2021 um 21:07 Uhr schrieb Mario Bl=C3=A4ttermann
+<mario.blaettermann@gmail.com>:
 >
-> On Sat, Mar 20, 2021 at 06:46:24PM +0100, Mario Bl=C3=A4ttermann wrote:
-> > Just found another problem: After applying the Makefile patches [1]
-> > and running "autogen.sh" and "configure", the command =C2=BBmake gen-ma=
-n=C2=AB
-> > fails:
-> >
-> > [mariob@t450 util-linux-mariobl]$ make gen-man
-> > Makefile:15938: warning: overriding recipe for target 'misc-utils/uuidd=
-.8'
-> > Makefile:15927: warning: ignoring old recipe for target 'misc-utils/uui=
-dd.8'
-> > Makefile:15938: warning: overriding recipe for target 'misc-utils/getop=
-t.1'
-> > Makefile:15927: warning: ignoring old recipe for target 'misc-utils/get=
-opt.1'
-> >  GEN      lib/terminal-colors.d.5
-> > /bin/sh: line 3: lib/terminal-colors.d.5.adoc: Permission denied
-> > make: *** [Makefile:15940: lib/terminal-colors.d.5] Error 126
+> [...]
+> It works until it reaches the first man page link:
 >
-> It sounds like $asciidoc_man_cmd is empty. This is my mistake.
+>   GEN      lib/terminal-colors.d.5
+>  GEN      libuuid/man/uuid.3
+>  GEN      libuuid/man/uuid_clear.3
+>  GEN      libuuid/man/uuid_compare.3
+>  GEN      libuuid/man/uuid_copy.3
+>  GEN      libuuid/man/uuid_generate.3
+>  GEN      libuuid/man/uuid_is_null.3
+>  GEN      libuuid/man/uuid_parse.3
+>  GEN      libuuid/man/uuid_time.3
+>  GEN      libuuid/man/uuid_unparse.3
+>  GEN      libuuid/man/uuid_generate_random.3
+> asciidoctor: FAILED: input file ./libuuid/man/uuid_generate_random.3.adoc=
+ is mis
+> sing
 >
-> > [1] https://github.com/mariobl/util-linux/commit/34455501de74c405b56daa=
-438ee3e839e92fbc17
+> BTW, it also produces HTML versions of the man pages, which are not in
+> .gitignore. Is it intended to also install HTML versions?
 >
-> You also need to define $ASCIIDOCTOR variable in ./configure.ac.
-> Please add the patch below. I have probably forgot it in my
-> suggestion.
->
->  Karel
->
->
-> diff --git a/configure.ac b/configure.ac
-> index 7f59604bd..946222676 100644
-> --- a/configure.ac
-> +++ b/configure.ac
-> @@ -232,6 +232,7 @@ PKG_INSTALLDIR(['${usrlib_execdir}/pkgconfig'])
->
->  GTK_DOC_CHECK([1.10])
->  AC_PATH_PROG([XSLTPROC], [xsltproc])
-> +AC_PATH_PROG([ASCIIDOCTOR], [asciidoctor])
->
->  linux_os=3Dno
->  bsd_os=3Dno
->
-It works until it reaches the first man page link:
+I found the problem, at least partially. A backslash was missing in
+Makefile.am, and now "make gen-man" creates *roff man pages, as
+expected. However, it stops here:
 
-  GEN      lib/terminal-colors.d.5
- GEN      libuuid/man/uuid.3
- GEN      libuuid/man/uuid_clear.3
- GEN      libuuid/man/uuid_compare.3
- GEN      libuuid/man/uuid_copy.3
- GEN      libuuid/man/uuid_generate.3
- GEN      libuuid/man/uuid_is_null.3
- GEN      libuuid/man/uuid_parse.3
- GEN      libuuid/man/uuid_time.3
- GEN      libuuid/man/uuid_unparse.3
- GEN      libuuid/man/uuid_generate_random.3
-asciidoctor: FAILED: input file ./libuuid/man/uuid_generate_random.3.adoc i=
-s mis
-sing
+  GEN      sys-utils/swapoff.8
+asciidoctor: FAILED: input file ./sys-utils/swapoff.8.adoc is missing
+make: *** [Makefile:15942: sys-utils/swapoff.8] Fehler 1
 
-BTW, it also produces HTML versions of the man pages, which are not in
-.gitignore. Is it intended to also install HTML versions?
+But I'm wondering why it doesn't complain about the other symlinks in
+libuuid etc, and it didn't stop until the sys-utils directory has been
+reached.
 
 Best Regards,
 Mario
