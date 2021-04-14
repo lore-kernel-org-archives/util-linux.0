@@ -2,122 +2,182 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20717C43461
-	for <util-linux@archiver.kernel.org>; Wed, 14 Apr 2021 13:31:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 957C2C43461
+	for <util-linux@archiver.kernel.org>; Wed, 14 Apr 2021 13:47:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F27AF60238
-	for <util-linux@archiver.kernel.org>; Wed, 14 Apr 2021 13:31:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 74CE261164
+	for <util-linux@archiver.kernel.org>; Wed, 14 Apr 2021 13:47:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351369AbhDNNbd (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 14 Apr 2021 09:31:33 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:54569 "EHLO
+        id S1349177AbhDNNrs (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 14 Apr 2021 09:47:48 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:51374 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1348130AbhDNNbd (ORCPT
+        by vger.kernel.org with ESMTP id S1351667AbhDNNrj (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Wed, 14 Apr 2021 09:31:33 -0400
+        Wed, 14 Apr 2021 09:47:39 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1618407071;
+        s=mimecast20190719; t=1618408037;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=eltSsqO9F1rIMDJywSOli16tHNGkO5mxD8btKqOAj+Y=;
-        b=FEZ4QjqRZYaDtsPdCfJjPcXya5ghEVKSYSWN8EqaL8gO33/Ey8NEvsL3aqZS/Pzi41aIsB
-        bjjLboNC1bEPdpMLwn05ZDBjJuHHuChO31aKhs29N4bDK1rPsN5qQEt6KOzUPP/3rcpTBd
-        a3q1rhBv7xYtuVCzoVL52RGr+jyAG9A=
+        bh=Vly4fVsN/ApQHSxB7cavfNOOII6EXPsT0w7OXdtQmRs=;
+        b=XUEEtApqCoLrJXtRLb4C11Q/EP2BjJJDgdRt9+VTIuH7A1AAp254nMdX+93TEtm6gjsGjT
+        xCdFImKCbLE32ds94wNN5ZRedGeWZnbOiLoIsIAqpt9mZYLXYUzuU7cMn4hAqU3AXnskdg
+        v2xXvC/Hb2OVHDXiJbh+Gyfbof30uRM=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-388-VmlUsjDkPiOgY1VzHUfqmQ-1; Wed, 14 Apr 2021 09:31:06 -0400
-X-MC-Unique: VmlUsjDkPiOgY1VzHUfqmQ-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+ us-mta-291-AQy3CV6uPM6qH0uR93a6Yg-1; Wed, 14 Apr 2021 09:47:13 -0400
+X-MC-Unique: AQy3CV6uPM6qH0uR93a6Yg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2ABF5188E3C9;
-        Wed, 14 Apr 2021 13:31:05 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 359CF8030BB;
+        Wed, 14 Apr 2021 13:47:12 +0000 (UTC)
 Received: from ws.net.home (ovpn-115-34.ams2.redhat.com [10.36.115.34])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id CEC9C19C78;
-        Wed, 14 Apr 2021 13:31:03 +0000 (UTC)
-Date:   Wed, 14 Apr 2021 15:31:01 +0200
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id DE1D55C1B4;
+        Wed, 14 Apr 2021 13:47:10 +0000 (UTC)
+Date:   Wed, 14 Apr 2021 15:47:08 +0200
 From:   Karel Zak <kzak@redhat.com>
 To:     Naohiro Aota <naohiro.aota@wdc.com>
 Cc:     util-linux@vger.kernel.org, linux-btrfs@vger.kernel.org,
         linux-fsdevel@vger.kernel.org,
         Damien Le Moal <damien.lemoal@wdc.com>,
         Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Subject: Re: [PATCH v2 1/3] blkid: implement zone-aware probing
-Message-ID: <20210414133101.p5amev6tkfroiyw5@ws.net.home>
+Subject: Re: [PATCH v2 2/3] blkid: add magic and probing for zoned btrfs
+Message-ID: <20210414134708.t475gnqa7bor7bc6@ws.net.home>
 References: <20210414013339.2936229-1-naohiro.aota@wdc.com>
- <20210414013339.2936229-2-naohiro.aota@wdc.com>
+ <20210414013339.2936229-3-naohiro.aota@wdc.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210414013339.2936229-2-naohiro.aota@wdc.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+In-Reply-To: <20210414013339.2936229-3-naohiro.aota@wdc.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, Apr 14, 2021 at 10:33:37AM +0900, Naohiro Aota wrote:
-> --- a/configure.ac
-> +++ b/configure.ac
-> @@ -302,6 +302,7 @@ AC_CHECK_HEADERS([ \
->  	lastlog.h \
->  	libutil.h \
->  	linux/btrfs.h \
-> +	linux/blkzoned.h \
+On Wed, Apr 14, 2021 at 10:33:38AM +0900, Naohiro Aota wrote:
+> +#define ASSERT(x) assert(x)
 
-unnecessary, there is already AC_CHECK_HEADERS([linux/blkzoned.h]) on
-another place.
+Really? ;-)
 
->  	linux/capability.h \
->  	linux/cdrom.h \
->  	linux/falloc.h \
-> diff --git a/libblkid/src/blkidP.h b/libblkid/src/blkidP.h
-> index a3fe6748a969..e3a160aa97c0 100644
-> --- a/libblkid/src/blkidP.h
-> +++ b/libblkid/src/blkidP.h
-> @@ -150,6 +150,10 @@ struct blkid_idmag
->  	const char	*hoff;		/* hint which contains byte offset to kboff */
->  	long		kboff;		/* kilobyte offset of superblock */
->  	unsigned int	sboff;		/* byte offset within superblock */
+> +typedef uint64_t u64;
+> +typedef uint64_t sector_t;
+> +typedef uint8_t u8;
+
+I do not see a reason for u64 and u8 here.
+
 > +
-> +	int		is_zoned;	/* indicate magic location is calcluated based on zone position  */
-> +	long		zonenum;	/* zone number which has superblock */
-> +	long		kboff_inzone;	/* kilobyte offset of superblock in a zone */
-
-It would be better to use 'flags' struct field and
-
-  #define BLKID_FL_ZONED_DEV (1 << 6)
-
-like we use for another stuff.
-
-> diff --git a/libblkid/src/probe.c b/libblkid/src/probe.c
-> index a47a8720d4ac..9d180aab5242 100644
-> --- a/libblkid/src/probe.c
-> +++ b/libblkid/src/probe.c
-> @@ -94,6 +94,9 @@
->  #ifdef HAVE_LINUX_CDROM_H
->  #include <linux/cdrom.h>
->  #endif
 > +#ifdef HAVE_LINUX_BLKZONED_H
-> +#include <linux/blkzoned.h>
-> +#endif
->  #ifdef HAVE_SYS_STAT_H
->  #include <sys/stat.h>
->  #endif
-> @@ -897,6 +900,7 @@ int blkid_probe_set_device(blkid_probe pr, int fd,
->  	pr->wipe_off = 0;
->  	pr->wipe_size = 0;
->  	pr->wipe_chain = NULL;
-> +	pr->zone_size = 0;
+> +static int sb_write_pointer(int fd, struct blk_zone *zones, u64 *wp_ret)
+> +{
+> +	bool empty[BTRFS_NR_SB_LOG_ZONES];
+> +	bool full[BTRFS_NR_SB_LOG_ZONES];
+> +	sector_t sector;
+> +
+> +	ASSERT(zones[0].type != BLK_ZONE_TYPE_CONVENTIONAL &&
+> +	       zones[1].type != BLK_ZONE_TYPE_CONVENTIONAL);
 
-you also need to update blkid_clone_probe() function
+assert()
 
-  Karel
+ ...
+> +		for (i = 0; i < BTRFS_NR_SB_LOG_ZONES; i++) {
+> +			u64 bytenr;
+> +
+> +			bytenr = ((zones[i].start + zones[i].len)
+> +				   << SECTOR_SHIFT) - BTRFS_SUPER_INFO_SIZE;
+> +
+> +			ret = pread64(fd, buf[i], BTRFS_SUPER_INFO_SIZE,
+> +				      bytenr);
+
+ please, use  
+
+     ptr = blkid_probe_get_buffer(pr, BTRFS_SUPER_INFO_SIZE, bytenr);
+
+ the library will care about the buffer and reuse it. It's also
+ important to keep blkid_do_wipe() usable.
+
+> +			if (ret != BTRFS_SUPER_INFO_SIZE)
+> +				return -EIO;
+> +			super[i] = (struct btrfs_super_block *)&buf[i];
+
+  super[i] = (struct btrfs_super_block *) ptr;
+
+> +		}
+> +
+> +		if (super[0]->generation > super[1]->generation)
+> +			sector = zones[1].start;
+> +		else
+> +			sector = zones[0].start;
+> +	} else if (!full[0] && (empty[1] || full[1])) {
+> +		sector = zones[0].wp;
+> +	} else if (full[0]) {
+> +		sector = zones[1].wp;
+> +	} else {
+> +		return -EUCLEAN;
+> +	}
+> +	*wp_ret = sector << SECTOR_SHIFT;
+> +	return 0;
+> +}
+> +
+> +static int sb_log_offset(blkid_probe pr, uint64_t *bytenr_ret)
+> +{
+> +	uint32_t zone_num = 0;
+> +	uint32_t zone_size_sector;
+> +	struct blk_zone_report *rep;
+> +	struct blk_zone *zones;
+> +	size_t rep_size;
+> +	int ret;
+> +	uint64_t wp;
+> +
+> +	zone_size_sector = pr->zone_size >> SECTOR_SHIFT;
+> +
+> +	rep_size = sizeof(struct blk_zone_report) + sizeof(struct blk_zone) * 2;
+> +	rep = malloc(rep_size);
+> +	if (!rep)
+> +		return -errno;
+> +
+> +	memset(rep, 0, rep_size);
+> +	rep->sector = zone_num * zone_size_sector;
+> +	rep->nr_zones = 2;
+
+what about to add to lib/blkdev.c a new function:
+
+   struct blk_zone_report *blkdev_get_zonereport(int fd, uint64 sector, int nzones);
+
+and call this function from your sb_log_offset() as well as from blkid_do_wipe()?
+
+Anyway, calloc() is better than malloc()+memset().
+
+> +	if (zones[0].type == BLK_ZONE_TYPE_CONVENTIONAL) {
+> +		*bytenr_ret = zones[0].start << SECTOR_SHIFT;
+> +		ret = 0;
+> +		goto out;
+> +	} else if (zones[1].type == BLK_ZONE_TYPE_CONVENTIONAL) {
+> +		*bytenr_ret = zones[1].start << SECTOR_SHIFT;
+> +		ret = 0;
+> +		goto out;
+> +	}
+
+what about:
+
+ for (i = 0; i < BTRFS_NR_SB_LOG_ZONES; i++) {
+   if (zones[i].type == BLK_ZONE_TYPE_CONVENTIONAL) {
+      *bytenr_ret = zones[i].start << SECTOR_SHIFT;
+      ret = 0;
+      goto out;
+   }
+ }
+
+
+
+
+ Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
