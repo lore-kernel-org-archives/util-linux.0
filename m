@@ -2,193 +2,86 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A29C5C433ED
-	for <util-linux@archiver.kernel.org>; Mon, 26 Apr 2021 05:51:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CF18C433B4
+	for <util-linux@archiver.kernel.org>; Wed, 28 Apr 2021 11:36:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7E944611ED
-	for <util-linux@archiver.kernel.org>; Mon, 26 Apr 2021 05:51:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EB969613E7
+	for <util-linux@archiver.kernel.org>; Wed, 28 Apr 2021 11:36:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231878AbhDZFvv (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 26 Apr 2021 01:51:51 -0400
-Received: from esa3.hgst.iphmx.com ([216.71.153.141]:39184 "EHLO
-        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231875AbhDZFvs (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 26 Apr 2021 01:51:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1619416267; x=1650952267;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=VYQfDU+zPAANjwyhI4RM7sIHVe4r8Av/Xgfkn9XRd+s=;
-  b=czLMoVHdj+Ns/N5lZi2tdFFq4odY5LlGfMKHC30U+SFvveuUIZpz+yMS
-   64c3NW3w/XFQNRd5hBzyXdLe/tfXvkSYKPTNeID63oMKBNL92NF6vkAcF
-   y5Hc4lX/oy1wu/ZgGAejT7YWrB5uUEd6ydgVpU1oBh1dTVd3YLo1ECVSm
-   kOR2HIxf61Ccq+hcmgBRoa/sGkP6ei0bCWBl6gBQNTZqd2V2X8UpD9dRE
-   TTbNShkRkexjyJ0RoomdE+uiB7wl4ppMB0PttFIPmFSoKe76Za8kD/MgZ
-   adOrvWSr5LYrpHNSdItuCMSfeZozs+hZxs6NhChREF6d1nAaL7C/PjYei
-   Q==;
-IronPort-SDR: DMaIjvf5qx0H0xobea+piT+sxWYV4Qp1wlWVRlanVodYEEIVbU9WxYJGY8BQd7wHsvOpRqevDK
- C/XyJcB1z2NdzgcUxsP9xMehXLyp8DCMr7BDp7yJ4S4Cn8EJjx40kGOYQ/Pqm6CDxg/NRQjFKM
- xMitD18UVnZCJgk6lp3J1KnSdANJdh46Z+z4dGb2O01Jj5SuPFo/vjZljX3HgeHrmtOQ7fA4HN
- dCn2X94tnW+gAn6DPaOTeE2WhyAon5T+4Zl74hWzc3dlgaoUBAlJLTZ5+rD4JLDh3bE8AH74eG
- b8c=
-X-IronPort-AV: E=Sophos;i="5.82,251,1613404800"; 
-   d="scan'208";a="170785783"
-Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 26 Apr 2021 13:51:07 +0800
-IronPort-SDR: 0E7fmmtZi7fxl3BHTsdKq5taFAfQY0tmQpaWDptfOQviL5VfozDSsvSImOcs8QqV0flX1czrbO
- +oUHcNU4qYI5b93XLyd3P+s2LRRgLRATRuQVJQRx63hoyOjr+xvjc2x4Rbu6NQGSSn19bKUYpE
- 4cwGABx915kRT6LTDTeVZeWj8ak2LNci95Du3QywAtZyh5UNVdb0+HBpJeRrJW5Q8bLAsyf5rW
- 2leQi8mGi+vQSe8AdHLJomOUkShdoci87UV5uYdZaDjvjYsjGdJPOm1chkeSVbbHOM2msDq/fY
- l9johy7HryjUKVH6fbL+970x
-Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Apr 2021 22:30:03 -0700
-IronPort-SDR: HnxbbFM5IfW8t3+R9ZmRgetSw6AILt/dfl1A4ovLZTzVGM0Jw8E/bjbYawv2z24kmDxQpipWbq
- G0BI6VSOjb2QUlcN8/j4TyRaPp5SmWZrKWq+WLvqJsMhykdwr+9bCBA5XT0X+AJoizvJVUe5N7
- ZlCmGUTXHqdZxtYJAR1dVU/DxAUVhVmcMM0EpPZguRLwtGaU7H4xFuEyWv6ig+5W5zxxLKPXht
- nCQmDSyAUgO7kc6fyY/u3YcbLxaVVbpgv6vYqlbZp7Cu2A3dW1UqePlJytgu269cimREUg0Wzz
- IvA=
-WDCIronportException: Internal
-Received: from bgy2573.ad.shared (HELO naota-xeon.wdc.com) ([10.225.48.58])
-  by uls-op-cesaip01.wdc.com with ESMTP; 25 Apr 2021 22:51:07 -0700
-From:   Naohiro Aota <naohiro.aota@wdc.com>
-To:     Karel Zak <kzak@redhat.com>
+        id S239098AbhD1LhV (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 28 Apr 2021 07:37:21 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:58809 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232607AbhD1LhV (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Wed, 28 Apr 2021 07:37:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1619609796;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=b7aKoQR+eie4eZGaFpJxqc5kuUv3lh07wOx/sg0Ymk8=;
+        b=avjK+PLlMqwdpcy3Nudtry50GtArMyjGJnmPoMgJTtOo9uJ0bOHVmkWmWxdLraxwAcbKIi
+        pCj54WjfFYeAx+XVTSnIWkoAQKDHV4Z3yjCYhGyFKzmrGV2r7m3VVSncu03NAqjhfwJiY7
+        frBeq1FVjD4dBuPnyxA7JkWMM5C/5BM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-96-kil4ggLvPT-19GCcfTYulw-1; Wed, 28 Apr 2021 07:36:31 -0400
+X-MC-Unique: kil4ggLvPT-19GCcfTYulw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8C5691936B83;
+        Wed, 28 Apr 2021 11:36:30 +0000 (UTC)
+Received: from ws.net.home (ovpn-115-34.ams2.redhat.com [10.36.115.34])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 134005DF26;
+        Wed, 28 Apr 2021 11:36:28 +0000 (UTC)
+Date:   Wed, 28 Apr 2021 13:36:26 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Naohiro Aota <naohiro.aota@wdc.com>
 Cc:     util-linux@vger.kernel.org, linux-btrfs@vger.kernel.org,
         linux-fsdevel@vger.kernel.org,
         Damien Le Moal <damien.lemoal@wdc.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Naohiro Aota <naohiro.aota@wdc.com>
-Subject: [PATCH v3 3/3] blkid: support zone reset for wipefs
-Date:   Mon, 26 Apr 2021 14:50:36 +0900
-Message-Id: <20210426055036.2103620-4-naohiro.aota@wdc.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426055036.2103620-1-naohiro.aota@wdc.com>
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Subject: Re: [PATCH v3 0/3] implement zone-aware probing/wiping for zoned
+ btrfs
+Message-ID: <20210428113626.lq3hy5qci5bwnyru@ws.net.home>
 References: <20210426055036.2103620-1-naohiro.aota@wdc.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210426055036.2103620-1-naohiro.aota@wdc.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-We cannot overwrite superblock magic in a sequential required zone. So,
-wipefs cannot work as it is. Instead, this commit implements the wiping by
-zone resetting.
+On Mon, Apr 26, 2021 at 02:50:33PM +0900, Naohiro Aota wrote:
+> Naohiro Aota (3):
+>   blkid: implement zone-aware probing
+>   blkid: add magic and probing for zoned btrfs
+>   blkid: support zone reset for wipefs
+> 
+>  include/blkdev.h                 |   9 ++
+>  lib/blkdev.c                     |  29 ++++++
+>  libblkid/src/blkidP.h            |   5 +
+>  libblkid/src/probe.c             |  99 +++++++++++++++++--
+>  libblkid/src/superblocks/btrfs.c | 159 ++++++++++++++++++++++++++++++-
+>  5 files changed, 292 insertions(+), 9 deletions(-)
 
-Zone resetting must be done only for a sequential write zone. This is
-checked by is_conventional().
+Merged to the "next" branch (on github) and it will be merged to the
+"master" later after v2.37 release. 
 
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
----
- libblkid/src/probe.c | 69 ++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 63 insertions(+), 6 deletions(-)
+Thanks! (and extra thank for the examples :-)
 
-diff --git a/libblkid/src/probe.c b/libblkid/src/probe.c
-index 219cceea0f94..d4ca47c6dbed 100644
---- a/libblkid/src/probe.c
-+++ b/libblkid/src/probe.c
-@@ -1229,6 +1229,39 @@ int blkid_do_probe(blkid_probe pr)
- 	return rc;
- }
- 
-+#ifdef HAVE_LINUX_BLKZONED_H
-+static int is_conventional(blkid_probe pr, uint64_t offset)
-+{
-+	struct blk_zone_report *rep = NULL;
-+	int ret;
-+	uint64_t zone_mask;
-+
-+	if (!pr->zone_size)
-+		return 1;
-+
-+	zone_mask = ~(pr->zone_size - 1);
-+	rep = blkdev_get_zonereport(blkid_probe_get_fd(pr),
-+				    (offset & zone_mask) >> 9, 1);
-+	if (!rep)
-+		return -1;
-+
-+	if (rep->zones[0].type == BLK_ZONE_TYPE_CONVENTIONAL)
-+		ret = 1;
-+	else
-+		ret = 0;
-+
-+	free(rep);
-+
-+	return ret;
-+}
-+#else
-+static inline int is_conventional(blkid_probe pr __attribute__((__unused__)),
-+				  uint64_t offset __attribute__((__unused__)))
-+{
-+	return 1;
-+}
-+#endif
-+
- /**
-  * blkid_do_wipe:
-  * @pr: prober
-@@ -1268,6 +1301,7 @@ int blkid_do_wipe(blkid_probe pr, int dryrun)
- 	const char *off = NULL;
- 	size_t len = 0;
- 	uint64_t offset, magoff;
-+	int conventional;
- 	char buf[BUFSIZ];
- 	int fd, rc = 0;
- 	struct blkid_chain *chn;
-@@ -1303,6 +1337,11 @@ int blkid_do_wipe(blkid_probe pr, int dryrun)
- 	if (len > sizeof(buf))
- 		len = sizeof(buf);
- 
-+	rc = is_conventional(pr, offset);
-+	if (rc < 0)
-+		return rc;
-+	conventional = rc == 1;
-+
- 	DBG(LOWPROBE, ul_debug(
- 	    "do_wipe [offset=0x%"PRIx64" (%"PRIu64"), len=%zu, chain=%s, idx=%d, dryrun=%s]\n",
- 	    offset, offset, len, chn->driver->name, chn->idx, dryrun ? "yes" : "not"));
-@@ -1310,13 +1349,31 @@ int blkid_do_wipe(blkid_probe pr, int dryrun)
- 	if (lseek(fd, offset, SEEK_SET) == (off_t) -1)
- 		return -1;
- 
--	memset(buf, 0, len);
--
- 	if (!dryrun && len) {
--		/* wipen on device */
--		if (write_all(fd, buf, len))
--			return -1;
--		fsync(fd);
-+		if (conventional) {
-+			memset(buf, 0, len);
-+
-+			/* wipen on device */
-+			if (write_all(fd, buf, len))
-+				return -1;
-+			fsync(fd);
-+		} else {
-+#ifdef HAVE_LINUX_BLKZONED_H
-+			uint64_t zone_mask = ~(pr->zone_size - 1);
-+			struct blk_zone_range range = {
-+				.sector = (offset & zone_mask) >> 9,
-+				.nr_sectors = pr->zone_size >> 9,
-+			};
-+
-+			rc = ioctl(fd, BLKRESETZONE, &range);
-+			if (rc < 0)
-+				return -1;
-+#else
-+			/* Should not reach here */
-+			assert(0);
-+#endif
-+		}
-+
- 		pr->flags &= ~BLKID_FL_MODIF_BUFF;	/* be paranoid */
- 
- 		return blkid_probe_step_back(pr);
+  Karel
+
 -- 
-2.31.1
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
