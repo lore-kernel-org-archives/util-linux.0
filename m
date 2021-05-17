@@ -2,81 +2,93 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B4E6C433ED
-	for <util-linux@archiver.kernel.org>; Mon, 10 May 2021 14:51:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 108E3C43460
+	for <util-linux@archiver.kernel.org>; Mon, 17 May 2021 15:00:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3105C61285
-	for <util-linux@archiver.kernel.org>; Mon, 10 May 2021 14:51:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E946C60BBB
+	for <util-linux@archiver.kernel.org>; Mon, 17 May 2021 15:00:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240099AbhEJOwz (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 10 May 2021 10:52:55 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:26553 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235783AbhEJOwX (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Mon, 10 May 2021 10:52:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1620658278;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=gFbfnU2qIW6o4DQl/Mb0Vabk6JyZRfX3G7NzyX/Ok1w=;
-        b=WvKR12mHlnpJe0aA1wnpMl69KiGh+EdZjf1XYtzf5D7xz23ElpeGzi3YE79ElV0hDFBPHA
-        mN1Dp/SsCAWjnt1nYmu5ZRiBcLPy7wRAf/tPtlcgCZWQwOM9G9oZmPaXfJmaMTSQMvaKGG
-        ta3hnhyK4v2Q5mJL6ETFhh70NecteDI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-172-IhMPtqfCPPq3BboaWx_Zzw-1; Mon, 10 May 2021 10:51:16 -0400
-X-MC-Unique: IhMPtqfCPPq3BboaWx_Zzw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 399CF801B15;
-        Mon, 10 May 2021 14:51:15 +0000 (UTC)
-Received: from ws.net.home (ovpn-115-34.ams2.redhat.com [10.36.115.34])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 86A5F2DAD6;
-        Mon, 10 May 2021 14:51:14 +0000 (UTC)
-Date:   Mon, 10 May 2021 16:51:11 +0200
-From:   Karel Zak <kzak@redhat.com>
+        id S240747AbhEQPBt (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 17 May 2021 11:01:49 -0400
+Received: from mx2.suse.de ([195.135.220.15]:44168 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S242511AbhEQO7p (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Mon, 17 May 2021 10:59:45 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id EF24EACF6
+        for <util-linux@vger.kernel.org>; Mon, 17 May 2021 14:58:27 +0000 (UTC)
+Date:   Mon, 17 May 2021 16:58:25 +0200
+From:   "Dr. Werner Fink" <werner@suse.de>
 To:     util-linux@vger.kernel.org
-Cc:     Werner Fink <werner@suse.de>
 Subject: Re: [PATCH] sulogin: ignore not existing console devices
-Message-ID: <20210510145111.x5ap5raymlfoewi5@ws.net.home>
+Message-ID: <YKKEkSc/ryc56IJu@boole.suse.de>
+Mail-Followup-To: util-linux@vger.kernel.org
 References: <YJPK1JUPtKTuMJ1J@boole.suse.de>
+ <20210510145111.x5ap5raymlfoewi5@ws.net.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="YMjZszw4p7eZbbMX"
 Content-Disposition: inline
-In-Reply-To: <YJPK1JUPtKTuMJ1J@boole.suse.de>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+In-Reply-To: <20210510145111.x5ap5raymlfoewi5@ws.net.home>
+X-GPG-Fingerprint: 1B06 BF5A 3829 90FB CBA2  75BE 50E9 0D55 1DC1 6B2E
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Thu, May 06, 2021 at 12:54:12PM +0200, Werner Fink wrote:
->  login-utils/sulogin-consoles.h |  1 +
->  login-utils/sulogin.c          | 97 +++++++++++++++++++++++++++++++++++-------
->  2 files changed, 82 insertions(+), 16 deletions(-)
 
-Seems good, but git does not like the patch from your e-mail:
+--YMjZszw4p7eZbbMX
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-        Applying: sulogin: ignore not existing console devices
-        .git/rebase-apply/patch:49: space before tab in indent.
-                    con->flags |= CON_SERIAL;
-        error: patch failed: login-utils/sulogin.c:775
-        error: login-utils/sulogin.c: patch does not apply
-        Patch failed at 0001 sulogin: ignore not existing console devices
+On 2021/05/10 16:51:11 +0200, Karel Zak wrote:
+> On Thu, May 06, 2021 at 12:54:12PM +0200, Werner Fink wrote:
+> >  login-utils/sulogin-consoles.h |  1 +
+> >  login-utils/sulogin.c          | 97 ++++++++++++++++++++++++++++++++++=
++-------
+> >  2 files changed, 82 insertions(+), 16 deletions(-)
+>=20
+> Seems good, but git does not like the patch from your e-mail:
+>=20
+>         Applying: sulogin: ignore not existing console devices
+>         .git/rebase-apply/patch:49: space before tab in indent.
+>                     con->flags |=3D CON_SERIAL;
+>         error: patch failed: login-utils/sulogin.c:775
+>         error: login-utils/sulogin.c: patch does not apply
+>         Patch failed at 0001 sulogin: ignore not existing console devices
 
+Thanks for spotting! ... looks like I've missed the a/b prefixes
 
-    Karel
+Werner
 
+--=20
+  "Having a smoking section in a restaurant is like having
+          a peeing section in a swimming pool." -- Edward Burr
 
+--YMjZszw4p7eZbbMX
+Content-Type: application/pgp-signature; name="signature.asc"
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+-----BEGIN PGP SIGNATURE-----
 
+iQJgBAABCABKFiEEGwa/WjgpkPvLonW+UOkNVR3Bay4FAmCihI0sFIAAAAAAFQAO
+cGthLWFkZHJlc3NAZ251cGcub3Jnd2VybmVyQHN1c2UuZGUACgkQUOkNVR3Bay4l
+zA//fDGN0hY0bSO+eWuZjfSnKoPJkASvzqD6Wt1f07Ro6ecEtaiI/d9rmUx7Sa+e
+68+u3AsEtNhoQwNVKxG5zHdjbmH/qtyrOrDuVILrqj4vtsi65gqROXhG2ay3K7F8
+LqvxBiSbHcRGrXIBBTCkGSgoj7hGCErrjPFvpYlmI+yR+tyqbgEeJwTW0Z4Qwd0R
+VRR8Qt3vYpnJ1nnrp4E0AyG3AmvGbf8uq/z11lbtLZ8eTtzXcsaSE+JvpvnNAlMJ
+MNRcNh/D7X5fCOC9YRpb+NoMARHNOiKBk9dcw1GplfpgtVlIQn8b8EgyiPB5CH2P
+ZkvU9jlhDNxe2R4JgtWdDz0mKXMCaqKwzV2N6go5DcC0w9wW9SdDJOuGtZb44X0V
+ZWL0EFlSZB3WT4na2TpBmdXejhXb1e78UfP3KoQB7+MF+W5bhn4e8sAeqzAhIZY7
+bMJ8zlIjhqwOdLCvw9NECvs7DW/dlnGlJolQpU1O3wnwb9IFQlfp2Y1C1uUfM/07
+kh/swUxssScUhaxF7rQGsouDe1fjUAUUuLI9BpF3c/nJ+YHfSmDd30nZyIYwFmvs
+6wwlbwOidK5RFRPw3m/In0SC0I+9vSmJiwIfBCzTRJf5ePOn3tBlV8VVx7zFD59v
+ejwGZbjCfcm3v5peB73bhj7xV6YRt+UOrOsPoTuTeMOZOgE=
+=q5EB
+-----END PGP SIGNATURE-----
+
+--YMjZszw4p7eZbbMX--
