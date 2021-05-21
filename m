@@ -2,80 +2,93 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-0.7 required=3.0 tests=BAYES_00,
+	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D67DCC433ED
-	for <util-linux@archiver.kernel.org>; Tue, 18 May 2021 11:00:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38E8EC4707A
+	for <util-linux@archiver.kernel.org>; Fri, 21 May 2021 20:09:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BA6D46008E
-	for <util-linux@archiver.kernel.org>; Tue, 18 May 2021 11:00:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 063BA6101B
+	for <util-linux@archiver.kernel.org>; Fri, 21 May 2021 20:09:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244062AbhERLCP (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 18 May 2021 07:02:15 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:35175 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239147AbhERLCP (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Tue, 18 May 2021 07:02:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1621335657;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=zvcKiBsMszrHBU6C15brZkjmQctu8mEIynN1qpYzsjo=;
-        b=i8/uiK2M1VruT28WWkfC2k0y9wLXJnCrdD32c6KbIHKBEEL0LImT+/h39KpxMZpsnkA2NB
-        QCkbnDXnGugAPmb5DAv8fTuvTE+1nww24YpdwOgkPhMZpKdDXwOjjbbOkXlRKB4rsoLO1l
-        lGKT2lcmTohq6o76qhxPlEStJztV7RQ=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-99-RVXz0dKvNeqIwzivvUpRpA-1; Tue, 18 May 2021 07:00:55 -0400
-X-MC-Unique: RVXz0dKvNeqIwzivvUpRpA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1A3769F937
-        for <util-linux@vger.kernel.org>; Tue, 18 May 2021 11:00:54 +0000 (UTC)
-Received: from ws.net.home (ovpn-115-34.ams2.redhat.com [10.36.115.34])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9505F60657
-        for <util-linux@vger.kernel.org>; Tue, 18 May 2021 11:00:53 +0000 (UTC)
-Date:   Tue, 18 May 2021 13:00:51 +0200
-From:   Karel Zak <kzak@redhat.com>
+        id S230018AbhEUUK1 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 21 May 2021 16:10:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33944 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229555AbhEUUK0 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 21 May 2021 16:10:26 -0400
+X-Greylist: delayed 535 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 21 May 2021 13:09:03 PDT
+Received: from smtp.dkm.cz (smtp.dkm.cz [IPv6:2a02:8301:0:11::39])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51F32C061574
+        for <util-linux@vger.kernel.org>; Fri, 21 May 2021 13:09:03 -0700 (PDT)
+Received: from smtp.dkm.cz (localhost [127.0.0.1])
+        by smtp.dkm.cz (Postfix) with ESMTP id BDC8F234CD
+        for <util-linux@vger.kernel.org>; Fri, 21 May 2021 22:00:01 +0200 (CEST)
+Received: from router.bayer.uni.cx (ip-89-103-167-90.net.upcbroadband.cz [89.103.167.90])
+        by smtp.dkm.cz (Postfix) with ESMTP
+        for <util-linux@vger.kernel.org>; Fri, 21 May 2021 22:00:01 +0200 (CEST)
+Received: from album.bayer.uni.cx (album.bayer.uni.cx [IPv6:2001:470:993c:1:5246:5dff:fe8e:a186])
+        by router.bayer.uni.cx (Postfix) with SMTP id 98397A0F87
+        for <util-linux@vger.kernel.org>; Fri, 21 May 2021 22:00:00 +0200 (CEST)
+Received: by album.bayer.uni.cx (sSMTP sendmail emulation); Fri, 21 May 2021 22:00:00 +0200
+Date:   Fri, 21 May 2021 22:00:00 +0200
+From:   Petr Pisar <petr.pisar@atlas.cz>
 To:     util-linux@vger.kernel.org
-Subject: Re: [PATCH] sulogin: ignore not existing console devices
-Message-ID: <20210518110051.b2gzuuj7nssxywka@ws.net.home>
-References: <YJPK1JUPtKTuMJ1J@boole.suse.de>
- <20210510145111.x5ap5raymlfoewi5@ws.net.home>
- <YKKEkSc/ryc56IJu@boole.suse.de>
- <20210517152528.GA11780@noether>
+Subject: util-linux-2.37-rc2: "%delta:" is not C-format string
+Message-ID: <YKgRQPRRbMUYR2d9@album.bayer.uni.cx>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="orvA/aEI+U364uDd"
 Content-Disposition: inline
-In-Reply-To: <20210517152528.GA11780@noether>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Mon, May 17, 2021 at 05:25:28PM +0200, Dr. Werner Fink wrote:
-> The attached patch is for latest git repository
 
-Thanks, applied to the "next" branch and it will be merged to the
-"master" after v2.37 release.
+--orvA/aEI+U364uDd
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->   "Having a smoking section in a restaurant is like having
->           a peeing section in a swimming pool." -- Edward Burr
+Hello,
 
- +1 ;-)
+when translating util-linux-2.37-rc2, I found that:
 
-    Karel
+#: sys-utils/irq-common.c:482
+#, fuzzy, c-format
+msgid "%delta:"
 
+is mishandled by gettext. Because it is marked as c-format, I cannot transl=
+ated
+it as:
 
+msgstr "%rozd=C3=ADl:"
 
+I think you need to put some hint into the source code so thet xgettext does
+not store c-format flag into a POT file for this message.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+-- Petr
 
+--orvA/aEI+U364uDd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEE4/QvzhVoMKgDWObpT9GuwzZa978FAmCoEUAACgkQT9GuwzZa
+979D/xAAqRhGPPdoKumJ8Un+GeV1TMX6kciMWrQA3W8blt/HDC50hVBOhTyrQSi+
+avDr/uH/e8NgBeMif8W5asPlS+89osL3ngPkrVjG3RkwtAqNe6cYSw53azDq3iQ8
+wZ87R2qeB8Frnmpl6ir0xM6ct93Yy0RYeaElFjL3YxR+3uJsu5cTwygOotcEX9HC
+TQWS/b2ylM/iHCnGN0YOb4pfnxd7WS+hG1p1iisZXDx7b79gl6OU/Y+rG/zGN6v3
+ku3CVwKjoTTHTi9lCgBRJw7J59JLhDvBdbvQQe774XxtFC4F9csdCFaMkXc+X/oF
+GPLbwAENkAXSbjeFRuK2wJ8ZkPzoJ2rcN5L/1IrBhFU2PhIi6QK7D7HjgrvcxpSJ
+Gl1LNV/SztQX0qsO5wBerWUb5PET3leoVslPiuOMy0RmSU7kus+5iOvImg2BQ+ln
+rXYUW/Mn1djQj3U9KUWuMwPFlagUyCeZjEEgKLrCDX14SRzBVp24MwFwyI5ZEfs4
+qTE4RA8TJX4MCgecoUQFQIbhTdD2yRa0xZpsxkAFqXbsWW2X05s+RGV3VwYXadiZ
+Jpi5OJH9yyGrD7GUGjG7Nl/c574BtxE8urcnOJNwtfRJg4cYyBU5Sy2+W+OSNCQn
+PPBMZAyhtWE49Jmi65udnMLJEZALCfPm7/jfQlyrS4verrqJYC0=
+=T3j4
+-----END PGP SIGNATURE-----
+
+--orvA/aEI+U364uDd--
