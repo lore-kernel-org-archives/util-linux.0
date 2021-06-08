@@ -2,77 +2,82 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B788C47082
-	for <util-linux@archiver.kernel.org>; Tue,  8 Jun 2021 17:16:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 057D8C47082
+	for <util-linux@archiver.kernel.org>; Tue,  8 Jun 2021 18:26:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5D39161351
-	for <util-linux@archiver.kernel.org>; Tue,  8 Jun 2021 17:16:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E0E0A61352
+	for <util-linux@archiver.kernel.org>; Tue,  8 Jun 2021 18:26:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231577AbhFHRRz (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 8 Jun 2021 13:17:55 -0400
-Received: from frv72.fwdcdn.com ([212.42.77.72]:58840 "EHLO frv72.fwdcdn.com"
+        id S232700AbhFHS2v (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 8 Jun 2021 14:28:51 -0400
+Received: from foss.arm.com ([217.140.110.172]:37512 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231278AbhFHRRz (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Tue, 8 Jun 2021 13:17:55 -0400
-X-Greylist: delayed 955 seconds by postgrey-1.27 at vger.kernel.org; Tue, 08 Jun 2021 13:17:55 EDT
-Received: from [10.10.17.75] (helo=frv155.fwdcdn.com) by frv72.fwdcdn.com QID:1lqf5D-000JRt-7t/RC:1; Tue, 08 Jun 2021 20:00:07 +0300
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=ukr.net;
-        s=fsm; h=Content-Type:Content-Transfer-Encoding:MIME-Version:References:
-        In-Reply-To:Message-ID:Date:Subject:To:From:Sender:Reply-To:Cc:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=l5G0762gLMdxQphN1gvbZqaQr5OegF+SlyKf7+WQwr0=; b=QHMhsbIee0xTWgvORgKlQLpDaz
-        s5e99i2c5bTkT6q/R5HJ4vecDVC/f1U0VBSgq+pnPyRzloUgIJvcX5PAoEGPZnnqvMoA/f0rUsZpr
-        DYlcs6KnGWXIa3/GtBqi9kAzY2vaRXW5ZNjL51OmBrl/BS1H2kqpuQcx8Y5kv3zfh9VM=;
-Received: from ip-4ffd.proline.net.ua ([93.126.79.253] helo=localhost.localdomain)
-        by frv155.fwdcdn.com with esmtpsa ID 1lqf5A-000N7n-V2
-        for util-linux@vger.kernel.org; Tue, 08 Jun 2021 20:00:05 +0300
-From:   Yuri Chornoivan <yurchor@ukr.net>
-To:     util-linux <util-linux@vger.kernel.org>
-Subject: Re: Translating chsh
-Date:   Tue, 08 Jun 2021 20:00:04 +0300
-Message-ID: <2067176.irdbgypaU6@localhost.localdomain>
-Organization: S.P. Timoshenko Institute of Mechanics
-In-Reply-To: <fd0b3838-845f-91fe-3983-507dea56ec8f@riseup.net>
-References: <fd0b3838-845f-91fe-3983-507dea56ec8f@riseup.net>
+        id S232658AbhFHS2u (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:28:50 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8C6A1D6E;
+        Tue,  8 Jun 2021 11:26:57 -0700 (PDT)
+Received: from e107158-lin.cambridge.arm.com (unknown [10.1.195.57])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1B94C3F694;
+        Tue,  8 Jun 2021 11:26:57 -0700 (PDT)
+Date:   Tue, 8 Jun 2021 19:26:54 +0100
+From:   Qais Yousef <qais.yousef@arm.com>
+To:     Karel Zak <kzak@redhat.com>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: Missing getext dependency in v2.37
+Message-ID: <20210608182654.a2ggwfovdegciwsu@e107158-lin.cambridge.arm.com>
+References: <20210607162249.ez6dtms5xxansg26@e107158-lin.cambridge.arm.com>
+ <20210608145032.6xzlt75thp64gpo6@ws.net.home>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="UTF-8"
-Authentication-Result: IP=93.126.79.253; mail.from=yurchor@ukr.net; dkim=pass; header.d=ukr.net
-X-Ukrnet-Yellow: 0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210608145032.6xzlt75thp64gpo6@ws.net.home>
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-=D0=B2=D1=96=D0=B2=D1=82=D0=BE=D1=80=D0=BE=D0=BA, 8 =D1=87=D0=B5=D1=80=D0=
-=B2=D0=BD=D1=8F 2021 =D1=80. 19:49:08 EEST Porrumentzio =D0=BD=D0=B0=D0=BF=
-=D0=B8=D1=81=D0=B0=D0=BD=D0=BE:
-> Hi, I want to translate chsh, which I suppose is in util-linux package.
-> How are the translation managed? Where should I send the edited files?
->=20
-> The PO(T)s are only in /po and /po-man, from the root of
-> https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/tree/
-> <https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/tree/>,
-> right?
+On 06/08/21 16:50, Karel Zak wrote:
+> On Mon, Jun 07, 2021 at 05:22:49PM +0100, Qais Yousef wrote:
+> > While building v2.37 I hit the following build error
+> > 
+> > 	: --update --no-wrap --previous --lang=ca ca.po util-linux.pot
+> > 	rm -f ca.gmo && : -c --statistics --verbose -o ca.gmo ca.po
+> > 	mv: cannot stat 't-ca.gmo': No such file or directory
+> 
+> The po/ stuff is not required for "make", it's usually necessary for
+> "make distcheck" or so. It seems better to keep (x)gettext binary
+> installation optional for normal purpose.
+> 
+> There is in ./configure output:
+> 
+> checking whether NLS is requested... yes
+> checking for msgfmt... /usr/bin/msgfmt
+> checking for gmsgfmt... /usr/bin/msgfmt
+> checking for xgettext... no
+> checking for msgmerge... /usr/bin/msgmerge
+> 
+> but you're right that it would be nice to have something more verbose.
+> I'll add something to ./autogen.sh.
 
-Hi,
+It was just a bit of a head scratch to figure out what went wrong. Wasn't that
+big of a deal really at the end, but thought it'd be good to get a better clue
+of what went wrong.
 
-util-linux uses the Translation Project for translations:
+> 
+> > Should configure fail when it detects gettext is missing?
+> 
+> There is difference between what we use as developers (from git repo)
+> and what get users by official tarball. The tarball already contains
+> compiled .(g)mo files. I guess, as end-user, you do not need to generate
+> anything in po/.
 
-https://translationproject.org/domain/util-linux.html
+Fair enough.
 
-https://translationproject.org/domain/util-linux-man.html
+Cheers
 
-Hope this helps.
-
-Best regards,
-Yuri
-
-
+--
+Qais Yousef
