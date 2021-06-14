@@ -2,170 +2,119 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE647C2B9F4
-	for <util-linux@archiver.kernel.org>; Mon, 14 Jun 2021 20:46:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CEDEC2B9F4
+	for <util-linux@archiver.kernel.org>; Mon, 14 Jun 2021 21:04:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B2C9561107
-	for <util-linux@archiver.kernel.org>; Mon, 14 Jun 2021 20:46:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E4B5A611C0
+	for <util-linux@archiver.kernel.org>; Mon, 14 Jun 2021 21:04:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234157AbhFNUsH (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 14 Jun 2021 16:48:07 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:41071 "EHLO
+        id S234580AbhFNVGj (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 14 Jun 2021 17:06:39 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:54513 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233151AbhFNUsG (ORCPT
+        by vger.kernel.org with ESMTP id S229771AbhFNVGj (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Mon, 14 Jun 2021 16:48:06 -0400
-X-Greylist: delayed 317 seconds by postgrey-1.27 at vger.kernel.org; Mon, 14 Jun 2021 16:48:06 EDT
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.west.internal (Postfix) with ESMTP id 64A279CD
-        for <util-linux@vger.kernel.org>; Mon, 14 Jun 2021 16:40:43 -0400 (EDT)
+        Mon, 14 Jun 2021 17:06:39 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id BAF50F96
+        for <util-linux@vger.kernel.org>; Mon, 14 Jun 2021 17:04:35 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Mon, 14 Jun 2021 16:40:43 -0400
+  by compute4.internal (MEProxy); Mon, 14 Jun 2021 17:04:35 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=InN/eVwlbW17sYYom
-        jNPvGxmsiO7R+78F1r0gagOmwY=; b=dQwy+VdnIpXZl3PMW0lFX+Nzb6N11qGNu
-        oq3YjcPYOnxaU1Jbh8d9W7o2pNGyoG8IGzu7kb4lb/JPC/S5I2K0nYEqHobViY/v
-        D15b9KueNYZZ1IiCpSPTvCmMCYOjC+W0e3TH8rQDpPzyuelAw5JRz7iBQ1fyBx+K
-        ahxpe/5GJlCr3Zm+VDHDnw9yMvxCp7/ISCJoqjZOpNgBmxG6pk32a35wqWG7ihUR
-        b6UbT8H6NKW+HMoHEF/ErKcq3nbgSj9wCInGe6E7ZudoioUAwo6h5maaide3sqEU
-        DSl1IC+HZtGPTPkBUBT66FMqIn9hXvccd4kDVthg+TQSAw2EWCSMQ==
-X-ME-Sender: <xms:yr7HYLiMzm3BZ9sAbauEAbgHwOKGtROsE8MK5sJmkkwkbW1boVrghA>
-    <xme:yr7HYIBW9eQZNDg9R3DlmZLqZhXXPLGgIxk0au-V9FiRI2ZF1xtwKrmN3a-kpmzkp
-    FB730IL3HYs7Q1b3Q>
-X-ME-Received: <xmr:yr7HYLEsjZ2iQQchsHmWIpdRiPCZdCJInFFwVXTHEyeZW4AcB-6zwX4ur90zRtjMNPC65Fb-kV-jKj6tBYj_zw6_qI4nYg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvhedgudegkecutefuodetggdotefrod
+        messagingengine.com; h=content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=EvxBHr
+        ouymSup32ANsXFlpgGXFQEx1Gh4i6HW6vjmno=; b=JeWR7oZ0/SV0cqIHndtJVh
+        QyfM7Ll97gqan02ujL7rvKUrYHgAxhPsJQZ4SyCi5NE8C5lFlKhBsif4F1GcjqXI
+        scFkAKRQ1yfPjayd41bMtRtMLz1IQF3QxNyfpVwKQH7PWI36/iQds0rguPo7wtyC
+        eOjTjjH7y2s0t5wYaufOCik4YqYobZJe9eb9Z6bU8g/ZBI+VyfdfXUFCKe9pbVGB
+        R7i4pjJj9fW1rlKpGwpykI7o13XjD+aM19ArGldRGrmN+QiVSVIh43Se3knmUrsQ
+        u0ZWDN/XYM0fpO6eDLcfm6Jso8gU+fMCAtR4rfVkR0TBndKij1Ui7Mha1ORMHuTQ
+        ==
+X-ME-Sender: <xms:Y8THYLXoEIx1tXkKA1gcV_3mrDdaQliBctRzD_qWbkKL2DpwBAGLZg>
+    <xme:Y8THYDnPF5m9-LP_bwKmsDuxMT9-MTpaphgF1BglDo5EseW2jiX5SQ7kHyRR5E_Zl
+    Wj4ReE9hCrmI7UnfA>
+X-ME-Received: <xmr:Y8THYHbJPAH17ZUpanFc7HS-iwkgN1oa23jtwaT8B4cVZIwk6TvK4sskvcUd5bscaTQa-rC6xevhqKa2n5KqTseCC0RKhw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvhedgudehfecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertd
-    ertddtnecuhfhrohhmpeetlhihshhsrgcutfhoshhsuceohhhisegrlhihshhsrgdrihhs
-    qeenucggtffrrghtthgvrhhnpeehvdffgffhteeijefgteeftdfghfdvheeuhedvjedugf
-    eggfeljefgleefvefgfeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgr
-    ihhlfhhrohhmpehqhihlihhsshesvghvvgdrqhihlhhishhsrdhnvght
-X-ME-Proxy: <xmx:yr7HYIR5UuGLSCC8uVBwwUgJriLZEdQ44zx1zlnDj70K0VoI1y_Muw>
-    <xmx:yr7HYIwZPsN8o94zHQ50j-aq1KRe1es4j-v1dg30chZRIfW4pQR1NQ>
-    <xmx:yr7HYO5EW2LChugIhmfNl6MfWdRQWCDoLMGqtXuejg5SHPB0_D76XA>
-    <xmx:y77HYFvZnVSrWEGzP2cLCLM6e7xYoLlLeR1pNm7Go29maadYJv7SDuj9u5s>
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhepfffhvffukfhfgggtuggjsehgtd
+    dtredttddvnecuhfhrohhmpeetlhihshhsrgcutfhoshhsuceohhhisegrlhihshhsrgdr
+    ihhsqeenucggtffrrghtthgvrhhnpeeuffegffdtvdffiedttefggfehtdfgudfhfffgte
+    efgfdugeegveffieffudduvdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhep
+    mhgrihhlfhhrohhmpehqhihlihhsshesvghvvgdrqhihlhhishhsrdhnvght
+X-ME-Proxy: <xmx:Y8THYGU3jXUVXI_ipDVzn_xbqW5BsUcN04yJoiZTTDZQpl8DzuV8PA>
+    <xmx:Y8THYFkYRdB-7AdI8QrlzoNtcMgg3BubytfimmI2QJU3JaRIx1ikCA>
+    <xmx:Y8THYDfwPeK0bonxQJdRHvYyaFP9-UEhp7hkowkrZ1f7e1nVcfXjXw>
+    <xmx:Y8THYDRQx0_air-vmyvJYMP1cp3nSfGniy-2mbEPEEc-YCkZ-sN9B70rakI>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA for
- <util-linux@vger.kernel.org>; Mon, 14 Jun 2021 16:40:42 -0400 (EDT)
+ <util-linux@vger.kernel.org>; Mon, 14 Jun 2021 17:04:35 -0400 (EDT)
 Received: by eve.qyliss.net (Postfix, from userid 1000)
-        id 9C42A37; Mon, 14 Jun 2021 20:40:39 +0000 (UTC)
+        id CB8D4EF0; Mon, 14 Jun 2021 21:04:33 +0000 (UTC)
+Date:   Mon, 14 Jun 2021 21:04:33 +0000
 From:   Alyssa Ross <hi@alyssa.is>
 To:     util-linux@vger.kernel.org
-Cc:     Alyssa Ross <hi@alyssa.is>
-Subject: [PATCH] libblkid: match uppercase UUIDs
-Date:   Mon, 14 Jun 2021 20:40:17 +0000
-Message-Id: <20210614204017.49499-1-hi@alyssa.is>
-X-Mailer: git-send-email 2.31.1
+Subject: Re: [PATCH] libblkid: match uppercase UUIDs
+Message-ID: <20210614210433.p62vxkx3cm7ynwbk@eve.qyliss.net>
+References: <20210614204017.49499-1-hi@alyssa.is>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="qwdfjr5ziegmrstt"
+Content-Disposition: inline
+In-Reply-To: <20210614204017.49499-1-hi@alyssa.is>
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-In a script, I wanted to look up the device node for the booted EFI
-partition.  systemd-boot exposes this in an EFI variable but it's
-uppercase, so when I tried to do this, it didn't work:
 
-    findfs "(< /sys/firmware/efi/vars/LoaderDevicePartUUID-4a67b082-0a4c-41cf-b6c7-440)"
+--qwdfjr5ziegmrstt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This was very confusing to me, and I lost some time trying to figure
-out what was wrong before I realised that case of UUIDs was
-significant to findfs.
+On Mon, Jun 14, 2021 at 08:40:17PM +0000, Alyssa Ross wrote:
+> In a script, I wanted to look up the device node for the booted EFI
+> partition.  systemd-boot exposes this in an EFI variable but it's
+> uppercase, so when I tried to do this, it didn't work:
+>
+>     findfs "(< /sys/firmware/efi/vars/LoaderDevicePartUUID-4a67b082-0a4c-41cf-b6c7-440)"
 
-Here, I've made comparisons of UUID and PARTUUID case-insensitive in
-libblkid, which fixes the command above.
+Bogus command here, sorry.  It should have been:
 
-Signed-off-by: Alyssa Ross <hi@alyssa.is>
----
- libblkid/src/evaluate.c | 12 ++++++++++++
- libblkid/src/tag.c      | 22 +++++++++++++++++++---
- 2 files changed, 31 insertions(+), 3 deletions(-)
+    findfs PARTUUID="$(cat /sys/firmware/efi/vars/LoaderDevicePartUUID-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f/data)"
 
-diff --git a/libblkid/src/evaluate.c b/libblkid/src/evaluate.c
-index 710eac956..ceaa63cc7 100644
---- a/libblkid/src/evaluate.c
-+++ b/libblkid/src/evaluate.c
-@@ -135,6 +135,15 @@ int blkid_send_uevent(const char *devname, const char *action)
- 	return rc;
- }
- 
-+static void ascii_downcase(char *s)
-+{
-+	while (*s) {
-+		if ('A' <= *s && *s <= 'Z')
-+			*s += 'a' - 'A';
-+		s++;
-+	}
-+}
-+
- static char *evaluate_by_udev(const char *token, const char *value, int uevent)
- {
- 	char dev[PATH_MAX];
-@@ -163,6 +172,9 @@ static char *evaluate_by_udev(const char *token, const char *value, int uevent)
- 	if (blkid_encode_string(value, &dev[len], sizeof(dev) - len) != 0)
- 		return NULL;
- 
-+	if (!strcmp(token, "UUID") || !strcmp(token, "PARTUUID"))
-+		ascii_downcase(dev);
-+
- 	DBG(EVALUATE, ul_debug("expected udev link: %s", dev));
- 
- 	if (stat(dev, &st))
-diff --git a/libblkid/src/tag.c b/libblkid/src/tag.c
-index 390a64864..ca81c6921 100644
---- a/libblkid/src/tag.c
-+++ b/libblkid/src/tag.c
-@@ -10,10 +10,13 @@
-  * %End-Header%
-  */
- 
--#include <unistd.h>
-+#include <locale.h>
-+#include <stdbool.h>
-+#include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
--#include <stdio.h>
-+#include <strings.h>
-+#include <unistd.h>
- 
- #include "blkidP.h"
- 
-@@ -101,6 +104,19 @@ static blkid_tag blkid_find_head_cache(blkid_cache cache, const char *type)
- 	return head;
- }
- 
-+static bool tag_value_matches(const char *type, const char *expected,
-+			      const char *actual)
-+{
-+	if (!strcmp(type, "UUID") || !strcmp(type, "PARTUUID")) {
-+		locale_t posix = newlocale(0, "POSIX", 0);
-+		bool r = !strcasecmp_l(expected, actual, posix);
-+		freelocale(posix);
-+		return r;
-+	}
-+
-+	return !strcmp(expected, actual);
-+}
-+
- /*
-  * Set a tag on an existing device.
-  *
-@@ -345,7 +361,7 @@ try_again:
- 			blkid_tag tmp = list_entry(p, struct blkid_struct_tag,
- 						   bit_names);
- 
--			if (!strcmp(tmp->bit_val, value) &&
-+			if (tag_value_matches(type, tmp->bit_val, value) &&
- 			    (tmp->bit_dev->bid_pri > pri) &&
- 			    !access(tmp->bit_dev->bid_name, F_OK)) {
- 				dev = tmp->bit_dev;
--- 
-2.31.1
+But my point stands. :)
 
+> This was very confusing to me, and I lost some time trying to figure
+> out what was wrong before I realised that case of UUIDs was
+> significant to findfs.
+>
+> Here, I've made comparisons of UUID and PARTUUID case-insensitive in
+> libblkid, which fixes the command above.
+>
+> Signed-off-by: Alyssa Ross <hi@alyssa.is>
+
+--qwdfjr5ziegmrstt
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEH9wgcxqlHM/ARR3h+dvtSFmyccAFAmDHxF4ACgkQ+dvtSFmy
+ccAmqw//bwlZHric1QebteQZ9/7jjqT5sTsuHPy3T2E0H5TrjogwmCeFUvahN5M8
+T+lfibGiDk0xuaWjGf/cgH1XAjMXvtlf/CaqPBogFNHKXPPZKFxz1F3RykKpfcCu
+r40jaQa24NVH2kgXHjWWJ5obc41bEo7QgE88x35rzKZKtwGFnH1zzui46HXbkgkS
+QZpMIeY2qNqQVZtpyV69SfMa5YPOKFkru9XWYxK/LXk3njYRvhLl3vCEEAnORcf1
+m4EzhQlBV8lkQcZ+yo2Q9AOJc4BQATPWoia85biSfYm2hEMVbGGX2e1nNdIUXavI
+jXnh1b3Wh9SC3kcWhCFg7ihe3Hfp94NRXFveda8ts6qr0nu9PtsngOmRFkvzvfGC
+UvosnbTsycY1urwZgkuFVTEKOXhSZdSqOysednGHggybcZgca89RPuQq1kMSk3yA
+7efwUCO9pMoE7+X5BwW8HbvbEfJrgF/KbdIAxets40rikhVN5POOm7ueSU+2hLSe
+/tyDtlF7hjAecaPmbrLlv4dWkVCeKnTXtXYoD2bQY1X2zd2lhipk6wvYjXEgihfV
+J/o0o1h3GtrKP4kNF5bR9yBGVYGOfyjyXncrZ+EEWfK/7FAnoo1lJKdcXr4+LCq9
+ZvL/El1n0AQATr0DRE9UXIpU1XWNRGjHtqJSNOjppewG+AawoLs=
+=oxwu
+-----END PGP SIGNATURE-----
+
+--qwdfjr5ziegmrstt--
