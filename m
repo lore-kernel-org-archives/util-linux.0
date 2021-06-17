@@ -2,110 +2,93 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86171C2B9F4
-	for <util-linux@archiver.kernel.org>; Thu, 17 Jun 2021 08:59:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BF91C49EA3
+	for <util-linux@archiver.kernel.org>; Thu, 17 Jun 2021 12:38:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6C4FA613D5
-	for <util-linux@archiver.kernel.org>; Thu, 17 Jun 2021 08:59:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3ACFE6113E
+	for <util-linux@archiver.kernel.org>; Thu, 17 Jun 2021 12:38:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230312AbhFQJBj (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 17 Jun 2021 05:01:39 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52421 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231328AbhFQJBh (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Thu, 17 Jun 2021 05:01:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1623920370;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=PpYpe7xT5lPlasiz6hJds5x4S9YWIwgNl48EVBhtz5A=;
-        b=h86oqr8/ySZprVAHaLTREl9Ea7H+twnbVktmrTlC4Y+1UOEpcxAMyaOH4tAl/7CmD24TEW
-        Qw2JQASwFJU85TQ0MMx6Nbw7jC4YQgM904B/JLK5qJhbHvp1SFMnYBO6sAWqlHjvb8bjK6
-        5/XIjSjhgSxdYGtnd9UAW5WuZ9JYZGo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-389-JlIOG30INKOu1tHTLx0-ww-1; Thu, 17 Jun 2021 04:59:26 -0400
-X-MC-Unique: JlIOG30INKOu1tHTLx0-ww-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7EA5FBBF00;
-        Thu, 17 Jun 2021 08:59:04 +0000 (UTC)
-Received: from ws.net.home (ovpn-113-152.ams2.redhat.com [10.36.113.152])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id D42D21000324;
-        Thu, 17 Jun 2021 08:59:03 +0000 (UTC)
-Date:   Thu, 17 Jun 2021 10:59:01 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     Bruce Dubbs <bruce.dubbs@gmail.com>
-Cc:     util-linux@vger.kernel.org
-Subject: Re: An obscure problem with v2.37 make check
-Message-ID: <20210617085901.l45esa2fuzinn44w@ws.net.home>
-References: <cdfa712c-c918-c5bd-e320-b3dbe8599bbd@gmail.com>
+        id S231390AbhFQMkH (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 17 Jun 2021 08:40:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39270 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231326AbhFQMkH (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 17 Jun 2021 08:40:07 -0400
+Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 967CBC061574
+        for <util-linux@vger.kernel.org>; Thu, 17 Jun 2021 05:37:58 -0700 (PDT)
+Received: by mail-yb1-xb2b.google.com with SMTP id m9so8000708ybo.5
+        for <util-linux@vger.kernel.org>; Thu, 17 Jun 2021 05:37:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=+P9UavdXWL03X6gEP8uvbr9TPSKVPdUBxEkl2FKOLsc=;
+        b=facCdYqN66wMbD9fh7SUlnEwfeyzrOtWLgNZhyOfnDxEzwGB3ynz51EV2G4kgZqrst
+         SRxsI0/phS30u3HJXcpg3bjxmCOJvjMjfLdOAMu64UuZy1oP99KupHFfDfYK2uN0YO9I
+         qNBMeKOgVqw2Xw1+yJBfSrskmpYruGtrA2mh7K1S4Bt8mvTurTNW9kBqi350pys8EzRY
+         Kycojpe1DYrtRDi+aq6E0zhaWqE+97kwZtGM7+bhNWf9ytI6az2aUdvfwO0brDNT67lO
+         4dbmlQuMrVPuSCIOXB0M2XIwo7UC5XKVfUOg+V3MQPSSk16+qtSNCDHpsJGeOUEPFC1l
+         K23g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=+P9UavdXWL03X6gEP8uvbr9TPSKVPdUBxEkl2FKOLsc=;
+        b=MvrDvL1qz5ULgMkbIEQPnyGH5LiisACeBn/PpTb1HR9EpavlskRbObu6SSIsPoWHIc
+         qpIWb+YmGi9wiNRSmHpHXEG9O7cVCxs9pfAHitqXgWS5ZaKQFcmAV0a2eFEv99LztaYN
+         2Itc9ZrQFpiB/M3E8/dG686o5GP4pGfr1JCehH7WORW3Yk4EZDcRwyO5LH2VL7Wl9A7R
+         fKmR7SMs5Edp4n6hciwXHtPdAnvLLuUrYY+IdfKr38nguLcAA7IShbNuEziADzHgSqRN
+         NMyxXPqgz+PzHQylC6+CjoLdHQgLhptemddQ2ILLc2vvqc1ojW4c/0g50Uk5riO3ryZE
+         5CHQ==
+X-Gm-Message-State: AOAM53007sCqIPBqhmopN4OHioJre12l7toQhdR8nFfHMiCCy2Is3Oja
+        Mx4zBTfBZWUmIQdZetUwvNAAeXjpP67z6YQX59Y=
+X-Google-Smtp-Source: ABdhPJx4PtWG4lhpz/iuOuIGAyJh+TMf5ZcF4wRv3SoZpYJAGsXdNVtMlkmlZ/bATUh2AZ+xtSVeIaJBJmff4Ac+sgI=
+X-Received: by 2002:a25:e045:: with SMTP id x66mr5533544ybg.287.1623933477879;
+ Thu, 17 Jun 2021 05:37:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cdfa712c-c918-c5bd-e320-b3dbe8599bbd@gmail.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+References: <cdfa712c-c918-c5bd-e320-b3dbe8599bbd@gmail.com> <20210617085901.l45esa2fuzinn44w@ws.net.home>
+In-Reply-To: <20210617085901.l45esa2fuzinn44w@ws.net.home>
+From:   Anatoly Pugachev <matorola@gmail.com>
+Date:   Thu, 17 Jun 2021 15:37:47 +0300
+Message-ID: <CADxRZqwwfA7KWirH5XxdAHN_PprGFzqKOi2q_6MBA39MfB2+Qw@mail.gmail.com>
+Subject: Re: An obscure problem with v2.37 make check
+To:     Karel Zak <kzak@redhat.com>
+Cc:     Bruce Dubbs <bruce.dubbs@gmail.com>,
+        util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, Jun 16, 2021 at 03:42:04PM -0500, Bruce Dubbs wrote:
-> When I built version v2.37, make check hung on me.  The problem was in my
-> kernel configuration, but I thought I would pass this on.
-> 
-> First of all, my biggest problem was finding out what had failed.  A simple
-> 'make check' ran the tests and when it got to the end, hung.
-> 
-> I could not find any documentation about running the tests, but diving into
-> the Makefile led me to tests/run.sh.  By default this runs tests using all
-> cores, but it is unclear if this is meant to be run directly.
- 
-The tests are designed for smart people, like you who, are able to debug it ;-)
+On Thu, Jun 17, 2021 at 12:00 PM Karel Zak <kzak@redhat.com> wrote:
+> > One solution to this problem may be to test for the existence of the file
+> > before running 'stat' similar to the tests for programs like 'touch' and
+>
+> Sounds good. Please, send patch.
 
-> In any case running run.sh --parallel=1 (instead of the default 24) allowed
-> me to find the problem test, tests/ts/lsns/ioctl_ns.  In this test, it is
-> doing:
+Bruce, Karel,
 
-The --parallel=1 is the default when you execute ./run.sh from command
-line. This is the way I usually use the tests. The "make check"
-executes it in parallel to make it faster for automated execution
-(github actions, travis, random QA, etc.)
+something like this?
 
-> 
-> my_userns=$(stat -c %i -L /proc/self/ns/user)
-> 
-> My problem was that /proc/self/ns/user did not exist on my system.  This was
-> due to a missing CONFIG option in my kernel configuration.  Adding that and
-> rebuilding the kernel allowed all tests to pass.
-> 
-> One solution to this problem may be to test for the existence of the file
-> before running 'stat' similar to the tests for programs like 'touch' and
+util-linux$ git diff
+diff --git a/tests/ts/lsns/ioctl_ns b/tests/ts/lsns/ioctl_ns
+index e91f6743f..b8f35e2e5 100755
+--- a/tests/ts/lsns/ioctl_ns
++++ b/tests/ts/lsns/ioctl_ns
+@@ -24,6 +24,9 @@ ts_init "$*"
+ # ts_skip_nonroot
+ grep -q '#define HAVE_LINUX_NSFS_H' ${top_builddir}/config.h ||
+ts_skip "no ioctl_ns support"
 
-Sounds good. Please, send patch.
-
-For 3rd party programs you need "ts_check_prog <progname>" at the
-beginning of the test.
-
-> 'uniq'.  Since this is such an unusual situation, I can understand if you
-> just ignore the issue, however I thought you should know about it.
- 
-It's definitely important to run the tests in more environments to
-make it stable and I'm happy that we have contributors from
-non-mainstream distributions.
-
-So, thanks for your feedback.
-
-  Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
-
++[ -a /proc/self/ns/user ] || ts_skip "no USER namespace kernel support"
++[ -a /proc/self/ns/pid ] || ts_skip "no PID namespace kernel support"
++
+ ts_check_test_command "$TS_CMD_LSNS"
+ ts_check_test_command "$TS_CMD_UNSHARE"
+ ts_check_prog "stat"
