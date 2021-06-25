@@ -2,124 +2,122 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-21.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05281C49EA6
-	for <util-linux@archiver.kernel.org>; Thu, 24 Jun 2021 21:26:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CBEAC2B9F4
+	for <util-linux@archiver.kernel.org>; Fri, 25 Jun 2021 09:23:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D4B77613BD
-	for <util-linux@archiver.kernel.org>; Thu, 24 Jun 2021 21:26:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 842B561421
+	for <util-linux@archiver.kernel.org>; Fri, 25 Jun 2021 09:23:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232684AbhFXV24 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 24 Jun 2021 17:28:56 -0400
-Received: from server.contractcoder.biz ([67.209.116.215]:55712 "EHLO
-        server.contractcoder.biz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232677AbhFXV2z (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 24 Jun 2021 17:28:55 -0400
-Received: by server.contractcoder.biz (Postfix, from userid 109)
-        id 4452D2500944; Thu, 24 Jun 2021 22:26:35 +0100 (BST)
-Received: from contractcoder.biz (cpc137950-brom13-2-0-cust104.16-1.cable.virginm.net [82.46.16.105])
-        by server.contractcoder.biz (Postfix) with ESMTPSA id 25B4B2500941
-        for <util-linux@vger.kernel.org>; Thu, 24 Jun 2021 22:26:33 +0100 (BST)
-Date:   Thu, 24 Jun 2021 22:26:32 +0100
-From:   Ian Jones <ian@contractcoder.biz>
-To:     util-linux@vger.kernel.org
-Subject: Additions to earlier more POSIX compliance patch.
-Message-ID: <20210624212632.GC2541@contractcoder.biz>
+        id S230379AbhFYJZa (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 25 Jun 2021 05:25:30 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:30174 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230217AbhFYJZa (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Fri, 25 Jun 2021 05:25:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1624612989;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=JHJqQ3wkcOEKqD38EvcxZUecnS16Gd+M5jwluNJK2Fo=;
+        b=bB02ejdYVEV1VbPlEsIxE044x1F2KfY+CvWH5+FbEeAGQiRVYcQupHJMSC14W2D2eNffuz
+        ysaBtR1FBBJze1rekWaywo3fIpuf5pu9Y7I0sncRB4/rDAoslTamBMG90rTl+5W7Isbok4
+        Id/MP0ueGOrvFnlm5PNPew3QoOuFRTE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-525-_PxHAcxtOxirgvo2AwJDNg-1; Fri, 25 Jun 2021 05:23:08 -0400
+X-MC-Unique: _PxHAcxtOxirgvo2AwJDNg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7B00818D6A2C;
+        Fri, 25 Jun 2021 09:23:06 +0000 (UTC)
+Received: from ws.net.home (ovpn-112-214.ams2.redhat.com [10.36.112.214])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 44A3818A77;
+        Fri, 25 Jun 2021 09:23:04 +0000 (UTC)
+Date:   Fri, 25 Jun 2021 11:23:01 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Huang Shijie <shijie@os.amperecomputing.com>
+Cc:     util-linux@vger.kernel.org, patches@amperecomputing.com,
+        zwang@amperecomputing.com, mas@amperecomputing.com,
+        ilkka@os.amperecomputing.com, jeremy.linton@arm.com,
+        jbastian@redhat.com, m.mizuma@jp.fujitsu.com,
+        patrick.zhang@amperecomputing.com
+Subject: Re: [RFC PATCH] lscpu: get more infomation when using
+ "/sys/firmware/dmi/entries/4-0/raw"
+Message-ID: <20210625092301.6zlyufiwjkta7rf7@ws.net.home>
+References: <20210621110900.41043-1-shijie@os.amperecomputing.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="jho1yZJdad60DJr+"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210621110900.41043-1-shijie@os.amperecomputing.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+On Mon, Jun 21, 2021 at 11:09:00AM +0000, Huang Shijie wrote:
+> This patch gets more infomation for "BIOS Model name"
+> from the file "/sys/firmware/dmi/entries/4-0/raw"
+> 
+> Before this patch, we can get the output from Centos 7.9:
+>   ----------------------------------------------------
+>   BIOS Vendor ID:                  Ampere(TM)
+>   Model name：                     Neoverse-N1
+>     BIOS Model name:               Ampere(TM) Altra(TM) Processor
+>   ----------------------------------------------------
+> 
+>  After this patch, in Centos 7.9, we get:
+>   ----------------------------------------------------
+>   BIOS Vendor ID:                  Ampere(TM)
+>   Model name：                     Neoverse-N1
+>     BIOS Model name:               Ampere(TM) Altra(TM) Processor Q00-00 CPU @ 2.8GHz
+>   ----------------------------------------------------
+> 
+> Signed-off-by: Huang Shijie <shijie@os.amperecomputing.com>
+> ---
+>  sys-utils/lscpu-arm.c | 13 ++++++++++---
+>  1 file changed, 10 insertions(+), 3 deletions(-)
+> 
+> diff --git a/sys-utils/lscpu-arm.c b/sys-utils/lscpu-arm.c
 
---jho1yZJdad60DJr+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> index 885aadc36..1af689649 100644
+> --- a/sys-utils/lscpu-arm.c
+> +++ b/sys-utils/lscpu-arm.c
+> @@ -317,6 +317,8 @@ static int arm_rXpY_decode(struct lscpu_cputype *ct)
+>  
+>  #define PROC_MFR_OFFSET		0x07
+>  #define PROC_VERSION_OFFSET	0x10
+> +#define PROC_CURRENT_SPEED	0x16
+> +#define PROC_PART_NUM		0x22
+>  
+>  /*
+>   * Use firmware to get human readable names
+> @@ -324,7 +326,8 @@ static int arm_rXpY_decode(struct lscpu_cputype *ct)
+>  static int arm_smbios_decode(struct lscpu_cputype *ct)
 
-Hi,
+I've lost in your patches :-) 
 
-Apologies, I forgot to update the manpage. I have also modified the
-prompt to display '(END)' at EOF.
+Your previous patch "[PATCH] lscpu: remove the old code" removes all
+arm_smbios_decode() as it's unnecessary. This next patch tries to
+extend arm_smbios_decode().
 
-I hope you find these patches acceptable.
+Anyway, I think it's good idea to "normalize" the model name to "%s %s CPU @ %d.%dGHz"
+for all ARMs. It seems the same is suggesting:
+https://github.com/karelzak/util-linux/pull/1364
 
-Best regards,
+ Karel
 
-Ian
 
---jho1yZJdad60DJr+
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="0003-Addition-of-e-flag-to-for-POSIX-compliance.patch"
-
-From fc87c44a7bce26fdf4e5048f37d37fc3e059c29b Mon Sep 17 00:00:00 2001
-From: Ian Jones <ian@contractcoder.biz>
-Date: Thu, 24 Jun 2021 14:14:21 +0100
-Subject: [PATCH 3/6] Addition of -e flag to for POSIX compliance.
-
----
- text-utils/more.1.adoc | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/text-utils/more.1.adoc b/text-utils/more.1.adoc
-index 43124cac1..9cb463453 100644
---- a/text-utils/more.1.adoc
-+++ b/text-utils/more.1.adoc
-@@ -65,6 +65,9 @@ Prompt with "[Press space to continue, 'q' to quit.]", and display "[Press 'h' f
- *-l*, *--logical*::
- Do not pause after any line containing a *^L* (form feed).
- 
-+*-e*, *--exit-on-eof*::
-+Exit on EOF.
-+
- *-f*, *--no-pause*::
- Count logical lines, rather than screen lines (i.e., long lines are not folded).
- 
 -- 
-2.20.1
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
-
---jho1yZJdad60DJr+
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="0006-Display-END-at-EOF.patch"
-
-From 2d9001cc3f4eac9f74599b687ca6ea552332ddfc Mon Sep 17 00:00:00 2001
-From: Ian Jones <ian@contractcoder.biz>
-Date: Thu, 24 Jun 2021 22:02:23 +0100
-Subject: [PATCH 6/6] Display '(END)' at EOF.
-
----
- text-utils/more.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
-
-diff --git a/text-utils/more.c b/text-utils/more.c
-index f4da7724e..d1fab940c 100644
---- a/text-utils/more.c
-+++ b/text-utils/more.c
-@@ -732,9 +732,13 @@ static void output_prompt(struct more_control *ctl, char *filename)
- 		if (filename != NULL) {
- 			ctl->prompt_len += printf(_("(Next file: %s)"), filename);
- 		} else if (!ctl->no_tty_in && 0 < ctl->file_size) {
--			ctl->prompt_len +=
--			    printf("(%d%%)",
--				   (int)((ctl->file_position * 100) / ctl->file_size));
-+            int position = ((ctl->file_position * 100) / ctl->file_size);
-+            if (position == 100) {
-+		        erase_to_col(ctl, 0);
-+                ctl->prompt_len += printf(_("(END)"));
-+            } else {
-+			    ctl->prompt_len += printf("(%d%%)", position);
-+            }
- 		}
- 		if (ctl->suppress_bell) {
- 			ctl->prompt_len +=
--- 
-2.20.1
-
-
---jho1yZJdad60DJr+--
