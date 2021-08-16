@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2792C432BE
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10F32C19F3C
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C9519604DC
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EC817604DC
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231799AbhHPQwj (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 12:52:39 -0400
+        id S231625AbhHPQwk (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 12:52:40 -0400
 Received: from luckmann.name ([213.239.213.133]:50635 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231447AbhHPQwi (ORCPT
+        by vger.kernel.org with ESMTP id S229737AbhHPQwk (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Mon, 16 Aug 2021 12:52:38 -0400
+        Mon, 16 Aug 2021 12:52:40 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000BD6034.00000000611A97B3.0000119A; Mon, 16 Aug 2021 18:52:03 +0200
-Date:   Mon, 16 Aug 2021 18:52:03 +0200
+  id 0000000000BD6040.00000000611A97B4.000011F6; Mon, 16 Aug 2021 18:52:04 +0200
+Date:   Mon, 16 Aug 2021 18:52:04 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Issue in man page lscpu.1
-Message-ID: <20210816165202.GA4491@Debian-50-lenny-64-minimal>
+Subject: Issue in man page lslogins.1
+Message-ID: <20210816165204.GA4583@Debian-50-lenny-64-minimal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -42,8 +42,6 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Without further ado, the following was found:
 
-Issue: superfluous citation around B<>
+Issue: The order of closing brackets is wrong
 
-"When specifying the I<list> argument, the string of option, equal sign (=), "
-"and I<list> must not contain any blanks or other whitespace. Examples: "
-"\\(aqB<-C=NAME,ONE-SIZE>\\(aq or \\(aqB<--caches=NAME,ONE-SIZE>\\(aq."
+"Display information related to login by password (see also B<-afL).>"
