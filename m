@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75D05C19F3E
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2389FC19F3A
 	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 572C060EFE
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0218E60EFE
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230383AbhHPQxJ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 12:53:09 -0400
-Received: from luckmann.name ([213.239.213.133]:50635 "EHLO
+        id S232426AbhHPQxI (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 12:53:08 -0400
+Received: from luckmann.name ([213.239.213.133]:53499 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232258AbhHPQxH (ORCPT
+        by vger.kernel.org with ESMTP id S230383AbhHPQxH (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
         Mon, 16 Aug 2021 12:53:07 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000BD6047.00000000611A97C8.000016A6; Mon, 16 Aug 2021 18:52:24 +0200
-Date:   Mon, 16 Aug 2021 18:52:24 +0200
+  id 0000000000BD603A.00000000611A97C7.0000168F; Mon, 16 Aug 2021 18:52:23 +0200
+Date:   Mon, 16 Aug 2021 18:52:23 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
 Subject: Issue in man page swapon.8
-Message-ID: <20210816165223.GA5783@Debian-50-lenny-64-minimal>
+Message-ID: <20210816165223.GA5760@Debian-50-lenny-64-minimal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -42,6 +42,8 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Without further ado, the following was found:
 
-Issue: swapoff → B<swapoff>(2) syscalls
+Issue: swapoff → B<swapoff>(2)
 
-"all swapoff failed on B<--all>"
+"swapoff syscall failed for another reason"
+
+"non-swapoff syscall system error (out of memory, ...)"
