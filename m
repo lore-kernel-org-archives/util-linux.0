@@ -6,33 +6,33 @@ X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAC58C432BE
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 741F1C4320E
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CD4CC604DC
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 59FCB60EFE
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232346AbhHPQwy (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S231861AbhHPQwy (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Mon, 16 Aug 2021 12:52:54 -0400
-Received: from luckmann.name ([213.239.213.133]:60273 "EHLO
+Received: from luckmann.name ([213.239.213.133]:48775 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231861AbhHPQwu (ORCPT
+        by vger.kernel.org with ESMTP id S232249AbhHPQwy (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Mon, 16 Aug 2021 12:52:50 -0400
+        Mon, 16 Aug 2021 12:52:54 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000BD6044.00000000611A97BB.000013AC; Mon, 16 Aug 2021 18:52:11 +0200
-Date:   Mon, 16 Aug 2021 18:52:11 +0200
+  id 0000000000BD6037.00000000611A97BC.000013F1; Mon, 16 Aug 2021 18:52:12 +0200
+Date:   Mon, 16 Aug 2021 18:52:12 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
 Subject: Issue in man page mount.8
-Message-ID: <20210816165211.GA5021@Debian-50-lenny-64-minimal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <20210816165212.GA5090@Debian-50-lenny-64-minimal>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
 X-homepage: http://www.helgefjell.de/debian
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -42,6 +42,9 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Without further ado, the following was found:
 
-Issue: not only binaries, but includes also scripts
+Issue: "mount -o remount,ro /dir" → B<mount -o remount,ro >I</dir>
 
-"Permit execution of binaries."
+"remounts all already mounted vfat filesystems in read-only mode. Each of the "
+"filesystems is remounted by B<mount -o remount,ro /dir> semantic. This means "
+"the B<mount> command reads I<fstab> or I<mtab> and merges these options with "
+"the options from the command line."
