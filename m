@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF536C4320E
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05346C19F41
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 957EC60EFF
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D9EDA60EFF
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232341AbhHPQxK (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 12:53:10 -0400
-Received: from luckmann.name ([213.239.213.133]:53499 "EHLO
+        id S232308AbhHPQxL (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 12:53:11 -0400
+Received: from luckmann.name ([213.239.213.133]:50635 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232390AbhHPQxJ (ORCPT
+        by vger.kernel.org with ESMTP id S232390AbhHPQxL (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Mon, 16 Aug 2021 12:53:09 -0400
+        Mon, 16 Aug 2021 12:53:11 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000BD6069.00000000611A97C9.000016EB; Mon, 16 Aug 2021 18:52:25 +0200
-Date:   Mon, 16 Aug 2021 18:52:25 +0200
+  id 0000000000BD6072.00000000611A97CB.00001761; Mon, 16 Aug 2021 18:52:27 +0200
+Date:   Mon, 16 Aug 2021 18:52:27 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Issue in man page umount.8
-Message-ID: <20210816165225.GA5852@Debian-50-lenny-64-minimal>
+Subject: Issue in man page uuidgen.1
+Message-ID: <20210816165227.GA5970@Debian-50-lenny-64-minimal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -42,12 +42,6 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Without further ado, the following was found:
 
-Issue: /proc/mounts → I</proc/mounts>
+Issue: B<libuuid>(3), → B<libuuid>(3).
 
-"Indicate that the actions should only be taken on filesystems of the "
-"specified I<type>. More than one type may be specified in a comma-separated "
-"list. The list of filesystem types can be prefixed with B<no> to indicate "
-"that no action should be taken for all of the mentioned types. Note that "
-"B<umount> reads information about mounted filesystems from kernel (I</proc/"
-"mounts>) and filesystem names may be different than filesystem names used in "
-"the I</etc/fstab> (e.g., \"nfs4\" vs. \"nfs\")."
+"B<libuuid>(3),"
