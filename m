@@ -2,114 +2,122 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 340DCC4338F
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 13:46:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4876FC4338F
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 15:49:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1634E632AF
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 13:46:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2A84460F42
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 15:49:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231829AbhHPNrI (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 09:47:08 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:26745 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230486AbhHPNrH (ORCPT
+        id S236898AbhHPPtq (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 11:49:46 -0400
+Received: from luckmann.name ([213.239.213.133]:57279 "EHLO
+        static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236882AbhHPPtq (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Mon, 16 Aug 2021 09:47:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1629121595;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=3+2CPPVNiLbbkvD0700s3MjZBti+X1rB8bf9dsclTrk=;
-        b=LkVv/3eLwAw6Lz8mYdutd+iHpwtsnxPVVuaxJc4+XPK6X8MFeZjBxzPUxQAk7xahUbVXc0
-        Vj4cMN626doefQYSe6Kl3DB3EjRWnLRJNZmE6AT+IBB1Qs/8jXSDwWbnB4bTgi7dH0EEum
-        QEp+v48XM92qcVDfi0asfXiFdzMfJMc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-497-IY96OcNMMLK2okNQrI881w-1; Mon, 16 Aug 2021 09:46:32 -0400
-X-MC-Unique: IY96OcNMMLK2okNQrI881w-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 11CB51009607;
-        Mon, 16 Aug 2021 13:46:31 +0000 (UTC)
-Received: from ws.net.home (ovpn-112-16.ams2.redhat.com [10.36.112.16])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 435A02C00F;
-        Mon, 16 Aug 2021 13:46:30 +0000 (UTC)
-Date:   Mon, 16 Aug 2021 15:46:27 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: [ANNOUNCE] util-linux v2.37.2
-Message-ID: <20210816134627.kzuyn4yewvhxjd75@ws.net.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+        Mon, 16 Aug 2021 11:49:46 -0400
+X-Greylist: delayed 306 seconds by postgrey-1.27 at vger.kernel.org; Mon, 16 Aug 2021 11:49:46 EDT
+Received: from localhost (localhost [127.0.0.1])
+  (uid 502)
+  by static.213-239-213-133.clients.your-server.de with local
+  id 0000000000BD8002.00000000611A87C7.00000982; Mon, 16 Aug 2021 17:44:07 +0200
+Date:   Mon, 16 Aug 2021 17:44:07 +0200
+From:   Helge Kreutzmann <debian@helgefjell.de>
+To:     util-linux@vger.kernel.org
+Cc:     Mario =?utf-8?Q?Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
+Subject: Errors in util-linux man pages
+Message-ID: <20210816154407.GA2383@Debian-50-lenny-64-minimal>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256; protocol="application/pgp-signature"; boundary="=_luckmann.name-2434-1629128647-0001-2"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
+X-homepage: http://www.helgefjell.de/debian
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-The util-linux stable release v2.37.2 is available at
-      
-  http://www.kernel.org/pub/linux/utils/util-linux/v2.37
-      
-Feedback and bug reports, as always, are welcomed.
- 
-  Karel
+--=_luckmann.name-2434-1629128647-0001-2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Dear util-linux maintainer,
+the manpage-l10n project maintains a large number of translations of
+man pages both from a large variety of sources (including util-linux) as
+well for a large variety of target languages.
 
+During their work translators notice different possible issues in the
+original (english) man pages. Sometimes this is a straightforward
+typo, sometimes a hard to read sentence, sometimes this is a
+convention not held up and sometimes we simply do not understand the
+original.
 
-util-linux 2.37.2 Release Notes
-===============================
+We use several distributions as sources and update regularly (at
+least every 2 month). This means we are fairly recent (some
+distributions like archlinux also update frequently) but might miss
+the latest upstream version once in a while, so the error might be
+already fixed. We apologize and ask you to close the issue immediately
+if this should be the case, but given the huge volume of projects and
+the very limited number of volunteers we are not able to double check
+each and every issue.
 
-blockdev:
-   - allow for larger values for start sector  [Thomas Abraham]
-   - use snprintf() rather than sprintf()  [Karel Zak]
-docs:
-   - fix info about LIBSMARTCOLS_DEBUG_PADDING  [Karel Zak]
-   - update AUTHORS file  [Karel Zak]
-lib/pwdutils:
-   - don't use getlogin(3).  [Érico Nogueira]
-   - use assert to check correct usage.  [Érico Nogueira]
-libfdisk:
-   - (dos) don't ignore MBR+FAT use-case  [Karel Zak]
-   - (dos) support partition and MBR overlap  [Karel Zak]
-libmount:
-   - don't use setgroups at all()  [Karel Zak]
-   - fix setgroups() use  [Karel Zak]
-logger:
-   - use xgetlogin from pwdutils.  [Érico Nogueira]
-losetup:
-   - use LOOP_CONFIGURE in a more robust way  [Karel Zak]
-lscpu:
-   - Add Phytium FT-2000+ & S2500 support  [panchenbo]
-   - Add Phytium aarch64 cpupart  [panchenbo]
-   - fix NULL dereference  [Karel Zak]
-   - fix compilation against librtas  [Karel Zak]
-mount:
-   - mount.8 don't consider additional mounts as experimental  [Karel Zak]
-po:
-   - add sk.po (from translationproject.org)  [Jose Riha]
-   - merge changes  [Karel Zak]
-   - update pl.po (from translationproject.org)  [Jakub Bogusz]
-prlimit:
-   - fix compiler warning [-Wmaybe-uninitialized]  [Karel Zak]
-sulogin:
-   - fix getpasswd()  [Karel Zak]
-sys-utils/ipcutils:
-   - be careful when call calloc() for uint64 nmembs  [Karel Zak]
-wall:
-   - use xgetlogin.  [Érico Nogueira]
+Secondly we translators see the manpages in the neutral po format,
+i.e. converted and harmonized, but not the original source (be it man,
+groff, xml or other). So we cannot provide a true patch (where
+possible), but only an approximation which you need to convert into
+your source format.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Finally the issues I'm reporting have accumulated over time and are
+not always discovered by me, so sometimes my description of the
+problem my be a bit limited - do not hesitate to ask so we can clarify
+them.
 
+I'm now reporting the errors for your project. If future reports
+should use another channel, please let me know.
+
+I will send the issues in individual mails (like last time), without this=
+=20
+header. This will be a total of 98 mails.
+
+I'll wait with sending for ~ 1 hour in case you would not like to have
+them in those e-mails.
+
+Greetings
+
+           Helge
+
+--=20
+      Dr. Helge Kreutzmann                     debian@helgefjell.de
+           Dipl.-Phys.                   http://www.helgefjell.de/debian.php
+        64bit GNU powered                     gpg signed mail preferred
+           Help keep free software "libre": http://www.ffii.de/
+
+--=_luckmann.name-2434-1629128647-0001-2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEbZZfteMW0gNUynuwQbqlJmgq5nAFAmEah8QACgkQQbqlJmgq
+5nB6ig/+JXFo+vKsaPuYHOHyXrqahqxqxbB/CYfY6P4YYB4kORg17wPH+T/yoIpG
+OQi+NRuBliWdCdpraVyB552Lrny6IZCCWzPx3vgjd9sWuU2sc7F6aOxqkitBWh/n
+YhieZonCCNgJzv6yfCDGN1ezy7e7M5TBaf0YDgZP3YL659Dmf9eWm8lsD3ZcwYZs
+Id8peTvBusslzL4sA/+W8r3yjMAg/Qj22deohIhLkmH6RZyH6KiWlUzo29nS/ojw
+8xKPNGTskBF6+QKLKh3GalFN1DdjuHQOG565ZQSGcBBTE52D8Kw63GEk7c2Oatc6
+K8R8QSJJ8YupEwFo2ebpbh/8kto5owOguUIqy+xm6MbkC+1CYHcrbazcGXoY5387
+r7wV4KQkVFPaa4v8ysNQCKipwq2/WNdkE1vHOsnLO2NM2ENIh7wfA7GfU0VKN02g
+cuulyCFIdX+bglGjei5ChtiXDyk0F5FfaMZJOOLdjC4tZYbyb46GS7Mh2WPDeRrB
+KhfpYGQW3JB5rdGWWLMeCUBloy/p9aGWLpl+4ZuD8ImPUwfE1FlHZZHgjaEryrxf
+uSJr2Hhk/j3ziVH9XZ2wDoiQkzOrs3MZnDodweAifXVoky8gnrX32jHGj8a5XojM
+vAMobElVjSBAYV9UkPPo0QIW3SVoFLnK4scxR+Nwr+q0n6LDpf8=
+=9Kef
+-----END PGP SIGNATURE-----
+
+--=_luckmann.name-2434-1629128647-0001-2--
