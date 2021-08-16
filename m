@@ -4,35 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4876FC4338F
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 15:49:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5246C4338F
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:51:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2A84460F42
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 15:49:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AF032604DC
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:51:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236898AbhHPPtq (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 11:49:46 -0400
-Received: from luckmann.name ([213.239.213.133]:57279 "EHLO
+        id S230200AbhHPQwZ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 12:52:25 -0400
+Received: from luckmann.name ([213.239.213.133]:60273 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236882AbhHPPtq (ORCPT
+        by vger.kernel.org with ESMTP id S230022AbhHPQwZ (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Mon, 16 Aug 2021 11:49:46 -0400
-X-Greylist: delayed 306 seconds by postgrey-1.27 at vger.kernel.org; Mon, 16 Aug 2021 11:49:46 EDT
+        Mon, 16 Aug 2021 12:52:25 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000BD8002.00000000611A87C7.00000982; Mon, 16 Aug 2021 17:44:07 +0200
-Date:   Mon, 16 Aug 2021 17:44:07 +0200
+  id 0000000000BD602C.00000000611A97A8.00000ED9; Mon, 16 Aug 2021 18:51:52 +0200
+Date:   Mon, 16 Aug 2021 18:51:52 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
-Cc:     Mario =?utf-8?Q?Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
-Subject: Errors in util-linux man pages
-Message-ID: <20210816154407.GA2383@Debian-50-lenny-64-minimal>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256; protocol="application/pgp-signature"; boundary="=_luckmann.name-2434-1629128647-0001-2"
+Cc:     mario.blaettermann@gmail.com
+Subject: Issue in man page cfdisk.8
+Message-ID: <20210816165152.GA3786@Debian-50-lenny-64-minimal>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
 X-homepage: http://www.helgefjell.de/debian
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -40,84 +40,14 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+Without further ado, the following was found:
 
---=_luckmann.name-2434-1629128647-0001-2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Issue 1: udevd → B<systemd-udevd>(8)
+Issue 2: B<"yes"> → B<yes>
 
-Dear util-linux maintainer,
-the manpage-l10n project maintains a large number of translations of
-man pages both from a large variety of sources (including util-linux) as
-well for a large variety of target languages.
-
-During their work translators notice different possible issues in the
-original (english) man pages. Sometimes this is a straightforward
-typo, sometimes a hard to read sentence, sometimes this is a
-convention not held up and sometimes we simply do not understand the
-original.
-
-We use several distributions as sources and update regularly (at
-least every 2 month). This means we are fairly recent (some
-distributions like archlinux also update frequently) but might miss
-the latest upstream version once in a while, so the error might be
-already fixed. We apologize and ask you to close the issue immediately
-if this should be the case, but given the huge volume of projects and
-the very limited number of volunteers we are not able to double check
-each and every issue.
-
-Secondly we translators see the manpages in the neutral po format,
-i.e. converted and harmonized, but not the original source (be it man,
-groff, xml or other). So we cannot provide a true patch (where
-possible), but only an approximation which you need to convert into
-your source format.
-
-Finally the issues I'm reporting have accumulated over time and are
-not always discovered by me, so sometimes my description of the
-problem my be a bit limited - do not hesitate to ask so we can clarify
-them.
-
-I'm now reporting the errors for your project. If future reports
-should use another channel, please let me know.
-
-I will send the issues in individual mails (like last time), without this=
-=20
-header. This will be a total of 98 mails.
-
-I'll wait with sending for ~ 1 hour in case you would not like to have
-them in those e-mails.
-
-Greetings
-
-           Helge
-
---=20
-      Dr. Helge Kreutzmann                     debian@helgefjell.de
-           Dipl.-Phys.                   http://www.helgefjell.de/debian.php
-        64bit GNU powered                     gpg signed mail preferred
-           Help keep free software "libre": http://www.ffii.de/
-
---=_luckmann.name-2434-1629128647-0001-2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEbZZfteMW0gNUynuwQbqlJmgq5nAFAmEah8QACgkQQbqlJmgq
-5nB6ig/+JXFo+vKsaPuYHOHyXrqahqxqxbB/CYfY6P4YYB4kORg17wPH+T/yoIpG
-OQi+NRuBliWdCdpraVyB552Lrny6IZCCWzPx3vgjd9sWuU2sc7F6aOxqkitBWh/n
-YhieZonCCNgJzv6yfCDGN1ezy7e7M5TBaf0YDgZP3YL659Dmf9eWm8lsD3ZcwYZs
-Id8peTvBusslzL4sA/+W8r3yjMAg/Qj22deohIhLkmH6RZyH6KiWlUzo29nS/ojw
-8xKPNGTskBF6+QKLKh3GalFN1DdjuHQOG565ZQSGcBBTE52D8Kw63GEk7c2Oatc6
-K8R8QSJJ8YupEwFo2ebpbh/8kto5owOguUIqy+xm6MbkC+1CYHcrbazcGXoY5387
-r7wV4KQkVFPaa4v8ysNQCKipwq2/WNdkE1vHOsnLO2NM2ENIh7wfA7GfU0VKN02g
-cuulyCFIdX+bglGjei5ChtiXDyk0F5FfaMZJOOLdjC4tZYbyb46GS7Mh2WPDeRrB
-KhfpYGQW3JB5rdGWWLMeCUBloy/p9aGWLpl+4ZuD8ImPUwfE1FlHZZHgjaEryrxf
-uSJr2Hhk/j3ziVH9XZ2wDoiQkzOrs3MZnDodweAifXVoky8gnrX32jHGj8a5XojM
-vAMobElVjSBAYV9UkPPo0QIW3SVoFLnK4scxR+Nwr+q0n6LDpf8=
-=9Kef
------END PGP SIGNATURE-----
-
---=_luckmann.name-2434-1629128647-0001-2--
+"Use exclusive BSD lock for device or file it operates. The optional argument "
+"I<mode> can be B<yes>, B<no> (or 1 and 0) or B<nonblock>. If the I<mode> "
+"argument is omitted, it defaults to B<\"yes\">. This option overwrites "
+"environment variable B<$LOCK_BLOCK_DEVICE>. The default is not to use any "
+"lock at all, but it\\(cqs recommended to avoid collisions with udevd or "
+"other tools."
