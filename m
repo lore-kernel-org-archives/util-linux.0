@@ -4,35 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADA2FC3F6A3
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55697C19F34
 	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9254760EFE
+	by mail.kernel.org (Postfix) with ESMTP id 3A2D0604DC
 	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232381AbhHPQxF (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S232249AbhHPQxF (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Mon, 16 Aug 2021 12:53:05 -0400
-Received: from luckmann.name ([213.239.213.133]:48775 "EHLO
+Received: from luckmann.name ([213.239.213.133]:50635 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232043AbhHPQxE (ORCPT
+        by vger.kernel.org with ESMTP id S230383AbhHPQxD (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Mon, 16 Aug 2021 12:53:04 -0400
+        Mon, 16 Aug 2021 12:53:03 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000BD6033.00000000611A97C4.000015A8; Mon, 16 Aug 2021 18:52:20 +0200
-Date:   Mon, 16 Aug 2021 18:52:20 +0200
+  id 0000000000BD602F.00000000611A97C3.00001591; Mon, 16 Aug 2021 18:52:19 +0200
+Date:   Mon, 16 Aug 2021 18:52:19 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Issue in man page setarch.8
-Message-ID: <20210816165219.GA5529@Debian-50-lenny-64-minimal>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Subject: Issue in man page scriptreplay.1
+Message-ID: <20210816165219.GA5506@Debian-50-lenny-64-minimal>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
 X-homepage: http://www.helgefjell.de/debian
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -42,6 +42,12 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Without further ado, the following was found:
 
-Issue: arch → setarch?
+Issue: output doesn't match the real output exactly
 
-"B<arch> [options] [I<program> [I<argument>...]]"
+"% script --log-timing file.tm --log-out script.out\n"
+"Script started, file is script.out\n"
+"% ls\n"
+"E<lt>etc, etcE<gt>\n"
+"% exit\n"
+"Script done, file is script.out\n"
+"% scriptreplay --log-timing file.tm --log-out script.out\n"
