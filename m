@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 604BEC43216
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8E06C00144
 	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4A8D1604DC
+	by mail.kernel.org (Postfix) with ESMTP id 9E4CF604DC
 	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231997AbhHPQxB (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 12:53:01 -0400
-Received: from luckmann.name ([213.239.213.133]:60273 "EHLO
+        id S232234AbhHPQxC (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 12:53:02 -0400
+Received: from luckmann.name ([213.239.213.133]:50635 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229779AbhHPQxA (ORCPT
+        by vger.kernel.org with ESMTP id S229733AbhHPQxB (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Mon, 16 Aug 2021 12:53:00 -0400
+        Mon, 16 Aug 2021 12:53:01 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000BD6039.00000000611A97C0.000014C2; Mon, 16 Aug 2021 18:52:16 +0200
+  id 0000000000BD603C.00000000611A97C0.000014D9; Mon, 16 Aug 2021 18:52:16 +0200
 Date:   Mon, 16 Aug 2021 18:52:16 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Issue in man page agetty.8
-Message-ID: <20210816165216.GA5299@Debian-50-lenny-64-minimal>
+Subject: Issue in man page rfkill.8
+Message-ID: <20210816165216.GA5322@Debian-50-lenny-64-minimal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -42,8 +42,6 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Without further ado, the following was found:
 
-Issue: I<inittab(5)> → B<inittab>(5)
+Issue: B<unblock id|type> → B<unblock >I<id|type>
 
-"This section shows examples for the process field of an entry in the I</etc/"
-"inittab> file.  You'll have to prepend appropriate values for the other "
-"fields.  See I<inittab(5)> for more details."
+"B<unblock id>|B<type> [...]"
