@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87ADDC4320A
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7B6EC4338F
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7160760EFE
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B41C760EFE
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232165AbhHPQwq (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S231992AbhHPQwq (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Mon, 16 Aug 2021 12:52:46 -0400
-Received: from luckmann.name ([213.239.213.133]:53499 "EHLO
+Received: from luckmann.name ([213.239.213.133]:48775 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231578AbhHPQwm (ORCPT
+        by vger.kernel.org with ESMTP id S231932AbhHPQwo (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Mon, 16 Aug 2021 12:52:42 -0400
+        Mon, 16 Aug 2021 12:52:44 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000BD602C.00000000611A97B7.000012C6; Mon, 16 Aug 2021 18:52:07 +0200
+  id 0000000000BD6035.00000000611A97B7.000012DD; Mon, 16 Aug 2021 18:52:07 +0200
 Date:   Mon, 16 Aug 2021 18:52:07 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Issue in man page agetty.8
-Message-ID: <20210816165207.GA4791@Debian-50-lenny-64-minimal>
+Subject: Issue in man page mount.8
+Message-ID: <20210816165207.GA4814@Debian-50-lenny-64-minimal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -42,8 +42,6 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Without further ado, the following was found:
 
-Issue: commandline → command line
+Issue: B<mount --target /mountpoint> → B<mount --target >I</mountpoint>
 
-"Some programs use \"--\" to indicate that the rest of the command line "
-"should not be interpreted as options. Use this feature if available by "
-"passing \"--\" before the username gets passed by \\(rsu."
+"B<mount --target /mountpoint>"
