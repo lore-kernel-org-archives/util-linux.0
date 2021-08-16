@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15B70C4320A
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2076AC4320E
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EBF8160EFE
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 06E5360EFE
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232237AbhHPQxF (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S232043AbhHPQxF (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Mon, 16 Aug 2021 12:53:05 -0400
 Received: from luckmann.name ([213.239.213.133]:60273 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232249AbhHPQxD (ORCPT
+        by vger.kernel.org with ESMTP id S232183AbhHPQxE (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Mon, 16 Aug 2021 12:53:03 -0400
+        Mon, 16 Aug 2021 12:53:04 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000BD602E.00000000611A97C3.0000157A; Mon, 16 Aug 2021 18:52:19 +0200
-Date:   Mon, 16 Aug 2021 18:52:19 +0200
+  id 0000000000BD6044.00000000611A97C4.000015D7; Mon, 16 Aug 2021 18:52:20 +0200
+Date:   Mon, 16 Aug 2021 18:52:20 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Issue in man page scriptreplay.1
-Message-ID: <20210816165219.GA5483@Debian-50-lenny-64-minimal>
+Subject: Issue in man page sfdisk.8
+Message-ID: <20210816165220.GA5576@Debian-50-lenny-64-minimal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -42,8 +42,11 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Without further ado, the following was found:
 
-Issue: B<script>(1)) → B<script>(1)
+Issue: udevd → B<systemd-udevd>(8)
 
-"Display details about the session recorded in the specified timing file and "
-"exit. The session has to be recorded using I<advanced> format (see "
-"B<script>(1)) option B<--logging-format> for more details)."
+"B<sfdisk> uses B<BLKRRPART> (reread partition table) ioctl to make sure that "
+"the device is not used by system or other tools (see also B<--no-reread>). It"
+"\\(cqs possible that this feature or another B<sfdisk> activity races with "
+"B<udevd>. The recommended way how to avoid possible collisions is to use B<--"
+"lock> option. The exclusive lock will cause udevd to skip the event handling "
+"on the device."
