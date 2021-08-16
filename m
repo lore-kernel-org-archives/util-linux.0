@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 764CAC25AE5
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ADA2FC3F6A3
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5A3BD60EFF
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9254760EFE
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232440AbhHPQxL (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 12:53:11 -0400
-Received: from luckmann.name ([213.239.213.133]:53499 "EHLO
+        id S232381AbhHPQxF (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 12:53:05 -0400
+Received: from luckmann.name ([213.239.213.133]:48775 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232308AbhHPQxK (ORCPT
+        by vger.kernel.org with ESMTP id S232043AbhHPQxE (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Mon, 16 Aug 2021 12:53:10 -0400
+        Mon, 16 Aug 2021 12:53:04 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000BD6070.00000000611A97CA.0000174A; Mon, 16 Aug 2021 18:52:26 +0200
-Date:   Mon, 16 Aug 2021 18:52:26 +0200
+  id 0000000000BD6033.00000000611A97C4.000015A8; Mon, 16 Aug 2021 18:52:20 +0200
+Date:   Mon, 16 Aug 2021 18:52:20 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
-Subject: Issue in man page unshare.1
-Message-ID: <20210816165226.GA5947@Debian-50-lenny-64-minimal>
+Subject: Issue in man page setarch.8
+Message-ID: <20210816165219.GA5529@Debian-50-lenny-64-minimal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -42,12 +42,6 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Without further ado, the following was found:
 
-Issue: B<sleep> → B<sleep>(1)
+Issue: arch → setarch?
 
-"The B<pidof>(1) command prints no output, because the B<sleep> processes "
-"have been killed. More precisely, when the B<sleep> process that has PID 1 "
-"in the namespace (i.e., the namespace\\(cqs init process) was killed, this "
-"caused all other processes in the namespace to be killed. By contrast, a "
-"similar series of commands where the B<--kill-child> option is not used "
-"shows that when B<unshare> terminates, the processes in the PID namespace "
-"are not killed:"
+"B<arch> [options] [I<program> [I<argument>...]]"
