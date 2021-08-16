@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AA19C43214
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AFCEC4338F
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 15970604DC
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1622960EFE
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232086AbhHPQwu (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 12:52:50 -0400
-Received: from luckmann.name ([213.239.213.133]:53499 "EHLO
+        id S232257AbhHPQwv (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 12:52:51 -0400
+Received: from luckmann.name ([213.239.213.133]:48775 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232258AbhHPQwt (ORCPT
+        by vger.kernel.org with ESMTP id S229966AbhHPQwt (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
         Mon, 16 Aug 2021 12:52:49 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000BD602F.00000000611A97BA.0000137E; Mon, 16 Aug 2021 18:52:10 +0200
+  id 0000000000BD6042.00000000611A97BA.00001395; Mon, 16 Aug 2021 18:52:10 +0200
 Date:   Mon, 16 Aug 2021 18:52:10 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
 Subject: Issue in man page mount.8
-Message-ID: <20210816165210.GA4975@Debian-50-lenny-64-minimal>
+Message-ID: <20210816165210.GA4998@Debian-50-lenny-64-minimal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -42,9 +42,9 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Without further ado, the following was found:
 
-Issue 1: mount syscall → B<mount>(2) syscall
-Issue 2: of → or (?)
+Issue: ext_N_ → ext__N__ (in Asciidoc markup!)
 
-"Mount the filesystem read/write. Read-write is the kernel default and the "
-"B<mount> default is to try read-only if the previous mount syscall with read-"
-"write flags on write-protected devices of filesystems failed."
+"Some of these options could be enabled or disabled by default in the system "
+"kernel. To check the current setting see the options in I</proc/mounts>. "
+"Note that filesystems also have per-filesystem specific default mount "
+"options (see for example B<tune2fs -l> output for ext_N_ filesystems)."
