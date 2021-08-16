@@ -2,37 +2,37 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_05,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10F32C19F3C
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8AFAC19F3A
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EC817604DC
+	by mail.kernel.org (Postfix) with ESMTP id AFB4960EFE
 	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231625AbhHPQwk (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S231577AbhHPQwk (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Mon, 16 Aug 2021 12:52:40 -0400
-Received: from luckmann.name ([213.239.213.133]:50635 "EHLO
+Received: from luckmann.name ([213.239.213.133]:53499 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229737AbhHPQwk (ORCPT
+        by vger.kernel.org with ESMTP id S230442AbhHPQwk (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
         Mon, 16 Aug 2021 12:52:40 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000BD6040.00000000611A97B4.000011F6; Mon, 16 Aug 2021 18:52:04 +0200
+  id 0000000000BD6041.00000000611A97B4.0000120D; Mon, 16 Aug 2021 18:52:04 +0200
 Date:   Mon, 16 Aug 2021 18:52:04 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
 Subject: Issue in man page lslogins.1
-Message-ID: <20210816165204.GA4583@Debian-50-lenny-64-minimal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <20210816165204.GA4606@Debian-50-lenny-64-minimal>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
 X-homepage: http://www.helgefjell.de/debian
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -42,6 +42,11 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Without further ado, the following was found:
 
-Issue: The order of closing brackets is wrong
+Issue 1: /etc/login.defs → I</etc/login.defs>
+Issue 2: SYS_UID_MIN → B<SYS_UID_MIN>
+Issue 3: SYS_UID_MAX → B<SYS_UID_MIN>
 
-"Display information related to login by password (see also B<-afL).>"
+"Show system accounts. These are by default all accounts with a UID between "
+"101 and 999 (inclusive), with the exception of either nobody or nfsnobody "
+"(UID 65534). This hardcoded default may be overwritten by parameters "
+"SYS_UID_MIN and SYS_UID_MAX in the file I</etc/login.defs>."
