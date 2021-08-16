@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CBA1C4320E
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 183B7C432BE
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0529960EFE
+	by mail.kernel.org (Postfix) with ESMTP id F3921604DC
 	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232128AbhHPQwr (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 12:52:47 -0400
-Received: from luckmann.name ([213.239.213.133]:60273 "EHLO
+        id S230249AbhHPQws (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 12:52:48 -0400
+Received: from luckmann.name ([213.239.213.133]:50635 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230249AbhHPQwp (ORCPT
+        by vger.kernel.org with ESMTP id S231958AbhHPQwq (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Mon, 16 Aug 2021 12:52:45 -0400
+        Mon, 16 Aug 2021 12:52:46 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000BD6034.00000000611A97B8.000012F4; Mon, 16 Aug 2021 18:52:08 +0200
+  id 0000000000BD6039.00000000611A97B8.0000130B; Mon, 16 Aug 2021 18:52:08 +0200
 Date:   Mon, 16 Aug 2021 18:52:08 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
 Subject: Issue in man page mount.8
-Message-ID: <20210816165208.GA4837@Debian-50-lenny-64-minimal>
+Message-ID: <20210816165208.GA4860@Debian-50-lenny-64-minimal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -42,8 +42,6 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Without further ado, the following was found:
 
-Issue: operations It's → operations. It's
+Issue: I<device>*B<*>|I<dir> → I<device>|I<dir>
 
-"Human readable partition identifier. This identifier is independent on "
-"filesystem and does not change by mkfs or mkswap operations It\\(cqs "
-"supported for example for GUID Partition Tables (GPT)."
+"B<mount> I<device>*B<*>|I<dir> B<-o> I<options>"
