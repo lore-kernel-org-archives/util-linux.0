@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8713C41537
-	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15B70C4320A
+	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B1E0A60EFF
+	by mail.kernel.org (Postfix) with ESMTP id EBF8160EFE
 	for <util-linux@archiver.kernel.org>; Mon, 16 Aug 2021 16:52:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232207AbhHPQxE (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 16 Aug 2021 12:53:04 -0400
-Received: from luckmann.name ([213.239.213.133]:53499 "EHLO
+        id S232237AbhHPQxF (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 16 Aug 2021 12:53:05 -0400
+Received: from luckmann.name ([213.239.213.133]:60273 "EHLO
         static.213-239-213-133.clients.your-server.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232237AbhHPQxD (ORCPT
+        by vger.kernel.org with ESMTP id S232249AbhHPQxD (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
         Mon, 16 Aug 2021 12:53:03 -0400
 Received: from localhost (localhost [127.0.0.1])
   (uid 502)
   by static.213-239-213-133.clients.your-server.de with local
-  id 0000000000BD6040.00000000611A97C2.00001563; Mon, 16 Aug 2021 18:52:18 +0200
-Date:   Mon, 16 Aug 2021 18:52:18 +0200
+  id 0000000000BD602E.00000000611A97C3.0000157A; Mon, 16 Aug 2021 18:52:19 +0200
+Date:   Mon, 16 Aug 2021 18:52:19 +0200
 From:   Helge Kreutzmann <debian@helgefjell.de>
 To:     util-linux@vger.kernel.org
 Cc:     mario.blaettermann@gmail.com
 Subject: Issue in man page scriptreplay.1
-Message-ID: <20210816165218.GA5460@Debian-50-lenny-64-minimal>
+Message-ID: <20210816165219.GA5483@Debian-50-lenny-64-minimal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -42,9 +42,8 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Without further ado, the following was found:
 
-Issue: second »speed-up« should be actually »speed-down«
+Issue: B<script>(1)) → B<script>(1)
 
-"If the third parameter or B<--divisor> is specified, it is used as a speed-"
-"up multiplier. For example, a speed-up of 2 makes B<scriptreplay> go twice "
-"as fast, and a speed-up of 0.1 makes it go ten times slower than the "
-"original session."
+"Display details about the session recorded in the specified timing file and "
+"exit. The session has to be recorded using I<advanced> format (see "
+"B<script>(1)) option B<--logging-format> for more details)."
