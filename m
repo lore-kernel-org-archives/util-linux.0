@@ -2,114 +2,148 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B188C4338F
-	for <util-linux@archiver.kernel.org>; Tue, 24 Aug 2021 01:17:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38E80C4320A
+	for <util-linux@archiver.kernel.org>; Tue, 24 Aug 2021 01:17:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 50B8C61056
-	for <util-linux@archiver.kernel.org>; Tue, 24 Aug 2021 01:17:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12C726138B
+	for <util-linux@archiver.kernel.org>; Tue, 24 Aug 2021 01:17:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231653AbhHXBSK (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 23 Aug 2021 21:18:10 -0400
+        id S233260AbhHXBSL (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 23 Aug 2021 21:18:11 -0400
 Received: from esa5.hgst.iphmx.com ([216.71.153.144]:10631 "EHLO
         esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229742AbhHXBSK (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 23 Aug 2021 21:18:10 -0400
+        with ESMTP id S229742AbhHXBSL (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 23 Aug 2021 21:18:11 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1629767846; x=1661303846;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=/K6UCKMK/aDbgsSLXzSFMMc+fdnz/oNuckq1cqdh1bE=;
-  b=KTpxworfYNQ7No7f4rSIK9D6P8VQxdz9Z2lw6KeTwRZ0wFC23e9/kDeC
-   7Gu3jRYuIXeVWqGAvh/zYK5sA9vwzKQv5jc5sjk9bzQ0ykxX02fqGpnUw
-   5idAaF8TeJLpytmwcMMN1FlrFEEY9gpX2/BfQVULSg3WcNcBU4GX22LIw
-   7+QuFPbMolyhgI8R0HXjpPFhgwRu1sbpeKqF5kK+ZYnfPBEjHqOBl+JHy
-   1TVaQjmr4NORclitj00k8KnlUqfYCUjIfWVUZd8toY71wqu2RDWczS9my
-   9TfAXNn76pfoDvm0GXfl7WHl6WRVFMa7Dzph1gk54ZuGqIeXEnPbFQQwq
-   w==;
+  t=1629767847; x=1661303847;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=slvoiQEkIQlePo6uRWoj2EWV3plWRvddqyNu6U2jlSA=;
+  b=ipsRET4ymbcBX3FtDn7zzUQa7uplDB4NyUDhPvPv0ozhiDR0CYt8Rpyp
+   Ec82bdF5ZOmPtOAZsCyIkHvmoLGvabSP6pBp5IAB6rG1jnatJWafNiRuf
+   SEs3KA1cMb8+H0LUwu3BQHZmvJJBhumlJ0oQ2c1Z3LSHKzesN3+mMtjs2
+   yDQdkLtlH8Do9wsi8KX1ReTOQNgPaFPLFd1sGvyDj1A800rRciQB1qS7P
+   pFcRVjHTtP8nJg/GNv7QXDJFSFoh3hRtvrs4ZgCMGYp8hUPTt+RczktSO
+   TVcCUsmaFz0Eb3zI8wT1O7J0OBaqogkIbvFwNvGhcjV2z5i3/F0P2kutc
+   Q==;
 X-IronPort-AV: E=Sophos;i="5.84,346,1620662400"; 
-   d="scan'208";a="178172514"
+   d="scan'208";a="178172515"
 Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 24 Aug 2021 09:17:26 +0800
-IronPort-SDR: OnMZwkg/f1xIpLeZJDQlJqFfTcyFDF/lUmMfyLCTjqfhNnujFn6JlawFEVCca7pqnV1yP+aaT2
- STm18LgYxagj9w64rEuYijy6Lf7bkixs7bjwL6jxdnWZStl0DS1KDO0Ba/GcKJY6Vxogo3bexE
- IIi/6bWTWeQRO5zmmk49X+bymAH0aYnKFkESOTruKWju7QDczBKXIj+Zl8GG+ckrh8EU+XD++9
- gnJIQJ9IbOyRCzNnmR0fKYJpQ0WTHNaQQEYltxp8O/AUVnR29oBLWOIjIAcHY5YGjIaGj1O2KE
- RJEe/FfDWlsSkqSsUa/A+9BP
+  by ob1.hgst.iphmx.com with ESMTP; 24 Aug 2021 09:17:27 +0800
+IronPort-SDR: aAixGMyBo2KswJOVfhcHMg4dRiTWl+YD2UIgY3yqjfg4+Ie3KCdEr5yxtu/ekg9GNjg/xFqd7J
+ Tiq45m/KOaTPbard4/TBQGLhHr8n+ji4+Bnv1aWEvpFEkOdTrcJzRouSwq9zt8Ocwm0F9AgmwH
+ KWrAjBStnhL9ya6v2XKnbU22BRETRs8SN0YiTc+Cgs1XPUKK5P5M1UKJOpSGFV6FnfRP0xHjml
+ OkNbNk0kZA1fmDj2BTJsav4yxB4lYcshg5pA2YDYSns9pc0FrsrLZj+CEWL/tCcRVlCqhRyPhY
+ jFBITB+G70P0Rjq00BdI/LMn
 Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Aug 2021 17:52:42 -0700
-IronPort-SDR: Gn5g8VSwtTuAM987HQ7IsncIpPCKVwHRuo82qirBXlhwiZY6OCapxAdLo3K0JKxQ0nsUv3OI18
- FovLrFQg1BUMcyLBZJpm1d11tboMzUD8IS70bjreg+ngliYjAPNyxwC7FhErMFYRqLUkhr1hT3
- yYpSfgxdBj2LI4VAQSo9zeibuZ07XLAmcUQgoyYYuiswFN+5AtpKXU/jAqlu0sFclf/OTq/Tjg
- NJRz7N+wL3EYzs/+AhG6minvy5QnklJx+lr+S4kMiW/K6NzEmr3k+wY0qybcUXTRReokt/Vhfi
- k74=
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Aug 2021 17:52:43 -0700
+IronPort-SDR: E5JT5lTrWRtCCwGHoh7vFiq4VNPxo5pSxhLc+1sGfFvUprOw7XL65NlZ4gia53Ym0yBT/C6FCZ
+ Mtw4EThiT1BJ43ADclgAOvJzEM1wCpfzcjOla9kJisZpxmKRQGingDtrtDfD3bYaOPlhwZQsJx
+ dpTGv2FmHnNuLKo9ElOouheSUcuq8piDGQY+pDIZPHcMshtqQUf0F37EVKZFeEl2+YORSqJaga
+ ID3uPnaLBbmkrTjfz6iw7q1IyOv1/r3Vj5PGV7ZgulVdhrqOyvFEjLvf+C5jy7wgtJUyNFGE3C
+ ztM=
 WDCIronportException: Internal
 Received: from unknown (HELO naota-xeon.wdc.com) ([10.225.55.91])
-  by uls-op-cesaip01.wdc.com with ESMTP; 23 Aug 2021 18:17:26 -0700
+  by uls-op-cesaip01.wdc.com with ESMTP; 23 Aug 2021 18:17:27 -0700
 From:   Naohiro Aota <naohiro.aota@wdc.com>
 To:     Karel Zak <kzak@redhat.com>
 Cc:     util-linux@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>
-Subject: [PATCH 0/2] add columns for zoned parameters
-Date:   Tue, 24 Aug 2021 10:17:16 +0900
-Message-Id: <20210824011718.300747-1-naohiro.aota@wdc.com>
+Subject: [PATCH 1/2] lsblk: factor out function to read sysfs param as bytes
+Date:   Tue, 24 Aug 2021 10:17:17 +0900
+Message-Id: <20210824011718.300747-2-naohiro.aota@wdc.com>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20210824011718.300747-1-naohiro.aota@wdc.com>
+References: <20210824011718.300747-1-naohiro.aota@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Several parameters for zoned devices are missing from lsblk's columns. This
-series introduces them as following.
+Factor out a new function device_read_bytes() to read a sysfs path as bytes
+for a preparation for the next commit and to reduce the code duplication.
 
- Column Name      Description             Sysfs path
- ---------------------------------------------------------------------
- ZONE-SIZE        zone size               queue/chunk_sectors
- ZONE-WGRAN       zone write granularity  queue/zone_write_granularity
- ZONE-APPEND      zone append max bytes   queue/zone_append_max_bytes
- ZONES-NR         number of zones         queue/nr_zones
- ZONES-OMAX       max open zones          queue/max_open_zones
- ZONES-AMAX       max active zones        queue/max_active_zones
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+---
+ misc-utils/lsblk.c | 45 ++++++++++++++++++++-------------------------
+ 1 file changed, 20 insertions(+), 25 deletions(-)
 
-Sample output:
-
-$ lsblk -o NAME,ZONED,ZONE-SIZE,ZONE-WGRAN,ZONE-APPEND,ZONES-NR,ZONES-OMAX,ZONES-AMAX -i
-NAME        ZONED        ZONE-SIZE ZONE-WGRAN ZONE-APPEND ZONES-NR ZONES-OMAX ZONES-AMAX
-sda         host-managed      256M         4K        672K    55880        128          0
-sdb         host-managed      256M         4K        672K    55880        128          0
-zram0       none                0B         0B          0B        0          0          0
-nvme2n1     none                0B         0B          0B        0          0          0
-|-nvme2n1p1 none                0B         0B          0B        0          0          0
-|-nvme2n1p2 none                0B         0B          0B        0          0          0
-`-nvme2n1p3 none                0B         0B          0B        0          0          0
-nvme0n1     none                0B         0B          0B        0          0          0
-nvme1n1     none                0B         0B          0B        0          0          0
-nvme0n2     host-managed        2G         4K          4M     1844         14         14
-nvme1n2     host-managed        2G         4K          4M     1844         14         14
-
-$ lsblk --help|grep -i zone
- -z, --zoned          print zone model
-        ZONED  zone model
-    ZONE-SIZE  zone size
-   ZONE-WGRAN  zone write granularity
-  ZONE-APPEND  zone append max bytes
-     ZONES-NR  number of zones
-   ZONES-OMAX  max open zones
-   ZONES-AMAX  max active zones
-
-
-Naohiro Aota (2):
-  lsblk: factor out function to read sysfs param as bytes
-  lsblk: add columns of zoned parameters
-
- misc-utils/lsblk.c | 95 ++++++++++++++++++++++++++++++++++------------
- 1 file changed, 71 insertions(+), 24 deletions(-)
-
+diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
+index 100eba0779f8..775a6d832076 100644
+--- a/misc-utils/lsblk.c
++++ b/misc-utils/lsblk.c
+@@ -708,6 +708,24 @@ static uint64_t device_get_discard_granularity(struct lsblk_device *dev)
+ 	return dev->discard_granularity;
+ }
+ 
++static void device_read_bytes(struct lsblk_device *dev, char *path, char **str,
++			      uint64_t *sortdata)
++{
++	if (lsblk->bytes) {
++		ul_path_read_string(dev->sysfs, str, path);
++		if (sortdata)
++			str2u64(*str, sortdata);
++	} else {
++		uint64_t x;
++
++		if (ul_path_read_u64(dev->sysfs, &x, path) == 0) {
++			*str = size_to_human_string(SIZE_SUFFIX_1LETTER, x);
++			if (sortdata)
++				*sortdata = x;
++		}
++	}
++}
++
+ /*
+  * Generates data (string) for column specified by column ID for specified device. If sortdata
+  * is not NULL then returns number usable to sort the column if the data are available for the
+@@ -1033,18 +1051,7 @@ static char *device_get_data(
+ 		}
+ 		break;
+ 	case COL_DMAX:
+-		if (lsblk->bytes) {
+-			ul_path_read_string(dev->sysfs, &str, "queue/discard_max_bytes");
+-			if (sortdata)
+-				str2u64(str, sortdata);
+-		} else {
+-			uint64_t x;
+-			if (ul_path_read_u64(dev->sysfs, &x, "queue/discard_max_bytes") == 0) {
+-				str = size_to_human_string(SIZE_SUFFIX_1LETTER, x);
+-				if (sortdata)
+-					*sortdata = x;
+-			}
+-		}
++		device_read_bytes(dev, "queue/discard_max_bytes", &str, sortdata);
+ 		break;
+ 	case COL_DZERO:
+ 		if (device_get_discard_granularity(dev) > 0)
+@@ -1053,19 +1060,7 @@ static char *device_get_data(
+ 			str = xstrdup("0");
+ 		break;
+ 	case COL_WSAME:
+-		if (lsblk->bytes) {
+-			ul_path_read_string(dev->sysfs, &str, "queue/write_same_max_bytes");
+-			if (sortdata)
+-				str2u64(str, sortdata);
+-		} else {
+-			uint64_t x;
+-
+-			if (ul_path_read_u64(dev->sysfs, &x, "queue/write_same_max_bytes") == 0) {
+-				str = size_to_human_string(SIZE_SUFFIX_1LETTER, x);
+-				if (sortdata)
+-					*sortdata = x;
+-			}
+-		}
++		device_read_bytes(dev, "queue/write_same_max_bytes", &str, sortdata);
+ 		if (!str)
+ 			str = xstrdup("0");
+ 		break;
 -- 
 2.33.0
 
