@@ -7,57 +7,57 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6413DC43214
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22F96C4320E
 	for <util-linux@archiver.kernel.org>; Fri, 27 Aug 2021 07:35:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4C9A460F92
+	by mail.kernel.org (Postfix) with ESMTP id 0A74560F92
 	for <util-linux@archiver.kernel.org>; Fri, 27 Aug 2021 07:35:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244425AbhH0HgC (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 27 Aug 2021 03:36:02 -0400
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:37290 "EHLO
+        id S244412AbhH0HgB (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 27 Aug 2021 03:36:01 -0400
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:37295 "EHLO
         esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244429AbhH0Hf5 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 27 Aug 2021 03:35:57 -0400
+        with ESMTP id S244425AbhH0Hf4 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 27 Aug 2021 03:35:56 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
   t=1630049708; x=1661585708;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=UbHDeRwcM/IfpR8rgh0jixDV0q4Co+jYFud9P6JEBUk=;
-  b=YibGCbEOobT2rkjJm6e0GVxBl7xuIwWmTjRuj2j73LseQrnfnH0vIHb2
-   LzTvTLfTt6yH0oKY3rpRK4CNiER6ypv+SCMFr7QjpaGl1JqMHMtTiDs5y
-   KvnPQNB1cYU2jVeU/iEe7fCvPqRmyCkqbCX5Tqrb9OwCPHPrEuIEOKkNd
-   JkHpIO4QECdn//3xuvVzT62jgZ1bsQYzBIX30FDNiWgbnxqs90/zjCAdt
-   T6QnJbrp4P4h+lw0I08Q9ZuRUV2BKiC54xdcHw1Qg0LTLjaa/4EQ5BxVG
-   CqOwSLj0ePBdWBwhUDm8jvy/O0bf2623WI8le+uYyJ00fPlswWmD0icsh
+  bh=Ctyd9XCNu7BpxhM0A7Fa4B177mWzC3F1kfTQjQeVlHI=;
+  b=K1tvQ3V0iZWXVQyjJsBJEfnGZVrY1Bw5pG/MhePoPRpVGoEqW4yrkHRv
+   ttLZ+nU/4dJ7+A3ARaMEgZ4gUhQQJAm54zEzlcDsPZzzpcr7UR2wXb+97
+   t+LMYXPWi8C1qcDs6tjY7xA7W6weGh5vK08Cy27CoJymlHmUup2IMTcFK
+   FXRGZmikMPngBHATxB1JRSY7teoP3W+bq+lfbpfAbM8Rd7f5le+3uhe/U
+   s9aUrakPyYhJ0akyglyA3WFbYuqQd6HSdo+ccGFaYd7CI8Pow7YTGq+vb
+   D3Dm6bQ1pzhAXR5XH2kazvtO2e6QPUsJGXrdkMeqEUfgJfWdXeR5QQysv
    w==;
 X-IronPort-AV: E=Sophos;i="5.84,355,1620662400"; 
-   d="scan'208";a="290159633"
+   d="scan'208";a="290159632"
 Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 27 Aug 2021 15:35:08 +0800
-IronPort-SDR: 0KpOXCzYB9A5o0MtX3C5ys+S/xmMcd8HxlZLoQvtkKGONN1gOkIzyd+2akHJXZQc2uwuRvNlVD
- IJN9+0nQ1xhOo808/DBdqlcZvpoGcKDebk0toKxE7yJEpcMR999acalBi3i3hQimJQj9VyrHMS
- VBU26ohmpxUN/Rh+gk3nD/WD0HPi1CFnWNDxlT7IkkIGxRfYNzWz3wuGYHMWmm+5WCRx7vGTl9
- /vYFcwZArLVObyTrNWaYGvs+Q+deC/hUNHaIYArTvc9USptLjzTa+UHrBWxeIWs4bgZFCxNA5h
- dFuJRrOQVp42Vs9ah6cSZ62m
+  by ob1.hgst.iphmx.com with ESMTP; 27 Aug 2021 15:35:07 +0800
+IronPort-SDR: XfZ5zCIfDFrePgcBTYdNnIVl97ulMvfFzEUq0hsE6BZROVjYYZU/tkc18qAWGNUUyiAUSKQn1Y
+ d0Cht1DIHMRvBrMNquaDS2/uK3Ia1Ym9wPy6KiJfImXtYmYut63OdQddNvkur6cfTjpnYiZa31
+ 7zeAgVz8QKzMzwSBTwuKoQ8Qq2Rj0FpcDZFAlZph9dsm4zHHXPhBmlzuHKTB9pFJ8aWrD38JCG
+ CehGSclGjaAPOlp1quV9Fl809EUg3E4pNYhEAVxkmMt0t3KQjUQxL4gDo06KSq+E9E60n7Ca8F
+ AGd5HDYEXqVuKey5ko8S4nOD
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Aug 2021 00:12:03 -0700
-IronPort-SDR: m4DeFWo4fpEK3kPCAVpAwoOCxT/0F2+bKqyv0ZpI8ZbOQIsa+1LuAZN+QhIUjPYnpT94H5D3Ud
- 1eySwquHP+ZyGPegAhQTPyCnkvMXK55vS8HDbgoMxo1FSh7zewysvMwzTR2zhPL/O+Pu/zx1DB
- lmPUMaWNXEgR2+gftBJgqOqNjYYSWTajIZOL4OrpL1bjXmBtVs0yu+eWC+7/N71EpHMu3YSha1
- WOjIdV+cwo7rohBHXPNMFhcJpwkpOyUQASuGWYNisD3p4Q0vk4plhLIz/8QgoImHAsBeNta1uR
- fss=
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Aug 2021 00:12:02 -0700
+IronPort-SDR: S3Jzuml832epDJi25uW8Kfu6sipjYIMYAHvzgtFpEOk5MXmTNODf5Ffk0euZYCrKVZ/8yq1+9c
+ 2EyfHrJ7u6uMGjG1V1YvY+pJWadT+XnkOHRh7wF/TSORf8VHuHNTrM01JBeItP1t26bPCWRGpG
+ sbDcsJurXSiJY96FgxbQvVc17wynGXvBsCbFEUmUUUqc0kHJpe3YdA73bRdR06z0UB8KeIg75h
+ 4VAHUCkQYTACdPFHUBG1M+k2CVTPEmzHItC9/CiLdDBpw5EvcOZUUuIFCT/GKdlmA9Qd8qQrVB
+ 1yk=
 WDCIronportException: Internal
 Received: from unknown (HELO naota-xeon.wdc.com) ([10.225.59.69])
-  by uls-op-cesaip02.wdc.com with ESMTP; 27 Aug 2021 00:35:07 -0700
+  by uls-op-cesaip02.wdc.com with ESMTP; 27 Aug 2021 00:35:06 -0700
 From:   Naohiro Aota <naohiro.aota@wdc.com>
 To:     Karel Zak <kzak@redhat.com>
 Cc:     util-linux@vger.kernel.org, Damien.LeMoal@wdc.com,
         Naohiro Aota <naohiro.aota@wdc.com>
-Subject: [PATCH v2 3/3] lsblk: add zoned columns to "lsblk -z"
-Date:   Fri, 27 Aug 2021 16:34:53 +0900
-Message-Id: <20210827073453.4079636-4-naohiro.aota@wdc.com>
+Subject: [PATCH v2 2/3] lsblk: add columns of zoned parameters
+Date:   Fri, 27 Aug 2021 16:34:52 +0900
+Message-Id: <20210827073453.4079636-3-naohiro.aota@wdc.com>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210827073453.4079636-1-naohiro.aota@wdc.com>
 References: <20210827073453.4079636-1-naohiro.aota@wdc.com>
@@ -67,67 +67,113 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Add zoned columns to the "-z" option as follow.
+Several parameters for zoned devices are missing from lsblk's columns. This
+commit introduces them as following.
 
-$ lsblk -z -i
-NAME        ZONED        ZONE-SZ ZONE-NR ZONE-AMAX ZONE-OMAX ZONE-APP ZONE-GRAN
-sda         host-managed    256M   55880         0       128     672K        4K
-sdb         host-managed    256M   55880         0       128     672K        4K
-zram0       none              0B       0         0         0       0B        0B
-nvme2n1     none              0B       0         0         0       0B        0B
-|-nvme2n1p1 none              0B       0         0         0       0B        0B
-|-nvme2n1p2 none              0B       0         0         0       0B        0B
-`-nvme2n1p3 none              0B       0         0         0       0B        0B
-nvme0n1     none              0B       0         0         0       0B        0B
-nvme1n1     none              0B       0         0         0       0B        0B
-nvme0n2     host-managed      2G    1844        14        14       4M        4K
-nvme1n2     host-managed      2G    1844        14        14       4M        4K
+ ZONE-SZ    zone size
+ ZONE-GRAN  zone write granularity
+ ZONE-APP   zone append max bytes
+ ZONE-NR    number of zones
+ ZONE-OMAX  max open zones
+ ZONE-AMAX  max active zones
 
 Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
 ---
- misc-utils/lsblk.8.adoc | 2 +-
- misc-utils/lsblk.c      | 8 +++++++-
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ bash-completion/lsblk |  3 ++-
+ misc-utils/lsblk.c    | 52 +++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 54 insertions(+), 1 deletion(-)
 
-diff --git a/misc-utils/lsblk.8.adoc b/misc-utils/lsblk.8.adoc
-index 7356976403a7..9e68a847ce0c 100644
---- a/misc-utils/lsblk.8.adoc
-+++ b/misc-utils/lsblk.8.adoc
-@@ -116,7 +116,7 @@ Specifies output width as a number of characters. The default is the number of t
- Sort output lines by _column_. This option enables *--list* output format by default. It is possible to use the option *--tree* to force tree-like output and than the tree branches are sorted by the _column_.
+diff --git a/bash-completion/lsblk b/bash-completion/lsblk
+index 731ef3f4095d..c9ebbdcedef6 100644
+--- a/bash-completion/lsblk
++++ b/bash-completion/lsblk
+@@ -10,7 +10,8 @@ _lsblk_module()
+ 		LABEL UUID PTUUID PTTYPE PARTTYPE PARTTYPENAME PARTLABEL PARTUUID PARTFLAGS RA
+ 		RO RM HOTPLUG MODEL SERIAL SIZE STATE OWNER GROUP MODE ALIGNMENT MIN-IO OPT-IO
+ 		PHY-SEC LOG-SEC ROTA SCHED RQ-SIZE TYPE DISC-ALN DISC-GRAN DISC-MAX DISC-ZERO
+-		WSAME WWN RAND PKNAME HCTL TRAN SUBSYSTEMS REV VENDOR ZONED DAX
++		WSAME WWN RAND PKNAME HCTL TRAN SUBSYSTEMS REV VENDOR ZONED ZONE-SZ ZONE-GRAN
++		ZONE-APP ZONE-NR ZONE-OMAX ZONE-AMAX DAX
+ 	"
  
- *-z*, *--zoned*::
--Print the zone model for each device.
-+Print the zone related information for each device.
- 
- *--sysroot* _directory_::
- Gather data for a Linux instance other than the instance from which the *lsblk* command is issued. The specified directory is the system root of the Linux instance to be inspected. The real device nodes in the target directory can be replaced by text files with udev attributes.
+ 	case $prev in
 diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
-index 108c8187498e..8a2578312f0d 100644
+index 775a6d832076..108c8187498e 100644
 --- a/misc-utils/lsblk.c
 +++ b/misc-utils/lsblk.c
-@@ -1919,7 +1919,7 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(_(" -t, --topology       output info about topology\n"), out);
- 	fputs(_(" -w, --width <num>    specifies output width as number of characters\n"), out);
- 	fputs(_(" -x, --sort <column>  sort output by <column>\n"), out);
--	fputs(_(" -z, --zoned          print zone model\n"), out);
-+	fputs(_(" -z, --zoned          print zone related information\n"), out);
- 	fputs(_("     --sysroot <dir>  use specified directory as system root\n"), out);
- 	fputs(USAGE_SEPARATOR, out);
- 	printf(USAGE_HELP_OPTIONS(22));
-@@ -2041,6 +2041,12 @@ int main(int argc, char *argv[])
- 		case 'z':
- 			add_uniq_column(COL_NAME);
- 			add_uniq_column(COL_ZONED);
-+			add_uniq_column(COL_ZONESIZE);
-+			add_uniq_column(COL_ZONE_NR);
-+			add_uniq_column(COL_ZONE_AMAX);
-+			add_uniq_column(COL_ZONE_OMAX);
-+			add_uniq_column(COL_ZONEAPPEND);
-+			add_uniq_column(COL_ZONEWRITEGRAN);
- 			break;
- 		case 'e':
- 			parse_excludes(optarg);
+@@ -123,6 +123,12 @@ enum {
+ 	COL_WSAME,
+ 	COL_WWN,
+ 	COL_ZONED,
++	COL_ZONESIZE,
++	COL_ZONEWRITEGRAN,
++	COL_ZONEAPPEND,
++	COL_ZONE_NR,
++	COL_ZONE_OMAX,
++	COL_ZONE_AMAX,
+ };
+ 
+ /* basic table settings */
+@@ -213,6 +219,12 @@ static struct colinfo infos[] = {
+ 	[COL_WSAME] = { "WSAME", 6, SCOLS_FL_RIGHT, N_("write same max bytes"), COLTYPE_SIZE },
+ 	[COL_WWN] = { "WWN", 18, 0, N_("unique storage identifier") },
+ 	[COL_ZONED] = { "ZONED", 0.3, 0, N_("zone model") },
++	[COL_ZONESIZE] = { "ZONE-SZ", 9, SCOLS_FL_RIGHT, N_("zone size"), COLTYPE_NUM },
++	[COL_ZONEWRITEGRAN] = { "ZONE-GRAN", 10, SCOLS_FL_RIGHT, N_("zone write granularity"), COLTYPE_NUM },
++	[COL_ZONEAPPEND] = { "ZONE-APP", 11, SCOLS_FL_RIGHT, N_("zone append max bytes"), COLTYPE_NUM },
++	[COL_ZONE_NR] = { "ZONE-NR", 8, SCOLS_FL_RIGHT, N_("number of zones"), COLTYPE_NUM },
++	[COL_ZONE_OMAX] = { "ZONE-OMAX", 10, SCOLS_FL_RIGHT, N_("max open zones"), COLTYPE_NUM },
++	[COL_ZONE_AMAX] = { "ZONE-AMAX", 10, SCOLS_FL_RIGHT, N_("max active zones"), COLTYPE_NUM },
+ };
+ 
+ struct lsblk *lsblk;	/* global handler */
+@@ -1067,6 +1079,46 @@ static char *device_get_data(
+ 	case COL_ZONED:
+ 		ul_path_read_string(dev->sysfs, &str, "queue/zoned");
+ 		break;
++	case COL_ZONESIZE:
++	{
++		uint64_t x;
++
++		if (ul_path_read_u64(dev->sysfs, &x, "queue/chunk_sectors") == 0) {
++			x <<= 9;
++			if (lsblk->bytes)
++				xasprintf(&str, "%ju", x);
++			else
++				str = size_to_human_string(SIZE_SUFFIX_1LETTER, x);
++			if (sortdata)
++				*sortdata = x;
++		}
++		break;
++	}
++	case COL_ZONEWRITEGRAN:
++		device_read_bytes(dev, "queue/zone_write_granularity", &str, sortdata);
++		break;
++	case COL_ZONEAPPEND:
++		device_read_bytes(dev, "queue/zone_append_max_bytes", &str, sortdata);
++		break;
++	case COL_ZONE_NR:
++		ul_path_read_string(dev->sysfs, &str, "queue/nr_zones");
++		if (sortdata)
++			str2u64(str, sortdata);
++		break;
++	case COL_ZONE_OMAX:
++		ul_path_read_string(dev->sysfs, &str, "queue/max_open_zones");
++		if (!str)
++			str = xstrdup("0");
++		if (sortdata)
++			str2u64(str, sortdata);
++		break;
++	case COL_ZONE_AMAX:
++		ul_path_read_string(dev->sysfs, &str, "queue/max_active_zones");
++		if (!str)
++			str = xstrdup("0");
++		if (sortdata)
++			str2u64(str, sortdata);
++		break;
+ 	case COL_DAX:
+ 		ul_path_read_string(dev->sysfs, &str, "queue/dax");
+ 		break;
 -- 
 2.33.0
 
