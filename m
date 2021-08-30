@@ -7,73 +7,75 @@ X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1561C432BE
-	for <util-linux@archiver.kernel.org>; Mon, 30 Aug 2021 01:08:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36632C432BE
+	for <util-linux@archiver.kernel.org>; Mon, 30 Aug 2021 01:21:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C628E60E90
-	for <util-linux@archiver.kernel.org>; Mon, 30 Aug 2021 01:08:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 09F8760F9E
+	for <util-linux@archiver.kernel.org>; Mon, 30 Aug 2021 01:21:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231401AbhH3BJC (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sun, 29 Aug 2021 21:09:02 -0400
-Received: from esa3.hgst.iphmx.com ([216.71.153.141]:22672 "EHLO
+        id S234794AbhH3BWr (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 29 Aug 2021 21:22:47 -0400
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:23608 "EHLO
         esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230047AbhH3BJB (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 29 Aug 2021 21:09:01 -0400
+        with ESMTP id S231401AbhH3BWq (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 29 Aug 2021 21:22:46 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1630285688; x=1661821688;
+  t=1630286513; x=1661822513;
   h=from:to:cc:subject:date:message-id:references:
    in-reply-to:content-id:content-transfer-encoding:
    mime-version;
-  bh=uN6dz4a0YqKr6/KVVvhz8O1lL/rfaCzgCAkTQAbSBRQ=;
-  b=HJShrpXAlBJEfHEPNpbesJmy8qajOLH+Ve79cf1HLfGJgrcgdNrr3d/J
-   TY1xCwjkhoMs4JdwwnFo14+mT2/eYYkLIfEU6VSg1Xpbrje0MsOkQTUPn
-   1Xs/8ZUl1I+dVzWOGx8yp2oH/lRJLF12Ccx83Nrz6ePixW8AIjyOJKaIx
-   uuqJ8CJq5nR8IM5v1Yz8VazUbE9qK/5IuGgwljaDqYF8CPtAxFync4o7W
-   1N5ER0i6s0EqpaDNZKCB+pWfOnP/7URGFYZgc0PBSrAAs7lrb9Cn08XNv
-   39IRJE9vO17e2g6dDB3rTlzel1aBw03PduYznw318Fs0A0yBPulR5q5fv
+  bh=wUwCE1Cp1Sipx4S+hUH5l0NK+3QZdc7CjL4fT9zS5iA=;
+  b=gRZSwr3EnNEgWjNWVyM9cw3Uh2RvCWnhEOzs+r7h5DMsBJGkNyTCa56/
+   X6sXa8SLIC5jJbq78YecOocY0JHO37FsdXtafPNG7AlUl7OkGph23ADSs
+   j9gVVh/F04lfJLyZ0j9xyZGEU66C6mSca8f86owVUckKGj3g2F8wxVXu/
+   eQCVAwMkMmpPA2f2zMjhyGHyeUuIMGiVXoQVUHuQgupdThUsGw9ng50QK
+   ksQp0Ensw90koOvP8m0AQPp4EnpO3UXVoH/uKU+Mwdtrj8asG02AnbnqX
+   yDAVSjhw+X1PUUR2H8pOZmRBBFeY8jPtEgnKkVBU5IQC2RWh8c7xMGANC
    w==;
 X-IronPort-AV: E=Sophos;i="5.84,362,1620662400"; 
-   d="scan'208";a="183500717"
-Received: from mail-mw2nam12lp2040.outbound.protection.outlook.com (HELO NAM12-MW2-obe.outbound.protection.outlook.com) ([104.47.66.40])
-  by ob1.hgst.iphmx.com with ESMTP; 30 Aug 2021 09:08:07 +0800
+   d="scan'208";a="183501411"
+Received: from mail-dm3nam07lp2044.outbound.protection.outlook.com (HELO NAM02-DM3-obe.outbound.protection.outlook.com) ([104.47.56.44])
+  by ob1.hgst.iphmx.com with ESMTP; 30 Aug 2021 09:21:53 +0800
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Dgqu+0XI3kvfv1OowiXSO0lvdTp3M2FxskeEIOyNMFcX47z2QZ9G01Mfwy+CmLOQFU9yUskQEvHf0cn4HahN8iT5CXl3qa4deX4+jMTjI3S1OaLhCq5VHy3/+aFqJAyPe1KzOg1I0k06P6WdObKwaC8Fprgp0DJK4iaskNCJzLtcwkAgpQthRekI/zYJ+CwHVNq7JbQCe4i8i6+OJjRDfMF2Wn2fzR3EnhgpQT/FMgVB8oOUUYT3pKHLHTBCNiZdPfLVbzzepJb7nPwA6hd2Ix+VpExgAVAoQnGnECkEOovGkGSRiFtuHiNZZVhjtpwiz/XSh5WTyl5KoZj4TXzdUA==
+ b=NmULpVHYCi0qKllFajILtvum3Xx2yMseQvrVHwj8VrzDFWRROSzcbTSnGG6gt6/SHBoiV4bPzdyHlYBvjU+Y+bbSFFi5aATAlT+oET07qw4BVVV3qaljl37nsNQaWiaorGJ7N0vzwlUvXf8TBl4NidZQvENNYozVUWsJ9SDSfLyrnhD6iDnKr36Gy7aBs7fGGM3KCrTLjqjQnfrG3M0uVtJmUw1n/2xY3OiilToHxIKN1usyQ9uDIEJikTzjY0hE6XqjRZwAR9a8SBlpnWyUMLgJrf3pPD4LoALs1PTD3EYCPWSiCCKmhOx2rrSu0JEAcTCRtqakXQlR4ywOLW9V5A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=zbLvjxfQr5fbRrq00L4wQvv49BOBorvL4lthefaMIko=;
- b=OCVKx3ognPzl+qnpILv71jOp7sekEinx4h5hNOQJHioEseL7irSdjpwidsMGMCI3rK705gfEoDaNsZhp4JNVGPGdjJP7w7ZjKokg73Jzv4qX6FDvnitk+vog7QVdjWxCrUIBmDpKk2NwEkJNg6aAu1VYFCLgKSpqTHdI8BdE1rKEzuRZ/OZZ/MgXbgruemWKzaTMPi06anxM+32KIK5I6zzFUijL4NiyaMkoYHaxUE0yjHMCoChgplj3xNg2eIJoCwG2Tf7PRuxh/fmUJAtN47uTpncaGEQ5vVDGNcyITwQS3gMOSJjI8I26DpJtZS4iNk0D6ppiHJkeK39XcBtOJQ==
+ bh=PIU29WHfWiyonBiGhqc9TLz6ht1DCCZ1LyinLh0cQ2A=;
+ b=hUlFW/FedvrElIcqrfQLNz5aHTHhHMzy4n3dPw2i/vdcbvusQ7ZeCs5nbGBiMlYd2viYSzFPzsjXHWZeuqHbdGOGJQXMWv7jhaG15yKg7q48huc70n7bpDbdcmku9bLt/lfCu+Wlnc/h0VyTP8NNmllce20Nf+fMQ+mN3WeOK2t/EWIJXwoNqDhXhLmWk/U2HJZyCx1hcLjvvd6aGIAUTznt9ezRddjJbDhJU3dDPe0AHsHcqkgXxdu7M/ppZzD/NJn3EVQa5ApffbLcbIsghk3usdLAWvZqrj+KHu8ARKadsjoO6hGdKVivzLITACnjsV51BuGpO4aVC1euT65ljg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
  header.d=wdc.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=zbLvjxfQr5fbRrq00L4wQvv49BOBorvL4lthefaMIko=;
- b=UqmLTDgvLew19SPX12gEl/bftRxPeW8D0APwStVVGkah1cEbf12DjtEhb/nJlutLeSgOfRLjGdzpZEbGuNxUmwCwnW+32nW7CVu0q7APk4JmVY9eOR2KW8UB4Hr8dU9fRP8pxP+QefetKDHAy2FBVia+JfnRqlE9NLsn7dFQJeU=
+ bh=PIU29WHfWiyonBiGhqc9TLz6ht1DCCZ1LyinLh0cQ2A=;
+ b=m6k6i+d4QAph8vL0MJ/WalWgRTAM7XebuTWVV6P/EgLq3lGzMyYTneFEoaNOa9STw4lSNwYEke7ZSZ+1WYFJwrxE/ydoU8WblfT7Biget6Qdc+eYakOQd8NoxqyqBmxv8rjKYc2ofewYhUiSZTVXgJFh81v9HZphvl4r5c+FLtc=
 Received: from SJ0PR04MB7776.namprd04.prod.outlook.com (2603:10b6:a03:300::11)
- by SJ0PR04MB8375.namprd04.prod.outlook.com (2603:10b6:a03:3d8::8) with
+ by SJ0PR04MB7824.namprd04.prod.outlook.com (2603:10b6:a03:3aa::21) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4457.17; Mon, 30 Aug
- 2021 01:08:06 +0000
+ 2021 01:21:52 +0000
 Received: from SJ0PR04MB7776.namprd04.prod.outlook.com
  ([fe80::19a7:91bd:cb0c:e555]) by SJ0PR04MB7776.namprd04.prod.outlook.com
  ([fe80::19a7:91bd:cb0c:e555%6]) with mapi id 15.20.4457.024; Mon, 30 Aug 2021
- 01:08:06 +0000
+ 01:21:52 +0000
 From:   Naohiro Aota <Naohiro.Aota@wdc.com>
 To:     Damien Le Moal <Damien.LeMoal@wdc.com>
 CC:     Karel Zak <kzak@redhat.com>,
         "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: [PATCH v2 2/3] lsblk: add columns of zoned parameters
-Thread-Topic: [PATCH v2 2/3] lsblk: add columns of zoned parameters
-Thread-Index: AQHXmxYS4yZ6jtZMeU63dvOu2p5XLquLQM4A
-Date:   Mon, 30 Aug 2021 01:08:06 +0000
-Message-ID: <20210830010806.w2v2zmm6i5smcoou@naota-xeon>
+Subject: Re: [PATCH v2 1/3] lsblk: factor out function to read sysfs param as
+ bytes
+Thread-Topic: [PATCH v2 1/3] lsblk: factor out function to read sysfs param as
+ bytes
+Thread-Index: AQHXmxYRW2Dl6OpjEkWA4bshtFmInauLRKYA
+Date:   Mon, 30 Aug 2021 01:21:52 +0000
+Message-ID: <20210830012152.v2rfwoo4alxu5533@naota-xeon>
 References: <20210827073453.4079636-1-naohiro.aota@wdc.com>
- <20210827073453.4079636-3-naohiro.aota@wdc.com>
- <DM6PR04MB7081F921F5DF2E1D8E35D350E7CA9@DM6PR04MB7081.namprd04.prod.outlook.com>
-In-Reply-To: <DM6PR04MB7081F921F5DF2E1D8E35D350E7CA9@DM6PR04MB7081.namprd04.prod.outlook.com>
+ <20210827073453.4079636-2-naohiro.aota@wdc.com>
+ <DM6PR04MB7081FBA5FEB9A90D022991D6E7CA9@DM6PR04MB7081.namprd04.prod.outlook.com>
+In-Reply-To: <DM6PR04MB7081FBA5FEB9A90D022991D6E7CA9@DM6PR04MB7081.namprd04.prod.outlook.com>
 Accept-Language: ja-JP, en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
@@ -81,200 +83,161 @@ X-MS-TNEF-Correlator:
 authentication-results: wdc.com; dkim=none (message not signed)
  header.d=none;wdc.com; dmarc=none action=none header.from=wdc.com;
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 836ebba5-0f7b-46fa-ca5f-08d96b52a01b
-x-ms-traffictypediagnostic: SJ0PR04MB8375:
+x-ms-office365-filtering-correlation-id: 372a64c2-9bf7-4ec5-c144-08d96b548c61
+x-ms-traffictypediagnostic: SJ0PR04MB7824:
 x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <SJ0PR04MB8375CB1F0691254A260C46198CCB9@SJ0PR04MB8375.namprd04.prod.outlook.com>
+x-microsoft-antispam-prvs: <SJ0PR04MB782418026F0F824C9897A5628CCB9@SJ0PR04MB7824.namprd04.prod.outlook.com>
 wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:1388;
+x-ms-oob-tlc-oobclassifiers: OLM:1303;
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: dBj+LwlOctSh91Kc9EXO+H7dSzWjYzyFVbZjjUtf5MY57QeO108nqNFRisLVxOKfjX4m7M6Yziwl9tog126F3nIE7tqBT3b43hPXMV70J5q2AY3/f84AsvGwbogRyMKtRluyh/axr2bmm9+0EMIoA4RZtv+bTZ3PNr3B+ap+LhmnBBFREE9EpCa3YwCK4QZZGfa8CiM4p/gHquxbrYIxFgrgcTU4VhXC189PF2qyMugEn0HlBEQxoc1mdtkBtC3YqTC8A5LU2f78BQBauQgwqFwh+tWrjNc0DM9PEb4Y8N8+iGLuG3MyYKPq/5Gt9AvhcQ3fb/0wsT7mfP3atSHHm+p1SBpZOEaEXN/RcsDYyfEAzNxjEKC4rs0wZlH8eK9K+YGZwu5wClovQE+2YpDnmyxelL3jqqQdLx2FJVvQiL0XX04NvbGjg2aLNhEKEQxTZITjAwGRggI/9nAhY9T0ccRShRNuNZrKDJIw89SDMGyRiNWlndb6qpP7hiV/rE9TwzC9nfrbLYbjl2iDQsBGTU3g9c0HX56y6k327zQEz+yOK38FGzT/VuWERhl7XAYQDonWlLNHO1NpL9MB8Pj5mcoLT4WRbugtgRhokCQHDBKYtsGZ+yXmB1ps8A829MpZg+SmdEg+RMA1N3zEKJunZbzkDOzwCQJ99H+OGHNfZTp6BzcSnqBtAS0iiqR7Sk9TqDhmn9jwkriJCNBSFFEcOQ==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR04MB7776.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(7916004)(4636009)(366004)(6512007)(9686003)(6486002)(83380400001)(6862004)(71200400001)(91956017)(66946007)(64756008)(66556008)(38070700005)(66446008)(54906003)(5660300002)(186003)(4326008)(33716001)(86362001)(26005)(508600001)(316002)(2906002)(38100700002)(122000001)(53546011)(6636002)(76116006)(8676002)(1076003)(66476007)(6506007)(8936002);DIR:OUT;SFP:1102;
+x-microsoft-antispam-message-info: K9gP4g+ulEyrGr4spBdKNTrluU7YPJuJqZdaE42yYDugSQjBKuIF+D8MTUa8e0+CDXwv+wquxtOD3xAJMox5Uz/AV+tE50jAjeIBnByuM0nuZITWJPncgbeY1s/qr/RrALOFFdbsv7tFCb7pgdousJ0zQdHchoMG560ETm7FMSkaqBb5J9Oe0bfZnOrObapQ4Ys0UMWjtl6qqaLBdBcY6THKNCj6sLf28fLSTqzKfCiOqlvuhwi4vLRDAILO/hwFDTEENLGzCuWVQQLWOyVxktJXGAGlXvpbKTTZSPFoJ+agIeFh43PCbCpSk1DviR5RiC9OfdFZhxM+oRm+cVQ7hHY/3kV0uTSW3Ep2Ea5B8Cpynonc8l/kpcAp3tIOkrvb+8nLzkFa4OLsJETgFekJQhMa5metyVkNk4BO1tQkso1mFTcIcQrCUelmM78d8xo3l3J5acqROxhDUBOQN+X+RNOYJr+eRN697u0P9ypR1HeoJknJMad11zHBrx97w/wKgrC1q09PAO665E0GCL4JLVKfjBLAziKvRpg/inMlhjSHmpQcKZqvYPU8nnnYdrMxDRuOW0gLryD79WgCsmoT8QvkitHb9+EiKoAXfcfv7m2/Z+nragMPtxuh339HBCbsAFi3A4/nPu7sUm7JVC6JKi/WFuETX/RqmycVBghVvUtnnDuFWbBxaUh5HvAIDngAAnqk+DQAwLMR0VUPpYr9Cw==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR04MB7776.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(7916004)(366004)(38070700005)(64756008)(2906002)(91956017)(316002)(6506007)(4326008)(53546011)(66476007)(508600001)(54906003)(5660300002)(66446008)(8676002)(71200400001)(186003)(9686003)(6512007)(66946007)(6862004)(38100700002)(33716001)(8936002)(6636002)(6486002)(83380400001)(122000001)(26005)(76116006)(66556008)(86362001)(1076003);DIR:OUT;SFP:1102;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?iSEkVVloE43u8xHPis3ynczF36TGLC/eyrCUUjS+ee57CFc6cDaTuS0Vei2c?=
- =?us-ascii?Q?sqY7YpQc4ZKYfa8lAxurViyFVpAxmg0DlUqAh+Idpc2GX9w1LDw0vLLDt1jR?=
- =?us-ascii?Q?ouRMm5BziHcsEAEVM+qPcOxT/cGY8ikLnxmiJ6nLJNWIct6m+48b1XNpTIxy?=
- =?us-ascii?Q?8S3CKpwLlLZuJh3WmSlDScfYVIrZo9NqLK5+ua2cblBTEKl8tOPHJS5XihXx?=
- =?us-ascii?Q?gcFk3EljqFSQx3RFzJ1uzzdLW2kq5gnbJN5+kwly8y7JQauGd9o23JxQ7HMD?=
- =?us-ascii?Q?jsgpmcvPomb3CmGV9kzxYW7iGK6wx3Rz15SEYB4PZA63gQBXGs7OU3nW1S9x?=
- =?us-ascii?Q?HcoJ5y9FaFsL7WZvVdrgUiLB8tlqMWlcJOJO+6XScrUn2URv6IhA59rYgeDa?=
- =?us-ascii?Q?BwNvBFOVe9ev9C324fihLcz/zE+7h5OZlgYJ8gWRoHHDZdMY+3XZvwdxiTen?=
- =?us-ascii?Q?vozjoXo5EeUOhex3rAEJLARz38JijKY7VbDp6QO7Lifn6Q9OcxUcpWQxgnvZ?=
- =?us-ascii?Q?NlK+i0Cl4DQNjfOx/I5gBI5cTZo0KxETEPBA7ZjFEGqqRWC7S/bLRgrRoWFz?=
- =?us-ascii?Q?QfbYEuP+h07vUoPz0wlUydxzapWD2qxuh7G5KW36SkKpqRrN78d53XJbqVW4?=
- =?us-ascii?Q?frWJ4ODQxq7XoWXQwVqvTH81rFt6yWmWiONaU1clDggT8Pdi/ImYKOsleiFm?=
- =?us-ascii?Q?i2aIAE8ATsndHLXjVlFI86reaxWKA+Ov/ZIszt4qwSA9G9v6EQrknee6ptNm?=
- =?us-ascii?Q?6zIE1JfF1iw4ost8HnhLPPhWLAlp0D5zIKIHclhEWN6qpchJWSLbJ9A0E07+?=
- =?us-ascii?Q?4Ut0eDe0LMn6Ba+7Bct+CT8OazCkqGHTStLSf94BtC73JIyklbvA5GKTqTCs?=
- =?us-ascii?Q?TvOc6NpJVvusUE5Yc9bZLrLxnxNxvc4RXcUR09r80KYa6miNTdt+2bpfK/PG?=
- =?us-ascii?Q?ksCkV776KW07y5ezxKii6EIcpClNBQQFP4K5XMZ3zpp5qE+ViQxdceq4s1lr?=
- =?us-ascii?Q?Wsb7qd0jhr7KuUfxOWl2HJQu5uQ8ivwa4s3EHUnJOPf7o10osElcKe0d4+BR?=
- =?us-ascii?Q?3diqehGUFeB8kr1qoVJsoearh62YtbrY5ZsieR8VvkeLaoe6zprciNv8gtCo?=
- =?us-ascii?Q?IJZBd2cVwEGOLgHPavWfaRwNKb07GB5nsA7NOs5YbcbbrxtVXi13DhoIzKZN?=
- =?us-ascii?Q?/1SPMWFo7XjkA4ZMjP8ZRmuY3ASokLmeooRyxbByE54nX4nDjfEBH2/I/XF7?=
- =?us-ascii?Q?MDBEAtA0pDpbBFi0Mo46B5/9lAxuu76UxFkHQrr86MkDny+P/6jexRZKles1?=
- =?us-ascii?Q?W4BEz0gw5D66+xxe1sNBxhOpgx+tGX2mfQI4WKkblVi6rQ=3D=3D?=
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?rIW3TP+TDekNfCBMIDQZPLCmQx1/UiG2m1xePxmEyb1c0KZn0BFEDMH5pxVz?=
+ =?us-ascii?Q?XnerOF2hi/z4zLeRsKqwNnXPcrb0PcC7m/hS1LxKqCqQObI1Dig2oCqMYyvK?=
+ =?us-ascii?Q?qZl7AQsWZjp3Cs3SUFPbEmsQ/uNaAR9TTN0HJ9yw1yg0/0PDNYNIo47DjWph?=
+ =?us-ascii?Q?AaRUA4oL/GmES4iVL9REze+a4AW0n6njJOBLfxp2oskjScwmMshuPLZ4japi?=
+ =?us-ascii?Q?k8pl+EJpmaHgDdsrzUd3uPy8tb+rrAnyauglvl8TKGk4FWoD48WIxY6w9L0s?=
+ =?us-ascii?Q?HyNVDwGpoks2uKTxRZv4EQ8IaDpe/6buSCwHgq5sa/xwIyVp2uYgaOYvgYFS?=
+ =?us-ascii?Q?xaHl/LCWTOjaAyoeInBt52w/Nuc3VnL2uWwhNA8tQ8GReugRuZrbjfcY/+EP?=
+ =?us-ascii?Q?z+HOmZUCCybLp8lLKIyftGDVu+nDZinK+VHcbysdGWdGGhBl4f4fp+9M/WiB?=
+ =?us-ascii?Q?H5nuJ7rHQ3EJzJ/MHVjne0+Cq1ghtTcJvMw6qThoSEJKZv7/f4kpMH0IcJlA?=
+ =?us-ascii?Q?1bgcoq/D3U/FOQrkGMUUUKTNZkWlaO4rVzwBeVy/k8Fv+GcqHuE6Ir65Bd1y?=
+ =?us-ascii?Q?EBjTxbWC5+gnhK4f4bjvnkiQWmlRwD+TqciFkusNv1c0+SPkbebrhZ85jEQS?=
+ =?us-ascii?Q?nUdIUC5W0lhDrnSugY2qnVtZWT5Kc/AhAwvfVk9LuwV++CKU3UPAMor0kyJN?=
+ =?us-ascii?Q?ld9YrESnJNhGbcS3iUSRO6I58+2v7nLSaesK7n2WIdZY/H90y7h2b8EQiAqL?=
+ =?us-ascii?Q?UeLLRhzrNplNReaoHsz1GG5SKq21H2pIYay7R2SVmFJydx/3giSk+LtB4WsM?=
+ =?us-ascii?Q?Y0YxpyIx4OZjp7eiIkiYOxJrU5WkfYyz/kicdqlX9gCaIsNWJRSIY1HPByFV?=
+ =?us-ascii?Q?lt0MIyh5rVoMiNdcuPF794T1jDn1y8vWBN5QN9OE/VHwJtwzZMB/6EQrf+Au?=
+ =?us-ascii?Q?Efisvhmm0CE1fI2QSIkmU8QLPC94Hqgrtwzda6BKTBEViwdO+8yXebb/yI4G?=
+ =?us-ascii?Q?5sifVjWXBiUfgomaJ1y1QCDjNCMo38Vh7bh1u4UFYWWfLGSttSUdmMBLJix/?=
+ =?us-ascii?Q?tHtjzbctohBcwFBOyy5bRIrEUomoCsFZAPJhkcB4A23gJpXod2eRIZopjeEd?=
+ =?us-ascii?Q?xO0L5Oi0UYeDEZzzxFY3SdSZIg0YIPCyI3UPNNZRNzjY/71iU03QLWnKKSf/?=
+ =?us-ascii?Q?WrDcQDUvMdEG1qIrThwlRkGnDHsrXIFVEU463VuzD/1QUwvF1ND6jPcbG1HI?=
+ =?us-ascii?Q?i7G54x5nzmWfyoDs5tM/Ihd+5nOl4iyf30ZUXfqtFnP8XJhuE0y2jy53ZEO4?=
+ =?us-ascii?Q?kEOFaHeGmPOViQbVt+rsGr8vzrin6586J/qDlXbp7m/nGQ=3D=3D?=
 Content-Type: text/plain; charset="us-ascii"
-Content-ID: <B766930C7917E04896ADD749C32EBBE4@namprd04.prod.outlook.com>
+Content-ID: <BD3F2C13B9021041A2B907E30D5B051A@namprd04.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: wdc.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: SJ0PR04MB7776.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 836ebba5-0f7b-46fa-ca5f-08d96b52a01b
-X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Aug 2021 01:08:06.5390
+X-MS-Exchange-CrossTenant-Network-Message-Id: 372a64c2-9bf7-4ec5-c144-08d96b548c61
+X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Aug 2021 01:21:52.5032
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: pn/5L/1DBlnqb6ADVgKsc3LJtZtR8ap6/jc6NNT0++49w5PwWfZZzKNLtbK2R5TcwdopUpJo6hRpg+M/CLfJiw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR04MB8375
+X-MS-Exchange-CrossTenant-userprincipalname: uSx+1ycTaxx6X9lEao6/KIpJM7DS9zEDsvrGCu713Y9s7exh38sV5kus93Ua35+D4Drhnom0rq7IJ039i8ovTQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR04MB7824
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Sun, Aug 29, 2021 at 11:10:18PM +0000, Damien Le Moal wrote:
+On Sun, Aug 29, 2021 at 11:07:10PM +0000, Damien Le Moal wrote:
 > On 2021/08/27 16:35, Naohiro Aota wrote:
-> > Several parameters for zoned devices are missing from lsblk's columns. =
-This
-> > commit introduces them as following.
-> >=20
-> >  ZONE-SZ    zone size
-> >  ZONE-GRAN  zone write granularity
->=20
-> ZONE-WGRAN ? (to enforce the point that is a WRITE granularity).
-
-I changed WGRAN to GRAN to follow DISC-GRAN (discard granularity) and
-to have a shorter name. But, either is fine for me.
-
->=20
-> >  ZONE-APP   zone append max bytes
-> >  ZONE-NR    number of zones
-> >  ZONE-OMAX  max open zones
-> >  ZONE-AMAX  max active zones
+> > Factor out a new function device_read_bytes() to read a sysfs path as b=
+ytes
+> > for a preparation for the next commit and to reduce the code duplicatio=
+n.
 > >=20
 > > Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
 > > ---
-> >  bash-completion/lsblk |  3 ++-
-> >  misc-utils/lsblk.c    | 52 +++++++++++++++++++++++++++++++++++++++++++
-> >  2 files changed, 54 insertions(+), 1 deletion(-)
+> >  misc-utils/lsblk.c | 45 ++++++++++++++++++++-------------------------
+> >  1 file changed, 20 insertions(+), 25 deletions(-)
 > >=20
-> > diff --git a/bash-completion/lsblk b/bash-completion/lsblk
-> > index 731ef3f4095d..c9ebbdcedef6 100644
-> > --- a/bash-completion/lsblk
-> > +++ b/bash-completion/lsblk
-> > @@ -10,7 +10,8 @@ _lsblk_module()
-> >  		LABEL UUID PTUUID PTTYPE PARTTYPE PARTTYPENAME PARTLABEL PARTUUID PA=
-RTFLAGS RA
-> >  		RO RM HOTPLUG MODEL SERIAL SIZE STATE OWNER GROUP MODE ALIGNMENT MIN=
--IO OPT-IO
-> >  		PHY-SEC LOG-SEC ROTA SCHED RQ-SIZE TYPE DISC-ALN DISC-GRAN DISC-MAX =
-DISC-ZERO
-> > -		WSAME WWN RAND PKNAME HCTL TRAN SUBSYSTEMS REV VENDOR ZONED DAX
-> > +		WSAME WWN RAND PKNAME HCTL TRAN SUBSYSTEMS REV VENDOR ZONED ZONE-SZ =
-ZONE-GRAN
-> > +		ZONE-APP ZONE-NR ZONE-OMAX ZONE-AMAX DAX
-> >  	"
-> > =20
-> >  	case $prev in
 > > diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
-> > index 775a6d832076..108c8187498e 100644
+> > index 100eba0779f8..775a6d832076 100644
 > > --- a/misc-utils/lsblk.c
 > > +++ b/misc-utils/lsblk.c
-> > @@ -123,6 +123,12 @@ enum {
-> >  	COL_WSAME,
-> >  	COL_WWN,
-> >  	COL_ZONED,
-> > +	COL_ZONESIZE,
-> > +	COL_ZONEWRITEGRAN,
-> > +	COL_ZONEAPPEND,
->=20
-> COL_ZONESZ
-> COL_ZONEWGRAN
-> COL_ZONEAPP
->=20
-> To be inline with the columns display names ?
-
-Sure. I'll fix.
-
-> > +	COL_ZONE_NR,
-> > +	COL_ZONE_OMAX,
-> > +	COL_ZONE_AMAX,
-> >  };
-> >  /* basic table settings */
-> > @@ -213,6 +219,12 @@ static struct colinfo infos[] =3D {
-> >  	[COL_WSAME] =3D { "WSAME", 6, SCOLS_FL_RIGHT, N_("write same max byte=
-s"), COLTYPE_SIZE },
-> >  	[COL_WWN] =3D { "WWN", 18, 0, N_("unique storage identifier") },
-> >  	[COL_ZONED] =3D { "ZONED", 0.3, 0, N_("zone model") },
-> > +	[COL_ZONESIZE] =3D { "ZONE-SZ", 9, SCOLS_FL_RIGHT, N_("zone size"), C=
-OLTYPE_NUM },
-> > +	[COL_ZONEWRITEGRAN] =3D { "ZONE-GRAN", 10, SCOLS_FL_RIGHT, N_("zone w=
-rite granularity"), COLTYPE_NUM },
-> > +	[COL_ZONEAPPEND] =3D { "ZONE-APP", 11, SCOLS_FL_RIGHT, N_("zone appen=
-d max bytes"), COLTYPE_NUM },
-> > +	[COL_ZONE_NR] =3D { "ZONE-NR", 8, SCOLS_FL_RIGHT, N_("number of zones=
-"), COLTYPE_NUM },
-> > +	[COL_ZONE_OMAX] =3D { "ZONE-OMAX", 10, SCOLS_FL_RIGHT, N_("max open z=
-ones"), COLTYPE_NUM },
-> > +	[COL_ZONE_AMAX] =3D { "ZONE-AMAX", 10, SCOLS_FL_RIGHT, N_("max active=
- zones"), COLTYPE_NUM },
-> >  };
+> > @@ -708,6 +708,24 @@ static uint64_t device_get_discard_granularity(str=
+uct lsblk_device *dev)
+> >  	return dev->discard_granularity;
+> >  }
 > > =20
-> >  struct lsblk *lsblk;	/* global handler */
-> > @@ -1067,6 +1079,46 @@ static char *device_get_data(
-> >  	case COL_ZONED:
-> >  		ul_path_read_string(dev->sysfs, &str, "queue/zoned");
-> >  		break;
-> > +	case COL_ZONESIZE:
-> > +	{
+> > +static void device_read_bytes(struct lsblk_device *dev, char *path, ch=
+ar **str,
+> > +			      uint64_t *sortdata)
+> > +{
+> > +	if (lsblk->bytes) {
+> > +		ul_path_read_string(dev->sysfs, str, path);
+> > +		if (sortdata)
+> > +			str2u64(*str, sortdata);
+>=20
+> You could return early here to avoid the else...
+
+Yes, that will be more simple. I'll send a new series with the fix to
+the "max" description.
+
+> > +	} else {
 > > +		uint64_t x;
 > > +
-> > +		if (ul_path_read_u64(dev->sysfs, &x, "queue/chunk_sectors") =3D=3D 0=
-) {
-> > +			x <<=3D 9;
-> > +			if (lsblk->bytes)
-> > +				xasprintf(&str, "%ju", x);
-> > +			else
-> > +				str =3D size_to_human_string(SIZE_SUFFIX_1LETTER, x);
+> > +		if (ul_path_read_u64(dev->sysfs, &x, path) =3D=3D 0) {
+> > +			*str =3D size_to_human_string(SIZE_SUFFIX_1LETTER, x);
 > > +			if (sortdata)
 > > +				*sortdata =3D x;
 > > +		}
-> > +		break;
 > > +	}
-> > +	case COL_ZONEWRITEGRAN:
-> > +		device_read_bytes(dev, "queue/zone_write_granularity", &str, sortdat=
-a);
-> > +		break;
-> > +	case COL_ZONEAPPEND:
-> > +		device_read_bytes(dev, "queue/zone_append_max_bytes", &str, sortdata=
-);
-> > +		break;
-> > +	case COL_ZONE_NR:
-> > +		ul_path_read_string(dev->sysfs, &str, "queue/nr_zones");
-> > +		if (sortdata)
-> > +			str2u64(str, sortdata);
-> > +		break;
-> > +	case COL_ZONE_OMAX:
-> > +		ul_path_read_string(dev->sysfs, &str, "queue/max_open_zones");
-> > +		if (!str)
-> > +			str =3D xstrdup("0");
-> > +		if (sortdata)
-> > +			str2u64(str, sortdata);
-> > +		break;
-> > +	case COL_ZONE_AMAX:
-> > +		ul_path_read_string(dev->sysfs, &str, "queue/max_active_zones");
-> > +		if (!str)
-> > +			str =3D xstrdup("0");
-> > +		if (sortdata)
-> > +			str2u64(str, sortdata);
-> > +		break;
-> >  	case COL_DAX:
-> >  		ul_path_read_string(dev->sysfs, &str, "queue/dax");
+> > +}
+> > +
+> >  /*
+> >   * Generates data (string) for column specified by column ID for speci=
+fied device. If sortdata
+> >   * is not NULL then returns number usable to sort the column if the da=
+ta are available for the
+> > @@ -1033,18 +1051,7 @@ static char *device_get_data(
+> >  		}
+> >  		break;
+> >  	case COL_DMAX:
+> > -		if (lsblk->bytes) {
+> > -			ul_path_read_string(dev->sysfs, &str, "queue/discard_max_bytes");
+> > -			if (sortdata)
+> > -				str2u64(str, sortdata);
+> > -		} else {
+> > -			uint64_t x;
+> > -			if (ul_path_read_u64(dev->sysfs, &x, "queue/discard_max_bytes") =3D=
+=3D 0) {
+> > -				str =3D size_to_human_string(SIZE_SUFFIX_1LETTER, x);
+> > -				if (sortdata)
+> > -					*sortdata =3D x;
+> > -			}
+> > -		}
+> > +		device_read_bytes(dev, "queue/discard_max_bytes", &str, sortdata);
+> >  		break;
+> >  	case COL_DZERO:
+> >  		if (device_get_discard_granularity(dev) > 0)
+> > @@ -1053,19 +1060,7 @@ static char *device_get_data(
+> >  			str =3D xstrdup("0");
+> >  		break;
+> >  	case COL_WSAME:
+> > -		if (lsblk->bytes) {
+> > -			ul_path_read_string(dev->sysfs, &str, "queue/write_same_max_bytes")=
+;
+> > -			if (sortdata)
+> > -				str2u64(str, sortdata);
+> > -		} else {
+> > -			uint64_t x;
+> > -
+> > -			if (ul_path_read_u64(dev->sysfs, &x, "queue/write_same_max_bytes") =
+=3D=3D 0) {
+> > -				str =3D size_to_human_string(SIZE_SUFFIX_1LETTER, x);
+> > -				if (sortdata)
+> > -					*sortdata =3D x;
+> > -			}
+> > -		}
+> > +		device_read_bytes(dev, "queue/write_same_max_bytes", &str, sortdata)=
+;
+> >  		if (!str)
+> >  			str =3D xstrdup("0");
 > >  		break;
 > >=20
+>=20
+> Apart from the optional nit above, looks good to me.
+>=20
+> Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
 >=20
 >=20
 > --=20
