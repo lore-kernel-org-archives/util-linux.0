@@ -2,66 +2,92 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=BAYES_05,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A74DC4320E
-	for <util-linux@archiver.kernel.org>; Wed,  1 Sep 2021 16:32:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81612C4320A
+	for <util-linux@archiver.kernel.org>; Wed,  1 Sep 2021 17:11:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 762A861053
-	for <util-linux@archiver.kernel.org>; Wed,  1 Sep 2021 16:32:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 67D1C60295
+	for <util-linux@archiver.kernel.org>; Wed,  1 Sep 2021 17:11:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245250AbhIAQdk (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 1 Sep 2021 12:33:40 -0400
-Received: from mail-io1-f41.google.com ([209.85.166.41]:36791 "EHLO
-        mail-io1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232876AbhIAQdj (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 1 Sep 2021 12:33:39 -0400
-Received: by mail-io1-f41.google.com with SMTP id q3so4836007iot.3
-        for <util-linux@vger.kernel.org>; Wed, 01 Sep 2021 09:32:42 -0700 (PDT)
+        id S1344251AbhIARMT (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 1 Sep 2021 13:12:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39332 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344215AbhIARMT (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 1 Sep 2021 13:12:19 -0400
+Received: from mail-vs1-xe34.google.com (mail-vs1-xe34.google.com [IPv6:2607:f8b0:4864:20::e34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AF41C061575
+        for <util-linux@vger.kernel.org>; Wed,  1 Sep 2021 10:11:22 -0700 (PDT)
+Received: by mail-vs1-xe34.google.com with SMTP id s15so383212vst.13
+        for <util-linux@vger.kernel.org>; Wed, 01 Sep 2021 10:11:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=zuGq5x4liHJb5KjL8hm5EjiF+RISQa4ZQ21Npmkc1Q0=;
+        b=Q54U+fIZ7icYDyzDs8/owq9zPM1/3YNG3wGSI8s0C8Uty6MeMeWp9eACeWlq9C3l16
+         7dQufk8uTRVLIXPaPsZKR3ORF76AdzqsApTlKBDEyPzqQcC/QK0Zbb4BsvreltzsEgJA
+         M17B0XyTP/qI0E1FcyxpANiThnkKgEq2xGzq3dKBv8dVY1MpHekFoxm6/Mg253fhSfHA
+         n/rbnC42cyjEvKsy0etDVCi/0/+y1vFyBk54njSiHQvSYWff2RUjxunc9b0jy+wKvJrx
+         86VMlK2ez9tiOEWqpgWhwJjYnpnwMuWByCdRHDt9imcIwOUGVJoF8MOn8ou6Mii8CKme
+         azLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=wvZgugBxXPIeukGlr3awh2HVMSuIKxJrWhdHXovVLwQ=;
-        b=F+V085Ft7m6CSRbHC4NgKOkncco9oIC2z+LQIDfjzaTXflX5sB3x4wjyde8d4kcyy4
-         AV9A55gyEhcLAExs5xqJBmNq9Yedmd7bmhpEpSV1T1DtpvvKr1VnGxTG/R5kQnGosKYG
-         uAs3uiqphD2dmf5foi3N3aeawGjM/fhpw2nKPn8/14HNzG1wpKN1f3yKfMYlwqTEWcca
-         gUhvkmajA3aXgaN9hQUFTCBRYvOAl2gJZkdkdmzs91f75jlI7/Th0sSYJMyp7K9qEzMi
-         epWtU+hGIpo9Un8K8tfValEkeamdp4SIW8L04lwkW11tHl+Q62XnK6tYat3H3YRgQ4Qr
-         sA4A==
-X-Gm-Message-State: AOAM531zihngrWRe7SsUZ0DOrquH5oyzQ7UX5kTMLYIg6QEhRVa4ND93
-        qQoHLCYQOglTvQ6DG2JU/3GAsiucXAOVQr+D
-X-Google-Smtp-Source: ABdhPJwXvcXuDRC98o9ZB3l2icy48R1gfhSlP83dUrqaKzIK53fCzpgS1iD3aEItlTh9bLB1MotLwQ==
-X-Received: by 2002:a5e:d712:: with SMTP id v18mr373449iom.65.1630513962480;
-        Wed, 01 Sep 2021 09:32:42 -0700 (PDT)
-Received: from mail-io1-f52.google.com (mail-io1-f52.google.com. [209.85.166.52])
-        by smtp.gmail.com with ESMTPSA id u13sm48068iot.29.2021.09.01.09.32.40
-        for <util-linux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 01 Sep 2021 09:32:40 -0700 (PDT)
-Received: by mail-io1-f52.google.com with SMTP id y18so4882184ioc.1
-        for <util-linux@vger.kernel.org>; Wed, 01 Sep 2021 09:32:40 -0700 (PDT)
-X-Received: by 2002:a6b:b512:: with SMTP id e18mr407274iof.98.1630513960173;
- Wed, 01 Sep 2021 09:32:40 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to;
+        bh=zuGq5x4liHJb5KjL8hm5EjiF+RISQa4ZQ21Npmkc1Q0=;
+        b=U5vuYDzeiASDxKwMWP114bJUO+JwkChPgHqtpiO5RXI0oufGVngE0hNpDgB5lO1Z65
+         H+p4Sic9S9gQx1XatoiRvuoMfwEbVj0p40ntPjuDAYP4YMyQcsgs2b/JhNvlKi+Gd8bn
+         HowJ93e4BDXorsQIC8ZK0iTCqMYDjbMG9v4JveMYtjwhq+JsANQz8ok2CUlJeaNiLvJx
+         /OzBqi77SGFvllXWarNceee90xkpp6pguagTJzLJlP/ZxiAjMJHUZGJdNBYhsOuahqgr
+         nYClHehZtxYyJpR6q50pIFpj+42Gi699yRO9kbvgF9/QEQJxwhJNkMLGixDdzDUC8mVZ
+         wytA==
+X-Gm-Message-State: AOAM5329PbL9Ns1ZzUKAAQ4fLrIc2euG86HwBBcY4u5se6w/Vg1ghoh+
+        11mMLiXzyC6VZBNcg6qxCLQrsXFbDO5QGJuKMiP/UXNz
+X-Google-Smtp-Source: ABdhPJywoNmVSV+wnIkyihF5VPfs7uDo/hhcaPtIEPdV9AEn8CUQou0ZEhosk8BXUXx6lNFv4qeGli0WwXt+JyNZkoo=
+X-Received: by 2002:a67:1c05:: with SMTP id c5mr316169vsc.25.1630516281437;
+ Wed, 01 Sep 2021 10:11:21 -0700 (PDT)
 MIME-Version: 1.0
-From:   Rafael Fontenelle <rafaelff@gnome.org>
-Date:   Wed, 1 Sep 2021 13:32:04 -0300
-X-Gmail-Original-Message-ID: <CAFPa+S=yR41168UsfjoJ1NshK_EfAbrdpgmJiEy-Yzd6rEW14A@mail.gmail.com>
-Message-ID: <CAFPa+S=yR41168UsfjoJ1NshK_EfAbrdpgmJiEy-Yzd6rEW14A@mail.gmail.com>
-Subject: Update translations in Translation Project
+References: <CAFPa+S=yR41168UsfjoJ1NshK_EfAbrdpgmJiEy-Yzd6rEW14A@mail.gmail.com>
+In-Reply-To: <CAFPa+S=yR41168UsfjoJ1NshK_EfAbrdpgmJiEy-Yzd6rEW14A@mail.gmail.com>
+From:   =?UTF-8?Q?Mario_Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
+Date:   Wed, 1 Sep 2021 19:11:10 +0200
+Message-ID: <CAHi0vA-2YpvY053tnh=-=VQeWPJd2FSM5Tk1Y3wtGz=9aNz1WQ@mail.gmail.com>
+Subject: Re: Update translations in Translation Project
 To:     util-linux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hi there,
+Hello Rafael,
 
-Translation Project has util-linux-man domain POT in version 2.37-rc2,
-and it seems that a few strings are different from released 2.37.
-Please consider updating the POT version on the Translation Project to
-avoid losing translation effort.
+Am Mi., 1. Sept. 2021 um 18:34 Uhr schrieb Rafael Fontenelle
+<rafaelff@gnome.org>:
+>
+> Hi there,
+>
+> Translation Project has util-linux-man domain POT in version 2.37-rc2,
+> and it seems that a few strings are different from released 2.37.
+> Please consider updating the POT version on the Translation Project to
+> avoid losing translation effort.
+>
+The slightly outdated template at GNU TP will be updated with version
+2.38 of util-linux (@Karel, any plans for the next release...?). As
+far as I can see, there were not many changes in contents last time
+(besides mount.8.adoc); most changes were needed in formatting. I
+recommend to keep your current file as is and wait for the next one
+from the TP robot.
 
-Best regards,
-Rafael Fontenelle
+Regarding the import of the current translations from manpages-l10n:
+I'm almost finished with French and Spanish. The Dutch and Polish
+files I already sent to the respective mailing lists, but haven't got
+an answer yet. Regardless of the presence of the mentioned languages
+at the util-linux-man TP domain, I would say we should activate the
+man page translations with the next release.
+
+Best Regards,
+Mario
