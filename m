@@ -2,126 +2,116 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A812FC433F5
-	for <util-linux@archiver.kernel.org>; Thu,  9 Sep 2021 00:09:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFF3AC433EF
+	for <util-linux@archiver.kernel.org>; Thu,  9 Sep 2021 18:06:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7F8CB6109F
-	for <util-linux@archiver.kernel.org>; Thu,  9 Sep 2021 00:09:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B6E70610C9
+	for <util-linux@archiver.kernel.org>; Thu,  9 Sep 2021 18:06:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348043AbhIIAK1 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 8 Sep 2021 20:10:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49862 "EHLO
+        id S237271AbhIISIG (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 9 Sep 2021 14:08:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347902AbhIIAKZ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 8 Sep 2021 20:10:25 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30F58C061575
-        for <util-linux@vger.kernel.org>; Wed,  8 Sep 2021 17:09:17 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id c6so125176pjv.1
-        for <util-linux@vger.kernel.org>; Wed, 08 Sep 2021 17:09:17 -0700 (PDT)
+        with ESMTP id S231431AbhIISIG (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 9 Sep 2021 14:08:06 -0400
+Received: from mail-ua1-x934.google.com (mail-ua1-x934.google.com [IPv6:2607:f8b0:4864:20::934])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CC45C061574
+        for <util-linux@vger.kernel.org>; Thu,  9 Sep 2021 11:06:56 -0700 (PDT)
+Received: by mail-ua1-x934.google.com with SMTP id f24so1468051uav.8
+        for <util-linux@vger.kernel.org>; Thu, 09 Sep 2021 11:06:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=DQzAQMmX4oz8E7w7uf2rjEOaHMmDgx7LhW/51C5GrqM=;
-        b=Y6bUFtE4H3JIwgHJD0O/r2KaUKr8o3O8u7HIF+ofaFgnwREkaDN9Ct0qiedRX0CrZg
-         aXaUIr00EOWcZhVBnLiDnRAKfeI/KNg579QxS8APiZMjyLDylhyTnD7RbGSkcaACSdYY
-         DQWGAUFDn9VqyLTpII8cOWseXlc1sx4vVMCHrk0L7FH9zy4qx1MiLAtUXEU3eBcIjNoj
-         RTlIkzF5IMquWg3UkbKygsdYDKdCMwWx8JQllY7/a2HFv5ix4T8pPpJv9rw2P52qbGQu
-         2FW85bZSQo2FbK++pTnu/UWZH6dioIRYY9FkRPqDRqSdvEtv8cxR60qFdv4XRPjsYcqa
-         jF9g==
+        h=mime-version:from:date:message-id:subject:to;
+        bh=wrDV+Uv/33lVC+BepJ2Trv1YrDDtLdfDQAUh9Vl1zss=;
+        b=fdd4+1vI2gESN8iHvNiPFBIEibpaTWb7nD29FDDyb++U0BwB6xoaYzL9HhaTn7bVZU
+         vYR4onepCUbSA7K1JW24JIYbphw5Vuie2rth+kksejwwGwD20gq4wZnKTp3MRqWRxg8k
+         yUdXol9K/iRGA3rCpgDfxK0uCszXpy4LGN6DQvwimEFZJaOifvavFYEZUDtRUmgvmbRO
+         iG4aSFYDVZFMe/5O/Fx+3ZwCxLXFw+1cX/MkWnCacwo+zcvNvDAW74279Tcj2y9Llkkk
+         qLl2FDL3LZWZNpz0VS8Hv1f06LIqVN3vJBh2ICClCkHLptOFiSANZg1BXx9xokU9iwup
+         lxCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=DQzAQMmX4oz8E7w7uf2rjEOaHMmDgx7LhW/51C5GrqM=;
-        b=478TWuV7G7NOd5GP4ecHVMX/tdiDj/j84jMzwsjw4Qh1TwJelPEixJm8TbPRbYbxI0
-         4QfEf6GgPB+4r16I0GpoZWpzm77gi1iCY/eqVkTsG3yAi+byPdG6hIK4mVFbs9H4rc9j
-         ETC7aQfutLt3Vl+IGoX0FkVLBPJRWNo7TxwhkKqCswacqZvK/XkxVkIH8Z3LsoUwd9nK
-         1lHIpUudojM085cq1VNk05QpTsnFfke2tURI9phaMhU8vZDoqhzJJ/pAPhL5jBKryaXY
-         9OfGARMqwEZaMAOPojDii0D8q83r3Ir/jeLhG7So05SWcjk3/KYojEVkLHsTuMuH2gRY
-         PP8Q==
-X-Gm-Message-State: AOAM532+e2ZWgD55VkTqPp2j93/Kkwgk/L8AVUYl11bhabaBKQkuUIzH
-        1jyyTxMsMaTS9tyCbjRg/xo=
-X-Google-Smtp-Source: ABdhPJwEjJt+37TtGwibNx7/JVlGrvxOr4EhwGBXzNm5rPgo5jC46EaDNZdMyN+zcrItPloMPROx3Q==
-X-Received: by 2002:a17:903:1cb:b0:138:ecff:4030 with SMTP id e11-20020a17090301cb00b00138ecff4030mr35255plh.85.1631146156673;
-        Wed, 08 Sep 2021 17:09:16 -0700 (PDT)
-Received: from localhost.localdomain (122-61-176-117-fibre.sparkbb.co.nz. [122.61.176.117])
-        by smtp.gmail.com with ESMTPSA id h127sm34258pfe.191.2021.09.08.17.09.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Sep 2021 17:09:16 -0700 (PDT)
-From:   Michael Kerrisk <mtk.manpages@gmail.com>
-To:     mtk.manpages@gmail.com, Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org
-Subject: [PATCH 2/2] unshare.1.adoc: Improve wording re creation of bind mounts
-Date:   Thu,  9 Sep 2021 02:08:28 +0200
-Message-Id: <20210909000828.203994-2-mtk.manpages@gmail.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210909000828.203994-1-mtk.manpages@gmail.com>
-References: <20210909000828.203994-1-mtk.manpages@gmail.com>
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=wrDV+Uv/33lVC+BepJ2Trv1YrDDtLdfDQAUh9Vl1zss=;
+        b=hXG08omvqhR8LsVx3jgd85eisMSLowkSHBveQ3RMwcG0fRPzjEnXWRJahN3aCEuwDf
+         9O8DBtrjnAF2hViil/1P/dpyOO4Vwkvu2xVp6vK1l4W9KeOgMdeNN4zJwtZqQ1dRKUEy
+         /pJJoVxjbiYFih4PYEzIlSZyNuTOG2ovfV/niY0cb9qxuekMAs+ooTNz36ti4nWSb4+V
+         29rs4tMbIhpcGZBDgPt2TlfwAsAb6Em7cPFT9Mjeb6y96hIOF4g34EEAhXyYHk4IPIIO
+         a8Enp9Ipn2zzKgykD/dSSfeD0XAhbUTb7sLwG88HbJon8OUAFenFV/KSKnd7v3VqQIjL
+         9Q2A==
+X-Gm-Message-State: AOAM532QpYbvOu9JESgd4Rn086yneIhIsfHFcxuhR3/9C/gaWjmRA0R9
+        sCPPcZOMwlN8SKuDKd1CUZ4GhmycvD2rMVBZgmXWPhEXZe8=
+X-Google-Smtp-Source: ABdhPJxXBVVEw4ah+tx6PFqMxPyx2K9lwZmMNnlZJrs9v8gys5tWUP0llPekOzwuackJ3roZJqhz9c2tb3ZPD7bAqb8=
+X-Received: by 2002:ab0:5fc7:: with SMTP id g7mr2835304uaj.85.1631210815539;
+ Thu, 09 Sep 2021 11:06:55 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   =?UTF-8?Q?Mario_Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
+Date:   Thu, 9 Sep 2021 20:06:44 +0200
+Message-ID: <CAHi0vA_sSHZ8MV8PExEUkOuE1EhGWZ5RL_1-tLpwrbsqqMgVgw@mail.gmail.com>
+Subject: PATCH: misformatting in mount.8.adoc
+To:     util-linux@vger.kernel.org
+Content-Type: multipart/mixed; boundary="00000000000036eacb05cb93dd0c"
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Use consistent wording for the options that create
-bind mounts, and improve the wording.
+--00000000000036eacb05cb93dd0c
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Michael Kerrisk <mtk.manpages@gmail.com>
----
- sys-utils/unshare.1.adoc | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+Hello,
 
-diff --git a/sys-utils/unshare.1.adoc b/sys-utils/unshare.1.adoc
-index 2f1be8fc3..490dfc8b9 100644
---- a/sys-utils/unshare.1.adoc
-+++ b/sys-utils/unshare.1.adoc
-@@ -53,30 +53,30 @@ The process can have a distinct view of *CLOCK_MONOTONIC* and/or *CLOCK_BOOTTIME
- == OPTIONS
- 
- *-i*, *--ipc*[**=**__file__]::
--Create a new IPC namespace. If _file_ is specified, then a persistent namespace is created by a bind mount.
-+Create a new IPC namespace. If _file_ is specified, then the namespace is made persistent by creating a bind mount at _file_.
- 
- *-m*, *--mount*[**=**__file__]::
--Create a new mount namespace. If _file_ is specified, then a persistent namespace is created by a bind mount. Note that _file_ must be located on a mount whose propagation type is not *shared* (or an error results). Use the command *findmnt -o+PROPAGATION* when not sure about the current setting. See also the examples below.
-+Create a new mount namespace. If _file_ is specified, then the namespace is made persistent by creating a bind mount at _file_. Note that _file_ must be located on a mount whose propagation type is not *shared* (or an error results). Use the command *findmnt -o+PROPAGATION* when not sure about the current setting. See also the examples below.
- 
- *-n*, *--net*[**=**__file__]::
--Create a new network namespace. If _file_ is specified, then a persistent namespace is created by a bind mount.
-+Create a new network namespace. If _file_ is specified, then the namespace is made persistent by creating a bind mount at _file_.
- 
- *-p*, *--pid*[**=**__file__]::
--Create a new PID namespace. If _file_ is specified, then a persistent namespace is created by a bind mount. (Creation of a persistent PID namespace will fail if the *--fork* option is not also specified.)
-+Create a new PID namespace. If _file_ is specified, then the namespace is made persistent by creating a bind mount at _file_. (Creation of a persistent PID namespace will fail if the *--fork* option is not also specified.)
- +
- See also the *--fork* and *--mount-proc* options.
- 
- *-u*, *--uts*[**=**__file__]::
--Create a new UTS namespace. If _file_ is specified, then a persistent namespace is created by a bind mount.
-+Create a new UTS namespace. If _file_ is specified, then the namespace is made persistent by creating a bind mount at _file_.
- 
- *-U*, *--user*[**=**__file__]::
--Create a new user namespace. If _file_ is specified, then a persistent namespace is created by a bind mount.
-+Create a new user namespace. If _file_ is specified, then the namespace is made persistent by creating a bind mount at _file_.
- 
- *-C*, *--cgroup*[**=**__file__]::
--Create a new cgroup namespace. If _file_ is specified, then persistent namespace is created by bind mount.
-+Create a new cgroup namespace. If _file_ is specified, then the namespace is made persistent by creating a bind mount at _file_.
- 
- *-T*, *--time*[**=**__file__]::
--Create a new time namespace. If _file_ is specified, then a persistent namespace is created by a bind mount. The *--monotonic* and *--boottime* options can be used to specify the corresponding offset in the time namespace.
-+Create a new time namespace. If _file_ is specified, then the namespace is made persistent by creating a bind mount at _file_. The *--monotonic* and *--boottime* options can be used to specify the corresponding offset in the time namespace.
- 
- *-f*, *--fork*::
- Fork the specified _program_ as a child process of *unshare* rather than running it directly. This is useful when creating a new PID namespace. Note that when *unshare* is waiting for the child process, then it ignores *SIGINT* and *SIGTERM* and does not forward any signals to the child. It is necessary to send signals to the child process.
--- 
-2.31.1
+while translating the latest changes in man pages, I found some issues
+in mount.8.adoc. See the attached diff.
 
+Unfortunately we can't use non-standard citation characters in the
+Asciidoc files, like =E2=80=9Cthese=E2=80=9D. No problem so far for Asciido=
+ctor
+itself, but Po4a produces nonsense (unprintable) characters.
+
+Best Regards
+Mario
+
+--00000000000036eacb05cb93dd0c
+Content-Type: text/x-patch; charset="UTF-8"; name="mount.8.adoc.diff"
+Content-Disposition: attachment; filename="mount.8.adoc.diff"
+Content-Transfer-Encoding: base64
+Content-ID: <f_ktd8qj1t0>
+X-Attachment-Id: f_ktd8qj1t0
+
+ZGlmZiAtLWdpdCBhL3N5cy11dGlscy9tb3VudC44LmFkb2MgYi9zeXMtdXRpbHMvbW91bnQuOC5h
+ZG9jCmluZGV4IGZmZjZjN2MyZi4uMjIyOWUwOGRlIDEwMDY0NAotLS0gYS9zeXMtdXRpbHMvbW91
+bnQuOC5hZG9jCisrKyBiL3N5cy11dGlscy9tb3VudC44LmFkb2MKQEAgLTEwNDUsNyArMTA0NSw3
+IEBAIENhbiBiZSB1c2VkIHRvIHJlcGxhY2UgVVVJRCBvZiB0aGUgdW5kZXJseWluZyBmaWxlc3lz
+dGVtIGluIGZpbGUgaGFuZGxlcyB3aXRoIG51CiBXaGVuIHRoZSB1bmRlcmx5aW5nIGZpbGVzeXN0
+ZW1zIHN1cHBvcnRzIE5GUyBleHBvcnQgYW5kIHRoZSAibmZzX2V4cG9ydCIKIGZlYXR1cmUgaXMg
+ZW5hYmxlZCwgYW4gb3ZlcmxheSBmaWxlc3lzdGVtIG1heSBiZSBleHBvcnRlZCB0byBORlMuCiAr
+Ci1XaXRoIHRoZSDigJxuZnNfZXhwb3J04oCdIGZlYXR1cmUsIG9uIGNvcHlfdXAgb2YgYW55IGxv
+d2VyIG9iamVjdCwgYW4gaW5kZXggZW50cnkKK1dpdGggdGhlICJuZnNfZXhwb3J0IiBmZWF0dXJl
+LCBvbiBjb3B5X3VwIG9mIGFueSBsb3dlciBvYmplY3QsIGFuIGluZGV4IGVudHJ5CiBpcyBjcmVh
+dGVkIHVuZGVyIHRoZSBpbmRleCBkaXJlY3RvcnkuIFRoZSBpbmRleCBlbnRyeSBuYW1lIGlzIHRo
+ZSBoZXhhZGVjaW1hbAogcmVwcmVzZW50YXRpb24gb2YgdGhlIGNvcHkgdXAgb3JpZ2luIGZpbGUg
+aGFuZGxlLiBGb3IgYSBub24tZGlyZWN0b3J5IG9iamVjdCwKIHRoZSBpbmRleCBlbnRyeSBpcyBh
+IGhhcmQgbGluayB0byB0aGUgdXBwZXIgaW5vZGUuIEZvciBhIGRpcmVjdG9yeSBvYmplY3QsIHRo
+ZQpAQCAtMTA3MSw3ICsxMDcxLDcgQEAgVGhpcyBlbmNvZGluZyBmb3JtYXQgaXMgaWRlbnRpY2Fs
+IHRvIHRoZSBlbmNvZGluZyBmb3JtYXQgZmlsZSBoYW5kbGVzIHRoYXQgYXJlIHMKICogRmluZCB1
+bmRlcmx5aW5nIGxheWVyIGJ5IFVVSUQgYW5kIHBhdGggdHlwZSBpbmZvcm1hdGlvbi4KICogRGVj
+b2RlIHRoZSB1bmRlcmx5aW5nIGZpbGVzeXN0ZW0gZmlsZSBoYW5kbGUgdG8gdW5kZXJseWluZyBk
+ZW50cnkuCiAqIEZvciBhIGxvd2VyIGZpbGUgaGFuZGxlLCBsb29rdXAgdGhlIGhhbmRsZSBpbiBp
+bmRleCBkaXJlY3RvcnkgYnkgbmFtZS4KLSogSWYgYSB3aGl0ZW91dCBpcyBmb3VuZCBpbiBpbmRl
+eCwgcmV0dXJuIEVTVEFMRS4gVGhpcyByZXByZXNlbnRzIGFuIG92ZXJsYXkgb2JqZWN0IHRoYXQg
+d2FzIGRlbGV0ZWQgYWZ0ZXIgaXRzIGZpbGUgaGFuZGxlIHdhcyBlbmNvZGVkLgorKiBJZiBhIHdo
+aXRlb3V0IGlzIGZvdW5kIGluIGluZGV4LCByZXR1cm4gKipFU1RBTEUqKi4gVGhpcyByZXByZXNl
+bnRzIGFuIG92ZXJsYXkgb2JqZWN0IHRoYXQgd2FzIGRlbGV0ZWQgYWZ0ZXIgaXRzIGZpbGUgaGFu
+ZGxlIHdhcyBlbmNvZGVkLgogKiBGb3IgYSBub24tZGlyZWN0b3J5LCBpbnN0YW50aWF0ZSBhIGRp
+c2Nvbm5lY3RlZCBvdmVybGF5IGRlbnRyeSBmcm9tIHRoZSBkZWNvZGVkIHVuZGVybHlpbmcgZGVu
+dHJ5LCB0aGUgcGF0aCB0eXBlIGFuZCBpbmRleCBpbm9kZSwgaWYgZm91bmQuCiAqIEZvciBhIGRp
+cmVjdG9yeSwgdXNlIHRoZSBjb25uZWN0ZWQgdW5kZXJseWluZyBkZWNvZGVkIGRlbnRyeSwgcGF0
+aCB0eXBlIGFuZCBpbmRleCwgdG8gbG9va3VwIGEgY29ubmVjdGVkIG92ZXJsYXkgZGVudHJ5Lgog
+Cg==
+--00000000000036eacb05cb93dd0c--
