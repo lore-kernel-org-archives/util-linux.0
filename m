@@ -2,116 +2,93 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-20.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DFF3AC433EF
-	for <util-linux@archiver.kernel.org>; Thu,  9 Sep 2021 18:06:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BE6FC433EF
+	for <util-linux@archiver.kernel.org>; Tue, 14 Sep 2021 22:07:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B6E70610C9
-	for <util-linux@archiver.kernel.org>; Thu,  9 Sep 2021 18:06:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E4112610A2
+	for <util-linux@archiver.kernel.org>; Tue, 14 Sep 2021 22:07:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237271AbhIISIG (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 9 Sep 2021 14:08:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38654 "EHLO
+        id S235350AbhINWJJ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 14 Sep 2021 18:09:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231431AbhIISIG (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 9 Sep 2021 14:08:06 -0400
-Received: from mail-ua1-x934.google.com (mail-ua1-x934.google.com [IPv6:2607:f8b0:4864:20::934])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CC45C061574
-        for <util-linux@vger.kernel.org>; Thu,  9 Sep 2021 11:06:56 -0700 (PDT)
-Received: by mail-ua1-x934.google.com with SMTP id f24so1468051uav.8
-        for <util-linux@vger.kernel.org>; Thu, 09 Sep 2021 11:06:56 -0700 (PDT)
+        with ESMTP id S234720AbhINWJH (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Sep 2021 18:09:07 -0400
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C375C061574
+        for <util-linux@vger.kernel.org>; Tue, 14 Sep 2021 15:07:49 -0700 (PDT)
+Received: by mail-pg1-x530.google.com with SMTP id w8so642159pgf.5
+        for <util-linux@vger.kernel.org>; Tue, 14 Sep 2021 15:07:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=wrDV+Uv/33lVC+BepJ2Trv1YrDDtLdfDQAUh9Vl1zss=;
-        b=fdd4+1vI2gESN8iHvNiPFBIEibpaTWb7nD29FDDyb++U0BwB6xoaYzL9HhaTn7bVZU
-         vYR4onepCUbSA7K1JW24JIYbphw5Vuie2rth+kksejwwGwD20gq4wZnKTp3MRqWRxg8k
-         yUdXol9K/iRGA3rCpgDfxK0uCszXpy4LGN6DQvwimEFZJaOifvavFYEZUDtRUmgvmbRO
-         iG4aSFYDVZFMe/5O/Fx+3ZwCxLXFw+1cX/MkWnCacwo+zcvNvDAW74279Tcj2y9Llkkk
-         qLl2FDL3LZWZNpz0VS8Hv1f06LIqVN3vJBh2ICClCkHLptOFiSANZg1BXx9xokU9iwup
-         lxCQ==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=uCy/euFiyPlaSxTkr5DvZ8EZvgLFh6p1kGuCw66Yess=;
+        b=ERFhl+kmJ76oaf5GRNKZGp5sz0d35QJxhsHRfeYFMO0h2DnTFdk+lYc6qzH0bKJcps
+         +RnE+AAMjHt0VGwUowNjOJys3GxGn/FTGQXaGh+2N14YQVEZmfkV3SDWNzvgKVq9TAXp
+         CsmZfSxPjQ2vXWLmMyGDbKlkJ/+IHZMXcdWjAZ8wW7Ioimo32XmDy5BqCFuwGS4D0vIt
+         C2HQ+KNWERNYFaUgOOZSMI56rglWxtgH7pTUdMmzOyNG2TxR5R5DDG1NsxEjm4d9HZia
+         00wQChYc9uT3SHKFF98Ea25Rw5bVsvwSDgQ/LmIgUBYanlUbM/N6qbLGal1BM5jXvtd/
+         ovgw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=wrDV+Uv/33lVC+BepJ2Trv1YrDDtLdfDQAUh9Vl1zss=;
-        b=hXG08omvqhR8LsVx3jgd85eisMSLowkSHBveQ3RMwcG0fRPzjEnXWRJahN3aCEuwDf
-         9O8DBtrjnAF2hViil/1P/dpyOO4Vwkvu2xVp6vK1l4W9KeOgMdeNN4zJwtZqQ1dRKUEy
-         /pJJoVxjbiYFih4PYEzIlSZyNuTOG2ovfV/niY0cb9qxuekMAs+ooTNz36ti4nWSb4+V
-         29rs4tMbIhpcGZBDgPt2TlfwAsAb6Em7cPFT9Mjeb6y96hIOF4g34EEAhXyYHk4IPIIO
-         a8Enp9Ipn2zzKgykD/dSSfeD0XAhbUTb7sLwG88HbJon8OUAFenFV/KSKnd7v3VqQIjL
-         9Q2A==
-X-Gm-Message-State: AOAM532QpYbvOu9JESgd4Rn086yneIhIsfHFcxuhR3/9C/gaWjmRA0R9
-        sCPPcZOMwlN8SKuDKd1CUZ4GhmycvD2rMVBZgmXWPhEXZe8=
-X-Google-Smtp-Source: ABdhPJxXBVVEw4ah+tx6PFqMxPyx2K9lwZmMNnlZJrs9v8gys5tWUP0llPekOzwuackJ3roZJqhz9c2tb3ZPD7bAqb8=
-X-Received: by 2002:ab0:5fc7:: with SMTP id g7mr2835304uaj.85.1631210815539;
- Thu, 09 Sep 2021 11:06:55 -0700 (PDT)
-MIME-Version: 1.0
-From:   =?UTF-8?Q?Mario_Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
-Date:   Thu, 9 Sep 2021 20:06:44 +0200
-Message-ID: <CAHi0vA_sSHZ8MV8PExEUkOuE1EhGWZ5RL_1-tLpwrbsqqMgVgw@mail.gmail.com>
-Subject: PATCH: misformatting in mount.8.adoc
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=uCy/euFiyPlaSxTkr5DvZ8EZvgLFh6p1kGuCw66Yess=;
+        b=rdJr0ULpGnb57f0W5IX041smoZKGIgmhx8YiHEnPmLIJx+LtaXuTrvb9s20s8E+WNq
+         IgGXjB0i6UPRwaSGaHnINMxisJQSQrSjGKOkVGCIVhycWlkLp6GQ5DbuHlBTj93/fPYv
+         xL301pqGySb7P8/dz9k6zgGlFmMNZ2dojosNUqh6dl6H2f3SvKRjJdMJzJ7Bxg3Bs7yJ
+         Qjhu6bAp7kKvOhp/5c3gzfI24hs/ghuWzO1uYonL8yUSOfGsT/bQ5qbQTNhySsG6/Jb/
+         iTrPPZHcu8VOLdesl7M1Kw2UzIO7q1yPDDdAY7u7P3zjsiKRut4tpU7C/yBZGyE9FErm
+         NgtQ==
+X-Gm-Message-State: AOAM532tBIcn6tlJJPNKLTMqJaSJqR7tGUd2WaKwQpxDVmo/R2zvMSnT
+        I3No6frGYscPbSFTxqkC7zeGwU77NWxNA96u
+X-Google-Smtp-Source: ABdhPJx73YcpGUJrYJcT91mH3/8dB+JMPAr+HS7tHFiO59aBqoiA7GwHZA0o4pwsPuZH1dGhVfbU2g==
+X-Received: by 2002:a63:9313:: with SMTP id b19mr17341242pge.128.1631657268604;
+        Tue, 14 Sep 2021 15:07:48 -0700 (PDT)
+Received: from Rajdev.localdomain ([49.156.64.163])
+        by smtp.googlemail.com with ESMTPSA id z124sm12302821pgz.94.2021.09.14.15.07.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Sep 2021 15:07:48 -0700 (PDT)
+From:   ritikrajdev <ritikrajdev761@gmail.com>
 To:     util-linux@vger.kernel.org
-Content-Type: multipart/mixed; boundary="00000000000036eacb05cb93dd0c"
+Cc:     ritikrajdev <ritikrajdev761@gmail.com>
+Subject: [PATCH 0/1] pull: more - Bug Resolve - new line separated command re execution
+Date:   Wed, 15 Sep 2021 03:34:12 +0530
+Message-Id: <20210914220413.65881-1-ritikrajdev761@gmail.com>
+X-Mailer: git-send-email 2.33.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
---00000000000036eacb05cb93dd0c
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-Hello,
+The following changes since commit 78001b7af36f685265e21feaf384a4be12118c64:
 
-while translating the latest changes in man pages, I found some issues
-in mount.8.adoc. See the attached diff.
+  Merge branch 'master' of https://github.com/yugart/util-linux (2021-09-07 12:30:15 +0200)
 
-Unfortunately we can't use non-standard citation characters in the
-Asciidoc files, like =E2=80=9Cthese=E2=80=9D. No problem so far for Asciido=
-ctor
-itself, but Po4a produces nonsense (unprintable) characters.
+are available in the Git repository at:
 
-Best Regards
-Mario
+  git://github.com/ritikrajdev/util-linux.git more-shell-execution
 
---00000000000036eacb05cb93dd0c
-Content-Type: text/x-patch; charset="UTF-8"; name="mount.8.adoc.diff"
-Content-Disposition: attachment; filename="mount.8.adoc.diff"
-Content-Transfer-Encoding: base64
-Content-ID: <f_ktd8qj1t0>
-X-Attachment-Id: f_ktd8qj1t0
+for you to fetch changes up to e5e0eac42c55b007766221e1971fceda3a64bb08:
 
-ZGlmZiAtLWdpdCBhL3N5cy11dGlscy9tb3VudC44LmFkb2MgYi9zeXMtdXRpbHMvbW91bnQuOC5h
-ZG9jCmluZGV4IGZmZjZjN2MyZi4uMjIyOWUwOGRlIDEwMDY0NAotLS0gYS9zeXMtdXRpbHMvbW91
-bnQuOC5hZG9jCisrKyBiL3N5cy11dGlscy9tb3VudC44LmFkb2MKQEAgLTEwNDUsNyArMTA0NSw3
-IEBAIENhbiBiZSB1c2VkIHRvIHJlcGxhY2UgVVVJRCBvZiB0aGUgdW5kZXJseWluZyBmaWxlc3lz
-dGVtIGluIGZpbGUgaGFuZGxlcyB3aXRoIG51CiBXaGVuIHRoZSB1bmRlcmx5aW5nIGZpbGVzeXN0
-ZW1zIHN1cHBvcnRzIE5GUyBleHBvcnQgYW5kIHRoZSAibmZzX2V4cG9ydCIKIGZlYXR1cmUgaXMg
-ZW5hYmxlZCwgYW4gb3ZlcmxheSBmaWxlc3lzdGVtIG1heSBiZSBleHBvcnRlZCB0byBORlMuCiAr
-Ci1XaXRoIHRoZSDigJxuZnNfZXhwb3J04oCdIGZlYXR1cmUsIG9uIGNvcHlfdXAgb2YgYW55IGxv
-d2VyIG9iamVjdCwgYW4gaW5kZXggZW50cnkKK1dpdGggdGhlICJuZnNfZXhwb3J0IiBmZWF0dXJl
-LCBvbiBjb3B5X3VwIG9mIGFueSBsb3dlciBvYmplY3QsIGFuIGluZGV4IGVudHJ5CiBpcyBjcmVh
-dGVkIHVuZGVyIHRoZSBpbmRleCBkaXJlY3RvcnkuIFRoZSBpbmRleCBlbnRyeSBuYW1lIGlzIHRo
-ZSBoZXhhZGVjaW1hbAogcmVwcmVzZW50YXRpb24gb2YgdGhlIGNvcHkgdXAgb3JpZ2luIGZpbGUg
-aGFuZGxlLiBGb3IgYSBub24tZGlyZWN0b3J5IG9iamVjdCwKIHRoZSBpbmRleCBlbnRyeSBpcyBh
-IGhhcmQgbGluayB0byB0aGUgdXBwZXIgaW5vZGUuIEZvciBhIGRpcmVjdG9yeSBvYmplY3QsIHRo
-ZQpAQCAtMTA3MSw3ICsxMDcxLDcgQEAgVGhpcyBlbmNvZGluZyBmb3JtYXQgaXMgaWRlbnRpY2Fs
-IHRvIHRoZSBlbmNvZGluZyBmb3JtYXQgZmlsZSBoYW5kbGVzIHRoYXQgYXJlIHMKICogRmluZCB1
-bmRlcmx5aW5nIGxheWVyIGJ5IFVVSUQgYW5kIHBhdGggdHlwZSBpbmZvcm1hdGlvbi4KICogRGVj
-b2RlIHRoZSB1bmRlcmx5aW5nIGZpbGVzeXN0ZW0gZmlsZSBoYW5kbGUgdG8gdW5kZXJseWluZyBk
-ZW50cnkuCiAqIEZvciBhIGxvd2VyIGZpbGUgaGFuZGxlLCBsb29rdXAgdGhlIGhhbmRsZSBpbiBp
-bmRleCBkaXJlY3RvcnkgYnkgbmFtZS4KLSogSWYgYSB3aGl0ZW91dCBpcyBmb3VuZCBpbiBpbmRl
-eCwgcmV0dXJuIEVTVEFMRS4gVGhpcyByZXByZXNlbnRzIGFuIG92ZXJsYXkgb2JqZWN0IHRoYXQg
-d2FzIGRlbGV0ZWQgYWZ0ZXIgaXRzIGZpbGUgaGFuZGxlIHdhcyBlbmNvZGVkLgorKiBJZiBhIHdo
-aXRlb3V0IGlzIGZvdW5kIGluIGluZGV4LCByZXR1cm4gKipFU1RBTEUqKi4gVGhpcyByZXByZXNl
-bnRzIGFuIG92ZXJsYXkgb2JqZWN0IHRoYXQgd2FzIGRlbGV0ZWQgYWZ0ZXIgaXRzIGZpbGUgaGFu
-ZGxlIHdhcyBlbmNvZGVkLgogKiBGb3IgYSBub24tZGlyZWN0b3J5LCBpbnN0YW50aWF0ZSBhIGRp
-c2Nvbm5lY3RlZCBvdmVybGF5IGRlbnRyeSBmcm9tIHRoZSBkZWNvZGVkIHVuZGVybHlpbmcgZGVu
-dHJ5LCB0aGUgcGF0aCB0eXBlIGFuZCBpbmRleCBpbm9kZSwgaWYgZm91bmQuCiAqIEZvciBhIGRp
-cmVjdG9yeSwgdXNlIHRoZSBjb25uZWN0ZWQgdW5kZXJseWluZyBkZWNvZGVkIGRlbnRyeSwgcGF0
-aCB0eXBlIGFuZCBpbmRleCwgdG8gbG9va3VwIGEgY29ubmVjdGVkIG92ZXJsYXkgZGVudHJ5Lgog
-Cg==
---00000000000036eacb05cb93dd0c--
+  more - Bug Resolve - new line separated command execution (2021-09-14 04:27:14 +0530)
+
+----------------------------------------------------------------
+ritikrajdev (1):
+  more - Bug Resolve - new line separated command execution
+
+ text-utils/more.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+-- 
+2.33.0
+
