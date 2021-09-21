@@ -2,77 +2,78 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B5D1C433FE
-	for <util-linux@archiver.kernel.org>; Tue, 21 Sep 2021 08:54:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 555C7C433FE
+	for <util-linux@archiver.kernel.org>; Tue, 21 Sep 2021 19:18:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E338161159
-	for <util-linux@archiver.kernel.org>; Tue, 21 Sep 2021 08:54:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3BA486112F
+	for <util-linux@archiver.kernel.org>; Tue, 21 Sep 2021 19:18:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231335AbhIUIzp (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 21 Sep 2021 04:55:45 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24480 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231260AbhIUIzp (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Tue, 21 Sep 2021 04:55:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1632214456;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=agWWtW7dG4UyWDbA34Wq2oViHaZe2Mp2AF2BFNQtGxw=;
-        b=MTEL+Az4/Xu9GfeMdoMRyo9V9zUSkMVSLn48kQKyBFQlKhbxEVUBYYMjEBBrMRTeqcIZZq
-        neIj8BQZ6pIO6PXkTdBiYg/MNzWeohqjGUiBtLnsoioHOB5T3PqEStt9HNZCXkB6fW9noM
-        pd5NgoVMKF/y/8JG0FJqrZXrgNjyLto=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-173-lIDf2SvhNtOAplippFuA3Q-1; Tue, 21 Sep 2021 04:51:03 -0400
-X-MC-Unique: lIDf2SvhNtOAplippFuA3Q-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6697584A5E0;
-        Tue, 21 Sep 2021 08:51:02 +0000 (UTC)
-Received: from ws.net.home (ovpn-112-16.ams2.redhat.com [10.36.112.16])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id B91921346F;
-        Tue, 21 Sep 2021 08:51:01 +0000 (UTC)
-Date:   Tue, 21 Sep 2021 10:50:59 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     Mario =?utf-8?Q?Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
-Cc:     util-linux@vger.kernel.org
-Subject: Re: PATCH: misformatting in mount.8.adoc
-Message-ID: <20210921085059.7jqz4htg3gqyvj2c@ws.net.home>
-References: <CAHi0vA_sSHZ8MV8PExEUkOuE1EhGWZ5RL_1-tLpwrbsqqMgVgw@mail.gmail.com>
+        id S230492AbhIUTT3 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 21 Sep 2021 15:19:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47466 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234371AbhIUTT2 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 21 Sep 2021 15:19:28 -0400
+Received: from mail-ua1-x92d.google.com (mail-ua1-x92d.google.com [IPv6:2607:f8b0:4864:20::92d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1923EC061574
+        for <util-linux@vger.kernel.org>; Tue, 21 Sep 2021 12:18:00 -0700 (PDT)
+Received: by mail-ua1-x92d.google.com with SMTP id 42so114847uar.5
+        for <util-linux@vger.kernel.org>; Tue, 21 Sep 2021 12:18:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=NgXz+1NJ/3gXOoXzKOIFFQ+IiohHMBEbq0ZGtjj6xlA=;
+        b=II5z4qQqqQ4PQYpYABKSHyPeHqQhOU0MsdF4dOTn4QyKVETtI/4RfLqVG1W0ZOY6aZ
+         CX3iXJRUJy0o1gNJouVI/INsYPjvcSudQ4FtcEaBb8nk2CaGEI+vCYh/rXkEJb+lQEAR
+         zZrcgUCYjQsca3fSLQoHM+HIChCBmpy3lhCW9ycEmoj7119QaAjJ4QWPlwQGWGoHr7vF
+         gmYKdOeHM7xkWzSqVnzzg+jKZYfcHDyitggQS9p2UdmLqZ4YhZoY7wKS3gjgJt0i8zMW
+         68OOtdnAHzFTHOi4cTEmEFbKOokvxMIQ6YzLxZK6YyvooOJaGcIjnmHIKa02a0PsFsjI
+         +Ing==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=NgXz+1NJ/3gXOoXzKOIFFQ+IiohHMBEbq0ZGtjj6xlA=;
+        b=3t3hgBvsdODm+x+rGuD3lEvHtU+wYb9ugdF8+QLL3G5f5b0CeovnscZcWPP9rIR2RA
+         LwpCS+qzCCdnqlyNDBtG4vIzWxT35UokYTYuqNs9FFAZpW+r77p46xEldq2eFAGc++Cn
+         sfvUkcCFT5JiWIOpzwIymDbA/lhwDk3SkDpt1SDabYz/r1PG4aCoYfwCfN73Uvbk+9F9
+         by0T5OgGeDCDioAvMmHsE3E/re7U4WE073Gwu9Hsk6bTrUjwS3HxiauejTFpyx0x5RE1
+         zA1sr3gepLZSIcoQhAKkOdSORv/8OQgOZrTny0F3NK8IroCXmPcmCOf2FSjPBgOTDXc7
+         dbOA==
+X-Gm-Message-State: AOAM530pxwLhxKGC4yHdJRm1R7VzBOZCr3wvB51tdtcv0JIoYB9u3+oC
+        dgp64EDnvEB3wvCcDwqg8YpkHIaZrz5Nhm8WoZtw88osxDY=
+X-Google-Smtp-Source: ABdhPJy+TOFpmb1bwKkyRoc9I+H2lXgu5aYzrj1gEm3PcQU/0UTppXhm7azw+IbxDCVSCXhTg3bUJ1Tr0aOypx9g0IA=
+X-Received: by 2002:ab0:85e:: with SMTP id b30mr14581698uaf.36.1632251879082;
+ Tue, 21 Sep 2021 12:17:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHi0vA_sSHZ8MV8PExEUkOuE1EhGWZ5RL_1-tLpwrbsqqMgVgw@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+From:   =?UTF-8?Q?Mario_Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
+Date:   Tue, 21 Sep 2021 21:17:48 +0200
+Message-ID: <CAHi0vA__mxJoQ4c2jqZsZiR+omLqwwRAcKb4J+Ypp=5qqDwKpQ@mail.gmail.com>
+Subject: agetty.8.adoc: Replace /usr/lib with a variable?
+To:     util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Thu, Sep 09, 2021 at 08:06:44PM +0200, Mario Blättermann wrote:
-> while translating the latest changes in man pages, I found some issues
-> in mount.8.adoc. See the attached diff.
+Hello,
 
-Applied, thanks.
+in agetty.8.adoc the file path /usr/lib/ is hardcoded. At least the
+Mageia distribution (possibly others, too) uses /usr/lib64 for the
+x86_64 version instead. Would it be better to use {libdir} and let
+replace it on demand by a ./configure option? As far as I can
+evaluate, this should work with an option in Makefile.am:
 
-> Unfortunately we can't use non-standard citation characters in the
-> Asciidoc files, like “these”.
+AM_CPPFLAGS = \
+...
+        -D_PATH_LIBDIR=\"${libdir}\"
 
-I guess "standard" citation characters are good enough for us ;-)
+Similarly, we could think about to replace all file paths in man pages
+which are configurable during the installation.
 
- Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
-
+Best Regards,
+Mario
