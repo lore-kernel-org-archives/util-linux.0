@@ -2,156 +2,512 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E930C433EF
-	for <util-linux@archiver.kernel.org>; Wed, 22 Sep 2021 17:37:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 447B9C433EF
+	for <util-linux@archiver.kernel.org>; Thu, 23 Sep 2021 02:21:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 53CE761019
-	for <util-linux@archiver.kernel.org>; Wed, 22 Sep 2021 17:37:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1C43060F0F
+	for <util-linux@archiver.kernel.org>; Thu, 23 Sep 2021 02:21:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236711AbhIVRjD (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 22 Sep 2021 13:39:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45052 "EHLO
+        id S238875AbhIWCWe (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 22 Sep 2021 22:22:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236836AbhIVRjC (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 22 Sep 2021 13:39:02 -0400
-Received: from mail-vk1-xa2a.google.com (mail-vk1-xa2a.google.com [IPv6:2607:f8b0:4864:20::a2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C6D7C061574
-        for <util-linux@vger.kernel.org>; Wed, 22 Sep 2021 10:37:32 -0700 (PDT)
-Received: by mail-vk1-xa2a.google.com with SMTP id b67so1474023vkb.13
-        for <util-linux@vger.kernel.org>; Wed, 22 Sep 2021 10:37:32 -0700 (PDT)
+        with ESMTP id S238859AbhIWCWd (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 22 Sep 2021 22:22:33 -0400
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F409EC061574
+        for <util-linux@vger.kernel.org>; Wed, 22 Sep 2021 19:21:02 -0700 (PDT)
+Received: by mail-pl1-x636.google.com with SMTP id w11so2990734plz.13
+        for <util-linux@vger.kernel.org>; Wed, 22 Sep 2021 19:21:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=bT1JKxWMg0yoC34Ciyt3PfgonLSssofDwnbgR8LM1pU=;
-        b=hKT20lhigYgpV5747uuvN2GhSYIgQTr10YBdn+QIptFh9zwzbmy7+E560lZCVGostD
-         H6dgY6z3xSdRRgqwqTchGm1Lz0iDMiKTzJtHNgjKIGP8REhpITQGcxqjttBHqGqoqW3N
-         Cd5cZ43rEzV6E/cdOQ1EjH42oZnsxf38gkEbmiAFZ0SkjqfSP/RoDkkmvAV2zvo+m03p
-         lDYNw136LB5fVZZghHZ8d7S+w3vO7fji72Qxphu8wh9s3hc2Skvsqzv3gwwgRVvCcRo8
-         J7jNYmv9Vrn7K4fbzpLCKQHHvxn4riGlVJHgZjxMwGIprfnhzJPQSeXFkwQEsYZsKkLU
-         YjAA==
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=UD7qkg3qTp7Y8K1m2drSatByZDw7CT7kIvw8vBs269I=;
+        b=UyFL6haqVIXcAyOO2/z3Tb2MVg2MNSObG1Q93w7kiQiJePICkEu6WvCcmfj5yQ+La+
+         NipH+npQbd0On+K+Heocn5OK7TaS8GItiCFPH9HLWSQHkcs+jGH89Vdez/6NuaFdRv5K
+         xMRX4ai/7FnmsDadf9GcjWZpCXePNiVwWdhmJmsAOJIvwWjp9wCOhMduboGwYDXR1zke
+         CPQRG+3SuOqcBiwPPquZVDOK/FqxhLd1IfJDTcOBTnowe9BS5UKPI/6mP4dFReLKrSmH
+         GZl/Opnc24m4QcTjTC/YhfqpP7U1nQ9xKDfXxT8IekcgstmTYiRITPYcJhoVkLQRcl+8
+         w0Rw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=bT1JKxWMg0yoC34Ciyt3PfgonLSssofDwnbgR8LM1pU=;
-        b=AXd8YycwZp+AgWEmOj9RwYUSDa5NuSKpUQ6c/9+pxgVDcfTI8UBZVGSK/sCN0ShKCY
-         Txel4etAl8M3Qkn3CReIpgkO1GzIACXjpQprtDTc1J9q77awBxliJQrr0DJCdkRd+Y7a
-         dlVu/c9ZRjo4IBrYc5QIfVm+zjTNd2YIoEKUQpZJZmo3Vz/GTBwnIYX8J9THpe697M3P
-         7RrvROPLd0Q4Q7gOztY60n+ZCewUzbGflmDpPIFhllwJj8joHifwOBrODW9JM3pgTvF0
-         uDod6I9wKnT82KqZVfTWJgmcrEKC9W132aN3xUrvDW/KQt9ojnKxG4/HApBsJDu7AKZQ
-         dNiA==
-X-Gm-Message-State: AOAM53067FPcAau0Q1ue1q4J767s+3oeUfHv05AT6EiRJOE7gZL2AkfB
-        dxUAuQr9kkXoEl67Qg1Rm0av8/c+GWyXr2iWADjUFszmEHk=
-X-Google-Smtp-Source: ABdhPJwdKsumfLD7OSeqxyT+1DJphlzbkTq/OgafgYuK5FOH5ZkHeWz42LvfP8OXXlcGX2moorKzcZg88VlE9lvxOKA=
-X-Received: by 2002:a1f:ac0e:: with SMTP id v14mr922947vke.3.1632332251525;
- Wed, 22 Sep 2021 10:37:31 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=UD7qkg3qTp7Y8K1m2drSatByZDw7CT7kIvw8vBs269I=;
+        b=KsjZ8CDw0gAw1IjyjkrFwBkxun75NVxry464SLWcN50LL79SWyhq2N5Ie/mZLSn/hr
+         vhJCDM3FC2++4zCgL3P3VzZBavRoxqt4HX3U7gnznYvOf+sOJGuAoOGkJDoiRAI0rgZU
+         VyC4egBZGlsdlpY0zmyQb1j0BaAcMb9S3TyjPYoPgr7SC3snmWwYVDR2tZ5ynbF1jjuy
+         uNNJuGk8a64kXr/oHnxps4pZ25JLMAlXvYHa5/OMzdmXo75RwMa9bLTrqMbOGKCcxvOo
+         80imaoysUgm7bPRRdwErGn3hAKTfmhRuV7XbMoAz75Jw9RtbdRoJk/F2X3Xm1KTGoVae
+         BjeA==
+X-Gm-Message-State: AOAM533qCwUvGx9yuxS3uof13bJYN4jEWTPeIWYujLo6uhhJq8kKAsD/
+        TykvuE+p8vaUuC4HvaRnFycfBWMyuU8m4Q==
+X-Google-Smtp-Source: ABdhPJxGuDHJkLAq2azAYSF9TG2Rnvg2G7jbLBXgkVsJIJ+yCmPNeNSE3hyV66166Oe00dS2f4ElFA==
+X-Received: by 2002:a17:90a:11:: with SMTP id 17mr2507590pja.238.1632363662225;
+        Wed, 22 Sep 2021 19:21:02 -0700 (PDT)
+Received: from [10.2.24.177] ([61.120.150.70])
+        by smtp.gmail.com with ESMTPSA id t15sm4250811pgi.80.2021.09.22.19.20.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 22 Sep 2021 19:21:00 -0700 (PDT)
+Subject: PING: [PATCH] blkpr: add block persistent reservations command
+To:     kzak@redhat.com
+Cc:     util-linux@vger.kernel.org
+References: <20210916032901.2189336-1-pizhenwei@bytedance.com>
+From:   zhenwei pi <pizhenwei@bytedance.com>
+Message-ID: <add3080a-8fcf-134b-764f-52a04db0f4b4@bytedance.com>
+Date:   Thu, 23 Sep 2021 10:18:33 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-From:   =?UTF-8?Q?Mario_Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
-Date:   Wed, 22 Sep 2021 19:37:20 +0200
-Message-ID: <CAHi0vA8dhcyzDUAfCjuo=vwEGK2Y_8K5GFZC9f8aaFUbO-hK1A@mail.gmail.com>
-Subject: Man page lsfd(1)
-To:     util-linux@vger.kernel.org
-Content-Type: multipart/mixed; boundary="000000000000022f3f05cc98f887"
+In-Reply-To: <20210916032901.2189336-1-pizhenwei@bytedance.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
---000000000000022f3f05cc98f887
-Content-Type: text/plain; charset="UTF-8"
 
-Hello,
+PING!
 
-although lsfd isn't official part of util-linux, this mailing list is
-probably the right channel, because I assume it will become part of it
-one day.
+On 9/16/21 11:29 AM, zhenwei pi wrote:
+> Linux kernel block layer supports PR (persistent reservations) ioctl
+> on a block device. Typically SCSI and NVMe disk support PR feature,
+> and blkpr could operation on them.
+> 
+> Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+> ---
+>   configure.ac            |  11 ++
+>   sys-utils/Makemodule.am |   8 ++
+>   sys-utils/blkpr.8.adoc  |  64 ++++++++++
+>   sys-utils/blkpr.c       | 277 ++++++++++++++++++++++++++++++++++++++++
+>   4 files changed, 360 insertions(+)
+>   create mode 100644 sys-utils/blkpr.8.adoc
+>   create mode 100644 sys-utils/blkpr.c
+> 
+> diff --git a/configure.ac b/configure.ac
+> index 60e63592b..ae47a5c6c 100644
+> --- a/configure.ac
+> +++ b/configure.ac
+> @@ -310,6 +310,7 @@ AC_CHECK_HEADERS([ \
+>   	linux/fiemap.h \
+>   	linux/net_namespace.h \
+>   	linux/nsfs.h \
+> +	linux/pr.h \
+>   	linux/raw.h \
+>   	linux/securebits.h \
+>   	linux/tiocl.h \
+> @@ -387,6 +388,10 @@ AC_CHECK_DECLS([BLK_ZONE_REP_CAPACITY], [], [], [
+>   	#include <linux/blkzoned.h>
+>   ])
+>   
+> +AC_CHECK_DECLS([PR_REP_CAPACITY], [], [], [
+> +	#include <linux/pr.h>
+> +])
+> +
+>   AC_CHECK_HEADERS([security/openpam.h], [], [], [
+>   #ifdef HAVE_SECURITY_PAM_APPL_H
+>   #include <security/pam_appl.h>
+> @@ -454,6 +459,7 @@ dnl
+>   have_linux_blkzoned_h=$ac_cv_header_linux_blkzoned_h
+>   have_linux_btrfs_h=$ac_cv_header_linux_btrfs_h
+>   have_linux_capability_h=$ac_cv_header_linux_capability_h
+> +have_linux_pr_h=$ac_cv_header_linux_pr_h
+>   have_linux_raw_h=$ac_cv_header_linux_raw_h
+>   have_linux_securebits_h=$ac_cv_header_linux_securebits_h
+>   have_linux_version_h=$ac_cv_header_linux_version_h
+> @@ -1905,6 +1911,11 @@ UL_REQUIRES_LINUX([blkzone])
+>   UL_REQUIRES_HAVE([blkzone], [linux_blkzoned_h], [linux/blkzoned.h header])
+>   AM_CONDITIONAL([BUILD_BLKZONE], [test "x$build_blkzone" = xyes])
+>   
+> +UL_BUILD_INIT([blkpr], [check])
+> +UL_REQUIRES_LINUX([blkpr])
+> +UL_REQUIRES_HAVE([blkpr], [linux_pr_h], [linux/pr.h header])
+> +AM_CONDITIONAL([BUILD_BLKPR], [test "x$build_blkpr" = xyes])
+> +
+>   UL_BUILD_INIT([ldattach], [check])
+>   UL_REQUIRES_LINUX([ldattach])
+>   AM_CONDITIONAL([BUILD_LDATTACH], [test "x$build_ldattach" = xyes])
+> diff --git a/sys-utils/Makemodule.am b/sys-utils/Makemodule.am
+> index e55363484..22047d9bd 100644
+> --- a/sys-utils/Makemodule.am
+> +++ b/sys-utils/Makemodule.am
+> @@ -202,6 +202,14 @@ blkzone_SOURCES = sys-utils/blkzone.c
+>   blkzone_LDADD = $(LDADD) libcommon.la
+>   endif
+>   
+> +if BUILD_BLKPR
+> +sbin_PROGRAMS += blkpr
+> +MANPAGES += sys-utils/blkpr.8
+> +dist_noinst_DATA += sys-utils/blkpr.8.adoc
+> +blkpr_SOURCES = sys-utils/blkpr.c
+> +blkpr_LDADD = $(LDADD) libcommon.la
+> +endif
+> +
+>   if BUILD_LDATTACH
+>   usrsbin_exec_PROGRAMS += ldattach
+>   MANPAGES += sys-utils/ldattach.8
+> diff --git a/sys-utils/blkpr.8.adoc b/sys-utils/blkpr.8.adoc
+> new file mode 100644
+> index 000000000..dc8bb3893
+> --- /dev/null
+> +++ b/sys-utils/blkpr.8.adoc
+> @@ -0,0 +1,64 @@
+> +//po4a: entry man manual
+> += blkpr(8)
+> +:doctype: manpage
+> +:man manual: System Administration
+> +:man source: util-linux {release-version}
+> +:page-layout: base
+> +:command: blkpr
+> +
+> +== NAME
+> +
+> +blkpr - run persistent reservations command on a device
+> +
+> +== SYNOPSIS
+> +
+> +*blkpr* [options] _device_
+> +
+> +== DESCRIPTION
+> +
+> +*blkpr* is used to run persistent reservations command on device that supports Persistent Reservations feature.
+> +
+> +The _device_ argument is the pathname of the block device.
+> +
+> +== OPTIONS
+> +
+> +*-o*, *--operation* _operation_::
+> +The operation of persistent reservations, supported [register|reserve|release|preempt|preempt-abort|clear].
+> +
+> +*-k*, *--key* _key_::
+> +The key the operation should operate on.
+> +
+> +*-K*, *--oldkey* _oldkey_::
+> +The old key the operation should operate on.
+> +
+> +*-f*, *--flag* _flag_::
+> +Supported flag [ignore-key].
+> +
+> +*-t*, *--type*::
+> +Supported type [write-exclusive|exclusive-access|write-exclusive-reg-only|exclusive-access-reg-only|write-exclusive-all-regs|exclusive-access-all-regs]
+> +
+> +*-V*, *--version*::
+> +Display version information and exit.
+> +
+> +*-h*, *--help*::
+> +Display help text and exit.
+> +
+> +== AUTHORS
+> +
+> +mailto:pizhenwei@bytedance.com[zhenwei pi]
+> +
+> +== SEE ALSO
+> +
+> +*sg_persist*(8)
+> +
+> +Linux documentation at: <https://www.kernel.org/doc/Documentation/block/pr.txt>
+> +iSCSI specification at: <https://datatracker.ietf.org/doc/html/rfc3720>
+> +NVMe-oF specification at: <https://nvmexpress.org/nvme-over-fabrics-part-two/>
+> +
+> +include::man-common/bugreports.adoc[]
+> +
+> +include::man-common/footer.adoc[]
+> +
+> +ifdef::translation[]
+> +include::man-common/translation.adoc[]
+> +endif::[]
+> diff --git a/sys-utils/blkpr.c b/sys-utils/blkpr.c
+> new file mode 100644
+> index 000000000..3f8c19343
+> --- /dev/null
+> +++ b/sys-utils/blkpr.c
+> @@ -0,0 +1,277 @@
+> +/*
+> + * blkpr.c -- persistent reservations on a block device.
+> + *
+> + * Copyright (C) 2021 zhenwei pi <pizhenwei@bytedance.com>
+> + *
+> + * This program is free software: you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation, either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+> + *
+> + * This program uses IOC_PR_XXX ioctl to do persistent reservations
+> + * operation on a block device if the device supports it.
+> + */
+> +
+> +
+> +#include <string.h>
+> +#include <unistd.h>
+> +#include <stdlib.h>
+> +#include <stdio.h>
+> +#include <getopt.h>
+> +#include <locale.h>
+> +#include <sys/ioctl.h>
+> +#include <linux/pr.h>
+> +
+> +#include "nls.h"
+> +#include "c.h"
+> +#include "closestream.h"
+> +#include "strutils.h"
+> +#include "xalloc.h"
+> +
+> +struct type_string {
+> +	int type;
+> +	char *str;
+> +};
+> +
+> +/* This array should keep align with enum pr_type of linux/types.h */
+> +static struct type_string pr_type[] = {
+> +	{PR_WRITE_EXCLUSIVE,           "write-exclusive"},
+> +	{PR_EXCLUSIVE_ACCESS,          "exclusive-access"},
+> +	{PR_WRITE_EXCLUSIVE_REG_ONLY,  "write-exclusive-reg-only"},
+> +	{PR_EXCLUSIVE_ACCESS_REG_ONLY, "exclusive-access-reg-only"},
+> +	{PR_WRITE_EXCLUSIVE_ALL_REGS,  "write-exclusive-all-regs"},
+> +	{PR_EXCLUSIVE_ACCESS_ALL_REGS, "exclusive-access-all-regs"}
+> +};
+> +
+> +static struct type_string pr_operation[] = {
+> +	{IOC_PR_REGISTER,      "register"},
+> +	{IOC_PR_RESERVE,       "reserve"},
+> +	{IOC_PR_RELEASE,       "release"},
+> +	{IOC_PR_PREEMPT,       "preempt"},
+> +	{IOC_PR_PREEMPT_ABORT, "preempt-abort"},
+> +	{IOC_PR_CLEAR,         "clear"},
+> +};
+> +
+> +static struct type_string pr_flag[] = {
+> +	{PR_FL_IGNORE_KEY, "ignore-key"}
+> +};
+> +
+> +static char *all_type_string(struct type_string *ts, int nmem)
+> +{
+> +	char *prtypes, *tmp;
+> +	size_t total = 0, length;
+> +	int i;
+> +
+> +	for (i = 0; i < nmem; i++) {
+> +		total += (strlen(ts[i].str) + 1);
+> +	}
+> +
+> +	tmp = prtypes = xmalloc(total);
+> +	for (i = 0; i < nmem; i++) {
+> +		strcpy(tmp, ts[i].str);
+> +		length = strlen(ts[i].str);
+> +
+> +		tmp[length++] = '|';
+> +		tmp += length;
+> +	}
+> +
+> +	/* strip the last '|' */
+> +	prtypes[total - 1] = '\0';
+> +
+> +	return prtypes;
+> +}
+> +
+> +static int parse_type_by_str(struct type_string *ts, int nmem, char *pattern)
+> +{
+> +	int i;
+> +
+> +	for (i = 0; i < nmem; i++) {
+> +		if (!strcmp(ts[i].str, pattern)) {
+> +			return ts[i].type;
+> +		}
+> +	}
+> +
+> +	return -1;
+> +}
+> +
+> +#define SUPPORTED(XX) \
+> +	static char *supported_##XX(void) \
+> +	{ return all_type_string(XX, ARRAY_SIZE(XX)); }
+> +
+> +#define PARSE(XX) \
+> +	static int parse_##XX(char *pattern) \
+> +	{ return parse_type_by_str(XX, ARRAY_SIZE(XX), pattern); }
+> +
+> +SUPPORTED(pr_type);
+> +SUPPORTED(pr_operation);
+> +SUPPORTED(pr_flag);
+> +
+> +PARSE(pr_type);
+> +PARSE(pr_operation);
+> +PARSE(pr_flag);
+> +
+> +static int do_pr(char *path, uint64_t key, uint64_t oldkey, int op, int type, int flag)
+> +{
+> +	struct pr_registration pr_reg;
+> +	struct pr_reservation pr_res;
+> +	struct pr_preempt pr_prt;
+> +	struct pr_clear pr_clr;
+> +	int fd, ret;
+> +
+> +	fd = open(path, O_RDWR);
+> +	if (fd < 0) {
+> +		err(EXIT_FAILURE, _("cannot open %s"), path);
+> +	}
+> +
+> +	switch (op) {
+> +	case IOC_PR_REGISTER:
+> +		pr_reg.old_key = oldkey;
+> +		pr_reg.new_key = key;
+> +		pr_reg.flags = flag;
+> +		ret = ioctl(fd, op, &pr_reg);
+> +		break;
+> +	case IOC_PR_RESERVE:
+> +	case IOC_PR_RELEASE:
+> +		pr_res.key = key;
+> +		pr_res.type = type;
+> +		pr_res.flags = flag;
+> +		ret = ioctl(fd, op, &pr_res);
+> +		break;
+> +	case IOC_PR_PREEMPT:
+> +	case IOC_PR_PREEMPT_ABORT:
+> +		pr_prt.old_key = oldkey;
+> +		pr_prt.new_key = key;
+> +		pr_prt.type = type;
+> +		pr_prt.flags = flag;
+> +		ret = ioctl(fd, op, &pr_prt);
+> +		break;
+> +	case IOC_PR_CLEAR:
+> +		pr_clr.key = key;
+> +		pr_clr.flags = flag;
+> +		ret = ioctl(fd, op, &pr_clr);
+> +		break;
+> +	default:
+> +		errno = EINVAL;
+> +		err(EXIT_FAILURE, _("unknown operation"));
+> +	}
+> +
+> +	close(fd);
+> +	if (ret < 0) {
+> +		err(EXIT_FAILURE, _("pr ioctl failed"));
+> +	} else if (ret > 0) {
+> +		errx(EXIT_FAILURE, _("error code 0x%x, for more detailed information see specification of device model."), ret);
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static void __attribute__((__noreturn__)) usage(void)
+> +{
+> +	FILE *out = stdout;
+> +	fputs(USAGE_HEADER, out);
+> +	fprintf(out,
+> +	      _(" %s [options] <device>\n"), program_invocation_short_name);
+> +
+> +	fputs(USAGE_SEPARATOR, out);
+> +	fputs(_("Persistent reservations on a device.\n"), out);
+> +
+> +	fputs(USAGE_OPTIONS, out);
+> +	fprintf(out, _(" -o, --operation <string>  supported operation [%s]\n"), supported_pr_operation());
+> +	fputs(_(" -k, --key <num>           key to operate\n"), out);
+> +	fputs(_(" -K, --oldkey <num>        old key to operate\n"), out);
+> +	fprintf(out, _(" -f, --flag <string>       supported flag [%s]\n"), supported_pr_flag());
+> +	fprintf(out, _(" -t, --type <string>       supported type [%s]\n"), supported_pr_type());
+> +
+> +	fputs(USAGE_SEPARATOR, out);
+> +	printf(USAGE_HELP_OPTIONS(21));
+> +
+> +	fputs(USAGE_ARGUMENTS, out);
+> +
+> +	printf(USAGE_MAN_TAIL("blkpr(8)"));
+> +	exit(EXIT_SUCCESS);
+> +}
+> +
+> +int main(int argc, char **argv)
+> +{
+> +	char c;
+> +	char *path;
+> +	uint64_t key = 0, oldkey = 0;
+> +	int operation = -1, type = -1, flag = 0;
+> +
+> +	static const struct option longopts[] = {
+> +	    { "help",            no_argument,       NULL, 'h' },
+> +	    { "version",         no_argument,       NULL, 'V' },
+> +	    { "operation",       required_argument, NULL, 'o' },
+> +	    { "key",             required_argument, NULL, 'k' },
+> +	    { "oldkey",          required_argument, NULL, 'K' },
+> +	    { "flag",            required_argument, NULL, 'f' },
+> +	    { "type",            required_argument, NULL, 't' },
+> +	    { NULL, 0, NULL, 0 }
+> +	};
+> +
+> +	setlocale(LC_ALL, "");
+> +	bindtextdomain(PACKAGE, LOCALEDIR);
+> +	textdomain(PACKAGE);
+> +	close_stdout_atexit();
+> +
+> +	errno = EINVAL;
+> +	while ((c = getopt_long(argc, argv, "hVo:k:K:f:t:", longopts, NULL)) != -1) {
+> +		switch(c) {
+> +		case 'k':
+> +			key = strtosize_or_err(optarg,
+> +					_("failed to parse key"));
+> +			break;
+> +		case 'K':
+> +			oldkey = strtosize_or_err(optarg,
+> +					_("failed to parse old key"));
+> +			break;
+> +		case 'o':
+> +			operation = parse_pr_operation(optarg);
+> +			if (operation < 0) {
+> +				err(EXIT_FAILURE, _("unknown operation"));
+> +			}
+> +			break;
+> +		case 't':
+> +			type = parse_pr_type(optarg);
+> +			if (type < 0) {
+> +				err(EXIT_FAILURE, _("unknown type"));
+> +			}
+> +			break;
+> +		case 'f':
+> +			flag = parse_pr_flag(optarg);
+> +			if (flag < 0) {
+> +				err(EXIT_FAILURE, _("unknown flag"));
+> +			}
+> +			break;
+> +
+> +		case 'h':
+> +			usage();
+> +		case 'V':
+> +			print_version(EXIT_SUCCESS);
+> +		default:
+> +			errtryhelp(EXIT_FAILURE);
+> +		}
+> +	}
+> +
+> +	if (optind == argc) {
+> +		errx(EXIT_FAILURE, _("no device specified"));
+> +	}
+> +
+> +	path = argv[optind++];
+> +	if (optind != argc) {
+> +		warnx(_("unexpected number of arguments"));
+> +		errtryhelp(EXIT_FAILURE);
+> +	}
+> +
+> +	do_pr(path, key, oldkey, operation, type, flag);
+> +
+> +	return EXIT_SUCCESS;
+> +}
+> 
 
-In the pull request I read "The man page is not available yet". See
-the attached file: The diff contains an Asciidoctor man page mostly
-based on the output with the --help option. Admittedly, not all info
-what users need (in comparison with the current lsof(8)), but better
-than nothing for the time being. Besides that, I've fixed two typos in
-lsfd.c.
-
-Best Regards,
-Mario
-
---000000000000022f3f05cc98f887
-Content-Type: text/x-patch; charset="US-ASCII"; name="lsfd-manpage.diff"
-Content-Disposition: attachment; filename="lsfd-manpage.diff"
-Content-Transfer-Encoding: base64
-Content-ID: <f_ktvsdgmf0>
-X-Attachment-Id: f_ktvsdgmf0
-
-ZGlmZiAtLWdpdCBhL21pc2MtdXRpbHMvbHNkZi4xLmFkb2MgYi9taXNjLXV0aWxzL2xzZGYuMS5h
-ZG9jCm5ldyBmaWxlIG1vZGUgMTAwNjQ0CmluZGV4IDAwMDAwMDAwMC4uNDUwYjI1Y2UwCi0tLSAv
-ZGV2L251bGwKKysrIGIvbWlzYy11dGlscy9sc2RmLjEuYWRvYwpAQCAtMCwwICsxLDE1NiBAQAor
-Ly9wbzRhOiBlbnRyeSBtYW4gbWFudWFsCisvLy8vCitDb3B5cmlnaHQgMjAyMSBSZWQgSGF0LCBJ
-bmMuCisKK1RoaXMgZmlsZSBtYXkgYmUgY29waWVkIHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05V
-IFB1YmxpYyBMaWNlbnNlLgorLy8vLworPSBsc2ZkKDEpCis6ZG9jdHlwZTogbWFucGFnZQorOm1h
-biBtYW51YWw6IFVzZXIgQ29tbWFuZHMKKzptYW4gc291cmNlOiB1dGlsLWxpbnV4IHtyZWxlYXNl
-LXZlcnNpb259Cis6cGFnZS1sYXlvdXQ6IGJhc2UKKzpjb21tYW5kOiBsc2ZkCisKKz09IE5BTUUK
-KworbHNmZCAtIGxpc3QgZmlsZSBkZXNjcmlwdG9ycworCis9PSBTWU5PUFNJUworCisqbHNmZCog
-W29wdGlvbl0KKworPT0gREVTQ1JJUFRJT04KKworKmxzZmQqIGlzIGludGVuZGVkIHRvIGJlIGEg
-ZHJvcC1pbiByZXBsYWNlbWVudCBmb3IgKmxzb2YqKDgpIG9uIExpbnV4IHN5c3RlbXMuIEl0IHVz
-ZXMgTGlic21hcnRjb2xzIGZvciBvdXRwdXQgZm9ybWF0dGluZy4KKworQXZhaWxhYmxlIG91dHB1
-dCBjb2x1bW5zOgorCitBU1NPQzo6CitBc3NvY2lhdGlvbiBiZXR3ZWVuIGZpbGUgYW5kIHByb2Nl
-c3MuCisKK0NIUkRSVjo6CitDaGFyYWN0ZXIgZGV2aWNlIGRyaXZlciBuYW1lIHJlc29sdmVkIGJ5
-IF8vcHJvYy9kZXZpY2VzXy4KKworQ09NTUFORDo6CitDb21tYW5kIG9mIHRoZSBwcm9jZXNzIG9w
-ZW5pbmcgdGhlIGZpbGUuCisKK0RFTEVURUQ6OgorUmVhY2hhYmlsaXR5IGZyb20gdGhlIGZpbGUg
-c3lzdGVtLgorCitERVY6OgorSUQgb2YgdGhlIGRldmljZSBjb250YWluaW5nIHRoZSBmaWxlLgor
-CitERVZUWVBFOjoKK0RldmljZSB0eXBlIChfYmxrXywgX2NoYXJfLCBvciBfbm9kZXZfKS4KKwor
-RkQ6OgorRmlsZSBkZXNjcmlwdG9yIGZvciB0aGUgZmlsZS4KKworRkxBR1M6OgorRmxhZ3Mgc3Bl
-Y2lmaWVkIHdoZW4gb3BlbmluZyB0aGUgZmlsZS4KKworSU5PREU6OgorSW5vZGUgbnVtYmVyLgor
-CitNQUo6TUlOOjoKK0RldmljZSBJRCBmb3Igc3BlY2lhbCwgb3IgSUQgb2YgZGV2aWNlIGNvbnRh
-aW5pbmcgZmlsZS4KKworTUFQTEVOOjoKK0xlbmd0aCBvZiBmaWxlIG1hcHBpbmcgKGluIHBhZ2Up
-LgorCitNSVNDREVWOjoKK01pc2MgY2hhcmFjdGVyIGRldmljZSBuYW1lIHJlc29sdmVkIGJ5IF8v
-cHJvYy9taXNjXy4KKworTU5USUQ6OgorTW91bnQgSUQuCisKK01PREU6OgorQWNjZXNzIG1vZGUg
-KHJ3eCkuCisKK05BTUU6OgorTmFtZSBvZiB0aGUgZmlsZS4KKworTkxJTks6OgorTGluayBjb3Vu
-dC4KKworUEFSVElUSU9OOjoKK0Jsb2NrIGRldmljZSBuYW1lIHJlc29sdmVkIGJ5IF8vcHJvYy9w
-YXJ0aXRpb25fLgorCitQSUQ6OgorUElEIG9mIHRoZSBwcm9jZXNzIG9wZW5pbmcgdGhlIGZpbGUu
-CisKK1BPUzo6CitGaWxlIHBvc2l0aW9uLgorCitQUk9UT05BTUU6OgorUHJvdG9jb2wgbmFtZS4K
-KworUkRFVjo6CitEZXZpY2UgSUQgKGlmIHNwZWNpYWwgZmlsZSkuCisKK1NJWkU6OgorRmlsZSBz
-aXplLgorCitTT1VSQ0U6OgorRmlsZSBzeXN0ZW0sIHBhcnRpdGlvbiwgb3IgZGV2aWNlIGNvbnRh
-aW5pbmcgdGhlIGZpbGUuCisKK1RJRDo6CitUaHJlYWQgSUQgb2YgdGhlIHByb2Nlc3Mgb3Blbmlu
-ZyB0aGUgZmlsZS4KKworVFlQRTo6CitGaWxlIHR5cGUuCisKK1VJRDo6CitVc2VyIElEIG51bWJl
-ci4KKworVVNFUjo6CitVc2VyIG9mIHRoZSBwcm9jZXNzLgorCis9PSBPUFRJT05TCisKKyotbCos
-ICotLXRocmVhZHMqOjoKK0xpc3QgaW4gdGhyZWFkcyBsZXZlbC4KKworKi1KKiwgKi0tanNvbioK
-K1VzZSBKU09OIG91dHB1dCBmb3JtYXQuCisKKyotbiosICotLW5vaGVhZGluZ3MqCitEb24ndCBw
-cmludCBoZWFkaW5ncy4KKworKi1vKiwgKi0tb3V0cHV0KiBfbGlzdF8KK091dHB1dCBjb2x1bW5z
-LgorCisqLXIqLCAqLS1yYXcqCitVc2UgcmF3IG91dHB1dCBmb3JtYXQuCisKKyotLXN5c3Jvb3Qq
-IF9kaXJfCitVc2Ugc3BlY2lmaWVkIGRpcmVjdG9yeSBhcyBzeXN0ZW0gcm9vdC4KKworKi0tbm90
-cnVuY2F0ZSoKK0Rvbid0IHRydW5jYXRlIHRleHQgaW4gY29sdW1ucy4KKworKi1WKiwgKi0tdmVy
-c2lvbio6OgorRGlzcGxheSB2ZXJzaW9uIGluZm9ybWF0aW9uIGFuZCBleGl0LgorCisqLWgqLCAq
-LS1oZWxwKjo6CitEaXNwbGF5IGhlbHAgdGV4dCBhbmQgZXhpdC4KKworPT0gSElTVE9SWQorCitU
-aGUgKmxzZmQqIGNvbW1hbmQgaXMgcGFydCBvZiB0aGUgdXRpbC1saW51eCBwYWNrYWdlIHNpbmNl
-IHYyLjM4LgorCis9PSBBVVRIT1JTCisKK21haWx0bzp5YW1hdG9AcmVkaGF0LmNvbVtNYXNhdGFr
-ZSBZQU1BVE9dCisKKz09IFNFRSBBTFNPCisKKypsc29mKig4KQorCitpbmNsdWRlOjptYW4tY29t
-bW9uL2J1Z3JlcG9ydHMuYWRvY1tdCisKK2luY2x1ZGU6Om1hbi1jb21tb24vZm9vdGVyLmFkb2Nb
-XQorCitpZmRlZjo6dHJhbnNsYXRpb25bXQoraW5jbHVkZTo6bWFuLWNvbW1vbi90cmFuc2xhdGlv
-bi5hZG9jW10KK2VuZGlmOjpbXQpkaWZmIC0tZ2l0IGEvbWlzYy11dGlscy9sc2ZkLmMgYi9taXNj
-LXV0aWxzL2xzZmQuYwppbmRleCAzNWFiZDdkOGMuLjNiOTcxNDYyMCAxMDA2NDQKLS0tIGEvbWlz
-Yy11dGlscy9sc2ZkLmMKKysrIGIvbWlzYy11dGlscy9sc2ZkLmMKQEAgLTg5LDcgKzg5LDcgQEAg
-c3RhdGljIHN0cnVjdCBjb2xpbmZvIGluZm9zW10gPSB7CiAJW0NPTF9BU1NPQ10gICA9IHsgIkFT
-U09DIiwgICAgMCwgU0NPTFNfRkxfUklHSFQsIFNDT0xTX0pTT05fU1RSSU5HLAogCQlOXygiYXNz
-b2NpYXRpb24gYmV0d2VlbiBmaWxlIGFuZCBwcm9jZXNzIikgfSwKIAlbQ09MX0NIUkRSVl0gID0g
-eyAiQ0hSRFJWIiwgICAwLCBTQ09MU19GTF9SSUdIVCwgU0NPTFNfSlNPTl9TVFJJTkcsCi0JCU5f
-KCJjaGFyY3RlciBkZXZpY2UgZHJpdmVyIG5hbWUgcmVzb2x2ZWQgYnkgL3Byb2MvZGV2aWNlcyIp
-IH0sCisJCU5fKCJjaGFyYWN0ZXIgZGV2aWNlIGRyaXZlciBuYW1lIHJlc29sdmVkIGJ5IC9wcm9j
-L2RldmljZXMiKSB9LAogCVtDT0xfQ09NTUFORF0gPSB7ICJDT01NQU5EIiwwLjMsIFNDT0xTX0ZM
-X1RSVU5DLCBTQ09MU19KU09OX1NUUklORywKIAkJTl8oImNvbW1hbmQgb2YgdGhlIHByb2Nlc3Mg
-b3BlbmluZyB0aGUgZmlsZSIpIH0sCiAJW0NPTF9ERUxFVEVEXSA9IHsgIkRFTEVURUQiLCAgMCwg
-U0NPTFNfRkxfUklHSFQsIFNDT0xTX0pTT05fQk9PTEVBTiwKQEAgLTEwOSw3ICsxMDksNyBAQCBz
-dGF0aWMgc3RydWN0IGNvbGluZm8gaW5mb3NbXSA9IHsKIAlbQ09MX01BUExFTl0gID0geyAiTUFQ
-TEVOIiwgICAwLCBTQ09MU19GTF9SSUdIVCwgU0NPTFNfSlNPTl9OVU1CRVIsCiAJCU5fKCJsZW5n
-dGggb2YgZmlsZSBtYXBwaW5nIChpbiBwYWdlKSIpIH0sCiAJW0NPTF9NSVNDREVWXSA9IHsgIk1J
-U0NERVYiLCAgMCwgU0NPTFNfRkxfUklHSFQsIFNDT0xTX0pTT05fU1RSSU5HLAotCQlOXygibWlz
-YyBjaGFyYWN0ZXIgZGV2aWNlIG5hbWUgcmVzb2x2ZWQgYnkgL3Byb2NtaXNjIikgfSwKKwkJTl8o
-Im1pc2MgY2hhcmFjdGVyIGRldmljZSBuYW1lIHJlc29sdmVkIGJ5IC9wcm9jL21pc2MiKSB9LAog
-CVtDT0xfTU5UX0lEXSAgPSB7ICJNTlRJRCIsICAgIDAsIFNDT0xTX0ZMX1JJR0hULCBTQ09MU19K
-U09OX05VTUJFUiwKIAkJTl8oIm1vdW50IGlkIikgfSwKIAlbQ09MX01PREVdICAgID0geyAiTU9E
-RSIsICAgICAwLCBTQ09MU19GTF9SSUdIVCwgU0NPTFNfSlNPTl9TVFJJTkcsCg==
---000000000000022f3f05cc98f887--
+-- 
+zhenwei pi
