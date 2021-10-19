@@ -2,89 +2,64 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82EACC4167E
-	for <util-linux@archiver.kernel.org>; Mon, 18 Oct 2021 17:53:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 325DCC4332F
+	for <util-linux@archiver.kernel.org>; Tue, 19 Oct 2021 09:39:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6BF1860F02
-	for <util-linux@archiver.kernel.org>; Mon, 18 Oct 2021 17:53:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1DB5F6138F
+	for <util-linux@archiver.kernel.org>; Tue, 19 Oct 2021 09:39:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231878AbhJRRzZ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 18 Oct 2021 13:55:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39862 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232531AbhJRRzX (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 18 Oct 2021 13:55:23 -0400
-Received: from nlay-fle-service01.in.namespace.at (nlay-fle-service01.in.namespace.at [IPv6:2a01:190:1801:100::24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1460EC06161C
-        for <util-linux@vger.kernel.org>; Mon, 18 Oct 2021 10:53:12 -0700 (PDT)
-Received: from [10.100.0.62] (helo=debbuild.in.namespace.at)
-        by nlay-fle-service01.in.namespace.at with smtp (Exim 4.92)
-        (envelope-from <zeha@debian.org>)
-        id 1mcWov-006H7Z-DT; Mon, 18 Oct 2021 19:53:09 +0200
-Received: (nullmailer pid 23647 invoked by uid 1000);
-        Mon, 18 Oct 2021 17:53:09 -0000
-From:   Chris Hofstaedtler <zeha@debian.org>
-To:     util-linux@vger.kernel.org
-Cc:     Mark Hindley <mark@hindley.org.uk>
-Subject: [PATCH] Fix test/misc/swaplabel failure due to change in mkswap behaviour.
-Date:   Mon, 18 Oct 2021 17:53:01 +0000
-Message-Id: <20211018175301.23636-1-zeha@debian.org>
-X-Mailer: git-send-email 2.33.0
+        id S235056AbhJSJlg (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 19 Oct 2021 05:41:36 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:47575 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235172AbhJSJle (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Tue, 19 Oct 2021 05:41:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1634636361;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=YVAgoR2cL91GH9OTqXotJc+OhMFPtq/9GbmZcYNmUsE=;
+        b=PDFMdIAKXfFjuBYbgQs9coUTnhnvMDFrqmdbgbcmkLeQoe5yAWuclf/l7yl6+NxHEoQel2
+        ygmvgHVQovFlNxTFxzu5hHB+PH5ABcgWlWlkh5xYjbOozoKSgF9FxBotk3+a3PGv6yxC0W
+        hD9tFjmH6GVTBFqxMUl/cygfqf1Vd4Q=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-584-5U1HzBOdMjuaQ_UHpcKaWA-1; Tue, 19 Oct 2021 05:39:17 -0400
+X-MC-Unique: 5U1HzBOdMjuaQ_UHpcKaWA-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A33F210A8E04;
+        Tue, 19 Oct 2021 09:39:16 +0000 (UTC)
+Received: from ws.net.home (ovpn-112-9.ams2.redhat.com [10.36.112.9])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id BC28319C59;
+        Tue, 19 Oct 2021 09:39:15 +0000 (UTC)
+Date:   Tue, 19 Oct 2021 11:39:13 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Chris Hofstaedtler <zeha@debian.org>
+Cc:     util-linux@vger.kernel.org, Mark Hindley <mark@hindley.org.uk>
+Subject: Re: [PATCH] Fix test/misc/swaplabel failure due to change in mkswap
+ behaviour.
+Message-ID: <20211019093913.erewh2sqzm42aze4@ws.net.home>
+References: <20211018175301.23636-1-zeha@debian.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211018175301.23636-1-zeha@debian.org>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-From: Mark Hindley <mark@hindley.org.uk>
+On Mon, Oct 18, 2021 at 05:53:01PM +0000, Chris Hofstaedtler wrote:
+>  tests/ts/misc/swaplabel | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-mkswap now warns if the image file has holes. If fallocate is used to create the
-file, use POSIX semantics to ensure the file has no holes.
+Applied, thanks.
 
-This fixes the test failure
-
-misc: swaplabel                      ... FAILED (misc/swaplabel)
-========= script: /build/util-linux-2.37.2/tests/ts/misc/swaplabel =================
-================= OUTPUT =====================
-     1  Setting up swapspace version 1, size = 9 pages (9xPGSZ bytes)
-     2  LABEL=1234567890abcde, UUID=12345678-abcd-abcd-abcd-1234567890ab
-     3  LABEL: 1234567890abcde
-     4  UUID:  12345678-abcd-abcd-abcd-1234567890ab
-================= EXPECTED ===================
-     1  Setting up swapspace version 1, size = 9 pages (9xPGSZ bytes)
-     2  LABEL=1234567890abcde, UUID=12345678-abcd-abcd-abcd-1234567890ab
-     3  LABEL: 1234567890abcde
-     4  UUID:  12345678-abcd-abcd-abcd-1234567890ab
-================= O/E diff ===================
-==============================================
-
-The additional error appears in swaplabel.err:
-
- mkswap: <swapfile> contains holes or other unsupported extents.
-         This swap file can be rejected by kernel on swap activation!
-         Use --verbose for more details.
-
-[zeha@debian.org: this appears to be important/required when building
-inside cowbuilder, on an ext3 filesystem.]
-
-Signed-off-by: Mark Hindley <mark@hindley.org.uk>
----
- tests/ts/misc/swaplabel | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/tests/ts/misc/swaplabel b/tests/ts/misc/swaplabel
-index 0801cb213..8b1abb5c3 100755
---- a/tests/ts/misc/swaplabel
-+++ b/tests/ts/misc/swaplabel
-@@ -25,7 +25,7 @@ ts_check_test_command "$TS_HELPER_SYSINFO"
- # fallocate does not work on most file systems
- function fallocate_or_skip()
- {
--	$TS_CMD_FALLOCATE -l $1 $2 2>/dev/null || \
-+	$TS_CMD_FALLOCATE -x -l $1 $2 2>/dev/null || \
- 	truncate -s $1 $2 || \
- 	ts_skip "no way to create test image"
- }
 -- 
-2.20.1
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
