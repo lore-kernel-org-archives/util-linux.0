@@ -2,72 +2,92 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A989C433F5
-	for <util-linux@archiver.kernel.org>; Thu, 11 Nov 2021 10:37:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5EC5C433F5
+	for <util-linux@archiver.kernel.org>; Wed, 17 Nov 2021 02:10:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 339F361247
-	for <util-linux@archiver.kernel.org>; Thu, 11 Nov 2021 10:37:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 877D861BE1
+	for <util-linux@archiver.kernel.org>; Wed, 17 Nov 2021 02:10:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232866AbhKKKkk (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 11 Nov 2021 05:40:40 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:57629 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230256AbhKKKkk (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Thu, 11 Nov 2021 05:40:40 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1636627069;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=thL7sw7IX2f6mSBabpulOLYIWPUFG6kka4DGT6cjIME=;
-        b=M+IJYWV9UCzkSa63UZ1qFrAt/eEytJ7CCdFUW7Sgt9m/fhBlueI/WAjLMGF0urSoFwiJ0n
-        kPBYeZpFE2G4VEKbhA9n/82ND+P46JCZbtG8rJvqdmUH63MCVD6i6lSs3AwGI8WE/cg/lw
-        kpi9Hie2dVyuEB8GTKPOFozwc3/BU8U=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-399-GWg1-oa5PlaJIziianjPTw-1; Thu, 11 Nov 2021 05:37:48 -0500
-X-MC-Unique: GWg1-oa5PlaJIziianjPTw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7C62118125C4;
-        Thu, 11 Nov 2021 10:37:47 +0000 (UTC)
-Received: from ws.net.home (ovpn-112-9.ams2.redhat.com [10.36.112.9])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7911E67842;
-        Thu, 11 Nov 2021 10:37:46 +0000 (UTC)
-Date:   Thu, 11 Nov 2021 11:37:43 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     Peter Seiderer <ps.report@gmx.net>
-Cc:     zhenwei pi <pizhenwei@bytedance.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] irqtop: add -c/--cpus option
-Message-ID: <20211111103743.caaxd3chyct4uc4f@ws.net.home>
-References: <20211110031642.141240-1-pizhenwei@bytedance.com>
- <20211110095843.lfg6c7zxhrst42xb@ws.net.home>
- <20211110195051.66091d14@gmx.net>
+        id S230211AbhKQCNm (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 16 Nov 2021 21:13:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58498 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229957AbhKQCNl (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 16 Nov 2021 21:13:41 -0500
+Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com [IPv6:2607:f8b0:4864:20::833])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CB5BC061570
+        for <util-linux@vger.kernel.org>; Tue, 16 Nov 2021 18:10:44 -0800 (PST)
+Received: by mail-qt1-x833.google.com with SMTP id n15so1252543qta.0
+        for <util-linux@vger.kernel.org>; Tue, 16 Nov 2021 18:10:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=kXi66GDReFYcOF6MCI599hXUJFULCnL1qg/q1hUma1c=;
+        b=F8PS6s+fg4WixZTNkyRXGuofdEItljr98iQFAZas6Ke/qn9SBBd7vWn9e1XWcBrKA0
+         8c/TWZMsR6DLQOnjncMYIkIAdfAzuVglg0LN1IAJR+tfqXqMXyYNYZRfX1FmSHyI//Ya
+         DQWy3hCZEEiuflX5mKFvG7fmDg96vVoMdIXByPAphFKmI+4nqPsW3vInVvDoHA+2YMV5
+         Dm7MqQV8PG9sd06uDTUVqCk6TgUGXRtj2azQclMo/cuFTsPYBFOVSe80vhmUjKtDK/wa
+         6JYDgeTFI7N5dHCCGvYJ0EbU/hz9iW0DRa2S2qaaQELImdjE6avDyukwgIespEuhi9M+
+         rjoQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=kXi66GDReFYcOF6MCI599hXUJFULCnL1qg/q1hUma1c=;
+        b=QM1CbQZIxVZ6IkgCAb/RIIPcPbdI4wH3tlpoP7ew8OXwow/qAElyiOgT4SHHH3yos9
+         ILsR3P0LESOKZ8xDnxioFVomPVELbGJVXzIZZWm3c0NdfBQxYXyqrgmq5D3OtZPQQ478
+         xgUNRgyT3JYcJeYR2dFQWdAxrwjSQhNAiu6+W2F8d5PaKUTh0w4bGDq//JZRFbRyvt66
+         WX/A0ckQRUDrnIIVUGk0s6jP2SEXcm8O8ENkQLsMlKeOqLwGBNQ55aoX7ZZAavDSLN7P
+         N832MUJ7Z3cuD68jDtuTVsTYLfBGJ7jxka36tahnSowxUvIUTSq+CBRt3bMFsIbrGO99
+         9uVQ==
+X-Gm-Message-State: AOAM53120/HqRB7ld/LTjT8WZXSgdQB31GOvKpWU9QkHbBojAtdFk6/v
+        XwxVP5r1+S+SXQwa6a94IyLBH52RZcg=
+X-Google-Smtp-Source: ABdhPJwBewWhKNQo5OAmshnfAvVSyKF+wPDaJaBYPAtF5yaFxrsHwiG+CCc2qI9C8DhZIDvsV+smcw==
+X-Received: by 2002:ac8:7e88:: with SMTP id w8mr12849999qtj.357.1637115043200;
+        Tue, 16 Nov 2021 18:10:43 -0800 (PST)
+Received: from godwin.fios-router.home (pool-108-18-207-184.washdc.fios.verizon.net. [108.18.207.184])
+        by smtp.gmail.com with ESMTPSA id t11sm9326200qkm.96.2021.11.16.18.10.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Nov 2021 18:10:42 -0800 (PST)
+From:   Sean Anderson <seanga2@gmail.com>
+To:     util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
+Cc:     Mikhail Gusarov <dottedmag@dottedmag.net>,
+        Matthew Harm Bekkema <id@mbekkema.name>,
+        James Peach <jpeach@apache.org>,
+        Sean Anderson <seanga2@gmail.com>
+Subject: [PATCH 0/5] unshare: Add support for mapping ranges of user/group IDs
+Date:   Tue, 16 Nov 2021 21:10:33 -0500
+Message-Id: <20211117021038.823851-1-seanga2@gmail.com>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211110195051.66091d14@gmx.net>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, Nov 10, 2021 at 07:50:51PM +0100, Peter Seiderer wrote:
->  	static const struct option longopts[] = {
-> +		{"cpus", required_argument, NULL, 'c'},
->  		{"delay", required_argument, NULL, 'd'},
->  		{"sort", required_argument, NULL, 's'},
->  		{"output", required_argument, NULL, 'o'},
-> 
-> s/cpus/cpu-stat/ ?
+This series adds support for mapping ranges of user/group IDs using the
+newuidmap and newgidmap programs from shadow. The intent is to allow
+for root-less bootstrapping of Linux root filesystems with correct
+ownership. My primary inspiration is mmdebstrap [1], which uses
+unshare(2) to create Debian root filesystems without needing root
+access.
 
-Ah, yes. Fixed, thanks for your review!
+[1] https://gitlab.mister-muffin.de/josch/mmdebstrap
 
- Karel
+
+Sean Anderson (5):
+  include/c: Add abs_diff macro
+  unshare: Add waitchild helper
+  unshare: Add options to map blocks of user/group IDs
+  unshare: Add option to automatically create user and group maps
+  unshare: Document --map-{groups,users,auto}
+
+ include/c.h              |   8 +
+ sys-utils/unshare.1.adoc |  32 ++++
+ sys-utils/unshare.c      | 374 +++++++++++++++++++++++++++++++++++++--
+ 3 files changed, 399 insertions(+), 15 deletions(-)
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.33.0
 
