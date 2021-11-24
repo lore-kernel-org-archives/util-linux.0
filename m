@@ -2,123 +2,106 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07502C433EF
-	for <util-linux@archiver.kernel.org>; Wed, 24 Nov 2021 02:11:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8FD5C433EF
+	for <util-linux@archiver.kernel.org>; Wed, 24 Nov 2021 18:26:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229574AbhKXCOy (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 23 Nov 2021 21:14:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54970 "EHLO
+        id S235806AbhKXS3m (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 24 Nov 2021 13:29:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229818AbhKXCOw (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 23 Nov 2021 21:14:52 -0500
-Received: from mail-qt1-x829.google.com (mail-qt1-x829.google.com [IPv6:2607:f8b0:4864:20::829])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3CDDC061574
-        for <util-linux@vger.kernel.org>; Tue, 23 Nov 2021 18:11:43 -0800 (PST)
-Received: by mail-qt1-x829.google.com with SMTP id q14so1174704qtx.10
-        for <util-linux@vger.kernel.org>; Tue, 23 Nov 2021 18:11:43 -0800 (PST)
+        with ESMTP id S231941AbhKXS3l (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 24 Nov 2021 13:29:41 -0500
+Received: from mail-qt1-x82c.google.com (mail-qt1-x82c.google.com [IPv6:2607:f8b0:4864:20::82c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEB85C061574
+        for <util-linux@vger.kernel.org>; Wed, 24 Nov 2021 10:26:31 -0800 (PST)
+Received: by mail-qt1-x82c.google.com with SMTP id t11so3621100qtw.3
+        for <util-linux@vger.kernel.org>; Wed, 24 Nov 2021 10:26:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=KwKR3eDwVBQtxGQgDS2ik2CTD+iXeYBHl9XIWSXd6Qs=;
-        b=UrgxJ8pcdDnwGRrGsjtzuLgKWGsIFswpxME5IDKUiayX4zY2oQBiDrnEIlMCEX+51L
-         S29ep+hKFR89zsPYQDb55AqbJ8QPTIghKXMHa0eEpWnTt2tc3bvuf/MT/RZr3Arvno4t
-         Ahw6+9XDn+4gU1XbhgGrewcvAqxBCuAV8dHJSnp/UU7TpearSDPTuhwbkC9kA9kPEBnp
-         mo6n3i1tmGIwWJt+N7bkDEvdxwiMI7kyCukcW1HmEByQD0YxwG2+i301i+XzPELttQIJ
-         b+sV3+TrUdxaY36wM7Mecbb2uQdy3f0RA6UHipYKABRWYU8DfiZVb2Aj6s2EdJByihPH
-         tniA==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3tWugLfi7qHLjlCAPGXIqGUAo9+8iF7KmBdDlWECRSk=;
+        b=SlvWTsHWsTG37NqC3mFqXRtI+y9Wmc/New6MyAlGdHj9nn3QTOMtSGzGTN2hzFB6Zk
+         6t1DwKP48/AUIxtqO/4WyOC7JbblvgK2g/WEgS5Si/vxGLr5/+cJ4j1kOwvvz1qQ+Tpj
+         W5b0/ABbGW8GtxcOVFErsHMLlz+8l5y5aZ3CKPKUuNFna63lq2ikjPiaxf/k31dBwc2p
+         qlvrB9/arCdak/EnRv4n/d0lduecDecEhgvQT+3JL5DYdyO/CW4Vekhrt7vWIpYo/4oX
+         tB8Hr23GlDS5pR9iSQyMv3bLwNyzdhxrXflP3NJiZ/zTirZVry8umeScy+mR1ulnyXox
+         HlLA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=KwKR3eDwVBQtxGQgDS2ik2CTD+iXeYBHl9XIWSXd6Qs=;
-        b=ZxkBWrUQKp7eKNPQeswoDKpsyRt4FWELHIng1sPv2cX2JxoJlySm3JfNZYileE0Rb9
-         QNhN8M7Ct7kJuVu/vI5vYpf0Elhx3rgQe9CEHHNbvTd4+wpGlZ8F0SA43zhrx1dRfnZP
-         QEHBniig79hbXx+WPm82c3WyahrHSbvjvJFphdu3RwmCLakCO7086Q0a3hAYW4z3sryE
-         gFTxf8KB+pQ0UYGAtWnRMuKBLlZw+YszsAzmIxa7CDv3tHqmAhvJaUY0Bt/ZRSf/EV33
-         XfVhUstLsOJEnnQ214WBQnDuItoWfl6E/7Gqq16VmczJdMjAJR7HOsDLPvDEeoc31eMn
-         7szg==
-X-Gm-Message-State: AOAM532DOhB/q35pWWkkHPLVxtcHXVfNMURtISfaw5hANELAbqK3b2g5
-        7CdNphyZq3Ovi2hcvxneUaQ=
-X-Google-Smtp-Source: ABdhPJwBoUCmzYm9gxzV+iV8I5CwUijJDLIXB11Nk0tmqY5f3wZeThQWclyuyKZIC1W25acS6m8C2A==
-X-Received: by 2002:a05:622a:1a03:: with SMTP id f3mr2641509qtb.141.1637719903247;
-        Tue, 23 Nov 2021 18:11:43 -0800 (PST)
-Received: from [192.168.1.201] (pool-108-18-207-184.washdc.fios.verizon.net. [108.18.207.184])
-        by smtp.googlemail.com with ESMTPSA id x17sm7208883qta.66.2021.11.23.18.11.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 23 Nov 2021 18:11:42 -0800 (PST)
-Subject: Re: [PATCH 4/5] unshare: Add option to automatically create user and
- group maps
-To:     Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org,
-        Mikhail Gusarov <dottedmag@dottedmag.net>,
-        Matthew Harm Bekkema <id@mbekkema.name>,
-        James Peach <jpeach@apache.org>
-References: <20211117021038.823851-1-seanga2@gmail.com>
- <20211117021038.823851-5-seanga2@gmail.com>
- <20211123144023.qkhf3xyv4pzihjxc@ws.net.home>
+        bh=3tWugLfi7qHLjlCAPGXIqGUAo9+8iF7KmBdDlWECRSk=;
+        b=BETkyjyIkgiD/IGMGRnIxrTQcrSLoJT3KlRjXaafyB/GIQSQBbZin/veqPEThGZI5z
+         +F7MY7BbmX+aGPS0+wR3f4mdNSt9JrPSTity78L/3RuVHxVMsfY5SRy0rmwB7W6b6Z8I
+         Ox0tyXwac+WN5Fw/KKzbfjElZBVGj6j3FeMte+hCWOQoSz8IZelNX5QOU92YvwbI6jK6
+         fW+QVVmdZzYqd+6xMuJQwZz1ovykIO4BCsvLAISVd53StSeFiUk2f+O7hJRnSKIX80kh
+         g2mR2shBQ7VrYeKlnvw1jRGsjfg2DUp0+YEtcvQvG05KWAXjVX/ZFIVGubKsvlzwGjT7
+         otxQ==
+X-Gm-Message-State: AOAM531pXIir2/ESKZL27/KMYJuUr00k5b6v41/0TShL0PncI8vI1gdM
+        dsOlC4iELRzqMMNMlg3bjMn043xnxfw=
+X-Google-Smtp-Source: ABdhPJxAZDXDFVUVdJPEYc4wSs0grPvmK5CdKLzjtluYIq1IW8K256OCC4TVNTvRVAobDjxTP2K7Zw==
+X-Received: by 2002:a05:622a:14d2:: with SMTP id u18mr10108444qtx.219.1637778390421;
+        Wed, 24 Nov 2021 10:26:30 -0800 (PST)
+Received: from godwin.fios-router.home (pool-108-18-207-184.washdc.fios.verizon.net. [108.18.207.184])
+        by smtp.gmail.com with ESMTPSA id h19sm274936qth.63.2021.11.24.10.26.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Nov 2021 10:26:30 -0800 (PST)
 From:   Sean Anderson <seanga2@gmail.com>
-Message-ID: <4b6d2f66-8eb6-8547-fe06-b80c9f9d8e81@gmail.com>
-Date:   Tue, 23 Nov 2021 21:11:42 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+To:     util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
+Cc:     Mikhail Gusarov <dottedmag@dottedmag.net>,
+        Matthew Harm Bekkema <id@mbekkema.name>,
+        James Peach <jpeach@apache.org>,
+        Sean Anderson <seanga2@gmail.com>
+Subject: [PATCH v2 0/6] unshare: Add support for mapping ranges of user/group IDs
+Date:   Wed, 24 Nov 2021 13:26:12 -0500
+Message-Id: <20211124182618.1801447-1-seanga2@gmail.com>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-In-Reply-To: <20211123144023.qkhf3xyv4pzihjxc@ws.net.home>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On 11/23/21 9:40 AM, Karel Zak wrote:
-> On Tue, Nov 16, 2021 at 09:10:37PM -0500, Sean Anderson wrote:
->> This option is designed to handle the "garden path" user/group ID
->> mapping:
->>
->> - The user has one big map in /etc/sub[u,g]id
->> - The user wants to map as many user and group IDs as they can,
->>    especially the first 1000 users and groups.
->>
->> The "auto" map is designed to handle this. We find the first map
->> matching the current user, and then map the whole thing to the ID range
->> starting at ID 0.
-> 
-> ...
-> 
->>    * map_ids() - Create a new uid/gid map
->>    * @idmapper: Either newuidmap or newgidmap
->> @@ -571,6 +637,7 @@ static void __attribute__((__noreturn__)) usage(void)
->>   	fputs(_(" --map-group=<gid>|<name>  map current group to gid (implies --user)\n"), out);
->>   	fputs(_(" -r, --map-root-user       map current user to root (implies --user)\n"), out);
->>   	fputs(_(" -c, --map-current-user    map current user to itself (implies --user)\n"), out);
->> +	fputs(_(" --map-auto                map users and groups automatically (implies --user)\n"), out);
->>   	fputs(_(" --map-users=<outeruid>,<inneruid>,<count>\n"
->>   		"                           map count users from outeruid to inneruid (implies --user)\n"), out);
->>   	fputs(_(" --map-groups=<outergid>,<innergid>,<count>\n"
-> 
-> 
-> What about to support "auto" as a placeholder too:
-> 
->    --map-users=auto
->    --map-groups=auto
-> 
-> in this case you can select what you want to map (UID/GID)
-> automatically.
+This series adds support for mapping ranges of user/group IDs using the
+newuidmap and newgidmap programs from shadow. The intent is to allow
+for root-less bootstrapping of Linux root filesystems with correct
+ownership. My primary inspiration is mmdebstrap [1], which uses
+unshare(2) to create Debian root filesystems without needing root
+access.
 
-That sounds good.
+[1] https://gitlab.mister-muffin.de/josch/mmdebstrap
 
->> +		case OPT_MAPAUTO:
->> +			unshare_flags |= CLONE_NEWUSER;
->> +			usermap = read_subid_range("/etc/subuid", real_euid);
->> +			groupmap = read_subid_range("/etc/subgid", real_egid);
->> +			break;
-> 
-> Please, add _PATH_SUBUID and _PATH_SUBGID to include/pathnames.h. We
-> usually do not use paths in the code.
+Changes in v2:
+- Add "auto" option for --map-users and --map-groups
+- Add UID_BUFSIZ macro to hold the maximum size of a uid represented as
+  a string
+- Add some documentation for waitchild
+- Add some helpers for forking and synchronizing
+- Copy names from string_to_idarray into a buffer to add a
+  nul-terminator, instead of modifying them directly
+- Document new "auto" value for --map-user and --map-group
+- Fix most of read_subid_range using spaces instead of tabs
+- Fix typo of --group instead of --user
+- Update doc comments for uint_to_id() and get_map_range()
+- Use more meaningful numbers in map_ids
+- Use pathname macros for /etc/sub{u,g}id
+- Use sync helpers for idmap
 
-OK. I did not know about that. Will add.
+Sean Anderson (6):
+  include/c: Add abs_diff macro
+  unshare: Add waitchild helper
+  unshare: Add some helpers for forking and synchronizing
+  unshare: Add options to map blocks of user/group IDs
+  unshare: Add option to automatically create user and group maps
+  unshare: Document --map-{groups,users,auto}
 
---Sean
+ include/c.h              |   8 +
+ include/pathnames.h      |   3 +
+ sys-utils/unshare.1.adoc |  32 +++
+ sys-utils/unshare.c      | 477 ++++++++++++++++++++++++++++++++++-----
+ 4 files changed, 465 insertions(+), 55 deletions(-)
+
+-- 
+2.33.0
 
