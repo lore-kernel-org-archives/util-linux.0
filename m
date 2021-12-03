@@ -2,77 +2,69 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3143BC433F5
-	for <util-linux@archiver.kernel.org>; Wed,  1 Dec 2021 15:18:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1840CC433F5
+	for <util-linux@archiver.kernel.org>; Fri,  3 Dec 2021 16:00:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344328AbhLAPVT (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 1 Dec 2021 10:21:19 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:21302 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1350872AbhLAPT6 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 1 Dec 2021 10:19:58 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638371797;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=SkbWj/d+Us7+z1Kb6j/BO/TN2sAhF/HRQNDWwJd37GM=;
-        b=c3/8lWpMP2S3NdVYKWBkDmJjl/qfL+XHhUhroJ4yoWZd9AcPpIDbHDlC71gDEdvah4Z1Xt
-        eSqSnrYe67G3Tsc+yJ38eoCwsXQmUveAaEmPPhXrFx/ASbr4pZ3E//HG2tYgjDN8VKIPtN
-        rwVgHR5Vxz44sqOOYCxq4vpxb7esA28=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-80-aHwXferdPsmgaJv4dvyQPQ-1; Wed, 01 Dec 2021 10:16:34 -0500
-X-MC-Unique: aHwXferdPsmgaJv4dvyQPQ-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CBD32760C0;
-        Wed,  1 Dec 2021 15:16:32 +0000 (UTC)
-Received: from ws.net.home (ovpn-112-12.ams2.redhat.com [10.36.112.12])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 8845D1972D;
-        Wed,  1 Dec 2021 15:16:31 +0000 (UTC)
-Date:   Wed, 1 Dec 2021 16:16:28 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     Sean Anderson <seanga2@gmail.com>
-Cc:     util-linux@vger.kernel.org,
-        Mikhail Gusarov <dottedmag@dottedmag.net>,
-        Matthew Harm Bekkema <id@mbekkema.name>,
-        James Peach <jpeach@apache.org>
-Subject: Re: [PATCH v2 0/6] unshare: Add support for mapping ranges of
- user/group IDs
-Message-ID: <20211201151628.gy4t4nnfhk66juc2@ws.net.home>
-References: <20211124182618.1801447-1-seanga2@gmail.com>
+        id S244984AbhLCQEN (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 3 Dec 2021 11:04:13 -0500
+Received: from foss.arm.com ([217.140.110.172]:50870 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235197AbhLCQEN (ORCPT <rfc822;util-linux@vger.kernel.org>);
+        Fri, 3 Dec 2021 11:04:13 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id EB3EA1435;
+        Fri,  3 Dec 2021 08:00:48 -0800 (PST)
+Received: from localhost.localdomain (unknown [10.57.3.4])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9924B3F73B;
+        Fri,  3 Dec 2021 08:00:47 -0800 (PST)
+From:   =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@arm.com>
+To:     util-linux@vger.kernel.org
+Cc:     =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@arm.com>
+Subject: [PATCH] libfdisk: (MBR) recognize EBBR protective partitions
+Date:   Fri,  3 Dec 2021 16:59:08 +0100
+Message-Id: <20211203155908.6906-1-vincent.stehle@arm.com>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211124182618.1801447-1-seanga2@gmail.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, Nov 24, 2021 at 01:26:12PM -0500, Sean Anderson wrote:
-> Sean Anderson (6):
->   include/c: Add abs_diff macro
->   unshare: Add waitchild helper
->   unshare: Add some helpers for forking and synchronizing
->   unshare: Add options to map blocks of user/group IDs
->   unshare: Add option to automatically create user and group maps
->   unshare: Document --map-{groups,users,auto}
-> 
->  include/c.h              |   8 +
->  include/pathnames.h      |   3 +
->  sys-utils/unshare.1.adoc |  32 +++
->  sys-utils/unshare.c      | 477 ++++++++++++++++++++++++++++++++++-----
->  4 files changed, 465 insertions(+), 55 deletions(-)
+The MBR partition type 0xF8 is used by the Arm EBBR specification for
+protective partitions over fixed-location firmware images.
 
-Applied, thanks!
+References: https://github.com/ARM-software/ebbr
+Signed-off-by: Vincent Stehlé <vincent.stehle@arm.com>
+---
+ include/pt-mbr-partnames.h | 1 +
+ include/pt-mbr.h           | 1 +
+ 2 files changed, 2 insertions(+)
 
- Karel
-
+diff --git a/include/pt-mbr-partnames.h b/include/pt-mbr-partnames.h
+index 19a345029..9304793db 100644
+--- a/include/pt-mbr-partnames.h
++++ b/include/pt-mbr-partnames.h
+@@ -101,6 +101,7 @@
+ 	{0xf1, N_("SpeedStor")},
+ 	{0xf4, N_("SpeedStor")},	/* SpeedStor large partition */
+ 	{0xf2, N_("DOS secondary")},	/* DOS 3.3+ secondary */
++	{0xf8, N_("EBBR protective")},	/* Arm EBBR firmware protective partition */
+ 	{0xfb, N_("VMware VMFS")},
+ 	{0xfc, N_("VMware VMKCORE")},	/* VMware kernel dump partition */
+ 	{0xfd, N_("Linux raid autodetect")},/* Linux raid partition with
+diff --git a/include/pt-mbr.h b/include/pt-mbr.h
+index 0f014cd88..ff658f346 100644
+--- a/include/pt-mbr.h
++++ b/include/pt-mbr.h
+@@ -199,6 +199,7 @@ enum {
+ 	MBR_SPEEDSTOR1_PARTITION	= 0xf1,
+ 	MBR_SPEEDSTOR2_PARTITION	= 0xf4, /* SpeedStor large partition */
+ 	MBR_DOS_SECONDARY_PARTITION	= 0xf2, /* DOS 3.3+ secondary */
++	MBR_EBBR_PROTECTIVE_PARTITION	= 0xf8, /* Arm EBBR firmware protective partition */
+ 	MBR_VMWARE_VMFS_PARTITION	= 0xfb,
+ 	MBR_VMWARE_VMKCORE_PARTITION	= 0xfc, /* VMware kernel dump partition */
+ 	MBR_LINUX_RAID_PARTITION	= 0xfd, /* Linux raid partition with autodetect using persistent superblock */
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.33.0
 
