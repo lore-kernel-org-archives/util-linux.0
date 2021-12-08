@@ -2,69 +2,68 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1840CC433F5
-	for <util-linux@archiver.kernel.org>; Fri,  3 Dec 2021 16:00:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F3E4C433EF
+	for <util-linux@archiver.kernel.org>; Wed,  8 Dec 2021 17:09:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244984AbhLCQEN (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 3 Dec 2021 11:04:13 -0500
-Received: from foss.arm.com ([217.140.110.172]:50870 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235197AbhLCQEN (ORCPT <rfc822;util-linux@vger.kernel.org>);
-        Fri, 3 Dec 2021 11:04:13 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id EB3EA1435;
-        Fri,  3 Dec 2021 08:00:48 -0800 (PST)
-Received: from localhost.localdomain (unknown [10.57.3.4])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9924B3F73B;
-        Fri,  3 Dec 2021 08:00:47 -0800 (PST)
-From:   =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@arm.com>
+        id S234666AbhLHRNZ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 8 Dec 2021 12:13:25 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:45172 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237601AbhLHRNZ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 8 Dec 2021 12:13:25 -0500
+Received: by linux.microsoft.com (Postfix, from userid 1112)
+        id 215A220B7179; Wed,  8 Dec 2021 09:09:53 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 215A220B7179
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1638983393;
+        bh=jE36F6KBc2nqbn3PAMOeWqyb3jYdmhIQ393vXSRf9yc=;
+        h=Date:From:To:Cc:Subject:From;
+        b=Pgo6fV7W6VB9i33llAw8oQTrWAN9pAYxlBUBOxuZvqgPzPFh/hAhlctywCBNLT2q9
+         mURX/4aOfcGwo3uiwhFuE0pI5Q+VGlwReR2WxJD1jYWobmN3c+3DBZ9VfIVq/7xmmC
+         H689+eTQfsZ3itjTw0kMHEytSSx4KjUxMHwuscSs=
+Date:   Wed, 8 Dec 2021 09:09:53 -0800
+From:   Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
 To:     util-linux@vger.kernel.org
-Cc:     =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@arm.com>
-Subject: [PATCH] libfdisk: (MBR) recognize EBBR protective partitions
-Date:   Fri,  3 Dec 2021 16:59:08 +0100
-Message-Id: <20211203155908.6906-1-vincent.stehle@arm.com>
-X-Mailer: git-send-email 2.33.0
+Cc:     jpiotrowski@microsoft.com
+Subject: [PATCH] libblkid/src/probe: check for ENOMEDIUM from
+ ioctl(CDROM_LAST_WRITTEN)
+Message-ID: <20211208170953.GA18252@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-The MBR partition type 0xF8 is used by the Arm EBBR specification for
-protective partitions over fixed-location firmware images.
+The CD device on Azure VMs returns CDS_DISC_OK from CDROM_DRIVE_STATUS even
+when no disc is present. In that case an ENOMEDIUM from CDROM_LAST_WRITTEN
+follows. Catch that and return error to prevent probing which results in
+hundreds of "unaligned transfer" warnings in the kernel logbuffer.
 
-References: https://github.com/ARM-software/ebbr
-Signed-off-by: Vincent Stehlé <vincent.stehle@arm.com>
+Signed-off-by: Jeremi Piotrowski <jpiotrowski@microsoft.com>
 ---
- include/pt-mbr-partnames.h | 1 +
- include/pt-mbr.h           | 1 +
- 2 files changed, 2 insertions(+)
+ libblkid/src/probe.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/include/pt-mbr-partnames.h b/include/pt-mbr-partnames.h
-index 19a345029..9304793db 100644
---- a/include/pt-mbr-partnames.h
-+++ b/include/pt-mbr-partnames.h
-@@ -101,6 +101,7 @@
- 	{0xf1, N_("SpeedStor")},
- 	{0xf4, N_("SpeedStor")},	/* SpeedStor large partition */
- 	{0xf2, N_("DOS secondary")},	/* DOS 3.3+ secondary */
-+	{0xf8, N_("EBBR protective")},	/* Arm EBBR firmware protective partition */
- 	{0xfb, N_("VMware VMFS")},
- 	{0xfc, N_("VMware VMKCORE")},	/* VMware kernel dump partition */
- 	{0xfd, N_("Linux raid autodetect")},/* Linux raid partition with
-diff --git a/include/pt-mbr.h b/include/pt-mbr.h
-index 0f014cd88..ff658f346 100644
---- a/include/pt-mbr.h
-+++ b/include/pt-mbr.h
-@@ -199,6 +199,7 @@ enum {
- 	MBR_SPEEDSTOR1_PARTITION	= 0xf1,
- 	MBR_SPEEDSTOR2_PARTITION	= 0xf4, /* SpeedStor large partition */
- 	MBR_DOS_SECONDARY_PARTITION	= 0xf2, /* DOS 3.3+ secondary */
-+	MBR_EBBR_PROTECTIVE_PARTITION	= 0xf8, /* Arm EBBR firmware protective partition */
- 	MBR_VMWARE_VMFS_PARTITION	= 0xfb,
- 	MBR_VMWARE_VMKCORE_PARTITION	= 0xfc, /* VMware kernel dump partition */
- 	MBR_LINUX_RAID_PARTITION	= 0xfd, /* Linux raid partition with autodetect using persistent superblock */
+diff --git a/libblkid/src/probe.c b/libblkid/src/probe.c
+index 3685ea5e1..513649916 100644
+--- a/libblkid/src/probe.c
++++ b/libblkid/src/probe.c
+@@ -994,8 +994,12 @@ int blkid_probe_set_device(blkid_probe pr, int fd,
+ 		}
+ 
+ # ifdef CDROM_LAST_WRITTEN
+-		if (ioctl(fd, CDROM_LAST_WRITTEN, &last_written) == 0)
++		if (ioctl(fd, CDROM_LAST_WRITTEN, &last_written) == 0) {
+ 			pr->flags |= BLKID_FL_CDROM_DEV;
++		} else {
++			if (errno == ENOMEDIUM)
++				goto err;
++		}
+ # endif
+ 
+ 		if (pr->flags & BLKID_FL_CDROM_DEV) {
 -- 
-2.33.0
+2.32.0
 
