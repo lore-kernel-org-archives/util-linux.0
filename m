@@ -2,62 +2,85 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBF01C433EF
-	for <util-linux@archiver.kernel.org>; Fri, 10 Dec 2021 14:22:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 468EFC433EF
+	for <util-linux@archiver.kernel.org>; Tue, 14 Dec 2021 10:25:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242088AbhLJOZj (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 10 Dec 2021 09:25:39 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:41051 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232310AbhLJOZj (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Fri, 10 Dec 2021 09:25:39 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639146124;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=KCNMiqL9MR1Y3KaYZWZvxYMDawQnLUnDRanQXofpZ7Q=;
-        b=NXP7Q58WkpuY2FVAemyzrzVKYqXJp7kI03Ko5h+HqEaoAgaIUx2xkEvSHU4mTOHetTHKNl
-        6nrII0ooUtREGzztFOBFmCXtEoJ83kQPuGV0uYV/MUB/H69x0xypKtvu6/+HsuCy10Hx6G
-        TQ9TVjSr5wXYaKFsbBFiMhxmiHAu3CI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-88-4Ch_kR7eM8mWb19njkvJSQ-1; Fri, 10 Dec 2021 09:22:00 -0500
-X-MC-Unique: 4Ch_kR7eM8mWb19njkvJSQ-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S233026AbhLNKZV (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 14 Dec 2021 05:25:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60686 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233032AbhLNKZU (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Dec 2021 05:25:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F408C061748
+        for <util-linux@vger.kernel.org>; Tue, 14 Dec 2021 02:25:20 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E2F8B1966325;
-        Fri, 10 Dec 2021 14:21:58 +0000 (UTC)
-Received: from ws.net.home (ovpn-112-12.ams2.redhat.com [10.36.112.12])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 177B460BF4;
-        Fri, 10 Dec 2021 14:21:57 +0000 (UTC)
-Date:   Fri, 10 Dec 2021 15:21:55 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
-Cc:     util-linux@vger.kernel.org, jpiotrowski@microsoft.com
-Subject: Re: [PATCH] libblkid/src/probe: check for ENOMEDIUM from
- ioctl(CDROM_LAST_WRITTEN)
-Message-ID: <20211210142155.rnibkn7j4zdrznqp@ws.net.home>
-References: <20211208170953.GA18252@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4AB22B8184A
+        for <util-linux@vger.kernel.org>; Tue, 14 Dec 2021 10:25:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88BA6C34600;
+        Tue, 14 Dec 2021 10:25:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1639477518;
+        bh=zNtLt9nDpbL31wYC0+OUq9zAEzZAYI95yB2NG8H4Me8=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=ppcdbngGyIUH29E/vn+CaaSd+L4Q4pm7hSbSD+RmyhPRANB2NDC0uLqTMvcJttN5q
+         rV0Khac//OSHx23SYL2QMvm22vnYkF9fz7DQvi6l2y08hIn59IFPfVRobLl//FlBQ9
+         pF1YAxjwo4u/+5IFCXt1JFS5fBKMsU6ltP2q1ZICFloVaMee/qEjMjF17fnaG13PMn
+         7ewfEHHYoKPbHZBxiWdfnNYVCEZNkXh4nRluIUPsxUTzYeW2iT6ntOowaZXTsVGlGh
+         F1lwh8tl79PyoJSBuw+m+spPvSIqZC3jo/uBwn8A2X19RtR4J2IdtSmnE85R1piEmP
+         zocBJkVDHqRJA==
+Date:   Tue, 14 Dec 2021 11:25:14 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Vladimir Sementsov-Ogievskiy <vsementsov@virtuozzo.com>
+cc:     util-linux@vger.kernel.org, kzak@redhat.com, kurt@garloff.de,
+        den@openvz.org, msuchanek@suse.de, efremov@linux.com
+Subject: Re: [PATCH 0/2] libblkid: don't use O_NONBLOCK for floppy
+In-Reply-To: <20211209141233.3774937-1-vsementsov@virtuozzo.com>
+Message-ID: <nycvar.YFH.7.76.2112141123570.16505@cbobk.fhfr.pm>
+References: <20211209141233.3774937-1-vsementsov@virtuozzo.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211208170953.GA18252@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, Dec 08, 2021 at 09:09:53AM -0800, Jeremi Piotrowski wrote:
->  libblkid/src/probe.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
+On Thu, 9 Dec 2021, Vladimir Sementsov-Ogievskiy wrote:
 
-Applied, thanks.
+> Good day everyone!
+> 
+> The commit "floppy: reintroduce O_NDELAY fix" was removed from kernel,
+> so we faced the bug described and discussed here:
+> https://bugzilla.suse.com/show_bug.cgi?id=1181018
+> 
+> Discussion in kernel list on reverting the commit:
+> https://www.spinics.net/lists/stable/msg493061.html
+> 
+> In short, I can quote Jiri Kosina's comment:
+> 
+>    opening floppy device node with O_NONBLOCK is asking for all kinds
+>    of trouble
+> 
+> So opening floppy with O_NONBLOCK in blkid leads to failure of blkid,
+> probable failure of mount and unpleasant error messages in dmesg (see
+> also patch 02 for details).
+> 
+> Vladimir Sementsov-Ogievskiy (2):
+>   libblkid: introduce blkid_safe_open
+>   libblkid: reopen floppy without O_NONBLOCK
+
+Ah, thanks, finally someone found the motivation to look into what it'd 
+take to fix this properly in libblkid. FWIW,
+
+	Acked-by: Jiri Kosina <jkosina@suse.cz>
+
+for the changes.
+
+Thank you!
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Jiri Kosina
+SUSE Labs
 
