@@ -2,97 +2,176 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC775C433F5
-	for <util-linux@archiver.kernel.org>; Tue, 14 Dec 2021 10:35:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F5A3C433F5
+	for <util-linux@archiver.kernel.org>; Tue, 14 Dec 2021 11:45:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233087AbhLNKfY (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 14 Dec 2021 05:35:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34676 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233077AbhLNKfX (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Dec 2021 05:35:23 -0500
-X-Greylist: delayed 368 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 14 Dec 2021 02:35:23 PST
-Received: from cc-smtpout2.netcologne.de (cc-smtpout2.netcologne.de [IPv6:2001:4dd0:100:1062:25:2:0:2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E6ADC061574
-        for <util-linux@vger.kernel.org>; Tue, 14 Dec 2021 02:35:23 -0800 (PST)
-Received: from cc-smtpin3.netcologne.de (cc-smtpin3.netcologne.de [89.1.8.203])
-        by cc-smtpout2.netcologne.de (Postfix) with ESMTP id 5368B124D1;
-        Tue, 14 Dec 2021 11:29:13 +0100 (CET)
-Received: from nas2.garloff.de (xdsl-89-0-238-153.nc.de [89.0.238.153])
+        id S233689AbhLNLpg (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 14 Dec 2021 06:45:36 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:59024 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231233AbhLNLpg (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Dec 2021 06:45:36 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 4E0E021136;
+        Tue, 14 Dec 2021 11:45:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1639482335; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=N+iMMXZyQEdoGDI/3O8mzZ3h7mgji+U5j9WHDrhRbDQ=;
+        b=TtXgPR6ICoDshc1VXknDq/hA/5dHRRHpXVKBbNDfOO/Txa0sfzH0Ub2pfsVsGmP3i3bLa2
+        mCZZelBbG9emu57wZUTBK/77q1bOYVk/DNBh0QZvBTruFYr+jOulCiRjmHtTfCQd4A1IJD
+        Y536RyspDsDdNQxRAySaP9HQfXnMJxY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1639482335;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=N+iMMXZyQEdoGDI/3O8mzZ3h7mgji+U5j9WHDrhRbDQ=;
+        b=U6KvdalDLyCXZL5H9zlu251gKuaEcXkbI2isR4tzMS7ESS2a57tlzqFsV4eJSjK5LqedJK
+        2QA/lircYYP13fCg==
+Received: from kunlun.suse.cz (unknown [10.100.128.76])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by cc-smtpin3.netcologne.de (Postfix) with ESMTPSA id A2D2811DC3;
-        Tue, 14 Dec 2021 11:29:06 +0100 (CET)
-Received: from [192.168.155.202] (unknown [192.168.155.15])
-        by nas2.garloff.de (Postfix) with ESMTPSA id 1446BB3B0027;
-        Tue, 14 Dec 2021 11:29:06 +0100 (CET)
-Message-ID: <2752f06e-1248-26c1-eb94-8d6d31fad918@garloff.de>
-Date:   Tue, 14 Dec 2021 11:29:05 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.2
-Subject: Re: [PATCH 0/2] libblkid: don't use O_NONBLOCK for floppy
-Content-Language: en-US
-To:     Jiri Kosina <jikos@kernel.org>,
-        Vladimir Sementsov-Ogievskiy <vsementsov@virtuozzo.com>
-Cc:     util-linux@vger.kernel.org, kzak@redhat.com, den@openvz.org,
-        msuchanek@suse.de, efremov@linux.com
+        by relay2.suse.de (Postfix) with ESMTPS id E2149A3B81;
+        Tue, 14 Dec 2021 11:45:34 +0000 (UTC)
+Date:   Tue, 14 Dec 2021 12:45:33 +0100
+From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+To:     Vladimir Sementsov-Ogievskiy <vsementsov@virtuozzo.com>
+Cc:     util-linux@vger.kernel.org, jkosina@suse.cz, kzak@redhat.com,
+        kurt@garloff.de, den@openvz.org, efremov@linux.com
+Subject: Re: [PATCH 2/2] libblkid: reopen floppy without O_NONBLOCK
+Message-ID: <20211214114533.GW117207@kunlun.suse.cz>
 References: <20211209141233.3774937-1-vsementsov@virtuozzo.com>
- <nycvar.YFH.7.76.2112141123570.16505@cbobk.fhfr.pm>
-From:   Kurt Garloff <kurt@garloff.de>
-In-Reply-To: <nycvar.YFH.7.76.2112141123570.16505@cbobk.fhfr.pm>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-NetCologne-Spam: L
-X-Rspamd-Queue-Id: A2D2811DC3
+ <20211209141233.3774937-3-vsementsov@virtuozzo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211209141233.3774937-3-vsementsov@virtuozzo.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hi,
+On Thu, Dec 09, 2021 at 03:12:33PM +0100, Vladimir Sementsov-Ogievskiy wrote:
+> Since c7e9d0020361f4308a70cdfd6d5335e273eb8717
+> "Revert "floppy: reintroduce O_NDELAY fix"" commit in linux kernel,
+> floppy drive works bad when opened with O_NONBLOCK: first read may
+> fail. This cause probing fail and leave error messages in dmesg. So, if
+> we detect that openedfd is floppy, reopen it without O_NONBLOCK flag.
+> 
+> Reproduce is simple:
+> 1. start the linux system (kernel should include the mentioned commit)
+>    in QEMU virtual machine with floppy device and with floppy disk
+>    inserted.
+> 2. If floppy module is not inserted, modprobe it.
+> 3. Try "blkid /dev/fd9": it will show nothing, errors will appear in
+>    dmesg
+> 4. Try "mount /dev/fd0 /mnt": it may succeed (as mount not only probing
+>    but also try filesystems one by one, if you have vfat in
+>    /etc/filesytems or in /proc/filesystems, mount will succeed), but
+>    errors about failed read still appear in dmesg, as probing was done.
+> 
+> Mentioned errors in dmesg looks like this:
+>  floppy0: disk absent or changed during operation
+>  blk_update_request: I/O error, dev fd0, sector 0 op 0x0:(READ) flags 0x80700 phys_seg 1 prio class 0
+>  floppy0: disk absent or changed during operation
+>  blk_update_request: I/O error, dev fd0, sector 0 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 0
+>  Buffer I/O error on dev fd0, logical block 0, async page read
+> 
+> Note also, that these errors also appear in early dmesg messages, if
+> probing is done on system startup. For example, it happens when
+> cloud-init package is installed.
+> 
+> Note2: O_NONBLOCK flag for probing is used since
+> 39f5af25982d8b0244000e92a9d0e0e6557d0e17
+> "libblkid: open device in nonblock mode", which was done to fix the
+> issue with cdrom: if tray is open and we call open() without O_NONBLOCK
+> the tray may be automatically closed, which is not what we want in
+> blkid.
+> 
+> Good discussion on this bug is here:
+> https://bugzilla.suse.com/show_bug.cgi?id=1181018
+> 
+> Signed-off-by: Vladimir Sementsov-Ogievskiy <vsementsov@virtuozzo.com>
+> ---
+> 
+> Note, that this commit is done as a "minimal change", i.e. I only try to
+> rollback O_NONBLOCK for floppy. The other way is to detect CDROM
+> instead, and reopen with original flags for everything except CDROM.
+> 
+> I also tried fcntl instead of close/open, and that didn't help.
+> 
+>  libblkid/src/probe.c | 27 ++++++++++++++++++++++++++-
+>  1 file changed, 26 insertions(+), 1 deletion(-)
+> 
+> diff --git a/libblkid/src/probe.c b/libblkid/src/probe.c
+> index 70e3dc0eb..68a644597 100644
+> --- a/libblkid/src/probe.c
+> +++ b/libblkid/src/probe.c
+> @@ -94,6 +94,9 @@
+>  #ifdef HAVE_LINUX_CDROM_H
+>  #include <linux/cdrom.h>
+>  #endif
+> +#ifdef HAVE_LINUX_FD_H
+> +#include <linux/fd.h>
+> +#endif
+>  #ifdef HAVE_LINUX_BLKZONED_H
+>  #include <linux/blkzoned.h>
+>  #endif
+> @@ -200,10 +203,32 @@ blkid_probe blkid_clone_probe(blkid_probe parent)
+>   * We add O_NONBLOCK flag to the mode, as opening CDROM without this flag may
+>   * load to closing the rom (if it's open), which is bad thing in context of
+>   * blkid: we don't want to change the actual device state.
+> + *
+> + * Still, since c7e9d0020361f4308a70cdfd6d5335e273eb8717
+> + * "Revert "floppy: reintroduce O_NDELAY fix"" commit in linux kernel, floppy
+> + * drive works bad when opened with O_NONBLOCK: first read may fail. This cause
+> + * probing fail and leave error messages in dmesg. So, if we detect that opened
+> + * fd is floppy, reopen it without O_NONBLOCK flag.
+>   */
+>  int blkid_safe_open(const char *filename, int mode)
+>  {
+> -	return open(filename, mode | O_NONBLOCK);
+> +	int fd = open(filename, mode | O_NONBLOCK);
+> +	if (fd < 0) {
+> +		return fd;
+> +	}
+> +
+> +#ifdef FDGETDRVTYP
+> +	{
+> +		char name[1000];
+Hello,
 
-On 14/12/2021 11:25, Jiri Kosina wrote:
-> On Thu, 9 Dec 2021, Vladimir Sementsov-Ogievskiy wrote:
->
->> Good day everyone!
->>
->> The commit "floppy: reintroduce O_NDELAY fix" was removed from kernel,
->> so we faced the bug described and discussed here:
->> https://bugzilla.suse.com/show_bug.cgi?id=1181018
->>
->> Discussion in kernel list on reverting the commit:
->> https://www.spinics.net/lists/stable/msg493061.html
->>
->> In short, I can quote Jiri Kosina's comment:
->>
->>     opening floppy device node with O_NONBLOCK is asking for all kinds
->>     of trouble
->>
->> So opening floppy with O_NONBLOCK in blkid leads to failure of blkid,
->> probable failure of mount and unpleasant error messages in dmesg (see
->> also patch 02 for details).
->>
->> Vladimir Sementsov-Ogievskiy (2):
->>    libblkid: introduce blkid_safe_open
->>    libblkid: reopen floppy without O_NONBLOCK
-> Ah, thanks, finally someone found the motivation to look into what it'd
-> take to fix this properly in libblkid. FWIW,
->
-> 	Acked-by: Jiri Kosina <jkosina@suse.cz>
->
-> for the changes.
+I wonder if it's better to use FDGETFDCSTAT which seems to be meant as
+stable API.
 
-As the one who was affected by the issue (having some old scripts that
-use floppy images to inject metadata as data source for cloud-init
-instead of CD-Rom images), I definitely appreciate this being taken
-care of. Thank you!
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/fd.h#n271
 
-Changes look good to me, but I guess best would be to test things.
-Let me know if you need me to do this ...
+As is this allocates 1k from stack and can be presumably called from
+application context with arbitrarily deep stack so it seems a bit
+wasteful. floppy_fdc_state has under 60 bytes.
 
-Best,
+Also if you are not interested in the result you can make the buffer
+static. Not sure it makes sense to bother if the buffer size is
+reasonable.
 
--- 
-Kurt Garloff <kurt@garloff.de>
-Cologne, Germany
+Thanks
 
+Michal
+
+> +
+> +		if (ioctl(fd, FDGETDRVTYP, &name) >= 0) {
+> +			close(fd);
+> +			fd = open(filename, mode);
+> +		}
+> +	}
+> +#endif /* FDGETDRVTYP */
+> +
+> +	return fd;
+>  }
+>  
+>  
+> -- 
+> 2.31.1
+> 
