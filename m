@@ -2,80 +2,96 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC7ABC433EF
-	for <util-linux@archiver.kernel.org>; Mon, 27 Dec 2021 15:26:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFDCCC433EF
+	for <util-linux@archiver.kernel.org>; Mon,  3 Jan 2022 08:43:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230158AbhL0P0P (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 27 Dec 2021 10:26:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33754 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229766AbhL0P0P (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 27 Dec 2021 10:26:15 -0500
-Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CFC5C06173E
-        for <util-linux@vger.kernel.org>; Mon, 27 Dec 2021 07:26:15 -0800 (PST)
-Received: by mail-oi1-x233.google.com with SMTP id j124so25794312oih.12
-        for <util-linux@vger.kernel.org>; Mon, 27 Dec 2021 07:26:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=mAEAhTGfMIlDa+64fpcg52XtTJXuZZCEOJk5oOIDm7E=;
-        b=WYjJDkAaYbnPO3S6VUm8vWVKa1GWhYwSGexQeZlNGnYXvB6JRaliuE9z/qK2MxpSJ0
-         DKyX89bc/OJgOS7359Y79xyuxM0LXbH4veafUNDQd2wKCTFoWuDqvZB0qh22ZrDJWrz3
-         Ka1MdbhImIYKh5qAnKNPtt8dEZuBCNGp2NEBxFSQvsEN6uiU3AH+Qrq7mAaD6xiGjA0t
-         Oh1xE3dCyHhJ0tD+VQfmEDkhurZJEwW41QDtppIJbedysdYNifHJOvD8gXFLpkdMn1gm
-         UHzZ65zAHiGaykf3Esu9FO8hFzwmUIwR30aiUWuYVLCrlidy+Kuq+gan/VdXpUwS129M
-         I2mA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=mAEAhTGfMIlDa+64fpcg52XtTJXuZZCEOJk5oOIDm7E=;
-        b=ZMdsTkkdesZWKJtyygxaGqLYD4bwktzZj7eI59NPil3+1oRCF/jMzzxLsaIY03f+dF
-         MDR1Q+8I6TnrYEF0A2n0hA8SqrPiBKIPiN0pyNpfk1Bm8H6HbrMVagjlErZEn44ZV8br
-         C8hn4DAscAeuft/uykeRpQlXl/++eiwBeiPGLyEIBN4SVp2Ss04UsrpandU4lff5+9rN
-         6GLxUv/KIyxAdvJOFCRXCpgGrw7GS1ezJnOncAFH49FYSgfqiq7uaj97TGgkVTxfjjRR
-         WaNAjzIu2Wy0pwPFV4i4aZglncgPI1kDbDWLCSyZdlpJ9vJt80Nt2WT+Iq3grRmCInrn
-         thAg==
-X-Gm-Message-State: AOAM531/nmPZXDOKewRsfQqwXYTwoqdaFamGTMMQfln85fLZZFt4YaDm
-        BoiXJMtIwbA3VFaQohbjGZAM8ufG0Xg=
-X-Google-Smtp-Source: ABdhPJyOAsipGs4adPXfxUhPChfHrJiZfSpg3j+IY2sZ908O/xCXRtH/I0mOuY/fnusx2MuovnwJtA==
-X-Received: by 2002:a54:4e90:: with SMTP id c16mr12888922oiy.107.1640618774439;
-        Mon, 27 Dec 2021 07:26:14 -0800 (PST)
-Received: from [192.168.0.92] (cpe-70-94-157-206.satx.res.rr.com. [70.94.157.206])
-        by smtp.gmail.com with ESMTPSA id i16sm3283214oig.15.2021.12.27.07.26.13
-        for <util-linux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 27 Dec 2021 07:26:14 -0800 (PST)
-To:     util-linux@vger.kernel.org
-From:   Bruce Dubbs <bruce.dubbs@gmail.com>
-Subject: su currently requires PAM
-Message-ID: <0616772a-c45c-d003-c338-45dd7071fb70@gmail.com>
-Date:   Mon, 27 Dec 2021 09:26:01 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        id S232199AbiACInY (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 3 Jan 2022 03:43:24 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:53983 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232169AbiACInX (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 3 Jan 2022 03:43:23 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1641199403;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=fiaz3eIrL1bUgs2MmoEr5VVWuWbZP0yUbO2WHN/6QdE=;
+        b=JrGp9CrbUv4c/StPRtfEfZR6BQ0CxEVniV6ckIDpwxLSD1WC5f/CjermBLsAU/zOJFPTLl
+        0GhEI+Np9HFIKCxQmW+YGObN5Ht8yhXxlTox4hgmzfq0jxnOI+XxNGlJLqq+f7eE8VNF2q
+        3HTNRG+HMna0iB6Q3PAo9EiYb6HJZ+8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-645-eqVJ7Hd5MEqLL6syqT38rQ-1; Mon, 03 Jan 2022 03:43:18 -0500
+X-MC-Unique: eqVJ7Hd5MEqLL6syqT38rQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9FEC51926DA0;
+        Mon,  3 Jan 2022 08:43:16 +0000 (UTC)
+Received: from ws.net.home (ovpn-112-15.ams2.redhat.com [10.36.112.15])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 1582F7D533;
+        Mon,  3 Jan 2022 08:43:13 +0000 (UTC)
+Date:   Mon, 3 Jan 2022 09:43:11 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     Vladimir Sementsov-Ogievskiy <vsementsov@virtuozzo.com>
+Cc:     util-linux@vger.kernel.org, jkosina@suse.cz, kurt@garloff.de,
+        den@openvz.org, msuchanek@suse.de, efremov@linux.com
+Subject: Re: [PATCH 2/2] libblkid: reopen floppy without O_NONBLOCK
+Message-ID: <20220103084311.beuxa6fcjtzn74a3@ws.net.home>
+References: <20211209141233.3774937-1-vsementsov@virtuozzo.com>
+ <20211209141233.3774937-3-vsementsov@virtuozzo.com>
+ <20211214120349.kntr7gza5flma5tc@ws.net.home>
+ <a378a167-fd41-f74d-1b0d-b997b82df05c@virtuozzo.com>
+ <20211215125605.4tg7ugdnlbb3i3v7@ws.net.home>
+ <9dc07586-5471-ee5e-fae4-e177ceb114f4@virtuozzo.com>
+ <23719c29-9668-1edc-e60c-a30bd821c7fa@virtuozzo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <23719c29-9668-1edc-e60c-a30bd821c7fa@virtuozzo.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-In linuxfromscratch, we have been using su from the shadow package because the 
-util-linux version requires Linux-PAM.  Recently the maintainers of shadow have 
-announced that they are deprecating su.  Our problem is that some of our users prefer 
-to not install PAM.
+On Fri, Dec 24, 2021 at 06:31:39PM +0300, Vladimir Sementsov-Ogievskiy wrote:
+> > > > > The same is probably in many other places (mkfs-like programs, etc.).
+> > > > > 
+> > > > > What do you think?
+> > > > > 
+> > > > 
+> > > > Maybe be we can get filename from fd reading it from /proc, then do
+> > > > open() and than dup() to old fd.. But that's even more dirty to do
+> > > > in a library call.
+> > > 
+> > > Yes, re-open() sounds like a possible way.
+> > > 
+> > > The dup() is not necessary. The library already support private FD for
+> > > probing. See blkid_new_probe_from_filename() and BLKID_FL_PRIVATE_FD.
+> > > 
+> > > It's also often used when the library probe whole-disk device (when you
+> > > probe sda1 than it also reads data from partition table on sda). In
+> > > this case it opens a separate FD.
+> > > 
+> > > It's for floppies (0.001% of all cases). IMHO re-open is good enough and
+> > > better than force changes in all applications :-)> I'll try to prepare a patch and ask you for test/review. Thanks!
+> > > 
+> > 
+> > Great!
+> > 
+> 
+> Hi! Are you working on this? If not I can try to make a v2.
 
-Is it possible to make the requirement of Linux-PAM optional in the util-linux 
-version of su?  From a preliminary inspection of the code, it looks like only 
-login-utils/su-common.c would need to be modified with some #ifdef constructs, but I 
-am not completely comfortable doing that myself.
 
-I am asking one of the maintainers to make the change, but I am willing to attempt 
-creating a patch if no one else wants to do it and the approach would be acceptable 
-to the util-linux project.
+I had a vacation in the last 14 days; nothing is done. Go ahead if you   
+have time for this task. I'm going to work on something else this
+week.
 
-   -- Bruce Dubbs
-      linuxfromscratch.org
+  Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
