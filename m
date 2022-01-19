@@ -2,68 +2,102 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 638EEC433EF
-	for <util-linux@archiver.kernel.org>; Tue, 18 Jan 2022 11:51:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4693C433F5
+	for <util-linux@archiver.kernel.org>; Wed, 19 Jan 2022 08:52:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234236AbiARLvC (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 18 Jan 2022 06:51:02 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:37541 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S241090AbiARLvC (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Tue, 18 Jan 2022 06:51:02 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1642506661;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        id S1352611AbiASIwu (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 19 Jan 2022 03:52:50 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:54882 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352617AbiASIwt (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 19 Jan 2022 03:52:49 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id A542F212C5;
+        Wed, 19 Jan 2022 08:52:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1642582368; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=dI+ImkypjaLrgcLpbuH3a94HlUO6Q9xvx6dff2xvtqc=;
-        b=FNbr1XX2ugUuODa2dAmJ3ZTLQZTTV/JFsTjUOcnusHQS6BFHx513UuTFW9Ujau62zAGzyn
-        jIehXVuY2oTLADuU8lA0B/MLktkx2KKSrLivqqHOMl72GwiGDFTNHfEtm/28eRlpF73EoC
-        7oaAY+MEnGRSkHox6pHZqunLCTHqPas=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-594-28PD99pnMYC2PtyGESokFQ-1; Tue, 18 Jan 2022 06:50:56 -0500
-X-MC-Unique: 28PD99pnMYC2PtyGESokFQ-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        bh=4t0U/LoPqRrPO4bknvGH7HjQAzpF5gxSu2H1HhlfnS8=;
+        b=NkidUuem6zVus/T7OQLDxx3vK2zn/Asb+/GEyZGF/r+LPTOKCfXnXJDgsUNT90WSQeP41m
+        +iyx+rJUQqoxaJUfw1Dcq5h9+R5qFZAlOXNTVbhsnNGsXUQa5/dCYfQMMQLdtKFce9390N
+        8sie13xeFuPZIDWbYMvv5NGJ8nrJW9w=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1642582368;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=4t0U/LoPqRrPO4bknvGH7HjQAzpF5gxSu2H1HhlfnS8=;
+        b=2ibolkbViQiEEYAMwG+0Ya66cBAq3543z7sCtJDrO5UDf9e+ueQjmzIYUeQrYOtI9Nu67N
+        t26chhZ62FqbaVBA==
+Received: from quack3.suse.cz (unknown [10.100.224.230])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 06A491937FC4;
-        Tue, 18 Jan 2022 11:50:55 +0000 (UTC)
-Received: from ws.net.home (ovpn-112-8.ams2.redhat.com [10.36.112.8])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7B66578A8D;
-        Tue, 18 Jan 2022 11:50:53 +0000 (UTC)
-Date:   Tue, 18 Jan 2022 12:50:50 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     Daniel Gerber <dg@atufi.org>
-Cc:     Sean Anderson <seanga2@gmail.com>, dottedmag@dottedmag.net,
-        id@mbekkema.name, jpeach@apache.org, util-linux@vger.kernel.org
-Subject: Re: [PATCH v2 0/6] unshare: Add support for mapping ranges of
- user/group IDs
-Message-ID: <20220118115050.jccwbz2hk2323lnl@ws.net.home>
-References: <20211124182618.1801447-1-seanga2@gmail.com>
- <874k664nlq.fsf@atufi.org>
+        by relay2.suse.de (Postfix) with ESMTPS id 9A39EA3B81;
+        Wed, 19 Jan 2022 08:52:48 +0000 (UTC)
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+        id 2421BA05E2; Wed, 19 Jan 2022 09:52:47 +0100 (CET)
+Date:   Wed, 19 Jan 2022 09:52:47 +0100
+From:   Jan Kara <jack@suse.cz>
+To:     Karel Zak <kzak@redhat.com>
+Cc:     util-linux@vger.kernel.org, linux-block@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: Re: Racy loop device reuse logic
+Message-ID: <20220119085247.duhblxzp6joukarw@quack3.lan>
+References: <20220113154735.hdzi4cqsz5jt6asp@quack3.lan>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <874k664nlq.fsf@atufi.org>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+In-Reply-To: <20220113154735.hdzi4cqsz5jt6asp@quack3.lan>
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Fri, Jan 14, 2022 at 11:29:21AM +0100, Daniel Gerber wrote:
->  	mem2strcpy(buf, name, sz, sizeof(buf));
-> -	return strtoul_or_err(name, _("could not parse ID"));
-> +	return strtoul_or_err(buf, _("could not parse ID"));
+Ping? Any opinion?
 
-Should be fixed in git tree. Thanks for your report!
+								Honza
 
- Karel
-
-
+On Thu 13-01-22 16:47:35, Jan Kara wrote:
+> Hello,
+> 
+> Tetsuo has been doing some changes to the loop device shutdown in the
+> kernel and that broke LTP that is doing essentially the following loop:
+> 
+> while :; do mount -o loop,ro isofs.iso isofs/; umount isofs/; done
+> 
+> And this loop is broken because of a subtle interaction with systemd-udev
+> that also opens the loop device. The race seems to be in mount(8) handling
+> itself and the altered kernel timing makes it happen. It look like:
+> 
+> bash					systemd-udev
+>   mount -o loop,ro isofs.iso isofs/
+>     /dev/loop0 is created and bound to isofs.iso, autoclear is set for
+>     loop0
+>   					opens /dev/loop0
+>   umount isofs/
+>   loop0 still lives because systemd-udev still has device open
+>   mount -o loop,ro isofs.iso isofs/
+>     gets to mnt_context_setup_loopdev()
+>       loopcxt_find_overlap()
+>       sees loop0 is still valid and with proper parameters
+>       reuse = true;
+> 					close /dev/loop0
+> 					  last fd closed => loop0 is
+> 					    cleaned up
+>       loopcxt_get_fd()
+>         opens loop0 but it is no longer the device we wanted!
+>     calls mount(2) which fails because we cannot read from the loop device
+> 
+> It seems to me that mnt_context_setup_loopdev() should actually recheck
+> that loop device parameters still match what we need after opening
+> /dev/loop0 (if LOOP_GET_STATUS ioctl succeeds on the fd, you are guaranteed
+> the loop device is in that state and will not be torn down under your
+> hands). What do you think?
+> 
+> 								Honza
+> -- 
+> Jan Kara <jack@suse.com>
+> SUSE Labs, CR
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
-
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
