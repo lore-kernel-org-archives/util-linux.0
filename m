@@ -2,115 +2,72 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD392C433F5
-	for <util-linux@archiver.kernel.org>; Wed, 19 Jan 2022 11:39:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74215C433EF
+	for <util-linux@archiver.kernel.org>; Wed, 19 Jan 2022 21:34:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354045AbiASLjM (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 19 Jan 2022 06:39:12 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:41032 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1354216AbiASLjL (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Wed, 19 Jan 2022 06:39:11 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1642592350;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        id S1357421AbiASVeW (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 19 Jan 2022 16:34:22 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:59882 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243932AbiASVeU (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 19 Jan 2022 16:34:20 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id C87B2212C2;
+        Wed, 19 Jan 2022 21:34:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1642628058; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=Z23E4Um11BOkgt39lK2OE7q1T4sdztW+qOUuVlme2a4=;
-        b=XBa8oMxiTGMNqXWilxPW5xelbUgcHauzDJeyIF20diTukXCPzlHS1NW8oyOcLnoiLPglg7
-        oFln9YEiiwjNAiHSWLjlAD02atDbexsK7b8SiHzOhEtwM6GOw6tqm7iMXwI/QQHWY3E6ko
-        RsbxUmKLHWygzq/rbw2VcMq/6gBti6o=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-111-ydGGwi7GOLyv-AR0jtGzIw-1; Wed, 19 Jan 2022 06:39:05 -0500
-X-MC-Unique: ydGGwi7GOLyv-AR0jtGzIw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        bh=T/XD3BhU9gKU6gAhDDZMnCRRvpLQmbyUu0KFdcA/+FM=;
+        b=d1Y9dir3vbQ88YRRr8cpBXogIS0z8g1Z7eBbii9rTQCuxdpc8geXPRcFkhjk/an+zRReEG
+        DcWUltC4KVzTIQ2ouhrWxEXH/PDxax8jsk4D0MYoljBZZCXKwzwsEBk4kOYWnznrlpC14n
+        7Lm78SE7j1AoUF0251OQRKWpULOHCi8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1642628058;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=T/XD3BhU9gKU6gAhDDZMnCRRvpLQmbyUu0KFdcA/+FM=;
+        b=iRNVDL5z+sK4C7mvJiGxjDeKzCUnPIOiIzQFqbEFShGktrxp+sznR8ygTBoO4n70OLWAV3
+        8UWH8wiNv5/rEnBQ==
+Received: from quack3.suse.cz (unknown [10.100.224.230])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 505291083F61;
-        Wed, 19 Jan 2022 11:39:04 +0000 (UTC)
-Received: from ws.net.home (ovpn-112-8.ams2.redhat.com [10.36.112.8])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 308A97D475;
-        Wed, 19 Jan 2022 11:39:03 +0000 (UTC)
-Date:   Wed, 19 Jan 2022 12:39:00 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     Jan Kara <jack@suse.cz>
-Cc:     util-linux@vger.kernel.org, linux-block@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+        by relay2.suse.de (Postfix) with ESMTPS id BAFA7A3B83;
+        Wed, 19 Jan 2022 21:34:18 +0000 (UTC)
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+        id 39CA8A05E7; Wed, 19 Jan 2022 22:34:15 +0100 (CET)
+Date:   Wed, 19 Jan 2022 22:34:15 +0100
+From:   Jan Kara <jack@suse.cz>
+To:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc:     Jan Kara <jack@suse.cz>, util-linux@vger.kernel.org,
+        linux-block@vger.kernel.org, Karel Zak <kzak@redhat.com>
 Subject: Re: Racy loop device reuse logic
-Message-ID: <20220119113900.tm5j65wzxglggsig@ws.net.home>
+Message-ID: <20220119213415.csieaktdqmshemiy@quack3.lan>
 References: <20220113154735.hdzi4cqsz5jt6asp@quack3.lan>
  <20220119085247.duhblxzp6joukarw@quack3.lan>
+ <28a360a3-b559-24ec-6c3d-3fe6e8302393@I-love.SAKURA.ne.jp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220119085247.duhblxzp6joukarw@quack3.lan>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+In-Reply-To: <28a360a3-b559-24ec-6c3d-3fe6e8302393@I-love.SAKURA.ne.jp>
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, Jan 19, 2022 at 09:52:47AM +0100, Jan Kara wrote:
-> Ping? Any opinion?
+On Wed 19-01-22 20:30:52, Tetsuo Handa wrote:
+> I found a way to avoid this race by splitting lo_open() into two phases
+> using task_work_add().  Christoph Hellwig is trying to take a look at
+> https://lkml.kernel.org/r/f6b947d0-1047-66b3-0243-af5017c9ab55@I-love.SAKURA.ne.jp
+> .
 
- Sorry for the delay.
+No, you have found a way to make the race window for mount(8) smaller. And
+I still disagree with that kernel change because it is making kernel more
+complex only to make the race window smaller. On another machine or with
+different scheduling decisions, you can still hit this race. This problem
+must be fixed in mount...
 
-> On Thu 13-01-22 16:47:35, Jan Kara wrote:
-> > Hello,
-> > 
-> > Tetsuo has been doing some changes to the loop device shutdown in the
-> > kernel and that broke LTP that is doing essentially the following loop:
-> > 
-> > while :; do mount -o loop,ro isofs.iso isofs/; umount isofs/; done
-> > 
-> > And this loop is broken because of a subtle interaction with systemd-udev
-> > that also opens the loop device. The race seems to be in mount(8) handling
-> > itself and the altered kernel timing makes it happen. It look like:
-> > 
-> > bash					systemd-udev
-> >   mount -o loop,ro isofs.iso isofs/
-> >     /dev/loop0 is created and bound to isofs.iso, autoclear is set for
-> >     loop0
-> >   					opens /dev/loop0
-> >   umount isofs/
-> >   loop0 still lives because systemd-udev still has device open
-> >   mount -o loop,ro isofs.iso isofs/
-> >     gets to mnt_context_setup_loopdev()
-> >       loopcxt_find_overlap()
-> >       sees loop0 is still valid and with proper parameters
-> >       reuse = true;
-> > 					close /dev/loop0
-> > 					  last fd closed => loop0 is
-> > 					    cleaned up
-> >       loopcxt_get_fd()
-> >         opens loop0 but it is no longer the device we wanted!
-> >     calls mount(2) which fails because we cannot read from the loop device
-> > 
-> > It seems to me that mnt_context_setup_loopdev() should actually recheck
-> > that loop device parameters still match what we need after opening
-> > /dev/loop0 (if LOOP_GET_STATUS ioctl succeeds on the fd, you are guaranteed
-> > the loop device is in that state and will not be torn down under your
-> > hands). What do you think?
-
-Seems like elegant solution. Please, send a patch.
-
-(It would be possible to be care about autoclear in
-loopcxt_find_overlap(), but it sounds complicated and probably still
-racy.
-
-> > 
-> > 								Honza
-> > -- 
-> > Jan Kara <jack@suse.com>
-> > SUSE Labs, CR
-> -- 
-> Jan Kara <jack@suse.com>
-> SUSE Labs, CR
-> 
-
+								Honza
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
-
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
