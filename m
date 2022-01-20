@@ -2,78 +2,70 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E49E6C433F5
-	for <util-linux@archiver.kernel.org>; Thu, 20 Jan 2022 08:50:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A63EC4332F
+	for <util-linux@archiver.kernel.org>; Thu, 20 Jan 2022 09:14:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359394AbiATIuU (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 20 Jan 2022 03:50:20 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:47098 "EHLO
+        id S240632AbiATJOu (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 20 Jan 2022 04:14:50 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:26429 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1359390AbiATIuT (ORCPT
+        by vger.kernel.org with ESMTP id S229825AbiATJOt (ORCPT
         <rfc822;util-linux@vger.kernel.org>);
-        Thu, 20 Jan 2022 03:50:19 -0500
+        Thu, 20 Jan 2022 04:14:49 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1642668618;
+        s=mimecast20190719; t=1642670089;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=WbdpZBG+JAPEFt3/QPKFPH7gsIvhnHQK8HUTdERmVKU=;
-        b=XODHqTplEx1vhQRwz74qzYRMWo5KFBSivI2AbuKDQs+00mr6slazgWTgP3f46tn7hAFR4i
-        nWrO4JDZ+lspUsUJaGjC1OgOg0zQhOE512DlqzfdurB2ANkEXpkT5SSRtemkeXZPwlecP/
-        pA6dQ4tAA69i7D7HLeYGXU8eiuIX7zQ=
+        bh=rTPvLXxriUHu//MwI+CcbltwIeGDsk7C00LYsKfm2hI=;
+        b=GtKXA0sHG/ecIRpp8SXV2zNih/XEPvwPgiJxmooS+ptSBhdPYSfag9B/3j0yiY5ITgQ2Et
+        b5GjJsequz38yHU6i1LwEE9vtgOH+q568X2fj7moY3EvA2qNP6r8Eb58uUCYMHMs5hfIBj
+        yZHEsebGk2oHZcecCP26Yq7UUEUB3r0=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-493-vBbuS2HkN8qqc0vyWI0Jkw-1; Thu, 20 Jan 2022 03:50:15 -0500
-X-MC-Unique: vBbuS2HkN8qqc0vyWI0Jkw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+ us-mta-206-AxfMLIA_MZOwyLVy7nB0lA-1; Thu, 20 Jan 2022 04:14:43 -0500
+X-MC-Unique: AxfMLIA_MZOwyLVy7nB0lA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A972C1083F70;
-        Thu, 20 Jan 2022 08:50:13 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D0CCD100CCC0;
+        Thu, 20 Jan 2022 09:14:41 +0000 (UTC)
 Received: from ws.net.home (ovpn-112-8.ams2.redhat.com [10.36.112.8])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 816957B9E1;
-        Thu, 20 Jan 2022 08:50:12 +0000 (UTC)
-Date:   Thu, 20 Jan 2022 09:50:09 +0100
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id E54964D73A;
+        Thu, 20 Jan 2022 09:14:39 +0000 (UTC)
+Date:   Thu, 20 Jan 2022 10:14:37 +0100
 From:   Karel Zak <kzak@redhat.com>
-To:     Jan Kara <jack@suse.cz>
-Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        util-linux@vger.kernel.org, linux-block@vger.kernel.org
-Subject: Re: Racy loop device reuse logic
-Message-ID: <20220120085009.xecitkc7f2digut6@ws.net.home>
-References: <20220113154735.hdzi4cqsz5jt6asp@quack3.lan>
- <20220119085247.duhblxzp6joukarw@quack3.lan>
- <28a360a3-b559-24ec-6c3d-3fe6e8302393@I-love.SAKURA.ne.jp>
- <20220119213415.csieaktdqmshemiy@quack3.lan>
+To:     Vladimir Sementsov-Ogievskiy <vsementsov@virtuozzo.com>
+Cc:     util-linux@vger.kernel.org, jkosina@suse.cz, kurt@garloff.de,
+        den@openvz.org, msuchanek@suse.de, efremov@linux.com
+Subject: Re: [PATCH 2/2] libblkid: reopen floppy without O_NONBLOCK
+Message-ID: <20220120091437.rkohl6kl33it4hwh@ws.net.home>
+References: <20211209141233.3774937-3-vsementsov@virtuozzo.com>
+ <20211214120349.kntr7gza5flma5tc@ws.net.home>
+ <a378a167-fd41-f74d-1b0d-b997b82df05c@virtuozzo.com>
+ <20211215125605.4tg7ugdnlbb3i3v7@ws.net.home>
+ <9dc07586-5471-ee5e-fae4-e177ceb114f4@virtuozzo.com>
+ <23719c29-9668-1edc-e60c-a30bd821c7fa@virtuozzo.com>
+ <20220103084311.beuxa6fcjtzn74a3@ws.net.home>
+ <20220117115030.ci5z5jtgyl2clvud@ws.net.home>
+ <2ed2e26f-7500-2ddd-a3b3-450f22ef6e67@virtuozzo.com>
+ <5db920b8-5df7-d968-5d5c-25d81615ad79@virtuozzo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220119213415.csieaktdqmshemiy@quack3.lan>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+In-Reply-To: <5db920b8-5df7-d968-5d5c-25d81615ad79@virtuozzo.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, Jan 19, 2022 at 10:34:15PM +0100, Jan Kara wrote:
-> On Wed 19-01-22 20:30:52, Tetsuo Handa wrote:
-> > I found a way to avoid this race by splitting lo_open() into two phases
-> > using task_work_add().  Christoph Hellwig is trying to take a look at
-> > https://lkml.kernel.org/r/f6b947d0-1047-66b3-0243-af5017c9ab55@I-love.SAKURA.ne.jp
-> > .
-> 
-> No, you have found a way to make the race window for mount(8) smaller. And
-> I still disagree with that kernel change because it is making kernel more
-> complex only to make the race window smaller. On another machine or with
-> different scheduling decisions, you can still hit this race. This problem
-> must be fixed in mount...
+On Mon, Jan 17, 2022 at 09:10:05PM +0300, Vladimir Sementsov-Ogievskiy wrote:
+> OK, seems that works (I tested the branch topic/blkid-floppy):
 
-+1
+ Updated and merged into the master branch. Thanks!
 
-I think Jan is right. In this case mount(8) is not robust enough. It
-reads info about the device from /sys and then it opens the device.
-Unfortunately, whatever can happen before the open() call.
-
-    Karel
+  Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
