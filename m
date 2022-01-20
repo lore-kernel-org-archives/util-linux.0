@@ -2,72 +2,79 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A63EC4332F
-	for <util-linux@archiver.kernel.org>; Thu, 20 Jan 2022 09:14:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BE45C433EF
+	for <util-linux@archiver.kernel.org>; Thu, 20 Jan 2022 10:09:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240632AbiATJOu (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 20 Jan 2022 04:14:50 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:26429 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229825AbiATJOt (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Thu, 20 Jan 2022 04:14:49 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1642670089;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=rTPvLXxriUHu//MwI+CcbltwIeGDsk7C00LYsKfm2hI=;
-        b=GtKXA0sHG/ecIRpp8SXV2zNih/XEPvwPgiJxmooS+ptSBhdPYSfag9B/3j0yiY5ITgQ2Et
-        b5GjJsequz38yHU6i1LwEE9vtgOH+q568X2fj7moY3EvA2qNP6r8Eb58uUCYMHMs5hfIBj
-        yZHEsebGk2oHZcecCP26Yq7UUEUB3r0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-206-AxfMLIA_MZOwyLVy7nB0lA-1; Thu, 20 Jan 2022 04:14:43 -0500
-X-MC-Unique: AxfMLIA_MZOwyLVy7nB0lA-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D0CCD100CCC0;
-        Thu, 20 Jan 2022 09:14:41 +0000 (UTC)
-Received: from ws.net.home (ovpn-112-8.ams2.redhat.com [10.36.112.8])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id E54964D73A;
-        Thu, 20 Jan 2022 09:14:39 +0000 (UTC)
-Date:   Thu, 20 Jan 2022 10:14:37 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     Vladimir Sementsov-Ogievskiy <vsementsov@virtuozzo.com>
-Cc:     util-linux@vger.kernel.org, jkosina@suse.cz, kurt@garloff.de,
-        den@openvz.org, msuchanek@suse.de, efremov@linux.com
-Subject: Re: [PATCH 2/2] libblkid: reopen floppy without O_NONBLOCK
-Message-ID: <20220120091437.rkohl6kl33it4hwh@ws.net.home>
-References: <20211209141233.3774937-3-vsementsov@virtuozzo.com>
- <20211214120349.kntr7gza5flma5tc@ws.net.home>
- <a378a167-fd41-f74d-1b0d-b997b82df05c@virtuozzo.com>
- <20211215125605.4tg7ugdnlbb3i3v7@ws.net.home>
- <9dc07586-5471-ee5e-fae4-e177ceb114f4@virtuozzo.com>
- <23719c29-9668-1edc-e60c-a30bd821c7fa@virtuozzo.com>
- <20220103084311.beuxa6fcjtzn74a3@ws.net.home>
- <20220117115030.ci5z5jtgyl2clvud@ws.net.home>
- <2ed2e26f-7500-2ddd-a3b3-450f22ef6e67@virtuozzo.com>
- <5db920b8-5df7-d968-5d5c-25d81615ad79@virtuozzo.com>
+        id S241291AbiATKJm (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 20 Jan 2022 05:09:42 -0500
+Received: from www262.sakura.ne.jp ([202.181.97.72]:55629 "EHLO
+        www262.sakura.ne.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236681AbiATKJm (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 20 Jan 2022 05:09:42 -0500
+Received: from fsav113.sakura.ne.jp (fsav113.sakura.ne.jp [27.133.134.240])
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 20KA9W74058705;
+        Thu, 20 Jan 2022 19:09:32 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from www262.sakura.ne.jp (202.181.97.72)
+ by fsav113.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav113.sakura.ne.jp);
+ Thu, 20 Jan 2022 19:09:32 +0900 (JST)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav113.sakura.ne.jp)
+Received: from [192.168.1.9] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
+        (authenticated bits=0)
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 20KA9VoH058702
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+        Thu, 20 Jan 2022 19:09:32 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <1ae05b2c-1ccf-2e31-4cc9-f89c54486bff@I-love.SAKURA.ne.jp>
+Date:   Thu, 20 Jan 2022 19:09:28 +0900
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5db920b8-5df7-d968-5d5c-25d81615ad79@virtuozzo.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: Racy loop device reuse logic
+Content-Language: en-US
+To:     Karel Zak <kzak@redhat.com>, Jan Kara <jack@suse.cz>
+Cc:     util-linux@vger.kernel.org, linux-block@vger.kernel.org
+References: <20220113154735.hdzi4cqsz5jt6asp@quack3.lan>
+ <20220119085247.duhblxzp6joukarw@quack3.lan>
+ <28a360a3-b559-24ec-6c3d-3fe6e8302393@I-love.SAKURA.ne.jp>
+ <20220119213415.csieaktdqmshemiy@quack3.lan>
+ <20220120085009.xecitkc7f2digut6@ws.net.home>
+From:   Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+In-Reply-To: <20220120085009.xecitkc7f2digut6@ws.net.home>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Mon, Jan 17, 2022 at 09:10:05PM +0300, Vladimir Sementsov-Ogievskiy wrote:
-> OK, seems that works (I tested the branch topic/blkid-floppy):
+On 2022/01/20 17:50, Karel Zak wrote:
+> On Wed, Jan 19, 2022 at 10:34:15PM +0100, Jan Kara wrote:
+>> On Wed 19-01-22 20:30:52, Tetsuo Handa wrote:
+>>> I found a way to avoid this race by splitting lo_open() into two phases
+>>> using task_work_add().  Christoph Hellwig is trying to take a look at
+>>> https://lkml.kernel.org/r/f6b947d0-1047-66b3-0243-af5017c9ab55@I-love.SAKURA.ne.jp
+>>> .
+>>
+>> No, you have found a way to make the race window for mount(8) smaller. And
+>> I still disagree with that kernel change because it is making kernel more
+>> complex only to make the race window smaller. On another machine or with
+>> different scheduling decisions, you can still hit this race. This problem
+>> must be fixed in mount...
+> 
+> +1
+> 
+> I think Jan is right. In this case mount(8) is not robust enough. It
+> reads info about the device from /sys and then it opens the device.
+> Unfortunately, whatever can happen before the open() call.
+> 
 
- Updated and merged into the master branch. Thanks!
+I'm not objecting to fix /bin/mount itself. Please check
+[PATCH 4/4] loop: wait for __loop_clr_fd() to complete upon lo_open()
+in https://lkml.kernel.org/r/cdaf1346-2885-f0da-8878-12264bd48348@I-love.SAKURA.ne.jp .
 
-  Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+  /bin/mount needs to be updated to check ioctl(LOOP_GET_STATUS) after open()
+  in order to confirm that lo->lo_state remains Lo_bound. But we need some
+  migration period for allowing users to update their util-linux package.
+  Thus, meantime emulate serialization between lo_open() and lo_release()
+  without using disk->open_mutex.
 
