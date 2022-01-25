@@ -2,109 +2,80 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 718EEC433FE
-	for <util-linux@archiver.kernel.org>; Tue, 25 Jan 2022 10:20:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26076C433EF
+	for <util-linux@archiver.kernel.org>; Tue, 25 Jan 2022 10:55:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242345AbiAYKU2 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 25 Jan 2022 05:20:28 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:43080 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242354AbiAYKRq (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 25 Jan 2022 05:17:46 -0500
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        id S1379547AbiAYKzS (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 25 Jan 2022 05:55:18 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:22477 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1379549AbiAYKxK (ORCPT
+        <rfc822;util-linux@vger.kernel.org>);
+        Tue, 25 Jan 2022 05:53:10 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1643107988;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=bUfJZe9TYRIuV2tn2o/ms6IbqcuqRRt05GHqoG68aKg=;
+        b=UrgnbUW4aUx+2lrmR+OjvCWFpVpzw2A79Vq6iSgvmUSBzuIcvzs5LE6fZkot4w1alQGl+B
+        309h5jaE/pdFPc1J4uQEqEHygcguLMKSul3+lUXcGhWoTLZX0QppgkCNMBWKoFaA4aA6+z
+        03fjxOJpacYN+zeZlSZ23qBzNxc0ulo=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-537-wM0Xeaf6PoClQaI2KdSUtA-1; Tue, 25 Jan 2022 05:53:05 -0500
+X-MC-Unique: wM0Xeaf6PoClQaI2KdSUtA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id E24DE1F380;
-        Tue, 25 Jan 2022 10:17:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1643105847; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=5zRSl6aTXLhWqqHCvjUFsWYj607jhVkjXsigZz4Scf8=;
-        b=n5p3h9LwR7jvahkcZ1MibgJY4HEPzTgKmR53A75c9qrY1uU1zfSN+gast6T4wmC/hyTs1V
-        vlGda+1oRVHz+THD/1Mp8vCS8BghhxbrKsn/bjuD9VUZUl1RnFznRJxP6+IvfnPjDMvYyc
-        9TgRi1IL6KC8qx/VATRwpSNmMi0WMQA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1643105847;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=5zRSl6aTXLhWqqHCvjUFsWYj607jhVkjXsigZz4Scf8=;
-        b=Mu6mJXij9MBXLbZffN//D5/5qXKr7McjQEHkhbDV9k4LO2wEX5SsuKw6Sq4YIvT9sewXMZ
-        tqJLQuniF1KdDZBw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id BE25613DAE;
-        Tue, 25 Jan 2022 10:17:27 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id LFL+LDfO72GMYgAAMHmgww
-        (envelope-from <sbrabec@suse.cz>); Tue, 25 Jan 2022 10:17:27 +0000
-Message-ID: <3f08fa1a-8efc-86d6-c492-7703f5b5ef38@suse.cz>
-Date:   Tue, 25 Jan 2022 11:17:27 +0100
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F0B58100CC84;
+        Tue, 25 Jan 2022 10:53:03 +0000 (UTC)
+Received: from ws.net.home (ovpn-112-8.ams2.redhat.com [10.36.112.8])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 1A1457D706;
+        Tue, 25 Jan 2022 10:53:02 +0000 (UTC)
+Date:   Tue, 25 Jan 2022 11:53:00 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     Stanislav Brabec <sbrabec@suse.cz>
+Cc:     util-linux@vger.kernel.org, Ali Abdallah <ali.abdallah@suse.com>
+Subject: Re: [PATCH] Whitelist libuuid clock file
+Message-ID: <20220125105300.f3npvhr5emhvzevu@ws.net.home>
+References: <3f08fa1a-8efc-86d6-c492-7703f5b5ef38@suse.cz>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.1
-To:     util-linux@vger.kernel.org
-Content-Language: en-US
-Cc:     Ali Abdallah <ali.abdallah@suse.com>
-From:   Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH] Whitelist libuuid clock file
-Organization: SUSE Linux, s. r. o.
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <3f08fa1a-8efc-86d6-c492-7703f5b5ef38@suse.cz>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Return back ProtectSystem to strict, and enable access to
-/var/lib/libuuid only.
+On Tue, Jan 25, 2022 at 11:17:27AM +0100, Stanislav Brabec wrote:
+> diff --git a/misc-utils/uuidd.service.in b/misc-utils/uuidd.service.in
+> index 065b4a194..e64ca59b5 100644
+> --- a/misc-utils/uuidd.service.in
+> +++ b/misc-utils/uuidd.service.in
+> @@ -8,6 +8,7 @@ ExecStart=@usrsbin_execdir@/uuidd --socket-activation
+>  Restart=no
+>  User=uuidd
+>  Group=uuidd
+> +ProtectSystem=strict
+>  ProtectHome=yes
+>  PrivateDevices=yes
+>  PrivateNetwork=yes
+> @@ -17,6 +18,7 @@ ProtectKernelModules=yes
+>  ProtectControlGroups=yes
+>  RestrictAddressFamilies=AF_UNIX
+>  MemoryDenyWriteExecute=yes
+> +ReadWritePaths=/var/lib/libuuid/
 
-Note: As LIBUUID_CLOCK_FILE does not use @localstatedir@, we use
-/var here as well.
+OK, seems better than my solution ;-) Thanks!
 
-Signed-off-by: Ali Abdallah <ali.abdallah@suse.com>
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
----
- Â misc-utils/uuidd.service.in | 2 ++
- Â 1 file changed, 2 insertions(+)
-
-diff --git a/misc-utils/uuidd.service.in b/misc-utils/uuidd.service.in
-index 065b4a194..e64ca59b5 100644
---- a/misc-utils/uuidd.service.in
-+++ b/misc-utils/uuidd.service.in
-@@ -8,6 +8,7 @@ ExecStart=@usrsbin_execdir@/uuidd --socket-activation
- Â Restart=no
- Â User=uuidd
- Â Group=uuidd
-+ProtectSystem=strict
- Â ProtectHome=yes
- Â PrivateDevices=yes
- Â PrivateNetwork=yes
-@@ -17,6 +18,7 @@ ProtectKernelModules=yes
- Â ProtectControlGroups=yes
- Â RestrictAddressFamilies=AF_UNIX
- Â MemoryDenyWriteExecute=yes
-+ReadWritePaths=/var/lib/libuuid/
- Â SystemCallFilter=@default @file-system @basic-io @system-service 
-@signal @io-event @network-io
-
- Â [Install]
--- 
-2.34.1
+   Karel
 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-KÅ™iÅ¾Ã­kova 148/34 (Corso IIa)                    tel: +420 284 084 060
-186 00 Praha 8-KarlÃ­n                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
