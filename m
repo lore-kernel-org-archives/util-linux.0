@@ -2,70 +2,109 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BA04C433EF
-	for <util-linux@archiver.kernel.org>; Tue, 25 Jan 2022 06:36:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 718EEC433FE
+	for <util-linux@archiver.kernel.org>; Tue, 25 Jan 2022 10:20:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352132AbiAYGgD (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 25 Jan 2022 01:36:03 -0500
-Received: from [83.229.5.230] ([83.229.5.230]:46574 "EHLO
-        host.privemsecures.biz" rhost-flags-FAIL-FAIL-OK-OK)
-        by vger.kernel.org with ESMTP id S1351475AbiAYGdi (ORCPT
-        <rfc822;util-linux@vger.kernel.org>);
-        Tue, 25 Jan 2022 01:33:38 -0500
-X-Greylist: delayed 8331 seconds by postgrey-1.27 at vger.kernel.org; Tue, 25 Jan 2022 01:33:38 EST
-Received: from privemsecures.biz (ec2-3-139-96-244.us-east-2.compute.amazonaws.com [3.139.96.244])
-        by host.privemsecures.biz (Postfix) with ESMTPA id 33E7A71869
-        for <util-linux@vger.kernel.org>; Mon, 24 Jan 2022 19:59:06 -0500 (EST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 host.privemsecures.biz 33E7A71869
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=privemsecures.biz;
-        s=default; t=1643072347;
-        bh=lESvgB9EuHYc6dgaM94tsG+I0QHc+nrm0RNnF2mP+lU=;
-        h=Reply-To:From:To:Subject:Date:From;
-        b=AStoDZKPuHhXqiuRVDO1nuFUeQ2r7OtIWPAKsvYXnwbbM3srn5b3sAsF8r4cDQSuo
-         ZnIzZwPHPnUBML6OvvMmPSIX8APBYkgtGRxuu5rj1KiOcJp3HELar/Db90yYF/MQbU
-         GaPMtPC/jeXebT2w49c7uwS7JqtJsmKqquzxcVP0=
-DKIM-Filter: OpenDKIM Filter v2.11.0 host.privemsecures.biz 33E7A71869
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=privemsecures.biz;
-        s=default; t=1643072347;
-        bh=lESvgB9EuHYc6dgaM94tsG+I0QHc+nrm0RNnF2mP+lU=;
-        h=Reply-To:From:To:Subject:Date:From;
-        b=AStoDZKPuHhXqiuRVDO1nuFUeQ2r7OtIWPAKsvYXnwbbM3srn5b3sAsF8r4cDQSuo
-         ZnIzZwPHPnUBML6OvvMmPSIX8APBYkgtGRxuu5rj1KiOcJp3HELar/Db90yYF/MQbU
-         GaPMtPC/jeXebT2w49c7uwS7JqtJsmKqquzxcVP0=
-Reply-To: deancjohnston02@secsuremailer.com
-From:   D C Johnston <deancjohnston02@privemsecures.biz>
+        id S242345AbiAYKU2 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 25 Jan 2022 05:20:28 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:43080 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242354AbiAYKRq (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 25 Jan 2022 05:17:46 -0500
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id E24DE1F380;
+        Tue, 25 Jan 2022 10:17:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1643105847; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=5zRSl6aTXLhWqqHCvjUFsWYj607jhVkjXsigZz4Scf8=;
+        b=n5p3h9LwR7jvahkcZ1MibgJY4HEPzTgKmR53A75c9qrY1uU1zfSN+gast6T4wmC/hyTs1V
+        vlGda+1oRVHz+THD/1Mp8vCS8BghhxbrKsn/bjuD9VUZUl1RnFznRJxP6+IvfnPjDMvYyc
+        9TgRi1IL6KC8qx/VATRwpSNmMi0WMQA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1643105847;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=5zRSl6aTXLhWqqHCvjUFsWYj607jhVkjXsigZz4Scf8=;
+        b=Mu6mJXij9MBXLbZffN//D5/5qXKr7McjQEHkhbDV9k4LO2wEX5SsuKw6Sq4YIvT9sewXMZ
+        tqJLQuniF1KdDZBw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id BE25613DAE;
+        Tue, 25 Jan 2022 10:17:27 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id LFL+LDfO72GMYgAAMHmgww
+        (envelope-from <sbrabec@suse.cz>); Tue, 25 Jan 2022 10:17:27 +0000
+Message-ID: <3f08fa1a-8efc-86d6-c492-7703f5b5ef38@suse.cz>
+Date:   Tue, 25 Jan 2022 11:17:27 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.1
 To:     util-linux@vger.kernel.org
-Subject: Projects
-Date:   25 Jan 2022 00:59:05 +0000
-Message-ID: <20220125005905.A0C68EC5978D5FF4@privemsecures.biz>
-Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+Cc:     Ali Abdallah <ali.abdallah@suse.com>
+From:   Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH] Whitelist libuuid clock file
+Organization: SUSE Linux, s. r. o.
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hello There, I hope this message finds you in good spirits=20
-especially during this challenging period. Anyway, I am D C=20
-Johnston, a private broker formerly with a Fund Management=20
-company in South Africa. I am privately contacting you because=20
-one of my high profile clients is interested in investing abroad=20
-and has asked me to look for individuals and companies with=20
-interesting business ideas that he can invest in. He has an=20
-interest in investing a very substantial amount abroad. I got=20
-your email contact through an online business directory and I=20
-thought I'd contact you to see if you are interested in this=20
-opportunity. Do you or your company have new or existing projects=20
-that require funding?
+Return back ProtectSystem to strict, and enable access to
+/var/lib/libuuid only.
 
-Please indicate your interest by replying back to this email.=20
-Once I get your response, I will give you more details and we can=20
-plan a strategy that will be beneficial to all parties. Please=20
-also indicate your direct mobile and whatsapp numbers for an=20
-easier communication. Please keep safe and I wish you a great new=20
-year.
-=20
-Best Regards,
+Note: As LIBUUID_CLOCK_FILE does not use @localstatedir@, we use
+/var here as well.
 
-Dean.
+Signed-off-by: Ali Abdallah <ali.abdallah@suse.com>
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+  misc-utils/uuidd.service.in | 2 ++
+  1 file changed, 2 insertions(+)
+
+diff --git a/misc-utils/uuidd.service.in b/misc-utils/uuidd.service.in
+index 065b4a194..e64ca59b5 100644
+--- a/misc-utils/uuidd.service.in
++++ b/misc-utils/uuidd.service.in
+@@ -8,6 +8,7 @@ ExecStart=@usrsbin_execdir@/uuidd --socket-activation
+  Restart=no
+  User=uuidd
+  Group=uuidd
++ProtectSystem=strict
+  ProtectHome=yes
+  PrivateDevices=yes
+  PrivateNetwork=yes
+@@ -17,6 +18,7 @@ ProtectKernelModules=yes
+  ProtectControlGroups=yes
+  RestrictAddressFamilies=AF_UNIX
+  MemoryDenyWriteExecute=yes
++ReadWritePaths=/var/lib/libuuid/
+  SystemCallFilter=@default @file-system @basic-io @system-service 
+@signal @io-event @network-io
+
+  [Install]
+-- 
+2.34.1
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Křižíkova 148/34 (Corso IIa)                    tel: +420 284 084 060
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+
