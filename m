@@ -2,98 +2,157 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C66F2C433EF
-	for <util-linux@archiver.kernel.org>; Sat, 29 Jan 2022 11:57:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C24CFC433EF
+	for <util-linux@archiver.kernel.org>; Mon, 31 Jan 2022 00:21:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241310AbiA2L5Y (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sat, 29 Jan 2022 06:57:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47568 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240332AbiA2L5X (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 29 Jan 2022 06:57:23 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7340C061714
-        for <util-linux@vger.kernel.org>; Sat, 29 Jan 2022 03:57:23 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id s2-20020a17090ad48200b001b501977b23so13472721pju.2
-        for <util-linux@vger.kernel.org>; Sat, 29 Jan 2022 03:57:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=UsZ2dQV8eoJSG/OawyiWlhJ8B7t74qdjSqH4wD3GIog=;
-        b=hum7BajegUTY5iFaQ02gxH0Xr1BjGpNKdjHeneEzEXfWLjr2P2mv3pu9Tcgl8xLVJr
-         Dv2SBg/IEF+T6LAKiUKyxRaA8wuKTz8dp4BxPyoR02Skuaffs8DaSOOEcLqSCRXJNLTt
-         AQjGJOshMt1kqky6KR+mBcvX7LRk52bTJjL4WCNYODNlBBjdySC3b+oy/5zdyU2yzzv0
-         wT0+3Hgf2PNNEhNMOCZmkzLn6y0J774SccB15CTfSEpmeEMTu1LzqH9hvOMJ2ay4vZKg
-         eOAl5Ax+yqB276sbui/SChjHWFvC81ZFeUcesfXPHw3Ei1Yn1JAkqU7TSNusiif5QHQF
-         da6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=UsZ2dQV8eoJSG/OawyiWlhJ8B7t74qdjSqH4wD3GIog=;
-        b=StKRVCwY8PpWCW2syiHB+APygJEwoFSMf6ThLJL6v7rmliINwRH9L+iPCGOaDg47sb
-         5DZZcKzNPQE6aggYcD/drfvYYS7wW6GGg4jM+z0qtp4/BSe3PRpvb1qSuTYOWYSRiEV0
-         1xHlQ9eFcBs+NakUvqYNndPwUNXTBICLNmisjPDksV+HNrgKVjmJODiJwq9OOxN68vLe
-         Co/MWLHoczVrrxRScpAUe6MEOqcg05bL4+/Zd5WT/QqI/ULxQtGPcgdfbU2849fPaPf2
-         w/GVS60H2j204UAyK566ZtGwss8ZiKoV0IMdK3tZrTX48b2fWHkMNw5cUlo0A4tltN49
-         U6kA==
-X-Gm-Message-State: AOAM530LrSVxrO87gCj386bkbaG54nfUxe15AyZfTdQ83ckyyXDOzSc9
-        eD2OHuQdCQPs7FKnzb2gMEkVDG3v4E2xcwHB7QgghmOXj1E=
-X-Google-Smtp-Source: ABdhPJw+U8RE6u2nZoJXFaRVbYOcPNShaTp9LV/MCHs+8PA9hr5ESSoU4nl5qwb9g0RvvWDHJO4vmcS/9Bio1vOY5ww=
-X-Received: by 2002:a17:90b:4f4e:: with SMTP id pj14mr14850874pjb.220.1643457443121;
- Sat, 29 Jan 2022 03:57:23 -0800 (PST)
+        id S1344999AbiAaAVc (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 30 Jan 2022 19:21:32 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:33180 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233085AbiAaAVc (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 30 Jan 2022 19:21:32 -0500
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 5D35B1F37B
+        for <util-linux@vger.kernel.org>; Mon, 31 Jan 2022 00:21:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1643588491; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=+9SMs6GxzrI3v5CMW1pfoKXxaJpR3LvI6jlyZDvVCp8=;
+        b=C343yOWgDxKpdli0hLDL4jQiMQ1xl89oO1eu17g8jV3MwNfILSl+lWsS2ziuUJevAIznil
+        C5VVBSYDj+ltsimu/FGVHaJH4zWRiaNXqXpQmzB5dqfbkexeMWoTLgHs0u4TfO4+PRjMtH
+        7o0NiAFGn7SoU1ewfZK38nH0DcgwLNU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1643588491;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=+9SMs6GxzrI3v5CMW1pfoKXxaJpR3LvI6jlyZDvVCp8=;
+        b=fx3z8c4Ymq1PEyeEeB9KSZkuEnN1VxcXqN0cPjZzTo9CTxH79Tq9qpi+QMBG6ir7NWgJkp
+        p/yRZt7GPWgLoiBw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 4341413638
+        for <util-linux@vger.kernel.org>; Mon, 31 Jan 2022 00:21:31 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id XBTrDYsr92GjTAAAMHmgww
+        (envelope-from <sbrabec@suse.cz>)
+        for <util-linux@vger.kernel.org>; Mon, 31 Jan 2022 00:21:31 +0000
+Message-ID: <823c644a-9eec-4832-0f52-e5e9419aad95@suse.cz>
+Date:   Mon, 31 Jan 2022 01:21:30 +0100
 MIME-Version: 1.0
-From:   =?UTF-8?Q?Mario_Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
-Date:   Sat, 29 Jan 2022 12:57:12 +0100
-Message-ID: <CAHi0vA9rJS=+KT2PxTQ9bBeutt9KqpmgvmhJq3VASrKke_h+NQ@mail.gmail.com>
-Subject: Unify the --help and --version descriptions in man pages?
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
 To:     util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+From:   Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH] fstrim: Add fstab option x-fstrim.notrim
+Organization: SUSE Linux, s. r. o.
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hello Karel,
+Sometimes it makes sense to skip fstrim for selected file mounts, but
+still be able to use fstrim.service.
 
-I've just noticed the commit =C2=BBdocs: add man-common/in-bytes.adoc=C2=AB=
-.
-What about to unify the descriptions of the --help and the --version
-options in the man pages in a similar manner? Besides to simplify the
-ma=C3=ADntenance, it would also shrink the .po file of the man pages a bit.
+Add a possibility to specify "x-fstrim.notrim" in fstab.
 
-Example:
+Do not use "notrim", as it collides with the kernel rbd driver.
 
---- blockdev.8.adoc     2021-11-26 17:40:06.931013901 +0100
-+++ blockdev.8.adoc    2022-01-29 12:47:43.087144014 +0100
-@@ -40,10 +40,10 @@
-Print a report for the specified device. It is possible to give multiple de=
-vice
-s. If none is given, all devices which appear in _/proc/partitions_ are sho=
-wn. N
-ote that the partition StartSec is in 512-byte sectors.
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+  sys-utils/fstrim.8.adoc | 4 +++-
+  sys-utils/fstrim.c      | 2 ++
+  2 files changed, 5 insertions(+), 1 deletion(-)
 
-*-h*, *--help*::
--Display help text and exit.
-+include::man-common/help-description.adoc[]
+diff --git a/sys-utils/fstrim.8.adoc b/sys-utils/fstrim.8.adoc
+index b2c1fce22..66387ba35 100644
+--- a/sys-utils/fstrim.8.adoc
++++ b/sys-utils/fstrim.8.adoc
+@@ -29,7 +29,7 @@ Running *fstrim* frequently, or even using *mount -o 
+discard*, might negatively
+  The _offset_, _length_, and _minimum-size_ arguments may be followed 
+by the multiplicative suffixes KiB (=1024), MiB (=1024*1024), and so on 
+for GiB, TiB, PiB, EiB, ZiB and YiB (the "iB" is optional, e.g., "K" has 
+the same meaning as "KiB") or the suffixes KB (=1000), MB (=1000*1000), 
+and so on for GB, TB, PB, EB, ZB and YB.
 
-*-V*, *--version*::
--Print version and exit.
-+include::man-common/version-description.adoc[]
+  *-A, --fstab*::
+-Trim all mounted filesystems mentioned in _/etc/fstab_ on devices that 
+support the discard operation. The root filesystem is determined from 
+kernel command line if missing in the file. The other supplied options, 
+like *--offset*, *--length* and *--minimum*, are applied to all these 
+devices. Errors from filesystems that do not support the discard 
+operation, read-only devices, autofs and read-only filesystems are 
+silently ignored.
++Trim all mounted filesystems mentioned in _/etc/fstab_ on devices that 
+support the discard operation. The root filesystem is determined from 
+kernel command line if missing in the file. The other supplied options, 
+like *--offset*, *--length* and *--minimum*, are applied to all these 
+devices. Errors from filesystems that do not support the discard 
+operation, read-only devices, autofs and read-only filesystems are 
+silently ignored. Filesystems with "x-fstrim.notrim" mount option are 
+skipped.
 
-=3D=3D COMMANDS
+  *-a, --all*::
+  Trim all mounted filesystems on devices that support the discard 
+operation. The other supplied options, like *--offset*, *--length* and 
+*--minimum*, are applied to all these devices. Errors from filesystems 
+that do not support the discard operation, read-only devices and 
+read-only filesystems are silently ignored.
+@@ -47,6 +47,8 @@ The number of bytes (after the starting point) to 
+search for free blocks to disc
+  Specifies a colon-separated list of files in fstab or kernel mountinfo 
+format. All missing or empty files are silently ignored. The evaluation 
+of the _list_ stops after first non-empty file. For example:
+  +
+  *--listed-in /etc/fstab:/proc/self/mountinfo*.
+++
++Filesystems with "x-fstrim.notrim" mount option are skipped.
 
+  *-m, --minimum* _minimum-size_::
+  Minimum contiguous free range to discard, in bytes. (This value is 
+internally rounded up to a multiple of the filesystem block size.) Free 
+ranges smaller than this will be ignored and *fstrim* will adjust the 
+minimum if it's smaller than the device's minimum, and report that 
+(fstrim_range.minlen) back to userspace. By increasing this value, the 
+*fstrim* operation will complete more quickly for filesystems with badly 
+fragmented freespace, although not all blocks will be discarded. The 
+default value is zero, discarding every free block.
+diff --git a/sys-utils/fstrim.c b/sys-utils/fstrim.c
+index 88397f0ec..cbe1c76d0 100644
+--- a/sys-utils/fstrim.c
++++ b/sys-utils/fstrim.c
+@@ -224,6 +224,8 @@ static int is_unwanted_fs(struct libmnt_fs *fs, 
+const char *tgt)
+          return 1;
+      if (mnt_fs_match_options(fs, "ro"))
+          return 1;
++    if (mnt_fs_match_options(fs, "+x-fstrim.notrim"))
++        return 1;
 
-=E2=80=A6 and then I would add the files man-common/help-description.adoc a=
-nd
-man-common/version-description.adoc.
+      fd = open(tgt, O_PATH);
+      if (fd < 0)
+-- 
+2.31.1
+-- 
 
-BTW, are there any plans for the next release 2.38? I'm planning to
-add direct support for Fedora 36 in manpages-l10n (once it is
-available from the servers), in addition to Rawhide. If v2.38 will
-come with Fedora 36, I could adjust the package lists appropriately,
-to avoid file conflicts.
+Best Regards / S pozdravem,
 
-Best Regards,
-Mario
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Křižíkova 148/34 (Corso IIa)                    tel: +420 284 084 060
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+
