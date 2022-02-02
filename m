@@ -2,178 +2,94 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 948C2C433F5
-	for <util-linux@archiver.kernel.org>; Wed,  2 Feb 2022 14:21:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16DCAC433F5
+	for <util-linux@archiver.kernel.org>; Wed,  2 Feb 2022 14:49:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236774AbiBBOVN (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 2 Feb 2022 09:21:13 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:51653 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233711AbiBBOVN (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 2 Feb 2022 09:21:13 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1643811672;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=rc7y+qsfGPT7XYtxcTLv5dlwctU2TOvhYLpkEZO+kh4=;
-        b=G07nndaQdrLqrZXxTYzIrmWVxsR5TIpOZTBUcIqJnubAMIqKYhBbCztVkcam++/QM/gseH
-        YNwxEuQhzPcuGlTHi+XuhQf3GI5MNK0+iDSSB7xE8MEmUpQz53UJOigkPIOVtdmTw/TadL
-        t0TqPvu3rLBrNXMgUljUNn7zHtK6M2w=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-75-cwareHhTOpef4PBWhN7rjQ-1; Wed, 02 Feb 2022 09:21:11 -0500
-X-MC-Unique: cwareHhTOpef4PBWhN7rjQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 616271923E2D;
-        Wed,  2 Feb 2022 14:21:10 +0000 (UTC)
-Received: from localhost (unknown [10.64.242.145])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9DCDA108F842;
-        Wed,  2 Feb 2022 14:21:07 +0000 (UTC)
-Date:   Wed, 02 Feb 2022 23:21:06 +0900 (JST)
-Message-Id: <20220202.232106.1642450897216370276.yamato@redhat.com>
-To:     matorola@gmail.com
-Cc:     zeha@debian.org, kzak@redhat.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.38-rc1
-From:   Masatake YAMATO <yamato@redhat.com>
-In-Reply-To: <CADxRZqwq=XmXZnnENU+vD7_2oC_VtqhG40P-xg=QAzKchT-3Ng@mail.gmail.com>
-References: <20220131151432.mfk62bwskotc6w64@ws.net.home>
-        <20220131192337.lzpofr4pz3lhgtl3@zeha.at>
-        <CADxRZqwq=XmXZnnENU+vD7_2oC_VtqhG40P-xg=QAzKchT-3Ng@mail.gmail.com>
-Organization: Red Hat Japan, Inc.
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+        id S1345106AbiBBOtr (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 2 Feb 2022 09:49:47 -0500
+Received: from 139-28-40-42.artus.net.pl ([139.28.40.42]:42182 "EHLO
+        tarta.nabijaczleweli.xyz" rhost-flags-OK-FAIL-OK-OK)
+        by vger.kernel.org with ESMTP id S230320AbiBBOtm (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 2 Feb 2022 09:49:42 -0500
+Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
+        by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id C1AA31C2;
+        Wed,  2 Feb 2022 15:49:39 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nabijaczleweli.xyz;
+        s=202006; t=1643813379;
+        bh=YotHt4Fa+k3hQsfRe8RndqmHMaLItpfygO64O2G+EOM=;
+        h=Date:From:To:Subject:References:In-Reply-To:From;
+        b=nVm9XFkT1rPfTZhF/SoxrauAw0vXarIql9K++QC5P94BhHIUg70PGtxPGOjN7NvYq
+         8EEVSQ+72Zsd8Ep2RClloa7Tq7G2fPR2OjujFzzcWDpjW/BVCZMs5ajKOiUS7he5eI
+         CVHSk1iorSwg/yMIFUGx7eitptBRd8ClwZ0rTiAWQQ6KciaX4/JOBIEovYuUVyPr2a
+         QE/79bIcS5g7lEFhWqCdkxDbbUPF950IOFy/r1/xtp3xp4fu7n/7T1OuVSmopJPpRR
+         28MiNqN3tJnQ57zhsOpp/lNgP5bSJ+bcu49i3B5Buu1VWJi1N4pcWcFdalIqC7gWgh
+         bIRe0wvQ0we2Q==
+Date:   Wed, 2 Feb 2022 15:49:38 +0100
+From:   =?utf-8?B?0L3QsNCx?= <nabijaczleweli@nabijaczleweli.xyz>
+To:     1003095@bugs.debian.org, util-linux@vger.kernel.org
+Subject: Re: Bug#1003095: /usr/bin/script: hangs when child doesn't read
+ input fast enough
+Message-ID: <20220202144938.eypexs65ujillsrg@tarta.nabijaczleweli.xyz>
+Mail-Followup-To: 1003095@bugs.debian.org, util-linux@vger.kernel.org
+References: <20220103230422.syzm2ryzcixuhl7r@tarta.nabijaczleweli.xyz>
+ <20220104162454.3agbsfqfpvaxr5ny@percival.namespace.at>
+ <20220104173124.lv2fyxuxuvc34jdo@tarta.nabijaczleweli.xyz>
+ <20220108145406.vkiuvl6iji4oypay@tarta.nabijaczleweli.xyz>
+ <20220113232811.puu3pbtzjvzgys3o@tarta.nabijaczleweli.xyz>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="zeat7hiz7gsgdaby"
+Content-Disposition: inline
+In-Reply-To: <20220113232811.puu3pbtzjvzgys3o@tarta.nabijaczleweli.xyz>
+User-Agent: NeoMutt/20211029
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hi,
 
-thank you for testing lsfd.
+--zeat7hiz7gsgdaby
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Could you tell me what kind of file system for /etc/passwd do you use for testing?
-When trying to reproduce the bug, could you applying the following change?
+Hi!
 
+Bumping this patch after 2ish weeks :)
 
-diff --git a/tests/ts/lsfd/lsfd-functions.bash b/tests/ts/lsfd/lsfd-functions.bash
-index 597e48cf4..a81647ccb 100644
---- a/tests/ts/lsfd/lsfd-functions.bash
-+++ b/tests/ts/lsfd/lsfd-functions.bash
-@@ -43,6 +43,13 @@ function lsfd_compare_dev {
-     # if we use findmnt.
-     local FINDMNT_MNTID_DEV=$("${FINDMNT}" --raw -n -o ID,MAJ:MIN | grep "^${MNTID}")
-     echo 'FINDMNT[RUN]:' $?
--    [ "${MNTID} ${DEV}" == "${FINDMNT_MNTID_DEV}" ]
--    echo 'DEV[STR]:' $?
-+    if [ "${MNTID} ${DEV}" == "${FINDMNT_MNTID_DEV}" ]; then
-+	echo 'DEV[STR]:' 0
-+    else
-+	echo 'DEV[STR]:' 1
-+	echo 'MNTID:' "${MNTID}"
-+	echo 'DEV:' "${DEV}"
-+	echo 'MNTID DEV:' "${MNTID} ${DEV}"
-+	echo 'FINDMNT_MNTID_DEV:' "${FINDMNT_MNTID_DEV}"
-+    fi
- }
+Best,
 
+On Fri, Jan 14, 2022 at 12:28:12AM +0100, =D0=BD=D0=B0=D0=B1 wrote:
+> Subject: Put master PTY into non-blocking mode and buffer its output
+>  to avoid deadlock
+>=20
+> If we filled the script->child buffer before the child had a chance
+> to read any input, we'd sleep forever in write_all(pty->master),
+> and the child would sleep forever in write(1<pty->slave>)
+>=20
+> By putting the master PTY in non-blocking mode, we can
+> poll(pty->master, POLLOUT) and keep supplying more data
+> as the child reads from the buffer
+>=20
+> Fixes Debian bug #1003095
 
-Masatake YAMATO
+--zeat7hiz7gsgdaby
+Content-Type: application/pgp-signature; name="signature.asc"
 
-From: Anatoly Pugachev <matorola@gmail.com>
-Subject: Re: [ANNOUNCE] util-linux v2.38-rc1
-Date: Wed, 2 Feb 2022 12:57:47 +0300
+-----BEGIN PGP SIGNATURE-----
 
-> On Tue, Feb 1, 2022 at 11:48 PM Chris Hofstaedtler <zeha@debian.org> wrote:
->>
->> Hello,
->>
->> * Karel Zak <kzak@redhat.com> [220131 16:15]:
->> >
->> > The util-linux release v2.38-rc1 is available at
->> >
->> >   http://www.kernel.org/pub/linux/utils/util-linux/v2.38/
->> >
->> > Feedback and bug reports, as always, are welcomed.
->>
->> Thanks.
->>
->> Some lsfd tests appear to fail in a Debian sbuild build environment,
->> in that they differ in the expected/actual values of DEV[STR] (see
->> below). I did not find time to investigate this closer, but thought
->> it would be best to report it sooner than later.
->>
->> Best,
->> Chris
->>
->> ---snip---
->>
->>          lsfd: read-only regular file         ... FAILED (lsfd/mkfds-ro-regular-file)
->> ========= script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-ro-regular-file =================
->> ================= OUTPUT =====================
->>      1  ABC         3  r--  REG /etc/passwd   1
->>      2  COMMAND,ASSOC,MODE,TYPE,NAME,POS: 0
->>      3  PID[RUN]: 0
->>      4  PID[STR]: 0
->>      5  INODE[RUN]: 0
->>      6  INODE[STR]: 0
->>      7  UID[RUN]: 0
->>      8  UID[STR]: 0
->>      9  USER[RUN]: 0
->>     10  USER[STR]: 0
->>     11  SIZE[RUN]: 0
->>     12  SIZE[STR]: 0
->>     13  MNTID[RUN]: 0
->>     14  DEV[RUN]: 0
->>     15  FINDMNT[RUN]: 0
->>     16  DEV[STR]: 1
->> ================= EXPECTED ===================
->>      1  ABC         3  r--  REG /etc/passwd   1
->>      2  COMMAND,ASSOC,MODE,TYPE,NAME,POS: 0
->>      3  PID[RUN]: 0
->>      4  PID[STR]: 0
->>      5  INODE[RUN]: 0
->>      6  INODE[STR]: 0
->>      7  UID[RUN]: 0
->>      8  UID[STR]: 0
->>      9  USER[RUN]: 0
->>     10  USER[STR]: 0
->>     11  SIZE[RUN]: 0
->>     12  SIZE[STR]: 0
->>     13  MNTID[RUN]: 0
->>     14  DEV[RUN]: 0
->>     15  FINDMNT[RUN]: 0
->>     16  DEV[STR]: 0
->> ================= O/E diff ===================
->> --- /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file    2022-01-31 19:12:43.802603811 +0000
->> +++ /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-ro-regular-file  2022-01-31 14:57:47.000000000 +0000
->> @@ -13,4 +13,4 @@
->>  MNTID[RUN]: 0
->>  DEV[RUN]: 0
->>  FINDMNT[RUN]: 0
->> -DEV[STR]: 1
->> +DEV[STR]: 0
->> ==============================================
-> 
-> Chris,
-> 
-> i had this error on my test system
-> 
-> https://github.com/util-linux/util-linux/issues/1511
-> 
-> but i can't reliably reproduce it now (on my current kernel 5.17.0-rc2
-> and on debian kernel 5.15.0-3-sparc64-smp )
-> Tested with the following command line (for current git util-linux sources):
-> $ for i in {1..100}; do tests/run.sh lsfd; done  | grep FAILED
-> 
-> ^^ no failed output
-> 
-> I can reopen the issue above, so we could try to reproduce it.
-> 
+iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmH6mgAACgkQvP0LAY0m
+WPEhjA/8CqJH7A7sSTm+3hC1+O1OATHFu8TObd+EJsv+EQvwuhakEoc2GJ4V1Fbe
+UNhGm/ziyL9RePMKEYKXvZSvAxv5EzdyXhWVHodTflWW0yz2bNd/5aPerZgZC2PL
+Wxs59f/XSyubu8FDQPXbRDvRuIPlb65unMOw8DBO752DleL92Z5Wpw2O4h9aKvGO
+5gZeqhDkPPXAJ6X1tNREvzu7U1dvUdLH4YyN7puUbsvzYDDllkkWm2j0Z+Iq73Yd
+PpR0WVdJwrdeef0G65DVdJPKOuy0QZDgd7kRIoqcnZHVr/YFwIMigKdmpUU4modI
+WDC3nQWP5ZFkcavrzlQ8S+Z4z/CYIIe6CSMLCI7u7WoV4iHzt40SzmF54SliC6uC
+vyFisF5HfgT6mZowdbEyfeot71ApozMgzTCK7WYci57BxG/5LF5NmPtziSjIo/0V
+14Z2nWwYGhY6k3pg+VpAq0BS3HiGjkO+0Pg6uNrsU4E6Ii3ZttgInYEzZ3wTrW4x
+Lg6oGbxP2KCt5JsKznt8q3aXtuaoourvXsFewJX0zUBzXQ7Lw1MvTUL3NBPNAWdl
+Wh1QK2Eyv7xEkVnXmtAE2T99kWFqIM8U4lUfYP9uiliO8k8d1Kq9Vt7id8qyH64W
+4fDUB2nNkX7qJXOrDHal95i5/+xFcGlbajpVRzJCcFfIhfPGiWk=
+=hACr
+-----END PGP SIGNATURE-----
 
+--zeat7hiz7gsgdaby--
