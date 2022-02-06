@@ -2,193 +2,85 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EF61C433F5
-	for <util-linux@archiver.kernel.org>; Fri,  4 Feb 2022 18:03:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F9A2C433EF
+	for <util-linux@archiver.kernel.org>; Sun,  6 Feb 2022 06:12:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377330AbiBDSDf (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 4 Feb 2022 13:03:35 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:42679 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S241744AbiBDSDc (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 4 Feb 2022 13:03:32 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1643997812;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=o7XcRwxCW7bpdO1D8PIhj5dP5XyhvAOmpO56rjcmtyk=;
-        b=TJcvfjse30jz8TGu+ICre9yjQYI8G/qQwDzPkDkuKl4nLxoyvJlSmWVDKg4iLRaWv4woZs
-        FwZLUSBii8eUKs2L80FZc6+8mm27upx+1WAbHAfqdAPtT5G5rszrjyqnbU130/n54OMxfT
-        JUiOdyWdfOnDzLq/rWvHF/RVWCBMn2Q=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-176-gShzDbcuMjW3KS_PkIIQDQ-1; Fri, 04 Feb 2022 13:03:27 -0500
-X-MC-Unique: gShzDbcuMjW3KS_PkIIQDQ-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 22018814245;
-        Fri,  4 Feb 2022 18:03:26 +0000 (UTC)
-Received: from localhost (unknown [10.64.242.145])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 20D457E22F;
-        Fri,  4 Feb 2022 18:03:25 +0000 (UTC)
-Date:   Sat, 05 Feb 2022 03:03:24 +0900 (JST)
-Message-Id: <20220205.030324.1280110384368183671.yamato@redhat.com>
-To:     matorola@gmail.com
-Cc:     zeha@debian.org, kzak@redhat.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.38-rc1
-From:   Masatake YAMATO <yamato@redhat.com>
-In-Reply-To: <20220202.232106.1642450897216370276.yamato@redhat.com>
-References: <20220131192337.lzpofr4pz3lhgtl3@zeha.at>
-        <CADxRZqwq=XmXZnnENU+vD7_2oC_VtqhG40P-xg=QAzKchT-3Ng@mail.gmail.com>
-        <20220202.232106.1642450897216370276.yamato@redhat.com>
-Organization: Red Hat Japan, Inc.
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+        id S229773AbiBFGMN (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 6 Feb 2022 01:12:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40326 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229436AbiBFGMN (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 6 Feb 2022 01:12:13 -0500
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A79EC06173B
+        for <util-linux@vger.kernel.org>; Sat,  5 Feb 2022 22:12:12 -0800 (PST)
+Received: by mail-ej1-x62e.google.com with SMTP id og43so8514933ejc.0
+        for <util-linux@vger.kernel.org>; Sat, 05 Feb 2022 22:12:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=AJNplkduRkwArIJLwhgWwaoFpxt+TkYbd0CiNXfgt6E=;
+        b=Dga1aMl4KRmU3Y8AZC0nwfa5oU7IiUxNs+UAw1k4ZS69Ikn63XqrfSQOuC2bMo/khO
+         yn3FBMNppgB+Ai7MLnpPt2zgzZalFMHY3ye8HQtTPLVBNkg21TicoVdM5fSc7ptUcOto
+         n+jqgwWXfsIPBX0hMwI8hG3RPzqNw+9M2tl//Xazm0sAWNWN2OMhOGu8J7EcNM2K97Eb
+         3sGaW5CiBZHs9jBCr52LW0K/z7HTzzR/vUCAb5NRCA6ovTn+LZXAxkMXlcP8hs0f2zFa
+         w66RuopfmwsDxAQdajkE6MHYA+FsF9J9/5LvLDbTOKODNsgeGf91rtWIQZC4+LOX6f8N
+         Eh5w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=AJNplkduRkwArIJLwhgWwaoFpxt+TkYbd0CiNXfgt6E=;
+        b=dzSL1IYbpo9ygyGiXalaO+Ft3vREDz4BSrEWbx73b3sqma1A2KQWFYuX1kV8fbM8qq
+         +a8IzzWZpitbgQs6zhbG5f/InltFI/jgaEiNq4DB2ZVEaSYOzqeA7fk7H67/9qczlk+8
+         Dz9tsKT5iZ3nDO02T6KeC0E+0iUgL7++Y+qhTk51MOC7EGR2j93Y6C9UDfpmOPfLqh8+
+         3w4QmnYKtKIDfPWLGzAZbVBnrcrbN/GFE8k2nakbuamkgbACMCiDH+aM1PVhf4zTGp4l
+         OwCuuNeXrhhv8uBcqb9SbUF2VavE3q+L2KhHLcHwFjTSP6mvYnPMvWjzFpT5Ww3itjrn
+         pWcg==
+X-Gm-Message-State: AOAM530Yl3y2vWdkdtUoCImrlNsjNWOL9ZLJlVsm3vx4Q8tAdj3Djddf
+        HYdU/XmU3gSf+RvcgxvvSySGzKCKt74=
+X-Google-Smtp-Source: ABdhPJzk7tYBjyq6u6wyRVYHaUY1h81p0s1M2v3Fshb4lPEmdaPbI5HTgBbGVws5q45WIg/uPivOiA==
+X-Received: by 2002:a17:907:3e0c:: with SMTP id hp12mr5372087ejc.685.1644127930980;
+        Sat, 05 Feb 2022 22:12:10 -0800 (PST)
+Received: from localhost.localdomain (178.115.71.30.wireless.dyn.drei.com. [178.115.71.30])
+        by smtp.gmail.com with ESMTPSA id bv2sm2264420ejb.154.2022.02.05.22.12.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 05 Feb 2022 22:12:10 -0800 (PST)
+From:   Johannes Altmanninger <aclopte@gmail.com>
+To:     util-linux@vger.kernel.org
+Cc:     Johannes Altmanninger <aclopte@gmail.com>
+Subject: [PATCH 1/4] newgrp.1.adoc: use bold font for command name in synopsis
+Date:   Sun,  6 Feb 2022 07:11:55 +0100
+Message-Id: <20220206061158.752262-1-aclopte@gmail.com>
+X-Mailer: git-send-email 2.35.1.301.gcdacdcff8b.dirty
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hi,
+newgrp.1.adoc is our only man page that doesn't use bold font for
+the command name in the synopsis. Fix that.
 
-As I commented on GitHub, I made a pull request for fixing this issue.
-I found a bug in the test case, not in lsfd itself.
+Signed-off-by: Johannes Altmanninger <aclopte@gmail.com>
+---
+ login-utils/newgrp.1.adoc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-https://github.com/util-linux/util-linux/pull/1595
-https://github.com/util-linux/util-linux/pull/1595/commits/abd93fcecfbb1a1fac7032fac9d2903c5d2d3a38
-
-Masatake YAMATO
-
-From: Masatake YAMATO <yamato@redhat.com>
-Subject: Re: [ANNOUNCE] util-linux v2.38-rc1
-Date: Wed, 02 Feb 2022 23:21:06 +0900 (JST)
-
-> Hi,
-> 
-> thank you for testing lsfd.
-> 
-> Could you tell me what kind of file system for /etc/passwd do you use for testing?
-> When trying to reproduce the bug, could you applying the following change?
-> 
-> 
-> diff --git a/tests/ts/lsfd/lsfd-functions.bash b/tests/ts/lsfd/lsfd-functions.bash
-> index 597e48cf4..a81647ccb 100644
-> --- a/tests/ts/lsfd/lsfd-functions.bash
-> +++ b/tests/ts/lsfd/lsfd-functions.bash
-> @@ -43,6 +43,13 @@ function lsfd_compare_dev {
->      # if we use findmnt.
->      local FINDMNT_MNTID_DEV=$("${FINDMNT}" --raw -n -o ID,MAJ:MIN | grep "^${MNTID}")
->      echo 'FINDMNT[RUN]:' $?
-> -    [ "${MNTID} ${DEV}" == "${FINDMNT_MNTID_DEV}" ]
-> -    echo 'DEV[STR]:' $?
-> +    if [ "${MNTID} ${DEV}" == "${FINDMNT_MNTID_DEV}" ]; then
-> +	echo 'DEV[STR]:' 0
-> +    else
-> +	echo 'DEV[STR]:' 1
-> +	echo 'MNTID:' "${MNTID}"
-> +	echo 'DEV:' "${DEV}"
-> +	echo 'MNTID DEV:' "${MNTID} ${DEV}"
-> +	echo 'FINDMNT_MNTID_DEV:' "${FINDMNT_MNTID_DEV}"
-> +    fi
->  }
-> 
-> 
-> Masatake YAMATO
-> 
-> From: Anatoly Pugachev <matorola@gmail.com>
-> Subject: Re: [ANNOUNCE] util-linux v2.38-rc1
-> Date: Wed, 2 Feb 2022 12:57:47 +0300
-> 
->> On Tue, Feb 1, 2022 at 11:48 PM Chris Hofstaedtler <zeha@debian.org> wrote:
->>>
->>> Hello,
->>>
->>> * Karel Zak <kzak@redhat.com> [220131 16:15]:
->>> >
->>> > The util-linux release v2.38-rc1 is available at
->>> >
->>> >   http://www.kernel.org/pub/linux/utils/util-linux/v2.38/
->>> >
->>> > Feedback and bug reports, as always, are welcomed.
->>>
->>> Thanks.
->>>
->>> Some lsfd tests appear to fail in a Debian sbuild build environment,
->>> in that they differ in the expected/actual values of DEV[STR] (see
->>> below). I did not find time to investigate this closer, but thought
->>> it would be best to report it sooner than later.
->>>
->>> Best,
->>> Chris
->>>
->>> ---snip---
->>>
->>>          lsfd: read-only regular file         ... FAILED (lsfd/mkfds-ro-regular-file)
->>> ========= script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-ro-regular-file =================
->>> ================= OUTPUT =====================
->>>      1  ABC         3  r--  REG /etc/passwd   1
->>>      2  COMMAND,ASSOC,MODE,TYPE,NAME,POS: 0
->>>      3  PID[RUN]: 0
->>>      4  PID[STR]: 0
->>>      5  INODE[RUN]: 0
->>>      6  INODE[STR]: 0
->>>      7  UID[RUN]: 0
->>>      8  UID[STR]: 0
->>>      9  USER[RUN]: 0
->>>     10  USER[STR]: 0
->>>     11  SIZE[RUN]: 0
->>>     12  SIZE[STR]: 0
->>>     13  MNTID[RUN]: 0
->>>     14  DEV[RUN]: 0
->>>     15  FINDMNT[RUN]: 0
->>>     16  DEV[STR]: 1
->>> ================= EXPECTED ===================
->>>      1  ABC         3  r--  REG /etc/passwd   1
->>>      2  COMMAND,ASSOC,MODE,TYPE,NAME,POS: 0
->>>      3  PID[RUN]: 0
->>>      4  PID[STR]: 0
->>>      5  INODE[RUN]: 0
->>>      6  INODE[STR]: 0
->>>      7  UID[RUN]: 0
->>>      8  UID[STR]: 0
->>>      9  USER[RUN]: 0
->>>     10  USER[STR]: 0
->>>     11  SIZE[RUN]: 0
->>>     12  SIZE[STR]: 0
->>>     13  MNTID[RUN]: 0
->>>     14  DEV[RUN]: 0
->>>     15  FINDMNT[RUN]: 0
->>>     16  DEV[STR]: 0
->>> ================= O/E diff ===================
->>> --- /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file    2022-01-31 19:12:43.802603811 +0000
->>> +++ /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-ro-regular-file  2022-01-31 14:57:47.000000000 +0000
->>> @@ -13,4 +13,4 @@
->>>  MNTID[RUN]: 0
->>>  DEV[RUN]: 0
->>>  FINDMNT[RUN]: 0
->>> -DEV[STR]: 1
->>> +DEV[STR]: 0
->>> ==============================================
->> 
->> Chris,
->> 
->> i had this error on my test system
->> 
->> https://github.com/util-linux/util-linux/issues/1511
->> 
->> but i can't reliably reproduce it now (on my current kernel 5.17.0-rc2
->> and on debian kernel 5.15.0-3-sparc64-smp )
->> Tested with the following command line (for current git util-linux sources):
->> $ for i in {1..100}; do tests/run.sh lsfd; done  | grep FAILED
->> 
->> ^^ no failed output
->> 
->> I can reopen the issue above, so we could try to reproduce it.
->> 
-> 
+diff --git a/login-utils/newgrp.1.adoc b/login-utils/newgrp.1.adoc
+index b50b0d5f3..629078b5e 100644
+--- a/login-utils/newgrp.1.adoc
++++ b/login-utils/newgrp.1.adoc
+@@ -14,7 +14,7 @@ newgrp - log in to a new group
+ 
+ == SYNOPSIS
+ 
+-newgrp [_group_]
++*newgrp* [_group_]
+ 
+ == DESCRIPTION
+ 
+-- 
+2.35.1.301.gcdacdcff8b.dirty
 
