@@ -2,57 +2,57 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22E74C433F5
-	for <util-linux@archiver.kernel.org>; Sun,  6 Feb 2022 06:12:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 500BBC433F5
+	for <util-linux@archiver.kernel.org>; Sun,  6 Feb 2022 06:12:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229803AbiBFGMT (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sun, 6 Feb 2022 01:12:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40360 "EHLO
+        id S229805AbiBFGMW (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 6 Feb 2022 01:12:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbiBFGMS (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 6 Feb 2022 01:12:18 -0500
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A8D4C06173B
-        for <util-linux@vger.kernel.org>; Sat,  5 Feb 2022 22:12:17 -0800 (PST)
-Received: by mail-ed1-x52a.google.com with SMTP id cn6so214725edb.5
-        for <util-linux@vger.kernel.org>; Sat, 05 Feb 2022 22:12:17 -0800 (PST)
+        with ESMTP id S229436AbiBFGMV (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 6 Feb 2022 01:12:21 -0500
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D090C06173B
+        for <util-linux@vger.kernel.org>; Sat,  5 Feb 2022 22:12:20 -0800 (PST)
+Received: by mail-ed1-x531.google.com with SMTP id u18so22532018edt.6
+        for <util-linux@vger.kernel.org>; Sat, 05 Feb 2022 22:12:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=8p+sC5ac7/JhL4+BjkNuLHiymibR0F6zRKGISCrCodY=;
-        b=gRMRkAfWWv0P3/S6jwF2UN3rUWeeAO+l/tnHWzuSh4OHKDu20X5Cnj0pHFE6e8GAIu
-         zfbYTrAMS2L2jNhwyPbamlnjc1kuaO5mbGaQoqnQHjZUiRQGwxN7uc0CKpjnzFdmtq8E
-         ZZq8Jjf/sV8evi55/7nxq9mqDmtWCxoP4SS0LNVtf3uQUqtOinTmUG8A5ctMq8LCsY23
-         jvKJ3Kr7/6xwLq7LBWYG33TTDzUrKDeYpgQEkseaFrtDXDNGylQGLqRF5TOzfzLMjZnh
-         1VnYegvsXKS0SuOjyEW+WZeHsrzcjWYYgd+BlsuTtjrFN69r9lhCMHNIiiRoeAcBglCH
-         6w1g==
+        bh=npcs/EIJggKDsKeAtCQYFepca818j2DVfHt5Xr/yQMI=;
+        b=OvkRDqnAjPTcU3yoh0zwh1ysnzXOoBkZrAsgNUTM2SQoVghhvyAUSDgViI7CUsd3WI
+         Hwo3z0vsUw1794vvxOiiWN2ZdSjSNxx1oihTQ+lzDUk/yiR9Q6ONx6zx+TuruH9m5aPr
+         lLlEO4ApFAmDu10smOtYrfREecmOKFatIEx6LpYZd9ap+Ztdile1nODSkgAilpjBFi+g
+         aAeWN96g98bNC0q+LdgaOeYbD0QONfjrb9TC8ZGCO6ucDAcgI07LeYbBdc4mpH93D/zZ
+         FiNClGuMMni0PHeHVBFDvtU9WrtrB29JweL3Xt8Prp52GJZJ+c2nsPC+nJBgDF9e0tx+
+         vROg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=8p+sC5ac7/JhL4+BjkNuLHiymibR0F6zRKGISCrCodY=;
-        b=NtLhEnbcvgEN91l8h6sh4oMZ8ItuwnryqMUYpvGz2MI0fD10qftFUf0aJSVf1N3Ha1
-         v2BpJzYmL9ZP9E4w7GpehyimabKnF17ifKvXS/8RswKIrvglE7McoKIleoDlA1xMQvn1
-         ulEA3rXiqLxBTZHe3ngRaz/ozCW5eRoyJMMXG7ZwuslgdQfWRBfoKRlmOicRT2zYoOSx
-         1vC51n6JQopK8oVlUQxLa6+DiCf6Ly20xfNMWgig2nSVg4ToNx2iIMKqtL1gKoRLR/EV
-         5WC3vCrbYBox5n5EtiRdpCu+751xFZZEu77L60cci2houiTpKfMH/6OHvpD21/A7t/nl
-         Nc4A==
-X-Gm-Message-State: AOAM531J+6bMkusPUueNeQ/sEv79fcvzRhV5v0bd9hbKi3p5skzxl5/e
-        P07DPnfrczdEVam5lOhisF+GVDNh0W4=
-X-Google-Smtp-Source: ABdhPJxy7elK1eeBHKFyiovCKessKSrwe8n2+SAby+YCthPVooGT4s18AKUTQe8V3BYdqR0VIl4TIQ==
-X-Received: by 2002:aa7:d4d9:: with SMTP id t25mr7453618edr.431.1644127935875;
-        Sat, 05 Feb 2022 22:12:15 -0800 (PST)
+        bh=npcs/EIJggKDsKeAtCQYFepca818j2DVfHt5Xr/yQMI=;
+        b=eTbfHcZSjDUdcIasPor3MPNl6DRHxT5tSudjaOe5IsitPcZcgbbYaTezZyakIKvXhj
+         sofxjIQXIoaPmzW95y/fAYP6e/ZVPxtopHgjfhAJxjGnSrJr1Li1Y+cAdr/nbr2rccwB
+         WlLNKW51ScoOr9p8WB+TTZB03Th/MCHuPZ7tYxPM2iCF+enyId4xpeXHBvzQ72UKVaTH
+         7BUs2f8ZxlQgOiDax1MfQ9OeMddXM4cRMNZ9hay6UNseA/Ru3g7hwGHYp/ChIT8iLRAa
+         wkMFbxZVZLdQVGsaQUyrSI9iOvA5WuJ4NRSSyVzyLeOb4MJFw10ITdHMJhRe2jYKY6Dy
+         Wj/w==
+X-Gm-Message-State: AOAM532u6hOOHLDTkom9ev8A35CWZlpE5V0KZbcPdv144/VfNFVFVeZc
+        IWXE38aNpWRJcW/slRM6GjyEvs9Nezc=
+X-Google-Smtp-Source: ABdhPJxaycqCS1uni7b3zBz5a7MJConJXYWlroaaTXSa3EGDuy/hW9AohlgMF6iLZtGG+/ZgaUQ71A==
+X-Received: by 2002:a05:6402:5188:: with SMTP id q8mr7306362edd.173.1644127938925;
+        Sat, 05 Feb 2022 22:12:18 -0800 (PST)
 Received: from localhost.localdomain (178.115.71.30.wireless.dyn.drei.com. [178.115.71.30])
-        by smtp.gmail.com with ESMTPSA id bv2sm2264420ejb.154.2022.02.05.22.12.15
+        by smtp.gmail.com with ESMTPSA id bv2sm2264420ejb.154.2022.02.05.22.12.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 05 Feb 2022 22:12:15 -0800 (PST)
+        Sat, 05 Feb 2022 22:12:18 -0800 (PST)
 From:   Johannes Altmanninger <aclopte@gmail.com>
 To:     util-linux@vger.kernel.org
 Cc:     Johannes Altmanninger <aclopte@gmail.com>
-Subject: [PATCH 3/4] kill.1.adoc: clarify syntax of -SIG argument in synopsis
-Date:   Sun,  6 Feb 2022 07:11:57 +0100
-Message-Id: <20220206061158.752262-3-aclopte@gmail.com>
+Subject: [PATCH 4/4] getopt.1.adoc: render synopsis rules on separate lines
+Date:   Sun,  6 Feb 2022 07:11:58 +0100
+Message-Id: <20220206061158.752262-4-aclopte@gmail.com>
 X-Mailer: git-send-email 2.35.1.301.gcdacdcff8b.dirty
 In-Reply-To: <20220206061158.752262-1-aclopte@gmail.com>
 References: <20220206061158.752262-1-aclopte@gmail.com>
@@ -62,39 +62,53 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-kill.1.adoc has this synopsis line
+AsciiDoc ignores single line breaks, so the synopsis of
 
-	*kill*  [-signal|*-s* _signal_]
+	*getopt* _variant1_
+	*getopt* _variant2_
 
-For "-signal", the leading "-" should be typed literally, and the
-"signal" suffix should be replaced by a signal name/number.
-This means that according to GNU man(1), the "-" should render in
-bold font whereas the "signal" placeholder should use italic (which
-terminals often render with underscores).
+will render as one line in the manpage.
 
-Make it so. Use two askerisks because one is not enough for sub-word
-markup [*].
+Fix this by adding a blank line in between two rules, like we do
+elsewhere.  This means that the manpage also has blank lines.
 
-[*] https://docs.asciidoctor.org/asciidoc/latest/text/#unconstrained
+	*getopt* _variant1_
+
+	*getopt* _variant2_
+
+Alternative solution: we could avoid the blank lines like below,
+but that'd be inconsistent with our other manpages.
+
+	*getopt* _variant1_ +
+	*getopt* _variant2_ +
+
+or, equivalently, use the verse[*] directive
+
+	[verse]
+	*getopt* _variant1_
+	*getopt* _variant2_
+
+[*]: https://docs.asciidoctor.org/asciidoc/latest/blocks/verses/
 
 Signed-off-by: Johannes Altmanninger <aclopte@gmail.com>
 ---
- misc-utils/kill.1.adoc | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ misc-utils/getopt.1.adoc | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/misc-utils/kill.1.adoc b/misc-utils/kill.1.adoc
-index afdf345fd..4a6996a38 100644
---- a/misc-utils/kill.1.adoc
-+++ b/misc-utils/kill.1.adoc
-@@ -17,7 +17,7 @@ kill - terminate a process
- 
+diff --git a/misc-utils/getopt.1.adoc b/misc-utils/getopt.1.adoc
+index 6cbdd5174..7a80b141e 100644
+--- a/misc-utils/getopt.1.adoc
++++ b/misc-utils/getopt.1.adoc
+@@ -14,7 +14,9 @@ getopt - parse command options (enhanced)
  == SYNOPSIS
  
--*kill*  [-signal|*-s* _signal_|*-p*]  [*-q* _value_] [*-a*] [*--timeout* _milliseconds_ _signal_] [*--*] _pid_|_name_...
-+*kill*  [**-**_signal_|*-s* _signal_|*-p*]  [*-q* _value_] [*-a*] [*--timeout* _milliseconds_ _signal_] [*--*] _pid_|_name_...
+ *getopt* _optstring_ _parameters_
++
+ *getopt* [options] [*--*] _optstring_ _parameters_
++
+ *getopt* [options] *-o*|*--options* _optstring_ [options] [*--*] _parameters_
  
- *kill* *-l* [_number_] | *-L*
- 
+ == DESCRIPTION
 -- 
 2.35.1.301.gcdacdcff8b.dirty
 
