@@ -2,113 +2,203 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 500BBC433F5
-	for <util-linux@archiver.kernel.org>; Sun,  6 Feb 2022 06:12:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72887C433F5
+	for <util-linux@archiver.kernel.org>; Sun,  6 Feb 2022 16:47:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229805AbiBFGMW (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sun, 6 Feb 2022 01:12:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40374 "EHLO
+        id S234805AbiBFQrq (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 6 Feb 2022 11:47:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbiBFGMV (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 6 Feb 2022 01:12:21 -0500
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D090C06173B
-        for <util-linux@vger.kernel.org>; Sat,  5 Feb 2022 22:12:20 -0800 (PST)
-Received: by mail-ed1-x531.google.com with SMTP id u18so22532018edt.6
-        for <util-linux@vger.kernel.org>; Sat, 05 Feb 2022 22:12:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=npcs/EIJggKDsKeAtCQYFepca818j2DVfHt5Xr/yQMI=;
-        b=OvkRDqnAjPTcU3yoh0zwh1ysnzXOoBkZrAsgNUTM2SQoVghhvyAUSDgViI7CUsd3WI
-         Hwo3z0vsUw1794vvxOiiWN2ZdSjSNxx1oihTQ+lzDUk/yiR9Q6ONx6zx+TuruH9m5aPr
-         lLlEO4ApFAmDu10smOtYrfREecmOKFatIEx6LpYZd9ap+Ztdile1nODSkgAilpjBFi+g
-         aAeWN96g98bNC0q+LdgaOeYbD0QONfjrb9TC8ZGCO6ucDAcgI07LeYbBdc4mpH93D/zZ
-         FiNClGuMMni0PHeHVBFDvtU9WrtrB29JweL3Xt8Prp52GJZJ+c2nsPC+nJBgDF9e0tx+
-         vROg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=npcs/EIJggKDsKeAtCQYFepca818j2DVfHt5Xr/yQMI=;
-        b=eTbfHcZSjDUdcIasPor3MPNl6DRHxT5tSudjaOe5IsitPcZcgbbYaTezZyakIKvXhj
-         sofxjIQXIoaPmzW95y/fAYP6e/ZVPxtopHgjfhAJxjGnSrJr1Li1Y+cAdr/nbr2rccwB
-         WlLNKW51ScoOr9p8WB+TTZB03Th/MCHuPZ7tYxPM2iCF+enyId4xpeXHBvzQ72UKVaTH
-         7BUs2f8ZxlQgOiDax1MfQ9OeMddXM4cRMNZ9hay6UNseA/Ru3g7hwGHYp/ChIT8iLRAa
-         wkMFbxZVZLdQVGsaQUyrSI9iOvA5WuJ4NRSSyVzyLeOb4MJFw10ITdHMJhRe2jYKY6Dy
-         Wj/w==
-X-Gm-Message-State: AOAM532u6hOOHLDTkom9ev8A35CWZlpE5V0KZbcPdv144/VfNFVFVeZc
-        IWXE38aNpWRJcW/slRM6GjyEvs9Nezc=
-X-Google-Smtp-Source: ABdhPJxaycqCS1uni7b3zBz5a7MJConJXYWlroaaTXSa3EGDuy/hW9AohlgMF6iLZtGG+/ZgaUQ71A==
-X-Received: by 2002:a05:6402:5188:: with SMTP id q8mr7306362edd.173.1644127938925;
-        Sat, 05 Feb 2022 22:12:18 -0800 (PST)
-Received: from localhost.localdomain (178.115.71.30.wireless.dyn.drei.com. [178.115.71.30])
-        by smtp.gmail.com with ESMTPSA id bv2sm2264420ejb.154.2022.02.05.22.12.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 05 Feb 2022 22:12:18 -0800 (PST)
-From:   Johannes Altmanninger <aclopte@gmail.com>
-To:     util-linux@vger.kernel.org
-Cc:     Johannes Altmanninger <aclopte@gmail.com>
-Subject: [PATCH 4/4] getopt.1.adoc: render synopsis rules on separate lines
-Date:   Sun,  6 Feb 2022 07:11:58 +0100
-Message-Id: <20220206061158.752262-4-aclopte@gmail.com>
-X-Mailer: git-send-email 2.35.1.301.gcdacdcff8b.dirty
-In-Reply-To: <20220206061158.752262-1-aclopte@gmail.com>
-References: <20220206061158.752262-1-aclopte@gmail.com>
+        with ESMTP id S231784AbiBFQrq (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 6 Feb 2022 11:47:46 -0500
+Received: from mail.namespace.at (mail.namespace.at [IPv6:2a01:190:1801:100::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FBFDC06173B;
+        Sun,  6 Feb 2022 08:47:44 -0800 (PST)
+Date:   Sun, 6 Feb 2022 17:47:34 +0100
+From:   Chris Hofstaedtler <zeha@debian.org>
+To:     Masatake YAMATO <yamato@redhat.com>
+Cc:     matorola@gmail.com, kzak@redhat.com, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.38-rc1
+Message-ID: <20220206164734.cgdrkcuvwzy76pyy@zeha.at>
+References: <20220131192337.lzpofr4pz3lhgtl3@zeha.at>
+ <CADxRZqwq=XmXZnnENU+vD7_2oC_VtqhG40P-xg=QAzKchT-3Ng@mail.gmail.com>
+ <20220202.232106.1642450897216370276.yamato@redhat.com>
+ <20220205.030324.1280110384368183671.yamato@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20220205.030324.1280110384368183671.yamato@redhat.com>
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-AsciiDoc ignores single line breaks, so the synopsis of
+Hello Masatake YAMATO,
 
-	*getopt* _variant1_
-	*getopt* _variant2_
+Thank you for the followup.
 
-will render as one line in the manpage.
+* Masatake YAMATO <yamato@redhat.com> [220204 19:03]:
+> > Could you tell me what kind of file system for /etc/passwd do you use for testing?
 
-Fix this by adding a blank line in between two rules, like we do
-elsewhere.  This means that the manpage also has blank lines.
+sbuild/schroot can use different mechanisms, but in this case / is
+overlayfs (the underlying fs is ext4):
+   unstable-amd64-sbuild on / type overlay (rw,relatime,...)
 
-	*getopt* _variant1_
+ls -la /etc/passwd
+-rw-r--r-- 1 root root 2397 Feb  6 16:41 /etc/passwd
+stat /etc/passwd
+  File: /etc/passwd
+  Size: 2397            Blocks: 8          IO Block: 4096   regular file
+Device: 33h/51d Inode: 1311528     Links: 1
+Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2022-02-06 16:41:26.880589326 +0000
+Modify: 2022-02-06 16:41:26.720591039 +0000
+Change: 2022-02-06 16:41:26.720591039 +0000
+ Birth: -
+mount
 
-	*getopt* _variant2_
+> As I commented on GitHub, I made a pull request for fixing this issue.
+> I found a bug in the test case, not in lsfd itself.
+> 
+> https://github.com/util-linux/util-linux/pull/1595
+> https://github.com/util-linux/util-linux/pull/1595/commits/abd93fcecfbb1a1fac7032fac9d2903c5d2d3a38
+>
+> > When trying to reproduce the bug, could you applying the following change?
 
-Alternative solution: we could avoid the blank lines like below,
-but that'd be inconsistent with our other manpages.
+I have applied abd93fcecfbb1a1fac7032fac9d2903c5d2d3a38 alone, which
+does not help in my case (DEV[STR] is 0 instead of 1).
 
-	*getopt* _variant1_ +
-	*getopt* _variant2_ +
+I have also applied #1595 in full in a second build, see output
+below.
 
-or, equivalently, use the verse[*] directive
+Many thanks,
+Chris
 
-	[verse]
-	*getopt* _variant1_
-	*getopt* _variant2_
 
-[*]: https://docs.asciidoctor.org/asciidoc/latest/blocks/verses/
 
-Signed-off-by: Johannes Altmanninger <aclopte@gmail.com>
----
- misc-utils/getopt.1.adoc | 2 ++
- 1 file changed, 2 insertions(+)
+     script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-ro-regular-file
+   commands: /<<PKGBUILDDIR>>/
+    helpers: /<<PKGBUILDDIR>>/
+    sub dir: /<<PKGBUILDDIR>>/tests/ts/lsfd
+    top dir: /<<PKGBUILDDIR>>/tests
+       self: /<<PKGBUILDDIR>>/tests/ts/lsfd
+  test name: mkfds-ro-regular-file
+  test desc: read-only regular file
+  component: lsfd
+  namespace: lsfd/mkfds-ro-regular-file
+    verbose: yes
+     output: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file
+  error log: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file.err
+  exit code: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file.exit_code
+   valgrind: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file.vgdump
+   expected: /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-ro-regular-file{.err}
+ mountpoint: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file-mnt
 
-diff --git a/misc-utils/getopt.1.adoc b/misc-utils/getopt.1.adoc
-index 6cbdd5174..7a80b141e 100644
---- a/misc-utils/getopt.1.adoc
-+++ b/misc-utils/getopt.1.adoc
-@@ -14,7 +14,9 @@ getopt - parse command options (enhanced)
- == SYNOPSIS
- 
- *getopt* _optstring_ _parameters_
-+
- *getopt* [options] [*--*] _optstring_ _parameters_
-+
- *getopt* [options] *-o*|*--options* _optstring_ [options] [*--*] _parameters_
- 
- == DESCRIPTION
--- 
-2.35.1.301.gcdacdcff8b.dirty
+         lsfd: read-only regular file         ... FAILED (lsfd/mkfds-ro-regular-file)
+========= script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-ro-regular-file =================
+================= OUTPUT =====================
+     1	ABC         3  r--  REG /etc/passwd   1
+     2	COMMAND,ASSOC,MODE,TYPE,NAME,POS: 0
+     3	PID[RUN]: 0
+     4	PID[STR]: 0
+     5	INODE[RUN]: 0
+     6	INODE[STR]: 0
+     7	UID[RUN]: 0
+     8	UID[STR]: 0
+     9	USER[RUN]: 0
+    10	USER[STR]: 0
+    11	SIZE[RUN]: 0
+    12	SIZE[STR]: 0
+    13	MNTID[RUN]: 0
+    14	DEV[RUN]: 0
+    15	FINDMNT[RUN]: 0
+    16	DEV[STR]: 1
+    17	MNTID: 312
+    18	DEV: 0:50
+    19	MNTID DEV: 312 0:50
+    20	FINDMNT_MNTID_DEV: 312 0:48
+================= EXPECTED ===================
+     1	ABC         3  r--  REG /etc/passwd   1
+     2	COMMAND,ASSOC,MODE,TYPE,NAME,POS: 0
+     3	PID[RUN]: 0
+     4	PID[STR]: 0
+     5	INODE[RUN]: 0
+     6	INODE[STR]: 0
+     7	UID[RUN]: 0
+     8	UID[STR]: 0
+     9	USER[RUN]: 0
+    10	USER[STR]: 0
+    11	SIZE[RUN]: 0
+    12	SIZE[STR]: 0
+    13	MNTID[RUN]: 0
+    14	DEV[RUN]: 0
+    15	FINDMNT[RUN]: 0
+    16	DEV[STR]: 0
+================= O/E diff ===================
+--- /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file	2022-02-06 16:37:28.111146267 +0000
++++ /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-ro-regular-file	2022-01-31 14:57:47.000000000 +0000
+@@ -13,8 +13,4 @@
+ MNTID[RUN]: 0
+ DEV[RUN]: 0
+ FINDMNT[RUN]: 0
+-DEV[STR]: 1
+-MNTID: 312
+-DEV: 0:50
+-MNTID DEV: 312 0:50
+-FINDMNT_MNTID_DEV: 312 0:48
++DEV[STR]: 0
+==============================================
+
+     script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-rw-character-device
+   commands: /<<PKGBUILDDIR>>/
+    helpers: /<<PKGBUILDDIR>>/
+    sub dir: /<<PKGBUILDDIR>>/tests/ts/lsfd
+    top dir: /<<PKGBUILDDIR>>/tests
+       self: /<<PKGBUILDDIR>>/tests/ts/lsfd
+  test name: mkfds-rw-character-device
+  test desc: character device with O_RDWR
+  component: lsfd
+  namespace: lsfd/mkfds-rw-character-device
+    verbose: yes
+     output: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device
+  error log: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device.err
+  exit code: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device.exit_code
+   valgrind: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device.vgdump
+   expected: /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-rw-character-device{.err}
+ mountpoint: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device-mnt
+
+         lsfd: character device with O_RDWR   ... FAILED (lsfd/mkfds-rw-character-device)
+========= script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-rw-character-device =================
+================= OUTPUT =====================
+     1	    3  rw-  CHR /dev/zero  mem:5   0     1:5    mem    char  1:5
+     2	ASSOC,MODE,TYPE,NAME,SOURCE,POS,MAJ:MIN,CHRDRV,DEVTYPE,RDEV: 0
+     3	MNTID[RUN]: 0
+     4	DEV[RUN]: 0
+     5	FINDMNT[RUN]: 0
+     6	DEV[STR]: 1
+     7	MNTID: 312
+     8	DEV: 0:50
+     9	MNTID DEV: 312 0:50
+    10	FINDMNT_MNTID_DEV: 312 0:48
+================= EXPECTED ===================
+     1	    3  rw-  CHR /dev/zero  mem:5   0     1:5    mem    char  1:5
+     2	ASSOC,MODE,TYPE,NAME,SOURCE,POS,MAJ:MIN,CHRDRV,DEVTYPE,RDEV: 0
+     3	MNTID[RUN]: 0
+     4	DEV[RUN]: 0
+     5	FINDMNT[RUN]: 0
+     6	DEV[STR]: 0
+================= O/E diff ===================
+--- /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device	2022-02-06 16:37:28.675140230 +0000
++++ /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-rw-character-device	2022-01-31 14:57:47.000000000 +0000
+@@ -3,8 +3,4 @@
+ MNTID[RUN]: 0
+ DEV[RUN]: 0
+ FINDMNT[RUN]: 0
+-DEV[STR]: 1
+-MNTID: 312
+-DEV: 0:50
+-MNTID DEV: 312 0:50
+-FINDMNT_MNTID_DEV: 312 0:48
++DEV[STR]: 0
+==============================================
 
