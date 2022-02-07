@@ -2,203 +2,66 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72887C433F5
-	for <util-linux@archiver.kernel.org>; Sun,  6 Feb 2022 16:47:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F417C3526C
+	for <util-linux@archiver.kernel.org>; Mon,  7 Feb 2022 10:16:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234805AbiBFQrq (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sun, 6 Feb 2022 11:47:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48642 "EHLO
+        id S234540AbiBGKPD (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 7 Feb 2022 05:15:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231784AbiBFQrq (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 6 Feb 2022 11:47:46 -0500
-Received: from mail.namespace.at (mail.namespace.at [IPv6:2a01:190:1801:100::235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FBFDC06173B;
-        Sun,  6 Feb 2022 08:47:44 -0800 (PST)
-Date:   Sun, 6 Feb 2022 17:47:34 +0100
-From:   Chris Hofstaedtler <zeha@debian.org>
-To:     Masatake YAMATO <yamato@redhat.com>
-Cc:     matorola@gmail.com, kzak@redhat.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.38-rc1
-Message-ID: <20220206164734.cgdrkcuvwzy76pyy@zeha.at>
-References: <20220131192337.lzpofr4pz3lhgtl3@zeha.at>
- <CADxRZqwq=XmXZnnENU+vD7_2oC_VtqhG40P-xg=QAzKchT-3Ng@mail.gmail.com>
- <20220202.232106.1642450897216370276.yamato@redhat.com>
- <20220205.030324.1280110384368183671.yamato@redhat.com>
+        with ESMTP id S1352382AbiBGKAh (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 7 Feb 2022 05:00:37 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E79D1C043188
+        for <util-linux@vger.kernel.org>; Mon,  7 Feb 2022 02:00:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1644228034;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=N+1y+BQQ93P9meBhx56jWFC27GYU2eVVBK+MHI9yxuw=;
+        b=Hp5ZfrjgCRFzb19iseOH+rIovB8Szxnrrh7i9j5zO+ks8Zw0GnKVii0IHcCiTkcDY/grvb
+        Qx4qnEWGRM/ZSNbQAUykF6DL7QI73v0lljuQ+MzuNuKVCuOhmulxDxqw94G1qvMmlhl63L
+        G7xw79ibDn+qoeiVVRbDCn/3USL56jk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-68-rc09fin_Mt6OYvqLctYfGg-1; Mon, 07 Feb 2022 05:00:31 -0500
+X-MC-Unique: rc09fin_Mt6OYvqLctYfGg-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 429F3100C661;
+        Mon,  7 Feb 2022 10:00:30 +0000 (UTC)
+Received: from ws.net.home (ovpn-112-8.ams2.redhat.com [10.36.112.8])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 900992A198;
+        Mon,  7 Feb 2022 10:00:29 +0000 (UTC)
+Date:   Mon, 7 Feb 2022 11:00:26 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     Johannes Altmanninger <aclopte@gmail.com>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/4] newgrp.1.adoc: use bold font for command name in
+ synopsis
+Message-ID: <20220207100026.7eph3r747agp32sn@ws.net.home>
+References: <20220206061158.752262-1-aclopte@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220205.030324.1280110384368183671.yamato@redhat.com>
+In-Reply-To: <20220206061158.752262-1-aclopte@gmail.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hello Masatake YAMATO,
+On Sun, Feb 06, 2022 at 07:11:55AM +0100, Johannes Altmanninger wrote:
+>  login-utils/newgrp.1.adoc | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thank you for the followup.
+ Applied (all 4 patches), thanks!
 
-* Masatake YAMATO <yamato@redhat.com> [220204 19:03]:
-> > Could you tell me what kind of file system for /etc/passwd do you use for testing?
+  Karel
 
-sbuild/schroot can use different mechanisms, but in this case / is
-overlayfs (the underlying fs is ext4):
-   unstable-amd64-sbuild on / type overlay (rw,relatime,...)
-
-ls -la /etc/passwd
--rw-r--r-- 1 root root 2397 Feb  6 16:41 /etc/passwd
-stat /etc/passwd
-  File: /etc/passwd
-  Size: 2397            Blocks: 8          IO Block: 4096   regular file
-Device: 33h/51d Inode: 1311528     Links: 1
-Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
-Access: 2022-02-06 16:41:26.880589326 +0000
-Modify: 2022-02-06 16:41:26.720591039 +0000
-Change: 2022-02-06 16:41:26.720591039 +0000
- Birth: -
-mount
-
-> As I commented on GitHub, I made a pull request for fixing this issue.
-> I found a bug in the test case, not in lsfd itself.
-> 
-> https://github.com/util-linux/util-linux/pull/1595
-> https://github.com/util-linux/util-linux/pull/1595/commits/abd93fcecfbb1a1fac7032fac9d2903c5d2d3a38
->
-> > When trying to reproduce the bug, could you applying the following change?
-
-I have applied abd93fcecfbb1a1fac7032fac9d2903c5d2d3a38 alone, which
-does not help in my case (DEV[STR] is 0 instead of 1).
-
-I have also applied #1595 in full in a second build, see output
-below.
-
-Many thanks,
-Chris
-
-
-
-     script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-ro-regular-file
-   commands: /<<PKGBUILDDIR>>/
-    helpers: /<<PKGBUILDDIR>>/
-    sub dir: /<<PKGBUILDDIR>>/tests/ts/lsfd
-    top dir: /<<PKGBUILDDIR>>/tests
-       self: /<<PKGBUILDDIR>>/tests/ts/lsfd
-  test name: mkfds-ro-regular-file
-  test desc: read-only regular file
-  component: lsfd
-  namespace: lsfd/mkfds-ro-regular-file
-    verbose: yes
-     output: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file
-  error log: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file.err
-  exit code: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file.exit_code
-   valgrind: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file.vgdump
-   expected: /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-ro-regular-file{.err}
- mountpoint: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file-mnt
-
-         lsfd: read-only regular file         ... FAILED (lsfd/mkfds-ro-regular-file)
-========= script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-ro-regular-file =================
-================= OUTPUT =====================
-     1	ABC         3  r--  REG /etc/passwd   1
-     2	COMMAND,ASSOC,MODE,TYPE,NAME,POS: 0
-     3	PID[RUN]: 0
-     4	PID[STR]: 0
-     5	INODE[RUN]: 0
-     6	INODE[STR]: 0
-     7	UID[RUN]: 0
-     8	UID[STR]: 0
-     9	USER[RUN]: 0
-    10	USER[STR]: 0
-    11	SIZE[RUN]: 0
-    12	SIZE[STR]: 0
-    13	MNTID[RUN]: 0
-    14	DEV[RUN]: 0
-    15	FINDMNT[RUN]: 0
-    16	DEV[STR]: 1
-    17	MNTID: 312
-    18	DEV: 0:50
-    19	MNTID DEV: 312 0:50
-    20	FINDMNT_MNTID_DEV: 312 0:48
-================= EXPECTED ===================
-     1	ABC         3  r--  REG /etc/passwd   1
-     2	COMMAND,ASSOC,MODE,TYPE,NAME,POS: 0
-     3	PID[RUN]: 0
-     4	PID[STR]: 0
-     5	INODE[RUN]: 0
-     6	INODE[STR]: 0
-     7	UID[RUN]: 0
-     8	UID[STR]: 0
-     9	USER[RUN]: 0
-    10	USER[STR]: 0
-    11	SIZE[RUN]: 0
-    12	SIZE[STR]: 0
-    13	MNTID[RUN]: 0
-    14	DEV[RUN]: 0
-    15	FINDMNT[RUN]: 0
-    16	DEV[STR]: 0
-================= O/E diff ===================
---- /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file	2022-02-06 16:37:28.111146267 +0000
-+++ /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-ro-regular-file	2022-01-31 14:57:47.000000000 +0000
-@@ -13,8 +13,4 @@
- MNTID[RUN]: 0
- DEV[RUN]: 0
- FINDMNT[RUN]: 0
--DEV[STR]: 1
--MNTID: 312
--DEV: 0:50
--MNTID DEV: 312 0:50
--FINDMNT_MNTID_DEV: 312 0:48
-+DEV[STR]: 0
-==============================================
-
-     script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-rw-character-device
-   commands: /<<PKGBUILDDIR>>/
-    helpers: /<<PKGBUILDDIR>>/
-    sub dir: /<<PKGBUILDDIR>>/tests/ts/lsfd
-    top dir: /<<PKGBUILDDIR>>/tests
-       self: /<<PKGBUILDDIR>>/tests/ts/lsfd
-  test name: mkfds-rw-character-device
-  test desc: character device with O_RDWR
-  component: lsfd
-  namespace: lsfd/mkfds-rw-character-device
-    verbose: yes
-     output: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device
-  error log: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device.err
-  exit code: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device.exit_code
-   valgrind: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device.vgdump
-   expected: /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-rw-character-device{.err}
- mountpoint: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device-mnt
-
-         lsfd: character device with O_RDWR   ... FAILED (lsfd/mkfds-rw-character-device)
-========= script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-rw-character-device =================
-================= OUTPUT =====================
-     1	    3  rw-  CHR /dev/zero  mem:5   0     1:5    mem    char  1:5
-     2	ASSOC,MODE,TYPE,NAME,SOURCE,POS,MAJ:MIN,CHRDRV,DEVTYPE,RDEV: 0
-     3	MNTID[RUN]: 0
-     4	DEV[RUN]: 0
-     5	FINDMNT[RUN]: 0
-     6	DEV[STR]: 1
-     7	MNTID: 312
-     8	DEV: 0:50
-     9	MNTID DEV: 312 0:50
-    10	FINDMNT_MNTID_DEV: 312 0:48
-================= EXPECTED ===================
-     1	    3  rw-  CHR /dev/zero  mem:5   0     1:5    mem    char  1:5
-     2	ASSOC,MODE,TYPE,NAME,SOURCE,POS,MAJ:MIN,CHRDRV,DEVTYPE,RDEV: 0
-     3	MNTID[RUN]: 0
-     4	DEV[RUN]: 0
-     5	FINDMNT[RUN]: 0
-     6	DEV[STR]: 0
-================= O/E diff ===================
---- /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device	2022-02-06 16:37:28.675140230 +0000
-+++ /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-rw-character-device	2022-01-31 14:57:47.000000000 +0000
-@@ -3,8 +3,4 @@
- MNTID[RUN]: 0
- DEV[RUN]: 0
- FINDMNT[RUN]: 0
--DEV[STR]: 1
--MNTID: 312
--DEV: 0:50
--MNTID DEV: 312 0:50
--FINDMNT_MNTID_DEV: 312 0:48
-+DEV[STR]: 0
-==============================================
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
