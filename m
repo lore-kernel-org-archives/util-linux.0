@@ -2,237 +2,113 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 476C6C433EF
-	for <util-linux@archiver.kernel.org>; Thu, 10 Feb 2022 07:32:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BFCDC433EF
+	for <util-linux@archiver.kernel.org>; Thu, 10 Feb 2022 19:28:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231878AbiBJHca (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 10 Feb 2022 02:32:30 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46972 "EHLO
+        id S1344008AbiBJT2q (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 10 Feb 2022 14:28:46 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235920AbiBJHc3 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 10 Feb 2022 02:32:29 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B78C626F
-        for <util-linux@vger.kernel.org>; Wed,  9 Feb 2022 23:32:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1644478349;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=e2T/bGv5SE/3iMXaB7ccHf1v787MJc0e3nfVyRIUlLs=;
-        b=XImEKcIYHgjD0Vk8XydEjFyRl12Y4VJFX1Jfa+taf0mMU2/QrH78e58LBgaXWSQmiDXSm/
-        Vnx06wTTMFnUTpVMRCRSowY8B5iUOYRGCDUwAv/AZ7Y01/8k6Tu8fUXrIQXnld2Q7bCipY
-        A/EU43vKTlbuGPtrtLqFDo0ARbZ0oZA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-400-m3RdIlQ-NxuT0AM__2YCRg-1; Thu, 10 Feb 2022 02:32:26 -0500
-X-MC-Unique: m3RdIlQ-NxuT0AM__2YCRg-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 235B683DD22;
-        Thu, 10 Feb 2022 07:32:25 +0000 (UTC)
-Received: from localhost (unknown [10.64.242.145])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 15C915BC42;
-        Thu, 10 Feb 2022 07:32:23 +0000 (UTC)
-Date:   Thu, 10 Feb 2022 16:32:23 +0900 (JST)
-Message-Id: <20220210.163223.178142214622738771.yamato@redhat.com>
-To:     zeha@debian.org
-Cc:     matorola@gmail.com, kzak@redhat.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.38-rc1
-From:   Masatake YAMATO <yamato@redhat.com>
-In-Reply-To: <20220206164734.cgdrkcuvwzy76pyy@zeha.at>
-References: <20220202.232106.1642450897216370276.yamato@redhat.com>
-        <20220205.030324.1280110384368183671.yamato@redhat.com>
-        <20220206164734.cgdrkcuvwzy76pyy@zeha.at>
-Organization: Red Hat Japan, Inc.
+        with ESMTP id S1343944AbiBJT2p (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 10 Feb 2022 14:28:45 -0500
+X-Greylist: delayed 302 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 10 Feb 2022 11:28:45 PST
+Received: from static.213-239-213-133.clients.your-server.de (luckmann.name [213.239.213.133])
+        by lindbergh.monkeyblade.net (Postfix) with UTF8SMTPS id B0B51D61
+        for <util-linux@vger.kernel.org>; Thu, 10 Feb 2022 11:28:45 -0800 (PST)
+Received: from localhost (localhost [127.0.0.1])
+  (uid 502)
+  by static.213-239-213-133.clients.your-server.de with local
+  id 0000000000E5409B.000000006205663D.00005C3A; Thu, 10 Feb 2022 20:23:41 +0100
+Date:   Thu, 10 Feb 2022 20:23:41 +0100
+From:   Helge Kreutzmann <debian@helgefjell.de>
+To:     util-linux@vger.kernel.org
+Cc:     Mario =?utf-8?Q?Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
+Subject: Errors in man pages of util-linux
+Message-ID: <20220210192341.GA23576@Debian-50-lenny-64-minimal>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Type: multipart/signed; micalg=pgp-sha256; protocol="application/pgp-signature"; boundary="=_luckmann.name-23610-1644521021-0001-2"
+Content-Disposition: inline
+X-Public-Key-URL: http://www.helgefjell.de/data/debian_neu.asc
+X-homepage: http://www.helgefjell.de/debian
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-From: Chris Hofstaedtler <zeha@debian.org>
-Subject: Re: [ANNOUNCE] util-linux v2.38-rc1
-Date: Sun, 6 Feb 2022 17:47:34 +0100
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-> Hello Masatake YAMATO,
-> 
-> Thank you for the followup.
-> 
-> * Masatake YAMATO <yamato@redhat.com> [220204 19:03]:
->> > Could you tell me what kind of file system for /etc/passwd do you use for testing?
-> 
-> sbuild/schroot can use different mechanisms, but in this case / is
-> overlayfs (the underlying fs is ext4):
->    unstable-amd64-sbuild on / type overlay (rw,relatime,...)
+--=_luckmann.name-23610-1644521021-0001-2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for reporiting.
-I'm inspecting the bug.
+Dear util-linux maintainer,
+the manpage-l10n project maintains a large number of translations of
+man pages both from a large variety of sources (including util-linux) as
+well for a large variety of target languages.
 
-Masatake YAMATO
+During their work translators notice different possible issues in the
+original (english) man pages. Sometimes this is a straightforward
+typo, sometimes a hard to read sentence, sometimes this is a
+convention not held up and sometimes we simply do not understand the
+original.
 
-> ls -la /etc/passwd
-> -rw-r--r-- 1 root root 2397 Feb  6 16:41 /etc/passwd
-> stat /etc/passwd
->   File: /etc/passwd
->   Size: 2397            Blocks: 8          IO Block: 4096   regular file
-> Device: 33h/51d Inode: 1311528     Links: 1
-> Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
-> Access: 2022-02-06 16:41:26.880589326 +0000
-> Modify: 2022-02-06 16:41:26.720591039 +0000
-> Change: 2022-02-06 16:41:26.720591039 +0000
->  Birth: -
-> mount
-> 
->> As I commented on GitHub, I made a pull request for fixing this issue.
->> I found a bug in the test case, not in lsfd itself.
->> 
->> https://github.com/util-linux/util-linux/pull/1595
->> https://github.com/util-linux/util-linux/pull/1595/commits/abd93fcecfbb1a1fac7032fac9d2903c5d2d3a38
->>
->> > When trying to reproduce the bug, could you applying the following change?
-> 
-> I have applied abd93fcecfbb1a1fac7032fac9d2903c5d2d3a38 alone, which
-> does not help in my case (DEV[STR] is 0 instead of 1).
-> 
-> I have also applied #1595 in full in a second build, see output
-> below.
-> 
-> Many thanks,
-> Chris
-> 
-> 
-> 
->      script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-ro-regular-file
->    commands: /<<PKGBUILDDIR>>/
->     helpers: /<<PKGBUILDDIR>>/
->     sub dir: /<<PKGBUILDDIR>>/tests/ts/lsfd
->     top dir: /<<PKGBUILDDIR>>/tests
->        self: /<<PKGBUILDDIR>>/tests/ts/lsfd
->   test name: mkfds-ro-regular-file
->   test desc: read-only regular file
->   component: lsfd
->   namespace: lsfd/mkfds-ro-regular-file
->     verbose: yes
->      output: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file
->   error log: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file.err
->   exit code: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file.exit_code
->    valgrind: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file.vgdump
->    expected: /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-ro-regular-file{.err}
->  mountpoint: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file-mnt
-> 
->          lsfd: read-only regular file         ... FAILED (lsfd/mkfds-ro-regular-file)
-> ========= script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-ro-regular-file =================
-> ================= OUTPUT =====================
->      1	ABC         3  r--  REG /etc/passwd   1
->      2	COMMAND,ASSOC,MODE,TYPE,NAME,POS: 0
->      3	PID[RUN]: 0
->      4	PID[STR]: 0
->      5	INODE[RUN]: 0
->      6	INODE[STR]: 0
->      7	UID[RUN]: 0
->      8	UID[STR]: 0
->      9	USER[RUN]: 0
->     10	USER[STR]: 0
->     11	SIZE[RUN]: 0
->     12	SIZE[STR]: 0
->     13	MNTID[RUN]: 0
->     14	DEV[RUN]: 0
->     15	FINDMNT[RUN]: 0
->     16	DEV[STR]: 1
->     17	MNTID: 312
->     18	DEV: 0:50
->     19	MNTID DEV: 312 0:50
->     20	FINDMNT_MNTID_DEV: 312 0:48
-> ================= EXPECTED ===================
->      1	ABC         3  r--  REG /etc/passwd   1
->      2	COMMAND,ASSOC,MODE,TYPE,NAME,POS: 0
->      3	PID[RUN]: 0
->      4	PID[STR]: 0
->      5	INODE[RUN]: 0
->      6	INODE[STR]: 0
->      7	UID[RUN]: 0
->      8	UID[STR]: 0
->      9	USER[RUN]: 0
->     10	USER[STR]: 0
->     11	SIZE[RUN]: 0
->     12	SIZE[STR]: 0
->     13	MNTID[RUN]: 0
->     14	DEV[RUN]: 0
->     15	FINDMNT[RUN]: 0
->     16	DEV[STR]: 0
-> ================= O/E diff ===================
-> --- /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file	2022-02-06 16:37:28.111146267 +0000
-> +++ /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-ro-regular-file	2022-01-31 14:57:47.000000000 +0000
-> @@ -13,8 +13,4 @@
->  MNTID[RUN]: 0
->  DEV[RUN]: 0
->  FINDMNT[RUN]: 0
-> -DEV[STR]: 1
-> -MNTID: 312
-> -DEV: 0:50
-> -MNTID DEV: 312 0:50
-> -FINDMNT_MNTID_DEV: 312 0:48
-> +DEV[STR]: 0
-> ==============================================
-> 
->      script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-rw-character-device
->    commands: /<<PKGBUILDDIR>>/
->     helpers: /<<PKGBUILDDIR>>/
->     sub dir: /<<PKGBUILDDIR>>/tests/ts/lsfd
->     top dir: /<<PKGBUILDDIR>>/tests
->        self: /<<PKGBUILDDIR>>/tests/ts/lsfd
->   test name: mkfds-rw-character-device
->   test desc: character device with O_RDWR
->   component: lsfd
->   namespace: lsfd/mkfds-rw-character-device
->     verbose: yes
->      output: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device
->   error log: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device.err
->   exit code: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device.exit_code
->    valgrind: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device.vgdump
->    expected: /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-rw-character-device{.err}
->  mountpoint: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device-mnt
-> 
->          lsfd: character device with O_RDWR   ... FAILED (lsfd/mkfds-rw-character-device)
-> ========= script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-rw-character-device =================
-> ================= OUTPUT =====================
->      1	    3  rw-  CHR /dev/zero  mem:5   0     1:5    mem    char  1:5
->      2	ASSOC,MODE,TYPE,NAME,SOURCE,POS,MAJ:MIN,CHRDRV,DEVTYPE,RDEV: 0
->      3	MNTID[RUN]: 0
->      4	DEV[RUN]: 0
->      5	FINDMNT[RUN]: 0
->      6	DEV[STR]: 1
->      7	MNTID: 312
->      8	DEV: 0:50
->      9	MNTID DEV: 312 0:50
->     10	FINDMNT_MNTID_DEV: 312 0:48
-> ================= EXPECTED ===================
->      1	    3  rw-  CHR /dev/zero  mem:5   0     1:5    mem    char  1:5
->      2	ASSOC,MODE,TYPE,NAME,SOURCE,POS,MAJ:MIN,CHRDRV,DEVTYPE,RDEV: 0
->      3	MNTID[RUN]: 0
->      4	DEV[RUN]: 0
->      5	FINDMNT[RUN]: 0
->      6	DEV[STR]: 0
-> ================= O/E diff ===================
-> --- /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device	2022-02-06 16:37:28.675140230 +0000
-> +++ /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-rw-character-device	2022-01-31 14:57:47.000000000 +0000
-> @@ -3,8 +3,4 @@
->  MNTID[RUN]: 0
->  DEV[RUN]: 0
->  FINDMNT[RUN]: 0
-> -DEV[STR]: 1
-> -MNTID: 312
-> -DEV: 0:50
-> -MNTID DEV: 312 0:50
-> -FINDMNT_MNTID_DEV: 312 0:48
-> +DEV[STR]: 0
-> ==============================================
-> 
+We use several distributions as sources and update regularly (at
+least every 2 month). This means we are fairly recent (some
+distributions like archlinux also update frequently) but might miss
+the latest upstream version once in a while, so the error might be
+already fixed. We apologize and ask you to close the issue immediately
+if this should be the case, but given the huge volume of projects and
+the very limited number of volunteers we are not able to double check
+each and every issue.
 
+Secondly we translators see the manpages in the neutral po format,
+i.e. converted and harmonized, but not the original source (be it man,
+groff, xml or other). So we cannot provide a true patch (where
+possible), but only an approximation which you need to convert into
+your source format.
+
+Finally the issues I'm reporting have accumulated over time and are
+not always discovered by me, so sometimes my description of the
+problem my be a bit limited - do not hesitate to ask so we can clarify
+them.
+
+I'm now reporting the errors for your project. If future reports
+should use another channel, please let me know.=20
+
+I will send the issues in individual mails (like last time), without
+this header. This will be a total of 84 mails.
+
+I'll wait with sending for ~ 1 hour in case you would not like to have
+them in those e-mails.
+
+
+--=20
+      Dr. Helge Kreutzmann                     debian@helgefjell.de
+           Dipl.-Phys.                   http://www.helgefjell.de/debian.php
+        64bit GNU powered                     gpg signed mail preferred
+           Help keep free software "libre": http://www.ffii.de/
+
+--=_luckmann.name-23610-1644521021-0001-2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEbZZfteMW0gNUynuwQbqlJmgq5nAFAmIFZjcACgkQQbqlJmgq
+5nBE3Q//ThzPZ4k4ROiX6kAjokaRhD2OBzFLR4N/bAEay8GC6eKjUmkrwTZCg24F
+eQuGkMmZBzmc35rByFS5ogWEbWVt+IPbw6ftJhT7rJcX8puQE/vO2LJisFJ7gLtO
+NM3VyIaWTwGe8LJUC6hkhRcT8l0LVEV/rvbQXLcDwoWLmBEhi74AxbJRPkHKNrv9
+o00iVWDitBKwZp+Bn333jEzSwoIhNWeMHqBqhR67Dddnh4cWjLPvGJJitIPfQrKz
+OBNyV5l/U5attlxKMHv0O6ZLXwGvk74j0DRY11aHZNGHc2lupXmJOci5sFsYyPj2
+PVCA9ZRj4cU8OdllZqHsVZqu1U7yVVSrGQBu9Z1o4sMdcv1KZkXxPc2Sz6P8zLx4
+/K4aWCkklQZwaTI3E8/zfqCIse9gAUYYff0OBqvOY11P1S60eFfcudrMmaTMhOWc
+HNQ+FeO6rjTP61kJ/nTOizcJE2FTdbossg/zNYL/NVbOwnoimIvxQpf9zXKJooUF
+yDFYxb+yQNNscbqnjg8zOzU0dDxFezQxmwVJSY8txs3BLoyxe04YhhAV4DFGDPiP
+SvW/9qKNv9I5oPFAoHBZ77CzhygXW0fuGuUk5RidB6i9feaSsJpfsoQwjo7PZmlt
+vJIbsd3d7kYJ8qCQaLV9HFic6a1y7I13lC4j62HcFxNaAFzyGMk=
+=2z0V
+-----END PGP SIGNATURE-----
+
+--=_luckmann.name-23610-1644521021-0001-2--
