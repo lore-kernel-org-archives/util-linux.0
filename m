@@ -2,96 +2,116 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9775EC433EF
-	for <util-linux@archiver.kernel.org>; Wed, 16 Feb 2022 08:40:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29350C433F5
+	for <util-linux@archiver.kernel.org>; Fri, 18 Feb 2022 15:56:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231492AbiBPIlA (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 16 Feb 2022 03:41:00 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:40782 "EHLO
+        id S235174AbiBRP47 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 18 Feb 2022 10:56:59 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229455AbiBPIk7 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 16 Feb 2022 03:40:59 -0500
-X-Greylist: delayed 403 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 16 Feb 2022 00:40:47 PST
-Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE21E1D179B
-        for <util-linux@vger.kernel.org>; Wed, 16 Feb 2022 00:40:47 -0800 (PST)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id A94985C02FD;
-        Wed, 16 Feb 2022 03:34:03 -0500 (EST)
-Received: from imap45 ([10.202.2.95])
-  by compute3.internal (MEProxy); Wed, 16 Feb 2022 03:34:03 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wesleyac.com; h=
-        cc:content-type:date:date:from:from:in-reply-to:message-id
-        :mime-version:reply-to:sender:subject:subject:to:to; s=fm1; bh=J
-        5Pn8nUWTPufCJMcXIhdcyBkAn4gkTMCsdqc5+cFJeU=; b=ioY0748wZ43CNrXdZ
-        NR3U9fa3dXY1oKb2sGw3RGnkZ8SdceuSAaYNylahAavCIbWyVVeLk1YM4GNI8UVL
-        SMBMXcxY1/ZLpCRfxuYn5izmy6MUNR7/P6uHFBjT0nhiNty3r4JrYbt3at10CUFS
-        xT06NrP9rf++I+Nscg+sblf8df5lvgd6ZO187C7ERDG12DDSH02+BWWWozmbgsmt
-        H9cVOC+7NINpgsFpBqNdsw/55skPgIF9xt8Jro8bgKksL3pNLO+dWpqzHwPvy9MD
-        gklqlQjL5iSMsPo0GrH0198bvcG2DoYmnbtCabmRQND/hjvBOKMYvmzvgxkWeQuM
-        BI1TA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:date:from:from
-        :in-reply-to:message-id:mime-version:reply-to:sender:subject
-        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; bh=J5Pn8nUWTPufCJMcXIhdcyBkAn4gkTMCsdqc5+cFJ
-        eU=; b=h/3PQ7qh0MnhHq5R+1QyfYZTgG4oYAk+cKweINy+nyVXdl6IPrXSfmEJz
-        ACebuXQL7g+gZuwIyXJszSClXptTdqsKuM9Yi5B/jd+cQbKvvmGEXGDtlDM+HABs
-        OS2wo19QDM9JjXOIPaECzUMY2JApCmBYV31Rog1JXLMqsT4OxA8p781bRJ1divxq
-        N8ALmJaPg/k0uL+lLtmelUWgbHIvIG9lMfv02XW5S06LjzCyVkwhTnuhx3PonVfF
-        hNyGKz8pAL2+etvMc5VZc9DphA3lOYm8tUTcjo7MqEu0p+2Fp3FD2omT4JQ5VsLD
-        tjWw/dTGxrpTcDIHexk4TfkUgMtDg==
-X-ME-Sender: <xms:-7YMYi4RVFyQ9pPN20phbhwzNXCPsPfTAcBxQNTwBIJU7QOnbLeNbg>
-    <xme:-7YMYr7AmNl1yTOnLJxkaDYQZRde68zS9rTlHftVQonDeuvTWfWE8cTlwob3m5kPE
-    OzMDEC9_4zwhOOWPw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrjeehgdduudelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefofgggkfffhffvufgtsehttdertd
-    erredtnecuhfhrohhmpedfhggvshhlvgihucetphhtvghkrghrqdevrghsshgvlhhsfdcu
-    oehmvgesfigvshhlvgihrggtrdgtohhmqeenucggtffrrghtthgvrhhnpeehgfejvdfhue
-    egheevudfgiedvfeekheeifeeghefguddtffehheegheeiheejteenucevlhhushhtvghr
-    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehmvgesfigvshhlvgihrggtrd
-    gtohhm
-X-ME-Proxy: <xmx:-7YMYhcdvU0iAr1ktpMZg0ROQ8welj80x7doXydaXB1vnEqwib8dAQ>
-    <xmx:-7YMYvJ4vwmaLGZ7HA_ymvEyEwaWUnEDqWQGlNHzdZN6v0_5OuX-lg>
-    <xmx:-7YMYmKvi8RjqaBqqzWGJQCiKLIMnxY3nc7xM3CKdGQ7ypHUUfmsaQ>
-    <xmx:-7YMYlkNoTnZpUUjlvrBTXmdBFEaAbfjpC8BQ3xbPV32DJpbcz4BHw>
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 6A03324A0074; Wed, 16 Feb 2022 03:34:03 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.5.0-alpha0-4776-gd3673c9443-fm-20220215.001-gd3673c94
-Mime-Version: 1.0
-Message-Id: <130eb608-f5c6-44c8-999a-6e56e4c05d9a@www.fastmail.com>
-Date:   Wed, 16 Feb 2022 16:33:43 +0800
-From:   "Wesley Aptekar-Cassels" <me@wesleyac.com>
+        with ESMTP id S231990AbiBRP47 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 18 Feb 2022 10:56:59 -0500
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 422D1E0D0
+        for <util-linux@vger.kernel.org>; Fri, 18 Feb 2022 07:56:41 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 02D75219A7
+        for <util-linux@vger.kernel.org>; Fri, 18 Feb 2022 15:56:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1645199800; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=dbRNJSf8AZC3Y2pGsPqmOyKIVZXG11U7XITXCUE8GwE=;
+        b=et9glVTQgf82a7QJk6IiGoB7+JYaRwOExcw+WB0H/kDKx7SxQ4ONj1pc4/2zhMjUe9yhzr
+        H35npPCGaIFGxJPI+z+hSUuS4QudOeKmPYA+CwjoYqDYTTKer0dEHIpBZlWxEHt6tKMgqk
+        GqI/C+UC0ncoRGYKYas3yvXK97JO5IY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1645199800;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=dbRNJSf8AZC3Y2pGsPqmOyKIVZXG11U7XITXCUE8GwE=;
+        b=B8OD/dvgNEs0KGCwUJrUu5DKTXyef/T/Ee88skGTUnLb8WA+xjfjtVB0RYTdoOqWt+0Z68
+        351bNgfXBqGR6ECQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id E0A2B13C9B
+        for <util-linux@vger.kernel.org>; Fri, 18 Feb 2022 15:56:39 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id ZGhSNLfBD2JTMQAAMHmgww
+        (envelope-from <sbrabec@suse.cz>)
+        for <util-linux@vger.kernel.org>; Fri, 18 Feb 2022 15:56:39 +0000
+Message-ID: <1a366a68-8f04-44d7-2a26-6cbe2989d2d4@suse.cz>
+Date:   Fri, 18 Feb 2022 16:56:39 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
 To:     util-linux@vger.kernel.org
-Subject: dmesg feature request: timestamps relative to current time
-Content-Type: text/plain
+Content-Language: en-US
+From:   Stanislav Brabec <sbrabec@suse.cz>
+Subject: [RFC] uuid_generate_time_safe() without uuidd should always return -1
+Organization: SUSE Linux, s. r. o.
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hi all,
+After a research we realized that only the uuidd provides the guarantee 
+of uniqueness of UUIDs across different CPUs and different UIDs.
 
-When I use dmesg, I'm often annoyed that there isn't a good way to tell how
-long ago a specific log line was from. The only accurate way to do so that I've
-found is to look at /proc/uptime and compare that value to the log line I care
-about. The ctime and iso options could be useful, but as the manpage points
-out, they are inaccurate in the case of suspend/resume, and I'd still have to
-do math in my head to see how long ago something was, even if it's easier to do
-the conversion than with the default style of timestamp.
+Without it, there is a probability that two different processes on two 
+different CPUs with a different UID will call uuid_generate_time_safe() 
+in the same time and generate duplicated UUIDs.
 
-I'd like to see a value for the --time-format option that prints timestamps as
-values in seconds relative to the time dmesg was executed. This would allow
-people to quickly see how long ago a relevant event happened. I'm not sure
-whether it would make more sense to conceive of times in the past as being
-negative or positive, but one or the other would need to be selected (one might
-see both in the case of --follow).
+There is a LIBUUID_CLOCK_FILE that should prevent it. But this approach 
+can work properly for a single UID only. And creating it world-writable 
+file would cause more problems that it will fix.
 
-Is this a feature people would be open to adding? I'm happy to write a patch if
-so, but wanted to check here first to see if it's something that'd be likely to
-be accepted.
+That is why I propose that uuid_generate_time_safe() should always 
+return -1 in case that it cannot interact with uuidd.
 
-Thanks,
+To realize this, uuid_generate_time_generic() should return -1 instead 
+of __uuid_generate_time() return code.
 
-:w
+It should not break uuidd, as it calls __uuid_generate_time() directly.
+
+
+In the last month, we had a discussion about one clock file per UID in 
+the home directory and one for uuidd as a solution of LIBUUID_CLOCK_FILE 
+being handled in a first-UID-wins manner. It could improve the 
+situation, but only for UUIDs generated by the same UID.
+
+Both changes are partially mutually exclusive: If 
+uuid_generate_time_safe() will always return -1, there will be no chance 
+to inform the program, that the alternative synchronization was 
+successfully used and that the UUIDs are safe in the local context. That 
+it why I propose a small change of API:
+
+Add a new return code of uuid_generate_time_safe().
+
+== RETURN VALUE
+
+The newly created UUID is returned in the memory location pointed to by 
+_out_. *uuid_generate_time_safe*() returns zero if the UUID has been 
+generated in a safe manner, 1 if the UUID has been generated in a manner 
+that is safe for a single UID, -1 otherwise.
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Křižíkova 148/34 (Corso IIa)                    tel: +420 284 084 060
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+
