@@ -2,116 +2,116 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29350C433F5
-	for <util-linux@archiver.kernel.org>; Fri, 18 Feb 2022 15:56:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6840FC433EF
+	for <util-linux@archiver.kernel.org>; Fri, 18 Feb 2022 21:44:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235174AbiBRP47 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 18 Feb 2022 10:56:59 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58716 "EHLO
+        id S239884AbiBRVoU (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 18 Feb 2022 16:44:20 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231990AbiBRP47 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 18 Feb 2022 10:56:59 -0500
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 422D1E0D0
-        for <util-linux@vger.kernel.org>; Fri, 18 Feb 2022 07:56:41 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 02D75219A7
-        for <util-linux@vger.kernel.org>; Fri, 18 Feb 2022 15:56:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1645199800; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=dbRNJSf8AZC3Y2pGsPqmOyKIVZXG11U7XITXCUE8GwE=;
-        b=et9glVTQgf82a7QJk6IiGoB7+JYaRwOExcw+WB0H/kDKx7SxQ4ONj1pc4/2zhMjUe9yhzr
-        H35npPCGaIFGxJPI+z+hSUuS4QudOeKmPYA+CwjoYqDYTTKer0dEHIpBZlWxEHt6tKMgqk
-        GqI/C+UC0ncoRGYKYas3yvXK97JO5IY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1645199800;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=dbRNJSf8AZC3Y2pGsPqmOyKIVZXG11U7XITXCUE8GwE=;
-        b=B8OD/dvgNEs0KGCwUJrUu5DKTXyef/T/Ee88skGTUnLb8WA+xjfjtVB0RYTdoOqWt+0Z68
-        351bNgfXBqGR6ECQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id E0A2B13C9B
-        for <util-linux@vger.kernel.org>; Fri, 18 Feb 2022 15:56:39 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id ZGhSNLfBD2JTMQAAMHmgww
-        (envelope-from <sbrabec@suse.cz>)
-        for <util-linux@vger.kernel.org>; Fri, 18 Feb 2022 15:56:39 +0000
-Message-ID: <1a366a68-8f04-44d7-2a26-6cbe2989d2d4@suse.cz>
-Date:   Fri, 18 Feb 2022 16:56:39 +0100
+        with ESMTP id S235827AbiBRVoS (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 18 Feb 2022 16:44:18 -0500
+Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::227])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82F3853723
+        for <util-linux@vger.kernel.org>; Fri, 18 Feb 2022 13:43:58 -0800 (PST)
+Received: (Authenticated sender: eric.estievenart@tecwec.eu)
+        by mail.gandi.net (Postfix) with ESMTPSA id 5973620004
+        for <util-linux@vger.kernel.org>; Fri, 18 Feb 2022 21:43:55 +0000 (UTC)
+Content-Type: multipart/mixed; boundary="------------extMifm2LMMZtMb64GfPGcV0"
+Message-ID: <465e6a29-ddae-2df5-647b-42abcb672034@tecwec.eu>
+Date:   Fri, 18 Feb 2022 22:43:54 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-To:     util-linux@vger.kernel.org
+ Thunderbird/91.6.0
 Content-Language: en-US
-From:   Stanislav Brabec <sbrabec@suse.cz>
-Subject: [RFC] uuid_generate_time_safe() without uuidd should always return -1
-Organization: SUSE Linux, s. r. o.
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+To:     util-linux@vger.kernel.org
+From:   Eric Estievenart <eric.estievenart@tecwec.eu>
+Subject: [PATCH] dmesg: handle colorization of emerg/notice/info/debug levels
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-After a research we realized that only the uuidd provides the guarantee 
-of uniqueness of UUIDs across different CPUs and different UIDs.
+This is a multi-part message in MIME format.
+--------------extMifm2LMMZtMb64GfPGcV0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Without it, there is a probability that two different processes on two 
-different CPUs with a different UID will call uuid_generate_time_safe() 
-in the same time and generate duplicated UUIDs.
+Hello,
+please find attached a very simple patch which allows consistent customization
+of the coloring schemes  of the emerg, notice, info and debug levels in dmesg.
+(currently only alert, crit, err and warn coloring schemes could be customized).
 
-There is a LIBUUID_CLOCK_FILE that should prevent it. But this approach 
-can work properly for a single UID only. And creating it world-writable 
-file would cause more problems that it will fix.
+output changes (when coloring enabled):
+	emerg level takes a default reverse+red, as alert and crit.
+	debug level takes dark gray (seems reasonable)
 
-That is why I propose that uuid_generate_time_safe() should always 
-return -1 in case that it cannot interact with uuidd.
+As my color choices might not suit the masses (or even offend them!),
+notice and info levels are unaffected and keep a default reset vt100 sequence.
+Afterall, they could then be customized via /etc/terminal-colors.d/dmesg.scheme
 
-To realize this, uuid_generate_time_generic() should return -1 instead 
-of __uuid_generate_time() return code.
+== LEGAL STUFF ==
+Due to the triviality of the patch, I HEREBY EXPLICITELY DISMISS any right, copyrights, whatsoever,
+applying to this patch, with or without changes, and grant the right to the maintainers, authors,
+or whoever, to have it applied, even on his/her own name, without even mentioning me,
+hoping this will make things faster and paperless, and useful to the community.
+(If this is not sufficient or explicit enough, please tell, but, honestly...)
 
-It should not break uuidd, as it calls __uuid_generate_time() directly.
-
-
-In the last month, we had a discussion about one clock file per UID in 
-the home directory and one for uuidd as a solution of LIBUUID_CLOCK_FILE 
-being handled in a first-UID-wins manner. It could improve the 
-situation, but only for UUIDs generated by the same UID.
-
-Both changes are partially mutually exclusive: If 
-uuid_generate_time_safe() will always return -1, there will be no chance 
-to inform the program, that the alternative synchronization was 
-successfully used and that the UUIDs are safe in the local context. That 
-it why I propose a small change of API:
-
-Add a new return code of uuid_generate_time_safe().
-
-== RETURN VALUE
-
-The newly created UUID is returned in the memory location pointed to by 
-_out_. *uuid_generate_time_safe*() returns zero if the UUID has been 
-generated in a safe manner, 1 if the UUID has been generated in a manner 
-that is safe for a single UID, -1 otherwise.
+Regards, Thanks & Happy new year, if not too late.
 
 -- 
-Best Regards / S pozdravem,
+Steve
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Křižíkova 148/34 (Corso IIa)                    tel: +420 284 084 060
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+--------------extMifm2LMMZtMb64GfPGcV0
+Content-Type: text/x-patch; charset=UTF-8; name="dmesg-colors.patch"
+Content-Disposition: attachment; filename="dmesg-colors.patch"
+Content-Transfer-Encoding: base64
 
+ZGlmZiAtcnUgc3lzLXV0aWxzLm9yaWcvZG1lc2cuMS5hZG9jIHN5cy11dGlscy9kbWVzZy4x
+LmFkb2MKLS0tIHN5cy11dGlscy5vcmlnL2RtZXNnLjEuYWRvYwkyMDIyLTAyLTAyIDIxOjIz
+OjM5LjIyMDkwMTI1NiArMDEwMAorKysgc3lzLXV0aWxzL2RtZXNnLjEuYWRvYwkyMDIyLTAy
+LTAyIDIxOjI4OjU1LjM1NTE5MTYzMSArMDEwMApAQCAtMTU5LDYgKzE1OSw5IEBACiAqdGlt
+ZWJyZWFrKjo6CiBUaGUgbWVzc2FnZSB0aW1lc3RhbXAgaW4gc2hvcnQgY3RpbWUgZm9ybWF0
+IGluICotLXJlbHRpbWUqIG9yICotLWh1bWFuKiBvdXRwdXQuCiAKKyplbWVyZyo6OgorVGhl
+IHRleHQgb2YgdGhlIG1lc3NhZ2Ugd2l0aCB0aGUgZW1lcmcgbG9nIHByaW9yaXR5LgorCiAq
+YWxlcnQqOjoKIFRoZSB0ZXh0IG9mIHRoZSBtZXNzYWdlIHdpdGggdGhlIGFsZXJ0IGxvZyBw
+cmlvcml0eS4KIApAQCAtMTcxLDYgKzE3NCwxNSBAQAogKndhcm4qOjoKIFRoZSB0ZXh0IG9m
+IHRoZSBtZXNzYWdlIHdpdGggdGhlIHdhcm5pbmcgbG9nIHByaW9yaXR5LgogCisqbm90aWNl
+Kjo6CitUaGUgdGV4dCBvZiB0aGUgbWVzc2FnZSB3aXRoIHRoZSBub3RpY2UgbG9nIHByaW9y
+aXR5LgorCisqaW5mbyo6OgorVGhlIHRleHQgb2YgdGhlIG1lc3NhZ2Ugd2l0aCB0aGUgaW5m
+byBsb2cgcHJpb3JpdHkuCisKKypkZWJ1Zyo6OgorVGhlIHRleHQgb2YgdGhlIG1lc3NhZ2Ug
+d2l0aCB0aGUgZGVidWcgbG9nIHByaW9yaXR5LgorCiAqc2VnZmF1bHQqOjoKIFRoZSB0ZXh0
+IG9mIHRoZSBtZXNzYWdlIHRoYXQgaW5mb3JtIGFib3V0IHNlZ21lbnRhdGlvbiBmYXVsdC4K
+IApkaWZmIC1ydSBzeXMtdXRpbHMub3JpZy9kbWVzZy5jIHN5cy11dGlscy9kbWVzZy5jCi0t
+LSBzeXMtdXRpbHMub3JpZy9kbWVzZy5jCTIwMjItMDItMDIgMjE6MjM6MzkuMjI0OTAxMjgz
+ICswMTAwCisrKyBzeXMtdXRpbHMvZG1lc2cuYwkyMDIyLTAyLTAyIDIyOjAyOjU2LjkxODY0
+MDA5MyArMDEwMApAQCAtNzEsMTAgKzcxLDE0IEBACiAJRE1FU0dfQ09MT1JfU1VCU1lTLAog
+CURNRVNHX0NPTE9SX1RJTUUsCiAJRE1FU0dfQ09MT1JfVElNRUJSRUFLLAorCURNRVNHX0NP
+TE9SX0VNRVJHLAogCURNRVNHX0NPTE9SX0FMRVJULAogCURNRVNHX0NPTE9SX0NSSVQsCiAJ
+RE1FU0dfQ09MT1JfRVJSLAogCURNRVNHX0NPTE9SX1dBUk4sCisJRE1FU0dfQ09MT1JfTk9U
+SUNFLAorCURNRVNHX0NPTE9SX0lORk8sCisJRE1FU0dfQ09MT1JfREVCVUcsCiAJRE1FU0df
+Q09MT1JfU0VHRkFVTFQKIH07CiAKQEAgLTgzLDEwICs4NywxNCBAQAogCVtETUVTR19DT0xP
+Ul9TVUJTWVNdICAgID0geyAic3Vic3lzIiwJVUxfQ09MT1JfQlJPV04gfSwKIAlbRE1FU0df
+Q09MT1JfVElNRV0JPSB7ICJ0aW1lIiwgICAgIFVMX0NPTE9SX0dSRUVOIH0sCiAJW0RNRVNH
+X0NPTE9SX1RJTUVCUkVBS10JPSB7ICJ0aW1lYnJlYWsiLFVMX0NPTE9SX0dSRUVOIFVMX0NP
+TE9SX0JPTEQgfSwKKwlbRE1FU0dfQ09MT1JfRU1FUkddCT0geyAiZW1lcmciLCAgICBVTF9D
+T0xPUl9SRVZFUlNFIFVMX0NPTE9SX1JFRCB9LAogCVtETUVTR19DT0xPUl9BTEVSVF0JPSB7
+ICJhbGVydCIsICAgIFVMX0NPTE9SX1JFVkVSU0UgVUxfQ09MT1JfUkVEIH0sCiAJW0RNRVNH
+X0NPTE9SX0NSSVRdCT0geyAiY3JpdCIsICAgICBVTF9DT0xPUl9CT0xEIFVMX0NPTE9SX1JF
+RCB9LAogCVtETUVTR19DT0xPUl9FUlJdICAgICAgID0geyAiZXJyIiwgICAgICBVTF9DT0xP
+Ul9SRUQgfSwKIAlbRE1FU0dfQ09MT1JfV0FSTl0JPSB7ICJ3YXJuIiwgICAgIFVMX0NPTE9S
+X0JPTEQgfSwKKwlbRE1FU0dfQ09MT1JfTk9USUNFXQk9IHsgIm5vdGljZSIsICAgICBVTF9D
+T0xPUl9SRVNFVCB9LAorCVtETUVTR19DT0xPUl9JTkZPXQk9IHsgImluZm8iLCAgICAgVUxf
+Q09MT1JfUkVTRVQgfSwKKwlbRE1FU0dfQ09MT1JfREVCVUddCT0geyAiZGVidWciLCAgICAg
+VUxfQ09MT1JfREFSS19HUkFZIH0sCiAJW0RNRVNHX0NPTE9SX1NFR0ZBVUxUXQk9IHsgInNl
+Z2ZhdWx0IiwgVUxfQ09MT1JfSEFMRkJSSUdIVCBVTF9DT0xPUl9SRUQgfQogfTsKIApAQCAt
+MjM1LDYgKzI0Myw5IEBACiAJaW50IGlkID0gLTE7CiAKIAlzd2l0Y2ggKGxvZ19sZXZlbCkg
+eworCWNhc2UgTE9HX0VNRVJHOgorCQlpZCA9IERNRVNHX0NPTE9SX0VNRVJHOworCQlicmVh
+azsKIAljYXNlIExPR19BTEVSVDoKIAkJaWQgPSBETUVTR19DT0xPUl9BTEVSVDsKIAkJYnJl
+YWs7CkBAIC0yNDcsNiArMjU4LDE1IEBACiAJY2FzZSBMT0dfV0FSTklORzoKIAkJaWQgPSBE
+TUVTR19DT0xPUl9XQVJOOwogCQlicmVhazsKKwljYXNlIExPR19OT1RJQ0U6CisJCWlkID0g
+RE1FU0dfQ09MT1JfTk9USUNFOworCQlicmVhazsKKwljYXNlIExPR19JTkZPOgorCQlpZCA9
+IERNRVNHX0NPTE9SX0lORk87CisJCWJyZWFrOworCWNhc2UgTE9HX0RFQlVHOgorCQlpZCA9
+IERNRVNHX0NPTE9SX0RFQlVHOworCQlicmVhazsKIAlkZWZhdWx0OgogCQlicmVhazsKIAl9
+Cg==
+
+--------------extMifm2LMMZtMb64GfPGcV0--
