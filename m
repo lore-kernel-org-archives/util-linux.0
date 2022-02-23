@@ -2,148 +2,113 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0DB3C433EF
-	for <util-linux@archiver.kernel.org>; Tue, 22 Feb 2022 01:48:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5652C433EF
+	for <util-linux@archiver.kernel.org>; Wed, 23 Feb 2022 14:07:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229754AbiBVBtJ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 21 Feb 2022 20:49:09 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37244 "EHLO
+        id S240378AbiBWOHg (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 23 Feb 2022 09:07:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229554AbiBVBtJ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 21 Feb 2022 20:49:09 -0500
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9BA525586
-        for <util-linux@vger.kernel.org>; Mon, 21 Feb 2022 17:48:44 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 67EE61F393;
-        Tue, 22 Feb 2022 01:48:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1645494523; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
+        with ESMTP id S241374AbiBWOHf (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 23 Feb 2022 09:07:35 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8E3FBBF51
+        for <util-linux@vger.kernel.org>; Wed, 23 Feb 2022 06:07:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1645625226;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=En2TBAlGgb/oSoRRgI4o1tkTdOXhcmlDAL7t0H1tNz0=;
-        b=2j+JCE7NPlNtKLo8gVdok+ivNaa+to0I7vFDSeWhcYnsESRq8Sx925gR7QuZjFxkoS6rl/
-        Ym4Chl8toOIcTzDDpiHI6/z8fft1ylxMW1NKyvsfm1nFIIJYcn6F+W0CZzeMe4+ra3XVc5
-        BQtFJ0x4OtEdpdua+Gkbb+zUbanlFyo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1645494523;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=En2TBAlGgb/oSoRRgI4o1tkTdOXhcmlDAL7t0H1tNz0=;
-        b=kQi8PSWvRkAzTtZyExWDtwRWyyFjSEyJc8lqNym5dDTeuORc8/02bhRtnuFJXC68d1S5K7
-        tn+cKWD1LSvAEfCQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        bh=jSWcw412Vvtpv5UrU5s5zd7VKq+lbRUDWJRpYyq4qO8=;
+        b=If+LzRV1WGm3ehCtiAw6kxPp+2KYCl25cPmwhMgTE2XEayRW1u/N89cOUso/u0xBKnAZUq
+        R5lVkypQ0iFaiqRYpbxLFIh+GQ/prqQHU7NuJZad4xCtubzQuFgwubntMFwFrFVKbf5ONY
+        ulkRoZraLB3q1WhnvAkfTvGNQiAp/qI=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-232-f7goXNAkOBOeTzuhzY2KUw-1; Wed, 23 Feb 2022 09:07:05 -0500
+X-MC-Unique: f7goXNAkOBOeTzuhzY2KUw-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 39EA913BA7;
-        Tue, 22 Feb 2022 01:48:43 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id ZNk+CftAFGKuQQAAMHmgww
-        (envelope-from <sbrabec@suse.cz>); Tue, 22 Feb 2022 01:48:43 +0000
-Message-ID: <e8fabaa8-7e2f-6959-8017-174da966820d@suse.cz>
-Date:   Tue, 22 Feb 2022 02:48:42 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.1
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2F5E81006AA7;
+        Wed, 23 Feb 2022 14:07:04 +0000 (UTC)
+Received: from ws.net.home (unknown [10.36.112.8])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 80670106D5B1;
+        Wed, 23 Feb 2022 14:07:03 +0000 (UTC)
+Date:   Wed, 23 Feb 2022 15:07:00 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     Stanislav Brabec <sbrabec@suse.cz>
+Cc:     util-linux@vger.kernel.org
 Subject: Re: [RFC] uuid_generate_time_safe() without uuidd should always
  return -1
-Content-Language: en-US
-To:     Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org
+Message-ID: <20220223140700.nl3r2fkfw3otoo3b@ws.net.home>
 References: <1a366a68-8f04-44d7-2a26-6cbe2989d2d4@suse.cz>
  <20220221120625.w5h7b7v54wdzgafy@ws.net.home>
-From:   Stanislav Brabec <sbrabec@suse.cz>
-Organization: SUSE Linux, s. r. o.
-In-Reply-To: <20220221120625.w5h7b7v54wdzgafy@ws.net.home>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+ <e8fabaa8-7e2f-6959-8017-174da966820d@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e8fabaa8-7e2f-6959-8017-174da966820d@suse.cz>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Karel Zak wrote:
-> On Fri, Feb 18, 2022 at 04:56:39PM +0100, Stanislav Brabec wrote:
-
-> Maybe we need decomposition of complex uuid_generate_time_generic()
-> into small one-purpose functions and then mix these functions
-> in uuid_generate_time_safe() and uuid_generate_time().
+On Tue, Feb 22, 2022 at 02:48:42AM +0100, Stanislav Brabec wrote:
+> > > == RETURN VALUE
+> > > 
+> > > The newly created UUID is returned in the memory location pointed to by
+> > > _out_. *uuid_generate_time_safe*() returns zero if the UUID has been
+> > > generated in a safe manner, 1 if the UUID has been generated in a manner
+> > > that is safe for a single UID, -1 otherwise.
+> > 
+> > Make sense ;-)
 > 
-> What about to create small local functions with always only one
-> purpose and without any fallback:
-> 
+> Do you think that we could make such API change (3 return values instead 2)?
 
-It could make the code a bit more readable for sure.
+Good question.
 
->   uuid_generate_time_async()         -- random bytes + gettimeofday() or -1
->   uuid_generate_time_sync_by_file()  -- LIBUUID_CLOCK_FILE based or -1
->   uuid_generate_time_sync_by_uuidd() -- connect() uuidd or -1
-> 
-> public API uuid_generate_time():
-> 
->      uuid_generate_time_sync_by_uuidd() or
->      uuid_generate_time_sync_by_file() or
->      uuid_generate_time_async()
->      
-> public API uuid_generate_time_safe():
-> 
->      uuid_generate_time_sync_by_uuidd() (=return 0) or
->      uuid_generate_time_sync_by_file()  (=return 1) or
->      -1
+Frankly, not sure, from google it seems uuid_generate_time_safe() is
+used by users.
 
-It looks good.
+Maybe introduce a new function which returns info about quality 
 
-> and uuidd will always call uuid_generate_time_sync_by_file() and
-> nothing else.
+    uuid_generate_time2(uuid, &state)
 
-Well, good idea. We could make a breaking change there: If the uuid_generate_time_sync_by_file() fail, the whole uuidd will fail, not trying any fallback.
+where state is 
 
-It causes an ugly mis-behavior: Just now, any soft error that happens in the uuidd does not cause the UUIDs being recognized as unsafe.
+    UUID_STATE_ASYNC        (gettimwofday() + MAC)
+    UUID_STATE_SYNC_PROCESS (per-propcess unique UUID) 
+    UUID_STATE_SYNC_SYSTEM  (per system unique UUID)
 
-Example:
-chown root:root /var/lib/libuuid/clock.txt
-service uuidd restart # It cannot access /var/lib/libuuid/clock.txt any more.
-uuid_generate_time_safe()
-will now return 0, but UUID is apparently unsafe.
+but maybe with better name than uuid_generate_time2 ;-)
 
-as long as it succeeds.
+And in man page describe that uuid_generate_time_safe() returns
+UUID_STATE_SYNC_PROCESS or UUID_STATE_SYNC_SYSTEM, and keep the
+function unchanged.
 
-  
-> Yes, it's more work, but it will make code more readable, easy to
-> maintain and easy to extend in future.
+So, guys from SAP will check for UUID_STATE_SYNC_SYSTEM to be
+absolutely sure that UUIDs are in the best possible quality. And one
+day in far future if anyone will implement synchronization between
+more systems we can introduce UUID_STATE_SYNC_CLUSTER ;-)
 
-I agree. It was really hard to understand what is actually happening there, and why uuidd does not go into recursion.
 
->> Add a new return code of uuid_generate_time_safe().
->>
->> == RETURN VALUE
->>
->> The newly created UUID is returned in the memory location pointed to by
->> _out_. *uuid_generate_time_safe*() returns zero if the UUID has been
->> generated in a safe manner, 1 if the UUID has been generated in a manner
->> that is safe for a single UID, -1 otherwise.
-> 
-> Make sense ;-)
+We can also add --state to uuidgen(1) to return info about it on
+command line.
 
-Do you think that we could make such API change (3 return values instead 2)?
+> I think that most implementations compare with zero, so it should be OK.
 
-I think that most implementations compare with zero, so it should be OK.
+Not sure, I guess 
+
+    if (uuid_generate_time_safe(u) == -1)
+        errx("universe collapsed");
+
+is also possible ;-(
+
+    Karel
 
 -- 
-Best Regards / S pozdravem,
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Křižíkova 148/34 (Corso IIa)                    tel: +420 284 084 060
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
