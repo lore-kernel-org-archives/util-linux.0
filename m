@@ -2,264 +2,97 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A14F1C433EF
-	for <util-linux@archiver.kernel.org>; Sat, 26 Feb 2022 19:27:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98791C433F5
+	for <util-linux@archiver.kernel.org>; Mon, 28 Feb 2022 09:54:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230354AbiBZT1y (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sat, 26 Feb 2022 14:27:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60482 "EHLO
+        id S231409AbiB1Jz0 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 28 Feb 2022 04:55:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229654AbiBZT1x (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 26 Feb 2022 14:27:53 -0500
+        with ESMTP id S231319AbiB1Jz0 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 28 Feb 2022 04:55:26 -0500
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AE912D5560
-        for <util-linux@vger.kernel.org>; Sat, 26 Feb 2022 11:27:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1FEAF69CF2
+        for <util-linux@vger.kernel.org>; Mon, 28 Feb 2022 01:54:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1645903636;
+        s=mimecast20190719; t=1646042087;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=sautZp78bp1zZn5HE5LQAe/g0BTsOX/w5SupO4dw9Bw=;
-        b=KvJIm5Gf7ho+FW9ZAlUEQIviA4KgS3dyNgLNcDVJV4BL8RO6heE3WL+ScX7RzUVKPxl+XX
-        TTqsJQcOoo2hhl8WvYlJfbgNqeZHy9vFGgl6L3lyQXmb4Fb+qSuHBdeejDGYyc1we5s60k
-        Qsq+REdbtDviiFD4d1RV3IPeeXBqL4c=
+        bh=bonuetf/g/iwfQWxuFCeCO0N6lQZcXwF44TzWP9ta6k=;
+        b=hrTEyMcboe+QU/xDvvB3VZrHSLbBvPYXLv9r5JO+7bNYsla75wbfkKCqUvFoIWJOtjWNdL
+        8tOESIBxai7MOQxtKJM4PsNyW4mY7ybt9ocflvmt1Vo5xzwXv4IGvuwqZkqaLBkfXMsirl
+        B0CkbI0dEx/dL3etWE/MDwJvqzmwQ9E=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-636-oi5vl-Q1Nru1O3uUm9oL6w-1; Sat, 26 Feb 2022 14:27:15 -0500
-X-MC-Unique: oi5vl-Q1Nru1O3uUm9oL6w-1
+ us-mta-240-Ble6f0a0MdqkXrMek39d7g-1; Mon, 28 Feb 2022 04:54:44 -0500
+X-MC-Unique: Ble6f0a0MdqkXrMek39d7g-1
 Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DB0EB8145F6;
-        Sat, 26 Feb 2022 19:27:13 +0000 (UTC)
-Received: from localhost (unknown [10.64.242.145])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D9737641BE;
-        Sat, 26 Feb 2022 19:27:08 +0000 (UTC)
-Date:   Sun, 27 Feb 2022 04:27:07 +0900 (JST)
-Message-Id: <20220227.042707.2131548399286487704.yamato@redhat.com>
-To:     zeha@debian.org
-Cc:     matorola@gmail.com, kzak@redhat.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.38-rc1
-From:   Masatake YAMATO <yamato@redhat.com>
-In-Reply-To: <20220206164734.cgdrkcuvwzy76pyy@zeha.at>
-References: <20220202.232106.1642450897216370276.yamato@redhat.com>
-        <20220205.030324.1280110384368183671.yamato@redhat.com>
-        <20220206164734.cgdrkcuvwzy76pyy@zeha.at>
-Organization: Red Hat Japan, Inc.
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B06F5180FD71;
+        Mon, 28 Feb 2022 09:54:43 +0000 (UTC)
+Received: from ws.net.home (unknown [10.36.112.8])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 0C3DD7FCE8;
+        Mon, 28 Feb 2022 09:54:42 +0000 (UTC)
+Date:   Mon, 28 Feb 2022 10:54:40 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     Wesley Aptekar-Cassels <me@wesleyac.com>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: dmesg feature request: timestamps relative to current time
+Message-ID: <20220228095440.6sircosgwaihjltp@ws.net.home>
+References: <130eb608-f5c6-44c8-999a-6e56e4c05d9a@www.fastmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <130eb608-f5c6-44c8-999a-6e56e4c05d9a@www.fastmail.com>
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Sorry for being late.
+On Wed, Feb 16, 2022 at 04:33:43PM +0800, Wesley Aptekar-Cassels wrote:
+> Hi all,
+> 
+> When I use dmesg, I'm often annoyed that there isn't a good way to tell how
+> long ago a specific log line was from. The only accurate way to do so that I've
+> found is to look at /proc/uptime and compare that value to the log line I care
+> about. The ctime and iso options could be useful, but as the manpage points
+> out, they are inaccurate in the case of suspend/resume, and I'd still have to
+> do math in my head to see how long ago something was, even if it's easier to do
+> the conversion than with the default style of timestamp.
+> 
+> I'd like to see a value for the --time-format option that prints timestamps as
+> values in seconds relative to the time dmesg was executed.
 
-> Hello Masatake YAMATO,
-> 
-> Thank you for the followup.
-> 
-> * Masatake YAMATO <yamato@redhat.com> [220204 19:03]:
->> > Could you tell me what kind of file system for /etc/passwd do you use for testing?
-> 
-> sbuild/schroot can use different mechanisms, but in this case / is
-> overlayfs (the underlying fs is ext4):
->    unstable-amd64-sbuild on / type overlay (rw,relatime,...)
-> 
-> ls -la /etc/passwd
-> -rw-r--r-- 1 root root 2397 Feb  6 16:41 /etc/passwd
-> stat /etc/passwd
->   File: /etc/passwd
->   Size: 2397            Blocks: 8          IO Block: 4096   regular file
-> Device: 33h/51d Inode: 1311528     Links: 1
-> Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
-> Access: 2022-02-06 16:41:26.880589326 +0000
-> Modify: 2022-02-06 16:41:26.720591039 +0000
-> Change: 2022-02-06 16:41:26.720591039 +0000
->  Birth: -
-> mount
+Do we really need it? :-) I mean that
 
-Thank you. I found this one was a critical hint for fixing.
-The failure reports a bug of the test case, not a bug of lsfd command.
+     --time-format ctime
 
-I made a new pull request for this bug: https://github.com/util-linux/util-linux/pull/1611.
+makes connection between the log messages and real clocks. Is it enough?
 
-Quoted from the pull request:
+> This would allow
+> people to quickly see how long ago a relevant event happened. I'm not sure
+> whether it would make more sense to conceive of times in the past as being
+> negative or positive, but one or the other would need to be selected (one might
+> see both in the case of --follow)
 
-    The original test cases depended on a wrong assumption; if M and M'
-    are the same, D and D' are the same, too. Here, M is a mnt_id in
-    /proc/$pid/mountinfo. D is the device number for M in
-    /proc/$pid/mountinfo. M' is the mnt_id value in
-    /proc/$pid/fdinfo/$fd. D' is the device number reported by stat
-    syscall for /proc/$pid/fd/$fd.
+I think negative numbers makes sense for this use-case. For example
+"--time-format reltime" uses positive number relative to system start,
+you want something like "reverse-reltime". Something like:
 
-      # ../../lsfd -oCOMMAND,PID,MNTID,DEV,NAME -p 2972623 -Q '(ASSOC =~ "^[0-9]+$") and (TYPE == "REG")'
-      COMMAND     PID MNTID  DEV NAME
-      a.out   2972623  1578 0:98 /home/jet/var/util-linux/o/merged/y
-      # stat -c %d /home/jet/var/util-linux/o/merged/y
-      98
-      # grep 1578 /proc/2972623/mountinfo
-      1578 91 0:91 / /home/jet/var/util-linux/o/merged rw,relatime shared:724 - overlay overlay rw,seclabel,lowerdir=lower-base/lower,upperdir=upper-base/upper,workdir=upper-base/work
+    [    -6.634976] IPv6: ADDRCONF(NETDEV_CHANGE): eno1: link becomes ready
 
-    The original test compared the device numbers reported by findmnt and
-    lsfd. findmnt retrieves a device number from /proc/$pid/mountinfo.
-    lsfd retrieves a device number from stat syscall.
+> I'm happy to write a patch if
+> so, but wanted to check here first to see if it's something that'd be likely to
+> be accepted.
 
-    This assumption is not correct for a file on an overlay file system
-    whose block devices behind lowerdir and upperdir are different.
-    Using findmnt is not suitable for comparing device numbers.
+I have nothing against this feature. So, go ahead if you want.
 
-I expect the bug is fixed with the pull request.
+    Karel
 
-Masatake YAMATO
-
->> As I commented on GitHub, I made a pull request for fixing this issue.
->> I found a bug in the test case, not in lsfd itself.
->> 
->> https://github.com/util-linux/util-linux/pull/1595
->> https://github.com/util-linux/util-linux/pull/1595/commits/abd93fcecfbb1a1fac7032fac9d2903c5d2d3a38
->>
->> > When trying to reproduce the bug, could you applying the following change?
-> 
-> I have applied abd93fcecfbb1a1fac7032fac9d2903c5d2d3a38 alone, which
-> does not help in my case (DEV[STR] is 0 instead of 1).
-> 
-> I have also applied #1595 in full in a second build, see output
-> below.
-> 
-> Many thanks,
-> Chris
-> 
-> 
-> 
->      script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-ro-regular-file
->    commands: /<<PKGBUILDDIR>>/
->     helpers: /<<PKGBUILDDIR>>/
->     sub dir: /<<PKGBUILDDIR>>/tests/ts/lsfd
->     top dir: /<<PKGBUILDDIR>>/tests
->        self: /<<PKGBUILDDIR>>/tests/ts/lsfd
->   test name: mkfds-ro-regular-file
->   test desc: read-only regular file
->   component: lsfd
->   namespace: lsfd/mkfds-ro-regular-file
->     verbose: yes
->      output: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file
->   error log: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file.err
->   exit code: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file.exit_code
->    valgrind: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file.vgdump
->    expected: /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-ro-regular-file{.err}
->  mountpoint: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file-mnt
-> 
->          lsfd: read-only regular file         ... FAILED (lsfd/mkfds-ro-regular-file)
-> ========= script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-ro-regular-file =================
-> ================= OUTPUT =====================
->      1	ABC         3  r--  REG /etc/passwd   1
->      2	COMMAND,ASSOC,MODE,TYPE,NAME,POS: 0
->      3	PID[RUN]: 0
->      4	PID[STR]: 0
->      5	INODE[RUN]: 0
->      6	INODE[STR]: 0
->      7	UID[RUN]: 0
->      8	UID[STR]: 0
->      9	USER[RUN]: 0
->     10	USER[STR]: 0
->     11	SIZE[RUN]: 0
->     12	SIZE[STR]: 0
->     13	MNTID[RUN]: 0
->     14	DEV[RUN]: 0
->     15	FINDMNT[RUN]: 0
->     16	DEV[STR]: 1
->     17	MNTID: 312
->     18	DEV: 0:50
->     19	MNTID DEV: 312 0:50
->     20	FINDMNT_MNTID_DEV: 312 0:48
-> ================= EXPECTED ===================
->      1	ABC         3  r--  REG /etc/passwd   1
->      2	COMMAND,ASSOC,MODE,TYPE,NAME,POS: 0
->      3	PID[RUN]: 0
->      4	PID[STR]: 0
->      5	INODE[RUN]: 0
->      6	INODE[STR]: 0
->      7	UID[RUN]: 0
->      8	UID[STR]: 0
->      9	USER[RUN]: 0
->     10	USER[STR]: 0
->     11	SIZE[RUN]: 0
->     12	SIZE[STR]: 0
->     13	MNTID[RUN]: 0
->     14	DEV[RUN]: 0
->     15	FINDMNT[RUN]: 0
->     16	DEV[STR]: 0
-> ================= O/E diff ===================
-> --- /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-ro-regular-file	2022-02-06 16:37:28.111146267 +0000
-> +++ /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-ro-regular-file	2022-01-31 14:57:47.000000000 +0000
-> @@ -13,8 +13,4 @@
->  MNTID[RUN]: 0
->  DEV[RUN]: 0
->  FINDMNT[RUN]: 0
-> -DEV[STR]: 1
-> -MNTID: 312
-> -DEV: 0:50
-> -MNTID DEV: 312 0:50
-> -FINDMNT_MNTID_DEV: 312 0:48
-> +DEV[STR]: 0
-> ==============================================
-> 
->      script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-rw-character-device
->    commands: /<<PKGBUILDDIR>>/
->     helpers: /<<PKGBUILDDIR>>/
->     sub dir: /<<PKGBUILDDIR>>/tests/ts/lsfd
->     top dir: /<<PKGBUILDDIR>>/tests
->        self: /<<PKGBUILDDIR>>/tests/ts/lsfd
->   test name: mkfds-rw-character-device
->   test desc: character device with O_RDWR
->   component: lsfd
->   namespace: lsfd/mkfds-rw-character-device
->     verbose: yes
->      output: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device
->   error log: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device.err
->   exit code: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device.exit_code
->    valgrind: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device.vgdump
->    expected: /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-rw-character-device{.err}
->  mountpoint: /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device-mnt
-> 
->          lsfd: character device with O_RDWR   ... FAILED (lsfd/mkfds-rw-character-device)
-> ========= script: /<<PKGBUILDDIR>>/tests/ts/lsfd/mkfds-rw-character-device =================
-> ================= OUTPUT =====================
->      1	    3  rw-  CHR /dev/zero  mem:5   0     1:5    mem    char  1:5
->      2	ASSOC,MODE,TYPE,NAME,SOURCE,POS,MAJ:MIN,CHRDRV,DEVTYPE,RDEV: 0
->      3	MNTID[RUN]: 0
->      4	DEV[RUN]: 0
->      5	FINDMNT[RUN]: 0
->      6	DEV[STR]: 1
->      7	MNTID: 312
->      8	DEV: 0:50
->      9	MNTID DEV: 312 0:50
->     10	FINDMNT_MNTID_DEV: 312 0:48
-> ================= EXPECTED ===================
->      1	    3  rw-  CHR /dev/zero  mem:5   0     1:5    mem    char  1:5
->      2	ASSOC,MODE,TYPE,NAME,SOURCE,POS,MAJ:MIN,CHRDRV,DEVTYPE,RDEV: 0
->      3	MNTID[RUN]: 0
->      4	DEV[RUN]: 0
->      5	FINDMNT[RUN]: 0
->      6	DEV[STR]: 0
-> ================= O/E diff ===================
-> --- /<<PKGBUILDDIR>>/tests/output/lsfd/mkfds-rw-character-device	2022-02-06 16:37:28.675140230 +0000
-> +++ /<<PKGBUILDDIR>>/tests/expected/lsfd/mkfds-rw-character-device	2022-01-31 14:57:47.000000000 +0000
-> @@ -3,8 +3,4 @@
->  MNTID[RUN]: 0
->  DEV[RUN]: 0
->  FINDMNT[RUN]: 0
-> -DEV[STR]: 1
-> -MNTID: 312
-> -DEV: 0:50
-> -MNTID DEV: 312 0:50
-> -FINDMNT_MNTID_DEV: 312 0:48
-> +DEV[STR]: 0
-> ==============================================
-> 
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
