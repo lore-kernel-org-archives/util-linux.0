@@ -2,66 +2,61 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9F50C433FE
-	for <util-linux@archiver.kernel.org>; Mon, 28 Feb 2022 10:16:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09336C433F5
+	for <util-linux@archiver.kernel.org>; Fri,  4 Mar 2022 15:33:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229934AbiB1KRZ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 28 Feb 2022 05:17:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37700 "EHLO
+        id S234561AbiCDPd4 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 4 Mar 2022 10:33:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234005AbiB1KRZ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 28 Feb 2022 05:17:25 -0500
+        with ESMTP id S240353AbiCDPdx (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 4 Mar 2022 10:33:53 -0500
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2CC8D41314
-        for <util-linux@vger.kernel.org>; Mon, 28 Feb 2022 02:16:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0BF0AA0BE9
+        for <util-linux@vger.kernel.org>; Fri,  4 Mar 2022 07:33:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1646043406;
+        s=mimecast20190719; t=1646407982;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=cR/JqMDzFyroahRcZeJea+RxRiBOviUlJoy03ud6Wc8=;
-        b=AtHhiU2nlM9DBGp82s4B77+T7Nk1fLDFlRBDdK84sAshUGCD48UBMtT2ZacrNibLS1VjOi
-        q+1PdqoYx8c0jQEIcl+04zPQ+smXt4ckjSvyNRDIwPT3X5mVwPDA6pkSWGAJxtkkXcnB6m
-        6n7S/HO+PiO9CCSJmUufSZeu65HBxO0=
+         to:to:cc:mime-version:mime-version:content-type:content-type;
+        bh=iPllYbp+BzV1UH6pWfe2q+hKkQ82v3Y8ieI8IHwja/A=;
+        b=gOjww4hm+azeMrZHnIdqadDcm3qXcOv44jXKPrVkzupI5z+wCnX1p0ySh/sx8RL6QvK6fh
+        4KEvhl3vihXMrLGR1djUk0cAcB/+r81eii3x0+TCZNWrFM4Ca7QrM3XL4s52YjLZYLUqP8
+        h++v7wF7Xzm2bE6RYy182JNhsEixoi4=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-478-FY1fT8-dO-usOIphTHVKYw-1; Mon, 28 Feb 2022 05:16:42 -0500
-X-MC-Unique: FY1fT8-dO-usOIphTHVKYw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+ us-mta-488-R_7vjVZSPpWcprrDTiT0Eg-1; Fri, 04 Mar 2022 10:32:58 -0500
+X-MC-Unique: R_7vjVZSPpWcprrDTiT0Eg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A7EE91091DA1;
-        Mon, 28 Feb 2022 10:16:41 +0000 (UTC)
-Received: from ws.net.home (unknown [10.36.112.8])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id A4B662B3B5;
-        Mon, 28 Feb 2022 10:16:40 +0000 (UTC)
-Date:   Mon, 28 Feb 2022 11:16:37 +0100
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C5CED824FA6;
+        Fri,  4 Mar 2022 15:32:57 +0000 (UTC)
+Received: from ws.net.home (unknown [10.36.112.12])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id EC1337A53E;
+        Fri,  4 Mar 2022 15:32:56 +0000 (UTC)
+Date:   Fri, 4 Mar 2022 16:32:54 +0100
 From:   Karel Zak <kzak@redhat.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     util-linux@vger.kernel.org, linux-block@vger.kernel.org,
-        Luis Chamberlain <mcgrof@kernel.org>
-Subject: Re: [PATCH] losetup: don't skip adding a new device if it already
- has a device node
-Message-ID: <20220228101637.5upfmvn4wbesny5f@ws.net.home>
-References: <20220225180903.1341819-1-hch@lst.de>
+To:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.38-rc2
+Message-ID: <20220304153254.3bfkjhijdwqsrztx@ws.net.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220225180903.1341819-1-hch@lst.de>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Fri, Feb 25, 2022 at 07:09:03PM +0100, Christoph Hellwig wrote:
->  sys-utils/losetup.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Applied, thanks.
-
- Karel
-
+The util-linux release v2.38-rc2 is available at
+ 
+  http://www.kernel.org/pub/linux/utils/util-linux/v2.38/
+ 
+Feedback and bug reports, as always, are welcomed.
+ 
+  Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
