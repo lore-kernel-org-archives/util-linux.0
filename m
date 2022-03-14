@@ -2,72 +2,87 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60FC1C433F5
-	for <util-linux@archiver.kernel.org>; Sun, 13 Mar 2022 11:46:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91AD4C433F5
+	for <util-linux@archiver.kernel.org>; Mon, 14 Mar 2022 09:28:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232134AbiCMLrU (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sun, 13 Mar 2022 07:47:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36434 "EHLO
+        id S237949AbiCNJ3I (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 14 Mar 2022 05:29:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231153AbiCMLrU (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 13 Mar 2022 07:47:20 -0400
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.183])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FFCEBBE0C
-        for <util-linux@vger.kernel.org>; Sun, 13 Mar 2022 04:46:12 -0700 (PDT)
-X-KPN-MessageId: 2514e4a4-a2c3-11ec-a7c6-005056992ed3
-Received: from smtp.kpnmail.nl (unknown [10.31.155.5])
-        by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-        id 2514e4a4-a2c3-11ec-a7c6-005056992ed3;
-        Sun, 13 Mar 2022 12:45:56 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=telfort.nl; s=telfort01;
-        h=mime-version:message-id:date:subject:to:from;
-        bh=agwrL/nF6SoEfC/MBcXtmFScKeJCF4X7+9zMqYS3YVo=;
-        b=wx80jFPP0nPHK9R/v9MDBBXPSKYNT6oG/y23FJNUpjvtIb5knIpPm3TTPLW3DTVVoZWkKuygpk+/z
-         3CVU8APTaHsyHvHjrcjbQk/e394M+3bPi5Y7n+EbO5gIExZqYwoLSzQ4DJ/1up1vLzfZOzL5eDPLsU
-         NaTlEarEGZ1CUgnY=
-X-KPN-MID: 33|+VA9m82V/Qo9Atf+cDtl83AX8n0UnlDpPl5046s7mvT0I34js+LX7ctvkZWv7i6
- 5m0uxIjcukOl9w8B0uv8LRtVJckFVwnrVdtQ3Uh39s0I=
-X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|k7ZhDIv/+QdgDx2esGiBiebdPp+Ge6BW06MrSMY13qSAkzG+5R5/fjMtrGPUBWI
- 4hsc2bE8+EbOtsimlsYL/iQ==
-X-Originating-IP: 82.168.50.91
-Received: from localhost (82-168-50-91.fixed.kpn.net [82.168.50.91])
-        by smtp.kpnmail.nl (Halon) with ESMTPSA
-        id 2db7efcc-a2c3-11ec-807e-00505699b758;
-        Sun, 13 Mar 2022 12:46:11 +0100 (CET)
-From:   Benno Schulenberg <bensberg@telfort.nl>
-To:     util-linux@vger.kernel.org
-Cc:     Petr Pisar <petr.pisar@atlas.cz>
-Subject: [PATCH] hardlink: add a missing word to an error message
-Date:   Sun, 13 Mar 2022 12:45:56 +0100
-Message-Id: <20220313114556.6218-1-bensberg@telfort.nl>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S237962AbiCNJ3I (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 14 Mar 2022 05:29:08 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0AB1017AAE
+        for <util-linux@vger.kernel.org>; Mon, 14 Mar 2022 02:27:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1647250078;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=D7ZXFMfDXNhaOqkkKqe/NEw01MOMRSYgPc9h72JzHoM=;
+        b=i/4G4dvLycPNPAzbdz0z+spwnu9+7EYXkOZ3khkv5iIZEcdsr7nb6FxvCvyUb1J8Bo6Ntg
+        w6U63h59phNJuNg3TWPGUrQ82H1fFrLTK29V/Yk74RlrHTqOeUEiRXM4SUYeJI5N24SEg6
+        ODHkYMomvxN92DlSKB/G++v/AUOuv9s=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-298-jWa2pyV-MrGf_MTOfRgZmg-1; Mon, 14 Mar 2022 05:27:54 -0400
+X-MC-Unique: jWa2pyV-MrGf_MTOfRgZmg-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6F421803D63;
+        Mon, 14 Mar 2022 09:27:54 +0000 (UTC)
+Received: from ws.net.home (unknown [10.36.112.12])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id E656D4047D19;
+        Mon, 14 Mar 2022 09:27:53 +0000 (UTC)
+Date:   Mon, 14 Mar 2022 10:27:51 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     Benno Schulenberg <bensberg@telfort.nl>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: the localized output of 'hardlink' is misaligned for some
+ languages
+Message-ID: <20220314092751.i6rtkm7hxze5lvnb@ws.net.home>
+References: <ece4e3d9-7cf7-2319-ec69-de978ab7081e@telfort.nl>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <ece4e3d9-7cf7-2319-ec69-de978ab7081e@telfort.nl>
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Reported-by: Petr Pisar <petr.pisar@atlas.cz>
-Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
----
- misc-utils/hardlink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Sun, Mar 13, 2022 at 12:24:51PM +0100, Benno Schulenberg wrote:
+> After applying the posted localization patch for 'hardlink', the
+> localized output is misaligned for some languages.  For example:
+> 
+> $ LANGUAGE=pl hardlink --dry  ~/Programoj
+> Właściwości:           próba
+> Method:                   sha256
+> Plików:                  8141
+> Dowiązano:               2238 files
+> Porównano:               0 xattrs
+> Porównano:               2255 files
+> Oszczędzono:             9,52 MiB
+> Trwało:                  0.154945 seconds
+> 
+> It seems that for calculating the placement of the second column, it
+> counts the number of bytes in the word+colon thing and then subtracts
+> that from 25 to determine the number of needed padding spaces.  But it
+> should count the number of character columns instead.
+> 
+> Probably this should use libsmartcols in some way?
 
-diff --git a/misc-utils/hardlink.c b/misc-utils/hardlink.c
-index d4bb48386..b4dcb3c90 100644
---- a/misc-utils/hardlink.c
-+++ b/misc-utils/hardlink.c
-@@ -1259,7 +1259,7 @@ static int parse_options(int argc, char *argv[])
- 			opts.max_size = strtosize_or_err(optarg, _("failed to parse maximum size"));
- 			break;
- 		case 'r':
--			opts.cache_size = strtosize_or_err(optarg, _("failed to cache size"));
-+			opts.cache_size = strtosize_or_err(optarg, _("failed to parse cache size"));
- 			break;
- 		case 'b':
- 			opts.io_size = strtosize_or_err(optarg, _("failed to parse I/O size"));
+I'd suggest to ignore this problem for now. libsmartcols is probably
+overkill for this small output. I'll debug and fix it later. Thanks.
+
+    Karel
+
+
 -- 
-2.34.1
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
