@@ -2,102 +2,91 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F785C4332F
-	for <util-linux@archiver.kernel.org>; Wed,  6 Apr 2022 04:01:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A5F1C433EF
+	for <util-linux@archiver.kernel.org>; Wed,  6 Apr 2022 12:04:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229969AbiDFEAD (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 6 Apr 2022 00:00:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59994 "EHLO
+        id S230235AbiDFMGn (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 6 Apr 2022 08:06:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1573175AbiDESIv (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 5 Apr 2022 14:08:51 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A47C1F623
-        for <util-linux@vger.kernel.org>; Tue,  5 Apr 2022 11:06:49 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id l7-20020a05600c1d0700b0038c99618859so2127627wms.2
-        for <util-linux@vger.kernel.org>; Tue, 05 Apr 2022 11:06:48 -0700 (PDT)
+        with ESMTP id S232089AbiDFMGe (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 6 Apr 2022 08:06:34 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A89BB1B2C7F
+        for <util-linux@vger.kernel.org>; Tue,  5 Apr 2022 19:16:32 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id s14-20020a17090a880e00b001caaf6d3dd1so4439474pjn.3
+        for <util-linux@vger.kernel.org>; Tue, 05 Apr 2022 19:16:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=5lP7JVLIk85dMBYzGQIDTQ1sj5hZvvmHWW8L/kedb2A=;
-        b=GvcyYVrSM9N58PfWHxJQ/dHV+BIIaTK5X/0TtvCSUbqKSZ0JtLSfJNfCKzDFmjSXY9
-         ONFC7rUm7ic7LcbMA093vm+5Vpx9pAwonlGZPY7WOd0KmiEvUhxPqzuvdhjNp3tK6ad3
-         P3Nj9/j1Dpzxl0YgsaPgprP+MWLcECHi8flKxwMTCcyutGRE7q9PwytRH2S02WNGahUa
-         hdFm80XiC/6WXUDSwxTx70xzJxvXZpW5AtLXVy4T2cP3Ahvfm+4Im+v+MUWapjyhVu2D
-         Hs2E1b+Y/A6Qf6HFSVAmpXtPbPRA284+QWcyJFJMRJSWfVJ/NLgt37dyNNhzLDS1m7Vw
-         1cRQ==
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=LghO4gQVNnkmiCJTBGyiyPYZhH26qt/5kjAgyyjUHrs=;
+        b=CmXcyjQ+Pdu1KtCyZgJAtA3HpwftE/N9WySPajCxOASQVXc1m4rtp6i1UrmCtpJ85K
+         szS+OtAKwx0B9SFTyqjZOGoYg2r+0qv/I5WvL1Ttb2LJ0hTTt5uKVlg6qpSYOkEDTi6Z
+         cO6+A4fxjOZwErauDl0y2doOaeglf6uvS2wLxCA5qrd1HrgCxpAczn1ZMs4VE9ppcr4s
+         arLYAkSCP0C8nyfDbC4Zuce/QalZORD23fEdBGkl1sBXFuXuRbbkiYEyQsl+na5LIn+M
+         uoy/MIouudZK8Gxsd/u3p0xJc6oyYsnX7R0nMvPmftWgfc/5tEXvXhRnj39qGGcB7E2O
+         II4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=5lP7JVLIk85dMBYzGQIDTQ1sj5hZvvmHWW8L/kedb2A=;
-        b=5NWcG/4fit7OBaFbA8X2nRFbvRDKbeWxrSLQWf2ykoRC7UhldzXURpaLU7nuUb38KM
-         1kOfuwGGOGg3il15ETGNp6AGGuI6yGz75e6HCWNsybHxny+iWKwiisB6srYqKkT0fmDX
-         iRlsa6GaVNSqwy3alUQIENk67EXG4XXpMZQmS8J/RzpIjf9x38Yq5MhiyWJrabpPYar8
-         PVCUqAPPTNGaQ0hGPmkCgvvcaXaazBf5VPTghC5+iPQtqn74dGQZGuPNSx0U/3UcNfzu
-         wSwDN9kS4Mv6IhAUIAH168qXacHQ/VqJqk9hm66Q08uGPnFkoCfnkFUAxs24iKba/3Sb
-         j4lQ==
-X-Gm-Message-State: AOAM530iIxNzTzuF9B1jZO4a5ovAHilC/jXCi2UEwq8miVgvuSYhqH2f
-        aGE9IbU5Xk7HtzZ138GXrYpJy1UbMDU=
-X-Google-Smtp-Source: ABdhPJzIhySScEjo0uvldOPNANNGYVgGKty07MBp5OK631fjFndBYmWcp5BxvJ8freBw5U8ep76vaA==
-X-Received: by 2002:a05:600c:34d4:b0:38c:5ec7:1e38 with SMTP id d20-20020a05600c34d400b0038c5ec71e38mr4064870wmq.184.1649182007242;
-        Tue, 05 Apr 2022 11:06:47 -0700 (PDT)
-Received: from kali.home (2a01cb088e0b5b002be75de2a1caa253.ipv6.abo.wanadoo.fr. [2a01:cb08:8e0b:5b00:2be7:5de2:a1ca:a253])
-        by smtp.gmail.com with ESMTPSA id h8-20020a05600c350800b0038cc9096507sm3034867wmq.3.2022.04.05.11.06.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Apr 2022 11:06:46 -0700 (PDT)
-From:   Fabrice Fontaine <fontaine.fabrice@gmail.com>
-To:     util-linux@vger.kernel.org
-Cc:     Fabrice Fontaine <fontaine.fabrice@gmail.com>
-Subject: [PATCH] configure.ac: add lsns option
-Date:   Tue,  5 Apr 2022 20:04:59 +0200
-Message-Id: <20220405180459.944658-1-fontaine.fabrice@gmail.com>
-X-Mailer: git-send-email 2.35.1
+        bh=LghO4gQVNnkmiCJTBGyiyPYZhH26qt/5kjAgyyjUHrs=;
+        b=UbBmmQCPVxmJi0I5LMltPEKuZwMQMzCb3WhQcLKIG2Qc5cxZsUNjFDQJqrROWt8NSk
+         pqUTR//RNBEWjvQGCUhU1+f7clmq3f03tx8ITXZVZGab2Pov+sgCZzOmPqgnv3KJEqTn
+         jCvHh9sbSQg0HV4SeT2BNJolOYn1SWZxUpHnFcY3BU67Wxb2t6OIviscny2qnm5HCiHM
+         8UaVHQVNw0O0o3IjU7yjt5UROvtxtCHAhAkvN7a5VhR0n7kkYRmKW0PDlKZfsI3NDSas
+         IbpE2UE9II8nBGMGyDWfq86erLsKaCdd5hSZAjmUuUti2ZtG/PcsqjvdhVmoszsDxjpH
+         HcpQ==
+X-Gm-Message-State: AOAM5338jdgDGPa79zAgi/ewuHX9wiBVwztafkKNbm45aUT5Y6x03JuH
+        dkIRq46inovxxJABps/kUS9gWHZPQOgzkA==
+X-Google-Smtp-Source: ABdhPJzveBmYJCGcpjFzrkRZmjJ1+aynDPPM1PxGYMpFlCA5teJCHusD0RNhPvxC3Xz5Ea28FnLZoA==
+X-Received: by 2002:a17:902:e882:b0:154:445d:9818 with SMTP id w2-20020a170902e88200b00154445d9818mr6463115plg.40.1649211391380;
+        Tue, 05 Apr 2022 19:16:31 -0700 (PDT)
+Received: from [10.76.15.169] ([61.120.150.76])
+        by smtp.gmail.com with ESMTPSA id s24-20020a63af58000000b003981789eadfsm14198951pgo.21.2022.04.05.19.16.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 05 Apr 2022 19:16:30 -0700 (PDT)
+Message-ID: <f9e3fb29-a4ee-06a8-238f-ef1caade0234@bytedance.com>
+Date:   Wed, 6 Apr 2022 10:13:00 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: Re: [PATCH] blkpr: add block persistent reservations command
+Content-Language: en-US
+To:     Christoph Hellwig <hch@infradead.org>, kzak@redhat.com
+Cc:     util-linux@vger.kernel.org
+References: <20210916032901.2189336-1-pizhenwei@bytedance.com>
+ <YkvsUl9ZZOC7j70X@infradead.org>
+From:   zhenwei pi <pizhenwei@bytedance.com>
+In-Reply-To: <YkvsUl9ZZOC7j70X@infradead.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-lsns unconditionally uses NS_GET_NSTYPE since version 2.38 and
-https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/commit/?id=de72df79d72fa906e71e2ac922d8745ff22deee5
-which is only available since kernel 4.11 and
-https://github.com/torvalds/linux/commit/e5ff5ce6e20ee22511398bb31fb912466cf82a36
-resulting in the following build failure:
+On 4/5/22 15:14, Christoph Hellwig wrote:
+> Any reason this never got picked up or commented on?
+>This seems to have been ignored.
 
-sys-utils/lsns.c: In function 'add_namespace_for_nsfd':
-sys-utils/lsns.c:719:25: error: 'NS_GET_NSTYPE' undeclared (first use in this function)
-  719 |  clone_type = ioctl(fd, NS_GET_NSTYPE);
-      |                         ^~~~~~~~~~~~~
+Hi Karel,
+Could you please give me any hint?
 
-So add an option to allow the user to disable lsns
-
-Fixes:
- - http://autobuild.buildroot.org/results/572ecf8e37ac733a4e4265f4f78f35230337278e
-
-Signed-off-by: Fabrice Fontaine <fontaine.fabrice@gmail.com>
----
- configure.ac | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/configure.ac b/configure.ac
-index 11c86b9a7..52c5b280a 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -1922,7 +1922,11 @@ UL_REQUIRES_LINUX([lsipc])
- UL_REQUIRES_BUILD([lsipc], [libsmartcols])
- AM_CONDITIONAL([BUILD_LSIPC], [test "x$build_lsipc" = xyes])
- 
--UL_BUILD_INIT([lsns], [check])
-+AC_ARG_ENABLE([lsns],
-+  AS_HELP_STRING([--disable-lsns], [do not build lsns]),
-+  [], [UL_DEFAULT_ENABLE([lsns], [check])]
-+)
-+UL_BUILD_INIT([lsns])
- UL_REQUIRES_LINUX([lsns])
- UL_REQUIRES_BUILD([lsns], [libsmartcols])
- UL_REQUIRES_BUILD([lsns], [libmount])
+> On Thu, Sep 16, 2021 at 11:29:01AM +0800, zhenwei pi wrote:
+>> Linux kernel block layer supports PR (persistent reservations) ioctl
+>> on a block device. Typically SCSI and NVMe disk support PR feature,
+>> and blkpr could operation on them.
+>>
+>> Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+>> ---
+>>   configure.ac            |  11 ++
+>>   sys-utils/Makemodule.am |   8 ++
+>>   sys-utils/blkpr.8.adoc  |  64 ++++++++++
+>>   sys-utils/blkpr.c       | 277 ++++++++++++++++++++++++++++++++++++++++
+>>   4 files changed, 360 insertions(+)
+>>   create mode 100644 sys-utils/blkpr.8.adoc
+>>   create mode 100644 sys-utils/blkpr.c
 -- 
-2.35.1
-
+zhenwei pi
