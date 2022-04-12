@@ -2,95 +2,95 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66E38C433F5
-	for <util-linux@archiver.kernel.org>; Tue, 12 Apr 2022 05:00:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B106C433FE
+	for <util-linux@archiver.kernel.org>; Tue, 12 Apr 2022 05:00:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347343AbiDLFCP (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 12 Apr 2022 01:02:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47376 "EHLO
+        id S1346495AbiDLFCQ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 12 Apr 2022 01:02:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346495AbiDLFCK (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 12 Apr 2022 01:02:10 -0400
+        with ESMTP id S231631AbiDLFCI (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 12 Apr 2022 01:02:08 -0400
 Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam08olkn2076.outbound.protection.outlook.com [40.92.47.76])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A89533EBA
-        for <util-linux@vger.kernel.org>; Mon, 11 Apr 2022 21:59:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05151340D3
+        for <util-linux@vger.kernel.org>; Mon, 11 Apr 2022 21:59:52 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=NuP7fTsP602ywdc8aN9CLGqizxk7ZBc47raDq9iCn1jOVja11VHn8vxmAPPhGMWK7pj3biMBoqtRmbaje9Q/NfLwhV/0w8vATJnjt9uZVDyNZ/DkSmUMLgk/c2Cu+Wxo5LV3mNZ7MNWlS2qpwiALKb2hj4DkOpMnHmFKiPomu8cticePX/yAKW5SD2+8daQnlbE1tSIPMT4Pyh3YQND1tPAB/fHywcCxGJVNuaN/3s+tGqAeUaFbP/amIUemFjsurqp0MGlwyBveZ2AVu4Dq/js4aBLsCHUNvrNEuR4uZArxcuD+TAH3Ia9GWKRKdIjhG5+hdKDPlTkaLqBQwwkt5Q==
+ b=V+E0rv3iVY0wvzoNLUFG/6UaRyE1XJ0fRmbJgh6OZjLfHX36NmSnwdt/5S9rWlj6GD69+ANB6GRvsY0WkTEKaxc1NSVDl3gKFMtDfONefznU4LBbRqB70niuKtBrHjMutASb71y4XXKnuBlID1CfDZ6IneYziyMHFyo6dSfaiw3/Eg84LjHEhRg5RFKl5yk11rbzZz7D6scOWGLFZOSHXZ+lFcfxtf6FBqLf1mAllz2ZqIXyz0/foSSfjd263Y8KL5W+q7hyDgdjkGdL1MKzeXltifEemQgsDSlGHIENn6oOpw2i41qFzYV4uynHaVVQL0SsXnk2tZjjVgLxL35Jfw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Lz0MOaYU9PtjH/8dV3s5EKiUB43FcEFbORmPCogxsZE=;
- b=Jb/njhns2BVGyUqtcVKn3A61ztLadLdiTK9hD9uWzhHNZtFl9NkMO/SRy1SXLJ4zUIwVEVMKMan1mlHrUEubDzXeQrVYFqB0s6eGOV3wERaGrqkK/8mMPUwtV3YBrzCku7uTZGINgM0MI1tgzztQQTcmY+gp0RHdf1cvthOfHx3K6WU1oN6eGbnos1c4J3lOfd0+7aJItk35AfR28tcumrwsnyn8QfHCID9gtvHoSc6Skc2s+vVRAvANwnQizOAUfYFmMPw+EC2dcK5Gq+xdPUvlAXB1cp7Ro65RTjzIULfWFEBIjcPLB0TVOY/1UOHFDx+TIbu7I7hCgiyteW1TNQ==
+ bh=XHOl6x9AeLbKRTScYF5JHJlGHtZBUR734vnEu1cBieQ=;
+ b=lld2YOykWACtPEG5fl56udbySma+fE+Z8ZKUTANEk6B46/5dlMLP3834ahxlOIXhawcgavAhJ3+ZWpKnvholnRmnVthHslW8T0dHq6TC2t0MNAbkcHzeI9lsS1u7uHYCAkRvk18ntxjgySnmkbASlO+LDiu9JSowA4cNmg5FtfRr4qs+U1/0pb0Tasq14Wzs+v/5aH1eL3iEOdZS0Bd9Ajp6obBDfdy4+7AeX63Y3EuATLBUSt0UV9d/A8vOtBnbohRkfqMyMApz240fBqxVf4jilxjzXOU0AfyFyP8NvkPzzwhKifEtDDmPI2H0yXz6Z3jMaCxExpjVRru46PUVkw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
  dkim=none; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Lz0MOaYU9PtjH/8dV3s5EKiUB43FcEFbORmPCogxsZE=;
- b=QzVc5rVzi55BmlRthSPD+4H3z5slINz90ISfD1kABCBYj+yCZ6OiNTpTzgFL+MjocRn+Zqb8t2mmWYmDrqynTSlrzeK/vU44bwOmavJBYEMYqcLjN1/XfnV4M36RiJ93kYBJPgYIahNUX42AgjnAbm3cGeyBLZ3jdVPCG4mYpJI95Z28dkt9xcbeuBHrPCscPGkO9FlXqN6tj0JW/PtYmyyrqjMwWyjAiIMbnmciJN65WwiTkuKaHvYeRqoD2ppO21b9YeX/isoxBkwtEjaRzkvd2xb66uOtDUTZv2cAsSYLfCNAXasDfAsjGpPj7Gj5Qo1ctCuRvycSXAnKRWB19w==
+ bh=XHOl6x9AeLbKRTScYF5JHJlGHtZBUR734vnEu1cBieQ=;
+ b=VEkQ4Q6cNXScqa6DeIoX/4obqYQN2WdhH6hXN9NgOwFizOjI918cIZb9+3nextbZlOZRwZ5WmuWBRTyJZQWLOxjMIlZ0S+rAQCajh9/9wlcX7kdY0SfSIRoCKqFU/EsBNRS9YIwpZNsG3qYOKUypZ9KDfFiohVqep+rJixDAllj6OnAUDV7Z04bu9vfbCiFkIYNBXYD72J/1unoUSjtaKwJL3M1Qf2RmcuCblUA3lD21S7/9OVk8xjpaXjWuyuqQWvhD8ZuD8YeUfdRAh0BisYJNtVFVNhYo/xfP5xUTsSzdRZ3fAVvuM4wKxpxKmQ4Hn8u7qzoLLlcwWbzzKxYf8w==
 Received: from SN6PR04MB3983.namprd04.prod.outlook.com (2603:10b6:805:4c::19)
  by BL0PR04MB5043.namprd04.prod.outlook.com (2603:10b6:208:53::16) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5144.29; Tue, 12 Apr
- 2022 04:59:51 +0000
+ 2022 04:59:49 +0000
 Received: from SN6PR04MB3983.namprd04.prod.outlook.com
  ([fe80::5102:79c8:1ec5:d316]) by SN6PR04MB3983.namprd04.prod.outlook.com
  ([fe80::5102:79c8:1ec5:d316%5]) with mapi id 15.20.5144.030; Tue, 12 Apr 2022
- 04:59:51 +0000
+ 04:59:49 +0000
 From:   Nathan Sharp <nwsharp@live.com>
 To:     util-linux@vger.kernel.org
 Cc:     Nathan Sharp <nwsharp@live.com>
-Subject: [PATCH RFC 3/4] pipesz: add manpage
-Date:   Mon, 11 Apr 2022 22:59:29 -0600
-Message-ID: <SN6PR04MB3983A98E579F2710F3303D0BC2ED9@SN6PR04MB3983.namprd04.prod.outlook.com>
+Subject: [PATCH RFC 2/4] pipesz: add tests
+Date:   Mon, 11 Apr 2022 22:59:28 -0600
+Message-ID: <SN6PR04MB398387B3E32DD916801C6F93C2ED9@SN6PR04MB3983.namprd04.prod.outlook.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412045930.236051-1-nwsharp@live.com>
 References: <20220412045930.236051-1-nwsharp@live.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-TMN:  [JDwS3LtNoQImzc5emiWf++RTVTIuKg2c]
+X-TMN:  [J4tEL6GYuhQhI+8m6r2CYywAPeYHHp6o]
 X-ClientProxiedBy: CH2PR10CA0015.namprd10.prod.outlook.com
  (2603:10b6:610:4c::25) To SN6PR04MB3983.namprd04.prod.outlook.com
  (2603:10b6:805:4c::19)
-X-Microsoft-Original-Message-ID: <20220412045930.236051-4-nwsharp@live.com>
+X-Microsoft-Original-Message-ID: <20220412045930.236051-3-nwsharp@live.com>
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 4258a9d6-d2d1-49d0-1caa-08da1c4146e1
-X-MS-Exchange-SLBlob-MailProps: S/btQ8cKWiThIBhrdRr4cLcE9KU0705sYI9xf73x6L4ufrL2IcWTkTI22zCsbBLbj33NvXBdenx+SKhoAgh4gHdK7Ay9OAv/+z0EHRF4cqz59Dhu512z6npASEd6J4p3Jse372q2K3+CgKx2l2JILN6L42U2ZPrIQ3mgGU5SkmjGU1iNhukgb/T21FErrEV5y65MGwLxAq7FFf6O0IkH8j9hry+vllqvAtrziceS6YwgIxvmJ6L1ZVMoQI5IyhHflragfhuSs/lxpQ3UvvUDZjRuo3cKSWAZH9mMCwt0VQooAnfj0o6m5e2poacwtOxUz4ia/YCxNwWXVAEWNNDdtqfNcs7xrJNxJi4vSLnU57fi24xXkpNRQ0A/MUwTPxQCWXFnr1kApBpsTqXqLSqYa++vDkFcT6lBj4I4pFaaOSwLgV0Bi+qfWNB4F76LJ3oFI6d9qvl0LI+KD7g1UKuMO6LmN895Icmx5IgOGj24EpQXA0x6BNa4mIEqF1M6HtNhU+QUHyPUMJWHQLIN5T0jSLE29A9BzQny+diX9N75foiAW4/9zo9z9z8yqW2kqVtaxjQo6IE4X8/yK6iGvUVOFGdu1NdL9mq4Dvh8JVKK/pojaX0y1tWTmf7/cUMtJq/DWSMUWj4XXLO8HiREG1B4IkmTDbzjdt8sWOj8bHiYR6nFcdH79ZXBVImwAiM7a7+VOwW2WVHu2i5bzDfjrWtznhMeygrTW6otIlw9K4JYrrXfOjAn4K/b1gEKuFu+22vyV4v9thK2x1A=
+X-MS-Office365-Filtering-Correlation-Id: b4fdbb6e-bf64-4ae9-09a3-08da1c4145a4
+X-MS-Exchange-SLBlob-MailProps: gjx25WM8ZNWTUkYsfs8LU6BtPgaYLwsWIegbKbWxPuvBfZ4hty81lfvuzSpIKysWNIs7wrSjIGdkzVqukwS9OX7m5xNjwqNLt6ZsfQbL2/16ch4UVfp8hCph5k51vDzB1W7wopxuyTsCPU+m7Ch4UqeO+Hu1VQ7KMXFN3hNq4m5osthaK9rrsLLyEKNaTCNaeBxxMfLBgZAuVWHnKjXWPl+Z/6NnrUxK/TXtS4qSNzXjMPLwfuIS4cTlWAq9rw01IdI/nocpgzbHpzf+Z4MiG+Zzikip3Y9TKPaTKnu7kuLn2oc81lrK8qzrtAX6DiSRpkMtpJ+DqBn9fFhsokwa5wUPbqhnpSPYY+xrn30XyVGnygF1yPPrA8Do0KKY0looxi2yT/9V0dmWZbLXwL+E+JWxSCa98OeC4c41FkInHK9f+3/Lz59qtsZAv1hMSEoHKsypMTGT3XFIhumiOD1bfVc+Ra03Ejzjwf2gJZqhWybY8wICmqAUJNUwrW1WrpupjvHfYacdJOPnNxkQZbuS1D4RHzcKgESCOmu4W3xM0XaedHwIFzbGg2IYutdWthx9lnKTD3iGWBTf2JJ2knAHLJXlDRuVlX86qI8OpFIrLLHfpUIAUm2V+SkZSKB/8MV8kFxTFYfBax8pDrBKuJMhs6oVMCotBxQdfJaRdrkwLqb3CNO9U1wd8C5wIsCb4Nm76VXTeVR5jrbfH14W06ktjoMGt6l6HnTaDkNfz4TToy4=
 X-MS-TrafficTypeDiagnostic: BL0PR04MB5043:EE_
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: WTz6aHT9P/qajQDTmvcjjX69zjYGSFI3sicNvejAAddYg9g9iix3BKLJ+GRXs+6ul1qh9Bk2t87YG/1mVH2lNCykwTS8Ue47C3q3eIm2mTIeAuzyyRa0YMlbvGAd4WF5ZHTJNtj6n+O70c5jJIi2t+k6BtxfKOW2xAs75UVRSJDimYdJX0FMELJEIIjtTLawxhQ/czi9OylSNWy3iIE0g40ABQrt2VUhkFfK7OgmtEV/CZu6PlhaBYREktFx0uswnFVZoMkfH+ZisgCHHPTkYrJQU9hHvqcusW8Nx8sDk7B3b3UXuzj4SWHLU7vnXIP0LZxz29NYDyp6OggA1ZUToJQQsGU/rSmd4AVWAdFZKPVMhcu/h3GYWGEEUbljvwso7xtZqTomGjEpJR8eU3Rr9n5exX1zwXu82LB0A3qEf0W1EtXLUGEyE+eETtQY9iLfAoBoNdAn1gXCfPWAXSM8o3XEDfICBY+vySxch+onAVrJwMYvTfX8BQhhBMI3PJsbiV2YsiSeV9DC/Uivo2WlW+I+rF6NY5qPxay93OjorcsMqdHOhLPDsd3Uv5uS/By3xd7zLOPhPLZqrUOHKHDkeA==
+X-Microsoft-Antispam-Message-Info: 8+vzBvxamBiY+XZsz8G5o3v7ez2mVbTWRiEiI3ocsECpEP+svRtk9oDGEs1H+qc8a9osZ3KlsxZiXWqlx72x2bm7P034ggoQ7FfnH3iCGYFxz3nih3eAxJS8JO7xMoBu08jtf9rWzaflCESMwnJ7zE8s0GDKyA0yvF1UceB5Q72aTgRm8Zetvc0kZsWK8Lgw87gsERXrkJlUsnXogI+GUfzjDj11zDekQRAxRVkjjt3MAoo6XY6os/n2I7mHpwEeZGh7wQ57HVEcm1GrEO1a6aPrsKkplqh6wPBwxazqDH+XzuCWhzcdAYlzM92ORW4Uxa7C2AcMu1vrCW9D1rpzCJKM1qdsKH33lrrjCu8dkY08oPh78MHTNklgUQ0ErOqm00gyQBjZ4gHMTNxW09gAfbXcWnpVx6DUAo+Q/hJbFKpKwBS1b/k+4BvylkXut0S/i/Sd14bxoD2QaPs7AXa/NT3XU7I7LD5xIjoMsW7i2eVzp8ihpFovuy/5sU/BZ6d3NEVlFZ0nNlwDc6E8PgTEsw5LqbAKJXTN9W9kQNwIRffD0EAPYxnxys0OA1g8EN6KFSRMyevmeLofulmWVGPuUQ==
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Hjy2Squzs0QgVbev0eVB/vEqs3CNmSV6OdhpjdGZORxJIuRXt23YHq5vo7N2?=
- =?us-ascii?Q?b8HDoIq8gv04NvSrQrGhrbKvu/lg4BeAT7NVmtY+gRdyeaRSUmIge2ciaaWt?=
- =?us-ascii?Q?anvs4oZlA/VpHCCfjgVLO4Qj7pcj1p1t7Pod0tas7ki6b22BeeaGX58mVBX/?=
- =?us-ascii?Q?WEtndWncaxkhvkDUpDK0yfq/QQOYd3TG2tF0ztR2jluTtHJg9Cze1gfFFxO5?=
- =?us-ascii?Q?CUaJ66tqYnYNrEZiQm3B4hfAdi2MOK2mrLO6g3YBWWOQBt4SRAQSEn43O5Z4?=
- =?us-ascii?Q?EDDxcftssjdoluXwnJne1l0GNi1iMFNxZmgvFKusZPA4XqiGPNGTjzWssPjX?=
- =?us-ascii?Q?enU8bqe/EHg+pmOI8/AZcwUrTG6Kxi2QEKrBmAC1H9hG1P/Odyla5o7Qkmc6?=
- =?us-ascii?Q?lvRdcOVSqTXqWtX5LiAtsRSDwhPCDUsVV0hWHgcG3+Xi4mFP01nF8g8bsXYn?=
- =?us-ascii?Q?gR6wFNZnY0OEhHwbSMrxZwwl9/UuNie5+4hgGZEYBcJMEfkt5XCvGXA5yMtR?=
- =?us-ascii?Q?Up/nJSqZ0TRlu7WmMroFDg6vxD/BJEyBNuUAC/VX13J/Snz5V7ptkcnR5Jyv?=
- =?us-ascii?Q?orgqpWYI4kpxw06qFx8ABvMqlJgkqBnOKxv3Ee7orvJLKJlsS5Q07vMhZipX?=
- =?us-ascii?Q?ezqWKOkS7h5pL9THkZqlwq1/XMk8l5/aEx3WNWwNRFHXFc4nq8eeAo7qy9bs?=
- =?us-ascii?Q?7zfvIdMOxJECgjf5IO4FQEhrK6zV5BJu7G9ciTeOGOrL5J87+PAcIzoGX5FT?=
- =?us-ascii?Q?lcjOweZ9h31UACUkVkpPEgFJovpMdaucpz19UmuCUDuPtiSKdi2uEs5nq0cJ?=
- =?us-ascii?Q?edCA0wD/IsK0iDveNb873BVRPa0tUJqBxFE8nCfs76v3vFcRNbKHk/R/CP3I?=
- =?us-ascii?Q?3BTN/RblwFmNqW0ma9p5i56gMzWG6nxQv333QbZWUadaKfaktb8Pc7oan0Ml?=
- =?us-ascii?Q?DxcRgTFF6fjjcGDHJQuQto0F4OEs8sqqsvvfID/gwUFfcLqg4ooLDMrYToXX?=
- =?us-ascii?Q?MvIEDlDAwJtT8X55Xo6d7ofWo6mwYoKKfnTKLZIYhes6LRqJjxEww7WVo3O7?=
- =?us-ascii?Q?EsliIOf8Qhz2lQp99M1XJvxiOpB2me9INPWBYTq1c4rRwD+KnC7kedMLWabZ?=
- =?us-ascii?Q?OaQ1I6X5PqKQrDMR6s0mwwJYBZSE1oEP+88W1WlwBBtRm+GnrYmFtVbzrVbi?=
- =?us-ascii?Q?Tuv9sqSGKnQCqGPwLTSUGcuCKa+o3vU/9TbR4cZ2AYmXnbJvlruGgF/heQFC?=
- =?us-ascii?Q?MuEkKIZGL73jfbLT+9rIJUbONvnntNeSCdSZ2sFAcTa65AJImTyWvMsluDLY?=
- =?us-ascii?Q?jU/yHnkSfg1BJ+oKXDQeThVuOIlB6SkUy9v1D+WhFNPoITeLVpZuyNzVOExh?=
- =?us-ascii?Q?pAksrfSg62P6Y9sNtEBaQSEMUwm3nU4CMfSIXBoayPIreBkUPgxrHjOK1raq?=
- =?us-ascii?Q?eP5Y/Tjg+1Q=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?X/EyrurCa4/bKqHyCk/+hSVRl7LzZrWlVnhmH+TbreeIXCM3uAqj1fwyPpiz?=
+ =?us-ascii?Q?32/kAxAAhMf29DxD7UxAs3l2oAgjK5E943u/ihPv0/62TXbdQ6l0u5cDj6JZ?=
+ =?us-ascii?Q?pQTHZNwhMCJtUobRmTVPuudmiX+Qw6RO+CtDaCnAjcIMjhA65lVxHvzXc5Oc?=
+ =?us-ascii?Q?gDHomdFKML9cPHYoc3kGiBOp0PCXZOVf72Kux+WAnm48rxkHqoGKJbXAsSKz?=
+ =?us-ascii?Q?dFBk/C+AzpCjh0HWrt3QiUB4CueQa9Bvxfxfj/aWlk6FD36SvOsoapOCp69x?=
+ =?us-ascii?Q?dAano5SGA0ACkASGAURXB3edLPf267qblM6WwbZ+3vEHZI5iXdEV2qLS7MvY?=
+ =?us-ascii?Q?u6Vv4+ogR48Mcr7sCsPPq2YdFObzyeFfGXhK/7k118Y0xKvZE2qeviHuk+YV?=
+ =?us-ascii?Q?Pvvvl/gJDbpuz/KSWviW+OhJaSlWuSnCtvdkId786Og5GHDrNU/YuJbM7Pm6?=
+ =?us-ascii?Q?0VusZMRHfJ1ek6IJpAFoS7Dp9NNsQ7lrYOrsnrcZe1sLb6AJUGVfAKw+IR10?=
+ =?us-ascii?Q?6kxcXHDO6Cg1rBatdbZqnm23koXPEl9jG2A3ydtCmDYX4xFU7fCC/QBE/o/g?=
+ =?us-ascii?Q?51fQUS5H48DlTNR3fi2BSrQYYnoo55w75Zdw+hc1x/m6s+ylB8rDEOImhWZo?=
+ =?us-ascii?Q?+A42HDiI/oG0En5/wc5u2iqMiYqDMys/MRmuqp5Y8nWjIOH8Gi3+7dINXpjH?=
+ =?us-ascii?Q?XGvo/3UOfc99E4hU1W36ipKvPYPdZfPdEoE5FOCwT3n6blg17SfaPgEoscTY?=
+ =?us-ascii?Q?JIfbdZZbyIoEzwhoRNtk1vFmR7ySEj9icC4bordWIhDbfYe0b/ztAKXKaIav?=
+ =?us-ascii?Q?iQmqGG506ovnpnBLXBc5nomA9BX16aNW7jhuu8vFTT+GhGX85w2KSiupQ/+6?=
+ =?us-ascii?Q?bYh7iocAqG0gUIyKccOc3MWC6S1r1GtjUfLKZV5k0QVQ1YsG8gow9iSHy3O0?=
+ =?us-ascii?Q?XwHox6/xMR8bFnZLMpE1S4dcCzIxl/PXTFuH0z8ynCpJqB4mFN4OMKf2CQrq?=
+ =?us-ascii?Q?j0fRs2KXk1eVPjasYH/dkTiQ0LmzM1TUkj6CHQIaJYobQ7sVIMr1kyIIdn/Y?=
+ =?us-ascii?Q?0vTXVoe9pFSFoVdgKjXjNMfaKa5OXuKthqnn44dKbnpWDBwuWAQrierHwW7r?=
+ =?us-ascii?Q?UbRqQLSeRCZii893VoBmfhC11RPR5xRZn9h7O60Jn4efmcD7EY0cN1mVxH5N?=
+ =?us-ascii?Q?SJNb5MSkTxF/fbzNdbphcWWd3i29NzKPy80DVKd/GMqtArn6VacF43Bev7hP?=
+ =?us-ascii?Q?mNG3vacrG6igpCeQC2XlR+YxDSH8ibtVlRCWhT9+GvZyrYsMRdWIZa8ZrXPe?=
+ =?us-ascii?Q?zCtPId8glg2W6xtBmysJW7uZge9Y+CHxuBF3CbeUQO5iQMQdt2RK+hCFnDpT?=
+ =?us-ascii?Q?ZdlF+ezf2/93LMqlns6paDp0uPzdCbL6PsuaGx+1x0JvFmfOmFoWiNkLtTJR?=
+ =?us-ascii?Q?L0Ku5hqHPVU=3D?=
 X-OriginatorOrg: sct-15-20-4755-11-msonline-outlook-edb50.templateTenant
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4258a9d6-d2d1-49d0-1caa-08da1c4146e1
+X-MS-Exchange-CrossTenant-Network-Message-Id: b4fdbb6e-bf64-4ae9-09a3-08da1c4145a4
 X-MS-Exchange-CrossTenant-AuthSource: SN6PR04MB3983.namprd04.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2022 04:59:51.6925
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2022 04:59:49.6145
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
@@ -102,152 +102,165 @@ X-Mailing-List: util-linux@vger.kernel.org
 
 Signed-off-by: Nathan Sharp <nwsharp@live.com>
 ---
- meson.build              |   1 +
- misc-utils/Makemodule.am |   2 +
- misc-utils/pipesz.1.adoc | 109 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 112 insertions(+)
- create mode 100644 misc-utils/pipesz.1.adoc
+ tests/commands.sh                           |  1 +
+ tests/expected/misc/pipesz-exec             |  1 +
+ tests/expected/misc/pipesz-get-fd           |  1 +
+ tests/expected/misc/pipesz-get-fd-bad.err   |  1 +
+ tests/expected/misc/pipesz-get-file         |  1 +
+ tests/expected/misc/pipesz-get-file-bad.err |  1 +
+ tests/expected/misc/pipesz-set-fd-bad.err   |  1 +
+ tests/expected/misc/pipesz-set-file-bad.err |  1 +
+ tests/ts/misc/pipesz                        | 73 +++++++++++++++++++++
+ 9 files changed, 81 insertions(+)
+ create mode 100644 tests/expected/misc/pipesz-exec
+ create mode 100644 tests/expected/misc/pipesz-get-fd
+ create mode 100644 tests/expected/misc/pipesz-get-fd-bad.err
+ create mode 100644 tests/expected/misc/pipesz-get-file
+ create mode 100644 tests/expected/misc/pipesz-get-file-bad.err
+ create mode 100644 tests/expected/misc/pipesz-set-fd-bad.err
+ create mode 100644 tests/expected/misc/pipesz-set-file-bad.err
+ create mode 100755 tests/ts/misc/pipesz
 
-diff --git a/meson.build b/meson.build
-index 358572e..a94b02f 100644
---- a/meson.build
-+++ b/meson.build
-@@ -2688,6 +2688,7 @@ exe = executable(
-   install : true)
- if opt and not is_disabler(exe)
-   exes += exe
-+  manadocs += ['misc-utils/pipesz.1.adoc']
- endif
- 
- exe = executable(
-diff --git a/misc-utils/Makemodule.am b/misc-utils/Makemodule.am
-index 60c7fe1..5e08c9a 100644
---- a/misc-utils/Makemodule.am
-+++ b/misc-utils/Makemodule.am
-@@ -269,6 +269,8 @@ endif
- 
- if BUILD_PIPESZ
- bin_PROGRAMS += pipesz
-+MANPAGES += misc-utils/pipesz.1
-+dist_noinst_DATA += misc-utils/pipesz.1.adoc
- pipesz_SOURCES = misc-utils/pipesz.c
- pipesz_LDADD = $(LDADD) libcommon.la
- pipesz_CFLAGS = $(AM_CFLAGS)
-diff --git a/misc-utils/pipesz.1.adoc b/misc-utils/pipesz.1.adoc
+diff --git a/tests/commands.sh b/tests/commands.sh
+index 18467cb..aff324c 100644
+--- a/tests/commands.sh
++++ b/tests/commands.sh
+@@ -92,6 +92,7 @@ TS_CMD_MOUNT=${TS_CMD_MOUNT:-"${ts_commandsdir}mount"}
+ TS_CMD_MOUNTPOINT=${TS_CMD_MOUNTPOINT:-"${ts_commandsdir}mountpoint"}
+ TS_CMD_NAMEI=${TS_CMD_NAMEI-"${ts_commandsdir}namei"}
+ TS_CMD_PARTX=${TS_CMD_PARTX-"${ts_commandsdir}partx"}
++TS_CMD_PIPESZ=${TS_CMD_PIPESZ-"${ts_commandsdir}pipesz"}
+ TS_CMD_RENAME=${TS_CMD_RENAME-"${ts_commandsdir}rename"}
+ TS_CMD_RUNUSER=${TS_CMD_RUNUSER-"${ts_commandsdir}runuser"}
+ TS_CMD_REV=${TS_CMD_REV:-"${ts_commandsdir}rev"}
+diff --git a/tests/expected/misc/pipesz-exec b/tests/expected/misc/pipesz-exec
 new file mode 100644
-index 0000000..a18d775
+index 0000000..1c6f03b
 --- /dev/null
-+++ b/misc-utils/pipesz.1.adoc
-@@ -0,0 +1,109 @@
-+//po4a: entry man manual
-+= pipesz(1)
-+:doctype: manpage
-+:man manual: User Commands
-+:man source: util-linux {release-version}
-+:page-layout: base
-+:command: pipesz
++++ b/tests/expected/misc/pipesz-exec
+@@ -0,0 +1 @@
++this_should_be_output_by_cat
+diff --git a/tests/expected/misc/pipesz-get-fd b/tests/expected/misc/pipesz-get-fd
+new file mode 100644
+index 0000000..ef103dc
+--- /dev/null
++++ b/tests/expected/misc/pipesz-get-fd
+@@ -0,0 +1 @@
++fd 0	65536	0
+diff --git a/tests/expected/misc/pipesz-get-fd-bad.err b/tests/expected/misc/pipesz-get-fd-bad.err
+new file mode 100644
+index 0000000..0394206
+--- /dev/null
++++ b/tests/expected/misc/pipesz-get-fd-bad.err
+@@ -0,0 +1 @@
++pipesz: cannot get pipe buffer size of fd 42: Bad file descriptor
+diff --git a/tests/expected/misc/pipesz-get-file b/tests/expected/misc/pipesz-get-file
+new file mode 100644
+index 0000000..c1e1a9d
+--- /dev/null
++++ b/tests/expected/misc/pipesz-get-file
+@@ -0,0 +1 @@
++/dev/stdin	65536	0
+diff --git a/tests/expected/misc/pipesz-get-file-bad.err b/tests/expected/misc/pipesz-get-file-bad.err
+new file mode 100644
+index 0000000..793301d
+--- /dev/null
++++ b/tests/expected/misc/pipesz-get-file-bad.err
+@@ -0,0 +1 @@
++pipesz: cannot get pipe buffer size of /dev/null: Bad file descriptor
+diff --git a/tests/expected/misc/pipesz-set-fd-bad.err b/tests/expected/misc/pipesz-set-fd-bad.err
+new file mode 100644
+index 0000000..199d18c
+--- /dev/null
++++ b/tests/expected/misc/pipesz-set-fd-bad.err
+@@ -0,0 +1 @@
++pipesz: cannot set pipe buffer size of fd 42: Bad file descriptor
+diff --git a/tests/expected/misc/pipesz-set-file-bad.err b/tests/expected/misc/pipesz-set-file-bad.err
+new file mode 100644
+index 0000000..f97b1f8
+--- /dev/null
++++ b/tests/expected/misc/pipesz-set-file-bad.err
+@@ -0,0 +1 @@
++pipesz: cannot set pipe buffer size of /dev/null: Bad file descriptor
+diff --git a/tests/ts/misc/pipesz b/tests/ts/misc/pipesz
+new file mode 100755
+index 0000000..be5eb45
+--- /dev/null
++++ b/tests/ts/misc/pipesz
+@@ -0,0 +1,73 @@
++#!/bin/bash
 +
-+== NAME
++# This file is part of util-linux.
++#
++# This file is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++#
++# This file is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
 +
-+pipesz - set or examine pipe and FIFO buffer sizes
++TS_TOPDIR="${0%/*}/../.."
++TS_DESC="pipesz"
 +
-+== SYNOPSIS
++. $TS_TOPDIR/functions.sh
++ts_init "$*"
 +
-+*pipesz* [options] [--set _size_] [--] [_command_ [argument] ...]
++ts_check_test_command "$TS_CMD_PIPESZ"
 +
-+*pipesz* [options] --get
++ts_init_subtest "set-fd-bad"
++$TS_CMD_PIPESZ --check --set 4096 --fd 42 >> $TS_OUTPUT 2>> $TS_ERRLOG
++[[ $? -eq 0 ]] && ts_logerr "expected failure"
++ts_finalize_subtest
 +
-+== DESCRIPTION
++ts_init_subtest "set-fd"
++echo -n | $TS_CMD_PIPESZ --check --set 4096 --stdin >> $TS_OUTPUT 2>> $TS_ERRLOG
++[[ $? -ne 0 ]] && ts_logerr "expected success"
++ts_finalize_subtest
 +
-+Pipes and FIFOs maintain an internal buffer used to transfer data between the read end and the write end. In some cases, the default size of this internal buffer may not be appropriate. This program provides facilities to set and examine the size of these buffers.
++ts_init_subtest "set-file-bad"
++$TS_CMD_PIPESZ --check --set 4096 --file "/dev/null" >> $TS_OUTPUT 2>> $TS_ERRLOG
++[[ $? -eq 0 ]] && ts_logerr "expected failure"
++ts_finalize_subtest
 +
-+The *--set* operation sets pipe buffer sizes. If it is specified, it must be specified with an explicit _size_. Otherwise, it is implied and the size is read from */proc/sys/fs/pipe-max-size*. The kernel may adjust _size_ as described in *fcntl*(2). To determine the actual buffer sizes set, use the *--verbose* option. If neither *--file* nor *--fd* are specified, *--set* acts on standard output.
++ts_init_subtest "set-file"
++echo -n | $TS_CMD_PIPESZ --check --set 4096 --file "/dev/stdin" >> $TS_OUTPUT 2>> $TS_ERRLOG
++[[ $? -ne 0 ]] && ts_logerr "expected success"
++ts_finalize_subtest
 +
-+The *--set* operation permits an optional _command_ to execute after setting the pipe buffer sizes. This command is executed with the adjusted pipes.
++ts_init_subtest "get-fd-bad"
++$TS_CMD_PIPESZ --check --get --fd 42 >> $TS_OUTPUT 2>> $TS_ERRLOG
++[[ $? -eq 0 ]] && ts_logerr "expected failure"
++ts_finalize_subtest
 +
-+The *--get* operation outputs data in a tabular format. The first column is the name of the pipe as passed to *pipesz*. File descriptors are named as "fd _N_". The second column is the size, in bytes, of the pipe's internal buffer. The third column is the number of unread bytes currently in the pipe. The columns are separated by tabs ('\t', ASCII 09h). If *--verbose* is specified, a descriptive header is also emitted. If neither *--file* nor *--fd* are specified, *--get* acts on all file descriptors.
++ts_init_subtest "get-fd"
++echo -n | $TS_CMD_PIPESZ --check --get --stdin >> $TS_OUTPUT 2>> $TS_ERRLOG
++[[ $? -ne 0 ]] && ts_logerr "expected success"
++ts_finalize_subtest
 +
-+Unless the *--check* option is specified, *pipesz* does _not_ exit if it encounters an error while manipulating a file or file descriptor. This allows *pipesz* to be used generically without fear of disrupting the execution of pipelines should the type of certain files be later changed. For minimal disruption, the *--quiet* option prevents warnings from being emitted in these cases.
++ts_init_subtest "get-file-bad"
++$TS_CMD_PIPESZ --check --get --file "/dev/null" >> $TS_OUTPUT 2>> $TS_ERRLOG
++[[ $? -eq 0 ]] && ts_logerr "expected failure"
++ts_finalize_subtest
 +
-+The kernel imposes limits on the amount of pipe buffer space unprivileged processes can use, though see *BUGS* below. The kernel will also refuse to shrink a pipe buffer if this would cause a loss of buffered data. See *pipe*(7) for additional details.
++ts_init_subtest "get-file"
++echo -n | $TS_CMD_PIPESZ --check --get --file "/dev/stdin" >> $TS_OUTPUT 2>> $TS_ERRLOG
++[[ $? -ne 0 ]] && ts_logerr "expected success"
++ts_finalize_subtest
 +
-+*pipesz* supports specifying multiple short options consecutively, in the usual *getopt*(3) fashion. The first non-option argument is interpreted as _command_. If _command_ might begin with '-', use '--' to separate it from argument to *pipesz*. In shell scripts, it is good practice to use '--' when parameter expansion is involved. *pipesz* itself does not read from standard input and does not write to standard output unless *--get*, *--help*, or *--version* are specified.
++ts_init_subtest "pipe-max-size"
++echo -n | $TS_CMD_PIPESZ --check --stdin >> $TS_OUTPUT 2>> $TS_ERRLOG
++[[ $? -ne 0 ]] && ts_logerr "expected success"
++ts_finalize_subtest
 +
-+== OPTIONS
++ts_init_subtest "exec"
++echo this_should_be_output_by_cat | $TS_CMD_PIPESZ --check --stdin cat >> $TS_OUTPUT 2>> $TS_ERRLOG
++[[ $? -ne 0 ]] && ts_logerr "expected success"
++ts_finalize_subtest
 +
-+*-g*, *--get*::
-+Report the size of pipe buffers to standard output and exit. As a special behavior, if neither *--file* nor *--fd* are specified, *every* file descriptor passed to *pipesz* is examined. It is an error to specifiy this option in combination with *--set*.
-+
-+*-s*, *--set* _size_::
-+Set the size of the pipe buffers, in bytes. This option may be suffixed by _K_, _M_, _G_, _KiB_, _MiB_, or _GiB_ to indicate multiples of 1024. Fractional values are supported in this case. Additional suffixes are supported but are unlikely to be useful. If this option is not specified, a default value is used, as described above. If this option is specified multiple times, a warning is emitted and only the last-specified value is used. It is an error to specify this option in combination with *--get*.
-+
-+*-f*, *--file* _path_::
-+Set the buffer size of the FIFO or pipe at _path_, relative to the current working directory. You may specify this option multiple times to affect different files, and you may do so in combination with *--fd*. Generally, this option is used with FIFOs, but it will also operate on anonymous pipes such as those found in */proc/PID/fd*. Changes to the buffer size of FIFOs are not preserved across system restarts.
-+
-+*-n*, *--fd* _fd_::
-+Set the buffer size of the pipe or FIFO passed to *pipesz* as the specified file descriptor number. You may specify this option multiple times to affect different file descriptors, and you may do so in combination with *--file*. Shorthand options are provided for the common cases of fd 0 (stdin), fd 1 (stdout), and fd 2 (stderr). These should suffice in most cases.
-+
-+*-i*, *--stdin*::
-+Shorthand for *--fd 0*.
-+
-+*-o*, *--stdout*::
-+Shorthand for *--fd 1*.
-+
-+*-e*, *--stderr*::
-+Shorthand for *--fd 2*.
-+
-+*-c*, *--check*::
-+Exit, without executing _command_, in case of any error while manipulating a file or file descriptor. The default behavior if this is not specified is to emit a warning to standard error and continue.
-+
-+*-q*, *--quiet*::
-+Do not diagnose non-fatal errors to standard error. This option does not affect the normal output of *--get*, *--verbose*, *--help*, or *--version*.
-+
-+*-v*, *--verbose*::
-+If specified with *--get*, *pipesz* will emit a descriptive header above the table. If specified with *--set*, *pipesz* will print the actual buffer sizes set by the kernel to standard error.
-+
-+include::man-common/help-version.adoc[]
-+
-+== EXAMPLES
-+
-+*pipesz* *dd* if=_file_ bs=1M | ...::
-+Runs *dd*(1) with an expanded standard output pipe, allowing it to avoid context switches when piping around large blocks.
-+
-+*pipesz* -s1M -cf /run/my-service.fifo::
-+Sets the pipe buffer size of a service FIFO to 1,048,576 bytes. If the buffer size could not be set, *pipesz* exits with an error.
-+
-+*echo* hello | *pipesz* -gi::
-+Prints the size of pipe used by the shell to pass input to *pipesz*. Since *pipesz* does not read standard input, it may also report 6 unread bytes in the pipe, depending on relative timings.
-+
-+*find* /proc/_PID_/fd -exec *pipesz* -gqf '{}' ';'::
-+Prints the size and number of unread bytes of all pipes in use by _PID_. If some pipes are routinely full, *pipesz* might be able to mitigate a processing bottleneck.
-+
-+== NOTES
-+
-+Linux supports adjusting the size of pipe buffers since kernel 2.6.35. This release also introduced */proc/sys/fs/pipe-max-size*.
-+
-+This program uses *fcntl*(2) *F_GETPIPE_SZ*/*F_SETPIPE_SZ* to get and set pipe buffer sizes.
-+
-+This program uses *ioctl*(2) *FIONREAD* to report the amount of unread data in pipes. If for some reason this fails, the amount of unread data is reported as 0.
-+
-+== BUGS
-+
-+Before Linux 4.9, some bugs affect how certain resource limits are enforced when setting pipe buffer sizes. See *pipe*(7) for details.
-+
-+== AUTHORS
-+
-+mailto:nwsharp@live.com[Nathan Sharp]
-+
-+== SEE ALSO
-+
-+*pipe*(7)
-+
-+include::man-common/bugreports.adoc[]
-+
-+include::man-common/footer.adoc[]
-+
-+ifdef::translation[]
-+include::man-common/translation.adoc[]
-+endif::[]
++ts_finalize
 -- 
 2.35.1
 
