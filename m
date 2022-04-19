@@ -2,79 +2,85 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4964AC433F5
-	for <util-linux@archiver.kernel.org>; Fri, 15 Apr 2022 06:01:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBCF7C433EF
+	for <util-linux@archiver.kernel.org>; Tue, 19 Apr 2022 09:49:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230370AbiDOGEY (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 15 Apr 2022 02:04:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59532 "EHLO
+        id S1348238AbiDSJvo (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 19 Apr 2022 05:51:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230295AbiDOGEX (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 15 Apr 2022 02:04:23 -0400
-Received: from nksmu.kylinos.cn (mailgw.kylinos.cn [123.150.8.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9E75A8891
-        for <util-linux@vger.kernel.org>; Thu, 14 Apr 2022 23:01:56 -0700 (PDT)
-X-UUID: e6f9133244d14e7084ce34f50560d812-20220415
-X-UUID: e6f9133244d14e7084ce34f50560d812-20220415
-Received: from cs2c.com.cn [(172.17.111.24)] by nksmu.kylinos.cn
-        (envelope-from <lienze@kylinos.cn>)
-        (Generic MTA)
-        with ESMTP id 232373488; Fri, 15 Apr 2022 14:00:40 +0800
-X-ns-mid: postfix-62590A50-9252324949
-Received: from ubuntu (unknown [172.30.60.63])
-        by cs2c.com.cn (NSMail) with ESMTPA id DC8653848675;
-        Fri, 15 Apr 2022 06:01:52 +0000 (UTC)
-Date:   Fri, 15 Apr 2022 14:01:52 +0800
-From:   Enze Li <lienze@kylinos.cn>
-To:     zhenwei pi <pizhenwei@bytedance.com>
+        with ESMTP id S241742AbiDSJvn (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 19 Apr 2022 05:51:43 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C75A7BE14
+        for <util-linux@vger.kernel.org>; Tue, 19 Apr 2022 02:49:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1650361740;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=LQbeNMG1bdo7OZ4FiUPEXvp0rG9xAV8YjTOxKY5QM8M=;
+        b=fpML72Gbu7hoD1r3C1shVQkNWQC5me6X77VN7BAn70RKDHMFSEkLuhN6HDzwdCgDRCsihM
+        eIG7W78acvmT3KnRbv6AC78QSjlU34gEUqjk8Bh7MLsESZPpISkrk5J/J3CqriGXdzCPYZ
+        Vf5uzVhJPeSy+nwwffbvFK2VMDQBJgc=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-282-1NfNqlZIP0qkSWp0g0HPSw-1; Tue, 19 Apr 2022 05:48:57 -0400
+X-MC-Unique: 1NfNqlZIP0qkSWp0g0HPSw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2A6201C05EBB;
+        Tue, 19 Apr 2022 09:48:57 +0000 (UTC)
+Received: from ws.net.home (unknown [10.36.112.12])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id A3610C15E71;
+        Tue, 19 Apr 2022 09:48:56 +0000 (UTC)
+Date:   Tue, 19 Apr 2022 11:48:54 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Enze Li <lienze@kylinos.cn>
 Cc:     util-linux@vger.kernel.org
-Subject: Re: [PATCH] build-sys: add blkpr to gitignore
-Message-ID: <20220415140152.4fe3d03c@ubuntu>
-In-Reply-To: <6f22345a-8351-ae01-7df2-c2d31ccd5956@bytedance.com>
-References: <20220415033125.3409425-1-lienze@kylinos.cn>
-        <6f22345a-8351-ae01-7df2-c2d31ccd5956@bytedance.com>
+Subject: Re: [PATCH] eject: set CD-ROM speed to auto when xargs < 0
+Message-ID: <20220419094854.3dfrojbfvrps7slg@ws.net.home>
+References: <20220414094627.2924087-1-lienze@kylinos.cn>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220414094627.2924087-1-lienze@kylinos.cn>
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.8
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Fri, 15 Apr 2022 11:31:31 +0800
-zhenwei pi <pizhenwei@bytedance.com> wrote:
-
-> On 4/15/22 11:31, Enze Li wrote:
-> > Since this commit 627428a95692 ("blkpr: add block persistent
-> > reservations command"), we introduced blkpr, but the compiled
-> > generated binary file is not added to the gitignore, so let's do it.
-> > 
-> > Signed-off-by: Enze Li <lienze@kylinos.cn>
-> > ---
-> >   .gitignore | 1 +
-> >   1 file changed, 1 insertion(+)
-> > 
-> > diff --git a/.gitignore b/.gitignore
-> > index 3274563ec..0effa8945 100644
-> > --- a/.gitignore
-> > +++ b/.gitignore
-> > @@ -73,6 +73,7 @@ GSYMS
-> >   /addpart
-> >   /agetty
-> >   /blkdiscard
-> > +/blkpr
-> >   /blkzone
-> >   /blkid
-> >   /blockdev  
-
-Hi zhenwei,
-
-Thanks for your review.
-
+On Thu, Apr 14, 2022 at 05:46:27PM +0800, Enze Li wrote:
+> when I execute the following command,
+> $ ./eject -x -1 -v
 > 
-> Could you please reorder blkXX together to make them all in order?
-> 
+> I get this output info,
+> eject: using default device `/dev/sr0'
+> eject: device name is `/dev/sr0'
+> eject: /dev/sr0: not mounted
+> eject: /dev/sr0: is whole-disk device
+> eject: setting CD-ROM speed to -1X
+>                                ^^^
 
-Indeed, if this is necessary.  I've sent v2 to util-liux@list.
+I have fixed this in a different way. 
 
-Thanks,
-Enze
+https://github.com/util-linux/util-linux/commit/3b888573661d43ea069e98a083bd10e33a2ece69
+
+The problem is that it uses ctl->x_arg = strtoul_or_err() -- so
+non-negative number is expected, but strtoul_or_err() does not work in
+this way ...
+
+Now:
+
+    # ./eject -x -1 -v
+    eject: invalid argument to --cdspeed/-x option: '-1': Numerical result out of range
+
+
+ Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
