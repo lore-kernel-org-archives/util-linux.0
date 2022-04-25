@@ -2,117 +2,113 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A693EC43217
-	for <util-linux@archiver.kernel.org>; Mon, 25 Apr 2022 15:09:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42037C433F5
+	for <util-linux@archiver.kernel.org>; Mon, 25 Apr 2022 15:38:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242761AbiDYPMK (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 25 Apr 2022 11:12:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56002 "EHLO
+        id S242631AbiDYPlN (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 25 Apr 2022 11:41:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242751AbiDYPMJ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 25 Apr 2022 11:12:09 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6D3266E4DE
-        for <util-linux@vger.kernel.org>; Mon, 25 Apr 2022 08:09:04 -0700 (PDT)
+        with ESMTP id S230227AbiDYPlM (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 25 Apr 2022 11:41:12 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0FB8E25E94
+        for <util-linux@vger.kernel.org>; Mon, 25 Apr 2022 08:38:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1650899343;
+        s=mimecast20190719; t=1650901087;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=Oo9Cdxw062n0FQjxnxA3V6rrAmqbilo8oDAPWPqZpVA=;
-        b=CcN3DslAYHIcexV7SlTP/RRw2hqucd7uLXIXuaAn24MT1vyDL9F8PSaLYeWxF3c9TUpGGv
-        l8fhQoqppQTCMjTdLgB7dtXmRc8llroX6+fS6iIQJ9+XJwm8qEJDQL9+rnlqggwpjgrMMg
-        wNDfLxQ9wvPn1H1/IIYVV3CZ36KlCHY=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=2IG0+MJAEX/qlzZeTVKoOjDB3faWsnC/kbND2Vjv7Wc=;
+        b=DZc9FwPDQtgk0YFR9mFlISzJky624WTK9zgdmjbMtkh24WZ7E5G1ICYqk4fM4g/gvI04Sq
+        uWmnTCkm373CkAmMrcsz4mkglD9vJbcHd/ibsVSqArcpoI1pg5IknSZehxTbnOOnnAC8/t
+        LfiOiOlFk808N1y+keIeJeJgxCSpMZo=
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
+ [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-13-cpNcxckWMROkO2wlgzuHHQ-1; Mon, 25 Apr 2022 11:09:01 -0400
-X-MC-Unique: cpNcxckWMROkO2wlgzuHHQ-1
-Received: by mail-ed1-f70.google.com with SMTP id cz24-20020a0564021cb800b00425dfdd7768so1891174edb.2
-        for <util-linux@vger.kernel.org>; Mon, 25 Apr 2022 08:09:01 -0700 (PDT)
+ us-mta-82-QNJj4uM8NVup1Br4LerlAw-1; Mon, 25 Apr 2022 11:38:06 -0400
+X-MC-Unique: QNJj4uM8NVup1Br4LerlAw-1
+Received: by mail-io1-f69.google.com with SMTP id i19-20020a5d9353000000b006495ab76af6so11863847ioo.0
+        for <util-linux@vger.kernel.org>; Mon, 25 Apr 2022 08:38:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Oo9Cdxw062n0FQjxnxA3V6rrAmqbilo8oDAPWPqZpVA=;
-        b=GX0ZyqjUBvNf8esynZ+NvlJ4TTn0KZdU9QPJhl033LPDlASWmOh1VmWho8LLotvA98
-         EQQ/PAXxXm8jDvnAzuLveC89fh7+bYSObcHdsCrRaX6XbPgSu5vPC6NCA9txfTuMg5pP
-         HceJ3SMF/LFWSmu7P23bnWNJ3ugvgYKzEL0Wo37zlk83KxJ2iJQqO822ClUcw5FSOPtR
-         uP3TEFn7o2sAEkkO4jE+egqVzjI+Jg9QhA5nojBUum0QyvlYflVdVeQrKX0sYtsVJYQn
-         FzT+A4sx32T446RcXXUPg9+iAQ7qNbZ/TE3X5RRHwkgfI3ajNlcGR8W65V5XzAQqjMZE
-         vPNg==
-X-Gm-Message-State: AOAM532ZHvAYT2qCzl1AfyLUWmWqjBLYON11SXv4S1wwDn26ycp1zgC+
-        ijcJcQ0LRvAMKHl4y/4NnyT4+DduDdWPp+dH1fNHgrHwmMN/8y3NNOupiFBZr58gOI31cda/E+V
-        RbBuLg+WzRb+yb3c6PubAaXUUfZjNq4CRWELZ53fteYlhfh+HxcLckWSGPzg1NtNfVeAZWubI
-X-Received: by 2002:a17:907:9506:b0:6da:b4cd:515b with SMTP id ew6-20020a170907950600b006dab4cd515bmr16859611ejc.602.1650899340231;
-        Mon, 25 Apr 2022 08:09:00 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzwzYEJ2Ea61g1aDWRMS2ycfBmFHVEc8QflPbgrPUKZTGkn/9h5VYreWJp4qwATCybfk1Xbuw==
-X-Received: by 2002:a17:907:9506:b0:6da:b4cd:515b with SMTP id ew6-20020a170907950600b006dab4cd515bmr16859594ejc.602.1650899340030;
-        Mon, 25 Apr 2022 08:09:00 -0700 (PDT)
-Received: from aalbersh.remote.csb ([109.183.6.197])
-        by smtp.gmail.com with ESMTPSA id i19-20020a1709061cd300b006f38920dbeesm1776878ejh.134.2022.04.25.08.08.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Apr 2022 08:08:59 -0700 (PDT)
-From:   Andrey Albershteyn <aalbersh@redhat.com>
-To:     util-linux@vger.kernel.org
-Cc:     Andrey Albershteyn <aalbersh@redhat.com>
-Subject: [PATCH v2 3/3] blkid: add FSSIZE tag with tests for XFS
-Date:   Mon, 25 Apr 2022 17:08:39 +0200
-Message-Id: <20220425150838.151020-4-aalbersh@redhat.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20220425150838.151020-1-aalbersh@redhat.com>
-References: <20220425150838.151020-1-aalbersh@redhat.com>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=2IG0+MJAEX/qlzZeTVKoOjDB3faWsnC/kbND2Vjv7Wc=;
+        b=8KerGf8TIXMlFwbPrEzGNhhPkuD9pVOxgfa5yO5+cC7Ih1p/jmvEqvHjdcANqdAZjw
+         bryhob8KCiYeBivreJwN0bqONLX+jmaiQaVszV5Hk4Vg7xBRqPfHlKm83eLezu6oFwqw
+         nVDZQwO90PhBKE5henuDZRhmZ57HKKAEY6iJH1aO9I2IG69qNh25BWPHgNrHObG+4wB4
+         rw+xZw+D/u8Gq5dIOS/ZvEkcFZGBlV+pV/rerc7l3iEiR1C5VA30M9JJ66GFODDRCvwc
+         zh/PszVdXbjI/QjzzNYnfMji5x+LjAO4izCSUO3S6IeRRRbVotKhTafbUj5Wf7s+Qgnx
+         Bmcw==
+X-Gm-Message-State: AOAM532lEZS848eSPps2bxjdwt+s6+lthr/rxxUDSbHEgyt54NAKaFNt
+        VDoQrXEYKQxInWkhBorg1adpEsh0SMhYy05TqAecYv2voomiQkC0LXjlTdUIOSgKkuAOVutxF0H
+        Q0y/JTIkV12KKYLFghfd8oA==
+X-Received: by 2002:a5d:81cb:0:b0:653:7cec:64aa with SMTP id t11-20020a5d81cb000000b006537cec64aamr7620406iol.208.1650901084997;
+        Mon, 25 Apr 2022 08:38:04 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwr4Y6m3SzJsMOUvbFmeKAcyPDCHnnot3jqsPiJNttmaj/dhJZtrvZDHQ5yN9QzwBKvF+nBbw==
+X-Received: by 2002:a5d:81cb:0:b0:653:7cec:64aa with SMTP id t11-20020a5d81cb000000b006537cec64aamr7620398iol.208.1650901084720;
+        Mon, 25 Apr 2022 08:38:04 -0700 (PDT)
+Received: from [10.0.0.146] (sandeen.net. [63.231.237.45])
+        by smtp.gmail.com with ESMTPSA id k6-20020a6b4006000000b00649d7111ebasm7662443ioa.0.2022.04.25.08.38.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 25 Apr 2022 08:38:04 -0700 (PDT)
+Message-ID: <8b2a82b2-8890-1276-9948-d8c28fca3d9b@redhat.com>
+Date:   Mon, 25 Apr 2022 10:38:02 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.8.1
+Subject: Re: [PATCH 0/2] libblkid: add FSSIZE with XFS implementation
+Content-Language: en-US
+To:     Karel Zak <kzak@redhat.com>,
+        Andrey Albershteyn <aalbersh@redhat.com>
+Cc:     util-linux@vger.kernel.org
+References: <20220421130946.318737-1-aalbersh@redhat.com>
+ <20220425134329.ub3thxkscsniy74e@ws.net.home>
+From:   Eric Sandeen <sandeen@redhat.com>
+In-Reply-To: <20220425134329.ub3thxkscsniy74e@ws.net.home>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-The FSSIZE tag was added to the libblkid. Enable this tag in blkid
-and update tests golden output for XFS test cases.
+On 4/25/22 8:43 AM, Karel Zak wrote:
+> 
+>  Thanks Andrey,
+> 
+> the code looks good.
+> 
+> On Thu, Apr 21, 2022 at 03:09:44PM +0200, Andrey Albershteyn wrote:
+>> I had a look into other fs, like ext4 and btrfs, to implement FSSIZE
+>> for them, but I think I don't have enough expertize to do that as
+>> they have not so trivial metadata overhead calculation :)
+> 
+> But it would be nice to have ext4 and btrfs too. Maybe Eric can help
+> you :-)
+> 
+>     Karel
 
-Signed-off-by: Andrey Albershteyn <aalbersh@redhat.com>
----
- misc-utils/blkid.c                    | 3 ++-
- tests/expected/blkid/low-probe-xfs    | 1 +
- tests/expected/blkid/low-probe-xfs-v5 | 1 +
- 3 files changed, 4 insertions(+), 1 deletion(-)
+For ext4 something like e2fsprogs does is probably ok:
 
-diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
-index d79527e3f..2edcd2b41 100644
---- a/misc-utils/blkid.c
-+++ b/misc-utils/blkid.c
-@@ -921,7 +921,8 @@ int main(int argc, char **argv)
- 			blkid_probe_set_superblocks_flags(pr,
- 				BLKID_SUBLKS_LABEL | BLKID_SUBLKS_UUID |
- 				BLKID_SUBLKS_TYPE | BLKID_SUBLKS_SECTYPE |
--				BLKID_SUBLKS_USAGE | BLKID_SUBLKS_VERSION);
-+				BLKID_SUBLKS_USAGE | BLKID_SUBLKS_VERSION |
-+				BLKID_SUBLKS_FSSIZE);
- 
- 
- 			if (fltr_usage &&
-diff --git a/tests/expected/blkid/low-probe-xfs b/tests/expected/blkid/low-probe-xfs
-index 6eb1b4600..a91e92bcc 100644
---- a/tests/expected/blkid/low-probe-xfs
-+++ b/tests/expected/blkid/low-probe-xfs
-@@ -1,4 +1,5 @@
- ID_FS_BLOCK_SIZE=512
-+ID_FS_FSSIZE=11862016
- ID_FS_LABEL=test-xfs
- ID_FS_LABEL_ENC=test-xfs
- ID_FS_TYPE=xfs
-diff --git a/tests/expected/blkid/low-probe-xfs-v5 b/tests/expected/blkid/low-probe-xfs-v5
-index 513a3818f..129b41f26 100644
---- a/tests/expected/blkid/low-probe-xfs-v5
-+++ b/tests/expected/blkid/low-probe-xfs-v5
-@@ -1,4 +1,5 @@
- ID_FS_BLOCK_SIZE=512
-+ID_FS_FSSIZE=17469440
- ID_FS_LABEL=test-xfs-v5
- ID_FS_LABEL_ENC=test-xfs-v5
- ID_FS_TYPE=xfs
--- 
-2.27.0
+static __u64 e2p_free_blocks_count(struct ext2_super_block *super)
+{
+        return super->s_free_blocks_count |
+                (ext2fs_has_feature_64bit(super) ?
+                (__u64) super->s_free_blocks_hi << 32 : 0);
+}
+
+though I wonder if a little documentation on the intent of the flag is
+in order; ext4 can return "df" in different ways (see the minixdf and
+bsddf mount options.)
+
+I think best effort seems fine here, and reporting the same number
+as the ext4 utilities do should be fine.
+
+As for btrfs - I'm really not sure what this should return on a
+multi-device filesystem?
+
+-Eric
 
