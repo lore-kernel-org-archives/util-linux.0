@@ -2,64 +2,64 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28EE1C4332F
-	for <util-linux@archiver.kernel.org>; Wed, 27 Apr 2022 17:06:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0E95C433EF
+	for <util-linux@archiver.kernel.org>; Wed, 27 Apr 2022 17:06:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243766AbiD0RJM (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S243761AbiD0RJM (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Wed, 27 Apr 2022 13:09:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41084 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243814AbiD0RJA (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 27 Apr 2022 13:09:00 -0400
+        with ESMTP id S243804AbiD0RI6 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 27 Apr 2022 13:08:58 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6B43B1D0E0
-        for <util-linux@vger.kernel.org>; Wed, 27 Apr 2022 10:05:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 332D026CE
+        for <util-linux@vger.kernel.org>; Wed, 27 Apr 2022 10:05:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651079148;
+        s=mimecast20190719; t=1651079146;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=cjsyeOBrqny3Kp7OYHJyw/qDd5V5UEAofuGkLZSA+aM=;
-        b=bqUZQfznW0ntmk/SDVsxneM+5Lgyz/cHbN0v3de/SXRaUAHi3lEW5SspaVMtdnYnZ1+qR4
-        sblNz/uJhnZ9jFJ3nUoPCtM1znEdGDP20RU3jx1/mRmLU1Xtx226nT/fY/kHLCUu3QouE0
-        nSZkDmUWoA9DIAQzOmL7BPZooO7QxBQ=
+        bh=TddwEqJ27xrorZ7N2/jDsDPnP9EFMJ0eWw1KerxoQ3I=;
+        b=RsnvMXlHppSCTtzq0VBYJPXBkc6PwVfeIBlYJkyIM7hy9wMwaGr4qB7yZdiM/Aq7vpSiZo
+        ioeWwnyHKtWPsKKeKRFdLqyH/0QfUHWRkEKfOOElj8QJrkdz6gY02SmfkQPdKl/rZeJfmS
+        nU3JuHwaJe/iLmbdbLWIPKMbo/a5wzs=
 Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
  [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-668-Mkgp-HI6NV-Fk7TrRpAy7g-1; Wed, 27 Apr 2022 13:05:47 -0400
-X-MC-Unique: Mkgp-HI6NV-Fk7TrRpAy7g-1
-Received: by mail-wm1-f72.google.com with SMTP id q6-20020a1cf306000000b0038c5726365aso792863wmq.3
-        for <util-linux@vger.kernel.org>; Wed, 27 Apr 2022 10:05:47 -0700 (PDT)
+ us-mta-496-EsZiEEbSPjKSFSR5GgJ1qg-1; Wed, 27 Apr 2022 13:05:45 -0400
+X-MC-Unique: EsZiEEbSPjKSFSR5GgJ1qg-1
+Received: by mail-wm1-f72.google.com with SMTP id 125-20020a1c0283000000b003928cd3853aso2987752wmc.9
+        for <util-linux@vger.kernel.org>; Wed, 27 Apr 2022 10:05:44 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=cjsyeOBrqny3Kp7OYHJyw/qDd5V5UEAofuGkLZSA+aM=;
-        b=SG1XRMHaEBTOmRy2ckLtbnCcoQRf+Q8Y71/OQUHjxJ/zHAtFrMwQXqu21y8WWE34Ct
-         8FxY8utghUfG/DjLaV0HVzeVwj2fwaIzxZlreQE1MS5Y53kX+O360vFBHyprYPETzg4z
-         ikWbRLizhn9KuVnNm6mYjYia0VVB6UAcFL5W0IMt3Wr5CSAVieKAjun8k2lxcGkry6SX
-         cPvoUOl+FC3Rfh9JXeTF2X2ycs13zHg/ehFZ0RcyGEQ8BdvnM7KGv8yQGNHuFryZ6Y4G
-         VHLSLDDdo+4Yh5CWm6G+hVHHj+b1pHqYl+KgHv2d8y89nKvq58vwgEA5xfNAbgAU7rPG
-         rf9w==
-X-Gm-Message-State: AOAM5300efisSW3YYyu973LSgRynaHmRfhLtPK6KXYFb5mKw4nwxmi5m
-        VVvVK9mBRfRXuN/U0ytIQvDJ2+QHnSCfOdfWw2flYn/WHKNCkSd9oAIJbvJU3n71ulv65lqoWtw
-        OfWk+7mCkncm6So33/uVJMcqRh2ipYRHABw/WHaPlpp0DPs0fUs9cF+FlwYZ6LCAFNPThK/St
-X-Received: by 2002:a7b:c086:0:b0:393:f6fa:cfc7 with SMTP id r6-20020a7bc086000000b00393f6facfc7mr9319010wmh.62.1651079145872;
-        Wed, 27 Apr 2022 10:05:45 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyHuBtTYYj2v1ynwNLWwJJC2B2dLbsjpUJK8o+zajyuXKahwklOdEbscSuRGnVGWgtK0w3Yqg==
-X-Received: by 2002:a7b:c086:0:b0:393:f6fa:cfc7 with SMTP id r6-20020a7bc086000000b00393f6facfc7mr9318990wmh.62.1651079145531;
-        Wed, 27 Apr 2022 10:05:45 -0700 (PDT)
+        bh=TddwEqJ27xrorZ7N2/jDsDPnP9EFMJ0eWw1KerxoQ3I=;
+        b=2QrLRtB9NJiXbKDr4QOC0cV/JrW2EJp88sS+NoFtRgT/dB+chnF1zG3piNOnAE68gW
+         qUcvarTokyIIJD84bSYrV2R1jfyASVbLSR7n6aWZe1IIyMuxhsl5rVTblO+swRE6vVnx
+         AUUGSbXUpvX60oo/qq9l2/s+QHRUkUmzxkSDxAGp8OMKhy0pNpVFuaEGNINRRrEM1dcC
+         SLD6bq8qYjQU1Qxj8LGp9u8LA9NwkV5Fdzd8179VlTMUNE9ECHIq2ivfz1f37KKLGRkh
+         I0p74Ez4YRaC/UbkK+x+DCWNLy39W0X+HbzORrRh4XG8fPQhgy7We07zyGq19Lbo14Wg
+         7aiA==
+X-Gm-Message-State: AOAM53167HfWOGlpLV1vJEIvwax1ledFHWy21AbvGOkl6Q0Ren/ypQzi
+        8rnqxylvRytv8+LXe76jrAgqWWrbl78IuaZ3XcKRy1qDRABRu6Ih1hb7OTZfVaXACZWiAJXatWF
+        LTNzY6apmBo7de4c1Dd49VlfJCTuYCVzNwzfoXU9RAgHZ8EChHynT6KKAvUwFJq7wyOeOIVqF
+X-Received: by 2002:a7b:cb84:0:b0:382:a9b9:2339 with SMTP id m4-20020a7bcb84000000b00382a9b92339mr36981792wmi.91.1651079143584;
+        Wed, 27 Apr 2022 10:05:43 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyuPSJxLU330klIyl7f3WK7AgxLY8451Znc5wWkgXqZqkZEtn35AnXMaznGYvkpj4T9BN1FcQ==
+X-Received: by 2002:a7b:cb84:0:b0:382:a9b9:2339 with SMTP id m4-20020a7bcb84000000b00382a9b92339mr36981780wmi.91.1651079143367;
+        Wed, 27 Apr 2022 10:05:43 -0700 (PDT)
 Received: from aalbersh.remote.csb ([109.183.6.197])
-        by smtp.gmail.com with ESMTPSA id j14-20020a5d604e000000b0020af46b0ffbsm288582wrt.9.2022.04.27.10.05.44
+        by smtp.gmail.com with ESMTPSA id j14-20020a5d604e000000b0020af46b0ffbsm288582wrt.9.2022.04.27.10.05.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Apr 2022 10:05:45 -0700 (PDT)
+        Wed, 27 Apr 2022 10:05:42 -0700 (PDT)
 From:   Andrey Albershteyn <aalbersh@redhat.com>
 To:     util-linux@vger.kernel.org
 Cc:     Andrey Albershteyn <aalbersh@redhat.com>
-Subject: [PATCH 4/4] blkid: add tests for FSLASTBLOCK tag
-Date:   Wed, 27 Apr 2022 19:05:14 +0200
-Message-Id: <20220427170514.317720-5-aalbersh@redhat.com>
+Subject: [PATCH 2/4] libblkid: add FSLASTBLOCK implementation for xfs, ext and btrfs
+Date:   Wed, 27 Apr 2022 19:05:12 +0200
+Message-Id: <20220427170514.317720-3-aalbersh@redhat.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220427170514.317720-1-aalbersh@redhat.com>
 References: <20220427170514.317720-1-aalbersh@redhat.com>
@@ -69,90 +69,60 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+Implementation of FSLASTBLOCK for most common filesystems. Most of
+the fs store total number of reserved blocks in superblock.
+
 Signed-off-by: Andrey Albershteyn <aalbersh@redhat.com>
 ---
- misc-utils/blkid.c                    | 2 +-
- tests/expected/blkid/low-probe-btrfs  | 1 +
- tests/expected/blkid/low-probe-ext2   | 1 +
- tests/expected/blkid/low-probe-ext3   | 1 +
- tests/expected/blkid/low-probe-jbd    | 1 +
- tests/expected/blkid/low-probe-xfs    | 1 +
- tests/expected/blkid/low-probe-xfs-v5 | 1 +
- 7 files changed, 7 insertions(+), 1 deletion(-)
+ libblkid/src/superblocks/btrfs.c | 5 +++++
+ libblkid/src/superblocks/ext.c   | 5 +++++
+ libblkid/src/superblocks/xfs.c   | 1 +
+ 3 files changed, 11 insertions(+)
 
-diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
-index 2edcd2b41..5a3e43624 100644
---- a/misc-utils/blkid.c
-+++ b/misc-utils/blkid.c
-@@ -922,7 +922,7 @@ int main(int argc, char **argv)
- 				BLKID_SUBLKS_LABEL | BLKID_SUBLKS_UUID |
- 				BLKID_SUBLKS_TYPE | BLKID_SUBLKS_SECTYPE |
- 				BLKID_SUBLKS_USAGE | BLKID_SUBLKS_VERSION |
--				BLKID_SUBLKS_FSSIZE);
-+				BLKID_SUBLKS_FSSIZE | BLKID_SUBLKS_FSLASTBLOCK);
+diff --git a/libblkid/src/superblocks/btrfs.c b/libblkid/src/superblocks/btrfs.c
+index 78d767d26..0ead1f591 100644
+--- a/libblkid/src/superblocks/btrfs.c
++++ b/libblkid/src/superblocks/btrfs.c
+@@ -236,6 +236,11 @@ static int probe_btrfs(blkid_probe pr, const struct blkid_idmag *mag)
+ 	blkid_probe_set_uuid_as(pr, bfs->dev_item.uuid, "UUID_SUB");
+ 	blkid_probe_set_block_size(pr, le32_to_cpu(bfs->sectorsize));
+ 
++	uint32_t sectorsize_log = 31 -
++		__builtin_clz(le32_to_cpu(bfs->sectorsize));
++	blkid_probe_set_fslastblock(pr,
++			le64_to_cpu(bfs->total_bytes) >> sectorsize_log);
++
+ 	return 0;
+ }
+ 
+diff --git a/libblkid/src/superblocks/ext.c b/libblkid/src/superblocks/ext.c
+index 3870522fa..105bdfcf3 100644
+--- a/libblkid/src/superblocks/ext.c
++++ b/libblkid/src/superblocks/ext.c
+@@ -190,6 +190,11 @@ static void ext_get_info(blkid_probe pr, int ver, struct ext2_super_block *es)
+ 
+ 	if (le32_to_cpu(es->s_log_block_size) < 32)
+ 		blkid_probe_set_block_size(pr, 1024U << le32_to_cpu(es->s_log_block_size));
++
++	uint64_t fslastblock = es->s_blocks_count |
++		((es->s_feature_incompat & EXT4_FEATURE_INCOMPAT_64BIT) ?
++		(uint64_t) es->s_blocks_count_hi << 32 : 0);
++	blkid_probe_set_fslastblock(pr, fslastblock);
+ }
  
  
- 			if (fltr_usage &&
-diff --git a/tests/expected/blkid/low-probe-btrfs b/tests/expected/blkid/low-probe-btrfs
-index 509fac378..48649389a 100644
---- a/tests/expected/blkid/low-probe-btrfs
-+++ b/tests/expected/blkid/low-probe-btrfs
-@@ -1,4 +1,5 @@
- ID_FS_BLOCK_SIZE=4096
-+ID_FS_FSLASTBLOCK=29440
- ID_FS_TYPE=btrfs
- ID_FS_USAGE=filesystem
- ID_FS_UUID=d4a78b72-55e4-4811-86a6-09af936d43f9
-diff --git a/tests/expected/blkid/low-probe-ext2 b/tests/expected/blkid/low-probe-ext2
-index 087da97a4..e236c6e8a 100644
---- a/tests/expected/blkid/low-probe-ext2
-+++ b/tests/expected/blkid/low-probe-ext2
-@@ -1,4 +1,5 @@
- ID_FS_BLOCK_SIZE=1024
-+ID_FS_FSLASTBLOCK=100
- ID_FS_LABEL=test-ext2
- ID_FS_LABEL_ENC=test-ext2
- ID_FS_TYPE=ext2
-diff --git a/tests/expected/blkid/low-probe-ext3 b/tests/expected/blkid/low-probe-ext3
-index 8684884c1..164fefb7b 100644
---- a/tests/expected/blkid/low-probe-ext3
-+++ b/tests/expected/blkid/low-probe-ext3
-@@ -1,4 +1,5 @@
- ID_FS_BLOCK_SIZE=1024
-+ID_FS_FSLASTBLOCK=2048
- ID_FS_LABEL=test-ext3
- ID_FS_LABEL_ENC=test-ext3
- ID_FS_SEC_TYPE=ext2
-diff --git a/tests/expected/blkid/low-probe-jbd b/tests/expected/blkid/low-probe-jbd
-index c9f9f6b79..f5462a2a3 100644
---- a/tests/expected/blkid/low-probe-jbd
-+++ b/tests/expected/blkid/low-probe-jbd
-@@ -1,4 +1,5 @@
- ID_FS_BLOCK_SIZE=1024
-+ID_FS_FSLASTBLOCK=1024
- ID_FS_LOGUUID=0d7a07df-7b06-4829-bce7-3b9c3ece570c
- ID_FS_TYPE=jbd
- ID_FS_USAGE=other
-diff --git a/tests/expected/blkid/low-probe-xfs b/tests/expected/blkid/low-probe-xfs
-index a91e92bcc..be9c4194a 100644
---- a/tests/expected/blkid/low-probe-xfs
-+++ b/tests/expected/blkid/low-probe-xfs
-@@ -1,4 +1,5 @@
- ID_FS_BLOCK_SIZE=512
-+ID_FS_FSLASTBLOCK=4096
- ID_FS_FSSIZE=11862016
- ID_FS_LABEL=test-xfs
- ID_FS_LABEL_ENC=test-xfs
-diff --git a/tests/expected/blkid/low-probe-xfs-v5 b/tests/expected/blkid/low-probe-xfs-v5
-index 129b41f26..fd2cba933 100644
---- a/tests/expected/blkid/low-probe-xfs-v5
-+++ b/tests/expected/blkid/low-probe-xfs-v5
-@@ -1,4 +1,5 @@
- ID_FS_BLOCK_SIZE=512
-+ID_FS_FSLASTBLOCK=5120
- ID_FS_FSSIZE=17469440
- ID_FS_LABEL=test-xfs-v5
- ID_FS_LABEL_ENC=test-xfs-v5
+diff --git a/libblkid/src/superblocks/xfs.c b/libblkid/src/superblocks/xfs.c
+index 444050f55..1f2e92cac 100644
+--- a/libblkid/src/superblocks/xfs.c
++++ b/libblkid/src/superblocks/xfs.c
+@@ -183,6 +183,7 @@ static int probe_xfs(blkid_probe pr, const struct blkid_idmag *mag)
+ 				sizeof(xs->sb_fname));
+ 	blkid_probe_set_uuid(pr, xs->sb_uuid);
+ 	blkid_probe_set_fssize(pr, xfs_fssize(xs));
++	blkid_probe_set_fslastblock(pr, be64_to_cpu(xs->sb_dblocks));
+ 	blkid_probe_set_block_size(pr, be16_to_cpu(xs->sb_sectsize));
+ 	return 0;
+ }
 -- 
 2.27.0
 
