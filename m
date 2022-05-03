@@ -2,80 +2,63 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A22F8C433F5
-	for <util-linux@archiver.kernel.org>; Mon,  2 May 2022 13:43:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CCD4C433EF
+	for <util-linux@archiver.kernel.org>; Tue,  3 May 2022 18:58:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385390AbiEBNq4 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 2 May 2022 09:46:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52528 "EHLO
+        id S238416AbiECTB5 convert rfc822-to-8bit (ORCPT
+        <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 3 May 2022 15:01:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385284AbiEBNqt (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 2 May 2022 09:46:49 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E15E21208F
-        for <util-linux@vger.kernel.org>; Mon,  2 May 2022 06:43:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651498999;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=BKvJA110XXiMyDPRYYrbzlGeAnNeaURMbEik5cHpG9o=;
-        b=an9UVU/oScOQqRmGMjhUtBUOuVURobkmKoflczvq5tFlpjC07zH6O9BHUQ4m3UWBrn6DKI
-        UoZPBOhbzpJLsdVxW2Hecys5aJdzIvuFff1H1KT3mY2OkO6RKYNM6fTj2Ft2+GYuYfF+pz
-        VZmsFys7xPLhzWVEkgjoivzlxa0oyIc=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-620--nhpiBfpMwmH77ZWlHNDBA-1; Mon, 02 May 2022 09:43:18 -0400
-X-MC-Unique: -nhpiBfpMwmH77ZWlHNDBA-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2E8263806701;
-        Mon,  2 May 2022 13:43:18 +0000 (UTC)
-Received: from ws.net.home (unknown [10.36.112.12])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id A6EBC14DFB81;
-        Mon,  2 May 2022 13:43:17 +0000 (UTC)
-Date:   Mon, 2 May 2022 15:43:15 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     Jeff Chua <jeff.chua.linux@gmail.com>
-Cc:     util-linux@vger.kernel.org
-Subject: Re: util-linux agetty login prompt bug?
-Message-ID: <20220502134315.w5g72jq2jlmqi6gr@ws.net.home>
-References: <CAAJw_Zu6DoimkrNJb1n1fKgq0MvqXM3ryF_ANR7O7nsZBMALig@mail.gmail.com>
+        with ESMTP id S234645AbiECTBy (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 3 May 2022 15:01:54 -0400
+Received: from mail.77msk.ru (mail.77msk.ru [84.204.203.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5C82926541
+        for <util-linux@vger.kernel.org>; Tue,  3 May 2022 11:58:21 -0700 (PDT)
+Received: from mail.77msk.ru (gatekeeper.domain007.com [192.168.2.20])
+        by hermes.domain007.com (Postfix) with ESMTP id ED0C0FE6B98
+        for <util-linux@vger.kernel.org>; Tue,  3 May 2022 21:27:51 +0300 (MSK)
+Received: from asda.co.uk (unknown [20.97.211.134])
+        by gatekeeper.domain007.com (Postfix) with ESMTPSA id 859613200A8
+        for <util-linux@vger.kernel.org>; Tue,  3 May 2022 21:27:51 +0300 (MSK)
+Reply-To: sales@asdaa.uk
+From:   ASDA Stores Limited <Hanes.Thomas44@asda.co.uk>
+To:     util-linux@vger.kernel.org
+Subject: ASDA Procurement order
+Date:   03 May 2022 18:27:51 +0000
+Message-ID: <20220503141536.3B04BE6A726D4EEE@asda.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAAJw_Zu6DoimkrNJb1n1fKgq0MvqXM3ryF_ANR7O7nsZBMALig@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.7
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+X-Virus-Scanned: clamav-milter 0.102.4 at hermes
+X-Virus-Status: Clean
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Mon, May 02, 2022 at 08:42:22PM +0800, Jeff Chua wrote:
-> Login prompt seems to be truncated. The length should be taken from
-> LOGIN_PROMPT instead of LOGIN_PROCESS.
-> 
-> --- utilx/term-utils/agetty.c     2022-03-30 23:14:12.055417041 +0800
-> +++ utilx/term-utils/agetty.c 2022-05-02 20:31:43.177845547 +0800
-> 
-> @@ -2149,7 +2149,7 @@
->         if (!op->autolog) {
->                 /* Always show login prompt. */
->                 write_all(STDOUT_FILENO, LOGIN_PROMPT,
-> -                               sizeof(LOGIN_PROCESS) - 1);
-> +                               sizeof(LOGIN_PROMPT) - 1);
->         }
->  }
+Dear util-linux
 
-Ah, vim text completion could be dangerous :-)
-
-Thanks for your report! Fixed.
-
-  Karel
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
-
+We are interested in having some of your hot selling product in 
+our stores and outlets spread all over United Kingdom, Northern 
+Island and Africa. ASDA Stores Limited is one of the highest-
+ranking Wholesale & Retail outlets in the United Kingdom. 
+  
+We shall furnish our detailed company profile in our next 
+correspondent. However, it would be appreciated if you can send 
+us your catalog through email to learn more about your company's 
+products and wholesale quote. It is hopeful that we can start a 
+viable long-lasting business relationship (partnership) with you.  
+  
+  
+Your prompt response would be delightfully appreciated. 
+  
+Best Wishes 
+  
+  
+Hanes S. Thomas 
+Procurement Office. 
+ASDA Stores Limited 
+Tel:  + 44 - 7451271650 
+WhatsApp: + 44 – 7441440360 
+Website: www.asda.co.uk
