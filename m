@@ -2,126 +2,102 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0D84C433EF
-	for <util-linux@archiver.kernel.org>; Wed, 18 May 2022 09:46:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80E40C433FE
+	for <util-linux@archiver.kernel.org>; Wed, 25 May 2022 03:26:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234646AbiERJqg (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 18 May 2022 05:46:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35244 "EHLO
+        id S238471AbiEYD00 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 24 May 2022 23:26:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234868AbiERJqS (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 18 May 2022 05:46:18 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 37517B0D2F
-        for <util-linux@vger.kernel.org>; Wed, 18 May 2022 02:46:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1652867108;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=59t27MFHgkVRnXqT13xWAu4Ab0IdFUqfto8gIv0WlcA=;
-        b=GJ6mfb2cksv+12sfUvjjVMMAj/oz/vLKSFEeWrlwPEP7F+Qu7Y0XJN9QWHmVB9DARDT93G
-        xtlMoejNkLaUq9aQkhwAC6A4gy3HhPIG9GaJljNWAP6Xipo321kxgFfWpeVfie1uA6fxO0
-        VSdQpT8X33fSogOSvwWMegQ77E/n/MY=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-644-MckFaN2xO66PYoLCpUHelA-1; Wed, 18 May 2022 05:45:04 -0400
-X-MC-Unique: MckFaN2xO66PYoLCpUHelA-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9E11F3C19030;
-        Wed, 18 May 2022 09:45:04 +0000 (UTC)
-Received: from ws.net.home (unknown [10.36.112.6])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 1B19F400D277;
-        Wed, 18 May 2022 09:45:03 +0000 (UTC)
-Date:   Wed, 18 May 2022 11:45:01 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     "Trapp, Michael" <michael.trapp@sap.com>
-Cc:     "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: uuidd: Implement continuous clock handling for time based UUIDs
-Message-ID: <20220518094501.tdrxnup7buaitrvt@ws.net.home>
-References: <20220422100830.32187-1-michael.trapp@sap.com>
- <20220429114607.6ggqozhcir7pp2h2@ws.net.home>
- <F954A285-6204-4317-8295-1EAE38849E83@sap.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <F954A285-6204-4317-8295-1EAE38849E83@sap.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
+        with ESMTP id S235350AbiEYD00 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 24 May 2022 23:26:26 -0400
+Received: from mail-il1-x129.google.com (mail-il1-x129.google.com [IPv6:2607:f8b0:4864:20::129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92D2F15A01
+        for <util-linux@vger.kernel.org>; Tue, 24 May 2022 20:26:24 -0700 (PDT)
+Received: by mail-il1-x129.google.com with SMTP id t13so6190746ilm.9
+        for <util-linux@vger.kernel.org>; Tue, 24 May 2022 20:26:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=igel-co-jp.20210112.gappssmtp.com; s=20210112;
+        h=date:message-id:to:subject:from:mime-version
+         :content-transfer-encoding;
+        bh=4Hv3gZMoeQN3m9r2tBPNAex0xJy7+1oOOg1lffDt8rY=;
+        b=Hs+coShakd0qpy7TkGbE5PIKA7LDQs/rYK/6MiosVLziD9r3V+Sv4nN9zkrEn4t9y9
+         ZPrFp4UL2MELNR5W9zzh+UNXb43+cS1PZsqmCgSVxGwpRcO0+gFLaJK2QdGBYDO1gzZK
+         ZhwpXdm0liX4KgsyCX3kCsP4nWf17gulUciG3/wh/OSKZznzelj+s3bBW1RPEPCh69Yn
+         4pGkMZ5E9gc6DwgLFuvvqSFGca0zzojRDPPJq4u1MtmPcOjlFd3ecUf2KmEz8bGRxj3y
+         4urOCR8p4kuWznVkeW+aIApFFdwestw7awSy1nZBemPOD4i9ZRCjeV3KJ8Rs1wYjfpjB
+         8YzA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:message-id:to:subject:from:mime-version
+         :content-transfer-encoding;
+        bh=4Hv3gZMoeQN3m9r2tBPNAex0xJy7+1oOOg1lffDt8rY=;
+        b=rgu8ExLI8D4NEYo9Aw8/vw3wkL2MXwbuCPXYgGOWHvbHa2PWk0kufMqWdXYC+LwYeN
+         ABReUfdL9yJCpJkGTWGYDr+/eKRpm4RpivDXzvM6Y/jNq0b/nc6VFtRiLkHyt2P2ubEM
+         RSerzRFYdAi2IFw3RMqJ1MDwo7GkDYxmc+9NfTn1gx3NgAWNRFZCnW9w0PZQT0cvKKlJ
+         s1EmRdIEZUjrnzvVOAztVRIOv6QXCGCQOo9quDReYw4V0CZm0LZK6HL9O12ufLwEzWFK
+         o+b1ycgbnu5Hzxm5xc0R4njWyBI45JAshg4zLnNOEa8sxwUKtxokbkXPv52t9dnuUQfX
+         t1qg==
+X-Gm-Message-State: AOAM530bpptTPOdYgKAk/Elsmaxn3KpU35t0qviJW/s2d9fpyiNdQPka
+        I1gSjF3G0bHF5/Vx1+Qhl9MeY1SiuRZfEw==
+X-Google-Smtp-Source: ABdhPJxuTEpk1H7AKKvp4aBy32rK+ojOhgzVWwP++fbMCC4BLyOiGVy5ll+s+Rz7heLZTqTBUgngaQ==
+X-Received: by 2002:a92:cf01:0:b0:2cd:aeb6:b3f8 with SMTP id c1-20020a92cf01000000b002cdaeb6b3f8mr15411990ilo.265.1653449183973;
+        Tue, 24 May 2022 20:26:23 -0700 (PDT)
+Received: from localhost (napt.igel.co.jp. [219.106.231.132])
+        by smtp.gmail.com with ESMTPSA id o28-20020a02c6bc000000b0032ebda7c052sm2496758jan.128.2022.05.24.20.26.21
+        for <util-linux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 May 2022 20:26:22 -0700 (PDT)
+Date:   Wed, 25 May 2022 12:23:16 +0900 (JST)
+Message-Id: <20220525.122316.1064747285110838277.hdk@igel.co.jp>
+To:     util-linux@vger.kernel.org
+Subject: [PATCH] loopdev: set block_size when using LOOP_CONFIGURE
+From:   Hideki EIRAKU <hdk@igel.co.jp>
+X-Mailer: Mew version 6.8 on Emacs 27.1
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Fri, May 06, 2022 at 02:06:14PM +0000, Trapp, Michael wrote:
-> 
-> 
-> > On 29. Apr 2022, at 13:46, Karel Zak <kzak@redhat.com> wrote:
-> > 
-> > On Fri, Apr 22, 2022 at 12:08:30PM +0200, Michael Trapp wrote:
-> >> +static int get_clock_cont(uint32_t *clock_high,
-> >> +			    uint32_t *clock_low,
-> >> +			    int num)
-> >> +{
-> >> +	/* 100ns based time offset according to RFC 4122. 4.1.4. */
-> >> +	const uint64_t reg_offset = (((uint64_t) 0x01B21DD2) << 32) + 0x13814000;
-> >> +	THREAD_LOCAL uint64_t last_clock_reg = 0;
-> >> +	uint64_t clock_reg;
-> >> +
-> >> +	if (last_clock_reg == 0)
-> >> +		last_clock_reg = get_clock_counter();
-> >> +
-> >> +	clock_reg = get_clock_counter();
-> >> +	clock_reg += MAX_ADJUSTMENT;
-> >> +
-> >> +	if ((last_clock_reg + num) >= clock_reg)
-> >> +		return -1;
-> > 
-> > 
-> > If I read your code correctly, it initializes the clock at uuidd start
-> > and then continues (forever). Each short time of inactivity will
-> > increase the difference between time stored in UUIDs and real-time.
-> > For example, this difference will be huge for databases where users
-> > don't allocate new UUIDs at night.
-> > 
-> > 
-> > Maybe we can implement some hybrid model that resets the continuous
-> > clock start point (last_clock_reg) from time to time, for example,
-> > every minute (hour, ...). I don't think it will be a performance
-> > problem when it does not use LIBUUID_CLOCK_FILE. The result will be
-> > UUIDs that match with reality. Does it make sense?
-> 
-> Of course, we can use a <max_offset_value> as optarg for the ‘-C’ option and update last_clock_reg accordingly.
-> A custom value could be set with ‘-C <NUM>’ and the feature could also be deactivated by omitting ‘-C’.
-> What do you think about that?
+LOOP_CONFIGURE ioctl was introduced by commit
+d5fd456c88aba4fcf77d35fe38024a8d5c814686. Since the previous
+implementation set partscan flag but did not set block_size with the
+LOOP_CONFIGURE ioctl, an issue fixed by commit
+422f0e9f206a145c59a71333dad20d38cbbfc0c4 was reappeared. Setting
+block_size in the LOOP_CONFIGURE ioctl parameter fixes the issue.
 
-Sounds good.
+Signed-off-by: Hideki EIRAKU <hdk@igel.co.jp>
+---
+ lib/loopdev.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-The question is (from my point of view), do we need fully continuous
-(= disconnected) time in uuidd by default for -C? I guess it will be
-confusing for UUIDs consumers. Maybe the default should be reset every
-N minutes and <max_offset_value> as optional argument to modify it.
-
- -C                     -- default is reset every N minutes
- -C=<num>               -- overwrite the default
- -C=0 or -C=noreset     -- don't reset
-
-But I have no strong opinion about it, the default could be -C without
-reset as well.
-
-
-Do you plan to use -C for SAP databases? I guess it will resolve all
-the performance issues for SAP use-cases.
-
-My plan to keep /var/lib/libuuid/clock.txt in uuidd hands will be
-unnecessary (or less important) if -C will be good enough.
-
-    Karel
-
+diff --git a/lib/loopdev.c b/lib/loopdev.c
+index 437411bbe..631a120c4 100644
+--- a/lib/loopdev.c
++++ b/lib/loopdev.c
+@@ -1385,6 +1385,8 @@ int loopcxt_setup_device(struct loopdev_cxt *lc)
+ 	 * -- since Linux v5.8-rc1, commit 3448914e8cc550ba792d4ccc74471d1ca4293aae
+ 	 */
+ 	lc->config.fd = file_fd;
++	if (lc->blocksize > 0)
++		lc->config.block_size = lc->blocksize;
+ 
+ 	rc = repeat_on_eagain( ioctl(dev_fd, LOOP_CONFIGURE, &lc->config) );
+ 	if (rc != 0) {
+@@ -1395,11 +1397,6 @@ int loopcxt_setup_device(struct loopdev_cxt *lc)
+ 		}
+ 		fallback = 1;
+ 	} else {
+-		if (lc->blocksize > 0
+-			&& (rc = loopcxt_ioctl_blocksize(lc, lc->blocksize)) < 0) {
+-			errsv = -rc;
+-			goto err;
+-		}
+ 		DBG(SETUP, ul_debugobj(lc, "LOOP_CONFIGURE: OK"));
+ 	}
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.30.2
 
