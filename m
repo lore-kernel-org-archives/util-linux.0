@@ -2,57 +2,57 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D249AC43334
-	for <util-linux@archiver.kernel.org>; Fri,  3 Jun 2022 12:28:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BFC4CCA473
+	for <util-linux@archiver.kernel.org>; Fri,  3 Jun 2022 12:28:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244351AbiFCM2l (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        id S244349AbiFCM2l (ORCPT <rfc822;util-linux@archiver.kernel.org>);
         Fri, 3 Jun 2022 08:28:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54960 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230159AbiFCM2h (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 3 Jun 2022 08:28:37 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79A103A5D9
-        for <util-linux@vger.kernel.org>; Fri,  3 Jun 2022 05:28:36 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id v5-20020a17090a7c0500b001df84fa82f8so7064223pjf.5
-        for <util-linux@vger.kernel.org>; Fri, 03 Jun 2022 05:28:36 -0700 (PDT)
+        with ESMTP id S244350AbiFCM2k (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 3 Jun 2022 08:28:40 -0400
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCF8B3A5E1
+        for <util-linux@vger.kernel.org>; Fri,  3 Jun 2022 05:28:39 -0700 (PDT)
+Received: by mail-pf1-x430.google.com with SMTP id c196so7102287pfb.1
+        for <util-linux@vger.kernel.org>; Fri, 03 Jun 2022 05:28:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bytedance-com.20210112.gappssmtp.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=NBvyD92W4BnJqxoSKJxnQgpzM95p8SUnfVAQrR//atU=;
-        b=mUrjqupYDzG/1Tf8lmhGRfvZ/EvAUBni7U1L8I7hmF+C+HMf/RIICbxVkpYM832rrj
-         4lC9AgkqsLCnazvE5bjXLH4rmNlb7OLyboeQHPkG9sRMcaaGd0DBDiGumS3w+CVC8BoI
-         Pz/67x7zOP7jJDjNU+2Uz0+xBn6UIxdSMOrpJ/5ZfdBt8L5qxuW1NYLvSg7L8cEVds/j
-         ZPJBU53UVTwR7we/eH0C0JZ7DtRA4cwhPO3jMuV61Sn9Xla65OufcZrG9s3UisIaZt+7
-         6dppNWBbIU4/cxbrCquu7w365+Cgs2mQGZD9bxXFiCve0upFvEeT/oObuKXCuPh1CqXa
-         rSpg==
+        bh=1bfcK2kRK2LdqkzKi49C42/BVX3W1XkLM2c5yPNrJwQ=;
+        b=dNuNCHHUwGvUtVK7yHzchA2vSWH1VxdNnaGVTDymLEKCBXd23xGH67Z59p0TaOq5Ka
+         kLAlw6k/XGaFosEoakjoN9iaVQRVGyvYtR0vWQieUpFvzgdXxxX0TzBzPSQOd0oi4gRL
+         3q1ECwJgNrDLzLMAdZSBaSmJ24PjqcHAvo3wtl8eBKzEmau65gGJjFvrt+TlNdbHowuC
+         egJbIo37tAFDYGGOpw12GdspJzgEnrs5raI4BfnEUCrFOY3VBAmqoGl7pm328N1ncpE/
+         gjQVW5wvo0FvGxYPvDBhK7mEyz1rWATrDvIm9EddxQbvcHmynCCpOHkxcQmxmuyXDk6G
+         1ikw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=NBvyD92W4BnJqxoSKJxnQgpzM95p8SUnfVAQrR//atU=;
-        b=E8CgD+QpDW/7tPZ/0bIekoE9WuZ+ur3BCAk1429rxWph+qDz5Vc7oakmOVrcvCu3wg
-         ej+XUerMuswjLGb3JMNpJ6nyhbs3It1TNJj4h0QuWvf07MH+lAT1b9y1NfeitQPtmvYm
-         fnjYdnAmGMu/p4u26AlbwLAFpMuGwYZp/LCk9GTk1vVab+R3qSGrIl8AeSQlzHsdvbJi
-         QDO5DTOyPLD+LpKNNrtrtLEuK5ZSRLQBNKzrjEbf10/BHvLwQvip4d7Bd/vjIa2BM0Fz
-         8Du7s6qZJXKsvbDEfm9IFDgGsqX9a02q8SSW8y//+oWe7Gm5n7fXE+yiz68A+H7m6v4U
-         GuJQ==
-X-Gm-Message-State: AOAM532nRkg60gNX8uC8mzQFKdQlNCQPHk7Odnrpr/3HDgAA3XScKjTb
-        8zBwHUjnaYxtYwAjvL9vQGZpI+B6yFz/5Q==
-X-Google-Smtp-Source: ABdhPJykTcaLTqmkLU8a5/eI0HB4y2KSSdkyeyLO7QUQQbSOnLWoPNM2PJnDRdd1/FKrCtA4LEoPVg==
-X-Received: by 2002:a17:902:b581:b0:161:5f37:6688 with SMTP id a1-20020a170902b58100b001615f376688mr9901889pls.145.1654259316192;
-        Fri, 03 Jun 2022 05:28:36 -0700 (PDT)
+        bh=1bfcK2kRK2LdqkzKi49C42/BVX3W1XkLM2c5yPNrJwQ=;
+        b=BjDj59Q4PvuwZlAVn+knyoqR5rv3sJEO98U94eauzUi+vQTY3ymDyRmnksdcOO3tyW
+         4oFkNAtzgedxvvYmuE8MAla+m9yN5vk5vhBEKZ4htcmcunH8AzNCRGdGKB8Y3BxsXOSq
+         TO3S8Yha88+ByVqtDqdvFNHKFCBU/99pJlwYOoWfKxPMgSiefaaIdYdpdTg4IhfUSWxx
+         7aZsQWjoQiof3ptQkPORpOdN7g4pZ8DT1TMb5xq/+HDZdpQoU0ZV9yLFO9XlJ9pveqH0
+         psXrJmwkiqCvvKLCb0Ms05zq1F+u/VJWtunfb676M18hL20DqoBSoeQuau34R36TO8xb
+         1qHw==
+X-Gm-Message-State: AOAM530VrVh0W9pj6SprqMo1B2e/w26MjrjbLsTrDO+06Nlf5QRZ0nCc
+        NuJuPPRZ7EL02IovjSPgX7lD9zcKQ1iqxg==
+X-Google-Smtp-Source: ABdhPJzgNYtw7xsW5yxUfpUYKAv2Y78bB5YwJHHAJ+LKSfWv65WbN2cZQSqixnYOtYQb0kLIxJ64kw==
+X-Received: by 2002:a63:894a:0:b0:3fc:a724:578c with SMTP id v71-20020a63894a000000b003fca724578cmr8861881pgd.499.1654259319318;
+        Fri, 03 Jun 2022 05:28:39 -0700 (PDT)
 Received: from always-x1.www.tendawifi.com ([139.177.225.249])
-        by smtp.gmail.com with ESMTPSA id h1-20020a655181000000b003fbaae74971sm5173955pgq.72.2022.06.03.05.28.33
+        by smtp.gmail.com with ESMTPSA id h1-20020a655181000000b003fbaae74971sm5173955pgq.72.2022.06.03.05.28.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Jun 2022 05:28:35 -0700 (PDT)
+        Fri, 03 Jun 2022 05:28:38 -0700 (PDT)
 From:   zhenwei pi <pizhenwei@bytedance.com>
 To:     kzak@redhat.com
 Cc:     util-linux@vger.kernel.org, zhenwei pi <pizhenwei@bytedance.com>
-Subject: [PATCH 3/5] lsblk: add -v/--virtio
-Date:   Fri,  3 Jun 2022 20:24:00 +0800
-Message-Id: <20220603122402.3274789-4-pizhenwei@bytedance.com>
+Subject: [PATCH 4/5] lsblk: introduce 'MQ' column
+Date:   Fri,  3 Jun 2022 20:24:01 +0800
+Message-Id: <20220603122402.3274789-5-pizhenwei@bytedance.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220603122402.3274789-1-pizhenwei@bytedance.com>
 References: <20220603122402.3274789-1-pizhenwei@bytedance.com>
@@ -62,116 +62,102 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Add -v/--virtio to filter the virtio block devices.
+Typically a modern block device supports mutil queues feature, count
+queues by walking '$sysfs/mq' directory. If no '$sysfs/mq' exists, it
+is a legacy single queue.
+
+~# lsblk --nvme -o NAME,TYPE,MODEL,TRAN,RQ-SIZE,MQ
+NAME    TYPE MODEL                      TRAN   RQ-SIZE  MQ
+nvme0n1 disk INTEL SSDPF2KX038TZ        nvme      1023 135
+nvme3n1 disk INTEL SSDPE2KX020T8        nvme      1023 128
+nvme1n1 disk SAMSUNG MZQL23T8HCLS-00A07 nvme      1023 129
+nvme2n2 disk RP2A03T8RK004LX            nvme      1023  64
+nvme2n3 disk RP2A03T8RK004LX            nvme      1023  64
 
 Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
 ---
- bash-completion/lsblk   |  1 +
- misc-utils/lsblk.8.adoc |  3 +++
- misc-utils/lsblk.c      | 23 ++++++++++++++++++++++-
- misc-utils/lsblk.h      |  1 +
- 4 files changed, 27 insertions(+), 1 deletion(-)
+ bash-completion/lsblk |  2 +-
+ misc-utils/lsblk.c    | 33 +++++++++++++++++++++++++++++++++
+ 2 files changed, 34 insertions(+), 1 deletion(-)
 
 diff --git a/bash-completion/lsblk b/bash-completion/lsblk
-index 011af41c2..697dd23d2 100644
+index 697dd23d2..6756764b2 100644
 --- a/bash-completion/lsblk
 +++ b/bash-completion/lsblk
-@@ -80,6 +80,7 @@ _lsblk_module()
- 				--topology
- 				--scsi
- 				--nvme
-+				--virtio
- 				--sort
- 				--width
- 				--help
-diff --git a/misc-utils/lsblk.8.adoc b/misc-utils/lsblk.8.adoc
-index 8c6d50f79..6a9770ef2 100644
---- a/misc-utils/lsblk.8.adoc
-+++ b/misc-utils/lsblk.8.adoc
-@@ -75,6 +75,9 @@ Output info about device owner, group and mode. This option is equivalent to *-o
- *-N*, *--nvme*::
- Output info about NVMe devices only.
+@@ -11,7 +11,7 @@ _lsblk_module()
+ 		RO RM HOTPLUG MODEL SERIAL SIZE STATE OWNER GROUP MODE ALIGNMENT MIN-IO OPT-IO
+ 		PHY-SEC LOG-SEC ROTA SCHED RQ-SIZE TYPE DISC-ALN DISC-GRAN DISC-MAX DISC-ZERO
+ 		WSAME WWN RAND PKNAME HCTL TRAN SUBSYSTEMS REV VENDOR ZONED ZONE-SZ ZONE-WGRAN
+-		ZONE-APP ZONE-NR ZONE-OMAX ZONE-AMAX DAX
++		ZONE-APP ZONE-NR ZONE-OMAX ZONE-AMAX DAX MQ
+ 	"
  
-+*-v*, *--virtio*::
-+Output info about virtio devices only.
-+
- *-n*, *--noheadings*::
- Do not print a header line.
- 
+ 	case $prev in
 diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
-index dfa317970..64d7edad6 100644
+index 64d7edad6..d9c4ee982 100644
 --- a/misc-utils/lsblk.c
 +++ b/misc-utils/lsblk.c
-@@ -1361,6 +1361,16 @@ static int initialize_device(struct lsblk_device *dev,
- 		}
+@@ -90,6 +90,7 @@ enum {
+ 	COL_MINIO,
+ 	COL_MODE,
+ 	COL_MODEL,
++	COL_MQ,
+ 	COL_NAME,
+ 	COL_OPTIO,
+ 	COL_OWNER,
+@@ -189,6 +190,7 @@ static struct colinfo infos[] = {
+ 	[COL_MINIO] = { "MIN-IO", 6, SCOLS_FL_RIGHT, N_("minimum I/O size"), COLTYPE_NUM },
+ 	[COL_MODEL] = { "MODEL", 0.1, SCOLS_FL_TRUNC, N_("device identifier") },
+ 	[COL_MODE] = { "MODE", 10, 0, N_("device node permissions") },
++	[COL_MQ] = { "MQ", 3, SCOLS_FL_RIGHT, N_("device queues") },
+ 	[COL_NAME] = { "NAME", 0.25, SCOLS_FL_NOEXTREMES, N_("device name") },
+ 	[COL_OPTIO] = { "OPT-IO", 6, SCOLS_FL_RIGHT, N_("optimal I/O size"), COLTYPE_NUM },
+ 	[COL_OWNER] = { "OWNER", 0.1, SCOLS_FL_TRUNC, N_("user name"), },
+@@ -746,6 +748,34 @@ static void device_read_bytes(struct lsblk_device *dev, char *path, char **str,
  	}
+ }
  
-+	/* ignore non-virtio devices */
-+	if (lsblk->virtio) {
-+		char *transport = get_transport(dev);
++static void process_mq(struct lsblk_device *dev, char **str)
++{
++	DIR *dir;
++	struct dirent *d;
++	unsigned int queues = 0;
 +
-+		if (!transport || strcmp(transport, "virtio")) {
-+			DBG(DEV, ul_debugobj(dev, "non-virtio device -- ignore"));
-+			return -1;
-+		}
++	DBG(DEV, ul_debugobj(dev, "%s: process mq", dev->name));
++
++	dir = ul_path_opendir(dev->sysfs, "mq");
++	if (!dir) {
++		*str = xstrdup("1");
++		DBG(DEV, ul_debugobj(dev, "%s: no mq supported, use a single queue", dev->name));
++		return;
 +	}
 +
- 	DBG(DEV, ul_debugobj(dev, "%s: context successfully initialized", dev->name));
- 	return 0;
- }
-@@ -1938,6 +1948,7 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(_(" -P, --pairs          use key=\"value\" output format\n"), out);
- 	fputs(_(" -S, --scsi           output info about SCSI devices\n"), out);
- 	fputs(_(" -N, --nvme           output info about NVMe devices\n"), out);
-+	fputs(_(" -v, --virtio         output info about virtio devices\n"), out);
- 	fputs(_(" -T, --tree[=<column>] use tree format output\n"), out);
- 	fputs(_(" -a, --all            print all devices\n"), out);
- 	fputs(_(" -b, --bytes          print SIZE in bytes rather than in human readable format\n"), out);
-@@ -2024,6 +2035,7 @@ int main(int argc, char *argv[])
- 		{ "pairs",      no_argument,       NULL, 'P' },
- 		{ "scsi",       no_argument,       NULL, 'S' },
- 		{ "nvme",       no_argument,       NULL, 'N' },
-+		{ "virtio",     no_argument,       NULL, 'v' },
- 		{ "sort",	required_argument, NULL, 'x' },
- 		{ "sysroot",    required_argument, NULL, OPT_SYSROOT },
- 		{ "shell",      no_argument,       NULL, 'y' },
-@@ -2057,7 +2069,7 @@ int main(int argc, char *argv[])
- 	lsblk_init_debug();
++	while ((d = xreaddir(dir))) {
++		if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
++			continue;
++
++		queues++;
++	}
++
++	closedir(dir);
++
++	DBG(DEV, ul_debugobj(dev, "%s: has %d queues", dev->name, queues));
++	xasprintf(str, "%3u", queues);
++}
++
+ /*
+  * Generates data (string) for column specified by column ID for specified device. If sortdata
+  * is not NULL then returns number usable to sort the column if the data are available for the
+@@ -1143,6 +1173,9 @@ static char *device_get_data(
+ 	case COL_DAX:
+ 		ul_path_read_string(dev->sysfs, &str, "queue/dax");
+ 		break;
++	case COL_MQ:
++		process_mq(dev, &str);
++		break;
+ 	};
  
- 	while((c = getopt_long(argc, argv,
--				"AabdDzE:e:fhJlNnMmo:OpPiI:rstVST::w:x:y",
-+				"AabdDzE:e:fhJlNnMmo:OpPiI:rstVvST::w:x:y",
- 				longopts, NULL)) != -1) {
- 
- 		err_exclusive_options(c, longopts, excl, excl_st);
-@@ -2189,6 +2201,15 @@ int main(int argc, char *argv[])
- 			add_uniq_column(COL_TRANSPORT);
- 			add_uniq_column(COL_RQ_SIZE);
- 			break;
-+		case 'v':
-+			lsblk->nodeps = 1;
-+			lsblk->virtio = 1;
-+			add_uniq_column(COL_NAME);
-+			add_uniq_column(COL_TYPE);
-+			add_uniq_column(COL_TRANSPORT);
-+			add_uniq_column(COL_SIZE);
-+			add_uniq_column(COL_RQ_SIZE);
-+			break;
- 		case 'T':
- 			force_tree = 1;
- 			if (optarg) {
-diff --git a/misc-utils/lsblk.h b/misc-utils/lsblk.h
-index 536120a9c..31c9ecad5 100644
---- a/misc-utils/lsblk.h
-+++ b/misc-utils/lsblk.h
-@@ -52,6 +52,7 @@ struct lsblk {
- 	unsigned int nodeps:1;		/* don't print slaves/holders */
- 	unsigned int scsi:1;		/* print only device with HCTL (SCSI) */
- 	unsigned int nvme:1;		/* print NVMe device only */
-+	unsigned int virtio:1;		/* print virtio device only */
- 	unsigned int paths:1;		/* print devnames with "/dev" prefix */
- 	unsigned int sort_hidden:1;	/* sort column not between output columns */
- 	unsigned int dedup_hidden :1;	/* deduplication column not between output columns */
+ 	return str;
 -- 
 2.20.1
 
