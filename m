@@ -2,64 +2,79 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21CF9C433EF
-	for <util-linux@archiver.kernel.org>; Mon,  6 Jun 2022 10:24:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12D5BCCA481
+	for <util-linux@archiver.kernel.org>; Mon,  6 Jun 2022 10:25:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233892AbiFFKYg (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 6 Jun 2022 06:24:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44654 "EHLO
+        id S233912AbiFFKZ1 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 6 Jun 2022 06:25:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233966AbiFFKYf (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 6 Jun 2022 06:24:35 -0400
+        with ESMTP id S233960AbiFFKYy (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 6 Jun 2022 06:24:54 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7695F21257
-        for <util-linux@vger.kernel.org>; Mon,  6 Jun 2022 03:24:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2D50124948
+        for <util-linux@vger.kernel.org>; Mon,  6 Jun 2022 03:24:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1654511070;
+        s=mimecast20190719; t=1654511091;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=hhlreJ5pCRxk06nDOuLC/GziCeOJ2XZ/dWJZ43hIYuI=;
-        b=EuSh8LrfrUjhkU6dxPiuc8Hzan5sZw3m48jNzevRhAy/lMTeGnJMCC8jsJ8c1Ln1nTL6Bb
-        1pkVNco7lF2F6DKmOJILaWPAypsNeRyXJWQNZatbh2vrlH7wPgaGerhmu36qZp3D/quygc
-        VCKHFGhNM7vJbXodZM4vbtVb5aERs3w=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=qXeNxDi0mGecSB/68q6S4yhWWL79nvHvrMrA2GWcp3U=;
+        b=hkyBGfWFtgFChQEYnkXMTI24wXoQ+wOfAU8nhnm2+OhOYuTYRjpAKfzG9sUiGvGJD77IDN
+        xIQd9L1Fcesf7dWMt2925qp8orFpuZNVIIVG+D7YWwTSlA/bXJWoZqOSrrCPoVI2LFUMHW
+        86y9yYpogaTyr5OQzNAuAYkqX0SIh4Q=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-497-w7RD2OI8O1iCsQ77r0lG3A-1; Mon, 06 Jun 2022 06:24:29 -0400
-X-MC-Unique: w7RD2OI8O1iCsQ77r0lG3A-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+ us-mta-315-er7dW7YiOi6gc2P-7DuBKQ-1; Mon, 06 Jun 2022 06:24:50 -0400
+X-MC-Unique: er7dW7YiOi6gc2P-7DuBKQ-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 060E5101AA47;
-        Mon,  6 Jun 2022 10:24:29 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A0A613C0D841;
+        Mon,  6 Jun 2022 10:24:49 +0000 (UTC)
 Received: from ws.net.home (unknown [10.40.193.186])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5B85B40EC002;
-        Mon,  6 Jun 2022 10:24:28 +0000 (UTC)
-Date:   Mon, 6 Jun 2022 12:24:26 +0200
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 03E50492C3B;
+        Mon,  6 Jun 2022 10:24:48 +0000 (UTC)
+Date:   Mon, 6 Jun 2022 12:24:46 +0200
 From:   Karel Zak <kzak@redhat.com>
-To:     Nathan Sharp <nwsharp@live.com>
-Cc:     util-linux@vger.kernel.org, Anatoly Pugachev <matorola@gmail.com>
+To:     Anatoly Pugachev <matorola@gmail.com>
+Cc:     Nathan Sharp <nwsharp@live.com>,
+        util-linux <util-linux@vger.kernel.org>
 Subject: Re: [PATCH] pipesz: use native PAGE_SIZE in tests
-Message-ID: <20220606102426.vmxud5slnzmuee5g@ws.net.home>
+Message-ID: <20220606102446.3zdh5ljmndyzr4hi@ws.net.home>
 References: <CADxRZqzipCFaFFAs-o=FDA_g=9NmrqzieXaYtWwbGCCXDeiM5g@mail.gmail.com>
  <SN6PR04MB39834AB02ACBCA91B949F821C2A09@SN6PR04MB3983.namprd04.prod.outlook.com>
+ <CADxRZqxFetP=SczfzZtpx_G1OgseFtpLLQwDhLhCJ_NMGRGhUg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <SN6PR04MB39834AB02ACBCA91B949F821C2A09@SN6PR04MB3983.namprd04.prod.outlook.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
+In-Reply-To: <CADxRZqxFetP=SczfzZtpx_G1OgseFtpLLQwDhLhCJ_NMGRGhUg@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.10
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Fri, Jun 03, 2022 at 08:00:22PM -0600, Nathan Sharp wrote:
->  tests/expected/misc/pipesz-get-fd   |  2 +-
->  tests/expected/misc/pipesz-get-file |  2 +-
->  tests/ts/misc/pipesz                | 10 ++++++++--
->  3 files changed, 10 insertions(+), 4 deletions(-)
+On Sat, Jun 04, 2022 at 11:28:08AM +0300, Anatoly Pugachev wrote:
+> On Sat, Jun 4, 2022 at 5:00 AM Nathan Sharp <nwsharp@live.com> wrote:
+> > Reported-by: Anatoly Pugachev <matorola@gmail.com>
+> > --- a/tests/ts/misc/pipesz
+> > +++ b/tests/ts/misc/pipesz
+> > @@ -18,6 +18,10 @@ TS_DESC="pipesz"
+> >  . $TS_TOPDIR/functions.sh
+> >  ts_init "$*"
+> >
+> > +set -o pipefail
+> > +
+> > +DEFAULT_PIPE_SIZE=$(($(getconf PAGE_SIZE) * 16))
+> 
+> DEFAULT_PIPE_SIZE=$(($($TS_HELPER_SYSINFO pagesize) * 16))
+> 
+> to be consistent with other tests
 
-Applied, thanks.
+ Fixed.
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
