@@ -2,111 +2,74 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D3C3C433EF
-	for <util-linux@archiver.kernel.org>; Tue, 14 Jun 2022 08:57:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E4D5C433EF
+	for <util-linux@archiver.kernel.org>; Tue, 14 Jun 2022 13:58:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354109AbiFNI5t (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 14 Jun 2022 04:57:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36926 "EHLO
+        id S241269AbiFNN6q (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 14 Jun 2022 09:58:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232723AbiFNI5r (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Jun 2022 04:57:47 -0400
-X-Greylist: delayed 335 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 14 Jun 2022 01:57:45 PDT
-Received: from mx1.emlix.com (mx1.emlix.com [136.243.223.33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95EEF25295
-        for <util-linux@vger.kernel.org>; Tue, 14 Jun 2022 01:57:45 -0700 (PDT)
-Received: from mailer.emlix.com (p5098be52.dip0.t-ipconnect.de [80.152.190.82])
-        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S229447AbiFNN6R (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Jun 2022 09:58:17 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4E51931DD4
+        for <util-linux@vger.kernel.org>; Tue, 14 Jun 2022 06:58:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1655215095;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=jAz6IccBTzwfHG28h//CLsNXVBNXBob8EpOp2iDXQGc=;
+        b=Mpe8ZtEU+5Ug9jZWCShTEi15KDzzJCqVKXoW2hbSf7OcMRamJ2P1d9oCgzS87mMbvH+1E7
+        Q5Mbv7qfwl2Br78gHb578N2dc2SPo81p/qCJFEM9k/Cw6VLL5qhVtcTm+PZH8ugMgtBhFN
+        s6eE7z0Wb0U2U5GU8X5e8GLee4qZRHw=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-503-WXCD64TJN6WzX9p0ovSzEg-1; Tue, 14 Jun 2022 09:58:12 -0400
+X-MC-Unique: WXCD64TJN6WzX9p0ovSzEg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.emlix.com (Postfix) with ESMTPS id D9E195F8CB
-        for <util-linux@vger.kernel.org>; Tue, 14 Jun 2022 10:52:08 +0200 (CEST)
-From:   Rolf Eike Beer <eb@emlix.com>
-To:     util-linux@vger.kernel.org
-Subject: bashcompletiondir should not be set or tested when --disable-bash-completion is given
-Date:   Tue, 14 Jun 2022 10:52:02 +0200
-Message-ID: <2832693.e9J7NaK4W3@mobilepool36.emlix.com>
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D576D85A582;
+        Tue, 14 Jun 2022 13:58:11 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.194.10])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5673C2026D64;
+        Tue, 14 Jun 2022 13:58:11 +0000 (UTC)
+Date:   Tue, 14 Jun 2022 15:58:08 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Rolf Eike Beer <eb@emlix.com>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: bashcompletiondir should not be set or tested when
+ --disable-bash-completion is given
+Message-ID: <20220614135808.uetmqwqhdoikmnw6@ws.net.home>
+References: <2832693.e9J7NaK4W3@mobilepool36.emlix.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart3174171.aeNJFYEL58"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2832693.e9J7NaK4W3@mobilepool36.emlix.com>
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.4
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
---nextPart3174171.aeNJFYEL58
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="UTF-8"; protected-headers="v1"
-From: Rolf Eike Beer <eb@emlix.com>
-To: util-linux@vger.kernel.org
-Date: Tue, 14 Jun 2022 10:52:02 +0200
-Message-ID: <2832693.e9J7NaK4W3@mobilepool36.emlix.com>
-MIME-Version: 1.0
+On Tue, Jun 14, 2022 at 10:52:02AM +0200, Rolf Eike Beer wrote:
+> I tried building some util-linux libraries in a minimal chroot (no pkg-config). 
+> At the end it boils down to
+> 
+> ./configure --disable-bash-completion <other stuff>
+> 
+> The result of this was:
+> 
+> checking for ECONF... no
+> ./configure: line 37542: --exists: command not found
 
-I tried building some util-linux libraries in a minimal chroot (no pkg-conf=
-ig).=20
-At the end it boils down to
+Fixed. Thanks for your report!
+https://github.com/util-linux/util-linux/commit/f6d3f34a8593adee7ba3dfa933fb5fb2c9ea7ff3
 
-=2E/configure --disable-bash-completion <other stuff>
+    Karel
 
-The result of this was:
-
-checking for ECONF... no
-=2E/configure: line 37542: --exists: command not found
-checking for a Python interpreter with version >=3D 2... none
-[...]
-
-        Bash completions:          ${datarootdir}/bash-completion/completio=
-ns
-        Systemd support:           no
-[...]
- /bin/mkdir -p '/tmp/e2/root/opt/emlix/master/sbin'
- /bin/mkdir -p '/tmp/e2/root/opt/emlix/master/share/bash-completion/
-completions'
- /bin/mkdir -p '/tmp/e2/root/opt/emlix/master/share/man/man1'
-
-The problem with the "--exists" is this line (of course at a totally differ=
-ent=20
-line number in configure):
-
-  if `$PKG_CONFIG --exists bash-completion`; then :
-
-The PKG_CONFIG variable is empty and in contrast to most other places, the=
-=20
-other notable exceptions being the checks for tinfow, tinfo, and=20
-libcryptsetup, the variable is not checked for being empty before usage. An=
-d=20
-at the end this should probably somehow depend on enable_bash_completion=3D=
-yes=20
-to avoid creating an empty directory as well.
-
-Regards,
-
-Eike
-=2D-=20
-Besuchen Sie uns auf der Embedded World 2022 in N=C3=BCrnberg!
-=2D> 21.-23.06.2022 - Halle 4, Stand 336
-
-Rolf Eike Beer, emlix GmbH, https://www.emlix.com
-=46on +49 551 30664-0, Fax +49 551 30664-11
-Gothaer Platz 3, 37083 G=C3=B6ttingen, Germany
-Sitz der Gesellschaft: G=C3=B6ttingen, Amtsgericht G=C3=B6ttingen HR B 3160
-Gesch=C3=A4ftsf=C3=BChrung: Heike Jordan, Dr. Uwe Kracke =E2=80=93 Ust-IdNr=
-=2E: DE 205 198 055
-
-emlix - smart embedded open source
---nextPart3174171.aeNJFYEL58
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-
-iLMEAAEIAB0WIQQ/Uctzh31xzAxFCLur5FH7Xu2t/AUCYqhMMgAKCRCr5FH7Xu2t
-/HtQA/9Nsr4c1x823zqjeYhLNWv2agbrZkSKjMMxEemu2F63ABFjnWfGNz/SWn8m
-5lEe6Hkci9dasA1hRQrEMQtV/n3hl/raLENnJS4oqSeLj8DporPZbX8V4NSTRLFo
-Z8R5g5u3VHbTKIaMrzlj/bIzmJCIfaLZoBd63ghCwIanDQqORg==
-=wEEg
------END PGP SIGNATURE-----
-
---nextPart3174171.aeNJFYEL58--
-
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
