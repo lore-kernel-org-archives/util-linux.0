@@ -2,121 +2,67 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5BD7C433EF
-	for <util-linux@archiver.kernel.org>; Mon, 18 Jul 2022 13:30:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB9E3C43334
+	for <util-linux@archiver.kernel.org>; Wed, 20 Jul 2022 15:02:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232115AbiGRNa4 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 18 Jul 2022 09:30:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55622 "EHLO
+        id S229830AbiGTPCZ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 20 Jul 2022 11:02:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230411AbiGRNa4 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 18 Jul 2022 09:30:56 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A5933A2
-        for <util-linux@vger.kernel.org>; Mon, 18 Jul 2022 06:30:55 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 286131FACC
-        for <util-linux@vger.kernel.org>; Mon, 18 Jul 2022 13:30:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1658151054; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-         mime-version:mime-version:content-type:content-type;
-        bh=eLU8Sv2vGnIWmPV/nQMNrOTIhK6lF7WYJ8RbIeh8u4I=;
-        b=GkH9G3XDDR8BCkSn575HvD+RIa6PiDrojcHqwCF2/s9TiPZSbYTfT3X/SzGuLLEdZya+gD
-        gpG9xGpiTe4YphHSaS1VylB1LJ4O6E/b+ukp7PkxHy0RRnLdxYNDZpkq0X6RUg9vm8rxNB
-        mneISv2k3gj1KkCVAuKXue3NZQR8ZYo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1658151054;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-         mime-version:mime-version:content-type:content-type;
-        bh=eLU8Sv2vGnIWmPV/nQMNrOTIhK6lF7WYJ8RbIeh8u4I=;
-        b=q1EQayZ3UegK7Nq8mR8yFtJ5iD1basOQTvogGRv29noxfmwQl2EAcNOgM8oDGqCUK41bjr
-        WdaLYjXb5rEgVuCg==
-Received: from hawking.suse.de (unknown [10.168.4.11])
-        by relay2.suse.de (Postfix) with ESMTP id 22CFB2C141
-        for <util-linux@vger.kernel.org>; Mon, 18 Jul 2022 13:30:54 +0000 (UTC)
-Received: by hawking.suse.de (Postfix, from userid 17005)
-        id 9500F444B2F; Mon, 18 Jul 2022 15:30:53 +0200 (CEST)
-From:   Andreas Schwab <schwab@suse.de>
-To:     util-linux@vger.kernel.org
-Subject: <linux/fs.h> conflicts with <sys/mount.h>
-X-Yow:  ..  I don't understand the HUMOR of the THREE STOOGES!!
-Date:   Mon, 18 Jul 2022 15:30:53 +0200
-Message-ID: <mvm35eyh7jm.fsf@suse.de>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.1.90 (gnu/linux)
+        with ESMTP id S230149AbiGTPCZ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 20 Jul 2022 11:02:25 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A43C854049
+        for <util-linux@vger.kernel.org>; Wed, 20 Jul 2022 08:02:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1658329343;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=zvXSy0/H0sq6zOuIwNhV/qusQms81qIfJzIXhu6xfgk=;
+        b=NMB2NhSBuTg3Q2RhWnT8r7n8oQWuPmXTg8dPvLRJ+WLtolwBxdHW1E4joAKGudcKVkMGb+
+        4EydVgs+9w8os9FvZrz7uqQo4w/WB64n0kSgrvQzjWAh0MwCLcrgLs5YpPgCAoXotyU744
+        NX2ObiC625+7gBNkiXbWHOySsTkjk/Y=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-360-dV_lTpMDP36B5KtyAxtvVg-1; Wed, 20 Jul 2022 11:02:16 -0400
+X-MC-Unique: dV_lTpMDP36B5KtyAxtvVg-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2B478804184;
+        Wed, 20 Jul 2022 15:02:16 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.193.170])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id A5B1618EA8;
+        Wed, 20 Jul 2022 15:02:15 +0000 (UTC)
+Date:   Wed, 20 Jul 2022 17:02:13 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Andreas Schwab <schwab@suse.de>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: <linux/fs.h> conflicts with <sys/mount.h>
+Message-ID: <20220720150213.4ac7iclhkwqhbdog@ws.net.home>
+References: <mvm35eyh7jm.fsf@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <mvm35eyh7jm.fsf@suse.de>
+X-Scanned-By: MIMEDefang 2.79 on 10.11.54.5
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-With the upcoming glibc 2.36, <linux/fs.h> conflicts with <sys/mount.h>:
+On Mon, Jul 18, 2022 at 03:30:53PM +0200, Andreas Schwab wrote:
+> With the upcoming glibc 2.36, <linux/fs.h> conflicts with <sys/mount.h>:
 
-In file included from /usr/include/linux/fs.h:19,
-                 from login-utils/sulogin-consoles.c:46:
-/usr/include/linux/mount.h:95:6: error: redeclaration of 'enum fsconfig_command'
-   95 | enum fsconfig_command {
-      |      ^~~~~~~~~~~~~~~~
-In file included from login-utils/sulogin-consoles.c:45:
-/usr/include/sys/mount.h:189:6: note: originally defined here
-  189 | enum fsconfig_command
-      |      ^~~~~~~~~~~~~~~~
-/usr/include/linux/mount.h:96:9: error: redeclaration of enumerator 'FSCONFIG_SET_FLAG'
-   96 |         FSCONFIG_SET_FLAG       = 0,    /* Set parameter, supplying no value */
-      |         ^~~~~~~~~~~~~~~~~
-/usr/include/sys/mount.h:191:3: note: previous definition of 'FSCONFIG_SET_FLAG' with type 'enum fsconfig_command'
-  191 |   FSCONFIG_SET_FLAG       = 0,    /* Set parameter, supplying no value */
-      |   ^~~~~~~~~~~~~~~~~
-/usr/include/linux/mount.h:97:9: error: redeclaration of enumerator 'FSCONFIG_SET_STRING'
-   97 |         FSCONFIG_SET_STRING     = 1,    /* Set parameter, supplying a string value */
-      |         ^~~~~~~~~~~~~~~~~~~
-/usr/include/sys/mount.h:193:3: note: previous definition of 'FSCONFIG_SET_STRING' with type 'enum fsconfig_command'
-  193 |   FSCONFIG_SET_STRING     = 1,    /* Set parameter, supplying a string value */
-      |   ^~~~~~~~~~~~~~~~~~~
-/usr/include/linux/mount.h:98:9: error: redeclaration of enumerator 'FSCONFIG_SET_BINARY'
-   98 |         FSCONFIG_SET_BINARY     = 2,    /* Set parameter, supplying a binary blob value */
-      |         ^~~~~~~~~~~~~~~~~~~
-/usr/include/sys/mount.h:195:3: note: previous definition of 'FSCONFIG_SET_BINARY' with type 'enum fsconfig_command'
-  195 |   FSCONFIG_SET_BINARY     = 2,    /* Set parameter, supplying a binary blob value */
-      |   ^~~~~~~~~~~~~~~~~~~
-/usr/include/linux/mount.h:99:9: error: redeclaration of enumerator 'FSCONFIG_SET_PATH'
-   99 |         FSCONFIG_SET_PATH       = 3,    /* Set parameter, supplying an object by path */
-      |         ^~~~~~~~~~~~~~~~~
-/usr/include/sys/mount.h:197:3: note: previous definition of 'FSCONFIG_SET_PATH' with type 'enum fsconfig_command'
-  197 |   FSCONFIG_SET_PATH       = 3,    /* Set parameter, supplying an object by path */
-      |   ^~~~~~~~~~~~~~~~~
-/usr/include/linux/mount.h:100:9: error: redeclaration of enumerator 'FSCONFIG_SET_PATH_EMPTY'
-  100 |         FSCONFIG_SET_PATH_EMPTY = 4,    /* Set parameter, supplying an object by (empty) path */
-      |         ^~~~~~~~~~~~~~~~~~~~~~~
-/usr/include/sys/mount.h:199:3: note: previous definition of 'FSCONFIG_SET_PATH_EMPTY' with type 'enum fsconfig_command'
-  199 |   FSCONFIG_SET_PATH_EMPTY = 4,    /* Set parameter, supplying an object by (empty) path */
-      |   ^~~~~~~~~~~~~~~~~~~~~~~
-/usr/include/linux/mount.h:101:9: error: redeclaration of enumerator 'FSCONFIG_SET_FD'
-  101 |         FSCONFIG_SET_FD         = 5,    /* Set parameter, supplying an object by fd */
-      |         ^~~~~~~~~~~~~~~
-/usr/include/sys/mount.h:201:3: note: previous definition of 'FSCONFIG_SET_FD' with type 'enum fsconfig_command'
-  201 |   FSCONFIG_SET_FD         = 5,    /* Set parameter, supplying an object by fd */
-      |   ^~~~~~~~~~~~~~~
-/usr/include/linux/mount.h:102:9: error: redeclaration of enumerator 'FSCONFIG_CMD_CREATE'
-  102 |         FSCONFIG_CMD_CREATE     = 6,    /* Invoke superblock creation */
-      |         ^~~~~~~~~~~~~~~~~~~
-/usr/include/sys/mount.h:203:3: note: previous definition of 'FSCONFIG_CMD_CREATE' with type 'enum fsconfig_command'
-  203 |   FSCONFIG_CMD_CREATE     = 6,    /* Invoke superblock creation */
-      |   ^~~~~~~~~~~~~~~~~~~
-/usr/include/linux/mount.h:103:9: error: redeclaration of enumerator 'FSCONFIG_CMD_RECONFIGURE'
-  103 |         FSCONFIG_CMD_RECONFIGURE = 7,   /* Invoke superblock reconfiguration */
-      |         ^~~~~~~~~~~~~~~~~~~~~~~~
-/usr/include/sys/mount.h:205:3: note: previous definition of 'FSCONFIG_CMD_RECONFIGURE' with type 'enum fsconfig_command'
-  205 |   FSCONFIG_CMD_RECONFIGURE = 7,   /* Invoke superblock reconfiguration */
-      |   ^~~~~~~~~~~~~~~~~~~~~~~~
-/usr/include/linux/mount.h:129:8: error: redefinition of 'struct mount_attr'
-  129 | struct mount_attr {
-      |        ^~~~~~~~~~
-/usr/include/sys/mount.h:161:8: note: originally defined here
-  161 | struct mount_attr
-      |        ^~~~~~~~~~
-make[2]: *** [Makefile:9597: login-utils/sulogin-consoles.o] Error 1
+It seems we do not need linux/fs.h (if usual sys/mount.h is available).
+
+Fixed in master branch.
+https://github.com/util-linux/util-linux/commit/89c7c6ea6ef12722eac31c18b8fa6fbcf429525b
+
+    Karel
 
 -- 
-Andreas Schwab, SUSE Labs, schwab@suse.de
-GPG Key fingerprint = 0196 BAD8 1CE9 1970 F4BE  1748 E4D4 88E3 0EEA B9D7
-"And now for something completely different."
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
