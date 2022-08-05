@@ -2,176 +2,113 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00FE4C19F2A
-	for <util-linux@archiver.kernel.org>; Thu,  4 Aug 2022 12:25:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48A13C00140
+	for <util-linux@archiver.kernel.org>; Fri,  5 Aug 2022 15:57:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232115AbiHDMZu (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 4 Aug 2022 08:25:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50562 "EHLO
+        id S233086AbiHEP5j (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 5 Aug 2022 11:57:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231174AbiHDMZt (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 4 Aug 2022 08:25:49 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8ADB25FAF
-        for <util-linux@vger.kernel.org>; Thu,  4 Aug 2022 05:25:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1659615947;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=5U8G0Iu+FSaEXhX0JkIL9GW3P/quH0sDfBjMubxLl48=;
-        b=TVz+tLGpHgcOvZ6xXOi1XUWY1OWr6LlyDLBs68pn2TJRqcJQxj1rph3hZw8GgxH3IxSE+M
-        U+j6arj+nPBF0AeR5YGvklH6SGpGAsqckMdJAj7/wZrduIchTZ9llLslHTZEz8J5h2LV6n
-        prDpNcWqb3KrU/tnlHhpWfruw9p59kQ=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-399-HplFBhCnPLmwnmqYpqqrMQ-1; Thu, 04 Aug 2022 08:25:46 -0400
-X-MC-Unique: HplFBhCnPLmwnmqYpqqrMQ-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 386A2801755;
-        Thu,  4 Aug 2022 12:25:44 +0000 (UTC)
-Received: from ws.net.home (unknown [10.40.193.170])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9548E492C3B;
-        Thu,  4 Aug 2022 12:25:43 +0000 (UTC)
-Date:   Thu, 4 Aug 2022 14:25:41 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: [ANNOUNCE] util-linux v2.38.1
-Message-ID: <20220804122541.eet3nguw52j2iv3n@ws.net.home>
+        with ESMTP id S241614AbiHEPz6 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 5 Aug 2022 11:55:58 -0400
+Received: from toro.web-alm.net (toro.web-alm.net [62.245.132.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 94067268
+        for <util-linux@vger.kernel.org>; Fri,  5 Aug 2022 08:55:57 -0700 (PDT)
+Received: from toro.web-alm.net (localhost.localdomain [127.0.0.1])
+        by toro.web-alm.net (8.12.11.20060308/8.12.11/Web-Alm-2003112001) with ESMTP id 275Fo8Pe018449;
+        Fri, 5 Aug 2022 17:50:08 +0200
+Received: from rack3slot8.osadl.org (uucp@localhost)
+        by toro.web-alm.net (8.12.11.20060308/8.12.10/Submit/Web-Alm-2003112001) with bsmtp id 275Fo8pb018447;
+        Fri, 5 Aug 2022 17:50:08 +0200
+Received: from rack0slot7.osadl.org (rack3slot8.osadl.org [127.0.0.1])
+        by rack3slot8.osadl.org (8.13.8/8.13.8/CE-2010120801) with ESMTP id 275Fn00x023860;
+        Fri, 5 Aug 2022 17:49:00 +0200
+Received: (from root@localhost)
+        by rack0slot7.osadl.org (8.17.1/8.17.1/Submit) id 275Fn0aJ2272748;
+        Fri, 5 Aug 2022 17:49:00 +0200
+Message-ID: <20220805154900.261920576@osadl.org>
+User-Agent: quilt/0.66
+Date:   Fri, 05 Aug 2022 17:48:21 +0200
+From:   Carsten Emde <C.Emde@osadl.org>
+To:     util-linux@vger.kernel.org
+Cc:     Carsten Emde <C.Emde@osadl.org>
+Subject: [PATCH 1/1] Taskset: check first whether affinity is settable
+References: <20220805154820.407972387@osadl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
+Content-Type: text/plain; charset=UTF-8
+X-Virus-Scanned: ClamAV version 0.94.2, clamav-milter version 0.94.2 on rack3slot8.osadl.org
+X-Virus-Status: Clean
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+If the PF_NO_SETAFFINITY process flag is set, the user may not
+know why the affinity is not settable. Write a respective message
+and do not attempt to set the affinity of this process.
 
-The util-linux stable release v2.38.1 is available at
-   
-  http://www.kernel.org/pub/linux/utils/util-linux/v2.38
-   
-Feedback and bug reports, as always, are welcomed.
-   
-  Karel
+Signed-off-by: Carsten Emde <C.Emde@osadl.org>
 
+---
+ schedutils/taskset.c |   34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
-util-linux 2.38.1 Release Notes
-===============================
-
-BSD:
-   - Use byteswap.h and endian.h defined macos when present  [Warner Losh]
-column:
-   - fix buffer overflow when -l specified  [Karel Zak]
-   - fix greedy mode on -l  [Karel Zak]
-configure.ac:
-   - add lsns option  [Fabrice Fontaine]
-dmesg:
-   - fix --since and --until  [Karel Zak]
-docs:
-   - update AUTHORS file  [Karel Zak]
-fstrim:
-   - Remove all skipped entries before de-duplication  [Scott Shambarger]
-   - check for ENOSYS when using --quiet-unsupported  [Narthorn]
-hardlink:
-   - Document '-c' option in manpage  [FeRD (Frank Dana)]
-   - Fix man page docs for '-v/--verbose'  [FeRD (Frank Dana)]
-   - Move -c option in --help  [FeRD (Frank Dana)]
-   - require statfs_magic.h only when reflink support enabled  [Karel Zak]
-   - use info rather than warning message  [Karel Zak]
-irqtop:
-   - fix compiler warning [-Werror=format-truncation=]  [Karel Zak]
-   - remove unused variable  [Karel Zak]
-lib/fileutils:
-   - fix compiler warning  [Karel Zak]
-lib/logindefs:
-   - fix compiler warning [-Werror=format-truncation=]  [Karel Zak]
-lib/strutils:
-   - add ul_strchr_escaped()  [Karel Zak]
-libblkid:
-   - (bsd) fix buffer pointer use [fuzzing]  [Karel Zak]
-   - (hfs) fix label use [fuzzing]  [Karel Zak]
-   - (hfs) fix make sure buffer is large enough  [Karel Zak]
-   - (mac) make sure block size is large enough [fuzzing]  [Karel Zak]
-   - (probe) fix size and offset overflows [fuzzing]  [Karel Zak]
-   - (swap) fix magic string memcmp [fuzzing]  [Karel Zak]
-   - simplify 'leaf' detection  [Karel Zak]
-   - update documentation of BLOCK_SIZE tag  [Andrey Albershteyn]
-libfdisk:
-   - (gpt) Add UUID for Marvell Armada 3700 Boot partition  [Pali Rohár]
-   - meson.build fix typo  [Anatoly Pugachev]
-libmount:
-   - fix and improve utab update on MS_MOVE  [Karel Zak]
-   - when moving a mount point, all sub mount entries in utab should also be updated  [Franck Bui]
-libuuid:
-   - (man) uuid_copy() -- add missing parenthesis  [Andrew Price]
-   - improve cache handling  [d032747]
-logger:
-   - make sure structured data are escaped  [Karel Zak]
-loopdev:
-   - set block_size when using LOOP_CONFIGURE  [Hideki EIRAKU]
-losetup:
-   - Fix typo for the --sector-size docs  [Alberto Ruiz]
-lsblk:
-   - fix JSON output when without --bytes  [Karel Zak]
-lscpu:
-   - keep bogomips locale output locale sensitive  [Karel Zak]
-lsfd:
-   - add static modifier to nodev_table  [Masatake YAMATO]
-   - delete __unused__ attribute for an used parameter  [Masatake YAMATO]
-   - fix compiler warning [-Werror=maybe-uninitialized]  [Karel Zak]
-   - fix crash triggered by an empty filter expression  [Masatake YAMATO]
-lsirq:
-   - improve --sort IRQ  [Karel Zak]
-lslogins:
-   - fix free()  invalid pointer  [Karel Zak]
-   - improve prefixes interpretation  [Karel Zak]
-lsns:
-   - (man) add ip-netns to "SEE ALSO" section  [Masatake YAMATO]
-   - improve dependence on NS_GET_ ioctls  [Karel Zak]
-meson:
-   - fix compilation without systemd  [Rosen Penev]
-   - fix when HAVE_CLOCK_GETTIME is set  [Nicolas Caramelli]
-more:
-   - avoid infinite loop on --squeeze  [Karel Zak]
-po:
-   - merge changes  [Karel Zak]
-   - update de.po (from translationproject.org)  [Mario Blättermann]
-   - update hr.po (from translationproject.org)  [Božidar Putanec]
-   - update ja.po (from translationproject.org)  [Takeshi Hamasaki]
-   - update uk.po (from translationproject.org)  [Yuri Chornoivan]
-po-man:
-   - merge changes  [Karel Zak]
-   - update fr.po (from translationproject.org)  [Frédéric Marchal]
-   - update uk.po (from translationproject.org)  [Yuri Chornoivan]
-sfdiks:
-   - (man) fix example  [Karel Zak]
-sulogin:
-   - fix includes  [Karel Zak]
-switch_root:
-   - (man) fix return code description  [Karel Zak]
-taskset:
-   - fix use of  err_affinity()  [csbo98]
-tests:
-   - don't compile lsfd/mkfds helper on macos, since it's linux only  [Anatoly Pugachev]
-   - fdisk/bsd  update expected output for ppc64le  [Chris Hofstaedtler]
-   - fix misc/setarch run in a docker environment  [Anatoly Pugachev]
-   - make libmount tests more portable  [Karel Zak]
-   - report failed tests  [Karel Zak]
-unshare:
-   - Fix "you (user xxxx) don't exist" error when uid differs from primary gid  [Sol Boucher]
-uuidd:
-   - allow AF_INET in systemd service  [Karel Zak]
-   - remove also PrivateNetwork=yes from systemd service  [Karel Zak]
-zramctl:
-   - fix compiler warning [-Werror=maybe-uninitialized]  [Karel Zak]
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Index: util-linux/schedutils/taskset.c
+===================================================================
+--- util-linux.orig/schedutils/taskset.c
++++ util-linux/schedutils/taskset.c
+@@ -35,6 +35,11 @@
+ #include "c.h"
+ #include "closestream.h"
+ 
++#ifndef PF_NO_SETAFFINITY
++#define PF_NO_SETAFFINITY 0x04000000
++#endif
++#define PF_NO_SETAFFINITY_FLAG 9
++
+ struct taskset {
+ 	pid_t		pid;		/* task PID */
+ 	cpu_set_t	*set;		/* task CPU mask */
+@@ -114,6 +119,8 @@ static void __attribute__((__noreturn__)
+ 
+ static void do_taskset(struct taskset *ts, size_t setsize, cpu_set_t *set)
+ {
++	char statfilename[32];
++
+ 	/* read the current mask */
+ 	if (ts->pid) {
+ 		if (sched_getaffinity(ts->pid, ts->setsize, ts->set) < 0)
+@@ -124,6 +131,33 @@ static void do_taskset(struct taskset *t
+ 	if (ts->get_only)
+ 		return;
+ 
++	/* check whether settable */
++	if (snprintf(statfilename, sizeof(statfilename), "/proc/%d/stat", ts->pid) > 0) {
++		int statfd;
++
++		if ((statfd = open(statfilename, S_IREAD)) > 0) {
++			char stat[1024];
++
++			if (read(statfd, stat, sizeof(stat)) > 0) {
++				char *endptr, *token = strtok(stat, " ");
++				int flags, flagno = PF_NO_SETAFFINITY_FLAG;
++
++				while (token && --flagno > 0)
++					token = strtok(NULL, " ");
++				if (flagno == 0 && *token != '\0') {
++					flags = strtol(token, &endptr, 10);
++					if (endptr == token + strlen(token)) {
++						if (flags & PF_NO_SETAFFINITY) {
++							fputs("warning: affinity cannot be set due to PF_NO_SETAFFINITY flag set\n", stderr);
++							errno = EINVAL;
++							err_affinity(ts->pid, 1);
++						}
++					}
++				}
++			}
++		}
++	}
++
+ 	/* set new mask */
+ 	if (sched_setaffinity(ts->pid, setsize, set) < 0)
+ 		err_affinity(ts->pid, 1);
 
