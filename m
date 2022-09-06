@@ -2,65 +2,87 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28C8DC54EE9
-	for <util-linux@archiver.kernel.org>; Fri,  2 Sep 2022 08:07:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03572C54EE9
+	for <util-linux@archiver.kernel.org>; Tue,  6 Sep 2022 07:04:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235621AbiIBIHM (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 2 Sep 2022 04:07:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44946 "EHLO
+        id S232233AbiIFHEl (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 6 Sep 2022 03:04:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233931AbiIBIHL (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 2 Sep 2022 04:07:11 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FFCA7284F
-        for <util-linux@vger.kernel.org>; Fri,  2 Sep 2022 01:07:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1662106029;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=9YFcvKx9L9eu/ck5gjlGHdhPSUvof1TmxufTRpX7vBA=;
-        b=iCT7LYDtgmD92buaq8kyxk9TIPIepJMhncuvv4Yzch9HWNxQT+eTiqeLltKbiJqeaxBF1O
-        +tGaVkTuuNT18JwUocFr9gMlxRO5llHy92qhltwNdWTl/2fFmvqhwO9F/IFydHydU+ItDk
-        o6vhOuaja6qLXKwPRB51nQGm0yzAXUQ=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-1-D5-6d4BtNuuhWkj1YUmHqw-1; Fri, 02 Sep 2022 04:07:06 -0400
-X-MC-Unique: D5-6d4BtNuuhWkj1YUmHqw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 10DA985A58A;
-        Fri,  2 Sep 2022 08:07:06 +0000 (UTC)
-Received: from ws.net.home (unknown [10.40.192.179])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 8B3A54010FA0;
-        Fri,  2 Sep 2022 08:07:05 +0000 (UTC)
-Date:   Fri, 2 Sep 2022 10:07:03 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     Jeremy Linton <jeremy.linton@arm.com>
-Cc:     util-linux@vger.kernel.org
-Subject: Re: [PATCH] lscpu: Even more Arm part numbers
-Message-ID: <20220902080703.y7psgcoyknenvi6s@ws.net.home>
-References: <20220901215230.2543624-1-jeremy.linton@arm.com>
+        with ESMTP id S232481AbiIFHEi (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 6 Sep 2022 03:04:38 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE2BEE00C
+        for <util-linux@vger.kernel.org>; Tue,  6 Sep 2022 00:04:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1662447876; x=1693983876;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=yTAnRAWTx1ASj7IGg2VGjzG7ltqT62r/Pkh1xKbRrtI=;
+  b=ngzJjE9v+mq+uNeLHXvKxwLVnBolwJ/jYiO4DZqwAJQSoq60u/yhpbFW
+   Tu8m2Azlu26F7nM9fncb68udpuBRfa7pE+39fAsxQ8HiQRvWEdpkSHIn/
+   sQI8cIOg7Pe+WdMfYdJpL+EVxOQe+wV9rVixCSUhf/pDjuTfHSjUGDjQ0
+   evtUALeXSweRj7mG5lyKxxnu/xaL3kJNROUSnpXMMcCPVdYPgCBKXc/VZ
+   z95nh43LfThyi4Kq10rDlAmfeug6KBGg2gMICxOLujQCK3qtcwfpuFvLN
+   r59/ZNswWie1FO2Y3AUmWPqTL7bOil+45xl3dVoIDKklAritkeX/hNFFF
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10461"; a="295256983"
+X-IronPort-AV: E=Sophos;i="5.93,293,1654585200"; 
+   d="scan'208";a="295256983"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Sep 2022 00:04:36 -0700
+X-IronPort-AV: E=Sophos;i="5.93,293,1654585200"; 
+   d="scan'208";a="644047925"
+Received: from plbrigh-mobl2.ger.corp.intel.com (HELO pujfalus-desk.ger.corp.intel.com) ([10.252.15.202])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Sep 2022 00:04:35 -0700
+From:   Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+To:     kzak@redhat.com
+Cc:     util-linux@vger.kernel.org, peter.ujfalusi@linux.intel.com
+Subject: [PATCH] lib/timeutils: Add %s (seconds since the Epoch) to parse_timestamp()
+Date:   Tue,  6 Sep 2022 10:04:36 +0300
+Message-Id: <20220906070436.684-1-peter.ujfalusi@linux.intel.com>
+X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220901215230.2543624-1-jeremy.linton@arm.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Thu, Sep 01, 2022 at 04:52:30PM -0500, Jeremy Linton wrote:
->  sys-utils/lscpu-arm.c | 3 +++
->  1 file changed, 3 insertions(+)
+The %s comes handy with for example dmesg with the --since within scripts
+to handle log rages.
 
-Thanks for the update! Applied.
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+---
+ lib/timeutils.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-  Karel
-
+diff --git a/lib/timeutils.c b/lib/timeutils.c
+index 2e28ada8bc47..6dda2e8deefb 100644
+--- a/lib/timeutils.c
++++ b/lib/timeutils.c
+@@ -181,6 +181,7 @@ int parse_timestamp(const char *t, usec_t *usec)
+ 	 *
+ 	 *   2012-09-22 16:34:22
+ 	 *   2012-09-22T16:34:22
++	 *   1348331662		  (seconds since the Epoch (1970-01-01 00:00 UTC))
+ 	 *   2012-09-22 16:34	  (seconds will be set to 0)
+ 	 *   2012-09-22		  (time will be set to 00:00:00)
+ 	 *   16:34:22		  (date will be set to today)
+@@ -325,6 +326,13 @@ int parse_timestamp(const char *t, usec_t *usec)
+ 		goto finish;
+ 	}
+ 
++	tm = copy;
++	k = strptime(t, "%s", &tm);
++	if (k && *k == 0) {
++		tm.tm_sec = 0;
++		goto finish;
++	}
++
+ 	return -EINVAL;
+ 
+  finish:
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.37.3
 
