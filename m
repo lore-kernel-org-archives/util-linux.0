@@ -2,121 +2,101 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29853C38145
-	for <util-linux@archiver.kernel.org>; Wed,  7 Sep 2022 05:41:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79230ECAAD3
+	for <util-linux@archiver.kernel.org>; Wed,  7 Sep 2022 07:20:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229754AbiIGFln (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 7 Sep 2022 01:41:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44858 "EHLO
+        id S229702AbiIGHU5 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 7 Sep 2022 03:20:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229543AbiIGFlm (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 7 Sep 2022 01:41:42 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A1296E2D6
-        for <util-linux@vger.kernel.org>; Tue,  6 Sep 2022 22:41:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1662529301; x=1694065301;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=sDhjukleesK2yr7+drj/rTzzUPh1PTh//YFOPO6P1Ro=;
-  b=SbxBS+zsBwYPqvePWfTB5tDaraypwvYF4pit7UOHWk2iPHAIFCXEmZU2
-   To8d4f9iqyb91SOIt6CCUOEy5N9kpMKQCYtnIlHn+26atFQ+jddiI2NnH
-   bCSKSFTLEM0Y8l4h5z3Q3FS4SUe/DVl7qENswokijZ0Zns2R8g8MR8A6m
-   Ad/mvf3r5CJQUPl+d2kpXdfFIRn6Mq5Kn+jzTZ/LygYEHQTbxD42fazgZ
-   BMVKIOElVkyMj3X8T6C5NN4qmrZeNWDeqbZhUAVJYSgzYzq3ZKVdlsRCI
-   DkR9bstlvpp8J+/MNyjppKrgOKI0Kv5G5io3WAwysiE7OvFKRncw32doM
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10462"; a="298100693"
-X-IronPort-AV: E=Sophos;i="5.93,295,1654585200"; 
-   d="scan'208";a="298100693"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Sep 2022 22:41:40 -0700
-X-IronPort-AV: E=Sophos;i="5.93,295,1654585200"; 
-   d="scan'208";a="682675880"
-Received: from asilke-mobl1.ger.corp.intel.com (HELO pujfalus-desk.ger.corp.intel.com) ([10.252.0.42])
-  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Sep 2022 22:41:39 -0700
-From:   Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-To:     kzak@redhat.com
-Cc:     util-linux@vger.kernel.org, peter.ujfalusi@linux.intel.com
-Subject: [PATCH] lib/timeutils: Require '@' prefix for seconds since the Epoch timestamp
-Date:   Wed,  7 Sep 2022 08:41:41 +0300
-Message-Id: <20220907054141.15608-1-peter.ujfalusi@linux.intel.com>
-X-Mailer: git-send-email 2.37.3
+        with ESMTP id S229617AbiIGHU4 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 7 Sep 2022 03:20:56 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AF828983B
+        for <util-linux@vger.kernel.org>; Wed,  7 Sep 2022 00:20:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1662535254;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=3ZfMzLvmWwBh9ruihv/y7KQDtNMXQ6QZMlcVRl8LVdQ=;
+        b=SigmQKj9Nj/g6cLYjXy1jffG4TfUP89p/za8GpkjxAzroSBPwzVU3qHlQqUyoVNSFwEP+8
+        Saq/MGQDUc/mkAfisGXzM70blYeSHVUlES78cXSXVr5ss8OAfFy8BMmV+M62DMiSUIm9CJ
+        3er0daz9vaD82Oig+z5rcGB/nGybqn0=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-322-A2Ad-oZyOWaGq9SuWR40iw-1; Wed, 07 Sep 2022 03:20:53 -0400
+X-MC-Unique: A2Ad-oZyOWaGq9SuWR40iw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B80F580418F;
+        Wed,  7 Sep 2022 07:20:52 +0000 (UTC)
+Received: from ws.net.home (unknown [10.40.192.179])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2A3F41121315;
+        Wed,  7 Sep 2022 07:20:51 +0000 (UTC)
+Date:   Wed, 7 Sep 2022 09:20:48 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     =?utf-8?B?UMOpdGVy?= Ujfalusi <peter.ujfalusi@linux.intel.com>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: [PATCH] lib/timeutils: Add %s (seconds since the Epoch) to
+ parse_timestamp()
+Message-ID: <20220907072048.5buz33o2df5cvdiw@ws.net.home>
+References: <20220906070436.684-1-peter.ujfalusi@linux.intel.com>
+ <20220906084716.4bgsdahoyjfaaksc@ws.net.home>
+ <849c4ca2-a1b7-7429-1b3c-fc135d9f4d72@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <849c4ca2-a1b7-7429-1b3c-fc135d9f4d72@linux.intel.com>
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.3
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Since the seconds since the Epoch is just a number it might be better to
-require special prefix to indicate the intention that the user wants to
-interpret the number as seconds since the Epoch.
+On Tue, Sep 06, 2022 at 07:31:07PM +0300, Péter Ujfalusi wrote:
+> On 06/09/2022 11:47, Karel Zak wrote:
+> > On Tue, Sep 06, 2022 at 10:04:36AM +0300, Peter Ujfalusi wrote:
+> >>  lib/timeutils.c | 8 ++++++++
+> >>  1 file changed, 8 insertions(+)
+> > 
+> > Applied, thanks.
+> 
+> After some tinkering with a script where I needed this, would it make
+> sense to change the way how one should be specifying seconds since the
+> Epoch time to
+> '@'<number>
 
-Use the same '@' character as prefix as used by systemd.time to make it
-easier to integrate in scripts intended to be used on systems with or
-without systemd.
+Yes, '@' seems more readable. I have no strong opinion about it, maybe
+we can support both convention (with and without @).
 
-Fix also the initial support which discarded the seconds from the converted
-timestamp.
+Anyway, we really need to add something like "INPUT TIMESTAMP" section
+to the man page to describe supported formats.
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
----
-Hi Karel,
+> This would match how for example systemd.time requires it [1]
+> 
+> Basically I (or anyone) can use dmesg instead of journalctl in a script
+> with the same --since=@<timestamp> parameter.
+> 
+> 'date +%s' prints out just a number.
 
-I think this will be safer for the enduser. The original patch would interpret
-_any_ number not matching with the other supported formats interpreted as seconds
-since the Epoch, which might not something the user had in mind.
+It's possible to use --since=$(date +'@%s')
 
-Sorry for the oversight on my side...
+> If not, then I have made a rookie mistake with the patch, which should
+> be fixed (discarding the seconds we got out from the timestamp).
 
-Kind regards,
-PÃ©ter
+Do you mean your copy & past tm.tm_sec = 0;? This should be fixed.
 
- lib/timeutils.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+> /me hides
 
-diff --git a/lib/timeutils.c b/lib/timeutils.c
-index 6dda2e8deefb..4eaef9533ab2 100644
---- a/lib/timeutils.c
-+++ b/lib/timeutils.c
-@@ -181,7 +181,7 @@ int parse_timestamp(const char *t, usec_t *usec)
- 	 *
- 	 *   2012-09-22 16:34:22
- 	 *   2012-09-22T16:34:22
--	 *   1348331662		  (seconds since the Epoch (1970-01-01 00:00 UTC))
-+	 *   @1348331662	  (seconds since the Epoch (1970-01-01 00:00 UTC))
- 	 *   2012-09-22 16:34	  (seconds will be set to 0)
- 	 *   2012-09-22		  (time will be set to 00:00:00)
- 	 *   16:34:22		  (date will be set to today)
-@@ -233,7 +233,12 @@ int parse_timestamp(const char *t, usec_t *usec)
- 			return r;
- 
- 		goto finish;
-+	} else if (t[0] == '@') {
-+		k = strptime(t + 1, "%s", &tm);
-+		if (k && *k == 0)
-+			goto finish;
- 
-+		return -EINVAL;
- 	} else if (endswith(t, " ago")) {
- 		char *z;
- 
-@@ -326,13 +331,6 @@ int parse_timestamp(const char *t, usec_t *usec)
- 		goto finish;
- 	}
- 
--	tm = copy;
--	k = strptime(t, "%s", &tm);
--	if (k && *k == 0) {
--		tm.tm_sec = 0;
--		goto finish;
--	}
--
- 	return -EINVAL;
- 
-  finish:
+Come back and send a patch :-)
+
+    Karel
+
 -- 
-2.37.3
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
