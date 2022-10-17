@@ -2,80 +2,100 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20B22C433FE
-	for <util-linux@archiver.kernel.org>; Mon, 17 Oct 2022 07:14:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8368C433FE
+	for <util-linux@archiver.kernel.org>; Mon, 17 Oct 2022 08:43:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230005AbiJQHOU (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 17 Oct 2022 03:14:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53550 "EHLO
+        id S229792AbiJQIm6 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 17 Oct 2022 04:42:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229963AbiJQHOS (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 17 Oct 2022 03:14:18 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 006E24AD6C
-        for <util-linux@vger.kernel.org>; Mon, 17 Oct 2022 00:14:17 -0700 (PDT)
+        with ESMTP id S229592AbiJQIm5 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 17 Oct 2022 04:42:57 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA85A2CC85
+        for <util-linux@vger.kernel.org>; Mon, 17 Oct 2022 01:42:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1665990857;
+        s=mimecast20190719; t=1665996172;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=XjoS3AxuM5VS/0rzapM9FpdTGiBXAaHQ0YB+LhUZbOk=;
-        b=MDnhbJoISNi9A7xGXdsOj3Z8nBF/LW9byLduTcjp9jRBrsa1ZD94fSUOU4n1GS/0qfNan2
-        2keppI5YOwuNdF0wl94voeNOXpWg+N2UeV4k9Y7OwTWFohg1I3cTSWDl9ekowYlYm8A8W+
-        MhB+hBuIx9Pp6EQcPNbl6aguYBdVZGA=
+        bh=GED2lrJqkbF1XTPQbS3ByxG7aJJVl2S+07q95tMCkI4=;
+        b=hUKq9CDadOTzQ7I6SE6NsF2Kb6AVByFtFMbB2R8udg5tUsBnOo1T3yLPA+lUSGCq4kvIGc
+        +OICFa9q02a+ErY4Jc/VW9mSJdVh+IAYVAT/aRhyxZ+/0HvR2WG2RU12YB8ODVZSrMLxRs
+        /e35Wekw3BOkR0/tERXCZz59qEcT4GM=
 Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
  [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-361-Jy4rX7jIMXGOgJjzrjDs-g-1; Mon, 17 Oct 2022 03:14:13 -0400
-X-MC-Unique: Jy4rX7jIMXGOgJjzrjDs-g-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+ us-mta-660-0DmawuyfOfmYEY86193T-w-1; Mon, 17 Oct 2022 04:42:50 -0400
+X-MC-Unique: 0DmawuyfOfmYEY86193T-w-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 61EE938041C0;
-        Mon, 17 Oct 2022 07:14:13 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C973F382F1C9;
+        Mon, 17 Oct 2022 08:42:49 +0000 (UTC)
 Received: from ws.net.home (ovpn-193-171.brq.redhat.com [10.40.193.171])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 0162D414A815;
-        Mon, 17 Oct 2022 07:14:11 +0000 (UTC)
-Date:   Mon, 17 Oct 2022 09:14:09 +0200
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4AECC404CAE0;
+        Mon, 17 Oct 2022 08:42:49 +0000 (UTC)
+Date:   Mon, 17 Oct 2022 10:42:47 +0200
 From:   Karel Zak <kzak@redhat.com>
-To:     Lukas Czerner <lczerner@redhat.com>
-Cc:     zhanchengbin <zhanchengbin1@huawei.com>,
-        util-linux@vger.kernel.org, djwong@kernel.org,
-        liuzhiqiang26@huawei.com, linfeilong <linfeilong@huawei.com>
-Subject: Re: [PATCH] disk-utils/fsck.c: Processes may kill other processes.
-Message-ID: <20221017071409.uhagyb62gobjmzec@ws.net.home>
-References: <f53df0ef-8474-6b0c-1a36-cf3e1282106c@huawei.com>
- <20221010130651.qnwjg36v6n3h6zfg@fedora>
+To:     Thomas Voss <mail@thomasvoss.com>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: Proposal for new column(1) flag
+Message-ID: <20221017084247.egoe7ljueklp5jvb@ws.net.home>
+References: <CNL1J5PPBA9T.2ZR8EL0OSX1XJ@mango-os>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221010130651.qnwjg36v6n3h6zfg@fedora>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+In-Reply-To: <CNL1J5PPBA9T.2ZR8EL0OSX1XJ@mango-os>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.1
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Mon, Oct 10, 2022 at 03:06:51PM +0200, Lukas Czerner wrote:
-> On Mon, Oct 10, 2022 at 05:41:17PM +0800, zhanchengbin wrote:
-> > A error in disk-utils/fsck.c, if run the fsck -N command, processes
-> > don't execute, just show what would be done. However, the pid whose
-> > value is -1 is added to the instance_list list in the execute
-> > function,if the kill_all function is called later, kill(-1, signum)
-> > is executed, Signals are sent to all processes except the number one
-> > process and itself. Other processes will be killed if they use the
-> > default signal processing function.
+On Thu, Oct 13, 2022 at 09:26:11PM +0200, Thomas Voss wrote:
+> Hello there,
 > 
-> Looks good thanks.
+> I'm not sure if this is exactly the right place to ask, so forgive me if
+> it isn't but I was thinking of a potential new flag for the column(1)
+> utility and would like to get some feedback on whether or not it would
+> even be accepted before I try to submit a patch.
 > 
-> > 
-> > Signed-off-by: zhanchengbin <zhanchengbin1@huawei.com>
-> > Signed-off-by: Lukas Czerner <lczerner@redhat.com>
->                                ^^^
-> Here as well, please remove my Sob and you can add
+> The basic issue I am aiming to fix is this:  When you have a bunch of
+> lines and you want to display them in a more "human friendly" manner, you
+> may decide to display them using columns.  This is what ls does as the
+> default behavior when listing files and we can in theory do this by
+> piping the output of whatever command we run into column.  The issue I
+> found however is that the way column operates is by splitting each row
+> into multiple columns where every column has the same width (a width
+> which can hold the longest input line).  ls on the other hand tries to
+> make each column as thin as possible, with a gap of two spaces between
+> each column.  This means that in many cases ls can fit the same data into
+> more columns than center can.
 > 
-> Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+> Now when listing files this is not a problem, you can always use ls
+> instead of center.  But I recently found myself wanting to do this with a
+> list of movies that I had stored in a file, and so being able to just the
+> following would be much more convenient, but the gaps between the columns
+> is just too large:
+> 
+> 	$ column movie-list
+> 
+> So my proposal is to add a new flag, perhaps -g (g for gap) which allows
+> you to specify how wide you want the gaps between the columns to be in
+> spaces, and then to columnate that way.  That change would make these two
+> lines identical:
+> 
+> 	$ ls *
+> 	$ ls * | column -g 2
 
-Applied, thanks!
+I guess you want "table" mode for the column (see --table-* options).
+It provides almost all features from libsmartcols. The next important
+thing for your use-case is --output-separator, for example
+
+  $ echo "AAA BBB CCC" | ./column -t --output-separator "..."
+  AAA...BBB...CCC
+
+of course you can use "   " to define space as separator, etc.
 
     Karel
 
