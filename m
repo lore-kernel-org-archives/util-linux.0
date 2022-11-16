@@ -2,61 +2,89 @@ Return-Path: <util-linux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B401FA3740
-	for <util-linux@archiver.kernel.org>; Thu, 27 Oct 2022 22:39:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18ABBC4332F
+	for <util-linux@archiver.kernel.org>; Wed, 16 Nov 2022 02:00:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234664AbiJ0Wjv convert rfc822-to-8bit (ORCPT
-        <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 27 Oct 2022 18:39:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45022 "EHLO
+        id S229923AbiKPCAx (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 15 Nov 2022 21:00:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234184AbiJ0Wju (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 27 Oct 2022 18:39:50 -0400
-X-Greylist: delayed 905 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 27 Oct 2022 15:39:45 PDT
-Received: from symantec13.comsats.net.pk (Symantec13.comsats.net.pk [203.124.41.78])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59A631DF22
-        for <util-linux@vger.kernel.org>; Thu, 27 Oct 2022 15:39:41 -0700 (PDT)
-X-AuditID: cb7c294e-9d1ff70000000b0e-8b-635b44af3109
-Received: from host201505.comsatshosting.com (host201505.comsatshosting.com [210.56.11.66])
-        (using TLS with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (Client did not present a certificate)
-        by symantec13.comsats.net.pk (Symantec Messaging Gateway) with SMTP id B5.3E.02830.FA44B536; Fri, 28 Oct 2022 07:55:43 +0500 (PKT)
-Received: from [103.145.253.52] (UnknownHost [103.145.253.52]) by host201505.comsatshosting.com with SMTP;
-   Fri, 28 Oct 2022 03:27:57 +0500
-Message-ID: <B5.3E.02830.FA44B536@symantec13.comsats.net.pk>
-Content-Type: text/plain; charset="iso-8859-1"
+        with ESMTP id S230450AbiKPCAw (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 15 Nov 2022 21:00:52 -0500
+Received: from smtp01.aussiebb.com.au (smtp01.aussiebb.com.au [121.200.0.92])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDFA12A97C
+        for <util-linux@vger.kernel.org>; Tue, 15 Nov 2022 18:00:48 -0800 (PST)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by smtp01.aussiebb.com.au (Postfix) with ESMTP id 346171003D2
+        for <util-linux@vger.kernel.org>; Wed, 16 Nov 2022 13:00:42 +1100 (AEDT)
+X-Virus-Scanned: Debian amavisd-new at smtp01.aussiebb.com.au
+Received: from smtp01.aussiebb.com.au ([127.0.0.1])
+        by localhost (smtp01.aussiebb.com.au [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id 4K3sK4wNokfD for <util-linux@vger.kernel.org>;
+        Wed, 16 Nov 2022 13:00:42 +1100 (AEDT)
+Received: by smtp01.aussiebb.com.au (Postfix, from userid 116)
+        id 2825E10030D; Wed, 16 Nov 2022 13:00:42 +1100 (AEDT)
+Received: from donald.themaw.net (180-150-90-198.b4965a.per.nbn.aussiebb.net [180.150.90.198])
+        by smtp01.aussiebb.com.au (Postfix) with ESMTP id 3108D10030D;
+        Wed, 16 Nov 2022 13:00:40 +1100 (AEDT)
+Subject: [PATCH 0/2] Add ability to use autofs mount option hint to exclude
+ mount table list entries
+From:   Ian Kent <raven@themaw.net>
+To:     util-linux <util-linux@vger.kernel.org>
+Cc:     Karel Zak <kzak@redhat.com>, John Westerdale <jwesterd@redhat.com>,
+        fhirtz@redhat.com
+Date:   Wed, 16 Nov 2022 10:00:39 +0800
+Message-ID: <166856374641.472741.1779154765995171105.stgit@donald.themaw.net>
+User-Agent: StGit/1.4
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: Compliment,
-To:     util-linux@vger.kernel.org
-From:   "Wahid Majrooh" <whl@riazeda.com.pk>
-Date:   Thu, 27 Oct 2022 15:22:34 -0700
-Reply-To: whmjhaf@gmail.com
-X-Brightmail-Tracker: H4sIAAAAAAAAA02Ta0gUURTHvbOjXh+3ZsfXda0FByw1tawsA6mUCsFehJAoqOM6uovruuyM
-        jy0R0wjbSsQyUMKUWEntYW6pJGbulyixTK0WpAfRh9Q+FKEf8kt31l13vhwuv3PP+Z/zv1yo
-        Yh8EaqDBJAkWE2/kAoLpufSQrOTHxwp0exx96vQ7C5cDj4Lsv8PasyA/OKNUMBpqBMvuw8XB
-        +t/dI7S5HdQtzfT7N4JKGwiCmNmPP79Yp2wgGLLMKwo7Z1YC5QTLtAJ8bR3JZ8Rk4Pffp2j5
-        rGJSsKvjVsAGV+PXnT88fBfu611R2QAk5x141SbJOIwJx0ttNveVcEaL7aMb1wOYRNx030XJ
-        Z5qJw3db7AEbsjF44F4r3QZQl0KtS6HWpVDr8qn1AHoARIvWSp5Yo0vdl6KrqhR5SUwxCVKK
-        uWIYEKem6xNOj4HRecEJGAi4UKQfz9ex/nwNKXOCHEhxEYinCNpSUlVq1fOivshSbRRELhz5
-        gwIdizZxSbWxgtOgJIrQsE1qEmpFoyCRp3ECDFWkbMZ1npSV8tYLgqVqo5kTxECai0J5LR94
-        linnJaFCEMyCxZstg5B5NjQ4CxjncxI1tKnKJHAYJctaaotQLtSVGYySt4B04v+RkRllxj3e
-        dhR0hSQilQnlhBQMcoJsGErGfLhILiLRzFeKhnJP3zBk9SOKoV7q7hmNLsqQ9UJfvzfgEoBD
-        vRMTKuhwx+7WSRJnRuX4dWGWxNUR20sV695HE4WmZEcZuZG+2rS5jiYSZdrJMFsVCVlZsw3F
-        9hIeoeA+ce83WAbHybuGoSX35OST+NZhUe0KqQ/xQPc2GHXIF9Ue5uu3THyhiC/l7W5fJF5S
-        +jLRki/74qEeXxwyZL3Q10rTCPy5aL+RzF/vbp5sMhziG9biksJ7LB+1GX9uP0rITbPv3ZkW
-        f+J6Y+dTfk3KHUtdRWnN3xKP1L61qjsWNcW6U4WiC7bfQEMVn77AVOMB69W+hqxkbZKjcLA5
-        7+D00JO5+cmoEzAzkIs9F6etaSwb/3mmKL5/cokyL8/hnJX6UI4W9Xxqosoi8v8BJpzR2T8E
-        AAA=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Compliment,
+Historically autofs mounts were not included in mount table listings.
 
-It will be a pleasure to discuss an important issue with you on area of Investment. My name is Wahid from Kabul
+This is the case in other SysV autofs implementations and was also
+the case with Linux autofs until we changed to use the proc file system
+for the mount table.
+
+This often leads to considerable clutter for system administrators so
+it's necessary to find a way to exclude these entries from mount table
+listings without causing problems for sub-systems that may need the
+entries to be present.
+
+In other Unix autofs implementations we see this is done by including
+a pseudo mount option that's used as a hint by applications that want
+to exclude these entries.
+
+There's further discussion of this in the first patch.
+
+I started trying to do this quite a while ago, glibc, automount(8) and
+the kernel have been updated to use such a mount option but, for some
+reason, when I canme to update util-linux I thought it would cause
+problems for systemd. But when I looked at what I had done just recently
+I saw that isn't the case so I'm now continuing with this change.
+
+What I've done might not be the prefered way to do this so any comments
+are welcome so it can be done the way it fits best with util-linux.
+
+Signed-off-by: Ian Kent <raven@themaw.net>
+---
+
+Ian Kent (2):
+      libmount: use autofs mount hint to ignore autofs mount entries
+      mount: ignore autofs entries in mount listing
 
 
-Majrooh
+ libmount/src/context.c     | 19 +++++++++++++++++++
+ libmount/src/libmount.h.in |  2 ++
+ libmount/src/libmount.sym  |  3 +++
+ libmount/src/mountP.h      |  7 ++++++-
+ libmount/src/tab_parse.c   | 33 +++++++++++++++++++++++++++++++++
+ sys-utils/mount.c          |  2 ++
+ 6 files changed, 65 insertions(+), 1 deletion(-)
+
+--
+Ian
 
