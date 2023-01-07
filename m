@@ -2,63 +2,61 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D718DC3DA7D
-	for <util-linux@archiver.kernel.org>; Tue,  3 Jan 2023 14:36:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21273C46467
+	for <util-linux@archiver.kernel.org>; Sat,  7 Jan 2023 19:56:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233183AbjACOgo (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 3 Jan 2023 09:36:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48430 "EHLO
+        id S231218AbjAGT43 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sat, 7 Jan 2023 14:56:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230214AbjACOgn (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 3 Jan 2023 09:36:43 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EC08F4
-        for <util-linux@vger.kernel.org>; Tue,  3 Jan 2023 06:35:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1672756554;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=FD59zpCHKMGzRG84VH0pobQ8k2uTeDxmBa6hbedx2Ys=;
-        b=G2UsJcdgiVMJl71vDxeev2W2FCBYBDVyh3f7jmnq7ewUg8apFe1lNxTp1tCiBYNVy7y84K
-        inJhBib3gggiJLApjw8sNPX3TA2oGBlLPWJW3PYP0QSSEl8hY1iEnGDZkUTqA0vwIlTgWx
-        NNlzuni5nf6C6Tlg4zT6JyExENm/rac=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-211-nn92yWUePdGd8Ofu7f2WZA-1; Tue, 03 Jan 2023 09:35:51 -0500
-X-MC-Unique: nn92yWUePdGd8Ofu7f2WZA-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id EAACE3C0DDA8;
-        Tue,  3 Jan 2023 14:35:50 +0000 (UTC)
-Received: from ws.net.home (ovpn-194-37.brq.redhat.com [10.40.194.37])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 657902166B26;
-        Tue,  3 Jan 2023 14:35:50 +0000 (UTC)
-Date:   Tue, 3 Jan 2023 15:35:48 +0100
-From:   Karel Zak <kzak@redhat.com>
-To:     Chris Webb <chris@arachsys.com>
-Cc:     util-linux@vger.kernel.org
-Subject: Re: [PATCH] unshare: fix a --map-auto error message
-Message-ID: <20230103143548.q5ifvzbrtvkqu4jk@ws.net.home>
-References: <Y6h7nVM0l4mAiBgw@arachsys.com>
+        with ESMTP id S229904AbjAGT41 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 7 Jan 2023 14:56:27 -0500
+X-Greylist: delayed 549 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 07 Jan 2023 11:56:25 PST
+Received: from aurora.tech (unknown [64.124.54.114])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 043E3C27
+        for <util-linux@vger.kernel.org>; Sat,  7 Jan 2023 11:56:24 -0800 (PST)
+Received: by aurora.tech (Postfix, from userid 1001)
+        id D8E1E1640178; Sat,  7 Jan 2023 11:47:16 -0800 (PST)
+From:   alison@she-devel.com
+To:     util-linux@vger.kernel.org
+Cc:     kzak@redhat.com, achaiken@aurora.tech, alison@she-devel.com
+Subject: [PATCH 1/3] schedutils: clarify confusing mask example in taskset man page
+Date:   Sat,  7 Jan 2023 11:47:06 -0800
+Message-Id: <20230107194708.6878-2-alison@she-devel.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20230107194708.6878-1-alison@she-devel.com>
+References: <20230107194708.6878-1-alison@she-devel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y6h7nVM0l4mAiBgw@arachsys.com>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Sun, Dec 25, 2022 at 04:34:37PM +0000, Chris Webb wrote:
->  sys-utils/unshare.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+From: Alison Chaiken <alison@she-devel.com>
 
-Applied, thanks.
+Omit "0x" from a mask example which is clearly hexadecimal rather than omitting
+it from "32", which could be a decimal representation.
+---
+ schedutils/taskset.1.adoc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/schedutils/taskset.1.adoc b/schedutils/taskset.1.adoc
+index c10cc62a2..efbab08dc 100644
+--- a/schedutils/taskset.1.adoc
++++ b/schedutils/taskset.1.adoc
+@@ -52,10 +52,10 @@ is processor #0,
+ *0x00000003*::
+ is processors #0 and #1,
+ 
+-*0xFFFFFFFF*::
++*FFFFFFFF*::
+ is processors #0 through #31,
+ 
+-*32*::
++*0x32*::
+ is processors #1, #4, and #5,
+ 
+ *--cpu-list 0-2,6*::
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.32.0
 
