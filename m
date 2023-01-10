@@ -2,28 +2,28 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DA10C54EBD
-	for <util-linux@archiver.kernel.org>; Mon,  9 Jan 2023 17:07:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA36BC63797
+	for <util-linux@archiver.kernel.org>; Tue, 10 Jan 2023 13:59:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235216AbjAIRHf (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 9 Jan 2023 12:07:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56528 "EHLO
+        id S232370AbjAJN7p (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 10 Jan 2023 08:59:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236742AbjAIRGp (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 9 Jan 2023 12:06:45 -0500
+        with ESMTP id S238851AbjAJN7C (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 10 Jan 2023 08:59:02 -0500
 Received: from cdw.me.uk (cdw.me.uk [91.203.57.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6C9B6101E4
-        for <util-linux@vger.kernel.org>; Mon,  9 Jan 2023 09:06:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BEE38FAD0
+        for <util-linux@vger.kernel.org>; Tue, 10 Jan 2023 05:58:59 -0800 (PST)
 Received: from chris by delta.arachsys.com with local (Exim 4.80)
         (envelope-from <chris@arachsys.com>)
-        id 1pEvay-0005rF-3w
-        for util-linux@vger.kernel.org; Mon, 09 Jan 2023 17:06:00 +0000
-Date:   Mon, 9 Jan 2023 17:06:00 +0000
+        id 1pFF9W-0002g2-D9
+        for util-linux@vger.kernel.org; Tue, 10 Jan 2023 13:58:58 +0000
+Date:   Tue, 10 Jan 2023 13:58:58 +0000
 From:   Chris Webb <chris@arachsys.com>
 To:     util-linux@vger.kernel.org
-Subject: [PATCH] unshare: support --map-users=inner:outer:count as well as
+Subject: [PATCH v2] unshare: support --map-users=inner:outer:count as well as
  outer,inner,count
-Message-ID: <3b796e2247216e95068b50abf3af8e5d47736907.1673283788.git.chris@arachsys.com>
+Message-ID: <Y71vIkgFde7Zp9AI@arachsys.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -38,26 +38,31 @@ were originally defined to expect outer,inner,count instead.
 To reduce confusion caused by this mismatch, support a colon-separated
 inner:outer:count ordering as well as the original comma-separated
 outer,inner,count argument format. Although we accept both formats, only
-document the new one in the man page and usage text.
+document the new one in the usage text and deprecate the old format in
+the man page.
 
 Fixes: https://github.com/util-linux/util-linux/issues/1988
 Signed-off-by: Chris Webb <chris@arachsys.com>
 ---
- sys-utils/unshare.1.adoc |  4 ++--
+v2: Describe deprecation in the unshare(1) man page.
+
+ sys-utils/unshare.1.adoc |  8 +++++--
  sys-utils/unshare.c      | 50 +++++++++++++---------------------------
- 2 files changed, 18 insertions(+), 36 deletions(-)
+ 2 files changed, 22 insertions(+), 36 deletions(-)
 
 diff --git a/sys-utils/unshare.1.adoc b/sys-utils/unshare.1.adoc
-index 030e9a497..10f5d6c67 100644
+index 030e9a497..08e13373c 100644
 --- a/sys-utils/unshare.1.adoc
 +++ b/sys-utils/unshare.1.adoc
-@@ -93,13 +93,13 @@ Just before running the program, mount the proc filesystem at _mountpoint_ (defa
+@@ -93,14 +93,18 @@ Just before running the program, mount the proc filesystem at _mountpoint_ (defa
  **--map-user=**__uid|name__::
  Run the program only after the current effective user ID has been mapped to _uid_. If this option is specified multiple times, the last occurrence takes precedence. This option implies *--user*.
  
 -**--map-users=**__outeruid,inneruid,count__|**auto**::
 +**--map-users=**__inneruid:outeruid:count__|**auto**::
  Run the program only after the block of user IDs of size _count_ beginning at _outeruid_ has been mapped to the block of user IDs beginning at _inneruid_. This mapping is created with **newuidmap**(1). If the range of user IDs overlaps with the mapping specified by *--map-user*, then a "hole" will be removed from the mapping. This may result in the highest user ID of the mapping not being mapped. The special value *auto* will map the first block of user IDs owned by the effective user from _/etc/subuid_ to a block starting at user ID 0. If this option is specified multiple times, the last occurrence takes precedence. This option implies *--user*.
+++
++Before util-linux version 2.39, this option expected a comma-separated argument of the form _outeruid,inneruid,count_ but that format is now deprecated for consistency with the ordering used in _/proc/[pid]/uid_map_ and the _X-mount.idmap_ mount option.
  
  **--map-group=**__gid|name__::
  Run the program only after the current effective group ID has been mapped to _gid_. If this option is specified multiple times, the last occurrence takes precedence. This option implies *--setgroups=deny* and *--user*.
@@ -65,8 +70,11 @@ index 030e9a497..10f5d6c67 100644
 -**--map-groups=**__outergid,innergid,count__|**auto**::
 +**--map-groups=**__innergid:outergid:count__|**auto**::
  Run the program only after the block of group IDs of size _count_ beginning at _outergid_ has been mapped to the block of group IDs beginning at _innergid_. This mapping is created with **newgidmap**(1). If the range of group IDs overlaps with the mapping specified by *--map-group*, then a "hole" will be removed from the mapping. This may result in the highest group ID of the mapping not being mapped. The special value *auto* will map the first block of user IDs owned by the effective user from _/etc/subgid_ to a block starting at group ID 0. If this option is specified multiple times, the last occurrence takes precedence. This option implies *--user*.
+++
++Before util-linux version 2.39, this option expected a comma-separated argument of the form _outergid,innergid,count_ but that format is now deprecated for consistency with the ordering used in _/proc/[pid]/gid_map_ and the _X-mount.idmap_ mount option.
  
  **--map-auto**::
+ Map the first block of user IDs owned by the effective user from _/etc/subuid_ to a block starting at user ID 0. In the same manner, also map the first block of group IDs owned by the effective group from _/etc/subgid_ to a block starting at group ID 0. This option is intended to handle the common case where the first block of subordinate user and group IDs can map the whole user and group ID space. This option is equivalent to specifying *--map-users=auto* and *--map-groups=auto*.
 diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
 index 8313ee0a7..2aa239eff 100644
 --- a/sys-utils/unshare.c
