@@ -2,86 +2,72 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CDEDC64EC7
-	for <util-linux@archiver.kernel.org>; Wed, 22 Feb 2023 15:33:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5521CC61DA4
+	for <util-linux@archiver.kernel.org>; Wed, 22 Feb 2023 20:47:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232484AbjBVPdH (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 22 Feb 2023 10:33:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50958 "EHLO
+        id S232805AbjBVUrW (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 22 Feb 2023 15:47:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232505AbjBVPdG (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 22 Feb 2023 10:33:06 -0500
+        with ESMTP id S232810AbjBVUrS (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 22 Feb 2023 15:47:18 -0500
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 644763866C
-        for <util-linux@vger.kernel.org>; Wed, 22 Feb 2023 07:32:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E16183BD99
+        for <util-linux@vger.kernel.org>; Wed, 22 Feb 2023 12:46:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1677079934;
+        s=mimecast20190719; t=1677098793;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=2tpfHdqjqa3luq0t8otUOCW+1btWIa8+B+BzE8Ubnd4=;
-        b=Yw0XxlAxxq12tjn0cqYx3HW1hSm9iX8zWo1xVuNMBbe6/X1nQ25yOX000mumeFq8YwMlok
-        Y74ttPeA0bFZiBlCO3RS9FU7vA6g1ngSjFYyLTI5Y+YAcpypwwYzEdzvluENuMQ5elA8Q1
-        40iHj3oZFe5zEokyyeZfIQkjRL1aJBs=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=reVCmcTNv7HI8TW1RTnDzw8sfefR7A/HvUDzF6aikcY=;
+        b=B6YZKFU6VZSZuIWLPglks7QOroJ6MsDmIpmzaOdei+0cZelKm4jgFAxdQmZIc4AdG7wIoK
+        fr+iE7pdFMG3fMuDKaEKIHXf/MZINDJhxqJUIDCebrZGkdJn42miHcgRPPOuDYtYGsyxsS
+        0xedqEdG6uI4leEmof3eiPBbPHrPeEI=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-459-j3RGVOC8O2e_BW3IxKwmQg-1; Wed, 22 Feb 2023 10:32:11 -0500
-X-MC-Unique: j3RGVOC8O2e_BW3IxKwmQg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+ us-mta-481-TChOq4MyPSiCPuA91gq7AA-1; Wed, 22 Feb 2023 15:46:29 -0500
+X-MC-Unique: TChOq4MyPSiCPuA91gq7AA-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7BC392805582
-        for <util-linux@vger.kernel.org>; Wed, 22 Feb 2023 15:32:07 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-192-10.brq.redhat.com [10.40.192.10])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id E68024024CA1;
-        Wed, 22 Feb 2023 15:32:06 +0000 (UTC)
-From:   Thomas Haller <thaller@redhat.com>
-To:     util-linux@vger.kernel.org
-Cc:     Thomas Haller <thaller@redhat.com>
-Subject: [PATCH 1/1] lib/randutils: drop unnecessary fcntl() in random_get_fd()
-Date:   Wed, 22 Feb 2023 16:32:03 +0100
-Message-Id: <20230222153203.1506570-1-thaller@redhat.com>
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1F5621819441
+        for <util-linux@vger.kernel.org>; Wed, 22 Feb 2023 20:46:25 +0000 (UTC)
+Received: from ws.net.home (ovpn-192-20.brq.redhat.com [10.40.192.20])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 98EC7492B05;
+        Wed, 22 Feb 2023 20:46:24 +0000 (UTC)
+Date:   Wed, 22 Feb 2023 21:46:22 +0100
+From:   Karel Zak <kzak@redhat.com>
+To:     Thomas Haller <thaller@redhat.com>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/1] lib/randutils: drop unnecessary fcntl() in
+ random_get_fd()
+Message-ID: <20230222204622.6ac45lugaizc5jbt@ws.net.home>
+References: <20230222153203.1506570-1-thaller@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230222153203.1506570-1-thaller@redhat.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-We already pass O_CLOEXEC flag to open(), no need to modify
-the file descriptor with FD_CLOEXEC afterwards.
+On Wed, Feb 22, 2023 at 04:32:03PM +0100, Thomas Haller wrote:
+> This was a left over from commit b1fa3e2234fa ('lib: use O_CLOEXEC in
+> libcommon').
 
-This was a left over from commit b1fa3e2234fa ('lib: use O_CLOEXEC in
-libcommon').
+An excellent example of using sed(1) (or so) to modify code without
+reading context is a bad idea.
 
-Signed-off-by: Thomas Haller <thaller@redhat.com>
----
- lib/randutils.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+>  lib/randutils.c | 7 +------
+>  1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/lib/randutils.c b/lib/randutils.c
-index 2ffe9b4f069e..15c2f7834969 100644
---- a/lib/randutils.c
-+++ b/lib/randutils.c
-@@ -80,16 +80,11 @@ static void crank_random(void)
- 
- int random_get_fd(void)
- {
--	int i, fd;
-+	int fd;
- 
- 	fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
- 	if (fd == -1)
- 		fd = open("/dev/random", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
--	if (fd >= 0) {
--		i = fcntl(fd, F_GETFD);
--		if (i >= 0)
--			fcntl(fd, F_SETFD, i | FD_CLOEXEC);
--	}
- 	crank_random();
- 	return fd;
- }
+Applied, thanks!
+
+    Karel
+
 -- 
-2.39.2
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
