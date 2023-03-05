@@ -2,99 +2,133 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C43DEC678D4
-	for <util-linux@archiver.kernel.org>; Wed,  1 Mar 2023 20:09:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8386C678DB
+	for <util-linux@archiver.kernel.org>; Sun,  5 Mar 2023 23:59:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229529AbjCAUJA (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 1 Mar 2023 15:09:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45170 "EHLO
+        id S229457AbjCEX73 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 5 Mar 2023 18:59:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229498AbjCAUI7 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 1 Mar 2023 15:08:59 -0500
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 473FB30F8
-        for <util-linux@vger.kernel.org>; Wed,  1 Mar 2023 12:08:58 -0800 (PST)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 7CC3F21A9C;
-        Wed,  1 Mar 2023 20:08:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1677701336; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=PEF7dfDSlXGn5++6IGJY31meD6rs/duwjOmrkrZL5uk=;
-        b=UfgFw+tQ+zMz4oU9cAoQmLu8GLA+DehLw/qqv/23VWYJ277rEfA8DSqH5OfEj85ZgkbeGY
-        hWJeORQDCeWc66oKPAse02j61J4lBnWcXGHnx7wDwz7h/2qRgxTq7kWRM044Qp0wj9BzST
-        mpdxi52MvOeWn7pq80mrs0GWl9gEF58=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1677701336;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=PEF7dfDSlXGn5++6IGJY31meD6rs/duwjOmrkrZL5uk=;
-        b=f16ot5FhshP1TiibN0iMmNxGEl8KRe3WPq2PLVuuCDfn7v6mn1Bl0LuGpIPgziiXMa6l+F
-        EWvm5MhYA05whMBg==
-Received: from kitsune.suse.cz (kitsune.suse.cz [10.100.12.127])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 5F47B2C141;
-        Wed,  1 Mar 2023 20:08:56 +0000 (UTC)
-Date:   Wed, 1 Mar 2023 21:08:54 +0100
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     Theodore Ts'o <tytso@mit.edu>
-Cc:     Chris Hofstaedtler <zeha@debian.org>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] libuuid: Move clock.txt to /run
-Message-ID: <20230301200854.GD19419@kitsune.suse.cz>
-References: <20230301140957.21604-1-msuchanek@suse.de>
- <20230301141747.jpbvk4aieq3pdehh@zeha.at>
- <20230301142604.GA19419@kitsune.suse.cz>
- <Y/+CNZZwhbH/rGbX@mit.edu>
- <20230301171759.GB19419@kitsune.suse.cz>
- <Y/+b+LlvuaDD4i4k@mit.edu>
+        with ESMTP id S229437AbjCEX72 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 5 Mar 2023 18:59:28 -0500
+X-Greylist: delayed 62 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 05 Mar 2023 15:59:27 PST
+Received: from pmta21.teksavvy.com (pmta21.teksavvy.com [76.10.157.36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CD1ED50D
+        for <util-linux@vger.kernel.org>; Sun,  5 Mar 2023 15:59:27 -0800 (PST)
+IronPort-SDR: 9AxHIbyJJhrTn/HQOqFkaMLxA3ao9q2PDx/R9xPRTQU7dRU8ntRL8BqKtoNJ0wScj5NzslDxWB
+ /mRkKGg5HdKA==
+X-IPAS-Result: =?us-ascii?q?A2GHBACLKwVk/8vgpUVaHgEBCxIMQAmBOwuEfKFPk3cPA?=
+ =?us-ascii?q?QEBAQEBAQEBCUQEAQEEijQmNwYOAQIEAQEBAQMCAwEBAQEFAQEBBQEBAQEBA?=
+ =?us-ascii?q?QYEAgKBGYUvOQ2EXSyCBBMGAQE4gVCFXLI4gQEzgQGCCAEBBp1JgV4JgUABk?=
+ =?us-ascii?q?XGBSUSBFTaBQYFxhRGFcpcbgTR2gSEOSnOBBwIJAhFrgRIIZ4IAQQIPaAsOg?=
+ =?us-ascii?q?Qc3AwkDBwUsHUADCxgNUBMsNRQhXmwvEhIFAwsVKkcECDYFBk8RAggPEg8sQ?=
+ =?us-ascii?q?w5CNzQTBoEGCw4RA09CGWwEggcKU5lqcoEOgyaSMY5ogTRmn2SEBKBgGjKpP?=
+ =?us-ascii?q?AGSJIU8o0OERw2BeIIAMxoIJgqDIlIZD44gDBaIKYtBVDsCBwsBAQMJi0MBA?=
+ =?us-ascii?q?Q?=
+IronPort-Data: A9a23:oFV6t6NIIMfXsvbvrR0xlcFynXyQoLVcMsEvi/4bfWQNrUohgmcHm
+ mUZWGHXM66NY2ahe49+Ydi19x4OuZbVmtFmQQZtpSBmQlt08seUXt7xwmUcn8+xwmwvaGo9s
+ q3yv/GddKjYdpJfz/uUGuCJQUNUjMlkfZKhTr+UUsxNbVU8Enx50ko+w7RRbrNA2LBVPSvc4
+ bsenOWCYDdJ6xYsWo7Dw/nbwP/HlK2aVAIw5jTSV9gS1LPtvyN94KYkGE2EByCQrr+4vgKNb
+ 72rILmRpgs19vq2Yz+vuu6TnkYiGtY+MeUS45b/tmfLbhVq/0QPPqgH2PU0SE4LlBWys41Lw
+ 9Bf6YaMSxc0Lu7lsbFIO/VYO3kW0axu47TdJn+wvIqXwkvcfniqxfhyZK00FdNJvL8pXCcUr
+ 6BecmhWBvyAr7veLLaTVu1rrsAuKtPmP8UZt20IITTxV6l8EcyZE/6iCdlw/DIh2IcJNsTiZ
+ 9sVYwd9VynESD5iJQJCYH45tKLy7pXlSBVFtFOR4K425XXD5BJ+3aKrM9fPfNGOA8JPkS6lS
+ nnuoTW8W09HcYbFlX/fqinqivTL2z/2W5kbCqOpsPVthTV/21AuNfHfbnPjydHRt6J0c4s3x
+ 5A8ksb2kZUPyQ==
+IronPort-HdrOrdr: A9a23:MV3oFa9nORKtcd0gt5Juk+DJI+orL9Y04lQ7vn2ZLiYlF/Bw9v
+ re/sjzsCWetN9/YhwdcLy7VJVoIkmslqKdg7NxAV7KZmCP0ldAR7sN0WKN+VLd8lXFltJg6Q
+ ==
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-AV: E=Sophos;i="5.98,236,1673931600"; 
+   d="scan'208";a="27284283"
+Received: from 69-165-224-203.dsl.teksavvy.com (HELO scrooge.lenrek.net) ([69.165.224.203])
+  by smtp12.teksavvy.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 05 Mar 2023 18:58:23 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lenrek.net;
+        s=mail; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:
+        Subject:To:From:Date:Sender:Reply-To:Cc:Content-ID:Content-Description:
+        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=Bai565oSeC/1Pbu4H6D4TYTkN4Z5aoiMadur4368ntQ=; b=K3vJo9G9s4FAsAQGhCVUPx2zI2
+        UMXm4hMqArS6s72T7qwsk9bsAj8LOIoWix7AO7DPD7WPS6wyDqAPKYEQwd1WbyVaupxiaqlwblJPA
+        pqriLbduGW46PsHIhg4YIK0DCkCLXj+uiNO3jYUMBp3sLleAGF5mzIuFRd5y46oswwRwPSqyU8t1y
+        mLrjQ0BEd/+IYrHBOZgxDsN6uqRdVhvLQ3OquQTnsrLV2cFjqFMXe4e07kX5KCGjYCVo4twbKo/RF
+        y+0sZIeDCCdaYdcWXIbXA2FQSSgy+fXLtzKJ9VXFOVDPJJi4VP6HZvbZWF1DEmnEVjA+h0FrdD+eW
+        l64nSPeQ==;
+Received: from [fd58:b7ab:a802:40:dabb:c1ff:fece:dabe] (helo=marley.lenrek.net)
+        by scrooge.lenrek.net with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+        (Exim 4.96)
+        (envelope-from <tlo@lenrek.net>)
+        id 1pYyFA-0004Mw-0E
+        for util-linux@vger.kernel.org;
+        Sun, 05 Mar 2023 15:58:20 -0800
+Date:   Sun, 5 Mar 2023 15:57:55 -0800
+From:   Toomas Losin <tlo@lenrek.net>
+To:     util-linux@vger.kernel.org
+Subject: [PATCH] libfdisk: Fix randomly generated GPT UUID's
+Message-ID: <20230305155755.49a0534e@marley.lenrek.net>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Y/+b+LlvuaDD4i4k@mit.edu>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Wed, Mar 01, 2023 at 01:39:52PM -0500, Theodore Ts'o wrote:
-> On Wed, Mar 01, 2023 at 06:17:59PM +0100, Michal Suchánek wrote:
-> > > Using a random number generator for clock can help, but it's only 13
-> > > bits, so it's certainly not fool-proof.  Given that using a time-based
-> > > UUID leaks the MAC address of your ethernet port as well as when the
-> > > UUID was generated (which can be interesting when you're curious say,
-> > > when a Libreoffice doc was created), in general best practice is to
-> > > use the random UUID type, especially given that modern Linux systems
-> > > all have the getrandom(2) system call.  That gives you 58 bits of
-> > > entropy in the UUID, so that's probably the better way to go.
-> > 
-> > That explains why I don't have a clock.txt file. I did not go out of my
-> > way to generate time-based uuids.
-> 
-> Note that the only reason why you might be trying to generate a huge
-> number of time-based UUID is if you are running a database (cough,
+Fdisk commands that create random GPT UUID's result in values that are
+not UEFI-compliant being written to disk: The "g" command creates a
+new GPT whose in-core DiskGUID value is entirely big-endian; the "n"
+command creates a GPT partition whose in-core UniquePartitionGUID
+value is entirely big-endian.  Those big-endian values are written to
+disk by the "w" command rather than the mix of little- and big-endian
+spec'd by UEFI.
 
-Thanks for the very detailed explanation.
+This was caused by a libfdisk patch in 2017 that was addressing
+warnings about "taking address of packed member".  Reading gpt.c finds
+two instances of dead code which suggests that perhaps there was some
+confusion between a struct and a pointer to a struct.  The intent must
+have been to convert the randomly generated big-endian RFC 4122 UUID
+values to UEFI's mixed-endian but the confusion(?) resulted in some
+dead code and non-conversion of the UUID's.
 
-I suppose the default is fine for most users then, and makes it
-reasonably safe to use time basedd uuids for users of systems like
-Raspberry Pi which exhibit weird time jumps, likely due to lack of RTC
-battery.
+This patch corrects the breakage while still avoiding "taking address
+of packed member" warnings.  The "w" command will once again write
+UEFI-compliant values to disk.
 
-uuidd is provided for people who want to generate large quantities of
-UUIDs.
+Fixes: 92e486f80ef8 ("libfdisk: fix guid usage of packed struct gpt_entry")
+Signed-off-by: Toomas Losin <tlo@lenrek.net>
+---
+ libfdisk/src/gpt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-When somebody *really* wants and it improves their use case they can
-mount tmpfs on /var/lib/libuuid/
+diff --git a/libfdisk/src/gpt.c b/libfdisk/src/gpt.c
+index d7b3e1c70..c3c0347cb 100644
+--- a/libfdisk/src/gpt.c
++++ b/libfdisk/src/gpt.c
+@@ -878,9 +878,9 @@ static int gpt_mknew_header(struct fdisk_context *cxt,
+ 	if (!has_id) {
+ 		struct gpt_guid guid;
+ 
+-		uuid_generate_random((unsigned char *) &header->disk_guid);
+-		guid = header->disk_guid;
++		uuid_generate_random((unsigned char *) &guid);
+ 		swap_efi_guid(&guid);
++		header->disk_guid = guid;
+ 	}
+ 	return 0;
+ }
+@@ -2621,9 +2621,9 @@ static int gpt_add_partition(
+ 		 */
+ 		struct gpt_guid guid;
+ 
+-		uuid_generate_random((unsigned char *) &e->partition_guid);
+-		guid = e->partition_guid;
++		uuid_generate_random((unsigned char *) &guid);
+ 		swap_efi_guid(&guid);
++		e->partition_guid = guid;
+ 	}
+ 
+ 	if (pa && pa->name && *pa->name)
+-- 
+2.30.2
 
-Might be nice to write down in the uuid_generate man page if this is
-coming up repeatedly.
-
-Thanks
-
-Michal
