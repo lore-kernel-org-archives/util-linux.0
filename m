@@ -2,88 +2,66 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1D89C6FD1F
-	for <util-linux@archiver.kernel.org>; Mon, 13 Mar 2023 01:50:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C4FFC74A44
+	for <util-linux@archiver.kernel.org>; Tue, 14 Mar 2023 05:35:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229504AbjCMBuH (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sun, 12 Mar 2023 21:50:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58556 "EHLO
+        id S229736AbjCNFfG (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 14 Mar 2023 01:35:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229673AbjCMBuG (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 12 Mar 2023 21:50:06 -0400
-Received: from smtp01.aussiebb.com.au (smtp01.aussiebb.com.au [IPv6:2403:5800:3:25::1001])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 649C9298D4
-        for <util-linux@vger.kernel.org>; Sun, 12 Mar 2023 18:50:04 -0700 (PDT)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by smtp01.aussiebb.com.au (Postfix) with ESMTP id 3ABAD100377
-        for <util-linux@vger.kernel.org>; Mon, 13 Mar 2023 12:42:58 +1100 (AEDT)
-X-Virus-Scanned: Debian amavisd-new at smtp01.aussiebb.com.au
-Received: from smtp01.aussiebb.com.au ([127.0.0.1])
-        by localhost (smtp01.aussiebb.com.au [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id cGCbdEBnd8pH for <util-linux@vger.kernel.org>;
-        Mon, 13 Mar 2023 12:42:58 +1100 (AEDT)
-Received: by smtp01.aussiebb.com.au (Postfix, from userid 116)
-        id 2AEB8100381; Mon, 13 Mar 2023 12:42:58 +1100 (AEDT)
-Received: from donald.themaw.net (180-150-90-198.b4965a.per.nbn.aussiebb.net [180.150.90.198])
-        by smtp01.aussiebb.com.au (Postfix) with ESMTP id 41331100330;
-        Mon, 13 Mar 2023 12:42:56 +1100 (AEDT)
-Subject: [PATCH 1/2] libmount: dont ignore autofs mounts by default
-From:   Ian Kent <raven@themaw.net>
-To:     util-linux <util-linux@vger.kernel.org>
-Cc:     fhirtz@redhat.com, John Westerdale <jwesterd@redhat.com>,
-        Frank Sorenson <fsorenso@redhat.com>
-Date:   Mon, 13 Mar 2023 09:42:56 +0800
-Message-ID: <167867177635.35511.15003989525678735907.stgit@donald.themaw.net>
-User-Agent: StGit/1.5
+        with ESMTP id S229441AbjCNFfF (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Mar 2023 01:35:05 -0400
+X-Greylist: delayed 27696 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 13 Mar 2023 22:34:27 PDT
+Received: from defaultworkshop.klidefectmanagement.com.novalocal (unknown [103.30.145.160])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFDA46A429
+        for <util-linux@vger.kernel.org>; Mon, 13 Mar 2023 22:34:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=asda.co.uk;
+        s=x; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:
+        Subject:To:From:Reply-To:Sender:Cc:Content-ID:Content-Description:Resent-Date
+        :Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:
+        References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:
+        List-Owner:List-Archive; bh=u39m36KOU3KDv8wnhwpNymX4N4fe0bnzopflq7r5USg=; b=a
+        T3vnGgjn4BY3XGvaaP7uFXHMVigix/Fc2fXfH8NUth7RAi8fcdSGbE1+E41EShMybBomDMTUZmMbc
+        05fhidHB8R6UZTNmGwSkVZ6HURRkVBitq/ZRy3zMXJz0C5fNF2g6Ml4loTb0gcsGCXqhApbRSmf4X
+        Yv3zA/52RESRxUNU=;
+Received: from ec2-52-11-215-80.us-west-2.compute.amazonaws.com ([52.11.215.80] helo=asda.co.uk)
+        by defaultworkshop.klidefectmanagement.com.novalocal with esmtpa (Exim 4.94.2)
+        (envelope-from <sales1@asda.co.uk>)
+        id 1pbm0N-0006GG-RR
+        for util-linux@vger.kernel.org; Tue, 14 Mar 2023 00:30:40 +0700
+Reply-To: sales@asda-c.com
+From:   ASDA Stores Limited <sales1@asda.co.uk>
+To:     util-linux@vger.kernel.org
+Subject: First quarter procurement order/enquiry
+Date:   13 Mar 2023 17:30:39 +0000
+Message-ID: <20230313152049.20999218E7BB8E3F@asda.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Making libmount ingore autofs mounts by default can be a problem for
-systemd, I remember now what the problem was.
+Dear util-linux
+I'm a procurement manager  with ASDA Group (the owners of ASDA=20
+Stores) and your company product has caught our interest.=20
+Therefore, we request you send
+list and prices of your hot selling items (products) for our=20
+evaluation/pick.
 
-autofs multi-mounts can be nested (and often are, think of a tree of
-NFS exports) where there are autofs file system mounts within NFS
-mounts and together with autofs mount triggers.
+Soon as we receive your reply, we shall send you our company=20
+profile and buying proposal. You can also check our website below=20
+for detailed info of our purchase area and trading capacity.
 
-In this case systemd needs to see all the mounts at shutdown when it
-is umounting the tree of mounts. We don't want to have to rely on
-modifications having been made to systemd for this to work properly
-so we can't make this the default behaviour in libmount.
+Your immediate response E-mail:  sales@asda-c.com   shall be=20
+appreciated.
 
-Fixes: 22147e08c987 (libmount: use autofs mount hint to ignore autofs mount entries)
-Signed-off-by: Ian Kent <raven@themaw.net>
-Cc: John Westerdale <jwesterd@redhat.com>
-Cc: Frank Hertz <fhirtz@redhat.com>
-Cc: Frank Sorenson <fsorenso@redhat.com>
----
- libmount/src/context.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Best Wishes
 
-diff --git a/libmount/src/context.c b/libmount/src/context.c
-index 8db6b6950..2df4716a7 100644
---- a/libmount/src/context.c
-+++ b/libmount/src/context.c
-@@ -75,7 +75,7 @@ struct libmnt_context *mnt_new_context(void)
- 	/* if we're really root and aren't running setuid */
- 	cxt->restricted = (uid_t) 0 == ruid && ruid == euid ? 0 : 1;
- 
--	cxt->noautofs = 1;
-+	cxt->noautofs = 0;
- 
- 	DBG(CXT, ul_debugobj(cxt, "----> allocate %s",
- 				cxt->restricted ? "[RESTRICTED]" : ""));
-@@ -164,7 +164,7 @@ int mnt_reset_context(struct libmnt_context *cxt)
- 	cxt->helper = NULL;
- 	cxt->mountdata = NULL;
- 	cxt->flags = MNT_FL_DEFAULT;
--	cxt->noautofs = 1;
-+	cxt->noautofs = 0;
- 	cxt->has_selinux_opt = 0;
- 
- 	cxt->map_linux = mnt_get_builtin_optmap(MNT_LINUX_MAP);
-
-
+Ms Stelle Montgomery
+Purchasing Dept.
+ASDA Stores Limited
+Tel:  +44 7418367220
+WhatsApp: + 44-7502985874
+Website: www.asda.com
