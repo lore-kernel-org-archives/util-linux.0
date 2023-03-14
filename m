@@ -2,40 +2,42 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52C53C7618B
-	for <util-linux@archiver.kernel.org>; Tue, 14 Mar 2023 22:02:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3105C7618D
+	for <util-linux@archiver.kernel.org>; Tue, 14 Mar 2023 22:02:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229823AbjCNWCY (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 14 Mar 2023 18:02:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57326 "EHLO
+        id S230109AbjCNWC1 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 14 Mar 2023 18:02:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229644AbjCNWCX (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Mar 2023 18:02:23 -0400
+        with ESMTP id S229644AbjCNWC0 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 14 Mar 2023 18:02:26 -0400
 Received: from tarta.nabijaczleweli.xyz (unknown [139.28.40.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AA1E119BD
-        for <util-linux@vger.kernel.org>; Tue, 14 Mar 2023 15:02:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0BF1A2798D
+        for <util-linux@vger.kernel.org>; Tue, 14 Mar 2023 15:02:25 -0700 (PDT)
 Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
-        by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id 81F0931A8
-        for <util-linux@vger.kernel.org>; Tue, 14 Mar 2023 23:02:16 +0100 (CET)
+        by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id 5AE1D31AA
+        for <util-linux@vger.kernel.org>; Tue, 14 Mar 2023 23:02:24 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nabijaczleweli.xyz;
-        s=202211; t=1678831336;
-        bh=6eaXn0VTepjIeUrgotGwh2LZ2TsYxmaleuGPOPSnQ4s=;
-        h=Date:From:Cc:Subject:From;
-        b=UHiNFCeN5MKFNVPENxiQyEaMy/n3hdfcw4PDxoo7vMCjgpVbSKqKodpVurI4GRT/E
-         NmfWHd9fEfnRU57Humh6FgKKa0DGQP6yLbA7Fcj/uKqKxiiy+XolzJ3wAokzd3jXML
-         n27cUoKwrREI8IjxAkccQOEjQqcbcI94GgyjrFmLB+w6Zu8+wT3QCUjk16hTCmxvFk
-         QagfN9UnCnVhALHHgFWay4ukOKqnNdlsEqRkmCCbDZxAQqBN6B4xlpJnqpynbivXGB
-         RZ1peEE8qbmtFcMJ02JlQcmQXMcd6UKgnLsLEO5mUCeyV9M+VEW4EWhenI4Ixjm9Qh
-         JoSTytwFLVnMQ==
-Date:   Tue, 14 Mar 2023 23:02:15 +0100
+        s=202211; t=1678831344;
+        bh=rQxs+bqeidk9lOi7GM8WtlEZtN8MXoI8D03Ot4cqv0s=;
+        h=Date:From:Cc:Subject:References:In-Reply-To:From;
+        b=bVTDNzZbHmhKTgcll1s0JlFRkngTYJ6KxgQO+SSVoXciVSiqr692i0a7u/KYSEAeI
+         obkw++DAAQ9HOxYnSZe1hZJoGc2On1R++pB5CTwnCqdovcKIZA6Dlm/z+P5SNVteaD
+         J5KC9FNbXVN6L3U1+OIRsAmbnpUsSjKq25AC6QsyfuJj1vnZIIlEJ83twBGHr9B0Oh
+         S4Ss9JxovW6yJscH6dEvJff8aXHjsp1FUDvwS/mydlzPPU0v38SNrBiKcMNpYBacyL
+         +KKECNtlKKRBVVzJn5ucGqpbqF6WBn08dSTX9tHGTW0F7HpFXpiZCO2Tat15NMzAY5
+         YrknhvYIciZSw==
+Date:   Tue, 14 Mar 2023 23:02:23 +0100
 From:   =?utf-8?B?0L3QsNCx?= <nabijaczleweli@nabijaczleweli.xyz>
 Cc:     util-linux@vger.kernel.org
-Subject: [PATCH 1/3] write: correctly handle wide characters
-Message-ID: <5d68dce11f61b85743c36d57e2bd0d90e978a197.1678831302.git.nabijaczleweli@nabijaczleweli.xyz>
+Subject: [PATCH 2/3] wall: convert homebrew buffering to open_memstream()
+Message-ID: <758025e9d17be986196f97cb2d5d3183f82cb79c.1678831302.git.nabijaczleweli@nabijaczleweli.xyz>
+References: <5d68dce11f61b85743c36d57e2bd0d90e978a197.1678831302.git.nabijaczleweli@nabijaczleweli.xyz>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="2kcjkwaeo4asgdwl"
+        protocol="application/pgp-signature"; boundary="jkjwxlarx5eitm26"
 Content-Disposition: inline
+In-Reply-To: <5d68dce11f61b85743c36d57e2bd0d90e978a197.1678831302.git.nabijaczleweli@nabijaczleweli.xyz>
 User-Agent: NeoMutt/20220429
 To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
@@ -43,226 +45,199 @@ List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
 
---2kcjkwaeo4asgdwl
+--jkjwxlarx5eitm26
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Do this by replacing fputc_careful() (notice that the description said
-it's locale-aware =E2=80=92 it very much is /not/), with a fputs_careful() =
-which
-does the same thing, but if it were to output a byte in the \123 format,
-first it checks whether this byte starts a valid multibyte character.
-
-If it does, and that character is printable, write it verbatim.
-This means that
-  echo 'foo =C3=A5=C3=A4=C3=B6 =C4=85=C4=99=C4=87=C5=BA=C5=BC=C5=84 bar' | =
-write nabijaczleweli pts/4
-instead of
-  foo \303\245\303\244\303\266
-  \304\205\304\231\304\207\305\272\305\274\305\204 bar
-yields
-  foo =C3=A5=C3=A4=C3=B6 =C4=85=C4=99=C4=87=C5=BA=C5=BC=C5=84 bar
-or, more realistically, from a message I got earlier today,
-  Filip powiedzia\305\202 \305\274e zap\305\202aci jutro
-becomes
-  Filip powiedzia=C5=82 =C5=BCe zap=C5=82aci jutro
-
-Invalid/non-printable sequences get processed as before.
-
-Line reading in write must become getline() to avoid dealing with
-partial characters: for example on input consisting solely of
-=C4=85=C4=99=C4=87=C5=BA=C5=BC=C5=84, where every {1} is an instance, the o=
-utput would be
-  {42}=C4=85=C4=99=C4=87\305\272=C5=BC=C5=84{84}=C4=85=C4=99=C4=87=C5=BA\30=
-5\274=C5=84{84}=C4=85=C4=99=C4=87=C5=BA=C5=BC\305\204{39}
-with just fixed-512 fgets()
-
-Bug-Debian: https://bugs.debian.org/826596
+The struct buffer system duplicates a plethora of standard I/O
+functions (including a fork of fputc_careful())
+and adds a lot of complexity =E2=80=92 open_memstream() is standard,
+and fits perfectly into this niche
 ---
 Please keep me in CC, as I'm not subscribed.
 
- include/carefulputc.h | 54 ++++++++++++++++++++++++++++++-------------
- login-utils/last.c    |  4 +---
- term-utils/write.c    | 25 ++++++--------------
- 3 files changed, 46 insertions(+), 37 deletions(-)
+ term-utils/wall.c | 95 ++++++++++-------------------------------------
+ 1 file changed, 20 insertions(+), 75 deletions(-)
 
-diff --git a/include/carefulputc.h b/include/carefulputc.h
-index 8860b1234..416a347bf 100644
---- a/include/carefulputc.h
-+++ b/include/carefulputc.h
-@@ -1,31 +1,53 @@
- #ifndef UTIL_LINUX_CAREFULPUTC_H
- #define UTIL_LINUX_CAREFULPUTC_H
-=20
--/*
-- * A putc() for use in write and wall (that sometimes are sgid tty).
-- * It avoids control characters in our locale, and also ASCII control
-- * characters.   Note that the locale of the recipient is unknown.
--*/
- #include <stdio.h>
- #include <string.h>
- #include <ctype.h>
-+#include <wctype.h>
-+#include <stdbool.h>
-=20
- #include "cctype.h"
-=20
--static inline int fputc_careful(int c, FILE *fp, const char fail)
-+/*
-+ * A puts() for use in write and wall (that sometimes are sgid tty).
-+ * It avoids control and invalid characters.
-+ * The locale of the recipient is nominally unknown,
-+ * but it's a solid bet that it's compatible with the author's.
-+ */
-+static inline int fputs_careful(const char * s, FILE *fp, const char ctrl,=
- bool cr_lf)
- {
--	int ret;
-+	int ret =3D 0;
-=20
--	if (isprint(c) || c =3D=3D '\a' || c =3D=3D '\t' || c =3D=3D '\r' || c =
-=3D=3D '\n')
--		ret =3D putc(c, fp);
--	else if (!c_isascii(c))
--		ret =3D fprintf(fp, "\\%3o", (unsigned char)c);
--	else {
--		ret =3D putc(fail, fp);
--		if (ret !=3D EOF)
--			ret =3D putc(c ^ 0x40, fp);
-+	for (size_t slen =3D strlen(s); *s; ++s, --slen) {
-+		if (*s =3D=3D '\n')
-+			ret =3D fputs(&"\r\n"[!cr_lf], fp);
-+		else if (isprint(*s) || *s =3D=3D '\a' || *s =3D=3D '\t' || *s =3D=3D '\=
-r')
-+			ret =3D putc(*s, fp);
-+		else if (!c_isascii(*s)) {
-+			wchar_t w;
-+			size_t clen =3D mbtowc(&w, s, slen);
-+			switch(clen) {
-+				case (size_t)-2:  // incomplete
-+				case (size_t)-1:  // EILSEQ
-+				nonprint:
-+					ret =3D fprintf(fp, "\\%3hho", *s);
-+					mbtowc(NULL, NULL, 0);
-+					break;
-+				default:
-+					if(!iswprint(w))
-+						goto nonprint;
-+					ret =3D fwrite(s, 1, clen, fp);
-+					s +=3D clen - 1;
-+					slen -=3D clen - 1;
-+					break;
-+			}
-+		} else
-+			ret =3D fputs((char[]){ ctrl, *s ^ 0x40, '\0' }, fp);
-+		if (ret < 0)
-+			return EOF;
- 	}
--	return (ret < 0) ? EOF : 0;
-+	return 0;
+diff --git a/term-utils/wall.c b/term-utils/wall.c
+index c601d3e5b..a51a92829 100644
+--- a/term-utils/wall.c
++++ b/term-utils/wall.c
+@@ -274,74 +274,22 @@ int main(int argc, char **argv)
+ 	exit(EXIT_SUCCESS);
  }
 =20
- static inline void fputs_quoted_case(const char *data, FILE *out, int dir)
-diff --git a/login-utils/last.c b/login-utils/last.c
-index d3eeed4b6..1b45dbf24 100644
---- a/login-utils/last.c
-+++ b/login-utils/last.c
-@@ -392,7 +392,6 @@ static int list(const struct last_control *ctl, struct =
-utmpx *p, time_t logout_t
- 	char		final[512];
- 	char		utline[sizeof(p->ut_line) + 1];
- 	char		domain[256];
--	char		*s;
- 	int		mins, hours, days;
- 	int		r, len;
- 	struct last_timefmt *fmt;
-@@ -548,8 +547,7 @@ static int list(const struct last_control *ctl, struct =
-utmpx *p, time_t logout_t
- 	/*
- 	 *	Print out "final" string safely.
- 	 */
--	for (s =3D final; *s; s++)
--		fputc_careful(*s, stdout, '*');
-+	fputs_careful(final, stdout, '*', false);
-=20
- 	if (len < 0 || (size_t)len >=3D sizeof(final))
- 		putchar('\n');
-diff --git a/term-utils/write.c b/term-utils/write.c
-index 8b86e9a9d..b485e28fd 100644
---- a/term-utils/write.c
-+++ b/term-utils/write.c
-@@ -223,21 +223,6 @@ static void signal_handler(int signo)
- 	signal_received =3D signo;
- }
-=20
--/*
-- * write_line - like fputs(), but makes control characters visible and
-- *     turns \n into \r\n.
-- */
--static void write_line(char *s)
--{
--	while (*s) {
--		const int c =3D *s++;
+-struct buffer {
+-	size_t	sz;
+-	size_t	used;
+-	char	*data;
+-};
 -
--		if ((c =3D=3D '\n' && fputc_careful('\r', stdout, '^') =3D=3D EOF)
--		    || fputc_careful(c, stdout, '^') =3D=3D EOF)
--			err(EXIT_FAILURE, _("carefulputc failed"));
+-static void buf_enlarge(struct buffer *bs, size_t len)
++static void buf_putc_careful(FILE *fs, int c)
+ {
+-	if (bs->sz =3D=3D 0 || len > bs->sz - bs->used) {
+-		bs->sz +=3D len < 128 ? 128 : len;
+-		bs->data =3D xrealloc(bs->data, bs->sz);
 -	}
 -}
 -
- /*
-  * do_write - actually make the connection
-  */
-@@ -247,7 +232,8 @@ static void do_write(const struct write_control *ctl)
- 	struct passwd *pwd;
- 	time_t now;
- 	struct tm *tm;
--	char *host, line[512];
-+	char *host, *line =3D NULL;
-+	size_t linelen =3D 0;
- 	struct sigaction sigact;
-=20
- 	/* Determine our login name(s) before the we reopen() stdout */
-@@ -286,11 +272,14 @@ static void do_write(const struct write_control *ctl)
- 	free(host);
- 	printf("\r\n");
-=20
--	while (fgets(line, sizeof(line), stdin) !=3D NULL) {
-+	while (getline(&line, &linelen, stdin) >=3D 0) {
- 		if (signal_received)
- 			break;
--		write_line(line);
-+
-+		if (fputs_careful(line, stdout, '^', true) =3D=3D EOF)
-+			err(EXIT_FAILURE, _("carefulputc failed"));
- 	}
-+	free(line);
- 	printf("EOF\r\n");
+-static void buf_puts(struct buffer *bs, const char *s)
+-{
+-	size_t len =3D strlen(s);
+-
+-	buf_enlarge(bs, len + 1);
+-	memcpy(bs->data + bs->used, s, len + 1);
+-	bs->used +=3D len;
+-}
+-
+-static void __attribute__((__format__ (__printf__, 2, 3)))
+-	buf_printf(struct buffer *bs, const char *fmt, ...)
+-{
+-	int rc;
+-	va_list ap;
+-	size_t limit;
+-
+-	buf_enlarge(bs, 0);	/* default size */
+-	limit =3D bs->sz - bs->used;
+-
+-	va_start(ap, fmt);
+-	rc =3D vsnprintf(bs->data + bs->used, limit, fmt, ap);
+-	va_end(ap);
+-
+-	if (rc >=3D 0 && (size_t) rc >=3D limit) {	/* not enough, enlarge */
+-		buf_enlarge(bs, (size_t)rc + 1);
+-		limit =3D bs->sz - bs->used;
+-		va_start(ap, fmt);
+-		rc =3D vsnprintf(bs->data  + bs->used, limit, fmt, ap);
+-		va_end(ap);
+-	}
+-
+-	if (rc > 0)
+-		bs->used +=3D rc;
+-}
+-
+-static void buf_putc_careful(struct buffer *bs, int c)
+-{
+-	if (isprint(c) || c =3D=3D '\a' || c =3D=3D '\t' || c =3D=3D '\r' || c =
+=3D=3D '\n') {
+-		buf_enlarge(bs, 1);
+-		bs->data[bs->used++] =3D c;
+-	} else if (!c_isascii(c))
+-		buf_printf(bs, "\\%3o", (unsigned char)c);
+-	else {
+-		char tmp[] =3D { '^', c ^ 0x40, '\0' };
+-		buf_puts(bs, tmp);
+-	}
++	if (isprint(c) || c =3D=3D '\a' || c =3D=3D '\t' || c =3D=3D '\r' || c =
+=3D=3D '\n')
++		fputc(c, fs);
++	else if (!c_isascii(c))
++		fprintf(fs, "\\%3o", (unsigned char)c);
++	else
++		fputs((char[]){ '^', c ^ 0x40, '\0' }, fs);
  }
 =20
+ static char *makemsg(char *fname, char **mvec, int mvecsz,
+ 		     size_t *mbufsize, int print_banner)
+ {
+-	struct buffer _bs =3D {.used =3D 0}, *bs =3D &_bs;
+ 	register int ch, cnt;
+-	char *p, *lbuf;
++	char *p, *lbuf, *retbuf;
++	FILE * fs =3D open_memstream(&retbuf, mbufsize);
+ 	long line_max;
+=20
+ 	line_max =3D sysconf(_SC_LINE_MAX);
+@@ -379,15 +327,15 @@ static char *makemsg(char *fname, char **mvec, int mv=
+ecsz,
+ 		 */
+ 		/* snprintf is not always available, but the sprintf's here
+ 		   will not overflow as long as %d takes at most 100 chars */
+-		buf_printf(bs, "\r%*s\r\n", TERM_WIDTH, " ");
++		fprintf(fs, "\r%*s\r\n", TERM_WIDTH, " ");
+=20
+ 		snprintf(lbuf, line_max,
+ 				_("Broadcast message from %s@%s (%s) (%s):"),
+ 				whom, hostname, where, date);
+-		buf_printf(bs, "%-*.*s\007\007\r\n", TERM_WIDTH, TERM_WIDTH, lbuf);
++		fprintf(fs, "%-*.*s\007\007\r\n", TERM_WIDTH, TERM_WIDTH, lbuf);
+ 		free(hostname);
+ 	}
+-	buf_printf(bs, "%*s\r\n", TERM_WIDTH, " ");
++	fprintf(fs, "%*s\r\n", TERM_WIDTH, " ");
+=20
+ 	 if (mvec) {
+ 		/*
+@@ -396,11 +344,11 @@ static char *makemsg(char *fname, char **mvec, int mv=
+ecsz,
+ 		int i;
+=20
+ 		for (i =3D 0; i < mvecsz; i++) {
+-			buf_puts(bs, mvec[i]);
++			fputs(mvec[i], fs);
+ 			if (i < mvecsz - 1)
+-				buf_puts(bs, " ");
++				fputc(' ', fs);
+ 		}
+-		buf_puts(bs, "\r\n");
++		fputs("\r\n", fs);
+ 	} else {
+ 		/*
+ 		 * read message from <file>
+@@ -428,23 +376,20 @@ static char *makemsg(char *fname, char **mvec, int mv=
+ecsz,
+ 		while (fgets(lbuf, line_max, stdin)) {
+ 			for (cnt =3D 0, p =3D lbuf; (ch =3D *p) !=3D '\0'; ++p, ++cnt) {
+ 				if (cnt =3D=3D TERM_WIDTH || ch =3D=3D '\n') {
+-					for (; cnt < TERM_WIDTH; ++cnt)
+-						buf_puts(bs, " ");
+-					buf_puts(bs, "\r\n");
++					fprintf(fs, "%*s\r\n", TERM_WIDTH - cnt, "");
+ 					cnt =3D 0;
+ 				}
+ 				if (ch =3D=3D '\t')
+ 					cnt +=3D (7 - (cnt % 8));
+ 				if (ch !=3D '\n')
+-					buf_putc_careful(bs, ch);
++					buf_putc_careful(fs, ch);
+ 			}
+ 		}
+ 	}
+-	buf_printf(bs, "%*s\r\n", TERM_WIDTH, " ");
++	fprintf(fs, "%*s\r\n", TERM_WIDTH, " ");
+=20
+ 	free(lbuf);
+=20
+-	bs->data[bs->used] =3D '\0';	/* be paranoid */
+-	*mbufsize =3D bs->used;
+-	return bs->data;
++	fclose(fs);
++	return retbuf;
+ }
 --=20
 2.30.2
 
 
---2kcjkwaeo4asgdwl
+--jkjwxlarx5eitm26
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmQQ7uYACgkQvP0LAY0m
-WPGa6Q/+MAAgRoDxNL2UZIRIUnVLDN0Wwr0HLH7E5JsHUYKNOSKSC8HH4Vmnr+9n
-ZolekquvyCdQnzEzVVI/3rQXqLaBH5MzRLStjUMh1F9liEXFTjMyKHf4YEaHV3GE
-sdaocLGnatlRvn78w09N+TxXHpthvv+0LirneV7INOoc9LY2VOVatcS4yKYJLA19
-Swzq35OVTfd+RVndnOTQv8PAN+5aJfUjaiWENeMiiuK78whzpT4e4In4ENgAmUDM
-z1CTkLEJCLXxLI8bR1vPFgf4U+2EwBiAbFXJLXQctFe5/24Oo6gtoojN01y3tDru
-Xx1pbC4G99WIifjbnn+RFN0GjK+RkB6XyurfR6PqOA7M0n3lVcdfkpB2qcOzV8As
-83LeQNIxP/1ZiSBhovcHxHTXxFq18XaHCCeB1S4G0KWRGCxbdJue8OE0PVpl0a1d
-WtWsgH3o9aGiAkpaYZNKaeWlq6pd6n8llweqcrPNHcWUroVetu8GYPIWzbh0KGqt
-nFVIGzin0k7ehAzVYGGg43Yx1/lNqJ/Lzv3echW7I5homIG/QphZ6xX7TN2WVBut
-ilgGSF6YvSYVht0iZ17KUraFfocSwWlNx/4T01pAGH8JAkdN4b1wFMEHfHIHHA1A
-9wmxOSp08TTPw31ZAi5154oT6CVDV1xonGBI9Cq2Rzm3+I14eus=
-=N1RQ
+iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmQQ7u4ACgkQvP0LAY0m
+WPEivg/+ImJk4gZ770jmqGIBGJ1+xsRsi63zfGHV7d8fnnFZAuL1mSG+4SbCN3Ho
+BQamMmmGgMzJZAJD6owh3zjcFVqDP2OUEohQT7q66ptEamST/wNTvhfmrs10p5/P
+hx6VQvy6Wev97KXZOWTWTdIuWWyX4IOh92eO89/CBj1hJCgGBg0FZDjgybVxQwFr
+Ds/g0GohE6SPQ9ZFS8U8YQiWqJlnRRucx5b5NPw1g5pC8cVrbfDeFCBKvsCTUGIv
+ny/C5h15vPCUP5qIjA3Hc2anXfFxrsfi6Kl8upJ87XAd5JoFErpt7cjh51H5h43B
+uG+/qCwniKZ4vEV1bmMSYA+zpgPSy2ype0ckcmmZotKwVEc3WulfWklNux+ruWWD
+nwN4o/Vprab0nFQDo0E3he0xcQjcDr/lpumqmDyBA0Aa9rPgdMFcNED5ipQwzLce
+d8+iNqJKAcTN+bHt2VqDKYb3FMP0QKtTh06ENY9duGorE9wTxebvozh2zb4i/Kfi
+YJxaRLUSUkjpNBCidH27nnxa9IsiYC0RIPdqXcomdtM0RVcbBoTBmC64oU22cbuP
+OXlBiR0+fZlkkfBkvv5P8pgtxkpS2Z7+F4e+mMh1L5a5bIltgb50fOlGfiHyVM2f
+4X0A15+p9fnn3yTkSbjNBu2Fn4Fsb3e/06aeZsfgVT62I9eUWnk=
+=bb79
 -----END PGP SIGNATURE-----
 
---2kcjkwaeo4asgdwl--
+--jkjwxlarx5eitm26--
