@@ -2,99 +2,135 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE48AC7618D
-	for <util-linux@archiver.kernel.org>; Wed,  5 Apr 2023 23:01:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0598C6FD1D
+	for <util-linux@archiver.kernel.org>; Fri,  7 Apr 2023 14:48:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229608AbjDEXB1 convert rfc822-to-8bit (ORCPT
-        <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 5 Apr 2023 19:01:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44380 "EHLO
+        id S229609AbjDGOsO (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 7 Apr 2023 10:48:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231194AbjDEXB0 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 5 Apr 2023 19:01:26 -0400
-Received: from bird.elm.relay.mailchannels.net (bird.elm.relay.mailchannels.net [23.83.212.17])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62F413A8D
-        for <util-linux@vger.kernel.org>; Wed,  5 Apr 2023 16:01:24 -0700 (PDT)
-X-Sender-Id: instrampxe0y3a|x-authuser|mail@christoph.anton.mitterer.name
-Received: from relay.mailchannels.net (localhost [127.0.0.1])
-        by relay.mailchannels.net (Postfix) with ESMTP id C71B992162C;
-        Wed,  5 Apr 2023 23:01:23 +0000 (UTC)
-Received: from cpanel-007-fra.hostingww.com (unknown [127.0.0.6])
-        (Authenticated sender: instrampxe0y3a)
-        by relay.mailchannels.net (Postfix) with ESMTPA id CDB6D920E45;
-        Wed,  5 Apr 2023 23:01:22 +0000 (UTC)
-ARC-Seal: i=1; s=arc-2022; d=mailchannels.net; t=1680735683; a=rsa-sha256;
-        cv=none;
-        b=V6DGbMF5/V9a31R6jaojrfCDseHvOQeSQB7FMj6F1lUr/AR8nf4ivVfpqzykqQ2vJ82Kf8
-        JJCC2idF534Vseg+rusefot7ydMOdemd3zgdhjsIc0jYcnQdR1Aitwx9kVCfbRZoPz2wXR
-        zKkjk94P2ff1kR4GSDHJXvelfzfywJqK2Tu+z+mcWzWzn6jzhlVe6Bi440G2CzeA/R/1Pq
-        03tDaqgk4u8EIRq3DxyO9SUkmPRngP2xN898XsMqVSYXGc1OxM5SJqVKoS3QH87BHfPT1E
-        j8T9l7OgwPNuX04QPiKZQ8IyAJzpT4poYPuejjwt0gnJtgg2xVcSh21dRbNw3w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed;
- d=mailchannels.net;
-        s=arc-2022; t=1680735683;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=FSJlqyeviMid9tt8kMPn4LHVojXi4rRhOyyvndEVdl8=;
-        b=yFwYS6akqPfm8vPLcHMRIWQsQdzpYYNL4pHowrhnSVqyHkvnbuFfPlDksCIaihUrEq8E/e
-        tqPcggtjzIKaBSeQu81mzrK8ORFgRc44KDbPchOsCBJC2asb3tilsX7iv6czxbnsoGgVFF
-        xMzjY02a6pSuh64fGxNYrYBxU+2ye2ZIDRsHqr1EsDGwSmcyqSZXPpcNFsYSmKPBtssLeq
-        7bDbn0ujtubbP8ls1I0JeiGi7lpgT23oDQB9GNWhM1JUIcVvRKFEEKHszFTecez9WeR115
-        IYBYCBC6BmywVQgUofVSIveShjfjKg55sfIFj68YOok8NrOFjUFMDstpZSorVw==
-ARC-Authentication-Results: i=1;
-        rspamd-5468d68f6d-rhlvx;
-        auth=pass smtp.auth=instrampxe0y3a
- smtp.mailfrom=mail@christoph.anton.mitterer.name
-X-Sender-Id: instrampxe0y3a|x-authuser|mail@christoph.anton.mitterer.name
-X-MC-Relay: Neutral
-X-MailChannels-SenderId: instrampxe0y3a|x-authuser|mail@christoph.anton.mitterer.name
-X-MailChannels-Auth-Id: instrampxe0y3a
-X-Abaft-Trade: 30b683213082218c_1680735683473_3903482944
-X-MC-Loop-Signature: 1680735683473:1567849817
-X-MC-Ingress-Time: 1680735683473
-Received: from cpanel-007-fra.hostingww.com (cpanel-007-fra.hostingww.com
- [3.69.87.180])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384)
-        by 100.97.48.124 (trex/6.7.2);
-        Wed, 05 Apr 2023 23:01:23 +0000
-Received: from p5090f69f.dip0.t-ipconnect.de ([80.144.246.159]:52994 helo=heisenberg.fritz.box)
-        by cpanel-007-fra.hostingww.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.96)
-        (envelope-from <mail@christoph.anton.mitterer.name>)
-        id 1pkC7y-0000dD-0a;
-        Wed, 05 Apr 2023 23:01:21 +0000
-Message-ID: <1e3a5757e9eeb438a4fcd5f7af8778d311dda5fa.camel@christoph.anton.mitterer.name>
-Subject: Re: fstab format, 4th field mandatory and the "sw" value
-From:   Christoph Anton Mitterer <mail@christoph.anton.mitterer.name>
-To:     Karel Zak <kzak@redhat.com>
-Cc:     util-linux@vger.kernel.org
-Date:   Thu, 06 Apr 2023 01:01:14 +0200
-In-Reply-To: <20230404101311.3avcw3oldefbdzs6@ws.net.home>
-References: <45fc7a385b006d734011a11487fbfdda4333644e.camel@christoph.anton.mitterer.name>
-         <20230404101311.3avcw3oldefbdzs6@ws.net.home>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.46.4-1 
+        with ESMTP id S229567AbjDGOsO (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 7 Apr 2023 10:48:14 -0400
+Received: from tarta.nabijaczleweli.xyz (unknown [139.28.40.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B6C114C2F
+        for <util-linux@vger.kernel.org>; Fri,  7 Apr 2023 07:48:10 -0700 (PDT)
+Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
+        by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id E2B4457CA
+        for <util-linux@vger.kernel.org>; Fri,  7 Apr 2023 16:48:07 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nabijaczleweli.xyz;
+        s=202211; t=1680878887;
+        bh=M9PvX6ZrNYCR8wZc7a+ZaVD8URlxV/KWhXY7e0u9wn8=;
+        h=Date:From:To:Subject:From;
+        b=O7GnuDA3s23poq/eYUKLKjCL43rN4QvYhdyHyFv5KPzNmXTwX/8zZllnHlwPKabKB
+         MVXZfTavEdY2EK+jhqfXX1Tb+lj55IB2fT9XeYwerVdpGzohgzkQIHTwKl/XhcSLjd
+         H6y8hudEXvXnkaU7EYf+DIp5QKSEHZp1VlTHlthe6HsNHc/XXd7mvqQxgc7bamPO8O
+         gwh44JRICety0U7JfyVTTi7uwFv2+8mwC2DNuq0dmitOHlkNzh6E76G1PNE8LPGBDv
+         0GQ26YFr4h114AdaS7hiun8MtwSjklnCfOx6Nm/qnmeKhq5TLeXtJN4W8ZfnTrknuO
+         FBl7QxE6vX1Ww==
+Date:   Fri, 7 Apr 2023 16:48:06 +0200
+From:   =?utf-8?B?0L3QsNCx?= <nabijaczleweli@nabijaczleweli.xyz>
+To:     util-linux@vger.kernel.org
+Subject: [PATCH] Fix mmap/ioctl(3p) references in manual
+Message-ID: <xirr7enxyybsuyjjroo3v452yjio3b3bfw4hdmctzhundq4wgg@ymt5yxyrni3q>
 MIME-Version: 1.0
-X-OutGoing-Spam-Status: No, score=-1.0
-X-AuthUser: mail@christoph.anton.mitterer.name
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="xusjrgekoziuduaw"
+Content-Disposition: inline
+User-Agent: NeoMutt/20230322
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hey Karel.
 
+--xusjrgekoziuduaw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2023-04-04 at 12:13 +0200, Karel Zak wrote:
-> I have committed:
-> https://github.com/util-linux/util-linux/commit/43a6b183d8945cc91307f21adc8070254eb925b5
+mmap(3p) is passable, inasmuch as it does actually describe mmap(2).
 
-I think it's fine.
+ioctl(3p), on the other hand, describes XSI STREAMS, which bear no
+relation to ioctl(2) under Linux, much less ioctl_console(2).
 
-Thanks for the clarifications.
+Both live in the non-free manpages-posix-dev.
+---
+Based on 2.39-rc2 tarball.
 
+diff '--color=3Dauto' -ur util-linux-2.39-rc2.orig/sys-utils/setarch.8.adoc=
+ util-linux-2.39-rc2/sys-utils/setarch.8.adoc
+--- util-linux-2.39-rc2.orig/sys-utils/setarch.8.adoc	2023-03-23 16:21:32.7=
+92172791 +0100
++++ util-linux-2.39-rc2/sys-utils/setarch.8.adoc	2023-04-07 16:40:55.820024=
+243 +0200
+@@ -70,10 +70,10 @@
+ This makes *select*(2), *pselect*(2), and *ppoll*(2) system calls preserve=
+ the timeout value instead of modifying it to reflect the amount of time no=
+t slept when interrupted by a signal handler. Use when _program_ depends on=
+ this behavior. For more details see the timeout description in *select*(2)=
+ manual page. Turns on *STICKY_TIMEOUTS*.
+=20
+ *-X*, *--read-implies-exec*::
+-If this is set then *mmap*(3p) *PROT_READ* will also add the *PROT_EXEC* b=
+it - as expected by legacy x86 binaries. Notice that the ELF loader will au=
+tomatically set this bit when it encounters a legacy binary. Turns on *READ=
+_IMPLIES_EXEC*.
++If this is set then *mmap*(2) *PROT_READ* will also add the *PROT_EXEC* bi=
+t - as expected by legacy x86 binaries. Notice that the ELF loader will aut=
+omatically set this bit when it encounters a legacy binary. Turns on *READ_=
+IMPLIES_EXEC*.
+=20
+ *-Z*, *--mmap-page-zero*::
+-SVr4 bug emulation that will set *mmap*(3p) page zero as read-only. Use wh=
+en _program_ depends on this behavior, and the source code is not available=
+ to be fixed. Turns on *MMAP_PAGE_ZERO*.
++SVr4 bug emulation that will set *mmap*(2) page zero as read-only. Use whe=
+n _program_ depends on this behavior, and the source code is not available =
+to be fixed. Turns on *MMAP_PAGE_ZERO*.
+=20
+ include::man-common/help-version.adoc[]
+=20
+diff '--color=3Dauto' -ur util-linux-2.39-rc2.orig/term-utils/setterm.1.ado=
+c util-linux-2.39-rc2/term-utils/setterm.1.adoc
+--- util-linux-2.39-rc2.orig/term-utils/setterm.1.adoc	2023-03-23 16:21:32.=
+794172780 +0100
++++ util-linux-2.39-rc2/term-utils/setterm.1.adoc	2023-04-07 16:42:33.38837=
+5375 +0200
+@@ -134,7 +134,7 @@
+ Displays the terminal reset string, which typically resets the terminal to=
+ its power-on state.
+=20
+ *--resize*::
+-Reset terminal size by assessing maximum row and column. This is useful wh=
+en actual geometry and kernel terminal driver are not in sync. Most notable=
+ use case is with serial consoles, that do not use *ioctl*(3p) but just byt=
+e streams and breaks.
++Reset terminal size by assessing maximum row and column. This is useful wh=
+en actual geometry and kernel terminal driver are not in sync. Most notable=
+ use case is with serial consoles, that do not use *ioctl*(2) but just byte=
+ streams and breaks.
+=20
+ *--reverse* on|off::
+ Turns reverse video mode on or off. Except on a virtual console, *--revers=
+e off* turns off all attributes (bold, half-brightness, blink, reverse).
 
-Cheers,
-Chris
+--xusjrgekoziuduaw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmQwLSIACgkQvP0LAY0m
+WPHuCxAApyXNeURQPvdxIpGPDcuSWgEYVG0utvrVxMgwlpccvHjazuZ+dG3u3T+U
+jyyBfunlAT2u4HzHBiaK89Gt+2AFH8u8veml9fL6ugOFTZqi+TO3+4Svof8NT9gn
+xiQU/waJaEDPdDBF2/2TOqHPjAFeMg3mF1RwrV1jJQAmbiYJ5xIgqKvaGqSNCDTp
+4T1vR8KZ/kTgWI8koL+xN+18ilKP8nZSzU+n3lS5d3D9cn4OrnQ7GhHFOGRR6Dfv
+0yy7AJOY1ksxAnBVilJpPf4c+U9E2dkQOvUv9yuWFO4XyJv5fKVjUWq8tVRkUmEa
+EUZiSFWgFJoUrHuBylVm9UQ+c8v5bRfHROFQ4a6+j0XXMls35g0nlHheNfI/7hxl
+WbL1p8nGxDzd7chFXG6LwF+TRk+UwSmXr+KjrjFEk534WwY9iArKgvmq3V6irqXV
+eSoNU+vomeqfZLBuWbOskFFFWAUqEbDp50KLlUEXsEIB2+F1cPlwxy4MCfeI0YZu
++NkAxGflGq7rG1Slj/B4UmG4rnpaR2lbIgVX9bRSfvbkTj+90HwN61dmuooy2rwU
+S4p5b5nE8M3YtDtAqwUfDh74K3nkxtKAszMpwq9N2+1vZ3Vzk4Sr5DBoqg812vIS
+LcKRm4puzIvlKktu8dYDTPYNiTHhlGuIqnAg+nCiMXPbgkfM+qA=
+=j3sn
+-----END PGP SIGNATURE-----
+
+--xusjrgekoziuduaw--
