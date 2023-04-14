@@ -2,87 +2,61 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EF09C77B61
-	for <util-linux@archiver.kernel.org>; Thu, 13 Apr 2023 16:59:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95F53C77B6E
+	for <util-linux@archiver.kernel.org>; Fri, 14 Apr 2023 08:44:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229583AbjDMQ7N (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 13 Apr 2023 12:59:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59280 "EHLO
+        id S229547AbjDNIow (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 14 Apr 2023 04:44:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229735AbjDMQ7M (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 13 Apr 2023 12:59:12 -0400
-Received: from new4-smtp.messagingengine.com (new4-smtp.messagingengine.com [66.111.4.230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2046010D3
-        for <util-linux@vger.kernel.org>; Thu, 13 Apr 2023 09:59:11 -0700 (PDT)
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailnew.nyi.internal (Postfix) with ESMTP id C6A745823F2
-        for <util-linux@vger.kernel.org>; Thu, 13 Apr 2023 12:59:08 -0400 (EDT)
-Received: from imap45 ([10.202.2.95])
-  by compute5.internal (MEProxy); Thu, 13 Apr 2023 12:59:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ownmail.net; h=
-        cc:content-type:content-type:date:date:from:from:in-reply-to
-        :message-id:mime-version:reply-to:sender:subject:subject:to:to;
-         s=fm3; t=1681405148; x=1681412348; bh=TOqb0qoC/ESrYrbzGn7wlEVXI
-        9GPYoue0j0AMdS2vrE=; b=FyT6UsPrE/pYR0M73SyJ0TEHWn+Thmhb+JVJJ9BD5
-        1Nul/CwCvpnBBb3gaFSN7qVy027pPfipli1x2EMZGpA9+p0NkXk6a37ehwaqhpWu
-        /fYdoyJZyokDtctJpJ4tcqLGw5wsIxdKvsTgWkuO1iuqzkpAiXh3r8aLaxhxZmn4
-        lL6xWmCtdvu3V1V+qbOypSZEfTZaq99osoDKUulvG0boEkW2nA6BIpYe3LTM+sf8
-        HI2z54q5ErbjLFCSgNizWpTinUgc2eKEmvIay4tQuQn40Hf5SnR2uSntlE09FG+f
-        iup2dL6nVUoc7sS0GgHtE25MKb/f/sSOYRWnxD78pTJ2A==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:content-type:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:message-id
-        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
-        1681405148; x=1681412348; bh=TOqb0qoC/ESrYrbzGn7wlEVXI9GPYoue0j0
-        AMdS2vrE=; b=PJxCHZTXcsxSmkY6jQlO+Cm9y0uwus41RtHXkQZk803GHa3yUWE
-        OoayPgnjNpettMwPfWWs6bdETi7nECRlyQSMfs/c/Z76LOLO4zUbvJ46kEvtE9zy
-        08/4pkMzxvUe7lUqskYXiGsQO04moXtlQGDvcgjEvMTjwexkL39tepxrIhtxY4RY
-        4I5XILsXCszQFV/DuYkYhba0TiLCYnM+Wa4VQZbP9dyfV3HNPbBhT4sLsiXqRqNa
-        Hktqh+ApkXv8AzDMubkOjjzRMh7FBZR6BQm5fkF4fd0tiJ81RTyCrUubvQORPBPv
-        QOnTukBBAv70Q92Dn7io4+owMyrTSijkjoA==
-X-ME-Sender: <xms:3DQ4ZNAJO0ApywNLlBIt7uDTS4sL86q8I0Jx6u55SNGR__6Q2RPB3A>
-    <xme:3DQ4ZLgpqhddFml6KWYj6SwrXAqE5nLV_H5_duj649CtuRUOfcnKyZKtFrqxmxeGw
-    xDXLWOzXzzTTl81Tw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdekkedguddtkecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecuogfuphgrmhetlhhphhgrtehlihgrshdqohhuth
-    culdehtddtmdenucfjughrpefofgggkfffhffvufgtsehttdertderredtnecuhfhrohhm
-    pedfmhihucgvmhgrihhlfdcuoehmhigpvghmrghilhesohifnhhmrghilhdrnhgvtheqne
-    cuggftrfgrthhtvghrnhepkedtgeehfeeguedtudelkeevfffhgfegkeelhfefffehhfeg
-    teffveeggefhgfelnecuufhprghmtehlphhhrgetlhhirghspehmhigvmhgrihhlnecuve
-    hluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepmhihpggvmhgr
-    ihhlsehofihnmhgrihhlrdhnvght
-X-ME-Proxy: <xmx:3DQ4ZIlr7_E7sX1cLOSVz10TmQ2jhmL4CipkT5sfu0TdtQBm46OwAw>
-    <xmx:3DQ4ZHxLvVJdk0Btjvlo2h1hdNUGsELUgPT9MJQTCUn5qiir5b-3mA>
-    <xmx:3DQ4ZCRQ_qYQT9nbRJyrj6n0Pm2jnKM0bObbwsfYXGX-9pzgfWurLw>
-    <xmx:3DQ4ZJfeFBpxKQYYJ2kfWxQVrK1j7ptCeXD-ovT8swQ8X1IEfRo_ZA>
-Feedback-ID: i2a1946a3:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 95F8B272007A; Thu, 13 Apr 2023 12:59:08 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.9.0-alpha0-334-g8c072af647-fm-20230330.001-g8c072af6
-Mime-Version: 1.0
-Message-Id: <26563fb0-8995-44b6-b341-ae978ec08968@app.fastmail.com>
-Date:   Thu, 13 Apr 2023 16:59:08 +0000
-From:   "my email" <my_email@ownmail.net>
-To:     util-linux@vger.kernel.org
-Subject: thanks
-Content-Type: text/plain
+        with ESMTP id S229611AbjDNIov (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 14 Apr 2023 04:44:51 -0400
+X-Greylist: delayed 498 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 14 Apr 2023 01:44:25 PDT
+Received: from mail.wellgood.pl (mail.wellgood.pl [217.61.106.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B5CDA262
+        for <util-linux@vger.kernel.org>; Fri, 14 Apr 2023 01:44:25 -0700 (PDT)
+Received: by mail.wellgood.pl (Postfix, from userid 1001)
+        id E1DE3846CB; Fri, 14 Apr 2023 09:35:39 +0100 (BST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=wellgood.pl; s=mail;
+        t=1681461347; bh=UtcbU9UA93mmNmHDpTZ9gIpeOZkP8tqjxYsgDXJpvt4=;
+        h=Date:From:To:Subject:From;
+        b=V+cQl4OssWc4QD6tvU7RZzHbwGwgfqwCx1CKvHMOjoK/4MjY/bwPaq63yifTUS7fr
+         DSQHuiBOhOLW/EnPUhERFs5usHij5zu5em7S20G+cy99z8QV88gwHjUaGpTfNUEDx9
+         De63a99j9+Mkp0NPv/t1gKYDhQrg6ceGrA8aRN284wUBx0teAfU1VQn4E06ptgJhEp
+         FrF5sTfSJIeLg8o96NZ3xD4e9xB61tbSzb/kpaHg5DRfYO+rOG4eG8TqDFZaWb8w8B
+         Vw7LGzGdOo46E7m22ilhLvwyxg4UTcCyGhc2+EDXXYxub+D4at27eB8/gokljdYbgV
+         1EZFVNIG99u+g==
+Received: by mail.wellgood.pl for <util-linux@vger.kernel.org>; Fri, 14 Apr 2023 08:35:31 GMT
+Message-ID: <20230414090028-0.1.53.29ch0.0.7hdrhfc5ka@wellgood.pl>
+Date:   Fri, 14 Apr 2023 08:35:31 GMT
+From:   =?UTF-8?Q? "Przemys=C5=82aw_Polak" ?= 
+        <przemyslaw.polak@wellgood.pl>
+To:     <util-linux@vger.kernel.org>
+Subject: Pozycjonowanie- informacja 
+X-Mailer: mail.wellgood.pl
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-What command (and what procedure) to change the "max total shared memory" limit.  I have used ipcs to obtain data but the shared memory limit is too high. Also possibly too high is the "max number of segments"   Pls advise how to further limit.  Suspected malware.  Thanks.
+Dzie=C5=84 dobry,=20
 
-Ipcs -u
+jaki=C5=9B czas temu zg=C5=82osi=C5=82a si=C4=99 do nas firma, kt=C3=B3re=
+j strona internetowa nie pozycjonowa=C5=82a si=C4=99 wysoko w wyszukiwarc=
+e Google.=20
 
-max number of segments = 4096
-max seg size (kbytes) = 18014398509465599
-max total shared memory (kbytes) = 18446744073709551612
-min seg size (bytes) = 1
+Na podstawie wykonanego przez nas audytu SEO zoptymalizowali=C5=9Bmy tre=C5=
+=9Bci na stronie pod k=C4=85tem wcze=C5=9Bniej opracowanych s=C5=82=C3=B3=
+w kluczowych. Nasz wewn=C4=99trzny system codziennie analizuje prawid=C5=82=
+owe dzia=C5=82anie witryny.  Dzi=C4=99ki indywidualnej strategii, firma z=
+dobywa coraz wi=C4=99cej Klient=C3=B3w. =20
+
+Czy chcieliby Pa=C5=84stwo zwi=C4=99kszy=C4=87 liczb=C4=99 os=C3=B3b odwi=
+edzaj=C4=85cych stron=C4=99 internetow=C4=85 firmy? M=C3=B3g=C5=82bym prz=
+edstawi=C4=87 ofert=C4=99?=20
 
 
-No analytics, no ads, no tracking, no
-sharing personal data.
-No analytics, no ads, no tracking, no sharing personal data.
+Pozdrawiam
+Przemys=C5=82aw Polak
