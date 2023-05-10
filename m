@@ -2,123 +2,106 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 570B7C7618E
-	for <util-linux@archiver.kernel.org>; Wed, 26 Apr 2023 19:11:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DDE0EC7EE22
+	for <util-linux@archiver.kernel.org>; Wed, 10 May 2023 18:43:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239340AbjDZTLA (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 26 Apr 2023 15:11:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43186 "EHLO
+        id S235830AbjEJSnC (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 10 May 2023 14:43:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230491AbjDZTK7 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 26 Apr 2023 15:10:59 -0400
-Received: from mail-yb1-xb30.google.com (mail-yb1-xb30.google.com [IPv6:2607:f8b0:4864:20::b30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41A8549C9
-        for <util-linux@vger.kernel.org>; Wed, 26 Apr 2023 12:10:50 -0700 (PDT)
-Received: by mail-yb1-xb30.google.com with SMTP id 3f1490d57ef6-b95c3b869dcso545322276.1
-        for <util-linux@vger.kernel.org>; Wed, 26 Apr 2023 12:10:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682536249; x=1685128249;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QzL2jDw5Ei31Amzu/mrjX2f0sIR/BZGNeFOlcPY+j5w=;
-        b=hxN7cAFoQhhxr6pANC+hPq2lJFpiPBzmYVU20HU58WtRt3Q+G1G89AO0ZjvoxI+b9J
-         R85Npq2XGAyOboeQELrjTQIL0ltEQ8k8YEA9XkNjHZ83pnPTBf/98ki7hGp3L+UiF6rN
-         zHN0pMLPDuVF/XhlEMxhp/e65qY4/R2UaTpOhE9oXXrb6qu5lTrtu49J11NbR5uh6X7S
-         5eqvT38zKZ2ezV1ksaEZQSkuZ7GG33YOI3GJYFV6ST8RF8YUAGqPCczQy1t9P/U8eLs5
-         pmU4xRBHoK4jJD2IM5qZ/ka/tFI3lZQ2XU3CdRtK0RsqRLpB7XdrC6Z0qHUE0aaae/uo
-         vI4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682536249; x=1685128249;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=QzL2jDw5Ei31Amzu/mrjX2f0sIR/BZGNeFOlcPY+j5w=;
-        b=CUHky1T9JPXOSyLM6DI/tYtOlmM17eJxicgpnE2Ykq0HEmPmMryOM3ohHI1EQfmDQR
-         S+eVPJnCRaD9qoF2fWRHhqP0EVLhKwP2zztP0b7ebOaAM5tTzR3+I6gmuiZGmz7LKwAB
-         bhCCb/1opeQdSSKogp5hR+7zooArgJyLW2qTscZjxr+9nGiXsYn84uwe9Avvv2MJbxR1
-         6id8XLaGLvjRy/wTrzcaqIovb5Zmbs1GGKOAkcE4dPjg/FCFFcgNnuTyHZWRq/VW/wco
-         8j+c8sFVXKttYW1IDc5e6tEzTDb8ysmpDrYoUj5xmrsQju1sa2Vi6wsffkUVPg+aFAzO
-         5rbw==
-X-Gm-Message-State: AC+VfDwhwWkZ9nWrGjGxonBC4xEvCWk7dhQFXR2GaAOLGlmZLZOTNpRP
-        VUFAxiCU7rBkjNekBcy4GLqtjBLd41DhP8+BUFooL5d8mwM=
-X-Google-Smtp-Source: ACHHUZ5Lj46jUOUaJjh1OKfs/L5/WWcryRxGWEvu3IOhFZ1560flR6DZD3NR6hNcZmnLkscifDWWKMeWQXqmCJyfSiU=
-X-Received: by 2002:a0d:d948:0:b0:541:6b00:f68d with SMTP id
- b69-20020a0dd948000000b005416b00f68dmr2469815ywe.16.1682536249371; Wed, 26
- Apr 2023 12:10:49 -0700 (PDT)
+        with ESMTP id S229461AbjEJSnC (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 10 May 2023 14:43:02 -0400
+X-Greylist: delayed 554 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 10 May 2023 11:43:00 PDT
+Received: from tuna.sandelman.ca (tuna.sandelman.ca [IPv6:2607:f0b0:f:3:216:3eff:fe7c:d1f3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 939C1114
+        for <util-linux@vger.kernel.org>; Wed, 10 May 2023 11:43:00 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by tuna.sandelman.ca (Postfix) with ESMTP id D8C4F3898E;
+        Wed, 10 May 2023 14:52:31 -0400 (EDT)
+Received: from tuna.sandelman.ca ([127.0.0.1])
+        by localhost (localhost [127.0.0.1]) (amavisd-new, port 10024)
+        with LMTP id izgPzHSsubOJ; Wed, 10 May 2023 14:52:31 -0400 (EDT)
+Received: from sandelman.ca (unknown [IPv6:2607:f0b0:f:2:40a:34ff:fe10:f571])
+        by tuna.sandelman.ca (Postfix) with ESMTP id 0EEFC3898D;
+        Wed, 10 May 2023 14:52:31 -0400 (EDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sandelman.ca;
+        s=mail; t=1683744751;
+        bh=XeNaWW3VGLqqC3NIauL/Oz2S8i0lRKWklggKO4ohIpk=;
+        h=From:to:Subject:In-Reply-To:References:Date:From;
+        b=Gcc8s59wL+05Se9yx0I66c1KvvyjKO87a/iqOfwbCRUncjOhpm8lkxEfa772ptjVt
+         11YiLXjJP5r5Btf97yrtyiPucpCUczK20ae8XsvF5mroGpbErPbWENuIpCt1UBPNse
+         6R/eRx1CP5DXeKzqGoGbF0bzr3cfAjc//hz6edy3A1n4y7arTRqlGzoMBDbr5GegqJ
+         jb0lFGwtJWbPT9Yh7tp/y5L8mdeelWhddSDcy7t2dPVrz/R428tU4vahS5Cq2QhwqV
+         a3GQy3YcYIfqUNHI3KJLvy8sBP8Fu7rt50O0JCAxxd/zjWWva4r12dfYvEk02A9SQE
+         NDMEh0rTVefUg==
+Received: from localhost (localhost [IPv6:::1])
+        by sandelman.ca (Postfix) with ESMTP id BFE2BEF;
+        Wed, 10 May 2023 14:33:43 -0400 (EDT)
+From:   Michael Richardson <mcr@sandelman.ca>
+to:     "Theodore Ts'o" <tytso@mit.edu>,
+        Chris Hofstaedtler <zeha@debian.org>,
+        util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
+Subject: Re: uuid and RFC4122
+In-Reply-To: <23699.1676924882@localhost>
+References: <14266.1676658860@localhost> <20230219170116.q453di5cmknxn665@zeha.at> <Y/LPN7pf6x75Xm9H@mit.edu> <23699.1676924882@localhost>
+X-Mailer: MH-E 8.6+git; nmh 1.7+dev; GNU Emacs 27.1
+X-Face: $\n1pF)h^`}$H>Hk{L"x@)JS7<%Az}5RyS@k9X%29-lHB$Ti.V>2bi.~ehC0;<'$9xN5Ub#
+ z!G,p`nR&p7Fz@^UXIn156S8.~^@MJ*mMsD7=QFeq%AL4m<nPbLgmtKK-5dC@#:k
 MIME-Version: 1.0
-References: <CAHi0vA9nvmh7qiWX2oWbOcanCesk2M9dS0Goef6772emz=uy4g@mail.gmail.com>
- <20230426102806.7w33zaheh3feuohg@ws.net.home>
-In-Reply-To: <20230426102806.7w33zaheh3feuohg@ws.net.home>
-From:   =?UTF-8?Q?Mario_Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
-Date:   Wed, 26 Apr 2023 21:10:38 +0200
-Message-ID: <CAHi0vA9PyvgD6ij3cR6fQyfZPeKAFB-YHy=XRkLZwE6OLYe5cg@mail.gmail.com>
-Subject: Re: util-linux v2.39 with translated man pages by default?
-To:     util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha512; protocol="application/pgp-signature"
+Date:   Wed, 10 May 2023 14:33:43 -0400
+Message-ID: <5866.1683743623@localhost>
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hello Karel,
+--=-=-=
+Content-Type: text/plain
 
-Am Mi., 26. Apr. 2023 um 12:28 Uhr schrieb Karel Zak <kzak@redhat.com>:
->
-> On Wed, Apr 19, 2023 at 08:24:47PM +0200, Mario Bl=C3=A4ttermann wrote:
-> > Hello,
-> >
-> > when I run ./configure (without any option) on the current Git content,=
- I get:
-> >
-> >         Manual pages:              yes
-> >         Manual pages translated:   no
-> >
-> > This means, creating and installing the translated man pages is still
-> > not enabled by default. What may we expect for v2.39? If this remains
->
-> Good point. I have enabled it:
->  https://github.com/util-linux/util-linux/commit/9acfc349e0ea68a92baf818c=
-c659121f40ab9c04
->
-Thanks.
 
-> but as in other cases, the default is "check", and the result depends on
-> if you have "po4a" installed, and if not installed, you will see a
-> warning
->
->     configure: WARNING: po4a not found; not building translated man pages
->
-> but ./configure will success.
->
+Hello again!
 
-This is OK so far.
+Michael Richardson <mcr@sandelman.ca> wrote:
+    > Hi, thanks for your work on debian packages.  I'm contacting you
+    > wearing my IETF uuidrev WG co-chair on.
 
-> > disabled, no downstream packager will notice it, and the effort of the
-> > translators (6 languages, more than 500 translated *.adoc files) was
-> > for the trashscan.
->
-> I need to think about how to push it to Fedora/RHEL; I'll probably
-> create a sub-package with the translations, one for all or per
-> language. Is there any good practice for man pages?
->
+    > The https://datatracker.ietf.org/wg/uuidrev/documents/ WG was chartered
+    > to update RFC4122 last summer, and we expect to start a WGLC on
+    > RFC4122bis in the next few weeks.  This is just a heads up for now.
 
-Please have a look at procps-ng. It ships *both* UI and man page
-translations in a subpackage named procps-ng-l10n. This would be an
-acceptable solution: Users who need translated user interfaces, should
-also get the corresponding translated man pages. But this shouldn't be
-treated as the "usual" way for command line tools. For example,
-psmisc, dos2unix or wcd ship the translated man pages in the base
-package.
+We have started the WGLC today.
+It goes until June 9th.  The document is still open for comments,
+particularly of an editorial nature.
+Did something confuse you? our fault, let us know.
 
-On the other hand, have a look at Gnome packages. The help files (in
-/usr/share/help/$LANG) reside in the base package; I haven't found any
-separate packages for the localized user docs. Besides the above
-approach with outsourcing all i18n-related files in a "-i18n"
-subpackage, you could test how much bigger the packages become when
-you ship the translated man pages along with their English originals
-in the same package. I think the growth is acceptable, given the
-nowadays' hard disk capacities.
+We included a way to do SHA-2 based uuids into the v8 namespace based uuids,
+which we think is future proof, and won't burn version numbers the way that
+MD5 and SHA1 derived uuids did.
 
-Best Regards,
-Mario
+You may find this diff to be useful:
+
+https://author-tools.ietf.org/iddiff?url1=draft-ietf-uuidrev-rfc4122bis-01&url2=draft-ietf-uuidrev-rfc4122bis-03&difftype=--html
+
+Your comments to uuidrev@ietf.org, or to https://github.com/ietf-wg-uuidrev/rfc4122bis/issues
+(or even send a PR)
+
+
+
+
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQFFBAEBCgAvFiEEbsyLEzg/qUTA43uogItw+93Q3WUFAmRb44cRHG1jckBzYW5k
+ZWxtYW4uY2EACgkQgItw+93Q3WXlYgf7B7HxcYWe46EmfPq1GwUTHaHngHnq7nj/
+TeTxUjKbgGZnKzrxyXyKNVmD4UcrVvEQAWwFg/nkI4aLChcIgxRqLlB2eoOO38Li
+HXyRMJ7TtXmVNKObuIfSI0neo/4G8rPNP4aua4qtz8MInYbCmTT7gfI9xIObx2/h
+F9ljf17RjXUUiQo42vdazfFHfvUUtG18CpY6YT/7jSfw2eML1MImiKaZpmvHAqrD
+ksqWd6w4pgQO3evbd4tSUb15wzLpLieP1WTas9xNX0TD6cNCxxalQRllsbtpZ12R
+HRo1SmFeHDCDv+Ccl4Nqd1efwhHmaZ5CCKC5eOjios8fkVADZE3Oig==
+=00iD
+-----END PGP SIGNATURE-----
+--=-=-=--
