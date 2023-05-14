@@ -2,106 +2,121 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DDE0EC7EE22
-	for <util-linux@archiver.kernel.org>; Wed, 10 May 2023 18:43:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 679CFC77B7F
+	for <util-linux@archiver.kernel.org>; Sun, 14 May 2023 23:20:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235830AbjEJSnC (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 10 May 2023 14:43:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40694 "EHLO
+        id S230108AbjENXUF (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 14 May 2023 19:20:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229461AbjEJSnC (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 10 May 2023 14:43:02 -0400
-X-Greylist: delayed 554 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 10 May 2023 11:43:00 PDT
-Received: from tuna.sandelman.ca (tuna.sandelman.ca [IPv6:2607:f0b0:f:3:216:3eff:fe7c:d1f3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 939C1114
-        for <util-linux@vger.kernel.org>; Wed, 10 May 2023 11:43:00 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by tuna.sandelman.ca (Postfix) with ESMTP id D8C4F3898E;
-        Wed, 10 May 2023 14:52:31 -0400 (EDT)
-Received: from tuna.sandelman.ca ([127.0.0.1])
-        by localhost (localhost [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id izgPzHSsubOJ; Wed, 10 May 2023 14:52:31 -0400 (EDT)
-Received: from sandelman.ca (unknown [IPv6:2607:f0b0:f:2:40a:34ff:fe10:f571])
-        by tuna.sandelman.ca (Postfix) with ESMTP id 0EEFC3898D;
-        Wed, 10 May 2023 14:52:31 -0400 (EDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sandelman.ca;
-        s=mail; t=1683744751;
-        bh=XeNaWW3VGLqqC3NIauL/Oz2S8i0lRKWklggKO4ohIpk=;
-        h=From:to:Subject:In-Reply-To:References:Date:From;
-        b=Gcc8s59wL+05Se9yx0I66c1KvvyjKO87a/iqOfwbCRUncjOhpm8lkxEfa772ptjVt
-         11YiLXjJP5r5Btf97yrtyiPucpCUczK20ae8XsvF5mroGpbErPbWENuIpCt1UBPNse
-         6R/eRx1CP5DXeKzqGoGbF0bzr3cfAjc//hz6edy3A1n4y7arTRqlGzoMBDbr5GegqJ
-         jb0lFGwtJWbPT9Yh7tp/y5L8mdeelWhddSDcy7t2dPVrz/R428tU4vahS5Cq2QhwqV
-         a3GQy3YcYIfqUNHI3KJLvy8sBP8Fu7rt50O0JCAxxd/zjWWva4r12dfYvEk02A9SQE
-         NDMEh0rTVefUg==
-Received: from localhost (localhost [IPv6:::1])
-        by sandelman.ca (Postfix) with ESMTP id BFE2BEF;
-        Wed, 10 May 2023 14:33:43 -0400 (EDT)
-From:   Michael Richardson <mcr@sandelman.ca>
-to:     "Theodore Ts'o" <tytso@mit.edu>,
-        Chris Hofstaedtler <zeha@debian.org>,
-        util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
-Subject: Re: uuid and RFC4122
-In-Reply-To: <23699.1676924882@localhost>
-References: <14266.1676658860@localhost> <20230219170116.q453di5cmknxn665@zeha.at> <Y/LPN7pf6x75Xm9H@mit.edu> <23699.1676924882@localhost>
-X-Mailer: MH-E 8.6+git; nmh 1.7+dev; GNU Emacs 27.1
-X-Face: $\n1pF)h^`}$H>Hk{L"x@)JS7<%Az}5RyS@k9X%29-lHB$Ti.V>2bi.~ehC0;<'$9xN5Ub#
- z!G,p`nR&p7Fz@^UXIn156S8.~^@MJ*mMsD7=QFeq%AL4m<nPbLgmtKK-5dC@#:k
+        with ESMTP id S229800AbjENXUF (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 14 May 2023 19:20:05 -0400
+Received: from tarta.nabijaczleweli.xyz (unknown [139.28.40.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7010810C1
+        for <util-linux@vger.kernel.org>; Sun, 14 May 2023 16:20:02 -0700 (PDT)
+Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
+        by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id 802427FF4
+        for <util-linux@vger.kernel.org>; Mon, 15 May 2023 01:19:59 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nabijaczleweli.xyz;
+        s=202305; t=1684106399;
+        bh=VsvIMp1dUONEllj+yeaKWcqIbwDeroiIQfwku2dNQTY=;
+        h=Date:From:To:Subject:From;
+        b=kTCzRYKVGFOX5oYjSJI7mEwFgH1nXC/Qjb0F043JWCZUc1nLTJsvFy+xUxcGCOcta
+         ZEo8p6G+TzL3sDdg7VdAL1gPOsssYGsW+NR0Jf1wdi0gZlUS/dAaZcfkKRPb3nm/A9
+         h45h8V+6l0qOhspGR3QuvfyjbygM9UawarwCdFtH3RpQV9jzhO5V6QidTjfnZLFe13
+         nSAGV8l/lvj4D+95yaN8BJ5iHN5ZSr0z5R4zZZgssLujolmc6UA8AOzW9Qwrul/0pV
+         H9nXccjUl/+u9fpd7Mt9fdjjBoRI9m763k5rQtFYNaTtVw9rtzjQ/GqYxhDvw8ynFC
+         IJh52Qz1V2ZJA==
+Date:   Mon, 15 May 2023 01:19:58 +0200
+From:   =?utf-8?B?0L3QsNCx?= <nabijaczleweli@nabijaczleweli.xyz>
+To:     util-linux@vger.kernel.org
+Subject: [PATCH] mesg.1 cleanups/updates
+Message-ID: <iv3bmcufpzlrrasfctami46xmazuhlq3z4hvd7537bomu6fa5q@k7tx2qgxwrrg>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha512; protocol="application/pgp-signature"
-Date:   Wed, 10 May 2023 14:33:43 -0400
-Message-ID: <5866.1683743623@localhost>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="jnrqhdkbsm6o7h22"
+Content-Disposition: inline
+User-Agent: NeoMutt/20230407
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain
 
+--jnrqhdkbsm6o7h22
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hello again!
+First hunk:  grammar.
+Second hunk: (a) mentioning BSD ptys and not UNIX98 ones is odd,
+             (b) mentioning /only/ ptys is odder still.
+Third hunk:  mesg is found in the UNIX Programmer's Manual;
+             it takes its modern form in V7
+             (it's unclear to me why V6 specifically is mentioned,
+              since it's still default-invert + always-report-"was X").
+---
+Based on 2.39-rc3 tarball.
 
-Michael Richardson <mcr@sandelman.ca> wrote:
-    > Hi, thanks for your work on debian packages.  I'm contacting you
-    > wearing my IETF uuidrev WG co-chair on.
+diff -u -r util-linux-2.39-rc3.orig/term-utils/mesg.1.adoc util-linux-2.39-=
+rc3/term-utils/mesg.1.adoc
+--- util-linux-2.39-rc3.orig/term-utils/mesg.1.adoc	2023-05-15 00:57:54.747=
+355121 +0200
++++ util-linux-2.39-rc3/term-utils/mesg.1.adoc	2023-05-15 01:15:55.97120553=
+2 +0200
+@@ -54,7 +54,7 @@
+=20
+ Traditionally, write access is allowed by default. However, as users becom=
+e more conscious of various security risks, there is a trend to remove writ=
+e access by default, at least for the primary login shell. To make sure you=
+r ttys are set the way you want them to be set, *mesg* should be executed i=
+n your login scripts.
+=20
+-The *mesg* utility silently exits with error status 2 if not executed on t=
+erminal. In this case execute *mesg* is pointless. The command line option =
+*--verbose* forces mesg to print a warning in this situation. This behaviou=
+r has been introduced in version 2.33.
++The *mesg* utility silently exits with error status 2 if not executed on a=
+ terminal. In this case executing *mesg* is pointless. The command line opt=
+ion *--verbose* forces *mesg* to print a warning in this situation. This be=
+haviour has been introduced in version 2.33.
+=20
+ =3D=3D ARGUMENTS
+=20
+@@ -86,11 +86,12 @@
+=20
+ =3D=3D FILES
+=20
+-_/dev/[pt]ty[pq]?_
++_/dev/[pt]ty*_, _/dev/pts/[0-9]*_
+=20
+ =3D=3D HISTORY
+=20
+-A *mesg* command appeared in Version 6 AT&T UNIX.
++*mesg* (I) appears in the UNIX Programmer's Manual.
++It used to invert the current state with no argument before Version 7 AT&T=
+ UNIX.
+=20
+ =3D=3D SEE ALSO
+=20
 
-    > The https://datatracker.ietf.org/wg/uuidrev/documents/ WG was chartered
-    > to update RFC4122 last summer, and we expect to start a WGLC on
-    > RFC4122bis in the next few weeks.  This is just a heads up for now.
-
-We have started the WGLC today.
-It goes until June 9th.  The document is still open for comments,
-particularly of an editorial nature.
-Did something confuse you? our fault, let us know.
-
-We included a way to do SHA-2 based uuids into the v8 namespace based uuids,
-which we think is future proof, and won't burn version numbers the way that
-MD5 and SHA1 derived uuids did.
-
-You may find this diff to be useful:
-
-https://author-tools.ietf.org/iddiff?url1=draft-ietf-uuidrev-rfc4122bis-01&url2=draft-ietf-uuidrev-rfc4122bis-03&difftype=--html
-
-Your comments to uuidrev@ietf.org, or to https://github.com/ietf-wg-uuidrev/rfc4122bis/issues
-(or even send a PR)
-
-
-
-
-
---=-=-=
+--jnrqhdkbsm6o7h22
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQFFBAEBCgAvFiEEbsyLEzg/qUTA43uogItw+93Q3WUFAmRb44cRHG1jckBzYW5k
-ZWxtYW4uY2EACgkQgItw+93Q3WXlYgf7B7HxcYWe46EmfPq1GwUTHaHngHnq7nj/
-TeTxUjKbgGZnKzrxyXyKNVmD4UcrVvEQAWwFg/nkI4aLChcIgxRqLlB2eoOO38Li
-HXyRMJ7TtXmVNKObuIfSI0neo/4G8rPNP4aua4qtz8MInYbCmTT7gfI9xIObx2/h
-F9ljf17RjXUUiQo42vdazfFHfvUUtG18CpY6YT/7jSfw2eML1MImiKaZpmvHAqrD
-ksqWd6w4pgQO3evbd4tSUb15wzLpLieP1WTas9xNX0TD6cNCxxalQRllsbtpZ12R
-HRo1SmFeHDCDv+Ccl4Nqd1efwhHmaZ5CCKC5eOjios8fkVADZE3Oig==
-=00iD
+iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmRhbJsACgkQvP0LAY0m
+WPHkqRAAuofoF37fg2fqFAyrj8rEAmzR0Z7gtGn+zIdVDD8qZCTjBHN1HaigRtLr
+8wJMy6PyW+TsmivvHNYSkf8TFGZQu7KlGw5IUdJReBJcMcdNkiypQqsFaKPb7Z7Y
+kJ02ox5yD53wX7eKUIDRqhk1bensNe2kbHd31mRfOwxqZu3RSGQnvc3d+oIFxXWS
+mURKZFem5KVD4j+eTPu1AL46f8W/wEZrP6OBkzAUHDEkmpHB1jeVI0WMBsnrCUEa
+ERwgXLD8O+TKsWaLWIuYaUqlnBbV7T3klb60yz29DJzu7B9HI6GtXZSVwoLCgXcN
++74XuEYZiHQi5AW3A0PZMn18r5zlpdEreV5ZSzKrjYUL7dhv2q3vMrlRSUzaFlcV
+3hyaBStvw5B+hA2b5L05QgGATYY7cMb7KiLeN3EDljy6LtJhSXiVSRNDw1v7cbQ4
+9m52x3MwBOLnQaRflKwFJfQiqAHkKEOzrVVFLD6S+JxxRl5TRT6vw/HHJ8lChr4w
+TT3toEw3AuCAvoVy3G0yKU8FVF2OMnZmDOHehZuWxWBDNSMMvD6hoRaT9+ErUnzh
+yLBcAEIfO3Me92xB4zIZghe77UzvA/3td4Q8v0Z4d3XOdoJZKlZ7Li9P6zh0pmMr
+uSQQRZXL4Wb7Zs1ra+ypr9rSmrFZn5yfZDfPpfsVz2dJA3AHOTg=
+=N3hD
 -----END PGP SIGNATURE-----
---=-=-=--
+
+--jnrqhdkbsm6o7h22--
