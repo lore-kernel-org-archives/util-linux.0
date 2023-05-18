@@ -2,98 +2,100 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F64FC7EE24
-	for <util-linux@archiver.kernel.org>; Thu, 18 May 2023 14:01:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7F48C77B7A
+	for <util-linux@archiver.kernel.org>; Thu, 18 May 2023 23:31:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230301AbjEROBM (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 18 May 2023 10:01:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40898 "EHLO
+        id S229539AbjERXbx (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 18 May 2023 19:31:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230211AbjEROBL (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 18 May 2023 10:01:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E1ED10E5;
-        Thu, 18 May 2023 07:01:03 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0988561561;
-        Thu, 18 May 2023 14:01:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22874C433D2;
-        Thu, 18 May 2023 14:01:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1684418462;
-        bh=4Im3v0IgUYIeUV6N/ZeLmE9WDFNsWEqr0RUZml2Q5/Q=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=t+wm02X+LoomXyftqhOFhQZD69cBSUgk/6Ligw+Qe7ZvOOhrUO4Ea5O85zvIydwDZ
-         aX4rEjeel0BD52p3R6HRuq6tcPW14tEVhoWlBeqOHPLaIlWnJrpQdXmAl9DBuHYS4D
-         /2QmC7dLUldYb2D1DqBJycfPLgP9OvnBMLpFQtPfZjbZN6uixEATGZN03ky6DQjyNT
-         w+oIOTy+K7XiJyjABLToRlAqoVdE0r0mcIVTZEassNa210h3Nc2rMlFQMRSKM8JjJm
-         m7tvk7Kf91/9+Qvm7Yxs71SN7WAYnQ0JUyxeZTzargOpYG3k0lye9F6ZdpiDbJ57KN
-         zZkrN2epRjd5w==
-Date:   Thu, 18 May 2023 16:00:57 +0200
-From:   Christian Brauner <brauner@kernel.org>
-To:     Karel Zak <kzak@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.39
-Message-ID: <20230518-gejagt-vervollkommnen-01451a4325b9@brauner>
-References: <20230517112242.3rubpxvxhzsc4kt2@ws.net.home>
- <20230517-mahnmal-setzen-37937c35cf78@brauner>
- <20230518102316.f6s6v6xxnicx646r@ws.net.home>
+        with ESMTP id S229513AbjERXbw (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 18 May 2023 19:31:52 -0400
+Received: from mail-oo1-xc2c.google.com (mail-oo1-xc2c.google.com [IPv6:2607:f8b0:4864:20::c2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18493C1;
+        Thu, 18 May 2023 16:31:51 -0700 (PDT)
+Received: by mail-oo1-xc2c.google.com with SMTP id 006d021491bc7-554f951e658so339823eaf.0;
+        Thu, 18 May 2023 16:31:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1684452710; x=1687044710;
+        h=content-transfer-encoding:in-reply-to:cc:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=eYgDPuLZiKeSPvGEjWOY9Kw5MPWojzL4LRufpH719TQ=;
+        b=IQO2fjLRAy+iPaC34snXbtkrfVQnWY04g6bmUzfpFaMHFgtdgckYGNwyiqkjLHVqei
+         d+M56JxXARfISb84dEqsW7HAX/frhxY0d1E67eqDyxKX8JiALNSH5luxfPnybUN5im28
+         Wg9P/TEDQwUub1oVvSVPIgrqbQhTFuGzPCJnCI+6OsZJ5eVdCr8yn67totj8xxtXlTvF
+         Tb1nsj8dEGgho0yp45uSoSifG97voZSAoJkchZpnclk4zlP1Trdxall1WhaGbkjYF3d6
+         4ISA2TjNgvswptaNVztlE5nb0Skan9827uqHshyLtZJPSeTlQIN3YXWnnCfep9wLzSfg
+         a7gA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1684452710; x=1687044710;
+        h=content-transfer-encoding:in-reply-to:cc:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=eYgDPuLZiKeSPvGEjWOY9Kw5MPWojzL4LRufpH719TQ=;
+        b=Z2leHZzuoqF2CV6HgQGavQPte2U5iU/SZPTKDgeuVK8AaR/J/lt6zUQyTtwQJ1Lwse
+         mL1A4QkzTuo/OKViRCCWQjpqbug3MRu2mHpOzwt1B9/3nUbp4fur+nyKRDEKIhH5Hw/C
+         2EDMTmOmDd1FKoBxTwqdadLYuaHXjW6ktbyghH6FPq2EXIEBl6VNjo3bWPWtvx1luHGM
+         pd9t3PVwXg7Q9kDWrFIqe8WFjlH+NxNpARj6xOpMOjaAx0AHPD1AAGykdD/Yq4a4xgUz
+         ipkwdTHacWKBrc64bI9I/kpf1FBy5vn58EfW5vADY/Blk2zBsXoIXpV02o6gcJe1FT9k
+         2r/Q==
+X-Gm-Message-State: AC+VfDzAefDBd5kA0zUzlbMVSeoTRfguQWineT1B+d6TT1MHUezRnLu8
+        r7uTQ4zyJMPLs8Nrp3pd+dL2QR+On0k=
+X-Google-Smtp-Source: ACHHUZ5FZaUANm5x68UabkwtO8tsnGuh3O1Ul5AELkv5gASaJYrr9FXsm6HWXp9lUXSQnEEq68QxvA==
+X-Received: by 2002:a4a:764a:0:b0:54c:b507:2616 with SMTP id w10-20020a4a764a000000b0054cb5072616mr18716ooe.3.1684452710343;
+        Thu, 18 May 2023 16:31:50 -0700 (PDT)
+Received: from [192.168.0.92] (cpe-70-94-157-206.satx.res.rr.com. [70.94.157.206])
+        by smtp.gmail.com with ESMTPSA id n14-20020a4abd0e000000b0052a32a952e9sm917047oop.48.2023.05.18.16.31.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 18 May 2023 16:31:49 -0700 (PDT)
+Message-ID: <652d32c5-4b33-ce3a-3de7-9ebc064bbdcb@gmail.com>
+Date:   Thu, 18 May 2023 18:31:47 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20230518102316.f6s6v6xxnicx646r@ws.net.home>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Subject: Re: [ANNOUNCE] util-linux v2.39
+Content-Language: en-US
+To:     Karel Zak <kzak@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org
+References: <20230517112242.3rubpxvxhzsc4kt2@ws.net.home>
+From:   Bruce Dubbs <bruce.dubbs@gmail.com>
+Cc:     "Douglas R. Reno" <renodr2002@gmail.com>
+In-Reply-To: <20230517112242.3rubpxvxhzsc4kt2@ws.net.home>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Thu, May 18, 2023 at 12:23:16PM +0200, Karel Zak wrote:
-> On Wed, May 17, 2023 at 03:48:54PM +0200, Christian Brauner wrote:
-> > This is a very exciting release! There's good reason for us to be happy
-> > imho. This is the first release of util-linux with comprehensive support
-> > for the new mount api which is very exciting.
+On 5/17/23 06:22, Karel Zak wrote:
 > 
-> We will see how many things in libmount and kernel are not ready ;-)
+> The util-linux release v2.39 is available at
+>                                    
+>    http://www.kernel.org/pub/linux/utils/util-linux/v2.39
+>                                    
+> Feedback and bug reports, as always, are welcomed.
 
-Yeah, I think we will indeed...
-So, I think we need to port overlayfs to the new mount api because of
-https://github.com/util-linux/util-linux/issues/1992#issuecomment-1486475153
+Karel,  I have installed util-linux v2.39 in LFS and have run into a problem with one 
+test, test_mkfds.  Actually the test passes, but does not clean up after itself. 
+What is left over is:
 
-> 
-> > A part of that is of course the support for idmapped mounts and the
-> > ability to recursively change mount properties, i.e., idempotently
-> > change the mount properties of a whole mount tree.
-> > 
-> > It's also great to see support for disk sequence numbers via the
-> > BLKGETDISKSEQ ioctl and the port to util-linux to rely on
-> 
-> BLKGETDISKSEQ is supported in the blockdev command only.
-> 
-> Lennart has also idea to support it in libmount to verify devices
-> before the filesystem is attached to VFS. 
-> 
-> https://github.com/util-linux/util-linux/issues/1786
-> 
-> That's something we can work on in the next release.
+tester   32245     1  0 15:43 ?        00:00:00 /sources/util-linux-2.39/test_mkfds 
+-q udp 3 4 server-port=34567 client-port=23456 server-do-bind=1 client-do-bind=1 
+client-do-connect=1
+tester   32247     1  0 15:43 ?        00:00:00 /sources/util-linux-2.39/test_mkfds 
+-q udp6 3 4 lite=1 server-port=34567 client-port=23456 server-do-bind=1 
+client-do-bind=1 client-do-connect=1
 
-Yeah, I remember discussing that. Though that doesn't eliminate all
-races as we discussed on the thread and I plan to implement what I said in
-https://github.com/util-linux/util-linux/issues/1786#issuecomment-1410515391
-rather soon and talked about at LSFMM last week.
+It's possible it may be due to something we are doing inside our chroot environment, 
+but we've not had this type of problem with earlier versions of util-linux.
 
-> 
-> > statx(AT_STATX_DONT_SYNC|AT_NO_AUTOMOUNT) to avoid tripping over
-> > automounts or hung network filesystems as we just recently discussed
-> > this!
-> > 
-> > Thanks for working on this and hopefully we can add the missing pieces
-> > of the new mount api in the coming months!
-> 
-> I would like to make the v2.40 development cycle shorter. The v2.39
-> cycle was excessively long and large.
+In all I do have:
 
-Yeah, but that was kinda expected given the switch to the new mount api.
-I mean, after I did the initial support to get idmapped mounts working
-in there you still had to port all the rest of libmount...
+   All 261 tests PASSED
+
+but the left over processes interfere later when we try to remove the non-root user, 
+tester, that runs the tests.  I can work around the problem by disabling test_mkfds, 
+but thought you would like to know.
+
+   -- Bruce
