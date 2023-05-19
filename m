@@ -2,43 +2,43 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC0A3C77B7D
-	for <util-linux@archiver.kernel.org>; Thu, 18 May 2023 23:43:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7A59C77B7A
+	for <util-linux@archiver.kernel.org>; Fri, 19 May 2023 22:44:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229808AbjERXn4 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 18 May 2023 19:43:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44726 "EHLO
+        id S229616AbjESWoF (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 19 May 2023 18:44:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229458AbjERXn4 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 18 May 2023 19:43:56 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E53FE55
-        for <util-linux@vger.kernel.org>; Thu, 18 May 2023 16:43:08 -0700 (PDT)
+        with ESMTP id S229571AbjESWoE (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 19 May 2023 18:44:04 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C454BE42
+        for <util-linux@vger.kernel.org>; Fri, 19 May 2023 15:43:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1684453387;
+        s=mimecast20190719; t=1684536199;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=xmIVeALLuXysWRG283S7es3hJY+83cgWTwjM+Nk3plQ=;
-        b=OaqTm7LBWhEcNvpZ0JIuZ5fEVE0O+DdkZM3iSgX6IbLl06O7WKEeKr2uCcjwwD/JpbAaJG
-        J9rpi+TPddMRvd17SfjiSk+LZV+9EuyGtdFZoV0E3MwheXuAIgtKGHYoR0mnBHCJ2RssNh
-        mr7egCbHlAYEZ+OSD2fpZBA3Pg/rtuc=
+        bh=Lx3FRv/9ZViNHJYNb7K17j7599eHUYCX31V7AD9qU0o=;
+        b=bQGmOAZGPHKk5zwa4Eec+6n3+uXQxmKybOIHoJqfPANQxwMUw9O7s7hqEPIci6DLDcEmg5
+        JPxoNzQcgoL+O8Fw5+4VWW9n64+v907EnitijyY7VYo1UHl8RNWLeUKjScrcYauMioMmWd
+        V9KOS4MDG3tGYAxuPZvf/RShwySvp24=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-20-akcWVT7jPlCou4DUpH2mFA-1; Thu, 18 May 2023 19:43:04 -0400
-X-MC-Unique: akcWVT7jPlCou4DUpH2mFA-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+ us-mta-267-aVXYRF4TPMKGIaqCHUms0w-1; Fri, 19 May 2023 18:43:15 -0400
+X-MC-Unique: aVXYRF4TPMKGIaqCHUms0w-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0875E101A54F;
-        Thu, 18 May 2023 23:43:04 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 532BF185A78E;
+        Fri, 19 May 2023 22:43:15 +0000 (UTC)
 Received: from localhost (unknown [10.67.24.76])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7D75C1410DD5;
-        Thu, 18 May 2023 23:43:01 +0000 (UTC)
-Date:   Fri, 19 May 2023 08:42:59 +0900 (JST)
-Message-Id: <20230519.084259.675024489839688565.yamato@redhat.com>
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D62284F2DE2;
+        Fri, 19 May 2023 22:43:12 +0000 (UTC)
+Date:   Sat, 20 May 2023 07:43:11 +0900 (JST)
+Message-Id: <20230520.074311.642413213582621319.yamato@redhat.com>
 To:     bruce.dubbs@gmail.com
 Cc:     kzak@redhat.com, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org,
@@ -52,10 +52,12 @@ Organization: Red Hat Japan, K.K.
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
+
+Bruce,
 
 > On 5/17/23 06:22, Karel Zak wrote:
 >> The util-linux release v2.39 is available at
@@ -72,12 +74,7 @@ X-Mailing-List: util-linux@vger.kernel.org
 > tester 32247 1 0 15:43 ?  00:00:00 /sources/util-linux-2.39/test_mkfds
 > -q udp6 3 4 lite=1 server-port=34567 client-port=23456
 > server-do-bind=1 client-do-bind=1 client-do-connect=1
-
-I'm the author of the test case and test_mkfds.
-I'll look into this issue.
-
-Masatake YAMATO
-
+> 
 > It's possible it may be due to something we are doing inside our
 > chroot environment, but we've not had this type of problem with
 > earlier versions of util-linux.
@@ -89,7 +86,33 @@ Masatake YAMATO
 > but the left over processes interfere later when we try to remove the
 > non-root user, tester, that runs the tests.  I can work around the
 > problem by disabling test_mkfds, but thought you would like to know.
-> 
->   -- Bruce
-> 
+
+Thank you for reporting.
+Reproduced on my PC. I found two processes were not killed properly.
+
+Could you try the following change?
+
+diff --git a/tests/ts/lsfd/option-inet b/tests/ts/lsfd/option-inet
+index 21e66f700..70cc3798d 100755
+--- a/tests/ts/lsfd/option-inet
++++ b/tests/ts/lsfd/option-inet
+@@ -84,14 +84,10 @@ ts_cd "$TS_OUTDIR"
+                   -o ASSOC,TYPE,NAME \
+                   -Q "(PID == $PID0) or (PID == $PID1) or (PID == $PID2) or (PID == $PID3) or (PID == $PID4)"
+ 
+-    kill -CONT "${PID0}"
+-    wait "${PID0}"
+-
+-    kill -CONT "${PID1}"
+-    wait "${PID1}"
+-
+-    kill -CONT "${PID2}"
+-    wait "${PID2}"
++    for pid in "${PID0}" "${PID1}" "${PID2}" "${PID3}" "${PID4}"; do
++       kill -CONT "${pid}"
++       wait "${pid}"
++    done
+ } > "$TS_OUTPUT" 2>&1
+ 
+ ts_finalize
 
