@@ -2,143 +2,114 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E39EC7EE23
-	for <util-linux@archiver.kernel.org>; Sat, 20 May 2023 23:16:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F4EDC7EE23
+	for <util-linux@archiver.kernel.org>; Sat, 20 May 2023 23:40:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229590AbjETXQM (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sat, 20 May 2023 19:16:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60844 "EHLO
+        id S229523AbjETXkA (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sat, 20 May 2023 19:40:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229511AbjETXQM (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 20 May 2023 19:16:12 -0400
-Received: from mail-ot1-x32c.google.com (mail-ot1-x32c.google.com [IPv6:2607:f8b0:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93042115;
-        Sat, 20 May 2023 16:16:09 -0700 (PDT)
-Received: by mail-ot1-x32c.google.com with SMTP id 46e09a7af769-6aaef8ca776so1737206a34.2;
-        Sat, 20 May 2023 16:16:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1684624569; x=1687216569;
-        h=content-transfer-encoding:in-reply-to:references:cc:to:from
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=qtN503DAMVLG+ZzNXh8XqsPCLRzxoeSh0JfLzHKejJY=;
-        b=CyIMrN2MhpEosseCZAw9ARngSHbN3e1fKGeGdChJABNEVzGX5zLDpwSkLg6Gtyf9mV
-         269PUmpAyCGZDzk6Zie8vBgnafQ7CuTukl2G+p/toBY4P0YGTxiXltwfvNHGeB/PuzIS
-         X11Ug+1jQs9jUbMG1f3EEW7mz/6Z2/SE9JzGM+0lXc04t8LrOJsVTgoj4DnRuH4Iy0jQ
-         3FPo52z1AZt3Ez38be23zFbQyVqlX6zbUduKq4PjDYUp7qFsq9cbNndV7qEBDuO07tfx
-         ayy6FyIOIstNFOWpJLlD6s/yx88js5mmUKdY8W+XcRanLodcAGJzDfcQDSMD/NERscwi
-         Wp5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684624569; x=1687216569;
-        h=content-transfer-encoding:in-reply-to:references:cc:to:from
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=qtN503DAMVLG+ZzNXh8XqsPCLRzxoeSh0JfLzHKejJY=;
-        b=el9b4Uuqw4WGWoInjoLeUSN3uVFPIymnxyYdQ17BAOV+LPIGPnTRSQlZMgvXgMPNf7
-         2YZFWVM+RYLa2VOZQFfaSjcKcron4a0GuBHEtgaopDD7sD02a3e2ukiSCw7l9uiyXgwT
-         UPx1zgSyA2R9rt+hZBYhPotIBf774DyR/KLlnyZzZBFcO1I3Z2sw6KFVGF6zIFEG2A0g
-         /PaxQAAUtqTV5KlNS2lKzPGUzY6mnDSLf/9zjP81auQN9ordHI9JTSCCv4I19ukAmNBm
-         /neL/sk439fy9XRFj5ij3neTLFMtWxXIyPF65Y8WuzO5lMAfD1OsbxbpTpSphkMFJDRJ
-         L0/w==
-X-Gm-Message-State: AC+VfDzTQTd604YgjXNIojEmOuHvjGAtq8dMSIIOqlpm95NSmGhrpCdF
-        h5Lq6i9tdZIQwMb8RpEmcxvfr+ED3j8=
-X-Google-Smtp-Source: ACHHUZ5ijRccqrMNCyT9C9rF+440+EpLu9j68TL2kbqDne8/GuC7Bfc/VBYBipCqvRLoCJtcB0CjyA==
-X-Received: by 2002:a05:6830:1181:b0:6ab:43b:a93c with SMTP id u1-20020a056830118100b006ab043ba93cmr3351049otq.13.1684624568854;
-        Sat, 20 May 2023 16:16:08 -0700 (PDT)
-Received: from [192.168.0.92] (cpe-70-94-157-206.satx.res.rr.com. [70.94.157.206])
-        by smtp.gmail.com with ESMTPSA id i17-20020a9d6251000000b006ad3ed04973sm971205otk.8.2023.05.20.16.16.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 20 May 2023 16:16:08 -0700 (PDT)
-Message-ID: <ced4d4e1-8358-d718-58ee-9effe39cff6e@gmail.com>
-Date:   Sat, 20 May 2023 18:16:07 -0500
+        with ESMTP id S229511AbjETXj7 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sat, 20 May 2023 19:39:59 -0400
+Received: from todd.t-8ch.de (todd.t-8ch.de [IPv6:2a01:4f8:c010:41de::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC19E13E
+        for <util-linux@vger.kernel.org>; Sat, 20 May 2023 16:39:57 -0700 (PDT)
+Date:   Sun, 21 May 2023 01:39:55 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=t-8ch.de; s=mail;
+        t=1684625996; bh=tJw/Ycpo1T3Vc7N6tU4W3rV+T0r5CFiGGVgGcqcfZEU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rvv0rzbNydnc0U1jVM+X8+ZPFZOBtdP2bKhuLsaCBOTLIMmiefWbdHJC8jyotvvAi
+         3HFigsAk+bosanGI+0cGmMZkYJbBDf4Zdc3jdEralzTMsiGxBV012NaR19b485uGBT
+         bhUW1T2hxLbev3PC8eq/uwbau4nNaaqOhkCr/qU8=
+From:   Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas@t-8ch.de>
+To:     Thomas Deutschmann <whissi@whissi.de>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: util-linux 2.39 doesn't work with <linux-5.12: mount(2) system
+ call failed: Function not implemented
+Message-ID: <e2c624df-575b-4c66-a8b8-a5fc80a44b08@t-8ch.de>
+References: <af9fcbe9-15fc-0ce2-1fa6-2239f740a1c9@whissi.de>
+ <09636701-1136-4174-a453-5076ef0328f6@t-8ch.de>
+ <03db6ada-02ee-48a1-a2dd-47335e70a681@whissi.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [ANNOUNCE] util-linux v2.39
-Content-Language: en-US
-From:   Bruce Dubbs <bruce.dubbs@gmail.com>
-To:     Masatake YAMATO <yamato@redhat.com>
-Cc:     kzak@redhat.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org,
-        renodr2002@gmail.com
-References: <20230517112242.3rubpxvxhzsc4kt2@ws.net.home>
- <652d32c5-4b33-ce3a-3de7-9ebc064bbdcb@gmail.com>
- <20230520.074311.642413213582621319.yamato@redhat.com>
- <2fc8421e-634a-aa7d-b023-c8d5e5fa1741@gmail.com>
-In-Reply-To: <2fc8421e-634a-aa7d-b023-c8d5e5fa1741@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <03db6ada-02ee-48a1-a2dd-47335e70a681@whissi.de>
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On 5/19/23 17:56, Bruce Dubbs wrote:
-> On 5/19/23 17:43, Masatake YAMATO wrote:
->> Bruce,
->>
->>> On 5/17/23 06:22, Karel Zak wrote:
->>>> The util-linux release v2.39 is available at
->>>>                                        
->>>> http://www.kernel.org/pub/linux/utils/util-linux/v2.39
->>>>                                     Feedback and bug reports, as always, are 
->>>> welcomed.
->>>
->>> Karel, I have installed util-linux v2.39 in LFS and have run into a
->>> problem with one test, test_mkfds.  Actually the test passes, but does
->>> not clean up after itself. What is left over is:
->>>
->>> tester 32245 1 0 15:43 ?  00:00:00 /sources/util-linux-2.39/test_mkfds
->>> -q udp 3 4 server-port=34567 client-port=23456 server-do-bind=1
->>> client-do-bind=1 client-do-connect=1
->>> tester 32247 1 0 15:43 ?  00:00:00 /sources/util-linux-2.39/test_mkfds
->>> -q udp6 3 4 lite=1 server-port=34567 client-port=23456
->>> server-do-bind=1 client-do-bind=1 client-do-connect=1
->>>
->>> It's possible it may be due to something we are doing inside our
->>> chroot environment, but we've not had this type of problem with
->>> earlier versions of util-linux.
->>>
->>> In all I do have:
->>>
->>>    All 261 tests PASSED
->>>
->>> but the left over processes interfere later when we try to remove the
->>> non-root user, tester, that runs the tests.  I can work around the
->>> problem by disabling test_mkfds, but thought you would like to know.
->>
->> Thank you for reporting.
->> Reproduced on my PC. I found two processes were not killed properly.
->>
->> Could you try the following change?
->>
->> diff --git a/tests/ts/lsfd/option-inet b/tests/ts/lsfd/option-inet
->> index 21e66f700..70cc3798d 100755
->> --- a/tests/ts/lsfd/option-inet
->> +++ b/tests/ts/lsfd/option-inet
->> @@ -84,14 +84,10 @@ ts_cd "$TS_OUTDIR"
->>                     -o ASSOC,TYPE,NAME \
->>                     -Q "(PID == $PID0) or (PID == $PID1) or (PID == $PID2) or (PID 
->> == $PID3) or (PID == $PID4)"
->> -    kill -CONT "${PID0}"
->> -    wait "${PID0}"
->> -
->> -    kill -CONT "${PID1}"
->> -    wait "${PID1}"
->> -
->> -    kill -CONT "${PID2}"
->> -    wait "${PID2}"
->> +    for pid in "${PID0}" "${PID1}" "${PID2}" "${PID3}" "${PID4}"; do
->> +       kill -CONT "${pid}"
->> +       wait "${pid}"
->> +    done
->>   } > "$TS_OUTPUT" 2>&1
->>   ts_finalize
+On 2023-05-20 17:23:05+0200, Thomas Deutschmann wrote:
+> On 2023-05-20 06:51, Thomas Weißschuh wrote:
+> > Could you test the fix proposed in
+> > https://github.com/util-linux/util-linux/pull/2248 ?
+> > 
+> > (For testing on a real system you only need the changes to
+> > libmount/src/hook_mount.c, ignore the testing stuff)
 > 
-> I will do that, but will not be able to get to it until late tomorrow, but will 
-> report back asap.
+> This is addressing the reported
+> 
+>   mount --make-slave /proc
 
-I used the above patch and it fixed the problem.  Thank you.
+Thanks for confirming!
 
-   -- Bruce
+<snip>
 
+> However, I noticed additional problems. Remounts for example are still not
+> working but no error is shown:
+> 
+> > ~ # findmnt /
+> > TARGET  SOURCE    FSTYPE OPTIONS
+> > /       /dev/dm-0 ext4   ro,relatime,stripe=32650
+> > ~ # mount -o remount,rw /
+> > ~ # findmnt /
+> > TARGET   SOURCE    FSTYPE OPTIONS
+> > /        /dev/dm-0 ext4   ro,relatime,stripe=32650
+> 
+> I don't see a fallback in strace:
+> 
+> > [...]
+> > open_tree(AT_FDCWD, "/", OPEN_TREE_CLOEXEC) = 3
+> > mount_setattr(-1, NULL, 0, NULL, 0)     = -1 ENOSYS (Function not implemented)
+> > getuid()                                = 0
+> > geteuid()                               = 0
+> > getgid()                                = 0
+> > getegid()                               = 0
+> > prctl(PR_GET_DUMPABLE)                  = 1 (SUID_DUMP_USER)
+> > newfstatat(AT_FDCWD, "/run/mount/utab", 0x7ffe4fe7c590, AT_SYMLINK_NOFOLLOW) = -1 ENOENT (No such file or directory)
+> > mkdir("/run/mount", 0755)               = -1 EEXIST (File exists)
+> > newfstatat(AT_FDCWD, "/run/mount/utab", 0x7ffe4fe7c480, 0) = -1 ENOENT (No such file or directory)
+> > newfstatat(AT_FDCWD, "/run/mount", {st_mode=S_IFDIR|0755, st_size=40, ...}, 0) = 0
+> > geteuid()                               = 0
+> > getegid()                               = 0
+> > getuid()                                = 0
+> > getgid()                                = 0
+> > access("/run/mount", R_OK|W_OK)         = 0
+> > fspick(3, "", FSPICK_NO_AUTOMOUNT|FSPICK_EMPTY_PATH) = 4
+> > fsconfig(4, FSCONFIG_SET_FLAG, "rw", NULL, 0) = 0
+> > fsconfig(4, FSCONFIG_CMD_RECONFIGURE, NULL, NULL, 0) = 0
+> > close(4)                                = 0
+> > close(3)                                = 0
+> > dup(1)                                  = 3
+> > close(3)                                = 0
+> > dup(2)                                  = 3
+> > close(3)                                = 0
+> > exit_group(0)                           = ?
+> > +++ exited with 0 +++
 
+I'm not sure that the fallback should be necessary here.
+The calls to fsconfig() seem to succeed.
+
+I am having trouble reproducing the issue.
+
+Could you
+* provide more details about the used kernel?
+* provide reproduction steps that are simple to reproduce, for example
+  using tmpfs mounts.
+
+FYI there was a report on GitHub that confirms more or less this exact
+usecase to be working with my patch. [0]
+
+[0] https://github.com/util-linux/util-linux/issues/2247#issuecomment-1555967726
+
+Thomas
