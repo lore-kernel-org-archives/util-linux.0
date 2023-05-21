@@ -2,67 +2,159 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDFB7C77B73
-	for <util-linux@archiver.kernel.org>; Sun, 21 May 2023 19:20:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1275EC77B7C
+	for <util-linux@archiver.kernel.org>; Sun, 21 May 2023 21:49:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230074AbjEUTUd (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sun, 21 May 2023 15:20:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35352 "EHLO
+        id S230338AbjEUVto (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 21 May 2023 17:49:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229512AbjEUTUd (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 21 May 2023 15:20:33 -0400
-Received: from fifth.space (fifth.space [45.32.148.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44DDCCF
-        for <util-linux@vger.kernel.org>; Sun, 21 May 2023 12:20:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fifth.space; s=20190812;
-        t=1684696824;
+        with ESMTP id S230271AbjEUVtn (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 21 May 2023 17:49:43 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD81CE0
+        for <util-linux@vger.kernel.org>; Sun, 21 May 2023 14:48:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1684705734;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=CQWsspLd8xYeFjaeY/nAS08nDfhSKqc1nvG6QlX9a58=;
-        b=wt9DygpWK5WPjozm3Xi8EmdGScSMLGTHCCFwsSIEc83ygXY8WRqlVCBM9rnN1bOwoOw32A
-        Cz3LTRCxBNJiBT8KtgFW6ZIKgmPCQ/5ylH4MKak5yd9shdiPWOQypHy1THxiCy3JKzkAqI
-        bKmgRPiaap8lCFR9vb8C9S49sIIQEgBPI333igwMGSL0iXW7l1tbbzVAeYe5stMyhRfMxz
-        7NFoctLp9te5IPlVE/PUjCniA+fy0FViufpCIsqnSzYWyOmV0gUAB3HB1Ui3urZNa2dZnA
-        L5cFbbRTIyeKiI/NMX1kqB6zxxIZAtnUiLxpPGsF3KFshZmf911C5/hmmOPlXA==
-Received: by fifth.space (OpenSMTPD) with ESMTPSA id ba7bfacf (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO)
-        for <util-linux@vger.kernel.org>;
-        Sun, 21 May 2023 21:20:20 +0200 (CEST)
-Date:   Sun, 21 May 2023 21:20:18 +0200
-From:   Quentin Rameau <quinq@fifth.space>
-To:     util-linux@vger.kernel.org
-Subject: Re: mount: sshfs problem with "defaults" option after 2.39 upgrade
-Message-ID: <20230521212018.17829eb5.quinq@fifth.space>
-In-Reply-To: <9c4d0dc2-de5b-4e34-9489-01e00a71e2da@t-8ch.de>
-References: <20230521181814.0b0f2d38.quinq@fifth.space>
-        <b71959fa-899b-411e-9937-d29689999111@t-8ch.de>
-        <20230521201534.62dadbc8.quinq@fifth.space>
-        <9c4d0dc2-de5b-4e34-9489-01e00a71e2da@t-8ch.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        bh=V3PglHXX3G09T9urKQFQE+zJxCvdy2Nz0+nq/8wJZII=;
+        b=ftbO6RzTfCzZZK2RdT75+Zl0pTwaGeISnqjK6UIUNtHP2TDpeA9Y7GPxFSCA1cDVF5VwQJ
+        vY0UzqTONnZkgUP6fX5ZLkJdc6Eh9gKKj+widGz8D48wUiJOBjsFbCyoPhKFv5yc/9Rf/m
+        OTiPYMuYyoLm8CBYkTpiNtka+SaVE90=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-398-GtqmvSm9Ma22gVXfgHSKUQ-1; Sun, 21 May 2023 17:48:50 -0400
+X-MC-Unique: GtqmvSm9Ma22gVXfgHSKUQ-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 85EAD8007D9;
+        Sun, 21 May 2023 21:48:49 +0000 (UTC)
+Received: from localhost (unknown [10.67.24.76])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 15759C57961;
+        Sun, 21 May 2023 21:48:46 +0000 (UTC)
+Date:   Mon, 22 May 2023 06:48:45 +0900 (JST)
+Message-Id: <20230522.064845.1518051418018369671.yamato@redhat.com>
+To:     bruce.dubbs@gmail.com
+Cc:     kzak@redhat.com, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org,
+        renodr2002@gmail.com
+Subject: Re: [ANNOUNCE] util-linux v2.39
+From:   Masatake YAMATO <yamato@redhat.com>
+In-Reply-To: <ced4d4e1-8358-d718-58ee-9effe39cff6e@gmail.com>
+References: <20230520.074311.642413213582621319.yamato@redhat.com>
+        <2fc8421e-634a-aa7d-b023-c8d5e5fa1741@gmail.com>
+        <ced4d4e1-8358-d718-58ee-9effe39cff6e@gmail.com>
+Organization: Red Hat Japan, K.K.
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-> > On a side-note, should that flag be applied to other generic parameters
-> > too, like user(s) for example?  
-> 
-> I guess they are useful for the helpers.
-> 
-> If the helpers were able to handle it before it should be fine.
-> (They were passed in 2.38)
-> 
-> One could even argue that "defaults" should have been fine to be passed,
-> but now it's a regression so needs to be fixed.
+From: Bruce Dubbs <bruce.dubbs@gmail.com>
+Subject: Re: [ANNOUNCE] util-linux v2.39
+Date: Sat, 20 May 2023 18:16:07 -0500
 
-One difference that I can see is that before, "user" was being passed
-but now, "user=$user" is being passed (and that gives an error too)
+> On 5/19/23 17:56, Bruce Dubbs wrote:
+>> On 5/19/23 17:43, Masatake YAMATO wrote:
+>>> Bruce,
+>>>
+>>>> On 5/17/23 06:22, Karel Zak wrote:
+>>>>> The util-linux release v2.39 is available at
+>>>>>                                        http://www.kernel.org/pub/=
+linux/utils/util-linux/v2.39
+>>>>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Feedback and bug reports, as
+>>>>> always, are welcomed.
+>>>>
+>>>> Karel, I have installed util-linux v2.39 in LFS and have run into =
+a
+>>>> problem with one test, test_mkfds.=A0 Actually the test passes, bu=
+t does
+>>>> not clean up after itself. What is left over is:
+>>>>
+>>>> tester 32245 1 0 15:43 ?=A0 00:00:00 /sources/util-linux-2.39/test=
+_mkfds
+>>>> -q udp 3 4 server-port=3D34567 client-port=3D23456 server-do-bind=3D=
+1
+>>>> client-do-bind=3D1 client-do-connect=3D1
+>>>> tester 32247 1 0 15:43 ?=A0 00:00:00 /sources/util-linux-2.39/test=
+_mkfds
+>>>> -q udp6 3 4 lite=3D1 server-port=3D34567 client-port=3D23456
+>>>> server-do-bind=3D1 client-do-bind=3D1 client-do-connect=3D1
+>>>>
+>>>> It's possible it may be due to something we are doing inside our
+>>>> chroot environment, but we've not had this type of problem with
+>>>> earlier versions of util-linux.
+>>>>
+>>>> In all I do have:
+>>>>
+>>>> =A0=A0 All 261 tests PASSED
+>>>>
+>>>> but the left over processes interfere later when we try to remove =
+the
+>>>> non-root user, tester, that runs the tests.=A0 I can work around t=
+he
+>>>> problem by disabling test_mkfds, but thought you would like to kno=
+w.
+>>>
+>>> Thank you for reporting.
+>>> Reproduced on my PC. I found two processes were not killed properly=
+.=
 
-With mount patched with the above patch, and "user" option in the fstab
+>>>
+>>> Could you try the following change?
+>>>
+>>> diff --git a/tests/ts/lsfd/option-inet b/tests/ts/lsfd/option-inet
+>>> index 21e66f700..70cc3798d 100755
+>>> --- a/tests/ts/lsfd/option-inet
+>>> +++ b/tests/ts/lsfd/option-inet
+>>> @@ -84,14 +84,10 @@ ts_cd "$TS_OUTDIR"
+>>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 -o ASSOC,=
+TYPE,NAME \
+>>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 -Q "(PID =
+=3D=3D $PID0) or (PID =3D=3D $PID1) or (PID =3D=3D
+>>> $PID2) or (PID =3D=3D $PID3) or (PID =3D=3D $PID4)"
+>>> -=A0=A0=A0 kill -CONT "${PID0}"
+>>> -=A0=A0=A0 wait "${PID0}"
+>>> -
+>>> -=A0=A0=A0 kill -CONT "${PID1}"
+>>> -=A0=A0=A0 wait "${PID1}"
+>>> -
+>>> -=A0=A0=A0 kill -CONT "${PID2}"
+>>> -=A0=A0=A0 wait "${PID2}"
+>>> +=A0=A0=A0 for pid in "${PID0}" "${PID1}" "${PID2}" "${PID3}" "${PI=
+D4}"; do
+>>> +=A0=A0=A0=A0=A0=A0 kill -CONT "${pid}"
+>>> +=A0=A0=A0=A0=A0=A0 wait "${pid}"
+>>> +=A0=A0=A0 done
+>>> =A0 } > "$TS_OUTPUT" 2>&1
+>>> =A0 ts_finalize
+>> I will do that, but will not be able to get to it until late tomorro=
+w,
+>> but will report back asap.
+> =
 
-$ mount /mnt/ssh/path
-fusermount3: unknown option 'user=quinq
+> I used the above patch and it fixed the problem.  Thank you.
+> =
 
-But maybe that should be a different thread, what do you think?
+>   -- Bruce
+> =
+
+> =
+
+
+Thank you for testing.
+I made a pull request based on this change:
+
+  https://github.com/util-linux/util-linux/pull/2246
+
+Masatake YAMATO
+
