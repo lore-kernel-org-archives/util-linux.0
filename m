@@ -2,159 +2,110 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1275EC77B7C
-	for <util-linux@archiver.kernel.org>; Sun, 21 May 2023 21:49:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DAA3C77B7C
+	for <util-linux@archiver.kernel.org>; Sun, 21 May 2023 22:13:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230338AbjEUVto (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sun, 21 May 2023 17:49:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35072 "EHLO
+        id S229933AbjEUWNW (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 21 May 2023 18:13:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230271AbjEUVtn (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 21 May 2023 17:49:43 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD81CE0
-        for <util-linux@vger.kernel.org>; Sun, 21 May 2023 14:48:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1684705734;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=V3PglHXX3G09T9urKQFQE+zJxCvdy2Nz0+nq/8wJZII=;
-        b=ftbO6RzTfCzZZK2RdT75+Zl0pTwaGeISnqjK6UIUNtHP2TDpeA9Y7GPxFSCA1cDVF5VwQJ
-        vY0UzqTONnZkgUP6fX5ZLkJdc6Eh9gKKj+widGz8D48wUiJOBjsFbCyoPhKFv5yc/9Rf/m
-        OTiPYMuYyoLm8CBYkTpiNtka+SaVE90=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-398-GtqmvSm9Ma22gVXfgHSKUQ-1; Sun, 21 May 2023 17:48:50 -0400
-X-MC-Unique: GtqmvSm9Ma22gVXfgHSKUQ-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        with ESMTP id S229528AbjEUWNV (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 21 May 2023 18:13:21 -0400
+X-Greylist: delayed 163126 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 21 May 2023 15:13:20 PDT
+Received: from yamato.tf-network.de (yamato.tf-network.de [93.186.202.221])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 401D7DD
+        for <util-linux@vger.kernel.org>; Sun, 21 May 2023 15:13:20 -0700 (PDT)
+Received: from amavis3.tf-network.de ([IPv6:2001:4ba0:ffa0:1b::d1:221])
+        by yamato.tf-network.de (Postfix) with ESMTP id 4QPZbK6s8jz3xVc
+        for <util-linux@vger.kernel.org>; Mon, 22 May 2023 00:13:17 +0200 (CEST)
+X-Virus-Scanned: amavis at amavis3.tf-network.de
+Received: from smtp.tf-network.de ([93.186.202.221])
+ by amavis3.tf-network.de ([IPv6:2001:4ba0:ffa0:1b::d1:221]) (amavis, port 10024)
+ with LMTP id NoKgb36vjCUw for <util-linux@vger.kernel.org>;
+ Mon, 22 May 2023 00:13:16 +0200 (CEST)
+Received: from [IPV6:2a0a:a546:931a:0:b58f:23e3:2f77:f6a9] (2a0a-a546-931a-0-b58f-23e3-2f77-f6a9.ipv6dyn.netcologne.de [IPv6:2a0a:a546:931a:0:b58f:23e3:2f77:f6a9])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 85EAD8007D9;
-        Sun, 21 May 2023 21:48:49 +0000 (UTC)
-Received: from localhost (unknown [10.67.24.76])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 15759C57961;
-        Sun, 21 May 2023 21:48:46 +0000 (UTC)
-Date:   Mon, 22 May 2023 06:48:45 +0900 (JST)
-Message-Id: <20230522.064845.1518051418018369671.yamato@redhat.com>
-To:     bruce.dubbs@gmail.com
-Cc:     kzak@redhat.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org,
-        renodr2002@gmail.com
-Subject: Re: [ANNOUNCE] util-linux v2.39
-From:   Masatake YAMATO <yamato@redhat.com>
-In-Reply-To: <ced4d4e1-8358-d718-58ee-9effe39cff6e@gmail.com>
-References: <20230520.074311.642413213582621319.yamato@redhat.com>
-        <2fc8421e-634a-aa7d-b023-c8d5e5fa1741@gmail.com>
-        <ced4d4e1-8358-d718-58ee-9effe39cff6e@gmail.com>
-Organization: Red Hat Japan, K.K.
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
+        by securesmtp.tf-network.de (Postfix) with ESMTPSA id 4QPZbJ68K4z3wZ9
+        for <util-linux@vger.kernel.org>; Mon, 22 May 2023 00:13:16 +0200 (CEST)
+Message-ID: <089b028f-7ccb-5389-4ba0-06830f27e738@whissi.de>
+Date:   Mon, 22 May 2023 00:13:14 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+Subject: Re: util-linux 2.39 doesn't work with <linux-5.12: mount(2) system
+ call failed: Function not implemented
+To:     util-linux@vger.kernel.org
+References: <af9fcbe9-15fc-0ce2-1fa6-2239f740a1c9@whissi.de>
+ <09636701-1136-4174-a453-5076ef0328f6@t-8ch.de>
+ <03db6ada-02ee-48a1-a2dd-47335e70a681@whissi.de>
+ <e2c624df-575b-4c66-a8b8-a5fc80a44b08@t-8ch.de>
+Content-Language: en-US
+From:   Thomas Deutschmann <whissi@whissi.de>
+In-Reply-To: <e2c624df-575b-4c66-a8b8-a5fc80a44b08@t-8ch.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-From: Bruce Dubbs <bruce.dubbs@gmail.com>
-Subject: Re: [ANNOUNCE] util-linux v2.39
-Date: Sat, 20 May 2023 18:16:07 -0500
+Hi
 
-> On 5/19/23 17:56, Bruce Dubbs wrote:
->> On 5/19/23 17:43, Masatake YAMATO wrote:
->>> Bruce,
->>>
->>>> On 5/17/23 06:22, Karel Zak wrote:
->>>>> The util-linux release v2.39 is available at
->>>>>                                        http://www.kernel.org/pub/=
-linux/utils/util-linux/v2.39
->>>>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Feedback and bug reports, as
->>>>> always, are welcomed.
->>>>
->>>> Karel, I have installed util-linux v2.39 in LFS and have run into =
-a
->>>> problem with one test, test_mkfds.=A0 Actually the test passes, bu=
-t does
->>>> not clean up after itself. What is left over is:
->>>>
->>>> tester 32245 1 0 15:43 ?=A0 00:00:00 /sources/util-linux-2.39/test=
-_mkfds
->>>> -q udp 3 4 server-port=3D34567 client-port=3D23456 server-do-bind=3D=
-1
->>>> client-do-bind=3D1 client-do-connect=3D1
->>>> tester 32247 1 0 15:43 ?=A0 00:00:00 /sources/util-linux-2.39/test=
-_mkfds
->>>> -q udp6 3 4 lite=3D1 server-port=3D34567 client-port=3D23456
->>>> server-do-bind=3D1 client-do-bind=3D1 client-do-connect=3D1
->>>>
->>>> It's possible it may be due to something we are doing inside our
->>>> chroot environment, but we've not had this type of problem with
->>>> earlier versions of util-linux.
->>>>
->>>> In all I do have:
->>>>
->>>> =A0=A0 All 261 tests PASSED
->>>>
->>>> but the left over processes interfere later when we try to remove =
-the
->>>> non-root user, tester, that runs the tests.=A0 I can work around t=
-he
->>>> problem by disabling test_mkfds, but thought you would like to kno=
-w.
->>>
->>> Thank you for reporting.
->>> Reproduced on my PC. I found two processes were not killed properly=
-.=
+On 2023-05-21 01:39, Thomas Weißschuh wrote:
+> I am having trouble reproducing the issue.
+> 
+> Could you
+> * provide more details about the used kernel?
+> * provide reproduction steps that are simple to reproduce, for example
+>    using tmpfs mounts.
 
->>>
->>> Could you try the following change?
->>>
->>> diff --git a/tests/ts/lsfd/option-inet b/tests/ts/lsfd/option-inet
->>> index 21e66f700..70cc3798d 100755
->>> --- a/tests/ts/lsfd/option-inet
->>> +++ b/tests/ts/lsfd/option-inet
->>> @@ -84,14 +84,10 @@ ts_cd "$TS_OUTDIR"
->>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 -o ASSOC,=
-TYPE,NAME \
->>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 -Q "(PID =
-=3D=3D $PID0) or (PID =3D=3D $PID1) or (PID =3D=3D
->>> $PID2) or (PID =3D=3D $PID3) or (PID =3D=3D $PID4)"
->>> -=A0=A0=A0 kill -CONT "${PID0}"
->>> -=A0=A0=A0 wait "${PID0}"
->>> -
->>> -=A0=A0=A0 kill -CONT "${PID1}"
->>> -=A0=A0=A0 wait "${PID1}"
->>> -
->>> -=A0=A0=A0 kill -CONT "${PID2}"
->>> -=A0=A0=A0 wait "${PID2}"
->>> +=A0=A0=A0 for pid in "${PID0}" "${PID1}" "${PID2}" "${PID3}" "${PI=
-D4}"; do
->>> +=A0=A0=A0=A0=A0=A0 kill -CONT "${pid}"
->>> +=A0=A0=A0=A0=A0=A0 wait "${pid}"
->>> +=A0=A0=A0 done
->>> =A0 } > "$TS_OUTPUT" 2>&1
->>> =A0 ts_finalize
->> I will do that, but will not be able to get to it until late tomorro=
-w,
->> but will report back asap.
-> =
+Used kernel.config: https://0x0.st/HqKc.txt
 
-> I used the above patch and it fixed the problem.  Thank you.
-> =
+I cannot reproduce using tmpfs, i.e.
 
->   -- Bruce
-> =
+   # mkdir /mnt/test
+   # mount -t tmpfs none /mnt/test
+   # mount -l | grep test
+   none on /mnt/test type tmpfs (rw,relatime)
+   # touch /mnt/test/foo.txt
+   # mount -o remount,ro /mnt/test
+   # date >> /mnt/test/foo.txt
+   -bash: /mnt/test/foo.txt: Read-only file system
+   # mount -o remount,rw /mnt/test
+   # date >> /mnt/test/foo.txt
+   # cat /mnt/test/foo.txt
+   Sun May 21 11:04:42 PM CEST 2023
 
-> =
+works.
+
+But on boot, when the init system remounts root filesystem (using 
+command "mount -n -o remount,rw /"), the command seems to be successful 
+(mount command exits with zero exit code) but the root filesystem is 
+still read-only and all following services expecting writable rootfs 
+will fail.
+
+I have
+
+   UUID=e290359f-8335-4fba-9fae-077b3505e0b2 / ext4 defaults 0 1
+
+in /etc/fstab. I saw https://github.com/util-linux/util-linux/pull/2250 
+but this doesn't help (and changing "defaults" to "relatime" didn't help 
+either).
+
+I added strace to the init script trying to remount root read/write:
+
+Booting linux-5.10.180 using util-linux-2.39 with PR 2248 and PR 2250 
+applied: https://0x0.st/HqKL.180.png
+
+=> mount isn't doing anything; root will stay read-only.
+
+When I use same util-linux but boot linux-5.15.112 instead: 
+https://0x0.st/HqK9.112.png
+
+=> mount is doing something; root will become read/write.
 
 
-Thank you for testing.
-I made a pull request based on this change:
-
-  https://github.com/util-linux/util-linux/pull/2246
-
-Masatake YAMATO
-
+-- 
+Regards,
+Thomas
