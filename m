@@ -2,56 +2,94 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77218C77B7C
-	for <util-linux@archiver.kernel.org>; Wed, 31 May 2023 08:01:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78255C7EE29
+	for <util-linux@archiver.kernel.org>; Fri,  9 Jun 2023 01:37:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235059AbjEaIBf (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 31 May 2023 04:01:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34910 "EHLO
+        id S237865AbjFIBhd (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 8 Jun 2023 21:37:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235062AbjEaIBV (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 31 May 2023 04:01:21 -0400
-Received: from mail.craftsplex.pl (mail.craftsplex.pl [162.19.155.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBAC518D
-        for <util-linux@vger.kernel.org>; Wed, 31 May 2023 01:01:18 -0700 (PDT)
-Received: by mail.craftsplex.pl (Postfix, from userid 1002)
-        id DB94923C20; Wed, 31 May 2023 08:00:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=craftsplex.pl;
-        s=mail; t=1685520076;
-        bh=PcMncQpBfIZCnTOfZJY5G1G+gaLn4c9QPfFvoXrE4rA=;
-        h=Date:From:To:Subject:From;
-        b=Os9GlHMLRrf0JXpeeKntVsKpCRzcvUbTpYUddbQBnAHlqNRbAWJ6gItvPEtKl+gSo
-         kGi4xuStGwtTc6lNrCMj5G4ThAezgmcp/cqG89jmRulRkYrV3pXX4WZWD67a0inO4h
-         3V4lHCJcGlHfzjLHhZ2fqgdqmnC8NRZjhhIpSrTsg8SiXox9oaW4cchv6w9u2/ksdR
-         hJfoRqHoNQWoB9PGkZY7r+V5fkKvjLXGTKCAe8VRByCEPejxVt+lEILa0dfdHlIlQy
-         samDkTdzTYeL/3L5UYWdeCrcZiwvlq0z6v7ZC8jMiso8/g+EEbTsDmwDsjqRcltAom
-         BCrrbB1w+MyKQ==
-Received: by mail.craftsplex.pl for <util-linux@vger.kernel.org>; Wed, 31 May 2023 08:00:03 GMT
-Message-ID: <20230531064500-0.1.6g.ys9g.0.r4paf7bvik@craftsplex.pl>
-Date:   Wed, 31 May 2023 08:00:03 GMT
-From:   "Kamil Tralewski" <kamil.tralewski@craftsplex.pl>
-To:     <util-linux@vger.kernel.org>
-Subject: =?UTF-8?Q?S=C5=82owa_kluczowe_do_wypozycjonowania?=
-X-Mailer: mail.craftsplex.pl
+        with ESMTP id S237851AbjFIBhb (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 8 Jun 2023 21:37:31 -0400
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B53D2D63
+        for <util-linux@vger.kernel.org>; Thu,  8 Jun 2023 18:37:25 -0700 (PDT)
+X-UUID: ab1f6cdccaff4d6cba9cd8cc53101b55-20230609
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.22,REQID:55783be4-f58c-4ad7-a866-80ae6ac4df59,IP:15,
+        URL:0,TC:0,Content:0,EDM:0,RT:0,SF:-15,FILE:0,BULK:0,RULE:Release_Ham,ACTI
+        ON:release,TS:0
+X-CID-INFO: VERSION:1.1.22,REQID:55783be4-f58c-4ad7-a866-80ae6ac4df59,IP:15,UR
+        L:0,TC:0,Content:0,EDM:0,RT:0,SF:-15,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+        :release,TS:0
+X-CID-META: VersionHash:120426c,CLOUDID:3e060d3e-7aa7-41f3-a6bd-0433bee822f3,B
+        ulkID:230609093411IEK3NQHX,BulkQuantity:1,Recheck:0,SF:24|17|19|44|102,TC:
+        nil,Content:0,EDM:-3,IP:-2,URL:0,File:nil,Bulk:40,QS:nil,BEC:nil,COL:0,OSI
+        :0,OSA:0,AV:0
+X-CID-BVR: 0,NGT
+X-CID-BAS: 0,NGT,0,_
+X-UUID: ab1f6cdccaff4d6cba9cd8cc53101b55-20230609
+X-User: lienze@kylinos.cn
+Received: from ubuntu.. [(39.156.73.12)] by mailgw
+        (envelope-from <lienze@kylinos.cn>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 98976920; Fri, 09 Jun 2023 09:37:16 +0800
+From:   Enze Li <lienze@kylinos.cn>
+To:     util-linux@vger.kernel.org
+Cc:     Enze Li <lienze@kylinos.cn>
+Subject: [PATCH 1/2] build-sys: rearrange gitignore in alphabetical order
+Date:   Fri,  9 Jun 2023 09:37:03 +0800
+Message-Id: <20230609013704.2926603-1-lienze@kylinos.cn>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Dzie=C5=84 dobry,
+Signed-off-by: Enze Li <lienze@kylinos.cn>
+---
+ .gitignore | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-zapozna=C5=82em si=C4=99 z Pa=C5=84stwa ofert=C4=85 i z przyjemno=C5=9Bci=
-=C4=85 przyznaj=C4=99, =C5=BCe przyci=C4=85ga uwag=C4=99 i zach=C4=99ca d=
-o dalszych rozm=C3=B3w.=20
+diff --git a/.gitignore b/.gitignore
+index 3e2164420..456811ac6 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -46,6 +46,10 @@ config/test-driver
+ configure
+ cscope.out
+ depcomp
++GPATH
++GRTAGS
++GTAGS
++GSYMS
+ INSTALL
+ install-sh
+ libtool
+@@ -64,16 +68,13 @@ tests/run.sh.log
+ tests/run.sh.trs
+ update.log
+ ylwrap
+-GPATH
+-GRTAGS
+-GTAGS
+-GSYMS
+ 
+ #
+ # binaries
+ #
+ /addpart
+ /agetty
++/build*/
+ /blkdiscard
+ /blkid
+ /blkpr
+@@ -197,4 +198,3 @@ GSYMS
+ /wipefs
+ /write
+ /zramctl
+-/build*/
+-- 
+2.34.1
 
-Pomy=C5=9Bla=C5=82em, =C5=BCe mo=C5=BCe m=C3=B3g=C5=82bym mie=C4=87 sw=C3=
-=B3j wk=C5=82ad w Pa=C5=84stwa rozw=C3=B3j i pom=C3=B3c dotrze=C4=87 z t=C4=
-=85 ofert=C4=85 do wi=C4=99kszego grona odbiorc=C3=B3w. Pozycjonuj=C4=99 =
-strony www, dzi=C4=99ki czemu generuj=C4=85 =C5=9Bwietny ruch w sieci.
-
-Mo=C5=BCemy porozmawia=C4=87 w najbli=C5=BCszym czasie?
-
-Pozdrawiam
-Kamil Tralewski
