@@ -2,81 +2,63 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B67FC7EE25
-	for <util-linux@archiver.kernel.org>; Fri,  9 Jun 2023 01:37:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27234C7EE25
+	for <util-linux@archiver.kernel.org>; Mon, 12 Jun 2023 11:06:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237851AbjFIBhe (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 8 Jun 2023 21:37:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46472 "EHLO
+        id S237483AbjFLLGZ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 12 Jun 2023 07:06:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237871AbjFIBhb (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 8 Jun 2023 21:37:31 -0400
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AAC230ED
-        for <util-linux@vger.kernel.org>; Thu,  8 Jun 2023 18:37:26 -0700 (PDT)
-X-UUID: 6b6d6c32400a4dc5a2c2ec8b16259b6e-20230609
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.22,REQID:572910a0-7f0c-4e38-b0e1-9af79caa9365,IP:15,
-        URL:0,TC:0,Content:0,EDM:0,RT:0,SF:-15,FILE:0,BULK:0,RULE:Release_Ham,ACTI
-        ON:release,TS:0
-X-CID-INFO: VERSION:1.1.22,REQID:572910a0-7f0c-4e38-b0e1-9af79caa9365,IP:15,UR
-        L:0,TC:0,Content:0,EDM:0,RT:0,SF:-15,FILE:0,BULK:0,RULE:Release_Ham,ACTION
-        :release,TS:0
-X-CID-META: VersionHash:120426c,CLOUDID:b631dc3d-de1e-4348-bc35-c96f92f1dcbb,B
-        ulkID:230609093414VJACSBO5,BulkQuantity:1,Recheck:0,SF:24|17|19|44|102,TC:
-        nil,Content:0,EDM:-3,IP:-2,URL:11|1,File:nil,Bulk:40,QS:nil,BEC:nil,COL:0,
-        OSI:0,OSA:0,AV:0
-X-CID-BVR: 0,NGT
-X-CID-BAS: 0,NGT,0,_
-X-UUID: 6b6d6c32400a4dc5a2c2ec8b16259b6e-20230609
-X-User: lienze@kylinos.cn
-Received: from ubuntu.. [(39.156.73.12)] by mailgw
-        (envelope-from <lienze@kylinos.cn>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 2077850085; Fri, 09 Jun 2023 09:37:17 +0800
-From:   Enze Li <lienze@kylinos.cn>
-To:     util-linux@vger.kernel.org
-Cc:     Enze Li <lienze@kylinos.cn>
-Subject: [PATCH 2/2] build-sys: add enosys and syscalls.h to gitignore
-Date:   Fri,  9 Jun 2023 09:37:04 +0800
-Message-Id: <20230609013704.2926603-2-lienze@kylinos.cn>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230609013704.2926603-1-lienze@kylinos.cn>
+        with ESMTP id S237613AbjFLLFk (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 12 Jun 2023 07:05:40 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6FEA9EC6
+        for <util-linux@vger.kernel.org>; Mon, 12 Jun 2023 03:53:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1686567194;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=8ZQLiSJrFy3j1EjOcyaeO7sHOQhPx1l065XEoJayoQE=;
+        b=bxw+Eet2Z0oQEwP27ALe7klHkS60KMGifSfYOiJh9hK/YyOdl/gSv/RmbZUnls5ddkt7zV
+        h8zvqcJnNTerfWyPLQVJZM4LeZ+jGQMqWGNwhaNFbB2i8TQ7SYaaII+dPaL5A5I4xsBc9y
+        8efsss0g0DbCmMauTzNS/T6wgyznSEo=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-491-Lqyx86liNjGjipmBVG2hjQ-1; Mon, 12 Jun 2023 06:53:13 -0400
+X-MC-Unique: Lqyx86liNjGjipmBVG2hjQ-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 579A73801FFE;
+        Mon, 12 Jun 2023 10:53:13 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.224.201])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id D5F98492CAC;
+        Mon, 12 Jun 2023 10:53:12 +0000 (UTC)
+Date:   Mon, 12 Jun 2023 12:53:10 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Enze Li <lienze@kylinos.cn>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/2] build-sys: rearrange gitignore in alphabetical order
+Message-ID: <20230612105151.5zf7zomjgioey4pa@ws.net.home>
 References: <20230609013704.2926603-1-lienze@kylinos.cn>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230609013704.2926603-1-lienze@kylinos.cn>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-After compiling enosys, the syscalls.h file and the executable enosys are
-generated, let's add these two files to the .gitignore file.
+On Fri, Jun 09, 2023 at 09:37:03AM +0800, Enze Li wrote:
+>  .gitignore | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 
-Signed-off-by: Enze Li <lienze@kylinos.cn>
----
- .gitignore | 2 ++
- 1 file changed, 2 insertions(+)
+Applied both patches, thanks.
 
-diff --git a/.gitignore b/.gitignore
-index 456811ac6..f727ec16a 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -62,6 +62,7 @@ mkinstalldirs
- stamp-h
- stamp-h.in
- stamp-h1
-+syscalls.h
- tags
- test-suite.log
- tests/run.sh.log
-@@ -96,6 +97,7 @@ ylwrap
- /delpart
- /dmesg
- /eject
-+/enosys
- /fadvise
- /fallocate
- /fdformat
 -- 
-2.34.1
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
