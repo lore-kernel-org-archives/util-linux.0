@@ -2,92 +2,79 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C0A4EB64D7
-	for <util-linux@archiver.kernel.org>; Sun, 18 Jun 2023 21:30:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 354CAEB64D7
+	for <util-linux@archiver.kernel.org>; Mon, 19 Jun 2023 02:38:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229461AbjFRVa2 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sun, 18 Jun 2023 17:30:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35516 "EHLO
+        id S229529AbjFSCi4 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 18 Jun 2023 22:38:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbjFRVa2 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 18 Jun 2023 17:30:28 -0400
-X-Greylist: delayed 61 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 18 Jun 2023 14:30:26 PDT
-Received: from pb-smtp21.pobox.com (pb-smtp21.pobox.com [173.228.157.53])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBE1DAF
-        for <util-linux@vger.kernel.org>; Sun, 18 Jun 2023 14:30:26 -0700 (PDT)
-Received: from pb-smtp21.pobox.com (unknown [127.0.0.1])
-        by pb-smtp21.pobox.com (Postfix) with ESMTP id 497251CDEE
-        for <util-linux@vger.kernel.org>; Sun, 18 Jun 2023 17:29:23 -0400 (EDT)
-        (envelope-from tmz@pobox.com)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed; d=pobox.com; h=from:to
-        :subject:date:message-id:mime-version:content-transfer-encoding;
-         s=sasl; bh=oSBy4e+D7eDwg9zRbJIfTXnUrgCZC2rPxRfCYgy1WIo=; b=w6O1
-        ySdB5NJWo5hFNq2IxIzEyps4ZhJrS8/hTf1dTcue3QW+d75pUEfuIVvBI+xeVn+L
-        iGvWhA/fp73ni+mYgEYDaDouiTfCFIFYfktYLW/6n+Do5jubhy0WSbIadJFWxnst
-        8XPO+xrGHMsP7oczvEnOnQhJ+3x6EZoi98hDN1I=
-Received: from pb-smtp21.sea.icgroup.com (unknown [127.0.0.1])
-        by pb-smtp21.pobox.com (Postfix) with ESMTP id 43C361CDED
-        for <util-linux@vger.kernel.org>; Sun, 18 Jun 2023 17:29:23 -0400 (EDT)
-        (envelope-from tmz@pobox.com)
-Received: from morphine.paradise.teonanacatl.net (unknown [47.204.171.166])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by pb-smtp21.pobox.com (Postfix) with ESMTPSA id 6131D1CDEC
-        for <util-linux@vger.kernel.org>; Sun, 18 Jun 2023 17:29:19 -0400 (EDT)
-        (envelope-from tmz@pobox.com)
-From:   Todd Zullinger <tmz@pobox.com>
+        with ESMTP id S229507AbjFSCiz (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 18 Jun 2023 22:38:55 -0400
+X-Greylist: delayed 183 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 18 Jun 2023 19:38:48 PDT
+Received: from cmccmta2.chinamobile.com (cmccmta2.chinamobile.com [111.22.67.135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 45AA81B4
+        for <util-linux@vger.kernel.org>; Sun, 18 Jun 2023 19:38:46 -0700 (PDT)
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG: 00000000
+Received: from spf.mail.chinamobile.com (unknown[10.188.0.87])
+        by rmmx-syy-dmz-app07-12007 (RichMail) with SMTP id 2ee7648fbef9066-65cba;
+        Mon, 19 Jun 2023 10:35:37 +0800 (CST)
+X-RM-TRANSID: 2ee7648fbef9066-65cba
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG: 00000000
+Received: from localhost.localdomain (unknown[223.108.79.98])
+        by rmsmtp-syy-appsvr08-12008 (RichMail) with SMTP id 2ee8648fbef8bf9-26c0f;
+        Mon, 19 Jun 2023 10:35:37 +0800 (CST)
+X-RM-TRANSID: 2ee8648fbef8bf9-26c0f
+From:   zhujun2 <zhujun2@cmss.chinamobile.com>
 To:     util-linux@vger.kernel.org
-Subject: [PATCH] sys-utils: fix SELinux context example in mount.8
-Date:   Sun, 18 Jun 2023 17:29:11 -0400
-Message-ID: <20230618212911.549645-1-tmz@pobox.com>
-X-Mailer: git-send-email 2.41.0
+Cc:     zhujun2 <zhujun2@cmss.chinamobile.com>
+Subject: [PATCH] blkid: solve a bug that the disk device of the ceph_bluestore
+Date:   Mon, 19 Jun 2023 10:35:32 +0800
+Message-Id: <20230619023532.16534-1-zhujun2@cmss.chinamobile.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-X-Pobox-Relay-ID: 2F48EA80-0E1F-11EE-9D83-B31D44D1D7AA-09356542!pb-smtp21.pobox.com
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-In the description of the context option, the example which shows how to
-properly quote is displayed incorrectly on terminals > 80 columns.  This
-leaves a seemingly needless '\' in the command, e.g.:
+file system, the disk by-partlabel probability loss problem
 
-    mount -t tmpfs none /mnt -o \ 'context=3D"system_u:...'
+The superblock of ceph_bluestore exists in the first 1024 bytes, and the
+real data is stored after 8K (that is, 16 sectors). By checking the source
+code of blkid, it is found to check whether it is the xfs_external_log file
+system, which is to cycle through the first 256k data range (the first
+512 sectors ). That is to say, when blkid judges whether the partition is
+an xfs_external_log file system, it will mistakenly judge the real data of
+ceph_bluestore. This means that if the user's data itself conforms to
+the xfs_external_log format and is stored in sectors 17~512, it will be mistakenly
+considered as the xfs_external_log file system.
 
-The intent is to display the command properly on terminals <=3D 80
-columns.  Use a literal block to ensure the code is displayed
-consistently, regardless of the terminal width.
-
-Connect the blockquote to the previous indented items in the context
-option description to ensure it is properly indented.
-
-Signed-off-by: Todd Zullinger <tmz@pobox.com>
+Signed-off-by: zhujun2 <zhujun2@cmss.chinamobile.com>
 ---
- sys-utils/mount.8.adoc | 3 +++
- 1 file changed, 3 insertions(+)
+ libblkid/src/superblocks/xfs.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sys-utils/mount.8.adoc b/sys-utils/mount.8.adoc
-index bb2e4c911..efff26cfd 100644
---- a/sys-utils/mount.8.adoc
-+++ b/sys-utils/mount.8.adoc
-@@ -521,9 +521,12 @@ The *rootcontext=3D* option allows you to explicitly=
- label the root inode of a FS
- Note that the kernel rejects any remount request that includes the conte=
-xt option, *even* when unchanged from the current context.
- +
- *Warning: the* _context_ *value might contain commas*, in which case the=
- value has to be properly quoted, otherwise *mount* will interpret the co=
-mma as a separator between mount options. Don't forget that the shell str=
-ips off quotes and thus *double quoting is required*. For example:
-++
- ____
-+....
- mount -t tmpfs none /mnt -o \
- 'context=3D"system_u:object_r:tmp_t:s0:c127,c456",noexec'
-+....
- ____
-=20
- For more details, see *selinux*(8).
---=20
-2.41.0
+diff --git a/libblkid/src/superblocks/xfs.c b/libblkid/src/superblocks/xfs.c
+index d8c6fb6d4..3686bd52b 100644
+--- a/libblkid/src/superblocks/xfs.c
++++ b/libblkid/src/superblocks/xfs.c
+@@ -259,6 +259,11 @@ static int probe_xfs_log(blkid_probe pr,
+ 		if (memcmp(&buf[i*512], "XFSB", 4) == 0)
+ 			return 1;
+ 
++		if (memcmp(&buf[i*512], "bluestore block device", 22) == 0) {
++			DBG(LOWPROBE, ul_debug("\t device has ceph_bluestore ambivalent"));
++			return 1;
++		}
++
+ 		rhead = (struct xlog_rec_header *)&buf[i*512];
+ 
+ 		if (xlog_valid_rec_header(rhead)) {
+-- 
+2.20.1
+
+
 
