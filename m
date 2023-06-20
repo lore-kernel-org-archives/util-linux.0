@@ -2,67 +2,69 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC107EB64D8
-	for <util-linux@archiver.kernel.org>; Tue, 20 Jun 2023 07:41:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A761EB64D8
+	for <util-linux@archiver.kernel.org>; Tue, 20 Jun 2023 09:28:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231469AbjFTHlU (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 20 Jun 2023 03:41:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41634 "EHLO
+        id S232374AbjFTJ2P (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 20 Jun 2023 05:28:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230143AbjFTHlE (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 20 Jun 2023 03:41:04 -0400
-X-Greylist: delayed 554 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 20 Jun 2023 00:39:46 PDT
-Received: from mail.neston24.com (mail.neston24.com [37.187.225.180])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3643A1735
-        for <util-linux@vger.kernel.org>; Tue, 20 Jun 2023 00:39:46 -0700 (PDT)
-Received: by mail.neston24.com (Postfix, from userid 1002)
-        id B262821EF8; Tue, 20 Jun 2023 07:30:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=neston24.com; s=mail;
-        t=1687246228; bh=hdel7QBVRA0kYPP/uknv/3hiB02RzBombMMtoy8RiQE=;
-        h=Date:From:To:Subject:From;
-        b=BD78FNQU8cNlH/RU32bdMO64z1yHkeOI/TmgpK7sjETo7imhmKbYSNqy4xW4EqcM4
-         jeOaxljQjcT56ReILRbdhaX1N39pFSU9tqmiXOifKalwaUzj7fASPgCBWU3TCMpFUp
-         CEwSCHr7TppLW7IwBQ5xnneRl+lmbtnT2pdvJhNPQ4DoLK/dHhnsT437XzBc6yfnja
-         SRzgZNXnP5tO68AxjxWrWR5RDdhOAjnsF8t3JU5pFlJ+CjR+HE1i7i5ij21b8EwHlX
-         c1XdAuuayNohK1mLDRwIRLAKW9LKtdFLLg2oE9WPsFdaTEi+m/FxWgBYIp3MGwRB/L
-         9nvUfpBy3iVvA==
-Received: by mail.neston24.com for <util-linux@vger.kernel.org>; Tue, 20 Jun 2023 07:30:25 GMT
-Message-ID: <20230620064500-0.1.7k.hwa2.0.2ja96op4av@neston24.com>
-Date:   Tue, 20 Jun 2023 07:30:25 GMT
-From:   "Bartosz Pietrusza" <bartosz.pietrusza@neston24.com>
-To:     <util-linux@vger.kernel.org>
-Subject: =?UTF-8?Q?Podnoszenie_umiej=C4=99tno=C5=9Bci_przyw=C3=B3dczych_-_nasz_projekt_szkoleniowy?=
-X-Mailer: mail.neston24.com
+        with ESMTP id S232353AbjFTJ1c (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 20 Jun 2023 05:27:32 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C93919A2
+        for <util-linux@vger.kernel.org>; Tue, 20 Jun 2023 02:26:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1687253193;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=sKxS2+r318ZFVma6aUZjPV9r//TOW9WumMJVNSB9xeM=;
+        b=IJzwdxXEXwucqtP0PfRdlezgaME1kvl+GVZaXKbcgv3SKccYOsehTBXPw/L7AQtqm5+QOG
+        661xerKN2C/u0HnsCDx3nCcOWleH+jn3eTSI6n6/5ZRLEba6pYDBeLe/3hKQdXyVcoCYMe
+        Zq06h1qd3np1Ckv0gjp4Jfi3dRTobz0=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-192-TSSZbOVeNdyIEJqbErs0WQ-1; Tue, 20 Jun 2023 05:26:32 -0400
+X-MC-Unique: TSSZbOVeNdyIEJqbErs0WQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BE2D42A59550;
+        Tue, 20 Jun 2023 09:26:31 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.225.186])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 46AEB422B0;
+        Tue, 20 Jun 2023 09:26:31 +0000 (UTC)
+Date:   Tue, 20 Jun 2023 11:26:28 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: [PATCH] hwclock: add support for RTC_VL_READ/RTC_VL_CLR ioctls
+Message-ID: <20230620092628.klpqbr5qw2rdysqh@ws.net.home>
+References: <20230613101428.294827-1-rasmus.villemoes@prevas.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230613101428.294827-1-rasmus.villemoes@prevas.dk>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Dzie=C5=84 dobry,
+On Tue, Jun 13, 2023 at 12:14:28PM +0200, Rasmus Villemoes wrote:
+>  sys-utils/hwclock-rtc.c | 86 +++++++++++++++++++++++++++++++++++++++++
+>  sys-utils/hwclock.c     | 35 +++++++++++++++++
+>  sys-utils/hwclock.h     |  5 +++
+>  3 files changed, 126 insertions(+)
 
-Jako ekspert w dziedzinie program=C3=B3w rozwojowych dla kadry zarz=C4=85=
-dzaj=C4=85cej, doskonale wiem, przed jakimi wyzwaniami stoj=C4=85 liderzy=
-, szczeg=C3=B3lnie w organizacji takiej skali.
+The patch looks good. Can we also get something for sys-utils/hwclock.8.adoc
+(man page) and bash-completion/hwclock? ;-)
 
-Konieczno=C5=9B=C4=87 efektywnego zarz=C4=85dzania, motywowania zespo=C5=82=
-=C3=B3w i podejmowania strategicznych decyzji wymagaj=C4=85 stworzenia sp=
-ersonalizowanych rozwi=C4=85za=C5=84, kt=C3=B3re skupiaj=C4=85 si=C4=99 n=
-a konkretnych potrzebach i zagadnieniach w danej firmie.
+Thanks!
+   Karel
 
-Wprowadzamy na rynek projekt szkoleniowy, kt=C3=B3ry daje pe=C5=82en wach=
-larz narz=C4=99dzi do zdobycia przewagi konkurencyjnej w dzisiejszym =C5=9B=
-rodowisku biznesowym.
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
-Skupiamy si=C4=99 na potrzebach i umiej=C4=99tno=C5=9Bciach, kt=C3=B3re m=
-aj=C4=85 najwi=C4=99kszy wp=C5=82yw na efektywno=C5=9B=C4=87 zarz=C4=85dz=
-ania, co przek=C5=82ada si=C4=99 na skuteczne osi=C4=85gni=C4=99cie cel=C3=
-=B3w biznesowych.
-
-Czy mo=C5=BCemy porozmawia=C4=87 o zorganizowaniu szkolenia dla Pa=C5=84s=
-twa firmy?
-
-
-Pozdrawiam
-Bartosz Pietrusza
