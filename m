@@ -2,71 +2,84 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 074DCEB64D8
-	for <util-linux@archiver.kernel.org>; Thu, 22 Jun 2023 19:22:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D881EB64DA
+	for <util-linux@archiver.kernel.org>; Fri, 23 Jun 2023 01:31:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230214AbjFVTWq (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 22 Jun 2023 15:22:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51140 "EHLO
+        id S229450AbjFWBbh (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Thu, 22 Jun 2023 21:31:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230191AbjFVTWp (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 22 Jun 2023 15:22:45 -0400
-Received: from mail-qt1-x864.google.com (mail-qt1-x864.google.com [IPv6:2607:f8b0:4864:20::864])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6922A1BC
-        for <util-linux@vger.kernel.org>; Thu, 22 Jun 2023 12:22:43 -0700 (PDT)
-Received: by mail-qt1-x864.google.com with SMTP id d75a77b69052e-3fde82c8ca7so59830881cf.3
-        for <util-linux@vger.kernel.org>; Thu, 22 Jun 2023 12:22:43 -0700 (PDT)
+        with ESMTP id S229907AbjFWBbg (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Thu, 22 Jun 2023 21:31:36 -0400
+Received: from mail-io1-xd61.google.com (mail-io1-xd61.google.com [IPv6:2607:f8b0:4864:20::d61])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F5C51FE9
+        for <util-linux@vger.kernel.org>; Thu, 22 Jun 2023 18:31:34 -0700 (PDT)
+Received: by mail-io1-xd61.google.com with SMTP id ca18e2360f4ac-77ac14ff51bso1877239f.3
+        for <util-linux@vger.kernel.org>; Thu, 22 Jun 2023 18:31:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687461762; x=1690053762;
-        h=user-agent:in-reply-to:content-disposition:references:message-id
-         :subject:cc:to:from:date:dkim-signature:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=V6DypAYTCDSf8rMioyBk46B55doygswyUKKpNL1pwUI=;
-        b=QvXuEAf5RykOx8NYWr8g3497WXJ+gYvMg8mzLdV5p5WU2I34Y91A3Ce6L0n9RZrEFr
-         NavBr68+ecgQboI6nTG/QSLE9ys3nwfyb2j7/oi/MMKDkNd+VZpRUQc/rMCi/xVLbUjh
-         r79B+2lqmTYCri9IzbeWjdRfGjvla/7QVEQ4zQrppYxJVWCs0A+JkY+xPJR5112pIzUK
-         G1urzmCT+SqNDCto20MQ1bo7uxI/0kQQFm2AzQuUO5xA35U+vaff6C/AJxsM5/krdWBb
-         Yg7yFcia6Mw3OjqKY6YbKfi+tVJlO9PN+mIlSEgAng+sLCM5u5IJtPHopPLta64Yiouu
-         kmdw==
-X-Gm-Message-State: AC+VfDzLkX/NamQ6dmyZKchmUBUa4v0oPIvQHJyCInnMJjRn6yxLnUgJ
-        /gH2b5+UwlTIRi7dAOxpTWSiQIDiZWLb79x2CojpP0PSJ+QiOd89xrEr
-X-Google-Smtp-Source: ACHHUZ4N+/j+PBKKqZgQUtHiKgdX4/C7JhMwHM6d0Zlt+j2Qzt+9unU/G7BEnxib94UrlxYT1Nq5Hvss++kB
-X-Received: by 2002:ad4:5b87:0:b0:62b:4590:78e4 with SMTP id 7-20020ad45b87000000b0062b459078e4mr12209087qvp.28.1687461762133;
-        Thu, 22 Jun 2023 12:22:42 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1687483894; x=1690075894;
+        h=content-transfer-encoding:message-id:date:subject:cc:to:from
+         :dkim-signature:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=r1GJ6hwl5gHH1vlvS8kchNSUHKV3NgTpbea6L2CnbQw=;
+        b=aYkRmVbeKtlJlx8rw0UXNYNRr/CJE9cPhdpLYXvMNDiyG7EYNTW2G6NhqhamwUPI7U
+         1RZz9JnMQYgNObcfcX3XiKQHMHTaUdidsvFpvjn7vPcpCrx+PEgkpAPs0OOjWTbUouPd
+         x4fmGfqHWsmcv8HtA/+wMuBX2Tc8QqRE912aWEl36Lm6Sw5fq89MlrBe1vuIkAJfSpiE
+         8PR+I+HYeyQgGPr0341luIzJBIDDZyFKmN3S2B1enIHXHnk/DS25zuROFSzVvYeyOo/Y
+         bIpdC+8mX60hHihsQnQYJq4GkGJtfEVsnCVffcLqAuU6RY8XciYPUn4a+sT+aiY4Z3Ia
+         mQ3Q==
+X-Gm-Message-State: AC+VfDxPKZu5osFZ4+TlXoHGddnYWVZw1ukyBlKoq56q16yiAHKinYYR
+        3UmPN/dk/waWda6n7dv63oOdZPQLfnW6ll/oPdUrTjSYg7pmZp0Mrnj3
+X-Google-Smtp-Source: ACHHUZ4H/dLTdBXw67+u0mdtoHibpudWOgZUH0QpxfnryDtSb5g63vCSBo0neyu6fEQXzeZ++1dxfeHM0nxo
+X-Received: by 2002:a05:6602:20da:b0:77a:d2d3:fbe0 with SMTP id 26-20020a05660220da00b0077ad2d3fbe0mr17232780ioz.3.1687483893791;
+        Thu, 22 Jun 2023 18:31:33 -0700 (PDT)
 Received: from smtp.aristanetworks.com ([74.123.28.25])
-        by smtp-relay.gmail.com with ESMTPS id h28-20020a0cab1c000000b0062df4a2f73bsm832057qvb.20.2023.06.22.12.22.41
+        by smtp-relay.gmail.com with ESMTPS id n13-20020a02a90d000000b00424e5092297sm647438jam.23.2023.06.22.18.31.33
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 22 Jun 2023 12:22:42 -0700 (PDT)
+        Thu, 22 Jun 2023 18:31:33 -0700 (PDT)
 X-Relaying-Domain: arista.com
-Received: from visor (unknown [172.22.75.75])
-        by smtp.aristanetworks.com (Postfix) with ESMTPS id 471544FEF30;
-        Thu, 22 Jun 2023 12:22:41 -0700 (PDT)
+Received: from us113.sjc.aristanetworks.com (us113.sjc.aristanetworks.com [10.242.240.8])
+        by smtp.aristanetworks.com (Postfix) with ESMTP id E6D2A402044;
+        Thu, 22 Jun 2023 18:31:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arista.com;
-        s=Arista-A; t=1687461761;
-        bh=V6DypAYTCDSf8rMioyBk46B55doygswyUKKpNL1pwUI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=gsN2edd/4SP4Ex0pJ/1BXQtQR0asZGvzWVm69Rsz1LkYCuqMO7i8lH7u2ThJLYqFv
-         UAnjVr/A/ne+TYBdvOnbr1fy5E2nconh8LH/YXP1PoeJzJA4PjzzxSLzUJO2uLjb7k
-         CQ3gzvwI3LvenvQnzeCoF4qE2AviTiuTh5amMAaX4Q8lRmExY7+b/JymPIvxG2Lul+
-         zsfxfEfVY1JtdlNRjiBtjJ+naL+u4hcw1K8jfyvZfzP2PdIWlDQV/ieqNuxL2uVg5s
-         vBrpcqwfb+4Z59lalruFlmZ8SW+IaZKupVYpN/ALl3r0u4hSxGRU77qj35rixrt6yx
-         bg9BGdnxzuG9A==
-Date:   Thu, 22 Jun 2023 12:22:35 -0700
-From:   Ivan Delalande <colona@arista.com>
+        s=Arista-A; t=1687483892;
+        bh=r1GJ6hwl5gHH1vlvS8kchNSUHKV3NgTpbea6L2CnbQw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=rSn95amwZbeMvdqLa4ypbTQR8+UnVy7fW0yu5onKsXrffuQ+SqXjrWqXxnaOUoTPE
+         qpbXoFXMmqI1zBSAo6cixlnyF7kA+PutZMrbhTLxVXw1Q1gZ9vVQJIdaNhCMefkZLV
+         Q7rLiIpIbaHkrV0TSUvzBKGk7CxFxPzxwRPZ70gWjUa2Pj4ZGmPwQzPWeGB4pGzFTH
+         1T7OSvXvqfTcJdFFHAm3ZPwAf7EVus+wwHQV1+Navwzl8vFhDRSjXYaGLsID+lJ8Uu
+         nQO8/MjSeNtpTgNAdYyqY++5P7YvAXvW1RF7u1TKt0ANTvhY3VJI9Ch/07Nz5Z0daG
+         oJh11X5C16Nog==
+Received: by us113.sjc.aristanetworks.com (Postfix, from userid 10383)
+        id D8327B840B06; Thu, 22 Jun 2023 18:31:32 -0700 (PDT)
+From:   echron@arista.com
 To:     util-linux@vger.kernel.org
-Cc:     echron@arista.com, echron@yahoo.com
+Cc:     echron@yahoo.com, colona@arista.com,
+        Edward Chron <echron@arista.com>
 Subject: [PATCH] util-linux/sys-utils dmesg -r LOG_MAKEPRI needs fac << 3
-Message-ID: <20230622192235.GA8252@visor>
-References: <CAM3twVT7+P5rnJQsdOXhD==orO1CFV1RBPmvzQZ6-JRspg=H9Q@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAM3twVT7+P5rnJQsdOXhD==orO1CFV1RBPmvzQZ6-JRspg=H9Q@mail.gmail.com>
-User-Agent: Mutt/2.1.4 (2021-12-11)
+Date:   Thu, 22 Jun 2023 18:31:31 -0700
+Message-ID: <20230623013131.4802-1-echron@arista.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-From: Edward Chron <echron@arista.com>
+From: Edward Chron <echron@yahoo.com>
+
+Submission to Project: util-linux
+Open Incident: #2325 at github.com/util-linux/util-linux/issues/2325
+Component: util-linux/sys-utils
+File: dmesg.c
+Code level patch applied against: 2.39 - latest code pulled from
+           git.github.com:util-linux/util-linux.git
+
+BUG: The facility field passed to macro from /usr/include/sys/syslog.h
+     LOG_MAKEPRI(fac, pri) by dmesg -r needs to have fac argument
+     shifted 3 bit to the left to return a valid raw valid. The lower
+     3 bits for a raw value are used by the loglevel priority (pri)
+     field, so the facility bits can only occupy the bits above the
+     bits used to hold the pri field value.
 
 The dmesg -r command produces the incorrect output for the raw value
 for the or'ed combination of the facility | loglevel priority that gets
@@ -216,3 +229,4 @@ index 717cc588b..02358e449 100644
  	/* Output the timestamp buffer */
 -- 
 2.41.0
+
