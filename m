@@ -2,70 +2,76 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3F19EB64D7
-	for <util-linux@archiver.kernel.org>; Mon, 26 Jun 2023 07:55:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60B5DEB64DA
+	for <util-linux@archiver.kernel.org>; Mon, 26 Jun 2023 11:31:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229836AbjFZHzT (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 26 Jun 2023 03:55:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42532 "EHLO
+        id S229723AbjFZLbq (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 26 Jun 2023 07:31:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229612AbjFZHzS (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 26 Jun 2023 03:55:18 -0400
-X-Greylist: delayed 526 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 26 Jun 2023 00:55:12 PDT
-Received: from mail.paretdee.com (mail.paretdee.com [141.95.17.174])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90BB31B0
-        for <util-linux@vger.kernel.org>; Mon, 26 Jun 2023 00:55:12 -0700 (PDT)
-Received: by mail.paretdee.com (Postfix, from userid 1002)
-        id C8A9DA250E; Mon, 26 Jun 2023 07:46:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=paretdee.com; s=mail;
-        t=1687765583; bh=YtPWhpqttWkror/OXW+RT7d5qvBhyF8jxaFrqRhKfz8=;
-        h=Date:From:To:Subject:From;
-        b=g1qK744vXamSKhpa3zjGA0GWIASnRH6eM810VVHldV2326D4RY0bRi66Ug2cxQuHw
-         08NlyCZQj0KSJeyRecuKAUuzlQbP02wXWZcsO5GBjVmWQ1niLYts84A1dWmZZ2cFf9
-         TbA3P/7+7Kvpy+1aczK3WiPggt0WVQ5tHe2x0LIx0P47eB2jHJ+xU2/Db/uX1XRLw6
-         UwFQ2+rRLcpzJKIps6sSYrwoEDPlpd0hKuXZTfjSQDOPzguJy0yct5LsXCAj4XRX+A
-         djJZ1A3fypA1+Id4wUSRleSjMxAVjtzx0fBp+GT2JOUkQnbg06Fpm5PdlS4/SSJ8BZ
-         xbmH4UhWiHULw==
-Received: by paretdee.com for <util-linux@vger.kernel.org>; Mon, 26 Jun 2023 07:46:02 GMT
-Message-ID: <20230626062757-0.1.6x.gu0r.0.ornkrudnao@paretdee.com>
-Date:   Mon, 26 Jun 2023 07:46:02 GMT
-From:   "Leos Sladek" <leos.sladek@paretdee.com>
-To:     <util-linux@vger.kernel.org>
-Subject: =?UTF-8?Q?Fotovoltaick=C3=A9_rozvodnice?=
-X-Mailer: mail.paretdee.com
+        with ESMTP id S229629AbjFZLbp (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 26 Jun 2023 07:31:45 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C6F710C
+        for <util-linux@vger.kernel.org>; Mon, 26 Jun 2023 04:30:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1687779058;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=sPGqkuTSC7oqqv5ZeKE+nFaTB2RoFbQ+Cl7ERYijFPw=;
+        b=H/Gr5Ha+peptkS4HOnt8jfl3hasYP5GYUSJcAhBDSSjxjb/NRvahDRDy4TOZq4t24pbS5I
+        5DcvgSrAQCaqrlDECCApfQMMxJdIZWfvt2XxRFqw/QwVuY2euOoYwPN6SUeoX0huaF7u1s
+        3MybWyH9g6kH5FjjYJUAeGlbhFt6sCU=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-548-mRxPTSKONdWHLnI5R_xLCQ-1; Mon, 26 Jun 2023 07:30:55 -0400
+X-MC-Unique: mRxPTSKONdWHLnI5R_xLCQ-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id DBD4A3C11A10;
+        Mon, 26 Jun 2023 11:30:54 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.225.186])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 6A580112132D;
+        Mon, 26 Jun 2023 11:30:54 +0000 (UTC)
+Date:   Mon, 26 Jun 2023 13:30:52 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Florian Zimmermann <florian.zimmermann@gmail.com>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: [PATCH] cfdisk, fix behavior after writing changes
+Message-ID: <20230626113052.gzluriz2qsqmjk4a@ws.net.home>
+References: <CAJed8sMYhw9iYSBN5XqdJiJkiqrciT+yudDBZBRhN8pnfc6CaA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJed8sMYhw9iYSBN5XqdJiJkiqrciT+yudDBZBRhN8pnfc6CaA@mail.gmail.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Dobr=C3=BD den,
+On Sun, Jun 25, 2023 at 01:31:33PM +0200, Florian Zimmermann wrote:
+> diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
+> index 2e29421d7..a05a50f3e 100644
+> --- a/disk-utils/cfdisk.c
+> +++ b/disk-utils/cfdisk.c
+> @@ -2530,6 +2530,7 @@ static int main_menu_action(struct cfdisk *cf, int key)
+>                         else
+>                                 fdisk_reread_partition_table(cf->cxt);
+>                         info = _("The partition table has been altered.");
+> +                      ui_menu_goto(cf, 2); /* after writing reset
+> next action to Quit by default */
+>                 }
 
-obrac=C3=ADm se na V=C3=A1s jm=C3=A9nem dlouholet=C3=A9ho v=C3=BDrobce fo=
-tovoltaick=C3=BDch rozvodnic ur=C4=8Den=C3=BDch pro
-soukrom=C3=A9 i pr=C5=AFmyslov=C3=A9 pou=C5=BEit=C3=AD.
+It seems that 'Quit' does not have to be the second item in the menu in
+all cases. I have applied a little bit different version of  the patch:
+https://github.com/util-linux/util-linux/commit/b0d4d093796c3a3776b155e4ec7e2aa7cb09677d
 
-Dod=C3=A1v=C3=A1me fotovoltaick=C3=A9 rozvodnice na zak=C3=A1zku a jsme s=
-chopni realizovat i ty nejn=C3=A1ro=C4=8Dn=C4=9Bj=C5=A1=C3=AD
-po=C5=BEadavky instala=C4=8Dn=C3=ADch firem, velkoobchod=C5=AF a distribu=
-tor=C5=AF.
+ Thanks!
 
-Vyu=C5=BE=C3=ADv=C3=A1me nejkvalitn=C4=9Bj=C5=A1=C3=AD komponenty a mater=
-i=C3=A1ly, =C4=8D=C3=ADm=C5=BE dosahujeme vy=C5=A1=C5=A1=C3=AD odolnost, =
-stabilitu
-provozu a ochranu proti vod=C4=9B, vlku, prachu a n=C3=A1raz=C5=AFm.
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
-V na=C5=A1em sortimentu jsou tak=C3=A9 omezova=C4=8De p=C5=99ep=C4=9Bt=C3=
-=AD AC/DC, kter=C3=A9 zaji=C5=A1=C5=A5uj=C3=AD ochranu
-fotovoltaick=C3=BDch nap=C3=A1jec=C3=ADch instalac=C3=AD p=C5=99ed negati=
-vn=C3=ADmi efekty p=C5=99ep=C4=9Bt=C3=AD a chr=C3=A1n=C3=AD za=C5=99=C3=AD=
-zen=C3=AD p=C5=99ed
-efekty p=C5=AFsoben=C3=AD p=C5=99ep=C4=9Bt=C3=AD a bleskov=C3=BDch proud=C5=
-=AF.
-
-Chcete si vyzkou=C5=A1et na=C5=A1e =C5=99e=C5=A1en=C3=AD?
-
-
-S pozdravem
-Leos Sladek
