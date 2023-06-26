@@ -2,82 +2,70 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C156EB64DC
-	for <util-linux@archiver.kernel.org>; Sun, 25 Jun 2023 11:31:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3F19EB64D7
+	for <util-linux@archiver.kernel.org>; Mon, 26 Jun 2023 07:55:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231675AbjFYLbq (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sun, 25 Jun 2023 07:31:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40518 "EHLO
+        id S229836AbjFZHzT (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 26 Jun 2023 03:55:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231482AbjFYLbp (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sun, 25 Jun 2023 07:31:45 -0400
-Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA750F9
-        for <util-linux@vger.kernel.org>; Sun, 25 Jun 2023 04:31:44 -0700 (PDT)
-Received: by mail-qt1-x82e.google.com with SMTP id d75a77b69052e-3fde8e4d321so17174861cf.2
-        for <util-linux@vger.kernel.org>; Sun, 25 Jun 2023 04:31:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1687692704; x=1690284704;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=RRhlhob3SRy0urAeFiE2lQNKLq/cjsHAdmBY4irNHc0=;
-        b=PreafI3EssE1+1zd2u/quqwyLWLod7+XMdbVtyEZ879BHrrWKW6zgkX3wN+QFSUgWP
-         kMPwSDt8hMHiWMsAZWnSyfPKssljBmNguMjXTAw3QJEemZ38tRWTuaEdNVGXvLIAv5CQ
-         a6Jp1Y+sRgcRyvPUYeQOdORfbFbHJHPl4V+6q7trzkwiLck8UlAl5MUxmnRL2fhVBIGW
-         E8uz0vXPKg9CxwMpj14ofBK/9KGzXT9MQutfMOI7tQBHkpIKWMS9ulH02QfcBZHuPsEG
-         BEjTfwpdMTyGxn0/y0jMdod6r1zN9WtY/87ZE/NDWFkgYFItXmfLAwQ+9Un8cONn4STA
-         e6TA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687692704; x=1690284704;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=RRhlhob3SRy0urAeFiE2lQNKLq/cjsHAdmBY4irNHc0=;
-        b=bjcupEyI2TL0ZSGt5YRgyhOcx5sqYdAMzT9jF+zbb/7V+VtSRVhyQS4iPupeZKbLz7
-         20OjbhoYjiCWNK9PUfa617osCyx0nXpt0erbeBxQzU5Z2fT7+PUzbTu0FjrtFZ2RPxF0
-         4JOZPMC9QLCybiwsD5WtM9H4YvNKI8bxeBV4akueBCb0+la2ppNKnBLBFvG+jeBj3Wa7
-         w4OYd9mAoUseP3hTZsOMOr572Pun6SGSzsrlwPnmK38SX0sBWE+UH7E3/8FP1qwHnfQl
-         f2aJXjUyVudIfpnvS8y2MSbbB87w6yDMxWoh6FZHt07BCzxyz2TbbKIDs4B2Njl4TR7b
-         jXIA==
-X-Gm-Message-State: AC+VfDwiST+KwCqdZHv7jubky/Puw4hxn+wtZyud7sYv3jufVir6+Lj+
-        qZgJWE5HwviqMZVnd9/oF7MigKS4qJ6VJJK9kIhe/d3/wUl9mg==
-X-Google-Smtp-Source: ACHHUZ4p5l0wdYewu5K5APwlZmmtyllwk45CqTlKrUeGc3KjFh8oxpD5W3QkurH+9abF2zIbs71W7ZeqBQ2PLPVmJU8=
-X-Received: by 2002:ac8:5750:0:b0:400:994b:2183 with SMTP id
- 16-20020ac85750000000b00400994b2183mr3038137qtx.67.1687692703857; Sun, 25 Jun
- 2023 04:31:43 -0700 (PDT)
+        with ESMTP id S229612AbjFZHzS (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 26 Jun 2023 03:55:18 -0400
+X-Greylist: delayed 526 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 26 Jun 2023 00:55:12 PDT
+Received: from mail.paretdee.com (mail.paretdee.com [141.95.17.174])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90BB31B0
+        for <util-linux@vger.kernel.org>; Mon, 26 Jun 2023 00:55:12 -0700 (PDT)
+Received: by mail.paretdee.com (Postfix, from userid 1002)
+        id C8A9DA250E; Mon, 26 Jun 2023 07:46:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=paretdee.com; s=mail;
+        t=1687765583; bh=YtPWhpqttWkror/OXW+RT7d5qvBhyF8jxaFrqRhKfz8=;
+        h=Date:From:To:Subject:From;
+        b=g1qK744vXamSKhpa3zjGA0GWIASnRH6eM810VVHldV2326D4RY0bRi66Ug2cxQuHw
+         08NlyCZQj0KSJeyRecuKAUuzlQbP02wXWZcsO5GBjVmWQ1niLYts84A1dWmZZ2cFf9
+         TbA3P/7+7Kvpy+1aczK3WiPggt0WVQ5tHe2x0LIx0P47eB2jHJ+xU2/Db/uX1XRLw6
+         UwFQ2+rRLcpzJKIps6sSYrwoEDPlpd0hKuXZTfjSQDOPzguJy0yct5LsXCAj4XRX+A
+         djJZ1A3fypA1+Id4wUSRleSjMxAVjtzx0fBp+GT2JOUkQnbg06Fpm5PdlS4/SSJ8BZ
+         xbmH4UhWiHULw==
+Received: by paretdee.com for <util-linux@vger.kernel.org>; Mon, 26 Jun 2023 07:46:02 GMT
+Message-ID: <20230626062757-0.1.6x.gu0r.0.ornkrudnao@paretdee.com>
+Date:   Mon, 26 Jun 2023 07:46:02 GMT
+From:   "Leos Sladek" <leos.sladek@paretdee.com>
+To:     <util-linux@vger.kernel.org>
+Subject: =?UTF-8?Q?Fotovoltaick=C3=A9_rozvodnice?=
+X-Mailer: mail.paretdee.com
 MIME-Version: 1.0
-From:   Florian Zimmermann <florian.zimmermann@gmail.com>
-Date:   Sun, 25 Jun 2023 13:31:33 +0200
-Message-ID: <CAJed8sMYhw9iYSBN5XqdJiJkiqrciT+yudDBZBRhN8pnfc6CaA@mail.gmail.com>
-Subject: [PATCH] cfdisk, fix behavior after writing changes
-To:     util-linux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-after a successful write, cfdisk remains on the "Write" cursor and furthermore
-when navigating to "Quit" will continue to  show "...without writing changes",
-despite there were writes. This patch addresses that.
+Dobr=C3=BD den,
 
-https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=927041
+obrac=C3=ADm se na V=C3=A1s jm=C3=A9nem dlouholet=C3=A9ho v=C3=BDrobce fo=
+tovoltaick=C3=BDch rozvodnic ur=C4=8Den=C3=BDch pro
+soukrom=C3=A9 i pr=C5=AFmyslov=C3=A9 pou=C5=BEit=C3=AD.
 
-Signed-off-by: Florian Zimmermann <florianzimmermann@duck.com>
----
- disk-utils/cfdisk.c | 1 +
- 1 file changed, 1 insertion(+)
+Dod=C3=A1v=C3=A1me fotovoltaick=C3=A9 rozvodnice na zak=C3=A1zku a jsme s=
+chopni realizovat i ty nejn=C3=A1ro=C4=8Dn=C4=9Bj=C5=A1=C3=AD
+po=C5=BEadavky instala=C4=8Dn=C3=ADch firem, velkoobchod=C5=AF a distribu=
+tor=C5=AF.
 
-diff --git a/disk-utils/cfdisk.c b/disk-utils/cfdisk.c
-index 2e29421d7..a05a50f3e 100644
---- a/disk-utils/cfdisk.c
-+++ b/disk-utils/cfdisk.c
-@@ -2530,6 +2530,7 @@ static int main_menu_action(struct cfdisk *cf, int key)
-                        else
-                                fdisk_reread_partition_table(cf->cxt);
-                        info = _("The partition table has been altered.");
-+                      ui_menu_goto(cf, 2); /* after writing reset
-next action to Quit by default */
-                }
-                cf->nwrites++;
-                break;
--- 
-2.39.2
+Vyu=C5=BE=C3=ADv=C3=A1me nejkvalitn=C4=9Bj=C5=A1=C3=AD komponenty a mater=
+i=C3=A1ly, =C4=8D=C3=ADm=C5=BE dosahujeme vy=C5=A1=C5=A1=C3=AD odolnost, =
+stabilitu
+provozu a ochranu proti vod=C4=9B, vlku, prachu a n=C3=A1raz=C5=AFm.
+
+V na=C5=A1em sortimentu jsou tak=C3=A9 omezova=C4=8De p=C5=99ep=C4=9Bt=C3=
+=AD AC/DC, kter=C3=A9 zaji=C5=A1=C5=A5uj=C3=AD ochranu
+fotovoltaick=C3=BDch nap=C3=A1jec=C3=ADch instalac=C3=AD p=C5=99ed negati=
+vn=C3=ADmi efekty p=C5=99ep=C4=9Bt=C3=AD a chr=C3=A1n=C3=AD za=C5=99=C3=AD=
+zen=C3=AD p=C5=99ed
+efekty p=C5=AFsoben=C3=AD p=C5=99ep=C4=9Bt=C3=AD a bleskov=C3=BDch proud=C5=
+=AF.
+
+Chcete si vyzkou=C5=A1et na=C5=A1e =C5=99e=C5=A1en=C3=AD?
+
+
+S pozdravem
+Leos Sladek
