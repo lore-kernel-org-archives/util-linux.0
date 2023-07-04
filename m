@@ -2,185 +2,67 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8E90EB64D9
-	for <util-linux@archiver.kernel.org>; Tue, 27 Jun 2023 12:54:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1245DC0015E
+	for <util-linux@archiver.kernel.org>; Tue,  4 Jul 2023 09:23:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229950AbjF0Myb (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 27 Jun 2023 08:54:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49806 "EHLO
+        id S231926AbjGDJXL (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 4 Jul 2023 05:23:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229881AbjF0Myb (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 27 Jun 2023 08:54:31 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96ED9270F
-        for <util-linux@vger.kernel.org>; Tue, 27 Jun 2023 05:53:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1687870427;
+        with ESMTP id S231982AbjGDJWb (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 4 Jul 2023 05:22:31 -0400
+X-Greylist: delayed 471 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 04 Jul 2023 02:22:25 PDT
+Received: from mail.manjaro.org (mail.manjaro.org [IPv6:2a01:4f8:c0c:51f3::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FE35B6
+        for <util-linux@vger.kernel.org>; Tue,  4 Jul 2023 02:22:25 -0700 (PDT)
+From:   Dragan Simic <dsimic@manjaro.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=manjaro.org; s=2021;
+        t=1688462072;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=oiS2ZLd5xTYzw9V7aNrU2pwdMi8VnXjBD6gkjizwpN8=;
-        b=KN5TDLaP7gbVDos5IpwbUO/Pm3hpDkgcDLLUgN6IPT0t9Doiyxdg1nXrCUd4HnBUDoMYSd
-        pRVoKqNpfDDCr68+MroRZ7+PStj5y9635rsaETMV7q76wVuERZULyrHt0PbZDSTC+MYPyx
-        o6cXZN0am2qcm/p3HP3w2lu3bNhVAzE=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-590-ttLT2izKN-ejuW7POps_HQ-1; Tue, 27 Jun 2023 08:53:44 -0400
-X-MC-Unique: ttLT2izKN-ejuW7POps_HQ-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 18C828C80E9;
-        Tue, 27 Jun 2023 12:53:44 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.225.186])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7F228C00049;
-        Tue, 27 Jun 2023 12:53:43 +0000 (UTC)
-Date:   Tue, 27 Jun 2023 14:53:41 +0200
-From:   Karel Zak <kzak@redhat.com>
-To:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        util-linux@vger.kernel.org
-Subject: [ANNOUNCE] util-linux v2.39.1
-Message-ID: <20230627125341.uohy47xdqllxiisz@ws.net.home>
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=GF1sZf0dCRV1g14EBu7W0ID8KdQ1bGOKgyXEW9iFISQ=;
+        b=HMogBFXsfUYj7SN+mOasY2g0pBGhG7KEjvVmcZO/WtlcyA2VCqw3aF+lxoAzbQ1xoZyA3Q
+        vR0aHKhzyJbWkBpMHOmxqlywS3G3/gOP70Ugy5T6nZix8CZ4rfnA8VHNlCb94iHR+xn+lI
+        Jd1aPxdOU3U0jPEZVKYLlSsz3ph483opuapzkz2ta4QZCJyiB9o+20zsazsjdq4BCV2Mao
+        ebPBRQuMivL9Ykg95AlcC3B7Kij954sZCO6iqw2BB2lBPQo4vIaVzM2add/kMZGMRIEq1b
+        9xwJCGBSyhNWPBoF5drchqKroB4aOJY7i456Nilc4EJ4iyhvYhdlSDbF9VBnPw==
+To:     util-linux@vger.kernel.org
+Subject: [PATCH 2/3] dmesg: Delete redundant pager setup
+Date:   Tue,  4 Jul 2023 11:14:29 +0200
+Message-Id: <20230704091430.3555428-2-dsimic@manjaro.org>
+In-Reply-To: <20230704091430.3555428-1-dsimic@manjaro.org>
+References: <20230704091430.3555428-1-dsimic@manjaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
+Authentication-Results: ORIGINATING;
+        auth=pass smtp.auth=dsimic@manjaro.org smtp.mailfrom=dsimic@manjaro.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+The setup of the pager is already performed a few lines of code above,
+so it's safe to delete the repeated setup, which actually does nothing.
 
-The util-linux stable release v2.39.1 is available at
-    
-  http://www.kernel.org/pub/linux/utils/util-linux/v2.39/
-    
-Feedback and bug reports, as always, are welcomed.
-    
-  Karel
+Signed-off-by: Dragan Simic <dsimic@manjaro.org>
+---
+ sys-utils/dmesg.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-
-
-util-linux v2.39.1 Release Notes
-================================
-
-The main objective of this maintenance release is to address bugs in libmount and
-resolve the regression that occurred due to the v2.39 rewrite for the new kernel
-mount interface.
-
-The meson build system has also been enhanced.
-
-
-Changes between v2.39 and v2.39.1
----------------------------------
-
-blkzone:
-   - don't take address of struct blk_zone  [Thomas Weißschuh]
-build-sys:
-   - add --disable-waitpid  [Frantisek Sumsal]
-   - don't call pkg-config --static if unnecessary  [Karel Zak]
-   - fix typo in waitpid check  [Thomas Weißschuh]
-   - only pass --failure-level if supported  [Thomas Weißschuh]
-cal:
-   - fix error message for bad -c argument  [Jakub Wilk]
-   - fix long option name for -c  [Jakub Wilk]
-ci:
-   - prevent prompts during installation  [Thomas Weißschuh]
-dmesg:
-   - make kmsg read() buffer big enough for kernel  [anteater]
-docs:
-   - update AUTHORS file  [Karel Zak]
-enosys:
-   - add support for MIPS, PowerPC and ARC  [Thomas Weißschuh]
-   - add support for loongarch  [Thomas Weißschuh]
-   - add support for sparc  [Thomas Weißschuh]
-   - split audit arch detection into dedicated header  [Thomas Weißschuh]
-hardlink:
-   - (man) add missing comma  [Jakub Wilk]
-lib:
-   - remove pager.c from libcommon  [Karel Zak]
-lib/ include/:
-   - cleanup license headers  [Karel Zak]
-lib/color-names:
-   - fix license header  [Karel Zak]
-lib/loopdev:
-   - consistently return error values from loopcxt_find_unused()  [Thomas Weißschuh]
-   - document function return values  [Thomas Weißschuh]
-lib/strutils:
-   - fix typo  [Jakub Wilk]
-libblkid:
-   - (bcache) also calculate checksum over journal buckets  [Thomas Weißschuh]
-   - (bcache) extend superblock definition  [Thomas Weißschuh]
-   - jfs - avoid undefined shift  [Milan Broz]
-libmount:
-   - (optlist) correctly detect ro status  [Thomas Weißschuh]
-   - always ignore user=<name>  [Karel Zak]
-   - check for availability of mount_setattr  [Thomas Weißschuh]
-   - cleanup enosys returns from mount hoop  [Karel Zak]
-   - don't call hooks after mount.<type> helper  [Karel Zak]
-   - don't call mount.<type> helper with usernames  [Karel Zak]
-   - don't pass option "defaults" to helper  [Thomas Weißschuh]
-   - fix options prepend/insert and merging  [Karel Zak]
-   - fix sync options between context and fs structs  [Karel Zak]
-   - introduce LIBMOUNT_FORCE_MOUNT2={always,never,auto}  [Karel Zak]
-libsmartcols:
-   - (samples)  fix format truncation warning  [Thomas Weißschuh]
-logger:
-   - initialize socket credentials contol union  [Karel Zak]
-losetup:
-   - deduplicate find_unused() logic  [Thomas Weißschuh]
-lsfd:
-   - (filter) weakly support ARRAY_STRING and ARRAY_NUMBER json types  [Masatake YAMATO]
-   - (tests) fix typo  [Thomas Weißschuh]
-   - use ARRAY_STRING for ENDPOINTS column in JSON output mode  [Masatake YAMATO]
-meson:
-   - add conditionalization for test progs  [Zbigniew Jędrzejewski-Szmek]
-   - check for _NL_TIME_WEEK_1STDAY in langinfo.h  [Christian Hesse]
-   - conditionalize waitpid  [Zbigniew Jędrzejewski-Szmek]
-   - implement HAVE_PTY  [Zbigniew Jędrzejewski-Szmek]
-   - include bash-completion for newgrp  [Christian Hesse]
-   - include bash-completion for write  [Christian Hesse]
-   - install chfn setuid  [Christian Hesse]
-   - install chsh setuid  [Christian Hesse]
-   - install mount setuid  [Christian Hesse]
-   - install newgrp setuid  [Christian Hesse]
-   - install su setuid  [Christian Hesse]
-   - install symlink for vigr man page  [Christian Hesse]
-   - install umount setuid  [Christian Hesse]
-   - install wall setgid  [Christian Hesse]
-   - install write setgid  [Christian Hesse]
-   - require 0.57  [Thomas Weißschuh]
-mkfs.minix:
-   - handle 64bit time on 32bit system  [Thomas Weißschuh]
-po:
-   - merge changes  [Karel Zak]
-   - update hr.po (from translationproject.org)  [Božidar Putanec]
-po-man:
-   - add ko.po (from translationproject.org)  [Seong-ho Cho]
-   - add ro.po (from translationproject.org)  [Remus-Gabriel Chelu]
-   - merge changes  [Karel Zak]
-   - update uk.po (from translationproject.org)  [Yuri Chornoivan]
-sfdisk:
-   - add hint about duplicate UUIDs when use dump  [Karel Zak]
-test_enosys:
-   - fix build on old kernels  [Thomas Weißschuh]
-test_uuidd:
-   - make pthread_t formatting more robust  [Thomas Weißschuh]
-tests:
-   - (lsfd) add a case for verifying ENDPOINTS column output in JSON mode  [Masatake YAMATO]
-   - (run.sh) detect builddir from working directory  [Thomas Weißschuh]
-   - backport mount_setattr test  [Karel Zak]
-   - backport special mount script  [Karel Zak]
-   - fix update special mount test output  [Karel Zak]
-tools:
-   - (asciidoctor) explicitly require extensions module  [Thomas Weißschuh]
-unshare:
-   - fix error message for unexpected time offsets  [Thomas Weißschuh]
-waitpid:
-   - only build when pidfd_open is available  [Thomas Weißschuh]
-
+diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+index 02358e449..971712b56 100644
+--- a/sys-utils/dmesg.c
++++ b/sys-utils/dmesg.c
+@@ -1646,8 +1646,6 @@ int main(int argc, char *argv[])
+ 		/* only kmsg supports multi-line messages */
+ 		if (ctl.force_prefix && ctl.method != DMESG_METHOD_KMSG)
+ 			ctl.force_prefix = 0;
+-		if (ctl.pager)
+-			pager_redirect();
+ 		n = read_buffer(&ctl, &buf);
+ 		if (n > 0)
+ 			print_buffer(&ctl, buf, n);
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.33.1
 
