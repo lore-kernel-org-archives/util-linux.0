@@ -2,36 +2,36 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B987EB64D9
-	for <util-linux@archiver.kernel.org>; Tue, 11 Jul 2023 03:12:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9184BEB64DC
+	for <util-linux@archiver.kernel.org>; Tue, 11 Jul 2023 03:29:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229955AbjGKDM0 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 10 Jul 2023 23:12:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53352 "EHLO
+        id S229627AbjGKD3o (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 10 Jul 2023 23:29:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229626AbjGKDM0 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 10 Jul 2023 23:12:26 -0400
-Received: from cmccmta2.chinamobile.com (cmccmta4.chinamobile.com [111.22.67.137])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2B65EE3
-        for <util-linux@vger.kernel.org>; Mon, 10 Jul 2023 20:12:21 -0700 (PDT)
+        with ESMTP id S229496AbjGKD3n (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 10 Jul 2023 23:29:43 -0400
+Received: from cmccmta1.chinamobile.com (cmccmta6.chinamobile.com [111.22.67.139])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8EFCDCE
+        for <util-linux@vger.kernel.org>; Mon, 10 Jul 2023 20:29:37 -0700 (PDT)
 X-RM-TagInfo: emlType=0                                       
 X-RM-SPAM-FLAG: 00000000
 Received: from spf.mail.chinamobile.com (unknown[10.188.0.87])
-        by rmmx-syy-dmz-app08-12008 (RichMail) with SMTP id 2ee864acc8927c6-ece00;
-        Tue, 11 Jul 2023 11:12:20 +0800 (CST)
-X-RM-TRANSID: 2ee864acc8927c6-ece00
+        by rmmx-syy-dmz-app01-12001 (RichMail) with SMTP id 2ee164accc99cb0-ee176;
+        Tue, 11 Jul 2023 11:29:30 +0800 (CST)
+X-RM-TRANSID: 2ee164accc99cb0-ee176
 X-RM-TagInfo: emlType=0                                       
 X-RM-SPAM-FLAG: 00000000
 Received: from ubuntu.localdomain (unknown[10.54.5.255])
-        by rmsmtp-syy-appsvr06-12006 (RichMail) with SMTP id 2ee664acc892f56-5a117;
-        Tue, 11 Jul 2023 11:12:19 +0800 (CST)
-X-RM-TRANSID: 2ee664acc892f56-5a117
+        by rmsmtp-syy-appsvr06-12006 (RichMail) with SMTP id 2ee664accc984c9-5a68c;
+        Tue, 11 Jul 2023 11:29:29 +0800 (CST)
+X-RM-TRANSID: 2ee664accc984c9-5a68c
 From:   zhujun2 <zhujun2@cmss.chinamobile.com>
 To:     kzak@redhat.com
 Cc:     util-linux@vger.kernel.org, zhujun2@cmss.chinamobile.com
 Subject: Re: [PATCH] blkid: solve a bug that the disk device of the ceph_bluestore
-Date:   Mon, 10 Jul 2023 20:12:18 -0700
-Message-Id: <20230711031218.4579-1-zhujun2@cmss.chinamobile.com>
+Date:   Mon, 10 Jul 2023 20:29:29 -0700
+Message-Id: <20230711032929.4757-1-zhujun2@cmss.chinamobile.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20230620095725.juhogmjqjue4ohjf@ws.net.home>
 References: <20230620095725.juhogmjqjue4ohjf@ws.net.home>
@@ -39,7 +39,7 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Tue, Jun 20, 2023 at 10:35:32AM +0800, karel wrote:
+> On Tue, Jun 20, 2023 at 10:35:32AM +0800, karel wrote:
 > Not sure if I understand. According to docs BlueStore uses XFS
 > partition to store metadata and another device to store raw data. It
 > sounds like the XFS should be visible as a normal filesystem.
