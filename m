@@ -2,93 +2,63 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9184BEB64DC
-	for <util-linux@archiver.kernel.org>; Tue, 11 Jul 2023 03:29:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 199F5EB64DC
+	for <util-linux@archiver.kernel.org>; Tue, 11 Jul 2023 09:53:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229627AbjGKD3o (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 10 Jul 2023 23:29:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56640 "EHLO
+        id S229882AbjGKJxn (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 11 Jul 2023 05:53:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229496AbjGKD3n (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 10 Jul 2023 23:29:43 -0400
-Received: from cmccmta1.chinamobile.com (cmccmta6.chinamobile.com [111.22.67.139])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8EFCDCE
-        for <util-linux@vger.kernel.org>; Mon, 10 Jul 2023 20:29:37 -0700 (PDT)
-X-RM-TagInfo: emlType=0                                       
-X-RM-SPAM-FLAG: 00000000
-Received: from spf.mail.chinamobile.com (unknown[10.188.0.87])
-        by rmmx-syy-dmz-app01-12001 (RichMail) with SMTP id 2ee164accc99cb0-ee176;
-        Tue, 11 Jul 2023 11:29:30 +0800 (CST)
-X-RM-TRANSID: 2ee164accc99cb0-ee176
-X-RM-TagInfo: emlType=0                                       
-X-RM-SPAM-FLAG: 00000000
-Received: from ubuntu.localdomain (unknown[10.54.5.255])
-        by rmsmtp-syy-appsvr06-12006 (RichMail) with SMTP id 2ee664accc984c9-5a68c;
-        Tue, 11 Jul 2023 11:29:29 +0800 (CST)
-X-RM-TRANSID: 2ee664accc984c9-5a68c
-From:   zhujun2 <zhujun2@cmss.chinamobile.com>
-To:     kzak@redhat.com
-Cc:     util-linux@vger.kernel.org, zhujun2@cmss.chinamobile.com
-Subject: Re: [PATCH] blkid: solve a bug that the disk device of the ceph_bluestore
-Date:   Mon, 10 Jul 2023 20:29:29 -0700
-Message-Id: <20230711032929.4757-1-zhujun2@cmss.chinamobile.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20230620095725.juhogmjqjue4ohjf@ws.net.home>
-References: <20230620095725.juhogmjqjue4ohjf@ws.net.home>
+        with ESMTP id S229845AbjGKJxm (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 11 Jul 2023 05:53:42 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 953F5B7
+        for <util-linux@vger.kernel.org>; Tue, 11 Jul 2023 02:53:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1689069183;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=wCgUYnf6moYErfuSdaxI/x+mevgj7CaJlWyCXRaNNhQ=;
+        b=IOG9aJlRZaqTcvVr6KQZZNYMfVEcRyUUujuL+Qq4GiN2gkBM0LTRQm73uvxxX/ux5XvmBs
+        Dtn7cvgv6FnIs9W9xVwVN4+GWeDXTPDmh8KbY4hH8xr54sPIstnr+fnSUKUI9zfQTlnhD9
+        rYptfXBXZOKadcDrt2zEQmQBgoc79Yc=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-173-nSaJmVF9Ow6b4L9YS-3pgA-1; Tue, 11 Jul 2023 05:53:02 -0400
+X-MC-Unique: nSaJmVF9Ow6b4L9YS-3pgA-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 181903C23100;
+        Tue, 11 Jul 2023 09:53:02 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.224.70])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9A9404CD0C1;
+        Tue, 11 Jul 2023 09:53:01 +0000 (UTC)
+Date:   Tue, 11 Jul 2023 11:52:59 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     Dragan Simic <dsimic@manjaro.org>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/3] lib/pager: Allow PAGER commands with options
+Message-ID: <20230711095259.igt2wrdaefokihy5@ws.net.home>
+References: <20230704091430.3555428-1-dsimic@manjaro.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230704091430.3555428-1-dsimic@manjaro.org>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-> On Tue, Jun 20, 2023 at 10:35:32AM +0800, karel wrote:
-> Not sure if I understand. According to docs BlueStore uses XFS
-> partition to store metadata and another device to store raw data. It
-> sounds like the XFS should be visible as a normal filesystem.
+On Tue, Jul 04, 2023 at 11:14:28AM +0200, Dragan Simic wrote:
+>  lib/pager.c | 26 ++++++++++++++++++--------
+>  1 file changed, 18 insertions(+), 8 deletions(-)
 
-> From your description it sounds like the both is on the same device
-> and we should not detect it as XFS log. If yes, then I do not
-> understand why anyone use XFS log header for this purpose.
+Applied, thanks.
 
-> XFS log detection seems robust, so I guess if libblkid detects the
-> superblock then it's really the FS.
-
-You can specify another disk device to store the external log for the XFS file system, similar to the following command:
-mkfs.xfs -l logdev=/dev/nvme0n1p2,size=10000b /dev/nvme0n1p3
-
-Using the dd command, you can copy the first sector of /dev/nvme0n1p2 to any sector between 17 and 512 of the 
-Ceph BlueStore file system for disk device A, for example, sector 51. After performing this action, a problem occurs where an additional file system, 
-efs_external_log, is created on the disk device A originally used for Ceph BlueStore. 
-This leads to udev errors and the loss of the disk device A's partlabel. for example
-
-blkid -o udev -p /dev/xxxx
-ID_FS_AMBIVALIENT=other:ceph_blueStore other:efs_external_log
-
-Ceph BlueStore file system for Disk device A is exposed as a block device for users to use as a cloud disk. 
-Users can create an XFS External Log on it.
-
-zhujun2
-
->> Signed-off-by: zhujun2 <zhujun2@cmss.chinamobile.com>
->> ---
->>  libblkid/src/superblocks/xfs.c | 5 +++++
->>  1 file changed, 5 insertions(+)
->> 
->> diff --git a/libblkid/src/superblocks/xfs.c b/libblkid/src/superblocks/xfs.c
->> index d8c6fb6d4..3686bd52b 100644
->> --- a/libblkid/src/superblocks/xfs.c
->> +++ b/libblkid/src/superblocks/xfs.c
->> @@ -259,6 +259,11 @@ static int probe_xfs_log(blkid_probe pr,
->>  		if (memcmp(&buf[i*512], "XFSB", 4) == 0)
->>  			return 1;
->>  
->> +		if (memcmp(&buf[i*512], "bluestore block device", 22) == 0) {
->> +			DBG(LOWPROBE, ul_debug("\t device has ceph_bluestore ambivalent"));
->> +			return 1;
->> +		}
->> +
->>  		rhead = (struct xlog_rec_header *)&buf[i*512];
->>  
->>  		if (xlog_valid_rec_header(rhead)) {
->> -- 
->> 2.20.1
-
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
