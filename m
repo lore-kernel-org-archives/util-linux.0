@@ -2,54 +2,58 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC1EDEB64DC
-	for <util-linux@archiver.kernel.org>; Tue, 11 Jul 2023 16:22:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74DD6EB64DD
+	for <util-linux@archiver.kernel.org>; Sun, 16 Jul 2023 17:32:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230106AbjGKQWp (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 11 Jul 2023 12:22:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56244 "EHLO
+        id S229515AbjGPRcJ (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Sun, 16 Jul 2023 13:32:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230263AbjGKQWo (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 11 Jul 2023 12:22:44 -0400
-X-Greylist: delayed 753 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 11 Jul 2023 09:22:37 PDT
-Received: from correo.48k.eu (correo.48k.eu [217.70.190.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 02C30DD
-        for <util-linux@vger.kernel.org>; Tue, 11 Jul 2023 09:22:37 -0700 (PDT)
-Message-ID: <d7073192-c58d-2592-56d7-d15a837dc97f@soleta.eu>
-Date:   Tue, 11 Jul 2023 18:10:01 +0200
+        with ESMTP id S229471AbjGPRcI (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Sun, 16 Jul 2023 13:32:08 -0400
+Received: from mail.manjaro.org (mail.manjaro.org [IPv6:2a01:4f8:c0c:51f3::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A19A116
+        for <util-linux@vger.kernel.org>; Sun, 16 Jul 2023 10:32:07 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.12.0
-Content-Language: en-US
-From:   "Jose M. Guisado" <jguisado@soleta.eu>
-Subject: libfdisk python bindings
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=manjaro.org; s=2021;
+        t=1689528723;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=rFI7SUWWkXzEjd24ByE3/l1yZ9KwddQiCAcEguxo5nM=;
+        b=EEOarYlbxnUqjjhNqU6h9VLZzuduWPLUGfGOcG2vPjotwjsvf1AeVUR2j5IG2pHW5MLfYq
+        8poPxz2qK5r+vwV6UgCEr/4yjZ1sr4pYojGKhkTRCkVPgC0zI+TyhShwefzl+wsvulJFAn
+        qcsCqL/bbUbRE7m+LQ/6Q7o+S4pM4jxmWu/X9bmU/Ifl2POQYKXneX7TT5/+8z3k5n15bp
+        MBFigBd5EJswRT735KhiEvgPxd+qU2PYyGYcEEP/6/jgMHIguoxcAaH10JjgtOX9jLzM6+
+        RbYXAjHE5tWW7ajWDhCNXAJnrqmkNqg+L34tS+oMQFvB2UjLm6N8NK9cOw0S3Q==
+Date:   Sun, 16 Jul 2023 19:32:03 +0200
+From:   Dragan Simic <dsimic@manjaro.org>
 To:     util-linux@vger.kernel.org
-Cc:     kzak@redhat.com
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: [RFC] Alternative color configuration for dmesg
+Message-ID: <e6370090700c26776e2ce6444a05a2d2@manjaro.org>
+X-Sender: dsimic@manjaro.org
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 Content-Transfer-Encoding: 7bit
+Authentication-Results: ORIGINATING;
+        auth=pass smtp.auth=dsimic@manjaro.org smtp.mailfrom=dsimic@manjaro.org
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Hi all,
+Hello,
 
-I am developing a python binding for libfdisk, it is released under
-the terms of the LGPL2.1+.
+I'd like to implement support for an additional, alternative way for the 
+color configuration in the dmesg utility.  It would use an environment 
+variable to store the color configuration, in a way rather similar to 
+what grep(1) does using the GREP_COLORS environment variable.
 
-I have uploaded a simple website for the project, it is available at:
-https://48k.eu/python-libfdisk/
+The rationale behind this new feature is the ability to have everything 
+contained in one's ~/.bashrc, for example, with no need for additional 
+configuration files, which makes setting up, using and keeping multiple 
+machines in sync much easier.  Of course, the current way of using 
+configuration files to store the color configuration for dmesg would 
+remain untouched, so everyone would be free to make a choice.
 
-I am using this for FOSS project to partition clients remotely.
-The target computers run a Python client that uses python-libdisk to
-partition the disks.
-
-Any feedback is welcome, thanks!
-
-P.S: Karel suggested [1] time ago that I could report progress here,
-so here I am :-).
-
-[1] 
-https://lore.kernel.org/util-linux/20220411081504.izsddsnb4m3uguf5@ws.net.home/
-
---
-Jose.
+Would you, please, accept a patch that implements the above-described 
+new feature?
