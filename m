@@ -2,82 +2,63 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A6A0C00528
-	for <util-linux@archiver.kernel.org>; Mon,  7 Aug 2023 15:43:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68A11EB64DD
+	for <util-linux@archiver.kernel.org>; Wed,  9 Aug 2023 10:37:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231144AbjHGPnk (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Mon, 7 Aug 2023 11:43:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35446 "EHLO
+        id S229960AbjHIKhb (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 9 Aug 2023 06:37:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231143AbjHGPnk (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Mon, 7 Aug 2023 11:43:40 -0400
-X-Greylist: delayed 366 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 07 Aug 2023 08:43:29 PDT
-Received: from dellerweb.de (unknown [IPv6:2a02:c207:3003:236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A940519A2
-        for <util-linux@vger.kernel.org>; Mon,  7 Aug 2023 08:43:29 -0700 (PDT)
-Received: from mx3210.localdomain (unknown [142.198.148.3])
-        by dellerweb.de (Postfix) with ESMTPSA id 7C36A160027F;
-        Mon,  7 Aug 2023 17:37:20 +0200 (CEST)
-Received: by mx3210.localdomain (Postfix, from userid 1000)
-        id D605222012C; Mon,  7 Aug 2023 15:37:17 +0000 (UTC)
-Date:   Mon, 7 Aug 2023 15:37:17 +0000
-From:   John David Anglin <dave@parisc-linux.org>
-To:     util-linux@vger.kernel.org
-Subject: [PATCH] Fix build on hppa
-Message-ID: <ZNEPrah0JvjV24vw@mx3210.localdomain>
+        with ESMTP id S229457AbjHIKhb (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 9 Aug 2023 06:37:31 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A428E4A
+        for <util-linux@vger.kernel.org>; Wed,  9 Aug 2023 03:36:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1691577401;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=r8rPMpZJPdKUcctCp8kXUv9myVzmbQkpIFDy1QVsj9U=;
+        b=hUnU0bcLfws932s8lft7VoURZCV2O2uyaEeQaD4b/3Hd/ctj44gEXIabcM7QgnBuqO45G4
+        jbmt5aqIHIGr5j7/ZG7iH72KthgjXo9Wxh0n189nxxNI9jNZocN3TIPKNupAHBiIMeOTEm
+        ZgXHyFkUTOVk2kBYNTh6GOh5ahs0K34=
+Received: from mimecast-mx02.redhat.com (66.187.233.73 [66.187.233.73]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-296-YwufQa-UNWqJmJCbD8I2AQ-1; Wed, 09 Aug 2023 06:36:37 -0400
+X-MC-Unique: YwufQa-UNWqJmJCbD8I2AQ-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9F3EC1C05EB2;
+        Wed,  9 Aug 2023 10:36:37 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.225.194])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2B9B4492C3E;
+        Wed,  9 Aug 2023 10:36:36 +0000 (UTC)
+Date:   Wed, 9 Aug 2023 12:36:34 +0200
+From:   Karel Zak <kzak@redhat.com>
+To:     John David Anglin <dave@parisc-linux.org>
+Cc:     util-linux@vger.kernel.org
+Subject: Re: [PATCH] Fix build on hppa
+Message-ID: <20230809103634.jogwiltnwnbg62j6@ws.net.home>
+References: <ZNEPrah0JvjV24vw@mx3210.localdomain>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="RxVcJPfPNyJXKsOL"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <ZNEPrah0JvjV24vw@mx3210.localdomain>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+On Mon, Aug 07, 2023 at 03:37:17PM +0000, John David Anglin wrote:
+> --- ./include/audit-arch.h.save	2023-08-03 20:42:00.937401304 +0000
+> +++ ./include/audit-arch.h	2023-08-03 20:53:40.755627981 +0000
 
---RxVcJPfPNyJXKsOL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Applied, thanks.
 
-The following patch fixes the definition of SECCOMP_ARCH_NATIVE
-on hppa.
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
----
-
---- ./include/audit-arch.h.save	2023-08-03 20:42:00.937401304 +0000
-+++ ./include/audit-arch.h	2023-08-03 20:53:40.755627981 +0000
-@@ -57,6 +57,12 @@
- #    else
- # 	 define SECCOMP_ARCH_NATIVE AUDIT_ARCH_LOONGARCH64
- #    endif
-+#elif __hppa__
-+#    if __SIZEOF_POINTER__ == 4
-+#	 define SECCOMP_ARCH_NATIVE AUDIT_ARCH_PARISC
-+#    else
-+#	 define SECCOMP_ARCH_NATIVE AUDIT_ARCH_PARISC64
-+#    endif
- #else
- #    error Unknown target architecture
- #endif
-
---RxVcJPfPNyJXKsOL
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEnRzl+6e9+DTrEhyEXb/Nrl8ZTfEFAmTRD6MACgkQXb/Nrl8Z
-TfHpxBAAp5Z90KHtsxP/bKkKMnZd8tc941/Rugk9IUlx8Wl4dEpNc5zOtsdB7Yhb
-L8NSzQkYc2spCOzEindEpyO0TATWOmLLnO61+zfy+HhFgDHRR8+P5NSpQfMT+CM0
-iEMQ//PpSPvGQfvsT5da6Bwus3PC3l3yOQ1827zoWHUwIups+jQbAxp3G3zRv1kL
-BXt8lAkZKCEwYoP/uh9yRDbykDLPZ23WhNFokLcEaErukdH6XLAPqdzmLiBam+ec
-zBPLrMxT5j12Mv5j9B4QvZZn5MhhSnE4urZG3ejuI3r2oi2IQfWg2PSTL9Th8Nvz
-7RRHGcEXicHab0mYgCFKj3FnWef4XtgFluAdwdtD2SgJ62QFor8Edh9yI3u8jBvE
-ow+ZNtegeEodWnCOetsn22F6G4GpOK3qv8F7I/xargvOpkf9FGT9ZsN4NKhAXgOu
-eS+xrCt54z99QMSMB4kwdVTPlWydSzE3Z/WAV38puHBTQVCJgltFsdfAXLfexUOQ
-Mr9t/VszYgVATms9zW8iz6jYu5d6QjmLwMftRqkoMl/e8pg1TBL9vYjCY7A1vQ4G
-mHuNlm4mGBmdEAmVDCCbgNXn7ttYfWprI/K6bi3L3tDjHm61+2XgmPMMSXXnOKnP
-sWkjmhrI5MLItf8Emogh5/77RSbB5qW0GTmIA1fM1BJnikVQdec=
-=49Uf
------END PGP SIGNATURE-----
-
---RxVcJPfPNyJXKsOL--
