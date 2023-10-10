@@ -2,38 +2,38 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F3CECD4F27
-	for <util-linux@archiver.kernel.org>; Fri, 22 Sep 2023 07:48:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EBBCECD68FF
+	for <util-linux@archiver.kernel.org>; Tue, 10 Oct 2023 08:10:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231735AbjIVHs4 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Fri, 22 Sep 2023 03:48:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38342 "EHLO
+        id S234699AbjJJIKS (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 10 Oct 2023 04:10:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231671AbjIVHsz (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Fri, 22 Sep 2023 03:48:55 -0400
-X-Greylist: delayed 466 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 22 Sep 2023 00:48:47 PDT
-Received: from mail.alsdel.com (mail.alsdel.com [135.125.191.231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6674F7
-        for <util-linux@vger.kernel.org>; Fri, 22 Sep 2023 00:48:47 -0700 (PDT)
-Received: by mail.alsdel.com (Postfix, from userid 1002)
-        id 64DA044751; Fri, 22 Sep 2023 07:40:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=alsdel.com; s=mail;
-        t=1695368459; bh=hs8UwfSprGlpLexiYoB0TOycWmyQ7zBilKt0OUVnHus=;
+        with ESMTP id S234637AbjJJIKJ (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 10 Oct 2023 04:10:09 -0400
+X-Greylist: delayed 526 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 10 Oct 2023 01:10:06 PDT
+Received: from mail.colfaxdown.com (mail.colfaxdown.com [89.40.118.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 317E4CC
+        for <util-linux@vger.kernel.org>; Tue, 10 Oct 2023 01:10:06 -0700 (PDT)
+Received: by mail.colfaxdown.com (Postfix, from userid 1001)
+        id DA56F82A45; Tue, 10 Oct 2023 09:01:13 +0100 (BST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=colfaxdown.com;
+        s=mail; t=1696924877;
+        bh=+EeLr85ZLPomICoBd9HkRfsh6EPM8XdZbVfrMzFBjC8=;
         h=Date:From:To:Subject:From;
-        b=HCj30eVoKOpP8tuzVBmVzkMcNXR62SUOpImlmauNsHzwuwgTEIziJ2vfw+s4+y5Sk
-         etrwBQ/AG9gDMeZ+Jp/PNKXpQmVjXgKGkKdIs6iizsgWRW+sQp8Kt5Hqc9ENaMr4xw
-         kDJUS91lXjUa0IpBBlyUg1ydgkIFcnA6zIUq1dhqHBIKOD3F3H6zSpalc5uSK4jMts
-         LoDa5rhjEZ+ZJhTZgLD3ieYiw9VLZeXjACRFp3vJ3D8v3mb+XeR+AoUpFeMojrcAYp
-         325l9K5Q8+9Um9JBRNTJr4Oi3u/H6XiVKOxG9vEce3RB/bsMVzchLVDxrmOk24uJ7d
-         XbAhe2PK6OC6A==
-Received: by mail.alsdel.com for <util-linux@vger.kernel.org>; Fri, 22 Sep 2023 07:40:47 GMT
-Message-ID: <20230922064500-0.1.2g.he91.0.4lj33px17n@alsdel.com>
-Date:   Fri, 22 Sep 2023 07:40:47 GMT
-From:   =?UTF-8?Q? "Miko=C5=82aj_Niszkowski" ?= 
-        <mikolaj.niszkowski@alsdel.com>
+        b=N600aVy3fy5MhFxNIw2WOViNVIxGX56YV6VopA4p/q6snck5UMqFrWcABXIBNv7xO
+         vHRj02j1X8lXSp5XwAVHBURBugcPk/MsQ8zMIWQFfPzRf7L+c5yGgzjv11AitMY9B7
+         Ba20FRqC8BiJ9+BSc0+2T3NJIRO/UWHXYFhrPvGj8hZPp/oWPeIdwdnTJJa34yW6Ls
+         mjHd/pjhTRm+woW8P/PHOpkJrUQkVWnevEZWX/xJ2RIWSHfAzDne7ZnQ3Rov7VXjZo
+         mI8V4qoLnM8mV1dCiEUTF4wCSzKXpaGBRAPwvWxHVoUro2xsUBfbLwFenU/BrN8v8Y
+         dwtfNz7EG9K6g==
+Received: by mail.colfaxdown.com for <util-linux@vger.kernel.org>; Tue, 10 Oct 2023 08:01:00 GMT
+Message-ID: <20231010074500-0.1.5o.9qjq.0.00q47ezltd@colfaxdown.com>
+Date:   Tue, 10 Oct 2023 08:01:00 GMT
+From:   "Tomasz Wereszko" <tomasz.wereszko@colfaxdown.com>
 To:     <util-linux@vger.kernel.org>
-Subject: =?UTF-8?Q?Roz=C5=82o=C5=BCenie_zobowi=C4=85zania_na_raty?=
-X-Mailer: mail.alsdel.com
+Subject: =?UTF-8?Q?Przyznanie_=C5=9Brodk=C3=B3w_na_rozw=C3=B3j_firmy?=
+X-Mailer: mail.colfaxdown.com
 MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
@@ -41,22 +41,24 @@ Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Dzie=C5=84 dobry,
+Szanowni Pa=C5=84stwo,
 
-czy zobowi=C4=85zania Pa=C5=84stwa firmy przekraczaj=C4=85 warto=C5=9B=C4=
-=87 maj=C4=85tku?
+czy chcieliby Pa=C5=84stwo skorzysta=C4=87 z dofinansowania na zamkni=C4=99=
+te szkolenie, dopasowane do Pa=C5=84stwa potrzeb rozwojowych?
 
-Je=C5=9Bli tak, to chcia=C5=82bym zaprezentowa=C4=87 rozwi=C4=85zania, kt=
-=C3=B3re pozwol=C4=85 Pa=C5=84stwu umorzy=C4=87 ich cz=C4=99=C5=9B=C4=87.
+Jako lider w pozyskiwaniu =C5=9Brodk=C3=B3w zewn=C4=99trznych finansuj=C4=
+=85cych rozw=C3=B3j przedsi=C4=99biorstw mo=C5=BCemy pom=C3=B3c Pa=C5=84s=
+twu obni=C5=BCy=C4=87 koszty inwestycji w rozw=C3=B3j pracownik=C3=B3w na=
+wet o 80%.
 
-Prowadz=C4=99 kancelari=C4=99, kt=C3=B3ra wspiera przedsi=C4=99biorc=C3=B3=
-w w ca=C5=82ym procesie restrukturyzacji, odpowiadaj=C4=85c za przygotowa=
-nie dokumentacji, podj=C4=99cie odpowiednich krok=C3=B3w i  kontakt w Pa=C5=
-=84stwa imieniu z organami.=20
+Organizujemy szkolenia w formie stacjonarnej i zdalnej dopasowane do potr=
+zeb i konkretnych wyzwa=C5=84 w organizacji. Od 20 lat zapewniamy sperson=
+alizowane rozwi=C4=85zania, z kt=C3=B3rych skorzysta=C5=82o blisko 4,600 =
+uczestnik=C3=B3w.
 
-Czy mog=C4=99 przedstawi=C4=87, co mo=C5=BCemy dla Pa=C5=84stwa zrobi=C4=87=
-?
+Prosz=C4=99 o informacj=C4=99 czy mo=C5=BCemy um=C3=B3wi=C4=87 si=C4=99 n=
+a spotkanie lub kr=C3=B3tk=C4=85 rozmow=C4=99.
 
 
 Pozdrawiam
-Miko=C5=82aj Niszkowski
+Tomasz Wereszko
