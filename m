@@ -2,63 +2,143 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBBCECD68FF
-	for <util-linux@archiver.kernel.org>; Tue, 10 Oct 2023 08:10:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD832CD98C4
+	for <util-linux@archiver.kernel.org>; Tue, 10 Oct 2023 21:18:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234699AbjJJIKS (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 10 Oct 2023 04:10:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46638 "EHLO
+        id S230505AbjJJVSw (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Tue, 10 Oct 2023 17:18:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234637AbjJJIKJ (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 10 Oct 2023 04:10:09 -0400
-X-Greylist: delayed 526 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 10 Oct 2023 01:10:06 PDT
-Received: from mail.colfaxdown.com (mail.colfaxdown.com [89.40.118.23])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 317E4CC
-        for <util-linux@vger.kernel.org>; Tue, 10 Oct 2023 01:10:06 -0700 (PDT)
-Received: by mail.colfaxdown.com (Postfix, from userid 1001)
-        id DA56F82A45; Tue, 10 Oct 2023 09:01:13 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=colfaxdown.com;
-        s=mail; t=1696924877;
-        bh=+EeLr85ZLPomICoBd9HkRfsh6EPM8XdZbVfrMzFBjC8=;
-        h=Date:From:To:Subject:From;
-        b=N600aVy3fy5MhFxNIw2WOViNVIxGX56YV6VopA4p/q6snck5UMqFrWcABXIBNv7xO
-         vHRj02j1X8lXSp5XwAVHBURBugcPk/MsQ8zMIWQFfPzRf7L+c5yGgzjv11AitMY9B7
-         Ba20FRqC8BiJ9+BSc0+2T3NJIRO/UWHXYFhrPvGj8hZPp/oWPeIdwdnTJJa34yW6Ls
-         mjHd/pjhTRm+woW8P/PHOpkJrUQkVWnevEZWX/xJ2RIWSHfAzDne7ZnQ3Rov7VXjZo
-         mI8V4qoLnM8mV1dCiEUTF4wCSzKXpaGBRAPwvWxHVoUro2xsUBfbLwFenU/BrN8v8Y
-         dwtfNz7EG9K6g==
-Received: by mail.colfaxdown.com for <util-linux@vger.kernel.org>; Tue, 10 Oct 2023 08:01:00 GMT
-Message-ID: <20231010074500-0.1.5o.9qjq.0.00q47ezltd@colfaxdown.com>
-Date:   Tue, 10 Oct 2023 08:01:00 GMT
-From:   "Tomasz Wereszko" <tomasz.wereszko@colfaxdown.com>
-To:     <util-linux@vger.kernel.org>
-Subject: =?UTF-8?Q?Przyznanie_=C5=9Brodk=C3=B3w_na_rozw=C3=B3j_firmy?=
-X-Mailer: mail.colfaxdown.com
+        with ESMTP id S229734AbjJJVSv (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Tue, 10 Oct 2023 17:18:51 -0400
+X-Greylist: delayed 130 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 10 Oct 2023 14:18:48 PDT
+Received: from pl1.haspere.com (pl1.haspere.com [209.177.156.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5636A91
+        for <util-linux@vger.kernel.org>; Tue, 10 Oct 2023 14:18:48 -0700 (PDT)
+Received: from roomba.dyweni.com (localhost [127.0.0.1])
+        by pl1.haspere.com (Postfix) with ESMTP id A47762B417;
+        Tue, 10 Oct 2023 16:16:37 -0500 (CDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Date:   Tue, 10 Oct 2023 16:16:37 -0500
+From:   Dyweni - Util-Linux <DDh8rwTFp32E@dyweni.com>
+To:     util-linux@vger.kernel.org
+Subject: Unexpected interaction between script and screen
+Reply-To: DDh8rwTFp32E@dyweni.com
+Mail-Reply-To: DDh8rwTFp32E@dyweni.com
+Message-ID: <b6a590f6024faea4c2b738a70774bc47@dyweni.com>
+X-Sender: DDh8rwTFp32E@dyweni.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-Szanowni Pa=C5=84stwo,
+Hi All,
 
-czy chcieliby Pa=C5=84stwo skorzysta=C4=87 z dofinansowania na zamkni=C4=99=
-te szkolenie, dopasowane do Pa=C5=84stwa potrzeb rozwojowych?
+I'm running into an issue with the interaction between 'script' and
+'screen' whereby the active/focused session inside 'screen' is
+unexpectedly terminated when the SSH connection is lost.  See below for
+examples of this without running script, with script and one screen
+session, and with script and multiple screen sessions).
 
-Jako lider w pozyskiwaniu =C5=9Brodk=C3=B3w zewn=C4=99trznych finansuj=C4=
-=85cych rozw=C3=B3j przedsi=C4=99biorstw mo=C5=BCemy pom=C3=B3c Pa=C5=84s=
-twu obni=C5=BCy=C4=87 koszty inwestycji w rozw=C3=B3j pracownik=C3=B3w na=
-wet o 80%.
+I'm using 'script' to log/record all activity and is started
+automatically via a bashrc script.
 
-Organizujemy szkolenia w formie stacjonarnej i zdalnej dopasowane do potr=
-zeb i konkretnych wyzwa=C5=84 w organizacji. Od 20 lat zapewniamy sperson=
-alizowane rozwi=C4=85zania, z kt=C3=B3rych skorzysta=C5=82o blisko 4,600 =
-uczestnik=C3=B3w.
+I've tracked the problem down to 'ul_pty_proxy_master()' where it calls
+'ul_pty_write_eof_to_child()' which sends CTRL-D to the child.  This
+in-turn gets passed through 'screen' to the inner 'script' and child
+processes.  The real immediate child (the bash shell that started
+'screen') is never closed.
 
-Prosz=C4=99 o informacj=C4=99 czy mo=C5=BCemy um=C3=B3wi=C4=87 si=C4=99 n=
-a spotkanie lub kr=C3=B3tk=C4=85 rozmow=C4=99.
+What can be done so that outer 'script' and associated processes are
+terminated/cleaned up, while leaving the screen server and all of it's
+sessions unaffected?  Maybe add an option to 'script' so that it kills
+the immediate child process instead of sending CTRL-D to it?
+
+Thank you!
 
 
-Pozdrawiam
-Tomasz Wereszko
+====> Using normal ssh/screen <====
+
+-- before ssh connection loss --
+24469  \_ sshd: root@pts/3
+24474  |   \_ -bash
+24482  |       \_ screen
+24483  |           \_ SCREEN
+24484  |               \_ -/bin/bash
+
+-- after ssh connection loss --
+24483 SCREEN
+24484  \_ -/bin/bash
+
+-- actuan/expected result --
+The session running inside screen stays running and the session that
+started screen is properly terminated/cleaned up.
+
+
+====> Using ssh/script/screen/script (With one screen session) <====
+
+-- before ssh connection loss --
+25180  \_ sshd: root@pts/1
+25183  |   \_ -bash
+25191  |       \_ script -f 25183.3119.log
+25192  |           \_ bash -i
+25206  |               \_ screen
+25207  |                   \_ SCREEN
+25208  |                       \_ -/bin/bash
+25217  |                           \_ script -f 25208.26983.log
+25218  |                               \_ bash -i
+
+-- after ssh connection loss --
+25191 script -f 25183.3119.log
+25192  \_ bash -i
+
+-- actual result --
+The session running inside screen is shutdown, sshd and screen (both the
+client [pid 25206] and the server [pid 25207]) are terminated, but the
+outer script remains running.
+
+-- expected result --
+The session that started screen (the sshd process, the immediate child
+script, and the screen client [pid 25206]) should have been terminated/
+cleaned up, leaving the screen server [pid 25207] and all sessions
+intact.
+
+
+
+====> Using ssh/script/screen/script (With two screen sessions) <====
+
+-- before ssh connection loss --
+25907  |   \_ -bash
+25915  |       \_ script -f 25907.11974.log
+25916  |           \_ bash -i
+25930  |               \_ screen
+25931  |                   \_ SCREEN
+25932  |                       \_ -/bin/bash
+25940  |                       |   \_ script -f 25932.2808.log
+25941  |                       |       \_ bash -i
+25953  |                       \_ -/bin/bash
+25961  |                           \_ script -f 25953.19131.log
+25962  |                               \_ bash -i
+
+-- after ssh connection loss --
+25915 script -f 25907.11974.log
+25916  \_ bash -i
+25930      \_ screen
+25931          \_ SCREEN
+25932              \_ -/bin/bash
+25940                  \_ script -f 25932.2808.log
+25941                      \_ bash -i
+
+-- actual result --
+The active session running inside screen is shutdown but screen remains
+running due to the other sessions which were running.  The sshd process
+is terminated but the outer script remains running.
+
+-- expected result --
+The session that started screen (the sshd process, the immediate child
+script, and the screen client [pid 25930]) should have been terminated/
+cleaned up, leaving the screen server [pid 25931] and all sessions
+intact.
+
