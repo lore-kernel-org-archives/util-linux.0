@@ -2,89 +2,92 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DF93C4332F
-	for <util-linux@archiver.kernel.org>; Wed,  1 Nov 2023 10:06:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13EABC4332F
+	for <util-linux@archiver.kernel.org>; Wed,  1 Nov 2023 11:56:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230200AbjKAKGL (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Wed, 1 Nov 2023 06:06:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33146 "EHLO
+        id S235288AbjKAL4d (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Wed, 1 Nov 2023 07:56:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230523AbjKAKGL (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Wed, 1 Nov 2023 06:06:11 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4446B109
-        for <util-linux@vger.kernel.org>; Wed,  1 Nov 2023 03:05:17 -0700 (PDT)
+        with ESMTP id S235372AbjKAL4c (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Wed, 1 Nov 2023 07:56:32 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28836DC
+        for <util-linux@vger.kernel.org>; Wed,  1 Nov 2023 04:55:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1698833116;
+        s=mimecast20190719; t=1698839748;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=i9btAgnJACW8iWPVB0Trjf6OGdWWztB3rJIaEhwcT9U=;
-        b=IJbcn+SWItV7oqVIhVCnmVnxyAqRc67fRAAiCpgVA7AohcPVYIGuGZTOPXv6OwGHD2HV8h
-        6zhM0Gd1izkuFabaf3ZCFW7Wsbcic5gAXpwdoyGteRXZrHAyg6A/9FuLeBXQT7+Oi69nS2
-        e5VzpfWo3tcL4sqcSknkysEAfrIY76Q=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-611-92CitUPfNbiXZqR4QiXpdg-1; Wed,
- 01 Nov 2023 06:05:12 -0400
-X-MC-Unique: 92CitUPfNbiXZqR4QiXpdg-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+        bh=baCfH+6MKDGFsT+Bylfqjfx3tJ2jBLxyGupQS796/64=;
+        b=FMI6Uqy92/0Ytk+sHOBKp8piT3/vA4Gg8yHE2vAczPMjV4tLdT2LTN5iG2+eCZqwWyCq9W
+        ctIJE/ctcSFA2+7cy1V17/l6UuvfmAYjOG1T3KY+Pu90uXEu4qp/QZ9zCXahSPddoXuy3N
+        qSCQhS3MTWktJKQ6cSPdot2ff55J+UI=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-674-63FWbPAlMAGCRtLh9KIKcg-1; Wed, 01 Nov 2023 07:55:43 -0400
+X-MC-Unique: 63FWbPAlMAGCRtLh9KIKcg-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 826653C025A1;
-        Wed,  1 Nov 2023 10:05:12 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5B39E185A782;
+        Wed,  1 Nov 2023 11:55:43 +0000 (UTC)
 Received: from ws.net.home (unknown [10.45.226.1])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id A9F5140C6EBF;
-        Wed,  1 Nov 2023 10:05:11 +0000 (UTC)
-Date:   Wed, 1 Nov 2023 11:05:09 +0100
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id A5D20492BFA;
+        Wed,  1 Nov 2023 11:55:42 +0000 (UTC)
+Date:   Wed, 1 Nov 2023 12:55:40 +0100
 From:   Karel Zak <kzak@redhat.com>
-To:     Dragan Simic <dsimic@manjaro.org>
-Cc:     Junxiao Bi <junxiao.bi@oracle.com>, util-linux@vger.kernel.org,
-        thomas@t-8ch.de
+To:     Junxiao Bi <junxiao.bi@oracle.com>
+Cc:     util-linux@vger.kernel.org, thomas@t-8ch.de, dsimic@manjaro.org
 Subject: Re: [PATCH V2] loopdev: report lost loop device file error
-Message-ID: <20231101100509.fzfgtydua26euhyy@ws.net.home>
+Message-ID: <20231101115540.eqz6q3prnqhi43y5@ws.net.home>
 References: <20231025203603.48584-1-junxiao.bi@oracle.com>
- <c90766480ad9ac312a99359599e1029a@manjaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <c90766480ad9ac312a99359599e1029a@manjaro.org>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.2
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20231025203603.48584-1-junxiao.bi@oracle.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.10
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-On Tue, Oct 31, 2023 at 06:34:03PM +0100, Dragan Simic wrote:
-> On 2023-10-25 22:36, Junxiao Bi wrote:
-> > If a /dev/loopX is lost because someone might have removed it by
-> > mistake,
-> > future losetup operations on that loop device will fail.
-> > For examples, following cmds will fail when loop device file is lost.
-> > - "losetup -d $loop_device"
-> > - "losetup -f $file" or "mount $file $dev"
-> > 
-> > Since /sysfs still have the loop device intact, detect that and report
-> > detailed log message to guide user to recover the lost loop device file.
-> > 
-> >     # ./losetup -a
-> >     /dev/loop0: [64512]:19133870 (/tmp/test.img)
-> >     # rm -rf /dev/loop0
-> >     # ./losetup -d /dev/loop0
-> >     /dev/loop0 is lost, run "mknod /dev/loop0 b 7 0" to recover it.
-> >     lt-losetup: /dev/loop0: detach failed: No such file or directory
-> 
-> Maybe, but just maybe, we shouldn't provide instructions how to fix the
-> issue, but just print the major/minor numbers and let the user figure out
-> what's going on and how to fix the issue.
+On Wed, Oct 25, 2023 at 01:36:03PM -0700, Junxiao Bi wrote:
+> If a /dev/loopX is lost because someone might have removed it by mistake,
+> future losetup operations on that loop device will fail.
 
-The error message is just detail from my point of view :) Junxiao
-forgot to highlight that losetup (--all/--list) do not report at all 
-the loop devices without /dev node. That's bug, because such devices
-are still used by kernel and should not be hidden for system admins.
+ Thanks Junxiao,
 
-I'm just playing with it and I'll push Junxiao's patch with some
-modifications.
+ I has move aggressive with the changes and there is result:
+ https://github.com/util-linux/util-linux/pull/2566
+
+ For me the most important is to report used devices although there is
+ not /dev loop node.
+
+> +static void loopcxt_scan_lost_device_file(struct loopdev_cxt *lc)
+> +{
+> +	static int scanned = 0;
+> +	dev_t devno;
+> +
+> +	/*only scan sysfs once for losetup cmd*/
+> +	if (!scanned)
+> +		scanned = 1;
+> +	else
+> +		return;
+> +	devno = sysfs_devname_to_devno(lc->device);
+> +	if (devno <= 0)
+> +		return;
+> +
+> +	fprintf(stderr, "%s is lost, run \"mknod %s b %d %d\" to recover it.\n",
+> +			lc->device, lc->device, major(devno), minor(devno));
+> +}
+
+ The lib/loopdev.c code is also used in libmount, so it should not
+ directly print anything on stderr. It's application business to print
+ the warning. I have moved it to losetup.c
 
     Karel
 
