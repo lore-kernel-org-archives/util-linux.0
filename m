@@ -2,89 +2,164 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EE2AC4332F
-	for <util-linux@archiver.kernel.org>; Sat,  4 Nov 2023 04:52:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC5E4C4332F
+	for <util-linux@archiver.kernel.org>; Tue,  7 Nov 2023 00:01:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229585AbjKDEwE (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Sat, 4 Nov 2023 00:52:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49772 "EHLO
+        id S233227AbjKGAB7 (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Mon, 6 Nov 2023 19:01:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229509AbjKDEwD (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Sat, 4 Nov 2023 00:52:03 -0400
-Received: from tarta.nabijaczleweli.xyz (tarta.nabijaczleweli.xyz [139.28.40.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1684C123
-        for <util-linux@vger.kernel.org>; Fri,  3 Nov 2023 21:51:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nabijaczleweli.xyz;
-        s=202305; t=1699073515;
-        bh=40Lzc1MBqcFjmtyd4N1wtrTovDKOZgJE400r4XMDYK4=;
-        h=Date:From:To:Subject:From;
-        b=o8TtORhXg7a6KaOpQ83dYx6Glb/6ayW32Kcs7BTeUuSr7V/TG35UDB0b3JFsF5hK3
-         2KovA9kwk4CunLEScUAvcH0i5U4QtbpVNw1g2jkbopGlBM59Oo8rshm8UNLJze2Hkf
-         aZYPxj8hpELBeEf7GDnT0pHXXh7kN87QmkvXZWKF0WwjUA7NzAfYTR1uyRTn5B/GA9
-         yNkVOt8Xlok7mhRx56tpDoVcvN05gbPImkpsEC1FIoJ851p/DeJjL5i9QQ5diRToK6
-         WRpznSmyd+ugaD9e78MswjzV6OKQzNiMlYOZZb+r0jB13mXDSN+9YQTQWCiIfagO3c
-         zkQIcr8MxkRGA==
-Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
-        by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id 37D3611214
-        for <util-linux@vger.kernel.org>; Sat,  4 Nov 2023 05:51:55 +0100 (CET)
-Date:   Sat, 4 Nov 2023 05:51:55 +0100
-From:   =?utf-8?B?0L3QsNCx?= <nabijaczleweli@nabijaczleweli.xyz>
-To:     util-linux@vger.kernel.org
-Subject: [PATCH] fstrim.8: -v doesn't take an argument
-Message-ID: <kvjsrwxmn5rtxniy5jdceoo4s2l4fqfyarz5jdifsip75ydhlf@tarta.nabijaczleweli.xyz>
+        with ESMTP id S233065AbjKGAB7 (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Mon, 6 Nov 2023 19:01:59 -0500
+Received: from pl1.haspere.com (pl1.haspere.com [209.177.156.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F432BD
+        for <util-linux@vger.kernel.org>; Mon,  6 Nov 2023 16:01:55 -0800 (PST)
+Received: from roomba.dyweni.com (localhost [127.0.0.1])
+        by pl1.haspere.com (Postfix) with ESMTP id 3CDEA2B46E;
+        Mon,  6 Nov 2023 18:01:55 -0600 (CST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="or4h4etbeqwsw5n2"
-Content-Disposition: inline
-User-Agent: NeoMutt/20231103
+Date:   Mon, 06 Nov 2023 18:01:55 -0600
+From:   Dyweni - Util-Linux <DDh8rwTFp32E@dyweni.com>
+To:     util-linux@vger.kernel.org
+Subject: Re: Unexpected interaction between script and screen
+Reply-To: DDh8rwTFp32E@dyweni.com
+Mail-Reply-To: DDh8rwTFp32E@dyweni.com
+In-Reply-To: <b6a590f6024faea4c2b738a70774bc47@dyweni.com>
+References: <b6a590f6024faea4c2b738a70774bc47@dyweni.com>
+Message-ID: <7a796ba6caa03ceca594dec9add67fe8@dyweni.com>
+X-Sender: DDh8rwTFp32E@dyweni.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
+Hi,
 
---or4h4etbeqwsw5n2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Is there any idea on resolving this issue?  What would be the best
+way to prevent a session running inside screen from being
+unexpectedly ended by script when the ssh connection to the server
+is lost?
 
----
-Based on 2.38.1.
+I'd like to find the best approach before coding a solution.  The
+ideas I've had include:
+* simply skipping sending the EOF to the child
+* killing the child
+* enabling the bash option that requires pressing CTRL-D more than
+   once to exit (which seems ugly to me)
+* researching for some other solution I'm not aware of yet
 
-diff '--color=3Dauto' -u -r util-linux-2.38.1.old/sys-utils/fstrim.8.adoc u=
-til-linux-2.38.1/sys-utils/fstrim.8.adoc
---- util-linux-2.38.1.old/sys-utils/fstrim.8.adoc	2022-05-11 10:13:11.12353=
-0407 +0200
-+++ util-linux-2.38.1/sys-utils/fstrim.8.adoc	2023-11-04 05:49:02.371888189=
- +0100
-@@ -12,7 +12,7 @@
-=20
- =3D=3D SYNOPSIS
-=20
--*fstrim* [*-Aa*] [*-o* _offset_] [*-l* _length_] [*-m* _minimum-size_] [*-=
-v* _mountpoint_]
-+*fstrim* [*-Aa*] [*-o* _offset_] [*-l* _length_] [*-m* _minimum-size_] [*-=
-v*] _mountpoint_
-=20
- =3D=3D DESCRIPTION
+Please advise,
+Dyweni
 
---or4h4etbeqwsw5n2
-Content-Type: application/pgp-signature; name="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmVFzecACgkQvP0LAY0m
-WPHiGg/+JP6mUtLRq41Qwk9WEtnVSi+SWEzXLUEix6KhX37ZhQrQeYxX//1mFo6E
-4HqYjKY5rTy+rD++FU3WUjwgjWRA5S1qSusrRG1ljRGO5GkpshG1ENGL98QQ+n0w
-iO2pEkpSR7S1RIaVl2CQjfmCjMop93zeYov7hJ67SlzCzumOfNihs89f6lyfkrDM
-yYaSUGpkjONQOkDgUB1nxRrO5SMqag8aFb41v2r5py0zulwAXSQ3EECwZzKeTVc/
-tK4WMJ1SqlR1+SIkN/2XiIRZ22x3Nk6r+6lnSa+SOGQ+oONC/qzMsKow+hV/IZ8r
-/s9IHz6/+FZSup3eUqa+E85c/cJntynOkN2ZOVLi9rKuDH5Tzhc/GGqIpX/bRwfD
-s+7BYY7kbWulPZDud9JMqxft8SkUrVY1vcqMaOXF64Nk82g62ACC5S2Fc6aFi4B/
-okKvblrdBFUuou4aR84XLTAqjiaIInt7r3QuNUsc0sH4bzcHtNGBMoBLcwtEwNJ/
-pNTHd++OsBEtm6SrmGzLd+nTc1LWSWGvKtqNxUgyJWJ93mgYM6LBIWqww1lTRmrP
-S9nRqHUnEvQri1eQWE3iO6+skUcu1ivWtiIqD0d8U6dHch+xjkxEU+lAseJOy5nM
-7uKm9rG2lwygDi3APtET/PnoBukRo5A7slKtiLhy8wudvw2Rv9k=
-=PJD2
------END PGP SIGNATURE-----
-
---or4h4etbeqwsw5n2--
+On 2023-10-10 16:16, Dyweni - Util-Linux wrote:
+> Hi All,
+> 
+> I'm running into an issue with the interaction between 'script' and
+> 'screen' whereby the active/focused session inside 'screen' is
+> unexpectedly terminated when the SSH connection is lost.  See below for
+> examples of this without running script, with script and one screen
+> session, and with script and multiple screen sessions).
+> 
+> I'm using 'script' to log/record all activity and is started
+> automatically via a bashrc script.
+> 
+> I've tracked the problem down to 'ul_pty_proxy_master()' where it calls
+> 'ul_pty_write_eof_to_child()' which sends CTRL-D to the child.  This
+> in-turn gets passed through 'screen' to the inner 'script' and child
+> processes.  The real immediate child (the bash shell that started
+> 'screen') is never closed.
+> 
+> What can be done so that outer 'script' and associated processes are
+> terminated/cleaned up, while leaving the screen server and all of it's
+> sessions unaffected?  Maybe add an option to 'script' so that it kills
+> the immediate child process instead of sending CTRL-D to it?
+> 
+> Thank you!
+> 
+> 
+> ====> Using normal ssh/screen <====
+> 
+> -- before ssh connection loss --
+> 24469  \_ sshd: root@pts/3
+> 24474  |   \_ -bash
+> 24482  |       \_ screen
+> 24483  |           \_ SCREEN
+> 24484  |               \_ -/bin/bash
+> 
+> -- after ssh connection loss --
+> 24483 SCREEN
+> 24484  \_ -/bin/bash
+> 
+> -- actuan/expected result --
+> The session running inside screen stays running and the session that
+> started screen is properly terminated/cleaned up.
+> 
+> 
+> ====> Using ssh/script/screen/script (With one screen session) <====
+> 
+> -- before ssh connection loss --
+> 25180  \_ sshd: root@pts/1
+> 25183  |   \_ -bash
+> 25191  |       \_ script -f 25183.3119.log
+> 25192  |           \_ bash -i
+> 25206  |               \_ screen
+> 25207  |                   \_ SCREEN
+> 25208  |                       \_ -/bin/bash
+> 25217  |                           \_ script -f 25208.26983.log
+> 25218  |                               \_ bash -i
+> 
+> -- after ssh connection loss --
+> 25191 script -f 25183.3119.log
+> 25192  \_ bash -i
+> 
+> -- actual result --
+> The session running inside screen is shutdown, sshd and screen (both 
+> the
+> client [pid 25206] and the server [pid 25207]) are terminated, but the
+> outer script remains running.
+> 
+> -- expected result --
+> The session that started screen (the sshd process, the immediate child
+> script, and the screen client [pid 25206]) should have been terminated/
+> cleaned up, leaving the screen server [pid 25207] and all sessions
+> intact.
+> 
+> 
+> 
+> ====> Using ssh/script/screen/script (With two screen sessions) <====
+> 
+> -- before ssh connection loss --
+> 25907  |   \_ -bash
+> 25915  |       \_ script -f 25907.11974.log
+> 25916  |           \_ bash -i
+> 25930  |               \_ screen
+> 25931  |                   \_ SCREEN
+> 25932  |                       \_ -/bin/bash
+> 25940  |                       |   \_ script -f 25932.2808.log
+> 25941  |                       |       \_ bash -i
+> 25953  |                       \_ -/bin/bash
+> 25961  |                           \_ script -f 25953.19131.log
+> 25962  |                               \_ bash -i
+> 
+> -- after ssh connection loss --
+> 25915 script -f 25907.11974.log
+> 25916  \_ bash -i
+> 25930      \_ screen
+> 25931          \_ SCREEN
+> 25932              \_ -/bin/bash
+> 25940                  \_ script -f 25932.2808.log
+> 25941                      \_ bash -i
+> 
+> -- actual result --
+> The active session running inside screen is shutdown but screen remains
+> running due to the other sessions which were running.  The sshd process
+> is terminated but the outer script remains running.
+> 
+> -- expected result --
+> The session that started screen (the sshd process, the immediate child
+> script, and the screen client [pid 25930]) should have been terminated/
+> cleaned up, leaving the screen server [pid 25931] and all sessions
+> intact.
