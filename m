@@ -2,173 +2,480 @@ Return-Path: <util-linux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C2E9C4332F
-	for <util-linux@archiver.kernel.org>; Thu,  9 Nov 2023 15:14:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7D8EC4332F
+	for <util-linux@archiver.kernel.org>; Fri, 10 Nov 2023 23:27:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232193AbjKIPOy (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Thu, 9 Nov 2023 10:14:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55898 "EHLO
+        id S229679AbjKJX1H (ORCPT <rfc822;util-linux@archiver.kernel.org>);
+        Fri, 10 Nov 2023 18:27:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231835AbjKIPOw (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Thu, 9 Nov 2023 10:14:52 -0500
-Received: from EUR02-VI1-obe.outbound.protection.outlook.com (mail-vi1eur02on2044.outbound.protection.outlook.com [40.107.241.44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4787F18B
-        for <util-linux@vger.kernel.org>; Thu,  9 Nov 2023 07:14:50 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Fh1WR0I/POeUsBpryz88aV5D0ca6dhXWQuKEDUb7HHpiwQcdoIA4d2cxgb8me4ZpXUu4a0+lnrzjxi1mehwSKdmzv4cPOruKFaBY+csJqcqNqde5rrW+cj7qu8m538Ah1dMO+9bqCtfPQCIz4W6Kk8NDavKdlTVayIOpSoC56HNnRl+LeTDS0Lw/dDi/BhOym2TBkrwO+zjFrZHv+KqwAEVG+wq1zKctmg7VvACbuoDoz2M4pO+jVVUSsi69xntlX/wrIueoiABickNs4CuoAM9tSeu0wxI3SsxxJEorKxLqmJWSTQhwGrmASBG3SDj0GDcGd4ItaCx1JXzECO4uJQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=/QYIvMWhQTdUWsvNpS1tldwUqtk2NW3FgNdvUHScCjI=;
- b=c/twkO+VJgp/09Q7ohwfivJpgqB10VCc+fsWg9o4iwnluj0DVs3r6t1wbgiO6qE24KNI8sWDtjEILtqoxbhDc1ASMht3b5foH67rZNzpf9vHcj5AQVN5SOwvYJwbpoRZYowtdNeW6rYUb3HuULCuCLpYtZInwqCVSlPdklsS4OHYSVVHaYILMWSWyyx2hbnQhECGDTVZma+Fvv1fiBlZo7enf+Pnh/sJVc1f1SXNzb+Si1/o/tDbIakdGYLg/xPYG6upfyhyTSYxzgLokQUbpLOMS/Qh2YcPQzrtSsoCMNGQAkwEUZAz1nxIOq4zfC2yBU/WN9OLVlrQfdJv0w506g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=sap.com; dmarc=pass action=none header.from=sap.com; dkim=pass
- header.d=sap.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sap.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/QYIvMWhQTdUWsvNpS1tldwUqtk2NW3FgNdvUHScCjI=;
- b=KtD6Kq1wU8ZQ8WzFbxdRIPF44pZ5YNyqnV3yzPzyTbnAljcDzJj/OozB+IfVBc9FQ0TdwOtUC9ee9fmhuGaT1jjMHuvFrz8/xIWwY8bV12sX+EpsKTH9zUYo024lZXnIGQer71QsyRYTbReZGf2nbYwPzSSjlFKsfA3xCroHdNiWEt74+gcRanUikqAtii9pzTpAVXwtmtz+T0AXxUU8HeTuEyh7ZGK8lne5Apda+ndEusa5kmeRC+nHaNIzlrX+yuAdICQ/FIv+rvOq7qZu1EXyKaFGGfKUNTwtqprGgmTCWe6pBVU0KTstz6KF3buyYnPlYygQnTyJ0ySZZCsiTg==
-Received: from AS4PR02MB8550.eurprd02.prod.outlook.com (2603:10a6:20b:585::11)
- by GV1PR02MB10909.eurprd02.prod.outlook.com (2603:10a6:150:16c::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6954.29; Thu, 9 Nov
- 2023 15:14:47 +0000
-Received: from AS4PR02MB8550.eurprd02.prod.outlook.com
- ([fe80::3877:e1fc:32e5:9fa1]) by AS4PR02MB8550.eurprd02.prod.outlook.com
- ([fe80::3877:e1fc:32e5:9fa1%4]) with mapi id 15.20.6954.028; Thu, 9 Nov 2023
- 15:14:47 +0000
-From:   "Trapp, Michael" <michael.trapp@sap.com>
-To:     Karel Zak <kzak@redhat.com>
-CC:     Goldwyn Rodrigues <rgoldwyn@suse.de>,
-        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Subject: Re: [PATCH] libuuid: avoid truncate clocks.txt to improve performance
-Thread-Topic: [PATCH] libuuid: avoid truncate clocks.txt to improve
- performance
-Thread-Index: AQHZ+865qRVpb0wehk6TCWlvzqePHbBu0/QAgANzVoA=
-Date:   Thu, 9 Nov 2023 15:14:47 +0000
-Message-ID: <3C75FC1E-BC1E-4623-B936-37C00142BAB9@sap.com>
-References: <i4fuwkw2hvj6gge3uhuy3jlq5gg4ls7djibygcb5duxhumvllx@cernuqwwl7pi>
- <20231107103302.paeetyxxlu36me57@ws.net.home>
-In-Reply-To: <20231107103302.paeetyxxlu36me57@ws.net.home>
-Accept-Language: de-DE, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: Apple Mail (2.3774.200.91.1.1)
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=sap.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: AS4PR02MB8550:EE_|GV1PR02MB10909:EE_
-x-ms-office365-filtering-correlation-id: 97dfaf77-0a17-4b98-c064-08dbe1369ca5
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: tHRzq2nTkkMlqpKg1YIjuQNlxJwZMZ1MGqgrf/R/kmiU/FiDaJ125Y5G7SMFr7lEAY+/w7L0K/Tn5oxa9mR1C7Vv5QkfTjPhyubwoZxd3dRRcYlUG+trF6ojJVk1YAu1wKfOMd8sDTkR6xNis+iKxc28soaK2zq+NwZYgCWJVEgOcwU135C+1vaEDqzYF3buj88/+WOU5NbifmzecMIDFyI6PuBDuv6Jllg2a7xAAJ280apn1eb5UoNBZJzMjmZpU61hEEEY9jyPPBvUsoguKMXHuuRtE8AFrcj47xnhhZBpwoow1v7wPx9obLivqr/+c/LR5NKRrDJjYS2QzqoVfQdmYYdkkO9LCPCCPPXYthVjy8Llpp60TGktGSIVgNMNx7gPMhP38jYWqaUA/Cg5bYJRGSrTRZDaOHqWDxrfhGkH9dxdNomc95tTGB3ZYJVp5KL7sQ7xz3HRItvI7lmgYztzCkztLZKjiLSdCgT9cD4eFem9QthGj77YR2MlJ21y7LRr4Edi+Z9ZqcFY51uCNuK/g5rlfuRDYdh0GYZwryJY89ggdmZWjwQ0qSimsdUSCZkPX2vrFgGjtoLCZAS8DGGwnX1U+PhfVg0G9p1vdZt4bMhZtZDocSdCpcz1j1++QevUkChsWRlJpI4h9DnQdg==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS4PR02MB8550.eurprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(396003)(136003)(376002)(39860400002)(366004)(346002)(230922051799003)(451199024)(1800799009)(64100799003)(186009)(4326008)(8676002)(8936002)(86362001)(83380400001)(5660300002)(41300700001)(33656002)(38100700002)(2906002)(82960400001)(6916009)(122000001)(6512007)(2616005)(316002)(91956017)(66946007)(66476007)(38070700009)(76116006)(66446008)(54906003)(64756008)(66556008)(6506007)(55236004)(71200400001)(6486002)(26005)(478600001)(36756003)(45980500001);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?WEc3cEV3bVpJaWd1L1hWN3hndXcwOWw0ODZuWlQ3dDkydUZNaEg1TDRaTDRC?=
- =?utf-8?B?YVhqUHpxT2UvaE1tVzdTU1ZveDlTZzVucUVWMlRnQjlJN2djSWdrbGZ0OTJx?=
- =?utf-8?B?bm9ZUkNHVHY3ejRPcFo3VjBkTzZ4MzZiWDN5b3E3TDhkN3pvdGxuejZaMWhI?=
- =?utf-8?B?MFVSNC8zN2E1a1pPSWZndmdTaGpUS25xUWF0NTFrT2NiTFJQY0RId3QvOHUr?=
- =?utf-8?B?dW5JZnBtcjdhdWVZWUwxUW1QOWEzSDh3M3RrQmxsZjJUcDM3UlU4dkdGcEow?=
- =?utf-8?B?NTZsSkdRbnFvTGZUSEVmVklZNEJLaEw4UlQ5SEFCanBZSVFCcDRGVVBUa3ZZ?=
- =?utf-8?B?MFVVaHUzbUN5R3d3cTNESlJiVGN2STBuaDFkZ3VtdTFhdml3cDk4bFlPOXBy?=
- =?utf-8?B?MVhMeDVKTnh5ZzdMcWtDU0N1Z05QYWZUcW5kVUN6VS9FOUFJSmZoN3c2NzdI?=
- =?utf-8?B?bGZ4OHJ1eHJFOGthRVRhQ0RuTklSTkZEZHFtdDZ2L3JZYnlza3VROGhyd29U?=
- =?utf-8?B?MkFJZitMV21Xd0x6VkVzbnJKeUFwZmFERXI0cGdDOWpIQnF5bis2eWdieUhD?=
- =?utf-8?B?WjRpdDhTTSticmp6OXFRRWxMNDhUQTczYU5ZYlVjRmV1eVpyZkk3WStOVE9k?=
- =?utf-8?B?eWd2QWhpQVU1VEszQVY5aE9WZFNmSDFEcEIvMHRnSExMaDFoQS8xWVVlQ2pF?=
- =?utf-8?B?TUhLTmlmZU90dGRyODZpck9TWFV1RzB1b2Rldk5tTHA3MGZCazl0UzlLWTU1?=
- =?utf-8?B?bmpFY1BkKzBacmFOeHpMdm5zdjJRa0tBR0tDUmFZbHVXMyt6Z1FWcDR6QWg0?=
- =?utf-8?B?dHlXZGZKYW9yNUQ1bWNMSjE0eWR5cHRieEJMczJHMk5LWWpGRDUzQXRDQmZF?=
- =?utf-8?B?SGtpaXNqSVVrOHI3T0dCYlQ4UUQ3R2xCK0dzbGRXanhFblg0ZnhhaTVwZDVj?=
- =?utf-8?B?TjczMzhFdGpNVjNlVjdkRHVYbGplcjVNRkFJU2V3WURIcFg3QVBJMlJEb0dl?=
- =?utf-8?B?dGNTbGpZODJHVmJZamhrMGV3RUVydjkrckRaSm0rQ1MrZEl3RmJGd2VFOWFG?=
- =?utf-8?B?ckUwRys4ekxtZHREZSsvdldGRkdnRXMwRTgxaFFrLzlNdkxkYWRKTWw3VWJX?=
- =?utf-8?B?UmdXbWlBaDlEQ2dLa3lHOTVDNTZMOFU0Z0ppbzRKMVFsa0VpekY2TXdjQnhP?=
- =?utf-8?B?cmRpdU95dE9lbHE3SGJ0bmRmMGNOcHdnZlErOEh1UmNEZlYxQTJ6UGlnZktY?=
- =?utf-8?B?NjljNlBESFJIa3dEa1pnSUdyRlZFVmZNeGg1dTBDVXNWNThCQWdtY2ptWFVu?=
- =?utf-8?B?V3lITkkwQkovVUNWdVZ5UFBKNzdobnFJZWxlVWw1bkFqejF1Ri83S1FXakNt?=
- =?utf-8?B?enBLZ0k4RkVkbFd4V0Zkd08wbkFFVUxTSFJZUVovdjFGM3UzT2hsL3FTNnBI?=
- =?utf-8?B?eHg3NjRuUTc2TVVnODNNTTQxZkpyY3RXczN3SG1tUFBUVHIxTjJ5aUVqcjFY?=
- =?utf-8?B?Z3N1RlgraTBBZVc5bm9ucHJZa2ZoakdvMFZRdGMxbS9RNStVcDRuSEFDRTBS?=
- =?utf-8?B?Vkd0TEJ1R1p4NTJTLzJmUk9uZmlJc3ltMGVSZFE4SllsWHUzVEh6bGg5MEVl?=
- =?utf-8?B?N1hvSGFCR1FmSTYwcFZqVDZTcXNHQUJpa2FWZ25TWW5tSk8vYUFNQlRnZUFI?=
- =?utf-8?B?Vm1VV2N6UUQwSDJieDhTUTdIaGhpTzZmTWZucktXRU53aCttdGhZbE5xRFg4?=
- =?utf-8?B?VDZIeU95ejE1cjcwSUJJL1dnQjRuMWZCdWdacUNTSjJ4ME95RW1OLy9KNXQ0?=
- =?utf-8?B?WjZaekI1Umc3bjVLT1I3VGhhNjJYV05TUndBaGVqYVAwRGxYRmFGS282SUpt?=
- =?utf-8?B?aFpyNE1tUDNuMDNoOHIzb3FXM24zbWxzMUc3OEtKdE51MlNDT3paQ2dtN0Vt?=
- =?utf-8?B?WVFTd25acjE1QnJMaklsMnVwUVAwTzcrd0V0Qnk2VnlvYjk5dGNyREcvVXZE?=
- =?utf-8?B?YjRLN0xHTEdqMUFVOGZwMFMvQmVQalgxRFVLeUQ3c3Byelk3NEtENDR4L0lZ?=
- =?utf-8?B?S3JhTENCUE50anhoWml2VG5JQzJMS2luYnc5S3pOajNoQmdMdk5VUFBNTVFX?=
- =?utf-8?B?MTlCMVovRzFEUTF5d1ZmdFZXRW5ONEszaE5YTEhyNW1MUlhBR25YNlpUK3Vp?=
- =?utf-8?B?VXc9PQ==?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <FC01F321ABDDEE42BB295BDCBD8DB972@eurprd02.prod.outlook.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-X-OriginatorOrg: sap.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: AS4PR02MB8550.eurprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 97dfaf77-0a17-4b98-c064-08dbe1369ca5
-X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Nov 2023 15:14:47.5524
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 42f7676c-f455-423c-82f6-dc2d99791af7
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: ligmnuuwUBgnz/6fbom/EbWX8wgH/RVN2neu9LcVFmLzjPq95XPFEfn5WJiB8BRh5d77oFbPUO/NdU9ALtEbCQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: GV1PR02MB10909
+        with ESMTP id S229475AbjKJX1H (ORCPT
+        <rfc822;util-linux@vger.kernel.org>); Fri, 10 Nov 2023 18:27:07 -0500
+Received: from mail-yw1-x1164.google.com (mail-yw1-x1164.google.com [IPv6:2607:f8b0:4864:20::1164])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6B58D64
+        for <util-linux@vger.kernel.org>; Fri, 10 Nov 2023 15:27:02 -0800 (PST)
+Received: by mail-yw1-x1164.google.com with SMTP id 00721157ae682-5b3b17d36d5so31519777b3.0
+        for <util-linux@vger.kernel.org>; Fri, 10 Nov 2023 15:27:02 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1699658822; x=1700263622;
+        h=content-transfer-encoding:message-id:date:subject:cc:to:from
+         :dkim-signature:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/sMVr0tjtnPib4bsltm4MgzqLDsb2A1voo2chBfS+wA=;
+        b=cW7dZe58l7Yxn3GfyHUvF9a8obGb4WGdJebqZqRS+Q45mj6JiC2xDNesuNLOmcWSZK
+         WnFF001VE1ehMqUEKh/GwTpAm0v65QwQZE/sAZhO7A8xKPDLfsXu06golXWVhWatDCR3
+         QSEfS9NhFiZGoEIxKgZDhTynRlfmmP/EUEQo0MVg121IYfQd09jkWWpw+dUw5tID4tMS
+         wjCIcA/7vsBDC5Hx3cwr+Hc/26uEWxkt3fpiuaxNevaB9R+YRk4qx1pqwOytuNyS3ZNl
+         jCnPKroBf5bZPh/3NXdvcDkCkupWB2a3I7CwoZB4X1iW8nBc/2kKjDYTD380SDJJyboz
+         MCcw==
+X-Gm-Message-State: AOJu0YyVJfxSfSHzosCow5mCjhg3HFhQ3DP48zCsUafjbteuVhyclQNr
+        FvHeuWqUDKKt/7aV9FjSaVMTZ/q0FGU8W8TbAHs2g9Fa39Is
+X-Google-Smtp-Source: AGHT+IF0Fw01AHT+Xx9bx63orRhnJ4ruildj2ycmQnUVufPo6P4C0ufy/Ua9gyzv6lT4MIbDXA/z7+D317qa
+X-Received: by 2002:a81:7c02:0:b0:5a7:b4d1:c4dd with SMTP id x2-20020a817c02000000b005a7b4d1c4ddmr453366ywc.5.1699658821862;
+        Fri, 10 Nov 2023 15:27:01 -0800 (PST)
+Received: from smtp.aristanetworks.com ([74.123.28.25])
+        by smtp-relay.gmail.com with ESMTPS id c197-20020a814ece000000b005a7dddb5e52sm735232ywb.9.2023.11.10.15.27.00
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 10 Nov 2023 15:27:01 -0800 (PST)
+X-Relaying-Domain: arista.com
+Received: from rthukral-upstreamDmesgFix-1.sjc.aristanetworks.com (dhcp-245-203-220.sjc.aristanetworks.com [10.245.203.220])
+        by smtp.aristanetworks.com (Postfix) with ESMTP id B872C402056;
+        Fri, 10 Nov 2023 15:26:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arista.com;
+        s=Arista-A; t=1699658819;
+        bh=/sMVr0tjtnPib4bsltm4MgzqLDsb2A1voo2chBfS+wA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=CR1KwMdYHfJ0qSg6CZkOysA9fB1whZTx1yp3cc9VZiZkRv+kKKpLigX6FmOp/RliB
+         i2oKLZVZ7EASLFZQW1uUhjwbjMkzl3f6paNVpVxNORgTie3zNNp0Ov8Id1fXzI0TPc
+         7aGqgXZ9iWXnmVZsBPOVb5uLXQfbh1BaJ7PVURpCkqjcyXTJbUgy3A7RBY1l/YDnyq
+         nu4V1f5zDpG80OvHW/qtDNvg3J7uQKIE0GMD/fJIZSvLokKpheNWxFs6R2OAehb2mw
+         a9TZNylnAQ8ZCxZTNCn58sDUnfljIZ+5opdYDpYH5H5WCpCL5jIVk7VAWFBpxKHLYF
+         UR4YAfr62j6Wg==
+From:   Rishabh Thukral <rthukral@arista.com>
+To:     util-linux@vger.kernel.org, kzak@redhat.com
+Cc:     colona@arista.com, Rishabh Thukral <rthukral@arista.com>
+Subject: [PATCH] util-linux/sys-utils dmesg support for additional human readable timestamp
+Date:   Fri, 10 Nov 2023 15:26:12 -0800
+Message-ID: <20231110232612.10969-1-rthukral@arista.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
 
-SGkgS2FyZWwsDQoNCndpdGggYWN0aXZhdGVkIOKAk2NvbnQtY2xvY2sgdGhlIGNsb2NrLnR4dCBp
-cyBub3QgdXBkYXRlZCBpbiBtb3N0IGNhc2VzIOKAkyB0aGVyZSBzdGlsbCBjYW4gYmUgYSBmYWxs
-YmFjayB0byB0aGUgY2xvY2sudHh0IHVwZGF0ZSAtIGFuZCB0aGUgWEZTIHJlZ3Jlc3Npb24gd291
-bGQgbm90IGJlIHJlbGV2YW50LCB0aGF04oCZcyBjb3JyZWN0LiANCkJ1dCBhcyB0aGVyZSBoYXZl
-IGJlZW4gZGlzY3Vzc2lvbnMgYW5kIGNvbmNlcm5zIGFib3V0IGF2b2lkaW5nIHRoZSBjbG9jay50
-eHQgdXBkYXRlLCBJIHdvdWxkIGJlIGhhcHB5IHRvIGhhdmUgYSBzb2x1dGlvbiBmb3IgdGhpcyBj
-b2RlIHNlcXVlbmNlIGFzIHdlbGwuIEl0IHdpbGwgcHJlc2VydmUgdGhlIGF2YWlsYWJsZSBsb2dp
-YyB3aXRob3V0IHRoZSBYRlMvZnRydW5jYXRlIHJlZ3Jlc3Npb24gYW5kIGN1c3RvbWVycyBzdGls
-bCBoYXZlIHRoZSBvcHRpb24gdG8gc3dpdGNoIGJldHdlZW4gYm90aCB2YXJpYW50cyB3aXRob3V0
-IGEgcGVyZm9ybWFuY2UgaW1wYWN0Lg0KDQpDb3VsZCB5b3UgcGxlYXNlIGFwcGx5IHRoaXMgcGF0
-Y2ggdG8gdXRpbC1saW51eD8NCiANCg0KTWljaGFlbA0KDQo+IE9uIDcuIE5vdiAyMDIzLCBhdCAx
-MDozMywgS2FyZWwgWmFrIDxremFrQHJlZGhhdC5jb20+IHdyb3RlOg0KPiANCj4gDQo+IE1pY2hh
-ZWwsIGFueSBvYmplY3Rpb24gb3IgY29tbWVudD8NCj4gDQo+IEkgaGF2ZSBzZWVuIHJlcG9ydHMg
-d2l0aCBYRlMgcGVyZm9ybWFuY2UgaXNzdWVzIHRvbywgYnV0IEkgZ3Vlc3MgaXQncw0KPiBwb3Nz
-aWJsZSB0byBzb2x2ZSB0aGUgcHJvYmxlbSB3aXRoIHV1aWRkIGFuZCAtLWNvbnQtY2xvY2suDQo+
-IA0KPiAgICBLYXJlbA0KPiANCj4gT24gVHVlLCBPY3QgMTAsIDIwMjMgYXQgMDY6MDg6NTlQTSAt
-MDUwMCwgR29sZHd5biBSb2RyaWd1ZXMgd3JvdGU6DQo+PiBJbnN0ZWFkIG9mIGV4cGxpY2l0bHkg
-dHJ1bmNhdGluZyBjbG9ja3MudHh0IGZpbGUsIHBhZCB3aXRoDQo+PiB3aGl0ZXNwYWNlcyBpbiB0
-aGUgZW5kIG9mIGZpbGUuDQo+PiBUaGlzIGlzIGRvbmUgdG8gaW1wcm92ZSBwZXJmb3JtYW5jZSBv
-ZiBsaWJ1dWlkIG9uIHhmcw0KPj4gZmlsZXN5c3RlbXMuIEluc3RlYWQgb2YgdHJ1bmNhdGluZyB0
-aGUgZmlsZSwgcGFkIGl0IHdpdGggd2hpdGVzcGFjZXMuDQo+PiBUaGlzIGlzIGFueXdheXMgdXNl
-ZCBhcyBhIGZhaWxzYWZlIG1ldGhvZCBpbiBjYXNlIHRydW5jYXRlIGZhaWxzLg0KPj4gDQo+PiBU
-aGUgcmVhc29uIHdoeSB0aGlzIHJlZ3Jlc3Npb24gd2FzIGludHJvZHVjZWQgd2FzIGJlY2F1c2Ug
-b2Y6DQo+PiA4NjlhZTg1ZGFlNjQgKCJ4ZnM6IGZsdXNoIG5ldyBlb2YgcGFnZSBvbiB0cnVuY2F0
-ZSB0byBhdm9pZCBwb3N0LWVvZiBjb3JydXB0aW9uIikNCj4+IA0KPj4gQW4gYXR0ZW1wdCB0byBt
-b3ZlIHRoZSBjbG9ja3MudHh0IHRvIC9ydW4gKHRtcGZzKSBoYXMgYmVlbiBhdHRlbXB0ZWQgYmVm
-b3JlDQo+PiBbMV0gYW5kIHdpdGggY29tbWl0IGFiMmU3ZGQxNyAoImxpYnV1aWQ6IG1vdmUgY2xv
-Y2sgc3RhdGUgZmlsZSBmcm9tDQo+PiAvdmFyL2xpYiB0byAvdmFyL3J1biIpLiBUaGUgbGF0dGVy
-IHdhcyByZXZlcnRlZC4NCj4+IA0KPj4gU2lnbmVkLW9mZi1ieTogR29sZHd5biBSb2RyaWd1ZXMg
-PHJnb2xkd3luQHN1c2UuY29tPg0KPj4gDQo+PiAtLS0NCj4+IGxpYnV1aWQvc3JjL2dlbl91dWlk
-LmMgfCA5ICsrLS0tLS0tLQ0KPj4gMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgNyBk
-ZWxldGlvbnMoLSkNCj4+IA0KPj4gZGlmZiAtLWdpdCBhL2xpYnV1aWQvc3JjL2dlbl91dWlkLmMg
-Yi9saWJ1dWlkL3NyYy9nZW5fdXVpZC5jDQo+PiBpbmRleCA2MTllZjAxMzEuLjk3ZTJkZWM0ZSAx
-MDA2NDQNCj4+IC0tLSBhL2xpYnV1aWQvc3JjL2dlbl91dWlkLmMNCj4+ICsrKyBiL2xpYnV1aWQv
-c3JjL2dlbl91dWlkLmMNCj4+IEBAIC0yMjksNyArMjI5LDYgQEAgc3RhdGljIGludCBnZXRfY2xv
-Y2sodWludDMyX3QgKmNsb2NrX2hpZ2gsIHVpbnQzMl90ICpjbG9ja19sb3csDQo+PiBzdHJ1Y3Qg
-dGltZXZhbCB0djsNCj4+IHVpbnQ2NF90IGNsb2NrX3JlZzsNCj4+IG1vZGVfdCBzYXZlX3VtYXNr
-Ow0KPj4gLSBpbnQgbGVuOw0KPj4gaW50IHJldCA9IDA7DQo+PiANCj4+IGlmIChzdGF0ZV9mZCA9
-PSAtMSkNCj4+IEBAIC0zMjQsMTQgKzMyMywxMCBAQCB0cnlfYWdhaW46DQo+PiANCj4+IGlmIChz
-dGF0ZV9mZCA+PSAwKSB7DQo+PiByZXdpbmQoc3RhdGVfZik7DQo+PiAtIGxlbiA9IGZwcmludGYo
-c3RhdGVfZiwNCj4+IC0gICAgICAiY2xvY2s6ICUwNHggdHY6ICUwMTZsZCAlMDhsZCBhZGo6ICUw
-OGRcbiIsDQo+PiArIGZwcmludGYoc3RhdGVfZiwNCj4+ICsgICAgICAiY2xvY2s6ICUwNHggdHY6
-ICUwMTZsZCAlMDhsZCBhZGo6ICUwOGQgICAgICAgICAgICAgICAgICAgXG4iLA0KPj4gICAgICBj
-bG9ja19zZXEsIChsb25nKWxhc3QudHZfc2VjLCAobG9uZylsYXN0LnR2X3VzZWMsIGFkanVzdG1l
-bnQpOw0KPj4gZmZsdXNoKHN0YXRlX2YpOw0KPj4gLSBpZiAoZnRydW5jYXRlKHN0YXRlX2ZkLCBs
-ZW4pIDwgMCkgew0KPj4gLSBmcHJpbnRmKHN0YXRlX2YsICIgICAgICAgICAgICAgICAgICAgXG4i
-KTsNCj4+IC0gZmZsdXNoKHN0YXRlX2YpOw0KPj4gLSB9DQo+PiByZXdpbmQoc3RhdGVfZik7DQo+
-PiBmbG9jayhzdGF0ZV9mZCwgTE9DS19VTik7DQo+PiB9DQo+PiAtLSANCj4+IDIuNDIuMA0KPj4g
-DQo+PiANCj4+IC0tIA0KPj4gR29sZHd5bg0KPj4gDQo+IA0KPiAtLSANCj4gS2FyZWwgWmFrICA8
-a3pha0ByZWRoYXQuY29tPg0KPiANCg0K
+The dmesg logs have timestamps in seconds since boot format which can
+be converted to other formats. However, there is no option to include
+both the original timestamp as present in the buffer along with the
+converted timestamp in the specified format.
+
+This change updates the --time-format option in dmesg to enable the
+user to specify it multiple times with different formats with each
+input providing a timestamp format among the currently supported
+choices. This enables seeing the dmesg logs in both seconds since boot
+and human readable format simultaneously in each row of the log output.
+The sequence of timestamp format is fixed and independent of the order
+in which the user provides the desired formats.
+
+Signed-off-by: Rishabh Thukral <rthukral@arista.com>
+---
+ sys-utils/dmesg.1.adoc |   4 +-
+ sys-utils/dmesg.c      | 228 ++++++++++++++++++++++++-----------------
+ 2 files changed, 138 insertions(+), 94 deletions(-)
+
+diff --git a/sys-utils/dmesg.1.adoc b/sys-utils/dmesg.1.adoc
+index 6f4941ede..a968fe9f9 100644
+--- a/sys-utils/dmesg.1.adoc
++++ b/sys-utils/dmesg.1.adoc
+@@ -133,9 +133,11 @@ Display record until the specified time. Supported is the subsecond granularity.
+ Do not print kernel's timestamps.
+ 
+ *--time-format* _format_::
+-Print timestamps using the given _format_, which can be *ctime*, *reltime*, *delta* or *iso*. The first three formats are aliases of the time-format-specific options. The *iso* format is a *dmesg* implementation of the ISO-8601 timestamp format. The purpose of this format is to make the comparing of timestamps between two systems, and any other parsing, easy. The definition of the *iso* timestamp is: YYYY-MM-DD<T>HH:MM:SS,<microseconds><-+><timezone offset from UTC>.
++Print timestamps using the given _format_, which can be *ctime*, *reltime*, *delta*, *iso* or *raw*. The first three formats are aliases of the time-format-specific options. The *raw* format uses the default timestamp format showing seconds since boot. The *iso* format is a *dmesg* implementation of the ISO-8601 timestamp format. The purpose of this format is to make the comparing of timestamps between two systems, and any other parsing, easy. The definition of the *iso* timestamp is: YYYY-MM-DD<T>HH:MM:SS,<microseconds><-+><timezone offset from UTC>.
+ +
+ The *iso* format has the same issue as *ctime*: the time may be inaccurate when a system is suspended and resumed.
+++
++*--time-format* may be used multiple times with different values for _format_ to output each specified format in the following sequence *ctime, delta, reltime, raw, iso*
+ 
+ *-u*, *--userspace*::
+ Print userspace messages.
+diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
+index 79e1c1690..9c8fea6c2 100644
+--- a/sys-utils/dmesg.c
++++ b/sys-utils/dmesg.c
+@@ -161,7 +161,13 @@ enum {
+ 	DMESG_TIMEFTM_TIME_DELTA,	/* [time <delta>] */
+ 	DMESG_TIMEFTM_ISO8601		/* 2013-06-13T22:11:00,123456+0100 */
+ };
+-#define is_timefmt(c, f) ((c)->time_fmt == (DMESG_TIMEFTM_ ##f))
++#define TOTAL_DMESG_TIMESTAMP_FORMATS_SUPPORTED 8
++
++enum {
++	TIMESTAMP_FMT_UNSET = 0,
++	TIMESTAMP_FMT_SET = 1,
++	TIMESTAMP_FMT_INIT_SET = 2
++};
+ 
+ struct dmesg_control {
+ 	/* bit arrays -- see include/bitops.h */
+@@ -199,7 +205,7 @@ struct dmesg_control {
+ 	char		*filename;
+ 	char		*mmap_buff;
+ 	size_t		pagesize;
+-	unsigned int	time_fmt;	/* time format */
++	unsigned int	time_fmts[TOTAL_DMESG_TIMESTAMP_FORMATS_SUPPORTED];	/* time format */
+ 
+ 	struct ul_jsonwrt jfmt;		/* -J formatting */
+ 
+@@ -316,7 +322,7 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_(" -T, --ctime                 show human-readable timestamp (may be inaccurate!)\n"), out);
+ 	fputs(_(" -t, --notime                don't show any timestamp with messages\n"), out);
+ 	fputs(_("     --time-format <format>  show timestamp using the given format:\n"
+-		"                               [delta|reltime|ctime|notime|iso]\n"
++		"                               [delta|reltime|ctime|notime|iso|raw]\n"
+ 		"Suspending/resume will make ctime and iso timestamps inaccurate.\n"), out);
+ 	fputs(_("     --since <time>          display the lines since the specified time\n"), out);
+ 	fputs(_("     --until <time>          display the lines until the specified time\n"), out);
+@@ -764,7 +770,7 @@ static int get_next_syslog_record(struct dmesg_control *ctl,
+ 		if (*begin == '[' && (*(begin + 1) == ' ' ||
+ 				      isdigit(*(begin + 1)))) {
+ 
+-			if (!is_timefmt(ctl, NONE))
++			if (ctl->time_fmts[DMESG_TIMEFTM_NONE] == TIMESTAMP_FMT_UNSET)
+ 				begin = parse_syslog_timestamp(begin + 1, &rec->tv);
+ 			else
+ 				begin = skip_item(begin, end, "]");
+@@ -939,10 +945,21 @@ static void print_record(struct dmesg_control *ctl,
+ 	char buf[128];
+ 	char fpbuf[32] = "\0";
+ 	char tsbuf[64] = "\0";
++	char full_tsbuf[64*TOTAL_DMESG_TIMESTAMP_FORMATS_SUPPORTED] = "\0";
+ 	size_t mesg_size = rec->mesg_size;
+ 	int timebreak = 0;
+ 	char *mesg_copy = NULL;
+ 	const char *line = NULL;
++	unsigned int ts_format_sequence[TOTAL_DMESG_TIMESTAMP_FORMATS_SUPPORTED] = {
++		DMESG_TIMEFTM_NONE,
++		DMESG_TIMEFTM_CTIME, DMESG_TIMEFTM_CTIME_DELTA,
++		DMESG_TIMEFTM_DELTA,
++		DMESG_TIMEFTM_RELTIME,
++		DMESG_TIMEFTM_TIME, DMESG_TIMEFTM_TIME_DELTA,
++		DMESG_TIMEFTM_ISO8601
++	};
++	int format_iterator = 0;
++	double delta = record_count_delta(ctl, rec);
+ 
+ 	if (!accept_record(ctl, rec))
+ 		return;
+@@ -967,7 +984,7 @@ static void print_record(struct dmesg_control *ctl,
+ 	 * backward compatibility with syslog(2) buffers only
+ 	 */
+ 	if (ctl->raw) {
+-		ctl->indent = snprintf(tsbuf, sizeof(tsbuf),
++		ctl->indent = snprintf(full_tsbuf, sizeof(full_tsbuf),
+ 				       "<%d>[%5ld.%06ld] ",
+ 				       LOG_RAW_FAC_PRI(rec->facility, rec->level),
+ 				       (long) rec->tv.tv_sec,
+@@ -982,64 +999,73 @@ static void print_record(struct dmesg_control *ctl,
+ 			 level_names[rec->level].name);
+ 
+ 	/* Store the timestamp in a buffer */
+-	switch (ctl->time_fmt) {
+-		double delta;
+-		struct tm cur;
+-	case DMESG_TIMEFTM_NONE:
+-		ctl->indent = 0;
+-		break;
+-	case DMESG_TIMEFTM_CTIME:
+-		ctl->indent = snprintf(tsbuf, sizeof(tsbuf), "[%s] ",
+-				      record_ctime(ctl, rec, buf, sizeof(buf)));
+-		break;
+-	case DMESG_TIMEFTM_CTIME_DELTA:
+-		ctl->indent = snprintf(tsbuf, sizeof(tsbuf), "[%s <%12.06f>] ",
+-				      record_ctime(ctl, rec, buf, sizeof(buf)),
+-				      record_count_delta(ctl, rec));
+-		break;
+-	case DMESG_TIMEFTM_DELTA:
+-		ctl->indent = snprintf(tsbuf, sizeof(tsbuf), "[<%12.06f>] ",
+-				      record_count_delta(ctl, rec));
+-		break;
+-	case DMESG_TIMEFTM_RELTIME:
+-		record_localtime(ctl, rec, &cur);
+-		delta = record_count_delta(ctl, rec);
+-		if (cur.tm_min != ctl->lasttm.tm_min ||
+-		    cur.tm_hour != ctl->lasttm.tm_hour ||
+-		    cur.tm_yday != ctl->lasttm.tm_yday) {
+-			timebreak = 1;
++	for (format_iterator = 0; format_iterator < TOTAL_DMESG_TIMESTAMP_FORMATS_SUPPORTED;
++	     format_iterator++) {
++		if (ctl->time_fmts[ts_format_sequence[format_iterator]] == TIMESTAMP_FMT_UNSET)
++			continue;
++
++		switch (ts_format_sequence[format_iterator]) {
++			struct tm cur;
++		case DMESG_TIMEFTM_NONE:
++			ctl->indent = 0;
++			break;
++		case DMESG_TIMEFTM_CTIME:
+ 			ctl->indent = snprintf(tsbuf, sizeof(tsbuf), "[%s] ",
+-					      short_ctime(&cur, buf,
+-							  sizeof(buf)));
+-		} else {
+-			if (delta < 10)
+-				ctl->indent = snprintf(tsbuf, sizeof(tsbuf),
+-						"[  %+8.06f] ",  delta);
+-			else
+-				ctl->indent = snprintf(tsbuf, sizeof(tsbuf),
+-						"[ %+9.06f] ", delta);
++						record_ctime(ctl, rec, buf, sizeof(buf)));
++			break;
++		case DMESG_TIMEFTM_CTIME_DELTA:
++			ctl->indent = snprintf(tsbuf, sizeof(tsbuf), "[%s <%12.06f>] ",
++						record_ctime(ctl, rec, buf, sizeof(buf)),
++						delta);
++			break;
++		case DMESG_TIMEFTM_DELTA:
++			ctl->indent = snprintf(tsbuf, sizeof(tsbuf), "[<%12.06f>] ",
++						delta);
++			break;
++		case DMESG_TIMEFTM_RELTIME:
++			record_localtime(ctl, rec, &cur);
++			if (cur.tm_min != ctl->lasttm.tm_min ||
++				cur.tm_hour != ctl->lasttm.tm_hour ||
++				cur.tm_yday != ctl->lasttm.tm_yday) {
++				timebreak = 1;
++				ctl->indent = snprintf(tsbuf, sizeof(tsbuf), "[%s] ",
++							short_ctime(&cur, buf,
++								sizeof(buf)));
++			} else {
++				if (delta < 10)
++					ctl->indent = snprintf(tsbuf, sizeof(tsbuf),
++							"[  %+8.06f] ",  delta);
++				else
++					ctl->indent = snprintf(tsbuf, sizeof(tsbuf),
++							"[ %+9.06f] ", delta);
++			}
++			ctl->lasttm = cur;
++			break;
++		case DMESG_TIMEFTM_TIME:
++			ctl->indent = snprintf(tsbuf, sizeof(tsbuf),
++						ctl->json ? "%5ld.%06ld" : "[%5ld.%06ld] ",
++						(long)rec->tv.tv_sec,
++						(long)rec->tv.tv_usec);
++			break;
++		case DMESG_TIMEFTM_TIME_DELTA:
++			ctl->indent = snprintf(tsbuf, sizeof(tsbuf), "[%5ld.%06ld <%12.06f>] ",
++						(long)rec->tv.tv_sec,
++						(long)rec->tv.tv_usec,
++						delta);
++			break;
++		case DMESG_TIMEFTM_ISO8601:
++			ctl->indent = snprintf(tsbuf, sizeof(tsbuf), "%s ",
++						iso_8601_time(ctl, rec, buf,
++								sizeof(buf)));
++			break;
++		default:
++			abort();
+ 		}
+-		ctl->lasttm = cur;
+-		break;
+-	case DMESG_TIMEFTM_TIME:
+-		ctl->indent = snprintf(tsbuf, sizeof(tsbuf),
+-				      ctl->json ? "%5ld.%06ld" : "[%5ld.%06ld] ",
+-				      (long)rec->tv.tv_sec,
+-				      (long)rec->tv.tv_usec);
+-		break;
+-	case DMESG_TIMEFTM_TIME_DELTA:
+-		ctl->indent = snprintf(tsbuf, sizeof(tsbuf), "[%5ld.%06ld <%12.06f>] ",
+-				      (long)rec->tv.tv_sec,
+-				      (long)rec->tv.tv_usec,
+-				      record_count_delta(ctl, rec));
+-		break;
+-	case DMESG_TIMEFTM_ISO8601:
+-		ctl->indent = snprintf(tsbuf, sizeof(tsbuf), "%s ",
+-				      iso_8601_time(ctl, rec, buf,
+-						    sizeof(buf)));
+-		break;
+-	default:
+-		abort();
++
++		if (*tsbuf)
++			strcat(full_tsbuf, tsbuf);
++		else if (ts_format_sequence[format_iterator] == DMESG_TIMEFTM_NONE)
++			break;
+ 	}
+ 
+ 	ctl->indent += strlen(fpbuf);
+@@ -1057,23 +1083,23 @@ full_output:
+ 	}
+ 
+ 	/* Output the timestamp buffer */
+-	if (*tsbuf) {
++	if (*full_tsbuf) {
+ 		/* Colorize the timestamp */
+ 		if (ctl->color)
+ 			dmesg_enable_color(timebreak ? DMESG_COLOR_TIMEBREAK :
+ 						       DMESG_COLOR_TIME);
+-		if (ctl->time_fmt != DMESG_TIMEFTM_RELTIME) {
++		if (ctl->time_fmts[DMESG_TIMEFTM_RELTIME] == TIMESTAMP_FMT_UNSET) {
+ 			if (ctl->json)
+-				ul_jsonwrt_value_raw(&ctl->jfmt, "time", tsbuf);
++				ul_jsonwrt_value_raw(&ctl->jfmt, "time", full_tsbuf);
+ 			else
+-				fputs(tsbuf, stdout);
++				fputs(full_tsbuf, stdout);
+ 		} else {
+ 			/*
+ 			 * For relative timestamping, the first line's
+ 			 * timestamp is the offset and all other lines will
+ 			 * report an offset of 0.000000.
+ 			 */
+-			fputs(!line ? tsbuf : "[  +0.000000] ", stdout);
++			fputs(!line ? full_tsbuf : "[  +0.000000] ", stdout);
+ 		}
+ 		if (ctl->color)
+ 			color_disable();
+@@ -1254,7 +1280,7 @@ static int parse_kmsg_record(struct dmesg_control *ctl,
+ 		goto mesg;
+ 
+ 	/* C) timestamp */
+-	if (is_timefmt(ctl, NONE))
++	if (ctl->time_fmts[DMESG_TIMEFTM_NONE] == TIMESTAMP_FMT_SET)
+ 		p = skip_item(p, end, ",;");
+ 	else
+ 		p = parse_kmsg_timestamp(p, &rec->tv);
+@@ -1346,6 +1372,8 @@ static int which_time_format(const char *s)
+ 		return DMESG_TIMEFTM_RELTIME;
+ 	if (!strcmp(s, "iso"))
+ 		return DMESG_TIMEFTM_ISO8601;
++	if (!strcmp(s, "raw"))
++		return DMESG_TIMEFTM_TIME;
+ 	errx(EXIT_FAILURE, _("unknown time format: %s"), s);
+ }
+ 
+@@ -1388,9 +1416,11 @@ int main(int argc, char *argv[])
+ 		.action = SYSLOG_ACTION_READ_ALL,
+ 		.method = DMESG_METHOD_KMSG,
+ 		.kmsg = -1,
+-		.time_fmt = DMESG_TIMEFTM_TIME,
+ 		.indent = 0,
+ 	};
++	memset(ctl.time_fmts, 0,
++		TOTAL_DMESG_TIMESTAMP_FORMATS_SUPPORTED * sizeof(*(ctl.time_fmts)));
++	ctl.time_fmts[DMESG_TIMEFTM_TIME] = TIMESTAMP_FMT_INIT_SET;
+ 	int colormode = UL_COLORMODE_UNDEF;
+ 	enum {
+ 		OPT_TIME_FORMAT = CHAR_MAX + 1,
+@@ -1475,7 +1505,9 @@ int main(int argc, char *argv[])
+ 			ctl.action = SYSLOG_ACTION_CONSOLE_ON;
+ 			break;
+ 		case 'e':
+-			ctl.time_fmt = DMESG_TIMEFTM_RELTIME;
++			if (ctl.time_fmts[DMESG_TIMEFTM_TIME] == TIMESTAMP_FMT_INIT_SET)
++				ctl.time_fmts[DMESG_TIMEFTM_TIME] = TIMESTAMP_FMT_UNSET;
++			ctl.time_fmts[DMESG_TIMEFTM_RELTIME] = TIMESTAMP_FMT_SET;
+ 			break;
+ 		case 'F':
+ 			ctl.filename = optarg;
+@@ -1488,7 +1520,9 @@ int main(int argc, char *argv[])
+ 				return EXIT_FAILURE;
+ 			break;
+ 		case 'H':
+-			ctl.time_fmt = DMESG_TIMEFTM_RELTIME;
++			if (ctl.time_fmts[DMESG_TIMEFTM_TIME] == TIMESTAMP_FMT_INIT_SET)
++				ctl.time_fmts[DMESG_TIMEFTM_TIME] = TIMESTAMP_FMT_UNSET;
++			ctl.time_fmts[DMESG_TIMEFTM_RELTIME] = TIMESTAMP_FMT_SET;
+ 			colormode = UL_COLORMODE_AUTO;
+ 			ctl.pager = 1;
+ 			break;
+@@ -1535,10 +1569,14 @@ int main(int argc, char *argv[])
+ 				ctl.bufsize = 4096;
+ 			break;
+ 		case 'T':
+-			ctl.time_fmt = DMESG_TIMEFTM_CTIME;
++			if (ctl.time_fmts[DMESG_TIMEFTM_TIME] == TIMESTAMP_FMT_INIT_SET)
++				ctl.time_fmts[DMESG_TIMEFTM_TIME] = TIMESTAMP_FMT_UNSET;
++			ctl.time_fmts[DMESG_TIMEFTM_CTIME] = TIMESTAMP_FMT_SET;
+ 			break;
+ 		case 't':
+-			ctl.time_fmt = DMESG_TIMEFTM_NONE;
++			memset(ctl.time_fmts, 0,
++				TOTAL_DMESG_TIMESTAMP_FORMATS_SUPPORTED * sizeof(*(ctl.time_fmts)));
++			ctl.time_fmts[DMESG_TIMEFTM_NONE] = TIMESTAMP_FMT_SET;
+ 			break;
+ 		case 'u':
+ 			ctl.fltr_fac = 1;
+@@ -1556,7 +1594,9 @@ int main(int argc, char *argv[])
+ 			ctl.decode = 1;
+ 			break;
+ 		case OPT_TIME_FORMAT:
+-			ctl.time_fmt = which_time_format(optarg);
++			if (ctl.time_fmts[DMESG_TIMEFTM_TIME] == TIMESTAMP_FMT_INIT_SET)
++				ctl.time_fmts[DMESG_TIMEFTM_TIME] = TIMESTAMP_FMT_UNSET;
++			ctl.time_fmts[which_time_format(optarg)] = TIMESTAMP_FMT_SET;
+ 			break;
+ 		case OPT_NOESC:
+ 			ctl.noesc = 1;
+@@ -1588,7 +1628,9 @@ int main(int argc, char *argv[])
+ 	}
+ 
+ 	if (ctl.json) {
+-		ctl.time_fmt = DMESG_TIMEFTM_TIME;
++		memset(ctl.time_fmts, 0,
++			TOTAL_DMESG_TIMESTAMP_FORMATS_SUPPORTED * sizeof(*(ctl.time_fmts)));
++		ctl.time_fmts[DMESG_TIMEFTM_TIME] = TIMESTAMP_FMT_SET;
+ 		delta = 0;
+ 		ctl.force_prefix = 0;
+ 		ctl.raw = 0;
+@@ -1596,30 +1638,30 @@ int main(int argc, char *argv[])
+ 		nopager = 1;
+ 	}
+ 
+-	if ((is_timefmt(&ctl, RELTIME) ||
+-	     is_timefmt(&ctl, CTIME)   ||
+-	     is_timefmt(&ctl, ISO8601)) ||
++	if ((ctl.time_fmts[DMESG_TIMEFTM_RELTIME] > 0 ||
++	     ctl.time_fmts[DMESG_TIMEFTM_CTIME] > 0   ||
++	     ctl.time_fmts[DMESG_TIMEFTM_ISO8601] > 0) ||
+ 	     ctl.since ||
+ 	     ctl.until) {
+-		if (dmesg_get_boot_time(&ctl.boot_time) != 0)
+-			ctl.time_fmt = DMESG_TIMEFTM_NONE;
+-		else
++		if (dmesg_get_boot_time(&ctl.boot_time) != 0) {
++			memset(ctl.time_fmts, 0,
++				TOTAL_DMESG_TIMESTAMP_FORMATS_SUPPORTED * sizeof(*(ctl.time_fmts)));
++			ctl.time_fmts[DMESG_TIMEFTM_NONE] = TIMESTAMP_FMT_SET;
++		} else
+ 			ctl.suspended_time = dmesg_get_suspended_time();
+ 	}
+ 
+-	if (delta) {
+-		switch (ctl.time_fmt) {
+-		case DMESG_TIMEFTM_CTIME:
+-			ctl.time_fmt = DMESG_TIMEFTM_CTIME_DELTA;
+-			break;
+-		case DMESG_TIMEFTM_TIME:
+-			ctl.time_fmt = DMESG_TIMEFTM_TIME_DELTA;
+-			break;
+-		case DMESG_TIMEFTM_ISO8601:
+-			warnx(_("--show-delta is ignored when used together with iso8601 time format"));
+-			break;
+-		default:
+-			ctl.time_fmt = DMESG_TIMEFTM_DELTA;
++	if (delta || ctl.time_fmts[DMESG_TIMEFTM_DELTA]) {
++		if (ctl.time_fmts[DMESG_TIMEFTM_TIME] > 0) {
++			ctl.time_fmts[DMESG_TIMEFTM_DELTA] = TIMESTAMP_FMT_UNSET;
++			ctl.time_fmts[DMESG_TIMEFTM_TIME] = TIMESTAMP_FMT_UNSET;
++			ctl.time_fmts[DMESG_TIMEFTM_TIME_DELTA] = TIMESTAMP_FMT_SET;
++		} else if (ctl.time_fmts[DMESG_TIMEFTM_CTIME] > 0) {
++			ctl.time_fmts[DMESG_TIMEFTM_DELTA] = TIMESTAMP_FMT_UNSET;
++			ctl.time_fmts[DMESG_TIMEFTM_CTIME] = TIMESTAMP_FMT_UNSET;
++			ctl.time_fmts[DMESG_TIMEFTM_CTIME_DELTA] = TIMESTAMP_FMT_SET;
++		} else {
++			ctl.time_fmts[DMESG_TIMEFTM_DELTA] = TIMESTAMP_FMT_SET;
+ 		}
+ 	}
+ 
+-- 
+2.41.0
+
