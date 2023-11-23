@@ -1,69 +1,44 @@
-Return-Path: <util-linux-owner@vger.kernel.org>
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 322E2C61D92
-	for <util-linux@archiver.kernel.org>; Tue, 21 Nov 2023 14:33:02 +0000 (UTC)
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234595AbjKUOdD (ORCPT <rfc822;util-linux@archiver.kernel.org>);
-        Tue, 21 Nov 2023 09:33:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38034 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234655AbjKUOc6 (ORCPT
-        <rfc822;util-linux@vger.kernel.org>); Tue, 21 Nov 2023 09:32:58 -0500
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8F29BA
-        for <util-linux@vger.kernel.org>; Tue, 21 Nov 2023 06:32:46 -0800 (PST)
-Received: by mail-pf1-x42e.google.com with SMTP id d2e1a72fcca58-6c4cf0aea06so5331770b3a.0
-        for <util-linux@vger.kernel.org>; Tue, 21 Nov 2023 06:32:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700577166; x=1701181966; darn=vger.kernel.org;
-        h=mime-version:date:subject:to:reply-to:message-id:from:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=elujBZZx0d27rJYqiCWXMNF2xv3uY/pmy4fhDpNGOfA=;
-        b=M+51OuTs9bpuZY7jYe8KueSQTJH5dZsT9NEuM9pfGE1zRJsaP4WByfZU/kXOXHEf1t
-         VY4xj41MW3UrT+zRZu/lAfcOECeOjuMacO4oA01+yai/EUOeslo/jteSVLLrlZmE/i6/
-         LZVS9tN4tY+U2xc9QQAT0aHyZfHXSZKMTRXwA7oPi0R2eM9DOoHLwsrFMamQQQgaVRvJ
-         KYWz8SbE1EYOCYZnNQ5FC6SNsWrfIh4ohNirzRUwrp0PBQBZRdoae+r5Z0RN9HhReMjx
-         H910l9e75smlH9PQJ3SqMLulVRBnPR8RWY3G7ubUOEGJ1HIL8r7Ny5LtBumMJZEPqwZO
-         fR1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700577166; x=1701181966;
-        h=mime-version:date:subject:to:reply-to:message-id:from
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=elujBZZx0d27rJYqiCWXMNF2xv3uY/pmy4fhDpNGOfA=;
-        b=Ul/J1VUlHWDcvdyfWkdnNKlL9878lqnQ24f9dxrDZRT/viSUiATEpnNPHY8wBmfKef
-         XiykvRk6rwbxzs2Qz2K/T5KZdqsSRckScneHdTo+8krr3zJgfszSeHpsd/eFqs+aYikT
-         XiV8fsdlke2A/3+PumZM13AinC6AGGpOzh39eoewtDaBYyp6urAIbJKb+mkDascnSRQR
-         vQhlrFvDKV1LSyUf71CgCWMHFgYVV49nI8t9TtBQ+vyYXihFSDGuuPzCE3hVWO2oAYlj
-         u1R2mUfJ+D9dw+zGQdGSagslo2tFsvCtq7MYbfwSor13t0Kf+AE+ituBSg4atgsoDGu6
-         EakA==
-X-Gm-Message-State: AOJu0YyyUH90/HnVVGpEO+Opy50mgtva/VZcvamuFtFOSKo5jYVOOuep
-        2Wb7WxIVIEf17qHMr9K32Sj6X4rlCVk=
-X-Google-Smtp-Source: AGHT+IHSjRBzHav3yb+w5mNP66b3iGZVJyIjIm66E+dC4khJuGgoCnn8locpkFjsbHogv+jZUcBDHw==
-X-Received: by 2002:a05:6a00:3496:b0:6cb:bc1a:dcff with SMTP id cp22-20020a056a00349600b006cbbc1adcffmr2531653pfb.13.1700577165808;
-        Tue, 21 Nov 2023 06:32:45 -0800 (PST)
-Received: from [198.135.52.44] ([198.135.52.44])
-        by smtp.gmail.com with ESMTPSA id w6-20020a056a0014c600b006cbb7e27091sm2156621pfu.175.2023.11.21.06.32.45
-        for <util-linux@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Nov 2023 06:32:45 -0800 (PST)
-From:   Peter Wilson <goryatwooki@gmail.com>
-X-Google-Original-From: Peter Wilson <info@alrigga.com>
-Message-ID: <7211793ec9b735c5587974a5f1fcf34545b1278c86d2de8f2a5ec0fc18d2563b@mx.google.com>
-Reply-To: loansmanager@alriggainvestments.com
-To:     util-linux@vger.kernel.org
-Subject: :once again
-Date:   Tue, 21 Nov 2023 06:32:44 -0800
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7456C4418
+	for <util-linux@vger.kernel.org>; Thu, 23 Nov 2023 02:53:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="iW/gU6CW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25A9AC433C8;
+	Thu, 23 Nov 2023 02:53:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1700708011;
+	bh=rRbIXqjq8DKBA6vW+7glleky65j8TQodsqrm6IeWtY0=;
+	h=Date:From:To:Subject:From;
+	b=iW/gU6CWzFh+dJUuukgwoI+C7H5ahZEpCLMunedNRSjpyiffIwup/ktWT2Km6x2X0
+	 xLTrrAYT6qC3gN2gtyX8BGzZ/bzP23YwCHQGmZk+7HbhTn72tjovxMZ/EU9VVtUMTp
+	 m67df5sQKN0bPxM0Lhf54jR/9og/1L9fE7goBjD8=
+Date: Wed, 22 Nov 2023 21:53:30 -0500
+From: Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+To: util-linux@vger.kernel.org
+Subject: PSA: this list has moved to new vger infra (no action required)
+Message-ID: <20231122-outstanding-vehement-hornet-76acff@nitro>
 Precedence: bulk
-List-ID: <util-linux.vger.kernel.org>
 X-Mailing-List: util-linux@vger.kernel.org
+List-Id: <util-linux.vger.kernel.org>
+List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
-Hello util-linux,
+Hello, all:
 
-Are you Thinking of starting a new project or expanding your business? We can fund it. Terms and Conditions Apply.
+This list has been migrated to the new vger infrastructure. No action is
+required on your part and there should be no change in how you interact with
+this list.
 
-Regards,
-Peter Wilson
+This message acts as a verification test that the archives are properly
+updating.
+
+If something isn't working or looking right, please reach out to
+helpdesk@kernel.org.
+
+Best regards,
+-K
