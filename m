@@ -1,101 +1,189 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="I8ErPTZ+"
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C84B6125
-	for <util-linux@vger.kernel.org>; Mon, 27 Nov 2023 01:09:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701076193;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hORjAaVoUBfHKDIj2KXEhCGQFTuKPfdIzqz/s2/rxH8=;
-	b=I8ErPTZ+HZ9Xz3AzirFbJy1Sb9QvjOmkyg0bZG4G1+VktHG5XHXKFLemQopYUh3A2jOj31
-	2d1ApNRCTo06vt9gJAH/HGHG2I3mR5zfvq/VHEycvjr8O2gA7ANhXkuzCjtv8Wcv6qt3Nn
-	OuCk8MOdyMqXqTw9BuMsQLImXznCP2E=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-292-REo1muOyO8KZiovfdYNgrA-1; Mon, 27 Nov 2023 04:09:48 -0500
-X-MC-Unique: REo1muOyO8KZiovfdYNgrA-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 03D1B101A54C;
-	Mon, 27 Nov 2023 09:09:48 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.225.94])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 4912C1C060B0;
-	Mon, 27 Nov 2023 09:09:47 +0000 (UTC)
-Date: Mon, 27 Nov 2023 10:09:45 +0100
-From: Karel Zak <kzak@redhat.com>
-To: junxiao.bi@oracle.com
-Cc: util-linux@vger.kernel.org, thomas@t-8ch.de, dsimic@manjaro.org
-Subject: Re: [PATCH V2] loopdev: report lost loop device file error
-Message-ID: <20231127090945.xjqvrtk7l2hlaf5w@ws.net.home>
-References: <20231025203603.48584-1-junxiao.bi@oracle.com>
- <20231101115540.eqz6q3prnqhi43y5@ws.net.home>
- <00af5617-923e-41d8-8b23-60178bb6db7a@oracle.com>
+	dkim=pass (2048-bit key) header.d=arista.com header.i=@arista.com header.b="fzvxEaRD"
+Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 687F1198
+	for <util-linux@vger.kernel.org>; Mon, 27 Nov 2023 10:26:52 -0800 (PST)
+Received: by mail-qv1-xf2d.google.com with SMTP id 6a1803df08f44-67a4645fdc3so7086936d6.0
+        for <util-linux@vger.kernel.org>; Mon, 27 Nov 2023 10:26:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=arista.com; s=google; t=1701109611; x=1701714411; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bIji7EaTA2NmjKJBC6OMvz1vF3bEivLgvfksEsBQmuk=;
+        b=fzvxEaRDbkWngYYwYITOOSe00WahvqIcGfITV28QNuInpUGKrm7U8i3JFNFzGUy2jb
+         tTqzAmo/oQXlPKOB33PVu9AWcxXeDdG3E4RTznTbrlvG2Pwu+yB7orqqsuumCyDAdQgH
+         hXFIUTIIBPl86iN4uzwOjrX9v1MHayBnmmWtw2GGje1HO3rw8lBciCPvvC+S2qBUMtSi
+         VvNezo81FS6Z+nMaZfo57UB6jBjqm9BbjI6T6aZd+55AVP/MYXEgTr0gp9QkDJbpY/+v
+         H4wRDamengGKVqZBmaAVrHG8lLWYvGN825Yn8qr4rSJxugKVmFnEvaRlyNMKS02iMczf
+         JsOQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701109611; x=1701714411;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=bIji7EaTA2NmjKJBC6OMvz1vF3bEivLgvfksEsBQmuk=;
+        b=bVPOsg/07o9iHjfay0eWtNZIOmUaHVrc45BFIcJ8C2GCbzSO6XfQLLt+ffAentOPAZ
+         QkS0TDjeAmgaJoMcnDUoMiKa2z2afaWybnM8le9EXyIXclkhVsO0bs2dKsXgGiPks9cr
+         vnqXThiVNl46du1ccMly4tAV3BCQqunnE31UgkZ0IiRjI8v8d+W73nbQq/K8qVYWT/l/
+         PawSMcq4whztTbojhB2IpLc8KqBQErcfAF1gkWKIx5eQKDPn/ybmPd81T7y5u0h4PgNC
+         oCPs83PNBmpW29WqW58BPd8HL/6Rv2RGOjj/kd7hodO4xBCNujCPhpta/UAiedFr6ztk
+         VJEA==
+X-Gm-Message-State: AOJu0Yxy59m7t0t6/hTRqIb22FIbfwgII4PxhwGjYjiyh/YWgR7QTRaz
+	s53e4D3qJbu8pnOqvPeHo0DowCEIH1Av9QRZca6GRMrJBqTbZgtTx6k55w==
+X-Google-Smtp-Source: AGHT+IGoDfcUPXkcvzl05V+zqaxHYrZtWRakW2haW7nkL1KvkW0DNBRwnybzTATAvkZ6eewr+BAi1KPLjpQZcl/8rQ4=
+X-Received: by 2002:ad4:4e02:0:b0:66f:bcc5:cf70 with SMTP id
+ dl2-20020ad44e02000000b0066fbcc5cf70mr12730053qvb.42.1701109611277; Mon, 27
+ Nov 2023 10:26:51 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <00af5617-923e-41d8-8b23-60178bb6db7a@oracle.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
+References: <20231110232612.10969-1-rthukral@arista.com> <20231123093045.c5cmdviyupxr2wn7@ws.net.home>
+In-Reply-To: <20231123093045.c5cmdviyupxr2wn7@ws.net.home>
+From: Rishabh Thukral <rthukral@arista.com>
+Date: Mon, 27 Nov 2023 12:26:40 -0600
+Message-ID: <CAPfLGEFzMe2qXTE=wXiWNBkHk=F0wsASmUFnzd+9N+XwPUQOSg@mail.gmail.com>
+Subject: Re: [PATCH] util-linux/sys-utils dmesg support for additional human
+ readable timestamp
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 01, 2023 at 12:54:16PM -0700, junxiao.bi@oracle.com wrote:
-> On 11/1/23 4:55 AM, Karel Zak wrote:
-> 
-> > On Wed, Oct 25, 2023 at 01:36:03PM -0700, Junxiao Bi wrote:
-> > > If a /dev/loopX is lost because someone might have removed it by mistake,
-> > > future losetup operations on that loop device will fail.
-> >   Thanks Junxiao,
-> > 
-> >   I has move aggressive with the changes and there is result:
-> >   https://github.com/util-linux/util-linux/pull/2566
-> Thanks a lot. The changes looks good to me.
-> > 
-> >   For me the most important is to report used devices although there is
-> >   not /dev loop node.
-> > 
-> > > +static void loopcxt_scan_lost_device_file(struct loopdev_cxt *lc)
-> > > +{
-> > > +	static int scanned = 0;
-> > > +	dev_t devno;
-> > > +
-> > > +	/*only scan sysfs once for losetup cmd*/
-> > > +	if (!scanned)
-> > > +		scanned = 1;
-> > > +	else
-> > > +		return;
-> > > +	devno = sysfs_devname_to_devno(lc->device);
-> > > +	if (devno <= 0)
-> > > +		return;
-> > > +
-> > > +	fprintf(stderr, "%s is lost, run \"mknod %s b %d %d\" to recover it.\n",
-> > > +			lc->device, lc->device, major(devno), minor(devno));
-> > > +}
-> >   The lib/loopdev.c code is also used in libmount, so it should not
-> >   directly print anything on stderr. It's application business to print
-> >   the warning. I have moved it to losetup.c
-> 
-> Should we patch mount to report that error? 
+Hi Karel,
+Thanks for reviewing the patch and sharing your feedback. I'll work on
+the changes that are recommended. I also wanted to share the thought
+behind this design approach to stick with a fixed order of timestamp
+formats. Since we are allowing users to specify the `--time-format`
+option multiple times, there is no potential limit to how many times
+the user might specify it. There could be duplicate entries of the
+same time format appearing again and again and we'll have to collect
+the entire user input requiring an arbitrarily large input buffer.
+With a fixed-size buffer, there might be a possibility of buffer
+overflow. One alternative here is to have a complex data structure
+that is fixed in size and keeps track of unique time formats in a
+sequence of appearance in user input. Would it be a good idea to have
+something like this?
 
-Yes, but first we need improve how libmount works with errors. Now
-there is possible to work with errno only. The code that generates
-error messages has no access to the 'struct loopdev_cxt`.
+The existing approach of marking which timestamps were included in
+user input makes it easier to deal with the interactions with other
+time-format options like `-d (--delta)`, `-T (--ctime)`, `-H
+(--human)`, `-e (--reltime)`, `-r (--raw)`, `-t (--notime)`. If we
+maintain a list of all user input we might have to insert, delete, or
+replace some entries based on these other specified options and follow
+a convention in what order should new values be inserted.
 
-I have added a TODO issue for this:
-https://github.com/util-linux/util-linux/issues/2605
+I added the value TIMESTAMP_FMT_INIT_SET in addition to just SET and
+UNSET counterparts to support the overriding behavior that we
+currently have where the default value is overridden if the user has
+specified `--time-format` option but it should not be overridden if
+the user has explicitly specified the default option as one of the
+timestamp formats. You're right, we would not need this if we just
+maintained a list of user input.
 
-    Karel
+Let me know your thoughts on this and I can proceed to implement
+changes based on your suggestions.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Regards
+Rishabh Thukral
 
+
+On Thu, Nov 23, 2023 at 3:30=E2=80=AFAM Karel Zak <kzak@redhat.com> wrote:
+>
+>
+>  Hi Rishabh,
+>
+> sorry for delay
+>
+> On Fri, Nov 10, 2023 at 03:26:12PM -0800, Rishabh Thukral wrote:
+> > This change updates the --time-format option in dmesg to enable the
+> > user to specify it multiple times with different formats with each
+>
+> good idea
+>
+> > input providing a timestamp format among the currently supported
+> > choices. This enables seeing the dmesg logs in both seconds since boot
+> > and human readable format simultaneously in each row of the log output.
+> > The sequence of timestamp format is fixed and independent of the order
+> > in which the user provides the desired formats.
+>
+> and would be better to support arbitrary (user defined) order?
+>
+>   ctl->time_fmts[ ctl->ntime_fmts++ ] =3D DMESG_TIMEFTM_FOO;
+>   ctl->time_fmts[ ctl->ntime_fmts++ ] =3D DMESG_TIMEFTM_BAR;
+>
+> and print it by a simple loop
+>
+>   for (i =3D 0; i < ctl->ntime_fmts; i++)
+>     switch (ctl->time_fmts[ i ]) {
+>        ...
+>     }
+>
+> I guess the implementation will be more simple.
+>
+> > -             if (ctl->time_fmt !=3D DMESG_TIMEFTM_RELTIME) {
+> > +             if (ctl->time_fmts[DMESG_TIMEFTM_RELTIME] =3D=3D TIMESTAM=
+P_FMT_UNSET) {
+>
+> This code pattern is used pretty often in your patch, maybe add macros
+>
+>  #define is_timefmt_set(c, f)       ((c)->time_fmts[DMESG_TIMEFTM_ ##f] =
+=3D=3D TIMESTAMP_FMT_SET))
+>  #define is_timefmt_unset(c, f)     ((c)->time_fmts[DMESG_TIMEFTM_ ##f] =
+=3D=3D TIMESTAMP_FMT_UNSET))
+>  #define is_timefmt_initset(c, f)   ((c)->time_fmts[DMESG_TIMEFTM_ ##f] =
+=3D=3D TIMESTAMP_FMT_INIT_SET))
+>
+> and use
+>
+>   if (is_timefmt_set(ctl, RELTIME))
+>
+> in code.
+>
+> > @@ -1388,9 +1416,11 @@ int main(int argc, char *argv[])
+> >               .action =3D SYSLOG_ACTION_READ_ALL,
+> >               .method =3D DMESG_METHOD_KMSG,
+> >               .kmsg =3D -1,
+> > -             .time_fmt =3D DMESG_TIMEFTM_TIME,
+>
+> I guess you can use
+>
+>         .time_fmts[DMESG_TIMEFTM_TIME] =3D TIMESTAMP_FMT_INIT_SET,
+>
+> >               .indent =3D 0,
+> >       };
+> > +     memset(ctl.time_fmts, 0,
+> > +             TOTAL_DMESG_TIMESTAMP_FORMATS_SUPPORTED * sizeof(*(ctl.ti=
+me_fmts)));
+>
+> You do not need memset() here. All unspecified struct fields in 'ctl'
+> are set zero according to C standards (if any other fields are
+> explicitly initialized).
+>
+> > +     ctl.time_fmts[DMESG_TIMEFTM_TIME] =3D TIMESTAMP_FMT_INIT_SET;
+> >       int colormode =3D UL_COLORMODE_UNDEF;
+> >       enum {
+> >               OPT_TIME_FORMAT =3D CHAR_MAX + 1,
+> > @@ -1475,7 +1505,9 @@ int main(int argc, char *argv[])
+> >                       ctl.action =3D SYSLOG_ACTION_CONSOLE_ON;
+> >                       break;
+> >               case 'e':
+> > -                     ctl.time_fmt =3D DMESG_TIMEFTM_RELTIME;
+> > +                     if (ctl.time_fmts[DMESG_TIMEFTM_TIME] =3D=3D TIME=
+STAMP_FMT_INIT_SET)
+> > +                             ctl.time_fmts[DMESG_TIMEFTM_TIME] =3D TIM=
+ESTAMP_FMT_UNSET;
+> > +                     ctl.time_fmts[DMESG_TIMEFTM_RELTIME] =3D TIMESTAM=
+P_FMT_SET;
+>
+> This complicated setup will be unnecessary if we will not need fixed
+> order, right? :-)
+>
+>     Karel
+>
+> --
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
+>
