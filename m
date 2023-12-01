@@ -1,25 +1,25 @@
 Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 134F2A8
-	for <util-linux@vger.kernel.org>; Fri,  1 Dec 2023 00:58:47 -0800 (PST)
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3FF8BC
+	for <util-linux@vger.kernel.org>; Fri,  1 Dec 2023 05:55:25 -0800 (PST)
 Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
           by outpost.zedat.fu-berlin.de (Exim 4.95)
           with esmtps (TLS1.3)
           tls TLS_AES_256_GCM_SHA384
           (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1r8zMD-002dRY-LQ; Fri, 01 Dec 2023 09:58:45 +0100
-Received: from p57bd900a.dip0.t-ipconnect.de ([87.189.144.10] helo=[192.168.178.81])
+          id 1r93zI-000s0C-8N; Fri, 01 Dec 2023 14:55:24 +0100
+Received: from p5dc55afc.dip0.t-ipconnect.de ([93.197.90.252] helo=suse-laptop.fritz.box)
           by inpost2.zedat.fu-berlin.de (Exim 4.95)
           with esmtpsa (TLS1.3)
           tls TLS_AES_256_GCM_SHA384
           (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1r8zMD-0040RD-E2; Fri, 01 Dec 2023 09:58:45 +0100
-Message-ID: <87b6e567c90a74d8ac5e609f203d244f67076617.camel@physik.fu-berlin.de>
+          id 1r93zI-001URZ-0t; Fri, 01 Dec 2023 14:55:24 +0100
+Message-ID: <b1badbade41aa81189cc2ec147a46418a10d76db.camel@physik.fu-berlin.de>
 Subject: Re: util-linux fails to build on alpha due to test_enosys
 From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 To: Thomas =?ISO-8859-1?Q?Wei=DFschuh?= <thomas@t-8ch.de>
 Cc: util-linux <util-linux@vger.kernel.org>, Michael Cree
  <mcree@orcon.net.nz>,  Sam James <sam@gentoo.org>
-Date: Fri, 01 Dec 2023 09:58:44 +0100
+Date: Fri, 01 Dec 2023 14:55:23 +0100
 In-Reply-To: <18771e2f-ff82-4c76-a9f6-193ee6faa605@t-8ch.de>
 References: 
 	<9211accf8670f28778166a1acdc186e8dd28f2e8.camel@physik.fu-berlin.de>
@@ -42,58 +42,9 @@ MIME-Version: 1.0
 X-Original-Sender: glaubitz@physik.fu-berlin.de
 X-ZEDAT-Hint: PO
 
-Hi Thomas!
+Hello!
 
 On Fri, 2023-12-01 at 09:50 +0100, Thomas Wei=C3=9Fschuh wrote:
-> thanks for the report!
-
-Thanks a lot for the very quick action!
-
-> On 2023-12-01 09:17:20+0100, John Paul Adrian Glaubitz wrote:
-> > Since version 2.39.2, util-linux fails to build from source since tests=
-/helpers/test_enosys.c
-> > is built even though alpha is not supported by libseccomp and does not =
-have AUDIT_ARCH_NATIVE:
-> >=20
-> > gcc -DHAVE_CONFIG_H -I.  -include config.h -I./include -DLOCALEDIR=3D\"=
-/usr/share/locale\" -D_PATH_RUNSTATEDIR=3D\"/run\" -D_PATH_SYSCONFSTATICDIR=
-=3D\"/usr/lib\"   -Wdate-time -D_FORTIFY_SOURCE=3D2 -fsigned-
-> > char -fno-common -Wall -Wextra -Waddress-of-packed-member -Wdiscarded-q=
-ualifiers -Wimplicit-function-declaration -Wmissing-declarations -Wmissing-=
-parameter-type -Wmissing-prototypes -Wnested-externs -
-> > Wno-missing-field-initializers -Wold-style-definition -Wpointer-arith -=
-Wredundant-decls -Wsign-compare -Wstrict-prototypes -Wtype-limits -Wuniniti=
-alized -Wunused-but-set-parameter -Wunused-but-set-
-> > variable -Wunused-parameter -Wunused-result -Wunused-variable -Werror=
-=3Dsequence-point -g -O2 -ffile-prefix-map=3D/<<PKGBUILDDIR>>=3D. -Wformat =
--Werror=3Dformat-security -c -o tests/helpers/test_enosys.o
-> > tests/helpers/test_enosys.c
-> > In file included from tests/helpers/test_enosys.c:30:
-> > ./include/audit-arch.h:67:6: error: #error Unknown target architecture
-> >    67 | #    error Unknown target architecture
-> >       |      ^~~~~
-> >=20
-> > Full log available in [1].
-> >=20
-> > Sam James from Gentoo suggested this might due to test_enosys being bui=
-lt unconditionally [2]
-> > while enosys requires AUDIT_ARCH_NATIVE [3]. On the other hand, we're n=
-ot seeing this issue
-> > on sparc64 which currently doesn't have libseccomp support either.
->=20
-> Some clarifications:
->=20
-> test_enosys on the master branch is not the same as test_enosys in the
-> 2.39.2 release.
-> The old test_enosys got promoted to a proper "enosys" utility and
-> test_enosys is now only a very simple test helper for that that has no
-> platform dependencies.
-> So the provided links are a bit off.
->=20
-> libseccomp is not involved at all.
-> ensys does seccomp the hard way.
->=20
-> >=20
 > > Any suggestions?
 >=20
 > Please try [0] on top of 2.39.2.
@@ -101,11 +52,16 @@ ot seeing this issue
 > And maybe also [1] with the misc/enosys testsuite on top of master.
 >=20
 > [0] https://github.com/util-linux/util-linux/pull/2612
+
+I can confirm that this patch fixes the issue for me.
+
+Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+
 > [1] https://github.com/util-linux/util-linux/pull/2613=20
 
-Will do and report back!
+I can confirm that this patch fixes the issue for me as well.
 
-Thanks!
+Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 
 Adrian
 
