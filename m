@@ -1,175 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NAvqVaaE"
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F0FEC4
-	for <util-linux@vger.kernel.org>; Mon,  4 Dec 2023 12:05:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701720313;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=/a2NWnkwNV6kuDWtWA2Ptr/wrmd/v0sF7Da3RN4Y3MI=;
-	b=NAvqVaaEI8CC+6c6Z9JvR1PY0dsFiip/Q45wvbJplUQQv+LAv6bLv4Zbh8KCXxx8XWeNam
-	JiUW66ySHwD287kfBte6UAgt95YvkkdfxFJ14qHtNOkapU7ItxbXZHCcOYIwcdcZ2ATaap
-	Qh4ThXyJbDJSiiM0RXHyGb1hiw/cvNI=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-610-jK5msx4ONyuuKmQyViljjQ-1; Mon, 04 Dec 2023 15:05:11 -0500
-X-MC-Unique: jK5msx4ONyuuKmQyViljjQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0EEB9811000;
-	Mon,  4 Dec 2023 20:05:11 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.225.175])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 741591C060AE;
-	Mon,  4 Dec 2023 20:05:10 +0000 (UTC)
-Date: Mon, 4 Dec 2023 21:05:08 +0100
-From: Karel Zak <kzak@redhat.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	util-linux@vger.kernel.org
-Subject: [ANNOUNCE] util-linux v2.39.3
-Message-ID: <20231204200508.mtdmxgrsvhux7m7s@ws.net.home>
+X-Greylist: delayed 578 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 04 Dec 2023 13:18:25 PST
+Received: from hera.aquilenet.fr (hera.aquilenet.fr [185.233.100.1])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2832490
+	for <util-linux@vger.kernel.org>; Mon,  4 Dec 2023 13:18:25 -0800 (PST)
+Received: from localhost (localhost [127.0.0.1])
+	by hera.aquilenet.fr (Postfix) with ESMTP id 7FD2BA20;
+	Mon,  4 Dec 2023 22:08:45 +0100 (CET)
+X-Virus-Scanned: Debian amavisd-new at hera.aquilenet.fr
+Received: from hera.aquilenet.fr ([127.0.0.1])
+	by localhost (hera.aquilenet.fr [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id z0PBTbssEt-n; Mon,  4 Dec 2023 22:08:45 +0100 (CET)
+Received: from begin (unknown [IPv6:2a01:cb19:cca:f000:de41:a9ff:fe47:ec49])
+	by hera.aquilenet.fr (Postfix) with ESMTPSA id 11D071BD;
+	Mon,  4 Dec 2023 22:08:45 +0100 (CET)
+Received: from samy by begin with local (Exim 4.97)
+	(envelope-from <samuel.thibault@aquilenet.fr>)
+	id 1rAGBI-00000003igg-0VLp;
+	Mon, 04 Dec 2023 22:08:44 +0100
+Date: Mon, 4 Dec 2023 22:08:44 +0100
+From: Samuel Thibault <samuel.thibault@aquilenet.fr>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.39.3
+Message-ID: <20231204210844.32vk3tr32rwqonar@begin>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@aquilenet.fr>,
+	Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+References: <20231204200508.mtdmxgrsvhux7m7s@ws.net.home>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/mixed; boundary="syztp6rvafvjzxsx"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
+In-Reply-To: <20231204200508.mtdmxgrsvhux7m7s@ws.net.home>
+Organization: I am not organized
+User-Agent: NeoMutt/20170609 (1.8.3)
 
-The util-linux stable release v2.39.3 is available at
+
+--syztp6rvafvjzxsx
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+
+Hello,
+
+Karel Zak, le lun. 04 d√©c. 2023 21:05:08 +0100, a ecrit:
+> The util-linux stable release v2.39.3 is available at
+>  
+>   http://www.kernel.org/pub/linux/utils/util-linux/v2.39/
+
+Here a fix for non-Linux builds.
+
+Samuel
+
+--syztp6rvafvjzxsx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch
+
+diff --git a/libblkid/src/probe.c b/libblkid/src/probe.c
+index 19b80ec6e..8b9bbc24d 100644
+--- a/libblkid/src/probe.c
++++ b/libblkid/src/probe.c
+@@ -962,6 +962,7 @@ failed:
  
-  http://www.kernel.org/pub/linux/utils/util-linux/v2.39/
+ #endif
  
-Feedback and bug reports, as always, are welcomed.
++#ifdef BLKIOOPT
+ static uint64_t blkid_get_io_size(int fd)
+ {
+ 	static const int ioctls[] = { BLKIOOPT, BLKIOMIN, BLKBSZGET };
+@@ -977,6 +978,7 @@ static uint64_t blkid_get_io_size(int fd)
  
-  Karel
-
-
-
-
-util-linux v2.39.3 Release Notes
-================================
+ 	return DEFAULT_SECTOR_SIZE;
+ }
++#endif
  
-Changes between v2.39.2 and v2.39.3
------------------------------------
+ /**
+  * blkid_probe_set_device:
+@@ -1185,8 +1187,10 @@ int blkid_probe_set_device(blkid_probe pr, int fd,
+ 	}
+ # endif
+ 
++#ifdef BLKIOOPT
+ 	if (S_ISBLK(sb.st_mode) && !is_floppy && !blkid_probe_is_tiny(pr))
+ 		pr->io_size = blkid_get_io_size(fd);
++#endif
+ 
+ 	DBG(LOWPROBE, ul_debug("ready for low-probing, offset=%"PRIu64", size=%"PRIu64", zonesize=%"PRIu64", iosize=%"PRIu64,
+ 				pr->off, pr->size, pr->zone_size, pr->io_size));
 
-autotools:
-   - fix AC_DEFINE_UNQUOTED() use  [Karel Zak]
-   - fix librtas check  [Karel Zak]
-   - fix typos  [Karel Zak]
-blkid:
-   - fix call to err_exclusive_options  [Thomas Weiﬂschuh]
-blkpr:
-   - store return value of getopt_long in int  [Thomas Weiﬂschuh]
-build-sys:
-   - fix libmount/src/hooks.c use  [Karel Zak]
-disk-utils:
-   - add SPDX and Copyright notices  [Karel Zak]
-docs:
-   - add SPDX to boilerplate.c  [Karel Zak]
-   - update AUTHORS file  [Karel Zak]
-   - use HTTPS for GitHub clone URLs  [Jakub Wilk]
-include:
-   - add DragonFlyBSD GPT partition types  [Thomas Weiﬂschuh]
-include/audit-arch:
-   - add missing SPDX  [Karel Zak]
-ldattach:
-   - don't call exit() from signal handler  [Thomas Weiﬂschuh]
-lib/env:
-   - avoid underflow of read_all_alloc() return value  [Thomas Weiﬂschuh]
-lib/idcache:
-   - always gracefully handle null cache  [Thomas Weiﬂschuh]
-lib/path:
-   - Set errno in case of fgets failure  [Tobias Stoeckmann]
-   - fix possible out of boundary access  [Tobias Stoeckmann]
-   - fix typos  [Tobias Stoeckmann]
-   - set errno in case of error  [Tobias Stoeckmann]
-libblkid:
-   - (bcachefs) adapt to major.minor version  [Thomas Weiﬂschuh]
-   - (bcachefs) add support for sub-device labels  [Thomas Weiﬂschuh]
-   - (bcachefs) fix compiler warning [-Werror=sign-compare]  [Karel Zak]
-   - (bcachefs) fix not detecting large superblocks  [Colin Gillespie]
-   - (bcachefs) fix size validation  [Thomas Weiﬂschuh]
-   - (jmicron_raid) avoid modifying shared buffer  [Thomas Weiﬂschuh]
-   - (jmicron_raid) use checksum APIs  [Thomas Weiﬂschuh]
-   - (ntfs) validate that sector_size is a power of two  [Thomas Weiﬂschuh]
-   - (probe) handle probe without chain gracefully  [Thomas Weiﬂschuh]
-   - (vfat) avoid modifying shared buffer  [Thomas Weiﬂschuh]
-   - (vxfs) report endianness  [Thomas Weiﬂschuh]
-   - (zonefs) avoid modifying shared buffer  [Thomas Weiﬂschuh]
-   - avoid memory leak of cachefile path  [Thomas Weiﬂschuh]
-   - exfat  fix fail to find volume label  [Yuezhang Mo]
-   - reset errno before calling probefuncs  [Thomas Weiﬂschuh]
-libfdisk:
-   - handle allocation failure in fdisk_new_partition  [Thomas Weiﬂschuh]
-   - reset errno before calling read()  [Thomas Weiﬂschuh]
-libmount:
-   - Fix regression when mounting with atime  [Filipe Manana]
-   - accept '\' as escape for options separator  [Karel Zak]
-   - fix possible NULL dereference [coverity scan]  [Karel Zak]
-   - fix statx() includes  [Karel Zak]
-   - gracefully handle NULL path in mnt_resolve_target()  [Thomas Weiﬂschuh]
-   - improve mnt_table_next_child_fs()  [Karel Zak]
-   - make.stx_mnt_id use more robust  [Karel Zak]
-   - report statx in features list  [Karel Zak]
-libsmartcols:
-   - handle nameless tables in export format  [Thomas Weiﬂschuh]
-libuuid:
-   - avoid truncate clocks.txt to improve performance  [Goldwyn Rodrigues]
-libuuid/src/gen_uuid.c:
-   - fix cs_min declaration  [Fabrice Fontaine]
-login:
-   - Use pid_t for child_pid  [Tobias Stoeckmann]
-   - move comment  [Tobias Stoeckmann]
-losetup:
-   - fix JSON MAJ MIN  [Karel Zak]
-lscpu:
-   - Use 4K buffer size instead of BUFSIZ  [Khem Raj]
-   - fix caches separator for --parse=<list>  [Karel Zak]
-   - Add Phytium FTC862 cpu model. fix:
-lsfd:
-   - (man) fix the form for the optional argument of --inet option  [Masatake YAMATO]
-   - avoid undefined behavior  [Thomas Weiﬂschuh]
-   - fix memory leak in append_filter_expr()  [Karel Zak]
-lslogins:
-   - (man) fix -y option formatting  [Thomas Weiﬂschuh]
-   - fix realloc() loop allocation size  [Thomas Weiﬂschuh]
-meson:
-   - install wall executable with group 'tty'  [Christian Hesse]
-   - install write executable with group 'tty'  [Christian Hesse]
-more:
-   - avoid out-of-bound access  [Thomas Weiﬂschuh]
-po:
-   - add ro.po (from translationproject.org)  [Remus-Gabriel Chelu]
-   - merge changes  [Karel Zak]
-   - update es.po (from translationproject.org)  [Antonio Ceballos Roa]
-po-man:
-   - merge changes  [Karel Zak]
-script-playutils:
-   - close filestream in case ignore_line() fails  [Thomas Weiﬂschuh]
-setpriv:
-   - fix group argument completion  [Thomas Weiﬂschuh]
-setterm:
-   - avoid restoring flags from uninitialized memory  [Chris Hofstaedtler]
-tests:
-   - add ts_skip_docker  [Thomas Weiﬂschuh]
-   - skip broken tests on docker  [Thomas Weiﬂschuh]
-umount:
-   - handle bindmounts during --recursive  [Thomas Weiﬂschuh]
-
-- Add Phytium FTC310 & FTC664 support  [zuoqian]
-- Fix man page for col to correct documentation error  [Connor-GH]
-- Update col.c to fix option mistake  [Connor-GH]
-- Use empty libuser config file.  [Anatoly Pugachev]
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
-
+--syztp6rvafvjzxsx--
