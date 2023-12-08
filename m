@@ -1,97 +1,175 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cbd2w2X8"
-Received: from mail-oa1-x2b.google.com (mail-oa1-x2b.google.com [IPv6:2001:4860:4864:20::2b])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9305FA3
-	for <util-linux@vger.kernel.org>; Wed,  6 Dec 2023 16:42:11 -0800 (PST)
-Received: by mail-oa1-x2b.google.com with SMTP id 586e51a60fabf-1fb9a22b4a7so256485fac.3
-        for <util-linux@vger.kernel.org>; Wed, 06 Dec 2023 16:42:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1701909729; x=1702514529; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=s48vyisboB8ghP7lfEJD4GH9tIgP+HZzBOQSJ+QpMjE=;
-        b=cbd2w2X8fJombC4ycolqB0GC2ClWF/Q4h+0l1N91XKZd/sxJUDYREDuo5i8a51cear
-         kudfH2v/YHXm+LS5sMpgCQasvbsgvxmolrKZmc6HV3lLmjQSQVOnmBYD3Rd1m0uthvoa
-         25F4z7sTw0v7/bsYfEHfGpbLLDXJTlOexG8uJ6McrViaDPP6r7IHNOOeVRL3CbeYA6aJ
-         oma3uMnIrRngxfDDclusptsLDcxvILlnP9y2jKiq0ahtoyYhEGTBOCrOyN1L5/mC35fY
-         RVpLf3ZYxAv5CSmdRcRjyYdLkGU17pHHLjqEewPwciZDaCM9wyv01OBnGuYT5ziG73C0
-         ek4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701909729; x=1702514529;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=s48vyisboB8ghP7lfEJD4GH9tIgP+HZzBOQSJ+QpMjE=;
-        b=SX+w9dS43mUk0CERBLe8AoAsFo7tZoq6FTlim6qvyuZ611101JZ9/qhIYKap26GVR5
-         pt8WpIaIyRacGSU49D6TOhXzfyhgU210d4cuSSXuPH41v38+L8QiSZVY6TTxaaswFIMp
-         2XaNBHbL/oabbxEriK+GMqj7fcO4wL10nUOtUkYzIURrFXCMJ7oWAG1kKkuQ+Vn8cfeV
-         MLX9XbncRAr/QA9zLjePrB6zUHb4ioxQl/NyDZ3/k881da/3H6xVE0NH30SoPmdikNB3
-         DGD79YbULIvy/03T9qi6+WksPyikv1tb5Zfsb8ZU0XShXPMH1n/ycTNWiMv42oALKr/g
-         ZaKA==
-X-Gm-Message-State: AOJu0Yz2t/3WsF+JZ/WU7jLAtF5PRJLQuVpqemSr33m81Sm6uzJs2MFm
-	LIgeJYOH20tUZiCijjHKl9CzQ9XLwPY=
-X-Google-Smtp-Source: AGHT+IEfUTaCOANSIkrOKpBqdJQ6mxdTCaVnJYvsnRJQIq9Z1RG0MAMGvpODU/u58+J8HC/SLuHiQw==
-X-Received: by 2002:a05:6870:818d:b0:1fb:75b:99b0 with SMTP id k13-20020a056870818d00b001fb075b99b0mr1914176oae.95.1701909729102;
-        Wed, 06 Dec 2023 16:42:09 -0800 (PST)
-Received: from acleverhostname.attlocal.net (108-200-163-197.lightspeed.bcvloh.sbcglobal.net. [108.200.163.197])
-        by smtp.gmail.com with ESMTPSA id gy26-20020a056870289a00b001fb05cf9dfdsm33638oab.19.2023.12.06.16.42.08
-        for <util-linux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Dec 2023 16:42:08 -0800 (PST)
-From: Eli Schwartz <eschwartz93@gmail.com>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] bash-completion: make sure that "lastb" actually completes
-Date: Wed,  6 Dec 2023 19:40:44 -0500
-Message-ID: <20231207004204.3443364-1-eschwartz93@gmail.com>
-X-Mailer: git-send-email 2.41.0
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VMV4jVx4"
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C56901723
+	for <util-linux@vger.kernel.org>; Fri,  8 Dec 2023 03:42:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1702035736;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=330gmxBcQjCgg8Rq8tXgFQvJbI9lgYjUPBmGc3UjXgg=;
+	b=VMV4jVx4TERgULb0yKjAgGPemH/oQHdmLq2eF2RE7Gs1mhvtDJVrCBBNGNrEb+E6z+DZt4
+	htOuikuhzol/MbQWHkAeIBV2dmsnpUwDbyazJsnjjCLpylJLBzWDtJ3Yq8E0ga1YEL0mEE
+	GfpKOz62vXtCaX0S1UNCid3COGX29mQ=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-60-fo_viI39OMmAUTdLYgh4GA-1; Fri, 08 Dec 2023 06:42:13 -0500
+X-MC-Unique: fo_viI39OMmAUTdLYgh4GA-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4C25185CE41;
+	Fri,  8 Dec 2023 11:42:13 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.225.175])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id B3151C185A0;
+	Fri,  8 Dec 2023 11:42:12 +0000 (UTC)
+Date: Fri, 8 Dec 2023 12:42:10 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Edward Chron <echron@arista.com>
+Cc: util-linux@vger.kernel.org, colona@arista.com
+Subject: Re: [PATCH] util-linux/sys-utils dmesg add PRINTK_CALLER id support
+Message-ID: <20231208114210.h2rmm7g44tjhjhco@ws.net.home>
+References: <20231206210449.27011-1-echron@arista.com>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231206210449.27011-1-echron@arista.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.8
 
-Building util-linux logs a warning on Gentoo:
+On Wed, Dec 06, 2023 at 01:04:49PM -0800, Edward Chron wrote:
+>  sys-utils/dmesg.c | 108 +++++++++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 107 insertions(+), 1 deletion(-)
 
-```
- * Problems with installed bash completions were found:
- *
- * 	lastb: incorrect name, no completions for 'lastb' command defined.
- *
- * For more details on installing bash-completions, please see:
- * https://wiki.gentoo.org/wiki/Bash/Installing_completion_files
-```
+Note for list-only followers; Edward will create a PR on GitHub
+https://github.com/util-linux/util-linux/issues/2609
 
-A bash-completion file is usually composed of two parts:
-- a function that knows how to produce completions
-- a specification of which command should be completed
+> +static const char PROC_SYS_KERN_PID_MAX[] = "/proc/sys/kernel/pid_max";
 
-In cases where multiple commands have the same options, e.g. commands
-that are symlinked to each other, it is common to symlink the completion
-files as well. This shares the first part. But the second part cannot be
-shared, it must be implemented twice by specifying two different
-commands to be completed.
+Please, add it as _PATH_PROC_PIDMAX macro to /include/pathnames.h
 
-"lastb" had a symlinked completion, but when the completion system
-processes /usr/share/bash-completion/completions/lastb, it would only
-define a completion for "last".
+> +#define PID_CHARS_MAX 16
 
-Define both completions in one file, so that sourcing it works
-regardless of command used.
----
- bash-completion/last | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+It's usually better to keep it based on some type, we usually use
+something like:
 
-diff --git a/bash-completion/last b/bash-completion/last
-index 180d9a94b..ff264c1d2 100644
---- a/bash-completion/last
-+++ b/bash-completion/last
-@@ -51,4 +51,4 @@ _last_module()
- 	COMPREPLY=( $(compgen -u -- $cur) )
- 	return 0
- }
--complete -F _last_module last
-+complete -F _last_module last lastb
+    #define PID_CHARS_MAX sizeof(stringify_value(LONG_MAX))
+
+> +static size_t max_threads_id_size(void)
+> +{
+> +	char taskmax[PID_CHARS_MAX];
+
+char taskmax[PID_CHARS_MAX] = { '\0' };
+
+> +	ssize_t rdsize;
+> +	int fd;
+> +
+> +	fd = open(PROC_SYS_KERN_PID_MAX, O_RDONLY);
+> +	if (fd == -1)
+> +		return (size_t)5;
+> +
+> +	memset(taskmax, 0, sizeof(taskmax));
+
+... and don't use memset() to initialize.
+
+> +	rdsize = read(fd, taskmax, sizeof(taskmax));
+> +	if (rdsize == -1)
+> +		return (size_t)5;
+
+Maybe we can avoid hardcoded numbers in code
+
+    #define PID_CHARS_DEFAULT   sizeof(stringify_value(SHORT_MAX))
+
+> +static const char *parse_callerid(const char *p_str, const char *end,
+> +				  struct dmesg_record *p_drec)
+> +{
+> +	static const char cid[] = "caller=";
+
+Use macro, compiler will save the string to the right place.
+
+ #define DMESG_CALLER_PREFIX    "caller="
+ #define DMESG_CALLER_PREFIXSZ  (sizeof(DMESG_CALLER_PREFIX) - 1)
+
+> +	const char *p_after;
+> +	const char *p_next;
+> +	size_t cid_size;
+> +	char *p_cid;
+> +
+> +	p_cid = strstr(p_str, cid);
+> +	if (p_cid != NULL && p_drec != NULL) {
+> +		p_next = p_cid + sizeof(cid)-1;
+> +		p_after = skip_item(p_next, end, ",;");
+> +		cid_size = p_after - p_next - 1;
+
+ You should verify that cid_size < sizeof(p_drec->caller_id) before you
+ call strncpy().
+
+> +		memset(p_drec->caller_id, 0, sizeof(p_drec->caller_id));
+> +		strncpy(p_drec->caller_id, p_next, cid_size);
+
+ Please,  xstrncpy() (from include/strdutils.h) to be sure it's zero terminated.
+
+> +		return p_after;
+> +	}
+> +	return p_str;
+> +}
+> +
+>  /*
+>   * Parses one record from syslog(2) buffer
+>   */
+> @@ -1079,6 +1156,29 @@ full_output:
+>  			color_disable();
+>  	}
+>  
+> +	if (rec->caller_id[0] != 0) {
+ 
+ if (*rec->caller_id)
+
+> +		size_t cid_len = strnlen(rec->caller_id, PID_CHARS_MAX);
+
+Would be better to assume that the string zero is terminated? I guess
+it's more robust for future code modifications.
+
+> +		ssize_t numspaces;
+> +		char strbuf[PID_CHARS_MAX];
+> +
+> +		numspaces = ctl->caller_id_size - cid_len;
+> +
+> +		memset(strbuf, 0, sizeof(strbuf));
+> +		if (numspaces > 0)
+> +			memset(strbuf, ' ', numspaces);
+> +
+> +		if (ctl->json) {
+> +			ul_jsonwrt_value_s(&ctl->jfmt, "caller", rec->caller_id);
+
+Here you assume it's zero terminated.
+
+> +		} else {
+> +			char cidbuf[PID_CHARS_MAX];
+> +
+> +			memset(cidbuf, 0, sizeof(cidbuf));
+
+Again, initialize, don't use memset().
+
+> +			sprintf(cidbuf, "[%s%s] ", strbuf, rec->caller_id);
+
+Do we really need strbuf to create space before the string? What about
+
+    sprintf(cidbuf, "[%*s] ", numspaces, rec->caller_id);
+
+
+Thanks!
+
+    Karel
+
 -- 
-2.41.0
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
