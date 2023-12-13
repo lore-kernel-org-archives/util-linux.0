@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arista.com header.i=@arista.com header.b="v9XwiWni"
-Received: from mail-il1-x161.google.com (mail-il1-x161.google.com [IPv6:2607:f8b0:4864:20::161])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FD66F4
-	for <util-linux@vger.kernel.org>; Tue, 12 Dec 2023 16:09:41 -0800 (PST)
-Received: by mail-il1-x161.google.com with SMTP id e9e14a558f8ab-35d3b220b64so24824205ab.2
-        for <util-linux@vger.kernel.org>; Tue, 12 Dec 2023 16:09:41 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=arista.com header.i=@arista.com header.b="bypyQPW7"
+Received: from mail-io1-xd62.google.com (mail-io1-xd62.google.com [IPv6:2607:f8b0:4864:20::d62])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D55A7
+	for <util-linux@vger.kernel.org>; Tue, 12 Dec 2023 22:34:24 -0800 (PST)
+Received: by mail-io1-xd62.google.com with SMTP id ca18e2360f4ac-7b72d574399so284873539f.0
+        for <util-linux@vger.kernel.org>; Tue, 12 Dec 2023 22:34:24 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702426180; x=1703030980;
+        d=1e100.net; s=20230601; t=1702449264; x=1703054064;
         h=content-transfer-encoding:message-id:date:subject:cc:to:from
          :dkim-signature:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=2lhYsr8/AlUS3RzYgXRcb4okf1Q4Gn+mU3HWoM4UIvc=;
-        b=Dj/44nKF5REKqKuiNKIqDc4q3tcydBmXX/LkrUA3wVtDXBXsRrzcbu+NQqBHFhBadz
-         mqp4gKuMbGt+pqTB1iJI5QW4M9+lbhTCQ55qWui9lMBEwxoomBqMaT5akh6IAF7u+m6i
-         +lZ7R3PheJ7HhXPYUm76Fj2RBsaaxJiVJEe+wfb+skV6kdvOEzifQagq8yMbTrsmtsak
-         4I4eY7SvYfOUiOfu+MjPd2fQe0tkN88/7kL0fZ1ylxG0MqN22CWv0tNbWgi2Mp6xcgg/
-         cIaiHUCxGYqgbggSCkYR22//OiMSWYXCbcr1SZn1MgPLFG8AmF3OYwJNs9/hOfpFadJB
-         nQgA==
-X-Gm-Message-State: AOJu0Ywxwymev4qSh0Ag1pUlKozf0MEtmVzBFhc7mv7y1OodrrOmkzfu
-	S7G4HUhH54TlMmD0BoashUvZEdn8/TVAwEjV7G1tzi3BgfphxHuO2lA6
-X-Google-Smtp-Source: AGHT+IHNr9TsCIF1vM5Z2XcACvjy1lJhN0sSSb+Go5H06oqwUq6eVNY02pwRzu+XE3yfh1cGsfNu4cmrUB9U
-X-Received: by 2002:a05:6e02:1c07:b0:35d:4da5:dab5 with SMTP id l7-20020a056e021c0700b0035d4da5dab5mr7773440ilh.14.1702426180302;
-        Tue, 12 Dec 2023 16:09:40 -0800 (PST)
+        bh=4Bunu4SHUE7fpRsZyHzrzpxxTkWwpiHBvtaEJ/w8vA0=;
+        b=fMtp/jG07L7ZoaqWgseLG4J0VhsuJrY5YMaU/XCzPym4m8HocX0lEaKVYwyDUWEjql
+         PPzRg4bOKaNwH1cLv6PyDtZgpFv2nXS761qJE4YXIfovZR0PtvmqCStOfZf1Ec3q2yxV
+         RAB1Pt91kOaGP7z0iKXfCeI9OIqViG1exlEss/3yh4PnGxk7DaggX77ulUy54gonm+6l
+         ySgDBd7LVG3QlS8cCL/I3heIwLMBDuIY8gtSE9V0McIGp6yHMck6FnXyQYVoTJY38AT2
+         lkNzICt8OU4HfvMd76cmTO6R8/oD25SQaY6wCA6EVcoQWlEoIvNp0OJANdOy7eD9lxkk
+         ufLQ==
+X-Gm-Message-State: AOJu0Yy2gbQOC5DkYIGcwMmxwVr3fxqV5ake5VV8NOeAhh69ofdmEZqW
+	Gm8uRO8DZZsFH0ysOA5m56mxTVoaqkrxzDoER0ohnBoPwIj4pUT3Y3gZ
+X-Google-Smtp-Source: AGHT+IGJkIHCeNzgKhp/3QEASaB9glZI0XMLgq5gqx59fweRQplDU1/OuZDrnsrAb/yz27O4O5QXDaLHXA08
+X-Received: by 2002:a05:6e02:1a6a:b0:35d:59a2:2cd with SMTP id w10-20020a056e021a6a00b0035d59a202cdmr10473976ilv.109.1702449264231;
+        Tue, 12 Dec 2023 22:34:24 -0800 (PST)
 Received: from smtp.aristanetworks.com ([74.123.28.25])
-        by smtp-relay.gmail.com with ESMTPS id n8-20020a056e0208e800b0035d68bb0d61sm969417ilt.21.2023.12.12.16.09.40
+        by smtp-relay.gmail.com with ESMTPS id d16-20020a056e02051000b0035d4ddef202sm918076ils.24.2023.12.12.22.34.24
         for <util-linux@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 Dec 2023 16:09:40 -0800 (PST)
+        Tue, 12 Dec 2023 22:34:24 -0800 (PST)
 X-Relaying-Domain: arista.com
 Received: from us113.sjc.aristanetworks.com (us113.sjc.aristanetworks.com [10.242.240.8])
-	by smtp.aristanetworks.com (Postfix) with ESMTP id 780B5402056;
-	Tue, 12 Dec 2023 16:09:39 -0800 (PST)
+	by smtp.aristanetworks.com (Postfix) with ESMTP id 6382D402056;
+	Tue, 12 Dec 2023 22:34:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arista.com;
-	s=Arista-A; t=1702426179;
-	bh=2lhYsr8/AlUS3RzYgXRcb4okf1Q4Gn+mU3HWoM4UIvc=;
+	s=Arista-A; t=1702449263;
+	bh=4Bunu4SHUE7fpRsZyHzrzpxxTkWwpiHBvtaEJ/w8vA0=;
 	h=From:To:Cc:Subject:Date:From;
-	b=v9XwiWnitWLl9TBBIuhwJ+uph7WUBT469vtIoWXmvifOcgPF4EyBMdK3aHZHDHs2p
-	 +1ou4kBAgd8ZiaVa+h6Jz3TRiFgjGvkL9BcG1nsnzbQDo59XFq7ZshsmFadxse0MlE
-	 HMAFD3hhRehd6KYjSRYDv2tdpig9QlWGghczLgCS7KAgdOej6aFhuyRuZPMmz2tcPb
-	 yU4d15fRd1Bu28SO94rCye37MvzSt85zLd/X+6+MRkl/xgq0FjrNLPa2Lkh15AHj5w
-	 k3Q4x0TFwa2/WrW0m2YF86GBrifa2C8uDe4mEwljEm3jlZ1vplLPsfj2QgC+T2BUxO
-	 TQbSG0+txIKjA==
+	b=bypyQPW7xM/R3tK6t52DiWs/hv1i2id2vn/S+I39oWIHeiYTF4N5Do/kDdWbbMqxV
+	 WMlhjW/pIUzPF6kN52KH7qO3qi3dHdpvpqFMz2wBtps4BqDrV1Tg9WO4sPDTPu0jGz
+	 6WCHmlTHXiFX24trkY1w74Hs27V6/ExDRSION5O8kCWgL29koMhfGn5Mc9XzjauNil
+	 Bno4i0Rh4LAoenLQqqW8X6EQSFBKblQKE1fninfS1W60YetTFWpkHQLKu4MLy7g+CS
+	 MpLtwM6JKTmrjgUeqaa3F402m5uwGVrcCntUxbuhKc9UrXen5o2UXms7BY2nU2nwPG
+	 ETQ2XpLN+YmjQ==
 Received: by us113.sjc.aristanetworks.com (Postfix, from userid 10383)
-	id 6A64CB840938; Tue, 12 Dec 2023 16:09:39 -0800 (PST)
+	id 5524DB840A5A; Tue, 12 Dec 2023 22:34:23 -0800 (PST)
 From: Edward Chron <echron@arista.com>
 To: util-linux@vger.kernel.org
 Cc: colona@arista.com,
 	echron@arista.com
 Subject: [PATCH] util-linux/sys-utils dmesg add PRINTK_CALLER support
-Date: Tue, 12 Dec 2023 16:09:37 -0800
-Message-ID: <20231213000937.13560-1-echron@arista.com>
+Date: Tue, 12 Dec 2023 22:34:11 -0800
+Message-ID: <20231213063411.22886-1-echron@arista.com>
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
@@ -65,8 +65,9 @@ Code level patch applied against: 2.39.3 - latest code pulled from
            git.github.com:util-linux/util-linux.git
 Revision: #1 on 2023/12/08 per Review from Karel Zak
 Revision: #2 on 2023/12/12 Adjust line offsets for master update and
-                           Add caller_id_size init to dmesg -K and
-                           Add support for required dmesg tests
+                           Add caller_id_size init to dmesg -K
+Revision: #3 on 2023/12/12 Use of sizeof for cidbuf and limit search
+                           for caller_id to dmesg prefix to msg text
 
 Add support to standard dmesg command for the optional Linux Kernel
 debug CONFIG option PRINTK_CALLER which adds an optional dmesg field
@@ -183,7 +184,7 @@ Signed-off-by: Ivan Delalande <colona@arista.com>
 Signed-off-by: Edward Chron <echron@arista.com>
 ---
  include/pathnames.h                           |   3 +
- sys-utils/dmesg.c                             | 114 +++-
+ sys-utils/dmesg.c                             | 117 +++-
  .../expected/dmesg/colors-kmsg-printk-caller  |  22 +
  .../dmesg/console-levels-kmsg-printk-caller   |  45 ++
  .../expected/dmesg/decode-kmsg-printk-caller  |  22 +
@@ -207,7 +208,7 @@ Signed-off-by: Edward Chron <echron@arista.com>
  tests/ts/dmesg/kmsg-input-printk-caller       | Bin 0 -> 2187 bytes
  tests/ts/dmesg/limit-kmsg-printk-caller       |  29 +
  tests/ts/dmesg/newlines-kmsg-printk-caller    | Bin 0 -> 152 bytes
- 25 files changed, 1457 insertions(+), 1 deletion(-)
+ 25 files changed, 1460 insertions(+), 1 deletion(-)
  create mode 100644 tests/expected/dmesg/colors-kmsg-printk-caller
  create mode 100644 tests/expected/dmesg/console-levels-kmsg-printk-caller
  create mode 100644 tests/expected/dmesg/decode-kmsg-printk-caller
@@ -245,7 +246,7 @@ index caf0e63d4..81fa405f6 100644
 +
  #endif /* PATHNAMES_H */
 diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-index 77728b419..5a04af3e6 100644
+index 77728b419..b0caecbba 100644
 --- a/sys-utils/dmesg.c
 +++ b/sys-utils/dmesg.c
 @@ -13,7 +13,9 @@
@@ -348,7 +349,7 @@ index 77728b419..5a04af3e6 100644
  /*
   * Reads messages from regular file by mmap
   */
-@@ -728,6 +778,36 @@ static const char *skip_item(const char *begin, const char *end, const char *sep
+@@ -728,6 +778,39 @@ static const char *skip_item(const char *begin, const char *end, const char *sep
  	return begin;
  }
  
@@ -366,10 +367,13 @@ index 77728b419..5a04af3e6 100644
 +	const char *p_after;
 +	const char *p_next;
 +	size_t cid_size;
++	char *p_scn;
 +	char *p_cid;
 +
++	/* Check for PRINTK_CALLER prefix, must be before msg text */
 +	p_cid = strstr(p_str, DMESG_CALLER_PREFIX);
-+	if (p_cid != NULL && p_drec != NULL) {
++	p_scn = strchr(p_str, ';');
++	if (p_cid != NULL && p_drec != NULL && p_scn != NULL && p_cid < p_scn) {
 +		p_next = p_cid + DMESG_CALLER_PREFIXSZ;
 +		p_after = skip_item(p_next, end, ",;");
 +		cid_size = p_after - p_next;
@@ -385,7 +389,7 @@ index 77728b419..5a04af3e6 100644
  /*
   * Parses one record from syslog(2) buffer
   */
-@@ -795,6 +875,18 @@ static int get_next_syslog_record(struct dmesg_control *ctl,
+@@ -795,6 +878,18 @@ static int get_next_syslog_record(struct dmesg_control *ctl,
  				begin++;
  		}
  
@@ -404,7 +408,7 @@ index 77728b419..5a04af3e6 100644
  		rec->mesg = begin;
  		rec->mesg_size = end - begin;
  
-@@ -1101,6 +1193,19 @@ full_output:
+@@ -1101,6 +1196,19 @@ full_output:
  			color_disable();
  	}
  
@@ -416,7 +420,7 @@ index 77728b419..5a04af3e6 100644
 +
 +			sprintf(cidbuf, "[%*s] ",
 +				(char)ctl->caller_id_size - 1, rec->caller_id);
-+			ctl->indent += strnlen(cidbuf, PID_CHARS_MAX+3);
++			ctl->indent += strnlen(cidbuf, sizeof(cidbuf));
 +			fputs(cidbuf, stdout);
 +		}
 +	}
@@ -424,7 +428,7 @@ index 77728b419..5a04af3e6 100644
  	/*
  	 * A kernel message may contain several lines of output, separated
  	 * by '\n'.  If the timestamp and decode outputs are forced then each
-@@ -1229,6 +1334,8 @@ static int init_kmsg(struct dmesg_control *ctl)
+@@ -1229,6 +1337,8 @@ static int init_kmsg(struct dmesg_control *ctl)
  		return -1;
  	}
  
@@ -433,7 +437,7 @@ index 77728b419..5a04af3e6 100644
  	return 0;
  }
  
-@@ -1284,7 +1391,10 @@ static int parse_kmsg_record(struct dmesg_control *ctl,
+@@ -1284,7 +1394,10 @@ static int parse_kmsg_record(struct dmesg_control *ctl,
  		goto mesg;
  
  	/* D) optional fields (ignore) */
@@ -445,7 +449,7 @@ index 77728b419..5a04af3e6 100644
  
  mesg:
  	/* E) message text */
-@@ -1446,6 +1556,7 @@ int main(int argc, char *argv[])
+@@ -1446,6 +1559,7 @@ int main(int argc, char *argv[])
  		.kmsg = -1,
  		.time_fmt = DMESG_TIMEFTM_TIME,
  		.indent = 0,
@@ -453,7 +457,7 @@ index 77728b419..5a04af3e6 100644
  	};
  	int colormode = UL_COLORMODE_UNDEF;
  	enum {
-@@ -1542,6 +1653,7 @@ int main(int argc, char *argv[])
+@@ -1542,6 +1656,7 @@ int main(int argc, char *argv[])
  		case 'K':
  			ctl.filename = optarg;
  			ctl.method = DMESG_METHOD_KMSG;
