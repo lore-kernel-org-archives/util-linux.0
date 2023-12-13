@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arista.com header.i=@arista.com header.b="cIceI2Ba"
-Received: from mail-oa1-x64.google.com (mail-oa1-x64.google.com [IPv6:2001:4860:4864:20::64])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 482C2FE
-	for <util-linux@vger.kernel.org>; Tue, 12 Dec 2023 16:06:12 -0800 (PST)
-Received: by mail-oa1-x64.google.com with SMTP id 586e51a60fabf-20306782371so593147fac.1
-        for <util-linux@vger.kernel.org>; Tue, 12 Dec 2023 16:06:12 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=arista.com header.i=@arista.com header.b="v9XwiWni"
+Received: from mail-il1-x161.google.com (mail-il1-x161.google.com [IPv6:2607:f8b0:4864:20::161])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FD66F4
+	for <util-linux@vger.kernel.org>; Tue, 12 Dec 2023 16:09:41 -0800 (PST)
+Received: by mail-il1-x161.google.com with SMTP id e9e14a558f8ab-35d3b220b64so24824205ab.2
+        for <util-linux@vger.kernel.org>; Tue, 12 Dec 2023 16:09:41 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702425971; x=1703030771;
+        d=1e100.net; s=20230601; t=1702426180; x=1703030980;
         h=content-transfer-encoding:message-id:date:subject:cc:to:from
          :dkim-signature:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=B9VsJPY8jsjohQA1+EUvVjFsDB5qnrmwGaJlUcrlxgY=;
-        b=p7BMRaRHo5hOqiXr5gSaenb+UKpoEQTJ2viEW8R63kl/xog2eybVaG/Ye1ZkY4RJgX
-         Ui4fl0dFtpHubZsts6gHRaHx1bUvyUaF9XmGUxUA7jPOAgDZuIuQsF/7q0/r6u+1pvAr
-         HYZqRz/2fMDJ99xKZMEoGQyz/sAyNLwzGFlykltFmehSeWZXFSe3NBA1bK+nME7hEE8D
-         bnTDvE1DJfxQHtMwccdqqA10Pqd24HMYNVKSOdaTuyTQp9ksFA436BCRM59gxLbAD5MM
-         GVRaO7VWgWw0SWxzI4TJj3SF3Jcr5yPvz7V7I0U4VpYbh+odV2zqeqWYna/6H1IPLYvd
-         BB9g==
-X-Gm-Message-State: AOJu0YxoirY/t1n25fZh65PpidOoNT1Y+Ecx0bWfDWCne0L8tZFBFLoL
-	3nwdD9UR7unp84w8Dz0ZoOaw0abmuuNThads3c/OesGcAD2JCsxD5LTe
-X-Google-Smtp-Source: AGHT+IGPf6+F0b5Ywb1wN68fY3GcLtVpxqKlDZvyC/g6ND7cS28GirR8lOMy2l+OIdFfqnuqZJrr7Ktxodiz
-X-Received: by 2002:a05:6870:b296:b0:1fb:75b:99a8 with SMTP id c22-20020a056870b29600b001fb075b99a8mr8895203oao.87.1702425971388;
-        Tue, 12 Dec 2023 16:06:11 -0800 (PST)
+        bh=2lhYsr8/AlUS3RzYgXRcb4okf1Q4Gn+mU3HWoM4UIvc=;
+        b=Dj/44nKF5REKqKuiNKIqDc4q3tcydBmXX/LkrUA3wVtDXBXsRrzcbu+NQqBHFhBadz
+         mqp4gKuMbGt+pqTB1iJI5QW4M9+lbhTCQ55qWui9lMBEwxoomBqMaT5akh6IAF7u+m6i
+         +lZ7R3PheJ7HhXPYUm76Fj2RBsaaxJiVJEe+wfb+skV6kdvOEzifQagq8yMbTrsmtsak
+         4I4eY7SvYfOUiOfu+MjPd2fQe0tkN88/7kL0fZ1ylxG0MqN22CWv0tNbWgi2Mp6xcgg/
+         cIaiHUCxGYqgbggSCkYR22//OiMSWYXCbcr1SZn1MgPLFG8AmF3OYwJNs9/hOfpFadJB
+         nQgA==
+X-Gm-Message-State: AOJu0Ywxwymev4qSh0Ag1pUlKozf0MEtmVzBFhc7mv7y1OodrrOmkzfu
+	S7G4HUhH54TlMmD0BoashUvZEdn8/TVAwEjV7G1tzi3BgfphxHuO2lA6
+X-Google-Smtp-Source: AGHT+IHNr9TsCIF1vM5Z2XcACvjy1lJhN0sSSb+Go5H06oqwUq6eVNY02pwRzu+XE3yfh1cGsfNu4cmrUB9U
+X-Received: by 2002:a05:6e02:1c07:b0:35d:4da5:dab5 with SMTP id l7-20020a056e021c0700b0035d4da5dab5mr7773440ilh.14.1702426180302;
+        Tue, 12 Dec 2023 16:09:40 -0800 (PST)
 Received: from smtp.aristanetworks.com ([74.123.28.25])
-        by smtp-relay.gmail.com with ESMTPS id p88-20020a9f36e1000000b007cb44cc2b74sm34672uap.4.2023.12.12.16.06.11
+        by smtp-relay.gmail.com with ESMTPS id n8-20020a056e0208e800b0035d68bb0d61sm969417ilt.21.2023.12.12.16.09.40
         for <util-linux@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 Dec 2023 16:06:11 -0800 (PST)
+        Tue, 12 Dec 2023 16:09:40 -0800 (PST)
 X-Relaying-Domain: arista.com
 Received: from us113.sjc.aristanetworks.com (us113.sjc.aristanetworks.com [10.242.240.8])
-	by smtp.aristanetworks.com (Postfix) with ESMTP id 5D975402056;
-	Tue, 12 Dec 2023 16:06:10 -0800 (PST)
+	by smtp.aristanetworks.com (Postfix) with ESMTP id 780B5402056;
+	Tue, 12 Dec 2023 16:09:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arista.com;
-	s=Arista-A; t=1702425970;
-	bh=B9VsJPY8jsjohQA1+EUvVjFsDB5qnrmwGaJlUcrlxgY=;
+	s=Arista-A; t=1702426179;
+	bh=2lhYsr8/AlUS3RzYgXRcb4okf1Q4Gn+mU3HWoM4UIvc=;
 	h=From:To:Cc:Subject:Date:From;
-	b=cIceI2Baws8VY05Xcpf9hwU3FzG//UtVJWwKfahvVDTqGNpxdjCU8mUS0aq8kzrru
-	 SQPglPCUsOBngyECVmkekIbkt+UzOTIG8Tl5GcNqDZ+5YN/VDLa+HowjIKwDi/shwZ
-	 zMkoKCit1wEyF3RTgyddNWp0yRtsSomBEyMuyFqlKmdCP80tPwrTjeAkUN9QPYUgKR
-	 bCfIdNmy6DJB9uQ3X1gcWUdW18+SKS+fpp1nYulKFVTflfdJIvMKRRnhyJyYJQRVK3
-	 wnH8wBoSbnq7zpXXlIwtcEJUpoxWAWWl5lVAArNH3KbEG5xzYpqaLdwsr53UVvwGhV
-	 LKfi10SI2tNhQ==
+	b=v9XwiWnitWLl9TBBIuhwJ+uph7WUBT469vtIoWXmvifOcgPF4EyBMdK3aHZHDHs2p
+	 +1ou4kBAgd8ZiaVa+h6Jz3TRiFgjGvkL9BcG1nsnzbQDo59XFq7ZshsmFadxse0MlE
+	 HMAFD3hhRehd6KYjSRYDv2tdpig9QlWGghczLgCS7KAgdOej6aFhuyRuZPMmz2tcPb
+	 yU4d15fRd1Bu28SO94rCye37MvzSt85zLd/X+6+MRkl/xgq0FjrNLPa2Lkh15AHj5w
+	 k3Q4x0TFwa2/WrW0m2YF86GBrifa2C8uDe4mEwljEm3jlZ1vplLPsfj2QgC+T2BUxO
+	 TQbSG0+txIKjA==
 Received: by us113.sjc.aristanetworks.com (Postfix, from userid 10383)
-	id 515C6B840938; Tue, 12 Dec 2023 16:06:10 -0800 (PST)
+	id 6A64CB840938; Tue, 12 Dec 2023 16:09:39 -0800 (PST)
 From: Edward Chron <echron@arista.com>
 To: util-linux@vger.kernel.org
 Cc: colona@arista.com,
 	echron@arista.com
 Subject: [PATCH] util-linux/sys-utils dmesg add PRINTK_CALLER support
-Date: Tue, 12 Dec 2023 16:06:08 -0800
-Message-ID: <20231213000608.6747-1-echron@arista.com>
+Date: Tue, 12 Dec 2023 16:09:37 -0800
+Message-ID: <20231213000937.13560-1-echron@arista.com>
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
@@ -58,7 +58,7 @@ List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 
 Submission to Project: util-linux
-Open Incident: #2906 at github.com/util-linux/util-linux/issues/2906
+Open Incident: #2609 at github.com/util-linux/util-linux/issues/2609
 Component: util-linux/sys-utils
 File: dmesg.c
 Code level patch applied against: 2.39.3 - latest code pulled from
