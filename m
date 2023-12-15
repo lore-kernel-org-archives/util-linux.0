@@ -1,1974 +1,250 @@
+Received: from EUR03-AM7-obe.outbound.protection.outlook.com (mail-am7eur03on2050.outbound.protection.outlook.com [40.107.105.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83191495E1
+	for <util-linux@vger.kernel.org>; Fri, 15 Dec 2023 22:18:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=sap.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sap.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arista.com header.i=@arista.com header.b="bypyQPW7"
-Received: from mail-io1-xd62.google.com (mail-io1-xd62.google.com [IPv6:2607:f8b0:4864:20::d62])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D55A7
-	for <util-linux@vger.kernel.org>; Tue, 12 Dec 2023 22:34:24 -0800 (PST)
-Received: by mail-io1-xd62.google.com with SMTP id ca18e2360f4ac-7b72d574399so284873539f.0
-        for <util-linux@vger.kernel.org>; Tue, 12 Dec 2023 22:34:24 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702449264; x=1703054064;
-        h=content-transfer-encoding:message-id:date:subject:cc:to:from
-         :dkim-signature:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4Bunu4SHUE7fpRsZyHzrzpxxTkWwpiHBvtaEJ/w8vA0=;
-        b=fMtp/jG07L7ZoaqWgseLG4J0VhsuJrY5YMaU/XCzPym4m8HocX0lEaKVYwyDUWEjql
-         PPzRg4bOKaNwH1cLv6PyDtZgpFv2nXS761qJE4YXIfovZR0PtvmqCStOfZf1Ec3q2yxV
-         RAB1Pt91kOaGP7z0iKXfCeI9OIqViG1exlEss/3yh4PnGxk7DaggX77ulUy54gonm+6l
-         ySgDBd7LVG3QlS8cCL/I3heIwLMBDuIY8gtSE9V0McIGp6yHMck6FnXyQYVoTJY38AT2
-         lkNzICt8OU4HfvMd76cmTO6R8/oD25SQaY6wCA6EVcoQWlEoIvNp0OJANdOy7eD9lxkk
-         ufLQ==
-X-Gm-Message-State: AOJu0Yy2gbQOC5DkYIGcwMmxwVr3fxqV5ake5VV8NOeAhh69ofdmEZqW
-	Gm8uRO8DZZsFH0ysOA5m56mxTVoaqkrxzDoER0ohnBoPwIj4pUT3Y3gZ
-X-Google-Smtp-Source: AGHT+IGJkIHCeNzgKhp/3QEASaB9glZI0XMLgq5gqx59fweRQplDU1/OuZDrnsrAb/yz27O4O5QXDaLHXA08
-X-Received: by 2002:a05:6e02:1a6a:b0:35d:59a2:2cd with SMTP id w10-20020a056e021a6a00b0035d59a202cdmr10473976ilv.109.1702449264231;
-        Tue, 12 Dec 2023 22:34:24 -0800 (PST)
-Received: from smtp.aristanetworks.com ([74.123.28.25])
-        by smtp-relay.gmail.com with ESMTPS id d16-20020a056e02051000b0035d4ddef202sm918076ils.24.2023.12.12.22.34.24
-        for <util-linux@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 Dec 2023 22:34:24 -0800 (PST)
-X-Relaying-Domain: arista.com
-Received: from us113.sjc.aristanetworks.com (us113.sjc.aristanetworks.com [10.242.240.8])
-	by smtp.aristanetworks.com (Postfix) with ESMTP id 6382D402056;
-	Tue, 12 Dec 2023 22:34:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arista.com;
-	s=Arista-A; t=1702449263;
-	bh=4Bunu4SHUE7fpRsZyHzrzpxxTkWwpiHBvtaEJ/w8vA0=;
-	h=From:To:Cc:Subject:Date:From;
-	b=bypyQPW7xM/R3tK6t52DiWs/hv1i2id2vn/S+I39oWIHeiYTF4N5Do/kDdWbbMqxV
-	 WMlhjW/pIUzPF6kN52KH7qO3qi3dHdpvpqFMz2wBtps4BqDrV1Tg9WO4sPDTPu0jGz
-	 6WCHmlTHXiFX24trkY1w74Hs27V6/ExDRSION5O8kCWgL29koMhfGn5Mc9XzjauNil
-	 Bno4i0Rh4LAoenLQqqW8X6EQSFBKblQKE1fninfS1W60YetTFWpkHQLKu4MLy7g+CS
-	 MpLtwM6JKTmrjgUeqaa3F402m5uwGVrcCntUxbuhKc9UrXen5o2UXms7BY2nU2nwPG
-	 ETQ2XpLN+YmjQ==
-Received: by us113.sjc.aristanetworks.com (Postfix, from userid 10383)
-	id 5524DB840A5A; Tue, 12 Dec 2023 22:34:23 -0800 (PST)
-From: Edward Chron <echron@arista.com>
+	dkim=pass (2048-bit key) header.d=sap.com header.i=@sap.com header.b="cL0XWEcU"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=gTVQlT0bhV4O5xevjrZhK4jlqCdWfXA0077KihmUdlSeSKeS0Mrqq+ALfWN3FkMTcyx23FISovyANXsSzFIQQ7OLb8QNdIf+WugbhIpZwnIYPcK4DhbQRKslND8jrswFhHsiZ4pgRZFB9X6wwe2B8xUofkXaL1dzE7L9Il0QxVizi5/5M0TtX7THxEMQCnM7zeBTPlrcuVtcBZlxEW7L7G+s1IkXTAjX4xmDQmAoApUQXTBFudBVgnOj0yidLG5MUSqM2qtVdzl4n7YpOWVCpzNWKwNguypzN9egIZG+aF8a2hQZn2osUcgLyMCBM34/IbfBfd86By3OxOKLy0U13g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Klar5CD+N2/kF/Tkni3d9tkFzRt+C0TgY6IjfGhNkQU=;
+ b=C25LFITOMoDJce7rKE+elbywtDb38YToI0GawvPEPItxTlrzisATWHf8bVB0m2+zT/kzrQVjltQ6HpHOdQlydZF1WhX6qjC7nJ5WUO06Ae70mG8iAyO8h5OdUQSz86LkM57TK7in6mIWLkoCh0AvKNO4nUw4ZqeXODsJLWZqwfgIaEOAUHa0xMFuNZ4lxWZGYpOa4UK36qvKfytzgX3ktPg36X+4ufzNyGlHsv7PLBtLxksD53TRNMtfC7DOkm0AsgZDtQfKIK6nwdwfxJ3hi4nKHlvTCzFFdK9frC/ip2ZIKr1PvLCUHYYV4px4+0y9wftM6lETpJh0wuX/E5E1vg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 155.56.68.150) smtp.rcpttodomain=redhat.com smtp.mailfrom=sap.com; dmarc=pass
+ (p=reject sp=reject pct=100) action=none header.from=sap.com; dkim=none
+ (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sap.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Klar5CD+N2/kF/Tkni3d9tkFzRt+C0TgY6IjfGhNkQU=;
+ b=cL0XWEcUtqdoykHy+crJIRRNRacIPU8s/AfF9x92aihLDrTpNKbpXh+Xk3xPIwGTiwS66JaJ/nDV5eeIZxQpCRb2GPR5+FPvNPkT8cYUW94vg50x3jGuJgbM+2axzPAHlg5GfZfgLl4vz/he8HdM3ZyStmUJXdLGS4/bki1yvso8p9ZpTBKBRD2I+HQPUrwQ2fU/anX9NYUiYqWiZO1tRVNSygn4qqcpyoulIM8kxqQlEd5uY4yGyOO+zIqT4wuwEpz9A9lKAMLtLmfBtYfE1emijo1LR+Hbvpnlt7p8K8wR3fwMhz3tFLurtNJME8nrol3K+N9Sw763iDbpFDD5uQ==
+Received: from AS4PR10CA0018.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:20b:5d8::12)
+ by AM9PR02MB7106.eurprd02.prod.outlook.com (2603:10a6:20b:269::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7091.33; Fri, 15 Dec
+ 2023 22:18:31 +0000
+Received: from AM3PEPF00009BA1.eurprd04.prod.outlook.com
+ (2603:10a6:20b:5d8:cafe::36) by AS4PR10CA0018.outlook.office365.com
+ (2603:10a6:20b:5d8::12) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7091.33 via Frontend
+ Transport; Fri, 15 Dec 2023 22:18:31 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 155.56.68.150)
+ smtp.mailfrom=sap.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=sap.com;
+Received-SPF: Pass (protection.outlook.com: domain of sap.com designates
+ 155.56.68.150 as permitted sender) receiver=protection.outlook.com;
+ client-ip=155.56.68.150; helo=smtpdem02.smtp.sap-ag.de; pr=C
+Received: from smtpdem02.smtp.sap-ag.de (155.56.68.150) by
+ AM3PEPF00009BA1.mail.protection.outlook.com (10.167.16.26) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7113.14 via Frontend Transport; Fri, 15 Dec 2023 22:18:31 +0000
+From: Michael Trapp <michael.trapp@sap.com>
 To: util-linux@vger.kernel.org
-Cc: colona@arista.com,
-	echron@arista.com
-Subject: [PATCH] util-linux/sys-utils dmesg add PRINTK_CALLER support
-Date: Tue, 12 Dec 2023 22:34:11 -0800
-Message-ID: <20231213063411.22886-1-echron@arista.com>
-Content-Transfer-Encoding: 8bit
+Cc: kzak@redhat.com
+Subject: [PATCH] uuidd: add cont_clock persistence
+Date: Fri, 15 Dec 2023 23:18:29 +0100
+Message-Id: <20231215221829.46932-1-michael.trapp@sap.com>
+X-Mailer: git-send-email 2.39.3 (Apple Git-145)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AM3PEPF00009BA1:EE_|AM9PR02MB7106:EE_
+Content-Type: text/plain
+X-MS-Office365-Filtering-Correlation-Id: 9eae8158-05ba-4ac1-4e31-08dbfdbbc580
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	C97+hUSusTq1UNehocJ79R+dEABpu2FBDoy+RoNjqEjz9bv00Z5ICq90LuRXpTRWkSfPOLomwNk5yGFSLIgN4wr2ZCXe9qYYIe5mZ1oaWqa1OpClKOphZ6iyV46PzISv4rkyw1xQuIhLDY3FkaZK+3jN1wjbw0tWvKk+BvLtKcwhOmNEg6gkD1YDrm5qVGwexqAWroeewolPnP0jWTfy46NTsYt6jE9BD/ii/ecdhG3bg0+0m4GqYM68y7NGsIrRDjN5i3RSOPtU24KN5e9042loEnqxQiSVMrFk3iwE7ZMWvIbFQ/PpjjCleo2zfWw751vBXooGcy6Qh4TzD9P+1KwpE7cyhNH59fiNWdC3K+VUWlG2Mh0LAbJZChLCXuVLlTJfIDiW+qg7qiDtoorhaViDSUjnuRG82I+jKdFR7em5EY5lGezZlqfHlRLYgWp+QCkKqIP0whjc79iT2qDNvxnmT227JrN0NYLD9GpxZqpO+hftWioanMNhevATZs6VMc+6Uj78H0RooK5VuCJdPNubxN+UQKQSIberaE0zVCf646/aMEYqr1Ni3rvZDfInE9oGCw+z0zOcMeaacgbV2q1xytHge0swdXmCGCt20+0vIQXREVYFUjt8lEa03F91m9Gu7fF0HTHnpBt9w2WU/TwTq3foRi6koLtBwD20LuKOf2RSQ/km2lwmebyQGX3aEMapCefCRnrHLudQpDfz1z3O0OwxE7fHqKRosrfwlYcYt5vHvVfdEkQECjrFya9A
+X-Forefront-Antispam-Report:
+	CIP:155.56.68.150;CTRY:DE;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:smtpdem02.smtp.sap-ag.de;PTR:smtpdem02.mail.net.sap;CAT:NONE;SFS:(13230031)(4636009)(376002)(346002)(136003)(39860400002)(396003)(230922051799003)(1800799012)(451199024)(186009)(64100799003)(82310400011)(36840700001)(40470700004)(46966006)(40460700003)(1076003)(26005)(336012)(956004)(2616005)(6512007)(6506007)(36860700001)(83380400001)(47076005)(5660300002)(44832011)(41300700001)(2906002)(478600001)(6486002)(9316004)(4326008)(8676002)(8936002)(70206006)(316002)(36736006)(6916009)(82740400003)(82960400001)(356005)(81166007)(36756003)(86362001)(40480700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: sap.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Dec 2023 22:18:31.6820
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9eae8158-05ba-4ac1-4e31-08dbfdbbc580
+X-MS-Exchange-CrossTenant-Id: 42f7676c-f455-423c-82f6-dc2d99791af7
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=42f7676c-f455-423c-82f6-dc2d99791af7;Ip=[155.56.68.150];Helo=[smtpdem02.smtp.sap-ag.de]
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: TreatMessagesAsInternal-AM3PEPF00009BA1.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM9PR02MB7106
 
-Submission to Project: util-linux
-Open Incident: #2609 at github.com/util-linux/util-linux/issues/2609
-Component: util-linux/sys-utils
-File: dmesg.c
-Code level patch applied against: 2.39.3 - latest code pulled from
-           git.github.com:util-linux/util-linux.git
-Revision: #1 on 2023/12/08 per Review from Karel Zak
-Revision: #2 on 2023/12/12 Adjust line offsets for master update and
-                           Add caller_id_size init to dmesg -K
-Revision: #3 on 2023/12/12 Use of sizeof for cidbuf and limit search
-                           for caller_id to dmesg prefix to msg text
+cont_clock requires a correct time setup and therefore it
+must be possible to detect a step back between uuidd starts.
 
-Add support to standard dmesg command for the optional Linux Kernel
-debug CONFIG option PRINTK_CALLER which adds an optional dmesg field
-that contains the Thread Id or CPU Id that is issuing the printk to
-add the message to the kernel ring buffer. This makes debugging simpler
-as dmesg entries for a specific thread or CPU can be recognized.
+Reserving the next 10 seconds in clock-cont.txt is sufficient
+and should not have a noticeable performance impact.
+It will also provide the possibility to start with the clock_reg
+from the previous session when the system was rebooted.
 
-The dmesg -S using the old syslog interface supports printing the
-PRINTK_CALLER field but currently standard dmesg does not support
-printing the field if present. There are utilities that use dmesg and
-so it would be optimal if dmesg supported PRINTK_CALLER as well.
-
-The additional field provided by PRINTK_CALLER is only present
-if it was configured for the Linux kernel where the dmesg command
-is run. It is a debug option and not configured by default so the
-dmesg output will only change for those kernels where the option was
-configured when the kernel was built. For users who went to the
-trouble to configure PRINTK_CALLER and have the extra field available
-for debugging, having dmesg print the field is very helpful.
-
-Size of the PRINTK_CALLER field is determined by the maximum number
-tasks that can be run on the system which is limited by the value of
-/proc/sys/kernel/pid_max as pid values are from 0 to value - 1.
-This value determines the number of id digits needed by the caller id.
-The PRINTK_CALLER field is printed as T<id> for a Task Id or C<id>
-for a CPU Id for a printk in CPU context. The values are left space
-padded and enclosed in parentheses such as: [    T123] or [     C16]
-
-For consistency with dmesg -S which supports the PRINTK_CALLER field
-the field is printed followed by a space. For JSON format output the
-PRINTK_CALLER field is identified as caller as that is consistent with
-it's naming in /dev/kmsg. No space padding is used to reduce space
-consumed by the JSON output. So the output from the command on a system
-with PRINTK_CALLER field enabled in the Linux .config file the dmesg
-output appears as:
-
-> dmesg
-...
-[  520.897104] [   T3919] usb 3-3: Product: USB 2.0 Hub
-
-and
-
-> dmesg -x
-...
-kern  :info  : [  520.897104] [   T3919] usb 3-3: Product: USB 2.0 Hub
-
-and
-
-> dmesg -J
-...
-      },{
-         "pri": 6,
-         "time":    520.897104,
-         "caller": "T3919",
-         "msg": "usb 3-3: Product: USB 2.0 Hub"
-      },{
-
-and
-
-> dmesg -J -x
-...
-      },{
-         "fac": "kern",
-         "pri": "info",
-         "time":   520.897104,
-         "caller": "T3919",
-         "msg": "usb 3-3: Product: USB 2.0 Hub"
-      },{
-
->
-
-For comparison:
-
-> dmesg -S
-...
-[  520.897104] [ T3919] usb 3-3: Product: USB 2.0 Hub
-
-and
-
-> dmesg -S -x
-...
-kern  :info  : [  520.897104] [ T3919] usb 3-3: Product: USB 2.0 Hub
-
-Note: When dmesg uses the old syslog interface the reserved space for
-      the PRINTK_CALLER field is capped at 5 digits because 32-bit
-      kernels are capped at 32768 as the max number of PIDs. However,
-      64-bit systems are currently capped at 2^22 PIDs (0 - 4194303).
-      The PID cap is set by PID_MAX_LIMIT but the system limit can be
-      less so we use /proc/sys/kernel/pid_max to determine the size
-      needed to hold the maximum PID value size for the current system.
-      Many 64-bit systems support 2^22 PIDs (0 - 4194303) and you see:
-
-> dmesg -x
-...
-kern  :info  : [  520.899558] [   T3919] hub 3-3:1.0: USB hub found
-...
-kern  :info  : [ 9830.456898] [  T98982] cgroup: fork rejected by pids ...
-kern  :info  : [14301.158878] [ T137336] cgroup: fork rejected by pids ...
-kern  :info  : [18980.803190] [T1637865] cgroup: fork rejected by pids ...
-
-> dmesg -S -x
-...
-kern  :info  : [  520.899558] [ T3919] hub 3-3:1.0: USB hub found
-...
-kern  :info  : [ 9830.456898] [T98982] cgroup: fork rejected by pids ...
-kern  :info  : [14301.158878] [T137336] cgroup: fork rejected by pids ...
-kern  :info  : [18980.803190] [T1637865] cgroup: fork rejected by pids ...
-
-This is the only difference seen with PRINTK_CALLER configured and
-printing between the dmesg /dev/kmsg interface and the dmesg -S syslog
-interface.
-
-Signed-off-by: Ivan Delalande <colona@arista.com>
-Signed-off-by: Edward Chron <echron@arista.com>
+Whith that, the early cont_clock initialization in uuidd
+should be removed because writing the cont_clock persitence
+when -C was not set is useless and might be confusing.
 ---
- include/pathnames.h                           |   3 +
- sys-utils/dmesg.c                             | 117 +++-
- .../expected/dmesg/colors-kmsg-printk-caller  |  22 +
- .../dmesg/console-levels-kmsg-printk-caller   |  45 ++
- .../expected/dmesg/decode-kmsg-printk-caller  |  22 +
- tests/expected/dmesg/delta-kmsg-printk-caller |  22 +
- .../dmesg/facilities-kmsg-printk-caller       |  22 +
- .../dmesg/indentation-kmsg-printk-caller      |  28 +
- tests/expected/dmesg/json-kmsg-printk-caller  | 115 ++++
- .../expected/dmesg/json-syslog-printk-caller  | 530 ++++++++++++++++++
- tests/expected/dmesg/kmsg-file-printk-caller  | 115 ++++
- tests/expected/dmesg/limit-kmsg-printk-caller |  11 +
- tests/ts/dmesg/colors-kmsg-printk-caller      |  29 +
- .../dmesg/console-levels-kmsg-printk-caller   |  36 ++
- tests/ts/dmesg/decode-kmsg-printk-caller      |  28 +
- tests/ts/dmesg/delta-kmsg-printk-caller       |  28 +
- tests/ts/dmesg/facilities-kmsg-printk-caller  |  30 +
- tests/ts/dmesg/indentation-kmsg-printk-caller |  40 ++
- tests/ts/dmesg/input-syslog-printk-caller     | 105 ++++
- tests/ts/dmesg/json-kmsg-printk-caller        |  28 +
- tests/ts/dmesg/json-syslog-printk-caller      |  28 +
- tests/ts/dmesg/kmsg-file-printk-caller        |  28 +
- tests/ts/dmesg/kmsg-input-printk-caller       | Bin 0 -> 2187 bytes
- tests/ts/dmesg/limit-kmsg-printk-caller       |  29 +
- tests/ts/dmesg/newlines-kmsg-printk-caller    | Bin 0 -> 152 bytes
- 25 files changed, 1460 insertions(+), 1 deletion(-)
- create mode 100644 tests/expected/dmesg/colors-kmsg-printk-caller
- create mode 100644 tests/expected/dmesg/console-levels-kmsg-printk-caller
- create mode 100644 tests/expected/dmesg/decode-kmsg-printk-caller
- create mode 100644 tests/expected/dmesg/delta-kmsg-printk-caller
- create mode 100644 tests/expected/dmesg/facilities-kmsg-printk-caller
- create mode 100644 tests/expected/dmesg/indentation-kmsg-printk-caller
- create mode 100644 tests/expected/dmesg/json-kmsg-printk-caller
- create mode 100644 tests/expected/dmesg/json-syslog-printk-caller
- create mode 100644 tests/expected/dmesg/kmsg-file-printk-caller
- create mode 100644 tests/expected/dmesg/limit-kmsg-printk-caller
- create mode 100755 tests/ts/dmesg/colors-kmsg-printk-caller
- create mode 100755 tests/ts/dmesg/console-levels-kmsg-printk-caller
- create mode 100755 tests/ts/dmesg/decode-kmsg-printk-caller
- create mode 100755 tests/ts/dmesg/delta-kmsg-printk-caller
- create mode 100755 tests/ts/dmesg/facilities-kmsg-printk-caller
- create mode 100755 tests/ts/dmesg/indentation-kmsg-printk-caller
- create mode 100644 tests/ts/dmesg/input-syslog-printk-caller
- create mode 100755 tests/ts/dmesg/json-kmsg-printk-caller
- create mode 100755 tests/ts/dmesg/json-syslog-printk-caller
- create mode 100755 tests/ts/dmesg/kmsg-file-printk-caller
- create mode 100644 tests/ts/dmesg/kmsg-input-printk-caller
- create mode 100755 tests/ts/dmesg/limit-kmsg-printk-caller
- create mode 100644 tests/ts/dmesg/newlines-kmsg-printk-caller
+ libuuid/src/gen_uuid.c | 78 ++++++++++++++++++++++++++++++++++++------
+ libuuid/src/uuidP.h    |  1 +
+ misc-utils/uuidd.c     |  9 -----
+ 3 files changed, 69 insertions(+), 19 deletions(-)
 
-diff --git a/include/pathnames.h b/include/pathnames.h
-index caf0e63d4..81fa405f6 100644
---- a/include/pathnames.h
-+++ b/include/pathnames.h
-@@ -230,4 +230,7 @@
- /* cgroup path */
- #define _PATH_SYS_CGROUP	"/sys/fs/cgroup"
- 
-+/* Maximum number of PIDs system supports */
-+#define _PATH_PROC_PIDMAX	"/proc/sys/kernel/pid_max"
-+
- #endif /* PATHNAMES_H */
-diff --git a/sys-utils/dmesg.c b/sys-utils/dmesg.c
-index 77728b419..b0caecbba 100644
---- a/sys-utils/dmesg.c
-+++ b/sys-utils/dmesg.c
-@@ -13,7 +13,9 @@
-  */
- #include <stdio.h>
- #include <getopt.h>
-+#include <stdbool.h>
- #include <stdlib.h>
-+#include <string.h>
- #include <sys/klog.h>
- #include <sys/syslog.h>
- #include <sys/time.h>
-@@ -41,6 +43,7 @@
- #include "mangle.h"
- #include "pager.h"
- #include "jsonwrt.h"
-+#include "pathnames.h"
- 
- /* Close the log.  Currently a NOP. */
- #define SYSLOG_ACTION_CLOSE          0
-@@ -65,6 +68,11 @@
- /* Return size of the log buffer */
- #define SYSLOG_ACTION_SIZE_BUFFER   10
- 
-+#define PID_CHARS_MAX sizeof(stringify_value(LONG_MAX))
-+#define PID_CHARS_DEFAULT sizeof(stringify_value(INT_MAX))
-+#define DMESG_CALLER_PREFIX "caller="
-+#define DMESG_CALLER_PREFIXSZ (sizeof(DMESG_CALLER_PREFIX)-1)
-+
+diff --git a/libuuid/src/gen_uuid.c b/libuuid/src/gen_uuid.c
+index 826cd2245..94b99f1bd 100644
+--- a/libuuid/src/gen_uuid.c
++++ b/libuuid/src/gen_uuid.c
+@@ -355,44 +355,102 @@ static uint64_t get_clock_counter(void)
  /*
-  * Color scheme
+  * Get continuous clock value.
+  *
+- * Return -1 if there is no further clock counter available,
++ * Return -1 if there is no valid clock counter available,
+  * otherwise return 0.
+  *
+  * This implementation doesn't deliver clock counters based on
+  * the current time because last_clock_reg is only incremented
+  * by the number of requested UUIDs.
+  * max_clock_offset is used to limit the offset of last_clock_reg.
++ * used/reserved UUIDs are written to LIBUUID_CLOCK_CONT_FILE.
   */
-@@ -233,6 +241,7 @@ struct dmesg_control {
- 			force_prefix:1;	/* force timestamp and decode prefix
- 					   on each line */
- 	int		indent;		/* due to timestamps if newline */
-+	size_t          caller_id_size;   /* PRINTK_CALLERID max field size */
- };
- 
- struct dmesg_record {
-@@ -242,6 +251,7 @@ struct dmesg_record {
- 	int		level;
- 	int		facility;
- 	struct timeval  tv;
-+	char		caller_id[PID_CHARS_MAX];
- 
- 	const char	*next;		/* buffer with next unparsed record */
- 	size_t		next_size;	/* size of the next buffer */
-@@ -254,6 +264,7 @@ struct dmesg_record {
- 		(_r)->level = -1; \
- 		(_r)->tv.tv_sec = 0; \
- 		(_r)->tv.tv_usec = 0; \
-+		(_r)->caller_id[0] = 0; \
- 	} while (0)
- 
- static int process_kmsg(struct dmesg_control *ctl);
-@@ -551,6 +562,45 @@ static int get_syslog_buffer_size(void)
- 	return n > 0 ? n : 0;
- }
- 
-+/*
-+ * Get the number of characters needed to hold the maximum number
-+ * of tasks this system supports. This size of string could hold
-+ * a thread id large enough for the highest thread id.
-+ * This is needed to determine the number of characters reserved for
-+ * the PRINTK_CALLER field if it has been configured in the Linux Kernel.
-+ *
-+ * The number of digits sets the max value since the value can't exceed
-+ * a value of that size. The /proc field defined by _PATH_PROC_PIDMAX
-+ * holds the maximum number of PID values that may be ussed by the system,
-+ * so 0 to that value minus one.
-+ *
-+ * For determining the size of the PRINTK_CALLER field, we make the safe
-+ * assumption that the number of threads >= number of cpus. This because
-+ * the PRINTK_CALLER field can hold either a thread id or a CPU id value.
-+ *
-+ * If we can't access the pid max kernel proc entry we assign a default
-+ * field size of 5 characters as that is what the old syslog interface
-+ * uses as the reserved field size. This is justified because 32-bit Linux
-+ * systems are limited to PID values between (0-32767).
-+ *
-+ */
-+static size_t max_threads_id_size(void)
-+{
-+	char taskmax[PID_CHARS_MAX] = {'\0'};
-+	ssize_t rdsize;
-+	int fd;
+ static int get_clock_cont(uint32_t *clock_high,
+ 			  uint32_t *clock_low,
+ 			  int num,
+ 			  uint32_t max_clock_offset)
+ {
+-	/* 100ns based time offset according to RFC 4122. 4.1.4. */
++	/* all 64bit clock_reg values in this function represent '100ns ticks'
++         * due to the combination of tv_usec + MAX_ADJUSTMENT */
 +
-+	fd = open(_PATH_PROC_PIDMAX, O_RDONLY);
-+	if (fd == -1)
-+		return PID_CHARS_DEFAULT;
-+
-+	rdsize = read(fd, taskmax, sizeof(taskmax));
-+	if (rdsize == -1)
-+		return PID_CHARS_DEFAULT;
-+
-+	return strnlen(taskmax, sizeof(taskmax));
-+}
-+
- /*
-  * Reads messages from regular file by mmap
-  */
-@@ -728,6 +778,39 @@ static const char *skip_item(const char *begin, const char *end, const char *sep
- 	return begin;
- }
++	enum { fd_init = -2, fd_error = -1 };
++	/* time offset according to RFC 4122. 4.1.4. */
+ 	const uint64_t reg_offset = (((uint64_t) 0x01B21DD2) << 32) + 0x13814000;
+ 	static uint64_t last_clock_reg = 0;
+-	uint64_t clock_reg;
++	static uint64_t saved_clock_reg = 0;
++	static int state_fd = fd_init;
++	static FILE *state_f = NULL;
++	uint64_t clock_reg, next_clock_reg;
  
-+/*
-+ * Checks to see if the caller (caller id) field is present in the kmsg record.
-+ * This is true if the PRINTK_CALLER config option has been set in the kernel.
-+ *
-+ * If the caller_id is found in the kmsg buffer then return the id and id type
-+ * to the caller in dmesg caller_id. Returns string pointer to next value.
-+ *
-+ */
-+static const char *parse_callerid(const char *p_str, const char *end,
-+				  struct dmesg_record *p_drec)
-+{
-+	const char *p_after;
-+	const char *p_next;
-+	size_t cid_size;
-+	char *p_scn;
-+	char *p_cid;
+-	if (last_clock_reg == 0)
+-		last_clock_reg = get_clock_counter();
++	if (state_fd == fd_error)
++		return -1;
+ 
+ 	clock_reg = get_clock_counter();
 +
-+	/* Check for PRINTK_CALLER prefix, must be before msg text */
-+	p_cid = strstr(p_str, DMESG_CALLER_PREFIX);
-+	p_scn = strchr(p_str, ';');
-+	if (p_cid != NULL && p_drec != NULL && p_scn != NULL && p_cid < p_scn) {
-+		p_next = p_cid + DMESG_CALLER_PREFIXSZ;
-+		p_after = skip_item(p_next, end, ",;");
-+		cid_size = p_after - p_next;
-+		if (cid_size < sizeof(p_drec->caller_id))
-+			xstrncpy(p_drec->caller_id, p_next, cid_size);
-+		else
-+			return p_str;
-+		return p_after;
++	if (state_fd == fd_init) {
++		mode_t save_umask;
++		struct stat st;
++
++		save_umask = umask(0);
++		state_fd = open(LIBUUID_CLOCK_CONT_FILE, O_RDWR|O_CREAT|O_CLOEXEC, 0660);
++		(void) umask(save_umask);
++		if (state_fd == fd_error)
++			return -1;
++
++		state_f = fdopen(state_fd, "r+" UL_CLOEXECSTR);
++		if (!state_f)
++			goto error;
++
++		if (fstat(state_fd, &st))
++			goto error;
++
++		if (st.st_size) {
++			rewind(state_f);
++			if (fscanf(state_f, "cont: %lu\n", &last_clock_reg) != 1)
++				goto error;
++		} else
++			last_clock_reg = clock_reg;
++
++		saved_clock_reg = last_clock_reg;
 +	}
-+	return p_str;
-+}
 +
- /*
-  * Parses one record from syslog(2) buffer
-  */
-@@ -795,6 +878,18 @@ static int get_next_syslog_record(struct dmesg_control *ctl,
- 				begin++;
- 		}
- 
-+		if (*begin == '[' && (*(begin + 1) == ' ' ||
-+			(*(begin + 1) == 'T' || *(begin + 1) == 'C'))) {
-+			const char *start = begin + 1;
-+			size_t id_size;
+ 	if (max_clock_offset) {
+-		uint64_t clock_offset = max_clock_offset * 10000000ULL;
+-		if (last_clock_reg < (clock_reg - clock_offset))
+-			last_clock_reg = clock_reg - clock_offset;
++		uint64_t co = 10000000ULL * (uint64_t)max_clock_offset;	// clock_offset in [100ns]
 +
-+			start = start + strspn(start, " ");
-+			begin = skip_item(begin, end, "]");
-+			id_size = begin - start;
-+			if (id_size < sizeof(rec->caller_id))
-+				xstrncpy(rec->caller_id, start, id_size);
-+		}
-+
- 		rec->mesg = begin;
- 		rec->mesg_size = end - begin;
- 
-@@ -1101,6 +1196,19 @@ full_output:
- 			color_disable();
++		if ((last_clock_reg + co) < clock_reg)
++			last_clock_reg = clock_reg - co;
  	}
  
-+	if (*rec->caller_id) {
-+		if (ctl->json) {
-+			ul_jsonwrt_value_s(&ctl->jfmt, "caller", rec->caller_id);
-+		} else {
-+			char cidbuf[PID_CHARS_MAX+3] = {'\0'};
-+
-+			sprintf(cidbuf, "[%*s] ",
-+				(char)ctl->caller_id_size - 1, rec->caller_id);
-+			ctl->indent += strnlen(cidbuf, sizeof(cidbuf));
-+			fputs(cidbuf, stdout);
-+		}
-+	}
-+
- 	/*
- 	 * A kernel message may contain several lines of output, separated
- 	 * by '\n'.  If the timestamp and decode outputs are forced then each
-@@ -1229,6 +1337,8 @@ static int init_kmsg(struct dmesg_control *ctl)
+ 	clock_reg += MAX_ADJUSTMENT;
+ 
+-	if ((last_clock_reg + num) >= clock_reg)
++	next_clock_reg = last_clock_reg + (uint64_t)num;
++	if (next_clock_reg >= clock_reg)
  		return -1;
- 	}
  
-+	ctl->caller_id_size = max_threads_id_size();
++	if (next_clock_reg >= saved_clock_reg) {
++		uint64_t cl = next_clock_reg + 100000000ULL;	// 10s interval in [100ns]
++		int l;
 +
++		rewind(state_f);
++		l = fprintf(state_f, "cont: %020lu                   \n", cl);
++		if (l < 30 || fflush(state_f))
++			goto error;
++		saved_clock_reg = cl;
++	}
++
+ 	*clock_high = (last_clock_reg + reg_offset) >> 32;
+ 	*clock_low = last_clock_reg + reg_offset;
+-	last_clock_reg += num;
++	last_clock_reg = next_clock_reg;
+ 
  	return 0;
++
++error:
++	if (state_fd >= 0)
++		close(state_fd);
++	if (state_f)
++		fclose(state_f);
++	state_fd = fd_error;
++	state_f = NULL;
++	return -1;
  }
  
-@@ -1284,7 +1394,10 @@ static int parse_kmsg_record(struct dmesg_control *ctl,
- 		goto mesg;
+ #if defined(HAVE_UUIDD) && defined(HAVE_SYS_UN_H)
+diff --git a/libuuid/src/uuidP.h b/libuuid/src/uuidP.h
+index 200702c1e..fef7e6cb5 100644
+--- a/libuuid/src/uuidP.h
++++ b/libuuid/src/uuidP.h
+@@ -40,6 +40,7 @@
+ #include "uuid.h"
  
- 	/* D) optional fields (ignore) */
--	p = skip_item(p, end, ";");
-+	p = skip_item(p, end, ",;");
-+
-+	/* Include optional PRINTK_CALLER field if it is present */
-+	p = parse_callerid(p, end, rec);
+ #define LIBUUID_CLOCK_FILE	"/var/lib/libuuid/clock.txt"
++#define LIBUUID_CLOCK_CONT_FILE	"/var/lib/libuuid/clock-cont.txt"
  
- mesg:
- 	/* E) message text */
-@@ -1446,6 +1559,7 @@ int main(int argc, char *argv[])
- 		.kmsg = -1,
- 		.time_fmt = DMESG_TIMEFTM_TIME,
- 		.indent = 0,
-+		.caller_id_size = 0,
- 	};
- 	int colormode = UL_COLORMODE_UNDEF;
- 	enum {
-@@ -1542,6 +1656,7 @@ int main(int argc, char *argv[])
- 		case 'K':
- 			ctl.filename = optarg;
- 			ctl.method = DMESG_METHOD_KMSG;
-+			ctl.caller_id_size = max_threads_id_size();
- 			break;
- 		case 'f':
- 			ctl.fltr_fac = 1;
-diff --git a/tests/expected/dmesg/colors-kmsg-printk-caller b/tests/expected/dmesg/colors-kmsg-printk-caller
-new file mode 100644
-index 000000000..c7bf6e8b7
---- /dev/null
-+++ b/tests/expected/dmesg/colors-kmsg-printk-caller
-@@ -0,0 +1,22 @@
-+kern  :notice: [32m[    0.000000] [0m[     T0] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
-+kern  :info  : [32m[    0.000000] [0m[     T1] [33mCommand line: [0minitrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system
-+kern  :info  : [32m[    0.000000] [0m[     T2] BIOS-provided physical RAM map:
-+kern  :info  : [32m[    0.000000] [0m[     T3] [33mBIOS-e820: [0m[mem 0x0000000000000000-0x000000000009efff] usable
-+kern  :info  : [32m[    0.000000] [0m[     T4] [33mBIOS-e820: [0m[mem 0x000000000009f000-0x00000000000bffff] reserved
-+kern  :info  : [32m[    0.000000] [0m[     T5] [33mBIOS-e820: [0m[mem 0x0000000000100000-0x0000000009afffff] usable
-+kern  :info  : [32m[    0.000000] [0m[     T6] [33mBIOS-e820: [0m[mem 0x0000000009b00000-0x0000000009dfffff] reserved
-+kern  :info  : [32m[    0.000000] [0m[     T7] [33mBIOS-e820: [0m[mem 0x0000000009e00000-0x0000000009efffff] usable
-+kern  :info  : [32m[    0.000000] [0m[     T8] [33mBIOS-e820: [0m[mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
-+kern  :info  : [32m[    0.000000] [0m[     T9] [33mBIOS-e820: [0m[mem 0x0000000009f3c000-0x000000004235ffff] usable
-+kern  :info  : [32m[    0.000000] [0m[    T10] [33mBIOS-e820: [0m[mem 0x0000000042360000-0x000000004455ffff] reserved
-+kern  :info  : [32m[    0.367657] [0m[    T11] [33mACPI: [0m\_SB_.PCI0.GP19.NHI1.PWRS: New power resource
-+kern  :info  : [32m[    0.368615] [0m[    T12] [33mACPI: [0m\_SB_.PCI0.GP19.XHC4.PWRS: New power resource
-+kern  :info  : [32m[    0.376316] [0m[    T13] [33mACPI: [0m\_SB_.PRWL: New power resource
-+kern  :info  : [32m[    0.376343] [0m[    T14] [33mACPI: [0m\_SB_.PRWB: New power resource
-+kern  :info  : [32m[    0.377373] [0m[    T15] [33mACPI: [0mPCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
-+kern  :info  : [32m[    0.377378] [0m[    T16] [33macpi PNP0A08:00: [0m_OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
-+kern  :info  : [32m[    0.377569] [0m[    T17] [33macpi PNP0A08:00: [0m_OSC: platform does not support [SHPCHotplug AER]
-+kern  :info  : [32m[    0.377933] [0m[    T18] [33macpi PNP0A08:00: [0m_OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
-+kern  :info  : [32m[    0.378458] [0m[    T19] PCI host bridge to bus 0000:00
-+kern  :info  : [32m[    0.378459] [0m[    T20] [33mpci_bus 0000:00: [0mroot bus resource [io  0x0000-0x0cf7 window]
-+kern  :info  : [32m[    0.378461] [0m[    T21] [33mpci_bus 0000:00: [0mroot bus resource [io  0x0d00-0xffff window]
-diff --git a/tests/expected/dmesg/console-levels-kmsg-printk-caller b/tests/expected/dmesg/console-levels-kmsg-printk-caller
-new file mode 100644
-index 000000000..1f6e9f178
---- /dev/null
-+++ b/tests/expected/dmesg/console-levels-kmsg-printk-caller
-@@ -0,0 +1,45 @@
-+[    0.000000] [     T0] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
-+[    0.000000] [     T1] Command line: initrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system
-+[    0.000000] [     T2] BIOS-provided physical RAM map:
-+[    0.000000] [     T3] BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable
-+[    0.000000] [     T4] BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved
-+[    0.000000] [     T5] BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable
-+[    0.000000] [     T6] BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved
-+[    0.000000] [     T7] BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable
-+[    0.000000] [     T8] BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
-+[    0.000000] [     T9] BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable
-+[    0.000000] [    T10] BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved
-+[    0.367657] [    T11] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
-+[    0.368615] [    T12] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
-+[    0.376316] [    T13] ACPI: \_SB_.PRWL: New power resource
-+[    0.376343] [    T14] ACPI: \_SB_.PRWB: New power resource
-+[    0.377373] [    T15] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
-+[    0.377378] [    T16] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
-+[    0.377569] [    T17] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
-+[    0.377933] [    T18] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
-+[    0.378458] [    T19] PCI host bridge to bus 0000:00
-+[    0.378459] [    T20] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
-+[    0.378461] [    T21] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
-+[    0.000000] [     T0] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
-+[    0.000000] [     T1] Command line: initrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system
-+[    0.000000] [     T2] BIOS-provided physical RAM map:
-+[    0.000000] [     T3] BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable
-+[    0.000000] [     T4] BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved
-+[    0.000000] [     T5] BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable
-+[    0.000000] [     T6] BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved
-+[    0.000000] [     T7] BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable
-+[    0.000000] [     T8] BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
-+[    0.000000] [     T9] BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable
-+[    0.000000] [    T10] BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved
-+[    0.367657] [    T11] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
-+[    0.368615] [    T12] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
-+[    0.376316] [    T13] ACPI: \_SB_.PRWL: New power resource
-+[    0.376343] [    T14] ACPI: \_SB_.PRWB: New power resource
-+[    0.377373] [    T15] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
-+[    0.377378] [    T16] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
-+[    0.377569] [    T17] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
-+[    0.377933] [    T18] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
-+[    0.378458] [    T19] PCI host bridge to bus 0000:00
-+[    0.378459] [    T20] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
-+[    0.378461] [    T21] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
-+test_dmesg: unknown level '+'
-diff --git a/tests/expected/dmesg/decode-kmsg-printk-caller b/tests/expected/dmesg/decode-kmsg-printk-caller
-new file mode 100644
-index 000000000..78c363389
---- /dev/null
-+++ b/tests/expected/dmesg/decode-kmsg-printk-caller
-@@ -0,0 +1,22 @@
-+kern  :notice: [    0.000000] [     T0] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
-+kern  :info  : [    0.000000] [     T1] Command line: initrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system
-+kern  :info  : [    0.000000] [     T2] BIOS-provided physical RAM map:
-+kern  :info  : [    0.000000] [     T3] BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable
-+kern  :info  : [    0.000000] [     T4] BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved
-+kern  :info  : [    0.000000] [     T5] BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable
-+kern  :info  : [    0.000000] [     T6] BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved
-+kern  :info  : [    0.000000] [     T7] BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable
-+kern  :info  : [    0.000000] [     T8] BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
-+kern  :info  : [    0.000000] [     T9] BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable
-+kern  :info  : [    0.000000] [    T10] BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved
-+kern  :info  : [    0.367657] [    T11] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
-+kern  :info  : [    0.368615] [    T12] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
-+kern  :info  : [    0.376316] [    T13] ACPI: \_SB_.PRWL: New power resource
-+kern  :info  : [    0.376343] [    T14] ACPI: \_SB_.PRWB: New power resource
-+kern  :info  : [    0.377373] [    T15] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
-+kern  :info  : [    0.377378] [    T16] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
-+kern  :info  : [    0.377569] [    T17] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
-+kern  :info  : [    0.377933] [    T18] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
-+kern  :info  : [    0.378458] [    T19] PCI host bridge to bus 0000:00
-+kern  :info  : [    0.378459] [    T20] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
-+kern  :info  : [    0.378461] [    T21] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
-diff --git a/tests/expected/dmesg/delta-kmsg-printk-caller b/tests/expected/dmesg/delta-kmsg-printk-caller
-new file mode 100644
-index 000000000..892d2dcea
---- /dev/null
-+++ b/tests/expected/dmesg/delta-kmsg-printk-caller
-@@ -0,0 +1,22 @@
-+[    0.000000 <    0.000000>] [     T0] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
-+[    0.000000 <    0.000000>] [     T1] Command line: initrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system
-+[    0.000000 <    0.000000>] [     T2] BIOS-provided physical RAM map:
-+[    0.000000 <    0.000000>] [     T3] BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable
-+[    0.000000 <    0.000000>] [     T4] BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved
-+[    0.000000 <    0.000000>] [     T5] BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable
-+[    0.000000 <    0.000000>] [     T6] BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved
-+[    0.000000 <    0.000000>] [     T7] BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable
-+[    0.000000 <    0.000000>] [     T8] BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
-+[    0.000000 <    0.000000>] [     T9] BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable
-+[    0.000000 <    0.000000>] [    T10] BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved
-+[    0.367657 <    0.000000>] [    T11] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
-+[    0.368615 <    0.000000>] [    T12] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
-+[    0.376316 <    0.000000>] [    T13] ACPI: \_SB_.PRWL: New power resource
-+[    0.376343 <    0.000000>] [    T14] ACPI: \_SB_.PRWB: New power resource
-+[    0.377373 <    0.000000>] [    T15] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
-+[    0.377378 <    0.000000>] [    T16] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
-+[    0.377569 <    0.000000>] [    T17] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
-+[    0.377933 <    0.000000>] [    T18] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
-+[    0.378458 <    0.000000>] [    T19] PCI host bridge to bus 0000:00
-+[    0.378459 <    0.000000>] [    T20] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
-+[    0.378461 <    0.000000>] [    T21] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
-diff --git a/tests/expected/dmesg/facilities-kmsg-printk-caller b/tests/expected/dmesg/facilities-kmsg-printk-caller
-new file mode 100644
-index 000000000..78c363389
---- /dev/null
-+++ b/tests/expected/dmesg/facilities-kmsg-printk-caller
-@@ -0,0 +1,22 @@
-+kern  :notice: [    0.000000] [     T0] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
-+kern  :info  : [    0.000000] [     T1] Command line: initrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system
-+kern  :info  : [    0.000000] [     T2] BIOS-provided physical RAM map:
-+kern  :info  : [    0.000000] [     T3] BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable
-+kern  :info  : [    0.000000] [     T4] BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved
-+kern  :info  : [    0.000000] [     T5] BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable
-+kern  :info  : [    0.000000] [     T6] BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved
-+kern  :info  : [    0.000000] [     T7] BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable
-+kern  :info  : [    0.000000] [     T8] BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
-+kern  :info  : [    0.000000] [     T9] BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable
-+kern  :info  : [    0.000000] [    T10] BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved
-+kern  :info  : [    0.367657] [    T11] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
-+kern  :info  : [    0.368615] [    T12] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
-+kern  :info  : [    0.376316] [    T13] ACPI: \_SB_.PRWL: New power resource
-+kern  :info  : [    0.376343] [    T14] ACPI: \_SB_.PRWB: New power resource
-+kern  :info  : [    0.377373] [    T15] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
-+kern  :info  : [    0.377378] [    T16] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
-+kern  :info  : [    0.377569] [    T17] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
-+kern  :info  : [    0.377933] [    T18] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
-+kern  :info  : [    0.378458] [    T19] PCI host bridge to bus 0000:00
-+kern  :info  : [    0.378459] [    T20] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
-+kern  :info  : [    0.378461] [    T21] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
-diff --git a/tests/expected/dmesg/indentation-kmsg-printk-caller b/tests/expected/dmesg/indentation-kmsg-printk-caller
-new file mode 100644
-index 000000000..47ad73f27
---- /dev/null
-+++ b/tests/expected/dmesg/indentation-kmsg-printk-caller
-@@ -0,0 +1,28 @@
-+[    0.000000] [     T0] line zero
-+[    1.000000] [     T1] new
-+[    2.000000] [     T2] two
-+[    3.000000] [     T3] three
-+kern  :notice: [    0.000000] [     T0] line zero
-+user  :crit  : [    1.000000] [     T1] new
-+mail  :warn  : [    2.000000] [     T2] two
-+daemon:info  : [    3.000000] [     T3] three
-+[<    0.000000>] [     T0] line zero
-+[<    0.000000>] [     T1] new
-+[<    1.000000>] [     T2] two
-+[<    1.000000>] [     T3] three
-+[     T0] line zero
-+[     T1] new
-+[     T2] two
-+[     T3] three
-+[Feb13 23:31] [     T0] line zero
-+[  +0.000000] [     T1] new
-+[  +1.000000] [     T2] two
-+[  +1.000000] [     T3] three
-+[Fri Feb 13 23:31:30 2009] [     T0] line zero
-+[Fri Feb 13 23:31:31 2009] [     T1] new
-+[Fri Feb 13 23:31:32 2009] [     T2] two
-+[Fri Feb 13 23:31:33 2009] [     T3] three
-+2009-02-13T23:31:30,123456+00:00 [     T0] line zero
-+2009-02-13T23:31:31,123456+00:00 [     T1] new
-+2009-02-13T23:31:32,123456+00:00 [     T2] two
-+2009-02-13T23:31:33,123456+00:00 [     T3] three
-diff --git a/tests/expected/dmesg/json-kmsg-printk-caller b/tests/expected/dmesg/json-kmsg-printk-caller
-new file mode 100644
-index 000000000..785d730a5
---- /dev/null
-+++ b/tests/expected/dmesg/json-kmsg-printk-caller
-@@ -0,0 +1,115 @@
-+{
-+   "dmesg": [
-+      {
-+         "pri": 5,
-+         "time":     0.000000,
-+         "caller": "T0",
-+         "msg": "Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T1",
-+         "msg": "Command line: initrd=\\ucode.img initrd=\\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T2",
-+         "msg": "BIOS-provided physical RAM map:"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T3",
-+         "msg": "BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T4",
-+         "msg": "BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T5",
-+         "msg": "BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T6",
-+         "msg": "BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T7",
-+         "msg": "BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T8",
-+         "msg": "BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T9",
-+         "msg": "BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T10",
-+         "msg": "BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved"
-+      },{
-+         "pri": 6,
-+         "time":     0.367657,
-+         "caller": "T11",
-+         "msg": "ACPI: \\_SB_.PCI0.GP19.NHI1.PWRS: New power resource"
-+      },{
-+         "pri": 6,
-+         "time":     0.368615,
-+         "caller": "T12",
-+         "msg": "ACPI: \\_SB_.PCI0.GP19.XHC4.PWRS: New power resource"
-+      },{
-+         "pri": 6,
-+         "time":     0.376316,
-+         "caller": "T13",
-+         "msg": "ACPI: \\_SB_.PRWL: New power resource"
-+      },{
-+         "pri": 6,
-+         "time":     0.376343,
-+         "caller": "T14",
-+         "msg": "ACPI: \\_SB_.PRWB: New power resource"
-+      },{
-+         "pri": 6,
-+         "time":     0.377373,
-+         "caller": "T15",
-+         "msg": "ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])"
-+      },{
-+         "pri": 6,
-+         "time":     0.377378,
-+         "caller": "T16",
-+         "msg": "acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]"
-+      },{
-+         "pri": 6,
-+         "time":     0.377569,
-+         "caller": "T17",
-+         "msg": "acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]"
-+      },{
-+         "pri": 6,
-+         "time":     0.377933,
-+         "caller": "T18",
-+         "msg": "acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]"
-+      },{
-+         "pri": 6,
-+         "time":     0.378458,
-+         "caller": "T19",
-+         "msg": "PCI host bridge to bus 0000:00"
-+      },{
-+         "pri": 6,
-+         "time":     0.378459,
-+         "caller": "T20",
-+         "msg": "pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]"
-+      },{
-+         "pri": 6,
-+         "time":     0.378461,
-+         "caller": "T21",
-+         "msg": "pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]"
-+      }
-+   ]
-+}
-diff --git a/tests/expected/dmesg/json-syslog-printk-caller b/tests/expected/dmesg/json-syslog-printk-caller
-new file mode 100644
-index 000000000..40c98aa67
---- /dev/null
-+++ b/tests/expected/dmesg/json-syslog-printk-caller
-@@ -0,0 +1,530 @@
-+{
-+   "dmesg": [
-+      {
-+         "pri": 0,
-+         "time":     0.000000,
-+         "caller": "T0",
-+         "msg": " example[0]"
-+      },{
-+         "pri": 1,
-+         "time":     1.000000,
-+         "caller": "T1",
-+         "msg": " example[1]"
-+      },{
-+         "pri": 2,
-+         "time":     8.000000,
-+         "caller": "T2",
-+         "msg": " example[2]"
-+      },{
-+         "pri": 3,
-+         "time":    27.000000,
-+         "caller": "T3",
-+         "msg": " example[3]"
-+      },{
-+         "pri": 4,
-+         "time":    64.000000,
-+         "caller": "T4",
-+         "msg": " example[4]"
-+      },{
-+         "pri": 5,
-+         "time":   125.000000,
-+         "caller": "T5",
-+         "msg": " example[5]"
-+      },{
-+         "pri": 6,
-+         "time":   216.000000,
-+         "caller": "T6",
-+         "msg": " example[6]"
-+      },{
-+         "pri": 7,
-+         "time":   343.000000,
-+         "caller": "T7",
-+         "msg": " example[7]"
-+      },{
-+         "pri": 8,
-+         "time":   512.000000,
-+         "caller": "T8",
-+         "msg": " example[8]"
-+      },{
-+         "pri": 9,
-+         "time":   729.000000,
-+         "caller": "T9",
-+         "msg": " example[9]"
-+      },{
-+         "pri": 10,
-+         "time":  1000.000000,
-+         "caller": "T10",
-+         "msg": " example[10]"
-+      },{
-+         "pri": 11,
-+         "time":  1331.000000,
-+         "caller": "T11",
-+         "msg": " example[11]"
-+      },{
-+         "pri": 12,
-+         "time":  1728.000000,
-+         "caller": "T12",
-+         "msg": " example[12]"
-+      },{
-+         "pri": 13,
-+         "time":  2197.000000,
-+         "caller": "T13",
-+         "msg": " example[13]"
-+      },{
-+         "pri": 14,
-+         "time":  2744.000000,
-+         "caller": "T14",
-+         "msg": " example[14]"
-+      },{
-+         "pri": 15,
-+         "time":  3375.000000,
-+         "caller": "T15",
-+         "msg": " example[15]"
-+      },{
-+         "pri": 16,
-+         "time":  4096.000000,
-+         "caller": "T16",
-+         "msg": " example[16]"
-+      },{
-+         "pri": 17,
-+         "time":  4913.000000,
-+         "caller": "T17",
-+         "msg": " example[17]"
-+      },{
-+         "pri": 18,
-+         "time":  5832.000000,
-+         "caller": "T18",
-+         "msg": " example[18]"
-+      },{
-+         "pri": 19,
-+         "time":  6859.000000,
-+         "caller": "T19",
-+         "msg": " example[19]"
-+      },{
-+         "pri": 20,
-+         "time":  8000.000000,
-+         "caller": "T20",
-+         "msg": " example[20]"
-+      },{
-+         "pri": 21,
-+         "time":  9261.000000,
-+         "caller": "T21",
-+         "msg": " example[21]"
-+      },{
-+         "pri": 22,
-+         "time": 10648.000000,
-+         "caller": "T22",
-+         "msg": " example[22]"
-+      },{
-+         "pri": 23,
-+         "time": 12167.000000,
-+         "caller": "T23",
-+         "msg": " example[23]"
-+      },{
-+         "pri": 24,
-+         "time": 13824.000000,
-+         "caller": "T24",
-+         "msg": " example[24]"
-+      },{
-+         "pri": 25,
-+         "time": 15625.000000,
-+         "caller": "T25",
-+         "msg": " example[25]"
-+      },{
-+         "pri": 26,
-+         "time": 17576.000000,
-+         "caller": "T26",
-+         "msg": " example[26]"
-+      },{
-+         "pri": 27,
-+         "time": 19683.000000,
-+         "caller": "T27",
-+         "msg": " example[27]"
-+      },{
-+         "pri": 28,
-+         "time": 21952.000000,
-+         "caller": "T28",
-+         "msg": " example[28]"
-+      },{
-+         "pri": 29,
-+         "time": 24389.000000,
-+         "caller": "T29",
-+         "msg": " example[29]"
-+      },{
-+         "pri": 30,
-+         "time": 27000.000000,
-+         "caller": "T10",
-+         "msg": " example[30]"
-+      },{
-+         "pri": 31,
-+         "time": 29791.000000,
-+         "caller": "T31",
-+         "msg": " example[31]"
-+      },{
-+         "pri": 32,
-+         "time": 32768.000000,
-+         "caller": "T32",
-+         "msg": " example[32]"
-+      },{
-+         "pri": 33,
-+         "time": 35937.000000,
-+         "caller": "T33",
-+         "msg": " example[33]"
-+      },{
-+         "pri": 34,
-+         "time": 39304.000000,
-+         "caller": "T34",
-+         "msg": " example[34]"
-+      },{
-+         "pri": 35,
-+         "time": 42875.000000,
-+         "caller": "T35",
-+         "msg": " example[35]"
-+      },{
-+         "pri": 36,
-+         "time": 46656.000000,
-+         "caller": "T36",
-+         "msg": " example[36]"
-+      },{
-+         "pri": 37,
-+         "time": 50653.000000,
-+         "caller": "T37",
-+         "msg": " example[37]"
-+      },{
-+         "pri": 38,
-+         "time": 54872.000000,
-+         "caller": "T38",
-+         "msg": " example[38]"
-+      },{
-+         "pri": 39,
-+         "time": 59319.000000,
-+         "caller": "T39",
-+         "msg": " example[39]"
-+      },{
-+         "pri": 40,
-+         "time": 64000.000000,
-+         "caller": "T40",
-+         "msg": " example[40]"
-+      },{
-+         "pri": 41,
-+         "time": 68921.000000,
-+         "caller": "T41",
-+         "msg": " example[41]"
-+      },{
-+         "pri": 42,
-+         "time": 74088.000000,
-+         "caller": "T42",
-+         "msg": " example[42]"
-+      },{
-+         "pri": 43,
-+         "time": 79507.000000,
-+         "caller": "T43",
-+         "msg": " example[43]"
-+      },{
-+         "pri": 44,
-+         "time": 85184.000000,
-+         "caller": "T44",
-+         "msg": " example[44]"
-+      },{
-+         "pri": 45,
-+         "time": 91125.000000,
-+         "caller": "T45",
-+         "msg": " example[45]"
-+      },{
-+         "pri": 46,
-+         "time": 97336.000000,
-+         "caller": "T46",
-+         "msg": " example[46]"
-+      },{
-+         "pri": 47,
-+         "time": 103823.000000,
-+         "caller": "T47",
-+         "msg": " example[47]"
-+      },{
-+         "pri": 48,
-+         "time": 110592.000000,
-+         "caller": "T48",
-+         "msg": " example[48]"
-+      },{
-+         "pri": 49,
-+         "time": 117649.000000,
-+         "caller": "T49",
-+         "msg": " example[49]"
-+      },{
-+         "pri": 50,
-+         "time": 125000.000000,
-+         "caller": "T50",
-+         "msg": " example[50]"
-+      },{
-+         "pri": 51,
-+         "time": 132651.000000,
-+         "caller": "T51",
-+         "msg": " example[51]"
-+      },{
-+         "pri": 52,
-+         "time": 140608.000000,
-+         "caller": "T52",
-+         "msg": " example[52]"
-+      },{
-+         "pri": 53,
-+         "time": 148877.000000,
-+         "caller": "T53",
-+         "msg": " example[53]"
-+      },{
-+         "pri": 54,
-+         "time": 157464.000000,
-+         "caller": "T54",
-+         "msg": " example[54]"
-+      },{
-+         "pri": 55,
-+         "time": 166375.000000,
-+         "caller": "T55",
-+         "msg": " example[55]"
-+      },{
-+         "pri": 56,
-+         "time": 175616.000000,
-+         "caller": "T56",
-+         "msg": " example[56]"
-+      },{
-+         "pri": 57,
-+         "time": 185193.000000,
-+         "caller": "T57",
-+         "msg": " example[57]"
-+      },{
-+         "pri": 58,
-+         "time": 195112.000000,
-+         "caller": "T58",
-+         "msg": " example[58]"
-+      },{
-+         "pri": 59,
-+         "time": 205379.000000,
-+         "caller": "T59",
-+         "msg": " example[59]"
-+      },{
-+         "pri": 60,
-+         "time": 216000.000000,
-+         "caller": "T60",
-+         "msg": " example[60]"
-+      },{
-+         "pri": 61,
-+         "time": 226981.000000,
-+         "caller": "T61",
-+         "msg": " example[61]"
-+      },{
-+         "pri": 62,
-+         "time": 238328.000000,
-+         "caller": "T62",
-+         "msg": " example[62]"
-+      },{
-+         "pri": 63,
-+         "time": 250047.000000,
-+         "caller": "T63",
-+         "msg": " example[63]"
-+      },{
-+         "pri": 64,
-+         "time": 262144.000000,
-+         "caller": "T64",
-+         "msg": " example[64]"
-+      },{
-+         "pri": 65,
-+         "time": 274625.000000,
-+         "caller": "T65",
-+         "msg": " example[65]"
-+      },{
-+         "pri": 66,
-+         "time": 287496.000000,
-+         "caller": "T66",
-+         "msg": " example[66]"
-+      },{
-+         "pri": 67,
-+         "time": 300763.000000,
-+         "caller": "T67",
-+         "msg": " example[67]"
-+      },{
-+         "pri": 68,
-+         "time": 314432.000000,
-+         "caller": "T68",
-+         "msg": " example[68]"
-+      },{
-+         "pri": 69,
-+         "time": 328509.000000,
-+         "caller": "T69",
-+         "msg": " example[69]"
-+      },{
-+         "pri": 70,
-+         "time": 343000.000000,
-+         "caller": "T70",
-+         "msg": " example[70]"
-+      },{
-+         "pri": 71,
-+         "time": 357911.000000,
-+         "caller": "T71",
-+         "msg": " example[71]"
-+      },{
-+         "pri": 72,
-+         "time": 373248.000000,
-+         "caller": "T72",
-+         "msg": " example[72]"
-+      },{
-+         "pri": 73,
-+         "time": 389017.000000,
-+         "caller": "T73",
-+         "msg": " example[73]"
-+      },{
-+         "pri": 74,
-+         "time": 405224.000000,
-+         "caller": "T74",
-+         "msg": " example[74]"
-+      },{
-+         "pri": 75,
-+         "time": 421875.000000,
-+         "caller": "T75",
-+         "msg": " example[75]"
-+      },{
-+         "pri": 76,
-+         "time": 438976.000000,
-+         "caller": "T76",
-+         "msg": " example[76]"
-+      },{
-+         "pri": 77,
-+         "time": 456533.000000,
-+         "caller": "T77",
-+         "msg": " example[77]"
-+      },{
-+         "pri": 78,
-+         "time": 474552.000000,
-+         "caller": "T78",
-+         "msg": " example[78]"
-+      },{
-+         "pri": 79,
-+         "time": 493039.000000,
-+         "caller": "T79",
-+         "msg": " example[79]"
-+      },{
-+         "pri": 80,
-+         "time": 512000.000000,
-+         "caller": "T80",
-+         "msg": " example[80]"
-+      },{
-+         "pri": 81,
-+         "time": 531441.000000,
-+         "caller": "T81",
-+         "msg": " example[81]"
-+      },{
-+         "pri": 82,
-+         "time": 551368.000000,
-+         "caller": "T82",
-+         "msg": " example[82]"
-+      },{
-+         "pri": 83,
-+         "time": 571787.000000,
-+         "caller": "T83",
-+         "msg": " example[83]"
-+      },{
-+         "pri": 84,
-+         "time": 592704.000000,
-+         "caller": "T84",
-+         "msg": " example[84]"
-+      },{
-+         "pri": 85,
-+         "time": 614125.000000,
-+         "caller": "T85",
-+         "msg": " example[85]"
-+      },{
-+         "pri": 86,
-+         "time": 636056.000000,
-+         "caller": "T86",
-+         "msg": " example[86]"
-+      },{
-+         "pri": 87,
-+         "time": 658503.000000,
-+         "caller": "T87",
-+         "msg": " example[87]"
-+      },{
-+         "pri": 88,
-+         "time": 681472.000000,
-+         "caller": "T88",
-+         "msg": " example[88]"
-+      },{
-+         "pri": 89,
-+         "time": 704969.000000,
-+         "caller": "T89",
-+         "msg": " example[89]"
-+      },{
-+         "pri": 90,
-+         "time": 729000.000000,
-+         "caller": "T90",
-+         "msg": " example[90]"
-+      },{
-+         "pri": 91,
-+         "time": 753571.000000,
-+         "caller": "T91",
-+         "msg": " example[91]"
-+      },{
-+         "pri": 92,
-+         "time": 778688.000000,
-+         "caller": "T92",
-+         "msg": " example[92]"
-+      },{
-+         "pri": 93,
-+         "time": 804357.000000,
-+         "caller": "T93",
-+         "msg": " example[93]"
-+      },{
-+         "pri": 94,
-+         "time": 830584.000000,
-+         "caller": "T94",
-+         "msg": " example[94]"
-+      },{
-+         "pri": 95,
-+         "time": 857375.000000,
-+         "caller": "T95",
-+         "msg": " example[95]"
-+      },{
-+         "pri": 96,
-+         "time": 884736.000000,
-+         "caller": "T96",
-+         "msg": " example[96]"
-+      },{
-+         "pri": 97,
-+         "time": 912673.000000,
-+         "caller": "T97",
-+         "msg": " example[97]"
-+      },{
-+         "pri": 98,
-+         "time": 941192.000000,
-+         "caller": "T98",
-+         "msg": " example[98]"
-+      },{
-+         "pri": 99,
-+         "time": 970299.000000,
-+         "caller": "T99",
-+         "msg": " example[99]"
-+      },{
-+         "pri": 100,
-+         "time": 1000000.000000,
-+         "caller": "T100",
-+         "msg": " example[100]"
-+      },{
-+         "pri": 101,
-+         "time": 1030301.000000,
-+         "caller": "T101",
-+         "msg": " example[101]"
-+      },{
-+         "pri": 102,
-+         "time": 1061208.000000,
-+         "caller": "T102",
-+         "msg": " example[102]"
-+      },{
-+         "pri": 103,
-+         "time": 1092727.000000,
-+         "caller": "T103",
-+         "msg": " example[103]"
-+      },{
-+         "pri": 104,
-+         "time": 1124864.000000,
-+         "caller": "T104",
-+         "msg": " example[104]"
-+      }
-+   ]
-+}
-diff --git a/tests/expected/dmesg/kmsg-file-printk-caller b/tests/expected/dmesg/kmsg-file-printk-caller
-new file mode 100644
-index 000000000..785d730a5
---- /dev/null
-+++ b/tests/expected/dmesg/kmsg-file-printk-caller
-@@ -0,0 +1,115 @@
-+{
-+   "dmesg": [
-+      {
-+         "pri": 5,
-+         "time":     0.000000,
-+         "caller": "T0",
-+         "msg": "Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T1",
-+         "msg": "Command line: initrd=\\ucode.img initrd=\\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T2",
-+         "msg": "BIOS-provided physical RAM map:"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T3",
-+         "msg": "BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T4",
-+         "msg": "BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T5",
-+         "msg": "BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T6",
-+         "msg": "BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T7",
-+         "msg": "BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T8",
-+         "msg": "BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T9",
-+         "msg": "BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable"
-+      },{
-+         "pri": 6,
-+         "time":     0.000000,
-+         "caller": "T10",
-+         "msg": "BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved"
-+      },{
-+         "pri": 6,
-+         "time":     0.367657,
-+         "caller": "T11",
-+         "msg": "ACPI: \\_SB_.PCI0.GP19.NHI1.PWRS: New power resource"
-+      },{
-+         "pri": 6,
-+         "time":     0.368615,
-+         "caller": "T12",
-+         "msg": "ACPI: \\_SB_.PCI0.GP19.XHC4.PWRS: New power resource"
-+      },{
-+         "pri": 6,
-+         "time":     0.376316,
-+         "caller": "T13",
-+         "msg": "ACPI: \\_SB_.PRWL: New power resource"
-+      },{
-+         "pri": 6,
-+         "time":     0.376343,
-+         "caller": "T14",
-+         "msg": "ACPI: \\_SB_.PRWB: New power resource"
-+      },{
-+         "pri": 6,
-+         "time":     0.377373,
-+         "caller": "T15",
-+         "msg": "ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])"
-+      },{
-+         "pri": 6,
-+         "time":     0.377378,
-+         "caller": "T16",
-+         "msg": "acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]"
-+      },{
-+         "pri": 6,
-+         "time":     0.377569,
-+         "caller": "T17",
-+         "msg": "acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]"
-+      },{
-+         "pri": 6,
-+         "time":     0.377933,
-+         "caller": "T18",
-+         "msg": "acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]"
-+      },{
-+         "pri": 6,
-+         "time":     0.378458,
-+         "caller": "T19",
-+         "msg": "PCI host bridge to bus 0000:00"
-+      },{
-+         "pri": 6,
-+         "time":     0.378459,
-+         "caller": "T20",
-+         "msg": "pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]"
-+      },{
-+         "pri": 6,
-+         "time":     0.378461,
-+         "caller": "T21",
-+         "msg": "pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]"
-+      }
-+   ]
-+}
-diff --git a/tests/expected/dmesg/limit-kmsg-printk-caller b/tests/expected/dmesg/limit-kmsg-printk-caller
-new file mode 100644
-index 000000000..2ea07d4c8
---- /dev/null
-+++ b/tests/expected/dmesg/limit-kmsg-printk-caller
-@@ -0,0 +1,11 @@
-+[    0.367657] [    T11] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
-+[    0.368615] [    T12] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
-+[    0.376316] [    T13] ACPI: \_SB_.PRWL: New power resource
-+[    0.376343] [    T14] ACPI: \_SB_.PRWB: New power resource
-+[    0.377373] [    T15] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
-+[    0.377378] [    T16] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
-+[    0.377569] [    T17] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
-+[    0.377933] [    T18] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
-+[    0.378458] [    T19] PCI host bridge to bus 0000:00
-+[    0.378459] [    T20] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
-+[    0.378461] [    T21] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
-diff --git a/tests/ts/dmesg/colors-kmsg-printk-caller b/tests/ts/dmesg/colors-kmsg-printk-caller
-new file mode 100755
-index 000000000..513ca82d4
---- /dev/null
-+++ b/tests/ts/dmesg/colors-kmsg-printk-caller
-@@ -0,0 +1,29 @@
-+#!/bin/bash
-+
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="colors-kmsg-prtk-caller"
-+
-+. "$TS_TOPDIR"/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_HELPER_DMESG"
-+ts_inhibit_custom_colorscheme
-+
-+export TZ="GMT"
-+export DMESG_TEST_BOOTIME="1234567890.123456"
-+
-+$TS_HELPER_DMESG --color=always -K $TS_SELF/kmsg-input-printk-caller -x >> $TS_OUTPUT 2>/dev/null
-+
-+ts_finalize
-diff --git a/tests/ts/dmesg/console-levels-kmsg-printk-caller b/tests/ts/dmesg/console-levels-kmsg-printk-caller
-new file mode 100755
-index 000000000..00b8b3681
---- /dev/null
-+++ b/tests/ts/dmesg/console-levels-kmsg-printk-caller
-@@ -0,0 +1,36 @@
-+#!/bin/bash
-+
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="levels-kmsg-prtk-caller"
-+
-+. "$TS_TOPDIR"/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_HELPER_DMESG"
-+
-+export TZ="GMT"
-+export DMESG_TEST_BOOTIME="1234567890.123456"
-+
-+for I in {-1..8}; do
-+	$TS_HELPER_DMESG -K $TS_SELF/kmsg-input-printk-caller -l $I >> $TS_OUTPUT 2>/dev/null
-+done
-+
-+$TS_HELPER_DMESG -K $TS_SELF/kmsg-input-printk-caller -l err+ >> $TS_OUTPUT 2>/dev/null
-+$TS_HELPER_DMESG -K $TS_SELF/kmsg-input-printk-caller -l emerg+ >> $TS_OUTPUT 2>/dev/null
-+$TS_HELPER_DMESG -K $TS_SELF/kmsg-input-printk-caller -l +err >> $TS_OUTPUT 2>/dev/null
-+$TS_HELPER_DMESG -K $TS_SELF/kmsg-input-printk-caller -l +debug >> $TS_OUTPUT 2>/dev/null
-+$TS_HELPER_DMESG -K $TS_SELF/kmsg-input-printk-caller -l + 2>> $TS_OUTPUT >/dev/null
-+
-+ts_finalize
-diff --git a/tests/ts/dmesg/decode-kmsg-printk-caller b/tests/ts/dmesg/decode-kmsg-printk-caller
-new file mode 100755
-index 000000000..d05b9fb68
---- /dev/null
-+++ b/tests/ts/dmesg/decode-kmsg-printk-caller
-@@ -0,0 +1,28 @@
-+#!/bin/bash
-+
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="decode-kmsg-prtk-caller"
-+
-+. "$TS_TOPDIR"/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_HELPER_DMESG"
-+
-+export TZ="GMT"
-+export DMESG_TEST_BOOTIME="1234567890.123456"
-+
-+$TS_HELPER_DMESG -x -K $TS_SELF/kmsg-input-printk-caller >> $TS_OUTPUT 2>/dev/null
-+
-+ts_finalize
-diff --git a/tests/ts/dmesg/delta-kmsg-printk-caller b/tests/ts/dmesg/delta-kmsg-printk-caller
-new file mode 100755
-index 000000000..020b82357
---- /dev/null
-+++ b/tests/ts/dmesg/delta-kmsg-printk-caller
-@@ -0,0 +1,28 @@
-+#!/bin/bash
-+
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="delta-kmsg-prtk-caller"
-+
-+. "$TS_TOPDIR"/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_HELPER_DMESG"
-+
-+export TZ="GMT"
-+export DMESG_TEST_BOOTIME="1234567890.123456"
-+
-+$TS_HELPER_DMESG -d -K $TS_SELF/kmsg-input-printk-caller >> $TS_OUTPUT 2>/dev/null
-+
-+ts_finalize
-diff --git a/tests/ts/dmesg/facilities-kmsg-printk-caller b/tests/ts/dmesg/facilities-kmsg-printk-caller
-new file mode 100755
-index 000000000..bec301516
---- /dev/null
-+++ b/tests/ts/dmesg/facilities-kmsg-printk-caller
-@@ -0,0 +1,30 @@
-+#!/bin/bash
-+
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="facilities-kmsg-prtk-caller"
-+
-+. "$TS_TOPDIR"/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_HELPER_DMESG"
-+
-+export TZ="GMT"
-+export DMESG_TEST_BOOTIME="1234567890.123456"
-+
-+for I in {-1..12}; do
-+	$TS_HELPER_DMESG -K $TS_SELF/kmsg-input-printk-caller -f $I -x >> $TS_OUTPUT 2>/dev/null
-+done
-+
-+ts_finalize
-diff --git a/tests/ts/dmesg/indentation-kmsg-printk-caller b/tests/ts/dmesg/indentation-kmsg-printk-caller
-new file mode 100755
-index 000000000..53e549b62
---- /dev/null
-+++ b/tests/ts/dmesg/indentation-kmsg-printk-caller
-@@ -0,0 +1,40 @@
-+#!/bin/bash
-+
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="indentation-kmsg-prtk-caller"
-+
-+. "$TS_TOPDIR"/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_HELPER_DMESG"
-+
-+export TZ="GMT"
-+export DMESG_TEST_BOOTIME="1234567890.123456"
-+
-+$TS_HELPER_DMESG -K $TS_SELF/newlines-kmsg-printk-caller >> $TS_OUTPUT 2>> $TS_ERRLOG
-+
-+$TS_HELPER_DMESG -K $TS_SELF/newlines-kmsg-printk-caller -x >> $TS_OUTPUT 2>> $TS_ERRLOG
-+
-+$TS_HELPER_DMESG --time-format=delta --kmsg-file $TS_SELF/newlines-kmsg-printk-caller >> $TS_OUTPUT 2>> $TS_ERRLOG
-+
-+$TS_HELPER_DMESG --time-format=notime --kmsg-file $TS_SELF/newlines-kmsg-printk-caller >> $TS_OUTPUT 2>> $TS_ERRLOG
-+
-+$TS_HELPER_DMESG --time-format=reltime --kmsg-file $TS_SELF/newlines-kmsg-printk-caller >> $TS_OUTPUT 2>> $TS_ERRLOG
-+
-+$TS_HELPER_DMESG --time-format=ctime --kmsg-file $TS_SELF/newlines-kmsg-printk-caller >> $TS_OUTPUT 2>> $TS_ERRLOG
-+
-+$TS_HELPER_DMESG --time-format=iso --kmsg-file $TS_SELF/newlines-kmsg-printk-caller >> $TS_OUTPUT 2>> $TS_ERRLOG
-+
-+ts_finalize
-diff --git a/tests/ts/dmesg/input-syslog-printk-caller b/tests/ts/dmesg/input-syslog-printk-caller
-new file mode 100644
-index 000000000..5fcff6abe
---- /dev/null
-+++ b/tests/ts/dmesg/input-syslog-printk-caller
-@@ -0,0 +1,105 @@
-+<0>[    0.000000] [    T0] example[0]
-+<1>[    1.000000] [    T1] example[1]
-+<2>[    8.000000] [    T2] example[2]
-+<3>[   27.000000] [    T3] example[3]
-+<4>[   64.000000] [    T4] example[4]
-+<5>[  125.000000] [    T5] example[5]
-+<6>[  216.000000] [    T6] example[6]
-+<7>[  343.000000] [    T7] example[7]
-+<8>[  512.000000] [    T8] example[8]
-+<9>[  729.000000] [    T9] example[9]
-+<10>[ 1000.000000] [   T10] example[10]
-+<11>[ 1331.000000] [   T11] example[11]
-+<12>[ 1728.000000] [   T12] example[12]
-+<13>[ 2197.000000] [   T13] example[13]
-+<14>[ 2744.000000] [   T14] example[14]
-+<15>[ 3375.000000] [   T15] example[15]
-+<16>[ 4096.000000] [   T16] example[16]
-+<17>[ 4913.000000] [   T17] example[17]
-+<18>[ 5832.000000] [   T18] example[18]
-+<19>[ 6859.000000] [   T19] example[19]
-+<20>[ 8000.000000] [   T20] example[20]
-+<21>[ 9261.000000] [   T21] example[21]
-+<22>[10648.000000] [   T22] example[22]
-+<23>[12167.000000] [   T23] example[23]
-+<24>[13824.000000] [   T24] example[24]
-+<25>[15625.000000] [   T25] example[25]
-+<26>[17576.000000] [   T26] example[26]
-+<27>[19683.000000] [   T27] example[27]
-+<28>[21952.000000] [   T28] example[28]
-+<29>[24389.000000] [   T29] example[29]
-+<30>[27000.000000] [   T10] example[30]
-+<31>[29791.000000] [   T31] example[31]
-+<32>[32768.000000] [   T32] example[32]
-+<33>[35937.000000] [   T33] example[33]
-+<34>[39304.000000] [   T34] example[34]
-+<35>[42875.000000] [   T35] example[35]
-+<36>[46656.000000] [   T36] example[36]
-+<37>[50653.000000] [   T37] example[37]
-+<38>[54872.000000] [   T38] example[38]
-+<39>[59319.000000] [   T39] example[39]
-+<40>[64000.000000] [   T40] example[40]
-+<41>[68921.000000] [   T41] example[41]
-+<42>[74088.000000] [   T42] example[42]
-+<43>[79507.000000] [   T43] example[43]
-+<44>[85184.000000] [   T44] example[44]
-+<45>[91125.000000] [   T45] example[45]
-+<46>[97336.000000] [   T46] example[46]
-+<47>[103823.000000] [   T47] example[47]
-+<48>[110592.000000] [   T48] example[48]
-+<49>[117649.000000] [   T49] example[49]
-+<50>[125000.000000] [   T50] example[50]
-+<51>[132651.000000] [   T51] example[51]
-+<52>[140608.000000] [   T52] example[52]
-+<53>[148877.000000] [   T53] example[53]
-+<54>[157464.000000] [   T54] example[54]
-+<55>[166375.000000] [   T55] example[55]
-+<56>[175616.000000] [   T56] example[56]
-+<57>[185193.000000] [   T57] example[57]
-+<58>[195112.000000] [   T58] example[58]
-+<59>[205379.000000] [   T59] example[59]
-+<60>[216000.000000] [   T60] example[60]
-+<61>[226981.000000] [   T61] example[61]
-+<62>[238328.000000] [   T62] example[62]
-+<63>[250047.000000] [   T63] example[63]
-+<64>[262144.000000] [   T64] example[64]
-+<65>[274625.000000] [   T65] example[65]
-+<66>[287496.000000] [   T66] example[66]
-+<67>[300763.000000] [   T67] example[67]
-+<68>[314432.000000] [   T68] example[68]
-+<69>[328509.000000] [   T69] example[69]
-+<70>[343000.000000] [   T70] example[70]
-+<71>[357911.000000] [   T71] example[71]
-+<72>[373248.000000] [   T72] example[72]
-+<73>[389017.000000] [   T73] example[73]
-+<74>[405224.000000] [   T74] example[74]
-+<75>[421875.000000] [   T75] example[75]
-+<76>[438976.000000] [   T76] example[76]
-+<77>[456533.000000] [   T77] example[77]
-+<78>[474552.000000] [   T78] example[78]
-+<79>[493039.000000] [   T79] example[79]
-+<80>[512000.000000] [   T80] example[80]
-+<81>[531441.000000] [   T81] example[81]
-+<82>[551368.000000] [   T82] example[82]
-+<83>[571787.000000] [   T83] example[83]
-+<84>[592704.000000] [   T84] example[84]
-+<85>[614125.000000] [   T85] example[85]
-+<86>[636056.000000] [   T86] example[86]
-+<87>[658503.000000] [   T87] example[87]
-+<88>[681472.000000] [   T88] example[88]
-+<89>[704969.000000] [   T89] example[89]
-+<90>[729000.000000] [   T90] example[90]
-+<91>[753571.000000] [   T91] example[91]
-+<92>[778688.000000] [   T92] example[92]
-+<93>[804357.000000] [   T93] example[93]
-+<94>[830584.000000] [   T94] example[94]
-+<95>[857375.000000] [   T95] example[95]
-+<96>[884736.000000] [   T96] example[96]
-+<97>[912673.000000] [   T97] example[97]
-+<98>[941192.000000] [   T98] example[98]
-+<99>[970299.000000] [   T99] example[99]
-+<100>[1000000.000000] [  T100] example[100]
-+<101>[1030301.000000] [  T101] example[101]
-+<102>[1061208.000000] [  T102] example[102]
-+<103>[1092727.000000] [  T103] example[103]
-+<104>[1124864.000000] [  T104] example[104]
-diff --git a/tests/ts/dmesg/json-kmsg-printk-caller b/tests/ts/dmesg/json-kmsg-printk-caller
-new file mode 100755
-index 000000000..cb6c5e4a8
---- /dev/null
-+++ b/tests/ts/dmesg/json-kmsg-printk-caller
-@@ -0,0 +1,28 @@
-+#!/bin/bash
-+
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="json-kmsg-prtk-caller"
-+
-+. "$TS_TOPDIR"/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_HELPER_DMESG"
-+
-+export TZ="GMT"
-+export DMESG_TEST_BOOTIME="1234567890.123456"
-+
-+$TS_HELPER_DMESG -J -K $TS_SELF/kmsg-input-printk-caller >> $TS_OUTPUT 2>/dev/null
-+
-+ts_finalize
-diff --git a/tests/ts/dmesg/json-syslog-printk-caller b/tests/ts/dmesg/json-syslog-printk-caller
-new file mode 100755
-index 000000000..10dfaa423
---- /dev/null
-+++ b/tests/ts/dmesg/json-syslog-printk-caller
-@@ -0,0 +1,28 @@
-+#!/bin/bash
-+
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="json-syslog-prtk-caller"
-+
-+. "$TS_TOPDIR"/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_HELPER_DMESG"
-+
-+export TZ="GMT"
-+export DMESG_TEST_BOOTIME="1234567890.123456"
-+
-+$TS_HELPER_DMESG -J -F $TS_SELF/input-syslog-printk-caller >> $TS_OUTPUT 2>/dev/null
-+
-+ts_finalize
-diff --git a/tests/ts/dmesg/kmsg-file-printk-caller b/tests/ts/dmesg/kmsg-file-printk-caller
-new file mode 100755
-index 000000000..a01fc723f
---- /dev/null
-+++ b/tests/ts/dmesg/kmsg-file-printk-caller
-@@ -0,0 +1,28 @@
-+#!/bin/bash
-+
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="kmsg-file-prtk-caller"
-+
-+. "$TS_TOPDIR"/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_HELPER_DMESG"
-+
-+export TZ="GMT"
-+export DMESG_TEST_BOOTIME="1234567890.123456"
-+
-+$TS_HELPER_DMESG -J -K $TS_SELF/kmsg-input-printk-caller >> $TS_OUTPUT 2>/dev/null
-+
-+ts_finalize
-diff --git a/tests/ts/dmesg/kmsg-input-printk-caller b/tests/ts/dmesg/kmsg-input-printk-caller
-new file mode 100644
-index 0000000000000000000000000000000000000000..8d67f11cad7988469dd5e4a7c8589d2b744168bb
-GIT binary patch
-literal 2187
-zcmbW2TW{hx6oB`+zv4*yQZ$g-aqb9dAw>nL(1<WMu@wr5q0uIBlmsaMe(Z!%<LSbv
-zlRV_&oX=m5?PI-*_}S}*L6Xp7utfdGINQI%ffi-VGB6ZF(Rx7<zTh5)+e9?}BOdF!
-z4&3g-5N;n_w*#0cs)9j9DnS;)U3i#(h9u&x{5s-+Rh*O^P!$a;r~`jv@Mj))i}85o
-zE!X$o=fm05g&E7bfHb(LVT}TW9MyKP4WAG{ZvHa5STe?am!)ZtMZlG)1928tMKt*L
-zRS)+ei>MN(yY|bvJxI4@ul|L)xi~^toboE7hd88zJAS>(4k<+$&WTf=%8I5=6qjL8
-zL{KnRHJ_wGp3~y4X%}XyWTy5<(<i@|7wiy6G=lu)RK`5fuo%vO$2uZ}NFk&Np_Ymq
-zSfw-t^eTS4ee|SPHr;Nw&#*6pO+p1wlYrWFpuOc}8Mxs*4lHO%ivx`WQkRhWRV1!e
-z+ekYQM9I;RfW|eTy?GCe&cL>#DIv|PNctWrvM4)R641H|6j_w>Xm5!~<TDIiZwm7-
-zzR063A?@o(63R$TCHk+9SYEssT|x4A;}=U!)6d9uCN)C3#4rurY}Eyf`{GX=5bJ8~
-zkJgIkPLcB9VOyC`rdaX5E_?^(^awdS(n8E1wlBhFN)n9|Ed%RqqI#M5ZQ^RbA?jUX
-z8U!0{B6&w#e0{tu#TOq(XrztM{s%F-j4(OEB&LMW&j_9%Snyf_qau!W6jmZ*&u|;D
-zG>9`^*ARl$W?%BV9-k?ldhrsgAzE!IqaTEM4Bp&BLu5I;BEtH~cO7{0q1@*=E2<J!
-z<JXF2yw12R+r~Q>`rZuOgoXd{t50_+&G=U{e+uLK1x&nez2zyV<oO2t&m;f4zZ}m7
-zqMIAIAAgy;<H0BK<h*s-_}RiwH|(~bdC4zNf@;f(6e31T$apT!y0G#mo;zVxp6t2m
-zc=16E4G9gK&(ycA3tN{oc$zZCOFYY}f+ajvd?e`4&b`?f#IqaZ!6r`P>I9F=1>Ae?
-zN1ZTtvNT;9I=e5X!3!%Z*fi6iV$cjaAI4@s(=@e-Y$sJk{XC4<txuhL=c$8#E-qNb
-x49;7GD7oR*gkzjV>?paPL2n~_e!=^1N$^$A^$pxgsfs@$5!EG7)Tlp__yL<dZm0kN
-
-literal 0
-HcmV?d00001
-
-diff --git a/tests/ts/dmesg/limit-kmsg-printk-caller b/tests/ts/dmesg/limit-kmsg-printk-caller
-new file mode 100755
-index 000000000..4d4d9912d
---- /dev/null
-+++ b/tests/ts/dmesg/limit-kmsg-printk-caller
-@@ -0,0 +1,29 @@
-+#!/bin/bash
-+
-+# This file is part of util-linux.
-+#
-+# This file is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This file is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="limit-kmsg-prtk-caller"
-+
-+. "$TS_TOPDIR"/functions.sh
-+ts_init "$*"
-+
-+ts_check_test_command "$TS_HELPER_DMESG"
-+
-+export TZ="GMT"
-+export DMESG_TEST_BOOTIME="1234567890.123456"
-+
-+$TS_HELPER_DMESG --since @1234567890.124 --until @1234567991 -K $TS_SELF/kmsg-input-printk-caller \
-+	>> $TS_OUTPUT 2> $TS_ERRLOG
-+
-+ts_finalize
-diff --git a/tests/ts/dmesg/newlines-kmsg-printk-caller b/tests/ts/dmesg/newlines-kmsg-printk-caller
-new file mode 100644
-index 0000000000000000000000000000000000000000..574d2177796677b73f1efcf273005169ed832c60
-GIT binary patch
-literal 152
-zcmXrjF#tkco#e!voYW%Q5CiL+%)C^Es??%<E(Svb9YY;M128~RV`!b1TFwPh$Hia-
-tQeuRm#K^j&Jf91MLCT7`7>o^cjC71K)EQfsWE7>QazV)4{GwE-1^{d2D<=Q|
-
-literal 0
-HcmV?d00001
-
+ /*
+  * Offset between 15-Oct-1582 and 1-Jan-70
+diff --git a/misc-utils/uuidd.c b/misc-utils/uuidd.c
+index fd121c5bc..42a252dd0 100644
+--- a/misc-utils/uuidd.c
++++ b/misc-utils/uuidd.c
+@@ -442,15 +442,6 @@ static void server_loop(const char *socket_path, const char *pidfile_path,
+ 	pfd[POLLFD_SOCKET].fd = s;
+ 	pfd[POLLFD_SIGNAL].events = pfd[POLLFD_SOCKET].events = POLLIN | POLLERR | POLLHUP;
+ 
+-	num = 1;
+-	if (uuidd_cxt->cont_clock_offset) {
+-		/* trigger initialization */
+-		(void) __uuid_generate_time_cont(uu, &num, uuidd_cxt->cont_clock_offset);
+-		if (uuidd_cxt->debug)
+-			fprintf(stderr, _("max_clock_offset = %u sec\n"),
+-				uuidd_cxt->cont_clock_offset);
+-	}
+-
+ 	while (1) {
+ 		ret = poll(pfd, ARRAY_SIZE(pfd),
+ 				uuidd_cxt->timeout ?
 -- 
-2.43.0
+2.39.3 (Apple Git-145)
 
