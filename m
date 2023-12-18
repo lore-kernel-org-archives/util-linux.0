@@ -1,58 +1,58 @@
-Received: from mail-pf1-f225.google.com (mail-pf1-f225.google.com [209.85.210.225])
+Received: from mail-yw1-f225.google.com (mail-yw1-f225.google.com [209.85.128.225])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E9571D15E
-	for <util-linux@vger.kernel.org>; Mon, 18 Dec 2023 14:16:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB6EB200C0
+	for <util-linux@vger.kernel.org>; Mon, 18 Dec 2023 15:11:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=arista.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arista.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arista.com header.i=@arista.com header.b="b0dMTrbG"
-Received: by mail-pf1-f225.google.com with SMTP id d2e1a72fcca58-6ce6b62746dso1443610b3a.2
-        for <util-linux@vger.kernel.org>; Mon, 18 Dec 2023 06:16:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=arista.com header.i=@arista.com header.b="0zioWm0v"
+Received: by mail-yw1-f225.google.com with SMTP id 00721157ae682-5e465506c0bso24216447b3.0
+        for <util-linux@vger.kernel.org>; Mon, 18 Dec 2023 07:11:31 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702908969; x=1703513769;
+        d=1e100.net; s=20230601; t=1702912290; x=1703517090;
         h=content-transfer-encoding:message-id:date:subject:cc:to:from
          :dkim-signature:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
         bh=T5yHbno1C03xa7+Flwvccs1mpBW980U28LGumG5pwo0=;
-        b=E4862dDZ8/Gp78RBoHefAWGmqSdTYkEvZEBAb+qHPwHUHAKzV+wnqkY89tpIFcsH/Z
-         WhIwLaG+2Vtw2teRE2V6uB3Ovv34bnBrSWrY6ifss5/lRVELqkD/u3SUvDO6/vAqzgCd
-         ptGqTrBOlJAj1C22NgxJRD2sr/RyIKDFe0bhyL3CEzykqAlxh71XjbeB0TNWLsSATLLC
-         qxe6nesN0dvUZregAAoB8e3WdDo0qN9PuEqpC295hexhWLldG2dct79ftKcomH3uSp1C
-         yjhOCoT1Bc0OXElL9wgx1lum2oeW8hhWS494PoPSktUM5tajZSwFxJ2kHUMurAl0lKrF
-         oiKg==
-X-Gm-Message-State: AOJu0YzHaYyVgSvppKs4KnaXuiS0D2RUsgkvcJGJjXP54PDKjNcpyLn2
-	ndYoUJHxrai0JswmS42f00h3qXS56k+H1ziQx1IMzYYXsyTD4GhgktTG
-X-Google-Smtp-Source: AGHT+IGJ7Ry5OuoExTDVyz1oDNmqC1wh6FmJaG8kwciqmkGyfBY8bdH1+g2/MHrXN+lMASXEN9t3BrFwjp7v
-X-Received: by 2002:a05:6a00:4b42:b0:6ce:2731:d5c8 with SMTP id kr2-20020a056a004b4200b006ce2731d5c8mr8335989pfb.57.1702908968320;
-        Mon, 18 Dec 2023 06:16:08 -0800 (PST)
+        b=uih4pOwIVqqB10PQqGpClo9lMIQE1EB9yBTWKWeFHCxZGwO/qtushi6H6vQ4AVcXIX
+         t2g/CoXgp8GhNqZs5vLYIrIcQfVBUHWrfmdscbjjC/n2yByl+WyERd37iyAAriF179qj
+         RIibZwJolEuWEDxrniJfu27HBUeJPF/Jw+hIL2z2Qm7pzP9iPAMZX6euxCHYTYDLVIZz
+         RN2Xn1NUXgRegwT5c/AsoO2uprvoPYH6RMDFK4WcM28NIYJvusQSBd9Q6dOfikTFwAU9
+         wcnlqEkIxwLLD/8bnTbDXhnTI47O3UHuEPHHFT/UuaXNXVhmczYZz4v/nIwLhrfUslDP
+         YH1A==
+X-Gm-Message-State: AOJu0YyeCHVSfsUozKKmXQEyiL2KSaaLIEvqHiEXfKwM0d6UKVdvpmrv
+	pOpEiQCBfERQVvAll9KlU4sxrLcobJ3rSDQUsiOfZHmsLFa/Lk7+OUb4
+X-Google-Smtp-Source: AGHT+IGMa99sTEbl6o1ndjm7Z84+8htGUcCC8j1GpZrL8PS1/QBs5XCgaXYrBguUhXbsSvKOl65Hmzb0cYg6
+X-Received: by 2002:a81:7c06:0:b0:5e2:4fc3:7d51 with SMTP id x6-20020a817c06000000b005e24fc37d51mr7652017ywc.47.1702912290603;
+        Mon, 18 Dec 2023 07:11:30 -0800 (PST)
 Received: from smtp.aristanetworks.com ([74.123.28.25])
-        by smtp-relay.gmail.com with ESMTPS id d11-20020a056a00244b00b006d28e84e6cdsm347147pfj.25.2023.12.18.06.16.08
+        by smtp-relay.gmail.com with ESMTPS id y5-20020a0def05000000b005cb40c5ec51sm2592449ywe.2.2023.12.18.07.11.30
         for <util-linux@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 18 Dec 2023 06:16:08 -0800 (PST)
+        Mon, 18 Dec 2023 07:11:30 -0800 (PST)
 X-Relaying-Domain: arista.com
 X-SMTP-Authentication: Allow-List-permitted
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arista.com;
-	s=Arista-A; t=1702908967;
+	s=Arista-A; t=1702912289;
 	bh=T5yHbno1C03xa7+Flwvccs1mpBW980U28LGumG5pwo0=;
 	h=From:To:Cc:Subject:Date:From;
-	b=b0dMTrbGH4GzZaHXkBNSbSjBqewf6GSVVfkWvYgj2qpr5+Ck9GPifoEpKIQj6nGhW
-	 UFhLv9teeumbJjq2YddHWnUzyyGFPFLT8tgvQez8+ZAbuppGNfsI36ZsNm10s0yUix
-	 ItZ8wFVHUPizwD1/JA8vzowoKlvlDae4fG2z6m+OGw2ua1V/VWMVBURzGEtRPHxVqj
-	 jrOrNl/DsoAwRWk8aZe3/5JvhlylUWWn1zqRhQA74ixWdBJsWxPKPpdxvVNew1fmYy
-	 xaL6PraxIUVjeoKQNog4Y1h9sgAtouWPks8b8Opg+/9Z8EQTi5BTxW24963Yup1l38
-	 GvRA7OeJ9gK9w==
+	b=0zioWm0vUH+iX2kuvl6F4RKC99g1p+zKNQ1UNDwhubtip+/0jG6hXQ1M62BaMYDbC
+	 UfqT5MlaeWebRomUscMOgJHaRa5dnfhx3lNTz4w9LGFhw1pqaDtPHGDvhZ4EfXTwQd
+	 PHa6th26M/pC/zcbZtZ6eedEcUenoM4AXRt40LJIO6eIHKjOOVcpsDQ4vEMo65IWlj
+	 rEKf1MaMR/MN4EZWt5WFRMK0SUR2wZkdm4JBDi6lSQeiNFs9mcwP5lgv1FXbO2rXdN
+	 Rmriovzoypr1gnsOsJ70lFYkvKwqTJQLaX7WjvIun/18X7kyd+ddskxaz7K4daC5Od
+	 lylonwxFbjjBg==
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 Received: from us113.sjc.aristanetworks.com (us113.sjc.aristanetworks.com [10.242.240.8])
-	by smtp.aristanetworks.com (Postfix) with ESMTP id 945C6400F80;
-	Mon, 18 Dec 2023 06:16:07 -0800 (PST)
+	by smtp.aristanetworks.com (Postfix) with ESMTP id DDAA0400F82;
+	Mon, 18 Dec 2023 07:11:29 -0800 (PST)
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 Received: by us113.sjc.aristanetworks.com (Postfix, from userid 10383)
-	id 8688AB840AFE; Mon, 18 Dec 2023 06:16:07 -0800 (PST)
+	id D191DB840D5E; Mon, 18 Dec 2023 07:11:29 -0800 (PST)
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
@@ -69,15 +69,15 @@ Cc: colona@arista.com,
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
-Subject: PATCH] util-linux/sys-utils dmesg add PRINTK_CALLER support
+Subject: [PATCH] util-linux/sys-utils dmesg add PRINTK_CALLER support
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
-Date: Mon, 18 Dec 2023 06:15:11 -0800
+Date: Mon, 18 Dec 2023 07:11:27 -0800
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
-Message-ID: <20231218141511.31404-1-echron@arista.com>
+Message-ID: <20231218151127.32052-1-echron@arista.com>
 X-SMTP-Authentication: Allow-List-permitted
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
