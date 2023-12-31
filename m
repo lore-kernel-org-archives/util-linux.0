@@ -1,57 +1,57 @@
-Received: from mail-io1-f100.google.com (mail-io1-f100.google.com [209.85.166.100])
+Received: from mail-qk1-f226.google.com (mail-qk1-f226.google.com [209.85.222.226])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A17CDA31
-	for <util-linux@vger.kernel.org>; Sun, 31 Dec 2023 02:09:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 310079447
+	for <util-linux@vger.kernel.org>; Sun, 31 Dec 2023 18:27:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=arista.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arista.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arista.com header.i=@arista.com header.b="Fii1dlkk"
-Received: by mail-io1-f100.google.com with SMTP id ca18e2360f4ac-7bade847536so237259739f.0
-        for <util-linux@vger.kernel.org>; Sat, 30 Dec 2023 18:09:18 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=arista.com header.i=@arista.com header.b="hABWznTW"
+Received: by mail-qk1-f226.google.com with SMTP id af79cd13be357-78158569dc6so388888385a.3
+        for <util-linux@vger.kernel.org>; Sun, 31 Dec 2023 10:27:53 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703988558; x=1704593358;
+        d=1e100.net; s=20230601; t=1704047273; x=1704652073;
         h=content-transfer-encoding:message-id:date:subject:cc:to:from
          :dkim-signature:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=A4ww0cr3B/PlonGCG7BlyEkcC61RxrxGq2jYvatrflo=;
-        b=FjnnGUyFOVxvXImNw4qARONlzZOdDoc1GCcwz1AoGNSjIVcRs8NumnSJhgpqKg3VFg
-         5v7mnKCZXTTkMIJo5QOA0T93UvexWVnZzKlRemQstv9FomHQQfzyZvrNSR8F7RljyLOz
-         ME6hNQpk82PwKwacwqMXWmYU57uydKov04n/2+jPb3dQV2vuk7gCGpWPDDzpmi87iem5
-         +kE1Zmu1bEoUMGSl4SdN97l7VKOK+n0ey1Pid1hczJ4EqgNf3GpGri/BHPYUyryi1OfT
-         0fdf7sjOjT0hW0Xx1cJg121oOu4KCUXCKkOOpuifUPHHG68gkjHvKn7/Xq1LltA9TL91
-         Rf/g==
-X-Gm-Message-State: AOJu0Yz2cByuvXfLE/HkjqxQ2FWijMikB7A4ZcXfUpUVhgd31JG/6uiy
-	kGf4WDmG/LCdFOJVPHcdnKdPYwQkQcMTajRHmQHYz77bhVBWSAJ7DB8=
-X-Google-Smtp-Source: AGHT+IEok73zPBhV3cnAFj8Mx3qLbS+254idtGWqIwospoBtk9Mmyk+JgCdfkbhBRZHRThugez0Kb/5J7fl5
-X-Received: by 2002:a05:6e02:1d8c:b0:35d:62f2:1f45 with SMTP id h12-20020a056e021d8c00b0035d62f21f45mr22361828ila.20.1703988557764;
-        Sat, 30 Dec 2023 18:09:17 -0800 (PST)
+        bh=FSc6rXJ8gQhCeuaPM35u1FZokwDVMZ9bCM/UAlKfREE=;
+        b=QGBykKmsPmVA1DJrbKH02sF0nO/iSWFY7sdxf0EQwZtdin9UVW8EYihJ3EANGG91lV
+         bcI64QQc4M1nvu7RG2qrFS9+gKV6Spk51EVvgQrQL0eoszVkxskUI2cAlbASyA+eNuhh
+         aLcuRuqJL7b4232j+d1X/U7CtdeDkK9M5laQ0xbB2NpewMdq7ZjziBou/uHGUBj+zOWC
+         ZxIFiPbFCaYoTj/umnl7bFpJN4qSAjg/4tztOvtnq1VV0K0RCuf4PT/V2usnPnNOyh+u
+         yOqiqqUmzp5nv8ETeze9vUWb7IjQbrRbNtpkoDmLwDe8SwjrDBTNhQyc7omicnkpYcDW
+         wPYw==
+X-Gm-Message-State: AOJu0YxCHuVmRJl30xn8C5++bDU0pw355HywjIJ2bIkpxZizgLHKHDri
+	YA5t5ZqHj20259AWR4Yld7ZFO1AaXNcFINbMdRRudWcnBCtfQmckfv8=
+X-Google-Smtp-Source: AGHT+IH/euXN5BXa+1HY1VmVG8JVxJD2VOI7NSFre6WbHZUjSiTnWUXbuvIRyVW5Vgb6WIpXeqcY/Kcamuh2
+X-Received: by 2002:a05:620a:4690:b0:781:1f1b:a02d with SMTP id bq16-20020a05620a469000b007811f1ba02dmr19601814qkb.25.1704047272841;
+        Sun, 31 Dec 2023 10:27:52 -0800 (PST)
 Received: from smtp.aristanetworks.com ([74.123.28.25])
-        by smtp-relay.gmail.com with ESMTPS id e20-20020a17090a9a9400b0028cbca893f0sm209265pjp.9.2023.12.30.18.09.17
+        by smtp-relay.gmail.com with ESMTPS id p186-20020a815bc3000000b005e74d893964sm1769676ywb.14.2023.12.31.10.27.52
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 30 Dec 2023 18:09:17 -0800 (PST)
+        Sun, 31 Dec 2023 10:27:52 -0800 (PST)
 X-Relaying-Domain: arista.com
 X-SMTP-Authentication: Allow-List-permitted
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arista.com;
-	s=Arista-A; t=1703988557;
-	bh=A4ww0cr3B/PlonGCG7BlyEkcC61RxrxGq2jYvatrflo=;
+	s=Arista-A; t=1704047271;
+	bh=FSc6rXJ8gQhCeuaPM35u1FZokwDVMZ9bCM/UAlKfREE=;
 	h=From:To:Cc:Subject:Date:From;
-	b=Fii1dlkkAXa3T3P8zOm0mrVogb2vKyMX0zedcOxUICpbYOQ5quSOFwV3XZD9SQAMo
-	 tK3zftByz02bWuxwH7WsOLYTYRJVD3j0eHsMwjB2OWGgyuKiikSmeqUJR5UhvMV8oC
-	 lb3H9DlOhXBUcRuOeiVf6wdFb3+dSN/NsVvYl1w3AKgOl9KNhrpBt3a2HL3pItwEAK
-	 IpJ/+I5kcK9gKMCjG9nnDpT4bUwQRaxpRwIeDFYu06oqxsFVEHGfn0Iw//Ba6I1nJl
-	 wuvo8GC2jd+ZtUQvnOWJkq3aTwd7rUdqQyRbumj5ba4xvaTjCiJFq9o1KoGf2WCCFj
-	 dCFCTDZzNy88Q==
+	b=hABWznTWJipLf2jsDATctUFYlikdAXMmDr3OLQZaJf203O58Dvfd2lSZY+GViDnSH
+	 L8mKJFNWlmueXzJHGRkUZfa9JCYvFe40nff0H6/wtAGley061fjVXrf95yPOLDlKHd
+	 oqc8wqTSHRSAFZnkmf43icIz76/BdVC5Zj6773HG3Fm8I5zRvNpKH3AyIYWNXBF4Dq
+	 50TuS3rkRVDo+nnUtfdqLLvnlugXeM+ddP8FmGW9ZiTL6md3RAGRoSAkPw3TjyYAOe
+	 XgTQX69Pt2pBtT+JQgM+D26tWpInHxs1l3JGzMbCyrbtRP2AdY0n2fM25TR2iHeVU4
+	 M3a2h2H3T7bhg==
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 Received: from us113.sjc.aristanetworks.com (us113.sjc.aristanetworks.com [10.242.240.8])
-	by smtp.aristanetworks.com (Postfix) with ESMTP id 0C404402056;
-	Sat, 30 Dec 2023 18:09:17 -0800 (PST)
+	by smtp.aristanetworks.com (Postfix) with ESMTP id DF12D400F82;
+	Sun, 31 Dec 2023 10:27:51 -0800 (PST)
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 Received: by us113.sjc.aristanetworks.com (Postfix, from userid 10383)
-	id E279DB840957; Sat, 30 Dec 2023 18:09:16 -0800 (PST)
+	id D146CB84091E; Sun, 31 Dec 2023 10:27:51 -0800 (PST)
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
@@ -69,15 +69,15 @@ Cc: colona@arista.com,
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
-Subject: [PATCH] util-linux dmesg add PRINTK_CALLER support Issue:2609
+Subject: [PATCH] util-linux/sys-utils dmesg add PRINTK_CALLER support
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
-Date: Sat, 30 Dec 2023 18:09:08 -0800
+Date: Sun, 31 Dec 2023 10:27:49 -0800
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
-Message-ID: <20231231020908.7729-1-echron@arista.com>
+Message-ID: <20231231182749.2282-1-echron@arista.com>
 X-SMTP-Authentication: Allow-List-permitted
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -102,6 +102,7 @@ Revision: #4 on 2023/12/15 Ensure SYSLOG and kmsg inputs have
 Revision: #5 on 2023/12/24 Make caller_id width consistent with
                            makedumpfile
 Revision: #6 on 2023/12/30 Use updated test naming convention
+                           Include expected results for new tests
 
 Add support to standard dmesg command for the optional Linux Kernel
 debug CONFIG option PRINTK_CALLER which adds an optional dmesg field
@@ -228,23 +229,41 @@ Resulting expected files match the test names.
 Signed-off-by: Ivan Delalande <colona@arista.com>
 Signed-off-by: Edward Chron <echron@arista.com>
 ---
- include/pathnames.h                    |   3 +
- sys-utils/dmesg.c                      | 128 ++++++++++++++++++++++++-
- tests/expected/dmesg/kmsg-file         | 126 ++++++++++++++++++++----
- tests/ts/dmesg/cid-input               | 106 ++++++++++++++++++++
- tests/ts/dmesg/cid-json                |  28 ++++++
- tests/ts/dmesg/cid-kmsg-colors         |  29 ++++++
- tests/ts/dmesg/cid-kmsg-console-levels |  36 +++++++
- tests/ts/dmesg/cid-kmsg-decode         |  28 ++++++
- tests/ts/dmesg/cid-kmsg-delta          |  28 ++++++
- tests/ts/dmesg/cid-kmsg-facilities     |  30 ++++++
- tests/ts/dmesg/cid-kmsg-indentation    |  40 ++++++++
- tests/ts/dmesg/cid-kmsg-input          | Bin 0 -> 4425 bytes
- tests/ts/dmesg/cid-kmsg-json           |  28 ++++++
- tests/ts/dmesg/cid-kmsg-limit          |  29 ++++++
- tests/ts/dmesg/cid-kmsg-newlines       | Bin 0 -> 152 bytes
- tests/ts/dmesg/kmsg-input              | Bin 1955 -> 3944 bytes
- 16 files changed, 619 insertions(+), 20 deletions(-)
+ include/pathnames.h                          |   3 +
+ sys-utils/dmesg.c                            | 128 ++++-
+ tests/expected/dmesg/cid-json                | 535 +++++++++++++++++++
+ tests/expected/dmesg/cid-kmsg-colors         |  45 ++
+ tests/expected/dmesg/cid-kmsg-console-levels |  97 ++++
+ tests/expected/dmesg/cid-kmsg-decode         |  45 ++
+ tests/expected/dmesg/cid-kmsg-delta          |  45 ++
+ tests/expected/dmesg/cid-kmsg-facilities     |  45 ++
+ tests/expected/dmesg/cid-kmsg-indentation    |  28 +
+ tests/expected/dmesg/cid-kmsg-json           | 230 ++++++++
+ tests/expected/dmesg/cid-kmsg-limit          |  31 ++
+ tests/expected/dmesg/kmsg-file               | 126 ++++-
+ tests/ts/dmesg/cid-input                     | 106 ++++
+ tests/ts/dmesg/cid-json                      |  28 +
+ tests/ts/dmesg/cid-kmsg-colors               |  29 +
+ tests/ts/dmesg/cid-kmsg-console-levels       |  36 ++
+ tests/ts/dmesg/cid-kmsg-decode               |  28 +
+ tests/ts/dmesg/cid-kmsg-delta                |  28 +
+ tests/ts/dmesg/cid-kmsg-facilities           |  30 ++
+ tests/ts/dmesg/cid-kmsg-indentation          |  40 ++
+ tests/ts/dmesg/cid-kmsg-input                | Bin 0 -> 4425 bytes
+ tests/ts/dmesg/cid-kmsg-json                 |  28 +
+ tests/ts/dmesg/cid-kmsg-limit                |  29 +
+ tests/ts/dmesg/cid-kmsg-newlines             | Bin 0 -> 152 bytes
+ tests/ts/dmesg/kmsg-input                    | Bin 1955 -> 3944 bytes
+ 25 files changed, 1720 insertions(+), 20 deletions(-)
+ create mode 100644 tests/expected/dmesg/cid-json
+ create mode 100644 tests/expected/dmesg/cid-kmsg-colors
+ create mode 100644 tests/expected/dmesg/cid-kmsg-console-levels
+ create mode 100644 tests/expected/dmesg/cid-kmsg-decode
+ create mode 100644 tests/expected/dmesg/cid-kmsg-delta
+ create mode 100644 tests/expected/dmesg/cid-kmsg-facilities
+ create mode 100644 tests/expected/dmesg/cid-kmsg-indentation
+ create mode 100644 tests/expected/dmesg/cid-kmsg-json
+ create mode 100644 tests/expected/dmesg/cid-kmsg-limit
  create mode 100644 tests/ts/dmesg/cid-input
  create mode 100755 tests/ts/dmesg/cid-json
  create mode 100755 tests/ts/dmesg/cid-kmsg-colors
@@ -512,6 +531,1161 @@ index 77728b419..e27966b05 100644
  			break;
  		case 'f':
  			ctl.fltr_fac = 1;
+diff --git a/tests/expected/dmesg/cid-json b/tests/expected/dmesg/cid-json
+new file mode 100644
+index 000000000..8a4d0e23d
+--- /dev/null
++++ b/tests/expected/dmesg/cid-json
+@@ -0,0 +1,535 @@
++{
++   "dmesg": [
++      {
++         "pri": 0,
++         "time":     0.000000,
++         "caller": "T0",
++         "msg": "example[0]"
++      },{
++         "pri": 1,
++         "time":     1.000000,
++         "caller": "T1",
++         "msg": "example[1]"
++      },{
++         "pri": 2,
++         "time":     8.000000,
++         "caller": "T2",
++         "msg": "example[2]"
++      },{
++         "pri": 3,
++         "time":    27.000000,
++         "caller": "T3",
++         "msg": "example[3]"
++      },{
++         "pri": 4,
++         "time":    64.000000,
++         "caller": "T4",
++         "msg": "example[4]"
++      },{
++         "pri": 5,
++         "time":   125.000000,
++         "caller": "T5",
++         "msg": "example[5]"
++      },{
++         "pri": 6,
++         "time":   216.000000,
++         "caller": "T6",
++         "msg": "example[6]"
++      },{
++         "pri": 7,
++         "time":   343.000000,
++         "caller": "T7",
++         "msg": "example[7]"
++      },{
++         "pri": 8,
++         "time":   512.000000,
++         "caller": "T8",
++         "msg": "example[8]"
++      },{
++         "pri": 9,
++         "time":   729.000000,
++         "caller": "T9",
++         "msg": "example[9]"
++      },{
++         "pri": 10,
++         "time":  1000.000000,
++         "caller": "T10",
++         "msg": "example[10]"
++      },{
++         "pri": 11,
++         "time":  1331.000000,
++         "caller": "T11",
++         "msg": "example[11]"
++      },{
++         "pri": 12,
++         "time":  1728.000000,
++         "caller": "T12",
++         "msg": "example[12]"
++      },{
++         "pri": 13,
++         "time":  2197.000000,
++         "caller": "T13",
++         "msg": "example[13]"
++      },{
++         "pri": 14,
++         "time":  2744.000000,
++         "caller": "T14",
++         "msg": "example[14]"
++      },{
++         "pri": 15,
++         "time":  3375.000000,
++         "caller": "T15",
++         "msg": "example[15]"
++      },{
++         "pri": 16,
++         "time":  4096.000000,
++         "caller": "T16",
++         "msg": "example[16]"
++      },{
++         "pri": 17,
++         "time":  4913.000000,
++         "caller": "T17",
++         "msg": "example[17]"
++      },{
++         "pri": 18,
++         "time":  5832.000000,
++         "caller": "T18",
++         "msg": "example[18]"
++      },{
++         "pri": 19,
++         "time":  6859.000000,
++         "caller": "T19",
++         "msg": "example[19]"
++      },{
++         "pri": 20,
++         "time":  8000.000000,
++         "caller": "T20",
++         "msg": "example[20]"
++      },{
++         "pri": 21,
++         "time":  9261.000000,
++         "caller": "T21",
++         "msg": "example[21]"
++      },{
++         "pri": 22,
++         "time": 10648.000000,
++         "caller": "T22",
++         "msg": "example[22]"
++      },{
++         "pri": 23,
++         "time": 12167.000000,
++         "caller": "T23",
++         "msg": "example[23]"
++      },{
++         "pri": 24,
++         "time": 13824.000000,
++         "caller": "T24",
++         "msg": "example[24]"
++      },{
++         "pri": 25,
++         "time": 15625.000000,
++         "caller": "T25",
++         "msg": "example[25]"
++      },{
++         "pri": 26,
++         "time": 17576.000000,
++         "caller": "T26",
++         "msg": "example[26]"
++      },{
++         "pri": 27,
++         "time": 19683.000000,
++         "caller": "T27",
++         "msg": "example[27]"
++      },{
++         "pri": 28,
++         "time": 21952.000000,
++         "caller": "T28",
++         "msg": "example[28]"
++      },{
++         "pri": 29,
++         "time": 24389.000000,
++         "caller": "T29",
++         "msg": "example[29]"
++      },{
++         "pri": 30,
++         "time": 27000.000000,
++         "caller": "T10",
++         "msg": "example[30]"
++      },{
++         "pri": 31,
++         "time": 29791.000000,
++         "caller": "T31",
++         "msg": "example[31]"
++      },{
++         "pri": 32,
++         "time": 32768.000000,
++         "caller": "T32",
++         "msg": "example[32]"
++      },{
++         "pri": 33,
++         "time": 35937.000000,
++         "caller": "T33",
++         "msg": "example[33]"
++      },{
++         "pri": 34,
++         "time": 39304.000000,
++         "caller": "T34",
++         "msg": "example[34]"
++      },{
++         "pri": 35,
++         "time": 42875.000000,
++         "caller": "T35",
++         "msg": "example[35]"
++      },{
++         "pri": 36,
++         "time": 46656.000000,
++         "caller": "T36",
++         "msg": "example[36]"
++      },{
++         "pri": 37,
++         "time": 50653.000000,
++         "caller": "T37",
++         "msg": "example[37]"
++      },{
++         "pri": 38,
++         "time": 54872.000000,
++         "caller": "T38",
++         "msg": "example[38]"
++      },{
++         "pri": 39,
++         "time": 59319.000000,
++         "caller": "T39",
++         "msg": "example[39]"
++      },{
++         "pri": 40,
++         "time": 64000.000000,
++         "caller": "T40",
++         "msg": "example[40]"
++      },{
++         "pri": 41,
++         "time": 68921.000000,
++         "caller": "T41",
++         "msg": "example[41]"
++      },{
++         "pri": 42,
++         "time": 74088.000000,
++         "caller": "T42",
++         "msg": "example[42]"
++      },{
++         "pri": 43,
++         "time": 79507.000000,
++         "caller": "T43",
++         "msg": "example[43]"
++      },{
++         "pri": 44,
++         "time": 85184.000000,
++         "caller": "T44",
++         "msg": "example[44]"
++      },{
++         "pri": 45,
++         "time": 91125.000000,
++         "caller": "T45",
++         "msg": "example[45]"
++      },{
++         "pri": 46,
++         "time": 97336.000000,
++         "caller": "T46",
++         "msg": "example[46]"
++      },{
++         "pri": 47,
++         "time": 103823.000000,
++         "caller": "T47",
++         "msg": "example[47]"
++      },{
++         "pri": 48,
++         "time": 110592.000000,
++         "caller": "T48",
++         "msg": "example[48]"
++      },{
++         "pri": 49,
++         "time": 117649.000000,
++         "caller": "T49",
++         "msg": "example[49]"
++      },{
++         "pri": 50,
++         "time": 125000.000000,
++         "caller": "T50",
++         "msg": "example[50]"
++      },{
++         "pri": 51,
++         "time": 132651.000000,
++         "caller": "T51",
++         "msg": "example[51]"
++      },{
++         "pri": 52,
++         "time": 140608.000000,
++         "caller": "T52",
++         "msg": "example[52]"
++      },{
++         "pri": 53,
++         "time": 148877.000000,
++         "caller": "T53",
++         "msg": "example[53]"
++      },{
++         "pri": 54,
++         "time": 157464.000000,
++         "caller": "T54",
++         "msg": "example[54]"
++      },{
++         "pri": 55,
++         "time": 166375.000000,
++         "caller": "T55",
++         "msg": "example[55]"
++      },{
++         "pri": 56,
++         "time": 175616.000000,
++         "caller": "T56",
++         "msg": "example[56]"
++      },{
++         "pri": 57,
++         "time": 185193.000000,
++         "caller": "T57",
++         "msg": "example[57]"
++      },{
++         "pri": 58,
++         "time": 195112.000000,
++         "caller": "T58",
++         "msg": "example[58]"
++      },{
++         "pri": 59,
++         "time": 205379.000000,
++         "caller": "T59",
++         "msg": "example[59]"
++      },{
++         "pri": 60,
++         "time": 216000.000000,
++         "caller": "T60",
++         "msg": "example[60]"
++      },{
++         "pri": 61,
++         "time": 226981.000000,
++         "caller": "T61",
++         "msg": "example[61]"
++      },{
++         "pri": 62,
++         "time": 238328.000000,
++         "caller": "T62",
++         "msg": "example[62]"
++      },{
++         "pri": 63,
++         "time": 250047.000000,
++         "caller": "T63",
++         "msg": "example[63]"
++      },{
++         "pri": 64,
++         "time": 262144.000000,
++         "caller": "T64",
++         "msg": "example[64]"
++      },{
++         "pri": 65,
++         "time": 274625.000000,
++         "caller": "T65",
++         "msg": "example[65]"
++      },{
++         "pri": 66,
++         "time": 287496.000000,
++         "caller": "T66",
++         "msg": "example[66]"
++      },{
++         "pri": 67,
++         "time": 300763.000000,
++         "caller": "T67",
++         "msg": "example[67]"
++      },{
++         "pri": 68,
++         "time": 314432.000000,
++         "caller": "T68",
++         "msg": "example[68]"
++      },{
++         "pri": 69,
++         "time": 328509.000000,
++         "caller": "T69",
++         "msg": "example[69]"
++      },{
++         "pri": 70,
++         "time": 343000.000000,
++         "caller": "T70",
++         "msg": "example[70]"
++      },{
++         "pri": 71,
++         "time": 357911.000000,
++         "caller": "T71",
++         "msg": "example[71]"
++      },{
++         "pri": 72,
++         "time": 373248.000000,
++         "caller": "T72",
++         "msg": "example[72]"
++      },{
++         "pri": 73,
++         "time": 389017.000000,
++         "caller": "T73",
++         "msg": "example[73]"
++      },{
++         "pri": 74,
++         "time": 405224.000000,
++         "caller": "T74",
++         "msg": "example[74]"
++      },{
++         "pri": 75,
++         "time": 421875.000000,
++         "caller": "T75",
++         "msg": "example[75]"
++      },{
++         "pri": 76,
++         "time": 438976.000000,
++         "caller": "T76",
++         "msg": "example[76]"
++      },{
++         "pri": 77,
++         "time": 456533.000000,
++         "caller": "T77",
++         "msg": "example[77]"
++      },{
++         "pri": 78,
++         "time": 474552.000000,
++         "caller": "T78",
++         "msg": "example[78]"
++      },{
++         "pri": 79,
++         "time": 493039.000000,
++         "caller": "T79",
++         "msg": "example[79]"
++      },{
++         "pri": 80,
++         "time": 512000.000000,
++         "caller": "T80",
++         "msg": "example[80]"
++      },{
++         "pri": 81,
++         "time": 531441.000000,
++         "caller": "T81",
++         "msg": "example[81]"
++      },{
++         "pri": 82,
++         "time": 551368.000000,
++         "caller": "T82",
++         "msg": "example[82]"
++      },{
++         "pri": 83,
++         "time": 571787.000000,
++         "caller": "T83",
++         "msg": "example[83]"
++      },{
++         "pri": 84,
++         "time": 592704.000000,
++         "caller": "T84",
++         "msg": "example[84]"
++      },{
++         "pri": 85,
++         "time": 614125.000000,
++         "caller": "T85",
++         "msg": "example[85]"
++      },{
++         "pri": 86,
++         "time": 636056.000000,
++         "caller": "T86",
++         "msg": "example[86]"
++      },{
++         "pri": 87,
++         "time": 658503.000000,
++         "caller": "T87",
++         "msg": "example[87]"
++      },{
++         "pri": 88,
++         "time": 681472.000000,
++         "caller": "T88",
++         "msg": "example[88]"
++      },{
++         "pri": 89,
++         "time": 704969.000000,
++         "caller": "T89",
++         "msg": "example[89]"
++      },{
++         "pri": 90,
++         "time": 729000.000000,
++         "caller": "T90",
++         "msg": "example[90]"
++      },{
++         "pri": 91,
++         "time": 753571.000000,
++         "caller": "T91",
++         "msg": "example[91]"
++      },{
++         "pri": 92,
++         "time": 778688.000000,
++         "caller": "T92",
++         "msg": "example[92]"
++      },{
++         "pri": 93,
++         "time": 804357.000000,
++         "caller": "T93",
++         "msg": "example[93]"
++      },{
++         "pri": 94,
++         "time": 830584.000000,
++         "caller": "T94",
++         "msg": "example[94]"
++      },{
++         "pri": 95,
++         "time": 857375.000000,
++         "caller": "T95",
++         "msg": "example[95]"
++      },{
++         "pri": 96,
++         "time": 884736.000000,
++         "caller": "T96",
++         "msg": "example[96]"
++      },{
++         "pri": 97,
++         "time": 912673.000000,
++         "caller": "T97",
++         "msg": "example[97]"
++      },{
++         "pri": 98,
++         "time": 941192.000000,
++         "caller": "T98",
++         "msg": "example[98]"
++      },{
++         "pri": 99,
++         "time": 970299.000000,
++         "caller": "T99",
++         "msg": "example[99]"
++      },{
++         "pri": 100,
++         "time": 1000000.000000,
++         "caller": "T100",
++         "msg": "example[100]"
++      },{
++         "pri": 101,
++         "time": 1030301.000000,
++         "caller": "T101",
++         "msg": "example[101]"
++      },{
++         "pri": 102,
++         "time": 1061208.000000,
++         "caller": "T102",
++         "msg": "example[102]"
++      },{
++         "pri": 103,
++         "time": 1092727.000000,
++         "caller": "T103",
++         "msg": "example[103]"
++      },{
++         "pri": 104,
++         "time": 1124864.000000,
++         "caller": "T104",
++         "msg": "example[104]"
++      },{
++         "pri": 150,
++         "time": 4557523.000000,
++         "caller": "T105",
++         "msg": "example[105]"
++      }
++   ]
++}
+diff --git a/tests/expected/dmesg/cid-kmsg-colors b/tests/expected/dmesg/cid-kmsg-colors
+new file mode 100644
+index 000000000..7d11dae33
+--- /dev/null
++++ b/tests/expected/dmesg/cid-kmsg-colors
+@@ -0,0 +1,45 @@
++kern  :emerg : [32m[    0.000000] [0m[      T1] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
++kern  :alert : [32m[    0.000001] [0m[      T2] [33mCommand line: [0m[7m[31minitrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system[0m
++kern  :crit  : [32m[    0.000002] [0m[      T3] [1m[31mBIOS-provided physical RAM map:[0m
++kern  :err   : [32m[    0.000003] [0m[      T4] [33mBIOS-e820: [0m[31m[mem 0x0000000000000000-0x000000000009efff] usable[0m
++kern  :warn  : [32m[    0.000004] [0m[      T5] [33mBIOS-e820: [0m[1m[mem 0x000000000009f000-0x00000000000bffff] reserved[0m
++kern  :notice: [32m[    0.000005] [0m[      T6] [33mBIOS-e820: [0m[mem 0x0000000000100000-0x0000000009afffff] usable
++kern  :info  : [32m[    0.000006] [0m[      T7] [33mBIOS-e820: [0m[mem 0x0000000009b00000-0x0000000009dfffff] reserved
++kern  :debug : [32m[    0.000007] [0m[      T8] [33mBIOS-e820: [0m[mem 0x0000000009e00000-0x0000000009efffff] usable
++kern  :info  : [32m[    0.000008] [0m[      T9] [33mBIOS-e820: [0m[mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
++kern  :info  : [32m[    0.000009] [0m[     T10] [33mBIOS-e820: [0m[mem 0x0000000009f3c000-0x000000004235ffff] usable
++kern  :info  : [32m[    0.000010] [0m[     T11] [33mBIOS-e820: [0m[mem 0x0000000042360000-0x000000004455ffff] reserved
++kern  :info  : [32m[    0.201607] [0m[     T12] [33msmp: [0mBringing up secondary CPUs ...
++kern  :info  : [32m[    0.201607] [0m[     T13] [33msmpboot: [0mx86: Booting SMP configuration:
++kern  :warn  : [32m[    0.209670] [0m[     T14] [1m  #1  #3  #5  #7[0m
++kern  :info  : [32m[    0.212630] [0m[     T15] [33msmp: [0mBrought up 1 node, 16 CPUs
++kern  :notice: [32m[    0.215936] [0m[     T16] [33maudit: [0mtype=2000 audit(1702926179.015:1): state=initialized audit_enabled=0 res=1
++kern  :info  : [32m[    0.215937] [0m[     T17] [33mthermal_sys: [0mRegistered thermal governor 'fair_share'
++kern  :warn  : [32m[    0.215966] [0m[     T18] [33mENERGY_PERF_BIAS: [0m[1mSet to 'normal', was 'performance'[0m
++kern  :info  : [32m[    0.367657] [0m[     T19] [33mACPI: [0m\_SB_.PCI0.GP19.NHI1.PWRS: New power resource
++kern  :info  : [32m[    0.368615] [0m[     T20] [33mACPI: [0m\_SB_.PCI0.GP19.XHC4.PWRS: New power resource
++kern  :info  : [32m[    0.376316] [0m[     T21] [33mACPI: [0m\_SB_.PRWL: New power resource
++kern  :info  : [32m[    0.376343] [0m[     T22] [33mACPI: [0m\_SB_.PRWB: New power resource
++kern  :info  : [32m[    0.377373] [0m[     T23] [33mACPI: [0mPCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
++kern  :info  : [32m[    0.377378] [0m[     T24] [33macpi PNP0A08:00: [0m_OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
++kern  :info  : [32m[    0.377569] [0m[     T25] [33macpi PNP0A08:00: [0m_OSC: platform does not support [SHPCHotplug AER]
++kern  :info  : [32m[    0.377933] [0m[     T26] [33macpi PNP0A08:00: [0m_OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
++kern  :info  : [32m[    0.378458] [0m[     T27] PCI host bridge to bus 0000:00
++kern  :info  : [32m[    0.378459] [0m[     T28] [33mpci_bus 0000:00: [0mroot bus resource [io  0x0000-0x0cf7 window]
++kern  :info  : [32m[    0.378461] [0m[     T29] [33mpci_bus 0000:00: [0mroot bus resource [io  0x0d00-0xffff window]
++user  :notice: [32m[    9.398562] [0m[     T30] user network daemon initialization complete
++daemon:info  : [32m[   10.441520] [0m[     T31] [33msystemd[1]: [0msystemd 254.7-1.fc39 running in system mode
++daemon:info  : [32m[   11.441524] [0m[     T32] [33msystemd[1]: [0mDetected architecture x86-64.
++daemon:info  : [32m[   12.441525] [0m[     T33] [33msystemd[1]: [0mRunning in initrd.
++daemon:info  : [32m[   13.541598] [0m[     T34] [33msystemd[1]: [0mHostname set to <catalina>.
++kern  :info  : [32m[   15.641860] [0m[     T35] [33musb 3-3: [0mNew USB device found, idVendor=1a40, idProduct=0101, bcdDevice= 1.11
++kern  :err   : [32m[   16.690000] [0m[     T36] [33mSerial bus multi instantiate pseudo device driver INT3515:00: [0m[31merror -ENXIO: IRQ index 1 not found.[0m
++kern  :err   : [32m[   17.710000] [0m[     T37] [33msnd_hda_intel 0000:00:1f.3: [0m[31mCORB reset timeout#2, CORBRP = 65535[0m
++syslog:info  : [32m[   18.820000] [0m[     T38] [33msystemd-journald[723]: [0mReceived client request to flush runtime journal.
++syslog:warn  : [32m[   20.840000] [0m[     T39] [33msystemd-journald[723]: [0m[1mFile /var/log/journal/a124ea923b144109a12d557d5ac53179/system.journal corrupted or uncleanly shut down, renaming and replacing.[0m
++syslog:info  : [32m[   21.852348] [0m[     T40] [33msystemd-journald[723]: [0m/var/log/journal/ad7a2547ac0e4342a342e62a34a3eae4/user-1000.journal: Journal file uses a different sequence number ID, rotating.
++kern  :warn  : [32m[   24.871100] [0m[      41] [33mPEFILE: [0m[1mUnsigned PE binary[0m
++kern  :err   : [32m[   33.918091] [0m[      42] [33msnd_hda_intel 0000:00:1f.3: [0m[31mCORB reset timeout#2, CORBRP = 65535[0m
++kern  :info  : [32m[  144.931785] [0m[      C1] [33musb 3-3.1: [0mdevice firmware changed
++kern  :info  : [32m[  145.953248] [0m[      C2] [33musb 3-3.1: [0mUSB disconnect, device number 44
++kern  :info  : [32m[  147.981859] [0m[      C3] [33musb 3-3.1: [0mNew USB device found, idVendor=17ef, idProduct=6047, bcdDevice= 3.30
+diff --git a/tests/expected/dmesg/cid-kmsg-console-levels b/tests/expected/dmesg/cid-kmsg-console-levels
+new file mode 100644
+index 000000000..59c343108
+--- /dev/null
++++ b/tests/expected/dmesg/cid-kmsg-console-levels
+@@ -0,0 +1,97 @@
++[    0.000000] [      T1] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
++[    0.000001] [      T2] Command line: initrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system
++[    0.000002] [      T3] BIOS-provided physical RAM map:
++[    0.000003] [      T4] BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable
++[   16.690000] [     T36] Serial bus multi instantiate pseudo device driver INT3515:00: error -ENXIO: IRQ index 1 not found.
++[   17.710000] [     T37] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++[   33.918091] [      42] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++[    0.000004] [      T5] BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved
++[    0.209670] [     T14]   #1  #3  #5  #7
++[    0.215966] [     T18] ENERGY_PERF_BIAS: Set to 'normal', was 'performance'
++[   20.840000] [     T39] systemd-journald[723]: File /var/log/journal/a124ea923b144109a12d557d5ac53179/system.journal corrupted or uncleanly shut down, renaming and replacing.
++[   24.871100] [      41] PEFILE: Unsigned PE binary
++[    0.000005] [      T6] BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable
++[    0.215936] [     T16] audit: type=2000 audit(1702926179.015:1): state=initialized audit_enabled=0 res=1
++[    9.398562] [     T30] user network daemon initialization complete
++[    0.000006] [      T7] BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved
++[    0.000008] [      T9] BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
++[    0.000009] [     T10] BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable
++[    0.000010] [     T11] BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved
++[    0.201607] [     T12] smp: Bringing up secondary CPUs ...
++[    0.201607] [     T13] smpboot: x86: Booting SMP configuration:
++[    0.212630] [     T15] smp: Brought up 1 node, 16 CPUs
++[    0.215937] [     T17] thermal_sys: Registered thermal governor 'fair_share'
++[    0.367657] [     T19] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
++[    0.368615] [     T20] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
++[    0.376316] [     T21] ACPI: \_SB_.PRWL: New power resource
++[    0.376343] [     T22] ACPI: \_SB_.PRWB: New power resource
++[    0.377373] [     T23] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
++[    0.377378] [     T24] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
++[    0.377569] [     T25] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
++[    0.377933] [     T26] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
++[    0.378458] [     T27] PCI host bridge to bus 0000:00
++[    0.378459] [     T28] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
++[    0.378461] [     T29] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
++[   10.441520] [     T31] systemd[1]: systemd 254.7-1.fc39 running in system mode
++[   11.441524] [     T32] systemd[1]: Detected architecture x86-64.
++[   12.441525] [     T33] systemd[1]: Running in initrd.
++[   13.541598] [     T34] systemd[1]: Hostname set to <catalina>.
++[   15.641860] [     T35] usb 3-3: New USB device found, idVendor=1a40, idProduct=0101, bcdDevice= 1.11
++[   18.820000] [     T38] systemd-journald[723]: Received client request to flush runtime journal.
++[   21.852348] [     T40] systemd-journald[723]: /var/log/journal/ad7a2547ac0e4342a342e62a34a3eae4/user-1000.journal: Journal file uses a different sequence number ID, rotating.
++[  144.931785] [      C1] usb 3-3.1: device firmware changed
++[  145.953248] [      C2] usb 3-3.1: USB disconnect, device number 44
++[  147.981859] [      C3] usb 3-3.1: New USB device found, idVendor=17ef, idProduct=6047, bcdDevice= 3.30
++[    0.000007] [      T8] BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable
++[    0.000000] [      T1] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
++[    0.000001] [      T2] Command line: initrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system
++[    0.000002] [      T3] BIOS-provided physical RAM map:
++[    0.000003] [      T4] BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable
++[   16.690000] [     T36] Serial bus multi instantiate pseudo device driver INT3515:00: error -ENXIO: IRQ index 1 not found.
++[   17.710000] [     T37] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++[   33.918091] [      42] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++[    0.000000] [      T1] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
++[    0.000003] [      T4] BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable
++[    0.000004] [      T5] BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved
++[    0.000005] [      T6] BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable
++[    0.000006] [      T7] BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved
++[    0.000007] [      T8] BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable
++[    0.000008] [      T9] BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
++[    0.000009] [     T10] BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable
++[    0.000010] [     T11] BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved
++[    0.201607] [     T12] smp: Bringing up secondary CPUs ...
++[    0.201607] [     T13] smpboot: x86: Booting SMP configuration:
++[    0.209670] [     T14]   #1  #3  #5  #7
++[    0.212630] [     T15] smp: Brought up 1 node, 16 CPUs
++[    0.215936] [     T16] audit: type=2000 audit(1702926179.015:1): state=initialized audit_enabled=0 res=1
++[    0.215937] [     T17] thermal_sys: Registered thermal governor 'fair_share'
++[    0.215966] [     T18] ENERGY_PERF_BIAS: Set to 'normal', was 'performance'
++[    0.367657] [     T19] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
++[    0.368615] [     T20] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
++[    0.376316] [     T21] ACPI: \_SB_.PRWL: New power resource
++[    0.376343] [     T22] ACPI: \_SB_.PRWB: New power resource
++[    0.377373] [     T23] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
++[    0.377378] [     T24] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
++[    0.377569] [     T25] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
++[    0.377933] [     T26] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
++[    0.378458] [     T27] PCI host bridge to bus 0000:00
++[    0.378459] [     T28] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
++[    0.378461] [     T29] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
++[    9.398562] [     T30] user network daemon initialization complete
++[   10.441520] [     T31] systemd[1]: systemd 254.7-1.fc39 running in system mode
++[   11.441524] [     T32] systemd[1]: Detected architecture x86-64.
++[   12.441525] [     T33] systemd[1]: Running in initrd.
++[   13.541598] [     T34] systemd[1]: Hostname set to <catalina>.
++[   15.641860] [     T35] usb 3-3: New USB device found, idVendor=1a40, idProduct=0101, bcdDevice= 1.11
++[   16.690000] [     T36] Serial bus multi instantiate pseudo device driver INT3515:00: error -ENXIO: IRQ index 1 not found.
++[   17.710000] [     T37] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++[   18.820000] [     T38] systemd-journald[723]: Received client request to flush runtime journal.
++[   20.840000] [     T39] systemd-journald[723]: File /var/log/journal/a124ea923b144109a12d557d5ac53179/system.journal corrupted or uncleanly shut down, renaming and replacing.
++[   21.852348] [     T40] systemd-journald[723]: /var/log/journal/ad7a2547ac0e4342a342e62a34a3eae4/user-1000.journal: Journal file uses a different sequence number ID, rotating.
++[   24.871100] [      41] PEFILE: Unsigned PE binary
++[   33.918091] [      42] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++[  144.931785] [      C1] usb 3-3.1: device firmware changed
++[  145.953248] [      C2] usb 3-3.1: USB disconnect, device number 44
++[  147.981859] [      C3] usb 3-3.1: New USB device found, idVendor=17ef, idProduct=6047, bcdDevice= 3.30
++[    0.000007] [      T8] BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable
++test_dmesg: unknown level '+'
+diff --git a/tests/expected/dmesg/cid-kmsg-decode b/tests/expected/dmesg/cid-kmsg-decode
+new file mode 100644
+index 000000000..f9cdab620
+--- /dev/null
++++ b/tests/expected/dmesg/cid-kmsg-decode
+@@ -0,0 +1,45 @@
++kern  :emerg : [    0.000000] [      T1] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
++kern  :alert : [    0.000001] [      T2] Command line: initrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system
++kern  :crit  : [    0.000002] [      T3] BIOS-provided physical RAM map:
++kern  :err   : [    0.000003] [      T4] BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable
++kern  :warn  : [    0.000004] [      T5] BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved
++kern  :notice: [    0.000005] [      T6] BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable
++kern  :info  : [    0.000006] [      T7] BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved
++kern  :debug : [    0.000007] [      T8] BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable
++kern  :info  : [    0.000008] [      T9] BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
++kern  :info  : [    0.000009] [     T10] BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable
++kern  :info  : [    0.000010] [     T11] BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved
++kern  :info  : [    0.201607] [     T12] smp: Bringing up secondary CPUs ...
++kern  :info  : [    0.201607] [     T13] smpboot: x86: Booting SMP configuration:
++kern  :warn  : [    0.209670] [     T14]   #1  #3  #5  #7
++kern  :info  : [    0.212630] [     T15] smp: Brought up 1 node, 16 CPUs
++kern  :notice: [    0.215936] [     T16] audit: type=2000 audit(1702926179.015:1): state=initialized audit_enabled=0 res=1
++kern  :info  : [    0.215937] [     T17] thermal_sys: Registered thermal governor 'fair_share'
++kern  :warn  : [    0.215966] [     T18] ENERGY_PERF_BIAS: Set to 'normal', was 'performance'
++kern  :info  : [    0.367657] [     T19] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
++kern  :info  : [    0.368615] [     T20] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
++kern  :info  : [    0.376316] [     T21] ACPI: \_SB_.PRWL: New power resource
++kern  :info  : [    0.376343] [     T22] ACPI: \_SB_.PRWB: New power resource
++kern  :info  : [    0.377373] [     T23] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
++kern  :info  : [    0.377378] [     T24] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
++kern  :info  : [    0.377569] [     T25] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
++kern  :info  : [    0.377933] [     T26] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
++kern  :info  : [    0.378458] [     T27] PCI host bridge to bus 0000:00
++kern  :info  : [    0.378459] [     T28] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
++kern  :info  : [    0.378461] [     T29] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
++user  :notice: [    9.398562] [     T30] user network daemon initialization complete
++daemon:info  : [   10.441520] [     T31] systemd[1]: systemd 254.7-1.fc39 running in system mode
++daemon:info  : [   11.441524] [     T32] systemd[1]: Detected architecture x86-64.
++daemon:info  : [   12.441525] [     T33] systemd[1]: Running in initrd.
++daemon:info  : [   13.541598] [     T34] systemd[1]: Hostname set to <catalina>.
++kern  :info  : [   15.641860] [     T35] usb 3-3: New USB device found, idVendor=1a40, idProduct=0101, bcdDevice= 1.11
++kern  :err   : [   16.690000] [     T36] Serial bus multi instantiate pseudo device driver INT3515:00: error -ENXIO: IRQ index 1 not found.
++kern  :err   : [   17.710000] [     T37] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++syslog:info  : [   18.820000] [     T38] systemd-journald[723]: Received client request to flush runtime journal.
++syslog:warn  : [   20.840000] [     T39] systemd-journald[723]: File /var/log/journal/a124ea923b144109a12d557d5ac53179/system.journal corrupted or uncleanly shut down, renaming and replacing.
++syslog:info  : [   21.852348] [     T40] systemd-journald[723]: /var/log/journal/ad7a2547ac0e4342a342e62a34a3eae4/user-1000.journal: Journal file uses a different sequence number ID, rotating.
++kern  :warn  : [   24.871100] [      41] PEFILE: Unsigned PE binary
++kern  :err   : [   33.918091] [      42] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++kern  :info  : [  144.931785] [      C1] usb 3-3.1: device firmware changed
++kern  :info  : [  145.953248] [      C2] usb 3-3.1: USB disconnect, device number 44
++kern  :info  : [  147.981859] [      C3] usb 3-3.1: New USB device found, idVendor=17ef, idProduct=6047, bcdDevice= 3.30
+diff --git a/tests/expected/dmesg/cid-kmsg-delta b/tests/expected/dmesg/cid-kmsg-delta
+new file mode 100644
+index 000000000..25f6fb5e2
+--- /dev/null
++++ b/tests/expected/dmesg/cid-kmsg-delta
+@@ -0,0 +1,45 @@
++[    0.000000 <    0.000000>] [      T1] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
++[    0.000001 <    0.000000>] [      T2] Command line: initrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system
++[    0.000002 <    0.000000>] [      T3] BIOS-provided physical RAM map:
++[    0.000003 <    0.000000>] [      T4] BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable
++[    0.000004 <    0.000000>] [      T5] BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved
++[    0.000005 <    0.000000>] [      T6] BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable
++[    0.000006 <    0.000000>] [      T7] BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved
++[    0.000007 <    0.000000>] [      T8] BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable
++[    0.000008 <    0.000000>] [      T9] BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
++[    0.000009 <    0.000000>] [     T10] BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable
++[    0.000010 <    0.000000>] [     T11] BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved
++[    0.201607 <    0.000000>] [     T12] smp: Bringing up secondary CPUs ...
++[    0.201607 <    0.000000>] [     T13] smpboot: x86: Booting SMP configuration:
++[    0.209670 <    0.000000>] [     T14]   #1  #3  #5  #7
++[    0.212630 <    0.000000>] [     T15] smp: Brought up 1 node, 16 CPUs
++[    0.215936 <    0.000000>] [     T16] audit: type=2000 audit(1702926179.015:1): state=initialized audit_enabled=0 res=1
++[    0.215937 <    0.000000>] [     T17] thermal_sys: Registered thermal governor 'fair_share'
++[    0.215966 <    0.000000>] [     T18] ENERGY_PERF_BIAS: Set to 'normal', was 'performance'
++[    0.367657 <    0.000000>] [     T19] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
++[    0.368615 <    0.000000>] [     T20] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
++[    0.376316 <    0.000000>] [     T21] ACPI: \_SB_.PRWL: New power resource
++[    0.376343 <    0.000000>] [     T22] ACPI: \_SB_.PRWB: New power resource
++[    0.377373 <    0.000000>] [     T23] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
++[    0.377378 <    0.000000>] [     T24] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
++[    0.377569 <    0.000000>] [     T25] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
++[    0.377933 <    0.000000>] [     T26] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
++[    0.378458 <    0.000000>] [     T27] PCI host bridge to bus 0000:00
++[    0.378459 <    0.000000>] [     T28] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
++[    0.378461 <    0.000000>] [     T29] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
++[    9.398562 <    9.000000>] [     T30] user network daemon initialization complete
++[   10.441520 <    1.000000>] [     T31] systemd[1]: systemd 254.7-1.fc39 running in system mode
++[   11.441524 <    1.000000>] [     T32] systemd[1]: Detected architecture x86-64.
++[   12.441525 <    1.000000>] [     T33] systemd[1]: Running in initrd.
++[   13.541598 <    1.000000>] [     T34] systemd[1]: Hostname set to <catalina>.
++[   15.641860 <    2.000000>] [     T35] usb 3-3: New USB device found, idVendor=1a40, idProduct=0101, bcdDevice= 1.11
++[   16.690000 <    1.000000>] [     T36] Serial bus multi instantiate pseudo device driver INT3515:00: error -ENXIO: IRQ index 1 not found.
++[   17.710000 <    1.000000>] [     T37] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++[   18.820000 <    1.000000>] [     T38] systemd-journald[723]: Received client request to flush runtime journal.
++[   20.840000 <    2.000000>] [     T39] systemd-journald[723]: File /var/log/journal/a124ea923b144109a12d557d5ac53179/system.journal corrupted or uncleanly shut down, renaming and replacing.
++[   21.852348 <    1.000000>] [     T40] systemd-journald[723]: /var/log/journal/ad7a2547ac0e4342a342e62a34a3eae4/user-1000.journal: Journal file uses a different sequence number ID, rotating.
++[   24.871100 <    3.000000>] [      41] PEFILE: Unsigned PE binary
++[   33.918091 <    9.000000>] [      42] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++[  144.931785 <  111.000000>] [      C1] usb 3-3.1: device firmware changed
++[  145.953248 <    1.000000>] [      C2] usb 3-3.1: USB disconnect, device number 44
++[  147.981859 <    2.000000>] [      C3] usb 3-3.1: New USB device found, idVendor=17ef, idProduct=6047, bcdDevice= 3.30
+diff --git a/tests/expected/dmesg/cid-kmsg-facilities b/tests/expected/dmesg/cid-kmsg-facilities
+new file mode 100644
+index 000000000..118bd2449
+--- /dev/null
++++ b/tests/expected/dmesg/cid-kmsg-facilities
+@@ -0,0 +1,45 @@
++kern  :emerg : [    0.000000] [      T1] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
++kern  :alert : [    0.000001] [      T2] Command line: initrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system
++kern  :crit  : [    0.000002] [      T3] BIOS-provided physical RAM map:
++kern  :err   : [    0.000003] [      T4] BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable
++kern  :warn  : [    0.000004] [      T5] BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved
++kern  :notice: [    0.000005] [      T6] BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable
++kern  :info  : [    0.000006] [      T7] BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved
++kern  :debug : [    0.000007] [      T8] BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable
++kern  :info  : [    0.000008] [      T9] BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
++kern  :info  : [    0.000009] [     T10] BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable
++kern  :info  : [    0.000010] [     T11] BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved
++kern  :info  : [    0.201607] [     T12] smp: Bringing up secondary CPUs ...
++kern  :info  : [    0.201607] [     T13] smpboot: x86: Booting SMP configuration:
++kern  :warn  : [    0.209670] [     T14]   #1  #3  #5  #7
++kern  :info  : [    0.212630] [     T15] smp: Brought up 1 node, 16 CPUs
++kern  :notice: [    0.215936] [     T16] audit: type=2000 audit(1702926179.015:1): state=initialized audit_enabled=0 res=1
++kern  :info  : [    0.215937] [     T17] thermal_sys: Registered thermal governor 'fair_share'
++kern  :warn  : [    0.215966] [     T18] ENERGY_PERF_BIAS: Set to 'normal', was 'performance'
++kern  :info  : [    0.367657] [     T19] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
++kern  :info  : [    0.368615] [     T20] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
++kern  :info  : [    0.376316] [     T21] ACPI: \_SB_.PRWL: New power resource
++kern  :info  : [    0.376343] [     T22] ACPI: \_SB_.PRWB: New power resource
++kern  :info  : [    0.377373] [     T23] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
++kern  :info  : [    0.377378] [     T24] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
++kern  :info  : [    0.377569] [     T25] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
++kern  :info  : [    0.377933] [     T26] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
++kern  :info  : [    0.378458] [     T27] PCI host bridge to bus 0000:00
++kern  :info  : [    0.378459] [     T28] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
++kern  :info  : [    0.378461] [     T29] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
++kern  :info  : [   15.641860] [     T35] usb 3-3: New USB device found, idVendor=1a40, idProduct=0101, bcdDevice= 1.11
++kern  :err   : [   16.690000] [     T36] Serial bus multi instantiate pseudo device driver INT3515:00: error -ENXIO: IRQ index 1 not found.
++kern  :err   : [   17.710000] [     T37] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++kern  :warn  : [   24.871100] [      41] PEFILE: Unsigned PE binary
++kern  :err   : [   33.918091] [      42] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++kern  :info  : [  144.931785] [      C1] usb 3-3.1: device firmware changed
++kern  :info  : [  145.953248] [      C2] usb 3-3.1: USB disconnect, device number 44
++kern  :info  : [  147.981859] [      C3] usb 3-3.1: New USB device found, idVendor=17ef, idProduct=6047, bcdDevice= 3.30
++user  :notice: [    9.398562] [     T30] user network daemon initialization complete
++daemon:info  : [   10.441520] [     T31] systemd[1]: systemd 254.7-1.fc39 running in system mode
++daemon:info  : [   11.441524] [     T32] systemd[1]: Detected architecture x86-64.
++daemon:info  : [   12.441525] [     T33] systemd[1]: Running in initrd.
++daemon:info  : [   13.541598] [     T34] systemd[1]: Hostname set to <catalina>.
++syslog:info  : [   18.820000] [     T38] systemd-journald[723]: Received client request to flush runtime journal.
++syslog:warn  : [   20.840000] [     T39] systemd-journald[723]: File /var/log/journal/a124ea923b144109a12d557d5ac53179/system.journal corrupted or uncleanly shut down, renaming and replacing.
++syslog:info  : [   21.852348] [     T40] systemd-journald[723]: /var/log/journal/ad7a2547ac0e4342a342e62a34a3eae4/user-1000.journal: Journal file uses a different sequence number ID, rotating.
+diff --git a/tests/expected/dmesg/cid-kmsg-indentation b/tests/expected/dmesg/cid-kmsg-indentation
+new file mode 100644
+index 000000000..fe03a0e1e
+--- /dev/null
++++ b/tests/expected/dmesg/cid-kmsg-indentation
+@@ -0,0 +1,28 @@
++[    0.000000] [      T0] line zero
++[    1.000000] [      T1] new
++[    2.000000] [      T2] two
++[    3.000000] [      T3] three
++[    0.000000] [      T0] line zero
++[    1.000000] [      T1] new
++[    2.000000] [      T2] two
++[    3.000000] [      T3] three
++[<    0.000000>] [      T0] line zero
++[<    0.000000>] [      T1] new
++[<    1.000000>] [      T2] two
++[<    1.000000>] [      T3] three
++[      T0] line zero
++[      T1] new
++[      T2] two
++[      T3] three
++[Feb13 23:31] [      T0] line zero
++[  +0.000000] [      T1] new
++[  +1.000000] [      T2] two
++[  +1.000000] [      T3] three
++[Fri Feb 13 23:31:30 2009] [      T0] line zero
++[Fri Feb 13 23:31:31 2009] [      T1] new
++[Fri Feb 13 23:31:32 2009] [      T2] two
++[Fri Feb 13 23:31:33 2009] [      T3] three
++2009-02-13T23:31:30,123456+00:00 [      T0] line zero
++2009-02-13T23:31:31,123456+00:00 [      T1] new
++2009-02-13T23:31:32,123456+00:00 [      T2] two
++2009-02-13T23:31:33,123456+00:00 [      T3] three
+diff --git a/tests/expected/dmesg/cid-kmsg-json b/tests/expected/dmesg/cid-kmsg-json
+new file mode 100644
+index 000000000..578efd720
+--- /dev/null
++++ b/tests/expected/dmesg/cid-kmsg-json
+@@ -0,0 +1,230 @@
++{
++   "dmesg": [
++      {
++         "pri": 0,
++         "time":     0.000000,
++         "caller": "T1",
++         "msg": "Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000"
++      },{
++         "pri": 1,
++         "time":     0.000001,
++         "caller": "T2",
++         "msg": "Command line: initrd=\\ucode.img initrd=\\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system"
++      },{
++         "pri": 2,
++         "time":     0.000002,
++         "caller": "T3",
++         "msg": "BIOS-provided physical RAM map:"
++      },{
++         "pri": 3,
++         "time":     0.000003,
++         "caller": "T4",
++         "msg": "BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable"
++      },{
++         "pri": 4,
++         "time":     0.000004,
++         "caller": "T5",
++         "msg": "BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved"
++      },{
++         "pri": 5,
++         "time":     0.000005,
++         "caller": "T6",
++         "msg": "BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable"
++      },{
++         "pri": 6,
++         "time":     0.000006,
++         "caller": "T7",
++         "msg": "BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved"
++      },{
++         "pri": 7,
++         "time":     0.000007,
++         "caller": "T8",
++         "msg": "BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable"
++      },{
++         "pri": 6,
++         "time":     0.000008,
++         "caller": "T9",
++         "msg": "BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS"
++      },{
++         "pri": 6,
++         "time":     0.000009,
++         "caller": "T10",
++         "msg": "BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable"
++      },{
++         "pri": 6,
++         "time":     0.000010,
++         "caller": "T11",
++         "msg": "BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved"
++      },{
++         "pri": 6,
++         "time":     0.201607,
++         "caller": "T12",
++         "msg": "smp: Bringing up secondary CPUs ..."
++      },{
++         "pri": 6,
++         "time":     0.201607,
++         "caller": "T13",
++         "msg": "smpboot: x86: Booting SMP configuration:"
++      },{
++         "pri": 4,
++         "time":     0.209670,
++         "caller": "T14",
++         "msg": "  #1  #3  #5  #7"
++      },{
++         "pri": 6,
++         "time":     0.212630,
++         "caller": "T15",
++         "msg": "smp: Brought up 1 node, 16 CPUs"
++      },{
++         "pri": 5,
++         "time":     0.215936,
++         "caller": "T16",
++         "msg": "audit: type=2000 audit(1702926179.015:1): state=initialized audit_enabled=0 res=1"
++      },{
++         "pri": 6,
++         "time":     0.215937,
++         "caller": "T17",
++         "msg": "thermal_sys: Registered thermal governor 'fair_share'"
++      },{
++         "pri": 4,
++         "time":     0.215966,
++         "caller": "T18",
++         "msg": "ENERGY_PERF_BIAS: Set to 'normal', was 'performance'"
++      },{
++         "pri": 6,
++         "time":     0.367657,
++         "caller": "T19",
++         "msg": "ACPI: \\_SB_.PCI0.GP19.NHI1.PWRS: New power resource"
++      },{
++         "pri": 6,
++         "time":     0.368615,
++         "caller": "T20",
++         "msg": "ACPI: \\_SB_.PCI0.GP19.XHC4.PWRS: New power resource"
++      },{
++         "pri": 6,
++         "time":     0.376316,
++         "caller": "T21",
++         "msg": "ACPI: \\_SB_.PRWL: New power resource"
++      },{
++         "pri": 6,
++         "time":     0.376343,
++         "caller": "T22",
++         "msg": "ACPI: \\_SB_.PRWB: New power resource"
++      },{
++         "pri": 6,
++         "time":     0.377373,
++         "caller": "T23",
++         "msg": "ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])"
++      },{
++         "pri": 6,
++         "time":     0.377378,
++         "caller": "T24",
++         "msg": "acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]"
++      },{
++         "pri": 6,
++         "time":     0.377569,
++         "caller": "T25",
++         "msg": "acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]"
++      },{
++         "pri": 6,
++         "time":     0.377933,
++         "caller": "T26",
++         "msg": "acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]"
++      },{
++         "pri": 6,
++         "time":     0.378458,
++         "caller": "T27",
++         "msg": "PCI host bridge to bus 0000:00"
++      },{
++         "pri": 6,
++         "time":     0.378459,
++         "caller": "T28",
++         "msg": "pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]"
++      },{
++         "pri": 6,
++         "time":     0.378461,
++         "caller": "T29",
++         "msg": "pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]"
++      },{
++         "pri": 13,
++         "time":     9.398562,
++         "caller": "T30",
++         "msg": "user network daemon initialization complete"
++      },{
++         "pri": 30,
++         "time":    10.441520,
++         "caller": "T31",
++         "msg": "systemd[1]: systemd 254.7-1.fc39 running in system mode"
++      },{
++         "pri": 30,
++         "time":    11.441524,
++         "caller": "T32",
++         "msg": "systemd[1]: Detected architecture x86-64."
++      },{
++         "pri": 30,
++         "time":    12.441525,
++         "caller": "T33",
++         "msg": "systemd[1]: Running in initrd."
++      },{
++         "pri": 30,
++         "time":    13.541598,
++         "caller": "T34",
++         "msg": "systemd[1]: Hostname set to <catalina>."
++      },{
++         "pri": 6,
++         "time":    15.641860,
++         "caller": "T35",
++         "msg": "usb 3-3: New USB device found, idVendor=1a40, idProduct=0101, bcdDevice= 1.11"
++      },{
++         "pri": 3,
++         "time":    16.690000,
++         "caller": "T36",
++         "msg": "Serial bus multi instantiate pseudo device driver INT3515:00: error -ENXIO: IRQ index 1 not found."
++      },{
++         "pri": 3,
++         "time":    17.710000,
++         "caller": "T37",
++         "msg": "snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535"
++      },{
++         "pri": 46,
++         "time":    18.820000,
++         "caller": "T38",
++         "msg": "systemd-journald[723]: Received client request to flush runtime journal."
++      },{
++         "pri": 44,
++         "time":    20.840000,
++         "caller": "T39",
++         "msg": "systemd-journald[723]: File /var/log/journal/a124ea923b144109a12d557d5ac53179/system.journal corrupted or uncleanly shut down, renaming and replacing."
++      },{
++         "pri": 46,
++         "time":    21.852348,
++         "caller": "T40",
++         "msg": "systemd-journald[723]: /var/log/journal/ad7a2547ac0e4342a342e62a34a3eae4/user-1000.journal: Journal file uses a different sequence number ID, rotating."
++      },{
++         "pri": 4,
++         "time":    24.871100,
++         "caller": "41",
++         "msg": "PEFILE: Unsigned PE binary"
++      },{
++         "pri": 3,
++         "time":    33.918091,
++         "caller": "42",
++         "msg": "snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535"
++      },{
++         "pri": 6,
++         "time":   144.931785,
++         "caller": "C1",
++         "msg": "usb 3-3.1: device firmware changed"
++      },{
++         "pri": 6,
++         "time":   145.953248,
++         "caller": "C2",
++         "msg": "usb 3-3.1: USB disconnect, device number 44"
++      },{
++         "pri": 6,
++         "time":   147.981859,
++         "caller": "C3",
++         "msg": "usb 3-3.1: New USB device found, idVendor=17ef, idProduct=6047, bcdDevice= 3.30"
++      }
++   ]
++}
+diff --git a/tests/expected/dmesg/cid-kmsg-limit b/tests/expected/dmesg/cid-kmsg-limit
+new file mode 100644
+index 000000000..8db1c9a65
+--- /dev/null
++++ b/tests/expected/dmesg/cid-kmsg-limit
+@@ -0,0 +1,31 @@
++[    0.201607] [     T12] smp: Bringing up secondary CPUs ...
++[    0.201607] [     T13] smpboot: x86: Booting SMP configuration:
++[    0.209670] [     T14]   #1  #3  #5  #7
++[    0.212630] [     T15] smp: Brought up 1 node, 16 CPUs
++[    0.215936] [     T16] audit: type=2000 audit(1702926179.015:1): state=initialized audit_enabled=0 res=1
++[    0.215937] [     T17] thermal_sys: Registered thermal governor 'fair_share'
++[    0.215966] [     T18] ENERGY_PERF_BIAS: Set to 'normal', was 'performance'
++[    0.367657] [     T19] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
++[    0.368615] [     T20] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
++[    0.376316] [     T21] ACPI: \_SB_.PRWL: New power resource
++[    0.376343] [     T22] ACPI: \_SB_.PRWB: New power resource
++[    0.377373] [     T23] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
++[    0.377378] [     T24] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
++[    0.377569] [     T25] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
++[    0.377933] [     T26] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
++[    0.378458] [     T27] PCI host bridge to bus 0000:00
++[    0.378459] [     T28] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
++[    0.378461] [     T29] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
++[    9.398562] [     T30] user network daemon initialization complete
++[   10.441520] [     T31] systemd[1]: systemd 254.7-1.fc39 running in system mode
++[   11.441524] [     T32] systemd[1]: Detected architecture x86-64.
++[   12.441525] [     T33] systemd[1]: Running in initrd.
++[   13.541598] [     T34] systemd[1]: Hostname set to <catalina>.
++[   15.641860] [     T35] usb 3-3: New USB device found, idVendor=1a40, idProduct=0101, bcdDevice= 1.11
++[   16.690000] [     T36] Serial bus multi instantiate pseudo device driver INT3515:00: error -ENXIO: IRQ index 1 not found.
++[   17.710000] [     T37] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++[   18.820000] [     T38] systemd-journald[723]: Received client request to flush runtime journal.
++[   20.840000] [     T39] systemd-journald[723]: File /var/log/journal/a124ea923b144109a12d557d5ac53179/system.journal corrupted or uncleanly shut down, renaming and replacing.
++[   21.852348] [     T40] systemd-journald[723]: /var/log/journal/ad7a2547ac0e4342a342e62a34a3eae4/user-1000.journal: Journal file uses a different sequence number ID, rotating.
++[   24.871100] [      41] PEFILE: Unsigned PE binary
++[   33.918091] [      42] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
 diff --git a/tests/expected/dmesg/kmsg-file b/tests/expected/dmesg/kmsg-file
 index 54b5e612d..984588e3e 100644
 --- a/tests/expected/dmesg/kmsg-file
