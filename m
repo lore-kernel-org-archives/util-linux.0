@@ -1,114 +1,162 @@
-Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50F1F1C280
-	for <util-linux@vger.kernel.org>; Wed,  3 Jan 2024 14:51:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45A71224D9
+	for <util-linux@vger.kernel.org>; Thu,  4 Jan 2024 12:12:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hCOO7eRS"
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-556cd81163fso710405a12.1
-        for <util-linux@vger.kernel.org>; Wed, 03 Jan 2024 06:51:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1704293512; x=1704898312; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Avwe/fc9stIhe1UuWWulD2jVq1Lbt8eqJQjorIXTeuU=;
-        b=hCOO7eRSpROH9EHkI6Xr4sZI7yO+T3wkd59mBC+jkKjo9HFTyk2frofV8NkrnvC5IR
-         iTIjW9Ns9YDXPujmbH5lU40ttmPJpKgGQeN3As5YxTQi2wX8q78mRSnB192G7Z/0x4dG
-         DHQQyOPo4FLaR+44aFB31OWaW6/K63azo9tg+IdygWDX3Vnqj3G2C+379lZx9bO4dZq+
-         WZhtWMsLOF/2spqPhH+heAQ8IeBQa7P0Rh8tYd4LzpcC6ACLFyufXaJPqkHasJws7wuD
-         TjxTpIYYMJNxcsBDh11+QfWktKhbdp3jl8+qSkAUFfzE3BEgZGdnixQeGQoB9litkKkN
-         IDfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704293512; x=1704898312;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Avwe/fc9stIhe1UuWWulD2jVq1Lbt8eqJQjorIXTeuU=;
-        b=WIqcaCngfzZtzhYR+0lSWd04mAelkxmkJ8SFvhAeC68ExsRlhhxp3/T4d/b+Jqov1/
-         WodcrTX9r5vuDBhngLjIN1ajWEaNDV/mfmshHLLz/Q1hT/y7BNROm3PdZTnKa5bHYlSi
-         mrEK219T0xepwuIrDxsw3ba3YDvApq7+UP1tQSTn9SU1wNDON/mfrkwoSHjS3lUKYVRi
-         +uUsHBafCQTsgzdQmgVxRx6UH7CniGCAtLn4MAgNA7Vhdpz8UivVKhgxN9EpI4PiFmVH
-         i8dBx7fHJR5DrpbipaEWZXu6MlnLXgEF3BOddcmJGbEaXJbRtSSi60MQyge4M8rr7Snz
-         0wvg==
-X-Gm-Message-State: AOJu0YxaDoKoH5dQ7sKtLo1glI7Wx/1rJnrS9LY6z5m6i0VEagn5uvcr
-	cKHNrdBd0N7eZgnkE3YP95tCGkvlecjkJMTtXek=
-X-Google-Smtp-Source: AGHT+IEQOa+LOLDqhH1oxchzWnYY7CWOrdLA7H8z/MseWaKue2vMq542kFQBdhLkF/Lho3syM5n+QO4NGKT89xJMDtw=
-X-Received: by 2002:a17:907:592:b0:a28:ad3f:73e8 with SMTP id
- vw18-20020a170907059200b00a28ad3f73e8mr174329ejb.30.1704293512084; Wed, 03
- Jan 2024 06:51:52 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JQ/EVk/v"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1704370355;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ZQsAghu4ztpGgEyQ1bEPbcIL5DFz/FO9ToMtyz2dvxk=;
+	b=JQ/EVk/vP+GIuDGsKA9zBgiDO5oK8bcN/ZkuvWCzg0CqLsmOCrj1EH8YG5Hei1H9EuWnB7
+	2VeVB4e60A3hSAeddpV0m8TXKceYeGxYTkutpK8NzIfrBHITbBrWoioMDIx2ueGhCl7sRm
+	bD6xt7HOlnLpUpEighLMV6NkIpBDLZk=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-508-Jnt2ZuNuOaq69vDwvYZzig-1; Thu,
+ 04 Jan 2024 07:12:33 -0500
+X-MC-Unique: Jnt2ZuNuOaq69vDwvYZzig-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4946B3C23FC3;
+	Thu,  4 Jan 2024 12:12:33 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.224.74])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id CA2D7492BE6;
+	Thu,  4 Jan 2024 12:12:32 +0000 (UTC)
+Date: Thu, 4 Jan 2024 13:12:30 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Michael Trapp <michael.trapp@sap.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] uuidd: add cont_clock persistence
+Message-ID: <20240104121230.3bi7nt52tb3fu6ww@ws.net.home>
+References: <20231215221829.46932-1-michael.trapp@sap.com>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231231183336.18934-1-echron@arista.com> <20240102115815.av7ges3f47m6bciq@ws.net.home>
-In-Reply-To: <20240102115815.av7ges3f47m6bciq@ws.net.home>
-From: Edward Chron <echron@gmail.com>
-Date: Wed, 3 Jan 2024 06:51:41 -0800
-Message-ID: <CAFbqbibqO9wNc1JgaQ6FPTgoUP9u9J1wnTGxp+6W_QcAryLKAw@mail.gmail.com>
-Subject: Re: [PATCH] util-linux-demsg-issue-2666-patch-1.patch
-To: Karel Zak <kzak@redhat.com>
-Cc: Edward Chron <echron@arista.com>, util-linux@vger.kernel.org, colona@arista.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231215221829.46932-1-michael.trapp@sap.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.10
 
-Thank you Karel, I will fix this test issue and resubmit the patch series.
+On Fri, Dec 15, 2023 at 11:18:29PM +0100, Michael Trapp wrote:
+> cont_clock requires a correct time setup and therefore it
+> must be possible to detect a step back between uuidd starts.
+> 
+> Reserving the next 10 seconds in clock-cont.txt is sufficient
+> and should not have a noticeable performance impact.
+> It will also provide the possibility to start with the clock_reg
+> from the previous session when the system was rebooted.
+> 
+> Whith that, the early cont_clock initialization in uuidd
+> should be removed because writing the cont_clock persitence
+> when -C was not set is useless and might be confusing.
 
-On Tue, Jan 2, 2024 at 3:58=E2=80=AFAM Karel Zak <kzak@redhat.com> wrote:
->
-> On Sun, Dec 31, 2023 at 10:33:36AM -0800, Edward Chron wrote:
-> > +     if (*rec->caller_id) {
-> > +             if (ctl->json) {
-> > +                     ul_jsonwrt_value_s(&ctl->jfmt, "caller", rec->cal=
-ler_id);
-> > +             } else {
-> > +                     char cidbuf[PID_CHARS_MAX+3] =3D {'\0'};
-> > +
-> > +                     sprintf(cidbuf, "[%*s] ",
-> > +                             (char)ctl->caller_id_size, rec->caller_id=
-);
-> > +                     ctl->indent +=3D strnlen(cidbuf, sizeof(cidbuf));
-> > +                     fputs(cidbuf, stdout);
-> > +             }
-> > +     }
->
-> The variable width (ctl->caller_id_size) of caller ID makes your
-> regression test fragile, see:
->
-> https://github.com/util-linux/util-linux/actions/runs/7384780996/job/2008=
-8287790?pr=3D2647
->
-> --- /home/runner/work/util-linux/util-linux/tests/expected/dmesg/cid-limi=
-t      2024-01-02 10:34:02.893193174 +0000
-> +++ /home/runner/work/util-linux/util-linux/tests/output/dmesg/cid-limit =
-       2024-01-02 10:38:29.209015303 +0000
-> @@ -1,4 +1,4 @@
-> -[    1.000000] [    T1] example[1]
-> -[    8.000000] [    T2] example[2]
-> -[   27.000000] [    T3] example[3]
-> -[   64.000000] [    T4] example[4]
-> +[    1.000000] [   T1] example[1]
-> +[    8.000000] [   T2] example[2]
-> +[   27.000000] [   T3] example[3]
-> +[   64.000000] [   T4] example[4]
->
->
-> I see two possible ways to fix it:
->
->  * "normalize" the output in the tests -- just use sed(1) to
->    remove all the blanks space "[    T4]" to "[T4]", so the output
->    will be always the same
->
->  * or use fixed width for the caller_id in dmesg.c
->
->
->     Karel
->
-> --
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
->
+Hi Michael, 
+
+that is an interesting idea; I have only a few pedantic notes ;-)
+
+> ---
+>  libuuid/src/gen_uuid.c | 78 ++++++++++++++++++++++++++++++++++++------
+>  libuuid/src/uuidP.h    |  1 +
+>  misc-utils/uuidd.c     |  9 -----
+>  3 files changed, 69 insertions(+), 19 deletions(-)
+> 
+> diff --git a/libuuid/src/gen_uuid.c b/libuuid/src/gen_uuid.c
+> index 826cd2245..94b99f1bd 100644
+> --- a/libuuid/src/gen_uuid.c
+> +++ b/libuuid/src/gen_uuid.c
+> @@ -355,44 +355,102 @@ static uint64_t get_clock_counter(void)
+>  /*
+>   * Get continuous clock value.
+>   *
+> - * Return -1 if there is no further clock counter available,
+> + * Return -1 if there is no valid clock counter available,
+>   * otherwise return 0.
+>   *
+>   * This implementation doesn't deliver clock counters based on
+>   * the current time because last_clock_reg is only incremented
+>   * by the number of requested UUIDs.
+>   * max_clock_offset is used to limit the offset of last_clock_reg.
+> + * used/reserved UUIDs are written to LIBUUID_CLOCK_CONT_FILE.
+>   */
+>  static int get_clock_cont(uint32_t *clock_high,
+>  			  uint32_t *clock_low,
+>  			  int num,
+>  			  uint32_t max_clock_offset)
+>  {
+> -	/* 100ns based time offset according to RFC 4122. 4.1.4. */
+> +	/* all 64bit clock_reg values in this function represent '100ns ticks'
+> +         * due to the combination of tv_usec + MAX_ADJUSTMENT */
+> +
+> +	enum { fd_init = -2, fd_error = -1 };
+
+In the code (below) the enum items seems like variables, a little bit
+confusing. It would be better use upper-case, STATE_FD_INIT, STATE_FD_ERROR.
+
+> +	/* time offset according to RFC 4122. 4.1.4. */
+>  	const uint64_t reg_offset = (((uint64_t) 0x01B21DD2) << 32) + 0x13814000;
+>  	static uint64_t last_clock_reg = 0;
+> -	uint64_t clock_reg;
+> +	static uint64_t saved_clock_reg = 0;
+> +	static int state_fd = fd_init;
+> +	static FILE *state_f = NULL;
+> +	uint64_t clock_reg, next_clock_reg;
+>  
+> -	if (last_clock_reg == 0)
+> -		last_clock_reg = get_clock_counter();
+> +	if (state_fd == fd_error)
+> +		return -1;
+>  
+>  	clock_reg = get_clock_counter();
+> +
+> +	if (state_fd == fd_init) {
+> +		mode_t save_umask;
+> +		struct stat st;
+> +
+> +		save_umask = umask(0);
+> +		state_fd = open(LIBUUID_CLOCK_CONT_FILE, O_RDWR|O_CREAT|O_CLOEXEC, 0660);
+> +		(void) umask(save_umask);
+> +		if (state_fd == fd_error)
+> +			return -1;
+> +
+> +		state_f = fdopen(state_fd, "r+" UL_CLOEXECSTR);
+> +		if (!state_f)
+> +			goto error;
+
+Seems it duplicates code from get_clock(), what about introduce a generic
+
+    state_fd_init(LIBUUID_CLOCK_CONT_FILE, &state_fd, &state_f);
+
+and use the same in get_clock() for LIBUUID_CLOCK_FILE?
+
+> +		if (fstat(state_fd, &st))
+> +			goto error;
+> +
+> +		if (st.st_size) {
+> +			rewind(state_f);
+> +			if (fscanf(state_f, "cont: %lu\n", &last_clock_reg) != 1)
+> +				goto error;
+> +		} else
+> +			last_clock_reg = clock_reg;
+
+For LIBUUID_CLOCK_FILE we use flock(), I guess it's unnecessary for
+LIBUUID_CLOCK_CONT_FILE as we assume only one uuidd instance, right?
+
+Thanks!
+ Karel
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
