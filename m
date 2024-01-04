@@ -1,57 +1,57 @@
-Received: from mail-il1-f227.google.com (mail-il1-f227.google.com [209.85.166.227])
+Received: from mail-il1-f226.google.com (mail-il1-f226.google.com [209.85.166.226])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA0651E503
-	for <util-linux@vger.kernel.org>; Thu,  4 Jan 2024 20:44:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 649FB2C6A1
+	for <util-linux@vger.kernel.org>; Thu,  4 Jan 2024 20:44:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=arista.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arista.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arista.com header.i=@arista.com header.b="qxlVqApn"
-Received: by mail-il1-f227.google.com with SMTP id e9e14a558f8ab-3606e211e5cso310555ab.3
-        for <util-linux@vger.kernel.org>; Thu, 04 Jan 2024 12:44:17 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=arista.com header.i=@arista.com header.b="NuqSxUke"
+Received: by mail-il1-f226.google.com with SMTP id e9e14a558f8ab-3600dc78bc0so3143805ab.2
+        for <util-linux@vger.kernel.org>; Thu, 04 Jan 2024 12:44:30 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704401057; x=1705005857;
+        d=1e100.net; s=20230601; t=1704401069; x=1705005869;
         h=content-transfer-encoding:message-id:date:subject:cc:to:from
          :dkim-signature:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=fZQdNUrA+tFHG3rxLAqJfzU2VZ2t5JlPiPOAi+lhY9o=;
-        b=mpe1BPs+FR8NHfKNM5ksq4r3BvjCDnk8KRgGaMNUv9d5QD03lK0LR8AlEVYUlvrerQ
-         erXZ7M/SDAi6fV9gA3g5tOCtggdwYIVO9Sp3oTVJHhz2/Tnk+7ZPsUpHZQ494x15G4UZ
-         uThQp8c4ngelYpiewQ8SLZENJop8Vt9WbmPtFFJDfaOhHB540B//HEJZhXyvZHSgnGPx
-         3KOru3A9z3wbl/gPWxk61Xn+DUPnCQB8QZKY1XMse5i21P2RTR6/H6x1FeKJi9S0WhHH
-         6WFc+MyLVPfsxxZsJM24GicL4sMn2FA73ekT19+PxsskxY6TnMq17ok70PzHrNWMR6CC
-         P5aA==
-X-Gm-Message-State: AOJu0Ywk2gplZb93m5khi6nxxhSHSBoSbMNrtv3w3WYII8NR11mePKWb
-	8/JtwMxcJLnoVFbCvKhN13VtaC9PKC+8qjDaqsjuBNV6oNCN1JXnaaA=
-X-Google-Smtp-Source: AGHT+IHJaKuxJJyY2KOtvok1KOnP5pXT5inbxfaYefNOLWOi06CKSGcbvmx/PYjoD34HMwtg5uyYjnaA20EG
-X-Received: by 2002:a05:6e02:190a:b0:360:17aa:7cf7 with SMTP id w10-20020a056e02190a00b0036017aa7cf7mr1137421ilu.88.1704401056950;
-        Thu, 04 Jan 2024 12:44:16 -0800 (PST)
+        bh=ViqtSt7j+uXuiETvhByiZRCCTYobsz8jXa9Y5+qqpyY=;
+        b=c+d4xWEWYlXMh+w6pmmZmR6MNR+wG0rZBFSlQdYikCXgh+mEJbMx35+ciNtQv8x94K
+         W8vKbdDomgpV8cslItwpUCCvG2BlrIM8FYeWJhhWVlqtYRpH6ppYyC6lJgPUIZR04tNn
+         t6valcokEFTk46nmI0zpFGZAIMZ/VWECwIPY81YMn9LR5spwolPNMRFpkAO4VxrFQ9YJ
+         Z+syRZGiJYIbvBvEX6yJ8ZiXj+3QOVCw3IGkDeMC2Ls3C4E0cvaAWH3V77XobH4KqHAF
+         /9HYrok5T6EzzRQbTeQhbwRmDi81MBOrQGv6HfF+35mmpTbumtAL5BO7TUhzALliTGzN
+         1dYw==
+X-Gm-Message-State: AOJu0YxB7XzfMjpbsdImAQEI49MNJnOfJBe8CibgCDQrhUI6w+J6nVvn
+	b5aVwLzb3PFHmMYSOkUaT9VJXsInYStTzK4m+a0lbuVWTuVtFwduZQk=
+X-Google-Smtp-Source: AGHT+IFIUJVdc5OA63yVKJw4T3B0nI3PTUmoKVzT3kIuhy2yiUkjcbyzjmQHqfpY932PxOTu3YIfjkSAOVLs
+X-Received: by 2002:a05:6e02:1585:b0:35f:df71:423b with SMTP id m5-20020a056e02158500b0035fdf71423bmr1384718ilu.30.1704401069450;
+        Thu, 04 Jan 2024 12:44:29 -0800 (PST)
 Received: from smtp.aristanetworks.com ([74.123.28.25])
-        by smtp-relay.gmail.com with ESMTPS id v14-20020a056e02164e00b0035ffe486c24sm4697ilu.58.2024.01.04.12.44.16
+        by smtp-relay.gmail.com with ESMTPS id v11-20020a92d24b000000b0036062cc4a40sm4612ilg.26.2024.01.04.12.44.29
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 04 Jan 2024 12:44:16 -0800 (PST)
+        Thu, 04 Jan 2024 12:44:29 -0800 (PST)
 X-Relaying-Domain: arista.com
 X-SMTP-Authentication: Allow-List-permitted
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arista.com;
-	s=Arista-A; t=1704401056;
-	bh=fZQdNUrA+tFHG3rxLAqJfzU2VZ2t5JlPiPOAi+lhY9o=;
+	s=Arista-A; t=1704401068;
+	bh=ViqtSt7j+uXuiETvhByiZRCCTYobsz8jXa9Y5+qqpyY=;
 	h=From:To:Cc:Subject:Date:From;
-	b=qxlVqApnzZeXukfkA0iwAoLpSMX4r/xtHHXv+suLBtoamRBJ23oaBUfIYxxk4kpuv
-	 tTou2Sm5s6QB2xxe/l1QfI7qBG9Hy908qDQ3xm5H6t0UtfU3PqaRqj/ajHUN1WOmY0
-	 zMxymE06bsYeHWRAS7j6GiQ5l9gK8sjrlEh0wdBbkPpsYDKRLJSewJuzb56GGUgXas
-	 +PJHqvVzK/zePZXcJFIfxuiqBTY+jGI72NSz094WMLiJDpfwwTEFy4G8Mu8y9p3/Ln
-	 S2BK7VM9K6nQsR4iwg+R0lfYOy0s8FGwZ/6ydS1Nr4ys7A07UdUiqJRkJJkjaSd4mW
-	 3PHf7dGEdGAag==
+	b=NuqSxUke3lWqszptAeEyGIkVaACysUel8cIdITj1tYif7bOIgDGLw+rjvIkxeu+55
+	 aFlbWtvTzD9aBZvijBHGAXBTsynRfCCWEiOTJ8AwGAB9JEYl4UmELNOu3jjP5Zw6IN
+	 hr3DQRwaZ26SPP6Z8YNAhSzWpq1bgyyiTRdrdq0PGE/qlzsUk7uhqwkVUDjZ6mpyiM
+	 rOdcQ/W7pEBVNRdt/9NRIccPNr7Us7OX29gkU2yNOkKSig4QaiQkgFy4iWUo2EUtdB
+	 hNlLt9She9De6Y4LrOK2Itm9/kQuHByN99d1vcLyXdAl8RiBJX0DBtsgFQmW9OmtXM
+	 PSFE9J0J0bm9g==
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 Received: from us113.sjc.aristanetworks.com (us113.sjc.aristanetworks.com [10.242.240.8])
-	by smtp.aristanetworks.com (Postfix) with ESMTP id 20B4D400F80;
-	Thu,  4 Jan 2024 12:44:16 -0800 (PST)
+	by smtp.aristanetworks.com (Postfix) with ESMTP id CAE30400F80;
+	Thu,  4 Jan 2024 12:44:28 -0800 (PST)
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 Received: by us113.sjc.aristanetworks.com (Postfix, from userid 10383)
-	id 1662AB84076D; Thu,  4 Jan 2024 12:44:16 -0800 (PST)
+	id C0B87B84076D; Thu,  4 Jan 2024 12:44:28 -0800 (PST)
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
@@ -69,15 +69,15 @@ Cc: colona@arista.com,
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
-Subject: [PATCH] util-linux add dmesg caller_id Issue: 2666 patch 2 of 4
+Subject: [PATCH] util-linux add dmesg caller_id Issue: 2666 patch 3 of 4
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
-Date: Thu,  4 Jan 2024 12:44:14 -0800
+Date: Thu,  4 Jan 2024 12:44:27 -0800
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
 X-SMTP-Authentication: Allow-List-permitted
-Message-ID: <20240104204414.22308-1-echron@arista.com>
+Message-ID: <20240104204427.22460-1-echron@arista.com>
 X-SMTP-Authentication: Allow-List-permitted
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -87,868 +87,467 @@ List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 
 Submission to Project: util-linux
-Open Incident: #2637 at github.com/util-linux/util-linux/issues/2637
+Open Incident: #2663 at github.com/util-linux/util-linux/issues/2663
 Component: util-linux/sys-utils
-Files: tests/ts/dmesg syslog interface caller-id files, tests
-       and related expected files
+Files: tests/ts/dmesg kmsg interface files and related expected files
 Testing on Fedora 39 with Linux-6.6.6 Kernel and CONFIG_PRINTK_CALLER
 config option set.
 Patch tested and generated with the latest util-linux code pulled.
-Retro-fitted to merge on top of the patch for Issue: #2609
+Revision: no caller optional fields in any of the kmsg-input entries
+Revision: retrofitted to apply on top of Issue: #2609 and Issue #2637
+This is patch 1 of 2 (first in the series)
+Second patch needed to hold second binary file (git binary files issue)
 
-For Issue #2609 Thomas and Zak pointed out the we need tests to verify
+For issue #2609 Thomas and Zak pointed out the we need tests to verify
 that the dmesg command works correctly and to allow us to compare the
 results from PRINTK_CALLER id field tests provided by #2609 with the
 standard (syslog interface) dmesg tests.
 
-Currently, dmesg only has standard syslog interface tests even though
-dmesg -S the syslog interface supports the caller_id field. There
-are no syslog caller-id tests.
+Except for a kmsg json test that Thomas added recently we don't have
+basic dmesg tests for the kmsg interface to compare results against.
 
-We would like syslog caller-id tests both to validate that the dmesg
-code works correctly with the caller-id field being present and also
-to compare against the addition of dmesg kmsg caller_id support added
-by Issue #2609.
+We added tests for the dmesg SYSLOG PRINTK_CALLER id interface so we
+can compare against those tests.
+Those tests were submitted with Issue #2637.
 
-These tests are for the dmesg syslog interface with caller-id follow the
-existing test structure for dmesg tests. The existing dmesg -F interface
-is used to input our test files.
+Those tests were created before Thomas added the new dmesg kmsg test
+and I will rename those tests to match the naming scheme that Thomas
+is using for tests that are specific to syslog interface and specific
+to kmsg interface.
 
-Until Thomas added a dmesg kmsg interface for json format testing
-there were no dmesg tests except the tests for the generic dmesg
-syslog tests. So we're naming the syslog caller-id tests to follow
-the test naming convention that Thomas introduced.
+Issue #2609 introduces dmesg kmsg interface support for the PRINTK_CALLER
+id field and provides tests to compare against the SYSLOG interface tests
+added by #2637. Those tests also need to renamed to be consistent Thomas's
+test naming scheme.
 
-For caller_id tests we prefix the test name with cid- abbreviating
-the caller_id name to keep the names short. There is no unqiue
-indentifier for syslog tests, so syslog tests are currently:
+Here we've created tests for the dmesg kmsg interface following the
+existing test structure for dmesg tests.
 
-colors, console-levels, decode, delta, facilities, indentation,
-limit, json
+With the addition of this set of tests, we have tests for SYSLOG and
+SYSLOG PRINTK_CALLER id field to compare against the kmsg and kmsg
+PRINTK_CALLER id field tests.
 
-The cid versions of these test files are just prefixed with cid-
-The patch for Issue: #2609 has the files:
-cid-input and cid-json and the expected file for cide-json
+Currently the only kmsg interface specific test that exists is the
+kmsg-file test that Thomas added to test the dmesg kmsg interface for
+json support.
 
-Additional new dmesg tests are found with Issue #2663 which add
-standard dmesg kmsg interface tests providing equivalent tests to
-the existing dmesg syslog interface tests.
+Thomas also added code for the -K file interface to process dmesg ksmg
+interface files for testing so we utilize that code here and add to it.
 
-Also, Issue #2609 introduces dmesg kmsg interface caller-id tests
-equivalent to the dmesg syslog interface with caller-id tests introduced
-here along with the necessary dmesg kmsg interface caller-id support
-needed to accomodate the PRINTK_CALLER id field.
+The kmsg-input file is expanded to provide statements and fields to
+completely test the kmsg interface with tests that are equivalent to the
+SYSLOG interface dmesg tests.
 
-Just for reference, on a Linux system with the CONFIG_PRINTK_CALLER
-configuration option set the output from dmesg -S looks like:
+Additionally a ksmg-newlines file is added which provides kmsg format
+for testing with indentation.
 
-    [  520.899558] [   T3919] hub 3-3:1.0: USB hub found
+The output of the existing kmsg-file test is adjusted to match the
+expanded kmsg-input file.
 
-on a system where the PRINTK_CALLER configuration option is not set the
-output looks like:
-
-    [  520.899558] hub 3-3:1.0: USB hub found
-
-the additional field specifies either a Thread Id or CPU id depending on
-the context of the task or thread at the time the printk that added the
-message to the kernel ring buffer was executed.
+All tests follow the standard util-linux tests format used by dmesg for
+unit tests.
 
 Signed-off-by: Ivan Delalande <colona@arista.com>
 Signed-off-by: Edward Chron <echron@arista.com>
 ---
- tests/expected/dmesg/cid-colors         | 106 ++++++++++
- tests/expected/dmesg/cid-console-levels | 253 ++++++++++++++++++++++++
- tests/expected/dmesg/cid-decode         | 106 ++++++++++
- tests/expected/dmesg/cid-delta          | 106 ++++++++++
- tests/expected/dmesg/cid-facilities     | 104 ++++++++++
- tests/expected/dmesg/cid-indentation    |  35 ++++
- tests/expected/dmesg/cid-limit          |   4 +
- tests/ts/dmesg/cid-colors               |  29 +++
- tests/ts/dmesg/cid-console-levels       |  36 ++++
- tests/ts/dmesg/cid-decode               |  28 +++
- tests/ts/dmesg/cid-delta                |  27 +++
- tests/ts/dmesg/cid-facilities           |  30 +++
- tests/ts/dmesg/cid-indentation          |  40 ++++
- tests/ts/dmesg/cid-limit                |  29 +++
- tests/ts/dmesg/cid-newlines             |   5 +
- 15 files changed, 938 insertions(+)
- create mode 100644 tests/expected/dmesg/cid-colors
- create mode 100644 tests/expected/dmesg/cid-console-levels
- create mode 100644 tests/expected/dmesg/cid-decode
- create mode 100644 tests/expected/dmesg/cid-delta
- create mode 100644 tests/expected/dmesg/cid-facilities
- create mode 100644 tests/expected/dmesg/cid-indentation
- create mode 100644 tests/expected/dmesg/cid-limit
- create mode 100755 tests/ts/dmesg/cid-colors
- create mode 100755 tests/ts/dmesg/cid-console-levels
- create mode 100755 tests/ts/dmesg/cid-decode
- create mode 100755 tests/ts/dmesg/cid-delta
- create mode 100755 tests/ts/dmesg/cid-facilities
- create mode 100755 tests/ts/dmesg/cid-indentation
- create mode 100755 tests/ts/dmesg/cid-limit
- create mode 100644 tests/ts/dmesg/cid-newlines
+ tests/expected/dmesg/kmsg-colors         |  45 ++++++++
+ tests/expected/dmesg/kmsg-console-levels |  61 +++++++++++
+ tests/expected/dmesg/kmsg-decode         |  45 ++++++++
+ tests/expected/dmesg/kmsg-delta          |  45 ++++++++
+ tests/expected/dmesg/kmsg-facilities     |  59 +++++++++++
+ tests/expected/dmesg/kmsg-indentation    |  35 +++++++
+ tests/expected/dmesg/kmsg-limit          |  31 ++++++
+ tests/ts/dmesg/kmsg-colors               |  29 ++++++
+ tests/ts/dmesg/kmsg-console-levels       |  43 ++++++++
+ tests/ts/dmesg/kmsg-decode               |  28 +++++
+ tests/ts/dmesg/kmsg-delta                |  28 +++++
+ tests/ts/dmesg/kmsg-facilities           |  31 ++++++
+ tests/ts/dmesg/kmsg-indentation          |  40 +++++++
+ tests/ts/dmesg/kmsg-limit                |  29 ++++++
+ 18 files changed, 663 insertions(+), 17 deletions(-)
+ create mode 100644 tests/expected/dmesg/kmsg-colors
+ create mode 100644 tests/expected/dmesg/kmsg-console-levels
+ create mode 100644 tests/expected/dmesg/kmsg-decode
+ create mode 100644 tests/expected/dmesg/kmsg-delta
+ create mode 100644 tests/expected/dmesg/kmsg-facilities
+ create mode 100644 tests/expected/dmesg/kmsg-indentation
+ create mode 100644 tests/expected/dmesg/kmsg-limit
+ create mode 100755 tests/ts/dmesg/kmsg-colors
+ create mode 100755 tests/ts/dmesg/kmsg-console-levels
+ create mode 100755 tests/ts/dmesg/kmsg-decode
+ create mode 100755 tests/ts/dmesg/kmsg-delta
+ create mode 100755 tests/ts/dmesg/kmsg-facilities
+ create mode 100755 tests/ts/dmesg/kmsg-indentation
+ create mode 100755 tests/ts/dmesg/kmsg-limit
 
-diff --git a/tests/expected/dmesg/cid-colors b/tests/expected/dmesg/cid-colors
+diff --git a/tests/expected/dmesg/kmsg-colors b/tests/expected/dmesg/kmsg-colors
 new file mode 100644
-index 000000000..3b7aff6d7
+index 000000000..35294c5fa
 --- /dev/null
-+++ b/tests/expected/dmesg/cid-colors
-@@ -0,0 +1,106 @@
-+kern  :emerg : [32m[    0.000000] [0m[    T0] example[0]
-+kern  :alert : [32m[    1.000000] [0m[    T1] [7m[31mexample[1][0m
-+kern  :crit  : [32m[    8.000000] [0m[    T2] [1m[31mexample[2][0m
-+kern  :err   : [32m[   27.000000] [0m[    T3] [31mexample[3][0m
-+kern  :warn  : [32m[   64.000000] [0m[    T4] [1mexample[4][0m
-+kern  :notice: [32m[  125.000000] [0m[    T5] example[5]
-+kern  :info  : [32m[  216.000000] [0m[    T6] example[6]
-+kern  :debug : [32m[  343.000000] [0m[    T7] example[7]
-+user  :emerg : [32m[  512.000000] [0m[    T8] example[8]
-+user  :alert : [32m[  729.000000] [0m[    T9] [7m[31mexample[9][0m
-+user  :crit  : [32m[ 1000.000000] [0m[   T10] [1m[31mexample[10][0m
-+user  :err   : [32m[ 1331.000000] [0m[   T11] [31mexample[11][0m
-+user  :warn  : [32m[ 1728.000000] [0m[   T12] [1mexample[12][0m
-+user  :notice: [32m[ 2197.000000] [0m[   T13] example[13]
-+user  :info  : [32m[ 2744.000000] [0m[   T14] example[14]
-+user  :debug : [32m[ 3375.000000] [0m[   T15] example[15]
-+mail  :emerg : [32m[ 4096.000000] [0m[   T16] example[16]
-+mail  :alert : [32m[ 4913.000000] [0m[   T17] [7m[31mexample[17][0m
-+mail  :crit  : [32m[ 5832.000000] [0m[   T18] [1m[31mexample[18][0m
-+mail  :err   : [32m[ 6859.000000] [0m[   T19] [31mexample[19][0m
-+mail  :warn  : [32m[ 8000.000000] [0m[   T20] [1mexample[20][0m
-+mail  :notice: [32m[ 9261.000000] [0m[   T21] example[21]
-+mail  :info  : [32m[10648.000000] [0m[   T22] example[22]
-+mail  :debug : [32m[12167.000000] [0m[   T23] example[23]
-+daemon:emerg : [32m[13824.000000] [0m[   T24] example[24]
-+daemon:alert : [32m[15625.000000] [0m[   T25] [7m[31mexample[25][0m
-+daemon:crit  : [32m[17576.000000] [0m[   T26] [1m[31mexample[26][0m
-+daemon:err   : [32m[19683.000000] [0m[   T27] [31mexample[27][0m
-+daemon:warn  : [32m[21952.000000] [0m[   T28] [1mexample[28][0m
-+daemon:notice: [32m[24389.000000] [0m[   T29] example[29]
-+daemon:info  : [32m[27000.000000] [0m[   T10] example[30]
-+daemon:debug : [32m[29791.000000] [0m[   T31] example[31]
-+auth  :emerg : [32m[32768.000000] [0m[   T32] example[32]
-+auth  :alert : [32m[35937.000000] [0m[   T33] [7m[31mexample[33][0m
-+auth  :crit  : [32m[39304.000000] [0m[   T34] [1m[31mexample[34][0m
-+auth  :err   : [32m[42875.000000] [0m[   T35] [31mexample[35][0m
-+auth  :warn  : [32m[46656.000000] [0m[   T36] [1mexample[36][0m
-+auth  :notice: [32m[50653.000000] [0m[   T37] example[37]
-+auth  :info  : [32m[54872.000000] [0m[   T38] example[38]
-+auth  :debug : [32m[59319.000000] [0m[   T39] example[39]
-+syslog:emerg : [32m[64000.000000] [0m[   T40] example[40]
-+syslog:alert : [32m[68921.000000] [0m[   T41] [7m[31mexample[41][0m
-+syslog:crit  : [32m[74088.000000] [0m[   T42] [1m[31mexample[42][0m
-+syslog:err   : [32m[79507.000000] [0m[   T43] [31mexample[43][0m
-+syslog:warn  : [32m[85184.000000] [0m[   T44] [1mexample[44][0m
-+syslog:notice: [32m[91125.000000] [0m[   T45] example[45]
-+syslog:info  : [32m[97336.000000] [0m[   T46] example[46]
-+syslog:debug : [32m[103823.000000] [0m[   T47] example[47]
-+lpr   :emerg : [32m[110592.000000] [0m[   T48] example[48]
-+lpr   :alert : [32m[117649.000000] [0m[   T49] [7m[31mexample[49][0m
-+lpr   :crit  : [32m[125000.000000] [0m[   T50] [1m[31mexample[50][0m
-+lpr   :err   : [32m[132651.000000] [0m[   T51] [31mexample[51][0m
-+lpr   :warn  : [32m[140608.000000] [0m[   T52] [1mexample[52][0m
-+lpr   :notice: [32m[148877.000000] [0m[   T53] example[53]
-+lpr   :info  : [32m[157464.000000] [0m[   T54] example[54]
-+lpr   :debug : [32m[166375.000000] [0m[   T55] example[55]
-+news  :emerg : [32m[175616.000000] [0m[   T56] example[56]
-+news  :alert : [32m[185193.000000] [0m[   T57] [7m[31mexample[57][0m
-+news  :crit  : [32m[195112.000000] [0m[   T58] [1m[31mexample[58][0m
-+news  :err   : [32m[205379.000000] [0m[   T59] [31mexample[59][0m
-+news  :warn  : [32m[216000.000000] [0m[   T60] [1mexample[60][0m
-+news  :notice: [32m[226981.000000] [0m[   T61] example[61]
-+news  :info  : [32m[238328.000000] [0m[   T62] example[62]
-+news  :debug : [32m[250047.000000] [0m[   T63] example[63]
-+uucp  :emerg : [32m[262144.000000] [0m[   T64] example[64]
-+uucp  :alert : [32m[274625.000000] [0m[   T65] [7m[31mexample[65][0m
-+uucp  :crit  : [32m[287496.000000] [0m[   T66] [1m[31mexample[66][0m
-+uucp  :err   : [32m[300763.000000] [0m[   T67] [31mexample[67][0m
-+uucp  :warn  : [32m[314432.000000] [0m[   T68] [1mexample[68][0m
-+uucp  :notice: [32m[328509.000000] [0m[   T69] example[69]
-+uucp  :info  : [32m[343000.000000] [0m[   T70] example[70]
-+uucp  :debug : [32m[357911.000000] [0m[   T71] example[71]
-+cron  :emerg : [32m[373248.000000] [0m[   T72] example[72]
-+cron  :alert : [32m[389017.000000] [0m[   T73] [7m[31mexample[73][0m
-+cron  :crit  : [32m[405224.000000] [0m[   T74] [1m[31mexample[74][0m
-+cron  :err   : [32m[421875.000000] [0m[   T75] [31mexample[75][0m
-+cron  :warn  : [32m[438976.000000] [0m[   T76] [1mexample[76][0m
-+cron  :notice: [32m[456533.000000] [0m[   T77] example[77]
-+cron  :info  : [32m[474552.000000] [0m[   T78] example[78]
-+cron  :debug : [32m[493039.000000] [0m[   T79] example[79]
-+authpriv:emerg : [32m[512000.000000] [0m[   T80] example[80]
-+authpriv:alert : [32m[531441.000000] [0m[   T81] [7m[31mexample[81][0m
-+authpriv:crit  : [32m[551368.000000] [0m[   T82] [1m[31mexample[82][0m
-+authpriv:err   : [32m[571787.000000] [0m[   T83] [31mexample[83][0m
-+authpriv:warn  : [32m[592704.000000] [0m[   T84] [1mexample[84][0m
-+authpriv:notice: [32m[614125.000000] [0m[   T85] example[85]
-+authpriv:info  : [32m[636056.000000] [0m[   T86] example[86]
-+authpriv:debug : [32m[658503.000000] [0m[   T87] example[87]
-+ftp   :emerg : [32m[681472.000000] [0m[   T88] example[88]
-+ftp   :alert : [32m[704969.000000] [0m[   T89] [7m[31mexample[89][0m
-+ftp   :crit  : [32m[729000.000000] [0m[   T90] [1m[31mexample[90][0m
-+ftp   :err   : [32m[753571.000000] [0m[   T91] [31mexample[91][0m
-+ftp   :warn  : [32m[778688.000000] [0m[   T92] [1mexample[92][0m
-+ftp   :notice: [32m[804357.000000] [0m[   T93] example[93]
-+ftp   :info  : [32m[830584.000000] [0m[   T94] example[94]
-+ftp   :debug : [32m[857375.000000] [0m[   T95] example[95]
-+res0  :emerg : [32m[884736.000000] [0m[   T96] example[96]
-+res0  :alert : [32m[912673.000000] [0m[   T97] [7m[31mexample[97][0m
-+res0  :crit  : [32m[941192.000000] [0m[   T98] [1m[31mexample[98][0m
-+res0  :err   : [32m[970299.000000] [0m[   T99] [31mexample[99][0m
-+res0  :warn  : [32m[1000000.000000] [0m[  T100] [1mexample[100][0m
-+res0  :notice: [32m[1030301.000000] [0m[  T101] example[101]
-+res0  :info  : [32m[1061208.000000] [0m[  T102] example[102]
-+res0  :debug : [32m[1092727.000000] [0m[  T103] example[103]
-+res1  :emerg : [32m[1124864.000000] [0m[  T104] example[104]
-+local2:info  : [32m[4557523.000000] [0m[  T105] example[105]
-diff --git a/tests/expected/dmesg/cid-console-levels b/tests/expected/dmesg/cid-console-levels
++++ b/tests/expected/dmesg/kmsg-colors
+@@ -0,0 +1,45 @@
++kern  :emerg : [32m[    0.000000] [0mLinux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
++kern  :alert : [32m[    0.000001] [0m[33mCommand line: [0m[7m[31minitrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system[0m
++kern  :crit  : [32m[    0.000002] [0m[1m[31mBIOS-provided physical RAM map:[0m
++kern  :err   : [32m[    0.000003] [0m[33mBIOS-e820: [0m[31m[mem 0x0000000000000000-0x000000000009efff] usable[0m
++kern  :warn  : [32m[    0.000004] [0m[33mBIOS-e820: [0m[1m[mem 0x000000000009f000-0x00000000000bffff] reserved[0m
++kern  :notice: [32m[    0.000005] [0m[33mBIOS-e820: [0m[mem 0x0000000000100000-0x0000000009afffff] usable
++kern  :info  : [32m[    0.000006] [0m[33mBIOS-e820: [0m[mem 0x0000000009b00000-0x0000000009dfffff] reserved
++kern  :debug : [32m[    0.000007] [0m[33mBIOS-e820: [0m[mem 0x0000000009e00000-0x0000000009efffff] usable
++kern  :info  : [32m[    0.000008] [0m[33mBIOS-e820: [0m[mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
++kern  :info  : [32m[    0.000009] [0m[33mBIOS-e820: [0m[mem 0x0000000009f3c000-0x000000004235ffff] usable
++kern  :info  : [32m[    0.000010] [0m[33mBIOS-e820: [0m[mem 0x0000000042360000-0x000000004455ffff] reserved
++kern  :info  : [32m[    0.201607] [0m[33msmp: [0mBringing up secondary CPUs ...
++kern  :info  : [32m[    0.201607] [0m[33msmpboot: [0mx86: Booting SMP configuration:
++kern  :warn  : [32m[    0.209670] [0m[1m  #1  #3  #5  #7[0m
++kern  :info  : [32m[    0.212630] [0m[33msmp: [0mBrought up 1 node, 16 CPUs
++kern  :notice: [32m[    0.215936] [0m[33maudit: [0mtype=2000 audit(1702926179.015:1): state=initialized audit_enabled=0 res=1
++kern  :info  : [32m[    0.215937] [0m[33mthermal_sys: [0mRegistered thermal governor 'fair_share'
++kern  :warn  : [32m[    0.215966] [0m[33mENERGY_PERF_BIAS: [0m[1mSet to 'normal', was 'performance'[0m
++kern  :info  : [32m[    0.367657] [0m[33mACPI: [0m\_SB_.PCI0.GP19.NHI1.PWRS: New power resource
++kern  :info  : [32m[    0.368615] [0m[33mACPI: [0m\_SB_.PCI0.GP19.XHC4.PWRS: New power resource
++kern  :info  : [32m[    0.376316] [0m[33mACPI: [0m\_SB_.PRWL: New power resource
++kern  :info  : [32m[    0.376343] [0m[33mACPI: [0m\_SB_.PRWB: New power resource
++kern  :info  : [32m[    0.377373] [0m[33mACPI: [0mPCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
++kern  :info  : [32m[    0.377378] [0m[33macpi PNP0A08:00: [0m_OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
++kern  :info  : [32m[    0.377569] [0m[33macpi PNP0A08:00: [0m_OSC: platform does not support [SHPCHotplug AER]
++kern  :info  : [32m[    0.377933] [0m[33macpi PNP0A08:00: [0m_OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
++kern  :info  : [32m[    0.378458] [0mPCI host bridge to bus 0000:00
++kern  :info  : [32m[    0.378459] [0m[33mpci_bus 0000:00: [0mroot bus resource [io  0x0000-0x0cf7 window]
++kern  :info  : [32m[    0.378461] [0m[33mpci_bus 0000:00: [0mroot bus resource [io  0x0d00-0xffff window]
++user  :notice: [32m[    9.398562] [0muser network daemon initialization complete
++daemon:info  : [32m[   10.441520] [0m[33msystemd[1]: [0msystemd 254.7-1.fc39 running in system mode
++daemon:info  : [32m[   11.441524] [0m[33msystemd[1]: [0mDetected architecture x86-64.
++daemon:info  : [32m[   12.441525] [0m[33msystemd[1]: [0mRunning in initrd.
++daemon:info  : [32m[   13.541598] [0m[33msystemd[1]: [0mHostname set to <catalina>.
++kern  :info  : [32m[   15.641860] [0m[33musb 3-3: [0mNew USB device found, idVendor=1a40, idProduct=0101, bcdDevice= 1.11
++kern  :err   : [32m[   16.690000] [0m[33mSerial bus multi instantiate pseudo device driver INT3515:00: [0m[31merror -ENXIO: IRQ index 1 not found.[0m
++kern  :err   : [32m[   17.710000] [0m[33msnd_hda_intel 0000:00:1f.3: [0m[31mCORB reset timeout#2, CORBRP = 65535[0m
++syslog:info  : [32m[   18.820000] [0m[33msystemd-journald[723]: [0mReceived client request to flush runtime journal.
++syslog:warn  : [32m[   20.840000] [0m[33msystemd-journald[723]: [0m[1mFile /var/log/journal/a124ea923b144109a12d557d5ac53179/system.journal corrupted or uncleanly shut down, renaming and replacing.[0m
++syslog:info  : [32m[   21.852348] [0m[33msystemd-journald[723]: [0m/var/log/journal/ad7a2547ac0e4342a342e62a34a3eae4/user-1000.journal: Journal file uses a different sequence number ID, rotating.
++kern  :warn  : [32m[   24.871100] [0m[33mPEFILE: [0m[1mUnsigned PE binary[0m
++kern  :err   : [32m[   33.918091] [0m[33msnd_hda_intel 0000:00:1f.3: [0m[31mCORB reset timeout#2, CORBRP = 65535[0m
++kern  :info  : [32m[  144.931785] [0m[33musb 3-3.1: [0mdevice firmware changed
++kern  :info  : [32m[  145.953248] [0m[33musb 3-3.1: [0mUSB disconnect, device number 44
++kern  :info  : [32m[  147.981859] [0m[33musb 3-3.1: [0mNew USB device found, idVendor=17ef, idProduct=6047, bcdDevice= 3.30
+diff --git a/tests/expected/dmesg/kmsg-console-levels b/tests/expected/dmesg/kmsg-console-levels
 new file mode 100644
-index 000000000..9fe993b20
+index 000000000..d48312510
 --- /dev/null
-+++ b/tests/expected/dmesg/cid-console-levels
-@@ -0,0 +1,253 @@
-+[    0.000000] [    T0] example[0]
-+[  512.000000] [    T8] example[8]
-+[ 4096.000000] [   T16] example[16]
-+[13824.000000] [   T24] example[24]
-+[32768.000000] [   T32] example[32]
-+[64000.000000] [   T40] example[40]
-+[110592.000000] [   T48] example[48]
-+[175616.000000] [   T56] example[56]
-+[262144.000000] [   T64] example[64]
-+[373248.000000] [   T72] example[72]
-+[512000.000000] [   T80] example[80]
-+[681472.000000] [   T88] example[88]
-+[884736.000000] [   T96] example[96]
-+[1124864.000000] [  T104] example[104]
-+[    1.000000] [    T1] example[1]
-+[  729.000000] [    T9] example[9]
-+[ 4913.000000] [   T17] example[17]
-+[15625.000000] [   T25] example[25]
-+[35937.000000] [   T33] example[33]
-+[68921.000000] [   T41] example[41]
-+[117649.000000] [   T49] example[49]
-+[185193.000000] [   T57] example[57]
-+[274625.000000] [   T65] example[65]
-+[389017.000000] [   T73] example[73]
-+[531441.000000] [   T81] example[81]
-+[704969.000000] [   T89] example[89]
-+[912673.000000] [   T97] example[97]
-+[    8.000000] [    T2] example[2]
-+[ 1000.000000] [   T10] example[10]
-+[ 5832.000000] [   T18] example[18]
-+[17576.000000] [   T26] example[26]
-+[39304.000000] [   T34] example[34]
-+[74088.000000] [   T42] example[42]
-+[125000.000000] [   T50] example[50]
-+[195112.000000] [   T58] example[58]
-+[287496.000000] [   T66] example[66]
-+[405224.000000] [   T74] example[74]
-+[551368.000000] [   T82] example[82]
-+[729000.000000] [   T90] example[90]
-+[941192.000000] [   T98] example[98]
-+[   27.000000] [    T3] example[3]
-+[ 1331.000000] [   T11] example[11]
-+[ 6859.000000] [   T19] example[19]
-+[19683.000000] [   T27] example[27]
-+[42875.000000] [   T35] example[35]
-+[79507.000000] [   T43] example[43]
-+[132651.000000] [   T51] example[51]
-+[205379.000000] [   T59] example[59]
-+[300763.000000] [   T67] example[67]
-+[421875.000000] [   T75] example[75]
-+[571787.000000] [   T83] example[83]
-+[753571.000000] [   T91] example[91]
-+[970299.000000] [   T99] example[99]
-+[   64.000000] [    T4] example[4]
-+[ 1728.000000] [   T12] example[12]
-+[ 8000.000000] [   T20] example[20]
-+[21952.000000] [   T28] example[28]
-+[46656.000000] [   T36] example[36]
-+[85184.000000] [   T44] example[44]
-+[140608.000000] [   T52] example[52]
-+[216000.000000] [   T60] example[60]
-+[314432.000000] [   T68] example[68]
-+[438976.000000] [   T76] example[76]
-+[592704.000000] [   T84] example[84]
-+[778688.000000] [   T92] example[92]
-+[1000000.000000] [  T100] example[100]
-+[  125.000000] [    T5] example[5]
-+[ 2197.000000] [   T13] example[13]
-+[ 9261.000000] [   T21] example[21]
-+[24389.000000] [   T29] example[29]
-+[50653.000000] [   T37] example[37]
-+[91125.000000] [   T45] example[45]
-+[148877.000000] [   T53] example[53]
-+[226981.000000] [   T61] example[61]
-+[328509.000000] [   T69] example[69]
-+[456533.000000] [   T77] example[77]
-+[614125.000000] [   T85] example[85]
-+[804357.000000] [   T93] example[93]
-+[1030301.000000] [  T101] example[101]
-+[  216.000000] [    T6] example[6]
-+[ 2744.000000] [   T14] example[14]
-+[10648.000000] [   T22] example[22]
-+[27000.000000] [   T10] example[30]
-+[54872.000000] [   T38] example[38]
-+[97336.000000] [   T46] example[46]
-+[157464.000000] [   T54] example[54]
-+[238328.000000] [   T62] example[62]
-+[343000.000000] [   T70] example[70]
-+[474552.000000] [   T78] example[78]
-+[636056.000000] [   T86] example[86]
-+[830584.000000] [   T94] example[94]
-+[1061208.000000] [  T102] example[102]
-+[4557523.000000] [  T105] example[105]
-+[  343.000000] [    T7] example[7]
-+[ 3375.000000] [   T15] example[15]
-+[12167.000000] [   T23] example[23]
-+[29791.000000] [   T31] example[31]
-+[59319.000000] [   T39] example[39]
-+[103823.000000] [   T47] example[47]
-+[166375.000000] [   T55] example[55]
-+[250047.000000] [   T63] example[63]
-+[357911.000000] [   T71] example[71]
-+[493039.000000] [   T79] example[79]
-+[658503.000000] [   T87] example[87]
-+[857375.000000] [   T95] example[95]
-+[1092727.000000] [  T103] example[103]
-+[    0.000000] [    T0] example[0]
-+[    1.000000] [    T1] example[1]
-+[    8.000000] [    T2] example[2]
-+[   27.000000] [    T3] example[3]
-+[  512.000000] [    T8] example[8]
-+[  729.000000] [    T9] example[9]
-+[ 1000.000000] [   T10] example[10]
-+[ 1331.000000] [   T11] example[11]
-+[ 4096.000000] [   T16] example[16]
-+[ 4913.000000] [   T17] example[17]
-+[ 5832.000000] [   T18] example[18]
-+[ 6859.000000] [   T19] example[19]
-+[13824.000000] [   T24] example[24]
-+[15625.000000] [   T25] example[25]
-+[17576.000000] [   T26] example[26]
-+[19683.000000] [   T27] example[27]
-+[32768.000000] [   T32] example[32]
-+[35937.000000] [   T33] example[33]
-+[39304.000000] [   T34] example[34]
-+[42875.000000] [   T35] example[35]
-+[64000.000000] [   T40] example[40]
-+[68921.000000] [   T41] example[41]
-+[74088.000000] [   T42] example[42]
-+[79507.000000] [   T43] example[43]
-+[110592.000000] [   T48] example[48]
-+[117649.000000] [   T49] example[49]
-+[125000.000000] [   T50] example[50]
-+[132651.000000] [   T51] example[51]
-+[175616.000000] [   T56] example[56]
-+[185193.000000] [   T57] example[57]
-+[195112.000000] [   T58] example[58]
-+[205379.000000] [   T59] example[59]
-+[262144.000000] [   T64] example[64]
-+[274625.000000] [   T65] example[65]
-+[287496.000000] [   T66] example[66]
-+[300763.000000] [   T67] example[67]
-+[373248.000000] [   T72] example[72]
-+[389017.000000] [   T73] example[73]
-+[405224.000000] [   T74] example[74]
-+[421875.000000] [   T75] example[75]
-+[512000.000000] [   T80] example[80]
-+[531441.000000] [   T81] example[81]
-+[551368.000000] [   T82] example[82]
-+[571787.000000] [   T83] example[83]
-+[681472.000000] [   T88] example[88]
-+[704969.000000] [   T89] example[89]
-+[729000.000000] [   T90] example[90]
-+[753571.000000] [   T91] example[91]
-+[884736.000000] [   T96] example[96]
-+[912673.000000] [   T97] example[97]
-+[941192.000000] [   T98] example[98]
-+[970299.000000] [   T99] example[99]
-+[1124864.000000] [  T104] example[104]
-+[    0.000000] [    T0] example[0]
-+[  512.000000] [    T8] example[8]
-+[ 4096.000000] [   T16] example[16]
-+[13824.000000] [   T24] example[24]
-+[32768.000000] [   T32] example[32]
-+[64000.000000] [   T40] example[40]
-+[110592.000000] [   T48] example[48]
-+[175616.000000] [   T56] example[56]
-+[262144.000000] [   T64] example[64]
-+[373248.000000] [   T72] example[72]
-+[512000.000000] [   T80] example[80]
-+[681472.000000] [   T88] example[88]
-+[884736.000000] [   T96] example[96]
-+[1124864.000000] [  T104] example[104]
-+[   27.000000] [    T3] example[3]
-+[   64.000000] [    T4] example[4]
-+[  125.000000] [    T5] example[5]
-+[  216.000000] [    T6] example[6]
-+[  343.000000] [    T7] example[7]
-+[ 1331.000000] [   T11] example[11]
-+[ 1728.000000] [   T12] example[12]
-+[ 2197.000000] [   T13] example[13]
-+[ 2744.000000] [   T14] example[14]
-+[ 3375.000000] [   T15] example[15]
-+[ 6859.000000] [   T19] example[19]
-+[ 8000.000000] [   T20] example[20]
-+[ 9261.000000] [   T21] example[21]
-+[10648.000000] [   T22] example[22]
-+[12167.000000] [   T23] example[23]
-+[19683.000000] [   T27] example[27]
-+[21952.000000] [   T28] example[28]
-+[24389.000000] [   T29] example[29]
-+[27000.000000] [   T10] example[30]
-+[29791.000000] [   T31] example[31]
-+[42875.000000] [   T35] example[35]
-+[46656.000000] [   T36] example[36]
-+[50653.000000] [   T37] example[37]
-+[54872.000000] [   T38] example[38]
-+[59319.000000] [   T39] example[39]
-+[79507.000000] [   T43] example[43]
-+[85184.000000] [   T44] example[44]
-+[91125.000000] [   T45] example[45]
-+[97336.000000] [   T46] example[46]
-+[103823.000000] [   T47] example[47]
-+[132651.000000] [   T51] example[51]
-+[140608.000000] [   T52] example[52]
-+[148877.000000] [   T53] example[53]
-+[157464.000000] [   T54] example[54]
-+[166375.000000] [   T55] example[55]
-+[205379.000000] [   T59] example[59]
-+[216000.000000] [   T60] example[60]
-+[226981.000000] [   T61] example[61]
-+[238328.000000] [   T62] example[62]
-+[250047.000000] [   T63] example[63]
-+[300763.000000] [   T67] example[67]
-+[314432.000000] [   T68] example[68]
-+[328509.000000] [   T69] example[69]
-+[343000.000000] [   T70] example[70]
-+[357911.000000] [   T71] example[71]
-+[421875.000000] [   T75] example[75]
-+[438976.000000] [   T76] example[76]
-+[456533.000000] [   T77] example[77]
-+[474552.000000] [   T78] example[78]
-+[493039.000000] [   T79] example[79]
-+[571787.000000] [   T83] example[83]
-+[592704.000000] [   T84] example[84]
-+[614125.000000] [   T85] example[85]
-+[636056.000000] [   T86] example[86]
-+[658503.000000] [   T87] example[87]
-+[753571.000000] [   T91] example[91]
-+[778688.000000] [   T92] example[92]
-+[804357.000000] [   T93] example[93]
-+[830584.000000] [   T94] example[94]
-+[857375.000000] [   T95] example[95]
-+[970299.000000] [   T99] example[99]
-+[1000000.000000] [  T100] example[100]
-+[1030301.000000] [  T101] example[101]
-+[1061208.000000] [  T102] example[102]
-+[1092727.000000] [  T103] example[103]
-+[4557523.000000] [  T105] example[105]
-+[  343.000000] [    T7] example[7]
-+[ 3375.000000] [   T15] example[15]
-+[12167.000000] [   T23] example[23]
-+[29791.000000] [   T31] example[31]
-+[59319.000000] [   T39] example[39]
-+[103823.000000] [   T47] example[47]
-+[166375.000000] [   T55] example[55]
-+[250047.000000] [   T63] example[63]
-+[357911.000000] [   T71] example[71]
-+[493039.000000] [   T79] example[79]
-+[658503.000000] [   T87] example[87]
-+[857375.000000] [   T95] example[95]
-+[1092727.000000] [  T103] example[103]
++++ b/tests/expected/dmesg/kmsg-console-levels
+@@ -0,0 +1,61 @@
++* Output level: err+
++<0>[    0.000000] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
++<1>[    0.000001] Command line: initrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system
++<2>[    0.000002] BIOS-provided physical RAM map:
++<3>[    0.000003] BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable
++<3>[   16.690000] Serial bus multi instantiate pseudo device driver INT3515:00: error -ENXIO: IRQ index 1 not found.
++<3>[   17.710000] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++<3>[   33.918091] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++* Output level: emerg+
++<0>[    0.000000] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
++* Output level: +err
++<3>[    0.000003] BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable
++<4>[    0.000004] BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved
++<5>[    0.000005] BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable
++<6>[    0.000006] BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved
++<7>[    0.000007] BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable
++<6>[    0.000008] BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
++<6>[    0.000009] BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable
++<6>[    0.000010] BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved
++<6>[    0.201607] smp: Bringing up secondary CPUs ...
++<6>[    0.201607] smpboot: x86: Booting SMP configuration:
++<4>[    0.209670]   #1  #3  #5  #7
++<6>[    0.212630] smp: Brought up 1 node, 16 CPUs
++<5>[    0.215936] audit: type=2000 audit(1702926179.015:1): state=initialized audit_enabled=0 res=1
++<6>[    0.215937] thermal_sys: Registered thermal governor 'fair_share'
++<4>[    0.215966] ENERGY_PERF_BIAS: Set to 'normal', was 'performance'
++<6>[    0.367657] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
++<6>[    0.368615] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
++<6>[    0.376316] ACPI: \_SB_.PRWL: New power resource
++<6>[    0.376343] ACPI: \_SB_.PRWB: New power resource
++<6>[    0.377373] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
++<6>[    0.377378] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
++<6>[    0.377569] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
++<6>[    0.377933] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
++<6>[    0.378458] PCI host bridge to bus 0000:00
++<6>[    0.378459] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
++<6>[    0.378461] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
++<13>[    9.398562] user network daemon initialization complete
++<30>[   10.441520] systemd[1]: systemd 254.7-1.fc39 running in system mode
++<30>[   11.441524] systemd[1]: Detected architecture x86-64.
++<30>[   12.441525] systemd[1]: Running in initrd.
++<30>[   13.541598] systemd[1]: Hostname set to <catalina>.
++<6>[   15.641860] usb 3-3: New USB device found, idVendor=1a40, idProduct=0101, bcdDevice= 1.11
++<3>[   16.690000] Serial bus multi instantiate pseudo device driver INT3515:00: error -ENXIO: IRQ index 1 not found.
++<3>[   17.710000] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++<46>[   18.820000] systemd-journald[723]: Received client request to flush runtime journal.
++<44>[   20.840000] systemd-journald[723]: File /var/log/journal/a124ea923b144109a12d557d5ac53179/system.journal corrupted or uncleanly shut down, renaming and replacing.
++<46>[   21.852348] systemd-journald[723]: /var/log/journal/ad7a2547ac0e4342a342e62a34a3eae4/user-1000.journal: Journal file uses a different sequence number ID, rotating.
++<4>[   24.871100] PEFILE: Unsigned PE binary
++<3>[   33.918091] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++<6>[  144.931785] usb 3-3.1: device firmware changed
++<6>[  145.953248] usb 3-3.1: USB disconnect, device number 44
++<6>[  147.981859] usb 3-3.1: New USB device found, idVendor=17ef, idProduct=6047, bcdDevice= 3.30
++* Output level: +debug
++<7>[    0.000007] BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable
++* Output level: notice
++<5>[    0.000005] BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable
++<5>[    0.215936] audit: type=2000 audit(1702926179.015:1): state=initialized audit_enabled=0 res=1
++<13>[    9.398562] user network daemon initialization complete
++* Output level: +
 +test_dmesg: unknown level '+'
-diff --git a/tests/expected/dmesg/cid-decode b/tests/expected/dmesg/cid-decode
+diff --git a/tests/expected/dmesg/kmsg-decode b/tests/expected/dmesg/kmsg-decode
 new file mode 100644
-index 000000000..757b9284d
+index 000000000..85a664a61
 --- /dev/null
-+++ b/tests/expected/dmesg/cid-decode
-@@ -0,0 +1,106 @@
-+kern  :emerg : [    0.000000] [    T0] example[0]
-+kern  :alert : [    1.000000] [    T1] example[1]
-+kern  :crit  : [    8.000000] [    T2] example[2]
-+kern  :err   : [   27.000000] [    T3] example[3]
-+kern  :warn  : [   64.000000] [    T4] example[4]
-+kern  :notice: [  125.000000] [    T5] example[5]
-+kern  :info  : [  216.000000] [    T6] example[6]
-+kern  :debug : [  343.000000] [    T7] example[7]
-+user  :emerg : [  512.000000] [    T8] example[8]
-+user  :alert : [  729.000000] [    T9] example[9]
-+user  :crit  : [ 1000.000000] [   T10] example[10]
-+user  :err   : [ 1331.000000] [   T11] example[11]
-+user  :warn  : [ 1728.000000] [   T12] example[12]
-+user  :notice: [ 2197.000000] [   T13] example[13]
-+user  :info  : [ 2744.000000] [   T14] example[14]
-+user  :debug : [ 3375.000000] [   T15] example[15]
-+mail  :emerg : [ 4096.000000] [   T16] example[16]
-+mail  :alert : [ 4913.000000] [   T17] example[17]
-+mail  :crit  : [ 5832.000000] [   T18] example[18]
-+mail  :err   : [ 6859.000000] [   T19] example[19]
-+mail  :warn  : [ 8000.000000] [   T20] example[20]
-+mail  :notice: [ 9261.000000] [   T21] example[21]
-+mail  :info  : [10648.000000] [   T22] example[22]
-+mail  :debug : [12167.000000] [   T23] example[23]
-+daemon:emerg : [13824.000000] [   T24] example[24]
-+daemon:alert : [15625.000000] [   T25] example[25]
-+daemon:crit  : [17576.000000] [   T26] example[26]
-+daemon:err   : [19683.000000] [   T27] example[27]
-+daemon:warn  : [21952.000000] [   T28] example[28]
-+daemon:notice: [24389.000000] [   T29] example[29]
-+daemon:info  : [27000.000000] [   T10] example[30]
-+daemon:debug : [29791.000000] [   T31] example[31]
-+auth  :emerg : [32768.000000] [   T32] example[32]
-+auth  :alert : [35937.000000] [   T33] example[33]
-+auth  :crit  : [39304.000000] [   T34] example[34]
-+auth  :err   : [42875.000000] [   T35] example[35]
-+auth  :warn  : [46656.000000] [   T36] example[36]
-+auth  :notice: [50653.000000] [   T37] example[37]
-+auth  :info  : [54872.000000] [   T38] example[38]
-+auth  :debug : [59319.000000] [   T39] example[39]
-+syslog:emerg : [64000.000000] [   T40] example[40]
-+syslog:alert : [68921.000000] [   T41] example[41]
-+syslog:crit  : [74088.000000] [   T42] example[42]
-+syslog:err   : [79507.000000] [   T43] example[43]
-+syslog:warn  : [85184.000000] [   T44] example[44]
-+syslog:notice: [91125.000000] [   T45] example[45]
-+syslog:info  : [97336.000000] [   T46] example[46]
-+syslog:debug : [103823.000000] [   T47] example[47]
-+lpr   :emerg : [110592.000000] [   T48] example[48]
-+lpr   :alert : [117649.000000] [   T49] example[49]
-+lpr   :crit  : [125000.000000] [   T50] example[50]
-+lpr   :err   : [132651.000000] [   T51] example[51]
-+lpr   :warn  : [140608.000000] [   T52] example[52]
-+lpr   :notice: [148877.000000] [   T53] example[53]
-+lpr   :info  : [157464.000000] [   T54] example[54]
-+lpr   :debug : [166375.000000] [   T55] example[55]
-+news  :emerg : [175616.000000] [   T56] example[56]
-+news  :alert : [185193.000000] [   T57] example[57]
-+news  :crit  : [195112.000000] [   T58] example[58]
-+news  :err   : [205379.000000] [   T59] example[59]
-+news  :warn  : [216000.000000] [   T60] example[60]
-+news  :notice: [226981.000000] [   T61] example[61]
-+news  :info  : [238328.000000] [   T62] example[62]
-+news  :debug : [250047.000000] [   T63] example[63]
-+uucp  :emerg : [262144.000000] [   T64] example[64]
-+uucp  :alert : [274625.000000] [   T65] example[65]
-+uucp  :crit  : [287496.000000] [   T66] example[66]
-+uucp  :err   : [300763.000000] [   T67] example[67]
-+uucp  :warn  : [314432.000000] [   T68] example[68]
-+uucp  :notice: [328509.000000] [   T69] example[69]
-+uucp  :info  : [343000.000000] [   T70] example[70]
-+uucp  :debug : [357911.000000] [   T71] example[71]
-+cron  :emerg : [373248.000000] [   T72] example[72]
-+cron  :alert : [389017.000000] [   T73] example[73]
-+cron  :crit  : [405224.000000] [   T74] example[74]
-+cron  :err   : [421875.000000] [   T75] example[75]
-+cron  :warn  : [438976.000000] [   T76] example[76]
-+cron  :notice: [456533.000000] [   T77] example[77]
-+cron  :info  : [474552.000000] [   T78] example[78]
-+cron  :debug : [493039.000000] [   T79] example[79]
-+authpriv:emerg : [512000.000000] [   T80] example[80]
-+authpriv:alert : [531441.000000] [   T81] example[81]
-+authpriv:crit  : [551368.000000] [   T82] example[82]
-+authpriv:err   : [571787.000000] [   T83] example[83]
-+authpriv:warn  : [592704.000000] [   T84] example[84]
-+authpriv:notice: [614125.000000] [   T85] example[85]
-+authpriv:info  : [636056.000000] [   T86] example[86]
-+authpriv:debug : [658503.000000] [   T87] example[87]
-+ftp   :emerg : [681472.000000] [   T88] example[88]
-+ftp   :alert : [704969.000000] [   T89] example[89]
-+ftp   :crit  : [729000.000000] [   T90] example[90]
-+ftp   :err   : [753571.000000] [   T91] example[91]
-+ftp   :warn  : [778688.000000] [   T92] example[92]
-+ftp   :notice: [804357.000000] [   T93] example[93]
-+ftp   :info  : [830584.000000] [   T94] example[94]
-+ftp   :debug : [857375.000000] [   T95] example[95]
-+res0  :emerg : [884736.000000] [   T96] example[96]
-+res0  :alert : [912673.000000] [   T97] example[97]
-+res0  :crit  : [941192.000000] [   T98] example[98]
-+res0  :err   : [970299.000000] [   T99] example[99]
-+res0  :warn  : [1000000.000000] [  T100] example[100]
-+res0  :notice: [1030301.000000] [  T101] example[101]
-+res0  :info  : [1061208.000000] [  T102] example[102]
-+res0  :debug : [1092727.000000] [  T103] example[103]
-+res1  :emerg : [1124864.000000] [  T104] example[104]
-+local2:info  : [4557523.000000] [  T105] example[105]
-diff --git a/tests/expected/dmesg/cid-delta b/tests/expected/dmesg/cid-delta
++++ b/tests/expected/dmesg/kmsg-decode
+@@ -0,0 +1,45 @@
++kern  :emerg : [    0.000000] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
++kern  :alert : [    0.000001] Command line: initrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system
++kern  :crit  : [    0.000002] BIOS-provided physical RAM map:
++kern  :err   : [    0.000003] BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable
++kern  :warn  : [    0.000004] BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved
++kern  :notice: [    0.000005] BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable
++kern  :info  : [    0.000006] BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved
++kern  :debug : [    0.000007] BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable
++kern  :info  : [    0.000008] BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
++kern  :info  : [    0.000009] BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable
++kern  :info  : [    0.000010] BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved
++kern  :info  : [    0.201607] smp: Bringing up secondary CPUs ...
++kern  :info  : [    0.201607] smpboot: x86: Booting SMP configuration:
++kern  :warn  : [    0.209670]   #1  #3  #5  #7
++kern  :info  : [    0.212630] smp: Brought up 1 node, 16 CPUs
++kern  :notice: [    0.215936] audit: type=2000 audit(1702926179.015:1): state=initialized audit_enabled=0 res=1
++kern  :info  : [    0.215937] thermal_sys: Registered thermal governor 'fair_share'
++kern  :warn  : [    0.215966] ENERGY_PERF_BIAS: Set to 'normal', was 'performance'
++kern  :info  : [    0.367657] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
++kern  :info  : [    0.368615] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
++kern  :info  : [    0.376316] ACPI: \_SB_.PRWL: New power resource
++kern  :info  : [    0.376343] ACPI: \_SB_.PRWB: New power resource
++kern  :info  : [    0.377373] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
++kern  :info  : [    0.377378] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
++kern  :info  : [    0.377569] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
++kern  :info  : [    0.377933] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
++kern  :info  : [    0.378458] PCI host bridge to bus 0000:00
++kern  :info  : [    0.378459] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
++kern  :info  : [    0.378461] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
++user  :notice: [    9.398562] user network daemon initialization complete
++daemon:info  : [   10.441520] systemd[1]: systemd 254.7-1.fc39 running in system mode
++daemon:info  : [   11.441524] systemd[1]: Detected architecture x86-64.
++daemon:info  : [   12.441525] systemd[1]: Running in initrd.
++daemon:info  : [   13.541598] systemd[1]: Hostname set to <catalina>.
++kern  :info  : [   15.641860] usb 3-3: New USB device found, idVendor=1a40, idProduct=0101, bcdDevice= 1.11
++kern  :err   : [   16.690000] Serial bus multi instantiate pseudo device driver INT3515:00: error -ENXIO: IRQ index 1 not found.
++kern  :err   : [   17.710000] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++syslog:info  : [   18.820000] systemd-journald[723]: Received client request to flush runtime journal.
++syslog:warn  : [   20.840000] systemd-journald[723]: File /var/log/journal/a124ea923b144109a12d557d5ac53179/system.journal corrupted or uncleanly shut down, renaming and replacing.
++syslog:info  : [   21.852348] systemd-journald[723]: /var/log/journal/ad7a2547ac0e4342a342e62a34a3eae4/user-1000.journal: Journal file uses a different sequence number ID, rotating.
++kern  :warn  : [   24.871100] PEFILE: Unsigned PE binary
++kern  :err   : [   33.918091] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++kern  :info  : [  144.931785] usb 3-3.1: device firmware changed
++kern  :info  : [  145.953248] usb 3-3.1: USB disconnect, device number 44
++kern  :info  : [  147.981859] usb 3-3.1: New USB device found, idVendor=17ef, idProduct=6047, bcdDevice= 3.30
+diff --git a/tests/expected/dmesg/kmsg-delta b/tests/expected/dmesg/kmsg-delta
 new file mode 100644
-index 000000000..9b75c63af
+index 000000000..caea3e9db
 --- /dev/null
-+++ b/tests/expected/dmesg/cid-delta
-@@ -0,0 +1,106 @@
-+[    0.000000 <    0.000000>] [    T0] example[0]
-+[    1.000000 <    0.000000>] [    T1] example[1]
-+[    8.000000 <    7.000000>] [    T2] example[2]
-+[   27.000000 <   19.000000>] [    T3] example[3]
-+[   64.000000 <   37.000000>] [    T4] example[4]
-+[  125.000000 <   61.000000>] [    T5] example[5]
-+[  216.000000 <   91.000000>] [    T6] example[6]
-+[  343.000000 <  127.000000>] [    T7] example[7]
-+[  512.000000 <  169.000000>] [    T8] example[8]
-+[  729.000000 <  217.000000>] [    T9] example[9]
-+[ 1000.000000 <  271.000000>] [   T10] example[10]
-+[ 1331.000000 <  331.000000>] [   T11] example[11]
-+[ 1728.000000 <  397.000000>] [   T12] example[12]
-+[ 2197.000000 <  469.000000>] [   T13] example[13]
-+[ 2744.000000 <  547.000000>] [   T14] example[14]
-+[ 3375.000000 <  631.000000>] [   T15] example[15]
-+[ 4096.000000 <  721.000000>] [   T16] example[16]
-+[ 4913.000000 <  817.000000>] [   T17] example[17]
-+[ 5832.000000 <  919.000000>] [   T18] example[18]
-+[ 6859.000000 < 1027.000000>] [   T19] example[19]
-+[ 8000.000000 < 1141.000000>] [   T20] example[20]
-+[ 9261.000000 < 1261.000000>] [   T21] example[21]
-+[10648.000000 < 1387.000000>] [   T22] example[22]
-+[12167.000000 < 1519.000000>] [   T23] example[23]
-+[13824.000000 < 1657.000000>] [   T24] example[24]
-+[15625.000000 < 1801.000000>] [   T25] example[25]
-+[17576.000000 < 1951.000000>] [   T26] example[26]
-+[19683.000000 < 2107.000000>] [   T27] example[27]
-+[21952.000000 < 2269.000000>] [   T28] example[28]
-+[24389.000000 < 2437.000000>] [   T29] example[29]
-+[27000.000000 < 2611.000000>] [   T10] example[30]
-+[29791.000000 < 2791.000000>] [   T31] example[31]
-+[32768.000000 < 2977.000000>] [   T32] example[32]
-+[35937.000000 < 3169.000000>] [   T33] example[33]
-+[39304.000000 < 3367.000000>] [   T34] example[34]
-+[42875.000000 < 3571.000000>] [   T35] example[35]
-+[46656.000000 < 3781.000000>] [   T36] example[36]
-+[50653.000000 < 3997.000000>] [   T37] example[37]
-+[54872.000000 < 4219.000000>] [   T38] example[38]
-+[59319.000000 < 4447.000000>] [   T39] example[39]
-+[64000.000000 < 4681.000000>] [   T40] example[40]
-+[68921.000000 < 4921.000000>] [   T41] example[41]
-+[74088.000000 < 5167.000000>] [   T42] example[42]
-+[79507.000000 < 5419.000000>] [   T43] example[43]
-+[85184.000000 < 5677.000000>] [   T44] example[44]
-+[91125.000000 < 5941.000000>] [   T45] example[45]
-+[97336.000000 < 6211.000000>] [   T46] example[46]
-+[103823.000000 < 6487.000000>] [   T47] example[47]
-+[110592.000000 < 6769.000000>] [   T48] example[48]
-+[117649.000000 < 7057.000000>] [   T49] example[49]
-+[125000.000000 < 7351.000000>] [   T50] example[50]
-+[132651.000000 < 7651.000000>] [   T51] example[51]
-+[140608.000000 < 7957.000000>] [   T52] example[52]
-+[148877.000000 < 8269.000000>] [   T53] example[53]
-+[157464.000000 < 8587.000000>] [   T54] example[54]
-+[166375.000000 < 8911.000000>] [   T55] example[55]
-+[175616.000000 < 9241.000000>] [   T56] example[56]
-+[185193.000000 < 9577.000000>] [   T57] example[57]
-+[195112.000000 < 9919.000000>] [   T58] example[58]
-+[205379.000000 <10267.000000>] [   T59] example[59]
-+[216000.000000 <10621.000000>] [   T60] example[60]
-+[226981.000000 <10981.000000>] [   T61] example[61]
-+[238328.000000 <11347.000000>] [   T62] example[62]
-+[250047.000000 <11719.000000>] [   T63] example[63]
-+[262144.000000 <12097.000000>] [   T64] example[64]
-+[274625.000000 <12481.000000>] [   T65] example[65]
-+[287496.000000 <12871.000000>] [   T66] example[66]
-+[300763.000000 <13267.000000>] [   T67] example[67]
-+[314432.000000 <13669.000000>] [   T68] example[68]
-+[328509.000000 <14077.000000>] [   T69] example[69]
-+[343000.000000 <14491.000000>] [   T70] example[70]
-+[357911.000000 <14911.000000>] [   T71] example[71]
-+[373248.000000 <15337.000000>] [   T72] example[72]
-+[389017.000000 <15769.000000>] [   T73] example[73]
-+[405224.000000 <16207.000000>] [   T74] example[74]
-+[421875.000000 <16651.000000>] [   T75] example[75]
-+[438976.000000 <17101.000000>] [   T76] example[76]
-+[456533.000000 <17557.000000>] [   T77] example[77]
-+[474552.000000 <18019.000000>] [   T78] example[78]
-+[493039.000000 <18487.000000>] [   T79] example[79]
-+[512000.000000 <18961.000000>] [   T80] example[80]
-+[531441.000000 <19441.000000>] [   T81] example[81]
-+[551368.000000 <19927.000000>] [   T82] example[82]
-+[571787.000000 <20419.000000>] [   T83] example[83]
-+[592704.000000 <20917.000000>] [   T84] example[84]
-+[614125.000000 <21421.000000>] [   T85] example[85]
-+[636056.000000 <21931.000000>] [   T86] example[86]
-+[658503.000000 <22447.000000>] [   T87] example[87]
-+[681472.000000 <22969.000000>] [   T88] example[88]
-+[704969.000000 <23497.000000>] [   T89] example[89]
-+[729000.000000 <24031.000000>] [   T90] example[90]
-+[753571.000000 <24571.000000>] [   T91] example[91]
-+[778688.000000 <25117.000000>] [   T92] example[92]
-+[804357.000000 <25669.000000>] [   T93] example[93]
-+[830584.000000 <26227.000000>] [   T94] example[94]
-+[857375.000000 <26791.000000>] [   T95] example[95]
-+[884736.000000 <27361.000000>] [   T96] example[96]
-+[912673.000000 <27937.000000>] [   T97] example[97]
-+[941192.000000 <28519.000000>] [   T98] example[98]
-+[970299.000000 <29107.000000>] [   T99] example[99]
-+[1000000.000000 <29701.000000>] [  T100] example[100]
-+[1030301.000000 <30301.000000>] [  T101] example[101]
-+[1061208.000000 <30907.000000>] [  T102] example[102]
-+[1092727.000000 <31519.000000>] [  T103] example[103]
-+[1124864.000000 <32137.000000>] [  T104] example[104]
-+[4557523.000000 <3432659.000000>] [  T105] example[105]
-diff --git a/tests/expected/dmesg/cid-facilities b/tests/expected/dmesg/cid-facilities
++++ b/tests/expected/dmesg/kmsg-delta
+@@ -0,0 +1,45 @@
++[    0.000000 <    0.000000>] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
++[    0.000001 <    0.000000>] Command line: initrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system
++[    0.000002 <    0.000000>] BIOS-provided physical RAM map:
++[    0.000003 <    0.000000>] BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable
++[    0.000004 <    0.000000>] BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved
++[    0.000005 <    0.000000>] BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable
++[    0.000006 <    0.000000>] BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved
++[    0.000007 <    0.000000>] BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable
++[    0.000008 <    0.000000>] BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
++[    0.000009 <    0.000000>] BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable
++[    0.000010 <    0.000000>] BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved
++[    0.201607 <    0.000000>] smp: Bringing up secondary CPUs ...
++[    0.201607 <    0.000000>] smpboot: x86: Booting SMP configuration:
++[    0.209670 <    0.000000>]   #1  #3  #5  #7
++[    0.212630 <    0.000000>] smp: Brought up 1 node, 16 CPUs
++[    0.215936 <    0.000000>] audit: type=2000 audit(1702926179.015:1): state=initialized audit_enabled=0 res=1
++[    0.215937 <    0.000000>] thermal_sys: Registered thermal governor 'fair_share'
++[    0.215966 <    0.000000>] ENERGY_PERF_BIAS: Set to 'normal', was 'performance'
++[    0.367657 <    0.000000>] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
++[    0.368615 <    0.000000>] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
++[    0.376316 <    0.000000>] ACPI: \_SB_.PRWL: New power resource
++[    0.376343 <    0.000000>] ACPI: \_SB_.PRWB: New power resource
++[    0.377373 <    0.000000>] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
++[    0.377378 <    0.000000>] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
++[    0.377569 <    0.000000>] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
++[    0.377933 <    0.000000>] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
++[    0.378458 <    0.000000>] PCI host bridge to bus 0000:00
++[    0.378459 <    0.000000>] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
++[    0.378461 <    0.000000>] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
++[    9.398562 <    9.000000>] user network daemon initialization complete
++[   10.441520 <    1.000000>] systemd[1]: systemd 254.7-1.fc39 running in system mode
++[   11.441524 <    1.000000>] systemd[1]: Detected architecture x86-64.
++[   12.441525 <    1.000000>] systemd[1]: Running in initrd.
++[   13.541598 <    1.000000>] systemd[1]: Hostname set to <catalina>.
++[   15.641860 <    2.000000>] usb 3-3: New USB device found, idVendor=1a40, idProduct=0101, bcdDevice= 1.11
++[   16.690000 <    1.000000>] Serial bus multi instantiate pseudo device driver INT3515:00: error -ENXIO: IRQ index 1 not found.
++[   17.710000 <    1.000000>] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++[   18.820000 <    1.000000>] systemd-journald[723]: Received client request to flush runtime journal.
++[   20.840000 <    2.000000>] systemd-journald[723]: File /var/log/journal/a124ea923b144109a12d557d5ac53179/system.journal corrupted or uncleanly shut down, renaming and replacing.
++[   21.852348 <    1.000000>] systemd-journald[723]: /var/log/journal/ad7a2547ac0e4342a342e62a34a3eae4/user-1000.journal: Journal file uses a different sequence number ID, rotating.
++[   24.871100 <    3.000000>] PEFILE: Unsigned PE binary
++[   33.918091 <    9.000000>] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++[  144.931785 <  111.000000>] usb 3-3.1: device firmware changed
++[  145.953248 <    1.000000>] usb 3-3.1: USB disconnect, device number 44
++[  147.981859 <    2.000000>] usb 3-3.1: New USB device found, idVendor=17ef, idProduct=6047, bcdDevice= 3.30
+diff --git a/tests/expected/dmesg/kmsg-facilities b/tests/expected/dmesg/kmsg-facilities
 new file mode 100644
-index 000000000..b8afa3809
+index 000000000..4b460951a
 --- /dev/null
-+++ b/tests/expected/dmesg/cid-facilities
-@@ -0,0 +1,104 @@
-+[    0.000000] [    T0] example[0]
-+[    1.000000] [    T1] example[1]
-+[    8.000000] [    T2] example[2]
-+[   27.000000] [    T3] example[3]
-+[   64.000000] [    T4] example[4]
-+[  125.000000] [    T5] example[5]
-+[  216.000000] [    T6] example[6]
-+[  343.000000] [    T7] example[7]
-+[  512.000000] [    T8] example[8]
-+[  729.000000] [    T9] example[9]
-+[ 1000.000000] [   T10] example[10]
-+[ 1331.000000] [   T11] example[11]
-+[ 1728.000000] [   T12] example[12]
-+[ 2197.000000] [   T13] example[13]
-+[ 2744.000000] [   T14] example[14]
-+[ 3375.000000] [   T15] example[15]
-+[ 4096.000000] [   T16] example[16]
-+[ 4913.000000] [   T17] example[17]
-+[ 5832.000000] [   T18] example[18]
-+[ 6859.000000] [   T19] example[19]
-+[ 8000.000000] [   T20] example[20]
-+[ 9261.000000] [   T21] example[21]
-+[10648.000000] [   T22] example[22]
-+[12167.000000] [   T23] example[23]
-+[13824.000000] [   T24] example[24]
-+[15625.000000] [   T25] example[25]
-+[17576.000000] [   T26] example[26]
-+[19683.000000] [   T27] example[27]
-+[21952.000000] [   T28] example[28]
-+[24389.000000] [   T29] example[29]
-+[27000.000000] [   T10] example[30]
-+[29791.000000] [   T31] example[31]
-+[32768.000000] [   T32] example[32]
-+[35937.000000] [   T33] example[33]
-+[39304.000000] [   T34] example[34]
-+[42875.000000] [   T35] example[35]
-+[46656.000000] [   T36] example[36]
-+[50653.000000] [   T37] example[37]
-+[54872.000000] [   T38] example[38]
-+[59319.000000] [   T39] example[39]
-+[64000.000000] [   T40] example[40]
-+[68921.000000] [   T41] example[41]
-+[74088.000000] [   T42] example[42]
-+[79507.000000] [   T43] example[43]
-+[85184.000000] [   T44] example[44]
-+[91125.000000] [   T45] example[45]
-+[97336.000000] [   T46] example[46]
-+[103823.000000] [   T47] example[47]
-+[110592.000000] [   T48] example[48]
-+[117649.000000] [   T49] example[49]
-+[125000.000000] [   T50] example[50]
-+[132651.000000] [   T51] example[51]
-+[140608.000000] [   T52] example[52]
-+[148877.000000] [   T53] example[53]
-+[157464.000000] [   T54] example[54]
-+[166375.000000] [   T55] example[55]
-+[175616.000000] [   T56] example[56]
-+[185193.000000] [   T57] example[57]
-+[195112.000000] [   T58] example[58]
-+[205379.000000] [   T59] example[59]
-+[216000.000000] [   T60] example[60]
-+[226981.000000] [   T61] example[61]
-+[238328.000000] [   T62] example[62]
-+[250047.000000] [   T63] example[63]
-+[262144.000000] [   T64] example[64]
-+[274625.000000] [   T65] example[65]
-+[287496.000000] [   T66] example[66]
-+[300763.000000] [   T67] example[67]
-+[314432.000000] [   T68] example[68]
-+[328509.000000] [   T69] example[69]
-+[343000.000000] [   T70] example[70]
-+[357911.000000] [   T71] example[71]
-+[373248.000000] [   T72] example[72]
-+[389017.000000] [   T73] example[73]
-+[405224.000000] [   T74] example[74]
-+[421875.000000] [   T75] example[75]
-+[438976.000000] [   T76] example[76]
-+[456533.000000] [   T77] example[77]
-+[474552.000000] [   T78] example[78]
-+[493039.000000] [   T79] example[79]
-+[512000.000000] [   T80] example[80]
-+[531441.000000] [   T81] example[81]
-+[551368.000000] [   T82] example[82]
-+[571787.000000] [   T83] example[83]
-+[592704.000000] [   T84] example[84]
-+[614125.000000] [   T85] example[85]
-+[636056.000000] [   T86] example[86]
-+[658503.000000] [   T87] example[87]
-+[681472.000000] [   T88] example[88]
-+[704969.000000] [   T89] example[89]
-+[729000.000000] [   T90] example[90]
-+[753571.000000] [   T91] example[91]
-+[778688.000000] [   T92] example[92]
-+[804357.000000] [   T93] example[93]
-+[830584.000000] [   T94] example[94]
-+[857375.000000] [   T95] example[95]
-+[884736.000000] [   T96] example[96]
-+[912673.000000] [   T97] example[97]
-+[941192.000000] [   T98] example[98]
-+[970299.000000] [   T99] example[99]
-+[1000000.000000] [  T100] example[100]
-+[1030301.000000] [  T101] example[101]
-+[1061208.000000] [  T102] example[102]
-+[1092727.000000] [  T103] example[103]
-diff --git a/tests/expected/dmesg/cid-indentation b/tests/expected/dmesg/cid-indentation
++++ b/tests/expected/dmesg/kmsg-facilities
+@@ -0,0 +1,59 @@
++dmesg Facility: -1
++dmesg Facility: 0
++[    0.000000] Linux version 6.6.4-arch1-1 (linux@archlinux) (gcc (GCC) 13.2.1 20230801, GNU ld (GNU Binutils) 2.41.0) #1 SMP PREEMPT_DYNAMIC Mon, 04 Dec 2023 00:29:19 +0000
++[    0.000001] Command line: initrd=\ucode.img initrd=\initramfs-linux.img rw cryptdevice=/dev/nvme0n1p3:system:discard root=/dev/mapper/system
++[    0.000002] BIOS-provided physical RAM map:
++[    0.000003] BIOS-e820: [mem 0x0000000000000000-0x000000000009efff] usable
++[    0.000004] BIOS-e820: [mem 0x000000000009f000-0x00000000000bffff] reserved
++[    0.000005] BIOS-e820: [mem 0x0000000000100000-0x0000000009afffff] usable
++[    0.000006] BIOS-e820: [mem 0x0000000009b00000-0x0000000009dfffff] reserved
++[    0.000007] BIOS-e820: [mem 0x0000000009e00000-0x0000000009efffff] usable
++[    0.000008] BIOS-e820: [mem 0x0000000009f00000-0x0000000009f3bfff] ACPI NVS
++[    0.000009] BIOS-e820: [mem 0x0000000009f3c000-0x000000004235ffff] usable
++[    0.000010] BIOS-e820: [mem 0x0000000042360000-0x000000004455ffff] reserved
++[    0.201607] smp: Bringing up secondary CPUs ...
++[    0.201607] smpboot: x86: Booting SMP configuration:
++[    0.209670]   #1  #3  #5  #7
++[    0.212630] smp: Brought up 1 node, 16 CPUs
++[    0.215936] audit: type=2000 audit(1702926179.015:1): state=initialized audit_enabled=0 res=1
++[    0.215937] thermal_sys: Registered thermal governor 'fair_share'
++[    0.215966] ENERGY_PERF_BIAS: Set to 'normal', was 'performance'
++[    0.367657] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
++[    0.368615] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
++[    0.376316] ACPI: \_SB_.PRWL: New power resource
++[    0.376343] ACPI: \_SB_.PRWB: New power resource
++[    0.377373] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
++[    0.377378] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
++[    0.377569] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
++[    0.377933] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
++[    0.378458] PCI host bridge to bus 0000:00
++[    0.378459] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
++[    0.378461] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
++[   15.641860] usb 3-3: New USB device found, idVendor=1a40, idProduct=0101, bcdDevice= 1.11
++[   16.690000] Serial bus multi instantiate pseudo device driver INT3515:00: error -ENXIO: IRQ index 1 not found.
++[   17.710000] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++[   24.871100] PEFILE: Unsigned PE binary
++[   33.918091] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++[  144.931785] usb 3-3.1: device firmware changed
++[  145.953248] usb 3-3.1: USB disconnect, device number 44
++[  147.981859] usb 3-3.1: New USB device found, idVendor=17ef, idProduct=6047, bcdDevice= 3.30
++dmesg Facility: 1
++[    9.398562] user network daemon initialization complete
++dmesg Facility: 2
++dmesg Facility: 3
++[   10.441520] systemd[1]: systemd 254.7-1.fc39 running in system mode
++[   11.441524] systemd[1]: Detected architecture x86-64.
++[   12.441525] systemd[1]: Running in initrd.
++[   13.541598] systemd[1]: Hostname set to <catalina>.
++dmesg Facility: 4
++dmesg Facility: 5
++[   18.820000] systemd-journald[723]: Received client request to flush runtime journal.
++[   20.840000] systemd-journald[723]: File /var/log/journal/a124ea923b144109a12d557d5ac53179/system.journal corrupted or uncleanly shut down, renaming and replacing.
++[   21.852348] systemd-journald[723]: /var/log/journal/ad7a2547ac0e4342a342e62a34a3eae4/user-1000.journal: Journal file uses a different sequence number ID, rotating.
++dmesg Facility: 6
++dmesg Facility: 7
++dmesg Facility: 8
++dmesg Facility: 9
++dmesg Facility: 10
++dmesg Facility: 11
++dmesg Facility: 12
+diff --git a/tests/expected/dmesg/kmsg-indentation b/tests/expected/dmesg/kmsg-indentation
 new file mode 100644
-index 000000000..573682795
+index 000000000..25f41b454
 --- /dev/null
-+++ b/tests/expected/dmesg/cid-indentation
++++ b/tests/expected/dmesg/kmsg-indentation
 @@ -0,0 +1,35 @@
-+[    1.000000] [    T1] new
-+                        line
-+[    2.000000] [    T2] two
-+                        new
-+                        lines
-+user  :crit  : [    1.000000] [    T1] new
-+                                       line
-+mail  :warn  : [    2.000000] [    T2] two
-+                                       new
-+                                       lines
-+[<    0.000000>] [    T1] new
-+                          line
-+[<    1.000000>] [    T2] two
-+                          new
-+                          lines
-+[    T1] new
-+         line
-+[    T2] two
-+         new
-+         lines
-+[Feb13 23:31] [    T1] new
-+                       line
-+[  +1.000000] [    T2] two
-+                       new
-+                       lines
-+[Fri Feb 13 23:31:31 2009] [    T1] new
-+                                    line
-+[Fri Feb 13 23:31:32 2009] [    T2] two
-+                                    new
-+                                    lines
-+2009-02-13T23:31:31,123456+00:00 [    T1] new
-+                                          line
-+2009-02-13T23:31:32,123456+00:00 [    T2] two
-+                                          new
-+                                          lines
-diff --git a/tests/expected/dmesg/cid-limit b/tests/expected/dmesg/cid-limit
++[    1.000000] line zero
++[    2.000000] line one
++[    4.000000] line two
++[    7.000000] line three
++[   11.000000] line four
++kern  :notice: [    1.000000] line zero
++user  :crit  : [    2.000000] line one
++mail  :warn  : [    4.000000] line two
++daemon:info  : [    7.000000] line three
++syslog:emerg : [   11.000000] line four
++[<    0.000000>] line zero
++[<    1.000000>] line one
++[<    2.000000>] line two
++[<    3.000000>] line three
++[<    4.000000>] line four
++line zero
++line one
++line two
++line three
++line four
++[Feb13 23:31] line zero
++[  +1.000000] line one
++[  +2.000000] line two
++[  +3.000000] line three
++[  +4.000000] line four
++[Fri Feb 13 23:31:31 2009] line zero
++[Fri Feb 13 23:31:32 2009] line one
++[Fri Feb 13 23:31:34 2009] line two
++[Fri Feb 13 23:31:37 2009] line three
++[Fri Feb 13 23:31:41 2009] line four
++2009-02-13T23:31:31,123456+00:00 line zero
++2009-02-13T23:31:32,123456+00:00 line one
++2009-02-13T23:31:34,123456+00:00 line two
++2009-02-13T23:31:37,123456+00:00 line three
++2009-02-13T23:31:41,123456+00:00 line four
+diff --git a/tests/expected/dmesg/kmsg-limit b/tests/expected/dmesg/kmsg-limit
 new file mode 100644
-index 000000000..c30b4ac9a
+index 000000000..0c39b4762
 --- /dev/null
-+++ b/tests/expected/dmesg/cid-limit
-@@ -0,0 +1,4 @@
-+[    1.000000] [    T1] example[1]
-+[    8.000000] [    T2] example[2]
-+[   27.000000] [    T3] example[3]
-+[   64.000000] [    T4] example[4]
-diff --git a/tests/ts/dmesg/cid-colors b/tests/ts/dmesg/cid-colors
++++ b/tests/expected/dmesg/kmsg-limit
+@@ -0,0 +1,31 @@
++[    0.201607] smp: Bringing up secondary CPUs ...
++[    0.201607] smpboot: x86: Booting SMP configuration:
++[    0.209670]   #1  #3  #5  #7
++[    0.212630] smp: Brought up 1 node, 16 CPUs
++[    0.215936] audit: type=2000 audit(1702926179.015:1): state=initialized audit_enabled=0 res=1
++[    0.215937] thermal_sys: Registered thermal governor 'fair_share'
++[    0.215966] ENERGY_PERF_BIAS: Set to 'normal', was 'performance'
++[    0.367657] ACPI: \_SB_.PCI0.GP19.NHI1.PWRS: New power resource
++[    0.368615] ACPI: \_SB_.PCI0.GP19.XHC4.PWRS: New power resource
++[    0.376316] ACPI: \_SB_.PRWL: New power resource
++[    0.376343] ACPI: \_SB_.PRWB: New power resource
++[    0.377373] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
++[    0.377378] acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
++[    0.377569] acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug AER]
++[    0.377933] acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME PCIeCapability LTR DPC]
++[    0.378458] PCI host bridge to bus 0000:00
++[    0.378459] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
++[    0.378461] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
++[    9.398562] user network daemon initialization complete
++[   10.441520] systemd[1]: systemd 254.7-1.fc39 running in system mode
++[   11.441524] systemd[1]: Detected architecture x86-64.
++[   12.441525] systemd[1]: Running in initrd.
++[   13.541598] systemd[1]: Hostname set to <catalina>.
++[   15.641860] usb 3-3: New USB device found, idVendor=1a40, idProduct=0101, bcdDevice= 1.11
++[   16.690000] Serial bus multi instantiate pseudo device driver INT3515:00: error -ENXIO: IRQ index 1 not found.
++[   17.710000] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
++[   18.820000] systemd-journald[723]: Received client request to flush runtime journal.
++[   20.840000] systemd-journald[723]: File /var/log/journal/a124ea923b144109a12d557d5ac53179/system.journal corrupted or uncleanly shut down, renaming and replacing.
++[   21.852348] systemd-journald[723]: /var/log/journal/ad7a2547ac0e4342a342e62a34a3eae4/user-1000.journal: Journal file uses a different sequence number ID, rotating.
++[   24.871100] PEFILE: Unsigned PE binary
++[   33.918091] snd_hda_intel 0000:00:1f.3: CORB reset timeout#2, CORBRP = 65535
+diff --git a/tests/ts/dmesg/kmsg-colors b/tests/ts/dmesg/kmsg-colors
 new file mode 100755
-index 000000000..d17dd17c0
+index 000000000..959e7b547
 --- /dev/null
-+++ b/tests/ts/dmesg/cid-colors
++++ b/tests/ts/dmesg/kmsg-colors
 @@ -0,0 +1,29 @@
 +#!/bin/bash
 +
@@ -965,7 +564,7 @@ index 000000000..d17dd17c0
 +# GNU General Public License for more details.
 +
 +TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="cid-colors"
++TS_DESC="kmsg-colors"
 +
 +. "$TS_TOPDIR"/functions.sh
 +ts_init "$*"
@@ -976,15 +575,15 @@ index 000000000..d17dd17c0
 +export TZ="GMT"
 +export DMESG_TEST_BOOTIME="1234567890.123456"
 +
-+$TS_HELPER_DMESG --color=always -F $TS_SELF/cid-input -x >> $TS_OUTPUT 2>/dev/null
++$TS_HELPER_DMESG --color=always -K $TS_SELF/kmsg-input -x >> $TS_OUTPUT 2>/dev/null
 +
 +ts_finalize
-diff --git a/tests/ts/dmesg/cid-console-levels b/tests/ts/dmesg/cid-console-levels
+diff --git a/tests/ts/dmesg/kmsg-console-levels b/tests/ts/dmesg/kmsg-console-levels
 new file mode 100755
-index 000000000..e2f241bde
+index 000000000..36f8ec097
 --- /dev/null
-+++ b/tests/ts/dmesg/cid-console-levels
-@@ -0,0 +1,36 @@
++++ b/tests/ts/dmesg/kmsg-console-levels
+@@ -0,0 +1,43 @@
 +#!/bin/bash
 +
 +# This file is part of util-linux.
@@ -1000,7 +599,7 @@ index 000000000..e2f241bde
 +# GNU General Public License for more details.
 +
 +TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="cid-levels"
++TS_DESC="kmsg-levels"
 +
 +. "$TS_TOPDIR"/functions.sh
 +ts_init "$*"
@@ -1011,21 +610,28 @@ index 000000000..e2f241bde
 +export DMESG_TEST_BOOTIME="1234567890.123456"
 +
 +for I in {-1..8}; do
-+	$TS_HELPER_DMESG -F $TS_SELF/cid-input -l $I >> $TS_OUTPUT 2>/dev/null
++	$TS_HELPER_DMESG -F $TS_SELF/kmsg-input -l $I >> $TS_OUTPUT 2>/dev/null
 +done
 +
-+$TS_HELPER_DMESG -F $TS_SELF/cid-input -l err+ >> $TS_OUTPUT 2>/dev/null
-+$TS_HELPER_DMESG -F $TS_SELF/cid-input -l emerg+ >> $TS_OUTPUT 2>/dev/null
-+$TS_HELPER_DMESG -F $TS_SELF/cid-input -l +err >> $TS_OUTPUT 2>/dev/null
-+$TS_HELPER_DMESG -F $TS_SELF/cid-input -l +debug >> $TS_OUTPUT 2>/dev/null
-+$TS_HELPER_DMESG -F $TS_SELF/cid-input -l + 2>> $TS_OUTPUT >/dev/null
++echo "* Output level: err+" >> $TS_OUTPUT 2>/dev/null
++$TS_HELPER_DMESG -K $TS_SELF/kmsg-input -r -l err+ >> $TS_OUTPUT 2>/dev/null
++echo "* Output level: emerg+" >> $TS_OUTPUT 2>/dev/null
++$TS_HELPER_DMESG -K $TS_SELF/kmsg-input -r -l emerg+ >> $TS_OUTPUT 2>/dev/null
++echo "* Output level: +err" >> $TS_OUTPUT 2>/dev/null
++$TS_HELPER_DMESG -K $TS_SELF/kmsg-input -r -l +err >> $TS_OUTPUT 2>/dev/null
++echo "* Output level: +debug" >> $TS_OUTPUT 2>/dev/null
++$TS_HELPER_DMESG -K $TS_SELF/kmsg-input -r -l +debug >> $TS_OUTPUT 2>/dev/null
++echo "* Output level: notice" >> $TS_OUTPUT 2>/dev/null
++$TS_HELPER_DMESG -K $TS_SELF/kmsg-input -r -l notice >> $TS_OUTPUT 2>/dev/null
++echo "* Output level: +" >> $TS_OUTPUT 2>/dev/null
++$TS_HELPER_DMESG -K $TS_SELF/kmsg-input -r -l + 2>> $TS_OUTPUT >/dev/null
 +
 +ts_finalize
-diff --git a/tests/ts/dmesg/cid-decode b/tests/ts/dmesg/cid-decode
+diff --git a/tests/ts/dmesg/kmsg-decode b/tests/ts/dmesg/kmsg-decode
 new file mode 100755
-index 000000000..488f52a32
+index 000000000..51fef159d
 --- /dev/null
-+++ b/tests/ts/dmesg/cid-decode
++++ b/tests/ts/dmesg/kmsg-decode
 @@ -0,0 +1,28 @@
 +#!/bin/bash
 +
@@ -1042,7 +648,7 @@ index 000000000..488f52a32
 +# GNU General Public License for more details.
 +
 +TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="cid-decode"
++TS_DESC="kmsg-decode"
 +
 +. "$TS_TOPDIR"/functions.sh
 +ts_init "$*"
@@ -1052,15 +658,15 @@ index 000000000..488f52a32
 +export TZ="GMT"
 +export DMESG_TEST_BOOTIME="1234567890.123456"
 +
-+$TS_HELPER_DMESG -x -F $TS_SELF/cid-input >> $TS_OUTPUT 2>/dev/null
++$TS_HELPER_DMESG -x -K $TS_SELF/kmsg-input >> $TS_OUTPUT 2>/dev/null
 +
 +ts_finalize
-diff --git a/tests/ts/dmesg/cid-delta b/tests/ts/dmesg/cid-delta
+diff --git a/tests/ts/dmesg/kmsg-delta b/tests/ts/dmesg/kmsg-delta
 new file mode 100755
-index 000000000..8ba952a5d
+index 000000000..7ae082e76
 --- /dev/null
-+++ b/tests/ts/dmesg/cid-delta
-@@ -0,0 +1,27 @@
++++ b/tests/ts/dmesg/kmsg-delta
+@@ -0,0 +1,28 @@
 +#!/bin/bash
 +
 +# This file is part of util-linux.
@@ -1076,7 +682,7 @@ index 000000000..8ba952a5d
 +# GNU General Public License for more details.
 +
 +TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="cid-delta"
++TS_DESC="kmsg-delta"
 +
 +. "$TS_TOPDIR"/functions.sh
 +ts_init "$*"
@@ -1085,15 +691,16 @@ index 000000000..8ba952a5d
 +
 +export TZ="GMT"
 +export DMESG_TEST_BOOTIME="1234567890.123456"
-+$TS_HELPER_DMESG -d -F $TS_SELF/cid-input >> $TS_OUTPUT 2>/dev/null
++
++$TS_HELPER_DMESG -d -K $TS_SELF/kmsg-input >> $TS_OUTPUT 2>/dev/null
 +
 +ts_finalize
-diff --git a/tests/ts/dmesg/cid-facilities b/tests/ts/dmesg/cid-facilities
+diff --git a/tests/ts/dmesg/kmsg-facilities b/tests/ts/dmesg/kmsg-facilities
 new file mode 100755
-index 000000000..b4b613e8b
+index 000000000..b274c5de4
 --- /dev/null
-+++ b/tests/ts/dmesg/cid-facilities
-@@ -0,0 +1,30 @@
++++ b/tests/ts/dmesg/kmsg-facilities
+@@ -0,0 +1,31 @@
 +#!/bin/bash
 +
 +# This file is part of util-linux.
@@ -1109,7 +716,7 @@ index 000000000..b4b613e8b
 +# GNU General Public License for more details.
 +
 +TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="cid-facilities"
++TS_DESC="kmsg-facilities"
 +
 +. "$TS_TOPDIR"/functions.sh
 +ts_init "$*"
@@ -1120,15 +727,16 @@ index 000000000..b4b613e8b
 +export DMESG_TEST_BOOTIME="1234567890.123456"
 +
 +for I in {-1..12}; do
-+	$TS_HELPER_DMESG -F $TS_SELF/cid-input -f $I >> $TS_OUTPUT 2>/dev/null
++        echo "dmesg Facility: $I" >> $TS_OUTPUT
++	$TS_HELPER_DMESG -K $TS_SELF/kmsg-input -f $I >> $TS_OUTPUT 2>/dev/null
 +done
 +
 +ts_finalize
-diff --git a/tests/ts/dmesg/cid-indentation b/tests/ts/dmesg/cid-indentation
+diff --git a/tests/ts/dmesg/kmsg-indentation b/tests/ts/dmesg/kmsg-indentation
 new file mode 100755
-index 000000000..434e1694b
+index 000000000..16870158f
 --- /dev/null
-+++ b/tests/ts/dmesg/cid-indentation
++++ b/tests/ts/dmesg/kmsg-indentation
 @@ -0,0 +1,40 @@
 +#!/bin/bash
 +
@@ -1145,7 +753,7 @@ index 000000000..434e1694b
 +# GNU General Public License for more details.
 +
 +TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="cid-indentation"
++TS_DESC="kmsg-indentation"
 +
 +. "$TS_TOPDIR"/functions.sh
 +ts_init "$*"
@@ -1155,26 +763,26 @@ index 000000000..434e1694b
 +export TZ="GMT"
 +export DMESG_TEST_BOOTIME="1234567890.123456"
 +
-+$TS_HELPER_DMESG -F $TS_SELF/cid-newlines >> $TS_OUTPUT 2>> $TS_ERRLOG
++$TS_HELPER_DMESG -K $TS_SELF/kmsg-newlines >> $TS_OUTPUT 2>> $TS_ERRLOG
 +
-+$TS_HELPER_DMESG -F $TS_SELF/cid-newlines -x >> $TS_OUTPUT 2>> $TS_ERRLOG
++$TS_HELPER_DMESG -K $TS_SELF/kmsg-newlines -x >> $TS_OUTPUT 2>> $TS_ERRLOG
 +
-+$TS_HELPER_DMESG --time-format=delta --file $TS_SELF/cid-newlines >> $TS_OUTPUT 2>> $TS_ERRLOG
++$TS_HELPER_DMESG --time-format=delta --kmsg-file $TS_SELF/kmsg-newlines >> $TS_OUTPUT 2>> $TS_ERRLOG
 +
-+$TS_HELPER_DMESG --time-format=notime --file $TS_SELF/cid-newlines >> $TS_OUTPUT 2>> $TS_ERRLOG
++$TS_HELPER_DMESG --time-format=notime --kmsg-file $TS_SELF/kmsg-newlines >> $TS_OUTPUT 2>> $TS_ERRLOG
 +
-+$TS_HELPER_DMESG --time-format=reltime --file $TS_SELF/cid-newlines >> $TS_OUTPUT 2>> $TS_ERRLOG
++$TS_HELPER_DMESG --time-format=reltime --kmsg-file $TS_SELF/kmsg-newlines >> $TS_OUTPUT 2>> $TS_ERRLOG
 +
-+$TS_HELPER_DMESG --time-format=ctime --file $TS_SELF/cid-newlines >> $TS_OUTPUT 2>> $TS_ERRLOG
++$TS_HELPER_DMESG --time-format=ctime --kmsg-file $TS_SELF/kmsg-newlines >> $TS_OUTPUT 2>> $TS_ERRLOG
 +
-+$TS_HELPER_DMESG --time-format=iso --file $TS_SELF/cid-newlines >> $TS_OUTPUT 2>> $TS_ERRLOG
++$TS_HELPER_DMESG --time-format=iso --kmsg-file $TS_SELF/kmsg-newlines >> $TS_OUTPUT 2>> $TS_ERRLOG
 +
 +ts_finalize
-diff --git a/tests/ts/dmesg/cid-limit b/tests/ts/dmesg/cid-limit
+diff --git a/tests/ts/dmesg/kmsg-limit b/tests/ts/dmesg/kmsg-limit
 new file mode 100755
-index 000000000..34f928a9e
+index 000000000..ff70bcf83
 --- /dev/null
-+++ b/tests/ts/dmesg/cid-limit
++++ b/tests/ts/dmesg/kmsg-limit
 @@ -0,0 +1,29 @@
 +#!/bin/bash
 +
@@ -1191,7 +799,7 @@ index 000000000..34f928a9e
 +# GNU General Public License for more details.
 +
 +TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="cid-limit"
++TS_DESC="kmsg-limit"
 +
 +. "$TS_TOPDIR"/functions.sh
 +ts_init "$*"
@@ -1201,21 +809,10 @@ index 000000000..34f928a9e
 +export TZ="GMT"
 +export DMESG_TEST_BOOTIME="1234567890.123456"
 +
-+$TS_HELPER_DMESG --since @1234567890.124 --until @1234567991 \
-+	-F $TS_SELF/cid-input >> $TS_OUTPUT 2> $TS_ERRLOG
++$TS_HELPER_DMESG --since @1234567890.124 --until @1234567991 -K $TS_SELF/kmsg-input \
++	>> $TS_OUTPUT 2> $TS_ERRLOG
 +
 +ts_finalize
-diff --git a/tests/ts/dmesg/cid-newlines b/tests/ts/dmesg/cid-newlines
-new file mode 100644
-index 000000000..682ce40bb
---- /dev/null
-+++ b/tests/ts/dmesg/cid-newlines
-@@ -0,0 +1,5 @@
-+<10>[    1.000000] [    T1] new
-+line
-+<20>[    2.000000] [    T2] two
-+new
-+lines
 -- 
 2.43.0
 
