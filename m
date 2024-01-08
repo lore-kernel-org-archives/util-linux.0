@@ -1,126 +1,128 @@
-Received: from mail-yb1-f228.google.com (mail-yb1-f228.google.com [209.85.219.228])
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30FE01E503
-	for <util-linux@vger.kernel.org>; Thu,  4 Jan 2024 20:44:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=arista.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arista.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55BC146531
+	for <util-linux@vger.kernel.org>; Mon,  8 Jan 2024 14:07:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arista.com header.i=@arista.com header.b="J7qapKU5"
-Received: by mail-yb1-f228.google.com with SMTP id 3f1490d57ef6-dbd715ed145so787639276.1
-        for <util-linux@vger.kernel.org>; Thu, 04 Jan 2024 12:44:47 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704401087; x=1705005887;
-        h=content-transfer-encoding:message-id:date:subject:cc:to:from
-         :dkim-signature:x-gm-message-state:from:to:cc:subject:date
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nFgBhrW5"
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-a28d61ba65eso195217966b.3
+        for <util-linux@vger.kernel.org>; Mon, 08 Jan 2024 06:07:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1704722847; x=1705327647; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Wqw2/4KjWiGCWTXSgf14g1faccj3U/ZQmlsyK7T6b/Q=;
-        b=BCnj6ENySJ6qKByuZIWtM3Ca7n1r+jb+QYwv4x9yAO2KT7PxcwUEyqmEv/4Ot7FXeS
-         ojTsyO5Hs5YwFAhtib2s1FE6MuJyomtb71OjF1j3cStBPAWrhBFqoX40QCzCU3vzdWWl
-         qMEXvwDGEOQJEu0CMyrCukhTjxomFg8/IL9jLAz7C64NHLVdcPUklF158sMmX/AdVO9s
-         SW6Mq8BVtGFhn0YfLj9xEb2+uKeLVYhhwKSMb8Jjfyv7QhcJy838pb8uzZfXkaOiGslB
-         8ve8T+kU8SFSYa0WiAlENF1OqnBWAzOhFMh9gyy+9vLwjLVIFrih/huvzM2+Dvz04wwe
-         a/Ng==
-X-Gm-Message-State: AOJu0YxWm6U8q/9FNupGPpV76SV6Z5F9b62Ddj8w64xcboHcP9WZgQyd
-	iJS2FYj7ZdKMDXJVSuvwe8mwMXvcI/I9aHr79Ly3P7/bDuPRQ+mJ/is=
-X-Google-Smtp-Source: AGHT+IHrpVTI3Yl8Xcze2WEJk409tDazh33j0xaYXHvzNPXryYzINMi82sFwSezO/ZApS50NUUQbu1yMfbK3
-X-Received: by 2002:a25:ad95:0:b0:d9a:4b0f:402b with SMTP id z21-20020a25ad95000000b00d9a4b0f402bmr1137486ybi.38.1704401087020;
-        Thu, 04 Jan 2024 12:44:47 -0800 (PST)
-Received: from smtp.aristanetworks.com ([74.123.28.25])
-        by smtp-relay.gmail.com with ESMTPS id z68-20020a25a14a000000b00dbe9f2f801bsm3929ybh.3.2024.01.04.12.44.46
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 04 Jan 2024 12:44:47 -0800 (PST)
-X-Relaying-Domain: arista.com
-X-SMTP-Authentication: Allow-List-permitted
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arista.com;
-	s=Arista-A; t=1704401086;
-	bh=Wqw2/4KjWiGCWTXSgf14g1faccj3U/ZQmlsyK7T6b/Q=;
-	h=From:To:Cc:Subject:Date:From;
-	b=J7qapKU5qAjumHiebtsBYzbkdCDkqTkKYWeE+NfDJVR246d13DS/MOI5gv0DEVf+c
-	 BLOd+vFCDCpE+CCFflwdZoQZKwc+fBRK11aYcr/M00SNZVw3CFNGBYDSkDsBfrWq87
-	 y913tVlzKZ5tdiZtR0rn2RVef1erBaTtMT64e4w2LBvMYhrfQeBZLcyl0yEGL8Q5uS
-	 a/dUR3OriLVu/+LTrnnNWaaCrojz4Xw+4ynOQVQ/V2U4d2Bo4ohce15dHQiTqanxyh
-	 nADz/LCNJ2s5KA0493HPGZ/7ZILBijqOHl+AVwaFsbpo8DMlhVETtgwOuS78je9XM0
-	 YSF4LeOWh7Krw==
-X-SMTP-Authentication: Allow-List-permitted
-X-SMTP-Authentication: Allow-List-permitted
-Received: from us113.sjc.aristanetworks.com (us113.sjc.aristanetworks.com [10.242.240.8])
-	by smtp.aristanetworks.com (Postfix) with ESMTP id 36CAC400F80;
-	Thu,  4 Jan 2024 12:44:46 -0800 (PST)
-X-SMTP-Authentication: Allow-List-permitted
-X-SMTP-Authentication: Allow-List-permitted
-X-SMTP-Authentication: Allow-List-permitted
-Received: by us113.sjc.aristanetworks.com (Postfix, from userid 10383)
-	id 2D47AB84076D; Thu,  4 Jan 2024 12:44:46 -0800 (PST)
-X-SMTP-Authentication: Allow-List-permitted
-X-SMTP-Authentication: Allow-List-permitted
-X-SMTP-Authentication: Allow-List-permitted
-From: Edward Chron <echron@arista.com>
-X-SMTP-Authentication: Allow-List-permitted
-X-SMTP-Authentication: Allow-List-permitted
-X-SMTP-Authentication: Allow-List-permitted
-To: util-linux@vger.kernel.org
-X-SMTP-Authentication: Allow-List-permitted
-X-SMTP-Authentication: Allow-List-permitted
-X-SMTP-Authentication: Allow-List-permitted
-Cc: colona@arista.com,
-	echron@arista.com,
-	echron@gmail.com
-X-SMTP-Authentication: Allow-List-permitted
-X-SMTP-Authentication: Allow-List-permitted
-X-SMTP-Authentication: Allow-List-permitted
-Subject: [PATCH] util-linux add dmesg caller_id Issue: 2666 patch 4 of 4
-X-SMTP-Authentication: Allow-List-permitted
-X-SMTP-Authentication: Allow-List-permitted
-X-SMTP-Authentication: Allow-List-permitted
-Date: Thu,  4 Jan 2024 12:44:44 -0800
-X-SMTP-Authentication: Allow-List-permitted
-X-SMTP-Authentication: Allow-List-permitted
-X-SMTP-Authentication: Allow-List-permitted
-Message-ID: <20240104204444.23011-1-echron@arista.com>
-X-SMTP-Authentication: Allow-List-permitted
-Content-Transfer-Encoding: 8bit
+        bh=1FHVFWkqcsXFgSXt59WG6m3S0UaT1nd0bpbUndIAQNk=;
+        b=nFgBhrW5a1ipqHiWl0hlBjVoITaERpfus20yybO1+NS2Ynbclfr8o1ijW6AcmGjsWL
+         q13trOcUKwRiDWQdwD1r9OuyRb1vu02pUdgpoqVZsUX0q6Mo1Uvh+rGtgmHpqDqfH9Kb
+         bYV1aMzmuQdk91KorSNpcWacASq4yEfw42gEaFjXBg2gpTs+HS941GMlIV7dLfI0/sf/
+         JXDQJJCdBGYfaEzzkZQD0O+mUff/0gBpxdeLLjTmW5T3ItNnJa1qqvFKzZaPNo5jFh/5
+         Nqu8OPBj4D2JeJ2EnfCAxcnB3kFO/mcbn8TIUbezGBTVh6o173xV97PkYc//Nv1sXvl9
+         lRaA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1704722847; x=1705327647;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=1FHVFWkqcsXFgSXt59WG6m3S0UaT1nd0bpbUndIAQNk=;
+        b=Ga+Vu8WJ9XYIB+4QIHwqo4A+aQrwgyNd2G3CZzo+LqLh9jmOhMG9pixzt0rxT9WIa7
+         thkXOEuZS3/m8j/W+soz+JKOQ1+C008vGgSGzqdjHFe64py6HRQHkHxCAsH8Md6L/kCv
+         H+Be6+e/UVWAJaN+iq/V1GMd31pOOiXrKjG84MayO5yqe0hUBAR1sArApWZk3kmqNKbW
+         wPTMGjRxmWHCeWp252fNMSsfni1wTGKMPcszJUaxZlfGQZlp1JdSMFT0vTlQzMf5ntAE
+         QhnMZiU6AXqKr0OvALyFSVEBOQ/jpQkaExVEl1XUxb+quSuUy6aRVNekZfh6DaYJcYTB
+         T5Qg==
+X-Gm-Message-State: AOJu0Yy4FRIVz6xk9ZzNKb/gZOgreP6VRGrGme8aG7uC5jZIu2HrTnSz
+	9n/k7ja2mLof5w/dGH4W8fm2dIjxB+A3T04NYaI=
+X-Google-Smtp-Source: AGHT+IEZqlfX0SgKhi16cdojsVjF5zPrRwhGuyqg+WLQdYnz/iS9g5Vz9PjbWOwvLz5m9zyzrdImpH/WkvX6OSHu29k=
+X-Received: by 2002:a17:906:225d:b0:a23:68c7:fe93 with SMTP id
+ 29-20020a170906225d00b00a2368c7fe93mr902074ejr.194.1704722847402; Mon, 08 Jan
+ 2024 06:07:27 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20231231183336.18934-1-echron@arista.com> <20240102115815.av7ges3f47m6bciq@ws.net.home>
+ <CAFbqbibqO9wNc1JgaQ6FPTgoUP9u9J1wnTGxp+6W_QcAryLKAw@mail.gmail.com>
+In-Reply-To: <CAFbqbibqO9wNc1JgaQ6FPTgoUP9u9J1wnTGxp+6W_QcAryLKAw@mail.gmail.com>
+From: Edward Chron <echron@gmail.com>
+Date: Mon, 8 Jan 2024 06:07:16 -0800
+Message-ID: <CAFbqbibTppnw40BfdqjKfLHOiDFaJWD4nypMp6vrVnL5VMqcpg@mail.gmail.com>
+Subject: Re: [PATCH] util-linux-demsg-issue-2666-patch-1.patch
+To: Karel Zak <kzak@redhat.com>
+Cc: Edward Chron <echron@arista.com>, util-linux@vger.kernel.org, colona@arista.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Submission to Project: util-linux
-Open Incident: #2663 at github.com/util-linux/util-linux/issues/2663
-Component: util-linux/sys-utils
-Files: tests/ts/dmesg kmsg interface files and related expected files
-Testing on Fedora 39 with Linux-6.6.6 Kernel and CONFIG_PRINTK_CALLER
-config option set.
-Patch tested and generated with the latest util-linux code pulled.
-Revision: no caller optional fields in any of the kmsg-input entries
-Revision: retrofitted to apply on top of Issue: #2609 and Issue #2637
-This is patch 2 of 2 (second in the series)
-A second patch needed to hold 2nd binary file (git binary files issue)
+I've posted the revised patch series with the recommended fix.
 
-This patch is needed because git format does not produce correct
-output if two binary files are included in the same patch.
-So adding the second binary file in a second patch to resolve the
-issue.
+Let me know if there is any additional work needed.
 
-Signed-off-by: Ivan Delalande <colona@arista.com>
-Signed-off-by: Edward Chron <echron@arista.com>
----
- tests/ts/dmesg/kmsg-newlines | Bin 0 -> 182 bytes
- 1 file changed, 0 insertions(+), 0 deletions(-)
- create mode 100644 tests/ts/dmesg/kmsg-newlines
+Thank you,
 
-diff --git a/tests/ts/dmesg/kmsg-newlines b/tests/ts/dmesg/kmsg-newlines
-new file mode 100644
-index 0000000000000000000000000000000000000000..a1f96c562ec4da27e24117908a7a1e78f10f9f97
-GIT binary patch
-literal 182
-zcmZ9GQ3`-C3`6(bQ+R*~-JJO0c`6EOVNL{3?>7CJf##!mg!EuoE<!u5%P!3=LCM(k
-zhpQ9ag)&0MF&uoI#!D$*CJr(kqr>n+<{(0`_@?1)ORQ&j*x!yx&p^cr8s&&zH$C?_
-BGAjT8
+Edward
 
-literal 0
-HcmV?d00001
-
--- 
-2.43.0
+On Wed, Jan 3, 2024 at 6:51=E2=80=AFAM Edward Chron <echron@gmail.com> wrot=
+e:
+>
+> Thank you Karel, I will fix this test issue and resubmit the patch series=
+.
+>
+> On Tue, Jan 2, 2024 at 3:58=E2=80=AFAM Karel Zak <kzak@redhat.com> wrote:
+> >
+> > On Sun, Dec 31, 2023 at 10:33:36AM -0800, Edward Chron wrote:
+> > > +     if (*rec->caller_id) {
+> > > +             if (ctl->json) {
+> > > +                     ul_jsonwrt_value_s(&ctl->jfmt, "caller", rec->c=
+aller_id);
+> > > +             } else {
+> > > +                     char cidbuf[PID_CHARS_MAX+3] =3D {'\0'};
+> > > +
+> > > +                     sprintf(cidbuf, "[%*s] ",
+> > > +                             (char)ctl->caller_id_size, rec->caller_=
+id);
+> > > +                     ctl->indent +=3D strnlen(cidbuf, sizeof(cidbuf)=
+);
+> > > +                     fputs(cidbuf, stdout);
+> > > +             }
+> > > +     }
+> >
+> > The variable width (ctl->caller_id_size) of caller ID makes your
+> > regression test fragile, see:
+> >
+> > https://github.com/util-linux/util-linux/actions/runs/7384780996/job/20=
+088287790?pr=3D2647
+> >
+> > --- /home/runner/work/util-linux/util-linux/tests/expected/dmesg/cid-li=
+mit      2024-01-02 10:34:02.893193174 +0000
+> > +++ /home/runner/work/util-linux/util-linux/tests/output/dmesg/cid-limi=
+t        2024-01-02 10:38:29.209015303 +0000
+> > @@ -1,4 +1,4 @@
+> > -[    1.000000] [    T1] example[1]
+> > -[    8.000000] [    T2] example[2]
+> > -[   27.000000] [    T3] example[3]
+> > -[   64.000000] [    T4] example[4]
+> > +[    1.000000] [   T1] example[1]
+> > +[    8.000000] [   T2] example[2]
+> > +[   27.000000] [   T3] example[3]
+> > +[   64.000000] [   T4] example[4]
+> >
+> >
+> > I see two possible ways to fix it:
+> >
+> >  * "normalize" the output in the tests -- just use sed(1) to
+> >    remove all the blanks space "[    T4]" to "[T4]", so the output
+> >    will be always the same
+> >
+> >  * or use fixed width for the caller_id in dmesg.c
+> >
+> >
+> >     Karel
+> >
+> > --
+> >  Karel Zak  <kzak@redhat.com>
+> >  http://karelzak.blogspot.com
+> >
