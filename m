@@ -1,86 +1,68 @@
-Received: from tarta.nabijaczleweli.xyz (tarta.nabijaczleweli.xyz [139.28.40.42])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F196E168A3
-	for <util-linux@vger.kernel.org>; Sat, 13 Jan 2024 22:41:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nabijaczleweli.xyz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabijaczleweli.xyz
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04AF0DDD6
+	for <util-linux@vger.kernel.org>; Mon, 15 Jan 2024 09:40:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nabijaczleweli.xyz header.i=@nabijaczleweli.xyz header.b="XWv3kHBB"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nabijaczleweli.xyz;
-	s=202305; t=1705185331;
-	bh=+4Rxm3iYlvbckjKj5wkbcxSd0n09jw7pDrTXdmxYGgA=;
-	h=Date:From:To:Subject:From;
-	b=XWv3kHBBlYVpAUbWMtnxWG2rt9DsFHivuvpSPiXgHP5oyhcfh6CCSAw62XeQXmJ/1
-	 9YmzMHSuk0b5RAEnnp9xphUhUB0p1paomiWPllejiW1adnrD1BjVE10Rx9jTpqK1QI
-	 ACaePdrgG629U8mdhKaJ+pru10NHP4XzJh0HhCTZgHgFlF9DIBQyI5HhheujOq/M6W
-	 RjP8m6SzDGajY0wEpe2veJLeDy+b9Grrm5ynPulc3VrbzB06sVPuMsAV4LpAXAUzJa
-	 wDJgZcxK5xbGfClwPCQfxERO7fp+GQJVg8ncXc3MV42kFBxnD9U+dGCqeuRoA7tdBW
-	 g+rO2/fo9zQUw==
-Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
-	by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id DD65B15790
-	for <util-linux@vger.kernel.org>; Sat, 13 Jan 2024 23:35:31 +0100 (CET)
-Date: Sat, 13 Jan 2024 23:35:31 +0100
-From: =?utf-8?B?0L3QsNCx?= <nabijaczleweli@nabijaczleweli.xyz>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] libfdisk: fdisk_deassign_device: only sync(2) blockdevs
-Message-ID: <utso6yacwbluj5pou2vwllxfb5dxmhbly5qaumlshga3o5fbgg@tarta.nabijaczleweli.xyz>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LYHDFrAJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1705311640;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=yWo8vn4N1N+56fje69jcWFUwb0dlt7lFtfHRgImkMKM=;
+	b=LYHDFrAJo65qF5j5X6dupHKybwIxLL+mWLnMHk62yJq6aJBgDJ1xjj9t9tUYb+1zFM/rz9
+	vk1dMD+/5UMiv2lzswZkAuP/XSWcG/QAgdqIaynssxHvE1yrrGKlZx/5/jcTFwLurZuqPV
+	y9UGl5u0W/qPXpqW4UfeTp3IW6SnCfw=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-218-LrfNMW9hPDi71Bpco6zgmw-1; Mon, 15 Jan 2024 04:40:37 -0500
+X-MC-Unique: LrfNMW9hPDi71Bpco6zgmw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0F67B811E9E;
+	Mon, 15 Jan 2024 09:40:37 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.226.22])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 920891121306;
+	Mon, 15 Jan 2024 09:40:36 +0000 (UTC)
+Date: Mon, 15 Jan 2024 10:40:34 +0100
+From: Karel Zak <kzak@redhat.com>
+To: =?utf-8?B?0L3QsNCx?= <nabijaczleweli@nabijaczleweli.xyz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] libfdisk: fdisk_deassign_device: only sync(2) blockdevs
+Message-ID: <20240115094034.2anrtva3yf6hoshf@ws.net.home>
+References: <utso6yacwbluj5pou2vwllxfb5dxmhbly5qaumlshga3o5fbgg@tarta.nabijaczleweli.xyz>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="xbwxmdw2ngllewu2"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-User-Agent: NeoMutt/20231221-2-4202cf-dirty
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <utso6yacwbluj5pou2vwllxfb5dxmhbly5qaumlshga3o5fbgg@tarta.nabijaczleweli.xyz>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
 
+On Sat, Jan 13, 2024 at 11:35:31PM +0100, наб wrote:
+> When not editing a blockdev, syncing disks provides no benefit
+> (we already fsync() above), takes a long time,
+> and affects unrelated caches.
+> 
+> BLKRRPART is similarly gated on !S_ISBLK(st_mode) in
+> fdisk_reread_partition_table.
 
---xbwxmdw2ngllewu2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Applied, thanks!
 
-When not editing a blockdev, syncing disks provides no benefit
-(we already fsync() above), takes a long time,
-and affects unrelated caches.
+    Karel
 
-BLKRRPART is similarly gated on !S_ISBLK(st_mode) in
-fdisk_reread_partition_table.
----
-Based on the 2.39 tarball.
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
-diff '--color=auto' -ru util-linux-2.39.orig/libfdisk/src/context.c util-linux-2.39/libfdisk/src/context.c
---- util-linux-2.39.orig/libfdisk/src/context.c	2023-05-11 10:24:24.840187437 +0200
-+++ util-linux-2.39/libfdisk/src/context.c	2024-01-13 23:25:56.358057182 +0100
-@@ -773,7 +773,7 @@
- 					cxt->dev_path);
- 			return -errno;
- 		}
--		if (!nosync) {
-+		if (S_ISBLK(cxt->dev_st.st_mode) && !nosync) {
- 			fdisk_info(cxt, _("Syncing disks."));
- 			sync();
- 		}
-
---xbwxmdw2ngllewu2
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmWjEDAACgkQvP0LAY0m
-WPEDjRAAqDfF97TwtHqXqeWVdiPHwom6CSYJBeVnNw+tgjN/2vdMY6oLgSFFOeeQ
-2GKDyT0ebRVoj7laiKYGUds+U0YORPzH/Z8aMesCZxGhloW452Gu4mpLyNE5p79R
-bh95tX8LCSrxSlVPlmIFMHC1JC/Xl+sSr+UdXPgD9g/L2JG5+ASlyAES1ncg0Wgk
-rHOSgBD8txVb5NQ2TW15QkgSWC10DIOaz60nrmK3QxE07NFOzcI+kNBADyxbojpR
-M8592kIT935084uEWO++PGDDJRVLwJdKmYP6oZMkvbUCf6UGoBALJE1S6ceVmTp6
-RFCXGFn+PAB/Tex6f6IGm5xXF4zBBWli4aYfj7nZsOIeHHHJEax5mf6mgRzPjRuC
-fS5O97h0opYRa6OXXISnYpiJ7OLpZxt2Jr3gVOw1BtDv+G4ESF3NXKHydzIYVb3Q
-nsQP9L+BwCQ6NJIiZkPIeeEHqUuWW0ZM4eyF8HB86M9l+iP5ZtJ2cLDaDjiBWjJr
-SbgHxQYzZK4YNXPgUVonsZiOE503P6QhfrRa9EqC04DnjPyx3DH4TQ9ussRZ6BQ7
-8mn0i8Er94RGTl4SQw4adU2TG9Lwna+zjMS0XnPrC7FRMKDh8FH6eRcED5BQQcX+
-nSiTGsn2rM9cCtl3hbGakEeUrOf2xAjV6MosNcIpBmwUYkbmSM0=
-=OBaM
------END PGP SIGNATURE-----
-
---xbwxmdw2ngllewu2--
