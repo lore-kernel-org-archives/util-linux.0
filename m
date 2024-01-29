@@ -1,81 +1,106 @@
-Received: from herc.mirbsd.org (bonn.mirbsd.org [217.91.129.195])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B84741429F
-	for <util-linux@vger.kernel.org>; Mon, 29 Jan 2024 20:28:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.91.129.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1228A152DFC
+	for <util-linux@vger.kernel.org>; Mon, 29 Jan 2024 20:44:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706560097; cv=none; b=UMkSimP2ZGrjunVM2m0rTqy2vZJGIgjtwZ4vt4Cgx4n2jk0aTnPq6SHi+kT03aR+TG1SBE3JQA9l9gB91UwZwhFbE5XZ88qJd4ZkdyZS5PUhEltL+2Uz69Gvfw5P29GkEkyjA54jpwjG/x564FAZvXZfYuNB71LHGe70XbkLKA4=
+	t=1706561066; cv=none; b=bLajOqJj1sCaTF2lQSt2OlBAX/uoqx+tlOSdvknofkymf/WkmK2mflZtlQS88NZlA9T1Ik2nS2TYAePWRxAV32oVem9OYyDaFkXnSV7yRJB84pgRNVe7I6/YqZlPA8w0HQEY226EBuWfsXhAYn4z8bP1W2BmwPENRDAGttMG27M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706560097; c=relaxed/simple;
-	bh=IJK1Zm02vf6xbg8jcq0TgPXjR51uAQTVl9+zqySCwg0=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=k5aI/vAXSo/8xFfzFzl23dKeKRYSNqXiTOBHRfcisFedjo/DXHWYk+YzBW9fsMrHSrtYHdJKbiZmwzWOx0O6CGGeIRrAFxxpY58mWTFnknNWx2+LFxfrlJAlAkYANO2Eus5lkkRrNVBPzV01wyz2IyRRkxKw5OrKEj73xXYQPGQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=debian.org; arc=none smtp.client-ip=217.91.129.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=debian.org
-Received: from herc.mirbsd.org (tg@herc.mirbsd.org [192.168.0.82])
-	by herc.mirbsd.org (8.14.9/8.14.5) with ESMTP id 40TKRDdu025474
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO);
-	Mon, 29 Jan 2024 20:27:19 GMT
-Date: Mon, 29 Jan 2024 20:27:13 +0000 (UTC)
-From: Thorsten Glaser <tg@debian.org>
-X-X-Sender: tg@herc.mirbsd.org
-To: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas@t-8ch.de>
-cc: util-linux@vger.kernel.org
-Subject: Re: fdisk corrupts data on USB stick
-In-Reply-To: <478ec62d-5485-42c3-b492-6ccfa9bf62c8@t-8ch.de>
-Message-ID: <Pine.BSM.4.64L.2401292023270.19873@herc.mirbsd.org>
+	s=arc-20240116; t=1706561066; c=relaxed/simple;
+	bh=A1Oq7WxOIQS7LDol4FQXu1FTVb154mesR+IK72Jkzgo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EZ7MYY56+pT6VnlHGs9TeLucZFrKjPKthz6jHd3wynY1NAuskE6g1kK8bBOkSKwrpA3bW46iF0Ddaz/lsl4gkr/AlBtQWcqERqQBmOA0WKyymJlgMfw4ovWkhEn7pyS1zX9px/bWZy3+JfG50+on+X4WPxO1z2MlOB5akaaBTmY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=t-8ch.de; spf=pass smtp.mailfrom=t-8ch.de; dkim=pass (1024-bit key) header.d=t-8ch.de header.i=@t-8ch.de header.b=hG38+UQK; arc=none smtp.client-ip=159.69.126.157
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=t-8ch.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=t-8ch.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=t-8ch.de header.i=@t-8ch.de header.b="hG38+UQK"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=t-8ch.de; s=mail;
+	t=1706561061; bh=A1Oq7WxOIQS7LDol4FQXu1FTVb154mesR+IK72Jkzgo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=hG38+UQKH2YGsDIT2BgM1Qnn49E/TWZKoVHqmkEL3l2E7Aanr4zWotmKpKOCME2bV
+	 cOcddbK0GLzPsWiGjwPn02FFtT4WNDG5pQionzlvc6J1M/042tuO6FHdKCkRO2tx52
+	 3LfRynRkpRhSx7GRUoduz+vvPKEePQustbODreFY=
+Date: Mon, 29 Jan 2024 21:44:21 +0100
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas@t-8ch.de>
+To: Thorsten Glaser <tg@debian.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Re: fdisk corrupts data on USB stick
+Message-ID: <5b8f9459-cc95-4c08-b68c-39abb2ff9f68@t-8ch.de>
 References: <Pine.BSM.4.64L.2401291659410.19873@herc.mirbsd.org>
  <478ec62d-5485-42c3-b492-6ccfa9bf62c8@t-8ch.de>
-Content-Language: de-Zsym-DE-1901-u-em-text-rg-denw-tz-utc, en-Zsym-GB-u-cu-eur-em-text-fw-mon-hc-h23-ms-metric-mu-celsius-rg-denw-tz-utc-va-posix
+ <Pine.BSM.4.64L.2401292023270.19873@herc.mirbsd.org>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.BSM.4.64L.2401292023270.19873@herc.mirbsd.org>
 
-Thomas Wei=C3=9Fschuh dixit:
+On 2024-01-29 20:27:13+0000, Thorsten Glaser wrote:
+> Thomas Weißschuh dixit:
+> 
+> >    The device contains 'iso9660' signature and it will be removed by a
+> >    write command. See fdisk(8) man page and --wipe option for more
+> >    details.
+> 
+> >I guess your version does the same, but maybe is not printing the
+> >warning.
+> 
+> Hm, maybe it does, maybe it doesn’t, but even so, why should it?
 
->    The device contains 'iso9660' signature and it will be removed by a
->    write command. See fdisk(8) man page and --wipe option for more
->    details.
+In the message you may or may not have seen there is a reference to the
+`--wipe` option that describes the reasoning and possibilities.
 
->I guess your version does the same, but maybe is not printing the
->warning.
+Reproduced here for your convenience:
+https://manpages.debian.org/bookworm/fdisk/fdisk.8.en.html
 
-Hm, maybe it does, maybe it doesn=E2=80=99t, but even so, why should it?
+-w, --wipe when
+    Wipe filesystem, RAID and partition-table signatures from the
+    device, in order to avoid possible collisions. The argument when
+    can be auto, never or always. When this option is not given, the
+    default is auto, in which case signatures are wiped only when in
+    interactive mode. In all cases detected signatures are reported by
+    warning messages before a new partition table is created. See also
+    wipefs(8) command.
 
->So the disk gets converted to a normal MBR layout and the ISO signature
->get wiped. Which makes sense as the ISO image would need to be
->remastered.
 
-Totally not! First of, the ISO already contained an MBR with a
-partition table in the first sector, which I extended, and second,
-it=E2=80=99s fdisk=E2=80=99s task to precisely edit the MBR partition table=
- (and,
-if the 55h AAh magic is missing, create it), nothing else (okay,
-extended partitions if someone uses them, but nothing else).
+As for why: "in order to avoid possible collisions".
 
->> Is there a way we can make it not corrupt such media?
->
->Did you look into grml2usb?
+> >So the disk gets converted to a normal MBR layout and the ISO signature
+> >get wiped. Which makes sense as the ISO image would need to be
+> >remastered.
+> 
+> Totally not! First of, the ISO already contained an MBR with a
+> partition table in the first sector, which I extended, and second,
+> it’s fdisk’s task to precisely edit the MBR partition table (and,
+> if the 55h AAh magic is missing, create it), nothing else (okay,
+> extended partitions if someone uses them, but nothing else).
 
-I know that, but I wanted to keep the original ISO 9660 filesystem
-so things don=E2=80=99t accidentally get changed on it. (And the original
-EFI thingy, in case it=E2=80=99s needed.)
+This is your personal interpretation about what exactly fdisk is
+supposed to do.
+For convenience it even may have shown a prominent warning in bright red
+letters with helpful pointers. Or maybe it didn't.
 
-So, how do I get fdisk to not corrupt the ISO 9660 part?
-MirBSD fdisk doesn=E2=80=99t do that, it sticks to the MBR.
+> >> Is there a way we can make it not corrupt such media?
+> >
+> >Did you look into grml2usb?
+> 
+> I know that, but I wanted to keep the original ISO 9660 filesystem
+> so things don’t accidentally get changed on it. (And the original
+> EFI thingy, in case it’s needed.)
 
-Thanks,
-//mirabilos
---=20
-=E2=80=9ECool, /usr/share/doc/mksh/examples/uhr.gz ist ja ein Grund,
-mksh auf jedem System zu installieren.=E2=80=9C
-=09-- XTaran auf der OpenRheinRuhr, ganz begeistert
-(EN: =E2=80=9C[=E2=80=A6]uhr.gz is a reason to install mksh on every system=
-=2E=E2=80=9D)
+Fair enough.
+
+> So, how do I get fdisk to not corrupt the ISO 9660 part?
+> MirBSD fdisk doesn’t do that, it sticks to the MBR.
+
+Try `--wipe never` as explained above.
+
+
+Thomas
