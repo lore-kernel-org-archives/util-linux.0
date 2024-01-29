@@ -1,59 +1,99 @@
-Received: from herc.mirbsd.org (bonn.mirbsd.org [217.91.129.195])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2000A15AAB1
-	for <util-linux@vger.kernel.org>; Mon, 29 Jan 2024 17:12:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.91.129.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFBE876058
+	for <util-linux@vger.kernel.org>; Mon, 29 Jan 2024 20:01:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706548361; cv=none; b=BFBAHRBRT87NZCUKXZAuefQOGVh4e7JCCuSmZhS/VlGMP0BLbC7V81cl6ywCE4trv5Vg0/1tkvFcToPP50P7BoEVPEW2GHyCS+8KFQ3sokJ9gcgHPalT1vB7MwU+cfwaYhI9AwBhOmww0lqoNwrh9Ll9eephwWByCQzLrQ0nPvY=
+	t=1706558501; cv=none; b=V2e78nV1LPgbZh6JQuB/ew8LRduGlVYAakwxdmzo9iWh2MejBIxX0RObHW4gtHDW/ttD2vaQCnlTCS371YrpnO7pjfDKPoIvufV/pu7kd4T8rJB9qMBdj6tSZLFYmBG7+6GUPXSArtcwRtpGvYlRIqM/PIWg5CLiVNUazo9779Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706548361; c=relaxed/simple;
-	bh=K+1gFrdXxZiGL4cEB0V9piIC3Sg2ltqlI91E7K1v8m0=;
-	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type; b=TAsEKo0xbkeMjGgfSUx/26MRkMypUhz6z5IeDQgvfd89PHFdxsbbHeAZcH1ksHRR/+EW8Fxb3EoQBU+j9c7PRjsliUkUhxVJqXypAo4tYjX6NVVSSFlKWeUsMQwiDVeSI0JpfBODHJrt5GD1nKfBbMG79B1NbKWwtpqgz1ApfwI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=debian.org; arc=none smtp.client-ip=217.91.129.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=debian.org
-Received: from herc.mirbsd.org (tg@herc.mirbsd.org [192.168.0.82])
-	by herc.mirbsd.org (8.14.9/8.14.5) with ESMTP id 40TH4CWF006539
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <util-linux@vger.kernel.org>; Mon, 29 Jan 2024 17:04:19 GMT
-Date: Mon, 29 Jan 2024 17:04:12 +0000 (UTC)
-From: Thorsten Glaser <tg@debian.org>
-X-X-Sender: tg@herc.mirbsd.org
-To: util-linux@vger.kernel.org
-Subject: fdisk corrupts data on USB stick
-Message-ID: <Pine.BSM.4.64L.2401291659410.19873@herc.mirbsd.org>
-Content-Language: de-Zsym-DE-1901-u-em-text-rg-denw-tz-utc, en-Zsym-GB-u-cu-eur-em-text-fw-mon-hc-h23-ms-metric-mu-celsius-rg-denw-tz-utc-va-posix
+	s=arc-20240116; t=1706558501; c=relaxed/simple;
+	bh=Yzo1W9jUY1MWQ8+Z2wzB8sd0RIL5CoffectNDST0yZs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EIkSWaGptS70WMxXbLZThGHJPRdDOVpXFdDNJPloINiCm7vnX2tZ/tAy7ohICaE/8KwKxBL8PGXpTiCXxM+/WmLw+iAaBs9yhcQ5BuykVQGpWeDdTgNsV+iiLa0/PYjxUY4qzMJdXM9plc06Zgs279Fsuvt9hVfpTWeCsB1jMyk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=t-8ch.de; spf=pass smtp.mailfrom=t-8ch.de; dkim=pass (1024-bit key) header.d=t-8ch.de header.i=@t-8ch.de header.b=cxLqNevl; arc=none smtp.client-ip=159.69.126.157
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=t-8ch.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=t-8ch.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=t-8ch.de header.i=@t-8ch.de header.b="cxLqNevl"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=t-8ch.de; s=mail;
+	t=1706558491; bh=Yzo1W9jUY1MWQ8+Z2wzB8sd0RIL5CoffectNDST0yZs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=cxLqNevl32CELIc3t0OfwDkeRwlyC4AuYTJMRO60UcHdVTrCTukhtlFGnhin/FyVB
+	 SpcEc7KtsJO9f038AlqshSt3E/9bWMbZe9uNoTqFrwTyr6JJdosVQnotNrMF1exYNu
+	 UZU7AE5I9eN1QsFyea9DqBTBS5I6myWJm+a08s3s=
+Date: Mon, 29 Jan 2024 21:01:31 +0100
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas@t-8ch.de>
+To: Thorsten Glaser <tg@debian.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: fdisk corrupts data on USB stick
+Message-ID: <478ec62d-5485-42c3-b492-6ccfa9bf62c8@t-8ch.de>
+References: <Pine.BSM.4.64L.2401291659410.19873@herc.mirbsd.org>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.BSM.4.64L.2401291659410.19873@herc.mirbsd.org>
 
-Background: https://github.com/grml/grml/issues/205
+Hi Thorsten,
 
-Using fdisk 2.36.1-8+deb11u1 from util-linux to create an extra
-partition on a USB stick on which I had previously written an
-ISO 9660 image does something to the data on the stick to make
-klibc fstype not recognise it as ISO 9660 any more. Specifically,
-it corrupts some data at some location within the first 4 MiB of
-the stick but outside of the first 512 byte of it, as restoring
-those first 4 MiB then re-restoring the MBR to the state fdisk
-had written makes it work again.
+On 2024-01-29 17:04:12+0000, Thorsten Glaser wrote:
+> Background: https://github.com/grml/grml/issues/205
+> 
+> Using fdisk 2.36.1-8+deb11u1 from util-linux to create an extra
+> partition on a USB stick on which I had previously written an
+> ISO 9660 image does something to the data on the stick to make
+> klibc fstype not recognise it as ISO 9660 any more. Specifically,
+> it corrupts some data at some location within the first 4 MiB of
+> the stick but outside of the first 512 byte of it, as restoring
+> those first 4 MiB then re-restoring the MBR to the state fdisk
+> had written makes it work again.
+> 
+> This is a data corruption bug. I expect fdisk to change precisely
+> the MBR and nothing else unless told so.
 
-This is a data corruption bug. I expect fdisk to change precisely
-the MBR and nothing else unless told so.
+When trying your reproduction steps with a newer version of fdisk I
+instantly get greeted like this:
 
-Is there a way we can make it not corrupt such media?
+    # fdisk /dev/loop0 
+    
+    Welcome to fdisk (util-linux 2.39.3).
+    Changes will remain in memory only, until you decide to write them.
+    Be careful before using the write command.
+    
+    The device contains 'iso9660' signature and it will be removed by a write command. See fdisk(8) man page and --wipe option for more details.
 
-Thanks in advance,
-//mirabilos
---=20
-08:05=E2=8E=9C<XTaran:#grml> mika: Does grml have an tool to read Apple
-     =E2=8E=9C    System Log (asl) files? :)
-08:08=E2=8E=9C<ft:#grml> yeah. /bin/rm. ;)       08:09=E2=8E=9C<mrud:#grml>=
- hexdump -C
-08:31=E2=8E=9C<XTaran:#grml> ft, mrud: *g*
+    Command (m for help): p
+
+    Disk /dev/loop0: 492.25 MiB, 516161536 bytes, 1008128 sectors
+    Units: sectors of 1 * 512 = 512 bytes
+    Sector size (logical/physical): 512 bytes / 512 bytes
+    I/O size (minimum/optimal): 512 bytes / 512 bytes
+    Disklabel type: dos
+    Disk identifier: 0x773b5e3b
+    
+    Device       Boot Start     End Sectors  Size Id Type
+    /dev/loop0p1 *        0 1007615 1007616  492M  0 Empty
+    /dev/loop0p2        592    8783    8192    4M ef EFI (FAT-12/16/32)
+
+
+I guess your version does the same, but maybe is not printing the
+warning.
+
+So the disk gets converted to a normal MBR layout and the ISO signature
+get wiped. Which makes sense as the ISO image would need to be
+remastered.
+
+> Is there a way we can make it not corrupt such media?
+
+Did you look into grml2usb?
+
+This is what [0] recommends to achieve persistence.
+
+[0] https://wiki.grml.org/doku.php?id=persistency
+
+Thomas
