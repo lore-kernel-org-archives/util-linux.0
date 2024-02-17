@@ -1,95 +1,147 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66EAE1B951
-	for <util-linux@vger.kernel.org>; Thu, 15 Feb 2024 09:38:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E22157E0FB
+	for <util-linux@vger.kernel.org>; Sat, 17 Feb 2024 20:01:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707989884; cv=none; b=q6Rgo0g+NhjAdZAezL99+q8308HWL300zfS+tRlaxzL4LyyeePUOQbSV6SQ56rZnofWksvYZnjRDP3hMeGISzkDtvp/x08IBL9XcXXaktHzg9vwaicvOa/O+RiYWqGGNXfe+Iqiv9YaqsRZssL+Mvdu3Yredfr26tQcmKwXmPCY=
+	t=1708200077; cv=none; b=NyiLQJV1D5SyE8Js1WDWI472oDf3BwlDRdWkd0JNGqfknm9APXGEV8NBX5oCJMQtkVuyeQV+y6+sqcsQC0Agr5sJI27aAWCu0lF/PfDDCkVbEO2OeUs4dyeGiGfMlxyCDLPwAE49YoioyIVV3M2y33ib9mVbywoXgBpYNcuDBCI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707989884; c=relaxed/simple;
-	bh=89p/XNXS4/pEzcmoUeHQoXSo5MStWGRtQ7t1T7Jk5i8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ifTmILFXfmPWMzALXTzvDl0S3jOzMHETflOY4qVA+PoqYti3jkGz1nQT9EySKqwvOtbsMUCXJU40Ze8HVZ6/UHdiE0Z1nmqFEr4rdFjXAbsVbiYoPlX05oQl4rzHO2Ic+DzT72L0dpLYDMBlycrq+h/PfquoBpFtz1088ClZQSY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RMih3fo3; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1708200077; c=relaxed/simple;
+	bh=cdTzkxuNjnWIX8QBiLoMxfSelGf9Mu8XpkuGU1RgZQ4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ovFJqYwbIXn17kMETaWHd+OfRtuhmMCQR0YFkdf/m91lbGopKIw49cJfyERngp13+9cPt4tqU2BEGysPl9uu68K3FUIWBeOzYucRrjA/wt+vDVMNaNQgRxqFkZtbe+cySEZcyrr/XzHLKCL2TNVF4OElPS7Wofd40CnpoG8e87k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=VLgVRCtg; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=72CPqUyF; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=VLgVRCtg; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=72CPqUyF; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RMih3fo3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1707989881;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hpmhvWjnnWZlccQLq87V5krRO65Ic9Fdur4hmJ1aMRI=;
-	b=RMih3fo3vZmkQ3e1IwzCZVnrF9+bTQUa5lmBqt6sgUiC28xbP1rl/TYrKTNh9PZtU8VgL/
-	RpkTT0cKanF2smUNB2QAF2pnSbwA9mMkHscxSeiuCSLpGkaKnxrnv/wXGqwYeRuKmALwRz
-	OMLTLZgfeBcf6SvT+M9W9hLd8Eo9Fk8=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-459-bM8y525BPtudIBqCd8pjuQ-1; Thu, 15 Feb 2024 04:37:58 -0500
-X-MC-Unique: bM8y525BPtudIBqCd8pjuQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="VLgVRCtg";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="72CPqUyF";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="VLgVRCtg";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="72CPqUyF"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1308185A596;
-	Thu, 15 Feb 2024 09:37:58 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.226.18])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 93D522166B36;
-	Thu, 15 Feb 2024 09:37:57 +0000 (UTC)
-Date: Thu, 15 Feb 2024 10:37:55 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Mention systemd implementation of fsck
-Message-ID: <20240215093755.557tkkvtcnshaot4@ws.net.home>
-References: <adf1f630-a264-4db7-9777-d4e2de2bad3b@suse.cz>
- <20240214142342.x24dioosah2i27na@ws.net.home>
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 271EF1FD3C;
+	Sat, 17 Feb 2024 20:01:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1708200068; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=28zGYk2yAqBk/Lf60Q/0akL65YcdwVDidENYOOTipSg=;
+	b=VLgVRCtgxsm1+9FivH4+eQSnDt6U+hM+f8YMIHDO5IvzF5JzYqhykgISnjouT4O2gVa3dw
+	LwLqfVP+QEdJyiw0C8z8PxqG+EZNkiF0xWJuloI7d+iP8KnYTa/O/eVD+Zh0i40WqTLcFT
+	XHCPWZTTyuCHJl1pOrQVbiA7wR13t00=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1708200068;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=28zGYk2yAqBk/Lf60Q/0akL65YcdwVDidENYOOTipSg=;
+	b=72CPqUyF/w3WA+PzoDVcy1qJyYmy5HvFbynyycScf8oPd/H1iSlrwmzwfxnGVgvNjcUDS6
+	gPkgK6QrUmVeSyBA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1708200068; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=28zGYk2yAqBk/Lf60Q/0akL65YcdwVDidENYOOTipSg=;
+	b=VLgVRCtgxsm1+9FivH4+eQSnDt6U+hM+f8YMIHDO5IvzF5JzYqhykgISnjouT4O2gVa3dw
+	LwLqfVP+QEdJyiw0C8z8PxqG+EZNkiF0xWJuloI7d+iP8KnYTa/O/eVD+Zh0i40WqTLcFT
+	XHCPWZTTyuCHJl1pOrQVbiA7wR13t00=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1708200068;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=28zGYk2yAqBk/Lf60Q/0akL65YcdwVDidENYOOTipSg=;
+	b=72CPqUyF/w3WA+PzoDVcy1qJyYmy5HvFbynyycScf8oPd/H1iSlrwmzwfxnGVgvNjcUDS6
+	gPkgK6QrUmVeSyBA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 17DFB1370C;
+	Sat, 17 Feb 2024 20:01:08 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 7474BIQQ0WWSBgAAD6G6ig
+	(envelope-from <sbrabec@suse.cz>); Sat, 17 Feb 2024 20:01:08 +0000
+Message-ID: <ed954c2e-8ae4-4133-874a-682c0c1fe20c@suse.cz>
+Date: Sat, 17 Feb 2024 21:01:07 +0100
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240214142342.x24dioosah2i27na@ws.net.home>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.6
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] Mention systemd implementation of fsck
+Content-Language: en-US
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+References: <adf1f630-a264-4db7-9777-d4e2de2bad3b@suse.cz>
+ <20240214142342.x24dioosah2i27na@ws.net.home>
+ <20240215093755.557tkkvtcnshaot4@ws.net.home>
+From: Stanislav Brabec <sbrabec@suse.cz>
+Organization: SUSE Linux, s. r. o.
+In-Reply-To: <20240215093755.557tkkvtcnshaot4@ws.net.home>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Authentication-Results: smtp-out2.suse.de;
+	none
+X-Spamd-Result: default: False [-0.09 / 50.00];
+	 ARC_NA(0.00)[];
+	 RCVD_VIA_SMTP_AUTH(0.00)[];
+	 XM_UA_NO_VERSION(0.01)[];
+	 FROM_HAS_DN(0.00)[];
+	 TO_DN_SOME(0.00)[];
+	 TO_MATCH_ENVRCPT_ALL(0.00)[];
+	 BAYES_HAM(-0.00)[18.39%];
+	 MIME_GOOD(-0.10)[text/plain];
+	 HAS_ORG_HEADER(0.00)[];
+	 RCVD_COUNT_THREE(0.00)[3];
+	 DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	 RCPT_COUNT_TWO(0.00)[2];
+	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email];
+	 FUZZY_BLOCKED(0.00)[rspamd.com];
+	 FROM_EQ_ENVFROM(0.00)[];
+	 MIME_TRACE(0.00)[0:+];
+	 RCVD_TLS_ALL(0.00)[];
+	 MID_RHS_MATCH_FROM(0.00)[]
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Spam-Score: -0.09
 
-On Wed, Feb 14, 2024 at 03:23:45PM +0100, Karel Zak wrote:
-> On Wed, Feb 14, 2024 at 01:17:46PM +0100, Stanislav Brabec wrote:
-> > systemd uses its own implementation of fsck with a slightly different
-> > behavior (e. g. fsck -A checks noauto volumes, systemd-fsck does not).
-> 
-> systemd calls fsck from util-linux, but a new instance (with -l) for each device.
-> It would be nice to be more explicit and explain it, because "it has its
-> own implementation" sounds like fsck from util-linux is completely out
-> of game :-)
-> 
-> > +== NOTES
-> > +*systemd* does not call *fsck -A*, but it has its own implementation
-> > *systemd-fsck*(8).
-> 
-> What about:
-> 
-> systemd does not invoke fsck -A to check all devices; instead, it
-> calls fsck individually for devices selected based on the logic
-> implemented in systemd-fsck.
-
-I had short discussion about it with Lennart, and he suggested not to
-document anywhere systemd-fsck as it's private systemd stuff. I have
-pushed to repository:
-
-  https://github.com/util-linux/util-linux/commit/9cb7b7671d903573d6c3b9d8112ec13953cdcdc6
-
-Hope it good enough :-)
-
-    Karel
-
+Dne 15. 02. 24 v 10:37 Karel Zak napsal(a):
+> On Wed, Feb 14, 2024 at 03:23:45PM +0100, Karel Zak wrote:
+>> What about:
+>>
+>> systemd does not invoke fsck -A to check all devices; instead, it
+>> calls fsck individually for devices selected based on the logic
+>> implemented in systemd-fsck.
+> I had short discussion about it with Lennart, and he suggested not to
+> document anywhere systemd-fsck as it's private systemd stuff. I have
+> pushed to repository:
+>
+>    https://github.com/util-linux/util-linux/commit/9cb7b7671d903573d6c3b9d8112ec13953cdcdc6
+It sound clear. I didn't want to document any details of the
+implementation in the third party package and it will not need an
+update in case of an systemd change.
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Křižíkova 148/34 (Corso IIa)                    tel: +420 284 084 060
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
 
