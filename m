@@ -1,147 +1,161 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E22157E0FB
-	for <util-linux@vger.kernel.org>; Sat, 17 Feb 2024 20:01:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0D3483CAC
+	for <util-linux@vger.kernel.org>; Wed, 21 Feb 2024 17:31:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708200077; cv=none; b=NyiLQJV1D5SyE8Js1WDWI472oDf3BwlDRdWkd0JNGqfknm9APXGEV8NBX5oCJMQtkVuyeQV+y6+sqcsQC0Agr5sJI27aAWCu0lF/PfDDCkVbEO2OeUs4dyeGiGfMlxyCDLPwAE49YoioyIVV3M2y33ib9mVbywoXgBpYNcuDBCI=
+	t=1708536667; cv=none; b=nWDUXRfB79RlPFT1TY+QFNCVqzRnNfT14S7Lr5+lciaI4XT7bK9n6r3W+9QLLGGEMx3Bh0ACOdKogAOLFb7fmpvX/Rrf638fOHeR12lz5rm77zvgwamQDKngmkQxNcsp5Nr4QrXJeeT8yCquIX8kN862FEpbdrp6k8YldK+6QYE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708200077; c=relaxed/simple;
-	bh=cdTzkxuNjnWIX8QBiLoMxfSelGf9Mu8XpkuGU1RgZQ4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ovFJqYwbIXn17kMETaWHd+OfRtuhmMCQR0YFkdf/m91lbGopKIw49cJfyERngp13+9cPt4tqU2BEGysPl9uu68K3FUIWBeOzYucRrjA/wt+vDVMNaNQgRxqFkZtbe+cySEZcyrr/XzHLKCL2TNVF4OElPS7Wofd40CnpoG8e87k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=VLgVRCtg; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=72CPqUyF; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=VLgVRCtg; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=72CPqUyF; arc=none smtp.client-ip=195.135.223.131
+	s=arc-20240116; t=1708536667; c=relaxed/simple;
+	bh=Fi/ZQWUCTrbtctWlbj5Lwp4Jg0QpZ4JEzW5nI5nO1fI=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Kh0vsX3ML8w+Q/2yeZ+n4Qj09Oscbb8ISLY01afZUj3nedy0LUWvcDChOR4hMLIOnJNIhenLfutdeWB4JoEO85bV8XDv+8COnbbUZ9XrpsLl5tYtmAX/JyrVN+tKeERZEadFkxjfYpi+qvZP/riDsBI/ECHQvod0EL7MOB81Ry0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=S/fMKJLJ; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=tJYFhIE3; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=S/fMKJLJ; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=tJYFhIE3; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="VLgVRCtg";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="72CPqUyF";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="VLgVRCtg";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="72CPqUyF"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [10.150.64.97])
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="S/fMKJLJ";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="tJYFhIE3";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="S/fMKJLJ";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="tJYFhIE3"
+Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:98])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 271EF1FD3C;
-	Sat, 17 Feb 2024 20:01:08 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 17B0C220B0;
+	Wed, 21 Feb 2024 17:31:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1708200068; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=28zGYk2yAqBk/Lf60Q/0akL65YcdwVDidENYOOTipSg=;
-	b=VLgVRCtgxsm1+9FivH4+eQSnDt6U+hM+f8YMIHDO5IvzF5JzYqhykgISnjouT4O2gVa3dw
-	LwLqfVP+QEdJyiw0C8z8PxqG+EZNkiF0xWJuloI7d+iP8KnYTa/O/eVD+Zh0i40WqTLcFT
-	XHCPWZTTyuCHJl1pOrQVbiA7wR13t00=
+	t=1708536662; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=MONjShUZNKqFfzYloScrNV41SDApwDvx6XR+rV/Uhv0=;
+	b=S/fMKJLJaszo4hJ7QYzjE/i9ffBVMbPiAq301EZbn8vtSqFU9rpVuBBTS6IqW1FzZMj1rY
+	3L/Hcc4C37Z+a49ZSmH5IH+rxsUZDGY5qgE/1YpncmUGYIUvWrgZrKKUCTe6l6+vEkfyvk
+	stCUPeeobqGc8XG6Vmb+EvfeM9WwGso=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1708200068;
+	s=susede2_ed25519; t=1708536662;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=28zGYk2yAqBk/Lf60Q/0akL65YcdwVDidENYOOTipSg=;
-	b=72CPqUyF/w3WA+PzoDVcy1qJyYmy5HvFbynyycScf8oPd/H1iSlrwmzwfxnGVgvNjcUDS6
-	gPkgK6QrUmVeSyBA==
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=MONjShUZNKqFfzYloScrNV41SDApwDvx6XR+rV/Uhv0=;
+	b=tJYFhIE3ozdFdbU9mt8VYLMUUcg6L5c0jdEtpP5k6/4gEiZb0vKdHz9Z8yQf8vx5YTwoeB
+	zjBE2iYphqutuBBA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1708200068; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=28zGYk2yAqBk/Lf60Q/0akL65YcdwVDidENYOOTipSg=;
-	b=VLgVRCtgxsm1+9FivH4+eQSnDt6U+hM+f8YMIHDO5IvzF5JzYqhykgISnjouT4O2gVa3dw
-	LwLqfVP+QEdJyiw0C8z8PxqG+EZNkiF0xWJuloI7d+iP8KnYTa/O/eVD+Zh0i40WqTLcFT
-	XHCPWZTTyuCHJl1pOrQVbiA7wR13t00=
+	t=1708536662; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=MONjShUZNKqFfzYloScrNV41SDApwDvx6XR+rV/Uhv0=;
+	b=S/fMKJLJaszo4hJ7QYzjE/i9ffBVMbPiAq301EZbn8vtSqFU9rpVuBBTS6IqW1FzZMj1rY
+	3L/Hcc4C37Z+a49ZSmH5IH+rxsUZDGY5qgE/1YpncmUGYIUvWrgZrKKUCTe6l6+vEkfyvk
+	stCUPeeobqGc8XG6Vmb+EvfeM9WwGso=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1708200068;
+	s=susede2_ed25519; t=1708536662;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=28zGYk2yAqBk/Lf60Q/0akL65YcdwVDidENYOOTipSg=;
-	b=72CPqUyF/w3WA+PzoDVcy1qJyYmy5HvFbynyycScf8oPd/H1iSlrwmzwfxnGVgvNjcUDS6
-	gPkgK6QrUmVeSyBA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=MONjShUZNKqFfzYloScrNV41SDApwDvx6XR+rV/Uhv0=;
+	b=tJYFhIE3ozdFdbU9mt8VYLMUUcg6L5c0jdEtpP5k6/4gEiZb0vKdHz9Z8yQf8vx5YTwoeB
+	zjBE2iYphqutuBBA==
+Received: from imap2.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 17DFB1370C;
-	Sat, 17 Feb 2024 20:01:08 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 7474BIQQ0WWSBgAAD6G6ig
-	(envelope-from <sbrabec@suse.cz>); Sat, 17 Feb 2024 20:01:08 +0000
-Message-ID: <ed954c2e-8ae4-4133-874a-682c0c1fe20c@suse.cz>
-Date: Sat, 17 Feb 2024 21:01:07 +0100
+	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id F2B5F13A25;
+	Wed, 21 Feb 2024 17:31:01 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([10.150.64.162])
+	by imap2.dmz-prg2.suse.org with ESMTPSA
+	id O+3yOlUz1mXXcwAAn2gu4w
+	(envelope-from <jack@suse.cz>); Wed, 21 Feb 2024 17:31:01 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+	id 84784A0807; Wed, 21 Feb 2024 18:30:57 +0100 (CET)
+From: Jan Kara <jack@suse.cz>
+To: util-linux@vger.kernel.org
+Cc: Christian Brauner <brauner@kernel.org>,
+	Jan Kara <jack@suse.cz>,
+	JunChao Sun <sunjunchao2870@gmail.com>
+Subject: [PATCH] libmount: don't hold write fd to mounted device
+Date: Wed, 21 Feb 2024 18:30:50 +0100
+Message-Id: <20240221173050.21970-1-jack@suse.cz>
+X-Mailer: git-send-email 2.35.3
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] Mention systemd implementation of fsck
-Content-Language: en-US
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-References: <adf1f630-a264-4db7-9777-d4e2de2bad3b@suse.cz>
- <20240214142342.x24dioosah2i27na@ws.net.home>
- <20240215093755.557tkkvtcnshaot4@ws.net.home>
-From: Stanislav Brabec <sbrabec@suse.cz>
-Organization: SUSE Linux, s. r. o.
-In-Reply-To: <20240215093755.557tkkvtcnshaot4@ws.net.home>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Authentication-Results: smtp-out2.suse.de;
-	none
-X-Spamd-Result: default: False [-0.09 / 50.00];
+X-Spam-Level: ***
+X-Spamd-Bar: +++
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b="S/fMKJLJ";
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=tJYFhIE3
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [3.49 / 50.00];
 	 ARC_NA(0.00)[];
 	 RCVD_VIA_SMTP_AUTH(0.00)[];
-	 XM_UA_NO_VERSION(0.01)[];
+	 R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
 	 FROM_HAS_DN(0.00)[];
-	 TO_DN_SOME(0.00)[];
-	 TO_MATCH_ENVRCPT_ALL(0.00)[];
-	 BAYES_HAM(-0.00)[18.39%];
+	 RCPT_COUNT_THREE(0.00)[4];
+	 R_MISSING_CHARSET(2.50)[];
+	 FREEMAIL_ENVRCPT(0.00)[gmail.com];
 	 MIME_GOOD(-0.10)[text/plain];
-	 HAS_ORG_HEADER(0.00)[];
+	 TO_MATCH_ENVRCPT_ALL(0.00)[];
+	 BROKEN_CONTENT_TYPE(1.50)[];
+	 TO_DN_SOME(0.00)[];
+	 NEURAL_HAM_LONG(-1.00)[-1.000];
 	 RCVD_COUNT_THREE(0.00)[3];
 	 DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	 RCPT_COUNT_TWO(0.00)[2];
-	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email];
+	 DKIM_TRACE(0.00)[suse.cz:+];
+	 MX_GOOD(-0.01)[];
+	 MID_CONTAINS_FROM(1.00)[];
+	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:dkim,suse.cz:email];
 	 FUZZY_BLOCKED(0.00)[rspamd.com];
 	 FROM_EQ_ENVFROM(0.00)[];
 	 MIME_TRACE(0.00)[0:+];
-	 RCVD_TLS_ALL(0.00)[];
-	 MID_RHS_MATCH_FROM(0.00)[]
-X-Spam-Level: 
+	 NEURAL_HAM_SHORT(-0.20)[-1.000];
+	 FREEMAIL_CC(0.00)[kernel.org,suse.cz,gmail.com];
+	 RCVD_TLS_ALL(0.00)[]
+X-Spam-Score: 3.49
+X-Rspamd-Queue-Id: 17B0C220B0
 X-Spam-Flag: NO
-X-Spam-Score: -0.09
 
-Dne 15. 02. 24 v 10:37 Karel Zak napsal(a):
-> On Wed, Feb 14, 2024 at 03:23:45PM +0100, Karel Zak wrote:
->> What about:
->>
->> systemd does not invoke fsck -A to check all devices; instead, it
->> calls fsck individually for devices selected based on the logic
->> implemented in systemd-fsck.
-> I had short discussion about it with Lennart, and he suggested not to
-> document anywhere systemd-fsck as it's private systemd stuff. I have
-> pushed to repository:
->
->    https://github.com/util-linux/util-linux/commit/9cb7b7671d903573d6c3b9d8112ec13953cdcdc6
-It sound clear. I didn't want to document any details of the
-implementation in the third party package and it will not need an
-update in case of an systemd change.
+Avoid holding writeable fd to a loop device that is being mounted. In
+the hardened configurations (CONFIG_BLK_DEV_WRITE_MOUNTED = n) the
+kernel wants to make sure nobody else has the block device writeably
+open when mounting so this makes the mount fail.
 
+Reported-by: JunChao Sun <sunjunchao2870@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ libmount/src/hook_loopdev.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/libmount/src/hook_loopdev.c b/libmount/src/hook_loopdev.c
+index 8c8f7f218732..e2114b0cbebe 100644
+--- a/libmount/src/hook_loopdev.c
++++ b/libmount/src/hook_loopdev.c
+@@ -356,15 +356,19 @@ success:
+ 			 */
+ 			mnt_optlist_append_flags(ol, MS_RDONLY, cxt->map_linux);
+ 
+-		/* we have to keep the device open until mount(1),
+-		 * otherwise it will be auto-cleared by kernel
++		/*
++		 * We have to keep the device open until mount(1), otherwise it
++		 * will be auto-cleared by kernel. However we don't want to
++		 * keep writeable fd as kernel wants to block all writers to
++		 * the device being mounted (in the more hardened
++		 * configurations). So grab read-only fd instead.
+ 		 */
+-		hd->loopdev_fd = loopcxt_get_fd(&lc);
++		hd->loopdev_fd = open(lc.device, O_RDONLY | O_CLOEXEC);
+ 		if (hd->loopdev_fd < 0) {
+-			DBG(LOOP, ul_debugobj(cxt, "failed to get loopdev FD"));
++			DBG(LOOP,
++			    ul_debugobj(cxt, "failed to reopen loopdev FD"));
+ 			rc = -errno;
+-		} else
+-			loopcxt_set_fd(&lc, -1, 0);
++		}
+ 	}
+ done:
+ 	loopcxt_deinit(&lc);
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Křižíkova 148/34 (Corso IIa)                    tel: +420 284 084 060
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+2.35.3
 
