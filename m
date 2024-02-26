@@ -1,37 +1,51 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21F6423747
-	for <util-linux@vger.kernel.org>; Thu, 22 Feb 2024 09:19:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D5603DBBF
+	for <util-linux@vger.kernel.org>; Mon, 26 Feb 2024 08:53:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708593544; cv=none; b=MXveuEygbirKqQD+DiOfMj0lI34tarGFBPcULDmthGk7nUf8C5kTsrwBROEWGj7LU/g7rP4drThw3DuSGKzd/LudWf9V6WF1Ekg04Nrfj3F8IART5J7nIyGDrliZ8oLphXNZ1n1dyIVXMDUoc9+Bix+I9FRFtNtPoG1pQjGcWkw=
+	t=1708937631; cv=none; b=Bl+lihaIk7203ix7/0r+prCPz9Jvx9wQYTWwuiX5FEZ+s7Fdo6RSCUuhyXAX7nv0k5rLfVmoRGVQ5GfKlJArI5GxlXPjXanbOxbJO4NDOs3ZVmDVyzXEpGt82dHJLVZNCft0g00yvifJNGYFpui3mNb317B7AuUFU/7FQa/SQJ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708593544; c=relaxed/simple;
-	bh=CA8EB6z3qi12xMI992le1E5/6KxMAd8C14Lgu+AQcpw=;
+	s=arc-20240116; t=1708937631; c=relaxed/simple;
+	bh=ks1TzqfLAAmQYflH39BufkRSgMYpNLRPJpj1swtNRIg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Z2siL7xRviPU968pRRoj6il+udzHXNL1Lw26X2ZysijzV9rG/mhXmVKRyvr5CoK5xEs+zXqewPZfS3I1OL+mC9F68KdiIkpp7VAD3S7WLjPhTy6tWmSWbdtPTsWVCrk3uKudLPBwkIHdwVr/W290FR+FpheI+Ta0+X+2LXVFRYQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=esAnehCE; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=G0uZfb4wu1EvzrLqfI3e29y3KOQYX3CCTgoFTcUppN2YdSjf8kPaB28EM1FfrvlMJW6o+Dqcgzhr/ZQof8Kjo5xvCxEWih/PLdqnrptCCYYU+PtJ10UlwLCSd5i8fhI5EpfKOktfGCuBypE7tuPk/pXji44L7oqGZZ+Et0FI99M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AAx5jKFr; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="esAnehCE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B837DC433F1;
-	Thu, 22 Feb 2024 09:19:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1708593543;
-	bh=CA8EB6z3qi12xMI992le1E5/6KxMAd8C14Lgu+AQcpw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=esAnehCEcTDudGly03dGryHtWnpS4lafb6WYrnll/eiwNfEkRTUpeK39M9vqVeivP
-	 EB4vPUtApNKGOGq9wf0dc/n72psQNSLsMXBWdGsU1XYDN2ojSU4HOwNqHj0KL86lUE
-	 XwZW9rTootekwRAh7ePuWd3J+LvhvvMURG4sZOhQG63D1TswAl2ny9rtZgmMr78Ppo
-	 TF/yY7Bnid9W8ksLBHp7At4/L+5VxV1Ntv4RP1k4MNhHT/ntLCcY2FnbLnD5dNdqUo
-	 YLF+jEZtlrT4BHdsmQxSbK4JTufGddylp8MofgF48o6H2zKQ77CXCQWboOwbvtZp0u
-	 GkSuOxQ7rzkmQ==
-Date: Thu, 22 Feb 2024 10:19:00 +0100
-From: Christian Brauner <brauner@kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AAx5jKFr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1708937628;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=eqftr/+UzQvGrmjy/hMToPBLMNjPBfYHTlOcGIF9eaI=;
+	b=AAx5jKFrpgKjFiIr/gnXWij3s59EKtzuBxUxmizRCGcQtEu3sMEMGIWuL7qYgLGMVzFE9b
+	zQ+Tp8yjvnelUQAIrP9eLY4Ub2HafZrlf0RsZLZFuCk6KX962fFwTqYzIfKucH45XwZxwx
+	vWp/H45KTrkDegwTQEebaP95bCWKLP0=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-164-jhyFpLOlNtOwh49q_jkhkA-1; Mon, 26 Feb 2024 03:53:44 -0500
+X-MC-Unique: jhyFpLOlNtOwh49q_jkhkA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 573CF85A58C;
+	Mon, 26 Feb 2024 08:53:44 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.225.183])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 99B3E14F0;
+	Mon, 26 Feb 2024 08:53:43 +0000 (UTC)
+Date: Mon, 26 Feb 2024 09:53:09 +0100
+From: Karel Zak <kzak@redhat.com>
 To: Jan Kara <jack@suse.cz>
-Cc: util-linux@vger.kernel.org, JunChao Sun <sunjunchao2870@gmail.com>
+Cc: util-linux@vger.kernel.org, Christian Brauner <brauner@kernel.org>,
+	JunChao Sun <sunjunchao2870@gmail.com>
 Subject: Re: [PATCH] libmount: don't hold write fd to mounted device
-Message-ID: <20240222-gasbetrieben-dadurch-ed43089ca1e3@brauner>
+Message-ID: <20240226085309.zuz6ujeyto5kowip@ws.net.home>
 References: <20240221173050.21970-1-jack@suse.cz>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
@@ -39,56 +53,18 @@ List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20240221173050.21970-1-jack@suse.cz>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
 
 On Wed, Feb 21, 2024 at 06:30:50PM +0100, Jan Kara wrote:
-> Avoid holding writeable fd to a loop device that is being mounted. In
-> the hardened configurations (CONFIG_BLK_DEV_WRITE_MOUNTED = n) the
-> kernel wants to make sure nobody else has the block device writeably
-> open when mounting so this makes the mount fail.
-> 
-> Reported-by: JunChao Sun <sunjunchao2870@gmail.com>
-> Signed-off-by: Jan Kara <jack@suse.cz>
-> ---
-
-Sounds good!
-Acked-by: Christian Brauner <brauner@kernel.org>
-
 >  libmount/src/hook_loopdev.c | 16 ++++++++++------
 >  1 file changed, 10 insertions(+), 6 deletions(-)
-> 
-> diff --git a/libmount/src/hook_loopdev.c b/libmount/src/hook_loopdev.c
-> index 8c8f7f218732..e2114b0cbebe 100644
-> --- a/libmount/src/hook_loopdev.c
-> +++ b/libmount/src/hook_loopdev.c
-> @@ -356,15 +356,19 @@ success:
->  			 */
->  			mnt_optlist_append_flags(ol, MS_RDONLY, cxt->map_linux);
->  
-> -		/* we have to keep the device open until mount(1),
-> -		 * otherwise it will be auto-cleared by kernel
-> +		/*
-> +		 * We have to keep the device open until mount(1), otherwise it
-> +		 * will be auto-cleared by kernel. However we don't want to
-> +		 * keep writeable fd as kernel wants to block all writers to
-> +		 * the device being mounted (in the more hardened
-> +		 * configurations). So grab read-only fd instead.
->  		 */
-> -		hd->loopdev_fd = loopcxt_get_fd(&lc);
-> +		hd->loopdev_fd = open(lc.device, O_RDONLY | O_CLOEXEC);
->  		if (hd->loopdev_fd < 0) {
-> -			DBG(LOOP, ul_debugobj(cxt, "failed to get loopdev FD"));
-> +			DBG(LOOP,
-> +			    ul_debugobj(cxt, "failed to reopen loopdev FD"));
->  			rc = -errno;
-> -		} else
-> -			loopcxt_set_fd(&lc, -1, 0);
-> +		}
->  	}
->  done:
->  	loopcxt_deinit(&lc);
-> -- 
-> 2.35.3
-> 
+
+Applied, thanks.
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
