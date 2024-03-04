@@ -1,114 +1,97 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f195.google.com (mail-pl1-f195.google.com [209.85.214.195])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10EE3224D5
-	for <util-linux@vger.kernel.org>; Mon,  4 Mar 2024 13:59:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAB4A78B73
+	for <util-linux@vger.kernel.org>; Mon,  4 Mar 2024 19:21:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709560753; cv=none; b=S+FvdJl67h0NcssjVsDleBUf1E2tyfdIu7HQvW3grlptv1LAizuhip6fyjamD2uHciI/LmhbwtsNsOEK8k9qEVCCP4C1B2p00cAorPpoPeYWha5kIoaNUhjf/4P7q3Cdt4zGDjgKU5IIrA3sGIlLPSpa65fSed4+VQZlvnK/zmM=
+	t=1709580105; cv=none; b=gbu/zm8z4P867nASO/hK1cXgGLjWo/QGT9uohrNjgdjbsJQR70udt0Sw17Hg674CjroWs6YZWP0qqgM1CJEwoPfjhihVsMMNsjhSAdUgg7Jmhetv3iFeHl4NeqabTTCMqF7K7caghb4w1BzPaw23+ScalTV1dGTVMzuauDNTtOA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709560753; c=relaxed/simple;
-	bh=TKJ7CEYN0tsIj+tcMm4IRbpcPXANeodzbvu/OyzSPqo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JqCg4GBMAdR2Go8mft0PTBiTnbl41fvTq88wTfnjbnuRN8Y4nInupNsmt2iHY0SiUw849EYFo+KogPbq5WQznwwo80HHdVl1SRcbe8XmM4obqmErljRUX28fe7X/BKS9F4SC47QIDeUV8FWi1CPEdUxSQi3OpRIwsr4xe8MQ7wI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RG67YGcw; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1709580105; c=relaxed/simple;
+	bh=Vco9JHgKOIDzkNQiHsup2pzqBKb8JAfAVAvhQQpl2Uw=;
+	h=Message-ID:Date:MIME-Version:To:From:Subject:Content-Type; b=sStISEH0eYY0yfTcdf3uUK5n9K7puETDB4OotZUlnwdhqifMKBzEUB7IRwc983Y/bo79Ipn6OBLhjSGGSQSb7Dzmirevr+AxvGcDit2pEMzwM+SFJah7b/k2dVm9s5GC9Lelc+xR4Wiq6NCH81krO0zGWacjEQwdZpKq37HvzqM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=k/bA226A; arc=none smtp.client-ip=209.85.214.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RG67YGcw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95976C433F1;
-	Mon,  4 Mar 2024 13:59:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1709560752;
-	bh=TKJ7CEYN0tsIj+tcMm4IRbpcPXANeodzbvu/OyzSPqo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=RG67YGcwk5Ki2zUF/3tNU6RhviCUF3km68pbXkdZxFqDsH0v8Ed/kONeg1NRr9rzd
-	 GFaELFzM+NwHZ80kMmogjD+SlKqYFOYmwpos2lBEXRPoZadfYp7xutBdahK0Li+gJT
-	 uyhPXPg/HPOpCe+IVDw83oGtLHVpN8BYlIFIWt+AyBsVxCFuE0saTraPsJ4z5o6YVK
-	 Ybc5IUyhyqpwCxdVL1BjH8grAJD1xNdJWzwrcVdtMHTwW6VtZfXANwZ+DiekVtqLfT
-	 WfS6BubmtDa33yrw1PgoS4qvO2j/tnfwDODbmMehNKqk6Yo2/nFpb61RArpuGsN+Vs
-	 bSWn4XNKarIaQ==
-Date: Mon, 4 Mar 2024 14:59:08 +0100
-From: Alejandro Colomar <alx@kernel.org>
-To: Karel Zak <kzak@redhat.com>,
-	"Skyler Ferrante (RIT Student)" <sjf5462@rit.edu>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>, util-linux@vger.kernel.org
-Subject: Re: Escape sequences in /var/log/auth.log
-Message-ID: <ZeXTragrroBXGgUw@debian>
-References: <CAEOG19pNSdEMjyoo_=s8-WqVs+jrmaaU=CjRb0oxKw1FG00xSA@mail.gmail.com>
- <20240302173316.GA1508977@mail.hallyn.com>
- <ZeRYJ6HD77humJzg@debian>
- <20240304123359.ruh64pobvg53r7f7@ws.net.home>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k/bA226A"
+Received: by mail-pl1-f195.google.com with SMTP id d9443c01a7336-1dccb2edc6dso40292605ad.3
+        for <util-linux@vger.kernel.org>; Mon, 04 Mar 2024 11:21:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1709580103; x=1710184903; darn=vger.kernel.org;
+        h=content-transfer-encoding:subject:from:to:content-language
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gV/49vakxf6v/AtIR1q1lFNdg0yOEVeyZr9gQ0uwhqM=;
+        b=k/bA226AyznUekyeqA3neWgUVzLlwpUl2aCZ9ZQGepFJKR31IjAiBPe+9MUvyAbEag
+         6k0fmR/Ysx2UOnkKvs4l0OMpKoyRC4pj1NG9Q3AdajF4hV1Z9apMVnP1FZNoRFYz6Vek
+         tFffXqRyyjySfnPwDBeh36QwL0quGExqlTyRsIVmpt3nmy0QWl2pTACHg4NRKjDHiCll
+         OtTmC0+d89NEEIF3cY/w2NZKuK/ahD+YiT391SBKoFwq8rM6OQCU1UBe8eME8ZZcgpo/
+         G4c7sM95D6qYebPD3CXGh5mH3aACghrkmkkD2vHF9gJyGIpkWbvjTSzye15Tti3XQd5o
+         N8Tw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709580103; x=1710184903;
+        h=content-transfer-encoding:subject:from:to:content-language
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=gV/49vakxf6v/AtIR1q1lFNdg0yOEVeyZr9gQ0uwhqM=;
+        b=IXMUukdS59szrf9x0FV/coUDsHgS1sQIwglLe/3Z1L1zbKT6fsP14HjZvkBNOu28Le
+         2Kjb6sH8p9l2cNjHFe/E0YoaTkm2GV2ucgTXQW8IDqAihg3e+vWa+oJetL1+qhyS/SHr
+         UnopR3mJgyObIbC2SEAxlpt5oAUpJ/u0VMxggGJsWPqlfW4f8eBcB91mvbeKH0On4c6Q
+         3Gf9IyWiB7r87xaZAY8wd59jw48/A9b9T1Kr0JefxyshZi/UoNiIZOeU+KzQy+8LqDRo
+         GUoeCJI0yfgTL2L7S03caD9CEXCIEoTj7rXqjtuXKGx7WAj3C5oYVWzsGZhbuMaEv996
+         ppIw==
+X-Gm-Message-State: AOJu0YxioTNNghzAO4PpkhY1W3dCIeLLVRdP4AybjfX1X1OVG4LskVue
+	Tf0CrwnSXPuAR1LzBkgTRZKgCbN0tV7Kudlgfh4qqeSDIAryIlPhYoypvZepgbM/ZQ==
+X-Google-Smtp-Source: AGHT+IEwNTimIcrtMms2XQ/N1F5ij4iwnsPruyb8RQtoMBbCJSiaGymJxmgrfDtnsv1cr0MDV4EvAQ==
+X-Received: by 2002:a17:902:f54a:b0:1dc:af71:29fc with SMTP id h10-20020a170902f54a00b001dcaf7129fcmr12630627plf.6.1709580103202;
+        Mon, 04 Mar 2024 11:21:43 -0800 (PST)
+Received: from ?IPV6:2405:201:4016:3f:8564:1b5:c24:d41c? ([2405:201:4016:3f:8564:1b5:c24:d41c])
+        by smtp.gmail.com with ESMTPSA id j5-20020a170902c3c500b001d71729ec9csm8904564plj.188.2024.03.04.11.21.41
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 04 Mar 2024 11:21:42 -0800 (PST)
+Message-ID: <479fd0b8-bf67-4370-8250-bfd136a08195@gmail.com>
+Date: Tue, 5 Mar 2024 00:51:41 +0530
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="yakaQGcnW55dvWi2"
-Content-Disposition: inline
-In-Reply-To: <20240304123359.ruh64pobvg53r7f7@ws.net.home>
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US
+To: util-linux@vger.kernel.org
+From: Tanish Yadav <devtany@gmail.com>
+Subject: [PATCH] su: fix use after free in run_shell
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
+Do not free tmp for non login branch as basename may return a pointer to
+some part of it.
 
---yakaQGcnW55dvWi2
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 4 Mar 2024 14:59:08 +0100
-From: Alejandro Colomar <alx@kernel.org>
-To: Karel Zak <kzak@redhat.com>,
-	"Skyler Ferrante (RIT Student)" <sjf5462@rit.edu>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>, util-linux@vger.kernel.org
-Subject: Re: Escape sequences in /var/log/auth.log
+Signed-off-by: Tanish Yadav <devtany@gmail.com>
+---
+  login-utils/su-common.c | 6 +++---
+  1 file changed, 3 insertions(+), 3 deletions(-)
 
-[TO +=3D Skyler]
+diff --git a/login-utils/su-common.c b/login-utils/su-common.c
+index 242b6ce4e..8cb54e1c1 100644
+--- a/login-utils/su-common.c
++++ b/login-utils/su-common.c
+@@ -851,10 +851,10 @@ static void run_shell(
+		arg0[0] = '-';
+		strcpy(arg0 + 1, shell_basename);
+		args[0] = arg0;
++		free(tmp);
+	} else {
+-    args[0] = basename(tmp);
+-  }
+-  free(tmp);
++		args[0] = basename(tmp);
++	}
 
-Hi Karel, Skyler,
+	if (su->fast_startup)
+		args[argno++] = "-f";
+--
+2.44.0
 
-On Mon, Mar 04, 2024 at 01:33:59PM +0100, Karel Zak wrote:
-> On Sun, Mar 03, 2024 at 11:59:51AM +0100, Alejandro Colomar wrote:
-> > This seems to be a bug in util-linux, not shadow, so I've added
-> > util-linux@ to the thread.
->=20
-> Fixed. Thanks for your report.
-
-Thank you.
-
-Skyler, it's been fixed here:
-<https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/commit/?id=
-=3D677a3168b261f3289e282a02dfd85d7f37de0447>
-
-Have a lovely day!
-Alex
-
->     Karel
->=20
->=20
-> --=20
->  Karel Zak  <kzak@redhat.com>
->  http://karelzak.blogspot.com
-
---=20
-<https://www.alejandro-colomar.es/>
-Looking for a remote C programming job at the moment.
-
---yakaQGcnW55dvWi2
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE6jqH8KTroDDkXfJAnowa+77/2zIFAmXl060ACgkQnowa+77/
-2zLhJA//UPeRyDWvqE2zm6jS3jaAYRuysYcpAuqCs+sjktTVCHf7hi2diFDliQ87
-LPTI+V93HJsUvs803pk8YJMyrG2HyZfVr/KCknxuLc3IDo5X+4J4RInqwCltNBRf
-PbIO8G2iXO7Ra0/KcDV97wAGk+GXGcls7VoCrbp7uav4adhc02nA6AzNZFaNTDao
-s0Xdproofufpq7OQ3Znd5BeSvKDLi8wwohEK8fPx42q5GHVDAjyMptfnqHuFVErT
-VZcTn2W78VkLMnz2rJenNBPUzS/RCv/J4xpeSPbsGQ5QEYt3eJ0zPP3BxfTDkMOB
-fzSiJWy8v1Dl8Q+WMeAGUz9s4tBzxg2QvC36ZwlPG/ivQeARcQUPfFpxoPufalom
-W9Tu6z2mzbwUkF6h7Ot3jTGouNheX8Stc8YYQTjk56D5BeYQ5UEVUHOvZkar5e5r
-26VVbK83FnDm5Hp0MXJsmdrZFY4495JdGonlfyX9HmrrKxK2JVYMEEXAAUrVRyNB
-64ahaDqc8hOwo/L2WRpW6Ff3mOaAEhXSrnCwSH/bUAkE04wbs36YC7AWTKnGXcAp
-lPxtmKGa9R2tZ5qY8Cs3yB/rUZi+DCX27t8lnnu5O7Ess+9wtV0F6GOl2DDxjKeX
-lO3YVHWH544UwbUrnM4YIC9rpf0MpAN7w3Iuj3VX2dcz6pthB2E=
-=5pVI
------END PGP SIGNATURE-----
-
---yakaQGcnW55dvWi2--
