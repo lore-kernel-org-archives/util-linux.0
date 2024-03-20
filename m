@@ -1,39 +1,50 @@
-Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.17.13])
+Received: from mail.cs.ucla.edu (mail.cs.ucla.edu [131.179.128.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 175926A34D
-	for <util-linux@vger.kernel.org>; Wed, 20 Mar 2024 19:49:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACA2E21100
+	for <util-linux@vger.kernel.org>; Wed, 20 Mar 2024 20:56:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=131.179.128.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710964161; cv=none; b=exX8Zp8NZF/t0UP9P75TQMj5s/G8JP/G3rMryNE/dCmoOvRq4Wdj6+PU83PSDR/26aYmYWVLPmyiF31FNTGDtNHpASIxBNlabODMcl10n8qHrX0IC/kmfnuBkRekFr0DQXZlo+EsI2Uv4YizyXtrpZpqd7NIcfhAbsfYXmbNz1U=
+	t=1710968218; cv=none; b=YQE/npdyThoMSfQKJtBV76rkoI2IF+0ShPSZ5dHriODm1jgR7HcK+Tym2qKInhr9JR22N3DX8F9X1el7wJnVUHzwJTJhd5KD8qHfD5LjTwbMoHftHbrJ2NIXUo+FGcXGpcCDTUY5jDc7FecceK7n2/3iQb35E1VKMYIxIf7RY58=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710964161; c=relaxed/simple;
-	bh=7xNHsbIAbHos3DuuO4wxmZgpPTAAbTLrxz+PEtIr8rI=;
+	s=arc-20240116; t=1710968218; c=relaxed/simple;
+	bh=gqp1oCpll7JLBWDJfilsfUZOJmMapTXFGTV153dobI4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=R3xGZb3kv6EugVYC2ALoBhRVqybHa9F7ScGvP4gi70MkzJeHn/w4ABahhhSiFyPZlUnWqQnq6M73U+y7p5YeI5LzWuNboq6ZrPLGutd/VvOjcOBxKDSNs2VMM43ZGvcVEVGkczFTe2DBZ0BLqScwFHXVFVh6Kg9y2SN0Ij4BOM8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bernhard-voelker.de; spf=pass smtp.mailfrom=bernhard-voelker.de; dkim=pass (2048-bit key) header.d=bernhard-voelker.de header.i=mail@bernhard-voelker.de header.b=grk4cJae; arc=none smtp.client-ip=212.227.17.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bernhard-voelker.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bernhard-voelker.de
+	 In-Reply-To:Content-Type; b=T3wseO3xn0SBLBhBHvSnYzuN+kTmqv3oNzzA6dIsvTsk9rsmvlkmsWQFfZ7LZJoIgJDumzNZLGRTpIYzcu0MTtwdP7EEfxDLjMYR+DhHqVqnl8xtVUNVROC1t9CBz7x2hM0LSRB7sVcMOMynwccAm2NGJnAoeg54f1A/87tNV58=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cs.ucla.edu; spf=pass smtp.mailfrom=cs.ucla.edu; dkim=pass (2048-bit key) header.d=cs.ucla.edu header.i=@cs.ucla.edu header.b=hOeBXU4Z; arc=none smtp.client-ip=131.179.128.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cs.ucla.edu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cs.ucla.edu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bernhard-voelker.de header.i=mail@bernhard-voelker.de header.b="grk4cJae"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=bernhard-voelker.de; s=s1-ionos; t=1710964153; x=1711568953;
-	i=mail@bernhard-voelker.de;
-	bh=BnVtolgxNvULnkjEGPPfr5zaj18a8PAVNVTD79Tz0jE=;
-	h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:
-	 In-Reply-To;
-	b=grk4cJaeFQ2UpZwdeQOvCKurmpQA06xqnRUcFgtJLJ2FuzNlEYb3Gk7ClGCRqK1j
-	 O2vv2soUy2TslnV5F4YR91hK2KgXWnCJrDp9Oxtjfrx/71TSli50Jv8TjUS1mRnLH
-	 jaKXBjjzXn9SP1yAtotVKvrm6fkFWrJhPYP02hkibyDbvAZ8oPN1m4a8G6JoEbjlQ
-	 iaCZf41OFiLMENnSWT0sVjaoY7ulq7u42Zh7D7a7AVCe3JWEi+xnFvoIIT5Rt0LzM
-	 0jpt5vFhv98LQf1lGBNb13duQwY6jhYINhl0ykg+xdyg0yjyTy/RRiBojC0vQ1byF
-	 AAlR2beOHtT+lHqQ/A==
-X-UI-Sender-Class: 55c96926-9e95-11ee-ae09-1f7a4046a0f6
-Received: from [192.168.101.10] ([91.49.76.118]) by mrelayeu.kundenserver.de
- (mreue109 [212.227.15.183]) with ESMTPSA (Nemesis) id
- 1M2wCg-1rluqo17rY-003NaW; Wed, 20 Mar 2024 20:43:42 +0100
-Message-ID: <11c9a6a2-c73d-4b99-b071-48e7eab2fd19@bernhard-voelker.de>
-Date: Wed, 20 Mar 2024 20:43:40 +0100
+	dkim=pass (2048-bit key) header.d=cs.ucla.edu header.i=@cs.ucla.edu header.b="hOeBXU4Z"
+Received: from localhost (localhost [127.0.0.1])
+	by mail.cs.ucla.edu (Postfix) with ESMTP id B4C4D3C0140A4;
+	Wed, 20 Mar 2024 13:56:50 -0700 (PDT)
+Received: from mail.cs.ucla.edu ([127.0.0.1])
+ by localhost (mail.cs.ucla.edu [127.0.0.1]) (amavis, port 10032) with ESMTP
+ id Q3L8QIb1HzAM; Wed, 20 Mar 2024 13:56:50 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+	by mail.cs.ucla.edu (Postfix) with ESMTP id 5EB853C0140A0;
+	Wed, 20 Mar 2024 13:56:50 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.cs.ucla.edu 5EB853C0140A0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cs.ucla.edu;
+	s=9D0B346E-2AEB-11ED-9476-E14B719DCE6C; t=1710968210;
+	bh=y/tKou4brdzbJCh/VY4w1YNyxY6d8ViPIRvsRyoD+rs=;
+	h=Message-ID:Date:MIME-Version:To:From;
+	b=hOeBXU4Z2HPuKiMrwQECelG08IiOSbN9yFy52yWvnS1XLlR13YAIF5erCqQZ4GvWS
+	 K062SO1kP19xUjfQCybjuo70uUXYdaz6E+wwKqgheG/GYcbRUjF7dbCP6jHr8glzSR
+	 Gf0fKa0duR8jzP7T0O5XHcu+nayrXhm0EbmaX/HiKufavTAM3JoMaKLCV7RYXdvXzM
+	 kXRBKOvV6XudUQFAJ+VvItQZ3NJ4o4VOGUN8/XWM9kYzyyYE1FEdg3wwBSvGNFgwFD
+	 ojr2O7sXDMzvz8Dg9VP2rX8NvjkSulMO+Hke3R9vPDTT0ZLGsbf6UHLOTEcByze4eg
+	 WIbqdwdXrCfXw==
+X-Virus-Scanned: amavis at mail.cs.ucla.edu
+Received: from mail.cs.ucla.edu ([127.0.0.1])
+ by localhost (mail.cs.ucla.edu [127.0.0.1]) (amavis, port 10026) with ESMTP
+ id 9JECOFSqSffq; Wed, 20 Mar 2024 13:56:50 -0700 (PDT)
+Received: from [131.179.64.200] (Penguin.CS.UCLA.EDU [131.179.64.200])
+	by mail.cs.ucla.edu (Postfix) with ESMTPSA id 3C62B3C0140A4;
+	Wed, 20 Mar 2024 13:56:50 -0700 (PDT)
+Message-ID: <4356f3eb-544e-4ce9-b9ea-374cd01663d5@cs.ucla.edu>
+Date: Wed, 20 Mar 2024 13:56:44 -0700
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -43,9 +54,8 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: bug#69532: mv's new -x option should be made orthogonal to
  -t/-T/default
-Content-Language: en-US
-To: Paul Eggert <eggert@cs.ucla.edu>, =?UTF-8?Q?P=C3=A1draig_Brady?=
- <P@draigBrady.com>
+To: Bernhard Voelker <mail@bernhard-voelker.de>,
+ =?UTF-8?Q?P=C3=A1draig_Brady?= <P@draigBrady.com>
 Cc: Petr Malat <oss@malat.biz>, util-linux <util-linux@vger.kernel.org>,
  Dominique Martinet <asmadeus@codewreck.org>, 69532@debbugs.gnu.org,
  Karel Zak <kzak@redhat.com>, Rob Landley <rob@landley.net>
@@ -55,56 +65,61 @@ References: <10c814a7-cb68-4fb4-ad8d-f88f286fb0b1@cs.ucla.edu>
  <5914e8b2-48ac-456b-9753-6a7bae7a9bbb@cs.ucla.edu>
  <636f1247-0de0-2f32-cb04-f6952b6807aa@draigBrady.com>
  <c5622a1c-b59e-4eb3-9d81-111acc1fbddc@cs.ucla.edu>
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-In-Reply-To: <c5622a1c-b59e-4eb3-9d81-111acc1fbddc@cs.ucla.edu>
+ <11c9a6a2-c73d-4b99-b071-48e7eab2fd19@bernhard-voelker.de>
+Content-Language: en-US
+From: Paul Eggert <eggert@cs.ucla.edu>
+Organization: UCLA Computer Science Department
+In-Reply-To: <11c9a6a2-c73d-4b99-b071-48e7eab2fd19@bernhard-voelker.de>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: V03:K1:/DXl5kLeKeS+P9p+d2yonwdq7pkwuOyjf7QwXlr16XVyPrZ5GdX
- jPo7JJhsETtUqJWF5VAK9yrfPcFGgRVeWweTtpvPVxZ9CbfUnW/bxyEdYDpeHkr7Kv3QNir
- Wf1Fk0z6b7b7i27F6yG7XIozUbcT0DGoVNs/eRHWzsgFY4Tka8b1xiTtLx6UHgqfsfvDc2Q
- mJ7wRtloOjw/Yqd5h4msg==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:1sZjHFpl55w=;tle0fPIuezU+g4XFp973HRoLst5
- 5+5u8EE8LSEMv505BVgQu1RhOjt0G8q+nrsN5xHj4Tr/89B3q5pUeLk7gJBRG9ClTfLePNcBs
- Bc0ktY+c0xS2knRMnJF7uHKzyFjOmi/0h7OVsGLGhu3jykbQt3uh7TTPQpuA+mEnuNru1YZax
- 4YVd5q8J+lWyXPd7Yk8n+xIoNC+UWNG1Z49U4XkoqAnc4w4aDfu16fSfWipcReczm2s3W3Nqs
- ucqfTfzSxUsFTzQV9WIgjgaQbL9zPTrGlw1mDiafiG/9eQMcu8w4sIX1/tpFHGocMgO8qWRVh
- /vs5QXvpjRo6FQIZ3ARGMhb9zLMXLcHMrTLSV+nPUn8e7Qr24NLF6D4V2UJ5bg9E4BT/drTPN
- H0FrYxjEKe21Joppp6o6VChtC7ycS1GfNsuKGsyXy08VnLBfgFDZ4S2l8gDvVSfHVMTm6oM7U
- YlYaWPnLZnr0I3AM5mwb6FYuCov+agHYSB3o6Tz1vajcxsbzEqTrnWWlFEfmFiy4086CUjzFB
- nZXFJ75eYXFGLrpDu/xDp0f5pcS9AA+DRzcaDzeaj/V0APqacJlSJb2rzV/L0kE6+G0fIXaQq
- IrRZJMVlEFgjYCyYEnxzb3n0+GlJaNoRbQLXoWS+sk0AKM5gvky4zGBK4XOKEH0O9kQ3F+rnL
- 6F0LXqJPabEYrdlJe2Zc4vdxzHYE0NfvhCGX6UC2yj1ZiXPzhL2LMTzZEoL4UyQxbuJqisRNI
- MC4pDo3dFVRDhsBbbiLpJuy1FBEI2k5DDTCFvGA5JyyU2Bj+va1D2M=
+Content-Transfer-Encoding: quoted-printable
 
-On 3/17/24 07:10, Paul Eggert wrote:
-> Although removing that "mv --swap" implementation was a win, I don't
-> think we can simply delegate this to util-linux's exch command.
+On 3/20/24 12:43, Bernhard Voelker wrote:
 
-I still have some headache adding this.
+> This stems from the fact that although mv(1) is a userland frontend
+> for renameat(2), the user interface is different:
+> while renameat(2) deals exactly with 2 operands, mv(1) has always
+> been able to work on more arguments.
 
-This stems from the fact that although mv(1) is a userland frontend
-for renameat(2), the user interface is different:
-while renameat(2) deals exactly with 2 operands, mv(1) has always
-been able to work on more arguments.
+Yes, that's mv's original sin, which we cannot realistically change now.
 
-Now, extending "exchange" to more arguments is confusing and the
-use is not intuitive:
-   mv -v --exchange  a b c d
 
-An "exchange" can literally only be applied to 2 files,
-and 'exch' is IMO fine.
+> Now, extending "exchange" to more arguments is confusing and the
+> use is not intuitive:
+>  =C2=A0 mv -v --exchange=C2=A0 a b c d
+>=20
+> An "exchange" can literally only be applied to 2 files,
 
-I have the gut feeling that we didn't think through all cases,
-and that some might be surprising, e.g.:
+Sure, but that's true for "rename" too: a "rename" can be applied only=20
+to 2 files.
 
-   $ mkdir d; echo 1 > a; echo 2 > d/a
-   $ src/mv --exchange a a a a d/a
+When d is a directory, "mv a b c d" does three renames so it is like "mv=20
+a d/a; mv b d/b; mv c d/c". This remains true if you uniformly replace=20
+"mv" with "mv --exchange", which does three exchanges.
 
-versus
 
-   $ src/mv --exchange a a a a d/a
+> I have the gut feeling that we didn't think through all cases,
+> and that some might be surprising, e.g.:
+>=20
+>  =C2=A0 $ mkdir d; echo 1 > a; echo 2 > d/a
+>  =C2=A0 $ src/mv --exchange a a a a d/a
+>=20
+> versus
+>=20
+>  =C2=A0 $ src/mv --exchange a a a a d/a
 
-Have a nice day,
-Berny
+I don't understand the word "versus" here, as the two examples look the=20
+same to me.
+
+If d/a is not a directory, the example is an error, just as it would be=20
+without --exchange.
+
+If d/a is a directory and you have permissions etc., "mv a a a a d/a" is=20
+like attempting "mv -T a d/a/a; mv -T a d/a/a; mv -T a d/a/a; mv -T a=20
+d/a/a". If you use plain "mv" only the first "mv -T a d/a/a" succeeds=20
+because "a" goes away, so you get three diagnostics for the remaining=20
+three "a"s. If you use "mv --exchange" all four "mv --exchange -T a=20
+d/a/a" attempts succeed, and since there are an even number of exchanges=20
+the end result is a no-op except for updated directory timestamps. So I=20
+don't see any ambiguity about what mv should do with this contrived examp=
+le.
 
