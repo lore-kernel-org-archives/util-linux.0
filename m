@@ -1,54 +1,77 @@
-Received: from mout.kundenserver.de (mout.kundenserver.de [217.72.192.74])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f173.google.com (mail-il1-f173.google.com [209.85.166.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4B8B1E87E
-	for <util-linux@vger.kernel.org>; Wed, 20 Mar 2024 22:58:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.72.192.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD2231E522
+	for <util-linux@vger.kernel.org>; Wed, 20 Mar 2024 23:54:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710975536; cv=none; b=oUOz55Ib+D+JtAjeZdyyCdgu3dEpg3lX5j0nOYfGtqIWIYpUcibTnXL4wX+FvxgYEt0+tgvm5A9KtooU4n3nw7DsmzJxSq1ooWQCLyZ36TlnPxGro2HDCKZ2PZRpM+SDcSjsfuDktHGodLkX48Snyxv3/ENshebTsaVXZc1Z2h8=
+	t=1710978869; cv=none; b=qs/yVlczzr+Rjn9npapvAWcH/2tLbspW3JL2P4Xw0YQg7K4E8wxh4dP/4pGAlTNc5D+Dfk3tFonREP0xiJnxlugaPTc74mtfz/genzp5bLHT3CR0XDYBYXZbcXYZ79g/Wy6J0xlWcuZwhminY7cgZymiPRJapUeDfSCjpV7riks=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710975536; c=relaxed/simple;
-	bh=DcP2D2ym17rPURGx6hYP3SGWqxRpdOyffuX2l+ziXEc=;
+	s=arc-20240116; t=1710978869; c=relaxed/simple;
+	bh=33CkICONktN+IgyIs0wLjya/FvBK9rbciU7WLtiKewk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=p/1M/IDSdt3Ndz0QQ1ErSANi8OJBzVdYyWSG4kEOro13Eye1aGbmpUY534nfN0HjE4JbOnJBLL/pRyPsHEV9yKVP1RkJtCmG6IPjYBf14M9IVCTHc4f4C/2xIZislxbHFxQZKWljFJA8ktEBisD4nyrHcjLyLaJAOt9oNnN46QU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bernhard-voelker.de; spf=pass smtp.mailfrom=bernhard-voelker.de; dkim=pass (2048-bit key) header.d=bernhard-voelker.de header.i=mail@bernhard-voelker.de header.b=dI6Dn/h5; arc=none smtp.client-ip=217.72.192.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bernhard-voelker.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bernhard-voelker.de
+	 In-Reply-To:Content-Type; b=CuO5sIV0qxKqU74/H1EI+leGRmbvSB4Fi0sCWfEviU6W/sJwOXxRzlzXT1u4bdojl+U5yEY/RrqKPnxd+oP/9vu5xbT5Wp3WLqZYc+ZL7h0jPqoffbxMVVbymYsar4QisCz+XODkl8Uhz4cptwvOp8IBVcqyIcU4T5y6B7vao4I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=landley.net; spf=none smtp.mailfrom=landley.net; dkim=pass (2048-bit key) header.d=landley-net.20230601.gappssmtp.com header.i=@landley-net.20230601.gappssmtp.com header.b=3Yo5PWmX; arc=none smtp.client-ip=209.85.166.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=landley.net
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=landley.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bernhard-voelker.de header.i=mail@bernhard-voelker.de header.b="dI6Dn/h5"
+	dkim=pass (2048-bit key) header.d=landley-net.20230601.gappssmtp.com header.i=@landley-net.20230601.gappssmtp.com header.b="3Yo5PWmX"
+Received: by mail-il1-f173.google.com with SMTP id e9e14a558f8ab-3662feb90a8so2700835ab.3
+        for <util-linux@vger.kernel.org>; Wed, 20 Mar 2024 16:54:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=bernhard-voelker.de; s=s1-ionos; t=1710975528; x=1711580328;
-	i=mail@bernhard-voelker.de;
-	bh=jsyJTLQUd61oOlFwsqStZDqw45pazUxe4EIgIKYBZe4=;
-	h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:
-	 In-Reply-To;
-	b=dI6Dn/h54cNMgXfDFtZigVB01QAqFHYLB/8hmP4xK7vCrE5TvNOYkJF4u7rqqGEq
-	 FRW5uqpNh3nt/nj54+04+5c7eC1IiWWYlOiMjBQP+ZdRga7mC9AEWu67izAwIJXFc
-	 txOIDx0Y1zIjYBtjkDDY/nImZ6Tt03sksKj9IYwMwtHn/yLxgq1cKQizRWFlhMKcL
-	 GDBZ0VT/mab42r95H63EgenBlnFLWi8850aJbri/oXN3iyGRb7YtQnvf0BIDRS+3V
-	 o7UWPhXXKqvuzprHareoX0+H0y5pHPyLORccGfOwMt+V8Mq0h7E2VGs01sJEzjcx2
-	 YukAIJkolMPp5V0OZQ==
-X-UI-Sender-Class: 55c96926-9e95-11ee-ae09-1f7a4046a0f6
-Received: from [192.168.101.10] ([91.49.76.118]) by mrelayeu.kundenserver.de
- (mreue106 [212.227.15.183]) with ESMTPSA (Nemesis) id
- 1MrPVJ-1r158u2ByJ-00oZ9M; Wed, 20 Mar 2024 23:53:07 +0100
-Message-ID: <dcf073d9-a60b-429d-b9e2-40f6069e2641@bernhard-voelker.de>
-Date: Wed, 20 Mar 2024 23:53:05 +0100
+        d=landley-net.20230601.gappssmtp.com; s=20230601; t=1710978867; x=1711583667; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=3NzsgalDpt3X/u2NbkXOKZFM5qtBMcfLV7J3km0Lm5k=;
+        b=3Yo5PWmXb2/fKNytPfrZi2NiOfXp9W6k6pWPRMg5793s/FMJGQoyflmmlDA7Toi5In
+         YPEYtmN/pnK2/3Vvs0INjps9vOepQNqD2nEqBKxm/FaY7ZtU/cGzjn3FL9dAzIiPcEMx
+         BI0z17ESCV2I78mX99WSsiBKK+cuTv2Tx3475ZJupC0eMTrAxptRSHEN/V1ja9xPz/Jc
+         FE48fh+R4V9ql9pdmL+HVFBUnIAEFBIoBaYguhhCyZv+4jQ9CzaR5YC0bKMgC7/yA4ev
+         r4QBVkBE8qEM8MwXgdlCcNCc0sPhONyWgGh1e+/wLd6fCZY9Sh1qk3T0LXFifMv+hMZI
+         19QA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1710978867; x=1711583667;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=3NzsgalDpt3X/u2NbkXOKZFM5qtBMcfLV7J3km0Lm5k=;
+        b=DL81aBrvtM/NLKlQMBJ3IAA34y0YtrTIzQssNeLZW94w/63YD9OM721Jij4/YCjP9J
+         Y4G5FYAeqdzLeoaddle6XCO0nu0TkD1pL8AEQYpI7gz9plygmoEs0smMkMlC9I3zM1qt
+         L2kNA7jEseUj1v+VWJDgXd92cEUeSBvpvDTVfmoxXJw/nKRZnG+PFenD1LnWnHoEogt2
+         LX8SKJGtFNxhjZKDA5GIGQv1/tr0V80qqS//QXIriM+QhYKkafzd5PaF2Pjndd2E7+yK
+         faN+LIiVX+ciZh13uqKt+6O3SdvWPqbj+gX46SUjydBse6HxZixl46Zp3HKaSLtvQgLM
+         IYgw==
+X-Forwarded-Encrypted: i=1; AJvYcCVpI4QYO9sxX/BcrA4PdJJdh68GhQK+sQO882D8pqqh/xry2btRGIqYhQTHj7X0B8CSTlEnmZG2YxwADIoSmGDAsoMTn7yKtEZhIA==
+X-Gm-Message-State: AOJu0YxyLMJV2eISTcj1MkpDHKWYtf2XOqrsmmT8t3GwNnL42PLw8Rw5
+	kYpzNBGIlrU0vouu9rkw5DkCJwcR1ovcc/9XAdKNKRqiVeTYzCBEZB+cl/lvRxEFpdECkrOIimi
+	i
+X-Google-Smtp-Source: AGHT+IF/5aNP6ZYnIyWJ827jffp8nmmuZOe0YE/YtulkKLljl8gLYWjzLnB4Gm3/IsEb6ueG9ZRlag==
+X-Received: by 2002:a92:dd89:0:b0:367:82b5:555d with SMTP id g9-20020a92dd89000000b0036782b5555dmr394628iln.8.1710978866972;
+        Wed, 20 Mar 2024 16:54:26 -0700 (PDT)
+Received: from [172.16.32.83] ([198.232.126.202])
+        by smtp.gmail.com with ESMTPSA id p17-20020a92c611000000b0036697c6315asm3400016ilm.87.2024.03.20.16.54.26
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 20 Mar 2024 16:54:26 -0700 (PDT)
+Message-ID: <5fb89ff4-74fc-7391-5dde-f6ad24132b34@landley.net>
+Date: Wed, 20 Mar 2024 19:03:09 -0500
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
 Subject: Re: bug#69532: mv's new -x option should be made orthogonal to
  -t/-T/default
 Content-Language: en-US
-To: Paul Eggert <eggert@cs.ucla.edu>, =?UTF-8?Q?P=C3=A1draig_Brady?=
+To: Bernhard Voelker <mail@bernhard-voelker.de>,
+ Paul Eggert <eggert@cs.ucla.edu>, =?UTF-8?Q?P=c3=a1draig_Brady?=
  <P@draigBrady.com>
-Cc: 69532@debbugs.gnu.org, util-linux <util-linux@vger.kernel.org>,
- Dominique Martinet <asmadeus@codewreck.org>, Petr Malat <oss@malat.biz>,
- Karel Zak <kzak@redhat.com>, Rob Landley <rob@landley.net>
+Cc: Petr Malat <oss@malat.biz>, util-linux <util-linux@vger.kernel.org>,
+ Dominique Martinet <asmadeus@codewreck.org>, 69532@debbugs.gnu.org,
+ Karel Zak <kzak@redhat.com>
 References: <10c814a7-cb68-4fb4-ad8d-f88f286fb0b1@cs.ucla.edu>
  <58281f96-f9c6-4567-e3c9-c6a6cfa6ce27@draigBrady.com>
  <ZeZqzB4-OzHYfFeQ@codewreck.org>
@@ -56,141 +79,38 @@ References: <10c814a7-cb68-4fb4-ad8d-f88f286fb0b1@cs.ucla.edu>
  <636f1247-0de0-2f32-cb04-f6952b6807aa@draigBrady.com>
  <c5622a1c-b59e-4eb3-9d81-111acc1fbddc@cs.ucla.edu>
  <11c9a6a2-c73d-4b99-b071-48e7eab2fd19@bernhard-voelker.de>
- <4356f3eb-544e-4ce9-b9ea-374cd01663d5@cs.ucla.edu>
-From: Bernhard Voelker <mail@bernhard-voelker.de>
-In-Reply-To: <4356f3eb-544e-4ce9-b9ea-374cd01663d5@cs.ucla.edu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:AUw4Pt2ulRQRdoCBo0gUeiPJ4PBLHNJaxRQMmpj2TPJOzGkvU/b
- eyJoC2BR3XCrkoiapi6+Q6OhbfWPbwgmFEUp0qiLCMP2zmkDPb9xEuD92yJcAhPGVGBsWrz
- KrS9PpmeBmLrm1MvboaAUBKK7JQOEVQhrFIiEG+LSBFrSu9xgTRy7ch/KgSyvwR7fEgwIsg
- eG7lHzhnEyUFsCvLaW1vg==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:rsAw3F6Rk5I=;2QgIvTLlcAy+xmyOYobbBRvd1LO
- 1i6vtppCjTz7TH25FO54amYyGd9ss5KCd5ktyvtZaHskhEjmcZ5eLcce+9s2/WgWnS53MO/Yi
- JRXmZtE4oLK1+xJc8wV5LqD3HSl5oNXwgFdrp/cFYY5lyK0YTUbDNyDmcYOjT3ZcgrjYSGv9f
- KGlj4Y2zyn/wdooCd4vPBZlJIZKseoXHrZevdw20yEheLwJvEwTjeTzwFkl4eOebC9eHcMJTo
- PpbjufXLtfT0q03NVpsYys8msmJiUmv6CANQMXNXKN50/tztASf1t/nLg3EWshZpdLJ4mhpfq
- l27uClgCTDteRceU3TA2PlnH1Z12A5Pn/gtDJRy622JNvH4KwrcQS0LuR/zqiF4hodS0m8BDW
- inJwvztdMt+LoHQpIAlRO8Cy0e4ktc6spZyx+jbiJRV8eEFhHnVPnW+VrMvgo44IDzBwUDHTN
- sh1ajr8ufw8ussRG9y2s/riO+QC+cRJzv/ch888tODpZZVOzfWaxkvAgbRS4I2GqGp3hNcCcj
- aP4Wp4gwzM8UwX+VwnNpYv1NprLwIFw6SJJ6LCMV8mHBSXUWeYcSKLF/MhrDC2hAtxHykcJ+j
- NnR0bR74eBozj1nbC1L2NXfr5zEiLOcZEgq2HgNPADDjb7eQXX2nwG1xx/cEN4g0MNMn4DKe0
- KFMN9571t0IoWycw0eospIXadQ0nGxtOCnZYgjcOwneKysSPzLuVRtU6KxN2BKd7klXzzcDFv
- 6wfSlzbIIbzg/9WGpm/C9EoI3jXnBdhotmf/oU6LapZ9f/jpKLcTCQ=
+From: Rob Landley <rob@landley.net>
+In-Reply-To: <11c9a6a2-c73d-4b99-b071-48e7eab2fd19@bernhard-voelker.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On 3/20/24 21:56, Paul Eggert wrote:
-> On 3/20/24 12:43, Bernhard Voelker wrote:
->
->> This stems from the fact that although mv(1) is a userland frontend
->> for renameat(2), the user interface is different:
->> while renameat(2) deals exactly with 2 operands, mv(1) has always
->> been able to work on more arguments.
->
-> Yes, that's mv's original sin, which we cannot realistically change now.
+On 3/20/24 14:43, Bernhard Voelker wrote:
+> On 3/17/24 07:10, Paul Eggert wrote:
+> Now, extending "exchange" to more arguments is confusing and the
+> use is not intuitive:
+>    mv -v --exchange  a b c d
 
-I wouldn't go that far that it was a sin.  It's useful and people got
-used to it without having to think about it.
+It's also pointless. An atomic exchange on more than 2 files ISN'T ATOMIC.
+That's why I didn't do it.
 
->> I have the gut feeling that we didn't think through all cases,
->> and that some might be surprising, e.g.:
->>
->>   =C2=A0 $ mkdir d; echo 1 > a; echo 2 > d/a
->>   =C2=A0 $ src/mv --exchange a a a a d/a
->>
->> versus
->>
->>   =C2=A0 $ src/mv --exchange a a a a d/a
->
-> I don't understand the word "versus" here, as the two examples look the
-> same to me.
+You already had "mv -T" requiring exactly two arguments, so thinking mv -x has
+cooties because it works the same way is just weird.
 
-sorry, I messed the example up.
+> I have the gut feeling that we didn't think through all cases,
 
-   $ echo 1 > a
-   $ mkdir d
-   $ echo 2 > d/a
-   $ src/mv -v --exchange a a a d
-   renamed 'a' -> 'd/a'
-   renamed 'a' -> 'd/a'
-   renamed 'a' -> 'd/a'
-   $ cat a
-   2
-   $ src/mv -v --exchange a a a d
-   renamed 'a' -> 'd/a'
-   renamed 'a' -> 'd/a'
-   renamed 'a' -> 'd/a'
-   $ cat a
-   1
-   $ src/mv -v --exchange a a a a d
-   renamed 'a' -> 'd/a'
-   renamed 'a' -> 'd/a'
-   renamed 'a' -> 'd/a'
-   renamed 'a' -> 'd/a'
-   $ cat a
-   1
+Sounds like. Having mv modify its source directory during recursive descent is
+creepy.
 
-I remember some implementation where mv(1) really was just a rename(2),
-which failed when crossing file systems.  Was it some HP-UX or Solaris mv(=
-1)?
-mv(1) has learned to copy+delete over time, which is what people would
-expect from a "move".
+Toybox implemented:
 
-My point is that "exchange" is a different functionality.
-It's well somehow belonging and related to what renameat(2) is doing in th=
-e kernel,
-and therefore it comes in handy that we can simply call it with an additio=
-nal flag.
-Yet it's IMO a different operation.  I bet there had been discussions whet=
-her
-to create a new syscall, but apparently it was easier to put it with a fla=
-g
-into an existing one.  Fine for the kernel.
+-x	Atomically exchange source/dest (--swap)
 
-On userland OTOH, we have broader choice.
-Karel did his choice in util-linux for exch(1), and coreutils could expose
-the same functionality.
+Which behaves like:
 
-For other feature requests, we were much more reluctant in coreutils ... f=
-or
-good reasons: feature bloat, maintainability, etc.
+  $ ./mv -x one two
+  $ ./mv -x one two three
+  mv: -x needs 2 args
 
-So I'm asking myself what is different this time?
-- The feature already exists -> util-linux.
-- Okay, we're using the same syscall, renameat(2) -> it's tempting.
-- How large is the useful overlap with the existing code of mv(1)?
-   Not much: no traditional rename nor copy.
-- How large is the useful overlap with the existing options/modes of mv(1)=
-?
-   - exchange contradicts --backup,
-   - exchange is not useful together with options working with a regular
-     rename of copy, at least: --update, -Z, -n.
-   - not sure if exchange works well together with -f.
+My change from this discussion was adding the "--swap" synonym you wanted.
 
-I'm currently only 20:80 for adding it to mv(1).
-The functionality is cool, but do we need to press it into mv(1) with so m=
-any
-incompatibilities just because it's requiring renameat(2) we already use?
-Maybe to consider: One tool for one thing ... means another tool for anoth=
-er thing.
-
-Again, I have the gut feeling that we've missed some cases to think about.
-And once the feature would be in ...
-
-Furthermore, why does exchange not work to exchange a regular with a direc=
-tory file?
-We've all learned that everything's a file, so it cannot be explained to u=
-sers that
-exchanging a regular file with a directory doesn't work.
-
-Finally, the test cases are very sparse: no cases with different owners, d=
-ifferent
-directory permissions, different file types (if we know already f<->d does=
-n't work),
-triggering races, etc.
-
-I don't really want to object to add it, but I find it quite odd as of tod=
-ay.
-
-Have a nice day,
-Berny
+Rob
