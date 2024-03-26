@@ -1,50 +1,50 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B154A4EB22
-	for <util-linux@vger.kernel.org>; Tue, 26 Mar 2024 18:13:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A029D13CC4A
+	for <util-linux@vger.kernel.org>; Tue, 26 Mar 2024 19:09:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711476821; cv=none; b=EaD4+uu29MHmP+H/zaASgxDl0ltN4re7Y0Ge4scg7MjE22wM54Za5H2tcRDNc/7HK53OoJc8poerPl6hE/E471xE1nHKlOcYuB8W+7U/9AkjpcdWkkCkokBirdzzKyCnUjg7a+Bn4uXGfOQ3wMbb/1aVjWLY1Ql3oyDs28mw8lM=
+	t=1711480159; cv=none; b=UYBhJPJzBJ0TY4S1zEcLJwVXfw7mi9GvPxhiSTGsqw6vx10zOrrMly9ExGkbWqj9odmL9Npij1kIOnk9b2SMrhqty0YYC1kId/ZjvI6K4ZaQQ2hsqz3irZYWz7In052xW9SvzKTUoEq++QlYDCryiWIaPQudlpdjKcd8T5KHrFc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711476821; c=relaxed/simple;
-	bh=jjBOyZm4OJh0ohd0SUNothtbiT0ES11GWu1a7YZp1BE=;
+	s=arc-20240116; t=1711480159; c=relaxed/simple;
+	bh=ppoF9QfWqWOl4kRzqfBhuK/S0SaArT1FUsISJTivadQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mgYpX3xNq8MOk1Ae/AytS1EDdklC1fIQpAFZTyyQvQhmpseDkdcl58/GjFSsol/FmAnpKAI1nM66zsWUqELEnZIp8QdAW9BPYgd4Ab9+XG6wwFv/54sjYBpEdhVIzdfEkQIb4sBaHahhHz61dMpQWNyUfXp0h5A11HHb/Dpjzho=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OIJsCAxh; arc=none smtp.client-ip=170.10.133.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=Y0LItX+m5Jjxb3S6FS7LKJG52YDHheJka2RtnZBHKBjXymmZx1WorjbimisWTWDnzfD5Qbgfrkec5p9OZDPhlgV5kMQBHRZKjIRFQxgh6IKNclC2FhHOh2AIKFcjKROkNgg+eHAOesY75qhAZ5nDnolLQ9cVq2bzNIcmD3vLA68=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AC2rTT7l; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OIJsCAxh"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AC2rTT7l"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711476817;
+	s=mimecast20190719; t=1711480156;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8dEPWNav3ht5KHoSYC5rzlA7atJCVu+2atzRY8fmd08=;
-	b=OIJsCAxhWao8lUx4/ayisKh/xthwvQwlCev2K25Bfd57adh9RytDbYS11BO0egRceqJGmM
-	r048spxh5lYzrOZAXAl6tSWGM5ELmhSTc1oPr+XzxViozt6b5LjXWim8J9N5WxuaMffqMy
-	voNOootZX7kJOw6i3moxxEsPA1uWJho=
+	bh=/HP1xelB7jgNmZLUi3n7PeK5LxQ0rCEH07jHna4mAIU=;
+	b=AC2rTT7lOnRp/OW9lJwMxo7Pq2dm/8ZLWA23W4+n8b5+F4XdM426FdsD2hqGIEZT9/AllK
+	VfsOkAlKTaM6a+RbqAsFDiSPIZN1uzZrn+LsQE7DxcelCu0AvBu30AaFISclJX9fLFMfLp
+	RTZBJKSuhYwLKtYjHgG2rZGtotEnI28=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-542-cnhsvYEWN8mpZ08tdzDrzw-1; Tue, 26 Mar 2024 14:13:32 -0400
-X-MC-Unique: cnhsvYEWN8mpZ08tdzDrzw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+ us-mta-416-JVETPaKHOaeA_f3iYuwJ2w-1; Tue, 26 Mar 2024 15:09:15 -0400
+X-MC-Unique: JVETPaKHOaeA_f3iYuwJ2w-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 946088007A7;
-	Tue, 26 Mar 2024 18:13:32 +0000 (UTC)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C7F26101A56C;
+	Tue, 26 Mar 2024 19:09:14 +0000 (UTC)
 Received: from lorien.usersys.redhat.com (unknown [10.22.16.204])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 44562C04223;
-	Tue, 26 Mar 2024 18:13:32 +0000 (UTC)
-Date: Tue, 26 Mar 2024 14:13:27 -0400
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 8B4132022C1F;
+	Tue, 26 Mar 2024 19:09:14 +0000 (UTC)
+Date: Tue, 26 Mar 2024 15:09:10 -0400
 From: Phil Auld <pauld@redhat.com>
 To: Thijs Raymakers <thijs@raymakers.nl>
 Cc: kzak@redhat.com, util-linux@vger.kernel.org
 Subject: Re: [PATCH 0/1] coresched: Manage core scheduling cookies for tasks
-Message-ID: <20240326181327.GC315070@lorien.usersys.redhat.com>
+Message-ID: <20240326190910.GD315070@lorien.usersys.redhat.com>
 References: <20240326144129.GA315070@lorien.usersys.redhat.com>
  <20240326174909.117426-1-thijs@raymakers.nl>
 Precedence: bulk
@@ -56,7 +56,7 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20240326174909.117426-1-thijs@raymakers.nl>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.8
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.4
 
 
 Hi Thijs,
@@ -66,17 +66,33 @@ On Tue, Mar 26, 2024 at 06:49:07PM +0100 Thijs Raymakers wrote:
 > 
 > Thank you for your comments. I've attached an interdiff to this email
 > with all the changes that I've made in response.
+>
 
-Fwiw, I've updated my version with the ability to handle your pull/push
-use case if you want to give that a try and see if it works for you.
+I tried this version out and it doesn't work for me. One of the
+basic use cases of a wrapper like this is to run a command with
+a new cookie (say starting a container or something).
 
-https://github.com/util-linux/util-linux/pull/2839
+Coresched requires a pid to do that:
+ # ./coresched -n ls
+ coresched: Failed to parse PID for -n/--new: 'ls'   
 
-I still find it a little closer to taskset and thus maybe more
-intuitive for people. But I'll try to give your version a try on
-my setup and see if my fingers/muscle memory can do it :)
+With my coreset utility it does work and gives some information about what
+it did:
 
-> 
+ # coreset -n ls
+ pid 20860's current cookie: 0x0
+ pid 20860's new cookie: 0xa9fcfbf1
+ ABOUT-NLS        chrt           configure      ionice        libsmartcols  Makefile.in
+...
+
+Did I miss something?  I think this will be one of the primary use cases for
+this utility.
+
+
+Cheers,
+Phil
+
+
 > Phil Auld wrote on 26-03-2024 at 15:41:
 > > The exec should not fork first.
 > 
@@ -111,12 +127,7 @@ my setup and see if my fingers/muscle memory can do it :)
 > Assuming that all these cases are prevented by the util, we could
 > interpret a EINVAL as a sign that PR_SCHED_CORE is not supported on
 > the system.
->
-
-Fair enough. Could say something like "got EINVAL. Does your kernel
-support CONFIG_SCHED_CORE?". 
-
-
+> 
 > >> - I've currently licensed it under the EUPL v1.2, which is easier to
 > >>   enforce in my jurisdiction than the GPL. It is GPL compatible so it
 > >>   shouldn't be an issue, but if anybody has any remarks on this, please
@@ -193,33 +204,7 @@ support CONFIG_SCHED_CORE?".
 > Fair point, I've removed this. I initially added this to make it easier
 > to experiment a bit with different values for the options, but that is
 > no longer necessary.
->
-
-I do see that in some other util-linux programs but it doesn't make sense
-there either, to me :)
-
-There is also
-       err_exclusive_options(c, longopts, excl, excl_st);
-
-in the optuils.h code which can handle the tests for mutually exclusive
-arguments.
-
-Thomas pointed me to that. It works nicely and can remove some of the extra
-checks (once you get it setup). And the error then looks the same as other
-util-linux progs. 
-
-
-You might consider "errtryhelp(EXIT_FAILURE);"  in usage failures. A lot of
-the progs (incl taskset which is my model for this) do that. Then you only
-do the full usage when given -h/--help.
-
-
-
-Cheers,
-Phil
-
-
-
+> 
 > Thanks!
 > 
 > - Thijs
