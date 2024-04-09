@@ -1,100 +1,70 @@
-Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08A917E774
-	for <util-linux@vger.kernel.org>; Tue,  9 Apr 2024 09:42:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.133.4.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7217F1EB46
+	for <util-linux@vger.kernel.org>; Tue,  9 Apr 2024 11:49:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712655746; cv=none; b=dVGwCgmOkJdF77BQF4JsTOEGFw9rr2IGfZDz3+V/Dzafoedla4vMRiUY+abpwhtDGWlsld+LM7FuUsCeDwKCyQNizItkKr9XsWq62udXsWf0D0dPXIVHVL9P08n4nk89dQw+Wf8733/yRbVePtbG6mVPdcwQJPGsy2g8oCQo/AA=
+	t=1712663400; cv=none; b=sthEeekJIQ/qoIdrbpvWQkV+Cfv/uTl1i6lKEF5/vkXlVuOTM5l9AkIIggGAPpaTCpfraLgvq3ttl08jZ6Xe2atezOwsn91DVfg+lMtvZ/H9o331kVMZickWGR62k+n4N7m23iUwZ3IgZIt8Pe91viBMupEg+flc3htrODv4wT8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712655746; c=relaxed/simple;
-	bh=UEu6jw24ACTKSS679tpSFqYVt8la4RbVeuQeMUWMhl4=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=l+eq8aCJy/DLUWJLXf4CcZdRpgRXLT59MGsWsVHtjYYUCeRodmsClRBVl65eTrR4Pyq56FwllTJSf33D4R3/bsuu8bJI/wyV4acOl/uCK5nVElN9jfuHzRM9jRjwLgZuHzvqitBPLzmIIUCUkkPguD4ylrLXvekWEAtt6Stnd0g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de; spf=pass smtp.mailfrom=zedat.fu-berlin.de; dkim=pass (2048-bit key) header.d=fu-berlin.de header.i=@fu-berlin.de header.b=L1FqxsXx; arc=none smtp.client-ip=130.133.4.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zedat.fu-berlin.de
+	s=arc-20240116; t=1712663400; c=relaxed/simple;
+	bh=NBkRhal32zrqXtm+KUYuP3OMsxSvCtEFUgEOx29wXJc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mM2+q0ZWFbB4q+Cc5rjcWjyFBgOjb8E2tYCplPtfSvB9kfB+AY2BXcluiIrZl7Nuy7Ugeluu2MjgDXR4tfIT88j0I1dCmShcP0o2oQmQHojabtj7GVjJjUbvt3gSTEeS88GCQtQeKvwxO6LNMVqGlABmQndhQ4KJlqPR67zs6Kw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WPxnAHBi; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fu-berlin.de header.i=@fu-berlin.de header.b="L1FqxsXx"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=fu-berlin.de; s=fub01; h=MIME-Version:Content-Transfer-Encoding:
-	Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=bAeDKEHAGBvU47mpYQuSLssy2ZYEFiLc4eEVUZwlPo8=; t=1712655744; x=1713260544; 
-	b=L1FqxsXxhEdQDvzTMhYcY29jZUtc+OBqTnyPsFK9qbO1t1FrtLYnd45EWGrHrAoQlcJ/VUocGWk
-	0e+eJWmA1rhMjTrXb+2853WAwj+EviUdnZNCvtkjgQMHL2xO4yORMGcFPsN8Bht+Svsi2EfV/ApBZ
-	ON5ikdcAwI5stFZn2EhwMCCxlOuX/cFvQqpa5J9zJD1bjaXj9FjrxdX8+L6sUZbTIYpcZkJbAJVsP
-	qodkvluJ96g6ng9qZHSL9sKPflbBkgg1RA8igcw4UaHFk8qM3dVqD7fQ3x3ItYveV4vxXbhNDy2wV
-	wBzU8w1bW/CGLVsB3zJ4lN5z04R2dWQaD7xQ==;
-Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
-          by outpost.zedat.fu-berlin.de (Exim 4.97)
-          with esmtps (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1ru7zh-000000040pK-3A5F; Tue, 09 Apr 2024 11:42:21 +0200
-Received: from p5dc55805.dip0.t-ipconnect.de ([93.197.88.5] helo=[192.168.178.20])
-          by inpost2.zedat.fu-berlin.de (Exim 4.97)
-          with esmtpsa (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1ru7zh-00000003HPF-2KjS; Tue, 09 Apr 2024 11:42:21 +0200
-Message-ID: <d76958e037cc3c9b59cf939e52265519daec1428.camel@physik.fu-berlin.de>
-Subject: Re: logger/{errors,formats} tests fail on 32-bit PowerPC
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-To: Thomas =?ISO-8859-1?Q?Wei=DFschuh?= <thomas@t-8ch.de>
-Cc: util-linux <util-linux@vger.kernel.org>
-Date: Tue, 09 Apr 2024 11:42:21 +0200
-In-Reply-To: <95d76e15-e879-4f6d-a7e3-c44ee948511e@t-8ch.de>
-References: 
-	<afef1b770ad80d50660bb2c53a0a8330b88d1049.camel@physik.fu-berlin.de>
-	 <95d76e15-e879-4f6d-a7e3-c44ee948511e@t-8ch.de>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.0 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WPxnAHBi"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1712663398;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wlCgC8s1sotDKTfQbKMy6ClHgX+vHZNaGHg8oHd7SBg=;
+	b=WPxnAHBixsbnRUv9ZBtdjUrKgBAdJzk9dTTzm9UELFzIakrOvuI1FzHuFAigdx25qJAY5C
+	HW16ISOPf6ArJSeP1qds2hKDO7bZsSmWZNGLvdZPdcbNb8WG7GsOI5JJMlmOJ+KCyRISe9
+	+cshGQdUC+0Pf70KdOjswbd/7eE4X48=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-655-M4xtF-FLO-mYYHbq_iuNvQ-1; Tue, 09 Apr 2024 07:49:56 -0400
+X-MC-Unique: M4xtF-FLO-mYYHbq_iuNvQ-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5DDDD889AA3;
+	Tue,  9 Apr 2024 11:49:56 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.226.93])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id A8B7B1121313;
+	Tue,  9 Apr 2024 11:49:55 +0000 (UTC)
+Date: Tue, 9 Apr 2024 13:49:49 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Chris Hofstaedtler <zeha@debian.org>
+Cc: util-linux@vger.kernel.org,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Subject: Re: [PATCH] audit-arch.h: add defines for m68k, sh
+Message-ID: <20240409114949.lb6wv7hcyso2gtfz@ws.net.home>
+References: <20240409083459.346888-1-zeha@debian.org>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Original-Sender: glaubitz@physik.fu-berlin.de
-X-ZEDAT-Hint: PO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240409083459.346888-1-zeha@debian.org>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
 
-Hi Thomas,
+On Tue, Apr 09, 2024 at 10:34:59AM +0200, Chris Hofstaedtler wrote:
+>  include/audit-arch.h | 8 ++++++++
+>  1 file changed, 8 insertions(+)
 
-On Tue, 2024-04-09 at 11:15 +0200, Thomas Wei=C3=9Fschuh wrote:
-> Hi,
->=20
-> On 2024-04-09 09:26:39+0200, John Paul Adrian Glaubitz wrote:
-> > the following two tests are failing on 32-bit PowerPC with 2.40:
-> >=20
-> > ---------------------------------------------------------------------
-> >   2 tests of 312 FAILED
-> >=20
-> >       logger/errors
-> >       logger/formats
-> > ---------------------------------------------------------------------
-> >=20
-> > The diffs seem to be related to timestamps:
->=20
-> Thanks for the report.
->=20
-> Could you test https://github.com/util-linux/util-linux/pull/2938 ?
-> (The last commit is enough)
+Applied, thanks.
 
-I can confirm that the two tests pass with the patches of that tree applied=
- on
-top of git master of util-linux.
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
-Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-
-Thanks,
-Adrian
-
---=20
- .''`.  John Paul Adrian Glaubitz
-: :' :  Debian Developer
-`. `'   Physicist
-  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
