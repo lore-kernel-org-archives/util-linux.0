@@ -1,95 +1,86 @@
-Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8F1277F3E
-	for <util-linux@vger.kernel.org>; Tue,  9 Apr 2024 07:26:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.133.4.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78C956FB0
+	for <util-linux@vger.kernel.org>; Tue,  9 Apr 2024 08:35:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712647612; cv=none; b=S/QDF3V/gm9qhSisZj9raXRu/+WgFG681vx8pn2K9Q1PiYLpgOaNK6tUYEDsisGA8ZzQQyq/69t8I7c6xZVnzDXQLa0ltAiR31S9+tL4gYJYOJOXnuCtKkouo4B4SJKVd8UJpDUVL9BPdYsJXTzut6dQW87cIHrwuQGyRrSTs5A=
+	t=1712651714; cv=none; b=Hf0ucDQrccWwL9pWIj2fuR2aCnaZXOSFSeEqCj7MluWEPC6LVtSNPpIjV9RpngqSniFZzISJXb7I5RdxToxpy+a5wXictsPzYojblX5Hby9tux3ntcDyoSdtSVJSXqoFxvb9UGZqSxbnE1rxBo77MmlIX9HUUsFGnNqAlRSOz4Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712647612; c=relaxed/simple;
-	bh=mC2DNabuXMcvC5IvBBlqcw29VkOE1FaNIa3O0jgmN2s=;
-	h=Message-ID:Subject:From:To:Date:Content-Type:MIME-Version; b=UAozkYNZZg+NoTwtcvt91y91N4uBgr38Oef3u17DxyzejAPO86johvPLVJVaW6Eh8zpicYTSEwlTMJjoGRYZioN97U1oabqYc4sa+8Rpk5UZbvDwUTGwxkM2U8LkHjO8MwD9ZovlllrJEZC3Q+1GVaNeHJu1RtwKpnasO22fXPQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de; spf=pass smtp.mailfrom=zedat.fu-berlin.de; dkim=pass (2048-bit key) header.d=fu-berlin.de header.i=@fu-berlin.de header.b=J46i8qr4; arc=none smtp.client-ip=130.133.4.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zedat.fu-berlin.de
+	s=arc-20240116; t=1712651714; c=relaxed/simple;
+	bh=eSvodd9MpQToDGtlMa1zai3zwyr1PU2wcv1RdtmqGHk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=GAjfgcZPqx0aAvGDTQWTn8GtkX4oeoz/TbogxrOeY2h954ZFuYNNsHNFb7F2K+lkcI+K/nlMb4x3L1+CbGcyeggQB/FY6CIu+s5Vnbvg1J3xXnzqQMiqljgZozy5egtoSPo7lTrnuosFLHy4b7PRW7M9+AhyDqcy+9D/7+/uTf0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=iN6I7z2o; arc=none smtp.client-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fu-berlin.de header.i=@fu-berlin.de header.b="J46i8qr4"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=fu-berlin.de; s=fub01; h=MIME-Version:Content-Transfer-Encoding:
-	Content-Type:Date:To:From:Subject:Message-ID:Sender:Reply-To:Cc:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=/UUo7B9jS7QN3sn/a1VeqhBcCuYw9cti+c4TwcTM9MU=; t=1712647608; x=1713252408; 
-	b=J46i8qr4tAYdWZAvE9lX/4znArdODvIaTcc89FRaLU+JAgdHrtSClQ8gszKvT/GclXrzmZbLJjh
-	kWHCvX2thrhEM5Y4fx8EFHNMQUolEFW+GKghzhQCpeNGTrEieNGpcztiR2n/ZX1uhVxr3u6ANLvCE
-	rMa/ZjhPLawdmywubHI/iD9ZkJqERYpnfS1CQDUgNp15gsUOwPiu4ReSELOoHBafXQ+gOb6YnvVWn
-	ZEgKKxE3kkd2pDWLfuKbOgwmo4uaxQxAJupve+niVbwU4HjJOgFdGKtLKWC6yz6Aj1QnfkvXZ/XWh
-	bFZy1coNGq/CqlwM/rgICI5uuquJF715E2DQ==;
-Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
-          by outpost.zedat.fu-berlin.de (Exim 4.97)
-          for util-linux@vger.kernel.org with esmtps (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1ru5sO-000000031n6-2wzV; Tue, 09 Apr 2024 09:26:40 +0200
-Received: from p5dc55805.dip0.t-ipconnect.de ([93.197.88.5] helo=[192.168.178.20])
-          by inpost2.zedat.fu-berlin.de (Exim 4.97)
-          for util-linux@vger.kernel.org with esmtpsa (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1ru5sO-00000002nGf-28CA; Tue, 09 Apr 2024 09:26:40 +0200
-Message-ID: <afef1b770ad80d50660bb2c53a0a8330b88d1049.camel@physik.fu-berlin.de>
-Subject: logger/{errors,formats} tests fail on 32-bit PowerPC
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-To: util-linux <util-linux@vger.kernel.org>
-Date: Tue, 09 Apr 2024 09:26:39 +0200
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.0 
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="iN6I7z2o"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:MIME-Version
+	:Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-Type:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=0i8FlvB6nIXcx/h4yMKhchFmiOEBL5W+u32gUZBejYQ=; b=iN6I7z2ofuFUv4zrwMczI0hzLG
+	BfeeOgt1PoHPr72jk/vCUp5VZPCR3JhiDuHg6OJWh66YrTz6AWK2f53kdbQ2u59JPAtkv4A27d6LP
+	w72oUTDuNjgxQEeqwhOO9ixNv/Xrjl/GpRIqVPnOxZZCtFO0zMbAIASk7bshYs1NE7zfIRpBFyfuB
+	1N7mo0U1+w2+UkUAbVXxGoEdr8Hf+j/PnBuib0kTSvhIxxVEUACdtcqTkISfo0uza8G+u4uKbnf4L
+	MnrESNQocRSeheapvZxUlMtaKzmzxcKnV3opY/evULWEX3qvV3VaC8/A0a7vgri4VP7yIz0XC/Ntn
+	ymBjWZfw==;
+Received: from authenticated user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.94.2)
+	(envelope-from <zeha@debian.org>)
+	id 1ru6wZ-00HXN4-87; Tue, 09 Apr 2024 08:35:03 +0000
+From: Chris Hofstaedtler <zeha@debian.org>
+To: util-linux@vger.kernel.org
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Chris Hofstaedtler <zeha@debian.org>
+Subject: [PATCH] audit-arch.h: add defines for m68k, sh
+Date: Tue,  9 Apr 2024 10:34:59 +0200
+Message-Id: <20240409083459.346888-1-zeha@debian.org>
+X-Mailer: git-send-email 2.39.2
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Original-Sender: glaubitz@physik.fu-berlin.de
-X-ZEDAT-Hint: PO
+Content-Transfer-Encoding: 8bit
+X-Debian-User: zeha
 
-Hello,
+John Paul Adrian Glaubitz points out that libseccomp needs to release 2.6.0,
+too.
 
-the following two tests are failing on 32-bit PowerPC with 2.40:
+Signed-off-by: Chris Hofstaedtler <zeha@debian.org>
+---
+ include/audit-arch.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
----------------------------------------------------------------------
-  2 tests of 312 FAILED
+diff --git a/include/audit-arch.h b/include/audit-arch.h
+index ade182417..9afc663cd 100644
+--- a/include/audit-arch.h
++++ b/include/audit-arch.h
+@@ -35,6 +35,8 @@
+ #    endif
+ #elif __powerpc__
+ #    define SECCOMP_ARCH_NATIVE AUDIT_ARCH_PPC
++#elif __m68k__
++#    define SECCOMP_ARCH_NATIVE AUDIT_ARCH_M68K
+ #elif __mips__
+ #    if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+ # 	 define SECCOMP_ARCH_NATIVE AUDIT_ARCH_MIPS
+@@ -47,6 +49,12 @@
+ #    else
+ # 	 define SECCOMP_ARCH_NATIVE AUDIT_ARCH_ARCV2
+ #    endif
++#elif __sh__
++#    if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
++# 	 define SECCOMP_ARCH_NATIVE AUDIT_ARCH_SH
++#    else
++# 	 define SECCOMP_ARCH_NATIVE AUDIT_ARCH_SHEL
++#    endif
+ #elif __sparc__
+ #    if __SIZEOF_POINTER__ == 4
+ # 	 define SECCOMP_ARCH_NATIVE AUDIT_ARCH_SPARC
+-- 
+2.39.2
 
-      logger/errors
-      logger/formats
----------------------------------------------------------------------
-
-The diffs seem to be related to timestamps:
-
-diff-{{{
---- /<<PKGBUILDDIR>>/tests/expected/logger/errors-rfc5424_exceed_size.err	2=
-024-01-31 10:02:15.794809649 +0000
-+++ /<<PKGBUILDDIR>>/tests/output/logger/errors-rfc5424_exceed_size.err	202=
-4-04-08 15:12:24.205336645 +0000
-@@ -1 +1 @@
--<13>1 2009-02-13T23:31:30.123456+00:00 test-hostname rfc5424_exceed_size -=
- - [timeQuality tzKnown=3D"1" isSynced=3D"0"] abc
-+<13>1 2009-02-13T23:31:30.000000+00:00 test-hostname rfc5424_exceed_size -=
- - [timeQuality tzKnown=3D"1" isSynced=3D"0"] abc
-}}}-diff
-
-Details can be found in the full build log in [1].
-
-Adrian
-
-> [1] https://buildd.debian.org/status/fetch.php?pkg=3Dutil-linux&arch=3Dpo=
-werpc&ver=3D2.40-5&stamp=3D1712589234&raw=3D0
-
---=20
- .''`.  John Paul Adrian Glaubitz
-: :' :  Debian Developer
-`. `'   Physicist
-  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
