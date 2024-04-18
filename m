@@ -1,64 +1,62 @@
-Received: from EUR03-AM7-obe.outbound.protection.outlook.com (mail-am7eur03on2061.outbound.protection.outlook.com [40.107.105.61])
+Received: from EUR05-AM6-obe.outbound.protection.outlook.com (mail-am6eur05on2063.outbound.protection.outlook.com [40.107.22.63])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05CFA75804
-	for <util-linux@vger.kernel.org>; Thu, 18 Apr 2024 08:12:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.105.61
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 772851EEE4
+	for <util-linux@vger.kernel.org>; Thu, 18 Apr 2024 08:49:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.22.63
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713427965; cv=fail; b=XT0gD1z1if873hHkrNfRq8iS3V3+sAVGdjSr8VH9lFSWlG56YbWs7nbfEp8Smm9xfQpAaJTSKALSXVbUcDmiNrQIG0963cSSDy6GUNW0ujjjyTZbc13NMq1oRowkL0SAkKRthHsfB4Z7mJhWhsLWJ+HWZCRgpJI5RF3dYCxCSvg=
+	t=1713430188; cv=fail; b=ukiaLs79GgT6IhgqxUyeFoQzE91L+fn6ATaAg8p6bnUvFVqWwZ2uOc6GZXenzFd2YROCNXH07YXmHF3zaR2kWBHqpPxKoCzrWeQ9JO216B/4LZAsPsx5lU7/0gnOWuSfQkqQpBbI6G+VmvHplFiBLE68lsPDNvpceaBf1L9FmiE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713427965; c=relaxed/simple;
-	bh=rEwudUNqIoqyBGrafY39P5dZiNsIzvujHF1Q9IlmYj0=;
+	s=arc-20240116; t=1713430188; c=relaxed/simple;
+	bh=w3PmscYFhsiHzpVTPc8z9LD4L5ZbRJxPTIoqLcvVQNE=;
 	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=Tm1Yp1TH3wbmSnIXwhlHXVYRINBtPSAZJYiq+d+GsP366p1QroHFiDQCRqE69GKa1t+/ZgYboFaU8ZCSQeMPUZTuCiyM0DjBLiWp8z6rcUEjxoZh/Lt1h+RtVWbWmd2nf0FCkvUCSAytQv48bFRHyAJh/iBDij83eH7fM6v/aEE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=prevas.dk; spf=pass smtp.mailfrom=prevas.dk; dkim=pass (1024-bit key) header.d=prevas.dk header.i=@prevas.dk header.b=iGeoKFC+; arc=fail smtp.client-ip=40.107.105.61
+	 Content-Type:MIME-Version; b=Nlm9WJIkxjgB/QnETTKGrWJqNoSehi2Pxmshv2lwZVMUojm1esp5N0sLHkcz3v0eXn+HKdrN9jbOJC7GjeOsQltbOzpJEvF9Rtn6l62b66H7yN5eQGHUhgMK6O85hLArco4WI6vCHfqyTT+5tsuUhaApDtF/fYysQB6cEvI3zeM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=prevas.dk; spf=pass smtp.mailfrom=prevas.dk; dkim=pass (1024-bit key) header.d=prevas.dk header.i=@prevas.dk header.b=UX2SgseY; arc=fail smtp.client-ip=40.107.22.63
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=prevas.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=prevas.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=prevas.dk header.i=@prevas.dk header.b="iGeoKFC+"
+	dkim=pass (1024-bit key) header.d=prevas.dk header.i=@prevas.dk header.b="UX2SgseY"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=mSCOEqVFy0wGIR91gsync43sDFogxIR70ac38ExJMFh1u+S2Ppd9+7XdueNHRGiwy1NUmW9DKD/8vXfDHFr7aLVtR0gcrlmt9080FitkqcY9dpEEJsDzkragRiMKtye1hHpQtVVntBKN8tucG4tl0LALgFLbmZIgLgfhENI//NIwiY38+E0FFpYopT7hJxHxWZb61S1aUn10YveNTZ67FONJuu8OJcoBNN2Ivh3Xx6RrKyMnNc86LK91QyCg9ObnwAaws8UtzeltIhqyMSWix7CZYh1hLMKkpgzAZ4UB8xBu8tpUXEDqBmpGmIV6NfKWLi/qZwNogMPGk3yMppuMFw==
+ b=Agg9HhBjnuZ6HkmB0aYVZcM4NnLaTbz3pC9bQ50HozCb+XlGTqYeVLwSRgN4bQnoLtnh/9ajpIbP0Hxxm6/dzHJpVyhXCmdLBPqfLlBcC9b1Sm6vtx6DeC0LXCzCqgbPEHi3eCM0BhtYfd4Y4CGlU3CWkm2jxvf/pThnwMoDAKo6I2FQkf9Ar2tnFlqcTdc+5a4vipcpKFJquJTdQ6KWBObGPq9RqeViWWKlS6bwDMEJ2dWXfIT3fhCv4Bu2OcauoveNwQR2SLwCyFXe/GVk29sFeFsixfTmVyXEP4iJxw7KMmNfo5Zv5cCo0f3MprK2lafek+8auHFwUlU4qxJfvQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=AsjD3KpeRoRx/RvJ/sdk0XiOVjzilbu5zBlNctPBEzM=;
- b=HFx61G+VfACzHlP6OaC1u5N7ZF9wjcTlVz7/G+LVANvZkoVnHYSgAkg3dvQ3cxfm2Z3RO7W02H3JF+4UBFtwkQEuBhlyh2qBJrnnU3xL01WaVmmoLG6Sz+kfc8fbtP+jqO5p1XywCHmBgZpNzMYpJd/CqY30O/0Lui3mYeRdXMPEx5Bwf/LRZne2lmOKFJ84njM9+19FA7u9CWva/GLpBVD+iQv3bvuaNZk1tBmoPsY9ix+P5KkAYmwI8LHwCc1zu5O9MjgRxvjc4YwA6P3Ywq9hbC8JG9QdmxpzXUVlUSpydW0idbj9uag3eQx6k4pRz3mUe1JGGGXkTv78lcmAyg==
+ bh=3VNziVpxBoEUM6AEmi9I2yCtFJNEqkldRt6OODcja7Y=;
+ b=Q8FcBbv94g7o/17gn6LwxJMeUYPT+rERvgr6fwFmjrLv0wYVKgsXp/OLRtJ4krf59Rm7xDlLiUrBOLPAPEOEMSbDYhzO5D3SgL1/QRvsSuRfEVx1BNVYpAqmDGP4sqaK9swHznlevS71WZOAPuc8uLWg4JPhXFv0K00MTgmnJN5784PIg/93gft8rq/4qDcBFHtBxKL738H3cHBVsC/gndNAa7UYDKbijZK7IgPm3pHfqVBtYBgCdefdjvcZ4mfrmKiTbgaw/w0pqb3vXvyUyCdsObrzeLU/fVCbRGSH2HFwZUK3dZmA8PmG3f9LEvo2hKsFAeakRAmYJLkqIDmjCA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=prevas.dk; dmarc=pass action=none header.from=prevas.dk;
  dkim=pass header.d=prevas.dk; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=prevas.dk;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=AsjD3KpeRoRx/RvJ/sdk0XiOVjzilbu5zBlNctPBEzM=;
- b=iGeoKFC+ycNqfKRES05nxxoBJNuORmYp4FCKin6Lr2xFd6f7JAjGTOG7s3kuZhkkcfCyY6ZXGLMsClweKsJT30yhQypbFi7a71jFBnOk96Nygd+jjOS3Xn/BKCeWA3/KSOX/1uy+rPl+mAhuadZuaBGaYf+K2xefZRAEeF0/rws=
+ bh=3VNziVpxBoEUM6AEmi9I2yCtFJNEqkldRt6OODcja7Y=;
+ b=UX2SgseYUPdEQtnSZA2GNtVw6Ooi71uuRzUGjGg8zl5ztmMGO4VkpNGo6PKcZ2DMWnmg3Nj6CWuXErU3uSVGC/nK4pUcS3rhv0LJG7M4ujoH3olFbbL1k5irL7HZPx1KBc8Gq/baoqQAnpMAR4Sg+9U6a4LyuM+tNvHQL9ym1Ek=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=prevas.dk;
 Received: from DB9PR10MB7100.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:10:45a::14)
- by AS8PR10MB6996.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:20b:5a7::5) with
+ by PAVPR10MB7380.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:102:31f::17) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7472.37; Thu, 18 Apr
- 2024 08:12:36 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7452.50; Thu, 18 Apr
+ 2024 08:49:38 +0000
 Received: from DB9PR10MB7100.EURPRD10.PROD.OUTLOOK.COM
  ([fe80::3704:5975:fae0:7809]) by DB9PR10MB7100.EURPRD10.PROD.OUTLOOK.COM
  ([fe80::3704:5975:fae0:7809%6]) with mapi id 15.20.7472.037; Thu, 18 Apr 2024
- 08:12:36 +0000
-Message-ID: <dc0b3a4e-b52d-4dc4-95a7-8e841c0ad1d2@prevas.dk>
-Date: Thu, 18 Apr 2024 10:12:33 +0200
+ 08:49:38 +0000
+Message-ID: <1d16b5f4-1d65-49ac-93a7-0f3c158a82a0@prevas.dk>
+Date: Thu, 18 Apr 2024 10:49:35 +0200
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH] flock: add support for using fcntl() with open file
  description locks
-To: Masatake YAMATO <yamato@redhat.com>
-Cc: util-linux@vger.kernel.org, kzak@redhat.com
+To: util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>, Masatake YAMATO <yamato@redhat.com>
 References: <20240417100948.75817-1-rasmus.villemoes@prevas.dk>
- <20240418.023354.1867217317145795622.yamato@redhat.com>
 Content-Language: en-US, da
 From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-In-Reply-To: <20240418.023354.1867217317145795622.yamato@redhat.com>
+In-Reply-To: <20240417100948.75817-1-rasmus.villemoes@prevas.dk>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: MM0P280CA0055.SWEP280.PROD.OUTLOOK.COM
- (2603:10a6:190:b::18) To DB9PR10MB7100.EURPRD10.PROD.OUTLOOK.COM
- (2603:10a6:10:45a::14)
+X-ClientProxiedBy: AM0PR03CA0053.eurprd03.prod.outlook.com (2603:10a6:208::30)
+ To DB9PR10MB7100.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:10:45a::14)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -66,166 +64,82 @@ List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DB9PR10MB7100:EE_|AS8PR10MB6996:EE_
-X-MS-Office365-Filtering-Correlation-Id: cfcfb67b-13a2-4671-bc11-08dc5f7f4e3e
+X-MS-TrafficTypeDiagnostic: DB9PR10MB7100:EE_|PAVPR10MB7380:EE_
+X-MS-Office365-Filtering-Correlation-Id: 84bf6f31-aa17-49d3-42dd-08dc5f847aa8
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
 X-Microsoft-Antispam-Message-Info:
-	byzBJg8sJuP5nw8jv8fClgn0H7u4lpE12nfq1cDMC+pRvEpGmWWfX2Zje2G9HDubVSzdAylpAEUsHvRj9IHyzSdC3e+olrkvVPdf6oJ4eqGA/K/GnYRaCm8r3mesMuDS5vCI/dAHHAdmtaHQqXMvY6Lhl0zafy+2gig8R7ZAAuVfev58Mp6O1YO5jBlyrIsUWjbhth4gAgVDcYMqo1X+Uti5h6pooPlBIS0qfdd4brVyvLkeeavHEFQWTYW3rdEw0mrr6DyRRxXD54kNiJ7UcXWUCHPRUpZO79Zg4Tsdz/wYataQZFCfssmMYXlOnPDY13RLuIikT1kke8RhnDY8CRN+oiIZZz7lzuZ38mrTsRaq8h/ogzrVLISoHCB/RuUmCpA8lI54IKFG+vffZsRVUt+9eb9PmZ2OgjcAa6zmyb60zBzBBJDHQPxTUjxEpplwTZX54u67S1yf0fji+kyNiZOZn/s0hkKKQmWbzHh2cZBEzmxlOkjEJ6BEQGDAcBhiHc7ZAnToX0NzswQjwGS3UMvecsVPjrq9Eq5voGsOQMH93XbMyp5IfUjQHAWRrQh7ZZ/Q+aCE7FAm9neaGj76VUnErpXQ0UyrZaZlhNYebB3WTZ7VKyNCGhc/ExI7cj1OOGXTL0GwRO2cQdtrLIfq+3I6R3o9h3Kfnid1YpFDHxs=
+	bj3jaKO0gV5Qxcuwy9FNzVLCKEMnMtaGASfMlB9l4sbFIQPvPk2XdefV2KT2OsSjQRQ3zsKaS21WicsnOduVis1uIKgd/HEvO2c8y5sEo0jrVAPhNtIaDfdEZgqwhlt9daAE6Ppu+WAtbWliL+fPrP5yUuMBYlv6LAuOk5FGJ+i3/otMzoHikSafxO29kzvKWPKKiPO7bBwoGuWiGiJ2zqWnU9W7BH8X2PPfHnU+fZH9dVDsDdY3Ho14O/nI6ooHNPtf0S7HvOZ1MV1hwz/F9I7kjZcJDqwsmWbaWO2kDJG2jxZ7hAndBZPqW2FPS2530e4yOCYxSWztGAkBo1uu3NufUyHsKW0wBWOn5oLVBROhbLwoy6I1jAZ2AqSHOk/mHc1UaLKRdhNApM0MplWGhr71mKOk+odzWOuYBckUEXsEb1scpDe8MiAhx+ePDmo9tm/TcwS6tSnDh7sOKLg3+/bYMAMrB65IAylb6xm0oJyfskLo3qI4eCsqsDBRyoYMyBCDnTfL1SH6wxHNv1gMFJP37ZdVnCgxwL6+F1bhZjTTHrclg6hRAjxcHObzCYs0W79OurRX39T+uLzjj8ZmjbfGxL8pS2+9LuiTds2zJEFmu1uc0p4S3J+rvBfwPIfojpC8LEx8WNlUY1jHEGsdh1EupcuCwxJtWaQLp9aIIWw=
 X-Forefront-Antispam-Report:
 	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB9PR10MB7100.EURPRD10.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230031)(366007)(1800799015)(376005);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?Nmc1T0VzRStYbnhkeURuNS9ta1ZCZkJ5YmIzRUc4V1IrQmIzYUxuc2FkRXZS?=
- =?utf-8?B?SE1yK0ZucHdRSjliRjE0TTJRb3RwSzBOZ0ZTQ3lyYmtjNnN3U2tRWUhObFRu?=
- =?utf-8?B?b2YrVmJGMVhpdUNKWGlrTVNsRzJoTzZKZTlNMS9MTXhreFJrbThXZDMxNUNi?=
- =?utf-8?B?Wlc5T0FYSGFSL3o4UUVaWU00MTNKdk9hcXN2cjBpNUw3Tmo3UE1QUmhSL1VI?=
- =?utf-8?B?RVZVZVpXWUVpQklCUitTUEhQT3NYd1RvN0FMNWZwTTVFTmNwNG5uS2dCcXNP?=
- =?utf-8?B?YmNLRnhqWnhocEpIeHVLWmVlRVBSdjEzTVRTbU1QNVg1b095MS9zRDJ2TGl6?=
- =?utf-8?B?VVFmRzQ2S1J6T1NyNEd4d0JEb0tLN1FZQU5TSTNwUWhRNm1vMjluTmpTT29z?=
- =?utf-8?B?cjJVVDlHVnNPN2V6TnF4c0s1d0hMWi9lR0RqUHVWNXdFU01JME4vNWF0bGlv?=
- =?utf-8?B?YzNYWmpCK0c3S2FXVUMrQlppZW15cEMxck1YR3l3dzljOXVZUXUySVFNZXZE?=
- =?utf-8?B?eVJpaHR5Tm15SDlYeUhRVjEzMHFYMXU0UTNSaEJ6aGFlVnVETW5HR0drODlx?=
- =?utf-8?B?SmxncDdZK0E0NmpVWE5OdE5xZmxiK2M0R0JGcTZ1MXU4SGlZblREb1pKdCtO?=
- =?utf-8?B?TVF0Wm0rUktUdDNPd0dvK1daakpZREpPVzk0MGZEMDVEWmloYW0xdmtpSnFn?=
- =?utf-8?B?K1Z5Sk9FQUk2VUQvRHc1SUpINTcvUGZEMW5uS2VsbmprZ2MwUVdrUVJSL0pN?=
- =?utf-8?B?M3pZY1RhT0YwcVNaVHdmcE1MYzNKTUJqTWkzRHRFZjU3ZE5ubHFFN0ZEYnpL?=
- =?utf-8?B?dzdNRTN0THZrWHV3WXpBUEN6WEkxWHJTYVNGTjhDZnFNTmgwbnZnZHdwV0dq?=
- =?utf-8?B?dmN2SjhYQllzUm1DWDVBTHl2SlFhUkhWVGFuc1VNYno1c3d1VmMxUzVoNmRT?=
- =?utf-8?B?cDJZWDVmazJ1UVpJeEhlMEZPZWhJUWZLblc0M1c0dEdqd2w3VmdSZldBU3pi?=
- =?utf-8?B?RzZXMEtGbjdobEV1UE1UbkFyb25XZ0czRkNBRHd0RHhqeVJZeFVwdW1rS3Y5?=
- =?utf-8?B?WFRwSFFIUzlOdWMzRVFWMzhCSlE3NnBiUFdQQkxXUWxpeGQ5d0hTMTE1MGt5?=
- =?utf-8?B?dDlnWW9nVmJxVkZDUjJpUERwRVlPZm9JajJJcG5aZmZRSDlGM3pTMTNVcWpV?=
- =?utf-8?B?RzhiMmpzODNSL0xIYW1PbjJQYXFHb3FSYnAzWGU2M0d6MkQxaE9rZ0g4cHFM?=
- =?utf-8?B?Vk5PaUlibmk3bE96QlkzTFJkWTNVbTIyNzFsZmE4VGdJdERXZkNvWDg3RVdu?=
- =?utf-8?B?Mnk5ZGh2UzJYRU5yOS94Q1R4ZHhzRFJCSTgvNmxpQzdubFlKNVZTVURWVTFX?=
- =?utf-8?B?RGdHVWRTT05DYXZDaXE2cnllZmdDUlFMZ1gyUlZmV0JLa1lLZ0ZyUDRLN3Ur?=
- =?utf-8?B?YWxoOXVwUjBzK3ZhcENQUklDaFp2QmU3UFVVenIzTkpnVkFNWkpHVjZnMUNr?=
- =?utf-8?B?dUFtRGRJSTAyclpkVXpwbTJiNUpvMFNNSWtFK0hoUXhodWwvTitXTGJpbG5Z?=
- =?utf-8?B?UkgyYU5FekJXTjNOcVlhVFNDQnBuSDFJdU1rd3FyTjdFb3hxY012Q0t6M0U0?=
- =?utf-8?B?bmhqNEU2dEZCVFFySHVZbkdvTFk3U2dLKzR4K3ExbDhnNllFeEJCaEEzYXpa?=
- =?utf-8?B?ZG12S0crUXVtQVphcVhFSC8vNXZJUFFHWlM1Mm9iVVllNjgvb0dXMnljZTNR?=
- =?utf-8?B?OWdmVW9WSk94N0lFZmthdWowVjJONVJMYUFOSjJWNS85ajRvajdqRmRKb3VJ?=
- =?utf-8?B?Y2FqcURzOHdmVk83K25yU005VjV3dXBNaHhKQVdTZEFweDB3c3ZiSVlNK1hV?=
- =?utf-8?B?U3AyVisxQkxYRkJWbDNPY2Q1eDE3dVVva2xYNStwaFg4T1FLT0E4Zm90bnJl?=
- =?utf-8?B?S0orcCtDWU9ZYjcySmY4REYvbW9sLzE1cjdUY0Zab1JJbTZET2RmUjlGTGsx?=
- =?utf-8?B?MGpMKzJuSUMrUlAwWDFSUWF6a2ljc010SUM2L2tSV0pRaDU4YU5ObERDWnhi?=
- =?utf-8?B?RjhFSDFJSGdxRG5wb21TRllQQTI1LzZOb3l5Q1dQQ1dSKzBkeFdCQURHMFdZ?=
- =?utf-8?B?aEJHQmN0SS94NXNIVENSTDh2ekdOQ0V1RzBDZXM1WjdhZGU1MllxL0ViczEw?=
- =?utf-8?B?eWc9PQ==?=
+	=?utf-8?B?TjFsOE5jTW1xdVppQ3FIZVM4V3R0Z1J0NEVDbXVSaVA1NDhKZ2kvdWtlRnlq?=
+ =?utf-8?B?RVFJc1c3U29MK2MvOFFEc1lxUXVyRXRZS3FoSWl5TVh3ekVLVnpFVll4cU9J?=
+ =?utf-8?B?UkZWWVRXVncxUW9hSitrcW5MYTIxenJuUzV0RHE2NU43S3FQSFAvY2ZhZ0tI?=
+ =?utf-8?B?d200WWgxSHI2L0p0bXc4a05DUlNEQ01mVWlHZVpySEhpaDVLZ1FCNWpIaG16?=
+ =?utf-8?B?VVAzRjBVZUNYWkdzOE45dVNGSkNpRjg4SjhpSWFJYi92MzVldFRpdjAyZmJS?=
+ =?utf-8?B?a1IyZUhndlBvVVZxbGdybVNoeXB2MHBSUXRrVnAvUjB0UEFPT0NuUWQrNnJv?=
+ =?utf-8?B?RERXc1Zia3k5ZXRSWVR2bERvM1h0dE9PaHhCdTUrNHdYOExEajZsdkFnNUJn?=
+ =?utf-8?B?bGtjVGlUb3AxL05uTmVpcFladG9NTXFkOU5YeFNmUU42bWIzVzRiT2lFQVR2?=
+ =?utf-8?B?cmhSTERMZzNmZThCbVJzck1Cald5NHRtcXFaMTFSMks1NkI1aFFMR21zMW1x?=
+ =?utf-8?B?dVhieWsyZ0V5L1VGTjJEZm1WKzRvVW0xL3NiVGN2TDZkaFJvSnBIZis4QkVN?=
+ =?utf-8?B?dnQwYUhJcUZDcE5YVjc2OGRWUkxHbHhZbFRBWjlwTkQ4OWx6VUM3VFlYeWpG?=
+ =?utf-8?B?MlI0OVV3S1hrWDBmRVhBemNIMXQyK3BTK2c5d01USklPdERleWFFOTJEaGhC?=
+ =?utf-8?B?VWdPWGo0Um1GOGg1anJiNUJDRUpJWGVVdkZGcXl5dzNIUTlSZ1VnS01lQTVn?=
+ =?utf-8?B?TjZidkdydjRsTWdCRTczTGdEeG9UdGpqY3ZxWXJVVFoyMkMwK0ZyTjJFckI4?=
+ =?utf-8?B?ekMxVzc2RjhEWmw3Q3BudW5HMFZ4eExWRldOSXR5UkNVTzBuNVdZU00vV2cy?=
+ =?utf-8?B?ejFxTUswYmczcmszdTlHUW05VjhoeWtENjlZWUYrSTZ2Z0xSb0FDd3lCTjlk?=
+ =?utf-8?B?bEZOc3A1dGZnOFVXa0NUYXo1TlR2VG9kWnB1NzRqZi95ZDYyVFFXWkVBWTRK?=
+ =?utf-8?B?SE1yczhpTDlqdTRrcDZOVkRwTEw1S1Y3Qk56azBOTFcvSkR6eEpjWkI4SFYy?=
+ =?utf-8?B?ZE5HWVdOOUpUWDFDZGJqWlZnNnMzdzlPQ2JSaTRTdnpHQmJlS2F2S2JXekMx?=
+ =?utf-8?B?MmpPazFvSFVIQjIydUhJUEJkQi9NNGlPdzdZNU1EN3I4VmVva3FNUStuOUg0?=
+ =?utf-8?B?NHNmUGU4bHZvQVhyU0tCRU45TE5iNS8wUDNJeEpiY1Nuc2RJREdVblFZc3pX?=
+ =?utf-8?B?aUgxazJMbUFCV3piUVhDeDVXMkMxMnNqelBzOGp2ZE9rZ3ppTStxakxaL214?=
+ =?utf-8?B?RkhOREdCd3NxZlRuWE40a2NMS244N1FsNnNjRFBQZW1NUGRhY3dGeFRRQ2xB?=
+ =?utf-8?B?S3FxbDhKTGhvdFEzdmVqcDlZZjBscGtHSFMrUG96V0gvU1ZSM3hlQ2xvYnlU?=
+ =?utf-8?B?R1JLNURNcGZLbW5FeitWaXVzZmE1dTM4WG9CdEVZZkQzaTk5YlA0akQrd3ZH?=
+ =?utf-8?B?VDFTSTlYalI4M3E3SmFZUDNRdmpWbFNYQ21aQ1c2b0xhMk5LclJXTFRGSGNV?=
+ =?utf-8?B?dHlHU0NkN285S1FWWFk3T0ZqbWNJQjF4bGxxK1NZeU5KbU5jZElMNjZJMWc0?=
+ =?utf-8?B?azNVckJWTlI1NGZQd0dic1dmeDZvSXZ5NTZvN1pBYU9CamFUWm9tMkxrWFMv?=
+ =?utf-8?B?aVQrMEpHYXhkNlI1V3VHSCsvd2ttWWk3Y2puR0QvUlRxUWxiMEZESllrczdK?=
+ =?utf-8?B?UUI0V1NrV1ZxeUx3bmJPdkFrNDZqWklrL3QxME9hYUtzS1ZnaXVuR3RSYmdP?=
+ =?utf-8?B?TVJmaVNDZlZreEFnaFBFMjk2OFEzcU0xRG9wWm1IVlNSc2FrdkI3alhMSVBH?=
+ =?utf-8?B?NWErbUJnNW1MYlVQVHg2MlFzNW9rcUphQklCSDYrZFNwMTIzempqNm01RVlD?=
+ =?utf-8?B?Wjh4dy9tWjlzZktxYjdRdXNubVNuTTMvWlE4YjAwSUthMXN1U0pkYjJIVmlP?=
+ =?utf-8?B?a1Z2QXlzU2h6ZjJqOUVJSWl4QkdzcVhCZitDWklERmVZMWtZbnE0Z2dJVGVj?=
+ =?utf-8?B?dXBiQ2M0Y0t0aUtMRjZHSDQ5RjBlaysrZ0hPdVBpeHVMZXIwbnYzSE0ydFhF?=
+ =?utf-8?B?cFZrRzVxbzJwVHlKY2pWZDNMNWRVOHgwYm9rLzU5ZnRQNTdVUHNUZ215NjJV?=
+ =?utf-8?B?V0E9PQ==?=
 X-OriginatorOrg: prevas.dk
-X-MS-Exchange-CrossTenant-Network-Message-Id: cfcfb67b-13a2-4671-bc11-08dc5f7f4e3e
+X-MS-Exchange-CrossTenant-Network-Message-Id: 84bf6f31-aa17-49d3-42dd-08dc5f847aa8
 X-MS-Exchange-CrossTenant-AuthSource: DB9PR10MB7100.EURPRD10.PROD.OUTLOOK.COM
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Apr 2024 08:12:35.9628
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Apr 2024 08:49:38.8005
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: d350cf71-778d-4780-88f5-071a4cb1ed61
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 94WNYJh+Dna4jl6oEG+QyHzHX4qcSXfh0ZSvzx9sBOezBc0ztEPUeW8cZU8Y2tikYEaVDaOZByDusySllaNaf/IlFH/viPU8w6sZxPnDBkY=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR10MB6996
+X-MS-Exchange-CrossTenant-UserPrincipalName: 8bWSic/b91rHlHQIT9HuhdSOZOLGHwpDsAG7cxP+HaH6D1mzUYaKnMSk/0dFUJxPA57eu3OB/BZ8v6QTug2zBihPqSea9ermF0eayKT2fro=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAVPR10MB7380
 
-On 17/04/2024 19.33, Masatake YAMATO wrote:
->> Currently, there is no way for shell scripts to safely access
->> resources protected by POSIX locking (fcntl with the F_SETLK/F_SETLKW
->> commands). For example, the glibc function lckpwdf(), used to
->> protect access to the /etc/shadow database, works by taking a
->> F_SETLKW on /etc/.pwd.lock .
->>
->> Due to the odd semantics of POSIX locking (e.g. released when any file
->> descriptor associated to the inode is closed), we cannot usefully
->> directly expose the POSIX F_SETLK/F_SETLKW commands. However, linux
->> 3.15 introduced F_OFD_SETLK[W], with semantics wrt. ownership and
->> release better matching those of flock(2), and crucially they do
->> conflict with locks obtained via F_SETLK[W]. With this, a shell script
->> can do
->>
->>   exec 4> /etc/.pwd.lock
->>   flock --fcntl-ofd 4
->>   <access/modify /etc/shadow ...>
->>   flock --fcntl-ofd --unlock 4 # or just exit
->>
->> without conflicting with passwd(1) or other utilities that
->> access/modify /etc/shadow.
->>
->> The option name is a bit verbose, and no single-letter shorthand is
->> defined, because this is somewhat low-level and the user really needs
->> to know what he is doing.
->>
->> Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
->>
->> ---
->>
->> Both my autotools and meson fu are weak to non-existing, so I don't
->> know if I've written the "test if the header exposes this macro"
->> correctly.
->>
->> I'm not at all married to the option name. I also considered just
->> making it --fcntl, with the possiblity of making that grow an optional
->> argument (for example --fcntl=posix with plain --fcntl being an alias
->> for --fcntl=ofd) should anyone ever figure out a use for the plain
->> F_SETLK, perhaps just for testing.
->>
->>
->>  configure.ac      |  6 +++++
->>  meson.build       |  3 +++
->>  sys-utils/flock.c | 60 +++++++++++++++++++++++++++++++++++++++++++++--
->>  3 files changed, 67 insertions(+), 2 deletions(-)
-> 
-> You may have to update sys-utils/flock.1.adoc and the completion rule bash-completion/flock
-> when adding a new optoin.
+On 17/04/2024 12.09, Rasmus Villemoes wrote:
 
-I will send a separate patch with that once the option naming is settled
-and the concept itself is accepted (not necessarily applied to master).
+> I'm not at all married to the option name. I also considered just
+> making it --fcntl, 
 
->>  code = '''
->>  #include <time.h>
->>  #if !@0@
->> diff --git a/sys-utils/flock.c b/sys-utils/flock.c
->> index 7d878ff81..40751517d 100644
->> --- a/sys-utils/flock.c
->> +++ b/sys-utils/flock.c
->> @@ -70,6 +70,9 @@ static void __attribute__((__noreturn__)) usage(void)
->>  	fputs(_(  " -o, --close              close file descriptor before running command\n"), stdout);
->>  	fputs(_(  " -c, --command <command>  run a single command string through the shell\n"), stdout);
->>  	fputs(_(  " -F, --no-fork            execute command without forking\n"), stdout);
->> +#ifdef HAVE_FCNTL_OFD_LOCKS
->> +	fputs(_(  "     --fcntl-ofd          use fcntl(F_OFD_SETLK) rather than flock()\n"), stdout);
->> +#endif
->>  	fputs(_(  "     --verbose            increase verbosity\n"), stdout);
->>  	fputs(USAGE_SEPARATOR, stdout);
->>  	fprintf(stdout, USAGE_HELP_OPTIONS(26));
->> @@ -126,6 +129,38 @@ static void __attribute__((__noreturn__)) run_program(char **cmd_argv)
->>  	_exit((errno == ENOMEM) ? EX_OSERR : EX_UNAVAILABLE);
->>  }
->>  
->> +static int flock_to_fcntl_type(int op)
->> +{
->> +        switch (op) {
->> +                case LOCK_EX:
->> +                        return F_WRLCK;
->> +                case LOCK_SH:
->> +                        return F_RDLCK;
->> +                case LOCK_UN:
->> +                        return F_UNLCK;
->> +                default:
->> +			errx(EX_SOFTWARE, _("internal error, unknown operation %d"), op);
->> +        }
->> +}
-> 
-> Don't you need wrap flock_to_fcntl_type with #ifdef HAVE_FCNTL_OFD_LOCKS/#endif?
+Thinking more about it, I think I prefer this slightly shorter name.
 
-Well, the constants mentioned here are the same as used with posix
-locking, and have been in glibc and kernel headers since forever. Only
-the F_OFD_* ones are "newish". So I don't think this needs guarding due
-to non-existence of the symbols. But I might need to guard the whole
-function (or mark it maybe-unused) to avoid a defined-but-not-used warning.
+with the possiblity of making that grow an optional
+> argument (for example --fcntl=posix with plain --fcntl being an alias
+> for --fcntl=ofd) 
 
-I wasn't even sure if I actually needed a configure check and HAVE_*
-guard at all; 3.15 is 10 years old by now, but I couldn't find any
-mention of the oldest glibc/kernel that util-linux is supposed to build
-against. Karel?
+Not that I'm gonna implement this part immediately, but I do like that
+it leaves the door open for it.
+
+If no other comments appear in a day or two, I'll resend with that
+change and the fix for guarding the maybe-unused helper function.
 
 Rasmus
 
