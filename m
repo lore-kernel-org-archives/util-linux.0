@@ -1,63 +1,71 @@
-Received: from smtp.emenem.pl (cmyk.emenem.pl [217.79.154.63])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 404801F959
-	for <util-linux@vger.kernel.org>; Tue, 23 Apr 2024 14:35:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.79.154.63
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1CC628E2
+	for <util-linux@vger.kernel.org>; Tue, 23 Apr 2024 22:41:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713882936; cv=none; b=haM0LiGbgayv4IpldM43MnC5q/rEX9PHepDzwzCW6cYRWU/xxdhePNUFxz+Cot337HdiXMuOFili9FuHeq1QzZn7COny1IpccwLZlBkJQ0nhXID3T2KJ9ui8FExATW4gRqhahZs9L3k5EgMwSVLxbP/kQgKslk/atCouVfph2YY=
+	t=1713912062; cv=none; b=Lu68vMEwA7FA9AB83Hc0g5ZstGCZOv3dkYOhteMD9UXNwCC3q1VsdYX3qONK67d/oV+f8PNAg5kHE1BxkAZyaY0E+CCyUfJ7q/K9HYmZtZLrwOnwJZ5oH0QU/3asiSoxVTOLvW/Uq0q22LjFNGS/qHZ2JbYe7lby1HCe38LKpn4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713882936; c=relaxed/simple;
-	bh=nkEhfhLPXJdmtlXFyidoYD2W1l8LhCZDrGPtBvUOfuY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cHNZKy5T7vfYqsrjFUzt+2p4dQd1gTe++977RUeKJ0q+Wi88A46DVXNxX04/PNsNV1lkftUyI9tzOsgEZD/hXnEnUKzEuQjxnaUI//YqPqnAOW5FvzR44MMn3ISQMPUpgasDykb9aHKKjZXGyV8rXwVHiVky9YoGP/klgkhzS10=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ans.pl; spf=none smtp.mailfrom=ans.pl; dkim=pass (1024-bit key) header.d=ans.pl header.i=@ans.pl header.b=JFDhy6ra; arc=none smtp.client-ip=217.79.154.63
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ans.pl
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ans.pl
+	s=arc-20240116; t=1713912062; c=relaxed/simple;
+	bh=JkDhJs1YIuxfd3wPdAbpgXc19G8E4wfsOaGMPP9OvZo=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=XRck6JU1r5D03gP4ptWjXrIU93/1kzmElYtFhE17n+NS8ZvgRyKNUwEoMl7v/oLEGdPUreLby1P9Ui1QJRnWxZE7Bvf6KUbaKB716V/acHz7Is+1HPgvLYu6UBgLWr/KKGeAX6+rCMPFlqbXbmJW6HHvNFWytr4yAk9aomZ40dw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DG73mEn8; arc=none smtp.client-ip=209.85.219.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ans.pl header.i=@ans.pl header.b="JFDhy6ra"
-X-Virus-Scanned: amavisd-new at emenem.pl
-Received: from [192.168.1.10] (c-98-45-176-131.hsd1.ca.comcast.net [98.45.176.131])
-	(authenticated bits=0)
-	by cmyk.emenem.pl (8.17.1.9/8.17.1.9) with ESMTPSA id 43NEZJa6007258
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Tue, 23 Apr 2024 16:35:21 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ans.pl; s=20190507;
-	t=1713882921; bh=dj5aXvydqHvM8csJ7yRsUQaM6l9pD4fqfoYx+86jVjw=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=JFDhy6raRzeM8Vqj6GKmM05809a2gvouTd5vszqflmlw9YMDwyIgKBcaB1uceyoLZ
-	 I0SZY3j8Iyc3HNCpG6/c9me0WliShBTpVPaHKYQD2UnUKkVQOVawzDW+jzxzRaLg7e
-	 9ozZrDff6LkYw1cARarcX3fLUrw/JrkvSRUHKgTQ=
-Message-ID: <1350349b-8465-4ce6-8dc9-55a32b84dc39@ans.pl>
-Date: Tue, 23 Apr 2024 07:35:18 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DG73mEn8"
+Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-69b5dae6a64so3019476d6.1
+        for <util-linux@vger.kernel.org>; Tue, 23 Apr 2024 15:41:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1713912059; x=1714516859; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=JkDhJs1YIuxfd3wPdAbpgXc19G8E4wfsOaGMPP9OvZo=;
+        b=DG73mEn8Fwmes7cDCG5p90AMBrYkzkAN1001n3+cWGUEaW+wWYaVTQu6YDxezMUrRt
+         HtO4XgbYceNOVmfCuoWTSee79UEUvaKQDYas3ECF8+Pq7wbrzin+vBcynv3eIkxadlOb
+         N1mMNviG2fHOnYqTmi0M4AzWM3shGkjIyWzqxGqEOBzIgm8EpWMttC9poHf1jmT/ikml
+         UW/PoNpliaBCC7v1Zj88dA+psbOEFbyFBuAokdDfMF8NUrodt7hay+6GmQWEU2h1AThQ
+         FMtPGN347ozbs2lXrZBQHdLfY1xMMSrAg2I05wAiykdihGvc+r2C6SZgVKluPk9BXaaP
+         W4vw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713912059; x=1714516859;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=JkDhJs1YIuxfd3wPdAbpgXc19G8E4wfsOaGMPP9OvZo=;
+        b=hCfVbbi3fSLhd2tffrfMuAlKjSkSdfWNxxJYYqaYWvBDbg8ZnUEEdvjdSlr5eM2aOW
+         dYhK9s+0TmqckDpoxD+cg2cM7sQF2S0t9WANZ+6MtH3KMHATjm7kylTY1o1l4ilGGpnJ
+         O6ioUlk57VKJfD+iUX/Dhil6JPAspv7ciOWg/HdH8JPtG1pcF7hs6PB2TSj+7ZeYOXO7
+         ngiZVLrzZikAc5aMOCNy3MriE+iPNkU6FH/toknC05Xobqa24l8DDhZmbOAb+5jRwHD+
+         0a3a32UWHJJ0j9ZvGqS1XCZM2OhV32SXq9+s8QsK0XqS4nJQ+zXgXUfm5GKVEaDqvnf5
+         Zy8A==
+X-Gm-Message-State: AOJu0YwON3xsV5MgeYv1YKORQ4e9xVZ+64tayZ694lBQSC0Stwn+gQuV
+	uJPgDHGOgTolqYbaw+Gs3JTXt3VVyoSu6gEQauGEUkCL0BaXtlImlpzcfApqjIm2W5dDrb4pFmQ
+	+E0tpvNwz/ATSaOheuoYyPIYve5cu6sVlTw==
+X-Google-Smtp-Source: AGHT+IFLBbV1twUqXBVqpuTPWcaBgpNjCiXQf3rO7bQlBLcHfKlTOjxCaIq7mEugVF/jd0OKWt+QsbsEKD7JDRpva2U=
+X-Received: by 2002:a05:6214:19e7:b0:69b:7363:92a with SMTP id
+ q7-20020a05621419e700b0069b7363092amr7389977qvc.8.1713912059515; Tue, 23 Apr
+ 2024 15:40:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: umount -r broken due to "mountinfo unnecessary"
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-References: <315f1f43-013f-48c9-9016-474dc9d53a04@ans.pl>
- <20240423083358.2k532xl557meewws@ws.net.home>
-From: =?UTF-8?Q?Krzysztof_Ol=C4=99dzki?= <ole@ans.pl>
-Content-Language: en-US
-In-Reply-To: <20240423083358.2k532xl557meewws@ws.net.home>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Prasanna Paithankar <paithankarprasanna@gmail.com>
+Date: Wed, 24 Apr 2024 04:10:48 +0530
+Message-ID: <CAOfrUuZ8fL3kz=p2Pwh5JN6Nm9UvE4NPtcikNFCL8LC7r5FW0g@mail.gmail.com>
+Subject: [RFC] ipcs for POSIX IPC
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On 23.04.2024 at 01:33, Karel Zak wrote:
-> On Thu, Apr 18, 2024 at 01:00:56AM -0700, Krzysztof Olędzki wrote:
->> I noticed that "umount -r" does not work on my system for filesystems other than root:
-> 
-> Fixed: https://github.com/util-linux/util-linux/pull/2989
+Greetings,
+The 'ipcs' (and 'ipcrm') command provides information on (or removes
+some) System V IPC resources. I'd like to know why no similar utility
+for POSIX IPC has existed for a long time. I would like to know if
+such a tool exists in case I missed it. If not, I will provide patches
+to ipcs and ipcrm (or should I separate the functionality into a new
+utility).
 
-Perfect, thanks!
-
-When is the next release planned? Also, do you expect a backport to stable/v2.39 and v2.39.5?
-
-Thanks,
- Krzysztof 
-
+Yours sincerely
+Prasanna Paithankar
