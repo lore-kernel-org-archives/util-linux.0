@@ -1,916 +1,368 @@
-Received: from outbound.soverin.net (outbound.soverin.net [185.233.34.20])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from EUR05-DB8-obe.outbound.protection.outlook.com (mail-db8eur05on2042.outbound.protection.outlook.com [40.107.20.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B18AF51C45
-	for <util-linux@vger.kernel.org>; Tue, 23 Apr 2024 11:13:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.233.34.20
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713870787; cv=none; b=ONW0ixwE3B3D2Q5CEmpHt7uW0f6yMloi5whNOqGP3ZhQ01GPQaNFLK6Cyon6bjiUyVVD4FIBsOrklL3mYAoqFpscxJpXwAuFmNbT1ceMqaZSL2VsmdARKHS1VYhw7AaW/7xSD8Gu6OGrFVb6AdyRKO4PsRikQKT4qDeZue1WrDE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713870787; c=relaxed/simple;
-	bh=/tMeISYrhU6w6bNkQXoOevCq6TeMWzN3VFt3DPd0wCI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ZaOylMDR3x95Ud3Nu0qXugDNNkXCGWu0elPjzPyVMLN+os+DDvf11EuDPBeT1PP+E7ecUbFJqqdgxilMQ/zYxnqKw6Y7BHKWnVugw6jWQSpdKKGzDHFU/TQcE7xgeX70Ss4YjnU37VPHj5F0HuQ5j2QKWozW9DwWZ36fha+oudU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=raymakers.nl; spf=pass smtp.mailfrom=raymakers.nl; dkim=pass (2048-bit key) header.d=raymakers.nl header.i=@raymakers.nl header.b=rlRHRobn; arc=none smtp.client-ip=185.233.34.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=raymakers.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=raymakers.nl
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 158A884FD9
+	for <util-linux@vger.kernel.org>; Tue, 23 Apr 2024 12:08:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.20.42
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1713874120; cv=fail; b=E8Dx2klhUpcleMmbVqNoXhRPIwPJweuzeqQsv2w4X51lCK1swdEgQdQAj/2KCa0ZWLKit5/x+K7davbZvasGs101Js2wLfWqLJ7IEUzBcq37+7yKDZv3ZZ86w1rpwxi8OrhsJGWcd29fdSZIwat0zkHqGjZlJYPIoJ6GwRoOaHg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1713874120; c=relaxed/simple;
+	bh=GzHxxhA33h9Su4rAujgf8oA4FeZQRclZw7FSBYLDS2I=;
+	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=j5ZLyridKxRykiwGT6enbDMGG7OV3grrkBya8zWxsbiBZdMEkcjSrMGTg97USoa4cWrZWx8BypMJno/2cbGmBYZDXKWrsBjCTMDW5Hup1fsPd4G4Q4n54zdGwwxTXP7IpEa494weXr2qkpKBB89qfS9ymumwEaqR6N12qrWBJxU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=prevas.dk; spf=pass smtp.mailfrom=prevas.dk; dkim=pass (1024-bit key) header.d=prevas.dk header.i=@prevas.dk header.b=LPTM5Lr4; arc=fail smtp.client-ip=40.107.20.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=prevas.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=prevas.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=raymakers.nl header.i=@raymakers.nl header.b="rlRHRobn"
-Received: from smtp.soverin.net (c04cst-smtp-sov02.int.sover.in [10.10.4.100])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by outbound.soverin.net (Postfix) with ESMTPS id 4VNzxL3Z58z6h;
-	Tue, 23 Apr 2024 11:12:54 +0000 (UTC)
-Received: from smtp.soverin.net (smtp.soverin.net [10.10.4.100]) by soverin.net (Postfix) with ESMTPSA id 4VNzxK3knTzK5;
-	Tue, 23 Apr 2024 11:12:53 +0000 (UTC)
-Authentication-Results: smtp.soverin.net;
-	dkim=pass (2048-bit key; unprotected) header.d=raymakers.nl header.i=@raymakers.nl header.a=rsa-sha256 header.s=soverin1 header.b=rlRHRobn;
-	dkim-atps=neutral
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=raymakers.nl;
-	s=soverin1; t=1713870773;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Y2YLgOD2QhgfN3nHxvY+XpTWBt7urYY+e3J31T6EaLQ=;
-	b=rlRHRobnjB6U7xkD4LoxdVctDpToqF62GXehr5Me1DOp7RDkX9ulstJ23HQBTD0S58Ofs1
-	UHI1K839dvOSs4no71bwJuk7Cbsx8KykUYalKADvcucDN/BkP2yMX+GRhkU69bd8GmJZwP
-	xoyK7TlYFYaIXj8O/oYTqepF54JZebSNGNiJCc+FLg+lS7AJFxVWSrTegO2H/EI0cesJc6
-	RDLpLzWftSCAfYySZwVBed2vIUB/6QDwsBpHamhEc/bxYZI/UvX7jN0M2VDPA4bMGAUM89
-	R4fEBQSTbqWy79yvjrB6nikGfBiBmrG9bfu24IAUpqwdqeendVSFijZHRPUPmg==
-From: Thijs Raymakers <thijs@raymakers.nl>
-To: thomas@t-8ch.de
-Cc: kzak@redhat.com,
-	util-linux@vger.kernel.org,
-	Thijs Raymakers <thijs@raymakers.nl>,
-	Phil Auld <pauld@redhat.com>
-Subject: [PATCH v10] coresched: Manage core scheduling cookies for tasks
-Date: Tue, 23 Apr 2024 13:12:49 +0200
-Message-ID: <20240423111251.367023-1-thijs@raymakers.nl>
-In-Reply-To: <df7a25a0-7923-4f8b-a527-5e6f0064074d@t-8ch.de>
-References: <df7a25a0-7923-4f8b-a527-5e6f0064074d@t-8ch.de>
+	dkim=pass (1024-bit key) header.d=prevas.dk header.i=@prevas.dk header.b="LPTM5Lr4"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=SVtuxQ7KL5ZauwoL24AohOdL3Lq7wb5ml/3OX0z78omp8aRGjlbeddelDzi9RFO25dp0trU/sRHve+ktFWxvKcAelcoanQCo+EYakgslOygjZZUgwKFyb6hHt4eqawB3wznzHPLWfoZO7scJy3evfZIw+7U9v8c9If2gXZnqLQ1XPdDMN0HSm20wF+xHzxxU/9jS2TgZR6fzwwqJvDLq4+GcRwQqO71iaZ+8hJ4m5Uka6jfarWLvPkAn9gL+KK0cXdV61bmX1VBQIYOgZYjbG+77fiNAnIrMX65c3Z7tX0EoQeL5WzdF81524aJI7V8M1Dq1s7WYAvqfNd8ZC4/6Bg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=XXNuaxEJfxvi0bVvl08thNyrwSqHmEkzTSzR1tqCgLA=;
+ b=D+ngxJAytFCukou7adpP041rOTBprrfRrkHCGRxSitkvp7XduPQOvCh3FC4KlycE98pQs1sx9Sy1P/RlXvmVCbWfSIaL4paDgDYPV26lW7FI5z2+Edm2IwDpILrbpSU75WvXxTVu+FRBbye5LzoXzLw/vx6kT/zyp+766+royrDhpxpIhRXm8MMILyTWfOllf+J+AVeaG2AB95S2YOpb7gPctWwGm36ILbO0/ZHHDyj3H7680mV7hbyXvgbMQIlirQKE7MOJ98kQBLpK+fydfdf3r4oU8etEDma0YESj9XJAVs6Fy40UNZ9dlpWAKXJuZRiFo5g/ySJQWg5Ir9493A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=prevas.dk; dmarc=pass action=none header.from=prevas.dk;
+ dkim=pass header.d=prevas.dk; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=prevas.dk;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=XXNuaxEJfxvi0bVvl08thNyrwSqHmEkzTSzR1tqCgLA=;
+ b=LPTM5Lr4kPXzxa8LzZeqexpMvaE1Bqqq7c3goLmBOYLOKJmcjcJPkmhQp4sV3QAwwJBTY9XZ1srwOlXR8tydjNhDN0YykEqStzaj0Sok8HiY+NWPzP84WvAdJKVqoKHb5HorDxHCxtYa1s6r7UJB4U+cIRKXisE9mylNwT7ASWU=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=prevas.dk;
+Received: from DB9PR10MB7100.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:10:45a::14)
+ by DU0PR10MB5922.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:10:3b6::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7472.44; Tue, 23 Apr
+ 2024 12:08:29 +0000
+Received: from DB9PR10MB7100.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::3704:5975:fae0:7809]) by DB9PR10MB7100.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::3704:5975:fae0:7809%6]) with mapi id 15.20.7472.044; Tue, 23 Apr 2024
+ 12:08:29 +0000
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+To: util-linux@vger.kernel.org
+Cc: Masatake YAMATO <yamato@redhat.com>,
+	Karel Zak <kzak@redhat.com>,
+	Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Subject: [PATCH v2] flock: add support for using fcntl() with open file description locks
+Date: Tue, 23 Apr 2024 14:08:19 +0200
+Message-Id: <20240423120819.571181-1-rasmus.villemoes@prevas.dk>
+X-Mailer: git-send-email 2.40.1.1.g1c60b9335d
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: MM0P280CA0087.SWEP280.PROD.OUTLOOK.COM
+ (2603:10a6:190:8::33) To DB9PR10MB7100.EURPRD10.PROD.OUTLOOK.COM
+ (2603:10a6:10:45a::14)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DB9PR10MB7100:EE_|DU0PR10MB5922:EE_
+X-MS-Office365-Filtering-Correlation-Id: a2e0dfbd-5021-4e1e-3c7c-08dc638e1642
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?gaBT0CTrhh9P1lzTkRWTcPA7/5F6Kmh63ZqoAI38lO+mB7C0bvhRFUvFDE97?=
+ =?us-ascii?Q?fEILO/Ojoh99G1WiTbj9Ed3GdeUHbxmZImj3eaYRjYRqa/7qpj1v/T+3EPvY?=
+ =?us-ascii?Q?XoKy0RO94h2FDqZkIIbxnvgm9XdV+zDeuO84BuIr3ripNsuN+3EZkCYsHboJ?=
+ =?us-ascii?Q?JzpwbhAiyn8cqU4PMcZl5ZzHMILMANfdxdYqEfUiyndzNTw7YoZVKrBNmTd4?=
+ =?us-ascii?Q?1ahumlyfoxDWrdgA5sKBUfYfTLUqMKRQtqo18uKd7mWKaVFo+kNlVJ5wZTlI?=
+ =?us-ascii?Q?ujzpG5NIpLYBH7B5LA64n9NtlhAK+eo2Rc7x5e0R5JhWl1IOadwQUgRc0DGZ?=
+ =?us-ascii?Q?iVeBqbVT5ui7x0COL2Vzl+ozalYQqpyr53RI/F/aVnj93YO0GyePzIGXDCaH?=
+ =?us-ascii?Q?8QX0dZH/lqE9NkdGgs5BK4ugc5qU0ZaMOsD4WPXmCYOzEm9b588j4oBXq4nL?=
+ =?us-ascii?Q?V9yNnEx4JlHYdCMMHd5eKDt6uRZJ8s7IkkvW9uL3QQEY4OOfRtPv26r9lAFr?=
+ =?us-ascii?Q?q/kPSkRUNg/BHbXDeBJ7SMLdpXn6/i/bWNn0O5sdOhEtBZQYIEDY3yRKwFet?=
+ =?us-ascii?Q?KY2yD+kHikLAcTo28DaK6zE8IV5VVaeVFpmB4fgflcFsj6VWvD87G3JWw7QL?=
+ =?us-ascii?Q?5XJR9CIsqV/KgD/ULvYx62RVOf6lp8cxtxd9bpWxbQeK5PEPmdLL9AijxObq?=
+ =?us-ascii?Q?81nEt0JMo+nme80bI1GlJ3d3THIVrox4fUuF05GKXabExCBztrSsyjISm0Ai?=
+ =?us-ascii?Q?/0EqShCQM7uHl8iFOGHcDgTzhnSkksBoVobw3fhSO4RbS5r3lhoGYen4YG3j?=
+ =?us-ascii?Q?QYPETZSKkt4PV9mPu4G0/HYGcRzryFi3OLeGhEGgaR74ysNLWheR/omuB1cF?=
+ =?us-ascii?Q?0gjI2DZA7gG79bZ4HTEJDUuWukV2kp6CGGBgTMLL17IvSNDIKf2NlqMurBSo?=
+ =?us-ascii?Q?zYXiPCEJkA/gX+RKae5iMWNImvBFLlWcBTlYixEK177B9nzWhyzlLPVa891E?=
+ =?us-ascii?Q?SyxP4NOzHnqWa3s8U5nB5rJzT53c7o23dZjP1onVWsuhtkywxRmuO/6Shh8Z?=
+ =?us-ascii?Q?EmMZhZl5ntEEami5rAdJxEe69BMwVzI296HF/pD7iJWQEq1HFmNQCBD/j7eh?=
+ =?us-ascii?Q?7syw4YkKoF8cb90kYqhKbBsfDW0+YnNNUg1q9X+8J0256GH5v/0xzR/NvA2z?=
+ =?us-ascii?Q?XN1P4yv1/bSNsMcd8Fj2X7CiXj4CYB5oGa0s+6uaVbCI/RT7VmF2uihRVAb8?=
+ =?us-ascii?Q?hdY2qQTHw01LFWKw19FyIrJJJCZEei1oPVgoh0D0Pf+8i9Jx35NJ9ux9yhIb?=
+ =?us-ascii?Q?dhigS+sdK13VJ4rWyf0pf5qd9nmFoqW6TQ+3wLQ6KgN4Qg=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB9PR10MB7100.EURPRD10.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230031)(366007)(376005)(1800799015)(52116005)(38350700005);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?mN+ubAWCX4vQzpup0tjs5HB0/xEqEhqcaYB+2Y/Ez2b14kJ56yDjd8wzLhfE?=
+ =?us-ascii?Q?NvESjTVpYicLEn19lccU88zO94IXpCSNuRY1cdmr/4YiVCZrlm4WnPPU5Kc7?=
+ =?us-ascii?Q?X+lMeOwp3/90p1XMOLJ+FGbCFWsJ8lB5/v5cUzJwIUE9jSGws+gMHaRvvijV?=
+ =?us-ascii?Q?m34sW+DPF9T2ahbMZXnIsCOP2Q5U3UaN5n5s3+NAX6aIWzKnC7Xx50UO7XaF?=
+ =?us-ascii?Q?pueVG/nRAcbon1W+qiES9sBt8Ozlgf8zW6DXPj3wACGeMlUSpVsd+QqJgJeD?=
+ =?us-ascii?Q?Akb2HQ7X0Lik8Rq16NhrsTC6lRjHUMcFt8s+uCUuoFjpA+C1HXYuWGwf7HYo?=
+ =?us-ascii?Q?tbRkXumLOkcERIj0t2zde838T65crNEQjygNkhKijpZijZUbP5ao/entprey?=
+ =?us-ascii?Q?s6EZV8dSJwO+BgzA85CvXJ+T7k7kfgC5JYiNSVi2Juj0fqgHwMW/ENsTjkLr?=
+ =?us-ascii?Q?C47UW3sSKd9Qa0FYp3PUdaF2uDxivjyjAsxHdRdlKBk/n5YdY0dRJH8CaOcR?=
+ =?us-ascii?Q?BWvMMjk1tiEOwDRiW0Mt6TsJ0ASsfqvRq8xGc9r0E4BJtDYQTBudtwaQXuIB?=
+ =?us-ascii?Q?JTPqSf9kplJ0cPKGOTDQn1ZFZHgcEcMZbJCwJUK+b2BlIprMX68lGaXYjOZS?=
+ =?us-ascii?Q?+BSzNvDf/iGBSJeJnhIQAsasZn/VCPjcY/4C+8IcfnGhtQoDgmP1VISQR43X?=
+ =?us-ascii?Q?JwxLPY0DlgGpA+iDtD+5BfGs4lIDP/k+yiezBT4LIwLYLDqqIGUFS1vR3mKJ?=
+ =?us-ascii?Q?IkxJNJkCJ0XNV6/BzOVQDRbctYvIwRm4nFHyOwgtH4vrpXDHCUUZTERE569m?=
+ =?us-ascii?Q?GjP+XS8775E+pUL5dFNavwHdVxy/4DRfeo0J00xbFQDHvUxUJHcyKW5c2Mr8?=
+ =?us-ascii?Q?oS1H1XgFWPYq1aBsvkfSfOS7CrGQ/ZDskBsUfu4V8hA5cWwCEIJWMt7Yy26J?=
+ =?us-ascii?Q?z85Ecs84YSOedxZvY+ILTGLUn0/6y4Bco2rWCi2PYhFsKQfd2zR4+qxs4sLI?=
+ =?us-ascii?Q?o+guDplvuJYIu8rdfr8+EN4IKLq8h0tz9ZN9Q5JPtgvVCi9Ohq3hGCTxoaah?=
+ =?us-ascii?Q?FfQjeePGnBc7Ohd59QjjcPNEpbA8PuFruclM03KcoG2BnIsxWVTeZ3geVXLO?=
+ =?us-ascii?Q?IogHYHDnjjL5Miqj6+okKtLnUdcv+K0lkS7C1JNNYBRP12u4F7UjqjnxiSUg?=
+ =?us-ascii?Q?Q6+gDWUwGosF7qJFu4Cle4gYPubu2F0j8cZ0kzUEgdzMSgrc7UopiZ4f0vNe?=
+ =?us-ascii?Q?aW1LLAFJQA0357F+OJTrnBS5i1GBU/o6EWzakDba8BF9V/NEPjw+fzTcERoF?=
+ =?us-ascii?Q?0dj1DnpKWevN9IDp/ZFi1p9HC6ACBHbqe3CsqrafNBYUgtl5ufLRzjKC8qi+?=
+ =?us-ascii?Q?s0dEwCyGTIy4IzU1NMpfv/eZ8R7IN8neJTCLSBTNnfzCcVJYQHyaIUBiO0//?=
+ =?us-ascii?Q?5KMTDDrtYkCS6NVdmHXfW94N0LqQTHctOmlGWKHAbTEvBjPdpGRWXcmd8rYo?=
+ =?us-ascii?Q?EXLrKMEKUboaqa4t8l3fztM6/41Ky/lafwEUTsaTXPO2ymfzZPji4Pchg0xT?=
+ =?us-ascii?Q?R27JBh1PU/cGzhQLS+sy7+vCl1vdUf3iorMQ8dTMfETCmMca/XvLWGzBeprI?=
+ =?us-ascii?Q?EA=3D=3D?=
+X-OriginatorOrg: prevas.dk
+X-MS-Exchange-CrossTenant-Network-Message-Id: a2e0dfbd-5021-4e1e-3c7c-08dc638e1642
+X-MS-Exchange-CrossTenant-AuthSource: DB9PR10MB7100.EURPRD10.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Apr 2024 12:08:29.1049
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: d350cf71-778d-4780-88f5-071a4cb1ed61
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: HZQzfCVm24mNl8eHq64hVn5AOSUhu9ewwP1BgcfRj21UoWxikIX5lOhUbLAVpTV+FDkcA5hRaS9CTffMt+5TWkA8Rz30tvi1PN99mzvi6i4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU0PR10MB5922
 
-Co-authored-by: Phil Auld <pauld@redhat.com>
-Signed-off-by: Phil Auld <pauld@redhat.com>
-Signed-off-by: Thijs Raymakers <thijs@raymakers.nl>
+Currently, there is no way for shell scripts to safely access
+resources protected by POSIX locking (fcntl with the F_SETLK/F_SETLKW
+commands). For example, the glibc function lckpwdf(), used to
+protect access to the /etc/shadow database, works by taking a
+F_SETLKW on /etc/.pwd.lock .
+
+Due to the odd semantics of POSIX locking (e.g. released when any file
+descriptor associated to the inode is closed), we cannot usefully
+directly expose the POSIX F_SETLK/F_SETLKW commands. However, linux
+3.15 introduced F_OFD_SETLK[W], with semantics wrt. ownership and
+release better matching those of flock(2), and crucially they do
+conflict with locks obtained via F_SETLK[W]. With this, a shell script
+can do
+
+  exec 4> /etc/.pwd.lock
+  flock --fcntl 4
+  <access/modify /etc/shadow ...>
+  flock --fcntl --unlock 4 # or just exit
+
+without conflicting with passwd(1) or other utilities that
+access/modify /etc/shadow.
+
+No single-letter shorthand is defined for the option, because this is
+somewhat low-level and the user really needs to know what he is doing.
+
+Also, this leaves the door open for teaching --fcntl to accept an
+optional argument: "ofd", the default, and "posix", should anyone find
+a use for flock(1) taking a F_SETLK[W] lock.
+
+Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
 ---
+v2:
 
-Op 23-04-2024 om 12:19 p.m. schreef Thomas Weißschuh:
-> On 2024-04-17 13:39:32+0000, Thijs Raymakers wrote:
->> +typedef unsigned long sched_core_cookie;
-> This should be uint64_t, as the kernel will always copy 64 bytes.
-> 
-> Otherwise it will smash the stack on 32bit:
+- Shorten option name to --fcntl instead of --fcntl-ofd.
 
-Thanks! I've changed the type to an unsigned long long which should have
-a minimum size of 64 bits.
+- Use a do_lock() helper function switching on the API to use, making
+  the while () condition easier to read and making it simpler to add
+  the mentioned --fcntl=posix should the need arise.
 
-Interdiff against v9:
-  diff --git a/schedutils/coresched.c b/schedutils/coresched.c
-  index bb97cc020..7bc5c9d38 100644
-  --- a/schedutils/coresched.c
-  +++ b/schedutils/coresched.c
-  @@ -46,7 +46,7 @@
-   #endif
-   
-   typedef int sched_core_scope;
-  -typedef unsigned long sched_core_cookie;
-  +typedef unsigned long long sched_core_cookie;
-   typedef enum {
-   	SCHED_CORE_CMD_GET,
-   	SCHED_CORE_CMD_NEW,
-  @@ -154,7 +154,7 @@ static void core_sched_copy_cookie(pid_t from, pid_t to,
-   
-   	if (sched_core_verbose) {
-   		sched_core_cookie before = core_sched_get_cookie(from);
-  -		warnx(_("copied cookie 0x%lx from PID %d to PID %d"), before,
-  +		warnx(_("copied cookie 0x%llx from PID %d to PID %d"), before,
-   		      from, to);
-   	}
-   }
-  @@ -163,7 +163,7 @@ static void core_sched_get_and_print_cookie(pid_t pid)
-   {
-   	if (sched_core_verbose) {
-   		sched_core_cookie after = core_sched_get_cookie(pid);
-  -		warnx(_("set cookie of PID %d to 0x%lx"), pid, after);
-  +		warnx(_("set cookie of PID %d to 0x%llx"), pid, after);
-   	}
-   }
-   
-  @@ -336,7 +336,7 @@ int main(int argc, char **argv)
-   	switch (args.cmd) {
-   	case SCHED_CORE_CMD_GET:
-   		cookie = core_sched_get_cookie(args.src);
-  -		printf(_("cookie of pid %d is 0x%lx\n"), args.src, cookie);
-  +		printf(_("cookie of pid %d is 0x%llx\n"), args.src, cookie);
-   		break;
-   	case SCHED_CORE_CMD_NEW:
-   		if (args.exec_argv_offset) {
+- Fix up places that need HAVE_FCNTL_OFD_LOCKS guarding.
 
- .gitignore                                    |   1 +
- bash-completion/coresched                     |   0
- configure.ac                                  |  12 +-
- meson.build                                   |  16 +-
- meson_options.txt                             |   2 +-
- schedutils/Makemodule.am                      |   8 +
- schedutils/coresched.1.adoc                   | 139 +++++++
- schedutils/coresched.c                        | 358 ++++++++++++++++++
- tests/commands.sh                             |   1 +
- .../coresched-copy-from-child-to-parent       |   1 +
- ...coresched-copy-from-parent-to-nested-child |   1 +
- .../schedutils/coresched-get-cookie-own-pid   |   1 +
- .../coresched-get-cookie-parent-pid           |   1 +
- .../coresched-new-child-with-new-cookie       |   1 +
- .../coresched-set-cookie-parent-pid.err       |   1 +
- .../expected/schedutils/set-cookie-parent-pid |   1 +
- tests/ts/schedutils/coresched                 |  83 ++++
- 17 files changed, 621 insertions(+), 6 deletions(-)
- create mode 100644 bash-completion/coresched
- create mode 100644 schedutils/coresched.1.adoc
- create mode 100644 schedutils/coresched.c
- create mode 100644 tests/expected/schedutils/coresched-copy-from-child-to-parent
- create mode 100644 tests/expected/schedutils/coresched-copy-from-parent-to-nested-child
- create mode 100644 tests/expected/schedutils/coresched-get-cookie-own-pid
- create mode 100644 tests/expected/schedutils/coresched-get-cookie-parent-pid
- create mode 100644 tests/expected/schedutils/coresched-new-child-with-new-cookie
- create mode 100644 tests/expected/schedutils/coresched-set-cookie-parent-pid.err
- create mode 100644 tests/expected/schedutils/set-cookie-parent-pid
- create mode 100755 tests/ts/schedutils/coresched
+ configure.ac      |  6 ++++
+ meson.build       |  3 ++
+ sys-utils/flock.c | 82 +++++++++++++++++++++++++++++++++++++++++++++--
+ 3 files changed, 89 insertions(+), 2 deletions(-)
 
-diff --git a/.gitignore b/.gitignore
-index 6ecbfa7fe..316f3cdcc 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -94,6 +94,7 @@ ylwrap
- /colcrt
- /colrm
- /column
-+/coresched
- /ctrlaltdel
- /delpart
- /dmesg
-diff --git a/bash-completion/coresched b/bash-completion/coresched
-new file mode 100644
-index 000000000..e69de29bb
 diff --git a/configure.ac b/configure.ac
-index 1d7a9cf70..70a60cf5d 100644
+index c302732e7..441b09440 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -2514,9 +2514,9 @@ UL_REQUIRES_HAVE([setterm], [ncursesw, ncurses], [ncursesw or ncurses library])
- AM_CONDITIONAL([BUILD_SETTERM], [test "x$build_setterm" = xyes])
+@@ -434,6 +434,12 @@ AC_CHECK_DECLS([PR_REP_CAPACITY], [], [], [
+ 	#include <linux/pr.h>
+ ])
  
- # build_schedutils= is just configure-only variable to control
--# ionice, taskset and chrt
-+# ionice, taskset, coresched and chrt
- AC_ARG_ENABLE([schedutils],
--  AS_HELP_STRING([--disable-schedutils], [do not build chrt, ionice, taskset]),
-+  AS_HELP_STRING([--disable-schedutils], [do not build chrt, ionice, taskset, coresched]),
-   [], [UL_DEFAULT_ENABLE([schedutils], [check])]
- )
- 
-@@ -2559,6 +2559,14 @@ UL_REQUIRES_SYSCALL_CHECK([taskset],
- AM_CONDITIONAL([BUILD_TASKSET], [test "x$build_taskset" = xyes])
- 
- 
-+UL_ENABLE_ALIAS([coresched], [schedutils])
-+UL_BUILD_INIT([coresched])
-+UL_REQUIRES_SYSCALL_CHECK([coresched],
-+	[UL_CHECK_SYSCALL([prctl])],
-+	[prctl])
-+AM_CONDITIONAL([BUILD_CORESCHED], [test "x$build_coresched" = xyes])
++AC_CHECK_DECL([F_OFD_SETLK],
++	[AC_DEFINE([HAVE_FCNTL_OFD_LOCKS], [1],
++	[Define to 1 if fcntl.h defines F_OFD_ constants])], [], [
++#include <fcntl.h>
++])
 +
-+
- have_schedsetter=no
- AS_IF([test "x$ac_cv_func_sched_setscheduler" = xyes], [have_schedsetter=yes],
-       [test "x$ac_cv_func_sched_setattr" = xyes], [have_schedsetter=yes])
+ AC_CHECK_HEADERS([security/openpam.h], [], [], [
+ #ifdef HAVE_SECURITY_PAM_APPL_H
+ #include <security/pam_appl.h>
 diff --git a/meson.build b/meson.build
-index 5b4f59b8c..3cfd63449 100644
+index 99126f7aa..004c849f1 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -3194,13 +3194,23 @@ exe4 = executable(
-   install : opt,
-   build_by_default : opt)
+@@ -704,6 +704,9 @@ conf.set('HAVE_DECL_BLK_ZONE_REP_CAPACITY', have ? 1 : false)
+ have = cc.has_header_symbol('linux/pr.h', 'PR_REP_CAPACITY')
+ conf.set('HAVE_DECL_PR_REP_CAPACITY', have ? 1 : false)
  
-+exe5 = executable(
-+  'coresched',
-+  'schedutils/coresched.c',
-+  include_directories : includes,
-+  link_with : lib_common,
-+  install_dir : usrbin_exec_dir,
-+  install : opt,
-+  build_by_default : opt)
++have = cc.has_header_symbol('fcntl.h', 'F_OFD_SETLK', args: '-D_GNU_SOURCE')
++conf.set('HAVE_FCNTL_OFD_LOCKS', have ? 1 : false)
 +
- if opt and not is_disabler(exe)
--  exes += [exe, exe2, exe3, exe4]
-+  exes += [exe, exe2, exe3, exe4, exe5]
-   manadocs += ['schedutils/chrt.1.adoc',
-                'schedutils/ionice.1.adoc',
-                'schedutils/taskset.1.adoc',
--	       'schedutils/uclampset.1.adoc']
--  bashcompletions += ['chrt', 'ionice', 'taskset', 'uclampset']
-+               'schedutils/uclampset.1.adoc',
-+               'schedutils/coresched.1.adoc']
-+  bashcompletions += ['chrt', 'ionice', 'taskset', 'uclampset', 'coresched']
- endif
+ code = '''
+ #include <time.h>
+ #if !@0@
+diff --git a/sys-utils/flock.c b/sys-utils/flock.c
+index 7d878ff81..17088ce7e 100644
+--- a/sys-utils/flock.c
++++ b/sys-utils/flock.c
+@@ -48,6 +48,11 @@
+ #include "monotonic.h"
+ #include "timer.h"
  
- ############################################################
-diff --git a/meson_options.txt b/meson_options.txt
-index ca76530a9..8a70555d7 100644
---- a/meson_options.txt
-+++ b/meson_options.txt
-@@ -182,7 +182,7 @@ option('build-pipesz', type : 'feature',
- option('build-setterm', type : 'feature',
-        description : 'build setterm')
- option('build-schedutils', type : 'feature',
--       description : 'build chrt, ionice, taskset')
-+       description : 'build chrt, ionice, taskset, coresched')
- option('build-wall', type : 'feature',
-        description : 'build wall')
- option('build-write', type : 'feature',
-diff --git a/schedutils/Makemodule.am b/schedutils/Makemodule.am
-index 1040da85f..0cb655401 100644
---- a/schedutils/Makemodule.am
-+++ b/schedutils/Makemodule.am
-@@ -29,3 +29,11 @@ dist_noinst_DATA += schedutils/uclampset.1.adoc
- uclampset_SOURCES = schedutils/uclampset.c schedutils/sched_attr.h
- uclampset_LDADD = $(LDADD) libcommon.la
- endif
-+
-+if BUILD_CORESCHED
-+usrbin_exec_PROGRAMS += coresched
-+MANPAGES += schedutils/coresched.1
-+dist_noinst_DATA += schedutils/coresched.1.adoc
-+coresched_SOURCES = schedutils/coresched.c
-+coresched_LDADD = $(LDADD) libcommon.la
-+endif
-diff --git a/schedutils/coresched.1.adoc b/schedutils/coresched.1.adoc
-new file mode 100644
-index 000000000..8a9c28846
---- /dev/null
-+++ b/schedutils/coresched.1.adoc
-@@ -0,0 +1,139 @@
-+//po4a: entry man manual
-+////
-+coresched(1) manpage
-+////
-+= coresched(1)
-+:doctype: manpage
-+:man manual: User Commands
-+:man source: util-linux {release-version}
-+:page-layout: base
-+:command: coresched
-+:colon: :
-+:copyright: ©
-+
-+== NAME
-+
-+coresched - manage core scheduling cookies for tasks
-+
-+== SYNOPSIS
-+
-+*{command}* [*get*] [*-s* _pid_]
-+
-+*{command}* *new* [*-t* _type_] *-d* _pid_
-+
-+*{command}* *new* [*-t* _type_] \-- _command_ [_argument_...]
-+
-+*{command}* *copy* [*-s* _pid_] [*-t* _type_] *-d* _pid_
-+
-+*{command}* *copy* [*-s* _pid_] [*-t* _type_] \-- _command_ [_argument_...]
-+
-+== DESCRIPTION
-+The *{command}* command is used to retrieve or modify the core scheduling cookies of a running process given its _pid_, or to spawn a new _command_ with core scheduling cookies.
-+
-+Core scheduling permits the definition of groups of tasks that are allowed to share a physical core.
-+This is done by assigning a cookie to each task.
-+Only tasks have the same cookie are allowed to be scheduled on the same physical core.
-+
-+It is possible to either assign a new random cookie to a task, or copy a cookie from another task. It is not possible to choose the value of the cookie.
-+
-+== FUNCTIONS
-+*get*::
-+Retrieve the core scheduling cookie of the PID specified in *-s*.
-+If *-s* is omitted, it will get the cookie of the current *{command}* process.
-+
-+*new*::
-+Assign a new cookie to an existing PID specified in *-d*, or execute _command_ with a new cookie.
-+
-+*copy*::
-+Copy the cookie from an existing PID (*-s*) to another PID (*-d*), or execute _command_ with that cookie.
-+If *-s* is omitted, it will get the cookie of the current *{command}* process.
-+
-+If no function is specified, it will run the *get* function.
-+
-+== OPTIONS
-+*-s*, *--source* _PID_::
-+Which _PID_ to get the cookie from.
-+If this option is omitted, it will get the cookie from the current *{command}* process.
-+
-+*-d*, *--dest* _PID_::
-+Which _PID_ to modify the cookie of.
-+
-+*-t*, *--dest-type* _TYPE_::
-+The type of the PID whose cookie will be modified. This can be one of three values:
-+- *pid*, or process ID
-+- *tgid*, or thread group ID (default value)
-+- *pgid*, or process group ID
-+
-+*-v*, *--verbose*::
-+Show extra information when modifying cookies of tasks.
-+
-+*-h*, *--help*::
-+Display help text and exit.
-+
-+*-V*, *--version*::
-+Print version and exit.
-+
-+== EXAMPLES
-+Get the core scheduling cookie of the {command} task itself, usually inherited from its parent{colon}::
-+*{command} get*
-+
-+Get the core scheduling cookie of a task with PID _123_{colon}::
-+*{command} get -s* _123_
-+
-+Give a task with PID _123_ a new core scheduling cookie{colon}::
-+*{command} new -d* _123_
-+
-+Spawn a new task with a new core scheduling cookie{colon}::
-+*{command} new* \-- _command_ [_argument_...]
-+
-+Copy the cookie from the current {command} process another task with pid _456_{colon}::
-+*{command} copy -d* _456_
-+
-+Copy the cookie from a task with pid _123_ to another task with pid _456_{colon}::
-+*{command} copy -s* _123_ *-d* _456_
-+
-+Copy the cookie from a task with pid _123_ to a new task _command_{colon}::
-+*{command} copy -s* _123_ \-- _command_ [_argument_...]
-+
-+Copy the cookie from a task with pid _123_ to the process group ID _456_{colon}::
-+*{command} copy -s* _123_ *-t* _pgid_ *-d* _456_
-+
-+== PERMISSIONS
-+Retrieving or modifying the core scheduling cookie of a process requires *PTRACE_MODE_READ_REALCREDS* ptrace access to that process.
-+See the section "Ptrace access mode checking" in *ptrace*(2) for more information.
-+
-+== RETURN VALUE
-+On success, *{command}* returns 0.
-+If *{command}* fails, it will print an error and return 1.
-+
-+If a _command_ is being executed, the return value of *{command}* will be the return value of _command_.
-+
-+== NOTES
-+*{command}* requires core scheduling support in the kernel.
-+This can be enabled via the *CONFIG_SCHED_CORE* kernel config option.
-+
-+== AUTHORS
-+mailto:thijs@raymakers.nl[Thijs Raymakers],
-+mailto:pauld@redhat.com[Phil Auld]
-+
-+== COPYRIGHT
-+
-+Copyright {copyright} 2024 Thijs Raymakers and Phil Auld. This is free software licensed under the EUPL.
-+
-+== SEE ALSO
-+*chrt*(1),
-+*nice*(1),
-+*renice*(1),
-+*taskset*(1),
-+*ptrace*(2),
-+*sched*(7)
-+
-+The Linux kernel source files _Documentation/admin-guide/hw-vuln/core-scheduling.rst_
-+
-+include::man-common/bugreports.adoc[]
-+
-+include::man-common/footer.adoc[]
-+
-+ifdef::translation[]
-+include::man-common/translation.adoc[]
-+endif::[]
-diff --git a/schedutils/coresched.c b/schedutils/coresched.c
-new file mode 100644
-index 000000000..7bc5c9d38
---- /dev/null
-+++ b/schedutils/coresched.c
-@@ -0,0 +1,358 @@
-+/**
-+ * SPDX-License-Identifier: EUPL-1.2
-+ *
-+ * coresched.c - manage core scheduling cookies for tasks
-+ *
-+ * Copyright (C) 2024 Thijs Raymakers, Phil Auld
-+ * Licensed under the EUPL v1.2
-+ */
-+
-+#include <getopt.h>
-+#include <stdbool.h>
-+#include <stdio.h>
-+#include <sys/prctl.h>
-+#include <unistd.h>
-+
-+#include "c.h"
-+#include "closestream.h"
-+#include "nls.h"
-+#include "strutils.h"
-+
-+// These definitions might not be defined in the header files, even if the
-+// prctl interface in the kernel accepts them as valid.
-+#ifndef PR_SCHED_CORE
-+	#define PR_SCHED_CORE 62
-+#endif
-+#ifndef PR_SCHED_CORE_GET
-+	#define PR_SCHED_CORE_GET 0
-+#endif
-+#ifndef PR_SCHED_CORE_CREATE
-+	#define PR_SCHED_CORE_CREATE 1
-+#endif
-+#ifndef PR_SCHED_CORE_SHARE_TO
-+	#define PR_SCHED_CORE_SHARE_TO 2
-+#endif
-+#ifndef PR_SCHED_CORE_SHARE_FROM
-+	#define PR_SCHED_CORE_SHARE_FROM 3
-+#endif
-+#ifndef PR_SCHED_CORE_SCOPE_THREAD
-+	#define PR_SCHED_CORE_SCOPE_THREAD 0
-+#endif
-+#ifndef PR_SCHED_CORE_SCOPE_THREAD_GROUP
-+	#define PR_SCHED_CORE_SCOPE_THREAD_GROUP 1
-+#endif
-+#ifndef PR_SCHED_CORE_SCOPE_PROCESS_GROUP
-+	#define PR_SCHED_CORE_SCOPE_PROCESS_GROUP 2
-+#endif
-+
-+typedef int sched_core_scope;
-+typedef unsigned long long sched_core_cookie;
-+typedef enum {
-+	SCHED_CORE_CMD_GET,
-+	SCHED_CORE_CMD_NEW,
-+	SCHED_CORE_CMD_COPY,
-+} sched_core_cmd;
-+
-+struct args {
-+	pid_t src;
-+	pid_t dest;
-+	sched_core_scope type;
-+	sched_core_cmd cmd;
-+	int exec_argv_offset;
++enum {
++	API_FLOCK,
++	API_FCNTL_OFD,
 +};
 +
-+static bool sched_core_verbose = false;
-+
-+static void __attribute__((__noreturn__)) usage(void)
+ static void __attribute__((__noreturn__)) usage(void)
+ {
+ 	fputs(USAGE_HEADER, stdout);
+@@ -70,6 +75,9 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_(  " -o, --close              close file descriptor before running command\n"), stdout);
+ 	fputs(_(  " -c, --command <command>  run a single command string through the shell\n"), stdout);
+ 	fputs(_(  " -F, --no-fork            execute command without forking\n"), stdout);
++#ifdef HAVE_FCNTL_OFD_LOCKS
++	fputs(_(  "     --fcntl              use fcntl(F_OFD_SETLK) rather than flock()\n"), stdout);
++#endif
+ 	fputs(_(  "     --verbose            increase verbosity\n"), stdout);
+ 	fputs(USAGE_SEPARATOR, stdout);
+ 	fprintf(stdout, USAGE_HELP_OPTIONS(26));
+@@ -126,6 +134,53 @@ static void __attribute__((__noreturn__)) run_program(char **cmd_argv)
+ 	_exit((errno == ENOMEM) ? EX_OSERR : EX_UNAVAILABLE);
+ }
+ 
++#ifdef HAVE_FCNTL_OFD_LOCKS
++static int flock_to_fcntl_type(int op)
 +{
-+	fputs(USAGE_HEADER, stdout);
-+	fprintf(stdout, _(" %s [get] [--source <PID>]\n"),
-+		program_invocation_short_name);
-+	fprintf(stdout, _(" %s new [-t <TYPE>] --dest <PID>\n"),
-+		program_invocation_short_name);
-+	fprintf(stdout, _(" %s new [-t <TYPE>] -- PROGRAM [ARGS...]\n"),
-+		program_invocation_short_name);
-+	fprintf(stdout,
-+		_(" %s copy [--source <PID>] [-t <TYPE>] --dest <PID>\n"),
-+		program_invocation_short_name);
-+	fprintf(stdout,
-+		_(" %s copy [--source <PID>] [-t <TYPE>] -- PROGRAM [ARGS...]\n"),
-+		program_invocation_short_name);
-+
-+	fputs(USAGE_SEPARATOR, stdout);
-+	fputsln(_("Manage core scheduling cookies for tasks."), stdout);
-+
-+	fputs(USAGE_FUNCTIONS, stdout);
-+	fputsln(_(" get                      retrieve the core scheduling cookie of a PID"),
-+		stdout);
-+	fputsln(_(" new                      assign a new core scheduling cookie to an existing\n"
-+		  "                            PID or execute a program with a new cookie"),
-+		stdout);
-+	fputsln(_(" copy                     copy the core scheduling cookie from an existing PID\n"
-+		  "                            to another PID, or execute a program with that\n"
-+		  "                            copied cookie"),
-+		stdout);
-+
-+	fputs(USAGE_OPTIONS, stdout);
-+	fprintf(stdout,
-+		_(" -s, --source <PID>       which PID to get the cookie from\n"
-+		  "                            If omitted, it is the PID of %s itself\n"),
-+		program_invocation_short_name);
-+	fputsln(_(" -d, --dest <PID>         which PID to modify the cookie of\n"),
-+		stdout);
-+	fputsln(_(" -t, --dest-type <TYPE>   type of the destination PID, or the type of the PID\n"
-+		  "                            when a new core scheduling cookie is created.\n"
-+		  "                            Can be one of the following: pid, tgid or pgid.\n"
-+		  "                            The default is tgid."),
-+		stdout);
-+	fputs(USAGE_SEPARATOR, stdout);
-+	fputsln(_(" -v, --verbose      verbose"), stdout);
-+	fprintf(stdout, USAGE_HELP_OPTIONS(20));
-+	fprintf(stdout, USAGE_MAN_TAIL("coresched(1)"));
-+	exit(EXIT_SUCCESS);
-+}
-+
-+#define bad_usage(FMT...)                 \
-+	do {                              \
-+		warnx(FMT);               \
-+		errtryhelp(EXIT_FAILURE); \
-+	} while (0)
-+
-+static sched_core_cookie core_sched_get_cookie(pid_t pid)
-+{
-+	sched_core_cookie cookie = 0;
-+	if (prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, pid,
-+		  PR_SCHED_CORE_SCOPE_THREAD, &cookie))
-+		err(EXIT_FAILURE, _("Failed to get cookie from PID %d"), pid);
-+	return cookie;
-+}
-+
-+static void core_sched_create_cookie(pid_t pid, sched_core_scope type)
-+{
-+	if (prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, pid, type, 0))
-+		err(EXIT_FAILURE, _("Failed to create cookie for PID %d"), pid);
-+}
-+
-+static void core_sched_pull_cookie(pid_t from)
-+{
-+	if (prctl(PR_SCHED_CORE, PR_SCHED_CORE_SHARE_FROM, from,
-+		  PR_SCHED_CORE_SCOPE_THREAD, 0))
-+		err(EXIT_FAILURE, _("Failed to pull cookie from PID %d"), from);
-+}
-+
-+static void core_sched_push_cookie(pid_t to, sched_core_scope type)
-+{
-+	if (prctl(PR_SCHED_CORE, PR_SCHED_CORE_SHARE_TO, to, type, 0))
-+		err(EXIT_FAILURE, _("Failed to push cookie to PID %d"), to);
-+}
-+
-+static void core_sched_copy_cookie(pid_t from, pid_t to,
-+				   sched_core_scope to_type)
-+{
-+	core_sched_pull_cookie(from);
-+	core_sched_push_cookie(to, to_type);
-+
-+	if (sched_core_verbose) {
-+		sched_core_cookie before = core_sched_get_cookie(from);
-+		warnx(_("copied cookie 0x%llx from PID %d to PID %d"), before,
-+		      from, to);
-+	}
-+}
-+
-+static void core_sched_get_and_print_cookie(pid_t pid)
-+{
-+	if (sched_core_verbose) {
-+		sched_core_cookie after = core_sched_get_cookie(pid);
-+		warnx(_("set cookie of PID %d to 0x%llx"), pid, after);
-+	}
-+}
-+
-+static void core_sched_exec_with_cookie(struct args *args, char **argv)
-+{
-+	// Move the argument list to the first argument of the program
-+	argv = &argv[args->exec_argv_offset];
-+
-+	// If a source PID is provided, try to copy the cookie from
-+	// that PID. Otherwise, create a brand new cookie with the
-+	// provided type.
-+	if (args->src) {
-+		core_sched_pull_cookie(args->src);
-+		core_sched_get_and_print_cookie(args->src);
-+	} else {
-+		pid_t pid = getpid();
-+		core_sched_create_cookie(pid, args->type);
-+		core_sched_get_and_print_cookie(pid);
-+	}
-+
-+	if (execvp(argv[0], argv))
-+		errexec(argv[0]);
-+}
-+
-+// If PR_SCHED_CORE is not recognized, or not supported on this system,
-+// then prctl will set errno to EINVAL. Assuming all other operands of
-+// prctl are valid, we can use errno==EINVAL as a check to see whether
-+// core scheduling is available on this system.
-+static bool is_core_sched_supported(void)
-+{
-+	sched_core_cookie cookie = 0;
-+	if (prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, getpid(),
-+		  PR_SCHED_CORE_SCOPE_THREAD, &cookie))
-+		if (errno == EINVAL)
-+			return false;
-+
-+	return true;
-+}
-+
-+static sched_core_scope parse_core_sched_type(char *str)
-+{
-+	if (!strcmp(str, "pid"))
-+		return PR_SCHED_CORE_SCOPE_THREAD;
-+	else if (!strcmp(str, "tgid"))
-+		return PR_SCHED_CORE_SCOPE_THREAD_GROUP;
-+	else if (!strcmp(str, "pgid"))
-+		return PR_SCHED_CORE_SCOPE_PROCESS_GROUP;
-+
-+	bad_usage(_("'%s' is an invalid option. Must be one of pid/tgid/pgid"),
-+		  str);
-+}
-+
-+static void parse_and_verify_arguments(int argc, char **argv, struct args *args)
-+{
-+	int c;
-+
-+	static const struct option longopts[] = {
-+		{ "source", required_argument, NULL, 's' },
-+		{ "dest", required_argument, NULL, 'd' },
-+		{ "dest-type", required_argument, NULL, 't' },
-+		{ "verbose", no_argument, NULL, 'v' },
-+		{ "version", no_argument, NULL, 'V' },
-+		{ "help", no_argument, NULL, 'h' },
-+		{ NULL, 0, NULL, 0 }
-+	};
-+
-+	while ((c = getopt_long(argc, argv, "s:d:t:vVh", longopts, NULL)) != -1)
-+		switch (c) {
-+		case 's':
-+			args->src = strtopid_or_err(
-+				optarg,
-+				_("Failed to parse PID for -s/--source"));
-+			break;
-+		case 'd':
-+			args->dest = strtopid_or_err(
-+				optarg, _("Failed to parse PID for -d/--dest"));
-+			break;
-+		case 't':
-+			args->type = parse_core_sched_type(optarg);
-+			break;
-+		case 'v':
-+			sched_core_verbose = true;
-+			break;
-+		case 'V':
-+			print_version(EXIT_SUCCESS);
-+		case 'h':
-+			usage();
-+		default:
-+			errtryhelp(EXIT_FAILURE);
-+		}
-+
-+	if (argc <= optind) {
-+		args->cmd = SCHED_CORE_CMD_GET;
-+	} else {
-+		if (!strcmp(argv[optind], "get"))
-+			args->cmd = SCHED_CORE_CMD_GET;
-+		else if (!strcmp(argv[optind], "new"))
-+			args->cmd = SCHED_CORE_CMD_NEW;
-+		else if (!strcmp(argv[optind], "copy"))
-+			args->cmd = SCHED_CORE_CMD_COPY;
-+		else
-+			bad_usage(_("Unknown function"));
-+
-+		// Since we parsed an extra "option" outside of getopt_long, we have to
-+		// increment optind manually.
-+		++optind;
-+	}
-+
-+	if (args->cmd == SCHED_CORE_CMD_GET && args->dest)
-+		bad_usage(_("get does not accept the --dest option"));
-+
-+	if (args->cmd == SCHED_CORE_CMD_NEW && args->src)
-+		bad_usage(_("new does not accept the --source option"));
-+
-+	// If the -s/--source option is not specified, it defaults to the PID
-+	// of the current coresched process
-+	if (args->cmd != SCHED_CORE_CMD_NEW && !args->src)
-+		args->src = getpid();
-+
-+	// More arguments have been passed, which means that the user wants to run
-+	// another program with a core scheduling cookie.
-+	if (argc > optind) {
-+		switch (args->cmd) {
-+		case SCHED_CORE_CMD_GET:
-+			bad_usage(_("bad usage of the get function"));
-+			break;
-+		case SCHED_CORE_CMD_NEW:
-+			if (args->dest)
-+				bad_usage(_(
-+					"new requires either a -d/--dest or a command"));
-+			else
-+				args->exec_argv_offset = optind;
-+			break;
-+		case SCHED_CORE_CMD_COPY:
-+			if (args->dest)
-+				bad_usage(_(
-+					"copy requires either a -d/--dest or a command"));
-+			else
-+				args->exec_argv_offset = optind;
-+			break;
-+		}
-+	} else {
-+		if (args->cmd == SCHED_CORE_CMD_NEW && !args->dest)
-+			bad_usage(_(
-+				"new requires either a -d/--dest or a command"));
-+		if (args->cmd == SCHED_CORE_CMD_COPY && !args->dest)
-+			bad_usage(_(
-+				"copy requires either a -d/--dest or a command"));
-+	}
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	struct args args = { .type = PR_SCHED_CORE_SCOPE_THREAD_GROUP };
-+
-+	setlocale(LC_ALL, "");
-+	bindtextdomain(PACKAGE, LOCALEDIR);
-+	textdomain(PACKAGE);
-+	close_stdout_atexit();
-+
-+	parse_and_verify_arguments(argc, argv, &args);
-+
-+	if (!is_core_sched_supported())
-+		errx(EXIT_FAILURE,
-+		     _("No support for core scheduling found. Does your kernel"
-+		       "support CONFIG_SCHED_CORE?"));
-+
-+	sched_core_cookie cookie;
-+
-+	switch (args.cmd) {
-+	case SCHED_CORE_CMD_GET:
-+		cookie = core_sched_get_cookie(args.src);
-+		printf(_("cookie of pid %d is 0x%llx\n"), args.src, cookie);
-+		break;
-+	case SCHED_CORE_CMD_NEW:
-+		if (args.exec_argv_offset) {
-+			core_sched_exec_with_cookie(&args, argv);
-+		} else {
-+			core_sched_create_cookie(args.dest, args.type);
-+			core_sched_get_and_print_cookie(args.dest);
-+		}
-+		break;
-+	case SCHED_CORE_CMD_COPY:
-+		if (args.exec_argv_offset)
-+			core_sched_exec_with_cookie(&args, argv);
-+		else
-+			core_sched_copy_cookie(args.src, args.dest, args.type);
-+		break;
++	switch (op) {
++	case LOCK_EX:
++		return F_WRLCK;
++	case LOCK_SH:
++		return F_RDLCK;
++	case LOCK_UN:
++		return F_UNLCK;
 +	default:
-+		usage();
++		errx(EX_SOFTWARE, _("internal error, unknown operation %d"), op);
 +	}
 +}
-diff --git a/tests/commands.sh b/tests/commands.sh
-index 5674c5ff0..9eef92ccb 100644
---- a/tests/commands.sh
-+++ b/tests/commands.sh
-@@ -71,6 +71,7 @@ TS_CMD_COLCRT=${TS_CMD_COLCRT:-"${ts_commandsdir}colcrt"}
- TS_CMD_COLRM=${TS_CMD_COLRM:-"${ts_commandsdir}colrm"}
- TS_CMD_COL=${TS_CMD_COL:-"${ts_commandsdir}col"}
- TS_CMD_COLUMN=${TS_CMD_COLUMN:-"${ts_commandsdir}column"}
-+TS_CMD_CORESCHED=${TS_CMD_CORESCHED:-"${ts_commandsdir}coresched"}
- TS_CMD_ENOSYS=${TS_CMD_ENOSYS-"${ts_commandsdir}enosys"}
- TS_CMD_EJECT=${TS_CMD_EJECT-"${ts_commandsdir}eject"}
- TS_CMD_EXCH=${TS_CMD_EXCH-"${ts_commandsdir}exch"}
-diff --git a/tests/expected/schedutils/coresched-copy-from-child-to-parent b/tests/expected/schedutils/coresched-copy-from-child-to-parent
-new file mode 100644
-index 000000000..5b9c40052
---- /dev/null
-+++ b/tests/expected/schedutils/coresched-copy-from-child-to-parent
-@@ -0,0 +1 @@
-+DIFFERENT_COOKIE
-diff --git a/tests/expected/schedutils/coresched-copy-from-parent-to-nested-child b/tests/expected/schedutils/coresched-copy-from-parent-to-nested-child
-new file mode 100644
-index 000000000..ecfc41142
---- /dev/null
-+++ b/tests/expected/schedutils/coresched-copy-from-parent-to-nested-child
-@@ -0,0 +1 @@
-+SAME_COOKIE
-diff --git a/tests/expected/schedutils/coresched-get-cookie-own-pid b/tests/expected/schedutils/coresched-get-cookie-own-pid
-new file mode 100644
-index 000000000..84f182cbe
---- /dev/null
-+++ b/tests/expected/schedutils/coresched-get-cookie-own-pid
-@@ -0,0 +1 @@
-+cookie of pid OWN_PID is PARENT_COOKIE
-diff --git a/tests/expected/schedutils/coresched-get-cookie-parent-pid b/tests/expected/schedutils/coresched-get-cookie-parent-pid
-new file mode 100644
-index 000000000..e183e0402
---- /dev/null
-+++ b/tests/expected/schedutils/coresched-get-cookie-parent-pid
-@@ -0,0 +1 @@
-+cookie of pid PARENT_PID is PARENT_COOKIE
-diff --git a/tests/expected/schedutils/coresched-new-child-with-new-cookie b/tests/expected/schedutils/coresched-new-child-with-new-cookie
-new file mode 100644
-index 000000000..5b9c40052
---- /dev/null
-+++ b/tests/expected/schedutils/coresched-new-child-with-new-cookie
-@@ -0,0 +1 @@
-+DIFFERENT_COOKIE
-diff --git a/tests/expected/schedutils/coresched-set-cookie-parent-pid.err b/tests/expected/schedutils/coresched-set-cookie-parent-pid.err
-new file mode 100644
-index 000000000..e7318ffc2
---- /dev/null
-+++ b/tests/expected/schedutils/coresched-set-cookie-parent-pid.err
-@@ -0,0 +1 @@
-+coresched: set cookie of PID PARENT_PID to PARENT_COOKIE
-diff --git a/tests/expected/schedutils/set-cookie-parent-pid b/tests/expected/schedutils/set-cookie-parent-pid
-new file mode 100644
-index 000000000..e7318ffc2
---- /dev/null
-+++ b/tests/expected/schedutils/set-cookie-parent-pid
-@@ -0,0 +1 @@
-+coresched: set cookie of PID PARENT_PID to PARENT_COOKIE
-diff --git a/tests/ts/schedutils/coresched b/tests/ts/schedutils/coresched
-new file mode 100755
-index 000000000..e34fa319f
---- /dev/null
-+++ b/tests/ts/schedutils/coresched
-@@ -0,0 +1,83 @@
-+#!/bin/bash
-+# SPDX-License-Identifier: EUPL-1.2
-+#
-+# This file is part of util-linux
-+#
-+# Copyright (C) 2024 Thijs Raymakers
-+# Licensed under the EUPL v1.2
 +
-+TS_TOPDIR="${0%/*}/../.."
-+TS_DESC="coresched"
++static int fcntl_lock(int fd, int op, int block)
++{
++	struct flock arg = {
++		.l_type = flock_to_fcntl_type(op),
++		.l_whence = SEEK_SET,
++		.l_start = 0,
++		.l_len = 0,
++	};
++	int cmd = (block & LOCK_NB) ? F_OFD_SETLK : F_OFD_SETLKW;
++	return fcntl(fd, cmd, &arg);
++}
++#endif
 +
-+. "$TS_TOPDIR"/functions.sh
-+ts_init "$*"
++static int do_lock(int api, int fd, int op, int block)
++{
++	switch (api) {
++	case API_FLOCK:
++		return flock(fd, op | block);
++#ifdef HAVE_FCNTL_OFD_LOCKS
++	case API_FCNTL_OFD:
++		return fcntl_lock(fd, op, block);
++#endif
++	/*
++	 * Should never happen, api can never have values other than
++	 * API_*, and must be API_FLOCK when !HAVE_FCNTL_OFD_LOCKS.
++	 */
++	default:
++		errx(EX_SOFTWARE, _("internal error, unknown api %d"), api);
++	}
++}
 +
-+ts_check_test_command "$TS_CMD_CORESCHED"
-+ts_check_prog "tee"
-+ts_check_prog "sed"
 +
-+# If there is no kernel support, skip the test suite
-+CORESCHED_TEST_KERNEL_SUPPORT_CMD=$($TS_CMD_CORESCHED 2>&1)
-+if [[ $CORESCHED_TEST_KERNEL_SUPPORT_CMD == *"CONFIG_SCHED_CORE"* ]]; then
-+  ts_skip "Kernel has no CONFIG_SCHED_CORE support"
-+fi
+ int main(int argc, char *argv[])
+ {
+ 	struct ul_timer timer;
+@@ -140,6 +195,7 @@ int main(int argc, char *argv[])
+ 	int no_fork = 0;
+ 	int status;
+ 	int verbose = 0;
++	int api = API_FLOCK;
+ 	struct timeval time_start = { 0 }, time_done = { 0 };
+ 	/*
+ 	 * The default exit code for lock conflict or timeout
+@@ -149,7 +205,8 @@ int main(int argc, char *argv[])
+ 	char **cmd_argv = NULL, *sh_c_argv[4];
+ 	const char *filename = NULL;
+ 	enum {
+-		OPT_VERBOSE = CHAR_MAX + 1
++		OPT_VERBOSE = CHAR_MAX + 1,
++		OPT_FCNTL,
+ 	};
+ 	static const struct option long_options[] = {
+ 		{"shared", no_argument, NULL, 's'},
+@@ -163,6 +220,9 @@ int main(int argc, char *argv[])
+ 		{"close", no_argument, NULL, 'o'},
+ 		{"no-fork", no_argument, NULL, 'F'},
+ 		{"verbose", no_argument, NULL, OPT_VERBOSE},
++#ifdef HAVE_FCNTL_OFD_LOCKS
++		{"fcntl", no_argument, NULL, OPT_FCNTL},
++#endif
+ 		{"help", no_argument, NULL, 'h'},
+ 		{"version", no_argument, NULL, 'V'},
+ 		{NULL, 0, NULL, 0}
+@@ -217,6 +277,11 @@ int main(int argc, char *argv[])
+ 			if (conflict_exit_code < 0 || conflict_exit_code > 255)
+ 				errx(EX_USAGE, _("exit code out of range (expected 0 to 255)"));
+ 			break;
++#ifdef HAVE_FCNTL_OFD_LOCKS
++		case OPT_FCNTL:
++			api = API_FCNTL_OFD;
++			break;
++#endif
+ 		case OPT_VERBOSE:
+ 			verbose = 1;
+ 			break;
+@@ -234,6 +299,13 @@ int main(int argc, char *argv[])
+ 		errx(EX_USAGE,
+ 			_("the --no-fork and --close options are incompatible"));
+ 
++	/*
++	 * For fcntl(F_OFD_SETLK), an exclusive lock requires that the
++	 * file is open for write.
++	 */
++	if (api != API_FLOCK && type == LOCK_EX)
++		open_flags = O_WRONLY;
 +
-+# The output of coresched contains PIDs and core scheduling cookies, both of which should be
-+# assumed to be random values as we have no control over them. The tests replace these values
-+# with sed before writing them to the output file, so it can match the expected output file.
-+# - The PID of this bash script is replaced with the placeholder `OWN_PID`
-+# - The core scheduling cookie of this bash script is replaced by `COOKIE`
-+# - Any other cookie is replaced by `DIFFERENT_COOKIE`
-+# The behavior of coresched does not depend on the exact values of these cookies, so using
-+# placeholder values does not change the behavior tests.
-+ts_init_subtest "set-cookie-parent-pid"
-+CORESCHED_OUTPUT=$( ($TS_CMD_CORESCHED -v new -d $$ \
-+  | tee -a "$TS_OUTPUT") 3>&1 1>&2 2>&3 \
-+  | sed "s/$$/PARENT_PID/g")
-+CORESCHED_PARENT_COOKIE=$(echo "$CORESCHED_OUTPUT" | sed 's/^.*\(0x.*$\)/\1/g')
-+if [ -z "$CORESCHED_PARENT_COOKIE" ]; then
-+  ts_failed "empty value for CORESCHED_PARENT_COOKIE"
-+fi
-+CORESCHED_OUTPUT=$(echo "$CORESCHED_OUTPUT" \
-+  | sed "s/$CORESCHED_PARENT_COOKIE/PARENT_COOKIE/g")
-+echo "$CORESCHED_OUTPUT" >> "$TS_ERRLOG"
-+ts_finalize_subtest
-+
-+ts_init_subtest "get-cookie-parent-pid"
-+$TS_CMD_CORESCHED get -s $$ 2>> "$TS_ERRLOG" \
-+  | sed -e "s/$$/PARENT_PID/g" \
-+        -e "s/$CORESCHED_PARENT_COOKIE/PARENT_COOKIE/g" >> "$TS_OUTPUT"
-+ts_finalize_subtest
-+
-+ts_init_subtest "get-cookie-own-pid"
-+$TS_CMD_CORESCHED get 2>> "$TS_ERRLOG" \
-+  | sed -e "s/pid [0-9]\+/pid OWN_PID/g" \
-+        -e "s/$CORESCHED_PARENT_COOKIE/PARENT_COOKIE/g" >> "$TS_OUTPUT"
-+ts_finalize_subtest
-+
-+ts_init_subtest "new-child-with-new-cookie"
-+$TS_CMD_CORESCHED new -- "$TS_CMD_CORESCHED" get 2>> "$TS_ERRLOG" \
-+  | sed -e 's/^.*\(0x.*$\)/\1/g' \
-+        -e "s/$CORESCHED_PARENT_COOKIE/SAME_COOKIE/g" \
-+        -e "s/0x.*$/DIFFERENT_COOKIE/g" >> "$TS_OUTPUT"
-+ts_finalize_subtest
-+
-+ts_init_subtest "copy-from-parent-to-nested-child"
-+$TS_CMD_CORESCHED new -- /bin/bash -c \
-+  "$TS_CMD_CORESCHED copy -s $$ -- $TS_CMD_CORESCHED get" \
-+2>> "$TS_ERRLOG" \
-+  | sed -e 's/^.*\(0x.*$\)/\1/g' \
-+        -e "s/$CORESCHED_PARENT_COOKIE/SAME_COOKIE/g" \
-+        -e "s/0x.*$/DIFFERENT_COOKIE/g" >> "$TS_OUTPUT"
-+ts_finalize_subtest
-+
-+ts_init_subtest "copy-from-child-to-parent"
-+$TS_CMD_CORESCHED new -- /bin/bash -c \
-+  "$TS_CMD_CORESCHED copy -s \$\$ -d $$"
-+$TS_CMD_CORESCHED get 2>> "$TS_ERRLOG" \
-+  | sed -e 's/^.*\(0x.*$\)/\1/g' \
-+        -e "s/$CORESCHED_PARENT_COOKIE/SAME_COOKIE/g" \
-+        -e "s/0x.*$/DIFFERENT_COOKIE/g" >> "$TS_OUTPUT"
-+ts_finalize_subtest
-+
-+ts_finalize
+ 	if (argc > optind + 1) {
+ 		/* Run command */
+ 		if (!strcmp(argv[optind + 1], "-c") ||
+@@ -280,9 +352,15 @@ int main(int argc, char *argv[])
+ 
+ 	if (verbose)
+ 		gettime_monotonic(&time_start);
+-	while (flock(fd, type | block)) {
++	while (do_lock(api, fd, type, block)) {
+ 		switch (errno) {
+ 		case EWOULDBLOCK:
++			/*
++			 * Per the man page, for fcntl(), EACCES may
++			 * be returned and means the same as
++			 * EAGAIN/EWOULDBLOCK.
++			 */
++		case EACCES:
+ 			/* -n option set and failed to lock. */
+ 			if (verbose)
+ 				warnx(_("failed to get lock"));
 -- 
-2.44.0
+2.40.1.1.g1c60b9335d
 
