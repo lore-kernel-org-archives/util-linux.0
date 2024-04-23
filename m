@@ -1,34 +1,35 @@
-Received: from lb1.peda.net (lb1.peda.net [130.234.6.152])
+Received: from smtp.emenem.pl (cmyk.emenem.pl [217.79.154.63])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FF73136989
-	for <util-linux@vger.kernel.org>; Tue, 23 Apr 2024 14:04:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.234.6.152
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 404801F959
+	for <util-linux@vger.kernel.org>; Tue, 23 Apr 2024 14:35:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.79.154.63
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713881100; cv=none; b=QQhXpR/ckKxz+g7kNKrLrAwLdJHeVxPj7LV2wFQKxTEIQ6Sn6ozyuQHondDLAjsAqtkLRHeBTf3befLrrby2lSO49Yyr/trRXmaQiOqc/xuQ1NQu0UVGCCMQQnwYAeT5kJT5NU/pv7OWuZX6WXcfpE/tYImanevKpP01/FaqCYw=
+	t=1713882936; cv=none; b=haM0LiGbgayv4IpldM43MnC5q/rEX9PHepDzwzCW6cYRWU/xxdhePNUFxz+Cot337HdiXMuOFili9FuHeq1QzZn7COny1IpccwLZlBkJQ0nhXID3T2KJ9ui8FExATW4gRqhahZs9L3k5EgMwSVLxbP/kQgKslk/atCouVfph2YY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713881100; c=relaxed/simple;
-	bh=LI9VmtRYCD3D0x1bWauokwtRfkwfcKnCJXSNAx3PP14=;
-	h=Message-ID:Date:MIME-Version:To:From:Subject:Content-Type; b=Y0cyeZ19J/Xq4V/WRk5Oq1iHv3rJ8XedEylSybPAy/fJlJZ4pwfEZN88EwMXZ82YWakG9uafUbJ1LvAzjSh6f3DoxgRKXVkzVHe90cKv7vhrPfwkK9T2CMvd2XrXs8zmpeoAYnkzkxYCKoqyVU7myorIoQG+xKuRtHYmXIxN1jw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=peda.net; spf=pass smtp.mailfrom=peda.net; dkim=pass (2048-bit key) header.d=peda.net header.i=@peda.net header.b=sO9cpp+q; arc=none smtp.client-ip=130.234.6.152
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=peda.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=peda.net
+	s=arc-20240116; t=1713882936; c=relaxed/simple;
+	bh=nkEhfhLPXJdmtlXFyidoYD2W1l8LhCZDrGPtBvUOfuY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=cHNZKy5T7vfYqsrjFUzt+2p4dQd1gTe++977RUeKJ0q+Wi88A46DVXNxX04/PNsNV1lkftUyI9tzOsgEZD/hXnEnUKzEuQjxnaUI//YqPqnAOW5FvzR44MMn3ISQMPUpgasDykb9aHKKjZXGyV8rXwVHiVky9YoGP/klgkhzS10=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ans.pl; spf=none smtp.mailfrom=ans.pl; dkim=pass (1024-bit key) header.d=ans.pl header.i=@ans.pl header.b=JFDhy6ra; arc=none smtp.client-ip=217.79.154.63
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ans.pl
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ans.pl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=peda.net header.i=@peda.net header.b="sO9cpp+q"
-Received: from [84.251.221.37] (dsl-jklbng12-54fbdd-37.dhcp.inet.fi [84.251.221.37])
-	by lb1.peda.net (lb1.peda.net) with ESMTPSA id C8816600005;
-	Tue, 23 Apr 2024 16:58:10 +0300 (EEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=peda.net; s=default;
-	t=1713880690; bh=LI9VmtRYCD3D0x1bWauokwtRfkwfcKnCJXSNAx3PP14=;
-	h=Date:To:From:Subject:From;
-	b=sO9cpp+qKG7UnTJUiTt80mp7o8DdMsOWe+QgCcEWJoD9QHNhUf5e+kUPosmGiy2G1
-	 eLr+XO937pTL9PeJQqQOqIH+QnQDYDFSXpV3m7klEdWfzoPDof/qb8T0IyZRMdJe6c
-	 5iX/ayw1V8hsBKpOIhcXeIt4LIK+geTwHkoRlUg+lhLnk4eH7wi9+EOqDpsBso+Qy0
-	 9oWktf9lSTYkSOeH/Uy6yt1mN2keN0d1MoEod1ZVVJFjJI4IFgN20EGV3FsiTM0Kxv
-	 0rwpLHeiWvD+AvvxsvCnazFQ2H7oNytcIoeUe8ZZLmiFnbS90FCL0HrxV3Q+rKfml3
-	 h+LaHXDpHXfaA==
-Message-ID: <0aa615c2-8e17-4eb3-9a25-c8af39b35d81@peda.net>
-Date: Tue, 23 Apr 2024 16:58:10 +0300
+	dkim=pass (1024-bit key) header.d=ans.pl header.i=@ans.pl header.b="JFDhy6ra"
+X-Virus-Scanned: amavisd-new at emenem.pl
+Received: from [192.168.1.10] (c-98-45-176-131.hsd1.ca.comcast.net [98.45.176.131])
+	(authenticated bits=0)
+	by cmyk.emenem.pl (8.17.1.9/8.17.1.9) with ESMTPSA id 43NEZJa6007258
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Tue, 23 Apr 2024 16:35:21 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ans.pl; s=20190507;
+	t=1713882921; bh=dj5aXvydqHvM8csJ7yRsUQaM6l9pD4fqfoYx+86jVjw=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=JFDhy6raRzeM8Vqj6GKmM05809a2gvouTd5vszqflmlw9YMDwyIgKBcaB1uceyoLZ
+	 I0SZY3j8Iyc3HNCpG6/c9me0WliShBTpVPaHKYQD2UnUKkVQOVawzDW+jzxzRaLg7e
+	 9ozZrDff6LkYw1cARarcX3fLUrw/JrkvSRUHKgTQ=
+Message-ID: <1350349b-8465-4ce6-8dc9-55a32b84dc39@ans.pl>
+Date: Tue, 23 Apr 2024 07:35:18 -0700
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -36,34 +37,27 @@ List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-To: util-linux@vger.kernel.org
-From: Mikko Rantalainen <mikko.rantalainen@peda.net>
-Subject: RFE: hardlink: support specifying max_size too?
+Subject: Re: umount -r broken due to "mountinfo unnecessary"
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+References: <315f1f43-013f-48c9-9016-474dc9d53a04@ans.pl>
+ <20240423083358.2k532xl557meewws@ws.net.home>
+From: =?UTF-8?Q?Krzysztof_Ol=C4=99dzki?= <ole@ans.pl>
+Content-Language: en-US
+In-Reply-To: <20240423083358.2k532xl557meewws@ws.net.home>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-I have huge directory hierarchies that I would like to run hardlink
-against but comparing a lot of files against each other results in high
-RAM usage because so much of the file metadata is kept in memory.
+On 23.04.2024 at 01:33, Karel Zak wrote:
+> On Thu, Apr 18, 2024 at 01:00:56AM -0700, Krzysztof Olędzki wrote:
+>> I noticed that "umount -r" does not work on my system for filesystems other than root:
+> 
+> Fixed: https://github.com/util-linux/util-linux/pull/2989
 
-Could you add max_size (--maximum-size) option in addition to min_size
-(--minimum-size)? This would allow splitting the work into small
-fragments where hardlink only needs to process files in given range and
-immediately ignore all other files. Or it could be used to run full
-linking in multiple parallel tasks with sensible RAM requirements if you
-can run hardlink without size limitations (e.g. one task for 1–1MB
-files, another for 1MB–10MB and third task for files bigger than 10MB).
+Perfect, thanks!
 
-It might also make sense to reorder the test for filesize and regex
-processing in inserter() because testing for size is probably faster
-because the stat() has already been made. Currently the stats.files is
-also increased for files that get ignored by size filter which may not
-be intentional.
+When is the next release planned? Also, do you expect a backport to stable/v2.39 and v2.39.5?
 
-I think I could provide patches if I just know which Git repo I should
-use as the basis. Is https://github.com/util-linux/util-linux the
-correct one?
-
--- 
-Mikko
+Thanks,
+ Krzysztof 
 
