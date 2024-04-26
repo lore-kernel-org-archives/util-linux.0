@@ -1,76 +1,89 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ADB913BAFA
-	for <util-linux@vger.kernel.org>; Fri, 26 Apr 2024 08:01:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28E01168B06
+	for <util-linux@vger.kernel.org>; Fri, 26 Apr 2024 18:03:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714118501; cv=none; b=o/eu/sgFWKvG3qa/pZ7oESdmc1hSdeQfD7z22LOUiEdhIqsWpWkLg6ndtLQUKkP2L+ekaH/OHDqZXmEABMzzBDZ1wOdMRbgU2eZ6e6feGePQ8PiQ2IC8vl8V0zKjS3dIn6RRRh5om/6wvozkGzuKKpMErSuea9g9N4zId+uF+sY=
+	t=1714154622; cv=none; b=Q74eBE2fXlQpoQ0t59khDjcwZyA5uEFQJjYG/To59CwhBeUbQ3fMotKTFus/TW0ok6GWItaGwEl9tBVR1A+ROFxo5As58BvicFohJDD8wrd4czG2CcOUyPZ3xjsMLWBMdqeCH7nmJIljFK3J0vTLJGDp0Jw9zfQ0DQmXxHoR/d0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714118501; c=relaxed/simple;
-	bh=rRtjyz0bi8GeAWIpvK0pObnifEVpiQJ7bppqpWmhwG8=;
+	s=arc-20240116; t=1714154622; c=relaxed/simple;
+	bh=jzGY76BJLhU/z8W6TWwpn5mVckcL3sYELMbbuZ0Nz30=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=liULcL2SrWuImF8KdYsIrbbVzg/efgzCRw7aKST2vuBd+Nt2o9eVbm9bPIcgoJjEHfy7FiqLkZAkGTnlx57B8w/oFyJEWhnPT0vsMA+LgGYH6EjLEvdu+LRZ4Isbb8wZlwwao0UY4mXnPrVidT2UdkWqYOQzQ4ruADDhJ5dmxgs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OnUIA3wD; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=GxaUHSNfpfEB/KnaJ/DgWa1NjnRlMSIxdnTShlDAcrJ7+pl6OZ25WmgvKH3XkO/d7fkEJ8M9JtebXLvHtvQjVky18nVcnayVcJu0Qwhpi7HRdNHmIw4H5H5hWSdma07OQdSBAKaXXizzj/0EHzOg1mU6qqC2/jyhWZWXpG5u8QM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=t-8ch.de; spf=pass smtp.mailfrom=t-8ch.de; dkim=pass (1024-bit key) header.d=t-8ch.de header.i=@t-8ch.de header.b=bkYJN2GU; arc=none smtp.client-ip=159.69.126.157
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=t-8ch.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=t-8ch.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OnUIA3wD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714118498;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=mMIyX2aI2ICYIUGr056rJQnYTFWVso6eB1Kz4UOwp7Q=;
-	b=OnUIA3wDFbQN1BLNYbeLfDjQINAwUsuoknSzd3fwa1SI+30mowRmfzVz9okcA2pzrmzBbr
-	oyLdQEPtaimI+ygKMxdL6PydYRG3pk9sgAhJKGcIq2jVxswtWU6W0Ov2Rcc42eLgkkcsx7
-	KHyGZE7MWRQz+GZ/hv01J0jnAR/Yus8=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-193-SYF9eeTIOk6fOvGh7NhXpw-1; Fri, 26 Apr 2024 04:01:34 -0400
-X-MC-Unique: SYF9eeTIOk6fOvGh7NhXpw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A201F812C39;
-	Fri, 26 Apr 2024 08:01:34 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.224.191])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 09FD9151EF;
-	Fri, 26 Apr 2024 08:01:33 +0000 (UTC)
-Date: Fri, 26 Apr 2024 10:01:32 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Cc: util-linux@vger.kernel.org, Masatake YAMATO <yamato@redhat.com>
-Subject: Re: [PATCH v3] flock: add support for using fcntl() with open file
- description locks
-Message-ID: <20240426080132.ik7utluevivb4iqn@ws.net.home>
-References: <20240425094417.1174162-1-rasmus.villemoes@prevas.dk>
+	dkim=pass (1024-bit key) header.d=t-8ch.de header.i=@t-8ch.de header.b="bkYJN2GU"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=t-8ch.de; s=mail;
+	t=1714154616; bh=jzGY76BJLhU/z8W6TWwpn5mVckcL3sYELMbbuZ0Nz30=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=bkYJN2GUxGXwQObOqDPZQtAu38ig/XsydgQxBXAlBjrHqPRI1brFv3t8YBblHriyx
+	 NjgFtsRT4vtSN9Bk4uQSNqHC9N2BV1EtsCXA8PJvYfNecwsGy5u4QVVJQLPSKv3Ytm
+	 mnr9Lza4E5v3l8Ws9FdHxRcyXMVvty5d51L87LwE=
+Date: Fri, 26 Apr 2024 20:03:35 +0200
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas@t-8ch.de>
+To: Thijs Raymakers <thijs@raymakers.nl>
+Cc: kzak@redhat.com, util-linux@vger.kernel.org, 
+	Phil Auld <pauld@redhat.com>
+Subject: Re: [PATCH v12] coresched: Manage core scheduling cookies for tasks
+Message-ID: <73694be2-6215-4baf-8bfa-573cfc2dbfb7@t-8ch.de>
+References: <295323c3-a43a-4f60-9c71-3b38a19b1d6f@t-8ch.de>
+ <20240425162226.130639-1-thijs@raymakers.nl>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20240425094417.1174162-1-rasmus.villemoes@prevas.dk>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20240425162226.130639-1-thijs@raymakers.nl>
 
-On Thu, Apr 25, 2024 at 11:44:17AM +0200, Rasmus Villemoes wrote:
-> v3:
+Thanks for all the work.
+
+On 2024-04-25 18:22:25+0000, Thijs Raymakers wrote:
+> Co-authored-by: Phil Auld <pauld@redhat.com>
+> Signed-off-by: Phil Auld <pauld@redhat.com>
+> Signed-off-by: Thijs Raymakers <thijs@raymakers.nl>
+
+Reviewed-by: Thomas Weißschuh <thomas@t-8ch.de>
+
+> ---
 > 
-> - Replace configure-time checking for F_OFD_ by just hard-coding the
->   proper values in flock.c if the system headers don't provide them.
-> 
-> - Consequently, drop all HAVE_FCNTL_OFD_LOCKS guards.
+>  .gitignore                                    |   1 +
+>  bash-completion/coresched                     |   0
 
-PR updated: https://github.com/util-linux/util-linux/pull/2993
+Don't forget this :-)
 
-    Karel
+>  configure.ac                                  |  12 +-
+>  meson.build                                   |  16 +-
+>  meson_options.txt                             |   2 +-
+>  schedutils/Makemodule.am                      |   8 +
+>  schedutils/coresched.1.adoc                   | 139 +++++++
+>  schedutils/coresched.c                        | 363 ++++++++++++++++++
+>  tests/commands.sh                             |   1 +
+>  .../coresched-copy-from-child-to-parent       |   1 +
+>  ...coresched-copy-from-parent-to-nested-child |   1 +
+>  .../schedutils/coresched-get-cookie-own-pid   |   1 +
+>  .../coresched-get-cookie-parent-pid           |   1 +
+>  .../coresched-new-child-with-new-cookie       |   1 +
+>  .../coresched-set-cookie-parent-pid.err       |   1 +
+>  .../expected/schedutils/set-cookie-parent-pid |   1 +
+>  tests/ts/schedutils/coresched                 |  83 ++++
+>  17 files changed, 626 insertions(+), 6 deletions(-)
+>  create mode 100644 bash-completion/coresched
+>  create mode 100644 schedutils/coresched.1.adoc
+>  create mode 100644 schedutils/coresched.c
+>  create mode 100644 tests/expected/schedutils/coresched-copy-from-child-to-parent
+>  create mode 100644 tests/expected/schedutils/coresched-copy-from-parent-to-nested-child
+>  create mode 100644 tests/expected/schedutils/coresched-get-cookie-own-pid
+>  create mode 100644 tests/expected/schedutils/coresched-get-cookie-parent-pid
+>  create mode 100644 tests/expected/schedutils/coresched-new-child-with-new-cookie
+>  create mode 100644 tests/expected/schedutils/coresched-set-cookie-parent-pid.err
+>  create mode 100644 tests/expected/schedutils/set-cookie-parent-pid
+>  create mode 100755 tests/ts/schedutils/coresched
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
 
