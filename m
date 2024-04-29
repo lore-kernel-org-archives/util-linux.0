@@ -1,72 +1,96 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E24BA8487
-	for <util-linux@vger.kernel.org>; Mon, 29 Apr 2024 12:38:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBDBE5F861
+	for <util-linux@vger.kernel.org>; Mon, 29 Apr 2024 13:24:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714394310; cv=none; b=cz1/lXKqV9jYqerSo1k4HIk4r7zGHxZx2AUEoBRkMituFnMQ90c9mnt20mOeFPvQbN9O//yJzJkYgT+7tyMEDzauCAnsCpX0F57Na45N0Bj/SGXjB3GTV4M4fX+E6Q94cxrgmFc4mDZcMAwhTPp7LlWqfoGlHWjwSTzaGphtH8Q=
+	t=1714397060; cv=none; b=mnfpwca2s2IvkeolQO9b8zAUdeVSW8ExQI1RwMFPiXsQpQUShzvoVtDYXDdQZntR5VH2Usrd/FNoPxTOAkyLWkxNlimOgXbZVtJD0L0f5hWm8xV3xSGjBBoBbPxjCtrG62h8QHQXD6O2OepaBTagaszJp8S9AAE+20t/RAUxTvc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714394310; c=relaxed/simple;
-	bh=Hw3JN5KAzPl24YneOyd8ygkhOuAl3u+oXuh7DS2Rx9Q=;
-	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=NkcvapQcLtm4e1hXEvuJwrrH3W8x4Qx5Uvxy80Wgu2sHto3Bldj3hL+/G6piAEe0UYRVFaC2SfBQzNz41iNz+aD6HKFtjg1YDR3Tjb09Eund8EucXPzJANsXVEjQ38oPp63+zYVPtoaY9Y5tz5oghVv18pt/Z3UQ3L+LseGQakE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VjULvEfl; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1714397060; c=relaxed/simple;
+	bh=doxVHELHlt1DLlIFP8SmWXQdtszoJrVWt2NBErzNvcg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RuIMOkUEgi4K/Yq/yzkfkxPFgpiEVCHOsU+rJiYt+gWlAASu/9aZxU8LU32MNkxAQg5WG/TmjOaiiCXoCuTfz4NuReGkQCui2mrhnovxJPECzUfcoyXOCVhUkkFV/V4BmFgGgXmdi7vKqo5TZ6hf3z59pJbn97dUYlnrkpBMBos=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=mfRO+VsU; arc=none smtp.client-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VjULvEfl"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1714394307;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type;
-	bh=/vjIZLETj0+dr7M5WqpQI0rqT9cQBpjKfLymmJ1fgn8=;
-	b=VjULvEflntOwbCVAQWjm42+rWotIIwitDigbfXp4zAzNL8pHFzuzUyyhceAjIjFm+7bxZy
-	H7s5kXT3JcLcFbG9gNJ6JTsLJosEZjfh01p6yU8J/my1TATEbbUnuVCIU8Jrj4tD6IfpLJ
-	4EXSoRG6VB4A6DY21E8reKMIEBdDCvg=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-457-yyoGrvg7OvOUNlFfBLHHbw-1; Mon,
- 29 Apr 2024 08:38:26 -0400
-X-MC-Unique: yyoGrvg7OvOUNlFfBLHHbw-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id DD84029AA399
-	for <util-linux@vger.kernel.org>; Mon, 29 Apr 2024 12:38:25 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.224.191])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 82A3351BF
-	for <util-linux@vger.kernel.org>; Mon, 29 Apr 2024 12:38:25 +0000 (UTC)
-Date: Mon, 29 Apr 2024 14:38:23 +0200
-From: Karel Zak <kzak@redhat.com>
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="mfRO+VsU"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=x3vpu30FNfbya92HHMSEwgruJyL8zx877g7+7seBn8Q=; b=mfRO+VsUXABlDrEU2gV3+9nTT9
+	H+IxBg4rMTIIBLoUPIpvwUCPwSYJaB4hseDZP/i993HHQd+RUzb9s4a3Em5oM3EQpT8647qe94ZyF
+	Jf0v0jyLIdXtTUlGvMD6eLclT3MR1gI/aE1+nFOlnLORdBe92T0VCvqo/01FO7xxtG7flu3jvrL4z
+	U+Y8de/qs6K0jL3gRlWkp4HjvgortIK0B+uiGZ81knO3rUEgWFaMP12NrIki1xHecpXFs5x6viM1I
+	TIYoRR2vlPkKA2P2HxjWjQQAoZuyrqRs98zYZtxAoc5eXcIh0s6YNLxeNe2pSmnj9NDgCydMhZMVZ
+	G9OeIRFA==;
+Received: from authenticated user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.94.2)
+	(envelope-from <zeha@debian.org>)
+	id 1s1Qai-0053OW-Mf; Mon, 29 Apr 2024 12:58:44 +0000
+Date: Mon, 29 Apr 2024 14:58:40 +0200
+From: Chris Hofstaedtler <zeha@debian.org>
 To: util-linux@vger.kernel.org
-Subject: v2.40.1 this week
-Message-ID: <20240429123823.gcbqklfbms5uw2vs@ws.net.home>
+Cc: Michael Biebl <biebl@debian.org>, 1070019@bugs.debian.org
+Subject: Re: [Pkg-utopia-maintainers] Bug#1070019: udisks2: autopkgtest
+ failure: fsconfig system call failed: /dev/sr1: Can't open blockdev
+Message-ID: <ngnnmq6rsi6ohuipejqw4ussgtbur3nab5nnvx3vqrfhlrvfvk@67u5ihxjhcri>
+References: <171432120653.1819175.3886447797776800472.reportbug@per>
+ <9625ca13-a775-4768-b4f1-b2da4de70009@debian.org>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
+In-Reply-To: <9625ca13-a775-4768-b4f1-b2da4de70009@debian.org>
+X-Debian-User: zeha
 
+Dear util-linux@,
 
-Hi all,
+in Debian, udisks2 2.10.1-6 (autopkg-)tests fail with util-linux
+2.40, but passed with 2.39. We are not yet sure if this is directly
+caused by util-linux, but it seems somewhat likely.
 
-I would like to announce the release of v2.40.1 from the
-stable/v2.40.1 branch this Thursday or Friday.
+I won't get to it this week (also re: stable v2.40.1), but maybe
+someone else has seen this failure already?
 
-Please take the time to test the branch and ensure that it includes
-all of the fixes that have been reported and requested.
+> udisks2's autopkgtest fails when tried together with util-linux 2.40. An
+> example can be seen here:
+> https://ci.debian.net/packages/u/udisks2/testing/amd64/46012968/
+> 
+> 537s ======================================================================
+> 537s FAIL: test_ext4 (__main__.FS.test_ext4)
+> 537s fs: ext4
+> 537s ----------------------------------------------------------------------
+> 537s Traceback (most recent call last):
+> 537s   File "/tmp/autopkgtest.btnhgm/build.cz4/src/src/tests/integration-test", line 1107, in _do_udisks_check
+> 537s     cd_fs.call_mount_sync(ro_options, None)
+> 537s gi.repository.GLib.GError: udisks-error-quark: GDBus.Error:org.freedesktop.UDisks2.Error.Failed: Error mounting /dev/sr1 at /media/root/41b1acb1-744c-422a-9071-2dba5368a683: fsconfig system call failed: /dev/sr1: Can't open blockdev (0)
+> 537s
+> 537s During handling of the above exception, another exception occurred:
+> 537s
+> 537s Traceback (most recent call last):
+> 537s   File "/tmp/autopkgtest.btnhgm/build.cz4/src/src/tests/integration-test", line 725, in test_ext4
+> 537s     self._do_fs_check('ext4')
+> 537s   File "/tmp/autopkgtest.btnhgm/build.cz4/src/src/tests/integration-test", line 894, in _do_fs_check
+> 537s     self._do_udisks_check(fs_type)
+> 537s   File "/tmp/autopkgtest.btnhgm/build.cz4/src/src/tests/integration-test", line 1112, in _do_udisks_check
+> 537s     self.fail('Mounting read-only device with \'rw\' option failed'
+> 537s AssertionError: Mounting read-only device with 'rw' option failedwith an unexpected error.
+> 537s Got: udisks-error-quark: GDBus.Error:org.freedesktop.UDisks2.Error.Failed: Error mounting /dev/sr1 at /media/root/41b1acb1-744c-422a-9071-2dba5368a683: fsconfig system call failed: /dev/sr1: Can't open blockdev (0)
+> 537s Expected: 'is write-protected but explicit read-write mode requested' or 'is write-protected but `rw' option given'
+> 
+> I do not understand what this error means, or what the underlying problem is.
+> Please investigate.
 
-Thank you.
+For context, Debian's util-linux 2.40-7 should have everything from
+2.40 stable up to a8aa0b5f154a44557f5bae5a4027bdbfe42b0323.
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Chris
 
