@@ -1,127 +1,151 @@
-Received: from EUR05-DB8-obe.outbound.protection.outlook.com (mail-db8eur05olkn2079.outbound.protection.outlook.com [40.92.89.79])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83D126D1B0
-	for <util-linux@vger.kernel.org>; Wed,  8 May 2024 16:07:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.92.89.79
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715184450; cv=fail; b=tFvLswVolGwJ64iOjizqtW9DySyQj1CMZpIrVvAGkyaHJGUl3/LoKABQkpFhLCTPYshIsmVxlyHcn+gKvjX29BKPL88GTuBcXjVAzdT9vIP22U/NFbv0UmFA+GAMB9rJcDc11UQQKRbM1X9OP1lG/ipAJJACINyH2bn/PIHK3cc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715184450; c=relaxed/simple;
-	bh=MWR+yyz6IFJK5SERQADGNrXmCzgEFFkSb9DLEFEBvng=;
-	h=Message-ID:Date:To:From:Subject:Content-Type:MIME-Version; b=DCTCcLOZoNW2LOl5z+5F7euS+XoA943nOOUfD8hNOWfc/x/FgKnq5QRdCxttEaHicIWoFDpV3S0KpFP/FRC6th4DZPcjKI+t+jKac3BDPMfVw10B3UOUZ2LR4pRGfv6hqG6wjF6tLUtuBQzmO72adKW1u2L6MqXttFI1d3/9KEo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=Dw/SwE8b; arc=fail smtp.client-ip=40.92.89.79
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5531714AD1B
+	for <util-linux@vger.kernel.org>; Thu,  9 May 2024 10:00:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.42
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1715248844; cv=none; b=Hb5vmePJSGzVP9hVEXxVb1v6FqmoUOaAMCTWG2uKM5UY0etbtNPHTGGpKGmTLkgGP7ZEs2Xltunce14n1CxL3Vhzbn66lPD5Q/F80gk45AVE1kEE+QmLdQdiZ0WjW3aW+tSpRPrzF9jfjwrpynS4zlLb05lvF6VTWCs7B0P+5V0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1715248844; c=relaxed/simple;
+	bh=NaRfk2dyR0SRoCMOezrUB/u113j4cieJ+8NX890PqLA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=HMp4IQAImv5cTKHzhuqoyU5Kd1JVURXf9V8cyjDk5Z3yUohXdGcdtw0xy6pCirIkzJi+GXrm6QJIVejaFnJnesF3Oed43YsLZueOfz6hWGFCZi4t5eBFMiYV7OIXkkajByGeit33/9FSkS98c8hZQ5uoRt5bZW6WyhoaWoAl5hU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ViJ6uiLJ; arc=none smtp.client-ip=209.85.167.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="Dw/SwE8b"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kg41fdcA5VK+Kc9gn/OUlKB0zM3Mg47IqIu5napo7mxL8SYqQ7Ef0cj/yMMjHimvFFqivPK7KyD/1jN+nLwpe1YBGQ7EM+ibYzl21+RpTimoPKOJYz8/fuiVYkfHeeh4mv0yARe49lavuYC0KKVVQZcFnBAR0/qG4M6PK2UxqgjQrpCcvX5bDgje8/bwAYXvizH5qo4sgy8HGCHeHM04owuE/ALWCfp/e7DmpDaHmn+LWtBxzD9nDm5CokeL4GWz5qG4feFvoGiI82dhYdU3Idx6IQaQoF+TRhCpNycnRcmH/3QCL9SLAA/iphUy0zrIARUXhufG1oijwHRTQ/zLdQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Q9v87fm5/P27KQazkt6RTkrPTfZ244Dr3Di2HJXcPYw=;
- b=Eh7s3gpNSnYUVYZHKaMjKfGFZAY4OTN+OAPuidi7Jxx/N99C/ihhNU4I/7OKgE6aRfYxEiquoE4EtWjlCIw/B/jRMnVJKsrWmjV+kmlItOns8pbg8ffmkxHc7kKQ5Fyl5rSTcQ3EgUcizZvoQlXKb8ovYq6VihXAuk2L0n21RXSA31yAnNoal0lFrUFaPH256b7199c6bZuS6jKoP23QX4YmruLB5YNkN7TKtwRLOi20owymylvVqslzUny7ELFsEBecmjnqiSeE13picxnEHlP8JlsvQWp86LV9eg2rObl7xrq4T77bTNNkDuZRHZkQBprUmbikkK7K7IzcxNby6Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Q9v87fm5/P27KQazkt6RTkrPTfZ244Dr3Di2HJXcPYw=;
- b=Dw/SwE8bfoxycLNMYixFdBqeY7aGy3CWQV5crOx+q9FTgvIKYE0sL69bCH1Aig8cLOhA68qeRGz6bYAWdWtZT4l72OTi4MPa4VCKYnHzfKxMviSz/5hdl4E+Rx2JFGngFB4w3BB2JSZRGZf0TZg0tmJZw/ArBpx813jtH3ZFroQJh1yykyhuIvgha4cOiYbdsV+WUjSuFXtp2uxBUQFR9xjdpHQ98OrA/m4iXPZWJInJl0vukFwDcM3tER+bDjKAYQV2zIOA6SC8DL7kLlxIGPbGcsure9gUpR3dkDTh3jlgFX+P3+lkKwABWiq4VCTRWJ4TZew1ls3YT5Kf/sHJkA==
-Received: from DBBP194MB1113.EURP194.PROD.OUTLOOK.COM (2603:10a6:10:1ea::17)
- by PA1P194MB2261.EURP194.PROD.OUTLOOK.COM (2603:10a6:102:452::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7544.45; Wed, 8 May
- 2024 16:07:26 +0000
-Received: from DBBP194MB1113.EURP194.PROD.OUTLOOK.COM
- ([fe80::28cc:cec9:e7:23d4]) by DBBP194MB1113.EURP194.PROD.OUTLOOK.COM
- ([fe80::28cc:cec9:e7:23d4%7]) with mapi id 15.20.7544.041; Wed, 8 May 2024
- 16:07:26 +0000
-Message-ID:
- <DBBP194MB111315092E137148D78773F3B0E52@DBBP194MB1113.EURP194.PROD.OUTLOOK.COM>
-Date: Wed, 8 May 2024 19:07:23 +0300
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-To: util-linux@vger.kernel.org, gmazyland@gmail.com
-From: Vitalii Hordii <vitalnodo@outlook.com>
-Subject: luks2: need to check the availability of a JSON area
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TMN: [GnFm5m8zWOTKKhUe5QQhY40NuGrc5hgk]
-X-ClientProxiedBy: WA2P291CA0038.POLP291.PROD.OUTLOOK.COM
- (2603:10a6:1d0:1f::8) To DBBP194MB1113.EURP194.PROD.OUTLOOK.COM
- (2603:10a6:10:1ea::17)
-X-Microsoft-Original-Message-ID:
- <d9cc2f91-64c1-47dc-ac12-0cbfa76c2242@outlook.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ViJ6uiLJ"
+Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-51ffff16400so1092129e87.2
+        for <util-linux@vger.kernel.org>; Thu, 09 May 2024 03:00:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1715248840; x=1715853640; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:to:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=CCGma3Dj10T69upf+ke4zbaLR+fLmLdW/bYdLZhj9j8=;
+        b=ViJ6uiLJGlOF7lXm0QNQFxc8e7hghjwqEGGIQLoa66VTThg3e/AmcaOyeTW3YDzIHX
+         MQag+OkccGhTt450Rw4IndBjx5t5WrJD3oh644wMfWp7tY9dRGzkeFKM/OE14CGW+XGE
+         nl9LLBWLmKvP3C2WOmoa90cIMNihN1qTaEkgaQjHKhHorx3af0+vs9S7TXk0pKJ5o5Aq
+         vm0uU2ONIYjAQXJDoJn57l7XQ81avrASBH8+Oc33SBYSZKOfoFOHILbXadtbxnM7vV2W
+         /UPyfi+MPp6gY2nUBCfHWq2PreH84iGMONrDCWAgvSGNjH7xuy+HOmJfVe0zSeSVTQDr
+         eNcA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1715248840; x=1715853640;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=CCGma3Dj10T69upf+ke4zbaLR+fLmLdW/bYdLZhj9j8=;
+        b=Z0jQwF7NmHliwaFGnM+ai/mOGjSGdm3aemV85y9aBVoaRH0uMBDBDi5rwZhl6wbfOV
+         zPlpQ49RKd8vle7RADPADpcmCmLIPhFDTzB9GRJ6dGvGxL9Ykwt0zRkeuEjY28tewLnQ
+         47eFbk1VZ9Qm+MIhnFZykaMNNYB6HY7nqEFiJYmKT15ICbDKx8slCHxY+D5vtMM7sU4Y
+         I4T7aO3mZDDEu/1goKRPJSg0pwmD8z4v4ivbJx2nuW+1g8oiTNPouGaL+1DN5Rn0m1EY
+         M2rSp+2RKThoU/cZrshsfqIbVaGHnUeU7e1rzrWbqhV151rQXRbNMuQD8qt6nml5Cj0v
+         AbHQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWmFNElDEE2eoWbDr2lBfRopnJ6UyXqystSPJagnEgNWpp6NUrYSdaYKlPSixWppaVJvqdJtmvKqvQYdi0S8gtNAf0GdXZGfAXZAg==
+X-Gm-Message-State: AOJu0Yw/5s9SXTg/ltUEag+FVje6CLZrXwIzaSal9k9qLPgTTU5nJevX
+	F1PPvDXdfvotjuBrQ8U0jZYn856J11hP5GiDYM4rZSoh+CILkz5q
+X-Google-Smtp-Source: AGHT+IFgApxaPiBdOtSF0Y+HS5ru456fTJJ6wO1teJomvk3aNKCfVadaEoDUie0MSY9NagD+ncR/yQ==
+X-Received: by 2002:a05:6512:202c:b0:51f:3e0c:ace3 with SMTP id 2adb3069b0e04-5217c5670cdmr3919532e87.16.1715248840178;
+        Thu, 09 May 2024 03:00:40 -0700 (PDT)
+Received: from [147.251.42.107] (laomedon.fi.muni.cz. [147.251.42.107])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a5a17b17f37sm55784466b.224.2024.05.09.03.00.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 09 May 2024 03:00:39 -0700 (PDT)
+Message-ID: <2cd5daa0-9b7c-409d-86e7-a2f0951bd63c@gmail.com>
+Date: Thu, 9 May 2024 12:00:35 +0200
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DBBP194MB1113:EE_|PA1P194MB2261:EE_
-X-MS-Office365-Filtering-Correlation-Id: a16b43dd-9cee-489d-1faf-08dc6f78f3f8
-X-Microsoft-Antispam:
-	BCL:0;ARA:14566002|461199019|1602099003|440099019|3412199016|3430499023;
-X-Microsoft-Antispam-Message-Info:
-	SWtQ4FsEFapevBtZaGeOadjHtHVQ08o1yHv2GfpMKSIhbp4ioBCFimTKFieoP71HLa6ZBaUIMNiXCkVS0IpCbF5yBY7CVW7yFNkdzzVvZFeq2BZiAlwzRgnu2j8OfPH/4OprR/JvRGn9YiLwsXgGc0W0bqQgcF3M9B+wloyhE8eky6V7XXGur7umCKBgwIGV/dVWabJ9NLp0LvWZTGJA/U/ymUamee9UpTIhg6rnh202GvNoTUYOWrWKhRZTUDMNcCtyUD+NOcChP4vhdVpgZn9te9z5agRseuAqSqVsOFssJypuyCxITNzcFK8R3nvY9y8djaO/ORg9jyXs0uOlayvmM4u0dibmOT/GJHz434AsWdKM4LFeHTdbtSDV3mUD3IMtW4h+z8aZ+5ueeyKDTgdajxkJv2h4ln0/x0RyGIY6lNIiGf8mmtbDUDvpUI3UoiHnNP5no2tj+PiF/N5iuG9RzgkXd5w5fxjFgVP62fnFSnk7y7Ix4ufsiM2XuXzuJnwhtL+nrrl+b4w/F/JlWmxi872zZQQS3mCyRO6sOcKtpvQvnvlTutYzwP5dTIzYuZZdNMq5WQ1sR44sIC7Pr52xROW9BtxRsPZUTLKThB0WXZMGtvK6u47kh6vZdGNaO5IZfVu2oNtinSRScLECJUGKyCBY+yaanl7Y7JS/mr0=
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?Z0Q2SGVkckxJUDFSeTZMYUptRlN1bnA4RXlXcnZQWVZvOG93R0tad3FHSjc2?=
- =?utf-8?B?cERSdm9MOU5CcnY0REt6L2wxcmpUQ280TVhvd3doOVo2ZzN4SmI2Nmk4S1RZ?=
- =?utf-8?B?NTI1bUo0Y2lYbElPbU0zU0hXUERLeDFEWVVlTGUzTlEzeGFrNzB0SVdlK0NN?=
- =?utf-8?B?bnY4bEk0WUJ4UEJOMFUwdHVONWp1biszaDc4UGxGdU9OaU40OG9hczhlU2ZO?=
- =?utf-8?B?TmdFZ3NHcW0yV0N4MXBXMHd2cjVJNzNPWlZqVUhrd1FHOWRlZGpieXZmSW9w?=
- =?utf-8?B?STFHTC93Qldqa3ZDbXR2Y1BtUUFKNmt1ZERjM1VKcno5NG5udUNLMjVqeGVw?=
- =?utf-8?B?c3crdjB2dWM1NDJybWFBcXJRc015M2Vtcm4rTzFCLzk0dTI3V1NTZDZjUGQy?=
- =?utf-8?B?b2pwZ1o4VjJ0UWF4c3hLNXZwT3FGbWVhbWVyalRmNElsRTg0dURzejdoRjZM?=
- =?utf-8?B?WkpWNzlDTmVYT0RGYkI1d01kOVVBMEZibWhGdjdid0k4NkpVYm93N0dCZWNJ?=
- =?utf-8?B?S1NKYTBqTGxjbWhrRy9OanNnaEZDa3BSQ29IQWEvU1JVaGhlS2Fqc3A4Z0FN?=
- =?utf-8?B?OGlCTTRuQkZNbzFlQ3M0QkFZaHFVdUJ2TVphOGV4UXA0ZnNxMkZRUGxRRm5S?=
- =?utf-8?B?S2hvaFR0b1A1VGl0T3lwRkVodnpVWWtGdEN6ODdxVnY3NWpOREtKcjl5Slhl?=
- =?utf-8?B?b3ErdVRWWmRYTWliNlR0dG83QndjTklxM0NrUkxlakowcVFRQnlwUFRHZ3BO?=
- =?utf-8?B?Y0hMZU9PTTc3NGN3Wmlia0dFZS81QzVTbzdxc2FzbGRkTEFkYVVnUGY4ZFMr?=
- =?utf-8?B?Mk5YVnF6NlRlcnRWNVJtd1lxNk1HcEw2cXFWNkpFa2RHWnlBSFNFSFgzWGFQ?=
- =?utf-8?B?KzBDa0wzRmxaZjVXalFmTXdRVitpWDl3UHNoMm1CVFhKQ2xoWGlRODYxWmpQ?=
- =?utf-8?B?cDJIdTF1RWZzU21UaFByWGFYOEdSWmlaRWpuL3BsZFBKc3hpUEtLMnZnNU56?=
- =?utf-8?B?OGpHTVZrWm95b0Q4NElNNnNFQldnU0FDYW1FVk9aclF2SFVPZEYxTi9EbCtR?=
- =?utf-8?B?NFF6T0JEMjc1dDM2THdRdlpvdjhhS0djZFRzemxGL3N0NDFEVXJiVXpGVGVm?=
- =?utf-8?B?cXVRVVJxZnFZNEdPdXFldWxTNGE4YkpJc05BcXFPUWJhNzY2RUlleldVYWph?=
- =?utf-8?B?RXFtRlNJczZLTjR6akFkNlZNNmtTbHQvTHZuQlliUk5rU0tKVEd4aWFZY1FT?=
- =?utf-8?B?SWZFUWliU1NiMEVtWHk2RjBmZHk4RzhMcjBpL0w0SE9YR0xjaDBmc3FhbHBy?=
- =?utf-8?B?ZXduaXg3aHcxaHJWTjFOdTZuOUZwUjZRQ1BmRkd1bTBiaHludk5wNHN4K1d1?=
- =?utf-8?B?OGt6bkRTRlpab05pQUFTYXl1cVlzUDIxQVFJK05Wdy85T1Nza3ovVGpCa3Fm?=
- =?utf-8?B?VWk3SlJ2WkJPbEIxWlVaOEJlamZ3QUVVVFhhVXFjNGc1NEJlSldvN3dNY2ZZ?=
- =?utf-8?B?NTkxYll5eXcwVDZqU3ZIcFVHc253TGJxamV6RXl4VTZqSGhoQ2ZNaHc0VHhT?=
- =?utf-8?B?V1FyYmlKZEU1N3FBVm9vQ3VLMVdMQUwvMUt2QjFkNy8rU2RrZS9KaktXVWEw?=
- =?utf-8?Q?mG92vrWIPOPWuCz9elq6WgZniKDWmP7xG+mQ/dEeKEbM=3D?=
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a16b43dd-9cee-489d-1faf-08dc6f78f3f8
-X-MS-Exchange-CrossTenant-AuthSource: DBBP194MB1113.EURP194.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 May 2024 16:07:26.2087
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA1P194MB2261
+User-Agent: Mozilla Thunderbird
+Subject: Re: luks2: need to check the availability of a JSON area
+To: Vitalii Hordii <vitalnodo@outlook.com>, util-linux@vger.kernel.org
+References: <DBBP194MB111315092E137148D78773F3B0E52@DBBP194MB1113.EURP194.PROD.OUTLOOK.COM>
+Content-Language: en-US
+From: Milan Broz <gmazyland@gmail.com>
+Autocrypt: addr=gmazyland@gmail.com; keydata=
+ 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
+In-Reply-To: <DBBP194MB111315092E137148D78773F3B0E52@DBBP194MB1113.EURP194.PROD.OUTLOOK.COM>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hello,
+On 5/8/24 6:07 PM, Vitalii Hordii wrote:
+> Hello,
+> 
+> I had some problems with restoring a luks2 partition after using, for
+> example, mkfs.ntfs because it only leaves a 2nd JSON area without a
+> secondary binary header, which I had to create myself. What if there was
+> a function in libblkid that allows one to determine if there is a 2nd
+> JSON and if there is a chance of recovery? Because as I see here,
+> automatically repairing
+> https://gitlab.com/cryptsetup/cryptsetup/-/issues/750 is apparently
+> missing due to the lack of checking if there is an area here in
+> libblkid. Also this seems to be a pretty popular problem on the internet
+> when it comes to installing other operating systems. Would it be okay to
+> add such a feature?
 
-I had some problems with restoring a luks2 partition after using, for 
-example, mkfs.ntfs because it only leaves a 2nd JSON area without a 
-secondary binary header, which I had to create myself. What if there was 
-a function in libblkid that allows one to determine if there is a 2nd 
-JSON and if there is a chance of recovery? Because as I see here, 
-automatically repairing 
-https://gitlab.com/cryptsetup/cryptsetup/-/issues/750 is apparently 
-missing due to the lack of checking if there is an area here in 
-libblkid. Also this seems to be a pretty popular problem on the internet 
-when it comes to installing other operating systems. Would it be okay to 
-add such a feature?
+Hi,
 
-Best regards, Vitalii
+Blkid already scans for *valid* 2nd LUKS2 header.
+
+If the binary area for LUKS2 is missing, the header corrupted. Blkid
+should not touch JSON metadata at all (JSON on-disk follows binary area).
+Binary area was specifically designed for blkid use to be fast and do
+not require any advanced metadata parsing.
+So there is nothing to fix in blkid.
+
+What we can add to cryptsetup repair command is to check
+for specific case when wipefs marks LUKS2 binary area unusable
+(this case can be easily recovered as it overwrites magic string only).
+
+But I doubt mkfs format will touch only magic string, if the keyslot area
+is (even partially) overwritten, the LUKS2 header is unusable anyway.
+
+You should have a backup to recover data, not rely on a magic recovery.
+
+Milan
