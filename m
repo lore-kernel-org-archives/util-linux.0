@@ -1,150 +1,95 @@
-Received: from fhigh5-smtp.messagingengine.com (fhigh5-smtp.messagingengine.com [103.168.172.156])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85E2B57CBC
-	for <util-linux@vger.kernel.org>; Tue, 14 May 2024 10:01:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.156
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B110813F44C
+	for <util-linux@vger.kernel.org>; Wed, 15 May 2024 14:22:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715680900; cv=none; b=rW8G91zWd/NTqhNEHJptJynbobdXF/r4SSLL4Q7UvLYXTpYSKWYY18eGDUHglW6FW4xFJr5WN8VKxllWKthozRUq5fmFcWx9Ym41V66vBWZt2mSb7Vsifujm284BpdoQVqxln5WyeYLDb9cawzFKQrgKaULx1oee/vYjtGFcdHE=
+	t=1715782954; cv=none; b=vBdUBc7MNTo+ZbwkVqbx59qeQb1OCrERUEwvxYuLb5o/f1/08lTmMfb2tl7eF61CEjoAL4lsxLTk+K1+eSy0mV6HYUdRe1eD0ktWYV/5XAsF86GTXJkxeQY3OlN5Ii9KT6WYsDzZF1Ex0CqwkQuQR+mDAowTYChGoyyUJAviJzk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715680900; c=relaxed/simple;
-	bh=0mywUADmZlcVx3F+7tvQvSNuEhhDPp+Npzsd89Bz8Cw=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=b3mVBDaBcYtM+8itvX++VTKqRKtjdB3PUZ2jR9m4Ef84UXXX3ELM4y9bxXelUr7yG2heTOJHItbBSaG9q6P6hWyCtPMQVdR2yEjiZTABBWeTV1bQy6Pq74E/2SJU+1vfF0JKGmmTfkGqJYRUmxLBvBzgTTTwLnhB1TjL7Xi+fgo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is; spf=pass smtp.mailfrom=alyssa.is; dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b=OOx2h/c/; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=YP/JXhRI; arc=none smtp.client-ip=103.168.172.156
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alyssa.is
+	s=arc-20240116; t=1715782954; c=relaxed/simple;
+	bh=zv97FD37hMiLTiowym635rmmUTM343LLTknUkt0p9E0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CURcXxnkG3DHVXXLljBwnEnOL44Q8WLfJgB0CDZW5ir6yzZFMQcWgmtOcfLjKNtlOipDKGVPK4CKPSUNKiOcavGa5VLaiia4H660KRFl6v8k4N8wcmSDWkKvlxHLjBobqDA4+WSy995ljBtXSVZ2w5imJ5sudt4snEc5o6E0GNg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Xnjho1gd; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b="OOx2h/c/";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="YP/JXhRI"
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-	by mailfhigh.nyi.internal (Postfix) with ESMTP id 540EE1140178
-	for <util-linux@vger.kernel.org>; Tue, 14 May 2024 06:01:36 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 14 May 2024 06:01:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
-	:content-type:content-type:date:date:from:from:in-reply-to
-	:message-id:mime-version:reply-to:subject:subject:to:to; s=fm2;
-	 t=1715680896; x=1715767296; bh=1+YbeZ0hwa2rSWAS4JhNSsc7VY5sgp00
-	aGeQqGKAgnQ=; b=OOx2h/c/0O3bhjALEGKE32u9TiKku3f0t/Hwal43mcOIwArB
-	owQ8i0P3GIL+VbVvI9mTZbCUK8ssyWQnPM+yDFh6pgPxicUzGlBAwap6EcIyr5vc
-	1ACWGU42pxsaZ8ltvL123Cbw78w/5et5snSzddnL3JU07Igl/IGijLY2kEKE1oaA
-	tDf9+nbsHGCjpLG+NITKaB76zivX/aTFrh7Q0ios76ThmcB5VgP8klVoy5J37sEX
-	OMBkSem5wZWfpOcMFqYVY8YhoYlMb6MY/BfhAnBMUxNITDKWSKwr6HeAw45LOVuG
-	8PYEwrrg4Wp1hkZPLpISWktwRwARUhoqmwAAwQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:message-id
-	:mime-version:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
-	1715680896; x=1715767296; bh=1+YbeZ0hwa2rSWAS4JhNSsc7VY5sgp00aGe
-	QqGKAgnQ=; b=YP/JXhRIXXAoShBNy3hlqq/fIb4AgHpXi9pDyAWPzKeJzJbOoCU
-	0xUEm/YX1ruInEAmjqD0MqVNEYMbUG+NrlpTEp1yARL7nYtM2H/04WToc7z9Kblh
-	FBS8Maj8QrDdCe4Iw4ZwOd/A0TGpeumqay2nCXjITKrmq7uvKpmPWi5bnZHOOn3l
-	+Igksfv6tnGOL21m8csBJ5Vx/ROEUcYQqNjvNqm9y6Q7rZqU848xh1Z6qKFaeNpe
-	Sep1anhjspF8CeiyjsvSRWKAfZOChITku2ggtKcdhuOjC3DRTrdpH4wKyovRB/t1
-	pcpAoQGe9z897fMGUPiNAE66BmCBrzx4Isg==
-X-ME-Sender: <xms:gDZDZj0l1KiKSqfNGOZ4yQGkgPTQSC_WX9bzvbrdOXDFzj0q437NMw>
-    <xme:gDZDZiHF-v2SKI1NBp2ptHvHu2b1WrKWTaDgcyGvVYI26H-x_0Ko2NxjF-egx-v3v
-    TQmr1Sa_ctNuKqFNA>
-X-ME-Received: <xmr:gDZDZj7trcANGl7zl01h5frBKYlkZRnAI9y1JLcShzARIKQ2OLecQcAFxt_Usodzw6U4D_NT1iI-g5dZQ_N6g4mQDJ4S>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvledrvdegiedgvddvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkgggtsehgtderredttd
-    dtnecuhfhrohhmpeetlhihshhsrgcutfhoshhsuceohhhisegrlhihshhsrgdrihhsqeen
-    ucggtffrrghtthgvrhhnpeegueevhefgleejgfegieduteetkeetheehuedukeeufffffe
-    ehtdfghffhkeeujeenucffohhmrghinhepnhhigihoshdrohhrghenucevlhhushhtvghr
-    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehhihesrghlhihsshgrrdhish
-X-ME-Proxy: <xmx:gDZDZo0jPwvuKJWmNAGQ94QStTwd3PQpXowFFnEf521m0pGBzNAfaA>
-    <xmx:gDZDZmGVEswEeucPPzCWYrszWDDg4JWNaKQYmLG5A4iKyEW_M6TB4g>
-    <xmx:gDZDZp9ccepsM2fTW7LxkmkEe_3E-HMRtFqtxFkw_9_dVMm7unmQfA>
-    <xmx:gDZDZjnbrGIPHBgGWF6VFiW7dy5Q20w-DCiMxz2GaMNexGyvdjndyg>
-    <xmx:gDZDZoMz8HswqvXgdVSXKiPzgxsF3FVytvU0__W6yWcXem67D4XnfA-l>
-Feedback-ID: i12284293:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA for
- <util-linux@vger.kernel.org>; Tue, 14 May 2024 06:01:35 -0400 (EDT)
-Received: by mbp.qyliss.net (Postfix, from userid 1000)
-	id 2916D4F3CF0; Tue, 14 May 2024 12:01:34 +0200 (CEST)
-From: Alyssa Ross <hi@alyssa.is>
-To: util-linux@vger.kernel.org
-Subject: Parallel build failures with util-linux 2.40
-Date: Tue, 14 May 2024 12:01:23 +0200
-Message-ID: <87le4c1zm4.fsf@alyssa.is>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Xnjho1gd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1715782950;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0SIwFTIgZyygm8mEjm0cml2Kqkmf2c2TfDxP55ODHsU=;
+	b=Xnjho1gdy/7l5+ZQ2B1dWyEi+yuJ5oK9GHT7lRnIYDDn+CCeSubbs6MnONsZls+eW3/aWY
+	q+fgOEjQgHfQyWH+2w0MuwyjLdnTd5Bls7F0cgG0DZK0FdkqxKf5OND9uTeFWriNzhkmsK
+	aMEiP119HWwUovrTn9ND7qALI5FQLmI=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-499-i_dspaWAN3aZWFgMftjaXA-1; Wed,
+ 15 May 2024 10:22:29 -0400
+X-MC-Unique: i_dspaWAN3aZWFgMftjaXA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C54E738000AB;
+	Wed, 15 May 2024 14:22:28 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.225.202])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 4F7387412;
+	Wed, 15 May 2024 14:22:28 +0000 (UTC)
+Date: Wed, 15 May 2024 16:22:26 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Alyssa Ross <hi@alyssa.is>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Parallel build failures with util-linux 2.40
+Message-ID: <20240515142226.oyp37o3fkajvpoal@ws.net.home>
+References: <87le4c1zm4.fsf@alyssa.is>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha256; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87le4c1zm4.fsf@alyssa.is>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
 
---=-=-=
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Tue, May 14, 2024 at 12:01:23PM +0200, Alyssa Ross wrote:
+> Since updating from util-linux 2.39.3 to 2.40.1 in Nixpkgs, we've been
+> seeing intermittent parallel build failures like the following:
 
-Hi,
+What does it mean "parallel build"? make -j ?
 
-Since updating from util-linux 2.39.3 to 2.40.1 in Nixpkgs, we've been
-seeing intermittent parallel build failures like the following:
+> libtool: warning(B: relinking 'pam_lastlog2.la'(B libtool: install:
+> (cd /build/util-linux-2.40.1;
+> /nix/store/306znyj77fv49kwnkpxmb0j2znqpa8bj-bash-5.2p26/bin/bash
+> "/build/util-linux-2.40.1/libtool"  --silent --tag CC --mode=relink
+> gcc -fsigned-char -fno-common -Wall -Wextra
+> -Waddress-of-packed-member -Wdiscarded-qualifiers -Wformat-security
+> -Wimplicit-function-declaration -Wmissing-declarations
+> -Wmissing-parameter-type -Wmissing-prototypes -Wnested-externs
+> -Wno-missing-field-initializers -Wold-style-definition
+> -Wpointer-arith -Wredundant-decls -Wsign-compare -Wstrict-prototypes
+> -Wtype-limits -Wuninitialized -Wunused-but-set-parameter
+> -Wunused-but-set-variable -Wunused-parameter -Wunused-result
+> -Wunused-variable -Wvla -Walloca -Werror=sequence-point
+> -I./liblastlog2/src -g -O2 -module -avoid-version -shared
+> pam_lastlog2_la_LDFLAGS +=
 
-libtool: warning(B: relinking 'pam_lastlog2.la'(B
-libtool: install: (cd /build/util-linux-2.40.1; /nix/store/306znyj77fv49kwn=
-kpxmb0j2znqpa8bj-bash-5.2p26/bin/bash "/build/util-linux-2.40.1/libtool"  -=
--silent --tag CC --mode=3Drelink gcc -fsigned-char -fno-common -Wall -Wextr=
-a -Waddress-of-packed-member -Wdiscarded-qualifiers -Wformat-security -Wimp=
-licit-function-declaration -Wmissing-declarations -Wmissing-parameter-type =
--Wmissing-prototypes -Wnested-externs -Wno-missing-field-initializers -Wold=
--style-definition -Wpointer-arith -Wredundant-decls -Wsign-compare -Wstrict=
--prototypes -Wtype-limits -Wuninitialized -Wunused-but-set-parameter -Wunus=
-ed-but-set-variable -Wunused-parameter -Wunused-result -Wunused-variable -W=
-vla -Walloca -Werror=3Dsequence-point -I./liblastlog2/src -g -O2 -module -a=
-void-version -shared pam_lastlog2_la_LDFLAGS +=3D -Wl,--version-script,./pa=
-m_lastlog2/src/pam_lastlog2.sym -o pam_lastlog2.la -rpath /nix/store/ri9wph=
-sskq6ygxigvlbahb9mz379qiz5-util-linux-2.40.1-lib/lib/security pam_lastlog2/=
-src/la-pam_lastlog2.lo liblastlog2.la )
-libtool: warning(B: 'libmount.la' has not been installed in '/nix/store/ri9=
-wphsskq6ygxigvlbahb9mz379qiz5-util-linux-2.40.1-lib/lib'(B
-libtool: warning(B: '/build/util-linux-2.40.1/libblkid.la' has not been ins=
-talled in '/nix/store/ri9wphsskq6ygxigvlbahb9mz379qiz5-util-linux-2.40.1-li=
-b/lib'(B
-libtool: install: /nix/store/php4qidg2bxzmm79vpri025bqi0fa889-coreutils-9.5=
-/bin/install -c .libs/mount /nix/store/v6ff7704fchg30kj4z422693lgnnmmbn-uti=
-l-linux-2.40.1-bin/bin/mount
-/nix/store/bgcaxhhxswzvmxjbbgvvaximm5hwghz1-binutils-2.41/bin/ld: cannot fi=
-nd -llastlog2: No such file or directory
-collect2: error: ld returned 1 exit status
-libtool: warning(B: 'libmount.la' has not been installed in '/nix/store/ri9=
-wphsskq6ygxigvlbahb9mz379qiz5-util-linux-2.40.1-lib/lib'(B
-libtool: warning(B: '/build/util-linux-2.40.1/libblkid.la' has not been ins=
-talled in '/nix/store/ri9wphsskq6ygxigvlbahb9mz379qiz5-util-linux-2.40.1-li=
-b/lib'(B
-libtool:   error(B: error: relink 'pam_lastlog2.la' with the above command =
-before installing it(B
-make[3]: *** [Makefile:7598: install-securelibLTLIBRARIES] Error 1
+I'm not sure, but it seems like you're being affected by an extra "+="
+in the LDFLAGS. This should be fixed by...
 
-Full log:
-https://cache.nixos.org/log/pp817g4wf18pn7hrn4a7377yxf06bprw-util-linux-2.4=
-0.1.drv
+    https://github.com/util-linux/util-linux/commit/290748729dc3edf9ea1c680c8954441a5e367a44
+    https://github.com/util-linux/util-linux/commit/597e8b246ae31366514ead6cca240a09fe5e1528
 
-Alyssa Ross
+Can you try your use case with the latest git tree?
 
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
+    Karel
 
------BEGIN PGP SIGNATURE-----
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
-iQIzBAEBCAAdFiEEH9wgcxqlHM/ARR3h+dvtSFmyccAFAmZDNnMACgkQ+dvtSFmy
-ccB7oxAAjDUNKpMddeaBzVff7rJwNkSLp+XNaYtgVMOnX2WTCJme7nu38sb1w8qk
-oxVxwVmAANyUhmIxtSPbGhTuTZ8i1kKV7b4nJrxWN3aKo9hoLuwJ88JrCGhbM9J5
-2UdFKHaD1tOWKhVhZ0NPXDhov05BtuCPKW7XZwbNSXm8eozykC13A7Ye9QKL7BEn
-KK59bnDNA43mrQ5fQy+tsx4Eq4eGjULjmws4OvJCN1ZynUN87jbo9jwoZ8jJeOyI
-nqfOQMkYBHGHM3IUBgrZMG3ntZYEyiWjrGNRV9nCP8hscPBvNIowTPnaqntJZHSX
-lvMZZsXv5eVyDpKlmueCuLUy2EgIMU+Eh32YUacWIJVcSX7IDfowFsa3qB4K7Pvb
-lQQG5ur5VeTsc5iV3ttSw0f1SLpxpfiqpzPgkQGLff+Qsda+/GfrIqRDQNz+nUV6
-sAi/RE9myfudPUlr15VGvR7nk/Nn8Z0coi1Z57o8wqsdS3OxI7Qm/rTLe9OaPUBW
-yMxCkM0Vt1POnEZuSLhTLdCz9WfjQYxnsCTS4SsQqBONF1937fgw3P5gOUBxtiCb
-8iysq1sGsElrEeAqy78PfMmXsTMauKhMekQt9bECnpFIKtOdPOLG3h2sC8L3a6zP
-WTMbprLrs5WNE4/ebyNW3+b6/wIBY0d+OvDuR270By/dj5C1s+c=
-=OdBn
------END PGP SIGNATURE-----
---=-=-=--
