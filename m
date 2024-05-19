@@ -1,68 +1,36 @@
-Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98FF453E11
-	for <util-linux@vger.kernel.org>; Sat, 18 May 2024 20:40:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
+Received: from booboo.phpwebhosting.com (unknown [69.175.29.115])
+	by smtp.subspace.kernel.org (Postfix) with SMTP id 9543C645
+	for <util-linux@vger.kernel.org>; Sun, 19 May 2024 00:30:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=69.175.29.115
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716064803; cv=none; b=gvDYFXzn6yKipmANos8cv+SFi/d5x1v5cdL9TvoOM0omE3F5hCphTYOvgHysFhnMW/9txN7+DFqaUvg0uZmTxKig9ORpVxCW0yBD+isg5KRLUfRhkgBLnAEkjI/h7jvr4/CNW+s3CxHJSuui3XvJd09u6cM62Vqsxfdeb1DMe2I=
+	t=1716078631; cv=none; b=pTqVestOo3x0vZCN0q5ley4G16YiRdYbdp0kLpxoulRPUTdA1Ui/v0NgvVtc02A03P0FrrfhWo8i2dNic1qc8YUmDf2Pw/ap27sTBZ8gSODYJRNrJNnO3qZ+N+QlPyeBWUKn9zch3KjkU0zyq5hzXg7dxasJCHGIWo3W7z4FBqQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716064803; c=relaxed/simple;
-	bh=3jvU4yp4Gs/R7v8MrLf9wwzT+tZMjTKWq6usGT+xP6E=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:Cc:
-	 In-Reply-To:Content-Type; b=MgfRN8M+JCJUejj1owvD/0WxI7QMzRMX5X5oavrHzsvP7XvhRc9BUG/gCYJmqR3vcYuzMee18SM8MxHKI5AvQA3BYdVl+/M0u26V/0vs8q24iBwhlERHcqwTCcZVVyaHpDWt8PyAiEUpPlpOdRv1v/faUq4jcl0jEIw8gglMsTk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=dvtOTEkN; arc=none smtp.client-ip=82.195.75.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=debian.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="dvtOTEkN"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.stravinsky; h=X-Debian-User:Content-Transfer-Encoding:Content-Type
-	:In-Reply-To:Cc:From:References:To:Subject:MIME-Version:Date:Message-ID:
-	Reply-To:Content-ID:Content-Description;
-	bh=3jvU4yp4Gs/R7v8MrLf9wwzT+tZMjTKWq6usGT+xP6E=; b=dvtOTEkNPcrF8o4MXsDZKM27XU
-	RMMRMtFJ/l57M56vp8s9Cd9hWkL+y97TwfYKv/x8jo3QlygaoKFS88p7Y/2uXoYcX/YHLcJSG7FGK
-	ECXhTXP6R6rfPdzKjCZggZz5jEfCxIkZ/VcL3reaPL9mPQyFJjvePbEMA0XtsRTf6l/6bW556bMzg
-	NbqVrQLexlKz58Wg8tO+XD1xPylIjKj0pgnE0BX9XHkIqvo/jgFUe/XG3ttrGQKkCZ8MhEXyXOW23
-	ZKg6rVYDLgLpSXVD5UcBYkmff8QAEeGETF+L5WKwJnHTkwE4ZdEpB74NNAJmlzLS+UXsbW9Emb1jm
-	Rf66Zvkw==;
-Received: from authenticated user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128)
-	(Exim 4.94.2)
-	(envelope-from <sanvila@debian.org>)
-	id 1s8QTF-00Acs7-Uu; Sat, 18 May 2024 20:15:58 +0000
-Message-ID: <3dfa7d03-f2bf-4d6f-8387-98ec999243bf@debian.org>
-Date: Sat, 18 May 2024 22:15:55 +0200
+	s=arc-20240116; t=1716078631; c=relaxed/simple;
+	bh=P59gTMai6AQ9k7F2jHSMg5v/4gD866g71RQVJeYcmJ8=;
+	h=From:To:Date:Subject:MIME-Version:Content-Type:Message-ID; b=m8H7MJMU4GP06tGtAMiZhGYrJrx55fLKxWowVjJWRaoz2XYTE+G4jJ+H5hitDM2TB4W47mYgm9dnAsdW3uHBY4SG9witVxrRCQ1h5wdykqdTKHQ8jkYogbCzMGGHfUug+av5KF2OQjUojoZ53osjq1E0SAzX0YCjO7ZfOb7NBTI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cheekwoodstudio.com; spf=pass smtp.mailfrom=cheekwoodstudio.com; arc=none smtp.client-ip=69.175.29.115
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cheekwoodstudio.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cheekwoodstudio.com
+Received: (qmail 21285 invoked from network); 19 May 2024 00:28:56 -0000
+Received: from unknown (HELO WIN4TTI4DH7SGH) (bill@cheekwoodstudio.com@178.215.236.230)
+	by ve17.phpwebhosting.com with (AES256-SHA encrypted) SMTP; Sat, 18 May 2024 20:28:56 -0400
+From: "=?utf-8?Q?Financial=20Crimes=20Enforcement=20Network?=" <bill@cheekwoodstudio.com> 
+To: "=?utf-8?Q?Financial=20Crimes=20Enforcement=20Network?=" <util-linux@vger.kernel.org>
+Reply-To: financalcrimesenforcement@yandex.com
+Date: Sat, 18 May 2024 17:28:53 -0700
+Subject: =?utf-8?Q?From=20Financial=20Crimes=20Enforcement=20N?=
+	=?utf-8?Q?etwork?=
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Parallel build failures with util-linux 2.40
-To: util-linux@vger.kernel.org
-References: <87le4c1zm4.fsf@alyssa.is>
- <20240515142226.oyp37o3fkajvpoal@ws.net.home> <87eda31219.fsf@alyssa.is>
- <87v83auc95.fsf@alyssa.is>
-Content-Language: en-US
-From: Santiago Vila <sanvila@debian.org>
-Cc: Alyssa Ross <hi@alyssa.is>, Karel Zak <kzak@redhat.com>
-In-Reply-To: <87v83auc95.fsf@alyssa.is>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Debian-User: sanvila
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Message-ID: <WIN4TTI4DH7SGH83c287a9157940808352f04618410bae@WIN4TTI4DH7SGH>
 
-Hello.
+Notice=2E=2E=2E=0D=0AYour fund that was stopped from completion has been =
+released and ready to be transferred indicate if this email id is active =
+for more details=0D=0ARegards=0D=0AMr=2E Rowland Cole
 
-In some cases, make --shuffle option (available in GNU make 4.4)
-"amplifies" the probability that a Makefile bug shows up.
-I suggest that you people give it a try.
-
-There is a blog entry from the author explaining --shuffle option:
-
-https://trofi.github.io/posts/238-new-make-shuffle-mode.html
-
-[ I'm just a long-time lurker in this list, but maybe this could help ]
-
-Thanks.
