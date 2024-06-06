@@ -1,53 +1,52 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A393F19E
-	for <util-linux@vger.kernel.org>; Mon,  3 Jun 2024 11:20:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B92EA43173
+	for <util-linux@vger.kernel.org>; Thu,  6 Jun 2024 07:21:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717413623; cv=none; b=N6sr9uLt4+H7w67l3QW+BZ+akWjz/45A9wJpoOkzf/8Hq3jZtwcrIoshYAyaai9z6KV2Shv3HOhd6BlgbXU7F5+i4g5958OkNxH6Qj6sjH00TfBfp00PW/J2ycr7c24Zf5A6N66dqa5BNL4KBYe9/97vKziRLKNCQVUEO99k0Sc=
+	t=1717658509; cv=none; b=rDzme8ody5d8Dv6NqBFaDXDIfQsXSaCerfZvZ+HZbEvlOlM9Y8agcH0Gj/DHnueCn+zsjZcmRzlXLzLVqsljxyASvgQzcZgDlbsY82k87Rb515LRJJMg7AuXDHRAzipDAMe/TnST85d9rf0X1HeP4eKUdqseXdYUQIyzCPSDtyc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717413623; c=relaxed/simple;
-	bh=U7jnoqtNs0S/C0LL6IwKl94Un5LjsppBpW0tObHZ0rU=;
+	s=arc-20240116; t=1717658509; c=relaxed/simple;
+	bh=E8KOLocO05rpZbTx9nweEHlT7+Fd2easOYMpidjBad8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SYcLtZK5pFGgRH0khvgyv4iI/OltxLZSSjqTJUOX+PMUHTRjO8wBeBjU6JlY//nKo44w9LyHjIO8kJ8ynSEAc9qTVJjGqQP5b1/HpCEEEUjGCQ+jU06uk6UXFzoUsoryWCx3p9DhJz+f6AEGIRgeIleGfDviFUevUUFLuA8iJYA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OMRmcsGE; arc=none smtp.client-ip=170.10.129.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=QTRP5KdEk7kUzD18fk5UW0bzkfd3HDBAISmms/12XOHCyoeD8sq6vVJShyg7BzqqCChaepggHjgAY28UIPPGcsVRVzfFyPMkR2eFANQUKAqa4UXUU4++l+6/OQOwK/4rU0GG3A3PafVMTDNX+gU4qE22CVGwHvw596Xccv6bMmo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=h+KmIKTf; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OMRmcsGE"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="h+KmIKTf"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1717413620;
+	s=mimecast20190719; t=1717658506;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=HtL3id9mX3yqV9Kw3S21L1HGbAfzMDVPiGvsvZC5xz4=;
-	b=OMRmcsGEFef1kDdsRryhSgZyKiwVZ579HHN19hQnbZm8mcWN130v61KrcaStuDfVPMFEmL
-	D48xgxhjqUEfttIfbGl73aNSobk6a1YkdIb15LEWRCOZYaVip4HON6rBvvbf8AkKwKKGJZ
-	TJAHZrDUEd/bv0KCaoZ9XK7IGh55k4E=
+	bh=C9lsw7172MkERVNS4AmlYsXA6KM24ytUu7Fr6LdWnIA=;
+	b=h+KmIKTfUqLd9FeIniY/2K0K5VHN/yxZPJDBZEUczb+kW5ezyiuR06vZZjs9dDnIT0B4I+
+	RwKEVqqeT22zl654xFdqEDSFgfnFBT84APiCqVPYk2UrlIBdhrDaoSJcmHWr9H8u64VDLv
+	kOSCNXEo0pbcjcwrSEYiXtfoM6sb6TQ=
 Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
  by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-251-tnJYhZEPPhyLA_a7-X9aTQ-1; Mon,
- 03 Jun 2024 07:20:17 -0400
-X-MC-Unique: tnJYhZEPPhyLA_a7-X9aTQ-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-101-tol-JDm6NySePE6awkDV9w-1; Thu,
+ 06 Jun 2024 03:21:44 -0400
+X-MC-Unique: tol-JDm6NySePE6awkDV9w-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 00C011C05129;
-	Mon,  3 Jun 2024 11:20:17 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.224.37])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 814DE28E3;
-	Mon,  3 Jun 2024 11:20:16 +0000 (UTC)
-Date: Mon, 3 Jun 2024 13:20:14 +0200
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7F33C29AA387;
+	Thu,  6 Jun 2024 07:21:44 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.225.185])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id C872C111F3C6;
+	Thu,  6 Jun 2024 07:21:43 +0000 (UTC)
+Date: Thu, 6 Jun 2024 09:21:41 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Linus Heckemann <git@sphalerite.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] libmount: provide tree fd even when a mount helper is
- used
-Message-ID: <20240603112014.jrhwwbhhzfdbeju4@ws.net.home>
-References: <20240530180041.3447273-1-git@sphalerite.org>
- <20240531094125.r2nvmio47itrtzep@ws.net.home>
+To: Alejandro Colomar <alx@kernel.org>
+Cc: util-linux@vger.kernel.org, Xi Ruoyao <xry111@xry111.site>
+Subject: Re: [PATCH v1] Call prctl(2) with long integers, specify 5
+ arguments, and avoid casts
+Message-ID: <20240606072141.x4lkzu5zhjqtttnl@ws.net.home>
+References: <20240601093150.16912-1-alx@kernel.org>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -56,19 +55,18 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240531094125.r2nvmio47itrtzep@ws.net.home>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
+In-Reply-To: <20240601093150.16912-1-alx@kernel.org>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
 
-On Fri, May 31, 2024 at 11:41:28AM +0200, Karel Zak wrote:
-> On Thu, May 30, 2024 at 08:00:34PM +0200, Linus Heckemann wrote:
-> > Previously, the X-mount.subdir option would fail (mount exited with
-> > code 0, but the target was not mounted) when a helper was used.
-> 
-> I will think about it :-)
+On Sat, Jun 01, 2024 at 11:31:56AM +0200, Alejandro Colomar wrote:
+> Since libc's prctl(2) wrapper is a variadic function, arguments must
+> have the right width.  Otherwise, the behavior is undefined.
 
- https://github.com/util-linux/util-linux/pull/3075
+Created PR to test it by CI:
+https://github.com/util-linux/util-linux/pull/3085
 
- Karel
+    Karel
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
