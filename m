@@ -1,205 +1,191 @@
-Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56B5B1482F6
-	for <util-linux@vger.kernel.org>; Mon, 10 Jun 2024 17:58:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.126.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78A6B370
+	for <util-linux@vger.kernel.org>; Tue, 11 Jun 2024 00:15:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718042316; cv=none; b=mvw8BtzD+Be9tbhi8SvyrqwtOvPQAynT9G2ZuuwU7hl4mnn74oZy/RQnNo+A0dLZxT147oKdhdZHzL8IWetFp3lgqcZ8qJqXtRwgQK4u6AN+HxsMZqvheU0yQoKrB/IcMIRd/oIv2Q0Q7llFdryTB+DDnMedA3bO0+cvzZ7ilQo=
+	t=1718064947; cv=none; b=EC2JrNyGqJRC3AcECLNHEVFEWGp2/S+wsA0H/yIoP1g/zPYDudWtK9NDgl7q89asolOmMlV/pE89WRtH6RoogtRmPBkDbUk3Ct+fzg5igtIXJcI6fjg+YE7ki0RZU1OM+A6LyZAnj4DpMq51fab+8NILW9tmIaHnCPkaFjtXnu4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718042316; c=relaxed/simple;
-	bh=JXGg4n/llmR01P0V8tQHQ8+KDT47v7DraPdpOm/cuvs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZsD4s1zYFbtmlZnj+gy1r4eCxu7G0n8j7xF70mMxz5fl8pYUSf/A9c9i2hve4z3NwUH/JNd8actghjRK4SK+sSuzCGxAlHtWt6qXGKothw2dn4iwLgsmUf+1WS0/u6TaZtsd3hmUyOHMLzav/rCt5KWO0p0G8s0kOwuCBCr9Hbo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=vivier.eu; spf=pass smtp.mailfrom=vivier.eu; arc=none smtp.client-ip=212.227.126.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=vivier.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=vivier.eu
-Received: from quad ([82.64.211.94]) by mrelayeu.kundenserver.de (mreue009
- [212.227.15.167]) with ESMTPSA (Nemesis) id 1MatZr-1srQYv3vVz-00hkbi; Mon, 10
- Jun 2024 19:33:51 +0200
-From: Laurent Vivier <laurent@vivier.eu>
-To: util-linux@vger.kernel.org
-Cc: Laurent Vivier <laurent@vivier.eu>
-Subject: [PATCH 2/2] unshare: load binfmt_misc interpreter
-Date: Mon, 10 Jun 2024 19:33:49 +0200
-Message-ID: <20240610173349.115913-3-laurent@vivier.eu>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20240610173349.115913-1-laurent@vivier.eu>
-References: <20240610173349.115913-1-laurent@vivier.eu>
+	s=arc-20240116; t=1718064947; c=relaxed/simple;
+	bh=BjRzxN+aXChvJiI1rxzH4Dy0QrDLma9IOwTMKkGxWfo=;
+	h=Message-ID:Date:MIME-Version:To:From:Subject:Content-Type; b=qBGTKh39PYSkeukMr7USqpNlTkacAK7g0ybZ8f/A2DJ4QmoMNOV0krYCEivHIpwnJH31lwLtsTjR7bBl3PsM4x7FuoBEL4yklb1HUy+gs7hh2QBKvGeCWfsIIQAXwvFzFU3mXQzpT0mT5gKkaRoxCe04xrRu5dLW3Z2MY7prWRk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=T+Jy1Q7V; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=+vbCfPtT; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=T+Jy1Q7V; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=+vbCfPtT; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="T+Jy1Q7V";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="+vbCfPtT";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="T+Jy1Q7V";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="+vbCfPtT"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 73D2A227E9
+	for <util-linux@vger.kernel.org>; Tue, 11 Jun 2024 00:15:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1718064937; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=O/pZCGnRsyD5nt8nQbO5DCfUljUC5YrWvObTaVF2T/A=;
+	b=T+Jy1Q7VD8hhr7z4BRdA3R62OyCZoARfSUIrcITP5uSTndg/jPArtDiaonVOPFIQXOfbLi
+	bnCCwk9jkkhEE0UA5P2hswYaafaA7f7T+rPORY3PrRqOAPgh6Ns/RZUuzNWPIpYEkL6+rU
+	3lfP5LqUcwM0a6rNO8JDHQzlmIRCQ+Y=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1718064937;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=O/pZCGnRsyD5nt8nQbO5DCfUljUC5YrWvObTaVF2T/A=;
+	b=+vbCfPtTCvcaF0fcqTbLJQ2ZDFEk04o5Yo5FzBHjt0OdIhifSQrNjH2U5791KULFKoiJMj
+	WMQi4HnUzg2Ns3Bw==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=T+Jy1Q7V;
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=+vbCfPtT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1718064937; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=O/pZCGnRsyD5nt8nQbO5DCfUljUC5YrWvObTaVF2T/A=;
+	b=T+Jy1Q7VD8hhr7z4BRdA3R62OyCZoARfSUIrcITP5uSTndg/jPArtDiaonVOPFIQXOfbLi
+	bnCCwk9jkkhEE0UA5P2hswYaafaA7f7T+rPORY3PrRqOAPgh6Ns/RZUuzNWPIpYEkL6+rU
+	3lfP5LqUcwM0a6rNO8JDHQzlmIRCQ+Y=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1718064937;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=O/pZCGnRsyD5nt8nQbO5DCfUljUC5YrWvObTaVF2T/A=;
+	b=+vbCfPtTCvcaF0fcqTbLJQ2ZDFEk04o5Yo5FzBHjt0OdIhifSQrNjH2U5791KULFKoiJMj
+	WMQi4HnUzg2Ns3Bw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 652E0137DF
+	for <util-linux@vger.kernel.org>; Tue, 11 Jun 2024 00:15:37 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 0obCFymXZ2ZuXgAAD6G6ig
+	(envelope-from <sbrabec@suse.cz>)
+	for <util-linux@vger.kernel.org>; Tue, 11 Jun 2024 00:15:37 +0000
+Message-ID: <8c649c26-93de-4edb-8dec-c87c243ee45d@suse.cz>
+Date: Tue, 11 Jun 2024 02:15:36 +0200
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+Content-Language: en-US
+From: Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH] mount, losetup: Document loop destroy behavior
+Organization: SUSE Linux, s. r. o.
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:khX/Xu/rwHHuCGs8D5IklcDKatj+wM/sQbYSUqC1hnzvbDwQZVh
- uGHC3VEvSl5SeXXV/JhQ7ukFaOZhb3pLJzOBvPAy9nfxttE2rkDKn3yAOoEWAtb6iLd5vuX
- BAWOZhvT3JZNw+fvKHXp60lE5NuIS9mnY7iU0FkODxe/ZUQSW2O08JXwOgccnMe2bM3kfNB
- /pQSiWheif6RVg0gJLhDA==
+X-Spam-Level: 
+X-Spamd-Result: default: False [-4.50 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-0.994];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	XM_UA_NO_VERSION(0.01)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	HAS_ORG_HEADER(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RCPT_COUNT_ONE(0.00)[1];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	TO_DN_EQ_ADDR_ALL(0.00)[];
+	PREVIOUSLY_DELIVERED(0.00)[util-linux@vger.kernel.org];
+	DKIM_TRACE(0.00)[suse.cz:+]
+X-Rspamd-Action: no action
+X-Rspamd-Queue-Id: 73D2A227E9
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
 X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:7ne3zii9swM=;jYxfqZ21+UpSIDEy0TLvUec12wB
- z1tqBdddZNK/AJ/Ih8AtlR4cM2WmAJKVDF3rCll+xkhOyYQLWQ7Ci1Z7fi0sdv6BCbT6iI+cx
- uqd3aszPrmRmHu4PFaX2lbsyvXbQBnf23kuRlCltC5TsgDvmsjPKrQIjs4NAwnFnFKKyEkgep
- aV5/Ec0PzCpp92ZRgJKi9UQW2FXCogCzh5z61nvDuvgFp5fuZ02OUO9gU1yfQpDv1wI6Ip71K
- PMEIpMWJkDknyDsUBT+e/zakfbPt9bo8KZEGQ6/Jdktrh594bAijcVZhVrzccuX+c/Dqh/Y98
- +oNuItgWKJhWZLfAs6Tk/fzm6PbDvYIbkVoN8dcgkfFGvNsYGOfwMy6KW3z4wWEOe6BU2M74I
- Mlk/yREAM2aF2WLETPD/26llK+3XIDyVVP2ROoiuBkIWS+Q8wF82UCykA52WRP/EBA2FDG1CJ
- 1ThupNIBayIEegi4s24y1i1qlXhmsbyRhYjXTt4TBAO+NBna/NmHzmsp38OnH59e9wP6cepqt
- RYG5rbAWEhUvFIGdyu+IVnl6ZbQjEa8QqE8YEJXx1WhkA3WqvZFnTxT+o7KZj2uawpBX+tBRW
- DMn9c53OfYpjXpJGHE3ikerTz7fTcsr9mEs+eTXjDqSVwORlsBV47v17BZQNbhMtOymPSowyk
- zR6Nk3ReZqyETonv8cy7yKdNNU1CxY++A19YHoYZfK9+gpjDsKZXMPXVJA8rUhrihFArs176U
- 7GZdph/43QupqUesQpFPHFQGdaL+stJwn3PyiPKNDhwubKxICJWarE=
+X-Spam-Score: -4.50
 
-add -l, --load-interp <file> to load a binfmt_misc interpreter at startup.
+The loop device detach runs asynchronously in the background. It can cause
+unexpected errors. Document the possible existence of the loop device after
+exit of losetup -d or umount and need of "udevadm settle".
 
-The interpreter is loaded from the initial fileystem if the 'F' flags is
-provided, otherwise from inside the new namespace
-This makes possible to start a chroot of another architecture without
-being root.
-
-Signed-off-by: Laurent Vivier <laurent@vivier.eu>
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
 ---
- sys-utils/unshare.1.adoc | 10 +++++++++
- sys-utils/unshare.c      | 48 +++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 57 insertions(+), 1 deletion(-)
+  sys-utils/losetup.8.adoc | 2 +-
+  sys-utils/umount.8.adoc  | 2 ++
+  2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sys-utils/unshare.1.adoc b/sys-utils/unshare.1.adoc
-index 48d1a5579282..24ac6fb01867 100644
---- a/sys-utils/unshare.1.adoc
-+++ b/sys-utils/unshare.1.adoc
-@@ -138,6 +138,9 @@ Set the user ID which will be used in the entered namespace.
- *-G*, *--setgid* _gid_::
- Set the group ID which will be used in the entered namespace and drop supplementary groups.
- 
-+*-l*, **--load-interp=**__file__::
-+Load binfmt_misc definition in the namespace (implies *--mount-binfmt*).
+diff --git a/sys-utils/losetup.8.adoc b/sys-utils/losetup.8.adoc
+index 9ea9451ce..e22e650b8 100644
+--- a/sys-utils/losetup.8.adoc
++++ b/sys-utils/losetup.8.adoc
+@@ -54,7 +54,7 @@ The _size_ and _offset_ arguments may be followed by 
+the multiplicative suffixes
+  Show the status of all loop devices. Note that not all information is 
+accessible for non-root users. See also *--list*. The old output format 
+(as printed without *--list*) is deprecated.
+
+  *-d*, *--detach* _loopdev_...::
+-Detach the file or device associated with the specified loop device(s). 
+Note that since Linux v3.7 kernel uses "lazy device destruction". The 
+detach operation does not return *EBUSY* error anymore if device is 
+actively used by system, but it is marked by autoclear flag and 
+destroyed later.
++Detach the file or device associated with the specified loop device(s). 
+Note that since Linux v3.7 kernel uses "lazy device destruction". The 
+detach operation does not return *EBUSY* error anymore if device is 
+actively used by system, but it is marked by autoclear flag and 
+destroyed later. Even if the device is not used, the loop device can be 
+destroyed later. If you need to wait for a complete removal of the loop 
+device, call *udevadm settle* after *losetup*.
+
+  *-D*, *--detach-all*::
+  Detach all associated loop devices.
+diff --git a/sys-utils/umount.8.adoc b/sys-utils/umount.8.adoc
+index f9b96e1ff..b9a3ff963 100644
+--- a/sys-utils/umount.8.adoc
++++ b/sys-utils/umount.8.adoc
+@@ -127,6 +127,8 @@ The *umount* command will automatically detach loop 
+device previously initialize
+
+  In this case the device is initialized with "autoclear" flag (see 
+*losetup*(8) output for more details), otherwise it's necessary to use 
+the option *--detach-loop* or call *losetup -d* _device_. The autoclear 
+feature is supported since Linux 2.6.25.
+
++Note that since Linux v3.7 kernel uses "lazy device destruction". The 
+system just marks the loop device by autoclear flag and destroys it 
+later. If you need to wait for a complete removal of the loop device, 
+call *udevadm settle* after *umount*.
 +
- *--monotonic* _offset_::
- Set the offset of *CLOCK_MONOTONIC* which will be used in the entered time namespace. This option requires unsharing a time namespace with *--time*.
- 
-@@ -256,6 +259,13 @@ up 21 hours, 30 minutes
- up 9 years, 28 weeks, 1 day, 2 hours, 50 minutes
- ....
- 
-+The following example execute a chroot into the directory /chroot/powerpc/jessie and install the interpreter /bin/qemu-ppc-static to execute the powerpc binaries.
-+If the interpreter is defined with the flag F, the interpreter is loaded before the chroot otherwise the interpreter is loaded from inside the chroot.
-+
-+....
-+$  unshare --map-root-user --fork --pid --load-interp=":qemu-ppc:M::\\x7fELF\x01\\x02\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x14:\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\x00\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xfe\\xff\\xff:/bin/qemu-ppc-static:OCF" --root=/chroot/powerpc/jessie /bin/bash -l
-+....
-+
- == AUTHORS
- 
- mailto:dottedmag@dottedmag.net[Mikhail Gusarov],
-diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
-index 06a9a427c524..7b7b24138056 100644
---- a/sys-utils/unshare.c
-+++ b/sys-utils/unshare.c
-@@ -725,6 +725,31 @@ static pid_t map_ids_from_child(int *fd, uid_t mapuser,
- 	exit(EXIT_SUCCESS);
- }
- 
-+static int is_fixed(const char *interp)
-+{
-+	const char *flags;
-+
-+	flags = strrchr(interp, ':');
-+
-+	return strchr(flags, 'F') != NULL;
-+}
-+
-+static void load_interp(const char *interp)
-+{
-+	int fd;
-+
-+	fd = open(_PATH_PROC_BINFMT_MISC_REGISTER, O_WRONLY);
-+	if (fd < 0)
-+		err(EXIT_FAILURE, _("cannot open %s"),
-+		    _PATH_PROC_BINFMT_MISC_REGISTER);
-+
-+	if (write_all(fd, interp, strlen(interp)))
-+		err(EXIT_FAILURE, _("write failed %s"),
-+		    _PATH_PROC_BINFMT_MISC_REGISTER);
-+
-+	close(fd);
-+}
-+
- static void __attribute__((__noreturn__)) usage(void)
- {
- 	FILE *out = stdout;
-@@ -772,6 +797,7 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(_(" -G, --setgid <gid>        set gid in entered namespace\n"), out);
- 	fputs(_(" --monotonic <offset>      set clock monotonic offset (seconds) in time namespaces\n"), out);
- 	fputs(_(" --boottime <offset>       set clock boottime offset (seconds) in time namespaces\n"), out);
-+	fputs(_(" -l, --load-interp <file>  load binfmt definition in the namespace (implies --mount-binfmt)\n"), out);
- 
- 	fputs(USAGE_SEPARATOR, out);
- 	fprintf(out, USAGE_HELP_OPTIONS(27));
-@@ -830,6 +856,7 @@ int main(int argc, char *argv[])
- 		{ "wd",		   required_argument, NULL, 'w'		    },
- 		{ "monotonic",     required_argument, NULL, OPT_MONOTONIC   },
- 		{ "boottime",      required_argument, NULL, OPT_BOOTTIME    },
-+		{ "load-interp",   required_argument, NULL, 'l'		    },
- 		{ NULL, 0, NULL, 0 }
- 	};
- 
-@@ -846,6 +873,7 @@ int main(int argc, char *argv[])
- 	const char *newroot = NULL;
- 	const char *newdir = NULL;
- 	pid_t pid_bind = 0, pid_idmap = 0;
-+	const char *newinterp = NULL;
- 	pid_t pid = 0;
- #ifdef UL_HAVE_PIDFD
- 	int fd_parent_pid = -1;
-@@ -868,7 +896,7 @@ int main(int argc, char *argv[])
- 	textdomain(PACKAGE);
- 	close_stdout_atexit();
- 
--	while ((c = getopt_long(argc, argv, "+fhVmuinpCTUrR:w:S:G:c", longopts, NULL)) != -1) {
-+	while ((c = getopt_long(argc, argv, "+fhVmuinpCTUrR:w:S:G:cl:", longopts, NULL)) != -1) {
- 		switch (c) {
- 		case 'f':
- 			forkit = 1;
-@@ -1008,6 +1036,15 @@ int main(int argc, char *argv[])
- 			boottime = strtos64_or_err(optarg, _("failed to parse boottime offset"));
- 			force_boottime = 1;
- 			break;
-+		case 'l':
-+			unshare_flags |= CLONE_NEWNS | CLONE_NEWUSER;
-+			if (!binfmt_mnt) {
-+				if (!procmnt)
-+					procmnt = "/proc";
-+				binfmt_mnt = _PATH_PROC_BINFMT_MISC;
-+			}
-+			newinterp = optarg;
-+			break;
- 
- 		case 'h':
- 			usage();
-@@ -1162,6 +1199,13 @@ int main(int argc, char *argv[])
- 	if ((unshare_flags & CLONE_NEWNS) && propagation)
- 		set_propagation(propagation);
- 
-+	if (newinterp && is_fixed(newinterp)) {
-+		if (mount("binfmt_misc", _PATH_PROC_BINFMT_MISC, "binfmt_misc",
-+			  MS_NOSUID|MS_NOEXEC|MS_NODEV, NULL) != 0)
-+			err(EXIT_FAILURE, _("mount %s failed"), _PATH_PROC_BINFMT_MISC);
-+		load_interp(newinterp);
-+	}
-+
- 	if (newroot) {
- 		if (chroot(newroot) != 0)
- 			err(EXIT_FAILURE,
-@@ -1193,6 +1237,8 @@ int main(int argc, char *argv[])
- 			  MS_NOSUID|MS_NOEXEC|MS_NODEV, NULL) != 0)
- 			err(EXIT_FAILURE, _("mount %s failed"), binfmt_mnt);
- 	}
-+	if (newinterp && !is_fixed(newinterp))
-+		load_interp(newinterp);
- 
- 	if (force_gid) {
- 		if (setgroups(0, NULL) != 0)	/* drop supplementary groups */
+  == EXIT STATUS
+
+  *umount* has the following exit status values (the bits can be ORed):
 -- 
-2.45.2
+2.45.0
+
+-- 
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Křižíkova 148/34 (Corso IIa)                    tel: +420 284 084 060
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
 
