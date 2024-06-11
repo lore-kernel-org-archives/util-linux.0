@@ -1,191 +1,108 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78A6B370
-	for <util-linux@vger.kernel.org>; Tue, 11 Jun 2024 00:15:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD8BA7346F
+	for <util-linux@vger.kernel.org>; Tue, 11 Jun 2024 08:43:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.126.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718064947; cv=none; b=EC2JrNyGqJRC3AcECLNHEVFEWGp2/S+wsA0H/yIoP1g/zPYDudWtK9NDgl7q89asolOmMlV/pE89WRtH6RoogtRmPBkDbUk3Ct+fzg5igtIXJcI6fjg+YE7ki0RZU1OM+A6LyZAnj4DpMq51fab+8NILW9tmIaHnCPkaFjtXnu4=
+	t=1718095400; cv=none; b=jCjHm8iIQ24foWA+CQARNZ6J26HLMNnN9b2VtsfKoR3o2PkiNX37pxtZnThD+We+vqvI5e+GRZcBViir83Uh5d5njl9PnRIUUlfVQcNV2aR68nmx+Vu8BIDqiNdLp1aH/Y507I75IaBcjNQTqfHp+xRWfgeH4E1gG44gJ59O6K8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718064947; c=relaxed/simple;
-	bh=BjRzxN+aXChvJiI1rxzH4Dy0QrDLma9IOwTMKkGxWfo=;
-	h=Message-ID:Date:MIME-Version:To:From:Subject:Content-Type; b=qBGTKh39PYSkeukMr7USqpNlTkacAK7g0ybZ8f/A2DJ4QmoMNOV0krYCEivHIpwnJH31lwLtsTjR7bBl3PsM4x7FuoBEL4yklb1HUy+gs7hh2QBKvGeCWfsIIQAXwvFzFU3mXQzpT0mT5gKkaRoxCe04xrRu5dLW3Z2MY7prWRk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=T+Jy1Q7V; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=+vbCfPtT; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=T+Jy1Q7V; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=+vbCfPtT; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="T+Jy1Q7V";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="+vbCfPtT";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="T+Jy1Q7V";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="+vbCfPtT"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 73D2A227E9
-	for <util-linux@vger.kernel.org>; Tue, 11 Jun 2024 00:15:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1718064937; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=O/pZCGnRsyD5nt8nQbO5DCfUljUC5YrWvObTaVF2T/A=;
-	b=T+Jy1Q7VD8hhr7z4BRdA3R62OyCZoARfSUIrcITP5uSTndg/jPArtDiaonVOPFIQXOfbLi
-	bnCCwk9jkkhEE0UA5P2hswYaafaA7f7T+rPORY3PrRqOAPgh6Ns/RZUuzNWPIpYEkL6+rU
-	3lfP5LqUcwM0a6rNO8JDHQzlmIRCQ+Y=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1718064937;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=O/pZCGnRsyD5nt8nQbO5DCfUljUC5YrWvObTaVF2T/A=;
-	b=+vbCfPtTCvcaF0fcqTbLJQ2ZDFEk04o5Yo5FzBHjt0OdIhifSQrNjH2U5791KULFKoiJMj
-	WMQi4HnUzg2Ns3Bw==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=T+Jy1Q7V;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=+vbCfPtT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1718064937; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=O/pZCGnRsyD5nt8nQbO5DCfUljUC5YrWvObTaVF2T/A=;
-	b=T+Jy1Q7VD8hhr7z4BRdA3R62OyCZoARfSUIrcITP5uSTndg/jPArtDiaonVOPFIQXOfbLi
-	bnCCwk9jkkhEE0UA5P2hswYaafaA7f7T+rPORY3PrRqOAPgh6Ns/RZUuzNWPIpYEkL6+rU
-	3lfP5LqUcwM0a6rNO8JDHQzlmIRCQ+Y=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1718064937;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=O/pZCGnRsyD5nt8nQbO5DCfUljUC5YrWvObTaVF2T/A=;
-	b=+vbCfPtTCvcaF0fcqTbLJQ2ZDFEk04o5Yo5FzBHjt0OdIhifSQrNjH2U5791KULFKoiJMj
-	WMQi4HnUzg2Ns3Bw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 652E0137DF
-	for <util-linux@vger.kernel.org>; Tue, 11 Jun 2024 00:15:37 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 0obCFymXZ2ZuXgAAD6G6ig
-	(envelope-from <sbrabec@suse.cz>)
-	for <util-linux@vger.kernel.org>; Tue, 11 Jun 2024 00:15:37 +0000
-Message-ID: <8c649c26-93de-4edb-8dec-c87c243ee45d@suse.cz>
-Date: Tue, 11 Jun 2024 02:15:36 +0200
+	s=arc-20240116; t=1718095400; c=relaxed/simple;
+	bh=qB3h0LeaNFi+glvMFcls1D8tLKMCigQ8VeO6fqD3T44=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=NL7UTJ8Cu10lBXV5fpiyj1ZsHUvK6tsvKr/dTLXgN5mky6bpMCwmZhBpMHpytzyJZOcTZV9zRJia3C1r7rYVgpMyDW0O+aLL/gl+2gmedMNQsO3BlhxLa5zhIh/WBf8uFd2OrgGvdCI/jdzpsvEtGqUcD1yv04b1VI0gqcgQreo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=vivier.eu; spf=pass smtp.mailfrom=vivier.eu; arc=none smtp.client-ip=212.227.126.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=vivier.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=vivier.eu
+Received: from quad ([82.64.211.94]) by mrelayeu.kundenserver.de (mreue010
+ [212.227.15.167]) with ESMTPSA (Nemesis) id 1MzQwa-1sdAup1eTo-018JBg; Tue, 11
+ Jun 2024 10:43:15 +0200
+From: Laurent Vivier <laurent@vivier.eu>
+To: util-linux@vger.kernel.org
+Cc: Laurent Vivier <laurent@vivier.eu>
+Subject: [PATCH v2 0/2] unshare: manage binfmt_misc mounts
+Date: Tue, 11 Jun 2024 10:43:12 +0200
+Message-ID: <20240611084314.183913-1-laurent@vivier.eu>
+X-Mailer: git-send-email 2.45.2
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
-Content-Language: en-US
-From: Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH] mount, losetup: Document loop destroy behavior
-Organization: SUSE Linux, s. r. o.
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Level: 
-X-Spamd-Result: default: False [-4.50 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-0.994];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	XM_UA_NO_VERSION(0.01)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	HAS_ORG_HEADER(0.00)[];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_ONE(0.00)[1];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	TO_DN_EQ_ADDR_ALL(0.00)[];
-	PREVIOUSLY_DELIVERED(0.00)[util-linux@vger.kernel.org];
-	DKIM_TRACE(0.00)[suse.cz:+]
-X-Rspamd-Action: no action
-X-Rspamd-Queue-Id: 73D2A227E9
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Provags-ID: V03:K1:YWGtk6rd+h++MgbgKHsAt8Lur+ULRzwnaE9bpAhP4mJLCW/8ulA
+ RgvkzxPbIC8L1r3BLC9qHk9xWllj5MRjjpXM08GpZOEVd2YLGEC8Y59kYcnkon6WxCp/UKk
+ B2dN6t90Z5d3+U88lV6HXYcwi9xA0lS3zUQCzw6FoMIJPORW+QKp8UO8l2NQS34qD0L6x+n
+ a7PUNclG98u3XJd6mrJwA==
 X-Spam-Flag: NO
-X-Spam-Score: -4.50
+UI-OutboundReport: notjunk:1;M01:P0:sLqMm7flJIU=;El6DwtHXIZS43/DHFvdl3ALaoER
+ iDBpKvd4Z+O5zOWGj0EFv7+sr/LzWalg/A81sqydUAuuBt5Nrb3fWJxULdJzz6PntHAcEXH9G
+ /UAmnzWhiEUoHwo9ZQAN2f/Jw3/bP2bS2z0sJJm2IdWlDiJgmd0xxCidVzUtYSWbBqxcQaGRO
+ hjOsN3TG6WWTuvy483L9tlP+plZvMBrVzFCRCpwAhaQ41EsylGdXqz3dv7o2rTXMsya4KmX2H
+ CDWiCGjbfhPe9UhnX3Gk4x4l+8HyUnqYXwqravs42MlunyJgi2D5CBJd6qhjHmUa3VXKXf8O3
+ FXnO/sLxF4TB2y8qAKv7Ms8n0ZwfonjsG/JrsYmvUWuJyUBLyLy+LRKZg/nhbNfIn5F0oh1ki
+ oRJ+MkRxO87oi+Xi3CVnBr5gMvi0sxufaXHZ54rwMmYxXNs+rV0EG58qT79Q13ZanNs+foPXk
+ 7YvRDw0Vjrw2KuIvu4zaHC/WRCsHiAavIULGqr4lg8D7J8XBRlajYtpFxAoZEgONNIzjfOoK1
+ E34eyxNvBdhr1M/FPUumVw8pBG4LUQ64mSA7nT7U2Q7nYskI9d+R7Eq1NwybVbG9hZCCJ7it1
+ yamygtKEnJEbod8745/axZlzmEijOET79CN0wgYyIS8VbdTJwI/GQDREdweGRv0dPvfqlL1P0
+ LQT38/f0PsYp7nFL6el4gVSXPrkrhnws6d8iJJ9lwUzF2o8i6BWhdHel4vB4+K05bc+eUmC5R
+ 4Z8qOvHKL3yGliNMhs8RVMGdDvPfKg/0AYwPRfUHmwHA9ILnoC3xyo=
 
-The loop device detach runs asynchronously in the background. It can cause
-unexpected errors. Document the possible existence of the loop device after
-exit of losetup -d or umount and need of "udevadm settle".
+Since linux v6.7 and
+commit 21ca59b365c0 ("binfmt_misc: enable sandboxed mounts"),
+binfmt_misc can be mountable in a non-initial user namespace by
+a non privileged user.
 
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
----
-  sys-utils/losetup.8.adoc | 2 +-
-  sys-utils/umount.8.adoc  | 2 ++
-  2 files changed, 3 insertions(+), 1 deletion(-)
+Extend unshare to manage it:
 
-diff --git a/sys-utils/losetup.8.adoc b/sys-utils/losetup.8.adoc
-index 9ea9451ce..e22e650b8 100644
---- a/sys-utils/losetup.8.adoc
-+++ b/sys-utils/losetup.8.adoc
-@@ -54,7 +54,7 @@ The _size_ and _offset_ arguments may be followed by 
-the multiplicative suffixes
-  Show the status of all loop devices. Note that not all information is 
-accessible for non-root users. See also *--list*. The old output format 
-(as printed without *--list*) is deprecated.
+- add --mount-binfmt[=<dir>] to mount binfmt_misc filesystem, this
+  results in clearing inherited interpreters from the previous namespace
 
-  *-d*, *--detach* _loopdev_...::
--Detach the file or device associated with the specified loop device(s). 
-Note that since Linux v3.7 kernel uses "lazy device destruction". The 
-detach operation does not return *EBUSY* error anymore if device is 
-actively used by system, but it is marked by autoclear flag and 
-destroyed later.
-+Detach the file or device associated with the specified loop device(s). 
-Note that since Linux v3.7 kernel uses "lazy device destruction". The 
-detach operation does not return *EBUSY* error anymore if device is 
-actively used by system, but it is marked by autoclear flag and 
-destroyed later. Even if the device is not used, the loop device can be 
-destroyed later. If you need to wait for a complete removal of the loop 
-device, call *udevadm settle* after *losetup*.
+- add -l, --load-interp <file> to load a binfmt_misc interpreter at startup.
 
-  *-D*, *--detach-all*::
-  Detach all associated loop devices.
-diff --git a/sys-utils/umount.8.adoc b/sys-utils/umount.8.adoc
-index f9b96e1ff..b9a3ff963 100644
---- a/sys-utils/umount.8.adoc
-+++ b/sys-utils/umount.8.adoc
-@@ -127,6 +127,8 @@ The *umount* command will automatically detach loop 
-device previously initialize
+  The interpreter is loaded from the initial fileystem if the 'F' flags is
+  provided, otherwise from inside the new namespace
+  This makes possible to start a chroot of another architecture without
+  being root.
 
-  In this case the device is initialized with "autoclear" flag (see 
-*losetup*(8) output for more details), otherwise it's necessary to use 
-the option *--detach-loop* or call *losetup -d* _device_. The autoclear 
-feature is supported since Linux 2.6.25.
+For instance:
 
-+Note that since Linux v3.7 kernel uses "lazy device destruction". The 
-system just marks the loop device by autoclear flag and destroys it 
-later. If you need to wait for a complete removal of the loop device, 
-call *udevadm settle* after *umount*.
-+
-  == EXIT STATUS
+  With 'F' flag, load the interpreter from the initial namespace:
 
-  *umount* has the following exit status values (the bits can be ORed):
+    $ /bin/qemu-m68k-static --version
+    qemu-m68k version 8.2.2 (qemu-8.2.2-1.fc40)
+    Copyright (c) 2003-2023 Fabrice Bellard and the QEMU Project developers
+    $ unshare --map-root-user --fork --pid --load-interp=":qemu-m68k:M::\\x7fELF\\x01\\x02\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x04:\\xff\\xff\\xff\\xff\\xff\\xff\\xfe\\x00\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xfe\\xff\\xff:/bin/qemu-m68k-static:OCF" --root=chroot/m68k/sid
+    # QEMU_VERSION= ls
+    qemu-m68k version 8.2.2 (qemu-8.2.2-1.fc40)
+    Copyright (c) 2003-2023 Fabrice Bellard and the QEMU Project developers
+    # /qemu-m68k  --version
+    qemu-m68k version 8.0.50 (v8.0.0-340-gb1cff5e2da95)
+    Copyright (c) 2003-2022 Fabrice Bellard and the QEMU Project developers
+
+  Without 'F' flag, from inside the namespace:
+
+    $ unshare --map-root-user --fork --pid --load-interp=":qemu-m68k:M::\\x7fELF\\x01\\x02\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x04:\\xff\\xff\\xff\\xff\\xff\\xff\\xfe\\x00\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xfe\\xff\\xff:/qemu-m68k:OC" --root=chroot/m68k/sid
+    # QEMU_VERSION= ls
+    qemu-m68k version 8.0.50 (v8.0.0-340-gb1cff5e2da95)
+    Copyright (c) 2003-2022 Fabrice Bellard and the QEMU Project developers
+    # /qemu-m68k  --version
+    qemu-m68k version 8.0.50 (v8.0.0-340-gb1cff5e2da95)
+    Copyright (c) 2003-2022 Fabrice Bellard and the QEMU Project developers
+
+v2:
+  - use <binfmt_mnt>/register rather than _PATH_PROC_BINFMT_MISC_REGISTER to load the interpreter
+
+Laurent Vivier (2):
+  unshare: mount binfmt_misc
+  unshare: load binfmt_misc interpreter
+
+ include/pathnames.h      |  1 +
+ sys-utils/unshare.1.adoc | 13 ++++++++
+ sys-utils/unshare.c      | 71 +++++++++++++++++++++++++++++++++++++++-
+ 3 files changed, 84 insertions(+), 1 deletion(-)
+
 -- 
-2.45.0
-
--- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Křižíkova 148/34 (Corso IIa)                    tel: +420 284 084 060
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+2.45.2
 
