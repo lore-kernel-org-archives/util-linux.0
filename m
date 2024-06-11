@@ -1,29 +1,31 @@
-Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.133])
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD8BA7346F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB5AF172BDE
 	for <util-linux@vger.kernel.org>; Tue, 11 Jun 2024 08:43:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.126.133
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.126.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718095400; cv=none; b=jCjHm8iIQ24foWA+CQARNZ6J26HLMNnN9b2VtsfKoR3o2PkiNX37pxtZnThD+We+vqvI5e+GRZcBViir83Uh5d5njl9PnRIUUlfVQcNV2aR68nmx+Vu8BIDqiNdLp1aH/Y507I75IaBcjNQTqfHp+xRWfgeH4E1gG44gJ59O6K8=
+	t=1718095401; cv=none; b=kjLKvm4AqNd8MtDqHAoemgYahhr/Y9WHaU82ta5XPKhKZOOkWUhMd6+y3H4TWT1FhXUwag0r4pew1gLNFCjGSGlCNjmtxrkGkD4oQPRWArX8/UmCB9vwNtRfM8fHzVJnnOAL7g+Rn5t12bOzhV1/0+8QTwPN+VowofE6biOErPo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718095400; c=relaxed/simple;
-	bh=qB3h0LeaNFi+glvMFcls1D8tLKMCigQ8VeO6fqD3T44=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=NL7UTJ8Cu10lBXV5fpiyj1ZsHUvK6tsvKr/dTLXgN5mky6bpMCwmZhBpMHpytzyJZOcTZV9zRJia3C1r7rYVgpMyDW0O+aLL/gl+2gmedMNQsO3BlhxLa5zhIh/WBf8uFd2OrgGvdCI/jdzpsvEtGqUcD1yv04b1VI0gqcgQreo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=vivier.eu; spf=pass smtp.mailfrom=vivier.eu; arc=none smtp.client-ip=212.227.126.133
+	s=arc-20240116; t=1718095401; c=relaxed/simple;
+	bh=LCATPotSz2ATRD7CPZiRXHBkg12fcf+9FklB+vEJs/4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ccehHF0POWKLVP7F4gGwIKLOpiELSd9u0ENGUdOKGN/zu2YCFwDA7e6rfCnICrpxdEEwSYtVJYZ2g8kNf9y1kAShkISlIJkETuWrJspnLxOLjqszZqwiIzFWOwyYspYCvUQAgxRMCEyQ1hgKlk+OjBAzlACDzgr0gq9xT1+jnRg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=vivier.eu; spf=pass smtp.mailfrom=vivier.eu; arc=none smtp.client-ip=212.227.126.187
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=vivier.eu
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=vivier.eu
 Received: from quad ([82.64.211.94]) by mrelayeu.kundenserver.de (mreue010
- [212.227.15.167]) with ESMTPSA (Nemesis) id 1MzQwa-1sdAup1eTo-018JBg; Tue, 11
+ [212.227.15.167]) with ESMTPSA (Nemesis) id 1MY5wD-1ruEmM2MkH-00MYAP; Tue, 11
  Jun 2024 10:43:15 +0200
 From: Laurent Vivier <laurent@vivier.eu>
 To: util-linux@vger.kernel.org
 Cc: Laurent Vivier <laurent@vivier.eu>
-Subject: [PATCH v2 0/2] unshare: manage binfmt_misc mounts
-Date: Tue, 11 Jun 2024 10:43:12 +0200
-Message-ID: <20240611084314.183913-1-laurent@vivier.eu>
+Subject: [PATCH v2 1/2] unshare: mount binfmt_misc
+Date: Tue, 11 Jun 2024 10:43:13 +0200
+Message-ID: <20240611084314.183913-2-laurent@vivier.eu>
 X-Mailer: git-send-email 2.45.2
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20240611084314.183913-1-laurent@vivier.eu>
+References: <20240611084314.183913-1-laurent@vivier.eu>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -31,78 +33,130 @@ List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:YWGtk6rd+h++MgbgKHsAt8Lur+ULRzwnaE9bpAhP4mJLCW/8ulA
- RgvkzxPbIC8L1r3BLC9qHk9xWllj5MRjjpXM08GpZOEVd2YLGEC8Y59kYcnkon6WxCp/UKk
- B2dN6t90Z5d3+U88lV6HXYcwi9xA0lS3zUQCzw6FoMIJPORW+QKp8UO8l2NQS34qD0L6x+n
- a7PUNclG98u3XJd6mrJwA==
+X-Provags-ID: V03:K1:1U7AGUJvNLuaOLgcGCBogxOodq3s9rnXHEAPbPA9xn5445oYm/9
+ oE6tdtMV5NvKralblOLEh6P5WdASiD42rGKFhaO2DJJ+RoJY3sS8Af4ym5ucMe/R7GPO0ZO
+ Sj5rIG8M0ylvyPjC2jlhT1ajT1UqnIActz5iJ9yRg64JRYdrO9nnbQSsMk+/+yYgKUvLNLS
+ nPoe7XhWvA+AjaKfYhhEQ==
 X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:sLqMm7flJIU=;El6DwtHXIZS43/DHFvdl3ALaoER
- iDBpKvd4Z+O5zOWGj0EFv7+sr/LzWalg/A81sqydUAuuBt5Nrb3fWJxULdJzz6PntHAcEXH9G
- /UAmnzWhiEUoHwo9ZQAN2f/Jw3/bP2bS2z0sJJm2IdWlDiJgmd0xxCidVzUtYSWbBqxcQaGRO
- hjOsN3TG6WWTuvy483L9tlP+plZvMBrVzFCRCpwAhaQ41EsylGdXqz3dv7o2rTXMsya4KmX2H
- CDWiCGjbfhPe9UhnX3Gk4x4l+8HyUnqYXwqravs42MlunyJgi2D5CBJd6qhjHmUa3VXKXf8O3
- FXnO/sLxF4TB2y8qAKv7Ms8n0ZwfonjsG/JrsYmvUWuJyUBLyLy+LRKZg/nhbNfIn5F0oh1ki
- oRJ+MkRxO87oi+Xi3CVnBr5gMvi0sxufaXHZ54rwMmYxXNs+rV0EG58qT79Q13ZanNs+foPXk
- 7YvRDw0Vjrw2KuIvu4zaHC/WRCsHiAavIULGqr4lg8D7J8XBRlajYtpFxAoZEgONNIzjfOoK1
- E34eyxNvBdhr1M/FPUumVw8pBG4LUQ64mSA7nT7U2Q7nYskI9d+R7Eq1NwybVbG9hZCCJ7it1
- yamygtKEnJEbod8745/axZlzmEijOET79CN0wgYyIS8VbdTJwI/GQDREdweGRv0dPvfqlL1P0
- LQT38/f0PsYp7nFL6el4gVSXPrkrhnws6d8iJJ9lwUzF2o8i6BWhdHel4vB4+K05bc+eUmC5R
- 4Z8qOvHKL3yGliNMhs8RVMGdDvPfKg/0AYwPRfUHmwHA9ILnoC3xyo=
+UI-OutboundReport: notjunk:1;M01:P0:+3whv2728f4=;ihT51Y7Kvx58NWv+oxbR9ag6z14
+ DfgW87Be3teVDsfpeck4cUMxqpFiwXLiSv1eFvrfCreQ5SdP3IKcFMseZiSTiIc0zQQPamDu6
+ 3fC28TE/o1ZKDTGrvpY4QYH9OjyHDpvlrjRgldju9fB/DvaXJW6rSEpsoIr1MzwvRvMYBtVvj
+ 5EysSdXG5VWOxPPhrGRn9QpTFn/WwYaTe66va+bSyNRIOpq/+dehLHmmwIZxqSeFmxmoNQv2V
+ HAnYY1B1JD7eKcTV8gIEWbw+Zx4SU4ZQoOPxOXsHdu0sSJrWaarYJqByy2TiSfidi863Vp06t
+ 1lNoF9IQoLbhRZAD0vQx4gNBcvM3GyhTRheZMvZKXeIZYh3tJp4dJhUYufA5phQDHucgh5jfZ
+ GrbDdnLNpPJxWYLvTRBy3lX5NNKRnEESjTNaOlsS5Jg7ennte8FedifT7GqVVcBIiUE+IOTn1
+ ycpuVFsp6BatoIv1uDQ+fnoMbl9+bOAC49aA/HGJ4GjWc2ikePmeVMrvhDKvjDomMx3WGQVAN
+ yTa3XYuYe/hshJ4aOMck76mj25L6x7tr+4uZL2fZWl/pClw/v4g4gU0flKjZb2uHJkYpTLYZ9
+ 4P61j1yDxt8whbAawxLxcuvQgv8I6xPbX78CEdIrFjocr/Lk68YmVNb7UOmZHtynCaju0sw0T
+ Q1LfRKIr8xpr59UcAcch6ShI+CKMxKch6qdswTLme8iDywOCdE5UWHyqAWYovcj66nj1zj510
+ Xqeh7lCSal5OP4xxKLcKOfC6Yh9WkgsewQcSfJ0F3LkvIVlMUIQjiY=
 
-Since linux v6.7 and
-commit 21ca59b365c0 ("binfmt_misc: enable sandboxed mounts"),
-binfmt_misc can be mountable in a non-initial user namespace by
-a non privileged user.
+add --mount-binfmt[=<dir>] to mount binfmt_misc filesystem,
+this results in clearing inherited interpreters from the previous namespace
 
-Extend unshare to manage it:
+Signed-off-by: Laurent Vivier <laurent@vivier.eu>
+---
 
-- add --mount-binfmt[=<dir>] to mount binfmt_misc filesystem, this
-  results in clearing inherited interpreters from the previous namespace
-
-- add -l, --load-interp <file> to load a binfmt_misc interpreter at startup.
-
-  The interpreter is loaded from the initial fileystem if the 'F' flags is
-  provided, otherwise from inside the new namespace
-  This makes possible to start a chroot of another architecture without
-  being root.
-
-For instance:
-
-  With 'F' flag, load the interpreter from the initial namespace:
-
-    $ /bin/qemu-m68k-static --version
-    qemu-m68k version 8.2.2 (qemu-8.2.2-1.fc40)
-    Copyright (c) 2003-2023 Fabrice Bellard and the QEMU Project developers
-    $ unshare --map-root-user --fork --pid --load-interp=":qemu-m68k:M::\\x7fELF\\x01\\x02\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x04:\\xff\\xff\\xff\\xff\\xff\\xff\\xfe\\x00\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xfe\\xff\\xff:/bin/qemu-m68k-static:OCF" --root=chroot/m68k/sid
-    # QEMU_VERSION= ls
-    qemu-m68k version 8.2.2 (qemu-8.2.2-1.fc40)
-    Copyright (c) 2003-2023 Fabrice Bellard and the QEMU Project developers
-    # /qemu-m68k  --version
-    qemu-m68k version 8.0.50 (v8.0.0-340-gb1cff5e2da95)
-    Copyright (c) 2003-2022 Fabrice Bellard and the QEMU Project developers
-
-  Without 'F' flag, from inside the namespace:
-
-    $ unshare --map-root-user --fork --pid --load-interp=":qemu-m68k:M::\\x7fELF\\x01\\x02\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x04:\\xff\\xff\\xff\\xff\\xff\\xff\\xfe\\x00\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xfe\\xff\\xff:/qemu-m68k:OC" --root=chroot/m68k/sid
-    # QEMU_VERSION= ls
-    qemu-m68k version 8.0.50 (v8.0.0-340-gb1cff5e2da95)
-    Copyright (c) 2003-2022 Fabrice Bellard and the QEMU Project developers
-    # /qemu-m68k  --version
-    qemu-m68k version 8.0.50 (v8.0.0-340-gb1cff5e2da95)
-    Copyright (c) 2003-2022 Fabrice Bellard and the QEMU Project developers
-
-v2:
-  - use <binfmt_mnt>/register rather than _PATH_PROC_BINFMT_MISC_REGISTER to load the interpreter
-
-Laurent Vivier (2):
-  unshare: mount binfmt_misc
-  unshare: load binfmt_misc interpreter
+Notes:
+    v2:
+      - remove definition of _PATH_PROC_BINFMT_MISC_REGISTER
 
  include/pathnames.h      |  1 +
- sys-utils/unshare.1.adoc | 13 ++++++++
- sys-utils/unshare.c      | 71 +++++++++++++++++++++++++++++++++++++++-
- 3 files changed, 84 insertions(+), 1 deletion(-)
+ sys-utils/unshare.1.adoc |  3 +++
+ sys-utils/unshare.c      | 19 +++++++++++++++++++
+ 3 files changed, 23 insertions(+)
 
+diff --git a/include/pathnames.h b/include/pathnames.h
+index 81fa405f63c7..569bef17f982 100644
+--- a/include/pathnames.h
++++ b/include/pathnames.h
+@@ -204,6 +204,7 @@
+ /* sysctl fs paths */
+ #define _PATH_PROC_SYS_FS	"/proc/sys/fs"
+ #define _PATH_PROC_PIPE_MAX_SIZE	_PATH_PROC_SYS_FS "/pipe-max-size"
++#define _PATH_PROC_BINFMT_MISC	_PATH_PROC_SYS_FS "/binfmt_misc"
+ 
+ /* irqtop paths */
+ #define _PATH_PROC_INTERRUPTS	"/proc/interrupts"
+diff --git a/sys-utils/unshare.1.adoc b/sys-utils/unshare.1.adoc
+index e6201e28fffd..48d1a5579282 100644
+--- a/sys-utils/unshare.1.adoc
++++ b/sys-utils/unshare.1.adoc
+@@ -90,6 +90,9 @@ When *unshare* terminates, have _signame_ be sent to the forked child process. C
+ *--mount-proc*[**=**__mountpoint__]::
+ Just before running the program, mount the proc filesystem at _mountpoint_ (default is _/proc_). This is useful when creating a new PID namespace. It also implies creating a new mount namespace since the _/proc_ mount would otherwise mess up existing programs on the system. The new proc filesystem is explicitly mounted as private (with *MS_PRIVATE*|*MS_REC*).
+ 
++*--mount-binfmt*[**=**__mountpoint__]::
++Just before running the program, mount the binfmt_misc filesystem at _mountpoint_ (default is /proc/sys/fs/binfmt_misc).  It also implies creating a new mount namespace since the binfmt_misc mount would otherwise mess up existing programs on the system.  The new binfmt_misc filesystem is explicitly mounted as private (with *MS_PRIVATE*|*MS_REC*).
++
+ **--map-user=**__uid|name__::
+ Run the program only after the current effective user ID has been mapped to _uid_. If this option is specified multiple times, the last occurrence takes precedence. This option implies *--user*.
+ 
+diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
+index 57f3b8744fb5..d79aa1125955 100644
+--- a/sys-utils/unshare.c
++++ b/sys-utils/unshare.c
+@@ -760,6 +760,7 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_(" --kill-child[=<signame>]  when dying, kill the forked child (implies --fork)\n"
+ 		"                             defaults to SIGKILL\n"), out);
+ 	fputs(_(" --mount-proc[=<dir>]      mount proc filesystem first (implies --mount)\n"), out);
++	fputs(_(" --mount-binfmt[=<dir>]    mount binfmt filesystem first (implies --user and --mount)\n"), out);
+ 	fputs(_(" --propagation slave|shared|private|unchanged\n"
+ 	        "                           modify mount propagation in mount namespace\n"), out);
+ 	fputs(_(" --setgroups allow|deny    control the setgroups syscall in user namespaces\n"), out);
+@@ -783,6 +784,7 @@ int main(int argc, char *argv[])
+ {
+ 	enum {
+ 		OPT_MOUNTPROC = CHAR_MAX + 1,
++		OPT_MOUNTBINFMT,
+ 		OPT_PROPAGATION,
+ 		OPT_SETGROUPS,
+ 		OPT_KILLCHILD,
+@@ -811,6 +813,7 @@ int main(int argc, char *argv[])
+ 		{ "fork",          no_argument,       NULL, 'f'             },
+ 		{ "kill-child",    optional_argument, NULL, OPT_KILLCHILD   },
+ 		{ "mount-proc",    optional_argument, NULL, OPT_MOUNTPROC   },
++		{ "mount-binfmt",  optional_argument, NULL, OPT_MOUNTBINFMT },
+ 		{ "map-user",      required_argument, NULL, OPT_MAPUSER     },
+ 		{ "map-users",     required_argument, NULL, OPT_MAPUSERS    },
+ 		{ "map-group",     required_argument, NULL, OPT_MAPGROUP    },
+@@ -839,6 +842,7 @@ int main(int argc, char *argv[])
+ 	struct map_range *groupmap = NULL;
+ 	int kill_child_signo = 0; /* 0 means --kill-child was not used */
+ 	const char *procmnt = NULL;
++	const char *binfmt_mnt = NULL;
+ 	const char *newroot = NULL;
+ 	const char *newdir = NULL;
+ 	pid_t pid_bind = 0, pid_idmap = 0;
+@@ -913,6 +917,15 @@ int main(int argc, char *argv[])
+ 			unshare_flags |= CLONE_NEWNS;
+ 			procmnt = optarg ? optarg : "/proc";
+ 			break;
++		case OPT_MOUNTBINFMT:
++			unshare_flags |= CLONE_NEWNS | CLONE_NEWUSER;
++			binfmt_mnt = optarg;
++			if (!binfmt_mnt) {
++				if (!procmnt)
++					procmnt = "/proc";
++				binfmt_mnt = _PATH_PROC_BINFMT_MISC;
++			}
++			break;
+ 		case OPT_MAPUSER:
+ 			unshare_flags |= CLONE_NEWUSER;
+ 			mapuser = get_user(optarg, _("failed to parse uid"));
+@@ -1178,6 +1191,12 @@ int main(int argc, char *argv[])
+ 			err(EXIT_FAILURE, _("mount %s failed"), procmnt);
+ 	}
+ 
++	if (binfmt_mnt) {
++		if (mount("binfmt_misc", binfmt_mnt, "binfmt_misc",
++			  MS_NOSUID|MS_NOEXEC|MS_NODEV, NULL) != 0)
++			err(EXIT_FAILURE, _("mount %s failed"), binfmt_mnt);
++	}
++
+ 	if (force_gid) {
+ 		if (setgroups(0, NULL) != 0)	/* drop supplementary groups */
+ 			err(EXIT_FAILURE, _("setgroups failed"));
 -- 
 2.45.2
 
