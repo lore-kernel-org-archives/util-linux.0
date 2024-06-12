@@ -1,215 +1,145 @@
-Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.134])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7DCE171D2
-	for <util-linux@vger.kernel.org>; Tue, 11 Jun 2024 08:48:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.126.134
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F8EF16D9D0
+	for <util-linux@vger.kernel.org>; Wed, 12 Jun 2024 10:04:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718095712; cv=none; b=qDM6XSo6yopHsTt/oeVP/pqn4kV7I2HUAn19Fp9ug7Sc4Vw+fulq/kfwVnz7YzghMREvnO9et6KPZ0eTifKROD43oddke3I1744M7rd95XMsRVmZBD5OztepLEPMgKrNkl7XljStHmGDN1ZqzGu4oQiJf2M2tpheqiXLFuf6ews=
+	t=1718186668; cv=none; b=F8jSkLO5GHufsVi1o7Stt8085b31BWsv+CRmniIxHbiHcX5jYc53H7ws222Tf9D/k1kov5FlbSegyqirGb5eXz2c3WIETPEKHYSg4Hp18bB5qZR9UMbj1ABB1Dc9Hl50jR26O+MyuxQPOokyodKJPibLRe2nlE7RNX0NasjIS0A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718095712; c=relaxed/simple;
-	bh=wI/4ISuVjGBBRXww4q8Nei4UcMs/bKUeHMWTkgSmtGU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Yw9GvOqeuZpIJ4ds631vk9N9UhDLwChhu10r19jMVHnhxiizYHyDFrTvnwAqm7OhucGqRs/0KsAcfBMGA4xE79tdSplw9VgORYEVkAAnvC0usodlUV+LgtlP3tlzYhi2IsG9ORAW04zvlj02ukrhLIo+hg2rV4aOcMbowNg7DwA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=vivier.eu; spf=pass smtp.mailfrom=vivier.eu; arc=none smtp.client-ip=212.227.126.134
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=vivier.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=vivier.eu
-Received: from quad ([82.64.211.94]) by mrelayeu.kundenserver.de (mreue010
- [212.227.15.167]) with ESMTPSA (Nemesis) id 1Mr8vG-1snaDd34Ni-00gHuI; Tue, 11
- Jun 2024 10:43:15 +0200
-From: Laurent Vivier <laurent@vivier.eu>
-To: util-linux@vger.kernel.org
-Cc: Laurent Vivier <laurent@vivier.eu>
-Subject: [PATCH v2 2/2] unshare: load binfmt_misc interpreter
-Date: Tue, 11 Jun 2024 10:43:14 +0200
-Message-ID: <20240611084314.183913-3-laurent@vivier.eu>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20240611084314.183913-1-laurent@vivier.eu>
-References: <20240611084314.183913-1-laurent@vivier.eu>
+	s=arc-20240116; t=1718186668; c=relaxed/simple;
+	bh=Rk9i8fjWfT3Sle3gIYmZ3uq5e2/uRH6UEpEJcsQQ5EU=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:References:
+	 In-Reply-To:Content-Type; b=VBHX7Ou4xaO3Evf0dmdnfK5TvsUiRdYDLS+UkTz9aPW8XKmXFMEQDA8ncfyVKQcS9SGd19JHPVA07F9LtG+6M64YHxoYMIQz19lLTemR8DFGDln+YJtGGrGwzGbQ/2C2U9Fg+uLzeFftPcPvLAa02Bf4xk251JqBmI2Dshbp3H8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Pr1cZC1l; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=/8wWOIJL; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Pr1cZC1l; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=/8wWOIJL; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Pr1cZC1l";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="/8wWOIJL";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Pr1cZC1l";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="/8wWOIJL"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 728723413B
+	for <util-linux@vger.kernel.org>; Wed, 12 Jun 2024 10:04:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1718186662; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=RtNfj8QbzXEvnVHHSUvWepwvTzU2tlcafGftc7LVNqs=;
+	b=Pr1cZC1lJB0dIS1keQCG//TjFFhxJGK+rx30c5lgmV3L9iyTwNVgO93a1LB3ZsxLb6X2Wq
+	f7dAFXVGn+Qcq9qdWUG4VzBdcXXOWHJDHwR9leUuyoQprLjtr5UGIOZYD8u6OzQif1QTOh
+	rYhvhqttx3UYKmpdOf8qf1YMb/j/ND0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1718186662;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=RtNfj8QbzXEvnVHHSUvWepwvTzU2tlcafGftc7LVNqs=;
+	b=/8wWOIJLarg+WbY8uLe6k6l/sTfp9feZaa4/BX6mOPIctgFsF8rzGtsl3UGhwUiJGffcDa
+	LeYMgyJZovnwdBDA==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=Pr1cZC1l;
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b="/8wWOIJL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1718186662; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=RtNfj8QbzXEvnVHHSUvWepwvTzU2tlcafGftc7LVNqs=;
+	b=Pr1cZC1lJB0dIS1keQCG//TjFFhxJGK+rx30c5lgmV3L9iyTwNVgO93a1LB3ZsxLb6X2Wq
+	f7dAFXVGn+Qcq9qdWUG4VzBdcXXOWHJDHwR9leUuyoQprLjtr5UGIOZYD8u6OzQif1QTOh
+	rYhvhqttx3UYKmpdOf8qf1YMb/j/ND0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1718186662;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=RtNfj8QbzXEvnVHHSUvWepwvTzU2tlcafGftc7LVNqs=;
+	b=/8wWOIJLarg+WbY8uLe6k6l/sTfp9feZaa4/BX6mOPIctgFsF8rzGtsl3UGhwUiJGffcDa
+	LeYMgyJZovnwdBDA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 65A851372E
+	for <util-linux@vger.kernel.org>; Wed, 12 Jun 2024 10:04:22 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id fzaHF6ZyaWb1eAAAD6G6ig
+	(envelope-from <sbrabec@suse.cz>)
+	for <util-linux@vger.kernel.org>; Wed, 12 Jun 2024 10:04:22 +0000
+Message-ID: <70cdae6f-3b7d-41db-822a-9b3007fb7a05@suse.cz>
+Date: Wed, 12 Jun 2024 12:04:21 +0200
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] mount, losetup: Document loop destroy behavior
+From: Stanislav Brabec <sbrabec@suse.cz>
+To: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>
+References: <8c649c26-93de-4edb-8dec-c87c243ee45d@suse.cz>
+Content-Language: en-US
+Organization: SUSE Linux, s. r. o.
+In-Reply-To: <8c649c26-93de-4edb-8dec-c87c243ee45d@suse.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:eRAD6W3LPWuwYz9lFhxdw5noHPFJqUeIpdQDjmTTczfgw6mzsgs
- BGmfEFwbM++6GEvFiAGvw15q4qBDVf/KonALx9hkWRDX3NsYjKQG6uPShrwH2/Q3gu6KU4K
- fJIqlbk7OtT02p25beU4p5dXJzasQDkQcssd9fPgE1EeXGWArv7PvDRDSEbhi0xuD9xyJck
- KuwnIJ9q2aHv3xNJI4Www==
+X-Spamd-Result: default: False [-4.50 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	XM_UA_NO_VERSION(0.01)[];
+	FROM_HAS_DN(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	ARC_NA(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	MIME_TRACE(0.00)[0:+];
+	HAS_ORG_HEADER(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	TO_DN_EQ_ADDR_ALL(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCPT_COUNT_ONE(0.00)[1];
+	PREVIOUSLY_DELIVERED(0.00)[util-linux@vger.kernel.org];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MID_RHS_MATCH_FROM(0.00)[];
+	DKIM_TRACE(0.00)[suse.cz:+];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.cz:url,suse.cz:dkim,suse.com:email]
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Queue-Id: 728723413B
 X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:WhWkHV/fTAo=;hnw9mNNwh2LSwhG1DPMBmrkeNoq
- H4+1FbRYSQUX6mzyS3Jb5mUjy+9pfiqP+K0uGPoqEXjueh7CFSYUFM40YzDIPsl3EEIhJEV3T
- SnQ3xemoAM4+bZyayXvLMD5jRNqsjIThJrpbsvI2A8dQ1vm7H7D8QiPdI7IcmTtH0/E/dyzeU
- WkYhZ2kg/IjWSkr/DbS0I994fBkber2KVSefDA/8AGnA4jtiMj2nHEhcjH8W6GFfMaGjo3XNU
- BWLUQYfaDnu81kGAWwi0ycpKXjqYzCDE8ytQLHmoaQdn4NVAyy8zeQpl2M0TbPbjdpMK5q/le
- cz/WXt9XdN6LQ3/QtrlyvpD4c+DNQ7NLGd0DKJ3/A0czk1wm0OTqdbDQEXyKT74o+6DjuiH59
- UIknvRYNJkF3/YI+6SVd1jHpaiGdImciZo0cgGNApIaaq6t8mzkSoQ9p66N0GO/J9LItNVek0
- /Jo11fd3v+CrIz6deG6FZXz6FGOQyPw0cMaX/PtXkXb1aDlK9r21Wvi7dl47Zbjj58xcbBLGE
- zru7BKgdxQs1bxYUH8+3hZs7XHNuqzzRU9TSKQp94HR3pE8OLV5NV2Y807e0INHRWXFZusr/O
- utYKTTLkm4qy9q+jOdJK/pg5znaTzsPQDjJNmXaSZdQMft+6CrDpRW7Q63OBAdqDcA2seTxDj
- PxCweHTYpmrTqYVzNP0rjB8SxkV+BoQafHWNPfnAFp9qThQ22PnDpieCc5/FVMuKq8tRcrmRN
- z3MMQdzyfAr4lPc/e08Y6ZIy61zKd55pD6ZOmvzW0RC57yjUKCJqcY=
+X-Spam-Score: -4.50
+X-Spam-Level: 
 
-add -l, --load-interp <file> to load a binfmt_misc interpreter at startup.
+It should be [PATCH] umount, losetup: Document loop destroy behavior.
 
-The interpreter is loaded from the initial fileystem if the 'F' flags is
-provided, otherwise from inside the new namespace
-This makes possible to start a chroot of another architecture without
-being root.
-
-Signed-off-by: Laurent Vivier <laurent@vivier.eu>
----
-
-Notes:
-    v2:
-      - use <binfmt_mnt>/register rather than _PATH_PROC_BINFMT_MISC_REGISTER
-        to load the interpreter
-
- sys-utils/unshare.1.adoc | 10 ++++++++
- sys-utils/unshare.c      | 52 +++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 61 insertions(+), 1 deletion(-)
-
-diff --git a/sys-utils/unshare.1.adoc b/sys-utils/unshare.1.adoc
-index 48d1a5579282..24ac6fb01867 100644
---- a/sys-utils/unshare.1.adoc
-+++ b/sys-utils/unshare.1.adoc
-@@ -138,6 +138,9 @@ Set the user ID which will be used in the entered namespace.
- *-G*, *--setgid* _gid_::
- Set the group ID which will be used in the entered namespace and drop supplementary groups.
- 
-+*-l*, **--load-interp=**__file__::
-+Load binfmt_misc definition in the namespace (implies *--mount-binfmt*).
-+
- *--monotonic* _offset_::
- Set the offset of *CLOCK_MONOTONIC* which will be used in the entered time namespace. This option requires unsharing a time namespace with *--time*.
- 
-@@ -256,6 +259,13 @@ up 21 hours, 30 minutes
- up 9 years, 28 weeks, 1 day, 2 hours, 50 minutes
- ....
- 
-+The following example execute a chroot into the directory /chroot/powerpc/jessie and install the interpreter /bin/qemu-ppc-static to execute the powerpc binaries.
-+If the interpreter is defined with the flag F, the interpreter is loaded before the chroot otherwise the interpreter is loaded from inside the chroot.
-+
-+....
-+$  unshare --map-root-user --fork --pid --load-interp=":qemu-ppc:M::\\x7fELF\x01\\x02\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x14:\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\x00\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xfe\\xff\\xff:/bin/qemu-ppc-static:OCF" --root=/chroot/powerpc/jessie /bin/bash -l
-+....
-+
- == AUTHORS
- 
- mailto:dottedmag@dottedmag.net[Mikhail Gusarov],
-diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
-index d79aa1125955..f8e1141840ca 100644
---- a/sys-utils/unshare.c
-+++ b/sys-utils/unshare.c
-@@ -725,6 +725,35 @@ static pid_t map_ids_from_child(int *fd, uid_t mapuser,
- 	exit(EXIT_SUCCESS);
- }
- 
-+static int is_fixed(const char *interp)
-+{
-+	const char *flags;
-+
-+	flags = strrchr(interp, ':');
-+
-+	return strchr(flags, 'F') != NULL;
-+}
-+
-+static void load_interp(const char *binfmt_mnt, const char *interp)
-+{
-+	int dirfd, fd;
-+
-+	dirfd = open(binfmt_mnt, O_PATH | O_DIRECTORY);
-+	if (dirfd < 0)
-+		err(EXIT_FAILURE, _("cannot open %s"), binfmt_mnt);
-+
-+	fd = openat(dirfd, "register", O_WRONLY);
-+	if (fd < 0)
-+		err(EXIT_FAILURE, _("cannot open %s/register"), binfmt_mnt);
-+
-+	if (write_all(fd, interp, strlen(interp)))
-+		err(EXIT_FAILURE, _("write failed %s/register"), binfmt_mnt);
-+
-+	close(fd);
-+
-+	close(dirfd);
-+}
-+
- static void __attribute__((__noreturn__)) usage(void)
- {
- 	FILE *out = stdout;
-@@ -772,6 +801,7 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(_(" -G, --setgid <gid>        set gid in entered namespace\n"), out);
- 	fputs(_(" --monotonic <offset>      set clock monotonic offset (seconds) in time namespaces\n"), out);
- 	fputs(_(" --boottime <offset>       set clock boottime offset (seconds) in time namespaces\n"), out);
-+	fputs(_(" -l, --load-interp <file>  load binfmt definition in the namespace (implies --mount-binfmt)\n"), out);
- 
- 	fputs(USAGE_SEPARATOR, out);
- 	fprintf(out, USAGE_HELP_OPTIONS(27));
-@@ -830,6 +860,7 @@ int main(int argc, char *argv[])
- 		{ "wd",		   required_argument, NULL, 'w'		    },
- 		{ "monotonic",     required_argument, NULL, OPT_MONOTONIC   },
- 		{ "boottime",      required_argument, NULL, OPT_BOOTTIME    },
-+		{ "load-interp",   required_argument, NULL, 'l'		    },
- 		{ NULL, 0, NULL, 0 }
- 	};
- 
-@@ -846,6 +877,7 @@ int main(int argc, char *argv[])
- 	const char *newroot = NULL;
- 	const char *newdir = NULL;
- 	pid_t pid_bind = 0, pid_idmap = 0;
-+	const char *newinterp = NULL;
- 	pid_t pid = 0;
- #ifdef UL_HAVE_PIDFD
- 	int fd_parent_pid = -1;
-@@ -868,7 +900,7 @@ int main(int argc, char *argv[])
- 	textdomain(PACKAGE);
- 	close_stdout_atexit();
- 
--	while ((c = getopt_long(argc, argv, "+fhVmuinpCTUrR:w:S:G:c", longopts, NULL)) != -1) {
-+	while ((c = getopt_long(argc, argv, "+fhVmuinpCTUrR:w:S:G:cl:", longopts, NULL)) != -1) {
- 		switch (c) {
- 		case 'f':
- 			forkit = 1;
-@@ -1011,6 +1043,15 @@ int main(int argc, char *argv[])
- 			boottime = strtos64_or_err(optarg, _("failed to parse boottime offset"));
- 			force_boottime = 1;
- 			break;
-+		case 'l':
-+			unshare_flags |= CLONE_NEWNS | CLONE_NEWUSER;
-+			if (!binfmt_mnt) {
-+				if (!procmnt)
-+					procmnt = "/proc";
-+				binfmt_mnt = _PATH_PROC_BINFMT_MISC;
-+			}
-+			newinterp = optarg;
-+			break;
- 
- 		case 'h':
- 			usage();
-@@ -1165,6 +1206,13 @@ int main(int argc, char *argv[])
- 	if ((unshare_flags & CLONE_NEWNS) && propagation)
- 		set_propagation(propagation);
- 
-+	if (newinterp && is_fixed(newinterp)) {
-+		if (mount("binfmt_misc", _PATH_PROC_BINFMT_MISC, "binfmt_misc",
-+			  MS_NOSUID|MS_NOEXEC|MS_NODEV, NULL) != 0)
-+			err(EXIT_FAILURE, _("mount %s failed"), _PATH_PROC_BINFMT_MISC);
-+		load_interp(_PATH_PROC_BINFMT_MISC, newinterp);
-+	}
-+
- 	if (newroot) {
- 		if (chroot(newroot) != 0)
- 			err(EXIT_FAILURE,
-@@ -1196,6 +1244,8 @@ int main(int argc, char *argv[])
- 			  MS_NOSUID|MS_NOEXEC|MS_NODEV, NULL) != 0)
- 			err(EXIT_FAILURE, _("mount %s failed"), binfmt_mnt);
- 	}
-+	if (newinterp && !is_fixed(newinterp))
-+		load_interp(binfmt_mnt, newinterp);
- 
- 	if (force_gid) {
- 		if (setgroups(0, NULL) != 0)	/* drop supplementary groups */
 -- 
-2.45.2
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Křižíkova 148/34 (Corso IIa)                    tel: +420 284 084 060
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
 
