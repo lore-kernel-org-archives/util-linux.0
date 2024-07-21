@@ -1,126 +1,152 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30EEA7D412
-	for <util-linux@vger.kernel.org>; Wed, 10 Jul 2024 10:39:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E98E7E792
+	for <util-linux@vger.kernel.org>; Sun, 21 Jul 2024 13:02:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720607983; cv=none; b=cEHsyf0NAPjAb8hPDXPkEmGo7KwpszoW013IoCrA/ElBWuiswpn3/5NSz0t/tmmiJvU8SxTExEZL4Y7Yt0Qs2QVkZyvWk/EbX4ya/R7PLXUZQepi44PpbsAeIBIUPtUR8HFAjFcLRiHBJab7ACCqQ8X7g1fLhpVk13dHeSYjOx0=
+	t=1721566930; cv=none; b=MazVd30ycwqbo1trjzfK1kERty5TXg/yWJuNqIBHzIH+R3zDi0jyQnIHUyQWoA1eKE+S7yA5M3ZOca8V01mGqhIvacJx4gxxZl3aU4ZLS96+k9gXhxwAjF4dC72yyFOU8YmQb59itiTI7MwCXFtPvGDwsN5ClDBIJmHDsqURRxQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720607983; c=relaxed/simple;
-	bh=jWy2Z5hY7X7kHmfQMvD3lawI90HWFxfwyAHZ97ojtR0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=A4w41tUJiZi2oYxi8evzgBhvbdUEs9FLEqMJjNGJwmZFyJZq7sjgctHMqe9F9NjrJNE8efwYTnBzecIhqJGkKFAOUX0d5/jLYR3R6oD9d7jhFQiq0IkgNGfd/rwSMaRoy9Q8VaNA5SfH7Pg9XLpGqAPJ+teZNnXTe6fw6xe2Fw8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dG7Xx2z4; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1721566930; c=relaxed/simple;
+	bh=6bJ5lWC/uYXkfRuRyT6qXiYyLtZQ3YUKr7c9VycBVX4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pcFFxhUKB7sW22AyVezNnvXm30cOdpZFp8U8FAvvdgqRdxCCRmvotsUmafQMjCCI7cB5NvyIEHjU2jr4Mom9VwkmCABOo+QqnoMeFRVOBBOPu1Rwe9/2WGSlSws5JzC0CzPgm6jzASug9NV7glmR93wal5ynm+8WCRfiWN/wa0Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=w/qva0Cj; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=zraubsFm; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=kHinI1A3; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=ECn+0P+M; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dG7Xx2z4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720607981;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=XZqtx9T7PltUumv4FHKp6WQ5wri+GN5n2GOBC9i3bhg=;
-	b=dG7Xx2z4O3/ust2g3jsYcPgyFgRWnGVeDjrXcmBurUUep5ZNtu+wGTvHdDVdJ2U/lae5mO
-	rSH7heAohpE9mqwByw0X7xJWVFZh4N9vwg+tAcN5Ft0yFiuw+9VmvJy21tPn+DVnWC8tIO
-	aAK2CuS4tseskW8Eh850bBfZywbK9vo=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-593-EZS919fvObaWdQVacYzWOg-1; Wed,
- 10 Jul 2024 06:39:38 -0400
-X-MC-Unique: EZS919fvObaWdQVacYzWOg-1
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="w/qva0Cj";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="zraubsFm";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="kHinI1A3";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="ECn+0P+M"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CDA7A196CDF5;
-	Wed, 10 Jul 2024 10:39:37 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.225.233])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B07A61955F40;
-	Wed, 10 Jul 2024 10:39:36 +0000 (UTC)
-Date: Wed, 10 Jul 2024 12:39:33 +0200
-From: Karel Zak <kzak@redhat.com>
-To: lukaro <lists@lrose.de>
-Cc: util-linux@vger.kernel.org
-Subject: Re: lsblk: mount point in btrfs raid
-Message-ID: <a5dbjm6jeaz66hm6vqb7cg77sm74zq2ci5jbhaejnsg3wtin3w@tkdrki22f4f6>
-References: <48C84F1A-9A8A-4E02-8E32-B171461DC0CC@lrose.de>
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 61F951F6E6;
+	Sun, 21 Jul 2024 13:02:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1721566926; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=PPJph2Wv0z0jybN+s/eeqO9W+H+dcCTMhePG1R1lW60=;
+	b=w/qva0CjNyaj9/4LZe7ykQJmyojP0qdOIpYwcGzE6hY/LnjXNPmc4Tbd2urwcXu+30rc5u
+	1cGeWQ2+YHPVuRqsUF0vcq9WbSTEKDEyJxLAyez/8fLdJrwRUS/4H9oOuKUsG4sseTKy+7
+	NnGvn5piWqKKwQA0chCL9nsV2CGhNN4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1721566926;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=PPJph2Wv0z0jybN+s/eeqO9W+H+dcCTMhePG1R1lW60=;
+	b=zraubsFmDaaaVcMzhrxMzHhL1ysWHqymoH9pQNLC6zqzsZYY6pBRDvuAHPbsYwbdv2OaiT
+	bgZncBWVxKrrWHCA==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=kHinI1A3;
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=ECn+0P+M
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1721566925; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=PPJph2Wv0z0jybN+s/eeqO9W+H+dcCTMhePG1R1lW60=;
+	b=kHinI1A3+oGAvtaGLDpfwqdWStli0hVTiOr0TVaNbGpXknG/uUZIu3hcu3y8sLQSZMudOz
+	k6k9MGg7/EQ14dgXf6oUDE72iKP2lF1aRGP4VpouaPh94QutQjZutm29u0sLe9Cfu26/TG
+	3weV6u0BlBB4ncOlLGVUckRL+onJxxM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1721566925;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=PPJph2Wv0z0jybN+s/eeqO9W+H+dcCTMhePG1R1lW60=;
+	b=ECn+0P+MW4tyrobEH/JJQjhkCxGOql2ynjd7irIlMbN11ZmFApWON3Rq+Uvg7dgitzfOUb
+	JrqjiStsjY8/6wAg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4AB09132CB;
+	Sun, 21 Jul 2024 13:02:05 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id X+f9Ec0GnWYVVwAAD6G6ig
+	(envelope-from <sbrabec@suse.cz>); Sun, 21 Jul 2024 13:02:05 +0000
+Received: by goblin.suse.cz (Postfix, from userid 10027)
+	id 1172E1EABA42; Sun, 21 Jul 2024 15:01:57 +0200 (CEST)
+From: Stanislav Brabec <sbrabec@suse.cz>
+To: util-linux@vger.kernel.org
+Cc: Stanislav Brabec <sbrabec@suse.cz>
+Subject: [PATCH] agetty: Prevent cursor escape
+Date: Sun, 21 Jul 2024 15:01:42 +0200
+Message-ID: <20240721130142.468136-1-sbrabec@suse.cz>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <48C84F1A-9A8A-4E02-8E32-B171461DC0CC@lrose.de>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+X-Spamd-Result: default: False [0.19 / 50.00];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_CONTAINS_FROM(1.00)[];
+	R_MISSING_CHARSET(0.50)[];
+	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TO_DN_SOME(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	RCVD_COUNT_THREE(0.00)[3];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RCPT_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.cz:dkim,suse.cz:email];
+	RCVD_TLS_LAST(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.cz:+]
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 61F951F6E6
+X-Spam-Score: 0.19
+X-Spam-Flag: NO
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Bar: /
 
-On Sat, Jul 06, 2024 at 04:17:30AM GMT, lukaro wrote:
-> Hi everyone,
-> 
-> in lsblk, I'm used to seeing the mount point for all devices in an mdadm raid, like so:
-> 
-> sdb                8:16   0  16.4T  0 disk
-> └─sdb1             8:17   0  16.4T  0 part
->   └─md127          9:127  0  32.8T  0 raid5 /store/RAID_A
-> sdc                8:32   0  16.4T  0 disk
-> └─sdc1             8:33   0  16.4T  0 part
->   └─md127          9:127  0  32.8T  0 raid5 /store/RAID_A
-> sdd                8:48   0  16.4T  0 disk
-> └─sdd1             8:49   0  16.4T  0 part
->   └─md127          9:127  0  32.8T  0 raid5 /store/RAID_A
-> 
-> However, with btrfs raid, the mount point is only shown for the first device:
-> 
-> sdf              8:80   1  7,3T  0 disk
-> ├─sdf1           8:81   1  7,3T  0 part
-> │ └─video_4b0  254:4    0  7,2T  0 crypt /mnt/video
-> └─sdf2           8:82   1   28G  0 part
-> sdg              8:96   1  7,3T  0 disk
-> ├─sdg1           8:97   1  7,3T  0 part
-> │ └─video_5f2  254:5    0  7,2T  0 crypt
-> └─sdg2           8:98   1   28G  0 part
-> sdh              8:112  1  7,3T  0 disk
-> ├─sdh1           8:113  1  7,3T  0 part
-> │ └─video_666  254:6    0  7,2T  0 crypt
-> └─sdh2           8:114  1   28G  0 part
-> sdi              8:128  1  7,3T  0 disk
-> ├─sdi1           8:129  1  7,3T  0 part
-> │ └─video_9b1  254:7    0  7,2T  0 crypt
-> └─sdi2           8:130  1   28G  0 part
-> 
-> Where in the sysfs does lsblk obtain the mount point information?
->
-> Is it possible that the btrfs module is lacking this information? I
-> would like to understand why lsblk is lacking this information for
-> btrfs.
+Starting with 5de97519, it is possible to escape the login dialog on the
+screen by arrow characters or using escape sequences.
 
-The list of mount points can be found in /proc/self/mountinfo. When
-searching for a mount point, lsblk uses the device number (major and
-minor) or the device path.
+Since full processing of escape sequences and ignore them would be
+complicated, use a work around: instead of sending ESC to output, send a
+printable character.
 
-The /proc/self/mountinfo contains a list of unique mount nodes. This
-means that the Virtual File System (VFS) of Linux does not have
-knowledge of how the filesystems internally implement the RAID.
+It could cause a rendering regression in a very obscure condition: compiled
+without IUTF8, encoding is ISO-11548-1 and BRAILLE PATTERN DOTS-1245 is
+part of login name. I believe that it is out of supported combinations.
 
-The mdadm RAID maps all the disks to one virtual device, which is
-visible to the system as a normal block device. However, for btrfs,
-there is no such thing and all operations are handled internally
-within the filesystem. 
+Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+---
+ term-utils/agetty.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-It would probably be possible to add additional support for btrfs to
-lsblk in order to request more details from the filesystem, but this
-feature has not been implemented.
-
-    Karel
-
-
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index 275c59362..e20e7a454 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -2286,7 +2286,14 @@ static char *get_logname(struct issue *ie, struct options *op, struct termios *t
+ 				if ((size_t)(bp - logname) >= sizeof(logname) - 1)
+ 					log_err(_("%s: input overrun"), op->tty);
+ 				if ((tp->c_lflag & ECHO) == 0)
+-					write_all(1, &c, 1);	/* echo the character */
++					/* Visualize escape sequence instead of its execution */
++					if (ascval == CTL('['))
++						/* Ideally it should be "\xe2\x90\x9b"
++						 * if (op->flags & (F_UTF8)),
++						 * but only some fonts contain it */
++						write_all(1, "^[", 2);
++					else
++						write_all(1, &c, 1);	/* echo the character */
+ 				*bp++ = ascval;			/* and store it */
+ 				break;
+ 			}
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.45.2
 
