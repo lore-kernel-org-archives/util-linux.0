@@ -1,152 +1,81 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E98E7E792
-	for <util-linux@vger.kernel.org>; Sun, 21 Jul 2024 13:02:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50C0326AD3
+	for <util-linux@vger.kernel.org>; Tue, 23 Jul 2024 12:57:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721566930; cv=none; b=MazVd30ycwqbo1trjzfK1kERty5TXg/yWJuNqIBHzIH+R3zDi0jyQnIHUyQWoA1eKE+S7yA5M3ZOca8V01mGqhIvacJx4gxxZl3aU4ZLS96+k9gXhxwAjF4dC72yyFOU8YmQb59itiTI7MwCXFtPvGDwsN5ClDBIJmHDsqURRxQ=
+	t=1721739426; cv=none; b=aRoMGxxkB3qgNAGJhNtvja5A2IvgVcrrPqSFqvFDcXjJ+AJetM6h6BkDN05lRV0wz9Jhnr08+S4WbnnWmlDLzm6LF4tly2eVLi8WxaKfATTffLhNsp6UKb8FoufPTcbW/AlAquc8gSNx4/RZqY1RCf3Wut4Ws41PTdOSfJK/bKg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721566930; c=relaxed/simple;
-	bh=6bJ5lWC/uYXkfRuRyT6qXiYyLtZQ3YUKr7c9VycBVX4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pcFFxhUKB7sW22AyVezNnvXm30cOdpZFp8U8FAvvdgqRdxCCRmvotsUmafQMjCCI7cB5NvyIEHjU2jr4Mom9VwkmCABOo+QqnoMeFRVOBBOPu1Rwe9/2WGSlSws5JzC0CzPgm6jzASug9NV7glmR93wal5ynm+8WCRfiWN/wa0Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=w/qva0Cj; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=zraubsFm; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=kHinI1A3; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=ECn+0P+M; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1721739426; c=relaxed/simple;
+	bh=1HaAd4LOwDbYEhax/Gf5KyxVtWNR9ueAiCPFALY57KY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=n+abVn3dkkPgN+QeKcpP5axqA6SG4QDrfKSxGnI4JJ8U45YU+4x13d7eZf0Le4DWiImKsN1nj6xYLL+ELUs/uBC5GK+55vjXfbXMBIg+PFiuL7YpxBKc11TnLXQ8MMGsNKnkFe7+pnNfK5tIKX2xfp376ywtKDplT/bKNl0SqbE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ze/20GAh; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="w/qva0Cj";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="zraubsFm";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="kHinI1A3";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="ECn+0P+M"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ze/20GAh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1721739423;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=o3sn20G6RsLUjB8mrn4XlC/kXlZyZRCBkjzqFXrnjc8=;
+	b=Ze/20GAhcQ5My+6995XDKKYjVoVzdjmXZgtiQZ1MuHGNwVbRiy1jAszpZm16oWtxiOZOPj
+	2XCcUbBrp4OyEH884h2xov4zBSUB+byjDmf1kL8NHbiUYFBpVCwta2dVvu4FPZOEZSbPVE
+	LGJvsrtaXifqBE/yxeCFMzwfPTECpz4=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-125-pIdEpEhbO-SfvZ2MMBnjtg-1; Tue,
+ 23 Jul 2024 08:57:01 -0400
+X-MC-Unique: pIdEpEhbO-SfvZ2MMBnjtg-1
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 61F951F6E6;
-	Sun, 21 Jul 2024 13:02:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1721566926; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=PPJph2Wv0z0jybN+s/eeqO9W+H+dcCTMhePG1R1lW60=;
-	b=w/qva0CjNyaj9/4LZe7ykQJmyojP0qdOIpYwcGzE6hY/LnjXNPmc4Tbd2urwcXu+30rc5u
-	1cGeWQ2+YHPVuRqsUF0vcq9WbSTEKDEyJxLAyez/8fLdJrwRUS/4H9oOuKUsG4sseTKy+7
-	NnGvn5piWqKKwQA0chCL9nsV2CGhNN4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1721566926;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=PPJph2Wv0z0jybN+s/eeqO9W+H+dcCTMhePG1R1lW60=;
-	b=zraubsFmDaaaVcMzhrxMzHhL1ysWHqymoH9pQNLC6zqzsZYY6pBRDvuAHPbsYwbdv2OaiT
-	bgZncBWVxKrrWHCA==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=kHinI1A3;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=ECn+0P+M
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1721566925; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=PPJph2Wv0z0jybN+s/eeqO9W+H+dcCTMhePG1R1lW60=;
-	b=kHinI1A3+oGAvtaGLDpfwqdWStli0hVTiOr0TVaNbGpXknG/uUZIu3hcu3y8sLQSZMudOz
-	k6k9MGg7/EQ14dgXf6oUDE72iKP2lF1aRGP4VpouaPh94QutQjZutm29u0sLe9Cfu26/TG
-	3weV6u0BlBB4ncOlLGVUckRL+onJxxM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1721566925;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=PPJph2Wv0z0jybN+s/eeqO9W+H+dcCTMhePG1R1lW60=;
-	b=ECn+0P+MW4tyrobEH/JJQjhkCxGOql2ynjd7irIlMbN11ZmFApWON3Rq+Uvg7dgitzfOUb
-	JrqjiStsjY8/6wAg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4AB09132CB;
-	Sun, 21 Jul 2024 13:02:05 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id X+f9Ec0GnWYVVwAAD6G6ig
-	(envelope-from <sbrabec@suse.cz>); Sun, 21 Jul 2024 13:02:05 +0000
-Received: by goblin.suse.cz (Postfix, from userid 10027)
-	id 1172E1EABA42; Sun, 21 Jul 2024 15:01:57 +0200 (CEST)
-From: Stanislav Brabec <sbrabec@suse.cz>
-To: util-linux@vger.kernel.org
-Cc: Stanislav Brabec <sbrabec@suse.cz>
-Subject: [PATCH] agetty: Prevent cursor escape
-Date: Sun, 21 Jul 2024 15:01:42 +0200
-Message-ID: <20240721130142.468136-1-sbrabec@suse.cz>
-X-Mailer: git-send-email 2.45.2
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5593B1955F6A;
+	Tue, 23 Jul 2024 12:57:00 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.225.177])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 585B11955E80;
+	Tue, 23 Jul 2024 12:56:59 +0000 (UTC)
+Date: Tue, 23 Jul 2024 14:56:56 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] agetty: Prevent cursor escape
+Message-ID: <kbdtjvbk6d7tazpqblki75tjatmqvq54hzxyybrb4uh4kjwevl@rzsfd2cofobp>
+References: <20240721130142.468136-1-sbrabec@suse.cz>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [0.19 / 50.00];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_CONTAINS_FROM(1.00)[];
-	R_MISSING_CHARSET(0.50)[];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TO_DN_SOME(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	RCVD_COUNT_THREE(0.00)[3];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_TWO(0.00)[2];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.cz:dkim,suse.cz:email];
-	RCVD_TLS_LAST(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.cz:+]
-X-Spam-Level: 
-X-Rspamd-Queue-Id: 61F951F6E6
-X-Spam-Score: 0.19
-X-Spam-Flag: NO
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spamd-Bar: /
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240721130142.468136-1-sbrabec@suse.cz>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Starting with 5de97519, it is possible to escape the login dialog on the
-screen by arrow characters or using escape sequences.
+On Sun, Jul 21, 2024 at 03:01:42PM GMT, Stanislav Brabec wrote:
+>  term-utils/agetty.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
 
-Since full processing of escape sequences and ignore them would be
-complicated, use a work around: instead of sending ESC to output, send a
-printable character.
+Applied, thanks.
 
-It could cause a rendering regression in a very obscure condition: compiled
-without IUTF8, encoding is ISO-11548-1 and BRAILLE PATTERN DOTS-1245 is
-part of login name. I believe that it is out of supported combinations.
+> +						write_all(1, "^[", 2);
 
-Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
----
- term-utils/agetty.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+Not sure if we need anything more robust here. If you have access to
+the terminal, you can write whatever you want and it will be interpreted
+as a username (meaning non-terminal code will interpret it).
 
-diff --git a/term-utils/agetty.c b/term-utils/agetty.c
-index 275c59362..e20e7a454 100644
---- a/term-utils/agetty.c
-+++ b/term-utils/agetty.c
-@@ -2286,7 +2286,14 @@ static char *get_logname(struct issue *ie, struct options *op, struct termios *t
- 				if ((size_t)(bp - logname) >= sizeof(logname) - 1)
- 					log_err(_("%s: input overrun"), op->tty);
- 				if ((tp->c_lflag & ECHO) == 0)
--					write_all(1, &c, 1);	/* echo the character */
-+					/* Visualize escape sequence instead of its execution */
-+					if (ascval == CTL('['))
-+						/* Ideally it should be "\xe2\x90\x9b"
-+						 * if (op->flags & (F_UTF8)),
-+						 * but only some fonts contain it */
-+						write_all(1, "^[", 2);
-+					else
-+						write_all(1, &c, 1);	/* echo the character */
- 				*bp++ = ascval;			/* and store it */
- 				break;
- 			}
+There is include/carefulputc.h:fputs_careful(), but it's currently
+based on FILE streams rather than file descriptors.
+
+ Karel
+
 -- 
-2.45.2
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
