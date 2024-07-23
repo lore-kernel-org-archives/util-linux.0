@@ -1,81 +1,100 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50C0326AD3
-	for <util-linux@vger.kernel.org>; Tue, 23 Jul 2024 12:57:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A32C1494A0
+	for <util-linux@vger.kernel.org>; Tue, 23 Jul 2024 22:50:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721739426; cv=none; b=aRoMGxxkB3qgNAGJhNtvja5A2IvgVcrrPqSFqvFDcXjJ+AJetM6h6BkDN05lRV0wz9Jhnr08+S4WbnnWmlDLzm6LF4tly2eVLi8WxaKfATTffLhNsp6UKb8FoufPTcbW/AlAquc8gSNx4/RZqY1RCf3Wut4Ws41PTdOSfJK/bKg=
+	t=1721775046; cv=none; b=mNVBNjqKtmuj5xbekUBJKJBzYJKWlClQVaq5dV4Ydj5TnPh1SZzkuGbXgbel4G9Y3fIPbZ6ArEQVb110qfP+cTQOCFSKzs8A6Ur+/DUwYJQNH6o3JJe+/XBD4tcN77aGxkS0fWAA4ii6BMPtvH/j8JharQryByakD8SgKPhS1UQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721739426; c=relaxed/simple;
-	bh=1HaAd4LOwDbYEhax/Gf5KyxVtWNR9ueAiCPFALY57KY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=n+abVn3dkkPgN+QeKcpP5axqA6SG4QDrfKSxGnI4JJ8U45YU+4x13d7eZf0Le4DWiImKsN1nj6xYLL+ELUs/uBC5GK+55vjXfbXMBIg+PFiuL7YpxBKc11TnLXQ8MMGsNKnkFe7+pnNfK5tIKX2xfp376ywtKDplT/bKNl0SqbE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ze/20GAh; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ze/20GAh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721739423;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=o3sn20G6RsLUjB8mrn4XlC/kXlZyZRCBkjzqFXrnjc8=;
-	b=Ze/20GAhcQ5My+6995XDKKYjVoVzdjmXZgtiQZ1MuHGNwVbRiy1jAszpZm16oWtxiOZOPj
-	2XCcUbBrp4OyEH884h2xov4zBSUB+byjDmf1kL8NHbiUYFBpVCwta2dVvu4FPZOEZSbPVE
-	LGJvsrtaXifqBE/yxeCFMzwfPTECpz4=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-125-pIdEpEhbO-SfvZ2MMBnjtg-1; Tue,
- 23 Jul 2024 08:57:01 -0400
-X-MC-Unique: pIdEpEhbO-SfvZ2MMBnjtg-1
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	s=arc-20240116; t=1721775046; c=relaxed/simple;
+	bh=UVBRrCRRRm3d2JeD3hgEd3dakcfQ7BjJacGW+EAQVTY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bhnId3OVb4Us6/y3HK+6UmqqqQDwcv2Zc7Kr1884ztX4Z22Q1RnlD2ab0pBmS8DAevbIVO9Nxbf/LSo2Dk9LIKDar7RE0JQgzb4p4AZVaQn5WafKGy4C20dyS434INVeCSP8gsPQh/uEXrcOM+55fuYzeT9x8YrqrNHwH1UsfMY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5593B1955F6A;
-	Tue, 23 Jul 2024 12:57:00 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.225.177])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 585B11955E80;
-	Tue, 23 Jul 2024 12:56:59 +0000 (UTC)
-Date: Tue, 23 Jul 2024 14:56:56 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] agetty: Prevent cursor escape
-Message-ID: <kbdtjvbk6d7tazpqblki75tjatmqvq54hzxyybrb4uh4kjwevl@rzsfd2cofobp>
-References: <20240721130142.468136-1-sbrabec@suse.cz>
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 8C95D1F454;
+	Tue, 23 Jul 2024 22:50:37 +0000 (UTC)
+Authentication-Results: smtp-out2.suse.de;
+	none
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 74A1F13874;
+	Tue, 23 Jul 2024 22:50:37 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id VIszGr0zoGYZTAAAD6G6ig
+	(envelope-from <sbrabec@suse.cz>); Tue, 23 Jul 2024 22:50:37 +0000
+Message-ID: <8e2fba58-cc50-4309-b4ee-c1173c2ed7c5@suse.cz>
+Date: Wed, 24 Jul 2024 00:50:36 +0200
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240721130142.468136-1-sbrabec@suse.cz>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] agetty: Prevent cursor escape
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+References: <20240721130142.468136-1-sbrabec@suse.cz>
+ <kbdtjvbk6d7tazpqblki75tjatmqvq54hzxyybrb4uh4kjwevl@rzsfd2cofobp>
+Content-Language: en-US
+From: Stanislav Brabec <sbrabec@suse.cz>
+Organization: SUSE Linux, s. r. o.
+In-Reply-To: <kbdtjvbk6d7tazpqblki75tjatmqvq54hzxyybrb4uh4kjwevl@rzsfd2cofobp>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Rspamd-Action: no action
+X-Spam-Score: -4.00
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Queue-Id: 8C95D1F454
+X-Spamd-Result: default: False [-4.00 / 50.00];
+	REPLY(-4.00)[]
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
 
-On Sun, Jul 21, 2024 at 03:01:42PM GMT, Stanislav Brabec wrote:
->  term-utils/agetty.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
+Dne 23. 07. 24 v 14:56 Karel Zak napsal(a):
+> On Sun, Jul 21, 2024 at 03:01:42PM GMT, Stanislav Brabec wrote:
+>
+>> +						write_all(1, "^[", 2);
+> Not sure if we need anything more robust here. If you have access to
+> the terminal, you can write whatever you want and it will be interpreted
+> as a username (meaning non-terminal code will interpret it).
+Anything better would be complicated. We are reading stdin byte after 
+byte. So we need to do something with the yet unfinished sequence. And 
+we cannot read more, as the select() guarantees just a single character. 
+Ando this is just equal to ICANON | ECHOCTL terminal mode. Additionally, 
+it returns behavior that was here before 8b58ffdd, but now processing 
+network events better.
 
-Applied, thanks.
-
-> +						write_all(1, "^[", 2);
-
-Not sure if we need anything more robust here. If you have access to
-the terminal, you can write whatever you want and it will be interpreted
-as a username (meaning non-terminal code will interpret it).
-
-There is include/carefulputc.h:fputs_careful(), but it's currently
-based on FILE streams rather than file descriptors.
-
- Karel
+By the way, login is affected by the same problem. But in that case, it 
+is the fault of pam. I proposed the same solution here. But in that 
+case, it can be handled on the terminal level:
+https://github.com/linux-pam/linux-pam/pull/816
 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Best Regards / S pozdravem,
+
+Stanislav Brabec
+software developer
+---------------------------------------------------------------------
+SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
+Křižíkova 148/34 (Corso IIa)                    tel: +420 284 084 060
+186 00 Praha 8-Karlín                          fax:  +420 284 084 001
+Czech Republic                                    http://www.suse.cz/
+PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
 
