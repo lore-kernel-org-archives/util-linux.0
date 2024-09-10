@@ -1,38 +1,50 @@
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D4DD18F2FF
-	for <util-linux@vger.kernel.org>; Tue, 10 Sep 2024 10:00:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05A1D1DA4C
+	for <util-linux@vger.kernel.org>; Tue, 10 Sep 2024 10:45:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725962430; cv=none; b=FKqVz4HMHcDPukQO4cVaeNQA0pWlbr3atLcr5YD9342V4fh1L+YGDoFsN8iXMNyDK5DnQSLjzrhzxrQ/nAKHiuWtEeBeGpvj1awSX2iTgtlHezoX6A11/Yuf0Gb5eJBNBGKt0CtqUYnF4OfucjZjXq/Q0jRL2Q0zLkAV4WZpTjs=
+	t=1725965142; cv=none; b=GmqwYFGueeXsxPvVmHuwz5VToLeoG0h9smG1+MqGCBWhZA/AVehzv2e8jbBxja/WvR68h7xKM8WR3F8tO2q/MDnBB+tnG65K/S8Lt9SjTyhzklOOfm8+p59iR9KeVLrH/ia4TvVS2cqYmNFSiWb02sulD7bJjmbw3/Kyl8jnj0c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725962430; c=relaxed/simple;
-	bh=MxF4rx37ceaEl6AWfbdNFF6jAfHNZofQIcH2hc8YtnM=;
+	s=arc-20240116; t=1725965142; c=relaxed/simple;
+	bh=txabAs53lw+/+fOWmTF1th/voXP+j2OD14dSt3UzU9k=;
 	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gquHwYmN+4o21YF6e22+RtHe8hz8uL7XSkbdM4MaXitjap6VOhP6bCkFKbwOWMHQdlciJz5Cq49TdRXiYsKiq/Nfur7TvNDVKMwEuKVsgrb8b1/xM/tXHHKAardc6Jdmy37g8nJliKF8NkB2jnSszJaffC/U1RmE2KrQ6oCDuRc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <mol@pengutronix.de>)
-	id 1snxfe-0007CG-Ie; Tue, 10 Sep 2024 12:00:26 +0200
-Received: from [2a0a:edc0:0:1101:1d::54] (helo=dude05.red.stw.pengutronix.de)
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.94.2)
-	(envelope-from <mol@pengutronix.de>)
-	id 1snxfe-006rkI-5l; Tue, 10 Sep 2024 12:00:26 +0200
-Received: from mol by dude05.red.stw.pengutronix.de with local (Exim 4.96)
-	(envelope-from <mol@pengutronix.de>)
-	id 1snxfe-002PmR-0Q;
-	Tue, 10 Sep 2024 12:00:26 +0200
-Date: Tue, 10 Sep 2024 12:00:26 +0200
-From: Michael Olbrich <m.olbrich@pengutronix.de>
+	 Content-Type:Content-Disposition:In-Reply-To; b=FkfHhlxzCK+k7FdlcMV4DLUOkjxBSpR+JEUVQHxrwLkXiM/PONfTfqr3Va0Rn7KaFkKsJ9xFqkCMEYew3/1hFYrwKbgtwA6EMVLHbxK5SZee0khfBByriDPSrasumTbTD9KwrTlXfEnkFTjtcCuC5AMBEZV8ugzUoyMVXt4z3LE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GD7QcH1a; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GD7QcH1a"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1725965139;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Xrd6Xca0fCoGtbeec0bXoHKgl0bwHdz86vASaITOBYk=;
+	b=GD7QcH1a4Nt1PNanHBcaSbBqIPOJCiO+QwIqDHS/ypKpI3uZoqa64XIj6UNsAgAn8ogU66
+	GpjYBPrcD2JxHUbeVWjMiK0W+IWDmV9lwpKIG/+Mgl+Y8gfVNrPDFzzd6AQEhNHOEfmpUB
+	dSuH4S99Cf1FxeD3X6PPYpfp7KUi8fY=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-616-ZNOUJ1ooMHKKapE_lRQnYg-1; Tue,
+ 10 Sep 2024 06:45:36 -0400
+X-MC-Unique: ZNOUJ1ooMHKKapE_lRQnYg-1
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5C1851955D42;
+	Tue, 10 Sep 2024 10:45:35 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.225.114])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id DDFC819560AB;
+	Tue, 10 Sep 2024 10:45:33 +0000 (UTC)
+Date: Tue, 10 Sep 2024 12:45:30 +0200
+From: Karel Zak <kzak@redhat.com>
 To: util-linux@vger.kernel.org, ptxdist@pengutronix.de
-Subject: Re: [ptxdist] util-linux build error with meson and older glibc
-Message-ID: <ZuAYutgoVwik51tk@pengutronix.de>
+Subject: Re: util-linux build error with meson and older glibc
+Message-ID: <llzewq5lplvpsvbu3pg57papu2sa7ojrd6cp62vgq6hkdvrukx@wp6bt6csap5c>
 References: <13593969.uLZWGnKmhe@ada-pc>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
@@ -42,107 +54,25 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 In-Reply-To: <13593969.uLZWGnKmhe@ada-pc>
-X-Sent-From: Pengutronix Hildesheim
-X-URL: http://www.pengutronix.de/
-X-IRC: #ptxdist @freenode
-X-Accept-Language: de,en
-X-Accept-Content-Type: text/plain
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: mol@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: util-linux@vger.kernel.org
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-On Tue, Sep 10, 2024 at 09:07:01AM +0200, Alexander Dahl wrote:
-> Hello everyone,
->=20
+On Tue, Sep 10, 2024 at 09:07:01AM GMT, Alexander Dahl wrote:
 > building util-linux with ptxdist [1] here.  After switching to meson
 > build [2], compiling util-linux fails with OSELAS.Toolchain-2020.08.0
 > which contains gcc-10.2.1 and glibc-2.32.  Building for architecture
 > arm-v5te-linux-gnueabi here, console output below.
->=20
-> Autotools build was fine.  Build with a more recent toolchain
-> (OSELAS.Toolchain-2023.07, gcc 13.2.1, glibc 2.37) is successful.
->=20
+
+Which version of util-linux are you currently using? Is it the current
+git tree?
+
 > From looking at the linker options I suspect -lutil missing?
-> According to manpage that's a BSD function present in glibc.
-> I suspect a change in glibc 2.34 integrating libutil in core glibc,
-> which makes it work with recent version 2.37.  So this is probably a
-> flaw in meson build not setting the necessary linker options for glibc
-> up to 2.33?  Could anyone point me how to fix this or does anyone by
-> chance already have a patch for this?  (Disclaimer: I have zero
-> experience with meson.)
 
+It seems so.
 
-There is a -Dlibutil=3Ddisabled in rules/util-linux.make. Maybe try to
-enable that?
+    Karel
 
-Michael
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
->     % p -v -j1 compile util-linux
->    =20
->     --------------------------
->     target: util-linux.compile
->     --------------------------
->    =20
->     ptxdist: executing: PATH=3D/home/adahl/Work/bsp/thorsis/ncl/tmp/platf=
-orm-ncl/sysroot-cross/usr/bin:/home/adahl/Work/bsp/thorsis/ncl/tmp/platform=
--ncl/sysroot-cross/usr/sbin:/home/adahl/Work/bsp/thorsis/ncl/tmp/platform-n=
-cl/sysroot-host/usr/lib/wrapper:/home/adahl/Work/bsp/thorsis/ncl/tmp/platfo=
-rm-ncl/sysroot-host/usr/bin:/home/adahl/Work/bsp/thorsis/ncl/tmp/platform-n=
-cl/sysroot-host/usr/sbin:/home/adahl/Work/bsp/thorsis/ncl/tmp/selected_tool=
-chain:/usr/local/lib/ptxdist-2024.05.0/bin:/home/adahl/Work/bsp/thorsis/ncl=
-/tmp/platform-ncl/sysroot-host/usr/bin:/home/adahl/Work/bsp/thorsis/ncl/tmp=
-/platform-ncl/sysroot-host/usr/sbin:/home/adahl/Work/bsp/thorsis/ncl/tmp/se=
-lected_toolchain:/usr/local/lib/ptxdist-2024.04.0/bin:/home/adahl/bin:/home=
-/adahl/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/games HTTPS_PROXY=3DPTX=
-DIST-UNALLOWED-DOWNLOAD HTTP_PROXY=3DPTXDIST-UNALLOWED-DOWNLOAD https_proxy=
-=3DPTXDIST-UNALLOWED-DOWNLOAD http_proxy=3DPTXDIST-UNALLOWED-DOWNLOAD PKGCO=
-NFIG_WHITELIST_HOST=3D'' PKGCONFIG_WHITELIST_TARGET=3D'' PKGCONFIG_WHITELIS=
-T_SRC=3D'util-linux' SYSROOT=3D'/home/adahl/Work/bsp/thorsis/ncl/tmp/platfo=
-rm-ncl/sysroot-target' V=3D1 VERBOSE=3D1 LC_ALL=3D'C.utf8' KBUILD_BUILD_TIM=
-ESTAMP=3D2020-08-01T00:00:00+00:00 KBUILD_BUILD_USER=3Dptxdist KBUILD_BUILD=
-_HOST=3Dptxdist  ninja -C /home/adahl/Work/bsp/thorsis/ncl/tmp/platform-ncl=
-/build-target/util-linux-2.40.2-build -v  -j1=20
->    =20
->     ninja: Entering directory `/home/adahl/Work/bsp/thorsis/ncl/tmp/platf=
-orm-ncl/build-target/util-linux-2.40.2-build'
->     [1/75] arm-v5te-linux-gnueabi-gcc  -o test_pty test_pty.p/lib_pty-ses=
-sion.c.o test_pty.p/lib_monotonic.c.o -Wl,--as-needed -Wl,--no-undefined -W=
-l,--start-group lib/libcommon.a -lm -lrt -Wl,--end-group
->     FAILED: test_pty=20
->     arm-v5te-linux-gnueabi-gcc  -o test_pty test_pty.p/lib_pty-session.c.=
-o test_pty.p/lib_monotonic.c.o -Wl,--as-needed -Wl,--no-undefined -Wl,--sta=
-rt-group lib/libcommon.a -lm -lrt -Wl,--end-group
->     /opt/OSELAS.Toolchain-2020.08.0/arm-v5te-linux-gnueabi/gcc-10.2.1-gli=
-bc-2.32-binutils-2.35-kernel-5.8-sanitized/lib/gcc/arm-v5te-linux-gnueabi/1=
-0.2.1/../../../../arm-v5te-linux-gnueabi/bin/ld: test_pty.p/lib_pty-session=
-=2Ec.o: in function `ul_pty_setup':
->     platform-ncl/build-target/util-linux-2.40.2-build/../util-linux-2.40.=
-2/lib/pty-session.c:198: undefined reference to `openpty'
->     /opt/OSELAS.Toolchain-2020.08.0/arm-v5te-linux-gnueabi/gcc-10.2.1-gli=
-bc-2.32-binutils-2.35-kernel-5.8-sanitized/lib/gcc/arm-v5te-linux-gnueabi/1=
-0.2.1/../../../../arm-v5te-linux-gnueabi/bin/ld: platform-ncl/build-target/=
-util-linux-2.40.2-build/../util-linux-2.40.2/lib/pty-session.c:188: undefin=
-ed reference to `openpty'
->     collect2: error: ld returned 1 exit status
->     ninja: build stopped: subcommand failed.
->     make: *** [/usr/local/lib/ptxdist-2024.05.0/rules/post/ptxd_make_worl=
-d_compile.make:20: /home/adahl/Work/bsp/thorsis/ncl/tmp/platform-ncl/state/=
-util-linux.compile] Error 1
->=20
-> Greets
-> Alex
->=20
-> [1] https://www.ptxdist.org/
-> [2] https://git.pengutronix.de/cgit/ptxdist/commit/?id=3D18c9c0f89c4148f3=
-007b9fcc7833d99af60084dc
->=20
->=20
-
---=20
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
