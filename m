@@ -1,95 +1,93 @@
-Received: from tarta.nabijaczleweli.xyz (tarta.nabijaczleweli.xyz [139.28.40.42])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A12CF155A52
-	for <util-linux@vger.kernel.org>; Mon, 28 Oct 2024 18:20:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=139.28.40.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC36A1E3DEB
+	for <util-linux@vger.kernel.org>; Wed, 30 Oct 2024 10:55:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730139648; cv=none; b=DsgWEBRaF/biEhCVabGY510xNZ+bJWbbwKEocGFwXuZq+KPRCUbp40KTUnKZ/CTu3VlXiZ3BzWI3lXSPs7GIrzqcbtdYRRSHvxJXGm3eizabttJ4nM/S4MegtbBPvGRJKyc2O/E6+MmwRrEAiEdQ+q6liUNGYUHOHK2e2Ie0tUk=
+	t=1730285730; cv=none; b=VWGFH+2gPW031QJ3naGh+Vb+wWBrSUtrkO3++TMXdvXztUU2TYLMJqPx4ujjL8hmgi95xeDU0S3vaOcw0IH7bjo294i9xSZ++6O10MVVfUqiBgnLbiKPT9SOENJE3/84b+5zJKJu2Rg8rVv70HDm4F3KACTB8IZaVfiTvSZfvsc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730139648; c=relaxed/simple;
-	bh=gDygnQyTO/WZZ3iw3xkpH5MGYB9Gntw7gq9AfqPADPI=;
-	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=RSVbYm8HESBVsNy7Oczd/9MCXxssOWA0s/6JQMoZBfhdL4Tm4kU7E95umCdOxmVwxMml/p7xUaRIWQa56YUMMduJ2ecUfYRQx1no1xeyZFvZFP33eczakJvtkLqb+NuulIJkfW4mVKU02cdIvRHpLZnsUnYzRXy9IHr0nzs9ir4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nabijaczleweli.xyz; spf=pass smtp.mailfrom=nabijaczleweli.xyz; dkim=pass (2048-bit key) header.d=nabijaczleweli.xyz header.i=@nabijaczleweli.xyz header.b=FuMJDj1L; arc=none smtp.client-ip=139.28.40.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nabijaczleweli.xyz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabijaczleweli.xyz
+	s=arc-20240116; t=1730285730; c=relaxed/simple;
+	bh=hq5ww0eOpoHEDm6Lry9qtdO6/lzvZr/PdGmGM99qPLY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DykpKq1YH4VZ6JbklL7MH39pKy7tR19mr9TJ2fchNqUJCbM1hrNyVXTnH+8rQix1N8uPNDWaeMt9jNdx2mqFwNmfRL8Lz1rA3wL9v3dGksQ8YUcUoILaK1jfKoK50QkuQrfEqbtj4aIH68gNVPfCKSOGvsPXiPo6rKrhP7RzNWw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K5ZkkO7E; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nabijaczleweli.xyz header.i=@nabijaczleweli.xyz header.b="FuMJDj1L"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nabijaczleweli.xyz;
-	s=202405; t=1730139555;
-	bh=gDygnQyTO/WZZ3iw3xkpH5MGYB9Gntw7gq9AfqPADPI=;
-	h=Date:From:To:Subject:From;
-	b=FuMJDj1LBhB/yNlTkfMZjZnHnMUY/T7dMDlK9uZc1eJPKg82LdFFsRn+iB4Rvd3RB
-	 REEiML5I9pCS1Ye8KwXMkuq1QnHQlBqLEIIHkKP5TIxAkO6jKH8LwUZJStqpoB+qNZ
-	 ThxPjXZt1kbWKzLIsTlWYioYtd1nYlb0umxVcpJ59EPTcOyBZpK0Tt5WBZtYasUjZI
-	 DJwhU3SG6ROaXvTYNS6iXCV/b8FDM60NP5kWTEJMyNxxeyOSGhMihG5rqPjcQQct9w
-	 VpLfUEK9UyV5F3xWlQW/6ilm+0Gn46ZzNB2Dkst5FN8fZx968yuI8KVNhh6SaFakgx
-	 G8fZicR3X8oFg==
-Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
-	by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id 328A65B88
-	for <util-linux@vger.kernel.org>; Mon, 28 Oct 2024 19:19:15 +0100 (CET)
-Date: Mon, 28 Oct 2024 19:19:14 +0100
-From: =?utf-8?B?0L3QsNCx?= <nabijaczleweli@nabijaczleweli.xyz>
-To: util-linux@vger.kernel.org
-Subject: [PATCH 1/4] hardlink.1: directory|file is mandatory
-Message-ID: <5acde6a911f086ab8d2314c5b76eb76075140941.1730139540.git.nabijaczleweli@nabijaczleweli.xyz>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K5ZkkO7E"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1730285726;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=RfU3XeNIE7k4B+XkNeM+PjmFaVKea7TwPWAEm4QDKD8=;
+	b=K5ZkkO7EHEDdoNRVzG6kSLRAqWBAS2qvD+WoMMWuguClop+NZyGCNFGfwG+CPxKu+X1yfB
+	EOcNnIYE6d/DdIR/IcvYi1pb9Ua/JuVIikwgGJ6OmSS3H0ZCAVEbvG7KW4DHhiaj/xcQzy
+	EpGpLazP1WH4ZOZaKUg19R1Veolnf10=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-655-IQE_IrFpMP62q-j7kLRqkg-1; Wed,
+ 30 Oct 2024 06:55:23 -0400
+X-MC-Unique: IQE_IrFpMP62q-j7kLRqkg-1
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 0BB5B19560A2;
+	Wed, 30 Oct 2024 10:55:22 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.224.59])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D2C45300018D;
+	Wed, 30 Oct 2024 10:55:20 +0000 (UTC)
+Date: Wed, 30 Oct 2024 11:55:17 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Anjali K <anjalik@linux.ibm.com>
+Cc: util-linux@vger.kernel.org, anushree.mathur@linux.vnet.ibm.com
+Subject: Re: [PATCH] lscpu: fix incorrect number of sockets during hotplug
+Message-ID: <psbp7ofmppegfcgz6w4jzaqx5ek5yeoc7zqeoh7k5bmdpp4ivg@4xkmw5pmsp4t>
+References: <20241018104335.3481856-1-anjalik@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="phomdravpvjehjtp"
-Content-Disposition: inline
-User-Agent: NeoMutt/20231221-2-4202cf-dirty
-
-
---phomdravpvjehjtp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
----
- misc-utils/hardlink.1.adoc | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/misc-utils/hardlink.1.adoc b/misc-utils/hardlink.1.adoc
-index d11045941..b6f07ba70 100644
---- a/misc-utils/hardlink.1.adoc
-+++ b/misc-utils/hardlink.1.adoc
-@@ -18,7 +18,7 @@
-=20
- =3D=3D SYNOPSIS
-=20
--*hardlink* [options] [_directory_|_file_]...
-+*hardlink* [options] _directory_|_file_...
-=20
- =3D=3D DESCRIPTION
-=20
---=20
-2.39.2
+In-Reply-To: <20241018104335.3481856-1-anjalik@linux.ibm.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
 
---phomdravpvjehjtp
-Content-Type: application/pgp-signature; name="signature.asc"
+ HI,
 
------BEGIN PGP SIGNATURE-----
+ sorry for delay with review.
 
-iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmcf1aIACgkQvP0LAY0m
-WPFDRw/+KOtSvou2r6DW6fSwBtOxiJh929Ar7/3rFZJFrggsqxh+Hh2+uryD2N8+
-ysblxhuNYQPA85+go6QKeA3RLPbSIv2YpatlPDadSI+byyQoXkpeh0FBTdlSGQY7
-YVrXXbfDfZIl5orjD5kOVbakjv0p0cT9z1qf7eBp2kSH3NJ7B/MmhD7Jya+LdxPo
-MYm6bt68Tf2yFSieoDQv+hOv5f62U6+XBOqHogAl6ChXOpWDyjikJQWaXI80dh8d
-HRzWcqPJ7zPD0IOxuoMeVT44V8wx617hin6NRlsEQnMW7C2zdYjKriekTlcDI/bb
-9kfFksQ0aUKvh9zt5pxlVG1goHP/ovNxxgIo0dbLEXmnNAjSilxQw5H+duMFlbqU
-dnFHMIGWCl0/r4KnvG+Gbo1JZU8E/O6qhVrzrQOdi2zbJD7bhBV/zg0jt4KBD23y
-c7IjF8hydmrEzFznPhmtCYixXbBIja/GriBQyw5mVZ6G4KuaWH19NKtj/KZpaq5O
-hmu3MadWHgkUO5QQmbzkh1xTFNK7k4TfWYbdkFko1EhXJEc2JETqJr34y8ZEzDQY
-gbP58U093bfEZUeb4IAgL5CU3sFzhCVtQ+4b2JQBwRrsqILOPIHZkFjy8X2QHzOw
-w/UL7szkJfLmdfsVwxvcnx7fnnFsQEcWAkwgNpbm2GVLnu6gOeM=
-=RmeO
------END PGP SIGNATURE-----
+On Fri, Oct 18, 2024 at 04:13:35PM GMT, Anjali K wrote:
+>  /* add @set to the @ary, unnecessary set is deallocated. */
+> -static int add_cpuset_to_array(cpu_set_t **ary, size_t *items, cpu_set_t *set, size_t setsize)
+> +static int add_cpuset_to_array(cpu_set_t **ary, size_t *items, cpu_set_t *set, size_t setsize, int maxcpus)
+>  {
+> +	cpu_set_t *common_cpus_set;
+>  	size_t i;
+>  
+>  	if (!ary)
+>  		return -EINVAL;
+>  
+> +	common_cpus_set = CPU_ALLOC(maxcpus);
+> +	if (!common_cpus_set)
+> +		return -EINVAL;
 
---phomdravpvjehjtp--
+Would be better to allocate this only once in cputype_read_topology()
+and reuse it for all the arrays and CPUs? 
+
+The rest looks good. Thanks!
+
+ Karel
+
+
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
