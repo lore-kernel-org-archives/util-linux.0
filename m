@@ -1,159 +1,279 @@
-Received: from tarta.nabijaczleweli.xyz (tarta.nabijaczleweli.xyz [139.28.40.42])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C5C81A08B6
-	for <util-linux@vger.kernel.org>; Thu, 31 Oct 2024 14:56:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=139.28.40.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A819338F97
+	for <util-linux@vger.kernel.org>; Mon,  4 Nov 2024 06:33:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730386615; cv=none; b=mxxeh/Dr3XbGHt+TdMMQTQGkuD89M17WUxk1vpG97VNvyuGHY3jh6Ov8dR7f9B8CVOLuugiLgTz4JXpW37K5apJxaNKPKwLFmXIQOyZpyruldE41nLPzd3Is/gsu+LC4Lf29qzajE9w2zl5eXkKg4/sdGYLCkQIFFZ6mgy+h1W4=
+	t=1730701988; cv=none; b=LnmLjVpBjAycUQhV6AdhxqvDp6wH5xvjHX2W1xdJdKbBFCctveMZQJQNzVzEXWwLs/aFpkHPuLwAXSxCe6qM8xPKw4qNzRBe0vIe0oLfnAjMCC7RdwZ8tNR2xaYKgjVJH/7rYEx6Y12EZ0YZoxgNfrLr8hHlqWMWrfgCdyK86BQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730386615; c=relaxed/simple;
-	bh=tW2ird1varJi3W8zD0lQXdJ2bAtlDLVGtTvmChSwd3E=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TSzUnTQDdXtruEyJM21qT3xjDEOyBYW2+ktmZDyOAZ2ZY1KTNkdsaLTJRjqN0Stui3QcX/tail7sGksmLVzdlV96e/7F+8GUwByRNDhdCx5baYFajJy9mNo8wUYKOrsrrhYbOXnroyTfAHBoK1ufeme8PyNE7juOv+e/xbvSmYA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nabijaczleweli.xyz; spf=pass smtp.mailfrom=nabijaczleweli.xyz; dkim=pass (2048-bit key) header.d=nabijaczleweli.xyz header.i=@nabijaczleweli.xyz header.b=BZJRZdpI; arc=none smtp.client-ip=139.28.40.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nabijaczleweli.xyz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabijaczleweli.xyz
+	s=arc-20240116; t=1730701988; c=relaxed/simple;
+	bh=uz82i9J2RMGA6mFUf4lZtRGSIWzEW/J3MCMCaT8LTc4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=S3tyNVKalr+fXtKmbcM/EEsSy+56umrygz47c+DowyR03mELH8oCrQuLQPEuBzaubCWOE7wS15cD+5iGrwsR4lUeaBxDtPz/hVHyFdi+GT3DJjW0tGk1py6DHSbBikPWKckW+N5tnzYJRqBLU24gD1vgC+fe4huv+V70ZAvV44s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LCl5ox6R; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nabijaczleweli.xyz header.i=@nabijaczleweli.xyz header.b="BZJRZdpI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nabijaczleweli.xyz;
-	s=202405; t=1730386600;
-	bh=tW2ird1varJi3W8zD0lQXdJ2bAtlDLVGtTvmChSwd3E=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=BZJRZdpI/HF+jNRnTAjjjcCbcNHUEJEBen4O+XPpkmAGJM0hhVIOqjQztsjd31J85
-	 iz2hX5nKioBQ9ucWBSR50inW+PgD0xNQfLLYc5HPT2yHNWonWX+jYEooqbPbtuztWX
-	 nn5P6h86ie3mC6XdsVSi1DqaLhk5inwUTVGHgPYVvFdKL8WlTUVEtvYaWn2mxQLcVk
-	 RCwHD9J60EyLVb7rkddMuagZ7OwRXJQeQKtW4fJTENAKiMDO5DA3LQyXbxNbJ2xny7
-	 E7AZ0Q58ONg96/K4WmRbiNzJWMl3WfZEa9X94mhbyooAyTpAaxmuMBd+WIseXatVAF
-	 ytkD8wckrReZg==
-Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
-	by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id CA62B54F4;
-	Thu, 31 Oct 2024 15:56:40 +0100 (CET)
-Date: Thu, 31 Oct 2024 15:56:40 +0100
-From: =?utf-8?B?0L3QsNCx?= <nabijaczleweli@nabijaczleweli.xyz>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/4] hardlink: add --list-duplicates and --zero
-Message-ID: <geq2cawx3udvbe3b3tjton2cuim7ccemndul2sfknvxdll22sg@tarta.nabijaczleweli.xyz>
-References: <5acde6a911f086ab8d2314c5b76eb76075140941.1730139540.git.nabijaczleweli@nabijaczleweli.xyz>
- <b22071e3546940d6d0fa6e1d9d03f292e18229e2.1730139540.git.nabijaczleweli@nabijaczleweli.xyz>
- <ivgbtqt2qjlpzxgh6tkdapfohjwu677heddtn7cpkpaqjyoi6g@brl4uxsj6lsv>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LCl5ox6R"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A466M9V014200;
+	Mon, 4 Nov 2024 06:33:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=yR4ncOIoxNRa12uaUO5sAKoZYEPFQNq0gZdNNv37S
+	Jk=; b=LCl5ox6RoPaswtC9czpkeg+e2LnQvqvNbbM64IgFsJcgCPXhCeeHdbmn3
+	X3/Q+YcUoyAYk38u+cf1I6+63pDO3iqAcsg+8s6g6rF0WR05SSX0/VOsPKm89g+x
+	QFJo/NLffz2FkohQIVXKbQXpGYzZCbiWMmg92mO/o47olrItCPTmlAM4CiC+Vjwd
+	KjngmseA/TkmVKNDrXtCEj1/jwB85cp2usY3Jyd/H+Ed88J+k+Y5ByM+dswZb6HH
+	sLhmPQn780P4BmtBSSdGS/NQiDbRV9Z6eCCNuQU8sglHj6wmPFlO1QQFgyqrrMXy
+	Z/b4p3wjkoG9IwrvU/ejhI2csjoPg==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42pqejgab3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 04 Nov 2024 06:33:02 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4A465qnw024174;
+	Mon, 4 Nov 2024 06:33:02 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42nxsxtnjf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 04 Nov 2024 06:33:02 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4A46WwUZ27525710
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 4 Nov 2024 06:32:58 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 431D020043;
+	Mon,  4 Nov 2024 06:32:58 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AACBC20040;
+	Mon,  4 Nov 2024 06:32:56 +0000 (GMT)
+Received: from li-a929834c-276e-11b2-a85c-d3428da96d80.ibm.com.com (unknown [9.39.22.122])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  4 Nov 2024 06:32:56 +0000 (GMT)
+From: Anjali K <anjalik@linux.ibm.com>
+To: util-linux@vger.kernel.org
+Cc: kzak@redhat.com, anushree.mathur@linux.ibm.com, anjalik@linux.ibm.com
+Subject: [PATCH v2] lscpu: fix incorrect number of sockets during hotplug
+Date: Mon,  4 Nov 2024 12:02:26 +0530
+Message-ID: <20241104063226.172077-1-anjalik@linux.ibm.com>
+X-Mailer: git-send-email 2.46.0
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="cfs7dhugxb6mdr7t"
-Content-Disposition: inline
-In-Reply-To: <ivgbtqt2qjlpzxgh6tkdapfohjwu677heddtn7cpkpaqjyoi6g@brl4uxsj6lsv>
-User-Agent: NeoMutt/20231221-2-4202cf-dirty
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: XViri1cC0smXT4PgiM6vRv8oWiX3DMlb
+X-Proofpoint-GUID: XViri1cC0smXT4PgiM6vRv8oWiX3DMlb
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 bulkscore=0
+ mlxlogscore=999 spamscore=0 impostorscore=0 lowpriorityscore=0
+ clxscore=1011 malwarescore=0 suspectscore=0 priorityscore=1501 mlxscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2411040053
 
+lscpu sometimes shows incorrect 'Socket(s)' value if a hotplug operation
+is running.
+On a 32 CPU 2-socket system, the expected output is as shown below:
+Architecture:           	      ppc64le
+Byte Order:             	      Little Endian
+CPU(s):                  	      32
+On-line CPU(s) list:   		      0-31
+Model name:               	      POWER10 (architected), altivec supported
+Model:                  	      2.0 (pvr 0080 0200)
+Thread(s) per core:     	      8
+Core(s) per socket:     	      2
+Socket(s):              	      2
 
---cfs7dhugxb6mdr7t
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On the same system, if hotplug is running along with lscpu, it shows
+"Socket(s):" as 3 and 4 incorrectly sometimes.
+Architecture:                         ppc64le
+Byte Order:                           Little Endian
+CPU(s):                               32
+On-line CPU(s) list:                  0-11,16-31
+Off-line CPU(s) list:                 12-15
+Model name:                           POWER10 (architected), altivec supported
+Model:                                2.0 (pvr 0080 0200)
+Thread(s) per core:                   8
+Core(s) per socket:                   1
+Socket(s):                            3
 
-On Thu, Oct 31, 2024 at 09:58:19AM +0100, Karel Zak wrote:
-> On Mon, Oct 28, 2024 at 07:19:30PM GMT, =D0=BD=D0=B0=D0=B1 wrote:
-> > --list-duplicates codifies what everyone keeps re-implementing with
-> > find -exec b2sum or src:perforate's finddup or whatever.
-> >=20
-> > hardlink already knows this, so make the data available thusly,
-> > in a format well-suited for pipeline processing
-> > (fixed-width key for uniq/cut/&c.,
-> >  tab delimiter for cut &a.,
-> >  -z for correct filename handling).
->=20
-> Why do we need a 16-byte discriminator? The list consists of absolute
-> paths, so it should be unique enough. This seems like an unusual
-> thing,
-Well, the point is to have a list of lists of files, right.
-hardlink(1) finds, within the given domain,
-a set of sets of "these files are identical"
-(or, the logical set of "these are the link names of this file"
- for all eligible files).
-The only way to flatten this is to a single-layer list is by having a
-list of filenames discriminated by the set in which they belong, so
-  [[a, b], [c, d, e]]
-discriminated as
-  0 a
-  0 b
-  1 c
-  1 d
-  1 e
-which allows you to reconstuct the sets live while stream-processing
-(the implementation uses a unique ASLR-randomised discriminator
- because the order isn't stable anyway I think? but same difference).
+The number of sockets is considered as the number of unique core_siblings
+CPU groups. The issues causing the number of sockets to sometimes be
+higher during hotplug is:
+1. The core_siblings of CPUs on the same socket are different because a CPU
+on the socket has been onlined/offlined in between. In the below example,
+nr sockets was wrongly incremented for CPU 5 though CPU 4 and 5 are on the
+same socket because their core_siblings was different as CPU 12 was onlined
+in between.
+CPU: 4
+core_siblings: ff f0 0 0 0 0 0 0
+CPU: 5
+core_siblings: ff f8 0 0 0 0 0 0
 
-A list of just filenames is useless.
+2. The core_siblings file of a CPU is created when a CPU is onlined. It may
+have an invalid value for some time until the online operation is fully
+complete. In the below example, nr sockets is wrongly incremented because
+the core_siblings of CPU 14 was 0 as it had just been onlined.
+CPU: 14
+core_siblings: 0 0 0 0 0 0 0 0
 
-> as I cannot recall any other tool that uses something like
-> this.
-This is what the b2sum/sha1sum/&c. family does.
-(And, in a worse and less structured manner, sum/cksum.)
-If you were to implement this with one of those,
-you'd do something like
-  find -type f -exec b2sum {} + | sort | uniq -Dw128
-which works but has other issues
-(not tab-delimited, slow, harder than necessary to configure,
- actually you want to sprinkle -z everywhere, &c.).
+To fix this, make the below changes:
+1. Instead of considering CPUs to be on different sockets if their
+core_siblings masks are unequal, consider them to be on different sockets
+only if their core_siblings masks don't have even one common CPU. Then CPUs
+on the same socket will be correctly identified even if offline/online
+operations happen while they are read if at least one CPU in the socket is
+online during both reads.
+2. Check if a CPU's hotplug operation has been completed before using its
+core_siblings file
 
-There's no other commonly-accepted program that does this,
-I want to say it's because (a) hardlink is The Util-Linux Implementation
-which doesn't necessarily exclude others, but certainly discourages them,
-(b) hardlink doesn't tell you, so (c) if you're querying something
-in a way that hardlink doesn't support,
-you're doing it ad-hoc with whatever you think of,
-and you're wondering why hardlink won't just tell you.
+Reported-by: Anushree Mathur <anushree.mathur@linux.vnet.ibm.com>
+Signed-off-by: Anjali K <anjalik@linux.ibm.com>
+---
+ sys-utils/lscpu-topology.c | 71 ++++++++++++++++++++++++++++++++++----
+ 1 file changed, 64 insertions(+), 7 deletions(-)
 
-Debian has, in src:perforate, finddup, which implements this.
-It's very much 1996 (it reads the whole file into memory, in Perl,
-before uniquifying by MD5(!)), and the output format is
-  84 './build-output/dsh-0.25.10.obsolete.1730308699.8166876/debian/watch' =
-'./build-output/dsh-0.25.10.obsolete.1730308753.583969/debian/watch'
-  84 './build-output/dsh-0.25.10.obsolete.1730306971.4697168/debian/watch' =
-'./build-output/dsh-0.25.10.obsolete.1730306296.9378986/debian/watch' './bu=
-ild-output/dsh-0.25.10.obsolete.1730306808.9797611/debian/watch'
-which is not in any way useful (the prefix is the size).
+diff --git a/sys-utils/lscpu-topology.c b/sys-utils/lscpu-topology.c
+index e3742e319..7fb4a1af9 100644
+--- a/sys-utils/lscpu-topology.c
++++ b/sys-utils/lscpu-topology.c
+@@ -17,19 +17,25 @@
+ #include <unistd.h>
+ #include <string.h>
+ #include <stdio.h>
++#include <ctype.h>
+ 
+ #include "lscpu.h"
+ 
+ /* add @set to the @ary, unnecessary set is deallocated. */
+-static int add_cpuset_to_array(cpu_set_t **ary, size_t *items, cpu_set_t *set, size_t setsize)
++static int add_cpuset_to_array(cpu_set_t **ary, size_t *items, cpu_set_t *set, size_t setsize, cpu_set_t *common_cpus_set)
+ {
+ 	size_t i;
+ 
+ 	if (!ary)
+ 		return -EINVAL;
+ 
++	/*
++	 * Check if @set has no cpu in common with the cpusets
++	 * saved in @ary and if so append @set to @ary.
++	 */
+ 	for (i = 0; i < *items; i++) {
+-		if (CPU_EQUAL_S(setsize, set, ary[i]))
++		CPU_AND_S(setsize, common_cpus_set, set, ary[i]);
++		if (CPU_COUNT_S(setsize, common_cpus_set))
+ 			break;
+ 	}
+ 	if (i == *items) {
+@@ -98,14 +104,49 @@ void lscpu_sort_caches(struct lscpu_cache *caches, size_t n)
+ 		qsort(caches, n, sizeof(struct lscpu_cache), cmp_cache);
+ }
+ 
++/*
++ * Get the hotplug state number representing a completely online
++ * cpu from /sys/devices/system/cpu/hotplug/state
++ */
++static int get_online_state(struct path_cxt *sys)
++{
++	int hp_online_state_val, page_size, rc;
++	char *buf, *strp;
++
++	hp_online_state_val = -1;
++
++	/* sysfs text files have size = page size */
++	page_size = getpagesize();
++
++	buf = (char *)malloc(page_size);
++	if (!buf)
++		goto done;
++	rc = ul_path_readf_buffer(sys, buf, page_size, "hotplug/states");
++	if (rc <= 0)
++		goto done;
++
++	strp = strstr(buf, ": online");
++	if (!strp)
++		goto done;
++
++	strp--; /* get digits before ': online' */
++	while (strp >= buf && isdigit(*strp))
++		strp--;
++	hp_online_state_val = atoi(strp + 1);
++
++done:
++	free(buf);
++	return hp_online_state_val;
++}
+ 
+ /* Read topology for specified type */
+ static int cputype_read_topology(struct lscpu_cxt *cxt, struct lscpu_cputype *ct)
+ {
+ 	size_t i, npos;
+ 	struct path_cxt *sys;
+-	int nthreads = 0, sw_topo = 0;
++	int nthreads = 0, sw_topo = 0, rc, hp_state, hp_online_state;
+ 	FILE *fd;
++	cpu_set_t *temp_set;
+ 
+ 	sys = cxt->syscpu;				/* /sys/devices/system/cpu/ */
+ 	npos = cxt->npossibles;				/* possible CPUs */
+@@ -113,6 +154,12 @@ static int cputype_read_topology(struct lscpu_cxt *cxt, struct lscpu_cputype *ct
+ 	DBG(TYPE, ul_debugobj(ct, "reading %s/%s/%s topology",
+ 				ct->vendor ?: "", ct->model ?: "", ct->modelname ?:""));
+ 
++	hp_online_state = get_online_state(sys);
++
++	temp_set = CPU_ALLOC(cxt->maxcpus);
++	if (!temp_set)
++		return -EINVAL;
++
+ 	for (i = 0; i < cxt->npossibles; i++) {
+ 		struct lscpu_cpu *cpu = cxt->cpus[i];
+ 		cpu_set_t *thread_siblings = NULL, *core_siblings = NULL;
+@@ -127,6 +174,15 @@ static int cputype_read_topology(struct lscpu_cxt *cxt, struct lscpu_cputype *ct
+ 					"cpu%d/topology/thread_siblings", num) != 0)
+ 			continue;
+ 
++		/*
++		 * Ignore cpus which are not fully online.
++		 * If hp_online_state is negative/zero or rc is negative,
++		 * online state could not be read correctly, skip this check.
++		 */
++		rc = ul_path_readf_s32(sys, &hp_state, "cpu%d/hotplug/state", num);
++		if (hp_online_state > 0 && rc >= 0 && hp_state != hp_online_state)
++			continue;
++
+ 		/* read topology maps */
+ 		ul_path_readf_cpuset(sys, &thread_siblings, cxt->maxcpus,
+ 					"cpu%d/topology/thread_siblings", num);
+@@ -163,15 +219,16 @@ static int cputype_read_topology(struct lscpu_cxt *cxt, struct lscpu_cputype *ct
+ 
+ 		/* add to topology maps */
+ 		if (thread_siblings)
+-			add_cpuset_to_array(ct->coremaps, &ct->ncores, thread_siblings, cxt->setsize);
++			add_cpuset_to_array(ct->coremaps, &ct->ncores, thread_siblings, cxt->setsize, temp_set);
+ 		if (core_siblings)
+-			add_cpuset_to_array(ct->socketmaps, &ct->nsockets, core_siblings, cxt->setsize);
++			add_cpuset_to_array(ct->socketmaps, &ct->nsockets, core_siblings, cxt->setsize, temp_set);
+ 		if (book_siblings)
+-			add_cpuset_to_array(ct->bookmaps, &ct->nbooks, book_siblings, cxt->setsize);
++			add_cpuset_to_array(ct->bookmaps, &ct->nbooks, book_siblings, cxt->setsize, temp_set);
+ 		if (drawer_siblings)
+-			add_cpuset_to_array(ct->drawermaps, &ct->ndrawers, drawer_siblings, cxt->setsize);
++			add_cpuset_to_array(ct->drawermaps, &ct->ndrawers, drawer_siblings, cxt->setsize, temp_set);
+ 
+ 	}
++	CPU_FREE(temp_set);
+ 
+ 	/* s390 detects its cpu topology via /proc/sysinfo, if present.
+ 	 * Using simply the cpu topology masks in sysfs will not give
 
-This then lets you process the equivalence sets separately
-(I hope to replace this monstrosity I run commonly:
-   find -exec b2sum {} + | sort | mawk '{h =3D substr($0, 1, 128); fn =3D s=
-ubstr($0, 1 + 128 + 2);  if(h =3D=3D hash) {tgt =3D "." fname; split(fn, cu=
-rs, "/"); if(curs[2] =3D=3D fnames[2]) tgt =3D fnames[3];  print "[ -s \"" =
-fn "\" ] && ln -sf -- \"" tgt "\" \"" fn "\""} else {hash =3D h; fname =3D =
-fn; split(fname, fnames, "/")}}'  | sh
- with something hardlink--l-based.
- Actually this would want hardlink -L ideally;
- would you accept a patch that adds -L?).
+base-commit: 9e2aafe5a493284615a17572c4ead4737bcc66a3
+-- 
+2.46.0
 
-On Thu, Oct 31, 2024 at 09:51:00AM +0100, Karel Zak wrote:
-> The new option should also be added to the "bash-completion/hardlink"
-> file. However, I can fix this after merging locally.
-I missed this. I'll include it in v2 if we get to v2 but if we don't,
-please do, thanks.
-
---cfs7dhugxb6mdr7t
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmcjmqYACgkQvP0LAY0m
-WPEXiw/9GpfBuZ1rcsQZuZI4jY6G4y6phxY5Wr3x8b6xyYnQ+ajYjxQcUVXsr3C6
-rQOqSHZW/tDedtSZWI49RuYVDo21pGnSFqbUAms35+1pFflkhtFNBtqpv96VtkH4
-SyVL5OyP8/X8YN3Mcmpm6Wh25wwse/aSXZwJj9HrEwm5r0OvEXwIgD+K0JVMdvWA
-mswIKn2NqrY4mIje3cXj6MjGJcw//y6ljLXbH2LgLlLQUrry5/+PkyEpCMVq1ceH
-Ceg4mTx+GDopbmHu8ufAZewvJ2WjaH6WEUkUv7vChUNrq3BNMdlz7yrlcELaUfin
-9EwdhDOUiMvBJOjYihIQZgg0v2Z9IUW2k3Y2zxu3EVcOx3lihTwWwl8S8qPhb31T
-4zJgI/rdx8T8RD9ZiO/L2KuYnFGc885GcXroqy3YqNiZMiIXvT/Cfoh3eiCAAMiU
-P1UKhz5M7verPFgg0nMnS9F/HlmI0Rl8P2bF+qzpKZ+12wiW0Y6B66gh/R2zjYoY
-umU2q97pPcKW64F3NECnxVebFUBNdCw0AWrUsv5q5ZuGdber9sPfwRiV8w5aAFhG
-ZregBpaByBynfasLOngE6twO71i7Yyxh7i6cC3aG2nnvctW/dMqP+Z35m5pAvOpV
-GUpXJg3zP5L6gfZ+zxxXZIpGubPM5Isd3j0ymz6S8IJQLa72M0E=
-=zEmG
------END PGP SIGNATURE-----
-
---cfs7dhugxb6mdr7t--
