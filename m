@@ -1,86 +1,110 @@
-Received: from mail02.ukr.de (mail02.ukr.de [193.175.194.182])
+Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 699071A28C
-	for <util-linux@vger.kernel.org>; Tue, 19 Nov 2024 08:21:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.175.194.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 568431D14E2
+	for <util-linux@vger.kernel.org>; Tue, 19 Nov 2024 17:50:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=18.9.28.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732004469; cv=none; b=a6nGdw4Hxqc92kCekJf217Kq5BR3WDSAtTKA49Z8GSjm6fRtr6dnbVF4Z3D5ao2m/1SF739yX7c5M+0x4LZu9CfsiWSmrNm0pbUPOCzPbSMZ9iqbyorFsfQ97mFSvriui6IZFYN2tHX7I+6BPlTa2qBcx3QWYIepMEURlyoLSo0=
+	t=1732038631; cv=none; b=tEPyA3xdX4F12cDChFvPy4zVzYW1IFQvVVGJLTSU7SAmynvStoEQ0JJex1ne1zOHJtE25byvbAOCPdTzvqA+zyUcOjq6gv+4inw+b8VSLyjAnPHgY47ubaJSofTc13xxtRvxKs6uwF7k3Auo1Jkien0KMmtWnKXWFjMDEv6pdJQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732004469; c=relaxed/simple;
-	bh=Rjh+5AkQKR+Lynfk2rH5q4K8PsJOupeqRWpRMx4j2Tc=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=XvKvrFtql3h7d693Oa1SiVdzzTqXsQtICGQrXdgFtfvmTjfXPN7fySFiB1AFMpSLt08tGvqfE0oOsTmUCb4vRE+mp3Ry5DM9j8ggCPaSjGytrOpIx6ebPTGeOYgWxYFJrnmEH9/xG+kUplxJNwa2XiclvqerWJmhfNZkL1jxHaA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ukr.de; spf=pass smtp.mailfrom=ukr.de; arc=none smtp.client-ip=193.175.194.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ukr.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ukr.de
-X-CSE-ConnectionGUID: bcYlmuh8RHCzO9+zBny7yQ==
-X-CSE-MsgGUID: Dye5k3AfTp2Mx+2D8/ogYQ==
-X-ThreatScanner-Verdict: Negative
-X-IronPort-AV: E=McAfee;i="6700,10204,11260"; a="1182718"
-X-IronPort-AV: E=Sophos;i="6.12,165,1728943200"; 
-   d="scan'208";a="1182718"
-Received: from unknown (HELO ukr-excmb04.ukr.local) ([172.24.6.64])
-  by dmz-infcsg02.ukr.dmz with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Nov 2024 09:19:54 +0100
-Received: from ukr-excmb03.ukr.local (172.24.6.63) by ukr-excmb04.ukr.local
- (172.24.6.64) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.39; Tue, 19 Nov
- 2024 09:19:54 +0100
-Received: from ukr-excmb03.ukr.local ([fe80::1cb4:6e0c:6da4:a8a0]) by
- ukr-excmb03.ukr.local ([fe80::1cb4:6e0c:6da4:a8a0%4]) with mapi id
- 15.01.2507.039; Tue, 19 Nov 2024 09:19:54 +0100
-From: "Windl, Ulrich" <u.windl@ukr.de>
-To: Krister Johansen <kjlx@templeofstupid.com>, Lennart Poettering
-	<lennart@poettering.net>
-CC: "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>, Karel Zak
-	<kzak@redhat.com>, "systemd-devel@lists.freedesktop.org"
-	<systemd-devel@lists.freedesktop.org>, David Reaver <me@davidreaver.com>,
-	Theodore Ts'o <tytso@mit.edu>
-Subject: RE: [EXT] Re: [systemd-devel] [PATCH] libblkid: fix spurious ext
+	s=arc-20240116; t=1732038631; c=relaxed/simple;
+	bh=zPG1oeFjQEojWqRTatYms9PiU5uufrMX3hsBiUV5f78=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fbSZnASX6aJcCWOU/bW9eoeMfNXiuZrNw35s5W0SO93QzFrUhpfcF0pGR0q99BjYpBaGwTl28ts8HztxfURYWZ5Lgj0hlfajNL3zJDbZn/M6HZ3xfMdWucNcQjY+M5ssazTj4kSMPULiasVMz1mXr1nSd8JtFoGswTVUyXH9LrM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mit.edu; spf=pass smtp.mailfrom=mit.edu; dkim=pass (2048-bit key) header.d=mit.edu header.i=@mit.edu header.b=kdsfM8Sk; arc=none smtp.client-ip=18.9.28.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mit.edu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mit.edu
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=mit.edu header.i=@mit.edu header.b="kdsfM8Sk"
+Received: from macsyma.thunk.org ([50.204.137.16])
+	(authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+	by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 4AJHnvQP007667
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 19 Nov 2024 12:49:59 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
+	t=1732038601; bh=TgNdenoYz7kqkgkpYYYAooEzfNGCR2HMmgVMFDPOXtU=;
+	h=Date:From:Subject:Message-ID:MIME-Version:Content-Type;
+	b=kdsfM8Sk0p8bLMYB7XI9B9uh18ZoKr3VPDvRAbMgzHzQseMHJehXSbPzZYCQcBzrR
+	 juExl1WClqmEGeBCpNA678BKeaOYZX4eJwdIKkFpCNQrvh7PXK1TzFP415+u33E1zn
+	 L7Su9+Mr5ZC1VATg0L7SG1ATC2kydqVnZxca/AyO7QCUtped177viOsda15oz4TnX5
+	 /IJ/ZweaVxXs7Tn+RgD80IzBrtbxagcWhpPorm7xDsvBCa8qRSDaO8bhucRoqfOREN
+	 M1rbp8C9sXdBAeSBrMRUQhUMYV1v04pyzpTWgdyTUjostD6n+J1D11axlnPq4yqzIm
+	 +oxjh3J8Ffl7A==
+Received: by macsyma.thunk.org (Postfix, from userid 15806)
+	id 8A99D3408AD; Tue, 19 Nov 2024 12:49:57 -0500 (EST)
+Date: Tue, 19 Nov 2024 09:49:57 -0800
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: "Windl, Ulrich" <u.windl@ukr.de>
+Cc: Krister Johansen <kjlx@templeofstupid.com>,
+        "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>,
+        Karel Zak <kzak@redhat.com>,
+        "systemd-devel@lists.freedesktop.org" <systemd-devel@lists.freedesktop.org>,
+        David Reaver <me@davidreaver.com>
+Subject: Re: [EXT] [systemd-devel] [PATCH] libblkid: fix spurious ext
  superblock checksum mismatches
-Thread-Topic: [EXT] Re: [systemd-devel] [PATCH] libblkid: fix spurious ext
- superblock checksum mismatches
-Thread-Index: AQHbOgprtyS8p8SbNkmh7F6ouMqr3bK9mjcAgACo6DA=
-Date: Tue, 19 Nov 2024 08:19:54 +0000
-Message-ID: <246892aea2ef4119bb2b0b248c720737@ukr.de>
+Message-ID: <20241119174957.GA3484088@mit.edu>
 References: <6d16e6d83ab48d2ea4402db17c9c0ed5514933a7.1731961869.git.kjlx@templeofstupid.com>
- <ZzvBgOP_skwId4ci@gardel-login> <20241118231352.GC1885@templeofstupid.com>
-In-Reply-To: <20241118231352.GC1885@templeofstupid.com>
-Accept-Language: de-DE, en-US
-Content-Language: de-DE
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+ <7bc43689ca4249f18c60fa4b063822ea@ukr.de>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7bc43689ca4249f18c60fa4b063822ea@ukr.de>
 
-> -----Original Message-----
-> From: systemd-devel <systemd-devel-bounces@lists.freedesktop.org> On
-> Behalf Of Krister Johansen
-> Sent: Tuesday, November 19, 2024 12:14 AM
-> To: Lennart Poettering <lennart@poettering.net>
-> Cc: util-linux@vger.kernel.org; Karel Zak <kzak@redhat.com>; systemd-
-> devel@lists.freedesktop.org; David Reaver <me@davidreaver.com>;
-> Theodore Ts'o <tytso@mit.edu>
-> Subject: [EXT] Re: [systemd-devel] [PATCH] libblkid: fix spurious ext
-> superblock checksum mismatches
->=20
-...=20
-> I may have done a poor job of explaining this.  This is ext writing its
-> own superblock from the kernel, but reads seeing an potentially
-> inconsistent view of that write.  O_DIRECT causes us to seralize with
-> the locks ext4 holds when it writes the superblock, which prevents the
-> read from observing a partial update.
->=20
-> It's not necessarily the partitioning tools causing this, but any
-> filesystem level udpdate that modifies the contents of the superblock.
+On Tue, Nov 19, 2024 at 08:15:29AM +0000, Windl, Ulrich wrote:
+> > Reads of ext superblocks can race with updates.  If libblkid observes a
+> [Windl, Ulrich] 
+> 
+> I really wonder:
+> 
+> Can one single block be inconsistent when read, considering that the
+> block on disk is not inconsistent?  That would mean that the block
+> buffer you are reading is being modified by another process.  AFAIK
+> the basic UNIX semantic guarantee that a block is read atomically;
+> if it's not, something is severely broken, and I don't think that
+> O_DIRECT fixes that.
 
-As I wrote before: I don't think the needless O_DIRECT fixes things some ot=
-her code broke.
+Yes, this can happen if the file system is mounted.  The reason for
+this is that the kernel updates metadata blocks via the block buffer
+cache, with the jbd2 (journaled block layer v2) subsystem managing the
+atomic updates.  The jbd2 layer will block buffer cache writebacks
+until the changes are committed in a jbd2 transaction.  So the version
+on disk is guaranteed to be consistent.
 
+However, a buffer cache read does not have any consistency guarantees,
+and if the file system is being actively modified, it is possible that
+you could a superblock where the checksum hasn't yet been updated.
 
+The O_DIRECT read isn't a magic bullet.  For example, if you have a
+scratch file system which is guaranteed not to survive a Kubernetes or
+Borg container getting aborted, you might decide to format the file
+system without a jbd2 journal, since that would be more efficient, and
+by definition you don't care about the contents of the file system
+after a crash.  So there are millions of ext4 file systems in
+hyperscale computing environments that are created without a journal;
+and in that case, O_DIRECT will not be sufficient for guaranteeing a
+consistent read of the superblock.
+
+In the long term, I'll probably be adding an ioctl which will allow
+userspace to read the superblock consistently for a mounted file
+system.  We actually already have ioctls, EXT4_IOC_GETFSUUID and
+FS_IOC_GETFSLABEL which will allow userspace to fetch the UUID and
+Label for a mounted file system.  So eventually, I'll probably end
+up adding EXT4_IOC_GET_SUPERBLOCK.  Let me know if this is something
+that util-linux would very much want.
+
+Note: this does require figuring out (a) whether the file system is
+mounted, and (b) if so, where is it mounted.  So if blkid wants to use
+this, it would need to have something like the function
+ext2fs_check_mount_point[1].
+
+Cheers,
+
+					- Ted
+					
+[1] https://github.com/tytso/e2fsprogs/blob/950a0d69c82b585aba30118f01bf80151deffe8c/lib/ext2fs/ismounted.c#L363
