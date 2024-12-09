@@ -1,200 +1,122 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.2])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id CE8684C91
-	for <util-linux@vger.kernel.org>; Mon,  9 Dec 2024 02:58:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.2
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABF702165E2
+	for <util-linux@vger.kernel.org>; Mon,  9 Dec 2024 10:26:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733713126; cv=none; b=RTm2tgN7YzVyL4OwLphVlP+sOV1qUPUlBkDeTUHtUqZz9eD1U5Eph6WzMf5J6nluQKRp4N/VDD5jSOzZU5PTcPGVxBFZCkjcECrm6wPo8utcH6uF/y8ilO1q3jnn+REYfsuMLmgHOnnwdTwhDHeyb32GgulI1J/6Ooy0ZJL0ntM=
+	t=1733740008; cv=none; b=QgMe4OkO7SSbf9ZGly5N8jKdXK9CqD5efiMN+BZ8V3DCSQoaYMChFUrf/hi0ukQRBPTdZjaduFoNjKV/atPEg1LibxDGncApCjLBuVagncZDVz+jILSJtGBrVcXJaHflgnSTAAPPApkiPyjevM0/vimnhqVq3KH2m+BdseTjiGM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733713126; c=relaxed/simple;
-	bh=DHUptKZYFXYYLlpBSD7vMfShpdUZjZleAjie2cN4aW0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Z5WrYZ+61K7DQvPwZ0Gtd84jCjvDb9D/8Sk1hpzZx6KvUsNUH3rneEWAgCnVl5TFutylIDYmCQbtJHJWFEoGXTPQ4rNSY/+NrV2iM+AYrG8L2alHIokYolIsMxcLOXAx5eXlJ1GuzI2m+NwfdhCJQlgLfvg7PEHxTp4q9/plkCw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=g40IYEuk; arc=none smtp.client-ip=117.135.210.2
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1733740008; c=relaxed/simple;
+	bh=IW5+XxdBcDYxStxf0ANHz2/aaziQ1TEOwa/5ipNf9iQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UYuE4lR68PXlN7OfV+CSSz2sJoMIZWbnY1rjhcvaOOKKDq7zuILmmT2PZxZ1ce/JDBJZyOJC4aRI/TtZesS/EaWBKvm34eaHARGBKdRN8D/6uChaksoxyEUnFrcphD0Bf312hRVnBYPQ95zMkO7aV3vxEhf+wm65skgUTEPd59g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K1/Kcjub; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="g40IYEuk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:Subject:Date:Message-ID:MIME-Version; bh=E5pA4
-	phgSOUls6UKvxltZBFGq8oIsFuNzUINq38mowA=; b=g40IYEuk+xVGPekMaNUjy
-	ngGEB8StVjQUSS570Oc1rMXE1OIGTvP+5NDuNzjOqA7R0L9cxXwhPQMrvX5tbKts
-	QhbBLdOuV6nv3hq2/3n9MrnrMghlUi1Q3EKQAmiJS1DqbP6XhjGqvio0Ht1WG+pI
-	J57X7OMH53EFlHhV5k7oWk=
-Received: from localhost.localdomain (unknown [121.12.217.185])
-	by gzga-smtp-mtada-g0-1 (Coremail) with SMTP id _____wA3XxPGXFZnhgl+Dw--.822S2;
-	Mon, 09 Dec 2024 10:58:26 +0800 (CST)
-From: Zhaoming Luo <zhmingluo@163.com>
-To: util-linux@vger.kernel.org
-Cc: bug-hurd@gnu.org,
-	Zhaoming Luo <zhmingluo@163.com>
-Subject: [PATCH] hwclock: Support GNU Hurd
-Date: Mon,  9 Dec 2024 10:58:15 +0800
-Message-ID: <20241209025815.7299-1-zhmingluo@163.com>
-X-Mailer: git-send-email 2.45.2
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K1/Kcjub"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1733740005;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=TaFPPqDG35qNxK2ycfSlzgVAsV/rQWmLGzAi4qRKnNk=;
+	b=K1/Kcjub/m479c+Nwx4/ZkY34/ylgWFSjfT5uxmMlBvqvqefxPcZnfiPEi5NKACgzS7cg1
+	ezym2xoJb6Q3PFrUd71ZnpqNoZD3DdB4pHFuOUeezAWx48TrA3shDPW3B5PPSVWfQAAADN
+	FpoSOzyZr5m7jFDZNDiZdIb8+A/A2lw=
+Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-561-FCylwaapMuuUXfaAVfOEYQ-1; Mon,
+ 09 Dec 2024 05:26:42 -0500
+X-MC-Unique: FCylwaapMuuUXfaAVfOEYQ-1
+X-Mimecast-MFC-AGG-ID: FCylwaapMuuUXfaAVfOEYQ
+Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 4120E19560A2;
+	Mon,  9 Dec 2024 10:26:41 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.225.12])
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 437EC1956095;
+	Mon,  9 Dec 2024 10:26:40 +0000 (UTC)
+Date: Mon, 9 Dec 2024 11:26:36 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Demi Marie Obenour <demiobenour@gmail.com>
+Cc: util-linux@vger.kernel.org
+Subject: Re: Ensuring that mount(8) will always interpret a filesystem
+ correctly
+Message-ID: <zxqdvuyhtmas5apcnop7kleh2b24sboscyaosgkyqqfz4nlsdf@rmgdzivamwdw>
+References: <6f939e2c-7d86-4b3d-885b-2c171c944079@gmail.com>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wA3XxPGXFZnhgl+Dw--.822S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxXF18Krykuw4rAF47Ww45Wrg_yoWrCry7pF
-	4UCF4YyFW8Kr1agF97tFykKFn7G34UGrW3CFy7ur17tFy7Xr18XF4kJF9ayryYqrZ3ZayD
-	ArnrGry5CF4DC3DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0JUFPfQUUUUU=
-X-CM-SenderInfo: p2kpx0pjox0qqrwthudrp/1tbiEQewLGdWWz83OwAAsT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6f939e2c-7d86-4b3d-885b-2c171c944079@gmail.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-* configure.ac: add HURD so it can be used in conditional in am files
-* sys-utils/Makemodule.am: compile hwclock for GNU Hurd
-* sys-utils/hwclock-rtc.c: compile for GNU Hurd
-* sys-utils/hwclock.c: compile for GNU Hurd
-* sys-utils/hwclock.h: compile for GNU Hurd
 
-Signed-off-by: Zhaoming Luo <zhmingluo@163.com>
----
- configure.ac            |  6 +++++-
- sys-utils/Makemodule.am |  5 +++++
- sys-utils/hwclock-rtc.c | 15 ++++++++++++---
- sys-utils/hwclock.c     |  2 +-
- sys-utils/hwclock.h     |  4 +++-
- 5 files changed, 26 insertions(+), 6 deletions(-)
+ Hi Demi,
 
-diff --git a/configure.ac b/configure.ac
-index 698da36..8de6af6 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -263,16 +263,20 @@ AC_PATH_PROG([XSLTPROC], [xsltproc])
- 
- linux_os=no
- bsd_os=no
-+gnu_os=no
- AS_CASE([${host_os}],
-   [*linux*],
-      [linux_os=yes],
-   [*darwin*],
-      [darwin_os=yes],
-   [*bsd*],
--     [bsd_os=yes])
-+     [bsd_os=yes],
-+  [gnu*],
-+     [gnu_os=yes])
- AM_CONDITIONAL([LINUX], [test "x$linux_os" = xyes])
- AM_CONDITIONAL([DARWIN], [test "x$darwin_os" = xyes])
- AM_CONDITIONAL([BSD], [test "x$bsd_os" = xyes])
-+AM_CONDITIONAL([HURD], [test "x$gnu_os" = xyes])
- 
- AS_IF([test  "x$darwin_os" = xyes], [
-   AC_DEFINE([_DARWIN_C_SOURCE], [1], [Enable MAP_ANON in sys/mman.h on Mac OS X])
-diff --git a/sys-utils/Makemodule.am b/sys-utils/Makemodule.am
-index 209b656..8cc69be 100644
---- a/sys-utils/Makemodule.am
-+++ b/sys-utils/Makemodule.am
-@@ -570,6 +570,11 @@ hwclock_SOURCES += \
- 	lib/monotonic.c
- hwclock_LDADD += $(REALTIME_LIBS)
- endif
-+if HURD
-+hwclock_SOURCES += \
-+	sys-utils/hwclock-rtc.c \
-+	lib/monotonic.c
-+endif
- if HAVE_AUDIT
- hwclock_LDADD += -laudit
- endif
-diff --git a/sys-utils/hwclock-rtc.c b/sys-utils/hwclock-rtc.c
-index 2796f2e..7162ae9 100644
---- a/sys-utils/hwclock-rtc.c
-+++ b/sys-utils/hwclock-rtc.c
-@@ -8,10 +8,15 @@
-  *
-  * rtc.c - Use /dev/rtc for clock access
-  */
-+#ifdef __GNU__
-+#include <sys/ioctl.h>
-+#include <hurd/rtc.h>
-+#else
- #include <asm/ioctl.h>
--#include <errno.h>
- #include <linux/rtc.h>
- #include <linux/types.h>
-+#endif /* __GNU__ */
-+#include <errno.h>
- #include <fcntl.h>
- #include <stdio.h>
- #include <stdlib.h>
-@@ -28,6 +33,7 @@
- 
- #include "hwclock.h"
- 
-+#ifndef __GNU__
- #ifndef RTC_PARAM_GET
- struct rtc_param {
- 	__u64 param;
-@@ -60,6 +66,7 @@ const struct hwclock_param *get_hwclock_params(void)
- {
- 	return hwclock_params;
- }
-+#endif /* __GNU__ */
- 
- /*
-  * /dev/rtc is conventionally chardev 10/135
-@@ -99,12 +106,12 @@ static int open_rtc(const struct hwclock_control *ctl)
- 	/* --rtc option has been given */
- 	if (ctl->rtc_dev_name) {
- 		rtc_dev_name = ctl->rtc_dev_name;
--		rtc_dev_fd = open(rtc_dev_name, O_RDONLY);
-+		rtc_dev_fd = open(rtc_dev_name, O_RDWR);
- 	} else {
- 		for (i = 0; i < ARRAY_SIZE(fls); i++) {
- 			if (ctl->verbose)
- 				printf(_("Trying to open: %s\n"), fls[i]);
--			rtc_dev_fd = open(fls[i], O_RDONLY);
-+			rtc_dev_fd = open(fls[i], O_RDWR);
- 
- 			if (rtc_dev_fd < 0) {
- 				if (errno == ENOENT || errno == ENODEV)
-@@ -411,6 +418,7 @@ int set_epoch_rtc(const struct hwclock_control *ctl)
- 
- 
- 
-+#ifndef __GNU__
- static int resolve_rtc_param_alias(const char *alias, __u64 *value)
- {
- 	const struct hwclock_param *param = &hwclock_params[0];
-@@ -609,3 +617,4 @@ int rtc_vl_clear(const struct hwclock_control *ctl)
- 
- 	return 0;
- }
-+#endif /* __GNU__ */
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index 2b33dfb..2714775 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -989,7 +989,7 @@ static void determine_clock_access_method(const struct hwclock_control *ctl)
- 	if (ctl->directisa)
- 		ur = probe_for_cmos_clock();
- #endif
--#ifdef __linux__
-+#if defined(__linux__) || defined(__GNU__)
- 	if (!ur)
- 		ur = probe_for_rtc_clock(ctl);
- #endif
-diff --git a/sys-utils/hwclock.h b/sys-utils/hwclock.h
-index 2522d6c..4cbbff9 100644
---- a/sys-utils/hwclock.h
-+++ b/sys-utils/hwclock.h
-@@ -36,8 +36,10 @@ struct hwclock_control {
- #if defined(__linux__) && defined(__alpha__)
- 	char *epoch_option;
- #endif
--#ifdef __linux__
-+#if defined(__linux__) || defined(__GNU__)
- 	char *rtc_dev_name;
-+#endif
-+#ifdef __linux__
- 	uint32_t param_idx;	/* --param-index <n> */
- #endif
- 	char *param_get_option;
+On Sat, Dec 07, 2024 at 08:45:32PM GMT, Demi Marie Obenour wrote:
+> Is there a guarantee that if all data before the filesystem superblock is
+> zero, and that the filesystem never writes to this region, libblkid (and
+> thus, presumably, mount(8)) will always mount the filesystem with the
+> correct filesystem type, even if e.g. someone writes a file containing
+> a superblock of a different filesystem and the filesystem happens to put
+> it where that superblock is valid?
+
+the libblkid library offers multiple modes, with "safe mode" being the
+default for detecting filesystems. In this mode, the library checks
+for any additional valid superblocks on the device. There are
+exceptions for certain filesystems on CD/DVD media (such as udf and
+iso), but for regular filesystems, sharing the same device is not
+allowed.
+
+There is also an option to specify that a superblock is only valid if
+no other area is using it (using blkid_probe_set_wiper() and
+blkid_probe_use_wiper()). However, this is only used for LVM and
+bcache.
+
+The library does not require that there are zeros before the
+superblock, as not all mkfs-like programs zero out all areas.
+
+In recent years, there have been no reports of collisions. In the
+entire history of the library, the only collisions I can recall are
+with swap areas and luks, and occasionally with poorly detected FAT
+filesystems (due to the messy design of FAT).
+
+> The motivation for this message is that systemd-gpt-generator generates
+> mountpoints based on Discoverable Partition Specification GUIDs.  These
+> indicate the mountpoint of the partition but not the filesystem type.
+
+Filesystem auto-detection is a common feature. The situation is
+similar to having an "auto" fstype in fstab. The systemd-gpt-generator
+simply identifies the partition as "/usr" (or any other mountpoint)
+and the rest is usual scenario.
+
+> If a correctly-produced filesystem image will always continue to be
+> recognized as the correct type, this is fine.  Otherwise, an unlucky
+> combination of writes to the filesystem and filesystem allocation decisions
+> could cause the filesystem to start being mounted as the wrong type, which
+> would be very bad.  According to https://github.com/util-linux/util-linux/issues/1305,
+> libblkid can indeed probe for subsequent superblocks after the first one it
+> finds.
+
+I believe the situation would be the same even without the
+Discoverable Partition Specification. The kernel always divides the
+whole disk into partitions, and libblkid/mount utilizes these
+partitions. Therefore, the filesystems are automatically separated by
+the partition table.
+
+    Karel
+
 -- 
-2.45.2
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
