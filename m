@@ -1,119 +1,76 @@
-Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66E27819
-	for <util-linux@vger.kernel.org>; Sun, 15 Dec 2024 03:20:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=18.9.28.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA97D2010EF
+	for <util-linux@vger.kernel.org>; Mon, 16 Dec 2024 10:18:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734232857; cv=none; b=Auud6b7euTUeN8AOSs6QuKsflYC0I2FWmrLVvKKZReIegyh87gFUj7UeyHOYHnrPI59Ca2hOfVsIhL45OmM0LcTw0n08KFcl87G+ROgw0sJEc6hpOQEMQL9LbHYz1Ji1cBulaHpREAcLp3JNQTgsXWEylIJ2uJpAP/gBKRIdOh4=
+	t=1734344289; cv=none; b=MMCrrlmP3N8vBArCX9k8JxQ1U4pjnkSwRYaRZLiOvSwcbCINODYPXz1G9iMvKLi3t6arH0tEhGeQKDUfOBNkLNsXt9Ap7FGoQ21RZK2rVESwTn6Q/eGdtnOcqFjQXsvuvIAJ8Rr8ifdDyOq0ic05hlu/zw9t6M+f1Y2PlJ68qOg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734232857; c=relaxed/simple;
-	bh=5uU09X/B/0zg1C8eSXhzUuOOMCxAbIxbKs1F6yKtvd0=;
+	s=arc-20240116; t=1734344289; c=relaxed/simple;
+	bh=Bp8awhjIYQJ1jUgicKcRnJyBuVU6dEf9uU69C6/LNYA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=u4N25K0QaM4slXsZRH8F7aG3UGJenAWcJVLVvv1yCpu08P/JW6ky1w3g16VVoNXTkNf0SvkVT0mIUHY3veunVSYBQk6Zns5Ynij4HTcJPh18F7rb+hrRCbgeaOt8EE+wd6TXBKQlWZ+XSLWEoGq697UdjoXJO9oRKDU6nWJuy0s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mit.edu; spf=pass smtp.mailfrom=mit.edu; dkim=pass (2048-bit key) header.d=mit.edu header.i=@mit.edu header.b=lyrfKRWa; arc=none smtp.client-ip=18.9.28.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mit.edu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mit.edu
+	 Content-Type:Content-Disposition:In-Reply-To; b=XHXA4mDfdyKTf+jY3O0gQ6WtMUdwu0xRnjPKpHBm8gFHZhb2Dhty7mRcewzawhCNwj6XgsdY4vzcjwRpUQP3aIDNlSjPDiXZKE5lMhsc2JDFUJk7OS4KjY2dhRNWwYgR783GyR9HllFOi+PRNiDLdXbOd9P+jwRuWucmJQh8S1c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DTglYXLd; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mit.edu header.i=@mit.edu header.b="lyrfKRWa"
-Received: from cwcc.thunk.org (pool-173-48-82-226.bstnma.fios.verizon.net [173.48.82.226])
-	(authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-	by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 4BF3Kgx7004555
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sat, 14 Dec 2024 22:20:43 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
-	t=1734232843; bh=kfDI3ADlfH2xL2cV35EXoPz+k9OWSXASgIuxqNbJRfc=;
-	h=Date:From:Subject:Message-ID:MIME-Version:Content-Type;
-	b=lyrfKRWa+xWNuueyh+SJ+Aw4S3FicgxL8Wj/w2gmVLmorrs3ZcsWXGIvSOfv+NiYb
-	 Ak/tKVEk+Wg26V/qZqX1ltLm0QJr7Ui2t0k+TPJwhCh1TEa97DF0pnm+1zdYlCp/Hm
-	 qBgsMA4cJomq0ekxlU9DU1N/ddv3lF4XJNqIHwOKvrm10vVrL6Q+JkjUN/vFIj8qFF
-	 meVfnAYFtLFj3HmPYqpXpLZXrJN1gjWw1sCybPp3NN+mpXUC9G3YG8VVL+nnWDl0HF
-	 t4ZJUUExTSQm4tBhSnYCQuAq0FLqjEoPq6HCHp6q5Du3H040UNESejSddzZjfGsK8j
-	 cBoyjEDljOPmA==
-Received: by cwcc.thunk.org (Postfix, from userid 15806)
-	id DC36115C4656; Sat, 14 Dec 2024 22:20:41 -0500 (EST)
-Date: Sat, 14 Dec 2024 22:20:41 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Demi Marie Obenour <demiobenour@gmail.com>
-Cc: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-Subject: Re: Ensuring that mount(8) will always interpret a filesystem
- correctly
-Message-ID: <20241215032041.GC2472262@mit.edu>
-References: <6f939e2c-7d86-4b3d-885b-2c171c944079@gmail.com>
- <zxqdvuyhtmas5apcnop7kleh2b24sboscyaosgkyqqfz4nlsdf@rmgdzivamwdw>
- <114fa16d-5908-4300-96a0-23203c7470af@gmail.com>
- <y7tl6b7pviy7ubstwprmw57ubquf777orkp56h45r7ab3xjfek@t3qjqzehfwnp>
- <155cef10-48b4-42f0-bacf-b9e1d7394206@gmail.com>
- <20241211133808.GB1912640@mit.edu>
- <d1ad846b-def1-403d-be62-aac78e06fdc3@gmail.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DTglYXLd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1734344286;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=I21r0SE0xH374+FeB8NH8ts9+WA3PbC5UKYq8CkEfhY=;
+	b=DTglYXLdGNWcDJWc8MyGy6EqXPJnWs1YfZvVeNVonnQ4lT2g5L7GZ15dd4wP+Jxq7+2uYu
+	GPiLSfZ53gnZAuUXnV8+9W7ftarmc1xX9glwf5+tn26aNI8MEc1N5TvPReHNqGcnDPy9jW
+	xE4r+aO87YDvjERote6f+qiUH2Qw+Lc=
+Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-605-hiE1yqxpP6qsqUKCJ3jQ5Q-1; Mon,
+ 16 Dec 2024 05:18:03 -0500
+X-MC-Unique: hiE1yqxpP6qsqUKCJ3jQ5Q-1
+X-Mimecast-MFC-AGG-ID: hiE1yqxpP6qsqUKCJ3jQ5Q
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 544A71956086;
+	Mon, 16 Dec 2024 10:18:02 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.225.204])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 576923000197;
+	Mon, 16 Dec 2024 10:18:01 +0000 (UTC)
+Date: Mon, 16 Dec 2024 11:17:58 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Chris Hofstaedtler <zeha@debian.org>
+Cc: util-linux@vger.kernel.org
+Subject: Re: v2.40.3 plan
+Message-ID: <xh2hk7lsr2mdfza6a2s4aeq6gcwbnsfteqnaunckm77zhyjlgf@pybi4g4fqw6f>
+References: <4wnkdjqtwlx5pjeknj7wqmk5bgftoyzpqijqguekcepcdyrgmn@pofpabk4awvg>
+ <tcyqzu65my54wgqt4twjcdtb5vayvoojareuzkfnbx6pev7osa@lhea5femzoia>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <d1ad846b-def1-403d-be62-aac78e06fdc3@gmail.com>
+In-Reply-To: <tcyqzu65my54wgqt4twjcdtb5vayvoojareuzkfnbx6pev7osa@lhea5femzoia>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-On Sat, Dec 14, 2024 at 05:08:54PM -0500, Demi Marie Obenour wrote:
-> > From what I can tell, the Discoverable Partition Table specification,
-> > at least as defined here[1] only supports explicit file system types
-> > supplied by the GPT partition table.
-> > 
-> > [1] https://uapi-group.org/specifications/specs/discoverable_partitions_specification/
-> 
-> It’s the other way around: the GPT only provides the mountpoint,
-> never the type.  That’s why I filed an issue [1] asking for
-> per-filesystem-type UUIDs.
+ Hi Chris,
 
-Bleah, you're right.  Other partition tables, including MBR(!) used
-the "partiton type" to be the kind of file system.  (For example,
-0x07h meant OS/2, 0x09 meant QNX/Coherent/OS-9, 0x0Bh meant FAT32 with
-CHS addressing, 0x0Ch meat FAT32 with LBA, 39h meant Plan9, etc.)
+On Tue, Dec 10, 2024 at 04:03:49PM GMT, Chris Hofstaedtler wrote:
+> I think it would be nice to add the following three commits from
 
-When I saw "partition type" in the UEFI spec, I thought they were
-seeing the path of wisdom and moving away from in-band signaling to an
-explicit type specification --- but you're right, looking at the UEFI
-spec more closely, it's about how the file system is to be used, not
-the file system type.
+All three commits were cherry-picked to the stable branch. Thank you
+for the suggestion.
 
-(It's really not even the mount point, since
-773f91ef-66d4-49b5-bd83-d683bf40ad16 means "per-user home partition",
-but since the UUID doesn't specify the username, you would't know
-whether it was supposed to be mounted in /home/lucy, or /home/snoopy,
-or /home/charlie_brown.  Yelch....)
+    Karel
 
-> I’m not too worried about this, and instead am of the opinion that it
-> needs to be fixed on the blkid side (by ignoring the ZFS superblock).
-
-I disagree; blkid's *job* is to detect the file system type, and just
-ignoring all ZFS superblocks means that it won't be able to detect ZFS
-file systems, which would be sad.  And having some kind of arbitrary
-preference where blkid were to say, "well, if it's ambiguous whether a
-block device is ext4 or btrfs or ZFS, I'll just arbitrarily say ext4
-because I like ext4 more" is well, arbitrary.
-
-The best way to solve this is to either have users use "wipefs -a
-/dev/hdXX" before running a mkfs program, but in the spirit of being
-kind to users[1] who don't know about wipefs, or for distro installers
-that don't bother to call wipefs, I'm perfectly happy to teach
-mkfs.ext4 how to make the right thing happen automatically.  I just
-need to know how to zap ZFS superbloks.
-
-BTW, in practice this happens automatically for SSD's, since we will
-call BLKDISCARD on the entire device, for better FTL GC performance.
-But for HDD's, we will need to explicitly write zeroes in the correct
-location.
-
-Cheers,
-
-					- Ted
-
-[1] Using a variation from Struck and White's "The Elements of Style"
-where they said, "always write with a deep empathy towards the
-reader", we should strive to program with deep empathy towards the
-user.  :-)
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
