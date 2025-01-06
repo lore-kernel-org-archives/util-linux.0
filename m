@@ -1,156 +1,97 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0149211C
-	for <util-linux@vger.kernel.org>; Sat,  4 Jan 2025 16:28:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D01BB136E37
+	for <util-linux@vger.kernel.org>; Mon,  6 Jan 2025 14:59:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736008130; cv=none; b=Tv8RiHO9QV24xyCWFFVvYsq+Sd65XQz6Gr6tIJnVZECGKI3HCQm3dZMtOGbOSIAxp3qmHHemAgCrnvPqc4r/p1OO3dYFhyIDa4Qu0HL/NqnlpN4yPZTIHdGqHhSeyHWULPj7RTDuQ4t0w8sBugODV5pokEwfD64RB2V5kJGdGWs=
+	t=1736175543; cv=none; b=VEG7TdNEo6cCE6ul7CpHHwDioo8x/Jn3fvjmZkeIHONuFECsOmjQ5ikN/yc/QwQ19xmYjNSDp2ZF6LfLN/iY4bsbgPWROJnf3knrsuEesFH2eMLWjSNF8IjYoYRhVvH2tbyM+yXRhPikT2FNCtOW1YV7gJVNvt5aCBHCHCUJU0o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736008130; c=relaxed/simple;
-	bh=XMnOrqcLiAXHN654S0YG+pL5dgi+fuSk7o5pioSsiRM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=tiAA+5FXfJs596QKkQiL9zERNXiCpZ0FRdO1I526h8MSxSEh8+7CXEkoveKdjOoxFTJQ/tXouFoJoQyMRdWooYNfsZ5nG2eLGkDF+lswdLGFEefJqzNbiI5omwKmxBP1TY+mrkcjBZD1qDejUbRE+GXcPGwY34XCEm9BLAZXAC0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=GFj2T9Zx; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=hVlk5Sm2; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=GFj2T9Zx; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=hVlk5Sm2; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1736175543; c=relaxed/simple;
+	bh=Wv5y7vaetlGmAKGlyoaBihIgLWEIGavyrWJ743NwsPQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mPdpq6w8aSEQ/ihkS2JlM9GpOlI432Qw8+6SLjQMFe869RKI+HwMJ8ogIOqvQlYjKTXC9A3sZNd4e/Eaz7Y40jMHe4MjUx5+kssLFef0/p1ho8pkpc6h1DwyThP6WA4IwLx4KHN5YrQagfYkZJkOGkNIDQCpb4OFo3RnfTfdVpI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CL/kKhsg; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="GFj2T9Zx";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="hVlk5Sm2";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="GFj2T9Zx";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="hVlk5Sm2"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CL/kKhsg"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1736175540;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=c4zkQjrzGZcShKWfrw7Icus8jItv2u+edthUHkU60Kg=;
+	b=CL/kKhsgnLaR+kBxTjpbrZ675gsOn/pIwx7EutL92FuKGIFHuv4okBY8at7YWnbwBIs+dc
+	sRtw03OKkSnOx4Pu6FUqdmtbczCI/bI+Dgp5wtR6aoCJGg6BGxQH5oidCcj7K4/0C2l+lV
+	alQgUPbBO2DZLB3x5pSbQ381J9BN+0g=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-112-wp00RuFvPfO_IJSypf7iSw-1; Mon,
+ 06 Jan 2025 09:58:57 -0500
+X-MC-Unique: wp00RuFvPfO_IJSypf7iSw-1
+X-Mimecast-MFC-AGG-ID: wp00RuFvPfO_IJSypf7iSw
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id C59E421153;
-	Sat,  4 Jan 2025 16:28:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1736008126; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tqnFnpKn4bXeWSgF583hEMWeiGbGsrRsvsv8hSpAPWA=;
-	b=GFj2T9ZxyWW/mb8/KvZAGu8CeYA5SLUvF1tl8p6G+uVs5JYI8f0ycuouQD9S+cMX9yTtWS
-	jm5WZImEs6yphldE9k5qxVIh9Md4Zavdk3xZ2AKkXuVVktQoMzjAbPOjohTSQ/WFBQmdLM
-	1082a75sMZpasW8PV31lLXLika6jG/0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1736008126;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tqnFnpKn4bXeWSgF583hEMWeiGbGsrRsvsv8hSpAPWA=;
-	b=hVlk5Sm2i7M+SjUoMCxfHR1cpdzGMcaaaiZ3AtEufriVExSUi5tiZ9bi66holia9+ozA44
-	nXyLmhTX7ztrSFAg==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1736008126; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tqnFnpKn4bXeWSgF583hEMWeiGbGsrRsvsv8hSpAPWA=;
-	b=GFj2T9ZxyWW/mb8/KvZAGu8CeYA5SLUvF1tl8p6G+uVs5JYI8f0ycuouQD9S+cMX9yTtWS
-	jm5WZImEs6yphldE9k5qxVIh9Md4Zavdk3xZ2AKkXuVVktQoMzjAbPOjohTSQ/WFBQmdLM
-	1082a75sMZpasW8PV31lLXLika6jG/0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1736008126;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tqnFnpKn4bXeWSgF583hEMWeiGbGsrRsvsv8hSpAPWA=;
-	b=hVlk5Sm2i7M+SjUoMCxfHR1cpdzGMcaaaiZ3AtEufriVExSUi5tiZ9bi66holia9+ozA44
-	nXyLmhTX7ztrSFAg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B1084137CF;
-	Sat,  4 Jan 2025 16:28:46 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id gUSAKr5heWclOAAAD6G6ig
-	(envelope-from <sbrabec@suse.cz>); Sat, 04 Jan 2025 16:28:46 +0000
-Message-ID: <c75c5f33-823e-497d-86be-5d62907e8439@suse.cz>
-Date: Sat, 4 Jan 2025 17:28:46 +0100
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8D4691955EA7;
+	Mon,  6 Jan 2025 14:58:56 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.224.44])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A7DE03000197;
+	Mon,  6 Jan 2025 14:58:55 +0000 (UTC)
+Date: Mon, 6 Jan 2025 15:58:52 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: v2.40.3 plan
+Message-ID: <ewc6glghupyk4koka764ymyjzuedczl4uknucujc6vlj3ohgpb@rw5jgn5dxzqe>
+References: <4wnkdjqtwlx5pjeknj7wqmk5bgftoyzpqijqguekcepcdyrgmn@pofpabk4awvg>
+ <e0544e22-d8a3-4e13-908b-97a07cbff40b@suse.cz>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: v2.40.3 plan
-To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
-References: <4wnkdjqtwlx5pjeknj7wqmk5bgftoyzpqijqguekcepcdyrgmn@pofpabk4awvg>
-Content-Language: en-US
-From: Stanislav Brabec <sbrabec@suse.cz>
-Organization: SUSE Linux, s. r. o.
-In-Reply-To: <4wnkdjqtwlx5pjeknj7wqmk5bgftoyzpqijqguekcepcdyrgmn@pofpabk4awvg>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Level: 
-X-Spamd-Result: default: False [-4.30 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	ARC_NA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	HAS_ORG_HEADER(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCPT_COUNT_TWO(0.00)[2];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email]
-X-Spam-Score: -4.30
-X-Spam-Flag: NO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e0544e22-d8a3-4e13-908b-97a07cbff40b@suse.cz>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-Karel Zak wrote:
-> If there is anything missing or if you would like to add something to
-> the release, please let me know.
+On Sat, Jan 04, 2025 at 05:27:05PM GMT, Stanislav Brabec wrote:
+> These would be nice iin 2.40 branch:
+> 
+> Merge branch 'PR/libmount-vfs-ro' that makes mountfd usable in most cases
+> (but still not fully compatible):
+> 4095c5bb6757b506acbe47a8bc60d8ebd04ba8a5
+> libmount: implement ro[=vfs,fs]
+> and
+> 03b2e73ae649a957a4f695df4f44c2cbce8d5f92
+> libmount: improving readability
 
-These would be nice iin 2.40 branch:
+Yes, I understand, but in my opinion, it's too intrusive for the .3
+release. I would prefer to only have minor changes and actual bug
+fixes, rather than new features.
 
+> 20b405c0fea29675e1fb54b894eb1c18459f9d50
+> agetty: Prevent cursor escape
+> Cosmetic fix, but visible.
+> 
+> 50a3efab6d126b28fcdcc28f1a0cd5cd596ae357
+> lscpu: Skip aarch64 decode path for rest of the architectures
+> Ensures proper lscpu behavior.
+> 
+> fc67f18be51f57ee9a59a0f8f7ad16f284a24a3e
+> umount, losetup: Document loop destroy behavior
+> Just a doc update that explains unexpected behavior.
 
-Merge branch 'PR/libmount-vfs-ro' that makes mountfd usable in most 
-cases (but still not fully compatible):
-4095c5bb6757b506acbe47a8bc60d8ebd04ba8a5
-libmount: implement ro[=vfs,fs]
-and
-03b2e73ae649a957a4f695df4f44c2cbce8d5f92
-libmount: improving readability
+Looks good, all three have been backported to the v2.40 branch.
 
-20b405c0fea29675e1fb54b894eb1c18459f9d50
-agetty: Prevent cursor escape
-Cosmetic fix, but visible.
-
-50a3efab6d126b28fcdcc28f1a0cd5cd596ae357
-lscpu: Skip aarch64 decode path for rest of the architectures
-Ensures proper lscpu behavior.
-
-fc67f18be51f57ee9a59a0f8f7ad16f284a24a3e
-umount, losetup: Document loop destroy behavior
-Just a doc update that explains unexpected behavior.
+    Karel
 
 -- 
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                         e-mail: sbrabec@suse.com
-Křižíkova 148/34 (Corso IIa)                    tel: +420 284 084 060
-186 00 Praha 8-Karlín                          fax:  +420 284 084 001
-Czech Republic                                    http://www.suse.cz/
-PGP: 830B 40D5 9E05 35D8 5E27 6FA3 717C 209F A04F CD76
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
