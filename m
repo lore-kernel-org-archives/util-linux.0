@@ -1,90 +1,76 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B39022F43
-	for <util-linux@vger.kernel.org>; Thu,  9 Jan 2025 19:32:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+Received: from angie.orcam.me.uk (angie.orcam.me.uk [78.133.224.34])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8966A1F9428;
+	Thu,  9 Jan 2025 20:10:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.133.224.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736451134; cv=none; b=ntj0iq/S8Wt31Elm+tb4LSdk7Zv8m4ZogJarbsDqWCm0Z9sgN9JnaGqSr55ZXkDiaEKbxBRd9k7PMddBhFnUMLDkIOivpls0OqBfiyKccmDW7oKenaZREAds71jyijUOV4WjAOAtWEQgxxw4W7Gkl1AH2yEdkf2T+I51Tn9chfw=
+	t=1736453449; cv=none; b=qXfX37AelnGE72ASpqiM6xpCbiyIeOOfuQQOyrbKV474M4CFE1XNUNPlTbx0ii9OmlE7RYruZa1+9+KZVfjNtVzMUTQO1vMQ5JXovHVLDcJhWGefrvAA6j5eXbSO7Bu19wMUVUEH8j8OW4tSPg3scyeklyXGMfJXQTVVigC1Rak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736451134; c=relaxed/simple;
-	bh=/PQMH7UvuAugoChaqacDQwKvK472EfTywyyrz8O7dxg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=b3SIdjm5cAsEYzVXNLkS+DGUvvg5ut3OGJ6ZYoRItb125grPmZqFifbWPx2y3a5jBexMCotgMPwbP2WFXl7Wm//aJmVUe6THYfw/Cf+CO6WYoknUSmpaLaVwAt1VKSsA3lmgiwa04K+48cbWumAC6uTotZbwJeAeJojeyzzEnIc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Hm7kg+C9; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Hm7kg+C9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736451131;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=j8GgwCsdswsrc5C9S2INVzJcRZpqsrIw8FrNsaXFKbk=;
-	b=Hm7kg+C9nYadQK8LgJ1r+6U6geTdyaZ63PpVHw5aJAf+GqexgGD2ggqRU76fsnA6+jKf8n
-	0JBl1S07uZT3xJYC3f6uyGkOkTtZVZIsv1FlaPQ7Dmgd4/diCeyVaQ2pCtic+SCM06mzfb
-	oAKC7uAP4lMgsDIPgBpT85/Yn5wZWnI=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-588-cobpSgc3PZuPD2SzVBj5fg-1; Thu,
- 09 Jan 2025 14:32:10 -0500
-X-MC-Unique: cobpSgc3PZuPD2SzVBj5fg-1
-X-Mimecast-MFC-AGG-ID: cobpSgc3PZuPD2SzVBj5fg
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 41ED31956050;
-	Thu,  9 Jan 2025 19:32:09 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.225.199])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5861230001BE;
-	Thu,  9 Jan 2025 19:32:08 +0000 (UTC)
-Date: Thu, 9 Jan 2025 20:32:05 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Chris Hofstaedtler <zeha@debian.org>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [ANNOUNCE] util-linux v2.40.3
-Message-ID: <xe3qmt5i7m5oxub42qz7vp7ztizvby74rxw4jmuh6bz54yw3na@iul4zrg4d4y2>
-References: <xw6eivqjw6nc75sbejmi3nkbfssmakkrwpbjpfqtwwbpqxmb4f@rmyrm5gnizln>
- <wzdbgtxffvujwnv5oeeutbmeodm5chcmelyhwhhx7yt6dym7lh@j5vdmg3rnm3z>
+	s=arc-20240116; t=1736453449; c=relaxed/simple;
+	bh=VclW05EJZR4//jLyhzl8TppV3uaV262jvEjPzwv3XD4=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=rJGZF3Haie4GMBZg5B3ebc0WMr9PAjZT9XvWW+OAE2xmCxNs4wkhxwGQ/5EWEqHgRgqFWDzVK3oLjrIoHNgDMmyhbClC6sSyMXdFQHiJmjfTgMmiz2SfMIPg21l6E6WIKHMbCyZT13apl4Hlda9xQBf1hWU+u2RYY0/gYx0hdQY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk; spf=none smtp.mailfrom=orcam.me.uk; arc=none smtp.client-ip=78.133.224.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=orcam.me.uk
+Received: by angie.orcam.me.uk (Postfix, from userid 500)
+	id 834E392009D; Thu,  9 Jan 2025 21:10:39 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+	by angie.orcam.me.uk (Postfix) with ESMTP id 7D11292009C;
+	Thu,  9 Jan 2025 20:10:39 +0000 (GMT)
+Date: Thu, 9 Jan 2025 20:10:39 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@orcam.me.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+    Arnd Bergmann <arnd@arndb.de>, 
+    Richard Henderson <richard.henderson@linaro.org>, 
+    Matt Turner <mattst88@gmail.com>, Kees Cook <kees@kernel.org>, 
+    "Paul E. McKenney" <paulmck@kernel.org>, linux-alpha@vger.kernel.org, 
+    linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+    Michael Cree <mcree@orcon.net.nz>, Sam James <sam@gentoo.org>, 
+    Geert Uytterhoeven <geert@linux-m68k.org>, 
+    Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>, 
+    Chris Hofstaedtler <zeha@debian.org>, util-linux@vger.kernel.org, 
+    linux-mips@vger.kernel.org, loongarch@lists.linux.dev
+Subject: Re: [PATCH] alpha: Fix personality flag propagation across an exec
+In-Reply-To: <87ed1cufj1.fsf@email.froward.int.ebiederm.org>
+Message-ID: <alpine.DEB.2.21.2501091953050.18889@angie.orcam.me.uk>
+References: <20250103140148.370368-1-glaubitz@physik.fu-berlin.de> <24f03227-1b55-4e50-b6e9-7ac74fda2602@app.fastmail.com> <678ee681-12c3-4e79-a04b-495daf343846@app.fastmail.com> <bff3cfad8a87799101891b4f786c5104db9dab13.camel@physik.fu-berlin.de>
+ <82d33a2d-dffe-4268-a175-4536b3f9c07f@app.fastmail.com> <cc420e1a843da3cf349607369851c338f4049c4e.camel@physik.fu-berlin.de> <87ed1cufj1.fsf@email.froward.int.ebiederm.org>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <wzdbgtxffvujwnv5oeeutbmeodm5chcmelyhwhhx7yt6dym7lh@j5vdmg3rnm3z>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+Content-Type: text/plain; charset=US-ASCII
 
-On Thu, Jan 09, 2025 at 02:21:06PM GMT, Chris Hofstaedtler wrote:
-> Hi Karel,
+On Thu, 9 Jan 2025, Eric W. Biederman wrote:
+
+> > So, this would be the 100% correct for alpha then which would not loose
+> > any functionality even for 32-bit binaries?
 > 
-> * Karel Zak <kzak@redhat.com> [250109 13:54]:
-> > The util-linux stable maintenance release v2.40.3 is now available at
-> >       
-> >   http://www.kernel.org/pub/linux/utils/util-linux/v2.40/
+> I don't think it is correct to think about 32-bit binaries on alpha.
 > 
-> I'm not sure where this comes from, but building the translated
-> manpages seems to fail:
-> 
-> GEN      ro :  fsck.minix.8
-> asciidoctor: ERROR: fsck.minix.8.adoc: line 29: dropping cells from incomplete row detected end of table
-> 
-> I haven't dug deeper yet; if someone has an idea upfront that'd be
-> great.
+> Alpha never had a 32bit instruction set.  But at some point it looks
+> like binaries that could not handle more than 31 bits of address
+> space got ported and someone implemented a work-around.  I guess this
+> is the --taso option that Arnd mentioned.
 
- https://github.com/util-linux/util-linux/pull/3346
+ This also saves some code space in non-PIE and plain static executables 
+as it takes fewer machine instructions to load a 64-bit address that is 
+known beforehand to be a sign-extended 32-bit value.
 
-However, I forgot to merge it to the stable branch as well.
+ This is similar to the MIPS n32 ABI, which also implies a 32-bit address 
+space while still using 64-bit registers for everything, starting from 
+stack slots (it's also ILP32 with the `long long' C data type only making 
+proper use of the full width of the CPU registers, while Alpha's --taso 
+ABI is I believe IP32 (?) with the plain `long' C data type still 64-bit, 
+just as with the regular LP64 ABI).
 
-    Karel
+ This saving turned out quite important for some MIPS applications; less 
+so for the Alpha, where indeed it was mainly a portability matter at the 
+time when going beyond 32 bits (and writing clean code in the first place) 
+was a big thing for some people.
 
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
-
+  Maciej
