@@ -1,141 +1,228 @@
-Received: from fout-a8-smtp.messagingengine.com (fout-a8-smtp.messagingengine.com [103.168.172.151])
+Received: from out01.mta.xmission.com (out01.mta.xmission.com [166.70.13.231])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7ED62054F3;
-	Thu,  9 Jan 2025 20:54:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11ED1179A3;
+	Sat, 11 Jan 2025 00:41:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=166.70.13.231
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736456056; cv=none; b=G9u1/+EJ0/NRxSJqg4A/CATWWQogYxKoaLvWGDX8F6NtYeedkb2dbzidXr3hnNo3VuJTYwmZMUA4fkKq3rV/TLgemTlNE4CaE0mqgOpz41C1rG1bn2EacmKhN6QQIRtydllrtZk/VjDFA1EI4+Ud6rTh9jTj3FA5cI7OwlJtrV0=
+	t=1736556069; cv=none; b=PF4OgWndXo6nXmf2HLzAnZ/pM5lGosnlHmNdUnYg0cOOnAxiXTIJQh1Dm+Ph3gzp3uGlnxdfkmrjkdqHa9jobEpuNptwdJ+F7YFPtumgppCyyA93uqgJHUbsHDtzr9QNxDd6WpbJO7uN6QOiaoPhBkpbVDPUpuwNclAw68dEv88=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736456056; c=relaxed/simple;
-	bh=5/C7Qk/iqHGdIjlwh5HEHVsPXP190aXPuUkUTyQD9aE=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=tnfxlPEJtnq6b/OrfOzlfwbgrsa+Y60/ZpEHY9bANcyOkmILRse/o7uVg3sWJEDczSQgr+IfmHp6/6AQUTJOr7ijUBSgvRhk43+rimo7hE/0baFai7eIRrBEiDC8JSqKlVMQHA2ysu7f0JGc9CIon7DqSbNJtDeuZV0mZZjM+xk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=MY8X4Hqe; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=ozPEQ20c; arc=none smtp.client-ip=103.168.172.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="MY8X4Hqe";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="ozPEQ20c"
-Received: from phl-compute-10.internal (phl-compute-10.phl.internal [10.202.2.50])
-	by mailfout.phl.internal (Postfix) with ESMTP id F0BC313801A0;
-	Thu,  9 Jan 2025 15:54:13 -0500 (EST)
-Received: from phl-imap-11 ([10.202.2.101])
-  by phl-compute-10.internal (MEProxy); Thu, 09 Jan 2025 15:54:13 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1736456053;
-	 x=1736542453; bh=LV6jQYO6s0OpqVr09VODFifJLCcP1dDB4WHODaY6vAU=; b=
-	MY8X4HqeV7scGXk3qO8Yo6Q/GHyskxaU7hmTXvLVIXsMLl+dm3AB9S4dI+h5kHOP
-	Bi/75K+4CiP/MVByS+h4oKimNOjfA9kiFQzTrhqg51CCSR9o23xbkr+RkH/2zEfq
-	lF2IfaMGdirOTUL/aLNqFHtCXq3CbzrEMe+IoA2/zCvLcGGZW9lAiNQTm+ZkAOF9
-	3bK1oOdB+o6jhGiuE77ykDhWuRU9Bsa234t9fqBRFSwZvXvbQaZ25Or/Lt7rQiGa
-	4Ue/Fglrmx53ZsRg/2OitF8FjyHMjmEOtmbL7p48i32NrIV5hzTjxYRrROJ2f4IT
-	hUBy0VLP5meYXkK9WmyGFg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1736456053; x=
-	1736542453; bh=LV6jQYO6s0OpqVr09VODFifJLCcP1dDB4WHODaY6vAU=; b=o
-	zPEQ20cJaEtO6r/thYRekT7MtdmFULtPsWNlXU1m+r9tKuBmhHD9jnlQGMnfjCUd
-	pEa9DAyqHeM2cxuXZxMX35qpPW3H7lxfk/yqkWI+MXuSUHjECxY301i+lSZSZnow
-	woIuIYU0GE647Uh6t3EoGVSrvdRhyHVV8+5ZXX097BvmigbJBaVK6YVg8t9QD8Lf
-	/LLI35vxXpSQbiU7SRTVmHstYIUVeitcKaDBYavJ7fjPTF+m/b1cS/VtYiiw+Vg1
-	dlUQAFQ3ZQNXOaBEHlc93/ohwndtQi9AAWXgV6IKISScDOwa5yS/CpYjr9d0CaYg
-	n5MTe7Oy2zmxk8A2QYqTQ==
-X-ME-Sender: <xms:czeAZ-gsPK8ZMADacYPNsfr1GINwZPKG5xzPhI5dWs7r5sPtghCiYg>
-    <xme:czeAZ_CqzYpjcaatlp4brem-c4aizxGAyPNmcVhiA8Un9zNs0o4udmU-Z7LQ3sXcc
-    B4zoqcWOk1YG_1iAfo>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefuddrudegiedgudeflecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpggftfghnshhusghstghrihgsvgdp
-    uffrtefokffrpgfnqfghnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivg
-    hnthhsucdlqddutddtmdenucfjughrpefoggffhffvvefkjghfufgtgfesthejredtredt
-    tdenucfhrhhomhepfdetrhhnugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusg
-    druggvqeenucggtffrrghtthgvrhhnpefhtdfhvddtfeehudekteeggffghfejgeegteef
-    gffgvedugeduveelvdekhfdvieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
-    epmhgrihhlfhhrohhmpegrrhhnugesrghrnhgusgdruggvpdhnsggprhgtphhtthhopedu
-    kedpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepiigvhhgrseguvggsihgrnhdroh
-    hrghdprhgtphhtthhopehsrghmsehgvghnthhoohdrohhrghdprhgtphhtthhopehmrght
-    thhsthekkeesghhmrghilhdrtghomhdprhgtphhtthhopehkvggvsheskhgvrhhnvghlrd
-    horhhgpdhrtghpthhtohepphgruhhlmhgtkheskhgvrhhnvghlrdhorhhgpdhrtghpthht
-    oheplhhinhhugidqmhhmsehkvhgrtghkrdhorhhgpdhrtghpthhtoheprhhitghhrghrug
-    drhhgvnhguvghrshhonheslhhinhgrrhhordhorhhgpdhrtghpthhtohepghgvvghrthes
-    lhhinhhugidqmheikehkrdhorhhgpdhrtghpthhtoheplhhoohhnghgrrhgthheslhhish
-    htshdrlhhinhhugidruggvvh
-X-ME-Proxy: <xmx:czeAZ2HAxY2Z9dwqbKEczu6HdQ0Xb05bDuKR0Z9AwM5LUrpX0u0E8A>
-    <xmx:czeAZ3R7WcSKplNyC-jAFLDQ4ktyj1SZYTEiW3zm4pjfpOAZsS7NVQ>
-    <xmx:czeAZ7yMN6I34dojSie-x3eeTfx3J7Sudz8D-0vux6v5_jHwYgTAkQ>
-    <xmx:czeAZ15wTkCQKRU29OPw-xqaFW1U6m1_uOe5vUXhqMBFI8KFiQD-tA>
-    <xmx:dTeAZ7kMR0CFbnJAS9hzGTJyKp12YyashwZxdj08sKfsDYYsL1I1cIru>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id A68C92220072; Thu,  9 Jan 2025 15:54:11 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	s=arc-20240116; t=1736556069; c=relaxed/simple;
+	bh=aUAiZMQHz04oOhO75f12tRErgfPPkpLVq8SbCELVEhI=;
+	h=From:To:Cc:References:Date:In-Reply-To:Message-ID:MIME-Version:
+	 Content-Type:Subject; b=MD46VVRCHgKS/T7tJuPGpv9Q9qa2q+VaAnVVO72VnRgFaoihFVWpHk8sf2vrpIfdtbv+ABG8Pm6nnWjEb8hsnl1JYNQcA+MUmr1px0D/gDdkusdExoyeMbWnVsvz6hbybd92FRVFG9yQ6A2E4W8qSdQXwTE7z9lcNJ1Pd0VY2KI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=xmission.com; spf=pass smtp.mailfrom=xmission.com; arc=none smtp.client-ip=166.70.13.231
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=xmission.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xmission.com
+Received: from in01.mta.xmission.com ([166.70.13.51]:52578)
+	by out01.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.93)
+	(envelope-from <ebiederm@xmission.com>)
+	id 1tWPBj-00F6GA-2j; Fri, 10 Jan 2025 17:17:15 -0700
+Received: from ip72-198-198-28.om.om.cox.net ([72.198.198.28]:42048 helo=email.froward.int.ebiederm.org.xmission.com)
+	by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.93)
+	(envelope-from <ebiederm@xmission.com>)
+	id 1tWPBh-00CzIE-Tg; Fri, 10 Jan 2025 17:17:14 -0700
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+To: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: Arnd Bergmann <arnd@arndb.de>,  Richard Henderson
+ <richard.henderson@linaro.org>,  Matt Turner <mattst88@gmail.com>,  Kees
+ Cook <kees@kernel.org>,  "Paul E. McKenney" <paulmck@kernel.org>,
+  linux-alpha@vger.kernel.org,  linux-mm@kvack.org,
+  linux-kernel@vger.kernel.org,  Michael Cree <mcree@orcon.net.nz>,  Sam
+ James <sam@gentoo.org>,  "Maciej W. Rozycki" <macro@orcam.me.uk>,  Geert
+ Uytterhoeven <geert@linux-m68k.org>,  Michael Karcher
+ <kernel@mkarcher.dialup.fu-berlin.de>,  Chris Hofstaedtler
+ <zeha@debian.org>,  util-linux@vger.kernel.org,
+  linux-mips@vger.kernel.org,  loongarch@lists.linux.dev
+References: <20250103140148.370368-1-glaubitz@physik.fu-berlin.de>
+	<24f03227-1b55-4e50-b6e9-7ac74fda2602@app.fastmail.com>
+	<678ee681-12c3-4e79-a04b-495daf343846@app.fastmail.com>
+	<bff3cfad8a87799101891b4f786c5104db9dab13.camel@physik.fu-berlin.de>
+	<82d33a2d-dffe-4268-a175-4536b3f9c07f@app.fastmail.com>
+	<cc420e1a843da3cf349607369851c338f4049c4e.camel@physik.fu-berlin.de>
+Date: Fri, 10 Jan 2025 18:16:28 -0600
+In-Reply-To: <cc420e1a843da3cf349607369851c338f4049c4e.camel@physik.fu-berlin.de>
+	(John Paul Adrian Glaubitz's message of "Thu, 09 Jan 2025 10:12:03
+	+0100")
+Message-ID: <87jzb2tdb7.fsf_-_@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.2 (gnu/linux)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Thu, 09 Jan 2025 21:53:51 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Maciej W. Rozycki" <macro@orcam.me.uk>,
- "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "John Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>,
- "Richard Henderson" <richard.henderson@linaro.org>,
- "Matt Turner" <mattst88@gmail.com>, "Kees Cook" <kees@kernel.org>,
- "Paul E. McKenney" <paulmck@kernel.org>, linux-alpha@vger.kernel.org,
- linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- "Michael Cree" <mcree@orcon.net.nz>, "Sam James" <sam@gentoo.org>,
- "Geert Uytterhoeven" <geert@linux-m68k.org>,
- "Michael Karcher" <kernel@mkarcher.dialup.fu-berlin.de>,
- "Chris Hofstaedtler" <zeha@debian.org>, util-linux@vger.kernel.org,
- linux-mips@vger.kernel.org, loongarch@lists.linux.dev
-Message-Id: <bff9bd35-4d47-45fc-90c5-28b79425fc8b@app.fastmail.com>
-In-Reply-To: <alpine.DEB.2.21.2501091953050.18889@angie.orcam.me.uk>
-References: <20250103140148.370368-1-glaubitz@physik.fu-berlin.de>
- <24f03227-1b55-4e50-b6e9-7ac74fda2602@app.fastmail.com>
- <678ee681-12c3-4e79-a04b-495daf343846@app.fastmail.com>
- <bff3cfad8a87799101891b4f786c5104db9dab13.camel@physik.fu-berlin.de>
- <82d33a2d-dffe-4268-a175-4536b3f9c07f@app.fastmail.com>
- <cc420e1a843da3cf349607369851c338f4049c4e.camel@physik.fu-berlin.de>
- <87ed1cufj1.fsf@email.froward.int.ebiederm.org>
- <alpine.DEB.2.21.2501091953050.18889@angie.orcam.me.uk>
-Subject: Re: [PATCH] alpha: Fix personality flag propagation across an exec
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+X-XM-SPF: eid=1tWPBh-00CzIE-Tg;;;mid=<87jzb2tdb7.fsf_-_@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=72.198.198.28;;;frm=ebiederm@xmission.com;;;spf=pass
+X-XM-AID: U2FsdGVkX19QbIllH2f8XF6Psw43DyF7Jy4S+gf143M=
+X-Spam-Level: *
+X-Spam-Report: 
+	* -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
+	*  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+	*      [score: 0.5000]
+	*  0.7 XMSubLong Long Subject
+	*  1.0 _Welcome_To_PayPal02 BODY: No description available.
+	* -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
+	*      [sa05 1397; Body=1 Fuz1=1 Fuz2=1]
+	*  0.4 FVGT_m_MULTI_ODD Contains multiple odd letter combinations
+	*  0.0 T_TooManySym_01 4+ unique symbols in subject
+X-Spam-DCC: XMission; sa05 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: *;John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 590 ms - load_scoreonly_sql: 0.04 (0.0%),
+	signal_user_changed: 10 (1.7%), b_tie_ro: 9 (1.5%), parse: 1.09 (0.2%),
+	 extract_message_metadata: 16 (2.7%), get_uri_detail_list: 3.2 (0.5%),
+	tests_pri_-2000: 22 (3.7%), tests_pri_-1000: 3.2 (0.5%),
+	tests_pri_-950: 1.23 (0.2%), tests_pri_-900: 0.99 (0.2%),
+	tests_pri_-90: 84 (14.3%), check_bayes: 78 (13.2%), b_tokenize: 13
+	(2.2%), b_tok_get_all: 22 (3.7%), b_comp_prob: 3.1 (0.5%),
+	b_tok_touch_all: 37 (6.2%), b_finish: 0.88 (0.1%), tests_pri_0: 438
+	(74.3%), check_dkim_signature: 0.59 (0.1%), check_dkim_adsp: 2.9
+	(0.5%), poll_dns_idle: 1.02 (0.2%), tests_pri_10: 2.2 (0.4%),
+	tests_pri_500: 8 (1.3%), rewrite_mail: 0.00 (0.0%)
+Subject: [PATCH] alpha/elf: Fix misc/setarch test of util-linux by removing
+ 32bit support
+X-SA-Exim-Connect-IP: 166.70.13.51
+X-SA-Exim-Rcpt-To: loongarch@lists.linux.dev, linux-mips@vger.kernel.org, util-linux@vger.kernel.org, zeha@debian.org, kernel@mkarcher.dialup.fu-berlin.de, geert@linux-m68k.org, macro@orcam.me.uk, sam@gentoo.org, mcree@orcon.net.nz, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-alpha@vger.kernel.org, paulmck@kernel.org, kees@kernel.org, mattst88@gmail.com, richard.henderson@linaro.org, arnd@arndb.de, glaubitz@physik.fu-berlin.de
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+X-SA-Exim-Scanned: No (on out01.mta.xmission.com); SAEximRunCond expanded to false
 
-On Thu, Jan 9, 2025, at 21:10, Maciej W. Rozycki wrote:
-> On Thu, 9 Jan 2025, Eric W. Biederman wrote:
->
->> > So, this would be the 100% correct for alpha then which would not loose
->> > any functionality even for 32-bit binaries?
->> 
->> I don't think it is correct to think about 32-bit binaries on alpha.
->> 
->> Alpha never had a 32bit instruction set.  But at some point it looks
->> like binaries that could not handle more than 31 bits of address
->> space got ported and someone implemented a work-around.  I guess this
->> is the --taso option that Arnd mentioned.
->
->  This also saves some code space in non-PIE and plain static executables 
-> as it takes fewer machine instructions to load a 64-bit address that is 
-> known beforehand to be a sign-extended 32-bit value.
->
->  This is similar to the MIPS n32 ABI, which also implies a 32-bit address 
-> space while still using 64-bit registers for everything, starting from 
-> stack slots (it's also ILP32 with the `long long' C data type only making 
-> proper use of the full width of the CPU registers, while Alpha's --taso 
-> ABI is I believe IP32 (?) with the plain `long' C data type still 64-bit, 
-> just as with the regular LP64 ABI).
 
-I'm pretty sure it's still LP64 on Alpha Linux with gcc. There is an
--mpointer-size=32 option in gcc for VMS, but I don't see anything like
-that in Linux. The only thing that is implemented here is the option
-for the linker that sets the EF_ALPHA_32BIT bit, but none of the
-code generation takes advantage of the upper bits being zero.
+Richard Henderson <richard.henderson@linaro.org> writes[1]:
 
-       Arnd
+> There was a Spec benchmark (I forget which) which was memory bound and ran
+> twice as fast with 32-bit pointers.
+>
+> I copied the idea from DEC to the ELF abi, but never did all the other work
+> to allow the toolchain to take advantage.
+>
+> Amusingly, a later Spec changed the benchmark data sets to not fit into a
+> 32-bit address space, specifically because of this.
+>
+> I expect one could delete the ELF bit and personality and no one would
+> notice. Not even the 10 remaining Alpha users.
+
+In [2] it was pointed out that parts of setarch weren't working
+properly on alpha because it has it's own SET_PERSONALITY
+implementation.  In the discussion that followed Richard Henderson
+pointed out that the 32bit pointer support for alpha was never
+completed.
+
+Fix this by removing alpha's 32bit pointer support.
+
+As a bit of paranoia refuse to execute any alpha binaries that hafe
+the EF_ALPHA_32BIT flag set.  Just to fail explicitly in case someone
+somewhere has binaries that trying to use alpha's 32bit pointer
+support.
+
+[1] https://lkml.kernel.org/r/CAFXwXrkgu=4Qn-v1PjnOR4SG0oUb9LSa0g6QXpBq4ttm52pJOQ@mail.gmail.com
+[2] https://lkml.kernel.org/r/20250103140148.370368-1-glaubitz@physik.fu-berlin.de
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+---
+ arch/alpha/include/asm/elf.h       |  6 +-----
+ arch/alpha/include/asm/pgtable.h   |  2 +-
+ arch/alpha/include/asm/processor.h |  8 ++------
+ arch/alpha/kernel/osf_sys.c        | 11 ++---------
+ 4 files changed, 6 insertions(+), 21 deletions(-)
+
+diff --git a/arch/alpha/include/asm/elf.h b/arch/alpha/include/asm/elf.h
+index 4d7c46f50382..50c82187e60e 100644
+--- a/arch/alpha/include/asm/elf.h
++++ b/arch/alpha/include/asm/elf.h
+@@ -74,7 +74,7 @@ typedef elf_fpreg_t elf_fpregset_t[ELF_NFPREG];
+ /*
+  * This is used to ensure we don't load something for the wrong architecture.
+  */
+-#define elf_check_arch(x) ((x)->e_machine == EM_ALPHA)
++#define elf_check_arch(x) (((x)->e_machine == EM_ALPHA) && !((x)->e_flags & EF_ALPHA_32BIT))
+ 
+ /*
+  * These are used to set parameters in the core dumps.
+@@ -137,10 +137,6 @@ extern int dump_elf_task(elf_greg_t *dest, struct task_struct *task);
+ 	: amask (AMASK_CIX) ? "ev6" : "ev67");	\
+ })
+ 
+-#define SET_PERSONALITY(EX)					\
+-	set_personality(((EX).e_flags & EF_ALPHA_32BIT)		\
+-	   ? PER_LINUX_32BIT : PER_LINUX)
+-
+ extern int alpha_l1i_cacheshape;
+ extern int alpha_l1d_cacheshape;
+ extern int alpha_l2_cacheshape;
+diff --git a/arch/alpha/include/asm/pgtable.h b/arch/alpha/include/asm/pgtable.h
+index 635f0a5f5bbd..02e8817a8921 100644
+--- a/arch/alpha/include/asm/pgtable.h
++++ b/arch/alpha/include/asm/pgtable.h
+@@ -360,7 +360,7 @@ static inline pte_t pte_swp_clear_exclusive(pte_t pte)
+ 
+ extern void paging_init(void);
+ 
+-/* We have our own get_unmapped_area to cope with ADDR_LIMIT_32BIT.  */
++/* We have our own get_unmapped_area */
+ #define HAVE_ARCH_UNMAPPED_AREA
+ 
+ #endif /* _ALPHA_PGTABLE_H */
+diff --git a/arch/alpha/include/asm/processor.h b/arch/alpha/include/asm/processor.h
+index 55bb1c09fd39..5dce5518a211 100644
+--- a/arch/alpha/include/asm/processor.h
++++ b/arch/alpha/include/asm/processor.h
+@@ -8,23 +8,19 @@
+ #ifndef __ASM_ALPHA_PROCESSOR_H
+ #define __ASM_ALPHA_PROCESSOR_H
+ 
+-#include <linux/personality.h>	/* for ADDR_LIMIT_32BIT */
+-
+ /*
+  * We have a 42-bit user address space: 4TB user VM...
+  */
+ #define TASK_SIZE (0x40000000000UL)
+ 
+-#define STACK_TOP \
+-  (current->personality & ADDR_LIMIT_32BIT ? 0x80000000 : 0x00120000000UL)
++#define STACK_TOP (0x00120000000UL)
+ 
+ #define STACK_TOP_MAX	0x00120000000UL
+ 
+ /* This decides where the kernel will search for a free chunk of vm
+  * space during mmap's.
+  */
+-#define TASK_UNMAPPED_BASE \
+-  ((current->personality & ADDR_LIMIT_32BIT) ? 0x40000000 : TASK_SIZE / 2)
++#define TASK_UNMAPPED_BASE (TASK_SIZE / 2)
+ 
+ /* This is dead.  Everything has been moved to thread_info.  */
+ struct thread_struct { };
+diff --git a/arch/alpha/kernel/osf_sys.c b/arch/alpha/kernel/osf_sys.c
+index 86185021f75a..a08e8edef1a4 100644
+--- a/arch/alpha/kernel/osf_sys.c
++++ b/arch/alpha/kernel/osf_sys.c
+@@ -1210,8 +1210,7 @@ SYSCALL_DEFINE1(old_adjtimex, struct timex32 __user *, txc_p)
+ 	return ret;
+ }
+ 
+-/* Get an address range which is currently unmapped.  Similar to the
+-   generic version except that we know how to honor ADDR_LIMIT_32BIT.  */
++/* Get an address range which is currently unmapped. */
+ 
+ static unsigned long
+ arch_get_unmapped_area_1(unsigned long addr, unsigned long len,
+@@ -1230,13 +1229,7 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
+ 		       unsigned long len, unsigned long pgoff,
+ 		       unsigned long flags, vm_flags_t vm_flags)
+ {
+-	unsigned long limit;
+-
+-	/* "32 bit" actually means 31 bit, since pointers sign extend.  */
+-	if (current->personality & ADDR_LIMIT_32BIT)
+-		limit = 0x80000000;
+-	else
+-		limit = TASK_SIZE;
++	unsigned long limit = TASK_SIZE;
+ 
+ 	if (len > limit)
+ 		return -ENOMEM;
+-- 
+2.41.0
+
