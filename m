@@ -1,154 +1,132 @@
-Received: from omta003.cacentral1.a.cloudfilter.net (omta001.cacentral1.a.cloudfilter.net [3.97.99.32])
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A4A914F9D6
-	for <util-linux@vger.kernel.org>; Sun, 26 Jan 2025 17:40:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=3.97.99.32
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AB849443
+	for <util-linux@vger.kernel.org>; Sun, 26 Jan 2025 22:19:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737913229; cv=none; b=fKhyQH7thZoxHlkM1P+Fv2sbq4YpsKmjUoFKscb502lO2ytpsnw13x2rsasp/4w9/0hlLkRqs1dypUCdhOGm9MV5LKsnLG6QkilDWPEoXodQ21xA4jEOwCPDzP7T+6ikT4NIWZEKCopcJ1Nl6W86ZtvR++mvQu9m94g1oKY4qjk=
+	t=1737929984; cv=none; b=J6Aj8oxO6tAxrr0+V2jZi0Zpzx6AgSc7h8jue+8tW9+lgQdsD6N0PbVqkMjwjOTlIUY7zU2VX9qiQP7p2P3e6acTxMIoWX7zp5dFBSkzEI3vxfhQY2W2N2otuWBPwn+K5rh8hh64ONNZmp+TyaqwfsdEuj7zmYLAbvCmvt2ApYQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737913229; c=relaxed/simple;
-	bh=Cw4z8sL1g0bZTUH/FTORK6L5Yv3mHRyo5kVN4F5ncQc=;
-	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type; b=o8BtprH2BZCDR7lWbsfTNyT//AdfCFwtlFe+m4wIaOZvWb6o+aZtbiiUk93+tI0VD7JQ16L9RMvqW3THQTXjbl1pBaMkGN4pd2m/SwWfiTQ+sOTobjJ/4LGa610PtKE3Vi7F0KsZPoxpqQwDXKb6VtvtqTpbCrphFhSnNUe18bw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=tuyoix.net; spf=pass smtp.mailfrom=tuyoix.net; arc=none smtp.client-ip=3.97.99.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=tuyoix.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tuyoix.net
-Received: from shw-obgw-4004a.ext.cloudfilter.net ([10.228.9.227])
-	by cmsmtp with ESMTPS
-	id c3RjtSQ9yxv7Pc6cOtDqG6; Sun, 26 Jan 2025 17:40:20 +0000
-Received: from fanir.tuyoix.net ([68.150.218.192])
-	by cmsmtp with ESMTP
-	id c6cNtaqtJJhBPc6cNtlXq6; Sun, 26 Jan 2025 17:40:20 +0000
-X-Authority-Analysis: v=2.4 cv=QY3Fvdbv c=1 sm=1 tr=0 ts=67967384
- a=LfNn7serMq+1bQZBlMsSfQ==:117 a=LfNn7serMq+1bQZBlMsSfQ==:17
- a=IkcTkHD0fZMA:10 a=VdSt8ZQiCzkA:10 a=M51BFTxLslgA:10 a=skbIlk6SAAAA:8
- a=3I1X_3ewAAAA:8 a=Lq5NcF5sIDnYhj_cvl8A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=P5SZwATmzn4K3VfFWgKo:22 a=VG9N9RgkD3hcbI6YpJ1l:22
-Received: from tuyoix.net (fanir.tuyoix.net [192.168.144.16])
-	(authenticated bits=0)
-	by fanir.tuyoix.net (8.18.1/8.18.1) with ESMTPSA id 50QHeJwt024555
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO)
-	for <util-linux@vger.kernel.org>; Sun, 26 Jan 2025 10:40:19 -0700
-Date: Sun, 26 Jan 2025 10:40:19 -0700 (MST)
-From: =?UTF-8?Q?Marc_Aur=C3=A8le_La_France?= <tsi@tuyoix.net>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] Add setsid option to save child process id
-Message-ID: <be555f23-ae5e-f7d1-9b7c-28f4191664e7@tuyoix.net>
+	s=arc-20240116; t=1737929984; c=relaxed/simple;
+	bh=e51wFRJCVG5c9GN16VF4aCLi3Bk1DfaSvd3B4U14WoI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RxSlRTvMs/zN1TUTpxX8W5aPICH1Kwxpcfptv9/r/kT7bbsX2irjaJzhfY89TGUsuUuMhByftH98Wup1Vn3eYTJM8jg5nhiRTl4anxgzgyCqT9KOBlsX0fWx/Dr7uNABm3nF+cSNJtOijycK5pGSvC/bO71srgNl5PaRPzS5OfE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=EJhB9IRQ; arc=none smtp.client-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=debian.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="EJhB9IRQ"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=kBDpy0yggs1zWDOpimx1dhQlDCDgWgAfdQDplo8XN8Y=; b=EJhB9IRQ5ATqd/be2L04JS+XIV
+	FaKzuFcFNKnGj/pG2gayiUALaRJTsQf5oFlqH8cLaLjkiDHYo+chizXuYmXR4BsDjYAOVZevxSkwf
+	qfos4T4QryBLSVI5IJZRehZME4SGiO2guwN7G9YLj+Rp/VhyJAzvSdGKNBMQMshHQd0JSZPFCkw7+
+	ByR6ip49P8w7YCHtJyMZHYwVHg7JJ1U4yHuSy7u6ZrEnqECvTEY4kDvPJYorngKwXKse8JDZSmOOW
+	6xRLQ5wYF2f3Wp5WWF1JJHBJsDmOSnQHj2s6ML1hfsUVy+o4W84TR7SVnWgiYmn9x0mJNdKGPwXSI
+	dT+8A/hg==;
+Received: from authenticated user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.94.2)
+	(envelope-from <zeha@debian.org>)
+	id 1tcAyb-00BNUb-L0; Sun, 26 Jan 2025 22:19:33 +0000
+Date: Sun, 26 Jan 2025 23:19:31 +0100
+From: Chris Hofstaedtler <zeha@debian.org>
+To: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas@t-8ch.de>
+Cc: util-linux@vger.kernel.org, Axel <axel.scheepers76@gmail.com>,
+	1094283@bugs.debian.org
+Subject: Re: Bug#1094283: util-linux: dmesg shows color when
+ /etc/terminal-colors.d/disable is present (and no override in xdg locations)
+Message-ID: <Z5a08yD10L1J8AIa@per.namespace.at>
+References: <173791554931.11406.7776184826380347386.reportbug@teal.home>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-CMAE-Envelope: MS4xfM12LeLW7XV8TkRx8yaMgmnnhw3czLaU9kpdzCyogmBXBENEv5MXu+TG+w3HdCRQJFgi2EQTPyMzxnx5wiBs1ufhEnW9oFyMBmiOo8qKARUSgNftD7cZ
- 7tAy1oIIKioii6MSLLNPK8/SVRCx/swk3V/dATI+lxBOxHm6o5niZqpqml1ae3Dl1NB4BKxPKyXvuiV7fp/nyUkAtjLdLWJYRX8=
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <173791554931.11406.7776184826380347386.reportbug@teal.home>
+X-Debian-User: zeha
 
-Add an option to save the child's pid into a file.
+Hello Thomas,
 
-Marc.
+it appears commit 4bdf22803f9a41329694e0c3c82189635dccdcd0 breaks
+disabling colors using the documented mechanism of touching
+/etc/terminal-colors.d/dmesg.disable. See below for a user report.
 
-diff -NRapruz -X /etc/diff.excludes util-linux-2.40.4/sys-utils/setsid.1.adoc devel-2.40.4/sys-utils/setsid.1.adoc
---- util-linux-2.40.4/sys-utils/setsid.1.adoc
-+++ devel-2.40.4/sys-utils/setsid.1.adoc
-@@ -31,6 +31,9 @@ Always create a new process.
- *-w*, *--wait*::
- Wait for the execution of the program to end, and return the exit status of this program as the exit status of *setsid*.
+On Sun, Jan 26, 2025 at 07:19:09PM +0100, Axel wrote:
+> Package: util-linux
+> Version: 2.40.4-1
+> 
+> Running dmesg after upgrading to trixie started showing color. The manpage
+> mentions creating /etc/terminal-colors.d/disable which should disable colors
+> for all. Creating the also mentioned /etc/terminal-colors.d/dmesg.disable
+> doesn't disable color output also. I had /etc/terminal-colors.d/disable
+> configured which did disable colors on -stable.
 
-+*-p*, *--pidfile* _file_::
-+If forked, write the process id of the program to _file_.
-+
- *-V*, *--version*::
- Display version information and exit.
+From what I can tell, the new rc = -ENOENT in colors_readdir
+introduced in 4bdf22803f9a41329694e0c3c82189635dccdcd0 bubbles up to
+colors_init:
 
-diff -NRapruz -X /etc/diff.excludes util-linux-2.40.4/sys-utils/setsid.c devel-2.40.4/sys-utils/setsid.c
---- util-linux-2.40.4/sys-utils/setsid.c
-+++ devel-2.40.4/sys-utils/setsid.c
-@@ -14,6 +14,9 @@
-  *
-  * 2008-08-20 Daniel Kahn Gillmor <dkg@fifthhorseman.net>
-  * - if forked, wait on child process and emit its return code.
-+ *
-+ * 2025-01-25 Marc Aurèle La France <tsi@tuyoix.net>
-+ * - If forked, save the child's process id in a file.
-  */
- #include <getopt.h>
- #include <stdio.h>
-@@ -39,11 +42,12 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(_("Run a program in a new session.\n"), out);
+	int rc = colors_read_configuration(cc);  // calls colors_readdir, now returns -2
+	if (rc)
+		cc->mode = UL_COLORMODE_DEFAULT;
+    else {
+Evaluating color scores is skipped, effectively ignoring the
+"disable" file.
 
- 	fputs(USAGE_OPTIONS, out);
--	fputs(_(" -c, --ctty     set the controlling terminal to the current one\n"), out);
--	fputs(_(" -f, --fork     always fork\n"), out);
--	fputs(_(" -w, --wait     wait program to exit, and use the same return\n"), out);
-+	fputs(_(" -c, --ctty               set the controlling terminal to the current one\n"), out);
-+	fputs(_(" -f, --fork               always fork\n"), out);
-+	fputs(_(" -w, --wait               wait program to exit, and use the same return\n"), out);
-+	fputs(_(" -p, --pidfile <file>     write child pid to <file>\n"), out);
+Could you please take a look?
 
--	fprintf(out, USAGE_HELP_OPTIONS(16));
-+	fprintf(out, USAGE_HELP_OPTIONS(26));
+Reverting 4bdf22803f9a41329694e0c3c82189635dccdcd0 fixes the problem
+for me.
 
- 	fprintf(out, USAGE_MAN_TAIL("setsid(1)"));
- 	exit(EXIT_SUCCESS);
-@@ -55,14 +59,17 @@ int main(int argc, char **argv)
- 	int ctty = 0;
- 	pid_t pid;
- 	int status = 0;
-+	const char *pidpath = NULL;
-+	FILE *pidfile;
+Debug output from TERMINAL_COLORS_DEBUG=0xffff ./dmesg
 
- 	static const struct option longopts[] = {
--		{"ctty", no_argument, NULL, 'c'},
--		{"fork", no_argument, NULL, 'f'},
--		{"wait", no_argument, NULL, 'w'},
--		{"version", no_argument, NULL, 'V'},
--		{"help", no_argument, NULL, 'h'},
--		{NULL, 0, NULL, 0}
-+		{"ctty",    no_argument,       NULL, 'c'},
-+		{"fork",    no_argument,       NULL, 'f'},
-+		{"wait",    no_argument,       NULL, 'w'},
-+		{"pidfile", required_argument, NULL, 'p'},
-+		{"version", no_argument,       NULL, 'V'},
-+		{"help",    no_argument,       NULL, 'h'},
-+		{NULL,      0,                 NULL, 0}
- 	};
+| 321357: termcolors:     CONF: terminal is ready (supports 256 colors)
+| 321357: termcolors:     CONF: reading dir: '/root/.config/terminal-colors.d'
+| 321357: termcolors:     CONF: reading dir: '/etc/terminal-colors.d'
+| 321357: termcolors:     CONF: item 'dmesg.disable': score=21 [cur: 0, name(5): dmesg.disable, term(0): (null)]
+| 321357: termcolors:     CONF: setting 'disable' from 0 -to-> 21
+| Colors:
+| 	utilname = 'dmesg'
+| 	termname = 'xterm-256color'
+| 	scheme file = '(null)'
+| 	mode = auto
+| 	has_colors = 1
+| 	disabled = 0
+| 	configured = 1
+| 	cs configured = 0
+| 
+| 	score disable = 21
+| 	score enable = 0
+| 	score scheme = 0
 
- 	setlocale(LC_ALL, "");
-@@ -70,7 +77,7 @@ int main(int argc, char **argv)
- 	textdomain(PACKAGE);
- 	close_stdout_atexit();
 
--	while ((ch = getopt_long(argc, argv, "+Vhcfw", longopts, NULL)) != -1)
-+	while ((ch = getopt_long(argc, argv, "+Vhcfp:w", longopts, NULL)) != -1)
- 		switch (ch) {
- 		case 'c':
- 			ctty=1;
-@@ -81,6 +88,9 @@ int main(int argc, char **argv)
- 		case 'w':
- 			status = 1;
- 			break;
-+		case 'p':
-+			pidpath = optarg;
-+			break;
+After reverting 4bdf22803f9a41329694e0c3c82189635dccdcd0:
 
- 		case 'h':
- 			usage();
-@@ -105,6 +115,16 @@ int main(int argc, char **argv)
- 			break;
- 		default:
- 			/* parent */
-+			if (pidpath) {
-+				pidfile = fopen(pidpath, "w");
-+				if (pidfile == NULL)
-+					warn(_("cannot open pidfile %s"),
-+						pidpath);
-+				else {
-+					fprintf(pidfile, "%d\n", pid);
-+					fclose(pidfile);
-+				}
-+			}
- 			if (!status)
- 				return EXIT_SUCCESS;
- 			if (wait(&status) != pid)
+| 321318: termcolors:     CONF: terminal is ready (supports 256 colors)
+| 321318: termcolors:     CONF: reading dir: '/root/.config/terminal-colors.d'
+| 321318: termcolors:     CONF: reading dir: '/etc/terminal-colors.d'
+| 321318: termcolors:     CONF: item 'dmesg.disable': score=21 [cur: 0, name(5): dmesg.disable, term(0): (null)]
+| 321318: termcolors:     CONF: setting 'disable' from 0 -to-> 21
+| Colors:
+| 	utilname = 'dmesg'
+| 	termname = 'xterm-256color'
+| 	scheme file = '(null)'
+| 	mode = never
+| 	has_colors = 0
+| 	disabled = 0
+| 	configured = 1
+| 	cs configured = 0
+| 
+| 	score disable = 21
+| 	score enable = 0
+| 	score scheme = 0
+
+
+Thanks,
+Chris
+
