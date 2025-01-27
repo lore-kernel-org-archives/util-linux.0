@@ -1,75 +1,132 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.169])
+Received: from minute.unseen.parts (minute.unseen.parts [139.162.151.61])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7100A1D540
-	for <util-linux@vger.kernel.org>; Mon, 27 Jan 2025 11:09:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E12D41FC7C5;
+	Mon, 27 Jan 2025 13:28:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=139.162.151.61
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737976180; cv=none; b=fh6AsZypPS528XNKPbXJJM66XMjgCd0G6C1V9sWroe0yonuDKFS6I9uVKyGnWtyJfMCV0hfHZBmE65vnz6ee/kdHOZuKSIRFHyyhdL3DiZ6cWIwkVrFZFpSgTMiV3/FMeaEGBIQLikaurBSrKz1YC0BJYUB8rVh8PmL2CvffXwQ=
+	t=1737984517; cv=none; b=qJ990C0VuPDDbcBMODmbNz+xk9G4TXQJANK3ySVEV0skaUT86kLhdd4hWt0aZtN9wz3zam8nP+lfy5w9WtMmCSB+KK5QQzQeK4VglkNDtyIaCGIF9N84Ahg0kFUM4/9wRr8OuqqCMZNqM3gKGxRvUveL5TJVj4iOn10krIggep4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737976180; c=relaxed/simple;
-	bh=FUWsPbLum+L3DVLVCcvFWQSUY3dpmsCGm0By573dgq0=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=K4WIt5Mq3ghVkjnXXqAMSWLdDtNz2Bd3rvYZrdd1GL61m+GGlaqM1yr5N2SLcsFDNqa8ZzXVhRrQBBerzKadmE2ycCC2/ZqlKAb7SmHVcc8+Syik2T+3dW5ECWNCMo9sWpDDE9SKTV59Bak99T1suk2VtmeecihNzmMQ7aLTe2U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=iyuZJBVB; arc=none smtp.client-ip=195.121.94.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
+	s=arc-20240116; t=1737984517; c=relaxed/simple;
+	bh=wBwfKx9WEzL0Yj7iv2tHVfsT5U2zNVKgBcChzeYkTyQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PyDdtjW6KSLkBxa3BACm8yEd8ZqLhUDAm1UOCzaQOCtk+5icY2Jy2tw+8EQSKsX8WJE9YbAz19rXlHnwyen7gyruTXjided0bd2KyIuxyG6Glolj1E1LKsDKroxgHEIzTJdIWbmZwEIqExJmEGOmyFCvYoG17UsOkLEpCBl+g6w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=unseen.parts; spf=pass smtp.mailfrom=unseen.parts; dkim=pass (2048-bit key) header.d=unseen.parts header.i=@unseen.parts header.b=vxMygNh9; arc=none smtp.client-ip=139.162.151.61
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=unseen.parts
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=unseen.parts
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="iyuZJBVB"
-X-KPN-MessageId: 3eaf65c4-dc9f-11ef-aff5-005056abad63
-Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
-	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 3eaf65c4-dc9f-11ef-aff5-005056abad63;
-	Mon, 27 Jan 2025 12:09:58 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=telfort.nl; s=telfort01;
-	h=mime-version:message-id:date:subject:to:from;
-	bh=Vl4GuGjvcFRULhi30WOpjroScxBOUXT9e1kFEeNhlNY=;
-	b=iyuZJBVB8WctdJcjd8Nkhaq3Zs+bWIGOcnjNOJyeAeE3uzwn5BbOABIkJS5jaYgxk3ULEvluUhOZp
-	 66yTNZRk0YMN52k9/rmQlC6GhIxxb41wG9f7kLViG9G03dHSDriy1dvCA7AOC9Pdof6f5Em6DNwURg
-	 6ZQhiwUa2Gzn/vek=
-X-KPN-MID: 33|BhyBqobqnLh9r+bNn7/tLetLXo2JVnx2ln7X5AgXzUeVU1Z/nKZlmDGk4c85u8L
- 3e5N7kyD33gQ8pmueof6oYQ==
-X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|1R/3kl+/dMe24MUQc+Kv7cZdUAvRxxZkojXHv9bi0Oq7A5l9Rs4z4VPU/iMDLCw
- zSrkMySW4ABXGpJjWYNkZmA==
-Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
-	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 08866d23-dc9f-11ef-a313-005056abf0db;
-	Mon, 27 Jan 2025 12:08:27 +0100 (CET)
-From: Benno Schulenberg <bensberg@telfort.nl>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] logger: do not show arguments of --socket-errors as optional in --help
-Date: Mon, 27 Jan 2025 12:08:25 +0100
-Message-ID: <20250127110825.7219-1-bensberg@telfort.nl>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (2048-bit key) header.d=unseen.parts header.i=@unseen.parts header.b="vxMygNh9"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=unseen.parts; s=sig; h=In-Reply-To:Content-Type:MIME-Version:References:
+	Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=lP0T7f795wt9O6cEneFd8O1nW/DjYKsbv0oA6g5csSw=; b=vxMygNh9DcqVgPttcu5rOL5rma
+	mKNKBGDokTrpImq9eHVt5tE+Y6DerEZvh1fQvwX/9MYb/hUzjVdOs6dZAUwUV2qHE8fMoOo5rXtpY
+	92uLIk3/0e8YWHLU85jiQt/vZ8uHInePKoQ20rol8dIzRcrms7HJnbXazvx4bFYo12PzDtTAmTWo3
+	5CWufywRDqlMjoXh+d6zheKKnV9npvIlRNKATCmoW5DspZpIF25YF7L46olFS1uYzkz+w54XeoAgt
+	aBb0qnMPzrKKRYXhRzIFKMwz4wgXG9dYhOhJEChsZkC2SJDZ0MGp3ayzaw1QGy2bSqCbKGq6OKB6A
+	amktslmQ==;
+Received: from minute.unseen.parts ([139.162.151.61]:40488 helo=minute)
+	by minute.unseen.parts with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.96)
+	(envelope-from <ink@unseen.parts>)
+	id 1tcP9g-0003AM-1p;
+	Mon, 27 Jan 2025 14:27:56 +0100
+Date: Mon, 27 Jan 2025 14:27:54 +0100
+From: Ivan Kokshaysky <ink@unseen.parts>
+To: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+	"Maciej W. Rozycki" <macro@orcam.me.uk>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>, Kees Cook <kees@kernel.org>,
+	"Paul E. McKenney" <paulmck@kernel.org>,
+	linux-alpha@vger.kernel.org, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, Michael Cree <mcree@orcon.net.nz>,
+	Sam James <sam@gentoo.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>,
+	Chris Hofstaedtler <zeha@debian.org>, util-linux@vger.kernel.org,
+	linux-mips@vger.kernel.org, loongarch@lists.linux.dev
+Subject: Re: [PATCH v2] alpha/elf: Fix misc/setarch test of util-linux by
+ removing 32bit support
+Message-ID: <Z5eJ2p5IeNzPDuVH@minute>
+References: <bff3cfad8a87799101891b4f786c5104db9dab13.camel@physik.fu-berlin.de>
+ <82d33a2d-dffe-4268-a175-4536b3f9c07f@app.fastmail.com>
+ <cc420e1a843da3cf349607369851c338f4049c4e.camel@physik.fu-berlin.de>
+ <87jzb2tdb7.fsf_-_@email.froward.int.ebiederm.org>
+ <2758fa70d237ff972b0c8d7114777dc4a20c8f3b.camel@physik.fu-berlin.de>
+ <alpine.DEB.2.21.2501120146480.18889@angie.orcam.me.uk>
+ <78f3ae1f68842a9d1af62caaac3929834ce6ecfa.camel@physik.fu-berlin.de>
+ <87y0zfs26i.fsf_-_@email.froward.int.ebiederm.org>
+ <Z4uECl9wQ2sqdKym@minute>
+ <5cff63bf0fc9e62772fb24bc919c591acbd10d53.camel@physik.fu-berlin.de>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5cff63bf0fc9e62772fb24bc919c591acbd10d53.camel@physik.fu-berlin.de>
 
-Also, show them without angular brackets, as they are literal values.
+On Sun, Jan 26, 2025 at 06:15:43PM +0100, John Paul Adrian Glaubitz wrote:
+> Hi Eric,
+> 
+> On Sat, 2025-01-18 at 11:35 +0100, Ivan Kokshaysky wrote:
+> > On Sun, Jan 12, 2025 at 11:39:01PM -0600, Eric W. Biederman wrote:
+> > ...
+> > > --- a/arch/alpha/include/asm/pgtable.h
+> > > +++ b/arch/alpha/include/asm/pgtable.h
+> > > @@ -360,7 +360,7 @@ static inline pte_t pte_swp_clear_exclusive(pte_t pte)
+> > >  
+> > >  extern void paging_init(void);
+> > >  
+> > > -/* We have our own get_unmapped_area to cope with ADDR_LIMIT_32BIT.  */
+> > > +/* We have our own get_unmapped_area */
+> > >  #define HAVE_ARCH_UNMAPPED_AREA
+> > 
+> > Just remove the definition. As the comment suggests, the only reason
+> > it exists is ADDR_LIMIT_32BIT, which is gone.
+> > 
+> > > --- a/arch/alpha/kernel/osf_sys.c
+> > > +++ b/arch/alpha/kernel/osf_sys.c
+> > > @@ -1210,8 +1210,7 @@ SYSCALL_DEFINE1(old_adjtimex, struct timex32 __user *, txc_p)
+> > >  	return ret;
+> > >  }
+> > >  
+> > > -/* Get an address range which is currently unmapped.  Similar to the
+> > > -   generic version except that we know how to honor ADDR_LIMIT_32BIT.  */
+> > > +/* Get an address range which is currently unmapped. */
+> > >  
+> > >  static unsigned long
+> > >  arch_get_unmapped_area_1(unsigned long addr, unsigned long len,
+> > > @@ -1230,13 +1229,7 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
+> > >  		       unsigned long len, unsigned long pgoff,
+> > >  		       unsigned long flags, vm_flags_t vm_flags)
+> > >  {
+> > > -	unsigned long limit;
+> > > -
+> > > -	/* "32 bit" actually means 31 bit, since pointers sign extend.  */
+> > > -	if (current->personality & ADDR_LIMIT_32BIT)
+> > > -		limit = 0x80000000;
+> > > -	else
+> > > -		limit = TASK_SIZE;
+> > > +	unsigned long limit = TASK_SIZE;
+> > >  
+> > >  	if (len > limit)
+> > >  		return -ENOMEM;
+> > 
+> > Likewise, just remove these functions. The generic_get_unmapped_area()
+> > works fine, tested on up1500.
+> 
+> Can you send a follow-up integrating those changes? It would be good if
+> SET_PERSONALITY() could be fixed on alpha for v6.14.
 
-Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
----
- misc-utils/logger.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Oh, the changes I proposed are mere cleanup suggestions.
+The original patch would do just fine.
 
-diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index f696287d7..bcdff0614 100644
---- a/misc-utils/logger.c
-+++ b/misc-utils/logger.c
-@@ -1101,7 +1101,7 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(_("     --sd-param <data>    rfc5424 structured data name=value\n"), out);
- 	fputs(_("     --msgid <msgid>      set rfc5424 message id field\n"), out);
- 	fputs(_(" -u, --socket <socket>    write to this Unix socket\n"), out);
--	fputs(_("     --socket-errors[=<on|off|auto>]\n"
-+	fputs(_("     --socket-errors on|off|auto\n"
- 		"                          print connection errors when using Unix sockets\n"), out);
- #ifdef HAVE_LIBSYSTEMD
- 	fputs(_("     --journald[=<file>]  write journald entry\n"), out);
--- 
-2.48.1
-
+Ivan.
