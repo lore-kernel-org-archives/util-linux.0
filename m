@@ -1,76 +1,107 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2EFA13D281
-	for <util-linux@vger.kernel.org>; Mon, 27 Jan 2025 15:21:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5590B18C31
+	for <util-linux@vger.kernel.org>; Wed, 29 Jan 2025 12:16:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737991322; cv=none; b=K7P8qbE6fdnzk2wlWxp7MfdfUwqGDsrnvkOOC1EGF6fZybF24u8IACv3/xdJPlqW2ETAkgs7EJqoUOfq+l0TRODYPclTfqHiuRly04Q2kGScmUPfWYCme8xqHG3Ec/RGAHuzGB6coR1OiR4WPM1UnUGFV/fCM+oEKBAUT4qvqGM=
+	t=1738152982; cv=none; b=KOMuKnoXx+Wsp1oh9kU1LJFT8VKdINbFL0Piz3sShhFIfMQvFFqpV/yMsbh3DWiGatHvIOU1lWW3RPCsxE/hiCju6wRFf7KZ0uPcb5aj42j7sR68sjQzv4t4e/lOdQ8/G9eIpUiKj+S2rUYsPL3/FgFhpt0CD6HaCn2BrPuWBFI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737991322; c=relaxed/simple;
-	bh=Y2Bvvi/cy5MI2IpdVTO83x6HRb//lIbDNbWakpVbWD4=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=UsLnw+JDETsfJuYHSShbIz8TmMuvBr1FfSw/bBKwc0TsMALLTcUoRhcKopsFmnqzxH7yxKE0R5H+9EtpG/BtTBfUzJV7n0qPY0Nsb1saFNsU22BrMqkYqcgdfDOlkEdsudoFC51E7IA33Lwims5NyWA/ybbT3svXo334iWwTEjE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=Ho3cqRox; arc=none smtp.client-ip=195.121.94.168
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
+	s=arc-20240116; t=1738152982; c=relaxed/simple;
+	bh=lFeYHSoFBM1G9yxnWnE7lO5zItM2TV6dTTcypneZtcY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=aOAeHQ/8RLyg61Y8v7PzS2udbAeqnjfRfhdVA5twT6ryRrJOVg156VfvD1kmBa2ZAswBgwpRswXxF+/aE3IQaJdMcTSUx1AzMAQzrOn4WJD+d0krdv1cxgZO+4KyJUXmU2tUq1SNaujKuEAFPlRotwT3Ym09MSWNPdOm1COJoxw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JnYzW0o6; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="Ho3cqRox"
-X-KPN-MessageId: 9f4ad82a-dcc2-11ef-8d8a-005056aba152
-Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
-	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 9f4ad82a-dcc2-11ef-8d8a-005056aba152;
-	Mon, 27 Jan 2025 16:23:12 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=telfort.nl; s=telfort01;
-	h=mime-version:message-id:date:subject:to:from;
-	bh=Byyd+1wchZat31uq/2eOiba31gGANGtgdulIX2MnMHs=;
-	b=Ho3cqRox9pHC+bG+0ht56E3QtIMdAOao0VtgZPllR98ekZddZ1dRoajaIzGEKFgYtcDS4nPIMon+X
-	 /jQTwIFwXenpVPe4BrgauRa9ZCF+sFejvGoJ8J3U/L5p4V7phoQxGCsYiHfP62zeSvKPyQcR17ddBA
-	 bQ1qzVEyLs4ud+0U=
-X-KPN-MID: 33|0PhRushCKxdWqLKKyCmkw9EXmQMgGmUwQ1noYqY2L8PClwLa5J25susqBStIr9J
- D4zxZeJhuyQKFiUYnzq/Lr2z2oU0mjsFtjWPz5Ld/zfU=
-X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|U9cKFFSdXQXcNGZiLFOcUlXRhywN75SebWi5g4BfD+fs8E2Aj66eAk1m1nPNJ/P
- UsBtPgArSZhbF2zFI/l7IgA==
-Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
-	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 6da6d5e5-dcc2-11ef-a313-005056abf0db;
-	Mon, 27 Jan 2025 16:21:49 +0100 (CET)
-From: Benno Schulenberg <bensberg@telfort.nl>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] blkid: say "override" instead of "overwrite" in the --help text
-Date: Mon, 27 Jan 2025 16:21:44 +0100
-Message-ID: <20250127152144.11446-1-bensberg@telfort.nl>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JnYzW0o6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1738152980;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=N4SDRBdhJ6vtBMDwACmHA7staPaO+nPO/EhI7CnOBvo=;
+	b=JnYzW0o65tbmcA0q8Uhtz3FAdgk2an8rvR+NletC2XIbBXG8sQrRD9Ej+kfPF/PPZ1Wsy1
+	GdWJ5wc1ipVgMLQ3dRJN5PzCCpYVtjYya0eFrPqsvvhx5IfP+i0mwX/e9Qgm3wisjNKdYX
+	TqY04ezUU3Fhikp7D/6Pi4sQ0+kGTew=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-60-N3UZ6mmHPXePBYRq-x8gXw-1; Wed,
+ 29 Jan 2025 07:16:18 -0500
+X-MC-Unique: N3UZ6mmHPXePBYRq-x8gXw-1
+X-Mimecast-MFC-AGG-ID: N3UZ6mmHPXePBYRq-x8gXw
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 449FC1800373;
+	Wed, 29 Jan 2025 12:16:17 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.225.106])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 43DF71800955;
+	Wed, 29 Jan 2025 12:16:16 +0000 (UTC)
+Date: Wed, 29 Jan 2025 13:16:12 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Marc =?utf-8?Q?Aur=C3=A8le?= La France <tsi@tuyoix.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] Add setsid option to save child process id
+Message-ID: <ez4oc4bocqcilq36ncfjusirdkmt6jkpfvaakrx5qcslzoqj6f@wxu57ze7zutk>
+References: <be555f23-ae5e-f7d1-9b7c-28f4191664e7@tuyoix.net>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <be555f23-ae5e-f7d1-9b7c-28f4191664e7@tuyoix.net>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-The `blkid` tool does not write anything to the probed device, so
-seeing "overwrite" in the usage text was somewhat disconcerting.
 
-Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
----
- misc-utils/blkid.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Hi Marc,
 
-diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
-index d5fe4f1fa..63e61b5fa 100644
---- a/misc-utils/blkid.c
-+++ b/misc-utils/blkid.c
-@@ -96,7 +96,7 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(_(	" -p, --probe                low-level superblocks probing (bypass cache)\n"), out);
- 	fputs(_(	" -i, --info                 gather information about I/O limits\n"), out);
- 	fputs(_(        " -H, --hint <value>         set hint for probing function\n"), out);
--	fputs(_(	" -S, --size <size>          overwrite device size\n"), out);
-+	fputs(_(	" -S, --size <size>          override device size\n"), out);
- 	fputs(_(	" -O, --offset <offset>      probe at the given offset\n"), out);
- 	fputs(_(	" -u, --usages <list>        filter by \"usage\" (e.g. -u filesystem,raid)\n"), out);
- 	fputs(_(	" -n, --match-types <list>   filter by filesystem type (e.g. -n vfat,ext3)\n"), out);
+On Sun, Jan 26, 2025 at 10:40:19AM GMT, Marc Aurèle La France wrote:
+> Add an option to save the child's pid into a file.
+
+we usually use Signed-off-by: line in the commit messages.
+
+> @@ -105,6 +115,16 @@ int main(int argc, char **argv)
+>  			break;
+>  		default:
+>  			/* parent */
+> +			if (pidpath) {
+> +				pidfile = fopen(pidpath, "w");
+> +				if (pidfile == NULL)
+> +					warn(_("cannot open pidfile %s"),
+> +						pidpath);
+> +				else {
+> +					fprintf(pidfile, "%d\n", pid);
+> +					fclose(pidfile);
+> +				}
+> +			}
+>  			if (!status)
+>  				return EXIT_SUCCESS;
+>  			if (wait(&status) != pid)
+ 
+What is the intended use-case for this feature?
+
+I am unsure if this implementation is too simplistic. It seems that
+the file is not deleted after the child process exits. Furthermore,
+what would happen if we call multiple setsid instances with the same
+pidfile? Would it be better to create the pidfile in the child process
+after setsid() and ioctl(), in order to avoid creating the
+pidfile in case of an error?
+
+For reference, the code in misc-utils/uuidd.c uses a more advanced
+method.
+
+    Karel
+
 -- 
-2.48.1
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
