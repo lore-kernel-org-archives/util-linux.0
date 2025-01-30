@@ -1,93 +1,74 @@
-Received: from omta003.cacentral1.a.cloudfilter.net (omta001.cacentral1.a.cloudfilter.net [3.97.99.32])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B7701AD403
-	for <util-linux@vger.kernel.org>; Wed, 29 Jan 2025 16:57:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=3.97.99.32
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D892418F2DD
+	for <util-linux@vger.kernel.org>; Thu, 30 Jan 2025 09:47:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738169853; cv=none; b=LP74ymxUsZU1dzdonihIoO25YgSfS/JqfmmfdsMl9O5V3xB2XFTWScUAUTJhCX3jDNOJXG4CkBPeslf2ywCVdy1lP7czZOz9SMbgqvYngwLJ9iD+IU+uUdpTLoq9j9bh+IbdYjV1Dbzf4hJadnM1dF5KWzOlBZBvDfdFukWbsxo=
+	t=1738230451; cv=none; b=i2i1tDXb6p6z95Jt0B5sAoMwxizIAn6KBp7/N8CDWyvDBaeZPj7GUMpfWbMU325EadvPKkAiAaU5LBBKIDROfhJ7J2+hU8IvaJSeff2mOCFQin8MNEvm8ZqjAYPauxnq8n9WalI2q9Hv/7y2udkiCHAZElaVq1lW36dyUy/xiwI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738169853; c=relaxed/simple;
-	bh=vSeXSNoTipu7KQAEdFogcABbV9Sh437cigTd0MapaiI=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=V8o/AqS+YjCH5tIIEvFPUsk6Sjc6lSoIJsmEtpq+WHVT5dXtctK94zsjzxl42ncuniGTo+lxy3N+Vhbb+Uu0wC4eosdWSjKJnrdo6FVURaOtvfUCN4dCoP6SghoWduAn+VEYOB3pnPct6fCmSYrbyMtyrG4oo6m2rD13JvO63Pk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=tuyoix.net; spf=pass smtp.mailfrom=tuyoix.net; arc=none smtp.client-ip=3.97.99.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=tuyoix.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tuyoix.net
-Received: from shw-obgw-4002a.ext.cloudfilter.net ([10.228.9.250])
-	by cmsmtp with ESMTPS
-	id d3lvtV4hWxv7PdBNUtLI3m; Wed, 29 Jan 2025 16:57:24 +0000
-Received: from fanir.tuyoix.net ([68.150.218.192])
-	by cmsmtp with ESMTP
-	id dBNTtMHHGl5eGdBNTtfawq; Wed, 29 Jan 2025 16:57:24 +0000
-X-Authority-Analysis: v=2.4 cv=EO6l0EZC c=1 sm=1 tr=0 ts=679a5df4
- a=LfNn7serMq+1bQZBlMsSfQ==:117 a=LfNn7serMq+1bQZBlMsSfQ==:17
- a=IkcTkHD0fZMA:10 a=VdSt8ZQiCzkA:10 a=M51BFTxLslgA:10
- a=Y-Hw5tHbaIzHENXJ9F0A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-Received: from CLUIJ (cluij.tuyoix.net [192.168.144.15])
-	(authenticated bits=0)
-	by fanir.tuyoix.net (8.18.1/8.18.1) with ESMTPSA id 50TGvL1h010268
-	(version=TLSv1 cipher=ECDHE-RSA-AES256-SHA bits=256 verify=NO);
-	Wed, 29 Jan 2025 09:57:21 -0700
-Date: Wed, 29 Jan 2025 09:57:09 -0700 (Mountain Standard Time)
-From: =?UTF-8?Q?Marc_Aur=C3=A8le_La_France?= <tsi@tuyoix.net>
-To: Karel Zak <kzak@redhat.com>
-cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] Add setsid option to save child process id
-In-Reply-To: <ez4oc4bocqcilq36ncfjusirdkmt6jkpfvaakrx5qcslzoqj6f@wxu57ze7zutk>
-Message-ID: <alpine.WNT.2.20.2501290953590.4996@CLUIJ>
-References: <be555f23-ae5e-f7d1-9b7c-28f4191664e7@tuyoix.net> <ez4oc4bocqcilq36ncfjusirdkmt6jkpfvaakrx5qcslzoqj6f@wxu57ze7zutk>
-User-Agent: Alpine 2.20 (WNT 67 2015-01-07)
+	s=arc-20240116; t=1738230451; c=relaxed/simple;
+	bh=GFqj2Q4EqVzxhU7bG9E9LvRAFOaU1zA6owNMHozLO4g=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CndPrWIAUcsi+mcD8TKRA40k2DJxA24xYOSxLv2hR48qP+ciYzwc8JGeK9uhbzWBbtigR+2m2UNzl5TnLReGOnuZah9tl8ToiJbbmFJgrLNkiUjTvuWSLJE+nZM9sL3tTcJp3g6eUutnCeX/Mh+DFmJ046brcGZpAdAlWMxJbas=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BWQAfmBJ; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BWQAfmBJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1738230448;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=FRJUtsumlCFIHWu/jrSZLzjj27WQVxm/5IzKbRsnDjY=;
+	b=BWQAfmBJaC4TY+mnSc0w4NE9lADOUPP+eDTFBM8HqH6X7m2m75i9kOhidzyYjDDb8brcp2
+	2+JwYL2C7ANucf3lRNDhbwyGRiKFMADFUxbiSdpgxQQwfBrvv/LAHgr491ide5TrpZBQae
+	fwuO3iLAMgjYBH6/Z+1FEAtiQy7+Ils=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-488-5A29paq6PAeBtyo_1yuOQg-1; Thu,
+ 30 Jan 2025 04:47:22 -0500
+X-MC-Unique: 5A29paq6PAeBtyo_1yuOQg-1
+X-Mimecast-MFC-AGG-ID: 5A29paq6PAeBtyo_1yuOQg
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 68A631801F15;
+	Thu, 30 Jan 2025 09:47:21 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.225.106])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 46CA919560A3;
+	Thu, 30 Jan 2025 09:47:19 +0000 (UTC)
+Date: Thu, 30 Jan 2025 10:47:16 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Marc =?utf-8?Q?Aur=C3=A8le?= La France <tsi@tuyoix.net>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] Fix --disable-widechar compile warnings
+Message-ID: <772nrb7v2gpu4wli4ecfosqkjzakaf7b34ztiujfyttafgjonk@dblf7yhg2djl>
+References: <014dda0b-0d83-64b0-e0b0-366559fed323@tuyoix.net>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8BIT
-X-CMAE-Envelope: MS4xfAO2sI3oPzoEHpHF8li0sjS85BtTlepy/Xowi45vcQJnePxlJ49fGQzYzCATaV2mmnjbrKmEToTjNR13ElrLmemNnw7Vo52ST84fxX0HGPuCqVgNGlO1
- DqMpDxgjIB9qEVGpto3+319QkYi1iPfhghTAw4Qcvx9ze4S29hoOBUGtyGPZFrI55lfnHmpfc/H9Qzb1EBlZj6ThOwJAefjEyhW7IPlv1WeGaH4Nx4WFcP7b
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <014dda0b-0d83-64b0-e0b0-366559fed323@tuyoix.net>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-On Wed, 2025-Jan-29, Karel Zak wrote:
-> On Sun, Jan 26, 2025 at 10:40:19AM GMT, Marc AurÃ¨le La France wrote:
->> Add an option to save the child's pid into a file.
+On Sun, Jan 26, 2025 at 10:38:52AM GMT, Marc Aurèle La France wrote:
+> Fix warnings when compiling without wide char support.
 
->> @@ -105,6 +115,16 @@ int main(int argc, char **argv)
->>  			break;
->>  		default:
->>  			/* parent */
->> +			if (pidpath) {
->> +				pidfile = fopen(pidpath, "w");
->> +				if (pidfile == NULL)
->> +					warn(_("cannot open pidfile %s"),
->> +						pidpath);
->> +				else {
->> +					fprintf(pidfile, "%d\n", pid);
->> +					fclose(pidfile);
->> +				}
->> +			}
->>  			if (!status)
->>  				return EXIT_SUCCESS;
->>  			if (wait(&status) != pid)
+Applied, thanks.
 
-> What is the intended use-case for this feature?
+    Karel
 
-To put various utilities (ping, tcpdump, ad nauseam) in the background and
-have a simple way of controlling each instance individually.
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
-> I am unsure if this implementation is too simplistic. It seems that
-> the file is not deleted after the child process exits. Furthermore,
-> what would happen if we call multiple setsid instances with the same
-> pidfile? Would it be better to create the pidfile in the child process
-> after setsid() and ioctl(), in order to avoid creating the
-> pidfile in case of an error?
-
-> For reference, the code in misc-utils/uuidd.c uses a more advanced
-> method.
-
-Repeat after me:
-
-KISS.
-
-Marc.
