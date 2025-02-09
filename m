@@ -1,47 +1,47 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.170])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3754F6FBF
-	for <util-linux@vger.kernel.org>; Sun,  9 Feb 2025 08:26:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A97F6FBF
+	for <util-linux@vger.kernel.org>; Sun,  9 Feb 2025 08:26:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739089568; cv=none; b=ZdoBYvv+XQ9Ur38w/L1OxRvEOpQFJPVXqIP515RMpej0XMyhvO2FH7GpVJDKyxQnX35Ry7cIEKaYjZjWlqEyu/cUwUuWhkFP0vjjpTW4WE7A5pZWwTpwjjNpahGIEytV7v/XU08bePaXpL1H04lq112yqb36/VIS+qIOzrH+R8I=
+	t=1739089580; cv=none; b=QZsxDlcnSHA6Vcmyv+zqoCoiEj0YTLesfQbf2I8o3Cuua3Jy9JggmxPxXS5YgqTRh00HJu6VE3BuHNJxHlz3P1UPoRC+0/jF1Ud744LytQ+D2eexBhbmVQQ/sIVplffh3mC8LyJTGBxCT3sJjcx5g57/eo2Ao1Zfs+SvBHc3Y9w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739089568; c=relaxed/simple;
-	bh=MoaXodKXRKA4cBvG9oIh91fTdutVlzWi2h8MR2SmEzA=;
+	s=arc-20240116; t=1739089580; c=relaxed/simple;
+	bh=q08OuB1qqOZqhafGOttykUEqK8ZwCEGfl+2k+tsMuu8=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=IZ5Wyf4xjGCJ2t1TD8dAto2ZQmjtY/zalfIN7HF+MIt1Ls7Ls8RaZ7RWYGSA/DUapH7OV5PtK9t2ngS7KXXEwNKS+cZjs971ug5sBu7ZxJrUJ3xGE4mKgwHkmh9ouuGmzt8lT6RHfQZX0ICslKNydGGazfbaXjAFCoa5HdKwE2g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=EGlN4MeI; arc=none smtp.client-ip=195.121.94.170
+	 MIME-Version; b=CGJWw2pyKV/lxyZ+aFfrTZLD6GPpy+kRlfyd1jKgKY/IgPuKv0SA75MrECqb1s0WaHqT2AQY22quiZEDDaH8TF5Gq2cex/FFQiuwv5FeB8zcbnvbaXE/duCnMNE3apN4c6HGzOzNAVmF2Nw2liA4ulVlVK5dGz8srT4AxDk8F2w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=AQ6qM+9L; arc=none smtp.client-ip=195.121.94.168
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="EGlN4MeI"
-X-KPN-MessageId: dc7ee96f-e6bf-11ef-a841-005056ab378f
-Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="AQ6qM+9L"
+X-KPN-MessageId: b8921d47-e6bf-11ef-8d8a-005056aba152
+Received: from smtp.kpnmail.nl (unknown [10.31.155.37])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id dc7ee96f-e6bf-11ef-a841-005056ab378f;
-	Sun, 09 Feb 2025 09:28:38 +0100 (CET)
+	id b8921d47-e6bf-11ef-8d8a-005056aba152;
+	Sun, 09 Feb 2025 09:27:38 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=bX70NM4Ztw7YZM2SSqtP4arRZblqIFgmCeESayIwBcc=;
-	b=EGlN4MeIqnGW3fjpBUR1Y/VxaK3/jKXrzB/sdlpRrpxLr2hKxJleVWLwrxibQoqSi9eNxeSMORFGV
-	 d7zvDVdhUHC68LRJOlr4zqukg1bQg8ZUrQrp1pKtsOv72rOh50ut7KeCYohZrOq9SHuKPQ5a83Cr00
-	 Oxqjda9AnFXxJMN4=
-X-KPN-MID: 33|rehkrB4Wvz6diQ0vp6LDmiy36Nq/XD2p8A7CYU8JDVoluEutmBBqrBOthM+/9Km
- xYwcKzP4K/WHYz5QRZnkjKO3AbfQesdaup0LQpR/6CgI=
+	bh=c8thfvFsNmgUUwWHxmyceivZROwkeXkugRKh9tVcVYk=;
+	b=AQ6qM+9LQqPawsD0BsYqenkFfhKvN24ml/L19nhC6Oya5REwc6xCNnSDst3n4vcyB9z+9zBgNlQz/
+	 3L3Z1QsYVoGSVBGfzIr9qVBSAiK7kC0Fcq/7r6Fx/acApZP77V+mpATtTaUzHBes8TPeAQXtXbFMdc
+	 lU2tSPcEImF2eZIQ=
+X-KPN-MID: 33|9zDt0PKtk7YAUgH75o1EIkpYbyS4TfEpUyoBBt6lN+nxEzgMde6qUeGgKlfVGdF
+ 0rSTy5gnwtrWbyOtrpK8M61QSihtYUqqD4ejo5QdRWa4=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|yX+UHjJi0KJ+E8ZDYOBYyv18A0TtYwd9wfAk53uPyU7yv5ztafAmuxoMmIquBU/
- CdmoIh7k7I6IihO9eyA0ccg==
+X-CMASSUN: 33|jZvMe3jBexqQ6DzYkQNL94oxa6yuuDvgZZPklBi63suY4iG5HiQ+SmDHG9C1EyF
+ TRpe9Y50tEkfq7x9uAuU2Rg==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 80b1344d-e6bf-11ef-a31b-005056abf0db;
-	Sun, 09 Feb 2025 09:26:04 +0100 (CET)
+	id 8834f576-e6bf-11ef-9a03-005056ab1411;
+	Sun, 09 Feb 2025 09:26:17 +0100 (CET)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 12/14] man pages: use the same verb for --version as for --help, like in usages
-Date: Sun,  9 Feb 2025 09:23:28 +0100
-Message-ID: <20250209082330.4235-12-bensberg@telfort.nl>
+Subject: [PATCH 13/14] usage: mention also the missing KiB and MiB as permissible suffixes
+Date: Sun,  9 Feb 2025 09:23:29 +0100
+Message-ID: <20250209082330.4235-13-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250209082330.4235-1-bensberg@telfort.nl>
 References: <20250209082330.4235-1-bensberg@telfort.nl>
@@ -53,98 +53,34 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Also, avoid duplication of --help/--version in the man page for `chfn`.
+Also, slightly reword the phrase to be more grammatical,
+and make it into a full sentence that ends in a period.
+
+(By the way, commit f1970cc557 is somewhat problematic: it requires
+that the relevant occurrences of "<num>" and "<size>" in the option
+descriptions are now always translated in the same manner, but the
+translator may be unaware of this.  For Dutch, the latter was the
+case for `ipcmk` and `zramctl`. :/ )
 
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- login-utils/chfn.1.adoc      |  6 +++---
- login-utils/chsh.1.adoc      | 10 +++++-----
- man-common/help-version.adoc |  2 +-
- schedutils/coresched.1.adoc  |  6 +-----
- text-utils/col.1.adoc        |  2 +-
- 5 files changed, 11 insertions(+), 15 deletions(-)
+ include/c.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/login-utils/chfn.1.adoc b/login-utils/chfn.1.adoc
-index 35a2e82cf..527c6806c 100644
---- a/login-utils/chfn.1.adoc
-+++ b/login-utils/chfn.1.adoc
-@@ -50,10 +50,10 @@ Specify your home phone number.
- Display help text and exit.
+diff --git a/include/c.h b/include/c.h
+index ec2d32c38..dcb2d683c 100644
+--- a/include/c.h
++++ b/include/c.h
+@@ -474,8 +474,8 @@ static inline void __attribute__((__noreturn__)) ul_sig_err(int excode, const ch
  
- *-V*, *--version*::
--Print version and exit. The short options *-V* have been used since version 2.39; old versions use
--deprecated *-v*.
-+Display version and exit. (Short option *-V* is used since version 2.39;
-+older versions used the now-deprecated *-v*).
+ #define USAGE_ARG_SEPARATOR    "\n"
+ #define USAGE_ARG_SIZE(_name) \
+-		_(" %s arguments may be followed by the suffixes for\n" \
+-		  "   GiB, TiB, PiB, EiB, ZiB, and YiB (the \"iB\" is optional)\n"), _name
++		_(" Values for %s may be followed by a suffix: KiB, MiB,\n" \
++		  " GiB, TiB, PiB, EiB, ZiB, or YiB (where the \"iB\" is optional).\n"), _name
  
--include::man-common/help-version.adoc[]
-+// Do not include::man-common/help-version.adoc[]  as --help and --version are already given explicitly above.
- 
- == CONFIG FILE ITEMS
- 
-diff --git a/login-utils/chsh.1.adoc b/login-utils/chsh.1.adoc
-index 940ded5aa..e259b593f 100644
---- a/login-utils/chsh.1.adoc
-+++ b/login-utils/chsh.1.adoc
-@@ -37,14 +37,14 @@ Specify your login shell.
- Print the list of shells listed in _/etc/shells_ and exit.
- 
- *-h*, *--help*::
--Display help text and exit. The short options *-h* have been used since version 2.30; old versions use
--deprecated *-u*.
-+Display help text and exit. (Short option *-h* is used since version 2.30;
-+older versions used the now-deprecated *-u*).
- 
- *-V*, *--version*::
--Print version and exit. The short options *-V* have been used since version 2.39; old versions use
--deprecated *-v*.
-+Display version and exit. (Short option *-V* is used since version 2.39;
-+older versions used the now-deprecated *-v*).
- 
--// Do not include::man-common/help-version.adoc[]  as both -h and -V were already explicitly given above in more detail. 
-+// Do not include::man-common/help-version.adoc[]  as both -h and -V are already given explicitly above in more detail.
- 
- == VALID SHELLS
- 
-diff --git a/man-common/help-version.adoc b/man-common/help-version.adoc
-index 7a3c04fb9..8bce5760f 100644
---- a/man-common/help-version.adoc
-+++ b/man-common/help-version.adoc
-@@ -2,4 +2,4 @@
- Display help text and exit.
- 
- *-V*, *--version*::
--Print version and exit.
-+Display version and exit.
-diff --git a/schedutils/coresched.1.adoc b/schedutils/coresched.1.adoc
-index 8a9c28846..0d4c211f8 100644
---- a/schedutils/coresched.1.adoc
-+++ b/schedutils/coresched.1.adoc
-@@ -67,11 +67,7 @@ The type of the PID whose cookie will be modified. This can be one of three valu
- *-v*, *--verbose*::
- Show extra information when modifying cookies of tasks.
- 
--*-h*, *--help*::
--Display help text and exit.
--
--*-V*, *--version*::
--Print version and exit.
-+include::man-common/help-version.adoc[]
- 
- == EXAMPLES
- Get the core scheduling cookie of the {command} task itself, usually inherited from its parent{colon}::
-diff --git a/text-utils/col.1.adoc b/text-utils/col.1.adoc
-index 46610f0c5..bc1913a91 100644
---- a/text-utils/col.1.adoc
-+++ b/text-utils/col.1.adoc
-@@ -81,7 +81,7 @@ Output multiple spaces instead of tabs.
- Display help text and exit.
- 
- *-V*, *--version*::
--Print version and exit.
-+Display version and exit.
- 
- == CONFORMING TO
+ #define USAGE_MAN_TAIL(_man)   _("\nFor more details see %s.\n"), _man
  
 -- 
 2.48.1
