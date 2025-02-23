@@ -1,44 +1,43 @@
 Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBDAA1EA91
-	for <util-linux@vger.kernel.org>; Sun, 23 Feb 2025 13:07:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 034171C84B4
+	for <util-linux@vger.kernel.org>; Sun, 23 Feb 2025 13:22:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740316025; cv=none; b=NPP/qv3hGCCyRSoKHzS8wIuhwHvfyWAmotqYBph9UUeP40uebaiAQFEOJkig6HrGmYDQzh5tBSOcLEi1j0qnLmp3k0pxNhHiRBV22UrLkYDMamiJFcIrQG9aASYonoh5eRoGYg+q1iZwl/QSsxmH5wRbHRX2XzWB+kfdmjpblF0=
+	t=1740316947; cv=none; b=HppdGf+OnTLHTCHSTTQgP3UOoA2F++s4Km7Y+HJZEOxwH5MOxCIqVD+Yf1z/6gsq1Y+8KqBJv6SXawsY/DAAPS2StVYIj81uZjTA+gmgKpg+RgtkS8e2qxYaeWJG43+vl4X8M9j9aqy2SatTWQo8AcQhHT5eD0gAxBF+wjFXC5Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740316025; c=relaxed/simple;
-	bh=+msFSo+F9STIMGaZLcd1DMaRjOGSWdYXNwmen62lHmM=;
+	s=arc-20240116; t=1740316947; c=relaxed/simple;
+	bh=gHU3lW0eAzMPAS2H7hNAuRmyar23+6FR8uWVPTBx4qY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YRWy6j5pBvCahUmI1yb2SGR1FpJEhBEu/4jhPn8u1rtFaN8pQRtlynVnWkUzNZI/XTJxtwKQ72xGv7LkRd6fgVMLp0W+jqM2soWAiRVwY4O8z7NIxsIFxiOmsGtxKA7lC2u5WFyBwPiSjkGSzIXEpEU2RwRK6dZMcB4OCVjjy4U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=NaluNwuc; arc=none smtp.client-ip=82.195.75.108
+	 Content-Type:Content-Disposition:In-Reply-To; b=D7QNzFTEgah0wt4FeUhCJkMSaQFyk86WXGLdolJe/TcxaHNgGYARoD81UK12ntw5fgGTCt5qFHXJMe+XonFBCse1QthyBLhre8WjgmbHfCoK9wI3LrSd4lKXawJeiTKd7i4Q/LggftC1YVSlDOHf9E3x0nIN/BqgqWRXscinSNU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=Xm6IC1S/; arc=none smtp.client-ip=82.195.75.108
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="NaluNwuc"
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="Xm6IC1S/"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
 	s=smtpauto.stravinsky; h=X-Debian-User:In-Reply-To:Content-Type:MIME-Version:
 	References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
 	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=U7uYCLg36TNk5siPqXAZD7fqWW08YzZp6PIBthzZUuo=; b=NaluNwucFY+XsiKips1z7RTJYd
-	VNCQbrrgNmE9XftvVyoj5Z0V7JOXF24/rR1fqt2tLqdb8o3nWCl9QYkwKtzG/pi2Q4U7gG87Vcvbn
-	EGHGJQExISqzJ3bdlaFuhUtYoYOs7vfPQKfF0duTGZYGBwqnfYz6xbV7oPJ78RFQHhsVsqca+/pnS
-	VkNISKPeiz4EGHon/AitN5gZGMDKHKEQ47zUotIhN0Xov1RgE2tEfAKGwcbnd5rw8GqGLo+FQPwM0
-	Za4slPUJxuAa+oMOT+aZ53rNWf2xqJoIOhO667whSEJ10rqKu1XUyn3YZG6w4sE9l6ggcuVbWyuS2
-	ca6XsbWg==;
+	bh=uX2mhveXom2zGXO+HFaUX+bp0Q6DM9ec5w6XD/5XQ+k=; b=Xm6IC1S/pJdN1zbvNxKpgLxkYs
+	VrxwMpRRU5wrlchU4Oq7VBOmOF3LB4k2vjMomHgU2vODynTyGJbpqwffpHQzZ+ZehQ3BqH0r1MAmJ
+	uP7d7CHrF6BBf0VH0y82lM9VHPuLfivwpLH0JfAccZebH5aprVxRSBgqsQu3IwmIuHOe9EL1Eb+sY
+	+v+CsvSG3M04YLxJIBFf65KA4mCHG0jsox8a7szMz6bzVE6akrJZ0Yvvla6pSUBuP1/FzdGrQN9Sw
+	S69VSZtTQ6d1k8EymHd9igR6sNzU0ydkIzIphgSMD13PXskZbaQwbiV9Ms1aqU24bFl1LSgQEc0Qw
+	STHvAJAg==;
 Received: from authenticated user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.94.2)
 	(envelope-from <zeha@debian.org>)
-	id 1tmBh9-00H6gd-Lt; Sun, 23 Feb 2025 13:06:55 +0000
-Date: Sun, 23 Feb 2025 14:06:54 +0100
+	id 1tmBw7-00H7Ck-GO; Sun, 23 Feb 2025 13:22:23 +0000
+Date: Sun, 23 Feb 2025 14:22:21 +0100
 From: Chris Hofstaedtler <zeha@debian.org>
-To: Florian Bach <Leseratte10@vodafone.de>, 1098694@bugs.debian.org
+To: Thorsten Glaser <tg@mirbsd.de>, 1098638-quiet@bugs.debian.org
 Cc: util-linux@vger.kernel.org
-Subject: Re: Bug#1098694: Crash in agetty due to invalid strncmp call in
- Trixie
-Message-ID: <tzuam3pqfrm6g7t4hwwapmpxxux75bf4vxd42qb6iode2hqnnx@ve4h5lyd3yp6>
-References: <5534c6e1-b819-4aaa-a8c1-fa22852e327b@vodafone.de>
+Subject: Re: Bug#1098638: fdisk: creates partitions one sector too large
+Message-ID: <Z7shDWfLwHPMxT2C@per.namespace.at>
+References: <5c513969-5e9f-cb0d-c62c-e153ca259915@mirbsd.de>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -47,89 +46,76 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <5534c6e1-b819-4aaa-a8c1-fa22852e327b@vodafone.de>
+In-Reply-To: <5c513969-5e9f-cb0d-c62c-e153ca259915@mirbsd.de>
 X-Debian-User: zeha
 
-Hello Florian,
+Control: tags -1 + upstream
 
-thanks for your report.
+Looping in upstream.
 
-I'm CC:ing upstream.
-
-* Florian Bach <Leseratte10@vodafone.de> [250222 21:39]:
-> I am running Debian Trixie in a Proxmox VM. I noticed that on the login
-> screen there are errors of agetty crashing with a segfault. There's nothing
-> special about the VM, it's a blank VM running the daily cloud images of
-> Debian Trixie.
+On Sat, Feb 22, 2025 at 12:57:38AM +0100, Thorsten Glaser wrote:
+> Package: fdisk
+> Version: 2.38.1-5+deb12u1
 > 
-> The VM is running Linux 6.12.12-1 with util-linux 2.40.4-3 and libc6 2.40-7.
-
-Could you provide some more info and also try something:
-
-1) is this on amd64?
-
-2) which terminal is this? tty1 or something else?
-
-3) whats your kernel command line?
-
-4) which image did you use exactly?
-
-5) could you try util-linux 2.41-rc1 from experimental?
-
-> I debugged this with ltrace and believe I found the error, or at least some
-> invalid behaviour.
+> When I create a new partition with +sectors, fdisk creates one
+> that is one sector too large:
 > 
-> In agetty.c in the debian sources for util-linux, right at the end of the
-> function parse_args, there's code that tries to figure out the terminal name
-> using a call to get_terminal_name. For some reason, this function call seems
-> to fail on my machine and it prints the error "could not get terminal name".
 > 
-> This causes it to set &op->tty to NULL, and unfortunately, a couple lines
-> later, that variable is used in a strncmp call, causing it to crash.
+> Command (m for help): n
+> Partition number (1-128, default 1):
+> First sector (2048-7814037134, default 2048):
+> Last sector, +/-sectors or +/-size{K,M,G,T,P} (2048-7814037134, default 7814035455): +2097152
 > 
-> Here's the corresponding lines from the ltrace log:
+> Created a new partition 1 of type 'Linux filesystem' and of size 1 GiB.
 > 
-> strtok(nil, ",")                                 = nil
-> free(0x557c64154be0)                             = <void>
-> strcmp("-", "-")                                 = 0
+> Command (m for help): p
+> Disk /dev/sdb: 3.64 TiB, 4000787030016 bytes, 7814037168 sectors
+> Disk model: ST4000NM0245-1Z2
+> Units: sectors of 1 * 512 = 512 bytes
+> Sector size (logical/physical): 512 bytes / 4096 bytes
+> I/O size (minimum/optimal): 4096 bytes / 4096 bytes
+> Disklabel type: gpt
+> Disk identifier: DDA88AFF-1E6A-7448-AB5A-85470938DBC7
+> 
+> Device       Start        End    Sectors  Size Type
+> /dev/sdb1     2048    2099200    2097153    1G Linux filesystem
 
-Looks like we're in term-utils/agetty.c line 929ff, which has a
-comment:
-    /* resolve the tty path in case it was provided as stdin */
+Also from Thorsten:
+> Same for MBR:
+> 
+> 
+> Command (m for help): n
+> Partition type
+>    p   primary (0 primary, 0 extended, 4 free)
+>    e   extended (container for logical partitions)
+> Select (default p): p
+> Partition number (1-4, default 1): 1
+> First sector (2048-1000215215, default 2048):
+> Last sector, +/-sectors or +/-size{K,M,G,T,P} (2048-1000215215, default 1000215215): +2048
+> 
+> Created a new partition 1 of type 'Linux' and of size 1 MiB.
+> 
+> Command (m for help): p
+> Disk /dev/nvme0n1: 476.94 GiB, 512110190592 bytes, 1000215216 sectors
+> Disk model: SAMSUNG MZVLB512HBJQ-00000
+> Units: sectors of 1 * 512 = 512 bytes
+> Sector size (logical/physical): 512 bytes / 512 bytes
+> I/O size (minimum/optimal): 512 bytes / 512 bytes
+> Disklabel type: dos
+> Disk identifier: 0x3cca69b4
+> 
+> Device         Boot Start   End Sectors Size Id Type
+> /dev/nvme0n1p1       2048  4096    2049   1M 83 Linux
 
-Which seems to be the default code path on systemd systems.
+I've briefly reproduced this with util-linux 2.41-rc1 on a loopdev.
 
-> isatty(0)                                        = 0
-> isatty(1)                                        = 0
-> isatty(2)                                        = 0
+From what I understand Thorsten is saying, he would expect, for a
+partition that starts at sector 2048, when its created with "+2048"
+size, to have a number of 2048 sectors, not 2049 as shown above.
 
-This must have been get_terminal_stdfd from lib/ttyutils.c
+I haven't looked at the code if this is intentional or what the
+reason could be.
 
-> dcgettext(nil, "could not get terminal name: %d", 5) = "could not get
-> terminal name: %d"
-[..]
-
-I think the relevant part would be seeing what /proc/<pid>/fd/0 ,
-/proc/<pid>/fd/1 , /proc/<pid>/fd/2 point to.
-
-> Upload at a filehoster and send the link in response to this bug report?
-
-Attaching should be fine, possibly compressed. Probably an strace
-log could be more insightful than the ltrace log.
-
-> Unfortunately, I was not yet able to figure out why on my machine the code
-> seems to run into this code path with the "could not get terminal name"
-> warning.
-
-> But nevertheless, it's a valid code path, and it's just a warning
-> not an error, so the code that comes after it should be able to handle this
-> without crashing.
-
-Looks like commit 47831cc02ac0d71c335caecef1753f4c8861277c did not
-take this into account fully. get_terminal_name resets *name to
-NULL, and I think then op->tty ends up being NULL.
-
-Related: https://github.com/util-linux/util-linux/issues/1546#issuecomment-1005855533
-
+Best,
 Chris
 
