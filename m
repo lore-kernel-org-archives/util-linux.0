@@ -1,112 +1,113 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from evolvis.org (evolvis.org [217.144.135.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7338E2686A9
-	for <util-linux@vger.kernel.org>; Tue, 25 Feb 2025 12:07:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C45A215189
+	for <util-linux@vger.kernel.org>; Wed, 26 Feb 2025 09:28:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.144.135.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740485271; cv=none; b=HqLagj6UPMTlpOaaUkKnezUjOpj/vrzlaYtSIm1faHzKeqfeTv5k9gCkaZGqLOfBPmGNyNnUkmagZOzkRGmZmsiIoNCfHhaLUVRIJhluxdlPWr1MllDICq2qP2adUNv0jCzDmQXRGLaKZaETonR5IPzTcTeeE8eKVECCd9uEUL4=
+	t=1740562127; cv=none; b=DZKbijnYu3Im6Id/9kfzzidfwc+xXWhDiZeuFmwXj1SUd9R8ZIJx+NAKclbvc5peHzMs8RytA7yLRVhbLazUtsgTOznbp2dW/WEn1fyq72UpvkziLurd6VOY1/2jQL+GSSBLZvlN3cwDSe2zPkK1TGGu8me0cbAVbbI0hW6PgJg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740485271; c=relaxed/simple;
-	bh=unkdbu0OZOqWnCiDtNsYmL4PGHhUiup0c9IFtHEXoPc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=d5KQhe0zZgRNmIvw+L8yoWyOrJwK3a+2zVeaZ9UrOxU+lhCIW6mBJj56q8mWW0McxFlEP8QFGnmCFd0LqRSAHiUNmQYl9WiFKwX9+zZ7Zj5JuM3YJfySbpXU+FxawEenoq3szhyQzrSH44DWEDYW9zPcLXLTwRagonxo+0uT//E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DuKiVcCD; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DuKiVcCD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1740485268;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SFow3b9aARMQbRO9/le4l0XgYn4mtNBEuj8bMrsQdmM=;
-	b=DuKiVcCD0+LgFlDIeKHOT1eL8UaMk29s5FpOiq8RcOzyu6UMflXrmxEAcJ3wu6SCxtnAXC
-	PdznUE/fO7gH83YjDuzAG+2yLj2COzkBLlk9VEQsF4ExQUDSxCE8BA9CYjx8GbVI+GmhKx
-	apZA/d3/BitvJJZoDRs9vVViAU1rdLM=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-125-SgBPPZu2N4S-Y2R3neNbbQ-1; Tue,
- 25 Feb 2025 07:07:44 -0500
-X-MC-Unique: SgBPPZu2N4S-Y2R3neNbbQ-1
-X-Mimecast-MFC-AGG-ID: SgBPPZu2N4S-Y2R3neNbbQ_1740485263
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	s=arc-20240116; t=1740562127; c=relaxed/simple;
+	bh=ILoUCtlXq/nqH0Nf5eJwKjmaC+7zPs0k9/MAEU0w/xA=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=V0sFTFnT3E6VMHjoBHqFodjNZI5jyurP/6Tx87T/ZXVTONs3yx7AzQ+6Y1qNw52YenM6SpxvlxeonxyrlMJAxL6lCglgFk4/TcZosC6bGFOEL20ls50Qlb4neim1diBb2v70rz1PZhT5YnUBzyw8ESQT6Y8Iim1tKaJAYCI+bv8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mirbsd.de; spf=pass smtp.mailfrom=mirbsd.de; arc=none smtp.client-ip=217.144.135.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mirbsd.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mirbsd.de
+Received: from x61p.mirbsd.org (unknown [IPv6:2001:470:1f15:10c:21d:e0ff:fe77:c17b])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 61B471800373;
-	Tue, 25 Feb 2025 12:07:43 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.225.247])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 75BD11954B00;
-	Tue, 25 Feb 2025 12:07:41 +0000 (UTC)
-Date: Tue, 25 Feb 2025 13:07:38 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Chris Hofstaedtler <zeha@debian.org>
-Cc: Thorsten Glaser <tg@mirbsd.de>, 1098638-quiet@bugs.debian.org, 
-	util-linux@vger.kernel.org
+	 key-exchange X448 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	(Authenticated sender: x61p@relay.evolvis.org)
+	by evolvis.org (Postfix) with ESMTPSA id BC89A100104;
+	Wed, 26 Feb 2025 09:22:44 +0000 (UTC)
+Received: by x61p.mirbsd.org (Postfix, from userid 1000)
+	id 27A65143236; Wed, 26 Feb 2025 10:22:44 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+	by x61p.mirbsd.org (Postfix) with ESMTP id 227B9143235;
+	Wed, 26 Feb 2025 10:22:44 +0100 (CET)
+Date: Wed, 26 Feb 2025 10:22:43 +0100 (CET)
+From: Thorsten Glaser <tg@mirbsd.de>
+To: Karel Zak <kzak@redhat.com>
+cc: Chris Hofstaedtler <zeha@debian.org>, 1098638-quiet@bugs.debian.org, 
+    util-linux@vger.kernel.org
 Subject: Re: Bug#1098638: fdisk: creates partitions one sector too large
-Message-ID: <7tyxu3bufdztsdkt4svgvz5ul4bzsnvbstndcopht36lklthbj@3kmnuyuwhtwp>
-References: <5c513969-5e9f-cb0d-c62c-e153ca259915@mirbsd.de>
- <Z7shDWfLwHPMxT2C@per.namespace.at>
+In-Reply-To: <7tyxu3bufdztsdkt4svgvz5ul4bzsnvbstndcopht36lklthbj@3kmnuyuwhtwp>
+Message-ID: <69387f65-c992-04f6-2774-a1d0417ded94@mirbsd.de>
+References: <5c513969-5e9f-cb0d-c62c-e153ca259915@mirbsd.de> <Z7shDWfLwHPMxT2C@per.namespace.at> <7tyxu3bufdztsdkt4svgvz5ul4bzsnvbstndcopht36lklthbj@3kmnuyuwhtwp>
+Content-Language: de-Zsym-DE-1901-u-em-text-rg-denw-tz-utc, en-Zsym-GB-u-cu-eur-em-text-fw-mon-hc-h23-ms-metric-mu-celsius-rg-denw-tz-utc-va-posix
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Z7shDWfLwHPMxT2C@per.namespace.at>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-On Sun, Feb 23, 2025 at 02:22:21PM GMT, Chris Hofstaedtler wrote:
-> Control: tags -1 + upstream
-> 
-> Looping in upstream.
-> 
-> On Sat, Feb 22, 2025 at 12:57:38AM +0100, Thorsten Glaser wrote:
-> > Package: fdisk
-> > Version: 2.38.1-5+deb12u1
-> > 
-> > When I create a new partition with +sectors, fdisk creates one
-> > that is one sector too large:
-> > 
-> > 
-> > Command (m for help): n
-> > Partition number (1-128, default 1):
-> > First sector (2048-7814037134, default 2048):
-> > Last sector, +/-sectors or +/-size{K,M,G,T,P} (2048-7814037134, default 7814035455): +2097152
-> > 
-> > Created a new partition 1 of type 'Linux filesystem' and of size 1 GiB.
-> > 
-> > Command (m for help): p
-> > Disk /dev/sdb: 3.64 TiB, 4000787030016 bytes, 7814037168 sectors
-> > Disk model: ST4000NM0245-1Z2
-> > Units: sectors of 1 * 512 = 512 bytes
-> > Sector size (logical/physical): 512 bytes / 4096 bytes
-> > I/O size (minimum/optimal): 4096 bytes / 4096 bytes
-> > Disklabel type: gpt
-> > Disk identifier: DDA88AFF-1E6A-7448-AB5A-85470938DBC7
-> > 
-> > Device       Start        End    Sectors  Size Type
-> > /dev/sdb1     2048    2099200    2097153    1G Linux filesystem
+On Tue, 25 Feb 2025, Karel Zak wrote:
 
-This is how fdisk has functioned since its inception. I noticed this
-in the v2.13 code and was able to replicate it with v2.14 (year 2008).
+>The convention of +<sectors> is strictly evaluated as <first> + <size>,
+>without subtracting 1.
 
-The convention of +<sectors> is strictly evaluated as <first> + <size>,
-without subtracting 1. This is different from +<size>{M,G,T,..} where the final
-size is reduced by 1 and aligned to the disk I/O limits.
+I guess someone made the maths mistake here: the last sector
+is always <first> + <size> - 1, compare C arrays.
 
-I have doubts about changing this after 20 years due to backward
-compatibility. Additionally, it should be noted that people use 'echo
-"something" | fdisk' in scripts ...
+>This is how fdisk has functioned since its inception. I noticed this
+>in the v2.13 code and was able to replicate it with v2.14 (year 2008).
 
-    Karel
+Ouch. Then I agree changing this is not prudent at this point,
+but please *do* clarify this in the question text. Let me
+propose new text=E2=80=A6 hmm, let me see the old=E2=80=A6
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+>> > Command (m for help): n
+>> > Partition number (1-128, default 1):
+>> > First sector (2048-7814037134, default 2048):
+>> > Last sector, +/-sectors or +/-size{K,M,G,T,P} (2048-7814037134, defaul=
+t 7814035455): +2097152
 
+=E2=80=A6 let=E2=80=99s go multiline for this:
+
+| Last sector (2048-7814037134, default 7814035455),
+| +/-sectors from first sector, or +/-size{K,M,G,T,P}:
+
+>This is different from +<size>{M,G,T,..} where the final
+>size is reduced by 1 and aligned to the disk I/O limits.
+
+I expected the -1 (fencepost) but not the alignment, but
+that makes sense.
+
+>Additionally, it should be noted that people use 'echo
+>"something" | fdisk' in scripts ...
+
+Indeed, I do so myself, though in scripts I have so far
+always calculated the last sector manually, it was only
+that day interactively when I wanted to enter a manual
+size in sectors: specifically, a split-mode dm-integrity
+<https://evolvis.org/plugins/scmgit/cgi-bin/gitweb.cgi?p=3Duseful-scripts/u=
+seful-scripts.git;a=3Dblob;f=3Dintegritysetup/README.txt;h=3D76a7a67cb35d34=
+c08eeeb916ce26f1832febf922;hb=3DHEAD#l113>
+partition (where I manually aligned the result from the
+isize-p script in the aforementioned documentation to a
+multiple of 2048).
+
+=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=
+=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=
+=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=
+=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=
+=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=
+=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=
+=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=
+=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=
+=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80
+
+So, would you please consider changing the wording, at
+least, upstream? (And, perhaps, throw in another sentence
+or two into the manpage, stating that the +sectors syntax
+isn=E2=80=99t meant to express size, unlike the others.)
+
+Thanks,
+//mirabilos
+--=20
+[16:04:33] bkix: "veni vidi violini"
+[16:04:45] bkix: "ich kam, sah und vergeigte"...
