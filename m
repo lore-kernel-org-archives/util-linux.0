@@ -1,158 +1,207 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.167])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 703D620B818
-	for <util-linux@vger.kernel.org>; Mon,  3 Mar 2025 12:12:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.167
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8730212FA7
+	for <util-linux@vger.kernel.org>; Mon,  3 Mar 2025 14:49:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741003937; cv=none; b=MZqpuio6QCfMi+YLbvZzZg3cmozRm5C6TLyt1EkH9m2E77pcGMypeyGOePJjsVGEAPOMw6roQpyU1SnQwsW++kx9kmqOYSwj09Bay1Ii3j+pf1ZRl7yV5EnxbXS76shQfPrBPS/X85tQsv7+0Ftc6zQFwjwRQFM/JF08zVKZV6Y=
+	t=1741013400; cv=none; b=OS9+JTmbBwBpuEU131MaTT/ftyAiYxHyitXnB1J6+tM6twLwr/5K4uEIQv4P68D+dwPA12mRnVP2Ldbd4Ze8VTdKBTbEqRbx08yKbQIWfx7OggBUFnVezLNdwxHdDB0fcrk/+8onTFoFrKKj1L8vf7ZhymWwcXZdwWMxibRJPt8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741003937; c=relaxed/simple;
-	bh=mRu78cuFO1+wGfuEDv4tMxyEuh+JYi+1cmCIC2EgnSo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=H6YTwHkiFqXQQe+kGadUc3xE5hV3t4Yk1GAOWy+mA/QhCA0GvskYM1P4M0OXf2w3X43pYCPga2YTWbs2yFPB4ioIVayEFm7sccR2HhHjo1aJZYf0IFUY1q+V+wPM+P4KLqsXjnfYCmYaZnOeejP2bsan2sOjGtY3N2ddnSvJDyM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=UehIlh6d; arc=none smtp.client-ip=195.121.94.167
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
+	s=arc-20240116; t=1741013400; c=relaxed/simple;
+	bh=BtQB6syug8iQN+M4iLOdGY4Kw6+VlMUnR8SuhUUGZK4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=YvJYLbB+dCZ6jRRkqzLWSM1o4stEasGl126Xy8SrTA3hf7yMNxvEwKmDMCFnuC6sXt21uluTHvF19pYZo5D3O5clMjGIkWgD6vmw6v76xbThlzR/8UraS/gBiKvJ3KFFkUh3DbDAjzLRNhDeP7mvHNfhi3o77q/dltJ/pe04jq8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BdqNKe4C; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="UehIlh6d"
-X-KPN-MessageId: bea76862-f828-11ef-b99f-005056abbe64
-Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
-	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id bea76862-f828-11ef-b99f-005056abbe64;
-	Mon, 03 Mar 2025 13:12:15 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=telfort.nl; s=telfort01;
-	h=content-type:from:to:subject:mime-version:date:message-id;
-	bh=mRu78cuFO1+wGfuEDv4tMxyEuh+JYi+1cmCIC2EgnSo=;
-	b=UehIlh6daVy35+hDd7H08OPcHVWZ4lgtc8bafpWRu5RvriNHtZcnrGub1DZxrJaItynEBN+h+Qp+o
-	 lTH9kNTj8GI1mntx88JbBCb+XVx09Jq2ykh14hRLGEhuK2XweVvYviUWRb+2bWxJmre9EYKiRpRsHa
-	 rwXBLGy6PscNBIP8=
-X-KPN-MID: 33|79SLwwn2IF/460ZH2WQTOV3ZVWkFqZy2+mLEv2BmkUF1BKNCsi03/xn/6mQZ+jp
- 0KaKuT1h7FEzvHxKr5AdogffnqCQGPBenLxHZI4DX/fY=
-X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|LXhZ5wS62+wbHwAeVgLQ/Sk4EZwUsp/dMd1C9++lgbbmRjptYON2S7DtywpSJxt
- 3ROIoINgk3MaWUUVDPVEmRA==
-Received: from [192.168.2.2] (77-163-176-192.fixed.kpn.net [77.163.176.192])
-	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id b94fa02a-f828-11ef-9587-005056abf0db;
-	Mon, 03 Mar 2025 13:12:06 +0100 (CET)
-Message-ID: <ad13fd05-8d24-4fe2-a0ad-741fb857a899@telfort.nl>
-Date: Mon, 3 Mar 2025 13:12:05 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BdqNKe4C"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1741013397;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=/Kw1DL8MWvGWHyjQ/gfTnywXrqDPnUnII5CBCleynRQ=;
+	b=BdqNKe4COVfm+7GwjwMxOkeqVqCur7uGBsV8F6BTaf6cnSn2BXRxunSmrgUVrk+ww5YA/w
+	srNMAHBNtHevIfGcKvYGU/w7GE30G/71aQPGko9KUClq3YPU5FNPtToDUpu9PG6I7IQDtE
+	4AvE3ssMzfuw+jK5hhKAuiQhfctTfz0=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-639-VqHw6tAVOXOUSjoRmG2QWg-1; Mon,
+ 03 Mar 2025 09:49:41 -0500
+X-MC-Unique: VqHw6tAVOXOUSjoRmG2QWg-1
+X-Mimecast-MFC-AGG-ID: VqHw6tAVOXOUSjoRmG2QWg_1741013380
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 4F8651800876;
+	Mon,  3 Mar 2025 14:49:40 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.225.247])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 56B48180035F;
+	Mon,  3 Mar 2025 14:49:39 +0000 (UTC)
+Date: Mon, 3 Mar 2025 15:49:35 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Stanislav Brabec <sbrabec@suse.cz>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] agetty: Implement netlink based IP address lookup
+Message-ID: <tnzflf25amkje3xdgf7avon5smn3xlbng44xxegwpsjjqp4tvy@4vfjbliaoiq3>
+References: <20250216212450.61706-1-sbrabec@suse.cz>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] column: replace a mistaken word in an error message
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-References: <20250303102137.4020-1-bensberg@telfort.nl>
- <mtr3urghiu2ezk2uprqwuvkgfxktdb3md5vc4zwbidgxeckzny@2n7vycofqgom>
-Content-Language: en-US, nl-NL, es-ES
-From: Benno Schulenberg <bensberg@telfort.nl>
-Autocrypt: addr=bensberg@telfort.nl; keydata=
- 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 50GA
-In-Reply-To: <mtr3urghiu2ezk2uprqwuvkgfxktdb3md5vc4zwbidgxeckzny@2n7vycofqgom>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------midwKRKAjyvZrXs0rReIR398"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250216212450.61706-1-sbrabec@suse.cz>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------midwKRKAjyvZrXs0rReIR398
-Content-Type: multipart/mixed; boundary="------------Lx45XQctYDvdDTGuvxkL9n0D";
- protected-headers="v1"
-From: Benno Schulenberg <bensberg@telfort.nl>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Message-ID: <ad13fd05-8d24-4fe2-a0ad-741fb857a899@telfort.nl>
-Subject: Re: [PATCH] column: replace a mistaken word in an error message
-References: <20250303102137.4020-1-bensberg@telfort.nl>
- <mtr3urghiu2ezk2uprqwuvkgfxktdb3md5vc4zwbidgxeckzny@2n7vycofqgom>
-In-Reply-To: <mtr3urghiu2ezk2uprqwuvkgfxktdb3md5vc4zwbidgxeckzny@2n7vycofqgom>
+On Sun, Feb 16, 2025 at 10:24:50PM GMT, Stanislav Brabec wrote:
+> The new netlink based IP address lokup implements a new issue file escape \i.
+> This lookup is based on netlink messages only. It evaluates all addresses
+> reported in the netlink messages and it attempts to print only the best of them.
+> As it is not possible to discriminate the "best" IP address, it reports all
+> reasonably usable addresses.
 
---------------Lx45XQctYDvdDTGuvxkL9n0D
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+I believe your code is a good start.
 
-DQpPcCAwMy0wMy0yMDI1IG9tIDEyOjMyIHNjaHJlZWYgS2FyZWwgWmFrOg0KPiBCZW5ubywg
-SSdkIGxpa2UgdG8gcmVsZWFzZSAtcmMyIEFTQVAuIFRoaXMgbWVhbnMgcGFzc2luZyB0aGUg
-dGFzayB0bw0KPiB0aGUgdHJhbnNsYXRvcnMuIERvIHlvdSB0aGluayB3ZSBuZWVkIG1vcmUg
-dGltZSBiZWZvcmUgcmMyIHRvIGNsZWFuIHVwDQo+IHRoZSBzdHJpbmdzPw0KDQpObywgbm8g
-ZXh0cmEgdGltZSBuZWVkZWQuICBZb3UgY2FuIGdvIGFoZWFkIHdpdGggLXJjMi4NCg0KKEkg
-c3RpbGwgaGF2ZSA5MDAgc3RyaW5ncyB0byBsb29rIGF0LCBidXQgd29uJ3QgaGF2ZSBtdWNo
-DQp0aW1lIHRoaXMgd2VlaywgYW5kIGNhbid0IGxvb2sgZnVydGhlciBhaGVhZCB0aGFuIHRo
-YXQuKQ0KDQo+IFRoZSBjbGVhbnVwIGNhbiBjb250aW51ZSBpbiB0aGUgbWFzdGVyIGJyYW5j
-aCwgYnV0IHRoZSBjaGFuZ2VzIHdpbGwNCj4gbm90IGdvIGludG8gdjIuNDEuIEkgaGF2ZSBu
-byBwcm9ibGVtIHdpdGggdGhpcywgYnV0IEknZCBsaWtlIHRvIGJlDQo+IGNvbnNpZGVyYXRl
-IG9mIHlvdXIgd29yayBhbmQgdGhlIHRyYW5zbGF0b3JzLg0KDQpUaGFua3MuICBBcyB5b3Ug
-c2F5LCBhbnkgb3RoZXIgY2xlYW51cCB3aWxsIGJlIGZvciAyLjQyLg0KDQoNCkJlbm5vDQoN
-Cg==
+> Migrate \4 and \6 from getifaddrs() to netlink as well, and then completely drop
+> getifaddrs() based code.
 
---------------Lx45XQctYDvdDTGuvxkL9n0D--
+Yes, but it would be nice to make the code more readable and extendable :-)
 
---------------midwKRKAjyvZrXs0rReIR398
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+My suggestion:
 
------BEGIN PGP SIGNATURE-----
+- Move the code to lib/netlink-ifaces.c.
 
-wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmfFnJYFAwAAAAAACgkQUUu+Lrjhlh+g
-mA/7BHrKDn1bLI3m61e0+tb5T0ZLNbLviumlyBAtQDCbUp0trqkjwJ4N/vro+woO7UKQjmLvU3xx
-e7lnM76q5MXmCN37iOh9B6EiOuzwOGadm73hzgexgnnAYs12xqjW4t0jIl8KJx/1XgDCJpIYQm73
-M9farmW1ySeTNBlAvqLl8fUj5L/nTdRxMa+PUKYQe92IEbLtoFiU6exRhDl7G38anvKxXqK/mUbC
-05pSYrFyrKOVMKTE9FCJgHbySDR46H+6EdUfGXGVJ/Rd20f+h+vxO00eN75gyA+zCMCdwWIz0ePi
-oj04KpOiwF35JEcE4HUMTQSuqqxUgejg6axH8rDm8LYxtIK9QjZSI/dA13lgn8TZe7CYd8dG3WOp
-lhHcqEoFnea41nn4ORsftsF3EqpSPMwpp4tEn68sd8MYPv+SVQpFgpCm2YRu7IKa0QPvU0m9AR4l
-krAcMhWqPExoglopXjlSuZMK4XVwHQmZUl3AQJ3ywQiK2d3vtdIfkj9RjGvSFIT9HwCGRJEwcqPe
-M8dH1KV/jHyBK5gDrnuHxPY105T5EFh83fX88jjBbVu8oA2PcBAaRYI+MUrpO8tK5Aisfhe7FAe2
-TudxZXiMaV/FsrA7y6lrpGfngpir33q5i3h1sc8OInE8mIiBbKHRt/SLBbT5DgenMnlcK8oJJbAJ
-HPA=
-=98Gn
------END PGP SIGNATURE-----
+- Add #ifdef TEST_PROGRAM with test main() and test_netlink to
+  lib/Makemodule.am (see for example lib/linux_version.c).
 
---------------midwKRKAjyvZrXs0rReIR398--
+- Use include/debug.h and UL_NETLINK_DEBUG= environment variable (see
+  lib/loopdev.c, LOOPDEV_DEBUG_* and loopdev_init_debug()).
+
+- Use a prefix for public functions (e.g., ul_iface_*).
+
+- Create a set of small functions for basic operations:
+  - Add and remove interface (e.g., add_interface()).
+  - Add and remove address.
+  - Get the best address.
+
+I also suggest using include/list.h for the lists, but you might find
+it challenging at first. Ideally, define next() functions for while()
+loops (e.g., ul_iface_next_interface() and ul_iface_next_addr()). See
+for example libfdisk/src/table.c:fdisk_table_next_partition().
+However, I'll understand if you think it's overkill.
+
+The include/list.h provides a sort function, so it would be possible
+to sort the lists by "quality", making the first address in the list
+the best.
+
+> It could be useful to implement:
+> - configurable limit for the maximum number of interfaces that could be
+>   reported.
+
+I believe the limit could be quite large by default (512?) since it's
+just one malloc() for each address.
+
+> - the interface regexp match
+
+Yes, just another small function ul_iface_match_interface(), and if it
+will be sorted than you get the best one :-)
+
+\4{~eth[0-9]} or \4{match="~eth[0-9]"} if you want to support more
+options in the { }.
+
+ - agetty already supports \foo{ } arguments, see get_escape_argument()
+ - lib/strutils.c:ul_optstr_next() can parse options list  {a="aaa",b="bbb"}
+
+> - an interface template for fine tuning of the output
+
+You can introduce printf()-like \4{format="%iface:%addr} (like git-log)
+
+> - better control over the output: e. g. disable printing of IPv4 or IPv6
+>   addresses, disable printing of temporary addresses or link-local addresses
+> - cross-protocol checks: e. g. disable reporting of link-local IPv6 address for
+>   an IPv4-only interface
+
+:-)
+
+> The new network comparison code could potentially render obsolete string based
+> issue comparison (implemented in 6522d88). There are ifaces_list_change_4 and
+> ifaces_list_change_6 variables ready for this purpose.
+
+Hmm... the global variables used deeply within the netlink message
+parser do not look very elegant. Maybe introduce a separate struct,
+ul_ifaces_status, and use it as a global variable in agetty.c,
+then call process_netlink_msg() with this struct as an argument.
+
+> +struct ip_quality_item {
+> +	enum ip_quality_item_value quality;
+> +	int len;
+> +	__u32 ifa_valid; /* IP addres lifetime */
+
+uint32_t if possible ;-)
+
+> +	struct ip_quality_item *next;
+> +	char addr[];
+> +};
+> +struct iface_quality_item {
+> +	__u32 ifa_index;
+> +	struct ip_quality_item *ip_quality_list_4;
+> +	struct ip_quality_item *ip_quality_list_6;
+> +	struct iface_quality_item *next;
+> +};
+> +static struct iface_quality_item *ifaces_list = NULL;
+> +bool ifaces_list_change_4;
+> +bool ifaces_list_change_6;
+> +bool ifaces_skip_dump = false;
+
+Do we need the _quality_ in the sctruct names? What about ul_iface and
+ul_iface_addr ?
+
+ ...
+
+> +			debug_net("+ allocating new interface\n");
+> +			ifaceq = malloc(sizeof(struct iface_quality_item));
+
+ if (!ifaceq)
+    return;
+
+> +			ifaceq->ifa_index = ifaddr->ifa_index;
+> +			ifaceq->ip_quality_list_4 = NULL;
+> +			ifaceq->ip_quality_list_6 = NULL;
+> +			ifaceq->next = NULL;
+> +			*ifaceq_prev_next = ifaceq;
+
+
+process_netlink_msg_part() will be simpler and more readable if you
+move the basic tasks to small functions like add_interface() :-)
+
+> +		} else {
+> +			/* Should never happen */
+> +			debug_net("- interface not found\n");
+> +			return;
+> +		}
+> +	}
+> +	if (family == AF_INET) {
+> +		ipq_prev_next = &(ifaceq->ip_quality_list_4);
+> +		ifaces_list_change = &ifaces_list_change_4;
+> +	}
+> +	if (family == AF_INET6) {
+> +		ipq_prev_next = &(ifaceq->ip_quality_list_6);
+> +		ifaces_list_change = &ifaces_list_change_6;
+> +	}
+
+I guess static analyzers won't like this part; ipq_prev_next is
+uninitialized if the family is something else.
+
+ 
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
