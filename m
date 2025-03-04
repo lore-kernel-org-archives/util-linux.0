@@ -1,68 +1,47 @@
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.167])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70F5625F97C
-	for <util-linux@vger.kernel.org>; Tue,  4 Mar 2025 14:42:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 858AA29CB52
+	for <util-linux@vger.kernel.org>; Tue,  4 Mar 2025 16:08:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.167
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741099339; cv=none; b=tzD06avIWc7/hRxm6/oCGEzh0TvsdcbTNE/xVEhv/2cDHmTNWDQQofuO4MBJtKS++hUuK34TceV96OrVqFVgnVk7AANGLwjFgNRFghb1a/lfsdVbsg0vpOZWJmAVS7nSVjMimYlQNok1fsKs1hGVEEeAr4U3xc0iA279ASL9GuY=
+	t=1741104511; cv=none; b=OXZjYxAQv/M89KzKl3qQiZpYKalRosq8YvNZ+b5hNNKIlD7ICLw8UWONk8DXgvUo9VLa9mQNE6FGO16oL/LgKmdaQGZe4qoXPPoem/fw7IPxSeN71iNNhKdvrylU2ZO29xSNrcNvFeuw0yRniHtH5VzbjoSaUbd5cAQH3hw3sLk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741099339; c=relaxed/simple;
-	bh=eMDToePrZwO1UYMyVgguZ3I6jBU1hYxDWJeCGv0S+Qo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ORVQwvhSZ9+3hfL1Bs5ReFwkK8GiSqEu/7Qkz4jOxiphgSgrrUSq9dRJMKBss7dgifsVBgADvQHdJ99PXBw6wTGR60dVFeYbN3y4bZoQsOt9mAhbXKlv+ekmaimxitozmwIb95QPUmCa7no+0J/wAxfh77DtsApmecRF0QG/BAc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com; spf=pass smtp.mailfrom=ventanamicro.com; dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b=fC43up6N; arc=none smtp.client-ip=209.85.214.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ventanamicro.com
+	s=arc-20240116; t=1741104511; c=relaxed/simple;
+	bh=0R0DM8iexVa0XsjYFNCrw7wUo7hFp6zmSDE445kJans=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=oXkIftj08VPWeAOJiSwuJhI71zFEmq+WLovF59w2Qga4t8ND2WGDOQ2lR17EBQVjW3wZBSC9852FeuIHc+uC+sjVeqaQMPOyGVbAJzFqyB7WHozW1gSmtTZuwC/dZfkS1c+I+vL+QgLTEUhYeWgVTFJVlKrziG0b/SKy+jiW1hE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=mjQ/W8ey; arc=none smtp.client-ip=195.121.94.167
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="fC43up6N"
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-22382657540so61231285ad.2
-        for <util-linux@vger.kernel.org>; Tue, 04 Mar 2025 06:42:17 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="mjQ/W8ey"
+X-KPN-MessageId: eb09f6ee-f912-11ef-b99f-005056abbe64
+Received: from smtp.kpnmail.nl (unknown [10.31.155.40])
+	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
+	id eb09f6ee-f912-11ef-b99f-005056abbe64;
+	Tue, 04 Mar 2025 17:08:31 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google; t=1741099336; x=1741704136; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=7xmeGPr4qPtiWrZRGPzwzuCf1xAq1zFTXoPr8j1L+78=;
-        b=fC43up6NcdXg81641VbBhLHgDPfYrp95qYWrqUH/BelsBhFUVbihOJaHrPT+xqLWkg
-         V9++CzOOMyPz3e+QzJqkSvxhEWssSV6SqcwGjAnZsBNQbHVGqeBByL0Ev2qKcSzFxnR/
-         hAdldt8FJ+gUDrBmYC8G3bx5a5TAWOkkOROkkxmOTBThyvwUI52tCMkWqwsXYImgOFWx
-         BM7d4FnRG9Fb9ApH9gh3uWg8RN7n4tqHgh/yov/4L6BHbht73amg0BY/e9Ii7dMj6c0I
-         pM0cFUjdmjYQBT54ygW2oV8WwhnqJFOfZ184/ajhF2xmOpsgkTu5HVY/BNDnzYbgcD18
-         qGcA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741099336; x=1741704136;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=7xmeGPr4qPtiWrZRGPzwzuCf1xAq1zFTXoPr8j1L+78=;
-        b=Z4fxW+ZbW3jdqsUj8x/k/RFVDPgzs7BCfjjWE5MaIFiq/g2wATyzeu5frkm8QAw2jj
-         dPzYK9EK0AUKPrpgtDMKbCKEwqn1Q1RzAfKXx9pzW8ZfjgUWC3L9AorJOR+lbl1/qkzV
-         eagyAotbKiN2MVELh3xr2saBBsnPk6kZtJj2cWayiVPlwi67tbHGe2p0LA/nSv7p5ePM
-         qx4jiZ/YpGMaIc3TTAERUt5UXDdy3GOgmeCDdyY4oztumJwvc1i949qcf2Di9fqbBF21
-         5UDFEs4icpoVCGdJ2JmuiJgEYjVZ8fn3ax3AnWBvLa57Cvh4bnUz8+MjHJosRtxtHBy6
-         8xgA==
-X-Gm-Message-State: AOJu0YzRxMMVG6IEg4WVouLoWn/uC2mw9Wii1k1Ay2BHbqp89RrygM8G
-	uhN2oL9qRl/ZVYsHscmaYiqTcy6VlEz0hZtTy/URqWFmqg2hl+HB4/dVtKLre4//fPHUtpANfkh
-	X+Q4=
-X-Gm-Gg: ASbGnctQbUlDctPjwiiiI3LkNWUktP0GXEvjEwv2BMBx7D22v2W00tVjrkUVqXygepJ
-	S8aqe81DrEFRitO2zFXCLNKBgDTaXkb18Iailiu4/iGtLokJCO/FigXS1xTtYtn/+zDXzDmmNyK
-	mP3GneH/qj/VSzuPAFjUkv0olC1cDay+trf0aVrxY4sAqttOIpZFk2dkmAFJGZSwMpIikjR3dMj
-	SFoUOsxmi/hUErAf76NfrXa3+cUv8ByAX7638wdouxwZ8OK/Umi8GfyPhM67toE5OsaF0vgKYpG
-	z7E2hh6oF7jBT+F/eSOzy8Qin8L4i10vWbC+S7kxGhvDSX/hHsYdtkFqP+cNQf7agG4HEubTZAU
-	2
-X-Google-Smtp-Source: AGHT+IG2cTXIZl5J43gU0OMtaEAmgFmxqhzl6Ob0W+aWbpfGnAyUYTl2vihhYX3qd4v4Gc5WME/3ww==
-X-Received: by 2002:a17:903:144c:b0:220:cd13:d0ec with SMTP id d9443c01a7336-2236926a646mr186312695ad.48.1741099336119;
-        Tue, 04 Mar 2025 06:42:16 -0800 (PST)
-Received: from sunil-laptop.tail07344b.ts.net ([106.51.199.215])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-73643b17286sm5331585b3a.157.2025.03.04.06.42.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Mar 2025 06:42:15 -0800 (PST)
-From: Sunil V L <sunilvl@ventanamicro.com>
+	d=telfort.nl; s=telfort01;
+	h=mime-version:message-id:date:subject:to:from;
+	bh=hUAeg3Cs+ZtXMrFAJBZbmOxHf11yEnRiH9dH+yaKw+I=;
+	b=mjQ/W8eyRbEgGaqytHZo3xruNP1kSmVoiNdlEsNBnK99Ec3wZuFUUblA6MB3CoNIkVbdrpcgD2p17
+	 JJtTUZNJVT5pU9gjMYjV9m9YQleBDPAef+p5kmfMoOiA0iK4XCtTnie1MzbhDqZAEnT0ElXebGdLlg
+	 3luD1OTYfN/fbCHY=
+X-KPN-MID: 33|ugIoWyR0IYSyxcNyIvFLU1bAl3zHiW9Nn5+umAVmMcQGg+kF46LEr1BFFKpIkXp
+ sD35E2gNOG1S/3h0DfpKBpDZ6b9xvqoQuViJ5RJDJnqc=
+X-KPN-VerifiedSender: Yes
+X-CMASSUN: 33|TPXFpLMzNMNDgV+ZKcT+CCJrkbTcUcZgWi8RMnZjon6H0EUYC3JIKiv6V2lfWHT
+ JfOYRAp1YHPSSgv+6NU10xA==
+Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
+	by smtp.kpnmail.nl (Halon) with ESMTPSA
+	id e3a918ca-f912-11ef-84c2-005056ab7584;
+	Tue, 04 Mar 2025 17:08:19 +0100 (CET)
+From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Cc: Sunil V L <sunilvl@ventanamicro.com>
-Subject: [PATCH] lscpu: Print ISA information in summary
-Date: Tue,  4 Mar 2025 20:12:10 +0530
-Message-ID: <20250304144210.182961-1-sunilvl@ventanamicro.com>
-X-Mailer: git-send-email 2.43.0
+Subject: [PATCH 1/2] lsmem: increase the available width for the summary text labels
+Date: Tue,  4 Mar 2025 17:08:05 +0100
+Message-ID: <20250304160806.10374-1-bensberg@telfort.nl>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -71,42 +50,47 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The ISA information for RISC-V is an important information to understand
-the different extensions supported by the CPU. Print this information in
-the summary.
+This allows the subsequent numbers to get vertically aligned for
+most translations too.
 
-Signed-off-by: Sunil V L <sunilvl@ventanamicro.com>
+Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- sys-utils/lscpu-cputype.c | 1 +
- sys-utils/lscpu.c         | 3 +++
- 2 files changed, 4 insertions(+)
+ sys-utils/lsmem.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/sys-utils/lscpu-cputype.c b/sys-utils/lscpu-cputype.c
-index 739dd99c5..bdb33ac78 100644
---- a/sys-utils/lscpu-cputype.c
-+++ b/sys-utils/lscpu-cputype.c
-@@ -233,6 +233,7 @@ static const struct cpuinfo_pattern type_patterns[] =
- 	DEF_PAT_CPUTYPE( "family",		PAT_FAMILY,	family),
- 	DEF_PAT_CPUTYPE( "features",		PAT_FEATURES,	flags),		/* s390 */
- 	DEF_PAT_CPUTYPE( "flags",		PAT_FLAGS,	flags),		/* x86 */
-+	DEF_PAT_CPUTYPE( "isa",			PAT_ISA,	isa),		/* riscv */
- 	DEF_PAT_CPUTYPE( "marchid",		PAT_FAMILY,	family),	/* riscv */
- 	DEF_PAT_CPUTYPE( "max thread id",	PAT_MAX_THREAD_ID, mtid),	/* s390 */
- 	DEF_PAT_CPUTYPE( "mimpid",		PAT_MODEL,	model),		/* riscv */
-diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
-index ffec37206..9f00b1757 100644
---- a/sys-utils/lscpu.c
-+++ b/sys-utils/lscpu.c
-@@ -954,6 +954,9 @@ print_summary_cputype(struct lscpu_cxt *cxt,
+diff --git a/sys-utils/lsmem.c b/sys-utils/lsmem.c
+index 94150e49d..9aa674581 100644
+--- a/sys-utils/lsmem.c
++++ b/sys-utils/lsmem.c
+@@ -306,22 +306,22 @@ static void fill_scols_table(struct lsmem *lsmem)
+ static void print_summary(struct lsmem *lsmem)
+ {
+ 	if (lsmem->bytes) {
+-		printf("%-23s %15"PRId64"\n",_("Memory block size:"), lsmem->block_size);
+-		printf("%-23s %15"PRId64"\n",_("Total online memory:"), lsmem->mem_online);
+-		printf("%-23s %15"PRId64"\n",_("Total offline memory:"), lsmem->mem_offline);
++		printf("%-32s %15"PRId64"\n",_("Memory block size:"), lsmem->block_size);
++		printf("%-32s %15"PRId64"\n",_("Total online memory:"), lsmem->mem_online);
++		printf("%-32s %15"PRId64"\n",_("Total offline memory:"), lsmem->mem_offline);
+ 	} else {
+ 		char *p;
  
- 	if (ct->flags)
- 		add_summary_s(tb, sec, _("Flags:"), ct->flags);
-+
-+	if (ct->isa)
-+		add_summary_s(tb, sec, _("ISA:"), ct->isa);
+ 		if ((p = size_to_human_string(SIZE_SUFFIX_1LETTER, lsmem->block_size)))
+-			printf("%-23s %5s\n",_("Memory block size:"), p);
++			printf("%-32s %5s\n",_("Memory block size:"), p);
+ 		free(p);
+ 
+ 		if ((p = size_to_human_string(SIZE_SUFFIX_1LETTER, lsmem->mem_online)))
+-			printf("%-23s %5s\n",_("Total online memory:"), p);
++			printf("%-32s %5s\n",_("Total online memory:"), p);
+ 		free(p);
+ 
+ 		if ((p = size_to_human_string(SIZE_SUFFIX_1LETTER, lsmem->mem_offline)))
+-			printf("%-23s %5s\n",_("Total offline memory:"), p);
++			printf("%-32s %5s\n",_("Total offline memory:"), p);
+ 		free(p);
+ 	}
  }
- 
- /*
 -- 
-2.43.0
+2.48.1
 
