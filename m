@@ -1,69 +1,51 @@
-Received: from mail-oo1-f52.google.com (mail-oo1-f52.google.com [209.85.161.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F02822A80E
-	for <util-linux@vger.kernel.org>; Wed,  5 Mar 2025 12:29:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8367207656
+	for <util-linux@vger.kernel.org>; Thu,  6 Mar 2025 11:54:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741177777; cv=none; b=TVeSX4HocqhiVcruXboq6j9hfYJ9j41xKdwkx98zmZydU8OiVHMqjD8K+5EE7o6KLzOX/YwVKYDZfLwTM8E+09hNQNJpDYdu7JHmomSCrANOU4CIs2U8bfiFfvykOVCAxxp4O+Gc189X7d96TbyQyaUQZbsqXli97e7wijwCG8w=
+	t=1741262046; cv=none; b=HpyRJlumayOdPITJGbpCKNKtHrf32UJwpGpuYzAgiCIOktnn/skZJ9eCFGWc/pbLKeMIhwEZhxJtTnKE0rtPDLguolPHFrQu4/w6oHiLqxHEBOKwAecK84abxi1K/oGIPLSSBTjVOZo2SwusfCyOp4a3/j/agHwHOhYOatU9gwg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741177777; c=relaxed/simple;
-	bh=amuaWEkS65slCc+5HSzprCJvJ8W1gvk0KsOiGYntKDE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jiQUpgWea9gahkCPBe1G8PtPHibFxUHSKSfkRAl4zho9h3EvCmPALsBDyVcSmehafEBb8GMwMqnRGamaqVw43rK9ixaUjnFjzoljFDoy4aaZJyOFdEkI75H8VVrNn0t7dslCmIx1icXqIy3jjKWMZjew9prwm3RfocRNdFD8UpA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com; spf=pass smtp.mailfrom=ventanamicro.com; dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b=VH8QrmnB; arc=none smtp.client-ip=209.85.161.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ventanamicro.com
+	s=arc-20240116; t=1741262046; c=relaxed/simple;
+	bh=VKqgIxMnZqaDhI884XJ6RPXbshJDFlXkWCM9B65EeSo=;
+	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=RRlhB9u6+1ZK9hSH453etNsqC8TBLzDUBeZa8usFvGD/p+wXg/ar51jOT8jxppVLhkqjYi2+H/oYTwUAgSPPym3iOzdqlk4DBPMEou/cf/nEdA6KvftFANzZZPJ37iTV/6U+II05VFBMrxEYT9MyrvHKD2iut9pvK4yBfkd8lUE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Lw+GJYsQ; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="VH8QrmnB"
-Received: by mail-oo1-f52.google.com with SMTP id 006d021491bc7-6003b679812so37826eaf.3
-        for <util-linux@vger.kernel.org>; Wed, 05 Mar 2025 04:29:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google; t=1741177774; x=1741782574; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=x1gwhFd5Nffok/w5skbwSAlzeQjfCK00/lGRM2UIkF4=;
-        b=VH8QrmnBNsSE1Q9Mbmt7URfyoKKXD6vrtCD04fbt7W/nffKvDcSO5+2QyLSKYJ1AC9
-         r/TFe1Mp2lsnOITtQiOpfrcyhxv+ZWh0T8Pl9I45hBTa0nDscV6/wJAjmXxZXkOx72bj
-         VfuygXmUCTPaO2xyOZbVBYHhQbpASoFalWpcNrNPJ0g1IStZIxzqF4n/3VRhImh/X3Pl
-         +tJzKCfyvrlfLn8NEzjBRUzd+1nREwNLXJARLy/X04R8I4KmRG4XeU085Vr1AkKkEnWn
-         JPjJJ1xtie3gLIcsDOHmJcNzRYE0V79i26PEbnV9tYyRQIpjEwVQW10nQvJrIjqMjf0p
-         FZSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741177774; x=1741782574;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=x1gwhFd5Nffok/w5skbwSAlzeQjfCK00/lGRM2UIkF4=;
-        b=cKZ0OXQo2N6v8vdjwbzQeMQFarBjPpZL8g9cX4Q7PKEDPfQeCESnw7UnwxLL4Pwj2X
-         6On92oLCxArJZRRx8bHs+harFWKg6PCd3wQt0DIBuCfSrtRmZFnaxzeEGIgO3iQ953e6
-         zK9ds3caNN+SBhrvGsDRsZ6iOEp6+8p2n3XHpmbR+3/HTmbADWt3PN1+mtolzRg0j9+p
-         WdLLXc7S/77p5HwjM4TJ+T8g6rXKP3KN1oRkSFgcExnZ7ZugPThMtaHe/HQSiDXvIEEP
-         5zDjaNRb2G4yPf3MYAteb+9vt1tfdlRMFjiQ2EBXhtGXzUbSOzacfMSnVojndRyffZT9
-         HcmQ==
-X-Gm-Message-State: AOJu0YxZklQz+pg/PZQk7XAgZ+J9jywHgKzTDFzhCrrbGQcttF8SzMMI
-	KUZYcB2/sIVqg/P/vD9dSIlSzU5t5NpYB9nn2VcsrUbDeChfW3qegzW1Jed3XZNpdBtmQQCOhil
-	e2T0=
-X-Gm-Gg: ASbGncsLDUuxMnInN4nuaOdI11Co4JfbkKvmLKPTJKE9eJQ1kENdo6z92O0zWMbpuXn
-	ONEKlRNHiUq4sqs1hig+ltpkoFrIeuvI967wm6JnT+dcEdFDs2FrRS15iRpD/xqQe5+1zIeaeKp
-	kl+xNZcjIjzJWK5vgwQWk3GRw18FTpnJWAcB+Quoy2nY1Xi5budgzsTu6mVGLQb9W6+0OfiVpBu
-	k5eVNknr1z4hCBV94+gQD5CHsJhGCp5050aQUureH4tmyOlRWt1QK+Fs+gU6mRbPRERPTzd5Ze4
-	36XwaMDpi8pTGBdxvTjHxdvrSNBdyao9b0T4v2MsqG3/dSVlyX8Q
-X-Google-Smtp-Source: AGHT+IE/brnQMlirqBcYMgN9MgC/KUvX9ND46omiffn3H853mEFSLEf55U54vYdKS500j5Pydu8aaw==
-X-Received: by 2002:a05:6820:1795:b0:5fe:b66d:6b1c with SMTP id 006d021491bc7-600332da304mr1541097eaf.0.1741177774440;
-        Wed, 05 Mar 2025 04:29:34 -0800 (PST)
-Received: from sunil-laptop ([103.97.166.196])
-        by smtp.gmail.com with ESMTPSA id 006d021491bc7-6001072a5dasm1162575eaf.0.2025.03.05.04.29.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Mar 2025 04:29:33 -0800 (PST)
-Date: Wed, 5 Mar 2025 17:59:27 +0530
-From: Sunil V L <sunilvl@ventanamicro.com>
-To: util-linux@vger.kernel.org
-Cc: Andrew Jones <ajones@ventanamicro.com>,
-	Anup Patel <apatel@ventanamicro.com>
-Subject: Re: [PATCH] lscpu: Print ISA information in summary
-Message-ID: <Z8hDp817iqQhhRui@sunil-laptop>
-References: <20250304144210.182961-1-sunilvl@ventanamicro.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Lw+GJYsQ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1741262043;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type;
+	bh=VbDwloGI3pR8CEEcBlzxPvYiwRf7jT1t5V5YK8N6l+4=;
+	b=Lw+GJYsQPYa5zUfX0PG6sJgTkhBPswLCrCJ+aM/hGKrJwsVwsUlTKFmmw7wRn2SlLHzfaE
+	DwNb9Ihm4OAhAEhof43MhBc9Og8CrdnCAOgKkd2d6xDTIr/LxJA6p1fwyz+7UxzZ4y+Tr+
+	5cInT/yVUwnGUtQjlCtuXmsRoHEX1gs=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-88-yvKlDf8CPLuqvtvcJ1YIzw-1; Thu,
+ 06 Mar 2025 06:54:00 -0500
+X-MC-Unique: yvKlDf8CPLuqvtvcJ1YIzw-1
+X-Mimecast-MFC-AGG-ID: yvKlDf8CPLuqvtvcJ1YIzw_1741262039
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 499A519560B3;
+	Thu,  6 Mar 2025 11:53:59 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.225.247])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1E6901801747;
+	Thu,  6 Mar 2025 11:53:56 +0000 (UTC)
+Date: Thu, 6 Mar 2025 12:53:53 +0100
+From: Karel Zak <kzak@redhat.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.41-rc2
+Message-ID: <jnoop7vzwoott376m2y7y7nru5yr2xtgtdcsueqgd7igleooyb@gen2pdy7cbln>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -72,19 +54,18 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250304144210.182961-1-sunilvl@ventanamicro.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-On Tue, Mar 04, 2025 at 08:12:10PM +0530, Sunil V L wrote:
-> The ISA information for RISC-V is an important information to understand
-> the different extensions supported by the CPU. Print this information in
-> the summary.
-> 
 
-Hi,
+The util-linux release v2.41-rc2 is now available at
 
-I had some offline conversation with Drew and Anup regarding the
-formatting of the ISA. I will send v2 of this patch to address the
-feedback from them. So, please ignore this version for now.
+  https://www.kernel.org/pub/linux/utils/util-linux/v2.41/util-linux-2.41-rc2.tar.xz
 
-Thanks,
-Sunil
+Feedback and bug reports, as always, are welcomed.
+
+  Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
