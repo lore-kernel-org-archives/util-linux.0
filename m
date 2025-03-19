@@ -1,54 +1,54 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82B5F18DB01
-	for <util-linux@vger.kernel.org>; Wed, 19 Mar 2025 13:32:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58522259C9B
+	for <util-linux@vger.kernel.org>; Wed, 19 Mar 2025 13:44:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742391155; cv=none; b=Vyss7QtGZfZd6h6o047r2HvkmvmSd6UyhlNLURMGgWpy1nnwoUirHz5hDWzfB/a4SSCfw/ZAPY1GEjPCbrL0WAHnG+FzYPAPIovfeCzQiTDeYmNB2tUpKB+gKi4cXAiZE+sMnctVyqlT/jZIoQVFsoUYCrOTO5K2ayfpa6sbRFY=
+	t=1742391885; cv=none; b=pdmTUyrmROdsOXdvLy341sOAni9HE8DiU083IiH6X20gAXKu0XebtBM55XXWQG3O+o/pgrTx4wE7u/T4olDhglYlwsPku6lNGauot01NJmUF90qFae7tEBzGjfb9XRAavqS27Usx0f1GbxkrPlZLJyeb5jcI61j9uLj8NLakONs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742391155; c=relaxed/simple;
-	bh=QXafkRXLan+MWbHKmIh/GlnfGUJG9VDjkHr0xjSh/n4=;
+	s=arc-20240116; t=1742391885; c=relaxed/simple;
+	bh=Ho2EQO5klfJ/SvS6JkC8K7iXVRERGLHLljrbsA7wX4k=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=npEqq+4feHg+ScMiMzgh3xlYUzweUozorbCedw4t8aHQTcEC+cN5CLIyQJE9ddRpUzuc7cGIak3y7q7EwC8277ssvSVdm4sXsJ8W42JerUGEaP77kmOzeAq3ZyH+eOu+G1y5cgv9ySDfYcrqoHadLUieNDjBn7PDFr8EtZ1Wstg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jJ1osHoW; arc=none smtp.client-ip=170.10.133.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=UJYcG6crwJKSViwUMbTvqCogn7gi9CKdPHpNQ/f0EbWj7seWqiqKsHibCDHuvx1tb3++t7QgYxjj9i8u4tPJFPg2RWnpIQsQCeDeO4t/bCFUkEc6jWCbsG9QmsGXC7yn4O3r/YiWsgWfvCATQYCE3oQdgUdqlLVhZbhZYm4APDs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FN0xd8/F; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jJ1osHoW"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FN0xd8/F"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1742391152;
+	s=mimecast20190719; t=1742391882;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=LttMIgxM9M3/MjPV4PRiT0AdQ+VpZU8bKIGB0drz2WQ=;
-	b=jJ1osHoWLl6+lJur3SfssAZFaUz6ibthghFmzFRIDDV+05VpVwKxTWLzn5775di1rC1bej
-	S2dzdnBagDQF/jML7kaI39eKXk59yhJXAkoRYW2eCRtaxXdPWKcEuU0LF+6/LOd/8fNWAS
-	rHacKuMIYfaKsdF0PDojFhx0pQtKjDo=
-Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+	bh=2Qve4yHPJ5fQPoo+qrCwlHgZYLvCCP00mm3pprbbSzk=;
+	b=FN0xd8/FqoXT7+2xQBKSBImBDAwvF0mwqFCp3k8T4ivdH4PgVICviPkIsDQtf1n8gAjUmc
+	L5fbfIf80V1E+RPTm6WmfUATYLTH0tHL0vJINM9LkHv1IHcIlF5IqKvdpihuEeYNsJujXr
+	V3TtjIeoACJgcMCvhSKEPq+OCak8aCQ=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-262-6Rg0OV6ZNtiHbRw6IEwg1w-1; Wed,
- 19 Mar 2025 09:32:29 -0400
-X-MC-Unique: 6Rg0OV6ZNtiHbRw6IEwg1w-1
-X-Mimecast-MFC-AGG-ID: 6Rg0OV6ZNtiHbRw6IEwg1w_1742391148
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-237-MJn_fx23MIiHsiT144EJnA-1; Wed,
+ 19 Mar 2025 09:44:40 -0400
+X-MC-Unique: MJn_fx23MIiHsiT144EJnA-1
+X-Mimecast-MFC-AGG-ID: MJn_fx23MIiHsiT144EJnA_1742391879
 Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C168B1955DBA;
-	Wed, 19 Mar 2025 13:32:28 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id ACC52195608A;
+	Wed, 19 Mar 2025 13:44:39 +0000 (UTC)
 Received: from ws.net.home (unknown [10.45.226.181])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C424119560AD;
-	Wed, 19 Mar 2025 13:32:27 +0000 (UTC)
-Date: Wed, 19 Mar 2025 14:32:24 +0100
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B286419541A6;
+	Wed, 19 Mar 2025 13:44:38 +0000 (UTC)
+Date: Wed, 19 Mar 2025 14:44:35 +0100
 From: Karel Zak <kzak@redhat.com>
 To: Benno Schulenberg <bensberg@telfort.nl>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] more: ensure that on larger terminals 'h' shows only the
- in-app help text
-Message-ID: <ev7vif5l3j45bcw7td4w4qehujwnrj7n2leg2y4324k4mrive5@fhd7i3wyezwg>
-References: <20250318110108.5086-1-bensberg@telfort.nl>
+Subject: Re: bug in `more -c` when displayed file has blank lines in certain
+ places
+Message-ID: <cw62qayece3jj5xxzd4vbhhccdfd2az7ij2vadubzwpsz67nhc@pj4wa2ks7dhs>
+References: <370e8be9-2e4b-4375-80dd-fdaf5a78944c@telfort.nl>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -57,21 +57,28 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250318110108.5086-1-bensberg@telfort.nl>
+In-Reply-To: <370e8be9-2e4b-4375-80dd-fdaf5a78944c@telfort.nl>
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-On Tue, Mar 18, 2025 at 12:01:08PM +0100, Benno Schulenberg wrote:
-> When a terminal has more than 24 rows, the rows above the help text
-> (shown by typing 'h' or '?') were still those of the displayed file.
-> That could make it hard to notice that the two lines above the first
-> row of dashes belonged to the help text, not to the displayed file.
-
-This is a misunderstanding. By default, more(1) is in scroll mode, and
-the help output is added to the display. Therefore, it is expected
-that you see data from the file as well as the help text. You need to
-use -c or -p to clear the screen before it prints the help text.
+On Tue, Mar 18, 2025 at 11:44:25AM +0100, Benno Schulenberg wrote:
+> 
+> To reproduce, make it so that your terminal has 29 or 35 or 37 rows.
+> Then run `./more -c NEWS` and type ? to display the in-app help text.
+> (The NEWS file should be the one from util-linux-2.41-rc2.)
+> 
+> Then type <Space>.  See that the top row still displays the second line
+> of the help text: "Star (*) indicates argument becomes new default."
+> 
+> Somehow `more -c` forgets to clear the top row when the corresponding
+> line in the file is blank.
+ 
+I can reproduce this bug. It seems that more(1), when used with -c
+(ctl->clear_line_ends in the code), does not clear properly the screen
+(after help) if there is an empty line in the file.
 
     Karel
+
+
 
 -- 
  Karel Zak  <kzak@redhat.com>
