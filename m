@@ -1,295 +1,104 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 205D4221DBD
-	for <util-linux@vger.kernel.org>; Thu, 20 Mar 2025 09:57:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F26E1C5D7E
+	for <util-linux@vger.kernel.org>; Thu, 20 Mar 2025 13:43:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742464683; cv=none; b=dRvoFuUPxaN3ArGZmRISZzl7swVPIZFEEX1gtu8ztiIY+ptEgcmb5o0X7r2BxhSFnqKq21wH7wSLo8mYfKXbg/1ikIOHN9yrK1tBXXqshyDPoWWcKWT0L9nV9y2fOi8l4glpECr6s6FV0Ngjwr1yhLNpB9INSNeLnDmdzwA57Mg=
+	t=1742478187; cv=none; b=Ma0n/Fg4fYksxdYfCXKxeLem39OVbVOp4lqZxz83AwcEF1jnGXI+zKhOz9oNc7j1ZoWK9E3jk8ZmsG/mfjnu0M/h6WZKJgxDwtsbEuSTGaNekRFLNbxHCCp53cP+wvdd+BG9yc6jjULJDRSO5hvinP/UsBPHY8ZzK02G/31Dku8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742464683; c=relaxed/simple;
-	bh=qDvtDT/jhJkJxqkaVzKApqxVPRSDXVVCphvLOFMoFpk=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Content-Type; b=HlHh6x0eIUM/SEl/yL5uivhoYg8pScohWvsGxuzs6bo+L6VuP4DZ1ldnF1o+D5lrNBWbcn+9Cz4Ydse6gIB1CNmMeU3DYQDVTsb0tqedhisfPLEaetUBbMw1nnaEEctAbCUHjcWZbS5E5QimE6y3S+fPCpHovZktN6r7VfcA424=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=ZSgrl/ue; arc=none smtp.client-ip=195.121.94.168
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
+	s=arc-20240116; t=1742478187; c=relaxed/simple;
+	bh=PUcLXT+hil/l8uA2iNtEQDIzhZ+4TAD1NVhfGlEqpv8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=BfmGKFC6kQFCmr5VaGN74C0NnTNp6p6fhld2gKfx/+Mu1G+qTeC17Ixka5Zf4GuBhwaK3lZ1aPoY4wPUVhF4DFwmXCVSvkzFUsMN0qqw7sUtnr9wD/djUynpWEwgw80YqqqWNMhjccDRJr4rVKPFmzqfOdZtaWQXsyQg4cvDZ5k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a/4OKgNZ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="ZSgrl/ue"
-X-KPN-MessageId: d1f1a8fb-0571-11f0-86cb-005056aba152
-Received: from smtp.kpnmail.nl (unknown [10.31.155.39])
-	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id d1f1a8fb-0571-11f0-86cb-005056aba152;
-	Thu, 20 Mar 2025 10:58:06 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=telfort.nl; s=telfort01;
-	h=content-type:to:subject:from:mime-version:date:message-id;
-	bh=qDvtDT/jhJkJxqkaVzKApqxVPRSDXVVCphvLOFMoFpk=;
-	b=ZSgrl/ueJgDlQJjvVuOvl/PU2IVY7UawBt4p5rOSwqiiPb5zncx/NQr8/MTdAL+wazV9+VbTiHSo2
-	 7KFKrSRMlRciiACHoNWKzIcJSRN9hin/Y/4BLutWD05AaVCz6moi9nfVgr/C3dxamCCcCGvkEowH6p
-	 Gp47Y7ibwTrJeoMI=
-X-KPN-MID: 33|zNkcEVZjTsYAsLZ+7lSL16sEaJ6J4CGP3entQJW2HCQxs8Lf24QMhtQYAtNKS+j
- vTB65KQz9ckIsbGYm3J2pE5mGxOhFP6rfci1zNGuhMuU=
-X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|ywrUU2hKHJnlR/ZW68J7gx3ew01gupZVjo9z9drjrLct71S5+33uDJJ8z9Qr0Zq
- 0wyKpjZcD9DDg9/3orgJlvQ==
-Received: from [192.168.2.2] (77-163-176-192.fixed.kpn.net [77.163.176.192])
-	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id c8fe694a-0571-11f0-9bea-005056ab7447;
-	Thu, 20 Mar 2025 10:57:51 +0100 (CET)
-Message-ID: <477ecae6-0ce6-4463-9c38-8181910fa9c3@telfort.nl>
-Date: Thu, 20 Mar 2025 10:57:50 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a/4OKgNZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1742478184;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=/wNEOZL2CUmocSrW8pX2PhdC1oFjQwuwzH8KhiJ5SNo=;
+	b=a/4OKgNZXCNKcqdZeG9lLhOcAEO0AoMRkpBNszCiy/RDZ1+f7uvAfcc0PQfFZCXP5Kg1SJ
+	txY7dLIQtxVQf+Afxn7HhfgGbQKKLI6p5PRqIvu9dyvP40jQo5tB8/ON17ANS/cA6U80vw
+	NNi9fNK0aaof+WhdhHj1xiR1eiV4khg=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-81-BerHaaqENZqCL4tK4w8pZw-1; Thu,
+ 20 Mar 2025 09:43:02 -0400
+X-MC-Unique: BerHaaqENZqCL4tK4w8pZw-1
+X-Mimecast-MFC-AGG-ID: BerHaaqENZqCL4tK4w8pZw_1742478182
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C65C9196D2CD;
+	Thu, 20 Mar 2025 13:43:01 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.226.181])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C3AF318001F6;
+	Thu, 20 Mar 2025 13:43:00 +0000 (UTC)
+Date: Thu, 20 Mar 2025 14:42:57 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@telfort.nl>
+Cc: util-linux@vger.kernel.org
+Subject: Re: on small terminals, irqtop shows "(null)" at startup
+Message-ID: <wz2wsk3nmgctdtcdelnrei7x72r7k3cjv4pcju2vpl6yt4j42b@ypw6ceya5n5e>
+References: <477ecae6-0ce6-4463-9c38-8181910fa9c3@telfort.nl>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Benno Schulenberg <bensberg@telfort.nl>
-Subject: on small terminals, irqtop shows "(null)" at startup
-Content-Language: en-US, nl-NL, es-ES
-Autocrypt: addr=bensberg@telfort.nl; keydata=
- xsFNBGNRHa4BEADxMujoSa2zyg1mTh2xxbhowLjDYWMEh68CvPNcKDx0tlEd30Aewp/OSdoK
- D8Yyv0EdsR+Rs+s9EkoQZx0odBJQLrtbP8+F3xpIqxWbON9VlDpLiMgjNmbYZ/I+LarG7PNN
- tNHbIMQb0jgHrdY4AJPmKCk1sPCNoDJ3uxuhdHhkAKT9Gd4C2jxx4hpLNAha1pwDSiogf8ae
- skjqiIDM65gp5G6vK4XqvUX3Z2kgyVxsuOphlm5JjJ8DE4Y8GU7c6WGKnkF65h/BWUgAgIYr
- gMSpb18h0CyDmN6nxSphJBlJwwda5R1MEEXjeTx46sYZHFyoA3FH2d+JydhPx7PYD+65jvWC
- OX+CUrRvopvyJ4EqImH953pu1suqkT2cRaKDc2/a4fAYt0cTKyB9wnuUQYM6yeke9D2D2/F6
- 9hQrJO5kbB1M4W1T7LPfai9stz1hbtc4EIJ9q6F7qzHWuEK3dFXGqpKr5DOjTYSTXlHsPH/0
- nR81zVEUZDrc1Evoi9XOSuazgw+Rp1ThnuOO6NXTxSQiu4XpFOI0yLW0u0ZtuSLt7ac9QuKJ
- BDkdkzBoXgmcGoxOoMOh7Ta2VUIloHbdHpYlKqUF+L7R1+weVuSJDP1Gh2zHFJMPvBa16Qzz
- 5BMsEtA2kX37LEqJWQ2x+Xy2LdJ5LC7JJp6Gme6g3lX/jtIWawARAQABzSdCZW5ubyBTY2h1
- bGVuYmVyZyA8YmVuc2JlcmdAdGVsZm9ydC5ubD7CwZQEEwEKAD4WIQQWjm9Cl7/Xp5r9RJZR
- S74uuOGWHwUCY1EeYAIbAwUJDYdhKQULCQgHAgYVCgkICwIEFgIDAQIeAQIXgAAKCRBRS74u
- uOGWHw6wEADCrPgV7X89gGr0itbTvpaHrfhqmqP0L0vwETOMzsUop40jBwjuM/TWJyEQIqNy
- 75EX+Ss5xJ4or3kUC26oveM4zBIYY3Ul7Zl6nkCWgIhyD/8gK7B8t3XHWAJct64Cb7wqWHUm
- +kCs+EGEtC7R50/D75p9WQqtX+r1UMSC+Znn1O1H4qn9JHaQVHUxm40wKNcJYC+ElCoHMt1D
- 4daSVxxvsGQimHdjAEv114zxVkRUFlSXRV7oEXaRTaQlwHMsbziFd5VvUqmL5SSOzE8dt3nD
- LwK5YljkBKxCESuPPql69O7/r5GV8dWAlMRQx/tsDnyZQPNV8Mu7Sf2T12iVhcvtWD1NBLDM
- RF27gk29FRI5kLoloP4+oFO9IqKIgMcsClLrLTi0gk1UQgglpNBlIq9OO+5nm1bcfItZgoHm
- 5s07bt78a+prw2PkllUOMiuw8LkdUBtzzqS9J4maoxRFnzTvTp2Lk2KBLf8fmlY7CU7BbMwD
- LBqPRR8ormf8FX/ANUKPL8J7E+vChafuY5H2O+ftFl7cawrCuejzFuvAdZVyge+CRb/qE80N
- RSfhpufH84TMwhDXuQY5MICpiDUe/fiZy7zYVtc21HAUwpwn6ciSVpu6/BFH5uPu62EcXQX5
- NZMHSSrnLq/Q41AjMUqQkkizPyjarCaGiLtqsgzHEO9UkM7BTQRjUR2uARAA0Vh3Q3cG/5WE
- 40etL7MSkOKpKHgkDJBLUGFxGw7kh0gEG00wlcCzC7zbkl79NdstHT+wE3DAkczaDGyP1ODy
- tzov7k4lIUkh9vFep+cyoMKEWCm9edl8Xjswz7K3Vf0hRTWwPzFo9UQ3zQJ8cUlSCm3lpCmc
- H4CU2SHnHHfCMJ5GbnzfDEqLWZVz8qOF5M018uzpQDTXW2PXlqG9Qdz3e4ujq8QpUyn+0NWp
- U9Iq6RmR7TDTYFQiDVHG4KMG+G8CF5R7EhD3bwpRBb/yPGBu+S9pKh5DKWfUPGGwDeAdZvZ5
- NIPNr7Ptgs1BNYB5+0/bG7OLync2v+1k05qybNeL8Z3Gn5Uvhr8R7yi1WqG7yDlRPYL/9220
- BMv/THykh263AdZxJ/hErJJ0zGWd+MlSPeeN0uvU4tc9o1G1+sih4+VtyZizA/vf/kG2VNi1
- d0UfEMmoytHH1UOJxHYJmbDYh7seXpZHVpWFDn/TDtPgoxguhUaxSRXEQAhPVSBoV9SoEgSr
- 5I8Y7cgwu9ql5aYw7NbzXiy0hlgy7tBeStolr0IJuBNMu3NnEZhJhFgjsWPMflydllVFT+0V
- oahKxS8IH7OGAV1LUeNMsK8itpr1EG4BX84FhOCdUHMZpV+ldWxiBof39t2RDYWX1i0yg2Pv
- 1R+nqt+iFb2cZbQIkcj89ysAEQEAAcLBfAQYAQoAJhYhBBaOb0KXv9enmv1EllFLvi644ZYf
- BQJjUR2uAhsMBQkNh2EpAAoJEFFLvi644ZYf/mQQALa9HqcvhaH2R1ftxwI0CO/Uhem/NTLx
- 1L8gwCLbAmyH+tSOm0ybFhocTmvmCcZmTyKXkOuujr0oaFx0jktwJvegHU0heMdeEE92c3vM
- TlR4tpFGx8E0XU3Mj4J+kaMvwCUeozi4ZC9Csh4V9W+pIyJGaGQlD6ZJpgrIH+R3qIdrO1hb
- ZeijmgbciT7FyX8ht9KTK898IdwQM09w3HNDvNKpbux2QsWEdFbezUBto2KZGek68oA7AQ8w
- DHmASp1ML6Jkl2JbyJz57Bazj+Fb47et2dHfF/3ISEwt+/9Q9U22aiT7JDFvdvChlezNFIVl
- rN89p1FO8LC6dSUaaoX7W3zRyydcxCNTpQv1HalwgEzxIsL+msaPyrO5NVn40EmNSSsE0GPg
- 15BgyhM9yjizJhaU74dgQECWuSHKFj29uVyVS5Y2A1XbsPPqiB/yOFKq3kZBnT1sHX91k7EK
- K8dqxmXCIqkG9iMh/vId/gI6d9Ci57nY0FluIrbE/L9z1Gei2eMFsFmSvnW9fIc3NtKfnvQR
- BOXedCw0kmvyScJ6EZ3znoV0PFstgvmp4wSlnb2Dw74euRcBe5/wxX1VAHSYhqKWMnoe6snY
- nUQR9h5Wm7A5sq4D91+uMVHTr/1llbSDS+6J1tE6WNg5gpiULhOr0IoxlSTtUCDY2c49wqh8 50GA
-To: util-linux@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------kWZlcaLv5FSK5daTWO902max"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <477ecae6-0ce6-4463-9c38-8181910fa9c3@telfort.nl>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------kWZlcaLv5FSK5daTWO902max
-Content-Type: multipart/mixed; boundary="------------mohu5ps9I8yoV7dKoiJKL0Uc";
- protected-headers="v1"
-From: Benno Schulenberg <bensberg@telfort.nl>
-To: util-linux@vger.kernel.org
-Message-ID: <477ecae6-0ce6-4463-9c38-8181910fa9c3@telfort.nl>
-Subject: on small terminals, irqtop shows "(null)" at startup
+On Thu, Mar 20, 2025 at 10:57:50AM +0100, Benno Schulenberg wrote:
+> 
+> To reproduce, run `xterm -geometry 80x12 &`, and in that xterm
+> run `irqtop`.  See that the table of IRQs is empty at first,
+> apart from the string "(null)" -- like this:
+> 
+>    IRQ   TOTAL   DELTA NAME
+> (null)
 
---------------mohu5ps9I8yoV7dKoiJKL0Uc
-Content-Type: multipart/mixed; boundary="------------nt1lvMguvZs0hHauBK0r6PWz"
+I cannot reproduce this issue. My system:
 
---------------nt1lvMguvZs0hHauBK0r6PWz
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+ $ uname -r
+ 6.12.11-200.fc41.x86_64
 
-DQpUbyByZXByb2R1Y2UsIHJ1biBgeHRlcm0gLWdlb21ldHJ5IDgweDEyICZgLCBhbmQgaW4g
-dGhhdCB4dGVybQ0KcnVuIGBpcnF0b3BgLiAgU2VlIHRoYXQgdGhlIHRhYmxlIG9mIElSUXMg
-aXMgZW1wdHkgYXQgZmlyc3QsDQphcGFydCBmcm9tIHRoZSBzdHJpbmcgIihudWxsKSIgLS0g
-bGlrZSB0aGlzOg0KDQogICAgSVJRICAgVE9UQUwgICBERUxUQSBOQU1FDQoobnVsbCkNCg0K
-QWZ0ZXIgdGhyZWUgc2Vjb25kcyBhIGxpc3Qgb2YgSVJRcyBhcHBlYXJzLg0KDQpOb3cgb3Bl
-biB0aGUgd2luZG93J3MgbWVudSAocHJvYmFibHkgd2l0aCBBbHQrU3BhY2UpIGFuZCBjaG9v
-c2UNClJlc2l6ZS4gIFRoZW4gcHJlc3MgdGhlIHJpZ2h0IGFycm93IGtleSBpbiBhIHN0ZWFk
-eSByaHl0aG0gb2YNCnR3aWNlIHBlciBzZWNvbmQuICBTZWUgdGhhdCAiKG51bGwpIiBnZXRz
-IHNob3duIGFsbW9zdCBjb25zdGFudGx5DQphdCB0aGUgc3RhcnQgb2YgdGhlIHRhYmxlLg0K
-DQpUaGVuIHJldmVyc2UgZGlyZWN0aW9uOiBrZWVwIHByZXNzaW5nIDxMZWZ0PiB0d2ljZSBw
-ZXIgc2Vjb25kLg0KVGhlICIobnVsbCkiIGRvZXMgbm90IGFwcGVhciBhbnkgbW9yZS4gIFRo
-ZW4gcmV2ZXJzZSBkaXJlY3Rpb24NCmFnYWluOiBwcmVzc2luZyA8UmlnaHQ+IHR3aWNlIHBl
-ciBzZWNvbmQuICBUaGUgIihudWxsKSIgd2lsbCBiZQ0Kc2hvd24gYWdhaW4gYXMgc29vbiBh
-cyB5b3UndmUgcmVhY2hlZCBhIHdpZHRoIHlvdSBoYWRuJ3QgcmVhY2hlZA0KYmVmb3JlLg0K
-DQpJIGNhbiByZXByb2R1Y2UgdGhpcyBvbiB0aHJlZSBzaW1pbGFyIDY0LWJpdCBtYWNoaW5l
-cywgYnV0IG5vdA0Kb24gYW4gb2xkIDMyLWJpdCBtYWNoaW5lLg0KDQoNCldoZW4gdXNpbmcg
-LVMgb3IgLXQyMjIyICh3aGljaCByZWR1Y2UgdGhlIG51bWJlciBvZiBzaG93biBJUlFzKSwN
-CnRoZW4gdGhlIHRhYmxlIGFwcGVhcnMgcmlnaHQgYXdheS4gIE90aGVyIG9wdGlvbnMgaGF2
-ZSBubyBlZmZlY3QuDQoNCkNvbW1lbnRpbmcgb3V0IHRoZSBjYWxsIG9mIHNjb2xzX3RhYmxl
-X2VuYWJsZV9tYXhvdXQodGFibGUsIDEpDQphbGxvd2VkIHRoZSB0YWJsZSB0byBhcHBlYXIg
-c3RyYWlnaHRhd2F5IG9uIG15IGRlZmF1bHQgdGVybWluYWwsDQp3aGljaCBtYWRlIGl0IHNl
-ZW0gdGhhdCBzb21ldGhpbmcgaXMgZ29pbmcgd3JvbmcgaW4gbGlic21hcnRjb2xzLg0KDQpT
-byBJIGRpZCBhbiBgZXhwb3J0IExJQlNNQVJUQ09MU19ERUJVRz1hbGxgIGluIHRoZSBzaGVs
-bCwgYnV0DQppcnF0b3AgcHJvZHVjZWQgemVybyBkZWJ1Z2dpbmcgb3V0cHV0LiAgT25seSBh
-ZnRlciBhZGRpbmcgYSBjYWxsDQp0byBzY29sc19pbml0X2RlYnVnKDApIGluIHRoZSBtYWlu
-e30gb2YgaXJxdG9wLCBkaWQgaXQgc3RhcnQNCnByb2R1Y2luZyBkZWJ1Z2dpbmcgb3V0cHV0
-LiAgQnV0IGl0IGlzIHZlcmJvc2UsIGFuZCBJIGRvbid0IGtub3cNCndoYXQgSSdtIGxvb2tp
-bmcgZm9yLCBzbyBJJ3ZlIGF0dGFjaGVkIHRoZSByZXN1bHQgb2Y6DQoNCiAgICAuL2lycXRv
-cCAtYyBkaXNhYmxlICAyPlRSQUlMDQoNCm9uIGFuIGB4dGVybSAtZ2VvbWV0cnkgODB4MTJg
-LCB3aGVyZSBJJ3ZlIHByZXNzZWQgcSBhcyBzb29uIGFzDQp0aGUgdGFibGUgZGlkIGFwcGVh
-ciBhZnRlciB0aHJlZSBmdWxsIHNlY29uZHMuDQoNCg0KQmVubm8NCg==
---------------nt1lvMguvZs0hHauBK0r6PWz
-Content-Type: application/gzip; name="TRAIL.gz"
-Content-Disposition: attachment; filename="TRAIL.gz"
-Content-Transfer-Encoding: base64
+ $ rpm -qf /usr/bin/xterm
+ xterm-397-1.fc41.x86_64
 
-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
-jqPD3mt6VIeF3OvrC5bX3Tn7fwkHq/J8oQIA
+> After three seconds a list of IRQs appears.
 
---------------nt1lvMguvZs0hHauBK0r6PWz--
+Please try the current Git. I made small changes to improve the debug
+output and to avoid "(null)." However, I'm still not sure why you do
+not see the data. 
 
---------------mohu5ps9I8yoV7dKoiJKL0Uc--
+>    ./irqtop -c disable  2>TRAIL
 
---------------kWZlcaLv5FSK5daTWO902max
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+I do not see anything wrong in the log. The library gets data and
+calculates the output as expected.
 
------BEGIN PGP SIGNATURE-----
+> on an `xterm -geometry 80x12`, where I've pressed q as soon as
+> the table did appear after three full seconds.
 
-wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmfb5p4FAwAAAAAACgkQUUu+Lrjhlh8q
-LhAAuDrgwOfiudzlsDXZTG4HoTa+4C30DcfH9BHFNYyNFG6C33Kd+ZYIPgNFyigXEeVcs3ZgLoW9
-hhG/Ty1MMOf4j7C9Dz/urePaQZ8Nxp3Pd0Rz2rvLA5LO3aybfeKyPMhR/Z+eTeOCZN71HhBZMBb3
-n0dTBLAdH+DVIqzx5Vc2cNiqmgJI+kFSOv+skeIIViYYZylzmyQu0r3sY4+kS68OYamPf9ypAWkE
-B71Mf5AiZaIUz1ct/z6g97SoZzJ3QkGRzGxD4fcK3HOuNTBwtzoqn1h9vi3BxeH0Dn9dzxt5Z6n+
-7l0xP56FrkogZ9ZZoEhkI7PN+8cNLMQSy1ImNLYYSeMvFQiTBwU1G7u+hnmRY+mI1YnPn4no0h8T
-K/l8bPhvxotBo3A6AkVtWP0G/EXJqoBftwRAbE6yyW6f/sNd4FWxotFm7Nn8a3O5w5yLHryyidnu
-4R9ID2X2DzAOMU1fJIuwf1uQlywYKJvVCaas1zirDQBVzOdSDjwYuAomE8avbZLae1xltlz2xhlJ
-ZW/M5gVRHSQyYqp3/umYav2C4oKrJ/e11vlUIc3itK24LtE2sOfcxZYH9lrjgYLUEvs6fBlXDqsq
-0RAeXaZ/LKsAA7v1FDl+9vRBHcfG+xAR81+iEeyMSM5vGSzcqqk1KWO//yHAW8QUpq57UI2c8+QM
-LoU=
-=Iq7a
------END PGP SIGNATURE-----
+Yes, there is a 3-second delay between reloads (use, for example, "-d
+0.5" to change it). I'm not sure why you don't see the data the first
+time.
 
---------------kWZlcaLv5FSK5daTWO902max--
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
