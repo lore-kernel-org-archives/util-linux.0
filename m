@@ -1,104 +1,318 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F26E1C5D7E
-	for <util-linux@vger.kernel.org>; Thu, 20 Mar 2025 13:43:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FCB31EBFF0
+	for <util-linux@vger.kernel.org>; Fri, 21 Mar 2025 10:07:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742478187; cv=none; b=Ma0n/Fg4fYksxdYfCXKxeLem39OVbVOp4lqZxz83AwcEF1jnGXI+zKhOz9oNc7j1ZoWK9E3jk8ZmsG/mfjnu0M/h6WZKJgxDwtsbEuSTGaNekRFLNbxHCCp53cP+wvdd+BG9yc6jjULJDRSO5hvinP/UsBPHY8ZzK02G/31Dku8=
+	t=1742551679; cv=none; b=OSkUZYGfCIyQGqxxg4az2Ie56HGeZPdV2jSQeySKUGl6Yc5NW96q3rNTeqe9wpST2IwleSRCEdsZsEN1RlpJJgHCDr+iWxkaj+7BOl7WUZH4/NpZjTVFxdqF2oX3r9pPELkOi+8xdf/d7nZwnVCGb8OksOokUNIJsS1kHOnj/UE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742478187; c=relaxed/simple;
-	bh=PUcLXT+hil/l8uA2iNtEQDIzhZ+4TAD1NVhfGlEqpv8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BfmGKFC6kQFCmr5VaGN74C0NnTNp6p6fhld2gKfx/+Mu1G+qTeC17Ixka5Zf4GuBhwaK3lZ1aPoY4wPUVhF4DFwmXCVSvkzFUsMN0qqw7sUtnr9wD/djUynpWEwgw80YqqqWNMhjccDRJr4rVKPFmzqfOdZtaWQXsyQg4cvDZ5k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a/4OKgNZ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1742551679; c=relaxed/simple;
+	bh=GeCrfLUFoIE+i/+58AOeSR+KeVvcYa6BAgsGBtaaYic=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=IGvdLpNYLxgBMyxI9Flc21szjznk6r1nyuZVM08lLzJ87geZCdObkI9tmMBc72ztXsu/MeInBFs+cEidQhNT3WjG8E1tQHT2WSlnAn/KKuN3OcvBHkdUiBMnuIZLKb6VpJlFZQv0xd21/9gtcPZ+AI74ohe06hpvwNxVjrFpEPc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=xxjJ6CCZ; arc=none smtp.client-ip=195.121.94.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a/4OKgNZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1742478184;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/wNEOZL2CUmocSrW8pX2PhdC1oFjQwuwzH8KhiJ5SNo=;
-	b=a/4OKgNZXCNKcqdZeG9lLhOcAEO0AoMRkpBNszCiy/RDZ1+f7uvAfcc0PQfFZCXP5Kg1SJ
-	txY7dLIQtxVQf+Afxn7HhfgGbQKKLI6p5PRqIvu9dyvP40jQo5tB8/ON17ANS/cA6U80vw
-	NNi9fNK0aaof+WhdhHj1xiR1eiV4khg=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-81-BerHaaqENZqCL4tK4w8pZw-1; Thu,
- 20 Mar 2025 09:43:02 -0400
-X-MC-Unique: BerHaaqENZqCL4tK4w8pZw-1
-X-Mimecast-MFC-AGG-ID: BerHaaqENZqCL4tK4w8pZw_1742478182
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C65C9196D2CD;
-	Thu, 20 Mar 2025 13:43:01 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.226.181])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C3AF318001F6;
-	Thu, 20 Mar 2025 13:43:00 +0000 (UTC)
-Date: Thu, 20 Mar 2025 14:42:57 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@telfort.nl>
-Cc: util-linux@vger.kernel.org
-Subject: Re: on small terminals, irqtop shows "(null)" at startup
-Message-ID: <wz2wsk3nmgctdtcdelnrei7x72r7k3cjv4pcju2vpl6yt4j42b@ypw6ceya5n5e>
-References: <477ecae6-0ce6-4463-9c38-8181910fa9c3@telfort.nl>
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="xxjJ6CCZ"
+X-KPN-MessageId: 63a121a3-063c-11f0-bc28-005056ab378f
+Received: from smtp.kpnmail.nl (unknown [10.31.155.37])
+	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
+	id 63a121a3-063c-11f0-bc28-005056ab378f;
+	Fri, 21 Mar 2025 11:08:08 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=telfort.nl; s=telfort01;
+	h=content-type:from:to:subject:mime-version:date:message-id;
+	bh=GeCrfLUFoIE+i/+58AOeSR+KeVvcYa6BAgsGBtaaYic=;
+	b=xxjJ6CCZR1eH/g4Stnj8RNmFFqfiPliKAqM10011qJLdXSFsw4k+T08dzBVnkknmL4QPswCsP6wq+
+	 qyvWr0Y2eYAHoBVdSx68QXvICauv+c/n8t+hVZgZiTELTP/dYMGMtgGPLb4ZCbrPjJdenycnoqk7IY
+	 8wB9OYwb5QUAGBqc=
+X-KPN-MID: 33|iTnWMiX7CLinR3OMseBEr6Gd7b9d54ENJWVPMpM0IpFDbksWbbhAudqTCwxueEg
+ BbSUU12ah2bw8JnE9QWbt7fuR5c6DtgCUgEDl6fTphjs=
+X-KPN-VerifiedSender: Yes
+X-CMASSUN: 33|BEuQrcUY4gBogxTKWedJDsiKja+dkTdTShrci661xQCtU9UwXvGk8FXF/eKW3Q/
+ F/mRoL0SNiaUcAa7OTts9jQ==
+Received: from [192.168.2.2] (77-163-176-192.fixed.kpn.net [77.163.176.192])
+	by smtp.kpnmail.nl (Halon) with ESMTPSA
+	id 565f6284-063c-11f0-9b37-005056ab1411;
+	Fri, 21 Mar 2025 11:07:46 +0100 (CET)
+Message-ID: <bad0781a-742e-465b-8383-81757a767ee8@telfort.nl>
+Date: Fri, 21 Mar 2025 11:07:46 +0100
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <477ecae6-0ce6-4463-9c38-8181910fa9c3@telfort.nl>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+User-Agent: Mozilla Thunderbird
+Subject: Re: on small terminals, irqtop shows "(null)" at startup
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+References: <477ecae6-0ce6-4463-9c38-8181910fa9c3@telfort.nl>
+ <wz2wsk3nmgctdtcdelnrei7x72r7k3cjv4pcju2vpl6yt4j42b@ypw6ceya5n5e>
+Content-Language: en-US, nl-NL, es-ES
+From: Benno Schulenberg <bensberg@telfort.nl>
+Autocrypt: addr=bensberg@telfort.nl; keydata=
+ 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 50GA
+In-Reply-To: <wz2wsk3nmgctdtcdelnrei7x72r7k3cjv4pcju2vpl6yt4j42b@ypw6ceya5n5e>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------xEFa2SZymorzhIoy6kBVMJeG"
 
-On Thu, Mar 20, 2025 at 10:57:50AM +0100, Benno Schulenberg wrote:
-> 
-> To reproduce, run `xterm -geometry 80x12 &`, and in that xterm
-> run `irqtop`.  See that the table of IRQs is empty at first,
-> apart from the string "(null)" -- like this:
-> 
->    IRQ   TOTAL   DELTA NAME
-> (null)
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------xEFa2SZymorzhIoy6kBVMJeG
+Content-Type: multipart/mixed; boundary="------------gMJRgc4BHKYhG1mXnh7OCHIF";
+ protected-headers="v1"
+From: Benno Schulenberg <bensberg@telfort.nl>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Message-ID: <bad0781a-742e-465b-8383-81757a767ee8@telfort.nl>
+Subject: Re: on small terminals, irqtop shows "(null)" at startup
+References: <477ecae6-0ce6-4463-9c38-8181910fa9c3@telfort.nl>
+ <wz2wsk3nmgctdtcdelnrei7x72r7k3cjv4pcju2vpl6yt4j42b@ypw6ceya5n5e>
+In-Reply-To: <wz2wsk3nmgctdtcdelnrei7x72r7k3cjv4pcju2vpl6yt4j42b@ypw6ceya5n5e>
 
-I cannot reproduce this issue. My system:
+--------------gMJRgc4BHKYhG1mXnh7OCHIF
+Content-Type: multipart/mixed; boundary="------------ekKOUBa6i2g9e8vpH4mW5kBc"
 
- $ uname -r
- 6.12.11-200.fc41.x86_64
+--------------ekKOUBa6i2g9e8vpH4mW5kBc
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
- $ rpm -qf /usr/bin/xterm
- xterm-397-1.fc41.x86_64
+DQpPcCAyMC0wMy0yMDI1IG9tIDE0OjQyIHNjaHJlZWYgS2FyZWwgWmFrOg0KPiBQbGVhc2Ug
+dHJ5IHRoZSBjdXJyZW50IEdpdC4gSSBtYWRlIHNtYWxsIGNoYW5nZXMgdG8gaW1wcm92ZSB0
+aGUgZGVidWcNCj4gb3V0cHV0IGFuZCB0byBhdm9pZCAiKG51bGwpLiIgSG93ZXZlciwgSSdt
+IHN0aWxsIG5vdCBzdXJlIHdoeSB5b3UgZG8NCj4gbm90IHNlZSB0aGUgZGF0YS4NCg0KVGhl
+IHRocmVlIG1hY2hpbmVzIHRoYXQgSSB0cmllZCBgaXJxdG9wYCBvbiBhbGwgaGF2ZSBzb21l
+IGZvcm0NCm9mIExpbnV4IE1pbnQgMjEgaW5zdGFsbGVkLiAgT25lIG9mIHRoZSBtYWNoaW5l
+cyBoYXMgc2V2ZXJhbA0KcGFydGl0aW9ucywgaG9sZGluZyBvdGhlciBkaXN0cm9zLiAgVHJ5
+aW5nIHRob3NlLCB0aGluZ3Mgd29yaw0KZmluZSBvbiBGZWRvcmEgNDAsIERlYmlhbiAxMiwg
+TWludCAxOCwgYW5kIE1hbmphcm8uDQoNCkJ1dCBvbiBNYWdlaWEgOSBJIGNhbiByZXByb2R1
+Y2UgdGhlIGlzc3VlOiB0aGUgc3lzdGVtLXByb3ZpZGVkDQppcnF0b3Agc2hvd3MgIihudWxs
+KSIgZm9yIHRoZSBmaXJzdCB0aHJlZSBzZWNvbmRzIG9uIGEgc21hbGwNCnRlcm1pbmFsLiAg
+QWxzbyB3aGVuIGNocm9vdGluZyBmcm9tIE1hbmphcm8gaW50byB0aGUgTWFnZWlhDQpzeXN0
+ZW0sIHRoZSBsYXR0ZXIncyBpcnF0b3Agc2hvd3MgIihudWxsKSIgYXQgc3RhcnR1cCwgc28g
+aXQncw0KdW5saWtlbHkgdG8gYmUgYSBrZXJuZWwgaXNzdWUuDQoNCihPbiBvbmUgb2YgdGhl
+c2Ugc3lzdGVtcyBJIGhhZCB1bndpdHRpbmdseSBjb21waWxlZCB1dGlsLWxpbnV4DQp3aXRo
+IC1mc2FuaXRpemU9YWRkcmVzcywgYW5kIHVwb24gY2xvc2luZyBpcnF0b3AsIGl0IHNwZXdl
+ZA0KbXVsdGlwbGUgY29tcGxhaW50cyBhYm91dCBsZWFrZWQgbWVtb3J5LiAgSSBmb3Jnb3Qg
+dG8gY2FwdHVyZQ0KdGhlIG91dHB1dC4pDQoNCldpdGggY3VycmVudCBnaXQgKGNvbW1pdCBj
+NTJhMzY0NWFhKSwgaXJxdG9wIHN0aWxsIHNob3dzICIobnVsbCkiLg0KQXR0YWNoZWQgaXMg
+dGhlIHN0ZGVyciBvdXRwdXQgd2l0aCBMSUJTTUFSVENPTFNfREVCVUc9YWxsLg0KDQoNCkJl
+bm5vDQoNCg==
+--------------ekKOUBa6i2g9e8vpH4mW5kBc
+Content-Type: application/gzip; name="TRAIL.03.21.gz"
+Content-Disposition: attachment; filename="TRAIL.03.21.gz"
+Content-Transfer-Encoding: base64
 
-> After three seconds a list of IRQs appears.
+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
+kcoCAA==
 
-Please try the current Git. I made small changes to improve the debug
-output and to avoid "(null)." However, I'm still not sure why you do
-not see the data. 
+--------------ekKOUBa6i2g9e8vpH4mW5kBc--
 
->    ./irqtop -c disable  2>TRAIL
+--------------gMJRgc4BHKYhG1mXnh7OCHIF--
 
-I do not see anything wrong in the log. The library gets data and
-calculates the output as expected.
+--------------xEFa2SZymorzhIoy6kBVMJeG
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
-> on an `xterm -geometry 80x12`, where I've pressed q as soon as
-> the table did appear after three full seconds.
+-----BEGIN PGP SIGNATURE-----
 
-Yes, there is a 3-second delay between reloads (use, for example, "-d
-0.5" to change it). I'm not sure why you don't see the data the first
-time.
+wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmfdOnIFAwAAAAAACgkQUUu+Lrjhlh+b
+sxAAsHcnPOxSu0ZoruFd0BTgtBDMxilaniewagJ/2FFgacAGDVQoxaxOn/PAwfV9cw0u4riRLsJM
+BY7sm3Ee/2aTsAnuxbnxfo+qmLElbYYbMW7EFI6G8DQ/6Q1tushsD5hAxeG1j8TSYNyFzlqvYLTv
+GVQz/1KUClr9vqWsocjN3PO/dkeQdVlKojL/mrWlkfWN7tQW703NJWcmnbu8jKQUXhtwFZkPNGcF
+GpyNXnKtWZGCppfU3o/46q1sdgOikJw50uLiFG5BFTXaZCLajcxf9PfazQ5FOGzcTUsMYTbZwPmv
+KQXxSELzVKJCMucYTplnQzLwOSY5AfMoWCTbGTftWzuVxX0J+ks4DGgrILjhLO+/+ZO8vjStZC6X
+ZPclwaJE50Tk0Dxo8wRAIveOn/cXa2km9JhyS9EFm7sjlZOjV6Fxm/GGDtMa9B70XDOOzG2T8M/X
+DkB89/qMZZrtpFzoKYfNX5CeTGfsGdo4O4NcC+hJIWPt6Stbq/dlbnQhvcqMxX+ogFkM7zRowVps
+TsmKofxvdIqzRd7kK8SOYVljyWGC4pMOO74EiFYgvkT79q0D9ZH0DsFCCo0plBVXuRN5UMypu4BI
+28RY+ioh76Pt12mHfrA0FXy0gA8bzlEGulPB0fmhlLDU1Xr+hpJw+bXzXtBFAXfPLHJygONeFiyB
+e3o=
+=ReF+
+-----END PGP SIGNATURE-----
 
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
-
+--------------xEFa2SZymorzhIoy6kBVMJeG--
