@@ -1,47 +1,47 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81DD019C558
-	for <util-linux@vger.kernel.org>; Tue, 25 Mar 2025 10:43:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8626A149E13
+	for <util-linux@vger.kernel.org>; Tue, 25 Mar 2025 10:43:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742899423; cv=none; b=cuj9uOyNi8D7C/DdDJ1U74Z80KcgV68SAxxiBD9UWxtwR/IXiqGOuBZDqPCAsGNbCC824HHpbczAzeV9oztHRDSCO9QJyvSnBX3Li97HMhTBRMpOCKGwMJGeRtiJJcIWUEaN2q6yzb4sIvbToeYwiIuhlQTJ95eyQOq//+u+hPg=
+	t=1742899431; cv=none; b=tkqbuxaYlBjqZt/LmE0UYeVHucpzvpIa4UpvofYm1piO6wokwfw8/8zUVlviGRrNbISAgtZRUmWT1XLVo3+Q5Q8JyMtHIreZOA3/eIC7JPcpsBg6OIAzHqwffnZ5T1iLU1P3zzUbMnf9vWrX4FR3ltg51gwnDRQYycnPBLX+Nt8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742899423; c=relaxed/simple;
-	bh=XxuH669ctYIeqb2F9rV0fhwd1PeYKiFqai+psCUd+Aw=;
+	s=arc-20240116; t=1742899431; c=relaxed/simple;
+	bh=YRRylg74fVbMJ9+IT0cFBAb7UJciSwO6pgx5Zky/5Lo=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jsgiz8tgKnFezpd6UYrWoTeBemjl3Wf62iDmuURA1x+zCXnlISHcGbMKZQoRoLpERNOv0HZlkneICpMG6By4WBniodJQN1KSUTWJiYtmj4Zb48MZtpaqRp7lmx49yrDsGVJah4/QLnt0aIhhIJLrrPaUTMsadFjb5rHF/d4lvBg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=H/NK1IDl; arc=none smtp.client-ip=195.121.94.168
+	 MIME-Version; b=tzcyrmABk2IGsVjNPnHMMlIGeqtsFye3Ql8S+FGG54owpw3GjvyvKxJpLnu7/c/9d+BcUAAzgZcODXmIph4CiC+/taPqXtwnhuaX059Uo5ZHtYdgW7pcKZ7Ti6bA/N34hVtHDi617ZsQXQ2tvlhIR1ptQ84Wai7yR4SYLPeyVm4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=k5sDHFL+; arc=none smtp.client-ip=195.121.94.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="H/NK1IDl"
-X-KPN-MessageId: 0de87790-0966-11f0-86cb-005056aba152
-Received: from smtp.kpnmail.nl (unknown [10.31.155.40])
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="k5sDHFL+"
+X-KPN-MessageId: 0d99e323-0966-11f0-a82d-005056abad63
+Received: from smtp.kpnmail.nl (unknown [10.31.155.39])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 0de87790-0966-11f0-86cb-005056aba152;
-	Tue, 25 Mar 2025 11:43:57 +0100 (CET)
+	id 0d99e323-0966-11f0-a82d-005056abad63;
+	Tue, 25 Mar 2025 11:43:56 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=kIScmsO2aBTLy5G4pPW7ILye7rALRJ7MsB9PJWuLeWk=;
-	b=H/NK1IDlGyKiUETOKUB5S02oWqGryEmvT66fYb3C8U3pBjD6WMMGXuC9Q6g9xKcFhsvJQ6DHz2tgF
-	 c6qfHMUVrv4A3o7J7jcijejXTGrm+7hGzI0vWp1zrVTfamnt2Lo0Hqe3Tl6YfONAtw24z2UrVw056B
-	 4/m8x2ORPVrs8mA0=
-X-KPN-MID: 33|Hbkmd5oRecRNO16mQptaHrWVoBNfeXa12Lr0+Ae442esk6y8TZOmzTaGBKLJXNY
- jNkjue6r8TXg3q+5NAWhxaQ==
+	bh=XxqjxUaZc3BlLLh6wWsJ+chs0d+7yvdrwa4FUmXoWgA=;
+	b=k5sDHFL+kr7Zkb5a6GhGKpvLHALwinMP5taR1L4YR8aEpfhgrAh9cTdfP0XmagIVic4W/c3+bbGnT
+	 kd3cN/s6ealfJOnwAE3Trru3vpGb8LsKCCIuq3ijeGZlOlWxJ36opS8YS4KzlZwZmAUpRWShpYv7qF
+	 z4ahh89gnMX+CVE8=
+X-KPN-MID: 33|MPftSb4IL4/2AwnUQ6iNG53MuGkR4ja/ynCikWOlC+u5SLow9EWBJYAw8KfLPro
+ jxvMm436dKydOIwzKo+Iu2zvD7JRWQCYmFzXRPfVmMyg=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|yw9ghhxhIsm5rnx7o2mnUnRUei7kxfIeE9JQ68UhJG1GiaPNQFiSsaxIo/lPeFb
- M47YD6KUfP8gUXFL7W3retA==
+X-CMASSUN: 33|rC4Hu/PlM9AJIONiPqEamNsWxLDhMDRB7ir2TL8CU3kSY+d6ywprHw1cBbUWwMJ
+ wNZAxYUNnB6AuEIb47o1Tmg==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id fea2d618-0965-11f0-8503-005056ab7584;
-	Tue, 25 Mar 2025 11:43:31 +0100 (CET)
+	id 03cd77f4-0966-11f0-9bed-005056ab7447;
+	Tue, 25 Mar 2025 11:43:40 +0100 (CET)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 03/11] ipcutils, lsipc: unabbreviate two words in some error messages
-Date: Tue, 25 Mar 2025 11:42:57 +0100
-Message-ID: <20250325104305.23980-3-bensberg@telfort.nl>
+Subject: [PATCH 04/11] chmem: print warnings about failures always (not only with --verbose)
+Date: Tue, 25 Mar 2025 11:42:58 +0100
+Message-ID: <20250325104305.23980-4-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250325104305.23980-1-bensberg@telfort.nl>
 References: <20250325104305.23980-1-bensberg@telfort.nl>
@@ -53,56 +53,34 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
+This makes the handling of errors the same as some 90 lines down.
+
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- sys-utils/ipcutils.c | 2 +-
- sys-utils/lsipc.c    | 6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ sys-utils/chmem.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/sys-utils/ipcutils.c b/sys-utils/ipcutils.c
-index a755849fb..e3da523b7 100644
---- a/sys-utils/ipcutils.c
-+++ b/sys-utils/ipcutils.c
-@@ -677,7 +677,7 @@ int posix_ipc_msg_get_info(const char *name, struct posix_msg_data **msgds)
- 	}
+diff --git a/sys-utils/chmem.c b/sys-utils/chmem.c
+index 4105d1969..5ff344fd3 100644
+--- a/sys-utils/chmem.c
++++ b/sys-utils/chmem.c
+@@ -146,12 +146,12 @@ static int chmem_size(struct chmem_desc *desc, int enable, int zone_id)
  
- 	if (name && name[0] != '/') {
--		warnx(_("mqueue name must start with '/': %s"), name);
-+		warnx(_("message queue name must start with '/': %s"), name);
- 		return -1;
- 	}
- 
-diff --git a/sys-utils/lsipc.c b/sys-utils/lsipc.c
-index 133957ea9..074dc4520 100644
---- a/sys-utils/lsipc.c
-+++ b/sys-utils/lsipc.c
-@@ -784,7 +784,7 @@ static void do_posix_sem(const char *name, struct lsipc_control *ctl,
- 
- 	if (retval < 1) {
- 		if (name != NULL)
--			warnx(_("mqueue %s not found"), name);
-+			warnx(_("message queue %s not found"), name);
- 		return;
- 	}
- 
-@@ -1010,7 +1010,7 @@ static void do_posix_msg(const char *name, struct lsipc_control *ctl,
- 
- 	if (retval < 1) {
- 		if (name != NULL)
--			warnx(_("mqueue %s not found"), name);
-+			warnx(_("message queue %s not found"), name);
- 		return;
- 	}
- 
-@@ -1326,7 +1326,7 @@ static void do_posix_shm(const char *name, struct lsipc_control *ctl, struct lib
- 
- 	if (retval < 1) {
- 		if (name != NULL)
--			warnx(_("shm %s not found"), name);
-+			warnx(_("shared memory segment %s not found"), name);
- 		return;
- 	}
- 
+ 		idxtostr(desc, index, str, sizeof(str));
+ 		rc = ul_path_writef_string(desc->sysmem, onoff, "%s/state", name);
+-		if (rc != 0 && desc->verbose) {
++		if (rc != 0) {
+ 			if (enable)
+-				fprintf(stdout, _("%s enable failed\n"), str);
++				warn(_("%s enable failed"), str);
+ 			else
+-				fprintf(stdout, _("%s disable failed\n"), str);
+-		} else if (rc == 0 && desc->verbose) {
++				warn(_("%s disable failed"), str);
++		} else if (desc->verbose) {
+ 			if (enable)
+ 				fprintf(stdout, _("%s enabled\n"), str);
+ 			else
 -- 
 2.48.1
 
