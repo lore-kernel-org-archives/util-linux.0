@@ -1,47 +1,47 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.167])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9A3B1946AA
-	for <util-linux@vger.kernel.org>; Tue, 25 Mar 2025 10:43:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.167
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA3111946AA
+	for <util-linux@vger.kernel.org>; Tue, 25 Mar 2025 10:43:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742899431; cv=none; b=ui+Vu7e+7q0IHa2TyG3e7PiLko8RRvmeRgcv/B1KEp8hQrzbKZ7EJ9gHJAsgyxo225R0EVLbUNtAWaDrm+ooKVZhXVN/CiSPqf/v2vVZz0HT1yfq6X9+M5yulQ6flydwMbIT/Lzg2913vHGJCZeGDPpsE6UItbCYTgZte+N6W7k=
+	t=1742899439; cv=none; b=Edt5e/wNHBG+2LINI8Hw9ITOXI3Yvyon8Edqv3nJqcl9bx7cLjNhbpnnJDKQDtPOdSAFw/WH/X9EOhIBwZ0UG88cgwi4m5vM2aoPyzLNRLQ/gTEhnSF2E89nl6CPcFWpODOcOTuXU+DMxIbx4e2SwpBYOCrpNUmc0CsLKIoRdhc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742899431; c=relaxed/simple;
-	bh=cvjWHuYgykUH7y8KC8TrT+a1JXHeeSV1jCy2BdLjWLA=;
+	s=arc-20240116; t=1742899439; c=relaxed/simple;
+	bh=eqETylMPo0la7dVOuSQeL1EihdUFzZXnEEJ/vHj5f2k=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=uuZ7S9+mw1feiJU3n15QX8Z38z6d/WSMmT0sL2a0bMjzrn9a9kRq7uYGccEuKahN2hNcMPRoyHsVbNeu7qGl+zZE7AQj0kewVSsc2muSCiO+rMdGorBca3k3XGZ7hOsEsWD9zrWXPPYTH6i8LDDj0HNTlaI6HSyDvYbBV9IqrWU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=TOVmmHNR; arc=none smtp.client-ip=195.121.94.167
+	 MIME-Version; b=XM9/J3/L2KC3+YlcLkXwf8Q3JeOML8UbXH4JQAhIjgMOyV4KM/HUVSjjD7ziLNH3hEjY7m/QoEd7sE+9ShgjxMAJZBaukMXgLmqGSgQ9gBBnETAf8ZWU40uVKotbVC//SbBlWWr/GfiLy+zJnV/T/SaCM1dMLW2ZBQw3NgDW9/M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=SCAyLTN0; arc=none smtp.client-ip=195.121.94.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="TOVmmHNR"
-X-KPN-MessageId: 2350ba4b-0966-11f0-b99f-005056abbe64
-Received: from smtp.kpnmail.nl (unknown [10.31.155.39])
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="SCAyLTN0"
+X-KPN-MessageId: 17032f80-0966-11f0-a82d-005056abad63
+Received: from smtp.kpnmail.nl (unknown [10.31.155.40])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 2350ba4b-0966-11f0-b99f-005056abbe64;
-	Tue, 25 Mar 2025 11:44:33 +0100 (CET)
+	id 17032f80-0966-11f0-a82d-005056abad63;
+	Tue, 25 Mar 2025 11:44:12 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=ZRVGIfbpHqakdS8HIU9FRM2c5aINW50Yg78qBhJCMWk=;
-	b=TOVmmHNRHCpdAHR981GMWkhzqSW3JaUk8zN7xxS4rDGINO+mBdk6k4tWXwna1vxv0pUhJkSo0szZI
-	 5KC/lRxIvnsLQ8uQOFcUK1/Eu1dkTFXYYMwGPJ3MeN4/9OEeEmkoldDoC8w+JSFV6a0oB9vrO0jRvF
-	 W3LNvZ1pHNSw/9VM=
-X-KPN-MID: 33|rN+bgNfAK4OmTB1Bq/CpXEXd0wCVL2o48PTYBcw972bmJ6dcmTCvuMGdtSlHQBm
- 0nNGFbqMb1JZQhTl1OsOcBBxd08uDWq0gJJnXHWLmeUg=
+	bh=7vNqqQ0b4Rc7CuPhxO5Y3uasUEUPBCCnCN+uZCFjQxY=;
+	b=SCAyLTN0l5X2+TM8eY4w7hWmYNNQCldC6lNMU7A6zxBLOf05ysAFpFCaNBvzhnkY6bD/cxDAVtuzM
+	 XQlN2Jp+1EM04/jF5UpJ24TEhR2FNrhepW8RthyM1Hip+zTJbfyZBmzLhaS1H+sUg2PZabMgT6hu3x
+	 32TTFAnzCZOyM2a8=
+X-KPN-MID: 33|DUdFX8a2V0KS4IOUMwFyybRw/pY0d4sbIlhnvNfSFSsGy+0rPWWQtUdnoURLGPo
+ hW1LpDlK2TYn5BbPXge40dw==
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|RtGMsnMXAME36bGLKX04YQMMXt9zmRmh5ZU2U4CKZ7pSOAD7h0x4XtP8EHXbIDe
- BvNtfWHi4bPMhUoKf3FiOUQ==
+X-CMASSUN: 33|szKDS+b2U9vBD34ulg7TIwPraDGnPJcCfACo9qTWfSXSo4sn5OEuKy08/TwvJyE
+ 2HaNGkt3NDBL4k4VOU3CrhA==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 0854f5c2-0966-11f0-9bed-005056ab7447;
-	Tue, 25 Mar 2025 11:43:48 +0100 (CET)
+	id 0d3a2560-0966-11f0-8503-005056ab7584;
+	Tue, 25 Mar 2025 11:43:56 +0100 (CET)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 05/11] chmem: (man) add missing end-of-bold marker, and add missing OR bar
-Date: Tue, 25 Mar 2025 11:42:59 +0100
-Message-ID: <20250325104305.23980-5-bensberg@telfort.nl>
+Subject: [PATCH 06/11] fstrim: mark only the mountpoint as placeholder, not options -A and -a
+Date: Tue, 25 Mar 2025 11:43:00 +0100
+Message-ID: <20250325104305.23980-6-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250325104305.23980-1-bensberg@telfort.nl>
 References: <20250325104305.23980-1-bensberg@telfort.nl>
@@ -53,35 +53,26 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Also, use "EXAMPLES", in the plural, as there are four examples.
+Also, write "mountpoint" as one word here, because it's clearer.
 
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- sys-utils/chmem.8.adoc | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sys-utils/fstrim.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sys-utils/chmem.8.adoc b/sys-utils/chmem.8.adoc
-index 029bc0832..f30f3a369 100644
---- a/sys-utils/chmem.8.adoc
-+++ b/sys-utils/chmem.8.adoc
-@@ -12,7 +12,7 @@ chmem - configure memory
+diff --git a/sys-utils/fstrim.c b/sys-utils/fstrim.c
+index 2ae3480b8..4d43c7957 100644
+--- a/sys-utils/fstrim.c
++++ b/sys-utils/fstrim.c
+@@ -451,7 +451,7 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	FILE *out = stdout;
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out,
+-	      _(" %s [options] <-A|-a|mount point>\n"), program_invocation_short_name);
++	      _(" %s [options] -A|-a|<mountpoint>\n"), program_invocation_short_name);
  
- == SYNOPSIS
- 
--*chmem* [*-h] [*-V*] [*-v*] [*-e*|*-d*] [_SIZE_|_RANGE_ *-b* _BLOCKRANGE_] [*-z* _ZONE_]
-+*chmem* [*-h*] [*-V*] [*-v*] [*-e*|*-d*] [_SIZE_|_RANGE_|*-b* _BLOCKRANGE_] [*-z* _ZONE_]
- 
- == DESCRIPTION
- 
-@@ -64,7 +64,7 @@ failure
- *64*::
- partial success
- 
--== EXAMPLE
-+== EXAMPLES
- 
- *chmem --enable 1024*::
- This command requests 1024 MiB of memory to be set online.
+ 	fputs(USAGE_SEPARATOR, out);
+ 	fputs(_("Discard unused blocks on a mounted filesystem.\n"), out);
 -- 
 2.48.1
 
