@@ -1,47 +1,47 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.169])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA3111946AA
-	for <util-linux@vger.kernel.org>; Tue, 25 Mar 2025 10:43:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A417433A8
+	for <util-linux@vger.kernel.org>; Tue, 25 Mar 2025 10:44:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742899439; cv=none; b=Edt5e/wNHBG+2LINI8Hw9ITOXI3Yvyon8Edqv3nJqcl9bx7cLjNhbpnnJDKQDtPOdSAFw/WH/X9EOhIBwZ0UG88cgwi4m5vM2aoPyzLNRLQ/gTEhnSF2E89nl6CPcFWpODOcOTuXU+DMxIbx4e2SwpBYOCrpNUmc0CsLKIoRdhc=
+	t=1742899448; cv=none; b=bNxP3jeWQwH8li2HKFxxKMG8qlYCg+nGxNsaBI0oxEJKLxZz57WmCop45XCwTSi8efmTzHQnYMa2x1CSt+5t+7DEti7fkBxfVx+DN8XTzoZmk8K0ofuvENQWptOAtMog7fWT3GDKhI68J//j9eiiejQzFthe2lNjsUti/DkmXeo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742899439; c=relaxed/simple;
-	bh=eqETylMPo0la7dVOuSQeL1EihdUFzZXnEEJ/vHj5f2k=;
+	s=arc-20240116; t=1742899448; c=relaxed/simple;
+	bh=TxYz07Fc4b3vgSqcdNUKEstVB0uX0EP7mTVuj2zJPcw=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XM9/J3/L2KC3+YlcLkXwf8Q3JeOML8UbXH4JQAhIjgMOyV4KM/HUVSjjD7ziLNH3hEjY7m/QoEd7sE+9ShgjxMAJZBaukMXgLmqGSgQ9gBBnETAf8ZWU40uVKotbVC//SbBlWWr/GfiLy+zJnV/T/SaCM1dMLW2ZBQw3NgDW9/M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=SCAyLTN0; arc=none smtp.client-ip=195.121.94.169
+	 MIME-Version; b=mAKYhuzFroTS4EF4HZUz44lvxAPJdtkNV7A4k7i3cwVqEs17C3VYQuuuigfgYdVk5SDjZ+0rvWrEI0f6KBLPh8fQUD/CgpcpWzlB2mUJ8VrG282R+59fv0xiFzIrWPegruibvp6LYPGOFrPcGSAdIGIHpIzp7+SFMWYVLnSNebQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=Kg6hlZIO; arc=none smtp.client-ip=195.121.94.168
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="SCAyLTN0"
-X-KPN-MessageId: 17032f80-0966-11f0-a82d-005056abad63
-Received: from smtp.kpnmail.nl (unknown [10.31.155.40])
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="Kg6hlZIO"
+X-KPN-MessageId: 21ea4818-0966-11f0-86cb-005056aba152
+Received: from smtp.kpnmail.nl (unknown [10.31.155.37])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 17032f80-0966-11f0-a82d-005056abad63;
-	Tue, 25 Mar 2025 11:44:12 +0100 (CET)
+	id 21ea4818-0966-11f0-86cb-005056aba152;
+	Tue, 25 Mar 2025 11:44:30 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=7vNqqQ0b4Rc7CuPhxO5Y3uasUEUPBCCnCN+uZCFjQxY=;
-	b=SCAyLTN0l5X2+TM8eY4w7hWmYNNQCldC6lNMU7A6zxBLOf05ysAFpFCaNBvzhnkY6bD/cxDAVtuzM
-	 XQlN2Jp+1EM04/jF5UpJ24TEhR2FNrhepW8RthyM1Hip+zTJbfyZBmzLhaS1H+sUg2PZabMgT6hu3x
-	 32TTFAnzCZOyM2a8=
-X-KPN-MID: 33|DUdFX8a2V0KS4IOUMwFyybRw/pY0d4sbIlhnvNfSFSsGy+0rPWWQtUdnoURLGPo
- hW1LpDlK2TYn5BbPXge40dw==
+	bh=oRMXGGN+GmhdSi4w9FMCMKlqyHrx5HD+5OTmf8HTz6w=;
+	b=Kg6hlZIOKTFsjMgzCdCLg+72xrlZvBmmfHmADZ4u//PFrMeqU1xm/YOLms6JcrnNcxI8QBRmLG3vi
+	 BaZ5fwnUUzXpxNFwlU4wGCWiKmXsvnuolDd2s518Obd1iDDeEBoA7ZnC0hf7bHl7JpfKWWwWCOZSCO
+	 XXK8vNHH5v5VUN+Y=
+X-KPN-MID: 33|0f8nSHlU6ubn+/nu0zqNQxP/w1HGDs4l+yxIaqYjpPta/DjePT6X3tQyoJQ7rOs
+ OkEZ6wwhORVpxmSfx3YDAxVlXxzHCZkHaVDAY3eIe6s4=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|szKDS+b2U9vBD34ulg7TIwPraDGnPJcCfACo9qTWfSXSo4sn5OEuKy08/TwvJyE
- 2HaNGkt3NDBL4k4VOU3CrhA==
+X-CMASSUN: 33|6O15SswZ/MCSaVFJx5ZUWRFl/Sr0u8EXHqPf5TVk17mVVKugJGMIgN29i4KVWdy
+ z6YlVmKJ/qCFHgJygg3luIg==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 0d3a2560-0966-11f0-8503-005056ab7584;
-	Tue, 25 Mar 2025 11:43:56 +0100 (CET)
+	id 12643ae1-0966-11f0-9b42-005056ab1411;
+	Tue, 25 Mar 2025 11:44:05 +0100 (CET)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 06/11] fstrim: mark only the mountpoint as placeholder, not options -A and -a
-Date: Tue, 25 Mar 2025 11:43:00 +0100
-Message-ID: <20250325104305.23980-6-bensberg@telfort.nl>
+Subject: [PATCH 07/11] swapon: improve a translator hint, and remove a pointless one
+Date: Tue, 25 Mar 2025 11:43:01 +0100
+Message-ID: <20250325104305.23980-7-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250325104305.23980-1-bensberg@telfort.nl>
 References: <20250325104305.23980-1-bensberg@telfort.nl>
@@ -53,26 +53,40 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Also, write "mountpoint" as one word here, because it's clearer.
+The reference to "each entry below" made no sense, as that second
+translator hint is not before a gettextized message and therefore
+did not make it into the POT file.  Gettextizing that message is
+not useful as 1) there is nothing to translate, and 2) allowing
+the translators to fiddle with the tabs is too complicated, and
+3) the --summary output is deprecated anyway.
 
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- sys-utils/fstrim.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sys-utils/swapon.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sys-utils/fstrim.c b/sys-utils/fstrim.c
-index 2ae3480b8..4d43c7957 100644
---- a/sys-utils/fstrim.c
-+++ b/sys-utils/fstrim.c
-@@ -451,7 +451,7 @@ static void __attribute__((__noreturn__)) usage(void)
- 	FILE *out = stdout;
- 	fputs(USAGE_HEADER, out);
- 	fprintf(out,
--	      _(" %s [options] <-A|-a|mount point>\n"), program_invocation_short_name);
-+	      _(" %s [options] -A|-a|<mountpoint>\n"), program_invocation_short_name);
+diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
+index 15efa481a..83ec702d5 100644
+--- a/sys-utils/swapon.c
++++ b/sys-utils/swapon.c
+@@ -260,7 +260,8 @@ static int display_summary(void)
+ 	if (!itr)
+ 		err(EXIT_FAILURE, _("failed to initialize libmount iterator"));
  
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(_("Discard unused blocks on a mounted filesystem.\n"), out);
+-	/* TRANSLATORS: The tabs make each field a multiple of 8 characters. Keep aligned with each entry below. */
++	/* TRANSLATORS: The tabs make each field a multiple of 8 characters.
++	 * Please keep the translation aligned with the original. */
+ 	printf(_("Filename\t\t\t\tType\t\tSize\t\tUsed\t\tPriority\n"));
+ 
+ 	while (mnt_table_next_fs(st, itr, &fs) == 0) {
+@@ -271,7 +272,6 @@ static int display_summary(void)
+ 		off_t size = mnt_fs_get_size(fs);
+ 		off_t used = mnt_fs_get_usedsize(fs);
+ 
+-		/* TRANSLATORS: Keep each field a multiple of 8 characters and aligned with the header above. */
+ 		printf("%s%*s%s%s\t%jd%s\t%jd%s\t%d\n",
+ 			src,
+ 			srclen < 40 ? 40 - srclen : 1, " ",
 -- 
 2.48.1
 
