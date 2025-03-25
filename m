@@ -1,47 +1,47 @@
 Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A417433A8
-	for <util-linux@vger.kernel.org>; Tue, 25 Mar 2025 10:44:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B02B19C558
+	for <util-linux@vger.kernel.org>; Tue, 25 Mar 2025 10:44:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742899448; cv=none; b=bNxP3jeWQwH8li2HKFxxKMG8qlYCg+nGxNsaBI0oxEJKLxZz57WmCop45XCwTSi8efmTzHQnYMa2x1CSt+5t+7DEti7fkBxfVx+DN8XTzoZmk8K0ofuvENQWptOAtMog7fWT3GDKhI68J//j9eiiejQzFthe2lNjsUti/DkmXeo=
+	t=1742899458; cv=none; b=jvKi1Zg/BplWpLgmAVX1HYaFAWqYQMbAo5FtV5xPxCl81YFV+6xUUsztdVsIL8jDxGHQz0mR2gxxMrDlugaZiJAx6tGwbhPwrwidwpMer4nVSTcO3Dn6CuN57yyeV3O1HRkGgYOieybKjkRnpxF9GkcAlxaPeDomm4FxmLIocjM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742899448; c=relaxed/simple;
-	bh=TxYz07Fc4b3vgSqcdNUKEstVB0uX0EP7mTVuj2zJPcw=;
+	s=arc-20240116; t=1742899458; c=relaxed/simple;
+	bh=EhHHzakfpk6JvdJXqFDDchcdcXnALrFk7yDvcMu1x0k=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mAKYhuzFroTS4EF4HZUz44lvxAPJdtkNV7A4k7i3cwVqEs17C3VYQuuuigfgYdVk5SDjZ+0rvWrEI0f6KBLPh8fQUD/CgpcpWzlB2mUJ8VrG282R+59fv0xiFzIrWPegruibvp6LYPGOFrPcGSAdIGIHpIzp7+SFMWYVLnSNebQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=Kg6hlZIO; arc=none smtp.client-ip=195.121.94.168
+	 MIME-Version; b=b0c9xWmpTHTcvvjEvL7STltKcB2o6kmjUyIvVCD61PH3xb2Zdc8wc5NjNwbkBoa8pUUBZEIjpkF+i8Tkh6qSd+3rpQ5dOASHqp/H3zRc0eUx/3jh7pYMf0ZAyzdghbJAtuBw0M3I3EFGKuEvJeampMNGNPNEoYGvSPRhxC8ebB0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=LBaysM9w; arc=none smtp.client-ip=195.121.94.168
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="Kg6hlZIO"
-X-KPN-MessageId: 21ea4818-0966-11f0-86cb-005056aba152
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="LBaysM9w"
+X-KPN-MessageId: 27a45bff-0966-11f0-86cb-005056aba152
 Received: from smtp.kpnmail.nl (unknown [10.31.155.37])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 21ea4818-0966-11f0-86cb-005056aba152;
-	Tue, 25 Mar 2025 11:44:30 +0100 (CET)
+	id 27a45bff-0966-11f0-86cb-005056aba152;
+	Tue, 25 Mar 2025 11:44:40 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=oRMXGGN+GmhdSi4w9FMCMKlqyHrx5HD+5OTmf8HTz6w=;
-	b=Kg6hlZIOKTFsjMgzCdCLg+72xrlZvBmmfHmADZ4u//PFrMeqU1xm/YOLms6JcrnNcxI8QBRmLG3vi
-	 BaZ5fwnUUzXpxNFwlU4wGCWiKmXsvnuolDd2s518Obd1iDDeEBoA7ZnC0hf7bHl7JpfKWWwWCOZSCO
-	 XXK8vNHH5v5VUN+Y=
-X-KPN-MID: 33|0f8nSHlU6ubn+/nu0zqNQxP/w1HGDs4l+yxIaqYjpPta/DjePT6X3tQyoJQ7rOs
- OkEZ6wwhORVpxmSfx3YDAxVlXxzHCZkHaVDAY3eIe6s4=
+	bh=GSDsUdGXu7hn0A09kFC/33/Pt6UtDytgzrEDtnpne8E=;
+	b=LBaysM9w+jxR5tsGAVv87sclqSBnIF8v52jljd9EIIllREBL4JN9+XMyqULy3KCrTPawrgesmViMf
+	 dKA040hJxegVHHFskBdVEq8pUeAkBCyASvpxUmX9PA08YSP9/ByinzrmWvfoRe2oRa6JPxjEzWr80s
+	 5LCTDnNh0RFcZr+s=
+X-KPN-MID: 33|4Gw7agF7iFeacGKRIYx2v9TtMQXkrygcQKG//BCzmz5WcEuQ1hWFZWOYzdQhITV
+ sFOwH4+v165AU6h2Pf2SQonFJ9AgGz/d02OnfPgnZ++g=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|6O15SswZ/MCSaVFJx5ZUWRFl/Sr0u8EXHqPf5TVk17mVVKugJGMIgN29i4KVWdy
- z6YlVmKJ/qCFHgJygg3luIg==
+X-CMASSUN: 33|M5hkUVEEeeOAePLGHKTs3Bmu3KjUj9hLfr6h/KdttGNsNbl59nFuPLDG5FYbZ5Q
+ zlVeHPZyY6J3JSGadyO+EyA==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 12643ae1-0966-11f0-9b42-005056ab1411;
-	Tue, 25 Mar 2025 11:44:05 +0100 (CET)
+	id 184eb601-0966-11f0-9b42-005056ab1411;
+	Tue, 25 Mar 2025 11:44:14 +0100 (CET)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 07/11] swapon: improve a translator hint, and remove a pointless one
-Date: Tue, 25 Mar 2025 11:43:01 +0100
-Message-ID: <20250325104305.23980-7-bensberg@telfort.nl>
+Subject: [PATCH 08/11] mkfs.cramfs: reduce the synopsis to the standard, succinct form
+Date: Tue, 25 Mar 2025 11:43:02 +0100
+Message-ID: <20250325104305.23980-8-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250325104305.23980-1-bensberg@telfort.nl>
 References: <20250325104305.23980-1-bensberg@telfort.nl>
@@ -53,40 +53,63 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The reference to "each entry below" made no sense, as that second
-translator hint is not before a gettextized message and therefore
-did not make it into the POT file.  Gettextizing that message is
-not useful as 1) there is nothing to translate, and 2) allowing
-the translators to fiddle with the tabs is too complicated, and
-3) the --summary output is deprecated anyway.
+The old synopsis was 1) incomplete (mentioning -h and -v, but not
+-V and -E and -z, for example), and 2) overlong, being wider than
+80 columns.  So, change the synposis to what most other utilities
+nowadays use: "<name> [options] <arguments>..." -- this makes it
+much clearer what the two required arguments are.
+
+Also, reshuffle the descriptions of the two arguments, to not hide
+them among the options.
+
+And remove the description of option -s, as listing an option that
+does nothing is not helpful.
 
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- sys-utils/swapon.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ disk-utils/mkfs.cramfs.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
-index 15efa481a..83ec702d5 100644
---- a/sys-utils/swapon.c
-+++ b/sys-utils/swapon.c
-@@ -260,7 +260,8 @@ static int display_summary(void)
- 	if (!itr)
- 		err(EXIT_FAILURE, _("failed to initialize libmount iterator"));
- 
--	/* TRANSLATORS: The tabs make each field a multiple of 8 characters. Keep aligned with each entry below. */
-+	/* TRANSLATORS: The tabs make each field a multiple of 8 characters.
-+	 * Please keep the translation aligned with the original. */
- 	printf(_("Filename\t\t\t\tType\t\tSize\t\tUsed\t\tPriority\n"));
- 
- 	while (mnt_table_next_fs(st, itr, &fs) == 0) {
-@@ -271,7 +272,6 @@ static int display_summary(void)
- 		off_t size = mnt_fs_get_size(fs);
- 		off_t used = mnt_fs_get_usedsize(fs);
- 
--		/* TRANSLATORS: Keep each field a multiple of 8 characters and aligned with the header above. */
- 		printf("%s%*s%s%s\t%jd%s\t%jd%s\t%d\n",
- 			src,
- 			srclen < 40 ? 40 - srclen : 1, " ",
+diff --git a/disk-utils/mkfs.cramfs.c b/disk-utils/mkfs.cramfs.c
+index 51fa2122a..74f51a280 100644
+--- a/disk-utils/mkfs.cramfs.c
++++ b/disk-utils/mkfs.cramfs.c
+@@ -128,10 +128,15 @@ struct entry {
+ static void __attribute__((__noreturn__)) usage(void)
+ {
+ 	fputs(USAGE_HEADER, stdout);
+-	fprintf(stdout, _(" %s [-h] [-v] [-b blksize] [-e edition] [-N endian] [-i file] [-n name] dirname outfile\n"),
+-		program_invocation_short_name);
++	fprintf(stdout, _(" %s [options] dirname outfile\n"), program_invocation_short_name);
++
+ 	fputs(USAGE_SEPARATOR, stdout);
+-	fputsln(_("Make compressed ROM file system."), stdout);
++	fputsln(_("Make a compressed ROM file system."), stdout);
++
++	fputs(USAGE_SEPARATOR, stdout);
++	fputsln(_(  " dirname        root of the filesystem to be compressed"), stdout);
++	fputsln(_(  " outfile        output file"), stdout);
++
+ 	fputs(USAGE_OPTIONS, stdout);
+ 	fputsln(_(  " -v             be verbose"), stdout);
+ 	fputsln(_(  " -E             make all warnings errors (non-zero exit status)"), stdout);
+@@ -141,14 +146,12 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputsln(_(  " -i file        insert a file image into the filesystem"), stdout);
+ 	fputsln(_(  " -n name        set name of cramfs filesystem"), stdout);
+ 	fprintf(stdout, _(" -p             pad by %d bytes for boot code\n"), PAD_SIZE);
+-	fputsln(_(  " -s             sort directory entries (old option, ignored)"), stdout);
+ 	fputsln(_(  " -z             make explicit holes"), stdout);
+ 	fputsln(_(  " -l[=<mode>]    use exclusive device lock (yes, no or nonblock)"), stdout);
+-	fputs(USAGE_SEPARATOR, stdout);
+-	fputsln(_(  " dirname        root of the filesystem to be compressed"), stdout);
+-	fputsln(_(  " outfile        output file"), stdout);
++
+ 	fputs(USAGE_SEPARATOR, stdout);
+ 	fprintf(stdout, USAGE_HELP_OPTIONS(16));
++
+ 	fprintf(stdout, USAGE_MAN_TAIL("mkfs.cramfs(8)"));
+ 	exit(MKFS_EX_OK);
+ }
 -- 
 2.48.1
 
