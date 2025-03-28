@@ -1,53 +1,42 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79FA220E326
-	for <util-linux@vger.kernel.org>; Thu, 27 Mar 2025 10:15:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0BDB1B415F
+	for <util-linux@vger.kernel.org>; Fri, 28 Mar 2025 10:45:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743070558; cv=none; b=sp5wAlJsTkISlvN6yhF/oGdcO9psqEFMoScBNAew7t2AugEH8EV6PlfQ8rhKe79hK8RUsKTlCEhGopiy2gTt8avlUUHpTPnLIoGg1sFmJCwTVO9TaOpw1SKn5WZ9Ki7apVc8gDO4b7Zs8ZM7fGhUMFEqqJRYQ05Z5G8iJ6DA8XE=
+	t=1743158705; cv=none; b=rfHpM7BRN+F8GG6+ffbH/a2knqhLmyOOdT5L7p2sZAw13i2TdhbPEH9+OlkU5hQoPOitBeyV9uMv38X0n/N3wZ6XSIaRERFMw6SJ0ufVTwDLLzA2Ti+tlsF22qk8Otb8Jgm+rEXz/uNXjDZEo492yvu/dLEfLeA02GzknXSv5Tc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743070558; c=relaxed/simple;
-	bh=XeUHS0CaO02w2+MnTV5QxIjZF+VjxRgJShh+7iBBuR8=;
+	s=arc-20240116; t=1743158705; c=relaxed/simple;
+	bh=4MDsllLV1Hc+e+K41WVgks2P6/UD4rWVd+TwY6JnW9M=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=u2IUPQnEwauv4V6SxwspFDjrUhJWbS9MFdxNrn1kQ4tbscFt8Ha9cK1OkZOK870GIQasw/9iX+/oZWVgv3vIVGnhPX3LbY3EEmEGDkd3JQg7a9hJ2K8d0RAbJp/ksDTYH4nyuCuqfCy/On5rBfSrJOwb4V24idGGezgsWaYZJO8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WXs36t1i; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=dO3tRyjzNXs768zFpMmZwST/YSW6mXAxbH2LEf4HiiPuDyc/USbI4DstL8uQJbmtHxLFFiUYDfhLCgZ3tvLvXWJwF9Z4jB/09T+grX4YtVc0Z/jKAwxuxPyEOg5V7xJm6Z0XdyUKGi291OhkIDdLn8dVb2q+TReYrg5t3XyxYeg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=BPKix9sZ; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WXs36t1i"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743070555;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=CUjDX9qNuC2nMHBpa4n7roAxPd56K57qdAjuVI0fU+I=;
-	b=WXs36t1iVcnvUp03pah848Yy3TGwI4Ik5h7pLzL7yyAhx4INvRarqPjKom9piWi322IeG+
-	K+gt8hsJ45Gwdub+lFmnbFoVV/YY/dJvdkLk9hMEtyJzpH0bjrwhYJyk8ytSA8h631TF87
-	Sng0AR4C+kz3GNvERoDgz8bQ27YxTdE=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-546-whsxLGNoMM-ULceF9WBNSA-1; Thu,
- 27 Mar 2025 06:15:51 -0400
-X-MC-Unique: whsxLGNoMM-ULceF9WBNSA-1
-X-Mimecast-MFC-AGG-ID: whsxLGNoMM-ULceF9WBNSA_1743070550
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C817D196D2D8;
-	Thu, 27 Mar 2025 10:15:50 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.224.198])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E1483180B487;
-	Thu, 27 Mar 2025 10:15:49 +0000 (UTC)
-Date: Thu, 27 Mar 2025 11:15:46 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Zhang Yi <yi.zhang@huaweicloud.com>
-Cc: util-linux@vger.kernel.org
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="BPKix9sZ"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=0OauXICVRshnOsCcsTH4k/CrOcm+Ne+ATnxs29a1Epw=; b=BPKix9sZsytzLkXkrGgu+Fpj4e
+	PvTlN0iQRJY47XXRV4K48N8cSbe88w4wiWv5hanTNcEebdTHtA9igrikO1i3nX+IQd02eZBYvyUo0
+	+Bo7Rw566VePqlwgMSG7EJan0ElIUZflmTlcXe17tVHRD8Uy/FJkJf7uS3TOQpBrvBzmczykcV9oe
+	+KznycVpz1z9aBhCiEojgPehLapBqM8moj0YlZHLqx9ve5QVNHLDDeZ68NEb8J/iM0eV0ln0D8RvT
+	xMseIWGJDhEQfBNQgyLgnDwUrjfMaQubbVTU4ihFLof0Jw3vSpGOszNQlCd14f1CyvWaeIFLFDdKh
+	J21EZOcg==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.98.1 #2 (Red Hat Linux))
+	id 1ty7Cv-0000000DAIa-2zns;
+	Fri, 28 Mar 2025 10:45:01 +0000
+Date: Fri, 28 Mar 2025 03:45:01 -0700
+From: Christoph Hellwig <hch@infradead.org>
+To: Karel Zak <kzak@redhat.com>
+Cc: Zhang Yi <yi.zhang@huaweicloud.com>, util-linux@vger.kernel.org
 Subject: Re: [PATCH util-linux] fallocate: add FALLOC_FL_WRITE_ZEROES support
-Message-ID: <j7o7bftkbz4fg7rt6s76q5qumie3lncauloft77k2nvnlyzd7a@pecviw4axn5w>
+Message-ID: <Z-Z9rZzoXzXltc3e@infradead.org>
 References: <20250318073218.3513262-1-yi.zhang@huaweicloud.com>
+ <j7o7bftkbz4fg7rt6s76q5qumie3lncauloft77k2nvnlyzd7a@pecviw4axn5w>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -56,20 +45,17 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250318073218.3513262-1-yi.zhang@huaweicloud.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+In-Reply-To: <j7o7bftkbz4fg7rt6s76q5qumie3lncauloft77k2nvnlyzd7a@pecviw4axn5w>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-On Tue, Mar 18, 2025 at 03:32:18PM +0800, Zhang Yi wrote:
->  sys-utils/fallocate.1.adoc | 11 +++++++++--
->  sys-utils/fallocate.c      | 20 ++++++++++++++++----
->  2 files changed, 25 insertions(+), 6 deletions(-)
+On Thu, Mar 27, 2025 at 11:15:46AM +0100, Karel Zak wrote:
+> On Tue, Mar 18, 2025 at 03:32:18PM +0800, Zhang Yi wrote:
+> >  sys-utils/fallocate.1.adoc | 11 +++++++++--
+> >  sys-utils/fallocate.c      | 20 ++++++++++++++++----
+> >  2 files changed, 25 insertions(+), 6 deletions(-)
+> 
+> The patch will be merged later if it passes CI tests. Thanks!
 
-The patch will be merged later if it passes CI tests. Thanks!
-https://github.com/util-linux/util-linux/pull/3489
-
-    Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+Please old off a bit.  For now the kernel side is just proposed and
+not actually reviwed or merged.
 
