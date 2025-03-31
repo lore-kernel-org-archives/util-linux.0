@@ -1,283 +1,166 @@
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E62472147FD
-	for <util-linux@vger.kernel.org>; Mon, 31 Mar 2025 15:03:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743433412; cv=fail; b=Y6P2i7TNdDmbslmxq6CPlb6MLDt4KLrjZavuQykZpEk9ZWY+glvIl2s3KxGN6Fa10EYnBSSwRPoM23onuvvYxLKtaqZAsSVNwihXc65+q+AnB/mgVrOMIbRBNN3JwgQcOpvQ8CPQcI/iA/2isVmCx1ITjZH7dfRPREGKdTf2DWg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743433412; c=relaxed/simple;
-	bh=LOXqExeSTJAN0yeSokjW8jWFoR7ZbFhndlemFtYqZQ4=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=WB+3M+u1Cu68e/ZsfqH3trmsr/vnyBe7vbLWi4RmjS+XSchFONviJIed9Z3elJmuZrNetximWA3thFMd7b5byUrrDbB2k+IYM6j8j1tYdfX46pQsdUYFqyZXiz+bPLM4xXwGVm/pwHDi/4G0MBnhPQMTf4xyYHZzavyCvA9Hv70=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=UjGSrb2c; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=OQKeFpHk; arc=fail smtp.client-ip=205.220.165.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB4C01D86DC
+	for <util-linux@vger.kernel.org>; Mon, 31 Mar 2025 15:47:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1743436051; cv=none; b=l4u5RoISfGCRgbY7Z3hzcT1z1L/Kyv+3Z5kAGV2bUUY+4Xs4tXeJhiN/YeZ4M+pHRh1NkUmgzRukwMMH/s9ELV2RjV21YeZguSYsGhhhNawnVd4zrhJf6cOlBNiaoArv3U/IECIVTpq5N/+7GyejPSGVz5uJ1y8iBlGPJH9L7B8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1743436051; c=relaxed/simple;
+	bh=H26gFAR+ckq2Y2IrLxIkeLHjJtZtB62J7/UaqZOj1SU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PgdD8Xvw53/hl3LZi0MLNCkPtqAN+0tNv75lnina9cOXia/szfTo/tcpKgyH1Qvi3x2vsJlAsFDSJTay77Ws+8y4a5gr7+AJOlP1QUhc0GoxOKLb0hi1X3xDGj9fL/sRBX1f6d0sDhKUb/fonkM3DYnNECLzwoFAM4XOYM53mMc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=CyWA+tOW; arc=none smtp.client-ip=195.121.94.168
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="UjGSrb2c";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="OQKeFpHk"
-Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52VEC29D022308;
-	Mon, 31 Mar 2025 15:03:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=
-	corp-2023-11-20; bh=JDlrpinyhXSGSSTB7YZ8af+XZDLS0D0jf0GPg5yNoR0=; b=
-	UjGSrb2cnCWhy0oJ3+ej4lEiCMP3jrC0iqcZsdXzFxy8WKWBV4Y5fyyjSnQ3t06u
-	vovC5SJoKWKCqAbYZtRunEkGMTxmoGDaBNj153foU3EJ8deld5Y06pBg+JNVVdgN
-	0pz8omgOETSiCt/znudF5oYAHqh4yIQRLMG2V9IXP64ZUeyzUiOUNc0ksAYw98ui
-	Jd10SDRWXOMndhFg0qbMGgVui54rxvfFL0sCZaVcRfrqLkGp2GG/7gZHDoXAVLPs
-	e9lDedqH7HQv8UXbUDD2QZPIzWmvzX0ak/46LZbo1lG8ddUDwjSrvadaLc2EQ8O7
-	a6OoUCg67kFzBbEIqq3U/w==
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 45p9dtbdsw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 31 Mar 2025 15:03:18 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 52VDnHqe003274;
-	Mon, 31 Mar 2025 15:03:17 GMT
-Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2047.outbound.protection.outlook.com [104.47.66.47])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 45pr8nxm3b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 31 Mar 2025 15:03:17 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=KQtBqiCKmb7Bko1vsAz/TSLWYzUz4fxRrpl89Ax6AmubFLIHSvD+MxBrJa7wj5obBZCPR1Jyr5YIBTxpf9Nb2uDX9X+iMKg3grsGd9HqXayjquuEgh4zj0D1B293O0MgbH1jfaTfTR74vZEY6zF9HT0JIY0GFiZ8ZICFcUpW//FkYnedf0v6ZocfATqngCNhyAxBRjF9J20U7caL4UFJoKn5QKBh3Os6iWuT0PpY3+yQpb89UXDVcdbf2nDUoYZGXQb7zqnAKvLsYdhDSL242sGlzKI2QQWzkXnZ+270g498xZCS2HGfXnYMAVANwLWpjDgYQRvHDRl3/Z9AlnXJrg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=JDlrpinyhXSGSSTB7YZ8af+XZDLS0D0jf0GPg5yNoR0=;
- b=ckQZK4VrnYjyQUS/YyDN6BoZudOvch3N7tHhoUzqCdmCBiMGcO8Qq5xbrXlZgKl5dB4sCgS+ns6G6MI4nhhIBWvs8mtsE5YO8TfTp4l0Q7yLYjcCbKQuWzC6mVxD1KWkme3IKfaLzkjEN6MPp/5QWQJMCewaEYH1DMsCIJz8lIP+YOnQ+KsoQOKe1bqAIwBw/uL/N6IFKUgeI5x/5KrHhmnS7FEdnRzMlftlDfWvXreJdIZu6hIdXzLlzQMy6Uq5DNk93lJ8xbwNJ/JbVGTGH1zeO3gLtRqXTCV7upA3S7Z5Ns0nwasVpwhJcSCy10AN9GBwqDX34XxvKHjL0ZgA8Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="CyWA+tOW"
+X-KPN-MessageId: 819e2941-0e47-11f0-86cb-005056aba152
+Received: from smtp.kpnmail.nl (unknown [10.31.155.37])
+	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
+	id 819e2941-0e47-11f0-86cb-005056aba152;
+	Mon, 31 Mar 2025 17:47:52 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=JDlrpinyhXSGSSTB7YZ8af+XZDLS0D0jf0GPg5yNoR0=;
- b=OQKeFpHkjZZq2uVwt2E/H7KrGHDBzlmJzGyG00I2X08B3rgy1LMGUeGQfZEnBHImNhxlewjUlzfTo9pALnjSHlNOpEczlSR0OerGadj/XxH88zKsSp0zI46hTUqA605WhKVMcOvY0G+kMvoetQ2Eev6lz8jKXRlJJaX1bxC2lTU=
-Received: from DS7PR10MB4944.namprd10.prod.outlook.com (2603:10b6:5:38d::15)
- by IA1PR10MB7485.namprd10.prod.outlook.com (2603:10b6:208:451::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8583.29; Mon, 31 Mar
- 2025 15:03:01 +0000
-Received: from DS7PR10MB4944.namprd10.prod.outlook.com
- ([fe80::5088:d2e8:c30b:43e5]) by DS7PR10MB4944.namprd10.prod.outlook.com
- ([fe80::5088:d2e8:c30b:43e5%3]) with mapi id 15.20.8583.038; Mon, 31 Mar 2025
- 15:03:01 +0000
-Message-ID: <a001f0dc-2b73-42bf-ad7c-1271e9727c36@oracle.com>
-Date: Mon, 31 Mar 2025 08:02:59 -0700
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 05/10] irqtop: improve several more option descriptions,
- and align them all
-To: Benno Schulenberg <bensberg@telfort.nl>, util-linux@vger.kernel.org
-Cc: Zhenwei Pi <pizhenwei@bytedance.com>
-References: <20250331094443.9619-1-bensberg@telfort.nl>
- <20250331094443.9619-5-bensberg@telfort.nl>
-Content-Language: en-US
-From: Joe Jin <joe.jin@oracle.com>
-In-Reply-To: <20250331094443.9619-5-bensberg@telfort.nl>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: MN2PR13CA0013.namprd13.prod.outlook.com
- (2603:10b6:208:160::26) To DS7PR10MB4944.namprd10.prod.outlook.com
- (2603:10b6:5:38d::15)
+	d=telfort.nl; s=telfort01;
+	h=content-type:from:to:subject:mime-version:date:message-id;
+	bh=H26gFAR+ckq2Y2IrLxIkeLHjJtZtB62J7/UaqZOj1SU=;
+	b=CyWA+tOWnwhvnHRU3q6ntuhath67KCAUEUqnjkR3CFQzTfTi0XLIpjifRs9DXCo/H5QC0rJw4Lks2
+	 VjTpowAVTKnCeWp+iShFfZdRCRzAQ2HfWCeYbbaJs3PUZy/nlOlH/3w1XLyov0phiEP7Wfhccz40s0
+	 YN4hcSTSEE5rY6ZI=
+X-KPN-MID: 33|nv1VHDUpXsvyhAEzrHKmTY76asTkFM7/VDAYYi2lfeWP8JSQuA/VExDPJJlpiow
+ ZJ4/YSqlSQM6+m9pKDxUmNYAWHxkw8QtLp0XCRh3Pqqk=
+X-KPN-VerifiedSender: Yes
+X-CMASSUN: 33|zEm/SdSK4orCG0duzI1aMA3YMsvFEbmGFok4vGT0Weu4QFM7hhZ43iPMYYPr8OY
+ mo6GKu9YBd21fTOEYS63T1A==
+Received: from [192.168.2.2] (77-163-176-192.fixed.kpn.net [77.163.176.192])
+	by smtp.kpnmail.nl (Halon) with ESMTPSA
+	id 6fa5fdcd-0e47-11f0-9b4a-005056ab1411;
+	Mon, 31 Mar 2025 17:47:22 +0200 (CEST)
+Message-ID: <7c31b1e6-1510-4066-a565-2d8343b99b36@telfort.nl>
+Date: Mon, 31 Mar 2025 17:47:22 +0200
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS7PR10MB4944:EE_|IA1PR10MB7485:EE_
-X-MS-Office365-Filtering-Correlation-Id: 47066fe5-9ac5-442c-1420-08dd706521bd
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|376014|7053199007;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?eDlQQXhsVVd3ZGFhU2VLNGEzZTRNcTU5UWVLSlhCc3FLeTdkWHRJSjZiVkw2?=
- =?utf-8?B?eTNSTzRWaEgvZ3RNSUNjUGt6THpnbUQvc1VGcE8zNi96K0h4MVNKa0ZPdzBV?=
- =?utf-8?B?cXU2eDRyMkU5SUJUcVFMZ0pQeUNGZS9Xa1I3ZFpaYysvbnJWdU5wWFlMbDVK?=
- =?utf-8?B?bjNjV3c5NGZ2WGdjWTc0L09YZ0phOWwvNkN6TVhQZEVacXRRd21qQTU0Nk1z?=
- =?utf-8?B?RGU2aHBSM0ZtQ3RyWW1vNHAzV0s2TDRtZmpxbm0vbk16RHZaRXBKR0FabFRu?=
- =?utf-8?B?S1g1TGpPKzhKZzhPcTdGK3dsc0VhUFFrRGVEY1lXRlRKV2VCVDA5YWhGOXRV?=
- =?utf-8?B?UktZVkVLUjBnUlBwSFJvcmVwUzlSVktpVkFneVJnVlY3a09tdVhzRGRnL01L?=
- =?utf-8?B?TmFoV2lXc2ZqeXVOZ3pHZUFjZE0zQVdDNitaZy9XMXBJRzZ6VTk5dWdVTEtI?=
- =?utf-8?B?VnVBWnB1L1VJWWp2aVNEVjFtN0NOTjJYM0JEKzN1VkFZeGZ3eW5BYWdMSWQ2?=
- =?utf-8?B?Skd5Z0daaFVWMldad3p3NFRuejlGOVh0bU9yTmd0L3c4SlQ1NXhZT2cwejh5?=
- =?utf-8?B?b0dtTjBadmhkbkRscUl3VUNjeFdaNmY1VEZTZi9Nd21ZRGxvRzg2QjBmWGhC?=
- =?utf-8?B?OUVPaGJqRzJVbE1tVFRaSUNUZnZrY1phbEVVdHZFMDk1Yk1zcTBKWHI1SHZ4?=
- =?utf-8?B?ZFBMcnNTU01zOXJCWG1xWEx4Q0svbGtzSzFpOXJaSzRuNllKSGljUVY5b0xS?=
- =?utf-8?B?YWkvR1E0U3ZhODltTzMrOTV0TkRIS3dBQkNLT2pJZHJkVCt0K1dGOWZmcU5M?=
- =?utf-8?B?YWNQckwrUDFPTEdDZU42aDVCMnNvQTdocHlTbllGTDNkVXRGQ1BEVW5WNzFJ?=
- =?utf-8?B?aWxPTUtYU2ZrVmJMUXMzaHF3MjA2SU8xTGVNcG92a0hiYlJwNUV5dU1KMTRu?=
- =?utf-8?B?d01lS3hEZWVFY2hGbjVPMXplYWdIb21VcXlIQkh1SW9kM1h6OUhWQ3dDSWNT?=
- =?utf-8?B?ejI5SHpubTZxYzA5ZXY4V3g0L3FpQ3c3WDNmamtVZTZHalFYWk9iYVFiK1dJ?=
- =?utf-8?B?WURROVZXRjVHSVJWdU1YakVmN3lLazFEQXBLK0tLL0hndHY1WjltQWxraVRV?=
- =?utf-8?B?ZFhEK0FFYVMvK04xRitPSXFCTnh5YlNMb1F1ZWpSckY1S25PWFRMdExraVVo?=
- =?utf-8?B?WmhVUzdrQ2ZROU5CSEQ4dDVKRVhLMCtHRU9PT1Zic1JtQis3RFV1VEdzWjE2?=
- =?utf-8?B?eFVucGpqVTJYL1R1NFBwVkk5MGFNRE9rSjJMcHhLeCtSRW9BUkpVSVRDNEhK?=
- =?utf-8?B?SHBRVm9OWTBhVWFPYityWS9kRE9hYVpXTnBUQW5ua1JNNVM4cjNqeUNIbUNN?=
- =?utf-8?B?R0tQempFa293cTlUZ0pjNWtSZmdMSWRVQTFsTnl0NnNQTm1uSmxIL292Qllq?=
- =?utf-8?B?OWZabXNVek9UaFZuYS9mTGpJNysrdTVtcUNUTG5vSW1NUW1Kd21mUlBzaXJW?=
- =?utf-8?B?NjhRZUEzTTFtSlBHZ0FXamI2WGNGSHpXTXJmSmJKclA0VUZqY2xNckVNUDNq?=
- =?utf-8?B?VmdXdHJnZElvVzFLdUczeTJFVEhRRU5aS0loanZpR3I3S3lZejJZOWs5TXpi?=
- =?utf-8?B?TlQ1T3FWM3Vxd3A4dXloaFlYeXFNcS9KVmhqYnJOcG5HZm5SYnBmMEVVQWNT?=
- =?utf-8?B?Slg2ZncrdzQ5NkdEaFBIVjlueW5CYVJNN1BBNWdUZGdXUHlnY3VpMTh2L1dG?=
- =?utf-8?B?MTdIWWVJWlV4N3RMcGQrWkhEaW11SE9teWQzN2gzaHBJdUE4STFVUC8zamRr?=
- =?utf-8?B?ZlBNdDlWSFFVWjU4QlcyTEJiTTZDVHZTOVp3OEM1S0RxWHZYM1VQc1RZcXR0?=
- =?utf-8?Q?Zue1mToi2BvvM?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS7PR10MB4944.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(7053199007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?Mi9LRlZGQmhhL2drbTlZRDlyRnZjWWNXelQ5Y0p0S2VUL1N2RDFBU0F4b3N3?=
- =?utf-8?B?TDY5TXMzQXZFdjBrOVlzdlZjSUJzNS9WS1B1d3VUMEdlK1cyRStGUVNOUks0?=
- =?utf-8?B?RDZHSUE3S0YvQ2JHMW82aWxQNENTQnp4eURHUTQxd2VZdW1PZWRWUkFIOWVZ?=
- =?utf-8?B?UHJXMUFnbk9IcDlua3BGUzN5RG5rVTI0OXFVb1dhK2R2WjYxcXhPcThQUHB1?=
- =?utf-8?B?cDFFWVdNRXh5eDFuTGVtb1RObU1JalM0WVNpNElYVHBJV0lNSVdkMk5nK21n?=
- =?utf-8?B?VDJBWEg3UzhmR3h1b0JQNXZSTVU0U2pGYiszM1hXR0p1YUFQczdlVGJYWmxa?=
- =?utf-8?B?eXVOcjFLUUNVVUJ3dmtDbUZ1dWF1bk5MUFNNZ0xnenJNZTl0R01LNE1WS2hI?=
- =?utf-8?B?WFlvTGJndWZWeTJ0c1hTNzJEMDNSeitnZDRsa1IvckZ1NU94Vkl5QW5sc1hC?=
- =?utf-8?B?OFBEdlh3RHQvdzYxWjc1WmZzYUVwN0ZQL1hWeDdOL09LTitqWkxpKzZiWVdI?=
- =?utf-8?B?cGlaYnlWWk9QZkNsNTVNYWNZakZieW1QS1VYTFk0SlVOMFY1L2x1TVNqSXo4?=
- =?utf-8?B?TXhRS3RidHkzdE9hRDh3MjZ2YmFxVjhFS0ZTUWorclVIZEQyMWdOQmljOFFC?=
- =?utf-8?B?Wm5MaGE5OHM2MVkvY1lwVXdDU1NuV0d1YXhRVXJiczB4clZVdU5NRFdMUyta?=
- =?utf-8?B?NVA4bldHSEpqUEkvZEZBYkJ4endXdWJSYW83R01SZGYwdlAxMzlhSlVKWnpD?=
- =?utf-8?B?c0VjZ0lYVlovSEFOdEJnbTBUNjcrN3NpcC9WemNuckkzSElMcE1CVmVkY281?=
- =?utf-8?B?TW5PaWdHMS8zL1pJZUsxU2M5U0N3MFZCVytVZHF1d2svanpiTjkveUVEclpY?=
- =?utf-8?B?cHVMNUZ4dW94Y2tMd0FmVEUyc2UrcmlPVytsdEZjZUhKQXBqczduckpTSUFI?=
- =?utf-8?B?eW1KNUo1QTZMRGtDWS9IaUh3cDYzY2ZQT2ptQlZGcnhlN2h2V2xWK2ZPUGhl?=
- =?utf-8?B?dFhGaHRadEV3S0k3cFErYnk2YnkyRWJuQ3BTTzM4dEhGZmtyK0E2YzM3VDVv?=
- =?utf-8?B?MzcvalpVT3FKRlV1Nzlpb29DWXRCQ1dGMk9UU0kxNVlYckxjOXVvcy9vWHFC?=
- =?utf-8?B?VUNnNzQzNEdvY3pvdnlkUjhhbkVBdFhSTVBiS1RkNHNtczE0eG1EZVFoMVFM?=
- =?utf-8?B?aG1ldHRwM2JoOHNEcUpuakQ2SC93NGJCaTEyRDJVa044ZitnZUZsMzgxL3lp?=
- =?utf-8?B?WEVqRTlnUHJVZEZxODZGVTFNTjEzdFdXN3U2amJrVllJSFp2eDQ4UHlxMSt1?=
- =?utf-8?B?S04vdkdjNk5PUHpHa1I2MFNKRkN1NXVEclFpMTdzeUlvL1BDQVk2cFdnbVM4?=
- =?utf-8?B?MnlLVlFIUDQvWkloWldZL3ZJVDRBYUJiNnFZTDN6VTVLWDNnWlNTVk5wMDZq?=
- =?utf-8?B?RjAxT3g4WkRnZ1N5MlJwUXN1aWQvUjAwUmRwOW9tNUpVbGZZYi9XV0hvQ2N4?=
- =?utf-8?B?RTg5Vmc0UkR1Qm9yOHlYTFJBb3Y1T3ZmTGloSllISTMxRG5tbUVxYjk4K1hR?=
- =?utf-8?B?WFJnN2dJQndDcnBKTDNERnQvWFFrTytscjV5ZGY4ZGl2L0w1V1lFcHE1RFJQ?=
- =?utf-8?B?SHB0RXRQRDlRT3FrSHVxNE9jMmN4dlM2TDZDOTRhQzRwT2V3VXY0S0NuNEtm?=
- =?utf-8?B?Y0szeHYxMklEVjJRU05TaEh4cG5iVmFUcnhINVJyMWxXRHRQU1JhYld6b1o4?=
- =?utf-8?B?RzVLTDZxaDZhM0lNQVJOQ0JCMmZYR284ODl2T3Q3OVRaQWFVYXh6ZGNRSTRR?=
- =?utf-8?B?L1gySUJQZXFoWmxibnY2TldHMVN6YzM3WFlWQ0hoZjJlQ2ZDVG1oOVNpKytj?=
- =?utf-8?B?QVB2cElvclJ3dUxrcUdsRGxLbWp6TnA5RVI3UTVPMXAwWHR2VFpic09tQ29x?=
- =?utf-8?B?ZjdWSHpWV3BhWFgyMTgwR3p5SjlJb0h2bUJDSG9rd0drVURvaG5aOVBzdU12?=
- =?utf-8?B?NmlWTlFGUTJ0UkYyRXp4ZlNxNHhYUW55bVkwRDVxSzA5amhLN0ZQWnM1bmdP?=
- =?utf-8?B?WTlxekVKTGRZOFY3YjYwR2pLem5BZFdBN3VYNmU2dUFhR0xheFJrL25CbkhX?=
- =?utf-8?Q?lTAzOnAXFp4pS4ujCK2tpUCmb?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	23JD2Qhq2jHjjNgfBnLJsux/sYyZKBfnMHFj9O/LM1T9Z34J9GFPdZzPWkSpr5DSq/UnAWtvQG2OPblSblmlk6VqRQcfjyM80o5X8NVVJeiaQxy/hvtADZqsSgivIcbR3sdz9/na2PForSJcNmZdz47WbTDjjFsB/x+bW5NCuVAgKVcU3jDn40uO7oauid8I7X/S642VWUBKbcGLgn4ykc9xzRu/F+d51xv4GGs0Hz/HChQ60jukLCwTrzSy+DAxn0Rs0KHcH+qYd7jO4T+3YP8/Swv+jTgTp7y8q7B2/6Kk5TI3TgxmJ5Q1ldSbF3uNJ19DjYiLqzPmaRmdtYtXF1dU0rDUrnDJJyAm/3Lekp5mVRy8FRuB6/KiTXOs8ei9wqU9my6eNCffOXQV+yA8NHd+GXflY+Y6rBzA8bFu9SuwNgDQM2b3t17sOugjEFO+fuRW/jEyyiecCKryJxWkMCBeKDtUdkb7TmVtfv/aRZeDwojT4jtHFITTRYSWc2l4ZZZwJqZYk8M71eI0tZiK8jEZ7Z805+FKf/P8p73n6SBPevqxG63wlPyBSt0Iw7uUc1mluwHByjeVchQ1192u0NPvE+gbW/w3SiP0PtqbQoE=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 47066fe5-9ac5-442c-1420-08dd706521bd
-X-MS-Exchange-CrossTenant-AuthSource: DS7PR10MB4944.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Mar 2025 15:03:01.7813
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: gAuN/1Hkc5GwJV9/bUXRAXiVm8nVJmWZLNlfm2uuvpdBEhvHIz8fktrC+kiM6KOrES18hTpeM9NXCyil0w83Rg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR10MB7485
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-31_06,2025-03-27_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 adultscore=0
- mlxlogscore=999 mlxscore=0 phishscore=0 suspectscore=0 spamscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2502280000 definitions=main-2503310107
-X-Proofpoint-ORIG-GUID: Mbwy82cVUKx13gKqo95JzsQtISmsIXaZ
-X-Proofpoint-GUID: Mbwy82cVUKx13gKqo95JzsQtISmsIXaZ
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 05/10] irqtop: improve several more option descriptions,
+ and align them all
+To: Joe Jin <joe.jin@oracle.com>, util-linux@vger.kernel.org
+Cc: Zhenwei Pi <pizhenwei@bytedance.com>
+References: <20250331094443.9619-1-bensberg@telfort.nl>
+ <20250331094443.9619-5-bensberg@telfort.nl>
+ <a001f0dc-2b73-42bf-ad7c-1271e9727c36@oracle.com>
+Content-Language: en-US, nl-NL, es-ES
+From: Benno Schulenberg <bensberg@telfort.nl>
+Autocrypt: addr=bensberg@telfort.nl; keydata=
+ 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 50GA
+In-Reply-To: <a001f0dc-2b73-42bf-ad7c-1271e9727c36@oracle.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------C0XBBP0v07m5TeJTP7nQmIWc"
 
-On 3/31/25 02:44, Benno Schulenberg wrote:
-> Keep at least two spaces between option+argument and its description,
-> while making sure not to go above 80 columns per line.
->
-> Also, improve the docstring (there is no need to mention that irqtop
-> is a utility) and remove the ugly Q from the list of interactive keys.
->
-> CC: Joe Jin <joe.jin@oracle.com>
-> CC: Zhenwei Pi <pizhenwei@bytedance.com>
-> Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
-> ---
->  sys-utils/irqtop.1.adoc |  4 ++--
->  sys-utils/irqtop.c      | 26 +++++++++++++-------------
->  2 files changed, 15 insertions(+), 15 deletions(-)
->
-> diff --git a/sys-utils/irqtop.1.adoc b/sys-utils/irqtop.1.adoc
-> index 04158a0ef..cf258d085 100644
-> --- a/sys-utils/irqtop.1.adoc
-> +++ b/sys-utils/irqtop.1.adoc
-> @@ -8,7 +8,7 @@
->  
->  == NAME
->  
-> -irqtop - utility to display kernel interrupt information
-> +irqtop - display kernel interrupt information
->  
->  == SYNOPSIS
->  
-> @@ -16,7 +16,7 @@ irqtop - utility to display kernel interrupt information
->  
->  == DESCRIPTION
->  
-> -Display kernel interrupt counter information in *top*(1) style view.
-> +Display interrupt-counter information from the kernel in the style of *top*(1).
->  
->  The default output is subject to change. So whenever possible, you should avoid using default outputs in your scripts. Always explicitly define expected columns by using *--output*.
->  
-> diff --git a/sys-utils/irqtop.c b/sys-utils/irqtop.c
-> index e0abddd82..3dbd030e0 100644
-> --- a/sys-utils/irqtop.c
-> +++ b/sys-utils/irqtop.c
-> @@ -303,28 +303,28 @@ static void __attribute__((__noreturn__)) usage(void)
->  	printf(_(" %s [options]\n"), program_invocation_short_name);
->  	fputs(USAGE_SEPARATOR, stdout);
->  
-> -	puts(_("Interactive utility to display kernel interrupt information."));
-> +	puts(_("Display kernel interrupt information."));
->  
->  	fputs(USAGE_OPTIONS, stdout);
-> -	fputs(_(" -b, --batch           send tables to stdout, not to a static screen\n"), stdout);
-> -	fputs(_(" -c, --cpu-stat <mode> show per-cpu stat (auto, enable, disable)\n"), stdout);
-> -	fputs(_(" -C, --cpu-list <list> specify cpus in list format\n"), stdout);
-> -	fputs(_(" -d, --delay <secs>    wait this number of seconds between updates\n"), stdout);
-> -	fputs(_(" -J, --json            use JSON output format (implies --batch)\n"), stdout);
-> -	fputs(_(" -n, --iter <number>  the maximum number of iterations\n"), stdout);
-> -	fputs(_(" -o, --output <list>  define which output columns to use\n"), stdout);
-> -	fputs(_(" -s, --sort <column>  specify sort column\n"), stdout);
-> -	fputs(_(" -S, --softirq        show softirqs instead of interrupts\n"), stdout);
-> -	fputs(_(" -t, --threshold <N>  only IRQs with counters above <N>\n"), stdout);
-> +	fputs(_(" -b, --batch            send tables to stdout, not to a static screen\n"), stdout);
-> +	fputs(_(" -c, --cpu-stat <mode>  whether to show the per-cpu stats (auto|enable|disable)\n"), stdout);
-> +	fputs(_(" -C, --cpu-list <list>  show IRQs only for the specified cpus\n"), stdout);
-> +	fputs(_(" -d, --delay <secs>     wait this number of seconds between updates\n"), stdout);
-> +	fputs(_(" -J, --json             use JSON output format (implies --batch)\n"), stdout);
-> +	fputs(_(" -n, --iter <number>    the maximum number of iterations\n"), stdout);
-> +	fputs(_(" -o, --output <list>    which columns to show, and in which order\n"), stdout);
-> +	fputs(_(" -s, --sort <column>    sort the table on this column\n"), stdout);
-> +	fputs(_(" -S, --softirq          show softirqs instead of interrupts\n"), stdout);
-> +	fputs(_(" -t, --threshold <num>  show only IRQs with counters above this number\n"), stdout);
->  	fputs(USAGE_SEPARATOR, stdout);
-> -	fprintf(stdout, USAGE_HELP_OPTIONS(22));
-> +	fprintf(stdout, USAGE_HELP_OPTIONS(24));
->  
->  	fputs(_("\nThe following interactive key commands are valid:\n"), stdout);
->  	fputs(_("  i      sort by IRQ\n"), stdout);
->  	fputs(_("  t      sort by TOTAL\n"), stdout);
->  	fputs(_("  d      sort by DELTA\n"), stdout);
->  	fputs(_("  n      sort by NAME\n"), stdout);
-> -	fputs(_("  q Q    quit program\n"), stdout);
-> +	fputs(_("  q      quit program\n"), stdout);
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------C0XBBP0v07m5TeJTP7nQmIWc
+Content-Type: multipart/mixed; boundary="------------vqNMlmnzNlwAfrz1IXDXvmPo";
+ protected-headers="v1"
+From: Benno Schulenberg <bensberg@telfort.nl>
+To: Joe Jin <joe.jin@oracle.com>, util-linux@vger.kernel.org
+Cc: Zhenwei Pi <pizhenwei@bytedance.com>
+Message-ID: <7c31b1e6-1510-4066-a565-2d8343b99b36@telfort.nl>
+Subject: Re: [PATCH 05/10] irqtop: improve several more option descriptions,
+ and align them all
+References: <20250331094443.9619-1-bensberg@telfort.nl>
+ <20250331094443.9619-5-bensberg@telfort.nl>
+ <a001f0dc-2b73-42bf-ad7c-1271e9727c36@oracle.com>
+In-Reply-To: <a001f0dc-2b73-42bf-ad7c-1271e9727c36@oracle.com>
 
-Why remove the "Q"?
+--------------vqNMlmnzNlwAfrz1IXDXvmPo
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-Thanks,
-Joe
+DQpPcCAzMS0wMy0yMDI1IG9tIDE3OjAyIHNjaHJlZWYgSm9lIEppbjoNCj4gT24gMy8zMS8y
+NSAwMjo0NCwgQmVubm8gU2NodWxlbmJlcmcgd3JvdGU6DQo+PiAgIAlmcHV0cyhfKCJcblRo
+ZSBmb2xsb3dpbmcgaW50ZXJhY3RpdmUga2V5IGNvbW1hbmRzIGFyZSB2YWxpZDpcbiIpLCBz
+dGRvdXQpOw0KPj4gICAJZnB1dHMoXygiICBpICAgICAgc29ydCBieSBJUlFcbiIpLCBzdGRv
+dXQpOw0KPj4gICAJZnB1dHMoXygiICB0ICAgICAgc29ydCBieSBUT1RBTFxuIiksIHN0ZG91
+dCk7DQo+PiAgIAlmcHV0cyhfKCIgIGQgICAgICBzb3J0IGJ5IERFTFRBXG4iKSwgc3Rkb3V0
+KTsNCj4+ICAgCWZwdXRzKF8oIiAgbiAgICAgIHNvcnQgYnkgTkFNRVxuIiksIHN0ZG91dCk7
+DQo+PiAtCWZwdXRzKF8oIiAgcSBRICAgIHF1aXQgcHJvZ3JhbVxuIiksIHN0ZG91dCk7DQo+
+PiArCWZwdXRzKF8oIiAgcSAgICAgIHF1aXQgcHJvZ3JhbVxuIiksIHN0ZG91dCk7DQo+IA0K
+PiBXaHkgcmVtb3ZlIHRoZSAiUSI/DQoNCkl0IGxvb2tzIHVnbHkuICBBbmQgd2h5IHdvdWxk
+IHRoZSB1c2VyIHdhbnQgdG8gaG9sZCBTaGlmdCBiZWZvcmUgcHJlc3NpbmcgcSwNCndoZW4g
+anVzdCBwcmVzc2luZyBxIHdpbGwgZG8/ICBIb2xkaW5nIFNoaWZ0IGhhcyBubyBleHRyYSBl
+ZmZlY3QuDQoNCklmIHRoZSB1c2VyIGhhcyBDYXBzTG9jayBhY3RpdmF0ZWQsIHRoZXkgd2ls
+bCBzaW1wbHkgcHJlc3MgdGhlIHEga2V5LCBhbmQNCmV4cGVjdCBpdCB0byB3b3JrIC0tIGFu
+ZCBpdCB3aWxsIHdvcmssIGxpa2UgdGhleSBrbm93IGZyb20gb3RoZXIgdG9vbHMuDQpObyBu
+ZWVkIHRvIGV4cGxpY2l0bHkgbWVudGlvbiB0aGlzLCBiZWNhdXNlIGl0IG1ha2VzIGl0IHNl
+ZW0gYXMgaWYgaXQgaXMNCnNvbWV0aGluZyBzcGVjaWFsLg0KDQoNCkJlbm5vDQoNCg==
 
->  
->  	fputs(USAGE_COLUMNS, stdout);
->  	irq_print_columns(stdout, 0);
+--------------vqNMlmnzNlwAfrz1IXDXvmPo--
 
+--------------C0XBBP0v07m5TeJTP7nQmIWc
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmfquQoFAwAAAAAACgkQUUu+Lrjhlh9y
+ZBAA7Zpmx57s1vEATSXlYDvj1vm2B2HSztlvRytO7t073sLj6X/gtXmZpMz7s1E/br6BNSqA1woe
+O1fqmRKxE/I1tRJ2M25b3WDfS9KakGrrNa5YiNAE3F+JeYgG4RLQ0cSpUE7GdeAe+9xRq8TBLKbK
+9/kxxJ2sIhWIbB7+iGxv6USsceK05uUg+WI5xxdB0gHjvgFighD+/OGgPtWNFqE30arkJkB2BoRv
+dk8os+oIpS0tiTGpTZtr931LZzHRtbA1Bkdm9nLEq9tdVcGV+bNW+ldNpqIxkmUTeDDMy4BI3lL4
+FD6ed2HjVy7DspD3k72HT9W06mLEXKEkaPG9eQ6sUH9Q3i0GkYoj9KWtnHl310zdRPO1xJKJIPuK
+nC+9HmjtNbCGszka3/z6L6+QrGoiTzAD8u7aOuIVU8e9Al98z0nFDxYzqeOboQyQJg2yWQk3fLPG
+0uqISP0Iv0hf8W7ux/RZIgG13/gqbFsK+FORt0AAwrnd4lMOgsPvniCYo4IQmPUlE3fNWe5Z0M56
+VUy0t+bM8W3qcU4bC3+vSBirrOosbFA8n9RhMUmVRcN9cIJ6cVBsq1KjwV+PwCiM7HWt/xEBR8UH
+Qd5P+Ik57TCF0crzR+7kSn4jdhDS3IrVvhGpMo9xGwSd/OfLfDRXbzRPa3pJQlqDMkCMJXMDt4JO
+cgI=
+=zRx4
+-----END PGP SIGNATURE-----
+
+--------------C0XBBP0v07m5TeJTP7nQmIWc--
