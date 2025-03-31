@@ -1,47 +1,49 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D9F718B46E
-	for <util-linux@vger.kernel.org>; Mon, 31 Mar 2025 09:45:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BDD215530C
+	for <util-linux@vger.kernel.org>; Mon, 31 Mar 2025 09:45:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743414352; cv=none; b=d9rmtDIG+i9+L911E4jI3rbPIVOCIJqRfTWbDSGrEF82cpGnP3h4hraWc3+RkaK9/ozijLsVzzZkiDO2mBlYqZQZs+RaEeMzDZc2G9qjNoekmPFmUUocirOO8ojIBDkZ574qisl14aUWLF0nUAVLtsWeVCF9e4wFp6hiZuQvX1o=
+	t=1743414359; cv=none; b=J3mWwK7BtooX8zi/lDylSyUUN7+Vu51bK8Nz4MQ4ny2oqUfDJVGVBV54TvJ6cOW/HHywIvOu+LNK5IRw2Z3y5WaPlBn1jU7Lfw9TCrLluTQbfaaOCCXfqk0spf7VTNt8ePBXF8yBppVXJ2SsZxvp0tkT6nR5JMIA433Z5pLxTUY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743414352; c=relaxed/simple;
-	bh=EubfCZeaMjOtRvpW836kYqm1COgIe6BZlxpSPsRyh64=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jRePkTNpqRJPRV1/OZLhWxUd7KQJDbXLE7wsPWhYz+NWw+41X2L4rhLRW8nSt3Eky6XDRPnQc6axYS5RKhOleqwIcD4wcIIhkAOtY7/12njkbORJf/2RScDFnZNqlAjPYF6uXIV9JHzno0wZNyQpQbstu+1jORax3KgMTpMXsbo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=jDOCF79S; arc=none smtp.client-ip=195.121.94.168
+	s=arc-20240116; t=1743414359; c=relaxed/simple;
+	bh=0/tREPUI6DvjegB7Sd3I4nw8Jarqmwm8rJlPujcXRjE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Y7eoQljx0Yc+aArXjrNRgLQu+h/2WJO7G5bJAcQ2Te+ryoO3zJl5pTf9oOw4Zr1ZAB5UZ2F665ewvYvxZOOs3HXJ5CI2yR1rfAIBdHMDFBUUB0aFZ9FLA8awujaOpeD0rbpdrxNr+HprrnbkrHdxU7uMZ3Z0cJnD1PB3h34GnVY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=PWJ8wRUf; arc=none smtp.client-ip=195.121.94.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="jDOCF79S"
-X-KPN-MessageId: febc05b5-0e14-11f0-86cb-005056aba152
-Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="PWJ8wRUf"
+X-KPN-MessageId: 01178576-0e15-11f0-a82d-005056abad63
+Received: from smtp.kpnmail.nl (unknown [10.31.155.39])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id febc05b5-0e14-11f0-86cb-005056aba152;
-	Mon, 31 Mar 2025 11:46:18 +0200 (CEST)
+	id 01178576-0e15-11f0-a82d-005056abad63;
+	Mon, 31 Mar 2025 11:46:22 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=DT47Hps7FbFsh/Gj0xchX4zyUR2GIvPdbwl7nlcEKww=;
-	b=jDOCF79Ss3hzsRaUXJg0RptjJycV7qNZlbMWjZmyG2vzy+ksiVkHDTTXSmUvXYBnN50wQDbsOrbbO
-	 xYZCtkCydTsIwi1oq+olqDZLtv4be9X/SKE+7ni5GxGciO5c4UTwHmC5qmSdvf3VAm1vp79IL0EKsp
-	 1vdHhNqsP9CVpOyI=
-X-KPN-MID: 33|FswoqN7m+pdJpyJ04afZeqESLsYKXZ629IKl5Hb+v8YW2s95wygjR/FUi9VNw2S
- qsqTm2XN3CXNHooRyXhmykjr5t36+IlIfp2X6EwUWw3k=
+	bh=pojRKz2C8pMnOwq/9yLYXdASJKW8jDENG61DBEDCshA=;
+	b=PWJ8wRUfKY/9OwAl/YJouOkt33mctF0TKiZ0k8dr8A7srh6kU7Yd7WAfVuwlVgwuBnuett9t7ZKjp
+	 /LxF7p8Pq4PrFvo1qVToq+jcUNy8TqyG6dC5TBcPVUyl+znvYLBmHsxXlxN+z73fdACBAVxaTNY1fu
+	 VZ0Hqbg3v2+kAtsI=
+X-KPN-MID: 33|6ed2eRnoCYwL/SOyqTw1HUv2ccv6mDvGdu+CDbMP6WTkC5v93MGMc3Ds/Fzwb/Y
+ 6m/B+dTX1qrLu2P74rmsUKZppuW4nLhLu/pCPwkQFSk8=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|uAOwQpg8WJJdPjYmgMlMsY6psZw0V/NBCI70vwYs1eIOTHGBTclBZGohJII2L2A
- jK1E1KZstrtgyiITo49IFOQ==
+X-CMASSUN: 33|ou5n+jdlpJMJNx5kXSYxJfzpcTFzoMLscQbRbSs8pFbCrEidPGCP1yHxw2XmRlN
+ JRgM5n7UBc3QbQawp1Bk4XA==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id ed87d164-0e14-11f0-9598-005056abf0db;
-	Mon, 31 Mar 2025 11:45:49 +0200 (CEST)
+	id f1912b11-0e14-11f0-9bef-005056ab7447;
+	Mon, 31 Mar 2025 11:45:56 +0200 (CEST)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 08/10] lsblk: (man) remove the incorrect spaces between the arguments of --ct
-Date: Mon, 31 Mar 2025 11:44:41 +0200
-Message-ID: <20250331094443.9619-8-bensberg@telfort.nl>
+Cc: Phil Auld <pauld@redhat.com>,
+	Thijs Raymakers <thijs@raymakers.nl>
+Subject: [PATCH 09/10] coresched: reduce excessive whitespace and verbosity in usage text
+Date: Mon, 31 Mar 2025 11:44:42 +0200
+Message-ID: <20250331094443.9619-9-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250331094443.9619-1-bensberg@telfort.nl>
 References: <20250331094443.9619-1-bensberg@telfort.nl>
@@ -53,93 +55,74 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Also, unabbreviate some needless abbreviations,
-and improve some wordings and markup.
+Also, use semicolons instead of periods in option descriptions.
 
+And consistently use an uppercased "PID" in feedback messages.
+
+CC: Phil Auld <pauld@redhat.com>
+CC: Thijs Raymakers <thijs@raymakers.nl>
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- misc-utils/lsblk.8.adoc | 52 +++++++++++++++++++++++------------------
- 1 file changed, 29 insertions(+), 23 deletions(-)
+ schedutils/coresched.c | 33 +++++++++++++--------------------
+ 1 file changed, 13 insertions(+), 20 deletions(-)
 
-diff --git a/misc-utils/lsblk.8.adoc b/misc-utils/lsblk.8.adoc
-index 7a0a15d3a..742fe5f68 100644
---- a/misc-utils/lsblk.8.adoc
-+++ b/misc-utils/lsblk.8.adoc
-@@ -105,45 +105,51 @@ Produce output in the form of key="value" pairs. The output lines are still orde
- *-p*, *--paths*::
- Print full device paths.
+diff --git a/schedutils/coresched.c b/schedutils/coresched.c
+index 9d8be3e12..7634d988c 100644
+--- a/schedutils/coresched.c
++++ b/schedutils/coresched.c
+@@ -80,31 +80,24 @@ static void __attribute__((__noreturn__)) usage(void)
+ 		program_invocation_short_name);
  
--*-Q*, *--filter* _expr_::
--Print only the devices that meet the conditions specified by the expr. The
--filter is assessed prior to lsblk collecting data for all output columns. Only
-+*-Q*, *--filter* _expression_::
-+Print only the devices that meet the conditions specified by _expression_. The
-+filter is assessed prior to *lsblk* collecting data for all output columns. Only
- the necessary data for the lazy evaluation of the expression is retrieved from
- the system. This approach can enhance performance when compared to
--post-filtering, as commonly done by tools such as grep(1).
-+post-filtering, as commonly done by tools such as *grep*(1).
- +
--This feature is EXPERIMENTAL. See also *scols-filter*(5). For example
--exclude sda  and sdb, but print everything else ('!~' is a negative regular
--expression matching operator):
-+This feature is EXPERIMENTAL. See also *scols-filter*(5).
-++
-+For example, to exclude sda and sdb, but print everything else
-+('!~' is a negative regular-expression matching operator):
- ____
-  lsblk --filter 'NAME !~ "sd[ab]"'
- ____
+ 	fputs(USAGE_SEPARATOR, stdout);
+-	fputsln(_("Manage core scheduling cookies for tasks."), stdout);
++	fputsln(_("Manage core-scheduling cookies for tasks."), stdout);
  
--*--highlight* _expr_::
--Colorize lines matching the expression.
-+*--highlight* _expression_::
-+Colorize lines matching _expression_.
-++
- This feature is EXPERIMENTAL. See also *scols-filter*(5).
+ 	fputs(USAGE_FUNCTIONS, stdout);
+-	fputsln(_(" get                      retrieve the core scheduling cookie of a PID"),
+-		stdout);
+-	fputsln(_(" new                      assign a new core scheduling cookie to an existing\n"
+-		  "                            PID or execute a program with a new cookie"),
+-		stdout);
+-	fputsln(_(" copy                     copy the core scheduling cookie from an existing PID\n"
+-		  "                            to another PID, or execute a program with that\n"
+-		  "                            copied cookie"),
+-		stdout);
++	fputsln(_(" get      retrieve the core-scheduling cookie of a PID"), stdout);
++	fputsln(_(" new      assign a new cookie to an existing PID,\n"
++		  "            or execute a program with a new cookie"), stdout);
++	fputsln(_(" copy     copy the cookie from an existing PID to another PID,\n"
++		  "            or execute a program with that copied cookie"), stdout);
  
--*--ct* _name_ [: _param_ [: _function_ ]]::
--Define a custom counter. The counters are printed after the standard output.
--The _name_ is the custom name of the counter, the optional _param_ is the name of the column
--to be used for the counter, and the optional _function_ specifies
--the aggregation function, supported functions are: count, min, max, or sum. The
--default is count.
-+*--ct* _name_[**:**_parameter_[**:**_function_]]::
-+Define a custom counter. Custom counters are printed after the standard output.
-+The _name_ is the custom name of the counter, the optional _parameter_ is the name
-+of the column to be used for the counter, and the optional _function_ specifies
-+the aggregation function. Supported functions are: *count*, *min*, *max*, *sum*.
-+The default function is *count*. If _parameter_ is not specified, then the counter
-+counts the number of lines.
- +
--If the _param_ is not specified, then the counter counts the number of lines. This
--feature is EXPERIMENTAL. See also *--ct-filter*.
-+This feature is EXPERIMENTAL. See also *--ct-filter*.
- +
--For example, *--ct MyCounter:SIZE:sum* will count the summary for SIZE from all lines;
--and to count the number of SATA disks, it is possible to use:
-+For example, *--ct MyCounter:SIZE:sum* reports the total of the SIZE values.
-+To report the number of SATA disks, one can use:
- ____
- 
-- lsblk --ct-filter 'TYPE=="disk" && TRAN=="sata"' --ct "Number of SATA devices"
-+ lsblk --ct-filter 'TYPE=="disk" && TRAN=="sata"' \
-+       --ct "Number of SATA devices"
- ____
- 
- 
--*--ct-filter* _expr_::
--Define a restriction for the next counter. This feature is EXPERIMENTAL. See also *--ct*
--and *scols-filter*(5). For example, aggregate sizes by device type:
-+*--ct-filter* _expression_::
-+Define a restriction for the next counter.
-++
-+This feature is EXPERIMENTAL. See also *--ct* and *scols-filter*(5).
-++
-+For example, to aggregate sizes by device type:
- ____
-  lsblk --ct-filter 'TYPE=="part"' --ct Partitions:SIZE:sum \
-        --ct-filter 'TYPE=="disk"' --ct WholeDisks:SIZE:sum
+ 	fputs(USAGE_OPTIONS, stdout);
+ 	fprintf(stdout,
+-		_(" -s, --source <PID>       which PID to get the cookie from\n"
+-		  "                            If omitted, it is the PID of %s itself\n"),
++		_(" -s, --source <PID>       which PID to get the cookie from; if this option\n"
++		  "                            is omitted, the PID of %s itself is used\n"),
+ 		program_invocation_short_name);
+-	fputsln(_(" -d, --dest <PID>         which PID to modify the cookie of\n"),
+-		stdout);
+-	fputsln(_(" -t, --dest-type <TYPE>   type of the destination PID, or the type of the PID\n"
+-		  "                            when a new core scheduling cookie is created.\n"
+-		  "                            Can be one of the following: pid, tgid or pgid.\n"
+-		  "                            The default is tgid."),
+-		stdout);
++	fputsln(_(" -d, --dest <PID>         which PID to modify the cookie of"), stdout);
++	fputsln(_(" -t, --dest-type <TYPE>   type of the new or destination PID; can be one\n"
++		  "                            of: pid, tgid, pgid; default: tgid"), stdout);
++
+ 	fputs(USAGE_SEPARATOR, stdout);
+ 	fputsln(_(" -v, --verbose      verbose"), stdout);
+ 	fprintf(stdout, USAGE_HELP_OPTIONS(20));
+@@ -341,7 +334,7 @@ int main(int argc, char **argv)
+ 	switch (args.cmd) {
+ 	case SCHED_CORE_CMD_GET:
+ 		cookie = core_sched_get_cookie(args.src);
+-		printf(_("cookie of pid %d is 0x%llx\n"), args.src, cookie);
++		printf(_("cookie of PID %d is 0x%llx\n"), args.src, cookie);
+ 		break;
+ 	case SCHED_CORE_CMD_NEW:
+ 		if (args.exec_argv_offset) {
 -- 
 2.48.1
 
