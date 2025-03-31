@@ -1,61 +1,102 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0BDB1B415F
-	for <util-linux@vger.kernel.org>; Fri, 28 Mar 2025 10:45:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9A6F1DDC3F
+	for <util-linux@vger.kernel.org>; Mon, 31 Mar 2025 09:44:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743158705; cv=none; b=rfHpM7BRN+F8GG6+ffbH/a2knqhLmyOOdT5L7p2sZAw13i2TdhbPEH9+OlkU5hQoPOitBeyV9uMv38X0n/N3wZ6XSIaRERFMw6SJ0ufVTwDLLzA2Ti+tlsF22qk8Otb8Jgm+rEXz/uNXjDZEo492yvu/dLEfLeA02GzknXSv5Tc=
+	t=1743414303; cv=none; b=R8zI4kBoYMU6LHUr8f9Z1prwiQMWfIJvPIM5kFlw7YM11O0IcFkgdnQQb3fvOvi06A2G4wuMAJQUyNXUHniJjEqXAMew3S2hxlSdUn/diAO9gD9+ghjQ5kTUp7Hk3D+4NXlc+mIjHHPVxuY1h8CmaL7meZmb4sgQcTki8SRAGU4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743158705; c=relaxed/simple;
-	bh=4MDsllLV1Hc+e+K41WVgks2P6/UD4rWVd+TwY6JnW9M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dO3tRyjzNXs768zFpMmZwST/YSW6mXAxbH2LEf4HiiPuDyc/USbI4DstL8uQJbmtHxLFFiUYDfhLCgZ3tvLvXWJwF9Z4jB/09T+grX4YtVc0Z/jKAwxuxPyEOg5V7xJm6Z0XdyUKGi291OhkIDdLn8dVb2q+TReYrg5t3XyxYeg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=BPKix9sZ; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	s=arc-20240116; t=1743414303; c=relaxed/simple;
+	bh=Gb+rUWaNGeS2MZ5lYadQyYNI6AbSWrXWsFMYlVM7yq0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=BefS+Xyi8FmvKPP9bR5fthR7aIz+NkQ7/CTajHgzYYazjj2HL99EgKQyk14SGPupRCJHD/zbt4FeJPaQvDl2N8s+ZBDe34ieUWkrs7oD2lhfTkdbj5O/M0MD/MOSRZy/I9vG4LTQm4T9L1vvCKCbCtxTVGMMofA2cDjvuv87ktU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=KOjB85Wd; arc=none smtp.client-ip=195.121.94.168
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="BPKix9sZ"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=0OauXICVRshnOsCcsTH4k/CrOcm+Ne+ATnxs29a1Epw=; b=BPKix9sZsytzLkXkrGgu+Fpj4e
-	PvTlN0iQRJY47XXRV4K48N8cSbe88w4wiWv5hanTNcEebdTHtA9igrikO1i3nX+IQd02eZBYvyUo0
-	+Bo7Rw566VePqlwgMSG7EJan0ElIUZflmTlcXe17tVHRD8Uy/FJkJf7uS3TOQpBrvBzmczykcV9oe
-	+KznycVpz1z9aBhCiEojgPehLapBqM8moj0YlZHLqx9ve5QVNHLDDeZ68NEb8J/iM0eV0ln0D8RvT
-	xMseIWGJDhEQfBNQgyLgnDwUrjfMaQubbVTU4ihFLof0Jw3vSpGOszNQlCd14f1CyvWaeIFLFDdKh
-	J21EZOcg==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.98.1 #2 (Red Hat Linux))
-	id 1ty7Cv-0000000DAIa-2zns;
-	Fri, 28 Mar 2025 10:45:01 +0000
-Date: Fri, 28 Mar 2025 03:45:01 -0700
-From: Christoph Hellwig <hch@infradead.org>
-To: Karel Zak <kzak@redhat.com>
-Cc: Zhang Yi <yi.zhang@huaweicloud.com>, util-linux@vger.kernel.org
-Subject: Re: [PATCH util-linux] fallocate: add FALLOC_FL_WRITE_ZEROES support
-Message-ID: <Z-Z9rZzoXzXltc3e@infradead.org>
-References: <20250318073218.3513262-1-yi.zhang@huaweicloud.com>
- <j7o7bftkbz4fg7rt6s76q5qumie3lncauloft77k2nvnlyzd7a@pecviw4axn5w>
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="KOjB85Wd"
+X-KPN-MessageId: dc028e13-0e14-11f0-86cb-005056aba152
+Received: from smtp.kpnmail.nl (unknown [10.31.155.37])
+	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
+	id dc028e13-0e14-11f0-86cb-005056aba152;
+	Mon, 31 Mar 2025 11:45:20 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=telfort.nl; s=telfort01;
+	h=content-type:mime-version:message-id:date:subject:to:from;
+	bh=JpVKt2B5ZFP/7JIZ9/M6C5AmMEr2b8mrcULSI1IKKW4=;
+	b=KOjB85Wd/f6/zrSBJgKqHbG0yKMG3bHWD3tLPkF6guWL7gvHpeyg4f7p0yb/+jUkN8Qk3arF0xvTL
+	 c5r727R5mrqU/7UJrTp0zEmIONL6YNfhvI2Yhjm+oxC6CMUrlMSh0Xfd8Hgoo4czSM+TDl5+O4suZh
+	 iiTLEPJ/o+pF8y2E=
+X-KPN-MID: 33|L7sazuc6xaMuNDwaUI9ihgPC/ayss+g5F7Tx2n/NvulQGgc1gRBzu++apa6hYVL
+ UMzW6ScyzljbgkVv6t0aAjIpD04CcUu0ckcT3xDxgqvM=
+X-KPN-VerifiedSender: Yes
+X-CMASSUN: 33|cBdha0U/RCEOENKdOsdp6R4j80ujtuYo5XziaE5DtSQFGQMBw7EElwZtJI4tX+1
+ U74u8w8wzx9+BYhvZIjWJqA==
+Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
+	by smtp.kpnmail.nl (Halon) with ESMTPSA
+	id caaf80bd-0e14-11f0-9b49-005056ab1411;
+	Mon, 31 Mar 2025 11:44:51 +0200 (CEST)
+From: Benno Schulenberg <bensberg@telfort.nl>
+To: util-linux@vger.kernel.org
+Cc: =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <thomas@t-8ch.de>
+Subject: [PATCH 01/10] enosys: add the missing arguments of -s and -i to the usage text
+Date: Mon, 31 Mar 2025 11:44:34 +0200
+Message-ID: <20250331094443.9619-1-bensberg@telfort.nl>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <j7o7bftkbz4fg7rt6s76q5qumie3lncauloft77k2nvnlyzd7a@pecviw4axn5w>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Thu, Mar 27, 2025 at 11:15:46AM +0100, Karel Zak wrote:
-> On Tue, Mar 18, 2025 at 03:32:18PM +0800, Zhang Yi wrote:
-> >  sys-utils/fallocate.1.adoc | 11 +++++++++--
-> >  sys-utils/fallocate.c      | 20 ++++++++++++++++----
-> >  2 files changed, 25 insertions(+), 6 deletions(-)
-> 
-> The patch will be merged later if it passes CI tests. Thanks!
+Also, add a docstring, drop the redundant double dash from the synopsis,
+add the missing -m option, and add a missing word to an error message.
 
-Please old off a bit.  For now the kernel side is just proposed and
-not actually reviwed or merged.
+CC: Thomas Weißschuh <thomas@t-8ch.de>
+Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
+---
+ misc-utils/enosys.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/misc-utils/enosys.c b/misc-utils/enosys.c
+index 1410676dd..b7469c6bf 100644
+--- a/misc-utils/enosys.c
++++ b/misc-utils/enosys.c
+@@ -78,13 +78,17 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	FILE *out = stdout;
+ 
+ 	fputs(USAGE_HEADER, out);
+-	fprintf(out, _(" %s [options] -- <command>\n"), program_invocation_short_name);
++	fprintf(out, _(" %s [options] <command>\n"), program_invocation_short_name);
++
++	fputs(USAGE_SEPARATOR, out);
++	fputs(_("Block certain system calls while running a command.\n"), out);
+ 
+ 	fputs(USAGE_OPTIONS, out);
+-	fputs(_(" -s, --syscall           syscall to block\n"), out);
+-	fputs(_(" -i, --ioctl             ioctl to block\n"), out);
+-	fputs(_(" -l, --list              list known syscalls\n"), out);
+-	fputs(_(" -d, --dump[=<file>]     dump seccomp bytecode\n"), out);
++	fputs(_(" -s, --syscall <name>|<nr>    system call to block\n"), out);
++	fputs(_(" -i, --ioctl <name>|<nr>      ioctl to block\n"), out);
++	fputs(_(" -l, --list                   list known system calls\n"), out);
++	fputs(_(" -m, --list-ioctl             list known ioctls\n"), out);
++	fputs(_(" -d, --dump[=<file>]          dump bytecode of seccomp filter\n"), out);
+ 
+ 	fputs(USAGE_SEPARATOR, out);
+ 	fprintf(out, USAGE_HELP_OPTIONS(25));
+@@ -297,7 +301,7 @@ int main(int argc, char **argv)
+ 		err_nosys(EXIT_FAILURE, _("Could not run prctl(PR_SET_NO_NEW_PRIVS)"));
+ 
+ 	if (ul_set_seccomp_filter_spec_allow(&prog))
+-		err_nosys(EXIT_FAILURE, _("Could not seccomp filter"));
++		err_nosys(EXIT_FAILURE, _("Could not set seccomp filter"));
+ 
+ 	if (execvp(argv[optind], argv + optind))
+ 		err(EXIT_NOTSUPP, _("Could not exec"));
+-- 
+2.48.1
 
