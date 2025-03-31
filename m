@@ -1,49 +1,47 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.170])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 338442E3390
-	for <util-linux@vger.kernel.org>; Mon, 31 Mar 2025 09:45:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 782892E3390
+	for <util-linux@vger.kernel.org>; Mon, 31 Mar 2025 09:45:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743414324; cv=none; b=oqITmDMDpOfiM5cgKi5MfGxcZk3Pp6wvCOXO/ntjBLsM+pITkr8c1Mguywmf2y6QS80uHug0GtsNEn8WNzpdZiztdkUx95ZO87gbH6HaAKJT6d99ebysXGQ/0Am2+GjDjnLyDnWKuE0el+RxruQGGW6Tk0iMt0jLlqFK1p0Dz78=
+	t=1743414341; cv=none; b=kAXXmutV/B2PxCkHnVH9fO1ekUBECs5TFmwerRGspdT+a/3CnUu1Ey54/4F2RzOJ7o+j0mXNkOk1p102KBlOERcV1fyvtFOLBY+e2+7rw4aN6oe2bgN8pqopkVIPYdYQG0XD7pCZtZKkZgbk/IgdzH/pz0jABY3HAYMeYvSHePs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743414324; c=relaxed/simple;
-	bh=3nTl6QDpTs9JwVyR5MQgnGEKoRm5yaBmGZobtNiO+gU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NJW5t4HQ/jZdYMovmR3+yhqhBkzdzs8dDqNa42pbkatut1Cw9r6V0VSqt2oF1OHL76oqa3E5qvNdOKX+BsLa8cdfbOsaPYbU6X71JObrrh9KLxgx8wxhM4TVMMo/WRA45NlwwmSB5ZYNIO5KBR2RxmI1PJVyG3lpTnqhxKxu/rU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=DGYW1XZl; arc=none smtp.client-ip=195.121.94.170
+	s=arc-20240116; t=1743414341; c=relaxed/simple;
+	bh=bkf7ABBIUdZxB04rjhnwFLzLUsIg7bu5NcrtByh9W6E=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=RNYiEG/Anxq234MpZtQYj4A78Vs+El6dwJSUM1Ej/A3Bpqh+xIWFodnTsX2WHiP+Hr3MjkCAEmfOCtZtJzwddFxGPwFZ6HcZZgzSfB+FUNMNadvmxyCTLVfTvdUDk6iHIW0SsuYmvE7nQKxGspTZodfMzrH8uwxbJSwQgn2Zq34=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=Z5pEVIbB; arc=none smtp.client-ip=195.121.94.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="DGYW1XZl"
-X-KPN-MessageId: ed6f89fc-0e14-11f0-bc28-005056ab378f
-Received: from smtp.kpnmail.nl (unknown [10.31.155.40])
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="Z5pEVIbB"
+X-KPN-MessageId: f2661656-0e14-11f0-a82d-005056abad63
+Received: from smtp.kpnmail.nl (unknown [10.31.155.39])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id ed6f89fc-0e14-11f0-bc28-005056ab378f;
-	Mon, 31 Mar 2025 11:45:49 +0200 (CEST)
+	id f2661656-0e14-11f0-a82d-005056abad63;
+	Mon, 31 Mar 2025 11:45:57 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=xNMdoobXZaAqTrrO90TR59fYy1qOMJWAaAtB6u8poJA=;
-	b=DGYW1XZlh5Gw0FKT9O3ASXgDfFDNQwIxWs8Xc5Vkxv6usAGVp9nKFJVQ7MDb1OEEAiA44KHULcb9H
-	 eZ+H0jesy098S9w4S1GXEGu7fFTGmN3bInqA8mfjuc2UHzcblDCNOTqA15JtirD6zaiIWaDiZJnLoY
-	 GXEi5LTWWYlGrbDU=
-X-KPN-MID: 33|NoUjwKgdonDl/i9t0UVhalt0TRyYUS52IPx2SaLDrqzo0FhAr828ez7or1bnVGE
- SlXiAmzlWY5H2hrtdRRC5Ise4cTLkkKl+SXwyj80zWV4=
+	bh=dhzykks/zIKbqbjsqlOBVOjkMQ4yHtR9ZsihorQAQ1s=;
+	b=Z5pEVIbBbVZc7CZnSl1yWVc+SNlo6lldXSNCiAUtCAV4GwP+k8QLjR7TqGrnTCc49N5+vc6D/5cl7
+	 06aUL8zex2KQ3D6efG1RWInPHBVKCtWXT7aPhJqQfgHhcoK0AQpMJbeki+Kd0q1GOcySxLeSjFHp9F
+	 2vG5/k76X4N4HlR4=
+X-KPN-MID: 33|hu7Lfj6DaHKFJgRHaMXAH/iuzsoUEgurjI8rxvjZ+zfDwq+q7S6IyT6CS/CZ49V
+ ohq7zydx302nszA6mE1qaXD5vM6xQ09oP7azHoI60Dg4=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|7YwUHwAKjTzb2TW2oPX84pd5gmyKY128ntRitRNtUbLHL8WydRavW5o+DIgICsa
- J68/r58jMNdldR5Tt2ZX79A==
+X-CMASSUN: 33|N4Tn8rrdgdNEeAX6AXHExd7KeLyaK+jNRUC4+N+pndo/Tpw0fWbTficvE6m4vjN
+ 38rVUIIUx4DQ5hfZFS/hPUg==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id dc32df78-0e14-11f0-8516-005056ab7584;
-	Mon, 31 Mar 2025 11:45:20 +0200 (CEST)
+	id e2d36dfa-0e14-11f0-9bef-005056ab7447;
+	Mon, 31 Mar 2025 11:45:31 +0200 (CEST)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Cc: Joe Jin <joe.jin@oracle.com>,
-	Zhenwei Pi <pizhenwei@bytedance.com>
-Subject: [PATCH 05/10] irqtop: improve several more option descriptions, and align them all
-Date: Mon, 31 Mar 2025 11:44:38 +0200
-Message-ID: <20250331094443.9619-5-bensberg@telfort.nl>
+Subject: [PATCH 06/10] findmnt: (man) remove duplicated option, and correct a description
+Date: Mon, 31 Mar 2025 11:44:39 +0200
+Message-ID: <20250331094443.9619-6-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250331094443.9619-1-bensberg@telfort.nl>
 References: <20250331094443.9619-1-bensberg@telfort.nl>
@@ -55,88 +53,117 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Keep at least two spaces between option+argument and its description,
-while making sure not to go above 80 columns per line.
+The page listed both '--shadowed' and '--shadow', while the description
+of '--hyperlink' duplicated the possible values of the _mode_ argument
+and mistakenly spoke of _when_.
 
-Also, improve the docstring (there is no need to mention that irqtop
-is a utility) and remove the ugly Q from the list of interactive keys.
+Also, sort the options alphabetically and fix two bits of markup.
 
-CC: Joe Jin <joe.jin@oracle.com>
-CC: Zhenwei Pi <pizhenwei@bytedance.com>
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- sys-utils/irqtop.1.adoc |  4 ++--
- sys-utils/irqtop.c      | 26 +++++++++++++-------------
- 2 files changed, 15 insertions(+), 15 deletions(-)
+ misc-utils/findmnt.8.adoc | 34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/sys-utils/irqtop.1.adoc b/sys-utils/irqtop.1.adoc
-index 04158a0ef..cf258d085 100644
---- a/sys-utils/irqtop.1.adoc
-+++ b/sys-utils/irqtop.1.adoc
-@@ -8,7 +8,7 @@
+diff --git a/misc-utils/findmnt.8.adoc b/misc-utils/findmnt.8.adoc
+index fe29afe77..8a679153b 100644
+--- a/misc-utils/findmnt.8.adoc
++++ b/misc-utils/findmnt.8.adoc
+@@ -57,9 +57,6 @@ The search direction, either *forward* or *backward*.
+ *-e*, *--evaluate*::
+ Convert all tags (LABEL, UUID, PARTUUID, or PARTLABEL) to the corresponding device names for the SOURCE column.  It's an unusual situation, but the same tag may be duplicated (used for more devices). For this purpose, there is SOURCES (pl.) column. This column displays by multi-line cell all devices where the tag is detected by libblkid. This option makes sense for _fstab_ only.
  
- == NAME
+-*--hyperlink*[**=**_mode_]::
+-Print mountpoint paths as terminal hyperlinks. The _mode_ can be set to "always", "never", or "auto". The optional argument _when_ can be set to "auto", "never", or "always". If the _when_ argument is omitted, it will default to "auto". The "auto" setting means that hyperlinks will only be used if the output is on a terminal.
+-
+ *-F*, *--tab-file* _path_::
+ Search in an alternative file. If used with *--fstab*, *--mtab* or *--kernel*, then it overrides the default paths. If specified more than once, then tree-like output is disabled (see the *--list* option).
  
--irqtop - utility to display kernel interrupt information
-+irqtop - display kernel interrupt information
+@@ -69,6 +66,12 @@ Print the first matching filesystem only.
+ *-H*, *--list-columns*::
+ List the available columns, use with *--json* or *--raw* to get output in machine-readable format.
  
- == SYNOPSIS
++*--hyperlink*[**=**_mode_]::
++Print mountpoint paths as terminal hyperlinks. The optional _mode_ argument
++can be *always*, *never*, or *auto*. If the argument is omitted, it defaults
++to *auto*, which means that hyperlinks will only be used when the output goes
++to a terminal.
++
+ *-I*, *--dfi*::
+ Imitate the output of *df*(1) with its *-i* option. This option is equivalent to *-o SOURCE,FSTYPE,INO.TOTAL,INO.USED,INO.AVAIL,INO.USE%,TARGET* but excludes all pseudo filesystems. Use *--all* to print all filesystems.
  
-@@ -16,7 +16,7 @@ irqtop - utility to display kernel interrupt information
+@@ -84,7 +87,7 @@ Select a filesystem using the mount node 64-bit ID, use with *--kernel=listmount
+ *-J*, *--json*::
+ Use JSON output format.
  
- == DESCRIPTION
+-*-k*, *--kernel*[_=method_]::
++*-k*, *--kernel*[**=**_method_]::
+ Reads information about filesystems from the kernel. This is the default output. The format is tree-like and only includes mount options managed by the kernel (see also *--mtab*).
+ +
+ The optional argument _method_ can be either:
+@@ -126,7 +129,7 @@ Produce output in the form of key="value" pairs. All potentially unsafe value ch
+ +
+ Note that SOURCES column, use multi-line cells. In these cases, the column use an array-like formatting in the output, for example *name=("aaa" "bbb" "ccc")*.
  
--Display kernel interrupt counter information in *top*(1) style view.
-+Display interrupt-counter information from the kernel in the style of *top*(1).
+-*-p*, *--poll*[_=list_]::
++*-p*, *--poll*[**=**_list_]::
+ Monitor changes in the _/proc/self/mountinfo_ file. Supported actions are: mount, umount, remount and move. More than one action may be specified in a comma-separated list. All actions are monitored by default.
+ +
+ The time for which *--poll* will block can be restricted with the *--timeout* or *--first-only* options.
+@@ -143,9 +146,6 @@ available for umount and remount actions
+ *--pseudo*::
+ Print only pseudo filesystems.
  
- The default output is subject to change. So whenever possible, you should avoid using default outputs in your scripts. Always explicitly define expected columns by using *--output*.
+-*--shadow*::
+-Print only filesystems over-mounted by another filesystem.
+-
+ *-Q*, *--filter* _expr_::
+ Print only the filesystems that meet the conditions specified by the expr.
+ +
+@@ -172,6 +172,9 @@ Explicitly define the mount source. Supported specifications are _device_, __maj
+ *-s*, *--fstab*::
+ Search in _/etc/fstab_. The output is in the list format (see *--list*).
  
-diff --git a/sys-utils/irqtop.c b/sys-utils/irqtop.c
-index e0abddd82..3dbd030e0 100644
---- a/sys-utils/irqtop.c
-+++ b/sys-utils/irqtop.c
-@@ -303,28 +303,28 @@ static void __attribute__((__noreturn__)) usage(void)
- 	printf(_(" %s [options]\n"), program_invocation_short_name);
- 	fputs(USAGE_SEPARATOR, stdout);
++*--shadowed*::
++Print only filesystems that are over-mounted by another filesystem.
++
+ *-T*, *--target* _path_::
+ Define the mount target. If _path_ is not a mountpoint file or directory, then *findmnt* checks the _path_ elements in reverse order to get the mountpoint (this feature is supported only when searching in kernel files and unsupported for *--fstab*). It's recommended to use the option *--mountpoint* when checks of _path_ elements are unwanted and _path_ is a strictly specified mountpoint.
  
--	puts(_("Interactive utility to display kernel interrupt information."));
-+	puts(_("Display kernel interrupt information."));
+@@ -181,9 +184,6 @@ Limit the set of printed filesystems. More than one type may be specified in a c
+ *--tree*::
+ Enable tree-like output if possible. The options is silently ignored for tables where is missing child-parent relation (e.g., _fstab_).
  
- 	fputs(USAGE_OPTIONS, stdout);
--	fputs(_(" -b, --batch           send tables to stdout, not to a static screen\n"), stdout);
--	fputs(_(" -c, --cpu-stat <mode> show per-cpu stat (auto, enable, disable)\n"), stdout);
--	fputs(_(" -C, --cpu-list <list> specify cpus in list format\n"), stdout);
--	fputs(_(" -d, --delay <secs>    wait this number of seconds between updates\n"), stdout);
--	fputs(_(" -J, --json            use JSON output format (implies --batch)\n"), stdout);
--	fputs(_(" -n, --iter <number>  the maximum number of iterations\n"), stdout);
--	fputs(_(" -o, --output <list>  define which output columns to use\n"), stdout);
--	fputs(_(" -s, --sort <column>  specify sort column\n"), stdout);
--	fputs(_(" -S, --softirq        show softirqs instead of interrupts\n"), stdout);
--	fputs(_(" -t, --threshold <N>  only IRQs with counters above <N>\n"), stdout);
-+	fputs(_(" -b, --batch            send tables to stdout, not to a static screen\n"), stdout);
-+	fputs(_(" -c, --cpu-stat <mode>  whether to show the per-cpu stats (auto|enable|disable)\n"), stdout);
-+	fputs(_(" -C, --cpu-list <list>  show IRQs only for the specified cpus\n"), stdout);
-+	fputs(_(" -d, --delay <secs>     wait this number of seconds between updates\n"), stdout);
-+	fputs(_(" -J, --json             use JSON output format (implies --batch)\n"), stdout);
-+	fputs(_(" -n, --iter <number>    the maximum number of iterations\n"), stdout);
-+	fputs(_(" -o, --output <list>    which columns to show, and in which order\n"), stdout);
-+	fputs(_(" -s, --sort <column>    sort the table on this column\n"), stdout);
-+	fputs(_(" -S, --softirq          show softirqs instead of interrupts\n"), stdout);
-+	fputs(_(" -t, --threshold <num>  show only IRQs with counters above this number\n"), stdout);
- 	fputs(USAGE_SEPARATOR, stdout);
--	fprintf(stdout, USAGE_HELP_OPTIONS(22));
-+	fprintf(stdout, USAGE_HELP_OPTIONS(24));
+-*--shadowed*::
+-Print only filesystems over-mounted by another filesystem.
+-
+ *-U*, *--uniq*::
+ Ignore filesystems with duplicate mount targets, thus effectively skipping over-mounted mount points.
  
- 	fputs(_("\nThe following interactive key commands are valid:\n"), stdout);
- 	fputs(_("  i      sort by IRQ\n"), stdout);
- 	fputs(_("  t      sort by TOTAL\n"), stdout);
- 	fputs(_("  d      sort by DELTA\n"), stdout);
- 	fputs(_("  n      sort by NAME\n"), stdout);
--	fputs(_("  q Q    quit program\n"), stdout);
-+	fputs(_("  q      quit program\n"), stdout);
+@@ -193,18 +193,18 @@ Do not truncate text in columns. The default is to not truncate the *TARGET*, *S
+ *-v*, *--nofsroot*::
+ Do not print a [/dir] in the SOURCE column for bind mounts or btrfs subvolumes.
  
- 	fputs(USAGE_COLUMNS, stdout);
- 	irq_print_columns(stdout, 0);
+-*-w*, *--timeout* _milliseconds_::
+-Specify an upper limit on the time for which *--poll* will block, in milliseconds.
+-
+-*-x*, *--verify*::
+-Check mount table content. The default is to verify _/etc/fstab_ parsability and usability. It's possible to use this option also with *--tab-file*. It's possible to specify source (device) or target (mountpoint) to filter mount table. The option *--verbose* forces *findmnt* to print more details.
+-
+ *--verbose*::
+ Force *findmnt* to print more information (*--verify* only for now).
+ 
+ *--vfs-all*::
+ When used with *VFS-OPTIONS* column, print all VFS (fs-independent) flags. This option is designed for auditing purposes to list also default VFS kernel mount options which are normally not listed.
+ 
++*-w*, *--timeout* _milliseconds_::
++Specify an upper limit on the time for which *--poll* will block, in milliseconds.
++
++*-x*, *--verify*::
++Check mount table content. The default is to verify _/etc/fstab_ parsability and usability. It's possible to use this option also with *--tab-file*. It's possible to specify source (device) or target (mountpoint) to filter mount table. The option *--verbose* forces *findmnt* to print more details.
++
+ *-y*, *--shell*::
+ The column name will be modified to contain only characters allowed for shell variable identifiers. This is usable, for example, with *--pairs*. Note that this feature has been automatically enabled for *--pairs* in version 2.37, but due to compatibility issues, now it's necessary to request this behavior by *--shell*.
+ 
 -- 
 2.48.1
 
