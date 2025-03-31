@@ -1,47 +1,47 @@
 Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61C702E3390
-	for <util-linux@vger.kernel.org>; Mon, 31 Mar 2025 09:45:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D9F718B46E
+	for <util-linux@vger.kernel.org>; Mon, 31 Mar 2025 09:45:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743414346; cv=none; b=LEIGxMpUabmFQbAhFiYB0LrdZW769A6Hf2eIqZz5zh7E0hHKayue4Ig8HRx4EITcbuVhZFeY82U8UHZPwhIy3z7AS4B5kVwRCUpt4YwjQJTVszFWARiT0gpdK41WIeMcUTTzaQKGdxB0KQi8GJ+2hKs0BX+NKs6guWmTra03cZo=
+	t=1743414352; cv=none; b=d9rmtDIG+i9+L911E4jI3rbPIVOCIJqRfTWbDSGrEF82cpGnP3h4hraWc3+RkaK9/ozijLsVzzZkiDO2mBlYqZQZs+RaEeMzDZc2G9qjNoekmPFmUUocirOO8ojIBDkZ574qisl14aUWLF0nUAVLtsWeVCF9e4wFp6hiZuQvX1o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743414346; c=relaxed/simple;
-	bh=oQP4RfyKc5fQ69ChPCYfO7iLbW14n+JrLxJB4j5qdA8=;
+	s=arc-20240116; t=1743414352; c=relaxed/simple;
+	bh=EubfCZeaMjOtRvpW836kYqm1COgIe6BZlxpSPsRyh64=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pJyW+xtT7SafIfboifXf+9TFIH4smDOzroev7iX9e+GXnGAPtxSmq/SSNPQeU27sjZEMXpeMQ9EO9/d40Tmi1HJaqDTDRNDzym1XSZG5sosMDN3XFF3n1j0nQ9LbFqFmZpE74xatidyI+UiHUlvs31TfiMO38/WpJ3LW8V90JfI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=JoQzASqV; arc=none smtp.client-ip=195.121.94.168
+	 MIME-Version; b=jRePkTNpqRJPRV1/OZLhWxUd7KQJDbXLE7wsPWhYz+NWw+41X2L4rhLRW8nSt3Eky6XDRPnQc6axYS5RKhOleqwIcD4wcIIhkAOtY7/12njkbORJf/2RScDFnZNqlAjPYF6uXIV9JHzno0wZNyQpQbstu+1jORax3KgMTpMXsbo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=jDOCF79S; arc=none smtp.client-ip=195.121.94.168
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="JoQzASqV"
-X-KPN-MessageId: fb2aa9b6-0e14-11f0-86cb-005056aba152
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="jDOCF79S"
+X-KPN-MessageId: febc05b5-0e14-11f0-86cb-005056aba152
 Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id fb2aa9b6-0e14-11f0-86cb-005056aba152;
-	Mon, 31 Mar 2025 11:46:12 +0200 (CEST)
+	id febc05b5-0e14-11f0-86cb-005056aba152;
+	Mon, 31 Mar 2025 11:46:18 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=oWmiCn7LuwfQ24fkNvgsSCjZY2yA2hVipJni3yMp9Gc=;
-	b=JoQzASqVDRhKZjjegibm6S16TEO+5MnsV8bipMnk3nYxqDjDe5IDILdoSC8VvERGKXvTe/NQ3C+cC
-	 sI36oRnSVjsg/UxFpGka+YanPZn0YJ9hejvMUwowJ9GpXgR+sLwzCUPSWXmKBxvNPVoR49l2tHZvja
-	 cbMkvDIvHzfzMjOg=
-X-KPN-MID: 33|rTBcavB1cdtV7SSE52ymFpFitZhz4CzGhhDXU9HLNPqq275x4qp9k5BDk2H3cjK
- Iu+LbgXTFw4VjfFAGe5gB7BcB4ffYBQmhZSrBHW46xq4=
+	bh=DT47Hps7FbFsh/Gj0xchX4zyUR2GIvPdbwl7nlcEKww=;
+	b=jDOCF79Ss3hzsRaUXJg0RptjJycV7qNZlbMWjZmyG2vzy+ksiVkHDTTXSmUvXYBnN50wQDbsOrbbO
+	 xYZCtkCydTsIwi1oq+olqDZLtv4be9X/SKE+7ni5GxGciO5c4UTwHmC5qmSdvf3VAm1vp79IL0EKsp
+	 1vdHhNqsP9CVpOyI=
+X-KPN-MID: 33|FswoqN7m+pdJpyJ04afZeqESLsYKXZ629IKl5Hb+v8YW2s95wygjR/FUi9VNw2S
+ qsqTm2XN3CXNHooRyXhmykjr5t36+IlIfp2X6EwUWw3k=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|FwFJXwnRLM59X2+rccrECJTW3nTVkFaDkUXfsrutcFzKK4z7msx/hBbfumaSrfA
- A/9AzcDvInFjpxUTZ7zAikw==
+X-CMASSUN: 33|uAOwQpg8WJJdPjYmgMlMsY6psZw0V/NBCI70vwYs1eIOTHGBTclBZGohJII2L2A
+ jK1E1KZstrtgyiITo49IFOQ==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id e9f5a72e-0e14-11f0-9598-005056abf0db;
-	Mon, 31 Mar 2025 11:45:43 +0200 (CEST)
+	id ed87d164-0e14-11f0-9598-005056abf0db;
+	Mon, 31 Mar 2025 11:45:49 +0200 (CEST)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 07/10] hardlink: fix typoed semicolon to colon in error message
-Date: Mon, 31 Mar 2025 11:44:40 +0200
-Message-ID: <20250331094443.9619-7-bensberg@telfort.nl>
+Subject: [PATCH 08/10] lsblk: (man) remove the incorrect spaces between the arguments of --ct
+Date: Mon, 31 Mar 2025 11:44:41 +0200
+Message-ID: <20250331094443.9619-8-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250331094443.9619-1-bensberg@telfort.nl>
 References: <20250331094443.9619-1-bensberg@telfort.nl>
@@ -53,24 +53,93 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
+Also, unabbreviate some needless abbreviations,
+and improve some wordings and markup.
+
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- misc-utils/hardlink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ misc-utils/lsblk.8.adoc | 52 +++++++++++++++++++++++------------------
+ 1 file changed, 29 insertions(+), 23 deletions(-)
 
-diff --git a/misc-utils/hardlink.c b/misc-utils/hardlink.c
-index ae8215901..0849f9102 100644
---- a/misc-utils/hardlink.c
-+++ b/misc-utils/hardlink.c
-@@ -1385,7 +1385,7 @@ static int parse_options(int argc, char *argv[])
- 				else if (strcmp(optarg, "never") == 0)
- 					reflink_mode = REFLINK_NEVER;
- 				else
--					errx(EXIT_FAILURE, _("unsupported reflink mode; %s"), optarg);
-+					errx(EXIT_FAILURE, _("unsupported reflink mode: %s"), optarg);
- 			}
- 			if (reflink_mode != REFLINK_NEVER)
- 				reflinks_skip = 1;
+diff --git a/misc-utils/lsblk.8.adoc b/misc-utils/lsblk.8.adoc
+index 7a0a15d3a..742fe5f68 100644
+--- a/misc-utils/lsblk.8.adoc
++++ b/misc-utils/lsblk.8.adoc
+@@ -105,45 +105,51 @@ Produce output in the form of key="value" pairs. The output lines are still orde
+ *-p*, *--paths*::
+ Print full device paths.
+ 
+-*-Q*, *--filter* _expr_::
+-Print only the devices that meet the conditions specified by the expr. The
+-filter is assessed prior to lsblk collecting data for all output columns. Only
++*-Q*, *--filter* _expression_::
++Print only the devices that meet the conditions specified by _expression_. The
++filter is assessed prior to *lsblk* collecting data for all output columns. Only
+ the necessary data for the lazy evaluation of the expression is retrieved from
+ the system. This approach can enhance performance when compared to
+-post-filtering, as commonly done by tools such as grep(1).
++post-filtering, as commonly done by tools such as *grep*(1).
+ +
+-This feature is EXPERIMENTAL. See also *scols-filter*(5). For example
+-exclude sda  and sdb, but print everything else ('!~' is a negative regular
+-expression matching operator):
++This feature is EXPERIMENTAL. See also *scols-filter*(5).
+++
++For example, to exclude sda and sdb, but print everything else
++('!~' is a negative regular-expression matching operator):
+ ____
+  lsblk --filter 'NAME !~ "sd[ab]"'
+ ____
+ 
+-*--highlight* _expr_::
+-Colorize lines matching the expression.
++*--highlight* _expression_::
++Colorize lines matching _expression_.
+++
+ This feature is EXPERIMENTAL. See also *scols-filter*(5).
+ 
+-*--ct* _name_ [: _param_ [: _function_ ]]::
+-Define a custom counter. The counters are printed after the standard output.
+-The _name_ is the custom name of the counter, the optional _param_ is the name of the column
+-to be used for the counter, and the optional _function_ specifies
+-the aggregation function, supported functions are: count, min, max, or sum. The
+-default is count.
++*--ct* _name_[**:**_parameter_[**:**_function_]]::
++Define a custom counter. Custom counters are printed after the standard output.
++The _name_ is the custom name of the counter, the optional _parameter_ is the name
++of the column to be used for the counter, and the optional _function_ specifies
++the aggregation function. Supported functions are: *count*, *min*, *max*, *sum*.
++The default function is *count*. If _parameter_ is not specified, then the counter
++counts the number of lines.
+ +
+-If the _param_ is not specified, then the counter counts the number of lines. This
+-feature is EXPERIMENTAL. See also *--ct-filter*.
++This feature is EXPERIMENTAL. See also *--ct-filter*.
+ +
+-For example, *--ct MyCounter:SIZE:sum* will count the summary for SIZE from all lines;
+-and to count the number of SATA disks, it is possible to use:
++For example, *--ct MyCounter:SIZE:sum* reports the total of the SIZE values.
++To report the number of SATA disks, one can use:
+ ____
+ 
+- lsblk --ct-filter 'TYPE=="disk" && TRAN=="sata"' --ct "Number of SATA devices"
++ lsblk --ct-filter 'TYPE=="disk" && TRAN=="sata"' \
++       --ct "Number of SATA devices"
+ ____
+ 
+ 
+-*--ct-filter* _expr_::
+-Define a restriction for the next counter. This feature is EXPERIMENTAL. See also *--ct*
+-and *scols-filter*(5). For example, aggregate sizes by device type:
++*--ct-filter* _expression_::
++Define a restriction for the next counter.
+++
++This feature is EXPERIMENTAL. See also *--ct* and *scols-filter*(5).
+++
++For example, to aggregate sizes by device type:
+ ____
+  lsblk --ct-filter 'TYPE=="part"' --ct Partitions:SIZE:sum \
+        --ct-filter 'TYPE=="disk"' --ct WholeDisks:SIZE:sum
 -- 
 2.48.1
 
