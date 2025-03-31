@@ -1,47 +1,47 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.170])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B06011DE3C7
-	for <util-linux@vger.kernel.org>; Mon, 31 Mar 2025 09:45:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D37DE1DE884
+	for <util-linux@vger.kernel.org>; Mon, 31 Mar 2025 09:45:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743414309; cv=none; b=ZXilYnqDeBWRIBIpQxDzCrKE3EVlEoDT2g0v6hSN9bwtMRERZxDyyJYoEoDklG1B70GJEWUbY70Ps0Oqijr2tUq+aYrYOR1RXPmmYzB/0PLiIDYSNw2w9pzLd9I0OWIvDpzr87D+fgH38Th5nB9ynCAnklOHn5hnak5Jj6zTNRM=
+	t=1743414310; cv=none; b=cqBOTuSUU4nuVk+pYbf5BhERJaapqQ5reIO3vc7jC1qH8iXcNgGwat3cKPhSnTroHxFkkh8fZvYhwHDySdI8fE7nS1KULZ5VMYMLYmFPoBiA94E+wB+TbToKC/34lRxQJuKmaVS1yeq163SWDCOKcFyMI8859Y0Mt3Z3plywxZQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743414309; c=relaxed/simple;
-	bh=OAULgm1k1R0Bg0qsIw3jOHtHvrees9FFTcrWwSHvM5A=;
+	s=arc-20240116; t=1743414310; c=relaxed/simple;
+	bh=oTnPMaVlLlloGqtY1FhD0UcA9tyMwzSr7JKWogtHDAg=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RTteGbnr3+u8czWTRB2w0qDUPAUPcEnEXa9/0dpuwkdPwHbz/YRvxLiOaO/+dhJK1+GJVQMRxBAwaNKtM8cjq0KpxAcMk8QGEnwV5UO9YwPkjD5ofKmFDgA5HN5re+Z8lNl1TU1k+ZiMQ6A60J/WQ0ypop2NQJx0ZvrDlF3DocI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=dWFZj3W1; arc=none smtp.client-ip=195.121.94.170
+	 MIME-Version; b=GGzhdP5ZJ+enn/siji5hWaaWPnrHctNNDH9a0FM2wyUsi37Vr1NkXrfjzWqU+Hr/KBINN2WckvPEz1nKV93tBzQwAJqfbQ5wCV5rmwcfQumP/VkNbpGX1fGivQ4nJG613ypCjpWAXwEHX+o2+Zl21v9Cdb+zd6L65L0hhsDHGEw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=Crj2V9go; arc=none smtp.client-ip=195.121.94.168
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="dWFZj3W1"
-X-KPN-MessageId: e04edeac-0e14-11f0-bc28-005056ab378f
-Received: from smtp.kpnmail.nl (unknown [10.31.155.40])
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="Crj2V9go"
+X-KPN-MessageId: e477171f-0e14-11f0-86cb-005056aba152
+Received: from smtp.kpnmail.nl (unknown [10.31.155.37])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id e04edeac-0e14-11f0-bc28-005056ab378f;
-	Mon, 31 Mar 2025 11:45:27 +0200 (CEST)
+	id e477171f-0e14-11f0-86cb-005056aba152;
+	Mon, 31 Mar 2025 11:45:34 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=ks4qjTjEX6obfOGllkLd5VFR5Bk1Sn9Y1Ybkd0CFKQk=;
-	b=dWFZj3W10JyaOgGHpAbI9Z8AbQ2qm8KF1zpWuQr3WGXwLHJ0y5YPUcwkhhE4bgAde990x0GjxOopi
-	 /5zxNkRXFSTCn622IALlLlP3Y6MI7Qcc/CltU3p++L8fmNfzZQQRoO5iewHp9yDTi4w7FgWEyg2Qzp
-	 NyltfcahMwnd9MRY=
-X-KPN-MID: 33|mP9BnZRt2Q5jEJFfC0OlNWVEGddXDToEf1rAIvtyhh9nNuRhJVax/t4QEzU9hi1
- CjnegpSBQZVNlHuBoWPnBhQTbPmuwqjnjgxkaSoLDW4g=
+	bh=jIwDhls1a5oaccJ2g0d3RVuSrr0xKVBYtHaQLh7OheI=;
+	b=Crj2V9gos52cjtvQVFDXkU1tG4qC++9uKKgtFawRZ/eZ4JTB6Zd5Bf1EuwZK9EheHXHeJYOkkkxUs
+	 cFkH6THYgyaEzvv75jEZNQFgrP4D+lbByRUDX/XeJoQLR+08jAWpKybZ5LGyh4qUum22c2K4p0nH/o
+	 r5UdiHfWl2IsPkjI=
+X-KPN-MID: 33|z4gcQ9zilk59UFobC32Ztxsj1PnxllsocBI62UoqLVt/46A8N8/xgPWQ67Dvhn2
+ wSOPoZeRf9uow+2+GHr/HNOzEHrnn6RFp48UyyHJNZPY=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|pjQlkfLsxyBO5nST4Lxf4I/zgAaO/Tqyk1K3MF96AV3Kld+ArqUoB5GPYb7eUQf
- J+I/aTiUJQuiGQOD43B9aJA==
+X-CMASSUN: 33|kwMVObjykELpDyxd1YZjcmqx2+JOMvOUoCWTA5XQc7qU9PwRw9vgnKBTkngW02U
+ GFWMYzr28tp6kiLxTakNJZA==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id cf0df994-0e14-11f0-8516-005056ab7584;
-	Mon, 31 Mar 2025 11:44:58 +0200 (CEST)
+	id d322625d-0e14-11f0-9b49-005056ab1411;
+	Mon, 31 Mar 2025 11:45:05 +0200 (CEST)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 02/10] uclampset: simplify the synopsis in the --help usage text
-Date: Mon, 31 Mar 2025 11:44:35 +0200
-Message-ID: <20250331094443.9619-2-bensberg@telfort.nl>
+Subject: [PATCH 03/10] last: don't use a tab character in the --help usage text
+Date: Mon, 31 Mar 2025 11:44:36 +0200
+Message-ID: <20250331094443.9619-3-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250331094443.9619-1-bensberg@telfort.nl>
 References: <20250331094443.9619-1-bensberg@telfort.nl>
@@ -53,65 +53,38 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The synopsis cannot express all possible forms of the command and still
-stay readable, so do not even try.  Giving one, single synopsis is far
-clearer.  Also, unabbreviate two words in the option descriptions.
-
-Also, improve the markup and the wording in the man page.
+Also, sort options -p and --time-format alphabetically,
+like in the man page.
 
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- schedutils/uclampset.1.adoc | 4 ++--
- schedutils/uclampset.c      | 8 ++++----
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ login-utils/last.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/schedutils/uclampset.1.adoc b/schedutils/uclampset.1.adoc
-index 955881907..b3cdb4e7f 100644
---- a/schedutils/uclampset.1.adoc
-+++ b/schedutils/uclampset.1.adoc
-@@ -38,9 +38,9 @@ manipulate the utilization clamping attributes of the system or a process
- 
- == SYNOPSIS
- 
--*uclampset* [options] [*-m* _uclamp_min_] [*-M* _uclamp_max] _command argument_
-+*uclampset* [options] [*-m* _minimum_] [*-M* _maximum_] *-p* _PID_
- 
--*uclampset* [options] [*-m* _uclamp_min_] [*-M* _uclamp_max_] *-p* _PID_
-+*uclampset* [options] [*-m* _minimum_] [*-M* _maximum_] _command_ [_argument_...]
- 
- == DESCRIPTION
- 
-diff --git a/schedutils/uclampset.c b/schedutils/uclampset.c
-index 4b37557a1..3aa198568 100644
---- a/schedutils/uclampset.c
-+++ b/schedutils/uclampset.c
-@@ -54,22 +54,22 @@ static void __attribute__((__noreturn__)) usage(void)
- 
- 	fputs(USAGE_HEADER, out);
- 	fprintf(out,
--		_(" %1$s [options]\n"
--		  " %1$s [options] --pid <pid> | --system | <command> <arg>...\n"),
-+		_(" %1$s [options] --pid <pid> | <command> [<arg>...] | --system\n"),
- 		program_invocation_short_name);
+diff --git a/login-utils/last.c b/login-utils/last.c
+index bdd375063..b7dff30c6 100644
+--- a/login-utils/last.c
++++ b/login-utils/last.c
+@@ -598,15 +598,15 @@ static void __attribute__((__noreturn__)) usage(const struct last_control *ctl)
+ 	fputs(_(" -F, --fulltimes      print full login and logout times and dates\n"), out);
+ 	fputs(_(" -i, --ip             display IP numbers in numbers-and-dots notation\n"), out);
+ 	fputs(_(" -n, --limit <number> how many lines to show\n"), out);
++	fputs(_(" -p, --present <time> display who were present at the specified time\n"), out);
+ 	fputs(_(" -R, --nohostname     don't display the hostname field\n"), out);
+ 	fputs(_(" -s, --since <time>   display the lines since the specified time\n"), out);
+ 	fputs(_(" -t, --until <time>   display the lines until the specified time\n"), out);
+-	fputs(_(" -T, --tab-separated	use tabs as delimiters\n"), out);
+-	fputs(_(" -p, --present <time> display who were present at the specified time\n"), out);
+-	fputs(_(" -w, --fullnames      display full user and domain names\n"), out);
+-	fputs(_(" -x, --system         display system shutdown entries and run level changes\n"), out);
++	fputs(_(" -T, --tab-separated  use tabs as delimiters\n"), out);
+ 	fputs(_("     --time-format <format>  show timestamps in the specified <format>:\n"
+ 		"                               notime|short|full|iso\n"), out);
++	fputs(_(" -w, --fullnames      display full user and domain names\n"), out);
++	fputs(_(" -x, --system         display system shutdown entries and run level changes\n"), out);
  
  	fputs(USAGE_SEPARATOR, out);
- 	fputs(_("Show or change the utilization clamping attributes.\n"), out);
- 
- 	fputs(USAGE_OPTIONS, out);
--	fputs(_(" -m <value>           util_min value to set\n"), out);
--	fputs(_(" -M <value>           util_max value to set\n"), out);
-+	fputs(_(" -m <value>           minimum utilization value to set\n"), out);
-+	fputs(_(" -M <value>           maximum utilization value to set\n"), out);
- 	fputs(_(" -a, --all-tasks      operate on all the tasks (threads) for a given pid\n"), out);
- 	fputs(_(" -p, --pid <pid>      operate on existing given pid\n"), out);
- 	fputs(_(" -s, --system         operate on system\n"), out);
- 	fputs(_(" -R, --reset-on-fork  set reset-on-fork flag\n"), out);
- 	fputs(_(" -v, --verbose        display status information\n"), out);
- 
-+	fputs(USAGE_SEPARATOR, out);
  	fprintf(out, USAGE_HELP_OPTIONS(22));
- 
- 	fputs(USAGE_SEPARATOR, out);
 -- 
 2.48.1
 
