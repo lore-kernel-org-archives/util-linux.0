@@ -1,72 +1,78 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 450C8266EFB
-	for <util-linux@vger.kernel.org>; Tue,  8 Apr 2025 11:44:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8DB92063FD
+	for <util-linux@vger.kernel.org>; Tue,  8 Apr 2025 12:35:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744112685; cv=none; b=BupsKN5TAiMCnNE/UsXrk7J3ZxzK8XPaiMKAc+CPB1IZ3PD8Ht4f3nl637U2Zv6qMHnUOGokN2jeTj5RalUxgwzk6TeRUpulEznVvPYEOBv78K2WcTzdTA8pMPs5HIeMrOL6jiizrs4v4z7wEk939Rl+TfUbQ6gM6geOYj4qQjY=
+	t=1744115718; cv=none; b=PtRQC/Ug3dtN0p3Vi1XD5pQmuRxIu3i4W0KtgNqAUIvl5IlnpmJs8fycGNSXxEipJS31YiD+ulIhQ60VBQ7jAH9qvjeh5byK3AfvS71+Lhdx0i7ATbxXLLaWctzqSHQ1z9sK2odHO3lnfUQS6nZO2Iyvk3V5c+pQH/JNX7BZGYw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744112685; c=relaxed/simple;
-	bh=QRwP6AuHd81Ec1BrSySxMOmpH8y8/u3Zt6EOzR4BUsA=;
+	s=arc-20240116; t=1744115718; c=relaxed/simple;
+	bh=48436JE7CsAslQ1xTCtQ7eZc/Nr3IkL2UZOBILjHvjg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cyWbzgG1518SO73Yk7+P0SiwH7wH0UIyu/mUI3cbKgIPIog1tG/yh7b4wQv2K345Io67J4hTzarUA0DPz98hWF9OV6fKlzgblR4njsFOzINXSKGKLQAinYBFMvQlZbBTp3F62Gk2YBV3lpj9wocTRC40xqmVjUgbotm1XxUm5/I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jVKuOApT; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=kSqZPJ7Jrwy7PLCWWreHLdgJoF5+AXSuR7cK2lMcxPAfe7VMlFGl+QBddFCVtoBcnrDSQo3cc6+caq0rqHXU/sL+FrcPeZyQK8+4cAyoce2i+alHB1/nEnjWxhcyzL0YxDBeOpNVIx/AW8nzZWwi/u8cNoUNx4k3RdXUtYzU8Ig=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=qgcpitWb; arc=none smtp.client-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jVKuOApT"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744112682;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wkKEZsY5hzr2+drmY2J8LcYOC6knxB7eZ7v2FiDxK/k=;
-	b=jVKuOApTl9kP7UfrQAMuUGdfCVfMuazAwXLHbvhebQe5OoBk0vND04F/AJgYkOxy5LOuK7
-	/cHGZnq3M2jEPObUOijgx/vFYNxkAxxEVx/mdhkyvrQDgbrSeeAAlY/ozq71oqAIvpomw+
-	GzWL2bQYO4fYNoDoemmK+R0wTFMV7ZI=
-Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-687-6Omr00x8Oy-dapOBKvE4og-1; Tue,
- 08 Apr 2025 07:44:37 -0400
-X-MC-Unique: 6Omr00x8Oy-dapOBKvE4og-1
-X-Mimecast-MFC-AGG-ID: 6Omr00x8Oy-dapOBKvE4og_1744112676
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CA9FC1955DBF;
-	Tue,  8 Apr 2025 11:44:36 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.224.198])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D3D32180B486;
-	Tue,  8 Apr 2025 11:44:35 +0000 (UTC)
-Date: Tue, 8 Apr 2025 13:44:32 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@telfort.nl>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/4] hwclock: remove two comments about parameters that
- no longer exist
-Message-ID: <6kyxdf2iqe72rf2f3r5ooz747ovzmc36vtqmyrpit5mexungpn@fhnkxdutjykb>
-References: <20250406152147.9225-1-bensberg@telfort.nl>
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="qgcpitWb"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=AG5/pTv5BZKYJxd3XXGE7smqxOm9lDv5yvZ2oGdjUwk=; b=qgcpitWbMON6pxwGPkYvRYqmQU
+	RCVe0kDnUzwgbbcd7AAyakmDwrVnyiUXT68RmKTS66RlEGDrMJ9iAwgx29OxeN1cne1iP6NyB0O3n
+	WzPAC17EJgjAzkdeeUxchVQ9Po5H0kAR07SeYVMUmkBOzYED2tktivxq4lqj6mU4lH3YFzt3t/HKI
+	6CX6ONKJD9GGpBfHK97xV/xgfFQDD5sPTKVnyuTQ4i2VC20Y278k9BYpnyVv+pxMGeg99zjgL/grz
+	PQM3QBvwBnKiPOGLazz4FBMSSfSXiYAQEdAwEcXdWEs7RAy0Rg1R1mBwcwPRaRf8GJownHQO+1yWy
+	WtpRinnA==;
+Received: from authenticated user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.94.2)
+	(envelope-from <zeha@debian.org>)
+	id 1u28AW-00Faux-N5; Tue, 08 Apr 2025 12:35:08 +0000
+Date: Tue, 8 Apr 2025 14:35:08 +0200
+From: Chris Hofstaedtler <zeha@debian.org>
+To: util-linux@vger.kernel.org
+Cc: Benno Schulenberg <bensberg@telfort.nl>, Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH 1/8] setarch: (man) remove a synopsis line that
+ mistakenly mentions `arch`
+Message-ID: <th24qbvmvco3w4oqwcfnxnacwrfcgpqs2qfp7whmam5gjm6wwn@fnajesleg2u4>
+References: <20250407151503.23394-1-bensberg@telfort.nl>
+ <mbag4aqfzuvn5q44cpbtem6ei7ai6jr2lz2pyzxrytsom4i3vq@7ak5vpzjgy7o>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20250406152147.9225-1-bensberg@telfort.nl>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+In-Reply-To: <mbag4aqfzuvn5q44cpbtem6ei7ai6jr2lz2pyzxrytsom4i3vq@7ak5vpzjgy7o>
+X-Debian-User: zeha
 
-On Sun, Apr 06, 2025 at 05:21:44PM +0200, Benno Schulenberg wrote:
->  sys-utils/hwclock.c | 5 -----
->  1 file changed, 5 deletions(-)
+Hi,
 
-All four patches have been applied. Thank you!
+* Karel Zak <kzak@redhat.com> [250408 12:36]:
+>On Mon, Apr 07, 2025 at 05:14:32PM +0200, Benno Schulenberg wrote:
+>> -*arch* [options] [_program_ [_argument_...]]
+>
+>This is not a bug. We use symlinks for setarch to support specific
+>architectures. It would be beneficial to describe this in the man
+>page in better way...
+>
+>$ find /usr/bin -type l -lname 'setarch'
+>/usr/bin/i386
+>/usr/bin/linux64
+>/usr/bin/uname26
+>/usr/bin/x86_64
+>/usr/bin/linux32
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+There's a very old Debian bug (#530011) asking for the setarch man 
+page to list all its aliases. Actually it started out asking what 
+"arch" meant in there.
+
+Maybe the man page really could list all known aliases?
+
+Chris
 
