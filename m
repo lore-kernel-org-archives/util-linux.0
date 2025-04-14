@@ -1,47 +1,47 @@
 Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5CF1F9FE
-	for <util-linux@vger.kernel.org>; Mon, 14 Apr 2025 09:46:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8180317A2FC
+	for <util-linux@vger.kernel.org>; Mon, 14 Apr 2025 09:46:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744623974; cv=none; b=L7CtMfITZFZaQj0hJdQ+CfF5XFx0mxbPnQ0P8gMp2NunKXVmBdNv9dKvD018XOh7fmaAu8E9yo/KcnoBbxjei/rWCz1HYLTGr8/APO0rYBSFJdL6+5aSdc93S1Nph2qcPekfVQrsDcXtDKmgWbB5HDQyFGX1ttPze+31hrKNnCE=
+	t=1744623986; cv=none; b=l0Nm0G4Q8tdk0W+CBmB4M7z4NFQN6EWhARMNxSYbJezZVKVLBEzmRiC3runzd9i0xy/R6pI8pobNVwTp3AA8tZJesywyvS8c2XjyblMReDlP8Ouw7EkRNYKTQRwmSmgUAFbzTpoxgpd6Xv/znN9hqLmmVjTxE7Az5eN/ODJb11k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744623974; c=relaxed/simple;
-	bh=e2dgEnTTYxmly9kRupTbNXo6hneUmMndmVxaZegmNv8=;
+	s=arc-20240116; t=1744623986; c=relaxed/simple;
+	bh=S0WJ499W8o5MGcciDNOZBSbJ54BpSJz4Eiu62F6WH8Y=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Uas26c7o2ogZWXduJ7ty54hlCZDjcoyvmDyP8fG3bZzF6/8cLK/AeZlwG6xKTs4s3ONOF8m8MjWeRVBicWtVLkvOrLdCV3twYFguyhCpmmBBRCfMxz17zD3Gu0nDNRsotKfUe2/SZdlD5kVafkiodOZP6836wLy44MVwFYNHHAU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=IlatEKLY; arc=none smtp.client-ip=195.121.94.169
+	 MIME-Version; b=QwaXQW2JCuf7BCMR8TBkgbJNNqw1QqBif4j5DGQjEByr9YpVnwQk9yIFNH2AwmgK2mHzf69Tib4IwWS31mZOpIQZNlt9OqJrbKABGf1um8REwDXow2uwXfoje7qIAHFMzG+FC4psPlObDuwKkeGJjOnyrR6sQuclqqf917R89I0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=C7mgkTLE; arc=none smtp.client-ip=195.121.94.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="IlatEKLY"
-X-KPN-MessageId: 53615881-1915-11f0-a82e-005056abad63
-Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="C7mgkTLE"
+X-KPN-MessageId: 5ec52b11-1915-11f0-a82e-005056abad63
+Received: from smtp.kpnmail.nl (unknown [10.31.155.39])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 53615881-1915-11f0-a82e-005056abad63;
-	Mon, 14 Apr 2025 11:46:23 +0200 (CEST)
+	id 5ec52b11-1915-11f0-a82e-005056abad63;
+	Mon, 14 Apr 2025 11:46:42 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=PcPjN0oGSadX7sAPz0wRaUvjRxEAwmcyiQ5dxBjWHK0=;
-	b=IlatEKLYS7FefsGBjy7jIqEWNXAm5vsir+AtIk+s0wrzGAzJkvP3jFxaAWvptaTh4AkD8EdoBeKD1
-	 4y9z2w+zPwZ3DV9eo2ooVjMl5P3C5Ul6cvLR5FGNXH5SS0vA2kI11QFWkmpeip3VNBz1Ict3ex1HBp
-	 VO7p42yeED2hPXr8=
-X-KPN-MID: 33|V4IUc8LK9Rd9CK8M8g4g6Mamy+oRI5m02v/8eRq2qpoRCOnVlJGAmfPv7nNC56E
- eR7UF8haK1lCiOB/yMgwDfbI6KmJR8U3WqFvxcShOSVA=
+	bh=AOGmEj9650sMsMQpPjcjwU0Im1N1+czxjTKtcOVLemo=;
+	b=C7mgkTLEPrqWSlI1/qbcn5bgXR3Q2GRC0OECrxgj/eNXFLLBrzPNdN7lXvEC0H8QXGy81fWxhffuH
+	 wutGaI6EjT7HTbki5U08zvO/1dkHh2ijoyz6OD91MqajxlQZboi6eBu6ZVtIuMgu1eSjJJ3GG7ctXN
+	 1mgSpWE/qU3vlQvQ=
+X-KPN-MID: 33|oHlxWpIpONG1r7YgFqECW97Xb1VI6Pv7bODcPoTJkZMttNmEqQfSlYDApE/SRkJ
+ HbyaVIhny2u/cqqKZ+/5ZAc6SxxrqGOHtvD0AcwxIc08=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|51cuzcXAK34T7ogYNdwG4/zigVGvlg+kJuGo7Mj+dXgwMa2gR/++GQ4mp93rs/i
- diDDaDYEnkwB+SZP/TLx2uA==
+X-CMASSUN: 33|T/ZPA2GSr4MJE/NCjgQqjrmkNOmM7E281RxNcIAYcM1v6q41bWFNWWlq0iXtWdG
+ c+sgPp0SFgUYeoS27v+9T0Q==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 47236139-1915-11f0-959e-005056abf0db;
-	Mon, 14 Apr 2025 11:46:02 +0200 (CEST)
+	id 52653783-1915-11f0-9bf3-005056ab7447;
+	Mon, 14 Apr 2025 11:46:21 +0200 (CEST)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 3/8] docs: fix a few indentation issues
-Date: Mon, 14 Apr 2025 11:45:29 +0200
-Message-ID: <20250414094534.9504-3-bensberg@telfort.nl>
+Subject: [PATCH 6/8] docs: add -h/--help and -V/--version to three man pages that lacked them
+Date: Mon, 14 Apr 2025 11:45:32 +0200
+Message-ID: <20250414094534.9504-6-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250414094534.9504-1-bensberg@telfort.nl>
 References: <20250414094534.9504-1-bensberg@telfort.nl>
@@ -53,82 +53,163 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-That is: add "+" or " +" to keep paragraphs together.
+Also, harmonize the wording and placement of these options in
+a few other man pages, and use an `include` where possible.
 
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- misc-utils/cal.1.adoc    | 1 +
- sys-utils/flock.1.adoc   | 2 +-
- sys-utils/hwclock.8.adoc | 6 ++++--
- sys-utils/setpriv.1.adoc | 1 +
- 4 files changed, 7 insertions(+), 3 deletions(-)
+ disk-utils/fsck.8.adoc     | 2 +-
+ disk-utils/sfdisk.8.adoc   | 6 +++---
+ misc-utils/kill.1.adoc     | 2 ++
+ misc-utils/lastlog2.8.adoc | 8 ++++----
+ sys-utils/blkpr.8.adoc     | 6 +-----
+ sys-utils/setsid.1.adoc    | 6 +-----
+ sys-utils/tunelp.8.adoc    | 2 ++
+ text-utils/line.1.adoc     | 6 +++++-
+ 8 files changed, 19 insertions(+), 19 deletions(-)
 
-diff --git a/misc-utils/cal.1.adoc b/misc-utils/cal.1.adoc
-index 06b4238df..9f1740620 100644
---- a/misc-utils/cal.1.adoc
-+++ b/misc-utils/cal.1.adoc
-@@ -102,6 +102,7 @@ This option sets the adoption date of the Gregorian calendar reform. Calendar da
- * _gregorian_ - display Gregorian calendars exclusively. This special placeholder sets the reform date below the smallest year that *cal* can use; meaning all calendar output uses the Gregorian calendar system. This is called the proleptic Gregorian calendar, because dates prior to the calendar system's creation use extrapolated values.
- * _iso_ - alias of _gregorian_. The ISO 8601 standard for the representation of dates and times in information interchange requires using the proleptic Gregorian calendar.
- * _julian_ - display Julian calendars exclusively. This special placeholder sets the reform date above the largest year that *cal* can use; meaning all calendar output uses the Julian calendar system.
+diff --git a/disk-utils/fsck.8.adoc b/disk-utils/fsck.8.adoc
+index bf6a0ec26..8631bcd79 100644
+--- a/disk-utils/fsck.8.adoc
++++ b/disk-utils/fsck.8.adoc
+@@ -113,7 +113,7 @@ Produce verbose output, including all filesystem-specific commands that are exec
+ Display help text and exit.
+ 
+ *--version*::
+-Display version information and exit.
++Display version and exit.
+ 
+ == FILESYSTEM SPECIFIC OPTIONS
+ 
+diff --git a/disk-utils/sfdisk.8.adoc b/disk-utils/sfdisk.8.adoc
+index 0bd04ba3e..d61a031c2 100644
+--- a/disk-utils/sfdisk.8.adoc
++++ b/disk-utils/sfdisk.8.adoc
+@@ -226,12 +226,12 @@ Wipe filesystem, RAID and partition-table signatures from the device, in order t
+ *-W*, *--wipe-partitions* _when_::
+ Wipe filesystem, RAID and partition-table signatures from a newly created partition, in order to avoid possible collisions. The argument _when_ can be *auto*, *never* or *always*. When this option is not given, the default is *auto*, in which case signatures are wiped only when in interactive mode and after confirmation by user. In all cases detected signatures are reported by warning messages after a new partition is created. See also *wipefs*(8) command.
+ 
+-*-v*, *--version*::
+-Display version information and exit.
+-
+ *-h*, *--help*::
+ Display help text and exit.
+ 
++*-v*, *--version*::
++Display version and exit.
 +
- +
- See *DESCRIPTION* above.
+ == INPUT FORMATS
  
-diff --git a/sys-utils/flock.1.adoc b/sys-utils/flock.1.adoc
-index 08843942f..247ab385f 100644
---- a/sys-utils/flock.1.adoc
-+++ b/sys-utils/flock.1.adoc
-@@ -82,7 +82,7 @@ Fail if the lock cannot be acquired within _seconds_. Decimal fractional values
+ *sfdisk* supports two input formats and generic header lines.
+diff --git a/misc-utils/kill.1.adoc b/misc-utils/kill.1.adoc
+index 5421fe16f..76027fb52 100644
+--- a/misc-utils/kill.1.adoc
++++ b/misc-utils/kill.1.adoc
+@@ -104,6 +104,8 @@ Ignored: TERM TSTP TTIN TTOU
+ Caught: HUP INT PIPE ALRM CHLD WINCH
+ ....
  
- *--fcntl*::
- Instead of flock(2), apply an fcntl(2) open file description lock (that is, using the F_OFD_SETLK (non-blocking) or F_OFD_SETLKW (blocking) commands). These locks are independent of those applied via flock(2), but, unlike traditional POSIX fcntl() locks (F_SETLK, F_SETLKW), have semantics matching those of flock(2).
++include::man-common/help-version.adoc[]
++
+ == EXIT STATUS
+ 
+ *kill* has the following exit status values:
+diff --git a/misc-utils/lastlog2.8.adoc b/misc-utils/lastlog2.8.adoc
+index 5e3289db7..fb0cf52c9 100644
+--- a/misc-utils/lastlog2.8.adoc
++++ b/misc-utils/lastlog2.8.adoc
+@@ -44,9 +44,6 @@ Clear last login record of a user. This option can be used only together with
+ *-d*, *--database _FILE_::
+ Use _FILE_ as lastlog2 database.
+ 
+-*-h*, *--help*::
+-Display help message and exit.
 -
-++
- This is only available on kernel versions >= 3.15.
+ *-i*, *--import* _FILE_::
+ Import data from old lastlog file _FILE_. Existing entries in the lastlog2
+ database will be overwritten.
+@@ -67,8 +64,11 @@ Print only last login records more recent than _DAYS_.
+ *-u*, *--users* _LOGINS_::
+ Print only the last login record of the user _LOGIN_.
  
- *--start* _offset_::
-diff --git a/sys-utils/hwclock.8.adoc b/sys-utils/hwclock.8.adoc
-index 350d50275..e30fb5e90 100644
---- a/sys-utils/hwclock.8.adoc
-+++ b/sys-utils/hwclock.8.adoc
-@@ -91,11 +91,12 @@ Set the Hardware Clock to the time given by the *--date* option, and update the
- This is an alternate to the *--hctosys* function that does not read the Hardware Clock nor set the System Clock; consequently there is not any drift correction. It is intended to be used in a startup script on systems with kernels above version 2.6 where you know the System Clock has been set from the Hardware Clock by the kernel during boot.
- +
- It does the following things that are detailed above in the *--hctosys* function:
++*-h*, *--help*::
++Display help text and exit.
++
+ *-v*, *--version*::
+-Print version number and exit.
++Display version and exit.
+ 
+ If the user has never logged in the message **Never logged in** will be displayed
+ in the latest login time row.
+diff --git a/sys-utils/blkpr.8.adoc b/sys-utils/blkpr.8.adoc
+index db2b8a0a9..98983b779 100644
+--- a/sys-utils/blkpr.8.adoc
++++ b/sys-utils/blkpr.8.adoc
+@@ -40,11 +40,7 @@ Supported flag is *ignore-key*.
+ Supported types are *write-exclusive*, *exclusive-access*, *write-exclusive-reg-only*,
+ *exclusive-access-reg-only*, *write-exclusive-all-regs*, and *exclusive-access-all-regs*.
+ 
+-*-V*, *--version*::
+-Display version information and exit.
 -
-++
- * Corrects the System Clock timescale to UTC as needed. Only instead of accomplishing this by setting the System Clock, *hwclock* simply informs the kernel and it handles the change.
- * Sets the kernel's NTP '11 minute mode' timescale.
- * Sets the kernel's timezone.
+-*-h*, *--help*::
+-Display help text and exit.
++include::man-common/help-version.adoc[]
  
-++
- The first two are only available on the first call of *settimeofday*(2) after boot. Consequently this option only makes sense when used in a startup script. If the Hardware Clocks timescale configuration is changed then a reboot would be required to inform the kernel.
+ == AUTHORS
  
- *-w*, *--systohc*::
-@@ -166,8 +167,9 @@ This option was added in v2.26, because it is typical for systems to call *hwclo
- * (Re)calculating drift factor on every shutdown delivers suboptimal results. For example, if ephemeral conditions cause the machine to be abnormally hot the drift factor calculation would be out of range.
- * Significantly increased system shutdown times (as of v2.31 when not using *--update-drift* the RTC is not read).
+diff --git a/sys-utils/setsid.1.adoc b/sys-utils/setsid.1.adoc
+index 3eddcab79..5cf49a597 100644
+--- a/sys-utils/setsid.1.adoc
++++ b/sys-utils/setsid.1.adoc
+@@ -31,11 +31,7 @@ Always create a new process.
+ *-w*, *--wait*::
+ Wait for the execution of the program to end, and return the exit status of this program as the exit status of *setsid*.
  
-++
- Having *hwclock* calculate the drift factor is a good starting point, but for optimal results it will likely need to be adjusted by directly editing the _{ADJTIME_PATH}_ file. For most configurations once a machine's optimal drift factor is crafted it should not need to be changed. Therefore, the old behavior to automatically (re)calculate drift was changed and now requires this option to be used. See the discussion below, under *The Adjust Function*.
+-*-V*, *--version*::
+-Display version information and exit.
 -
-+ +
- This option requires reading the Hardware Clock before setting it. If it cannot be read, then this option will cause the set functions to fail. This can happen, for example, if the Hardware Clock is corrupted by a power failure. In that case, the clock must first be set without this option. Despite it not working, the resulting drift correction factor would be invalid anyway.
+-*-h*, *--help*::
+-Display help text and exit.
++include::man-common/help-version.adoc[]
  
- *-v*, *--verbose*::
-diff --git a/sys-utils/setpriv.1.adoc b/sys-utils/setpriv.1.adoc
-index 79c1ec2d0..66a087b87 100644
---- a/sys-utils/setpriv.1.adoc
-+++ b/sys-utils/setpriv.1.adoc
-@@ -44,6 +44,7 @@ Note the following restrictions (detailed in *capabilities*(7)) regarding modifi
- * A capability can be added to the ambient set only if it is currently present in both the permitted and inheritable sets.
- * Notwithstanding the syntax offered by *setpriv*, the kernel does not permit capabilities to be added to the bounding set.
+ == AUTHORS
  
-++
- If you drop a capability from the bounding set without also dropping it from the inheritable set, you are likely to become confused. Do not do that.
+diff --git a/sys-utils/tunelp.8.adoc b/sys-utils/tunelp.8.adoc
+index 37140b31f..c2787889d 100644
+--- a/sys-utils/tunelp.8.adoc
++++ b/sys-utils/tunelp.8.adoc
+@@ -56,6 +56,8 @@ This option resets the port. It requires a Linux kernel version of 1.1.80 or lat
+ *-q*, *--print-irq* _<on|off>_::
+ This option sets printing the display of the current IRQ setting.
  
- *--keep-groups*::
++include::man-common/help-version.adoc[]
++
+ == FILES
+ 
+ _/dev/lp?_,
+diff --git a/text-utils/line.1.adoc b/text-utils/line.1.adoc
+index bed0d0d31..5ad85812d 100644
+--- a/text-utils/line.1.adoc
++++ b/text-utils/line.1.adoc
+@@ -17,12 +17,16 @@ line - read one line
+ 
+ == SYNOPSIS
+ 
+-*line*
++*line* [*-h*|*-V*]
+ 
+ == DESCRIPTION
+ 
+ The utility *line* copies one line (up to a newline) from standard input to standard output. It always prints at least a newline and returns an exit status of 1 on EOF or read error.
+ 
++== OPTIONS
++
++include::man-common/help-version.adoc[]
++
+ == SEE ALSO
+ 
+ *read*(1p)
 -- 
 2.48.1
 
