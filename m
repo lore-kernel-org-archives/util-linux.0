@@ -1,72 +1,94 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.185])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BB2522D4F9
-	for <util-linux@vger.kernel.org>; Wed, 16 Apr 2025 08:23:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37105189B8C
+	for <util-linux@vger.kernel.org>; Thu, 17 Apr 2025 09:48:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.185
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744791805; cv=none; b=FyIb85fMak7qCVILvDJVR1OUpqAfffUgYD6exKmwu/rnT6SUtJy1v3J8khaY5HJQNHEaQvcPQ8py4vFvkBrQWAwoDqr1QV5kr+gJ46DErnyCN9E9iX079ULYU28FayfkN87yQhTQF/MvrZQQ/noOjU91lpSPvpMrulSNSXhcJGE=
+	t=1744883323; cv=none; b=bVJu97W9XTaR0sWbUJqkujc6inGl3wNs5F2UEoHkr59iZjtVx9CN43KbT8XwRcrsC8mhqzgfINNdsatDx1ZqGvM3mhup0lD7Pu9DSbXt3SlCZdsuadJ68OjEcrlbWGvBuRHN/MFR6YFhCk6tIerTiVM01/VaWwT8g7xDHUV582E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744791805; c=relaxed/simple;
-	bh=4+xLhchAwbAOzxRZvIcneHMim85p9u3Fi64NkegLBkw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=D+gxxtzOmrcEyOgpUJdu/Q/gGdq//t0RO/Dy8/AYUhPn+GM61fcamCyvJVkMvYO7HcZMKiJsqqyZtS7gEfM7E4nSa+ev2BKdq80LzSf+kdk9T1t29JYxnp9aTcW0LD4TWOCBFAQtgmucuwy5HOw1mJTf93zhRWMYNsu1ZTwsy9Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VNN90wU7; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1744883323; c=relaxed/simple;
+	bh=Zlf2CCJRikOkQhhIYtQ/hOkUdt3JghAHUik19eWHfJU=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Zuph7r4Snx9okwhD8ooRunNXILURRDjXYAsuA7XAOvSHxbo9EV4EraA4Q7dpYUBTIZW9mAQ2H067XZuqIJdayYD9MB8PoJYH8DYjXBuk/dbNMf7NdPBKniqvF18Ct5Va3f+3EORTOr6oEV4l5P10jXtkh0qYc7F1h1YKXHYrlqs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=PzbtFBSd; arc=none smtp.client-ip=195.121.94.185
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VNN90wU7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744791802;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Sta20o3a+nv9YtlaPkwsnq2cQehjLM1B0FMm8di7mrE=;
-	b=VNN90wU7GaA8JaICJhBIYF56c3ma5C+GgvXQqX6diTz9zkfMJ6125AIS7P3j/EBDsN01AV
-	/J5Km3jqPQvgawpJdWF2Fh2FDl+umsiyboWb0UfhyU6ZgmlxNmObtAD7yMGHxQXCzDNzvh
-	403nKPag/cqcLemvHEU5KTzVKqao46k=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-167-QaRknHj7N4W0SCC80Kt9wQ-1; Wed,
- 16 Apr 2025 04:23:16 -0400
-X-MC-Unique: QaRknHj7N4W0SCC80Kt9wQ-1
-X-Mimecast-MFC-AGG-ID: QaRknHj7N4W0SCC80Kt9wQ_1744791794
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5AB0B1955E7D;
-	Wed, 16 Apr 2025 08:23:14 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.226.130])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 55E021800352;
-	Wed, 16 Apr 2025 08:23:12 +0000 (UTC)
-Date: Wed, 16 Apr 2025 10:23:09 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@telfort.nl>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/8] docs: rewrite the description of --bytes, to be
- clearer
-Message-ID: <3unejsdlphzx7fuaf6fdpwffojfsjst3cc4cn75odlq3pn26dt@gxc72su4hrga>
-References: <20250414094534.9504-1-bensberg@telfort.nl>
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="PzbtFBSd"
+X-KPN-MessageId: 43fd7c7d-1b71-11f0-b8e8-005056999439
+Received: from smtp.kpnmail.nl (unknown [10.31.155.6])
+	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
+	id 43fd7c7d-1b71-11f0-b8e8-005056999439;
+	Thu, 17 Apr 2025 11:49:33 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=telfort.nl; s=telfort01;
+	h=mime-version:message-id:date:subject:to:from;
+	bh=HhdvPcyRgGZkzCzw7InbOuFKxq8NW6DSfBIkWF7BMvw=;
+	b=PzbtFBSdfBp7YcjBvjo3bF/luNx/EFJ7gK4uh3w5KmSUi7EIcJTZKLUXhu9f/VaBtTVoT4qKo6/OO
+	 djf1S+3AeqL3mUJgl+DZ0MfQFQfGCNbcAJHrmxyZyGqCjKU5F0sxBoAaHB4RbX0WY4c2D+1W5BTofb
+	 Ixac/IxGyIJjWjts=
+X-KPN-MID: 33|QVw4zRk3AnfkqAEQXD5jXQ5yEQobizj+oR8dRGOCWovMS72hWMNmdOR6fXJBmQB
+ 5zeKKRHzdRhD+MVhcrWuTj5XXkHDQ7qSxgzJl5JJEvsE=
+X-KPN-VerifiedSender: Yes
+X-CMASSUN: 33|19sZ26Uy/v2QgQWFmndA92Jrzk30AqPa0xAFVWgcoXb6wFwjc+BKKJ2/nFItnQV
+ CJGfOpFOVU/EYTWBzjGoW6Q==
+Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
+	by smtp.kpnmail.nl (Halon) with ESMTPSA
+	id 229d964f-1b71-11f0-99e7-00505699772e;
+	Thu, 17 Apr 2025 11:48:37 +0200 (CEST)
+From: Benno Schulenberg <bensberg@telfort.nl>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 02/10] last: (man) correct the descriptions of --present and --since
+Date: Thu, 17 Apr 2025 11:48:16 +0200
+Message-ID: <20250417094825.20870-2-bensberg@telfort.nl>
+X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20250417094825.20870-1-bensberg@telfort.nl>
+References: <20250417094825.20870-1-bensberg@telfort.nl>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250414094534.9504-1-bensberg@telfort.nl>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+Content-Transfer-Encoding: 8bit
 
-On Mon, Apr 14, 2025 at 11:45:27AM +0200, Benno Schulenberg wrote:
->  man-common/in-bytes.adoc | 10 ++++------
->  1 file changed, 4 insertions(+), 6 deletions(-)
+Doing `last --present -24h` will show who was logged in around this time
+yesterday.  But when doing (what according to the man page is equivalent)
+`last --since -24h --until -24h` nothing will be shown -- unless someone
+logged in exactly 24 hours ago to the second.
 
-Applied all 8 patches, thanks!
+So, correct the descriptions of --present and --since.
 
+This fixes #1896 (https://github.com/util-linux/util-linux/issues/1896).
+Reported-by: Finn Krein-Schuch
+
+Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
+---
+ login-utils/last.1.adoc | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/login-utils/last.1.adoc b/login-utils/last.1.adoc
+index 099b281cc..8da52c766 100644
+--- a/login-utils/last.1.adoc
++++ b/login-utils/last.1.adoc
+@@ -64,13 +64,14 @@ Like *--dns ,* but displays the host's IP number instead of the name.
+ Tell *last* how many lines to show.
+ 
+ *-p*, *--present* _time_::
+-Display the users who were present at the specified time. This is like using the options *--since* and *--until* together with the same _time_.
++Display the users who were present at the specified time.
+ 
+ *-R*, *--nohostname*::
+ Suppresses the display of the hostname field.
+ 
+ *-s*, *--since* _time_::
+-Display the state of logins since the specified _time_. This is useful, e.g., to easily determine who was logged in at a particular time. The option is often combined with *--until*.
++Display the state of logins since the specified _time_.
++The option is often combined with *-t*/*--until* to cover a period.
+ 
+ *-t*, *--until* _time_::
+ Display the state of logins until the specified _time_.
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.48.1
 
