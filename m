@@ -1,48 +1,47 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.184])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.186])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4FE01C84AD
-	for <util-linux@vger.kernel.org>; Thu, 17 Apr 2025 09:49:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.184
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6EFD1C84AD
+	for <util-linux@vger.kernel.org>; Thu, 17 Apr 2025 09:49:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.186
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744883353; cv=none; b=H6qlunsnbGUSvgmE8K+E2E2pz3DzXm+QBzDbD7oJkXM6S+WbM58ZpuYVebXgms4G6TE8ezCkV8V86tFn0s8htCBaShzVv6XHf+jUg+drNum0xJ1NQIZlZ6QZIyA8piCmlnEJYWzRRRgl2XAOTazvJXqrTqmlv/4CxsOvyRedz8I=
+	t=1744883374; cv=none; b=QNY+rxOHJXm0lpk/ZfFmIdxlXPhte6KD1WZ94khShm6GvUsK7hKulGZ2BRk6iBVCLUEDT2SglzilcOQDVZK/3AJPYOphMfVQADalVNQ/6Fv3rCZ0sddl2Ec6TOmt8dTeDQIlFnsS0HNieMtwW5OKI0efxqBAtukK+e8YYnGHYBI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744883353; c=relaxed/simple;
-	bh=m5omdOJafuRszlfk9g+82IF++/bQXwsRfrVgkh3mR7g=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=M8e+DUwf273J1mK1oeymrMlu8ayHI8/OIeS6C2gD21IkjVz785v7eypuR1uQPuU6GA0KrNHmKawiial9FUjHijYNdE5x000xIgxshDyMJr3OGqm9F8IXq+VwaEw5xQPIHI9HJffvavV+RDFhLnRUcXYzO6dMzyfbarsszDluzDY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=bENi03SZ; arc=none smtp.client-ip=195.121.94.184
+	s=arc-20240116; t=1744883374; c=relaxed/simple;
+	bh=q+j5GUXWG9YB9o3FOEI369EBRMKq/zcpYRnnOEMLB/4=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=srIiBS6vFci6JoZpK2iiKMjEAXaWyK2x/am/zvFQIC7Oj7ZpC3qD8reXPcGaMdANgSrqHKB1kifLWYgnXAbK8IJno3VU1UUbsw0v0JirFfEctENEOD7tIPTm7DNEMJy1uBbpEEI57MkcYRXenepCpzeMUoMqbsb8ReacCUhzxYs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=nrDkMzap; arc=none smtp.client-ip=195.121.94.186
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="bENi03SZ"
-X-KPN-MessageId: 555b6d80-1b71-11f0-8ec8-005056994fde
-Received: from smtp.kpnmail.nl (unknown [10.31.155.5])
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="nrDkMzap"
+X-KPN-MessageId: 4fef0e41-1b71-11f0-a9b5-00505699b430
+Received: from smtp.kpnmail.nl (unknown [10.31.155.8])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 555b6d80-1b71-11f0-8ec8-005056994fde;
-	Thu, 17 Apr 2025 11:50:02 +0200 (CEST)
+	id 4fef0e41-1b71-11f0-a9b5-00505699b430;
+	Thu, 17 Apr 2025 11:49:53 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=562VxIOzaaRmf66s/RTx06+K2nlWN//NWE97b7cXqoo=;
-	b=bENi03SZBZEXkiC6fnvIb0+8GAH/OIN35vj10NqUTVTuHoRPwDei1elNyHf7tjyvNvR49M68CIOO7
-	 UrrU61EZHaWsGxSyfCPy1V1bhy7shNaRPabk80iItcYqmttwFB5C8F+mMLJ3Yl/3UFudVhckESoEC1
-	 E77OAtD9nTRUm0PQ=
-X-KPN-MID: 33|mTVYqzwd9FyI1VQyr2IEpzz8ZmnXRCPJ5elW4GUq7aO0IHMeg5fjphoXvy+LrHi
- 59Q5GkYbyT5W5MVbfS3jxEw==
+	bh=5YhrgYcD2MXC18qlhgmhEOf/7BgkunAWFfkuFOrKW0A=;
+	b=nrDkMzapTAbtsnzrun866S0doE7mQz6UXavqHsuEaxKZSzS4ft5fxdkFhp1329RWcs1YTDSj9+O+W
+	 3iac0E91GC+EBRSuiC0o+MTfGZTQexqDlopKmYRtHNbGhhie1H4V7LquThcHGh5Tm6t3Ivwk2xpbml
+	 8Fa3MUBUmSl3aXrM=
+X-KPN-MID: 33|PTCnuVIEWEoaM5i2u3dTwtiTYbS6NU9nOWeu3AVxngJG8ey6SIs1PRxlfsSjHnd
+ abPtWEn0m7iUrcElgZ8MWrXId8VcjSovTuZCGN/hyIU4=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|ypOnaXujBH0Ij6SBgFY2wkUXwikGvhltRtVJxMrXjWR+WLeWkxe0qO/cPDYeWTs
- IEi0wh+vjR0JiI9iMEzkpSw==
+X-CMASSUN: 33|3c50dHKS58lNAgFPViLhxUJq+d7U3F7DmP7ZNSm5mdzEiLkF2mS2euKXF7QYMIb
+ nVpsmWE/J+Xh39JykP+7AZg==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 360dcf59-1b71-11f0-9da2-00505699b758;
-	Thu, 17 Apr 2025 11:49:10 +0200 (CEST)
+	id 4150be45-1b71-11f0-97de-00505699d6e5;
+	Thu, 17 Apr 2025 11:49:29 +0200 (CEST)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Cc: David Anes <david.anes@suse.com>
-Subject: [PATCH 07/10] renice: (man) reword several things, to be clearer, and improve some markup
-Date: Thu, 17 Apr 2025 11:48:21 +0200
-Message-ID: <20250417094825.20870-7-bensberg@telfort.nl>
+Subject: [PATCH 10/10] docs: correct mistaken uses of "overwrite" to say "override" instead
+Date: Thu, 17 Apr 2025 11:48:24 +0200
+Message-ID: <20250417094825.20870-10-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250417094825.20870-1-bensberg@telfort.nl>
 References: <20250417094825.20870-1-bensberg@telfort.nl>
@@ -54,90 +53,245 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Also, remove a reference to ulimit(1p) that doesn't make sense.
+This mostly comes down to harmonizing the wording and markup of the
+various --lock options.
 
-CC: David Anes <david.anes@suse.com>
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- sys-utils/renice.1.adoc | 37 ++++++++++++++++++++++++++-----------
- 1 file changed, 26 insertions(+), 11 deletions(-)
+ disk-utils/cfdisk.8.adoc      |  7 ++++++-
+ disk-utils/fdisk.8.adoc       |  7 ++++++-
+ disk-utils/mkfs.bfs.8.adoc    |  7 ++++++-
+ disk-utils/mkfs.cramfs.8.adoc |  4 ++--
+ disk-utils/mkfs.minix.8.adoc  |  7 ++++++-
+ disk-utils/mkswap.8.adoc      |  7 ++++++-
+ disk-utils/sfdisk.8.adoc      |  7 ++++++-
+ misc-utils/logger.1.adoc      |  2 +-
+ misc-utils/wipefs.8.adoc      |  7 ++++++-
+ sys-utils/hwclock.8.adoc      | 12 ++++++++++--
+ sys-utils/losetup.8.adoc      | 11 +++++++++--
+ sys-utils/mount.8.adoc        |  3 ++-
+ 12 files changed, 66 insertions(+), 15 deletions(-)
 
-diff --git a/sys-utils/renice.1.adoc b/sys-utils/renice.1.adoc
-index e50e1e918..5f2e2a98d 100644
---- a/sys-utils/renice.1.adoc
-+++ b/sys-utils/renice.1.adoc
-@@ -46,24 +46,30 @@ renice - alter priority of running processes
+diff --git a/disk-utils/cfdisk.8.adoc b/disk-utils/cfdisk.8.adoc
+index 0075fd472..121d023ab 100644
+--- a/disk-utils/cfdisk.8.adoc
++++ b/disk-utils/cfdisk.8.adoc
+@@ -48,7 +48,12 @@ If you want to remove an old partition table from a device, use *wipefs*(8).
+ Colorize the output. The optional argument _when_ can be *auto*, *never* or *always*. If the _when_ argument is omitted, it defaults to *auto*. The colors can be disabled, for the current built-in default see *--help* output. See also the *COLORS* section.
  
- == SYNOPSIS
+ *--lock*[**=**_mode_]::
+-Use exclusive BSD lock for device or file it operates. The optional argument _mode_ can be *yes*, *no* (or 1 and 0) or *nonblock*. If the _mode_ argument is omitted, it defaults to *yes*. This option overwrites environment variable *$LOCK_BLOCK_DEVICE*. The default is not to use any lock at all, but it's recommended to avoid collisions with *systemd-udevd*(8) or other tools.
++Use an exclusive BSD lock for the device or file that is operated upon.
++The optional argument _mode_ can be *yes* (*1*), *no* (*0*), or *nonblock*.
++If the _mode_ argument is omitted, it defaults to *yes*.
++This option overrides the environment variable *$LOCK_BLOCK_DEVICE*.
++The default is to not use any lock at all, but using a lock is recommended
++to avoid collisions with *systemd-udevd*(8) or other tools.
  
--*renice* [*--priority|--relative*] _priority_ [*-g*|*-p*|*-u*] _identifier_...
-+*renice* [*-n*|*--priority*|*--relative*] _priority_ [*-g*|*-p*|*-u*] _identifier_...
+ *-r*, *--read-only*::
+ Forced open in read-only mode.
+diff --git a/disk-utils/fdisk.8.adoc b/disk-utils/fdisk.8.adoc
+index c18c38273..13e7147bb 100644
+--- a/disk-utils/fdisk.8.adoc
++++ b/disk-utils/fdisk.8.adoc
+@@ -60,7 +60,12 @@ If no devices are given, the devices mentioned in _/proc/partitions_ (if this fi
+ Like *--list*, but provides more details.
  
- == DESCRIPTION
+ *--lock*[**=**_mode_]::
+-Use exclusive BSD lock for device or file it operates. The optional argument _mode_ can be *yes*, *no* (or 1 and 0) or *nonblock*. If the _mode_ argument is omitted, it defaults to *yes*. This option overwrites environment variable *$LOCK_BLOCK_DEVICE*. The default is not to use any lock at all, but it's recommended to avoid collisions with *systemd-udevd*(8) or other tools.
++Use an exclusive BSD lock for the device or file that is operated upon.
++The optional argument _mode_ can be *yes* (*1*), *no* (*0*), or *nonblock*.
++If the _mode_ argument is omitted, it defaults to *yes*.
++This option overrides the environment variable *$LOCK_BLOCK_DEVICE*.
++The default is to not use any lock at all, but using a lock is recommended
++to avoid collisions with *systemd-udevd*(8) or other tools.
  
- *renice* alters the scheduling priority of one or more running processes. The first argument is the _priority_ value to be used. The other arguments are interpreted as process IDs (by default), process group IDs, user IDs, or user names. *renice*'ing a process group causes all processes in the process group to have their scheduling priority altered. *renice*'ing a user causes all processes owned by the user to have their scheduling priority altered.
+ *-n*, *--noauto-pt*::
+ Don't automatically create a default partition table on empty device. The partition table has to be explicitly created by user (by command like 'o', 'g', etc.).
+diff --git a/disk-utils/mkfs.bfs.8.adoc b/disk-utils/mkfs.bfs.8.adoc
+index 248013731..e66f8e0b5 100644
+--- a/disk-utils/mkfs.bfs.8.adoc
++++ b/disk-utils/mkfs.bfs.8.adoc
+@@ -36,7 +36,12 @@ Specify the volume _label_. I have no idea if/where this is used.
+ Specify the filesystem _name_. I have no idea if/where this is used.
  
--If no *-n*, *--priority* or *--relative* option is used, then the priority is set as *absolute*.
-+By default, _priority_ is understood as an absolute value. But when option *--relative* is given,
-+or when option *-n* is given and the environment variable POSIXLY_CORRECT is set, then _priority_
-+is understood as a relative value.
+ *--lock*[**=**_mode_]::
+-Use exclusive BSD lock for device or file it operates. The optional argument _mode_ can be *yes*, *no* (or 1 and 0) or *nonblock*. If the _mode_ argument is omitted, it defaults to *yes*. This option overwrites environment variable *$LOCK_BLOCK_DEVICE*. The default is not to use any lock at all, but it's recommended to avoid collisions with *systemd-udevd*(8) or other tools.
++Use an exclusive BSD lock for the device or file that is operated upon.
++The optional argument _mode_ can be *yes* (*1*), *no* (*0*), or *nonblock*.
++If the _mode_ argument is omitted, it defaults to *yes*.
++This option overrides the environment variable *$LOCK_BLOCK_DEVICE*.
++The default is to not use any lock at all, but using a lock is recommended
++to avoid collisions with *systemd-udevd*(8) or other tools.
  
- == OPTIONS
+ *-v*, *--verbose*::
+ Explain what is being done.
+diff --git a/disk-utils/mkfs.cramfs.8.adoc b/disk-utils/mkfs.cramfs.8.adoc
+index 8a2c4a79e..bca5e8f62 100644
+--- a/disk-utils/mkfs.cramfs.8.adoc
++++ b/disk-utils/mkfs.cramfs.8.adoc
+@@ -67,8 +67,8 @@ Use an exclusive BSD lock for the device or file that is operated upon.
+ The optional argument _mode_ can be *yes* (*1*), *no* (*0*), or *nonblock*.
+ If the _mode_ argument is omitted, it defaults to *yes*.
+ This option overrides the environment variable *$LOCK_BLOCK_DEVICE*.
+-The default is to not use any lock at all, but using a lock
+-is recommended to avoid collisions with udevd or other tools.
++The default is to not use any lock at all, but using a lock is recommended
++to avoid collisions with *systemd-udevd*(8) or other tools.
  
--*-n* _priority_::
--Specify the *absolute* or *relative* (depending on environment variable POSIXLY_CORRECT) scheduling _priority_ to be used for the process, process group, or user. Use of the option *-n* is optional, but when used, it must be the first argument. See *NOTES* for more information.
-+*-n* _priority_|__delta__::
-+Specify the absolute scheduling priority (when POSIXLY_CORRECT is not set) or a relative
-+priority (when POSIXLY_CORRECT *is* set).  See *NOTES* below for more details.
-+Using option *-n* is optional, but when used, it must be the first argument.
+ include::man-common/help-version.adoc[]
  
- *--priority* _priority_::
--Specify an *absolute* scheduling _priority_. _Priority_ is set to the given value. This is the default, when no option is specified.
-+Specify the absolute scheduling _priority_ to be used.
-+This is the default, when no option is specified.
+diff --git a/disk-utils/mkfs.minix.8.adoc b/disk-utils/mkfs.minix.8.adoc
+index 4b8426f3e..f747ee40f 100644
+--- a/disk-utils/mkfs.minix.8.adoc
++++ b/disk-utils/mkfs.minix.8.adoc
+@@ -47,7 +47,12 @@ Check the device for bad blocks before creating the filesystem. If any are found
+ Specify the maximum length of filenames. Currently, the only allowable values are 14 and 30 for file system versions 1 and 2. Version 3 allows only value 60. The default is 30.
  
--*--relative* _priority_::
--Specify a *relative* scheduling _priority_. Same as the standard POSIX *-n* option. _Priority_ gets _incremented/decremented_ by the given value.
-+*--relative* _delta_::
-+Specify a relative priority. The actual scheduling priority gets incremented/decremented
-+by the given _delta_. (This is the same as the *-n* option when POSIXLY_CORRECT is set.)
+ *--lock*[**=**_mode_]::
+-Use exclusive BSD lock for device or file it operates. The optional argument _mode_ can be *yes*, *no* (or 1 and 0) or *nonblock*. If the _mode_ argument is omitted, it defaults to *yes*. This option overwrites environment variable *$LOCK_BLOCK_DEVICE*. The default is not to use any lock at all, but it's recommended to avoid collisions with *systemd-udevd*(8) or other tools.
++Use an exclusive BSD lock for the device or file that is operated upon.
++The optional argument _mode_ can be *yes* (*1*), *no* (*0*), or *nonblock*.
++If the _mode_ argument is omitted, it defaults to *yes*.
++This option overrides the environment variable *$LOCK_BLOCK_DEVICE*.
++The default is to not use any lock at all, but using a lock is recommended
++to avoid collisions with *systemd-udevd*(8) or other tools.
  
- *-g*, *--pgrp*::
- Interpret the succeeding arguments as process group IDs.
-@@ -83,21 +89,30 @@ to map user names to user IDs
+ *-i*, *--inodes* _number_::
+ Specify the number of inodes for the filesystem.
+diff --git a/disk-utils/mkswap.8.adoc b/disk-utils/mkswap.8.adoc
+index 974a5af4e..a7838ae91 100644
+--- a/disk-utils/mkswap.8.adoc
++++ b/disk-utils/mkswap.8.adoc
+@@ -58,7 +58,12 @@ Suppress output and warning messages.
+ Specify a _label_ for the device, to allow *swapon*(8) by label.
  
- == NOTES
+ *--lock*[**=**_mode_]::
+-Use exclusive BSD lock for device or file it operates. The optional argument _mode_ can be *yes*, *no* (or 1 and 0) or *nonblock*. If the _mode_ argument is omitted, it defaults to *yes*. This option overwrites environment variable *$LOCK_BLOCK_DEVICE*. The default is not to use any lock at all, but it's recommended to avoid collisions with *systemd-udevd*(8) or other tools.
++Use an exclusive BSD lock for the device or file that is operated upon.
++The optional argument _mode_ can be *yes* (*1*), *no* (*0*), or *nonblock*.
++If the _mode_ argument is omitted, it defaults to *yes*.
++This option overrides the environment variable *$LOCK_BLOCK_DEVICE*.
++The default is to not use any lock at all, but using a lock is recommended
++to avoid collisions with *systemd-udevd*(8) or other tools.
  
--Users other than the superuser may only alter the priority of processes they own. Furthermore, an unprivileged user can only _increase_ the "nice value" (i.e., choose a lower priority) and such changes are irreversible unless (since Linux 2.6.12) the user has a suitable "nice" resource limit (see *ulimit*(1p) and *getrlimit*(2)).
-+Users other than the superuser may alter the priority only of processes they own.
-+Furthermore, an unprivileged user can only _increase_ the "nice value" (that is:
-+lower the urgency), and such changes are irreversible unless (since Linux 2.6.12)
-+the user has a suitable "nice" resource limit (see *getrlimit*(2)).
+ *-p*, *--pagesize* _size_::
+ Specify the page _size_ (in bytes) to use. This option is usually unnecessary; *mkswap* reads the size from the kernel.
+diff --git a/disk-utils/sfdisk.8.adoc b/disk-utils/sfdisk.8.adoc
+index 1ffc61588..ac81ec939 100644
+--- a/disk-utils/sfdisk.8.adoc
++++ b/disk-utils/sfdisk.8.adoc
+@@ -165,7 +165,12 @@ Disable all consistency checking.
+ Deprecated and ignored option. Partitioning that is compatible with Linux (and other modern operating systems) is the default.
  
- The superuser may alter the priority of any process and set the priority to any value in the range -20 to 19. Useful priorities are: 19 (the affected processes will run only when nothing else in the system wants to), 0 (the "base" scheduling priority), anything negative (to make things go very fast).
+ *--lock*[**=**_mode_]::
+-Use exclusive BSD lock for device or file it operates. The optional argument _mode_ can be *yes*, *no* (or 1 and 0) or *nonblock*. If the _mode_ argument is omitted, it defaults to *yes*. This option overwrites environment variable *$LOCK_BLOCK_DEVICE*. The default is not to use any lock at all, but it's recommended to avoid collisions with *systemd-udevd*(8) or other tools.
++Use an exclusive BSD lock for the device or file that is operated upon.
++The optional argument _mode_ can be *yes* (*1*), *no* (*0*), or *nonblock*.
++If the _mode_ argument is omitted, it defaults to *yes*.
++This option overrides the environment variable *$LOCK_BLOCK_DEVICE*.
++The default is to not use any lock at all, but using a lock is recommended
++to avoid collisions with *systemd-udevd*(8) or other tools.
  
--For historical reasons in this implementation, the *-n* option did not follow the POSIX specification. Therefore, instead of setting a *relative* priority, it sets an *absolute* priority by default. As this may not be desirable, this behavior can be controlled by setting the environment variable POSIXLY_CORRECT to be fully POSIX compliant. See the *-n* option for details. See *--relative* and *--priority* for options that do not change behavior depending on environment variables.
-+For historical reasons, the *-n* option in this implementation does not follow the POSIX
-+specification: instead of setting a *relative* priority, it sets an *absolute* priority
-+by default. As this may not be desirable, this behavior can be changed by setting the
-+environment variable POSIXLY_CORRECT, to be fully POSIX compliant. See *--relative* and
-+*--priority* for options that do not change behavior depending on environment variables.
+ *-n*, *--no-act*::
+ Do everything except writing to the device.
+diff --git a/misc-utils/logger.1.adoc b/misc-utils/logger.1.adoc
+index 0c4edbeac..e63f5eff8 100644
+--- a/misc-utils/logger.1.adoc
++++ b/misc-utils/logger.1.adoc
+@@ -73,7 +73,7 @@ Log the PID of the *logger* process with each line.
+ *--id*[**=**__id__]::
+ Log the PID of the *logger* process with each line. When the optional argument _id_ is specified, then it is used instead of the *logger* command's PID. The use of *--id=$$* (PPID) is recommended in scripts that send several messages.
+ +
+-Note that the system logging infrastructure (for example *systemd* when listening on _/dev/log_) may follow local socket credentials to overwrite the PID specified in the message. *logger*(1) is able to set those socket credentials to the given _id_, but only if you have root permissions and a process with the specified PID exists, otherwise the socket credentials are not modified and the problem is silently ignored.
++Note that the system logging infrastructure (for example *systemd* when listening on _/dev/log_) may follow local socket credentials to override the PID specified in the message. *logger*(1) is able to set those socket credentials to the given _id_, but only if you have root permissions and a process with the specified PID exists, otherwise the socket credentials are not modified and the problem is silently ignored.
  
- == HISTORY
+ *--journald*[**=**__file__]::
+ Write a *systemd* journal entry. The entry is read from the given _file_, when specified, otherwise from standard input. Each line must begin with a field that is accepted by *journald*; see *systemd.journal-fields*(7) for details. The use of a MESSAGE_ID field is generally a good idea, as it makes finding entries easy. Examples:
+diff --git a/misc-utils/wipefs.8.adoc b/misc-utils/wipefs.8.adoc
+index 88efaeca5..5226ea8b4 100644
+--- a/misc-utils/wipefs.8.adoc
++++ b/misc-utils/wipefs.8.adoc
+@@ -50,7 +50,12 @@ Force erasure, even if the filesystem is mounted. This is required in order to e
+ Use JSON output format.
  
- The *renice* command appeared in 4.0BSD.
+ *--lock*[**=**_mode_]::
+-Use exclusive BSD lock for device or file it operates. The optional argument _mode_ can be *yes*, *no* (or 1 and 0) or *nonblock*. If the _mode_ argument is omitted, it defaults to *"yes"*. This option overwrites environment variable *$LOCK_BLOCK_DEVICE*. The default is not to use any lock at all, but it's recommended to avoid collisions with udevd or other tools.
++Use an exclusive BSD lock for the device or file that is operated upon.
++The optional argument _mode_ can be *yes* (*1*), *no* (*0*), or *nonblock*.
++If the _mode_ argument is omitted, it defaults to *yes*.
++This option overrides the environment variable *$LOCK_BLOCK_DEVICE*.
++The default is to not use any lock at all, but using a lock is recommended
++to avoid collisions with *systemd-udevd*(8) or other tools.
  
--== EXAMPLES
-+== EXAMPLE
+ *-i*, *--noheadings*::
+ Do not print a header line.
+diff --git a/sys-utils/hwclock.8.adoc b/sys-utils/hwclock.8.adoc
+index e30fb5e90..3ad02054f 100644
+--- a/sys-utils/hwclock.8.adoc
++++ b/sys-utils/hwclock.8.adoc
+@@ -124,9 +124,17 @@ This option must be used with the *--set* or *--predict* functions, otherwise it
+ The argument must be in local time, even if you keep your Hardware Clock in UTC. See the *--localtime* option. Therefore, the argument should not include any timezone information. It also should not be a relative time like "+5 minutes", because *hwclock*'s precision depends upon correlation between the argument's value and when the enter key is pressed. Fractional seconds are silently dropped. This option is capable of understanding many time and date formats, but the previous parameters should be observed.
  
--The following command would change the priority of the processes with PIDs 987 and 32, plus all processes owned by the users daemon and root:
-+The following command changes the priority of the processes with PIDs 987 and 32, plus all processes owned by the users daemon and root:
+ **--delay=**__seconds__::
+-This option can be used to overwrite the internally used delay when setting the clock time. The default is 0.5 (500ms) for rtc_cmos, for another RTC types the delay is 0. If RTC type is impossible to determine (from sysfs) then it defaults also to 0.5 to be backwardly compatible.
++This option overrides the default delay used when setting the clock time.
++The default is *0.5* (500 ms) for rtc_cmos; for other RTC types the delay is *0*.
++If the RTC type cannot be determined (from sysfs), then the delay defaults
++also to *0.5* to be backwardly compatible.
+ +
+-The 500ms default is based on commonly used MC146818A-compatible (x86) hardware clock. This Hardware Clock can only be set to any integer time plus one half second. The integer time is required because there is no interface to set or get a fractional second. The additional half second delay is because the Hardware Clock updates to the following second precisely 500 ms after setting the new time. Unfortunately, this behavior is hardware specific and in some cases another delay is required.
++The 500 ms default is based on the commonly used MC146818A-compatible (x86) hardware clock.
++This Hardware Clock can only be set to an integer time plus one half second.
++The integer time is required because there is no interface to get or set a fractional second.
++The additional half second is because the Hardware Clock updates to the following second
++precisely 500 ms after setting the new time. Unfortunately, this behavior is hardware specific
++and in some cases a different delay is required.
  
-+____
- *renice +1 987 -u daemon root -p 32*
-+____
+ *-D*, *--debug*::
+ Use *--verbose*. The *--debug* option has been deprecated and may be repurposed or removed in a future release.
+diff --git a/sys-utils/losetup.8.adoc b/sys-utils/losetup.8.adoc
+index e549ddf1a..48d71ec18 100644
+--- a/sys-utils/losetup.8.adoc
++++ b/sys-utils/losetup.8.adoc
+@@ -42,7 +42,9 @@ Resize a loop device:
  
- == SEE ALSO
+ Note that the old output format (i.e., *losetup -a*) with comma-delimited strings is deprecated in favour of the *--list* output format.
+ 
+-It's possible to create more independent loop devices for the same backing file. *This setup may be dangerous, can cause data loss, corruption and overwrites.* Use *--nooverlap* with *--find* during setup to avoid this problem.
++It is possible to create multiple independent loop devices for the same backing file.
++*This setup may be dangerous, can cause data loss, corruption, and overwrites.*
++Use *--nooverlap* with *--find* during setup to avoid this problem.
+ 
+ The loop device setup is not an atomic operation when used with *--find*, and *losetup* does not protect this operation by any lock. The number of attempts is internally restricted to a maximum of 16. It is recommended to use for example *flock*(1) to avoid a collision in heavily parallel use cases.
+ 
+@@ -75,7 +77,12 @@ Show the status of all loop devices associated with the given _file_.
+ The data start is moved _offset_ bytes into the specified file or device. The _offset_ may be followed by the multiplicative suffixes; see above.
+ 
+ *--loop-ref* _string_::
+-Set reference string. The backwardly compatible default is to use the backing filename as a reference in loop setup ioctl (aka lo_file_name). This option can overwrite this default behavior and set the reference to the _string_. The reference may be used by udevd in /dev/loop/by-ref. Linux kernel does not use the reference at all, but it could be used by some old utils that cannot read the backing file from sysfs. The reference is readable only for the root user (see *--output* +REF) and it is restricted to 64 bytes.
++Set the reference string. The backwardly compatible default is to use the backing filename
++as a reference in the loop setup ioctl (aka lo_file_name). This option overrides this default
++behavior and sets the reference to the _string_. The reference may be used by udevd in
++/dev/loop/by-ref. The Linux kernel does not use the reference at all, but it could be used
++by some old utils that cannot read the backing file from sysfs. The reference is readable
++only for the root user (see *--output* +REF) and it is restricted to 64 bytes.
+ 
+ *--sizelimit* _size_::
+ The data end is set to no more than _size_ bytes after the data start. The _size_ may be followed by the multiplicative suffixes; see above.
+diff --git a/sys-utils/mount.8.adoc b/sys-utils/mount.8.adoc
+index 95998ce2a..e827b212a 100644
+--- a/sys-utils/mount.8.adoc
++++ b/sys-utils/mount.8.adoc
+@@ -385,7 +385,8 @@ Use the specified mount options. The _opts_ argument is a comma-separated list.
+ +
+ *mount LABEL=mydisk -o noatime,nodev,nosuid*
+ +
+-Note that the order of the options matters, as the last option wins if there are conflicting ones. The options from the command line also overwrite options from fstab by default.
++Note that the order of the options matters, as the last option wins if there are conflicting ones.
++Also, options on the command line override options from fstab.
+ +
+ For more details, see the *FILESYSTEM-INDEPENDENT MOUNT OPTIONS* and *FILESYSTEM-SPECIFIC MOUNT OPTIONS* sections.
  
 -- 
 2.48.1
