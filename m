@@ -1,56 +1,55 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B4D7221293
-	for <util-linux@vger.kernel.org>; Thu, 24 Apr 2025 10:05:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 169E0220680
+	for <util-linux@vger.kernel.org>; Thu, 24 Apr 2025 10:08:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745489119; cv=none; b=WK/Mr2x7XlFQdCsES2UI6WITRhu9nEU1UKqCq5BPZTjVhKNlfAs777WZYXZwJTkQBTPsOuCeYFKzknahLmEcBjzae5TFu4yRSFzAlxA61+ESrhrQFOMuXi1vvQSAdrvL8nGCSOd80pxQ1NicDc/eSt7IqU5DNc04q9aMICh3BH8=
+	t=1745489302; cv=none; b=VM0wTbK8QPmTcB3iGKNmC5BoceWj2DZn58Gib4U8Ihy7IMmKcbLv+Fg5Mokcz+jGlbZiILCGTeiP2w46vkLmsjYM3eCxHal1AIu9OpvpikxpQtyAp9OmSGfFkwPK/oN2ny/1mB06RuHCoPipHM377kr7hopdv7RVqnlDp5zhUGY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745489119; c=relaxed/simple;
-	bh=hKs2rw1+7KTAC3FI4ksI2lnydRPicKgH9+JO6HIpzfY=;
+	s=arc-20240116; t=1745489302; c=relaxed/simple;
+	bh=2v0ZTZ/ylOmUT98iYmEEGIQGDIfgbrW2y/BV9WF02ys=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XBmZo5fWqj/tzlGT5XCcPUa3qPhGZVRW1VZH01o/P/ka1mos7rM42j200/V1NOkQDbpuRe6hMmoAtxZMMBKeZpEKXe5+D1m6Oqdies18tZ9LblfbNz2+4ws2RLtwXIz+zRIQ7eTspzMYDzl7LNbADLWxLbFWWVmwHT8tS+Hx1J4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bTsyOLHj; arc=none smtp.client-ip=170.10.129.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=bgLURjJyE6u/Pu65vf7wlnIrqTaHu5zAWtgee7Hjs2wtI+W14b3fC6KG3orgxO+LXyvlKDoQEVzHcMlNG4Tub9uAqNSkgDwEoI2cebWbuTJjqItoGRn5CHPIVVhS+h3X6/HIZwGkrge5vUM9VXfWlp5apPdw/vD4eJ/26IkoANE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OVGKN8cS; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bTsyOLHj"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OVGKN8cS"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1745489114;
+	s=mimecast20190719; t=1745489300;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=CPlCHXpOw6chpYFPyjjo9mR91lFqBSe6/B0Yz8n3NSo=;
-	b=bTsyOLHjQFX7BXWwVoLr5efb+WW4Awl/WWo4GGkaaPQ9ynD8exWXP7BxweEk+jrblqLsQR
-	xYysLyhzTOtCo3IqCu7lzxLqQAyOFYOo7Qp7EKKccrKmJkshJh7PvHddiTK1n+smWL83lA
-	x0M0ZRhMHXzG9e8YMPIspN9UDgYtfh4=
-Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+	bh=5LG8OeDapTpnUPjc6LTgLgaZIeWHKqr3jzmULRqXPUk=;
+	b=OVGKN8cSm486D1Z+AB6N7GletXorwZaP1MU6rQrXoLAcmXMo37QONAAGgFuN4QR8JPqrOJ
+	ZVbv8HBK5VijFWzco3DpJLxary6KekuJ3gkHxgbSi83VvAECuLqJ9E+9T7OnT6MggiIbpi
+	7D88C+sy84x4gjd0hmOa6VsyWHrqYa8=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-663-dXCYQAY6ORCrEWbjCtUi6Q-1; Thu,
- 24 Apr 2025 06:05:12 -0400
-X-MC-Unique: dXCYQAY6ORCrEWbjCtUi6Q-1
-X-Mimecast-MFC-AGG-ID: dXCYQAY6ORCrEWbjCtUi6Q_1745489112
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-454-eIP4Qu6fNjShjLdGbBWF_Q-1; Thu,
+ 24 Apr 2025 06:08:16 -0400
+X-MC-Unique: eIP4Qu6fNjShjLdGbBWF_Q-1
+X-Mimecast-MFC-AGG-ID: eIP4Qu6fNjShjLdGbBWF_Q_1745489295
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9CF0E195608E;
-	Thu, 24 Apr 2025 10:05:11 +0000 (UTC)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id AD9491800446;
+	Thu, 24 Apr 2025 10:08:15 +0000 (UTC)
 Received: from ws.net.home (unknown [10.45.226.130])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 66984180047F;
-	Thu, 24 Apr 2025 10:05:10 +0000 (UTC)
-Date: Thu, 24 Apr 2025 12:05:07 +0200
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 96C77180045C;
+	Thu, 24 Apr 2025 10:08:14 +0000 (UTC)
+Date: Thu, 24 Apr 2025 12:08:11 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Masatake YAMATO <yamato@redhat.com>
-Cc: bensberg@telfort.nl, util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/7] lsfd: improve grammar, and use angular brackets
- around placeholder word
-Message-ID: <3vy4ysebkufi3zpcv2s66nnzghsf7nu4fthkmzotj6ctxawnd5@ottmham4b2lu>
+To: Benno Schulenberg <bensberg@telfort.nl>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 4/7] docs,usage: harmonize description of --hyperlink,
+ and add 2 missing ones
+Message-ID: <6sucmcn7scrug4shj2lebkrfdz3yyayoj37b3akusib6mxtyjw@kapl5f3xlvzq>
 References: <20250424093237.6432-1-bensberg@telfort.nl>
- <20250424093237.6432-3-bensberg@telfort.nl>
- <20250424.185505.855258258029883426.yamato@redhat.com>
+ <20250424093237.6432-4-bensberg@telfort.nl>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -59,48 +58,18 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250424.185505.855258258029883426.yamato@redhat.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+In-Reply-To: <20250424093237.6432-4-bensberg@telfort.nl>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On Thu, Apr 24, 2025 at 06:55:05PM +0900, Masatake YAMATO wrote:
-> > Also, use dots instead of "(s)" to indicate possible multiple arguments,
-> > and don't use "<when>" when the possible arguments differ from "always",
-> > "never", "auto".
-> > 
-> > Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
-> > ---
-> >  lsfd-cmd/lsfd.c | 6 +++---
-> >  1 file changed, 3 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/lsfd-cmd/lsfd.c b/lsfd-cmd/lsfd.c
-> > index 2eb53935c..3610de8dd 100644
-> > --- a/lsfd-cmd/lsfd.c
-> > +++ b/lsfd-cmd/lsfd.c
-> > @@ -2190,14 +2190,14 @@ static void __attribute__((__noreturn__)) usage(void)
-> >  	fputs(_(" -o, --output <list>          output columns (see --list-columns)\n"), out);
-> >  	fputs(_(" -r, --raw                    use raw output format\n"), out);
-> >  	fputs(_(" -u, --notruncate             don't truncate text in columns\n"), out);
-> > -	fputs(_(" -p, --pid  <pid(s)>          collect information only specified processes\n"), out);
-> > +	fputs(_(" -p, --pid <pid>...           collect information only for specified processes\n"), out);
-> 
-> This change implies that --pid 1 2 3 works.
-> However, specifying multiple pids to one --pid doesn't work.
-> 
->    # lsfd --pid 1 $$
->    Try 'lsfd --help' for more information.
-> 
-> Only --pid "1 2 3"  or works. See double-quote chars.
-> 
->    # lsfd --pid "1 $$"
+On Thu, Apr 24, 2025 at 11:32:34AM +0200, Benno Schulenberg wrote:
+> -*--hyperlink*[=_mode_]::
+> -Print paths as terminal hyperlinks. The _mode_ can be set to "always", "never", or "auto". The optional argument _when_ can be set to "auto", "never", or "always". If the _when_ argument is omitted, it will default to "auto". The "auto" setting means that hyperlinks will only be used if the output is on a terminal.
+> +*--hyperlink*[**=**_when_]::
+> +Print paths as terminal hyperlinks. The optional _when_ argument can be
+> +*always*, *never*, or *auto*. If the argument is omitted, it defaults to *auto*,
+> +which means that hyperlinks will only be used when the output goes to a terminal.
 
-It also supports comma, it means --pid 1,2,3
-
-It would be better to not announce that space is possible to use as
-separator, and use comma in the help and man page
-
-  fputs(_(" -p, --pid <list>           restrict to specified processes (command separated pids)\nn"), out);
-
-or so ...
+How about adding man-common/hyperlink and including it in the man pages?
 
     Karel
 
