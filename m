@@ -1,44 +1,44 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.169])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1DD5218821
-	for <util-linux@vger.kernel.org>; Fri, 25 Apr 2025 10:36:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86ABF25A624
+	for <util-linux@vger.kernel.org>; Fri, 25 Apr 2025 10:43:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745577417; cv=none; b=Cw+A6cRK1TN1C5iVpjKFCuRD65ZZnHHY0pEk0jn6HeMZTiZYbYATE8iwFoqrPeXIAAPwH5oPTHEM2eXHUgda61Omdb+eLLug2d8urTQ/qnOuy/0tnPE1xLniHiNnVIQ2tMdJUCqxA2mhAsqw6pxyVpxXFkQe+F0URkPbtPI8fLc=
+	t=1745577840; cv=none; b=Fyb3H+UouX3BrmGEHBiEH9zHYpIyh4PvUx+kWDNjog8KR1GUVhv3J79jH4EWLHeEpngMqTf4P0I7Kee0V7jOWBv5PYdmzvvHVupy3OUWsJ7oS5tjgLzV0LTHZlQ2icU1S6DK3d5XKq1QniZKQnvOSvVJ2yQBaDu993+wEvd2Z18=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745577417; c=relaxed/simple;
-	bh=0GWPxlspr51X4ukzJSeFI9NGfA2A+Tm1N6uUhiS1W6Y=;
+	s=arc-20240116; t=1745577840; c=relaxed/simple;
+	bh=cFj5W4Iek86bn/l3d8BeXEYgvDwRRynPxLHkKzOKXjs=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=SXUHp4bUPKh7UL2vlrE57b2JXTiCmpm2UFMIcnflvrJr1RlO0SpZ00smISzZi+PFoHQBrk6mfnrITgscaz7idV2Oi6ZNpRnoORDrmRGRdAJ8q0nw6Vo8sKIGozZRjLPueAw1xEUTvrhDyd9mnSVotfxGZW+vdybS6wWWggMrSO0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=nzs8vN6x; arc=none smtp.client-ip=195.121.94.169
+	 In-Reply-To:Content-Type; b=I9CEk61XiL6vBi2CiZ8sV4VBGuMPekP2BZVCME+ur7iNaaTfkhwEQYV6nm4PNg7NaCvLrF720jSNxdEvR2Vj9Kwig+ti9pbfqr5e2Sw9hmWI7uXzp7mDKErtTMVWpm+RRNUrHLMFlIxudrX9aRMJuliVCN+7ugA+j/RBVB3rTLM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=MKQ2nEV5; arc=none smtp.client-ip=195.121.94.168
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="nzs8vN6x"
-X-KPN-MessageId: 4cada296-21c1-11f0-a82e-005056abad63
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="MKQ2nEV5"
+X-KPN-MessageId: 49936d07-21c2-11f0-86cc-005056aba152
 Received: from smtp.kpnmail.nl (unknown [10.31.155.39])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 4cada296-21c1-11f0-a82e-005056abad63;
-	Fri, 25 Apr 2025 12:37:34 +0200 (CEST)
+	id 49936d07-21c2-11f0-86cc-005056aba152;
+	Fri, 25 Apr 2025 12:44:39 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=content-type:from:to:subject:mime-version:date:message-id;
-	bh=0GWPxlspr51X4ukzJSeFI9NGfA2A+Tm1N6uUhiS1W6Y=;
-	b=nzs8vN6xzAwrer/5Q5VlS+3ZvI9JBE/q76rvPjfhdlFlJIki+Cyai/TKrSdmG8rA/PF8NBcxNCOBL
-	 r16sJ3COsx0fXMhOV+CatiVtA1wJoZ6MllHjhlQLdBJNFI3oB9yR6BZ0UO1FC62pavXjbAV+rg4zYd
-	 1Su997ElkRv1+0NM=
-X-KPN-MID: 33|CVK2GTtDuIVqY7GBv+VPo/sXEvkzMZrb5ayas0wYq67ndBOwbbyxVTnNe092gWi
- D8OJf9E29IUIqS7ztS53J/9hKiDpnlYqoXxyg49xsCu8=
+	bh=cFj5W4Iek86bn/l3d8BeXEYgvDwRRynPxLHkKzOKXjs=;
+	b=MKQ2nEV5AvMBRuCc2BIKAcNLoNNZF1+ascVINA9VMA+6yaspN262jQaOKN3sLbw2pt46RtqBYrIaz
+	 QAMEpOzBMVGSjmzQOC9xtuWpzXyrvjlELd6lQrcl37ONeDDAkyRSGg04+qYJZ1pabfx9yzwmA/zwRO
+	 VifSEvE+3DunSQn8=
+X-KPN-MID: 33|Ofl5DNMR+74x34UGt5OMXdmRwvMh/lUr9aKWi8F7zMm/PiXolvZDw2nKrcnFAdH
+ ekP6Vv2YM4FmsYBVpF/Sy0XBelBCEdgDNbFqs3nOrOIM=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|zUlXp8iAkJZPl+JwHjuD9MJvDxKf+nJmRVAHCc7nv967ya5ubYsi1KtJTGYQvcL
- y1ZJL1rOMmqguRDk90iARjg==
+X-CMASSUN: 33|/fkv9OCyHTWaOR64VBpw0FxgPFRfRJve5jA32KiR9yly+IDPiSe5MhXDNXQ7DjK
+ u7xwHcdBfG3BvyK9ueswuZg==
 Received: from [192.168.2.23] (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 33afba12-21c1-11f0-9c06-005056ab7447;
-	Fri, 25 Apr 2025 12:36:53 +0200 (CEST)
-Message-ID: <9de5bcde-1315-42f9-a7bb-09fbfea6198c@telfort.nl>
-Date: Fri, 25 Apr 2025 12:36:52 +0200
+	id 307ecb74-21c2-11f0-9c06-005056ab7447;
+	Fri, 25 Apr 2025 12:43:57 +0200 (CEST)
+Message-ID: <f8faf6a3-1da6-42f7-a231-29c47f56b888@telfort.nl>
+Date: Fri, 25 Apr 2025 12:43:56 +0200
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -46,14 +46,13 @@ List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/7] lsfd: improve grammar, and use angular brackets
- around placeholder word
-To: Karel Zak <kzak@redhat.com>, Masatake YAMATO <yamato@redhat.com>
+Subject: Re: [PATCH 4/7] docs,usage: harmonize description of --hyperlink, and
+ add 2 missing ones
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
 References: <20250424093237.6432-1-bensberg@telfort.nl>
- <20250424093237.6432-3-bensberg@telfort.nl>
- <20250424.185505.855258258029883426.yamato@redhat.com>
- <3vy4ysebkufi3zpcv2s66nnzghsf7nu4fthkmzotj6ctxawnd5@ottmham4b2lu>
+ <20250424093237.6432-4-bensberg@telfort.nl>
+ <6sucmcn7scrug4shj2lebkrfdz3yyayoj37b3akusib6mxtyjw@kapl5f3xlvzq>
 Content-Language: en-US, nl-NL, es-ES
 From: Benno Schulenberg <bensberg@telfort.nl>
 Autocrypt: addr=bensberg@telfort.nl; keydata=
@@ -99,62 +98,60 @@ Autocrypt: addr=bensberg@telfort.nl; keydata=
  K8dqxmXCIqkG9iMh/vId/gI6d9Ci57nY0FluIrbE/L9z1Gei2eMFsFmSvnW9fIc3NtKfnvQR
  BOXedCw0kmvyScJ6EZ3znoV0PFstgvmp4wSlnb2Dw74euRcBe5/wxX1VAHSYhqKWMnoe6snY
  nUQR9h5Wm7A5sq4D91+uMVHTr/1llbSDS+6J1tE6WNg5gpiULhOr0IoxlSTtUCDY2c49wqh8 50GA
-In-Reply-To: <3vy4ysebkufi3zpcv2s66nnzghsf7nu4fthkmzotj6ctxawnd5@ottmham4b2lu>
+In-Reply-To: <6sucmcn7scrug4shj2lebkrfdz3yyayoj37b3akusib6mxtyjw@kapl5f3xlvzq>
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="------------ekY1jkS0dSBQ4V6eJeM3OeQB"
+ boundary="------------1nowgjrSfxj8kBVVJcxgJ0f9"
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------ekY1jkS0dSBQ4V6eJeM3OeQB
-Content-Type: multipart/mixed; boundary="------------chFEWkW10N6Ny40TPQy1dvSM";
+--------------1nowgjrSfxj8kBVVJcxgJ0f9
+Content-Type: multipart/mixed; boundary="------------J3JgkObkuGVM0ooqJAYyb635";
  protected-headers="v1"
 From: Benno Schulenberg <bensberg@telfort.nl>
-To: Karel Zak <kzak@redhat.com>, Masatake YAMATO <yamato@redhat.com>
+To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Message-ID: <9de5bcde-1315-42f9-a7bb-09fbfea6198c@telfort.nl>
-Subject: Re: [PATCH 3/7] lsfd: improve grammar, and use angular brackets
- around placeholder word
+Message-ID: <f8faf6a3-1da6-42f7-a231-29c47f56b888@telfort.nl>
+Subject: Re: [PATCH 4/7] docs,usage: harmonize description of --hyperlink, and
+ add 2 missing ones
 References: <20250424093237.6432-1-bensberg@telfort.nl>
- <20250424093237.6432-3-bensberg@telfort.nl>
- <20250424.185505.855258258029883426.yamato@redhat.com>
- <3vy4ysebkufi3zpcv2s66nnzghsf7nu4fthkmzotj6ctxawnd5@ottmham4b2lu>
-In-Reply-To: <3vy4ysebkufi3zpcv2s66nnzghsf7nu4fthkmzotj6ctxawnd5@ottmham4b2lu>
+ <20250424093237.6432-4-bensberg@telfort.nl>
+ <6sucmcn7scrug4shj2lebkrfdz3yyayoj37b3akusib6mxtyjw@kapl5f3xlvzq>
+In-Reply-To: <6sucmcn7scrug4shj2lebkrfdz3yyayoj37b3akusib6mxtyjw@kapl5f3xlvzq>
 
---------------chFEWkW10N6Ny40TPQy1dvSM
+--------------J3JgkObkuGVM0ooqJAYyb635
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: base64
 
-DQpPcCAyNC0wNC0yMDI1IG9tIDEyOjA1IHNjaHJlZWYgS2FyZWwgWmFrOg0KPiBJdCB3b3Vs
-ZCBiZSBiZXR0ZXIgdG8gbm90IGFubm91bmNlIHRoYXQgc3BhY2UgaXMgcG9zc2libGUgdG8g
-dXNlIGFzDQo+IHNlcGFyYXRvciwgYW5kIHVzZSBjb21tYSBpbiB0aGUgaGVscCBhbmQgbWFu
-IHBhZ2UNCg0KQWdyZWVkLiAgUmV2aXNlZCBwYXRjaCBoYXMgYmVlbiBzZW50Lg0KDQo+ICAg
-IGZwdXRzKF8oIiAtcCwgLS1waWQgPGxpc3Q+ICAgICAgICAgICByZXN0cmljdCB0byBzcGVj
-aWZpZWQgcHJvY2Vzc2VzIChjb21tYW5kIHNlcGFyYXRlZCBwaWRzKVxubiIpLCBvdXQpOw0K
-DQpUaGlzIGlzIHRvbyBsb25nIChtb3JlIHRoYW4gODAgY2hhcmFjdGVycyB3aWRlKSBhbmQg
-Z2l2ZXMgdW5uZWVkZWQgZGV0YWlscw0KLS0gZnJvbSBvdGhlciBvcHRpb25zIHBlb3BsZSB3
-aWxsIGFscmVhZHkga25vdyB3aGF0IDxsaXN0PiBtZWFucy4NCg0KDQpCZW5ubw0KDQo=
+DQpPcCAyNC0wNC0yMDI1IG9tIDEyOjA4IHNjaHJlZWYgS2FyZWwgWmFrOg0KPiBIb3cgYWJv
+dXQgYWRkaW5nIG1hbi1jb21tb24vaHlwZXJsaW5rIGFuZCBpbmNsdWRpbmcgaXQgaW4gdGhl
+IG1hbiBwYWdlcz8NCg0KRG9uZS4gIEFsdGhvdWdoIHRoZXJlIHdhcyBhIHNsaWdodCB3b3Jk
+aW5nIGRpZmZlcmVuY2UgYmV0d2VlbiBgbHNmZGAgb24NCnRoZSBvbmUgaGFuZCwgYW5kIGBm
+aW5kbW50YCBhbmQgYGxzYmxrYCBvbiB0aGUgb3RoZXIgaGFuZDogdGhlIGZpcnN0IHNhaWQN
+Cmp1c3QgInBhdGhzIiBpbnN0ZWFkIG9mICJtb3VudHBvaW50IHBhdGhzIi4gIFByb2JhYmx5
+IHRoZSB3b3JkICJtb3VudHBvaW50Ig0KY2FuIGJlIGRyb3BwZWQgdG8gbWFrZSB0aGUgZGVz
+Y3JpcHRpb24gZml0IGZvciBhbGwgdGhyZWU/DQoNCg0KQmVubm8NCg0K
 
---------------chFEWkW10N6Ny40TPQy1dvSM--
+--------------J3JgkObkuGVM0ooqJAYyb635--
 
---------------ekY1jkS0dSBQ4V6eJeM3OeQB
+--------------1nowgjrSfxj8kBVVJcxgJ0f9
 Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmgLZcQFAwAAAAAACgkQUUu+Lrjhlh/p
-3Q//dd9rlz6A5XC5sIiq6I1z4irM/qYwsV3LYNeMDvgiSCv7lRLa+ZKj5ZDWGSfS+MYvqSPrwHii
-1uHS6gLFiYPkRyshQR1IvRSuP1zJl97hZzBgQipaxzva9PXQiojlV7t/DHFoaPWvpvW5/JHgah2c
-H2yAOh+zAU8TiA3yWkUlNib4kiGse7Dac/HOZ/ybv/uOk9NVXQOlQSBvMaLGpFEmUyGtkPLGfng+
-TNcf+L9+T0pm9/q8ECPBnmJJ6Ozu5Uy/uogXfbc/2TagXZzS2bnXjoiV9KsMi17fhYzPgfpye7l/
-jNW/o47O8dqN6S0sIq94awwhu6QOGHfHZzTaEj3UvBJdoNiBoUzh4SLLKABKpiCHfae0ba8zd8WN
-QAZEPwZ7VYVykHEYXqgBuk/BwTOnxowHdpasNtGW57TztMsPiJ5UFgFx07LV7oKeO2o4ecHlrOp7
-99y/bypU60aRSMyFOy9Wvnlio8s02lfieGj8RO6N2/mi7UUnCfsYlffC1800JU2VMkPhI81aSWLh
-OergFiAht9Xaa3P42IjZh8Xk2SF9cQq3rXt03k5rgLS+Oztqxh+3Q/o1wrLUbyFL8hW9FrIaGdm/
-okOOt0tA+nabRsgt28Q9I6FoZA+PQdK0iuFmB6K4Q0nwvTr4fm+dQENnLLMvYZ3RZFf0FgmjsWDo
-P3I=
-=pUNz
+wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmgLZ2wFAwAAAAAACgkQUUu+Lrjhlh/M
+VRAAyHtSRP/Xyqu2br0hGygt0PVzzzjD6Kzsj1g84ixINmpMRhhwQUueAU7ulnTB9b/wu9HGSzLo
+SKr9oqe2uPmL9nxHZtTvMsHOfLZ+3a81M2EmrWcUpVRh0H2pZSu4JOwFpzPCo3v4rlz3AuLIha4K
+KpCCRhVlR++EFluLOB7wgaPGFXomkFkulNnWnhfeOeO20YgnanFAgrbACN7e0PxZujJBI4LrzZVt
+mX7U6dj/yiDE+GWy26OVFERltC0n5zgoylTWHoqZTTrq6raZQ8l9/OcAjomnJT4Mu806d5n+Liwm
+pZifUnJdLfEEgr79UKmq5qMBirpD0h7Zy9eHr/7PVgfQeldWRhBmlBhpvRwuKxuhQ0clZY8MqWcK
+syhuSToQkgn2+uEFOMqTzNX/FvCgt411slxAWHHxHyeqFvZYWqXqzhF+MOAiXHoIqJPbdWW4po4R
+bF4tf41015AxBQPx90zOyO5yOOqxRpgXDvYQGDOTzUGdXIt0ElbtmSnd9wF5jqKNySoQRm6/zSmo
+f6BbHxRR342NE6TLla/jXgldz4JeybPIwoUwMcOxHTSsFte/GdER4KZsL1S2yZDDjTl4atTwxeBc
+miK8+FJHATljZvjtcflz3creMlhCEDTxd0vii8oRseH5Ltwl59DFsuahMv6PDhwqCaPd7MrPA//2
+hdE=
+=45SJ
 -----END PGP SIGNATURE-----
 
---------------ekY1jkS0dSBQ4V6eJeM3OeQB--
+--------------1nowgjrSfxj8kBVVJcxgJ0f9--
