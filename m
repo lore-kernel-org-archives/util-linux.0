@@ -1,84 +1,193 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.167])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7922B21FF2A
-	for <util-linux@vger.kernel.org>; Fri, 25 Apr 2025 20:08:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D28AB18DB0D
+	for <util-linux@vger.kernel.org>; Sat, 26 Apr 2025 09:30:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.167
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745611689; cv=none; b=lzo7Bra7cJh4F35vk5+jRuZ9QrRALAwvU5CfxlLkg2ALFJXG0LirXwGThRB+njhyIMQ3Hgby2lmYImy2q/jPjb6ZvGAXTwkvgBA+6rsLmax8f2q1EfWxGYaR7f+nK2xNsXJoY9k2IMcI+xVBCskE8hc619aCdYYW9yAfYD7IA6M=
+	t=1745659839; cv=none; b=dfQvVSwKDCo5W2DHURdClWbCz9WKoZEC+w2Jx13JlWPfFwmS9A/ZgMskzJ/o2ZZ6Ymhy93IQgDiKHphSDEoXmeoCx9kPAjiYYswr6b5bV1ya2NVxvmhMRE4/fpIkAeesu3h6xn6jbXT7HqxwM4MbudvUbccJ3GSPUy8TfuVDCG0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745611689; c=relaxed/simple;
-	bh=Z4Siwz4OIsCpXur1duSZx1K3KYh9CImYthQsqaNAbzg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ep/I6m1tu5v7BgAeMclqp5iRybOBXWYwnilvXBwGMYpDK9zVdBHzwXRyF76DfsEms2eAZ2/Imzjfdnf4/JLP+V0INB7FzOp7YnhN0QVjxAXiwesFKt+5JLb7qNp8hjvGbqz0QOjcjQ1n59SigJdjNlE/D4E/900a+6D1HwrHO/g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LUpzy62g; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1745659839; c=relaxed/simple;
+	bh=/6GSv8y9Gxj+0b/YQaHB/GCjE7LSzYm0IW4SmFc3Qw8=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=JOs/Gf9tldL6qLjno5u2tGikh1/bAJPNkBfDLEmhsMHyjYUh7jA14//IOv1KgXaZ1Lz5+BeAA4zVyD+Q4gu44zett/l1HSMLvr/jBfsNFkIOvlSPnIx72Ze/G/Oyw+B1VYjNkrplcwBELtZbcXnpEeC8ixHa1Z7O1ei+WozWfNk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=rLkhuMZL; arc=none smtp.client-ip=195.121.94.167
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LUpzy62g"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1745611686;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Aur+cbmpvPHbYZbi/1wdbstNVBsOBM3VXcbNzOnEhkg=;
-	b=LUpzy62g3J2BbJf3R+GEkpNiByUkLyLfizY0GQH9Ssuxf+YiyxITngIpbu0XcbVeHKPOa8
-	M9KoyJqosGuxhDXZACC01cXCoqZFRwBvJtAXyy6WkvcE4Wv4qKf8T9bdocjAYDB2pzwdEJ
-	MetRMmIR4GqwpfDHEl15UmFC7OO3Kj0=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-33-XlRBlFWvNRSw3Q4b5kShzw-1; Fri,
- 25 Apr 2025 16:08:02 -0400
-X-MC-Unique: XlRBlFWvNRSw3Q4b5kShzw-1
-X-Mimecast-MFC-AGG-ID: XlRBlFWvNRSw3Q4b5kShzw_1745611681
-Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A9DC9180034E;
-	Fri, 25 Apr 2025 20:08:01 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.226.130])
-	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B3C2319560AB;
-	Fri, 25 Apr 2025 20:08:00 +0000 (UTC)
-Date: Fri, 25 Apr 2025 22:07:57 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@telfort.nl>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 4/7] docs,usage: harmonize description of --hyperlink,
- and add 2 missing ones
-Message-ID: <2hacaew77txtgorfud3xrxxtv5n4yxb34fzuvttkkazmbwvmu7@j2pesheca25z>
-References: <20250424093237.6432-1-bensberg@telfort.nl>
- <20250424093237.6432-4-bensberg@telfort.nl>
- <6sucmcn7scrug4shj2lebkrfdz3yyayoj37b3akusib6mxtyjw@kapl5f3xlvzq>
- <f8faf6a3-1da6-42f7-a231-29c47f56b888@telfort.nl>
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="rLkhuMZL"
+X-KPN-MessageId: 3d8689d9-2281-11f0-b9a0-005056abbe64
+Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
+	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
+	id 3d8689d9-2281-11f0-b9a0-005056abbe64;
+	Sat, 26 Apr 2025 11:31:32 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=telfort.nl; s=telfort01;
+	h=mime-version:message-id:date:subject:to:from;
+	bh=YyXgf8h6OBf1ldiIeGQkWQZIzcfsOXuvpQ36gzz5DMo=;
+	b=rLkhuMZLFdwsYsKMhWNLD0mgjbZg3wUk4UyP1Com5sUrOSfI+GV526kVWbRDNOulF3NGPzSDTjB+d
+	 9WUulF7z4we+DrbsiRSCo7xIoFmqSKUyIEOKYsywWKIqnnUQJXDZ/6Uw6A2akKpHXdbXGCQjB9iy0z
+	 NyuQtx8/cSXq+L8c=
+X-KPN-MID: 33|w0ydkN+HZoj2pnZ62as3+KUYJQ18U5sAiGRVAFhn8kgpzUIom8M68r4N5LQNnt5
+ I1zuHYM5q25VoPXih6pbJkmKh64GT4U3GoI7nYlNSnCE=
+X-KPN-VerifiedSender: Yes
+X-CMASSUN: 33|o+jHoo9SZ45lHBbaq/kXan98wTKhfMMmB5YHwIMcuHWF10V/JzKtnTeO2ZuxxhZ
+ DLh0SUcY1RVCJm2TX7gPt/A==
+Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
+	by smtp.kpnmail.nl (Halon) with ESMTPSA
+	id 169efb3f-2281-11f0-95a4-005056abf0db;
+	Sat, 26 Apr 2025 11:30:27 +0200 (CEST)
+From: Benno Schulenberg <bensberg@telfort.nl>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 4/7 V3] docs,usage: harmonize description of --hyperlink, and add 2 missing ones
+Date: Sat, 26 Apr 2025 11:30:18 +0200
+Message-ID: <20250426093018.5662-1-bensberg@telfort.nl>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f8faf6a3-1da6-42f7-a231-29c47f56b888@telfort.nl>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
+Content-Transfer-Encoding: 8bit
 
-On Fri, Apr 25, 2025 at 12:43:56PM +0200, Benno Schulenberg wrote:
-> 
-> Op 24-04-2025 om 12:08 schreef Karel Zak:
-> > How about adding man-common/hyperlink and including it in the man pages?
-> 
-> Done.  Although there was a slight wording difference between `lsfd` on
-> the one hand, and `findmnt` and `lsblk` on the other hand: the first said
-> just "paths" instead of "mountpoint paths".  Probably the word "mountpoint"
-> can be dropped to make the description fit for all three?
+Harmonize the description by placing the option in a separate file.
 
-I think using "paths" for everything is sufficient.
+Also, use _when_/<when> (instead of _mode_/<mode>) as the optional
+argument, since the possible values are: "always", "never", "auto".
 
-    Karel
+Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
+---
+ lsfd-cmd/lsfd.1.adoc      | 3 +--
+ lsfd-cmd/lsfd.c           | 2 +-
+ man-common/Makemodule.am  | 1 +
+ man-common/hyperlink.adoc | 5 +++++
+ man-common/meson.build    | 1 +
+ misc-utils/findmnt.8.adoc | 6 +-----
+ misc-utils/findmnt.c      | 2 ++
+ misc-utils/lsblk.8.adoc   | 3 +--
+ misc-utils/lsblk.c        | 2 ++
+ 9 files changed, 15 insertions(+), 10 deletions(-)
+ create mode 100644 man-common/hyperlink.adoc
 
-
+diff --git a/lsfd-cmd/lsfd.1.adoc b/lsfd-cmd/lsfd.1.adoc
+index 2654e8eaf..9c4b8a0b5 100644
+--- a/lsfd-cmd/lsfd.1.adoc
++++ b/lsfd-cmd/lsfd.1.adoc
+@@ -109,8 +109,7 @@ only for *lsfd* developers.
+ *--dump-counters*::
+ Dump the definition of counters used in *--summary* output.
+ 
+-*--hyperlink*[=_mode_]::
+-Print paths as terminal hyperlinks. The _mode_ can be set to "always", "never", or "auto". The optional argument _when_ can be set to "auto", "never", or "always". If the _when_ argument is omitted, it will default to "auto". The "auto" setting means that hyperlinks will only be used if the output is on a terminal.
++include::man-common/hyperlink.adoc[]
+ 
+ *-H*, *--list-columns*::
+ List the columns that can be specified with the *--output* option.
+diff --git a/lsfd-cmd/lsfd.c b/lsfd-cmd/lsfd.c
+index 9e9cb52ac..d05a09396 100644
+--- a/lsfd-cmd/lsfd.c
++++ b/lsfd-cmd/lsfd.c
+@@ -2196,7 +2196,7 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_("     --debug-filter           dump the internal data structure of filter and exit\n"), out);
+ 	fputs(_(" -C, --counter <name>:<expr>  define custom counter for --summary output\n"), out);
+ 	fputs(_("     --dump-counters          dump counter definitions\n"), out);
+-	fputs(_("     --hyperlink[=<when>]     print paths as terminal hyperlinks (always|never|auto)\n"), out);
++	fputs(_("     --hyperlink[=<when>]     print paths as hyperlinks (always|never|auto)\n"), out);
+ 	fputs(_("     --summary[=<mode>]       print summary information (append|only|never)\n"), out);
+ 	fputs(_("     --_drop-privilege        (testing purpose) do setuid(1) just after starting\n"), out);
+ 
+diff --git a/man-common/Makemodule.am b/man-common/Makemodule.am
+index c999ee7cf..11acb73de 100644
+--- a/man-common/Makemodule.am
++++ b/man-common/Makemodule.am
+@@ -5,6 +5,7 @@ ADOCFILES_COMMON += \
+ 	      man-common/footer-config.adoc \
+ 	      man-common/footer-lib.adoc \
+ 	      man-common/help-version.adoc \
++	      man-common/hyperlink.adoc \
+ 	      man-common/in-bytes.adoc \
+ 	      man-common/manpage-stub.adoc \
+ 	      man-common/translation.adoc
+diff --git a/man-common/hyperlink.adoc b/man-common/hyperlink.adoc
+new file mode 100644
+index 000000000..dc067490d
+--- /dev/null
++++ b/man-common/hyperlink.adoc
+@@ -0,0 +1,5 @@
++*--hyperlink*[**=**_when_]::
++Print paths as terminal hyperlinks. The optional _when_ argument can be
++*always*, *never*, or *auto*. If the argument is omitted, it defaults to
++*auto*, which means that hyperlinks will only be used when the output
++goes to a terminal.
+diff --git a/man-common/meson.build b/man-common/meson.build
+index 647f54c68..b9fc92730 100644
+--- a/man-common/meson.build
++++ b/man-common/meson.build
+@@ -5,6 +5,7 @@ man_common_adocs = files(
+   'footer-config.adoc',
+   'footer-lib.adoc',
+   'help-version.adoc',
++  'hyperlink.adoc',
+   'in-bytes.adoc',
+   'manpage-stub.adoc',
+   'translation.adoc',
+diff --git a/misc-utils/findmnt.8.adoc b/misc-utils/findmnt.8.adoc
+index a26fb8ca2..8c8ffa2cc 100644
+--- a/misc-utils/findmnt.8.adoc
++++ b/misc-utils/findmnt.8.adoc
+@@ -67,11 +67,7 @@ Print the first matching filesystem only.
+ List the columns that can be specified with the *--output* option.
+ Can be used with *--json* or *--raw* to get the list in a machine-readable format.
+ 
+-*--hyperlink*[**=**_mode_]::
+-Print mountpoint paths as terminal hyperlinks. The optional _mode_ argument
+-can be *always*, *never*, or *auto*. If the argument is omitted, it defaults
+-to *auto*, which means that hyperlinks will only be used when the output goes
+-to a terminal.
++include::man-common/hyperlink.adoc[]
+ 
+ *-I*, *--dfi*::
+ Imitate the output of *df*(1) with its *-i* option. This option is equivalent to *-o SOURCE,FSTYPE,INO.TOTAL,INO.USED,INO.AVAIL,INO.USE%,TARGET* but excludes all pseudo filesystems. Use *--all* to print all filesystems.
+diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
+index 2682de1d7..130ac1b13 100644
+--- a/misc-utils/findmnt.c
++++ b/misc-utils/findmnt.c
+@@ -1568,6 +1568,8 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_(" -D, --df               imitate the output of df(1)\n"), out);
+ 	fputs(_(" -e, --evaluate         convert tags (LABEL,UUID,PARTUUID,PARTLABEL) \n"
+ 	        "                          to device names\n"), out);
++	fputs(_("     --hyperlink[=<when>]\n"
++		"                        print paths as hyperlinks (always|never|auto)\n"), out);
+ 	fputs(_(" -I, --dfi              imitate the output of df(1) with -i option\n"), out);
+ 	fputs(_(" -J, --json             use JSON output format\n"), out);
+ 	fputs(_(" -l, --list             use list format output\n"), out);
+diff --git a/misc-utils/lsblk.8.adoc b/misc-utils/lsblk.8.adoc
+index 8151525af..04efa276c 100644
+--- a/misc-utils/lsblk.8.adoc
++++ b/misc-utils/lsblk.8.adoc
+@@ -62,8 +62,7 @@ Exclude the devices specified by the comma-separated _list_ of major device numb
+ *-f*, *--fs*::
+ Output info about filesystems. This option is equivalent to *-o NAME,FSTYPE,FSVER,LABEL,UUID,FSAVAIL,FSUSE%,MOUNTPOINTS*. The authoritative information about filesystems and raids is provided by the *blkid*(8) command.
+ 
+-*--hyperlink*[**=**_mode_]::
+-Print mountpoint paths as terminal hyperlinks. The _mode_ can be set to "always", "never", or "auto". The optional argument _when_ can be set to "auto", "never", or "always". If the _when_ argument is omitted, it will default to "auto". The "auto" setting means that hyperlinks will only be used if the output is on a terminal.
++include::man-common/hyperlink.adoc[]
+ 
+ *-I*, *--include* _list_::
+ Include devices specified by the comma-separated _list_ of major device numbers. The filter is applied to the top-level devices only. This may be confusing for *--list* output format where hierarchy of the devices is not obvious.
+diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
+index 7daa7f58f..a65f5e4e6 100644
+--- a/misc-utils/lsblk.c
++++ b/misc-utils/lsblk.c
+@@ -2330,6 +2330,8 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_(" -d, --nodeps         don't print slaves or holders\n"), out);
+ 	fputs(_(" -e, --exclude <list> exclude devices by major number (default: RAM disks)\n"), out);
+ 	fputs(_(" -f, --fs             output info about filesystems\n"), out);
++	fputs(_("     --hyperlink[=<when>]\n"
++		"                      print paths as hyperlinks (always|never|auto)\n"), out);
+ 	fputs(_(" -i, --ascii          use ascii characters only\n"), out);
+ 	fputs(_(" -l, --list           use list format output\n"), out);
+ 	fputs(_(" -m, --perms          output info about permissions\n"), out);
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.48.1
 
