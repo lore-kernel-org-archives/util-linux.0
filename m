@@ -1,101 +1,99 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8E951EDA34
-	for <util-linux@vger.kernel.org>; Mon,  5 May 2025 08:42:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B787194A44
+	for <util-linux@vger.kernel.org>; Mon,  5 May 2025 09:34:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746434547; cv=none; b=GMdduyAgi21tSgu35o/Oz16c+X1jVdtBlCfbYpcul55prO0ffdZQruQ/Yjp53dDxmoR+uGEKuieptQGgKmogDyMNAL2yvw/KGH/1clYcWZGkRch5h6Hdu54y9fK547QqEwPQdKGIR+WmPEzF4xUH3g213XPnsXbV7EyDOiZiJe4=
+	t=1746437660; cv=none; b=DbX6AC5Dl33d+EXJo6CFlsELWz2fXU8OUvNCeCjpKRV+93CU+CnfePfgexvPH/QqhabKvcYS7HbzrDsZdNOYCyt+cCeeezCwW+4e1V91riW5MQU3epHpSB5xAmZWe5CSaMm/Yoty/eI/H3bc/z54+poqR33MEptBoqISH3P7BYI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746434547; c=relaxed/simple;
-	bh=gcH35MEFlF1IA/7Ad6LH6mSfN1YNWVH8247H9YTSTsE=;
+	s=arc-20240116; t=1746437660; c=relaxed/simple;
+	bh=ixt4WShSKED4b6BFVSsf5sdUOgyFMLCgwdxUhrH4FBs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RAbqfKCy1alQ5NukO/eUOOfkL4S2patFpeu6x4g+63hdh1ndtpBaG+tTZcrgs3hA67JSkgcX/dbqozYeqjdT9d3kW3nUF629QGktlAXfVi3i5d6pLK+PbQBkXfRNo7opJ4u9V2fh3LT3Xlkpn/FfiD6gZErblVtd1v0WQtQr6tY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eZX1jBEO; arc=none smtp.client-ip=170.10.133.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=rzDK+b2REAxS5vG/MJLrszfq8U3pFT967td7KU2r2Kd1mPcpedq9VHflkzPe2vsmoD+c+w9NH+meKpemBoB+KHMKtYjWE7tR8QyprHuMxZRwO0YMB97qcVMillFzMTRzjTrPuELaDB8ar+p/LbDPCchtS1PvbugV2VHhWtj1Am4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FgTtLJXn; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eZX1jBEO"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FgTtLJXn"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1746434544;
+	s=mimecast20190719; t=1746437656;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=cqK132FtO3lQrk1i7aoBjqmUmC5OmPt/EYnLxiu+n2o=;
-	b=eZX1jBEO8mDYXQW+gKntbqB05pRzQnXb9JFJV+Akpvu8o95kWUrlkIap5xx0DBH/8CIfyN
-	4AiP19GMI4CRzRafLXPf96EvqJzwhSmyO8zuvKoUr5N3cjwnD0U55qaqIFML2tH5RRXbPm
-	eCHAwDtMFGKr2f+qdxGxdJQwTJ37rnY=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+	bh=QVcPEiOYKKeeAtLyXsBHFJAJWF4yD0x8Icblblst+rs=;
+	b=FgTtLJXnE0CW06aavCKmFxLpilWroaMn5IPx6jOwDyT8+jxp/XFhIKjBLmXYXFEPu9svP2
+	UyvWZESt5EFRCnQnHMyLIxMaYpT/VtmeL/xHDeYAKk7bcoYNp7kA4inNEYOJNhcoT/YejC
+	zjGuuLEFMSUaFNLevubtRuuEBwsIDmQ=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-144-UDzpvX48P0qJIOTP38NkIQ-1; Mon,
- 05 May 2025 04:42:20 -0400
-X-MC-Unique: UDzpvX48P0qJIOTP38NkIQ-1
-X-Mimecast-MFC-AGG-ID: UDzpvX48P0qJIOTP38NkIQ_1746434540
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-669-uiqmQHEQOJ-EU5RwcKEEZw-1; Mon,
+ 05 May 2025 05:34:12 -0400
+X-MC-Unique: uiqmQHEQOJ-EU5RwcKEEZw-1
+X-Mimecast-MFC-AGG-ID: uiqmQHEQOJ-EU5RwcKEEZw_1746437652
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CB2911809CB1;
-	Mon,  5 May 2025 08:42:17 +0000 (UTC)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D50F3180034A;
+	Mon,  5 May 2025 09:34:11 +0000 (UTC)
 Received: from ws.net.home (unknown [10.45.226.128])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C3C8330001A2;
-	Mon,  5 May 2025 08:42:16 +0000 (UTC)
-Date: Mon, 5 May 2025 10:42:13 +0200
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id DA5071800365;
+	Mon,  5 May 2025 09:34:10 +0000 (UTC)
+Date: Mon, 5 May 2025 11:34:07 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@telfort.nl>
+To: Stanislav Brabec <sbrabec@suse.cz>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/2] strutils: move an error message to where it is used,
- and improve it
-Message-ID: <wzqyv5xook6ggpl3bvkw66d2cbj2kd665ko5poat2kw5rw2fs2@iid75zn77wpa>
-References: <20250502122242.72961-1-bensberg@telfort.nl>
- <20250502122242.72961-2-bensberg@telfort.nl>
+Subject: Re: util-linux-2.41 breaks static build of btrfs-progs
+Message-ID: <vy5gwsr6al5wl7nlksaq6orzkhhp4tog7gxtsjchl76ess5rtc@tmkazaywmvgv>
+References: <ddfd6167-e88f-4505-8768-a9d8e1d5cc92@suse.cz>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20250502122242.72961-2-bensberg@telfort.nl>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+In-Reply-To: <ddfd6167-e88f-4505-8768-a9d8e1d5cc92@suse.cz>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On Fri, May 02, 2025 at 02:22:42PM +0200, Benno Schulenberg wrote:
-> Calling gettext() is somewhat costly: it has to find the given message
-> among the more than five thousand messages in util-linux's repertoire.
-> So, call gettext() only when the message actually gets printed.
+On Sun, Apr 20, 2025 at 09:24:43PM +0200, Stanislav Brabec wrote:
+> Static build of btrfs-progs fails with util-linux-2.41 with a simple
+> problem:
+> Symbol parse_range becomes visible in libblkid.a, breaking parse-utils.c in
+> btrfs-progs, using the same symbol.
+> 
+> The question is:
+> Should be this fixed by util-linux by prefixing of ul_ to all symbols that
+> are not declared as static?
 
-I like the change. The `gettext()` argument for options parsers is a
-common issue, and there may be more areas where we can improve. The
-general pattern is:
+I think the ul_ prefix should be used for all generic names like
+parse_range(). I'm not sure if I want to use it strictly for all
+functions, as the set of functions is large and such conflicts are
+very rare.
 
-    x = strtoxxx_or_err(optarg, _("invalid xxx argument"));
-
-Perhaps we can use the command line option name as an argument and
-compose the final error message within the strtoxxx_or_err()
+ChatGPT has an interesting suggestion: add the prefix to the .a
+library using "objcopy --redefine-syms" for all non-API and non-static
 functions.
 
-    x = strtoxxx_or_err(optarg, "xxx");
+        #!/bin/bash
+        PREFIX=foo_
 
-And in strtoxxx_or_err(const char *str, const char *optname):
+        # Extract all global (non-static) function symbols from the .a file
+        nm -g --defined-only libmylib.a | awk '{print $3}' | grep -v "^$PREFIX" | sort -u > tmp.syms
 
-    errx(STRTOXX_EXIT_CODE, _("invalid %s argument: %s"), optname, str);
+        # Generate rename list: <old> <new>
+        awk -v pfx="$PREFIX" '{print $1 " " pfx $1}' tmp.syms > rename.syms
 
-BTW, it's pretty common:
-
-   $ git grep '.*_or_err' | wc -l
-   399
-
-so we can save a lot of gettext() calls and make the utils faster.
-
-Volunteers? 😊
-
-   Karel
+        # Apply symbol renaming
+        objcopy --redefine-syms=rename.syms libmylib.a libmylib_prefixed.a
 
 
+Maybe it's elegant way to go. Not sure, not tested :-)
+
+    Karel
 
 -- 
  Karel Zak  <kzak@redhat.com>
