@@ -1,91 +1,108 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C51D62036ED
-	for <util-linux@vger.kernel.org>; Fri, 23 May 2025 12:05:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92FA11F09A1
+	for <util-linux@vger.kernel.org>; Mon, 26 May 2025 09:38:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748001944; cv=none; b=HzZJ8oHfS5wExXbTIdFkHwkV4CzKDM/TkSoqwhiDliLIQBhem1tKhDxrnw2UG+2Fi3OaksCvtjrnS+HLjKCoZo5NDPxsLwGbfIeUlWkMhSUFQJ2tUGD/qNOM5eDTJA1imFe7mHVOmpq2kDFpUJLmmQlwF/xe+4YxPrhqhyenANE=
+	t=1748252314; cv=none; b=Dx2UU0ZPUbxznEoP1+8w19QDVq2vHr7F5HZeASuJR97SIkMF33qcRTmaYYhVRzgQA2UmWAzRo6SI+rN3YYK1vmlixGDQ4/OGzPiO5W2h8+eN/fBqzn0kDE8T8iPXc5qGHPpMSM63MjRoo4NtcrS0c4dscZs3IiPLIjWEeDB5wwg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748001944; c=relaxed/simple;
-	bh=Oxu/hb7+psNVGi5H0kPO0pOPMVedRzdBLRJR1cOQCBk=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FEXFizg0ByoZVxlzF6RvQRJVFI1ncabvBpL7GJiDnp5E57fQyP3QG+uvgigKvzxyIDsQM9kgpb/f362d/wrDEaV0bcVEQyFJbYre3wEHbIe+7OZQKFcG33HrATgP1XY4NUfvbhHtmXBI8az5sovZKlir7SSmVL/tx8ulzMmHSMQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=Y3+BaaZP; arc=none smtp.client-ip=195.121.94.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
+	s=arc-20240116; t=1748252314; c=relaxed/simple;
+	bh=EOzQGVPFZ6icnnqSdLEQqDGAl56OqVEkKBD0LEMAYyM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Aqu5ud3V04uaTSTx/N5xl5mlVLbbjaV0Mh9JNfFcD+WsmHf62nBJIvptvlytXPuI+Cp/9YM940+AuCrPndfYK4hptBOxwogOpm7915OF8PQu+ppiiUkm2Gi/q1HA6cNgsIXXaWwfvQpGYp54juK0VogtzLFRzdFwMmaBrzDHs14=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=OGW6u5Aq; arc=none smtp.client-ip=209.85.215.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="Y3+BaaZP"
-X-KPN-MessageId: 38db6039-37ce-11f0-bc2b-005056ab378f
-Received: from smtp.kpnmail.nl (unknown [10.31.155.40])
-	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 38db6039-37ce-11f0-bc2b-005056ab378f;
-	Fri, 23 May 2025 14:05:30 +0200 (CEST)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="OGW6u5Aq"
+Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-b2c377d8982so469809a12.3
+        for <util-linux@vger.kernel.org>; Mon, 26 May 2025 02:38:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=telfort.nl; s=telfort01;
-	h=mime-version:message-id:date:subject:to:from;
-	bh=yiHfyxdLJen0jPBdWdwxtS5s7vBwVtFLs2PHptfisug=;
-	b=Y3+BaaZPxR94NB4Ao8+TLvDKuKfL9WqVPJYIr+YmVhwxfpHBiTfmrnxvSaEN0/H/8K/8P5BoIP1mj
-	 LvNd7DiTT06/voARaEbA6BwWquY6vjCTI8ydRfSQNjUHsbMQ1yocYyrWwkqYxBVzUttLTMjZWIDtLL
-	 yqnp/SFhpCaZK2Eo=
-X-KPN-MID: 33|/u7nEU7hGblyPhsCIsgXTFhXCrmCKfXi8E8ksfMBbolDPEbxAYQRg0O2cU0Nk4w
- tc1NszQtWWz4lvHUPCtSR0CjD+Y5ktsZiAsJ9hgkZdq8=
-X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|Mj+/v0uzQX9bjb2bbFTvcZMfqSrqyzlA11lryW90A+2VukoXW+s5qjdVNmSBiLF
- AEDbaAgtqclqwrIc1cjoywg==
-Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
-	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 166ce1c7-37ce-11f0-8584-005056ab7584;
-	Fri, 23 May 2025 14:04:32 +0200 (CEST)
-From: Benno Schulenberg <bensberg@telfort.nl>
+        d=bytedance.com; s=google; t=1748252311; x=1748857111; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=d20ogDY48KWL7MgG2HWAVRtGf3dYt1vl/Riq3mc+U6M=;
+        b=OGW6u5Aq+GTSFdL4OSrnupfgmqM3iGp/W+2MkeAuqbX0CS3LoazD/lheERlgZFP1GN
+         BPpNi6oaUv1Pr7P8Ga8XxDQyhizzAdb+xizb3/TNxduL2DfxzXqEmh4ljuPy890cHcAF
+         Gyp5HqabjvodWitwuiKm9IBOeKehRLDi9Mie+Ek5RMrFy+uVfkjzXKI2aIwqfCBLZo+L
+         TZ2JXwwyIq3YabFE5XfY0+MFo+KyL40TJtW2bvNNeU8ewQmOZMlwQmrj9OhfjiqZAu//
+         XfPfYPopHTp+zh+Qvqxedi3aJ3xX0Bpk6/C6sYB5z4Dt2BAf7rrqi/y+9+Q/zUE8zwmN
+         UAoA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1748252311; x=1748857111;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=d20ogDY48KWL7MgG2HWAVRtGf3dYt1vl/Riq3mc+U6M=;
+        b=BeszupzgdgqBn8eCNCVEeEGtifRAZQBoideEfKO0Y4aSTpQMh6YmUxC16HHq0DTaNH
+         iJlOoPhVYy5UVQ+r3RmRgk4ttHsHr3Wy/gbadb29/2Uzlk5VZzXvlgpffFBtDv6KnYed
+         GUw1F4gv7hQ6EUviDxXqCKGAD9ecVrfk3lA3w9lKtXvwIK3y3+cKcHXvDdxkCH5wxAsb
+         cvKRYxcN6uAsT14YMHVjosh9ZGq+IbydBLAOE3VCJMV75xr05+QaHshAKJg47V+fDlYo
+         +xSwJvPv9cjoz1FefUxCficBvuZCjsPEYZZEISNmmNbUdC4Ek5qo5ZswONPPGLcHZRHm
+         O7rQ==
+X-Gm-Message-State: AOJu0Yx6qqUFpANggNIYJ1563oeuBs53bqOKZyILXnMWb23jR7lzdJML
+	/5z1F1XjzlbjIuc3m2jrdx8fnq4maeQ8H6uraEkApLx0MLO5DuT6Dp39Y9EJp0lIU3ou1pg+c/M
+	DhsH4
+X-Gm-Gg: ASbGncupir5ib70nkqlQk3lyI0HCpxJwjnGcI7p/QMjI8sXrlYtYTOzVJ5WknQUKSJq
+	iun+AIYO/WWX+5vOcUHfUxThWuyYxPKW8wB2FtY/LMAHjnpFV5uZICKvUNx2G24+AAom/m8+b6d
+	IC+RMCoNm1/Df5oeIWxqoeFZ2VrvWEJWayljYsEhW0Vio4eJSkQKFBZOgYXycwqkqac/QoKWD8n
+	W5xIQV+1kfYiMcWRK4L+ts1YDkqn/Z2K+g/VWh3GjCGPwpiHKcxfyQZmnM9F1zBJQn3MXtfv7Gk
+	hbcuKY3HU41ijyYH38p11jWsgSz+X01IEeog24IIKxiOxmkk4M65Ogj54t1F+uHDluwGwUvo4w=
+	=
+X-Google-Smtp-Source: AGHT+IEfPYKZ8iproPXMcEcAUe9IRKDgK0K700KcFWvYaN7hyL2eQ3OUSHEs0jj6z1nR8GrZoz1o3A==
+X-Received: by 2002:a17:902:f611:b0:234:883:c9dc with SMTP id d9443c01a7336-23414f490c8mr142627515ad.4.1748252311591;
+        Mon, 26 May 2025 02:38:31 -0700 (PDT)
+Received: from always-zbook.bytedance.net ([61.213.176.5])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2347ee700fcsm5882725ad.14.2025.05.26.02.38.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 May 2025 02:38:31 -0700 (PDT)
+From: zhenwei pi <pizhenwei@bytedance.com>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 3/4] hardlink: (usage) improve the descriptions of three options
-Date: Fri, 23 May 2025 14:04:06 +0200
-Message-ID: <20250523120407.75188-3-bensberg@telfort.nl>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250523120407.75188-1-bensberg@telfort.nl>
-References: <20250523120407.75188-1-bensberg@telfort.nl>
+Cc: kzak@redhat.com,
+	zhenwei pi <pizhenwei@bytedance.com>
+Subject: [PATCH] AUTHORS: update Zhenwei Pi email
+Date: Mon, 26 May 2025 17:37:57 +0800
+Message-ID: <20250526093817.951024-1-pizhenwei@bytedance.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-The first description was too wordy for a --help text, the second
-was vague and seemed to imply that it should be combined with the
-preceding option, and the third failed to mention that it doesn't
-actually link anything.
+I will be leaving ByteDance so updating my email in AUTHORS to my
+personal email.
 
-(Note: the choice for -m for --maximize and -M for --minimize is
-unfortunate, as most people would guess the opposite, especially
-since -s is used for --minimum-size and -S for --maximum-size.)
-
-Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
+Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
 ---
- misc-utils/hardlink.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ AUTHORS | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/misc-utils/hardlink.c b/misc-utils/hardlink.c
-index 7f2ff8046..5365e5370 100644
---- a/misc-utils/hardlink.c
-+++ b/misc-utils/hardlink.c
-@@ -1195,11 +1195,10 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(_(" -d, --respect-dir          directory names have to be identical\n"), out);
- 	fputs(_(" -f, --respect-name         filenames have to be identical\n"), out);
- 	fputs(_(" -i, --include <regex>      regular expression to include files/dirs\n"), out);
--	fputs(_(" -m, --maximize             maximize the hardlink count, remove the file with\n"
--	        "                              lowest hardlink count\n"), out);
--	fputs(_(" -M, --minimize             reverse the meaning of -m\n"), out);
-+	fputs(_(" -m, --maximize             keep the file with the most links\n"), out);
-+	fputs(_(" -M, --minimize             keep the file with the fewest links\n"), out);
- 	fputs(_(" -n, --dry-run              don't actually link anything\n"), out);
--	fputs(_(" -l, --list-duplicates      print every group of duplicate files\n"), out);
-+	fputs(_(" -l, --list-duplicates      just list paths of duplicates, don't link them\n"), out);
- 	fputs(_(" -z, --zero                 delimit output with NULs instead of newlines\n"), out);
- 	fputs(_(" -o, --ignore-owner         ignore owner changes\n"), out);
- 	fputs(_(" -F, --prioritize-trees     files found in the earliest specified top-level\n"
+diff --git a/AUTHORS b/AUTHORS
+index ad9ae703b..df9a88567 100644
+--- a/AUTHORS
++++ b/AUTHORS
+@@ -15,7 +15,7 @@ PAST MAINTAINERS:
+ AUTHORS (merged projects & commands):
+ 
+       blkdiscard:      Lukas Czerner <lczerner@redhat.com>
+-      blkpr:           zhenwei pi <pizhenwei@bytedance.com>
++      blkpr:           zhenwei pi <zhenwei.pi@linux.dev>
+       blkzone:         Shaun Tancheff <shaun@tancheff.com>
+                        Damien Le Moal <damien.lemoal@wdc.com>
+       enosys:          Thomas Weißschuh <thomas@t-8ch.de>
+@@ -33,7 +33,7 @@ AUTHORS (merged projects & commands):
+       hardlink:        Jakub Jelinek <jakub@redhat.com>
+       hwclock:         Bryan Henderson <bryanh@giraffe-data.com>
+       ipcmk:           Hayden James <hayden.james@gmail.com>
+-      irqtop/lsirq:    Zhenwei Pi <pizhenwei@bytedance.com>
++      irqtop/lsirq:    Zhenwei Pi <zhenwei.pi@linux.dev>
+                        Sami Kerola <kerolasa@iki.fi>
+       last/lastb:      [merged from sysvinit]
+                        Miquel van Smoorenburg <miquels@cistron.nl>
 -- 
-2.48.1
+2.43.0
 
