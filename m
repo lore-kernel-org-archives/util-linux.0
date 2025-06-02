@@ -1,82 +1,93 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 963211C84B1
-	for <util-linux@vger.kernel.org>; Mon,  2 Jun 2025 12:05:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D4752C327E
+	for <util-linux@vger.kernel.org>; Mon,  2 Jun 2025 14:14:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748865926; cv=none; b=dyumQykxeD0nQcrYnqX3GbqteZEB1uh8HzWWfNI08ql32j2VR1jb7GfSvF/VGmXxwVkWE4daXyhB06oCQnya1dY/ATiwMPm1gheVxr1NlSYShjhBYok9uy2+SoSJzRcrwYfjPM4dQG1euEy7CmitEI0iOf/AZCzFNYfIM3MUFZY=
+	t=1748873694; cv=none; b=ORhAELRmky+HMRVsQgUyvSJ4VWjc+cMfwHTq8mIkcmcm4hNBk3o4aZCMUca1wEWn4krIk9lVP61tSxG1vXZnBX4Tm3Czi9j+vT9L0qT+5ZhCFe+6MeQZkW6YftbrlrwpibEAjt6g+K0cIctVjO7i/uEgZmMlmgvSrtBbMiXSYfo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748865926; c=relaxed/simple;
-	bh=bnOAMqSGebZSK0S/dDZaZLpk7JLMbPHTpyZzPX4b5vo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=a64vMmBihy74WHbzFByTgPKRPC7zCzpHhI4eauBuvJlY3fevc6JOhH44ovUloNeYjy0QjfQsoUDxdxM61Epy6oxKH/hmrGYrYgAYdjTCVYX7DzVWVDR+55h/p5j6raO1gYMULJ7kdqnmTihBj4M3UUhxWMXyfJ/tXD7oKBIFEHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=I8WMNNR5; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1748873694; c=relaxed/simple;
+	bh=DTMItEhJu0TaLlJDHJKsSF6x3LJiDxBZD7Betl3kAs4=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=BULvPF8VYffF+QjE04eUxIrOh+tyGkxIKZ10af+KOYGZcgjdUV5WQH4LXwY6sC766CwDsskkgn7jV91hdRDDYNw01go8eNBNRjY2OBt2K8pF0vxlYN4myarRbk4o8DmHnQvd5gHmlv7xoJZ9wEuWyXWCtzQDEoiSC+yNEw3IQ+Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=DQeowBCM; arc=none smtp.client-ip=195.121.94.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="I8WMNNR5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1748865923;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+gebFosh6Vgn0o2611QBfxe2a5PlUSo0x1B5g+YOSQs=;
-	b=I8WMNNR546p1Rd041q/2GwfwxAj6eWg5Km/OwSAUYSGMnFa4wTbu3JzyisO6MfXdjy8OPi
-	rKdcEJIKRM3tuMcIFfgWSFLluIyZ9lDGw5TvIzy7AK1YzExqQxCZCFFYSB9fQ8nApCS84B
-	CWawd773wsoCWiXh5ME30cOWl4k2dqA=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-355-nwaVHiK5P5WSvgpoYBnf_g-1; Mon,
- 02 Jun 2025 08:05:21 -0400
-X-MC-Unique: nwaVHiK5P5WSvgpoYBnf_g-1
-X-Mimecast-MFC-AGG-ID: nwaVHiK5P5WSvgpoYBnf_g_1748865921
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 278071800368;
-	Mon,  2 Jun 2025 12:05:21 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.225.54])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2B5681800368;
-	Mon,  2 Jun 2025 12:05:18 +0000 (UTC)
-Date: Mon, 2 Jun 2025 14:05:15 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@telfort.nl>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/4] lib/colors: call gettext() only when the argument of
- --color is invalid
-Message-ID: <5sewijyumkskfpmjmusj57whvullfsv4c4ecsjzngkcfy762ve@gmvvwojwakqj>
-References: <20250528093704.8896-1-bensberg@telfort.nl>
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="DQeowBCM"
+X-KPN-MessageId: 0e656f5b-3fbc-11f0-a830-005056abad63
+Received: from smtp.kpnmail.nl (unknown [10.31.155.40])
+	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
+	id 0e656f5b-3fbc-11f0-a830-005056abad63;
+	Mon, 02 Jun 2025 16:15:37 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=telfort.nl; s=telfort01;
+	h=mime-version:message-id:date:subject:to:from;
+	bh=ghWRcUlBX/WwSvwdil8zjHTS02mw3Rn0BgPDfntJDx4=;
+	b=DQeowBCMxX/eQPGIDCNv2Sh2utj1vJYtBzQe4EuK4bFdq3Dg/MFEiuJNlyFEzFq+SbiziaqMag/WH
+	 4TaMddI/YaOFHjMyqCdmfBJV9NY9B/yYTaWQZ0fipXQgBz5VHlnpe82bTjazGHDAQAwotsm/Y4sOc1
+	 oX7QasDCt0mcq8TE=
+X-KPN-MID: 33|oN0aqQrBUOIg8bi6G+PPYp76bNMEABlbk3uoAgrRD+c8pDY9W2gRYSk/zxOhO4m
+ A/EESwnTtEsN77ju1sgsgQ2lEByrCirf+Q789ntgDZ9A=
+X-KPN-VerifiedSender: Yes
+X-CMASSUN: 33|jXw6f5zaJyem5AqAyb3f+uNKAcwW/zFr05h5axBOgkdKYg0ptv1CNP/6YRIpGnS
+ HNOLK3Y54pjMd/UsebAm2rg==
+Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
+	by smtp.kpnmail.nl (Halon) with ESMTPSA
+	id edf50c1a-3fbb-11f0-859e-005056ab7584;
+	Mon, 02 Jun 2025 16:14:43 +0200 (CEST)
+From: Benno Schulenberg <bensberg@telfort.nl>
+To: util-linux@vger.kernel.org
+Subject: [PATCH 1/6] remove two leftover license lines from colors.{c,h}
+Date: Mon,  2 Jun 2025 16:14:31 +0200
+Message-ID: <20250602141436.11156-1-bensberg@telfort.nl>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250528093704.8896-1-bensberg@telfort.nl>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+Content-Transfer-Encoding: 8bit
 
-On Wed, May 28, 2025 at 11:37:01AM +0200, Benno Schulenberg wrote:
->  disk-utils/cfdisk.c  | 3 +--
->  disk-utils/fdisk.c   | 3 +--
->  disk-utils/sfdisk.c  | 3 +--
->  include/colors.h     | 2 +-
->  lib/colors.c         | 7 ++++---
->  misc-utils/cal.c     | 3 +--
->  sys-utils/dmesg.c    | 3 +--
->  text-utils/hexdump.c | 3 +--
->  8 files changed, 11 insertions(+), 16 deletions(-)
+Last March, commit 549a517857 replaced the SPDX line in three files
+with a "No copyright is claimed" phrase, but forgot to remove from
+two of those files the text lines that correspond to the SPDX.
 
- Applied (all in set), thanks!
+Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
+---
+ include/colors.h | 3 ---
+ lib/colors.c     | 3 ---
+ 2 files changed, 6 deletions(-)
 
-    Karel
-
-
+diff --git a/include/colors.h b/include/colors.h
+index c02f61a57..d77e0a3c2 100644
+--- a/include/colors.h
++++ b/include/colors.h
+@@ -4,9 +4,6 @@
+  *
+  * Authors: 2012 Ondrej Oprala <ooprala@redhat.com>
+  *          2012-2025 Karel Zak <kzak@redhat.com>
+- *
+- * This file may be distributed under the terms of the
+- * GNU Lesser General Public License.
+  */
+ #ifndef UTIL_LINUX_COLORS_H
+ #define UTIL_LINUX_COLORS_H
+diff --git a/lib/colors.c b/lib/colors.c
+index 47d69cabc..92afc9b96 100644
+--- a/lib/colors.c
++++ b/lib/colors.c
+@@ -4,9 +4,6 @@
+  *
+  * Authors: 2012 Ondrej Oprala <ooprala@redhat.com>
+  *          2012-2025 Karel Zak <kzak@redhat.com>
+- *
+- * This file may be distributed under the terms of the
+- * GNU Lesser General Public License.
+  */
+ #include <assert.h>
+ #include <sys/stat.h>
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.48.1
 
