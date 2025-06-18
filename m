@@ -1,44 +1,60 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.170])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71EBD2DFF2F
-	for <util-linux@vger.kernel.org>; Wed, 18 Jun 2025 12:29:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FC3E2ED179
+	for <util-linux@vger.kernel.org>; Wed, 18 Jun 2025 16:33:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750249767; cv=none; b=pXVea+/CzF9AeViAeHkbk1fWTfruLPzv2wkmB76+K9Ic48FTkU5RDpVTt7yayNiuBZrHKBv8fIO7xyqaIvNTccNbqYOJbRq57quiXzwUYORi/dsudjNNZNL8wvGaJLdKDWujrwaBItshNQc9CGaEIdSTPuIVgWWbpk8vkNDH5Is=
+	t=1750264427; cv=none; b=BKwFh0NmsF3rkpqEFROaOKZgJby1bVpFBrrrcr9yUA8ncUzGAtQRvqdr+fMAhRXWtGrv6KCXohDjEfYmLkSYAtIJDCvegCdISMNECo4EzrCHf4rxzzHlLdPpYCIFXvXjHxNQR7uayVIVZ0GPr8CyW7doxpzecHYlIp/kW9QCo74=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750249767; c=relaxed/simple;
-	bh=I0H0jH39RzSMpLh1+VJXtJJF+bFCwnG21M1Y6NQhgY0=;
+	s=arc-20240116; t=1750264427; c=relaxed/simple;
+	bh=zsZ/hssvS/JBEnhOMvHDopwHxEvIvmcmNbsFfuxvxzQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lKLoFKGmnrLXyexF3ejKr//avYC+nQ8fcjdtXfzvzdFMisOm//6cfBT85zIY0IFuq2QeTjcxbnKABLPBZ/BX8ZQO9EE5fmPnCJew/XGXTvJnhGRX4wJoiAJcvpnJuLioL2jO6T7V79ONhnGe+Z9F4DeBB9UgOMhqdCSTtHScOQs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=c8rZSTbW; arc=none smtp.client-ip=195.121.94.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
+	 In-Reply-To:Content-Type; b=PLn8I6wCFGIjkE42uFNdeJD7joQ1Wy2M8ik95ZgG0XNGkj/gMmh33JWcxjJ28no2FOSvmDDB7W9I8KNVBDohuDEAfgB/Z6F3APWricqLWIl8GJoOwBW7d98cIadkd3y0PnkshXwP5ulfcKwKeQKVu4+noLoov9uoG9qZ29NNlns=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=a9NYi6dN; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="c8rZSTbW"
-X-KPN-MessageId: f8fd638a-4c3f-11f0-bc2d-005056ab378f
-Received: from smtp.kpnmail.nl (unknown [10.31.155.37])
-	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id f8fd638a-4c3f-11f0-bc2d-005056ab378f;
-	Wed, 18 Jun 2025 14:30:09 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=telfort.nl; s=telfort01;
-	h=content-type:from:to:subject:mime-version:date:message-id;
-	bh=I0H0jH39RzSMpLh1+VJXtJJF+bFCwnG21M1Y6NQhgY0=;
-	b=c8rZSTbWbAgu2yqKxnxsOsQZjyr5nc29aMiqdPSBBPLtlsBi3Wcg/EwRw2kfKVj30Fp4c91onnd8K
-	 tO3TOkQSziCar33xQ55juwNDRRURnu7MgUF285ODZnft8RM9u0N9XNANCb8qWcA38xUCSF/cc4pviM
-	 zs29aO8/BJBHwT/o=
-X-KPN-MID: 33|iQLn/ZV4GbMZLCACdr3QA1GL+ZopSJWDncG1jGWjqH7cQ6jyj74ly1t7WSHe+85
- HdJBIh8ywqyo3wFFkdSvTYmX+vzzQ6k5Hay3ggiiB3lA=
-X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|ipqM9otbwNhWtXyMCoNUOIygJtMReSkRWgjKln8D7ol42llFvm5uQ+A6f06Qb2U
- k5u2v0mJfB7zZ8bA2Pb5ElA==
-Received: from [192.168.2.23] (77-163-176-192.fixed.kpn.net [77.163.176.192])
-	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id dc6eafb8-4c3f-11f0-9c0a-005056ab1411;
-	Wed, 18 Jun 2025 14:29:21 +0200 (CEST)
-Message-ID: <8197c011-67ff-4c84-b46a-304faa6678d6@telfort.nl>
-Date: Wed, 18 Jun 2025 14:29:20 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="a9NYi6dN"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55IAfnHA014140;
+	Wed, 18 Jun 2025 16:33:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=8VwjSc
+	Du1zDEFjG85tr60slFyrOSqjrw5sURxiEz6O0=; b=a9NYi6dNdSTEkg+n+mBOrJ
+	nIkWzaucGSphqVIcIhDvHNASAYlTXecDagLLRS9tfcstwXv02SfdR1T2xLss2kQQ
+	XC39wA7mHsbK9M7pY5SgY51/56Kil85bJztjfI9UV17zdK8NQSkM15/V6Q9EMIdN
+	5Qy8nXflwQXpOo0Dkau6B+ww9WrUV0CvLAFuVhnzBUcK4KbMkTv4XeIBi6x/UU/+
+	y8Ua4C0QvcgICxKh+wVlZ/Vwu2DlJ+rHigxLZvIt6+//5OZzmuZm7GnknTuF6nrF
+	FdjqxQxhCFsMHDfkNm7JqJQzVO3Jfc8+pENsTeOuoKe6oFLmCiw2sChwNOuqK9KQ
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4794qpeyb8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 18 Jun 2025 16:33:38 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55IEvBDN027475;
+	Wed, 18 Jun 2025 16:33:38 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 479kt01xc8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 18 Jun 2025 16:33:38 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55IGXbrA65995198
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 18 Jun 2025 16:33:37 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 502F858059;
+	Wed, 18 Jun 2025 16:33:37 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5968D58053;
+	Wed, 18 Jun 2025 16:33:35 +0000 (GMT)
+Received: from [9.43.73.30] (unknown [9.43.73.30])
+	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 18 Jun 2025 16:33:35 +0000 (GMT)
+Message-ID: <4c8017d5-0f8a-475e-a9a3-730dd75c6ac0@linux.ibm.com>
+Date: Wed, 18 Jun 2025 22:03:33 +0530
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -48,118 +64,127 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v2] chrt: Make priority optional for policies that don't
  use it
-To: Madadi Vineeth Reddy <vineethr@linux.ibm.com>, Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
+To: Karel Zak <kzak@redhat.com>
+Cc: Benno Schulenberg <bensberg@telfort.nl>, util-linux@vger.kernel.org,
+        Madadi Vineeth Reddy <vineethr@linux.ibm.com>
 References: <20250617182403.47095-1-vineethr@linux.ibm.com>
  <232025d8-cdb4-48a7-a7c9-7dc211f76173@telfort.nl>
  <7nyugk5zfclbpqc2kpcotycgssj6jticujokevyo6ulw7japtl@pnqb6svtmxao>
- <bbd6aabd-707d-4fee-b80c-36749cf7c531@linux.ibm.com>
-Content-Language: en-US, nl-NL, es-ES
-From: Benno Schulenberg <bensberg@telfort.nl>
-Autocrypt: addr=bensberg@telfort.nl; keydata=
- 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 50GA
-In-Reply-To: <bbd6aabd-707d-4fee-b80c-36749cf7c531@linux.ibm.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------z7850qavebR7E4B99ruprhYM"
+ <7qx4y3d3fnfjt2bfbqs4vfat7qb2imerqoalzgeiv25ejeypzk@5mp6rya3s2v2>
+ <d9d6af55-e2c2-4ff9-95e6-84d5a6f76b0a@linux.ibm.com>
+ <26rikpg7jp5ygfqog6yqixtzzgq5xbf2dhtmwi4qzcviduspnv@klu34u35cnrv>
+Content-Language: en-US
+From: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
+In-Reply-To: <26rikpg7jp5ygfqog6yqixtzzgq5xbf2dhtmwi4qzcviduspnv@klu34u35cnrv>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 8zIeh9lpvNaQ9le8Sg69U83tiWDBHpZY
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjE4MDEzOCBTYWx0ZWRfX2EC2IVz2fiDH 7TP/Jhhr5bBwo1WfR2B8POT6sRVaD/2gLriSuKU4PIhirmEHxctae9LnxOfwzvimp4uXRM7GQJ6 ZNqzGJWrNlcujYV6XPKIqsosHTdjghQ6ooZIftxh/PRr3OSMdarezjI1O9M19TylCuAdTJLZ5nX
+ uAOIJlYAV0eNY6pjE8fwSiU7f24Mlg0Tt2xk1yGEAKZejgelFSZKf32HKaVHftN/46tFcKjL/ql 4ibvhoF64rpH4FqeSujHgibsaALoEBPC6ZTMztAWDQgPuX/od50X3Z1ctL9c3bl+4Bo9NXKWsfu aRGRzVNOaf/7uLejavZnCWihaywxD724wlIR44nvriZ9MuqWqRNGsRYDpBr8TiQePeE57hYKNI7
+ +KGNahwCQ1PrSjLwU+9q22SNU8g7xS8VDAYZAh9xSJ1zVtr3vmVCykBmfwcDugxGy7+muSau
+X-Authority-Analysis: v=2.4 cv=NYfm13D4 c=1 sm=1 tr=0 ts=6852ea62 cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=IkcTkHD0fZMA:10 a=6IFa9wvqVegA:10 a=84BeqtaS16Cz8HIrHIEA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: 8zIeh9lpvNaQ9le8Sg69U83tiWDBHpZY
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-06-18_05,2025-06-18_03,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
+ suspectscore=0 mlxlogscore=999 mlxscore=0 impostorscore=0 phishscore=0
+ lowpriorityscore=0 clxscore=1015 spamscore=0 priorityscore=1501
+ malwarescore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2506180138
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------z7850qavebR7E4B99ruprhYM
-Content-Type: multipart/mixed; boundary="------------0stBIruqyxXuT2esoYpj0mtq";
- protected-headers="v1"
-From: Benno Schulenberg <bensberg@telfort.nl>
-To: Madadi Vineeth Reddy <vineethr@linux.ibm.com>, Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-Message-ID: <8197c011-67ff-4c84-b46a-304faa6678d6@telfort.nl>
-Subject: Re: [PATCH v2] chrt: Make priority optional for policies that don't
- use it
-References: <20250617182403.47095-1-vineethr@linux.ibm.com>
- <232025d8-cdb4-48a7-a7c9-7dc211f76173@telfort.nl>
- <7nyugk5zfclbpqc2kpcotycgssj6jticujokevyo6ulw7japtl@pnqb6svtmxao>
- <bbd6aabd-707d-4fee-b80c-36749cf7c531@linux.ibm.com>
-In-Reply-To: <bbd6aabd-707d-4fee-b80c-36749cf7c531@linux.ibm.com>
+On 18/06/25 16:15, Karel Zak wrote:
+> On Wed, Jun 18, 2025 at 03:04:40PM +0530, Madadi Vineeth Reddy wrote:
+>> Hi Benno, Karel
+>>
+>> On 18/06/25 14:55, Karel Zak wrote:
+>>> On Wed, Jun 18, 2025 at 11:18:18AM +0200, Karel Zak wrote:
+>>>> On Wed, Jun 18, 2025 at 10:18:29AM +0200, Benno Schulenberg wrote:
+>>>>>
+>>>>> Op 17-06-2025 om 20:24 schreef Madadi Vineeth Reddy:
+>>>>>> Currently, chrt requires a priority argument even for scheduling
+>>>>>> policies like SCHED_OTHER and SCHED_BATCH, which ignore it.
+>>>>>>
+>>>>>> This change relaxes that requirement. Now, priority is only expected
+>>>>>> for SCHED_FIFO and SCHED_RR. For other policies, a default value of 0
+>>>>>> is set internally and no argument is required on the command line.
+>>>>>
+>>>>> Doesn't this alter the "show-the-current-policy-and-priority" behavior
+>>>>> when no priority is given?  Currently `./chrt --help` says (trimmed):
+>>>>  
+>>>> Very good point. The priority policy (--{other,...}) should be
+>>>> required to ensure that the user wants to alter the setting rather
+>>>> than print the current situation. Madadi, what do you think?
+>>>
+>>> Ah, I now read Benno's note more carefully. The code just silently ignores  
+>>> policy when priority is not specified.
+>>>
+>>> $ chrt --fifo --pid $$  
+>>> pid 994013's current scheduling policy: SCHED_OTHER  
+>>> pid 994013's current scheduling priority: 0
+>>>
+>>> This is ugly. The question is how important it is to support this for  
+>>> backward compatibility. I'd assume that users use "chrt --pid $$" to get  
+>>> the current setting.
+>>>
+>>
+>> chrt --pid 20570
+>> pid 20570's current scheduling policy: SCHED_OTHER
+>> pid 20570's current scheduling priority: 0
+>> pid 20570's current runtime parameter: 2800000
+>>
+>> After this patch also, we still get the current setting. Can you give it
+>> a try with the patch applied? Let me know if I am missing something.
+> 
+> Sorry for the mess. I have finally tried it (sorry for doing it the first time).
+> 
+> Benno's note is that "chrt --other --pid $$" changed behavior. The old version 
+> always just read the current setting if no priority was specified, and now it 
+> alters scheduling and prints nothing. I guess this is the expected behavior now.
+> 
+> I have found that the old version silently ignores the policy option if 
+> priority is not provided, and it always just displays the current setting. This 
+> is ugly, and with your change, it's more ugly :), because it depends on the 
+> specified policy.
+> 
+>   chrt --pid $$               # display current setting
+> 
+>   chrt --other --pid $$       # alter current setting
+>   chrt --fifo --pid $$        # display current setting (--fifo ignored)
+>   chrt --fifo --pid 10 $$     # alter current setting
+> 
+> I think with --{other,fifo,...} the command line should always be interpreted 
+> as a request to alter the current setting, independently of whether priority is 
+> specified.
+> 
+>   chrt --fifo --pid $$
+> 
+> needs to end with the error message "chrt: priority value for the policy 
+> required" rather than display the current setting.
 
---------------0stBIruqyxXuT2esoYpj0mtq
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Agreed. So, IIUC, when using SCHED_FIFO or SCHED_RR, the priority should be
+mandatory, and omitting it should result in an error. To simply print the
+current settings, no scheduling policy should be specified, meaning
+chrt --pid $$ should be the correct way to query the settings.
 
-DQpPcCAxOC0wNi0yMDI1IG9tIDExOjUxIHNjaHJlZWYgTWFkYWRpIFZpbmVldGggUmVkZHk6
-DQo+IE9uIDE4LzA2LzI1IDE0OjQ4LCBLYXJlbCBaYWsgd3JvdGU6DQo+PiBPbiBXZWQsIEp1
-biAxOCwgMjAyNSBhdCAxMDoxODoyOUFNICswMjAwLCBCZW5ubyBTY2h1bGVuYmVyZyB3cm90
-ZToNCj4+Pg0KPj4+ICAgIEdldCBwb2xpY3k6DQo+Pj4gICAgIGNocnQgW29wdGlvbnNdIC1w
-IDxwaWQ+DQo+Pg0KPj4gSSByZWFsbHkgZG9uJ3QgbGlrZSB0aGUgdXNlIG9mICItcC4iIFdl
-IHNob3VsZCB1c2UgIi0tcGlkIiBldmVyeXdoZXJlDQo+PiAoaW4gLS1oZWxwLCBtYW4gcGFn
-ZSwgYW5kIGV4YW1wbGVzKS4NCj4gDQo+IEkgY2FuIHNwaW4gb2ZmIGEgc2VwYXJhdGUgcGF0
-Y2ggdG8gY29uc2lzdGVudGx5IHVzZSAtLXBpZCBpbnN0ZWFkIG9mIC1wDQo+IGluIHRoZSBo
-ZWxwIHRleHQsIG1hbiBwYWdlLCBhbmQgZXhhbXBsZXMuDQoNCkl0IHNob3VsZCBhbHNvIGRy
-b3AgdGhlICJbb3B0aW9uc10iIHBhcnQgZnJvbSB0aGUgYWJvdmU6DQoNCiAgICAgR2V0IHBv
-bGljeToNCiAgICAgICBjaHJ0IC0tcGlkIDxwaWQ+DQoNCkFzIEthcmVsIHNheXMsIHNwZWNp
-ZnlpbmcgYW4gb3B0aW9uIGxpa2UgLS1vdGhlciBvciAtLWZpZm8NCnNob3VsZCBhbHdheXMg
-YmUgdW5kZXJzdG9vZCBhcyBhIG1vZGlmaWNhdGlvbiByZXF1ZXN0LCBub3QNCmFzIGFuIGlu
-Zm8gcmVxdWVzdC4NCg0KDQpCZW5ubw0KDQo=
+However, wouldn't this break existing behavior for users who may already be
+using a command like chrt --other --pid $$ to display current settings?
 
---------------0stBIruqyxXuT2esoYpj0mtq--
+As a first step, would it make sense to Keep the current behavior for
+querying unchanged and just make priority optional for policies that
+don't use it?
 
---------------z7850qavebR7E4B99ruprhYM
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+Maybe altering the existing behavior can be handled in a separate patch
+with its own discussion.
 
------BEGIN PGP SIGNATURE-----
+What do you suggest?
 
-wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmhSsSEFAwAAAAAACgkQUUu+Lrjhlh+T
-+RAAhSkEm7YbzrFl9sX3JESEZNPIDvZVioNilw+nZG+FwLqhmYvqmcp1fqZu8NKpdOI2GrXsKoWv
-/x35AfC++66uYYwGZVvxIXcZiG8cTNHC8CNjD1va5e/dmXRuSmAW51qqljDdFPYtjxiIBqFVwUnD
-ox5ox8kZcdZ1CLP0iVpaEeZU+ASL55D9VzferEJJUNUm5FHX6JXsb4O2QrsOR2wVs3p8nB21PvIO
-DIDmNxRlH9zyD9UU4XOGlvY6KHSSOg9r6BrnHC8DkjXMWcnuHzsn5PQ664LEENEZWZkAg5y7lros
-oFqxSVtNms7DqYwcKC0Cd4MCvw7Qb1HJ0mLw+qXQNGQRY7EAJhDGCJnUeyPhMk2kDtmmvV20vJpA
-tUtTptT8Ko0bDVU5UbtsfhnbL66Yb2r+rjFgfGAKTDsQclqQeIs1VR6NSfs0w3KwkhNAQgy6jG/E
-3QN6amtiMDc+/LoDQvOzWXRuJYTlrANz+oQbvXg81IdujJbpTGP/T0OnMO5p9D4tawsbg62jlmEu
-aU09E/fuV3YWQc6HPZT53HokUuTXjM9UOQyL+z80n/Rk+QKtRA7v8Z81roQkG8ns7fDlwWFvZ4AW
-8rypiOTOnEgzVVA7rSENUMYGXEM9PP1rdsnpKhQNodXssGCZ3/njishcYyVzc3Wi4SZHU4Vs9fV6
-jbk=
-=jMJT
------END PGP SIGNATURE-----
+Thanks,
+Madadi Vineeth Reddy
 
---------------z7850qavebR7E4B99ruprhYM--
+> 
+>     Karel
+> 
+
