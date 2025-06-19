@@ -1,187 +1,173 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 423D24A1D
-	for <util-linux@vger.kernel.org>; Thu, 19 Jun 2025 08:40:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E14202556E
+	for <util-linux@vger.kernel.org>; Thu, 19 Jun 2025 14:16:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750322411; cv=none; b=LuyVWPxY2YaEbt2J2eIHELVZWnATqAQg+848xpoPymoiayeHJJuR8vP6iUiZEW5EgY183d0oituB/qmptygZpWpj6VfahogtOpAm2xVPCXYav+lMVkoExKlg2WorJGFNJq0Bg88e+vdshsxYA046a01S5Pq3REQOc65gBPDTwI0=
+	t=1750342576; cv=none; b=tKZtHdNkhT7GN/Cnt5yuP+6V8EmJbY/gYBzsEH0Igh4MEBUj1vTZchjnY4T+5EEvWuV7U4o+KjoMEw7YCyxCMUFY9z0NB8fJt/m+ThX5Rbo4lU2Hqq5ABs8w4x58lHhGCPM6XW++ITouEmZPL2OG8rISsRQWcuTH0rm+NKTSFuE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750322411; c=relaxed/simple;
-	bh=d4mQgIsnChf9dcbrzRfYd4UyMwSmuS2nNFI7wBVokRk=;
-	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=lijOF928TP2Ss7frZOlgGivUfcaMfUrT4VsObXUlqxEo/QVetjRtu6uRSQk6Y69VvIk8u1P+cOStQuWnyeqqcb5NByd+Hzbq8wkmLQuXZslewBvlh+VCc1PZyrNvpmXFi9cUatgDNsk5JHIgAMKEW2iZQrcGmAf6/pTK4MDo6Vs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=h2C9BJ8O; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1750342576; c=relaxed/simple;
+	bh=bMY55js/44jkOXm/HHGxiVuFlHX8bIZgNujd6WMBum0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=XSxX15fs6QMv1m71TjAlCR2Zqt70WH8UfDy+S6k1NMDSLNQQMWJ82d3OR0JGIgzoMIFNEf/ya+12S2y01P15YPQGTOGmiLHMDQnpHgxNDAnh45DyB3dlfeU5x08sZKtH5n5/mvqI1AS2yd/9kjz4OZc3JW051yL6/xQuCCLmIK0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=X9BhCxtG; arc=none smtp.client-ip=195.121.94.168
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="h2C9BJ8O"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750322408;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=k0pT9Dh+OWloycpsIk4NtfyXI0Ej8iHKvU43AvjbFO8=;
-	b=h2C9BJ8OItXn60SbUyyksOotYxN5CgiYCQeC6DpcLYlyK3rT9ni9Vln70JS3QfT6+TEexc
-	7DykiU0zchzWHEux1VHNKFtcOIE+chiFkxcT39tfv9Woh1h9cTNUUrysTttLe/mcJ9+cQv
-	Dn+n3f7+wYkwgdm3SbG3qdZtEIuqv3U=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-522-zNpKIDJ5MEyhfC8SmbRNZw-1; Thu,
- 19 Jun 2025 04:40:05 -0400
-X-MC-Unique: zNpKIDJ5MEyhfC8SmbRNZw-1
-X-Mimecast-MFC-AGG-ID: zNpKIDJ5MEyhfC8SmbRNZw_1750322405
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E11BD195608F
-	for <util-linux@vger.kernel.org>; Thu, 19 Jun 2025 08:40:04 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.226.26])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2E0961800285
-	for <util-linux@vger.kernel.org>; Thu, 19 Jun 2025 08:40:02 +0000 (UTC)
-Date: Thu, 19 Jun 2025 10:39:59 +0200
-From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org
-Subject: v2.41.1 plan
-Message-ID: <al3esfoztviujvzqjk33kgxqxsbs2abuwzpqp223aptzbz7l7w@ewu7b36wwxny>
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="X9BhCxtG"
+X-KPN-MessageId: f11d930b-4d17-11f0-86d0-005056aba152
+Received: from smtp.kpnmail.nl (unknown [10.31.155.40])
+	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
+	id f11d930b-4d17-11f0-86d0-005056aba152;
+	Thu, 19 Jun 2025 16:16:07 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=telfort.nl; s=telfort01;
+	h=content-type:from:to:subject:mime-version:date:message-id;
+	bh=bMY55js/44jkOXm/HHGxiVuFlHX8bIZgNujd6WMBum0=;
+	b=X9BhCxtG9FWZUXA66EpX9odNsaUlsaJPIB11WPXW5iAGX7Prg0MshC8l4fqLUnWOWEtHBEkRmjNMw
+	 s3W+Av19q0zbFG/qlKXs8B80PReOa31rVMKHtusIx1BNUdYFVZPsOpQdgIeBbcIDLrgGZ2aJAhTZeD
+	 lVHGhuSH1hlcKKY0=
+X-KPN-MID: 33|v4dAkBgd+K0J9yq1qt6gfIXkH/sM94lZg8elDP2o6ZOsmcx7ff1os5hdCyjXLw6
+ 9shjjaLpbqRtQb3K6s4smzbVkSp3bPY+cFNtzpygQjos=
+X-KPN-VerifiedSender: Yes
+X-CMASSUN: 33|C87LaSbfxd+kDmYQ6aS1UfUpddNmfEhi4SvKg0MQ7gMt2eesThpwabHOGsbr+sw
+ UpxaGgBRYB7zUy4LZ404emQ==
+Received: from [192.168.2.23] (77-163-176-192.fixed.kpn.net [77.163.176.192])
+	by smtp.kpnmail.nl (Halon) with ESMTPSA
+	id ca8bcf88-4d17-11f0-85aa-005056ab7584;
+	Thu, 19 Jun 2025 16:15:02 +0200 (CEST)
+Message-ID: <41499ee7-7d8f-4143-b560-1b02f2d1f00c@telfort.nl>
+Date: Thu, 19 Jun 2025 16:15:00 +0200
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] chrt: Make priority optional for policies that don't
+ use it
+To: Madadi Vineeth Reddy <vineethr@linux.ibm.com>, Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+References: <20250617182403.47095-1-vineethr@linux.ibm.com>
+ <232025d8-cdb4-48a7-a7c9-7dc211f76173@telfort.nl>
+ <7nyugk5zfclbpqc2kpcotycgssj6jticujokevyo6ulw7japtl@pnqb6svtmxao>
+ <bbd6aabd-707d-4fee-b80c-36749cf7c531@linux.ibm.com>
+ <8197c011-67ff-4c84-b46a-304faa6678d6@telfort.nl>
+ <d3cfa396-a89f-4ff0-8424-318ed0b3c2be@linux.ibm.com>
+Content-Language: en-US, nl-NL, es-ES
+From: Benno Schulenberg <bensberg@telfort.nl>
+Autocrypt: addr=bensberg@telfort.nl; keydata=
+ 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 50GA
+In-Reply-To: <d3cfa396-a89f-4ff0-8424-318ed0b3c2be@linux.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------00s6TdBMk00eFdzHZ4iCN0tA"
 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------00s6TdBMk00eFdzHZ4iCN0tA
+Content-Type: multipart/mixed; boundary="------------4oHRFc75qB6VwzRyHr3Gn3vT";
+ protected-headers="v1"
+From: Benno Schulenberg <bensberg@telfort.nl>
+To: Madadi Vineeth Reddy <vineethr@linux.ibm.com>, Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org
+Message-ID: <41499ee7-7d8f-4143-b560-1b02f2d1f00c@telfort.nl>
+Subject: Re: [PATCH v2] chrt: Make priority optional for policies that don't
+ use it
+References: <20250617182403.47095-1-vineethr@linux.ibm.com>
+ <232025d8-cdb4-48a7-a7c9-7dc211f76173@telfort.nl>
+ <7nyugk5zfclbpqc2kpcotycgssj6jticujokevyo6ulw7japtl@pnqb6svtmxao>
+ <bbd6aabd-707d-4fee-b80c-36749cf7c531@linux.ibm.com>
+ <8197c011-67ff-4c84-b46a-304faa6678d6@telfort.nl>
+ <d3cfa396-a89f-4ff0-8424-318ed0b3c2be@linux.ibm.com>
+In-Reply-To: <d3cfa396-a89f-4ff0-8424-318ed0b3c2be@linux.ibm.com>
 
-Hi all,
+--------------4oHRFc75qB6VwzRyHr3Gn3vT
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-I'd like to release the stable update v2.41.1 ASAP (tomorrow?). The current 
-log for the stable/v2.41 branch is below.
+DQpPcCAxOC0wNi0yMDI1IG9tIDE4OjQxIHNjaHJlZWYgTWFkYWRpIFZpbmVldGggUmVkZHk6
+DQo+IFNvLCBteSB0aG91Z2h0IGlzIGp1c3QgdG8gbWFrZSBwcmlvcml0eSBhcmd1bWVudCBv
+cHRpb25hbCBmb3INCj4gcG9saWNpZXMgdGhhdCBkb24ndCB1c2UgaXQgYW5kIGtlZXAgdGhl
+IGV4aXN0aW5nIGJlaGF2aW9yIGFzIGlzLg0KDQpUaGF0J3Mgbm90IHBvc3NpYmxlLiAgQ3Vy
+cmVudGx5LCBkb2luZyBzb21ldGhpbmcgbGlrZQ0KDQogICAuL2NocnQgLS1pZGxlIC0tcGlk
+ICQkDQoNCmp1c3QgcmVwb3J0cyB0aGUgY3VycmVudCBwb2xpY3kgYW5kIHByaW9yaXR5LCBh
+bmQgZG9lcw0Kbm90IGNoYW5nZSB0aGUgcG9saWN5IChiZWNhdXNlIHRoZSBwcmlvcml0eSBp
+cyBtaXNzaW5nKS4NCkFmdGVyIHlvdXIgcGF0Y2gsIGRvaW5nIHRoZSBzYW1lIGNvbW1hbmQg
+cmVwb3J0cyBub3RoaW5nDQpidXQgX2RvZXNfIGNoYW5nZSB0aGUgcG9saWN5LiAgWW91IGNv
+dWxkIHN0aWxsIG1ha2UgaXQNCnJlcG9ydCB0aGUgY3VycmVudCBzZXR0aW5ncywgYnV0IHRo
+YXQgd291bGQgZ2l2ZSB0aGUNCndyb25nIGlkZWEsIGJlY2F1c2UgaXQgd291bGQgYmUgdGhl
+IF9vbGRfIHNldHRpbmdzLg0KDQpTbywgYXMgS2FyZWwgc2FpZCwgc2lsZW50bHkgaWdub3Jp
+bmcgdGhlIHBvbGljeSBvcHRpb24NCndoZW4gbm8gcHJpb3JpdHkgd2FzIGdpdmVuIHdhcyB1
+Z2x5LiAgVG9vIHVnbHkgdG8ga2VlcA0KaXQgdGhhdCB3YXkuICBBcyBLYXJlbCBpbXBsaWVk
+OiBicmVhayBjb21wYXRpYmlsaXR5IGFuZA0KZG8gdGhlIHNlbnNpYmxlIHRoaW5nOiB3aGVu
+ZXZlciBhIHBvbGljeSBvcHRpb24gaXMgZ2l2ZW4sDQphY3QgdXBvbiBpdCAtLSBhbmQgd2hl
+biBhIG5lZWRlZCBwcmlvcml0eSBpcyBtaXNzaW5nLA0KZXJyb3Igb3V0Lg0KDQoNCkJlbm5v
+DQoNCg==
 
-Do you need anything else in the release?
+--------------4oHRFc75qB6VwzRyHr3Gn3vT--
 
-    Karel
+--------------00s6TdBMk00eFdzHZ4iCN0tA
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
-autotools:
-    - don't use wide-character ncurses if --disable-widechar (by Karel Zak)
+wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmhUG2UFAwAAAAAACgkQUUu+Lrjhlh/Q
+7g//a0rOZjQRLcJ+hueG4qT/HIyA2nmZ3oSM4n9ejpi6UGQiPYwynvim1iWg11OfKCLkLmqn93Hu
+N9VjrWb0ZFuemD4dQG+dfOCA+e2IMPLs8l8qSt9JuORaJuZ1AsIYYczFMjGh4rIZjFukzsNP+d8M
+mFD06ZmpSPy2jCBE9KHBkcRg6Gcun9tCeKy5cjveX2mcbvTVTeI0YDwiGFM4rYbOcfo2XtKfRqoW
+ZSJIeYTaUkfxX0J3XGSbLItNOHfbbApoIOqnqg9S3Z2o+j28diKd5B8FoWQbHdWDvPvGQVpRuy2o
+++jelvP2FkLIEgjaxPxs6FOX0thLImsabQ8/io1d9ezL9Ly0LOZeqqZCpXLU/S5g4K93b6YpWldx
+InzkIzUfQ156dp9RU1HAIXklrNzsZCGecsSNsxTldcKOu50dRUsnkSzXh0llvJ6y+X4C4mNNDJ+4
+F/ZZphVakGQSdxmM9Qqntx9uXmDKHuHrCGl3SdYn+pI0wydpNTH7mCFDRyhvzCz/nmBDwxMdrLsP
+bUQ+rbbRFKJfcs2+Zjk82rBhQ1wFlXM8mZCQw2Vp7ZR3Had7fZ+VVxhohp9P6i/RMxyzih6SrW0X
+WopMBV9eHnbUdFo/xDfWVlTrrtzTymFykTK9xWxL6j0h+fCstrjVR7nylpqBlDNHjaNgjANpc63A
+Oh8=
+=8jFJ
+-----END PGP SIGNATURE-----
 
-cfdisk:
-    - fix memory leak and possible NULL dereference [gcc-analyzer] (by Karel Zak)
-
-column:
-    - fix compiler warning for non-widechar compilation (by Karel Zak)
-
-fdformat:
-    - use size_t and ssize_t (by Karel Zak)
-
-fdisk:
-    - fix possible memory leak (by Karel Zak)
-
-fdisk,partx:
-    - avoid strcasecmp() for ASCII-only strings (by Karel Zak)
-
-findmnt:
-    - fix -k option parsing regression (by Karel Zak)
-
-hardlink:
-    - define more function as inline (by Karel Zak)
-    - fix performance regression (inefficient signal evaluation) (by Karel Zak)
-    - Use macro for verbose output (by Karel Zak)
-
-include/cctype:
-    - fix string comparison (by Karel Zak)
-
-include/mount-api-utils:
-    - include linux/unistd.h (by Thomas Weiﬂschuh)
-
-libblkid:
-    - Fix crash while parsing config with libeconf (by Stanislav Brabec)
-    - befs fix underflow (by Milan Broz)
-    - avoid strcasecmp() for ASCII-only strings (by Karel Zak)
-
-libblkid/src/topology/dm:
-    - fix fscanf return value check to match expected number of parsed items (by Mingjie Shen)
-
-libfdisk:
-    - avoid strcasecmp() for ASCII-only strings (by Karel Zak)
-
-libmount:
-    - (subdir) restrict for real mounts only (by Karel Zak)
-    - (subdir) remove unused code (by Karel Zak)
-    - avoid calling memset() unnecessarily (by Karel Zak)
-    - avoid strcasecmp() for ASCII-only strings (by Karel Zak)
-    - fix --no-canonicalize regression (by Karel Zak)
-
-libuuid:
-    - fix uuid_time on macOS without attribute((alias)) (by Eugene Gershnik)
-
-lsblk:
-    - use ID_PART_ENTRY_SCHEME as fallback for PTTYPE (by Karel Zak)
-    - avoid strcasecmp() for ASCII-only strings (by Karel Zak)
-
-lscpu:
-    - fix possible buffer overflow in cpuinfo parser (by Karel Zak)
-    - Fix loongarch op-mode output with recent kernel (by Xi Ruoyao)
-
-lsfd:
-    - (bug fix) scan the protocol field of /proc/net/packet as a hex number (by Masatake YAMATO)
-    - fix the description for PACKET.PROTOCOL column (by Masatake YAMATO)
-
-lsns:
-    - enhance compilation without USE_NS_GET_API (by Karel Zak)
-    - fix undefined reference to add_namespace_for_nsfd #3483 (by Thomas Devoogdt)
-
-meson:
-    - add feature for translated documentation (by Thomas Weiﬂschuh)
-    - remove tinfo dependency from 'more' (by Thomas Weiﬂschuh)
-    - fix manadocs for libsmartcols and libblkid (by Karel Zak)
-    - fix po-man installation (by Karel Zak)
-
-misc:
-    - never include wchar.h (by Karel Zak)
-
-more:
-    - fix broken ':!command' command key (by cgoesche)
-    - fix implicit previous shell_line execution #3508 (by cgoesche)
-
-mount:
-    - (man) add missing word (by Jakub Wilk)
-
-namespace.h:
-    - fix compilation on Linux < 4.10 (by Thomas Devoogdt)
-
-tests:
-    - (test_mkfds::mapped-packet-socket) add a new parameter, protocol (by Masatake YAMATO)
-
-treewide:
-    - add ul_ to parse_timestamp() function name (by Karel Zak)
-    - add ul_ to parse_switch() function name (by Stanislav Brabec)
-    - add ul_ to parse_size() function name (by Karel Zak)
-    - add ul_ to parse_range() function name (by Karel Zak)
-    - fix optional arguments usage (by Karel Zak)
-    - avoid strcasecmp() for ASCII-only strings (by Karel Zak)
-
-Wipefs:
-    - improve --all descriptions for whole-disks (by Karel Zak)
-
-Misc:
-    - Do not call exit() on code ending in shared libraries (by Cristian RodrÌguez)
-    - remove two leftover license lines from colors.{c,h} (by Benno Schulenberg)
-    - remove "Copyright (C) ...." notes from files that claim no copyright (by Benno Schulenberg)
-    - correct the full name of the GPL in various files (by Benno Schulenberg)
-    - Make scols_column_set_data_func docs visible (by FeRD (Frank Dana))
-    - Do not use strerror on shared libraries (by Cristian RodrÌguez)
-    - Fix typo in blkdiscard docs (by pls-no-hack)
-    - lib/fileeq.c Fix a typo in message. (by Masanari Iida)
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
-
+--------------00s6TdBMk00eFdzHZ4iCN0tA--
