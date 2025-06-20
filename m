@@ -1,132 +1,163 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f183.google.com (mail-qk1-f183.google.com [209.85.222.183])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38216A923
-	for <util-linux@vger.kernel.org>; Fri, 20 Jun 2025 05:33:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BB032989A3
+	for <util-linux@vger.kernel.org>; Fri, 20 Jun 2025 14:49:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.183
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750397600; cv=none; b=NIvey2r+QVpmGVySweVuYRzZawnetd6tSMj2duLLhCmCX19pUmQHdcNof6+9tax2+YsnwBUTrketz0f3WQ4oXUc42Hcs5CvOAwzyH/OzfhDA4l4CXthE7r+/FHI4ni3vNnH9rmUbpWq+ED5P0k1nU8IGIMhwxx72coGOmWyS+ao=
+	t=1750430998; cv=none; b=uHkOWQ3NMLcK14HhhRdZ8hXioI5IOtbhwHKNTD9BT3URy/eWZZSh3OfTdmdwF20o2t8rdjUfuVPAtI6n1/clgmKgfbEF5LCAyDBLs+pgmRlsRFRjfrGeGPdWnOsaUr/FsfrkhmSfknD7CvlhPMLKDPk+kFOQBdsa29dEZZ6UZKA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750397600; c=relaxed/simple;
-	bh=nwDD+QneY+zlGG/5mc64z8teMQAdIonhPlk2qja+Kw8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YaB2Dq5vLW1hPc1EDlx8mH4SEt2Sm/Wz+0d0ExW73ulTUIzK43FEQYZLK+SjX2duqcKri3T6h0xMuD2QCK3k+okOG0KLnIN+G+P/Y7nIg27ysIGhT8BgdVxFrrcGmQ05n1bBKet9GscMAi0gT1t5Cy5a3c7zCTvesC72Q6GBfAM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ef8hh3Z1; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1750430998; c=relaxed/simple;
+	bh=POsR7A7Ot8wVBa51RAy4S8yHZb8CTmMP8ShSSKw0QEo=;
+	h=Date:From:To:Cc:Message-Id:Subject:MIME-Version:Content-Type; b=Ai0urBVeodthPpz6GNp5LtqbUw/2Cj0vCav5LoeS7B3wZPsPymNwP/zhvhB/HIoCXlHhUR/wiZnnOr744p6U5v3XLlz6YvE8/n1MQH6JDdTqvwfQlhOZGj8+RhzND5l0vseh1lyYiUamDTZjJMi140TDDJGuC6D0T5fpRlYKGyU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ancd.us; spf=none smtp.mailfrom=ancd.us; dkim=pass (2048-bit key) header.d=ancd-us.20230601.gappssmtp.com header.i=@ancd-us.20230601.gappssmtp.com header.b=huvSlIo9; arc=none smtp.client-ip=209.85.222.183
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ancd.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ancd.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ef8hh3Z1"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55JJJv3G017154;
-	Fri, 20 Jun 2025 05:33:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=f1xeuH
-	N/HiqZM93KoZIXDIkuSgcsRVj4k7Zo4gzR8Zs=; b=Ef8hh3Z1qSow0qIZB99FWM
-	p1At+N8VtpgC+e1EOWJHP2jYojRhnlA7Lz3q578uOAh6AF4YSRWEAa3VboDlQozS
-	HkbPCE3XhJye8wiavBK8hoWtyRn6goQLT0RVoMa2+L96I8nU8p9LIT2lu1dXFrfN
-	cJBi6IG9UYDTpeoFKE0tV/3ubEePLM8jFSLr1/4HwE1KnFwCpr1pkoBghmtwvJ2p
-	v0bhHSYLqvLSzXQC+F7Ec9gyx/SGA68cMowNCX2k9rMkR+j5nhCRjZJ59YaF8gUx
-	Pq4ZC+PujB52nJhc4aZTqm//sdUqMjJJSx+e5PfBKTp1SEcKMp6lUciwHM0F+aoA
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 478ygns56p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 20 Jun 2025 05:33:10 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55K4g5M4021671;
-	Fri, 20 Jun 2025 05:33:10 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 47cahwddnj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 20 Jun 2025 05:33:10 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55K5X95O7733584
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 20 Jun 2025 05:33:09 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 796BB5805B;
-	Fri, 20 Jun 2025 05:33:09 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8656558058;
-	Fri, 20 Jun 2025 05:33:07 +0000 (GMT)
-Received: from [9.43.9.19] (unknown [9.43.9.19])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 20 Jun 2025 05:33:07 +0000 (GMT)
-Message-ID: <0cb78aa7-4695-4b48-97f8-22dea3d9a697@linux.ibm.com>
-Date: Fri, 20 Jun 2025 11:03:05 +0530
+	dkim=pass (2048-bit key) header.d=ancd-us.20230601.gappssmtp.com header.i=@ancd-us.20230601.gappssmtp.com header.b="huvSlIo9"
+Received: by mail-qk1-f183.google.com with SMTP id af79cd13be357-7caee990721so430146085a.1
+        for <util-linux@vger.kernel.org>; Fri, 20 Jun 2025 07:49:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ancd-us.20230601.gappssmtp.com; s=20230601; t=1750430996; x=1751035796; darn=vger.kernel.org;
+        h=mime-version:subject:message-id:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=q+Vp4xgBfd4Ev9gxgJeZowRmQwP/K9RO30Zwt0KjqKg=;
+        b=huvSlIo9KD9FKvDt49jdC/Esu/yzr6RogZsLb5b9IQCpEmqxPyIU+rx6JOqcuHFCsS
+         ssyYY3snjXBOF8PPijza5Yqlrnn6oTG0Sz+O09WJCPSTFIG2MII30FX7UXNs+ksGkU2m
+         JpAnRFPA+COOcL4SWnDtrGYHnp2h1+eONWBBCH95Bnojt0fJjy3X4ZfN0iVqhE9bxZeI
+         z98xevMZkQkRPqoQQICpT3IvUX7gzPvGshXjfrSqAwiDXs9WvaSGodbkM+nKL6aJchdA
+         PJXaWnQiWfU2aS6ejNp3YsAZ2Z9OXPvE9WgJ9PrAW47AhVN+AUOMphZX1WoaIsfrF1fT
+         +QoA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1750430996; x=1751035796;
+        h=mime-version:subject:message-id:cc:to:from:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=q+Vp4xgBfd4Ev9gxgJeZowRmQwP/K9RO30Zwt0KjqKg=;
+        b=ofJJU8Pbu3BHBJEIQRBQbaKCG3I7R2n0V+/AMF0NO2d7NRsL2DeOTFIsIIAHuVQXWG
+         aT9dUVpfbEwDvjgxdm9qcSibXZEgqQeCgXR3ZCEaQGFi4CCX76wh5gwdtVYw5ZolOVT1
+         4Umz4WeCPx2S8u6o/1wtOw/FdGk2Yu0nyLncxAfSImvvnL6SMIS0uuHhQojVXtoamDWr
+         mxZJdpaZpQ4TJ0j/jNgcfby5f1qzdG7jMkXQjheJerRMvrUj7s2PjJRFyS3fNYX1zNb/
+         2rhQfvzHIpGeDNEMMcD52f756Ls4boG1G3b7o9tIgE3IUw4MESQklF1jvgencr7aMS9q
+         nyjQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWmryiNTQRP5RnAsPOlFbvOPFdUaCxoPAxdGBL6VxBT+/b6oRT6HTJ9WVgz+7F8fryUl1TZEP8jMpM7@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw164s/G5dM2h7VZiRg1eozJJaRNBwDqLr8hwGCGwr6CtV9Fpz8
+	2EDsGFbLusxVF++bcCDRt6byDltTO76Hh34l2AXBzMhrw5c2nMlyC8v17lrMeUrxbPBlB7ISP78
+	LXOQJUDu10a+cSA==
+X-Google-Smtp-Source: AGHT+IFf3b7BISLUL7xf5yd8Gfs6StpgDtAU5tWKzndYU1IPxTPZZzmccVjjv0OqDMHsKZpDlT636k4/3A==
+X-Received: by 2002:a05:620a:4492:b0:7d3:ed4d:a423 with SMTP id af79cd13be357-7d3f98c3b6bmr472421385a.7.1750430995735;
+        Fri, 20 Jun 2025 07:49:55 -0700 (PDT)
+X-Google-Already-Archived: Yes
+X-Google-Already-Archived-Group-Id: a1007a4370
+X-Google-Doc-Id: 71b26aaf3360b
+X-Google-Thread-Id: 1780c2e6d4820ebd
+X-Google-Message-Url: http://groups.google.com/a/ancd.us/group/mccoydebrawa/msg/71b26aaf3360b
+X-Google-Thread-Url: http://groups.google.com/a/ancd.us/group/mccoydebrawa/t/1780c2e6d4820ebd
+X-Google-Web-Client: true
+Date: Fri, 20 Jun 2025 07:49:55 -0700 (PDT)
+From: "Email Marketing software ." <mccoydebrawa@ancd.us>
+To: "Email Marketing software ." <mccoydebrawa@ancd.us>
+Cc: unthebronbaptistchurch@gmail.com, contact@2cl.co.uk, admin@cnam.org.uk,
+	lilyngan@rogers.com, pankaj10@pu.ac.in, jmcouture@seattleschools.org,
+	principal@mgpgc.ac.in, util-linux@vger.kernel.org,
+	info@4pawsforability.org, librarian@theportico.org.uk,
+	wines@lancasterwines.com.au, Chibudu@afrilabs.com,
+	buchhaltung@kathausverwaltung.at, watag@hotmail.co.uk,
+	info@vepasas.com, ncialIndependence.Team@plusdane.co.uk,
+	charles@aidancapital.com,
+	L.Pardo-Fernandez@crukscotlandinstitute.ac.uk,
+	draoyonsengupta@gmail.com,  <e.doelzlmueller@salk.at>
+Message-Id: <9c362b7e-905e-4671-afeb-6522ddb6b6a3n@ancd.us>
+Subject: =?UTF-8?Q?High-speed_email_sending_software_=EF=BC=8E=EF=BC=8E?=
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] chrt: Make priority optional for policies that don't
- use it
-To: Benno Schulenberg <bensberg@telfort.nl>, Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org, Madadi Vineeth Reddy <vineethr@linux.ibm.com>
-References: <20250617182403.47095-1-vineethr@linux.ibm.com>
- <232025d8-cdb4-48a7-a7c9-7dc211f76173@telfort.nl>
- <7nyugk5zfclbpqc2kpcotycgssj6jticujokevyo6ulw7japtl@pnqb6svtmxao>
- <bbd6aabd-707d-4fee-b80c-36749cf7c531@linux.ibm.com>
- <8197c011-67ff-4c84-b46a-304faa6678d6@telfort.nl>
- <d3cfa396-a89f-4ff0-8424-318ed0b3c2be@linux.ibm.com>
- <41499ee7-7d8f-4143-b560-1b02f2d1f00c@telfort.nl>
-Content-Language: en-US
-From: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
-In-Reply-To: <41499ee7-7d8f-4143-b560-1b02f2d1f00c@telfort.nl>
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_99548_1999256297.1750430995143"
+
+------=_Part_99548_1999256297.1750430995143
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_99549_315530777.1750430995143"
+
+------=_Part_99549_315530777.1750430995143
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjIwMDAzOCBTYWx0ZWRfX0XsTyJvrh+Xw vAYCdb2BF6shdMZXig5O8GMOFjWnFo8k6D/TK+J6u9iNGk2yQzVHe4piIDzowjYZ04QyresOJ17 26F8w5CXcuRbaTIrio5Qo7Shj1QhUuHAMTGKNY28F4rsKz3+0VlnXH98TtL9P8hEyWCREz99mMd
- wdiwEwruml2rz+PtMkfy42IQn4CjDV2tqp3Sq0luRxoWR1xyC2bx78oZM7G7vCIJqptdBMfzbGX mEqBSvWGxPAZS7au0L5AMnJWljp6k2lZrIJvLS84pP1bGnk1XE2CVLBVNtcMKU6tOeGBPBoO+jO z0TahfFgBcXWOgW3NPJ+k99EL+it5WEP5RiDbWB2hy1fVao+5XB6jm2M6FWPIqEBTrZr9b7sYp0
- 4fKxgHxffg6g9B1xN4fnNBbL2dng4O0Z2xywgIcDu+/U4QHZzAhDN//0F8kb7xHcXiRDRHGB
-X-Authority-Analysis: v=2.4 cv=fYSty1QF c=1 sm=1 tr=0 ts=6854f297 cx=c_pps a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17 a=IkcTkHD0fZMA:10 a=6IFa9wvqVegA:10 a=1MzE_Ic2X6CiAdAugPQA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: Jt5bjXXseVl-bLnTJ2kiWxIOdLdS-Gd_
-X-Proofpoint-GUID: Jt5bjXXseVl-bLnTJ2kiWxIOdLdS-Gd_
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-06-20_01,2025-06-18_03,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- spamscore=0 mlxlogscore=938 lowpriorityscore=0 adultscore=0 mlxscore=0
- impostorscore=0 bulkscore=0 phishscore=0 clxscore=1015 priorityscore=1501
- classifier=spam authscore=0 authtc=n/a authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2506200038
+Content-Transfer-Encoding: quoted-printable
 
-On 19/06/25 19:45, Benno Schulenberg wrote:
-> 
-> Op 18-06-2025 om 18:41 schreef Madadi Vineeth Reddy:
->> So, my thought is just to make priority argument optional for
->> policies that don't use it and keep the existing behavior as is.
-> 
-> That's not possible.  Currently, doing something like
-> 
->   ./chrt --idle --pid $$
-> 
-> just reports the current policy and priority, and does
-> not change the policy (because the priority is missing).
-> After your patch, doing the same command reports nothing
-> but _does_ change the policy.  You could still make it
-> report the current settings, but that would give the
-> wrong idea, because it would be the _old_ settings.
-> 
-> So, as Karel said, silently ignoring the policy option
-> when no priority was given was ugly.  Too ugly to keep
-> it that way.  As Karel implied: break compatibility and
-> do the sensible thing: whenever a policy option is given,
-> act upon it -- and when a needed priority is missing,
-> error out.
-> 
 
-Sure, that makes sense. I will send a patch with these
-changes accordingly.
 
-Thanks,
-Madadi Vineeth Reddy
+=E2=9C=94. Thousands to hundreds of thousands of emails sent per day.=20
+=E2=9C=94. The only software on the market that uses Web mode + Http protoc=
+ol to=20
+send mail. It completely simulates the manual login and sending of Chrome=
+=20
+browser.=20
 
-> 
-> Benno
-> 
+=E2=9C=94. One-click start, Http protocol,Fully Automated, High-speed, Bulk=
+,=20
+Multi-threaded,Built-in Proxies.
 
+=E2=9C=94. Free full-featured trial for 3 days.
+
+DEMO: youtu.be/vGpfyP18VLA
+
+TG: wowofrom2008
+
+=20
+
+*uniform promising.*
+
+------=_Part_99549_315530777.1750430995143
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<p><font color=3D"#800000"><font size=3D"5"><span style=3D'text-align: left=
+; color: rgb(0, 102, 0); text-transform: none; text-indent: 0px; letter-spa=
+cing: normal; font-family: "Microsoft YaHei"; font-size: medium; font-style=
+: normal; font-weight: 400; word-spacing: 0px; float: none; display: inline=
+ !important; white-space: normal; orphans: 2; widows: 2; font-variant-ligat=
+ures: normal; font-variant-caps: normal; -webkit-text-stroke-width: 0px; te=
+xt-decoration-thickness: initial; text-decoration-style: initial; text-deco=
+ration-color: initial;'>=E2=9C=94. </span>Thousands to hundreds of thousand=
+s of emails sent per day. </font></font></p><font color=3D"#800000"><font s=
+ize=3D"5"><span style=3D'text-align: left; color: rgb(0, 102, 0); text-tran=
+sform: none; text-indent: 0px; letter-spacing: normal; font-family: "Micros=
+oft YaHei"; font-size: medium; font-style: normal; font-weight: 400; word-s=
+pacing: 0px; float: none; display: inline !important; white-space: normal; =
+orphans: 2; widows: 2; font-variant-ligatures: normal; font-variant-caps: n=
+ormal; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; =
+text-decoration-style: initial; text-decoration-color: initial;'>=E2=9C=94.=
+ </span>The only software on the market that uses Web mode + Http protocol =
+to send mail. It completely simulates the manual login and sending of Chrom=
+e browser. </font></font><p><font color=3D"#800000"><font size=3D"5"><span =
+style=3D'text-align: left; color: rgb(0, 102, 0); text-transform: none; tex=
+t-indent: 0px; letter-spacing: normal; font-family: "Microsoft YaHei"; font=
+-size: medium; font-style: normal; font-weight: 400; word-spacing: 0px; flo=
+at: none; display: inline !important; white-space: normal; orphans: 2; wido=
+ws: 2; font-variant-ligatures: normal; font-variant-caps: normal; -webkit-t=
+ext-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-=
+style: initial; text-decoration-color: initial;'>=E2=9C=94. </span>One-clic=
+k start, Http protocol,Fully Automated, High-speed, Bulk, Multi-threaded,Bu=
+ilt-in Proxies.</font></font></p><p><font size=3D"6"><font color=3D"red"><s=
+pan style=3D'text-align: left; color: rgb(0, 102, 0); text-transform: none;=
+ text-indent: 0px; letter-spacing: normal; font-family: "Microsoft YaHei"; =
+font-size: medium; font-style: normal; font-weight: 400; word-spacing: 0px;=
+ float: none; display: inline !important; white-space: normal; orphans: 2; =
+widows: 2; font-variant-ligatures: normal; font-variant-caps: normal; -webk=
+it-text-stroke-width: 0px; text-decoration-thickness: initial; text-decorat=
+ion-style: initial; text-decoration-color: initial;'>=E2=9C=94. </span><fon=
+t face=3D"Microsoft YaHei">Free full-featured trial for 3 days.</font></fon=
+t></font></p><p><font size=3D"4">DEMO: <a style=3D'text-align: left; text-t=
+ransform: none; text-indent: 0px; letter-spacing: normal; font-family: "Mic=
+rosoft YaHei"; font-size: medium; font-style: normal; font-weight: 400; wor=
+d-spacing: 0px; white-space: normal; orphans: 2; widows: 2; background-colo=
+r: rgb(255, 255, 255); font-variant-ligatures: normal; font-variant-caps: n=
+ormal; -webkit-text-stroke-width: 0px;' href=3D"youtu.be/vGpfyP18VLA" targe=
+t=3D"_blank">youtu.be/vGpfyP18VLA</a></font></p><p><font size=3D"4"><font c=
+olor=3D"#333300">TG</font>: <font color=3D"#800000">wowofrom2008</font></fo=
+nt></p><p><font color=3D"#800000" size=3D"4"></font>&nbsp;</p><p><strong>un=
+iform promising.</strong><font color=3D"#0000ff"><br /></font></p>
+------=_Part_99549_315530777.1750430995143--
+
+------=_Part_99548_1999256297.1750430995143--
