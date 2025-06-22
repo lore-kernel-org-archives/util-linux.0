@@ -1,157 +1,103 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.167])
+Received: from cloudsdale.the-delta.net.eu.org (cloudsdale.the-delta.net.eu.org [138.201.117.120])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2677C13D
-	for <util-linux@vger.kernel.org>; Sun, 22 Jun 2025 15:51:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.167
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56BCB19DF61
+	for <util-linux@vger.kernel.org>; Sun, 22 Jun 2025 21:34:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=138.201.117.120
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750607510; cv=none; b=iJYO8BC6ZZVHMWsooF3qKTxm35t6OCV6+OBn+w94JeKNCZ3PGEzhgmdSiC4rS/nC49yxJ+ogS2sa/LfF/kSefpMeFkYtCt7TdToqbbITM1OzKZsya6cyFzvyg7JqsUWg21b2JLY6kpoIwXIr5llLe6g1sUa5PFubg044dZzLIqg=
+	t=1750628098; cv=none; b=JNJJYNZjQLVE3UHgVABsrl2tzuTTNz+BYLdJxcNzjbwl7zQfYKJQRaQBACqxaqz9rcTYAuXC3jQNSaJ4p2P1DlKVHVOdxBE8uzvoA9ZworglLDmarqX4gU2+A3osTIIC6VXliVGES+fVsLjlYZ/17DNkOE/i0rNHLdEgHYnufPc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750607510; c=relaxed/simple;
-	bh=5j9MnKUcD39jXTAMNBUEtblQoFqQcgPleZsH+09M50s=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:Cc:
-	 In-Reply-To:Content-Type; b=j3U3sIkFewDHLp2A/0HGInbgoZFrewWbiGupdtkhX0ZUHKfQaknHArct4vXjrpetv6M9vZBhTPOSSb2xK2Qj2GbAK+ujjPuvM7VhOvwlbP7YVRGjtM3eI4F4gCZ2RJnGR7Boyg7bDfaG8geTzCYZ6w1Sp2mmeIeAc+cXLzHHlao=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=IbH6Ocqt; arc=none smtp.client-ip=195.121.94.167
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="IbH6Ocqt"
-X-KPN-MessageId: f84606df-4f80-11f0-b9a4-005056abbe64
-Received: from smtp.kpnmail.nl (unknown [10.31.155.37])
-	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id f84606df-4f80-11f0-b9a4-005056abbe64;
-	Sun, 22 Jun 2025 17:52:58 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=telfort.nl; s=telfort01;
-	h=content-type:from:to:subject:mime-version:date:message-id;
-	bh=5j9MnKUcD39jXTAMNBUEtblQoFqQcgPleZsH+09M50s=;
-	b=IbH6Ocqtrz882mT+g/7uxiyDujFEQ4l0kZiJjJEmeRQaIjAhYZDW8dKAGqKFrbVJeGhJrjPN2P6NF
-	 Ls8fSQPM1sWoMdgmytrWfDv+dxBwoMk7Cj4kjemKKvcJUAeDxwGaZkLCXLPNU6TobaUdgIFqvf/bpY
-	 BvA3d/uEbRhLR6fQ=
-X-KPN-MID: 33|BOdPT3Z/1SXNQbjTPpVQuNc55RgqvxXbxu4PQsqht4woH+vTcZ5xMzHGKy5YNJi
- +2v8J3MCr3COZtan0IjLHEJt7wte1qHaQbfPltBvjwxw=
-X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|TxmrSB4OdkMslu9XcfR9tQXsyHldkxS+Z+sC4BldPw50Dk2mlw2+IYwYPUdGLRP
- B7Ycv8+MPb4zDYYge0qvZag==
-Received: from [192.168.2.23] (77-163-176-192.fixed.kpn.net [77.163.176.192])
-	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id c9483dbf-4f80-11f0-9c18-005056ab1411;
-	Sun, 22 Jun 2025 17:51:40 +0200 (CEST)
-Message-ID: <00bb2e9d-cf47-489c-a881-81ab2edc2fe3@telfort.nl>
-Date: Sun, 22 Jun 2025 17:51:39 +0200
+	s=arc-20240116; t=1750628098; c=relaxed/simple;
+	bh=pmr7ZSA1uY3pi04U1CVlJ44pJyhkLIkhV9rCZiiSb7Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bC0f4OyVMMQ8jYUSYEP0s1IqgUIIa1bde88fs/qSNLzzZ/lGmktSitcNnSC+0+mKRKDxGto7OS24U9IJx3K2YknjT+dFudPfPmgt3QQXwEWjSd2nrEeZ/95rrgWLpN24DotwWQXMaOmm6tJxkMoNIU6INT/HaiCohU3XcAuIOMg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hacktivis.me; spf=pass smtp.mailfrom=hacktivis.me; arc=none smtp.client-ip=138.201.117.120
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hacktivis.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hacktivis.me
+Received: 
+	by cloudsdale.the-delta.net.eu.org (OpenSMTPD) with ESMTP id b01b6c41;
+	Sun, 22 Jun 2025 21:34:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed; d=hacktivis.me; h=date
+	:from:to:cc:message-id:references:mime-version:content-type
+	:in-reply-to; s=20241213_132553; bh=pmr7ZSA1uY3pi04U1CVlJ44pJyhk
+	LIkhV9rCZiiSb7Q=; b=m4GtAG+E/DSsPBpISVpiE2jbWhwZrhXHc9TMkumit3d8
+	W4aAmFXLKKb7tXGBOf4zxExpiJFdovjj0y1eMNzkRxa1mMvLRMiT11+kSFBx33wO
+	AYuFVvb9OF4XErZN5eZ9YiBpfYeYdg86NdL1jdy/mK0yd5wm4HpCfs6CqsPib8Ng
+	kLmFN/J49Q0nxplW0QNrfWUASafmSEg3mTqxfSkANFLfsgv55HEpexNhBPtF97V7
+	uekIHyD8TP+oUk/LsUUKbEZlj8bMsHEVTWZM53EiftsGQTsSJgrFiDTFmVlk4pTP
+	bNhv6mk2admRnfiFoxtReTqePfrXwUeSeq7ZRIBvEcUtEChC7a70RlcjqTxicVix
+	0OMopUPi11mgvHEQx1AIHpjDoxzr+ddiNQfAV8dfhGyjqoqz8Rddqr9ldtV0dycZ
+	RYRmbohqr7KRwzH5WiWV7Q1Bn4LUV+teU1QY58ihC+WPZ/Nj3ylnwIyXcmwg4hwh
+	dQnCQGUc4zDut871qs4ap8TJC9+qSRXFI+Hk9p9aw5dJHSk6E1hA5HfjI9dxiiKd
+	b+/89uzPdjRgiqV0KBlM08ANd+I4qVlPmEYnDl3rYDkvBBk1y3yAKIzxO17wLr6g
+	EN2y6+t6T/Pbr/oJsiZKc6rWsnKwVdyuN8g88/aPkaKB59urc3xUGYUImJqAWJ8=
+DomainKey-Signature: a=rsa-sha1; c=nofws; d=hacktivis.me; h=date:from:to
+	:cc:message-id:references:mime-version:content-type:in-reply-to;
+	 q=dns; s=20241213_132553; b=wOKkps/qPFbb3QqCyK45y8rgplgFFGA4m3M
+	buui3qCh6UpbL2iOsWjKdjsWgWQjH6Bqhpe+kyS8R9Cm9CcG0naZb84cQtRPJPou
+	FEheKS6ZvmoiiDDCNoAgad63qogfISH/c1Pg7TPPfTEKZSuklZFRZ8rCGDKVENld
+	En0XBlPmEe4HCi29P4l7E/c9GOr0y1MIOnU1cHUqNyuXgD2KoctP+cobHZRZAFUH
+	R/ZghCIRwgFQsNzF7B2a/E/NZaw5hwSlkZdCjaIAm+mcoBHP2M+EJQVqcZaU5L/j
+	UXeLmZovo7o7BQj7m1uYtTpKJMBBaa1hfnZWwVhmXOqgoDr8LBnX5YfAZeKeHGLv
+	Kgq3JCDenD4JRLBmUsymTVLpHfsewzjabYOkm8lafycEg0P4ZEZ6DuLpjfIeD8T1
+	1gsmcd2zkbKJKJ2q3MQzBL9YocA8TBZKaffmcSx3dI0zLQCUCQj28fhIK+1NKpS2
+	PNOqukgOrNpyIY1eyKHBNYsYyvguT3m3G+WBdAjJRZVelZTSOThnHuxL+613a6Bp
+	10HIAfO93X4BnnGpNJtzb3kqThVcLdxQ282bmrXsjCddfQLZwlzfIsa2xqwRVgQS
+	5IFNXN7/VhuQ3p6z8QebAnvVg2s18cycpC9EaYbsT8zxTC3QwSgm9jpA5ipbJPI1
+	NkUqtEDY=
+Received: from localhost (cloudsdale.the-delta.net.eu.org [local])
+	by cloudsdale.the-delta.net.eu.org (OpenSMTPD) with ESMTPA id 6a73dbe1;
+	Sun, 22 Jun 2025 21:34:47 +0000 (UTC)
+Date: Sun, 22 Jun 2025 23:34:47 +0200
+From: "Haelwenn (lanodan) Monnier" <contact@hacktivis.me>
+To: Nuno Silva <nunojsilva@ist.utl.pt>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] rename: change "expression" to "original"
+Message-ID: <aFh298w6_1gLVs3a@cloudsdale.the-delta.net.eu.org>
+References: <20250621232642.17613-2-contact@hacktivis.me>
+ <87cyawp26b.fsf@ist.utl.pt>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] rename: change "expression" to "original"
-To: util-linux@vger.kernel.org
-References: <20250621232642.17613-2-contact@hacktivis.me>
-Content-Language: en-US, nl-NL, es-ES
-From: Benno Schulenberg <bensberg@telfort.nl>
-Autocrypt: addr=bensberg@telfort.nl; keydata=
- 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 50GA
-Cc: "Haelwenn (lanodan) Monnier" <contact@hacktivis.me>
-In-Reply-To: <20250621232642.17613-2-contact@hacktivis.me>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------a7zyLzWidJ8RtZOqneI1DMya"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <87cyawp26b.fsf@ist.utl.pt>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------a7zyLzWidJ8RtZOqneI1DMya
-Content-Type: multipart/mixed; boundary="------------v3gWABH8b0jO7Twu0B74wIle";
- protected-headers="v1"
-From: Benno Schulenberg <bensberg@telfort.nl>
-To: util-linux@vger.kernel.org
-Cc: "Haelwenn (lanodan) Monnier" <contact@hacktivis.me>
-Message-ID: <00bb2e9d-cf47-489c-a881-81ab2edc2fe3@telfort.nl>
-Subject: Re: [PATCH] rename: change "expression" to "original"
-References: <20250621232642.17613-2-contact@hacktivis.me>
-In-Reply-To: <20250621232642.17613-2-contact@hacktivis.me>
+[2025-06-22 10:23:12+0100] Nuno Silva:
+>(Resending via mail only because the mailing list post with Cc hit an
+>issue with Gmane, but was successfully delivered to the list.)
 
---------------v3gWABH8b0jO7Twu0B74wIle
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Ack, CC'd back the mailing-list so trail isn't lost
 
-DQpPcCAyMi0wNi0yMDI1IG9tIDAxOjI2IHNjaHJlZWYgSGFlbHdlbm4gKGxhbm9kYW4pIE1v
-bm5pZXI6DQo+ICAgPT0gU1lOT1BTSVMNCj4gICANCj4gLSpyZW5hbWUqIFtvcHRpb25zXSBf
-ZXhwcmVzc2lvbiByZXBsYWNlbWVudCBmaWxlXy4uLg0KPiArKnJlbmFtZSogW29wdGlvbnNd
-IF9vcmlnaW5hbCByZXBsYWNlbWVudCBmaWxlXy4uLg0KPiAgIA0KPiAgID09IERFU0NSSVBU
-SU9ODQo+ICAgDQo+IC0qcmVuYW1lKiB3aWxsIHJlbmFtZSB0aGUgc3BlY2lmaWVkIGZpbGVz
-IGJ5IHJlcGxhY2luZyB0aGUgZmlyc3Qgb2NjdXJyZW5jZSBvZiBfZXhwcmVzc2lvbl8gaW4g
-dGhlaXIgbmFtZSBieSBfcmVwbGFjZW1lbnRfLg0KPiArKnJlbmFtZSogd2lsbCByZW5hbWUg
-dGhlIHNwZWNpZmllZCBmaWxlcyBieSByZXBsYWNpbmcgdGhlIGZpcnN0IG9jY3VycmVuY2Ug
-b2YgdGhlIF9vcmlnaW5hbF8gc3Vic3RyaW5nIGluIHRoZWlyIG5hbWUgYnkgX3JlcGxhY2Vt
-ZW50Xy4NCg0KSW5zdGVhZCBvZiB1c2luZyB0aGUgd29yZCAib3JpZ2luYWwiICh3aGVyZSBJ
-IHdvdWxkIGZpcnN0IHRoaW5rOiBvcmlnaW5hbA0Kd2hhdD8pLCB3aHkgbm90IHVzZSAic3Vi
-c3RyaW5nIj8gIEl0IGRlc2NyaWJlcyB3aGF0IHRoZSB0aGluZyBhY3R1YWxseSBpcywNCmFu
-ZCBmaXRzIGJldHRlciBpbiB0aGUgcmVzdCBvZiB0aGUgZXhpc3Rpbmcgd29yZGluZy4NCg0K
-DQpCZW5ubw0KDQo=
+>On 2025-06-22, Haelwenn (lanodan) Monnier wrote:
+>
+>> As rename(1) doesn't uses an expression (like regex or glob) but
+>> rather a substring.
+>[...]
+>> -*rename* [options] _expression replacement file_...
+>> +*rename* [options] _original replacement file_...
+>[...]
+>
+>Oh. I was aware of there being at least two different "rename" utilities
+>on Linux systems, this one from util-linux and a perl-based one using
+>regexes, but I hadn't noticed this wording in the online manual and
+>usage output.
+>
+>Yes, this change probably helps telling it apart from the perl-based
+>rename.
+>
+>(I don't recall what made confusion more prone in the case of this
+>utility, was it that some distributions installed the perl one as
+>"rename"?)
 
---------------v3gWABH8b0jO7Twu0B74wIle--
+I know FreeBSD rename(1) is the perl one, and it seems like Debian
+changed perl rename from `rename` to `file-rename` in bookworm:
+Before: https://packages.debian.org/bullseye/rename
+After: https://packages.debian.org/bookworm/rename
 
---------------a7zyLzWidJ8RtZOqneI1DMya
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+And has util-linux rename as `rename.ul`: https://packages.debian.org/bookworm/amd64/util-linux/filelist
 
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmhYJosFAwAAAAAACgkQUUu+Lrjhlh/N
-xQ/8DZShLutziYlUw/NDk/mJ/PmdkXBrDaBKttqF5Rqusk7dqMCIlYsDCVCaG0B/a5TOZe5UqFoh
-reHb5xZoUh9iioqAa+ML15+IIAricgkLgCrPZCBE4gowpdW7zOleDyYSNtZ6YYOUX82DUDBHQMJg
-RFBi6rjR+8tDjZXK3MP2KVH6h0zTcJWvpqDG0uUyUL70Y2+mDuK04Kn2HlxuCfh1QRD5UPWVaoVz
-LbJAJ8vcBqJnncDxOn/ffYsLmdQe1xC903wx832Z4PnEPf/vtiCce8qf24GaNCjg7NydDe5cmuMC
-jSdTya8cOdbpmKAFQoqPexbvcj3O+3fNrCAHmXoyHak6dZ7Ba3uFWlJFN/x01RHWXjkLZgo9ZVoo
-ZCkma3opIGg0Es1k1Fx24vDOY9Bvq4XZ86wfb+ZWNh/df+G8w3u0YqKuVZfTT8c2IqMV606+1UaE
-qZq3XZ4a61fEazMtYmGjc3CsOhg64NOER0ADx9EV3ND4Ir6Itogs9KbMIkfboFmifQgT/iNzunBQ
-X359m+4ly9l2jtLsKU4yCkwF0P8O9AJKVvzUSjxMhl6AhfhKkxeASNJeiggEFNDUmEnbIDi1S0Ij
-GS/cEsA0GLIH+3dddER26Nplx1PjW/BNtySClgYBq9l6IVq9V3faGz0H8z0RngJPUkRKvePYxL0T
-IqY=
-=/ajW
------END PGP SIGNATURE-----
-
---------------a7zyLzWidJ8RtZOqneI1DMya--
+Best regards
