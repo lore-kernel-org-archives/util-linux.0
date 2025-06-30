@@ -1,48 +1,48 @@
 Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.167])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47BBC23F40A
-	for <util-linux@vger.kernel.org>; Mon, 30 Jun 2025 08:41:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BBD8242D6C
+	for <util-linux@vger.kernel.org>; Mon, 30 Jun 2025 08:41:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.167
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751272895; cv=none; b=U5z/ewHdCEbi0J2BB5EVqJ0P224w5sWVU74yY6yoDEPP0aY07FdQ1rVbRIY48uzd7V9k4iFJOPuYLo2Wl9XX+r31b5jjmM+Rr1fnThQcZKiSx4oXJFkD/PBNanNNoh2xy/HS3iY+v5pOjmIZn+KR3GNEKdQSrJi5Sw9lgx0XrVM=
+	t=1751272897; cv=none; b=Bkm+y78WQxJGe+/OBZbwNDuGx5PfYn6gCSf60nopiYIWZJbMu0LHigJoWj7dsej6vwTojaI2WxGZM4QQNy/QEkKCeyGVXCPVQNKOkhJxsUY+DlYPEQFI6brtRLYDXtW+Vna7U7L29V4bfr1B1IDxAcCTFPxRPytpr+w8Jha5Z7I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751272895; c=relaxed/simple;
-	bh=2Y7Bd+kVzHdYvcQcltM1YnI7dmBRJBwPggCcChzPS1w=;
+	s=arc-20240116; t=1751272897; c=relaxed/simple;
+	bh=8Wy6AZGMbEAdfUKIqmU0ErxoH2mgnRE/FrovbbxYCZs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=G2sX3LiGs7e38BvRtu9T7iysHQWkIJXsmwbuEe/mRv/UpZVoXj8cL8QkRGuDXx3x5/AMBlMvVXNePpfsJhdMJTE6VBkI2JVRFLycy8eptgt1EzfW8Zw8UFz5prbDxYzOAe504ZiUWKoto3KLY2tsFmbF+GQIghzFvBHyrRS8bdQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=nvDt9RFf; arc=none smtp.client-ip=195.121.94.167
+	 MIME-Version:Content-Type; b=nxgW3WLwJbo8rsHPFWbrx/Fyj1iulSRiGK2hzx/HVnpfwEJuAk9YVz0tYp3aRWGoAYyxNpLrpdoatc8JxrYkwJgbJo7+mr3Z8WkTOAHrRxS6zVpoNj8HOz47ZOZvze+jZQlW6noX5PlPuDh/KMCh0BKyvEvhVQjgHEOTemLl/4w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=g4CsN8SV; arc=none smtp.client-ip=195.121.94.167
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="nvDt9RFf"
-X-KPN-MessageId: 33227e5b-558e-11f0-b9a4-005056abbe64
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="g4CsN8SV"
+X-KPN-MessageId: 376b8f44-558e-11f0-b9a4-005056abbe64
 Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 33227e5b-558e-11f0-b9a4-005056abbe64;
-	Mon, 30 Jun 2025 10:42:48 +0200 (CEST)
+	id 376b8f44-558e-11f0-b9a4-005056abbe64;
+	Mon, 30 Jun 2025 10:42:55 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=content-type:mime-version:message-id:date:subject:to:from;
-	bh=FPwL9wjzbA1SlWXPowrIsct9WlTdbv1VEc5BLfNBLYQ=;
-	b=nvDt9RFflsjCKVe4+X4VrrjIeLeLzat27o42h26K8MTWlwOEO6tGDO9R3aBNhN982RAnoqE5axCXq
-	 9KyZVRxcZPuhnng6Fu5Xvdrm1PMgm/amrAFE+Q+ig3ik26pHdF4GTZ3dU0bSNU5qTMvGAYmz0MrcuH
-	 YyFsjCAH+Og5RbZ0=
-X-KPN-MID: 33|9jYFC4yE+WVw67SZLDd1nIV/mysDK3jTF+EYqc/eCCuNZu3zsfy07rfwb3PWWrq
- t6NmE8qm1tK8YLcCEmBU+Bt2w/KARTpWVew85jhbBkUU=
+	bh=MdBzC2g5DeSYQ1uvPX/ODycJZWSC8wCkMl5a3PDqdgw=;
+	b=g4CsN8SVb9ZNX177LejKYdKr0Qvabqs/C/P4atPySMFFm/rvHO7ooOacMkTlvbRypuyqwHhSRRrut
+	 8y6h4OgJtD2YgFS3PCEDsKffyfZSJtxhj2hvoxoUx5PGSeee9LfZRVLAHO+peRBUurn/VPxSdHY2AU
+	 oqEEXprfSeSt13UM=
+X-KPN-MID: 33|9oWmBqab7/iXMMl8ZRNsBDnfJJ+zMsDFa3STdTnK6Ehm9aQXb2m3luQmCZKvlBo
+ Bj9QAKgLXEjfBNfV+SfOsa/lPpv7b7wk9D6Dp8ittQZI=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|M1ny7SoojRKIujRxgZjJTw/8mIK2r+DKt0VifKe55mqTYWdPSzJkcSOD/s1BR8U
- w0zsWdY8BvrrPZ4ChZXasZg==
+X-CMASSUN: 33|0XI6qyxrJpFsnUu1E2rj/7Fv1jrJPfQrb6tjA38U0MLItPe0s33FMqznYsRWQdh
+ HQ/oIrSUJ2aPeXq07LJu/xQ==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 024598e6-558e-11f0-95b7-005056abf0db;
-	Mon, 30 Jun 2025 10:41:26 +0200 (CEST)
+	id 06911d84-558e-11f0-95b7-005056abf0db;
+	Mon, 30 Jun 2025 10:41:33 +0200 (CEST)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
 Cc: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
-Subject: [PATCH 3/4] chrt: simplify the other check for too few arguments
-Date: Mon, 30 Jun 2025 10:40:49 +0200
-Message-ID: <20250630084052.11041-3-bensberg@telfort.nl>
+Subject: [PATCH 4/4] chrt: do not try to interpret any other option as a PID either
+Date: Mon, 30 Jun 2025 10:40:50 +0200
+Message-ID: <20250630084052.11041-4-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250630084052.11041-1-bensberg@telfort.nl>
 References: <20250630084052.11041-1-bensberg@telfort.nl>
@@ -55,52 +55,76 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Without option --pid, always at least two arguments are needed:
-the <priority> value and a <command>.  (The 'need_prio' variable
-is relevant only for the --pid case.)
+When doing, for example, `chrt --pid --max`, it would report:
 
-Also, make the error message more informative, and do not annoyingly
-suggest that the user try `chrt --help`.
+  chrt: invalid PID argument: '--max'
+
+This mistakenly gave the impression that the PID argument has to follow
+directly after the --pid option.
+
+Avoid this by delaying the parsing of a PID until after all options have
+been parsed.  Temporarily set 'ctl->pid' to zero to indicate that a PID
+needs to be read.
+
+After this change, `chrt --pid --max` will simply report the minimum and
+maximum valid priorities.  And `chrt --pid -v`:
+
+  chrt: too few arguments
+
+Also, add a missing call of gettext() for the other error message.
 
 CC: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- schedutils/chrt.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ schedutils/chrt.c | 24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
 diff --git a/schedutils/chrt.c b/schedutils/chrt.c
-index 8ed4d69f3..f5ecae6e1 100644
+index f5ecae6e1..f358bb273 100644
 --- a/schedutils/chrt.c
 +++ b/schedutils/chrt.c
-@@ -507,11 +507,8 @@ int main(int argc, char **argv)
+@@ -474,11 +474,7 @@ int main(int argc, char **argv)
+ 			policy_given = true;
+ 			break;
+ 		case 'p':
+-			if (argc - optind == 0)
+-				errx(EXIT_FAILURE, _("too few arguments"));
+-			errno = 0;
+-			/* strtopid_or_err() is not suitable here; 0 can be passed.*/
+-			ctl->pid = strtos32_or_err(argv[argc - 1], _("invalid PID argument"));
++			ctl->pid = 0;  /* indicate that a PID is expected */
+ 			break;
+ 		case 'r':
+ 			ctl->policy = SCHED_RR;
+@@ -507,18 +503,20 @@ int main(int argc, char **argv)
  		}
  	}
  
--	if (((ctl->pid > -1) && argc - optind < (need_prio ? 1 : 0)) ||
--	    ((ctl->pid == -1) && argc - optind < (need_prio ? 2 : 1))) {
--		warnx(_("bad usage"));
--		errtryhelp(EXIT_FAILURE);
--	}
-+	if (argc - optind < (ctl->pid > -1 ? 1 : 2))
-+		errx(EXIT_FAILURE, _("too few arguments"));
+-	if (argc - optind < (ctl->pid > -1 ? 1 : 2))
++	if (argc - optind < (ctl->pid == 0 ? 1 : 2))
+ 		errx(EXIT_FAILURE, _("too few arguments"));
  
- 	/* pid exists but priority not given */
- 	if (ctl->pid > -1 && argc - optind == 1) {
-@@ -530,11 +527,10 @@ int main(int argc, char **argv)
- 	if (ctl->verbose)
- 		show_sched_info(ctl);
- 
--	errno = 0;
--
--	if (need_prio || argc - optind > 1)
-+	if (argc - optind > 1) {
+-	/* pid exists but priority not given */
+-	if (ctl->pid > -1 && argc - optind == 1) {
+-		/* Error if priority is missing for a policy that requires it */
+-		if (policy_given && need_prio)
+-			errx(EXIT_FAILURE, ("policy %s requires a priority argument"),
++	/* If option --pid was given, parse the very last argument as a PID. */
++	if (ctl->pid == 0) {
++		if (need_prio && argc - optind < 2)
++			errx(EXIT_FAILURE, _("policy %s requires a priority argument"),
+ 						get_policy_name(ctl->policy));
 +		errno = 0;
- 		ctl->priority = strtos32_or_err(argv[optind], _("invalid priority argument"));
--	else
-+	} else
- 		ctl->priority = 0;
++		/* strtopid_or_err() is not suitable here, as 0 can be passed. */
++		ctl->pid = strtos32_or_err(argv[argc - 1], _("invalid PID argument"));
  
- 	if (ctl->runtime && !supports_runtime_param(ctl->policy))
+-		/* If no policy specified, show current settings */
+-		if (!policy_given) {
++		/* If no policy nor priority was given, show current settings. */
++		if (!policy_given && argc - optind == 1) {
+ 			show_sched_info(ctl);
+ 			return EXIT_SUCCESS;
+ 		}
 -- 
 
 Dobjátok a Dunába a kis diktátort.
