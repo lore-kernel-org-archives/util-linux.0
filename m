@@ -1,53 +1,53 @@
-Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 818B61487E9
-	for <util-linux@vger.kernel.org>; Mon, 30 Jun 2025 18:28:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C83782E7199
+	for <util-linux@vger.kernel.org>; Mon, 30 Jun 2025 19:00:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751308130; cv=none; b=Ci026B34+LpSD6W3vyVSWfhbCa98Zox+3vyYVjvWNziLtGKBhWlCYmNz79RL/uaV1FMjfgW7Ia9w5ZYieIfTdBeDu7UNxqTdYnfZksMw5QrDzz0649MI5/eHR8eI3+ELvaksR89/QxDAJwXA3IqMniPCiBqpIOiYTk5H6HV3K68=
+	t=1751310014; cv=none; b=l3hq72XvSnnoX5s+dlWM7FQpoJjdAFzZMOxqckkpW/2qcYjFH/ge64loPwPQuA4ib8JaW3q7KP7WJSkdKJGbHN86ETfsRNLFGdKUpgk231/kctfFY29Y++/cvOL682ZuUoVX/+jXgNrk7WEXtSRvMqe0w7wrMG6ClCDjYB2uW7U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751308130; c=relaxed/simple;
-	bh=1ftLnuTRP0sRwdW37HR9itO6RGLfnP6OLcBNQjYWrOA=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=AJJLCyCNFoH8Oev1QnyZgRDe+gKS24ogGv5j133/XhHxVUJuoGXTI9BDUICTL2WgvqtZLq20THOiG3XrYeVBtBjXoZgj5YyvR+Bj6TkmMFlajIhdjkrZ8YfkR+Qb38CfcTHdbSWIPdJ2B6GgGNE4fe8+KspFyRIJJOm6/X3hNSs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=YKDg9g9c; arc=none smtp.client-ip=209.85.208.49
+	s=arc-20240116; t=1751310014; c=relaxed/simple;
+	bh=vszTmDEIu7cyqATsIQtXwm8giFegD3pLx+Ra6BI38eQ=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=Mi0DH3lu9CluRU4K6eQ1XeRyXcfujf4A4Tca0/0JDrbjgHqPJEVzwwMyxq1YQeHf0HvnOzHeleQkkEViz/4j4bqYFfAzpGfrX3Mj2z1eezH89RXo147RZIFZlrmC46Zf03voIhUbQcNJAJSo+AiGNwBgOck4/0BpOnRFu2BKRpA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=pfq3ywd7; arc=none smtp.client-ip=209.85.208.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="YKDg9g9c"
-Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-60b86fc4b47so1363a12.1
-        for <util-linux@vger.kernel.org>; Mon, 30 Jun 2025 11:28:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="pfq3ywd7"
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-6098ef283f0so2140a12.0
+        for <util-linux@vger.kernel.org>; Mon, 30 Jun 2025 12:00:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1751308126; x=1751912926; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1751310007; x=1751914807; darn=vger.kernel.org;
         h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=nrfae+RyHx3DkLVTle8nImW+3VaDfe18ndExYhzNi1I=;
-        b=YKDg9g9ciblShJ4FtbUAEc+L7GjzqNzNNUyy7HITur5ONQYMwFWpBddoL0rDDrxF7S
-         Ky4Npnz6W73stPvli9HxQMbb36lYmnzlX8NXerUe3JXoUt8osiSlkt9DgWQ47gn2O5Aw
-         2LF0jMRkCOC9SnI5ydcOjw5KXLfjHTkWhqp4g5sfDgHpccV4YWToQ9SQApzaN152XLcc
-         qPRPmW9pa/QpNJhSVv1jPuBixhiOK0BEGhOOtMC/hOTHE6OmpXV1TaxVPL1vwYFeSR2U
-         MEVGI9ffNb6J7eg9GXe7yy0XUGPojjrsFV2m4VNQmOzUYTpf1J1Bvq3qFq3LsqahMbsY
-         duHg==
+        bh=IM9y/K2x85NTxS/USIICnUASxaygyr+Jh9y09Ep4cwU=;
+        b=pfq3ywd72nR74UZ3P/MrMG5OX+7+XTGbPQoBSzyWt1oA7GO60Pe0YjCdiWbGhy5xqk
+         r+xsQmGF1jpRnusTuIgXi+WuezZFQ7JaRno+sDw5Sy9MELvGtjUxYxGbutbSFIujR6aj
+         c8DsGleD5j2i2EbPK7mmJsS9ZeI/+Acw0wY+Gxu9ik+lWytS7huk1mManIE7fdvqNVw1
+         Wz6xpDmAwmjp3lkKt6Gc8e9l23YgIL68HmmU6cHhDqT+oweONRvVOvsW5Lj0QHL9Kiza
+         FmbAvGQVmAuKuZyw99iDxJnTDGfd7K2eMdizNBlMuI/wYIbhwTk7ykC8cLcRL8mmogzF
+         q3xQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751308126; x=1751912926;
+        d=1e100.net; s=20230601; t=1751310007; x=1751914807;
         h=to:subject:message-id:date:from:mime-version:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=nrfae+RyHx3DkLVTle8nImW+3VaDfe18ndExYhzNi1I=;
-        b=wJpn6lz8T8lGAJQevSKgQh6fCInSwo1WdNGU1bNDwlOFEXU/xSHuwOji9p9GxEtU2j
-         l7gVnQdW2Y6LNvXc/Io5KJvN8zP8M9wPbgYY/aU7ULU3rKcR0GOW1vJDulzL2ay3Vyt0
-         4nVMr5cYkwGnsLNk+3PFnc1/XkWhePQZ5UiA18axGOsYS9R0eLgMPwDpSSvbNdtu6ULI
-         PH0mewQNyYZTUZKvwdkojY0gEmlpy5xqUAGoTE944nNDtCak78p38Xwudj13BIXt01lE
-         HxWd/CJuE8P6yKoStvF3DSTt4LKLS9daAULGYzCLlZlO5waAStQqLSn433kNRqtHsGfR
-         eYWg==
-X-Gm-Message-State: AOJu0YxFr+6ZIUTjyNhnK19E6MImbFJMCSkTVQ1cq+uXyTBkn7mGC9nK
-	/Ecd5l0ToWDbX4iAVw7O46yreDwYvoVMFOxK8ZtO3EVnSuDNHSD0PdEokjB176UGOwydMIUYs3o
-	+siT99ijauk0sDz7oH5+sixyUZOHlWWseRsWsGcX5A5aC4tyoL5wEtwPGjRw=
-X-Gm-Gg: ASbGncscgSTkceidSXFVDPNNgL3rLDKzb6CrHZUPs2/HFHzXLaN22W5kjHED2LWW9q0
-	fnOluyAJQ8QsAeaNELE+S0ZsFhZDOxLcO4v0fIa52n6vt3Xb7My5SGZPEUEAiO03RlIKDObmzC4
-	lBX60Ltyxq/9DGZAc2zDiHVoxv7If2bMnWQaBH4LLtxx0=
-X-Google-Smtp-Source: AGHT+IEuk/ih/llgKEa8nzT1zyJYYSNBsE+2ecCqT4AeD5fQj/ALEZhzD62Bbi7IdWOQEsB6O0LOrlTBN1Z0rH96naw=
-X-Received: by 2002:a05:6402:17d5:b0:609:99a7:efdb with SMTP id
- 4fb4d7f45d1cf-60e33326819mr7587a12.2.1751308126191; Mon, 30 Jun 2025 11:28:46
+        bh=IM9y/K2x85NTxS/USIICnUASxaygyr+Jh9y09Ep4cwU=;
+        b=hiPrJriigSL/DyrJIxRQTx2y79gpk0VLD5cpDycUVFWwiIHfR26EnHputMxYTvyMnk
+         XYRaAQP3UYpGUsjU6UW1juhJ8DLbQKLUWENlum6LhmFf5ruv+bZvufW69htJ0L7kIGdO
+         vCiAMuaCCZ6fg6flJufpeznGCWrJPw3n34UC5nBAwufctUuILWNEcST3ABVEasVyWrBP
+         ZXGlC8HN85FSoCdvFLM2v+CbcwiQtPHHV45b4z9P0AjOMP9A3spOu7TTNX/oi4UJoO2L
+         2KVDlKBZNDRH4+Y8Cp5tU+jCmp6ZManeUfuPRDuP7lWAHxW5CQiVrV2nn9Ps5XkSj1dv
+         8MzQ==
+X-Gm-Message-State: AOJu0Yy3Bke99oE7wM5bRpOsturqut74qXtyeq8RCpf8CBTjzk77iNim
+	brMS3EmfyNM3kMLuKvJPLvVpSGFA7jG7OsqUOvphJT8ehCwDZf+VT6zLllwTf1f7L3XKqkz5gbp
+	dWIG06UMhu5qKh1WrhS1F6UKcWwfSe8Dxa+PwWm4Ctf5u4XFQJ20uXPvxWT8=
+X-Gm-Gg: ASbGnctBvIbHrX7zLTWCKl2C5PvDMb3abkMpBJ8yGcLJUdcAvpbs4xRvoNk5gfAEpzH
+	mQkhT/H34MAasye/EDjshruNtYLAgohEcrRjCaB1vQHJAg5s7aH7fB8mSaLFIddaFoD7Q9Y8e5Z
+	QVvP9IFQ/8Mfw+nP/gjJr8g730IqVuGk1J8rLPdDZY/MNEkdnXBo4fyg==
+X-Google-Smtp-Source: AGHT+IEeNssRc4jRRTa6P9rmEPh+VM9TXPsTRVDirXVYaQLFe+ldU/553xjjaarPCp4ovJKUqKR82HbSlP3cIXMzahU=
+X-Received: by 2002:a50:9343:0:b0:607:d206:7657 with SMTP id
+ 4fb4d7f45d1cf-60e33366f07mr7755a12.2.1751310006402; Mon, 30 Jun 2025 12:00:06
  -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
@@ -56,81 +56,54 @@ List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 From: Jesse Rosenstock <jmr@google.com>
-Date: Mon, 30 Jun 2025 20:28:34 +0200
-X-Gm-Features: Ac12FXzTxewenuttCz0IB3pmzgCQOP4213bzBEkHviQHK9PZs-pqM1qSLPxiKw4
-Message-ID: <CAMZQ0rJXkMMkyWfLW8y6cTsrpoELoCM4emjg7Aex2vxQ2RFhBA@mail.gmail.com>
-Subject: [PATCH] taskset: Accept 0 pid for current process
+Date: Mon, 30 Jun 2025 20:59:55 +0200
+X-Gm-Features: Ac12FXwHo09RQYivLgPMWKpc6qSAmGdTXw7nssRmP02EfR0IXe6NQfRgl8QS6YM
+Message-ID: <CAMZQ0rKb4J1LqtQ_vYbCi7sBvD9pp-jQpcmwzeY2y=vFDCLgPw@mail.gmail.com>
+Subject: [PATCH] man: Replace RETURN VALUE with EXIT STATUS in section 1
 To: util-linux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 
-This is useful to print the current mask without using `$$`: `taskset -p 0`.
+According to man-pages(7), sections 1 and 8 should normally use
+EXIT STATUS, while sections 2 and 3 should use RETURN VALUE.
 
-It is also helpful to test taskset: `taskset -c 1-4 taskset -p 0`.
-This is not easy with `$$`.
+https://man7.org/linux/man-pages/man7/man-pages.7.html
 
-sched_setaffinity(2)/sched_getaffinity(2) accept 0 for the calling
-thread, so this seems consistent.
-
-As an implementation detail, we replace 0 with getpid(), so the existing
-pid != 0 <==> "will exec" logic continues to work unchanged.
-
-A reasonable alternative would be to interpret just `taskset` (currently
-an error) as printing the current mask.  This seems less orthogonal,
-and a better use may be found for plain `taskset` in the future.
-
-https://github.com/util-linux/util-linux/pull/3637
+https://github.com/util-linux/util-linux/pull/3638
 
 Signed-off-by: Jesse Rosenstock <jmr@google.com>
 ---
- schedutils/taskset.1.adoc |  8 ++++++++
- schedutils/taskset.c      | 10 +++++++++-
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ schedutils/coresched.1.adoc | 2 +-
+ schedutils/taskset.1.adoc   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/schedutils/coresched.1.adoc b/schedutils/coresched.1.adoc
+index 997b6ab36e..483fff9929 100644
+--- a/schedutils/coresched.1.adoc
++++ b/schedutils/coresched.1.adoc
+@@ -96,7 +96,7 @@
+ Retrieving or modifying the core scheduling cookie of a process
+requires *PTRACE_MODE_READ_REALCREDS* ptrace access to that process.
+ See the section "Ptrace access mode checking" in *ptrace*(2) for more
+information.
+
+-== RETURN VALUE
++== EXIT STATUS
+ On success, *{command}* returns 0.
+ If *{command}* fails, it will print an error and return 1.
 
 diff --git a/schedutils/taskset.1.adoc b/schedutils/taskset.1.adoc
-index 9773303f73..ebd9fdafe8 100644
+index 9773303f73..9384347372 100644
 --- a/schedutils/taskset.1.adoc
 +++ b/schedutils/taskset.1.adoc
-@@ -77,6 +77,7 @@
+@@ -106,7 +106,7 @@
 
- *-p*, *--pid*::
- Operate on an existing PID and do not launch a new task.
-+If PID is zero, then operate on the *taskset* process.
+ A user can change the CPU affinity of a process belonging to the same
+user. A user must possess *CAP_SYS_NICE* to change the CPU affinity of
+a process belonging to another user. A user can retrieve the affinity
+mask of any process.
 
- include::man-common/help-version.adoc[]
+-== RETURN VALUE
++== EXIT STATUS
 
-@@ -134,6 +135,13 @@
- $ echo $? +
- 1 +
-
-+== EXAMPLES
-+
-+Print the current CPU affinity.
-+
-+$ taskset -pc 0 +
-+pid 1355988's current affinity list: 0-47 +
-+
- == AUTHORS
-
- Written by Robert M. Love.
-diff --git a/schedutils/taskset.c b/schedutils/taskset.c
-index b52cd4338b..40ccbb7342 100644
---- a/schedutils/taskset.c
-+++ b/schedutils/taskset.c
-@@ -186,7 +186,15 @@
-                        all_tasks = 1;
-                        break;
-                case 'p':
--                       pid = strtopid_or_err(argv[argc - 1],
-_("invalid PID argument"));
-+                       // Like strtopid_or_err() but accept 0 for this process,
-+                       // like sched_getaffinity()/sched_setaffinity() do.
-+                       pid = (pid_t) str2num_or_err(
-+                               argv[argc - 1], 10, _("invalid PID argument"),
-+                               0, SINT_MAX(pid_t));
-+                       if (pid == 0)
-+                               pid = getpid();
-+                       // After this point, pid == 0 means "no pid" and that
-+                       // we will exec a command.
-                        break;
-                case 'c':
-                        ts.use_list = 1;
+ *taskset* returns 0 in its affinity-getting mode as long as the
+provided PID exists.
