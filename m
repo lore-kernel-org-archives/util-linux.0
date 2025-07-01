@@ -1,60 +1,60 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D60A9A47
-	for <util-linux@vger.kernel.org>; Tue,  1 Jul 2025 05:17:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85B34A47
+	for <util-linux@vger.kernel.org>; Tue,  1 Jul 2025 05:21:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751347023; cv=none; b=AH8V2tQl8LPr7/G1UguRM0WGUotu74sqZ0ii8lQOsr65NijCLn7ebwjiyJ5ppA4z9NZT3KPaY1YvOSdMMmwlK4udDDmOfCCjN9rSloEc24x4H3JeFN8WhYIomRKnS0GxaLv3d/Tjd7ZLpNyG2ve/oMhKHZE7iaHT62NdgYWgVGQ=
+	t=1751347289; cv=none; b=OkT+BLdHqmLDcPHzuaCIJR6XkDCFDky0ltfiVY3WB8dUuQnnT4W/DmE3fAVQc+nED0XoGzrBW7fXbkqrERo/mnrzD+tFWtyQsP98rf2ZWNMnsfq2hkcWrHer+A2H8EHqc08KvsPWgCXMxDjYZndJkcdn+pWl8pt/nrEB9KJajMg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751347023; c=relaxed/simple;
-	bh=HUkCxcHeicIUuY5lZhrqLRLSaDDbk920rVu4BmZUgjA=;
+	s=arc-20240116; t=1751347289; c=relaxed/simple;
+	bh=DWFKwzwmqtx7tPzVAaQjWa4QI8ENxfxrVxcC+H9OatQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:References:Cc:From:
-	 In-Reply-To:Content-Type; b=AM1andC2ry/fzsKWFg8eHbJE9ETDnREU38Of2q+6hd3xTYd+mUOgOka41z/ecB4vDR4J9wY7eH13HwlXUtgyeVuA019qNY8z57qDs89/DlY7TmzVmuZRxOzK1eHTmyCM/FpGsFYipVCFBAG/ZuoAaV9E+ndYJgMapJrBYtbyqNE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oFeol5F+; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=alqB7C8lki+j49jNN7VIG7X0Yp2upKo/kVFiW8Fbwvsyi2EgT8srzuUv9LEHi4c7dLLkOgndoiqsFP7R7EYFz+fjML8u3qV6WdVg9NUHKM3Uj15IW45+BOz1pBSGCGRJNi4UZdDfM9fnoWHNb6bH7XGUxTa636aOA9d40ZCqoSU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ef6hDWgl; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oFeol5F+"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55UM4cxa020501;
-	Tue, 1 Jul 2025 05:16:57 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ef6hDWgl"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55UKxn7C027370;
+	Tue, 1 Jul 2025 05:21:21 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=lSkE3/
-	UDRdZUv/0D+fD/+D0RtAhY2FkpFyCTAWwCAA0=; b=oFeol5F+gdsnrPtOsvpu92
-	HRcnbjz+IoKPpjaN1hAhXRXb1E+WKyDY7zReSCsJd4KZkwOTe+VvIYF0yETYxxcW
-	93u6SBm255oaDqdVXWAASOSzpf0iqC5jNiYnYthRaW+ghcZcUSLmnypKA4FVpexN
-	xftYWGH8H6giCRzitEPpFkuxmS6oOwSfPVZuHZWGvhgWi3PIO2FfuF2EIzvuaU0z
-	wLqgUp9JlYifmma6lmNlnz0Qe1PRE3biIUY+kYQYsjIj4bdvUA3bmVc+/8HUrOlu
-	Vd3REdoPYyRt+I9ohsnxPkh5QTuuyefIVr6lVG2EeTD2xW6lYHYj8ZayleY68sYQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=jZycCd
+	aouRLc9MWIHssqCXiEGNjr/TYRNv/iHMnkpts=; b=ef6hDWglw6/iXm72dZ6DpN
+	8GpvhPzqsCYa8/v7XpJA8BEps+tNu9ew/SCU7VenAPiQC2npPHD8lRe4wlLOANhr
+	tcK4mofT/joXV8OD/gGQWfoAETTVRw0Vf9ZqbGGAbJmr9Pw5UVWqAFWZauy9ID4P
+	5TM8d4hh5oT5D0JU9qEX79EcRLQzsMtMlk683v/t1I6vVZrq+DyTYMKutKL7MDOz
+	am9NIkXiWWVgBFVOQWai7zLdtLKAeRXfZ/FUOn4oirbctjPaj2AUVziv1SXAGPPz
+	6U8GtF/NxW2Cttn9xZ0VAY4/jYbyVYmDEWQaz6sBpBF4viYiMfB19r7QDGfFFY7g
 	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47j84d5dmr-1
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47j5tt5myc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Jul 2025 05:16:56 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 56136dVe021946;
-	Tue, 1 Jul 2025 05:16:55 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47juqph5bt-1
+	Tue, 01 Jul 2025 05:21:21 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5613r3vJ012054;
+	Tue, 1 Jul 2025 05:21:20 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47jv7ms2t6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Jul 2025 05:16:55 +0000
+	Tue, 01 Jul 2025 05:21:20 +0000
 Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5615Gsce64553314
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5615LJ3015532386
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 1 Jul 2025 05:16:54 GMT
+	Tue, 1 Jul 2025 05:21:19 GMT
 Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4B8E058056;
-	Tue,  1 Jul 2025 05:16:54 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id E84EA5805D;
+	Tue,  1 Jul 2025 05:21:18 +0000 (GMT)
 Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8CEB458052;
-	Tue,  1 Jul 2025 05:16:52 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 803E658052;
+	Tue,  1 Jul 2025 05:21:17 +0000 (GMT)
 Received: from [9.43.22.142] (unknown [9.43.22.142])
 	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  1 Jul 2025 05:16:52 +0000 (GMT)
-Message-ID: <4e545c8f-8e74-462f-8416-3c1cbde81b2e@linux.ibm.com>
-Date: Tue, 1 Jul 2025 10:46:51 +0530
+	Tue,  1 Jul 2025 05:21:17 +0000 (GMT)
+Message-ID: <500d8587-136f-46a9-b34e-ca4456f754a0@linux.ibm.com>
+Date: Tue, 1 Jul 2025 10:51:16 +0530
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -62,92 +62,115 @@ List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/4] chrt: simplify the other check for too few arguments
+Subject: Re: [PATCH 4/4] chrt: do not try to interpret any other option as a
+ PID either
 To: Benno Schulenberg <bensberg@telfort.nl>, util-linux@vger.kernel.org
 References: <20250630084052.11041-1-bensberg@telfort.nl>
- <20250630084052.11041-3-bensberg@telfort.nl>
+ <20250630084052.11041-4-bensberg@telfort.nl>
 Content-Language: en-US
 Cc: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
 From: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
-In-Reply-To: <20250630084052.11041-3-bensberg@telfort.nl>
+In-Reply-To: <20250630084052.11041-4-bensberg@telfort.nl>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: LFRpskgVYDDpVNzKvXAoN-eoSoHvB-jO
-X-Proofpoint-GUID: LFRpskgVYDDpVNzKvXAoN-eoSoHvB-jO
-X-Authority-Analysis: v=2.4 cv=Ib6HWXqa c=1 sm=1 tr=0 ts=68636f49 cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=IkcTkHD0fZMA:10 a=Wb1JkmetP80A:10 a=VnNF1IyMAAAA:8 a=MP4aM1IlAAAA:8 a=qL7rV15JnZKPzMrjhFUA:9 a=QEXdDO2ut3YA:10
- a=cNL50C5G4f5gRYKddA97:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzAxMDAyNSBTYWx0ZWRfX1QAX/eb6WVv3 JxQUNmPOqqD5UGpPqtbIimgXYLHFHojHu6NrkDDgtrRvHj2E/mKkXCms7DGH19YZ64L/ZkCzMuX fY9EwJHTnjzjYOXW+MzDt0VWw+/yM1coaJKywdK9sxXz4uIlqWwFnvhMmrnNiiflEYWOmZ4a5IH
- zkurmGgGn9aV6C6fxtRMYr+wIu0klnl47idZ7cRLsCAKTYceYtVFviOlQrR2Z4pLVj1xWRjeIZV PTvmN9Ml1kJqKMEn6ukmxh/7fxlAxlEYJ13SRVMLxjntOWST8/f+T7/CLBAY4QB7ksEPeZGvNEN rVr+OETp76HbDqA1phj17Q4KLL7TjpuTUbWWUcyJ/345wExfVwYz/z74KYmbY1dheGs3QwjsXam
- kJEwKQbTZuvAPiDktiR1PXrEVlF354N6jkikbw8mNWXunq64sFXSOIdf4MwS8RUnOPxgu3Rf
+X-Proofpoint-GUID: DrLqZ2GtyDb34Ev3oa6WMzeF2GSp_JAT
+X-Authority-Analysis: v=2.4 cv=UtNjN/wB c=1 sm=1 tr=0 ts=68637051 cx=c_pps a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17 a=h6v-Vj0rM8qpTix4:21 a=IkcTkHD0fZMA:10 a=Wb1JkmetP80A:10 a=VnNF1IyMAAAA:8 a=MP4aM1IlAAAA:8 a=GZsYnREcmgbRINEaQekA:9
+ a=QEXdDO2ut3YA:10 a=cNL50C5G4f5gRYKddA97:22
+X-Proofpoint-ORIG-GUID: DrLqZ2GtyDb34Ev3oa6WMzeF2GSp_JAT
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzAxMDAyNSBTYWx0ZWRfX0Wa5VIN4KTjp 8mx9+xK90z58fpJ5qNlxn2OAMj4q+D42Oq7BNwq/cn2/doE+VLHv1lgHkRhheY3jM2r2+vddtDY PHinNCGHlkkAq2hqa1h64y7FIqg5YHAX38FOkZFVUevm6wx7gBFecve3pdBrjtMXIpTDQvfThnL
+ MMccUa4HkLoUvTPJN2q6+9R3u7vpIiiX+HMueySlc5KtfLm47q2Uzeev7ZwOz2uKHYQh2PutAEH LkD3pV7XCFL15AdLc0AuhN9f3vxvJN3nRw2+BtTDk/PuU0hoeca7ITDr7Yw/ibAE4kxslbs5X1l VqNceI+6Ec465bs9RtX2thDsoI2RpK/MCwVFSCmgG2plVIByKnykFibkUBQrEZV7Mhtjldb9lGx
+ Dt5khd0mA0iY0TJC553Vbu6TRtGit00mZOd3hwFF39dUMpS/6A3lyjOKDGzN8K/4t/SySgPO
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
  definitions=2025-07-01_01,2025-06-27_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
- clxscore=1015 mlxlogscore=999 lowpriorityscore=0 impostorscore=0
- mlxscore=0 malwarescore=0 spamscore=0 priorityscore=1501 adultscore=0
- bulkscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 phishscore=0 mlxscore=0 spamscore=0 mlxlogscore=783
+ adultscore=0 clxscore=1015 lowpriorityscore=0 bulkscore=0 impostorscore=0
+ malwarescore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
  definitions=main-2507010025
 
 On 30/06/25 14:10, Benno Schulenberg wrote:
-> Without option --pid, always at least two arguments are needed:
-> the <priority> value and a <command>.  (The 'need_prio' variable
-> is relevant only for the --pid case.)
+> When doing, for example, `chrt --pid --max`, it would report:
 > 
-> Also, make the error message more informative, and do not annoyingly
-> suggest that the user try `chrt --help`.
+>   chrt: invalid PID argument: '--max'
+> 
 
-Nit: I think we could still have "Try 'chrt --help' for more information."
-along with your "too few arguments" so that user knows exactly how
-many arguments are needed.
+But --max is part of options right?
 
-As is also is fine.
+According to help text,
+chrt [options] --pid <priority> <pid>
 
-Reviewed-by: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
-Tested-by: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
+It should come before --pid right?
 
 Thanks,
 Madadi Vineeth Reddy
 
+> This mistakenly gave the impression that the PID argument has to follow
+> directly after the --pid option.
+> 
+> Avoid this by delaying the parsing of a PID until after all options have
+> been parsed.  Temporarily set 'ctl->pid' to zero to indicate that a PID
+> needs to be read.
+> 
+> After this change, `chrt --pid --max` will simply report the minimum and
+> maximum valid priorities.  And `chrt --pid -v`:
+> 
+>   chrt: too few arguments
+> 
+> Also, add a missing call of gettext() for the other error message.
 > 
 > CC: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
 > Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 > ---
->  schedutils/chrt.c | 14 +++++---------
->  1 file changed, 5 insertions(+), 9 deletions(-)
+>  schedutils/chrt.c | 24 +++++++++++-------------
+>  1 file changed, 11 insertions(+), 13 deletions(-)
 > 
 > diff --git a/schedutils/chrt.c b/schedutils/chrt.c
-> index 8ed4d69f3..f5ecae6e1 100644
+> index f5ecae6e1..f358bb273 100644
 > --- a/schedutils/chrt.c
 > +++ b/schedutils/chrt.c
-> @@ -507,11 +507,8 @@ int main(int argc, char **argv)
+> @@ -474,11 +474,7 @@ int main(int argc, char **argv)
+>  			policy_given = true;
+>  			break;
+>  		case 'p':
+> -			if (argc - optind == 0)
+> -				errx(EXIT_FAILURE, _("too few arguments"));
+> -			errno = 0;
+> -			/* strtopid_or_err() is not suitable here; 0 can be passed.*/
+> -			ctl->pid = strtos32_or_err(argv[argc - 1], _("invalid PID argument"));
+> +			ctl->pid = 0;  /* indicate that a PID is expected */
+>  			break;
+>  		case 'r':
+>  			ctl->policy = SCHED_RR;
+> @@ -507,18 +503,20 @@ int main(int argc, char **argv)
 >  		}
 >  	}
 >  
-> -	if (((ctl->pid > -1) && argc - optind < (need_prio ? 1 : 0)) ||
-> -	    ((ctl->pid == -1) && argc - optind < (need_prio ? 2 : 1))) {
-> -		warnx(_("bad usage"));
-> -		errtryhelp(EXIT_FAILURE);
-> -	}
-> +	if (argc - optind < (ctl->pid > -1 ? 1 : 2))
-> +		errx(EXIT_FAILURE, _("too few arguments"));
+> -	if (argc - optind < (ctl->pid > -1 ? 1 : 2))
+> +	if (argc - optind < (ctl->pid == 0 ? 1 : 2))
+>  		errx(EXIT_FAILURE, _("too few arguments"));
 >  
->  	/* pid exists but priority not given */
->  	if (ctl->pid > -1 && argc - optind == 1) {
-> @@ -530,11 +527,10 @@ int main(int argc, char **argv)
->  	if (ctl->verbose)
->  		show_sched_info(ctl);
->  
-> -	errno = 0;
-> -
-> -	if (need_prio || argc - optind > 1)
-> +	if (argc - optind > 1) {
+> -	/* pid exists but priority not given */
+> -	if (ctl->pid > -1 && argc - optind == 1) {
+> -		/* Error if priority is missing for a policy that requires it */
+> -		if (policy_given && need_prio)
+> -			errx(EXIT_FAILURE, ("policy %s requires a priority argument"),
+> +	/* If option --pid was given, parse the very last argument as a PID. */
+> +	if (ctl->pid == 0) {
+> +		if (need_prio && argc - optind < 2)
+> +			errx(EXIT_FAILURE, _("policy %s requires a priority argument"),
+>  						get_policy_name(ctl->policy));
 > +		errno = 0;
->  		ctl->priority = strtos32_or_err(argv[optind], _("invalid priority argument"));
-> -	else
-> +	} else
->  		ctl->priority = 0;
+> +		/* strtopid_or_err() is not suitable here, as 0 can be passed. */
+> +		ctl->pid = strtos32_or_err(argv[argc - 1], _("invalid PID argument"));
 >  
->  	if (ctl->runtime && !supports_runtime_param(ctl->policy))
+> -		/* If no policy specified, show current settings */
+> -		if (!policy_given) {
+> +		/* If no policy nor priority was given, show current settings. */
+> +		if (!policy_given && argc - optind == 1) {
+>  			show_sched_info(ctl);
+>  			return EXIT_SUCCESS;
+>  		}
 
