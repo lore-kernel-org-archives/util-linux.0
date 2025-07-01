@@ -1,176 +1,145 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85B34A47
-	for <util-linux@vger.kernel.org>; Tue,  1 Jul 2025 05:21:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9E162459F3
+	for <util-linux@vger.kernel.org>; Tue,  1 Jul 2025 06:35:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751347289; cv=none; b=OkT+BLdHqmLDcPHzuaCIJR6XkDCFDky0ltfiVY3WB8dUuQnnT4W/DmE3fAVQc+nED0XoGzrBW7fXbkqrERo/mnrzD+tFWtyQsP98rf2ZWNMnsfq2hkcWrHer+A2H8EHqc08KvsPWgCXMxDjYZndJkcdn+pWl8pt/nrEB9KJajMg=
+	t=1751351726; cv=none; b=Zm4K077hjKOomoxIfVr4fW2C+QLgcAXXwANAVuVu7WjLDrk+CwbJMVOaKzJn1An4UkYz/kABJkfaFGT6SBPeSwyop+DrIIRAi+4cvKpK9/OwgTQ/4+S8VVXiBNk07ET9F57Cb+e5/Iimkb3V86xSZ5Jdd0FIcXMqbW7SC4ZNKrk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751347289; c=relaxed/simple;
-	bh=DWFKwzwmqtx7tPzVAaQjWa4QI8ENxfxrVxcC+H9OatQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:Cc:From:
-	 In-Reply-To:Content-Type; b=alqB7C8lki+j49jNN7VIG7X0Yp2upKo/kVFiW8Fbwvsyi2EgT8srzuUv9LEHi4c7dLLkOgndoiqsFP7R7EYFz+fjML8u3qV6WdVg9NUHKM3Uj15IW45+BOz1pBSGCGRJNi4UZdDfM9fnoWHNb6bH7XGUxTa636aOA9d40ZCqoSU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ef6hDWgl; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1751351726; c=relaxed/simple;
+	bh=1oqTpKmFbFnM4Pm3eR1rU2VniRMxMhqQdP+scT+ErWo=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=Ryih8rlf5HkzW9gpsiGyXdxFYYkY9JM+2cHG/u/7sFAdBtQOxyRAmku/lFeey67IUvZcehmRik7KJmnNKQ6jdBC3UetAS+kdNdrU8yMdLsWQPP2dv/089S6VWWace8QWE8pFe1gBt9JTu7raFTIFjmO8lHlEpU+bzBgXPu+t48Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=uE/ju+J2; arc=none smtp.client-ip=209.85.208.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ef6hDWgl"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55UKxn7C027370;
-	Tue, 1 Jul 2025 05:21:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=jZycCd
-	aouRLc9MWIHssqCXiEGNjr/TYRNv/iHMnkpts=; b=ef6hDWglw6/iXm72dZ6DpN
-	8GpvhPzqsCYa8/v7XpJA8BEps+tNu9ew/SCU7VenAPiQC2npPHD8lRe4wlLOANhr
-	tcK4mofT/joXV8OD/gGQWfoAETTVRw0Vf9ZqbGGAbJmr9Pw5UVWqAFWZauy9ID4P
-	5TM8d4hh5oT5D0JU9qEX79EcRLQzsMtMlk683v/t1I6vVZrq+DyTYMKutKL7MDOz
-	am9NIkXiWWVgBFVOQWai7zLdtLKAeRXfZ/FUOn4oirbctjPaj2AUVziv1SXAGPPz
-	6U8GtF/NxW2Cttn9xZ0VAY4/jYbyVYmDEWQaz6sBpBF4viYiMfB19r7QDGfFFY7g
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47j5tt5myc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Jul 2025 05:21:21 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5613r3vJ012054;
-	Tue, 1 Jul 2025 05:21:20 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47jv7ms2t6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Jul 2025 05:21:20 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5615LJ3015532386
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 1 Jul 2025 05:21:19 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E84EA5805D;
-	Tue,  1 Jul 2025 05:21:18 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 803E658052;
-	Tue,  1 Jul 2025 05:21:17 +0000 (GMT)
-Received: from [9.43.22.142] (unknown [9.43.22.142])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  1 Jul 2025 05:21:17 +0000 (GMT)
-Message-ID: <500d8587-136f-46a9-b34e-ca4456f754a0@linux.ibm.com>
-Date: Tue, 1 Jul 2025 10:51:16 +0530
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="uE/ju+J2"
+Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-60b86fc4b47so4998a12.1
+        for <util-linux@vger.kernel.org>; Mon, 30 Jun 2025 23:35:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1751351723; x=1751956523; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=uJZ0K6phg1Abf3Sko2IXYZ2ELhGE7Krl7vtergN8Tus=;
+        b=uE/ju+J2noz27ldYZn0vXofNlFAuHtRqe2N9SpSlCQTx0bRq+OjMdvcKbwNS58/I5M
+         yhLCpZcpW1zqbQ3fQ4Jh643NgWBsFobmkBwdkDXWcPby6sU38+QhhB9qrGFythjcZxK+
+         d4EERpN56lqIKwoktPVTXhf3r7pql1GG0KwOqHSLwfUU+9g6b2unjjAj4gXNFJlmMco6
+         UB3c8aN+7imtOCiEe3QN4xV4GAfvWg7SuRDyr8XqOQqD7j4qJHR9YE4WpTT0QT8vJZVS
+         s/asbyLMEVCOtKoXm4ygu+g8PpGEyCdkxI1vNDrVZutpN+pAb6NK3ZEtNfC+NGtkkqCl
+         SaDg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751351723; x=1751956523;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=uJZ0K6phg1Abf3Sko2IXYZ2ELhGE7Krl7vtergN8Tus=;
+        b=Neqgnfw/IwbwS283fJ1EX3hCZSei2Rb+byLH9/KDLi1jw2/tC94ilcWtH+Uq2W5dVK
+         o4JSUlOF1FO2e9iNtqNTEsOJGjl/aFWe2fT/thMPGUj6wa1wEjSxPcBNvnTO0Ol4Fru1
+         abR2flY67rIDnDL0YDO2J9iD5ArgLj04rh3fspmHL1d8jPVB/ZRFA1LJ8p5ibITx4XT/
+         27RE1RD2fNrpjWoxjnVcSyrsrcamlJt+C7nt2Ln4XAIUH8waBte9kpRKPB1HUHp6+3Fi
+         qqzjO2fmlnKt9P6rUluSyIgAQAeOtmcpb5wovwclOrgV6TlBJLU1KO/S/7PFLvDCu3X9
+         Qm9A==
+X-Gm-Message-State: AOJu0YyOKao9XQXcC00AjjHbEB5z9moTngtlK/hO3Q4HOkBNGq4OuA9i
+	f3TU7nxvP7NRzhH8M/JG/CWrj87BefkaqfG+F3RbxW5oRqUOCmOlWdIgBV8AlLmfU4pI+7PJ8qS
+	3GEOofMx5y3Yogo8EpPLlb0Ui4ChuRXjkX/cJwo34kCOVdlxVJCjgzh75gcw=
+X-Gm-Gg: ASbGncurAB/LDX+NcB5QJXkjMe9Hps2iRIKxOBWRPUH3JGqlMlX9TnDwY5G0/0JyyVn
+	SZg3H/y3vBW83VnzcrwLj/GiYmc3eMmbIDELIl7RVI65FAhR/vCWWmu0F0/s7ADGx+Zjxn/XWvO
+	NuKaWJAM1n7CwP8RzuppFLIPwGCnuhDHXvpLpzRQ3Wy0iy+s/8AqclsqiYZfgJZ+n0c875MMqKD
+	/conyObo3g=
+X-Google-Smtp-Source: AGHT+IFOUqMmP90fiourWBOL2IQBbTzOen5jVZ7o1HvMaZYpef89OU7/dJOfjL9yohCGSRFbsrrXZa6yp+TJjpkFGQA=
+X-Received: by 2002:a05:6402:4496:b0:5e6:15d3:ffe7 with SMTP id
+ 4fb4d7f45d1cf-60e38a8846fmr41077a12.7.1751351722519; Mon, 30 Jun 2025
+ 23:35:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 4/4] chrt: do not try to interpret any other option as a
- PID either
-To: Benno Schulenberg <bensberg@telfort.nl>, util-linux@vger.kernel.org
-References: <20250630084052.11041-1-bensberg@telfort.nl>
- <20250630084052.11041-4-bensberg@telfort.nl>
-Content-Language: en-US
-Cc: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
-From: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
-In-Reply-To: <20250630084052.11041-4-bensberg@telfort.nl>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: DrLqZ2GtyDb34Ev3oa6WMzeF2GSp_JAT
-X-Authority-Analysis: v=2.4 cv=UtNjN/wB c=1 sm=1 tr=0 ts=68637051 cx=c_pps a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17 a=h6v-Vj0rM8qpTix4:21 a=IkcTkHD0fZMA:10 a=Wb1JkmetP80A:10 a=VnNF1IyMAAAA:8 a=MP4aM1IlAAAA:8 a=GZsYnREcmgbRINEaQekA:9
- a=QEXdDO2ut3YA:10 a=cNL50C5G4f5gRYKddA97:22
-X-Proofpoint-ORIG-GUID: DrLqZ2GtyDb34Ev3oa6WMzeF2GSp_JAT
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzAxMDAyNSBTYWx0ZWRfX0Wa5VIN4KTjp 8mx9+xK90z58fpJ5qNlxn2OAMj4q+D42Oq7BNwq/cn2/doE+VLHv1lgHkRhheY3jM2r2+vddtDY PHinNCGHlkkAq2hqa1h64y7FIqg5YHAX38FOkZFVUevm6wx7gBFecve3pdBrjtMXIpTDQvfThnL
- MMccUa4HkLoUvTPJN2q6+9R3u7vpIiiX+HMueySlc5KtfLm47q2Uzeev7ZwOz2uKHYQh2PutAEH LkD3pV7XCFL15AdLc0AuhN9f3vxvJN3nRw2+BtTDk/PuU0hoeca7ITDr7Yw/ibAE4kxslbs5X1l VqNceI+6Ec465bs9RtX2thDsoI2RpK/MCwVFSCmgG2plVIByKnykFibkUBQrEZV7Mhtjldb9lGx
- Dt5khd0mA0iY0TJC553Vbu6TRtGit00mZOd3hwFF39dUMpS/6A3lyjOKDGzN8K/4t/SySgPO
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
- definitions=2025-07-01_01,2025-06-27_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- priorityscore=1501 phishscore=0 mlxscore=0 spamscore=0 mlxlogscore=783
- adultscore=0 clxscore=1015 lowpriorityscore=0 bulkscore=0 impostorscore=0
- malwarescore=0 classifier=spam authscore=0 authtc=n/a authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2507010025
+From: Jesse Rosenstock <jmr@google.com>
+Date: Tue, 1 Jul 2025 08:35:11 +0200
+X-Gm-Features: Ac12FXwXBxKqwI0wf8fQUjleyf_KRtS-Sb1nklW2SYmZwlGuDcMs9Mi3Yzj_2Qw
+Message-ID: <CAMZQ0rLM9UYMupEX4WLmi-J9mh0jGhruzDw3OwpU8yEf0+2E_Q@mail.gmail.com>
+Subject: [PATCH v2] taskset: Accept 0 pid for current process
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On 30/06/25 14:10, Benno Schulenberg wrote:
-> When doing, for example, `chrt --pid --max`, it would report:
-> 
->   chrt: invalid PID argument: '--max'
-> 
+Fixed comment style and expanded man page example.
 
-But --max is part of options right?
+https://github.com/util-linux/util-linux/compare/2c585534e8350aaaa2a1958a619d67febb613dc7..7591728c7f2a4c04c7faa0cc1141ee6df9ecc45b
 
-According to help text,
-chrt [options] --pid <priority> <pid>
+https://github.com/util-linux/util-linux/pull/3637
 
-It should come before --pid right?
+This is useful to print the current mask without using `$$`: `taskset -p 0`.
 
-Thanks,
-Madadi Vineeth Reddy
+It is also helpful to test taskset: `taskset -c 1-4 taskset -p 0`.
+This is not easy with `$$`.
 
-> This mistakenly gave the impression that the PID argument has to follow
-> directly after the --pid option.
-> 
-> Avoid this by delaying the parsing of a PID until after all options have
-> been parsed.  Temporarily set 'ctl->pid' to zero to indicate that a PID
-> needs to be read.
-> 
-> After this change, `chrt --pid --max` will simply report the minimum and
-> maximum valid priorities.  And `chrt --pid -v`:
-> 
->   chrt: too few arguments
-> 
-> Also, add a missing call of gettext() for the other error message.
-> 
-> CC: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
-> Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
-> ---
->  schedutils/chrt.c | 24 +++++++++++-------------
->  1 file changed, 11 insertions(+), 13 deletions(-)
-> 
-> diff --git a/schedutils/chrt.c b/schedutils/chrt.c
-> index f5ecae6e1..f358bb273 100644
-> --- a/schedutils/chrt.c
-> +++ b/schedutils/chrt.c
-> @@ -474,11 +474,7 @@ int main(int argc, char **argv)
->  			policy_given = true;
->  			break;
->  		case 'p':
-> -			if (argc - optind == 0)
-> -				errx(EXIT_FAILURE, _("too few arguments"));
-> -			errno = 0;
-> -			/* strtopid_or_err() is not suitable here; 0 can be passed.*/
-> -			ctl->pid = strtos32_or_err(argv[argc - 1], _("invalid PID argument"));
-> +			ctl->pid = 0;  /* indicate that a PID is expected */
->  			break;
->  		case 'r':
->  			ctl->policy = SCHED_RR;
-> @@ -507,18 +503,20 @@ int main(int argc, char **argv)
->  		}
->  	}
->  
-> -	if (argc - optind < (ctl->pid > -1 ? 1 : 2))
-> +	if (argc - optind < (ctl->pid == 0 ? 1 : 2))
->  		errx(EXIT_FAILURE, _("too few arguments"));
->  
-> -	/* pid exists but priority not given */
-> -	if (ctl->pid > -1 && argc - optind == 1) {
-> -		/* Error if priority is missing for a policy that requires it */
-> -		if (policy_given && need_prio)
-> -			errx(EXIT_FAILURE, ("policy %s requires a priority argument"),
-> +	/* If option --pid was given, parse the very last argument as a PID. */
-> +	if (ctl->pid == 0) {
-> +		if (need_prio && argc - optind < 2)
-> +			errx(EXIT_FAILURE, _("policy %s requires a priority argument"),
->  						get_policy_name(ctl->policy));
-> +		errno = 0;
-> +		/* strtopid_or_err() is not suitable here, as 0 can be passed. */
-> +		ctl->pid = strtos32_or_err(argv[argc - 1], _("invalid PID argument"));
->  
-> -		/* If no policy specified, show current settings */
-> -		if (!policy_given) {
-> +		/* If no policy nor priority was given, show current settings. */
-> +		if (!policy_given && argc - optind == 1) {
->  			show_sched_info(ctl);
->  			return EXIT_SUCCESS;
->  		}
+sched_setaffinity(2)/sched_getaffinity(2) accept 0 for the calling
+thread, so this seems consistent.
 
+As an implementation detail, we replace 0 with getpid(), so the existing
+pid != 0 <==> "will exec" logic continues to work unchanged.
+
+A reasonable alternative would be to interpret just `taskset` (currently
+an error) as printing the current mask.  This seems less orthogonal,
+and a better use may be found for plain `taskset` in the future.
+
+Signed-off-by: Jesse Rosenstock <jmr@google.com>
+---
+ schedutils/taskset.1.adoc |  8 ++++++++
+ schedutils/taskset.c      | 14 +++++++++++++-
+ 2 files changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/schedutils/taskset.1.adoc b/schedutils/taskset.1.adoc
+index 9773303f73..c919f82ec6 100644
+--- a/schedutils/taskset.1.adoc
++++ b/schedutils/taskset.1.adoc
+@@ -77,6 +77,7 @@
+
+ *-p*, *--pid*::
+ Operate on an existing PID and do not launch a new task.
++If PID is zero, then operate on the *taskset* process.
+
+ include::man-common/help-version.adoc[]
+
+@@ -134,6 +135,13 @@
+ $ echo $? +
+ 1 +
+
++== EXAMPLES
++
++Print the current CPU affinity as a list.
++
++$ taskset -pc 0 +
++pid 1355988's current affinity list: 0-47 +
++
+ == AUTHORS
+
+ Written by Robert M. Love.
+diff --git a/schedutils/taskset.c b/schedutils/taskset.c
+index b52cd4338b..dfcf291edb 100644
+--- a/schedutils/taskset.c
++++ b/schedutils/taskset.c
+@@ -186,7 +186,19 @@
+                        all_tasks = 1;
+                        break;
+                case 'p':
+-                       pid = strtopid_or_err(argv[argc - 1],
+_("invalid PID argument"));
++                       /*
++                        * Like strtopid_or_err() but accept 0 for this process,
++                        * like sched_getaffinity()/sched_setaffinity() do.
++                        */
++                       pid = (pid_t) str2num_or_err(
++                               argv[argc - 1], 10, _("invalid PID argument"),
++                               0, SINT_MAX(pid_t));
++                       if (pid == 0)
++                               pid = getpid();
++                       /*
++                        * After this point, pid == 0 means "no pid" and that
++                        * we will exec a command.
++                        */
+                        break;
+                case 'c':
+                        ts.use_list = 1;
