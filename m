@@ -1,44 +1,44 @@
 Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.167])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68F1B3C47B
-	for <util-linux@vger.kernel.org>; Tue,  1 Jul 2025 13:40:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 453E8148FE6
+	for <util-linux@vger.kernel.org>; Tue,  1 Jul 2025 13:52:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.167
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751377210; cv=none; b=tFO4r0IbWOu7QJvsOBWvBrxmhOSDT6tr+bK1cDX2gb4RLjwZqPC2YWyM7qfnUUTv6wGNjTb1xsvndy695HVzhsSNP7tyR+APi2KOTXLmmtEedstkK1qpNeCIhzU5s1S9aKFVZvhMhcLsk5Ii/tcamKYvHjHx2AQnVMKPSkm0N88=
+	t=1751377933; cv=none; b=oFmvVuVdQyYET1B5qiS8aovUrDpeM5yi2sw3l/fHjMn2BwmdhZjNhCWvfqfaPTcporC0aEgwoRlr1q6UQY37jYC0nK6gMyk0UMOTBxg3mZGzw29wSTtVDryJjlUPCVmV0jmmwiZ46kFzQ5mLQQGeM0wJJjetfLTCnowceMa+Ic4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751377210; c=relaxed/simple;
-	bh=zvnTxdhD5D6FP+F4aEwguJZApAWvZWxOzmnC9pNe8no=;
+	s=arc-20240116; t=1751377933; c=relaxed/simple;
+	bh=ttWYa6oq9eaFQBCSbbVgQFthdh1BNn5p2GLTiQH0ldU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=j2NCreTxmMGJxn7wH7h5SGwytYC60Xq3Tzl+53yqeEJCqOcah867Pr8jaVqwPksYk6OYkclPTxVs2ZgPluw/RwOXV09cwbbW5RYyPy3tDCuueTdNZeHsruZDH9ya8AwPKVgg9p/NKbAbaswsxE3r/zGNUshBCDOdUMhHuvUtKTw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=FjOGvBRc; arc=none smtp.client-ip=195.121.94.167
+	 In-Reply-To:Content-Type; b=q5OCoeA/8d4VZseFeg7pgSgSj0ZYSK4ZSUA2RAqkvKj1R8wlYeHDrA7rGCwNnBP2ADFjZMvySNJJZ1kpQMAegBLsBwapnPUHqHlj+irY54sVTo8oQQpe8kfMXhcu/0PsbFx/KQBZFFqpeG0txz/V6M2lQd4GFT2Q03K+0f98BmU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=K94568XP; arc=none smtp.client-ip=195.121.94.167
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="FjOGvBRc"
-X-KPN-MessageId: 12afb95d-5681-11f0-b9a4-005056abbe64
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="K94568XP"
+X-KPN-MessageId: c62cbc0e-5682-11f0-b9a4-005056abbe64
 Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 12afb95d-5681-11f0-b9a4-005056abbe64;
-	Tue, 01 Jul 2025 15:41:21 +0200 (CEST)
+	id c62cbc0e-5682-11f0-b9a4-005056abbe64;
+	Tue, 01 Jul 2025 15:53:31 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=content-type:from:to:subject:mime-version:date:message-id;
-	bh=zvnTxdhD5D6FP+F4aEwguJZApAWvZWxOzmnC9pNe8no=;
-	b=FjOGvBRcky4TU3urpZ4tzOXkGYIa1iSkyi0ZEbfRqLQapMCKSZrmcB5H2kQDS7/kLMPZ0gXe3ADD2
-	 adVk5GnAPcG+3futMNN6Ikx73qWhZnvQSmIcrJrUBAjCDMYCElMsj8E5huVNliMeQZ/5OcreJQfr9B
-	 e+CqR0Ezana2OlOM=
-X-KPN-MID: 33|JiB0PoKwKYmuC2iGKVvTrQ7YzMSEfizgLP8P1E/yPjSQ4aC26clBAEJE7hiaboz
- vhHc1NQwX2Z9JPfGE8/BPBdfWmKsERuk2gM+KaJ1rHzk=
+	bh=ttWYa6oq9eaFQBCSbbVgQFthdh1BNn5p2GLTiQH0ldU=;
+	b=K94568XPCwiBKfKJhrVcvlrDQbppiQ+ypvfvx1eGXARwrkZ5D959AcS8f4NCfNpxLdObOUWjpYK1U
+	 ZXagO/3X8p7gbFJXFEQlY2kD+3VXpB2A1rSb4fHaIS8ioGEaHxNpCkDDrASn/kz6Wc1HhNiur0Zxwu
+	 GSdBweILDeO8P2fk=
+X-KPN-MID: 33|gamOijxnzypNPnpLONBL9t5BhKizgDoEY7mvn+hhzJnyCxSZoYicjrN2evPNPLg
+ JbaRngXXgUw/hYMbrW1s2Gw==
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|99lCuGulwF9EECahZL9AP7SRBM4xTYPYkroaKEg6z7WQQCrHCsZiA4L4FSb3cN9
- USt1p6D2APGIEOAd/NmllDA==
+X-CMASSUN: 33|Rtgv6uOUZNeQyw0xP8PGDnFLXvxuVoY+ANewykEAnbgPdluEbT79ICPB6yLo0hT
+ ro0MYtL5Wtm4i7YtWpe5sXg==
 Received: from [192.168.2.23] (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id e16a34c6-5680-11f0-95b7-005056abf0db;
-	Tue, 01 Jul 2025 15:39:58 +0200 (CEST)
-Message-ID: <a80cdbf2-0c4d-40dc-8ae6-9ccbd900bc1b@telfort.nl>
-Date: Tue, 1 Jul 2025 15:39:57 +0200
+	id 94e9897a-5682-11f0-95b7-005056abf0db;
+	Tue, 01 Jul 2025 15:52:09 +0200 (CEST)
+Message-ID: <f2a1d52d-db90-4ef5-909e-8a857b6ee233@telfort.nl>
+Date: Tue, 1 Jul 2025 15:52:07 +0200
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -46,11 +46,12 @@ List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/4] chrt: simplify the other check for too few arguments
+Subject: Re: [PATCH 4/4] chrt: do not try to interpret any other option as a
+ PID either
 To: Madadi Vineeth Reddy <vineethr@linux.ibm.com>, util-linux@vger.kernel.org
 References: <20250630084052.11041-1-bensberg@telfort.nl>
- <20250630084052.11041-3-bensberg@telfort.nl>
- <4e545c8f-8e74-462f-8416-3c1cbde81b2e@linux.ibm.com>
+ <20250630084052.11041-4-bensberg@telfort.nl>
+ <500d8587-136f-46a9-b34e-ca4456f754a0@linux.ibm.com>
 Content-Language: en-US, nl-NL, es-ES
 From: Benno Schulenberg <bensberg@telfort.nl>
 Autocrypt: addr=bensberg@telfort.nl; keydata=
@@ -96,62 +97,69 @@ Autocrypt: addr=bensberg@telfort.nl; keydata=
  K8dqxmXCIqkG9iMh/vId/gI6d9Ci57nY0FluIrbE/L9z1Gei2eMFsFmSvnW9fIc3NtKfnvQR
  BOXedCw0kmvyScJ6EZ3znoV0PFstgvmp4wSlnb2Dw74euRcBe5/wxX1VAHSYhqKWMnoe6snY
  nUQR9h5Wm7A5sq4D91+uMVHTr/1llbSDS+6J1tE6WNg5gpiULhOr0IoxlSTtUCDY2c49wqh8 50GA
-In-Reply-To: <4e545c8f-8e74-462f-8416-3c1cbde81b2e@linux.ibm.com>
+In-Reply-To: <500d8587-136f-46a9-b34e-ca4456f754a0@linux.ibm.com>
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="------------04r4mbv4c11Ofd6L1m06RdSO"
+ boundary="------------wevJrjjO2pwLfeRudA0Bykpu"
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------04r4mbv4c11Ofd6L1m06RdSO
-Content-Type: multipart/mixed; boundary="------------rAlx57T3tgBcf4uqw0s95RLp";
+--------------wevJrjjO2pwLfeRudA0Bykpu
+Content-Type: multipart/mixed; boundary="------------VOtnOIjo5dGXMRnRX59Grz3x";
  protected-headers="v1"
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: Madadi Vineeth Reddy <vineethr@linux.ibm.com>, util-linux@vger.kernel.org
-Message-ID: <a80cdbf2-0c4d-40dc-8ae6-9ccbd900bc1b@telfort.nl>
-Subject: Re: [PATCH 3/4] chrt: simplify the other check for too few arguments
+Message-ID: <f2a1d52d-db90-4ef5-909e-8a857b6ee233@telfort.nl>
+Subject: Re: [PATCH 4/4] chrt: do not try to interpret any other option as a
+ PID either
 References: <20250630084052.11041-1-bensberg@telfort.nl>
- <20250630084052.11041-3-bensberg@telfort.nl>
- <4e545c8f-8e74-462f-8416-3c1cbde81b2e@linux.ibm.com>
-In-Reply-To: <4e545c8f-8e74-462f-8416-3c1cbde81b2e@linux.ibm.com>
+ <20250630084052.11041-4-bensberg@telfort.nl>
+ <500d8587-136f-46a9-b34e-ca4456f754a0@linux.ibm.com>
+In-Reply-To: <500d8587-136f-46a9-b34e-ca4456f754a0@linux.ibm.com>
 
---------------rAlx57T3tgBcf4uqw0s95RLp
+--------------VOtnOIjo5dGXMRnRX59Grz3x
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: base64
 
-DQpPcCAwMS0wNy0yMDI1IG9tIDA3OjE2IHNjaHJlZWYgTWFkYWRpIFZpbmVldGggUmVkZHk6
-DQo+IE5pdDogSSB0aGluayB3ZSBjb3VsZCBzdGlsbCBoYXZlICJUcnkgJ2NocnQgLS1oZWxw
-JyBmb3IgbW9yZSBpbmZvcm1hdGlvbi4iDQo+IGFsb25nIHdpdGggeW91ciAidG9vIGZldyBh
-cmd1bWVudHMiIHNvIHRoYXQgdXNlciBrbm93cyBleGFjdGx5IGhvdw0KPiBtYW55IGFyZ3Vt
-ZW50cyBhcmUgbmVlZGVkLg0KDQpUaGUgcmVhc29uIEkgZG9uJ3Qgd2FudCB0byBzZWUgIlRy
-eSAnY2hydCAtLWhlbHAnIGZvciBtb3JlIGluZm9ybWF0aW9uLiINCndoZW4gSSBtYWtlIGEg
-bWlzdGFrZSBpcyB0aGF0IGl0IG1lYW5zIHRoYXQgSSBoYXZlIHRvIHJlYWQgdHdvIGxpbmVz
-Og0KdGhlIGVycm9yIG1lc3NhZ2UgcGx1cyB0aGUgIlRyeS4uLiIuICBJdCB0YWtlcyBtZSBt
-b3JlIHRpbWUsIF9hbmRfIHRoZQ0Kc2Vjb25kIGxpbmUgZG9lc24ndCBhZGQgYW55IGluZm9y
-bWF0aW9uIC0tIGl0IGp1c3Qgc3RhdGVzIHRoZSBvYnZpb3VzLg0KSXQgcmVtaW5kcyBtZSBv
-ZiBDbGlwcHk6IHNvIGVhZ2VyIHRvIGhlbHAgdGhhdCBpdCBiZWNvbWVzIG9ibm94aW91cy4N
-Cg0KDQpCZW5ubw0KDQo=
+DQpPcCAwMS0wNy0yMDI1IG9tIDA3OjIxIHNjaHJlZWYgTWFkYWRpIFZpbmVldGggUmVkZHk6
+DQo+IE9uIDMwLzA2LzI1IDE0OjEwLCBCZW5ubyBTY2h1bGVuYmVyZyB3cm90ZToNCj4+IFdo
+ZW4gZG9pbmcsIGZvciBleGFtcGxlLCBgY2hydCAtLXBpZCAtLW1heGAsIGl0IHdvdWxkIHJl
+cG9ydDoNCj4+DQo+PiAgICBjaHJ0OiBpbnZhbGlkIFBJRCBhcmd1bWVudDogJy0tbWF4Jw0K
+Pj4NCj4gDQo+IEJ1dCAtLW1heCBpcyBwYXJ0IG9mIG9wdGlvbnMgcmlnaHQ/DQo+IA0KPiBB
+Y2NvcmRpbmcgdG8gaGVscCB0ZXh0LA0KPiBjaHJ0IFtvcHRpb25zXSAtLXBpZCA8cHJpb3Jp
+dHk+IDxwaWQ+DQo+IA0KPiBJdCBzaG91bGQgY29tZSBiZWZvcmUgLS1waWQgcmlnaHQ/DQoN
+ClN1cmUuICBCdXQgdGhlIHN5bm9wc2VzIG9mIGEgY29tbWFuZCBvZnRlbiBkb24ndCAob3Ig
+ZXZlbiBjYW5ub3QpDQpmdWxseSBleHByZXNzIGFsbCBwb3NzaWJsZSBhcnJhbmdlbWVudHMg
+b2Ygb3B0aW9ucyBhbmQgYXJndW1lbnRzLg0KU28gdGhlIHVzZXIgb3VnaHQgdG8gYmUgZm9y
+Z2l2ZW4gKHdoZW4gcG9zc2libGUpIGZvciB0cnlpbmcgc29tZQ0KdW5zcGVjaWZpZWQgb3Jk
+ZXIuDQoNCihXaGVuIEkgZm9yZ2V0IHRoZSBleGFjdCBpbnZvY2F0aW9uIG9mIGEgdG9vbCwg
+SSBub3JtYWxseSB0YWNrIGENCi0taGVscCBvbnRvIHRoZSBwcmV2aW91cyBhdHRlbXB0LCBh
+bmQgdGhpcyB1c3VhbGx5IHByaW50cyB0aGUgaGVscA0KdGV4dCwgaWdub3JpbmcgYW55IG90
+aGVyIG9wdGlvbnMuICBJdCB3b3VsZCBiZSBuaWNlIGlmIHRoYXQgd29ya2VkDQpoZXJlIHRv
+by4pDQoNCkFsc28sIHRoZSAnLS1tYXgnIGlzIG9idmlvdXNseSBhbiBvcHRpb24sIHdoeSB0
+cnkgdG8gaW50ZXJwcmV0IGl0DQphcyBhIFBJRD8gIFdoeSBtYWtlIHRoZSB0b29sIG9idHVz
+ZXIgdGhhbiBpdCBuZWVkcyB0byBiZT8NCg0KDQpCZW5ubw0KDQo=
 
---------------rAlx57T3tgBcf4uqw0s95RLp--
+--------------VOtnOIjo5dGXMRnRX59Grz3x--
 
---------------04r4mbv4c11Ofd6L1m06RdSO
+--------------wevJrjjO2pwLfeRudA0Bykpu
 Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmhj5S0FAwAAAAAACgkQUUu+Lrjhlh/W
-eBAAjnlf1Bl9jvanELCcnNPv9X/0tRlkxRxY7avTqDhAVQzyl1qezf5ZgGtoTvnIoMe8HojMOOpl
-kVkmBHw8OMeHg6LtsOZuhwYy2RIOVnV2WzW8VIUhIUTVMC1wG8v9gRVseyeFEWym+a6Lo7q6t0NG
-/RiC/xrqSqPrRsFJYfMAADuURoF54TKwWHkDCjsTDuTjS/qrhUM1RPB7QWoHUeVldaYlzvssDFgJ
-yQXJ85AZIfZm6EP0+OjWGJ1RigXa7FQccgC6RH4AFSSSUlpWOaQuJPb7o3TkJtem7frw5s/UMhEd
-Az0KwMVzk4wE28MYhyP5yqsGfFp15lNpETWo08MtI839gkuig22Ir6NkbzJzq1CXXULKsuHEy7S1
-PShcKPghfY1r0T2dGGH3jwuWokZvKaHUBIayx8dlpYjfrJtWKmNppXseJh1sXvSz1aOKVgRMCxiQ
-1Y/GDpYwWNf09XWCVUrL3o0y9EB2mk/0e/3xOGtRzZz1CaD0MMoCqkzIfcW7mFUUbikG8Et/KZV1
-mO4QAp7wVjZlArw+Ha0MiQnyI5IaOLEwoLbEGX7bJLjqf/896kVMahJ5hNeb+YOGiTeJwCfVT8T0
-FgISE19SeSDXgf9lnxTMqtgCtkvN6YDeJmBueMgp/MUfRJygM7fLAEzXvK+r9g1Ksf2YDcfONTQR
-gWs=
-=o/vy
+wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmhj6AcFAwAAAAAACgkQUUu+Lrjhlh/r
+0hAA1QVM4IMb6J8JFCMza4vQ1b84c0d7tUjXRyPLPCTOt0wpwnrgkA+EzAMsZxiAYRCATzhE7fQi
+BFTcbUa5RRLFrlX3wrwQgst7zJiR4ZMAwKzQKhV2Vtx02G4pxLzKdUBPvaGLKIK/FKzGXkOt0YZV
+X9EcIgFrQROPipLxA+pYhMw2serLLjOEpGOVr975QwIf0qXXiIE8drWW2qhnECYXNnOj2h7cIwsR
+B9t8pJ3ZKVQQtn/6X8HIVwiDZN5Rku74LntX8w6z3FcHYhC3oK/IXTzrI+sBj2zx9p78ZIUqyuN2
+JFZT+TGPcf3QftHp+zktGQAbPUgC37TOjQVaOjYr7SSf6RLkdhmpWTAg+BCkqmn0eS9A+SKS1f8G
+ejn/fednsFc4sAe30wQJj9IIz04toKP9YNUVYH1C4VMszBT3OBy/6oe+f9oFD5aFu75x9h8QyxTQ
+umKBlAFP7qSK3cz2mOk5Rlxd9DhDMHux9Vpcm7+cspIremVDzeW5JjpdceJ4oZZcrXj3HkuNmN06
+mhEnf7lA2sm0x60vpAzruC+O+VrsSge0cVqv7SxwKkP3eqLriexhrc800Hav1SrsdUpCke/oLQ4V
++nC0NRt+ypwVJ9QnSvpVYVb4WgZX5hzkZlCXU5KN77SaEW3n5ECv8Ojb7RdCW8ZfjMqTk3Yxq560
+T2c=
+=s/ls
 -----END PGP SIGNATURE-----
 
---------------04r4mbv4c11Ofd6L1m06RdSO--
+--------------wevJrjjO2pwLfeRudA0Bykpu--
