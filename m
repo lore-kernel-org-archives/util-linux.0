@@ -1,98 +1,135 @@
 Received: from cloudsdale.the-delta.net.eu.org (cloudsdale.the-delta.net.eu.org [138.201.117.120])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A35EF27B50F
-	for <util-linux@vger.kernel.org>; Tue,  1 Jul 2025 16:03:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40DFB27C15B
+	for <util-linux@vger.kernel.org>; Tue,  1 Jul 2025 16:08:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=138.201.117.120
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751385843; cv=none; b=kxgyyWaIaxWr6lRAR2fR+gbdjAknvyKIYwM2N4YN6hhaRPBu6LrW21zeVFdLCvjwE3r1mYcFom+oYZQwHkmP4hBXHc6r/UJPmQXHHCZbQ6C9p3Qfr6QQKQ9yhrfZRxinhudri5IDMIawjgFgMt4j/ldsjIO/IaMxuKmbz4zdjI4=
+	t=1751386136; cv=none; b=efH7vI7bGjU8+08UFDZ06dwtb3KFGxofA50SvOrhdRxfurSIAixnSaUHLAkRzk21dILa0GxtusqL5GzBDxL8Zm2V7cSofupXX9GIAaCJgomuCClekQ1x36CdIAVBNB7Twm9+AGFL5YC0Fuwe/mToMFm3arJmd7tYmw8O50s00G4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751385843; c=relaxed/simple;
-	bh=p3reSW6yDus/jdHeltwFsdkL2AC27dKUTnQjOeRLa7o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bmf8/Bm1aTBGqaoBXC5wt/eSpzVyxqpHM/aWccBTFoiyQfLQeoOoU7m2EUg/PpAvDY7MjrK8zOfhmXfb2Y5faOJ3hOc6QW2Lu78eCN/ZfSHf+OcmGYF96x42FBXZUVnHV6gEdHryYKwb4ON1X4fHMZgle39Z8tkXg/AwlIRq7hU=
+	s=arc-20240116; t=1751386136; c=relaxed/simple;
+	bh=0CcBaw3WJyj6Wr7QSBERVPuY+s0F5EwfXPL/K8CJ1pc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=qJeQZV5ahNqiWbvXcb0yb5cOEGQ7mzQgcepgNdw2nNYpZBQFhrjV9brZ9XT5u3a7w7r1vlOXgVTujPzauOr9mTonuQZhrEg4NneHCf+AWjU7VOVqekGL1mS+xn0eoBxbqLmyWQaxtNUBxWDzgHbxtiO4NrlsjPO8MjH2IQCaA5k=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hacktivis.me; spf=pass smtp.mailfrom=hacktivis.me; arc=none smtp.client-ip=138.201.117.120
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hacktivis.me
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hacktivis.me
 Received: 
-	by cloudsdale.the-delta.net.eu.org (OpenSMTPD) with ESMTP id 77921262;
-	Tue, 1 Jul 2025 16:03:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed; d=hacktivis.me; h=date
-	:from:to:cc:message-id:references:mime-version:content-type
-	:in-reply-to; s=20241213_132553; bh=p3reSW6yDus/jdHeltwFsdkL2AC2
-	7dKUTnQjOeRLa7o=; b=B0NPaZSyAFmbPIVrohXDFQbg9CnKvfKUSW7igZJt/Wzs
-	1yZtdfIxN8HKvS9VKCUvTMpXm2oYH7P6YJRrpZQjUw6thWF3HN+mtN9PbpZ9wgc5
-	4c23jhCMFPxhPBNoQW2sAh0bebTppk+spilAJH4rAw6ltYgi3yZa9CGo550PMAQD
-	5Q4LuRZqp1E9KwxZmm2PWvZ70SlxsLNOSgj8o+lqQNt91BNfWW653z4gdI/Q7HgX
-	GaUv2cITFn/f71gWDIckWp6zrhoSGS5MPG3Sc6XVP+oj7k2BzfgAZnykLiucD2Uc
-	z8CQl0/aJydoDGkgazna0WqRV5Uoy9aWtzUHh7uME0NnA9ZuteNo5HmqXUNUNWAc
-	FWooQc6/cS1JZL8d72316BVFWMlQppR9CZUWO0+DUt89pmfJLCa09Btcgs/8QA/z
-	C9ssanCisPoWjSMwOmzTbLC45+HXMAlzi0lz78EHD6q8/PgYb8cVak2//FrHWsfa
-	cOq6EzUQXyDEA52v8sDePme0Z5/wQrgePAgGMEztPMdsg5zl2TfsRiXaSmuNlBVL
-	pjeUK2PxO/UYNYGYqoqQmDrTjjealy55HHd1FZDY1vPNvL+f0d2qQi9FiUT2g9ue
-	Lk1KifMWPyCey6cszU2EW0EKeZwfIhyt3gRR5cTWx/YmS6ZeNgo9rJlhtRAXnf0=
-DomainKey-Signature: a=rsa-sha1; c=nofws; d=hacktivis.me; h=date:from:to
-	:cc:message-id:references:mime-version:content-type:in-reply-to;
-	 q=dns; s=20241213_132553; b=Hf9OdEB43vvtoUHRU0a/5sKUiwj6+OxxVcJ
-	dhXJeso//URTyANhA5oJVpm1YXY7TLwrUQ+uR9JY9FU6OOTxyn9eTRvvHjAlFKUz
-	b11gSYQSSMyaQ6TlOzxNa7ou5/es7KH9xyEo/UZI/0HkWJUA+wDwcL0JWGWN49w6
-	uMXjawRt6/19BuGNNOHVDBQCxRQF+5yjhChGFiHx+Vvru5s1YH/H/+MeNPfQoakC
-	6bfEnYrmPaW0uaoGMn7CIeuKhL3vx1lnlRmQABWKPgQKLDpYinTEmnd/ysiNAHfP
-	JVKDnGuAw2AFdQyey5+N00j6GlrZ/wWAvRt50xjxy+cC3u4BkrFMDA0N9Ne6fLkF
-	QYwVrxEG1JwFOJiNUNf1MUYqEX9xWyzQt8880Ugw8C91vuC0xEL7p/OHvelcJ+3X
-	G0R2ckWkx1JiJs2c9e9d3gXpN8/3CoaXf6httlg9IX4Hon5VEMaP9YAuqDzx++yT
-	9vum/Q1IlNoTpb9hKqq2sesqZxMivlUgMovpyrqIMGAAvdH4sPnwAQkokQ37JGEN
-	DuxuEdws/RGByZzsn3MxSLwbx+ZCWQ1+42/zP+6hRPQVW7PvogqybckGwspiMTFm
-	jlTmJmcMtfCvpJhf/tlX2EDs6JCmn9gTqL+40BbmcmI5d522B9V/lWVQliluDRbV
-	NkmfXCj8=
+	by cloudsdale.the-delta.net.eu.org (OpenSMTPD) with ESMTP id 2f1c0c6a;
+	Tue, 1 Jul 2025 16:02:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed; d=hacktivis.me; h=from:to
+	:cc:date:message-id:in-reply-to:references:mime-version
+	:content-transfer-encoding; s=20241213_132553; bh=0CcBaw3WJyj6Wr
+	7QSBERVPuY+s0F5EwfXPL/K8CJ1pc=; b=aPeNc4ZbUNxFEkdu38BdzBmisYJdgX
+	qnpz1XodkgO757WgtPYhI7SOdEU6rCxMl7MGffYxF+eLDeLQ4fTN0UPqAaiTX4JC
+	oSnlzau+7cZoAM8X2DJEIs51Ob0fhjfUtewJWGfFcVFuEB+4bSZOc9lJGmUkqVcJ
+	jBleIPaNaYModO7GxPKd98i9Uf0JOlpjYxLheMQqq6J5YrSq85oYM6xQLipF4FXC
+	5CKJ5PAEnHu95eCm6KJte/LyDPZrvFOl+IiRli5y/veUIigwWpRFZpSdjCQXiGya
+	JYX0geUqVXNKp8YjOLSxFCHU3snld85p8FGe6hdN+wvtAFR5q/+4z/pd/xoy3JBf
+	t4GkAM9Nj+BIm+I7iWh2TB0wMK2SXsBXY+KVGuZ8l/VS9kGUrOQXfgHdrDb8fOUn
+	sx3Z4YNJS5Sz3yD9pNXKPywBxtPXbxv/PAiVVmZJTS62CWz6RsTxaX6B9yzlMiut
+	8lzL01d6J2H0ZBdETRM9vibOUEMYK8VxxeNVRdmLhs4T4iDkO2CIo6dcTomSMSeP
+	Vy/5btlQ1evAJ1GFMbJp6HIFVkio2xErBK9EbtK4wtGYVryqfqpiWWRmdZ559Y3k
+	R/7sZS77GISjsYXbw9VvFYrXYI/am2LlGgaVAUHzevo4FTDQ9DqP0OlY6tWcTkCs
+	rCh8/uJu1d8B8=
+DomainKey-Signature: a=rsa-sha1; c=nofws; d=hacktivis.me; h=from:to:cc
+	:date:message-id:in-reply-to:references:mime-version
+	:content-transfer-encoding; q=dns; s=20241213_132553; b=0cqsMGyu
+	D7beZhRVlia1FPbhuBXtWNRGay1SAbQWTO5Klw0GsP9/OafrIR4cAnOagDQTQ+30
+	wQ4XdAgS8f8YARWL0BwTiBql8Kh2rOxi/do5dX94rxvsF0WT53lcvVtyjmLCG0nr
+	/J5vW2IAh+x4ouwKA0//1NNxcvHHpa87BwnJP4h+aemd4iM4VwkfrpKyv3mkMj0r
+	yZGOMHc3aOLD3w67HGSX6L5et7XKdoBD8uQMCMMcEwmfnew/lNKzJS5OMIO3TeyE
+	Dg5TVYvMJ4auliut0dp6J1Gl8iZa+Wh6fWxpRhJdcqn62QYgsIBsu++JreDMT8qa
+	7p10mccH8kTZCRbtYIDYfKW8nuQPkp3ZbXkHMxDgJR2CZfnv4UGFfoBWC4ZsWfAg
+	3aN7s1ZsAnb/uzlUYiQP7T/uRKfFThXEYysPXx/FJaM4tU3QQtia1/CupfakE9Gp
+	QrcgODicK1Z/HdFksmagdAaEKC3YVs+u0e93iK9Tg15F5SqLANBa2X1kc8tFtTvj
+	OJv8VXMsWXCp+a9Nc1Nqquz3fiW8mavqULMyv8T33rl7gWlZYaqDmerUpeNIvMYW
+	wM6/nHFwduQ6l3xDCoa2xZMSpYQ2yOXEs31/RYSgcM/RX9ZalLePAP9esHTP+ok7
+	+TQAItggr+T/kgo7hX/auBZbTE1mXVA3yQo=
 Received: from localhost (cloudsdale.the-delta.net.eu.org [local])
-	by cloudsdale.the-delta.net.eu.org (OpenSMTPD) with ESMTPA id 81946b7e;
-	Tue, 1 Jul 2025 16:03:51 +0000 (UTC)
-Date: Tue, 1 Jul 2025 18:03:51 +0200
+	by cloudsdale.the-delta.net.eu.org (OpenSMTPD) with ESMTPA id fc6e162a;
+	Tue, 1 Jul 2025 16:02:09 +0000 (UTC)
 From: "Haelwenn (lanodan) Monnier" <contact@hacktivis.me>
-To: Karel Zak <kzak@redhat.com>
-Cc: Benno Schulenberg <bensberg@telfort.nl>, util-linux@vger.kernel.org
-Subject: Re: [PATCH] rename: change "expression" to "original"
-Message-ID: <aGQG5zND2hha9gyx@cloudsdale.the-delta.net.eu.org>
+To: util-linux@vger.kernel.org
+Cc: "Haelwenn (lanodan) Monnier" <contact@hacktivis.me>
+Subject: [PATCH v2] rename: change "expression" to "substring"
+Date: Tue,  1 Jul 2025 18:01:05 +0200
+Message-ID: <20250701160139.24110-1-contact@hacktivis.me>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20250621232642.17613-2-contact@hacktivis.me>
 References: <20250621232642.17613-2-contact@hacktivis.me>
- <00bb2e9d-cf47-489c-a881-81ab2edc2fe3@telfort.nl>
- <fkvvnjmv7r4uchsmr3qjr23omaw4iixuphblmko3uiczdwimzb@q4gxzqfmx4ix>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <fkvvnjmv7r4uchsmr3qjr23omaw4iixuphblmko3uiczdwimzb@q4gxzqfmx4ix>
+Content-Transfer-Encoding: 8bit
 
-[2025-06-30 14:08:01+0200] Karel Zak:
->On Sun, Jun 22, 2025 at 05:51:39PM +0200, Benno Schulenberg wrote:
->>
->> Op 22-06-2025 om 01:26 schreef Haelwenn (lanodan) Monnier:
->> >   == SYNOPSIS
->> > -*rename* [options] _expression replacement file_...
->> > +*rename* [options] _original replacement file_...
->
->Yes, the current situation ("expression") is unreadable.
->
->> >   == DESCRIPTION
->> > -*rename* will rename the specified files by replacing the first occurrence of _expression_ in their name by _replacement_.
->> > +*rename* will rename the specified files by replacing the first occurrence of the _original_ substring in their name by _replacement_.
->>
->> Instead of using the word "original" (where I would first think: original
->> what?), why not use "substring"?  It describes what the thing actually is,
->> and fits better in the rest of the existing wording.
->
->It seems that in documentation for replace-like functions, it's common
->to use "substring", sometimes the function itself uses "substring" in its name
->(e.g., awk gsub()).
->
->Haelwenn, do you want to update the patch?
->
->    Karel
+As rename(1) doesn't uses an expression (like regex or glob) but rather a substring.
+---
+ misc-utils/rename.1.adoc | 12 ++++++------
+ misc-utils/rename.c      |  2 +-
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-Yeah, sent a V2, wanted to wait a bit in case there were additional feedback
+diff --git a/misc-utils/rename.1.adoc b/misc-utils/rename.1.adoc
+index b8ea2bfdf..fc7df4f1c 100644
+--- a/misc-utils/rename.1.adoc
++++ b/misc-utils/rename.1.adoc
+@@ -20,11 +20,11 @@ rename - rename files
+ 
+ == SYNOPSIS
+ 
+-*rename* [options] _expression replacement file_...
++*rename* [options] _substring replacement file_...
+ 
+ == DESCRIPTION
+ 
+-*rename* will rename the specified files by replacing the first occurrence of _expression_ in their name by _replacement_.
++*rename* will rename the specified files by replacing the first occurrence of _substring_ in their name by _replacement_.
+ 
+ == OPTIONS
+ 
+@@ -38,10 +38,10 @@ Show which files were renamed, if any.
+ Do not make any changes; add *--verbose* to see what would be made.
+ 
+ *-a*, *--all*::
+-Replace all occurrences of _expression_ rather than only the first one.
++Replace all occurrences of _substring_ rather than only the first one.
+ 
+ *-l*, *--last*::
+-Replace the last occurrence of _expression_ rather than the first one.
++Replace the last occurrence of _substring_ rather than the first one.
+ 
+ *-o*, *--no-overwrite*::
+ Do not overwrite existing files. When *--symlink* is active, do not overwrite symlinks pointing to existing targets.
+@@ -57,9 +57,9 @@ The renaming has no safeguards by default or without any one of the options *--n
+ 
+ == EDGE CASES
+ 
+-If the _expression_ is empty, then by default _replacement_ will be added to the start of the filename. With *--all*, _replacement_ will be inserted in between every two characters of the filename, as well as at the start and end.
++If _substring_ is empty, then by default _replacement_ will be added to the start of the filename. With *--all*, _replacement_ will be inserted in between every two characters of the filename, as well as at the start and end.
+ 
+-Normally, only the final path component of a filename is updated. (Or with *--symlink*, only the final path component of the link.) But if either _expression_ or _replacement_ contains a _/_, the full path is updated. This can cause a file to be moved between folders. Creating folders, and moving files between filesystems, is not supported.
++Normally, only the final path component of a filename is updated. (Or with *--symlink*, only the final path component of the link.) But if either _substring_ or _replacement_ contains a _/_, the full path is updated. This can cause a file to be moved between folders. Creating folders, and moving files between filesystems, is not supported.
+ 
+ == INTERACTIVE MODE
+ 
+diff --git a/misc-utils/rename.c b/misc-utils/rename.c
+index bb2e3103d..d7bf4c5d7 100644
+--- a/misc-utils/rename.c
++++ b/misc-utils/rename.c
+@@ -251,7 +251,7 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	FILE *out = stdout;
+ 	fputs(USAGE_HEADER, out);
+ 	fprintf(out,
+-	      _(" %s [options] <expression> <replacement> <file>...\n"),
++	      _(" %s [options] <substring> <replacement> <file>...\n"),
+ 		program_invocation_short_name);
+ 
+ 	fputs(USAGE_SEPARATOR, out);
 
-Best regards
+base-commit: c8e5b8a818323af30ec656f079c7feadaeeb13c3
+-- 
+2.49.0
+
