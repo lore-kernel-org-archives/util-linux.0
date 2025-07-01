@@ -1,109 +1,136 @@
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C83782E7199
-	for <util-linux@vger.kernel.org>; Mon, 30 Jun 2025 19:00:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E41921F03C5
+	for <util-linux@vger.kernel.org>; Tue,  1 Jul 2025 04:57:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751310014; cv=none; b=l3hq72XvSnnoX5s+dlWM7FQpoJjdAFzZMOxqckkpW/2qcYjFH/ge64loPwPQuA4ib8JaW3q7KP7WJSkdKJGbHN86ETfsRNLFGdKUpgk231/kctfFY29Y++/cvOL682ZuUoVX/+jXgNrk7WEXtSRvMqe0w7wrMG6ClCDjYB2uW7U=
+	t=1751345844; cv=none; b=aLrm/qDK8hcRuIUWPk32kRCKjyM7cxK6+gdlRfqHBgoavyHuTEPBIj8l+DmS9Qm3uwstnsHSCy4o+tQxB2ml17HdETEYSWmEEuj2ftbmwx/vN7aEuxa7uLcMFvtAhV0HE7QR1vku8nrNLYWlwWyExxeQosavX8FXqYybfnjWv3c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751310014; c=relaxed/simple;
-	bh=vszTmDEIu7cyqATsIQtXwm8giFegD3pLx+Ra6BI38eQ=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=Mi0DH3lu9CluRU4K6eQ1XeRyXcfujf4A4Tca0/0JDrbjgHqPJEVzwwMyxq1YQeHf0HvnOzHeleQkkEViz/4j4bqYFfAzpGfrX3Mj2z1eezH89RXo147RZIFZlrmC46Zf03voIhUbQcNJAJSo+AiGNwBgOck4/0BpOnRFu2BKRpA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=pfq3ywd7; arc=none smtp.client-ip=209.85.208.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1751345844; c=relaxed/simple;
+	bh=tPEFIIcyawPA02E/l6gFfgfGb6jxQj6meQru6uT43KE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:Cc:
+	 In-Reply-To:Content-Type; b=nC5UwQYgnKMJtBo0Q82dCK7cumnwzgmXcsy5y0K6EV3g0zfIMtRum7Z/1FmNn5L0iJqjgf3fh7zzBqRmVYd+dfoJe7vQuebo5ldnLKdF8pfvEc5iUQmQNfJGLnoc6+25QKOwrMKAZujg/12PDfTbH1HbRu/ty54GEIhUvvtxAv4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fHyAbcuk; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="pfq3ywd7"
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-6098ef283f0so2140a12.0
-        for <util-linux@vger.kernel.org>; Mon, 30 Jun 2025 12:00:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1751310007; x=1751914807; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=IM9y/K2x85NTxS/USIICnUASxaygyr+Jh9y09Ep4cwU=;
-        b=pfq3ywd72nR74UZ3P/MrMG5OX+7+XTGbPQoBSzyWt1oA7GO60Pe0YjCdiWbGhy5xqk
-         r+xsQmGF1jpRnusTuIgXi+WuezZFQ7JaRno+sDw5Sy9MELvGtjUxYxGbutbSFIujR6aj
-         c8DsGleD5j2i2EbPK7mmJsS9ZeI/+Acw0wY+Gxu9ik+lWytS7huk1mManIE7fdvqNVw1
-         Wz6xpDmAwmjp3lkKt6Gc8e9l23YgIL68HmmU6cHhDqT+oweONRvVOvsW5Lj0QHL9Kiza
-         FmbAvGQVmAuKuZyw99iDxJnTDGfd7K2eMdizNBlMuI/wYIbhwTk7ykC8cLcRL8mmogzF
-         q3xQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751310007; x=1751914807;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=IM9y/K2x85NTxS/USIICnUASxaygyr+Jh9y09Ep4cwU=;
-        b=hiPrJriigSL/DyrJIxRQTx2y79gpk0VLD5cpDycUVFWwiIHfR26EnHputMxYTvyMnk
-         XYRaAQP3UYpGUsjU6UW1juhJ8DLbQKLUWENlum6LhmFf5ruv+bZvufW69htJ0L7kIGdO
-         vCiAMuaCCZ6fg6flJufpeznGCWrJPw3n34UC5nBAwufctUuILWNEcST3ABVEasVyWrBP
-         ZXGlC8HN85FSoCdvFLM2v+CbcwiQtPHHV45b4z9P0AjOMP9A3spOu7TTNX/oi4UJoO2L
-         2KVDlKBZNDRH4+Y8Cp5tU+jCmp6ZManeUfuPRDuP7lWAHxW5CQiVrV2nn9Ps5XkSj1dv
-         8MzQ==
-X-Gm-Message-State: AOJu0Yy3Bke99oE7wM5bRpOsturqut74qXtyeq8RCpf8CBTjzk77iNim
-	brMS3EmfyNM3kMLuKvJPLvVpSGFA7jG7OsqUOvphJT8ehCwDZf+VT6zLllwTf1f7L3XKqkz5gbp
-	dWIG06UMhu5qKh1WrhS1F6UKcWwfSe8Dxa+PwWm4Ctf5u4XFQJ20uXPvxWT8=
-X-Gm-Gg: ASbGnctBvIbHrX7zLTWCKl2C5PvDMb3abkMpBJ8yGcLJUdcAvpbs4xRvoNk5gfAEpzH
-	mQkhT/H34MAasye/EDjshruNtYLAgohEcrRjCaB1vQHJAg5s7aH7fB8mSaLFIddaFoD7Q9Y8e5Z
-	QVvP9IFQ/8Mfw+nP/gjJr8g730IqVuGk1J8rLPdDZY/MNEkdnXBo4fyg==
-X-Google-Smtp-Source: AGHT+IEeNssRc4jRRTa6P9rmEPh+VM9TXPsTRVDirXVYaQLFe+ldU/553xjjaarPCp4ovJKUqKR82HbSlP3cIXMzahU=
-X-Received: by 2002:a50:9343:0:b0:607:d206:7657 with SMTP id
- 4fb4d7f45d1cf-60e33366f07mr7755a12.2.1751310006402; Mon, 30 Jun 2025 12:00:06
- -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fHyAbcuk"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55UI1pWa004384;
+	Tue, 1 Jul 2025 04:57:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=2JhXVO
+	Zhp5NhTkxU1nNccn3jzOY/V6T3SM+OU5Xe+s4=; b=fHyAbcukl6cQp0axJ+c2wG
+	y2JNBh2mownAdh2y9LIbpb+ZKX9tVoX/53GJD7rA4xyBI6JLT2qyiHoKgjDQGY8A
+	lHf68/GJvlKfnA/Z6kaTQzSyGYb4i0ZqoUlxYkmiUGXgG0b+zHxyBn7jZakusIyO
+	ooBfApRIC5Zm67jUzv/ZEs4eY7kygvNffip3CSsnmpGKtseQisjSy04dBxgHUsCk
+	ZaOFdU7eWHvA9mOCYSvc8qUrYOgjj4oNzanxfwWoC6QhY5XNmAv5w1RjzRJ0VlZV
+	FOjUS5mPnj6ep4dELuk8DOqQwZbCNg/O2NyUqb9ePdLYiNKpwDUNFVpNUjo+hLzA
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47j82fn1gv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 01 Jul 2025 04:57:16 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 56141ook006830;
+	Tue, 1 Jul 2025 04:57:15 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 47jvxm8wga-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 01 Jul 2025 04:57:15 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5614vEn713435614
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 1 Jul 2025 04:57:14 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 77FE05806C;
+	Tue,  1 Jul 2025 04:57:14 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2236858068;
+	Tue,  1 Jul 2025 04:57:13 +0000 (GMT)
+Received: from [9.43.22.142] (unknown [9.43.22.142])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  1 Jul 2025 04:57:12 +0000 (GMT)
+Message-ID: <d18a16a4-693e-4935-8bab-b99299868569@linux.ibm.com>
+Date: Tue, 1 Jul 2025 10:27:11 +0530
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Jesse Rosenstock <jmr@google.com>
-Date: Mon, 30 Jun 2025 20:59:55 +0200
-X-Gm-Features: Ac12FXwHo09RQYivLgPMWKpc6qSAmGdTXw7nssRmP02EfR0IXe6NQfRgl8QS6YM
-Message-ID: <CAMZQ0rKb4J1LqtQ_vYbCi7sBvD9pp-jQpcmwzeY2y=vFDCLgPw@mail.gmail.com>
-Subject: [PATCH] man: Replace RETURN VALUE with EXIT STATUS in section 1
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/4] chrt: with more than one argument, interpret first
+ argument as priority
+To: Benno Schulenberg <bensberg@telfort.nl>, util-linux@vger.kernel.org
+References: <20250630084052.11041-1-bensberg@telfort.nl>
+Content-Language: en-US
+From: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
+Cc: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
+In-Reply-To: <20250630084052.11041-1-bensberg@telfort.nl>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: OlaVFus1mhVMgJWuBB0-KMqCwcCBeDIp
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzAxMDAyMSBTYWx0ZWRfX38YhkejtWtXZ LB5GYLxZtpiSiTpWZRvS2u1sz2ImlZn4bW9iXi6pL1R7CNWTCfaQnpQvfkEZPKC9wz7sCfH1m6O ujxiUBPDh4LB1UTTAkxqu9BHb5kiMWm1/8yuEw0f2/Z4YrgOjFWtmJIJRHocBGf/OUOJN1Zr8qr
+ t5yiksN1NHJL6q5PBxhxGkirfb0FJw/RJlIN8qMcKGTEbBvtGVrPj6W6SnjuMPvM57rJiWFFB/5 4dClXhdl6JaRA0nqGctr7ZdHIsX50hIYXl164DZar94fvlPZbhlKtiy247tLkuojt7bKBR28MGp l76OrE8c0IDmDytLpcNH3jM7pLOroMBrLikNjhxZ8JhYk1EP1LxRYGr56FcqmKl+z+GnRHYaPnA
+ hKsh5Iq/KLMTaG74fWwWBlNiiposVqYsA33KgMpAAbBCjddaBeEpYFeO7/vvXaEUrIF9Fi3B
+X-Authority-Analysis: v=2.4 cv=LpeSymdc c=1 sm=1 tr=0 ts=68636aac cx=c_pps a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17 a=IkcTkHD0fZMA:10 a=Wb1JkmetP80A:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=MP4aM1IlAAAA:8 a=h_0jaJnDdOg_-67HHiAA:9
+ a=QEXdDO2ut3YA:10 a=x8gzFH9gYPwA:10 a=cNL50C5G4f5gRYKddA97:22
+X-Proofpoint-GUID: OlaVFus1mhVMgJWuBB0-KMqCwcCBeDIp
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
+ definitions=2025-07-01_01,2025-06-27_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ spamscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0 clxscore=1015
+ impostorscore=0 mlxscore=0 mlxlogscore=901 phishscore=0 suspectscore=0
+ malwarescore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2507010021
 
-According to man-pages(7), sections 1 and 8 should normally use
-EXIT STATUS, while sections 2 and 3 should use RETURN VALUE.
+Hi Benno,
 
-https://man7.org/linux/man-pages/man7/man-pages.7.html
+On 30/06/25 14:10, Benno Schulenberg wrote:
+> The first argument is a priority not only for `chrt --pid <prio> <pid>`
+> but also for `chrt <prio> <command> [<argument>...]`.
+> 
+> This fixes an oversight in recent commit e7a2d62434.
+> 
+> CC: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
+> Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
+> ---
+>  schedutils/chrt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/schedutils/chrt.c b/schedutils/chrt.c
+> index 0bcdd1a1e..4c45eae80 100644
+> --- a/schedutils/chrt.c
+> +++ b/schedutils/chrt.c
+> @@ -530,7 +530,7 @@ int main(int argc, char **argv)
+>  
+>  	errno = 0;
+>  
+> -	if (need_prio || argc - optind == 2)
+> +	if (need_prio || argc - optind > 1)
+>  		ctl->priority = strtos32_or_err(argv[optind], _("invalid priority argument"));
+>  	else
+>  		ctl->priority = 0;
 
-https://github.com/util-linux/util-linux/pull/3638
+LGTM.
 
-Signed-off-by: Jesse Rosenstock <jmr@google.com>
----
- schedutils/coresched.1.adoc | 2 +-
- schedutils/taskset.1.adoc   | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Without this patch:
+chrt 12 grep boo README
+chrt: unsupported priority value for the policy: 0: see --max for valid range
 
-diff --git a/schedutils/coresched.1.adoc b/schedutils/coresched.1.adoc
-index 997b6ab36e..483fff9929 100644
---- a/schedutils/coresched.1.adoc
-+++ b/schedutils/coresched.1.adoc
-@@ -96,7 +96,7 @@
- Retrieving or modifying the core scheduling cookie of a process
-requires *PTRACE_MODE_READ_REALCREDS* ptrace access to that process.
- See the section "Ptrace access mode checking" in *ptrace*(2) for more
-information.
+With this patch:
+chrt 12 grep boo README
+      See: http://vger.kernel.org/majordomo-info.html#taboo
 
--== RETURN VALUE
-+== EXIT STATUS
- On success, *{command}* returns 0.
- If *{command}* fails, it will print an error and return 1.
+Reviewed-by: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
+Tested-by: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
 
-diff --git a/schedutils/taskset.1.adoc b/schedutils/taskset.1.adoc
-index 9773303f73..9384347372 100644
---- a/schedutils/taskset.1.adoc
-+++ b/schedutils/taskset.1.adoc
-@@ -106,7 +106,7 @@
+Thanks,
+Madadi Vineeth Reddy
 
- A user can change the CPU affinity of a process belonging to the same
-user. A user must possess *CAP_SYS_NICE* to change the CPU affinity of
-a process belonging to another user. A user can retrieve the affinity
-mask of any process.
-
--== RETURN VALUE
-+== EXIT STATUS
-
- *taskset* returns 0 in its affinity-getting mode as long as the
-provided PID exists.
