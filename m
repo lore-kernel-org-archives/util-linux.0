@@ -1,82 +1,146 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BFE030AAAC
-	for <util-linux@vger.kernel.org>; Wed,  2 Jul 2025 14:53:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E29EC2D46B1
+	for <util-linux@vger.kernel.org>; Wed,  2 Jul 2025 20:08:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751467983; cv=none; b=NblGuReLnDiHbGbP06OQK9D1+SPox1dabW/DLcLgeSmm2hY2Wbg9H0cNV7lCToKEWnJmP3mSspzAE9YSDLdEddsZBWJCcOSzr8WvF0GzMh6AB5OnN2vs+1fTHI9tvxFtm+6PTw2tbQ4clRzkR1UODvR3jW2kPRn3U5e6yg7IX/A=
+	t=1751486918; cv=none; b=nQnikUH+IpozX3a0K3GB37I0V0jfV68oS59gcb33aVl0a+gVJlKKhUXf0sXdD1pK9NVgMHDWAkqplcIm+TfK6lmNx4kcPJow9+kGt4+Oz/TRwCFojb7NI9yN9HcjhligiowdIKGEgK1/Qm4v5C6jIdNINFO5Pn8vzpVTlLwnvYk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751467983; c=relaxed/simple;
-	bh=ELM40rB6Y3ZU0OduyVU5NIiV43iwM8iM8m7cCwn9Av4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lOAUj8GPd9LheJkpJShddYGl28MFiBBNSF5Xjly3/Y2iRC6lLmgSF0C++dL+83MOS8eiTmZMhCQq1rMbar5oq8HUGI0fojyDRU1SPgN4UFH2y0LfO17oR278HX1U2DNiuHH1tJ+D6YWiJhZbZwz4T8/fOHsyWApKd8XRqNGgQ6Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=O+CUklcz; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1751486918; c=relaxed/simple;
+	bh=QjhzAzeV3H1d4jskjvPvEXxhzOPsq/MbxkQEfMKI9AA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=YK9FcOdsBcJbap7Zhv/7ss5QsLd7o+zsXsKrayvokhDSEctSZ55kJY9iSVo6OSvKsgbFpcKfjAsMcafDfh6ycp3Mk8yIJ7GNlgKE56ukfrOW1O/NOPxemub8tA+3CDdvt9m5YRzsZFEwxcdMNrIXAovrIHlT394pflRjAS/8KzA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=O9ORGQgT; arc=none smtp.client-ip=209.85.208.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O+CUklcz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751467981;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=YOto4LJWmL8y8QwrFd68dk1/933wxvDJdKz3L1jJLOo=;
-	b=O+CUklczLcYPL+WuqAmxezOB5s2r3fJVo/yCSor9tUIzVjl25rQV8/V01mHycYNplWud3H
-	qhKf+UeoAmPXwCCv7YVqjVgAIoEkKi1r1LkoplT/vN/UBfvt1SuHad6O7dPZE1urGcJcZs
-	WUnsvkSotSqHP9hPea3XvNPqmaGgky4=
-Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-425-cTu7n8yYMJWtUhdhPwgdZA-1; Wed,
- 02 Jul 2025 10:52:58 -0400
-X-MC-Unique: cTu7n8yYMJWtUhdhPwgdZA-1
-X-Mimecast-MFC-AGG-ID: cTu7n8yYMJWtUhdhPwgdZA_1751467977
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 0F90619560B9;
-	Wed,  2 Jul 2025 14:52:57 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.226.128])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C94D518003FC;
-	Wed,  2 Jul 2025 14:52:55 +0000 (UTC)
-Date: Wed, 2 Jul 2025 16:52:52 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@telfort.nl>
-Cc: Madadi Vineeth Reddy <vineethr@linux.ibm.com>, 
-	util-linux@vger.kernel.org
-Subject: Re: [PATCH 3/4] chrt: simplify the other check for too few arguments
-Message-ID: <kvz4xvunx2bhkm5likrd63s63ckfqgtozhkbafj6vwjlyhfccb@bxxlbpjipchy>
-References: <20250630084052.11041-1-bensberg@telfort.nl>
- <20250630084052.11041-3-bensberg@telfort.nl>
- <4e545c8f-8e74-462f-8416-3c1cbde81b2e@linux.ibm.com>
- <a80cdbf2-0c4d-40dc-8ae6-9ccbd900bc1b@telfort.nl>
- <4xnz2hducqdq7o2nvysrm5pvll7k52sprsycok6ouf5epqua6d@5yicext46xu5>
- <bc67a8ab-2a8b-4339-88e7-02fe71779491@telfort.nl>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="O9ORGQgT"
+Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-60b86fc4b47so575a12.1
+        for <util-linux@vger.kernel.org>; Wed, 02 Jul 2025 13:08:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1751486915; x=1752091715; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=9aYKeGozxVCYl/HOEIZSLuVpbeVap5Mgslfq/TEjGPA=;
+        b=O9ORGQgT8fK5PELpYejnNDHmzk24emP8XL9Zr/z8iHUc8PNITUrLJkJp6oPcpXb4Da
+         5VsPT/o01X9WYkKmXllkepW1YkSzypruABXoLhznCoKw4lGqJ2J0u6I5aqM1+WKvweWp
+         u9q3rt3GB+PRMGTBm0q5Dyi1+qfhQtgdVM2LeYr7/BOCPwK+ZPScxbQ6ccNArL/9icqI
+         4BwbJjAw50/Wl93MWxMAMrspmEN2XBq6wec/5z1DumfTtKEoEJ285KwdWWUNbqM9N9fg
+         BR1Fdlsg3f8Wh8P/zN9XoimTM66PODk8rB0p3WTXJg2NDfA1E5SWZxzEzoBZn/e8RJGx
+         vYJA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751486915; x=1752091715;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=9aYKeGozxVCYl/HOEIZSLuVpbeVap5Mgslfq/TEjGPA=;
+        b=RS3wfEwyxkqOOry6QsPjsC6pHOmNJu6xZbmVs9e8FwrVjGDq2PWBLwBNJNzSgbdhpN
+         rstOYbzLlc2mTvG6cBwf2+tF+3bBasPomsQEpR//I+Ys9GyJVysmwOBUez4v/90vQ4U6
+         qz5gGUOQ4Dy0+QMhHtycN/VUmRBkp1brtkLUJfd8kJOnvNQ12AQbmNOEL3zLUNoJICqg
+         Ph13bIdSqNVsgr6LWZH0+q5QXFMonmCPxrfC2iSIDY8aIDacpnboKQqbQ6IhxSl+LDFo
+         pfNhIYI3x1Vt14MPgizHJsyouzV3KRBnwT0oUV8Qhb23GVZE9/ZBioxnBEI09d/YFgH3
+         Djng==
+X-Gm-Message-State: AOJu0YzHC9u6kuDpEKuuKoiyz1d00f82gW2ZJGMI3Xomc2jS8w5kG7PP
+	AxTXkbrqSSUoA81CNXz7lDCNfmhqCcY/vohow1Aod84KOU0qz9A+aTEty7NJVAenFlNHyVht29z
+	nmEUrHLmEHeED6uy+0jGjIpEnKztKW0PKF+fyt0oRmInGR9C8M/R4ns3D3XM=
+X-Gm-Gg: ASbGnct7vE+mvApbl/fzh2v38/krOMg4Cs7HHkIDRl2PFZArNtj9JyhLhgmcNCaJcRX
+	Ebi8o+VZMU0YmQgiaoRx7A1F/IVchhks7QdKbeTqepqh3WKInjPklUDWuIDjl4h1Z5ScgZe52Rg
+	pbTj7gkqngtJ3WxI2S5isBs/9QHXb/VkIbVNlw5az6FqLYrS0pasI5b20agdtGl4o0aCVS4C2z
+X-Google-Smtp-Source: AGHT+IHhCxlKHrz9x3QlWlEnxojgPShFPclPyuZi4S6oXzSh96PyTrjw2swZpAUVwqAXj2ajSRvh07VoFxbDbdzmO+0=
+X-Received: by 2002:a05:6402:2284:b0:60e:2e88:13b4 with SMTP id
+ 4fb4d7f45d1cf-60e71613632mr9148a12.3.1751486914551; Wed, 02 Jul 2025 13:08:34
+ -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bc67a8ab-2a8b-4339-88e7-02fe71779491@telfort.nl>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+References: <CAMZQ0rLM9UYMupEX4WLmi-J9mh0jGhruzDw3OwpU8yEf0+2E_Q@mail.gmail.com>
+ <lscxfxbzi6j667md5buwprb5muuzpmsdpvvpmbdk7jvsq2rtxo@ucpthvyj2efw>
+In-Reply-To: <lscxfxbzi6j667md5buwprb5muuzpmsdpvvpmbdk7jvsq2rtxo@ucpthvyj2efw>
+From: Jesse Rosenstock <jmr@google.com>
+Date: Wed, 2 Jul 2025 22:08:23 +0200
+X-Gm-Features: Ac12FXxTJ90-7mBX5VQ5JBLluB1a_gWVId_f5B597VkoMXqwhVjF5t1_pKGu_s8
+Message-ID: <CAMZQ0r+-JSaC7UFvAvG10cvqSKiQY--7VYtpsEALidF44wmjbg@mail.gmail.com>
+Subject: [PATCH v3] taskset: Accept 0 pid for current process
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Wed, Jul 02, 2025 at 03:39:53PM +0200, Benno Schulenberg wrote:
-> As far as I can tell, all the util-linux tools understand --help.
-> So, for util-linux tools, it is rather redundant to tell the user
-> this.
+Diffs from v2:
+  * Use strtos32_or_err to parse pid
 
-I mean when users use it on the command line and mix tools from different  
-projects and sources. 
+https://github.com/util-linux/util-linux/pull/3637
 
-    Karel
+This is useful to print the current mask without using `$$`: `taskset -p 0`.
 
+It is also helpful to test taskset: `taskset -c 1-4 taskset -p 0`.
+This is not easy with `$$`.
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+sched_setaffinity(2)/sched_getaffinity(2) accept 0 for the calling
+thread, so this seems consistent.
 
+As an implementation detail, we replace 0 with getpid(), so the existing
+pid != 0 <==> "will exec" logic continues to work unchanged.
+
+A reasonable alternative would be to interpret just `taskset` (currently
+an error) as printing the current mask.  This seems less orthogonal,
+and a better use may be found for plain `taskset` in the future.
+
+Signed-off-by: Jesse Rosenstock <jmr@google.com>
+---
+ schedutils/taskset.1.adoc |  8 ++++++++
+ schedutils/taskset.c      | 13 ++++++++++++-
+ 2 files changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/schedutils/taskset.1.adoc b/schedutils/taskset.1.adoc
+index 9384347372..45622613bd 100644
+--- a/schedutils/taskset.1.adoc
++++ b/schedutils/taskset.1.adoc
+@@ -77,6 +77,7 @@
+
+ *-p*, *--pid*::
+ Operate on an existing PID and do not launch a new task.
++If PID is zero, then operate on the *taskset* process.
+
+ include::man-common/help-version.adoc[]
+
+@@ -134,6 +135,13 @@
+ $ echo $? +
+ 1 +
+
++== EXAMPLES
++
++Print the current CPU affinity as a list.
++
++$ taskset -pc 0 +
++pid 1355988's current affinity list: 0-47 +
++
+ == AUTHORS
+
+ Written by Robert M. Love.
+diff --git a/schedutils/taskset.c b/schedutils/taskset.c
+index b52cd4338b..7e2ecc3365 100644
+--- a/schedutils/taskset.c
++++ b/schedutils/taskset.c
+@@ -186,7 +186,18 @@
+                        all_tasks = 1;
+                        break;
+                case 'p':
+-                       pid = strtopid_or_err(argv[argc - 1],
+_("invalid PID argument"));
++                       /*
++                        * strtopid_or_err() is not suitable here; 0 can be
++                        * passed.
++                        */
++                       pid = strtos32_or_err(argv[argc - 1],
++                                             _("invalid PID argument"));
++                       if (pid == 0)
++                               pid = getpid();
++                       /*
++                        * After this point, pid == 0 means "no pid" and that
++                        * we will exec a command.
++                        */
+                        break;
+                case 'c':
+                        ts.use_list = 1;
