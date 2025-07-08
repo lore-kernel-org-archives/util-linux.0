@@ -1,251 +1,167 @@
-Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
+Received: from mail-qv1-f55.google.com (mail-qv1-f55.google.com [209.85.219.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 945D92206B5
-	for <util-linux@vger.kernel.org>; Tue,  8 Jul 2025 12:20:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 644D62356BC
+	for <util-linux@vger.kernel.org>; Tue,  8 Jul 2025 23:29:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751977229; cv=none; b=FnZBCzrMCBbJcySUQFYyElxm/7BYye3nFsz28w5AuKqw+JWJ7rEgb0OGTfCvPDENC083rO6NaJWNBSDb8aW6R7rueoH7H0hmuk2zmzYFke0i0oKIK4F09PvNuB/OBQ55PaPrZ6HplRmiVm2TOadTO5nxk6OpOiqf5hFvW1RnBOA=
+	t=1752017363; cv=none; b=HYeE4TLHAO/WmlsrAvjp88r8Dvceh/JDrGh1kKu+8nxHVg2jo35RptY4NHhYK1eOeTsUMCUJF67VVJKP9RC/GL2L0O0K8KL0k9+uaswv//89f4a1/8k8nO2P5sDGPoNlNSzVHQ0Qi/3EhzgI5IUyMHcbbM+rHhl2TkunQ8sAAIc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751977229; c=relaxed/simple;
-	bh=qtEqcBR5K9QSjE4FdVB0kFr8OKxKw9X/glqqWyT/ImE=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=ea6gUjt+fvKePBB7Cn4B6756bV/9DU83RBEg7AN/FxxQLlndHSmi+OdsJALUeIfJoG2vZmfLzqnQVOK+XVVly72wEt+zLxZvQeSDR4fAtOLP+OchcCbm3C/EnoXTILQSa+DwVp38MnQKwnQkbFbZjoZq8rNr9n4gbaVOJQm0y1I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=XFI/8RJr; arc=none smtp.client-ip=209.85.208.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1752017363; c=relaxed/simple;
+	bh=AVhLUiWLPWFDEZ3bKphu/oji8tu5xj+vwSVPqwUP5KI=;
+	h=Date:From:To:Cc:Message-Id:Subject:MIME-Version:Content-Type; b=Vz+9yKsGRvI/HCxD4ddx1W+eefy0J/iIUk5l3gemfPEb8INd2g44NX5h1zj17w+sC+8rtJd7POtjqf5lOOInOTJHh8V4ByzMHy3cMKWN8w3alWe2AsfJv7svE+3lKDaslI1mPqS2896teV7K9bOMX/XxbuP1YyLTj7PprcWe66w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ancd.us; spf=none smtp.mailfrom=ancd.us; dkim=pass (2048-bit key) header.d=ancd-us.20230601.gappssmtp.com header.i=@ancd-us.20230601.gappssmtp.com header.b=SFbKriZL; arc=none smtp.client-ip=209.85.219.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ancd.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ancd.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="XFI/8RJr"
-Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-6098ef283f0so10726a12.0
-        for <util-linux@vger.kernel.org>; Tue, 08 Jul 2025 05:20:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ancd-us.20230601.gappssmtp.com header.i=@ancd-us.20230601.gappssmtp.com header.b="SFbKriZL"
+Received: by mail-qv1-f55.google.com with SMTP id 6a1803df08f44-6fb4eed1914so108406796d6.0
+        for <util-linux@vger.kernel.org>; Tue, 08 Jul 2025 16:29:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1751977225; x=1752582025; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+        d=ancd-us.20230601.gappssmtp.com; s=20230601; t=1752017360; x=1752622160; darn=vger.kernel.org;
+        h=mime-version:subject:message-id:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=PAvbhby1FVFJ3jcHRl2TnMe/LbMq2aOyqqUdhDhgG8k=;
-        b=XFI/8RJrPU2v++O3ML7/JEh3HGtRpvwcHHk2lfYibBju563uKijpT6wTp1KqO9EpmR
-         NHYbNAxYwhEPR2dpvUqi+zu4hhgH9Br1LtM0zkHmGg0FvfOn12/QU6WFP1YTpBEKIRMI
-         UjYeo+zgQrwd4GOQQgHudgGcBcZPaX7aPHOE6Wtai6H1N7Xdnytyn4f6yuua1RD0KWz4
-         MKgCRC1XfURtYgTHXe/BsaTl6WXWDm2icplsFbfnFGTzFC2uRL+icpb+l2yh86oQ+VJV
-         ptSIYIMhvUVBXo88JOVIlIFKXsgiGqrQ+QiuHdbjMUqFIymnyz29gnlwG7/hxalIRCvA
-         byOw==
+        bh=Eg51RDI/DKRkZfKtfN6Uj4sOZ2fozzsaxsRteqi1N18=;
+        b=SFbKriZLDbV35g9nX9/FZRlcbWby7Om8TtzG6cqJlLoMaelTiKZulV6cYpRMKDmx5p
+         LtrM4V8Bx6XgjZ77F/s6CBqNALxkcGHsyMgBR79Ka2G6rpmUJD+5Jkgp4lmgLGehm/BZ
+         KySUOf0Pm3jFj4JhvQysh9viwq14IQdQQuBpbCOALfGBsOK0Jc3x5ieOssPBrbkqDmkg
+         kDwbS/V5g7r8M0WfwjZkEnNpEXj66tDljIuTIfS0KnX8Z2rhwjb2XUCFxUGgYqrNgIiq
+         kTvRY1oKxY3QzcwWk5MsI7sOYcejOgLD9BJfHwYv2cCceJegtLSQ/rp48c2XFUVmf9jR
+         b6ig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751977225; x=1752582025;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+        d=1e100.net; s=20230601; t=1752017360; x=1752622160;
+        h=mime-version:subject:message-id:cc:to:from:date:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=PAvbhby1FVFJ3jcHRl2TnMe/LbMq2aOyqqUdhDhgG8k=;
-        b=AIt9nSNkWb1wxFhIcWVdjJHpubQdUlxmB5KCJ3C9RaKnWtLkXgJ9Wqyo1veOvNfL4c
-         HZ2xqX314mZMteWfOl3VsLacibOU5iM/OG0gRPTO3dTt1iveW41kUhAGAP8+jRy4g7c6
-         m6maEkqSCKMHjY42lgz8QouBq7M7soGI+rKpLZ+t9+ZKIRsyOcSxBlYkf3a5Pe8M8uEN
-         9nmcDireRir5odmOqR32lyYaAyiyfmp2nZvLzZ1BcNLVT0W9SJ/DgAM8fA6TezZhXrI1
-         F2VqtHG7bZBtQGzEhHA8c6Cc6M+tGEQI5c4McogWMInKola+17jLNa3EeKuLEI3LyL+J
-         2c9Q==
-X-Gm-Message-State: AOJu0Yyl8VJBSqjgE1QTIY2vpy4Qrov9G8gVgZu7XTTH1l5xr1slOwJO
-	N/7ydqUHtIBDm8+N7eLuLgrMAWVTLDVPT9dM1T2XWIT4B9PSWe2vdpOFFYLKudXueGoCBK1Muoc
-	wLrvvSFnqGnBzpGY4bv6XyxngxU2QH85Das8iaNub04xVKgWCItMgLYvUNOo=
-X-Gm-Gg: ASbGncvoGzsAgN1D6XQHbNpjdNPS4YyyO9skRuzn+nZ+YwTDi0vEcLg81Cx+5ftPAdv
-	Q2xADU77IdLdhWtHxnpehOF0eHbMf2EQVuR20SIFHXCD5SIaJTI9bPXA7mBXSwb0Tie5C3+iLul
-	v7INP7TSOa/yHgTAtYKsQGVFsIsT1UcnfXLQ6yA0Ss62QcZz49SqZX90FVHT1HdysX4Q6wMX31k
-	g==
-X-Google-Smtp-Source: AGHT+IE/1RGbE0Y7GFBPfA1k6HJNDBuqvINAI+QpTJk8VPlD5Hqddufv6ANbHXokoOm+liLm8lgBvT7H0efCbHw8wKw=
-X-Received: by 2002:aa7:d817:0:b0:609:b4b1:5152 with SMTP id
- 4fb4d7f45d1cf-61051c56c9cmr43947a12.3.1751977225075; Tue, 08 Jul 2025
- 05:20:25 -0700 (PDT)
+        bh=Eg51RDI/DKRkZfKtfN6Uj4sOZ2fozzsaxsRteqi1N18=;
+        b=sZON00qGgNje+eO1SM1SFKVbu/yKTR784dvKtlb/gUHv7UtpohbCWb9FI2C5avx9hC
+         F9pPUbCxui6myiDcAgDOdAIX9uEFuHahW8x6+xsraRq2ryxrsX/zHJ+l35Gp0scbK/kg
+         Jyc39ZAPSVU3v+2F2rpmclM9h1doCNKkjipcJMP5ypfBXxA4UVh6Xto/R8CzljcwqSb0
+         hOU2V97RuokZdGLAZRxDkDR/9xL9kOjMZq6uS0gTztv48hTayDtD9r75q/nVKN4E1XUL
+         rfqM3CyqDF1++wJCHawrzNXO0dPC1ysM3ig2CLFGLtK6JtOtcfMw1rvbQQxfUCadEZ9v
+         T/Qw==
+X-Forwarded-Encrypted: i=1; AJvYcCXSKB+wbTcXBqO0yXZwLHfqGySHWcb/bnSWtnPz7RtpvvXI6RZB+lPAud/ueTTc6+pXYrienfSIEDja@vger.kernel.org
+X-Gm-Message-State: AOJu0Yylsz54VT6bfNK9W77nADNvuCsK13xR9nZYG8NMNs6TydDn4byc
+	NeP2MH9JJq+vmXU0QRPiw5HtgpRRfnhKDA97ZYxA+i0xzXN4zBuXPhSgSZFke+wTC6clzySz5RO
+	1yqn6U5+EuhxXRw==
+X-Google-Smtp-Source: AGHT+IG65neSfCwG2vxxo5xCI3ZOsYKoHRnmyp0Gxvx1tg6LqUVHQKvJVzfwjVKZ2IeJuFV0IgMXf/jFkQ==
+X-Received: by 2002:a05:6214:1c8a:b0:701:a0e:861f with SMTP id 6a1803df08f44-7048b943c49mr7125826d6.9.1752017360178;
+        Tue, 08 Jul 2025 16:29:20 -0700 (PDT)
+X-Google-Already-Archived: Yes
+X-Google-Already-Archived-Group-Id: f2b26efd0a
+X-Google-Doc-Id: 3421365ceb061
+X-Google-Thread-Id: da02913d00719497
+X-Google-Message-Url: http://groups.google.com/a/ancd.us/group/elleryowensb/msg/3421365ceb061
+X-Google-Thread-Url: http://groups.google.com/a/ancd.us/group/elleryowensb/t/da02913d00719497
+X-Google-Web-Client: true
+Date: Tue, 8 Jul 2025 16:29:19 -0700 (PDT)
+From: "Email Marketing software ." <elleryowensb@ancd.us>
+To: "Email Marketing software ." <elleryowensb@ancd.us>
+Cc: jpoppleton@chandlerprep.org, manfred.kuenzel@kuenzel.de,
+	RPACKER@rvc.ac.uk, comex@loktal.com, info@scrosswa.org.au,
+	wakehurst@kew.org, mcianfarano@lbpearson.ca,
+	jmcouture@seattleschools.org, principal@mgpgc.ac.in,
+	util-linux@vger.kernel.org, jliang@marincounty.org,
+	librarian@theportico.org.uk, Chibudu@afrilabs.com,
+	buchhaltung@kathausverwaltung.at, catering@ocrualaoi.com,
+	megan.thomas@intertek.com, Jason.Cegayle@devp.org, rdbros@yahoo.com,
+	watershedplanner@rdkb.com, dthomson@han.kevibham.org,
+	media.relations@novartis.com,  <achalvashi@gmail.com>
+Message-Id: <097f08cf-2efc-4166-9505-822f03f5d549n@ancd.us>
+Subject: =?UTF-8?Q?High-speed,_Bulk,_Multi-th?=
+ =?UTF-8?Q?readed,_Built-in_Proxies_=EF=BC=8E=EF=BC=8E?=
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Jesse Rosenstock <jmr@google.com>
-Date: Tue, 8 Jul 2025 14:20:14 +0200
-X-Gm-Features: Ac12FXy9qZUOGyoL6ax4__bhG1i1OjOomK7J80KoJ3K3nGb40xRcBMvJMoEDy38
-Message-ID: <CAMZQ0rLE-6_Nowk5N+YCt35AM4L3XgvxtBQudr59Je73s2kffA@mail.gmail.com>
-Subject: [PATCH] cpuset: Use stride in cpulist_create
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_627210_1851656454.1752017359547"
 
-Format cpu lists for `taskset -c`, `lscpu`, etc. using stride.  This
-usually produces shorter output.
+------=_Part_627210_1851656454.1752017359547
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_627211_1026870505.1752017359547"
 
-Now:
-% ./taskset -c 0-24:2,25-47:4 ./taskset -pc 0
-pid 3937653's current affinity list: 0-24:2,25-45:4
+------=_Part_627211_1026870505.1752017359547
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Previously:
-% ./taskset -c 0-23:2,24-47:4 ./taskset -pc 0
-pid 3933321's current affinity list:
-0,2,4,6,8,10,12,14,16,18,20,22,24,28,32,36,40,44
 
-The ranges are constructed greedily; in general it is difficult to
-construct a minimal list.
-% ./taskset -c 0-63:3,0-63:4 ./taskset -pc 0
-pid 3926213's current affinity list:
-0,3,4-8:2,9-15:3,16-20:2,21-27:3,28-32:2,33-39:3,40-44:2,45
 
-The patch below uses spaces because gmail hates tabs. Tabs are used in the PR.
+=E2=9C=94. Thousands to hundreds of thousands of emails sent per day.=20
+=E2=9C=94. The only software on the market that uses Web mode + Http protoc=
+ol to=20
+send mail. It completely simulates the manual login and sending of Chrome=
+=20
+browser.=20
 
-https://github.com/util-linux/util-linux/pull/3646
+=E2=9C=94. One-click start, Http protocol,Fully Automated, High-speed, Bulk=
+,=20
+Multi-threaded,Built-in Proxies.
 
-Signed-off-by: Jesse Rosenstock <jmr@google.com>
----
- lib/cpuset.c                            | 75 +++++++++++++++++--------
- tests/expected/lscpu/lscpu-x86_64-64cpu |  6 +-
- tests/expected/misc/bits-list           |  2 +-
- tests/expected/misc/bits-parse-mask     |  2 +-
- tests/expected/schedutils/cpuset        |  4 +-
- 5 files changed, 58 insertions(+), 31 deletions(-)
+=E2=9C=94. Free full-featured trial for 3 days.
 
-diff --git a/lib/cpuset.c b/lib/cpuset.c
-index 533b8ab309b..d6469203092 100644
---- a/lib/cpuset.c
-+++ b/lib/cpuset.c
-@@ -147,43 +147,70 @@ int __cpuset_count_s(size_t setsize, const cpu_set_t *set)
- }
- #endif
+DEMO: youtu.be/vGpfyP18VLA
 
-+/*
-+ * Finds the first CPU present after the specified index.
-+ *
-+ * start: starting index, inclusive.
-+ * setsize: size of the set in *bytes*.
-+ * set: CPU set to search.
-+ *
-+ * Return: the index of the first CPU present in `set`, starting at `start`.
-+ * If no such CPU exists, returns the size of the set in *bits*.
-+ */
-+static size_t find_next_cpu(size_t start, size_t setsize, cpu_set_t *set)
-+{
-+       size_t nbits = cpuset_nbits(setsize);
-+       for (; start < nbits; start++)
-+               if (CPU_ISSET_S(start, setsize, set))
-+                       return start;
-+       return start;
-+}
-+
- /*
-  * Returns human readable representation of the cpuset. The output format is
-- * a list of CPUs with ranges (for example, "0,1,3-9").
-+ * a list of CPUs with ranges (for example, "0,1,3-9:3").
-  */
- char *cpulist_create(char *str, size_t len,
-                        cpu_set_t *set, size_t setsize)
- {
--       size_t i;
-        char *ptr = str;
-        int entry_made = 0;
-        size_t max = cpuset_nbits(setsize);
--
--       for (i = 0; i < max; i++) {
--               if (CPU_ISSET_S(i, setsize, set)) {
--                       int rlen;
--                       size_t j, run = 0;
--                       entry_made = 1;
--                       for (j = i + 1; j < max; j++) {
--                               if (CPU_ISSET_S(j, setsize, set))
--                                       run++;
--                               else
--                                       break;
-+       size_t a = 0;  /* min for cpu range */
-+       size_t next = 0;  /* where to start looking for next cpu */
-+
-+       while ((a = find_next_cpu(next, setsize, set)) < max) {
-+               int rlen;
-+               next = find_next_cpu(a + 1, setsize, set);
-+               if (next == max) {
-+                       rlen = snprintf(ptr, len, "%zu,", a);
-+               } else {
-+                       /* Extend range as long as we have the same stride. */
-+                       size_t b = next;
-+                       size_t s = b - a;
-+                       while (((next = find_next_cpu(b + 1, setsize, set)) <
-+                               max) && next - b == s) {
-+                               b = next;
-                        }
--                       if (!run)
--                               rlen = snprintf(ptr, len, "%zu,", i);
--                       else if (run == 1) {
--                               rlen = snprintf(ptr, len, "%zu,%zu,", i, i + 1);
--                               i++;
-+                       if (b - a == s) {
-+                               /*
-+                                * Only print one CPU.  Hope the next one can
-+                                * be put in the next range.
-+                                */
-+                               rlen = snprintf(ptr, len, "%zu,", a);
-+                               next = b;
-+                       } else if (s == 1) {
-+                               rlen = snprintf(ptr, len, "%zu-%zu,", a, b);
-                        } else {
--                               rlen = snprintf(ptr, len, "%zu-%zu,",
-i, i + run);
--                               i += run;
-+                               rlen = snprintf(ptr, len, "%zu-%zu:%zu,",
-+                                               a, b, s);
-                        }
--                       if (rlen < 0 || (size_t) rlen >= len)
--                               return NULL;
--                       ptr += rlen;
--                       len -= rlen;
-                }
-+               if (rlen < 0 || (size_t) rlen >= len)
-+                       return NULL;
-+               ptr += rlen;
-+               len -= rlen;
-+               entry_made = 1;
-        }
-        ptr -= entry_made;
-        *ptr = '\0';
-diff --git a/tests/expected/lscpu/lscpu-x86_64-64cpu
-b/tests/expected/lscpu/lscpu-x86_64-64cpu
-index b5b6c85c322..d359a6875e6 100644
---- a/tests/expected/lscpu/lscpu-x86_64-64cpu
-+++ b/tests/expected/lscpu/lscpu-x86_64-64cpu
-@@ -21,9 +21,9 @@ L1i cache:           1 MiB (32 instances)
- L2 cache:            8 MiB (32 instances)
- L3 cache:            72 MiB (4 instances)
- NUMA node(s):        3
--NUMA node0 CPU(s):
-0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62
--NUMA node2 CPU(s):   1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61
--NUMA node3 CPU(s):   3,7,11,15,19,23,27,31,35,39,43,47,51,55,59,63
-+NUMA node0 CPU(s):   0-62:2
-+NUMA node2 CPU(s):   1-61:4
-+NUMA node3 CPU(s):   3-63:4
+TG: wowofrom2008
 
- # The following is the parsable format, which can be fed to other
- # programs. Each different item in every column has an unique ID
-diff --git a/tests/expected/misc/bits-list b/tests/expected/misc/bits-list
-index 7511e5378ea..e6c6d142a2f 100644
---- a/tests/expected/misc/bits-list
-+++ b/tests/expected/misc/bits-list
-@@ -1 +1 @@
--11,22,33,44
-+11-44:11
-diff --git a/tests/expected/misc/bits-parse-mask
-b/tests/expected/misc/bits-parse-mask
-index 59dd4b4c169..37b1257b85e 100644
---- a/tests/expected/misc/bits-parse-mask
-+++ b/tests/expected/misc/bits-parse-mask
-@@ -1 +1 @@
--1,3,6,7,9,11,14-16,18,19,21,23-25,27
-+1,3,6,7-11:2,14-16,18,19-23:2,24,25,27
-diff --git a/tests/expected/schedutils/cpuset b/tests/expected/schedutils/cpuset
-index 10e17606c0e..695e75dc9f6 100644
---- a/tests/expected/schedutils/cpuset
-+++ b/tests/expected/schedutils/cpuset
-@@ -8,7 +8,7 @@ masks:
- 0x00000007      =               7 [0-2]
- 0x00000008      =               8 [3]
- 0x00000009      =               9 [0,3]
--0x00005555      =            5555 [0,2,4,6,8,10,12,14]
-+0x00005555      =            5555 [0-14:2]
- 0x00007777      =            7777 [0-2,4-6,8-10,12-14]
- strings:
- 0               =               1 [0]
-@@ -20,5 +20,5 @@ strings:
- 0-2             =               7 [0-2]
- 3               =               8 [3]
- 0,3             =               9 [0,3]
--0,2,4,6,8,10,12,14 =            5555 [0,2,4,6,8,10,12,14]
-+0,2,4,6,8,10,12,14 =            5555 [0-14:2]
- 0-2,4-6,8-10,12-14 =            7777 [0-2,4-6,8-10,12-14]
+=20
+
+*cracker contentiousinvalid contentiousbrighten contentiousrest=20
+contentiousretelling contentiousvasilis contentious.*
+
+------=_Part_627211_1026870505.1752017359547
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<p><font color=3D"#800000"><font size=3D"5"><span style=3D'text-align: left=
+; color: rgb(0, 102, 0); text-transform: none; text-indent: 0px; letter-spa=
+cing: normal; font-family: "Microsoft YaHei"; font-size: medium; font-style=
+: normal; font-weight: 400; word-spacing: 0px; float: none; display: inline=
+ !important; white-space: normal; orphans: 2; widows: 2; font-variant-ligat=
+ures: normal; font-variant-caps: normal; -webkit-text-stroke-width: 0px; te=
+xt-decoration-thickness: initial; text-decoration-style: initial; text-deco=
+ration-color: initial;'>=E2=9C=94. </span>Thousands to hundreds of thousand=
+s of emails sent per day. </font></font></p><font color=3D"#800000"><font s=
+ize=3D"5"><span style=3D'text-align: left; color: rgb(0, 102, 0); text-tran=
+sform: none; text-indent: 0px; letter-spacing: normal; font-family: "Micros=
+oft YaHei"; font-size: medium; font-style: normal; font-weight: 400; word-s=
+pacing: 0px; float: none; display: inline !important; white-space: normal; =
+orphans: 2; widows: 2; font-variant-ligatures: normal; font-variant-caps: n=
+ormal; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; =
+text-decoration-style: initial; text-decoration-color: initial;'>=E2=9C=94.=
+ </span>The only software on the market that uses Web mode + Http protocol =
+to send mail. It completely simulates the manual login and sending of Chrom=
+e browser. </font></font><p><font color=3D"#800000"><font size=3D"5"><span =
+style=3D'text-align: left; color: rgb(0, 102, 0); text-transform: none; tex=
+t-indent: 0px; letter-spacing: normal; font-family: "Microsoft YaHei"; font=
+-size: medium; font-style: normal; font-weight: 400; word-spacing: 0px; flo=
+at: none; display: inline !important; white-space: normal; orphans: 2; wido=
+ws: 2; font-variant-ligatures: normal; font-variant-caps: normal; -webkit-t=
+ext-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-=
+style: initial; text-decoration-color: initial;'>=E2=9C=94. </span>One-clic=
+k start, Http protocol,Fully Automated, High-speed, Bulk, Multi-threaded,Bu=
+ilt-in Proxies.</font></font></p><p><font size=3D"6"><font color=3D"red"><s=
+pan style=3D'text-align: left; color: rgb(0, 102, 0); text-transform: none;=
+ text-indent: 0px; letter-spacing: normal; font-family: "Microsoft YaHei"; =
+font-size: medium; font-style: normal; font-weight: 400; word-spacing: 0px;=
+ float: none; display: inline !important; white-space: normal; orphans: 2; =
+widows: 2; font-variant-ligatures: normal; font-variant-caps: normal; -webk=
+it-text-stroke-width: 0px; text-decoration-thickness: initial; text-decorat=
+ion-style: initial; text-decoration-color: initial;'>=E2=9C=94. </span><fon=
+t face=3D"Microsoft YaHei">Free full-featured trial for 3 days.</font></fon=
+t></font></p><p><font size=3D"4">DEMO: <a style=3D'text-align: left; text-t=
+ransform: none; text-indent: 0px; letter-spacing: normal; font-family: "Mic=
+rosoft YaHei"; font-size: medium; font-style: normal; font-weight: 400; wor=
+d-spacing: 0px; white-space: normal; orphans: 2; widows: 2; background-colo=
+r: rgb(255, 255, 255); font-variant-ligatures: normal; font-variant-caps: n=
+ormal; -webkit-text-stroke-width: 0px;' href=3D"youtu.be/vGpfyP18VLA" targe=
+t=3D"_blank">youtu.be/vGpfyP18VLA</a></font></p><p><font size=3D"4"><font c=
+olor=3D"#333300">TG</font>: <font color=3D"#800000">wowofrom2008</font></fo=
+nt></p><p><font color=3D"#800000" size=3D"4"></font>&nbsp;</p><p><strong>cr=
+acker contentiousinvalid contentiousbrighten contentiousrest contentiousret=
+elling contentiousvasilis contentious.</strong><font color=3D"#0000ff"><br =
+/></font></p>
+------=_Part_627211_1026870505.1752017359547--
+
+------=_Part_627210_1851656454.1752017359547--
