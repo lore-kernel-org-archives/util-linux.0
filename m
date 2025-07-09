@@ -1,47 +1,47 @@
 Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AE92270ECD
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED46C274B33
 	for <util-linux@vger.kernel.org>; Wed,  9 Jul 2025 09:07:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752052076; cv=none; b=YvGShQDRbqLMSo7jxDbAdWMsPEOH95I8CZP3fWotlj0mjfjqmgBaD6Z/hmunn4yx+dPXSok2RM2R+U+Lj7upYZ9mUKUjzFfcpt5E52elSL2P79NG5hjmSBmriQCaa8l2CrEm1XSj2Tj2yLu0NDWcXkYIw5nNRV0NeE28SSVA0N8=
+	t=1752052077; cv=none; b=RLKzlr2DNXmsBrUgH+BT/GzsCNDR70QiZOs0Sur0wv1ZIyiGfe4s968PAdpAiei6xAhI3IYsny67GqPjntEwii/wXudOvvRC5PLmoJzX97SwbETdXk6lrK7R68PU9ZnMalSkshYOMC3bysjbY4foeyYnHAsS7ssK4GNWtRVxY2Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752052076; c=relaxed/simple;
-	bh=Y64rueePlydz2m9ruVKk9Ze6jsWWh0OfAPdJ+vXSnEU=;
+	s=arc-20240116; t=1752052077; c=relaxed/simple;
+	bh=yGugUtqEah7TafxWtOZ97XIPC0EdceC7jky5E4gchvQ=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=JocrVUejuI/HuASR0TsSZSjBulYLVqqSk7UHcO6xEDD6fLc1O9Z39mafKb4T7BuyiVpuFYfop+0HU6+klMxLMpupHpV+e8agO8UlkslvsuvrZskiDw61c5YCF5IDZpmm5F29tOGsCxo17J2XqyPt50vjj/ysiv0TPlVD3ZrAmaU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=Pz5jUjLe; arc=none smtp.client-ip=195.121.94.170
+	 MIME-Version; b=fgC5IL0JoA3BX19dEjNZMGhs9Cs7EXN+IjstbmfOo3/mCzvR2kiwCMsL1/NrRG4cSiQqb/NVvMuGry/wXVdg7h9jWOuqWxkH5exCtKTufSx5hc1Bo8NZ4WadJr6158fdxnYJv8SZMRKt5JH89Wu4UWL6ufPstThwbb0G98tEwjU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=CQKHfMJa; arc=none smtp.client-ip=195.121.94.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="Pz5jUjLe"
-X-KPN-MessageId: 607abffd-5ca4-11f0-bc2f-005056ab378f
-Received: from smtp.kpnmail.nl (unknown [10.31.155.40])
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="CQKHfMJa"
+X-KPN-MessageId: 64883549-5ca4-11f0-bc2f-005056ab378f
+Received: from smtp.kpnmail.nl (unknown [10.31.155.37])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 607abffd-5ca4-11f0-bc2f-005056ab378f;
-	Wed, 09 Jul 2025 11:09:11 +0200 (CEST)
+	id 64883549-5ca4-11f0-bc2f-005056ab378f;
+	Wed, 09 Jul 2025 11:09:17 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=SipNEnLEiQpR2djx08Ew4PW5jxZ8Q/tzhL1wrC4INoU=;
-	b=Pz5jUjLeAP8iC7NNvgpVly61iy65oG9QghJdz5kRW9v8OewZDisc4D84swwff81vbe7qA9plIZtcn
-	 apUzKsr8VPDzjQuodpXI6ua8dz/1qeISbCJqVYS/lQcge4am9yS/ebMDys3dka/848XZc3i4Zv+b+t
-	 UO0UYmPSCvZ0P/CE=
-X-KPN-MID: 33|Iid228HIjZJnhl5faBnPxJy/W/ghzrM8Lu/EYAQqZzTtwkGpapmo7JDsjFcpHx4
- EWVK+73q5WX4SrDg10nyfcw==
+	bh=E+t74bW61knzMPYUQYBF09oT6kPqREad4Vq5fiWN3KQ=;
+	b=CQKHfMJape9ToI5h0IWx3JLJpbisSRGpEd9cM1dhimdHZDb4jgcbFj5ZA7aXL5IYPzZOfsdcGO/uj
+	 qAEDl705U5wkpRtWuENzaQ9WUqaKcTShjgoemA+8VQGZ6PLtofUpMtNWduaOXxU14VWbtonPc2XMxl
+	 svhJ0bsIUhJiemN4=
+X-KPN-MID: 33|ajDUHiIPANP4EFlwzieVWk4pJZd2q0s0YmhuqNtAzfSnGl6HAN7HeELYGLIDqjj
+ vsEkgaAj4BffLWDMT8a9ECCMlSmV+6UewrRGZLDVfLYM=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|9pf2oXPQRtP8oweYEng409bynO1qdOkhIN2uJLi3Lz2DAql5UgtFsdJvzZ3pmkB
- idCF6Ihtw/TxoxL5U9JcnUQ==
+X-CMASSUN: 33|xp9lzGQmOrCsCBI+qsvhaXsVYg53Kbz2igGgczVBPsIxXeRVolv1rOWDr6aIcWC
+ aLvGCfinnbR4pxg1GbCqhVQ==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 2df4d948-5ca4-11f0-85b8-005056ab7584;
-	Wed, 09 Jul 2025 11:07:46 +0200 (CEST)
+	id 3205a113-5ca4-11f0-9c51-005056ab1411;
+	Wed, 09 Jul 2025 11:07:53 +0200 (CEST)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 2/3] textual: harmonize the messages for an invalid size, length, and offset
-Date: Wed,  9 Jul 2025 11:07:33 +0200
-Message-ID: <20250709090734.18263-2-bensberg@telfort.nl>
+Subject: [PATCH 3/3] textual: harmonize the messages for invalid count and timeout values
+Date: Wed,  9 Jul 2025 11:07:34 +0200
+Message-ID: <20250709090734.18263-3-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.48.2
 In-Reply-To: <20250709090734.18263-1-bensberg@telfort.nl>
 References: <20250709090734.18263-1-bensberg@telfort.nl>
@@ -53,168 +53,139 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The added words "argument" or "value" or "specified" don't make things
-clearer and are just unneeded verbosity.  Also, use all lowercase.
-
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- disk-utils/addpart.c    | 2 +-
- disk-utils/mkswap.c     | 4 ++--
- disk-utils/resizepart.c | 2 +-
- misc-utils/blkid.c      | 4 ++--
- misc-utils/fadvise.c    | 4 ++--
- misc-utils/lsclocks.c   | 2 +-
- misc-utils/pipesz.c     | 2 +-
- misc-utils/wipefs.c     | 2 +-
- sys-utils/fallocate.c   | 6 +++---
- 9 files changed, 14 insertions(+), 14 deletions(-)
+ login-utils/sulogin.c | 2 +-
+ misc-utils/findmnt.c  | 2 +-
+ misc-utils/uuidgen.c  | 2 +-
+ misc-utils/waitpid.c  | 5 ++---
+ sys-utils/flock.c     | 3 +--
+ sys-utils/wdctl.c     | 4 ++--
+ term-utils/agetty.c   | 2 +-
+ term-utils/wall.c     | 4 ++--
+ 8 files changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/disk-utils/addpart.c b/disk-utils/addpart.c
-index 6bdb33662..5f45bbc3a 100644
---- a/disk-utils/addpart.c
-+++ b/disk-utils/addpart.c
-@@ -69,7 +69,7 @@ int main(int argc, char **argv)
- 	if (partx_add_partition(fd,
- 			strtou32_or_err(argv[2], _("invalid partition number argument")),
- 			strtou64_or_err(argv[3], _("invalid start argument")),
--			strtou64_or_err(argv[4], _("invalid length argument"))))
-+			strtou64_or_err(argv[4], _("invalid length"))))
- 		err(EXIT_FAILURE, _("failed to add partition"));
- 
- 	return EXIT_SUCCESS;
-diff --git a/disk-utils/mkswap.c b/disk-utils/mkswap.c
-index 609ecadd0..3cb7a043b 100644
---- a/disk-utils/mkswap.c
-+++ b/disk-utils/mkswap.c
-@@ -641,10 +641,10 @@ int main(int argc, char **argv)
- 			break;
- 		case 'o':
- 			ctl.offset = str2unum_or_err(optarg,
--					10, _("Invalid offset"), SINT_MAX(off_t));
-+					10, _("invalid offset"), SINT_MAX(off_t));
- 			break;
- 		case 's':
--			ctl.filesz = strtosize_or_err(optarg, _("Invalid size"));
-+			ctl.filesz = strtosize_or_err(optarg, _("invalid size"));
- 			break;
- 		case 'F':
- 			ctl.file = 1;
-diff --git a/disk-utils/resizepart.c b/disk-utils/resizepart.c
-index e29021b37..798dd3079 100644
---- a/disk-utils/resizepart.c
-+++ b/disk-utils/resizepart.c
-@@ -118,7 +118,7 @@ int main(int argc, char **argv)
- 				wholedisk, argv[2]);
- 
- 	if (partx_resize_partition(fd, partno, start,
--			strtou64_or_err(argv[3], _("invalid length argument"))))
-+			strtou64_or_err(argv[3], _("invalid length"))))
- 		err(EXIT_FAILURE, _("failed to resize partition"));
- 
- 	if (close_fd(fd) != 0)
-diff --git a/misc-utils/blkid.c b/misc-utils/blkid.c
-index 63e61b5fa..3960b0d97 100644
---- a/misc-utils/blkid.c
-+++ b/misc-utils/blkid.c
-@@ -813,7 +813,7 @@ int main(int argc, char **argv)
- 				errx(BLKID_EXIT_OTHER, _("unsupported output format %s"), optarg);
- 			break;
- 		case 'O':
--			ctl.offset = strtosize_or_err(optarg, _("invalid offset argument"));
-+			ctl.offset = strtosize_or_err(optarg, _("invalid offset"));
+diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
+index 0de850508..eb4609db6 100644
+--- a/login-utils/sulogin.c
++++ b/login-utils/sulogin.c
+@@ -1037,7 +1037,7 @@ int main(int argc, char **argv)
+ 	while ((c = getopt_long(argc, argv, "ehpt:V", longopts, NULL)) != -1) {
+ 		switch(c) {
+ 		case 't':
+-			timeout = strtou32_or_err(optarg, _("invalid timeout argument"));
++			timeout = strtou32_or_err(optarg, _("invalid timeout"));
  			break;
  		case 'p':
- 			ctl.lowprobe_superblocks = 1;
-@@ -826,7 +826,7 @@ int main(int argc, char **argv)
- 			ctl.show[numtag++] = optarg;
+ 			profile = 1;
+diff --git a/misc-utils/findmnt.c b/misc-utils/findmnt.c
+index ee9371e69..31350df78 100644
+--- a/misc-utils/findmnt.c
++++ b/misc-utils/findmnt.c
+@@ -1998,7 +1998,7 @@ int main(int argc, char *argv[])
+ 			findmnt.flags |= FL_UNIQ;
  			break;
- 		case 'S':
--			ctl.size = strtosize_or_err(optarg, _("invalid size argument"));
-+			ctl.size = strtosize_or_err(optarg, _("invalid size"));
+ 		case 'w':
+-			timeout = strtos32_or_err(optarg, _("invalid timeout argument"));
++			timeout = strtos32_or_err(optarg, _("invalid timeout"));
+ 			break;
+ 		case 'x':
+ 			verify = 1;
+diff --git a/misc-utils/uuidgen.c b/misc-utils/uuidgen.c
+index 6133cb0eb..8e07cdb65 100644
+--- a/misc-utils/uuidgen.c
++++ b/misc-utils/uuidgen.c
+@@ -147,7 +147,7 @@ main (int argc, char *argv[])
+ 			do_type = UUID_TYPE_DCE_MD5;
+ 			break;
+ 		case 'C':
+-			count = strtou32_or_err(optarg, _("invalid count argument"));
++			count = strtou32_or_err(optarg, _("invalid count"));
+ 			break;
+ 		case 's':
+ 			do_type = UUID_TYPE_DCE_SHA1;
+diff --git a/misc-utils/waitpid.c b/misc-utils/waitpid.c
+index f108206a9..b63532790 100644
+--- a/misc-utils/waitpid.c
++++ b/misc-utils/waitpid.c
+@@ -197,14 +197,13 @@ static int parse_options(int argc, char **argv)
+ 			verbose = true;
  			break;
  		case 't':
- 			if (search_type) {
-diff --git a/misc-utils/fadvise.c b/misc-utils/fadvise.c
-index abbc3a62d..da7fc691a 100644
---- a/misc-utils/fadvise.c
-+++ b/misc-utils/fadvise.c
-@@ -111,11 +111,11 @@ int main(int argc, char ** argv)
+-			strtotimespec_or_err(optarg, &timeout,
+-					     _("Could not parse timeout"));
++			strtotimespec_or_err(optarg, &timeout,  _("invalid timeout"));
  			break;
- 		case 'l':
- 			len = strtosize_or_err(optarg,
--					       _("invalid length argument"));
-+					       _("invalid length"));
+ 		case 'e':
+ 			allow_exited = true;
  			break;
- 		case 'o':
- 			offset = strtosize_or_err(optarg,
--						  _("invalid offset argument"));
-+						  _("invalid offset"));
+ 		case 'c':
+-			count = str2num_or_err(optarg, 10, _("Invalid count"),
++			count = str2num_or_err(optarg, 10, _("invalid count"),
+ 					       1, INT64_MAX);
  			break;
  		case 'V':
- 			print_version(EXIT_SUCCESS);
-diff --git a/misc-utils/lsclocks.c b/misc-utils/lsclocks.c
-index 435894182..3fdec7ef2 100644
---- a/misc-utils/lsclocks.c
-+++ b/misc-utils/lsclocks.c
-@@ -266,7 +266,7 @@ static int64_t get_namespace_offset(const char *name)
- 		space = strchr(line, ' ');
- 		if (space)
- 			*space = '\0';
--		ret = strtos64_or_err(line, _("Invalid offset"));
-+		ret = strtos64_or_err(line, _("invalid offset"));
- 		break;
- 	}
- 
-diff --git a/misc-utils/pipesz.c b/misc-utils/pipesz.c
-index 0d1a2fc92..8a3da8612 100644
---- a/misc-utils/pipesz.c
-+++ b/misc-utils/pipesz.c
-@@ -269,7 +269,7 @@ int main(int argc, char **argv)
- 			opt_quiet = TRUE;
+diff --git a/sys-utils/flock.c b/sys-utils/flock.c
+index 6e58a1d51..fe1a71f72 100644
+--- a/sys-utils/flock.c
++++ b/sys-utils/flock.c
+@@ -273,8 +273,7 @@ int main(int argc, char *argv[])
+ 			break;
+ 		case 'w':
+ 			have_timeout = 1;
+-			strtotimeval_or_err(optarg, &timeout.it_value,
+-				_("invalid timeout value"));
++			strtotimeval_or_err(optarg, &timeout.it_value, _("invalid timeout"));
+ 			break;
+ 		case 'E':
+ 			conflict_exit_code = strtos32_or_err(optarg,
+diff --git a/sys-utils/wdctl.c b/sys-utils/wdctl.c
+index b3203d461..f3ae0e3f8 100644
+--- a/sys-utils/wdctl.c
++++ b/sys-utils/wdctl.c
+@@ -792,11 +792,11 @@ int main(int argc, char *argv[])
+ 				return EXIT_FAILURE;
  			break;
  		case 's':
--			sz = strtosize_or_err(optarg, _("invalid size argument"));
-+			sz = strtosize_or_err(optarg, _("invalid size"));
- 			opt_size = sz >= INT_MAX ? INT_MAX : (int)sz;
- 			++n_opt_size;
- 			break;
-diff --git a/misc-utils/wipefs.c b/misc-utils/wipefs.c
-index a215088a4..b712ce700 100644
---- a/misc-utils/wipefs.c
-+++ b/misc-utils/wipefs.c
-@@ -737,7 +737,7 @@ main(int argc, char **argv)
- 			break;
- 		case 'o':
- 			add_offset(&ctl.offsets, strtosize_or_err(optarg,
--					 _("invalid offset argument")));
-+						 _("invalid offset")));
+-			ctl.timeout = strtos32_or_err(optarg, _("invalid timeout argument"));
++			ctl.timeout = strtos32_or_err(optarg, _("invalid timeout"));
+ 			ctl.set_timeout = 1;
  			break;
  		case 'p':
- 			ctl.parsable = 1;
-diff --git a/sys-utils/fallocate.c b/sys-utils/fallocate.c
-index 7b65481cc..13bf52915 100644
---- a/sys-utils/fallocate.c
-+++ b/sys-utils/fallocate.c
-@@ -386,16 +386,16 @@ int main(int argc, char **argv)
- 		if (length == -2LL)
- 			length = 0;
- 		if (length < 0)
--			errx(EXIT_FAILURE, _("invalid length value specified"));
-+			errx(EXIT_FAILURE, _("invalid length"));
- 	} else {
- 		/* it's safer to require the range specification (--length --offset) */
- 		if (length == -2LL)
- 			errx(EXIT_FAILURE, _("no length argument specified"));
- 		if (length <= 0)
--			errx(EXIT_FAILURE, _("invalid length value specified"));
-+			errx(EXIT_FAILURE, _("invalid length"));
- 	}
- 	if (offset < 0)
--		errx(EXIT_FAILURE, _("invalid offset value specified"));
-+		errx(EXIT_FAILURE, _("invalid offset"));
- 
- 	/* O_CREAT makes sense only for the default fallocate(2) behavior
- 	 * when mode is no specified and new space is allocated */
+-			ctl.pretimeout = strtos32_or_err(optarg, _("invalid pretimeout argument"));
++			ctl.pretimeout = strtos32_or_err(optarg, _("invalid pretimeout"));
+ 			ctl.set_pretimeout = 1;
+ 			break;
+ 		case 'f':
+diff --git a/term-utils/agetty.c b/term-utils/agetty.c
+index f65e511ca..5e564c4f0 100644
+--- a/term-utils/agetty.c
++++ b/term-utils/agetty.c
+@@ -852,7 +852,7 @@ static void parse_args(int argc, char **argv, struct options *op)
+ 			op->flags |= F_KEEPSPEED;
+ 			break;
+ 		case 't':
+-			op->timeout = strtou32_or_err(optarg,  _("invalid timeout argument"));
++			op->timeout = strtou32_or_err(optarg,  _("invalid timeout"));
+ 			break;
+ 		case 'U':
+ 			op->flags |= F_LCUC;
+diff --git a/term-utils/wall.c b/term-utils/wall.c
+index 293275cb3..1152a1222 100644
+--- a/term-utils/wall.c
++++ b/term-utils/wall.c
+@@ -240,9 +240,9 @@ int main(int argc, char **argv)
+ 				warnx(_("--nobanner is available only for root"));
+ 			break;
+ 		case 't':
+-			timeout = strtou32_or_err(optarg, _("invalid timeout argument"));
++			timeout = strtou32_or_err(optarg, _("invalid timeout"));
+ 			if (timeout < 1)
+-				errx(EXIT_FAILURE, _("invalid timeout argument: %s"), optarg);
++				errx(EXIT_FAILURE, _("invalid timeout: %s"), optarg);
+ 			break;
+ 		case 'g':
+ 			group_buf = init_group_workspace(optarg);
 -- 
 2.48.2
 
