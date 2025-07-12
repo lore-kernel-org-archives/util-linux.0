@@ -1,25 +1,60 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 717451EEF9
-	for <util-linux@vger.kernel.org>; Fri, 11 Jul 2025 22:22:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE92E8BEC
+	for <util-linux@vger.kernel.org>; Sat, 12 Jul 2025 16:29:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752272578; cv=none; b=nXN4NZALraUlqmYgoPjnxYUHITiGfY2tJ0qXlKLPafixQFK8RmOjX8B7scyofXhYxRTXtuRonM5G0hhiN/6Tz8XMEPUijb/XtrL+r+504m6vCC6EbskZg3MbjG51YaY10v4GlTGWumkORJY0LMCMI/yxv452sB3odEUpAyu164E=
+	t=1752337778; cv=none; b=Vhl+073HuTifZFUi49zr0uN9yOMFqMS7+1WcHznvaerJ1PgY+CJ5vXCu8t99DBSvwTeOnVfg0kslyi6bKp+np2VN3umoateJZSeOreRgOkWQ0cCRcbBaeXM+s6JfhWdjVcX1DMw0KPyLeh8sNT/d9PTWvUcvc+y/u5nNiKeyQn0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752272578; c=relaxed/simple;
-	bh=jLIUcF2JzEzVVdNYmttke8QT/+wFN4QpX/EwIsNIkYk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=iU8KKYugbs8rOT7WWOtbaBV3Y+lJTQfo5jCJQu1EiJu8ItqypIki3FTNHW7MUJ3uyeU24uVwOm51W1nEu+qRLzZGjrcli3V0ZWJBk10W9B+bQPjGpMMnCyKmRK2ooSQbQYuwPwhPy9Xn91kgp20Ex4+kkeXyg78knCDGx+n/Cho=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0ECE216F2;
-	Fri, 11 Jul 2025 15:22:45 -0700 (PDT)
-Received: from [192.168.20.57] (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id D47033F694;
-	Fri, 11 Jul 2025 15:22:54 -0700 (PDT)
-Message-ID: <935fd521-508a-4f66-9ece-7ccf2eea61b9@arm.com>
-Date: Fri, 11 Jul 2025 17:22:44 -0500
+	s=arc-20240116; t=1752337778; c=relaxed/simple;
+	bh=Qt+IeYGo3R+1cGj7UFVz4aQymVxIK5QL36BJdA3Ld3A=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=f9wKtLT637NUIcSDgM/loC+uU/bFPW+SjnS9pzrqvdm2pWSTXL9Zf+OcfhbWCjvajomLDeVzTgRZYLfbpowNptgDXxr+aUIxUHifvudODd8AbkulcU/qj/e0qJ+p0/XxrE9PefNM2v8+qTDA70AkSx2RGfgAfus+61xd6Fb4m9k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WLTXklag; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WLTXklag"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56CFHlc4020220;
+	Sat, 12 Jul 2025 16:29:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=QgKZJz
+	eTQAveCQkMgqUwRzUCvRFUyjb6FlpHxk01kMg=; b=WLTXklagvsmi0PZvODtjoa
+	3F1iEy6ifQ642WK6mClgfFQsxy8Aeam8nW8hit1YR7RbZdSqegfsISlc83JMyiHL
+	fLyv2vGBwADBV9/kDHlm38LjVeETIbzVD+5todzHTXsSzeWqBwP3GnNNeKg/YzgS
+	leAuFuwRX0EhzixPixJ/sWnIhQ9UWPWCWClB1TAQISjwQExTm6ZyTADbNwnFQJ8S
+	Bh0nov5ZKELU6E5z+QgW3wqyVY7zm2Rztncb9f98pGfSUhZVzPe97UXDVBJG1L2S
+	QEUmZFvbXfoPrq92f+sdglLRCInNyWEFO98QnFEcUFmmAg3XA4u+tcfJgP/T2snQ
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47uf7cj44x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 12 Jul 2025 16:29:29 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 56CBabwI024330;
+	Sat, 12 Jul 2025 16:29:28 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 47qh32yfe7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 12 Jul 2025 16:29:28 +0000
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 56CGTSeD31982296
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sat, 12 Jul 2025 16:29:28 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 106AF5805A;
+	Sat, 12 Jul 2025 16:29:28 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 80D9558051;
+	Sat, 12 Jul 2025 16:29:25 +0000 (GMT)
+Received: from [9.43.77.79] (unknown [9.43.77.79])
+	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Sat, 12 Jul 2025 16:29:24 +0000 (GMT)
+Message-ID: <7ed788ae-8bfc-4879-bdcb-6c7231f53b04@linux.ibm.com>
+Date: Sat, 12 Jul 2025 21:59:23 +0530
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -27,114 +62,53 @@ List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/2] lscpu-arm: Allow externally sourced model name.
-To: Paul Benoit <paul@os.amperecomputing.com>, util-linux@vger.kernel.org
-References: <20250711211648.53361-1-paul@os.amperecomputing.com>
+Subject: Re: chrt from git segfaults
+To: Benno Schulenberg <bensberg@telfort.nl>, util-linux@vger.kernel.org
+Cc: Karel Zak <kzak@redhat.com>, Madadi Vineeth Reddy <vineethr@linux.ibm.com>
+References: <20250703144752.29971-1-bensberg@telfort.nl>
+ <20250703144752.29971-3-bensberg@telfort.nl>
+ <246a9986-6a79-46c5-9832-9cb9e30ba8ef@linux.ibm.com>
+ <e118a2c7-4e25-4240-b585-5de0ddf16d59@telfort.nl>
+ <42f6841b-973d-4e18-b91b-6ef98ef85b9d@telfort.nl>
+ <3239b9c9-844e-40c0-9735-604842af6953@linux.ibm.com>
+ <25e238da-af73-42fa-ad18-8d9e77d33bab@telfort.nl>
 Content-Language: en-US
-From: Jeremy Linton <jeremy.linton@arm.com>
-In-Reply-To: <20250711211648.53361-1-paul@os.amperecomputing.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
+In-Reply-To: <25e238da-af73-42fa-ad18-8d9e77d33bab@telfort.nl>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: sqDlvO1HnbCpZcs2FzgIX8DPbNY3jkjM
+X-Authority-Analysis: v=2.4 cv=LoGSymdc c=1 sm=1 tr=0 ts=68728d69 cx=c_pps a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17 a=IkcTkHD0fZMA:10 a=Wb1JkmetP80A:10 a=N9IN2yx3jJwHv3qN95oA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: sqDlvO1HnbCpZcs2FzgIX8DPbNY3jkjM
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzEyMDEyNiBTYWx0ZWRfX9E/XIXe0+q26 JH479zrW56VfBFqjTfKVXeRyPunlYpcrHWI+6EbTTj0EXHKIBIpGpYgHMi3ZL3Hhu/ytf5kcS4u 9C401U6CvbG2tYqgQG2J4kVKt0UrEU08i/hqpaAolx3y7570Py32srai9aoVbH4SYq8bMo+h3Ce
+ U1VeapvaSLJPE5PMaofSQ+UemWCP+FtSQLSGpbJlREB4p67s21SPq/BFR7POfS1nWW65ZI97+cl xzgzsXuATCEC2gBtOYSN/bZNi1Rz+gIbuEMfhy7oDWhcHmZDVAniZU4qI4eE64MSKq2jD0mMb9s XMOdAuGSto8+W8hma7ojBwTXAT69etGTosuBkb+I+DyI6P4VSIBwXEWXZX1nAaW2xzcJrupLIjU
+ HI4dFzusTi0UP4gM+VhLxh4OeiAYW506ur/v2GaUt3zPHdWxiw8/B6ctu0eWGB2CXG5IGlaw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
+ definitions=2025-07-12_03,2025-07-09_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ lowpriorityscore=0 spamscore=0 malwarescore=0 impostorscore=0
+ clxscore=1015 phishscore=0 mlxlogscore=470 priorityscore=1501
+ suspectscore=0 mlxscore=0 adultscore=0 classifier=spam authscore=0
+ authtc=n/a authcc= route=outbound adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2505280000 definitions=main-2507120126
 
-Hi,
+On 10/07/25 13:41, Benno Schulenberg wrote:
+> 
+> Op 09-07-2025 om 20:45 schreef Madadi Vineeth Reddy:
+>> Could you spin off a patch to make sure the priority argument is
+>> optional for policies that don’t need it, even when --pid is not used?
+> 
+> No.  You broke it, you fix it.
+> 
 
-On 7/11/25 4:16 PM, Paul Benoit wrote:
-> When there isn't an entry for the model name in the id_part table(s),
-> attempt to get the machine name from /sys/bus/soc/devices/soc0/machine
-> to use as the model name.  This mechanism allows lscpu to use the
-> model/machine name provided via the ARM SMC support code rather than via
-> hard-coded lscpu tables.
+Sure, I’ll send a patch. Thanks.
 
-Since this is suppose to be synced with the DMI data, and is sourced 
-from the firmware would it make more sense to replace the BIOS name with it?
-
+Thanks,
+Madadi Vineeth Reddy
 
 > 
-> This code was tested by removing the "Ampere-1a" entry from the
-> ampere-part table and verifying that lscpu displayed the correct machine
-> name obtained via the ARM SMC interface to Trusted Firmware.  The
-> "Ampere-1a" entry will be permanently removed by a separate patch.
+> Benno
 > 
-> Signed-off-by: Paul Benoit <paul@os.amperecomputing.com>
-> ---
->   sys-utils/lscpu-arm.c | 35 ++++++++++++++++++++++++++++++++---
->   sys-utils/lscpu.h     |  1 +
->   2 files changed, 33 insertions(+), 3 deletions(-)
-> 
-> diff --git a/sys-utils/lscpu-arm.c b/sys-utils/lscpu-arm.c
-> index 8745599d4..a46106bcb 100644
-> --- a/sys-utils/lscpu-arm.c
-> +++ b/sys-utils/lscpu-arm.c
-> @@ -388,7 +388,10 @@ int is_arm(struct lscpu_cxt *cxt)
->   static int arm_ids_decode(struct lscpu_cputype *ct)
->   {
->   	int impl, part, j;
-> +	unsigned int i;
->   	const struct id_part *parts = NULL;
-> +	FILE *fd;
-> +	char machinename[BUFSIZ] = "";
->   
->   	impl = parse_implementer_id(ct);
->   	if (impl <= 0)
-> @@ -406,11 +409,11 @@ static int arm_ids_decode(struct lscpu_cputype *ct)
->   
->   	/* decode model */
->   	if (!parts)
-> -		goto done;
-> +		goto try_machinename;
->   
->   	part = parse_model_id(ct);
->   	if (part <= 0)
-> -		goto done;
-> +		goto try_machinename;
->   
->   	for (j = 0; parts[j].id != -1; j++) {
->   		if (parts[j].id == part) {
-> @@ -419,7 +422,33 @@ static int arm_ids_decode(struct lscpu_cputype *ct)
->   			break;
->   		}
->   	}
-> -done:
-> +
-> +try_machinename:
-> +
-> +	/*
-> +	 * If the Model name was not found in the lscpu 'id_part' tables, see
-> +	 * if there is a Machine name associated with the SOC.  This name may
-> +	 * have been set via either SOC specific support code, or obtained
-> +	 * via an ARM SMC CC call into Trusted Firmware.
-> +	 */
-> +	if (!ct->modelname) {
-> +		fd = ul_path_fopen(NULL, "r", _PATH_SOC_MACHINENAME);
-> +		if (fd) {
-> +			if (!fgets(machinename, sizeof(machinename), fd))
-> +				machinename[0] = '\0';
-> +			fclose(fd);
-> +
-> +			/* Replace newline with string terminator */
-> +			for (i = 0; i < strlen(machinename); i++) {
-> +				if (machinename[i] == '\n')
-> +					machinename[i] = '\0';
-> +			}
-> +
-> +			if (strnlen(machinename, sizeof(machinename)))
-> +				ct->modelname = xstrdup(machinename);
-> +		}
-> +	}
-> +
->   	return 0;
->   }
->   
-> diff --git a/sys-utils/lscpu.h b/sys-utils/lscpu.h
-> index bd7b64cc5..581602f70 100644
-> --- a/sys-utils/lscpu.h
-> +++ b/sys-utils/lscpu.h
-> @@ -46,6 +46,7 @@ UL_DEBUG_DECLARE_MASK(lscpu);
->   #define _PATH_SYS_NODE		_PATH_SYS_SYSTEM "/node"
->   #define _PATH_SYS_DMI		"/sys/firmware/dmi/tables/DMI"
->   #define _PATH_ACPI_PPTT		"/sys/firmware/acpi/tables/PPTT"
-> +#define _PATH_SOC_MACHINENAME	"/sys/bus/soc/devices/soc0/machine"
->   
->   struct lscpu_cache {
->   	int		id;		/* unique identifier */
 
