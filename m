@@ -1,204 +1,128 @@
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2119.outbound.protection.outlook.com [40.107.220.119])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE33C27815E
-	for <util-linux@vger.kernel.org>; Mon, 14 Jul 2025 22:22:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.220.119
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752531759; cv=fail; b=ufBmlVUj6cRXsGRf4vi/0rNAb+8nup4unspnQS0T75NIAjAWX/GpyG5gnQ/FMeWqiCdWUpvmIBkL/kNRVgXszFbk8JzFfvoMWof/eVvZ/t2mlXcKNiG+B0RghYwi1NlbWPlQkUqCuv+lEMv7phrASqv6G1EF75aE56vveEKxJf0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752531759; c=relaxed/simple;
-	bh=ZnYNZUjtDEuOVkaxGsmORUSyPdDysplESs2GOdXKbwQ=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=o6XsXGTVsFr4O6+M8DwP0T4o30eIXh3GenpieTAiuwCtvvqN2uvBNdNDw0o0rw41qqn72JOJD7ijfH8umyRB7WY4O+0E9QPDaF5tCTEz7UgRVU9Wt1O/SP7chSLqY2qos//NPnXsPhmr9ucOV3J/3KA3uKT3+8IQxlfJ9FDGR90=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=os.amperecomputing.com; spf=pass smtp.mailfrom=os.amperecomputing.com; dkim=pass (1024-bit key) header.d=os.amperecomputing.com header.i=@os.amperecomputing.com header.b=inF6gxbb; arc=fail smtp.client-ip=40.107.220.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=os.amperecomputing.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=os.amperecomputing.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90E042D3757
+	for <util-linux@vger.kernel.org>; Tue, 15 Jul 2025 05:29:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1752557398; cv=none; b=t1JoFPAC5evwiR6/rWxZbo3We20j4Dp9zYTCtG5Eyl7iu8iqppWhxG8gZ+Ur1PNefZC92U4OPYJ7356QyXjYgam+RuTWoypi/bFnyGmnN2304qFEFkv8BVCyJS+cWg5SfcHpgAG9WvDIEjNB2dfmTbRHEVAbpkjN2J7I76Upvkw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1752557398; c=relaxed/simple;
+	bh=QwkgkEGlywSuhi5J3Tur8ZhqEy5RmU1HeCOpkaRhdho=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=HcHtCff6eCmCwXywjNQpvLYrf2ycpqDb85nkcxJmYcjXegH0x8OFZlJ+vz2AgrEh/jq+qjTMDaw2dinNMbPJz1kpk6mtgWvxEl6rxtDz9WYqsPQfjkq6hM2Smz4Qv56gXqVLZOsuHVlazbefkF/6+5N/9fMlxC5n56J3BvJiZBo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WPtpkp06; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=os.amperecomputing.com header.i=@os.amperecomputing.com header.b="inF6gxbb"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=oSA3nvIIWKuXHyogRAPndw8hd/5ONLx9affoehN6F9pk02pi9i3OyoWaS3knBA2WLM4/FSfXSRizvZzPs8NFMZMonSsnLRbxhsynpXV5fGvLL9YdGIA8gvNxWV0kbCzMt4wSaKb5MFqu/YTrURbhseOWEolryKY/xiuKmkP7h0a+kQA981cCEb/y01fqjUdnN3mfKN60V7rQ7NJXLvWU6Ek1iEZY46SU7n0nWi6EjjhCB4xCRgXKJJHxkSLFvsT04RY8GqYOkoCvcpADegCi1W+1wMeFrq0tqPS6FXtvvgRx+suTswjNNwDf/cL6FDMfYhjQBPqasrQbjz2zDN0zxg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=feykHAttJKR76KYfkg0ewH5xXyX/X7GEqBlG7kA2DRM=;
- b=hlSntVfWKmawQZIVe7unw4qeW42JmaUBY2fqjoXdTyoXHIYx68LiaHKl1dLWq70zzGosaRLwFiJvzlYL6B6tPZc4lI+qHHt12/U8r+MTau3iX3gUqpMZLGLuaE8HRMbXdPyM6WKyv3bsrreMSXjwMHumVMyDOcZBAJpSmZ9f7+pOqAfoZdphgNw9OUzZyXXdHDEnL76GEpABJXi6tH/84ZalSILkGulhbgEerHBaDSlWUCky0gWXhan2guwZrQvEIR5EElBtAdwkD1OZxIIK+sY0mFUJ8I8KYZkRTqwMJvB11WizRmF5Qvwtc1J2jMDcY+a94BjkHST+hITA50QB4g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=os.amperecomputing.com; dmarc=pass action=none
- header.from=os.amperecomputing.com; dkim=pass
- header.d=os.amperecomputing.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=os.amperecomputing.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=feykHAttJKR76KYfkg0ewH5xXyX/X7GEqBlG7kA2DRM=;
- b=inF6gxbbJVJ/1y7uNgG1spKMzK15c3gFrXP6hyWbja1F+WcnMFMFiJxlJIpW9CjbXcVCQ8Oce1ktSZ/F3u/PGmwYflhu2/WJ1+dFvfoc/mw8tpG6BKbRjktnz5TvV4wBNcIn5AeM2LQdT1hl1Qtmy/COrJ8BFpgsqLZovOa1uRM=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=os.amperecomputing.com;
-Received: from DS2PR01MB9326.prod.exchangelabs.com (2603:10b6:8:276::8) by
- LV9PR01MB9398.prod.exchangelabs.com (2603:10b6:408:2ed::17) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.8922.33; Mon, 14 Jul 2025 22:22:33 +0000
-Received: from DS2PR01MB9326.prod.exchangelabs.com
- ([fe80::df8c:5f9d:8d38:e60b]) by DS2PR01MB9326.prod.exchangelabs.com
- ([fe80::df8c:5f9d:8d38:e60b%6]) with mapi id 15.20.8901.024; Mon, 14 Jul 2025
- 22:22:33 +0000
-Message-ID: <eadbcad4-6392-4429-ab6c-8b820fcbd3dd@os.amperecomputing.com>
-Date: Mon, 14 Jul 2025 18:22:28 -0400
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] lscpu-arm: Remove the "Ampere-1a" part.
-To: Jeremy Linton <jeremy.linton@arm.com>, Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
-References: <20250711211648.53361-1-paul@os.amperecomputing.com>
- <20250711211648.53361-2-paul@os.amperecomputing.com>
- <crm5fcuper7bhu7iv7jbejf3rnowwo4tuwrjnutngta56dedgm@zajfg6nh2okx>
- <fb54d607-dccc-419f-b92c-7bc8514213a6@arm.com>
-Content-Language: en-US
-From: Paul Benoit <paul@os.amperecomputing.com>
-In-Reply-To: <fb54d607-dccc-419f-b92c-7bc8514213a6@arm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SA1P222CA0144.NAMP222.PROD.OUTLOOK.COM
- (2603:10b6:806:3c2::22) To DS2PR01MB9326.prod.exchangelabs.com
- (2603:10b6:8:276::8)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WPtpkp06"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56EKcuBw028964;
+	Tue, 15 Jul 2025 05:29:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=nypInH
+	2ILJDxvUA5hajH6eVzzeAS4+VDg0oL/QTmqko=; b=WPtpkp06dfWp5q8xhYYQtm
+	6sBGjzUxri9SOAVluw2wXBQgYOKKP5v+H0H4a36vBOerWTblbX9QRfNpOZZ9AM3M
+	u07/5TgOsh37GEdppS7zFEL1j4NyiG693TaKhURFRy/Kf1EK3tM1i3rfKA2PKN5M
+	uTNQW57npBT5gN+kKzDMn2D88nrzQ4xf13ROgrr9NUuHKaXD8nc3817c8euXhn7Q
+	WKLQEehSd9BJailz8ddwrm69vjPwiO7An7FNGN7Vhvu5tPiTEoD85KnFuNUikOGr
+	ObbqrSZpkryPdnu+eikC7ojPdrAkX3ZIRfeOBEsq3iRjXEhxKEEUXrD85s6Rn1Lw
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47vamtrk0w-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 15 Jul 2025 05:29:49 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 56F3hVm4025987;
+	Tue, 15 Jul 2025 05:29:49 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47v31ph1u8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 15 Jul 2025 05:29:49 +0000
+Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 56F5TmeR23069416
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 15 Jul 2025 05:29:48 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 522C45805D;
+	Tue, 15 Jul 2025 05:29:48 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2334C58057;
+	Tue, 15 Jul 2025 05:29:46 +0000 (GMT)
+Received: from [9.43.34.230] (unknown [9.43.34.230])
+	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 15 Jul 2025 05:29:45 +0000 (GMT)
+Message-ID: <f1b428c9-c54f-4b42-b689-a06ed09b43df@linux.ibm.com>
+Date: Tue, 15 Jul 2025 10:59:44 +0530
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS2PR01MB9326:EE_|LV9PR01MB9398:EE_
-X-MS-Office365-Filtering-Correlation-Id: fe6585ef-0f98-41a6-c791-08ddc324edd9
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|376014|52116014|38350700014;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?M2dwNTRSVCtKY3QwcUJ1TmNMTWdVRzhXOTVHTGxmaXkwMEhYZ3I3bS9oWC9v?=
- =?utf-8?B?T0JHVTZvSFR4UnduampiS2RvOGt0YzhnZkduMHNaUXRFK1JDcUhtVU9CVU04?=
- =?utf-8?B?MGZvVXhuZ1duVnFEVUNldk1LK1Zlai9oRmJrcTZQaWpIajRvRWQ2R3hBWHBO?=
- =?utf-8?B?RWttd080dFA4YXRXempvYUpVZTJvU1ZHWmJDZkdTK2tqbk1FdmdFbWtBQ3kv?=
- =?utf-8?B?QThOK25lRld6cGZzNi9waGpoOE9qNkx3U0Z3TTZMazhKS0tya0ZFSTgxd2xl?=
- =?utf-8?B?R0JmSFZKWTR2NkVTYVZVOWNKckxrNWE4eVJlOHBkaCs0Q3J6UUtUMUNUcjFX?=
- =?utf-8?B?anRxd3RqcHVRanZmMTBwREErbERic1QzUXZMTjh6Z1p5bTBDVjE4cGMvVEgx?=
- =?utf-8?B?bmVjZkNxNlhSVVR1V3NIQlBWVTB5MDd5SXpPVjFJckFkZC9uMVNINytEdERz?=
- =?utf-8?B?M1RjMEEzQ0tRYmVsVVdBRk1XaHRtdHhTQmNkMkM3N2RlOWx3VmxmbXorby9L?=
- =?utf-8?B?Mko4T0IyeFpwaVVOWmdnbmp1N09IcUJUUnRXTG9yQUJtaVV2V1Jma0cvN3NW?=
- =?utf-8?B?amR6cHY5VWwwb20xNXBNb09xOUk0L1lQSXNucUhLMEJIWjRqSUJlRjV6RUNV?=
- =?utf-8?B?MDFSSm9pelk5KzBRRVN1bE5Ebk5KWnNqaENtNzlabjdvL0tyYXI2L0dYd2pa?=
- =?utf-8?B?dkRvbWk5TVkzeG8wcmFKNm1kVXFIN3NocnI2UzcwdzNlT3I3SzB1UnFkUm1O?=
- =?utf-8?B?aG5uVGVCdlNpdXhpcklVa0tiWEczSUcveFRkN2JWWUVrcmxMTTV1ek56cmFp?=
- =?utf-8?B?MUQzb2xzelFYRTZuTFNINVoxRUJsL1ZQSlYzUlZLcElaUUxuN0RUMGRhbE9E?=
- =?utf-8?B?MG4yeEtocG0wcEpSWlRFL2VBZlV1UmlVb0dSdmZpMFdNNlFQYTc5bjlyZWQ5?=
- =?utf-8?B?blhzdzZLcWJXbnh6dGtnMUN2V0tMSW9hUVVtRmtZbzhaWjFGS24wSlhnL1Fk?=
- =?utf-8?B?WDRhMG9pUmdzN1lmUlJnQ29jOUZOYjBYRWNYTTd4SkgwbWdBbUFXZXBnaFBU?=
- =?utf-8?B?TDZkdmk3TGJPdGVjUGVyNmova2grdzRQTFBoei91WWJFWVdFaU9BbnFLeS9Q?=
- =?utf-8?B?d2NTTUFwVHg3Y21waUI3SkNCenIrSHRXSzBjT0lYeE9ISVV5OUN2S3Vreitv?=
- =?utf-8?B?YTlXUjlSK3lnVm1McWlSRTd1QnE0UUM4bkhpOFZqOEJZcG1jUllpMDA5YUFm?=
- =?utf-8?B?TEtVMjlhU2MxaTRIQ0Z5MlcyNnQzYXNsZVlUby9SOWc2Vk9pSkFpRXV6YlpN?=
- =?utf-8?B?QWw5b2xzN21DSnc2WUdIcTJJMEsrYTV4UTQ4dkJ5aGU2djZCazcrVjFYTy9s?=
- =?utf-8?B?R3JBWUNLQjkwQWpiYlJJR1NRWDlnelBOb0VsNHAyM2drRVUrVUFzNkROUHNG?=
- =?utf-8?B?dDI1QjQxbGJZTlBTaUZnbTNwK1NSSXBDOEVLL1krN0d0aGR2ZDExc3NuSnVw?=
- =?utf-8?B?MkJQdkNqbUppajMzWEYxQ2ZiQVhVRFNOTVZqWDI5cGs2TTdyUTFCR05pSjNS?=
- =?utf-8?B?dXg4UUcwa2lwQ0hzTy9qSzZqcWo0V2NmaHBYVlE2c09YRTNSWktlS09qejJi?=
- =?utf-8?B?YWlsM1dNYzJWYjBUREtNRzlMWmYzMkRWWW1pVEl3WWYxUS9yM0xwcXhEUFpK?=
- =?utf-8?B?OWZpTEREeHIzUCtJckVIbjVIVk5oVlQ3TmEwckJieTlsZW4rWU1SeGVZVVV2?=
- =?utf-8?B?WldhbUNrNVBtdFo1aG51VkpBWTJxVzJqSXA3WEpOak9YQlhSVlpUQ29DVEdr?=
- =?utf-8?B?ZUw3M2YzTW1NaHQvU0VLYVdrU0d3LzR2MWNpY3hLNFZVRlA3UitFOWJrMGlD?=
- =?utf-8?B?eHRjRTNCVHJWNXIxS3h1a0pUNnA5d1lvU2ZpQ0I3OG9hK2theW5CTVRuVGtR?=
- =?utf-8?B?K1d1c3N2TmpUQ3ZmN3lvZ0ZQNTh3aElsSnArOUdPTytiWDJ3ckM4NE1uVnAy?=
- =?utf-8?B?Nm43aERkVG9nPT0=?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS2PR01MB9326.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(52116014)(38350700014);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?SkdzbnBXM253NUJSLzUxekJZMFBEeDJQc2FmZU9HSmxVUXdDOVU0STNDcmNG?=
- =?utf-8?B?R3c0MDg2V21Qc05pYll0Wm81TVBvS3FuaWxzejRGMjNQYzZ5eUo3T01QVjk5?=
- =?utf-8?B?amRSRjBTWTNZUU1Nd1RlWHA0UEU1bWpnNnJVTDFmd2RpTDV3UEtsclQzTTdq?=
- =?utf-8?B?eEtOOTdNWDEwUFdLU1FHS0pMdjhtbGpnb3ZBeHYxQkVvRGlSQU1GQlNzR0dP?=
- =?utf-8?B?S1lXejRjYXVUWUlvbTIxMCt4V09sWWh1UjI2Ynk1dkRGYTRjdE9BNUx6VEkv?=
- =?utf-8?B?V05uZXFpSGJmay9jV0pjVGNZTW1WRmhiT2g1WEUvN1BoWmo2anhkU1Vsc2pY?=
- =?utf-8?B?UHRibHFxazRNZUlsTlR5UEFmK3lMSmUwcHhFVyswNGI5eXRnN1M5MW1TTmlq?=
- =?utf-8?B?OEJlb0cyTHJka2pPOWQxV3lFMTRqWUtjYkl6bkc3Z1dqeGlUT3dJZGJKVjVj?=
- =?utf-8?B?UDVheE9ubzZFTURZUUZXZjUwbE42d2tDL25EZG5CNHdGWDJIMWE3U3lOdUR2?=
- =?utf-8?B?blpzWTZKRXptbDNGYS9jZ1lsVTRpQ1o1SjV4a0pJRHlyRHhhV3VrTk1NNjNo?=
- =?utf-8?B?a09hZmlCTzZQWDRBNHRrSU5uZDdWQk9lOHUxMXUxK3lMZDlpSXBhOUk0V1Vo?=
- =?utf-8?B?R2ZLMFcxdm0wZ1hFYWw0Ulp5YmVRN1MrUElndzlGZHZnUGJBclVlQ0tDR0gr?=
- =?utf-8?B?cVhxK01Oc1ZCc3YxVUowcTJzZFlEQ0VieHNyMXJ3YkRpc0NVb0FMemM3ZHJh?=
- =?utf-8?B?YnMrNXBya2xOMDczRWhhSXVzdUxINlFsdHJsalBFWXFPYW5EbFErTTJ4NXZT?=
- =?utf-8?B?RFpzczJXNExXTFEzY2ljMTNFMFhTN2lyUTY2M3lvc1hMZUFjMXk5c1RzMUJ4?=
- =?utf-8?B?RmVwaTUydXVXc0VXSWlzSGtHdEdGZFdkY0JXdnZoeDJqcVhPMWdNYXBrV0hS?=
- =?utf-8?B?d1RtazBpWGozYTQ0aWVUeHpMblhTdVcxZUVDTjNWNFNKajBrUjVIUGlwVTZ6?=
- =?utf-8?B?WWpGaE1VMHVBKytLOHI1cnNGOHZCNzhiRVRsTWFzQ0IvNHFQN1d1anJRT1BF?=
- =?utf-8?B?NS9nYXVWUTM5SVRyZ29BamhEVGJ6U2ZTZEFXZlhtNmF2STdPeHpBTjFWLy92?=
- =?utf-8?B?OElaZC91QWdiVXJkVmRLS1VtRzV2a0dpYTlRb01BdUZ3cFpaV2w0K28rcFJG?=
- =?utf-8?B?RDlFV1c1UWwrTjRhYXIwQnl2OGMvS1pUQndXYWRvTEpXS0s0bFVTMHFoaFhT?=
- =?utf-8?B?dTVFcVFHM1ZmaWVVRnY0NExWUXYxNytWWUJDdjM1VXZwZEFSYmZPcHRnUHQ0?=
- =?utf-8?B?OUJObEE2U0lhN1VkUDFVUklEVnJIVzQ3c0VuMmRFVmxzYVNzY3FKbFpRd2U0?=
- =?utf-8?B?QVVQTXZXVEdvOGxicnJRSmFqdXc5WFBIL2xXMnhvSnI0TEVLSFpwb1B4TlI0?=
- =?utf-8?B?T0VDNUhaeExwQUFUVEMvYnREUllHRmFNQzBSbVlRQjV1ME5neDlUMWhFVHVs?=
- =?utf-8?B?bDYraWtZdVduQXppcmJ1My9TN3pld08rT0t1bCsybXVtblZqZE5YOVpJTzVV?=
- =?utf-8?B?RGNVYUJsVDBnTmdhaVNTaStHQml6V05XdDlsT1VMeUN5S0RMNHpCdlVzRmEr?=
- =?utf-8?B?cWFDN3BINmpUa29YWVFJa0lTYjhENFlyaE52ZzNzcmxLSnhUSkF2eG01QVk4?=
- =?utf-8?B?WHJvckR5aS9ZWEpIK1cxSVhMdFFHMUpicGxvNEpxZU0zSnV4dEdJVXh5SkJ3?=
- =?utf-8?B?a2UyZHpQMEdWNG1BUXBEclZpRUwwMWNqZzBJNVh5Y2JuZXMwWXc1NVY1LzBC?=
- =?utf-8?B?cEU0M0o1ZnRNcWlzQndXNmozWnpJY21paVBNdTJRWS9HQmJKejFqWEVnY1Fm?=
- =?utf-8?B?cWI5aWQ3TUNHand2QVhUQjhGWHA1SUxIWGJEd05jRjZtRXpUSFM5NWFSbnRk?=
- =?utf-8?B?VDJpWkQrSzdTd2FrNlAwam5Cbk9oTUpoTDQzSTZaODhEM25Id0krVDZiUFVZ?=
- =?utf-8?B?Vml3eUxxdW9vYkpsVUY0VGpZSGkzcFRNVXJnZGdTdjNxcHAyM2JGZTZzU0Zn?=
- =?utf-8?B?bUJRdHFXL1ZDaU1RNmJLV1FxOUNKTkduU0piWi9YbE8xaGRCYlhCT1Fyb2cx?=
- =?utf-8?B?ZjdQQk1NTnkyMldaWmE4YldWelFqRVAwdllSZ2crVWdzeW1VZnFYNzR4ZHhR?=
- =?utf-8?Q?usBmSG+vaVe31NBWKx0XDqY=3D?=
-X-OriginatorOrg: os.amperecomputing.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: fe6585ef-0f98-41a6-c791-08ddc324edd9
-X-MS-Exchange-CrossTenant-AuthSource: DS2PR01MB9326.prod.exchangelabs.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Jul 2025 22:22:33.5638
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 9pcjUewViGw7ogolLA2L2a8o26kPVNZU5jfC9XgmuqCZP4X8gjAZSmsynu/ftdp03WAXcPOJc1ljQKHFyNcFIszLnvH3wkB+2zw+ZAlwVwU=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV9PR01MB9398
+User-Agent: Mozilla Thunderbird
+Subject: Re: chrt from git segfaults
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org, Benno Schulenberg <bensberg@telfort.nl>,
+        Madadi Vineeth Reddy <vineethr@linux.ibm.com>
+References: <20250703144752.29971-1-bensberg@telfort.nl>
+ <20250703144752.29971-3-bensberg@telfort.nl>
+ <246a9986-6a79-46c5-9832-9cb9e30ba8ef@linux.ibm.com>
+ <e118a2c7-4e25-4240-b585-5de0ddf16d59@telfort.nl>
+ <42f6841b-973d-4e18-b91b-6ef98ef85b9d@telfort.nl>
+ <3239b9c9-844e-40c0-9735-604842af6953@linux.ibm.com>
+ <25e238da-af73-42fa-ad18-8d9e77d33bab@telfort.nl>
+ <fgeg2ezfxn6ofip7huhofg6a6mmx2yqn37p2j32rfxn33mpgyu@c2ldx4q6zvzu>
+Content-Language: en-US
+From: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
+In-Reply-To: <fgeg2ezfxn6ofip7huhofg6a6mmx2yqn37p2j32rfxn33mpgyu@c2ldx4q6zvzu>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 84DTzBqgv0sXhZERFuWq6pU8AAf60J1T
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzE1MDA0NiBTYWx0ZWRfX8SBoWz9Pwqzf bxHaxsUxd2f0R/VRHNAF/7wfeCN+jh9FCo1+/qteDUYMAIwP1si4ILP9Fz6DayHKugVoan+HnLA dVJktvkWKoxsbhNK+VMtQqVLPTDpue0BwSOeUe6bKw0Km8vnFslIhoeKvBVKGOfNKTKLZBIbni8
+ FrtBais+BStcpAhJfmt8Sv1p7BUXqe5c349bNIh08k5RI5AoYpc8pvfYl2g1Ie2z/S/79fYjoXJ A2DaF45/qng+pLtxOpavJZ3rA5xjpW+AiO8D7QXMC/m3Yje+wBNVGdamY84856ok54wvPBVdqDK rU85dv4OnOsjrPKFtJ8eVvDa2sYF/CS1kU7r0FsK+r5QAnX5TWlRMYzZcbeUEh40mP/NvV8m7WS
+ 9EBoFEOmRz2L5f0W1s0KffIKuogMbN3WuD07SnAnfEEDE3QOmYczMjS/UX5O1iUODNjwgPaA
+X-Proofpoint-ORIG-GUID: 84DTzBqgv0sXhZERFuWq6pU8AAf60J1T
+X-Authority-Analysis: v=2.4 cv=dNSmmPZb c=1 sm=1 tr=0 ts=6875e74d cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=IkcTkHD0fZMA:10 a=Wb1JkmetP80A:10 a=KzwfLda3LRYclPMJMDQA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10 a=zZCYzV9kfG8A:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
+ definitions=2025-07-14_03,2025-07-14_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=688 bulkscore=0 lowpriorityscore=0 suspectscore=0 spamscore=0
+ clxscore=1015 phishscore=0 malwarescore=0 mlxscore=0 adultscore=0
+ impostorscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2507150046
 
-On 7/14/2025 4:48 PM, Jeremy Linton wrote:
-> On 7/14/25 7:16 AM, Karel Zak wrote:
->> On Fri, Jul 11, 2025 at 02:16:48PM -0700, Paul Benoit wrote:
->>> Remove the "Ampere-1a" part.  On newer Ampere Computing systems, the
->>> system/model name will be obtained from /sys/bus/soc/devices/soc0/ 
->>> machine,
->>> that is populated with the ARM SMC CC SOC_ID Name.
+Hi Karel,
+
+On 14/07/25 17:02, Karel Zak wrote:
+> On Thu, Jul 10, 2025 at 10:11:58AM +0200, Benno Schulenberg wrote:
 >>
->> If I understand correctly, there are old systems without
->> /sys/.../soc0/machine, right? The change will remove Ampere-1a from
->> the lscpu output. This sounds backward incompatible.
+>> Op 09-07-2025 om 20:45 schreef Madadi Vineeth Reddy:
+>>> Could you spin off a patch to make sure the priority argument is
+>>> optional for policies that don’t need it, even when --pid is not used?
+>>
+>> No.  You broke it, you fix it.
 > 
-> Thats a good point, but as I understand it, Ampere hasn't been happy 
-> with the string that is there.
+> Please, please, don't forget to finalize it to avoid releasing it
+> incomplete ;-)
 > 
+> I have merged Benno's V2 set of patches, so nothing else is in the
+> queue for now.
 
-Hi Jeremy and Karel,
+I will send the patch to make the priority argument optional when
+--pid is not used in the next couple of days. That should complete
+the series.
 
-While I haven't personally been part of those discussions, that's also
-my understanding of the situation.
+Thanks,
+Madadi Vineeth Reddy
 
-> If its OK to break whatever scripts/etc might depend on it at the 
-> moment, why not just update the string.
 > 
-
-That's becoming even more tempting given the valid issues that you and
-Karel have identified with my patch.  Though, the nice thing about lscpu
-picking up the Model name, from somewhere like
-/sys/bus/soc/devices/soc0/, is that lscpu will be able to output the
-model name of newly released processors without/before them needing to
-be added to the lscpu part(s) table.  That assumes a kernel where either
-the ARM SMC CC SOC_ID (Name) handling code, or the support code for a
-specific SOC, set the Model name from which /sys/bus/soc/devices/soc0/
-gets set.
-
-> Then invert the check so that the /sys/bus entry is preferred?
+> Thanks guys!
+> 
+>     Karel
 > 
 
-That's the way I had originally coded things, but I was concerned about
-the change in behavior of having the /sys/bus/soc/devices/soc0/ value
-override the established part(s) table names for non-Ampere processors.
