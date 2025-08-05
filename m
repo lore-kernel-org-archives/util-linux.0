@@ -1,48 +1,48 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 394F425EFB6
-	for <util-linux@vger.kernel.org>; Tue,  5 Aug 2025 09:26:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26FA826057C
+	for <util-linux@vger.kernel.org>; Tue,  5 Aug 2025 09:26:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754385972; cv=none; b=Hkax02JyubXu9Txww34mvGKctYx9aC2WAixXPAURKN4X66I3kyDFUGVYo+9dqYKTnIOa7gPTEX8wAKPdxuYesenYD0vit4h9J+ZOBaz/2wGVHhAkrmbnSrqnLOiSC9VDtI9s96MhZky7WuToqKqbInunnZb7RXT1nU0P4L12tTM=
+	t=1754385977; cv=none; b=oyUVckwLORU5qPu/I/a2GLVLnYT6jiptpfF7j2kkcR5FPk42RaksERKqyVDqEy0yvoS+uvQpEZysHSpgNDIhFyOu2VdHPTC5O77g+aA3C6gG8pP9R0ODWrBAxedGZ6od7w3jDAHlZl7qJLE9V4zDoTpAPVzaslL3khTPxrP+bG4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754385972; c=relaxed/simple;
-	bh=L4V1X7xWZ74eoqGTAasdSg+gFzYD2w9HCMJlfuDYwmw=;
+	s=arc-20240116; t=1754385977; c=relaxed/simple;
+	bh=Qa+QD9G8dKAEFbOh+/s2WAaF3+TGVG52bAW6Y3W5WJM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=IGQuv+TxIHoAXnAqdZ+PVWn8Ya9krY40Azt0IyztXSsTVGgETv0pYuVXq5j2c5cK/60pJ0qgBmI1rlv/ivPUihWOv5i/r7B3dyf/sC7VPsEuvwHLegUobZiOmMGvNzx9OeQtdD+Zyb6mZO1cxfSL2h89SO2IIpLSNxKAecHcxyE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=v0qmTcvb; arc=none smtp.client-ip=195.121.94.168
+	 MIME-Version; b=bmwF5ul47NgZpyzOr05OzvuVgqYuvJx05tk2i+OprPNatVULHg6kBuW7b2ob/lgfbeBDXiVWHH5W5gRE6wpVe2GFrUV1L+XgcEcwW/qSeSkTMX1b/abbFIbbpH945m4NWnlnWIAakOB54ZJTbSthc550tm+c5UkuW/ZXEQaoaxg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=qoCXO9si; arc=none smtp.client-ip=195.121.94.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="v0qmTcvb"
-X-KPN-MessageId: 280a1892-71de-11f0-80e7-005056aba152
-Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="qoCXO9si"
+X-KPN-MessageId: 3b790660-71de-11f0-a4bf-005056abad63
+Received: from smtp.kpnmail.nl (unknown [10.31.155.37])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 280a1892-71de-11f0-80e7-005056aba152;
-	Tue, 05 Aug 2025 11:25:41 +0200 (CEST)
+	id 3b790660-71de-11f0-a4bf-005056abad63;
+	Tue, 05 Aug 2025 11:26:14 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=4C7Ljt8eMRtiyyKG9QbKBzQhEc2FMBUi81WCOIeoBT8=;
-	b=v0qmTcvbJkroNS6lJ3U2rdSoCzc0CegNhJj51w9oVMQVzIAGCzemP4yi3P8U+g0AkAmW08rMAuIaF
-	 UPoNUsdKeOzo5Hoi9Nt5raqVi33Neu7Cwd1wcwh77XzVmTIne4CiePP6BLRAoOoSqcuJewROywhaPJ
-	 zbfrCkp55Ze8U49Y=
-X-KPN-MID: 33|8KYtpFXwZk9wwG8LJ4nB9FyDC1XeI+4Wgv4dBDTh88YYaROwMrnoAamRagJlol/
- gkPRofv6JI4mkIrGRaLCiunTrJ5YzpATuQC7EBL+fP40=
+	bh=HcAUPRR+M80+6bDd5WIDlk6z8+QEd8he/wwdrxbM6fY=;
+	b=qoCXO9siq/njIv70RWXOwMsYDL8JQeEbUzCvpoTWxpRAfOfsD0lRhUA6FuFhE3KJOKqkZlcDbEOK1
+	 3oxgO21PnwGzhMM9KVMBmanJl3UToc9C/LNz666IWpsyT19VspOW9+scAxtZClqEAN8g4KJBYqeE94
+	 lYpWgaxfojNYltSA=
+X-KPN-MID: 33|V4qn7psMWemuXwY0f+vC2UY4XIK80FUwb3TSEcrHbu9L7VjW9yR8QPrHTftE2mc
+ D+rRPTHDxusJoNUARqTiTnJ1idrX+ZjAUZMBvavaUB6g=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|F4GGgJDBzPlqLJQewppXdESVVKinm0nTBDist22rAS15XyGtPmvxWqZ1P1Ylh8L
- 4LVUOOau5ISPU/J+7iv0kQA==
+X-CMASSUN: 33|4tseRi6nNxCrOfayczaaOigFF1r+BmBGGP91ba7qVS0zfw4K8/rbJ2Mct/GMEOk
+ 4fjfhx71bFGiHhlQmJksrtw==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 0ecfa92e-71de-11f0-abc8-005056abf0db;
-	Tue, 05 Aug 2025 11:24:59 +0200 (CEST)
+	id 128b9a33-71de-11f0-a796-005056ab1411;
+	Tue, 05 Aug 2025 11:25:05 +0200 (CEST)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
 Cc: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
-Subject: [PATCH 2/4] chrt: (man,usage) mark the priority value as optional in the synopses
-Date: Tue,  5 Aug 2025 11:24:41 +0200
-Message-ID: <20250805092443.5847-2-bensberg@telfort.nl>
+Subject: [PATCH 3/4] chrt: (man) improve wording and markup of some examples
+Date: Tue,  5 Aug 2025 11:24:42 +0200
+Message-ID: <20250805092443.5847-3-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.48.2
 In-Reply-To: <20250805092443.5847-1-bensberg@telfort.nl>
 References: <20250805092443.5847-1-bensberg@telfort.nl>
@@ -54,44 +54,38 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The priority value is optional in some cases, so it cannot be listed
-as required.
-
 CC: Madadi Vineeth Reddy <vineethr@linux.ibm.com>
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- schedutils/chrt.1.adoc | 2 +-
- schedutils/chrt.c      | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ schedutils/chrt.1.adoc | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/schedutils/chrt.1.adoc b/schedutils/chrt.1.adoc
-index 3f67b13bb..c8278463a 100644
+index c8278463a..7ed676a9a 100644
 --- a/schedutils/chrt.1.adoc
 +++ b/schedutils/chrt.1.adoc
-@@ -38,7 +38,7 @@ chrt - manipulate the real-time attributes of a process
- 
- == SYNOPSIS
- 
--*chrt* [options] _priority command_ [_argument_...]
-+*chrt* [options] [_priority_] _command_ [_argument_...]
- 
- *chrt* [options] *--pid* [_priority_] _PID_
- 
-diff --git a/schedutils/chrt.c b/schedutils/chrt.c
-index e07284e41..de1898160 100644
---- a/schedutils/chrt.c
-+++ b/schedutils/chrt.c
-@@ -60,8 +60,8 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(_("Show or change the real-time scheduling attributes of a process.\n"), out);
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(_("Set policy:\n"
--		" chrt [options] <priority> <command> [<argument>...]\n"
--		" chrt [options] --pid <priority> <PID>\n"), out);
-+		" chrt [options] [<priority>] <command> [<argument>...]\n"
-+		" chrt [options] --pid [<priority>] <PID>\n"), out);
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(_("Get policy:\n"
- 		" chrt --pid <PID>\n"), out);
+@@ -122,17 +122,17 @@ ____
+ //TRANSLATORS: Keep {colon} untranslated
+ Or set them{colon}::
+ ____
+-*chrt -r --pid* _priority PID_
++*chrt* _policy-option_ *--pid* _priority PID_
+ ____
+-This, for example, sets real-time scheduling to priority _30_ for the process _PID_ with the *SCHED_RR* (round-robin) class{colon}::
++For example, to set the scheduling policy to *SCHED_RR* (round-robin) and the priority to *30* for process *1234*{colon}::
+ ____
+-*chrt -r --pid 30* _PID_
++*chrt -r --pid 30 1234*
+ ____
+ Reset priorities to default for a process{colon}::
+ ____
+ *chrt -o --pid 0* _PID_
+ ____
+-Set a custom slice of 1 ms for a SCHED_OTHER task (priority is optional for policies other than SCHED_FIFO and SCHED_RR){colon}::
++Set a custom slice of 1 ms for a *SCHED_OTHER* task (priority is optional for policies other than *SCHED_FIFO* and *SCHED_RR*){colon}::
+ ____
+ *chrt -o -T 1000000 --pid* _PID_
+ ____
 -- 
 2.48.2
 
