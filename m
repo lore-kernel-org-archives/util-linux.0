@@ -1,62 +1,62 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9119A1DC198
-	for <util-linux@vger.kernel.org>; Fri, 22 Aug 2025 15:10:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4EB0237163
+	for <util-linux@vger.kernel.org>; Fri, 22 Aug 2025 15:14:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755875418; cv=none; b=Nt0pUXrEhIj3g7MoCQH6OWGNkkxT/Np/+CER9RLGTPmMtpsSaS96uywEH4TMDoL1z/1VtQW31oDLJtt0FCFxihCpTNT33fUmB1MpN3g12Q2jQJP7jOb2a8x/BSBeEbv5u4hnwC2ON+0XDM6E2lSwrAIRurpP2re7ys3QGKfjwQU=
+	t=1755875660; cv=none; b=j79vYXwM6DKDw+WdaDIeJIZm0CpA1/XLzRb7pLL4pw5CyYMspOAaXph1EF853Np162RZyHKTnnpFEKzJqX0EzFgT8JPlPRyKHRZLeZoBhOcDlG0yk/51rd2+RrnbzskN5yAmS3s6ItzN6n2820qb0Hcly4mSk8yuy6z1gPDwV9Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755875418; c=relaxed/simple;
-	bh=0iIi06J7u4ZFSix91ZvykTtToKdHWcVCoG9OOvYHNJ0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uc0EW8T0updbu0DiEdzC5uQra3y5UcCOtfcqOIiSyinEQz+H4ULWFKT2AaF61aMHcT4/MyHc+toniT/7WA3Pj9xO5KxdpeT9Mdk1kOc/YsbTfUEJ/CZTQYuPsIMjm78npsz23jJWqRj8v63IsIiv8ItaWnEuWxXH+Opqo+J4zs8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NekMZ3NS; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1755875660; c=relaxed/simple;
+	bh=J8urw+TxGUBa6jUH8XMdqt+VDhFHgjjWOYEH+TaH+CM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qxEn98UagbJddWqC6WvULRajRtNwnEny+wQ4DyW0Y3Us4GwzXOc/8ABEwFrRPR6mvaqHXngU1moDqTICCNcOd7MdtFoCTFx3lFJPl6nft7UtVuYmhvbdA/flX7KGDpa1a6RTTRn7//sDCZAXJL816X8hVu5REdH3BrCHFKKOTUw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=M4Gg5MB1; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NekMZ3NS"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57MEcsEA008285;
-	Fri, 22 Aug 2025 15:10:12 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="M4Gg5MB1"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57MC9993024378;
+	Fri, 22 Aug 2025 15:14:15 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=N2JycebTkqGHAxBDdljkxmD2qqtjLKawalHI1rbbK
-	a0=; b=NekMZ3NSBRY/UIh5eLPrgX0xGJUV4fVgREEF05fvfnAkuMmTy04BURt2M
-	Fwbowo9QmuVMln2S2GbcaBgYWg5XpuuFaQJh0uB2CzbSYMM5JesqGU9mcbwOpz9A
-	GXHdZdY9yoCm/8ozn+ipW6trFIgXzmJhr9y/QhI/d0KMb0WmyskRz6W5UxevxH4f
-	BPLHp6Fh/zXsEN2AecpDHu7cJJkfXCkgeWJkLPafhmNQzMuSUZfdZ03lh0+p1yKi
-	oGlsSSuIdske7bpuEwZoaWSxWP0wtn6gRYtubgSwXvry04rGXSvqpV4dluDEnSRj
-	1Fo3w4q6YIxRpjDZ9GKGOV+hd9NDA==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48n38w70e0-1
+	:subject:to; s=pp1; bh=mrNBjw3pC6pAXVnWsq5MEI/jMMPJaL43MxKVhVZ0s
+	Ts=; b=M4Gg5MB1w/qnmtQEO2cvfcsNSFwYY7Y08k5L9jZs82fqiee7WAqy8urZ4
+	RQ6IfS2huTBUoy9p2zX6HctF7Bf3btV6uwSK886wO7zMLQA/tM5uPdkx1X8Xf2ur
+	q5PqQcXJ/rewkoN4+9mGaPZaui56U3GKoiyq+2FyLpTyV4eM5QZ6k0N3s8maT7yV
+	NZeR3c8XpQvj9P/pxOAkvGIxVgrIi7nnhS+DmrgwPxU15mZVLTal4Qfb2V1161R/
+	Rabmm5j9pipHz2ZEMPKDJiufu5lgnE23CD4aK+ERPnmrCtk6XBWu/pVyPMZI2p12
+	7gEpeST0iH7QBeTe97ZDYZR7apH5Q==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48n38vy21v-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 22 Aug 2025 15:10:12 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57MCqCIc016030;
-	Fri, 22 Aug 2025 15:10:11 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 48my42du39-1
+	Fri, 22 Aug 2025 15:14:15 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57MCOfKo031845;
+	Fri, 22 Aug 2025 15:14:14 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 48my5yduj2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 22 Aug 2025 15:10:11 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 57MFA78L51708382
+	Fri, 22 Aug 2025 15:14:14 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 57MFEBep41550172
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 22 Aug 2025 15:10:07 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6E34220043;
-	Fri, 22 Aug 2025 15:10:07 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4849C20040;
-	Fri, 22 Aug 2025 15:10:07 +0000 (GMT)
+	Fri, 22 Aug 2025 15:14:11 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 208AA2004B;
+	Fri, 22 Aug 2025 15:14:11 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0A57C20043;
+	Fri, 22 Aug 2025 15:14:11 +0000 (GMT)
 Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 22 Aug 2025 15:10:07 +0000 (GMT)
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 22 Aug 2025 15:14:10 +0000 (GMT)
 From: Sumanth Korikkar <sumanthk@linux.ibm.com>
 To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
 Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>, sumanthk@linux.ibm.com
 Subject: [PATCH] chmem: Remove commit - chmem print warnings about failures always
-Date: Fri, 22 Aug 2025 17:09:51 +0200
-Message-ID: <20250822150951.506617-1-sumanthk@linux.ibm.com>
+Date: Fri, 22 Aug 2025 17:13:53 +0200
+Message-ID: <20250822151353.508175-1-sumanthk@linux.ibm.com>
 X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
@@ -66,24 +66,24 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: BISo5u6Zt3DbdodATxRJfTpuglCymFI_
-X-Proofpoint-GUID: BISo5u6Zt3DbdodATxRJfTpuglCymFI_
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODE5MDIyMiBTYWx0ZWRfX/o03WhbNeQsy
- nOvPGa0r1++mINmq14Eq/tbZfVCsuqxYmuOJGInU6Sn+Y8uUwKYf/6JQEWk5NVTonxkUgDY4Rad
- eWeueWjLWl/vkLz1IbmA6/ZIh3Qv44YisEocFvNMWc8o4HOvuegFYpBC+cuVFOfNm17qicxFnLx
- wjhszNR6gdDBa4hx+T9C6u3bhLbV6/MKMlVAkJ4JenRhY+3zlEDMWgsRGGH0AoetcOk+GETjOml
- /0dr18twk3rz0+5gVpzZ9s3Angr++At3mzL8cYY6zA3WsvegeDTcGYM867TBHTZ1tZSfNzlbauG
- kVo0kyF1Az9nsaJMQlfwZr80cZiD42ul6pW+FUDYiDJ2l0JY8s+4jkQCXi68BXmFvbrtwIiSjCi
- sw/jeKnKtrRoFqqiFxbdyRXzXkvs8A==
-X-Authority-Analysis: v=2.4 cv=a9dpNUSF c=1 sm=1 tr=0 ts=68a88854 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=2OwXVqhp2XgA:10 a=RcE6poM8lnotgKd6khcA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODE5MDIyMiBTYWx0ZWRfX5hcMN9HwoPYa
+ LTcHM1qbFYWaJREnCll/2yiB7rzWueJGUQpvcFR5fO4UOFd3uRVWYAhg74oZCUmWRVpBKNsttVa
+ DhemhldJ4mxEW8HFF6p99L9nbGYeT2Wyc+iELrqshcU4cKoQnPeBwlB7uL1KJXjdmMUpzesGH7u
+ Jeg9L/W9lTZuTLbsOIo+u9+Hh+fvXjRrM9iUndFcT+EL/qByr9CrpGE8yJIzIo7hkmc9Z3PhMsh
+ 8tS/+GxndX8xKAnp1qYSSFB0hcwEHY22EhIo4gNsBvqDnKG9K11ZP6xi0QUvyoU83c9N7WcFtuy
+ ONAMkgxpECzRSMRj2RCZY87A//jAkhRogoRFYd91VXRlpDbGP5zWXuBrLZEccF3ONwAzZsr0jnk
+ qRLGPwEoHHNikHMuVC60dMAHU3FTaQ==
+X-Proofpoint-ORIG-GUID: EFl9Uj5Rr7yYmLDxIZyiNXAyoWpejRLj
+X-Authority-Analysis: v=2.4 cv=T9nVj/KQ c=1 sm=1 tr=0 ts=68a88947 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=2OwXVqhp2XgA:10 a=VnNF1IyMAAAA:8 a=RcE6poM8lnotgKd6khcA:9
+X-Proofpoint-GUID: EFl9Uj5Rr7yYmLDxIZyiNXAyoWpejRLj
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-08-22_04,2025-08-20_03,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 spamscore=0 suspectscore=0 adultscore=0 impostorscore=0
- malwarescore=0 bulkscore=0 priorityscore=1501 clxscore=1011 phishscore=0
+ impostorscore=0 malwarescore=0 phishscore=0 spamscore=0 clxscore=1011
+ bulkscore=0 suspectscore=0 lowpriorityscore=0 priorityscore=1501 adultscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.19.0-2508110000 definitions=main-2508190222
 
@@ -96,7 +96,11 @@ If size option succeeds, chmem should not print errors/warnings.
 
 Hence, revert commit
 48675a744 ("chmem: print warnings about failures always (not only with --verbose)")
+
+Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
 ---
+Add signed-off-by
+
  sys-utils/chmem.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
