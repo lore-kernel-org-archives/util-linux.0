@@ -1,112 +1,95 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E188322544
-	for <util-linux@vger.kernel.org>; Thu, 11 Sep 2025 13:51:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A84E2FDC40
+	for <util-linux@vger.kernel.org>; Fri, 12 Sep 2025 13:18:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757598720; cv=none; b=dhk93kR9rRdRepr5I/CgDDjqzp0qiVEL4pzf3TURFXNNDwCKTYvkw4h/I/Ib30f/HZbd1wVL9Rij/4XuPhIgPnHIz+jUFDyawQJ+fc/jp8Lci4CRD5wdLMRRqppv25u3ZY3IhadiE4osZ9rFemVYdermVgNsW/qqUM17IcDLkxg=
+	t=1757683097; cv=none; b=Uk5qNtGg9U9wyF3RRO64E72fU2bk2BbKAoAwXR3zEBQ3nulypL7hhy+VLjDO+mQloSR8CbOtYuajFfrO2G+JLynqUru2f6k3DciG0HbjP/bGn7oM2xZuDr6L77ImtAS8GD2e0aovNtwE0TFT3M6T2pOgXpfPuFal2EqdSLU3O6Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757598720; c=relaxed/simple;
-	bh=Kicw380qj4aXFUBisHOYJ+u9VNl0E5XdPt1MT1wZSS8=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:References:Cc:
-	 In-Reply-To:Content-Type; b=Pgpo35JpgGOILdvYMtYcvsI1f5vTkZmt1mAtTRGed8khTmqAcGGF/T7AQ9QVV3ZG8DL7N9bd6o+D38Bx+WqYCWLvc2/+ZWoz1ssiNU4i1UmGmO0QI9lsu0cNm5iHjd3+EBxHamH1Mdbd32TYgKDta19KKm6IHJ0KfEXN0uE8qqg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=DqeaeLJX; arc=none smtp.client-ip=195.121.94.168
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
+	s=arc-20240116; t=1757683097; c=relaxed/simple;
+	bh=gDGFcoSjPe2tQ9n61JFFiBe/YQTeKKn5Hdy5oT+SLAM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=oJAeDVVT6UQvkakooFNkDKKKpj0O1aiS4n2LhwSwj1OQcpxjJCHjr9g3ZiC/pgDZ4oLersZoTisdQDrB/+gUWKjwfmUgoxqGysjHDkKnSccAjVOlWrf2IePVDvSZnJOMM9ymjUcDNQxTprvIEGMZDzP6xPkkYoy18QnTO9VtjzM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BwGJKCX1; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="DqeaeLJX"
-X-KPN-MessageId: a2d04cba-8f16-11f0-80ec-005056aba152
-Received: from smtp.kpnmail.nl (unknown [10.31.155.39])
-	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id a2d04cba-8f16-11f0-80ec-005056aba152;
-	Thu, 11 Sep 2025 15:53:03 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=telfort.nl; s=telfort01;
-	h=content-type:to:from:subject:mime-version:date:message-id;
-	bh=Kicw380qj4aXFUBisHOYJ+u9VNl0E5XdPt1MT1wZSS8=;
-	b=DqeaeLJXyeIx8Zb2NeVg70sgPoLKFDxBM2/heRxkWjFOI2ZWNDwI54srGVkHhi3RgPtsNAAK2zt6Z
-	 uj0YvOxEIPViEdNUfEtV35nMxctKjmmreH0kc8P7P2xUDfLEgybRlBqENTdl6ujlTmL7oRNnu2qbcq
-	 II7CtyEJZ4GSe61Q=
-X-KPN-MID: 33|DruPg656CiKocj9EJbCNy00T5kkAoDaSxAIBeIBpVyoju1HlqrV35xj3U519z4T
- kmypVMEIunqzmBsl7wAAK8beHfeOawqJb3Yaq8vAP0kY=
-X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|HTb4wlzFZQ7/TE1f+yXPkzgC4Cn0eTJHo78kHcMrQ+eLmHRn4ic80ayG4CPRlpZ
- JuEsO5Niodjv/gRzZiZe4mA==
-Received: from [192.168.2.23] (77-163-176-192.fixed.kpn.net [77.163.176.192])
-	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 7723e538-8f16-11f0-8079-005056ab7447;
-	Thu, 11 Sep 2025 15:51:50 +0200 (CEST)
-Message-ID: <47103376-a043-4f78-8213-ba06f52f5116@telfort.nl>
-Date: Thu, 11 Sep 2025 15:51:48 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BwGJKCX1"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1757683094;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BgUeqM0xbBl2J+UN9dDj8klkaACeTIscY5T+5d5fQjA=;
+	b=BwGJKCX1SiXpYvewbNXyH2t+eESs9rjvG269bFxZO9ApRNGAtanEpyxAuv9LLAksG64xaS
+	huHb1/8qJnApulQRaMEzZ9iaQbSgnq7Hem++7KPr8J+RY3UsxOlktyeMxLboqoLeVAU/hF
+	vRmJCGgxhrJPSNDrjT+gYtX1sc77vvo=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-623-ZX4A_acEPGiLoVM72j4rbw-1; Fri,
+ 12 Sep 2025 09:18:13 -0400
+X-MC-Unique: ZX4A_acEPGiLoVM72j4rbw-1
+X-Mimecast-MFC-AGG-ID: ZX4A_acEPGiLoVM72j4rbw_1757683092
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E900A1800451;
+	Fri, 12 Sep 2025 13:18:11 +0000 (UTC)
+Received: from ws.net.home (unknown [10.45.225.15])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id EC5B119560BD;
+	Fri, 12 Sep 2025 13:18:10 +0000 (UTC)
+Date: Fri, 12 Sep 2025 15:18:07 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@telfort.nl>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] findmnt: (usage) add a needed equals sign before an
+ optional argument
+Message-ID: <rs4jch6hxbont2e56cnshc37hzefhprhlljy2v56xhhtjkfdbm@kgf6bctiicox>
+References: <20250911134807.12903-1-bensberg@telfort.nl>
+ <47103376-a043-4f78-8213-ba06f52f5116@telfort.nl>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] findmnt: (usage) add a needed equals sign before an
- optional argument
-From: Benno Schulenberg <bensberg@telfort.nl>
-To: util-linux@vger.kernel.org
-References: <20250911134807.12903-1-bensberg@telfort.nl>
-Content-Language: en-US, nl-NL, es-ES
-Cc: Karel Zak <kzak@redhat.com>
-In-Reply-To: <20250911134807.12903-1-bensberg@telfort.nl>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------yIMXW10Rco9lIcbRxi4XLriK"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <47103376-a043-4f78-8213-ba06f52f5116@telfort.nl>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------yIMXW10Rco9lIcbRxi4XLriK
-Content-Type: multipart/mixed; boundary="------------BOhvs46exsR0iTGcQn055PLH";
- protected-headers="v1"
-From: Benno Schulenberg <bensberg@telfort.nl>
-To: util-linux@vger.kernel.org
-Cc: Karel Zak <kzak@redhat.com>
-Message-ID: <47103376-a043-4f78-8213-ba06f52f5116@telfort.nl>
-Subject: Re: [PATCH] findmnt: (usage) add a needed equals sign before an
- optional argument
-References: <20250911134807.12903-1-bensberg@telfort.nl>
-In-Reply-To: <20250911134807.12903-1-bensberg@telfort.nl>
+On Thu, Sep 11, 2025 at 03:51:48PM +0200, Benno Schulenberg wrote:
+> 
+> Op 11-09-2025 om 15:48 schreef Benno Schulenberg:
+> > -	fputs(_(" -k                     alias to '--kernel mountinfo'\n"), out);
+> > -	fputs(_(" --kernel[=<method>]    search in kernel mount table (default)\n"
+> > +	fputs(_(" -k                     an alias for '--kernel=mountinfo'\n"), out);
+> > +	fputs(_(" --kernel[=<method>]    search in kernel mount table (default behavior);\n"
+> 
+> Karel, do you want to roll an rc2, or shall I just make these changes in
+> rc1 POT file for the TP?
 
---------------BOhvs46exsR0iTGcQn055PLH
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+I think RC1 is sufficient for translations for stable releases; we
+don’t need as long a stabilization period as for major releases.
+That’s why I asked for an update on TP.
 
-DQpPcCAxMS0wOS0yMDI1IG9tIDE1OjQ4IHNjaHJlZWYgQmVubm8gU2NodWxlbmJlcmc6DQo+
-IC0JZnB1dHMoXygiIC1rICAgICAgICAgICAgICAgICAgICAgYWxpYXMgdG8gJy0ta2VybmVs
-IG1vdW50aW5mbydcbiIpLCBvdXQpOw0KPiAtCWZwdXRzKF8oIiAtLWtlcm5lbFs9PG1ldGhv
-ZD5dICAgIHNlYXJjaCBpbiBrZXJuZWwgbW91bnQgdGFibGUgKGRlZmF1bHQpXG4iDQo+ICsJ
-ZnB1dHMoXygiIC1rICAgICAgICAgICAgICAgICAgICAgYW4gYWxpYXMgZm9yICctLWtlcm5l
-bD1tb3VudGluZm8nXG4iKSwgb3V0KTsNCj4gKwlmcHV0cyhfKCIgLS1rZXJuZWxbPTxtZXRo
-b2Q+XSAgICBzZWFyY2ggaW4ga2VybmVsIG1vdW50IHRhYmxlIChkZWZhdWx0IGJlaGF2aW9y
-KTtcbiINCg0KS2FyZWwsIGRvIHlvdSB3YW50IHRvIHJvbGwgYW4gcmMyLCBvciBzaGFsbCBJ
-IGp1c3QgbWFrZSB0aGVzZSBjaGFuZ2VzIGluDQpyYzEgUE9UIGZpbGUgZm9yIHRoZSBUUD8N
-Cg0KDQpCZW5ubw0KDQo=
+Or do you think including stable release updates on TP is overkill?
 
---------------BOhvs46exsR0iTGcQn055PLH--
+We haven’t done this in recent years, but the number of translated
+strings is growing, so updating more often might be better, and x.y.2
+releases are usually the last for the branch.
 
---------------yIMXW10Rco9lIcbRxi4XLriK
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+I’m open to advices; I don’t have a strong opinion on this.
 
------BEGIN PGP SIGNATURE-----
+    Karel
 
-wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmjC0/QFAwAAAAAACgkQUUu+Lrjhlh8k
-Nw/+O2BwVuwfZYvw7TLxGE/TAi7d6sUAlGCeHB31AI8MqaSrMk9ec/Jd4ovIu/I6E+59q/l3+4Cu
-FWB8r30BD9niGqYXCHh23x4m8sHqNe7f+Y8YH7K6uAByMdZXDvDLazx7Q4zZiTJoP7XWAZOdN9Ro
-jiRXDAmTHSgS50CHLtE5BGgaVIzvVfabwjvFIk2G6THPjO6KE1Mf1kJlg0DAZv6huBIe/sJOwk7A
-+OHwP/y52Pp+QRUCiZ6rFYT56Ma2h7HH7IuZFn/zhmC/d/SO1bouYcVoe0tRnJffI3/GTaRXxZJ+
-IUeIkUTOQ2J0MPiwOAfGh46aVRp2no9njCblYJAJL1cgoKHezclPi9vmOkjWBwzfSiK75TddpCPS
-Ly0eSbZqtIU5dZdAnLo3qG6UW2BaDiflyc/rBCOK7TlYUjrYZQd+VKWdX5VwibM3tDZU2qyr82AM
-TL3dbAAdrVhNcNcHL3JPGRhsXzjDaI+pP9ztftcXrDvUY38uxLVDohdUpb2NRUR7yi+cG8wVoubb
-bq9p5oe9kssokJCToMflPWI+U+oJdqXGM8Ljz1/s1TbFeNiuHawB0+Qym7YaB33HczWwkwRIbegZ
-TWTSSPuoVWghsYn574IGIswhEcwXhjFZCxcdUaKpZH4RBGwTgXFhH0D1rWNJe0pM+5C+CjywNfTz
-lf0=
-=n/dQ
------END PGP SIGNATURE-----
 
---------------yIMXW10Rco9lIcbRxi4XLriK--
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
