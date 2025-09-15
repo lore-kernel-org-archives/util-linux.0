@@ -1,59 +1,54 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C29872550CA
-	for <util-linux@vger.kernel.org>; Mon, 15 Sep 2025 11:48:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A07D7242D88
+	for <util-linux@vger.kernel.org>; Mon, 15 Sep 2025 11:57:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757936891; cv=none; b=CwQou0pjPy60diffqfZcqlms9wKOJKNEiBDuEhEgngvn+fKGmzPHGbVeHc859bSqBh49p2I9NBpXm0ASub5AzGQZYACLXxOKZprRtn5K3QTIlkkujrzzwNB0Sn2AQukw47VEgAuUSEOPkYqASCx723VY9FzrOxJfIUiwSErdhiE=
+	t=1757937454; cv=none; b=c7OzGKUZCyuBueb3mErBQuqV9VPNixebgTnSSpSJc9s3vqzd2ARFmQjx1C8B7dACXct3eMUp7w9VpZZH4J62hFGgrGIndV/7GvgEN6k20ZB+GjFU1RPsx03hRhEUJNeZ5afLqY7Q8nVomebhU2au6katEtPy2HPoTrtVkkXp4lM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757936891; c=relaxed/simple;
-	bh=SVhSDzZFoTbWXTlDa6anI+D/ew5uUb2NdIOqRbyFcgY=;
+	s=arc-20240116; t=1757937454; c=relaxed/simple;
+	bh=9Cf1pfO9/1GomxxsTvAHcE69hVCO1cwRDrYS2IgyDM4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RoUHJ0I5WlSe/D6c7mhGxctpwm+ZjFL609yf2Q0mgcngpP62d1PCxIKTEO1bkhgP679r9ZKb90Xs+eEZ8QyI8KKE/zTWIsC0TdOmTst+Dbc0yyEw1ICe/DKqEUQcdVPUdLz+5P0V+BNt3hvDs53KjTGLXSzol4okq0/gGKSV+24=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Z+eKnWar; arc=none smtp.client-ip=170.10.133.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=D/aXzuzy8tsMzbdXPdzWw1199EWxdE67lXRbibPE3PgQv+iwBZhdX0nL2FgMomKisTj2ilSaHDt8een3zA1zpk0hIopzr8npeQCY/lun7UKK5t0urlTYR94ity/ZWOJ+af1FYVVTmWi50Moli0CF/JhmueTTv3ID3CotIugfsko=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Nys0uM6c; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Z+eKnWar"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Nys0uM6c"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1757936888;
+	s=mimecast20190719; t=1757937450;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=bd2lja+s557+hVsw3OMILw3I7hr/dIrdEU8JqpO3mC0=;
-	b=Z+eKnWarb2kOVdENsJavfyzwLnhmzu281VUowjXZ2Layz4mgYR6YDtgtUN5inu5D2WWy/2
-	RdptgYDCoXiC8mP0TtDQRyrRrWXk8AIeK25XnDJDXpgzG4JVgIQXFfgZ4n29P7Z9t5u5nM
-	uBidENFGWnOJ1OOoau2W22cfJJ7WE1Y=
-Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+	bh=ae4/LQoFl/dHOokRhtlJUak4T5IyYSU+js8bY6lBCv0=;
+	b=Nys0uM6cdpgOU7+8yqmvZbXAIisBTbRU50cv5Y94IbpDZtGDbnTwLKn64AOZcsGFYloumZ
+	2FLq9TnoL80ED/JlEhbc76TaG680Jg/yQ6ysEYsCPXLVIQxw67KtqNkCyBxbIW9M/PAMPd
+	p2tWjCeDx/cQdEURixXQHyeu99a6owc=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-512-8Yr9c1MaP4uMGzMHVXMDUg-1; Mon,
- 15 Sep 2025 07:48:07 -0400
-X-MC-Unique: 8Yr9c1MaP4uMGzMHVXMDUg-1
-X-Mimecast-MFC-AGG-ID: 8Yr9c1MaP4uMGzMHVXMDUg_1757936886
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-259-_y8swLJ5Oi-Ly0nWEtk_aA-1; Mon,
+ 15 Sep 2025 07:57:24 -0400
+X-MC-Unique: _y8swLJ5Oi-Ly0nWEtk_aA-1
+X-Mimecast-MFC-AGG-ID: _y8swLJ5Oi-Ly0nWEtk_aA_1757937443
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 4500A19107D8;
-	Mon, 15 Sep 2025 11:48:06 +0000 (UTC)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 54D95195394C;
+	Mon, 15 Sep 2025 11:57:23 +0000 (UTC)
 Received: from ws.net.home (unknown [10.45.224.252])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 4B73E1800452;
-	Mon, 15 Sep 2025 11:48:04 +0000 (UTC)
-Date: Mon, 15 Sep 2025 13:48:01 +0200
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 623871954126;
+	Mon, 15 Sep 2025 11:57:22 +0000 (UTC)
+Date: Mon, 15 Sep 2025 13:57:19 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@telfort.nl>
+To: Richard Aplin <drtune@gmail.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] findmnt: (usage) add a needed equals sign before an
- optional argument
-Message-ID: <jjfyfortuafdoykjpzcd2ydaqtwry6nsyru3qkkuppctedsjdy@mnoyi2hipetc>
-References: <20250911134807.12903-1-bensberg@telfort.nl>
- <47103376-a043-4f78-8213-ba06f52f5116@telfort.nl>
- <rs4jch6hxbont2e56cnshc37hzefhprhlljy2v56xhhtjkfdbm@kgf6bctiicox>
- <14fbf910-bc2b-4bd4-89ce-dac8a4d8c970@telfort.nl>
- <cspldmiiosndipcki3zybaik2edrf2lstkpxxj27rum5xrlfdc@6a4t452pkz7l>
- <13928bd5-c3e3-4b6d-a5a0-3daf6b9e4429@telfort.nl>
+Subject: Re: Security issue : 2021 commit to libblkid breaks existing string
+ sanitization
+Message-ID: <3ffdghfdus35xfk6r5tztxfy6f2soyjrg6j6g6d43nf55uwc6f@unu7kambgnbf>
+References: <CABL=7+y+5E9N1TRi1o+frURgJExQr6=qSWumc3sz=A5APkuCXg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -62,44 +57,75 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <13928bd5-c3e3-4b6d-a5a0-3daf6b9e4429@telfort.nl>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+In-Reply-To: <CABL=7+y+5E9N1TRi1o+frURgJExQr6=qSWumc3sz=A5APkuCXg@mail.gmail.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-On Mon, Sep 15, 2025 at 11:51:01AM +0200, Benno Schulenberg wrote:
-> > and do string fixes in the next release (or next -rc). So I have
-> > applied the patch to the master branch only for now. OK?
+Hi Richard,
+
+-On Fri, Sep 12, 2025 at 06:33:36PM -0700, Richard Aplin wrote:
+-> There was a 2021 commit to libblkid,
+ > https://github.com/util-linux/util-linux/commit/6db368598962ea8b0329ae148ab878fd458f2533
+> commit label "Optimize the blkid_safe_string() function"
 > 
-> Not OK.  As said: I don't want to offer a faulty string.  Please
-> apply the patch also to the 2.41 stable branch, so that I can
-> announce a  better POT file (I will edit it in place -- no need
-> for another rc release).
+> This is potentially an unsafe change and may allow shell command injection.
+ 
+I disagree. :-)
 
-OK, done. Applied to the stable branch, you can edit it in place.
+> 1. The shell command blkid has a mode "-o udev" which was designed to
+> output information about block devices in a LABEL=VALUE format for
+> consumption by shell scripts.
 
-> > For a major release (e.g., v2.42), it would be best to do string
-> > translations twice before the final release to allow time to fix
-> > strings and finalize the translations. Maybe for the final release
-> > it would be best to have
-> > 
-> > -rc1 ... stabilization only, no translations
-> > -rc2 ... translations, string fixes from translators
-> > -rc3 ... final translations
-> 
-> That sounds fine.
-> 
-> > But I'm not sure translators are ready for such repetitive work
-> > (although the second update will probably be quite small).
-> 
-> Ideally I should catch the faulty strings before you make the rc2.
+No, it's designed for use in udev rules where nothing is blindly evaluated or executed.
 
-Yes, that would be best; we can avoid -rc3 and have all strings ready
-for -rc2.
+man blkid is pretty explicit:
 
-Thanks!
+udev
+       print key="value" pairs for easy import into the udev environment; the keys
+       are prefixed by ID_FS_ or ID_PART_ prefixes. The value may be modified to be
+       safe for udev environment; allowed is plain ASCII, hex-escaping and valid
+       UTF-8, everything else (including whitespaces) is replaced with '_'. The keys
+       with _ENC postfix use hex-escaping for unsafe chars.
+
+The _ENC variables keep only A-Za-z, "#+-.:=@_" from ASCII; this means
+characters like "$()" are escaped.
+
+> I have seen more than one instance (I
+> am looking at one now in a commercial product) where userspace script
+> has done:
+> eval $(blkid -o udev ...)
+
+Well, this is not a blkid issue; you need at least "| grep _ENC".
+
+> 2. One of the fields returned by blkid (e.g. for a USB stick) is the
+> volume label, which would be controllable by an attacker inserting a
+> USB stick.
+> The blkid 'udev' command code is aware of this danger and sanitizes
+> the volume label and other attacker-controllable strings by calling
+> the function
+> blkid_safe_string(...)
+> in libblkid.
+
+It is safe for printing to a terminal, not for any random interpreter
+like shell. There is also blkid_encode_string() for more restrictive
+needs.
+
+> 3. In previous versions of libblkid the blkid_safe_string function
+> used to strip several dangerous ascii characters that would have
+> allowed command injection (specifically; backtick, parenthesis, etc.
+> It still allowed '$' which is a little dubious).
+
+LABEL= and PARTLABEL= are used in config files, rules, etc., so the
+goal is to keep them as unmodified as possible. If we introduce
+changes in this area, some machines may fail to boot. It's better to
+educate system admins not to blindly use "eval" when security matters.
+
+
+Yes, I understand that users and admins want the installed system to
+prevent all their mistakes instantly, but beyond a certain point it
+affects usability.
+
+We can add a note to the man page explicitly warning against using
+eval $(blkid -o udev ...) to make it clearer for users.
 
     Karel
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
 
