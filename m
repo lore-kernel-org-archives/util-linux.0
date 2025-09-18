@@ -1,47 +1,47 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.170])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 017032E7635
-	for <util-linux@vger.kernel.org>; Thu, 18 Sep 2025 08:57:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F29002D77ED
+	for <util-linux@vger.kernel.org>; Thu, 18 Sep 2025 08:57:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758185868; cv=none; b=YR2y6nGBsus83ClJmzSXSIIZdOsxKEgGAA0rtefsxP2k08ImH92O7H6+AZZKkytfq0YJjmUwhY+hdGszaZ1TnYtnDadQbKMVUro5Y6Sa5FOkILjO8uR++sCli5VESGOIWqcsraop+Oy8TJ4c7JbozCHtXBrzs7kLaqHdZR+FJ2g=
+	t=1758185875; cv=none; b=hkc1d8ncq1L7HL4o1NwIhPb/LXDhD3v8rRUsA8DSDpEum8ObIOTf+nCKk9ETTgnA8JkDAVvQtTc9mcx5i92MzipY4JG5UV0a9zfvITLzUCbC+KVNoWMEzKqoxvL6Soh+f5PU3DJFBxV5vvHj8rYieWStRGm71tA57iuNC8YVJIs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758185868; c=relaxed/simple;
-	bh=LMLiaZ3QaJ0FJFGD5GC6iKZjex+mSMPsyjIA6nzEgGY=;
+	s=arc-20240116; t=1758185875; c=relaxed/simple;
+	bh=ci6uROaV2DxYFwKtiXS47TBJQzT3cZGgFrjzJ9L0veM=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mZS3VzEOpI8YweoxjK36fby6/QemZkpY8vkFBVaxIi1KjfRVahNtFif5TmgnGyVIRXtATJ3HYImU5axQ5cykbBLYn5y26r424tGmE1zH2xA0eoaAwIkM4fZ4Z7/duVtudwEDxui5+jAcnhJX9L87SZ8127nnkHIx0Zy4gn2DvWE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=eq4UDyv6; arc=none smtp.client-ip=195.121.94.170
+	 MIME-Version; b=Q9g/G6FN1bEve8mtra4FCVD+R2yOKne9jDBU+gowyF4nEcKRuM7WB+mLYQEPQjEwFmFpchOhayfTDWxKxAH4xNOYvvHGr0RPqznhhT4PKuypin5u2fiIfnww2geUmjU7SXOU99ZyESUEp0eBPWSNMmdiXLBJEKBvU97AD7HDnY4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=QBcDCTkm; arc=none smtp.client-ip=195.121.94.168
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="eq4UDyv6"
-X-KPN-MessageId: eabde008-946d-11f0-aad5-005056ab378f
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="QBcDCTkm"
+X-KPN-MessageId: b86edc62-946d-11f0-80ed-005056aba152
 Received: from smtp.kpnmail.nl (unknown [10.31.155.37])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id eabde008-946d-11f0-aad5-005056ab378f;
-	Thu, 18 Sep 2025 11:00:25 +0200 (CEST)
+	id b86edc62-946d-11f0-80ed-005056aba152;
+	Thu, 18 Sep 2025 10:59:01 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=0avyu+ZQyzGJ4Baxqb3WsVYImd41le7h96mmOBP929Q=;
-	b=eq4UDyv6RDPp6ZFrqyaKOPkPGnCNnPy1Dw1zp+/o9shQlHtpQ9Grk0w7GneRVsY72ltNE5iOLiToF
-	 OGl+f0hoEYKHsJnAf+eV1ggtZDAZQtoCQWZ770fngtkcZh601ds83W6F3jGoMKgISIleLuIaIg83Xz
-	 WMbNyaIcXQnhlw10=
-X-KPN-MID: 33|1fQ7FsA4Ta5pG3meUL5qWxWsD4QM1fFM86hmJqk78ONI/asa1HwI1SfLsb5wxqh
- ymxYkMEuuplBcaKXcjWnEhQ==
+	bh=MyWA8h9GEgcgVa4R1Fcp5aXVIB5R+oQT0wCN5yTzneg=;
+	b=QBcDCTkmZiI2GUdabIAaxlTjbYz/4b6a6YLr3yQmMK6ziJiQ5dtKLsRld/90y+bn6lFK7J3guqLkt
+	 EWVH7Ut3xDcDizLL8HoFqoQcs2aG5hQvqaXXxlVc7PbsRHFROsl8n+oWQ3BeXCvCrMVyBuW5ZicutQ
+	 xvQpAUWgWr3lbdno=
+X-KPN-MID: 33|ijPzswKY8N3+3t793VFPaVrFNdxjiycABGyGeIgid+cq/wlRXaPkSja9j/j43FO
+ C3Qj5jm//0znCKqlNCktX94A0GtuHkUnariIXGSASD+M=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|cyaczzznPBB7yIkNnts5yDPvaBg4fzBkiZslNLWvXvUFHt2m2bWImwoRW51jkzb
- q2dBSu/VnHD4hhaxCaSVN+A==
+X-CMASSUN: 33|EtD5cIxL1JleCvkDT6JP0JjcW53SWreXDn5mi2DqzlsHaZG233GOgMz7+vRqhUY
+ 2yjGsNCURK5IfE1RIi9LlFQ==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 8a2084ab-946d-11f0-a7a5-005056ab1411;
-	Thu, 18 Sep 2025 10:57:43 +0200 (CEST)
+	id 8f389339-946d-11f0-a7a5-005056ab1411;
+	Thu, 18 Sep 2025 10:57:52 +0200 (CEST)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 5/6] fallocate: (man) slightly improve the grammar of two sentences
-Date: Thu, 18 Sep 2025 10:57:06 +0200
-Message-ID: <20250918085707.41785-5-bensberg@telfort.nl>
+Subject: [PATCH 6/6] fallocate: (man,usage) correct the alphabetical sorting of the options
+Date: Thu, 18 Sep 2025 10:57:07 +0200
+Message-ID: <20250918085707.41785-6-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20250918085707.41785-1-bensberg@telfort.nl>
 References: <20250918085707.41785-1-bensberg@telfort.nl>
@@ -55,31 +55,61 @@ Content-Transfer-Encoding: 8bit
 
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- sys-utils/fallocate.1.adoc | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sys-utils/fallocate.1.adoc | 14 +++++++-------
+ sys-utils/fallocate.c      |  4 ++--
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
 diff --git a/sys-utils/fallocate.1.adoc b/sys-utils/fallocate.1.adoc
-index 69602f01c..0b7ea39db 100644
+index 0b7ea39db..4a96d009d 100644
 --- a/sys-utils/fallocate.1.adoc
 +++ b/sys-utils/fallocate.1.adoc
-@@ -70,7 +70,7 @@ Enable POSIX operation mode. In that mode allocation operation always completes,
- *-z*, *--zero-range*::
- Zeroes space in the byte range starting at _offset_ and continuing for _length_ bytes. Within the specified range, blocks are preallocated for the regions that span the holes in the file. After a successful call, subsequent reads from this range will return zeroes.
- +
--Zeroing is done within the filesystem preferably by converting the range into unwritten extents. This approach means that the specified range will not be physically zeroed out on the device (except for partial blocks at the either end of the range), and I/O is (otherwise) required only to update metadata.
-+Zeroing is done within the filesystem preferably by converting the range into unwritten extents. This approach means that the specified range will not be physically zeroed out on the device (except for partial blocks at either end of the range), and I/O is (otherwise) required only to update metadata.
- +
- Option *--keep-size* can be specified to prevent file length modification.
- +
-@@ -81,7 +81,7 @@ Zeroes space in the byte range starting at _offset_ and continuing for _length_
- +
- Zeroing is done within the filesystem. The filesystem may use a hardware-accelerated zeroing command or may submit regular writes. The behavior depends on the filesystem design and the available hardware.
- +
--Options *--keep-size* cannot be specified for the write-zeroes operation because allocating written blocks beyond the inode size is not permitted.
-+Option *--keep-size* cannot be specified for the write-zeroes operation because allocating written blocks beyond the inode size is not permitted.
+@@ -64,6 +64,13 @@ Supported for XFS (since Linux 2.6.38), ext4 (since Linux 3.0), Btrfs (since Lin
+ *-v*, *--verbose*::
+ Enable verbose mode.
  
++*-w*, *--write-zeroes*::
++Zeroes space in the byte range starting at _offset_ and continuing for _length_ bytes. Within the specified range, written blocks are preallocated for the regions that span the holes in the file. After a successful call, subsequent reads from this range will return zeroes and subsequent writes to that range do not require further changes to the file mapping metadata.
+++
++Zeroing is done within the filesystem. The filesystem may use a hardware-accelerated zeroing command or may submit regular writes. The behavior depends on the filesystem design and the available hardware.
+++
++Option *--keep-size* cannot be specified for the write-zeroes operation because allocating written blocks beyond the inode size is not permitted.
++
+ *-x*, *--posix*::
+ Enable POSIX operation mode. In that mode allocation operation always completes, but it may take longer time when fast allocation is not supported by the underlying filesystem.
+ 
+@@ -76,13 +83,6 @@ Option *--keep-size* can be specified to prevent file length modification.
+ +
+ Available since Linux 3.14 for ext4 (only for extent-based files) and XFS.
+ 
+-*-w*, *--write-zeroes*::
+-Zeroes space in the byte range starting at _offset_ and continuing for _length_ bytes. Within the specified range, written blocks are preallocated for the regions that span the holes in the file. After a successful call, subsequent reads from this range will return zeroes and subsequent writes to that range do not require further changes to the file mapping metadata.
+-+
+-Zeroing is done within the filesystem. The filesystem may use a hardware-accelerated zeroing command or may submit regular writes. The behavior depends on the filesystem design and the available hardware.
+-+
+-Option *--keep-size* cannot be specified for the write-zeroes operation because allocating written blocks beyond the inode size is not permitted.
+-
  include::man-common/help-version.adoc[]
  
+ == AUTHORS
+diff --git a/sys-utils/fallocate.c b/sys-utils/fallocate.c
+index afd615537..f06009483 100644
+--- a/sys-utils/fallocate.c
++++ b/sys-utils/fallocate.c
+@@ -97,12 +97,12 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_(" -n, --keep-size      maintain the apparent size of the file\n"), out);
+ 	fputs(_(" -o, --offset <num>   offset for range operations, in bytes\n"), out);
+ 	fputs(_(" -p, --punch-hole     replace a range with a hole (implies -n)\n"), out);
+-	fputs(_(" -z, --zero-range     zero and ensure allocation of a range\n"), out);
++	fputs(_(" -v, --verbose        verbose mode\n"), out);
+ 	fputs(_(" -w, --write-zeroes   write zeroes and ensure allocation of a range\n"), out);
+ #ifdef HAVE_POSIX_FALLOCATE
+ 	fputs(_(" -x, --posix          use posix_fallocate(3) instead of fallocate(2)\n"), out);
+ #endif
+-	fputs(_(" -v, --verbose        verbose mode\n"), out);
++	fputs(_(" -z, --zero-range     zero and ensure allocation of a range\n"), out);
+ 
+ 	fputs(USAGE_SEPARATOR, out);
+ 	fprintf(out, USAGE_HELP_OPTIONS(22));
 -- 
 2.51.0
 
