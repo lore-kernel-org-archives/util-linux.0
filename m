@@ -1,47 +1,47 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFC382FCC1A
-	for <util-linux@vger.kernel.org>; Thu, 18 Sep 2025 08:57:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 017032E7635
+	for <util-linux@vger.kernel.org>; Thu, 18 Sep 2025 08:57:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758185854; cv=none; b=JAW4G3ZVuF3RKE2p5KKGRxVeXfH0qdaJ0qWnpPd9qlZNNQBgVxOC803TAmF6vAEBPIM7Svg9R47e274wwKfMTkhH+thV/zb0MMVnLODLtM4kp7XgLRQDz/mPjU+jgEZRD6WNKW+xq4/F6ZDR8R0dmT3GvLsi36H/OYA0qHaNNX8=
+	t=1758185868; cv=none; b=YR2y6nGBsus83ClJmzSXSIIZdOsxKEgGAA0rtefsxP2k08ImH92O7H6+AZZKkytfq0YJjmUwhY+hdGszaZ1TnYtnDadQbKMVUro5Y6Sa5FOkILjO8uR++sCli5VESGOIWqcsraop+Oy8TJ4c7JbozCHtXBrzs7kLaqHdZR+FJ2g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758185854; c=relaxed/simple;
-	bh=+OTgWvzlzAm/rjCjyt8ZAjQD7ykuVQ6u/Zvgh0jAw6M=;
+	s=arc-20240116; t=1758185868; c=relaxed/simple;
+	bh=LMLiaZ3QaJ0FJFGD5GC6iKZjex+mSMPsyjIA6nzEgGY=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PWrKOxCXyDlXBGj8iGDn+ouzijlqufOqFi1yKA1Sbrz83bl+L+N6Hc26r8MODwrHY6qL6IylVt9GyR0m++kfuoi54zjGYQdIzxaNmyT8gX7/h9QLC6kbKPWCENwXYGzs+2ANX/7CqmSh1KqDzjI4BYXSxQSHUvRR08NjV+IUdrQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=v69pjHYB; arc=none smtp.client-ip=195.121.94.168
+	 MIME-Version; b=mZS3VzEOpI8YweoxjK36fby6/QemZkpY8vkFBVaxIi1KjfRVahNtFif5TmgnGyVIRXtATJ3HYImU5axQ5cykbBLYn5y26r424tGmE1zH2xA0eoaAwIkM4fZ4Z7/duVtudwEDxui5+jAcnhJX9L87SZ8127nnkHIx0Zy4gn2DvWE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=eq4UDyv6; arc=none smtp.client-ip=195.121.94.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="v69pjHYB"
-X-KPN-MessageId: aa659b60-946d-11f0-80ed-005056aba152
-Received: from smtp.kpnmail.nl (unknown [10.31.155.39])
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="eq4UDyv6"
+X-KPN-MessageId: eabde008-946d-11f0-aad5-005056ab378f
+Received: from smtp.kpnmail.nl (unknown [10.31.155.37])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id aa659b60-946d-11f0-80ed-005056aba152;
-	Thu, 18 Sep 2025 10:58:37 +0200 (CEST)
+	id eabde008-946d-11f0-aad5-005056ab378f;
+	Thu, 18 Sep 2025 11:00:25 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=0O41lhNckE6EOvYbyYs8iGhybwpJEDbNZIhrnTWPqms=;
-	b=v69pjHYBPg5jBlOcgLqtvQx4eFQPLON4QJ+7sfz5mZoEeA2juquhywVGGOjyyryoVMfJaFrOGZ4Zj
-	 gz8RXt4U/t+tx9noo2C7+KBY26z5538KXFrbXzv65GXLnkCaYe5urQdtdivKvjRreUisMre4p8aOqh
-	 aIUd2lrk13qQOO8c=
-X-KPN-MID: 33|kc1C3PB2YFg2vzmNSUfXY8aiVuSG6NApoVMnsypQSwGc4KLxIHH59T1WsCjV660
- YmzhX2qIIooyeO7ya6r/JR6en/yBq2BiHGGxnG7iNTXU=
+	bh=0avyu+ZQyzGJ4Baxqb3WsVYImd41le7h96mmOBP929Q=;
+	b=eq4UDyv6RDPp6ZFrqyaKOPkPGnCNnPy1Dw1zp+/o9shQlHtpQ9Grk0w7GneRVsY72ltNE5iOLiToF
+	 OGl+f0hoEYKHsJnAf+eV1ggtZDAZQtoCQWZ770fngtkcZh601ds83W6F3jGoMKgISIleLuIaIg83Xz
+	 WMbNyaIcXQnhlw10=
+X-KPN-MID: 33|1fQ7FsA4Ta5pG3meUL5qWxWsD4QM1fFM86hmJqk78ONI/asa1HwI1SfLsb5wxqh
+ ymxYkMEuuplBcaKXcjWnEhQ==
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|S7MnqH3mUPpp8EPMFBaxdJmoGeUGtASKp/arBzU7iyOz+rURGH2pnMLlCYegXqg
- /Az9XrWiylE7728nyewqw1g==
+X-CMASSUN: 33|cyaczzznPBB7yIkNnts5yDPvaBg4fzBkiZslNLWvXvUFHt2m2bWImwoRW51jkzb
+ q2dBSu/VnHD4hhaxCaSVN+A==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 812b5717-946d-11f0-807c-005056ab7447;
-	Thu, 18 Sep 2025 10:57:28 +0200 (CEST)
+	id 8a2084ab-946d-11f0-a7a5-005056ab1411;
+	Thu, 18 Sep 2025 10:57:43 +0200 (CEST)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 3/6] column: (usage) wrap two descriptions, to make them fit within 80 columns
-Date: Thu, 18 Sep 2025 10:57:04 +0200
-Message-ID: <20250918085707.41785-3-bensberg@telfort.nl>
+Subject: [PATCH 5/6] fallocate: (man) slightly improve the grammar of two sentences
+Date: Thu, 18 Sep 2025 10:57:06 +0200
+Message-ID: <20250918085707.41785-5-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20250918085707.41785-1-bensberg@telfort.nl>
 References: <20250918085707.41785-1-bensberg@telfort.nl>
@@ -55,33 +55,31 @@ Content-Transfer-Encoding: 8bit
 
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- text-utils/column.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sys-utils/fallocate.1.adoc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/text-utils/column.c b/text-utils/column.c
-index 29ed25b2f..7a37cb886 100644
---- a/text-utils/column.c
-+++ b/text-utils/column.c
-@@ -999,7 +999,8 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(_(" -C, --table-column <properties>  define column\n"), out);
- 	fputs(_(" -N, --table-columns <names>      comma separated columns names\n"), out);
- 	fputs(_(" -l, --table-columns-limit <num>  maximal number of input columns\n"), out);
--	fputs(_(" -E, --table-noextreme <columns>  don't count long text from the columns to column width\n"), out);
-+	fputs(_(" -E, --table-noextreme <columns>  don't count long text in these columns\n"
-+		"                                    to the column's width\n"), out);
- 	fputs(_(" -d, --table-noheadings           don't print header\n"), out);
- 	fputs(_(" -m, --table-maxout               fill all available space\n"), out);
- 	fputs(_(" -e, --table-header-repeat        repeat header for each page\n"), out);
-@@ -1018,7 +1019,8 @@ static void __attribute__((__noreturn__)) usage(void)
+diff --git a/sys-utils/fallocate.1.adoc b/sys-utils/fallocate.1.adoc
+index 69602f01c..0b7ea39db 100644
+--- a/sys-utils/fallocate.1.adoc
++++ b/sys-utils/fallocate.1.adoc
+@@ -70,7 +70,7 @@ Enable POSIX operation mode. In that mode allocation operation always completes,
+ *-z*, *--zero-range*::
+ Zeroes space in the byte range starting at _offset_ and continuing for _length_ bytes. Within the specified range, blocks are preallocated for the regions that span the holes in the file. After a successful call, subsequent reads from this range will return zeroes.
+ +
+-Zeroing is done within the filesystem preferably by converting the range into unwritten extents. This approach means that the specified range will not be physically zeroed out on the device (except for partial blocks at the either end of the range), and I/O is (otherwise) required only to update metadata.
++Zeroing is done within the filesystem preferably by converting the range into unwritten extents. This approach means that the specified range will not be physically zeroed out on the device (except for partial blocks at either end of the range), and I/O is (otherwise) required only to update metadata.
+ +
+ Option *--keep-size* can be specified to prevent file length modification.
+ +
+@@ -81,7 +81,7 @@ Zeroes space in the byte range starting at _offset_ and continuing for _length_
+ +
+ Zeroing is done within the filesystem. The filesystem may use a hardware-accelerated zeroing command or may submit regular writes. The behavior depends on the filesystem design and the available hardware.
+ +
+-Options *--keep-size* cannot be specified for the write-zeroes operation because allocating written blocks beyond the inode size is not permitted.
++Option *--keep-size* cannot be specified for the write-zeroes operation because allocating written blocks beyond the inode size is not permitted.
  
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(_(" -c, --output-width <width>       width of output in number of characters\n"), out);
--	fputs(_(" -o, --output-separator <string>  columns separator for table output (default is two spaces)\n"), out);
-+	fputs(_(" -o, --output-separator <string>  columns separator for table output\n"
-+		"                                    (default is two spaces)\n"), out);
- 	fputs(_(" -s, --separator <string>         possible table delimiters\n"), out);
- 	fputs(_(" -x, --fillrows                   fill rows before columns\n"), out);
- 	fputs(_(" -S, --use-spaces <number>        minimal whitespaces between columns (no tabs)\n"), out);
+ include::man-common/help-version.adoc[]
+ 
 -- 
 2.51.0
 
