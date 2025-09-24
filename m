@@ -1,207 +1,71 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA37D261B8A
-	for <util-linux@vger.kernel.org>; Mon, 22 Sep 2025 11:48:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4915F27FB25
+	for <util-linux@vger.kernel.org>; Wed, 24 Sep 2025 08:06:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758541709; cv=none; b=KSunW6R8cX4/cUhE131wrHfOtnVO1EFpLAABdUc7sA8HQGaHQZa3bfKNfSYPAf9JeRr/vlR+YJcajMHMcQHLwxELXsxz3hl50vtBvPmo8qYK9uu7K7AYiJXmXmBpHA6jcIcBNdXrNoJM5ylGQYxRcajgO+lhSfxeipj6Ubzhx8M=
+	t=1758701212; cv=none; b=SDOdazJ2GRtUMeoezwWOVIVphY3NHeH7XBfY1Ar+qnLfy485T0a/LttkHwfaq22uqS2kstZzmEKrLHkF1jtw0XFBEMtzsYWZxiPdBurg554bSN2eiSZcUcCFS8F3ygMGEXaQ7PV9MM7APzdaTubEOdQMoJqo+ur4kj4nGgR4gog=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758541709; c=relaxed/simple;
-	bh=Pregwja20pPdeQ6hBFFCv6+ehyzfjlp1M6LIaaFG39c=;
-	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=FhocSVPLEG91UJYVQKskWVr9yuVSN/FpwEhNMYYQ9kWqadfThXDIFU9n6Nw0YZU7atDPCrR9k4qrj4jnuMumdMSpwsEY8G3Zq1pSPZdLhdf1ugf9j5aWvo/O1Ry4250o1avvqltvcYRiad32I20iMxBonbwnSHcbqZlQL5njqLE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J7Q2thkq; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1758701212; c=relaxed/simple;
+	bh=Hec57hl/qFkrzHQfSCjJH5f7I0dax5dLUVShVWKoP1o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Lm3t+HaaB67QeGklmx6eFOokt4y/4TZELW31W7qRMXNvdElZdY/RL83AaknQo9Vdl7gbaQhe8l7Jp8bnARrJ2uJ2+tTvrGcoXyGsKjzEBSuBGUTaqwvt6xl9wW62wX13EU7CWr13R9F8REYJiz51RasqbqTZgWhv+0YXWzYXLwk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AvtZX7G9; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J7Q2thkq"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AvtZX7G9"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758541706;
+	s=mimecast20190719; t=1758701209;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=B8RU7qUq3dY+e3f8Ehx10rzc/Ey4Gre7j1V3AC9ifV8=;
-	b=J7Q2thkqocOGh85JNZjn8+CZ2AcaO06UZm1b9s66XjeaYksyI6HVZHWQv43J/LhRAYrkS7
-	1wYd0uukVpZYq1hEVy8QPvzrHjxoCu3MWVArwscx0k5l/k445pvjBaMjMCm4vGkzKAVzMO
-	tsKjhQpjNWkEAjlYTkFrHzkXx6vml3s=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jA7tIHWMsdmGbLM+R9PwC1SQDsJwwnSCaugtxv535Ds=;
+	b=AvtZX7G9DOxpRfCEbAfzbDQNh6hRYE17v+bQPdRtqpd+kOg8/PlU3qoxCjrJavjvlgPEav
+	NJlPoBTxSgvjC31fgWLdJ/3zbIBvAAbJvXyCRAnn/k+9vfpILrqZeczhRN6AmiRwhfs13L
+	QLKQBeD+dZNA0ogLWgjpETYCR4+DV8Q=
+Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-154-TiU9SO8qPRKk6tiRbwKv8g-1; Mon,
- 22 Sep 2025 07:48:23 -0400
-X-MC-Unique: TiU9SO8qPRKk6tiRbwKv8g-1
-X-Mimecast-MFC-AGG-ID: TiU9SO8qPRKk6tiRbwKv8g_1758541702
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-86-14PmzPapNLOneIb60W8VDw-1; Wed,
+ 24 Sep 2025 04:06:47 -0400
+X-MC-Unique: 14PmzPapNLOneIb60W8VDw-1
+X-Mimecast-MFC-AGG-ID: 14PmzPapNLOneIb60W8VDw_1758701207
 Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5949D19560A2;
-	Mon, 22 Sep 2025 11:48:22 +0000 (UTC)
+	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A8A8C19560A2;
+	Wed, 24 Sep 2025 08:06:46 +0000 (UTC)
 Received: from ws.net.home (unknown [10.45.224.252])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 15AC31955F21;
-	Mon, 22 Sep 2025 11:48:19 +0000 (UTC)
-Date: Mon, 22 Sep 2025 13:48:16 +0200
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 971DE1955F19;
+	Wed, 24 Sep 2025 08:06:45 +0000 (UTC)
+Date: Wed, 24 Sep 2025 10:06:42 +0200
 From: Karel Zak <kzak@redhat.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	util-linux@vger.kernel.org
-Subject: [ANNOUNCE] util-linux stable v2.41.2
-Message-ID: <cphv3swx7a3nqmzgxroyezzpxf2rrvfdxrbev55tm6ioeczki3@plvbxfgxkvl4>
+To: Benno Schulenberg <bensberg@telfort.nl>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH] blkid: correct an erroneous error message
+Message-ID: <ieu3rzvjuokjyyhxz7wamdxlynjxi7hy5cyrfd2vaddhuz4z7n@txg6uqt6mxnx>
+References: <20250916134441.51685-1-bensberg@telfort.nl>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250916134441.51685-1-bensberg@telfort.nl>
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
+On Tue, Sep 16, 2025 at 03:44:41PM +0200, Benno Schulenberg wrote:
+>  misc-utils/blkid.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-The util-linux stable maintenance release v2.41.2 is now available at
-      
-  http://www.kernel.org/pub/linux/utils/util-linux/v2.41/
-      
-Feedback and bug reports, as always, are welcomed.
- 
-  Karel
+Applied, thanks.
 
-
-util-linux 2.41.2 Release Notes
-===============================
-
-bash-completion:
-    - fix function name of enosys completion (by Koichi Murase)
-    - add choom and coresched (by Karel Zak)
-
-blkid:
-    - correct an erroneous error message (by Benno Schulenberg)
-
-build-sys:
-    - update release dates (by Karel Zak)
-
-docs:
-    - add v2.41.2-ReleaseNotes (by Karel Zak)
-
-findmnt:
-    - (usage) add a needed equals sign before an optional argument (by Benno Schulenberg)
-    - add missing newline in --raw, --pair and --list output formats (by Christian Goeschel Ndjomouo)
-
-fsck.cramfs:
-    - check buffer size for memcpy() (by Karel Zak)
-
-getopt:
-    - document special symbols that should not be used as option characters (by cgoesche)
-
-gitignore:
-    - Ignore tests/diff/ and test/output/ (by Jesse Rosenstock)
-
-hardlink:
-    - (man) add note note about ULFILEEQ_DEBUG= (by Karel Zak)
-
-include/mount-api-utils:
-    - avoid using sys/mount.h (by Karel Zak)
-
-libblkid:
-    - Fix probe_ioctl_tp assigning BLKGETDISKSEQ as physical sector size (by Sam Fink)
-    - (ext) reduce false positive (by 胡玮文)
-    - improve UUID_SUB= description (by Karel Zak)
-
-lib/color-names:
-    - fix stupid bugs (by Karel Zak)
-    - Fix color name canonicalization (by Karel Zak)
-
-libfdisk:
-    - (script) improve separator usage in named-fields dump (by Karel Zak)
-    - (script) fix device name separator parsing (by Karel Zak)
-
-liblastlog2:
-    - markup fixes for man pages (by Mario Blättermann)
-
-libmount:
-    - don't report fsconfig errors with "nofail" (by Karel Zak)
-
-lib/path:
-    - avoid double free() for cpusets (by Karel Zak)
-
-lib/strutils:
-    - add ul_ prefix to strrep() and strrem() functions (by Karel Zak)
-    - add ul_ prefix to split() function (by Karel Zak)
-    - add ul_ prefix to strappend() functions (by Karel Zak)
-    - add ul_ prefix to strconcat() functions (by Karel Zak)
-    - add ul_ prefix to startswith() and endswith() (by Karel Zak)
-
-lib/strv:
-    - use ul_ prefix for strv functions (by Karel Zak)
-
-logger:
-    - fix buffer overflow when read stdin (by Karel Zak)
-    - fix incorrect warning message when both --file and a message are specified (by Alexander Kappner)
-
-lsblk:
-    - fix possible use-after-free (by Karel Zak)
-    - fix memory leak [coverity scan] (by Karel Zak)
-    - use md as fallback TYPE when md/level empty (by codefiles)
-
-lscpu:
-    - New Arm C1 parts (by Jeremy Linton)
-    - Add NVIDIA Olympus arm64 core (by Matthew R. Ochs)
-
-man:
-    - Fixed incorrect ipcrm options (by Prasanna Paithankar)
-    - Replace RETURN VALUE with EXIT STATUS in section 1 (by Jesse Rosenstock)
-
-mkfs.cramfs:
-    - avoid uninitialized value [coverity scan] (by Karel Zak)
-
-more:
-    - temporarily ignore stdin when waiting for stderr (by Karel Zak)
-
-po:
-    - update uk.po (from translationproject.org) (by Yuri Chornoivan)
-    - update ro.po (from translationproject.org) (by Remus-Gabriel Chelu)
-    - update pl.po (from translationproject.org) (by Jakub Bogusz)
-    - update nl.po (from translationproject.org) (by Benno Schulenberg)
-    - update ko.po (from translationproject.org) (by Seong-ho Cho)
-    - update ja.po (from translationproject.org) (by YOSHIDA Hideki)
-    - update hr.po (from translationproject.org) (by Božidar Putanec)
-    - update fr.po (from translationproject.org) (by Frédéric Marchal)
-    - update es.po (from translationproject.org) (by Antonio Ceballos Roa)
-    - update de.po (from translationproject.org) (by Mario Blättermann)
-    - update cs.po (from translationproject.org) (by Petr Písař)
-
-po-man:
-    - merge changes (by Karel Zak)
-    - update uk.po (from translationproject.org) (by Yuri Chornoivan)
-    - update ro.po (from translationproject.org) (by Remus-Gabriel Chelu)
-    - update pl.po (from translationproject.org) (by Michał Kułach)
-    - update de.po (from translationproject.org) (by Mario Blättermann)
-    - merge changes (by Karel Zak)
-    - update es.po (from translationproject.org) (by Antonio Ceballos Roa)
-
-rev:
-    - add --zero option to --help output (by Christian Goeschel Ndjomouo)
-
-setpriv:
-    - Improve getgroups() Portability (by Karel Zak)
-
-sfdisk:
-    - reject spurious arguments for --reorder/--backup-pt-sectors (by Thomas Weißschuh)
-
-tests:
-    - add color names test (by Karel Zak)
-
-tests/helpers/test_sigstate.c:
-    - explicitly reset SIGINT to default action after trapping (by Hongxu Jia)
-
-tools:
-    - add git-version-next script release versioning (by Karel Zak)
-
-zramctl:
-    - ignore ENOENT when setting max_comp_streams (by Jiang XueQian)
-    - fix MEM-USED column description (by Jérôme Poulin)
-
-Misc:
-    - Add missing ;; to -m case (#1) (by Nate Drake)
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
