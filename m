@@ -1,78 +1,110 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.167])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15E262DECD4
-	for <util-linux@vger.kernel.org>; Wed,  1 Oct 2025 13:06:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2033514A4F9
+	for <util-linux@vger.kernel.org>; Sun,  5 Oct 2025 13:22:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.167
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759324009; cv=none; b=DZmng3TPN+383flpxNOHdqYixTXh0IdSxnASANlksyPPaATZa63gPqpOw8WABwBIW7vYo6QkYI4Ok2Vnux/8b9GCEUrRdzD6viP2VqJWYVcnHOT7kaShxJIfuDnDy8ZeGUdxB7PpGn0bPVVmHssBLIc79dv/Zikebk1XEA1x4OU=
+	t=1759670529; cv=none; b=CKeFTkyNteFhwgBcan9nLIrS6SKeowM/VFv+S2/aCq1yzcEFrdSi2XQ1uoIc+G9fCFqsFNfrgl1K63dT3pNY8TigUiBUJqrDoQLFqnUb94ggxcqCjOhSK1eOuDH/j//2gtw+LdLe0W60yLifo8o0w2vLpP1MrCZcTboTNJ+S+5o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759324009; c=relaxed/simple;
-	bh=qZk7yuX7HjgY3XmK83nCca/gqzgGhCyuQR+RECnRgKE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cL1Hzye0y8w/b0PelptxaC42sqstj09VN6KtJiCU3p6WRn549np9TfX47MaOxjLjj03JMoAJT3f6iB49df1ZkjJPv9TF1tmum1/Yg7CQsFBtyukx3T7pSgA7HCZB/+etB2rE1etMCCnUwcpUvP6oQ2F2FBAPA/KRzfVeHGvfa5s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G5ASlPDI; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1759670529; c=relaxed/simple;
+	bh=SQBz00eac0VBBEdJd+mJ8L7QOBUXzLoyVk0neeHz/6g=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=epWQ3kEeBADNE8kmGsMtNDOHj8RFdIS8mjKGhVJEJ18h9eiJ7YyM/FNmOgYjQSEwCou8+UvUiqS0VRQERRjW71V2ltXcCmZ9p77TirIBpX7ddgw4hobnLoBUwqqeqmeSDnsPw2Fx4xu3uotufeqxdTRTy1AKYx9aNVOXMDdzZ0M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=YUuwSoiK; arc=none smtp.client-ip=195.121.94.167
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G5ASlPDI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1759324007;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wtVdAa0rI8O8nF6Ov1XftCn7DPpuJQvJGK7lXDpT9w0=;
-	b=G5ASlPDIzqUJUs0V7gw3sxpEJ4Z1egdn+vM02bC12qLQNfLTokvMmmgqwrGJ2M3xL+TA12
-	PwEMmaWzgBrsWWDN9hN7iTlPjmoJc+mpkypoYJnqMyOCNppDKxMWnTorLPqIR7W1dclnEn
-	anntFjw1G1JmvnXm+byVtkxXeHwwMVo=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-573-FWPzfZtKODe5t31SqEWolg-1; Wed,
- 01 Oct 2025 09:06:44 -0400
-X-MC-Unique: FWPzfZtKODe5t31SqEWolg-1
-X-Mimecast-MFC-AGG-ID: FWPzfZtKODe5t31SqEWolg_1759323999
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 985581800366;
-	Wed,  1 Oct 2025 13:06:36 +0000 (UTC)
-Received: from ws.net.home (unknown [10.45.226.93])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9E16C1800577;
-	Wed,  1 Oct 2025 13:06:34 +0000 (UTC)
-Date: Wed, 1 Oct 2025 15:06:31 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Lukas Herbolt <lukas@herbolt.com>
-Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH] fallocate: allow O_CREATE if mode is
- FALLOC_FL_WRITE_ZEROES
-Message-ID: <vrxuesicvzknwfrkesxoaoiozxpgzga5q3c7sde247535l6why@qle4befw3gnk>
-References: <20251001115448.1646647-3-lukas@herbolt.com>
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="YUuwSoiK"
+X-KPN-MessageId: 3c679ec8-a1ee-11f0-a27d-005056abbe64
+Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
+	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
+	id 3c679ec8-a1ee-11f0-a27d-005056abbe64;
+	Sun, 05 Oct 2025 15:21:43 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=telfort.nl; s=telfort01;
+	h=mime-version:message-id:date:subject:to:from;
+	bh=EaIEXDzrEuJCtFU+ZpsMgktaTOQ2g1I4BvA8h6gQ6sY=;
+	b=YUuwSoiKeka53Xqn72Q2HaRdQf8KsHj99yXY8l4O2OS3CgBmhgTsFA3KMNCsvYm68Y6Yo+cyvwt/C
+	 52+A6LbDD2b7eRbYYNysyr8vGNvrGlLLMjZzP6OFPOPtF4yi7y7h7HJ35eV3AvCg1Y00FV5lwDBwWp
+	 1H/zdhaLl/d3Ez4w=
+X-KPN-MID: 33|EgT7ZyueZWFnTFzm2AY3C60S2XQWLEkUaPaSyb9yoim+4zI7hYk33mJEULyiq6+
+ lIeZEWEt48kYCyN5TPZQ5y2JfCpK8oqKIKB5O6TH8KJg=
+X-KPN-VerifiedSender: Yes
+X-CMASSUN: 33|ZF1yQtZFq6/q3MYnFybp+77hQ4v58NnjvThucEGXHvg6cvKX4QzvKloLvVp5SA0
+ jkfaX/fdvDDpBHwABOgoznA==
+Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
+	by smtp.kpnmail.nl (Halon) with ESMTPSA
+	id 1f92769f-a1ee-11f0-a6c9-005056abf0db;
+	Sun, 05 Oct 2025 15:20:55 +0200 (CEST)
+From: Benno Schulenberg <bensberg@telfort.nl>
+To: util-linux@vger.kernel.org
+Cc: Christian Goeschel Ndjomouo <cgoesc2@wgu.edu>
+Subject: [PATCH 1/2] swapon: (usage) make the help text fit within 80 columns again
+Date: Sun,  5 Oct 2025 15:20:47 +0200
+Message-ID: <20251005132048.78447-1-bensberg@telfort.nl>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251001115448.1646647-3-lukas@herbolt.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+Content-Transfer-Encoding: 8bit
 
-On Wed, Oct 01, 2025 at 01:54:50PM +0200, Lukas Herbolt wrote:
-> With the new flag we can create the ZEROED allcoated files directly and not 
-> in the two steps. Removing FALLOC_FL_WRITE_ZEROES from the flags of not using
-> O_CREATE on open().
-> 
-> Signed-off-by: Lukas Herbolt <lukas@herbolt.com>
-> ---
->  sys-utils/fallocate.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+Recent commit 72829b08fe added four extra spaces to each description
+in the usage text, causing some lines to be wider than 80 characters.
+Undo that addition, to make the help text fit again in 80 columns.
 
-Applied, thanks.
+Also, put the equals sign for the new --annotation option inside the
+square brackets instead of mistakenly before them.
 
+CC: Christian Goeschel Ndjomouo <cgoesc2@wgu.edu>
+Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
+---
+ sys-utils/swapon.c | 30 +++++++++++++++---------------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
+
+diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
+index 1cf8fda2c..896728880 100644
+--- a/sys-utils/swapon.c
++++ b/sys-utils/swapon.c
+@@ -830,21 +830,21 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(_("Enable devices and files for paging and swapping.\n"), out);
+ 
+ 	fputs(USAGE_OPTIONS, out);
+-	fputs(_(" -a, --all                	enable all swaps from /etc/fstab\n"), out);
+-	fputs(_(" -d, --discard[=<policy>] 	enable swap discards, if supported by device\n"), out);
+-	fputs(_(" -e, --ifexists           	silently skip devices that do not exist\n"), out);
+-	fputs(_(" -f, --fixpgsz            	reinitialize the swap space if necessary\n"), out);
+-	fputs(_(" -o, --options <list>     	comma-separated list of swap options\n"), out);
+-	fputs(_(" -p, --priority <prio>    	specify the priority of the swap device\n"), out);
+-	fputs(_(" -s, --summary            	display summary about used swap devices (DEPRECATED)\n"), out);
+-	fputs(_(" -T, --fstab <path>       	alternative file to /etc/fstab\n"), out);
+-	fputs(_("     --show[=<columns>]   	display summary in definable table\n"), out);
+-	fputs(_("     --output-all         	output all available columns\n"), out);
+-	fputs(_("     --annotation=[<when>]     annotate columns with a tooltip (always|never|auto)\n"), out);
+-	fputs(_("     --noheadings         	don't print table heading (with --show)\n"), out);
+-	fputs(_("     --raw                	use the raw output format (with --show)\n"), out);
+-	fputs(_("     --bytes              	display swap size in bytes in --show output\n"), out);
+-	fputs(_(" -v, --verbose            	verbose mode\n"), out);
++	fputs(_(" -a, --all                enable all swaps from /etc/fstab\n"), out);
++	fputs(_(" -d, --discard[=<policy>] enable swap discards, if supported by device\n"), out);
++	fputs(_(" -e, --ifexists           silently skip devices that do not exist\n"), out);
++	fputs(_(" -f, --fixpgsz            reinitialize the swap space if necessary\n"), out);
++	fputs(_(" -o, --options <list>     comma-separated list of swap options\n"), out);
++	fputs(_(" -p, --priority <prio>    specify the priority of the swap device\n"), out);
++	fputs(_(" -s, --summary            display summary about used swap devices (DEPRECATED)\n"), out);
++	fputs(_(" -T, --fstab <path>       alternative file to /etc/fstab\n"), out);
++	fputs(_("     --show[=<columns>]   display summary in definable table\n"), out);
++	fputs(_("     --output-all         output all available columns\n"), out);
++	fputs(_("     --annotation[=<when>]  annotate columns with a tooltip (always|never|auto)\n"), out);
++	fputs(_("     --noheadings         don't print table heading (with --show)\n"), out);
++	fputs(_("     --raw                use the raw output format (with --show)\n"), out);
++	fputs(_("     --bytes              display swap size in bytes in --show output\n"), out);
++	fputs(_(" -v, --verbose            verbose mode\n"), out);
+ 
+ 	fputs(USAGE_SEPARATOR, out);
+ 	fprintf(out, USAGE_HELP_OPTIONS(26));
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.51.0
 
