@@ -1,67 +1,67 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D8B131AF06
-	for <util-linux@vger.kernel.org>; Thu, 16 Oct 2025 12:04:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFEB432143A
+	for <util-linux@vger.kernel.org>; Thu, 16 Oct 2025 12:08:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760616299; cv=none; b=He5Rbdegw8mjwXtrYKTEp6M7Miterzs6mwggkf/PlNG0TcUFee/F8Xwz2lBnmIb7olzNeGWuDgMC6eNrmR5VTxyqU0u/AUDsMJGwIz7IKCkW3K2Ei2h+9cMI7KwNg3GNWqBBr0jnS7O0Bc8my7+nKH49emJ1byOVg/P/GuWWi+g=
+	t=1760616509; cv=none; b=o8rXLlVkaY09jz9lv/PW7+3gCWh+6la3ZoB1StI+6t+ig0lxKXgKO0ENdp4GrSAKOEo+ew+/EZVCHVjYXF25f7IRouW09ZtcODHyTtR2CBZ7PEU3WIS/X6MJ+0nVwwaapAFX09GncwZdeXRf3xxkYFNsZXZxVansuphbTma60KQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760616299; c=relaxed/simple;
-	bh=TrMMYFnKy4xREUBHDoGz6YHVn7yg9iJ0kqN4OK+OPxo=;
+	s=arc-20240116; t=1760616509; c=relaxed/simple;
+	bh=aOM1AmgR1sHl3fz51imrN6vkW/erfUaVZQRoinNwGUo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CiJE/qX9Ll0MDwUsNgYFt5fgCptSn0fhmPfgorjQ5acrftLvpmPsewfEv0UZUPdpllLqAbuAABxiFLwkjwgql+3dkjS3OvkqheG4+uFYU2v34UIcCPuX+urDpgdVMiHncmgp3+6FEoIzmWrY9F6XUS/0m1bdzRYVLXthksdNBF8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=d0fS7r4k; arc=none smtp.client-ip=148.163.156.1
+	 Content-Type:Content-Disposition:In-Reply-To; b=Nz9niSUNK7JMz8EyuEyLN6WgVPfS1AS3+FphJaZX3zJ1rNz33Z9ulbTB7/9z8d4IiMYQVhb3Lk6yKU3dULw06Hpo5MH1jhA0+4ZB3bTBpPAc3A5jsjsOMyFCPJXNCXXzhRqBJbCtZrzDLWCBFyoHHzA6HDMdlOGwqhNYYy/lEAA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=h+fz1FMS; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="d0fS7r4k"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="h+fz1FMS"
 Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59GBAHJ7021634;
-	Thu, 16 Oct 2025 12:04:55 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59G1nous021708;
+	Thu, 16 Oct 2025 12:08:25 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=P+A56IFPCkquiffXt+CcUgx9pyf6I3
-	g8pfsa8VKgU1M=; b=d0fS7r4kRDsxmTkGJtdnBiBnXb13yJpLjPogqow6qOek2W
-	ghktTcWBNm2cLnlhkl/jUHyyEdWlMGupG56C4hnbZvOWUO4ZEG0aj6xKP0/pruPc
-	rr2FnlL3b82RieZpUH1YOFFRuOtlAwbgrPFJQYGBK0y0lQRZPVF7qia1UyP0cmc8
-	/rNfqZe6yCGGBI7YbL5iHSXKVYaQPajvhcgF8005v5I5uG1abgkogWLdbrjsGT4x
-	0mPWDZhTgL9oL333shMKND9M233xW53+mWY1BbAxCfvrVpA43zHAl3ZlFwW7DO5M
-	5/yu51B8rfxrBiIN1Fbfl50By4qg2ZiQOnS34E+g==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49qey92guy-1
+	:references:subject:to; s=pp1; bh=uE8f71kQEg7v1v7myQS8EvDDYUDaaZ
+	V5azCp38yW5Vk=; b=h+fz1FMSB7TpqzhDdKTWOVpQwDUD+EdkbItrlWK9ZcT1lm
+	fk1tlr19g53tEjj4fTdCRuzTa2q9awrQEtWGPG4/9pYI3E7Pt/YJZFXrz0OLWHEB
+	3uPZ8sVfdXm7Hvg23Kap24otlAbZQqEK/wBvNFGSmG+Gpr9ehzZLk/t+sSKs8HLN
+	0TBdShilGv9c2pRqwFqUgbAY8fg1S2ahhIBIsaAt88xAL2UBAq3WpoHK7hBS9RKP
+	RLxGFTWzYugT9obXYKQNHRQMbZJ/XSoAi08Yvv+s3Vt4f2S4c9/+X7nQ/h/FZtTi
+	mZW1GU34ERzLbw2MbW5Nmb5udFz6UEAqC+p9SI1g==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49qey92hgb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Oct 2025 12:04:55 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59GA4q2F018823;
-	Thu, 16 Oct 2025 12:04:54 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49r2jmwkjw-1
+	Thu, 16 Oct 2025 12:08:25 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59GB02jY016759;
+	Thu, 16 Oct 2025 12:08:24 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49r32k5h14-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Oct 2025 12:04:54 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59GC4qa960621070
+	Thu, 16 Oct 2025 12:08:24 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59GC8MG837814556
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 16 Oct 2025 12:04:52 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 768EF2004E;
-	Thu, 16 Oct 2025 12:04:52 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4645520040;
-	Thu, 16 Oct 2025 12:04:52 +0000 (GMT)
+	Thu, 16 Oct 2025 12:08:22 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1EA4E20049;
+	Thu, 16 Oct 2025 12:08:22 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E051420040;
+	Thu, 16 Oct 2025 12:08:21 +0000 (GMT)
 Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.111.63.51])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 16 Oct 2025 12:04:52 +0000 (GMT)
-Date: Thu, 16 Oct 2025 14:04:50 +0200
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 16 Oct 2025 12:08:21 +0000 (GMT)
+Date: Thu, 16 Oct 2025 14:08:20 +0200
 From: Sumanth Korikkar <sumanthk@linux.ibm.com>
 To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 2/6] lsmem: add support to display dynamic
- (de)configuration of memory
-Message-ID: <aPDfYpjNGCqU_vkV@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+Subject: Re: [PATCH 3/6] chmem: add support for dynamic (de)configuration of
+ hotplug memory
+Message-ID: <aPDgNBMT7gJykEor@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
 References: <20251016101701.552597-1-sumanthk@linux.ibm.com>
- <20251016101701.552597-3-sumanthk@linux.ibm.com>
- <irmgnf4pymv5mjk25fhkdyxobdpe5k5mgd5n4wh6n5wufyp2gs@md2vikulk3jy>
+ <20251016101701.552597-4-sumanthk@linux.ibm.com>
+ <atjssajbhhcun7nknnuuz3cvttzw5hhvfvvzkm6ls5aiayxhll@gwzakxqonpob>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -70,21 +70,21 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <irmgnf4pymv5mjk25fhkdyxobdpe5k5mgd5n4wh6n5wufyp2gs@md2vikulk3jy>
+In-Reply-To: <atjssajbhhcun7nknnuuz3cvttzw5hhvfvvzkm6ls5aiayxhll@gwzakxqonpob>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: rQjk_iL4m-f6YWZA9fePNziL7MFmpkUv
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDExMDAxMSBTYWx0ZWRfX891s5Nf1lbhY
- zlcVwtyz6GbMEYzVTozG+AEl+9AvowhdfQ33rEpwu+M469ybUZ4RbBMJhwEtJO+nYDlSjy9DZp2
- PbgrYmgv7Pmq0JzWj1gm9LnXOp1/8lWT6IOrZHaE12BHucXszDqMEQ2jC76WSR7W+BtH3OSQ20x
- 9k113Blc3mpck6AnzGbzLp4PWnudICclfMFZk1c6DQ5nC5YrMaBV2Wg8e2VT4Cvd6PeNSALinFJ
- TdL2ESnvk4BivlYpZwUh4tXJz6lUR0GHs+VZsn9iHstxXeHduuDlQKqeVdv2SYujcfOuYSxyML+
- Tk7JqbGB3+EejvoBW7CyecGkLdHe9zwIfR6/6r6iiwJqVGejSU66syl7+c5xUcOF1wA8spX9ckD
- wSjiDRJnSIVIME2O3kifoeU7un3O+w==
-X-Proofpoint-GUID: rQjk_iL4m-f6YWZA9fePNziL7MFmpkUv
-X-Authority-Analysis: v=2.4 cv=QZ5rf8bv c=1 sm=1 tr=0 ts=68f0df67 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-ORIG-GUID: vUfyvOzeWxqK0Wtun3H0oT4aoJI-U0WN
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDExMDAxMSBTYWx0ZWRfXyqhHT1S67z9w
+ JUE2UNSLlLpinDIRqWSQ3eYwpKv/B1p26av5ECHzqZVPYUUniTDEVxTVX70sGTwR0IzJPOXhsaQ
+ 39jmkvPN46Eb0QAjBIe1QOXnEGFlH4S8m64R15GVk3IJ3DziPjrYLmtK8YVnosQakVxT+dWBngB
+ 7EZQEycaD3RAWJcuPKeKgWvE8bB+in/YDBc+1hYUj8q8YLIMrZnyn41ehHO0a7WMrSh15y6ZcSq
+ p3mmMOcxivDNzb+Ze2G1PmR0lMQJVqbziHk8jTokhxLqgGX4Y1rQf4cOxlL70Hry2jl+SmtSoxg
+ oaHQwm4OLzYeZVhTX7xiP1a576PIzDBCgw/HBfCS3xOYJjw37Uroq5zgUmqgiL6B01WAvx/gg4a
+ ZyC6RvuSfteKJxXk5DzR6B+2nmR/aw==
+X-Proofpoint-GUID: vUfyvOzeWxqK0Wtun3H0oT4aoJI-U0WN
+X-Authority-Analysis: v=2.4 cv=QZ5rf8bv c=1 sm=1 tr=0 ts=68f0e039 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=kj9zAlcOel0A:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=LSBAfAdigWB3tUgep8cA:9 a=CjuIK1q_8ugA:10
+ a=WBcR6tEeQgd7OD5LQHQA:9 a=CjuIK1q_8ugA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-10-16_02,2025-10-13_01,2025-03-28_01
@@ -94,38 +94,99 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510110011
 
-On Thu, Oct 16, 2025 at 01:11:09PM +0200, Karel Zak wrote:
-> On Thu, Oct 16, 2025 at 12:16:49PM +0200, Sumanth Korikkar wrote:
-> > +static bool skip_memconfig_column(struct lsmem *lsmem, int i)
-> > +{
-> > +	struct coldesc *ci = get_column_desc(i);
+On Thu, Oct 16, 2025 at 01:39:51PM +0200, Karel Zak wrote:
+> On Thu, Oct 16, 2025 at 12:16:50PM +0200, Sumanth Korikkar wrote:
 > > +
-> > +	if (!strcmp(ci->name, "MEMMAP-ON-MEMORY") || !strcmp(ci->name, "CONFIGURED")) {
-> 
-> Using column name strings seems fragile. It's better to use column ID
-> macros to ensure the compiler verifies them.
-> 
->     int id = get_column_id(num);
-> 
->     if (id == COL_MEMMAP || id == COL_CONFIG)  
-
-Sure.
-
-> > +		if (ul_path_access(lsmem->sysmemconfig, F_OK, "memory0") == 0)
-> > +			return false;
-> 
-> Do we need this access call? It seems like a duplicate of
-> lsmem->have_memconfig, which you initialized in read_basic_info()
-> using the same access() call.
-
-Right. I will use lsmem->have_memconfig.
-
-> > +static void read_memconfig(struct lsmem *lsmem)
+> > +static int chmem_set_memmap_on_memory(struct chmem_desc *desc, char *name)
 > > +{
-> > +	char dir[PATH_MAX];
+> > +	char str[BUFSIZ];
+> > +	int rc, index;
 > > +
-> > +	if (ul_path_access(lsmem->sysmemconfig, F_OK, "memory0") != 0) {
+> > +	index = strtou64_or_err(name + 6, _("Failed to parse index"));
+> > +	idxtostr(desc, index, str, sizeof(str));
+> > +	rc = ul_path_writef_u64(desc->sysmemconfig, desc->memmap_on_memory,
+> > +				"%s/memmap_on_memory", name);
+> > +	if (rc)
+> > +		warn(_("%s memmap-on-memory failed"), str);
+> > +	return rc;
 > 
-> The same applies if (lsmem->have_memconfig) is sufficient.
+> It seems that str[BUFSIZ] and idxtostr() are necessary only in case of
+> an error. How about:
+> 
+>         index = strtou64_or_err(name + 6, _("Failed to parse index"));
+>         rc = ul_path_writef_u64(desc->sysmemconfig, desc->memmap_on_memory,
+>             "%s/memmap_on_memory", name);
+> 
+>         if (rc) {
+>             char str[BUFSIZ];
+>             idxtostr(desc, index, str, sizeof(str));
+>             warn(_("%s memmap-on-memory failed"), str);
+>         }
+> 
+> Note that BUFSIZ seems excessive.
 
-Noted. Thanks
+Noted. I will use the above convention.
+
+> > +static int chmem_config(struct chmem_desc *desc, char *name, int configure)
+> > +{
+> > +	int mblock_configured, memmap, rc, index;
+> > +	char str[BUFSIZ], state[BUFSIZ];
+> > +
+> > +	index = strtou64_or_err(name + 6, _("Failed to parse index"));
+> > +	idxtostr(desc, index, str, sizeof(str));
+> > +	rc = ul_path_readf_s32(desc->sysmemconfig, &mblock_configured, "%s/config", name);
+> > +	if (rc)
+> > +		goto out;
+> > +	rc = ul_path_readf_s32(desc->sysmemconfig, &memmap, "%s/memmap_on_memory", name);
+> > +	if (rc)
+> > +		goto out;
+> > +	if (mblock_configured) {
+> > +		if (configure) {
+> > +			if (chmem_memmap_on_memory_option_enabled(desc) &&
+> 
+> The name is quite long. How about renaming the function to
+> chmem_memmap_enabled()?
+
+Agree.
+
+> > +					memmap != desc->memmap_on_memory) {
+> > +				if (!desc->is_size || desc->verbose)
+> > +					fprintf(stdout,
+> > +						_("%s must be deconfigured before using -m option\n"), str);
+> > +				rc = -1;
+> > +			} else if (desc->is_size) {
+> > +				/*
+> > +				 * Allow chmem_onoff_size() to proceed with
+> > +				 * configuring different memory blocks when the
+> > +				 * current block is already configured.
+> > +				 */
+> > +				rc = -1;
+> > +			} else if (desc->verbose) {
+> > +				fprintf(stdout, _("%s already configured\n"), str);
+> > +			}
+> > +			goto out;
+> > +		} else if (ul_path_readf_buffer(desc->sysmem, state,
+> > +						sizeof(state), "%s/state", name) > 0 &&
+> > +			   strncmp("online", state, 6) == 0) {
+> > +			if (!desc->is_size || desc->verbose)
+> > +				fprintf(stdout, "%s must be offline before deconfiguration\n", str);
+> 
+> Here, the _( ) is missing for the message.
+
+Will add.
+
+> > +		if (!desc->is_size) {
+> > +			if (configure)
+> > +				warn(_("%s configure failed\n"), str);
+> > +			else
+> > +				warn(_("%s deconfigure failed\n"), str);
+> 
+> It's a detail, but I would suggest a different code pattern:
+> 
+>    warn(configure ? _("%s configure failed") :
+>                     _("%s deconfigure failed"), str);
+> 
+>  Note that warn() (err(), ...) appends \n to the output, so do not use
+>  it in the string.
+
+Sure. I will integrate it in next version. Thanks.
