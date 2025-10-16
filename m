@@ -1,54 +1,53 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5352C34DCD2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3DBE34DCCF
 	for <util-linux@vger.kernel.org>; Thu, 16 Oct 2025 15:38:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760629127; cv=none; b=mnDWowL5rCdqZJgjk9whz0YXrNbEkLjid4H4hK2h/e9VX8QPRD8VphmPF0Ueba9agnUIbvUKDX5I8qQuc0vNGRbohV9qfYy54l/vWC6GER8fh2lvFI52/mEZvxAYDSzt7reoL7Y7Ugjd56psZP3xhixt3O/OCuD2OTI5F/o7Dyc=
+	t=1760629127; cv=none; b=nU/scgsQ6XojV033kR2LN/sqpac/uSMfHr167a+YcF9QyTc0ynwliVUbEiVzU/rgbgclK8gr4DaaN04CD7rEb+eHbmY8K3xWIRJfzAQZ4ZNqZVTBeDHCwTiQgur5IK/jljerwEPt1p3fbR8Dv75TPnV4m0KOgs2Jws8eMd5k0LI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1760629127; c=relaxed/simple;
-	bh=e1VpUg42iH/hiGOxvzyKCAujiTboZqGjcuJe0JwbSYc=;
+	bh=4TGNetlN6M3+uD48vUvtGJrboWmjzB3UxzaODcb1C10=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=u0NpURGLk0YKFGAEvw6jJlaIOFhdAiwqv0KCHgJAzWl1vBqHyyDL0VJZA4HM7A0vYN+jgfS09p1nLIK9oZgUVkIYWkCDVUy6dr9Li29ZtppRfsin48RgdZH7yK7HwO0jrEdI8tsx/MUncdERLagHLcRsdzORrlew7+6hKzUx81A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZvdwsVcT; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=f+TY41WXrlYe/eMOxBruupoPt0AyRlOhAs7RtC4MchU4vx7vBM03JI2WEhS/4dwBn3DPv11gi+ZL5/AVHO6PGkNvuM5rAxiNEQveldDO5H23uujUhjfEC8SSSIJ4mlwGRNoDgejyggmiaZeLP7QEHbiZEOKy9wN34er3FFdHkqs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GwF31H05; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZvdwsVcT"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59GBRLci010143;
-	Thu, 16 Oct 2025 15:38:42 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GwF31H05"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59GCT8qM001281;
+	Thu, 16 Oct 2025 15:38:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=sqDemh
-	DfqzdJ1vovX28xeo/UEv3I8imVZ5SgQ9nEmDw=; b=ZvdwsVcT3+z63DvmJa3qle
-	lj+Xi9LROHB7t8TXEhBQ/zxCk58R/g2cDIB5X9XNXe963+WiWkMhyo5e0SaJR3+u
-	R1HZteyxeO4FKDH/qFOfRctR/SROYG2iBQXWBwojiczRq/M3fSfNAQ01tN2LGFzu
-	EM1ojsFmGAYAfevPcbiv+eJN8rktzSPR0EhRo+pli/xnelw+ewdA0uApDIgVvdin
-	lFwTs8uyyR4gwXC5v8ns1JEShWj+HrYhnTMOuZDxvNCsrJ2U1EA0Fjpm84/MpuDR
-	Y4mo2U1pVm62qmp6T7hgtYMPY60WajECDArM5kQIIY7cMPuj8w4PMKDKyjwaaA5g
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49qewubn8e-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=RjFfaQwvZWeG46B7U
+	8t/YND3abesI+4zOzNVx9AHxJA=; b=GwF31H05PwC4bj5RLrAHXxG0eeGlax3GI
+	aagc1CQU0G/Wru+eghE8Ro3yFk72pdreZsgkBHiZOwMouJqR1eD7IjfvK10L1bfR
+	/x9BbvwK6LKWiQEVhd71oLVbEDv+O88Lix9vRCD0pZUlbCUeG9T+sfGPUmaQ96Ft
+	h6rKXU9lh/bXONsX7vuWSIvQdKiarZj3ze0mKLEdSXHhD6BlPB3q6Jechtvo7w6j
+	lhqgkbn27HQaKZzqgbxrKQC+p9D2cQr2DwGqH2UMBFohWNx0kTroOsB2G3iErZpA
+	nvZu6JrPAbpScl34a12Kqn63JlZn1aPoaCD0MivnGiYF1gz0hqLgQ==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49rfp86h97-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Oct 2025 15:38:42 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59GDrWdi028035;
-	Thu, 16 Oct 2025 15:38:41 GMT
+	Thu, 16 Oct 2025 15:38:43 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59GDY5Xk016967;
+	Thu, 16 Oct 2025 15:38:42 GMT
 Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 49tdg9dny9-1
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49r32k6egf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Thu, 16 Oct 2025 15:38:41 +0000
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59GFcbLv61276560
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59GFccAT61276562
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 16 Oct 2025 15:38:37 GMT
+	Thu, 16 Oct 2025 15:38:38 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BCDE4200DF;
+	by IMSVA (Postfix) with ESMTP id E0D9E200DE;
 	Thu, 16 Oct 2025 15:38:37 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 937F3200DE;
+	by IMSVA (Postfix) with ESMTP id C163C200DC;
 	Thu, 16 Oct 2025 15:38:37 +0000 (GMT)
 Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -59,9 +58,9 @@ Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Sumanth Korikkar <sumanthk@linux.ibm.com>
-Subject: [PATCH v2 4/6] chmem: add chmem documentation for dynamic (de)configuration of memory
-Date: Thu, 16 Oct 2025 17:38:04 +0200
-Message-ID: <20251016153808.3565873-5-sumanthk@linux.ibm.com>
+Subject: [PATCH v2 5/6] lsmem: add doc for dynamic (de)configuration and memmap-on-memory support
+Date: Thu, 16 Oct 2025 17:38:05 +0200
+Message-ID: <20251016153808.3565873-6-sumanthk@linux.ibm.com>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20251016153808.3565873-1-sumanthk@linux.ibm.com>
 References: <20251016153808.3565873-1-sumanthk@linux.ibm.com>
@@ -71,156 +70,125 @@ List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: NsHEfZ3tqkEGXXd5Qn8X9vumS9bcGR40
-X-Authority-Analysis: v=2.4 cv=Kr1AGGWN c=1 sm=1 tr=0 ts=68f11182 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VnNF1IyMAAAA:8 a=chBBJnHQjsqFfOd3Ob0A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: NsHEfZ3tqkEGXXd5Qn8X9vumS9bcGR40
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDExMDAxNCBTYWx0ZWRfX0xhoYJjAG+ND
- h2P1NJbvg04ZHnAup8qU1U9gLDIGxsyBTELwXWZ4pYXo1jRm2JDTZiiKwqDWMCx/+cB6xXMWepa
- q9k/ZDswI6LNUI74ITp6rZyafBDaHNbCD7FZY22LGTB+ddroOMhgYEjW5jAmBvciKeQVOlqQfbj
- m7/CWxQ8XiaGs78kjswVLkFdWFq0kcZG1qTKrvgvKGEE6E/+T040jxHKvKtTNyarJku/8espe1k
- /TY+bRVl35n5uj421MqOrf6+e4WINDwqd+L5UUtB2qoFPtt5qpCeap7cC3q5LToMFSPXRkgIIGH
- holeqCPZ+eUNKJtfQDar/XjPUVVtR7X5nAJjzTq0VnGW6VolEyTKPHmCTaeh/noePYRhmS8wYii
- LaWNHv5lnF6nlD+X1bg4aROZij8CtQ==
+X-Proofpoint-ORIG-GUID: YCuk_vpxmUMyhGSyPhzrR88BR0NSxXiV
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDEyMDA4NCBTYWx0ZWRfX1jpaNKtgsnYh
+ D6T090uFuUbg3/mYct1mJZpavWOJbY61/V8Whrybmz3kt7pnYDIDcqAUhYDGnA6aSjMtqnkQmFd
+ OApNzv3+0/1xLEvFyhDq8E03stNlSAf+dAXw0lSa16DJDJkhkdfTNbpHqJ5qGr41MUnOZ8uNlOf
+ lkwQda12BM9vb3+bVV8Byqh0P3DPQ/HXmvTnu+kAC0pS8NvJGyhmPlFWXCGhN7FJvDsGrRdik4Y
+ syxmQ8PCyqohuEoXTvZiKAkqNJs/ZPeXz0Ruoib2FKIw72YFHH5riwmN3Z0vlceB7RPlBUPlr/3
+ nOXavCxTxhQMF2fpRQylPnt7todIyMX9cnU/IF5pRfQEekYS3ZdRvor+WcEYbI9HvYpB9PMwmEE
+ ExaFohS8CjQu/KiKRFAxuX7AV6lNDw==
+X-Proofpoint-GUID: YCuk_vpxmUMyhGSyPhzrR88BR0NSxXiV
+X-Authority-Analysis: v=2.4 cv=af5sXBot c=1 sm=1 tr=0 ts=68f11183 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
+ a=Q-18vJqwCyPAAwtqNjQA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-10-16_03,2025-10-13_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 priorityscore=1501 lowpriorityscore=0 bulkscore=0 adultscore=0
- phishscore=0 suspectscore=0 malwarescore=0 clxscore=1015 impostorscore=0
+ clxscore=1015 priorityscore=1501 spamscore=0 adultscore=0 suspectscore=0
+ bulkscore=0 phishscore=0 lowpriorityscore=0 malwarescore=0 impostorscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510110014
+ reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510120084
 
-Describe chmem configure, deconfigure and memmap-on-memory options:
+lsmem --output-all now displays two new columns:
 
-ff18dcb19aab ("s390/sclp: Add support for dynamic (de)configuration of
-memory") s390 kernel no longer pre-adds all standby memory at boot.
-Instead, users must explicitly configure a block before it can be used
-for online/offline actions. At configuration time, users can dynamically
-decide whether to use optional memmap-on-memory for each memory block,
-where value of 1 allocates metadata (such as struct pages array) from
-the hotplug memory itself, enabling hot-add operations even under memory
-pressure. A value of 0 stores metadata in regular system memory, which
-may require additional free memory, but enables continuous physical
-memory across memory blocks.
+CONFIGURED : yes/no indicating if a memory block has been explicitly
+configured.
 
-Add documentation to reflect the following options:
-* chmem --configure 128M --memmap-on-memory 1
-* chmem --deconfigure 128M
-* chmem --enable 128M # implicitly configure memory if supported by
-  architecture and online it
-* chmem --disable 128M  # offline memory and implicitly deconfigure if
-  supported by the architecture.
+MEMMAP-ON-MEMORY : yes/no indicating whether the block uses
+memmap-on-memory.
 
-Just like online and offline actions, memory configuration and
-deconfiguration can be controlled through similar options. Also,
-memmap-on-memory setting can be changed, only when the memory block is
-in deconfigured state. This means, it is usable only via --configure
-option.
+lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP-ON-MEMORY
+RANGE                   SIZE   STATE   BLOCK CONFIGURED MEMMAP-ON-MEMORY
+0x00000000-0x7fffffff   2G     online  0-15  yes        no
+0x80000000-0xffffffff   2G     offline 16-31 no         yes
+
+Memory block size:                128M
+Total online memory:                2G
+Total offline memory:               2G
+Memmap on memory parameter:        yes
+
+Add documentation for new fields.
 
 Reviewed-by: Maria Eisenhaendler <maria1@de.ibm.com>
 Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
 ---
- sys-utils/chmem.8.adoc | 47 +++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 42 insertions(+), 5 deletions(-)
+ sys-utils/lsmem.1.adoc | 44 +++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 41 insertions(+), 3 deletions(-)
 
-diff --git a/sys-utils/chmem.8.adoc b/sys-utils/chmem.8.adoc
-index 5067a98b8..537beec63 100644
---- a/sys-utils/chmem.8.adoc
-+++ b/sys-utils/chmem.8.adoc
-@@ -12,7 +12,7 @@ chmem - configure memory
+diff --git a/sys-utils/lsmem.1.adoc b/sys-utils/lsmem.1.adoc
+index 9c9397631..e7226725a 100644
+--- a/sys-utils/lsmem.1.adoc
++++ b/sys-utils/lsmem.1.adoc
+@@ -24,7 +24,45 @@ The *lsmem* command lists a new memory range always when the current memory bloc
  
- == SYNOPSIS
+ Note that some output columns may provide inaccurate information if a split policy forces *lsmem* to ignore differences in some attributes. For example if you merge removable and non-removable memory blocks to the one range than all the range will be marked as non-removable on *lsmem* output.
  
--*chmem* [*-h*] [*-V*] [*-v*] [*-e*|*-d*] [_SIZE_|_RANGE_|*-b* _BLOCKRANGE_] [*-z* _ZONE_]
-+*chmem* [*-h*] [*-V*] [*-v*] [*-c*|*-e*|*-d*|*-g*] [_SIZE_|_RANGE_|*-b* _BLOCKRANGE_] [*-z* _ZONE_] [*-m* _MEMMAP-ON-MEMORY_]
- 
- == DESCRIPTION
- 
-@@ -26,23 +26,48 @@ The *chmem* command sets a particular size or range of memory online or offline.
- 
- * Specify _ZONE_ as the name of a memory zone, as shown in the output of the *lsmem -o +ZONES* command. The output shows one or more valid memory zones for each memory range. If multiple zones are shown, then the memory range currently belongs to the first zone. By default, *chmem* will set memory online to the zone Movable, if this is among the valid zones. This default can be changed by specifying the *--zone* option with another valid zone. For memory ballooning, it is recommended to select the zone Movable for memory online and offline, if possible. Memory in this zone is much more likely to be able to be offlined again, but it cannot be used for arbitrary kernel allocations, only for migratable pages (e.g., anonymous and page cache pages). Use the *--help* option to see all available zones.
- 
-+* Specify _MEMMAP-ON-MEMORY_ as 1 or 0. A value of 1 allocates hotplug metadata (such as the struct pages array) from the hotplug memory itself, enabling hot-add operations even under memory pressure and without requiring additional system memory to do so. A value of 0 stores hotplugged memory metadata in regular system memory, which helps avoid issues related to fragmentation of continuous physical memory across memory blocks. The value can only be set when the memory block is in a deconfigured state, and *--memmap-on-memory* is valid only with *--configure*. If not specified, and if supported, *chmem* uses the default value shown in *lsmem* output.
+-Not all columns are supported on all systems. If an unsupported column is specified, *lsmem* prints the column but does not provide any data for it.
++The supported columns are RANGE, SIZE, STATE, REMOVABLE, BLOCK, NODE, ZONES, CONFIGURED, MEMMAP-ON-MEMORY.
++RANGE
++The start and end physical address of the memory range.
 +
-+The *--enable* option configures the memory, if this is supported by the architecture. If configuring memory is not supported by the architecture, *--enable* still brings the memory online.
++SIZE
++The size of the memory range, representing the total amount of memory in that range.
 +
-+The *--disable* option brings the memory offline and performs an optional deconfigure step if this is supported by the architecture.
++STATE
++The current online status of the memory range. Common states include online, offline or transitional states.
 +
-+The *--configure* option requests memory from the hypervisor without bringing it online, when supported by the architecture, allowing explicit control and use of *--memmap-on-memory*.
++BLOCK
++The specific memory block number.
 +
-+The *--deconfigure* option returns memory resources to the hypervisor if supported by the architecture.
++NODE
++The NUMA (Non-Uniform Memory Access) node to which the memory block belongs.
 +
- _SIZE_ and _RANGE_ must be aligned to the Linux memory block size, as shown in the output of the *lsmem*(1) command.
++ZONES
++The memory zones to which the blocks belongs, such as DMA, Normal, Movable.
++
++CONFIGURED
++The configuration state of a memory block. Refer to *chmem* for details on configuring or deconfiguring memory blocks.
++
++MEMMAP-ON-MEMORY
++The memmap-on-memory state of the memory block at configuration time. This setting indicates where memory hotplug stores its internal metadata (the struct pages array or memmap). If MEMMAP-ON-MEMORY is set to 1, the metadata is allocated directly from the newly added hotplugged memory, enabling hot-add operations even when the system is under high memory pressure. If set to 0, the memmap metadata is allocated from existing system memory.
++
++Possible BLOCK, CONFIGURED, STATE, MEMMAP-ON-MEMORY states::
++
++[cols="10,10,10,15,60", options="header"]
++|===
++| BLOCK | STATE   | CONFIGURED | MEMMAP-ON-MEMORY | Description
++
++| 0     | online  | yes        | yes/no           | The memory is configured with memmap-on-memory set to (1 or 0) and memory is currently online.
++
++| 1     | offline | yes        | yes/no           | The memory is configured, but memory is offline.
++
++| 2     | offline | no         | yes/no           | The memory is offline and deconfigured.
++|===
++
++Not all columns are supported on all systems. If an unsupported column is specified, *lsmem* prints the column but does not provide any data for it. Additionally, *lsmem* may skip columns like CONFIGURED or MEMMAP-ON-MEMORY if these states are not relevant to the system's architecture.
  
- Setting memory online can fail for various reasons. On virtualized systems it can fail if the hypervisor does not have enough memory left, for example because memory was overcommitted. Setting memory offline can fail if Linux cannot free the memory. If only part of the requested memory can be set online or offline, a message tells you how much memory was set online or offline instead of the requested amount.
+ Use the *--help* option to see the columns description.
  
--When setting memory online *chmem* starts with the lowest memory block numbers. When setting memory offline *chmem* starts with the highest memory block numbers.
-+When setting memory online or when configuring memory, *chmem* starts with the lowest memory block numbers. When setting memory offline or deconfiguring memory, *chmem* starts with the highest memory block numbers.
-+
-+== ARCHITECTURE
-+
-+* s390 architecture:
-+
-+_MEMMAP-ON-MEMORY_: For memory blocks configured online at boot, the default value is 0 because they are added without memmap-on-memory support. Memory added dynamically at runtime uses the default value displayed in *lsmem* output.
+@@ -45,7 +83,7 @@ Use JSON output format.
+ Do not print a header line.
  
- == OPTIONS
+ *-o*, *--output* _list_::
+-Specify which output columns to print. Use *--help* to get a list of all supported columns. The default list of columns may be extended if _list_ is specified in the format **+**__list__ (e.g., *lsmem -o +NODE*).
++Specify which output columns to print. Use *--help* to obtain a list of all supported columns. To extend the default list of columns specify _list_ in the format **+**__list__. For example, *lsmem -o +NODE*.
  
- *-b*, *--blocks*::
- Use a _BLOCKRANGE_ parameter instead of _RANGE_ or _SIZE_ for the *--enable* and *--disable* options.
+ *--output-all*::
+ Output all available columns.
+@@ -57,7 +95,7 @@ Produce output in the form of key="value" pairs. All potentially unsafe value ch
+ Produce output in raw format. All potentially unsafe characters are hex-escaped (\x<code>).
  
-+*-c*, *--configure*::
-+Set the specified _RANGE_, _SIZE_, or _BLOCKRANGE_ of memory to be configured.
-+
- *-d*, *--disable*::
- Set the specified _RANGE_, _SIZE_, or _BLOCKRANGE_ of memory offline.
+ *-S*, *--split* _list_::
+-Specify which columns (attributes) use to split memory blocks to ranges. The supported columns are STATE, REMOVABLE, NODE and ZONES, or "none". The other columns are silently ignored. For more details see *DESCRIPTION* above.
++Specify which columns are used to split memory blocks to ranges. The supported columns are STATE, REMOVABLE, NODE, ZONES, CONFIGURED, MEMMAP-ON-MEMORY or "none". The other columns are silently ignored. For more details see *DESCRIPTION* above.
  
- *-e*, *--enable*::
- Set the specified _RANGE_, _SIZE_, or _BLOCKRANGE_ of memory online.
- 
-+*-g*, *--deconfigure*::
-+Set the specified _RANGE_, _SIZE_, or _BLOCKRANGE_ of memory to be deconfigured.
-+
-+*-m*, *--memmap-on-memory*::
-+Select memmap-on-memory for the specified _RANGE_, _SIZE_, or _BLOCKRANGE_ of memory. This option is valid only with *--configure*.
-+
- *-z*, *--zone*::
- Select the memory _ZONE_ where to set the specified _RANGE_, _SIZE_, or _BLOCKRANGE_ of memory online or offline. By default, memory will be set online to the zone Movable, if possible.
- 
-@@ -70,13 +95,25 @@ partial success
- This command requests 1024 MiB of memory to be set online.
- 
- *chmem -e 2g*::
--This command requests 2 GiB of memory to be set online.
-+This command requests 2 GB of memory to be brought online and, if supported by the architecture, configures the memory beforehand.
- 
- *chmem --disable 0x00000000e4000000-0x00000000f3ffffff*::
--This command requests the memory range starting with 0x00000000e4000000 and ending with 0x00000000f3ffffff to be set offline.
-+This command takes the memory range from 0x00000000e4000000 to 0x00000000f3ffffff offline and deconfigures it if supported by the architecture.
- 
- *chmem -b -d 10*::
--This command requests the memory block number 10 to be set offline.
-+This command takes memory block number 10 offline.
-+
-+*chmem -b -c 10 -m 1*::
-+This command configures memory block 10 with  _MEMMAP-ON-MEMORY_ set. The block must be in a deconfigured state.
-+
-+*chmem -b -c 10*::
-+This command configures memory block 10 with the default _MEMMAP-ON-MEMORY_ setting. The default value is displayed in *lsmem --output-all*. The block must be in a deconfigured state.
-+
-+*chmem -b -g 10*::
-+This command deconfigures memory block 10. The block must be offline.
-+
-+*chmem -d 5g*::
-+This command takes 5 GB of memory offline and deconfigures it if supported by the architecture. Blocks that are already offline but still configured are skipped and must be explicitly deconfigured with *--deconfigure*.
- 
- == SEE ALSO
- 
+ *-s*, *--sysroot* _directory_::
+ Gather memory data for a Linux instance other than the instance from which the *lsmem* command is issued. The specified _directory_ is the system root of the Linux instance to be inspected.
 -- 
 2.41.0
 
