@@ -1,66 +1,67 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F6012741AB
-	for <util-linux@vger.kernel.org>; Thu, 16 Oct 2025 12:02:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D8B131AF06
+	for <util-linux@vger.kernel.org>; Thu, 16 Oct 2025 12:04:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760616160; cv=none; b=AX8+KmZf3iAAqSKQe4DKxViLBHsGOHk0HHe7sKpIqKUmaN/U9YQzFTjfoky2FSBIBfJEwFe31M+KrRP87R3Nmm/q9FUZYwnd/JTm1RdYhBWVolxNawxS0SvG85nWXrzwiTFXVF0IF8kzwpTJMDv+beZjJqChEgCLax/wrVeEEmg=
+	t=1760616299; cv=none; b=He5Rbdegw8mjwXtrYKTEp6M7Miterzs6mwggkf/PlNG0TcUFee/F8Xwz2lBnmIb7olzNeGWuDgMC6eNrmR5VTxyqU0u/AUDsMJGwIz7IKCkW3K2Ei2h+9cMI7KwNg3GNWqBBr0jnS7O0Bc8my7+nKH49emJ1byOVg/P/GuWWi+g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760616160; c=relaxed/simple;
-	bh=34OJ6V1pnz3leRJm+aSC5IXLqyvoUImujQja4GE3ZGs=;
+	s=arc-20240116; t=1760616299; c=relaxed/simple;
+	bh=TrMMYFnKy4xREUBHDoGz6YHVn7yg9iJ0kqN4OK+OPxo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ky54H3FMiDsTQsiLuZTsz34V8YcmJqMLk2pwJrdhqjLHU2IppeoPAMYzj68z35qpCiXVUYawlX/rPLVLHEdM1xVtOpot8MLKbcZTmcdsXxRaIoGMRCe4+dG0jW2haAa+K6tzmiGJt9z3dTTphnJKu0W3muRbobjOuUqfgaoglpk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MPvVA+46; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:Content-Disposition:In-Reply-To; b=CiJE/qX9Ll0MDwUsNgYFt5fgCptSn0fhmPfgorjQ5acrftLvpmPsewfEv0UZUPdpllLqAbuAABxiFLwkjwgql+3dkjS3OvkqheG4+uFYU2v34UIcCPuX+urDpgdVMiHncmgp3+6FEoIzmWrY9F6XUS/0m1bdzRYVLXthksdNBF8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=d0fS7r4k; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MPvVA+46"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59GA9MaW002895;
-	Thu, 16 Oct 2025 12:02:36 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="d0fS7r4k"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59GBAHJ7021634;
+	Thu, 16 Oct 2025 12:04:55 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=/3eS97NVklPkCqUJzpzW6xh8xiWf/g
-	r7PUorDtj4lqk=; b=MPvVA+46IbZCWbDEmOo+HL821UEoY1ZFdTfgRgh3F6m+y2
-	PJ0U+myCw4TyY7gJNNVQYCfgHNt1+QK9eYRytoAipTZMkwnb6M6RDWC+lpy+zb2o
-	7JcqNYtHUfSQ+9SLgptB+MaEw8j9LeTD9tLaONA5UIeawCGcT47h9+Wkscd5r/4z
-	G2EsQ0Nd9BNrcn2CkwmM9FBNi/gk3DFhYOeaETbnzsZpqwxYJwL06otzvcs3K1KI
-	xDoxJb1YDu3GT1mtE0bwQvzOiNhDdjyGIxNMtUfHTpNO6Z0tR1ZTfj84e/f/qhGI
-	t5SgeCjnowhJBxW1d6dfny1QWBMp8AOCwaBA6zvg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49tfxpm7ad-1
+	:references:subject:to; s=pp1; bh=P+A56IFPCkquiffXt+CcUgx9pyf6I3
+	g8pfsa8VKgU1M=; b=d0fS7r4kRDsxmTkGJtdnBiBnXb13yJpLjPogqow6qOek2W
+	ghktTcWBNm2cLnlhkl/jUHyyEdWlMGupG56C4hnbZvOWUO4ZEG0aj6xKP0/pruPc
+	rr2FnlL3b82RieZpUH1YOFFRuOtlAwbgrPFJQYGBK0y0lQRZPVF7qia1UyP0cmc8
+	/rNfqZe6yCGGBI7YbL5iHSXKVYaQPajvhcgF8005v5I5uG1abgkogWLdbrjsGT4x
+	0mPWDZhTgL9oL333shMKND9M233xW53+mWY1BbAxCfvrVpA43zHAl3ZlFwW7DO5M
+	5/yu51B8rfxrBiIN1Fbfl50By4qg2ZiQOnS34E+g==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49qey92guy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Oct 2025 12:02:36 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59GB02hc016759;
-	Thu, 16 Oct 2025 12:02:35 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49r32k5g7b-1
+	Thu, 16 Oct 2025 12:04:55 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59GA4q2F018823;
+	Thu, 16 Oct 2025 12:04:54 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49r2jmwkjw-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Oct 2025 12:02:35 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59GC2XC018809212
+	Thu, 16 Oct 2025 12:04:54 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59GC4qa960621070
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 16 Oct 2025 12:02:33 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 932B32004D;
-	Thu, 16 Oct 2025 12:02:33 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 60B2120040;
-	Thu, 16 Oct 2025 12:02:33 +0000 (GMT)
+	Thu, 16 Oct 2025 12:04:52 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 768EF2004E;
+	Thu, 16 Oct 2025 12:04:52 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4645520040;
+	Thu, 16 Oct 2025 12:04:52 +0000 (GMT)
 Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.111.63.51])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 16 Oct 2025 12:02:33 +0000 (GMT)
-Date: Thu, 16 Oct 2025 14:02:31 +0200
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 16 Oct 2025 12:04:52 +0000 (GMT)
+Date: Thu, 16 Oct 2025 14:04:50 +0200
 From: Sumanth Korikkar <sumanthk@linux.ibm.com>
 To: Karel Zak <kzak@redhat.com>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 1/6] lsmem: display global memmap on memory parameter
-Message-ID: <aPDe12kiYg1II5po@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+Subject: Re: [PATCH 2/6] lsmem: add support to display dynamic
+ (de)configuration of memory
+Message-ID: <aPDfYpjNGCqU_vkV@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
 References: <20251016101701.552597-1-sumanthk@linux.ibm.com>
- <20251016101701.552597-2-sumanthk@linux.ibm.com>
- <qdeva54xge5ksrhpwcfe4dd2wv6x5re2ue5fkcguffs2ebvwgk@hk5yjjhv7p2p>
+ <20251016101701.552597-3-sumanthk@linux.ibm.com>
+ <irmgnf4pymv5mjk25fhkdyxobdpe5k5mgd5n4wh6n5wufyp2gs@md2vikulk3jy>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -69,57 +70,62 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <qdeva54xge5ksrhpwcfe4dd2wv6x5re2ue5fkcguffs2ebvwgk@hk5yjjhv7p2p>
+In-Reply-To: <irmgnf4pymv5mjk25fhkdyxobdpe5k5mgd5n4wh6n5wufyp2gs@md2vikulk3jy>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: vqn3PPsn-8m8nXp3EkK8RAcUeQfScYJ8
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDE1MDEyNSBTYWx0ZWRfX2JjFFNZqdvD4
- I4vmiDoeATp3OSJm2hNY8gIHdwkFpiTR/DQ/zwTTHg/7IWbsucFhfRm8L+66yBTtRY/0kLbEqGo
- UTl2P909ARO9vN112q3kgiD+j8nNe+szqprkoRqUM5smpvJArK3jA98o2K5jWh9XKwgsqX5Bky6
- BGzge6SiIxeoBZAieUqfZmpM1FoK+LikHHyldQxNc8dj+zfcsmqKf55tg95kotckHsnzKeqg7Mc
- zs/EAuO8M9OxiVrclU/o8fgOH8fTGKCN1P+kS3WO/xE6uLLdtQB7667/0+1KTC+/nYY47Qd1993
- M1Wc+U9Kv9gaEbGjiAjpcXAZgr6qKjCvtKNN1DaQPY9L7z8uVfr/WMa4d9Wy/P7zPN+dOKois7/
- d1Haycp7CID9puBwQ2dr5vzL8/TlzQ==
-X-Authority-Analysis: v=2.4 cv=R+wO2NRX c=1 sm=1 tr=0 ts=68f0dedc cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-ORIG-GUID: rQjk_iL4m-f6YWZA9fePNziL7MFmpkUv
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDExMDAxMSBTYWx0ZWRfX891s5Nf1lbhY
+ zlcVwtyz6GbMEYzVTozG+AEl+9AvowhdfQ33rEpwu+M469ybUZ4RbBMJhwEtJO+nYDlSjy9DZp2
+ PbgrYmgv7Pmq0JzWj1gm9LnXOp1/8lWT6IOrZHaE12BHucXszDqMEQ2jC76WSR7W+BtH3OSQ20x
+ 9k113Blc3mpck6AnzGbzLp4PWnudICclfMFZk1c6DQ5nC5YrMaBV2Wg8e2VT4Cvd6PeNSALinFJ
+ TdL2ESnvk4BivlYpZwUh4tXJz6lUR0GHs+VZsn9iHstxXeHduuDlQKqeVdv2SYujcfOuYSxyML+
+ Tk7JqbGB3+EejvoBW7CyecGkLdHe9zwIfR6/6r6iiwJqVGejSU66syl7+c5xUcOF1wA8spX9ckD
+ wSjiDRJnSIVIME2O3kifoeU7un3O+w==
+X-Proofpoint-GUID: rQjk_iL4m-f6YWZA9fePNziL7MFmpkUv
+X-Authority-Analysis: v=2.4 cv=QZ5rf8bv c=1 sm=1 tr=0 ts=68f0df67 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=kj9zAlcOel0A:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=HkbfsJhyaPTKcwa5SjIA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: vqn3PPsn-8m8nXp3EkK8RAcUeQfScYJ8
+ a=LSBAfAdigWB3tUgep8cA:9 a=CjuIK1q_8ugA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-10-16_02,2025-10-13_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 lowpriorityscore=0 suspectscore=0 bulkscore=0 clxscore=1015
- priorityscore=1501 adultscore=0 spamscore=0 impostorscore=0 malwarescore=0
+ lowpriorityscore=0 priorityscore=1501 phishscore=0 bulkscore=0 suspectscore=0
+ spamscore=0 malwarescore=0 impostorscore=0 clxscore=1015 adultscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510150125
+ reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510110011
 
-> > +static int get_memmap_mode(char *res, char *src, int len)
+On Thu, Oct 16, 2025 at 01:11:09PM +0200, Karel Zak wrote:
+> On Thu, Oct 16, 2025 at 12:16:49PM +0200, Sumanth Korikkar wrote:
+> > +static bool skip_memconfig_column(struct lsmem *lsmem, int i)
 > > +{
-> > +	if (!strncmp(src, "Y", 1))
-> > +		strncpy(res, "yes", len);
-> > +	else if (!strncmp(src, "N", 1))
-> > +		strncpy(res, "no", len);
-> > +	else if (!strncmp(src, "force", 5))
-> > +		strncpy(res, "force", len);
-> > +	else
-> > +		return -1;
-> > +	return 0;
-> 
-> In other places, we translate these strings, so it should be
-> N_("yes"), etc, and use _() in the final printf().
-
-Hi Karal,
-
-Sure. I'll add it.
-
-> 
-> > +}
+> > +	struct coldesc *ci = get_column_desc(i);
 > > +
-> >  static void print_summary(struct lsmem *lsmem)
-> >  {
-> > +	const char *path = "/sys/module/memory_hotplug/parameters/memmap_on_memory";
+> > +	if (!strcmp(ci->name, "MEMMAP-ON-MEMORY") || !strcmp(ci->name, "CONFIGURED")) {
 > 
-> We rarely use hardcoded paths directly in code in util-linux. How
-> about adding #define _PATH_SYS_MEMMAP_PARM or something similar.
+> Using column name strings seems fragile. It's better to use column ID
+> macros to ensure the compiler verifies them.
+> 
+>     int id = get_column_id(num);
+> 
+>     if (id == COL_MEMMAP || id == COL_CONFIG)  
 
-Noted. Thank you.
+Sure.
+
+> > +		if (ul_path_access(lsmem->sysmemconfig, F_OK, "memory0") == 0)
+> > +			return false;
+> 
+> Do we need this access call? It seems like a duplicate of
+> lsmem->have_memconfig, which you initialized in read_basic_info()
+> using the same access() call.
+
+Right. I will use lsmem->have_memconfig.
+
+> > +static void read_memconfig(struct lsmem *lsmem)
+> > +{
+> > +	char dir[PATH_MAX];
+> > +
+> > +	if (ul_path_access(lsmem->sysmemconfig, F_OK, "memory0") != 0) {
+> 
+> The same applies if (lsmem->have_memconfig) is sufficient.
+
+Noted. Thanks
