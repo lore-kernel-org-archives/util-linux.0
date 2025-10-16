@@ -1,66 +1,67 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0966328610
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA1302AD3D
 	for <util-linux@vger.kernel.org>; Thu, 16 Oct 2025 10:17:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760609877; cv=none; b=m7S00nkNu7Q5RzBHJP3UbVg4bWutienoM0dsyTjpTsnRDISc9JR8GYQy+ZeDHgFrxaJta+LxIYMZVzbPzrMJphg0Jp1bOtzvuxcDL4WJtzjM7LB5m6YP3fZDMot9GHOPveYhdLTrSQAKX3V5hXxbdy7PthRD/Euv0e3A4b4HTeI=
+	t=1760609877; cv=none; b=m/d7q4qUBPVO1g0eimFOoqakIG+nQPzH6LhD5bOTw0i6wSwCe8puLbhzT3HlwqfQpCKM7LK243Jgxd5PyWwc7n3UrlHruhUzbdAV7Eh238Ye7bxzyVb3z61WBCr7uYpkXzLreNElv8qAp5zjSC/7tIRmq6KOl+t2CUkPmNdzo2I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1760609877; c=relaxed/simple;
-	bh=LGpcmsIZy/J8qC0WvZKV7Wa21pDCeuWvfsqeRn6BIKY=;
+	bh=oatI3cTkbXlCvD68PNBlFSLUEqrVidjtaeDJoF0I+wY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Y26HlWnZaoDVwdf0ND6kITSwAi7oPr7+FEYQdY90zaTpor0gfAfwV8U4XWODJLkQvGasyQB5V8Xr17VU+yQaVKl3wQYzWdBmg50v6WhAzqGepzrxnwigagg0vv+CvdWCKs0kUfhNMm8YFTqoKIjjHitVp1kwrECH8KvfcCX3Ux4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Gj8+zCBn; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version:Content-Type; b=NivexG47CmaLt+RHL9pdfK3WicEAbkZz+NAFN/K7bI6epOg78ji6Onm4CJxKxcHbS4IhHetEQQtM6ZvNDj+fnDdf5fUWXTMXhcql9c3NH/GkkNVHKDgNVRQXjdBCHxyPSS6sS9BOIsfclKV8NIF0TFRRTeUd7Zj/QnJReuWIW2c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bL5Ol49r; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Gj8+zCBn"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59G0lI7q021634;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bL5Ol49r"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59G1Ohlt021247;
 	Thu, 16 Oct 2025 10:17:53 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=lkH96t1rF7LhGRFgn
-	8Sr+gf8fB7XiNXyHIBHbfmbjAs=; b=Gj8+zCBn9IHQKPv1VMwHKk9qgdQHzLjXc
-	XJ8lf6K/PaMdknyir7YSlsC3NKD7rZvvsIx0HknQymbRmtgedu6uBX7q2OPZkGTh
-	2Z+DhCA6ROzx5pUeGHU/gMk8yuUR/x54zy3fMT9LWNjXO49D9LmusvVUn3AjBmvt
-	IY9JsEKldj/vDfpWs2/sZ+QytE5zjGu/PcZVTx+nO9DHhz565wQ3/zaeEDb7D1GN
-	/gFZt4j69B6R1jDpIBjAYCsKI0xfRz2yp6pp8qTEkxfT/ANveVc9Yuj4g22puRgx
-	E8xBnp+zKH+9mCTXh4HfRDtWwEe0/0OTPpKvHPTt+zTIiOiRS2G6A==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49qey920ju-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=bPDpzf
+	olTj/FbSp4ZqRSSUro0qzU5FR5ZqM0dDApRC4=; b=bL5Ol49rWnE4TPlefmqd9L
+	Z2olTParKdntgqbCpLL9KjCQqEPtjUKdbcURIhSiTRCLAG/VInYDfkxMugP/zpj6
+	FiC7uQScwpq+myaLpuOkld3uGAPOTfLYwW+VjGjnnn+X4xmifhWVzQxZQZC2Kh47
+	tLbGisp9YeO5hrBYQyif1/k9FapvMyr75oqyguBBHB//7hdDe+s6Ud0SuAiBXBn7
+	Sarwjt0TH2ZHqeXVDjyN5w+a38OVgILCohoLcj3tOQv9CyqCbCEeB4PJQorxuwSd
+	35SwGvCOAaF8ma295ZA+R8WqyxeL+RMTR3gVwcMM/xKM1yIJfMTwmqfwveWLNchw
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49qew08te1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Thu, 16 Oct 2025 10:17:53 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59G7fBM8014981;
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59GA9nF3018862;
 	Thu, 16 Oct 2025 10:17:52 GMT
 Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 49r3sjmwp0-1
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49r2jmw6nb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Thu, 16 Oct 2025 10:17:52 +0000
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59GAHmgv30146876
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59GAHmas31326476
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Thu, 16 Oct 2025 10:17:48 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2299A2007F;
+	by IMSVA (Postfix) with ESMTP id 88ECB2007F;
 	Thu, 16 Oct 2025 10:17:48 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EEA482007D;
-	Thu, 16 Oct 2025 10:17:47 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 5EC4D2007D;
+	Thu, 16 Oct 2025 10:17:48 +0000 (GMT)
 Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 16 Oct 2025 10:17:47 +0000 (GMT)
+	Thu, 16 Oct 2025 10:17:48 +0000 (GMT)
 From: Sumanth Korikkar <sumanthk@linux.ibm.com>
 To: Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
 Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Sumanth Korikkar <sumanthk@linux.ibm.com>
-Subject: [PATCH 2/6] lsmem: add support to display dynamic (de)configuration of memory
-Date: Thu, 16 Oct 2025 12:16:49 +0200
-Message-ID: <20251016101701.552597-3-sumanthk@linux.ibm.com>
+Subject: [PATCH 4/6] chmem: add chmem documentation for dynamic (de)configuration of memory
+Date: Thu, 16 Oct 2025 12:16:51 +0200
+Message-ID: <20251016101701.552597-5-sumanthk@linux.ibm.com>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20251016101701.552597-1-sumanthk@linux.ibm.com>
 References: <20251016101701.552597-1-sumanthk@linux.ibm.com>
@@ -70,318 +71,156 @@ List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: IeElD70q7pZve0cKgdt1tIDVvqiF5skd
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDExMDAxMSBTYWx0ZWRfX5vOjd4TxAn4Z
- kKJOygF1MnswvreRhJ+8TSWLiOu/yHHGH/JDxVQ22T+apzwndqnTibqw/SQ2zGU/HdHoBT3C2+K
- aO3kJXC4yWJWDYtjoajlHw1Ye96TQzSxouoRt0LtfkFzOxVUkCFytKVoY9q98f6ZXdrVbFrOVNg
- 0/bqAgBQ/lPNcaPemF1K2zpEf11BMu5MMd2YDWzqUSbv6Bt0jp5eD2LgMt8A+d0R9in7VvArlUN
- rwC2iRQ3VdzVmCQz2ruws+gSPcW7qTZcbanOlP6u8q1nGbyH8jus4mfqXDH/j1SGVn8Ym6MxA1H
- aIJ62lEX8AcgWIXGKHogktdUiVuaRBjygpZUQuzw5q2+kUyQ4kdqsCaQsBiEpHeu8xWJ/Bv1RjA
- DZ1UihDS1kbHKeWJ6PPTtZq0/pTzUg==
-X-Proofpoint-GUID: IeElD70q7pZve0cKgdt1tIDVvqiF5skd
-X-Authority-Analysis: v=2.4 cv=QZ5rf8bv c=1 sm=1 tr=0 ts=68f0c651 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=6rvU8sXd-WCdn4QYFxEA:9 a=-uN0bxNmadYA:10
+X-Proofpoint-ORIG-GUID: IAMCDLi5m6PgBJGuZtyzr7AtkYAMUAXl
+X-Authority-Analysis: v=2.4 cv=eJkeTXp1 c=1 sm=1 tr=0 ts=68f0c651 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VnNF1IyMAAAA:8 a=chBBJnHQjsqFfOd3Ob0A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDExMDAxNCBTYWx0ZWRfXxcW/RCuhrDrL
+ 2uPYM7Hk9TPGMBq9SejNwibhnWMItuYDpsIkIRnIrMt2wBvSlE1qLiov9KmS3OHSmP2j3fnSpAH
+ u7tvc2D4S5Un9iHIh1oL2etFeA8hT+K++KVi6THWiqbgz3MAvQICo015Ua7xgzcELm1nWgOpioa
+ FIsd0RLkLswRHFlFNaWGvbIjo+c4u+UMJnVMFflZeao96kq4SXi0RGqwjqr7au7h65yMRFrGFB8
+ /zIpBiq9Fx8uLO4ckNgb11hjH2Pki6J9lfjeDkD/7W9QgKrUlqQinKAVcwmBDo2Rs7oux/z9IRK
+ 0ej5tkvNobYkkLZFdeYFxJ7ih9cWL3a5n5V7bNmDF5a73Jti5LcLC9wQ50Us6HmWzI9fHWDhoHH
+ oNj0qZ0D/DrYL46mPy5JagBrpjVGUA==
+X-Proofpoint-GUID: IAMCDLi5m6PgBJGuZtyzr7AtkYAMUAXl
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-10-16_01,2025-10-13_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 priorityscore=1501 phishscore=0 bulkscore=0 suspectscore=0
- spamscore=0 malwarescore=0 impostorscore=0 clxscore=1015 adultscore=0
+ suspectscore=0 lowpriorityscore=0 spamscore=0 clxscore=1015 impostorscore=0
+ phishscore=0 malwarescore=0 adultscore=0 priorityscore=1501 bulkscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510110011
+ reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510110014
 
-Extend lsmem to display (de)configured blocks and memmap_on_memory
-state. With the new s390 kernel interface (linux-next) ff18dcb19aab
-("s390/sclp: Add support for dynamic (de)configuration of memory"),
-standby memory blocks are no longer pre-added at boot, but must be
-explicitly configured before being eligible for online/offline
-operations. At configuration time, users can also decide whether to use
-memmap-on-memory per block.
+Describe chmem configure, deconfigure and memmap-on-memory options:
 
-Add CONFIGURED column : indicate if a memory block has been explicitly
-configured.
+ff18dcb19aab ("s390/sclp: Add support for dynamic (de)configuration of
+memory") s390 kernel no longer pre-adds all standby memory at boot.
+Instead, users must explicitly configure a block before it can be used
+for online/offline actions. At configuration time, users can dynamically
+decide whether to use optional memmap-on-memory for each memory block,
+where value of 1 allocates metadata (such as struct pages array) from
+the hotplug memory itself, enabling hot-add operations even under memory
+pressure. A value of 0 stores metadata in regular system memory, which
+may require additional free memory, but enables continuous physical
+memory across memory blocks.
 
-Add MEMMAP-ON-MEMORY column : indicate if a memory block uses
-memmap-on-memory.
+Add documentation to reflect the following options:
+* chmem --configure 128M --memmap-on-memory 1
+* chmem --deconfigure 128M
+* chmem --enable 128M # implicitly configure memory if supported by
+  architecture and online it
+* chmem --disable 128M  # offline memory and implicitly deconfigure if
+  supported by the architecture.
 
-memmap-on-memory reference:
-https://docs.kernel.org/admin-guide/mm/memory-hotplug.html
+Just like online and offline actions, memory configuration and
+deconfiguration can be controlled through similar options. Also,
+memmap-on-memory setting can be changed, only when the memory block is
+in deconfigured state. This means, it is usable only via --configure
+option.
 
-Users can now inspect memory configuration state and retrieve
-memmap-on-memory state per block.
-
-lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP-ON-MEMORY
-RANGE                   SIZE   STATE   BLOCK CONFIGURED MEMMAP-ON-MEMORY
-0x00000000-0x7fffffff   2G     online  0-15  yes        no
-0x80000000-0xffffffff   2G     offline 16-31 no         yes
-
-Memory block size:                128M
-Total online memory:                2G
-Total offline memory:               2G
-Memmap on memory parameter:        yes
-
+Reviewed-by: Maria Eisenhaendler <maria1@de.ibm.com>
 Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
 ---
- sys-utils/lsmem.c | 115 +++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 103 insertions(+), 12 deletions(-)
+ sys-utils/chmem.8.adoc | 47 +++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 42 insertions(+), 5 deletions(-)
 
-diff --git a/sys-utils/lsmem.c b/sys-utils/lsmem.c
-index ea818d6dc..7b456492e 100644
---- a/sys-utils/lsmem.c
-+++ b/sys-utils/lsmem.c
-@@ -32,6 +32,7 @@
- #include "optutils.h"
+diff --git a/sys-utils/chmem.8.adoc b/sys-utils/chmem.8.adoc
+index 5067a98b8..537beec63 100644
+--- a/sys-utils/chmem.8.adoc
++++ b/sys-utils/chmem.8.adoc
+@@ -12,7 +12,7 @@ chmem - configure memory
  
- #define _PATH_SYS_MEMORY		"/sys/devices/system/memory"
-+#define _PATH_SYS_MEMCONFIG			"/sys/firmware/memory"
+ == SYNOPSIS
  
- #define MEMORY_STATE_ONLINE		0
- #define MEMORY_STATE_OFFLINE		1
-@@ -58,12 +59,17 @@ struct memory_block {
- 	int		nr_zones;
- 	int		zones[MAX_NR_ZONES];
- 	bool		removable;
-+	bool		config;
-+	bool		memmap_on_memory;
- };
+-*chmem* [*-h*] [*-V*] [*-v*] [*-e*|*-d*] [_SIZE_|_RANGE_|*-b* _BLOCKRANGE_] [*-z* _ZONE_]
++*chmem* [*-h*] [*-V*] [*-v*] [*-c*|*-e*|*-d*|*-g*] [_SIZE_|_RANGE_|*-b* _BLOCKRANGE_] [*-z* _ZONE_] [*-m* _MEMMAP-ON-MEMORY_]
  
- struct lsmem {
- 	struct path_cxt		*sysmem;		/* _PATH_SYS_MEMORY directory handler */
-+	struct path_cxt		*sysmemconfig;		/* _PATH_SYS_MEMCONFIG directory handler */
- 	struct dirent		**dirs;
-+	struct dirent		**memconfig_dirs;
- 	int			ndirs;
-+	int			memconfig_ndirs;
- 	struct memory_block	*blocks;
- 	int			nblocks;
- 	uint64_t		block_size;
-@@ -85,7 +91,10 @@ struct lsmem {
- 				split_by_state : 1,
- 				split_by_removable : 1,
- 				split_by_zones : 1,
--				have_zones : 1;
-+				split_by_memmap_on_memory : 1,
-+				split_by_config : 1,
-+				have_zones : 1,
-+				have_memconfig : 1;
- };
+ == DESCRIPTION
  
+@@ -26,23 +26,48 @@ The *chmem* command sets a particular size or range of memory online or offline.
  
-@@ -97,6 +106,8 @@ enum {
- 	COL_BLOCK,
- 	COL_NODE,
- 	COL_ZONES,
-+	COL_CONFIG,
-+	COL_MEMMAP,
- };
+ * Specify _ZONE_ as the name of a memory zone, as shown in the output of the *lsmem -o +ZONES* command. The output shows one or more valid memory zones for each memory range. If multiple zones are shown, then the memory range currently belongs to the first zone. By default, *chmem* will set memory online to the zone Movable, if this is among the valid zones. This default can be changed by specifying the *--zone* option with another valid zone. For memory ballooning, it is recommended to select the zone Movable for memory online and offline, if possible. Memory in this zone is much more likely to be able to be offlined again, but it cannot be used for arbitrary kernel allocations, only for migratable pages (e.g., anonymous and page cache pages). Use the *--help* option to see all available zones.
  
- static const char *const zone_names[] = {
-@@ -127,6 +138,10 @@ static struct coldesc coldescs[] = {
- 	[COL_BLOCK]	= { "BLOCK", 0, SCOLS_FL_RIGHT, N_("memory block number or blocks range")},
- 	[COL_NODE]	= { "NODE", 0, SCOLS_FL_RIGHT, N_("numa node of memory")},
- 	[COL_ZONES]	= { "ZONES", 0, SCOLS_FL_RIGHT, N_("valid zones for the memory range")},
-+	[COL_CONFIG]	= { "CONFIGURED", 0, SCOLS_FL_RIGHT,
-+			    N_("configuration status of the memory range")},
-+	[COL_MEMMAP]	= { "MEMMAP-ON-MEMORY", 0, SCOLS_FL_RIGHT,
-+			    N_("memmap-on-memory status of the memory range")},
- };
- 
- /* columns[] array specifies all currently wanted output column. The columns
-@@ -196,6 +211,8 @@ static inline void reset_split_policy(struct lsmem *l, int enable)
- 	l->split_by_node = enable;
- 	l->split_by_removable = enable;
- 	l->split_by_zones = enable;
-+	l->split_by_memmap_on_memory = enable;
-+	l->split_by_config = enable;
- }
- 
- static void set_split_policy(struct lsmem *l, int cols[], size_t ncols)
-@@ -218,12 +235,32 @@ static void set_split_policy(struct lsmem *l, int cols[], size_t ncols)
- 		case COL_ZONES:
- 			l->split_by_zones = 1;
- 			break;
-+		case COL_MEMMAP:
-+			l->split_by_memmap_on_memory = 1;
-+			break;
-+		case COL_CONFIG:
-+			l->split_by_config = 1;
-+			break;
- 		default:
- 			break;
- 		}
- 	}
- }
- 
-+static bool skip_memconfig_column(struct lsmem *lsmem, int i)
-+{
-+	struct coldesc *ci = get_column_desc(i);
++* Specify _MEMMAP-ON-MEMORY_ as 1 or 0. A value of 1 allocates hotplug metadata (such as the struct pages array) from the hotplug memory itself, enabling hot-add operations even under memory pressure and without requiring additional system memory to do so. A value of 0 stores hotplugged memory metadata in regular system memory, which helps avoid issues related to fragmentation of continuous physical memory across memory blocks. The value can only be set when the memory block is in a deconfigured state, and *--memmap-on-memory* is valid only with *--configure*. If not specified, and if supported, *chmem* uses the default value shown in *lsmem* output.
 +
-+	if (!strcmp(ci->name, "MEMMAP-ON-MEMORY") || !strcmp(ci->name, "CONFIGURED")) {
-+		if (ul_path_access(lsmem->sysmemconfig, F_OK, "memory0") == 0)
-+			return false;
-+		else
-+			return true;
-+	} else {
-+		return false;
-+	}
-+}
++The *--enable* option configures the memory, if this is supported by the architecture. If configuring memory is not supported by the architecture, *--enable* still brings the memory online.
 +
- static void add_scols_line(struct lsmem *lsmem, struct memory_block *blk)
- {
- 	size_t i;
-@@ -236,6 +273,8 @@ static void add_scols_line(struct lsmem *lsmem, struct memory_block *blk)
- 	for (i = 0; i < ncolumns; i++) {
- 		char *str = NULL;
- 
-+		if (skip_memconfig_column(lsmem, i))
-+			continue;
- 		switch (get_column_id(i)) {
- 		case COL_RANGE:
- 		{
-@@ -291,6 +330,14 @@ static void add_scols_line(struct lsmem *lsmem, struct memory_block *blk)
- 				str = xstrdup(valid_zones);
- 			}
- 			break;
-+		case COL_CONFIG:
-+			if (lsmem->have_memconfig)
-+				str = xstrdup(blk->config ? _("yes") : _("no"));
-+			break;
-+		case COL_MEMMAP:
-+			if (lsmem->have_memconfig)
-+				str = xstrdup(blk->memmap_on_memory ? _("yes") : _("no"));
-+			break;
- 		}
- 
- 		if (str && scols_line_refer_data(line, i, str) != 0)
-@@ -400,6 +447,15 @@ static int memory_block_read_attrs(struct lsmem *lsmem, char *name,
- 	if (errno)
- 		rc = -errno;
- 
-+	if (lsmem->have_memconfig) {
-+		if (ul_path_readf_s32(lsmem->sysmemconfig, &x, "%s/config", name) == 0)
-+			blk->config = x == 1;
-+		if (ul_path_readf_s32(lsmem->sysmemconfig, &x, "%s/memmap_on_memory", name) == 0)
-+			blk->memmap_on_memory = x == 1;
-+		blk->state = MEMORY_STATE_OFFLINE;
-+		if (!blk->config)
-+			return rc;
-+	}
- 	if (ul_path_readf_s32(lsmem->sysmem, &x, "%s/removable", name) == 0)
- 		blk->removable = x == 1;
- 
-@@ -463,6 +519,10 @@ static int is_mergeable(struct lsmem *lsmem, struct memory_block *blk)
- 				return 0;
- 		}
- 	}
-+	if (lsmem->split_by_config && curr->config != blk->config)
-+		return 0;
-+	if (lsmem->split_by_memmap_on_memory && curr->memmap_on_memory != blk->memmap_on_memory)
-+		return 0;
- 	return 1;
- }
- 
-@@ -478,11 +538,33 @@ static void free_info(struct lsmem *lsmem)
- 	free(lsmem->dirs);
- }
- 
-+static int memory_block_filter(const struct dirent *de)
-+{
-+	if (strncmp("memory", de->d_name, 6) != 0)
-+		return 0;
-+	return isdigit_string(de->d_name + 6);
-+}
++The *--disable* option brings the memory offline and performs an optional deconfigure step if this is supported by the architecture.
 +
-+static void read_memconfig(struct lsmem *lsmem)
-+{
-+	char dir[PATH_MAX];
++The *--configure* option requests memory from the hypervisor without bringing it online, when supported by the architecture, allowing explicit control and use of *--memmap-on-memory*.
 +
-+	if (ul_path_access(lsmem->sysmemconfig, F_OK, "memory0") != 0) {
-+		lsmem->memconfig_ndirs = 0;
-+		return;
-+	}
-+	ul_path_get_abspath(lsmem->sysmemconfig, dir, sizeof(dir), NULL);
-+	lsmem->memconfig_ndirs = scandir(dir, &lsmem->memconfig_dirs,
-+					 memory_block_filter, versionsort);
-+	if (lsmem->memconfig_ndirs <= 0)
-+		err(EXIT_FAILURE, _("Failed to read %s"), dir);
-+}
++The *--deconfigure* option returns memory resources to the hypervisor if supported by the architecture.
 +
- static void read_info(struct lsmem *lsmem)
- {
- 	struct memory_block blk;
--	char buf[128];
--	int i;
-+	char buf[128], *name;
-+	int i, num_dirs;
+ _SIZE_ and _RANGE_ must be aligned to the Linux memory block size, as shown in the output of the *lsmem*(1) command.
  
- 	if (ul_path_read_buffer(lsmem->sysmem, buf, sizeof(buf), "block_size_bytes") <= 0)
- 		err(EXIT_FAILURE, _("failed to read memory block size"));
-@@ -492,8 +574,17 @@ static void read_info(struct lsmem *lsmem)
- 	if (errno)
- 		err(EXIT_FAILURE, _("failed to read memory block size"));
+ Setting memory online can fail for various reasons. On virtualized systems it can fail if the hypervisor does not have enough memory left, for example because memory was overcommitted. Setting memory offline can fail if Linux cannot free the memory. If only part of the requested memory can be set online or offline, a message tells you how much memory was set online or offline instead of the requested amount.
  
--	for (i = 0; i < lsmem->ndirs; i++) {
--		memory_block_read_attrs(lsmem, lsmem->dirs[i]->d_name, &blk);
-+	read_memconfig(lsmem);
-+	if (lsmem->have_memconfig)
-+		num_dirs = lsmem->memconfig_ndirs;
-+	else
-+		num_dirs = lsmem->ndirs;
-+	for (i = 0; i < num_dirs; i++) {
-+		if (lsmem->have_memconfig)
-+			name = lsmem->memconfig_dirs[i]->d_name;
-+		else
-+			name = lsmem->dirs[i]->d_name;
-+		memory_block_read_attrs(lsmem, name, &blk);
- 		if (blk.state == MEMORY_STATE_ONLINE)
- 			lsmem->mem_online += lsmem->block_size;
- 		else
-@@ -508,13 +599,6 @@ static void read_info(struct lsmem *lsmem)
- 	}
- }
+-When setting memory online *chmem* starts with the lowest memory block numbers. When setting memory offline *chmem* starts with the highest memory block numbers.
++When setting memory online or when configuring memory, *chmem* starts with the lowest memory block numbers. When setting memory offline or deconfiguring memory, *chmem* starts with the highest memory block numbers.
++
++== ARCHITECTURE
++
++* s390 architecture:
++
++_MEMMAP-ON-MEMORY_: For memory blocks configured online at boot, the default value is 0 because they are added without memmap-on-memory support. Memory added dynamically at runtime uses the default value displayed in *lsmem* output.
  
--static int memory_block_filter(const struct dirent *de)
--{
--	if (strncmp("memory", de->d_name, 6) != 0)
--		return 0;
--	return isdigit_string(de->d_name + 6);
--}
--
- static void read_basic_info(struct lsmem *lsmem)
- {
- 	char dir[PATH_MAX];
-@@ -539,6 +623,8 @@ static void read_basic_info(struct lsmem *lsmem)
- 	/* The valid_zones sysmem attribute was introduced with kernel 3.18 */
- 	if (ul_path_access(lsmem->sysmem, F_OK, "memory0/valid_zones") == 0)
- 		lsmem->have_zones = 1;
-+	if (ul_path_access(lsmem->sysmemconfig, F_OK, "memory0") == 0)
-+		lsmem->have_memconfig = 1;
- }
+ == OPTIONS
  
- static void __attribute__((__noreturn__)) usage(void)
-@@ -696,6 +782,9 @@ int main(int argc, char **argv)
- 	lsmem->sysmem = ul_new_path(_PATH_SYS_MEMORY);
- 	if (!lsmem->sysmem)
- 		err(EXIT_FAILURE, _("failed to initialize %s handler"), _PATH_SYS_MEMORY);
-+	lsmem->sysmemconfig = ul_new_path(_PATH_SYS_MEMCONFIG);
-+	if (!lsmem->sysmemconfig)
-+		err(EXIT_FAILURE, _("failed to initialized %s handler"), _PATH_SYS_MEMCONFIG);
- 	if (prefix && ul_path_set_prefix(lsmem->sysmem, prefix) != 0)
- 		err(EXIT_FAILURE, _("invalid argument to --sysroot"));
- 	if (!ul_path_is_accessible(lsmem->sysmem))
-@@ -745,6 +834,8 @@ int main(int argc, char **argv)
- 		struct coldesc *ci = get_column_desc(i);
- 		struct libscols_column *cl;
+ *-b*, *--blocks*::
+ Use a _BLOCKRANGE_ parameter instead of _RANGE_ or _SIZE_ for the *--enable* and *--disable* options.
  
-+		if (skip_memconfig_column(lsmem, i))
-+			continue;
- 		cl = scols_table_new_column(lsmem->table, ci->name, ci->whint, ci->flags);
- 		if (!cl)
- 			err(EXIT_FAILURE, _("failed to initialize output column"));
++*-c*, *--configure*::
++Set the specified _RANGE_, _SIZE_, or _BLOCKRANGE_ of memory to be configured.
++
+ *-d*, *--disable*::
+ Set the specified _RANGE_, _SIZE_, or _BLOCKRANGE_ of memory offline.
+ 
+ *-e*, *--enable*::
+ Set the specified _RANGE_, _SIZE_, or _BLOCKRANGE_ of memory online.
+ 
++*-g*, *--deconfigure*::
++Set the specified _RANGE_, _SIZE_, or _BLOCKRANGE_ of memory to be deconfigured.
++
++*-m*, *--memmap-on-memory*::
++Select memmap-on-memory for the specified _RANGE_, _SIZE_, or _BLOCKRANGE_ of memory. This option is valid only with *--configure*.
++
+ *-z*, *--zone*::
+ Select the memory _ZONE_ where to set the specified _RANGE_, _SIZE_, or _BLOCKRANGE_ of memory online or offline. By default, memory will be set online to the zone Movable, if possible.
+ 
+@@ -70,13 +95,25 @@ partial success
+ This command requests 1024 MiB of memory to be set online.
+ 
+ *chmem -e 2g*::
+-This command requests 2 GiB of memory to be set online.
++This command requests 2 GB of memory to be brought online and, if supported by the architecture, configures the memory beforehand.
+ 
+ *chmem --disable 0x00000000e4000000-0x00000000f3ffffff*::
+-This command requests the memory range starting with 0x00000000e4000000 and ending with 0x00000000f3ffffff to be set offline.
++This command takes the memory range from 0x00000000e4000000 to 0x00000000f3ffffff offline and deconfigures it if supported by the architecture.
+ 
+ *chmem -b -d 10*::
+-This command requests the memory block number 10 to be set offline.
++This command takes memory block number 10 offline.
++
++*chmem -b -c 10 -m 1*::
++This command configures memory block 10 with  _MEMMAP-ON-MEMORY_ set. The block must be in a deconfigured state.
++
++*chmem -b -c 10*::
++This command configures memory block 10 with the default _MEMMAP-ON-MEMORY_ setting. The default value is displayed in *lsmem --output-all*. The block must be in a deconfigured state.
++
++*chmem -b -g 10*::
++This command deconfigures memory block 10. The block must be offline.
++
++*chmem -d 5g*::
++This command takes 5 GB of memory offline and deconfigures it if supported by the architecture. Blocks that are already offline but still configured are skipped and must be explicitly deconfigured with *--deconfigure*.
+ 
+ == SEE ALSO
+ 
 -- 
 2.48.1
 
