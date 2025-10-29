@@ -1,50 +1,47 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.167])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17F64183CC3
-	for <util-linux@vger.kernel.org>; Wed, 29 Oct 2025 11:04:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.167
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F5B9304BA4
+	for <util-linux@vger.kernel.org>; Wed, 29 Oct 2025 11:05:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761735867; cv=none; b=A0sJbWziKcsoApieEYzwv41tsmITcVFI4CCPx0lhTqeJfXIrZlts60ANtRqG8vxlXlNZfurrbCyzcyvJkqcPkZQMZ0FgbERwLXUJWSsJAW8MzPhc9UAsox8cl5PSltqFPvH8qIdpLmiZJjB/R2Q8pw4UWYVaibqQN9gnMyOzOrI=
+	t=1761735919; cv=none; b=gjhvDDB9SE1zzXv2bOD8PY/nE1e0YzPhLHdcCYUyrgx+tOnEJhAEwipg31yI4ycnVa8AhUtObGFB6aJw2meY8dWHPAF80cuaRAjlLts4GU8AlKPkhmnUNG4olKgGFiqYPubWHv7vAwbbo+jPifAyWk1cFmTGk1ExWDl3YgYE8jk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761735867; c=relaxed/simple;
-	bh=rUBGebk0N3w4ZWtr3jBKSlQn3DsnKgUirjWwd7VicsE=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=IG1lu0PPgm6OSkh3GgI3o5NTLRFfxxUQw/g5CaRMFIs6K4DeIhRM83oihLDWJnArj0FoK7a76H8UgKMmvQRebKHLwIxO82jrT2wSzbrx5MVvIXsWsSNRODzFkSNchCH/C2/zP47s3ytSrjlR7tEgJ1M4QTRtQ74M89ioIL3PuWQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=svcbq/Ti; arc=none smtp.client-ip=195.121.94.167
+	s=arc-20240116; t=1761735919; c=relaxed/simple;
+	bh=D1SfoU9LCzwwxk5aeKn5Wp6hCt+zM8YxMfa1d0W2H1g=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=kxVHMvxXPG7RBGs/lTU/30yVLHNrynMiB9aFUEKvkKAzlxdC4yNipz4pRXW6kCJRo/1FYfnH+FtVd81WsoStjIzqpSmnYmbiX+akVlANWcTJeAQmdlFhJwetiN30cRbA6pSOk2FKg7Di3Axxx9Z5BxWcRSOlqMeAeWyQGtGy6t0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=Dlx/5Ay0; arc=none smtp.client-ip=195.121.94.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="svcbq/Ti"
-X-KPN-MessageId: 4f6b020f-b4b7-11f0-a27d-005056abbe64
-Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="Dlx/5Ay0"
+X-KPN-MessageId: 1f741372-b4b7-11f0-9c77-005056ab378f
+Received: from smtp.kpnmail.nl (unknown [10.31.155.39])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 4f6b020f-b4b7-11f0-a27d-005056abbe64;
-	Wed, 29 Oct 2025 12:06:25 +0100 (CET)
+	id 1f741372-b4b7-11f0-9c77-005056ab378f;
+	Wed, 29 Oct 2025 12:05:04 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=ncJW1/vDNVy6nBvhpvX/8mVVg9SW8QA/+ji6ks41bb0=;
-	b=svcbq/TiqXnmKD7sIWNASsN//9A7VoUTsuOT6b1Qew5UmvLSQo1yWIhNfKadJWEDBb2C0G8A/lWp8
-	 PUIHpJkR6NlA0B5yKRjf/ymGSC9cAzdTbu9wXmpYzCcH/IvVPPusSTOXOrIUu3czsr9V/+jOxMgeYG
-	 A3KMYG5Fp22Imcl8=
-X-KPN-MID: 33|HCQWe/Ds1879fvN2DL3WhWf6CDPIFeTLEgw/WkYR/EiLphcz9/8Vfnz7AszdHmh
- DWvaWwWNvUIIUHv2bJgLoesrxPCEqajhYnUyqHCmCWDc=
+	bh=ljAU9FbdbI/5kGnFR81yyXIIA5UT1cdM9isb7FAa/ng=;
+	b=Dlx/5Ay00yRLNR27omZAIOXBe34EpqctOk8LfeETuC8LU3auVc/bC7+5MYNhtu36oJMAReH2RCXrh
+	 YQBFFVwT+Uy0HY/5Pr4sNHgzEAlLyej0SsuNuMcFFG8788AAnnmx/a3OcxRcCObUSezrLzm3z5R6Q+
+	 kLWIuEnvlvuo/LgI=
+X-KPN-MID: 33|oh+5Tfpe/28IFhAj7OvEvT6hIoWDUo55L0i4v9oRtqeN13fPsOc2Fd3s1ol/dFU
+ XxheJ2NW1QAxCBNudA66RSA==
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|nDKY1Sda7nWJAC69ogXdbei5zMFxAxmqxlYq0FJqoCwoc6to6a0FWgrexeMM/q9
- 9KNmQwWdouw9gKU+GuvoDwA==
+X-CMASSUN: 33|L9dQCV21WnTebsBPmSgMiF7iy0p23p3oNAWr1hOE2JDDAApaFHTiKV7pUyDvGnb
+ 1jFYqakmaERxDKBhFd3Rl8Q==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 06980554-b4b7-11f0-a6c9-005056abf0db;
-	Wed, 29 Oct 2025 12:04:23 +0100 (CET)
+	id fdadcc86-b4b6-11f0-8004-005056ab7447;
+	Wed, 29 Oct 2025 12:04:08 +0100 (CET)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 3/3] losetup: (man) put the synopses in a better order, the name-giver first
-Date: Wed, 29 Oct 2025 12:03:58 +0100
-Message-ID: <20251029110358.18170-3-bensberg@telfort.nl>
+Subject: [PATCH 1/3] losetup: sort 'O' correctly for the mutual-exclusive check to work
+Date: Wed, 29 Oct 2025 12:03:56 +0100
+Message-ID: <20251029110358.18170-1-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.51.2
-In-Reply-To: <20251029110358.18170-1-bensberg@telfort.nl>
-References: <20251029110358.18170-1-bensberg@telfort.nl>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -53,63 +50,26 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Also, condense the synopsis for setting up a loop device to just the
-essentials -- it had become so long that it was incomprehensible.
+The options need to be in strict ascending order.
 
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- sys-utils/losetup.8.adoc | 30 +++++++++++++-----------------
- 1 file changed, 13 insertions(+), 17 deletions(-)
+ sys-utils/losetup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sys-utils/losetup.8.adoc b/sys-utils/losetup.8.adoc
-index 131ebfa56..cecc09618 100644
---- a/sys-utils/losetup.8.adoc
-+++ b/sys-utils/losetup.8.adoc
-@@ -12,31 +12,27 @@ losetup - set up and control loop devices
- 
- == SYNOPSIS
- 
-+Set up a loop device:
-+
-+*losetup* [options] *-f*|_loopdev file_
-+
- Get info:
- 
--*losetup* [_loopdev_]
--
--*losetup* *-l* [*-a*]
-+*losetup* [*-l*] [*-a*|_loopdev_]
- 
- *losetup* *-j* _file_ [*-o* _offset_]
- 
--Detach a loop device:
--
--*losetup* *-d* _loopdev_ ...
--
--Detach all associated loop devices:
--
--*losetup* *-D*
--
--Set up a loop device:
--
--*losetup* [*-o* _offset_] [*--sizelimit* _size_] [*--sector-size* _size_] [*--loop-ref* _name_] [*-Pr*] [*--show*] *-f*|_loopdev file_
--
--Resize a loop device:
-+Recalibrate the size of a loop device:
- 
- *losetup* *-c* _loopdev_
- 
--Remove a loop device:
-+Detach loop devices:
-+
-+*losetup* *-d* _loopdev_ ...
-+
-+*losetup* *-D*
-+
-+Prevent loop devices from getting listed:
- 
- *losetup* *--remove* _loopdev_ ...
- 
+diff --git a/sys-utils/losetup.c b/sys-utils/losetup.c
+index c2eec5600..2a3257473 100644
+--- a/sys-utils/losetup.c
++++ b/sys-utils/losetup.c
+@@ -739,7 +739,7 @@ int main(int argc, char **argv)
+ 	static const ul_excl_t excl[] = {	/* rows and cols in ASCII order */
+ 		{ 'D','a','c','d','f','j',OPT_REMOVE },
+ 		{ 'D','c','d','f','l',OPT_REMOVE },
+-		{ 'D','c','d','f','O',OPT_REMOVE },
++		{ 'D','O','c','d','f',OPT_REMOVE },
+ 		{ 'J',OPT_RAW },
+ 		{ 0 }
+ 	};
 -- 
 2.51.2
 
