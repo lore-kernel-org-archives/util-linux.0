@@ -1,124 +1,96 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E151281503
-	for <util-linux@vger.kernel.org>; Mon,  3 Nov 2025 14:42:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 975CB32A3D4
+	for <util-linux@vger.kernel.org>; Tue,  4 Nov 2025 13:58:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762180982; cv=none; b=HOokEtrhDroIfOGlgCQ/18QLba/jr3MrrV2RMan5Iu7tyCrpv11lxORHxPjPyC+zg0zqKKaPO3c2ZR/6Fi4yDL3oYpN6txZyXO7DaK0PZuai4EgjHmvF68QLZEjwyOzwILiNeLvhsnnU5+mGSD+WUOKncJoQ6UFE6oWpRFt4ub8=
+	t=1762264730; cv=none; b=eZvZoMtGrsSb4on3Ty0dpAam5pYY5WACyECZGUynmIC1yz7X7h4fCHeB5hXTaq+luBHAGPoWa94uyHNoV6ggXJ3AsuieKh5UM4ylKHwjNv7x7+cSWZc5S+jCGaFwMq728CI5vhd3MkdNS5oflZB5JigpvpxaihVpv38b/26fMgo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762180982; c=relaxed/simple;
-	bh=ewQAy/AphAG+H9Zx5EzTmi3ciAwkElm3081kRtIgAEU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CYNd6J/ZqoQr0kit4GhRS5vhshD1WE8D3cui7LIUkSDvWScChK3Wy8gN2fmE2jhfIxBCCLBI2dur9jwx9yt5FiLcAyJjk7zIYbq6yKHiQhEmXqlhuHXmh1ODMmDLJbQJEWpmgfRU6enDX0AZQUeobvW8XhMG/ODsrNF160IjdJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=kJnh5NIg; arc=none smtp.client-ip=195.121.94.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
+	s=arc-20240116; t=1762264730; c=relaxed/simple;
+	bh=vF4V3H0/Me+AVFGM8Em89ck98VJgTc56MN3z0rHvylw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=NRoNTpVM9h/wyQW8Le38MgCu/4yDEZCZMErm8L+tOBAdx9q2YZPy/HwJxXygJ3k2cQA4jd3+qNJlweT7LVuSQ8JPUjNxrmk2P3TpU1Qov1sod63dIWd+3PLW5Nz9RnNO30ttcD2Au70N+oHFREZtU9PljJEecGnp2K5sqW3nFz0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nG+NvDE4; arc=none smtp.client-ip=209.85.210.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="kJnh5NIg"
-X-KPN-MessageId: 8aa5757f-b8c3-11f0-9c78-005056ab378f
-Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
-	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 8aa5757f-b8c3-11f0-9c78-005056ab378f;
-	Mon, 03 Nov 2025 15:44:03 +0100 (CET)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nG+NvDE4"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-7aad4823079so2198446b3a.0
+        for <util-linux@vger.kernel.org>; Tue, 04 Nov 2025 05:58:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=telfort.nl; s=telfort01;
-	h=content-type:from:to:subject:mime-version:date:message-id;
-	bh=ewQAy/AphAG+H9Zx5EzTmi3ciAwkElm3081kRtIgAEU=;
-	b=kJnh5NIgrDxDm7XCZWTeMkoNYhEU4ezcRsaMpwBysbt96Vb3XYjIvOJJTQbAB7yoiJLhpiGx+JBMh
-	 tvaTvLp0/3o0fsLt1YrOmxwLC+Su4Q1MLRTirMnI6zhQSH6/YrjBVDcjJWMKgY3yV8i73+7Eqpk1jW
-	 Dp4C6k6jCCB8BivI=
-X-KPN-MID: 33|oSHaR/OgQW2eekJrIWEH+pWjjDe7+Icm9RfZPUrVD5v89ZRUEAr6NGyrnZToR9s
- j9JOcDqIgsD4Ah/xzm3Bo6aM9uTl8ZcJ4xz/UjqA5RqE=
-X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|o8H03CR2eeJpkppjWDMwhDNlzIWcLfoyUgEaGoBOfHQXpn5+EodrXHSf4y5Xk5J
- I70Nr8eHuvo1SlgLXfAxJDQ==
-Received: from [192.168.2.23] (77-163-176-192.fixed.kpn.net [77.163.176.192])
-	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 5f840a39-b8c3-11f0-a6c9-005056abf0db;
-	Mon, 03 Nov 2025 15:42:51 +0100 (CET)
-Message-ID: <7b928196-6485-4514-a336-5c403652a0c3@telfort.nl>
-Date: Mon, 3 Nov 2025 15:42:50 +0100
+        d=gmail.com; s=20230601; t=1762264727; x=1762869527; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=+EGZrDiiVuzW3MOw9EiUaEAQ51iX1kJrXk9SLyq1hk0=;
+        b=nG+NvDE4mNzXDs4MKUImRZOrUnRrNLYeLUoN7NMph10gTidH6xdy9LKPjgIeaUI9pI
+         iI/RFLkyZoUu2IPK8gNLpbcPc+TA8cULwJC9nF9LAwdhlpJ4q5kR9nFqZEPF7vdZBm1L
+         fZBJsFI1WEFOtGlZp7Zn9sLR3oUGaTEfGW5ObWAgSXqyPMv0e3CCHcSEExibNguMLFBY
+         +3HWgmEzYiA2Oqk2wHd9XMFbosaY+z0HxprmaQsB9otn984oEDAFtAY2h+M65dZ6gTwq
+         dE8w4Z3ebzBL2TwGrtZM3pUd7sA0qPEc0Edf1kCkBrrjnLd6qJIZmj4CzskpOsC3WKfm
+         cOyw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1762264727; x=1762869527;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=+EGZrDiiVuzW3MOw9EiUaEAQ51iX1kJrXk9SLyq1hk0=;
+        b=H+y4MS0isLRBFRKNaLMNybmTfg89q2ZwJIaGVWRlfG9DVIP5Qrh/jy/GtKAyQcy5zO
+         xQCftSKXzVBW8UGlcNT5tLFQghVfCGtJewcVpw8ZJKKl1ZkFhHzZG9C/1ZtbfloQOSyi
+         sieZl0skMCJxbJuy2DAAiBUXIxNldyEQgdOoCmp00WCEyxS7QAqNGEy4q94k2PkPrA1D
+         hYFXU3QOKFd1khrTM+jnfwyrhPGYSxDyiy+jj2pfw3n13aUkT99gijUMpSr+B6zVrDwD
+         Wx4N/gvzpIIvgvLf9w4LYp+6iKzOAKlr10Wfog72/sYd/KJawcLYWYjgCH+99vIjNLJm
+         u0ew==
+X-Gm-Message-State: AOJu0YxlMIuWgG4eWEX7cYbBgadn8PzeediGXQ0bkQ2RLo932QJkkXrr
+	KqzTXwfFnNkvr8BQ+eU79WJggvq6bRqHfAFzB415Kj43OJfMZ7zUjmhtwEQegYfkUgeVlpDj0Kr
+	nd/waDfG7SKM2+1/7oWYr357419pzASnuaAx8
+X-Gm-Gg: ASbGncsOSz03uKCP3q/I0cksWUwOY8nKfK2FSMOadYtKJlAwd40PxZNV6Fowl7+Yesk
+	b43mNMjgJqrEahf4/eKC74kHMj1hXTqIYCt+YCjnhP8Ixj39rZAXv8unYdClX+VwwAAVdrmYoUV
+	EhjjzZ4pzVEhobYrIg31vG6fLZEsIqJpwnnDRXeTQ4tqfV3FKfdjVkvK6m39UvCFPJJxbeMpwpA
+	ggjIdif0OHBvizxdtAZrCaHaee6BK2lmTtJnbeFPBo7ShcFNa9cdEsDNmEVP1ehbwX0iE4M23cR
+	Hz+iqnM5yihYdxOWdNMAkNBez6P/fmuI9I6ooD26j84R
+X-Google-Smtp-Source: AGHT+IEAFxlXkW9h3VB+LB/4XGsc/o1Q16SIRWf99pHNF4mBxn6xWtrkih8qb4ZVr+TBIg5GNpXl9RB5822sVOxSrik=
+X-Received: by 2002:a05:6a21:e097:b0:33e:6885:2bbd with SMTP id
+ adf61e73a8af0-348cc2d8fffmr23772348637.40.1762264726811; Tue, 04 Nov 2025
+ 05:58:46 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: `losetup --remove` is confusing, and misuse silently fails
-To: Karel Zak <kzak@redhat.com>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-References: <a5909aac-3f54-4fce-8785-410535dd4098@telfort.nl>
- <wog3s3sk34ewa6ulgspplk6fhb4hwd3nd55wse3gk2dsl6avyl@yqoq3miwfx5n>
- <f875b695-a682-4ab8-bfb5-95dd5d861236@telfort.nl>
- <ymw6pydao6vwwvav346losfnhvynbxapxxoiv77eoendsgnqa4@dcimzsl3szvn>
- <8c27aa14-495b-42f9-8ab6-6456daa1daa4@telfort.nl>
- <dexp4ooy65b2la7ujbpnp5itphzzriwg57uz2cvkt4grn3b7bv@7nzd6wye2vjt>
-Content-Language: en-US, nl-NL, es-ES
-From: Benno Schulenberg <bensberg@telfort.nl>
-In-Reply-To: <dexp4ooy65b2la7ujbpnp5itphzzriwg57uz2cvkt4grn3b7bv@7nzd6wye2vjt>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------TqZ1aCs0UR43a7OmKHWf9LLg"
+References: <CAG27Bk3UdZkP8e8dYuKgpowODu3+1KWg1hqLZDf5o832YWuxVA@mail.gmail.com>
+In-Reply-To: <CAG27Bk3UdZkP8e8dYuKgpowODu3+1KWg1hqLZDf5o832YWuxVA@mail.gmail.com>
+From: Sami Kerola <kerolasa@gmail.com>
+Date: Tue, 4 Nov 2025 13:58:35 +0000
+X-Gm-Features: AWmQ_bkG2rum4dHHzQRqq_bM0Dj2-TTIkv0T3di6tznovZi-5moWcq0t3jicttU
+Message-ID: <CAG27Bk33x9ztXSX7AJb_=5QVJRY3ir0ZppMSOgVUS0XnagrvFw@mail.gmail.com>
+Subject: Fwd: lsclocks and tai
+To: util-linux <util-linux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------TqZ1aCs0UR43a7OmKHWf9LLg
-Content-Type: multipart/mixed; boundary="------------DVP6jRhP7RzNBQevhT2cqEiU";
- protected-headers="v1"
-From: Benno Schulenberg <bensberg@telfort.nl>
-To: Karel Zak <kzak@redhat.com>
-Cc: Util-Linux <util-linux@vger.kernel.org>
-Message-ID: <7b928196-6485-4514-a336-5c403652a0c3@telfort.nl>
-Subject: Re: `losetup --remove` is confusing, and misuse silently fails
-References: <a5909aac-3f54-4fce-8785-410535dd4098@telfort.nl>
- <wog3s3sk34ewa6ulgspplk6fhb4hwd3nd55wse3gk2dsl6avyl@yqoq3miwfx5n>
- <f875b695-a682-4ab8-bfb5-95dd5d861236@telfort.nl>
- <ymw6pydao6vwwvav346losfnhvynbxapxxoiv77eoendsgnqa4@dcimzsl3szvn>
- <8c27aa14-495b-42f9-8ab6-6456daa1daa4@telfort.nl>
- <dexp4ooy65b2la7ujbpnp5itphzzriwg57uz2cvkt4grn3b7bv@7nzd6wye2vjt>
-In-Reply-To: <dexp4ooy65b2la7ujbpnp5itphzzriwg57uz2cvkt4grn3b7bv@7nzd6wye2vjt>
+Hello Karel and other,
 
---------------DVP6jRhP7RzNBQevhT2cqEiU
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+It's been a while since I have been active with util-linux. Everything
+is ok, just work & life keeps me busy. Perhaps someday in future
+things change (when retiring and there's more time for fun).
 
-DQpPcCAwMy0xMS0yMDI1IG9tIDEzOjQ5IHNjaHJlZWYgS2FyZWwgWmFrOg0KPj4gICAgIyAu
-L2xvc2V0dXAgLS1yZW1vdmUgLS1maW5kIC0tYWxsDQo+PiAgICBsb3NldHVwOiBvcHRpb25z
-IC0tcmVtb3ZlIGFuZCAtLWZpbmQgY2Fubm90IGJlIGNvbWJpbmVkDQo+ICAgDQo+IEltcGxl
-bWVudGVkOg0KPiAgICAgIGh0dHBzOi8vZ2l0aHViLmNvbS91dGlsLWxpbnV4L3V0aWwtbGlu
-dXgvcHVsbC8zODM1DQoNClRoYW5rcyEgIEhvd2V2ZXIuLi4NCg0KCWZwcmludGYoc3RkZXJy
-LCBfKCIlczogb3B0aW9ucyAiKSwgcHJvZ3JhbV9pbnZvY2F0aW9uX3Nob3J0X25hbWUpOw0K
-CXVsX3ByaW50X29wdGlvbihzdGRlcnIsIHN0YXR1c1tlXSwgb3B0cyk7DQoJZnB1dHMoXygi
-IGFuZCAiKSwgc3RkZXJyKTsNCgl1bF9wcmludF9vcHRpb24oc3RkZXJyLCBjLCBvcHRzKTsN
-CglmcHV0cyhfKCIgY2Fubm90IGJlIGNvbWJpbmVkLlxuIiksIHN0ZGVycik7DQoNCkZvciB0
-cmFuc2xhdGFiaWxpdHksIHRoZSBhYm92ZSBzaG91bGQgYmUgbGlrZToNCg0KCWZwcmludGYo
-c3RkZXJyLCBfKCIlczogb3B0aW9ucyAlcyBhbmQgJXMgY2Fubm90IGJlIGNvbWJpbmVkIiks
-IC4uLik7DQoNCg0KU2VlIGZvciBleGFtcGxlIGBpbmZvIGdldHRleHQgcHJlcCBwcmVwYCwg
-c2F5aW5nIHRoYXQgdHJhbnNsYXRhYmxlIHN0cmluZ3MNCnNob3VsZCBiZSBlbnRpcmUgc2Vu
-dGVuY2VzLg0KDQoNCkJlbm5vDQoNCg==
+Meanwhile. There was a workplace discussion about TAI and I noticed
+unexpected lsclock.
 
---------------DVP6jRhP7RzNBQevhT2cqEiU--
+$ lsclocks -o ISO_TIME,NAME | grep tai && TZ=right/UTC date --iso=ns
+2025-11-04T13:58:14.176151344+00:00 tai
+2025-11-04T13:57:47,177638531+00:00
 
---------------TqZ1aCs0UR43a7OmKHWf9LLg
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+One would hope above timings always match. If I force the timezone for
+the lsclock output will match, but this has downside of all the other
+listings use TAI zone.
 
------BEGIN PGP SIGNATURE-----
+$ TZ=right/UTC lsclocks -o ISO_TIME,NAME | grep tai && TZ=right/UTC
+date --iso=ns
 
-wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmkIv2oFAwAAAAAACgkQUUu+Lrjhlh9D
-+hAAwYDescLvqzl5A9b1nL05zlBrnH0f+jARL4/yFjrFFQQRq/pkTFYdoevyZA/a+khAWFmL1bIr
-I2/Jo1sihtlVjXznuZ+evhLvvtO1JsXi7+EMnVjHqEBtiulbWx3NsVKa9Na78YInF2XYgLU+cHYO
-nOszQKSt/H8o6O4C6WJvqgl5NGzX+YcjmwBzG4ZTEvaHbWKJ1rHoGVnZFdfobo6J1ro7JyKJG0gn
-2nUhf/cg8J8+BOoebjM35oV03Qv8GTZKfyiiFf2YqF1wB66Cwh72HssCMkVyp1NQn0k+56BGWPyD
-JkKrtK/odTSkU7ePA/sf9R4suqU/P1Ai7DnfPXta8HBKPEKxiKHepoF377WfcKTjAHnGv5/bSIlN
-7rHszK5kGVkFldRkTqL4btbLbv6KhsL4I6EmskvPkhwn4A5hMRFMbvzIeip1CjgYDOuHBZxrTdbm
-+WEIQfCg0zXdcwULI7mxBhfdBb4eH4pTpaEN7N6ZqUp7hw9TdyOzGLy4mu0LPEydOcVl39teXvio
-sAtWA79pcuT+JJpukhWputURIvc+24opIQE0/lDSJModIWDO8SgYTwMAAfdGMzt+jiQSmWl6cgUX
-6eFZZhZjGqBwZ2bZpEBqigRNX3P1DBTRtSKOf3K7/YcxfwqD7Lsf7g+6RQeQmFkjxFlJQ5V5kSVb
-100=
-=g4lA
------END PGP SIGNATURE-----
+Perhaps the realtime outputs to use local time, and TAI to be always
+right/UTC. Any thoughts?
 
---------------TqZ1aCs0UR43a7OmKHWf9LLg--
+-- 
+Sami Kerola
+https://kerolasa.iki.fi/
