@@ -1,29 +1,29 @@
 Received: from m204-227.eu.mailgun.net (m204-227.eu.mailgun.net [161.38.204.227])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 986A11A317D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D21C62D7386
 	for <util-linux@vger.kernel.org>; Sun, 23 Nov 2025 15:33:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=161.38.204.227
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763911985; cv=none; b=eziZXTN6n0gEgJRrMZi4B11lWLy1yI/YHdwfJ1QqLfhNanmwWZA+SVFYeDJF9wmGRU7GKTHXZXFDnXLA5OddF3PHV9FZpXFJXAAgXwq9wZdZ0AGbozCjrtmdv4EqwK/ZAlID5vX6H81YOEGJo52BaYsBvuHzVNVkJ5dStWSwaD8=
+	t=1763911988; cv=none; b=jtWSgbBRiMySvvdIyATwOo1vdaaFbVjcVz7yYgmhvMRR3iWKkdKPqunR7cH4V20ApUBzrR8vJcf6qwFS69mL6MDnrEIzei1BiOXjrmxb77zMJQaZxtipgIuilpKv9O5oGJsAkhHmBQPlTY9MQk4zh8B7rhhP0yHBW91Q5fwB9vM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763911985; c=relaxed/simple;
-	bh=oHKKXUnt6nYpab13UXDGYvBfyyuAbwsQd1B9x5zPyIE=;
+	s=arc-20240116; t=1763911988; c=relaxed/simple;
+	bh=TGIbu/kVrAHN8o3DB4AWCxN02Xr/4m9wEXbJURnZiWM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=AhQDO/9qnwlGEiWVS1XEuqqyvJmpJDjFjuyITxgVRapZ85MgicqszHzyW2Sp+xKIjKRWF7qvLc4ifqDcl2mDQjgC9PzrcRuPJXoXzWxhOYr+gjpzbEyi/jD49wJ3duIzIZMaBsA/RQmNDJirwMEURgZFE99iCVFRQFBsmpuCp5o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=0x65c.net; spf=pass smtp.mailfrom=0x65c.net; dkim=pass (2048-bit key) header.d=0x65c.net header.i=@0x65c.net header.b=Q5QlpiUQ; arc=none smtp.client-ip=161.38.204.227
+	 MIME-Version; b=RyCJsb5ydXrLRWmuVkFIcz5Ko1trHrpl+ZGf6mU+kyGsYDzl4tmUOS7S/3OhYHEcSQv3ekb6yIYD8UGFT6mT9FDx1pOY7YXCp0+W0ruX520Ue5qBejYHxnzG+TNh4PtYKuJO2u38w9Po4VIiRPs0yIrUyzrToE7R8Q2vKnCyJEQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=0x65c.net; spf=pass smtp.mailfrom=0x65c.net; dkim=pass (2048-bit key) header.d=0x65c.net header.i=@0x65c.net header.b=NI3tUizG; arc=none smtp.client-ip=161.38.204.227
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=0x65c.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=0x65c.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=0x65c.net header.i=@0x65c.net header.b="Q5QlpiUQ"
+	dkim=pass (2048-bit key) header.d=0x65c.net header.i=@0x65c.net header.b="NI3tUizG"
 DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=0x65c.net; q=dns/txt; s=email; t=1763911981; x=1763919181;
  h=Content-Transfer-Encoding: MIME-Version: References: In-Reply-To: Message-ID: Date: Subject: Subject: Cc: To: To: From: From: Sender: Sender;
- bh=DE9mtgcr49Dhozk4Bb+jvTxsmbgYHQrB0v8M01TQHGQ=;
- b=Q5QlpiUQqBLkhgtwyon3ITrsHUwC+2VmdA4wGyqzjGrPkdR+SwPuHSAV7CuXA32zHGc7Mor8TPFaWTwH4iq1Rg71ySlpPNFCgDuGqSMOAJAYl1gUhvX+cKqsGVcsk/eH2h+RKq75/zC2cpUhPE9uYdL86nbSquDm4aR7D0A0rR4Lz+eikQawkqDAAi75MTnTwR6d+pK9k+D/y26+7el3V9xo+B1h0KzGKhnivW7YkXqvfhQn2DqFAuQZE0bQ8xlXjx+3ARI40xwK+xSHQzHlGEyovIVzuzAB8SJzUSBLpBCqyQn4HoqGgh+dP3QLy9RJjTjcO4BmDsAVU6EaCN4Qlg==
+ bh=jII3tL99zdjOH1itfQLiEpv23O/jP3i29jmF3T3l8dA=;
+ b=NI3tUizGEJP0FhHHJEe2vJ9lTbc1LQyki1dH6t58Qn9RaP4DyGIVEH3wFiRTuZl912vbpPhyvx04YPzTxk0TjVkh+2XcFHtce8wKc5zUDKVbT6k7K/SBIZQXEao7o2n+kkF31NmGwe/G3aUslSJegvRN0XIOEPnyjysG/jjK68RLDFqxUG8PGyiTdaMVIo60ZdHRUGxkPiYUy9ebxjC3KDc8iCperZNs3+oAgnLJXDSECn7A7Cix1YkrkbdYNtdxuVXaHVcKgrWp32J1AY9CDaYv6/rpLg3WeIyTu57HjOjZko3mBsiQvpoD/2iMH25Sa0fWZTsk6+93GokuLNSoVQ==
 X-Mailgun-Sid: WyJlNDM3YyIsInV0aWwtbGludXhAdmdlci5rZXJuZWwub3JnIiwiNTRlZjQiXQ==
 Received: from fedora (pub082136115007.dh-hfc.datazug.ch [82.136.115.7]) by
  7cb349a42b1b1f1259b38414f775f2c20b6e7347a6127f8df26891016837968f with SMTP id
- 6923292ddc9f5a643fb11cf1; Sun, 23 Nov 2025 15:33:01 GMT
+ 6923292dff9709f65d28f17d; Sun, 23 Nov 2025 15:33:01 GMT
 X-Mailgun-Sending-Ip: 161.38.204.227
 Sender: alessandro@0x65c.net
 From: Alessandro Ratti <alessandro@0x65c.net>
@@ -31,9 +31,9 @@ To: util-linux@vger.kernel.org
 Cc: kzak@redhat.com,
 	thomas@t-8ch.de,
 	Alessandro Ratti <alessandro@0x65c.net>
-Subject: [PATCH 2/3] *: use ul_default_shell() for interactive shell spawning
-Date: Sun, 23 Nov 2025 16:32:45 +0100
-Message-ID: <20251123153246.1056874-3-alessandro@0x65c.net>
+Subject: [PATCH 3/3] login-utils, sys-utils: use _PATH_BSHELL consistently
+Date: Sun, 23 Nov 2025 16:32:46 +0100
+Message-ID: <20251123153246.1056874-4-alessandro@0x65c.net>
 X-Mailer: git-send-email 2.51.1
 In-Reply-To: <20251123153246.1056874-1-alessandro@0x65c.net>
 References: <20251123153246.1056874-1-alessandro@0x65c.net>
@@ -45,166 +45,115 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Update tools that spawn interactive shells to use ul_default_shell()
-for consistent shell resolution. This ensures these tools respect both
-$SHELL and the user's configured shell from the passwd database before
-falling back to _PATH_BSHELL.
+Remove local DEFAULT_SHELL definitions and hardcoded "/bin/sh" strings
+in favor of the standard _PATH_BSHELL macro from <paths.h>. This
+provides consistency across the codebase while following libc
+conventions.
+
+These tools already perform their own passwd lookups and only need a
+fallback value, so they don't require the full ul_default_shell()
+resolution logic.
 
 Affected tools:
-- script(1): fixes history truncation when invoked without $SHELL
-- scriptlive(1): consistent with script(1) behavior
-- flock(1): for -c command execution
-- more(1): for shell escape feature
-- exec_shell (used by unshare(1) and nsenter(1))
+- su(1): already checks pw_shell validity
+- sulogin(8): emergency login with explicit shell handling
+- setpriv(1): already has passwd entry for environment setup
 
-This change addresses user reports of data loss due to tools defaulting
-to /bin/sh instead of the user's configured shell, particularly affecting
-command history with different HISTSIZE configurations.
-
-Addresses: https://github.com/util-linux/util-linux/issues/3865
 Signed-off-by: Alessandro Ratti <alessandro@0x65c.net>
 ---
- lib/exec_shell.c        | 8 ++------
- sys-utils/flock.c       | 8 +++++---
- term-utils/script.c     | 5 ++---
- term-utils/scriptlive.c | 5 ++---
- text-utils/more.c       | 4 ++--
- 5 files changed, 13 insertions(+), 17 deletions(-)
+ login-utils/su-common.c | 5 +----
+ login-utils/sulogin.c   | 9 +++++----
+ sys-utils/setpriv.c     | 6 ++----
+ 3 files changed, 8 insertions(+), 12 deletions(-)
 
-diff --git a/lib/exec_shell.c b/lib/exec_shell.c
-index ffe65f006..8f10ea4df 100644
---- a/lib/exec_shell.c
-+++ b/lib/exec_shell.c
-@@ -26,19 +26,15 @@
- #include "xalloc.h"
+diff --git a/login-utils/su-common.c b/login-utils/su-common.c
+index 4d54eab31..c6232ce7a 100644
+--- a/login-utils/su-common.c
++++ b/login-utils/su-common.c
+@@ -105,9 +105,6 @@ UL_DEBUG_DEFINE_MASKNAMES(su) = UL_DEBUG_EMPTY_MASKNAMES;
  
- #include "exec_shell.h"
--
+ #define is_pam_failure(_rc)	((_rc) != PAM_SUCCESS)
+ 
+-/* The shell to run if none is given in the user's passwd entry.  */
 -#define DEFAULT_SHELL "/bin/sh"
-+#include "shells.h"
- 
- void __attribute__((__noreturn__)) exec_shell(void)
- {
--	const char *shell = getenv("SHELL");
-+	const char *shell = ul_default_shell(0, NULL);
- 	char *shellc;
- 	const char *shell_basename;
- 	char *arg0;
- 
--	if (!shell)
--		shell = DEFAULT_SHELL;
 -
- 	shellc = xstrdup(shell);
- 	shell_basename = basename(shellc);
- 	xasprintf(&arg0, "-%s", shell_basename);
-diff --git a/sys-utils/flock.c b/sys-utils/flock.c
-index fe1a71f72..a6883ac77 100644
---- a/sys-utils/flock.c
-+++ b/sys-utils/flock.c
-@@ -47,6 +47,7 @@
- #include "closestream.h"
- #include "monotonic.h"
- #include "timer.h"
-+#include "shells.h"
+ /* The user to become if none is specified.  */
+ #define DEFAULT_USER "root"
  
- #ifndef F_OFD_GETLK
- #define F_OFD_GETLK	36
-@@ -207,6 +208,8 @@ int main(int argc, char *argv[])
- 	int conflict_exit_code = 1;
- 	char **cmd_argv = NULL, *sh_c_argv[4];
- 	const char *filename = NULL;
-+	const char *shell = NULL;
-+
- 	enum {
- 		OPT_VERBOSE = CHAR_MAX + 1,
- 		OPT_FCNTL,
-@@ -237,6 +240,7 @@ int main(int argc, char *argv[])
- 	bindtextdomain(PACKAGE, LOCALEDIR);
- 	textdomain(PACKAGE);
- 	close_stdout_atexit();
-+	shell = ul_default_shell(0, NULL); /* Used for -c command execution */
+@@ -1167,7 +1164,7 @@ int su_main(int argc, char **argv, int mode)
+ 	su->old_user = xgetlogin();
  
- 	strutils_set_exitcode(EX_USAGE);
+ 	if (!su->pwd->pw_shell || !*su->pwd->pw_shell)
+-		su->pwd->pw_shell = DEFAULT_SHELL;
++		su->pwd->pw_shell = _PATH_BSHELL;
  
-@@ -327,9 +331,7 @@ int main(int argc, char *argv[])
- 				     _("%s requires exactly one command argument"),
- 				     argv[optind + 1]);
- 			cmd_argv = sh_c_argv;
--			cmd_argv[0] = getenv("SHELL");
--			if (!cmd_argv[0] || !*cmd_argv[0])
--				cmd_argv[0] = _PATH_BSHELL;
-+			cmd_argv[0] = (char *)shell;
- 			cmd_argv[1] = "-c";
- 			cmd_argv[2] = argv[optind + 2];
- 			cmd_argv[3] = NULL;
-diff --git a/term-utils/script.c b/term-utils/script.c
-index ff7f4409f..4e302347f 100644
---- a/term-utils/script.c
-+++ b/term-utils/script.c
-@@ -70,6 +70,7 @@
- #include "signames.h"
- #include "pty-session.h"
- #include "debug.h"
-+#include "shells.h"
- 
- static UL_DEBUG_DEFINE_MASK(script);
- UL_DEBUG_DEFINE_MASKNAMES(script) = UL_DEBUG_EMPTY_MASKNAMES;
-@@ -966,9 +967,7 @@ int main(int argc, char **argv)
- 			log_associate(&ctl, &ctl.in, timingfile, format);
+ 	if (use_supp && !use_gid)
+ 		su->pwd->pw_gid = groups[0];
+diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
+index eb4609db6..c546cc7c1 100644
+--- a/login-utils/sulogin.c
++++ b/login-utils/sulogin.c
+@@ -34,6 +34,7 @@
+ #include <fcntl.h>
+ #include <signal.h>
+ #include <pwd.h>
++#include <paths.h>
+ #include <shadow.h>
+ #include <termios.h>
+ #include <errno.h>
+@@ -892,7 +893,7 @@ static void sushell(struct passwd *pwd, struct console *con)
+ 		if (pwd->pw_shell[0])
+ 			su_shell = pwd->pw_shell;
+ 		else
+-			su_shell = "/bin/sh";
++			su_shell = _PATH_BSHELL;
  	}
+ 	if ((p = strrchr(su_shell, '/')) == NULL)
+ 		p = su_shell;
+@@ -941,9 +942,9 @@ static void sushell(struct passwd *pwd, struct console *con)
+ 	execl(su_shell, shell, (char *)NULL);
+ 	warn(_("failed to execute %s"), su_shell);
  
--	shell = getenv("SHELL");
--	if (!shell)
--		shell = _PATH_BSHELL;
-+	shell = ul_default_shell(0, NULL);
- 
- 	ctl.pty = ul_new_pty(ctl.isterm);
- 	if (!ctl.pty)
-diff --git a/term-utils/scriptlive.c b/term-utils/scriptlive.c
-index e4a3434ed..6ac685506 100644
---- a/term-utils/scriptlive.c
-+++ b/term-utils/scriptlive.c
-@@ -38,6 +38,7 @@
- #include "pty-session.h"
- #include "script-playutils.h"
- #include "monotonic.h"
-+#include "shells.h"
- 
- 
- #define SCRIPT_MIN_DELAY 0.0001		/* from original scriptreplay.pl */
-@@ -281,9 +282,7 @@ main(int argc, char *argv[])
- 		replay_set_delay_max(ss.setup, &maxdelay);
- 	replay_set_delay_min(ss.setup, &mindelay);
- 
--	shell = getenv("SHELL");
--	if (shell == NULL)
--		shell = _PATH_BSHELL;
-+	shell = ul_default_shell(0, NULL);
- 
- 	fprintf(stdout, _(">>> scriptlive: Starting your typescript execution by %s.\n"),
- 			command ? command : shell);
-diff --git a/text-utils/more.c b/text-utils/more.c
-index 4980aef4c..4e3cae565 100644
---- a/text-utils/more.c
-+++ b/text-utils/more.c
-@@ -89,6 +89,7 @@
- #include "widechar.h"
- #include "closestream.h"
- #include "env.h"
-+#include "shells.h"
- 
- #ifdef TEST_PROGRAM
- # define NON_INTERACTIVE_MORE 1
-@@ -2110,8 +2111,7 @@ static void initterm(struct more_control *ctl)
- 	if ((ctl->backspace_ch = tigetstr(TERM_BACKSPACE)) == NULL)
- 		ctl->backspace_ch = BACKSPACE;
- 
--	if ((ctl->shell = getenv("SHELL")) == NULL)
--		ctl->shell = _PATH_BSHELL;
-+	ctl->shell = (char *)ul_default_shell(0, NULL);
+-	xsetenv("SHELL", "/bin/sh", 1);
+-	execl("/bin/sh", profile ? "-sh" : "sh", (char *)NULL);
+-	warn(_("failed to execute %s"), "/bin/sh");
++	xsetenv("SHELL", _PATH_BSHELL, 1);
++	execl(_PATH_BSHELL, profile ? "-sh" : "sh", (char *)NULL);
++	warn(_("failed to execute %s"), _PATH_BSHELL);
  }
  
- int main(int argc, char **argv)
+ #ifdef HAVE_LIBSELINUX
+diff --git a/sys-utils/setpriv.c b/sys-utils/setpriv.c
+index c218be8e5..505d1ee5b 100644
+--- a/sys-utils/setpriv.c
++++ b/sys-utils/setpriv.c
+@@ -30,6 +30,7 @@
+ #include <sys/prctl.h>
+ #include <sys/types.h>
+ #include <unistd.h>
++#include <paths.h>
+ 
+ #include "all-io.h"
+ #include "c.h"
+@@ -56,9 +57,6 @@
+ 
+ #define SETPRIV_EXIT_PRIVERR 127	/* how we exit when we fail to set privs */
+ 
+-/* The shell to set SHELL env.variable if none is given in the user's passwd entry.  */
+-#define DEFAULT_SHELL "/bin/sh"
+-
+ static gid_t get_group(const char *s, const char *err);
+ 
+ enum cap_type {
+@@ -741,7 +739,7 @@ static void do_reset_environ(struct passwd *pw)
+ 	if (pw->pw_shell && *pw->pw_shell)
+ 		xsetenv("SHELL", pw->pw_shell, 1);
+ 	else
+-		xsetenv("SHELL", DEFAULT_SHELL, 1);
++		xsetenv("SHELL", _PATH_BSHELL, 1);
+ 
+ 	xsetenv("HOME", pw->pw_dir, 1);
+ 	xsetenv("USER", pw->pw_name, 1);
 -- 
 2.51.1
 
