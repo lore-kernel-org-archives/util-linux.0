@@ -1,41 +1,52 @@
-Received: from m204-227.eu.mailgun.net (m204-227.eu.mailgun.net [161.38.204.227])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D21C62D7386
-	for <util-linux@vger.kernel.org>; Sun, 23 Nov 2025 15:33:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=161.38.204.227
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C36D528688C
+	for <util-linux@vger.kernel.org>; Wed, 26 Nov 2025 11:51:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763911988; cv=none; b=jtWSgbBRiMySvvdIyATwOo1vdaaFbVjcVz7yYgmhvMRR3iWKkdKPqunR7cH4V20ApUBzrR8vJcf6qwFS69mL6MDnrEIzei1BiOXjrmxb77zMJQaZxtipgIuilpKv9O5oGJsAkhHmBQPlTY9MQk4zh8B7rhhP0yHBW91Q5fwB9vM=
+	t=1764157874; cv=none; b=Ye9DxgTrP8T9GUj2tyKbSl4jjcRtd6tHs/eBLhzLkcsZPDX3Zn9gWk8dtdSwDpuGFQyGF03Bl5ih7nAOBBvPwMc6uVPD1gBYXc/PpnvJVoFlnaQDMn1UJi7g7uGhbAcYq4HTHXb/6CiV3/d5JoXKCF1C86ljJ+o7vrUg3ju4iRg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763911988; c=relaxed/simple;
-	bh=TGIbu/kVrAHN8o3DB4AWCxN02Xr/4m9wEXbJURnZiWM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RyCJsb5ydXrLRWmuVkFIcz5Ko1trHrpl+ZGf6mU+kyGsYDzl4tmUOS7S/3OhYHEcSQv3ekb6yIYD8UGFT6mT9FDx1pOY7YXCp0+W0ruX520Ue5qBejYHxnzG+TNh4PtYKuJO2u38w9Po4VIiRPs0yIrUyzrToE7R8Q2vKnCyJEQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=0x65c.net; spf=pass smtp.mailfrom=0x65c.net; dkim=pass (2048-bit key) header.d=0x65c.net header.i=@0x65c.net header.b=NI3tUizG; arc=none smtp.client-ip=161.38.204.227
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=0x65c.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=0x65c.net
+	s=arc-20240116; t=1764157874; c=relaxed/simple;
+	bh=H9JhKAf+Xa3YkeVdEV+YWIRs14afXrDNFK7+XG0RrME=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=V9sy9TNd+N7nGXeR5rQkGoDKtEQqT2a1jLG7VPTyVg+nzeNpGEnN8LMrDr1Upk5TM8h9I1u9dXijIsJoJL8odu1kEL3463a7EpIM+iWrasYL+FwzdZTGdEfz8B0l2Fa3+Z16/SU5/3ppcL2yEHdalt2f1eZHRAqiLQ6NquWVLRw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TiJMfx2M; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=0x65c.net header.i=@0x65c.net header.b="NI3tUizG"
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=0x65c.net; q=dns/txt; s=email; t=1763911981; x=1763919181;
- h=Content-Transfer-Encoding: MIME-Version: References: In-Reply-To: Message-ID: Date: Subject: Subject: Cc: To: To: From: From: Sender: Sender;
- bh=jII3tL99zdjOH1itfQLiEpv23O/jP3i29jmF3T3l8dA=;
- b=NI3tUizGEJP0FhHHJEe2vJ9lTbc1LQyki1dH6t58Qn9RaP4DyGIVEH3wFiRTuZl912vbpPhyvx04YPzTxk0TjVkh+2XcFHtce8wKc5zUDKVbT6k7K/SBIZQXEao7o2n+kkF31NmGwe/G3aUslSJegvRN0XIOEPnyjysG/jjK68RLDFqxUG8PGyiTdaMVIo60ZdHRUGxkPiYUy9ebxjC3KDc8iCperZNs3+oAgnLJXDSECn7A7Cix1YkrkbdYNtdxuVXaHVcKgrWp32J1AY9CDaYv6/rpLg3WeIyTu57HjOjZko3mBsiQvpoD/2iMH25Sa0fWZTsk6+93GokuLNSoVQ==
-X-Mailgun-Sid: WyJlNDM3YyIsInV0aWwtbGludXhAdmdlci5rZXJuZWwub3JnIiwiNTRlZjQiXQ==
-Received: from fedora (pub082136115007.dh-hfc.datazug.ch [82.136.115.7]) by
- 7cb349a42b1b1f1259b38414f775f2c20b6e7347a6127f8df26891016837968f with SMTP id
- 6923292dff9709f65d28f17d; Sun, 23 Nov 2025 15:33:01 GMT
-X-Mailgun-Sending-Ip: 161.38.204.227
-Sender: alessandro@0x65c.net
-From: Alessandro Ratti <alessandro@0x65c.net>
-To: util-linux@vger.kernel.org
-Cc: kzak@redhat.com,
-	thomas@t-8ch.de,
-	Alessandro Ratti <alessandro@0x65c.net>
-Subject: [PATCH 3/3] login-utils, sys-utils: use _PATH_BSHELL consistently
-Date: Sun, 23 Nov 2025 16:32:46 +0100
-Message-ID: <20251123153246.1056874-4-alessandro@0x65c.net>
-X-Mailer: git-send-email 2.51.1
-In-Reply-To: <20251123153246.1056874-1-alessandro@0x65c.net>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TiJMfx2M"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1764157871;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=WObJCRYRxmRllAipZbpj4jKrLWsJrNR5s3kf6oMb0zM=;
+	b=TiJMfx2MUL/fWQkyfMpNEO5os2Ic0QqQ3as9XfaREHDQYSFE9ohAiVIFgNkNqeDKbyrAnr
+	C54Sn6mr3EyxGc3L6PrGI+egHPRitftEuXgizEwgNqLqoDpVgpabo5k4/bKVudl4/+G+HM
+	9CiCFiFeTFF8hlVkduVPc/Pw0qUI9q4=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-423-tms0DkJ5PZ6OLRjE4p0dUQ-1; Wed,
+ 26 Nov 2025 06:51:07 -0500
+X-MC-Unique: tms0DkJ5PZ6OLRjE4p0dUQ-1
+X-Mimecast-MFC-AGG-ID: tms0DkJ5PZ6OLRjE4p0dUQ_1764157867
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C0E7E1954B0C;
+	Wed, 26 Nov 2025 11:51:06 +0000 (UTC)
+Received: from ws (unknown [10.45.242.20])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 903DF180049F;
+	Wed, 26 Nov 2025 11:51:05 +0000 (UTC)
+Date: Wed, 26 Nov 2025 12:51:02 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Alessandro Ratti <alessandro@0x65c.net>
+Cc: util-linux@vger.kernel.org, thomas@t-8ch.de
+Subject: Re: [PATCH 0/3] Consistent shell resolution across util-linux
+Message-ID: <wrmeywniicltshcczypjo7or6hnds7wkkgaaiizbsvvzkwaab6@minsmj74e6wm>
 References: <20251123153246.1056874-1-alessandro@0x65c.net>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
@@ -43,117 +54,38 @@ List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251123153246.1056874-1-alessandro@0x65c.net>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-Remove local DEFAULT_SHELL definitions and hardcoded "/bin/sh" strings
-in favor of the standard _PATH_BSHELL macro from <paths.h>. This
-provides consistency across the codebase while following libc
-conventions.
 
-These tools already perform their own passwd lookups and only need a
-fallback value, so they don't require the full ul_default_shell()
-resolution logic.
+ Hi Alessandro,
 
-Affected tools:
-- su(1): already checks pw_shell validity
-- sulogin(8): emergency login with explicit shell handling
-- setpriv(1): already has passwd entry for environment setup
+ thanks!
 
-Signed-off-by: Alessandro Ratti <alessandro@0x65c.net>
----
- login-utils/su-common.c | 5 +----
- login-utils/sulogin.c   | 9 +++++----
- sys-utils/setpriv.c     | 6 ++----
- 3 files changed, 8 insertions(+), 12 deletions(-)
+On Sun, Nov 23, 2025 at 04:32:43PM +0100, Alessandro Ratti wrote:
+> This patch series addresses inconsistent default shell handling across
+> util-linux tools, which caused user-reported data loss when script(1)
+> defaulted to /bin/sh without respecting the user's configured shell.
+> 
+> The series:
+> 1. Introduces ul_default_shell() for consistent shell resolution
+> 2. Updates interactive tools to use the new function
+> 3. Standardizes _PATH_BSHELL usage in security-sensitive tools
+> 
+> This implements the solution discussed in:
+> https://github.com/util-linux/util-linux/issues/3865
 
-diff --git a/login-utils/su-common.c b/login-utils/su-common.c
-index 4d54eab31..c6232ce7a 100644
---- a/login-utils/su-common.c
-+++ b/login-utils/su-common.c
-@@ -105,9 +105,6 @@ UL_DEBUG_DEFINE_MASKNAMES(su) = UL_DEBUG_EMPTY_MASKNAMES;
- 
- #define is_pam_failure(_rc)	((_rc) != PAM_SUCCESS)
- 
--/* The shell to run if none is given in the user's passwd entry.  */
--#define DEFAULT_SHELL "/bin/sh"
--
- /* The user to become if none is specified.  */
- #define DEFAULT_USER "root"
- 
-@@ -1167,7 +1164,7 @@ int su_main(int argc, char **argv, int mode)
- 	su->old_user = xgetlogin();
- 
- 	if (!su->pwd->pw_shell || !*su->pwd->pw_shell)
--		su->pwd->pw_shell = DEFAULT_SHELL;
-+		su->pwd->pw_shell = _PATH_BSHELL;
- 
- 	if (use_supp && !use_gid)
- 		su->pwd->pw_gid = groups[0];
-diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
-index eb4609db6..c546cc7c1 100644
---- a/login-utils/sulogin.c
-+++ b/login-utils/sulogin.c
-@@ -34,6 +34,7 @@
- #include <fcntl.h>
- #include <signal.h>
- #include <pwd.h>
-+#include <paths.h>
- #include <shadow.h>
- #include <termios.h>
- #include <errno.h>
-@@ -892,7 +893,7 @@ static void sushell(struct passwd *pwd, struct console *con)
- 		if (pwd->pw_shell[0])
- 			su_shell = pwd->pw_shell;
- 		else
--			su_shell = "/bin/sh";
-+			su_shell = _PATH_BSHELL;
- 	}
- 	if ((p = strrchr(su_shell, '/')) == NULL)
- 		p = su_shell;
-@@ -941,9 +942,9 @@ static void sushell(struct passwd *pwd, struct console *con)
- 	execl(su_shell, shell, (char *)NULL);
- 	warn(_("failed to execute %s"), su_shell);
- 
--	xsetenv("SHELL", "/bin/sh", 1);
--	execl("/bin/sh", profile ? "-sh" : "sh", (char *)NULL);
--	warn(_("failed to execute %s"), "/bin/sh");
-+	xsetenv("SHELL", _PATH_BSHELL, 1);
-+	execl(_PATH_BSHELL, profile ? "-sh" : "sh", (char *)NULL);
-+	warn(_("failed to execute %s"), _PATH_BSHELL);
- }
- 
- #ifdef HAVE_LIBSELINUX
-diff --git a/sys-utils/setpriv.c b/sys-utils/setpriv.c
-index c218be8e5..505d1ee5b 100644
---- a/sys-utils/setpriv.c
-+++ b/sys-utils/setpriv.c
-@@ -30,6 +30,7 @@
- #include <sys/prctl.h>
- #include <sys/types.h>
- #include <unistd.h>
-+#include <paths.h>
- 
- #include "all-io.h"
- #include "c.h"
-@@ -56,9 +57,6 @@
- 
- #define SETPRIV_EXIT_PRIVERR 127	/* how we exit when we fail to set privs */
- 
--/* The shell to set SHELL env.variable if none is given in the user's passwd entry.  */
--#define DEFAULT_SHELL "/bin/sh"
--
- static gid_t get_group(const char *s, const char *err);
- 
- enum cap_type {
-@@ -741,7 +739,7 @@ static void do_reset_environ(struct passwd *pw)
- 	if (pw->pw_shell && *pw->pw_shell)
- 		xsetenv("SHELL", pw->pw_shell, 1);
- 	else
--		xsetenv("SHELL", DEFAULT_SHELL, 1);
-+		xsetenv("SHELL", _PATH_BSHELL, 1);
- 
- 	xsetenv("HOME", pw->pw_dir, 1);
- 	xsetenv("USER", pw->pw_name, 1);
+How about creating a pull request on GitHub? It will help us with the
+review, etc.
+
+(I can do it if, for some reason, you don't want to use GitHub, but
+it's always better if the author does it themselves.)
+
+    Karel
+
 -- 
-2.51.1
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
