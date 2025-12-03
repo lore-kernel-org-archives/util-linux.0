@@ -1,40 +1,39 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 192D8398FA5
-	for <util-linux@vger.kernel.org>; Wed,  3 Dec 2025 20:50:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD1802C1594
+	for <util-linux@vger.kernel.org>; Wed,  3 Dec 2025 21:01:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764795034; cv=none; b=Kg/0V0cZh3Y3ayScNYoZ8pa3Wb+zu6duQC5ytZFDq/MKegj0DN/WeId6DAlnCh1UaS55AwcN2s7mf+2AzlEQP8OXTBvBS5PuvpseqZ0f0OxjPUWx5FdraOikqOdh9ZxPzNakPBTm3dM7bJO6OoB0BNRNCd2epDVgsO4J5bFrjD0=
+	t=1764795682; cv=none; b=WIIICUoNIKlJj5efSRf95T+WYW6lMXZEvzmabReG5aX/SJl9rS8WpzRbZvlhGrYPWqw376oFe8GhrlbVLqUFjZvrsfMr1elI9Znqtc7keOdd5ZtEpRYumgZxvsQU9Kc27vMa5T4YfmCBUAR1rsOkWuKNBr1EzU36jzVLeIwtwCM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764795034; c=relaxed/simple;
-	bh=ECvt5VSuRAUvG4fMYylhQOioQ69NxgV7emthqis+4Pc=;
+	s=arc-20240116; t=1764795682; c=relaxed/simple;
+	bh=QmShHWgawh8/P8fSASDnEVKjNd10kIM9P/7rMjg0bI0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bhCB7qlC7vPle2gx4Fpl6WNUoJbsUf3KqhIS1XIzsgoxolPLWje1vo0oJI9RubGXulY6rJGCW0mNct8LeTbOqNVcCDFY29LK+ElRM9htDQ/aWdlDmz1OF5pKAFmpC0uPGS7IcVet6DiGFnlB1VVFWiyRQjAC+Eyg5S3rOXZJH9E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MejqcMbT; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=P2iYkQtzPmVByb9Ve9QiP3+L3234Dp/9OLG6GdSvVLqPzrlb7PFZr8iwLPUGcUkDHVNUxZ/opAxMzNir/r2nH6Xtd1H/50Gf7EtJMk879T7XCNAv2wcwyEnEfVeHuIkc+/nK9vCWmpvYTj9XIPH7v4b3F5w1TnSMbAzoZrgcbP8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vDZyp28/; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MejqcMbT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ED9AC4CEF5;
-	Wed,  3 Dec 2025 20:50:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vDZyp28/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 744D8C4CEF5;
+	Wed,  3 Dec 2025 21:01:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1764795033;
-	bh=ECvt5VSuRAUvG4fMYylhQOioQ69NxgV7emthqis+4Pc=;
+	s=k20201202; t=1764795681;
+	bh=QmShHWgawh8/P8fSASDnEVKjNd10kIM9P/7rMjg0bI0=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=MejqcMbT3IHWFPVm/E5GTWMhAmcn/DsdPmLX66x3fE6cRDODePDLUahDRyckoA9+g
-	 cD3JrufhiwSv2h56lWQzzcwxNINniBx1p78USt0hWtlQjcpHUQ7DpAwgFHddyg/WhP
-	 k2mkbzIT9Wo6Ls/1zBxR/0ViYhiAN6YeWbOK2pHVbgndF11RSK8ojYOxndXAvENQU+
-	 jU/b2NnDKGYK0vn8M7/VMb/nug1m3sIy/xCrtGDkhkpxIYkLLWED2btqrRDDAedFmS
-	 TuJJNhsGJYt2GcK4XxU6jGImMNZxdMAoMnXHOqkgNjVdmqVojomKARKR0Hwjt3aSwO
-	 VLuJC4K3HjCYw==
-Date: Wed, 3 Dec 2025 21:50:30 +0100
+	b=vDZyp28/yAlOG8GE4SQqR8UyA0CyCrueMjeZcmx9C4hNJWTAkIk1Ph3jzLPJcsymZ
+	 V/LC5Xo1TObzER0BRUaLfZDcg2xqqsN80XITd8dY72fa7JBW81M4GiwXPdq+udShm/
+	 RltM0TpIG+UFXT/XusR2bFTQ1NtHiPrchGKJjixkZHjwbL396jMIxB5tHCd97rIqqm
+	 E7ECK3fHV/JnW/KZ8l+/Tg7TFxHZMGv5g9ePTKdos+IjusJOMutYSQcMtZBJwUTe4X
+	 Icm6BT5cxEIoUKnmytEZxsjelDcccnDPPlNr8lRHy+BCo5eex3HuLpXr/Hcrb/1+Md
+	 z9e85h/lrIlLg==
+Date: Wed, 3 Dec 2025 22:01:18 +0100
 From: Alejandro Colomar <alx@kernel.org>
 To: util-linux@vger.kernel.org
-Cc: Alejandro Colomar <alx@kernel.org>, Xi Ruoyao <xry111@xry111.site>, 
+Cc: Xi Ruoyao <xry111@xry111.site>, 
 	Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas@t-8ch.de>, Karel Zak <kzak@redhat.com>
-Subject: [PATCH v2 1/1] Call prctl(2) with signed long integers, and avoid
- casts
-Message-ID: <c4fc41abf1197e0823da95e17993d7af173a7161.1764794880.git.alx@kernel.org>
-X-Mailer: git-send-email 2.51.0
+Subject: Re: [PATCH v2 0/1] Call prctl(2) with signed long integers, and
+ avoid casts
+Message-ID: <xfml2leih5xmokh4vhyyaarsq6ly7ehq5zfdjwwpkgnodiygwp@7tjm4lfqo6is>
 References: <20240601093150.16912-1-alx@kernel.org>
  <cover.1764794880.git.alx@kernel.org>
 Precedence: bulk
@@ -43,271 +42,377 @@ List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="egw4axiletsmmzvk"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 In-Reply-To: <cover.1764794880.git.alx@kernel.org>
 
-Since libc's prctl(2) wrapper is a variadic function, arguments must
-have the right width.  Otherwise, the behavior is undefined.  The kernel
-expects long arguments, so let's provide them.
 
-Also, avoid some casts to unsigned long, by changing the type of the
-parameter in some local wrappers.
+--egw4axiletsmmzvk
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+From: Alejandro Colomar <alx@kernel.org>
+To: util-linux@vger.kernel.org
+Cc: Xi Ruoyao <xry111@xry111.site>, 
+	Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas@t-8ch.de>, Karel Zak <kzak@redhat.com>
+Subject: Re: [PATCH v2 0/1] Call prctl(2) with signed long integers, and
+ avoid casts
+Message-ID: <xfml2leih5xmokh4vhyyaarsq6ly7ehq5zfdjwwpkgnodiygwp@7tjm4lfqo6is>
+References: <20240601093150.16912-1-alx@kernel.org>
+ <cover.1764794880.git.alx@kernel.org>
+MIME-Version: 1.0
+In-Reply-To: <cover.1764794880.git.alx@kernel.org>
 
-And use consistently 0L.  0UL is basically the same, and uses one more
-character.  Keep it short.  Also, unsigned integer literals are
-dangerous, as the compiler can't diagnose mistakes such as overflow.
+Hi,
 
--  Casts are evil.
--  prctl(2) expects long integers, and
+On Wed, Dec 03, 2025 at 09:50:27PM +0100, Alejandro Colomar wrote:
+> Hi!
+>=20
+> Karel reminded me of this old patch.  Here's a revision of the patch.
+> Major changes in v2:
+>=20
+> -  Don't specify the 5 arguments unnecessarily.
+>=20
+> BTW, I've developed a header file that might be useful for the general
+> public.  See in a reply to this mail.
 
-Link: <https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/commit/?id=6698b096a6f5342cb9b338c237ed875a8635497a>
-Link: <https://lore.kernel.org/linux-man/ddbdyaiptesjalgfmztxideej67e3yaob7ucsmbf6qvriwxiif@dohhxrqgwhrf/T/#med306b5b003f9cc7cc2de69fcdd7ee2d056d0954>
-Link: <https://lore.kernel.org/util-linux/20240601093150.16912-1-alx@kernel.org/T/#u>
-Link: <https://github.com/util-linux/util-linux/pull/3085>
-Cc: Xi Ruoyao <xry111@xry111.site>
-Cc: Thomas Weißschuh <thomas@t-8ch.de>
-Cc: Karel Zak <kzak@redhat.com>
-Signed-off-by: Alejandro Colomar <alx@kernel.org>
+Here it is.  I think it would be useful to provide this in some libprctl
+library so that everyone can use these, instead of raw prctl(2).  What
+do you think?  We could start by including this header file within
+util-linux, and then consider providing in a separate git repository so
+that distros can package it as a system library.
+
+
+Have a lovely night!
+Alex
+
 ---
- lib/caputils.c               |  6 +++---
- lib/env.c                    |  4 ++--
- misc-utils/enosys.c          |  2 +-
- schedutils/coresched.c       |  6 +++---
- sys-utils/setpriv-landlock.c |  2 +-
- sys-utils/setpriv.c          | 27 +++++++++++++--------------
- tests/helpers/test_mkfds.c   |  2 +-
- 7 files changed, 24 insertions(+), 25 deletions(-)
+// Copyright 2025, Alejandro Colomar <alx@kernel.org>
+// SPDX-License-Identifier: LGPL-3.0-only WITH LGPL-3.0-linking-exception
 
-diff --git a/lib/caputils.c b/lib/caputils.c
-index 6c71c06b8..ea885ac62 100644
---- a/lib/caputils.c
-+++ b/lib/caputils.c
-@@ -25,10 +25,10 @@
- #include "procfs.h"
- #include "nls.h"
- 
--static int test_cap(unsigned int cap)
-+static int test_cap(unsigned long cap)
- {
- 	/* prctl returns 0 or 1 for valid caps, -1 otherwise */
--	return prctl(PR_CAPBSET_READ, cap, 0, 0, 0) >= 0;
-+	return prctl(PR_CAPBSET_READ, cap, 0L, 0L, 0L) >= 0;
- }
- 
- static int cap_last_by_bsearch(int *ret)
-@@ -119,7 +119,7 @@ void cap_permitted_to_ambient(void)
- 			continue;
- 
- 		if ((effective & (1ULL << cap))
--		    && prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_RAISE, cap, 0, 0) < 0)
-+		    && prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_RAISE, cap, 0L, 0L) < 0)
- 			err(EXIT_FAILURE, _("prctl(PR_CAP_AMBIENT) failed"));
- 	}
- }
-diff --git a/lib/env.c b/lib/env.c
-index 039fad0dc..7669a17b8 100644
---- a/lib/env.c
-+++ b/lib/env.c
-@@ -263,11 +263,11 @@ char *safe_getenv(const char *arg)
- 	if (is_privileged_execution())
- 		return NULL;
- #ifdef HAVE_PRCTL
--	if (prctl(PR_GET_DUMPABLE, 0, 0, 0, 0) == 0)
-+	if (prctl(PR_GET_DUMPABLE, 0L, 0L, 0L, 0L) == 0)
- 		return NULL;
- #else
- #if (defined(linux) && defined(SYS_prctl))
--	if (syscall(SYS_prctl, PR_GET_DUMPABLE, 0, 0, 0, 0) == 0)
-+	if (syscall(SYS_prctl, PR_GET_DUMPABLE, 0L, 0L, 0L, 0L) == 0)
- 		return NULL;
- #endif
- #endif
-diff --git a/misc-utils/enosys.c b/misc-utils/enosys.c
-index f1438b8e8..11f183901 100644
---- a/misc-utils/enosys.c
-+++ b/misc-utils/enosys.c
-@@ -298,7 +298,7 @@ int main(int argc, char **argv)
- 	if (prctl(PR_GET_SECCOMP) == -1 && errno == EINVAL)
- 		err(EXIT_NOTSUPP, _("Seccomp non-functional"));
- 
--	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0))
-+	if (prctl(PR_SET_NO_NEW_PRIVS, 1L, 0L, 0L, 0L))
- 		err_nosys(EXIT_FAILURE, _("Could not run prctl(PR_SET_NO_NEW_PRIVS)"));
- 
- 	if (ul_set_seccomp_filter_spec_allow(&prog))
-diff --git a/schedutils/coresched.c b/schedutils/coresched.c
-index 419745897..aaacf4027 100644
---- a/schedutils/coresched.c
-+++ b/schedutils/coresched.c
-@@ -122,20 +122,20 @@ static sched_core_cookie core_sched_get_cookie(pid_t pid)
- 
- static void core_sched_create_cookie(pid_t pid, sched_core_scope type)
- {
--	if (prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, pid, type, 0))
-+	if (prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, pid, type, 0L))
- 		err(EXIT_FAILURE, _("Failed to create cookie for PID %d"), pid);
- }
- 
- static void core_sched_pull_cookie(pid_t from)
- {
- 	if (prctl(PR_SCHED_CORE, PR_SCHED_CORE_SHARE_FROM, from,
--		  PR_SCHED_CORE_SCOPE_THREAD, 0))
-+		  PR_SCHED_CORE_SCOPE_THREAD, 0L))
- 		err(EXIT_FAILURE, _("Failed to pull cookie from PID %d"), from);
- }
- 
- static void core_sched_push_cookie(pid_t to, sched_core_scope type)
- {
--	if (prctl(PR_SCHED_CORE, PR_SCHED_CORE_SHARE_TO, to, type, 0))
-+	if (prctl(PR_SCHED_CORE, PR_SCHED_CORE_SHARE_TO, to, type, 0L))
- 		err(EXIT_FAILURE, _("Failed to push cookie to PID %d"), to);
- }
- 
-diff --git a/sys-utils/setpriv-landlock.c b/sys-utils/setpriv-landlock.c
-index 90ab8954b..9089a3c95 100644
---- a/sys-utils/setpriv-landlock.c
-+++ b/sys-utils/setpriv-landlock.c
-@@ -191,7 +191,7 @@ void do_landlock(const struct setpriv_landlock_opts *opts)
- 			err(SETPRIV_EXIT_PRIVERR, _("adding landlock rule failed"));
- 	}
- 
--	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) == -1)
-+	if (prctl(PR_SET_NO_NEW_PRIVS, 1L, 0L, 0L, 0L) == -1)
- 		err(SETPRIV_EXIT_PRIVERR, _("disallow granting new privileges for landlock failed"));
- 
- 	if (landlock_restrict_self(fd, 0) == -1)
-diff --git a/sys-utils/setpriv.c b/sys-utils/setpriv.c
-index c218be8e5..f0f423819 100644
---- a/sys-utils/setpriv.c
-+++ b/sys-utils/setpriv.c
-@@ -171,7 +171,7 @@ static void __attribute__((__noreturn__)) usage(void)
- 	exit(EXIT_SUCCESS);
- }
- 
--static int has_cap(enum cap_type which, unsigned int i)
-+static int has_cap(enum cap_type which, unsigned long i)
- {
- 	switch (which) {
- 	case CAP_TYPE_EFFECTIVE:
-@@ -180,8 +180,7 @@ static int has_cap(enum cap_type which, unsigned int i)
- 	case CAP_TYPE_PERMITTED:
- 		return capng_have_capability((capng_type_t)which, i);
- 	case CAP_TYPE_AMBIENT:
--		return prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_IS_SET,
--				(unsigned long) i, 0UL, 0UL);
-+		return prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_IS_SET, i, 0L, 0L);
- 	default:
- 		warnx(_("invalid capability type"));
- 		return -1;
-@@ -229,7 +228,7 @@ static void dump_one_secbit(int *first, int *bits, int bit, const char *name)
- static void dump_securebits(void)
- {
- 	int first = 1;
--	int bits = prctl(PR_GET_SECUREBITS, 0, 0, 0, 0);
-+	int bits = prctl(PR_GET_SECUREBITS, 0L, 0L, 0L, 0L);
- 
- 	if (bits < 0) {
- 		warnx(_("getting process secure bits failed"));
-@@ -369,7 +368,7 @@ static void dump(int dumplevel)
- 
- 	dump_groups();
- 
--	x = prctl(PR_GET_NO_NEW_PRIVS, 0, 0, 0, 0);
-+	x = prctl(PR_GET_NO_NEW_PRIVS, 0L, 0L, 0L, 0L);
- 	if (0 <= x)
- 		printf("no_new_privs: %d\n", x);
- 	else
-@@ -513,7 +512,7 @@ static void bump_cap(unsigned int cap)
- }
- 
- static int cap_update(capng_act_t action,
--		enum cap_type type, unsigned int cap)
-+		enum cap_type type, unsigned long cap)
- {
- 	switch (type) {
- 		case CAP_TYPE_EFFECTIVE:
-@@ -527,10 +526,10 @@ static int cap_update(capng_act_t action,
- 
- 			if (action == CAPNG_ADD)
- 				ret = prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_RAISE,
--						(unsigned long) cap, 0UL, 0UL);
-+						cap, 0L, 0L);
- 			else
- 				ret = prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER,
--						(unsigned long) cap, 0UL, 0UL);
-+						cap, 0L, 0L);
- 
- 			return ret;
- 		}
-@@ -584,7 +583,7 @@ static void parse_securebits(struct privctx *opts, const char *arg)
- 	char *c;
- 
- 	opts->have_securebits = 1;
--	opts->securebits = prctl(PR_GET_SECUREBITS, 0, 0, 0, 0);
-+	opts->securebits = prctl(PR_GET_SECUREBITS, 0L, 0L, 0L, 0L);
- 	if (opts->securebits < 0)
- 		err(SETPRIV_EXIT_PRIVERR, _("getting process secure bits failed"));
- 
-@@ -709,7 +708,7 @@ static void do_seccomp_filter(const char *file)
- 	if (prctl(PR_GET_SECCOMP) == -1 && errno == EINVAL)
- 		err(SETPRIV_EXIT_PRIVERR, _("Seccomp non-functional"));
- 
--	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0))
-+	if (prctl(PR_SET_NO_NEW_PRIVS, 1L, 0L, 0L, 0L))
- 		err(SETPRIV_EXIT_PRIVERR, _("Could not run prctl(PR_SET_NO_NEW_PRIVS)"));
- 
- 	if (ul_set_seccomp_filter_spec_allow(&prog))
-@@ -1086,7 +1085,7 @@ int main(int argc, char **argv)
- 		do_reset_environ(pw);
- 	}
- 
--	if (opts.nnp && prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) == -1)
-+	if (opts.nnp && prctl(PR_SET_NO_NEW_PRIVS, 1L, 0L, 0L, 0L) == -1)
- 		err(EXIT_FAILURE, _("disallow granting new privileges failed"));
- 
- 	if (opts.selinux_label)
-@@ -1096,7 +1095,7 @@ int main(int argc, char **argv)
- 	if (opts.seccomp_filter)
- 		do_seccomp_filter(opts.seccomp_filter);
- 
--	if (prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0) == -1)
-+	if (prctl(PR_SET_KEEPCAPS, 1L, 0L, 0L, 0L) == -1)
- 		err(EXIT_FAILURE, _("keep process capabilities failed"));
- 
- 	/* We're going to want CAP_SETPCAP, CAP_SETUID, and CAP_SETGID if
-@@ -1129,7 +1128,7 @@ int main(int argc, char **argv)
- 			err(SETPRIV_EXIT_PRIVERR, _("setgroups failed"));
- 	}
- 
--	if (opts.have_securebits && prctl(PR_SET_SECUREBITS, opts.securebits, 0, 0, 0) != 0)
-+	if (opts.have_securebits && prctl(PR_SET_SECUREBITS, opts.securebits, 0L, 0L, 0L) != 0)
- 		err(SETPRIV_EXIT_PRIVERR, _("set process securebits failed"));
- 
- 	if (opts.bounding_set) {
-@@ -1150,7 +1149,7 @@ int main(int argc, char **argv)
- 	}
- 
- 	/* Clear or set parent death signal */
--	if (opts.pdeathsig && prctl(PR_SET_PDEATHSIG, opts.pdeathsig < 0 ? 0 : opts.pdeathsig) != 0)
-+	if (opts.pdeathsig && prctl(PR_SET_PDEATHSIG, opts.pdeathsig < 0 ? 0L : opts.pdeathsig) != 0)
- 		err(SETPRIV_EXIT_PRIVERR, _("set parent death signal failed"));
- 
- 	if (opts.have_ptracer) {
-diff --git a/tests/helpers/test_mkfds.c b/tests/helpers/test_mkfds.c
-index 57f99e5a3..ee2d95da8 100644
---- a/tests/helpers/test_mkfds.c
-+++ b/tests/helpers/test_mkfds.c
-@@ -4413,7 +4413,7 @@ static void list_output_values(const char *factory_name)
- 
- static void rename_self(const char *comm)
- {
--	if (prctl(PR_SET_NAME, (unsigned long)comm, 0, 0, 0) < 0)
-+	if (prctl(PR_SET_NAME, (unsigned long)comm, 0L, 0L, 0L) < 0)
- 		err(EXIT_FAILURE, "failed to rename self via prctl: %s", comm);
- }
- 
--- 
-2.51.0
+#include <linux/filter.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <sys/prctl.h>
+#include <sys/types.h>
 
+#if __has_include(<seccomp.h>)
+# include <seccomp.h>
+#endif
+
+#if !defined(__has_c_attribute)
+# define __has_c_attribute(x)  0
+#endif
+#if __has_attribute(__null_terminated_string_arg__)
+# define LIBPRCTL_ATTR_STRING(i)  __attribute__((__null_terminated_string_a=
+rg__(i)))
+#endif
+#if __has_attribute(__deprecated__)
+# define LIBPRCTL_ATTR_DEPRECATED  __attribute__((__deprecated__))
+#endif
+
+_Static_assert(sizeof(long) =3D=3D sizeof(void *), "");
+_Static_assert(sizeof(long) =3D=3D sizeof(size_t), "");
+
+static inline int pr_cap_ambient_raise(int64_t cap) {
+	return prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_RAISE, (long){cap}, 0L, 0L);
+}
+static inline int pr_cap_ambient_lower(int64_t cap) {
+	return prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER, (long){cap}, 0L, 0L);
+}
+static inline int pr_cap_ambient_is_set(int64_t cap) {
+	return prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_IS_SET, (long){cap}, 0L,0L);
+}
+static inline int pr_cap_ambient_clear_all(void) {
+	return prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_CLEAR_ALL, 0L, 0L, 0L);
+}
+static inline int pr_capbset_read(int64_t cap) {
+	return prctl(PR_CAPBSET_READ, (long){cap});
+}
+static inline int pr_capbset_drop(int64_t cap) {
+	return prctl(PR_CAPBSET_DROP, (long){cap});
+}
+static inline int pr_set_child_subreaper(bool set) {
+	return prctl(PR_SET_CHILD_SUBREAPER, (long){set});
+}
+static inline int pr_get_child_subreaper(bool *isset)
+{
+	int  ret, x;
+	ret =3D prctl(PR_GET_CHILD_SUBREAPER, &x);
+	*isset =3D x;
+	return ret;
+}
+static inline int pr_set_dumpable(bool set) {
+	return prctl(PR_SET_DUMPABLE, (long){set});
+}
+static inline int pr_get_dumpable(void) {
+	return prctl(PR_GET_DUMPABLE);
+}
+static inline int pr_set_endian(int endianness) {
+	return prctl(PR_SET_ENDIAN, (long){endianness});
+}
+static inline int pr_get_endian(int *endianness) {
+	return prctl(PR_GET_ENDIAN, endianness);
+}
+static inline int pr_set_fp_mode(unsigned int mode) {
+	return prctl(PR_SET_FP_MODE, (unsigned long){mode});
+}
+static inline int pr_get_fp_mode(void) {
+	return prctl(PR_GET_FP_MODE);
+}
+static inline int pr_set_fpemu(int fpemu) {
+	return prctl(PR_SET_FPEMU, (long){fpemu});
+}
+static inline int pr_get_fpemu(int *fpemu) {
+	return prctl(PR_GET_FPEMU, fpemu);
+}
+static inline int pr_set_fpexec(int mode) {
+	return prctl(PR_SET_FPEXC, (long){mode});
+}
+static inline int pr_get_fpexec(int *mode) {
+	return prctl(PR_GET_FPEXC, mode);
+}
+static inline int pr_set_io_flusher(bool set) {
+	return prctl(PR_SET_IO_FLUSHER, (long){set}, 0L, 0L, 0L);
+}
+static inline int pr_get_io_flusher(void) {
+	return prctl(PR_GET_IO_FLUSHER, 0L, 0L, 0L, 0L);
+}
+static inline int pr_set_keepcaps(bool set) {
+	return prctl(PR_SET_KEEPCAPS, (long){set});
+}
+static inline int pr_get_keepcaps(void) {
+	return prctl(PR_GET_KEEPCAPS);
+}
+static inline int pr_mce_kill_clear(void) {
+	return prctl(PR_MCE_KILL, PR_MCE_KILL_CLEAR, 0L, 0L, 0L);
+}
+static inline int pr_mce_kill_set(int policy) {
+	return prctl(PR_MCE_KILL, PR_MCE_KILL_SET, (long){policy}, 0L, 0L);
+}
+static inline int pr_mce_kill_get(void) {
+	return prctl(PR_MCE_KILL_GET, 0L, 0L, 0L, 0L);
+}
+static inline int pr_set_mm_start_code(const void *addr) {
+	return prctl(PR_SET_MM, PR_SET_MM_START_CODE, addr, 0L, 0L);
+}
+static inline int pr_set_mm_end_code(const void *addr) {
+	return prctl(PR_SET_MM, PR_SET_MM_END_CODE, addr, 0L, 0L);
+}
+static inline int pr_set_mm_start_data(const void *addr) {
+	return prctl(PR_SET_MM, PR_SET_MM_START_DATA, addr, 0L, 0L);
+}
+static inline int pr_set_mm_end_data(const void *addr) {
+	return prctl(PR_SET_MM, PR_SET_MM_END_DATA, addr, 0L, 0L);
+}
+static inline int pr_set_mm_start_stack(const void *addr) {
+	return prctl(PR_SET_MM, PR_SET_MM_START_STACK, addr, 0L, 0L);
+}
+static inline int pr_set_mm_start_brk(const void *addr) {
+	return prctl(PR_SET_MM, PR_SET_MM_START_BRK, addr, 0L, 0L);
+}
+static inline int pr_set_mm_brk(const void *addr) {
+	return prctl(PR_SET_MM, PR_SET_MM_BRK, addr, 0L, 0L);
+}
+static inline int pr_set_mm_arg_start(const void *addr) {
+	return prctl(PR_SET_MM, PR_SET_MM_ARG_START, addr, 0L, 0L);
+}
+static inline int pr_set_mm_arg_end(const void *addr) {
+	return prctl(PR_SET_MM, PR_SET_MM_ARG_END, addr, 0L, 0L);
+}
+static inline int pr_set_mm_env_start(const void *addr) {
+	return prctl(PR_SET_MM, PR_SET_MM_ENV_START, addr, 0L, 0L);
+}
+static inline int pr_set_mm_env_end(const void *addr) {
+	return prctl(PR_SET_MM, PR_SET_MM_ENV_END, addr, 0L, 0L);
+}
+static inline int pr_set_mm_auxv(const void *addr, size_t size) {
+	return prctl(PR_SET_MM, PR_SET_MM_AUXV, addr, size, 0L);
+}
+static inline int pr_set_mm_exe_file(int fd) {
+	return prctl(PR_SET_MM, PR_SET_MM_EXE_FILE, (long){fd}, 0L, 0L);
+}
+static inline int pr_set_mm_map(struct prctl_mm_map *map)
+{
+	return prctl(PR_SET_MM, PR_SET_MM_MAP, map,
+	             sizeof(struct prctl_mm_map), 0L);
+}
+static inline int pr_set_mm_map_size(size_t *size)
+{
+	int  ret, x;
+	ret =3D prctl(PR_SET_MM, PR_SET_MM_MAP_SIZE, &x, 0L, 0L);
+	*size =3D x;
+	return ret;
+}
+LIBPRCTL_ATTR_STRING(3)
+static inline int
+pr_set_vma_anon_name(const void *addr, size_t size, const char *name)
+{
+	return prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME, addr, size, name);
+}
+LIBPRCTL_ATTR_DEPRECATED
+static inline int pr_mpx_enable_management(void) {
+	return prctl(PR_MPX_ENABLE_MANAGEMENT, 0L, 0L, 0L, 0L);
+}
+LIBPRCTL_ATTR_DEPRECATED
+static inline int pr_mpx_disable_management(void) {
+	return prctl(PR_MPX_DISABLE_MANAGEMENT, 0L, 0L, 0L, 0L);
+}
+LIBPRCTL_ATTR_STRING(1)
+static inline int pr_set_name(const char *name) {
+	return prctl(PR_SET_NAME, name);
+}
+LIBPRCTL_ATTR_STRING(1)
+static inline int pr_get_name(char name[16]) {
+	return prctl(PR_GET_NAME, name);
+}
+static inline int pr_set_no_new_privs(void) {
+	return prctl(PR_SET_NO_NEW_PRIVS, 1L, 0L, 0L, 0L);
+}
+static inline int pr_get_no_new_privs(void) {
+	return prctl(PR_GET_NO_NEW_PRIVS, 0L, 0L, 0L, 0L);
+}
+static inline int pr_pac_reset_keys(unsigned long keys) {
+	return prctl(PR_PAC_RESET_KEYS, keys, 0L, 0L, 0L);
+}
+static inline int pr_set_pdeathsig(int sig) {
+	return prctl(PR_SET_PDEATHSIG, (long){sig});
+}
+static inline int pr_get_pdeathsig(int *sig) {
+	return prctl(PR_GET_PDEATHSIG, sig);
+}
+static inline int pr_set_ptracer(pid_t pid) {
+	return prctl(PR_SET_PTRACER, (long){pid});
+}
+#if __has_include(<seccomp.h>)
+LIBPRCTL_ATTR_DEPRECATED
+static inline int pr_set_seccomp_mode_strict(void) {
+	return prctl(PR_SET_SECCOMP, SECCOMP_MODE_STRICT);
+}
+LIBPRCTL_ATTR_DEPRECATED
+static inline int pr_set_seccomp_mode_filter(const struct sock_fprog *filte=
+r) {
+	return prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, filter);
+}
+#endif
+static inline int pr_get_seccomp(void) {
+	return prctl(PR_GET_SECCOMP);
+}
+static inline int pr_set_securebits(unsigned int securebits) {
+	return prctl(PR_SET_SECUREBITS, (unsigned long){securebits});
+}
+static inline int pr_get_securebits(void) {
+	return prctl(PR_GET_SECUREBITS);
+}
+static inline int pr_get_speculation_ctrl(long misfeature) {
+	return prctl(PR_GET_SPECULATION_CTRL, misfeature, 0L, 0L, 0L);
+}
+static inline int pr_set_speculation_ctrl(long misfeature, int ctrl) {
+	return prctl(PR_SET_SPECULATION_CTRL, misfeature, (long){ctrl}, 0L, 0L);
+}
+static inline int pr_sve_set_vl(unsigned long val) {
+	return prctl(PR_SVE_SET_VL, val);
+}
+static inline int pr_sve_get_vl(void) {
+	return prctl(PR_SVE_GET_VL);
+}
+static inline int pr_sys_dispatch_on(size_t off, size_t size, int8_t *sw)
+{
+	return prctl(PR_SET_SYSCALL_USER_DISPATCH, PR_SYS_DISPATCH_ON,
+	             off, size, sw);
+}
+static inline int pr_sys_dispatch_off(void) {
+	return prctl(PR_SET_SYSCALL_USER_DISPATCH,PR_SYS_DISPATCH_OFF,0L,0L,0L);
+}
+static inline int pr_set_tagged_addr_ctrl(int mode) {
+	return prctl(PR_SET_TAGGED_ADDR_CTRL, (long){mode}, 0L, 0L, 0L);
+}
+static inline int pr_get_tagged_addr_ctrl(void) {
+	return prctl(PR_GET_TAGGED_ADDR_CTRL, 0L, 0L, 0L, 0L);
+}
+static inline int pr_task_perf_events_enable(void) {
+	return prctl(PR_TASK_PERF_EVENTS_ENABLE);
+}
+static inline int pr_task_perf_events_disable(void) {
+	return prctl(PR_TASK_PERF_EVENTS_DISABLE);
+}
+static inline int pr_set_thp_disable(bool set, unsigned int flags)
+{
+	return prctl(PR_SET_THP_DISABLE, (long){set},
+	             (unsigned long){flags}, 0L, 0L);
+}
+static inline int pr_get_thp_disable(void) {
+	return prctl(PR_GET_THP_DISABLE, 0L, 0L, 0L, 0L);
+}
+static inline int pr_get_tid_address(int **addrp) {
+	return prctl(PR_GET_TID_ADDRESS, addrp);
+}
+static inline int pr_set_timerslack(unsigned int slack) {
+	return prctl(PR_SET_TIMERSLACK, (unsigned long){slack});
+}
+static inline int pr_get_timerslack(void) {
+	return prctl(PR_GET_TIMERSLACK);
+}
+static inline int pr_set_timing(int mode) {
+	return prctl(PR_SET_TIMING, (long){mode});
+}
+static inline int pr_get_timing(void) {
+	return prctl(PR_GET_TIMING);
+}
+static inline int pr_set_tsc(int mode) {
+	return prctl(PR_SET_TSC, (long){mode});
+}
+static inline int pr_get_tsc(int *mode) {
+	return prctl(PR_GET_TSC, mode);
+}
+static inline int pr_set_unalign(unsigned int bits) {
+	return prctl(PR_SET_UNALIGN, (long){bits});
+}
+static inline int pr_get_unalign(unsigned int *bits) {
+	return prctl(PR_GET_UNALIGN, bits);
+}
+static inline int pr_get_auxv(void *auxv, size_t size) {
+	return prctl(PR_GET_AUXV, auxv, size, 0L, 0L);
+}
+static inline int pr_set_mdwe(unsigned int mask) {
+	return prctl(PR_SET_MDWE, mask, 0L, 0L, 0L);
+}
+static inline int pr_get_mdwe(void) {
+	return prctl(PR_GET_MDWE, 0L, 0L, 0L, 0L);
+}
+static inline int pr_riscv_set_icache_flush_ctx(int ctx, int scope) {
+	return prctl(PR_RISCV_SET_ICACHE_FLUSH_CTX, (long){ctx}, (long){scope});
+}
+static inline int pr_futex_hash_get_slots(void) {
+	return prctl(PR_FUTEX_HASH, PR_FUTEX_HASH_GET_SLOTS);
+}
+static inline int pr_futex_hash_set_slots(size_t size) {
+	return prctl(PR_FUTEX_HASH, PR_FUTEX_HASH_SET_SLOTS, size, 0L);
+}
+
+
+--=20
+<https://www.alejandro-colomar.es>
+
+--egw4axiletsmmzvk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEES7Jt9u9GbmlWADAi64mZXMKQwqkFAmkwpRgACgkQ64mZXMKQ
+wqkmaw/9G/2BwlXycyJ2GiPKQ7eT088zHIw8wv4OFqXjhIADX249LN2/yyIApy80
+1tWNTbjr6yFPIEE1WAJxHQOo2GhjOxQG4PKXuGsAxnll7VVUug6NGSnHC7SrammU
+pxiXsRFEBzzSIo2IY6Oyr77ZiL3FoM1ZwJKrdzFoNd2xMulHtBweRzJAHKwze5lN
+oDs+B3oHktwjguUd6w+8fS5m13HwnekVk4AVmsaNT9VH/eioYP72LZztbaQbz5KP
+4ZHqO4AqnAy8uN44M5BUILU4+nEEypSgw5MMM8IViGv+P4f1FY+JvjdBO3MwDB/7
+ZEZsCn46NwKHJn7VoBi1sGdUSyvYIc0UDYIhE9VhBa4mrEneNNvWs4Htaq/UvjeB
+GPHthXrp9wCrm5TrqmXcuDz1UpsY0GCmCuMnuKOR7sBxpo+CStEzf9giOdowgp/N
+qwIeSPDHMqP29A2Nib7f0beLcuTd0stOcnpPTU/hj2o2CZrMcYTqbP0F2PB6VWoJ
+rrMm9v05yPtjlh7jb+P7mSBxhHJI+D4zcSn3GVM2+6nODUY4+/sWwJCTzKP0YyQj
+WRuxMHdZDa8Tn+5h9ixL9VHk7xD2glk5uLAfuRutCxZ3uATnfXUHBzfLfih4benS
+aAwrP8ACeSYp0bPYNy4zhHGN1qCPTZXrNflbzm0FwO2fXJAUKu0=
+=QIF0
+-----END PGP SIGNATURE-----
+
+--egw4axiletsmmzvk--
