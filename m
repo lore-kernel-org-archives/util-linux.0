@@ -1,287 +1,162 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C927422B584
-	for <util-linux@vger.kernel.org>; Thu,  4 Dec 2025 14:06:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E574616CD33
+	for <util-linux@vger.kernel.org>; Sun,  7 Dec 2025 03:52:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764857222; cv=none; b=cQMkT2PEib8N4euDlHLgO3YPfRzCvIUnDWLFuXz6vtksa86iyVeiG99f4j//fzygrLlzdbDL6ttaqGH6CsEQCL2xZftayulg6ipqBRnxW652igD2CMIuCvywD0bizB02sJpU0gkLAfH8EjgrU+ql7xLxVsYIIu9qTk6N4XMIvKI=
+	t=1765079567; cv=none; b=X5VxF5twO7NBrut6l2uwoBN4N3HFfwspRIPgvsa0NGdHvUJwPC4y/P/qVwnF4ccY3HW/HWdxkV/DbU1/LiknbOTv3kPNG6V3HfDVaLr/pTqotx549RkM4Z9F/4HBTDcEcOev6BtatAdaCic5vVWe9YxwSkQusIVqcDx4W9iVtEY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764857222; c=relaxed/simple;
-	bh=vTILdcFT/yTD4zLO5VehboBXL1ed+guhIsTxcMiinv0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=I/hRE32RPEKuwdX0dWBS8ZfKipM7GYLBXZAI9dwSt27T6MB4bRRRlTfe5R5CL/X5msUzNRWKCcIl4W4Uu0RupMZJrFYWvbj93cUTBPZZzp+1ewdY6H1HYxPr3IxkJ08Ro4dZM1RGDhy+NNRTbe3q44Sl4oqIz/wTU+Vu+6a/RgM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=aMGQW/7L; arc=none smtp.client-ip=209.85.210.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1765079567; c=relaxed/simple;
+	bh=P7L+N+uXgllACiFpeM+1GCwslOCe1xCXPT9OCYxYZWw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=m13Q8s7lV4BCR1sc8/xElxNfeH7D5Y/aIqJ9yd9MjH709qVM5Sgh6c2/AhvusDJYc+VNf3dQOecMr4F6YRmk+Y2EZyyJw3EIR3dyMYgyu6WeeQG2/U6z53tn4CPOmwHSUOLIBrEjWA04iugseS7Gseik5U56HfqnKkCh4KY0plI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nMqFfV/7; arc=none smtp.client-ip=209.85.216.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="aMGQW/7L"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-7bb710d1d1dso1442728b3a.1
-        for <util-linux@vger.kernel.org>; Thu, 04 Dec 2025 06:06:59 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nMqFfV/7"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-3437af8444cso2841967a91.2
+        for <util-linux@vger.kernel.org>; Sat, 06 Dec 2025 19:52:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1764857219; x=1765462019; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:organization:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=43t/Czy5k/x+GFzhf1OSgUonwXfO1dTYBh2ATpkwGxI=;
-        b=aMGQW/7LRhMcN9YAxQfTOpbUo4YSxNJNrj9lMOVfgM92W8WbUyh/MZUIbX7utSrMI5
-         CCI5MdBI8ds04+wWVe2x/dsGIGFWkC8MZBZheT5T49G7+pl8CKR6hoJxGFASOxjXSzed
-         w7WqwvVOWl5YYgf6iBv2VJ5Ekzkv/T8WEWKfRK1YPqQcJg8YWf2k3DRwML+oWSyRWZTA
-         I0eRg4HU6gBJFUt4+hOP2qJBKexx5qIq6D2c/21HRX1LdYRTULJWCKfque0Fy0l4tfMe
-         lf9ixqcssUlI0fu3sm4OJ+wxJl9UlmemQggRHAo4Do3q7vhIQUi/8dQYpsFmfZUkNNQT
-         mbcw==
+        d=gmail.com; s=20230601; t=1765079565; x=1765684365; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=onZGbEujnmv7Lrd95O4KVMK4+ZPC/m9DZY5FQ0VFLK4=;
+        b=nMqFfV/74FBz+N5ebv2l6skhsGHIE5mWQjJtpjFfc3VzNKW06VMxwD5BH1FtDduOiW
+         +HqQme0oNePj433KC+Z5YU1KrIjy/cFwzjA8WqYop1axP2uwql8TFTBT6Vcq746lfB1L
+         b2sPeRmZwL6/iUoOjJUIBpEwCfywgTRQEprcRJSuEVVt+0NOXOZm+a4+Cf1lSL0gQW5A
+         tdObIVYd96rvVbZpKw8c9dCOxXBDi299ui7nKCDQ/hxsGWX/vhNX312vOYsR+Ix9hrta
+         7WohrKK6RDWN0RJsDIvJ4RXkHGfR+5R3NeQN/dcJjnQ61Du3HOydp2CU4rH3zLJ7CVtW
+         tGKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764857219; x=1765462019;
-        h=content-transfer-encoding:in-reply-to:organization:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20230601; t=1765079565; x=1765684365;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=43t/Czy5k/x+GFzhf1OSgUonwXfO1dTYBh2ATpkwGxI=;
-        b=q90P78Xz/lyinNUA7MkzP4TeID0TrgpK2MisaWUEI7hcYWxzlsScCl/m+KWEe1aHjO
-         8xFhUVzu2JsGIjKuQdqF9IwLxOLw6B3XB8RdPkkD2M5Kd4cC7gBkB0aLsKyUwV+KPk8M
-         ke/2o+DIKzwqH6Ntv2XrK8WkJSBinlHbLKkpRIosCZ6JDXL9vmI29PO4si5btQ4wqKbr
-         I5Y1bJVCnfBZrqJ8r9w2jS6Uf++rGjJDuJfQcKPQNekg0w32yd2r3skcnwLzg3E6yweM
-         DP23UjAbLNBximaQD9f3ui+0fNQmih3iIgBbO+QC8o90WETQNJDdQTpM8oi0Gqp1QOOJ
-         zfOA==
-X-Gm-Message-State: AOJu0YwSSrn5gAzK3sLnRH9koPsGlqZg8ZaWhPVwglROfGzx/mzdD4Sg
-	UIh1G/vPGS0X+bkZ/Cp/DvKSSJ2zDx1ulXvqaZMVDWzPtbfh5CwwKwZNKcJg5GByPpU=
-X-Gm-Gg: ASbGncvfb5bId4ELA4zpI6GCmGJyRhFqYJSnp0BcF3xvoLxBfkJxVk6sO7uMnANI8lU
-	ZQIoQYUkohM7SlY7AucojLJho6CRoDSugle6Mh9FDz4uq4Pi1VMEQWrQkrvCzoxLeP/uupUn/3G
-	prON9Sbblj2OMPboXgrB3WkKFdWfDRyKPf2VRpG0kKC5Op4iajC8/aIckchb9lXhG39/PP53auf
-	2jzjl4R+BDOic/ARniETrNtGB/dW4Z+1G+H4cX2AexvNSZWJESInzOiStPahCb2ukKE7LQ7Bjan
-	1EsRr+W09mbv5Kyb24jordfobd5xUcSLoTJ0X3Tu1eEc3d94tY8bUmiHhELNv8BOk5//5kV7nof
-	CaXM3UORqjCRW2Vy7AiGeDGrVnkVvHY2f2B/c429CSyFDF+XFdX6mgOi8wPQi2d2QYh7WIKWq+J
-	PYFOR4K0FZpGUXEONyQubfYt71BTRz7FVlAMMNz4iz/k2xjv2Jo9t7bZXTegL6+5QG7h/vKIbE7
-	Wyb6/s+7yBOdIAAtR1n0w==
-X-Google-Smtp-Source: AGHT+IG/KMx+gp9PrFzMpzmCURhrHZB8Ty+N3ZVaFjCwhsJdnri2GqdJr6FygkneC2IhHkNkErU02w==
-X-Received: by 2002:a05:7022:6625:b0:11d:c049:2fa3 with SMTP id a92af1059eb24-11df649f9a9mr2433226c88.30.1764857217245;
-        Thu, 04 Dec 2025 06:06:57 -0800 (PST)
-Received: from ?IPV6:2804:1b3:a7c0:404c:e9c6:12f9:b8e7:7b6f? ([2804:1b3:a7c0:404c:e9c6:12f9:b8e7:7b6f])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-11df76edd4fsm6895416c88.8.2025.12.04.06.06.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 04 Dec 2025 06:06:56 -0800 (PST)
-Message-ID: <5272b875-bec8-4b28-84e8-05606db83120@linaro.org>
-Date: Thu, 4 Dec 2025 11:06:53 -0300
+        bh=onZGbEujnmv7Lrd95O4KVMK4+ZPC/m9DZY5FQ0VFLK4=;
+        b=PrldbF6lzWr+XlSSftCFlTJarceLDfhF+mkFDIiBkrFkStMTIACyOWzD5kSwAHgPZo
+         FuoZrP5C9TKQcEPcl6sJVZiZ7vF+NNQCImcj39irfBN12kDtAlODkSYgI6+zo6Qyajxc
+         tSJByMvhNGyPnnbsQrCN4OD0vn76jXDZr63VTYcf5I7V+dIjepmvxVYpwMjeZfWUK50L
+         VC8+FpSt51jcjYNOsS77vGIjNIH4J3AZ+1c4F+qSf9XV0QxyU9cmUBRz6B/5ZA8J8W5q
+         x7X030BuNHN43VApbZVNefY3rhwr6paQ7to2WCsJSZzZ6q5mDb/GS634DmNWGHic9CW1
+         sguw==
+X-Forwarded-Encrypted: i=1; AJvYcCVsBzAatMa9Kj8iIzzDecKzz3rWQzsO76wmq493H0oswrQ5kuknbvHCenE0VUmWluPmS4qljR4WT1hh@vger.kernel.org
+X-Gm-Message-State: AOJu0YxCONxKJCeD5TeVQhFRIh4Na40sgVnAfzyhLmwREQlbnFhiytIO
+	Zhk8nnUvSrq0WpTXUW8k81QL3Lw9MqINNHUvqab1Q4bKx8d2EoBupQCUG6u9r0bxdnbBeDnv/jc
+	k+O7JfEdK/PBGWQOVOfezesf06QleQGQ=
+X-Gm-Gg: ASbGnct+s1rVK+Nq7nB4zqpqWqQ1ZQaV38pQiKnJwuXj8i6W00hGj5XskDjS5ufvBZ/
+	DuW2rj/F5b95u0UG2W23eb4wVeZvcWGV4J29TCUavGeJByJgRcRAqk6VmHENWDSnXn0/T1khdBm
+	PX0VOwcFbk9N27sIZthQrDx473d5yhl4aNkcJoD3VwbEWjNkWbW+ab3tWzXQWNvrJepr+rqGa/Z
+	CzjQoIIZX10rrj33JcfjZoI5JzuTJvo/Kds9Abm+rGvsJ4Qhj8aSWL2kqxnnA1DnGloeQXg
+X-Google-Smtp-Source: AGHT+IHRR9l7HPZmkDnAS+C354qm9ydXjCrOUrDKVwGGfkPfCpIDzmA64JiEJqNem/46TmeSotiRCSK/F5Dm5m1lSso=
+X-Received: by 2002:a17:90a:d44d:b0:340:5c27:a096 with SMTP id
+ 98e67ed59e1d1-349a24ea6a0mr3507128a91.6.1765079565166; Sat, 06 Dec 2025
+ 19:52:45 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] Call prctl(2) with long integers, specify 5 arguments,
- and avoid casts
-To: Alejandro Colomar <alx@kernel.org>, =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?=
- <thomas@t-8ch.de>, "H.J. Lu" <hjl.tools@gmail.com>
-Cc: util-linux@vger.kernel.org, Xi Ruoyao <xry111@xry111.site>,
- libc-alpha@sourceware.org
-References: <20240601093150.16912-1-alx@kernel.org>
- <460edfcb-4dc0-418c-9f4d-eb74261701c8@t-8ch.de>
- <mbvtkssza7bvvu45wqivbfd2astvpsu3t7u223a222oizrqznm@rv4rxvvkxzct>
-Content-Language: en-US
-From: Adhemerval Zanella Netto <adhemerval.zanella@linaro.org>
-Organization: Linaro
-In-Reply-To: <mbvtkssza7bvvu45wqivbfd2astvpsu3t7u223a222oizrqznm@rv4rxvvkxzct>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20240601093150.16912-1-alx@kernel.org> <460edfcb-4dc0-418c-9f4d-eb74261701c8@t-8ch.de>
+ <mbvtkssza7bvvu45wqivbfd2astvpsu3t7u223a222oizrqznm@rv4rxvvkxzct> <5272b875-bec8-4b28-84e8-05606db83120@linaro.org>
+In-Reply-To: <5272b875-bec8-4b28-84e8-05606db83120@linaro.org>
+From: "H.J. Lu" <hjl.tools@gmail.com>
+Date: Sun, 7 Dec 2025 11:52:08 +0800
+X-Gm-Features: AQt7F2o3km7lVpn3e2auuETzTjpuneODSZA1KrejV5Mneu1QrycjpZD2dHjNW9g
+Message-ID: <CAMe9rOpqX9cdhvMneHnfvJFG8ixJsdAyd6iK8mh_Th1Lpv4ahQ@mail.gmail.com>
+Subject: [PATCH] x32: Switch back to assembly syscall wrapper for prctl
+To: Adhemerval Zanella Netto <adhemerval.zanella@linaro.org>
+Cc: Alejandro Colomar <alx@kernel.org>, =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas@t-8ch.de>, 
+	util-linux@vger.kernel.org, Xi Ruoyao <xry111@xry111.site>, 
+	GNU C Library <libc-alpha@sourceware.org>
+Content-Type: multipart/mixed; boundary="0000000000007b8c210645549c2e"
 
+--0000000000007b8c210645549c2e
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, Dec 4, 2025 at 10:06=E2=80=AFPM Adhemerval Zanella Netto
+<adhemerval.zanella@linaro.org> wrote:
+>
+> The x32 and or1k (which also uses similar implementation) does seems brok=
+en
+> without checking the 'option' argument to see which arg we can va_arg.
+>
+> The problem is adding this logic on libc will add some forward-compatibil=
+ity
+> that we try to avoid (newer kernel prctl additions might now work correct=
+ly).
+>
+> I am not sure why we haven't switch x32 back to the assembly wrappers
+> with 6a04404521ac4119ae36827eeb288ea84eee7cf6 fix (BZ#29770).  H.J, can
+> use remove the x32 C version (and also or1k as well)?
 
-On 01/06/24 09:23, Alejandro Colomar wrote:
-> Hi Thomas,
-> 
-> On Sat, Jun 01, 2024 at 01:05:02PM GMT, Thomas Weißschuh wrote:
->> On 2024-06-01 11:31:56+0000, Alejandro Colomar wrote:
->>> Since libc's prctl(2) wrapper is a variadic function, arguments must
->>> have the right width.  Otherwise, the behavior is undefined.
->>
->> Ack.
->>
->>> Also, the 5 arguments must be specified always, or the behavior is also
->>> undefined.  libc reads 5 values and passes them all to the kernel, so if
->>> one is uninitialized, the kernel will receive garbagge, which could
->>> result in EINVAL (most likely), or worse, a different action.
->>
->> This seems surprising.
->>
->> The kernel should only check the arguments it documents and not more.
-> 
-> Hmmm, some prctl(2) calls don't document a need for passing 0 (probably
-> for legacy compatibility; you're right.  Only newer prctl(2)s check
-> those args.
-> 
-> And see for example these kernel commit:
-> 
-> 	commit e9d1b4f3c60997fe197bf0243cb4a41a44387a88
-> 	Author: Dave Hansen <dave.hansen@linux.intel.com>
-> 	Date:   Thu Jan 8 14:30:22 2015 -0800
-> 
-> 	    x86, mpx: Strictly enforce empty prctl() args
-> 	    
-> 	    Description from Michael Kerrisk.  He suggested an identical patch
-> 	    to one I had already coded up and tested.
-> 	    
-> 	    commit fe3d197f8431 "x86, mpx: On-demand kernel allocation of bounds
-> 	    tables" added two new prctl() operations, PR_MPX_ENABLE_MANAGEMENT and
-> 	    PR_MPX_DISABLE_MANAGEMENT.  However, no checks were included to ensure
-> 	    that unused arguments are zero, as is done in many existing prctl()s
-> 	    and as should be done for all new prctl()s. This patch adds the
-> 	    required checks.
-> 	    
-> 	    Suggested-by: Andy Lutomirski <luto@amacapital.net>
-> 	    Suggested-by: Michael Kerrisk <mtk.manpages@gmail.com>
-> 	    Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-> 	    Cc: Dave Hansen <dave@sr71.net>
-> 	    Link: http://lkml.kernel.org/r/20150108223022.7F56FD13@viggo.jf.intel.com
-> 	    Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> 
-> 	diff --git a/kernel/sys.c b/kernel/sys.c
-> 	index a8c9f5a7dda6..ea9c88109894 100644
-> 	--- a/kernel/sys.c
-> 	+++ b/kernel/sys.c
-> 	@@ -2210,9 +2210,13 @@ SYSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3,
-> 			up_write(&me->mm->mmap_sem);
-> 			break;
-> 		case PR_MPX_ENABLE_MANAGEMENT:
-> 	+               if (arg2 || arg3 || arg4 || arg5)
-> 	+                       return -EINVAL;
-> 			error = MPX_ENABLE_MANAGEMENT(me);
-> 			break;
-> 		case PR_MPX_DISABLE_MANAGEMENT:
-> 	+               if (arg2 || arg3 || arg4 || arg5)
-> 	+                       return -EINVAL;
-> 			error = MPX_DISABLE_MANAGEMENT(me);
-> 			break;
-> 		default:
-> 
-> And this one too:
-> 
-> 	commit 3e91ec89f527b9870fe42dcbdb74fd389d123a95
-> 	Author: Catalin Marinas <catalin.marinas@arm.com>
-> 	Date:   Thu Aug 15 16:44:00 2019 +0100
-> 
-> 	    arm64: Tighten the PR_{SET, GET}_TAGGED_ADDR_CTRL prctl() unused arguments
-> 	    
-> 	    Require that arg{3,4,5} of the PR_{SET,GET}_TAGGED_ADDR_CTRL prctl and
-> 	    arg2 of the PR_GET_TAGGED_ADDR_CTRL prctl() are zero rather than ignored
-> 	    for future extensions.
-> 	    
-> 	    Acked-by: Andrey Konovalov <andreyknvl@google.com>
-> 	    Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> 	    Signed-off-by: Will Deacon <will@kernel.org>
-> 
-> 	diff --git a/kernel/sys.c b/kernel/sys.c
-> 	index c6c4d5358bd3..ec48396b4943 100644
-> 	--- a/kernel/sys.c
-> 	+++ b/kernel/sys.c
-> 	@@ -2499,9 +2499,13 @@ SYSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3,
-> 			error = PAC_RESET_KEYS(me, arg2);
-> 			break;
-> 		case PR_SET_TAGGED_ADDR_CTRL:
-> 	+               if (arg3 || arg4 || arg5)
-> 	+                       return -EINVAL;
-> 			error = SET_TAGGED_ADDR_CTRL(arg2);
-> 			break;
-> 		case PR_GET_TAGGED_ADDR_CTRL:
-> 	+               if (arg2 || arg3 || arg4 || arg5)
-> 	+                       return -EINVAL;
-> 			error = GET_TAGGED_ADDR_CTRL();
-> 			break;
-> 		default:
-> 
-> In the few calls that util-linux makes without specifying all 5 args,
-> the kernel seems to not do the checks (in some old prctl(2)s they didn't
-> have that check, and nobody seems to have cared enough to add it), so
-> it's more like we're lucky (or unlucky, depending on how you see it).
-> 
->> glibc itself doesn't even specify all five arguments in its own calls to
->> prctl().
-> 
-> glibc itself is wrong.  I'm even surprised that the PR_* macros from the
-> kernel UAPI for arg2 work without specifying the L suffix on them, but
-> it's probably just luck.
-> 
-> <https://lore.kernel.org/linux-api/20240528114750.106187-1-alx@kernel.org/T/#u>
-> 
->> If all five arguments are really required then prctl() wouldn't need to
->> be variadic.
-> 
-> Indeed.  I guess that's for historic reasons, rather than actual
-> necessity; but I don't know for sure.
-> 
->> How is random non-zero data less valid than a essentially random zero?
->> And if the kernel actually validates this, how has it ever worked before?
-> 
-> They only added validation for (all) new prctl(2) calls, plus maybe some
-> old ones, but not all.  In the ones used in util-linux that don't
-> specify zero, I've checked now that the kernel doesn't validate.
-> 
-> However, a call such as
-> 
-> 	prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)
-> 
-> (this call exists in util-linux)
-> actually means
-> 
-> 	prctl(PR_SET_NO_NEW_PRIVS, 1L, 0L, random, random)
-> 
-> and it supposedly has been working so far.  Those random bits are
-> probably 0 most of the time, for some reason.  And the kernel does check
-> this one:
-> 
-> 	$ sed -n /PR_SET_NO_NEW_PRIVS/,+2p <kernel/sys.c
-> 		case PR_SET_NO_NEW_PRIVS:
-> 			if (arg2 != 1 || arg3 || arg4 || arg5)
-> 				return -EINVAL;
-> 
->> Other popular software like systemd or opendjk also don't specify unused arguments.
-> 
-> I've also checked that the ones that systemd uses without specifying all
-> 5 args, they are not checked by the kernel.
-> 
->> So it doesn't really seem "broken".
->> If the patch is more about "being on the safe side", then this should be
->> spelled out.
-> 
-> Still, libc reads those values (on x32) which results in Undefined
-> Behavior inside glibc.  Which is a bad thing.  Not broken, because the
-> compiler has little information to exploit that UB, but not a good thing
-> either.
-> 
-> 	$ grepc __prctl .
-> 	./include/sys/prctl.h:extern int __prctl (int __option, ...);
-> 	./sysdeps/unix/sysv/linux/x86_64/x32/prctl.c:int
-> 	__prctl (int option, ...)
-> 	{
-> 	  va_list arg;
-> 	  va_start (arg, option);
-> 	  unsigned long int arg2 = va_arg (arg, unsigned long int);
-> 	  unsigned long int arg3 = va_arg (arg, unsigned long int);
-> 	  unsigned long int arg4 = va_arg (arg, unsigned long int);
-> 	  unsigned long int arg5 = va_arg (arg, unsigned long int);
-> 	  va_end (arg);
-> 	  return INLINE_SYSCALL_CALL (prctl, option, arg2, arg3, arg4, arg5);
-> 	}
-> 
-> It's arguably less broken than the missing 'L', though.
+Since the variadic prctl function takes at most 5 integer arguments which
+are passed in the same integer registers on x32 as the function with 5
+integer arguments, we can safely use assembly syscall wrapper for prctl
+for x32.
 
-The x32 and or1k (which also uses similar implementation) does seems broken
-without checking the 'option' argument to see which arg we can va_arg.
+Tested on x32.  I leave or1k alone since I don't know if it is safe to
+do the same.
 
-The problem is adding this logic on libc will add some forward-compatibility
-that we try to avoid (newer kernel prctl additions might now work correctly).
+--=20
+H.J.
 
-I am not sure why we haven't switch x32 back to the assembly wrappers
-with 6a04404521ac4119ae36827eeb288ea84eee7cf6 fix (BZ#29770).  H.J, can
-use remove the x32 C version (and also or1k as well)?
+--0000000000007b8c210645549c2e
+Content-Type: text/x-patch; charset="US-ASCII"; 
+	name="0001-x32-Switch-back-to-assembly-syscall-wrapper-for-prct.patch"
+Content-Disposition: attachment; 
+	filename="0001-x32-Switch-back-to-assembly-syscall-wrapper-for-prct.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <f_miv6pcbm0>
+X-Attachment-Id: f_miv6pcbm0
 
-> 
->> (Plus the cases where documented, required arguments are missing)
-> 
-> None of the cases where we omit the arguments are checked by the kernel.
-> 
-> 
-> Have a lovely day!
-> Alex
-> 
-
+RnJvbSBlNmExNDE1NGU5MGUxZTZiYTIzNzIzNDBiNjJkYWUxMzY2N2JjOGJhIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiAiSC5KLiBMdSIgPGhqbC50b29sc0BnbWFpbC5jb20+CkRhdGU6
+IFN1biwgNyBEZWMgMjAyNSAxMTozMzozMyArMDgwMApTdWJqZWN0OiBbUEFUQ0hdIHgzMjogU3dp
+dGNoIGJhY2sgdG8gYXNzZW1ibHkgc3lzY2FsbCB3cmFwcGVyIGZvciBwcmN0bAoKU2luY2UgdGhl
+IHZhcmlhZGljIHByY3RsIGZ1bmN0aW9uIHRha2VzIGF0IG1vc3QgNSBpbnRlZ2VyIGFyZ3VtZW50
+cyB3aGljaAphcmUgcGFzc2VkIGluIHRoZSBzYW1lIGludGVnZXIgcmVnaXN0ZXJzIG9uIHgzMiBh
+cyB0aGUgZnVuY3Rpb24gd2l0aCA1CmludGVnZXIgYXJndW1lbnRzLCB3ZSBjYW4gc2FmZWx5IHVz
+ZSBhc3NlbWJseSBzeXNjYWxsIHdyYXBwZXIgZm9yIHByY3RsCmZvciB4MzIuCgpTaWduZWQtb2Zm
+LWJ5OiBILkouIEx1IDxoamwudG9vbHNAZ21haWwuY29tPgotLS0KIHN5c2RlcHMvdW5peC9zeXN2
+L2xpbnV4L3g4Nl82NC94MzIvcHJjdGwuYyB8IDQyIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KIDEg
+ZmlsZSBjaGFuZ2VkLCA0MiBkZWxldGlvbnMoLSkKIGRlbGV0ZSBtb2RlIDEwMDY0NCBzeXNkZXBz
+L3VuaXgvc3lzdi9saW51eC94ODZfNjQveDMyL3ByY3RsLmMKCmRpZmYgLS1naXQgYS9zeXNkZXBz
+L3VuaXgvc3lzdi9saW51eC94ODZfNjQveDMyL3ByY3RsLmMgYi9zeXNkZXBzL3VuaXgvc3lzdi9s
+aW51eC94ODZfNjQveDMyL3ByY3RsLmMKZGVsZXRlZCBmaWxlIG1vZGUgMTAwNjQ0CmluZGV4IDcx
+NGZkMjg4MzcuLjAwMDAwMDAwMDAKLS0tIGEvc3lzZGVwcy91bml4L3N5c3YvbGludXgveDg2XzY0
+L3gzMi9wcmN0bC5jCisrKyAvZGV2L251bGwKQEAgLTEsNDIgKzAsMCBAQAotLyogcHJjdGwgLSBM
+aW51eCBzcGVjaWZpYyBzeXNjYWxsLiAgeDg2LTY0IHgzMiB2ZXJzaW9uLgotICAgQ29weXJpZ2h0
+IChDKSAyMDIwLTIwMjUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uLCBJbmMuCi0gICBUaGlzIGZp
+bGUgaXMgcGFydCBvZiB0aGUgR05VIEMgTGlicmFyeS4KLQotICAgVGhlIEdOVSBDIExpYnJhcnkg
+aXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29yCi0gICBtb2Rp
+ZnkgaXQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgTGVzc2VyIEdlbmVyYWwgUHVibGljCi0g
+ICBMaWNlbnNlIGFzIHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uOyBl
+aXRoZXIKLSAgIHZlcnNpb24gMi4xIG9mIHRoZSBMaWNlbnNlLCBvciAoYXQgeW91ciBvcHRpb24p
+IGFueSBsYXRlciB2ZXJzaW9uLgotCi0gICBUaGUgR05VIEMgTGlicmFyeSBpcyBkaXN0cmlidXRl
+ZCBpbiB0aGUgaG9wZSB0aGF0IGl0IHdpbGwgYmUgdXNlZnVsLAotICAgYnV0IFdJVEhPVVQgQU5Z
+IFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhlIGltcGxpZWQgd2FycmFudHkgb2YKLSAgIE1FUkNI
+QU5UQUJJTElUWSBvciBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9TRS4gIFNlZSB0aGUg
+R05VCi0gICBMZXNzZXIgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSBmb3IgbW9yZSBkZXRhaWxzLgot
+Ci0gICBZb3Ugc2hvdWxkIGhhdmUgcmVjZWl2ZWQgYSBjb3B5IG9mIHRoZSBHTlUgTGVzc2VyIEdl
+bmVyYWwgUHVibGljCi0gICBMaWNlbnNlIGFsb25nIHdpdGggdGhlIEdOVSBDIExpYnJhcnk7IGlm
+IG5vdCwgc2VlCi0gICA8aHR0cHM6Ly93d3cuZ251Lm9yZy9saWNlbnNlcy8+LiAgKi8KLQotI2lu
+Y2x1ZGUgPHN5c2RlcC5oPgotI2luY2x1ZGUgPHN0ZGFyZy5oPgotI2luY2x1ZGUgPHN5cy9wcmN0
+bC5oPgotCi0vKiBVbmNvbmRpdGlvbmFsbHkgcmVhZCBhbGwgcG90ZW50aWFsIGFyZ3VtZW50cy4g
+IFRoaXMgbWF5IHBhc3MKLSAgIGdhcmJhZ2UgdmFsdWVzIHRvIHRoZSBrZXJuZWwsIGJ1dCBhdm9p
+ZHMgdGhlIG5lZWQgZm9yIHRlYWNoaW5nCi0gICBnbGliYyB0aGUgYXJndW1lbnQgY291bnRzIG9m
+IGluZGl2aWR1YWwgb3B0aW9ucyAoaW5jbHVkaW5nIG9uZXMKLSAgIHRoYXQgYXJlIGFkZGVkIHRv
+IHRoZSBrZXJuZWwgaW4gdGhlIGZ1dHVyZSkuICAqLwotCi1pbnQKLV9fcHJjdGwgKGludCBvcHRp
+b24sIC4uLikKLXsKLSAgdmFfbGlzdCBhcmc7Ci0gIHZhX3N0YXJ0IChhcmcsIG9wdGlvbik7Ci0g
+IHVuc2lnbmVkIGxvbmcgaW50IGFyZzIgPSB2YV9hcmcgKGFyZywgdW5zaWduZWQgbG9uZyBpbnQp
+OwotICB1bnNpZ25lZCBsb25nIGludCBhcmczID0gdmFfYXJnIChhcmcsIHVuc2lnbmVkIGxvbmcg
+aW50KTsKLSAgdW5zaWduZWQgbG9uZyBpbnQgYXJnNCA9IHZhX2FyZyAoYXJnLCB1bnNpZ25lZCBs
+b25nIGludCk7Ci0gIHVuc2lnbmVkIGxvbmcgaW50IGFyZzUgPSB2YV9hcmcgKGFyZywgdW5zaWdu
+ZWQgbG9uZyBpbnQpOwotICB2YV9lbmQgKGFyZyk7Ci0gIHJldHVybiBJTkxJTkVfU1lTQ0FMTF9D
+QUxMIChwcmN0bCwgb3B0aW9uLCBhcmcyLCBhcmczLCBhcmc0LCBhcmc1KTsKLX0KLQotbGliY19o
+aWRkZW5fZGVmIChfX3ByY3RsKQotd2Vha19hbGlhcyAoX19wcmN0bCwgcHJjdGwpCi0tIAoyLjUy
+LjAKCg==
+--0000000000007b8c210645549c2e--
