@@ -1,47 +1,51 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.170])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E01471E8332
-	for <util-linux@vger.kernel.org>; Tue,  9 Dec 2025 15:03:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9137E1E8342
+	for <util-linux@vger.kernel.org>; Tue,  9 Dec 2025 15:03:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765292624; cv=none; b=Bs3Virc91qLWL+1ratpiwhqTUeO0muy9iD0j9sVpyR6SMFqdC/8zjj6MvxMshvyFgwosfRCAuuySDaJdYrpAJ8b/YD+MaQYecZ+GWx4d6Hw285XRkRkiQDLj9cfMBEurQsWy5pd9s8KZxNB+UQKIGZ36KYuItNg+O6xjzwfc8Rw=
+	t=1765292632; cv=none; b=mGoaU5xCdJuNcyRUxRzcJP+FTxMWPUwOiyF46AiuzbQvixI4iilboUZ4F147fKQ5FdxgdWdu7RB1Zd29AAy+sDqF1b5QJ1kx71ErElTxlZmH7fY8ofyPz1/sVQZZMrtH9zKRF8zP/881iCMinrAnmEtSu1CEuIYPWDRdPbv41qM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765292624; c=relaxed/simple;
-	bh=AB5xB5nlw0Cil/9Q58Tm+TJyVN2pJTTKcg2acjsgiRM=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=OIfjH9Tt5PZAQnFj8lNueeODwNu3iSht566BaQkLh94bkDprSGVTafJGyXYx9kPVuBgaX8LlrglfunWnZqcdQYEXOx9uB5XFJAUwd4w+Gi31v4mUroM1ZEq1yjreoTvkWGP7oLcf9K5fjd6s7r79oNEqf1WsgFUvzMQyQGOHLyo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=tPLNS4g7; arc=none smtp.client-ip=195.121.94.170
+	s=arc-20240116; t=1765292632; c=relaxed/simple;
+	bh=U5Qu0OQNTAJOk7Y4JrHhI2mItuGZV4C8/jJai9tTalY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=iubnZEtqQhvCDgW+pIdI8RxPDGbcmQ3lcqlDZGgIDJkLEbSVT78Bz8zTa3zpvg0mEpbGJxN1NCS6MVkfGSzxuqUGobVZfyZEnNRyMAtuGmegoxd67FHkFafWJXRaZTjQto8Ve6zAYa3T0oAA+NwInkHBO4BQBl6Fkig/4dbm6KY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=BUuf9cXB; arc=none smtp.client-ip=195.121.94.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="tPLNS4g7"
-X-KPN-MessageId: 6b8d2cb3-d510-11f0-9c78-005056ab378f
-Received: from smtp.kpnmail.nl (unknown [10.31.155.37])
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="BUuf9cXB"
+X-KPN-MessageId: 4f3963ff-d510-11f0-84a0-005056abad63
+Received: from smtp.kpnmail.nl (unknown [10.31.155.39])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 6b8d2cb3-d510-11f0-9c78-005056ab378f;
-	Tue, 09 Dec 2025 16:04:54 +0100 (CET)
+	id 4f3963ff-d510-11f0-84a0-005056abad63;
+	Tue, 09 Dec 2025 16:04:07 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=eEK+3W4vJoh9ezpKhBfI5caT4mu/GH9muFFJYbl2yOQ=;
-	b=tPLNS4g7VXf938sEDC0UQ/fH1g4dKMHAuRRSiTRz5KQqTSWBgsFhH8QFYV9Ek0Ahp5OilR8QR86qc
-	 qHUby+O8LOvQAeC+xkTvwz4DaCx4ptMDAfr5JN92uEU9oIVncq4XKqPS8EOpk64KsjpxL5WdBCBTrO
-	 8bR+5xDq+cAZYW/g=
-X-KPN-MID: 33|yWJ8xIudb1/vBe+SCNwtJdT4eZggMtc/aN360k5flnlfBiPlTJ1i+jkt59SEfn2
- xXdiWjLeR9EzFOHVlnr+N9A==
+	bh=7U9+KE3U+DHQXlToNIZmSwibvunNLrd4t8YAsY1kGJ0=;
+	b=BUuf9cXBxt2zBS8D53Va+NxFte4Ja0CDCmHWndGQmPHL+11nE/GTJBiKxf4e+Oyi78UFk9E244USN
+	 CmyMUrBn+PLud7+Srqi944bnczBRIAFgFNh/2ZGYQlxOxrXZ1B574pRVwrTp64gm9Goo/7iF9Q0Lpm
+	 fR3duJzRgXmwLbQo=
+X-KPN-MID: 33|VxHlpTXerRu1euhPJCg66NDP2j1hqx41v5n54BE+Qn951AQcAKLS/7mj2z0H+ml
+ cE1UP3IY0M5W+jM9AHlJ9msr4wvGaoCYvbUR7q06V6kY=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|TUIicM2DK4N/NSoisrAgIPPZWrjKZfNFy6r0BGaaoWDYlEGe6NDL3z9W3zEkk55
- lrn9PeTSNRS2YHUEw7jswsQ==
+X-CMASSUN: 33|BtJrteap/VQAm7gznhvhJIbfa1nq2LrDzw/sIMN4I2gYp4v+hDn7qsSh30a7pjm
+ UpmIaCBrgNUyNKrdDbdFpxA==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 163b21e2-d510-11f0-bda3-005056ab1411;
-	Tue, 09 Dec 2025 16:02:31 +0100 (CET)
+	id 1ad0699a-d510-11f0-800c-005056ab7447;
+	Tue, 09 Dec 2025 16:02:39 +0100 (CET)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 1/3] losetup: snip --verbose from bash-completion, and 'v' from options string
-Date: Tue,  9 Dec 2025 16:02:20 +0100
-Message-ID: <20251209150222.50981-1-bensberg@telfort.nl>
+Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Subject: [PATCH 2/3] chmem: do not word a configuration failure as an instruction to the user
+Date: Tue,  9 Dec 2025 16:02:21 +0100
+Message-ID: <20251209150222.50981-2-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.51.2
+In-Reply-To: <20251209150222.50981-1-bensberg@telfort.nl>
+References: <20251209150222.50981-1-bensberg@telfort.nl>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -50,39 +54,52 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This should have been part of commit 7e27c81597 from two months ago.
+When the current machine does not support configuring/deconfiguring
+memory, simply report that it cannot be done, instead of seemingly
+telling the user to skip the configuring/deconfiguring.
 
+Also, there is no need to mention `chmem` in the message: mentioning
+just the recommended option (-e or -d) is enough.  Also, consistently
+terminate all four messages with a period.
+
+This improves upon commit ab2e709600 ("chmem: improve messages").
+
+CC: Sumanth Korikkar <sumanthk@linux.ibm.com>
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- bash-completion/losetup | 1 -
- sys-utils/losetup.c     | 2 +-
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ sys-utils/chmem.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/bash-completion/losetup b/bash-completion/losetup
-index 2d314c111..bf1591fbf 100644
---- a/bash-completion/losetup
-+++ b/bash-completion/losetup
-@@ -59,7 +59,6 @@ _losetup_module()
- 				--read-only
- 				--remove
- 				--show
--				--verbose
- 				--direct-io
- 				--loop-ref
- 				--sector-size
-diff --git a/sys-utils/losetup.c b/sys-utils/losetup.c
-index 7da0ebbd0..fe30d70da 100644
---- a/sys-utils/losetup.c
-+++ b/sys-utils/losetup.c
-@@ -751,7 +751,7 @@ int main(int argc, char **argv)
- 	if (loopcxt_init(&lc, 0))
- 		err(EXIT_FAILURE, _("failed to initialize loopcxt"));
- 
--	while ((c = getopt_long(argc, argv, "ab:cdDfhj:JlLno:O:PrvV",
-+	while ((c = getopt_long(argc, argv, "ab:cdDfhj:JlLno:O:PrV",
- 				longopts, NULL)) != -1) {
- 
- 		err_exclusive_options(c, longopts, excl, excl_st);
+diff --git a/sys-utils/chmem.c b/sys-utils/chmem.c
+index 6ec66bb6b..dcec888d1 100644
+--- a/sys-utils/chmem.c
++++ b/sys-utils/chmem.c
+@@ -325,10 +325,10 @@ static int chmem_config_size(struct chmem_desc *desc, int configure)
+ 	if (!desc->have_memconfig) {
+ 		if (configure)
+ 			fprintf(stdout,
+-				_("Skip configuration. Use chmem -e instead.\n"));
++				_("Cannot configure. Use -e instead.\n"));
+ 		else
+ 			fprintf(stdout,
+-				_("Skip deconfiguration. Use chmem -d instead\n"));
++				_("Cannot deconfigure. Use -d instead.\n"));
+ 		return -1;
+ 	}
+ 	size = desc->size;
+@@ -363,10 +363,10 @@ static int chmem_config_range(struct chmem_desc *desc, int configure)
+ 	if (!desc->have_memconfig) {
+ 		if (configure)
+ 			fprintf(stdout,
+-				_("Skip configuration. Use chmem -e instead.\n"));
++				_("Cannot configure. Use -e instead.\n"));
+ 		else
+ 			fprintf(stdout,
+-				_("Skip deconfiguration. Use chmem -d instead\n"));
++				_("Cannot deconfigure. Use -d instead.\n"));
+ 		return -1;
+ 	}
+ 	todo = desc->end - desc->start + 1;
 -- 
 2.51.2
 
