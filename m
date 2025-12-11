@@ -1,245 +1,142 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B56302DF707
-	for <util-linux@vger.kernel.org>; Thu, 11 Dec 2025 16:10:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F48028A3EF
+	for <util-linux@vger.kernel.org>; Thu, 11 Dec 2025 21:22:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765469412; cv=none; b=mzdfWen6+XMzxH6v1lUFcUg53/jYfledZ8V8BmMQlIgETC0NxaUmodxNaRevL4pV/6E9c9sEABvq7KpvdZIrNceK3JURqyaIAQp6oHSrpnhnFxWntbFuLYIOZzfa0iiJGt1sLxhEnlIU6bGPUoj7vGNHoZWaNpo3FGe9tX3THkY=
+	t=1765488134; cv=none; b=OlF86GpJZrVWpcLzbjO1C81ln/I1JfNiTKTI9SUTrlBfwahs4pFvIJg/1SuSOIfBAUOokoa3vXZ+NgQRFIktOPCDt34OjTS189kNct72FpuReHrsVPmet5D/ZgqUk5qt1RO/V/ddhk9IkJXMpgQ1ARfmEQHw5L00OyPOuUskzHI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765469412; c=relaxed/simple;
-	bh=i8KlPbaAI2fCxebzja30evR0xmEK9VWwDObh8kOzdhI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lwieZ0l9Izt2dJRgkWv64RNATXwdRrAc66G9v4964dMioxVk92Z8o8Vxpujn9GZF1hjDfIsB6l5bezUwKdPPgPQ8s0hB5ZJbOwhNYDlagb+wF1rc+5lEdNF8lJYr7BdkfatfaPAlnHDspAUBUkWXFd2Z0mJ45wIGzreyT0kluxM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XF4vc4Ec; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1765488134; c=relaxed/simple;
+	bh=ZspFC/1nu29AiBDY+ZMeNjO4PpR+a6kiV/3wh8TywAc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=O0Xcy6ljjcaAMKL2bCCWxmBhxxzuF4eqZNlX6FNpPFl0AAA2uqhKNV2F6ujJ9Z2xaU5YlFMDllrWGU16XMbxuWn4PS6fey9lubXYr5q4RKvoXzZ0gvfUQdF+boGZiYfu2KcJg72aeBViJZIK6xnmbidO3XFgCJsFmIfBGqoBeRo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EEbzyalk; arc=none smtp.client-ip=209.85.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XF4vc4Ec"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1765469409;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=LTZejoPzYVaXiKaOUh2JVz3JMO3iuR2QARX7Pee/5sA=;
-	b=XF4vc4EcUV8F8o6UmIpzkG7aKg6jo1eMYiVwE289jyX4PUNgXSXbTvqivhqgOFzV0mQ5rg
-	L9a0adxAxgh7fg2+9gzh/8UDI7KYXFGv/HyuIlMEJIzLVhRCyKBNluWE2LU1FHVkQmxrFb
-	Sb3RS5tWwK1a2oeJhA51NSCcvcfNv4U=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-486-n-WGAN-TMVyR1v3jJX492g-1; Thu,
- 11 Dec 2025 11:10:05 -0500
-X-MC-Unique: n-WGAN-TMVyR1v3jJX492g-1
-X-Mimecast-MFC-AGG-ID: n-WGAN-TMVyR1v3jJX492g_1765469404
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5119A1956094;
-	Thu, 11 Dec 2025 16:10:04 +0000 (UTC)
-Received: from localhost (unknown [10.2.16.208])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 00A3A19540DF;
-	Thu, 11 Dec 2025 16:10:03 +0000 (UTC)
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: util-linux@vger.kernel.org
-Cc: pizhenwei@bytedance.com,
-	hare@suse.de,
-	kwolf@redhat.com,
-	Stefan Hajnoczi <stefanha@redhat.com>
-Subject: [PATCH 3/3] blkpr: add read-reservation command
-Date: Thu, 11 Dec 2025 11:09:56 -0500
-Message-ID: <20251211160956.1540114-4-stefanha@redhat.com>
-In-Reply-To: <20251211160956.1540114-1-stefanha@redhat.com>
-References: <20251211160956.1540114-1-stefanha@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EEbzyalk"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-47798ded6fcso4015915e9.1
+        for <util-linux@vger.kernel.org>; Thu, 11 Dec 2025 13:22:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1765488131; x=1766092931; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:to:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=OqStxZfYyllVwP3LCoaJVpTLLGXSkB4ijyjb3l07dcA=;
+        b=EEbzyalkkUO0as2o46hSeep4MvFmlN9N179wo6BN6SFt3uOd7qklsXTjkFgeVVfnJH
+         buBvVAciIt2D6i9xsMOKYvEtrAjHlZgabHZ4sT2MUGBU8Zj6GcLOGfgT3P8bqXiGw4RV
+         +V20qTunsDZZKN/e98/QhN2nNcmELSs8t3RIkC7uSlcMlY3GH4PexzpG4qJzeyxbow5F
+         zCiI1Osbp4uVqXUpRTyqRGhA/xiRQJh3g3+DbO7CzlpBAEUXKtNcqOik4fDUS3fkEDVo
+         XZ1Lz4EB7qb/wCPJBB3UM4J4esGMlOhKtoYBIFJv64sGfAbLAQ9Q5A2qNVcPDlG1rSsa
+         mm/A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765488131; x=1766092931;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=OqStxZfYyllVwP3LCoaJVpTLLGXSkB4ijyjb3l07dcA=;
+        b=Ok5cRAkwEriJqNhRbH3HEx3v6PVuA4lqb+P3h0Jg+DtvK55b0QGj4JqnRNPNq2cVN/
+         9apViIVLpbohCmgoWhOROzo3KHRZcZAVk6fDVduQZjEmbq3MhjEj0UaQM3OofhOIpf9w
+         SJZU+lJTSGQmES1Bn/S/yR15XPJNDTBHuC7mC322StdIMLm+ZcU+ajn35efVpCCe3gkU
+         QHX0jA2vkXMLdi5UUI7tqhHiYTFEuUf4LbWmIxjbAP0DB+kDXqauyqxrgCL3P8foVDve
+         v+AH7gqmGC4n4qPoVlKWhPxlZs21SpMAhf0hGN+zai+xeuUXo0DeL945SgJZ7RcEE3ug
+         cAAw==
+X-Forwarded-Encrypted: i=1; AJvYcCVPvu2TwXwWtxi0/vjyxPxyzacJjHapxvUjeTqC2Rb5pvkjlqECglfVgHkFL9mIYUyQj07UP/W5Wjvd@vger.kernel.org
+X-Gm-Message-State: AOJu0YxtKPcnwVlFeU8W0xqaFE7xkF+l4G3T5MFEq+uP4z0pDnrseasM
+	9NGZVOeG3a9+9SsGq2VWQixxXwkkA5bSbaz6YNI29nbyqKFXMaINaGtd
+X-Gm-Gg: AY/fxX4dZjiBmhRmiDg8TUlx61VrbTOzSVzyX9lO6bwzMTvC7Y6c+Sdfaw6564UkUBH
+	/HrwEgFmQn8kKK5hKylHWxJXHw02N0LkTXMY84VEH7P1OpX6mlANztJj8ifyQRxO5AeTgcO5Dzu
+	NfKhMjox71OoEz9+pMX304B/5jifpdZSqoR0mDA4QSgHXcNzzq8iutw/u5MpdBZvPz7pQeZVNOq
+	6fx00FsCawGoqCEHq/0A1Cg8mdgJWnycwyZtWyk14K76IBW6ojxGuy4uyJZjbzfyJRg09PPNOCA
+	aquC9xqV0mjyxRX5KGxbSJZv1/xSN7Z4ie5tadMaz7jV26hv5lFsEbJln0/EhT0R/qt9jqpfYJ1
+	yW0g1p3JnL3bqQIHCA+OPfeM+kaCbVRAUlO7nCcD9IDDkEXORINeWdLICal9uwlUJXkanztUJv7
+	Lb4M0QJcqZt5sURwoASoLnU4VUrVDcUb6L2gz5
+X-Google-Smtp-Source: AGHT+IFAHUauzgLLqpZibM4kQq1CLjI7cJxOfsM04FiwgHpujLXZYSTw0iQb5RePMiO4AppUMp3GwA==
+X-Received: by 2002:a05:600c:190e:b0:47a:7fd0:9f01 with SMTP id 5b1f17b1804b1-47a8380641fmr83124645e9.16.1765488130484;
+        Thu, 11 Dec 2025 13:22:10 -0800 (PST)
+Received: from [192.168.2.14] (85-70-151-113.rcd.o2.cz. [85.70.151.113])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47a89f74291sm53756005e9.11.2025.12.11.13.22.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 11 Dec 2025 13:22:10 -0800 (PST)
+Message-ID: <13c13750-6420-40a8-a99c-35b46b9b009a@gmail.com>
+Date: Thu, 11 Dec 2025 22:22:09 +0100
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: Partition incorrectly identified as LUKS
+To: Anthony Rossomano <trossoma2@gmail.com>, util-linux@vger.kernel.org
+References: <4C27EBF0-B758-4528-903C-9199916EB6F9@gmail.com>
+Content-Language: en-US
+From: Milan Broz <gmazyland@gmail.com>
+Autocrypt: addr=gmazyland@gmail.com; keydata=
+ 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
+In-Reply-To: <4C27EBF0-B758-4528-903C-9199916EB6F9@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-The new IOC_PR_READ_RESERVATION ioctl reports the current reservation on
-a device. Add a command so that users can inspect the current
-reservation. This is useful both for troubleshooting and for recovery
-scenarios.
+On 12/11/25 4:20 PM, Anthony Rossomano wrote:
+> LUKS image is stored on XFS partition. When secondary LUKS signature
+> winds up at one of the offsets checked by libblkid partition then we
+> have the side effects of partition reported with crypto_LUKS fstype,
+> no by-label link created by udev, mount requires fstype, etc
+> 
+> Don’t think that this has been addressed upstream but need to
+> confirm.
+LUKS2 metadata contains offset, so it is not possible to detect
+it on a wrong offset.
 
-Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
----
- meson.build            |  3 +++
- sys-utils/blkpr.c      | 60 +++++++++++++++++++++++++++++++++++++-----
- configure.ac           |  4 +++
- sys-utils/blkpr.8.adoc |  4 +--
- 4 files changed, 62 insertions(+), 9 deletions(-)
+If it is detected on partition (secondary LUKS2 header),
+it probably means that partition was not properly wiped before reformat.
+(wipefs -a should wipe both LUKS2 headers)
 
-diff --git a/meson.build b/meson.build
-index 47b43c2af..b759e992f 100644
---- a/meson.build
-+++ b/meson.build
-@@ -768,6 +768,9 @@ conf.set('HAVE_DECL_PR_REP_CAPACITY', have ? 1 : false)
- have = cc.has_header_symbol('linux/pr.h', 'IOC_PR_READ_KEYS')
- conf.set('HAVE_DECL_IOC_PR_READ_KEYS', have ? 1 : false)
- 
-+have = cc.has_header_symbol('linux/pr.h', 'IOC_PR_READ_RESERVATION')
-+conf.set('HAVE_DECL_IOC_PR_READ_RESERVATION', have ? 1 : false)
-+
- code = '''
- #include <time.h>
- #if !@0@
-diff --git a/sys-utils/blkpr.c b/sys-utils/blkpr.c
-index 843ef7da1..0cb73a3bd 100644
---- a/sys-utils/blkpr.c
-+++ b/sys-utils/blkpr.c
-@@ -73,7 +73,7 @@ static const struct type_string pr_type[] = {
- };
- 
- static const struct type_string pr_command[] = {
--	{IOC_PR_REGISTER,      "register",
-+	{IOC_PR_REGISTER,         "register",
- 	"  * register: This command registers a new reservation if the key argument\n"
- 	"    is non-null. If no existing reservation exists oldkey must be zero, if\n"
- 	"    an existing reservation should be replaced oldkey must contain the old\n"
-@@ -81,34 +81,39 @@ static const struct type_string pr_command[] = {
- 	"    reservation passed in oldkey.\n"
- 	},
- 
--	{IOC_PR_RESERVE,       "reserve",
-+	{IOC_PR_RESERVE,          "reserve",
- 	"  * reserve: This command reserves the device and thus restricts access for\n"
- 	"    other devices based on the type argument.  The key argument must be\n"
- 	"    the existing reservation key for the device as acquired by the register,\n"
- 	"    preempt, preempt-abort commands.\n"},
- 
--	{IOC_PR_RELEASE,       "release",
-+	{IOC_PR_RELEASE,          "release",
- 	"  * release: This command releases the reservation specified by key and flags\n"
- 	"    and thus removes any access restriction implied by it.\n"},
- 
--	{IOC_PR_PREEMPT,       "preempt",
-+	{IOC_PR_PREEMPT,          "preempt",
- 	"  * preempt: This command releases the existing reservation referred to by\n"
- 	"    old_key and replaces it with a new reservation of type for the\n"
- 	"    reservation key key.\n"},
- 
--	{IOC_PR_PREEMPT_ABORT, "preempt-abort",
-+	{IOC_PR_PREEMPT_ABORT,    "preempt-abort",
- 	"  * preempt-abort: This command works like preempt except that it also aborts\n"
- 	"    any outstanding command sent over a connection identified by oldkey.\n"},
- 
--	{IOC_PR_CLEAR,         "clear",
-+	{IOC_PR_CLEAR,            "clear",
- 	"  * clear: This command unregisters both key and any other reservation\n"
- 	"    key registered with the device and drops any existing reservation.\n"},
- 
- #if HAVE_DECL_IOC_PR_READ_KEYS
--	{IOC_PR_READ_KEYS,     "read-keys",
-+	{IOC_PR_READ_KEYS,        "read-keys",
- 	"  * read-keys: This command lists reservation keys currently registered\n"
- 	"    with the device.\n"},
- #endif
-+
-+#if HAVE_DECL_IOC_PR_READ_RESERVATION
-+	{IOC_PR_READ_RESERVATION, "read-reservation",
-+	"  * read-reservation: This command shows the current reservation.\n"},
-+#endif
- };
- 
- static const struct type_string pr_flag[] = {
-@@ -140,6 +145,18 @@ static int parse_type_by_str(const struct type_string *ts, int nmem, char *patte
- 	return -1;
- }
- 
-+static inline const char *type_to_str(const struct type_string *ts, int nmem,
-+                                      int type)
-+{
-+	int i;
-+
-+	for (i = 0; i < nmem; i++) {
-+		if (ts[i].type == type)
-+			return ts[i].str;
-+	}
-+	return "unknown type";
-+}
-+
- 
- #define PRINT_SUPPORTED(XX) \
- 	static void print_##XX(FILE *out) \
-@@ -192,6 +209,30 @@ out:
- }
- #endif /* HAVE_DECL_IOC_PR_READ_KEYS */
- 
-+#if HAVE_DECL_IOC_PR_READ_RESERVATION
-+static int do_pr_read_reservation(int fd)
-+{
-+	struct pr_read_reservation pr_rr;
-+	const char *type_str;
-+	int ret;
-+
-+	ret = ioctl(fd, IOC_PR_READ_RESERVATION, &pr_rr);
-+	if (ret)
-+		return ret;
-+
-+	type_str = type_to_str(pr_type, ARRAY_SIZE(pr_type), pr_rr.type);
-+
-+	if (pr_rr.key) {
-+		printf(_("Key: %#" PRIx64 "\n"), (uint64_t)pr_rr.key);
-+		printf(_("Generation: %#x\n"), pr_rr.generation);
-+		printf(_("Type: %s\n"), type_str);
-+	} else {
-+		printf(_("No reservation\n"));
-+	}
-+	return 0;
-+}
-+#endif /* HAVE_DECL_IOC_PR_READ_RESERVATION */
-+
- static int do_pr(char *path, uint64_t key, uint64_t oldkey, int op, int type, int flag)
- {
- 	struct pr_registration pr_reg;
-@@ -235,6 +276,11 @@ static int do_pr(char *path, uint64_t key, uint64_t oldkey, int op, int type, in
- 	case IOC_PR_READ_KEYS:
- 		ret = do_pr_read_keys(fd);
- 		break;
-+#endif
-+#if HAVE_DECL_IOC_PR_READ_RESERVATION
-+	case IOC_PR_READ_RESERVATION:
-+		ret = do_pr_read_reservation(fd);
-+		break;
- #endif
- 	default:
- 		errno = EINVAL;
-diff --git a/configure.ac b/configure.ac
-index bbd2156d7..9dfb12a7a 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -449,6 +449,10 @@ AC_CHECK_DECLS([IOC_PR_READ_KEYS], [], [], [
- 	#include <linux/pr.h>
- ])
- 
-+AC_CHECK_DECLS([IOC_PR_READ_RESERVATION], [], [], [
-+	#include <linux/pr.h>
-+])
-+
- AC_CHECK_HEADERS([security/openpam.h], [], [], [
- #ifdef HAVE_SECURITY_PAM_APPL_H
- #include <security/pam_appl.h>
-diff --git a/sys-utils/blkpr.8.adoc b/sys-utils/blkpr.8.adoc
-index 3a157af38..630bafb92 100644
---- a/sys-utils/blkpr.8.adoc
-+++ b/sys-utils/blkpr.8.adoc
-@@ -25,8 +25,8 @@ The _device_ argument is the pathname of the block device.
- 
- *-c*, *--command* _command_::
- The command for managing persistent reservations. Supported commands are:
--*register*, *reserve*, *release*, *preempt*, *preempt-abort*, *clear*, and
--*read-keys*.
-+*register*, *reserve*, *release*, *preempt*, *preempt-abort*, *clear*,
-+*read-keys*, and *read-reservation*.
- 
- *-k*, *--key* _key_::
- The key the command should operate on.
--- 
-2.52.0
+Anyway, without the reproducer image it is just guessing.
+
+Milan
 
