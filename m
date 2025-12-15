@@ -1,157 +1,162 @@
-Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9C4C261B8C
-	for <util-linux@vger.kernel.org>; Sun, 14 Dec 2025 01:01:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 896313314C0
+	for <util-linux@vger.kernel.org>; Mon, 15 Dec 2025 15:02:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765674085; cv=none; b=DvBrn/7Fjam755GfB+ZYpVQZG3/hhbHEnRuP1bqd8ADfXPFPuRq7wOLnw+5U6tWjhg5Bh9oj3U209nmHQAfVKTnws+8gLpBNFL53somQ/4rPS09zBZgAdBvVYMMSWFZ5FwEqMftNxUtPS2cyfpnWMFyqdCtu7G/w8Ba5R4dDLuY=
+	t=1765810958; cv=none; b=NTKm/YHGOsB/95TkL3/UikkZ9hfI6tOUKLAxOKaF9vVSP81CSNJIhs7XLgGsw4UI6Bc4JA+JfecX82RxUHHVlVUke/m2uw0REaKVQTAoYhqhBEK+vnWiD7+iG3anEu95OzQYXhThArivTpD4W6YmAYfww0rDlE4g+OsyKhAodj8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765674085; c=relaxed/simple;
-	bh=bV9HjO9gZmss19eXB8pGXCdcLFNKBOW5R7JgQXh/loM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=KXxa5wnpzjx9xMhA4taN9XyF1ONWXx3gIpRIiY/rvXUBLdyBx0lTG/RAtmAncRFrXhshshK33AmUgvhw2uBwb+k8WUUMPG7Tve5Y5KPvLl8UXQNYr6Pg5OupS8d4ZxqM5U/r4h05oFhGqUbfEy8z3Z3gWnUUTe4zn++QIQ7LIhE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RfgXMiqW; arc=none smtp.client-ip=209.85.219.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1765810958; c=relaxed/simple;
+	bh=9DIbAAS4fmLPWh9z1hwJEGriinnfU6EzsYhzAkF4FYQ=;
+	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=WvxWS0eAxEg0EqqaNLmApmOTJoZ5Scpz2UTJJHsFI5pz1PFei0X0bsvaVIFb7tt9q2XmrpN9emFqN2cY1qap7zbNTQl2zxvVZBM7lVehoIVqqb3xXLNYLbrwIZVQql03TulnGMrq2s7ohE8u0QfboTiBVh6YdR2fWzy3lGM8Eew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ELPwejPB; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RfgXMiqW"
-Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-8824ce9812cso26290966d6.0
-        for <util-linux@vger.kernel.org>; Sat, 13 Dec 2025 17:01:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765674082; x=1766278882; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JmQbVZA56fBKgEbnqvnsf3I0K4wmZfODm7Byqe5tvkg=;
-        b=RfgXMiqWkHGOsRWWSBm7KKn+6TSoak5vlam9lsJ+j5/7635FJk7Jb0vp7XeX/38Lfx
-         Ts4TojU+LwazG6M2r2zr4SYouD3nwBB+0Frd8rmuLcjXoXFQpleO3pe2mPquumGUNFoK
-         SNcFSierbTT2pEW+uoq0Rby2ZTIz24z/6/mn5xnfhmfXF4+Y06Njd7BsBvFQJ0FeNqo3
-         i2H2u66jNtASIJwIWjKCZxivdw5P1GVq+S/2g8oP869kt1MUC5sjodr0io2/Mc06MRgR
-         4x2B2zMYmcxwF3ycUqaFet/zRFnvEO4EJ+5yOmEjQrWBcL24jxHWNHLwoMILGIBWOBrJ
-         1YAA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765674082; x=1766278882;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=JmQbVZA56fBKgEbnqvnsf3I0K4wmZfODm7Byqe5tvkg=;
-        b=Ln/NzsSI4GENDxarDnV/BnI2zfsp6xYWPJuOtsSN9syCAOkg6FXtbP684EbgS8JSIM
-         eIghjv2XbKZvvF7yQRYWZPC2uc4pp8PIEICFuqMZgKiya1i78E/x4rh5M0KEDzfsP6AJ
-         xsa2GdbBOid+JSyBMB4c9d+jP/4qMHhV7A7SG81itxYKIMxrKngGgCi3/eam8tQwGBZP
-         9GNCs3gO2ZrR/BjOjrQb+Pxbymm+wzwRHyEZ3Ek98JwFwPn0PO+jxI0T0ZXUVm8xEFu1
-         h00D4qnRan3F4ialATI4qw0Rh6SqX0isHTmNF0+ltbM52ifwgA6JAglIOco8qPAINorZ
-         uoVw==
-X-Gm-Message-State: AOJu0YwQx40401BItDmhvxBtKOoL68yfds5/wa7i9+RURQP9T098FBEH
-	7csryTsumE8rJaMspr/2TqS4KwKpGggDsLtc/egG2qQUGxbA6GTWgoPhksGMrQ==
-X-Gm-Gg: AY/fxX6oxGsUcY7Mx3uOp9qgir0I8bEXXqgz5kT5Bixm7Xdlqu+bHvzuyFQFZNr6DG4
-	N9JzQtWFXS/YqygR4t6QCU7wlEAgSHsKuI1G7dm2cPVUA2Ozd2AYkYMDbeGaaQUqXYUWB+UOe+6
-	I+cSRpPnk/OCX6588q8VKoXf4iIYe8fm3dC4sg5bU8Q+Cbq4SKMgKUfMUvoOiMHy8vQHYQwaJRZ
-	b7oQeZF+VlNYLe1x72WLIbHE2zTKJT2iogVOXaOotuuZs8BVHMnzcJc3NFkIOal72BjiUvTrX4p
-	tLQloluttSgtYMAt3bQT+ine73eze/IlQDDaq0E6gB5m0wjuWmcYe9ewj2N3AVBELFNc1DwAmfu
-	M7H1Iw7V79c7ukeXiaB94v41jWRDTWv46blEmcJmdksrHoXxU8em2Lb7/sGDMvuZzdfnHmVmsBF
-	3ixHToB6js/qghucChft1cQdYjfDtVJZrlWwQUI25VYzFtnqsNuO9VdVv2oQ==
-X-Google-Smtp-Source: AGHT+IFU3ALIr7Z3qZJ0FLedlJSye9w3hV675+Pnujp5c2WoTWIVlf8Etx5+WxYiG6Bvi4vIFabWDw==
-X-Received: by 2002:a05:6214:3c9e:b0:888:58e9:fdaa with SMTP id 6a1803df08f44-8887e19cad0mr114776896d6.21.1765674082373;
-        Sat, 13 Dec 2025 17:01:22 -0800 (PST)
-Received: from penguin.lxd (d-23-244-101-146.oh.cpe.breezeline.net. [23.244.101.146])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-889a860bd0bsm23823466d6.54.2025.12.13.17.01.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 13 Dec 2025 17:01:22 -0800 (PST)
-From: Kiran Rangoon <kiranrangoon0@gmail.com>
-To: util-linux@vger.kernel.org
-Cc: Kiran Rangoon <kiranrangoon0@gmail.com>
-Subject: [PATCH v2] libuuid: Fix pre-1970 UUID v1 timestamp wraparound
-Date: Sat, 13 Dec 2025 20:01:08 -0500
-Message-ID: <20251214010108.29535-1-kiranrangoon0@gmail.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20251213200410.31256-1-kiranrangoon0@gmail.com>
-References: <20251213200410.31256-1-kiranrangoon0@gmail.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ELPwejPB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1765810955;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=ef9lgEblGmTogvoJK7b07OBRK+jbjZpqLe2jJTbo2Do=;
+	b=ELPwejPBajCS/40xF2a5buAnFY2Jpsq2VwruHkeww9ZUzVAzQ+8zDZzFt+g5YZ1r5S/B3C
+	oymcxykCfXSc4YkRfWjSBRLCgZpie/vbvFhAfaBP24nOjjrB1THAs52ILdI5OlzX+H8R3p
+	SbUEytBFCF5OBaqz4WuC+c+wEVvyzec=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-394-LWdApg1OOIW2RewCnqm2eQ-1; Mon,
+ 15 Dec 2025 10:02:32 -0500
+X-MC-Unique: LWdApg1OOIW2RewCnqm2eQ-1
+X-Mimecast-MFC-AGG-ID: LWdApg1OOIW2RewCnqm2eQ_1765810951
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7F9C0195608E;
+	Mon, 15 Dec 2025 15:02:30 +0000 (UTC)
+Received: from ws (unknown [10.45.242.20])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 4D50619560A7;
+	Mon, 15 Dec 2025 15:02:28 +0000 (UTC)
+Date: Mon, 15 Dec 2025 16:02:25 +0100
+From: Karel Zak <kzak@redhat.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	util-linux@vger.kernel.org
+Subject: [ANNOUNCE] util-linux v2.41.3
+Message-ID: <no7nihf3ju4e6wndc45z2lro67ygi7ezebnxy63abjlart77iz@l6bynuajkn5l>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-gregorian_to_unix now returns -1 and sets errno=EOVERFLOW
-for timestamps before the Unix epoch. uuid_time_v1 and uuid_time_v6
-now use signed arithmetic to prevent unsigned wraparound.
 
-This fixes uuidparse displaying far-future dates for historical UUIDs.
-
-The regression test has been updated to show actual result instead of hardcoded wrong
-date.
-
-Example output:
-    $ ./build/uuidparse bf2eb110-d788-1003-aa59-ce1e9e293641
-Before:
-    60041-08-13 16:41:36,271592-04:00
-After:
-    1969-12-31 19:00:00,000000-05:00
-
-Handling negative timestamps gracefully would require broader changes, so I’ve kept this patch focused on preventing pre-1970 wraparound.
-
-Signed-off-by: Kiran Rangoon <kiranrangoon0@gmail.com>
----
- libuuid/src/uuid_time.c       | 15 +++++++++++----
- tests/expected/uuid/uuidparse |  2 +-
- 2 files changed, 12 insertions(+), 5 deletions(-)
-
-diff --git a/libuuid/src/uuid_time.c b/libuuid/src/uuid_time.c
-index c7516152b..f0d2c8f36 100644
---- a/libuuid/src/uuid_time.c
-+++ b/libuuid/src/uuid_time.c
-@@ -60,15 +60,22 @@
- /* prototype to make compiler happy */
- time_t __uuid_time(const uuid_t uu, struct timeval *ret_tv);
+The util-linux release v2.41.3 is now available at
  
--static uint64_t gregorian_to_unix(uint64_t ts)
-+static int64_t gregorian_to_unix(uint64_t ts)
- {
--	return ts - ((((uint64_t) 0x01B21DD2) << 32) + 0x13814000);
-+    const uint64_t offset = 0x01B21DD213814000ULL;
-+
-+    if (ts < offset) {
-+        errno = EOVERFLOW;
-+        return -1;
-+    }
-+
-+    return ts - offset;
- }
+  http://www.kernel.org/pub/linux/utils/util-linux/v2.41
  
- static void uuid_time_v1(const struct uuid *uuid, struct timeval *tv)
- {
- 	uint32_t high;
--	uint64_t clock_reg;
-+	int64_t clock_reg;
+This release addresses build issues with GCC 15 (C23) and fixes
+CVE-2025-14104.
+
+Feedback and bug reports, as always, are welcomed.
  
- 	high = uuid->time_mid | ((uuid->time_hi_and_version & 0xFFF) << 16);
- 	clock_reg = uuid->time_low | ((uint64_t) high << 32);
-@@ -80,7 +87,7 @@ static void uuid_time_v1(const struct uuid *uuid, struct timeval *tv)
- 
- static void uuid_time_v6(const struct uuid *uuid, struct timeval *tv)
- {
--	uint64_t clock_reg;
-+	int64_t clock_reg;
- 
- 	clock_reg = uuid->time_low;
- 	clock_reg <<= 16;
-diff --git a/tests/expected/uuid/uuidparse b/tests/expected/uuid/uuidparse
-index 9edb05e4e..0f521a760 100644
---- a/tests/expected/uuid/uuidparse
-+++ b/tests/expected/uuid/uuidparse
-@@ -11,7 +11,7 @@ UUID                                  VARIANT   TYPE       TIME
- 00000000-0000-3000-8000-000000000000  DCE       name-based 
- 00000000-0000-4000-8000-000000000000  DCE       random     
- 00000000-0000-5000-8000-000000000000  DCE       sha1-based 
--00000000-0000-6000-8000-000000000000  DCE       time-v6    60038-03-11 05:36:10,955161+00:00
-+00000000-0000-6000-8000-000000000000  DCE       time-v6    1970-01-01 00:00:00,000000+00:00
- 00000000-0000-0000-d000-000000000000  Microsoft            
- 00000000-0000-1000-d000-000000000000  Microsoft            
- 00000000-0000-2000-d000-000000000000  Microsoft            
+  Karel
+
+
+
+util-linux 2.41.3 Release Notes
+===============================
+
+bash-completion:
+    - (mount) add missing options (by Christian Goeschel Ndjomouo)
+    - add lsfd (by Karel Zak)
+    - add blkpr (by Karel Zak)
+    - add bits to dist tarball (by Karel Zak)
+
+dmesg:
+    - fix const qualifier warnings in parse_callerid (by Karel Zak)
+
+eject:
+    - fix const qualifier warning in read_speed (by Karel Zak)
+
+enosys:
+    - fix const qualifier warning in parse_block (by Karel Zak)
+
+libblkid:
+    - fix const qualifier warning in blkid_parse_tag_string (by Karel Zak)
+    - use snprintf() instead of sprintf() (by Karel Zak)
+
+libfdisk:
+    - (dos) fix off-by-one in maximum last sector calculation (by Karel Zak)
+
+liblastlog2:
+    - fix operator precedence in conditional assignments (by Karel Zak)
+
+lib, lscpu:
+    - fix const qualifier discarded warnings in bsearch (by Karel Zak)
+
+libmount:
+    - fix const qualifier warning in mnt_parse_mountinfo_line (by Karel Zak)
+    - fix const qualifier warnings for C23 (by Karel Zak)
+
+logger:
+    - fix const qualifier warnings for C23 (by Karel Zak)
+
+login-utils:
+    - fix setpwnam() buffer use [CVE-2025-14104] (by Karel Zak)
+
+losetup:
+    - sort 'O' correctly for the mutual-exclusive check to work (by Benno Schulenberg)
+
+lscpu:
+    - use maximum CPU speed from DMI, avoid duplicate version string (by Karel Zak)
+    - Add a few missing Arm CPU identifiers (by Jonathan Thackray)
+
+lsfd:
+    - fix memory leak related to stat_error_class (by Masatake YAMATO)
+    - (bugfix) use PRIu32 for prining lport of netlink socket (by Masatake YAMATO)
+    - fix const qualifier warning in strnrstr (by Karel Zak)
+    - fix const qualifier warning in new_counter_spec (by Karel Zak)
+    - fix bsearch macro usage with glibc C23 (by Cristian Rodríguez)
+
+lsns:
+    - fix const qualifier warnings for C23 (by Karel Zak)
+
+namei:
+    - fix const qualifier warning in readlink_to_namei (by Karel Zak)
+
+partx:
+    - fix const qualifier warning in get_max_partno (by Karel Zak)
+
+po:
+    - update sr.po (from translationproject.org) (by Мирослав Николић)
+
+po-man:
+    - merge changes (by Karel Zak)
+    - update sr.po (from translationproject.org) (by Мирослав Николић)
+
+umount:
+    - consider helper return status for success message (by Christian Goeschel Ndjomouo)
+
+wdctl:
+    - remove -d option leftover (by Munehisa Kamata)
+
+whereis:
+    - fix const qualifier warnings for C23 (by Karel Zak)
+
+Misc:
+    - Fix memory leak in setpwnam() (by yao zhang)
+
+
 -- 
-2.47.3
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
