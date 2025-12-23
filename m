@@ -1,70 +1,70 @@
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
+Received: from mail-qv1-f47.google.com (mail-qv1-f47.google.com [209.85.219.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E9951D9A5F
-	for <util-linux@vger.kernel.org>; Tue, 23 Dec 2025 18:01:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F2561D9A5F
+	for <util-linux@vger.kernel.org>; Tue, 23 Dec 2025 18:01:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766512869; cv=none; b=dIekrZzK09pMEIjBY32dHN/ijeJu9P44OA9f+gJcXZLYqxyyTLtsLT7Uajnc/w+f3/OUhfJGoiGr40zCLgd25gUhSifyORUC6XA4GBVoNoyWS/G5IL3AFB8JydDJTAg8F6FoLMQoT20mMHZ3IblmOIl7zBZpIt4Puou2lsHJf48=
+	t=1766512889; cv=none; b=mGh0+hTr3+bs61Csa7gOu24LyfleI9AM9wTSxS+GU0Nl7/rIZcRgXZbOvei4zP9iOMgVvdIaPlV9nwZGnp4FWL4wRavlC2Cb0XVuEDG4E03iPheYqjPgGW1Chb4afcAMwDcN5OmQ0fb3/ndABZkune/bhroF8fMUXJw3Bwd98cg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766512869; c=relaxed/simple;
-	bh=ssgGzaMISf25Z5uHbcQLS59Ye0O760HQ6jujXFxtzIg=;
+	s=arc-20240116; t=1766512889; c=relaxed/simple;
+	bh=fh147bjKRK8Iha9U3NwQrz6u7WAbF87KKbEJa3y37Ys=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pmrK/PmLPsu4rgAlWC3X5wpn/zdOBUp/sQMyHWmZh6aQbMs0/WSCGW8OUvTOydbsP+mbejjhPepwiO3HxEw2CYbdaOn0QNvue5lIg9O2HwYXKLftwIxNStwrN3qZeBIxvvVpwZA9WUpQAzGRF/DurLegkayIHvuRaYQX8W4rk0s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cJtYWEFf; arc=none smtp.client-ip=209.85.222.170
+	 MIME-Version; b=ZQZcgtwYDT2BIAqAN5yzSzpDpfm4IiSa1VImKoTHigeD8yRyPYCPuMK8BclQsP1VntAdUPCe0jfDzoOzVFHg7+78DWTNCGzuiW3DAmfrAOLWTuVrNZqqYQgANrJ9Ghb76NkPSMqFSd6aqYrH16jRzII98bsG2vTrxeGWmeRRVzQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SZUAL8Dh; arc=none smtp.client-ip=209.85.219.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cJtYWEFf"
-Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-8bb6a27d390so325498485a.3
-        for <util-linux@vger.kernel.org>; Tue, 23 Dec 2025 10:01:07 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SZUAL8Dh"
+Received: by mail-qv1-f47.google.com with SMTP id 6a1803df08f44-8885b3c06caso79357236d6.1
+        for <util-linux@vger.kernel.org>; Tue, 23 Dec 2025 10:01:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1766512866; x=1767117666; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1766512887; x=1767117687; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=BSrzutJG0wsw1gere4gX+uh2i9CcB0OmsPh3NkqLrW8=;
-        b=cJtYWEFfXyEz2i4/HZfr7OZ+UOqw7hVSyKiPQmsy/pyHhzzHN9oSPmAcqWm3x9ZGdc
-         NGRnfmDK+zlZlwIdJK0RjeiuF9ZeGR8zToMi5GCQRcetgN1oiuBuc8L6lUEljTeNEkGl
-         +uPg8wKmk8nCw3XKz5+RCfarBDQAfMXigZA3rAWOUcVFzmrlg0XmP7Ikcgb94nTmd7GB
-         GIbgJBcsP2UXb8rdgQUT4ZH9doAd4w0rerRWT+8Hc+UKRsTDv4WJUTUlMQoQ/4C63CeM
-         Db9PN9pk5wOkEpz2k7DDggZXSZtu5wYHTOFWGMIUFS1tI18/nN2ehMdi7aqzeWvxdw11
-         Urww==
+        bh=DWnoKIP9+b52CxRxZNQgfaSU8LtRGCMIuCkTmFpapj4=;
+        b=SZUAL8DhsnTjqYckbx1/q2NbZclAjVGFRg+S+vDr6l07b1X4sl4+TUOLjraUtB4Uvu
+         +J2hCm+nnckGcw3/cAd8o1n1Jo5WIw1F0svPkGzXEl0R55jrkjReDxYdawhOAm0PKlif
+         er2pT9jOkflbJMvkbSCPoOCFlTFA/z1pOOzbs3kRtAuo65tyfoZjohEgQXhzIPJug2Ct
+         VvcIJWvvE/8VyrlN7azOXcSHUiGYR6cg8kz95/5NrqNkbg0ovRSasobmdouA1L3nbiD3
+         NCfzSl8U5ruhbX5bKQIJ6F3J+SuPQifvx+FY1wR352JW8XQWsfA9UmBVbWQ1f0WKoYVM
+         dwCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766512866; x=1767117666;
+        d=1e100.net; s=20230601; t=1766512887; x=1767117687;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=BSrzutJG0wsw1gere4gX+uh2i9CcB0OmsPh3NkqLrW8=;
-        b=X2+xy3u4JSLLRcD3oYhEX9tQtjtNSOAANAw95AG84LVIjgGOXhmrLBfS6epB+0kD5V
-         ACU9io+WWs86mX0xBvM1HsQau0ycEiiBNgRDlLl30t0QYqijSSBdMIJOunQbLpkaccS3
-         D3uZep1YP2BZAdL1/gG36zGi4HUcGK5z/YQxJYrHB+3ztD6lJYLXlWUGMYp3jm/yTx+X
-         xkfCRmK/1cGagmqtLnEu8BV4ig9fwFZTNEOgpC+K/WwLsqhHkEjYXufBHmDgW88P7cku
-         eoe7k+1nT8JdqHjAm0IR9Cv0xtnm7oE+d3XaftxvDmsL3uSFoKcVkYDJGRD17dkWKksi
-         HrGw==
-X-Gm-Message-State: AOJu0YzNAqPOiSzPbwEdQf7o1MI6jTAQPp83Iwxc2d+OUM7umdMmvuk4
-	1K3EKvU4TDvOORAp/A1Xyve4sQVf+4KWuv5zQklEaLZRtkM3gZlnuv3lWkLlGg==
-X-Gm-Gg: AY/fxX7fibgfVbMcpf9ifhFkpjjd6TKpkw+u27ZF3vlqbVb1zjpYDqougGlH55flwi2
-	Myl8tKXvZi9jAa2wQnnIw2rl58ALW/UsZO/TlY6LgnLvdH6CS9kN32sFo/VUWvy4QvmF3OHEztc
-	1mqAWR9KdEREbCwTs3EhaIcRLz1Oie4/H4K1XDw74prhLibxCoIbXr9QSCkmLX8FQdCApL5q/IW
-	ALGgXGsWdKgwEuerpNdaGMQhL8S+7r1s9ItPAuYjNDd0SpKm0A7wAqE1nrapf7TEOOVdK9WffAu
-	lfB1iT23VjKi0XHkwyecYyXYaTqXOCVFTfIekYOiuu8KjwLg/iDSph8qprqimvNFRmeul7aJQIl
-	sirnwAZMcpJFRVx+IrttMZlrdbdhhJoNBTStGQf7DKgaVfswF4OnepHdT7SIOqMrqFu75BCltY5
-	lMW954KdgM9HCn40Uf89nkLDXmFB8Smm7TdQ7voP/eNzwBG9442uBKphykzr/hvXGrXIJo
-X-Google-Smtp-Source: AGHT+IGcyjys2BVcoesECBhr38u7PNHBvjiQY2SjxSLtf3/VZ56M9pm7mHnd9hk6iRbnmkhHrXga+A==
-X-Received: by 2002:a05:620a:44ca:b0:8b2:6606:edaf with SMTP id af79cd13be357-8c08fbf7f2dmr2566883685a.37.1766512866031;
-        Tue, 23 Dec 2025 10:01:06 -0800 (PST)
+        bh=DWnoKIP9+b52CxRxZNQgfaSU8LtRGCMIuCkTmFpapj4=;
+        b=HYyD3CMmB3NVzmQj+sszNVJQwg4eVVBYvD9nmoK/Z2eBiLfh4o9/q201wGfflziG6y
+         U7YwYn2HcFEYiIgYYhgDUl5nzKeyX1cy3mZ5DNGkQT1VAS5Xstv0PD/SYus3NYaZWi+D
+         kn+lJ1eam6zuewf/0F9+7ULhvifrvoJKNda5MZbzXDSqTijv+vidqiEj1ob8S1ZM6Oxa
+         O8QGVzNsRqGe/rHiWSwkPkz0RzujIMN2uHDostfNJE8Xxt+DYuxwQw9lcu/BEBN0yd99
+         X5qglezWuqCkw8teukWMLqNhZAuBPq+Nc4y/QzStMtn/GD+SuzqfpsuzZX0w5aTG0QnM
+         ACKQ==
+X-Gm-Message-State: AOJu0YyhWigrnn1c3kJR0Bh+CopMEV3VjWU/BEH95iCjqSkuS0VSxSK/
+	8CnHw+Bk2gX62mpyt0+LntkYnJ2m3R7lH7T0xag3pXU9MWXiSZnYHTso/8J0KA==
+X-Gm-Gg: AY/fxX5vG4DiEgEjM001zWKIpTGfmdtImsehin59AUHYfd92Xo0Tony+Y8BNMMMgN/+
+	iDk0m0AJ2muf98J8YVDEnVpuZVSEMSK3/vS1x1VEx2/PrhUA/Ntx/WXA+T7v2i56agpKQjdD9nI
+	PDob4bBLarhTKV+Chs9lX/7LYpPDvEadbkMovzvXrxlSi1WzDnVNedZY2FgKLRiZ9cfYI8+MG7x
+	+DfFJ85UaomN8z2k63+I1gxCbMSkQ9rA3Twhf2snAVFfIEKvzpNQif8AoWydGX4LNVNzs8DIZ45
+	kiA6ocpLBZAosfjRTQNT/56PYkAheii8ildcPzfXmZ3/oC1A7hSwAg0rUo6KNkHwt1ecCF7QwN2
+	X6SLCpYzgmeAmGpg5iBGlKXJMc/78WODB//LhMTR/Le9qW2EN2g0ZFUunK7qgwg9dS77dP09usP
+	fKaoOJJ12XKyc1JXxWfFYyqrNPZCHuZtkdictSRVQhEG6aLT1J7f/Cvvu5LQ==
+X-Google-Smtp-Source: AGHT+IFK4qDQuREfw8F+ojz3xfYfk11Dy8mOraf9LA2pBABfEwXTAZ1gyoE/mR5qeOxQGLADGW8XXg==
+X-Received: by 2002:a05:6214:448b:b0:882:3b63:f7fc with SMTP id 6a1803df08f44-88d87605d3cmr239468916d6.36.1766512886707;
+        Tue, 23 Dec 2025 10:01:26 -0800 (PST)
 Received: from penguin.lxd (d-23-244-101-146.oh.cpe.breezeline.net. [23.244.101.146])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c09688e3d4sm1105444185a.13.2025.12.23.10.01.05
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c09688e3d4sm1105444185a.13.2025.12.23.10.01.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Dec 2025 10:01:05 -0800 (PST)
+        Tue, 23 Dec 2025 10:01:26 -0800 (PST)
 From: Kiran Rangoon <kiranrangoon0@gmail.com>
 To: util-linux@vger.kernel.org
 Cc: thomas@t-8ch.de,
 	Kiran Rangoon <kiranrangoon0@gmail.com>
-Subject: [PATCH v4 1/4] libuuid: simplify gregorian-to-unix offset calculation
-Date: Tue, 23 Dec 2025 13:00:52 -0500
-Message-ID: <20251223180055.2396-2-kiranrangoon0@gmail.com>
+Subject: [PATCH v4 2/4] libuuid: refactor gregorian_to_unix to populate timeval directly
+Date: Tue, 23 Dec 2025 13:00:53 -0500
+Message-ID: <20251223180055.2396-3-kiranrangoon0@gmail.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20251223180055.2396-1-kiranrangoon0@gmail.com>
 References: <9c4332f5-7aad-4804-b8f5-783e06572533@t-8ch.de>
@@ -77,28 +77,55 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Replace complex bit-shift offset calculation with a simple constant
-definition for better readability and maintainability.
+Change function signature to take struct timeval pointer and populate
+it directly, eliminating duplicate conversion code in callers.
 
 Signed-off-by: Kiran Rangoon <kiranrangoon0@gmail.com>
 ---
- libuuid/src/uuid_time.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ libuuid/src/uuid_time.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
 diff --git a/libuuid/src/uuid_time.c b/libuuid/src/uuid_time.c
-index c7516152b..e2b991d74 100644
+index e2b991d74..2f7c6652c 100644
 --- a/libuuid/src/uuid_time.c
 +++ b/libuuid/src/uuid_time.c
-@@ -62,7 +62,8 @@ time_t __uuid_time(const uuid_t uu, struct timeval *ret_tv);
+@@ -60,10 +60,12 @@
+ /* prototype to make compiler happy */
+ time_t __uuid_time(const uuid_t uu, struct timeval *ret_tv);
  
- static uint64_t gregorian_to_unix(uint64_t ts)
+-static uint64_t gregorian_to_unix(uint64_t ts)
++static void gregorian_to_unix(uint64_t ts, struct timeval *tv)
  {
--	return ts - ((((uint64_t) 0x01B21DD2) << 32) + 0x13814000);
-+	const uint64_t offset = 0x01B21DD213814000ULL;
-+	return ts - offset;
+ 	const uint64_t offset = 0x01B21DD213814000ULL;
+-	return ts - offset;
++	uint64_t clock_reg = ts - offset;
++	tv->tv_sec = clock_reg / 10000000;
++	tv->tv_usec = (clock_reg % 10000000) / 10;
  }
  
  static void uuid_time_v1(const struct uuid *uuid, struct timeval *tv)
+@@ -74,9 +76,7 @@ static void uuid_time_v1(const struct uuid *uuid, struct timeval *tv)
+ 	high = uuid->time_mid | ((uuid->time_hi_and_version & 0xFFF) << 16);
+ 	clock_reg = uuid->time_low | ((uint64_t) high << 32);
+ 
+-	clock_reg = gregorian_to_unix(clock_reg);
+-	tv->tv_sec = clock_reg / 10000000;
+-	tv->tv_usec = (clock_reg % 10000000) / 10;
++	gregorian_to_unix(clock_reg, tv);
+ }
+ 
+ static void uuid_time_v6(const struct uuid *uuid, struct timeval *tv)
+@@ -89,9 +89,7 @@ static void uuid_time_v6(const struct uuid *uuid, struct timeval *tv)
+ 	clock_reg <<= 12;
+ 	clock_reg |= uuid->time_hi_and_version & 0xFFF;
+ 
+-	clock_reg = gregorian_to_unix(clock_reg);
+-	tv->tv_sec = clock_reg / 10000000;
+-	tv->tv_usec = (clock_reg % 10000000) / 10;
++	gregorian_to_unix(clock_reg, tv);
+ }
+ 
+ static void uuid_time_v7(const struct uuid *uuid, struct timeval *tv)
 -- 
 2.47.3
 
