@@ -1,72 +1,52 @@
-Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36DC9246BB2
-	for <util-linux@vger.kernel.org>; Mon, 29 Dec 2025 03:51:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4465833D6C0
+	for <util-linux@vger.kernel.org>; Mon,  5 Jan 2026 13:35:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766980275; cv=none; b=TXFVhfq6S6dfWjjbLBZoSvphh1YPzpmGr0MU8fnPAA1jXBHiNZ/MGZq6f9a83NBWlPMbpVovxf1H9OKLSuERsc1mY2gQV6HrPtW3m43wZfBkFsJSWemMqJkcuN6iVPKAStHmVX6B1QobjDtHNYO/tgWoIjcABMkyIGUzcbtqA8E=
+	t=1767620117; cv=none; b=TsMpI4LnB7XvZF4rAUfNwwNGF1/7Yh3wjBObvxUjB4W3ZgeJ6J/to6C8W6A9Utwdg0Ua5eDDGVPVjsnqSwablgZSmlhChT0UY8e6IhVx2k1jqDbIA5OI0wKp6msMZx+Bs11DLnIxOClOjR8k+JARGk9IkRTPNrUKcd87F31byOM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766980275; c=relaxed/simple;
-	bh=efs0b0Dnb01RfT9h88KJR0eg+JpZS0ZqWSo/G+IpZTM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=e09OSdEZ1E/RlTGKKCrqpEhuY/+GnJv8ms123z5BPvkcgr5W1LQ5Vk1jQVyCQoM77tH+RzUPaXIAcIC/yuM45Da0smYeaLw/VzfrmHo4Npn/lvWduW+8eB2Dvu9ZR5kZeb/TMWMY5LKquwsrIdBGKZmzH0syiSbr6A7eehPWzfs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A8Q7O5hc; arc=none smtp.client-ip=209.85.222.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1767620117; c=relaxed/simple;
+	bh=nWnOJhxIoxNbrkzB6CEPWoH+6lEBiHCi9hsgg8wHCCw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Gp4UJ9Uuz5ZQJan+dqxdESTeZQg2iv9b/NMx5uWhy2ZKMmzAON/edNjZrf4FUQk806qpVPzD4ymG6DofrUrFWz5nbKUoNn8TQgUKkl0suYFOoK6QROzVneJxcZ+0/Uf2X2ir1dPT6L6U1GcuGEJn4OfvPvyQlyUBVpqlMkeKig0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KVXWZ2hw; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A8Q7O5hc"
-Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-8b144ec3aa8so923906385a.2
-        for <util-linux@vger.kernel.org>; Sun, 28 Dec 2025 19:51:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1766980272; x=1767585072; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5bii+hPbuTm4sFowQ8dJR+Z51jxea2JVsZS0acq44r0=;
-        b=A8Q7O5hcOrnbD1pRGQLnV2wemgHOeFIMCPBmbhI+xT7F3pkz5Eg4kgcn9imh8baTKi
-         1LnbFd8sCpin2xynvfdNaUkKzD7l9mwktk8pijfsvXeMZ12I4JoALiXub4635pNzUdeT
-         Nfc7gpra+hrJqhUMdGIRpFYIzQ0j9u0kbqRdpiXE/8B6U/Tt6w3T9IP2XKaJKlJYcbnp
-         +yhNzg+G2OsZxcqJ/xjE1FtXuRCRIbM8lPkZLnoMXVc76PxUDptumSAy2A+9WCFBd1sO
-         jslce3BZELW7QeOGlPmgxZNE8Ynqujf9QBD7Zwx5YgVbWAhnh62iYQsdruhgMS3Mldhx
-         7zvQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766980272; x=1767585072;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=5bii+hPbuTm4sFowQ8dJR+Z51jxea2JVsZS0acq44r0=;
-        b=gUTVTVThT7jFiw+yhLDPQ1jqeabHdbdPwZnKvckF4pjRWm8bkpSSHVnEZwHz4XU9x0
-         plbCOuC2ozKFhmLefGirr5CWe5xxQYkxtDwKZsYnBWQ5l1sehFccFf2+TErwvuZOI7Xp
-         ZwLVTx48+/oSumo4OGG0kIGYJUXEz20NwLYLz22+DcOwg50sLHBlTwKslfvbVb6X6H/u
-         bfrvQs4TWFkdg2QxXdeXARWePJYq3yCjZ54niWPPBSFvLvi+hm4dK5Mbj7jz1c4lsySm
-         Lc6gIOeGVVnPBJk6pRnMtf8Ywk2Y0zbQUeoLZEyA/L9SRor5DgquuIdATaQvbJorLk71
-         5xsg==
-X-Gm-Message-State: AOJu0Yxn7FkVfV6hOievbl2uFJZIHt7sc89u8+VYYpog731XqI75vefh
-	1WaoaH1GPKAwcKjkLYwAIMdz8CfGgFuNJAZq8eb4RJitYc6LmpNXrQemWhq/8w==
-X-Gm-Gg: AY/fxX7aX0x/2iOKBjaS3z83QMFLXKPb6/VyEjAVZ6JtKKBz8g6M081xL82HYS1Ow4E
-	xiapSGo6/E1FSOgA8F93vvBCCHXDRYiR0IH9gHwtu2cMkjsah3rEjWETrvvD/tkL6xmfhaIgtSR
-	yNXzU4Pjy+9F/22udosuyataP5pMZ/YU4+BZIMDaSQhPaIGXeNz5WH0OV8s9BiHUH5Vel+ZhR7z
-	IkWCEQRS553b/8dIIWJPvAtwiOHioXMW5vvadXOZ88JJM/Wlt6XGnf98mQEUlW1dDFXzIA3+qXX
-	sRMJZ+u18ZL0mA20XVu83tJBA8sydTRXW8/sJ9N6s+ELB5V3IguquzuoRx+0wNLn693mJqQbhgs
-	pW1n2Nj6V/E4YTKb/dQmNZsvNvi4SuBSVOQmkIXEGX/yIYouut0nytep+hi86xBmjVc5U7OFPaM
-	lKVVlWlDeH+SdP++xHAW5y8fVs9w==
-X-Google-Smtp-Source: AGHT+IHHUT+4Fl/l5vyFK52R2dcqCgknrsJUClrqGc+m+dmM3k41erxrujRi3tXjHWTs78akiHYXSg==
-X-Received: by 2002:a05:620a:2950:b0:8b2:f269:f8a1 with SMTP id af79cd13be357-8c08fabf8f5mr5156332885a.71.1766980271845;
-        Sun, 28 Dec 2025 19:51:11 -0800 (PST)
-Received: from penguin.lxd ([146.70.202.117])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c09688e3d4sm2245401385a.13.2025.12.28.19.51.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Dec 2025 19:51:11 -0800 (PST)
-From: Kiran Rangoon <kiranrangoon0@gmail.com>
-To: util-linux@vger.kernel.org
-Cc: thomas@t-8ch.de,
-	Kiran Rangoon <kiranrangoon0@gmail.com>
-Subject: [PATCH v5 4/4] tests: correct UUID timestamp test expectations
-Date: Sun, 28 Dec 2025 22:51:00 -0500
-Message-ID: <20251229035100.5778-5-kiranrangoon0@gmail.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20251229035100.5778-1-kiranrangoon0@gmail.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KVXWZ2hw"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1767620112;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=mqBBcwXSgiXRWtlK6iS0F0CvrJ9z+wv9c/psCdLJ0Fs=;
+	b=KVXWZ2hwvmM7UeocNmn1Lklih86Oif7FC1mmJ6XOHg+NKvZkzhAH0c/DVd7XucHX7xnLJs
+	mgnZUn1el+40HW0FBHd7uSzXeqv63FSwrudgGlgFc/wpgILhrtALWdAYgECThhawqjZRPA
+	R6e+bMsj4DrzeTSLTHshscXSzqdHWYg=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-282-UzzMh2pSMHeo4E1U9L6knw-1; Mon,
+ 05 Jan 2026 08:35:10 -0500
+X-MC-Unique: UzzMh2pSMHeo4E1U9L6knw-1
+X-Mimecast-MFC-AGG-ID: UzzMh2pSMHeo4E1U9L6knw_1767620109
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id BB2C5180062F;
+	Mon,  5 Jan 2026 13:35:09 +0000 (UTC)
+Received: from ws (unknown [10.44.22.21])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 845EE30001A7;
+	Mon,  5 Jan 2026 13:35:08 +0000 (UTC)
+Date: Mon, 5 Jan 2026 14:35:05 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Kiran Rangoon <kiranrangoon0@gmail.com>
+Cc: util-linux@vger.kernel.org, thomas@t-8ch.de
+Subject: Re: [PATCH v5 0/4] libuuid: Fix pre-1970 UUID timestamp overflow
+Message-ID: <t3atqsumbwyl4rinn6apd2ywiy5vqk4fsjc3ztct2z7zs546jq@haxwj4uxpxlk>
 References: <20251229035100.5778-1-kiranrangoon0@gmail.com>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
@@ -74,46 +54,23 @@ List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251229035100.5778-1-kiranrangoon0@gmail.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-Update expected timestamps for additional test UUIDs to match actual
-output. These test cases provide coverage for various timestamp ranges
-including pre-epoch, historical, and far-future dates.
+On Sun, Dec 28, 2025 at 10:50:56PM -0500, Kiran Rangoon wrote:
+> Kiran Rangoon (4):
+>   libuuid: simplify gregorian-to-unix offset calculation
+>   libuuid: refactor gregorian_to_unix to populate timeval directly
+>   libuuid: fix timestamp overflow for pre-1970 dates
+>   tests: correct UUID timestamp test expectations
 
-Signed-off-by: Kiran Rangoon <kiranrangoon0@gmail.com>
----
- tests/expected/uuid/uuidparse | 3 +++
- tests/ts/uuid/uuidparse       | 3 +++
- 2 files changed, 6 insertions(+)
+Applied (from PR created by Thomas). Thanks to both for all the work!
 
-diff --git a/tests/expected/uuid/uuidparse b/tests/expected/uuid/uuidparse
-index e44964b30..61b49ef66 100644
---- a/tests/expected/uuid/uuidparse
-+++ b/tests/expected/uuid/uuidparse
-@@ -29,6 +29,9 @@ UUID                                  VARIANT   TYPE       TIME
- 9b274c46-544a-11e7-a972-00037f500001  DCE       time-based 2017-06-18 17:21:46,544647+00:00
- 1ec9414c-232a-6b00-b3c8-9f6bdeced846  DCE       time-v6    2022-02-22 19:22:22,000000+00:00
- 017f22e2-79b2-7cc3-98c4-dc0c0c07398f  DCE       time-v7    2022-02-22 19:22:22,002000+00:00
-+bf2eb110-d788-1003-aa59-ce1e9e293641  DCE       time-based 1586-03-19 15:05:26,3611398+00:00
-+f81d4fae-7dec-11d0-a765-00a0c91e6bf6  DCE       time-based 1997-02-03 17:43:12,216875+00:00
-+01234567-89ab-1def-8000-123456789abc  DCE       time-based 4764-11-18 19:35:47,841162+00:00
- 5c146b14-3c52-8afd-938a-375d0df1fbf6  DCE       vendor     
- invalid-input                         invalid   invalid    invalid
- return value: 0
-diff --git a/tests/ts/uuid/uuidparse b/tests/ts/uuid/uuidparse
-index 2903ce56d..f131986ba 100755
---- a/tests/ts/uuid/uuidparse
-+++ b/tests/ts/uuid/uuidparse
-@@ -56,6 +56,9 @@ echo '00000000-0000-0000-0000-000000000000
- 9b274c46-544a-11e7-a972-00037f500001
- 1ec9414c-232a-6b00-b3c8-9f6bdeced846
- 017f22e2-79b2-7cc3-98c4-dc0c0c07398f
-+bf2eb110-d788-1003-aa59-ce1e9e293641
-+f81d4fae-7dec-11d0-a765-00a0c91e6bf6
-+01234567-89ab-1def-8000-123456789abc
- 5c146b14-3c52-8afd-938a-375d0df1fbf6
- 
- invalid-input' | $TS_CMD_UUIDPARSE >> $TS_OUTPUT 2>> $TS_ERRLOG
+    Karel
+
 -- 
-2.47.3
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
