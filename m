@@ -1,53 +1,55 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E86271EB9FA
-	for <util-linux@vger.kernel.org>; Mon, 12 Jan 2026 14:05:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A912B35BDA0
+	for <util-linux@vger.kernel.org>; Mon, 12 Jan 2026 14:08:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768226756; cv=none; b=tdEQ85lobxFi9dFaVONj/mvWhLVq4ny0H75GDTNwolOJs6lDWfM/A0k5oFX1cWVPFH3VTVaSEWkdr0/dH0rxCmpyuRXgFcXKhYGLl3DTuvbtbLBBsxifeEDCoK1vLuPRn5IQdbqef/t0l/hZKZ46Q4ATADN8H/e5QBVOPCu+cDs=
+	t=1768226939; cv=none; b=Kpv0T562P86A74xPVFPijzGFpXGi3p7TDegJkcttCs8Jv6wqv3A2yblcUABCVZYl9/ExJ2D2Zd5juD3sQGInIo10aVhXhDjiZ4nwCN7PczE6duGO+lERbpH7Iekl4ul6YX588Jmw0qpxBOq1t5wuhZpUfGcGgwfGM9Nk5sWHUXE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768226756; c=relaxed/simple;
-	bh=vBZU6kyyR182cFvWTpHuUQw6e70ThTydKg09Y9rBw2U=;
+	s=arc-20240116; t=1768226939; c=relaxed/simple;
+	bh=KqdA5QNrBccVgs/Gt2WfPe1nlvIFNm/ULf5gvFxQzFg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PKxZ92jTzbWK15FuqzMn4Cm1/KkdyV1pOmz4NDTaTGU6qoZEd9zrvkNBMaswqQ6jMZMVJTvt1sV9RDYH9CpENIHnmtfFYuZGLh7o6ezRaKgcb1/L15o1MX2Sjl8T2EmsW326mKOauSbIpAJF3zZ+SpAC7JhxYXr/KK3pKzH1p3c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=d9p2jOR1; arc=none smtp.client-ip=170.10.133.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=ckPRMIMD94uinPR6zjHWGLQOFEvfS2xJJgPHqIu0WIwS0tCkyFS9qFtzhXs1ImUz4H254kh43Z/m6y+O+Q7ouNSmVzOyJDyw3JyJ6b0xWyl/RYz16Y2f1uWeVGnGAiwaHnsBBXvTYCrBqzZb1j/mB7XEfD1ljilHIdpFEy6M8cE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NRHBBI4Z; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="d9p2jOR1"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NRHBBI4Z"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768226753;
+	s=mimecast20190719; t=1768226923;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=50Ha5OGyJjMNCBFc4GapZls/AhZspTGyW2Ebu0FHMWA=;
-	b=d9p2jOR1lKlGZ29j2oyTogINz7fTtOdP99/+HF4VXM4mL1q5c8VRfyjiXfbytlDgOWSvbu
-	NcY9C2vwnI98JlP0AkxsBSACSJFZK0e6U9zwxcJJ5Ciss6kbT8myaaYPrKpIKa2VwV/okd
-	EQ2mhP4+611xXcH7lIVnq1YtK3I9D2M=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+	bh=4gDfvtRS+sby5PGV5zggp6ankpWzKNkEi4CSepV9H80=;
+	b=NRHBBI4ZD0jZDQGIc6/6uUP7lmiF18hjfytTW134Fs7IatTm+2h7IebPvnLiLpwmdQB8pp
+	OGHBC6/c9IVX1Ob4YDNvxsW93xKuN1/O6fy0vJCQct7Hpa1bf4GORokYAQKImmWvGMRzQt
+	F2iiqyARjNKr5pvB1WShXORQQoqVhWE=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-510-PRWHz5xtNNa7GPicifWxqg-1; Mon,
- 12 Jan 2026 09:05:50 -0500
-X-MC-Unique: PRWHz5xtNNa7GPicifWxqg-1
-X-Mimecast-MFC-AGG-ID: PRWHz5xtNNa7GPicifWxqg_1768226749
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-80-hil7BOcQMMC4qr1omubOOA-1; Mon,
+ 12 Jan 2026 09:08:40 -0500
+X-MC-Unique: hil7BOcQMMC4qr1omubOOA-1
+X-Mimecast-MFC-AGG-ID: hil7BOcQMMC4qr1omubOOA_1768226919
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id AEBDE19560AF;
-	Mon, 12 Jan 2026 14:05:49 +0000 (UTC)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9D26818005B4;
+	Mon, 12 Jan 2026 14:08:39 +0000 (UTC)
 Received: from ws (unknown [10.45.225.101])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C29B919560AB;
-	Mon, 12 Jan 2026 14:05:48 +0000 (UTC)
-Date: Mon, 12 Jan 2026 15:05:45 +0100
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B923F1800577;
+	Mon, 12 Jan 2026 14:08:38 +0000 (UTC)
+Date: Mon, 12 Jan 2026 15:08:35 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Kiran Rangoon <kiranrangoon0@gmail.com>
+To: Benno Schulenberg <bensberg@telfort.nl>
 Cc: util-linux@vger.kernel.org
-Subject: Re: [PATCH 0/5] unshare: fix signal forwarding to child processes
-Message-ID: <3tysdpabjulwlmr3hkm4pr7romwtf6cofhghth7buyuxnmwr5r@pliehv2xicmy>
-References: <20260108183134.23980-1-kiranrangoon0@gmail.com>
+Subject: Re: [PATCH 1/3] losetup: snip --verbose from bash-completion, and
+ 'v' from options string
+Message-ID: <rcye4f5givltdznmz34oi5be7b6jly6vcy5bh2vy3ogbq7nkp5@7pguu423m6zn>
+References: <20251209150222.50981-1-bensberg@telfort.nl>
+ <6zqviy7rkkjvfubrunegtw5poeyq4tstg7wltnca36tnul3w2x@hs2oxaatxptl>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -56,18 +58,19 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260108183134.23980-1-kiranrangoon0@gmail.com>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+In-Reply-To: <6zqviy7rkkjvfubrunegtw5poeyq4tstg7wltnca36tnul3w2x@hs2oxaatxptl>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-On Thu, Jan 08, 2026 at 01:31:29PM -0500, Kiran Rangoon wrote:
-> This series fixes a bug where unshare with --fork was not properly
-> forwarding SIGTERM and SIGINT to child processes, causing premature
-> termination during system shutdown.
+On Wed, Dec 17, 2025 at 12:00:48PM +0100, Karel Zak wrote:
+> On Tue, Dec 09, 2025 at 04:02:20PM +0100, Benno Schulenberg wrote:
+> >  bash-completion/losetup | 1 -
+> >  sys-utils/losetup.c     | 2 +-
+> >  2 files changed, 1 insertion(+), 2 deletions(-)
+> 
+> Submitted as a pull request to https://github.com/util-linux/util-linux/pull/3910
+> for CI testing.
 
-Thanks. 
-
-Created PR https://github.com/util-linux/util-linux/pull/3961 to test
-by CI on github.
+Merged a few days ago. Thanks!
 
     Karel
 
