@@ -1,110 +1,86 @@
-Received: from mail-yx1-f51.google.com (mail-yx1-f51.google.com [74.125.224.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF62A2EB840
-	for <util-linux@vger.kernel.org>; Tue, 13 Jan 2026 20:16:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F64B38944A
+	for <util-linux@vger.kernel.org>; Wed, 14 Jan 2026 09:29:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768335413; cv=none; b=leYvz8TRFtmJ1IilkqYY346gCdeK9bEcKFsWL3U5DY3wHxDa4FTne0rurYMzHSFUkLUUqc6dY15DcZ/danwhv+mgK6jARi1GUhuhXFwOMyW3X9WJ1qv/7FveTK0K0ji0ztGz53xZU33KOa0GNi7K1QrfCdHLVUwvvn2CIgebt7k=
+	t=1768382969; cv=none; b=IoPhhly6C2xXD4tLf0po/Qax3/oD6SayQvZ6xjxzvYvjmzCUpBdfyXMLtMjeyxll7fptRDQKLId5ZQ+jEoZXPcCMig3MUMBUtkYQTXDYxLqviAJqBpJ7DVtuo+SvCu7qEMLawoLa36eajwtyCuyF+wt2E9fErLP5Bs/lD4t5jSI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768335413; c=relaxed/simple;
-	bh=i7Q0cppGHnXoJlzKDTPAA4Ox8F1xyo7tsBiGT/yZWUc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HmMkc7ghBL8IAri4ctkjmEnoqzOib107tO4+62/56h8e8HV8k4lLh1tpwxgKGo+d4BTjq5i2V/V/+uW6i1CwseSWPy6BDVV6ZCIQ4vu/ukOCb/bkA1jHJFofBhl4C0UHUym42Af8toZvMdJWsRu8sH8r6fnMWWQhulP+r0XNaUk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dubeyko.com; spf=pass smtp.mailfrom=dubeyko.com; dkim=pass (2048-bit key) header.d=dubeyko-com.20230601.gappssmtp.com header.i=@dubeyko-com.20230601.gappssmtp.com header.b=Hwam6yh+; arc=none smtp.client-ip=74.125.224.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dubeyko.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dubeyko.com
+	s=arc-20240116; t=1768382969; c=relaxed/simple;
+	bh=0RuxCL5zBIFguHb39hXEQugp5yp37Ntj6FG3EuUOzZY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=c8kdFqzUjVCFXcFjwyaMqVIK7ZkIe5SU5ptA1v6yua3FAWBwCKC5XW7XaoeXW3EFiKS/pTwRuSxc+bBj9X9j10u0AAQT41+eSWYu6GxWq8VGl2C0ZfsU8peTyND2TBKrOj++QeGgo3onYqeqscXjUU6X1/hwh2R7P6yK/jiMuok=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ib3HQncm; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=dubeyko-com.20230601.gappssmtp.com header.i=@dubeyko-com.20230601.gappssmtp.com header.b="Hwam6yh+"
-Received: by mail-yx1-f51.google.com with SMTP id 956f58d0204a3-644715aad1aso279100d50.0
-        for <util-linux@vger.kernel.org>; Tue, 13 Jan 2026 12:16:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dubeyko-com.20230601.gappssmtp.com; s=20230601; t=1768335410; x=1768940210; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=PxakD1KmYQa92a3vZ7/OlBVuBUSn3nQs6Us3iV3sL6Y=;
-        b=Hwam6yh+pF05hqzfKu0TuhGJGLYhBSjVPC6FWINo7k0J/IPSg3/lgBQEAPSnyMukeB
-         sgFz0HM5E89y13JPankrblWGAWXyE9ycWQif9EIJEWLoevFfssnMcIFKQsvrp1CG++uK
-         6Lry/CRqNthQR73KNRXeNLBgn+oA+dNgbMojghyqwIeNWN+1MgxFKpxCtnZ6LOAYwWvM
-         mmMfv6wt96ebEGUGckz/7jrWz4s5G8EbkM9xPftCEfZWvR6aDy67Kl10vlG9kE4aosZw
-         ehZkeUctbmwMU42oM2R1ANwpdBR525/2rAuKujlJJPJ8AefJ9bHNHurWTzJmZ5A6esKC
-         2S2w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768335410; x=1768940210;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PxakD1KmYQa92a3vZ7/OlBVuBUSn3nQs6Us3iV3sL6Y=;
-        b=EgVhnup4WlhOWGLxUBdwmOYeq5e16vkGCGMopsLm8ZGDJBMy+o46UgKeGpJLNMXkeZ
-         45SIBoEdW3XcK5Wkxb1/C5p5+JvwZG+sc4fdhv5Vie+b2RW9I951FOzCHxUk6XBIqloB
-         6gJPnd2Vp55dUWtc9i1qj2pHzHUFekwr2aKPdTqKyZXKYNdFw/1dYw8A9APMi22lMaX6
-         KbAS/hfCeleuGcykA4JvVbEZtTRCkvnwLfqv5BAY8H+N+9V5mvA0q16NigLS2oZYS4Ks
-         pycRmQXM8qpYOnYJMYKO9EKCnFpE9otQyg07PkWvUdjXaBDlPaf2KceOsKN0NJtOFUv4
-         Gx1Q==
-X-Gm-Message-State: AOJu0YzywOCW11bTfIHD011nEVIfIutM6l44wyHbDRqAJfCDA2YQUJsP
-	GrfjlCcL3nqxHL7meXct5thTYlfSluwDqhQ1B0dySCuXa6xwuMqSZZKpFnQ1HPtRcYFifxsRC3a
-	MS7zr/yM=
-X-Gm-Gg: AY/fxX7EmAQqLIUI/PzEJQEtVWKo/8ohWwIr8y3mIuUqxq2bJOhvfXjSioUWGqWgKoi
-	xccDRnydi5kldsOfrtX3KBMLOZLgu51yWn/GJbhaBaVbDOAnmWoLGRsnuO6ROpJOkg7u4Uj7LHS
-	g7u6an+u590xjLqnOe0Y9wvxa3nnqg4H/lZUCt16bEm7ssOWFDVLgeqr/dotukofXVUMiigjT4l
-	2YZnhGFux9nkRubpapS8tZaALJea4H3KHfL88yGvR9rb6bdlYj5GJOfmYZI0C5nnhBCnnJmNRql
-	AzmOKBOQbA4eR+jdX4B0vcLdlCreQyCUQZevwpgfZd3R8Nq/FGV2emIk0IqtIVgnUjp7QEp+OqL
-	R+L9LAIOsGVWbv6HAGriSZUDDRGjFJjmznPC8aInUuyRp6qducbrNgMPLFLmffcHCcYfPVrWIhn
-	nTKDxsCOGJ39DvD7wShaTMIxNxNK8CEtQTFnZK+wkykj7hGPeZynyUDqWcbVuqF4jq9A3XFPr6l
-	SUYnBpLqyffex6A+hk=
-X-Received: by 2002:a53:8543:0:b0:645:5297:3e5d with SMTP id 956f58d0204a3-648f638c88cmr2981073d50.46.1768335410350;
-        Tue, 13 Jan 2026 12:16:50 -0800 (PST)
-Received: from system76-pc.attlocal.net ([2600:1700:6476:1430:cf4e:ea8f:19ac:63a0])
-        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-6470d80be64sm9666151d50.6.2026.01.13.12.16.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Jan 2026 12:16:49 -0800 (PST)
-From: Viacheslav Dubeyko <slava@dubeyko.com>
-To: util-linux@vger.kernel.org,
-	kzak@redhat.com
-Cc: ceph-devel@vger.kernel.org,
-	idryomov@gmail.com,
-	linux-fsdevel@vger.kernel.org,
-	pdonnell@redhat.com,
-	amarkuze@redhat.com,
-	Slava.Dubeyko@ibm.com,
-	slava@dubeyko.com,
-	vdubeyko@redhat.com,
-	Pavan.Rallabhandi@ibm.com
-Subject: [PATCH v2] mount: (manpage) add CephFS filesystem-specific manual page
-Date: Tue, 13 Jan 2026 12:16:37 -0800
-Message-ID: <20260113201636.993219-2-slava@dubeyko.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ib3HQncm"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1768382967;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=egitCqoPWwid8Fe+BOBcmLWtnyZdRr835gW8BnU1y3A=;
+	b=ib3HQncmVLqyMCmbh8Q8L1/fHokLUiqWbdW3qskrCaeHI4G+8fSdmWq+3ywqeIHDVf2+TK
+	QZXj9hxFVJjaBNsqTi/jJVxz6222OiHM3AxHBBpQk04nzALl/3O2l2Tfcw24oaolQFpMkG
+	HVdGUttkbUWGAFrt30EoPZVjhw0mmco=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-498-vA5---oWMBaXRDGHR0yfNA-1; Wed,
+ 14 Jan 2026 04:29:22 -0500
+X-MC-Unique: vA5---oWMBaXRDGHR0yfNA-1
+X-Mimecast-MFC-AGG-ID: vA5---oWMBaXRDGHR0yfNA_1768382961
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D7DE619560A5;
+	Wed, 14 Jan 2026 09:29:20 +0000 (UTC)
+Received: from ws (unknown [10.44.33.173])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1D6B81956048;
+	Wed, 14 Jan 2026 09:29:17 +0000 (UTC)
+Date: Wed, 14 Jan 2026 10:29:14 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Viacheslav Dubeyko <Slava.Dubeyko@ibm.com>
+Cc: "slava@dubeyko.com" <slava@dubeyko.com>, 
+	Alex Markuze <amarkuze@redhat.com>, "util-linux@vger.kernel.org" <util-linux@vger.kernel.org>, 
+	"ceph-devel@vger.kernel.org" <ceph-devel@vger.kernel.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, 
+	"idryomov@gmail.com" <idryomov@gmail.com>, Pavan Rallabhandi <Pavan.Rallabhandi@ibm.com>, 
+	Patrick Donnelly <pdonnell@redhat.com>
+Subject: Re: [PATCH] mount: (manpage) add CephFS kernel client mount options
+Message-ID: <urbvcc5r4fc6rsvwhikem73tbdmapvyy6mtrqbbl7vsdvoeis6@upwfm2u5jk3t>
+References: <20260112205837.975869-2-slava@dubeyko.com>
+ <binwryzqlbprj2t3ybxb5kychdeenhtmadbe23hov44urszvn5@kpbbv3qks47c>
+ <c15ce83bf9ee6c5c37db193c33a77b52f0594564.camel@ibm.com>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c15ce83bf9ee6c5c37db193c33a77b52f0594564.camel@ibm.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-From: Viacheslav Dubeyko <Slava.Dubeyko@ibm.com>
+On Tue, Jan 13, 2026 at 07:29:00PM +0000, Viacheslav Dubeyko wrote:
+> My assumption was that if other file systems have description of specific mount
+> options in this man page, then CephFS should have too. :) 
 
-Currently, manpage for generic mount tool doesn't contain
-mentioning of CephFS kernel client filesystem-specific
-manual page. This patch adds the mount.ceph(8) mentioning into
-file system specific mount options section.
+Unfortunately, some filesystems lack specific man pages, so mount.8
+serves as a fallback solution for them. In an ideal world, mount.8
+would not include filesystem-specific mount options.
 
-Signed-off-by: Viacheslav Dubeyko <Slava.Dubeyko@ibm.com>
----
- sys-utils/mount.8.adoc | 1 +
- 1 file changed, 1 insertion(+)
+I have added a link to mount.ceph in mount.8
+https://github.com/util-linux/util-linux/commit/de7973f9906da09b86f221b030ec836c1e91fd22
 
-diff --git a/sys-utils/mount.8.adoc b/sys-utils/mount.8.adoc
-index 4571bd2bfd16..43d2ef9a58a4 100644
---- a/sys-utils/mount.8.adoc
-+++ b/sys-utils/mount.8.adoc
-@@ -853,6 +853,7 @@ This section lists options that are specific to particular filesystems. Where po
- |===
- |*Filesystem(s)* |*Manual page*
- |btrfs |*btrfs*(5)
-+|cephfs |*mount.ceph*(8)
- |cifs |*mount.cifs*(8)
- |ext2, ext3, ext4 |*ext4*(5)
- |fuse |*fuse*(8)
+Thank you for the suggestion!
+
+ Karel
+
 -- 
-2.52.0
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
