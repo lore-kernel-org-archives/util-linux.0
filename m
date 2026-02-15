@@ -1,111 +1,114 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A7DE3EBF37
-	for <util-linux@vger.kernel.org>; Sat, 14 Feb 2026 15:25:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00417279DC2
+	for <util-linux@vger.kernel.org>; Sun, 15 Feb 2026 08:34:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771082757; cv=none; b=Ql4D9oFVi070bNUBfosFouvDrbYYJzgnoSDcg7s3cmf47SWUHpNznz3t4yeY41MTzpwiZOgD3gRDTPqXHQrpwYGDv0ic+p0SXV6L45XPr++4k1u0hPpxAqqW+IqDw7u5hjfvBvRKhyCOX3unZbVoOfxsIIUxkndj4oRlGZNmbyI=
+	t=1771144482; cv=none; b=lOvWCl1RT8jWTogGKEwvlxFOo+MzVDTjUQICHw7cXOQjAGP6Coeg0pSDvNH6h63osM5+chkR9EN3OmkG6eSnSrEJTVtcJCSuoRbeOqB8NONDJItp/9L+XFZkXV8F2p8fpqHeH8OaVi4e1edrdhVczSoTSTtfB7m8k0tEas2emdc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771082757; c=relaxed/simple;
-	bh=nU0M8+vcSPTzXQ/nsiIYVwJlJVStX8pzfGxx4FSN66g=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hmwHGJV7HwDxqt4zwQJ7evtZZeqS0qS0RomJCP1jLGmpPyzpfDS+zYwTKuE1iMVVSV87JZSERRQLjQ/FO2LQtWdznT5ZA0cU5M/KxPmK66mK6S4u0Pcqp+zWIQNYc6tAHNoOrJemoRsuTeWPnbYmfCzXAPo2u6KzyJ+o3Jgr3hE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=coevern.nl; spf=fail smtp.mailfrom=coevern.nl; dkim=pass (1024-bit key) header.d=kpnmail.nl header.i=@kpnmail.nl header.b=ft4SktJ+; arc=none smtp.client-ip=195.121.94.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=coevern.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=coevern.nl
+	s=arc-20240116; t=1771144482; c=relaxed/simple;
+	bh=aDheW/VQ3pU2GXXH6hZlLeYPCjWtolXw3Zz4YLdWKIo=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=hSjc3nFnBd49BES9hvIeKMjOUhxPVORuMxXnpMBxjleT3ah00uTloaxrxFqxjCDv7g2DjB4Gp8qZq1FZm1GbJoTsYVlO3/rAhc9Rwbmtn4HDPZ+sb9tiwmc102HMEk+rpT3aniNSwlTBkwA++5mzhaU+CHDtuJNve8gSAgSRldk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SJhFgVrX; arc=none smtp.client-ip=209.85.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=kpnmail.nl header.i=@kpnmail.nl header.b="ft4SktJ+"
-X-KPN-MessageId: 49ae13ce-09b9-11f1-929f-005056aba152
-Received: from smtp.kpnmail.nl (unknown [10.31.155.40])
-	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 49ae13ce-09b9-11f1-929f-005056aba152;
-	Sat, 14 Feb 2026 16:24:43 +0100 (CET)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SJhFgVrX"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-48374014a77so17781665e9.3
+        for <util-linux@vger.kernel.org>; Sun, 15 Feb 2026 00:34:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=kpnmail.nl; s=kpnmail01;
-	h=content-type:from:to:subject:mime-version:date:message-id;
-	bh=nU0M8+vcSPTzXQ/nsiIYVwJlJVStX8pzfGxx4FSN66g=;
-	b=ft4SktJ+tbTbPn4Nq19MLm47bpdN8qLN1eVaev+gFvyYsY3vvU/+AkQKV2jyl3kIERpgoV4prRc7Q
-	 V9qj2XIyBfpmpJRtPfatRj5ThgnjMSZQuL+mFMpX8+ngQV9bM6+LG4tx5uYur0rF8x31JjylmE+EtA
-	 Up3NL+pPvt4d3ePc=
-X-KPN-MID: 33|axvHz5pvG+1TrTlwHYjxH/JiRG6NYJKd8xqJjFGwYzUlJQdaCg3/VLnv6V32rNU
- X+Xf70T+Lbi8531i8mSpnlevOCP8V3WIVfAUI8yrW1Z8=
-X-KPN-VerifiedSender: No
-X-CMASSUN: 33|aUECizDu3677hSNdfX7D+RXOf/B4FRNeN6oAdlAi0ylKlSKSF3lMSTT5h/0IwLQ
- AbQopZnfhzAYJeAIAsgSGfg==
-Received: from [192.168.2.23] (77-163-176-192.fixed.kpn.net [77.163.176.192])
-	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 49960d30-09b9-11f1-b8dd-005056ab7584;
-	Sat, 14 Feb 2026 16:24:43 +0100 (CET)
-Message-ID: <ff9b88bf-351b-47a8-95d3-dffa23f059ea@coevern.nl>
-Date: Sat, 14 Feb 2026 16:24:42 +0100
+        d=gmail.com; s=20230601; t=1771144479; x=1771749279; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=RxOIDAoXiT8jwwvpZ7Wiv1o0m0jQpEybtRXCHeu85Jc=;
+        b=SJhFgVrX1Vy8Kzf0SslYb6/bNdzyOiMsMJab8YOHPGHXUMhY/d3iFcOuDoymtrlsna
+         nHfreUgFPj9iYlOZ/ufROJ4K5yRk8f0mEE8xb3f8mXQnMZZ0mvdbTFla+r3lY+ya8o5e
+         cw6AnyVwdu7cqrc61ygaexWkMV10i1qgoB5UgFviGFwejjyUY33vZ3V4dN2apb2bF4oA
+         VvsDCTc1aqF1aGo1tJ+5YSYUhHDuqPpvU4OxdOMqC0tqXl9U+eQf+VOiYmDSvT/FFIur
+         wXkYBlUfrkxrjoAFNmLW7Nf3Z7b5PR9aeV9lXvBIRkp5DpZmjSh+kGlMTx+a0Y6tqXfo
+         WnrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771144479; x=1771749279;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=RxOIDAoXiT8jwwvpZ7Wiv1o0m0jQpEybtRXCHeu85Jc=;
+        b=sz4cfH0p1+SS84sx9NQilmpdye3KPaSNneakVeBcuSvPB8aVtVsG6WvAACvTfOnS9A
+         Hclv/95304yH0WOTBKG6Dh8fZhZeUPkG9Au3eFfX2ZmMqlBjvcmTgCe3WuW4ntyO1lu7
+         kRw75SfX/doNRgcjn8cPwyQEm3MPxskHtImnjTPOYkUcNImV1NHHQAwn1s2BOzzfTTIY
+         WVXrJ95Ma/xSdmm8ThrWypuGp7qTuyBly5MkDpt7MWtjP9pId8y6IsZFxiGK1I893Ask
+         5qhkqpj/uFuvrsO1KmxXqMgi0QCnj6H5AkserYUbsbzIKGtyA/ied6Giex4wdUoqlXvt
+         7b4Q==
+X-Gm-Message-State: AOJu0YzRMz1+UElgLdJwaxzKwIAcbPcaWvYKlgQ4n2T/c2+MH+Amtqa8
+	gJXm0goon7TehesNjzcYb1I5LiynNYS8dinVoadkwpE4mSbOfldgp6w/3/8d8FBFQp8=
+X-Gm-Gg: AZuq6aKOGyMgzxNo4zxEtJOY9ToFGwrsWKcBqAmTF6hvj5c9HvHG8UD8ERmNGZKZVKq
+	sRTbkQVhglu3BCY++nw15cqp7Th+PgpzMTa74SmucjDwsCuNJ0vw/Ae/d1U0+xAROJiRdF6y1xI
+	5Cgl7wgbt/r/gV5kH4IsNyunoV4Y6772KpKqw93NTJf8149jam2k0FgHJbn/FFhTGNRUHY4LMch
+	ahPEVQK5oUXLSadMFSXcZXNb62CcuKNAn6GcLMrPWh6FUsWOGLEguIc9cBZ8kEKpoaIa3DVcKDP
+	buKjVMZqaZD/uUSX7Gdxv7uO3DrxPQlfcjsx8COfqjZZ135bDG7TEhazV7kw+Ck9j04fTAS3i3E
+	zF/0LAlIlHqwNURQQlnfNWhsYLkZhqh+i5juF1bv192zsROigxQBEMx1YJ0jtOPw4VzLKwQ1BPY
+	w8Rq4sobaH7OHu6/fCbl5mNHaV
+X-Received: by 2002:a05:600c:c04b:20b0:483:7eea:b185 with SMTP id 5b1f17b1804b1-4837eeab9e2mr41409835e9.16.1771144478845;
+        Sun, 15 Feb 2026 00:34:38 -0800 (PST)
+Received: from system.. ([178.131.176.225])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-483709fdd39sm93326795e9.0.2026.02.15.00.34.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 15 Feb 2026 00:34:38 -0800 (PST)
+From: sina-abroshan <sina.abroshan@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: kzak@redhat.com,
+	bensberg@coevern.nl,
+	Sina Abroshan <sina.abroshan@gmail.com>
+Subject: [PATCH] lsblk: improve error reporting for invalid device paths
+Date: Sun, 15 Feb 2026 12:04:17 +0330
+Message-Id: <20260215083417.185974-1-sina.abroshan@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260212112423.2400888-1-sina.abroshan@gmail.com>
+References: <20260212112423.2400888-1-sina.abroshan@gmail.com>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] lsblk: improve error reporting for invalid device paths
-To: sina-abroshan <sina.abroshan@gmail.com>, util-linux@vger.kernel.org
-Cc: kzak@redhat.com
-References: <20260212112423.2400888-1-sina.abroshan@gmail.com>
-Content-Language: en-US, nl-NL, es-ES
-From: Benno Schulenberg <bensberg@coevern.nl>
-In-Reply-To: <20260212112423.2400888-1-sina.abroshan@gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------hQuW2CJPcWZ0F64qvFQKe0U7"
+Content-Transfer-Encoding: 8bit
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------hQuW2CJPcWZ0F64qvFQKe0U7
-Content-Type: multipart/mixed; boundary="------------QeUQWj4gUirT9YHTduaQfzCe";
- protected-headers="v1"
-From: Benno Schulenberg <bensberg@coevern.nl>
-To: sina-abroshan <sina.abroshan@gmail.com>, util-linux@vger.kernel.org
-Cc: kzak@redhat.com
-Message-ID: <ff9b88bf-351b-47a8-95d3-dffa23f059ea@coevern.nl>
-Subject: Re: [PATCH] lsblk: improve error reporting for invalid device paths
-References: <20260212112423.2400888-1-sina.abroshan@gmail.com>
-In-Reply-To: <20260212112423.2400888-1-sina.abroshan@gmail.com>
+From: Sina Abroshan <sina.abroshan@gmail.com>
 
---------------QeUQWj4gUirT9YHTduaQfzCe
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Differentiate stat() failures from non-block-device cases,
+so users get accurate errno-based error messages.
 
-DQpPcCAxMi0wMi0yMDI2IG9tIDEyOjI0IHNjaHJlZWYgc2luYS1hYnJvc2hhbjoNCj4gLQkJ
-c3RydWN0IHN0YXQgc3Q7DQo+ICsgICAgCXN0cnVjdCBzdGF0IHN0Ow0KPiAgIA0KPiAtCQlE
-QkcoREVWLCB1bF9kZWJ1ZygiJXM6IHJlYWRpbmcgYWxvbmUgZGV2aWNlIiwgZGV2bmFtZSkp
-Ow0KPiArICAgIAlEQkcoREVWLCB1bF9kZWJ1ZygiJXM6IHJlYWRpbmcgYWxvbmUgZGV2aWNl
-IiwgZGV2bmFtZSkpOw0KDQpXaHkgdGhlc2Ugd2hpdGVzcGFjZSBjaGFuZ2VzPyAgVGhlcmUg
-c2hvdWxkIGJlIHRhYnMgdGhlcmUsIG5vdCBzcGFjZXMuDQoNCj4gLQkJaWYgKHN0YXQoZGV2
-bmFtZSwgJnN0KSB8fCAhU19JU0JMSyhzdC5zdF9tb2RlKSkgew0KPiArCQlpZiAoc3RhdChk
-ZXZuYW1lLCAmc3QpICE9IDApIHsNCj4gKwkJCXdhcm4oXygiJXMiKSwgZGV2bmFtZSk7DQpH
-ZXR0ZXh0aXppbmcgYSBtZXNzYWdlIHRoYXQgY29udGFpbnMgbm90aGluZyB0cmFuc2xhdGFi
-bGUgaXMgcG9pbnRsZXNzLg0KSW4gb3RoZXIgd29yZHM6IGRyb3AgdGhlIF8oKSBjYWxsLg0K
-DQoNCkJlbm5vDQoNCg==
+Signed-off-by: Sina Abroshan <sina.abroshan@gmail.com>
 
---------------QeUQWj4gUirT9YHTduaQfzCe--
+---
+v2:
+ - Use tabs instead of spaces
+ - Drop unnecessary _() around "%s"
+---
+ misc-utils/lsblk.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---------------hQuW2CJPcWZ0F64qvFQKe0U7
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+diff --git a/misc-utils/lsblk.c b/misc-utils/lsblk.c
+index 3d2bc21a6..6a8769bc7 100644
+--- a/misc-utils/lsblk.c
++++ b/misc-utils/lsblk.c
+@@ -1797,7 +1797,12 @@ static int __process_one_device(struct lsblk_devtree *tr, char *devname, dev_t d
+ 
+ 		DBG(DEV, ul_debug("%s: reading alone device", devname));
+ 
+-		if (stat(devname, &st) || !S_ISBLK(st.st_mode)) {
++		if (stat(devname, &st) != 0) {
++			warn("%s", devname);
++			goto leave;
++		}
++
++		if (!S_ISBLK(st.st_mode)) {
+ 			warnx(_("%s: not a block device"), devname);
+ 			goto leave;
+ 		}
+-- 
+2.34.1
 
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmmQk7sFAwAAAAAACgkQUUu+Lrjhlh+O
-1w//cf6USHhr5+1OCmYZjjfreKZ+rtIYkabhyQW1aBdWyDtUU94EiXfGXlKHc8sbLCIm3GjoFs9M
-M5iMAUt/TMreFiAnjeQhYRFZeowb2Gyas7E7ZxfM++zu089OMJ335cGJLN86PGyF8IG9OQ+WSIr0
-1ktLcOnlzZlZQsc5HEpTeHwf+yX2sWVDigLK+ygrDR7h6Zi6l4mNUJmO++/zJt/x0PTTgxUg0d7H
-NYaI/ToUA+iXG6Pfob/0wGUxwe5p5y+1TyPfz3noNxJIHtWCloiCoHZM55Rw/A94IynRoYDtn1d3
-akxOJaBp2LLzptIObulIUn1C0gUn3FVx/sbERaFu7FqWIB4iSuTKOgrKrGJccUUfzXMb3SOpJgfp
-h3t41OvjD1cOWeC9EEiEfF9IFYWS5GHK/UPhgkiu/6qn/YpmJRdNrqq+necBR+30nYQRqJhtRudW
-VpbxI4+jfLXod6HMKC+clk8QY1SLtL9XrxCuFNFFG97kIBgmIlKnB37gy0T3z7JAfqD6E4amljcq
-X+ajZinORQHOCHZdZK4nTvY86U/0x0P6TOsu6EdLpZD10ezBEYd75OguM9pvUY6nsbed/tvhWB19
-mJx/xHDoNYutb4UzF566dXgI+v8fPOfkNZqEh1g7GDojYY24UP0421M3YBhqnqNXfUcQTYXg9bX5
-3ZM=
-=dxR2
------END PGP SIGNATURE-----
-
---------------hQuW2CJPcWZ0F64qvFQKe0U7--
