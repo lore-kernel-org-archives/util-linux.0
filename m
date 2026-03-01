@@ -1,99 +1,168 @@
-Received: from smtp1.tecnico.ulisboa.pt (smtp1.tecnico.ulisboa.pt [193.136.128.21])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5830D317178
-	for <util-linux@vger.kernel.org>; Sun,  1 Mar 2026 12:05:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.136.128.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 682C7145A1F
+	for <util-linux@vger.kernel.org>; Sun,  1 Mar 2026 16:45:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772366756; cv=none; b=qL1Ff2v5JA+bc+6WgPqKFM1qf/WTOBRiqjoO8iDRBMxWFG8bbh2i7F7h7x1AaDUVTSZufAFvbxffeFSs/OGDmLqkakDKjgxbmFXK4WT7Zxa91lcdcbz9hYr2eUgpg8me1F9sGaEiSLHntrz2AfZUCB0wXfp8Q9ux+XT5S3zogoc=
+	t=1772383518; cv=none; b=Fry9sg6sdiZrOdaVV8PIHhxn+3XC561dIi8cam5BSWDt5ed+SfLR8rs4d5c+tXN0dbhJa8SjtSAb23acB9Owl2tlG0Osh20EjY1vw9/+DyTrhvzY/Zu312ZUR0B8palgSXODgJI3FvEUCmA6xZIqM9f3CMUEA5ABF13DQh9WRyk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772366756; c=relaxed/simple;
-	bh=mCy8osXEer4+rFf5Y1kGPSORWaBESQiLFPACgLQaPZM=;
-	h=Subject:To:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=JWx9mKs9pswId8ycP04wtxs9xDQzBkwmOyBbIKlJct0NZUjxQLQyFwV9z/WbsPt5jm+kPKJ4FOuEWN+Hb135kqtZC4527yPfTuF+QfNcbjSZxjqwjTOU7Ph+Csng1KjGZ0pQnhoq1FjE2iUt6lRRduRBilsYdbQT0D7AnavHkRM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ist.utl.pt; spf=pass smtp.mailfrom=ist.utl.pt; dkim=pass (1024-bit key) header.d=ist.utl.pt header.i=@ist.utl.pt header.b=1WwCHwVS; arc=none smtp.client-ip=193.136.128.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ist.utl.pt
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ist.utl.pt
+	s=arc-20240116; t=1772383518; c=relaxed/simple;
+	bh=O2bfRJg5R7oZUwDYjrZu32FEyMOjcwPl9ZQfN3Opvno=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=qMgipA50REjOyha2cyhcBbKgsVB36ejk9ixEL9hIb8h5fY2thx1Afnt0vBxRgqcYx8vqCebTdWDrkgIImAiTgE9J2TQ08PU/Tg5N8gb50o8Qlhx/PdYXs7bIg8r8xbHeV3Jq9DLpoDySQ54wCeI0je8HaicnJB7YxiWX4Bjd+Tc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=GsBVGr/G; arc=none smtp.client-ip=195.121.94.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ist.utl.pt header.i=@ist.utl.pt header.b="1WwCHwVS"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by smtp1.tecnico.ulisboa.pt (Postfix) with ESMTP id 53A5F6000257;
-	Sun,  1 Mar 2026 11:56:36 +0000 (WET)
-X-Virus-Scanned: by amavis-2.13.0 (20230106) (Debian) at tecnico.ulisboa.pt
-Received: from smtp1.tecnico.ulisboa.pt ([127.0.0.1])
- by localhost (smtp1.tecnico.ulisboa.pt [127.0.0.1]) (amavis, port 10025)
- with LMTP id Bhb2XzmKEA00; Sun,  1 Mar 2026 11:56:34 +0000 (WET)
-Received: from mail1.tecnico.ulisboa.pt (mail1.ist.utl.pt [193.136.128.10])
-	by smtp1.tecnico.ulisboa.pt (Postfix) with ESMTPS id A925C6000873;
-	Sun,  1 Mar 2026 11:56:33 +0000 (WET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ist.utl.pt; s=mail;
-	t=1772366193;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=mCy8osXEer4+rFf5Y1kGPSORWaBESQiLFPACgLQaPZM=;
-	b=1WwCHwVShCtw4ywY8AIAL3kdA2bPjtoYWtSIjMLjdB8QZJKRiWawtJZV/ZwEYxZGB1Ksyt
-	JEL9Bwh1Cv9g7VNqNVyK5hkkpx1o7ZKe35FML3C2B/D2Ow11dfFOkTJMPY9WvSsl0SRmg/
-	PrNjnJhRAJ8DA41sF3wBOqGyrDwSTb0=
-Received: from [IPv6:2001:818:dc66:5e00:f787:58b7:73fd:39be] (unknown [IPv6:2001:818:dc66:5e00:f787:58b7:73fd:39be])
-	(Authenticated sender: ist162465)
-	by mail1.tecnico.ulisboa.pt (Postfix) with ESMTPSA id 7ACBD360178;
-	Sun,  1 Mar 2026 11:56:33 +0000 (WET)
-Subject: Re: [PATCH] findfs: (man) improve the markup, the layout, and the
- wording
-To: Benno Schulenberg <bensberg@telfort.nl>, util-linux@vger.kernel.org
-References: <20260228115245.9553-1-bensberg@telfort.nl>
- <10nup2p$o2$1@ciao.gmane.io>
- <1922449f-ac4f-4362-92ed-0176243e11ac@telfort.nl>
-From: Nuno Silva <nunojsilva@ist.utl.pt>
-Message-ID: <c03c2f75-6960-8010-b356-94f6a3404d20@ist.utl.pt>
-Date: Sun, 1 Mar 2026 11:56:33 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101
- SeaMonkey/2.53.20
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="GsBVGr/G"
+X-KPN-MessageId: 017422a6-158e-11f1-b182-005056abad63
+Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
+	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
+	id 017422a6-158e-11f1-b182-005056abad63;
+	Sun, 01 Mar 2026 17:45:07 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=telfort.nl; s=telfort01;
+	h=mime-version:message-id:date:subject:to:from;
+	bh=j0USeofnzsp35Oj5bS1CbVECGO+UOtM7VNc6DcBNLkQ=;
+	b=GsBVGr/GH0NiIN2dzqp6FxFDlniOULXjQEyHK8YjYqExgRNnK72xQPXFiYRYVnjsLiJE5hHmp3TBv
+	 k7djQgsMnaeSxWIo3a7WGfswPV0wPJrtt47/LHBvoediBkYzDYMXCoRu8eZwhT25LImhzeDeq3+spF
+	 +9d92I5qpO0QZq5U=
+X-KPN-MID: 33|F4Yu5Xz3QlgK0G/eVDfdfSBEmh3lbo71lJnu/K6Bqfr+RSa8Kn+9CtJH5j3V+RM
+ 6LuoihffZaSC+aMuqQGQeDF8EpV1CL9xubYlmRyDStX4=
+X-KPN-VerifiedSender: Yes
+X-CMASSUN: 33|bNklamVyyJ8w7y25gHZXHAClDxGww1yo512hANwPLdTaro3L/3J81IQpIKL9Goh
+ w2bX1dHIjfso2gIXl//wwCA==
+Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
+	by smtp.kpnmail.nl (Halon) with ESMTPSA
+	id 0156e38f-158e-11f1-a6ca-005056abf0db;
+	Sun, 01 Mar 2026 17:45:07 +0100 (CET)
+From: Benno Schulenberg <bensberg@telfort.nl>
+To: util-linux@vger.kernel.org
+Subject: [PATCH] terminal-colors.d: (man) do not show 'type' as an optional part
+Date: Sun,  1 Mar 2026 17:45:05 +0100
+Message-ID: <20260301164505.24409-1-bensberg@telfort.nl>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <1922449f-ac4f-4362-92ed-0176243e11ac@telfort.nl>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On 01/03/26 11:25, Benno Schulenberg wrote:
->=20
-> Op 28-02-2026 om 14:03 schreef Nuno Silva:
->> On 2026-02-28, Benno Schulenberg wrote:
->>> Drop the angle brackets around placeholders -- those are used
->>> in --help output, but in man pages it is just italics.
->>
->> My apologies if I'm missing some convention from util-linux itself,
->=20
-> Have a look at some other util-linux man pages.=C2=A0 They all use just=
+That is: remove the square brackets from around 'type' in the synopsis.
 
-> italics for placeholders (normally displayed as underline).
->=20
->> from a quick check, it looks to me that italics is used for such
->> placeholders in IEEE 1003.1.
->=20
-> And italics is exactly what this patch uses for placeholders.=C2=A0 (No=
-t
-> angle brackets -- those are for --help texts.)
+Also, do not give the impression that a leading dot by itself is fine
+before the 'type'.  That is: a dot is required only when 'name' and/or
+'@term' is present.
 
-Oh, sorry - I now realize I misunderstood the original e-mail. It is=20
-embarassing; I should have double-checked things, namely the syntax=20
-(which I overlooked in part because I *still* need to configure Gnus -=20
-where I usually read this list - not to eat some of the characters when=20
-applying formatting...).
+Also, do not colorize the square brackets as if they were part of the
+placeholders.  (And use ++double plus++ passthroughs for the opening
+square brackets, to prevent asciidoctor from misinterpreting them.)
 
-That'd have probably made the meaning obvious. Instead, not being=20
-acquainted with the syntax, I wrongly intepreted the commit message as=20
-you meaning angle brackets would be removed because they mean/generate=20
-italic.
+Indent the list of file types, for clarity.
 
+And correct or improve some wordings, and remove an inconvenient
+blank line in an example.
 
---=20
-Apologies again,
-Nuno Silva
+Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
+---
+ lib/terminal-colors.d.5.adoc | 24 ++++++++++--------------
+ 1 file changed, 10 insertions(+), 14 deletions(-)
+
+diff --git a/lib/terminal-colors.d.5.adoc b/lib/terminal-colors.d.5.adoc
+index 40ed8b966..9704fe413 100644
+--- a/lib/terminal-colors.d.5.adoc
++++ b/lib/terminal-colors.d.5.adoc
+@@ -21,7 +21,7 @@ terminal-colors.d - configure output colorization for various utilities
+ 
+ == SYNOPSIS
+ 
+-/etc/terminal-colors.d/_[[name][@term].][type]_
++*/etc/terminal-colors.d/*++[++_name_**.**|++[++_name_]**@**_term_**.**]_type_
+ 
+ == DESCRIPTION
+ 
+@@ -32,14 +32,14 @@ The _name_ is a utility name. The name is optional and when none is specified th
+ The _term_ is a terminal identifier (the *TERM* environment variable). The terminal identifier is optional and when none is specified then the file is used for all unspecified terminals.
+ 
+ The _type_ is a file type. Supported file types are:
+-
++____
+ *disable*::
+ Turns off output colorization for all compatible utilities. See also the NO_COLOR environment variable below.
+ *enable*::
+ Turns on output colorization; any matching *disable* files are ignored.
+-
+ *scheme*::
+ Specifies colors used for output. The file format may be specific to the utility, the default format is described below.
++____
+ 
+ If there are more files that match for a utility, then the file with the more specific filename wins. For example, the filename "@xterm.scheme" has less priority than "dmesg@xterm.scheme". The lowest priority are those files without a utility name and terminal identifier (e.g., "disable").
+ 
+@@ -56,15 +56,15 @@ The _name_ is a logical name for the color sequence (for example: *error*).
+ The names are specific to the utilities. For more details always see
+ the *COLORS* section in the man page for the utility.
+ 
+-The _color-sequence_ is a color name, ASCII color sequences, or escape sequences.
++The _color-sequence_ can be a color name, an ANSI color sequence, or an escape sequence.
+ 
+ === Color names
+ 
+-black, blink, blue, bold, brown, cyan, darkgray, gray, green, halfbright, lightblue, lightcyan, lightgray, lightgreen, lightmagenta, lightred, magenta, red, reset, reverse, and yellow.
++Valid color names are: black, blink, blue, bold, brown, cyan, darkgray, gray, green, halfbright, lightblue, lightcyan, lightgray, lightgreen, lightmagenta, lightred, magenta, red, reset, reverse, and yellow.
+ 
+ === ANSI color sequences
+ 
+-The color sequences are composed of sequences of numbers separated by semicolons. The most common codes are:
++An ANSI color sequence is composed of sequences of numbers separated by semicolons. The most common codes are:
+ ____
+      0   to restore default color
+      1   for brighter colors
+@@ -94,7 +94,7 @@ For example, to use a red background for alert messages in the output of *dmesg*
+ 
+ === Escape sequences
+ 
+-An escape sequence is necessary to enter a space, backslash, caret, or any
++An escape sequence is needed to enter a space, backslash, caret, or any
+ control character anywhere in a string, as well as a hash mark as the first
+ character. These C-style backslash-escapes can be used:
+ 
+@@ -137,31 +137,27 @@ _$HOME/.config/terminal-colors.d_
+ 
+ _/etc/terminal-colors.d_
+ 
+-== EXAMPLE
++== EXAMPLES
+ 
+ Disable colors for all compatible utilities:
+-
+ ____
+ *touch /etc/terminal-colors.d/disable*
+ ____
+ 
+ Disable colors for all compatible utils on a vt100 terminal:
+-
+ ____
+ *touch /etc/terminal-colors.d/@vt100.disable*
+ ____
+ 
+ Disable colors for all compatible utils except *dmesg*(1):
+-
+ ____
+-*touch /etc/terminal-colors.d/disable*
+-
++*touch /etc/terminal-colors.d/disable* +
+ *touch /etc/terminal-colors.d/dmesg.enable*
+ ____
+ 
+ == COMPATIBILITY
+ 
+-The *terminal-colors.d* functionality is currently supported by all util-linux utilities which provides colorized output. For more details always see the *COLORS* section in the man page for the utility.
++The *terminal-colors.d* functionality is currently supported by all util-linux utilities which provide colorized output. For more details always see the *COLORS* section in the man page for the utility.
+ 
+ include::man-common/bugreports.adoc[]
+ 
+-- 
+2.53.0
 
