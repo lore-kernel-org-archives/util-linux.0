@@ -1,168 +1,147 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.169])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 682C7145A1F
-	for <util-linux@vger.kernel.org>; Sun,  1 Mar 2026 16:45:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8B69430BA2;
+	Mon,  2 Mar 2026 09:17:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772383518; cv=none; b=Fry9sg6sdiZrOdaVV8PIHhxn+3XC561dIi8cam5BSWDt5ed+SfLR8rs4d5c+tXN0dbhJa8SjtSAb23acB9Owl2tlG0Osh20EjY1vw9/+DyTrhvzY/Zu312ZUR0B8palgSXODgJI3FvEUCmA6xZIqM9f3CMUEA5ABF13DQh9WRyk=
+	t=1772443038; cv=none; b=eflg+5RW1TyzayDc7vdOIeTmYRpnNse5mhCgEB6z/LN1zwVt5yggKJb18HaQ6aucoOk0Zq1jn/obsPmzKHzv7Kt58RD6Y4BJTNle3+AemLo2yY1fveaOkryo0MQKdytjwsDqZYlNZJvwZF3sDdZmkGGnfGavndtsTkdPrSPhkgM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772383518; c=relaxed/simple;
-	bh=O2bfRJg5R7oZUwDYjrZu32FEyMOjcwPl9ZQfN3Opvno=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=qMgipA50REjOyha2cyhcBbKgsVB36ejk9ixEL9hIb8h5fY2thx1Afnt0vBxRgqcYx8vqCebTdWDrkgIImAiTgE9J2TQ08PU/Tg5N8gb50o8Qlhx/PdYXs7bIg8r8xbHeV3Jq9DLpoDySQ54wCeI0je8HaicnJB7YxiWX4Bjd+Tc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=GsBVGr/G; arc=none smtp.client-ip=195.121.94.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
+	s=arc-20240116; t=1772443038; c=relaxed/simple;
+	bh=Q9kO6X2cy9vTWPB9JjpyH9JbhDCzgr69BRga2YsmE94=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=o1ZdE8OOd9yuZKTGEezpm9WErmfKcwOdBe/hPGdVwPkaXVEaKUENPGaEHDQTjmrvMAHhyZ6EdB0F+65qX6VGICR8MIAXFntE55OKey2Q4ZtUIpb+k/62BajhkSBI0YhlvST6g7JJg1g0cOhvKWlzUObkiwP3O+D2wqCQ/k1zap4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nn2/LkKT; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="GsBVGr/G"
-X-KPN-MessageId: 017422a6-158e-11f1-b182-005056abad63
-Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
-	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 017422a6-158e-11f1-b182-005056abad63;
-	Sun, 01 Mar 2026 17:45:07 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=telfort.nl; s=telfort01;
-	h=mime-version:message-id:date:subject:to:from;
-	bh=j0USeofnzsp35Oj5bS1CbVECGO+UOtM7VNc6DcBNLkQ=;
-	b=GsBVGr/GH0NiIN2dzqp6FxFDlniOULXjQEyHK8YjYqExgRNnK72xQPXFiYRYVnjsLiJE5hHmp3TBv
-	 k7djQgsMnaeSxWIo3a7WGfswPV0wPJrtt47/LHBvoediBkYzDYMXCoRu8eZwhT25LImhzeDeq3+spF
-	 +9d92I5qpO0QZq5U=
-X-KPN-MID: 33|F4Yu5Xz3QlgK0G/eVDfdfSBEmh3lbo71lJnu/K6Bqfr+RSa8Kn+9CtJH5j3V+RM
- 6LuoihffZaSC+aMuqQGQeDF8EpV1CL9xubYlmRyDStX4=
-X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|bNklamVyyJ8w7y25gHZXHAClDxGww1yo512hANwPLdTaro3L/3J81IQpIKL9Goh
- w2bX1dHIjfso2gIXl//wwCA==
-Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
-	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 0156e38f-158e-11f1-a6ca-005056abf0db;
-	Sun, 01 Mar 2026 17:45:07 +0100 (CET)
-From: Benno Schulenberg <bensberg@telfort.nl>
-To: util-linux@vger.kernel.org
-Subject: [PATCH] terminal-colors.d: (man) do not show 'type' as an optional part
-Date: Sun,  1 Mar 2026 17:45:05 +0100
-Message-ID: <20260301164505.24409-1-bensberg@telfort.nl>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nn2/LkKT"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6218h8xF614134;
+	Mon, 2 Mar 2026 09:16:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=TrcMKD67sFT7ZB6+eKbCbxTcbOWCpa
+	ivxHfSCHoHHJc=; b=nn2/LkKTQSF0o7VlI+2VJ+MIbqdr6t2MAuLFS0IzzYD3al
+	fSxkTdbyAVCNmPHa7tpq+6aqXKPCjSXr+O6ln+Esy6WqHn+luIRVU1VKUPYipJw4
+	kh5YQFLZwyDT9fTOOOnFSPyP/wWlnkjkZAa29iugA4hniD4RLMAzb4uk2FosV4kq
+	1nOh+ZtQpo2s11XsUYoM7wltiZdDVnk7HllNJpzSsJ/XMKtfaVEOF1fFYz9Hw7c6
+	cZNTpNaeKSLlkWycp0l3Vr9QNHPgHvix6NE3TclHJ5WWVa8qWU6c47oe7U9z3d2c
+	njGjwGTUsGzXrK+Lj3DG58+VCUMogL/xr7nWMzBQ==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckssmdgxt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 02 Mar 2026 09:16:55 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 6228gQCx028908;
+	Mon, 2 Mar 2026 09:16:55 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cmaprwap9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 02 Mar 2026 09:16:54 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6229GrXG53936410
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 2 Mar 2026 09:16:53 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3AA7B2004D;
+	Mon,  2 Mar 2026 09:16:53 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CC4B920043;
+	Mon,  2 Mar 2026 09:16:52 +0000 (GMT)
+Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.111.67.194])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon,  2 Mar 2026 09:16:52 +0000 (GMT)
+Date: Mon, 2 Mar 2026 10:16:51 +0100
+From: Sumanth Korikkar <sumanthk@linux.ibm.com>
+To: Chris Hofstaedtler <zeha@debian.org>
+Cc: debian-loongarch@lists.debian.org, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org,
+        Karel Zak <kzak@redhat.com>
+Subject: Re: [ANNOUNCE] util-linux v2.42-rc1
+Message-ID: <aaVVg4PhVKkdL2C5@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+References: <wid276gkq7tblvkfwc6kum4nacamstiigqjj5ux6j6zd4blz4l@jzq3sgfh6cj5>
+ <aaP6atFYpVqulTO1@zeha.at>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aaP6atFYpVqulTO1@zeha.at>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAyMDA3OCBTYWx0ZWRfXz+m+YVtdLOb5
+ GBVf0kFoDS+UCQH86zsHj9lEr4E0yWEiEwhAzjIJE/cw30fb1FfhVFeHoPXPvvj83xI/DCHDK2k
+ rDBnJZCNl4+5XoDle9YOdpR8SgaXRQEPrR/jklf0GpWMIqD0fWK1AwnnRJ3fAR0MJlQhhekt/MY
+ Rnz++mwdObTyE5FHWTje8dQvmlx6TBUFP2A3kMMmJC2Q8iI76H7vB7J+IWxniWB71R8PM/i09cA
+ rwSIbiSrDXoBtSKPaHiy3Uhig/SlDTXffAJGI8hWZcQtZy+ARmLj3UgDA1H3H6J36wePNud8qmI
+ F44bDzWWGJmDhwhF5/xo8ebLfwOX/eDdRVtP0qTQxMNEv1pFGgmtis428MfQFhgJYD9Jp8TH2sS
+ KrXoAFaPl7ZzADEAu9FCF/QSZaLUMudpivPpCY8n0V5XqEGPcVWf6XFs6KlwOXeWzLxHyxJir9e
+ 5kc8VJd/Uza3a0KJVDA==
+X-Proofpoint-ORIG-GUID: 1WQHlp8Xvs7XjLa4VeuAJyJqhMSBrnu1
+X-Proofpoint-GUID: 1WQHlp8Xvs7XjLa4VeuAJyJqhMSBrnu1
+X-Authority-Analysis: v=2.4 cv=AobjHe9P c=1 sm=1 tr=0 ts=69a55587 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=kj9zAlcOel0A:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
+ a=xNf9USuDAAAA:8 a=20KFwNOVAAAA:8 a=CWVMYPpm5h6mBys_UeAA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-02_02,2026-02-27_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 lowpriorityscore=0 bulkscore=0 impostorscore=0 malwarescore=0
+ spamscore=0 clxscore=1011 suspectscore=0 adultscore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603020078
 
-That is: remove the square brackets from around 'type' in the synopsis.
+Hi Chris,
 
-Also, do not give the impression that a leading dot by itself is fine
-before the 'type'.  That is: a dot is required only when 'name' and/or
-'@term' is present.
+> Hi Sumanth, looong64 porters,
+> 
+> * Karel Zak <kzak@redhat.com> [260226 14:53]:
+> > The util-linux release v2.42-rc1 is now available at
+> >  http://www.kernel.org/pub/linux/utils/util-linux/v2.42/
+> [..]
+> > lsmem:
+> >    - display global memmap on memory parameter (by Sumanth Korikkar)
+> 
+> It appears the test for this is run on looong64 and fails there (failing the
+> entire build), at least in the Debian build infra.
+> https://buildd.debian.org/status/fetch.php?pkg=util-linux&arch=loong64&ver=2.42%7Erc1-1&stamp=1772312955&raw=0
+> 
+> See below for log output excerpts.
+> 
+> Thanks,
+> Chris
+> 
+> 
+> log snippets:
+> 
+> ================= O/E diff ===================
+> --- /build/reproducible-path/util-linux-2.42~rc1/tests/output/lsmem/lsmem-s390-zvm-6g	2026-02-28 21:08:31.577617951 +0000
+> +++ /build/reproducible-path/util-linux-2.42~rc1/tests/expected/lsmem/lsmem-s390-zvm-6g	2026-02-18 11:33:47.804188659 +0000
+> @@ -17,6 +17,7 @@
+>  Memory block size:                256M
+>  Total online memory:              4.8G
+>  Total offline memory:             1.3G
+> +Memmap on memory parameter:         no
 
-Also, do not colorize the square brackets as if they were part of the
-placeholders.  (And use ++double plus++ passthroughs for the opening
-square brackets, to prevent asciidoctor from misinterpreting them.)
+The ARCH_MHP_MEMMAP_ON_MEMORY_ENABLE feature is currently not enabled on
+loong64.
 
-Indent the list of file types, for clarity.
+The lsmem tool displays the setting found in
+/sys/module/memory_hotplug/parameters/memmap_on_memory.  If this path
+does not exist, lsmem will not show the parameter. As a result, the test
+fails.
 
-And correct or improve some wordings, and remove an inconvenient
-blank line in an example.
+To resolve this, the test should first verify whether the file
+/sys/module/memory_hotplug/parameters/memmap_on_memory exists. If it is
+missing, the test should skip the output related to the "Memmap
+on memory parameter". I will check how the test logic can be updated and
+give it a try.
 
-Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
----
- lib/terminal-colors.d.5.adoc | 24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
-
-diff --git a/lib/terminal-colors.d.5.adoc b/lib/terminal-colors.d.5.adoc
-index 40ed8b966..9704fe413 100644
---- a/lib/terminal-colors.d.5.adoc
-+++ b/lib/terminal-colors.d.5.adoc
-@@ -21,7 +21,7 @@ terminal-colors.d - configure output colorization for various utilities
- 
- == SYNOPSIS
- 
--/etc/terminal-colors.d/_[[name][@term].][type]_
-+*/etc/terminal-colors.d/*++[++_name_**.**|++[++_name_]**@**_term_**.**]_type_
- 
- == DESCRIPTION
- 
-@@ -32,14 +32,14 @@ The _name_ is a utility name. The name is optional and when none is specified th
- The _term_ is a terminal identifier (the *TERM* environment variable). The terminal identifier is optional and when none is specified then the file is used for all unspecified terminals.
- 
- The _type_ is a file type. Supported file types are:
--
-+____
- *disable*::
- Turns off output colorization for all compatible utilities. See also the NO_COLOR environment variable below.
- *enable*::
- Turns on output colorization; any matching *disable* files are ignored.
--
- *scheme*::
- Specifies colors used for output. The file format may be specific to the utility, the default format is described below.
-+____
- 
- If there are more files that match for a utility, then the file with the more specific filename wins. For example, the filename "@xterm.scheme" has less priority than "dmesg@xterm.scheme". The lowest priority are those files without a utility name and terminal identifier (e.g., "disable").
- 
-@@ -56,15 +56,15 @@ The _name_ is a logical name for the color sequence (for example: *error*).
- The names are specific to the utilities. For more details always see
- the *COLORS* section in the man page for the utility.
- 
--The _color-sequence_ is a color name, ASCII color sequences, or escape sequences.
-+The _color-sequence_ can be a color name, an ANSI color sequence, or an escape sequence.
- 
- === Color names
- 
--black, blink, blue, bold, brown, cyan, darkgray, gray, green, halfbright, lightblue, lightcyan, lightgray, lightgreen, lightmagenta, lightred, magenta, red, reset, reverse, and yellow.
-+Valid color names are: black, blink, blue, bold, brown, cyan, darkgray, gray, green, halfbright, lightblue, lightcyan, lightgray, lightgreen, lightmagenta, lightred, magenta, red, reset, reverse, and yellow.
- 
- === ANSI color sequences
- 
--The color sequences are composed of sequences of numbers separated by semicolons. The most common codes are:
-+An ANSI color sequence is composed of sequences of numbers separated by semicolons. The most common codes are:
- ____
-      0   to restore default color
-      1   for brighter colors
-@@ -94,7 +94,7 @@ For example, to use a red background for alert messages in the output of *dmesg*
- 
- === Escape sequences
- 
--An escape sequence is necessary to enter a space, backslash, caret, or any
-+An escape sequence is needed to enter a space, backslash, caret, or any
- control character anywhere in a string, as well as a hash mark as the first
- character. These C-style backslash-escapes can be used:
- 
-@@ -137,31 +137,27 @@ _$HOME/.config/terminal-colors.d_
- 
- _/etc/terminal-colors.d_
- 
--== EXAMPLE
-+== EXAMPLES
- 
- Disable colors for all compatible utilities:
--
- ____
- *touch /etc/terminal-colors.d/disable*
- ____
- 
- Disable colors for all compatible utils on a vt100 terminal:
--
- ____
- *touch /etc/terminal-colors.d/@vt100.disable*
- ____
- 
- Disable colors for all compatible utils except *dmesg*(1):
--
- ____
--*touch /etc/terminal-colors.d/disable*
--
-+*touch /etc/terminal-colors.d/disable* +
- *touch /etc/terminal-colors.d/dmesg.enable*
- ____
- 
- == COMPATIBILITY
- 
--The *terminal-colors.d* functionality is currently supported by all util-linux utilities which provides colorized output. For more details always see the *COLORS* section in the man page for the utility.
-+The *terminal-colors.d* functionality is currently supported by all util-linux utilities which provide colorized output. For more details always see the *COLORS* section in the man page for the utility.
- 
- include::man-common/bugreports.adoc[]
- 
--- 
-2.53.0
+Thanks & Regards,
+Sumanth
 
