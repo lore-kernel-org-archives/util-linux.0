@@ -1,319 +1,138 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8FFF41B37F;
-	Mon,  2 Mar 2026 15:59:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772467164; cv=none; b=cg1l76EgxdkvIVaOcEH8xEGKbTsBSxr94hpGmSKGaJhHBZsO1Bdy0iFxI/ajkrzREISKL3QC1dI38Z1W2Axugv4uYvwoOh6Jl3XXdZ4uZkyRoFj2etGt56mCAc6cy5kuoG+GmjD52bVe9nzxyUbGCmFMQlqhHQnWGhFPRurNs+I=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772467164; c=relaxed/simple;
-	bh=JGr33/CfROWThcucoXZAeSxGxZmk9tRO6A92w2xfUZk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=S0CA3vtbu9wYk5DKz+tm7hnw0VUWGnENIu0C/FQOzDO4QbYxcWTl4u6Is6fqI3cgXWG+aLKpA8Bq0umRCd0vRX9vo1rE+YWxypoSzH1zG9xvCTix+06TpRJMXidjYLum7rnoGNUAuZADa2yR7SnOR1YDtCxoMLCz5X50jchxKms=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ij84L/5z; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B114D25DB12
+	for <util-linux@vger.kernel.org>; Mon,  2 Mar 2026 19:09:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.171
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772478571; cv=pass; b=mqYjXk7tgMHlEpD1T7aOGOMswaVuiq4dGuSUGeB4zvc2hJWWD6B2NMtLWIqdr7LMpPVzyMrMhynQh4DKEwv3i48AsbP2yNV5EoF8hTtLpnMi0Jxs/+h+42plGQHT3wh5fZlGReFnc7bAgW+6DV4F/AEWyMOOJwt5BvTkmbLzujA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772478571; c=relaxed/simple;
+	bh=EguLR129CKnQI3J27HIl6YW9NMXgnaTIV3A+HCYyGuM=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=gY3HLYXiSol7wyJ5DCVC19zO8GCgt6skc3IlRqxTV8laFkD026Ef+5vL34eL4AoIf/lBoykrfucF8frwVFGB5wAmmhNvOr8VTJTE0wJ8kKPu6d6yBY/wPARmwehSIGLyggyoAVgGyd1cjKVtr52nbmFd8ff6O2zC6wD8n5LE/ug=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=numin.it; spf=none smtp.mailfrom=numin.it; dkim=pass (2048-bit key) header.d=numin-it.20230601.gappssmtp.com header.i=@numin-it.20230601.gappssmtp.com header.b=cKZEdOuj; arc=pass smtp.client-ip=74.125.82.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=numin.it
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=numin.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ij84L/5z"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6224Swed2804450;
-	Mon, 2 Mar 2026 15:59:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=Yb10Q2+KFBz/D82HEszwQEjX4pL2LS
-	HtX5eu/sRiZiM=; b=Ij84L/5z6hOAp8B791Is8400vKc0nQi1K7GOus1oUdJG3u
-	IxSZHYE3mRE/HzJJ23hHK1AIeE772JbU2OO23JCzaoCT5uAUMGrRLAGsW+bR4D8O
-	qEoSSRfQtooOHLSFv7n7Vwb1DGOVUAN9OK+oAFymvyNat1yegS0bCtC4wvnr1UTV
-	5mq9dfkXZQkqPfsF+AV3yh7/mKe3d6dyQ0TxBVxUhW2bVmnLh38IRiASurhQbQOw
-	jDo3wY01w1LIgHsA1LmqYWtLZKkt0SBEAvt54gp6Pp9w+lTkO6quRrbseXQQO8t/
-	Zr05O6sMH7ndY68HMwK1YtD2EIld4LuBQxWD5vqw==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ckskcqd7c-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Mar 2026 15:59:11 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 622DNMMO010309;
-	Mon, 2 Mar 2026 15:59:10 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmc6jxpaq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Mar 2026 15:59:10 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 622Fx8FC51839438
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 2 Mar 2026 15:59:08 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 39AAA2004B;
-	Mon,  2 Mar 2026 15:59:08 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C52DC20040;
-	Mon,  2 Mar 2026 15:59:07 +0000 (GMT)
-Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.111.67.194])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon,  2 Mar 2026 15:59:07 +0000 (GMT)
-Date: Mon, 2 Mar 2026 16:59:06 +0100
-From: Sumanth Korikkar <sumanthk@linux.ibm.com>
-To: Chris Hofstaedtler <zeha@debian.org>
-Cc: debian-loongarch@lists.debian.org, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, util-linux@vger.kernel.org,
-        Karel Zak <kzak@redhat.com>
-Subject: Re: [ANNOUNCE] util-linux v2.42-rc1
-Message-ID: <aaWzysmPNrkPm4p1@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-References: <wid276gkq7tblvkfwc6kum4nacamstiigqjj5ux6j6zd4blz4l@jzq3sgfh6cj5>
- <aaP6atFYpVqulTO1@zeha.at>
- <aaVVg4PhVKkdL2C5@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+	dkim=pass (2048-bit key) header.d=numin-it.20230601.gappssmtp.com header.i=@numin-it.20230601.gappssmtp.com header.b="cKZEdOuj"
+Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-2b6b0500e06so5789136eec.1
+        for <util-linux@vger.kernel.org>; Mon, 02 Mar 2026 11:09:29 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1772478569; cv=none;
+        d=google.com; s=arc-20240605;
+        b=LBKHv3Kv5X54b5NCNK548muRQJmqIzKZOavw2YuJYxD9N3BJq1r+UywnVzidT2YcET
+         7jz7ARF80C4px4dmWwksRgUwbdJ++WxrW6O+QBvPJYu2Db9b3EBQ5jqs510SYA/xtw+x
+         dbyHc/j2Nzu1IH1iVHET3dgaCviKM1cd9c9Lbsbt3aueYPDJlvpcT/RTzylbUxxyll8+
+         0HHrVuVam5zgjjUeZiZNk0Fs7797kRQzbeeQev1DFBDnq6PkKay2K7HXReGxDCZCkqYx
+         ak8OfoaYtFqNaovy2kIeqD8Nd/QR8pLYT+2+pFiaQeBgRlMeTunj/bGOsRQZa4pUo3dT
+         R4Zg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=y+IcrAYqgH2IvAbSsxQj7A3nniKVvvcK5CDKEyf02wI=;
+        fh=wGiqS6fCIXmTY01ukAaQ0f8K0pJvn/8Cx9cBD0x5bgc=;
+        b=UthshtbtrDs5Ca+NAQ/1z5e2vsJ/uAbJFCqAJTO/yuFYGQXWExj8rIJbxkAfDbtLPs
+         pobZt3opjHG2PslQ/BIX9NzNdTpPiwMBPPIrqUzEQKgdParjrNBaN14wwSGFFjrOfRHq
+         BcnPbBhR0cV/UkvDh7T5LbeduIWj4t+hOmXpmrOKIi0zojxZR1d/aGzhkVB/O74RdAq9
+         Ika+z2IiF8C4bUVZRuttoFrrcodLkQXWfvfhc3Nbl5RSN9JDsNlVvq1hEP2QRViZsFR/
+         HnzHsDtk1/DvmyhNeYo/4E4bka6uKwFgE+RfwHdi7vjm3fDnDSV/Ph3wH/OCk7vck6GK
+         7S0A==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=numin-it.20230601.gappssmtp.com; s=20230601; t=1772478569; x=1773083369; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=y+IcrAYqgH2IvAbSsxQj7A3nniKVvvcK5CDKEyf02wI=;
+        b=cKZEdOujdqMPpdVefdVwrn+ynuy6pdvaY5LtItH+B94RD17Tu3FOL/mZcDwJX0N0W1
+         CLInLI90l2nl9zSjImzXchM2P49FdDpi334JPkbOpTYhD4Z7ceWQx9Javx3PhEeidrx9
+         m/VHzbfAjlpaSnEw1Em7WNWvfbyX+My59GRT8DBOEPLT2svKyWkZEskyH5T7qBPquPBi
+         cA0vXZUpWYEyk4XOeShJ0O84fFfYTAHC3nRuRpHu0TIBCmwKGRrC9XVUq5GonniccZpM
+         mY2Ob5XtsFRcg8zIbgDM5JMoBDoFPWj/havM5lgVNggQqcAFxVGVtjaRuMW4e1unOqmT
+         BvAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772478569; x=1773083369;
+        h=to:subject:message-id:date:from:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=y+IcrAYqgH2IvAbSsxQj7A3nniKVvvcK5CDKEyf02wI=;
+        b=vln73bMHreGYosHnMU/3SdQecwtio9kzvbR8S12XRYH5wKpwgFSeCaOvThfGdLwgac
+         Q/rlsAl3FPUYG6TlC7bzSHJER68zcULksgN50lb3YG4s1KDYFgpB1KlAyhHZJ0VtkPua
+         xVVtril11jnZ4oOPEoKCRydFJEMyQXCoYO7A1mkegZv8H3zflfOPMJwbOtFN37JibpVs
+         H0uE+K+qUotCMNI+RYA9OTr+MuMiOVutArYmZ0ICRvPM8JUtQr3CuPrrFt3+lgVDX/uM
+         rBfy8swI6+sGCdD8ilN78xWLpd47uaswoNk596s/bShQqUYunLBm5K51WNZdoCy8jlW0
+         6z3g==
+X-Gm-Message-State: AOJu0YzEceGTPAhsyae/+MUh9k1OIW42BYaNftwD6OW8AACdruyM1L+r
+	51Bqwze0go1sqJMXh3R65An4X62y8dCsZlFzjjXEdADE0dXtms18dZ90/FhSAn3zJFrf1X81YqU
+	V7xEMvaEIXm9TKBmsawRHW6AFvk7spycVpXI4JyUmcuN8xAD3Y7ZKA6E=
+X-Gm-Gg: ATEYQzwwv+fz3Ch8f9MNLorcBjipGtaOotO4A+bXpRmOlCEX2tDE9iVqunmfdE3sbwH
+	Jc4kWyXc8RDnDhlBwst9wv0e+pxuJDkHGI+Lmw7JBfuPWfFDgeEckTMwBQiGf12uKpXousSbdV/
+	XMYyBNepyaNMC3nzDNZnbipaLEqlpmWPeL+YRRodHDvRg7AjB4k4VVr1gumWNbTr4uzi4PQe3gr
+	WWfSiSIrhdJLH0RDeq6AMY5l+r93x7GWhZeshme1R6Tojaw6Usp5arVXlL4DQcN8IIP55gxVjs6
+	QJcvFoESYo+98jRFCQ==
+X-Received: by 2002:a05:7300:cd90:b0:2b7:b7e7:9025 with SMTP id
+ 5a478bee46e88-2bde1f17447mr5244863eec.31.1772478568501; Mon, 02 Mar 2026
+ 11:09:28 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aaVVg4PhVKkdL2C5@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: grVP-tZ7soYwac2-zyzxy-ey-F-qYPwn
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAyMDEzMSBTYWx0ZWRfXz663CW43zClA
- 0dDDmpvepOAJF5N3NtySeOcPrajr6liAif0agCxCIXnznSScEC+3c8AZGV7UpP7Gj4YhnXwpdnj
- 6D94LaBqi1mdjr0+lflEJh3m/OgIAn0dLeV/+xW7WImwNA2w281p/NfoRc/bpcZtJSdTuWFCyNQ
- DI6mAINEzYbukzvtMZMkS/+mbsE4P0LDuO0IuCSuyGeg2pQXFy1kyV2fDVHxeY9+9pYMG6/djWE
- u6ySj4Sp5iqBLlkAC7CgQ0fbpSDjBybWwC1z7278KvI2nJuE80orVUCoWvW5HhSJVuyLEI+bJc/
- GgdclhfGYjZ4xuJaaF+KNS9uhnCw1Asi0vYbb34ae7c0bAXwHZ0T39z3NDIyrumHmgMDDqAoRj+
- nPKVoKJNNhbDRYd+WWPg8VbPkt2EGKqnG0EEGFJXTASgUn6YgHUa37k9zjYy1Kc1SdskluHcbDo
- JLCHt3185ACV+73EEVQ==
-X-Authority-Analysis: v=2.4 cv=H7DWAuYi c=1 sm=1 tr=0 ts=69a5b3cf cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
- a=xNf9USuDAAAA:8 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8 a=Cz2h6EHwldfL-D86zEMA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: grVP-tZ7soYwac2-zyzxy-ey-F-qYPwn
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-02_03,2026-03-02_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 suspectscore=0 phishscore=0 clxscore=1015 priorityscore=1501
- adultscore=0 bulkscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603020131
+From: Morgan <me@numin.it>
+Date: Mon, 2 Mar 2026 11:08:39 -0800
+X-Gm-Features: AaiRm52bIYowlHkWgz7fQDJwPInMKsuhdA4cdrnJuSTRA1FvkQqSNxDxZkMUlTA
+Message-ID: <CAEUYr6ZH=9akE64zf5FM3u+Sr44oSJctk2gemiadisghEFESbg@mail.gmail.com>
+Subject: [PATCH] pam_lastlog2: add -lpam to Makemodule.am
+To: util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Mon, Mar 02, 2026 at 10:16:53AM +0100, Sumanth Korikkar wrote:
-> Hi Chris,
-> 
-> > Hi Sumanth, looong64 porters,
-> > 
-> > * Karel Zak <kzak@redhat.com> [260226 14:53]:
-> > > The util-linux release v2.42-rc1 is now available at
-> > >  http://www.kernel.org/pub/linux/utils/util-linux/v2.42/
-> > [..]
-> > > lsmem:
-> > >    - display global memmap on memory parameter (by Sumanth Korikkar)
-> > 
-> > It appears the test for this is run on looong64 and fails there (failing the
-> > entire build), at least in the Debian build infra.
-> > https://buildd.debian.org/status/fetch.php?pkg=util-linux&arch=loong64&ver=2.42%7Erc1-1&stamp=1772312955&raw=0
-> > 
-> > See below for log output excerpts.
-> > 
-> > Thanks,
-> > Chris
-> > 
-> > 
-> > log snippets:
-> > 
-> > ================= O/E diff ===================
-> > --- /build/reproducible-path/util-linux-2.42~rc1/tests/output/lsmem/lsmem-s390-zvm-6g	2026-02-28 21:08:31.577617951 +0000
-> > +++ /build/reproducible-path/util-linux-2.42~rc1/tests/expected/lsmem/lsmem-s390-zvm-6g	2026-02-18 11:33:47.804188659 +0000
-> > @@ -17,6 +17,7 @@
-> >  Memory block size:                256M
-> >  Total online memory:              4.8G
-> >  Total offline memory:             1.3G
-> > +Memmap on memory parameter:         no
-> 
-> The ARCH_MHP_MEMMAP_ON_MEMORY_ENABLE feature is currently not enabled on
-> loong64.
-> 
-> The lsmem tool displays the setting found in
-> /sys/module/memory_hotplug/parameters/memmap_on_memory.  If this path
-> does not exist, lsmem will not show the parameter. As a result, the test
-> fails.
-> 
-> To resolve this, the test should first verify whether the file
-> /sys/module/memory_hotplug/parameters/memmap_on_memory exists. If it is
-> missing, the test should skip the output related to the "Memmap
-> on memory parameter". I will check how the test logic can be updated and
-> give it a try.
+From c8e620c6bcd044786c59f822810fc973090dbfa2 Mon Sep 17 00:00:00 2001
+From: Morgan Jones <me@numin.it>
+Date: Mon, 2 Mar 2026 11:03:39 -0800
+Subject: [PATCH] pam_lastlog2: add -lpam to Makemodule.am
 
-Hi Chris,
+If we don't add this, we don't actually link with PAM; compare the
+before and after of `lib/security/pam_lastlog2.so`.
 
-Could you please try the following?
+```
+Dynamic section at offset 0x2ce8 contains 31 entries:
+ Tag        Type                         Name/Value
+0x0000000000000001 (NEEDED)             Shared library: [liblastlog2.so.2]
+0x0000000000000001 (NEEDED)             Shared library: [libsqlite3.so]
+0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]
+0x000000000000000e (SONAME)             Library soname: [pam_lastlog2.so]
+```
 
-Thanks
+```
+Dynamic section at offset 0x2cd8 contains 32 entries:
+ Tag        Type                         Name/Value
+0x0000000000000001 (NEEDED)             Shared library: [libpam.so.0]
+0x0000000000000001 (NEEDED)             Shared library: [liblastlog2.so.2]
+0x0000000000000001 (NEEDED)             Shared library: [libsqlite3.so]
+0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]
+0x000000000000000e (SONAME)             Library soname: [pam_lastlog2.so]
+```
 
-From e47cae41f00bdcc3663088b1324a89b67ee9c5df Mon Sep 17 00:00:00 2001
-From: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Date: Mon, 2 Mar 2026 16:52:46 +0100
-Subject: [PATCH] lsmem: correct memmap-on-memory test output
+This causes issues like https://github.com/NixOS/nixpkgs/issues/493934
+where the library has trouble linking with PAM symbols because it is not
+linked.
 
-* The "Memmap on memory parameter" line may show "yes", "no",
-  or may not appear at all if the feature is not supported.
-  Because this changes between systems, stop checking this line
-  in the tests.
-
-* When --sysroot is used, do not read /sys/firmware/memory
-  (used on s390). This makes sure lsmem reads only the memory
-  directories inside the given sysroot, so the directory list
-  is correct.
-
-Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Signed-off-by: Morgan Jones <me@numin.it>
 ---
- sys-utils/lsmem.c                      | 2 +-
- tests/expected/lsmem/lsmem-s390-zvm-6g | 7 -------
- tests/expected/lsmem/lsmem-x86_64-16g  | 7 -------
- tests/ts/lsmem/lsmem                   | 2 ++
- 4 files changed, 3 insertions(+), 15 deletions(-)
+pam_lastlog2/src/Makemodule.am | 2 +-
+1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sys-utils/lsmem.c b/sys-utils/lsmem.c
-index c68f2317c..65b141c51 100644
---- a/sys-utils/lsmem.c
-+++ b/sys-utils/lsmem.c
-@@ -806,7 +806,7 @@ int main(int argc, char **argv)
- 		err(EXIT_FAILURE, _("failed to initialize %s handler"), _PATH_SYS_MEMORY);
- 	lsmem->sysmemconfig = ul_new_path(_PATH_SYS_MEMCONFIG);
- 	/* Always check for the existence of /sys/firmware/memory/memory0 first */
--	if (ul_path_access(lsmem->sysmemconfig, F_OK, "memory0") == 0)
-+	if (!prefix && ul_path_access(lsmem->sysmemconfig, F_OK, "memory0") == 0)
- 		lsmem->have_memconfig = 1;
- 	if (!lsmem->sysmemconfig)
- 		err(EXIT_FAILURE, _("failed to initialized %s handler"), _PATH_SYS_MEMCONFIG);
-diff --git a/tests/expected/lsmem/lsmem-s390-zvm-6g b/tests/expected/lsmem/lsmem-s390-zvm-6g
-index fe3892f6e..40dcfe982 100644
---- a/tests/expected/lsmem/lsmem-s390-zvm-6g
-+++ b/tests/expected/lsmem/lsmem-s390-zvm-6g
-@@ -17,7 +17,6 @@ RANGE                                  SIZE   STATE REMOVABLE BLOCK
- Memory block size:                256M
- Total online memory:              4.8G
- Total offline memory:             1.3G
--Memmap on memory parameter:         no
- 
- ---
- 
-@@ -28,7 +27,6 @@ RANGE                                 SIZE
- Memory block size:                256M
- Total online memory:              4.8G
- Total offline memory:             1.3G
--Memmap on memory parameter:         no
- 
- ---
- 
-@@ -42,7 +40,6 @@ RANGE                                  SIZE   STATE
- Memory block size:                256M
- Total online memory:              4.8G
- Total offline memory:             1.3G
--Memmap on memory parameter:         no
- 
- ---
- 
-@@ -76,7 +73,6 @@ RANGE                                  SIZE   STATE REMOVABLE BLOCK NODE
- Memory block size:                256M
- Total online memory:              4.8G
- Total offline memory:             1.3G
--Memmap on memory parameter:         no
- 
- ---
- 
-@@ -220,7 +216,6 @@ RANGE                                  SIZE   STATE REMOVABLE BLOCK          ZON
- Memory block size:                256M
- Total online memory:              4.8G
- Total offline memory:             1.3G
--Memmap on memory parameter:         no
- 
- ---
- 
-@@ -242,7 +237,6 @@ RANGE                                  SIZE   STATE REMOVABLE BLOCK NODE
- Memory block size:                256M
- Total online memory:              4.8G
- Total offline memory:             1.3G
--Memmap on memory parameter:         no
- 
- ---
- 
-@@ -262,4 +256,3 @@ RANGE                                  SIZE   STATE REMOVABLE BLOCK
- Memory block size:                256M
- Total online memory:              4.8G
- Total offline memory:             1.3G
--Memmap on memory parameter:         no
-diff --git a/tests/expected/lsmem/lsmem-x86_64-16g b/tests/expected/lsmem/lsmem-x86_64-16g
-index d3232470c..52975be9b 100644
---- a/tests/expected/lsmem/lsmem-x86_64-16g
-+++ b/tests/expected/lsmem/lsmem-x86_64-16g
-@@ -37,7 +37,6 @@ RANGE                                  SIZE  STATE REMOVABLE   BLOCK
- Memory block size:                128M
- Total online memory:               16G
- Total offline memory:               0B
--Memmap on memory parameter:         no
- 
- ---
- 
-@@ -49,7 +48,6 @@ RANGE                                 SIZE
- Memory block size:                128M
- Total online memory:               16G
- Total offline memory:               0B
--Memmap on memory parameter:         no
- 
- ---
- 
-@@ -61,7 +59,6 @@ RANGE                                 SIZE  STATE
- Memory block size:                128M
- Total online memory:               16G
- Total offline memory:               0B
--Memmap on memory parameter:         no
- 
- ---
- 
-@@ -199,7 +196,6 @@ RANGE                                  SIZE  STATE REMOVABLE BLOCK NODE  ZONES
- Memory block size:                128M
- Total online memory:               16G
- Total offline memory:               0B
--Memmap on memory parameter:         no
- 
- ---
- 
-@@ -523,7 +519,6 @@ RANGE                                  SIZE  STATE REMOVABLE   BLOCK  ZONES
- Memory block size:                128M
- Total online memory:               16G
- Total offline memory:               0B
--Memmap on memory parameter:         no
- 
- ---
- 
-@@ -563,7 +558,6 @@ RANGE                                  SIZE  STATE REMOVABLE   BLOCK NODE  ZONES
- Memory block size:                128M
- Total online memory:               16G
- Total offline memory:               0B
--Memmap on memory parameter:         no
- 
- ---
- 
-@@ -603,4 +597,3 @@ RANGE                                  SIZE  STATE REMOVABLE   BLOCK
- Memory block size:                128M
- Total online memory:               16G
- Total offline memory:               0B
--Memmap on memory parameter:         no
-diff --git a/tests/ts/lsmem/lsmem b/tests/ts/lsmem/lsmem
-index 179f0ef15..057a30fd5 100755
---- a/tests/ts/lsmem/lsmem
-+++ b/tests/ts/lsmem/lsmem
-@@ -34,6 +34,8 @@ function do_lsmem {
-         echo "\$ lsmem $opts" >>${TS_OUTPUT}
-         ${TS_CMD_LSMEM} $opts --sysroot "${dumpdir}/${name}" >> $TS_OUTPUT 2>> $TS_ERRLOG
- 
-+	sed -i '/^Memmap on memory parameter:/d' ${TS_OUTPUT}
-+
- }
- 
- for dump in $(ls $TS_SELF/dumps/*.tar.bz2 | sort); do
--- 
-2.53.0
+diff --git a/pam_lastlog2/src/Makemodule.am b/pam_lastlog2/src/Makemodule.am
+index 40d597c58..629930853 100644
+--- a/pam_lastlog2/src/Makemodule.am
++++ b/pam_lastlog2/src/Makemodule.am
+@@ -13,7 +13,7 @@ pam_lastlog2_la_CFLAGS = \
 
+pam_lastlog2_la_LIBADD = liblastlog2.la
+
+-pam_lastlog2_la_LDFLAGS = $(SOLIB_LDFLAGS) -module -avoid-version -shared
++pam_lastlog2_la_LDFLAGS = $(SOLIB_LDFLAGS) -lpam -module -avoid-version -shared
+if HAVE_VSCRIPT
+pam_lastlog2_la_LDFLAGS +=
+$(VSCRIPT_LDFLAGS),$(top_srcdir)/pam_lastlog2/src/pam_lastlog2.sym
+endif
+--
+2.50.1
