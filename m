@@ -1,138 +1,93 @@
-Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B114D25DB12
-	for <util-linux@vger.kernel.org>; Mon,  2 Mar 2026 19:09:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.171
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772478571; cv=pass; b=mqYjXk7tgMHlEpD1T7aOGOMswaVuiq4dGuSUGeB4zvc2hJWWD6B2NMtLWIqdr7LMpPVzyMrMhynQh4DKEwv3i48AsbP2yNV5EoF8hTtLpnMi0Jxs/+h+42plGQHT3wh5fZlGReFnc7bAgW+6DV4F/AEWyMOOJwt5BvTkmbLzujA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772478571; c=relaxed/simple;
-	bh=EguLR129CKnQI3J27HIl6YW9NMXgnaTIV3A+HCYyGuM=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=gY3HLYXiSol7wyJ5DCVC19zO8GCgt6skc3IlRqxTV8laFkD026Ef+5vL34eL4AoIf/lBoykrfucF8frwVFGB5wAmmhNvOr8VTJTE0wJ8kKPu6d6yBY/wPARmwehSIGLyggyoAVgGyd1cjKVtr52nbmFd8ff6O2zC6wD8n5LE/ug=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=numin.it; spf=none smtp.mailfrom=numin.it; dkim=pass (2048-bit key) header.d=numin-it.20230601.gappssmtp.com header.i=@numin-it.20230601.gappssmtp.com header.b=cKZEdOuj; arc=pass smtp.client-ip=74.125.82.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=numin.it
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=numin.it
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47197394780
+	for <util-linux@vger.kernel.org>; Tue,  3 Mar 2026 10:08:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772532494; cv=none; b=TTlQTmIMkZYOcRyrXge0aBDl/LWbem6RNbpbffu+4LBqGTLrSQUWCyvWD4HIfceYuTWoXwq+pw5MWhKI0Iogq1ePec/hsPmzsqH89s0QffWcH2YExJmsqQPRZ6dqeDmKXF+wnEUHFtcxSzCRWbv+pbst4ochJJGyG4LaJdULFgw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772532494; c=relaxed/simple;
+	bh=r7tg/ALSEVw+Nmwn9+URKzpvroNGz1hBV9YzwVh3Kxw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UGh9n3abM/gMLW22WfvJaC8CKza5JVxI8e+M2DK3wLLYbR7Ps4lNEBkG9yZMklE9XHgbrk+tCpzyUF2Z5mkItZdxZIWKuzQnrX+0qjcdWl/3mwWeKoCdFrQLjKmCeRasjxXqnLTHafMutC9qT2r1MylNjNXW61T/LzD3IuG/dHI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NtXj/cyy; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=numin-it.20230601.gappssmtp.com header.i=@numin-it.20230601.gappssmtp.com header.b="cKZEdOuj"
-Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-2b6b0500e06so5789136eec.1
-        for <util-linux@vger.kernel.org>; Mon, 02 Mar 2026 11:09:29 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1772478569; cv=none;
-        d=google.com; s=arc-20240605;
-        b=LBKHv3Kv5X54b5NCNK548muRQJmqIzKZOavw2YuJYxD9N3BJq1r+UywnVzidT2YcET
-         7jz7ARF80C4px4dmWwksRgUwbdJ++WxrW6O+QBvPJYu2Db9b3EBQ5jqs510SYA/xtw+x
-         dbyHc/j2Nzu1IH1iVHET3dgaCviKM1cd9c9Lbsbt3aueYPDJlvpcT/RTzylbUxxyll8+
-         0HHrVuVam5zgjjUeZiZNk0Fs7797kRQzbeeQev1DFBDnq6PkKay2K7HXReGxDCZCkqYx
-         ak8OfoaYtFqNaovy2kIeqD8Nd/QR8pLYT+2+pFiaQeBgRlMeTunj/bGOsRQZa4pUo3dT
-         R4Zg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=y+IcrAYqgH2IvAbSsxQj7A3nniKVvvcK5CDKEyf02wI=;
-        fh=wGiqS6fCIXmTY01ukAaQ0f8K0pJvn/8Cx9cBD0x5bgc=;
-        b=UthshtbtrDs5Ca+NAQ/1z5e2vsJ/uAbJFCqAJTO/yuFYGQXWExj8rIJbxkAfDbtLPs
-         pobZt3opjHG2PslQ/BIX9NzNdTpPiwMBPPIrqUzEQKgdParjrNBaN14wwSGFFjrOfRHq
-         BcnPbBhR0cV/UkvDh7T5LbeduIWj4t+hOmXpmrOKIi0zojxZR1d/aGzhkVB/O74RdAq9
-         Ika+z2IiF8C4bUVZRuttoFrrcodLkQXWfvfhc3Nbl5RSN9JDsNlVvq1hEP2QRViZsFR/
-         HnzHsDtk1/DvmyhNeYo/4E4bka6uKwFgE+RfwHdi7vjm3fDnDSV/Ph3wH/OCk7vck6GK
-         7S0A==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=numin-it.20230601.gappssmtp.com; s=20230601; t=1772478569; x=1773083369; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=y+IcrAYqgH2IvAbSsxQj7A3nniKVvvcK5CDKEyf02wI=;
-        b=cKZEdOujdqMPpdVefdVwrn+ynuy6pdvaY5LtItH+B94RD17Tu3FOL/mZcDwJX0N0W1
-         CLInLI90l2nl9zSjImzXchM2P49FdDpi334JPkbOpTYhD4Z7ceWQx9Javx3PhEeidrx9
-         m/VHzbfAjlpaSnEw1Em7WNWvfbyX+My59GRT8DBOEPLT2svKyWkZEskyH5T7qBPquPBi
-         cA0vXZUpWYEyk4XOeShJ0O84fFfYTAHC3nRuRpHu0TIBCmwKGRrC9XVUq5GonniccZpM
-         mY2Ob5XtsFRcg8zIbgDM5JMoBDoFPWj/havM5lgVNggQqcAFxVGVtjaRuMW4e1unOqmT
-         BvAQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772478569; x=1773083369;
-        h=to:subject:message-id:date:from:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=y+IcrAYqgH2IvAbSsxQj7A3nniKVvvcK5CDKEyf02wI=;
-        b=vln73bMHreGYosHnMU/3SdQecwtio9kzvbR8S12XRYH5wKpwgFSeCaOvThfGdLwgac
-         Q/rlsAl3FPUYG6TlC7bzSHJER68zcULksgN50lb3YG4s1KDYFgpB1KlAyhHZJ0VtkPua
-         xVVtril11jnZ4oOPEoKCRydFJEMyQXCoYO7A1mkegZv8H3zflfOPMJwbOtFN37JibpVs
-         H0uE+K+qUotCMNI+RYA9OTr+MuMiOVutArYmZ0ICRvPM8JUtQr3CuPrrFt3+lgVDX/uM
-         rBfy8swI6+sGCdD8ilN78xWLpd47uaswoNk596s/bShQqUYunLBm5K51WNZdoCy8jlW0
-         6z3g==
-X-Gm-Message-State: AOJu0YzEceGTPAhsyae/+MUh9k1OIW42BYaNftwD6OW8AACdruyM1L+r
-	51Bqwze0go1sqJMXh3R65An4X62y8dCsZlFzjjXEdADE0dXtms18dZ90/FhSAn3zJFrf1X81YqU
-	V7xEMvaEIXm9TKBmsawRHW6AFvk7spycVpXI4JyUmcuN8xAD3Y7ZKA6E=
-X-Gm-Gg: ATEYQzwwv+fz3Ch8f9MNLorcBjipGtaOotO4A+bXpRmOlCEX2tDE9iVqunmfdE3sbwH
-	Jc4kWyXc8RDnDhlBwst9wv0e+pxuJDkHGI+Lmw7JBfuPWfFDgeEckTMwBQiGf12uKpXousSbdV/
-	XMYyBNepyaNMC3nzDNZnbipaLEqlpmWPeL+YRRodHDvRg7AjB4k4VVr1gumWNbTr4uzi4PQe3gr
-	WWfSiSIrhdJLH0RDeq6AMY5l+r93x7GWhZeshme1R6Tojaw6Usp5arVXlL4DQcN8IIP55gxVjs6
-	QJcvFoESYo+98jRFCQ==
-X-Received: by 2002:a05:7300:cd90:b0:2b7:b7e7:9025 with SMTP id
- 5a478bee46e88-2bde1f17447mr5244863eec.31.1772478568501; Mon, 02 Mar 2026
- 11:09:28 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NtXj/cyy"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1772532492;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3A0/Hkg310x1nVCQg/L1lmIcUWzQ4tIfm1G3RK/Z+jc=;
+	b=NtXj/cyy1YieOVcFHhEsrVHKS5EK/BsrIQhPyS6JBqvkWEBDvyCa3/CUX0nhdOopc75Ljz
+	93fUxBSeHWHzWMQunhbXaZhCsvAnJ5zNFt1oyy0meZMmzeYSDiikP+1hjlfwdZ46zw2K36
+	54V1/gCsQc9D3iuZFV81St//JsLfJus=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-607-p-bvB6QfP7iqd77-diqGnw-1; Tue,
+ 03 Mar 2026 05:08:06 -0500
+X-MC-Unique: p-bvB6QfP7iqd77-diqGnw-1
+X-Mimecast-MFC-AGG-ID: p-bvB6QfP7iqd77-diqGnw_1772532485
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 6E7AE19560A7;
+	Tue,  3 Mar 2026 10:08:05 +0000 (UTC)
+Received: from ws (unknown [10.44.32.203])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 225A430001B9;
+	Tue,  3 Mar 2026 10:08:03 +0000 (UTC)
+Date: Tue, 3 Mar 2026 11:08:00 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Chris Hofstaedtler <zeha@debian.org>, 
+	debian-loongarch@lists.debian.org, util-linux@vger.kernel.org
+Subject: Re: [ANNOUNCE] util-linux v2.42-rc1
+Message-ID: <pj7nqvgvazvimjhx7r3j7qt7zi2hvziv3bxjwnsaxpy45zjpxc@eimfo2zs6p5t>
+References: <wid276gkq7tblvkfwc6kum4nacamstiigqjj5ux6j6zd4blz4l@jzq3sgfh6cj5>
+ <aaP6atFYpVqulTO1@zeha.at>
+ <aaVVg4PhVKkdL2C5@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+ <aaWzysmPNrkPm4p1@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Morgan <me@numin.it>
-Date: Mon, 2 Mar 2026 11:08:39 -0800
-X-Gm-Features: AaiRm52bIYowlHkWgz7fQDJwPInMKsuhdA4cdrnJuSTRA1FvkQqSNxDxZkMUlTA
-Message-ID: <CAEUYr6ZH=9akE64zf5FM3u+Sr44oSJctk2gemiadisghEFESbg@mail.gmail.com>
-Subject: [PATCH] pam_lastlog2: add -lpam to Makemodule.am
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aaWzysmPNrkPm4p1@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-From c8e620c6bcd044786c59f822810fc973090dbfa2 Mon Sep 17 00:00:00 2001
-From: Morgan Jones <me@numin.it>
-Date: Mon, 2 Mar 2026 11:03:39 -0800
-Subject: [PATCH] pam_lastlog2: add -lpam to Makemodule.am
+On Mon, Mar 02, 2026 at 04:59:06PM +0100, Sumanth Korikkar wrote:
+> * When --sysroot is used, do not read /sys/firmware/memory
+>   (used on s390). This makes sure lsmem reads only the memory
+>   directories inside the given sysroot, so the directory list
+>   is correct.
 
-If we don't add this, we don't actually link with PAM; compare the
-before and after of `lib/security/pam_lastlog2.so`.
+Hi Sumanth,
 
-```
-Dynamic section at offset 0x2ce8 contains 31 entries:
- Tag        Type                         Name/Value
-0x0000000000000001 (NEEDED)             Shared library: [liblastlog2.so.2]
-0x0000000000000001 (NEEDED)             Shared library: [libsqlite3.so]
-0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]
-0x000000000000000e (SONAME)             Library soname: [pam_lastlog2.so]
-```
+Thanks for looking into this. I think your patch is a workaround
+though. It bypasses sysmemconfig and memmap_on_memory when --sysroot
+is used rather than fixing the root cause.
 
-```
-Dynamic section at offset 0x2cd8 contains 32 entries:
- Tag        Type                         Name/Value
-0x0000000000000001 (NEEDED)             Shared library: [libpam.so.0]
-0x0000000000000001 (NEEDED)             Shared library: [liblastlog2.so.2]
-0x0000000000000001 (NEEDED)             Shared library: [libsqlite3.so]
-0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]
-0x000000000000000e (SONAME)             Library soname: [pam_lastlog2.so]
-```
+The real problem is that --sysroot prefix was not applied to all sysfs
+paths. The sysmemconfig handler was never prefixed, and print_summary()
+used raw fopen() to read memmap_on_memory, completely ignoring --sysroot.
 
-This causes issues like https://github.com/NixOS/nixpkgs/issues/493934
-where the library has trouble linking with PAM symbols because it is not
-linked.
+I've pushed different solution fix to
+https://github.com/util-linux/util-linux/pull/4090 
 
-Signed-off-by: Morgan Jones <me@numin.it>
----
-pam_lastlog2/src/Makemodule.am | 2 +-
-1 file changed, 1 insertion(+), 1 deletion(-)
+This way all sysfs reads go through the prefix, and tests produce
+consistent results regardless of the host system.
 
-diff --git a/pam_lastlog2/src/Makemodule.am b/pam_lastlog2/src/Makemodule.am
-index 40d597c58..629930853 100644
---- a/pam_lastlog2/src/Makemodule.am
-+++ b/pam_lastlog2/src/Makemodule.am
-@@ -13,7 +13,7 @@ pam_lastlog2_la_CFLAGS = \
+  Karel
 
-pam_lastlog2_la_LIBADD = liblastlog2.la
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
--pam_lastlog2_la_LDFLAGS = $(SOLIB_LDFLAGS) -module -avoid-version -shared
-+pam_lastlog2_la_LDFLAGS = $(SOLIB_LDFLAGS) -lpam -module -avoid-version -shared
-if HAVE_VSCRIPT
-pam_lastlog2_la_LDFLAGS +=
-$(VSCRIPT_LDFLAGS),$(top_srcdir)/pam_lastlog2/src/pam_lastlog2.sym
-endif
---
-2.50.1
