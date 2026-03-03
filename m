@@ -1,57 +1,54 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47197394780
-	for <util-linux@vger.kernel.org>; Tue,  3 Mar 2026 10:08:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5751426056D
+	for <util-linux@vger.kernel.org>; Tue,  3 Mar 2026 11:47:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772532494; cv=none; b=TTlQTmIMkZYOcRyrXge0aBDl/LWbem6RNbpbffu+4LBqGTLrSQUWCyvWD4HIfceYuTWoXwq+pw5MWhKI0Iogq1ePec/hsPmzsqH89s0QffWcH2YExJmsqQPRZ6dqeDmKXF+wnEUHFtcxSzCRWbv+pbst4ochJJGyG4LaJdULFgw=
+	t=1772538427; cv=none; b=EEk9K2GH75LHLazr18CgDJG2ubai4FqZ2AvUeoALcsFyeGsm03t8KA+B05fd+eI3htWtwGRQuDQYT4+V8GOxa4HANXEkdCtjVQbILyX5Wty9H+2G5ftQf20p9FmWx7r5iF8pYjFdT8ffvIgSUcbsUI8qixJfB8V6BWH2bO8bzMs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772532494; c=relaxed/simple;
-	bh=r7tg/ALSEVw+Nmwn9+URKzpvroNGz1hBV9YzwVh3Kxw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UGh9n3abM/gMLW22WfvJaC8CKza5JVxI8e+M2DK3wLLYbR7Ps4lNEBkG9yZMklE9XHgbrk+tCpzyUF2Z5mkItZdxZIWKuzQnrX+0qjcdWl/3mwWeKoCdFrQLjKmCeRasjxXqnLTHafMutC9qT2r1MylNjNXW61T/LzD3IuG/dHI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NtXj/cyy; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1772538427; c=relaxed/simple;
+	bh=Qgai7XUcla8AraExBnc6GNEtxoDSBWVGCNqkpKE68XM=;
+	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=k8+fwhmbeka8n0s4R/5xPRGz7yjkdZ/kHY2bsl1OyBXZPPMaNzsVT7ePfeDLER7qH0wBS8D38Qqe6KzTo9i4HLkr28NKizn0EuvFfA90guLuv2WQCAnV0Kxr5j1bQHTe0UiK+EGWFa2pa0H7ilV77hbgcTZkeTWNaydAPDE4Du4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RumzAbiV; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NtXj/cyy"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RumzAbiV"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1772532492;
+	s=mimecast20190719; t=1772538425;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=3A0/Hkg310x1nVCQg/L1lmIcUWzQ4tIfm1G3RK/Z+jc=;
-	b=NtXj/cyy1YieOVcFHhEsrVHKS5EK/BsrIQhPyS6JBqvkWEBDvyCa3/CUX0nhdOopc75Ljz
-	93fUxBSeHWHzWMQunhbXaZhCsvAnJ5zNFt1oyy0meZMmzeYSDiikP+1hjlfwdZ46zw2K36
-	54V1/gCsQc9D3iuZFV81St//JsLfJus=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+	bh=jWCA43OvUfQaNCP9Q6bu5YpBsrmZAyHkUzEB/5pGY+Q=;
+	b=RumzAbiVwF7ym8+ibFpKsiMP3NIK0CdCYFLVK3YCM8/vU/RJUdVvOEAtUvH+RBllYoJ/+8
+	83nP6m2uQ2s2MZwg7OOOr/7KOejjxDWoWcK9t0Up31QuOaO/g8T3U3SLMW/XXWfB0CrPbJ
+	XXV5Z5CTaw43+ll2i58KZ2wFWuDPNz4=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-607-p-bvB6QfP7iqd77-diqGnw-1; Tue,
- 03 Mar 2026 05:08:06 -0500
-X-MC-Unique: p-bvB6QfP7iqd77-diqGnw-1
-X-Mimecast-MFC-AGG-ID: p-bvB6QfP7iqd77-diqGnw_1772532485
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-370-TaaMSjLFNqic3K2GZlAocg-1; Tue,
+ 03 Mar 2026 06:47:02 -0500
+X-MC-Unique: TaaMSjLFNqic3K2GZlAocg-1
+X-Mimecast-MFC-AGG-ID: TaaMSjLFNqic3K2GZlAocg_1772538421
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 6E7AE19560A7;
-	Tue,  3 Mar 2026 10:08:05 +0000 (UTC)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 13A8118002DE;
+	Tue,  3 Mar 2026 11:47:01 +0000 (UTC)
 Received: from ws (unknown [10.44.32.203])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 225A430001B9;
-	Tue,  3 Mar 2026 10:08:03 +0000 (UTC)
-Date: Tue, 3 Mar 2026 11:08:00 +0100
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3519B1800370;
+	Tue,  3 Mar 2026 11:47:00 +0000 (UTC)
+Date: Tue, 3 Mar 2026 12:46:57 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Chris Hofstaedtler <zeha@debian.org>, 
-	debian-loongarch@lists.debian.org, util-linux@vger.kernel.org
+To: Samuel Thibault <samuel.thibault@aquilenet.fr>, 
+	util-linux@vger.kernel.org
 Subject: Re: [ANNOUNCE] util-linux v2.42-rc1
-Message-ID: <pj7nqvgvazvimjhx7r3j7qt7zi2hvziv3bxjwnsaxpy45zjpxc@eimfo2zs6p5t>
+Message-ID: <agv5t6nkowhcpuw6iszi3bkwnxioqffp3ynmx7ronn5ycbegxe@kwibynxo6q6t>
 References: <wid276gkq7tblvkfwc6kum4nacamstiigqjj5ux6j6zd4blz4l@jzq3sgfh6cj5>
- <aaP6atFYpVqulTO1@zeha.at>
- <aaVVg4PhVKkdL2C5@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
- <aaWzysmPNrkPm4p1@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+ <aaDlRkT-yYc87zpf@end>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -60,33 +57,17 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aaWzysmPNrkPm4p1@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+In-Reply-To: <aaDlRkT-yYc87zpf@end>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On Mon, Mar 02, 2026 at 04:59:06PM +0100, Sumanth Korikkar wrote:
-> * When --sysroot is used, do not read /sys/firmware/memory
->   (used on s390). This makes sure lsmem reads only the memory
->   directories inside the given sysroot, so the directory list
->   is correct.
+On Fri, Feb 27, 2026 at 01:28:54AM +0100, Samuel Thibault wrote:
+> Here is a fix for non-linux systems.
 
-Hi Sumanth,
-
-Thanks for looking into this. I think your patch is a workaround
-though. It bypasses sysmemconfig and memmap_on_memory when --sysroot
-is used rather than fixing the root cause.
-
-The real problem is that --sysroot prefix was not applied to all sysfs
-paths. The sysmemconfig handler was never prefixed, and print_summary()
-used raw fopen() to read memmap_on_memory, completely ignoring --sysroot.
-
-I've pushed different solution fix to
-https://github.com/util-linux/util-linux/pull/4090 
-
-This way all sysfs reads go through the prefix, and tests produce
-consistent results regardless of the host system.
+Thanks. I made a small cleanup based on your suggestions.
+https://github.com/util-linux/util-linux/pull/4091
 
   Karel
-
+  
 -- 
  Karel Zak  <kzak@redhat.com>
  http://karelzak.blogspot.com
