@@ -1,104 +1,80 @@
-Received: from hera.aquilenet.fr (hera.aquilenet.fr [185.233.100.1])
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45981340DB9
-	for <util-linux@vger.kernel.org>; Tue,  3 Mar 2026 13:13:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.233.100.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE2B736EAB3
+	for <util-linux@vger.kernel.org>; Wed,  4 Mar 2026 13:34:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772543609; cv=none; b=bFNvo1ZMzeddVNmzB8rpoOUozfM182baY6i3uY/n0NwLwE3wFbz89p82cnRWX9LK7djZj7w2fVVKEFRB6FR+JJhVBzDXE5vH7GcaQWg4k8X8KFOPnUzpW2ythbjU64C4Ba4t9s/3odvmTNd/fN+1VvsAlH3D5oZ8thR2Yc9m9h0=
+	t=1772631282; cv=none; b=XET7fqZ7dZEy9RoCR2mMqKBEv5Z8hJDi5MNKXrsW/Jk0w9A2JI7m7onBDPr1NI7YYzPjSCTsxqud6d1z9xTaIvFW2h5HTdIp3MAThtQP33ibE95hzBBR/M98dcnHWR2+jPcmsSWGc/hUmZG+r6LCQyig+w+0C7TTGsIDpVcKRsM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772543609; c=relaxed/simple;
-	bh=hYhrZBaEtf0bwDc9/K2hJAfVpBM5L/QDwn+1Yn2Gmv0=;
+	s=arc-20240116; t=1772631282; c=relaxed/simple;
+	bh=U37+Jnt78nivVD0p1COHRbkA4W4j4dtj1klVnyeDdeY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kHSg6ydwXWJ+8MwqRNWeh5OnBRlVJ2IfjQogRRE3sq+XSSg8im6j7oARr2OZBndl7bev7y7twiSD8rwCdkZwJTTC5RLJ4aCeC14bER0bDzGF/XwBcSFES5Pn75cgP2jip8tSomGoYu3SELwtbnUNMPffOoNTNMLUJAd/a62Px2Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=aquilenet.fr; spf=pass smtp.mailfrom=aquilenet.fr; dkim=pass (1024-bit key) header.d=aquilenet.fr header.i=@aquilenet.fr header.b=c04LFtEE; dkim=pass (1024-bit key) header.d=aquilenet.fr header.i=@aquilenet.fr header.b=cx981iP7; arc=none smtp.client-ip=185.233.100.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=aquilenet.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aquilenet.fr
+	 Content-Type:Content-Disposition:In-Reply-To; b=YNoHb+gdPsVxgEP8V8AmsUVJbMQHkpabN1a22WPfDFXHKZCRgG+HP30yO1dEJQoELEfh8uTH8c99hID/ZBPn/28PqP+F+tMYtoxwZOoqhW9qLkczCIX+n2G+PU4LNIEqAEHz6JNgEkQhiSSmH0OPX4dSnFRrdkPojplett5+upU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=ETfjlMj/; arc=none smtp.client-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=aquilenet.fr header.i=@aquilenet.fr header.b="c04LFtEE";
-	dkim=pass (1024-bit key) header.d=aquilenet.fr header.i=@aquilenet.fr header.b="cx981iP7"
-Received: from localhost (localhost [127.0.0.1])
-	by hera.aquilenet.fr (Postfix) with ESMTP id EA31717D;
-	Tue,  3 Mar 2026 14:13:17 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aquilenet.fr;
-	s=dkim; t=1772543599;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=uQ7+G5aJ6cEjhtq22jJ4vSjHjCdFkc3E/JOdIM9PGRM=;
-	b=c04LFtEEGYnn4nqxk4djxO3XTxkJgxvVk0C3opu8ur1/asdGz4pKQTNIJuVIbZo+V5D53g
-	6v87JpfKDlOhP/5otj06C6T12V2wRvmnyY311Jj9oDow8sn13NdZSmaeETn8gcU58+boTr
-	37s7/PlZDQxeIPiI8qEX7vepVVNod1o=
-Authentication-Results: hera.aquilenet.fr;
-	none
-X-Virus-Scanned: Debian amavis at hera.aquilenet.fr
-Received: from hera.aquilenet.fr ([127.0.0.1])
- by localhost (hera.aquilenet.fr [127.0.0.1]) (amavis, port 10024) with ESMTP
- id QxCec_mpFz6e; Tue,  3 Mar 2026 14:13:16 +0100 (CET)
-Received: from end (nat-inria-interne-52-gw-01-bso.bordeaux.inria.fr [194.199.1.52])
-	by hera.aquilenet.fr (Postfix) with ESMTPSA id A405D112;
-	Tue,  3 Mar 2026 14:13:15 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aquilenet.fr;
-	s=dkim; t=1772543596;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=uQ7+G5aJ6cEjhtq22jJ4vSjHjCdFkc3E/JOdIM9PGRM=;
-	b=cx981iP7epf2s3ZEdKZiScHo67N4UhHvLnBrTC/fwPdURA4zDv5l1OL7wTicY0IdcT51NG
-	+8Yw1+C/8CLjlz9oxsUHOcYXDDGYDSU9xSXmdh1UxWsimGbJsTCAfv7yfG9zOcnzrJisaz
-	ySqXAu18Qfs6u+wMDspxICJX8+ZIPF8=
-Received: from samy by end with local (Exim 4.99.1)
-	(envelope-from <samuel.thibault@aquilenet.fr>)
-	id 1vxPYo-00000007E5U-3qSf;
-	Tue, 03 Mar 2026 14:13:14 +0100
-Date: Tue, 3 Mar 2026 14:13:14 +0100
-From: Samuel Thibault <samuel.thibault@aquilenet.fr>
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="ETfjlMj/"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=N3iwNfjquedfYCI5FlNLeZfBZhW0Qs2qKdyy9F0ee5w=; b=ETfjlMj/mRlaF9GbbigiDzIgUW
+	rITeu4wpLu0Z0KsxgR8CI7qAYLyMYZP1mIcyh+amrV5UBvxyZVoX7W0AUChc5HTVK4kvEwk6xqSlL
+	HdAXSli2rfHNUSuO7HKyLrAhyj4e2blv70pCAgZIcYoUVg7hJX0ZdOfy6LN5nD1QhOuR+xwYPsGhf
+	b8yjIdWfNe8VYmEck58JtXTXeGdsdKRQ2C8yjspHgkczKNqrnvfMS15hR0+SXavwLKZPfy47Pde+h
+	A2oRBz/EvdKgnMCi2XTQe8kGUewPcarL/83tvBpgjUL3dgbCju4dpfu+SFxnhhubUeblXaz7pLTIZ
+	9nERETxQ==;
+Received: from authenticated user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.94.2)
+	(envelope-from <zeha@debian.org>)
+	id 1vxmMx-00FzVu-Tq; Wed, 04 Mar 2026 13:34:32 +0000
+Date: Wed, 4 Mar 2026 14:34:28 +0100
+From: Chris Hofstaedtler <zeha@debian.org>
 To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org
+Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>, 
+	debian-loongarch@lists.debian.org, util-linux@vger.kernel.org
 Subject: Re: [ANNOUNCE] util-linux v2.42-rc1
-Message-ID: <aabealO6DscXLAKv@end>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@aquilenet.fr>,
-	Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org
+Message-ID: <aag0u2k9K3gr7XBa@zeha.at>
 References: <wid276gkq7tblvkfwc6kum4nacamstiigqjj5ux6j6zd4blz4l@jzq3sgfh6cj5>
- <aaDlRkT-yYc87zpf@end>
- <agv5t6nkowhcpuw6iszi3bkwnxioqffp3ynmx7ronn5ycbegxe@kwibynxo6q6t>
+ <aaP6atFYpVqulTO1@zeha.at>
+ <aaVVg4PhVKkdL2C5@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+ <aaWzysmPNrkPm4p1@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+ <pj7nqvgvazvimjhx7r3j7qt7zi2hvziv3bxjwnsaxpy45zjpxc@eimfo2zs6p5t>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Disposition: inline
-In-Reply-To: <agv5t6nkowhcpuw6iszi3bkwnxioqffp3ynmx7ronn5ycbegxe@kwibynxo6q6t>
-Organization: I am not organized
-X-Rspamd-Queue-Id: EA31717D
-X-Spamd-Result: default: False [-2.50 / 15.00];
-	NEURAL_HAM(-2.90)[-0.966];
-	MID_RHS_NOT_FQDN(0.50)[];
-	MIME_GOOD(-0.10)[text/plain];
-	MIME_TRACE(0.00)[0:+];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCPT_COUNT_TWO(0.00)[2];
-	DKIM_SIGNED(0.00)[aquilenet.fr:s=dkim];
-	RCVD_COUNT_THREE(0.00)[3];
-	HAS_ORG_HEADER(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCVD_TLS_LAST(0.00)[];
-	TO_DN_SOME(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[]
-X-Rspamd-Action: no action
-X-Spamd-Bar: --
-X-Rspamd-Server: hera
+In-Reply-To: <pj7nqvgvazvimjhx7r3j7qt7zi2hvziv3bxjwnsaxpy45zjpxc@eimfo2zs6p5t>
+X-Debian-User: zeha
 
-Karel Zak, le mar. 03 mars 2026 12:46:57 +0100, a ecrit:
-> On Fri, Feb 27, 2026 at 01:28:54AM +0100, Samuel Thibault wrote:
-> > Here is a fix for non-linux systems.
-> 
-> Thanks. I made a small cleanup based on your suggestions.
-> https://github.com/util-linux/util-linux/pull/4091
+* Karel Zak <kzak@redhat.com> [260303 11:09]:
+>On Mon, Mar 02, 2026 at 04:59:06PM +0100, Sumanth Korikkar wrote:
+>> * When --sysroot is used, do not read /sys/firmware/memory
+>>   (used on s390). This makes sure lsmem reads only the memory
+>>   directories inside the given sysroot, so the directory list
+>>   is correct.
+>
+>Thanks for looking into this. I think your patch is a workaround
+>though. It bypasses sysmemconfig and memmap_on_memory when --sysroot
+>is used rather than fixing the root cause.
+>
+>The real problem is that --sysroot prefix was not applied to all sysfs
+>paths. The sysmemconfig handler was never prefixed, and print_summary()
+>used raw fopen() to read memmap_on_memory, completely ignoring --sysroot.
+>
+>I've pushed different solution fix to
+>https://github.com/util-linux/util-linux/pull/4090
 
-It builds fine, thanks!
+Thanks, I've pulled this into our build and can confirm it fixes the 
+issue on loong64.
 
-Samuel
+Best,
+Chris
+
