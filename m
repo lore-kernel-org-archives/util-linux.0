@@ -1,47 +1,49 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.167])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 456C450276
-	for <util-linux@vger.kernel.org>; Sun,  8 Mar 2026 11:20:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.167
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C5E650276
+	for <util-linux@vger.kernel.org>; Sun,  8 Mar 2026 11:20:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772968824; cv=none; b=K6gK07HPqIuQHnri979KkIE/35I8LEHeKqTYrMyuA9XSeCFT5lA95rZP+psrzWc4JvklTeYkflWMhq3JTyDHbRwP1Ef0XqQ7/4RTIEWespq6OcHd/GlpxqbXP0kAaaKFOYjS9kJVLj8kVHo07x9eWWQD2T/ZWc59t7uZVjDly4s=
+	t=1772968831; cv=none; b=pyV6PeRLgpBfj0zlSsaLpXxLaW+fyxu2P5AB89uvyVnGUDCGduIQqx6Js5FVPindQgz8mI0U5dFVgWSApBano/aX+uPHk/TU8YMpbyrjgj0AX4WHWmpNKgOpnBTT6hFLG1llpSe/JxY+TURDcpeR08Sb6tMl1LF5ZFggBqw4uC8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772968824; c=relaxed/simple;
-	bh=PUIusoE+6eqDa7UBywsLV7uifV0rgcWepg4miUK2rO4=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=O88gFU3C63fcn20D5L+gcVfmEOlXx7myQISobtq3Ss7bvlx3smVy10zzWQDJ0jjRagJMhQYrV9kGkFvN9w1FWAQccL3trQuYl/XcHOsy6p4JfuNca4vA5EhbX/KH07vUv6dm5iC8hldC66KL24Z/A2SKEmAKE3pAycTCW66j8VE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=qHDSsMC6; arc=none smtp.client-ip=195.121.94.167
+	s=arc-20240116; t=1772968831; c=relaxed/simple;
+	bh=eUPYzRxstE1mgmmGoBdnVAIVBPsfUqFzk+c4RJ523Yc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Lf6eX+G8zF1qHSA71ULk3zZTozcBz8xKjHAZVHZ+MLRIF0B548B86m2nwcZDFGDWP/pD9+mT7qVSVlf12duvM1iyBmNg1DfMIqD8mq0mdWepqsDV4H64g3zCDC+9jI8nFIzTgFVONoO3cAOHW9nxclunZhCxp0RFKlyjnzTGWjI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=RGV3YFdr; arc=none smtp.client-ip=195.121.94.168
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="qHDSsMC6"
-X-KPN-MessageId: c864706f-1ae0-11f1-969b-005056abbe64
-Received: from smtp.kpnmail.nl (unknown [10.31.155.40])
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="RGV3YFdr"
+X-KPN-MessageId: cbcbfac3-1ae0-11f1-92a5-005056aba152
+Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id c864706f-1ae0-11f1-969b-005056abbe64;
-	Sun, 08 Mar 2026 12:20:16 +0100 (CET)
+	id cbcbfac3-1ae0-11f1-92a5-005056aba152;
+	Sun, 08 Mar 2026 12:20:21 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
 	h=mime-version:message-id:date:subject:to:from;
-	bh=9mPh4ivHzkRO0FJ6S3cPx16zRNahidZjWXJH+9BLi0I=;
-	b=qHDSsMC6hPTdM5aUEp8ePIynKJ5r6XBJfUucUG9qYSjDqYxJJu4f8DHn60bFj/D3cwm210Vt8k7zJ
-	 GVZro7HAyE7POoWuqKO0xVgOzvz4C38lJ6T3cFEteXcJu5E5T/LVk+1TZ5BylzcexEP/hGgQd0NSTJ
-	 9R/wGCnuN6WFQeMI=
-X-KPN-MID: 33|R4tP8jV6pFqKTHj5jbN4IzE+Cn9a5xOM4A30IECwGucvpracJVG/LmxAuOJghyo
- jiqP+Gsl3rkzOup71SaK+vXco1LEQ/BqQ0Oj1JEGsf6I=
+	bh=+VRZnb1kjdf/Epbplak1r9KUQ4WC0ztuTw8ziUAuIdc=;
+	b=RGV3YFdrLo1wZJnyrtEj3Sj9wN1IjZQOskf2BvgvP0GiuMil+Bdjspzu6el7XHqN8rkYxb62ecVxy
+	 f1dY5fNKUYbsRiS3YzvVLXwgAIDKNYwgFGhVMPLQ6GloT73yhgewTDUXJ69ku2bpBCao7ToBp93buW
+	 RM16uWUnoSGfVEXg=
+X-KPN-MID: 33|vOCYXUUn0WjB/uLCFMLVCrUKdSSOSuTdpYnw1dPd2ZzxDeWCeX3GncExjJhaD49
+ zPpebHerwX1GM4SzkRbsaxDZqPk1C4iY7BEPXDjoMQ+k=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|aUD0wnwyLT1u3OVsiW6puoT6N0rYRtsPgbI7x1XNcO6915k+3Uw1DEM6tYWcisf
- 2+y2w6uDB6y9/L5UBwfswyQ==
+X-CMASSUN: 33|Y+jIcxA3shRZqC/ZsZmePCeoJa6cs/tvqFzhvkXu1FCqFYf3k7HS72z5W4GBeFW
+ h68Qfn3Q4F9uqlJpg3nnIBw==
 Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id c84494d4-1ae0-11f1-b8e3-005056ab7584;
-	Sun, 08 Mar 2026 12:20:16 +0100 (CET)
+	id cbc60a1a-1ae0-11f1-a6cb-005056abf0db;
+	Sun, 08 Mar 2026 12:20:22 +0100 (CET)
 From: Benno Schulenberg <bensberg@telfort.nl>
 To: util-linux@vger.kernel.org
-Subject: [PATCH 2/3] nsenter: (usage) improve the alignment of the option descriptions
-Date: Sun,  8 Mar 2026 12:20:03 +0100
-Message-ID: <20260308112004.9206-2-bensberg@telfort.nl>
+Cc: Xiao Liang <shaw.leon@gmail.com>,
+	Christian Goeschel Ndjomouo <cgoesc2@wgu.edu>
+Subject: [PATCH 3/3] nsenter: (man) correct the markup and improve the formatting
+Date: Sun,  8 Mar 2026 12:20:04 +0100
+Message-ID: <20260308112004.9206-3-bensberg@telfort.nl>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260308112004.9206-1-bensberg@telfort.nl>
 References: <20260308112004.9206-1-bensberg@telfort.nl>
@@ -53,80 +55,108 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Perfect alignment is not possible, otherwise too little space remains
-for the descriptions.
+Remove the mistaken angle brackets that were introduced last month
+by commit f2a5997869, add the missing equals sign, and put both it
+and the subsequent colon in bold as they are literal characters.
 
-Also, slightly reword one description to fit within 80 columns again,
-and align also a description that was missed by commit 986188d1da two
-monts ago.
+Also, indent the list of paths to make it clearer where it ends,
+and so that the subsequent paragraph gets indented correctly.
 
+CC: Xiao Liang <shaw.leon@gmail.com>
+CC: Christian Goeschel Ndjomouo <cgoesc2@wgu.edu>
 Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
 ---
- sys-utils/nsenter.c | 46 ++++++++++++++++++++++-----------------------
- 1 file changed, 23 insertions(+), 23 deletions(-)
+ sys-utils/nsenter.1.adoc | 45 ++++++++++++++++++++--------------------
+ 1 file changed, 23 insertions(+), 22 deletions(-)
 
-diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
-index 98da75511..e10ba9cf9 100644
---- a/sys-utils/nsenter.c
-+++ b/sys-utils/nsenter.c
-@@ -95,34 +95,34 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(_("Run a program with namespaces of other processes.\n"), out);
+diff --git a/sys-utils/nsenter.1.adoc b/sys-utils/nsenter.1.adoc
+index 9e5bc81da..34fde93ac 100644
+--- a/sys-utils/nsenter.1.adoc
++++ b/sys-utils/nsenter.1.adoc
+@@ -59,9 +59,10 @@ by namespace-specific options (e.g., **--all --mount=**_path_).
+ +
+ The user namespace will be ignored if it is the same as the caller's current user namespace. It prevents a caller that has dropped capabilities from regaining those capabilities via a call to *setns*(2). See the man page for more details.
  
- 	fputs(USAGE_OPTIONS, out);
--	fputs(_(" -a, --all                    enter all namespaces\n"), out);
--	fputs(_(" -t, --target <PID>           target process to get namespaces from\n"), out);
--	fputs(_(" -m, --mount[=<file>|=:<nsid>]  enter mount namespace\n"), out);
--	fputs(_(" -u, --uts[=<file>|=:<nsid>]  enter UTS namespace (hostname etc)\n"), out);
--	fputs(_(" -i, --ipc[=<file>|=:<nsid>]  enter System V IPC namespace\n"), out);
--	fputs(_(" -n, --net[=<file>|=:<nsid>]  enter network namespace\n"), out);
--	fputs(_(" -N, --net-socket <fd>        enter socket's network namespace (use with --target)\n"), out);
--	fputs(_(" -p, --pid[=<file>|=:<nsid>]  enter pid namespace\n"), out);
-+	fputs(_(" -a, --all                     enter all namespaces\n"), out);
-+	fputs(_(" -t, --target <PID>            target process to get namespaces from\n"), out);
-+	fputs(_(" -m, --mount[=<file>|=:<nsid>] enter mount namespace\n"), out);
-+	fputs(_(" -u, --uts[=<file>|=:<nsid>]   enter UTS namespace (hostname etc)\n"), out);
-+	fputs(_(" -i, --ipc[=<file>|=:<nsid>]   enter System V IPC namespace\n"), out);
-+	fputs(_(" -n, --net[=<file>|=:<nsid>]   enter network namespace\n"), out);
-+	fputs(_(" -N, --net-socket <fd>         enter socket's network namespace (needs --target)\n"), out);
-+	fputs(_(" -p, --pid[=<file>|=:<nsid>]   enter pid namespace\n"), out);
- 	fputs(_(" -C, --cgroup[=<file>|=:<nsid>]  enter cgroup namespace\n"), out);
--	fputs(_(" -U, --user[=<file>|=:<nsid>] enter user namespace\n"), out);
--	fputs(_("     --user-parent            enter parent user namespace\n"), out);
--	fputs(_(" -T, --time[=<file>|=:<nsid>] enter time namespace\n"), out);
--	fputs(_(" -S, --setuid[=<uid>]         set uid in entered namespace\n"), out);
--	fputs(_(" -G, --setgid[=<gid>]         set gid in entered namespace\n"), out);
--	fputs(_("     --preserve-credentials   do not touch uids or gids\n"), out);
--	fputs(_("     --keep-caps              retain capabilities granted in user namespaces\n"), out);
--	fputs(_(" -r, --root[=<dir>]           set the root directory\n"), out);
--	fputs(_(" -w, --wd[=<dir>]             set the working directory\n"), out);
--	fputs(_(" -W, --wdns <dir>             set the working directory in namespace\n"), out);
--	fputs(_(" -e, --env                    inherit environment variables from target process\n"), out);
--	fputs(_(" -F, --no-fork                do not fork before exec'ing <program>\n"), out);
--	fputs(_(" -c, --join-cgroup            join the cgroup of the target process\n"), out);
-+	fputs(_(" -U, --user[=<file>|=:<nsid>]  enter user namespace\n"), out);
-+	fputs(_("     --user-parent             enter parent user namespace\n"), out);
-+	fputs(_(" -T, --time[=<file>|=:<nsid>]  enter time namespace\n"), out);
-+	fputs(_(" -S, --setuid[=<uid>]          set uid in entered namespace\n"), out);
-+	fputs(_(" -G, --setgid[=<gid>]          set gid in entered namespace\n"), out);
-+	fputs(_("     --preserve-credentials    do not touch uids or gids\n"), out);
-+	fputs(_("     --keep-caps               retain capabilities granted in user namespaces\n"), out);
-+	fputs(_(" -r, --root[=<dir>]            set the root directory\n"), out);
-+	fputs(_(" -w, --wd[=<dir>]              set the working directory\n"), out);
-+	fputs(_(" -W, --wdns <dir>              set the working directory in namespace\n"), out);
-+	fputs(_(" -e, --env                     inherit environment variables from target process\n"), out);
-+	fputs(_(" -F, --no-fork                 do not fork before exec'ing <program>\n"), out);
-+	fputs(_(" -c, --join-cgroup             join the cgroup of the target process\n"), out);
- #ifdef HAVE_LIBSELINUX
--	fputs(_(" -Z, --follow-context   set SELinux context according to --target PID\n"), out);
-+	fputs(_(" -Z, --follow-context          set SELinux context according to --target PID\n"), out);
- #endif
+-*-t*, *--target* _PID[:inode]_::
++*-t*, *--target* _PID_[**:**_inode_]::
+ Specify a target process to get contexts from. The paths to the contexts specified by _PID_ are:
+-
+++
++____
+ _/proc/pid/ns/mnt_;;
+ the mount namespace
+ _/proc/pid/ns/uts_;;
+@@ -82,41 +83,41 @@ _/proc/pid/root_;;
+ the root directory
+ _/proc/pid/cwd_;;
+ the working directory respectively
+-
+-Optionally, a process can be addressed with the format _PID:inode_. The _inode_
++____
++Optionally, a process can be addressed with the format _PID_**:**_inode_. The _inode_
+ identifies the unique process's file descriptor. To retrieve a process's inode
+ number you can use the *getino*(1) utility.
  
- 	fputs(USAGE_SEPARATOR, out);
--	fprintf(out, USAGE_HELP_OPTIONS(30));
-+	fprintf(out, USAGE_HELP_OPTIONS(31));
- 	fprintf(out, USAGE_MAN_TAIL("nsenter(1)"));
+-*-m*, *--mount*[**=**<__file__|:__nsid__>]::
+-Enter the mount namespace. If no argument is specified, enter the mount namespace of the target process. If _file_ or :__nsid__ is specified, enter the mount namespace specified by _file_ or _nsid_.
++*-m*, *--mount*[**=**_file_|**=:**_nsid_]::
++Enter the mount namespace. If no argument is specified, enter the mount namespace of the target process. If _file_ or **:**_nsid_ is specified, enter the mount namespace specified by _file_ or _nsid_.
  
- 	exit(EXIT_SUCCESS);
+-*-u*, *--uts*[**=**<__file__|:__nsid__>]::
+-Enter the UTS namespace. If no argument is specified, enter the UTS namespace of the target process. If _file_ or :__nsid__ is specified, enter the UTS namespace specified by _file_ or _nsid_.
++*-u*, *--uts*[**=**_file_|**=:**_nsid_]::
++Enter the UTS namespace. If no argument is specified, enter the UTS namespace of the target process. If _file_ or **:**_nsid_ is specified, enter the UTS namespace specified by _file_ or _nsid_.
+ 
+-*-i*, *--ipc*[**=**<__file__|:__nsid__>]::
+-Enter the IPC namespace. If no argument is specified, enter the IPC namespace of the target process. If _file_ or :__nsid__ is specified, enter the IPC namespace specified by _file_ or _nsid_.
++*-i*, *--ipc*[**=**_file_|**=:**_nsid_]::
++Enter the IPC namespace. If no argument is specified, enter the IPC namespace of the target process. If _file_ or **:**_nsid_ is specified, enter the IPC namespace specified by _file_ or _nsid_.
+ 
+-*-n*, *--net*[**=**<__file__|:__nsid__>]::
+-Enter the network namespace. If no argument is specified, enter the network namespace of the target process. If _file_ or :__nsid__ is specified, enter the network namespace specified by _file_ or _nsid_.
++*-n*, *--net*[**=**_file_|**=:**_nsid_]::
++Enter the network namespace. If no argument is specified, enter the network namespace of the target process. If _file_ or **:**_nsid_ is specified, enter the network namespace specified by _file_ or _nsid_.
+ 
+ *-N*, *--net-socket* _fd_::
+ Enter the network namespace of the target process's socket. It requires *--target* process specified. Supported since Linux 5.6.
+ 
+-*-p*, *--pid*[**=**<__file__|:__nsid__>]::
+-Enter the PID namespace. If no argument is specified, enter the PID namespace of the target process. If _file_ or :__nsid__ is specified, enter the PID namespace specified by _file_ or _nsid_.
++*-p*, *--pid*[**=**_file_|**=:**_nsid_]::
++Enter the PID namespace. If no argument is specified, enter the PID namespace of the target process. If _file_ or **:**_nsid_ is specified, enter the PID namespace specified by _file_ or _nsid_.
+ 
+-*-U*, *--user*[**=**<__file__|:__nsid__>]::
+-Enter the user namespace. If no argument is specified, enter the user namespace of the target process. If _file_ or :__nsid__ is specified, enter the user namespace specified by _file_ or _nsid_. See also the *--setuid* and *--setgid* options.
++*-U*, *--user*[**=**_file_|**=:**_nsid_]::
++Enter the user namespace. If no argument is specified, enter the user namespace of the target process. If _file_ or **:**_nsid_ is specified, enter the user namespace specified by _file_ or _nsid_. See also the *--setuid* and *--setgid* options.
+ 
+ *--user-parent*::
+ Enter the parent user namespace. Parent user namespace will be acquired from any other enabled namespace.
+ If combined with *--user* option the parent user namespace will be fetched from the user namespace and replace it.
+ 
+-*-C*, *--cgroup*[**=**<__file__|:__nsid__>]::
+-Enter the cgroup namespace. If no argument is specified, enter the cgroup namespace of the target process. If _file_ or :__nsid__ is specified, enter the cgroup namespace specified by _file_ or _nsid_.
++*-C*, *--cgroup*[**=**_file_|**=:**_nsid_]::
++Enter the cgroup namespace. If no argument is specified, enter the cgroup namespace of the target process. If _file_ or **:**_nsid_ is specified, enter the cgroup namespace specified by _file_ or _nsid_.
+ 
+-*-T*, *--time*[**=**<__file__|:__nsid__>]::
+-Enter the time namespace. If no argument is specified, enter the time namespace of the target process. If _file_ or :__nsid__ is specified, enter the time namespace specified by _file_ or _nsid_.
++*-T*, *--time*[**=**_file_|**=:**_nsid_]::
++Enter the time namespace. If no argument is specified, enter the time namespace of the target process. If _file_ or **:**_nsid_ is specified, enter the time namespace specified by _file_ or _nsid_.
+ 
+ *-G*, *--setgid* _gid_::
+ Set the group ID which will be used in the entered namespace and drop supplementary groups.
+@@ -161,8 +162,8 @@ include::man-common/help-version.adoc[]
+ 
+ The *--user-parent* option requires Linux 4.9 or higher, older kernels will raise inappropriate ioctl for device error.
+ 
+-Specifying namespaces by _nsid_ requires Linux 6.19 or higher. If a namespace
+-file name starts with a colon, prepend "./" for disambiguation.
++Specifying namespaces by _nsid_ requires Linux 6.19 or higher.
++If a namespace _file_ name starts with a colon, prepend *./* for disambiguation.
+ 
+ == AUTHORS
+ 
 -- 
 2.53.0
 
