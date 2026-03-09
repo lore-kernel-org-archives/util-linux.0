@@ -1,118 +1,179 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC3DC3DFC85
-	for <util-linux@vger.kernel.org>; Mon,  9 Mar 2026 16:08:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D045E3BFE21
+	for <util-linux@vger.kernel.org>; Mon,  9 Mar 2026 16:09:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773072506; cv=none; b=jmELA0IqSsFFR+Ou8CF507FnIiDuokDzfOFVUJaAw49ZxZ/WExFobOvEo//4rymPJkQ/mz7+pVsi5EwZIcwuJnMPhmuqalAlWaSkALxnwKaIUiS6zBHcXJ0Pmnc3HyLgCCI16l8XAdFzekvZYI+Xt9Hke1HHpr9qzz1aVvJYaUg=
+	t=1773072564; cv=none; b=rBUi9meVjhoG9HFP6REuXKTpiA9Koz59De3WbmAKi9+792LXQyaIDNBWr80Sqzc2ECJJzf+YUai6KUY7d1hKSRXZEoIHczYrk8G+PnCy/sAtCsR1ldwtRR1MbXiQDKAPka0nzttvlylITdcO3v8m34GG2ytnZ1IFRlpWc4FF28c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773072506; c=relaxed/simple;
-	bh=62U8YXRiZgQpiNwrwA2Okks2rSNs57JcxN1NHZNMjRM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Ax1jHatbqKgu7waU82pe67cEuUdhPlt2d3h6W9IVwuFR9zSNIHI+dj47a4OeJMRmwX9+cvYvAL2yWeuW9sjumxdtWA22Tu38fZQ+Fq8NtednWndPTX3t6Cqo1p1bWPWJM+TsqK2PfNmtri1ANZjX5zfP9n5SgFTiMfkiVfwaPCU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=EHzun8pr; arc=none smtp.client-ip=195.121.94.168
+	s=arc-20240116; t=1773072564; c=relaxed/simple;
+	bh=3IH3LX/4MobpVPR23C8RGxHTjMOLVxnxbkEH3POpeZg=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=I2OUY90bEY+9rYVhnnfiSqZVuOVmKMfZk+PSiX64UBmz4PA9PsyLhXmpEHm6ryXZWhY5wgQ0vKBdaNcvevVJPNK+zeDwPOZjobXwAM8rmycYhW/j8RsWmFAlDA0v1lSrO2KXZI/BgmNxdGb1STMmjSYX17hUPIjPbwTcNNtZWy4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=PoNwUk9y; arc=none smtp.client-ip=195.121.94.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="EHzun8pr"
-X-KPN-MessageId: 30f59f1c-1bd2-11f1-92a5-005056aba152
-Received: from smtp.kpnmail.nl (unknown [10.31.155.39])
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="PoNwUk9y"
+X-KPN-MessageId: 552539e0-1bd2-11f1-b183-005056abad63
+Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
 	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 30f59f1c-1bd2-11f1-92a5-005056aba152;
-	Mon, 09 Mar 2026 17:08:20 +0100 (CET)
+	id 552539e0-1bd2-11f1-b183-005056abad63;
+	Mon, 09 Mar 2026 17:09:21 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=telfort.nl; s=telfort01;
-	h=content-type:from:to:subject:mime-version:date:message-id;
-	bh=62U8YXRiZgQpiNwrwA2Okks2rSNs57JcxN1NHZNMjRM=;
-	b=EHzun8prJlmqPoSeNWVez153SYV786WOB6VFOIErvjGEaY0fX7F/fXLFEJRUiHglMfIl2rF4qTO76
-	 +LylrRizqZZ2R5bMRoTr70XXWuMdOOk5UkCSwUTzvyM3jGtcKBQXHpmBPPwrY76TsryzoYQ5UQyFQR
-	 xpiq6jAN6WXCwTeI=
-X-KPN-MID: 33|xhdZaFaxVK/ezJ4DtUQua80vRX1fN/HkZL+the7yOohs9ZD84tT/wd5ZHKQeXMM
- i/n56lenQSneIUHMfqqYsmxQX0JVo14gRKOpRf02R+4I=
+	h=mime-version:message-id:date:subject:to:from;
+	bh=sAtrhP33CXst98wL7s5/uL29QhyFTESaqW/YnDNpsN4=;
+	b=PoNwUk9y1oaFXEA371JWXgqjzgtwm0PILrY4TDlvPcfuXB+WOr5Du60C3kJGRRyFQcidcbH7yhNij
+	 CVYEVOWlYl400WouuxicZBOq5D6JhQHi7uQqSX0oSaJjIi+C1tRXuRJ/qaOfHjctULVvrd27I+Xl+X
+	 6uwajqOl+x9cYAOk=
+X-KPN-MID: 33|G7HUlPUgYRBXH74OhA2DLnUm5510wu/6sUomyNLkKSOinaX/Dhz4gQ332RSnMc0
+ HNvHGjtB/EFBxEa9ii0RtVvWJtMZ/1PfxfuDWGNlLk0M=
 X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|w+fF84QmEQimRBnQviadgjOd8DEjNvNfkGCplaTp3TszS+yTqZ9PyuRFFsIOTuc
- wUy+XO1bc3rWNG4FP6Wdxow==
-Received: from [192.168.2.23] (77-163-176-192.fixed.kpn.net [77.163.176.192])
+X-CMASSUN: 33|SIEPx4mfeSJTwZlKvJojkaSnsC7W57gdhMP/174+Ow9az0zxFf2vMzFhIB0vfJF
+ fK/6sVkie96CxWVXoQ1e+Zw==
+Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
 	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 30dcd359-1bd2-11f1-8011-005056ab7447;
-	Mon, 09 Mar 2026 17:08:20 +0100 (CET)
-Message-ID: <713c6323-e80e-47fc-9389-520b963a3129@telfort.nl>
-Date: Mon, 9 Mar 2026 17:08:19 +0100
+	id 5509c0e7-1bd2-11f1-a6cb-005056abf0db;
+	Mon, 09 Mar 2026 17:09:21 +0100 (CET)
+From: Benno Schulenberg <bensberg@telfort.nl>
+To: util-linux@vger.kernel.org
+Cc: Dick Marinus <dick@mrns.nl>
+Subject: [PATCH 2/2] copyfilerange: (man) correct the markup and improve the wordings
+Date: Mon,  9 Mar 2026 17:09:03 +0100
+Message-ID: <20260309160903.15490-2-bensberg@telfort.nl>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260309160903.15490-1-bensberg@telfort.nl>
+References: <20260309160903.15490-1-bensberg@telfort.nl>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: improvements to terminal-colors.d.5.adoc were undone
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org,
- =?UTF-8?Q?Mario_Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
-References: <cm7cun3pymf6quqcupreoegjj6ycwv3rvbap6ezpvfidvtt4lf@rq74bm7girgz>
-Content-Language: en-US, nl-NL, es-ES
-From: Benno Schulenberg <bensberg@telfort.nl>
-In-Reply-To: <cm7cun3pymf6quqcupreoegjj6ycwv3rvbap6ezpvfidvtt4lf@rq74bm7girgz>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------FbLqfDu9Kh0J4pyYA7gHtaFd"
+Content-Transfer-Encoding: 8bit
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------FbLqfDu9Kh0J4pyYA7gHtaFd
-Content-Type: multipart/mixed; boundary="------------P0oOh5OdjOROJZU2sGL0zjbt";
- protected-headers="v1"
-From: Benno Schulenberg <bensberg@telfort.nl>
-To: Karel Zak <kzak@redhat.com>
-Cc: util-linux@vger.kernel.org,
- =?UTF-8?Q?Mario_Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
-Message-ID: <713c6323-e80e-47fc-9389-520b963a3129@telfort.nl>
-Subject: improvements to terminal-colors.d.5.adoc were undone
-References: <cm7cun3pymf6quqcupreoegjj6ycwv3rvbap6ezpvfidvtt4lf@rq74bm7girgz>
-In-Reply-To: <cm7cun3pymf6quqcupreoegjj6ycwv3rvbap6ezpvfidvtt4lf@rq74bm7girgz>
+CC: Dick Marinus <dick@mrns.nl>
+Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
+---
+ misc-utils/copyfilerange.1.adoc | 61 ++++++++++++++-------------------
+ 1 file changed, 25 insertions(+), 36 deletions(-)
 
---------------P0oOh5OdjOROJZU2sGL0zjbt
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+diff --git a/misc-utils/copyfilerange.1.adoc b/misc-utils/copyfilerange.1.adoc
+index 4d214f4db..303a1a7b2 100644
+--- a/misc-utils/copyfilerange.1.adoc
++++ b/misc-utils/copyfilerange.1.adoc
+@@ -4,54 +4,43 @@
+ :man manual: User Commands
+ :man source: util-linux {release-version}
+ :page-layout: base
+-:range: copyfilerange
++:command: copyfilerange
+ 
+ == NAME
+ 
+-copyfilerange - Copy file ranges from source to destination file.
++copyfilerange - copy range(s) from source to destination file
+ 
+ == SYNOPSIS
+ 
+-*copyfilerange* [options] [<source>] [<destination>] [<range>...]
++*copyfilerange* [options] _source_ _destination_ _range_...
+ 
+ == DESCRIPTION
+ 
+-*copyfilerange* copy file ranges from source to destination file
+-*copyfilerange* is a simple utility to call the *copy_file_range*(2) system call.
++The *copyfilerange* command copies byte ranges from source to destination file.
++It is a wrapper around the *copy_file_range*(2) system call.
+ 
+-It can be used write files with unallocated gaps (sparse files) and/or share blocks between multiple files (reflinks).
++The command can be used to create files with unallocated gaps (sparse files)
++and/or with shared blocks between multiple files (reflinks).
+ 
+-== ARGUMENTS
++Each _range_ is of the form _source_offset_**:**_destination_offset_**:**_length_,
++with all values in bytes. If _length_ is 0, then as much data as is available is
++copied. Multiple ranges may be supplied.
+ 
+-*source*::
+-Source filename
+-
+-*destination*::
+-Destination filename
+-
+-*range*::
+-
+-Consists of a range specified as *source_offset:dest_offset:length*
+-
+-All values are in bytes, if length is set to 0 copy as much as available.
+-Multiple range can be supplied.
+-
+-When one or more of the offsets are omitted the operation will use the last used location, starting with 0
++When one or both of the offsets are omitted, the operation uses the last-used
++file location, starting with 0.
+ 
+ == OPTIONS
+ 
+-*-v*, *--verbose*::
+-Verbose output of copied file ranges
++*-r*, *--ranges* _file_::
++Read range(s) separated by newlines from this _file_.
+ 
+-*-r*, *--ranges*::
+-Ranges filename
++*-v*, *--verbose*::
++Verbose output of the copied ranges.
+ 
+ include::man-common/help-version.adoc[]
+ 
+ == EXIT STATUS
+ 
+-*copyfilerange* has the following exit status values:
+-
+ *0*::
+ success
+ *1*::
+@@ -59,7 +48,7 @@ unspecified failure
+ 
+ == NOTES
+ 
+-The *copy_file_range*(2) system call has some serious caveats, the source and destination files must use the same filesystem type and some virtual filesystems (like procfs) won't work. *copy_file_range*(2) will use reflinks when the filesystem supports this. To use reflinks the file range most often needs to align with the filesystem block size on both the source and destination file.
++The *copy_file_range*(2) system call has some serious caveats: the source and destination files must use the same filesystem type, and some virtual filesystems (like procfs) won't work. *copy_file_range*(2) will use reflinks when the filesystem supports this. To use reflinks, the file range most often needs to align with the filesystem block size on both the source and destination file.
+ 
+ == AUTHORS
+ 
+@@ -68,21 +57,21 @@ mailto:dick@mrns.nl[Dick Marinus]
+ == EXAMPLES
+ 
+ ....
+-~$ copyfilerange original-file reflink ::
++copyfilerange original-file reflink ::
+ 
+-~$ copyfilerange original-file first-block ::4096
++copyfilerange original-file first-block ::4096
+ 
+-~$ copyfilerange original-file even-blocks -r <(seq 0 8192 40960|awk '{print $1"::4096"}')
++copyfilerange original-file even-blocks -r <(seq 0 8192 40960|awk '{print $1"::4096"}')
+ 
+-~$ copyfilerange original-file sparse-file 0:1M:1
++copyfilerange original-file sparse-file 0:1M:1
+ 
+-~$ copyfilerange original-file split-first-mb ::1M
++copyfilerange original-file split-first-mb ::1M
+ 
+-~$ copyfilerange original-file split-remainder 1M::
++copyfilerange original-file split-remainder 1M::
+ 
+-~$ copyfilerange split-first-mb join ::
++copyfilerange split-first-mb join ::
+ 
+-~$ copyfilerange split-remainder join 1M::
++copyfilerange split-remainder join 1M::
+ ....
+ 
+ == SEE ALSO
+-- 
+2.53.0
 
-DQpPcCAwOS0wMy0yMDI2IG9tIDExOjUxIHNjaHJlZWYgS2FyZWwgWmFrOg0KPj4gICBsaWIv
-dGVybWluYWwtY29sb3JzLmQuNS5hZG9jIHwgMjQgKysrKysrKysrKy0tLS0tLS0tLS0tLS0t
-DQo+PiAgIDEgZmlsZSBjaGFuZ2VkLCAxMCBpbnNlcnRpb25zKCspLCAxNCBkZWxldGlvbnMo
-LSkNCj4gDQo+IEJvdGggcGF0Y2hlcyBoYXZlIGJlZW4gYXBwbGllZC4gVGhhbmsgeW91LCBh
-bmQgc29ycnkgZm9yIHRoZSBkZWxheS4NCg0KVGhlIHNlY29uZCBwYXRjaCB3YXMgYXBwbGll
-ZCBpbiBjb21taXQgMzI1MjE0MjUyMSwgYnV0IHRocmVlIGNvbW1pdHMNCmxhdGVyLCBtZXJn
-ZSBjb21taXQgZDcwOGZjN2RiNiB1bmRvZXMgYWxsIHRoZSBpbXByb3ZlbWVudHMgSSBtYWRl
-LiAgOi8NCg0KQWxzbywgdGhhdCBtZXJnZSBjb21taXQgc2F5cyB0aGF0IGl0IGp1c3QgcmVt
-b3ZlcyB0aGUgYmFja3RpY2tzIGZyb20gYQ0KdGFibGUsIGJ1dCBpdCBhY3R1YWxseSBjaGFu
-Z2VzIGJhY2sgdHdvIHNpbXBsZSBsaXN0cyB0byBsYXJnZSwgYnVsa3kNCnRhYmxlcy4gIEJl
-Zm9yZSB0aGUgY29udmVyc2lvbiB0byBhZG9jLCB0aG9zZSB0YWJsZXMgd2VyZSBzaW1wbGUg
-bGlzdHMuDQpBIHllYXIgYWdvLCBjb21taXQgYjNjM2Q4NjVlYiByZWR1Y2VkIHRoZSBidWxr
-eSB0YWJsZXMgYmFjayB0byBzaW1wbGUNCmxpc3RzLiAgQ2FuIHdlIHBsZWFzZSBrZWVwIHRo
-ZXNlIHNpbXBsZSBsaXN0cz8NCg0KSW4gb3RoZXIgd29yZHM6IHBsZWFzZSByZXZlcnQgY29t
-bWl0IGY1ZDJjM2U0YjAuICBBbmQgcmVhcHBseSBjb21taXQNCjMyNTIxNDI1MjEuDQoNCg0K
-QmVubm8NCg0K
-
---------------P0oOh5OdjOROJZU2sGL0zjbt--
-
---------------FbLqfDu9Kh0J4pyYA7gHtaFd
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmmu8HQFAwAAAAAACgkQUUu+Lrjhlh81
-iA//TWfM+OddX4AMYcI70VGZjxmT3Seb43G0YYq3jFJb1+TrEW5wqoJmkwrFhuR6d6dyn9uwBdwQ
-4HA/LhVzYdae4aXAOmq9ZlHJhLKK0Df/DGAWULVFIlb1r5z/N22Cr8OtaOquPCKT8MgfDkWYxfUz
-7vF9JZgEWCoz1UM3xJFIVdhZjkYxzew6K8rZy/70Crwwvh/LpdUlTwXDf2BAyCIr+d97REmfHx+l
-DKbgWGTbKycp/QrR0T5PK1BuI7yN0I53+ySFcb1pWBa+tcNQZmiCcwvjnxv5Gpi6C7PN0YqB5lSZ
-0GnPpqdrGF7RhmEUoQMk+5buWrkrK3oTSZp2sZLmhl4yYF0+tLHH5QMnlozJ8kW7qynEVtXIUrxO
-FFWpcAGzljKEUWxLYYwS6Zz6KPf2Tkiso3PiBAr52oub+1PHu7bcSuARW3Qmj0ZdmqrXESvOpTyn
-j+1xE/j00tnGsmW5ajCrZgPeDynKLzzlqKp0bE0Y+yJ22GcOLfExTqBGxxwxXachO+m0m6fsuGIg
-H0SCZwcZOKp0FvDWtjmX3cEChaIhsPXs+G55G1cJADp45+6ISy55lbhRHh8CuRAnGMQfui0hqgnc
-24jEyjjylXNj90WZlPz5490kech79ykNsXyIPMESmrSGKTci7Y1AIl/inYzXzieInFDA+EvQcrt3
-5HU=
-=VXgY
------END PGP SIGNATURE-----
-
---------------FbLqfDu9Kh0J4pyYA7gHtaFd--
