@@ -1,167 +1,126 @@
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9616819309C
-	for <util-linux@vger.kernel.org>; Mon,  9 Mar 2026 01:53:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.48
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773021206; cv=pass; b=k2sPO5sxNbHXNfe/7vYEfbPG4+DfFYOQ7u961UJB/aAZbv8Js3P+P5NSptsetMuFYNaK1JvkivX3Ah+rR6BUx69kkBLgW9/qt8zwv78RWZ9X5bWoH4owV5EILzRZlKDIONW+RB+q7l9vWG8wp+uD4g89oNZZI+tcANshJxbpwwA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773021206; c=relaxed/simple;
-	bh=1VIJJ/7ZZzFSvn41hU7Y5UiagSSj6REnGok9Gnu44Lg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kEBSq2WxkZB/Cxu3TIgE8Avpz3BIxaWYXc8z5LgNgSKHhG1hJ6sAKG5AvC7e860V9ez+otQmNF1pNRs2Bptor6khe1kVuc9w4UE8UTxyaj+SxTG9cwTcdpogDLvMliSvNwFWaNRxQ5roKZSiD0BHTzEIQ6oBta4ZMtHF8/bM1fQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gJoKbi2n; arc=pass smtp.client-ip=209.85.221.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4D2A3783D7
+	for <util-linux@vger.kernel.org>; Mon,  9 Mar 2026 09:20:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773048039; cv=none; b=QJhnzSuq1r1Je/w6z1K2A2lBKIu3otBg7fTTgvj071SW52uoRmeQBPdDr+PVkGt11XHPwlGvngYO7qzr/m/wRpxqgzMYmpoiufdn7X979nxKPTh+oaF8gZt+bw7EGtxxnnNGg5YNz/hq02xcRQS6RRkquuIkEltfKUQ+L1zVrhY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773048039; c=relaxed/simple;
+	bh=Jk1ujMH8TfU1kIzwqLth8cf3qt9zqwQZRcVgsn/XR38=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=meknMENpBnl0792VBkpEbXcwBd7NJeYEas2wIifcdlj89gfHRggqmkauPp9KSGcGFRH9bIpKLKnoMvYWrOzBG0zxB54okhc5vgQQ103KaQ70MTd2VjN0oSMKmJx12ZPZTNrHlI0UNc7bgqrYCWY57J4rI8TkYgCihHLwJqh6SXg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EI0l86xt; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gJoKbi2n"
-Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-439b7c2788dso5435938f8f.1
-        for <util-linux@vger.kernel.org>; Sun, 08 Mar 2026 18:53:24 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773021203; cv=none;
-        d=google.com; s=arc-20240605;
-        b=PoSAfn7qDnyurZTprauz6obBRJTX49H7fGDl0WsDfhRY1B4vL1LJKGW7g6ezbnCnjr
-         Siuz8KbozrAyDRzOWG8Ytc+8/Rx6+OosX2kvCz7kdCdijFGjJLult6N04jESt1qVbFVu
-         pEhSbOBeliZZyXBDeKrYx4Igl8DDBsL+b5c/mlu5DW7YUKGTsWjEQ2dmOvVversJqhd2
-         OeRf5RbMrdvFjKJZ4AJ2jh4yLf9mrXAeow9XDAUvqvo/JEgsVvmuIuP2OnqGjlX3yPrt
-         dULc5aH6Ej98g4g7mIGzV5gGZOvxOo82y91OxaNs3COOhnVuABgRypGNzhLR4oKD4wnu
-         Nhuw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=k//mQt6+xwMfaWzxvcQEFYvYUGq4tlHT1wZGlHPYb/0=;
-        fh=C+tSvUlM6Y4FPskYJgF5s1/anCD3kvSef4Eb0zW/rUM=;
-        b=KKCDN0UjcDFrTm0RPzRZZ6JlWemwyBRB++GuL6NViOhkuKbOrieT98K0bA6BEH42h6
-         rqdL+3VqKOAlf6WetR7GtF7wgabMFeb3lHmfj+0LDRCXypXgBJquFRugnULfkYs0ZSxe
-         CWmF4VgjHlOyMdiA1c6cnxkX26DQT9DmPbG7NrG7ABYt+GSshn9rGrOcFN3qOsXwSJOS
-         wUtJe0ZrWwLhuKifngm7AvmokYZ/XefTKQBAVVEjBdMO2HMV1tP5HHIZx31pSLL34Nde
-         HFzpsNokOrKdKA6s1IcJ7ISE4s//XdWtkHsDUJoSuUbQSNs3q2Yjw3AX58XDgNzQ7pjw
-         KgeQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773021203; x=1773626003; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=k//mQt6+xwMfaWzxvcQEFYvYUGq4tlHT1wZGlHPYb/0=;
-        b=gJoKbi2nXIX1JGwecnIJmMgJZepDjBViOqVtrGB7v+djI2oftaao6iuTd5kuWnVZsa
-         DJa6ICL36saaYJJXRYffTyiaaKmOwImNLGyhX1XA3kVFB987Zl5UfDKzZ44Ta3xanQnt
-         ppU5+mkioqPeZJU4/i3YHwN4+SSqEbo7L5Q5L4AEHfT+SJObMGrNJBeyOeV7/JbTkegT
-         6TqnZIwDU0fEs68ED+7sj4gGMu5RGhiJ9moiV/LZ1DE/1YgHHbKRS8bp9C7d803V6XdJ
-         2rNs1oyFK9XFHu0CtWSHyfM8Q0V0nV9bqbDidR9F7B4MhtjJGsq4uXenHKpNoOp9f5Ht
-         3nUQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773021203; x=1773626003;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=k//mQt6+xwMfaWzxvcQEFYvYUGq4tlHT1wZGlHPYb/0=;
-        b=ryvzvD2rHkoEmiBS/PYYHfEdRYz0Eiv6Oj7d0fW31pkJRddflHNIlgpGC6G44OmDbp
-         L1X7J3p7fdLJcIaYd0E+8t6Ibl6l1LLGC4Wn66h00OeLjnoj+b0sfYuIRqR29Y//VA8x
-         r9S2ZHwBBaJamaCEpJePptUvrCHsdWU96bJTrCdRFoy0DuIwe+GKRhrdXC8odqc2cOOc
-         fu24OePU/eQhlDdL9rARUjwS4e9Qrk/PBFYIxXNAvSO5lzFgWnwL0Bsljz1PreAnnzAv
-         ScOSJGKzM/cC8sCfl4Ggw/ndhCvcD28TVxe8VI0KBDtliQiTL+yzdZpnP0uKZ3Hyou6H
-         Oj2Q==
-X-Gm-Message-State: AOJu0YyqE8YYLrM2w2f3sno/uLRTg3yQBsafJJ29FCPz8wo+QGDqrLiF
-	P6wN7OMftFsVCdP8955BZXcfMJpYeyPJxDYAa9T/leuOMlIEYAOwbOODFJDBYvaIKmu/OElWxyA
-	c4/27UP10mQzLJ8Z4mG5IbhLeU5PKYkQ=
-X-Gm-Gg: ATEYQzz/vsIdMfrcRlb1tDIE9kRAisSM5/as+K5xlN9HcMIyauBqihk5zBCIWKseFLD
-	Sw3P6OuAY56qIZfpF1t2kHvA8XpoDaGdyzZzQbKxDh7Dj138jlFxHM7BSrRmVVZboBvLdzSdb3s
-	ht/ZpWmbo7Qp4BhJlVhmY2kta/3GZcyRxQSYPeMX/X1uxqAQNVd0U4kIG3Jyp8xWGVRQNjwi/e7
-	NH0Zzdqum+HOMJOh87XpW9kmSfXzhZRrmAzvBvlTF3l4UnUZlhhiBzNayViAycEubok/veqWm73
-	bJrS8NeAJV1vP+lMTvTmEo+LQ4KwgaZ27PhOvMffMwAXUA3c
-X-Received: by 2002:a05:6000:290f:b0:439:b715:6f49 with SMTP id
- ffacd0b85a97d-439da86fa3dmr15636200f8f.59.1773021202763; Sun, 08 Mar 2026
- 18:53:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EI0l86xt"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6291DQgS1808765;
+	Mon, 9 Mar 2026 09:20:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=xA5sIHwj8QToQ+5jFhJI+oA3vcA5pt
+	24qatATqrZheg=; b=EI0l86xtwBcNQTAQTJ6nkNbTIlJ9DTF1ke4OV2RstSd+UK
+	bXmC1OlSgsa2nOVVGJ2SATACvAjIRtKbHxUhW5B5H26LZwjZ5GpL2icrcEKPodTn
+	4iTYe/6lDqN80pet+aksg1taunfMIdyNH7nrwIdlsD+OzclLJA1J8NDAtkSQe2f1
+	lGAkMzW8OyxHUJgC5rjqMA9hc/S2PR/2MwGVcgZ6S2f7QUkljtLRApW01s3F2ZYC
+	IkywbrO1bWUzJcwkS+N9wMop5H1Eb6K2GTcm5xZochmZRa41GkrJX3rzGIeW0q8o
+	762p1xXhi39XWZRQ77pikWoeQyk8cLurWKmIbtzA==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4crcyw5v3s-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 09 Mar 2026 09:20:33 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 629679pp015750;
+	Mon, 9 Mar 2026 09:20:32 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4cs121v2te-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 09 Mar 2026 09:20:32 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6299KUEv61014288
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 9 Mar 2026 09:20:30 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CA8082005A;
+	Mon,  9 Mar 2026 09:20:30 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8EFC72004E;
+	Mon,  9 Mar 2026 09:20:30 +0000 (GMT)
+Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.87.129.79])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon,  9 Mar 2026 09:20:30 +0000 (GMT)
+Date: Mon, 9 Mar 2026 10:20:29 +0100
+From: Sumanth Korikkar <sumanthk@linux.ibm.com>
+To: Benno Schulenberg <bensberg@telfort.nl>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/2] lsmem: correct the grammar of an error message
+Message-ID: <aa6Q3V0XuO1C9MiH@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+References: <20260307114308.7517-1-bensberg@telfort.nl>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260308112004.9206-1-bensberg@telfort.nl>
-In-Reply-To: <20260308112004.9206-1-bensberg@telfort.nl>
-From: Xiao Liang <shaw.leon@gmail.com>
-Date: Mon, 9 Mar 2026 09:52:46 +0800
-X-Gm-Features: AaiRm52fxyYW2AbQY7r9EC011N0pV_F1PzSl6VSndxLMD7nWb4oTBxUSuVtgIkA
-Message-ID: <CABAhCOSCJFMLKsN0x-sD6363cxyJaFHaJXy_Va9sP=Hn5H7wKg@mail.gmail.com>
-Subject: Re: [PATCH 1/3] nsenter: (usage) correct the formatting of eight
- option arguments
-To: Benno Schulenberg <bensberg@telfort.nl>
-Cc: util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260307114308.7517-1-bensberg@telfort.nl>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzA5MDA4MyBTYWx0ZWRfX9BD2rWa9muXh
+ NdU8+wHqJp0hpzDhJ0v6yZdjwrIN5Udl2W1NQiNwMV6dYJsvUqnOzSXCl2jEJNqiFdwvF35owhL
+ 44tqkEAvGlyXDtzvZ+3m6dzCJMMLrppZcy4854tCnpUdVkCu5IVRlWSV6CHaVs8O3kgl5ZMGbpb
+ gg9UUjhYHiHOXKon1fjxo2qFza8EXYcAQGmcCPK5J8YsKcZFWVQYq/ytu3dvhWjHS+BSKlLfval
+ 4hTP8/gcldGkUfCapA2qP+HPjaW0F2V+KfhP1kb2REsh4ISyhpc0KHcT8nSY/8gFbX4rtvxIFpx
+ s82XQNkw7JVxl10qsU5dYRLMnlC02dMbyXLK0I4vNhE7re6UJNEPfAzj+pRSwsGoSbaC3si3P/P
+ VOO7hKemRZiEvj58I+9AXzE2TP6m7AZ6+aY5c7+IiFsG1IftT4J8jCNj8GbBq9TObO/qRqg0ihj
+ OauV6w18cYIZKZ+h5xw==
+X-Authority-Analysis: v=2.4 cv=QaVrf8bv c=1 sm=1 tr=0 ts=69ae90e1 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=kj9zAlcOel0A:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=MP4aM1IlAAAA:8 a=ltKeov7SimRHU_tSWTQA:9 a=CjuIK1q_8ugA:10
+ a=cNL50C5G4f5gRYKddA97:22
+X-Proofpoint-GUID: Y8QBffCxKzDrNv6u_ldqB7gBF-h4EKO8
+X-Proofpoint-ORIG-GUID: Y8QBffCxKzDrNv6u_ldqB7gBF-h4EKO8
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-09_03,2026-03-06_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 spamscore=0 impostorscore=0 clxscore=1011 adultscore=0
+ bulkscore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603090083
 
-On Sun, Mar 8, 2026 at 7:20=E2=80=AFPM Benno Schulenberg <bensberg@telfort.=
-nl> wrote:
->
-> Angle brackets should wrap each placeholder separately: <file> and
-> <nsid>.  Angle brackets should not enclose metacharacters (|) nor
-> literal ones (=3D and :).
->
-> (The mistaken formatting was introduced by commit f2a5997869.)
->
-> CC: Xiao Liang <shaw.leon@gmail.com>
+On Sat, Mar 07, 2026 at 12:43:07PM +0100, Benno Schulenberg wrote:
+> That is: make the message identical to its twin nine lines back.
+> 
+> (The spello was introduced by commit 92d018a105 from five months ago.)
+> 
+> CC: Sumanth Korikkar <sumanthk@linux.ibm.com>
 > Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
+
+Reviewed-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+
 > ---
->  sys-utils/nsenter.c | 16 ++++++++--------
->  1 file changed, 8 insertions(+), 8 deletions(-)
->
-> diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
-> index f93e75af2..98da75511 100644
-> --- a/sys-utils/nsenter.c
-> +++ b/sys-utils/nsenter.c
-> @@ -97,16 +97,16 @@ static void __attribute__((__noreturn__)) usage(void)
->         fputs(USAGE_OPTIONS, out);
->         fputs(_(" -a, --all                    enter all namespaces\n"), =
-out);
->         fputs(_(" -t, --target <PID>           target process to get name=
-spaces from\n"), out);
-> -       fputs(_(" -m, --mount[=3D<file|:nsid>]   enter mount namespace\n"=
-), out);
-> -       fputs(_(" -u, --uts[=3D<file|:nsid>]     enter UTS namespace (hos=
-tname etc)\n"), out);
-> -       fputs(_(" -i, --ipc[=3D<file|:nsid>]     enter System V IPC names=
-pace\n"), out);
-> -       fputs(_(" -n, --net[=3D<file|:nsid>]     enter network namespace\=
-n"), out);
-> +       fputs(_(" -m, --mount[=3D<file>|=3D:<nsid>]  enter mount namespac=
-e\n"), out);
-> +       fputs(_(" -u, --uts[=3D<file>|=3D:<nsid>]  enter UTS namespace (h=
-ostname etc)\n"), out);
-> +       fputs(_(" -i, --ipc[=3D<file>|=3D:<nsid>]  enter System V IPC nam=
-espace\n"), out);
-> +       fputs(_(" -n, --net[=3D<file>|=3D:<nsid>]  enter network namespac=
-e\n"), out);
->         fputs(_(" -N, --net-socket <fd>        enter socket's network nam=
-espace (use with --target)\n"), out);
-> -       fputs(_(" -p, --pid[=3D<file|:nsid>]     enter pid namespace\n"),=
- out);
-> -       fputs(_(" -C, --cgroup[=3D<file|:nsid>]  enter cgroup namespace\n=
-"), out);
-> -       fputs(_(" -U, --user[=3D<file|:nsid>]    enter user namespace\n")=
-, out);
-> +       fputs(_(" -p, --pid[=3D<file>|=3D:<nsid>]  enter pid namespace\n"=
-), out);
-> +       fputs(_(" -C, --cgroup[=3D<file>|=3D:<nsid>]  enter cgroup namesp=
-ace\n"), out);
-> +       fputs(_(" -U, --user[=3D<file>|=3D:<nsid>] enter user namespace\n=
-"), out);
->         fputs(_("     --user-parent            enter parent user namespac=
-e\n"), out);
-> -       fputs(_(" -T, --time[=3D<file|:nsid>]    enter time namespace\n")=
-, out);
-> +       fputs(_(" -T, --time[=3D<file>|=3D:<nsid>] enter time namespace\n=
-"), out);
->         fputs(_(" -S, --setuid[=3D<uid>]         set uid in entered names=
-pace\n"), out);
->         fputs(_(" -G, --setgid[=3D<gid>]         set gid in entered names=
-pace\n"), out);
->         fputs(_("     --preserve-credentials   do not touch uids or gids\=
-n"), out);
-> --
+>  sys-utils/lsmem.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/sys-utils/lsmem.c b/sys-utils/lsmem.c
+> index b74c95d43..aee68a171 100644
+> --- a/sys-utils/lsmem.c
+> +++ b/sys-utils/lsmem.c
+> @@ -819,7 +819,7 @@ int main(int argc, char **argv)
+>  	/* open /sys/firmware/memory handler (optional) */
+>  	lsmem->sysmemconfig = ul_new_path(_PATH_SYS_MEMCONFIG);
+>  	if (!lsmem->sysmemconfig)
+> -		err(EXIT_FAILURE, _("failed to initialized %s handler"), _PATH_SYS_MEMCONFIG);
+> +		err(EXIT_FAILURE, _("failed to initialize %s handler"), _PATH_SYS_MEMCONFIG);
+>  	if (prefix && ul_path_set_prefix(lsmem->sysmemconfig, prefix) != 0)
+>  		err(EXIT_FAILURE, _("invalid argument to --sysroot"));
+>  
+> -- 
 > 2.53.0
 >
-
-Looks good. Thanks for the correction.
