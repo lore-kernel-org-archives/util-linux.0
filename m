@@ -1,162 +1,167 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C5E650276
-	for <util-linux@vger.kernel.org>; Sun,  8 Mar 2026 11:20:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772968831; cv=none; b=pyV6PeRLgpBfj0zlSsaLpXxLaW+fyxu2P5AB89uvyVnGUDCGduIQqx6Js5FVPindQgz8mI0U5dFVgWSApBano/aX+uPHk/TU8YMpbyrjgj0AX4WHWmpNKgOpnBTT6hFLG1llpSe/JxY+TURDcpeR08Sb6tMl1LF5ZFggBqw4uC8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772968831; c=relaxed/simple;
-	bh=eUPYzRxstE1mgmmGoBdnVAIVBPsfUqFzk+c4RJ523Yc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Lf6eX+G8zF1qHSA71ULk3zZTozcBz8xKjHAZVHZ+MLRIF0B548B86m2nwcZDFGDWP/pD9+mT7qVSVlf12duvM1iyBmNg1DfMIqD8mq0mdWepqsDV4H64g3zCDC+9jI8nFIzTgFVONoO3cAOHW9nxclunZhCxp0RFKlyjnzTGWjI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=RGV3YFdr; arc=none smtp.client-ip=195.121.94.168
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9616819309C
+	for <util-linux@vger.kernel.org>; Mon,  9 Mar 2026 01:53:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773021206; cv=pass; b=k2sPO5sxNbHXNfe/7vYEfbPG4+DfFYOQ7u961UJB/aAZbv8Js3P+P5NSptsetMuFYNaK1JvkivX3Ah+rR6BUx69kkBLgW9/qt8zwv78RWZ9X5bWoH4owV5EILzRZlKDIONW+RB+q7l9vWG8wp+uD4g89oNZZI+tcANshJxbpwwA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773021206; c=relaxed/simple;
+	bh=1VIJJ/7ZZzFSvn41hU7Y5UiagSSj6REnGok9Gnu44Lg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=kEBSq2WxkZB/Cxu3TIgE8Avpz3BIxaWYXc8z5LgNgSKHhG1hJ6sAKG5AvC7e860V9ez+otQmNF1pNRs2Bptor6khe1kVuc9w4UE8UTxyaj+SxTG9cwTcdpogDLvMliSvNwFWaNRxQ5roKZSiD0BHTzEIQ6oBta4ZMtHF8/bM1fQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gJoKbi2n; arc=pass smtp.client-ip=209.85.221.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="RGV3YFdr"
-X-KPN-MessageId: cbcbfac3-1ae0-11f1-92a5-005056aba152
-Received: from smtp.kpnmail.nl (unknown [10.31.155.38])
-	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id cbcbfac3-1ae0-11f1-92a5-005056aba152;
-	Sun, 08 Mar 2026 12:20:21 +0100 (CET)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gJoKbi2n"
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-439b7c2788dso5435938f8f.1
+        for <util-linux@vger.kernel.org>; Sun, 08 Mar 2026 18:53:24 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773021203; cv=none;
+        d=google.com; s=arc-20240605;
+        b=PoSAfn7qDnyurZTprauz6obBRJTX49H7fGDl0WsDfhRY1B4vL1LJKGW7g6ezbnCnjr
+         Siuz8KbozrAyDRzOWG8Ytc+8/Rx6+OosX2kvCz7kdCdijFGjJLult6N04jESt1qVbFVu
+         pEhSbOBeliZZyXBDeKrYx4Igl8DDBsL+b5c/mlu5DW7YUKGTsWjEQ2dmOvVversJqhd2
+         OeRf5RbMrdvFjKJZ4AJ2jh4yLf9mrXAeow9XDAUvqvo/JEgsVvmuIuP2OnqGjlX3yPrt
+         dULc5aH6Ej98g4g7mIGzV5gGZOvxOo82y91OxaNs3COOhnVuABgRypGNzhLR4oKD4wnu
+         Nhuw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=k//mQt6+xwMfaWzxvcQEFYvYUGq4tlHT1wZGlHPYb/0=;
+        fh=C+tSvUlM6Y4FPskYJgF5s1/anCD3kvSef4Eb0zW/rUM=;
+        b=KKCDN0UjcDFrTm0RPzRZZ6JlWemwyBRB++GuL6NViOhkuKbOrieT98K0bA6BEH42h6
+         rqdL+3VqKOAlf6WetR7GtF7wgabMFeb3lHmfj+0LDRCXypXgBJquFRugnULfkYs0ZSxe
+         CWmF4VgjHlOyMdiA1c6cnxkX26DQT9DmPbG7NrG7ABYt+GSshn9rGrOcFN3qOsXwSJOS
+         wUtJe0ZrWwLhuKifngm7AvmokYZ/XefTKQBAVVEjBdMO2HMV1tP5HHIZx31pSLL34Nde
+         HFzpsNokOrKdKA6s1IcJ7ISE4s//XdWtkHsDUJoSuUbQSNs3q2Yjw3AX58XDgNzQ7pjw
+         KgeQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=telfort.nl; s=telfort01;
-	h=mime-version:message-id:date:subject:to:from;
-	bh=+VRZnb1kjdf/Epbplak1r9KUQ4WC0ztuTw8ziUAuIdc=;
-	b=RGV3YFdrLo1wZJnyrtEj3Sj9wN1IjZQOskf2BvgvP0GiuMil+Bdjspzu6el7XHqN8rkYxb62ecVxy
-	 f1dY5fNKUYbsRiS3YzvVLXwgAIDKNYwgFGhVMPLQ6GloT73yhgewTDUXJ69ku2bpBCao7ToBp93buW
-	 RM16uWUnoSGfVEXg=
-X-KPN-MID: 33|vOCYXUUn0WjB/uLCFMLVCrUKdSSOSuTdpYnw1dPd2ZzxDeWCeX3GncExjJhaD49
- zPpebHerwX1GM4SzkRbsaxDZqPk1C4iY7BEPXDjoMQ+k=
-X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|Y+jIcxA3shRZqC/ZsZmePCeoJa6cs/tvqFzhvkXu1FCqFYf3k7HS72z5W4GBeFW
- h68Qfn3Q4F9uqlJpg3nnIBw==
-Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
-	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id cbc60a1a-1ae0-11f1-a6cb-005056abf0db;
-	Sun, 08 Mar 2026 12:20:22 +0100 (CET)
-From: Benno Schulenberg <bensberg@telfort.nl>
-To: util-linux@vger.kernel.org
-Cc: Xiao Liang <shaw.leon@gmail.com>,
-	Christian Goeschel Ndjomouo <cgoesc2@wgu.edu>
-Subject: [PATCH 3/3] nsenter: (man) correct the markup and improve the formatting
-Date: Sun,  8 Mar 2026 12:20:04 +0100
-Message-ID: <20260308112004.9206-3-bensberg@telfort.nl>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260308112004.9206-1-bensberg@telfort.nl>
-References: <20260308112004.9206-1-bensberg@telfort.nl>
+        d=gmail.com; s=20230601; t=1773021203; x=1773626003; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=k//mQt6+xwMfaWzxvcQEFYvYUGq4tlHT1wZGlHPYb/0=;
+        b=gJoKbi2nXIX1JGwecnIJmMgJZepDjBViOqVtrGB7v+djI2oftaao6iuTd5kuWnVZsa
+         DJa6ICL36saaYJJXRYffTyiaaKmOwImNLGyhX1XA3kVFB987Zl5UfDKzZ44Ta3xanQnt
+         ppU5+mkioqPeZJU4/i3YHwN4+SSqEbo7L5Q5L4AEHfT+SJObMGrNJBeyOeV7/JbTkegT
+         6TqnZIwDU0fEs68ED+7sj4gGMu5RGhiJ9moiV/LZ1DE/1YgHHbKRS8bp9C7d803V6XdJ
+         2rNs1oyFK9XFHu0CtWSHyfM8Q0V0nV9bqbDidR9F7B4MhtjJGsq4uXenHKpNoOp9f5Ht
+         3nUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773021203; x=1773626003;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=k//mQt6+xwMfaWzxvcQEFYvYUGq4tlHT1wZGlHPYb/0=;
+        b=ryvzvD2rHkoEmiBS/PYYHfEdRYz0Eiv6Oj7d0fW31pkJRddflHNIlgpGC6G44OmDbp
+         L1X7J3p7fdLJcIaYd0E+8t6Ibl6l1LLGC4Wn66h00OeLjnoj+b0sfYuIRqR29Y//VA8x
+         r9S2ZHwBBaJamaCEpJePptUvrCHsdWU96bJTrCdRFoy0DuIwe+GKRhrdXC8odqc2cOOc
+         fu24OePU/eQhlDdL9rARUjwS4e9Qrk/PBFYIxXNAvSO5lzFgWnwL0Bsljz1PreAnnzAv
+         ScOSJGKzM/cC8sCfl4Ggw/ndhCvcD28TVxe8VI0KBDtliQiTL+yzdZpnP0uKZ3Hyou6H
+         Oj2Q==
+X-Gm-Message-State: AOJu0YyqE8YYLrM2w2f3sno/uLRTg3yQBsafJJ29FCPz8wo+QGDqrLiF
+	P6wN7OMftFsVCdP8955BZXcfMJpYeyPJxDYAa9T/leuOMlIEYAOwbOODFJDBYvaIKmu/OElWxyA
+	c4/27UP10mQzLJ8Z4mG5IbhLeU5PKYkQ=
+X-Gm-Gg: ATEYQzz/vsIdMfrcRlb1tDIE9kRAisSM5/as+K5xlN9HcMIyauBqihk5zBCIWKseFLD
+	Sw3P6OuAY56qIZfpF1t2kHvA8XpoDaGdyzZzQbKxDh7Dj138jlFxHM7BSrRmVVZboBvLdzSdb3s
+	ht/ZpWmbo7Qp4BhJlVhmY2kta/3GZcyRxQSYPeMX/X1uxqAQNVd0U4kIG3Jyp8xWGVRQNjwi/e7
+	NH0Zzdqum+HOMJOh87XpW9kmSfXzhZRrmAzvBvlTF3l4UnUZlhhiBzNayViAycEubok/veqWm73
+	bJrS8NeAJV1vP+lMTvTmEo+LQ4KwgaZ27PhOvMffMwAXUA3c
+X-Received: by 2002:a05:6000:290f:b0:439:b715:6f49 with SMTP id
+ ffacd0b85a97d-439da86fa3dmr15636200f8f.59.1773021202763; Sun, 08 Mar 2026
+ 18:53:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260308112004.9206-1-bensberg@telfort.nl>
+In-Reply-To: <20260308112004.9206-1-bensberg@telfort.nl>
+From: Xiao Liang <shaw.leon@gmail.com>
+Date: Mon, 9 Mar 2026 09:52:46 +0800
+X-Gm-Features: AaiRm52fxyYW2AbQY7r9EC011N0pV_F1PzSl6VSndxLMD7nWb4oTBxUSuVtgIkA
+Message-ID: <CABAhCOSCJFMLKsN0x-sD6363cxyJaFHaJXy_Va9sP=Hn5H7wKg@mail.gmail.com>
+Subject: Re: [PATCH 1/3] nsenter: (usage) correct the formatting of eight
+ option arguments
+To: Benno Schulenberg <bensberg@telfort.nl>
+Cc: util-linux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Remove the mistaken angle brackets that were introduced last month
-by commit f2a5997869, add the missing equals sign, and put both it
-and the subsequent colon in bold as they are literal characters.
+On Sun, Mar 8, 2026 at 7:20=E2=80=AFPM Benno Schulenberg <bensberg@telfort.=
+nl> wrote:
+>
+> Angle brackets should wrap each placeholder separately: <file> and
+> <nsid>.  Angle brackets should not enclose metacharacters (|) nor
+> literal ones (=3D and :).
+>
+> (The mistaken formatting was introduced by commit f2a5997869.)
+>
+> CC: Xiao Liang <shaw.leon@gmail.com>
+> Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
+> ---
+>  sys-utils/nsenter.c | 16 ++++++++--------
+>  1 file changed, 8 insertions(+), 8 deletions(-)
+>
+> diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
+> index f93e75af2..98da75511 100644
+> --- a/sys-utils/nsenter.c
+> +++ b/sys-utils/nsenter.c
+> @@ -97,16 +97,16 @@ static void __attribute__((__noreturn__)) usage(void)
+>         fputs(USAGE_OPTIONS, out);
+>         fputs(_(" -a, --all                    enter all namespaces\n"), =
+out);
+>         fputs(_(" -t, --target <PID>           target process to get name=
+spaces from\n"), out);
+> -       fputs(_(" -m, --mount[=3D<file|:nsid>]   enter mount namespace\n"=
+), out);
+> -       fputs(_(" -u, --uts[=3D<file|:nsid>]     enter UTS namespace (hos=
+tname etc)\n"), out);
+> -       fputs(_(" -i, --ipc[=3D<file|:nsid>]     enter System V IPC names=
+pace\n"), out);
+> -       fputs(_(" -n, --net[=3D<file|:nsid>]     enter network namespace\=
+n"), out);
+> +       fputs(_(" -m, --mount[=3D<file>|=3D:<nsid>]  enter mount namespac=
+e\n"), out);
+> +       fputs(_(" -u, --uts[=3D<file>|=3D:<nsid>]  enter UTS namespace (h=
+ostname etc)\n"), out);
+> +       fputs(_(" -i, --ipc[=3D<file>|=3D:<nsid>]  enter System V IPC nam=
+espace\n"), out);
+> +       fputs(_(" -n, --net[=3D<file>|=3D:<nsid>]  enter network namespac=
+e\n"), out);
+>         fputs(_(" -N, --net-socket <fd>        enter socket's network nam=
+espace (use with --target)\n"), out);
+> -       fputs(_(" -p, --pid[=3D<file|:nsid>]     enter pid namespace\n"),=
+ out);
+> -       fputs(_(" -C, --cgroup[=3D<file|:nsid>]  enter cgroup namespace\n=
+"), out);
+> -       fputs(_(" -U, --user[=3D<file|:nsid>]    enter user namespace\n")=
+, out);
+> +       fputs(_(" -p, --pid[=3D<file>|=3D:<nsid>]  enter pid namespace\n"=
+), out);
+> +       fputs(_(" -C, --cgroup[=3D<file>|=3D:<nsid>]  enter cgroup namesp=
+ace\n"), out);
+> +       fputs(_(" -U, --user[=3D<file>|=3D:<nsid>] enter user namespace\n=
+"), out);
+>         fputs(_("     --user-parent            enter parent user namespac=
+e\n"), out);
+> -       fputs(_(" -T, --time[=3D<file|:nsid>]    enter time namespace\n")=
+, out);
+> +       fputs(_(" -T, --time[=3D<file>|=3D:<nsid>] enter time namespace\n=
+"), out);
+>         fputs(_(" -S, --setuid[=3D<uid>]         set uid in entered names=
+pace\n"), out);
+>         fputs(_(" -G, --setgid[=3D<gid>]         set gid in entered names=
+pace\n"), out);
+>         fputs(_("     --preserve-credentials   do not touch uids or gids\=
+n"), out);
+> --
+> 2.53.0
+>
 
-Also, indent the list of paths to make it clearer where it ends,
-and so that the subsequent paragraph gets indented correctly.
-
-CC: Xiao Liang <shaw.leon@gmail.com>
-CC: Christian Goeschel Ndjomouo <cgoesc2@wgu.edu>
-Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
----
- sys-utils/nsenter.1.adoc | 45 ++++++++++++++++++++--------------------
- 1 file changed, 23 insertions(+), 22 deletions(-)
-
-diff --git a/sys-utils/nsenter.1.adoc b/sys-utils/nsenter.1.adoc
-index 9e5bc81da..34fde93ac 100644
---- a/sys-utils/nsenter.1.adoc
-+++ b/sys-utils/nsenter.1.adoc
-@@ -59,9 +59,10 @@ by namespace-specific options (e.g., **--all --mount=**_path_).
- +
- The user namespace will be ignored if it is the same as the caller's current user namespace. It prevents a caller that has dropped capabilities from regaining those capabilities via a call to *setns*(2). See the man page for more details.
- 
--*-t*, *--target* _PID[:inode]_::
-+*-t*, *--target* _PID_[**:**_inode_]::
- Specify a target process to get contexts from. The paths to the contexts specified by _PID_ are:
--
-++
-+____
- _/proc/pid/ns/mnt_;;
- the mount namespace
- _/proc/pid/ns/uts_;;
-@@ -82,41 +83,41 @@ _/proc/pid/root_;;
- the root directory
- _/proc/pid/cwd_;;
- the working directory respectively
--
--Optionally, a process can be addressed with the format _PID:inode_. The _inode_
-+____
-+Optionally, a process can be addressed with the format _PID_**:**_inode_. The _inode_
- identifies the unique process's file descriptor. To retrieve a process's inode
- number you can use the *getino*(1) utility.
- 
--*-m*, *--mount*[**=**<__file__|:__nsid__>]::
--Enter the mount namespace. If no argument is specified, enter the mount namespace of the target process. If _file_ or :__nsid__ is specified, enter the mount namespace specified by _file_ or _nsid_.
-+*-m*, *--mount*[**=**_file_|**=:**_nsid_]::
-+Enter the mount namespace. If no argument is specified, enter the mount namespace of the target process. If _file_ or **:**_nsid_ is specified, enter the mount namespace specified by _file_ or _nsid_.
- 
--*-u*, *--uts*[**=**<__file__|:__nsid__>]::
--Enter the UTS namespace. If no argument is specified, enter the UTS namespace of the target process. If _file_ or :__nsid__ is specified, enter the UTS namespace specified by _file_ or _nsid_.
-+*-u*, *--uts*[**=**_file_|**=:**_nsid_]::
-+Enter the UTS namespace. If no argument is specified, enter the UTS namespace of the target process. If _file_ or **:**_nsid_ is specified, enter the UTS namespace specified by _file_ or _nsid_.
- 
--*-i*, *--ipc*[**=**<__file__|:__nsid__>]::
--Enter the IPC namespace. If no argument is specified, enter the IPC namespace of the target process. If _file_ or :__nsid__ is specified, enter the IPC namespace specified by _file_ or _nsid_.
-+*-i*, *--ipc*[**=**_file_|**=:**_nsid_]::
-+Enter the IPC namespace. If no argument is specified, enter the IPC namespace of the target process. If _file_ or **:**_nsid_ is specified, enter the IPC namespace specified by _file_ or _nsid_.
- 
--*-n*, *--net*[**=**<__file__|:__nsid__>]::
--Enter the network namespace. If no argument is specified, enter the network namespace of the target process. If _file_ or :__nsid__ is specified, enter the network namespace specified by _file_ or _nsid_.
-+*-n*, *--net*[**=**_file_|**=:**_nsid_]::
-+Enter the network namespace. If no argument is specified, enter the network namespace of the target process. If _file_ or **:**_nsid_ is specified, enter the network namespace specified by _file_ or _nsid_.
- 
- *-N*, *--net-socket* _fd_::
- Enter the network namespace of the target process's socket. It requires *--target* process specified. Supported since Linux 5.6.
- 
--*-p*, *--pid*[**=**<__file__|:__nsid__>]::
--Enter the PID namespace. If no argument is specified, enter the PID namespace of the target process. If _file_ or :__nsid__ is specified, enter the PID namespace specified by _file_ or _nsid_.
-+*-p*, *--pid*[**=**_file_|**=:**_nsid_]::
-+Enter the PID namespace. If no argument is specified, enter the PID namespace of the target process. If _file_ or **:**_nsid_ is specified, enter the PID namespace specified by _file_ or _nsid_.
- 
--*-U*, *--user*[**=**<__file__|:__nsid__>]::
--Enter the user namespace. If no argument is specified, enter the user namespace of the target process. If _file_ or :__nsid__ is specified, enter the user namespace specified by _file_ or _nsid_. See also the *--setuid* and *--setgid* options.
-+*-U*, *--user*[**=**_file_|**=:**_nsid_]::
-+Enter the user namespace. If no argument is specified, enter the user namespace of the target process. If _file_ or **:**_nsid_ is specified, enter the user namespace specified by _file_ or _nsid_. See also the *--setuid* and *--setgid* options.
- 
- *--user-parent*::
- Enter the parent user namespace. Parent user namespace will be acquired from any other enabled namespace.
- If combined with *--user* option the parent user namespace will be fetched from the user namespace and replace it.
- 
--*-C*, *--cgroup*[**=**<__file__|:__nsid__>]::
--Enter the cgroup namespace. If no argument is specified, enter the cgroup namespace of the target process. If _file_ or :__nsid__ is specified, enter the cgroup namespace specified by _file_ or _nsid_.
-+*-C*, *--cgroup*[**=**_file_|**=:**_nsid_]::
-+Enter the cgroup namespace. If no argument is specified, enter the cgroup namespace of the target process. If _file_ or **:**_nsid_ is specified, enter the cgroup namespace specified by _file_ or _nsid_.
- 
--*-T*, *--time*[**=**<__file__|:__nsid__>]::
--Enter the time namespace. If no argument is specified, enter the time namespace of the target process. If _file_ or :__nsid__ is specified, enter the time namespace specified by _file_ or _nsid_.
-+*-T*, *--time*[**=**_file_|**=:**_nsid_]::
-+Enter the time namespace. If no argument is specified, enter the time namespace of the target process. If _file_ or **:**_nsid_ is specified, enter the time namespace specified by _file_ or _nsid_.
- 
- *-G*, *--setgid* _gid_::
- Set the group ID which will be used in the entered namespace and drop supplementary groups.
-@@ -161,8 +162,8 @@ include::man-common/help-version.adoc[]
- 
- The *--user-parent* option requires Linux 4.9 or higher, older kernels will raise inappropriate ioctl for device error.
- 
--Specifying namespaces by _nsid_ requires Linux 6.19 or higher. If a namespace
--file name starts with a colon, prepend "./" for disambiguation.
-+Specifying namespaces by _nsid_ requires Linux 6.19 or higher.
-+If a namespace _file_ name starts with a colon, prepend *./* for disambiguation.
- 
- == AUTHORS
- 
--- 
-2.53.0
-
+Looks good. Thanks for the correction.
