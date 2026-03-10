@@ -1,80 +1,176 @@
-Received: from dsmtpq4-prd-nl1-vfz.edge.unified.services (dsmtpq4-prd-nl1-vfz.edge.unified.services [84.116.6.66])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0F3C3644B3
-	for <util-linux@vger.kernel.org>; Tue, 10 Mar 2026 07:52:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.116.6.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09F10392C32
+	for <util-linux@vger.kernel.org>; Tue, 10 Mar 2026 18:49:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773129127; cv=none; b=BuZEG3bhMCn7RpLjzkpQFK0Wh5jVDtf2/ocqypudVemX0XTYgTGAiATtOTiXm52eYkUUZxhcicAz2aWuisrwP7c4Ah/oUPrpJBbmlu8YI/7N/pL8gRfceVrvw9K1M6GXemaI6jUJoocxXWtmdTe5++gbuU3RHsbLYb92s/9cIws=
+	t=1773168599; cv=none; b=cHuKBOerc+C2/bEWGNn4yKIBmu80WozWhlI5N9XjtUhWwPViiudtC7dYdykmDzquaUy0X2Cxmy95/g5Jc2cxUf33wx7jUym5mpD1kYAQitOH6OYBvXxGcTeXbet3kTNaNOJBJq+i8uLH2VCncxlfaCXQ12Arw8UR8ANOz3xDwSQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773129127; c=relaxed/simple;
-	bh=SoBgsrRXrEDBfDAwTManJZY28675857deiNp/s2WUvU=;
-	h=Content-Type:MIME-Version:In-Reply-To:References:Subject:From:Cc:
-	 To:Date:Message-ID; b=DgIjH8esoR/aXX5jyGfpx4wLKfjKGN7ueJRIfgRgbREbNIspjyeYunDpjksfOn8JIveWMgKMr9vJuIQQT3DDWfjkqTt2w0IwKiLeaDAdTioUsq5+BkieN9Umq4CV6T/geYD7pGumJODP6TZbCYBlLa1yvHPTjmbhMeCAx3++rZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mrns.nl; spf=none smtp.mailfrom=mrns.nl; dkim=pass (1024-bit key) header.d=mrns.nl header.i=@mrns.nl header.b=HHLu+AiZ; arc=none smtp.client-ip=84.116.6.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mrns.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=mrns.nl
+	s=arc-20240116; t=1773168599; c=relaxed/simple;
+	bh=KqLGdT7Gi9/vmnpYok9PfYXiX904zWhvCqeXx8QkE90=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VtVJvt/4IRXBwM3fy3f5N88PWh6FjHYg73+MzkFt5OYdQAGSrwTF5UgzTpDZJbprjm/Gbmx0sWgTKA4iFoFC2d+QC1hrKHev3vtKs6RRaSDwy2GW/ZTMZxd/Hw8VrLd3izHXT8f6zrNpEPpZqCEUh7a+RMSiTJAgGpqobz9A9SM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DaBnf8q6; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=mrns.nl header.i=@mrns.nl header.b="HHLu+AiZ"
-Received: from csmtpq4-prd-nl1-vfz.edge.unified.services ([84.116.50.10])
-	by dsmtpq4-prd-nl1-vfz.edge.unified.services with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.95)
-	(envelope-from <dick@mrns.nl>)
-	id 1vzroK-00CjQf-MZ
-	for util-linux@vger.kernel.org;
-	Tue, 10 Mar 2026 08:47:24 +0100
-Received: from csmtp5-prd-nl1-vfz.nl1.unified.services ([100.107.80.45] helo=csmtp5-prd-nl1-vfz.edge.unified.services)
-	by csmtpq4-prd-nl1-vfz.edge.unified.services with esmtp (Exim 4.95)
-	(envelope-from <dick@mrns.nl>)
-	id 1vzroC-00De1Q-GI
-	for util-linux@vger.kernel.org;
-	Tue, 10 Mar 2026 08:47:16 +0100
-Received: from routi.mrns.nl ([85.147.219.207])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 256/256 bits)
-	(Client did not present a certificate)
-	by csmtp5-prd-nl1-vfz.edge.unified.services with ESMTPSA
-	id zroCvMk7YeS3pzroCvRiM8; Tue, 10 Mar 2026 08:47:16 +0100
-X-Env-Mailfrom: dick@mrns.nl
-X-Env-Rcptto: util-linux@vger.kernel.org
-X-SourceIP: 85.147.219.207
-X-CNFS-Analysis: v=2.4 cv=NebWEWD4 c=1 sm=1 tr=0 ts=69afcc84 cx=a_exe
- a=QfPJp9Xx0fncKAcDTfo4/A==:117 a=QfPJp9Xx0fncKAcDTfo4/A==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=LQrtYbNyCH8A:10
- a=1rOlcF-JzrcUQ1hiaewA:9 a=QEXdDO2ut3YA:10
-X-Authenticated-Sender: ieb1yoh3@ziggo.nl
-Received: by routi.mrns.nl (sSMTP sendmail emulation); Tue, 10 Mar 2026 08:47:15 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mrns.nl;
- i=@mrns.nl; q=dns/txt; s=mail; t=1773128835; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references :
- subject : from : cc : to : date : message-id : from;
- bh=SoBgsrRXrEDBfDAwTManJZY28675857deiNp/s2WUvU=;
- b=HHLu+AiZw82kbqT75woYhyBc6AbclEFLO+q3zAWQv7XrDHiYF3s3hhpyHguZuC2Wdpsok
- faGyRHWhWB/ge5JCFq0F+ksvS7LBPKo7gkIzUjq76Atzm025EpPLZo60fhifoFMTBcRW0fL
- mnVV0uGvxeU7QOHQqEVNQKEoDqFbYOc=
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DaBnf8q6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1773168593;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=EN5eaVJ4OgdTZ0twusV4r0zGOYrme4m2h2NsuErnldc=;
+	b=DaBnf8q6rULkAID47zvDqlucBirR9jCzvy+o2YgQPG08dXVIifS3jp+xbccRCHzUA2Whfa
+	CvWdfVc9VqvdgX5uR5EOv8PB8nSlBlvkWBQ7s+Km95NmkW2Rt6OjUibyl19F9DlCweRl5j
+	d1JKR90b4ljuA5xAbtgj2oMpZJOONH0=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-390-Ns3WoYrdPhmPxJf4P0-AIg-1; Tue,
+ 10 Mar 2026 14:49:51 -0400
+X-MC-Unique: Ns3WoYrdPhmPxJf4P0-AIg-1
+X-Mimecast-MFC-AGG-ID: Ns3WoYrdPhmPxJf4P0-AIg_1773168590
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 01CBA1956088;
+	Tue, 10 Mar 2026 18:49:50 +0000 (UTC)
+Received: from ws (unknown [10.45.226.170])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D79381956095;
+	Tue, 10 Mar 2026 18:49:48 +0000 (UTC)
+Date: Tue, 10 Mar 2026 19:49:45 +0100
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@telfort.nl>
+Cc: util-linux@vger.kernel.org, 
+	Mario =?utf-8?Q?Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
+Subject: Re: improvements to terminal-colors.d.5.adoc were undone
+Message-ID: <iio2qnw62rtr5hih47h7m4hyc7glzubqnqonv7n7wjmx2gyljr@lpihqow5qu6n>
+References: <cm7cun3pymf6quqcupreoegjj6ycwv3rvbap6ezpvfidvtt4lf@rq74bm7girgz>
+ <713c6323-e80e-47fc-9389-520b963a3129@telfort.nl>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20260309160903.15490-2-bensberg@telfort.nl>
-References: <20260309160903.15490-1-bensberg@telfort.nl> <20260309160903.15490-2-bensberg@telfort.nl>
-Subject: Re: [PATCH 2/2] copyfilerange: (man) correct the markup and improve the wordings
-From: Dick Marinus <dick@mrns.nl>
-Cc:
-To: Benno Schulenberg <bensberg@telfort.nl>, util-linux@vger.kernel.org
-Date: Tue, 10 Mar 2026 08:47:15 +0100
-Message-ID: <177312883579.3137133.9262096927051904264@routi.mrns.nl>
-User-Agent: alot/0.12
-X-CMAE-Envelope: MS4xfBmMwD8baOxHIV4QtMYQaD5/Ysc7gyt8djtXeU3jQij8dNQ0woDA2H5XWB0yuQoJytwrKXKu94peUgdqZSxZrUS4tQTkjvbFK96fYjVKgFnaPj2P63he
- PrvkrejI9Zlfucfu2i4UgnkoR4wYlmsaJsxbdqHl/H1MyRv0YrN01VdMFlvHh9SQi/ZxB9pxzLJDMxb2/YN+lHtLfUSxOIdGcA02qcHljW2GFFhsUGzqwCVk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <713c6323-e80e-47fc-9389-520b963a3129@telfort.nl>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Hi Benno,
+On Mon, Mar 09, 2026 at 05:08:19PM +0100, Benno Schulenberg wrote:
+> 
+> Op 09-03-2026 om 11:51 schreef Karel Zak:
+> > >   lib/terminal-colors.d.5.adoc | 24 ++++++++++--------------
+> > >   1 file changed, 10 insertions(+), 14 deletions(-)
+> > 
+> > Both patches have been applied. Thank you, and sorry for the delay.
+> 
+> The second patch was applied in commit 3252142521, but three commits
+> later, merge commit d708fc7db6 undoes all the improvements I made.  :/
 
-Thank you for cleaning up the documentation for copyfilerange, much
-better!
+My mistake, sorry I'll fix it.
 
-Kind regards,
-Dick Marinus
+> Also, that merge commit says that it just removes the backticks from a
+> table, but it actually changes back two simple lists to large, bulky
+> tables.
+
+The tables are a better solution than the list for translators. See
+discussion:
+https://github.com/util-linux/util-linux/pull/4089
+
+The list produces things like (po-man/util-linux-man.pot):
+
+#. type: delimited block _
+#: ../lib/terminal-colors.d.5.adoc:115
+msgid ""                
+"`` *\\a* Bell (ASCII 7)`` `` *\\b* Backspace (ASCII 8)`` `` *\\e* Escape "
+"(ASCII 27)`` `` *\\f* Form feed (ASCII 12)`` `` *\\n* Newline (ASCII 10)`` "
+"`` *\\r* Carriage Return (ASCII 13)`` `` *\\t* Tab (ASCII 9)`` `` *\\v* "
+"Vertical Tab (ASCII 11)`` `` *\\?*{nbsp}{nbsp}{nbsp}Delete (ASCII 127)`` `` "
+"*\\_* Space`` `` *\\\\* Backslash (\\)`` `` *\\^* Caret (^)`` `` *\\\\#* "
+"Hash mark (#)``"       
+msgstr ""             
+
+
+The table is more readable:
+
+#. type: Table
+#: ../lib/terminal-colors.d.5.adoc:131
+#, no-wrap
+msgid ""
+"|0\n"
+"|to restore default color\n"
+"\n"
+"|1\n"
+"|for brighter colors\n"
+"\n"
+"|4\n"
+"|for underlined text\n"
+"\n"
+"|5\n"
+"|for flashing text\n"
+"\n"
+"|30\n"
+"|for black foreground\n"
+"\n"
+"|31\n"
+"|for red foreground\n"
+"\n"
+"|32\n"
+"|for green foreground\n"
+"\n"
+"|33\n"
+"|for yellow (or brown) foreground\n"
+"\n"
+"|34\n"
+"|for blue foreground\n"
+"\n"
+"|35\n"
+"|for purple foreground\n"
+"\n"
+"|36\n"
+"|for cyan foreground\n"
+"\n"
+"|37\n"
+"|for white (or gray) foreground\n"
+"\n"
+"|40\n"
+"|for black background\n"
+"\n"
+"|41\n"
+"|for red background\n"
+"\n"
+"|42\n"
+"|for green background\n"
+"\n"
+"|43\n"
+"|for yellow (or brown) background\n"
+"\n"
+"|44\n"
+"|for blue background\n"
+"\n"
+"|45\n"
+"|for purple background\n"
+"\n"
+"|46\n"
+"|for cyan background\n"
+"\n"
+"|47\n"
+"|for white (or gray) background\n"
+msgstr ""
+
+> A year ago, commit b3c3d865eb reduced the bulky tables back to simple
+> lists.  Can we please keep these simple lists?
+
+The list seems unfriendly to translators in some cases.
+
+    Karel
+
+-- 
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
+
