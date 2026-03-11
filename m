@@ -1,54 +1,56 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 410A13D8114
-	for <util-linux@vger.kernel.org>; Wed, 11 Mar 2026 12:14:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50CEF3C870B
+	for <util-linux@vger.kernel.org>; Wed, 11 Mar 2026 12:27:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773231280; cv=none; b=SPAw75i+pnJPxTQe0o2JX1OGKenoewyOp8JIe0thpnXU8Qi4qoSgC9/Cx94CYdjeeIWXm/l6O6QEsE0tLcgGJVWMmRUtst1RdQL6gw2gmYgNFzKMPsZqurN9NUwrzTMRoZ/F6ulMxOX1sxuIuh/cypCaq9iaE6dif7iA2W6/XvE=
+	t=1773232032; cv=none; b=q0zrnEjwc9V+CTbAw9sdX199kUzog/3saZJU8AskzVs6/4oXdzRQrVVUGMZpSS0s9A/oJIECOfnGQ2BGB9+I0q/Hu2yDeJGgrs9zJB+5goQWOWuuRVR4sWMn06ng6XKALiX9NmI7tTNeR46oECSItYhZnxp0ljhR5n+Qdxlzwy0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773231280; c=relaxed/simple;
-	bh=CGXevE86aLHVqgnzOPJu64Y7NXqEmX0riJjuitSjIUM=;
+	s=arc-20240116; t=1773232032; c=relaxed/simple;
+	bh=bwX76MByHwst6RGQkni6EsU7xWzBUwQJQ4X2ypS/d/0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=t0jvpmbWRnj1GBQRklxfIQh5MIyWxXEv9Pn3+gOOmrgJi9gi/mvbn8PpQfFEC/aYSTHLxj+wUEo76cXvwkfKKt281eg10DzGE6GBkOEkQSOeeubsoHr/YzNES15R2I7/cQvm3QiwF9lGJUzibiDBKNtHjsgTND9y498WUDLrwZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XyV/M1Gs; arc=none smtp.client-ip=170.10.133.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=e215jFkxWZOPQUMIqjNJ1fewh4q9I0GDTzLtCQtBttE+XYYcEU9bPEgD+egm8wzflPIop9Dv3OCQ2sSCkvS521EDwtJGMdCCEeqayatcH1syY7m8yKz42iZxDOEp3cnMqLT3nNgsu4pCddsw2rXbHFYIUsrNif6x+AwEa8dcZtw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=g7vaU6eP; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XyV/M1Gs"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g7vaU6eP"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1773231274;
+	s=mimecast20190719; t=1773232030;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=E8B+nEzSWBFA7sgFtyFDwmRwqTwuXB2GN8L4DdIsTnU=;
-	b=XyV/M1GsNugiigWpIuws+0HDiNwNbOfZaQgmTmF3Iynw2RnfVZyF+oAN9Vk2ons544Px1c
-	zsMm86O68gmeo3v7ABEimNPApo36W9snWQxM5m1CGjEI0WSqn9neloJywGqNq0+y73i7hk
-	lYc1aVMaMpPoBaxDlc3k7bILp8pbQpo=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+	bh=PdC+W858wmz/kP9m7fUpumTc2TXNGiSzT7eHz//2xNY=;
+	b=g7vaU6ePBrxhgfC5Yg7LaKQH8XmdTD0OpAPKEQx3ouPzc8UrwS7UtzXtWqhgNt2UhAHDdY
+	4Lw/6m0Y9MriJofCpfUx+6UqAlaiIZjB5CC2fLZSUJwJqdqj0eO+MiXC9+3qxy8/0i3QSQ
+	32h22cFBfKkA0dHSMWv31Hj8z9JjLwE=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-230-0MzqutHnMmuAu9BV9gPigA-1; Wed,
- 11 Mar 2026 08:14:31 -0400
-X-MC-Unique: 0MzqutHnMmuAu9BV9gPigA-1
-X-Mimecast-MFC-AGG-ID: 0MzqutHnMmuAu9BV9gPigA_1773231270
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-450-9fdJpe9gPM2wSSdik3xG3w-1; Wed,
+ 11 Mar 2026 08:27:09 -0400
+X-MC-Unique: 9fdJpe9gPM2wSSdik3xG3w-1
+X-Mimecast-MFC-AGG-ID: 9fdJpe9gPM2wSSdik3xG3w_1773232028
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 029BE19560AA;
-	Wed, 11 Mar 2026 12:14:30 +0000 (UTC)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 04867195605B;
+	Wed, 11 Mar 2026 12:27:08 +0000 (UTC)
 Received: from ws (unknown [10.45.224.202])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D2D3A18002A6;
-	Wed, 11 Mar 2026 12:14:28 +0000 (UTC)
-Date: Wed, 11 Mar 2026 13:14:25 +0100
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 85968180075B;
+	Wed, 11 Mar 2026 12:27:06 +0000 (UTC)
+Date: Wed, 11 Mar 2026 13:27:03 +0100
 From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@telfort.nl>
-Cc: util-linux@vger.kernel.org, Dick Marinus <dick@mrns.nl>
-Subject: Re: [PATCH 1/2] copyfilerange: (usage) correct the markup and
- improve the wording
-Message-ID: <jg4hhpuwvwuxwkfaobly25qd3rjdlfizcm3jims42zse7m4zue@dqtq3ifmdggn>
-References: <20260309160903.15490-1-bensberg@telfort.nl>
+To: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Benno Schulenberg <bensberg@telfort.nl>, util-linux@vger.kernel.org
+Subject: Re: [PATCH 2/2] lsmem: (man) correct the markup of column names, and
+ improve some grammar
+Message-ID: <d6fywjkl5vvef3uyshxi477fe6vtnzygb7sjsy5mecs7c546gd@cy73pfohzucq>
+References: <20260307114308.7517-1-bensberg@telfort.nl>
+ <20260307114308.7517-2-bensberg@telfort.nl>
+ <aa6-0Gx7Q8ZzWozj@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -57,64 +59,33 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260309160903.15490-1-bensberg@telfort.nl>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+In-Reply-To: <aa6-0Gx7Q8ZzWozj@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On Mon, Mar 09, 2026 at 05:09:02PM +0100, Benno Schulenberg wrote:
-> The <source>, <destination>, and <range> arguments are required,
-> so do not mark them as optional (with the square brackets).
-> Also, trim the redundant lines about the source and destination
-> files, improve the explanation for the <range> argument, and
-> keep the text within 80 columns.
-> 
-> Furthermore, list the short options first (as is custom), and
-> match the indentaion of the -h and -V options to the others.
-> 
-> CC: Dick Marinus <dick@mrns.nl>
-> Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
-> ---
->  misc-utils/copyfilerange.c | 18 ++++++++----------
->  1 file changed, 8 insertions(+), 10 deletions(-)
-> 
-> diff --git a/misc-utils/copyfilerange.c b/misc-utils/copyfilerange.c
-> index 20f0373bd..a72c81cd1 100644
-> --- a/misc-utils/copyfilerange.c
-> +++ b/misc-utils/copyfilerange.c
-> @@ -55,25 +55,23 @@ static void __attribute__((__noreturn__)) usage(void)
->  	FILE *out = stdout;
->  	fputs(USAGE_HEADER, out);
->  	fprintf(out,
-> -		_(" %1$s [options] [<source>] [<destination>] [<range>...]\n"),
-> +		_(" %1$s [options] <source> <destination> <range>...\n"),
->  		program_invocation_short_name);
->  
->  	fputs(USAGE_SEPARATOR, out);
-> -	fputsln(_("Copy file ranges from source to destination file."), out);
-> +	fputsln(_("Copy the specified range(s) from source to destination file."), out);
->  
->  	fputs(USAGE_SEPARATOR, out);
-> -	fputsln(_(" source                      source filename"), out);
-> -	fputsln(_(" destination                 destination filename"), out);
-> -	fputsln(_(" range                       source_offset:dest_offset:length, all values are in bytes"), out);
-> -	fputsln(_("                             if length is set to 0 as much as available will be copied"), out);
-> -	fputsln(_("                             when the offset is omitted the last file position is used"), out);
-> +	fputsln(_("Each <range> is of the form <source_offset>:<destination_offset>:<length>,\n"
-> +	          "with all values in bytes. If <length> is 0, as much data as available will\n"
-> +	          "be copied. When an offset is omitted, the last file position is used."), out);
+On Mon, Mar 09, 2026 at 01:36:32PM +0100, Sumanth Korikkar wrote:
+> How about the following?
+> Example STATE, CONFIGURED, MEMMAP-ON-MEMORY states:
+> STATE   | CONFIGURED | MEMMAP-ON-MEMORY | Description
+> online  | yes        | yes              | Memory block is configured with memmap-on-memory enabled and online.
+> online  | yes        | no               | Memory block is configured with memmap-on-memory disabled and online.
+> offline | yes        | yes              | Memory block is configured but currently offline.
+> offline | no         | yes              | Memory block is deconfigured and was previously configured with memmap-on-memory.
+> offline | no         | no               | Memory block is deconfigured and was not previously configured with memmap-on-memory.
 
-Hmm... for this purpose, we already have the USAGE_ARGUMENTS section
-(usually after the OPTIONS section).
+I personally prefer structured information like lists or tables and
+dislike large text blocks ;-) 
 
-What about:
+However, in this case, I'm not sure if the description adds anything,
+as it repeats what is obvious from STATE, CONFIGURED, MEMMAP-ON-MEMORY
+columns.
 
-    fputs(USAGE_ARGUMENTS, out);
-    fputsln(_(" <range> is of the form <source_offset>:<destination_offset>:<length>,\n"
-              " with all values in bytes. If <length> is 0, as much data as available will\n"
-              " be copied. When an offset is omitted, the last file position is used."), out);
+What I find relevant is "previously configured." Maybe add a sentence
+stating that CONFIGURED and MEMMAP-ON-MEMORY for _offline_ blocks show
+the previous setup.
 
-  Karel
+Benno, what do you think?
 
-
+    Karel
 -- 
  Karel Zak  <kzak@redhat.com>
  http://karelzak.blogspot.com
