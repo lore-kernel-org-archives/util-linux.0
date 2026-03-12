@@ -1,77 +1,160 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7847138F637
-	for <util-linux@vger.kernel.org>; Thu, 12 Mar 2026 10:18:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D7EF38238F
+	for <util-linux@vger.kernel.org>; Thu, 12 Mar 2026 15:34:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773310723; cv=none; b=fZajQoFv5W+W9aXlsILw/nZ85bjfgTwyBuGLvqtRst/AwgU3bwIZMFAaaT0DcA8YdYaN9+VkHD6zEE4fHcbK7ln1UE6YvMFKy9AE8h/f83LsJX5u/LMki2d7mpysgjMioulo2aDBEUhXKXcIQnq8Vw9t5UhnfMl4TnVx4wuv1e0=
+	t=1773329657; cv=none; b=hJh3p881xr5RmCtK67mfmC+zfTeq4hKVbroAcknl57ejVJqlfuNZOQJ/KLuBlMOFqgoVJgmerPnz7SlRCzq9dl0GDZZLj+DBo7KKEGx9mjZ668WVoBKbyL//gyoDylXvs5cO/rtzlpFhBoCKrnDGYhoZ3MDCsgjFLKXg+JK+vao=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773310723; c=relaxed/simple;
-	bh=aqK5lIE15G33BCjGfFe+caZQyarBMp+vTPTuMtxL+gE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GMSLOd4Dp+TNUHZKi4eSGMUGOVZ0pVfxq5AeMEgNF6GlSvfF8CBA3ykErvNp2OUjkvbhJz1MXHfgwn0suSkeb/Ky/Ms7VpsJeijJPKxmRQbE4dv0bWnz0Ao78GUv6SKMCIs/cDjd87ojDTTpQTI02q+nAxEhPcCiUCPiUYEFlJw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=isXyen7V; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1773329657; c=relaxed/simple;
+	bh=u1x2djWEoAWbGRF+ySqmGep+CoZP3Ksggq86YciDz4M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EQPGnlEw9WAEIMdldAs/48y/AiasPxMmufYBFcaP19OUPHADXGmYMVWweFBoZ/h0Py1acAFBa6A0Ltjo4IZijdyH6Q7SyxZXCzVfMhPvk8fascdF3w0+YDLBjlLuXW0vIngjb/3K19A9JkBT+P6XHWuSpaGkRWBrvUt5daVxmdQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=F7sAPOKb; arc=none smtp.client-ip=195.121.94.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="isXyen7V"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1773310720;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Cddv8xuNXibPZg50lM8BlAlRJbWT1krlbnSvvhAR+QM=;
-	b=isXyen7V2EuxQ9btoX0DpyaNGHKQGpwQCOiWDFUihO39J7bC19r1qLcxj0UlVatRbQdKIn
-	/cIvnMTfslaevWZxBrY/LIv8pViif4zrz+SSDHbsuGOIZfxCQb1NEgme0trOGK/spLEAJi
-	YxX9zsqwLnBOQdG+X54iXUqdvLTudBk=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-353--_BrCMIXNgmENBXhmK8zhg-1; Thu,
- 12 Mar 2026 06:18:36 -0400
-X-MC-Unique: -_BrCMIXNgmENBXhmK8zhg-1
-X-Mimecast-MFC-AGG-ID: -_BrCMIXNgmENBXhmK8zhg_1773310716
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E232218005B3;
-	Thu, 12 Mar 2026 10:18:35 +0000 (UTC)
-Received: from ws (unknown [10.45.225.129])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C815B1955D6E;
-	Thu, 12 Mar 2026 10:18:34 +0000 (UTC)
-Date: Thu, 12 Mar 2026 11:18:31 +0100
-From: Karel Zak <kzak@redhat.com>
-To: Benno Schulenberg <bensberg@telfort.nl>
-Cc: util-linux@vger.kernel.org, Sumanth Korikkar <sumanthk@linux.ibm.com>
-Subject: Re: [PATCH 1/2] lsmem: correct the grammar of an error message
-Message-ID: <saoqkb6rpqx2ckxzp7fhwncfjp2hdgugsesnmkegwy5dfmcnki@5mffdjygdgs2>
-References: <20260307114308.7517-1-bensberg@telfort.nl>
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="F7sAPOKb"
+X-KPN-MessageId: e87ef7c5-1e28-11f1-b183-005056abad63
+Received: from smtp.kpnmail.nl (unknown [10.31.155.40])
+	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
+	id e87ef7c5-1e28-11f1-b183-005056abad63;
+	Thu, 12 Mar 2026 16:34:07 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=telfort.nl; s=telfort01;
+	h=content-type:from:to:subject:mime-version:date:message-id;
+	bh=u1x2djWEoAWbGRF+ySqmGep+CoZP3Ksggq86YciDz4M=;
+	b=F7sAPOKbmn1dqL0HLa+hwnBtWCMdpUxvlXn5sp24xNgpeW7Wd4WiSFSLj8RNC/Hi+w/oozPGbGAOm
+	 S0zGUrEeoA0/zPKyEfhCrO5ZZEuKyu0X8YeJW1ODJ6ry2LLJUSOHb8mIsFcTsQS7QBxEgu5AQ/erMh
+	 0sq3eslwPrnJfSaY=
+X-KPN-MID: 33|eVRs/rL9tEJnIOPmEhLsFwKbqfj8ldVjW9cMAfppfX+Jc+HippkRkA82fbWVmvb
+ VeIF8ChhSNOjo3/OpKOw5zdKf76v1KLEJIYQD17pA/1k=
+X-KPN-VerifiedSender: Yes
+X-CMASSUN: 33|TiDSEltWQKPjYpUsAXsY6koxA88peKIuVLs7XLQCZH6QIU+q5h8UujSov8BIoov
+ kC33qg1nDTpzngUy3514Y2w==
+Received: from [192.168.2.23] (77-163-176-192.fixed.kpn.net [77.163.176.192])
+	by smtp.kpnmail.nl (Halon) with ESMTPSA
+	id e849f312-1e28-11f1-b8e4-005056ab7584;
+	Thu, 12 Mar 2026 16:34:07 +0100 (CET)
+Message-ID: <f9063973-62ef-4544-90cb-6bef3f570559@telfort.nl>
+Date: Thu, 12 Mar 2026 16:34:06 +0100
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260307114308.7517-1-bensberg@telfort.nl>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+User-Agent: Mozilla Thunderbird
+Subject: Re: improvements to terminal-colors.d.5.adoc were undone
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org,
+ =?UTF-8?Q?Mario_Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
+References: <cm7cun3pymf6quqcupreoegjj6ycwv3rvbap6ezpvfidvtt4lf@rq74bm7girgz>
+ <713c6323-e80e-47fc-9389-520b963a3129@telfort.nl>
+ <iio2qnw62rtr5hih47h7m4hyc7glzubqnqonv7n7wjmx2gyljr@lpihqow5qu6n>
+Content-Language: en-US, nl-NL, es-ES
+From: Benno Schulenberg <bensberg@telfort.nl>
+In-Reply-To: <iio2qnw62rtr5hih47h7m4hyc7glzubqnqonv7n7wjmx2gyljr@lpihqow5qu6n>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------EjjUQDTKvbWQ0wQtAYq3ev0M"
 
-On Sat, Mar 07, 2026 at 12:43:07PM +0100, Benno Schulenberg wrote:
->  sys-utils/lsmem.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------EjjUQDTKvbWQ0wQtAYq3ev0M
+Content-Type: multipart/mixed; boundary="------------R5Op2SSx3kCYkWb4EjrQyo19";
+ protected-headers="v1"
+From: Benno Schulenberg <bensberg@telfort.nl>
+To: Karel Zak <kzak@redhat.com>
+Cc: util-linux@vger.kernel.org,
+ =?UTF-8?Q?Mario_Bl=C3=A4ttermann?= <mario.blaettermann@gmail.com>
+Message-ID: <f9063973-62ef-4544-90cb-6bef3f570559@telfort.nl>
+Subject: Re: improvements to terminal-colors.d.5.adoc were undone
+References: <cm7cun3pymf6quqcupreoegjj6ycwv3rvbap6ezpvfidvtt4lf@rq74bm7girgz>
+ <713c6323-e80e-47fc-9389-520b963a3129@telfort.nl>
+ <iio2qnw62rtr5hih47h7m4hyc7glzubqnqonv7n7wjmx2gyljr@lpihqow5qu6n>
+In-Reply-To: <iio2qnw62rtr5hih47h7m4hyc7glzubqnqonv7n7wjmx2gyljr@lpihqow5qu6n>
 
-Applied this one, thanks.
+--------------R5Op2SSx3kCYkWb4EjrQyo19
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-For the second lsmem patch, I'm not sure if it needs an update to
-provide more information about online/offline status and
-configuration.
+DQpPcCAxMC0wMy0yMDI2IG9tIDE5OjQ5IHNjaHJlZWYgS2FyZWwgWmFrOg0KPiBUaGUgdGFi
+bGVzIGFyZSBhIGJldHRlciBzb2x1dGlvbiB0aGFuIHRoZSBsaXN0IGZvciB0cmFuc2xhdG9y
+cy4gU2VlDQo+IGRpc2N1c3Npb246DQo+IGh0dHBzOi8vZ2l0aHViLmNvbS91dGlsLWxpbnV4
+L3V0aWwtbGludXgvcHVsbC80MDg5DQoNCkl0IHdvdWxkIGhhdmUgYmVlbiBuaWNlIGlmIHRo
+ZSBjb21taXQgbWVzc2FnZSBoYWQgaW5jbHVkZWQgdGhlDQptb3RpdmF0aW9uIGZvciB0aGUg
+Y2hhbmdlLg0KDQo+IFRoZSBsaXN0IHByb2R1Y2VzIHRoaW5ncyBsaWtlIChwby1tYW4vdXRp
+bC1saW51eC1tYW4ucG90KToNCj4gDQo+ICMuIHR5cGU6IGRlbGltaXRlZCBibG9jayBfDQo+
+ICM6IC4uL2xpYi90ZXJtaW5hbC1jb2xvcnMuZC41LmFkb2M6MTE1DQo+IG1zZ2lkICIiDQo+
+ICJgYCAqXFxhKiBCZWxsIChBU0NJSSA3KWBgIGBgICpcXGIqIEJhY2tzcGFjZSAoQVNDSUkg
+OClgYCBgYCAqXFxlKiBFc2NhcGUiDQo+ICIoQVNDSUkgMjcpYGAgYGAgKlxcZiogRm9ybSBm
+ZWVkIChBU0NJSSAxMilgYCBgYCAqXFxuKiBOZXdsaW5lIChBU0NJSSAxMClgYCINCj4gImBg
+ICpcXHIqIENhcnJpYWdlIFJldHVybiAoQVNDSUkgMTMpYGAgYGAgKlxcdCogVGFiIChBU0NJ
+SSA5KWBgIGBgICpcXHYqIg0KPiAiVmVydGljYWwgVGFiIChBU0NJSSAxMSlgYCBgYCAqXFw/
+KntuYnNwfXtuYnNwfXtuYnNwfURlbGV0ZSAoQVNDSUkgMTI3KWBgIGBgIg0KPiAiKlxcXyog
+U3BhY2VgYCBgYCAqXFxcXCogQmFja3NsYXNoIChcXClgYCBgYCAqXFxeKiBDYXJldCAoXilg
+YCBgYCAqXFxcXCMqIg0KPiAiSGFzaCBtYXJrICgjKWBgIg0KPiBtc2dzdHIgIiINCg0KQ2Fu
+bm90IGBwbzRhYCBiZSB0b2xkIHRvIHB1dCBldmVyeSBsaW5lIG9mIGEgImRlbGltaXRlZCBi
+bG9jayIgb250bw0KYSBzZXBhcmF0ZSBsaW5lLCBvciBvdGhlcndpc2UgaW50byBhIHNlcGFy
+YXRlIG1zZ2lkPw0KDQoNCj4gVGhlIHRhYmxlIGlzIG1vcmUgcmVhZGFibGU6DQo+IA0KPiAj
+LiB0eXBlOiBUYWJsZQ0KPiAjOiAuLi9saWIvdGVybWluYWwtY29sb3JzLmQuNS5hZG9jOjEz
+MQ0KPiAjLCBuby13cmFwDQo+IG1zZ2lkICIiDQo+ICJ8MFxuIg0KPiAifHRvIHJlc3RvcmUg
+ZGVmYXVsdCBjb2xvclxuIg0KPiAiXG4iDQo+ICJ8MVxuIg0KPiAifGZvciBicmlnaHRlciBj
+b2xvcnNcbiINCj4gIlxuIg0KPiBbLi4uXQ0KDQpJbiB0aGUgbXNnaWQsIHllcy4gIEJ1dCBp
+biB0aGUgbWFuIHBhZ2UuLi4gaXQgYmVjb21lcyBhIG1vbnN0cm9zaXR5Og0KDQogICAgICAg
+IOKUjOKUgOKUgOKUgOKUrOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKU
+gOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUkA0KICAgICAgICDi
+lIIgICDilIIgICAgICAgICAgICAgICAgICAgICAgICAgIOKUgg0KICAgICAgICDilIIwICDi
+lIIgdG8gcmVzdG9yZSBkZWZhdWx0IGNvbG9yIOKUgg0KICAgICAgICDilJzilIDilIDilIDi
+lLzilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDi
+lIDilIDilIDilIDilIDilIDilIDilIDilIDilKQNCiAgICAgICAg4pSCICAg4pSCICAgICAg
+ICAgICAgICAgICAgICAgICAgICDilIINCiAgICAgICAg4pSCMSAg4pSCIGZvciBicmlnaHRl
+ciBjb2xvcnMgICAgICDilIINCiAgICAgICAg4pSc4pSA4pSA4pSA4pS84pSA4pSA4pSA4pSA
+4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA
+4pSA4pSA4pSA4pSA4pSkDQogICAgICAgIOKUgiAgIOKUgiAgICAgICAgICAgICAgICAgICAg
+ICAgICAg4pSCDQogICAgICAgIOKUgjQgIOKUgiBmb3IgdW5kZXJsaW5lZCB0ZXh0ICAgICAg
+4pSCDQogICAgICAgIOKUnOKUgOKUgOKUgOKUvOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKU
+gOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKU
+pA0KICAgICAgICA8c25pcD4NCiAgICAgICAg4pSc4pSA4pSA4pSA4pS84pSA4pSA4pSA4pSA
+4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA
+4pSA4pSA4pSA4pSA4pSkDQogICAgICAgIOKUgiAgIOKUgiAgICAgICAgICAgICAgICAgICAg
+ICAgICAg4pSCDQogICAgICAgIOKUgjMzIOKUgiBmb3IgeWVsbG93IChvciBicm93bikgICAg
+4pSCDQogICAgICAgIOKUgiAgIOKUgiBmb3JlZ3JvdW5kICAgICAgICAgICAgICAg4pSCDQog
+ICAgICAgIOKUnOKUgOKUgOKUgOKUvOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKU
+gOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUpA0KICAg
+ICAgICA8c25pcD4NCg0KKlR3byB0aGlyZHMqIG9mIHRoZSB0YWJsZSBhcmUgbGluZXMgYW5k
+IGVtcHR5IHNwYWNlLCBhbmQgb25seSBvbmUNCnRoaXJkIGNvbnRhaW5zIGluZm9ybWF0aW9u
+LiAgUGx1czogdGhlIHRhYmxlIHVzZXMgbGVzcyB0aGFuIGhhbGYNCnRoZSBhdmFpbGFibGUg
+d2lkdGggb2YgdGhlIG1hbiBwYWdlLCBtZWFuaW5nIHRoYXQgc29tZSBkZXNjcmlwdGlvbnMN
+CmdldCB1bm5lY2Vzc2FyaWx5IHdyYXBwZWQuICBUaGUgd2hvbGUgaW1wcmVzc2lvbiBpcyBo
+b3JyaWJsZSAtLSBhDQp0eXBvZ3JhaGljYWxseS1taW5kZWQgcGVyc29uIHdvdWxkIGJlIGJh
+bmdpbmcgaGlzIGhlYWQgYWdhaW5zdCB0aGUNCmtleWJvYXJkIGluIGZydXN0cmF0aW9uLiAg
+OiggIFRoaXMgaG9ycmlibGUgbG9vayB3YXMgdGhlIHJlYXNvbiB0bw0KcmVzdG9yZSB0aGUg
+bGlzdCBmb3JtIGFzIGl0IGV4aXN0ZWQgYmVmb3JlIHRoZSBjaGFuZ2UgdG8gYXNjaWlkb2Mu
+DQoNCg0KQmVubm8NCg0K
 
-    Karel
+--------------R5Op2SSx3kCYkWb4EjrQyo19--
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--------------EjjUQDTKvbWQ0wQtAYq3ev0M
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmmy3O4FAwAAAAAACgkQUUu+Lrjhlh8y
+/g//ZkvGcZmk09GS4FnEeWBJp/VIpaggYb6oLVNAvOUe90bppk3u4uZag5GZEtXvcNHsBFXTYyUd
+9VlQfOnIerqLiRZO0oI4Od9AdlqT/Loz+k7ax3zKBbhqgRDjRgMQmrcHUn36QuFwSAezwyZ4gIRo
+JFx3qBHjE1H4cLZIcYqH3AVS62C0Md5pOTHKHoXTGBWDna1nzLiSxYLnNr5bujo47paG1QTT4VKC
+2di1CPDiz2gxGGv66Jd20+O6E+ldjQeYJBOF/6vPRvERdIAnAoj99Vqklz/1L6JHJh6Dy/kSOiyx
+0eUQ7DRSmz/W4qmPDEZnqmjh6cPQqb/tpt1qGDK6yexEM6Lxxi5/+fFheVCqXwP2afGo1Tw9A9AX
+Obb1eLWPgRE0hyP/oI7oGuXnW/XahrLLC/0oVWKYr55YUbgf2+UMh7CSsmJyntnqNaOUsmGIkmC0
+/aNIvKaVGk1mrKHjTb9JKGzW6L9BdTyTPgUeBfxxqEWmXi9pmKaowEi0UsDYbQqSaeKkXdylyB19
+bDC6OvcNSkC46xUgxICn1K1D569ZxgMaNWCbQoz3sk90m16D3A+NAronF9LZaCdtXC5L/CLPrUgr
+CE56t+HgBZjvbIP9EZIgyahsEV9pbA4MD2LY3lZU6IyFzVEbqDbP5EqLWkva8hwe4Nk5/CXnbTDa
+Noc=
+=rfAn
+-----END PGP SIGNATURE-----
+
+--------------EjjUQDTKvbWQ0wQtAYq3ev0M--
