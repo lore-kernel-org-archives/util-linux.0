@@ -1,67 +1,79 @@
-Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6BBD26FA6F;
-	Sun, 29 Mar 2026 10:54:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C610D3D9057
+	for <util-linux@vger.kernel.org>; Mon, 30 Mar 2026 14:26:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774781677; cv=none; b=aGKCH9snNUqCBe7Wll0MS0GwKUFUjMduH1f7EzRQSCHCRraA3ElQ/mPXdUnUlYJEtTWmKTIm29PjslThc9vmYDBuvcKct0xd9s7h0RRASTX/cgSfGi7r0fhNhyUpiJg7eOEUIluTzOJleENMn3iUwvTu1liixaM1ZiHzpgmI9IU=
+	t=1774880765; cv=none; b=eewugK4+kUGaucK/NBRs30YRD4opUxxTjSPRBXInJsA7XD9B/VrrvYUgqu3SAEVFg/cG0Jrr9giy1zcfpPkXWX9wbQRcggzkbn1gkhELICRUK+IjXaqsgtv1qjoeya24gf+YDtxwA04ylOV5SObi7sKWUpDuEAYB+xwqLNzDSD4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774781677; c=relaxed/simple;
-	bh=dT2qA6aZVfjiPPJT73pea/ktjc3HMrRRPVzTps0LIdg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=s/zjcMuIrZWiF1xzAVtd6lEKdnvBa8Z5w5ABBv7RQt0nXap/tZrdI8unKvCmyjFat5gqEJWPqZwcX70/V72zW7ehi5D4YXYiXfC5jKDN1j9LqFz8ctG82xKQRKOvdD8HDHiGD3HoucUZ9Obi4yFiRL/aT+wgP6utrAndVVVP0o4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=jRrOhFbw; arc=none smtp.client-ip=82.195.75.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=debian.org
+	s=arc-20240116; t=1774880765; c=relaxed/simple;
+	bh=pfOEHbO08FdcSWuhbItEoXyBITlhj2W2vAEQgL58fC0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=n9IvKGdOdSRAu5nBu0VkIrf9UefM8yLEuMbdNqOJpLTco3fw5VFowKYgnZaOdtFX1tF4yIVcoKf2JdyMx/JTjOtlOs5bJw9026vVDtTv75NLmZ8OMGlf/chvGmA8AR+UEhbQ4b5kzTDD6Z+T+D6Ks703/xLufD8ouGOFNFkAhw8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=gg+W6Tu0; arc=none smtp.client-ip=195.121.94.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="jRrOhFbw"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.stravinsky; h=X-Debian-User:In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=MfgbsFHO4daydCv5aduyJSSSj40QMps65Z/65z7W3KE=; b=jRrOhFbwlWMkujuYaeyEwPSBRF
-	Sx9aq70ZzoauT/POtnzV1GLJJ02TsomcWcvHBC2Tzj7b64byzNkN1Qb/pkopY6de01pKSws4kQD5e
-	fywYY9wm/drv/6zEVWfuSLdogDkqKFC8PxsVvP/cse4Pw/ql1ABgFZKrXT74l3aBsK83tlA5S8rkC
-	HLACkPZVDX5+Y3iL056hrUTBhOOVVRGY9Bd2wqCTxl2RODDWY7aVtrkd8yDZ8Wv4ptXB/QHHMmEsD
-	PoXugNcV7PxYkdAN7MTgn2WS/yUgBRELLLBeC4pg3kh8/LZXGW/psFsYNMG3CiQ0xjCPL/vf+me4B
-	wqvZNjuw==;
-Received: from authenticated user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.96)
-	(envelope-from <zeha@debian.org>)
-	id 1w6nms-000crl-0t;
-	Sun, 29 Mar 2026 10:54:33 +0000
-Date: Sun, 29 Mar 2026 12:54:30 +0200
-From: Chris Hofstaedtler <zeha@debian.org>
-To: Christian Albrecht Goeschel Ndjomouo <cgoesc2@wgu.edu>
-Cc: Karel Zak <kzak@redhat.com>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, 
-	"util-linux@vger.kernel.org" <util-linux@vger.kernel.org>, Helmut Grohne <helmut@subdivi.de>
-Subject: Re: unshare regression in 2.42-rc1
-Message-ID: <acfvsnyxAM00mKVq@zeha.at>
-References: <wid276gkq7tblvkfwc6kum4nacamstiigqjj5ux6j6zd4blz4l@jzq3sgfh6cj5>
- <ab_SfC1JDOhNmg6D@zeha.at>
- <SJ0P220MB05417CC33D6BA305A9CEE320E94AA@SJ0P220MB0541.NAMP220.PROD.OUTLOOK.COM>
- <acU7uB76HwZlBu6B@zeha.at>
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="gg+W6Tu0"
+X-KPN-MessageId: 5c40dfcc-2c44-11f1-8a9a-005056ab378f
+Received: from smtp.kpnmail.nl (unknown [10.31.155.40])
+	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
+	id 5c40dfcc-2c44-11f1-8a9a-005056ab378f;
+	Mon, 30 Mar 2026 16:25:54 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=telfort.nl; s=telfort01;
+	h=mime-version:message-id:date:subject:to:from;
+	bh=XkWkpa59POIzRimkWEQL8r9sNwGqjFq5Nblt6/D/C6U=;
+	b=gg+W6Tu0aCRBazndp7t1eGL6ykUxRGv7Uyo7z1aE1r1zN+Rs7K+14OjZVquhUwclopNz6j0k7dziX
+	 akNgKCtXTXCwkhY58n0kefENI4Mik2e88vXtK2x5pas4ZuzeraA+yq7sUEiocohwHBRmMPjlefTRXU
+	 wcDVczlu+htnhcs4=
+X-KPN-MID: 33|PWkkxVLvVf6WgtZr8XeywYjdlhv+zEGitUua+bxDCur37EJ0WQ1UBq4iqJgtaq9
+ YwQPFpLYMdUjzWA26tXZnfw==
+X-KPN-VerifiedSender: Yes
+X-CMASSUN: 33|nkh17KMASNsWTlID66Of4U+H2jKvGv/HuceRNgk0eygftJPZIKcf5zKTp/c8oGO
+ Cu0w7mhD9ABcl8OkyOOpMCw==
+Received: from localhost (77-163-176-192.fixed.kpn.net [77.163.176.192])
+	by smtp.kpnmail.nl (Halon) with ESMTPSA
+	id 5c22c9f0-2c44-11f1-b8e8-005056ab7584;
+	Mon, 30 Mar 2026 16:25:54 +0200 (CEST)
+From: Benno Schulenberg <bensberg@telfort.nl>
+To: util-linux@vger.kernel.org
+Cc: Pedro Albuquerque <pmra@protonmail.com>
+Subject: [PATCH] blkpr: fix a typo ("sp:ec" => "spec"), and drop an overemphatic comma
+Date: Mon, 30 Mar 2026 16:25:51 +0200
+Message-ID: <20260330142551.3706-1-bensberg@telfort.nl>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-In-Reply-To: <acU7uB76HwZlBu6B@zeha.at>
-X-Debian-User: zeha
+Content-Transfer-Encoding: 8bit
 
-* Chris Hofstaedtler <zeha@debian.org> [260326 15:12]:
->I see Karel has in the meantime merged a different approach. I'll 
->recheck with 2.42-rc2.
+The typo was introduced in commit a2752fe270, three months ago.
 
-The debvm CI tests also pass with 2.42-rc2.
+(The comma is not in same sentence in the next string either.)
 
-Thanks!
+Reported-by: Pedro Albuquerque <pmra@protonmail.com>
+Signed-off-by: Benno Schulenberg <bensberg@telfort.nl>
+---
+ sys-utils/blkpr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Chris
+diff --git a/sys-utils/blkpr.c b/sys-utils/blkpr.c
+index 5e5e107e3..f7e776713 100644
+--- a/sys-utils/blkpr.c
++++ b/sys-utils/blkpr.c
+@@ -63,7 +63,7 @@ static const struct type_string pr_type[] = {
+ 		PR_WRITE_EXCLUSIVE_ALL_REGS, "write-exclusive-all-regs", N_(
+ "    Only initiators with a registered key can write to the device. Any\n"
+ "    initiator can read from the device.  All initiators with a registered\n"
+-"    key are considered reservation holders.  Please, reference the SPC sp:ec\n"
++"    key are considered reservation holders.  Please reference the SPC spec\n"
+ "    on the meaning of a reservation holder if you want to use this type."
+ 		)
+ 	}, {
+-- 
+2.53.0
 
