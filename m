@@ -1,147 +1,89 @@
-Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8029735893
-	for <util-linux@vger.kernel.org>; Mon,  6 Apr 2026 01:19:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.52
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775438364; cv=pass; b=WOo7pAgTmLqQjGEQ93gbwrLrmtDbDaEhQEFaB71HuwhfvK1TUQQtEPXF4tVc9KuDDFct7ZUVcbJ46xTUJi+NyBaFxi7HydDVPBE7gbHaTdWe/1uG7wklbm9IVncdV+EnVBXIxIqcSrrBltlq1sC67Lx5IGAkihpOaCok7frjsoE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775438364; c=relaxed/simple;
-	bh=iV6awCLhdOy2Xa4sGsD2NjX6XGXUrnRDHeI9t6MZvs0=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=dWb6/u1dDYKyuiRxl9l9kwLx3cWYhCvKukNTsfQExvUAO9UhUSR1yG42e9LzpQDNX8MME83757Lf9uBdjMBtviYqIFpds5+2hJuUIdKTudiPHh6PIcFzkGLFXEmVWUrnsF86ld1firz15rtw5k14aKc8yUOxRwQHjXBtG0/EPkE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=numin.it; spf=none smtp.mailfrom=numin.it; dkim=pass (2048-bit key) header.d=numin-it.20251104.gappssmtp.com header.i=@numin-it.20251104.gappssmtp.com header.b=JCq2txIG; arc=pass smtp.client-ip=74.125.82.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=numin.it
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=numin.it
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E62A93A1E8C
+	for <util-linux@vger.kernel.org>; Tue,  7 Apr 2026 08:17:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775549885; cv=none; b=EzHcFVkT1rOn1hX+gioWaSGM8v7Fgjlw7TRu9690hsd0JnAZO8hHF9lJAUvQV+LAyJYRvrsVJH5Bxf+9jWPbzqg+Fq01NBysXBEt5bd3q5rL2ryOsrpHtl14z2XF+RhKqIhdhypor51KVJVC8SMtq0MtguGhcXXBbdhQQE/v1yI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775549885; c=relaxed/simple;
+	bh=nP3gGtqPX6SV46g9C0kx7xIxkUX2FJs9d/BkKNbH5P4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Og2usy0dy9iYAsKkFADye8PyfexnFNqhpatRNkPqvvr+dx6ippO6IY2kNQdStuzEDDqwiVLzvLDc6tYZu5EyvO6Aghz6sMBUECIOcLGzaLGEqR0fjqlEMT9ys8Z3qK5+maPgcauQRY8ymRaxDgPhMnregSAf3avusEoMBeEwHXM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=XX//Mp4o; arc=none smtp.client-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=numin-it.20251104.gappssmtp.com header.i=@numin-it.20251104.gappssmtp.com header.b="JCq2txIG"
-Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-12c0b72daf7so1401084c88.0
-        for <util-linux@vger.kernel.org>; Sun, 05 Apr 2026 18:19:22 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775438361; cv=none;
-        d=google.com; s=arc-20240605;
-        b=fbfD+/0hqY2ZCvno+7oyrckm29nXwWkxjct2rKLkdnmWfMvP6w05vG5MHUz5mA0aBF
-         VFHlU2TopMxBjfnfjfBypGh/FufC4v/yoxpEUjIyryfNccaJ+u2sUn6hAweK5QnwzFtS
-         Z3bX2ZowcP3hxhJe8G+ndzTykSmDgOklByQRmr8I0B/abAniqDW8FzzmQgADjfrkIH7L
-         Cr9PsPdVRnJqJVD8vjVGjqMFmiScHo+dp6sqi4uY30iVSuUY5Wv2bxZJZTUv9DTWLn4R
-         GboffHcU6hCGglPTR88GnaJ+6fq3Z5sTkIom1GjHvm5XBW1csLCltTBwxJyspYznXjxI
-         X/mQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=7NATwbc3c9yTSBmyR9rrG5gOLsCYIvBd/KAf9xL/puo=;
-        fh=wGiqS6fCIXmTY01ukAaQ0f8K0pJvn/8Cx9cBD0x5bgc=;
-        b=V3haOtZmNYzCoNCq5JRtsgb7XiCISnM9ai+yAiAuheViNMKTyacW75xjjblY5UrRA3
-         NzX6axZmh2rmfFBgeboXbgi15/sbQsVrb3jjxREolDmO+qJWuJY2rELxzq0D99EG/TaG
-         LNicTK6eYvxzAkC9hQbLYrDKPPlHVIMZuZGSVC49uKg2a7UC1fS2TwYBJxg+EvKD8dwd
-         E2zS/cnjlPEjp3vCUxM58hByrtNMSaDwnP46+JIrycTqJuqIgitw0Hd7JLR/mtnMpmeE
-         TCY0wFfs8D52vZJ37nGQYv8/3WYhbAV6XBvAVV+e1NGUpOtbhJuItV4o9eNpxOHYt1WX
-         +QTw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=numin-it.20251104.gappssmtp.com; s=20251104; t=1775438361; x=1776043161; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=7NATwbc3c9yTSBmyR9rrG5gOLsCYIvBd/KAf9xL/puo=;
-        b=JCq2txIGGYePhgytJJmONdVLM+mhG1WByXMNomXzG2kgcN08Mh+1JUPpjk5IcWmyv3
-         jCA/s1YWD5uvXMzsHNEWaDokSfdkjZuSuxTLs/4/cS9589ZQAkxj4uukr/X7kepVU9+u
-         kGQ//vARLJvNEH61paV7SO5+GDoLq307mMeiKgWqIWVQrTVYzvHqaIkVVgX08GO3sa+b
-         1KJFMnV0Z+IsCBrf1NKZh8CjxeDozmAuB9ryoxW5cY8m76yh/A6RA77Gy9yW6ZyF1DT2
-         xy4SWnExqdQaI+lvnab/FGkn6I4psLLVZ99sXxpranECoUyE/GGZ4VAhF3UagqP8ITh+
-         ptDA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775438361; x=1776043161;
-        h=to:subject:message-id:date:from:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=7NATwbc3c9yTSBmyR9rrG5gOLsCYIvBd/KAf9xL/puo=;
-        b=jVu4m4x6qXhdEr/OJIRiM+YEiwnywUX4wUBZ7o7Pubm5X3qL3bwlPLWoxBtBPtWCoA
-         dZWKrt6GHQIJD+Rz7XadAQUCCdfCdY+Qvk0LLRG9sUuZcqB1z0WDU/j7Hvl4qldN62bM
-         9EaXoI47lN78x7vor11Xy7E8dURt3DCYQqf4pelfEooJl48vvs6CNAvHqWH5ve+oRnZJ
-         akwbKcF3MRIWOdoC/hpm3IOjnJ/eSwu4hZZL5Nlr8+F78xKKfuhq3jz6tnEbhQh9c8Z1
-         bVV8DeC5EgRRZ0IRe4yxtjrcGX4KHGEGr+X6JdutrF7M7zIPZTQFUOEOP9bIvVVck3JO
-         GVGg==
-X-Gm-Message-State: AOJu0YxWS0d8Xiim68bm60ft0dlnqrAQDUPTzxXZ3WW3qP8/k1WUmA3B
-	pOYqcJgL22flzIsJ+YLXUE4MqHSJDU4l2a7wlXdh8YErH2jM+/ALT2w1Pc2q7kC5S1cy/v77B1s
-	bsJAdWIwFqsw9d9G9OdnyVAAVXv+zVN50kZN7KQSsIA+4B7ieArc606M=
-X-Gm-Gg: AeBDietacTdu1kXa8lz2omQh+p4kVS15m+3uRDMhja31LshQ/8hleQb5mR2C6gDLYiF
-	ZPbpbY9vphoNgy98ZlToOjv6dQlS2bLITIR69Nm+ZKrBJ+mxFS04WiilZwtE6AxWVt0pVgSCRhV
-	6p7VqAvc2N83KCHNQRA+OShv3r+/2wHhShcgihdTgKOQwz3fofE9OIMeWAmIvBeJ3oTC/klGXAO
-	0ItdR5tYj+nJnaDjM3snDIli3FZT+DoXbh78+FjeUjKuo5kiRcXEcz1lUIxdxCUUTe96vmTJUKQ
-	WP2kAmA2PTSueYdfjY7r2J4WSIcP4Mdn9Tt3QyB2wAh1bK1pwqnit/Pk4roTmYCC1GhBBxjpYah
-	JRTc=
-X-Received: by 2002:a05:7300:3252:b0:2c5:b23e:48a5 with SMTP id
- 5a478bee46e88-2cbf99ecbebmr5230926eec.1.1775438361272; Sun, 05 Apr 2026
- 18:19:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="XX//Mp4o"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=jEHtA66g6zC6Rf49yNKSZRiqPPWkaLp5T+XFy89pPqM=; b=XX//Mp4oMVKBdfi1hCgpRMB9W9
+	rk1YZqXR7LyhMLsmCe85SzGpZs3PdrcxsPmw+JDwDO8laTsQAezsAgltWItTboEp5M968A+GcSSPw
+	7TB09TDpgo1KoBn1NHD0wRr0RolqUO0E7SzStDAskh2zPxDTSvdEKW3IVlXL4dk8nYv7VQixG1Vg6
+	U5+1jmAzZFWIDHqnPMzC07vee6oqPeVcjPfgiKnBAWf12FZ5eIScm9Jgm0GLxoG8z+SWAHChmibGS
+	5R9L68ihdZhle8KM6AhJkMPZofYbZdQ96efa9idT/eBkzlebKm2ClnVT6SPC0NPctepPZwWc9sB5y
+	NnHi6M6g==;
+Received: from authenticated user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.96)
+	(envelope-from <zeha@debian.org>)
+	id 1wA1d6-007VSp-0w;
+	Tue, 07 Apr 2026 08:17:47 +0000
+Date: Tue, 7 Apr 2026 10:17:45 +0200
+From: Chris Hofstaedtler <zeha@debian.org>
+To: Evgeny Kapun <abacabadabacaba@gmail.com>, 1132887@bugs.debian.org
+Cc: util-linux@vger.kernel.org, wanbingjiang@webray.com.cn
+Subject: Re: Bug#1132887: script: "script file -c command" stopped working
+Message-ID: <adS9qeW8w0bmUukR@per.namespace.at>
+References: <88e0b54d-3c86-46ca-ab3f-e116073216d6@gmail.com>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Morgan <me@numin.it>
-Date: Sun, 5 Apr 2026 18:18:29 -0700
-X-Gm-Features: AQROBzC8KmvNJA5-QBbZQtKlb0G0Y5qM5tUaZikLt-z9cijR-OQtgL_FcY5uKnc
-Message-ID: <CAEUYr6ZjVX1bd-xcBGtFN_ZYwQnXDYsw7d1-7sTpF2BbgfrR+g@mail.gmail.com>
-Subject: [PATCH] pidfd-utils: include correct struct statfs header for darwin
-To: util-linux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <88e0b54d-3c86-46ca-ab3f-e116073216d6@gmail.com>
+X-Debian-User: zeha
 
-From 145b6a66dcc725de3c3161db62db7047eb407214 Mon Sep 17 00:00:00 2001
-From: Morgan Jones <me@numin.it>
-Date: Sun, 5 Apr 2026 18:03:54 -0700
-Subject: [PATCH] pidfd-utils: include correct struct statfs header for darwin
+Hi,
 
-Fixes the build on Darwin since struct statfs is in sys/mount.h
-and sys/vfs.h doesn't even exist. Just conditionally include all the
-headers.
----
-include/statfs_magic.h | 16 ++++++++++++++++
-lib/pidfd-utils.c      |  3 ---
-2 files changed, 16 insertions(+), 3 deletions(-)
+thank you for the report, CC'ing upstream.
 
-diff --git a/include/statfs_magic.h b/include/statfs_magic.h
-index 6921abaa4..28977f392 100644
---- a/include/statfs_magic.h
-+++ b/include/statfs_magic.h
-@@ -5,10 +5,26 @@
-#ifndef UTIL_LINUX_STATFS_MAGIC_H
-#define UTIL_LINUX_STATFS_MAGIC_H
+On Tue, Apr 07, 2026 at 07:07:59AM +0300, Evgeny Kapun wrote:
+> Package: bsdutils
+> Version: 1:2.42-1
+> 
+> If I run script(1) as "script file -c command", it returns an error:
+> 
+> script: unexpected number of arguments
+> Try 'script --help' for more information.
+> 
+> It used to work in earlier versions, so now scripts that rely on the old
+> behavior are broken.
 
-+#ifdef HAVE_SYS_TYPES_H
-+# include <sys/types.h>
-+#endif
-+
-+#ifdef HAVE_SYS_STAT_H
-+# include <sys/stat.h>
-+#endif
-+
-#ifdef HAVE_SYS_STATFS_H
-# include <sys/statfs.h>
-#endif
+Can you check if reverting this commit makes it work again?
 
-+#ifdef HAVE_SYS_VFS_H
-+# include <sys/vfs.h>
-+#endif
-+
-+#ifdef HAVE_SYS_MOUNT_H
-+# include <sys/mount.h>
-+#endif
-+
-/*
- * If possible then don't depend on internal libc __SWORD_TYPE type.
- */
-diff --git a/lib/pidfd-utils.c b/lib/pidfd-utils.c
-index a83735920..f7c649144 100644
---- a/lib/pidfd-utils.c
-+++ b/lib/pidfd-utils.c
-@@ -5,9 +5,6 @@
- * Authors: Christian Goeschel Ndjomouo <cgoesc2@wgu.edu> [2025]
- */
-#include <stdlib.h>
--#include <sys/stat.h>
--#include <sys/vfs.h>
--#include <sys/types.h>
-#include <errno.h>
-#include <err.h>
+| commit 7268e79bc5365034a6e5b38ac5d9bf635e2dafc2
+| Author:     WanBingjiang <wanbingjiang@webray.com.cn>
+| AuthorDate: Thu May 29 16:39:46 2025 +0800
+| Commit:     Karel Zak <kzak@redhat.com>
+| CommitDate: Tue Jun 24 12:00:33 2025 +0200
+| 
+|     script: support non-option argument as command
+| 
+|     [kzak@redhat.com: - don't use POSIXLY_CORRECT, use "+" in getopt_long(),
+|                       - use strv_join() rather than local concat function]
+| 
+|     Based-on: https://github.com/util-linux/util-linux/pull/3599
+|     Fixes: https://github.com/util-linux/util-linux/issues/3481
+|     Signed-off-by: Karel Zak <kzak@redhat.com>
 
---
-2.50.1
+
+Best,
+Chris
+
