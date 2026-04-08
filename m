@@ -1,39 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1773C37F75C
-	for <util-linux@vger.kernel.org>; Wed,  8 Apr 2026 10:35:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8006D37F75C
+	for <util-linux@vger.kernel.org>; Wed,  8 Apr 2026 10:35:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775644552; cv=none; b=h7xprsTnZnMsxDuDYVJG9tzIlBI/YuhFPAVWQ96cyI9Us2X7oXomyFGkMwwUOdDsgBb0D1sI0OlrWhU6IIFLZeNo9Q01OP9HU1yDv5+Yeef9LUDu5BHqg17ORtOmCKJ3SI/NQBmTAcMFlwn6sjpKMOXl+hnstBto+nE1y3kfZ2Q=
+	t=1775644554; cv=none; b=u0Jao/Ux+CGhJvZmhObTRggJwZo753er2UTk9+EaJi5sT1p6mUir1uiML9bQesuFkajn4pVvmps6lmyE+aQ6lae59pOwBR94zsZ5+wVL/U1gz4Kj63s0HfAQGvHyF1Ralkd3//EKTCjLSUgZRe0w8Ea+eZO1ws4CuLhYxrIQzO0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775644552; c=relaxed/simple;
-	bh=Rkg1Maz7twIyVdIfvelAkJXLrR+l1GeLSJLbxlvEug4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gCKfuQeAcmGJYNqsYrbPlcYRq4dLc5YPvcpYy7tTJNaYx3yY9ErxCjn0RSIqsCxRlQazKZNH7vUntkaeZQNgh6JAP6Jdh8JNN5JnfgkHW+SRMTw+6hk8UZ/LgejLxDZpFdDyWW4oOed3gERGaJPpW+9OFjy/p4NJVYSHxT82ccQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gdatpucl; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775644554; c=relaxed/simple;
+	bh=rYsG/gXBXegG0kKZhH8KTK3HIQ+JjeLfQF72gjRCtgo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=cEZ9rGuAZ4UaNnY1ac9wahopdn8wN4cngQ8uQxK8qB+5YhMdoxQeTsJ6MgkxbD9a21CbjNROs4laYZIRnbvUxYOhdFCNqfyoQo78sFfN1Kl5dDju4w4s8xX9+qLKREcKqasbNkFnRpKLrYQC7n6HOHt4X32CytSiqeHHKRuNizc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qo2Q83P4; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gdatpucl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8B45C19421;
-	Wed,  8 Apr 2026 10:35:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qo2Q83P4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79C67C19421;
+	Wed,  8 Apr 2026 10:35:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775644550;
-	bh=Rkg1Maz7twIyVdIfvelAkJXLrR+l1GeLSJLbxlvEug4=;
-	h=From:To:Cc:Subject:Date:From;
-	b=gdatpucljeGU2HAES+MlgvhM9snt7MjZSyxjfYLtPe9TjJnlrCQtl9rT8XIQgUQ2B
-	 Ia4umdpsrNmmBkT8gTBJWCEUckd/vzihwiapomtFpG4P+c7kiywpFD9JsLrU8MMQLY
-	 +odqH/fqWYgdObmWu/I9fz2SMSDySdLFGWPDq6yl1KsQ1fE9D6wtwl7L0xr3G3cVSo
-	 lQMpAlYQPVptMSv6EMmS4YVnZIf5PaikqdCq/Ih7wddC8fWoiOekhyiPQsNzh4WwnI
-	 LidpU0lqtFYc5rmPHd6qddCMadzA6rZz8U+BzmWpBXFJSEFrv0EjQOyoV1IoEeTN22
-	 uVaUJ1R9GEIGQ==
+	s=k20201202; t=1775644553;
+	bh=rYsG/gXBXegG0kKZhH8KTK3HIQ+JjeLfQF72gjRCtgo=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=qo2Q83P42rL1UAo/nADViJegN+udZfHIVwhqbHjHmd+5k8te0Nsz+wTx4QgdUksKa
+	 ZFvo9EKP75+dZqjQXyzQaOzX8BgE9y1TnuPqLI5RP+bfy8OYP8TamUfvQ8bbbWb159
+	 cCrZKWokYK8uzUEb5T8SGD6gHXFnzAyKbYzvsJHg2ihI12p6jvfuEOK0F0tRBE/96h
+	 //+puObLBF8pWs+it2YQRypvrXJPQJZOiVtzOjRxVn29tBgHK0X/bg0NoSWII5yFP8
+	 HzETBu1S2IpEHaE3FgToScId5ZUKZvwoK3lXHNL0aeqqJEeN+ILAPx9fmZMqWM+Gz0
+	 zrDJddJjLlpew==
 From: cem@kernel.org
 To: kzak@redhat.com
 Cc: util-linux@vger.kernel.org,
 	zkabelac@redhat.com,
 	amulhern@redhat.com
-Subject: [PATCH RFC 0/2] Fix API breakage in libblkid
-Date: Wed,  8 Apr 2026 12:35:24 +0200
-Message-ID: <20260408103538.134308-1-cem@kernel.org>
+Subject: [PATCH RFC 1/2] Revert "libblkid: add debug message for private DM device skip"
+Date: Wed,  8 Apr 2026 12:35:25 +0200
+Message-ID: <20260408103538.134308-2-cem@kernel.org>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260408103538.134308-1-cem@kernel.org>
+References: <20260408103538.134308-1-cem@kernel.org>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -44,61 +47,30 @@ Content-Transfer-Encoding: 8bit
 
 From: Carlos Maiolino <cem@kernel.org>
 
-Patch d05a84b22e54 ("libblkid: check for private DM device before open")
-broke blkid_new_probe_from_filename() API.
-
-Before the patch users were able, via the low-level API, to open and
-create blkid probes via the device's filename even from private
-device-mapper devices.
-
-This change broke Stratis project and xfsprogs.
-xfsprogs uses blkid_new_probe_from_filename() to gather topology
-information from the device, and the above mentioned change now prevents
-it to be done on device-mapper private devices, as Stratis does by
-attempting to initialize a XFS filesystem on it.
-
-Quoting the patch description:
-
-"
-    blkid_new_probe_from_filename() opens the device before calling
-    blkid_probe_set_device(), which checks sysfs_devno_is_dm_private()
-    and sets BLKID_FL_NOSCAN_DEV.  But the open() itself bumps the
-    kernel open count, so a concurrent DM_DEVICE_REMOVE ioctl sees
-    EBUSY even though blkid never actually probes the device.
-"
-
-I don't think the last statement here is correct.
-blkid_probe_set_device() marks the probe as BLKID_FL_NOSCAN_DEV, but it
-does not error out, so, for low-level API calls, we simply ended up
-with a probe with BLKID_FL_NOSCAN_DEV set. But the call succeeded and we
-ended up with a probe to use and query device's information.
-
-As far as I understood it, the patch aimed to close a possible race
-window when issuing a DM_DEVICE_REMOVE ioctl() to the same device being
-probed by blkid_new_probe_from_filename().
-
-Regarding the race window which this patch, at least for the low-level
-API users, this seems to be something that should be dealt in the user's
-side, not within the library. But I didn't dig into the details of the
-aforementioned race.
-
-Please take the above with a grain of salt though, we've been using
-libblkid for ages, but I never actually looked into the implementation
-until today, so, hopefully I did get the details right.
-
-As for xfsprogs, I have a patch which 'fixes' it replacing
-blkid_new_probe_from_filename() by blkid_probe_set_device(), but this is
-just taping over the root cause, which is the API breakage.
-
-
-Carlos Maiolino (2):
-  Revert "libblkid: add debug message for private DM device skip"
-  Revert "libblkid: check for private DM device before open"
-
- libblkid/src/probe.c | 15 +--------------
- 1 file changed, 1 insertion(+), 14 deletions(-)
+This reverts commit b85d46a2edf3f871504ca86080102cde93e3725c.
 
 Signed-off-by: Carlos Maiolino <cmaiolino@redhat.com>
+---
+ libblkid/src/probe.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/libblkid/src/probe.c b/libblkid/src/probe.c
+index fba7eb1240af..d47c22c72043 100644
+--- a/libblkid/src/probe.c
++++ b/libblkid/src/probe.c
+@@ -224,11 +224,8 @@ blkid_probe blkid_new_probe_from_filename(const char *filename)
+ 	 * DM_DEVICE_REMOVE would otherwise see EBUSY.
+ 	 */
+ 	if (stat(filename, &sb) == 0 && S_ISBLK(sb.st_mode) &&
+-	    sysfs_devno_is_dm_private(sb.st_rdev, NULL)) {
+-		DBG(LOWPROBE, ul_debug("ignore private device mapper device"));
+-		errno = EINVAL;
++	    sysfs_devno_is_dm_private(sb.st_rdev, NULL))
+ 		return NULL;
+-	}
+ 
+ 	fd = open(filename, O_RDONLY | O_CLOEXEC | O_NONBLOCK);
+ 	if (fd < 0)
 -- 
 2.53.0
 
