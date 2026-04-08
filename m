@@ -1,97 +1,107 @@
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14E383B8D78
-	for <util-linux@vger.kernel.org>; Wed,  8 Apr 2026 13:36:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F1522FF17A
+	for <util-linux@vger.kernel.org>; Wed,  8 Apr 2026 14:49:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775655416; cv=none; b=adXpKu5BwhS5385qUBU/JOsyIYgCaJLcWVTOsfe/KNwNxrA3I2l05QNigpC7dET0p+YRFl8PDgevs4Vct+FgzAlk3f/4PWtQQZgfDbeO1hUI3RWl4IfnxYbEFQ58/v71e8uXTl4sxVo0U9Om1Gnyl6VypzcVS+igsa2FHEApM+U=
+	t=1775659784; cv=none; b=mID8nkp/4d7MlKUt1lkVkw+Bd+JP77nAEctO+tjKesHj7+vrlYk9dtlvdzsOvFEDj5Vx/2vO+ff1W6fO0WgKL4DcMG7b5wot7+E8QCoQqq50nAWIYDlVdrKz1YLj9jaABX9ujaQvRMbd2Hie+xAxNaJzqobVFw1WPVW/Q82nRW0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775655416; c=relaxed/simple;
-	bh=s90i9uUcuTAE3hKX0UAH9dlUiSmpMpO/fBSGQ07QflU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Nyy1CzU7UvSujdEDNBpItj/eEK/3OFyY/j9iWXMry/xZGx5PPzfHmDsfLn7eMunyjt7V3aWly9Kdj+byNWR+ruqKE7eEjrrQ9pRaYtX2mcgo7CDYNIBrMmribb6kwi5ACIKmR38O1uy7JYVYq6f3dEJNb0h8MsIzAebw6EFyj5M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WQEGxvj+; arc=none smtp.client-ip=209.85.128.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1775659784; c=relaxed/simple;
+	bh=uEOPkpJdBlevVCJalAqLFvL9Q7U35O7ZcpqG+gaR1aA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hominZAit08484sr0ql8s+tjPRBn+PGIh0as79PNMrH05JMq1t5/+ad3bYmxsFIw3D2xroQQiX6ONhWPimKRXrHo0zXL5O1Yaygoc1tNVvtHsgkQn4OqEtL2hNXITvP22Nx9Im6DRM7t3UmqTYhXSQCc/+mJR9xqb1LyOlDppjw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ps7IHEDK; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WQEGxvj+"
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-488aa77a06eso56086785e9.0
-        for <util-linux@vger.kernel.org>; Wed, 08 Apr 2026 06:36:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775655413; x=1776260213; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=s90i9uUcuTAE3hKX0UAH9dlUiSmpMpO/fBSGQ07QflU=;
-        b=WQEGxvj+46/hLYslHPvyJ7MdEVUI8Suuy0kHLSVvHMqNJMZmJa6GB9PyePDK4UyGkB
-         Q2fCevsEy4vtFfOgce0eqybdcwW75SS6y7OfOTA6OixNRcgbtzLH12WJxDEYWy/ahecj
-         GNvQaFPYEfysE8OffBmN1f8J7CyKxZKQPx16GaXfyIZvcHenl54cprI1Ch+ZpzZ8GmXS
-         YlKlyGxEKdQcyiAHD203Zy3NGmQ4x1O8sPjQOOyM2jhkKZg7NKOXwMsdc/drXCn83Y1p
-         RJrnmwRNhHp6fpGu6BDHBUbMJ6rx9F0fAkvmHqClGy+Vq7afAg+E/ks/0xRhEjj1HXXA
-         vb7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775655413; x=1776260213;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=s90i9uUcuTAE3hKX0UAH9dlUiSmpMpO/fBSGQ07QflU=;
-        b=DGCu77eH8hTdL6Uxa27OcRvh0QT5PG/WDTw74/dIYgln7x1iDrCWsxexrERI+u2wAe
-         ftCytal6GN+GcTmTPfDVYZFl4cC9nUcBcIJhCEjKKGUpx58auRTuLDKz5BcxhJgt8JSn
-         VhZEqLKRCQPv7dZQJXI0w5Ydjj+FvHASNQ1qrAqQDnsXbXSkrc3L9+ZJ+du0FqSYoO6X
-         9oU00k2VWtPP3xWlR6bT/XG+IaR74sTo74poDAT0QZ6IlLw9+ACqMCoQZpAF0vh94m6Y
-         bmr7dIzCBJlqssroJXlafhxWN1HIpakMnkv/TXf3NCH18Kl7zrSF6L72lGRmidb4xbHI
-         cZoA==
-X-Forwarded-Encrypted: i=1; AJvYcCX5fr6W9PHJLmYJqlc0FgGN+vvf7CXMvr2+NXKJo5E2/LKmlzLocuHpYsqWHsk07MoZx91CTdigogz1@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy6wkN3vedg+n48DDdVUUDvwAkCX8OXBBwZcjkHn9gbRz5GsaDY
-	zo+oxxFs9bE4sAcyJX+LY1hH9i4wl5qGwnH1+hU1n5KtOx7E1OxlQbg1LoILyHht
-X-Gm-Gg: AeBDievW1lMSkBRTyPHyxsXO6f5hsLYevkQe4xfpjwLyqIOXsdDd23rYR/bbngalYnb
-	FV23cDaSS32Ku7UFmn8jA2FWF0WAKRRRkCf5I+5yDuleypI2HddFrTyeNKz++bGMN+7nJk2yX6n
-	JIKAHgCXxVRZ/795vbwoTndHBFFyLWzujuhplH+Vo+Rdt2LqF4wXLFpioKlD+vSXbhfhSrGtS9o
-	Zjs+6854+vZ50hay7r1dqL8BNLtomMSfY0DBjGDENMj8xBihBLMG5OfPG7wRBFH4DCjv7noFub4
-	rOtjFeCmUXfxLkmE6c0u5fMMv/Xw/ZF/mZBWEh7GDZfoB86mMx1pFJbuBcPOT9TkYXr/SNTf+FB
-	EvNcdtjWfdBOJthQ+XYNa7mp+ZhuM1yqK0x5Yam6nDrHdShyBUBH8hA50rnJRRG+Lp4KLjAd8df
-	ee4HRYmxHu+nOxUlxqojjau+Fr/AP8krpJ2PUDzoJuQ8c=
-X-Received: by 2002:a05:600c:628e:b0:480:20f1:7aa6 with SMTP id 5b1f17b1804b1-488997dd822mr271309095e9.21.1775655413175;
-        Wed, 08 Apr 2026 06:36:53 -0700 (PDT)
-Received: from ?IPV6:2a00:a041:265f:d600::ab41? ([2a00:a041:265f:d600::ab41])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488940e075esm527818235e9.9.2026.04.08.06.36.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 08 Apr 2026 06:36:52 -0700 (PDT)
-Message-ID: <cc9deabe-7529-440d-bb42-67740f47dfc9@gmail.com>
-Date: Wed, 8 Apr 2026 16:36:50 +0300
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ps7IHEDK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84091C19424;
+	Wed,  8 Apr 2026 14:49:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1775659783;
+	bh=uEOPkpJdBlevVCJalAqLFvL9Q7U35O7ZcpqG+gaR1aA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ps7IHEDKKmV1Jk9zoh7OWidmaHj2D8NkQmVH1XAMaAbnBAyXKboslLPMp8l6AnRBI
+	 ObElx6a8H/dis3+k3zEQF58nN8SBJUaTeqxPujw2lXe83My1oKF2V+PU8ma2UDpeeK
+	 LSnc+Wl3VjMMgw/qmGWsXjHb8AghzrvMW3/nlzl7gQSv4MZgrdFEUVGUjVQQ5tih69
+	 huyitI2QX+b8no8z4Hku8dvLOtniF07khnLDQ0apGvcyplq2Bp8NDshZ5krqVMFgR+
+	 JRb0r6RSLxVCUBAM2jTX/va5IukbKB88s6blNmrp8OKJYnTH3EcNrTXoOUtsDP7iw9
+	 yVwCuZpE4+ZtA==
+Date: Wed, 8 Apr 2026 16:49:39 +0200
+From: Carlos Maiolino <cem@kernel.org>
+To: Zdenek Kabelac <zkabelac@redhat.com>
+Cc: kzak@redhat.com, util-linux@vger.kernel.org, amulhern@redhat.com
+Subject: Re: [PATCH RFC 0/2] Fix API breakage in libblkid
+Message-ID: <adZnDrqOXWtV9nUB@nidhogg.toxiclabs.cc>
+References: <20260408103538.134308-1-cem@kernel.org>
+ <bdb82d3c-f7b9-4d38-9a6e-8ed921c33ab9@redhat.com>
+ <adZMp4mazAAc9iFZ@nidhogg.toxiclabs.cc>
+ <94e57a5d-2f49-4e16-8328-5cf30b41d7ff@redhat.com>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Bug#1132887: script: "script file -c command" stopped working
-To: Karel Zak <kzak@redhat.com>
-Cc: Chris Hofstaedtler <zeha@debian.org>, 1132887@bugs.debian.org,
- util-linux@vger.kernel.org, wanbingjiang@webray.com.cn
-References: <88e0b54d-3c86-46ca-ab3f-e116073216d6@gmail.com>
- <adS9qeW8w0bmUukR@per.namespace.at>
- <x7m64hxjjld7rkfjwuta75hzmj3f6en57mpvdfttzdliebdqxn@ym5mhuzim23o>
-Content-Language: en-US
-From: Evgeny Kapun <abacabadabacaba@gmail.com>
-In-Reply-To: <x7m64hxjjld7rkfjwuta75hzmj3f6en57mpvdfttzdliebdqxn@ym5mhuzim23o>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <94e57a5d-2f49-4e16-8328-5cf30b41d7ff@redhat.com>
 
-On 4/7/26 16:26, Karel Zak wrote:
-> I have created bugfix for this, see https://github.com/util-linux/util-linux/pull/4201
+On Wed, Apr 08, 2026 at 03:32:14PM +0200, Zdenek Kabelac wrote:
+> Dne 08. 04. 26 v 15:19 Carlos Maiolino napsal(a):
+> > On Wed, Apr 08, 2026 at 01:47:27PM +0200, Zdenek Kabelac wrote:
+> > > Dne 08. 04. 26 v 12:35 cem@kernel.org napsal(a):
+> > > > From: Carlos Maiolino <cem@kernel.org>
+> > > > 
+> > So, although I agree with you that Stratis is using libblkid incorrectly,
+> > I still think this patch is wrong, as it changes the library's behavior
+> > to fix a problem in LVM (if there is where the race was), and not some
+> > inherent library problem. If, no user can use libblkid to query into a
+> > private device, then the above lib call sequence wasn't supposed to work
+> > either, and perhaps then, blkid_probe_set_device() should actually fail
+> > in a private device.
+> > 
+> > Again, I just looked into the libblkid low-level implementation today,
+> > but it doesn't seem to be the library's job to be responsible for a race
+> > between open() and ioctl(DM_DEVICE_REMOVE).
+> > 
+> 
+> Hi
+> 
+> The main missed concept here is  -  this is not breaking any API.
 
-It seems that this fix doesn't handle the case where -- is used as an
-argument to an option. For example, `script -I --` before v2.42 would
-interpret -- as an argument to -I, but the pre-scanning in that PR would
-break it.
+I disagree... Same lib call, same device, works before your patch, does
+not after... You may call it a bug that shouldn't be relied on, but
+that's for sure an API breakage.
 
-The value can come from a variable, e.g. `script -I "$VAR"` and `script
---log-in "$VAR"` will usually work, but break if $VAR is --. Similarly,
-`script "-I$VAR"` will usually work, but break if $VAR is the empty
-string. The only approach without special cases seems to be `script
-"--log-in=$VAR"`, but it doesn't seem to be very popular.
+> 
+> The concept of private DM device is to be a device that is not being touched
+> by libblkid.  So this was a pure bug in the libblkid code when there was a
+> code path skipping check (and actually doing this check after opening
+> private device).
 
+Ok, you told me from where it comes from.
+
+How different is it of any other tool that uses libblkid doing
+open(); blkid_new_probe(); blkid_probe_set_device();
+
+Instead of calling blkid_new_probe_from_filename() directly?
+
+Because this still can easily access a private device.
+
+> 
+> And actually IMHO there is a bigger issue -  xfs tools are actually relying
+> too much on content of udev DB - this DB is by design unreliable - so it's
+> likely good for some quick checking - but i.e. in lvm2 - we always do a real
+> disk read -  udevDB is only advisory.
+
+We don't do anything with udev. We use libblkid to query device's
+geometry to properly configure the filesystem to be initialized there.
+If blkid_new_probe_from_filename() fails, mkfs abort. It's up to the
+user to pass the right device.
+
+> 
+> 
+> Regards
+> 
+> Zdenek
+> 
