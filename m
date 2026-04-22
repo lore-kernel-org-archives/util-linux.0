@@ -1,105 +1,109 @@
-Received: from dsmtpq3-prd-nl2-vfz.edge.unified.services (dsmtpq3-prd-nl2-vfz.edge.unified.services [84.116.73.74])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.167])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9ECB626ACC
-	for <util-linux@vger.kernel.org>; Tue, 21 Apr 2026 19:01:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.116.73.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A403A1A704B
+	for <util-linux@vger.kernel.org>; Wed, 22 Apr 2026 06:18:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.167
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776798081; cv=none; b=CvE+R8KiD1fxQHt+yRnu+OT0raNJGTNCIlGA12qbfN+/ViXFMVurBwVu7661obiHUqayUo48XPKpTCORm0rrJ1cVqp+fRtY34JV4CbZTgIcs53yEQk3HcoA+Y5KTokjTnrwhm1OHax/OPkln52PJieyQ1i0erJ9TR5W6ijDVc/c=
+	t=1776838742; cv=none; b=KnU65p94U3buCFCydzNgoVDJ72DgaraBEbnGRkbPNXDULUIB6GQjpIUnHbaUg8GHTXuqbBsXKSO3KIkRdodMUlIUE1rcks+OwrnEf45XmdMOwNf8VrziykSnYa/0sOwa/uPjNSvJ7eE4Qd/cE2e+W9yCgCMu7uPllES/IuWRE6Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776798081; c=relaxed/simple;
-	bh=lw2nTn/oX84kSwZPsZRUvgkbn/qp8AcYle25RlSU0WM=;
-	h=Content-Type:MIME-Version:In-Reply-To:References:Subject:From:To:
-	 Date:Message-ID; b=gMNlXkibpl1+gw6DzgApxvx/TD/NGjjaZ+/sQobG6yyf/mDhHRpk/0Rw4IeKNjwZoav7mDBpgj6GTkGy+fWaFB1vMIoL45u8XYKfwaEe6yFDePYl/lzcSkrraYty5izK2AuSd2demCi+EWCot0DIsTV6Tre3DDzEed0h6eTZrGU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mrns.nl; spf=none smtp.mailfrom=mrns.nl; dkim=pass (1024-bit key) header.d=mrns.nl header.i=@mrns.nl header.b=W4QZNVGS; arc=none smtp.client-ip=84.116.73.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mrns.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=mrns.nl
+	s=arc-20240116; t=1776838742; c=relaxed/simple;
+	bh=6gCkVcXHrlxu4VufzEviKgWJhSJ7M+Xc8wa3LeJleA0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=b00ET3j1vjAb7uDP9qimeJDDDYXfnwGmlyDyoWX4OtxJNNJSGQe4cwzubEl3t9+KWuQriaeqVKUW+XKGCCI77t2bXOccfCjhLSCENYWOIY+Giqe1+Sfkt7WxDteRsadnY6KwvV3TEyu4QO+EeAgN1VauucbQZ2nwMIHzqQjSyN4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=qbTCUsgm; arc=none smtp.client-ip=195.121.94.167
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=mrns.nl header.i=@mrns.nl header.b="W4QZNVGS"
-Received: from csmtpq2-prd-nl2-vfz.edge.unified.services ([84.116.73.110])
-	by dsmtpq3-prd-nl2-vfz.edge.unified.services with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.97)
-	(envelope-from <dick@mrns.nl>)
-	id 1wFFtV-00000006Ffq-2JEI
-	for util-linux@vger.kernel.org;
-	Tue, 21 Apr 2026 20:32:21 +0200
-Received: from csmtp4-prd-nl1-vfz.nl1.unified.services ([100.107.80.23] helo=csmtp4-prd-nl1-vfz.edge.unified.services)
-	by csmtpq2-prd-nl2-vfz.edge.unified.services with esmtp (Exim 4.97)
-	(envelope-from <dick@mrns.nl>)
-	id 1wFFtO-0000000HUMW-0LaS
-	for util-linux@vger.kernel.org;
-	Tue, 21 Apr 2026 20:32:14 +0200
-Received: from routi.mrns.nl ([85.147.219.207])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 256/256 bits)
-	(Client did not present a certificate)
-	by csmtp4-prd-nl1-vfz.edge.unified.services with ESMTPSA
-	id FFtNwsZ61nT9EFFtNwhmQD; Tue, 21 Apr 2026 20:32:14 +0200
-X-Env-Mailfrom: dick@mrns.nl
-X-Env-Rcptto: util-linux@vger.kernel.org
-X-SourceIP: 85.147.219.207
-X-CNFS-Analysis: v=2.4 cv=cPXQdFeN c=1 sm=1 tr=0 ts=69e7c2ae cx=a_exe
- a=QfPJp9Xx0fncKAcDTfo4/A==:117 a=QfPJp9Xx0fncKAcDTfo4/A==:17
- a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=LQrtYbNyCH8A:10 a=dnyXhxrFAAAA:8
- a=EU8yCZ3a01szK6Xjk-UA:9 a=QEXdDO2ut3YA:10 a=Jg-N2dyUoHYgGiKYQkJY:22
-X-Authenticated-Sender: ieb1yoh3@ziggo.nl
-Received: by routi.mrns.nl (sSMTP sendmail emulation); Tue, 21 Apr 2026 20:32:13 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mrns.nl;
- i=@mrns.nl; q=dns/txt; s=mail; t=1776796333; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references :
- subject : from : to : date : message-id : from;
- bh=lw2nTn/oX84kSwZPsZRUvgkbn/qp8AcYle25RlSU0WM=;
- b=W4QZNVGSk29kFOurgi9g6J4ae+99CfYG4+2WNkj88hXz2nDAAPG9XQsskcEELDFJ40dNm
- KNhshnUsyacAEl1uLRad3P7PzBWH9Nm2etQjoS0WAg9/C2n5YixiG4lx8sLQa+SXMMFj4FP
- +XSrlDcEtEnhMDKWuFEGA+miDJq/t64=
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="qbTCUsgm"
+X-KPN-MessageId: fc85c9fb-3e12-11f1-969c-005056abbe64
+Received: from smtp.kpnmail.nl (unknown [10.31.155.39])
+	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
+	id fc85c9fb-3e12-11f1-969c-005056abbe64;
+	Wed, 22 Apr 2026 08:17:49 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=telfort.nl; s=telfort01;
+	h=content-type:from:to:subject:mime-version:date:message-id;
+	bh=6gCkVcXHrlxu4VufzEviKgWJhSJ7M+Xc8wa3LeJleA0=;
+	b=qbTCUsgmg0USTOEKCny69AeKE0SfEYuhaRQ9A5vih9Jl4ClewDhIR7QT6sqSXqGb2Jiva9eEEAPKa
+	 kiaRy0jOVJuc6zkEdB64cwi+Q+kv+AHuBVdjQ9zmtOaU0Nt3To5d7k5rIr6QOXTuqJpgu8475CS7Ar
+	 /Alswfx/+ySKflBM=
+X-KPN-MID: 33|mQgpMTm6hdwzAhfBg7UxGr8PcwX5ABJ4zxobatwSgnSuRSWI2CP71CyfgfYoAmi
+ hCXlXY3EKxxGpuJp67kAfZ5DAkIg/WT99knZOvumRJmQ=
+X-KPN-VerifiedSender: Yes
+X-CMASSUN: 33|nZgkR8icVXbLofF8jNS7JLFyzrbn0CTpUGpPY4OJieDm3/vkzjaqV2sPIb6YCUo
+ W3iTdjELCHOgihggfFviAxA==
+Received: from [192.168.2.23] (77-163-176-192.fixed.kpn.net [77.163.176.192])
+	by smtp.kpnmail.nl (Halon) with ESMTPSA
+	id fc668e65-3e12-11f1-8011-005056ab7447;
+	Wed, 22 Apr 2026 08:17:49 +0200 (CEST)
+Message-ID: <bd1c4673-ab3a-4934-a7d1-8113a48c9811@telfort.nl>
+Date: Wed, 22 Apr 2026 08:17:46 +0200
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20260420180528.943663-1-stepnem@smrk.net>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] copyfilerange(man): fix swapped offsets in command
+ example
+To: =?UTF-8?B?xaB0xJtww6FuIE7Em21lYw==?= <stepnem@smrk.net>,
+ util-linux@vger.kernel.org
 References: <20260420180528.943663-1-stepnem@smrk.net>
-Subject: Re: [PATCH] copyfilerange(man): fix swapped offsets in command example
-From: Dick Marinus <dick@mrns.nl>
-To: util-linux@vger.kernel.org, =?utf-8?b?xaB0xJtww6FuIE7Em21lYw==?= <stepnem@smrk.net>
-Date: Tue, 21 Apr 2026 20:32:13 +0200
-Message-ID: <177679633333.3928851.10254342536502302818@routi.mrns.nl>
-User-Agent: alot/0.12
-X-CMAE-Envelope: MS4xfNEShY/ejA+3IbiooJYdrOXqNzX9NUEWGqkip242Uzc8w5c9W/iKICAw9VaPRrgOKXdexoQpVx7Db575ElbmbbQVPZCS22Q5fx9Cro7P/VRn/hKiw5R2
- tsUDcx1xz9rElTUITyoydzoPiMj49b8Ws26JRiTIlSWTjJLBEwZ6QDGrDXb2WjeOg0f1s9b8+bDE6DMFJv4/MVtmL+Znj+Ja7JFTcAYCF0IzcxfzzcMNc4WR
+Content-Language: en-US, nl-NL, es-ES
+From: Benno Schulenberg <bensberg@telfort.nl>
+In-Reply-To: <20260420180528.943663-1-stepnem@smrk.net>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------hVAsZsefuYwoEntm4l9Bh3O0"
 
-Thanks =C5=A0t=C4=9Bp=C3=A1n,
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------hVAsZsefuYwoEntm4l9Bh3O0
+Content-Type: multipart/mixed; boundary="------------Aq0tAmSo8YlWxrIVl8Y7uQ9g";
+ protected-headers="v1"
+From: Benno Schulenberg <bensberg@telfort.nl>
+To: =?UTF-8?B?xaB0xJtww6FuIE7Em21lYw==?= <stepnem@smrk.net>,
+ util-linux@vger.kernel.org
+Message-ID: <bd1c4673-ab3a-4934-a7d1-8113a48c9811@telfort.nl>
+Subject: Re: [PATCH] copyfilerange(man): fix swapped offsets in command
+ example
+References: <20260420180528.943663-1-stepnem@smrk.net>
+In-Reply-To: <20260420180528.943663-1-stepnem@smrk.net>
 
-I mixed up, thanks for correcting this!
+--------------Aq0tAmSo8YlWxrIVl8Y7uQ9g
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-greetings,
-Dick Marinus
+DQpPcCAyMC0wNC0yMDI2IG9tIDIwOjA1IHNjaHJlZWYgxaB0xJtww6FuIE7Em21lYzoNCj4g
+ICBbLi4uXQ0KDQpUaGUgY29udmVudGlvbiBmb3IgdGhlIHN1YmplY3QgbGluZSB3aGVuIG1h
+biBwYWdlcyBhcmUgYWZmZWN0ZWQgaXM6DQoNCiAgIHByb2dyYW06IChtYW4pIGRlc2NyaXB0
+aW9uIG9mIGNoYW5nZQ0KDQpTbyBpbiB0aGlzIGNhc2U6DQoNCiAgIGNvcHlmaWxlcmFuZ2U6
+IChtYW4pIGZpeCBzd2FwcGVkIG9mZnNldHMgaW4gY29tbWFuZCBleGFtcGxlDQoNCg0KT3Ro
+ZXJ3aXNlIGl0IGxvb2tzIGFzIGlmIGNvcHlmaWxlcmFuZ2UgaXMgYSBmdW5jdGlvbiB0aGF0
+IGlzIGNhbGxlZA0Kd2l0aCBtYW4gYXMgYXJndW1lbnQuDQoNCg0KQmVubm8NCg0K
 
-Quoting =C5=A0t=C4=9Bp=C3=A1n N=C4=9Bmec (2026-04-20 20:05:28)
-> Signed-off-by: =C5=A0t=C4=9Bp=C3=A1n N=C4=9Bmec <stepnem@smrk.net>
-> ---
->  misc-utils/copyfilerange.1.adoc | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/misc-utils/copyfilerange.1.adoc b/misc-utils/copyfilerange.1=
-.adoc
-> index 303a1a7b25e2..89b95e9516fa 100644
-> --- a/misc-utils/copyfilerange.1.adoc
-> +++ b/misc-utils/copyfilerange.1.adoc
-> @@ -71,7 +71,7 @@
-> =20
->  copyfilerange split-first-mb join ::
-> =20
-> -copyfilerange split-remainder join 1M::
-> +copyfilerange split-remainder join :1M:
->  ....
-> =20
->  =3D=3D SEE ALSO
->=20
-> base-commit: 2f0a4512ea813b050172207c88ddfa9ace12d830
-> --=20
-> 2.53.0
->=20
->
+--------------Aq0tAmSo8YlWxrIVl8Y7uQ9g--
+
+--------------hVAsZsefuYwoEntm4l9Bh3O0
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmnoaAsFAwAAAAAACgkQUUu+Lrjhlh8m
+rBAAzBXpcP5ahEQFSKw6+DuBZeIWD+wXv3FgLa6fdRHPUdFh6PI/rfvp1GDLp3z3yT357uneLLO3
+Kjs+wLZexrm1MRpTgVRXEI8HNcGUAw0wAahO1DK49ZVx4c/fZIZJY9Wb1Iwu0HoJCH1lxk4A7gw6
+JMGQYsMera7OkH4i6gw7nZeCmIHyJiULdafZhPBgc9Q+VU7faE/HhjzpfuuIg0DKsptnH2+XM/Ir
+wJjZdoCJIYaIAhL93iFL8PkRP2ACUhZ8eglbmdcevHtP8YVa+yw9vupn0YxV1/F+vpaA2qFnX8Ju
+4J1hTZ+Xxe+xsFrug2nRVcX+aCd5D0Cf6v9jKgY4rD/RLZIkaQmk5+JJTVSPPje9LEiWkBCNdi/A
+QuMN0YBgfGfex+Tq5Xcw8gDGVNjuEE1sO8cB9sbPl4JP595PLdUCZ4Km91Qw/tDRMYsCYv20cPl2
+ZC0Uk1bG9RiFYywJwHR6mtHigkmzCOwpYDQRN0/GLqkZzifB3U+MN7vwii/zBNkBVnlNxQI/lHBr
+YlvPwkeOF7RXLXPEKnG9Vym8oPRuzhPk/uk5gdKSTOOsYmmAeqLmRNZPIyOiXsZYftO1yCGlElVR
+Dhm134W6Xc+7rb6fWTdner9Rh4j0vF7s9UH6iyHeM4gUMokCkNMhnIiw8evuFEu/8y+EN1NoD6ra
+OtQ=
+=/zKu
+-----END PGP SIGNATURE-----
+
+--------------hVAsZsefuYwoEntm4l9Bh3O0--
