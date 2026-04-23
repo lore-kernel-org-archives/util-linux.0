@@ -1,124 +1,175 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 763203E5ED7
-	for <util-linux@vger.kernel.org>; Thu, 23 Apr 2026 09:48:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD41A2F4A15
+	for <util-linux@vger.kernel.org>; Thu, 23 Apr 2026 10:15:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776937705; cv=none; b=MISvC9LkWvPLqJcPiPbRr8ipElhgQ+dD1+/dK2nQaxhOs45kWFK616pMC8LYkf7iHnQ1cCs5uHOIzGfJxRvWZ4b4h23wVwWE9IuKuCAXNlsaPDNAmICoDedDKVrOvRb9tvHPLBzu8pPuVJub0Bttyo8jQqOT1HbujnQnJDjx3HM=
+	t=1776939332; cv=none; b=GRxn3cuZt0Q5j8wsw5CnFxUSIr3WhUhUkbP//Cb9p+EefSm1yUIi26yPaMpBWq+umM3vqg2SV1BiiFNHyaAj6aWeJMPeOnfB+8l8WPZDC8T6cDjibinDysLRaY6PIszCN4TkktswL5Vf2YOEHGorjUAskCD6SEUZfs7Up071uwU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776937705; c=relaxed/simple;
-	bh=hxHfpFXuy8Pi296f0p5FyT8agGL2urlx3DNGMD/7FAA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=jePdK/+cfSfiMzRuwIspg96UXOTBeJl99mpo9ZV/YJoGS+01GacBZ4kHECg6HtNOzqIU3D1CvJSJ1xqKCSO1Di9JtXgD+txJUv9GMmQggU7cbpy7Liuyt0fIH5JMmbH/Twrlibczsbhp/4QT57FImHHVFUcIW2RPz+xbGzSVpQI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=V8113WlP; arc=none smtp.client-ip=195.121.94.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
+	s=arc-20240116; t=1776939332; c=relaxed/simple;
+	bh=iJxdNOjPVY9g9pDmaK1Rc3f9LN+EFPHVSKgabyk1Jto=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=rygTUEDNQSV/YRiSdYSyXPyzJpyqGfpZzX61PIqybNuLnXo1SrLUYMR7eitgwvHGUsQ8Jj/AkZWOIJx6pyjrCeg77Lmu0EWcjPtb34laV7Na8jVzTuqgZCRtBAYbwts0o/nwMKHsfPEhH9R9MnqEh48OWj1K0odV3F8Bw/01zsE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f3s4PWfI; arc=none smtp.client-ip=209.85.128.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="V8113WlP"
-X-KPN-MessageId: 8bde9d22-3ef9-11f1-8a9c-005056ab378f
-Received: from smtp.kpnmail.nl (unknown [10.31.155.39])
-	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 8bde9d22-3ef9-11f1-8a9c-005056ab378f;
-	Thu, 23 Apr 2026 11:48:13 +0200 (CEST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f3s4PWfI"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-4890d945eb4so29385805e9.0
+        for <util-linux@vger.kernel.org>; Thu, 23 Apr 2026 03:15:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=telfort.nl; s=telfort01;
-	h=content-type:from:to:subject:mime-version:date:message-id;
-	bh=hxHfpFXuy8Pi296f0p5FyT8agGL2urlx3DNGMD/7FAA=;
-	b=V8113WlPEEIN3eQihELv7hggtYpTxubpab4C5J59h792huVniICdD9o8kHKRbMo9eFxHwyI8gkhSr
-	 HZeHp07uu0yMSajwoPIK37QECkgSPYgK3aTkx0zEiXXc1ylqDjuzscxyrfyl3TZ861/F04bTQdAgMY
-	 dATrVDYZFLA6564I=
-X-KPN-MID: 33|0ZaCvaT7LT1jq3ixqANoB1ylxMHUENUSghDcfoLDFSFa2HP+q1Cvx1e73bau9+D
- zGK8prwLhWvfH8819CAHqQeRG9uyvsXogwRpx4HvaoVU=
-X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|bgJ5RsCA9QdL56wgjc0JOHEELdpkPiB0LwKIfXcbcLhcN0YWzuCwhOKg/ZNUmcN
- zWk3WNDdFfLyR9Cng4O1HJg==
-Received: from [192.168.2.23] (77-163-176-192.fixed.kpn.net [77.163.176.192])
-	by smtp.kpnmail.nl (Halon) with ESMTPSA
-	id 8bbc4360-3ef9-11f1-8011-005056ab7447;
-	Thu, 23 Apr 2026 11:48:13 +0200 (CEST)
-Message-ID: <294a8ef5-e73d-4715-a824-ba0ca40e1067@telfort.nl>
-Date: Thu, 23 Apr 2026 11:48:12 +0200
+        d=gmail.com; s=20251104; t=1776939329; x=1777544129; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=E2SgYaNy4qIu6DeXd05dRdL1RhJxKKEhsmTQIWkK1o0=;
+        b=f3s4PWfI7/B56ZBN68+hKy+VAHNv2vk5srtnn8q+trGAa9dJJmELJpH7lqfr1dTG1Z
+         nnqSJjyyEL7t2Fig4v91mZk1c42RFVdJtqWb0up7YWftYbPJUK+ehHhMjflrtW+C0aBr
+         3Ddv7P8pJZHE6HUqAXlOLkN/px8XKY60fqqOyU/+XHLmUQcx/9gPDRnyPAMxwb3tkaiU
+         /4Lo7twPfDsVE02Ece+FLMu+OUzP4H1ZYnyz4ui20IoagoM0SMo0weDyzrn1uUOdcDCp
+         VWz6LMZQmouPXjvViVm/xTAw6CVBAENq75Vuvd/bF5ISezeUC2CRugKA6FH87O19FJuA
+         plew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776939329; x=1777544129;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=E2SgYaNy4qIu6DeXd05dRdL1RhJxKKEhsmTQIWkK1o0=;
+        b=B4CVAPM608DF2m4hKQh09h4G/XQeK7DvAuVHs37q5wjmWKj8NXdIUYM30BrFsP5V1w
+         2C/LViLXdviSnPJ0konG9o0xNwdd4KSIF7yoUAN4YgKnSlJS4uDgsLzUh0l4EQUVRLMg
+         tXpvONDE8pmagKinHXDPHWOQ/2wO8UnIOr2AMw7HKiAJu5VZjCTRiNXpODegAML0DrkC
+         6IyCx33muzcn7dsHNPABoX0px6lzELA+gB/n1sVl0GjlWU42onAhPVoC/z/ovlnDsLvZ
+         2Zq3AWVAgTtGYsxjuOg3hO+C2lQBTMDd5vowv++Oa5dl54tUpxFInbkzv5yRqqb4+B1s
+         Mqiw==
+X-Gm-Message-State: AOJu0Yw4BW7IVMVhRI3UzvS/H9RZPJJgp78NyzWQssMfCMsMqsRnHI1w
+	TbIVd+5ZNSKgpulayJuRaLWU8rDCe+RatUN62/s+NlHSORN41LrkaFsrLgEjmg2P
+X-Gm-Gg: AeBDievWY3n1jpWscWqY66lw6aubvGdmICGeMBYMMJ2vxAvRpzQDxzd1udiHXkbELds
+	j+AulAINPYTmvR4hUpmgAFOUrOLTcIkYx93BcFSr8WA4A24yAKlvS0qpxO0tt0GmtXC+KYiEtMT
+	bY4bHvi7aKFqX3ehYHe6zUCIYma+uES4d2bfDwQCIiLG5kZUEdgzde1fn6ydQ0GnSUglqyly5Gp
+	jKRKY12p5il+TUuiXUmMbTvINsO1PPlW/LSUR2Pd2CfPe0zNlZQA2D+iNPKY1+Q9hKBHIRyRPTv
+	rcqD/2UtmCtPCW5z8/borf61BWpHRZofTqYhy3i6UaBmh5Sye20lFrS+qkIz6qas/cG1m7Y/1ON
+	uwvqVBmsOoEVX4d5GiRlzBqYY4K2Gk3vR1qVB91m0xVtQ8dv9euRBPPPGZqIQNZVrdDlZB52AKY
+	vBc3OvnKlJkddIah6ZnukwBINNB6CJADdyPt0=
+X-Received: by 2002:a05:600d:106:b0:488:a2a1:62cb with SMTP id 5b1f17b1804b1-488fb8b5753mr242303285e9.13.1776939328564;
+        Thu, 23 Apr 2026 03:15:28 -0700 (PDT)
+Received: from notebook.. ([85.107.102.137])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43fe4cb1365sm55581038f8f.7.2026.04.23.03.15.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Apr 2026 03:15:28 -0700 (PDT)
+From: Furkan Caliskan <frn1furkan10@gmail.com>
+To: util-linux@vger.kernel.org
+Cc: kzak@redhat.com,
+	bensberg@telfort.nl,
+	vineethr@linux.ibm.com,
+	Furkan Caliskan <frn1furkan10@gmail.com>
+Subject: [PATCH] chrt: Add support for (GRUB) bandwidth reclaim
+Date: Thu, 23 Apr 2026 13:14:07 +0300
+Message-Id: <20260423101407.35502-1-frn1furkan10@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] copyfilerange: (man) fix swapped offsets in command
- example
-To: =?UTF-8?B?xaB0xJtww6FuIE7Em21lYw==?= <stepnem@smrk.net>,
- util-linux@vger.kernel.org
-References: <20260420180528.943663-1-stepnem@smrk.net>
- <bd1c4673-ab3a-4934-a7d1-8113a48c9811@telfort.nl>
- <20260422182503.1111558-1-stepnem@smrk.net>
-Content-Language: en-US, nl-NL, es-ES
-From: Benno Schulenberg <bensberg@telfort.nl>
-In-Reply-To: <20260422182503.1111558-1-stepnem@smrk.net>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------BW8lp7fPOwClWM7EnMpVLJ6V"
+Content-Transfer-Encoding: 8bit
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------BW8lp7fPOwClWM7EnMpVLJ6V
-Content-Type: multipart/mixed; boundary="------------XhAlyBTSawDhDBnqjhFtbXAS";
- protected-headers="v1"
-From: Benno Schulenberg <bensberg@telfort.nl>
-To: =?UTF-8?B?xaB0xJtww6FuIE7Em21lYw==?= <stepnem@smrk.net>,
- util-linux@vger.kernel.org
-Message-ID: <294a8ef5-e73d-4715-a824-ba0ca40e1067@telfort.nl>
-Subject: Re: [PATCH] copyfilerange: (man) fix swapped offsets in command
- example
-References: <20260420180528.943663-1-stepnem@smrk.net>
- <bd1c4673-ab3a-4934-a7d1-8113a48c9811@telfort.nl>
- <20260422182503.1111558-1-stepnem@smrk.net>
-In-Reply-To: <20260422182503.1111558-1-stepnem@smrk.net>
+The SCHED_DEADLINE policy supports the (GRUB) Greedy Reclamation
+of Unused Bandwidth algorithm. This allows tasks to reclaim
+bandwidth that are left over by other deadline tasks that finish
+their work early, or voluntarily yield the cpu.
 
---------------XhAlyBTSawDhDBnqjhFtbXAS
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Currently, chrt has no way to set the SCHED_FLAG_RECLAIM bit in
+the sched_flags field of the sched_attr structure.
 
-DQpPcCAyMi0wNC0yMDI2IG9tIDIwOjI1IHNjaHJlZWYgxaB0xJtww6FuIE7Em21lYzoNCj4g
-U2lnbmVkLW9mZi1ieTogxaB0xJtww6FuIE7Em21lYyA8c3RlcG5lbUBzbXJrLm5ldD4NCj4g
-LS0tDQoNClRoYW5rcyBmb3IgdGhlIHR3ZWFrZWQgcmUtc3VibWlzc2lvbi4NCg0KDQo+IFRo
-YXQgc2FpZCwgSSBzZWUgbm93IHRoYXQsIGhhZCBJIGdvbmUgbW9yZSBxdWFudGl0YXRpdmUg
-YWJvdXQgaXQsIEkNCj4gbWlnaHQgaGF2ZSBwaWNrZWQgdGhlIG9uZSB5b3UgcHJlZmVyIDot
-RA0KPiANCj4gOyBnaXQgbG9nIHwgZ3JlcCAtYyAnKG1hbik6ICcNCj4gMjENCj4gOyBnaXQg
-bG9nIHwgZ3JlcCAtYyAnOiAobWFuKScNCj4gMjg5DQoNClRoYXQgY291bnRzIGFsc28gdGhl
-IG9jY3VycmVuY2VzIG9mIHRob3NlIHN0cmluZ3MgaW4gdGhlIGJvZHkgb2YNCnRoZSBjb21t
-aXQgbWVzc2FnZXMuICBVc2luZyAtLW9uZWxpbmUgd291bGQgYmUgbW9yZSBhY2N1cmF0ZToN
-Cg0KJCBnaXQgbG9nIC0tb25lbGluZSB8IGdyZXAgLWMgJyhtYW4pOiAnDQoxMA0KJCBnaXQg
-bG9nIC0tb25lbGluZSB8IGdyZXAgLWMgJzogKG1hbiknDQoyMDcNCg0KVGhvc2UgdGVuIG9j
-Y3VycmVuY2VzIGFyZSBhbGwgZnJvbSB0aGUgbGFzdCB0aHJlZSB3ZWVrcy4gIFdoZW4NCnJ1
-bm5pbmcgdGhvc2Ugc2FtZSBjb21tYW5kcyBmb3IgdjIuNDIsIHRoZSBmaXJzdCBjb3VudCBp
-cyB6ZXJvLg0KDQoNCj4gSW4gYW55IGNhc2UsIGlmIHRoZSBwcmVmZXJlbmNlIGlzIGZlbHQg
-c3Ryb25nbHkgZW5vdWdoIHRvIHJlcXVpcmUNCj4gcmVyb2xscyBqdXN0IGZvciB0aGF0LCBJ
-IGJlbGlldmUgaXQgd291bGQgbWFrZSBhIGdyZWF0IGFkZGl0aW9uIHRvDQo+IGhvd3RvLWNv
-bnRyaWJ1dGUudHh0DQoNCkdvb2QgaWRlYS4gIFdpbGwgcG9zdCBhIHBhdGNoIGZvciB0aGF0
-Lg0KDQoNCkJlbm5vDQoNCg==
+Add -G/--reclaim-grub option to allow users to toggle this feature
+using the deadline scheduling class.
 
---------------XhAlyBTSawDhDBnqjhFtbXAS--
+Signed-off-by: Furkan Caliskan <frn1furkan10@gmail.com>
+---
+ schedutils/chrt.1.adoc |  3 +++
+ schedutils/chrt.c      | 13 ++++++++++++-
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
---------------BW8lp7fPOwClWM7EnMpVLJ6V
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+diff --git a/schedutils/chrt.1.adoc b/schedutils/chrt.1.adoc
+index b8d8874bc..da607d958 100644
+--- a/schedutils/chrt.1.adoc
++++ b/schedutils/chrt.1.adoc
+@@ -83,6 +83,9 @@ Specifies deadline parameter for *SCHED_DEADLINE* policy (Linux-specific).
+ 
+ *-R*, *--reset-on-fork*::
+ Use *SCHED_RESET_ON_FORK* or *SCHED_FLAG_RESET_ON_FORK* flag. Linux-specific, supported since 2.6.31.
++
++*-G*, *--reclaim-grub*::
++Enables GRUB (Greedy Reclamation of Unused Bandwidth) algorithm. 
+ +
+ Each thread has a _reset-on-fork_ scheduling flag. When this flag is set, children created by *fork*(2) do not inherit privileged scheduling policies. After the _reset-on-fork_ flag has been enabled, it can be reset only if the thread has the *CAP_SYS_NICE* capability. This flag is disabled in child processes created by *fork*(2).
+ +
+diff --git a/schedutils/chrt.c b/schedutils/chrt.c
+index 273905e5d..1a081e566 100644
+--- a/schedutils/chrt.c
++++ b/schedutils/chrt.c
+@@ -46,6 +46,7 @@ struct chrt_ctl {
+ 	uint64_t runtime;			/* --sched-* options */
+ 	uint64_t deadline;
+ 	uint64_t period;
++        uint64_t flag;                         /* For sched_attr->sched_flags member */ 
+ 
+ 	unsigned int all_tasks : 1,		/* all threads of the PID */
+ 		     reset_on_fork : 1,		/* SCHED_RESET_ON_FORK or SCHED_FLAG_RESET_ON_FORK */
+@@ -79,6 +80,7 @@ static void __attribute__((__noreturn__)) usage(void)
+ 	fputs(USAGE_SEPARATOR, out);
+ 	fputs(_("Scheduling options:\n"), out);
+ 	fputs(_(" -R, --reset-on-fork       set reset-on-fork flag\n"), out);
++	fputs(_(" -G, --reclaim-grub        set SCHED_FLAG_RECLAIM\n"), out);
+ 	fputs(_(" -T, --sched-runtime <ns>  runtime parameter for DEADLINE\n"), out);
+ 	fputs(_(" -P, --sched-period <ns>   period parameter for DEADLINE\n"), out);
+ 	fputs(_(" -D, --sched-deadline <ns> deadline parameter for DEADLINE\n"), out);
+@@ -349,7 +351,7 @@ static int set_sched_one(struct chrt_ctl *ctl, pid_t pid)
+ 	/* old API is good enough for non-deadline */
+ 	if (!supports_runtime_param(ctl->policy))
+ 		return set_sched_one_by_setscheduler(ctl, pid);
+-
++	
+ 	/* not changed by chrt, follow the current setting */
+ 	sa.sched_nice = getpriority(PRIO_PROCESS, pid);
+ 
+@@ -359,6 +361,7 @@ static int set_sched_one(struct chrt_ctl *ctl, pid_t pid)
+ 	sa.sched_runtime  = ctl->runtime;
+ 	sa.sched_period   = ctl->period;
+ 	sa.sched_deadline = ctl->deadline;
++        sa.sched_flags    = ctl->flag;
+ 
+ # ifdef SCHED_FLAG_RESET_ON_FORK
+ 	/* Don't use SCHED_RESET_ON_FORK for sched_setattr()! */
+@@ -417,6 +420,7 @@ int main(int argc, char **argv)
+ 		{ "sched-period",   required_argument, NULL, 'P' },
+ 		{ "sched-deadline", required_argument, NULL, 'D' },
+ 		{ "reset-on-fork",  no_argument,       NULL, 'R' },
++		{ "reclaim-grub",   no_argument,       NULL, 'G' },
+ 		{ "verbose",	no_argument, NULL, 'v' },
+ 		{ "version",	no_argument, NULL, 'V' },
+ 		{ NULL,		no_argument, NULL, 0 }
+@@ -460,6 +464,11 @@ int main(int argc, char **argv)
+ 		case 'R':
+ 			ctl->reset_on_fork = 1;
+ 			break;
++		case 'G':
++#ifdef SCHED_DEADLINE
++			ctl->flag |= SCHED_FLAG_RECLAIM;
++#endif
++			break;
+ 		case 'i':
+ #ifdef SCHED_IDLE
+ 			ctl->policy = SCHED_IDLE;
+@@ -546,6 +555,8 @@ int main(int argc, char **argv)
+ 	if ((ctl->deadline || ctl->period) && ctl->policy != SCHED_DEADLINE)
+ 		errx(EXIT_FAILURE, _("--sched-{deadline,period} options are "
+ 				     "supported for SCHED_DEADLINE only"));
++	if ((ctl->flag & SCHED_FLAG_RECLAIM) && ctl->policy != SCHED_DEADLINE)
++	        errx(EXIT_FAILURE, _("--reclaim-grub is only supported for SCHED_DEADLINE"));
+ 	if (ctl->policy == SCHED_DEADLINE) {
+ 		/* The basic rule is runtime <= deadline <= period, so we can
+ 		 * make deadline and runtime optional on command line. Note we
+-- 
+2.34.1
 
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmnp6twFAwAAAAAACgkQUUu+Lrjhlh/4
-4A/9H13WEWdCtzMoiYb2b7kXIvA3Iu9qVaprwcJ2/WMvewAUzXM6cNbNbe6/+qcNEyrZj6vCUpN4
-438YF6nJ6r3luheRqoeQUQ69K8gkIbGEUJQVAOkAxGooQO7KVHYRQB7y+UalHpaSYs1eZDEDcTDv
-/pRkjQxXZ2wWD8eCws8z+VjD+zKOmjTqyRkjnNJVc9ebmBqVnwsfaJjzDyskmK39MKATZteEtroU
-LJpfRIY12HiGF4HQKLZ/FFTz/cVOqJafkkCcfssgmkXeoK+l6dCjsK4TaAO1CKv1gqSGkzlxBHdE
-NN2T9fIR7ybZHglk7OWqFVQe3YGXzzitUkA2KHCgH+lzVAXCZo3si+K4fkiia4uREywnphJWU3ou
-muxnVtEW5PIvCZgQ2UxRQ7tbQLGMQ/z4U29Zd57YnAG1qLiAJyjO1l7B8pRO6ktZXZMaBudVzI01
-eLZ6dZnV1ccnD7Xo1OyAoQooeY+jZGGtFB6AH4+TajkyJ3AlXTx3BHyVRBM2ZSF3rfluBiwW7xab
-Ak0vpM0HU7sToBnbQZq14CkT83Bj9erE2zhVZnnPzcUlBdj5BnxBqv1vQHz1vwhSwiI0LsUcpaaN
-pRSTwBYNDb2z6EpcMTZBiphXpOtsAcSaK5lQGfqJYuT6AO6kU6HrMsm/tHBU6KdTBvnHHNGwlY7N
-q5I=
-=hftq
------END PGP SIGNATURE-----
-
---------------BW8lp7fPOwClWM7EnMpVLJ6V--
