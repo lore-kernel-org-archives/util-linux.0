@@ -1,107 +1,124 @@
-Received: from mail.smrk.net (mail.smrk.net [45.76.87.244])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D1EB2475F7
-	for <util-linux@vger.kernel.org>; Wed, 22 Apr 2026 18:25:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.76.87.244
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 763203E5ED7
+	for <util-linux@vger.kernel.org>; Thu, 23 Apr 2026 09:48:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776882314; cv=none; b=c9CV8b6SnrA6iTuMjpLQuAAw1P7J6aoVfVIEaGT3ltqeeEppsegggWafcG/98Wg5ydlQhHghRn9TMSWf02d4NXLdCzG5VRV34pFKSxa/TzI/LzA7kul3Vrf7n3VXCkXeKWyWEXVjXdUQ9cuS3qRDojkISJEtb/9yNEpNkRquavc=
+	t=1776937705; cv=none; b=MISvC9LkWvPLqJcPiPbRr8ipElhgQ+dD1+/dK2nQaxhOs45kWFK616pMC8LYkf7iHnQ1cCs5uHOIzGfJxRvWZ4b4h23wVwWE9IuKuCAXNlsaPDNAmICoDedDKVrOvRb9tvHPLBzu8pPuVJub0Bttyo8jQqOT1HbujnQnJDjx3HM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776882314; c=relaxed/simple;
-	bh=KRDRPwUZD2rekaXYxxpGut0Z33q6rHj/ap6kWFx0/IM=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=aLkoFM8bUlBPAeaSWHV78glPNKCob7YFmLfFL2uDnsMxhzccf34hQ4SKRK+EfyD8gbfxplRTYGCExYJPZ9EO0JopoTOYPHYkHWeMK+GJUgEKYdMdrqW9CcsVrwTBsOmQ4Rl1oEX+9CDKP32hd6k7nuv8XHuzDq5l2kJYbTjXrK0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=smrk.net; spf=pass smtp.mailfrom=smrk.net; dkim=pass (2048-bit key) header.d=smrk.net header.i=@smrk.net header.b=jCF6EMSM; arc=none smtp.client-ip=45.76.87.244
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=smrk.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=smrk.net
+	s=arc-20240116; t=1776937705; c=relaxed/simple;
+	bh=hxHfpFXuy8Pi296f0p5FyT8agGL2urlx3DNGMD/7FAA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=jePdK/+cfSfiMzRuwIspg96UXOTBeJl99mpo9ZV/YJoGS+01GacBZ4kHECg6HtNOzqIU3D1CvJSJ1xqKCSO1Di9JtXgD+txJUv9GMmQggU7cbpy7Liuyt0fIH5JMmbH/Twrlibczsbhp/4QT57FImHHVFUcIW2RPz+xbGzSVpQI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=V8113WlP; arc=none smtp.client-ip=195.121.94.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=smrk.net header.i=@smrk.net header.b="jCF6EMSM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=smrk.net; s=20221002;
-	t=1776882302;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vl9H+RsW+/eM38MjQyWWeVKLp7tLg+Ng/gMzjR+8GGY=;
-	b=jCF6EMSMHienhOggbvaiRhhf4zgrcLe/Z0ydgxjV+Z7a79/IsQC6UHZ0GdkfRJBbirdZD8
-	w38dgiJM3KYNqWoEzHFsgMAbqpZ23/QRKhttq7M8RjbTHBfy6xn/Z+YQ3zDG9ZZ+DIXxY4
-	NomdQ58rYouVPTz29QpmVj7bXaq/rjyxWJZ2E8/dKta+ZG5Z/fxOBoEVelh3YL7oCVVHKS
-	4Fm50MN/aV6j5tWfGSVIZhGcgpyV8VgCBkmCZ93O8HbYsij3JxI8AXKdTUre4RBZjn11PB
-	gRE+E2wOYeT5puCoUtbQ7OcQOAdylZl6yYKa+JyYR/7OxwYec4fAy1D1PTlltw==
-Received: from localhost (<unknown> [192.168.5.2])
-	by smrk (OpenSMTPD) with ESMTPSA id 00a8d2a6 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-	Wed, 22 Apr 2026 20:25:02 +0200 (CEST)
-From: =?UTF-8?q?=C5=A0t=C4=9Bp=C3=A1n=20N=C4=9Bmec?= <stepnem@smrk.net>
-To: util-linux@vger.kernel.org,
-	Benno Schulenberg <bensberg@telfort.nl>
-Subject: [PATCH] copyfilerange: (man) fix swapped offsets in command example
-Date: Wed, 22 Apr 2026 20:25:03 +0200
-Message-ID: <20260422182503.1111558-1-stepnem@smrk.net>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <bd1c4673-ab3a-4934-a7d1-8113a48c9811@telfort.nl>
-References: <20260420180528.943663-1-stepnem@smrk.net> <bd1c4673-ab3a-4934-a7d1-8113a48c9811@telfort.nl>
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="V8113WlP"
+X-KPN-MessageId: 8bde9d22-3ef9-11f1-8a9c-005056ab378f
+Received: from smtp.kpnmail.nl (unknown [10.31.155.39])
+	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
+	id 8bde9d22-3ef9-11f1-8a9c-005056ab378f;
+	Thu, 23 Apr 2026 11:48:13 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=telfort.nl; s=telfort01;
+	h=content-type:from:to:subject:mime-version:date:message-id;
+	bh=hxHfpFXuy8Pi296f0p5FyT8agGL2urlx3DNGMD/7FAA=;
+	b=V8113WlPEEIN3eQihELv7hggtYpTxubpab4C5J59h792huVniICdD9o8kHKRbMo9eFxHwyI8gkhSr
+	 HZeHp07uu0yMSajwoPIK37QECkgSPYgK3aTkx0zEiXXc1ylqDjuzscxyrfyl3TZ861/F04bTQdAgMY
+	 dATrVDYZFLA6564I=
+X-KPN-MID: 33|0ZaCvaT7LT1jq3ixqANoB1ylxMHUENUSghDcfoLDFSFa2HP+q1Cvx1e73bau9+D
+ zGK8prwLhWvfH8819CAHqQeRG9uyvsXogwRpx4HvaoVU=
+X-KPN-VerifiedSender: Yes
+X-CMASSUN: 33|bgJ5RsCA9QdL56wgjc0JOHEELdpkPiB0LwKIfXcbcLhcN0YWzuCwhOKg/ZNUmcN
+ zWk3WNDdFfLyR9Cng4O1HJg==
+Received: from [192.168.2.23] (77-163-176-192.fixed.kpn.net [77.163.176.192])
+	by smtp.kpnmail.nl (Halon) with ESMTPSA
+	id 8bbc4360-3ef9-11f1-8011-005056ab7447;
+	Thu, 23 Apr 2026 11:48:13 +0200 (CEST)
+Message-ID: <294a8ef5-e73d-4715-a824-ba0ca40e1067@telfort.nl>
+Date: Thu, 23 Apr 2026 11:48:12 +0200
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] copyfilerange: (man) fix swapped offsets in command
+ example
+To: =?UTF-8?B?xaB0xJtww6FuIE7Em21lYw==?= <stepnem@smrk.net>,
+ util-linux@vger.kernel.org
+References: <20260420180528.943663-1-stepnem@smrk.net>
+ <bd1c4673-ab3a-4934-a7d1-8113a48c9811@telfort.nl>
+ <20260422182503.1111558-1-stepnem@smrk.net>
+Content-Language: en-US, nl-NL, es-ES
+From: Benno Schulenberg <bensberg@telfort.nl>
+In-Reply-To: <20260422182503.1111558-1-stepnem@smrk.net>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------BW8lp7fPOwClWM7EnMpVLJ6V"
 
-Signed-off-by: Štěpán Němec <stepnem@smrk.net>
----
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------BW8lp7fPOwClWM7EnMpVLJ6V
+Content-Type: multipart/mixed; boundary="------------XhAlyBTSawDhDBnqjhFtbXAS";
+ protected-headers="v1"
+From: Benno Schulenberg <bensberg@telfort.nl>
+To: =?UTF-8?B?xaB0xJtww6FuIE7Em21lYw==?= <stepnem@smrk.net>,
+ util-linux@vger.kernel.org
+Message-ID: <294a8ef5-e73d-4715-a824-ba0ca40e1067@telfort.nl>
+Subject: Re: [PATCH] copyfilerange: (man) fix swapped offsets in command
+ example
+References: <20260420180528.943663-1-stepnem@smrk.net>
+ <bd1c4673-ab3a-4934-a7d1-8113a48c9811@telfort.nl>
+ <20260422182503.1111558-1-stepnem@smrk.net>
+In-Reply-To: <20260422182503.1111558-1-stepnem@smrk.net>
 
-On Wed, 22 Apr 2026 08:17:46 +0200
-Benno Schulenberg wrote:
+--------------XhAlyBTSawDhDBnqjhFtbXAS
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-> The convention for the subject line when man pages are affected is:
->
->    program: (man) description of change
+DQpPcCAyMi0wNC0yMDI2IG9tIDIwOjI1IHNjaHJlZWYgxaB0xJtww6FuIE7Em21lYzoNCj4g
+U2lnbmVkLW9mZi1ieTogxaB0xJtww6FuIE7Em21lYyA8c3RlcG5lbUBzbXJrLm5ldD4NCj4g
+LS0tDQoNClRoYW5rcyBmb3IgdGhlIHR3ZWFrZWQgcmUtc3VibWlzc2lvbi4NCg0KDQo+IFRo
+YXQgc2FpZCwgSSBzZWUgbm93IHRoYXQsIGhhZCBJIGdvbmUgbW9yZSBxdWFudGl0YXRpdmUg
+YWJvdXQgaXQsIEkNCj4gbWlnaHQgaGF2ZSBwaWNrZWQgdGhlIG9uZSB5b3UgcHJlZmVyIDot
+RA0KPiANCj4gOyBnaXQgbG9nIHwgZ3JlcCAtYyAnKG1hbik6ICcNCj4gMjENCj4gOyBnaXQg
+bG9nIHwgZ3JlcCAtYyAnOiAobWFuKScNCj4gMjg5DQoNClRoYXQgY291bnRzIGFsc28gdGhl
+IG9jY3VycmVuY2VzIG9mIHRob3NlIHN0cmluZ3MgaW4gdGhlIGJvZHkgb2YNCnRoZSBjb21t
+aXQgbWVzc2FnZXMuICBVc2luZyAtLW9uZWxpbmUgd291bGQgYmUgbW9yZSBhY2N1cmF0ZToN
+Cg0KJCBnaXQgbG9nIC0tb25lbGluZSB8IGdyZXAgLWMgJyhtYW4pOiAnDQoxMA0KJCBnaXQg
+bG9nIC0tb25lbGluZSB8IGdyZXAgLWMgJzogKG1hbiknDQoyMDcNCg0KVGhvc2UgdGVuIG9j
+Y3VycmVuY2VzIGFyZSBhbGwgZnJvbSB0aGUgbGFzdCB0aHJlZSB3ZWVrcy4gIFdoZW4NCnJ1
+bm5pbmcgdGhvc2Ugc2FtZSBjb21tYW5kcyBmb3IgdjIuNDIsIHRoZSBmaXJzdCBjb3VudCBp
+cyB6ZXJvLg0KDQoNCj4gSW4gYW55IGNhc2UsIGlmIHRoZSBwcmVmZXJlbmNlIGlzIGZlbHQg
+c3Ryb25nbHkgZW5vdWdoIHRvIHJlcXVpcmUNCj4gcmVyb2xscyBqdXN0IGZvciB0aGF0LCBJ
+IGJlbGlldmUgaXQgd291bGQgbWFrZSBhIGdyZWF0IGFkZGl0aW9uIHRvDQo+IGhvd3RvLWNv
+bnRyaWJ1dGUudHh0DQoNCkdvb2QgaWRlYS4gIFdpbGwgcG9zdCBhIHBhdGNoIGZvciB0aGF0
+Lg0KDQoNCkJlbm5vDQoNCg==
 
-Interesting.
+--------------XhAlyBTSawDhDBnqjhFtbXAS--
 
-I did recheck both Documentation/howto-contribute.txt and recent man
-page commits before sending the patch, and, having failed to identify
-clear guidance, went with the pattern that made more sense to me.
+--------------BW8lp7fPOwClWM7EnMpVLJ6V
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
-That said, I see now that, had I gone more quantitative about it, I
-might have picked the one you prefer :-D
+-----BEGIN PGP SIGNATURE-----
 
-; git log | grep -c '(man): '
-21
-; git log | grep -c ': (man)'
-289
+wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmnp6twFAwAAAAAACgkQUUu+Lrjhlh/4
+4A/9H13WEWdCtzMoiYb2b7kXIvA3Iu9qVaprwcJ2/WMvewAUzXM6cNbNbe6/+qcNEyrZj6vCUpN4
+438YF6nJ6r3luheRqoeQUQ69K8gkIbGEUJQVAOkAxGooQO7KVHYRQB7y+UalHpaSYs1eZDEDcTDv
+/pRkjQxXZ2wWD8eCws8z+VjD+zKOmjTqyRkjnNJVc9ebmBqVnwsfaJjzDyskmK39MKATZteEtroU
+LJpfRIY12HiGF4HQKLZ/FFTz/cVOqJafkkCcfssgmkXeoK+l6dCjsK4TaAO1CKv1gqSGkzlxBHdE
+NN2T9fIR7ybZHglk7OWqFVQe3YGXzzitUkA2KHCgH+lzVAXCZo3si+K4fkiia4uREywnphJWU3ou
+muxnVtEW5PIvCZgQ2UxRQ7tbQLGMQ/z4U29Zd57YnAG1qLiAJyjO1l7B8pRO6ktZXZMaBudVzI01
+eLZ6dZnV1ccnD7Xo1OyAoQooeY+jZGGtFB6AH4+TajkyJ3AlXTx3BHyVRBM2ZSF3rfluBiwW7xab
+Ak0vpM0HU7sToBnbQZq14CkT83Bj9erE2zhVZnnPzcUlBdj5BnxBqv1vQHz1vwhSwiI0LsUcpaaN
+pRSTwBYNDb2z6EpcMTZBiphXpOtsAcSaK5lQGfqJYuT6AO6kU6HrMsm/tHBU6KdTBvnHHNGwlY7N
+q5I=
+=hftq
+-----END PGP SIGNATURE-----
 
-Unfortunately I didn't.
-
-In any case, if the preference is felt strongly enough to require
-rerolls just for that, I believe it would make a great addition to
-howto-contribute.txt (or at least applying it consistently in the actual
-project commit messages; the most recent '(man): ' is from 19. 4.).
-
-Thanks,
-
-  Štěpán
-
- misc-utils/copyfilerange.1.adoc | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/misc-utils/copyfilerange.1.adoc b/misc-utils/copyfilerange.1.adoc
-index 303a1a7b25e2..89b95e9516fa 100644
---- a/misc-utils/copyfilerange.1.adoc
-+++ b/misc-utils/copyfilerange.1.adoc
-@@ -71,7 +71,7 @@
- 
- copyfilerange split-first-mb join ::
- 
--copyfilerange split-remainder join 1M::
-+copyfilerange split-remainder join :1M:
- ....
- 
- == SEE ALSO
-
-base-commit: fff8c59c75355d365a69f86719e7bd7818c1daf4
--- 
-2.53.0
-
+--------------BW8lp7fPOwClWM7EnMpVLJ6V--
