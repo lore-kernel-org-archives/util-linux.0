@@ -1,175 +1,93 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD41A2F4A15
-	for <util-linux@vger.kernel.org>; Thu, 23 Apr 2026 10:15:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5741E35CB7F
+	for <util-linux@vger.kernel.org>; Mon, 27 Apr 2026 08:14:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776939332; cv=none; b=GRxn3cuZt0Q5j8wsw5CnFxUSIr3WhUhUkbP//Cb9p+EefSm1yUIi26yPaMpBWq+umM3vqg2SV1BiiFNHyaAj6aWeJMPeOnfB+8l8WPZDC8T6cDjibinDysLRaY6PIszCN4TkktswL5Vf2YOEHGorjUAskCD6SEUZfs7Up071uwU=
+	t=1777277662; cv=none; b=odguYRVhVZSZoY5l3IOyA1maht+xGJ5GP6IG+fxeYVQcyLGSgzwW7A4X8pQGZVjVzfI2BbuOHwMH/Urqno1D+PMGtyi+TvtALrOOmnU4vyPfvNjpzaBZUzPiGSNDvwhTsWhoxT1cMiw6EUmNPdpPk7ZyyUN6d23AmXEvIbnxDeM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776939332; c=relaxed/simple;
-	bh=iJxdNOjPVY9g9pDmaK1Rc3f9LN+EFPHVSKgabyk1Jto=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=rygTUEDNQSV/YRiSdYSyXPyzJpyqGfpZzX61PIqybNuLnXo1SrLUYMR7eitgwvHGUsQ8Jj/AkZWOIJx6pyjrCeg77Lmu0EWcjPtb34laV7Na8jVzTuqgZCRtBAYbwts0o/nwMKHsfPEhH9R9MnqEh48OWj1K0odV3F8Bw/01zsE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f3s4PWfI; arc=none smtp.client-ip=209.85.128.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1777277662; c=relaxed/simple;
+	bh=8FjCCfc3ATlCE5jRgXIYhjXgdiV1c+dDkF+DodJsMVQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HVzpTkyk0A90fWX1hv21TwdW5dfxLG6DfsIT7E5hVqnoADjAvHgaXhzwCXLcCNG8APfbiBUElZTdFrfUgMidP1ZjPZeLi8lzENRHR4p9HtOzHKzGhpvDCurE/VvBuQGMGEcF8vXdGojrtgEqolYGUJ7Lds/3mLqWlbiCa1NxnyQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gLfS40+F; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f3s4PWfI"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-4890d945eb4so29385805e9.0
-        for <util-linux@vger.kernel.org>; Thu, 23 Apr 2026 03:15:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776939329; x=1777544129; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=E2SgYaNy4qIu6DeXd05dRdL1RhJxKKEhsmTQIWkK1o0=;
-        b=f3s4PWfI7/B56ZBN68+hKy+VAHNv2vk5srtnn8q+trGAa9dJJmELJpH7lqfr1dTG1Z
-         nnqSJjyyEL7t2Fig4v91mZk1c42RFVdJtqWb0up7YWftYbPJUK+ehHhMjflrtW+C0aBr
-         3Ddv7P8pJZHE6HUqAXlOLkN/px8XKY60fqqOyU/+XHLmUQcx/9gPDRnyPAMxwb3tkaiU
-         /4Lo7twPfDsVE02Ece+FLMu+OUzP4H1ZYnyz4ui20IoagoM0SMo0weDyzrn1uUOdcDCp
-         VWz6LMZQmouPXjvViVm/xTAw6CVBAENq75Vuvd/bF5ISezeUC2CRugKA6FH87O19FJuA
-         plew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776939329; x=1777544129;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=E2SgYaNy4qIu6DeXd05dRdL1RhJxKKEhsmTQIWkK1o0=;
-        b=B4CVAPM608DF2m4hKQh09h4G/XQeK7DvAuVHs37q5wjmWKj8NXdIUYM30BrFsP5V1w
-         2C/LViLXdviSnPJ0konG9o0xNwdd4KSIF7yoUAN4YgKnSlJS4uDgsLzUh0l4EQUVRLMg
-         tXpvONDE8pmagKinHXDPHWOQ/2wO8UnIOr2AMw7HKiAJu5VZjCTRiNXpODegAML0DrkC
-         6IyCx33muzcn7dsHNPABoX0px6lzELA+gB/n1sVl0GjlWU42onAhPVoC/z/ovlnDsLvZ
-         2Zq3AWVAgTtGYsxjuOg3hO+C2lQBTMDd5vowv++Oa5dl54tUpxFInbkzv5yRqqb4+B1s
-         Mqiw==
-X-Gm-Message-State: AOJu0Yw4BW7IVMVhRI3UzvS/H9RZPJJgp78NyzWQssMfCMsMqsRnHI1w
-	TbIVd+5ZNSKgpulayJuRaLWU8rDCe+RatUN62/s+NlHSORN41LrkaFsrLgEjmg2P
-X-Gm-Gg: AeBDievWY3n1jpWscWqY66lw6aubvGdmICGeMBYMMJ2vxAvRpzQDxzd1udiHXkbELds
-	j+AulAINPYTmvR4hUpmgAFOUrOLTcIkYx93BcFSr8WA4A24yAKlvS0qpxO0tt0GmtXC+KYiEtMT
-	bY4bHvi7aKFqX3ehYHe6zUCIYma+uES4d2bfDwQCIiLG5kZUEdgzde1fn6ydQ0GnSUglqyly5Gp
-	jKRKY12p5il+TUuiXUmMbTvINsO1PPlW/LSUR2Pd2CfPe0zNlZQA2D+iNPKY1+Q9hKBHIRyRPTv
-	rcqD/2UtmCtPCW5z8/borf61BWpHRZofTqYhy3i6UaBmh5Sye20lFrS+qkIz6qas/cG1m7Y/1ON
-	uwvqVBmsOoEVX4d5GiRlzBqYY4K2Gk3vR1qVB91m0xVtQ8dv9euRBPPPGZqIQNZVrdDlZB52AKY
-	vBc3OvnKlJkddIah6ZnukwBINNB6CJADdyPt0=
-X-Received: by 2002:a05:600d:106:b0:488:a2a1:62cb with SMTP id 5b1f17b1804b1-488fb8b5753mr242303285e9.13.1776939328564;
-        Thu, 23 Apr 2026 03:15:28 -0700 (PDT)
-Received: from notebook.. ([85.107.102.137])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43fe4cb1365sm55581038f8f.7.2026.04.23.03.15.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Apr 2026 03:15:28 -0700 (PDT)
-From: Furkan Caliskan <frn1furkan10@gmail.com>
-To: util-linux@vger.kernel.org
-Cc: kzak@redhat.com,
-	bensberg@telfort.nl,
-	vineethr@linux.ibm.com,
-	Furkan Caliskan <frn1furkan10@gmail.com>
-Subject: [PATCH] chrt: Add support for (GRUB) bandwidth reclaim
-Date: Thu, 23 Apr 2026 13:14:07 +0300
-Message-Id: <20260423101407.35502-1-frn1furkan10@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gLfS40+F"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1777277660;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Gslu6t7+wsvvZBy8eQg1BEqgK3j57Gco6XPwcNDK/e0=;
+	b=gLfS40+F6y0KzL5g/fvTd+V45RWyCPWkibgfAemTaGp0TUu9hSQI3rv1BhIu4UGj+8mYrO
+	r0mhX0FTypeGXyZFwzli61vUm7MIq5PbKEHLKySHGCb0I7QRvVwQQ+RBWiOdN9Ifl5L1f9
+	Gqjby+HD/wf1YJRkqpl7PhmEsFlZQZY=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-235-Vs7QKCGRPPeSDAUK6VShog-1; Mon,
+ 27 Apr 2026 04:14:16 -0400
+X-MC-Unique: Vs7QKCGRPPeSDAUK6VShog-1
+X-Mimecast-MFC-AGG-ID: Vs7QKCGRPPeSDAUK6VShog_1777277655
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A361718005AC;
+	Mon, 27 Apr 2026 08:14:14 +0000 (UTC)
+Received: from ws (unknown [10.44.32.168])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 539443000C22;
+	Mon, 27 Apr 2026 08:14:13 +0000 (UTC)
+Date: Mon, 27 Apr 2026 10:14:10 +0200
+From: Karel Zak <kzak@redhat.com>
+To: Benno Schulenberg <bensberg@telfort.nl>
+Cc: =?utf-8?B?xaB0xJtww6FuIE7Em21lYw==?= <stepnem@smrk.net>, 
+	util-linux@vger.kernel.org
+Subject: Re: [PATCH] copyfilerange: (man) fix swapped offsets in command
+ example
+Message-ID: <qqhh32qg4rh32mtmhry6seh2zdq7zneuwnphbzjogg22ikifpp@cwpa25zy464y>
+References: <20260420180528.943663-1-stepnem@smrk.net>
+ <bd1c4673-ab3a-4934-a7d1-8113a48c9811@telfort.nl>
+ <20260422182503.1111558-1-stepnem@smrk.net>
+ <294a8ef5-e73d-4715-a824-ba0ca40e1067@telfort.nl>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <294a8ef5-e73d-4715-a824-ba0ca40e1067@telfort.nl>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-The SCHED_DEADLINE policy supports the (GRUB) Greedy Reclamation
-of Unused Bandwidth algorithm. This allows tasks to reclaim
-bandwidth that are left over by other deadline tasks that finish
-their work early, or voluntarily yield the cpu.
+On Thu, Apr 23, 2026 at 11:48:12AM +0200, Benno Schulenberg wrote:
+> 
+> Op 22-04-2026 om 20:25 schreef Štěpán Němec:
+> > Signed-off-by: Štěpán Němec <stepnem@smrk.net>
+> > ---
+> 
+> Thanks for the tweaked re-submission.
 
-Currently, chrt has no way to set the SCHED_FLAG_RECLAIM bit in
-the sched_flags field of the sched_attr structure.
+The patch has been applied. Thanks Štěpán.
 
-Add -G/--reclaim-grub option to allow users to toggle this feature
-using the deadline scheduling class.
+> > In any case, if the preference is felt strongly enough to require
+> > rerolls just for that, I believe it would make a great addition to
+> > howto-contribute.txt
+> 
+> Good idea.  Will post a patch for that.
 
-Signed-off-by: Furkan Caliskan <frn1furkan10@gmail.com>
----
- schedutils/chrt.1.adoc |  3 +++
- schedutils/chrt.c      | 13 ++++++++++++-
- 2 files changed, 15 insertions(+), 1 deletion(-)
+ +1
 
-diff --git a/schedutils/chrt.1.adoc b/schedutils/chrt.1.adoc
-index b8d8874bc..da607d958 100644
---- a/schedutils/chrt.1.adoc
-+++ b/schedutils/chrt.1.adoc
-@@ -83,6 +83,9 @@ Specifies deadline parameter for *SCHED_DEADLINE* policy (Linux-specific).
- 
- *-R*, *--reset-on-fork*::
- Use *SCHED_RESET_ON_FORK* or *SCHED_FLAG_RESET_ON_FORK* flag. Linux-specific, supported since 2.6.31.
-+
-+*-G*, *--reclaim-grub*::
-+Enables GRUB (Greedy Reclamation of Unused Bandwidth) algorithm. 
- +
- Each thread has a _reset-on-fork_ scheduling flag. When this flag is set, children created by *fork*(2) do not inherit privileged scheduling policies. After the _reset-on-fork_ flag has been enabled, it can be reset only if the thread has the *CAP_SYS_NICE* capability. This flag is disabled in child processes created by *fork*(2).
- +
-diff --git a/schedutils/chrt.c b/schedutils/chrt.c
-index 273905e5d..1a081e566 100644
---- a/schedutils/chrt.c
-+++ b/schedutils/chrt.c
-@@ -46,6 +46,7 @@ struct chrt_ctl {
- 	uint64_t runtime;			/* --sched-* options */
- 	uint64_t deadline;
- 	uint64_t period;
-+        uint64_t flag;                         /* For sched_attr->sched_flags member */ 
- 
- 	unsigned int all_tasks : 1,		/* all threads of the PID */
- 		     reset_on_fork : 1,		/* SCHED_RESET_ON_FORK or SCHED_FLAG_RESET_ON_FORK */
-@@ -79,6 +80,7 @@ static void __attribute__((__noreturn__)) usage(void)
- 	fputs(USAGE_SEPARATOR, out);
- 	fputs(_("Scheduling options:\n"), out);
- 	fputs(_(" -R, --reset-on-fork       set reset-on-fork flag\n"), out);
-+	fputs(_(" -G, --reclaim-grub        set SCHED_FLAG_RECLAIM\n"), out);
- 	fputs(_(" -T, --sched-runtime <ns>  runtime parameter for DEADLINE\n"), out);
- 	fputs(_(" -P, --sched-period <ns>   period parameter for DEADLINE\n"), out);
- 	fputs(_(" -D, --sched-deadline <ns> deadline parameter for DEADLINE\n"), out);
-@@ -349,7 +351,7 @@ static int set_sched_one(struct chrt_ctl *ctl, pid_t pid)
- 	/* old API is good enough for non-deadline */
- 	if (!supports_runtime_param(ctl->policy))
- 		return set_sched_one_by_setscheduler(ctl, pid);
--
-+	
- 	/* not changed by chrt, follow the current setting */
- 	sa.sched_nice = getpriority(PRIO_PROCESS, pid);
- 
-@@ -359,6 +361,7 @@ static int set_sched_one(struct chrt_ctl *ctl, pid_t pid)
- 	sa.sched_runtime  = ctl->runtime;
- 	sa.sched_period   = ctl->period;
- 	sa.sched_deadline = ctl->deadline;
-+        sa.sched_flags    = ctl->flag;
- 
- # ifdef SCHED_FLAG_RESET_ON_FORK
- 	/* Don't use SCHED_RESET_ON_FORK for sched_setattr()! */
-@@ -417,6 +420,7 @@ int main(int argc, char **argv)
- 		{ "sched-period",   required_argument, NULL, 'P' },
- 		{ "sched-deadline", required_argument, NULL, 'D' },
- 		{ "reset-on-fork",  no_argument,       NULL, 'R' },
-+		{ "reclaim-grub",   no_argument,       NULL, 'G' },
- 		{ "verbose",	no_argument, NULL, 'v' },
- 		{ "version",	no_argument, NULL, 'V' },
- 		{ NULL,		no_argument, NULL, 0 }
-@@ -460,6 +464,11 @@ int main(int argc, char **argv)
- 		case 'R':
- 			ctl->reset_on_fork = 1;
- 			break;
-+		case 'G':
-+#ifdef SCHED_DEADLINE
-+			ctl->flag |= SCHED_FLAG_RECLAIM;
-+#endif
-+			break;
- 		case 'i':
- #ifdef SCHED_IDLE
- 			ctl->policy = SCHED_IDLE;
-@@ -546,6 +555,8 @@ int main(int argc, char **argv)
- 	if ((ctl->deadline || ctl->period) && ctl->policy != SCHED_DEADLINE)
- 		errx(EXIT_FAILURE, _("--sched-{deadline,period} options are "
- 				     "supported for SCHED_DEADLINE only"));
-+	if ((ctl->flag & SCHED_FLAG_RECLAIM) && ctl->policy != SCHED_DEADLINE)
-+	        errx(EXIT_FAILURE, _("--reclaim-grub is only supported for SCHED_DEADLINE"));
- 	if (ctl->policy == SCHED_DEADLINE) {
- 		/* The basic rule is runtime <= deadline <= period, so we can
- 		 * make deadline and runtime optional on command line. Note we
+    Karel
+
+
 -- 
-2.34.1
+ Karel Zak  <kzak@redhat.com>
+ http://karelzak.blogspot.com
 
