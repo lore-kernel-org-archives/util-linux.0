@@ -1,333 +1,273 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from MW6PR02CU001.outbound.protection.outlook.com (mail-westus2azon11022118.outbound.protection.outlook.com [52.101.48.118])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 936C63EFD0C
-	for <util-linux@vger.kernel.org>; Mon, 18 May 2026 11:05:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779102321; cv=none; b=MeiSoq9bCz0VRVGzkhwRJ+o2NcKk/7MOrYBacj79i/I2PyukQTg8uGYfOlSvM5Orkv8hpXYKaZas+H8sJ622XmGTKEpfTBFpWHCDNVurB2KYYRS/JAttl9N29v7bAChK0UbJn8ntTZly62wl0CqMeFoeU3tAFzA4oMhqsbpen9c=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779102321; c=relaxed/simple;
-	bh=y9IrFHxJ2X8R/utRW5u4PT3weT7dUqFYMfTJZevEJ+4=;
-	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=F3lv27v32LCrfcY9MvGSM4SG8i2j1zAmzNPBnZxACzxIdepXO5FK2NMIxzCqlzDxN7JDSlWcwxhO0e7c6tdSEic0UhA567a3J+VnMlm9kRbjEfH8QwOzoyXXY0oMAypcLd6zkmknRlXrOk6gmrhnmGtfU/1YSiVSFRy2xslLCh0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MsvlwsI3; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E4632BE7AB
+	for <util-linux@vger.kernel.org>; Wed, 20 May 2026 14:33:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.48.118
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779287632; cv=fail; b=bjfAKxQa56uRTqyORYomec4kdIW6l4RoMWMnt/nHVCer/i8KpzMGAD+BgLXf/Z6fhIgD1Fxxe+fzuuxn7KN/v/5oPhIh31/aOdDE0UvvW91RaODGJMPA5sdL9VaLo4ez/0dyVOzXCX7a5ows4ebgykp5AoaGqQ1qGlymCCTDyoI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779287632; c=relaxed/simple;
+	bh=cbXB2YjG1pAKgvKDJB+3Hq5JJFegUAcKEN1o6HiP0UM=;
+	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=V5Z07N3qCoFp2vIPREDdOJ5BVbTmpDlLnyWYkXvrpTa52QLChCc6WNYCvG5/hb0ZClYafIHejIgph5WJJWNfIYRAq0KWhis3bUak/IypKnV6D82f/w9k37pVp14Uvate0xOh5Pp9IKg9PoNb1teyMzvV1MQs1fqvdfM/1Q2ir+0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=os.amperecomputing.com; spf=pass smtp.mailfrom=os.amperecomputing.com; dkim=pass (1024-bit key) header.d=os.amperecomputing.com header.i=@os.amperecomputing.com header.b=T8CgqWPm; arc=fail smtp.client-ip=52.101.48.118
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=os.amperecomputing.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=os.amperecomputing.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MsvlwsI3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1779102314;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=HiWhQGjMnbplsBQRs1ms9ouzJDhPmjIwzLuFkVbLDrI=;
-	b=MsvlwsI3lIdcA4twmD6iGEYyGMVrqI43D0Ea/RGMG83rHjejvuo0jtSV8IWP62l9RRufg2
-	BKoQX71c4tklI6LonU2Rt0ZqvVTsw4/YM+uaFVSVfE8aR61hAIerBG+pwuz5Xqg6GpDBxY
-	Tg9YEJmuFg0pF/WJ3rQu4dzaPry4uyU=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-134-aYCYjZKkN4yttHuxPlRxww-1; Mon,
- 18 May 2026 07:05:12 -0400
-X-MC-Unique: aYCYjZKkN4yttHuxPlRxww-1
-X-Mimecast-MFC-AGG-ID: aYCYjZKkN4yttHuxPlRxww_1779102311
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 08951195605B;
-	Mon, 18 May 2026 11:05:11 +0000 (UTC)
-Received: from ws (unknown [10.44.49.92])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id BB1871800352;
-	Mon, 18 May 2026 11:05:08 +0000 (UTC)
-Date: Mon, 18 May 2026 13:05:05 +0200
-From: Karel Zak <kzak@redhat.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	util-linux@vger.kernel.org
-Subject: [ANNOUNCE] util-linux v2.42.1
-Message-ID: <dryjs4vfzzysrhuxa4khf7frezdmouv6ys5nqsx7u46nvk4mg6@z4o37akcrh6y>
+	dkim=pass (1024-bit key) header.d=os.amperecomputing.com header.i=@os.amperecomputing.com header.b="T8CgqWPm"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=ljmo4LJVbppv/ruG6C47oPSOuNtJUBmfKsrmOvlEUbP8qcs+HxVjZDhRk3lKaIFNEecKi5va7yGtv95atjb7aKRC//o0L2nwEDwFfn/q+W7FqEaLrPXifA87V70uiHeiERfRGll7E0UI+4dVYq5B69zyvvu1VwtRQ9Zvy5DdgM4BgZO6W7Q1Zt7XTePnuBRTTmXb0e1OwQEaEfP+hsdKTvza9L35gHWPU2l9kPDImINlROhEr9CnRf9osAQOd1bnv007zikDoULLvRGa0Vrb75or4C3DnBArsvhOygsZwyl5ByDTGMsoStGtG3PC8oD/OvgIVBCL/ONYS7cnRpnVIw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=gVJbTbpiO6yDPq2ezlZm5+NQ9JfBp4svdAKrN5Vj/48=;
+ b=gAZvorX7/NMQWkLIH/myzQ5rnWOsaoWGh5S6YPTvA0cBbvuI7uE9RgosXKqYrbr9SsWppTy2nKd6cMayNgma1lUEdLtN5qZWsOUiMS98Tw0cfN7SUHs80LiB2pp5r2TznYyNdh3KxJJgbpwPXTdU4xNIoHBUxP6koPgJRog3T9cz6VVhyNZZ5oRhDF4rBtPop9fHcrz/Tm8N7jmAH7S0aK6eHVpkSvmIugqvAFGXVP1BR8R7W2q9iHiLawCIKeHIABOped+XgNl4G9eUHHC0UvRw27TWUPXSCmsjXsW1Qxny2Xppq6Fo7me4Vfzo5GjgWD0EkNVrHmSCB9/C5q8shg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=os.amperecomputing.com; dmarc=pass action=none
+ header.from=os.amperecomputing.com; dkim=pass
+ header.d=os.amperecomputing.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=os.amperecomputing.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=gVJbTbpiO6yDPq2ezlZm5+NQ9JfBp4svdAKrN5Vj/48=;
+ b=T8CgqWPmjZ5wO1wvl7cueT53jqfqpoY9O/LEL5iLzYEHsT+rb4Y+QTZXpkJQ+Z92dRETcUnxZDZr6P4mq41NwVrxf5FMG4Z9cvE1WXgrjfOz3WW9kFGO1r3rvnhIL2LjsCWg5pkNqjW0An6fpvYXGWNdGySurNBoLbQBtmW294k=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=os.amperecomputing.com;
+Received: from SA1PR01MB8179.prod.exchangelabs.com (2603:10b6:806:330::14) by
+ SAWPR01MB994493.prod.exchangelabs.com (2603:10b6:806:4d4::11) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.48.14; Wed, 20 May 2026 14:33:47 +0000
+Received: from SA1PR01MB8179.prod.exchangelabs.com
+ ([fe80::f091:2832:ffa:784d]) by SA1PR01MB8179.prod.exchangelabs.com
+ ([fe80::f091:2832:ffa:784d%6]) with mapi id 15.21.0048.016; Wed, 20 May 2026
+ 14:33:47 +0000
+Message-ID: <9dd167b9-60e1-4caa-abfa-58aad5efb328@os.amperecomputing.com>
+Date: Wed, 20 May 2026 10:33:45 -0400
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/2] lscpu-arm: Include the ARM SMC CC SOC_ID name.
+To: util-linux@vger.kernel.org
+References: <a758edc3-2d4f-4e5d-8951-8aad0c3a546a@os.amperecomputing.com>
+ <20260211212309.126190-1-paul@os.amperecomputing.com>
+Content-Language: en-US
+From: Paul Benoit <paul@os.amperecomputing.com>
+In-Reply-To: <20260211212309.126190-1-paul@os.amperecomputing.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: CH2PR17CA0022.namprd17.prod.outlook.com
+ (2603:10b6:610:53::32) To SA1PR01MB8179.prod.exchangelabs.com
+ (2603:10b6:806:330::14)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
-
-The util-linux release v2.42.1 is now available at
- 
-  http://www.kernel.org/pub/linux/utils/util-linux/v2.42/
- 
-Feedback and bug reports, as always, are welcomed.
- 
-  Karel
-
-
-util-linux v2.42.1 Release Notes
-================================
-
-agetty:
-    - Always call chdir after chroot (by Tobias Stoeckmann)
-
-autotools:
-    - Fix setpriv build with econf (by Tobias Stoeckmann)
-
-bits:
-    - use getline() to avoid stdin input truncation (by WanBingjiang)
-    - prevent unsigned integer underflow and long-lived loop (by Christian Goeschel Ndjomouo)
-
-build:
-    - (copyfilerange) include syscall header check for fallback (by Christian Goeschel Ndjomouo)
-    - Fix --disable-copyfilerange (by Tobias Stoeckmann)
-
-build-sys:
-    - drop libcommon_shells from binaries that only need ul_default_shell (by Karel Zak)
-
-cfdisk:
-    - fix memory leak of original_layout table (by Karel Zak)
-
-chrt:
-    - Fix confusing error messages when priority argument is required (by Rong Zhang)
-    - Only show current scheduling policy when pid is given (by Rong Zhang)
-    - pass correct integer types to printf (by Thomas Weißschuh)
-    - (man) explain which kernel config options are needed for SCHED_EXT (by Christian Goeschel Ndjomouo)
-
-ci:
-    - use GCC 15 (by Thomas Weißschuh)
-    - run 'make checkusage' only for autotools build (by Thomas Weißschuh)
-
-CI:
-    - replace ntp with ntpsec (by Karel Zak)
-
-column:
-    - fix missing out-of-bounds check in table reordering (by Christian Goeschel Ndjomouo)
-
-copyfilerange:
-    - (man) fix swapped offsets in command example (by Štěpán Němec)
-
-dmesg:
-    - fix out-of-bounds read when parsing malformed kmsg file (by WanBingjiang)
-
-docs:
-    - clarify wipefs --force description for partition-table signatures (by AndyLau-SOC)
-
-eject:
-    - tolerate ILLEGAL REQUEST on ALLOW_MEDIUM_REMOVAL (by Alessandro Ratti)
-
-fallocate:
-    - (man) mention supported file systems for --insert-range (by Christian Goeschel Ndjomouo)
-
-fdisk:
-    - fix trailing whitespace in user reply from readline completion (by Leonid Znamenok)
-
-fincore:
-    - (tests) fix tmpfs detection for out-of-tree builds (by Leonid Znamenok)
-
-flock:
-    - re-enable the initial shell selection logic (by Christian Goeschel Ndjomouo)
-
-fsck.minix(man):
-    - Fix asciidoctor table (by Tobias Stoeckmann)
-
-hardlink:
-    - avoid format string error for dev_t (by Thomas Weißschuh)
-
-include:
-    - (fileutils.h) add fallback for the copy_file_range syscall (by Christian Goeschel Ndjomouo)
-
-ipcutils:
-    - use memset explicitly to fill bpf_attr with zero (by Masatake YAMATO)
-
-irqtop:
-    - add vw_printw() fallback for slang builds (by Karel Zak)
-
-irqtop/lsirq:
-    - Handle EOF in get_irqinfo (by Tobias Stoeckmann)
-
-last:
-    - fix phantom detection for unset loginuid and X11 sessions (by Karel Zak)
-
-lib:
-    - split ul_default_shell() from shells.c into default_shell.c (by Karel Zak)
-    - (cpuset.c) dont calculate allocation size for 0 ncpus (by Christian Goeschel Ndjomouo)
-
-libblkid:
-    - Fix typo in probe_zfs (by Tobias Stoeckmann)
-    - Fix type access in zfs_extract_guid_name (by Tobias Stoeckmann)
-    - Fix debug OOB read in zfs_process_value (by Tobias Stoeckmann)
-    - Fix parse_dev debug output (by Tobias Stoeckmann)
-    - Ignore secondary LUKS2 header in blkid_do_safeprobe() (by silentcreek)
-    - reiserfs add block size validation for reiser4 (by Karel Zak)
-    - erofs validate blkszbits before checksum calculation (by Karel Zak)
-    - exfs avoid 32-bit overflow in rextsize validation (by Karel Zak)
-    - solaris use 64-bit for partition offset calculations (by Karel Zak)
-    - bsd use 64-bit for partition offset calculations (by Karel Zak)
-    - mac use 64-bit for partition offset calculations (by Karel Zak)
-    - dos use 64-bit for partition offset calculations (by Karel Zak)
-    - udf avoid 32-bit overflow in offset calculations (by Karel Zak)
-    - vfat avoid 32-bit overflow in offset calculations (by Karel Zak)
-    - ubi fix probe return values (by Karel Zak)
-    - f2fs tighten log_blocksize validation (by Karel Zak)
-    - nilfs fix byte order and block size validation (by Karel Zak)
-    - gpt fix wiper offset to use sector size (by Karel Zak)
-    - udf cap descriptor sequence iteration count (by Karel Zak)
-    - bcache add missing NULL check (by Karel Zak)
-    - bsd read enough data to cover disklabel struct (by Karel Zak)
-    - befs improve bounds checking in B+ tree search (by Karel Zak)
-    - ntfs improve integer overflow checks (by Karel Zak)
-    - introduce sysfs_devno_is_dm_hidden() for pre-open check (by Zdenek Kabelac)
-
-libcommon:
-    - move pidfd-utils.c to Linux-only sources (by Karel Zak)
-
-liblastlog2:
-    - (tests) avoid log spam (by Thomas Weißschuh)
-    - wait on busy SQLite connections (by WanBingjiang)
-
-libmount:
-    - return btrfs rootfs from get_btrfs_fs_root() (by Karel Zak)
-    - use match_source for mountinfo comparison (by Karel Zak)
-
-lib/pidutils, lib/pidfd-utils:
-    - use _() instead of N_() in err() calls (by Karel Zak)
-
-lib/pwdutils:
-    - fix compiler warning [-Werror=maybe-uninitialized] (by Karel Zak)
-
-libsmartcols:
-    - drop superfluous call yo yylex_init() (by Thomas Weißschuh)
-    - (tests) fix failure reporting in filter test (by Thomas Weißschuh)
-    - (tests) fix filter test name (by Thomas Weißschuh)
-    - Ignore -Wsign-compare in filter-scanner.l (by Thomas Weißschuh)
-
-libuser:
-    - fix misleading error message (by Christian Goeschel Ndjomouo)
-
-login:
-    - Clean up PAM resources on error path (by Tobias Stoeckmann)
-
-login-utils/auth:
-    - Drop pam_setcred (by Tobias Stoeckmann)
-
-lsblk(man):
-    - Add COLORS section (by Tobias Stoeckmann)
-
-lsclocks:
-    - add missing newline character in option description (by Christian Goeschel Ndjomouo)
-
-lscpu(man):
-    - Move options into correct section (by Tobias Stoeckmann)
-
-lsfd:
-    - use memset explicitly to fill bpf_attr with zero (by Masatake YAMATO)
-
-meson:
-    - check slang headers only when slang library is found (by Karel Zak)
-    - rename logindefs_c to lib_common_logindefs (by Karel Zak)
-    - split shells.c out of lib_common into lib_common_shells (by Karel Zak)
-    - respect build-dmesg for test_dmesg (by Thomas Weißschuh)
-    - test for statx::stx_mnt_id in sys/stat.h (by Thomas Weißschuh)
-
-mkfs.cramfs:
-    - Consider -i only once (by Tobias Stoeckmann)
-    - Add -p padding only once (by Tobias Stoeckmann)
-    - Improve file size check (by Tobias Stoeckmann)
-
-mkswap:
-    - Fix --file chmod(2) check when file exists (by Johannes Wüller)
-
-more:
-    - align MORE_SHELL_LINES semantics with less(1) (by Karel Zak, Christian Goeschel Ndjomouo)
-
-newgrp:
-    - Correctly handle getline error (by Tobias Stoeckmann)
-
-nsenter:
-    - Fix AT_HANDLE_FID on musl (by Aleksi Hannula)
-
-pidfd-utils:
-    - Fix pidfd_get_inode declaration (by Tobias Stoeckmann)
-
-po:
-    - merge changes (by Karel Zak)
-    - update ro.po (from translationproject.org) (by Remus-Gabriel Chelu)
-    - update pt.po (from translationproject.org) (by Pedro Albuquerque)
-    - update pl.po (from translationproject.org) (by Jakub Bogusz)
-    - update ja.po (from translationproject.org) (by YOSHIDA Hideki)
-    - update et.po (from translationproject.org) (by Toomas Soome)
-    - update cs.po (from translationproject.org) (by Petr Písař)
-
-po-man:
-    - merge changes (by Karel Zak)
-    - update ro.po (from translationproject.org) (by Remus-Gabriel Chelu)
-
-po-man/po4a:
-    - Add missing manual pages (by Tobias Stoeckmann)
-
-readprofile:
-    - (man) clarify not designed for privilege-elevation use (by Karel Zak)
-
-script:
-    - fix "--" separator when used as option argument (by Karel Zak)
-    - fix command and command_norm memory leaks (by Karel Zak)
-    - fix backward compatibility for options after non-option args (by Karel Zak)
-
-scriptreplay(man):
-    - Add right arrow documentation (by koraynilay)
-
-strutils:
-    - fix printf formats (by Thomas Weißschuh)
-
-su:
-    - Clean up PAM resources on all error paths (by Tobias Stoeckmann)
-    - fix grammar on man page (by Christian Goeschel Ndjomouo)
-
-su-common:
-    - revert "su pass arguments after <user> to shell" (by Christian Goeschel Ndjomouo)
-
-terminal-colors.d:
-    - (man) re-apply improvements lost in merge (by Benno Schulenberg)
-
-tests:
-    - (lsfd/mkfds-udp*) make UDPLite related test cases skippable (by Masatake YAMATO)
-    - (lsfd/option-inet{,-udp}) make UDPLite related test case skippable (by Masatake YAMATO)
-    - (lsfd) add a function checking the availability of UDPLite socket (by Masatake YAMATO)
-    - (lsfd::mkfds-udp) fix confusion between UDP and UDPLite (by Masatake YAMATO)
-    - (test_mkfds) use memset explicitly to fill bpf_attr with zero (by Masatake YAMATO)
-    - (ipcs/limits) skip when /proc/sys/kernel is read-only (by Karel Zak)
-    - (bits) add --width tests for invalid values (by Christian Goeschel Ndjomouo)
-    - add btrfs RAID is-mounted test for libmount (by Karel Zak)
-
-tests/functions.sh:
-    - consider '+' for metadata in kernel version parsing (by Christian Goeschel Ndjomouo)
-
-tools:
-    - (compare-buildsys) suppress common lines in diff output (by Karel Zak)
-
-tools/git-tp-sync:
-    - update po4a.cfg language list on sync (by Karel Zak)
-
-write:
-    - cleanup indentation and whitespace (by Karel Zak)
-    - use mem2strcpy() for utmp strings (by Karel Zak)
-    - always use utmp as fallback (by Karel Zak)
-
-write, mesg:
-    - add S_ISCHR() check for terminal device paths (by Karel Zak)
-
-Misc:
-    - Remove obsolete comment since 2015 (by Julien Nabet)
-    - Link against libcommon_logindefs.la and libcommon_shells.la (by Stanislav Brabec)
-    - Fix build with libeconf (by Stanislav Brabec)
-    - [po-man] Add missing languages to po4a.cfg (by Mario Blättermann)
-
-
-
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA1PR01MB8179:EE_|SAWPR01MB994493:EE_
+X-MS-Office365-Filtering-Correlation-Id: dd9c9313-6451-4c29-5b96-08deb67ccd3a
+X-MS-Exchange-AtpMessageProperties: SA
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|366016|1800799024|10070799003|3023799007|11063799006|22082099003|18002099003|55112099003|56012099003|4143699003;
+X-Microsoft-Antispam-Message-Info:
+	u7FSGIG7ioEoMG2ae+Im5qfgaHpoQFFSozfx5bauzurvjnl8ZwrkTrUUPHIVPfvhvIv6FBI8cQhkIFAQkanE7vGbMWNeHv6745Dtc+4hMqIg3QmnzqAAsujXmZZAV6WZJ7NNTh1bxayLVNBSZ/SYwzrbSi2EJbJ4N+p+/DcGnrlEvniv9A5gbfyG3WHFhvmIAh/cDZWWH0hWw5CNKV1QCPlU0KnowXt6IGcGcUDTk2Ul1+lWZu2T/l3A0e+EZ8pFvtKDdAKPZoZyVSzjZL5eODf4GM8vbbgMakD4hRXaOxGqxLy6QQzIVL1T84hMzkH6KXdB3f7Q1GAS7oLbO4c7F6QLkZ6GfJRxYYPAn/1MlfN2xzIEN90fOVs26ANkHMqsH1isntCqWbV3+CpgrEH1jZ2ZpZOg8zKQkSFwOIsXtE88hn6WLEPOc/wYIpPDXjexpD676nCdwXlY75nqEMiH5bVJhU+0CwtJpDhZT/yUvS/MSW0PyKXS6w57CwggHmnyt0AnIFD+IJ1En4LLQpzIUogNyPC6rvnUen6IjDkigsSV33/d+HD+0217bMI+bTEB71yEeVyW5bqkYV39alP7NWGcly/t31kv4uSKfWalTrFNNtMx9mn3AwBNO1MFHQD+yb8J/gdLUHaqeHkqITQ4rZGF8/dluU64QAgxejLv/Omy9sHAPoiUnH4hH07Omj7Jfw/3GNl1jsLqyIuri8IuhA==
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR01MB8179.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024)(10070799003)(3023799007)(11063799006)(22082099003)(18002099003)(55112099003)(56012099003)(4143699003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 2
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?aXNycnZpME84NnM2RlFWZGV1dXNHNGs2UmJqeEJ6Qjg3YjBqdFYrbVNoRFMy?=
+ =?utf-8?B?Wjg4cnpib0U5NjZJUG9aK3NIOTNxTDlMckovZi9GSll3V2dNU0FsM2RDNzJL?=
+ =?utf-8?B?dmZ4ckd0Q09YUjBXM3A0WkxUR3lQa0d3UE5LYzlyQjVoY1ZxeGN3TDNaZkU1?=
+ =?utf-8?B?RGRtZzdpMGhjNjdvMXZqb0xqdG0zSGtPRk15dUUxd3VqRUhPbHRycFRuajlo?=
+ =?utf-8?B?eVdqMkFUeVlqSjdJb1NHSFo3a2M4eUVYbVo0eUJEUEZIMTRaNUh1RWVLTVJn?=
+ =?utf-8?B?NlZFaTFSbnU1ZUM4VXNLeXJWZTF5TmNSc21Lc1duTUsreGhKTkdEQTljZnBU?=
+ =?utf-8?B?UGdCMFJyZTRTZ0tuYkhJbW55MG51eVRSYytiTkd0Y1JRMnQwM0s2OWdhS2dD?=
+ =?utf-8?B?SEl5cDBrQ0NKRytFb20vZEV5ZTJRN0hEaU51Nmc4NDdNQUhKU290YkFPNzNB?=
+ =?utf-8?B?aEMwQ24rM2xHMy9yMzk1SFQ2cWxEeFRKb25ZT1Q2OUNIRWg1dDdRUXFRaW9L?=
+ =?utf-8?B?bXJlME1UTzFJMmpLOXFYTWJQeWtxMmJ2ckpmNWhZbnNhbDdQNjJLWHdaV0hS?=
+ =?utf-8?B?c2lhNXRtM1NLOXd2ejF6eThab0RlMCt0UFZMcm9pZ05ad1Z2R0FFekFsTnF2?=
+ =?utf-8?B?T0c2czdYaHRHcS9HT3YxcFkvQUwzaE1IaG91bmpTb0NQcUN5M2YySUdXbEVJ?=
+ =?utf-8?B?RTMvb29YRm9NY3VoN3FpQXBFczFDMForUjFGN0ZPbGVFN3JNOW12UzBJMU5Q?=
+ =?utf-8?B?SnhRUlViMXNmZlk4ekdrd0NRUnIvaTd2L05KSzdSV1VXeVRMZERFTFdqQkxF?=
+ =?utf-8?B?UkpHeU82ZWRQTk1renFxNkk0SHdEeDVtOTBRVHUvRWhNcG43VW1NMDY2WXZV?=
+ =?utf-8?B?OHZrcFp3a1dXbmpTaGxGQ2d6aEsyYSt1MzUxNGlCdTVEMk5nOU1VcFk0T3NW?=
+ =?utf-8?B?NlFtWkV2WUg0dDArb2JqbFdnL1o2dGZZV1RGeWhmLzhMa0VvZVE5VnRTMGhk?=
+ =?utf-8?B?cnExSFhtMCtQWnBGVkRoUFpyd1Vpb2FWSFh1bVJhZDVsSHExcnVCMy84Y2p1?=
+ =?utf-8?B?WVVVUytkcnRpVm1LZnNSTVdMZ3ZubWlyT0hRaEJEZ2tJbmdybDZiYi9LZTZK?=
+ =?utf-8?B?MHhvSitqcHNlU1plV0wxdFk1TElVbWNNZzNSSVVPcWxieERjeHd5TVVEblVS?=
+ =?utf-8?B?NjNqbG80dm1UZzBVQUVTUlBuV1lEcjg2RG5McGN5QVNTNmV4bEZvNncxUzVz?=
+ =?utf-8?B?Smt3dEhLQ0J6NlBUSThWOHRjdDc1ekhUcm51TnQ2dCttMW5mSE02cnZJZ3pZ?=
+ =?utf-8?B?V2RQRjVDcnZuYUpXQUhOb0V4U0kxTjZHRjQ4MnRjOGlOY3d3dkNwQ29JZ1Rn?=
+ =?utf-8?B?SEl0WHNpMmZ4QUF5bkMyMFFFb0kyNGJCckgycUV6ai83cHJXWG53RUFBNUVS?=
+ =?utf-8?B?QW9KZEJYWWY5TWlTalR1clVudXZPVWtMZmtacUVPSUFaRnIrK0VVNWY2b2Jo?=
+ =?utf-8?B?TmdNL0E5MzBsdEIrajFvNURGczFEbTJwMjd6dEZOUGlnY2E5bWZCRGdPSDQw?=
+ =?utf-8?B?ZkhsZ0VBZlh2a2k1WHZFakZRNXhMNDVCR0dsOUlKYWhlOWxFOXpEdis4VHlK?=
+ =?utf-8?B?UVBBR1JpNjZJNGE3d3hyYXg4RFNnaU82WUMrVzNvbDNvUFZQYUxQTlRzanpm?=
+ =?utf-8?B?UDBRTmtVa3Zmakx1UDhmZ2EvZ3o2YU9MTkc4ejI0Qm9UNzMwMmtQdmhLR05E?=
+ =?utf-8?B?QmFBcko2SW1JdXdEMFAxS0lvU09sbkFsbUluLzdQQUpjTWx2NUptUEVZUkh6?=
+ =?utf-8?B?b1E0NnIveUxFZUxuVDI2aDIwekdOTVVQbk1zMnR5Z0xsc09Sc0JOcFl6REh5?=
+ =?utf-8?B?ZGdTaW9yWXpHOXFFbUllVVBxK3JHZGRVS2x4THplemxlTTlIc2gwMVFON3ZS?=
+ =?utf-8?B?N0RPbVBjQWhIR3gzT1RSdHphZWZaeUJYU3Vld2dJYmJJSUNZWWdZM2duZi9X?=
+ =?utf-8?B?Q29zK3A5YnlyK3JNZ3NNblVHbVIwNDlyS2pCZnh4NVFYNUdpeElleG9aL0xL?=
+ =?utf-8?B?OEx2cW02aFlDS2tGRTNRdjYzWkVzOVpoRXEvaHR4NmxDMXdGdEhLL0EzMFpF?=
+ =?utf-8?B?K1pmQTE1UjJmZkdEVktZTmtsZXFXWEwzd05lOXNiK0luR1djRTNCYVQyczZ5?=
+ =?utf-8?B?MmI2UG5jbER0SmoyUHFiZVppaS82Wm9iTHl6cStaWDdYSVpQVDJUVUYwMHdz?=
+ =?utf-8?B?dHRJR2lGazY0amtzR3JsZVlOQnJ2ZHNtZnlzUFFnS3J5MXZzbkxHZVU1Q0Vx?=
+ =?utf-8?B?UHk0UlJ3SVBHMTYvQ0pqZm9YWHIzRlBGRUthOWVkUVdFV3N0MWRWVTkveTQ0?=
+ =?utf-8?Q?geY4jxUtWORySendOiErah4HFyoLoCO+5p21ZqnZX8Z1q?=
+X-MS-Exchange-AntiSpam-MessageData-1: GuIorKWe+R5kozVtVbFpP4hQYsuOT3hDCPA=
+X-OriginatorOrg: os.amperecomputing.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: dd9c9313-6451-4c29-5b96-08deb67ccd3a
+X-MS-Exchange-CrossTenant-AuthSource: SA1PR01MB8179.prod.exchangelabs.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2026 14:33:47.3128
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: VoGhFn9BEum5EoiLU5oj+ezy7qi2ERoLZUzCFpgA/XfxmLiMFkp18we7y6kdeuWcxv//UT8vVOUFl9M8jiCNGLXLxr0omb8yJq9inl82gms=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SAWPR01MB994493
+
+Hi,
+
+I'm checking in to see if there are any comments on v2 of my patch set.
+Since it been a while since I sent the patches, below is a reminder of
+where things stand after the maintainer comments and my responses on v1.
+
+v2 is no longer using the SMC CC SOC_ID Name as a proxy/override for
+entries in the CPU parts table(s).  While it would be nice to not have
+to update the CPU parts tables when new SMC CC compliant SoCs are
+created, it would only have worked if all CPUs of a given SoC are of
+the same type.
+
+v2 will display the optional SMC CC SOC_ID name in a manner similar to
+how the "BIOS Model name" is displayed.  the "SMCCC SOC_ID name" and
+"BIOS Model name" strings will not necessarily be similar as the SoC
+and system/firmware may be produced by different companies/
+organizations.
+
+v2 corrects the names of the 2 existing entries in the Ampere Computing
+cpu part table.
+
+Regards,
+Paul
+
+
+On 2/11/2026 4:23 PM, Paul Benoit wrote:
+> On ARM SMC CC 1.6 compliant systems, output the optional SMC CC SOC_ID
+> name if available.
+> 
+> Vendor ID:                   Ampere
+>    BIOS Vendor ID:            Ampere (R)
+>    Model name:                Ampere-1a
+>      SMCCC SOC_ID name:       AmpereOne (R) A192-32X
+>      BIOS Model name:         AmpereOne (R) A192-32X CPU @ 3.2GH
+> 
+> Signed-off-by: Paul Benoit <paul@os.amperecomputing.com>
+> ---
+>   sys-utils/lscpu-arm.c | 38 ++++++++++++++++++++++++++++++++++++++
+>   sys-utils/lscpu.c     |  2 ++
+>   sys-utils/lscpu.h     |  4 ++++
+>   3 files changed, 44 insertions(+)
+> 
+> diff --git a/sys-utils/lscpu-arm.c b/sys-utils/lscpu-arm.c
+> index ed255a3c7..f388080ad 100644
+> --- a/sys-utils/lscpu-arm.c
+> +++ b/sys-utils/lscpu-arm.c
+> @@ -11,6 +11,7 @@
+>    * The information here is gathered from
+>    *  - ARM manuals
+>    *  - Linux kernel: arch/armX/include/asm/cputype.h
+> + *  - Linux kernel: Documentation/ABI/testing/sysfs-devices-soc
+>    *  - GCC sources: config/arch/arch-cores.def
+>    *  - Ancient wisdom
+>    *  - SMBIOS tables (if applicable)
+> @@ -460,6 +461,41 @@ static int arm_rXpY_decode(struct lscpu_cputype *ct)
+>   	return 0;
+>   }
+>   
+> +static void on_smc_platform_get_socidname(struct lscpu_cputype *ct)
+> +{
+> +	char *machinename = NULL;
+> +	char *soc_id_jep106_id_str = NULL;
+> +
+> +	/* On systems that support SMC CC (Secure Monitor Call Calling
+> +	 * Convention, get the SOC_ID name.  The Linux kernel obtains it from
+> +	 * Trusted Firmware via an SMC CC call, and sets
+> +	 * /sys/bus/soc/devices/soc0/machine _PATH_SOC_ID to this value.  lscpu
+> +	 * will obtain the value from there.
+> +	 *
+> +	 * Documentation/ABI/testing/sysfs-devices-soc, in the Linux kernel
+> +	 * source tree, gives insight into detecting a SMC CC compliant system
+> +	 * by checking that start of the _PATH_SOC_ID value for "jep106:".
+> +	 */
+> +	ul_path_read_string(NULL, &soc_id_jep106_id_str, _PATH_SOC_ID);
+> +
+> +	if (soc_id_jep106_id_str) {
+> +		if (strncmp(soc_id_jep106_id_str, "jep106:", 7) == 0) {
+> +			ul_path_read_string(NULL, &machinename,
+> +					    _PATH_SOC_MACHINENAME);
+> +			if (machinename) {
+> +				if (strnlen(machinename, sizeof(machinename))) {
+> +					free(ct->socid_name);
+> +					ct->socid_name = xstrdup(machinename);
+> +				}
+> +
+> +				free(machinename);
+> +			}
+> +		}
+> +
+> +		free(soc_id_jep106_id_str);
+> +	}
+> +}
+> +
+>   static void arm_decode(struct lscpu_cxt *cxt, struct lscpu_cputype *ct)
+>   {
+>   	if (is_live(cxt) && access(_PATH_SYS_DMI, R_OK) == 0)
+> @@ -468,6 +504,8 @@ static void arm_decode(struct lscpu_cxt *cxt, struct lscpu_cputype *ct)
+>   	arm_ids_decode(ct);
+>   	arm_rXpY_decode(ct);
+>   
+> +	on_smc_platform_get_socidname(ct);
+> +
+>   	if (is_live(cxt) && cxt->is_cluster)
+>   		ct->nr_socket_on_cluster = get_number_of_physical_sockets_from_dmi();
+>   }
+> diff --git a/sys-utils/lscpu.c b/sys-utils/lscpu.c
+> index 4556aa6df..cd2d00312 100644
+> --- a/sys-utils/lscpu.c
+> +++ b/sys-utils/lscpu.c
+> @@ -895,6 +895,8 @@ print_summary_cputype(struct lscpu_cxt *cxt,
+>   		     struct libscols_line *sec)
+>   {
+>   	sec = add_summary_s(tb, sec, _("Model name:"), ct->modelname ? ct->modelname : "-");
+> +	if (ct->socid_name)
+> +		add_summary_s(tb, sec, _("SMCCC SOC_ID name:"), ct->socid_name);
+>   	if (ct->bios_modelname)
+>   		add_summary_s(tb, sec, _("BIOS Model name:"), ct->bios_modelname);
+>   	if (ct->bios_family)
+> diff --git a/sys-utils/lscpu.h b/sys-utils/lscpu.h
+> index 0fae5d29e..b8011bc55 100644
+> --- a/sys-utils/lscpu.h
+> +++ b/sys-utils/lscpu.h
+> @@ -46,6 +46,8 @@ UL_DEBUG_DECLARE_MASK(lscpu);
+>   #define _PATH_SYS_NODE		_PATH_SYS_SYSTEM "/node"
+>   #define _PATH_SYS_DMI		"/sys/firmware/dmi/tables/DMI"
+>   #define _PATH_ACPI_PPTT		"/sys/firmware/acpi/tables/PPTT"
+> +#define _PATH_SOC_ID		"/sys/devices/soc0/soc_id"
+> +#define _PATH_SOC_MACHINENAME	"/sys/devices/soc0/machine"
+>   
+>   struct lscpu_cache {
+>   	int		id;		/* unique identifier */
+> @@ -119,6 +121,8 @@ struct lscpu_cputype {
+>   	size_t nr_socket_on_cluster; /* the number of sockets if the is_cluster is 1 */
+>   
+>   	char	*isa;	/* loongarch */
+> +
+> +	char	*socid_name;	/* aarch64 */
+>   };
+>   
+>   /* dispatching modes */
 
