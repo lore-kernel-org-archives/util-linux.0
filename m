@@ -1,81 +1,91 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B5FE3A874B
-	for <util-linux@vger.kernel.org>; Tue, 26 May 2026 16:00:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC84E37F8C2
+	for <util-linux@vger.kernel.org>; Sat, 30 May 2026 09:49:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779811239; cv=none; b=WfJzP+dj9zrNh7U4H7GitvJXBI8oH7onTcRIgZEJLggqyQ2eL0E71MU4pBc1gt957AFtPkvCatlF6c1uwO/L20A+ObA9aLpcV8Mxe8+HEMW0LGffDgdNkvShlUpd2f4FEBHpOnE0vHCRY/43hKGD72dmXHV8En1mcai6PYG1z2g=
+	t=1780134594; cv=none; b=R8Kg5sAyGVpx4UCdyzvlkAJg7xj4VaE4LCJiIoI6SsgsSvwTJXYXYjvlfKStyNOh10sLgdM6Af6k9H8+rARkmrK9QdexI1iCikQX71lDV4n1B9ENgH+9XwrgyZXx6LtD3jXi8Qf0Q2yhXoxfuAklk4FaZmOMEh3XT00kBkke/BQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779811239; c=relaxed/simple;
-	bh=JYCIrKst6ZLSKaLeBFBzxnDeHMzPwp65lRPFZ7r7auQ=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nA5mQYFp5g0aUIReJUt58vd6UXqg/WC1BpbRmxVvBk8lJb5Wsollp57Qk4URq2MGXWk0hQ75rwZMsRuvP+Ue5RQ/Y9xAad30ktcvet+tKw6jKrQ09eXBvDld5AMknlX9aqj/BVs/0zjMZwMBrEfRjnW5DyLj1v4acJA46zOjyH8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=goeXKdK8; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1780134594; c=relaxed/simple;
+	bh=sYuVg5H8qMbuKaiZKfoMgvpbOwjWdic+ywKLiMcxcvE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=u3YdcHn7ZmBjyl5ebMXj8eOclBjqiMXdtUPQZfEYCXMhdqa7J1wCJnwaR302RrkCo6yRmHb3FAI2uQ34qYKxjpt64AsyUBliPZhCDIwyVWhWjC2Up9wt+E9vnvA+PPeXuxSORfTRSUHFoWKx5PeHsfOYK6gl5N2VEvgjdFwgI5E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=L11OBsgv; arc=none smtp.client-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="goeXKdK8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1779811237;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=aa+zlvWYA8QVvyYxTxGnVJhUMYseXWUv4k/9gmBDUcg=;
-	b=goeXKdK8PnbMOSPQ3TZrTJ+RQELY41JUUVMlrHxPbTNZf9AiF7016ThLW4VcO1SVveE0rI
-	t80CJYlQ0nLd8mMwHgwcAc75Q2bh5ndV9uiCGfylIPpbepS7Sd2xim/huUnz70jeSX/seR
-	qHnStePZHIvfySGEuVaSJGODVo8r7ec=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-588-EJoeNbnPMyu6pW3tnMyPrw-1; Tue,
- 26 May 2026 12:00:35 -0400
-X-MC-Unique: EJoeNbnPMyu6pW3tnMyPrw-1
-X-Mimecast-MFC-AGG-ID: EJoeNbnPMyu6pW3tnMyPrw_1779811232
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 01D1418005BA
-	for <util-linux@vger.kernel.org>; Tue, 26 May 2026 16:00:32 +0000 (UTC)
-Received: from ws (unknown [10.44.33.237])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 20B2A300019F;
-	Tue, 26 May 2026 16:00:30 +0000 (UTC)
-Date: Tue, 26 May 2026 18:00:28 +0200
-From: Karel Zak <kzak@redhat.com>
-To: util-linux@vger.kernel.org, Karel Zak <kzak@redhat.com>
-Subject: Re: Repost: [PATCH] Secure login and sulogin on S390x
-Message-ID: <eapscxbug6aosaxj7z2i4a66hsg6h7kateta72oq6dd6o43cae@xxvcyjnrow5i>
-References: <20260429092825.17623-2-werner@suse.de>
- <afjqh57bXkLJ_FKr@zeha.at>
- <afm64TLjowwedG4l@boole.nue2.suse.org>
- <ag7Mi1xhgyHjWhNn@boole.nue2.suse.org>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="L11OBsgv"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-04.galae.net (Postfix) with ESMTPS id 28848C6246B;
+	Sat, 30 May 2026 09:49:44 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 028536073B;
+	Sat, 30 May 2026 09:49:43 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B081310888054;
+	Sat, 30 May 2026 11:49:41 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1780134582; h=from:subject:date:message-id:to:cc:mime-version:
+	 content-transfer-encoding; bh=XfDC+Gu+rbghAhtTaHjj4569TxJ3M0wucS16Ah6F1Qg=;
+	b=L11OBsgvRs5LfY8cp83PQooc1Tx9SEXGawnwSQFZ1l02tgrAcbI36cYx3dUq14VQof88+A
+	9Hb8VVHjE5Jh7+KRR7hmjRm+tSUwcBl7S88noJVhldCkIcGEPM+JhZbg1TmwICoGmrChgS
+	507y51FSCSzK1wakQYvdQhAhbDLAcKe1NpmCwHKK/Vf2txT6f29zgvN5LNS2S8WebQSz/a
+	hkCghx5TH8TBMyCV+2PAZm/GbQuf5b0urPWTdzBafknF4uKdyd/yJr3B3FpxdgICSCJBHc
+	wPuymQpDfiTYrpjqJjcwx0ke5eR81xsUgyFWyBmiDQQGqTqes8fxbK0YmgGNqA==
+From: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+To: util-linux@vger.kernel.org
+Cc: Shubham Chakraborty <chakrabortyshubham66@gmail.com>,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Subject: [PATCH] include/mountutils.h: fix LSMT_ROOT definition
+Date: Sat, 30 May 2026 11:49:32 +0200
+Message-ID: <20260530094932.2351791-1-thomas.petazzoni@bootlin.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ag7Mi1xhgyHjWhNn@boole.nue2.suse.org>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
+From: Shubham Chakraborty <chakrabortyshubham66@gmail.com>
 
-Hi Werner,
+Commit
+ded434a63f3eee7fd7805b18d6c9bb912016c3c8 ("include/mount-api-utils:
+add statmount and listmount") introduce a fallback definition for the
+LSMT_ROOT defined, but a small typo makes this fallback definition
+ineffective:
 
-On Thu, May 21, 2026 at 11:12:39AM +0200, Dr. Werner Fink wrote:
-> just to be sure that this change for s390x does not fall down behind.
-> Are there some changes required?
+ #ifdef LSMT_ROOT
+ # define LSMT_ROOT ...
+ #endif
 
-Sorry for the delay. I have pushed it to GitHub for CI to check:
-https://github.com/util-linux/util-linux/pull/4325. I haven't had time
-to work on it further.
+Should obviously have been:
 
-    Karel
+ #ifndef LSMT_ROOT
+ # define LSMT_ROOT ...
+ #endif
 
+Signed-off-by: Shubham Chakraborty <chakrabortyshubham66@gmail.com>
+[Thomas: improve commit message]
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+---
+ include/mountutils.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/include/mountutils.h b/include/mountutils.h
+index 9eba451d4..057a29d90 100644
+--- a/include/mountutils.h
++++ b/include/mountutils.h
+@@ -371,7 +371,7 @@ struct ul_statmount {
+ /*
+  * Special @mnt_id values that can be passed to listmount
+  */
+-#ifdef LSMT_ROOT
++#ifndef LSMT_ROOT
+ # define LSMT_ROOT              0xffffffffffffffff    /* root mount */
+ #endif
+ 
 -- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+2.54.0
 
