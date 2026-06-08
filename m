@@ -1,57 +1,54 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85DC63382CB
-	for <util-linux@vger.kernel.org>; Mon,  8 Jun 2026 11:01:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 267B233F390
+	for <util-linux@vger.kernel.org>; Mon,  8 Jun 2026 11:12:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780916468; cv=none; b=FQ2KCMYD0n4q1tyn8WTAy43CruI748M/lDD0gF/+G++SqPuuagbMJjn/G8q7Yv3Spqen2IWkl5G4z7D6yBaovFGC6AFggPpM4cUjGsFbJ9R4pwmabO2TBYh1x1chGOQ0pm6YI1c+kNi9KijKo/q4/uBmCnGgVK3QdsPKMTrp6N4=
+	t=1780917144; cv=none; b=OKouap02ovh7EB4pNCHiYPSL0QGHsETBeQoQESIvwS2oQwLAjaAdQ2qV5OsRrkcRI4VQj1zXbDCurAViCTNu2tXYhLILE5lvLots5Z0KrJ8/w50p16Vd6yk8HCq68Atg8ZglYC/xINgsoT2slXJsHrU+q4XhVvOdHrlBTC3Wowk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780916468; c=relaxed/simple;
-	bh=aNov1iHDJ937gk0LpyeUdzO6g9A1t0YXHsOESzpMr/M=;
+	s=arc-20240116; t=1780917144; c=relaxed/simple;
+	bh=yTgVG2RK3pDTUieH3kogO0rGlSDj6c4IMbao+eR7l08=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eSjWcBC75UpTCr+bUfA20pHFFwlhmVID2D2UyAbHpqDVUiDheEQT4AigY3OJTeQvjPpkiHBCJjGMUu4xVj7CmkdKJzAuYtlBy0Dmbwu2Sghqh3CNethvkWn6hKgRlA6+DrqiPOMmAoZWenYOkN7DmdYpPBrgPfya7xN6EJC1tQk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eUrC/EZs; arc=none smtp.client-ip=170.10.133.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=gM5cjKqbK8VUKuPaLawC3LNfu+dl9occnVl+W3Emyy1JPc4xTx4votJR1p7NK4s9EoQlcoIE2ZrBS+/953Mmq9urNUYx4y1/aS8IS5YiAi1/zNx7wvOW46N8goBhjGNF7Ry2GrCUI3DY5bZwtyHu/VWcPc9IEeHKwFrSoW8GXvw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KB2cE9bR; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eUrC/EZs"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KB2cE9bR"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780916466;
+	s=mimecast20190719; t=1780917140;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ChNcmOb/25r5ghm/La3zXNbiqjxSymOigz/hxgoYXZw=;
-	b=eUrC/EZs8tOYzDKAP+VJFoJPID5LQ6FdHCmlHo7sOqdPi2ZiTQOW8etkFhVonvbQ0hgzCp
-	wdqEQEcvf7MrFpVB8VKv1EBIS8Dd/6uUuP8m3Ml1aqfBIejoa/Z6U0z8jYDdZgv9paULai
-	fvsEpl886eVeXkd9ASUwsllqi52Ytw8=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+	bh=Py3LHSyRWF59HAJ617l/zDs2L1BoODHr0Leqwm/Qpnw=;
+	b=KB2cE9bRcKuWz7lOgZY9k+vHZuhm9yX+njPtmyU0yFvzrrbbJ7w3xaDqGI+b7MsPaRsxd4
+	yaelq5Od69vJcT3GCS8IeOA1Q1Ou0R7wUbXqF81jruddLuCc+qENNosZfTvC09Om2uDHxJ
+	nAuaoqEoWRzN89bEjXwlar//qPb6Y28=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-20-6I7nXhIwPVqdW-dJVvVVYA-1; Mon,
- 08 Jun 2026 07:01:04 -0400
-X-MC-Unique: 6I7nXhIwPVqdW-dJVvVVYA-1
-X-Mimecast-MFC-AGG-ID: 6I7nXhIwPVqdW-dJVvVVYA_1780916463
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-364-1Dh3HZYoMCeV4E9pODtjpQ-1; Mon,
+ 08 Jun 2026 07:12:17 -0400
+X-MC-Unique: 1Dh3HZYoMCeV4E9pODtjpQ-1
+X-Mimecast-MFC-AGG-ID: 1Dh3HZYoMCeV4E9pODtjpQ_1780917136
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 794B81955DAE;
-	Mon,  8 Jun 2026 11:01:03 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A6AF419560B0;
+	Mon,  8 Jun 2026 11:12:15 +0000 (UTC)
 Received: from ws (unknown [10.44.33.159])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id ED55F180034F;
-	Mon,  8 Jun 2026 11:01:01 +0000 (UTC)
-Date: Mon, 8 Jun 2026 13:00:58 +0200
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B2F973008B34;
+	Mon,  8 Jun 2026 11:12:14 +0000 (UTC)
+Date: Mon, 8 Jun 2026 13:12:11 +0200
 From: Karel Zak <kzak@redhat.com>
-To: Chris Hofstaedtler <zeha@debian.org>
-Cc: util-linux@vger.kernel.org, 
-	Johannes =?utf-8?Q?W=C3=BCller?= <johanneswueller@gmail.com>, 1138789@bugs.debian.org, debian-loongarch@lists.debian.org
-Subject: Re: [PATCH] mkswap: use 64k pages in file-existing test
-Message-ID: <vwrh76odob5kr7mdtatgsuqrftfybisieyhb3dmgch5y4rdukq@6zmqirjnhewi>
-References: <aiCHUJ8pmy_Atx2S@per.namespace.at>
- <aiCHUJ8pmy_Atx2S@per.namespace.at>
- <aiCI1IeBms90Uzy0@per.namespace.at>
- <aiFqhPSChxTxAuZv@zeha.at>
+To: Benno Schulenberg <bensberg@telfort.nl>
+Cc: util-linux@vger.kernel.org
+Subject: Re: [PATCH 1/3] lsmem: (usage) list possible values for <when> like
+ for the other <when>
+Message-ID: <5zni7ahfvmnhsid7f4we74hrlmga6itznrsjj4sjurydin4sm2@4jqk36onqhgb>
+References: <20260604095252.162210-1-bensberg@telfort.nl>
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -60,26 +57,14 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aiFqhPSChxTxAuZv@zeha.at>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+In-Reply-To: <20260604095252.162210-1-bensberg@telfort.nl>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-On Thu, Jun 04, 2026 at 02:20:56PM +0200, Chris Hofstaedtler wrote:
-> Some systems run with kernels using page sizes other than 4K. The
-> file-existing test used a file of 10 pages at 4K. This would fail on
-> kernels with higher page sizes (here 16K) like this:
-> 
->   mkswap: error: swap area needs to be at least 160 KiB
-> 
-> Use 10 * 64K pages, hopefully allowing all kernels with 4K, 16K, 64K
-> pages to pass the tests.
-> 
-> Noticed on Debian loong64 kernel 7.0.9+deb14-loong64, and on sparc64 and
-> alpha.
-> 
-> Bug: https://bugs.debian.org/1138789
+On Thu, Jun 04, 2026 at 11:52:50AM +0200, Benno Schulenberg wrote:
+>  sys-utils/lsmem.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-It was already fixed by commit c5da6dcfe, which explicitly forces the
-page size to 4096 rather than extending the file size.
+All three patches have been applied. Thank you!
 
     Karel
 
