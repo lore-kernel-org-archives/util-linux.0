@@ -1,91 +1,102 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A309638947F
-	for <util-linux@vger.kernel.org>; Mon, 13 Jul 2026 11:19:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98CBF360EF0
+	for <util-linux@vger.kernel.org>; Wed, 22 Jul 2026 14:41:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783941587; cv=none; b=BIM1Aksum9SSVRJk3flBjzr0DEwxLNiiDBgQCYWFOo6QqI/UfmB8NmHw7/aNwc2sNaNlevwyHrPvcGDuYGbswd7qd4f6sBT5yeEaLYxHlkiufW1tMNZ9dk5G7ysA/W5QUyNlX5lbuJWTBpmoqoqY14eqAx5BYIWYZFAz02ku2jU=
+	t=1784731311; cv=none; b=tYldHSx9OfALL8gAMJv7ob2fzdk1vuBkJzBEpdZyCCtDK4vh45w6uVAR+Tt9iDMna+swxCh3qqKyn8cmKBOdUdCwN98JQ307bP3zyWH/2mF4zb2H2V4RxIqQfSaBIcZbU/zp8GkFwdEByNLfMd/0RjLB8D2UroQPFkecUM5hZBk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783941587; c=relaxed/simple;
-	bh=KK8GUCvzLyXZkPZPFRnC5KFadY/n4OKQjF+orXtTBXU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=T711F/Q8QHt2CD1bJumd96UXN8kUy8bV2RP5bGhIxlie2e6flLml3Rfu5LyMQ3qWfjgcpuNM+7UdqyrMwnom3yHNmb0TcZF6FtXw0jrSWg8KCzdhggunYKdCk9rxDrI7mkM2Jw/L+J3Zv9A6AQQK7ZxITa82q9ze4H/FahNEj6c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HKDipZeG; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1784731311; c=relaxed/simple;
+	bh=6qu8zI0StWWzeicuix5Z8VMGDqVVcXVMzQ/FXPv8HTs=;
+	h=Message-ID:Date:MIME-Version:To:From:Subject:Cc:Content-Type; b=VR6psuSS82mLwA6ED1aDk1i7xVkIyvzPR6Racfq3oNUpqKYp1U1YheDj5GvcfQbh7GJoZ2Q3gyElW8aGvsmnUrycNCxjnqAQSwf7InKjInm3ALdXtAeN8v8pb4Ty+zsLEjmL9d7nrL5p1rn7WnmLc6VTepEy6S5VbvYUAddJAdg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl; spf=pass smtp.mailfrom=telfort.nl; dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b=nsTIuya2; arc=none smtp.client-ip=195.121.94.168
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=telfort.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=telfort.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HKDipZeG"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1783941585;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=16NZ6aQ98etlNmUMHl5Mc84K6CJGytPIGnX1qQ6pS6I=;
-	b=HKDipZeGre5E5a61+Q+TRtZSxsgSZ6J5dqJXnJ1bGRZU8VykoKA9FofBM+aX1k2A0CvkQ9
-	mNQFee9iNTEwrJWaTTlXDTNI/TXbnZJIF3fRxAludys0yJIfMBVYoKMGtL9gbgR+wfGwaL
-	SAav5YXKoCWJwX9Lnz5YC0cSwWXM724=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-564-6Qdi2CzbN3G6ikdk7lGkbw-1; Mon,
- 13 Jul 2026 07:19:41 -0400
-X-MC-Unique: 6Qdi2CzbN3G6ikdk7lGkbw-1
-X-Mimecast-MFC-AGG-ID: 6Qdi2CzbN3G6ikdk7lGkbw_1783941580
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B452F1800A7B;
-	Mon, 13 Jul 2026 11:19:39 +0000 (UTC)
-Received: from ws (unknown [10.44.48.230])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 592883000B50;
-	Mon, 13 Jul 2026 11:19:36 +0000 (UTC)
-Date: Mon, 13 Jul 2026 13:19:33 +0200
-From: Karel Zak <kzak@redhat.com>
-To: Dirk Gouders <dirk@gouders.net>
-Cc: Chris Hofstaedtler <zeha@debian.org>, util-linux@vger.kernel.org, 
-	Marc Lehmann <debian-reportbug@plan9.de>, 1141670@bugs.debian.org, 
-	=?utf-8?B?0L3QsNCx?= <nabijaczleweli@nabijaczleweli.xyz>
-Subject: Re: Bug#1141670: util-linux: very slow code and undefined behaviour
- in handle_interrupt
-Message-ID: <n7333tlqiptjevj7gkmjarerqicrev2bnme7zjeg7bxoi2qbwe@vsjsiomhkzkp>
-References: <178350371646.36377.6056214111743171473.reportbug@cerebro.laendle>
- <alLEV6xOOwA1RzU_@zeha.at>
- <ghbjccr36z.fsf@gouders.net>
+	dkim=pass (1024-bit key) header.d=telfort.nl header.i=@telfort.nl header.b="nsTIuya2"
+X-KPN-MessageId: 7271d541-85db-11f1-861c-005056aba152
+Received: from smtp.kpnmail.nl (unknown [10.31.155.39])
+	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
+	id 7271d541-85db-11f1-861c-005056aba152;
+	Wed, 22 Jul 2026 16:41:38 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=telfort.nl; s=telfort01;
+	h=content-type:subject:from:to:mime-version:date:message-id;
+	bh=6qu8zI0StWWzeicuix5Z8VMGDqVVcXVMzQ/FXPv8HTs=;
+	b=nsTIuya2LQYmFVl00aUY+hVj0ysjtYfvq9Ttug0fP/nfrmNGUccGHu+gq1tT6K664djYQHeVc38Cj
+	 K57oa8j5vbf4Wpa6s6BFjzap+/uIz+iZTsQmX7BE17WUv2dGjIA1X//CWX2dTdlHDSsSJOoVuMMNeT
+	 7+b1SVP6CgXVdonE=
+X-KPN-MID: 33|uFX6uE+SkP3ccEaDWEexr7sTaepFMuPkIsylAdKmbifHkb8I2eLPHMyi//Cs9qX
+ pKDmWiJMxYwO9OrpL2jeKk+bDhF2B8J4ZzRqLpFmEymk=
+X-KPN-VerifiedSender: Yes
+X-CMASSUN: 33|/afzrWD4X/t1jFHnQ+PZnT3okP6zRChJa3PKBB0iTVkGSeg80FebPxiW+MZ02Lo
+ m5/+DPFPI8Y/bukCCWG4eFA==
+Received: from [192.168.2.23] (77-163-176-192.fixed.kpn.net [77.163.176.192])
+	by smtp.kpnmail.nl (Halon) with ESMTPSA
+	id 724d66a7-85db-11f1-a8b5-005056ab7447;
+	Wed, 22 Jul 2026 16:41:38 +0200 (CEST)
+Message-ID: <80a2f0de-b88c-4630-bb3d-bab24863fb18@telfort.nl>
+Date: Wed, 22 Jul 2026 16:41:38 +0200
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
 List-Subscribe: <mailto:util-linux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <ghbjccr36z.fsf@gouders.net>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US, nl-NL, es-ES
+To: Util-Linux <util-linux@vger.kernel.org>
+From: Benno Schulenberg <bensberg@telfort.nl>
+Subject: the offending %s in an sfdisk message translation
+Cc: Christian Goeschel Ndjomouo <cgoesc2@wgu.edu>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------AI9ElGvr5jfd8QDgCYu80nhX"
 
-On Sun, Jul 12, 2026 at 11:02:12AM +0200, Dirk Gouders wrote:
-> Hi Chris,
-> 
-> On Sat, Jul 11 2026, Chris Hofstaedtler wrote:
-> 
-> > the following was reported to Debian, regarding the hardlink
-> > utility. It appears to be an upstream issue. Maybe someone can look at
-> > it. CC:ing наб who seems to have touched the relevant function last.
-> 
-> it seems, this regression was fixed with:
-> 
-> 87831fa19 (hardlink: fix performance regression (inefficient signal evaluation), 2025-04-29)
-> 
-> The commit message says it improved performance by factor ten.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------AI9ElGvr5jfd8QDgCYu80nhX
+Content-Type: multipart/mixed; boundary="------------880v2LvafSpwBbv2b03suQwU";
+ protected-headers="v1"
+From: Benno Schulenberg <bensberg@telfort.nl>
+To: Util-Linux <util-linux@vger.kernel.org>
+Cc: Christian Goeschel Ndjomouo <cgoesc2@wgu.edu>
+Message-ID: <80a2f0de-b88c-4630-bb3d-bab24863fb18@telfort.nl>
+Subject: the offending %s in an sfdisk message translation
 
-Yes, it should be fixed in >=v2.41.1 and >=v2.42. Update :-)
+--------------880v2LvafSpwBbv2b03suQwU
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-    Karel
+DQpIaSwNCg0KU2tpbW1pbmcgdGhyb3VnaCB0aGUgbGF0ZXN0IGNvbW1pdHMsIEkgbm90aWNl
+ZCBlYmI3NDM4YTQ4LCB3aGljaA0KcmVmZXJlbmNlcyBodHRwczovL2dpdGh1Yi5jb20vdXRp
+bC1saW51eC91dGlsLWxpbnV4L2lzc3Vlcy80NDc0Lg0KDQpXaGVuZXZlciB0aGVyZSBhcmUg
+aXNzdWVzIHdpdGggbXVsdGlwbGUgUE8gZmlsZXMsIHBsZWFzZSBjb250YWN0DQp0aGUgVFAg
+Y29vcmRpbmF0b3IgKG1lLCB2aWEgY29vcmRpbmF0b3IgYXQgdHJhbnNsYXRpb25wcm9qZWN0
+Lm9yZykuDQoNCkkndmUgbWFudWFsbHkgZWRpdGVkIHRoZSBhZmZlY3RlZCB2aS5wbyBhbmQg
+ZGVsZXRlZCB0aGUgbWlzdGFrZW4NCiIlcyAtLSIuDQoNCg0KQmVubm8NCg0K
 
--- 
- Karel Zak  <kzak@redhat.com>
- http://karelzak.blogspot.com
+--------------880v2LvafSpwBbv2b03suQwU--
 
+--------------AI9ElGvr5jfd8QDgCYu80nhX
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEEFo5vQpe/16ea/USWUUu+Lrjhlh8FAmpg1qIFAwAAAAAACgkQUUu+Lrjhlh/u
+ig//XHJshgxq2urOLGEv8cpzcBNhQOTfZjtci1IxAOgsyL2uVLLRbhwzL6/74u/2PNt5FeksvV//
+UOvondBSRaZVqhF3Ck9mxztujqwbeR5+Epws5j9MmL6iKV1hEdobbnyn+JrqpayZh4FabhRuseTW
+7H8R6nFLGiYxYeH0cOwmpv50sZ/MJNZM8HpTF8zMf1EkCma+usvB9TPu85grQvrON6Z9wfc7YOK9
+aqkYOjGCEG6FR4rR9l+YTlc0O9Ns4yC7QprQIy5RmBry0wgdU9E6ft8wMoFHsYF8i+Es0mdtcYwk
+QPJos2jb8v0asv+LIUcbBa++er+plkvS66VyxzYqwmaOB1gQWDTOqldTljtwLownBdb6uxMgz03h
+xJlEwjO2p40XEfpYZA3utOa1+39bM9U6SBO5+M3q+vr1UHEU/ii2FBfJl2HQjWEVDzkAPmp1MJL+
+u/NPHH/kb8z/1X/DpgUSZnqkw+prdmq0WJyys7XaGn+hDkF2JvRK1zG0sg61C605LCe/vmP+iUGf
+fs1n27DXsCRTuBvyR1/9RghFxHm1qMGPZSk8BeMKy5QLMsqvl3/GYiGDFaiKNRzqRRhEZq6OBBal
+9fiENpgXXop0lzBhthR6gtoDEqpf4KD4J9PpRyC18X1Nr3VIh4Hxjshm7LMnU3GroLKURALWLrT3
+jMI=
+=8RFP
+-----END PGP SIGNATURE-----
+
+--------------AI9ElGvr5jfd8QDgCYu80nhX--
