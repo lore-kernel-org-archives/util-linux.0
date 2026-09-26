@@ -1,82 +1,40 @@
-Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7664381EA7
-	for <util-linux@vger.kernel.org>; Sat, 26 Sep 2026 10:16:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790417804; cv=pass; b=dS+mNiRz6GCJbZWnHK2jwqj6X/sTGBEO5SGl8prVOpthCqpnanxSH0pwgc5XWI8Lw0wHVwFH5NVTPuTNfctCceaB6PQ8Q3yjjTqQI0F0c4GLpnLLmyHAD1s6MUCfaV2SV0Kddfl0eKYEZ+2ntZducvICqRBAWAmRReg9dSjQKkI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790417804; c=relaxed/simple;
-	bh=DlFYvFJLECsxFthzw/eFkvSmzedTUmwOpzdBKfUM0K0=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 944C83A6B92
+	for <util-linux@vger.kernel.org>; Sat, 26 Sep 2026 23:32:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790465542; cv=none; b=Gqo7DvZh8ZT2cYTHsid0FHlXNE4zuR7Y/r5nwbZvW4MTv4do0x9xgx+drqYQav4AYJzrnYe9zRi7MFPqum6Wi+loGsMPm0HIcBa1eSfvmrmX9hHl4EdduXfezkSkPLI3fOcTxApHNHeR/dZGIu4oZqDMbzqPUBTcZH65lK2ZAn0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790465542; c=relaxed/simple;
+	bh=/4VC4x9PpIfi2jsGgmcRErzz+roJvLD2iHnoUCXfJK4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=uNfyDUqlH9XyG4hKgsN/k39GRALd1AeJ9YYs7RuXgxSjLMr4tEfN9C63Tiq53NDhyUKRL4WIxDrXoH/nzbnLnb48a2EedrwcZOxed3JSSs0Y2U27Y+14uIrqBbfUcRmrQ7g2pSc/9yE8P6CQpE/WHnBYPNKNyyPYgit1AyRiD8o=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LFrqVxqy; arc=pass smtp.client-ip=209.85.218.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=Q9bO838yUqFUBOAl1bVulvdcVw0xMBEJBxEGae21r2Dm3GcpsFSizduZry6to3kCF3vQp3lRsE8sdJW0Afz7XmmIUnHQV9+xbextEyD/qdseApv8vu9jGlZTdwoMgy1nCwZPFjGYfNloaYvBclHyuB3rVdqXkR6qbkeQRtKw9/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FQl52S2g; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LFrqVxqy"
-Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-c2946aa0d5aso377339966b.0
-        for <util-linux@vger.kernel.org>; Sat, 26 Sep 2026 03:16:42 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790417801; cv=none;
-        d=google.com; s=arc-20260327;
-        b=TJqdp9HKprXtGJl1WppQ7/hMbuZ/K92Lq7NMGun4+1kshJPiVJMMAUZw5M+G7I3fZw
-         PVuvrt5xxyB3XQa/3wk1eTFyQ4LFDLil1kj1cME7bsJ/p+eZMgq68ZB1IzbI8hdyG3dD
-         RVSXYU4FoOK3PuM8uHBou8kuI+E05C5zP5bFDma/bYrWsVR9l/c9TpJeDlflw83vuFE/
-         aDSYNG2dV3x1TJmDa4kTYo7sCGbTlZeshcq0ZUzqVS5igRzn9f29n2nffj2gX6pbZt9x
-         qrNX9jcOmrNDyPfokvfveY57cqhW+DUeKuydyId1t6RwZCcmLTzOa2hGNi9+aZNK2LVA
-         bxWw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=nuUo8zdKSoKE11B/ziniOjON7mdE/CfW6nfGNWVjAv0=;
-        fh=XpgTqjLdx48d6mfn5Ot3cy3pROhhGxDouxAkD1GxCOs=;
-        b=NEco6Vn5AEn+uDh4UstZaVOx5xGJ7lAGnqOq8ojUhV2LbIngd1Zfhe5mzXHuM4BXzs
-         GOdBC9ZHYs6gBiVpW7q32xMQ3Jtc90txBPA7HcAmjSym6lTyIg1fgMsZRQN+5dVRVh89
-         vRUdiTssSgjBZV/Ygl9QZWeiFnvBjpCsK9FhXjcjJ09u3c012kPnO+2tMyI2fwWUKP6P
-         vZXng94MsRkFgT8JbF8Um/3Rns7eUgp08VaojHD5prI4IJeguoeMDStbwkZM8j4DsFRc
-         823oNKfAZTPzpWiwr4rWOF13oREsZEDhzuC1D3U3EFeYloTN7ECPsGcJRxR+x6fBMCvb
-         zC1w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790417801; x=1791022601; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=nuUo8zdKSoKE11B/ziniOjON7mdE/CfW6nfGNWVjAv0=;
-        b=LFrqVxqyv19kzRnHMAXhI4vAik/aMNgEsVTx/84IesLwhxI7w5kcphx7vTNr58KQP0
-         LglTxfx1s/rQs1AxvYmLUpRQYCm2Lp7Cv9igFQ3wNeNpzNemzkmJgb5lUXceKTbkEQVd
-         ue6Dy28OjDCgXTKFM5d28OCJ4CmegTTe7AkpBS0HofQ2GN6ZXBBWEta+Hvf77O5qRFzD
-         ce1oQxToFYp3oIinFdBqmrJeoNzqadISTAz4RAGHvggGMaepTGJTGQRZvoh/Luu6kQML
-         1j/tz19Go6qEO5Ku5KMz7XjE3W5VfNjj2Vff7qdjtUbY41Uo3UXOsM5oWg9RJorWKQTh
-         7Oqw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790417801; x=1791022601;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=nuUo8zdKSoKE11B/ziniOjON7mdE/CfW6nfGNWVjAv0=;
-        b=hip/JWuX6tX9d59Z1N9miAwFdxyntO4ybzy3DaC3rZy62HhdrKT/JFmHr58XyBr4ek
-         J2prM4PXmTW3or019OoujKo/MjIs7FuPwKJzJQWPFHt398WH60l8fgUuTcnji8hQgRxF
-         /BoPnRJ9zPzc2AXmvqfDwidAG2xIXul/wk3VQiHLKVqYj5IfBvB9mt1FrWKSrgmwBHDG
-         7wIrLYOIpoPsC6JR/rQ6nJiHYkEl4O9RCplg8MomcZAM91887xriLPYQio7vAwUiPnY8
-         zDGaY4LYCEuhpQ3XnBbd8CgHDu8fPHybpaa0/bqmjugUvz8ULkl2BlADNdKyY9+tp0Ol
-         S7Aw==
-X-Forwarded-Encrypted: i=1; AKwUvByGANbuZozdsFYOXwEIrCN+QswLPZkbAom74Zf1YTRFDjf3ywRXUjtzZYb2qr6faf1D1EVYPBfAXPuF@vger.kernel.org
-X-Gm-Message-State: AFuF++n7nyPYb9vfQeEjHDRMVMR2QIIzQ1fsqq9q7jmFBCLbqqr0hSvk
-	Nhl5TKH151/io9reR4A6gc/K2ZFVFJzHHajWIx+GkJwJvC1oTo+kqb8e7NvhyJXkxLIAGpmc2d8
-	C3W8txiVd3pux7DPzjZbYoYgJ711/CtY=
-X-Gm-Gg: AYBFou17RHOeiNK7/OyJ6ULX1xt3/DgtTvdsOBbkFl1EXAow1ty3zeXG4PkFr2zrWfH
-	6foCuh1LTpqxm+b+m1d2fPpbv9/SavvChqBFO2QuPUEFZ4+t93Iiq096S/a3+POJZxUEoRH9Uhu
-	73WFDhiH7WrtLsG7M5zkTY4zJcPlWy0xoOehGS0AFsnhGTxYgQCmpqmGpitUDu0cdKnSqcARleb
-	0P0TGwNqISE0EEXnqn0zshtwlEUEe5MomZPsmbrtlPJY9AlWV/tWI+YNFT0+LMiMCeBtlIA3bNy
-	Bkjr6Di5v3ufNTOQlq9pUxY8rHAx5Fmr+mBWd2S5v1ykbhviYk98UH0c47C429h3ko0ViUQTJKF
-	qEVf4LE4vMYw=
-X-Received: by 2002:a17:906:dc89:b0:c26:3341:b8f6 with SMTP id
- a640c23a62f3a-c2ac23a79a0mr705591166b.31.1790417800888; Sat, 26 Sep 2026
- 03:16:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FQl52S2g"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 682231F0089E
+	for <util-linux@vger.kernel.org>; Sat, 26 Sep 2026 23:32:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790465541;
+	bh=nw4tcFFem5fMw8F25atJ8BPsyQyyVvwGckLrZIYusgw=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=FQl52S2gnnzhD3eRineO2XX9XDQ6Kiygr2rtxLbn+mzYmvup2yYofzxCBqAzD1mgD
+	 9qMKStS5s96sFJmpDawh6SY3zhVFLu5a2MVcHSOeLSrLzvn2/wTw3nS7wfM8hBKq8X
+	 6RMMD/KXyY8kQJDG3aOAd+vposPKknvlRFBcJ/9SRgd88ya6C8VGJ8mR2CjjVnrb00
+	 T6bM5VQq8aXApvmY0fBK8fhqV3Oi0J0/N5xGSbdxpT4shnhRaFVCI3jks5HbqJ0QM2
+	 kszfHyI2iqlWKnat6ybblTmVpHRgh60UEI98bghlE/5m31rdul5vLaqwhda1ln+t2Q
+	 4xtwlkQ11yI8g==
+Received: by mail-ej2-f43.google.com with SMTP id a640c23a62f3a-c2afb4e9977so172021666b.1
+        for <util-linux@vger.kernel.org>; Sat, 26 Sep 2026 16:32:21 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBxFS/NRqWsKQjpXggbyrIFswPkk9QdjVHMcAALjHBPXZOQKy9e6OUpVSGNKCzkjE7snGrNQMONcidhP@vger.kernel.org
+X-Gm-Message-State: AFuF++n7xOfRwV4RWc0O3l8a/ul4xvtewpa7G21n4QPETLDDTIQip9WZ
+	/V1QdyT22vKDoT/aBgEjbKmrIOYDf6josGvqgBIku2iNRUVwgPJFiRUNIuwqyncCWuPz2dgUOqO
+	UQFD1h5aK7+SZyVhRcOArpKxf72gG1GV665MN4Kxwiw==
+X-Received: by 2002:a17:907:962a:b0:c2d:ca32:2176 with SMTP id
+ a640c23a62f3a-c2dca3235abmr54019966b.8.1790465537433; Sat, 26 Sep 2026
+ 16:32:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: util-linux@vger.kernel.org
 List-Id: <util-linux.vger.kernel.org>
@@ -85,21 +43,22 @@ List-Unsubscribe: <mailto:util-linux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20260926045517.3458413-1-matthias.goergens@gmail.com>
 In-Reply-To: <20260926045517.3458413-1-matthias.goergens@gmail.com>
-From: Kairui Song <ryncsn@gmail.com>
-Date: Sat, 26 Sep 2026 18:16:03 +0800
-X-Gm-Features: AclHuK-9Dsy7rrAClr-629S5BXo_K2Hom1PYuYOl9rMJseRXC4FOvcoZCXsi7Gw
-Message-ID: <CAMgjq7B7jem_dwtUEX7ZJPQm_pKBegR6WS9+B7nFp-gZugpUng@mail.gmail.com>
+From: Chris Li <chrisl@kernel.org>
+Date: Sat, 26 Sep 2026 13:32:06 -1000
+X-Gmail-Original-Message-ID: <CACePvbWPLegjMtF4jYN4+_1ZeoEuBHwZuwNyMpYwPZaA0edO5A@mail.gmail.com>
+X-Gm-Features: AclHuK9AxoX5x-gecpb2ks2aU57CnhQ2g3FIIpOxpjBk-hgB0LOGfyaEJiKPKFM
+Message-ID: <CACePvbWPLegjMtF4jYN4+_1ZeoEuBHwZuwNyMpYwPZaA0edO5A@mail.gmail.com>
 Subject: Re: [RFC PATCH v2 0/4] mm/swap: reserve swap areas for deliberate offload
 To: Matthias Goergens <matthias.goergens@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Chris Li <chrisl@kernel.org>, 
-	Youngjun Park <youngjun.park@lge.com>, Baoquan He <baoquan.he@linux.dev>, 
+Cc: Andrew Morton <akpm@linux-foundation.org>, Kairui Song <kasong@tencent.com>, 
 	Johannes Weiner <hannes@cmpxchg.org>, David Hildenbrand <david@kernel.org>, Michal Hocko <mhocko@kernel.org>, 
 	Shakeel Butt <shakeel.butt@linux.dev>, Kemeng Shi <shikemeng@huaweicloud.com>, 
-	Nhat Pham <nphamcs@gmail.com>, Yosry Ahmed <yosry@kernel.org>, Barry Song <baohua@kernel.org>, 
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org, cgroups@vger.kernel.org, 
-	linux-api@vger.kernel.org, Alejandro Colomar <alx@kernel.org>, linux-man@vger.kernel.org, 
-	Karel Zak <kzak@redhat.com>, util-linux@vger.kernel.org, 
-	Jani Nikula <jani.nikula@linux.intel.com>, 
+	Nhat Pham <nphamcs@gmail.com>, Yosry Ahmed <yosry@kernel.org>, 
+	Youngjun Park <youngjun.park@lge.com>, Baoquan He <baoquan.he@linux.dev>, 
+	Barry Song <baohua@kernel.org>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+	cgroups@vger.kernel.org, linux-api@vger.kernel.org, 
+	Alejandro Colomar <alx@kernel.org>, linux-man@vger.kernel.org, Karel Zak <kzak@redhat.com>, 
+	util-linux@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, 
 	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
 	Tvrtko Ursulin <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>, 
 	Simona Vetter <simona@ffwll.ch>, intel-gfx@lists.freedesktop.org, 
@@ -111,37 +70,30 @@ Cc: Andrew Morton <akpm@linux-foundation.org>, Chris Li <chrisl@kernel.org>,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Sep 26, 2026 at 12:55=E2=80=AFPM Matthias Goergens
+On Fri, Sep 25, 2026 at 6:55=E2=80=AFPM Matthias Goergens
 <matthias.goergens@gmail.com> wrote:
->
-> This RFC adds offload-only swap areas for deliberate cold-page offload to
-> backends unsuitable for pressure reclaim. ZFS zvol swap has documented
-> deadlocks under memory pressure [3]; compressed swap is another target
-> because writes may need memory despite free logical slots.
->
-> Explicit proactive reclaim can use these areas alongside conventional
-> swap, ordered by priority. Ordinary reclaim cannot initiate non-zero
-> writes to them, including through retained swap entries. Conventional
-> capacity is not reserved for emergencies. Operators choose the policy;
-> the kernel does not measure headroom or make an allocating backend safe.
->
-> TMO/Senpai [4] and DAMON_RECLAIM [5] are related cold-page reclaim
-> approaches. This RFC admits offload-only swap through memory.reclaim and
-> per-node reclaim, but not DAMON. Other related work includes per-cgroup
-> zswap writeback control [6], Virtual Swap Space v4 [1] and swap tiers v10
-> [2].
->
-> The util-linux companion [8] proposes swapon --offload-only and an fstab
-> option. Older swapon silently ignores the fstab token, so persistent
-> activation needs discussion. Apply the separate i915 fix [9] first to avo=
-id
-> a pre-existing folio-lock leak when shmem writeback is skipped.
->
 > The series fixes zram selftest device tracking and error reporting, adds
 > the swap policy with DRM eligibility checks, and tests routing, workingse=
 t
 > activation and retained-entry write refusal. It is based on mm-new at
 > 995829088503.
+
+Hi Matthias,
+
+I can't find mm-new 995829088503 anymore.
+
+Your patch does not apply cleanly to the current tip of mm-new
+mm-unstable, or mm-stable branches.
+Do you have a git repo with your patch applied?
+
+mm-new is whatever Andrew can find on the mailing list, regardless of
+whether it has been reviewed. That mm-new branch is very unstable,
+even more so than mm-unstable, which should at least have some review
+already. Maybe consider using mm-stable or mm-unstable as base next
+time.
+
+Chris
+
 >
 > Feedback is particularly welcome on:
 >
@@ -230,18 +182,13 @@ s@gmail.com/
 >  tools/testing/selftests/zram/zram05.sh        | 447 ++++++++++++++++++
 >  tools/testing/selftests/zram/zram_lib.sh      | 189 ++++++--
 >  28 files changed, 1926 insertions(+), 94 deletions(-)
-
-Hi Matthias
-
-That's a lot of changes for a rather limited usage. IIUC what it want
-to archive is, for different kind of reclaim, swap operations should
-only go to certain devices?
-
-This really sounds like another usage of the swap tiering design: A
-default per-cgroup tier setup, and a one time tier limit during
-proactive reclaim.
-
-Just like we already have a "swappiness=3D" parameter in the reclaim
-interface, perhaps adding a "swap.tier=3D" would be better and much
-cleaner to achieve the same goal? Based on Youngjun's work here:
-https://lore.kernel.org/all/20260916183437.2946306-1-youngjun.park@lge.com/
+>  create mode 100644 tools/testing/selftests/zram/settings
+>  create mode 100644 tools/testing/selftests/zram/swap_offload.c
+>  create mode 100644 tools/testing/selftests/zram/workingset_offload.c
+>  create mode 100755 tools/testing/selftests/zram/zram03.sh
+>  create mode 100755 tools/testing/selftests/zram/zram04.sh
+>  create mode 100755 tools/testing/selftests/zram/zram05.sh
+>
+> --
+> 2.55.0
+>
